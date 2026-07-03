@@ -79,13 +79,13 @@ defineEmits<{
   click: [event: Event];
 }>();
 
-const isDisabled = useDisabled(() => props.disabled || props.loading);
+const disabled = useDisabled(() => props.disabled || props.loading);
 
 const component = computed(() => {
   if (props.is) return props.is;
   // NB  if we are disabled and we are a link, we render a button to prevent navigation
-  if (props.to && !isDisabled.value) return RouterLink;
-  if (props.href && !isDisabled.value) return "a";
+  if (props.to && !disabled.value) return RouterLink;
+  if (props.href && !disabled.value) return "a";
   // default
   return Button;
 });
@@ -103,10 +103,10 @@ const meta = computed(() => ({
   align: props.align,
   isIconOnly: props.iconOnly,
   isBlock: props.block,
-  isDisabled: isDisabled.value,
+  isDisabled: disabled.value,
   isLoading: props.loading,
   isFocusable: props.focusable,
-  hasRing: props.ring && !isDisabled.value && props.focusable
+  hasRing: props.ring && !disabled.value && props.focusable
 }));
 
 const styles = useStyles(["button"], meta, config, props.uiConfig ?? {});

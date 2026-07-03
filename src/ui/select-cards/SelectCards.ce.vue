@@ -2,7 +2,7 @@
   <DropdownMenuRoot v-model:open="open" tabindex="-1">
     <DropdownMenuTrigger
       as-child
-      :disabled="isDisabled"
+      :disabled="disabled"
       :class="styles.select.trigger"
     >
       <TriggerButton
@@ -113,7 +113,7 @@ const portalTo = usePortalTarget(() => props.to);
 const open = ref(false);
 const isKeyboardNav = ref(false);
 
-const isDisabled = useDisabled(() => props.disabled);
+const disabled = useDisabled(() => props.disabled);
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   defaultValue: props.defaultValue

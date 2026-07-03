@@ -3,7 +3,7 @@
     <PopoverTrigger as-child>
       <FormControl
         :key="props.id"
-        :disabled="isDisabled"
+        :disabled="disabled"
         :formItemId="`${props.id}-search`"
         :auto-focus="props.autoFocus"
         :placeholder="placeholder"
@@ -104,7 +104,7 @@ const emit = defineEmits<{
 const internalSearch = ref("");
 const open = ref(false);
 
-const isDisabled = useDisabled(() => props.disabled);
+const disabled = useDisabled(() => props.disabled);
 
 // --- computed
 

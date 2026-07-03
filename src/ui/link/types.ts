@@ -23,6 +23,8 @@ export type LinkProps = {
   // ---
   disabled?: boolean;
   loading?: boolean;
+  /** Invoked on click, guarded by the disabled/loading state (never fires while disabled). */
+  action?: (event: Event) => void;
   // ---
   focusable?: boolean;
   ring?: "focus" | "focus-visible";

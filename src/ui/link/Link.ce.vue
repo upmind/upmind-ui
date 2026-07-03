@@ -66,12 +66,12 @@ const emit = defineEmits<{
   click: [event: Event];
 }>();
 
-const isDisabled = useDisabled(() => props.disabled || props.loading);
+const disabled = useDisabled(() => props.disabled || props.loading);
 
 const component = computed(() => {
   // NB  if we are disabled and we are a link, we render a span to prevent navigation
-  if (props.to && !isDisabled.value) return RouterLink;
-  if (props.href && !isDisabled.value) return "a";
+  if (props.to && !disabled.value) return RouterLink;
+  if (props.href && !disabled.value) return "a";
   return "span";
 });
 
@@ -82,19 +82,20 @@ const componentProps = computed(() => {
 });
 
 function onClick(event: Event) {
-  if (isDisabled.value) return;
+  if (disabled.value) return;
+  props.action?.(event);
   emit("click", event);
 }
 
 const meta = computed(() => ({
   color: props.color,
   size: props.size,
-  isDisabled: isDisabled.value,
+  isDisabled: disabled.value,
   isLoading: props.loading,
-  isFocusable: props.focusable && !isDisabled.value,
+  isFocusable: props.focusable && !disabled.value,
   hasRing:
-    props.ring === "focus-visible" && !isDisabled.value && props.focusable,
-  hasFocusRing: props.ring === "focus" && !isDisabled.value && props.focusable,
+    props.ring === "focus-visible" && !disabled.value && props.focusable,
+  hasFocusRing: props.ring === "focus" && !disabled.value && props.focusable,
   hasIcon:
     !isEmpty(props.icon) ||
     !isEmpty(props.iconAppend) ||

@@ -4,7 +4,7 @@
       <RadioGroup
         :model-value="modelValue"
         :required="props.required"
-        :disabled="isDisabled"
+        :disabled="disabled"
         @update:model-value="onSelectionChange"
         :class="cn(styles.radioCards.root, 'gap-0')"
       >
@@ -16,7 +16,7 @@
           :name="props.name"
           :label="selectedItem?.label"
           :required="props.required"
-          :disabled="isDisabled"
+          :disabled="disabled"
           :model-value="modelValue"
           :columns="props.columns"
           :value="selectedItem.value"
@@ -62,7 +62,7 @@
               :name="props.name"
               :label="option?.label"
               :required="props.required"
-              :disabled="isDisabled"
+              :disabled="disabled"
               :model-value="modelValue"
               :columns="props.columns"
               :value="option.value"
@@ -89,7 +89,7 @@
           :label="label"
           size="sm"
           variant="solid"
-          :disabled="isDisabled"
+          :disabled="disabled"
           @click="toggleExpanded"
         />
       </slot>
@@ -135,7 +135,7 @@ const _emits = defineEmits<{
 const modelValue = defineModel<string>("modelValue");
 const open = defineModel<boolean>("open");
 
-const isDisabled = useDisabled(() => props.disabled);
+const disabled = useDisabled(() => props.disabled);
 
 const isExpanded = computed({
   get: () => props.forceOpen || !!open.value,

@@ -15,7 +15,7 @@
         :data="model"
         :enabled="!meta.isDisabled"
         :i18n="i18n"
-        :readonly="isReadonly"
+        :readonly="readonly"
         :renderers="renderers"
         :schema="schema"
         :uischema="uischema"
@@ -144,8 +144,8 @@ const touched = useVModel(props, "touched", emits, {
 });
 // ---
 
-const isDisabled = useDisabled(() => props.disabled || props.processing);
-const isReadonly = useReadonly(() => props.readonly);
+const disabled = useDisabled(() => props.disabled || props.processing);
+const readonly = useReadonly(() => props.readonly);
 
 const meta = computed(() => {
   return {
@@ -156,8 +156,8 @@ const meta = computed(() => {
     isDirty: baseModel !== model.value,
     isTouched: touched.value,
     isValid: isEmpty(errors.value),
-    isDisabled: isDisabled.value,
-    isReadonly: isReadonly.value
+    isDisabled: disabled.value,
+    isReadonly: readonly.value
   };
 });
 

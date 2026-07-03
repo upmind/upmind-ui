@@ -2,7 +2,7 @@
   <ToggleGroupRoot
     v-model="modelValue"
     :required="props.required"
-    :disabled="isDisabled"
+    :disabled="disabled"
     :class="cn(styles.checkboxCards.root, props.class)"
     type="multiple"
     data-testid="checkbox-group"
@@ -15,7 +15,7 @@
         :value="item.value as string"
         :name="item.id"
         :required="props.required"
-        :disabled="isDisabled"
+        :disabled="disabled"
         :no-input="props.noInput"
         :class="cn(styles.checkboxCards.input, props.itemClass)"
         :itemClass="styles.checkboxCards.item"
@@ -138,7 +138,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
   defaultValue: props.defaultValue
 });
 
-const isDisabled = useDisabled(() => props.disabled);
+const disabled = useDisabled(() => props.disabled);
 
 const meta = computed(() => ({
   noInput: props.noInput,

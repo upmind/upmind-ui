@@ -4,7 +4,7 @@
     v-model:open="open"
     :key="uid"
     :model-value="modelValue"
-    :disabled="isDisabled"
+    :disabled="disabled"
   >
     <SelectTrigger
       v-bind="$attrs"
@@ -122,7 +122,7 @@ const props = withDefaults(defineProps<SelectProps>(), {
 const emits = defineEmits<SelectRootEmits & SelectContentEmits>();
 const forwarded = useForwardPropsEmits(props, emits);
 
-const isDisabled = useDisabled(() => props.disabled);
+const disabled = useDisabled(() => props.disabled);
 
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,

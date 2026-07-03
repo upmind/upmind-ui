@@ -10,7 +10,7 @@
         :value="value"
         :name="props.name"
         :required="props.required"
-        :disabled="isDisabled"
+        :disabled="disabled"
         :class="styles.radioCards.input"
         :tabindex="isSelected || !modelValue ? 0 : -1"
         :data-state="isSelected ? 'checked' : ''"
@@ -55,20 +55,20 @@ const isSelected = computed(() => {
   return props.modelValue === props.value;
 });
 
-const isDisabled = useDisabled(() => props.disabled);
+const disabled = useDisabled(() => props.disabled);
 
 const meta = computed(() => ({
   isMinimal: props.minimal,
   columns: props.columns,
-  isDisabled: isDisabled.value
+  isDisabled: disabled.value
 }));
 
 const styles = useStyles(["radioCards"], meta, config, props.uiConfig ?? {});
 
 const onBlur = (e: FocusEvent) => {
-  if (isDisabled.value) {
+  if (disabled.value) {
     watchOnce(
-      () => isDisabled.value,
+      () => disabled.value,
       () => {
         const el = e.target as HTMLElement;
         if (el && el.dataset.state === "checked") {

@@ -80,7 +80,7 @@ function onUpdate(val: number) {
   modelValue.value = val;
 }
 
-const isDisabled = useDisabled(() => props.disabled);
+const disabled = useDisabled(() => props.disabled);
 
 const delegatedProps = computed(() =>
   assign(
@@ -95,7 +95,7 @@ const delegatedProps = computed(() =>
       "decrementAction",
       "incrementAction"
     ]),
-    { disabled: isDisabled.value }
+    { disabled: disabled.value }
   )
 );
 
@@ -123,7 +123,7 @@ const meta = computed(() => {
     size: props.size,
     width: getWidth.value,
     variant: props.variant,
-    isDisabled: isDisabled.value
+    isDisabled: disabled.value
   };
 });
 

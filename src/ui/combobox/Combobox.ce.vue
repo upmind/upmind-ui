@@ -1,7 +1,7 @@
 <template>
   <Popover
     v-model:open="open"
-    :disabled="isDisabled"
+    :disabled="disabled"
     :class="styles.combobox.root"
   >
     <PopoverTrigger as-child :ring="false">
@@ -194,7 +194,7 @@ const meta = computed(() => ({
 const open = ref(false);
 const skipFocus = computed(() => props.tabindex === "-1");
 
-const isDisabled = useDisabled(() => props.disabled);
+const disabled = useDisabled(() => props.disabled);
 
 const itemValue = computed((): string => props.itemValue || "value");
 const itemLabel = computed((): string => props.itemLabel || "label");

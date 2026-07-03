@@ -28,10 +28,10 @@ const props = withDefaults(defineProps<SwitchProps>(), {
 
 const emits = defineEmits<SwitchRootEmits>();
 
-const isDisabled = useDisabled(() => props.disabled);
+const disabled = useDisabled(() => props.disabled);
 
 const delegatedProps = computed(() =>
-  assign(omit(props, ["class", "uiConfig"]), { disabled: isDisabled.value })
+  assign(omit(props, ["class", "uiConfig"]), { disabled: disabled.value })
 );
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits);
