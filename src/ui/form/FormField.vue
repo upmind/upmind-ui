@@ -4,7 +4,8 @@
     v-if="meta.isVisible"
     :class="cn('flex flex-wrap', props.class)"
     :data-visible="meta.isVisible"
-    :data-test-key="`form-item-${kebabCase(props.name || props.label)}`"
+    data-test-key="form-item"
+    :data-test-value="kebabCase(props.name)"
   >
     <slot name="field">
       <!-- label -->
@@ -72,7 +73,8 @@
             :formMessageId="`form-item-message-${props.id}`"
             :name="name"
             :errors="errors"
-            :data-test-key="`form-item-message-${props.name.replaceAll('.', '-')}`"
+            data-test-key="form-item-message"
+            :data-test-value="props.name.replaceAll('.', '-')"
           />
         </slot>
 

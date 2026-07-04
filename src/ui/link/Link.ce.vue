@@ -5,9 +5,13 @@
     :aria-disabled="meta.isDisabled || undefined"
     :tabindex="meta.isFocusable ? '0' : '-1'"
     :class="cn(styles.link.root, props.class)"
-    :data-test-key="
-      props.dataAttrs?.['data-test-key'] ??
-      `link-${kebabCase(label ?? 'default')}`
+    :data-test-key="props.dataAttrs?.['data-test-key'] ?? 'link'"
+    :data-test-value="
+      props.dataAttrs?.['data-test-value']
+        ? props.dataAttrs?.['data-test-value']
+        : label
+          ? kebabCase(label)
+          : undefined
     "
     @click="$emit('click', $event)"
   >
@@ -45,7 +49,7 @@ import { RouterLink } from "vue-router";
 import config from "./link.config";
 import LinkItems from "./LinkItems.vue";
 import { useStyles, cn } from "../../utils";
-import { kebabCase, isEmpty } from "lodash-es";
+import { isEmpty, kebabCase } from "lodash-es";
 import type { LinkProps } from "./types";
 
 const props = withDefaults(defineProps<LinkProps>(), {

@@ -6,6 +6,7 @@
           phone?.country || control.data?.country || defaultCountryCode
         "
         :items="countryItems"
+        :trigger-data-attrs="{ 'data-test-key': 'button-phone-country' }"
         @update:modelValue="onCountyInput"
         class="shadow-control-r-none hover:shadow-control-hover-r-none group-hover:shadow-control-hover group-hover:shadow-control-hover-r-none rounded-r-none! focus-within:z-20 focus:z-20"
         popover-class="!w-dropdown-xl"

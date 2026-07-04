@@ -24,7 +24,8 @@ const forwardedProps = useForwardProps(delegatedProps);
   <AccordionItem
     v-bind="forwardedProps"
     :class="cn('border-b', props.class)"
-    :data-test-key="`accordion-item-${props.value}`"
+    data-test-key="accordion-item"
+    :data-test-value="props.value"
   >
     <slot />
   </AccordionItem>

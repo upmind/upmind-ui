@@ -38,9 +38,9 @@ const forwardedProps = useForwardProps(delegatedProps);
         props.class
       )
     "
-    :data-test-key="
-      props.dataAttrs?.['data-test-key'] ??
-      `select-item-${props.id || props.value}`
+    :data-test-key="props.dataAttrs?.['data-test-key'] ?? 'select-item'"
+    :data-test-value="
+      props.dataAttrs?.['data-test-value'] ?? props.id ?? props.value
     "
   >
     <slot name="indicator" />

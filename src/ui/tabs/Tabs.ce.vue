@@ -23,7 +23,8 @@
             :ref="(el: HTMLElement | null) => setTriggerRef(el, index)"
             :value="item.value"
             :class="[styles.tabs.trigger, 'cursor-pointer']"
-            :data-test-key="`tab-${kebabCase(item.label)}`"
+            data-test-key="tab-item"
+            :data-test-value="item.value"
             v-bind="item.dataAttrs"
           >
             <Icon
@@ -88,7 +89,6 @@ import TabsList from "./TabsList.vue";
 import TabsTrigger from "./TabsTrigger.vue";
 import { useStyles } from "../../utils";
 import { isEmptySlot } from "../../utils";
-import { kebabCase } from "lodash-es";
 import { first } from "lodash-es";
 import type { TabsProps, TabItem } from ".";
 import type { TabsRootEmits } from "radix-vue";

@@ -33,8 +33,12 @@
         :dataAttrs="{
           ...option.dataAttrs,
           'data-test-key':
-            option.dataAttrs?.['data-test-key'] ??
-            `radio-card-${option.id || option.value || index}`
+            option.dataAttrs?.['data-test-key'] ?? 'radio-card-item',
+          'data-test-value':
+            option.dataAttrs?.['data-test-value'] ??
+            option.id ??
+            option.value ??
+            index
         }"
         @keydown.enter="onChange(option.value)"
         @click="() => onChange(option.value)"

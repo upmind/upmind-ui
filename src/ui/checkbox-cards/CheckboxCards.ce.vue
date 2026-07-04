@@ -20,9 +20,9 @@
         :class="cn(styles.checkboxCards.input, props.itemClass)"
         :itemClass="styles.checkboxCards.item"
         :checked="includes(modelValue, item.value)"
-        :data-test-key="
-          item.dataAttrs?.['data-test-key'] ??
-          `checkbox-item-${item.id || item.value || index}`
+        :data-test-key="item.dataAttrs?.['data-test-key'] ?? 'checkbox-item'"
+        :data-test-value="
+          item.dataAttrs?.['data-test-value'] ?? item.id ?? item.value ?? index
         "
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
