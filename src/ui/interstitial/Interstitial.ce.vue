@@ -17,6 +17,7 @@
         <Avatar
           :animated-icon="animatedIcon"
           class="size-36 overflow-visible bg-transparent"
+          data-test-key="interstitial-avatar"
         />
       </slot>
 
