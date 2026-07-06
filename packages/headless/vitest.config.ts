@@ -75,7 +75,8 @@ export default mergeConfig(
               environment: "happy-dom",
               include: ["src/**/__tests__/**/*.int.test.ts"],
               exclude: [...configDefaults.exclude, "e2e/*", "**/*.fixtures.ts"],
-              testTimeout: 30000
+              testTimeout: 30000,
+              hookTimeout: 30000
             }
           })
         )

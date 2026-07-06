@@ -141,7 +141,7 @@ logout(actor?)
   ├─▶ notifyLogoutSubscribers(actor)
   │    └─▶ Call all registered callbacks
   │
-  └─▶ Broadcast (LOGOUT message)
+  └─▶ Broadcast ({ type: "UNAUTHENTICATED", actor } message)
 ```
 
 The `dumpTokenFromStorage` function is the **source of truth** for logout - it handles both cookie removal and state removal in correct order.
@@ -199,14 +199,16 @@ type SessionSyncMessage =
 - User profiles are populated by auth module after login
 - Each tab can load user data independently if needed
 
+> **⚠️ Broadcasts on every switch, not only login/logout.** The ratified model requires only login and logout to propagate across tabs, applied like-for-like; switching between already-held sessions in one tab must stay tab-local. The current `add()`/`activate()` path broadcasts `SET_SESSION` unconditionally, including on switches — wider than the contract allows. `docs/sdd/FE-2825/design.md` §5.1 separately proposed that the receiver stop trusting the broadcast payload and re-hydrate from the cookie instead; that payload-trust question is real but narrower, and doesn't by itself fix the over-broadcast gap — see [Gotchas §8](./gotchas.md#8-cross-tab-set_session-broadcasts-on-every-session-add-not-only-loginlogout) and [FE-2825-note.md](./FE-2825-note.md).
+
 ### Cookie Sync
 
 In addition to BroadcastChannel, the store monitors cookie changes:
 
 ```typescript
 initCookieSync()  // Start monitoring
-  └─▶ CookieStore API listener
-       └─▶ On change → hydrateFromCookies()
+  └─▶ CookieStore API listener (or 2s poll fallback)
+       └─▶ On change → hydrateFromStorage()
             └─▶ Re-read cookies and update state
 ```
 
@@ -224,8 +226,10 @@ initCookieSync()  // Start monitoring
 | ---------- | -------------------- | ---------------- |
 | Guest      | `upm_guest_session`  | Browser-specific |
 | Client     | `upm_client_session` | Domain-wide      |
-| Staff      | `upm_staff_session`  | Domain-wide      |
+| Staff      | `upm_user_session`   | Domain-wide      |
 | Admin      | `upm_admin_session`  | Domain-wide      |
+
+> **Staff cookie name:** `AccessRoleTypes.STAFF` is the string `"user"` on the wire, so the staff cookie is `upm_user_session` (built as `upm_${actor_type}_session`). `upm_admin_session` is watched by cookie-sync but is **not** hydrated by `getTokenFromStorage`.
 
 **Storage format:** JSON-encoded `IToken` object
 
@@ -247,8 +251,8 @@ sequenceDiagram
     Note over Store: activeActor: GUEST<br/>no token yet
 
     Note over Store: 2. Async Initialization
-    App->>Store: storeInitialized promise starts
-    Store->>Cookies: Read upm_staff_session
+    App->>Store: initStore() / isReady() promise starts
+    Store->>Cookies: Read upm_user_session (staff)
     Cookies-->>Store: staff token or null
     Store->>Cookies: Read upm_client_session
     Cookies-->>Store: client token or null
@@ -273,7 +277,7 @@ sequenceDiagram
         API-->>Store: Staff user data
     end
 
-    Store->>Store: storeInitialized resolves
+    Store->>Store: initialise() resolves; isReady() → true
     Note over Store: ✅ Guaranteed active session<br/>with user data
 ```
 
@@ -283,7 +287,7 @@ sequenceDiagram
 2. **Async hydration** - Cookies loaded in background
 3. **Guest token minting** - Only if NO sessions exist (delegates to auth module)
 4. **User data loading** - Parallel fetch for all sessions (non-blocking)
-5. **Guaranteed completion** - `storeInitialized` promise resolves when ready
+5. **Guaranteed completion** - `useSessionStore().useActions().isReady()` resolves `true` when ready (there is **no** `storeInitialized` export)
 
 ### Hydration Flow
 
@@ -292,18 +296,18 @@ On app initialization:
 ```text
 sessionStore created
   │
-  └─▶ createInitialState()
+  └─▶ buildInitialState()
        │
        ├─▶ Read upm_client_session cookie
        │    └─▶ If exists → clientSessions[token.actor_id] = { token }
        │
-       ├─▶ Read upm_staff_session cookie
+       ├─▶ Read upm_user_session cookie (staff)
        │    └─▶ If exists → staffSessions[token.actor_id] = { token }
        │
        ├─▶ Read upm_guest_session cookie
        │    └─▶ If exists → guestSession = token
        │
-       └─▶ If NO sessions exist → mintGuestToken() via auth module
+       └─▶ If NO sessions exist (and guest allowed) → mintGuestToken() via auth module
 ```
 
 **Active session selection:**
@@ -395,19 +399,15 @@ useQuery().get(url)
   └─▶ Make request
 ```
 
-### Scoped Composable Integration
+### Active Session Integration
 
-`useActiveSession()` provides scope-aware access:
+`useActiveSession()` is **pure identity — not a scoped composable** (no `.as(actor)`; FE-2945 removed the fold-in-scoping plan). It always reads the currently active identity, whatever the actor:
 
 ```typescript
-// Returns staff session if exists, null otherwise
-const staffSession = useActiveSession().as("staff");
-const { isAuthenticated } = staffSession.useMeta();
-// isAuthenticated = true ONLY if staff session exists
-
-// Returns currently active session (could be any actor)
-const selfSession = useActiveSession().as("self");
-const { session } = selfSession.useContext();
+// Always the currently active session (guest, client, or staff)
+const session = useActiveSession();
+const { isAuthenticated, isStaff, isClient } = session.useMeta();
+const { session: token, actor } = session.useContext();
 ```
 
 ## Testing Strategy
@@ -477,9 +477,12 @@ Cookies are set with:
 Tokens are:
 
 - ✅ Stored in memory (sessionStore state)
-- ✅ Stored in cookies (for persistence)
+- ✅ Stored in cookies — one per scope, holding only that scope's active session
+- ✅ **Also** written to `sessionStorage` (`upm_session_store`) as part of the persisted state — access/refresh/guest tokens for _every_ held session, not just the active one. This is required, not a gap: it's the multi-session cache that makes switching back to a held session instant with zero server round trips. A previously-proposed hardening (FE-2825 §5.2, stripping token secrets from this payload) would break that requirement outright and must not be implemented as specified — see [FE-2825-note.md](./FE-2825-note.md).
 - ❌ **Not** stored in localStorage (more XSS vulnerable)
 - ✅ Transmitted only over HTTPS (when `secure: true`)
+
+**Accepted tradeoff:** anything able to read `sessionStorage` (most concretely, an XSS payload) can read every held session's tokens, not only the active one — a wider blast radius than reading a single cookie. This is a known, accepted consequence of the multi-session/instant-switch requirement, not an outstanding hardening item. See [Gotchas §7](./gotchas.md#7-sessionstorage-holds-every-sessions-tokens--this-is-the-required-multi-session-cache-not-a-leak).
 
 ### Impersonation Safety
 

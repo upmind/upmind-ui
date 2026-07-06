@@ -14,7 +14,11 @@ import {
   useTime
 } from "../../utils";
 import { keys, map, reduce, values } from "lodash-es";
-import type { SessionState, SessionUser } from "./session-store.types";
+import type {
+  LoadedSessionUsers,
+  SessionState,
+  SessionUser
+} from "./session-store.types";
 // -----------------------------------------------------------------------------
 /**
  * @module session-store/services
@@ -102,14 +106,19 @@ export async function loadUser(token: IToken): Promise<SessionUser> {
 }
 
 /**
- * Load user data for all sessions in parallel.
- * Uses Promise.allSettled to load all sessions without failing if one fails.
+ * Load user data for all sessions in parallel during boot resolution.
  *
- * @returns Promise resolving to Record of session ID to SessionUser data
+ * Every session with a token is validated against `/self` — a cached display
+ * user does NOT skip the read, because boot must notice a token that has since
+ * died. `Promise.allSettled` keeps one failure from failing the others: a `401`
+ * marks the session invalid (dead token, drop it); any other failure is a soft
+ * degrade (keep the session, no fresh user).
+ *
+ * @returns Loaded users plus the session IDs whose token returned 401
  */
 export async function loadAllSessionUsers(
   state: SessionState
-): Promise<Record<string, SessionUser>> {
+): Promise<LoadedSessionUsers> {
   const allSessions = {
     ...state.clientSessions,
     ...state.staffSessions
@@ -119,24 +128,26 @@ export async function loadAllSessionUsers(
   const sessionPromises = reduce(
     allSessions,
     (acc: Record<string, Promise<SessionUser>>, session, sessionId) => {
-      if (!session.user && session.token.access_token) {
-        acc[sessionId] = loadUser(session.token);
-      }
+      if (session.token.access_token) acc[sessionId] = loadUser(session.token);
       return acc;
     },
     {}
   );
 
-  // Load all in parallel and build result object
+  // Load all in parallel and classify each outcome
   return Promise.allSettled(values(sessionPromises)).then(results => {
     const sessionIds = keys(sessionPromises);
 
     return reduce(
       sessionIds,
-      (acc: Record<string, SessionUser>, sessionId, index) => {
+      (acc: LoadedSessionUsers, sessionId, index) => {
         const result = results[index];
         if (result.status === "fulfilled") {
-          acc[sessionId] = result.value;
+          acc.users[sessionId] = result.value;
+        } else if (
+          (result.reason as DetailedError)?.code === responseCodes.Unauthorized
+        ) {
+          acc.invalidSessionIds.push(sessionId);
         } else {
           console.warn(
             `Failed to load user data for session ${sessionId}:`,
@@ -145,7 +156,7 @@ export async function loadAllSessionUsers(
         }
         return acc;
       },
-      {}
+      { users: {}, invalidSessionIds: [] }
     );
   });
 }

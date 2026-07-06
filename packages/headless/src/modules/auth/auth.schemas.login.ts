@@ -18,11 +18,13 @@ export const useLoginSchema = (): JsonSchema => ({
   properties: {
     username: {
       type: "string",
+      minLength: 1,
       title: "Your username or email address"
     },
     password: {
       type: "string",
       format: "password",
+      minLength: 1,
       title: "Your password"
     }
   }

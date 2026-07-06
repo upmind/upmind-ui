@@ -1,6 +1,6 @@
 import { ScopeActorTypes } from "../scope/scope.types";
-import type { Account } from "../client";
 import type { DetailedError } from "../../utils";
+import type { Account } from "../client";
 import type { IClient, ISelf, IToken } from "@upmind-automation/types";
 import type { AccessRoleTypes } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
@@ -148,6 +148,18 @@ export type SessionEntry = {
   scope: AccessRoleTypes;
   token: IToken;
   user?: SessionUser;
+};
+
+/**
+ * Result of loading `/self` for every session during boot resolution.
+ * `users` holds the profiles that loaded; `invalidSessionIds` names the
+ * sessions whose token returned `401` (dead token) and must be dropped so boot
+ * falls through to the guest floor. A non-401 failure is a soft degrade and
+ * appears in neither list.
+ */
+export type LoadedSessionUsers = {
+  users: Record<string, SessionUser>;
+  invalidSessionIds: string[];
 };
 
 /**

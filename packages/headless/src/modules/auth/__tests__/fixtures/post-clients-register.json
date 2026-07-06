@@ -1,0 +1,60 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/clients/register",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "email": "mock-email-2@example.com",
+      "username": "mock-email-2@example.com",
+      "firstname": "Fixture",
+      "lastname": "Generator",
+      "password": "mock-password"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a14e387d6995b281-DUR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Thu, 02 Jul 2026 14:08:09 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=J9OaMxNnxuhkUOyovX9qW6iSbva6tUmwipLSpHFY0IggEIiiCvZnrOEIjyv03C9OXMQWHq%2FxmSbyA1%2FNWCWVkGqqbiqTN%2BJ8lBf537vsmYBvuuE1QIjeZ5Z%2F%2BW78TsjvBlRnzFlRag%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "mock-uuid-2",
+        "public_name": "Fixture G.",
+        "org_id": "mock-uuid-3",
+        "image_url": null
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-07-02T14:08:08.987Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "auth"
+  }
+}

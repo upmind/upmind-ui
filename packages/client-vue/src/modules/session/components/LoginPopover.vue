@@ -30,6 +30,7 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import {
+  AuthFlowTypes,
   ScopeActorTypes,
   useActiveSession,
   useAuth,
@@ -71,7 +72,7 @@ const styles = useStyles(["session"], props, config);
 
 // ensure we always open with the login form
 function doReset(value: boolean) {
-  if (value) start("login");
+  if (value) start(AuthFlowTypes.LOGIN);
 }
 
 function doUpdate(value: SessionProps["modelValue"]) {

@@ -169,6 +169,7 @@ import {
   UpmLayout
 } from "@upmind-automation/client-vue";
 import {
+  AuthFlowTypes,
   ScopeActorTypes,
   useAuth,
   useActiveSession
@@ -188,6 +189,9 @@ import { useActorScope, useContextScope } from "~/composables/scope";
 
 definePageMeta({
   name: "useAuth",
+  // Key by fullPath so a query change (the add-session `fresh` nonce) remounts
+  // the page — setup re-runs, the old instance destroys, a new .fresh() spawns.
+  key: route => route.fullPath,
   nav: {
     label: "useAuth",
     icon: "lock-01",
@@ -197,11 +201,17 @@ definePageMeta({
 });
 
 const router = useRouter();
+const route = useRoute();
 const { t } = useI18n();
 
 // --- Scope from URL
 const actorScope = useActorScope();
 const contextScope = useContextScope<AuthContextTypes>();
+
+// --- Add-session request: spawn a fresh instance showing the login form even
+//     when a session of this scope is already active (never for guest).
+//     Presence check — the value is a remount nonce, not a boolean.
+const isFreshRequest = !!route.query.fresh;
 
 // --- Actor Scope Selector
 const {
@@ -214,11 +224,15 @@ const {
 const { register: registerContexts } = useContextScopeSelector();
 
 // --- Auth composable (scoped to URL actor scope and optionally context scope if present)
-const auth = !contextScope.value
-  ? useAuth().as(actorScope.value)
-  : useAuth()
+const auth = isFreshRequest
+  ? useAuth()
       .as(actorScope.value as ScopeActorTypes.CLIENT | ScopeActorTypes.STAFF)
-      .for(contextScope.value.type, contextScope.value.id);
+      .fresh()
+  : !contextScope.value
+    ? useAuth().as(actorScope.value)
+    : useAuth()
+        .as(actorScope.value as ScopeActorTypes.CLIENT | ScopeActorTypes.STAFF)
+        .for(contextScope.value.type, contextScope.value.id);
 
 const { destroy, isReady, resolve, set, start } = auth.useActions();
 const {
@@ -280,9 +294,9 @@ const activeTab = computed({
     return authTabs.value[0]?.value ?? "login";
   },
   set: (value: string) => {
-    if (value === "login") start("login");
-    else if (value === "register") start("register");
-    else if (value === "recover") start("recover");
+    if (value === "login") start(AuthFlowTypes.LOGIN);
+    else if (value === "register") start(AuthFlowTypes.REGISTER);
+    else if (value === "recover") start(AuthFlowTypes.RECOVER);
   }
 });
 
@@ -346,7 +360,7 @@ onMounted(async () => {
   registerContexts(scopeMatrix);
   await isReady();
   if (isIdle.value) {
-    start("login");
+    start(AuthFlowTypes.LOGIN);
   }
 });
 

@@ -79,6 +79,12 @@ export type ScopeConfig<TContextType extends string = string> = {
 
   /** Optional brand filter (not a context). */
   brandId?: string;
+
+  /**
+   * When true, spawns a fresh instance (distinct scope key) that starts a new
+   * session instead of reusing an active one. Set via the builder's .fresh().
+   */
+  newSession?: boolean;
 };
 
 /**
