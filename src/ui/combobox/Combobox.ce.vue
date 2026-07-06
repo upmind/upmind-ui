@@ -39,7 +39,7 @@
           </slot>
         </template>
 
-        <template #label v-if="!isEmpty(modelValue)">
+        <template #default v-if="!isEmpty(modelValue)">
           <span :class="styles.combobox.label" v-bind="props.valueDataAttrs">{{
             label
           }}</span>
