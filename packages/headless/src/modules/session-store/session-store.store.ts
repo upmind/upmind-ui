@@ -1,10 +1,12 @@
-import { ref } from "vue";
 import { Store } from "@tanstack/vue-store";
+import { ref } from "vue";
 import { AccessRoleTypes } from "@upmind-automation/types";
 import {
+  dumpTokenFromStorage,
   getTokenFromStorage,
   loadPersistedState,
-  persistStoreState
+  persistStoreState,
+  persistTokenToStorage
 } from "../session-store/session-store.utils";
 import {
   loadAllSessionUsers,
@@ -20,6 +22,7 @@ import {
   has,
   isEmpty,
   keys,
+  omit,
   set
 } from "lodash-es";
 import type {
@@ -103,43 +106,62 @@ export function resolveActiveSession(
 /**
  * Reconcile the session maps to the live session cookies.
  *
- * The cookie is the single source of truth for an authenticated session; the
- * store maps are a cache. A client/staff session is valid only when backed by a
- * live cookie token — "active session with no cookie token" is unrepresentable.
- * For each authenticated scope the cookie-backed session is kept (its cached
- * user preserved) and every other session is dropped. The guest session mirrors
- * its cookie. Impersonation links and transient flags are left untouched.
+ * The store maps own which sessions exist (unlimited client/staff, a single
+ * guest); a scope cookie is a downstream projection of that scope's active
+ * session. For each scope the cookie-backed session is overlaid onto the maps —
+ * restoring a session dropped from state but still cookie-backed and adopting a
+ * fresher token (post refresh) — while every other cached session is preserved
+ * untouched. The active session is the only one dropped: if the active
+ * client/staff scope has no cookie at all (user cleared / expiry) it is removed
+ * so the pointer re-resolves to the guest floor. The guest session mirrors its
+ * cookie. Impersonation links and transient flags are left untouched.
  *
  * @private
  */
 export function reconcileToCookies(s: SessionState): SessionState {
-  const clientToken = getTokenFromStorage(
+  const clientCookie = getTokenFromStorage(
     AccessRoleTypes.CLIENT
   ) as IToken | null;
-  const clientSessions: Record<string, SessionEntry> =
-    clientToken?.access_token && clientToken?.actor_id
+  let clientSessions: Record<string, SessionEntry> =
+    clientCookie?.access_token && clientCookie.actor_id
       ? {
-          [clientToken.actor_id]: {
+          ...s.clientSessions,
+          [clientCookie.actor_id]: {
             scope: AccessRoleTypes.CLIENT,
-            token: clientToken,
-            user: s.clientSessions[clientToken.actor_id]?.user
+            token: clientCookie,
+            user: s.clientSessions[clientCookie.actor_id]?.user
           }
         }
-      : {};
+      : s.clientSessions;
+  if (
+    s.activeActor === AccessRoleTypes.CLIENT &&
+    s.activeSessionId &&
+    clientSessions[s.activeSessionId] &&
+    !clientCookie?.access_token
+  )
+    clientSessions = omit(clientSessions, s.activeSessionId);
 
-  const staffToken = getTokenFromStorage(
+  const staffCookie = getTokenFromStorage(
     AccessRoleTypes.STAFF
   ) as IToken | null;
-  const staffSessions: Record<string, SessionEntry> =
-    staffToken?.access_token && staffToken?.actor_id
+  let staffSessions: Record<string, SessionEntry> =
+    staffCookie?.access_token && staffCookie.actor_id
       ? {
-          [staffToken.actor_id]: {
+          ...s.staffSessions,
+          [staffCookie.actor_id]: {
             scope: AccessRoleTypes.STAFF,
-            token: staffToken,
-            user: s.staffSessions[staffToken.actor_id]?.user
+            token: staffCookie,
+            user: s.staffSessions[staffCookie.actor_id]?.user
           }
         }
-      : {};
+      : s.staffSessions;
+  if (
+    s.activeActor === AccessRoleTypes.STAFF &&
+    s.activeSessionId &&
+    staffSessions[s.activeSessionId] &&
+    !staffCookie?.access_token
+  )
+    staffSessions = omit(staffSessions, s.activeSessionId);
 
   const guestToken = getTokenFromStorage(
     AccessRoleTypes.GUEST
@@ -172,10 +194,34 @@ export function updateSession(
     return { ...next, ...resolveActiveSession(next) };
   });
 
+  const next = sessionStore.state;
+
+  // Invariant: activeActor/activeSessionId can never reference a session that is
+  // not backed by its scope cookie. resolveActiveSession may have PROMOTED a
+  // cached session (e.g. logging out the cookie-backed session auto-promotes a
+  // sibling) that no cookie projects yet — project it so the next write's
+  // reconcile does not read a cookieless active scope and drop it to the guest
+  // floor. GUEST is skipped: reconcile already mirrors the guest cookie.
+  if (
+    next.activeSessionId &&
+    (next.activeActor === AccessRoleTypes.CLIENT ||
+      next.activeActor === AccessRoleTypes.STAFF)
+  ) {
+    const activeToken =
+      next.activeActor === AccessRoleTypes.CLIENT
+        ? next.clientSessions[next.activeSessionId]?.token
+        : next.staffSessions[next.activeSessionId]?.token;
+    const cookieToken = getTokenFromStorage(next.activeActor) as IToken | null;
+    if (
+      activeToken?.access_token &&
+      cookieToken?.actor_id !== next.activeSessionId
+    )
+      persistTokenToStorage(activeToken, { sync: false });
+  }
+
   // An authenticated actor whose sessions just emptied has logged out — by any
   // cause (explicit logout, cookie loss, cross-tab removal, expiry). Fire the
   // logout signal here so the write gate is the single source of it.
-  const next = sessionStore.state;
   if (!isEmpty(prev.clientSessions) && isEmpty(next.clientSessions))
     notifyLogoutSubscribers(AccessRoleTypes.CLIENT);
   if (!isEmpty(prev.staffSessions) && isEmpty(next.staffSessions))
@@ -265,15 +311,33 @@ async function buildInitialState(): Promise<SessionState> {
     loading: true
   };
 
-  // --- Step 4: Load user data for sessions that don't have it yet
-  const allSessionUsers = await loadAllSessionUsers(state);
+  // --- Step 4: Load + validate user data for every session
+  const { users, invalidSessionIds } = await loadAllSessionUsers(state);
 
-  forEach(allSessionUsers, (userData, sessionId) => {
+  forEach(users, (userData, sessionId) => {
     if (has(state.clientSessions, sessionId))
       set(state.clientSessions, [sessionId, "user"], userData);
 
     if (has(state.staffSessions, sessionId))
       set(state.staffSessions, [sessionId, "user"], userData);
+  });
+
+  // A session whose `/self` returned 401 has a dead token: drop it from the map.
+  // The scope cookie is per-scope and held by the ACTIVE session, so only dump
+  // it when the dead session IS the cookie-backed one — dumping it for a dead
+  // INACTIVE session would evict the alive active session (cookie loss → the
+  // write gate drops the active scope to the guest floor).
+  forEach(invalidSessionIds, sessionId => {
+    const scope =
+      state.clientSessions[sessionId]?.scope ??
+      state.staffSessions[sessionId]?.scope;
+    state.clientSessions = omit(state.clientSessions, sessionId);
+    state.staffSessions = omit(state.staffSessions, sessionId);
+    if (scope) {
+      const cookieToken = getTokenFromStorage(scope) as IToken | null;
+      if (cookieToken?.actor_id === sessionId)
+        dumpTokenFromStorage(scope, { sync: false });
+    }
   });
 
   return state;
@@ -429,8 +493,8 @@ export async function hydrateFromStorage(): Promise<void> {
   });
 
   // Apply via the gate, preserving transient flags. The gate reconciles the
-  // persisted maps to the live cookies (cookie = truth) and re-resolves the
-  // active pointer over the result (GUEST floor).
+  // persisted maps to the live cookies (overlay + adopt fresher) and re-resolves
+  // the active pointer over the result (GUEST floor).
   updateSession(state => ({
     ...persisted,
     initialised: state.initialised,

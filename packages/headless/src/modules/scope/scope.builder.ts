@@ -37,6 +37,14 @@ export type ScopeBuilderAfterFor<T> = T & {
    * @returns Finalized composable
    */
   inBrand: (brandId: string) => T;
+
+  /**
+   * Spawns a fresh instance that starts a new session instead of reusing an
+   * active one of this scope.
+   *
+   * @returns Finalized composable
+   */
+  fresh: () => T;
 };
 
 /**
@@ -52,6 +60,14 @@ export type ScopeBuilderAfterBrand<T, TContexts extends string> = T & {
    * @returns Finalized composable
    */
   for: (type: TContexts, id: string) => T;
+
+  /**
+   * Spawns a fresh instance that starts a new session instead of reusing an
+   * active one of this scope.
+   *
+   * @returns Finalized composable
+   */
+  fresh: () => T;
 };
 
 /**
@@ -85,6 +101,14 @@ export type ScopeBuilderStaffWithContexts<T, TContexts extends string> = T & {
    * @returns Builder with .inBrand() available
    */
   for: (type: TContexts, id: string) => ScopeBuilderAfterFor<T>;
+
+  /**
+   * Spawns a fresh instance that starts a new session instead of reusing an
+   * active one of this scope.
+   *
+   * @returns Finalized composable
+   */
+  fresh: () => T;
 };
 
 /**
@@ -99,6 +123,14 @@ export type ScopeBuilderStaffNoContexts<T> = T & {
    * @returns Finalized composable
    */
   inBrand: (brandId: string) => T;
+
+  /**
+   * Spawns a fresh instance that starts a new session instead of reusing an
+   * active one of this scope.
+   *
+   * @returns Finalized composable
+   */
+  fresh: () => T;
 };
 
 /**
@@ -134,6 +166,14 @@ export type ScopeBuilderActorWithContexts<T, TContexts extends string> = T & {
    * @returns Finalized composable
    */
   for: (type: TContexts, id: string) => T;
+
+  /**
+   * Spawns a fresh instance that starts a new session instead of reusing an
+   * active one of this scope.
+   *
+   * @returns Finalized composable
+   */
+  fresh: () => T;
 };
 
 /**
@@ -254,6 +294,11 @@ export function createScopedComposable<
       },
       inBrand(brandId: string) {
         config.brandId = brandId;
+        instance = null;
+        return proxy;
+      },
+      fresh() {
+        config.newSession = true;
         instance = null;
         return proxy;
       }

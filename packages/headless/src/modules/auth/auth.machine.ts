@@ -60,6 +60,13 @@ export const authMachine = createMachine(
       checking: {
         id: "checking",
         entry: "setContext",
+        // A fresh instance (.fresh()) bypasses the session probe entirely and
+        // lands where a no-session check lands, so it always shows the login
+        // form even while another session of this scope is active.
+        always: {
+          target: "idle",
+          cond: "isNewSession"
+        },
         invoke: {
           src: "checkSession",
           onDone: { target: "authenticated" },
@@ -287,6 +294,11 @@ export const authMachine = createMachine(
         states: {
           // --- Loading: fetch lookups (custom fields etc)
           loading: {
+            // A REGISTER sent before the form is ready is stashed, not dropped —
+            // replayed by the `always` on `available` once loading settles.
+            on: {
+              REGISTER: { actions: ["setModel", "setPendingSubmit"] }
+            },
             invoke: {
               src: "loadLookups",
               onDone: {
@@ -295,7 +307,7 @@ export const authMachine = createMachine(
               },
               onError: {
                 target: "unavailable",
-                actions: ["setError"]
+                actions: ["setError", "clearPendingSubmit"]
               }
             }
           },
@@ -306,6 +318,13 @@ export const authMachine = createMachine(
           // --- Available: form ready, waiting for user input
           available: {
             initial: "checking",
+            // Replay a submit that arrived during loading the moment the form is
+            // ready (see loading.on.REGISTER).
+            always: {
+              target: "#register.processing",
+              cond: "hasPendingSubmit",
+              actions: "clearPendingSubmit"
+            },
             on: {
               SET: { target: ".checking", actions: "setModel" },
               REGISTER: { target: "#register.processing", actions: "setModel" }
@@ -665,6 +684,10 @@ export const authMachine = createMachine(
 
       clearError: assign({ error: undefined }),
 
+      setPendingSubmit: assign({ pendingSubmit: true }),
+
+      clearPendingSubmit: assign({ pendingSubmit: false }),
+
       incrementRetry: assign({
         retryCount: ({ retryCount }: AuthContext) => (retryCount ?? 0) + 1
       })
@@ -675,6 +698,9 @@ export const authMachine = createMachine(
       isGuest: ({ scopeActor }: AuthContext) =>
         scopeActor === ScopeActorTypes.GUEST,
 
+      /** Guard: This is a fresh instance that must bypass the session probe. */
+      isNewSession: ({ newSession }: AuthContext) => newSession === true,
+
       /** Guard: Has a context entity ID (impersonation/child-client). */
       hasContext: ({ scopeContext }: AuthContext) => !!scopeContext?.id,
 
@@ -683,6 +709,9 @@ export const authMachine = createMachine(
 
       /** Guard: Actor can recover password (only when acting as self, no context). */
       canRecover: ({ scopeContext }: AuthContext) => !scopeContext,
+
+      /** Guard: a REGISTER submit was stashed while the form was still loading. */
+      hasPendingSubmit: ({ pendingSubmit }: AuthContext) => !!pendingSubmit,
 
       /**
        * Guard (M5/F3b): guest registration is enabled for this brand.

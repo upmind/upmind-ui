@@ -195,31 +195,41 @@
         </DropdownMenuGroup>
       </template>
 
-      <!-- Actions footer (inline, full-width buttons) -->
+      <!-- Add-account footer: entry points to log in an additional session -->
       <div
         v-if="hasActions"
-        class="bg-canvas mt-2 flex items-center gap-1 rounded-b-lg px-2 py-1.5"
+        class="bg-canvas mt-2 flex flex-col gap-1 rounded-b-lg px-2 py-1.5"
+        data-test-key="actor-scope-add-account"
       >
+        <template v-if="addableScopes.length">
+          <DropdownMenuLabel
+            class="text-muted text-xs tracking-wider uppercase"
+          >
+            Add account
+          </DropdownMenuLabel>
+          <Button
+            v-for="scope in addableScopes"
+            :key="scope"
+            class="w-full justify-start"
+            variant="ghost"
+            size="sm"
+            :icon="scope === ScopeActorTypes.CLIENT ? 'log-in-01' : 'log-in-02'"
+            :label="getAddSessionLabel(scope)"
+            :data-test-key="getAddSessionTestKey(scope)"
+            :ring="false"
+            @click="addSession(scope)"
+          />
+        </template>
         <Button
           v-if="canUseGuestMode"
-          class="flex-1"
+          class="w-full justify-start"
           variant="ghost"
           size="sm"
           icon="user-circle"
-          label="Guest"
+          label="Continue as guest"
+          data-test-key="actor-scope-add-guest"
           :ring="false"
           @click="switchScope(ScopeActorTypes.GUEST)"
-        />
-        <Button
-          v-for="scope in addableScopes"
-          :key="scope"
-          class="flex-1"
-          variant="ghost"
-          size="sm"
-          :icon="scope === ScopeActorTypes.CLIENT ? 'log-in-01' : 'log-in-02'"
-          :label="getScopeLabel(scope)"
-          :ring="false"
-          @click="addSession(scope)"
         />
       </div>
     </DropdownMenu>
@@ -270,7 +280,8 @@ const {
   canUseGuestMode,
   directClientItems,
   exitImpersonation,
-  getScopeLabel,
+  getAddSessionLabel,
+  getAddSessionTestKey,
   logoutSession,
   sessionItems,
   staffSessionNodes,

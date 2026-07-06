@@ -14,7 +14,9 @@ Think of the session store like a **phone with multiple user profiles**:
 
 The store manages which session is "active" and handles switching between them.
 
-> **🧪 For Testers:** Verify that switching sessions updates the active user, impersonation restores correctly, and logout clears cookies.
+**What it's for, in one paragraph:** at most three cookies exist at once — one per scope (guest, client, staff) — and each holds only that scope's currently-active token. The store itself holds unlimited sessions per scope for the length of the browsing session. Calling `activate(scope, id)` regenerates that scope's cookie from the store — the cookie is downstream of the store, not the source of it. Holding every session's token in the store's sessionStorage cache is a required feature (it's what makes switching back to a cached session instant, with zero server round trips), not a leak.
+
+> **🧪 For Testers:** Verify that switching sessions updates `activeActor`/`activeSession`, impersonation restores correctly, and logout falls back to the next session (or guest) — all observable via `allSessions`/`activeActor`/`activeSession`/`isAuthenticated`/`isImpersonated`, not by inspecting cookies or storage directly.
 
 > **👩‍💻 For Developers:** Each session is keyed by `actor_id`. The store maintains a `SessionEntry` containing both the token and optional user profile data for UI display.
 
@@ -50,13 +52,15 @@ See [Usage](./usage.md) for complete API reference.
 
 | Feature               | Status | Notes                                  |
 | --------------------- | ------ | -------------------------------------- |
-| Multi-session storage | ✅     | Multiple sessions per actor type       |
+| Multi-session storage | ✅\*   | Multiple sessions per actor type       |
 | Session activation    | ✅     | Switch between sessions                |
 | Impersonation         | ✅     | Staff → Client with parent restoration |
 | Cross-tab sync        | ✅     | BroadcastChannel for real-time sync    |
 | Cookie persistence    | ✅     | Auto-hydrates on page load             |
 | User profile storage  | ✅     | Optional user data in `SessionEntry`   |
 | Logout subscription   | ✅     | Subscribe to logout events             |
+
+\* Multi-session storage is the ratified product model (see [Gotchas §6](./gotchas.md#6-only-one-token-per-actor-type-is-wire-visible-via-cookies--intended-to-survive-a-reload-via-the-store-currently-does-not)) — a second session added via `add()` currently does not survive the store's next write due to an implementation defect in cookie reconciliation, not a doc or spec gap. This is unrelated to, and predates, FE-2825's proposed (and rejected) "metadata-only" hardening — see [FE-2825-note.md](./FE-2825-note.md).
 
 ## Key Concepts
 
@@ -124,10 +128,10 @@ Guest tokens are minted **only on initial app load** if:
 
 ```typescript
 // App initialization
-import { storeInitialized } from "@upmind/headless";
+const { isReady } = useSessionStore().useActions();
 
 // Optional: Wait for initialization to complete
-await storeInitialized;
+await isReady();
 console.log("Session store ready with guaranteed active session");
 
 // Or just use immediately (returns default state until init completes)
@@ -245,12 +249,14 @@ The module follows the factory pattern:
 ### Multi-Session Management
 
 ```typescript
-const { clientSessions, allSessions } = store.useContext();
+import { values } from "lodash-es";
+
+const { allSessions } = store.useContext();
 const { activate } = store.useActions();
 
-// Display all sessions in dropdown
-allSessions.value.forEach(({ id, actor, entry }) => {
-  console.log(`${actor}: ${entry.user?.email ?? id}`);
+// allSessions is a Record<actor_id, SessionEntry>; each entry is { scope, token, user }
+values(allSessions.value).forEach(entry => {
+  console.log(`${entry.scope}: ${entry.user?.email ?? entry.token.actor_id}`);
 });
 
 // Switch to a different session
@@ -361,10 +367,9 @@ console.log(activeSession.value?.actor_id); // Still "client-123" ✅
 #### Test 3: Verify Initialization Completes
 
 ```typescript
-import { storeInitialized } from "@upmind/headless";
-
 // Wait for full initialization (cookies loaded + user data fetched)
-await storeInitialized;
+const { isReady } = useSessionStore().useActions();
+await isReady();
 
 const { activeUser } = useSessionStore().useContext();
 console.log(activeUser.value?.email); // User profile loaded ✅
@@ -390,20 +395,17 @@ const { activeSession } = useSessionStore().useContext();
 console.log(activeSession.value?.access_token);
 ```
 
-### With Scoped Composables
+### With the Active Session
 
-Session-aware composables use `useActiveSession()` for scope-specific access:
+`useActiveSession()` reads the current active identity. It is **pure identity — not a scoped composable**; there is no `.as(actor)`. Whatever actor is active (guest, client, or staff) is what you read (FE-2945 reversed an earlier plan to fold scoping in here).
 
 ```typescript
 import { useActiveSession } from "@upmind/headless";
 
-// Get session for current active scope
-const session = useActiveSession().as("self");
-const { isAuthenticated } = session.useMeta();
-
-// Get session for specific scope (checks if STAFF session exists)
-const staffSession = useActiveSession().as("staff");
-const { session: staffToken } = staffSession.useContext();
+// Always the currently active session, whatever the actor
+const session = useActiveSession();
+const { isAuthenticated, isStaff, isClient, isGuest } = session.useMeta();
+const { session: token, actor } = session.useContext();
 ```
 
 ## Migration Guide

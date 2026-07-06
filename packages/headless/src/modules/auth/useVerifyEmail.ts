@@ -16,12 +16,13 @@ export const useVerifyEmail = () => {
 
   function verifyFromLink(): void {
     const route = new URL(window.location.href);
+    const clientId = route.searchParams.get(QUERY_PARAMS.CLIENT_ID) ?? "";
+    const emailId = route.searchParams.get(QUERY_PARAMS.EMAIL_ID) ?? "";
+    const hash = route.searchParams.get(QUERY_PARAMS.HASH) ?? "";
 
-    verifyFromLinkService({
-      clientId: route.searchParams.get(QUERY_PARAMS.CLIENT_ID) ?? "",
-      emailId: route.searchParams.get(QUERY_PARAMS.EMAIL_ID) ?? "",
-      hash: route.searchParams.get(QUERY_PARAMS.HASH) ?? ""
-    }).catch(() => {});
+    if (!clientId || !emailId || !hash) return;
+
+    verifyFromLinkService({ clientId, emailId, hash }).catch(() => {});
 
     router.replace("/");
   }

@@ -15,9 +15,7 @@ import {
   capitalize,
   filter,
   findKey,
-  first,
   has,
-  keys,
   map,
   sortBy,
   toPairs
@@ -95,24 +93,16 @@ export function useActorScopeSelector() {
     impersonatedSessions,
     staffSessions
   } = store.useContext();
-  const { isScopeAllowed } = store.useMeta();
+  const { hasClientSession, hasStaffSession, isScopeAllowed } = store.useMeta();
 
   // --- Helper to activate session store for a given scope
   function activateSessionForScope(scope: ScopeActorTypes) {
-    if (scope === ScopeActorTypes.CLIENT) {
-      const sessionId = first(keys(clientSessions.value));
-      if (sessionId) {
-        activate(scope as unknown as AccessRoleTypes, sessionId);
-      }
-    } else if (scope === ScopeActorTypes.STAFF) {
-      const sessionId = first(keys(staffSessions.value));
-      if (sessionId) {
-        activate(scope as unknown as AccessRoleTypes, sessionId);
-      }
-    } else if (scope === ScopeActorTypes.GUEST) {
-      activate(scope as unknown as AccessRoleTypes);
-    }
-    // For SELF scope, don't change session store active - let it stay as-is
+    // The store owns the active pointer (persisted + restored across reloads).
+    // `activate(scope)` is a no-op when the scope is already active and falls to
+    // the scope's first session otherwise, so a same-scope load never stomps a
+    // restored/switched pointer. SELF leaves the pointer untouched.
+    if (scope === ScopeActorTypes.SELF) return;
+    activate(scope as unknown as AccessRoleTypes);
   }
 
   // --- Sync scope from URL on initial load
@@ -314,13 +304,18 @@ export function useActorScopeSelector() {
   function addSession(scope: ScopeActorTypes) {
     const currentBrand = route.params.brandIdOrOrg as string | undefined;
 
-    router.push(
-      buildScopePath({
+    // `fresh` marker tells the useAuth page to spawn a fresh instance (.fresh())
+    // so the login form renders even while a session of this scope is active.
+    // Nonce value: an identical fullPath is a router no-op, so a repeat
+    // add-session from the auth page itself would never remount it.
+    router.push({
+      path: buildScopePath({
         page: "useAuth",
         brandId: currentBrand,
         actor: scope
-      })
-    );
+      }),
+      query: { fresh: Date.now().toString() }
+    });
   }
 
   /**
@@ -364,6 +359,29 @@ export function useActorScopeSelector() {
   function getScopeLabel(scope: ScopeActorTypes | AccessRoleTypes): string {
     const key = findKey(ScopeActorTypes, v => v === scope);
     return capitalize(key ?? scope);
+  }
+
+  /**
+   * Label for the "add a new session" action of a given scope.
+   * Reads "Add another …" once a session of that scope already exists,
+   * so the affordance is unambiguous while a user is already logged in.
+   */
+  function getAddSessionLabel(scope: ScopeActorTypes): string {
+    if (scope === ScopeActorTypes.STAFF) {
+      return hasStaffSession.value
+        ? "Add another staff session"
+        : "Log in as staff";
+    }
+    return hasClientSession.value ? "Add another client" : "Log in as client";
+  }
+
+  /**
+   * Stable test hook for the "add session" control of a given scope.
+   */
+  function getAddSessionTestKey(scope: ScopeActorTypes): string {
+    return scope === ScopeActorTypes.STAFF
+      ? "actor-scope-add-staff"
+      : "actor-scope-add-client";
   }
 
   /**
@@ -423,11 +441,17 @@ export function useActorScopeSelector() {
     /** Exit impersonation and restore parent session. */
     exitImpersonation,
 
-    /** Get display label for a scope. */
-    getScopeLabel,
+    /** Label for the "add a new session" action of a scope. */
+    getAddSessionLabel,
+
+    /** Stable test hook for the "add session" control of a scope. */
+    getAddSessionTestKey,
 
     /** Get icon name for a scope. */
     getScopeIcon,
+
+    /** Get display label for a scope. */
+    getScopeLabel,
 
     /** True if current scope is client. */
     isClient,

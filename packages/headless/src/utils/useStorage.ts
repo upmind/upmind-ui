@@ -34,9 +34,6 @@ export const useSessionStorage = () => {
   };
 };
 
-/** @deprecated Use `useSessionStorage` instead. Alias kept for session-store compatibility (FE-2825). */
-export const useActiveSessionStorage = useSessionStorage;
-
 export const useLocalStorage = () => {
   return {
     get(key: string, fallback?: any) {
