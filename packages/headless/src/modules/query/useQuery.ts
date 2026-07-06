@@ -605,7 +605,6 @@ export const useQuery = () => {
         const prev = unref(sort);
         const next = unref(values);
         if (isEqual(prev, next)) return;
-        debugger;
         sort.value = next;
         if (!isInitialCall.value) {
           pageIndex.value = 1;
@@ -617,7 +616,6 @@ export const useQuery = () => {
         const prev = unref(filters);
         const next = unref(values);
         if (isEqual(prev, next)) return;
-        debugger;
         filters.value = next;
         if (!isInitialCall.value) {
           pageIndex.value = 1;

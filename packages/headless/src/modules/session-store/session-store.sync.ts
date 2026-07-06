@@ -170,7 +170,10 @@ export function initCookieSync(): () => void {
 
   const { addChangeListener, isChangeListenerSupported } = useCookies();
 
-  // CookieStore API available (Chromium) — use native change events
+  // CookieStore change events (Chromium) are a fast path only: they fire for
+  // programmatic writes/removals but NOT for manual devtools cookie edits, so
+  // the poll below always runs as the real external-edit detector.
+  let removeChangeListener: (() => void) | undefined;
   if (isChangeListenerSupported()) {
     const handleCookieChange: CookieChangeCallback = event => {
       const sessionChanged =
@@ -182,11 +185,11 @@ export function initCookieSync(): () => void {
       }
     };
 
-    cookieListenerUnsubscribe = addChangeListener(handleCookieChange);
-    return cookieListenerUnsubscribe;
+    removeChangeListener = addChangeListener(handleCookieChange);
   }
 
-  // Fallback: poll cookies every 2s for browsers without CookieStore API
+  // Poll cookies every 2s — the only mechanism that catches manual/devtools
+  // edits, and the sole detector on browsers without CookieStore API
   // (Firefox, Safari). Compares cookie access_tokens against store state.
   let lastGuestToken: string | undefined;
   let lastClientToken: string | undefined;
@@ -230,7 +233,10 @@ export function initCookieSync(): () => void {
     }
   }, 2000);
 
-  cookieListenerUnsubscribe = () => clearInterval(pollInterval);
+  cookieListenerUnsubscribe = () => {
+    removeChangeListener?.();
+    clearInterval(pollInterval);
+  };
   return cookieListenerUnsubscribe;
 }
 

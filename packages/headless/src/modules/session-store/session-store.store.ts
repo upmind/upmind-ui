@@ -201,11 +201,17 @@ export function updateSession(
   // cached session (e.g. logging out the cookie-backed session auto-promotes a
   // sibling) that no cookie projects yet — project it so the next write's
   // reconcile does not read a cookieless active scope and drop it to the guest
-  // floor. GUEST is skipped: reconcile already mirrors the guest cookie.
+  // floor. Only a write that MOVED the pointer projects: with an unchanged
+  // pointer a cookie/state mismatch means the cookie changed externally, and
+  // the cookie is the source of truth — writing the in-memory token back would
+  // heal a tampered/foreign cookie. GUEST is skipped: reconcile already
+  // mirrors the guest cookie.
   if (
     next.activeSessionId &&
     (next.activeActor === AccessRoleTypes.CLIENT ||
-      next.activeActor === AccessRoleTypes.STAFF)
+      next.activeActor === AccessRoleTypes.STAFF) &&
+    (next.activeActor !== prev.activeActor ||
+      next.activeSessionId !== prev.activeSessionId)
   ) {
     const activeToken =
       next.activeActor === AccessRoleTypes.CLIENT
