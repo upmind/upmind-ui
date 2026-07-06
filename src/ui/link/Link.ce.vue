@@ -92,8 +92,7 @@ const meta = computed(() => ({
   isDisabled: disabled.value,
   isLoading: props.loading,
   isFocusable: props.focusable && !disabled.value,
-  hasRing:
-    props.ring === "focus-visible" && !disabled.value && props.focusable,
+  hasRing: props.ring === "focus-visible" && !disabled.value && props.focusable,
   hasFocusRing: props.ring === "focus" && !disabled.value && props.focusable,
   hasIcon:
     !isEmpty(props.icon) ||
