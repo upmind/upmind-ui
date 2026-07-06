@@ -1,4 +1,3 @@
-// --- external
 import type { CxOptions } from "class-variance-authority";
 import type { TooltipRootProps } from "radix-vue";
 import type {

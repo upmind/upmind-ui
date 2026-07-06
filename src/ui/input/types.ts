@@ -1,5 +1,3 @@
-// --- external
-// --- internal
 import type { containerVariants } from "./input.config";
 import type { AvatarProps } from "../avatar";
 import type { Icon } from "../icon/types";

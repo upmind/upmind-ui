@@ -1,6 +1,6 @@
 <template>
   <!--<link rel="stylesheet" :href="stylesheet" />-->
-  <Badge :class="cn(styles.badge.root, props.class)">
+  <Badge v-bind="props.dataAttrs" :class="cn(styles.badge.root, props.class)">
     <slot name="prepend">
       <Icon v-if="icon" :icon="icon" size="nano" :class="styles.badge.icon" />
     </slot>
@@ -25,15 +25,11 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-// --- internal
 import { Icon } from "../icon";
 import config from "./badge.config";
 import Badge from "./Badge.vue";
 import { useStyles, cn } from "../../utils";
-// --- components
-// --- types
 import type { BadgeProps } from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<BadgeProps>(), {

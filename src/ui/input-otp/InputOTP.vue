@@ -21,7 +21,7 @@
         pattern="\d*"
         inputmode="numeric"
         autocomplete="one-time-code"
-        data-testid="input-otp-slot"
+        data-test-key="input-otp-slot"
         @input="onChange(idx - 1, ($event.target as HTMLInputElement).value)"
         @focus="onSlotFocus(idx - 1)"
         @keydown.delete="onDelete(idx - 1)"
@@ -52,7 +52,7 @@
         pattern="\d*"
         inputmode="numeric"
         autocomplete="one-time-code"
-        data-testid="input-otp-slot"
+        data-test-key="input-otp-slot"
         @input="
           onChange(
             idx - 1 + midpoint,
@@ -76,20 +76,11 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, nextTick, onMounted, ref, watch } from "vue";
-
-// --- components
 import InputItems from "../input/InputItems.vue";
-
-// --- internal
 import config from "./input-otp.config";
-
-// --- utils
 import { cn, useStyles } from "../../utils";
 import { ceil } from "lodash-es";
-
-// --- types
 import type { InputOTPProps } from "./types";
 
 // -----------------------------------------------------------------------------

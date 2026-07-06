@@ -1,4 +1,3 @@
-// --- external
 import type { tabsRootVariants } from "./tabs.config";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { TabsRootProps, TabsListProps } from "radix-vue";
@@ -11,6 +10,7 @@ export type TabItem = {
   value: string;
   icon?: string;
   eager?: boolean;
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
 };
 
 export type TabsProps = TabsRootProps &

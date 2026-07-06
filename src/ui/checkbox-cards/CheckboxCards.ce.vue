@@ -5,7 +5,7 @@
     :disabled="isDisabled"
     :class="cn(styles.checkboxCards.root, props.class)"
     type="multiple"
-    data-testid="checkbox-group"
+    data-test-key="checkbox-group"
     v-auto-animate
   >
     <template v-for="(item, index) in items" :key="item.id || index">
@@ -20,9 +20,9 @@
         :class="cn(styles.checkboxCards.input, props.itemClass)"
         :itemClass="styles.checkboxCards.item"
         :checked="includes(modelValue, item.value)"
-        :data-testid="
-          item['data-testid'] ||
-          `checkbox-item-${kebabCase(item.label) || kebabCase(item.name) || kebabCase(item.id)}`
+        :data-test-key="
+          item.dataAttrs?.['data-test-key'] ??
+          `checkbox-item-${item.id || item.value || index}`
         "
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
@@ -30,7 +30,7 @@
         <Label
           :for="`${item.id}-${index}`"
           :class="styles.checkboxCards.label"
-          data-testid="checkbox-label"
+          data-test-key="checkbox-label"
         >
           <slot name="item" v-bind="{ item, index }">
             <article :class="styles.checkboxCards.content.root">
@@ -83,7 +83,7 @@
               <p
                 v-if="item.secondaryDescription"
                 :class="styles.checkboxCards.content.secondaryDescription"
-                data-testid="secondary-item-description"
+                data-test-key="secondary-item-description"
               >
                 {{ item.secondaryDescription }}
               </p>
@@ -96,22 +96,17 @@
 </template>
 
 <script setup lang="ts">
-// ---external
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useVModel } from "@vueuse/core";
 import { ToggleGroupRoot } from "radix-vue";
 import { computed } from "vue";
-// --- internal
 import { Badge } from "../badge";
 import { Label } from "../label";
 import { Link } from "../link";
 import CheckboxCardItem from "./CheckboxCardItem.vue";
 import config from "./checkboxCards.config";
 import { cn, useStyles, useDisabled } from "../../utils";
-// --- components
-// --- utils
-import { includes, isFunction, isString, isNil, kebabCase } from "lodash-es";
-// --- types
+import { includes, isFunction, isString, isNil } from "lodash-es";
 import type { CheckboxCardsItemActionProps, CheckboxCardsProps } from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<CheckboxCardsProps>(), {

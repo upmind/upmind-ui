@@ -31,6 +31,7 @@
           v-for="item in results"
           :key="item.id"
           :class="styles.search.item"
+          v-bind="props.dataAttrs"
           @click="onSelect(item)"
         >
           {{ item.label }}
@@ -54,7 +55,6 @@
  * @description Searchable popover input with result selection.
  */
 
-// --- external
 import {
   PopoverRoot,
   PopoverTrigger,
@@ -62,14 +62,11 @@ import {
   PopoverPortal
 } from "radix-vue";
 import { ref, computed, watch } from "vue";
-// --- components
 import { FormControl } from "../form";
 import Input from "../input/Input.ce.vue";
-// --- utils
 import config from "./search.config";
 import { useStyles, useDisabled } from "../../utils";
 import { uniqueId } from "lodash-es";
-// --- types
 import type { SearchItem } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -85,6 +82,7 @@ const props = withDefaults(
     minQueryLength?: number;
     icon?: string;
     additionalOption?: string;
+    dataAttrs?: Record<`data-${string}`, string | number | boolean>;
   }>(),
   {
     id: uniqueId("search-"),

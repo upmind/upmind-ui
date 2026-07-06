@@ -14,7 +14,7 @@
     >
       <div
         class="drag-handle from-bg-button-subtle-0 to-bg-button-subtle-1 mx-auto mt-2 mb-8 min-h-2 w-[100px] rounded-full bg-gradient-to-r"
-        data-testid="drawer-content"
+        data-test-key="drawer-content"
         :data-vaul-no-drag="props.dismissible === false ? '' : undefined"
       ></div>
 
@@ -72,14 +72,11 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useVModel } from "@vueuse/core";
 import { useForwardPropsEmits } from "radix-vue";
 import { DrawerTrigger, DrawerClose } from "vaul-vue";
 import { computed } from "vue";
-// --- internal
 import config from "./drawer.config";
-// --- components
 import Drawer from "./Drawer.vue";
 import DrawerContent from "./DrawerContent.vue";
 import DrawerDescription from "./DrawerDescription.vue";
@@ -87,10 +84,8 @@ import DrawerFooter from "./DrawerFooter.vue";
 import DrawerHeader from "./DrawerHeader.vue";
 import DrawerTitle from "./DrawerTitle.vue";
 import { useStyles, cn } from "../../utils";
-// --- types
 import { pick } from "lodash-es";
 import type { DrawerProps } from "./types";
-// --- utils
 
 const props = withDefaults(defineProps<DrawerProps>(), {
   // --- props

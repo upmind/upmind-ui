@@ -10,7 +10,6 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import {
   uiTypeIs,
   and,
@@ -19,12 +18,9 @@ import {
   schemaSubPathMatches
 } from "@jsonforms/core";
 import { useJsonFormsMultiEnumControl } from "@jsonforms/vue";
-// --- components
 import { CheckboxCards } from "../../../checkbox-cards";
 import FormField from "../../FormField.vue";
-// --- utils
 import { useUpmindUIRenderer } from "../utils";
-// --- types
 import type { ControlElement, JsonSchema } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------

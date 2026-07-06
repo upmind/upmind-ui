@@ -9,11 +9,19 @@ import { type HTMLAttributes, computed } from "vue";
 import { cn } from "../../utils";
 
 const props = defineProps<
-  SelectItemProps & { class?: HTMLAttributes["class"] }
+  SelectItemProps & {
+    class?: HTMLAttributes["class"];
+    /** Stable identifier for the implicit testid cascade (id → value). */
+    id?: string;
+    /** Explicit data-* attributes spread onto the rendered option (e.g.
+     * `{ "data-test-key": "currency-gbp" }`). Overrides the implicit
+     * `select-item-*` testid; the uniform escape hatch across primitives. */
+    dataAttrs?: Record<`data-${string}`, string | number | boolean>;
+  }
 >();
 
 const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props;
+  const { class: _, dataAttrs: __, id: ___, ...delegated } = props;
 
   return delegated;
 });
@@ -30,7 +38,10 @@ const forwardedProps = useForwardProps(delegatedProps);
         props.class
       )
     "
-    :data-testid="`select-item-${props.value}`"
+    :data-test-key="
+      props.dataAttrs?.['data-test-key'] ??
+      `select-item-${props.id || props.value}`
+    "
   >
     <slot name="indicator" />
 

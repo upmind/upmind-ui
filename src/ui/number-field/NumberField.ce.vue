@@ -19,7 +19,7 @@
       <NumberFieldInput
         @resize="handleResize"
         :class="cn(styles.numberField.field, props.classField)"
-        data-testid="quantity-input"
+        data-test-key="quantity-input"
       />
 
       <NumberFieldActionButton
@@ -35,19 +35,15 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, ref, watch } from "vue";
-// --- internal
 import config from "./numberField.config";
-// --- components
 import NumberField from "./NumberField.vue";
-import NumberFieldContent from "./NumberFieldContent.vue";
 import NumberFieldActionButton from "./NumberFieldActionButton.vue";
+import NumberFieldContent from "./NumberFieldContent.vue";
 import NumberFieldDecrement from "./NumberFieldDecrement.vue";
 import NumberFieldIcon from "./NumberFieldIcon.vue";
 import NumberFieldIncrement from "./NumberFieldIncrement.vue";
 import NumberFieldInput from "./NumberFieldInput.vue";
-// --- utils
 import { NUMBER_FIELD_VARIANTS } from "./types";
 import { cn, useStyles, useDisabled } from "../../utils";
 import { assign, omit } from "lodash-es";

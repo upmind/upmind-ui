@@ -1,5 +1,8 @@
 <template>
-  <Alert :class="cn(styles.alert.root, props.class)">
+  <Alert
+    :class="cn(styles.alert.root, props.class)"
+    :data-attrs="props.dataAttrs"
+  >
     <Icon v-if="icon" :icon="icon" size="2xs" :class="styles.alert.icon" />
     <div :class="styles.alert.content">
       <AlertTitle :class="styles.alert.title">
@@ -34,21 +37,14 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-
-// --- internal
 import { Icon } from "../icon";
 import { Link } from "../link";
 import config from "./alert.config";
-
-// --- components
 import Alert from "./Alert.vue";
 import AlertDescription from "./AlertDescription.vue";
 import AlertTitle from "./AlertTitle.vue";
 import { useStyles, cn } from "../../utils";
-
-// --- types
 import type { AlertProps } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -65,13 +61,13 @@ const props = withDefaults(defineProps<AlertProps>(), {
 
 const slots = defineSlots<{
   /** Append additional content */
-  default(props: {}): any;
+  default(props: Record<string, unknown>): any;
   /** Provide a title */
-  title(props: {}): any;
+  title(props: Record<string, unknown>): any;
   /** Provide an action */
-  action(props: {}): any;
+  action(props: Record<string, unknown>): any;
   /** Provide a description */
-  description(props: {}): any;
+  description(props: Record<string, unknown>): any;
 }>();
 
 const emit = defineEmits<{

@@ -5,7 +5,10 @@
     :aria-disabled="meta.isDisabled || undefined"
     :tabindex="meta.isFocusable ? '0' : '-1'"
     :class="cn(styles.link.root, props.class)"
-    :data-testid="`link-${kebabCase(label ?? 'default')}`"
+    :data-test-key="
+      props.dataAttrs?.['data-test-key'] ??
+      `link-${kebabCase(label ?? 'default')}`
+    "
     @click="onClick"
   >
     <slot name="prepend">
@@ -37,17 +40,12 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, useSlots } from "vue";
 import { RouterLink } from "vue-router";
-// --- internal
 import config from "./link.config";
-// --- components
 import LinkItems from "./LinkItems.vue";
-// --- utils
 import { useStyles, cn, useDisabled } from "../../utils";
 import { kebabCase, isEmpty } from "lodash-es";
-// -- types
 import type { LinkProps } from "./types";
 
 const props = withDefaults(defineProps<LinkProps>(), {
@@ -76,9 +74,10 @@ const component = computed(() => {
 });
 
 const componentProps = computed(() => {
-  if (component.value === RouterLink) return { to: props.to };
-  if (component.value === "a") return { href: props.href };
-  return {};
+  if (component.value === RouterLink)
+    return { to: props.to, ...props.dataAttrs };
+  if (component.value === "a") return { href: props.href, ...props.dataAttrs };
+  return { ...props.dataAttrs };
 });
 
 function onClick(event: Event) {

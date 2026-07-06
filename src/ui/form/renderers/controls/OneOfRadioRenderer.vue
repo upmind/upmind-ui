@@ -11,17 +11,13 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { isOneOfEnumControl, and, optionIs } from "@jsonforms/core";
 import { useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
 import { computed } from "vue";
-// --- components
 import { RadioCards } from "../../../radio-cards";
 import FormField from "../../FormField.vue";
-// --- utils
 import { useUpmindUIRenderer } from "../utils";
 import { map } from "lodash-es";
-// --- types
 import type { RadioCardsItemProps } from "../../../radio-cards";
 import type { ControlElement, EnumOption, JsonSchema } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
@@ -47,7 +43,8 @@ const items = computed(() => {
         label: option.label,
         secondaryLabel: option?.text,
         index,
-        modelValue: data
+        modelValue: data,
+        dataAttrs: { "data-test-key": `radio-${option.value}` }
       };
     }
   );

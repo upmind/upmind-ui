@@ -9,10 +9,8 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useVModel } from "@vueuse/core";
 import { computed } from "vue";
-// --- components
 import config from "./textarea.config";
 import Textarea from "./Textarea.vue";
 // --- internal

@@ -18,18 +18,13 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { and, uiTypeIs, optionIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { computed } from "vue";
-
-// --- components
 import { InputOTP } from "../../../input-otp";
 import FormField from "../../FormField.vue";
-// --- utils
 import { useUpmindUIRenderer } from "../utils";
 import { isNil } from "lodash-es";
-// --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { ComputedRef } from "vue";

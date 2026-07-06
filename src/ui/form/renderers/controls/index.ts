@@ -1,8 +1,7 @@
-// -----------------------------------------------------------------------------
-import BooleanRenderer, { tester as BooleanTest } from "./BooleanRenderer.vue";
 import BooleanCardRenderer, {
   tester as BooleanCardTest
 } from "./BooleanCardRenderer.vue";
+import BooleanRenderer, { tester as BooleanTest } from "./BooleanRenderer.vue";
 import BooleanSwitchRenderer, {
   tester as BooleanSwitchTest
 } from "./BooleanSwitchRenderer.vue";
@@ -19,7 +18,6 @@ import EnumRadioRenderer, {
 } from "./EnumRadioRenderer.vue";
 import EnumRenderer, { tester as EnumTest } from "./EnumRenderer.vue";
 import LookupRenderer, { tester as lookupTest } from "./LookupRenderer.vue";
-import OTPRenderer, { tester as OTPTest } from "./OTPRenderer.vue";
 import MultilineRenderer, {
   tester as MultilineTest
 } from "./MultilineRenderer.vue";
@@ -30,6 +28,7 @@ import OneOfRadioRenderer, {
 import OneOfSelectRenderer, {
   tester as OneOfSelectTest
 } from "./OneOfSelectRenderer.vue";
+import OTPRenderer, { tester as OTPTest } from "./OTPRenderer.vue";
 import PasswordRenderer, {
   tester as PasswordTest
 } from "./PasswordRenderer.vue";

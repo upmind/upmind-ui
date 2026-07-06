@@ -1,14 +1,24 @@
 <script lang="ts" setup>
+import { computed } from "vue";
 import { cn } from "../../utils";
+import { omit } from "lodash-es";
 import type { HTMLAttributes } from "vue";
 
 const props = defineProps<{
   class?: HTMLAttributes["class"];
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
 }>();
+
+const dataAttrsRest = computed(() => omit(props.dataAttrs, "data-test-key"));
 </script>
 
 <template>
-  <div :class="cn(props.class)" role="alert" data-testid="alert">
+  <div
+    :class="cn(props.class)"
+    role="alert"
+    :data-test-key="props.dataAttrs?.['data-test-key'] ?? 'alert'"
+    v-bind="dataAttrsRest"
+  >
     <slot />
   </div>
 </template>

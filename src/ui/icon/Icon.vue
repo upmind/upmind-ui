@@ -12,9 +12,7 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, ref, watchEffect } from "vue";
-// --- internal
 import theme from "../../utils/useThemes";
 import config from "./icon.config";
 import { loadIcon } from "./utils/iconLoader";
@@ -24,7 +22,6 @@ import {
   //stylesheet
 } from "../../utils";
 import { isObject, isEmpty } from "lodash-es";
-// --- types
 import type { IconProps } from ".";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<IconProps>(), {

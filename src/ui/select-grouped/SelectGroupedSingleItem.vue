@@ -43,16 +43,14 @@
  * badges, and optional action button. Used when a group contains exactly
  * one item, eliminating the need for a dropdown.
  */
-// --- external
+
 import { useFocus } from "@vueuse/core";
 import { Circle } from "lucide-vue-next";
 import { computed, ref } from "vue";
-// --- internal
 import config from "./selectGrouped.config";
 import SelectGroupedItemContent from "./SelectGroupedItemContent.vue";
 import { toggleSelectionValue } from "./utils";
 import { useStyles } from "../../utils";
-// --- components
 import { isArray, includes, isEqual } from "lodash-es";
 import type { SelectGroupedSingleItemRendererProps } from "./types";
 // -----------------------------------------------------------------------------

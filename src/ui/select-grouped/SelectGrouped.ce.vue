@@ -5,7 +5,7 @@
     :aria-required="props.required"
     :aria-disabled="isDisabled"
     :class="cn(styles.selectGrouped.root, props.class)"
-    data-testid="select-grouped"
+    data-test-key="select-grouped"
     v-auto-animate
   >
     <SelectGroupedOption
@@ -48,12 +48,10 @@
  * and multi-item options (collapsible dropdown). Manages focus navigation between
  * options and emits selection changes via v-model.
  */
-// --- external
+
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { computed, ref } from "vue";
-// --- internal
 import config from "./selectGrouped.config";
-// --- components
 import SelectGroupedOption from "./SelectGroupedOption.vue";
 import { cn, useStyles, useDisabled } from "../../utils";
 // --- types

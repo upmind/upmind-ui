@@ -5,7 +5,10 @@
     :disabled="meta.isDisabled || meta.isLoading"
     :tabindex="meta.isFocusable ? '0' : '-1'"
     :class="cn(styles.button.root, props.class)"
-    :data-testid="`button-${kebabCase(label ?? 'default')}`"
+    :data-test-key="
+      props.dataAttrs?.['data-test-key'] ??
+      `button-${kebabCase(label ?? 'default')}`
+    "
     @click="$emit('click', $event)"
   >
     <slot name="prepend">
@@ -45,18 +48,14 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, useSlots } from "vue";
 import { RouterLink } from "vue-router";
-// --- internal
 import { Spinner } from "../spinner";
 import config from "./button.config";
 import Button from "./Button.vue";
 import ButtonItems from "./ButtonItems.vue";
-// --- utils
 import { useStyles, cn, useDisabled } from "../../utils";
 import { kebabCase } from "lodash-es";
-// -- types
 import type { ButtonProps } from "./types";
 
 const props = withDefaults(defineProps<ButtonProps>(), {
@@ -91,9 +90,9 @@ const component = computed(() => {
 });
 
 const componentProps = computed(() => {
-  if (props.to) return { to: props.to };
-  if (props.href) return { href: props.href };
-  return { type: props.type };
+  if (props.to) return { to: props.to, ...props.dataAttrs };
+  if (props.href) return { href: props.href, ...props.dataAttrs };
+  return { type: props.type, ...props.dataAttrs };
 });
 
 const meta = computed(() => ({

@@ -57,19 +57,15 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { isBooleanControl, and, optionIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
-// -- components
 import { Toggle } from "../../../toggle";
 import FormControl from "../../FormControl.vue";
 import FormDescription from "../../FormDescription.vue";
 import FormField from "../../FormField.vue";
 import FormMessage from "../../FormMessage.vue";
 import FormRequiredIndicator from "../../FormRequiredIndicator.vue";
-// --- utils
 import { useUpmindUIRenderer } from "../utils";
-// --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // -----------------------------------------------------------------------------

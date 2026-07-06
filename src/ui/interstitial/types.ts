@@ -1,6 +1,4 @@
-// --- external
 import type { AvatarProps } from "../avatar/types";
-// --- internal
 import type { ButtonProps } from "../button/types";
 import type { DialogProps } from "../dialog/types";
 import type { IconProps } from "../icon/types";
@@ -10,7 +8,7 @@ import type { HTMLAttributes } from "vue";
 // --------------------------------------------------------
 // ---
 export type InterstitialActionProps = {
-  handler?: Function | string;
+  handler?: ((...args: unknown[]) => unknown) | string;
   prependIcon?: IconProps;
   appendIcon?: IconProps;
 } & ButtonProps;
@@ -34,4 +32,5 @@ export type InterstitialProps = {
   // ---
   uiConfig?: { interstitial: CxOptions };
   class?: HTMLAttributes["class"];
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
 };

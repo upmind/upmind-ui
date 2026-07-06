@@ -15,6 +15,7 @@
         :checked="open"
         :data-hover="dataHover"
         :data-focus="dataFocus && !skipFocus"
+        v-bind="props.triggerDataAttrs"
         ring
       >
         <template #prepend v-if="!isEmpty(modelValue) || searchValue">
@@ -38,8 +39,10 @@
           </slot>
         </template>
 
-        <template #default v-if="!isEmpty(modelValue)">
-          <span :class="styles.combobox.label">{{ label }}</span>
+        <template #label v-if="!isEmpty(modelValue)">
+          <span :class="styles.combobox.label" v-bind="props.valueDataAttrs">{{
+            label
+          }}</span>
         </template>
 
         <template #default>
@@ -96,6 +99,7 @@
               @select="doSelect(get(item, itemValue))"
               :class="cn(styles.combobox.listItem, styles.combobox.item)"
               :data-selected="isSelected(item) ? 'true' : 'false'"
+              v-bind="item.dataAttrs"
             >
               <Avatar v-if="item.avatar" v-bind="item.avatar" size="xs" />
 
@@ -103,7 +107,7 @@
 
               <span
                 class="flex w-full items-center justify-between"
-                :data-testid="`combobox-item`"
+                :data-test-key="`combobox-item`"
               >
                 <span
                   v-if="(item as Record<string, any>)?.[itemLabel]"
@@ -127,9 +131,7 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { ref, computed, watch } from "vue";
-// --- internal
 import { isMobile } from "../../utils/isMobile";
 import Avatar from "../avatar/Avatar.ce.vue";
 import Button from "../button/Button.ce.vue";
@@ -145,10 +147,7 @@ import Icon from "../icon/Icon.ce.vue";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import config from "./combobox.config";
 import { cn, useStyles, useDisabled } from "../../utils";
-// --- components
-// --- utils
 import { find, get, isEmpty, isEqual, isFunction, has } from "lodash-es";
-// --- types
 import type { ComboboxProps, ComboboxItemProps } from "./types";
 
 const props = withDefaults(defineProps<ComboboxProps>(), {

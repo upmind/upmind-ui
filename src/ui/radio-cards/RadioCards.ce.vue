@@ -30,7 +30,12 @@
         :uiConfig="props.uiConfig"
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
-        :data-testid="`radio-card-${kebabCase(option.label) || index}`"
+        :dataAttrs="{
+          ...option.dataAttrs,
+          'data-test-key':
+            option.dataAttrs?.['data-test-key'] ??
+            `radio-card-${option.id || option.value || index}`
+        }"
         @keydown.enter="onChange(option.value)"
         @click="() => onChange(option.value)"
       >
@@ -44,12 +49,9 @@
 </template>
 
 <script setup lang="ts">
-// ---external
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useForwardPropsEmits } from "radix-vue";
 import { computed } from "vue";
-// --- internal
-// --- components
 import { RadioGroup } from "../radio-group";
 import RadioCardItem from "./RadioCardItem.vue";
 import config from "./radioCards.config";

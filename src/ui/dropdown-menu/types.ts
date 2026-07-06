@@ -1,5 +1,3 @@
-// --- external
-// --- internal
 import type { AvatarProps } from "../avatar";
 import type { ButtonProps } from "../button";
 import type { IconProps } from "../icon";
@@ -19,9 +17,10 @@ export type DropdownMenuItemProps = {
   value: string;
   icon?: IconProps["icon"];
   avatar?: Partial<AvatarProps>;
-  handler?: Function;
+  handler?: (...args: unknown[]) => unknown;
   disabled?: boolean;
   hidden?: boolean;
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
   class?: HTMLAttributes["class"];
 };
 

@@ -24,7 +24,6 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import {
   isNumberControl,
   isIntegerControl,
@@ -35,7 +34,6 @@ import {
 } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { computed } from "vue";
-// --- internal
 import config from "../../../number-field/numberField.config";
 import NumberField from "../../../number-field/NumberField.vue";
 import NumberFieldContent from "../../../number-field/NumberFieldContent.vue";
@@ -43,11 +41,9 @@ import NumberFieldDecrement from "../../../number-field/NumberFieldDecrement.vue
 import NumberFieldIncrement from "../../../number-field/NumberFieldIncrement.vue";
 import NumberFieldInput from "../../../number-field/NumberFieldInput.vue";
 import FormField from "../../FormField.vue";
-// --- utils
 import { useStyles } from "../../../../utils";
 import { useUpmindUIRenderer } from "../utils";
 import { isNumber, get, isArray, includes } from "lodash-es";
-// --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { ComputedRef } from "vue";

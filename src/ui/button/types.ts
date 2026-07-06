@@ -1,4 +1,3 @@
-// --- external
 import type { rootVariants } from "./button.config";
 import type { AvatarProps } from "../avatar";
 import type { Icon } from "../icon/types";
@@ -9,8 +8,6 @@ import type {
   RouteLocationAsRelativeGeneric,
   RouteLocationAsPathGeneric
 } from "vue-router";
-// --- internal
-// --- types
 
 type ButtonVariantProps = VariantProps<typeof rootVariants>;
 
@@ -40,6 +37,7 @@ export type ButtonProps = {
   uiConfig?: {
     button: { root: CxOptions; label: CxOptions; items: CxOptions };
   };
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
 } & (

@@ -1,7 +1,6 @@
-// --- external
-import type { SwitchRootProps } from "radix-vue";
 import type { switchVariants } from "./switch.config";
 import type { CxOptions, VariantProps } from "class-variance-authority";
+import type { SwitchRootProps } from "radix-vue";
 import type { HTMLAttributes } from "vue";
 // -----------------------------------------------------------------------------
 

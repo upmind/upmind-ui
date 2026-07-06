@@ -1,10 +1,6 @@
-// --- external
 import { createAjv, type JsonSchema } from "@jsonforms/core";
 import ajvErrors from "ajv-errors";
 import type Ajv from "ajv";
-// --- internal
-// --- utils
-// --- types
 import type { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
 

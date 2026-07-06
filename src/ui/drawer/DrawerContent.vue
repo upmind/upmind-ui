@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useForwardPropsEmits } from "radix-vue";
 import { DrawerContent, DrawerPortal } from "vaul-vue";
+import { type HTMLAttributes, useTemplateRef } from "vue";
 import DrawerOverlay from "./DrawerOverlay.vue";
 import { cn, providePortalTarget } from "../../utils";
 import type {
@@ -8,7 +9,6 @@ import type {
   DialogContentProps,
   DialogPortalProps
 } from "radix-vue";
-import { type HTMLAttributes, useTemplateRef } from "vue";
 
 const props = withDefaults(
   defineProps<
@@ -56,7 +56,7 @@ providePortalTarget(useTemplateRef("content"));
           props.class
         )
       "
-      data-testid="drawer-content"
+      data-test-key="drawer-content"
     >
       <slot />
     </DrawerContent>

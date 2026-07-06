@@ -21,7 +21,12 @@
           :columns="props.columns"
           :value="selectedItem.value"
           :minimal="props.minimal"
-          :data-testid="`radio-card-${kebabCase(props.label)}`"
+          :dataAttrs="{
+            ...selectedItem.dataAttrs,
+            'data-test-key':
+              selectedItem.dataAttrs?.['data-test-key'] ??
+              `radio-card-${selectedItem.id || selectedItem.value}`
+          }"
           :uiConfig="selectedItemUiConfig"
         >
           <template #item="slotProps">
@@ -71,7 +76,12 @@
                 props.radioClass
               ]"
               :minimal="props.minimal"
-              data-testid="radio-card-item"
+              :dataAttrs="{
+                ...option.dataAttrs,
+                'data-test-key':
+                  option.dataAttrs?.['data-test-key'] ??
+                  `radio-card-${option.id || option.value}`
+              }"
               :uiConfig="props.uiConfig"
               @keydown.enter="onSelectionChange(option.value)"
             >
@@ -98,11 +108,7 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
-import { kebabCase } from "lodash-es";
-// --- internal
-// --- components
 import { Button } from "../button";
 import { Collapsible, CollapsibleContent } from "../collapsible";
 import { RadioGroup } from "../radio-group";

@@ -3,11 +3,8 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { type SwitchRootEmits, useForwardPropsEmits } from "radix-vue";
 import { computed } from "vue";
-
-// --- components
 import config from "./switch.config";
 import Switch from "./Switch.vue";
 

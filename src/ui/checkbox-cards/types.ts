@@ -1,7 +1,4 @@
-// --- external
-// --- types
 import type { BadgeProps } from "../badge";
-// --- internal
 import type { checkboxLabelVariants, variants } from "./checkboxCards.config";
 import type { LinkProps } from "../link";
 import type { CxOptions, VariantProps } from "class-variance-authority";
@@ -13,7 +10,7 @@ type CheckboxLabelVariantProps = VariantProps<typeof checkboxLabelVariants>;
 type _CheckboxCardsItemVariants = typeof variants;
 
 export type CheckboxCardsItemActionProps = LinkProps & {
-  handler?: Function | string;
+  handler?: ((...args: unknown[]) => unknown) | string;
   type?: HTMLButtonElement["type"];
   visible?: boolean;
 };
@@ -27,8 +24,10 @@ export type CheckboxCardsItemProps = ToggleGroupItemProps & {
   secondaryBadge?: BadgeProps;
   action?: CheckboxCardsItemActionProps;
   id?: string;
-  /** Override the auto-generated data-testid for this item */
-  "data-testid"?: string;
+  /** Explicit data-* attributes spread onto the rendered checkbox (e.g.
+   * `{ "data-test-key": "addon-backups" }`). Overrides the implicit
+   * `checkbox-item-*` testid; the uniform escape hatch across card primitives. */
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
   /** When `true`, prevents the user from interacting with the radio item. */
   disabled?: boolean;
   /** When `true`, indicates that the user must check the radio item before the owning form can be submitted. */

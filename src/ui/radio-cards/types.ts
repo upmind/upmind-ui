@@ -1,5 +1,3 @@
-// --- external
-// --- types
 import type { itemSizeVariants } from "./radioCards.config";
 import type { BadgeProps } from "../badge";
 import type { LinkProps } from "../link";
@@ -10,7 +8,7 @@ import type { HTMLAttributes } from "vue";
 type _RadioCardsItemSizeVariants = VariantProps<typeof itemSizeVariants>;
 
 export type RadioCardsItemActionProps = LinkProps & {
-  handler?: Function | string;
+  handler?: ((...args: unknown[]) => unknown) | string;
   type?: HTMLButtonElement["type"];
   visible?: boolean;
 };
@@ -19,6 +17,7 @@ export type RadioCardsItemProps = RadioGroupItemProps & {
   item?: any;
   index: number;
   name?: string;
+  id?: string;
   // ---
   label?: string;
   secondaryLabel?: string;
@@ -40,6 +39,10 @@ export type RadioCardsItemProps = RadioGroupItemProps & {
   uiConfig?: { radioCards: CxOptions };
   dataHover?: boolean;
   dataFocus?: boolean;
+  /** Explicit data-* attributes spread onto the rendered radio (e.g.
+   * `{ "data-test-key": "gateway-stripe" }`). Overrides the implicit
+   * `radio-card-*` testid; the uniform escape hatch across card primitives. */
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
 };
 
 export type RadioCardsProps = RadioGroupRootProps & {

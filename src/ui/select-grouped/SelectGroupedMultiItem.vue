@@ -135,10 +135,8 @@
  * items. Manages keyboard navigation within the dropdown, focus states, and
  * selection. The header shows the currently selected item's label.
  */
-// --- external
+
 import { useFocus } from "@vueuse/core";
-// --- internal
-// --- components
 import { Circle } from "lucide-vue-next";
 import { useId } from "radix-vue";
 import { computed, ref } from "vue";
@@ -152,7 +150,6 @@ import {
   createFocusOutHandler
 } from "./utils";
 import { cn, useStyles } from "../../utils";
-// --- types
 import { isArray, includes, isEqual } from "lodash-es";
 import type {
   SelectGroupedMultiItemRendererProps,

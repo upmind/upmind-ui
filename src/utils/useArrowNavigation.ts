@@ -1,6 +1,5 @@
-// --- external
-import type { Ref } from "vue";
 import { clamp } from "lodash-es";
+import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
 
 export type ArrowOrientation = "horizontal" | "vertical" | "both";

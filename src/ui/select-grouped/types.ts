@@ -1,5 +1,3 @@
-// --- external
-// --- types
 import type { BadgeProps } from "../badge";
 import type { LinkProps } from "../link";
 import type { CxOptions } from "class-variance-authority";
@@ -41,7 +39,7 @@ export type KeyboardHandlers = {
 };
 
 export type SelectGroupedItemActionProps = LinkProps & {
-  handler?: Function;
+  handler?: (...args: unknown[]) => unknown;
   visible?: boolean;
 };
 

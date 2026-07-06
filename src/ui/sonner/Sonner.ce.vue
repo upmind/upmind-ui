@@ -3,9 +3,8 @@
 
   <Sonner
     class="toaster group"
-    data-testid="sonner-toast"
     data-theme=""
-    v-bind="props"
+    v-bind="containerProps"
     :toast-options="{
       classes: {
         toast: cn(
@@ -75,20 +74,25 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
+import { computed } from "vue";
 import { Toaster as Sonner } from "vue-sonner";
-// --- internal
 import config from "./sonner.config";
-// --- types
 import {
   useStyles,
   cn
   //stylesheet
 } from "../../utils";
+import { omit } from "lodash-es";
 import type { SonnerProps } from ".";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<SonnerProps>();
+
+const containerProps = computed(() => ({
+  ...omit(props, "dataAttrs"),
+  "data-test-key": "sonner-toast",
+  ...props.dataAttrs
+}));
 
 const styles = useStyles(
   [

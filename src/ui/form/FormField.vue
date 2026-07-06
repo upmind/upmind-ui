@@ -4,7 +4,7 @@
     v-if="meta.isVisible"
     :class="cn('flex flex-wrap', props.class)"
     :data-visible="meta.isVisible"
-    :data-testid="`form-item-${kebabCase(props.name || props.label)}`"
+    :data-test-key="`form-item-${kebabCase(props.name || props.label)}`"
   >
     <slot name="field">
       <!-- label -->
@@ -72,7 +72,7 @@
             :formMessageId="`form-item-message-${props.id}`"
             :name="name"
             :errors="errors"
-            :data-testid="`form-item-message-${props.name.replaceAll('.', '-')}`"
+            :data-test-key="`form-item-message-${props.name.replaceAll('.', '-')}`"
           />
         </slot>
 
@@ -89,9 +89,7 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { ref, computed, useSlots } from "vue";
-// --- internal
 import { Icon } from "../icon";
 import { Tooltip } from "../tooltip";
 import config from "./form.config";
@@ -104,10 +102,8 @@ import {
   FormDescription,
   FormMessage
 } from ".";
-// --- utils
 import { cn, useStyles } from "../../utils";
 import { isEmpty, isNil, some, kebabCase } from "lodash-es";
-// --- types
 import type { FormControlProps } from "./types";
 // -----------------------------------------------------------------------------
 

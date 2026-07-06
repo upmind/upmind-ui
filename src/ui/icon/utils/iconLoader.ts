@@ -1,7 +1,5 @@
 // ---------------------------------------------------------------
 // iconLoader.ts – on‑demand SVG loader with in‑memory cache & fallback logic
-// ---------------------------------------------------------------
-
 import { ref, computed, type ComputedRef } from "vue";
 import {
   toPairs,
@@ -14,7 +12,6 @@ import {
   every,
   find
 } from "lodash-es";
-// --- types
 import type { IconEntry, IconImportMap, LoadIconOptions } from "../types";
 // -----------------------------------------------------------------------------
 

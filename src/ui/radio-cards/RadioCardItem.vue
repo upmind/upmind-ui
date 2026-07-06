@@ -1,5 +1,6 @@
 <template>
   <Label
+    v-bind="props.dataAttrs"
     :for="`${props.name}-${index}`"
     :class="cn(styles.radioCards.item.root, styles.radioCards.item.size)"
     :data-state="isSelected ? 'checked' : ''"
@@ -78,11 +79,8 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { watchOnce } from "@vueuse/core";
 import { computed } from "vue";
-// --- internal
-// --- components
 import { Badge } from "../badge";
 import Label from "../label/Label.ce.vue";
 import { Link } from "../link";

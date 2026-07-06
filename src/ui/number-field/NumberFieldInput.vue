@@ -31,6 +31,6 @@ const handleResize = (event: InputEvent) => {
         props.class
       )
     "
-    :data-testid="`number-field-input`"
+    :data-test-key="`number-field-input`"
   />
 </template>

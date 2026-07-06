@@ -1,6 +1,6 @@
+import type { IconProps } from "../icon";
 import type { ImageItem } from "../image/types";
 import type { RootVariants, ImageVariants } from "../image/types";
-import type { IconProps } from "../icon";
 import type { ImgHTMLAttributes } from "vue";
 
 // -----------------------------------------------------------------------------

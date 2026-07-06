@@ -1,9 +1,5 @@
-// --- external
-import { defineCustomElement } from "vue";
 import { variants } from "./dropdown-menu.config";
-import DropdownMenu from "./DropdownMenu.ce.vue";
 import { keys } from "lodash-es";
-// --- internal
 
 export { DropdownMenuPortal } from "radix-vue";
 export { default as DropdownMenuRoot } from "./DropdownMenu.vue";
@@ -22,7 +18,5 @@ export { default as DropdownMenuSubTrigger } from "./DropdownMenuSubTrigger.vue"
 export { default as DropdownMenuSubContent } from "./DropdownMenuSubContent.vue";
 export { default as DropdownMenu } from "./DropdownMenu.ce.vue";
 export { type DropdownMenuProps, type DropdownMenuItemProps } from "./types";
-
-export const UpmDropdownMenu = defineCustomElement(DropdownMenu);
 
 export const DROPDOWN_WIDTHS = keys(variants.width);

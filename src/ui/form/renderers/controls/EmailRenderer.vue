@@ -14,19 +14,14 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { and, or, isStringControl, formatIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { computed } from "vue";
-// --- components
 import { Input } from "../../../input";
 import FormField from "../../FormField.vue";
-// --- utils
-import { useUpmindUIRenderer } from "../utils";
-import { useStyles } from "../../../../utils";
-// --- local
 import config from "./email.config";
-// --- types
+import { useStyles } from "../../../../utils";
+import { useUpmindUIRenderer } from "../utils";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // -----------------------------------------------------------------------------

@@ -1,4 +1,3 @@
-// --- external
 import type { IconProps } from "../icon";
 import type { rootVariants } from "./select.config";
 import type { CxOptions, VariantProps } from "class-variance-authority";
@@ -8,8 +7,6 @@ import type {
   SelectItemProps,
   SelectValueProps
 } from "radix-vue";
-// --- components
-// --- types
 import type { HTMLAttributes } from "vue";
 
 type RootVariants = VariantProps<typeof rootVariants>;
@@ -22,6 +19,11 @@ export type SelectProps = Omit<SelectRootProps, "variant"> &
       label?: string;
       title?: string;
       const?: string;
+      id?: string;
+      /** Explicit data-* attributes spread onto the rendered option (e.g.
+       * `{ "data-test-key": "currency-gbp" }`). Overrides the implicit
+       * `select-item-*` testid; the uniform escape hatch across primitives. */
+      dataAttrs?: Record<`data-${string}`, string | number | boolean>;
     } & SelectItemProps)[];
     additionalItems?: SelectItemAdditional[];
     // --- variants;

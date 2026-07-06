@@ -82,20 +82,15 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { ref, computed, watch } from "vue";
-// --- components
 import { Button } from "../button";
 import { Carousel, CarouselContent } from "../carousel";
 import { Icon } from "../icon";
 import CarouselImage from "./CarouselImage.vue";
-import ImagePreview from "./ImagePreview.vue";
-// --- internal
 import config, { indicatorVariant } from "./image.config";
-// --- utils
+import ImagePreview from "./ImagePreview.vue";
 import { useStyles, cn, getComputedColor } from "../../utils";
 import { isEmpty, isArray, isString } from "lodash-es";
-// --- types
 import type { ImageProps, ImageItem } from "./types";
 import type { CarouselApi } from "../carousel";
 

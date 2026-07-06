@@ -20,7 +20,6 @@
  * Otherwise, delegates to the underlying Radix component.
  */
 
-// --- types
 import type { NumberFieldActionButtonProps } from "./types";
 
 // -----------------------------------------------------------------------------

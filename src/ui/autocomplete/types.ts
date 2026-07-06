@@ -1,4 +1,3 @@
-// --- external
 import type { AvatarProps } from "../avatar";
 import type { IconProps } from "../icon";
 import type { anchorVariants, contentVariants } from "./autocomplete.config";
@@ -8,7 +7,6 @@ import type {
   ComboboxInputProps,
   ComboboxItemProps
 } from "radix-vue";
-// --- internal
 import type { HTMLAttributes } from "vue";
 
 type AnchorVariantProps = VariantProps<typeof anchorVariants>;
@@ -20,7 +18,7 @@ export type AutocompleteItemProps = ComboboxItemProps & {
   value: string;
   icon?: IconProps["icon"];
   avatar?: Partial<AvatarProps>;
-  handler?: Function;
+  handler?: (...args: unknown[]) => unknown;
   class?: HTMLAttributes["class"];
   persist?: boolean;
 };

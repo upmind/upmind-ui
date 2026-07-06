@@ -1,4 +1,3 @@
-// --- external
 import type { formVariants } from "./form.config";
 import type { ButtonProps } from "../button";
 import type { InputProps } from "../input";
@@ -17,7 +16,6 @@ import type { ErrorObject } from "ajv";
 import type Ajv from "ajv";
 import type { VariantProps, CxOptions } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
-// --- internal
 
 type FormVariantProps = VariantProps<typeof formVariants>;
 
@@ -82,7 +80,7 @@ export type FormFooterProps = {
 };
 
 export type FormActionProps = ButtonProps & {
-  handler?: Function | string;
+  handler?: ((...args: unknown[]) => unknown) | string;
   needsValid?: boolean;
 };
 

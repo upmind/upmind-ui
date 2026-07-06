@@ -9,6 +9,7 @@
     no-header
     :dismissable="props.dismissable"
     no-footer
+    v-bind="rootDataAttrs"
     @update:open="onDialogClose"
   >
     <div :class="cn(styles.interstitial.root, props.class)">
@@ -41,7 +42,7 @@
           <Button
             v-for="(action, index) in actions"
             :key="`action-${index}`"
-            :data-testid="`interstitial-action-${index}`"
+            :data-test-key="`interstitial-action-${index}`"
             size="lg"
             v-bind="action"
             :loading="action?.loading || meta.isProcessing"
@@ -55,11 +56,8 @@
   </component>
 </template>
 
-<!-- eslint-disable vue/component-api-style -->
 <script lang="ts" setup>
-// --- external
 import { ref, computed, useSlots } from "vue";
-// --- internal
 import { Avatar } from "../avatar";
 import { Button } from "../button";
 import { Dialog } from "../dialog";
@@ -67,10 +65,7 @@ import Sanitized from "../sanitized/Sanitized.vue";
 import config from "./interstitial.config";
 import { useStyles, cn, isEmptySlot } from "../../utils";
 import { isEmpty } from "lodash-es";
-// --- components
-// --- utils
 import { isFunction } from "lodash-es";
-// --- types
 import type { InterstitialActionProps, InterstitialProps } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -97,6 +92,14 @@ const meta = computed(() => ({
   isOpen: props.open,
   isModal: props.modal
 }));
+
+// When modal the root is a Dialog: hand it `dataAttrs` so it can override the
+// content's `dialog-window` testid (a raw fallthrough would die on the
+// render-less DialogRoot). When inline the root is a plain `div`, so spread the
+// attrs straight onto it.
+const rootDataAttrs = computed(() =>
+  props.modal ? { dataAttrs: props.dataAttrs } : props.dataAttrs
+);
 
 const slots = useSlots();
 

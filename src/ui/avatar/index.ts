@@ -1,15 +1,8 @@
-// --- external
-import { defineCustomElement } from "vue";
-// --- internal
-import Avatar from "./Avatar.ce.vue";
 import { variants } from "./avatar.config";
-// --- utils
 import { parseVariants, type VariantValues } from "../../utils";
 
 export { default as Avatar } from "./Avatar.ce.vue";
 export { type AvatarProps } from "./types";
-
-export const UpmAvatar = defineCustomElement(Avatar);
 
 export const AVATAR_COLORS = parseVariants(variants.color);
 export const AVATAR_SIZES = parseVariants(variants.size);

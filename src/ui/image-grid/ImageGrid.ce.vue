@@ -57,21 +57,16 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { ref, computed, watch, onUnmounted } from "vue";
 import { vResizeObserver } from "@vueuse/components";
-// --- internal
-import config, { thumbnailVariant } from "./imageGrid.config";
-// --- components
+import { ref, computed, watch, onUnmounted } from "vue";
 import { Carousel, CarouselContent, CarouselItem } from "../carousel";
 import { Image } from "../image";
-// --- utils
+import config, { thumbnailVariant } from "./imageGrid.config";
 import { useStyles, useArrowNavigation } from "../../utils";
 import { isArray, includes } from "lodash-es";
-// --- types
 import type { ImageGridProps } from "./types";
-import type { ImageItem } from "../image/types";
 import type { CarouselApi } from "../carousel";
+import type { ImageItem } from "../image/types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<ImageGridProps>(), {

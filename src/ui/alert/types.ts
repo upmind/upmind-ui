@@ -1,5 +1,3 @@
-// --- external
-// --- internal
 import type { rootVariants as alertVariants } from "./alert.config";
 import type { Icon } from "../icon/types";
 import type { LinkProps } from "../link/types";
@@ -24,4 +22,6 @@ export type AlertProps = {
   // ---
   uiConfig?: { alert: CxOptions };
   class?: HTMLAttributes["class"];
+  /** Escape-hatch for setting `data-*` attributes on the root element. */
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
 };

@@ -14,7 +14,7 @@
         v-bind="delegatedProps"
         v-model="modelValue"
         :class="styles.input.field"
-        :data-testid="`input-${kebabCase(props.id || props.type)}`"
+        :data-test-key="`input-${kebabCase(props.id || props.type)}`"
       />
     </slot>
 
@@ -29,20 +29,15 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import IMask, { type InputElement } from "imask";
 import { useTemplateRef, computed, onMounted, watch, ref } from "vue";
-import type { InputMask } from "imask";
-// --- internal
 import config from "./input.config";
-// --- components
 import InputItems from "./InputItems.vue";
 import { useStyles, cn, useDisabled, useReadonly } from "../../utils";
 import { kebabCase } from "lodash-es";
-// --- utils
 import { assign, omit } from "lodash-es";
-// --- types
 import type { InputProps } from "./types";
+import type { InputMask } from "imask";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<InputProps>(), {
