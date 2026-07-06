@@ -153,6 +153,7 @@ export function createAuthActions(
    */
   function onError(callback: (error?: unknown) => void): void {
     let handled = false;
+    let primed = false;
     const subscription = (
       service as unknown as {
         subscribe: (cb: (snapshot: State<any>) => void) => {
@@ -160,6 +161,10 @@ export function createAuthActions(
         };
       }
     ).subscribe(snapshot => {
+      // xstate emits the current state synchronously on subscribe; skip that
+      // first emission so onError fires only on a real transition into a
+      // settle state (and never touches `subscription` before it is assigned).
+      if (!primed) return;
       if (
         handled ||
         !stateMatches(snapshot, [
@@ -175,6 +180,7 @@ export function createAuthActions(
       subscription.unsubscribe();
       callback(contextValue(snapshot, "error"));
     });
+    primed = true;
   }
 
   /**

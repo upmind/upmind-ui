@@ -1,4 +1,5 @@
 import { waitFor } from "xstate/lib/waitFor";
+import { AuthFlowTypes } from "./auth.types";
 import { stateMatches, waitForProcessing } from "../../utils";
 import type { UseActor } from "../../utils";
 // -----------------------------------------------------------------------------
@@ -13,28 +14,23 @@ import type { UseActor } from "../../utils";
 export function createClientAuthActions(actor: UseActor) {
   const { send, service } = actor;
 
-  async function start(
-    flow?: "login" | "register" | "recover"
-  ): Promise<boolean> {
-    const flowType = flow ?? "login";
-    const event =
-      flowType === "register"
-        ? "REGISTER"
-        : flowType === "recover"
-          ? "RECOVER"
-          : "LOGIN";
-    const targetState =
-      flowType === "register"
-        ? "register"
-        : flowType === "recover"
-          ? "recover"
-          : "login";
+  async function start(flow?: AuthFlowTypes): Promise<boolean> {
+    const flowType = flow ?? AuthFlowTypes.LOGIN;
+    const event = flowType.toUpperCase();
 
+    // Settle once the flow leaves `.loading` — `.available` (form ready) or
+    // `.unavailable` (schema load failed) — then report readiness. Waiting on
+    // the bare flow prefix would match during `.loading` (register's initial
+    // state), and waiting on `.available` alone would hang the full timeout when
+    // the load fails and lands on the sibling `.unavailable`.
     send({ type: event });
-    return waitFor(service, s => stateMatches(s, targetState), {
-      timeout: 60_000
-    })
-      .then(() => true)
+    return waitFor(
+      service,
+      s =>
+        stateMatches(s, [`${flowType}.available`, `${flowType}.unavailable`]),
+      { timeout: 60_000 }
+    )
+      .then(s => stateMatches(s, `${flowType}.available`))
       .catch(() => false);
   }
 

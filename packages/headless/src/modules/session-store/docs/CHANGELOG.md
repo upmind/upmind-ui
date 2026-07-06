@@ -2,6 +2,35 @@
 
 All notable changes to the session-store module.
 
+## [Doc correction] - 2026-07-02
+
+Product owner ratified the multi-session model (see `docs/sdd/session-store-functional-requirements.md` if present, or the FE-2825-note): at most 3 cookies (one per scope), the store holds unlimited sessions per scope, and `activate(scope, id)` regenerates that scope's cookie **from** the store. This corrects several docs that had previously stated the reverse authority direction ("cookie is the single source of truth, store maps are a cache") and framed the multi-session sessionStorage cache as a security gap. See `foundation.md` Lessons, `gotchas.md` §6–§8, `architecture.md` Security Considerations, and `FE-2825-note.md` for the corrected framing.
+
+- **Known code/doc conflict, flagged for a future code fix (not fixed here):** the code comment at `session-store.store.ts:106-108` ("The cookie is the single source of truth for an authenticated session; the store maps are a cache") states the authority direction backwards relative to the ratified model. The comment (and the `reconcileToCookies` behaviour it describes) should be revisited by whoever next touches that function — the model's authority direction is store → cookie for the active session, not cookie → store.
+- **Known implementation defect (separate from the doc correction above):** `reconcileToCookies`, wired into every `updateSession` write, currently collapses `clientSessions`/`staffSessions` to at most one entry (whichever the current cookie backs) on every write — including writes from the store's own `add()`/`activate()` actions. This makes "the store holds unlimited sessions per scope" false in the shipped code today. Tracked as a product defect against the model; see `gotchas.md` §6.
+
+## [Baseline] - 2026-07-02
+
+Documentation baseline captured alongside the workshop foundation doc. Records the module's current shipped state after the FE-2825 hand-port (Tranche 6 of FE-2774) and the FE-2945 identity reshaping.
+
+### Current architecture
+
+- **`useActiveSession()` / `useSession(sessionId)` are pure identity** — both return the four sub-composables relative to the active session, with **no `.as(actor)` scoping**. FE-2945 reversed the earlier plan to fold auth-standing into `useSession`.
+- **Guest minting delegates to `auth`** via a lazy dynamic import (`await import("../auth")`), retrying up to 3 times and throwing a fatal boot error on exhaustion. The static import runs the other way (auth → session-store), so the dynamic import breaks the cycle at load time.
+- **Cookie of record** per actor: `upm_guest_session`, `upm_client_session`, `upm_user_session` (staff — `AccessRoleTypes.STAFF` is `"user"` on the wire), `upm_admin_session` (watched, not hydrated).
+- **BE surface**: `POST /oauth/access_token` (guest grant, boot), `GET /self` (client identity), `GET /admin/self` (staff identity).
+
+### Corrections to prior docs
+
+- **`storeInitialized` does not exist** — never exported. Await readiness via `useSessionStore().useActions().isReady()` (or `initStore()`'s returned promise). Earlier references were stale.
+- Staff cookie is `upm_user_session`, not `upm_staff_session`.
+- `allSessions` is a `Record<actor_id, SessionEntry>` where `SessionEntry` is `{ scope, token, user }` — not an array of `{ id, actor, entry }`.
+
+### Known gaps vs FE-2825 design (see gotchas.md §7–8)
+
+- **Metadata-only sessionStorage persistence** (FE-2825 §5.2) is **not** applied — `persistStoreState` writes token secrets to `upm_session_store`.
+- **`SET_SESSION` broadcast re-hydration + payload slimming** (FE-2825 §5.1) is **not** applied — the receiver still trusts the broadcast payload.
+
 ## [Unreleased]
 
 ### Breaking Changes
@@ -89,8 +118,8 @@ const { activeSession } = useSessionStore().useContext();
 console.log(activeSession.value); // Works immediately (may be default state)
 
 // Optional: Wait for full initialization (cookies loaded + user data)
-import { storeInitialized } from "@upmind/headless";
-await storeInitialized;
+const { isReady } = useSessionStore().useActions();
+await isReady();
 console.log(activeSession.value); // Guaranteed active session with user data ✅
 ```
 
@@ -166,7 +195,7 @@ console.log(activeSession.value?.access_token); // Auto-minted token ✅
 
 **New APIs:**
 
-- `storeInitialized` export - Promise resolving when initialization completes
+- `isReady()` action - resolves once initialization completes (no `storeInitialized` export exists)
 - `mintGuestToken()` private function - Delegates to auth module
 
 #### User Profile Storage
@@ -273,8 +302,8 @@ const { activeUser } = useSessionStore().useContext();
 console.log(activeUser.value?.email); // ✅ Available after background load
 
 // Or wait for initialization to complete
-import { storeInitialized } from "@upmind/headless";
-await storeInitialized;
+const { isReady } = useSessionStore().useActions();
+await isReady();
 console.log(activeUser.value?.email); // ✅ Guaranteed to be loaded
 ```
 
@@ -378,9 +407,9 @@ If you need user profile data immediately:
 
 ```typescript
 // NEW: Wait for full initialization (cookies + user data)
-import { storeInitialized } from "@upmind/headless";
+const { isReady } = useSessionStore().useActions();
 
-await storeInitialized;
+await isReady();
 
 const { activeUser } = useSessionStore().useContext();
 console.log(activeUser.value?.fullName); // User profile loaded ✅

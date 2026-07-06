@@ -4,8 +4,8 @@ import {
   type IToken
 } from "@upmind-automation/types";
 import { useSessionStore } from "../session-store";
-import { useI18n } from "../system-localisation";
 import { useDataLayer } from "../system-analytics";
+import { useI18n } from "../system-localisation";
 import { mapToken } from "./session-store.mappers";
 import { sessionStore as store, isScopeAllowed } from "./session-store.store";
 import {
@@ -13,7 +13,7 @@ import {
   ErrorOrigin,
   responseCodes,
   useCookies,
-  useActiveSessionStorage
+  useSessionStorage
 } from "../../utils";
 import { first, has, isObject, keys, omit, omitBy, values } from "lodash-es";
 import type {
@@ -32,10 +32,9 @@ import type {
  * Compute the expiration timestamp for a session from created_at + expires_in.
  */
 export function getExpiresAt(session?: IToken | null): number | null {
-  if (!session) return null;
-  const createdAt = session.created_at ?? Date.now();
+  if (!session?.created_at) return null;
   const expiresIn = session.expires_in ?? 0;
-  return createdAt + expiresIn * 1000;
+  return session.created_at + expiresIn * 1000;
 }
 
 /**
@@ -72,7 +71,7 @@ export function persistStoreState(): void {
     loading: _loading, // not needed in storage
     ...persistable
   } = store.state;
-  useActiveSessionStorage().set(STORAGE_KEY, persistable);
+  useSessionStorage().set(STORAGE_KEY, persistable);
 }
 
 /**
@@ -80,14 +79,14 @@ export function persistStoreState(): void {
  * Returns empty object if nothing is stored or data is invalid.
  */
 export function loadPersistedState(): PersistedSessionState {
-  return useActiveSessionStorage().get(STORAGE_KEY) ?? {};
+  return useSessionStorage().get(STORAGE_KEY) ?? {};
 }
 
 /**
  * Clear persisted store state from sessionStorage.
  */
 export function clearPersistedState(): void {
-  useActiveSessionStorage().remove(STORAGE_KEY);
+  useSessionStorage().remove(STORAGE_KEY);
 }
 
 // -----------------------------------------------------------------------------
@@ -194,7 +193,7 @@ export function getTokenFromStorage(actor_type?: Token["actor_type"]) {
 
 export function persistTokenToStorage(
   token: IToken,
-  opts?: { event?: AuthEventType }
+  opts?: { event?: AuthEventType; sync?: boolean }
 ) {
   const { t } = useI18n();
   const { setTopLevel: setCookie } = useCookies();
@@ -221,11 +220,15 @@ export function persistTokenToStorage(
     expires: "8h" //default : refresh token and access token are valid for 8 hours
   });
 
-  // Sync to session-store (if available)
-  const store = useSessionStore();
-  const { isAvailable } = store.useMeta();
-  const { add } = store.useActions();
-  if (isAvailable.value) add(token, true, undefined, opts?.event);
+  // Sync to session-store (unless the caller wants the cookie only — e.g. the
+  // store's own add/activate projecting the active token, which must not
+  // recurse back into add).
+  if (opts?.sync !== false) {
+    const store = useSessionStore();
+    const { isAvailable } = store.useMeta();
+    const { add } = store.useActions();
+    if (isAvailable.value) add(token, true, undefined, opts?.event);
+  }
   return Promise.resolve(token);
 }
 
@@ -255,15 +258,28 @@ export function dumpActorFromStorage(): void {
  * This is the source of truth for removing sessions.
  *
  * @param actor_type - The actor type (scope/role) to remove
+ * @param opts.sync - When false, remove the cookie ONLY (no session-store
+ *   mutation, no logout dataLayer) — for the store's own boot-time dead-token
+ *   drop, which must not recurse through `remove` or fire a false logout.
  */
-export function dumpTokenFromStorage(actor_type: Token["actor_type"]) {
+export function dumpTokenFromStorage(
+  actor_type: Token["actor_type"],
+  opts?: { sync?: boolean }
+) {
   if (!actor_type) return;
 
-  // Get session ID from stored token before removing
+  // Cookie-only removal — skip store sync + logout dataLayer (and the token
+  // read below, which that path never uses).
+  if (opts?.sync === false) {
+    useCookies().removeTopLevel(`upm_${actor_type}_session`);
+    return;
+  }
+
+  // Get session ID from stored token before removing the cookie.
   const token = getTokenFromStorage(actor_type);
   const sessionId = token?.actor_id ?? undefined;
-  // Remove cookie
   useCookies().removeTopLevel(`upm_${actor_type}_session`);
+
   // Sync to session-store state (if available)
   const store = useSessionStore?.();
   if (store) {

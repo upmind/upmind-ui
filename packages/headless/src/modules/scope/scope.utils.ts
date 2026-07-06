@@ -20,6 +20,8 @@ import type { ScopeActor, ScopeConfig, ScopeKey } from "./scope.types";
  * generateScopeKey("basket", { actor: "staff", context: { type: "client", id: "123" } })
  * // Returns: "basket:staff:client:123"
  */
+let freshInstanceCount = 0;
+
 export function generateScopeKey(name: string, config: ScopeConfig): ScopeKey {
   const parts: string[] = [name, String(config.actor)];
 
@@ -29,6 +31,14 @@ export function generateScopeKey(name: string, config: ScopeConfig): ScopeKey {
 
   if (config.brandId) {
     parts.push(`brand:${config.brandId}`);
+  }
+
+  if (config.newSession) {
+    // Unique per call: a fresh instance must NEVER be served from the registry
+    // cache — a remounting consumer would otherwise adopt the previous fresh
+    // instance (possibly already authenticated) just before its unmount
+    // destroys it.
+    parts.push(`fresh:${++freshInstanceCount}`);
   }
 
   return parts.join(":");
