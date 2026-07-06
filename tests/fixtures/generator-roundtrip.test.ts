@@ -35,10 +35,7 @@ import type { ApiFixtureV3 } from "@upmind-automation/test-fixtures/types";
 
 // NOTE: import.meta.dirname (not new URL(import.meta.url)) — under vitest's
 // transform import.meta.url is not a file: URL here.
-const LINTER = join(
-  import.meta.dirname,
-  "../../../../../../tests/fixtures/lint-fixtures.mjs"
-);
+const LINTER = join(import.meta.dirname, "lint-fixtures.mjs");
 
 const COUNTRIES_BODY = {
   status: "ok",

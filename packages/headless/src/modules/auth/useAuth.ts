@@ -46,7 +46,8 @@ function createAuthForScope(
     authMachine.withContext({
       scopeActor: actorScope,
       scopeContext: config.context,
-      brandId: config.brandId
+      brandId: config.brandId,
+      newSession: config.newSession
     } as AuthContext),
     { devTools: true }
   );

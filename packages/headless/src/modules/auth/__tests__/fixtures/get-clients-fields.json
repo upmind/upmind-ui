@@ -1,0 +1,147 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients_fields",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a14e38969f6e6cb8-DUR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Thu, 02 Jul 2026 14:08:11 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=4vA3tWCed2owpUy5X4XMPi4Xfvyv4e1IUNjzJXc5OPQvD%2F5atmJ76AnLeOaHUxRbkikBQ7ul0iXAt7jtGyrA6yPexWZFbw6yoZ6HnqUwP1B3MnqenN4K4NdHxHvZGS4DOzZWh9EtLg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "2"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "mock-uuid-4",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "object_type": "client",
+          "name": "Age",
+          "short_description": null,
+          "description": null,
+          "type": 7,
+          "group": 0,
+          "hidden": false,
+          "client_readonly": false,
+          "required": false,
+          "user_id": "mock-uuid-5",
+          "order": 1,
+          "values": {
+            "min": {
+              "label": "",
+              "value": ""
+            },
+            "max": {
+              "label": "",
+              "value": ""
+            },
+            "step": {
+              "label": "",
+              "value": ""
+            }
+          },
+          "created_at": "2025-12-19 12:58:10",
+          "updated_at": "2026-02-19 13:17:58",
+          "code": "age",
+          "user_only": false,
+          "show_on_order_form": false,
+          "show_on_invoice": false,
+          "deleted_at": null,
+          "validation_rules": [],
+          "org_id": "mock-uuid-3",
+          "brand_id": "mock-uuid-6",
+          "name_translated": "Age",
+          "short_description_translated": null,
+          "description_translated": null,
+          "values_translated": {
+            "min": {
+              "label": "",
+              "value": ""
+            },
+            "max": {
+              "label": "",
+              "value": ""
+            },
+            "step": {
+              "label": "",
+              "value": ""
+            }
+          },
+          "type_code": "number",
+          "display_type": "Number",
+          "translations": []
+        },
+        {
+          "id": "mock-uuid-7",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "object_type": "client",
+          "name": "Profile Picture",
+          "short_description": null,
+          "description": null,
+          "type": 8,
+          "group": 0,
+          "hidden": false,
+          "client_readonly": false,
+          "required": false,
+          "user_id": "mock-uuid-5",
+          "order": 2,
+          "values": [],
+          "created_at": "2025-12-19 12:58:57",
+          "updated_at": "2025-12-19 12:58:57",
+          "code": "profile_picture",
+          "user_only": false,
+          "show_on_order_form": true,
+          "show_on_invoice": false,
+          "deleted_at": null,
+          "validation_rules": [],
+          "org_id": "mock-uuid-3",
+          "brand_id": "mock-uuid-6",
+          "name_translated": "Profile Picture",
+          "short_description_translated": null,
+          "description_translated": null,
+          "values_translated": [],
+          "type_code": "image",
+          "display_type": "Image",
+          "translations": []
+        }
+      ],
+      "related": null,
+      "total": 2,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-07-02T14:08:11.614Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "auth"
+  }
+}

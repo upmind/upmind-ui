@@ -33,6 +33,16 @@ export enum AuthContextTypes {
 }
 
 /**
+ * Auth flows a client can start.
+ * Values double as the machine's flow-state names.
+ */
+export enum AuthFlowTypes {
+  LOGIN = "login",
+  RECOVER = "recover",
+  REGISTER = "register"
+}
+
+/**
  * Auth module scope matrix (runtime value - single source of truth).
  * Defines which actors can operate on which contexts.
  * - staff: can act on behalf of 'client'
@@ -118,6 +128,13 @@ export type AuthContext<ModelType extends AuthModel = AuthModel> = {
   brandId?: string;
 
   /**
+   * When true, the machine skips the initial checkSession probe and lands
+   * directly on the login form, even if a session of this scope is already
+   * active — used to spawn an additional (fresh) session. Set via .fresh().
+   */
+  newSession?: boolean;
+
+  /**
    * Current auth token, if available.
    */
   token?: IToken;
@@ -158,6 +175,13 @@ export type AuthContext<ModelType extends AuthModel = AuthModel> = {
    * Number of retry attempts.
    */
   retryCount?: number;
+
+  /**
+   * Set when a REGISTER submit arrives while the register form is still loading
+   * its lookups — the machine stashes the model and replays the submit the moment
+   * the form is ready (register.available), rather than dropping it.
+   */
+  pendingSubmit?: boolean;
 };
 // -----------------------------------------------------------------------------
 /**

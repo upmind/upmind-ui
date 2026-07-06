@@ -75,6 +75,7 @@
 import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import {
+  AuthFlowTypes,
   ScopeActorTypes,
   useActiveSession,
   useAuth,
@@ -246,7 +247,7 @@ async function toggleForm(type: SessionProps["modelValue"]) {
   switch (type) {
     case SESSION_FORMS.LOGIN:
       if (!showLoginForm.value) {
-        start("login").then(() => {
+        start(AuthFlowTypes.LOGIN).then(() => {
           if (modelValue.value !== SESSION_FORMS.LOGIN)
             modelValue.value = SESSION_FORMS.LOGIN;
         });
@@ -254,7 +255,7 @@ async function toggleForm(type: SessionProps["modelValue"]) {
       break;
     case SESSION_FORMS.REGISTER:
       if (!showRegisterForm.value) {
-        start("register").then(() => {
+        start(AuthFlowTypes.REGISTER).then(() => {
           if (modelValue.value !== SESSION_FORMS.REGISTER)
             modelValue.value = SESSION_FORMS.REGISTER;
         });
@@ -262,7 +263,7 @@ async function toggleForm(type: SessionProps["modelValue"]) {
       break;
     case SESSION_FORMS.RECOVER:
       if (!showRecoverPasswordForm.value) {
-        start("recover").then(() => {
+        start(AuthFlowTypes.RECOVER).then(() => {
           if (modelValue.value !== SESSION_FORMS.RECOVER)
             modelValue.value = SESSION_FORMS.RECOVER;
         });

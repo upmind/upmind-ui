@@ -49,7 +49,7 @@ export default createMachine<DataManagerContext>(
           },
           onError: {
             target: "unavailable",
-            actions: ["setError", "setFeedbackError"]
+            actions: ["setError"]
           }
         }
       },

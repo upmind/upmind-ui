@@ -358,10 +358,14 @@ export async function waitForProcessing(
   const successArray = isArray(successStates) ? successStates : [successStates];
   const errorArray = isArray(errorStates) ? errorStates : [errorStates];
   const allStates = [...successArray, ...errorArray, "done"];
+  const failOnDone = !includes(successArray, "done");
 
   return waitFor(service, s => stateMatches(s, compact(allStates)), {
     timeout
   })
-    .then(s => !s.done && !stateMatches(s, compact(errorArray)))
+    .then(s => {
+      if (failOnDone && s.done) return false;
+      return stateMatches(s, compact(successArray));
+    })
     .catch(() => false);
 }

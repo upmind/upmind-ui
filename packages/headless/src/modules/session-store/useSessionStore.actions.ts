@@ -1,7 +1,7 @@
 import { AccessRoleTypes } from "@upmind-automation/types";
-import { loadUser } from "./session-store.services";
-import { useDataLayer } from "../system-analytics";
 import { useQuery } from "../query";
+import { useDataLayer } from "../system-analytics";
+import { loadUser } from "./session-store.services";
 import {
   sessionStore as store,
   isScopeAllowed,
@@ -17,7 +17,8 @@ import {
   dumpTokenFromStorage,
   getExpiresAt,
   getFirstSessionId,
-  persistActorToStorage
+  persistActorToStorage,
+  persistTokenToStorage
 } from "./session-store.utils";
 import { omit } from "lodash-es";
 import type {
@@ -40,8 +41,27 @@ import type { IToken } from "@upmind-automation/types";
  * Set the tentative active actor and session ID. The write gate validates the
  * pointer against the session maps and falls through to the GUEST floor if the
  * requested session does not exist.
+ *
+ * `activate(actor)` with no id (CLIENT/STAFF) means "switch to this scope": a
+ * no-op when the scope is already active, else its first session; no sessions →
+ * no-op. It must not stomp a specific active session back to the scope's first.
  */
 function activateSession(actor: AccessRoleTypes, sessionId?: string): void {
+  if (!sessionId && actor !== AccessRoleTypes.GUEST) {
+    if (store.state.activeActor === actor) return;
+    sessionId = getFirstSessionId(actor);
+    if (!sessionId) return;
+  }
+
+  if (sessionId && actor !== AccessRoleTypes.GUEST) {
+    const record =
+      actor === AccessRoleTypes.CLIENT
+        ? store.state.clientSessions
+        : store.state.staffSessions;
+    const token = record[sessionId]?.token;
+    if (token) persistTokenToStorage(token, { sync: false });
+  }
+
   updateSession(state => ({
     ...state,
     activeActor: actor,
@@ -133,6 +153,10 @@ export function useSessionStoreActions() {
       });
     }
 
+    // Project the newly-active client/staff session to its scope cookie before
+    // the write gate reconciles, so the active session is always cookie-backed.
+    if (shouldActivate) persistTokenToStorage(token, { sync: false });
+
     updateSession(state => {
       // Update the relevant session based on actor type
       const guestSession =
@@ -163,10 +187,14 @@ export function useSessionStoreActions() {
           }
         : {};
 
+      // Adding a session makes the store usable — mark it ready (as `clear`
+      // does) so `isReady()`/`isAuthenticated()` settle for a session
+      // established before an explicit `initStore()`.
       return {
         ...state,
         clientSessions,
         guestSession,
+        initialised: true,
         staffSessions,
         ...activation
       };
@@ -231,6 +259,15 @@ export function useSessionStoreActions() {
     const parentId = targetId
       ? store.state.impersonatedSessions[targetId]
       : undefined;
+
+    // Restoring the parent makes it the active session — regenerate its scope
+    // cookie so the write gate does not read it as externally deleted.
+    if (isActive && parentId) {
+      const parentToken =
+        store.state.staffSessions[parentId]?.token ??
+        store.state.clientSessions[parentId]?.token;
+      if (parentToken) persistTokenToStorage(parentToken, { sync: false });
+    }
 
     // Remove the session and clean up its impersonation entry. When the removed
     // session was active, set a tentative pointer to the parent (impersonation
