@@ -362,7 +362,7 @@ const primaryAlert = computed<
       }
     };
 
-  return {};
+  return undefined;
 });
 
 const secondaryAlert = computed<
@@ -398,7 +398,7 @@ const secondaryAlert = computed<
       }
     };
 
-  return {};
+  return undefined;
 });
 
 const title = computed(() => {
