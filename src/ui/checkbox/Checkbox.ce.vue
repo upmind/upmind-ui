@@ -31,11 +31,11 @@ const emits = defineEmits<{
   (e: "update:checked", payload: string | number): void;
 }>();
 
-const isDisabled = useDisabled(() => props.disabled);
+const disabled = useDisabled(() => props.disabled);
 
 const delegatedProps = computed(() =>
   assign(omit(props, ["class", "uiConfig", "defaultChecked", "checked"]), {
-    disabled: isDisabled.value
+    disabled: disabled.value
   })
 );
 

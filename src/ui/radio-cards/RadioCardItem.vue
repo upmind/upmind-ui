@@ -13,7 +13,7 @@
         :value="value"
         :name="props.name"
         :required="props.required"
-        :disabled="isDisabled"
+        :disabled="disabled"
         :tabindex="isSelected || !modelValue ? 0 : -1"
         :data-state="isSelected ? 'checked' : 'unchecked'"
         :uiConfig="uiConfig"
@@ -110,11 +110,11 @@ const isSelected = computed(() => {
   return props.modelValue === props.value;
 });
 
-const isDisabled = useDisabled(() => props.disabled);
+const disabled = useDisabled(() => props.disabled);
 
 const meta = computed(() => ({
   columns: props.columns,
-  isDisabled: isDisabled.value
+  isDisabled: disabled.value
 }));
 
 const styles = useStyles(
@@ -125,9 +125,9 @@ const styles = useStyles(
 );
 
 const onBlur = (e: FocusEvent) => {
-  if (isDisabled.value) {
+  if (disabled.value) {
     watchOnce(
-      () => isDisabled.value,
+      () => disabled.value,
       () => {
         const el = e.target as HTMLElement;
         if (el && el.dataset.state === "checked") {

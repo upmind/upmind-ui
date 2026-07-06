@@ -13,7 +13,7 @@
     :uiConfig="props.uiConfig"
     :popoverClass="props.popoverClass"
     :type="props.type"
-    :disabled="isDisabled"
+    :disabled="disabled"
     :autoFocus="props.autoFocus"
     :model-value="modelValue"
     v-model:open="open"
@@ -159,7 +159,7 @@ const meta = computed(() => ({
 const open = ref(false);
 const processing = ref(false);
 
-const isDisabled = useDisabled(() => props.disabled);
+const disabled = useDisabled(() => props.disabled);
 
 const itemValue = computed((): string => props.itemValue || "value");
 const itemLabel = computed((): string => props.itemLabel || "label");

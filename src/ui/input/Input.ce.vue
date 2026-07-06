@@ -51,8 +51,8 @@ const props = withDefaults(defineProps<InputProps>(), {
 const input = useTemplateRef<InputElement>("input");
 const modelValue = defineModel<InputProps["modelValue"]>("modelValue", {});
 
-const isDisabled = useDisabled(() => props.disabled);
-const isReadonly = useReadonly(() => props.readonly);
+const disabled = useDisabled(() => props.disabled);
+const readonly = useReadonly(() => props.readonly);
 
 const delegatedProps = computed(
   (): Omit<
@@ -83,14 +83,14 @@ const delegatedProps = computed(
         "avatarAppend",
         "autoFocus"
       ]),
-      { disabled: isDisabled.value, readonly: isReadonly.value }
+      { disabled: disabled.value, readonly: readonly.value }
     )
 );
 
 const meta = computed(() => ({
   width: props.width,
   hasRing: props.ring,
-  isDisabled: isDisabled.value
+  isDisabled: disabled.value
 }));
 
 const styles = useStyles(

@@ -2,7 +2,7 @@
   <span
     :class="cn(styles.buttonGroup.root, props.class)"
     role="group"
-    :aria-disabled="isDisabled"
+    :aria-disabled="disabled"
   >
     <template
       v-for="(item, index) in items"
@@ -14,7 +14,7 @@
           v-bind="item.props"
           :class="styles.buttonGroup.button"
           size="lg"
-          :disabled="isDisabled || item.props.disabled"
+          :disabled="disabled || item.props.disabled"
           variant="ghost"
           :ring="false"
           @click="item.handler?.($event)"
@@ -54,11 +54,11 @@ const props = withDefaults(defineProps<ButtonGroupProps>(), {
   class: ""
 });
 
-const isDisabled = useDisabled(() => props.disabled);
+const disabled = useDisabled(() => props.disabled);
 
 const meta = computed(() => ({
   variant: "control",
-  isDisabled: isDisabled.value,
+  isDisabled: disabled.value,
   hasRing: true
 }));
 

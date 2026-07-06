@@ -12,7 +12,7 @@
           <Link
             :class="styles.inputPassword.action"
             :focusable="false"
-            :disabled="isDisabled || isReadonly"
+            :disabled="disabled || readonly"
             @click.prevent="onGenerate"
           >
             <Icon icon="magic-wand-02" size="2xs" />
@@ -70,8 +70,8 @@ const modelValue = useVModel(props, "modelValue", emit, {
 
 const unmask = ref(false);
 
-const isDisabled = useDisabled(() => props.disabled);
-const isReadonly = useReadonly(() => props.readonly);
+const disabled = useDisabled(() => props.disabled);
+const readonly = useReadonly(() => props.readonly);
 
 const delegatedProps = computed(() =>
   assign(
@@ -86,7 +86,7 @@ const delegatedProps = computed(() =>
       "showLabel",
       "hideLabel"
     ]),
-    { disabled: isDisabled.value, readonly: isReadonly.value }
+    { disabled: disabled.value, readonly: readonly.value }
   )
 );
 

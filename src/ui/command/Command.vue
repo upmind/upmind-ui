@@ -15,12 +15,12 @@ const props = withDefaults(
 
 const emits = defineEmits<ComboboxRootEmits>();
 
-const isDisabled = useDisabled(() => props.disabled);
+const disabled = useDisabled(() => props.disabled);
 
 const delegatedProps = computed(() => {
   const { class: _, ...delegated } = props;
 
-  return assign(delegated, { disabled: isDisabled.value });
+  return assign(delegated, { disabled: disabled.value });
 });
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits);

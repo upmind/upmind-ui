@@ -30,13 +30,13 @@ const emits = defineEmits<{
   (e: "update:modelValue", payload: string | number): void;
 }>();
 
-const isDisabled = useDisabled(() => props.disabled);
-const isReadonly = useReadonly(() => props.readonly);
+const disabled = useDisabled(() => props.disabled);
+const readonly = useReadonly(() => props.readonly);
 
 const delegatedProps = computed(() =>
   assign(omit(props, ["class", "uiConfig", "defaultValue", "modelValue"]), {
-    disabled: isDisabled.value,
-    readonly: isReadonly.value
+    disabled: disabled.value,
+    readonly: readonly.value
   })
 );
 

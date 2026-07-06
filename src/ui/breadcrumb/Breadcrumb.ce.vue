@@ -28,7 +28,7 @@
             :loading="item.loading"
             color="muted"
             :uiConfig="{ link: { items: '[&>i]:p-[3px]' } } as any"
-            @click="item.handler?.()"
+            :action="item.handler"
           />
         </BreadcrumbItem>
 
