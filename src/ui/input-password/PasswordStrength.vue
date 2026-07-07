@@ -3,7 +3,7 @@
     <div
       v-if="props.showBars && props.max > 0"
       :class="styles.passwordStrength.bars"
-      data-test-key="password-strength"
+      v-bind="testAttrs"
     >
       <div v-for="i in props.max" :key="i" :class="barClass(i)" />
     </div>
@@ -13,7 +13,7 @@
       :class="styles.passwordStrength.message"
       role="status"
       aria-live="polite"
-      data-test-key="password-message"
+      v-bind="testAttrsMessage"
     >
       {{ props.message }}
     </p>
@@ -23,7 +23,7 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import config, { barVariants } from "./input-password.config";
-import { cn, useStyles } from "../../utils";
+import { cn, useStyles, useTestAttrs } from "../../utils";
 import type { PasswordStrengthProps } from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<PasswordStrengthProps>(), {
@@ -35,6 +35,16 @@ const props = withDefaults(defineProps<PasswordStrengthProps>(), {
   // --- styles
   uiConfig: () => ({ passwordStrength: [] }),
   class: ""
+});
+
+const testAttrs = useTestAttrs({
+  key: "password-strength",
+  value: props.score
+});
+
+const testAttrsMessage = useTestAttrs({
+  key: "password-message",
+  value: props.messageId
 });
 
 const tier = computed<"weak" | "medium" | "strong">(() => {

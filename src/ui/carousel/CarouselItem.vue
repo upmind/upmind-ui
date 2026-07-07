@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { useCarousel } from "./useCarousel";
-import { cn } from "../../utils";
-import type { WithClassAsProps } from "./interface";
+import { cn, useTestAttrs } from "../../utils";
+import type { WithClassAsProps } from "./types";
 
 const props = defineProps<WithClassAsProps>();
+
+const testAttrs = useTestAttrs({
+  key: "carousel-card"
+});
 
 const { orientation } = useCarousel();
 </script>
@@ -19,7 +23,7 @@ const { orientation } = useCarousel();
         props.class
       )
     "
-    data-test-key="carousel-card"
+    v-bind="testAttrs"
   >
     <slot />
   </div>

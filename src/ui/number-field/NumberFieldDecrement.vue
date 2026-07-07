@@ -2,17 +2,21 @@
 import { Minus } from "lucide-vue-next";
 import { NumberFieldDecrement, useForwardProps } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
-import { cn } from "../../utils";
+import { cn, useTestAttrs } from "../../utils";
 import type { NumberFieldDecrementProps } from "radix-vue";
 
 const props = defineProps<
   NumberFieldDecrementProps & { class?: HTMLAttributes["class"] }
 >();
 
+const testAttrs = useTestAttrs({
+  key: "number-field-decrement"
+});
+
 const delegatedProps = computed(() => {
   const { class: _, ...delegated } = props;
 
-  return delegated;
+  return { ...delegated, ...testAttrs };
 });
 
 const forwarded = useForwardProps(delegatedProps);
@@ -28,7 +32,6 @@ const forwarded = useForwardProps(delegatedProps);
         props.class
       )
     "
-    data-test-key="number-field-decrement"
   >
     <slot>
       <Minus class="h-4 w-4" />

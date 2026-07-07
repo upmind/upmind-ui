@@ -9,4 +9,5 @@ export * from "./useArrowNavigation";
 export * from "./parseVariants";
 export * from "./isEmptySlot";
 export * from "./isMobile";
+export * from "./useTestAttrs";
 export { useForwardPropsEmits, useForwardProps } from "radix-vue";

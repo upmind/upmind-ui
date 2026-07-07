@@ -5,14 +5,6 @@
     :disabled="meta.isDisabled || meta.isLoading"
     :tabindex="meta.isFocusable ? '0' : '-1'"
     :class="cn(styles.button.root, props.class)"
-    :data-test-key="props.dataAttrs?.['data-test-key'] ?? 'button'"
-    :data-test-value="
-      props.dataAttrs?.['data-test-value']
-        ? props.dataAttrs?.['data-test-value']
-        : label
-          ? kebabCase(label)
-          : undefined
-    "
     @click="$emit('click', $event)"
   >
     <slot name="prepend">
@@ -58,7 +50,7 @@ import { Spinner } from "../spinner";
 import config from "./button.config";
 import Button from "./Button.vue";
 import ButtonItems from "./ButtonItems.vue";
-import { useStyles, cn } from "../../utils";
+import { useStyles, cn, useTestAttrs } from "../../utils";
 import { kebabCase } from "lodash-es";
 import type { ButtonProps } from "./types";
 
@@ -94,7 +86,10 @@ const component = computed(() => {
 const componentProps = computed(() => {
   if (props.to) return { to: props.to, ...props.dataAttrs };
   if (props.href) return { href: props.href, ...props.dataAttrs };
-  return { type: props.type, ...props.dataAttrs };
+  return {
+    type: props.type,
+    ...testAttrs
+  };
 });
 
 const meta = computed(() => ({
@@ -111,4 +106,10 @@ const meta = computed(() => ({
 }));
 
 const styles = useStyles(["button"], meta, config, props.uiConfig ?? {});
+
+const testAttrs = useTestAttrs({
+  key: "button",
+  value: kebabCase(props.label),
+  dataAttrs: props.dataAttrs
+});
 </script>

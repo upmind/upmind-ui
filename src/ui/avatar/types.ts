@@ -21,4 +21,5 @@ export type AvatarProps = {
   // ---
   uiConfig?: { avatar: CxOptions };
   class?: HTMLAttributes["class"];
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
 };

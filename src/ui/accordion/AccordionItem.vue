@@ -5,28 +5,28 @@ import {
   useForwardProps
 } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
-import { cn } from "../../utils";
+import { cn, useTestAttrs } from "../../utils";
 
 const props = defineProps<
   AccordionItemProps & { class?: HTMLAttributes["class"] }
 >();
 
+const testAttrs = useTestAttrs({
+  key: "accordion-item",
+  value: props.value
+});
+
 const delegatedProps = computed(() => {
   const { class: _, ...delegated } = props;
 
-  return delegated;
+  return { ...delegated, ...testAttrs };
 });
 
 const forwardedProps = useForwardProps(delegatedProps);
 </script>
 
 <template>
-  <AccordionItem
-    v-bind="forwardedProps"
-    :class="cn('border-b', props.class)"
-    data-test-key="accordion-item"
-    :data-test-value="props.value"
-  >
+  <AccordionItem v-bind="forwardedProps" :class="cn('border-b', props.class)">
     <slot />
   </AccordionItem>
 </template>

@@ -3,6 +3,7 @@
     v-model:open="open"
     :disabled="props.disabled"
     :class="styles.combobox.root"
+    v-bind="testAttrs"
   >
     <PopoverTrigger as-child :ring="false">
       <Button
@@ -15,7 +16,7 @@
         :checked="open"
         :data-hover="dataHover"
         :data-focus="dataFocus && !skipFocus"
-        v-bind="props.triggerDataAttrs"
+        :data-attrs="props.triggerDataAttrs"
         ring
       >
         <template #prepend v-if="!isEmpty(modelValue) || searchValue">
@@ -40,9 +41,9 @@
         </template>
 
         <template #default v-if="!isEmpty(modelValue)">
-          <span :class="styles.combobox.label" v-bind="props.valueDataAttrs">{{
-            label
-          }}</span>
+          <span v-bind="testAttrsLabel" :class="styles.combobox.label">
+            {{ label }}
+          </span>
         </template>
 
         <template #default>
@@ -105,10 +106,7 @@
 
               <Icon v-if="item.icon" :icon="item.icon" size="xs" />
 
-              <span
-                class="flex w-full items-center justify-between"
-                :data-test-key="`combobox-item`"
-              >
+              <span class="flex w-full items-center justify-between">
                 <span
                   v-if="(item as Record<string, any>)?.[itemLabel]"
                   :class="styles.combobox.label"
@@ -146,8 +144,16 @@ import {
 import Icon from "../icon/Icon.ce.vue";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import config from "./combobox.config";
-import { cn, useStyles } from "../../utils";
-import { find, get, isEmpty, isEqual, isFunction, has } from "lodash-es";
+import { cn, useStyles, useTestAttrs } from "../../utils";
+import {
+  find,
+  get,
+  isEmpty,
+  isEqual,
+  isFunction,
+  has,
+  kebabCase
+} from "lodash-es";
 import type { ComboboxProps, ComboboxItemProps } from "./types";
 
 const props = withDefaults(defineProps<ComboboxProps>(), {
@@ -232,6 +238,19 @@ const filteredItems = computed(() => {
     );
   });
 });
+
+const testAttrs = useTestAttrs({
+  key: "combobox",
+  value: [props.id, kebabCase(props.label)],
+  dataAttrs: props.dataAttrs
+});
+
+const testAttrsLabel = useTestAttrs({
+  key: "combobox-label",
+  value: [props.id, kebabCase(props.label)],
+  dataAttrs: props.valueDataAttrs
+});
+
 // --- methods
 function doSelect(item: string) {
   const selected: ComboboxItemProps = find(props.items, [

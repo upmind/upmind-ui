@@ -1,16 +1,20 @@
 <script lang="ts" setup>
 import { TabsList, type TabsListProps } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
-import { cn } from "../../utils";
+import { cn, useTestAttrs } from "../../utils";
 
 const props = defineProps<
   TabsListProps & { class?: HTMLAttributes["class"] }
 >();
 
+const testAttrs = useTestAttrs({
+  key: "tabslist"
+});
+
 const delegatedProps = computed(() => {
   const { class: _, ...delegated } = props;
 
-  return delegated;
+  return { ...delegated, ...testAttrs };
 });
 </script>
 
@@ -23,7 +27,6 @@ const delegatedProps = computed(() => {
         props.class
       )
     "
-    data-test-key="tabslist"
   >
     <slot />
   </TabsList>

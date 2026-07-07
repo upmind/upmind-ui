@@ -8,7 +8,7 @@
   >
     <PaginationList
       :class="cn(styles.pagination.root, props.class)"
-      data-test-key="pagination-bar"
+      v-bind="testAttrs"
     >
       <PaginationPrev as-child>
         <Button
@@ -17,7 +17,7 @@
           :class="styles.pagination.button"
           :disabled="lte(page, 1) || props.loading"
           @click="emit('prev')"
-          data-test-key="previous"
+          v-bind="testAttrsPrev"
         >
           <Icon icon="arrow-left" size="2xs" />
         </Button>
@@ -35,7 +35,7 @@
           :class="styles.pagination.button"
           :disabled="gte(page, pageCount) || props.loading"
           @click="emit('next')"
-          data-test-key="next"
+          v-bind="testAttrsNext"
         >
           <Icon icon="arrow-right" size="2xs" />
         </Button>
@@ -55,7 +55,7 @@ import { computed } from "vue";
 import { Button } from "../button";
 import { Icon } from "../icon";
 import config from "./pagination.config";
-import { cn, useStyles } from "../../utils";
+import { cn, useStyles, useTestAttrs } from "../../utils";
 import { lte, gte } from "lodash-es";
 import type { PaginationProps } from "./types";
 
@@ -80,6 +80,19 @@ const meta = computed(() => ({
 
 const styles = useStyles(["pagination"], meta, config, props.uiConfig ?? {});
 
+const testAttrs = useTestAttrs({
+  key: "pagination-bar"
+});
+
+const testAttrsPrev = useTestAttrs({
+  key: "next",
+  value: lte(props.page, 1) ? false : props.page - 1
+});
+
+const testAttrsNext = useTestAttrs({
+  key: "previous",
+  value: gte(props.page, props.pages) ? false : props.page + 1
+});
 /**
  * The parent component is responsible for providing an already translated string via the 'paginationInfo' prop.
  * However, since this child component does not have access to an i18n instance, it cannot perform the dynamic placeholder

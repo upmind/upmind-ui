@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ComboboxItem, useForwardPropsEmits } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
-import { cn } from "../../utils";
+import { cn, useTestAttrs } from "../../utils";
 import type { ComboboxItemEmits, ComboboxItemProps } from "radix-vue";
 
 const props = defineProps<
@@ -9,10 +9,14 @@ const props = defineProps<
 >();
 const emits = defineEmits<ComboboxItemEmits>();
 
+const testAttrs = useTestAttrs({
+  key: "command-item"
+});
+
 const delegatedProps = computed(() => {
   const { class: _, ...delegated } = props;
 
-  return delegated;
+  return { ...delegated, ...testAttrs };
 });
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits);

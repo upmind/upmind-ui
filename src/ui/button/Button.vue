@@ -13,12 +13,7 @@ const props = withDefaults(defineProps<Props>(), {
 </script>
 
 <template>
-  <Primitive
-    :as="as"
-    :as-child="asChild"
-    :class="cn(props.class)"
-    data-test-key="button"
-  >
+  <Primitive :as="as" :as-child="asChild" :class="cn(props.class)">
     <slot />
   </Primitive>
 </template>

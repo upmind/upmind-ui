@@ -10,7 +10,7 @@
   >
     <template v-for="(option, index) in items" :key="option.id || index">
       <RadioCardItem
-        v-bind="forwarded"
+        v-bind="testAttrs(option, index)"
         :item="option.item"
         :index="option.index || overrideIndex || index"
         :name="props.name"
@@ -30,16 +30,6 @@
         :uiConfig="props.uiConfig"
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
-        :dataAttrs="{
-          ...option.dataAttrs,
-          'data-test-key':
-            option.dataAttrs?.['data-test-key'] ?? 'radio-card-item',
-          'data-test-value':
-            option.dataAttrs?.['data-test-value'] ??
-            option.id ??
-            option.value ??
-            index
-        }"
         @keydown.enter="onChange(option.value)"
         @click="() => onChange(option.value)"
       >
@@ -54,13 +44,12 @@
 
 <script setup lang="ts">
 import { vAutoAnimate } from "@formkit/auto-animate";
-import { useForwardPropsEmits } from "radix-vue";
 import { computed } from "vue";
 import { RadioGroup } from "../radio-group";
 import RadioCardItem from "./RadioCardItem.vue";
 import config from "./radioCards.config";
-import { cn, useStyles } from "../../utils";
-import type { RadioCardsProps } from "./types";
+import { cn, useForwardPropsEmits, useStyles, useTestAttrs } from "../../utils";
+import type { RadioCardsItemProps, RadioCardsProps } from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<RadioCardsProps>(), {
   // --- props
@@ -81,8 +70,6 @@ const emits = defineEmits<{
   action: [{ name: string; event: Event }];
 }>();
 
-const forwarded = useForwardPropsEmits({}, emits);
-
 const modelValue = defineModel<string | number>();
 
 const meta = computed(() => ({
@@ -96,7 +83,17 @@ const styles = useStyles(
   props.uiConfig ?? {}
 );
 
-const onChange = (value: any) => {
+const testAttrs = (item: RadioCardsItemProps, index: number) => {
+  const attrs = useTestAttrs({
+    key: "radio-card-item",
+    value: [item.id, item.value, index],
+    dataAttrs: item.dataAttrs
+  });
+
+  return useForwardPropsEmits(attrs, emits);
+};
+
+const onChange = (value: string | number) => {
   if (props.disabled) return;
 
   if (!props.required && value === modelValue.value) {
@@ -104,9 +101,5 @@ const onChange = (value: any) => {
   } else {
     modelValue.value = value;
   }
-};
-
-const _onAction = (value: any) => {
-  emits("action", value);
 };
 </script>

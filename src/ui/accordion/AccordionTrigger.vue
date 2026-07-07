@@ -6,16 +6,21 @@ import {
   type AccordionTriggerProps
 } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
-import { cn } from "../../utils";
+import { cn, useTestAttrs } from "../../utils";
 
 const props = defineProps<
   AccordionTriggerProps & { class?: HTMLAttributes["class"]; open?: boolean }
 >();
 
+const testAttrs = useTestAttrs({
+  key: "accordion-trigger",
+  value: props.open ? "open" : "closed"
+});
+
 const delegatedProps = computed(() => {
   const { class: _, ...delegated } = props;
 
-  return delegated;
+  return { ...delegated, ...testAttrs };
 });
 </script>
 
@@ -29,7 +34,6 @@ const delegatedProps = computed(() => {
           props.class
         )
       "
-      data-test-key="accordion-trigger"
       :data-state="props.open ? 'open' : 'closed'"
     >
       <slot />

@@ -10,7 +10,7 @@ import {
 import { type HTMLAttributes, computed, useTemplateRef } from "vue";
 import DialogClose from "./DialogClose.vue";
 import DialogOverlay from "./DialogOverlay.vue";
-import { cn, providePortalTarget } from "../../utils";
+import { cn, providePortalTarget, useTestAttrs } from "../../utils";
 
 const props = defineProps<
   DialogContentProps &
@@ -24,9 +24,14 @@ const props = defineProps<
 
 const emits = defineEmits<DialogContentEmits>();
 
+const testAttrs = useTestAttrs({
+  key: "dialog-window",
+  dataAttrs: props.dataAttrs
+});
+
 const delegatedProps = computed(() => {
   const { class: _, dataAttrs: __, ...delegated } = props;
-  return delegated;
+  return { ...delegated, ...testAttrs };
 });
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits);
@@ -53,7 +58,6 @@ providePortalTarget(useTemplateRef("content"));
           props.class
         )
       "
-      :data-test-key="props.dataAttrs?.['data-test-key'] ?? 'dialog-window'"
       @interactOutside="e => !props.dismissable && e.preventDefault()"
       @escapeKeyDown="e => !props.dismissable && e.preventDefault()"
     >

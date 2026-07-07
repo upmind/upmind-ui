@@ -1,11 +1,12 @@
 <template>
   <ToggleGroupRoot
+    v-bind="testAttrsGroup"
     v-model="modelValue"
     :required="props.required"
     :disabled="props.disabled"
     :class="cn(styles.checkboxCards.root, props.class)"
     type="multiple"
-    data-test-key="checkbox-group"
+    :dir="undefined"
     v-auto-animate
   >
     <template v-for="(item, index) in items" :key="item.id || index">
@@ -20,17 +21,14 @@
         :class="cn(styles.checkboxCards.input, props.itemClass)"
         :itemClass="styles.checkboxCards.item"
         :checked="includes(modelValue, item.value)"
-        :data-test-key="item.dataAttrs?.['data-test-key'] ?? 'checkbox-item'"
-        :data-test-value="
-          item.dataAttrs?.['data-test-value'] ?? item.id ?? item.value ?? index
-        "
+        v-bind="testAttrsItem(item, index)"
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
       >
         <Label
           :for="`${item.id}-${index}`"
           :class="styles.checkboxCards.label"
-          data-test-key="checkbox-label"
+          v-bind="testAttrsLabel(item, index)"
         >
           <slot name="item" v-bind="{ item, index }">
             <article :class="styles.checkboxCards.content.root">
@@ -83,7 +81,6 @@
               <p
                 v-if="item.secondaryDescription"
                 :class="styles.checkboxCards.content.secondaryDescription"
-                data-test-key="secondary-item-description"
               >
                 {{ item.secondaryDescription }}
               </p>
@@ -105,9 +102,13 @@ import { Label } from "../label";
 import { Link } from "../link";
 import CheckboxCardItem from "./CheckboxCardItem.vue";
 import config from "./checkboxCards.config";
-import { cn, useStyles } from "../../utils";
+import { cn, useStyles, useTestAttrs } from "../../utils";
 import { includes, isFunction, isString, isNil } from "lodash-es";
-import type { CheckboxCardsItemActionProps, CheckboxCardsProps } from "./types";
+import type {
+  CheckboxCardsItemActionProps,
+  CheckboxCardsItemProps,
+  CheckboxCardsProps
+} from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<CheckboxCardsProps>(), {
   cursor: "pointer",
@@ -145,6 +146,23 @@ const styles = useStyles(
   config,
   props.uiConfig ?? {}
 );
+
+const testAttrsGroup = useTestAttrs({
+  key: "checkbox-group"
+});
+
+const testAttrsItem = (item: CheckboxCardsItemProps, index: number) =>
+  useTestAttrs({
+    key: "checkbox-item",
+    value: [item.value, index.toString()],
+    dataAttrs: item.dataAttrs
+  });
+
+const testAttrsLabel = (item: CheckboxCardsItemProps, index: number) =>
+  useTestAttrs({
+    key: "checkbox-label",
+    value: [item.value, index.toString()]
+  });
 
 function doAction(item: CheckboxCardsItemActionProps, $event: Event) {
   $event.preventDefault(); // prevent default form actions as we are handling it ourselves

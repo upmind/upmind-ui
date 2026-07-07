@@ -5,7 +5,7 @@
     :aria-required="props.required"
     :aria-disabled="props.disabled"
     :class="cn(styles.selectGrouped.root, props.class)"
-    data-test-key="select-grouped"
+    v-bind="testAttrs"
     v-auto-animate
   >
     <SelectGroupedOption
@@ -53,7 +53,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { computed, ref } from "vue";
 import config from "./selectGrouped.config";
 import SelectGroupedOption from "./SelectGroupedOption.vue";
-import { cn, useStyles } from "../../utils";
+import { cn, useStyles, useTestAttrs } from "../../utils";
 import type { SelectGroupedProps } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -87,4 +87,8 @@ const focusGroup = (index: number) => {
   focusedGroupIndex.value = clampedIndex;
   groupRefs.value[clampedIndex]?.setFocus();
 };
+
+const testAttrs = useTestAttrs({
+  key: "select-grouped"
+});
 </script>

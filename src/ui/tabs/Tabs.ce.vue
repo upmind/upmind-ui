@@ -23,9 +23,7 @@
             :ref="(el: HTMLElement | null) => setTriggerRef(el, index)"
             :value="item.value"
             :class="[styles.tabs.trigger, 'cursor-pointer']"
-            data-test-key="tab-item"
-            :data-test-value="item.value"
-            v-bind="item.dataAttrs"
+            v-bind="testAttrs(item, index)"
           >
             <Icon
               v-if="item.icon"
@@ -36,7 +34,7 @@
             <span>{{ item.label }}</span>
           </component>
         </template>
-        <template v-else>
+        <template v-else-if="tabs.length">
           <div
             :key="first(tabs)?.value"
             :class="[styles.tabs.trigger, 'cursor-text']"
@@ -48,7 +46,9 @@
               :class="styles.tabs.icon"
               size="2xs"
             />
-            <h4 v-bind="first(tabs)?.dataAttrs">{{ first(tabs)?.label }}</h4>
+            <h4 v-bind="testAttrs(first(tabs)!, 0)">
+              {{ first(tabs)?.label }}
+            </h4>
           </div>
         </template>
 
@@ -87,7 +87,7 @@ import Tabs from "./Tabs.vue";
 import TabsContent from "./TabsContent.vue";
 import TabsList from "./TabsList.vue";
 import TabsTrigger from "./TabsTrigger.vue";
-import { useStyles } from "../../utils";
+import { useStyles, useTestAttrs } from "../../utils";
 import { isEmptySlot } from "../../utils";
 import { first } from "lodash-es";
 import type { TabsProps, TabItem } from ".";
@@ -159,4 +159,11 @@ const indicatorStyle = computed(() => {
     width: `${activeTrigger.offsetWidth}px`
   };
 });
+
+const testAttrs = (item: TabItem, index: number) =>
+  useTestAttrs({
+    key: "tab-item",
+    value: [item.value, index],
+    dataAttrs: item.dataAttrs
+  });
 </script>

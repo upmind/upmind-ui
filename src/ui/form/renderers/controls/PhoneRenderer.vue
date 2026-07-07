@@ -40,7 +40,7 @@
         v-if="formFieldProps.touched && errors"
         :errors="[errorsMapped]"
         :formMessageId="`form-item-message-${control.id}`"
-        :data-test-key="`form-item-message-phone`"
+        v-bind="testAttrs"
         :name="control.path"
       />
     </template>
@@ -70,6 +70,7 @@ import InputGroup from "../../../groups/InputGroup.vue";
 import { Input } from "../../../input";
 import FormField from "../../FormField.vue";
 import FormMessage from "../../FormMessage.vue";
+import { useTestAttrs } from "../../../../utils";
 import { useUpmindUIRenderer } from "../utils";
 import {
   get,
@@ -161,6 +162,8 @@ const errors = computed(() => {
       return (error as ParseError).message;
     }
   }
+
+  return {};
 });
 
 const errorsMapped = computed(() => {
@@ -190,6 +193,11 @@ const countryItems = computed(() => {
       selected: countryCode === phone.value?.country
     };
   }) as ComboboxItemProps[];
+});
+
+const testAttrs = useTestAttrs({
+  key: "form-item-message",
+  value: [control.value.id, "phone"]
 });
 // --- methods
 
@@ -228,7 +236,7 @@ function parsePhone(
   return { country: code!, number: phonenumber };
 }
 
-function onCountyInput(value: any) {
+function onCountyInput(value: unknown) {
   phone.value = parsePhone(phone.value?.nationalNumber, value as CountryCode);
   onInput(
     requiresString ? phone.value.number : phone.value,
