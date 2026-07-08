@@ -175,12 +175,12 @@ const meta = computed(
 
 const testAttrs = useTestAttrs({
   key: "form-item",
-  value: [props.id, kebabCase(props.name)]
+  value: [kebabCase(props.name), props.id]
 });
 
 const testAttrsMessages = useTestAttrs({
   key: "form-item-message",
-  value: [props.id, kebabCase(props.name)]
+  value: [kebabCase(props.name), props.id]
 });
 // --- methods
 function toggleTooltip(force?: boolean) {
