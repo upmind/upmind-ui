@@ -46,7 +46,7 @@
               :class="styles.tabs.icon"
               size="2xs"
             />
-            <h4 v-bind="testAttrs(first(tabs)!, 0)">
+            <h4>
               {{ first(tabs)?.label }}
             </h4>
           </div>
