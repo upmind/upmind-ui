@@ -51,6 +51,7 @@ const withRelations = [
   "taxes",
   "taxes.tax_tag_data",
   "client",
+  "client.default_phone",
   "products.product.image",
   "products.product.images",
   "products.product.prices",
