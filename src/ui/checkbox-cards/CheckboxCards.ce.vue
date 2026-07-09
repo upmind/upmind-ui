@@ -81,6 +81,7 @@
               <p
                 v-if="item.secondaryDescription"
                 :class="styles.checkboxCards.content.secondaryDescription"
+                v-bind="secondaryDescriptionTestAttrs"
               >
                 {{ item.secondaryDescription }}
               </p>
@@ -164,6 +165,10 @@ const testAttrsLabel = (item: CheckboxCardsItemProps, index: number) =>
     key: "checkbox-label",
     value: [item.value, index.toString()]
   });
+
+const secondaryDescriptionTestAttrs = useTestAttrs({
+  key: "secondary-item-description"
+});
 
 function doAction(item: CheckboxCardsItemActionProps, $event: Event) {
   $event.preventDefault(); // prevent default form actions as we are handling it ourselves

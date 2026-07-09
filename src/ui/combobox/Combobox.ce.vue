@@ -239,17 +239,24 @@ const filteredItems = computed(() => {
   });
 });
 
-const testAttrs = useTestAttrs({
-  key: "combobox",
-  value: [props.id, kebabCase(props.label)],
-  dataAttrs: props.dataAttrs
-});
+// Wrapped in computed so the emitted data-test-value re-tracks props that
+// resolve async (e.g. valueDataAttrs when the currency lands post-mount) —
+// useTestAttrs called bare at setup froze at the mount-time value.
+const testAttrs = computed(() =>
+  useTestAttrs({
+    key: "combobox",
+    value: [props.id, kebabCase(props.label)],
+    dataAttrs: props.dataAttrs
+  })
+);
 
-const testAttrsLabel = useTestAttrs({
-  key: "combobox-label",
-  value: [props.id, kebabCase(props.label)],
-  dataAttrs: props.valueDataAttrs
-});
+const testAttrsLabel = computed(() =>
+  useTestAttrs({
+    key: "combobox-label",
+    value: [props.id, kebabCase(props.label)],
+    dataAttrs: props.valueDataAttrs
+  })
+);
 
 /* Routes item.dataAttrs through useTestAttrs instead of binding it raw — raw
    fallthrough attrs are auto-inherited onto the item's root element even in
