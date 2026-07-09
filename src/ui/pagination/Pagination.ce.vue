@@ -85,12 +85,12 @@ const testAttrs = useTestAttrs({
 });
 
 const testAttrsPrev = useTestAttrs({
-  key: "next",
+  key: "previous",
   value: lte(props.page, 1) ? false : props.page - 1
 });
 
 const testAttrsNext = useTestAttrs({
-  key: "previous",
+  key: "next",
   value: gte(props.page, props.pages) ? false : props.page + 1
 });
 /**
