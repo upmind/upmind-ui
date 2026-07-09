@@ -1,24 +1,22 @@
 <script setup lang="ts">
-import { SelectItem, SelectItemText, useForwardProps } from "radix-vue";
+import { SelectItem, SelectItemText } from "radix-vue";
 import { computed } from "vue";
-import { cn, useTestAttrs } from "../../utils";
+import { cn, useForwardPropsTests } from "../../utils";
 import type { SelectItemProps } from "./types";
 
 const props = defineProps<SelectItemProps>();
 
-const testAttrs = useTestAttrs({
+const delegatedProps = computed(() => {
+  const { class: _, dataAttrs: __, id: ___, ...delegated } = props;
+
+  return delegated;
+});
+
+const forwardedProps = useForwardPropsTests(delegatedProps, {
   key: "select-item",
   value: [props.id, props.value],
   dataAttrs: props.dataAttrs
 });
-
-const delegatedProps = computed(() => {
-  const { class: _, dataAttrs: __, id: ___, ...delegated } = props;
-
-  return { ...delegated, ...testAttrs };
-});
-
-const forwardedProps = useForwardProps(delegatedProps);
 </script>
 
 <template>

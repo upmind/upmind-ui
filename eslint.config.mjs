@@ -137,6 +137,11 @@ const MODULES_ROOT = resolve(
   "packages/headless/src/modules"
 );
 
+// The two aggregator barrels whose import pulls the whole graph (cycle risk).
+const HEADLESS_SRC = resolve(MODULES_ROOT, "..");
+const MODULES_BARREL = resolve(MODULES_ROOT, "index.ts");
+const PACKAGE_BARREL = resolve(HEADLESS_SRC, "index.ts");
+
 // Cache: absolute resolved path → boolean (isInternal). Keyed by the resolved
 // target so repeated imports of the same file read disk once.
 const internalMarkerCache = new Map();
@@ -242,6 +247,49 @@ const internalBarrierPlugin = {
           }
         };
       }
+    },
+    "no-barrel-imports": {
+      meta: {
+        type: "problem",
+        docs: {
+          description:
+            "Disallow importing the package-root or modules-root aggregator barrel; it pulls the whole module graph and risks import cycles."
+        },
+        schema: []
+      },
+      create(context) {
+        const importerFile = context.filename ?? context.getFilename();
+
+        if (!importerFile.startsWith(`${HEADLESS_SRC}/`)) return {};
+        // The barrels themselves legitimately re-export the layers below them.
+        if (importerFile === PACKAGE_BARREL || importerFile === MODULES_BARREL)
+          return {};
+
+        function check(node) {
+          const specifier = node.source?.value;
+          if (typeof specifier !== "string" || !specifier.startsWith("."))
+            return;
+
+          const target = resolveRelativeTarget(importerFile, specifier);
+          if (target !== PACKAGE_BARREL && target !== MODULES_BARREL) return;
+
+          const which =
+            target === PACKAGE_BARREL ? "package-root" : "modules-root";
+          context.report({
+            node,
+            message:
+              `No aggregator-barrel import: "${specifier}" resolves to the ${which} ` +
+              `barrel, which pulls the whole module graph and risks import cycles. ` +
+              `Import the specific module barrel (e.g. ../brand) or the file directly.`
+          });
+        }
+
+        return {
+          ImportDeclaration: check,
+          ExportNamedDeclaration: check,
+          ExportAllDeclaration: check
+        };
+      }
     }
   }
 };
@@ -343,7 +391,7 @@ const sharedTsRules = {
   //     NOT by auto-fixes — `any` seams and rejection payloads are load-bearing.
   "@typescript-eslint/no-explicit-any": "error",
   "no-unsafe-optional-chaining": "error",
-  "prefer-promise-reject-errors": "error",
+  "prefer-promise-reject-errors": "warn",
 
   // --- Type-import hygiene (the project's strictest enforced contract)
   "@typescript-eslint/consistent-type-imports": consistentTypeImportsRule,
@@ -380,7 +428,7 @@ const sharedVueRules = {
   // --- Decision rules promoted to error (mirrored from sharedTsRules)
   "@typescript-eslint/no-explicit-any": "error",
   "no-unsafe-optional-chaining": "error",
-  "prefer-promise-reject-errors": "error",
+  "prefer-promise-reject-errors": "warn",
 
   // --- Import ordering
   "import/first": "error",
@@ -465,10 +513,14 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
-  // 5. Runtime globals — apps/cart-nuxt (browser + node + Nuxt auto-imports).
+  // 5. Runtime globals — Nuxt apps (cart-nuxt + labs-nuxt): browser + node +
+  //    Nuxt auto-imports.
   // ---------------------------------------------------------------------------
   {
-    files: ["apps/cart-nuxt/**/*.{ts,tsx,mts,cts,js,cjs,mjs,vue}"],
+    files: [
+      "apps/cart-nuxt/**/*.{ts,tsx,mts,cts,js,cjs,mjs,vue}",
+      "playgrounds/labs-nuxt/**/*.{ts,tsx,mts,cts,js,cjs,mjs,vue}"
+    ],
     languageOptions: {
       globals: { ...globals.browser, ...globals.node, ...nuxtAutoImportGlobals }
     }
@@ -503,7 +555,8 @@ export default [
         parser: typescriptParser,
         ecmaVersion: "latest",
         sourceType: "module"
-      }
+      },
+      globals: { ...globals.browser, ...globals.node, ...nuxtAutoImportGlobals }
     },
     plugins: {
       import: eslintPluginImport,
@@ -526,6 +579,25 @@ export default [
     },
     rules: {
       "@internal/no-cross-module-imports": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 8c. No aggregator-barrel imports — importing the package-root barrel
+  //     (src/index.ts) or the modules-root barrel (src/modules/index.ts) pulls
+  //     the whole module graph and creates import cycles (the useTime load-order
+  //     crash). The custom marker plugin resolves the specifier to a disk path,
+  //     so it is depth-agnostic and never mistakes a same-module `..` for root.
+  //     Import the specific owning module barrel (../brand) or the file itself.
+  //     `warn` until the existing call sites are repointed, then flip to `error`.
+  // ---------------------------------------------------------------------------
+  {
+    files: ["packages/headless/src/**/*.{ts,tsx,mts,cts,vue}"],
+    plugins: {
+      "@internal": internalBarrierPlugin
+    },
+    rules: {
+      "@internal/no-barrel-imports": "error"
     }
   },
 

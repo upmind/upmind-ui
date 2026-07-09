@@ -148,7 +148,8 @@ const styles = useStyles(
 );
 
 const testAttrsGroup = useTestAttrs({
-  key: "checkbox-group"
+  key: "checkbox-group",
+  dataAttrs: props.dataAttrs
 });
 
 const testAttrsItem = (item: CheckboxCardsItemProps, index: number) =>

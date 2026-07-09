@@ -3,7 +3,7 @@
     :is="useTabs ? Tabs : 'div'"
     v-bind="forwarded"
     v-model="modelValue"
-    :class="class"
+    :class="props.class"
   >
     <header :class="styles.tabs.root">
       <div v-if="!isEmptySlot('prepend', slots)" :class="styles.tabs.prepend">
@@ -39,6 +39,7 @@
             :key="first(tabs)?.value"
             :class="[styles.tabs.trigger, 'cursor-text']"
             data-state="active"
+            v-bind="testAttrs(first(tabs)!, 0)"
           >
             <Icon
               v-if="first(tabs)?.icon"
@@ -92,7 +93,7 @@ import { isEmptySlot } from "../../utils";
 import { first } from "lodash-es";
 import type { TabsProps, TabItem } from ".";
 import type { TabsRootEmits } from "radix-vue";
-import type { Slots } from "vue";
+import type { ComponentPublicInstance, Slots } from "vue";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<TabsProps>(), {
@@ -134,9 +135,12 @@ const styles = useStyles("tabs", meta, config, props.uiConfig ?? {});
 const useTabs = computed(() => props.tabs.length > 1 || props.force);
 
 // Store trigger refs from template
-const setTriggerRef = (el: any, index: number) => {
+const setTriggerRef = (
+  el: Element | ComponentPublicInstance | null,
+  index: number
+) => {
   if (el) {
-    triggerRefs.value[index] = el.$el || el;
+    triggerRefs.value[index] = ("$el" in el ? el.$el : el) as HTMLElement;
   }
 };
 
@@ -149,7 +153,7 @@ const currentTab = computed(() =>
 
 // Calculate indicator position and width to match active tab
 const indicatorStyle = computed(() => {
-  listWidth.value; // Trigger reactivity on layout changes
+  const _trigger = listWidth.value; // HACK: Trigger reactivity on layout changes
 
   const activeTrigger = triggerRefs.value[currentTab.value];
   if (!activeTrigger) return null;

@@ -1,46 +1,54 @@
-import { castArray, find, get, isEmpty, omit, pull, unset } from "lodash-es";
-import { useAttrs, type HTMLAttributes } from "vue";
+import { castArray, find, get, isEmpty, omit } from "lodash-es";
 
-type TestAttrsOptions = {
-  key: string;
+export type TestAttrsOptions = {
+  key?: string; // optional: omit to emit only what dataAttrs/overrides provide (Vue drops undefined-valued attrs)
   value?: (string | unknown) | (string | unknown)[]; // cascade values, in priority order
   dataAttrs?: Record<string, string | unknown>; // defined bag of data attributes
 };
 
 /**
- * A utility function to generate test attributes for components, primarily for testing purposes.
- * It checks for the presence of a key and value, either directly or through a legacy dataAttrs bag.
- * If the environment is production, it returns an empty object to avoid adding test attributes in production builds.
+ * Generates the `data-test-key`/`data-test-value` pair for a component, and
+ * strips them (returns `{}`) in production builds.
  *
- * @param input - An object containing optional key, value, dataAttrs, and fallbacks for generating test attributes.
- * @returns An object containing the generated test attributes (data-test-key and data-test-value) or an empty object in production.
+ * Pure function of its `input` — it does NOT read `useAttrs()`, so it is not
+ * bound to `setup` and is safe to call inline, in a `computed`, or from a
+ * template helper, and re-evaluates reactively wherever it is called.
  *
+ * A parent overrides a component's own key/value by passing them through the
+ * component's `dataAttrs` prop (`input.dataAttrs`), NOT by fallthrough — a
+ * fallthrough `data-test-*` would auto-inherit onto every nested element and
+ * collide (e.g. one key matching 20+ descendants under strict-mode locators).
+ *
+ * @param input - key, value cascade, and optional dataAttrs override bag.
+ * @returns the test-attribute pair (dev) or an empty object (production).
  */
 export function useTestAttrs(input: TestAttrsOptions) {
-  // NB : This function is designed to be used in a development or testing environment.
-  //      In production builds, it returns an empty object to avoid adding test attributes
-  //      that are not needed and could potentially expose internal implementation details.
+  // Strip data-test-* from the override bag so the pair below is the single
+  // source of the key/value (no duplication when spread onto an element).
+  const dataAttrs = omit(input.dataAttrs ?? {}, [
+    "data-test-key",
+    "data-test-value"
+  ]) as Record<string, any>;
 
-  // NB : The useAttrs() function is used to access the attributes passed to the component.
-  //      It is cast to HTMLAttributes to ensure type safety and to allow for the retrieval of specific attributes.
-  //      The "data-test-key" and "data-test-value" attributes are extracted from the component's attributes,
-  //      allowing for the possibility of overriding the default key and value provided in the input.
-  //      We also merge any defined data attributes provided in the input.dataAttrs into the attrs object to ensure backward compatibility.
-  const attrs = { ...useAttrs(), ...(input.dataAttrs ?? {}) } as HTMLAttributes;
+  // In production, emit only the non-test data attributes.
+  if (import.meta.env.PROD) return dataAttrs;
 
-  // pluck the "data-test-key" and "data-test-value" attributes from the attrs object to avoid duplication in the returned object.
-  const overrideKey = get(attrs, "data-test-key");
-  unset(attrs, "data-test-key");
-  const overrideValue = get(attrs, "data-test-value");
-  unset(attrs, "data-test-value");
+  const overrideKey = get(input.dataAttrs ?? {}, "data-test-key");
+  const overrideValue = get(input.dataAttrs ?? {}, "data-test-value");
 
-  if (import.meta.env.PROD) return attrs; // Return an empty object in production
+  const key = overrideKey || input.key;
+  // NB: numbers are accepted explicitly — lodash isEmpty() is true for every
+  // number, so a plain !isEmpty cascade silently drops numeric values.
+  const value =
+    overrideValue ||
+    find(castArray(input.value), v => typeof v === "number" || !isEmpty(v));
 
-  const testAttrs: Record<string, string | undefined> = {
-    "data-test-key": overrideKey || input.key,
-    "data-test-value": (overrideValue ||
-      find(castArray(input.value), v => !isEmpty(v))) as string | undefined
-  };
+  const testAttrs: Record<string, string> = {};
+  // Only emit defined keys — an undefined entry bound via v-bind would clash
+  // with (and can clear) a parent's fallthrough attr of the same name. Omitting
+  // it makes a keyless useTestAttrs() a true no-op that fallthrough passes through.
+  if (key != null) testAttrs["data-test-key"] = key as string;
+  if (value != null) testAttrs["data-test-value"] = value as string;
 
-  return { ...attrs, ...testAttrs };
+  return { ...dataAttrs, ...testAttrs };
 }

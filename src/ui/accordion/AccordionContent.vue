@@ -2,7 +2,7 @@
 import { vResizeObserver } from "@vueuse/components";
 import { AccordionContent, type AccordionContentProps } from "radix-vue";
 import { type HTMLAttributes, computed, ref } from "vue";
-import { cn, useTestAttrs } from "../../utils";
+import { cn, useForwardPropsTests } from "../../utils";
 
 const props = defineProps<
   AccordionContentProps & {
@@ -11,14 +11,14 @@ const props = defineProps<
   }
 >();
 
-const testAttrs = useTestAttrs({
-  key: "accordion-content"
-});
-
 const delegatedProps = computed(() => {
   const { class: _, ...delegated } = props;
 
-  return { ...delegated, ...testAttrs };
+  return delegated;
+});
+
+const forwardedProps = useForwardPropsTests(delegatedProps, {
+  key: "accordion-content"
 });
 
 const contentRef = ref<InstanceType<typeof AccordionContent>>();
@@ -38,7 +38,7 @@ const updateContentHeight = (entries: readonly ResizeObserverEntry[]) => {
 <template>
   <AccordionContent
     ref="contentRef"
-    v-bind="delegatedProps"
+    v-bind="forwardedProps"
     :class="
       cn(
         'data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm transition-all',

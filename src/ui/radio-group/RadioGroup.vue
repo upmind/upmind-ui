@@ -2,28 +2,25 @@
 import {
   RadioGroupRoot,
   type RadioGroupRootEmits,
-  type RadioGroupRootProps,
-  useForwardPropsEmits
+  type RadioGroupRootProps
 } from "radix-vue";
 import { computed, type HTMLAttributes } from "vue";
-import { cn, useTestAttrs } from "../../utils";
+import { cn, useForwardPropsEmitsTests } from "../../utils";
 
 const props = defineProps<
   RadioGroupRootProps & { class?: HTMLAttributes["class"] }
 >();
 const emits = defineEmits<RadioGroupRootEmits>();
 
-const testAttrs = useTestAttrs({
-  key: "radio-card-group"
-});
-
 const delegatedProps = computed(() => {
   const { class: _, ...delegated } = props;
 
-  return { ...delegated, testAttrs };
+  return delegated;
 });
 
-const forwarded = useForwardPropsEmits(delegatedProps, emits);
+const forwarded = useForwardPropsEmitsTests(delegatedProps, emits, {
+  key: "radio-card-group"
+});
 </script>
 
 <template>

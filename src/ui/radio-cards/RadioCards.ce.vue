@@ -48,7 +48,7 @@ import { computed } from "vue";
 import { RadioGroup } from "../radio-group";
 import RadioCardItem from "./RadioCardItem.vue";
 import config from "./radioCards.config";
-import { cn, useForwardPropsEmits, useStyles, useTestAttrs } from "../../utils";
+import { cn, useStyles, useTestAttrs } from "../../utils";
 import type { RadioCardsItemProps, RadioCardsProps } from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<RadioCardsProps>(), {
@@ -62,7 +62,7 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   radioClass: ""
 });
 
-const emits = defineEmits<{
+defineEmits<{
   focus: [FocusEvent];
   reject: [Event];
   resolve: [Event];
@@ -83,15 +83,15 @@ const styles = useStyles(
   props.uiConfig ?? {}
 );
 
-const testAttrs = (item: RadioCardsItemProps, index: number) => {
-  const attrs = useTestAttrs({
+/* Bind the attrs object directly — the old useForwardPropsEmits(attrs, emits)
+   wrapping returned a computed ref that v-bind never unwrapped, so no test
+   attrs (and no forwarded emit handlers) ever reached the items. */
+const testAttrs = (item: RadioCardsItemProps, index: number) =>
+  useTestAttrs({
     key: "radio-card-item",
     value: [item.id, item.value, index],
     dataAttrs: item.dataAttrs
   });
-
-  return useForwardPropsEmits(attrs, emits);
-};
 
 const onChange = (value: string | number) => {
   if (props.disabled) return;

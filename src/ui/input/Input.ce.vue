@@ -32,7 +32,7 @@ import IMask, { type InputElement } from "imask";
 import { useTemplateRef, computed, onMounted, watch, ref } from "vue";
 import config from "./input.config";
 import InputItems from "./InputItems.vue";
-import { useStyles, cn, useTestAttrs } from "../../utils";
+import { useStyles, cn, useForwardPropsTests } from "../../utils";
 import { kebabCase, omit } from "lodash-es";
 import type { InputProps } from "./types";
 import type { InputMask } from "imask";
@@ -49,31 +49,30 @@ const props = withDefaults(defineProps<InputProps>(), {
 const input = useTemplateRef<InputElement>("input");
 const modelValue = defineModel<InputProps["modelValue"]>("modelValue", {});
 
-const delegatedProps = computed(() => {
-  return {
-    ...omit(props, [
-      "class",
-      "uiConfig",
-      "defaultValue",
-      "modelValue",
-      "width",
-      "size",
-      "icon",
-      "avatar",
-      "iconAppend",
-      "avatarAppend",
-      "autoFocus",
-      "mask",
-      "ring"
-    ]),
-    ...testAttrs
-  } as Record<string, unknown>;
-});
-
-const testAttrs = useTestAttrs({
-  key: "input",
-  value: [props.id, props.type, kebabCase(props.name)]
-});
+const delegatedProps = useForwardPropsTests(
+  computed(
+    () =>
+      omit(props, [
+        "class",
+        "uiConfig",
+        "defaultValue",
+        "modelValue",
+        "width",
+        "size",
+        "icon",
+        "avatar",
+        "iconAppend",
+        "avatarAppend",
+        "autoFocus",
+        "mask",
+        "ring"
+      ]) as Record<string, unknown>
+  ),
+  {
+    key: "input",
+    value: [props.id, props.type, kebabCase(props.name)]
+  }
+);
 
 const meta = computed(() => ({
   width: props.width,

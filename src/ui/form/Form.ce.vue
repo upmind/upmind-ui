@@ -1,6 +1,7 @@
 <template>
   <component
     :is="as"
+    v-bind="useTestAttrs({ key: 'form', dataAttrs: props.dataAttrs })"
     :class="cn(styles.form.root, props.class)"
     :disabled="meta.isProcessing"
     ref="form"
@@ -51,7 +52,7 @@ import { Button } from "../button";
 import config from "./form.config";
 import { upmindUIRenderers } from "./renderers";
 import { iterateSchema } from "./renderers/utils";
-import { useStyles, isDeepEmpty, useValidation } from "../../utils";
+import { useStyles, isDeepEmpty, useValidation, useTestAttrs } from "../../utils";
 import { cn } from "../../utils";
 import {
   isEmpty,

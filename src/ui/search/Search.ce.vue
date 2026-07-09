@@ -12,6 +12,7 @@
       >
         <Input
           v-model="searchValue"
+          :id="props.id"
           type="text"
           width="full"
           :class="styles.search.inputContainer"
@@ -31,7 +32,7 @@
           v-for="item in results"
           :key="item.id"
           :class="styles.search.item"
-          v-bind="props.dataAttrs"
+          v-bind="testAttrs"
           @click="onSelect(item)"
         >
           {{ item.label }}
@@ -65,7 +66,7 @@ import { ref, computed, watch } from "vue";
 import { FormControl } from "../form";
 import Input from "../input/Input.ce.vue";
 import config from "./search.config";
-import { useStyles } from "../../utils";
+import { useStyles, useTestAttrs } from "../../utils";
 import { uniqueId } from "lodash-es";
 import type { SearchItem } from "./types";
 // -----------------------------------------------------------------------------
@@ -90,6 +91,13 @@ const props = withDefaults(
     minQueryLength: 3
   }
 );
+
+/* Routes props.dataAttrs through useTestAttrs instead of binding it raw, so
+   data-test-* keys are stripped from PROD builds like everywhere else. */
+const testAttrs = useTestAttrs({
+  key: "search-item",
+  dataAttrs: props.dataAttrs
+});
 
 const emit = defineEmits<{
   "update:search": [value: string];

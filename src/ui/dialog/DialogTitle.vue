@@ -1,23 +1,21 @@
 <script lang="ts" setup>
-import { DialogTitle, type DialogTitleProps, useForwardProps } from "radix-vue";
+import { DialogTitle, type DialogTitleProps } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
-import { cn, useTestAttrs } from "../../utils";
+import { cn, useForwardPropsTests } from "../../utils";
 
 const props = defineProps<
   DialogTitleProps & { class?: HTMLAttributes["class"] }
 >();
 
-const testAttrs = useTestAttrs({
-  key: "dialog-title"
-});
-
 const delegatedProps = computed(() => {
   const { class: _, ...delegated } = props;
 
-  return { ...delegated, ...testAttrs };
+  return delegated;
 });
 
-const forwardedProps = useForwardProps(delegatedProps);
+const forwardedProps = useForwardPropsTests(delegatedProps, {
+  key: "dialog-title"
+});
 </script>
 
 <template>

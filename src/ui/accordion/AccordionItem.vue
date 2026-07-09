@@ -1,28 +1,22 @@
 <script lang="ts" setup>
-import {
-  AccordionItem,
-  type AccordionItemProps,
-  useForwardProps
-} from "radix-vue";
+import { AccordionItem, type AccordionItemProps } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
-import { cn, useTestAttrs } from "../../utils";
+import { cn, useForwardPropsTests } from "../../utils";
 
 const props = defineProps<
   AccordionItemProps & { class?: HTMLAttributes["class"] }
 >();
 
-const testAttrs = useTestAttrs({
-  key: "accordion-item",
-  value: props.value
-});
-
 const delegatedProps = computed(() => {
   const { class: _, ...delegated } = props;
 
-  return { ...delegated, ...testAttrs };
+  return delegated;
 });
 
-const forwardedProps = useForwardProps(delegatedProps);
+const forwardedProps = useForwardPropsTests(delegatedProps, {
+  key: "accordion-item",
+  value: props.value
+});
 </script>
 
 <template>

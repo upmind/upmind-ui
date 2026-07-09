@@ -4,11 +4,10 @@ import {
   type PopoverContentEmits,
   type PopoverContentProps,
   type PopoverPortalProps,
-  PopoverPortal,
-  useForwardPropsEmits
+  PopoverPortal
 } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
-import { cn, usePortalTarget, useTestAttrs } from "../../utils";
+import { cn, usePortalTarget, useForwardPropsEmitsTests } from "../../utils";
 
 defineOptions({
   inheritAttrs: false
@@ -26,17 +25,15 @@ const props = withDefaults(
 );
 const emits = defineEmits<PopoverContentEmits>();
 
-const testAttrs = useTestAttrs({
-  key: "popover-content"
-});
-
 const delegatedProps = computed(() => {
   const { class: _, ...delegated } = props;
 
-  return { ...delegated, ...testAttrs };
+  return delegated;
 });
 
-const forwarded = useForwardPropsEmits(delegatedProps, emits);
+const forwarded = useForwardPropsEmitsTests(delegatedProps, emits, {
+  key: "popover-content"
+});
 
 const portalTo = usePortalTarget(() => props.to);
 </script>

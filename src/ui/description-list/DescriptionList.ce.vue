@@ -33,7 +33,7 @@
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { computed } from "vue";
 import config from "./descriptionList.config";
-import { useStyles, cn, useTestAttrs } from "../../utils";
+import { useStyles, cn, useTestAttrs, useForwardPropsTests } from "../../utils";
 import type { DescriptionItem, DescriptionListProps } from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<DescriptionListProps>(), {
@@ -47,10 +47,13 @@ const meta = computed(() => ({
 
 const styles = useStyles("list", meta, config, props.uiConfig ?? {});
 
-const testAttrs = useTestAttrs({
-  key: "description-list",
-  dataAttrs: props.dataAttrs
-});
+const delegatedAttrs = useForwardPropsTests(
+  {},
+  {
+    key: "description-list",
+    dataAttrs: props.dataAttrs
+  }
+);
 
 const testAttrsItem = (item: DescriptionItem, index: number) =>
   useTestAttrs({
@@ -71,7 +74,4 @@ const testAttrsDt = (item: DescriptionItem, index: number) =>
     value: index.toString()
   });
 
-const delegatedAttrs = computed(() => ({
-  ...testAttrs
-}));
 </script>

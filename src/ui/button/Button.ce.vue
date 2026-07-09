@@ -50,7 +50,7 @@ import { Spinner } from "../spinner";
 import config from "./button.config";
 import Button from "./Button.vue";
 import ButtonItems from "./ButtonItems.vue";
-import { useStyles, cn, useTestAttrs } from "../../utils";
+import { useStyles, cn, useForwardPropsTests } from "../../utils";
 import { kebabCase } from "lodash-es";
 import type { ButtonProps } from "./types";
 
@@ -83,14 +83,18 @@ const component = computed(() => {
   return Button;
 });
 
-const componentProps = computed(() => {
-  if (props.to) return { to: props.to, ...props.dataAttrs };
-  if (props.href) return { href: props.href, ...props.dataAttrs };
-  return {
-    type: props.type,
-    ...testAttrs
-  };
-});
+const componentProps = useForwardPropsTests(
+  computed(() => {
+    if (props.to) return { to: props.to };
+    if (props.href) return { href: props.href };
+    return { type: props.type };
+  }),
+  {
+    key: "button",
+    value: kebabCase(props.label),
+    dataAttrs: props.dataAttrs
+  }
+);
 
 const meta = computed(() => ({
   size: props.size,
@@ -106,10 +110,4 @@ const meta = computed(() => ({
 }));
 
 const styles = useStyles(["button"], meta, config, props.uiConfig ?? {});
-
-const testAttrs = useTestAttrs({
-  key: "button",
-  value: kebabCase(props.label),
-  dataAttrs: props.dataAttrs
-});
 </script>

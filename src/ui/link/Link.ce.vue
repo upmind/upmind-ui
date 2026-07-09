@@ -40,7 +40,7 @@ import { computed, useSlots } from "vue";
 import { RouterLink } from "vue-router";
 import config from "./link.config";
 import LinkItems from "./LinkItems.vue";
-import { useStyles, cn, useTestAttrs } from "../../utils";
+import { useStyles, cn, useForwardPropsTests } from "../../utils";
 import { isEmpty, kebabCase } from "lodash-es";
 import type { LinkProps } from "./types";
 
@@ -68,10 +68,15 @@ const component = computed(() => {
 
 const isRouterLink = computed(() => component.value === RouterLink);
 
-const componentProps = computed(() =>
-  isRouterLink.value
-    ? { to: props.to, ...testAttrs }
-    : { href: props.href, ...testAttrs }
+const componentProps = useForwardPropsTests(
+  computed(() =>
+    isRouterLink.value ? { to: props.to } : { href: props.href }
+  ),
+  {
+    key: "link",
+    value: kebabCase(props.label),
+    dataAttrs: props.dataAttrs
+  }
 );
 
 const meta = computed(() => ({
@@ -89,10 +94,4 @@ const meta = computed(() => ({
 }));
 
 const styles = useStyles(["link"], meta, config, props.uiConfig ?? {});
-
-const testAttrs = useTestAttrs({
-  key: "link",
-  value: kebabCase(props.label),
-  dataAttrs: props.dataAttrs
-});
 </script>

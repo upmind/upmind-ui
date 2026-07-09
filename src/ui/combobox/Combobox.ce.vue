@@ -100,7 +100,7 @@
               @select="doSelect(get(item, itemValue))"
               :class="cn(styles.combobox.listItem, styles.combobox.item)"
               :data-selected="isSelected(item) ? 'true' : 'false'"
-              v-bind="item.dataAttrs"
+              v-bind="testAttrsItem(item)"
             >
               <Avatar v-if="item.avatar" v-bind="item.avatar" size="xs" />
 
@@ -250,6 +250,12 @@ const testAttrsLabel = useTestAttrs({
   value: [props.id, kebabCase(props.label)],
   dataAttrs: props.valueDataAttrs
 });
+
+/* Routes item.dataAttrs through useTestAttrs instead of binding it raw — raw
+   fallthrough attrs are auto-inherited onto the item's root element even in
+   PROD builds. */
+const testAttrsItem = (item: ComboboxItemProps) =>
+  useTestAttrs({ dataAttrs: item.dataAttrs });
 
 // --- methods
 function doSelect(item: string) {

@@ -1,25 +1,23 @@
 <script setup lang="ts">
 import { Minus } from "lucide-vue-next";
-import { NumberFieldDecrement, useForwardProps } from "radix-vue";
+import { NumberFieldDecrement } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
-import { cn, useTestAttrs } from "../../utils";
+import { cn, useForwardPropsTests } from "../../utils";
 import type { NumberFieldDecrementProps } from "radix-vue";
 
 const props = defineProps<
   NumberFieldDecrementProps & { class?: HTMLAttributes["class"] }
 >();
 
-const testAttrs = useTestAttrs({
-  key: "number-field-decrement"
-});
-
 const delegatedProps = computed(() => {
   const { class: _, ...delegated } = props;
 
-  return { ...delegated, ...testAttrs };
+  return delegated;
 });
 
-const forwarded = useForwardProps(delegatedProps);
+const forwarded = useForwardPropsTests(delegatedProps, {
+  key: "number-field-decrement"
+});
 </script>
 
 <template>

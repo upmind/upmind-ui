@@ -3,14 +3,17 @@ import {
   DialogContent,
   DialogPortal,
   type DialogPortalProps,
-  useForwardPropsEmits,
   type DialogContentEmits,
   type DialogContentProps
 } from "radix-vue";
 import { type HTMLAttributes, computed, useTemplateRef } from "vue";
 import DialogClose from "./DialogClose.vue";
 import DialogOverlay from "./DialogOverlay.vue";
-import { cn, providePortalTarget, useTestAttrs } from "../../utils";
+import {
+  cn,
+  providePortalTarget,
+  useForwardPropsEmitsTests
+} from "../../utils";
 
 const props = defineProps<
   DialogContentProps &
@@ -24,17 +27,15 @@ const props = defineProps<
 
 const emits = defineEmits<DialogContentEmits>();
 
-const testAttrs = useTestAttrs({
+const delegatedProps = computed(() => {
+  const { class: _, dataAttrs: __, ...delegated } = props;
+  return delegated;
+});
+
+const forwarded = useForwardPropsEmitsTests(delegatedProps, emits, {
   key: "dialog-window",
   dataAttrs: props.dataAttrs
 });
-
-const delegatedProps = computed(() => {
-  const { class: _, dataAttrs: __, ...delegated } = props;
-  return { ...delegated, ...testAttrs };
-});
-
-const forwarded = useForwardPropsEmits(delegatedProps, emits);
 
 // Expose the content element to descendant overlays so their portals teleport
 // into this dialog's stacking context instead of competing at body level.
