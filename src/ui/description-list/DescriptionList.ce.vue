@@ -73,5 +73,4 @@ const testAttrsDt = (item: DescriptionItem, index: number) =>
     key: "description-list-term",
     value: index.toString()
   });
-
 </script>
