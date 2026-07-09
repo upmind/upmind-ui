@@ -27,6 +27,7 @@ import { useSchema, useUischema } from "./schemas";
 import {
   isEqual,
   isEmpty,
+  every,
   find,
   get,
   map,
@@ -157,6 +158,12 @@ export default createMachine(
                     {
                       target: "#valid",
                       cond: "needsNoPayment"
+                    },
+                    // incomplete gateway form: block PAY (invalid) without alert
+                    {
+                      target: "#invalid",
+                      actions: ["clearError"],
+                      cond: "isGatewayIncomplete"
                     },
                     {
                       target: "#invalid",
@@ -821,8 +828,15 @@ export default createMachine(
         );
       },
 
-      hasData: (context: PaymentDetailsContext, { data }: AnyEventObject) =>
-        !isEmpty(data)
+      // incomplete gateway form only — gateway `invalid` with no model-level
+      // errors (the thrown errors are read off the event, not context.error)
+      isGatewayIncomplete: (
+        { gatewayHelper }: PaymentDetailsContext,
+        { data }: AnyEventObject
+      ) =>
+        stateMatches(gatewayHelper, ["available.invalid"]) &&
+        !isEmpty(data?.data) &&
+        every(data?.data, ["keyword", "actorState"])
     },
 
     delays: {

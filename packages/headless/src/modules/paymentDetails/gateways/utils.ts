@@ -8,6 +8,7 @@ import { filter, keyBy, mapValues, values } from "lodash-es";
 // --- types
 import type { IGateway, PaymentMethodType } from "@upmind-automation/types";
 import { GatewayStoreType, QUERY_PARAMS } from "@upmind-automation/types";
+import type { GatewayContext } from "./types";
 import { ZERO_DECIMAL_CURRENCIES } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -79,3 +80,34 @@ export function parseSettings(gateway: IGateway) {
 
 // syntactic sugar for easier imports
 export const zeroDecimalCurrencies = values<string>(ZERO_DECIMAL_CURRENCIES);
+
+// -----------------------------------------------------------------------------
+// Payer contact detection — some gateways (dLocal, Nicky) must relay the payer's
+// email/phone in `payment_method_addition` when the payer has none on file. A
+// guest, or a logged-in client missing the value, needs it collected.
+
+/**
+ * The payer's email on file, if any.
+ */
+export function getPayerEmail(context: GatewayContext): string | undefined {
+  return (
+    context.client?.email || context.client?.default_email?.email || undefined
+  );
+}
+
+/**
+ * Whether the payer's email must be collected — guest checkout, or a logged-in
+ * client without an email on file.
+ */
+export function payerNeedsEmail(context: GatewayContext): boolean {
+  return !!context.client?.is_guest || !getPayerEmail(context);
+}
+
+/**
+ * Whether the payer's phone must be collected — guest checkout, or a logged-in
+ * client without a phone on file. NB: relies on `client.default_phone` being
+ * loaded (a "requires relation" field); an unloaded relation reads as no phone.
+ */
+export function payerNeedsPhone(context: GatewayContext): boolean {
+  return !!context.client?.is_guest || !context.client?.default_phone?.phone;
+}
