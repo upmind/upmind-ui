@@ -1,18 +1,12 @@
 import { fakerEN_GB } from "@faker-js/faker";
-import type { BrowserContext, Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import type { IProduct, IProductOption } from "@upmind-automation/types";
 
-import { getClientToken, getSessionToken } from "../api/auth";
-import {
-  addProductToOrder,
-  clearBasket,
-  createOrder,
-  getCurrentOrder
-} from "../api/basket";
 import { Logins } from "../constants/logins";
 import { URLs } from "../constants/urls";
 import type { ProductConfig } from "../page-objects/templates/product-config";
-import { waitForSessionCookie } from "../helpers/session";
+import { loginViaHeadless } from "./auth-setup";
+import { addProductViaHeadless, clearBasketViaHeadless } from "./basket-setup";
 
 type ProductFixture = {
   id: string;
@@ -20,64 +14,36 @@ type ProductFixture = {
   type?: string;
 };
 
-export async function loginAsIncompleteCustomer(
-  page: Page,
-  context: BrowserContext
-): Promise<string> {
+export async function loginAsIncompleteCustomer(page: Page): Promise<void> {
   await page.goto(URLs.basket);
-  await waitForSessionCookie(context);
-  const session = await getClientToken(
+  await loginViaHeadless(
     page,
     Logins.domain1.username,
     Logins.domain1.password
   );
-  const token = session.access_token;
   // Shared logged-in account: start every (serial) test from a clean basket so
   // seeded products are the only items. Deterministic because callers run
   // serially — no concurrent test can re-pollute between this clear and the seed.
-  const order = await getCurrentOrder(token);
-  if (order?.id) await clearBasket(token, order.id);
-  return token;
+  await clearBasketViaHeadless(page);
 }
 
 export async function seedInvalidProduct(
+  page: Page,
   product: ProductFixture,
-  token: string,
   provisionFields: Record<string, unknown> = {
     sld: `${fakerEN_GB.string.alphanumeric({ length: 8 }).toLowerCase()}`
-  },
-  orderId?: string
-): Promise<string> {
-  // When an explicit `orderId` is given, seed onto THAT order — never re-resolve
-  // the current order. Multi-product seeds add a second product to the first
-  // seed's order; under parallel matrix load getCurrentOrder can lag (read after
-  // write) and return null, so a re-resolve would createOrder a fresh empty
-  // order, split the products across two orders, and the funnel skips
-  // products-setup. Threading the id keeps both products on one order.
-  const resolvedId =
-    orderId ??
-    ((await getCurrentOrder(token)) ?? (await createOrder(token)))?.id;
-  if (!resolvedId) {
-    throw new Error(
-      `seedInvalidProduct: failed to obtain an order id from getCurrentOrder/createOrder ` +
-        `(token prefix=${token?.slice(0, 8) ?? "<empty>"}...). ` +
-        `Check staging auth/session establishment and POST /api/orders.`
-    );
   }
-  await addProductToOrder(
-    token,
-    resolvedId,
-    product.id,
-    1,
-    product.billingCycle,
-    [],
-    [],
+): Promise<{ basketId: string; basketProductId: string | null }> {
+  // The basket is a singleton shared with the live app, so there is exactly one
+  // basket per session — no order id to thread and no risk of a re-resolve
+  // splitting products across two orders. Seeding with an invalid (unvalidated)
+  // provision field keeps the funnel on products-setup.
+  return addProductViaHeadless(page, {
+    productId: product.id,
+    billingCycleMonths: product.billingCycle,
     provisionFields,
-    [],
-    false,
-    false
-  );
-  return resolvedId;
+    validateProvisionFields: false
+  });
 }
 
 export async function fillRegistrantDetails(

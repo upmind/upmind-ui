@@ -26,6 +26,7 @@ export default defineNuxtPlugin(async nuxtApp => {
   UpmindClient.init({
     allowedScopes: [AccessRoleTypes.CLIENT, AccessRoleTypes.GUEST],
     debug: import.meta.dev,
+    testMode: import.meta.dev,
     platformUrl: "https://upmind.com",
     pop: {
       name: runtimeConfig.public.API_NAME,

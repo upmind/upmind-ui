@@ -90,10 +90,6 @@ export default createMachine<DataManagerContext>(
             id: "valid",
             always: { target: "#processing", cond: "shouldUpdate" },
             on: {
-              SET: {
-                target: "checking",
-                actions: ["setAutoUpdate"]
-              },
               UPDATE: {
                 target: "#processing"
               }
@@ -101,23 +97,23 @@ export default createMachine<DataManagerContext>(
           },
 
           invalid: {
-            id: "invalid",
-            on: {
-              SET: {
-                target: "checking",
-                actions: ["setAutoUpdate"]
-              }
-            }
+            id: "invalid"
           },
 
           error: {
-            id: "error",
-            on: {
-              SET: {
-                target: "checking",
-                actions: ["setAutoUpdate"]
-              }
-            }
+            id: "error"
+          }
+        },
+        on: {
+          // SET is handled at the `available` parent so it is honoured in ANY
+          // substate — including the transient `checking` — not only the settled
+          // leaves. A SET arriving mid-check was previously dropped (checking had
+          // no SET handler), leaving the model unset. `canSet` gates it on the
+          // schema being loaded (i.e. the manager is ready to take a model).
+          SET: {
+            target: ".checking",
+            actions: ["setAutoUpdate"],
+            cond: "canSet"
           }
         }
       },
@@ -265,6 +261,7 @@ export default createMachine<DataManagerContext>(
       clearError: assign({ error: undefined })
     },
     guards: {
+      canSet: ({ schema }: DataManagerContext) => !!schema,
       hasSubscription: (_context: DataManagerContext, _event: AnyEventObject) =>
         true,
       hasChanged: (_context: DataManagerContext, _event: AnyEventObject) =>

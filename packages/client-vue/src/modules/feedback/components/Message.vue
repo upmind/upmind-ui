@@ -9,8 +9,8 @@
     :color="message.value.type"
     :anchor="safeAnchor"
     :variant="variant"
+    :data-attrs="{ 'data-test-key': 'message', ...props.dataAttrs }"
     @reject="dismiss"
-    data-test-key="message"
   />
 </template>
 
@@ -27,6 +27,7 @@ const props = withDefaults(
     anchor?: string;
     variant?: string;
     block?: boolean;
+    dataAttrs?: Record<`data-${string}`, string | number | boolean>;
   }>(),
   {
     variant: "inline"

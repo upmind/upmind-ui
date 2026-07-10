@@ -2,11 +2,9 @@ import { test, expect, Page, Locator } from "@playwright/test";
 import { URLs } from "../../support/constants/urls";
 import { products } from "../../support/constants/products";
 import { interceptConfigValues } from "../../support/mocks/brand";
-import { getSessionToken } from "../../support/api/auth";
 import {
   clickAndAwaitBasketAdd,
   waitForBasketAddRequest,
-  waitForSessionCookie,
   overrideBasketProductsLimit
 } from "../../support/helpers/index";
 import { ProductConfig } from "../../support/page-objects/templates/product-config";
@@ -38,9 +36,7 @@ const cardCta = (page: Page, id: string): Locator =>
 async function setupCatalogue(page: Page, funnelling: "none" | "next_step") {
   overrideBasketProductsLimit(page);
   await page.goto(URLs.basket);
-  await waitForSessionCookie(page.context());
-  const token = await getSessionToken(page.context());
-  await interceptConfigValues(page, token, { basketFunnelling: funnelling });
+  await interceptConfigValues(page, { basketFunnelling: funnelling });
   await page.goto(URLs.catalogueRoot1);
   await expect(page.getByTestId("products-grid")).toBeVisible();
 }
@@ -135,7 +131,7 @@ test.describe("In-Situ Catalogue Adds @in-situ-catalogue", () => {
       await page.goto(URLs.basket);
       const basket = new Basket(page);
       await expect(
-        basket.basketProduct.getByTestId("quantity-input")
+        basket.basketProduct.getByTestId("number-field-input")
       ).toHaveValue("2");
     });
   });

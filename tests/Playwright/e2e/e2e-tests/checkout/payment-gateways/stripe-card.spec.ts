@@ -10,12 +10,6 @@ import { ErrorCards } from "../../../support/constants/checkout/payment-cards/In
 import { products } from "../../../support/constants/products";
 import { gateways } from "../../../support/constants/gateways";
 import { TEST_EMAILS } from "../../../support/constants/test-data";
-import {
-  getClientToken,
-  getSessionToken,
-  registerClient
-} from "../../../support/api/index";
-import { waitForSessionCookie } from "../../../support/helpers/session";
 
 newUser.describe.configure({ mode: "parallel" });
 newUser.describe("Checkout with Stripe", () => {
@@ -24,14 +18,8 @@ newUser.describe("Checkout with Stripe", () => {
       for (const { name, cardNumber, expiryDate, cvcCode } of AcceptedCards) {
         newUser(
           `Accepted Stripe Cards - ${name}`,
-          async ({ page, context, checkout }) => {
-            await goToCheckout(
-              page,
-              context,
-              products.STARTER_HOSTING,
-              null,
-              null
-            );
+          async ({ page, checkout }) => {
+            await goToCheckout(page, products.STARTER_HOSTING, null, null);
             await checkout.selectGatewayByType(gateways.STRIPE);
             await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
             await checkout.clickCompleteCheckout();
@@ -44,26 +32,11 @@ newUser.describe("Checkout with Stripe", () => {
       }
     });
     newUser.describe("Declined Cards", async () => {
-      newUser.beforeEach(async ({ page, context }) => {
-        await page.goto("/");
-        await waitForSessionCookie(context);
-        let guestToken = await getSessionToken(context);
-        let user = await registerClient(guestToken);
-        let username = user.email;
-        let password = user.password;
-        await getClientToken(page, username, password);
-      });
       for (const { name, cardNumber, expiryDate, cvcCode } of DeclinedCards) {
         newUser(
           `Declined Stripe Cards - ${name}`,
-          async ({ page, context, checkout }) => {
-            await goToCheckout(
-              page,
-              context,
-              products.STARTER_HOSTING,
-              null,
-              null
-            );
+          async ({ page, checkout }) => {
+            await goToCheckout(page, products.STARTER_HOSTING, null, null);
             await checkout.selectGatewayByType(gateways.STRIPE);
             await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
             await checkout.clickCompleteCheckout();
@@ -79,14 +52,8 @@ newUser.describe("Checkout with Stripe", () => {
       for (const { name, cardNumber, expiryDate, cvcCode } of FraudCheckCards) {
         newUser(
           `Fraud Checked Stripe Cards - ${name}`,
-          async ({ page, context, checkout }) => {
-            await goToCheckout(
-              page,
-              context,
-              products.STARTER_HOSTING,
-              null,
-              null
-            );
+          async ({ page, checkout }) => {
+            await goToCheckout(page, products.STARTER_HOSTING, null, null);
             await checkout.selectGatewayByType(gateways.STRIPE);
             await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
             await checkout.clickCompleteCheckout();
@@ -111,26 +78,17 @@ newUser.describe("Checkout with Stripe", () => {
         // OR no createPaymentMethod call) when revisiting. See ADR 021 §Flakiness policy.
         // @quarantine(FE-XXXX-CVC, 2026-06-25)
         const testFn = name === "Invalid CVC" ? newUser.skip : newUser;
-        testFn(
-          `Stripe Cards - ${name}`,
-          async ({ page, context, checkout }) => {
-            await goToCheckout(
-              page,
-              context,
-              products.STARTER_HOSTING,
-              null,
-              null
-            );
-            await checkout.selectGatewayByType(gateways.STRIPE);
-            await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
-            const stripeFrame = page.frameLocator(
-              'iframe[title="Secure payment input frame"]'
-            );
-            await expect(stripeFrame.getByRole("alert")).toContainText(
-              `${errorText}`
-            );
-          }
-        );
+        testFn(`Stripe Cards - ${name}`, async ({ page, checkout }) => {
+          await goToCheckout(page, products.STARTER_HOSTING, null, null);
+          await checkout.selectGatewayByType(gateways.STRIPE);
+          await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
+          const stripeFrame = page.frameLocator(
+            'iframe[title="Secure payment input frame"]'
+          );
+          await expect(stripeFrame.getByRole("alert")).toContainText(
+            `${errorText}`
+          );
+        });
       }
     });
   });
@@ -140,8 +98,8 @@ newUser.describe("Checkout with Stripe", () => {
     // see overnight summary). If the Pay-Amount fix doesn't auto-resolve this
     // when applied, this needs its own investigation. See ADR 021 §Flakiness.
     // @quarantine(FE-XXXX-SEPA, 2026-06-25)
-    newUser.skip("Valid SEPA Debit", async ({ page, context, checkout }) => {
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, "EUR");
+    newUser.skip("Valid SEPA Debit", async ({ page, checkout }) => {
+      await goToCheckout(page, products.STARTER_HOSTING, null, "EUR");
       await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputSepaDetails(
         "GB82WEST12345698765432",
@@ -159,11 +117,15 @@ newUser.describe("Checkout with Stripe", () => {
     });
   });
   newUser.describe("iDEAL", async () => {
-    newUser("Successful iDEAL payment", async ({ page, context, checkout }) => {
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, "EUR");
+    newUser("Successful iDEAL payment", async ({ page, checkout }) => {
+      // Offsite roundtrip (register + checkout + Stripe element + hosted
+      // authorize page + return + confirmation) is the longest flow in the
+      // suite and straddles the global 60s. Realistic budget, matched to the
+      // measured flow — the journey is verified end-to-end.
+      newUser.setTimeout(120000);
+      await goToCheckout(page, products.STARTER_HOSTING, null, "EUR");
       await checkout.selectGatewayByType(gateways.STRIPE);
-      await checkout.inputIdealDetails(TEST_EMAILS.ideal, "Test User");
-      await checkout.completeCheckout.click();
+      await checkout.completeIdealCheckout(TEST_EMAILS.ideal, "Test User");
       // Stripe's hosted test page still marks buttons with data-testid, so
       // getByTestId (mapped to data-test-key) can't resolve them.
       await page
@@ -174,11 +136,15 @@ newUser.describe("Checkout with Stripe", () => {
         page.getByTestId("order-confirmation-heading")
       ).toBeVisible();
     });
-    newUser("Failed iDEAL payment", async ({ page, context, checkout }) => {
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, "EUR");
+    newUser("Failed iDEAL payment", async ({ page, checkout }) => {
+      // Offsite roundtrip (register + checkout + Stripe element + hosted
+      // authorize page + return + confirmation) is the longest flow in the
+      // suite and straddles the global 60s. Realistic budget, matched to the
+      // measured flow — the journey is verified end-to-end.
+      newUser.setTimeout(120000);
+      await goToCheckout(page, products.STARTER_HOSTING, null, "EUR");
       await checkout.selectGatewayByType(gateways.STRIPE);
-      await checkout.inputIdealDetails(TEST_EMAILS.ideal, "Test User");
-      await checkout.completeCheckout.click();
+      await checkout.completeIdealCheckout(TEST_EMAILS.ideal, "Test User");
       await page.locator('[data-testid="fail-test-payment-button"]').click();
       await page.waitForURL(`order/**`);
       await expect(
@@ -187,8 +153,8 @@ newUser.describe("Checkout with Stripe", () => {
     });
   });
   newUser.describe("Stripe Errors", async () => {
-    newUser("Mock Stripe Card Decline", async ({ page, context, checkout }) => {
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
+    newUser("Mock Stripe Card Decline", async ({ page, checkout }) => {
+      await goToCheckout(page, products.STARTER_HOSTING, null, null);
       await checkout.selectGatewayByType(gateways.STRIPE);
       await mockStripeCardDecline(page);
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
@@ -198,27 +164,24 @@ newUser.describe("Checkout with Stripe", () => {
         page.getByTestId("order-payment-failed-message")
       ).toBeVisible();
     });
-    newUser(
-      "Insufficient Payment Amount",
-      async ({ page, context, checkout }) => {
-        await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-        await checkout.changeAmountButton.click();
-        await checkout.changeAmountInput.fill("0.20");
-        await checkout.confirmAmountButton.click();
-        await expect(checkout.payAmount).toBeVisible();
-        await expect(checkout.payAmount).toHaveAttribute(
-          "data-test-value",
-          "£0.20"
-        );
-        await checkout.selectGatewayByType(gateways.STRIPE);
-        // Below the gateway minimum the gateway reports itself unavailable
-        // (not a payment failure), surfacing the unavailable alert and
-        // disabling Place Order rather than the payment-failed message.
-        await expect(
-          page.getByTestId("payment-gateway-unavailable-message")
-        ).toBeVisible();
-        await expect(checkout.completeCheckout).toBeDisabled();
-      }
-    );
+    newUser("Insufficient Payment Amount", async ({ page, checkout }) => {
+      await goToCheckout(page, products.STARTER_HOSTING, null, null);
+      await checkout.changeAmountButton.click();
+      await checkout.changeAmountInput.fill("0.20");
+      await checkout.confirmAmountButton.click();
+      await expect(checkout.payAmount).toBeVisible();
+      await expect(checkout.payAmount).toHaveAttribute(
+        "data-test-value",
+        "£0.20"
+      );
+      await checkout.selectGatewayByType(gateways.STRIPE);
+      // Below the gateway minimum the gateway reports itself unavailable
+      // (not a payment failure), surfacing the unavailable alert and
+      // disabling Place Order rather than the payment-failed message.
+      await expect(
+        page.getByTestId("payment-gateway-unavailable-message")
+      ).toBeVisible();
+      await expect(checkout.completeCheckout).toBeDisabled();
+    });
   });
 });

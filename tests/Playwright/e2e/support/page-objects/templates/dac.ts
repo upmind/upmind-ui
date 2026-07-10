@@ -123,6 +123,46 @@ export class Dac {
     throw new Error("No registerable domain could be added to the basket");
   }
 
+  /**
+   * Adds a single EXACT domain (a full name like `foo.co.uk`) to the basket by
+   * identity, and confirms the in-basket commit.
+   *
+   * Unlike `addFirstAvailableDomain`, this does NOT iterate the suggestion list
+   * — it targets the exact-match card for `domain`, so it can't drift onto a
+   * `.com` suggestion (whose staging product currently carries a required
+   * multi-choice option that blocks a one-click Add — tracked separately).
+   * Searching a full domain can auto-commit the exact match, so the card may
+   * already be `added`; otherwise it's `register` and we click it.
+   */
+  async addExactDomain(domain: string): Promise<void> {
+    const cta = this.cardByDomain(domain).getByTestId("domain-card-cta");
+    await expect(this.firstCard).toBeVisible();
+    await expect(this.buttonLoadingSkeletons).toHaveCount(0);
+
+    // Click only once the exact-match card's Add button is genuinely enabled —
+    // clicking while it's still resolving availability triggers a rejected add.
+    await expect(cta).toBeEnabled({ timeout: 20000 });
+    await cta.click();
+
+    // Confirm against the LIVE BASKET (the source of truth), not the card CTA:
+    // the CTA lags and the results re-sort after an add, so watching it is
+    // unreliable. The basket is what actually proves the domain was added.
+    const sld = domain.split(".")[0].toLowerCase();
+    await expect
+      .poll(
+        () =>
+          this.page.evaluate(
+            needle =>
+              JSON.stringify(window.Upmind?.useBasket().products.value ?? [])
+                .toLowerCase()
+                .includes(needle),
+            sld
+          ),
+        { timeout: 15000 }
+      )
+      .toBe(true);
+  }
+
   /** Navigate to the standalone DAC page (`/domains/`) with a search query. */
   async gotoSearch(query: string) {
     await this.page.goto(

@@ -11,6 +11,8 @@ interface BasePrice {
   // meta?: ProductSummaryDetailWithPrice["meta"];
   useMonthlyFromPrice?: boolean;
   loading?: boolean;
+  /** Overrides the component's default test key (routed through useTestAttrs). */
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
   uiConfig?: {
     pricing: {
       ex?: CxOptions;

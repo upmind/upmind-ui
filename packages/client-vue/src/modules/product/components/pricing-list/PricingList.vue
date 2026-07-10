@@ -60,7 +60,10 @@ const summary = computed<DescriptionItem[]>(() => {
       detail.name === "product" && props.title
         ? props.title
         : detail.title || "-",
-    dataAttrs: { "data-test-key": `description-list-item-${detail.name}` }
+    dataAttrs: {
+      "data-test-key": "description-list-item",
+      "data-test-value": detail.name
+    }
   })) as DescriptionItem[];
 
   const term = find(props.details, d => d.name === "term");
@@ -69,7 +72,10 @@ const summary = computed<DescriptionItem[]>(() => {
     summary.push({
       term: term.category,
       description: parseBillingCycle(term.cycle!).numeric,
-      dataAttrs: { "data-test-key": `description-list-item-${term.name}` }
+      dataAttrs: {
+        "data-test-key": "description-list-item",
+        "data-test-value": term.name
+      }
     });
   }
 

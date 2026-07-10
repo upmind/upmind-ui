@@ -35,11 +35,10 @@ test.describe("Tracking — Product Setup step", () => {
   });
 
   test("dataLayer captures a route-change event for the new PRODUCTS_SETUP path", async ({
-    page,
-    context
+    page
   }) => {
-    const token = await loginAsIncompleteCustomer(page, context);
-    await seedInvalidProduct(products.DOMAIN_2, token);
+    await loginAsIncompleteCustomer(page);
+    await seedInvalidProduct(page, products.DOMAIN_2);
 
     await page.goto(`${URLs.baseUrl}order/basket/products-setup/`);
     await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
@@ -52,11 +51,10 @@ test.describe("Tracking — Product Setup step", () => {
   });
 
   test("dataLayer fires a checkout-progression event on submission", async ({
-    page,
-    context
+    page
   }) => {
-    const token = await loginAsIncompleteCustomer(page, context);
-    await seedInvalidProduct(products.DOMAIN_2, token);
+    await loginAsIncompleteCustomer(page);
+    await seedInvalidProduct(page, products.DOMAIN_2);
     await page.goto(`${URLs.baseUrl}order/basket/products-setup/`);
     await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
 
@@ -71,11 +69,10 @@ test.describe("Tracking — Product Setup step", () => {
   });
 
   test("no dataLayer events reference the removed BASKET_PRODUCT_REQUIRES_ACTION route", async ({
-    page,
-    context
+    page
   }) => {
-    const token = await loginAsIncompleteCustomer(page, context);
-    await seedInvalidProduct(products.DOMAIN_2, token);
+    await loginAsIncompleteCustomer(page);
+    await seedInvalidProduct(page, products.DOMAIN_2);
 
     await page.goto(URLs.basket);
     await basket.proceedToCheckout.click();
@@ -98,12 +95,11 @@ test.describe("Tracking — Product Setup step", () => {
   });
 
   test("apply-to-others does not double-fire submission events", async ({
-    page,
-    context
+    page
   }) => {
-    const token = await loginAsIncompleteCustomer(page, context);
-    await seedInvalidProduct(products.DOMAIN_2, token);
-    await seedInvalidProduct(products.DOMAIN_3, token);
+    await loginAsIncompleteCustomer(page);
+    await seedInvalidProduct(page, products.DOMAIN_2);
+    await seedInvalidProduct(page, products.DOMAIN_3);
 
     await page.goto(URLs.basket);
     await basket.proceedToCheckout.click();

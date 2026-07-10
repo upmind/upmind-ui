@@ -29,6 +29,17 @@ import type { IApiPop } from "./utils";
 import type { I18n, Composer } from "vue-i18n";
 import type { Router } from "vue-router";
 
+declare global {
+  interface Window {
+    /**
+     * The live headless system — the entire public API — exposed by
+     * {@link Upmind.initTestMode} only when the app is initialised with
+     * `testMode: true`; `undefined` in production builds.
+     */
+    Upmind?: typeof import("./index");
+  }
+}
+
 // ---
 /**
  * Enumeration representing the initialisation status of the Upmind instance.
@@ -72,6 +83,16 @@ export interface UpmindProps {
    * @default false (derived from session storage or default)
    */
   debug?: boolean;
+  /**
+   * Exposes the entire live headless system on `window.Upmind` — every
+   * composable and util — so Playwright e2e specs drive the same running system
+   * the app uses (cache-invalidating, no raw HTTP). Host apps pass a build-time
+   * signal that is statically `false` in production (e.g. Vite test mode /
+   * `import.meta.dev`), so it dead-strips from prod builds. Unlike `debug`, there
+   * is no URL/query/sessionStorage override — this prop is the only switch.
+   * @default false
+   */
+  testMode?: boolean;
   /**
    * The base URL of the storefront application. Used for generating absolute URLs
    * and linking purposes within the headless library.
@@ -196,6 +217,11 @@ export class Upmind {
    */
   debug: UpmindProps["debug"];
   /**
+   * Exposes the entire live headless system on `window.Upmind` in test mode.
+   * Off by default.
+   */
+  testMode: UpmindProps["testMode"];
+  /**
    * Internationalization configuration for Vue I18n.
    */
   i18n: UpmindProps["i18n"];
@@ -268,6 +294,7 @@ export class Upmind {
     recaptcha,
     router,
     storefrontUrl,
+    testMode,
     themes,
     admin
   }: UpmindProps): Promise<void> {
@@ -280,6 +307,7 @@ export class Upmind {
     this.status.value = UpmindStatus.initialising;
     this.allowedScopes = allowedScopes;
     this.debug = debug;
+    this.testMode = testMode;
     this.mode = mode ?? "default";
     this.pop = pop;
     this.analytics = analytics;
@@ -293,6 +321,7 @@ export class Upmind {
 
     this.initPlugins();
     this.initDebugging();
+    this.initTestMode();
 
     return usePOP(this.pop)
       .isReady()
@@ -377,6 +406,32 @@ export class Upmind {
         // url: "https://statecharts.io/inspect",
         // url: "https://stately.ai/viz?inspect", // (default)
         iframe: false
+      });
+  }
+
+  /**
+   * Exposes the entire live headless system on `window.Upmind` when `testMode`
+   * is enabled; no-ops otherwise. Lets Playwright e2e specs drive the same
+   * running system the app uses (real session, real query cache) instead of raw
+   * HTTP that leaves the cache stale. The barrel is grabbed via a dynamic import
+   * so it resolves after the module graph has fully evaluated — a static import
+   * of the aggregator barrel would create the import-time cycle `code-style.md`
+   * forbids. Unlike {@link initDebugging} there is no URL/query/sessionStorage
+   * escape hatch — it attaches only when the host app opts in via `testMode`, so
+   * it can never surface in a production build.
+   * @private
+   */
+  private initTestMode(): void {
+    if (!this.testMode) return;
+    void import("./index")
+      .then(Upmind => {
+        window.Upmind = Upmind;
+      })
+      .catch(err => {
+        // Surface a chunk-load failure here; otherwise window.Upmind silently
+        // never attaches and every bridge helper times out with a misleading
+        // "is the cart running in test mode?" message.
+        console.error("Upmind test bridge failed to load", err);
       });
   }
 

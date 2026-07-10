@@ -9,7 +9,7 @@
         >
           <BasketProductContent
             v-if="index === 0"
-            data-test-key="basket-product-summary"
+            v-bind="basketProductSummaryTestAttrs"
             :id="id"
             :productDetails="props.productDetails"
             :serviceIdentifier="props.serviceIdentifier"
@@ -33,7 +33,7 @@
           />
           <BasketProductSubItem
             v-else
-            data-test-key="basket-product-summary"
+            v-bind="basketProductSummaryTestAttrs"
             :summary="summary"
           />
         </template>
@@ -46,7 +46,7 @@
         :class="styles.product.option.upsell"
       >
         <BasketProductUpsell
-          data-test-key="basket-product-upsell"
+          v-bind="basketProductUpsellTestAttrs"
           :id="id"
           :summary="upsell"
           :option="option"
@@ -74,7 +74,7 @@ import {
   useConfig,
   useBasketProductInline
 } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, useTestAttrs } from "@upmind-automation/upmind-ui";
 import { Card, Loading } from "@upmind-automation/upmind-ui";
 import stylesConfig from "./basketProduct.config";
 import BasketProductContent from "./BasketProductContent.vue";
@@ -117,6 +117,15 @@ const productConfig = useConfig().with({
 const { ui } = productConfig;
 
 const { meta: basketMeta } = useBasket();
+
+// --- test attrs
+
+const basketProductSummaryTestAttrs = useTestAttrs({
+  key: "basket-product-summary"
+});
+const basketProductUpsellTestAttrs = useTestAttrs({
+  key: "basket-product-upsell"
+});
 
 // --- inline config
 

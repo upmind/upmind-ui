@@ -194,6 +194,15 @@ export type SessionState = {
    * store silently recovers from. Cleared on a successful (re)initialise.
    */
   error?: DetailedError;
+
+  /**
+   * `/self` failure from the most recent INTERACTIVE login/register. The
+   * session is still promoted (usable without user data), but an interactive
+   * caller is actively waiting, so `whenAuthenticated()` rejects with this
+   * instead of hanging for a user that will never load. Transient (not
+   * persisted); overwritten/cleared by the next interactive `add()`.
+   */
+  userError?: DetailedError;
 };
 
 /**
@@ -203,7 +212,7 @@ export type SessionState = {
  */
 export type PersistedSessionState = Omit<
   SessionState,
-  "initialised" | "loading" | "error"
+  "initialised" | "loading" | "error" | "userError"
 >;
 
 /**

@@ -149,7 +149,7 @@
       >
         <Markdown
           v-if="product?.productDetails"
-          data-test-key="slots:summary-append"
+          v-bind="markdownTestAttrs"
           :model-value="configMeta.data.trustMessagingMarkdown"
         />
       </slot>
@@ -226,6 +226,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import { useThemes } from "@upmind-automation/upmind-ui";
 import { Breadcrumb, Markdown, Alert } from "@upmind-automation/upmind-ui";
 import { isMobile } from "@upmind-automation/upmind-ui";
+import { useTestAttrs } from "@upmind-automation/upmind-ui";
 import Section from "../../components/section/Section.vue";
 import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
 import { PRODUCT_HERO_DIRECTION } from "../product/components/hero/types";
@@ -340,6 +341,8 @@ const stylesMeta = computed(() => {
 });
 
 const styles = useStyles("product", stylesMeta, config);
+
+const markdownTestAttrs = useTestAttrs({ key: "slots:summary-append" });
 
 const { items: breadcrumbItems } = useBreadcrumbs({
   categories: () => {

@@ -318,6 +318,16 @@ const mapFeedback = (
       display: messageDisplays.INTERSTITIAL,
       delay: 0,
       maxAge: 0
+    },
+    [responseCodes.Network_Error]: {
+      type: messageTypes.ERROR,
+      title: t("error.network_title_md"),
+      copy: t("error.network_text"),
+      data: {
+        ...error,
+        status: responseCodes.Network_Error
+      },
+      display: messageDisplays.INTERSTITIAL
     }
   };
 };
@@ -340,6 +350,7 @@ export function handleError(
 
   // get the mapped the error and status to a feedback message and display it if it exists
   const feedback = get(mapFeedback(error), status);
+
   if (!isNil(feedback)) useFeedback().add(feedback);
   // Preserve the API's structured error code (e.g. `web_hosting::domain_register_only`)
   // on the DetailedError. Clients that need to branch on it (e.g. domain
@@ -381,5 +392,20 @@ export function isAbortError(error: unknown): boolean {
     e.name === "AbortError" ||
     e.code === responseCodes.Aborted ||
     e.status === responseCodes.Aborted
+  );
+}
+
+/**
+ * Detects whether a caught query-layer rejection represents a browser-level
+ * network failure (API unreachable / CORS) rather than a structured API error.
+ *
+ * `fetch` throws a `TypeError` on network failures, and some environments
+ * surface the message `"Network Error"` (net::ERR_FAILED). Structured API
+ * errors carry a `status` and never reach this helper — the caller
+ * short-circuits on `response.status`.
+ */
+export function isNetworkError(error: unknown): boolean {
+  return (
+    error instanceof TypeError || get(error, "message") === "Network Error"
   );
 }

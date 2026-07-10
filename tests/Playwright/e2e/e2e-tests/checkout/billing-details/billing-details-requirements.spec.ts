@@ -2,57 +2,42 @@ import { test, expect } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
 import { Checkout } from "../../../support/page-objects/templates/checkout";
 import {
-  createOrder,
-  Order,
-  addProductToOrder
-} from "../../../support/api/basket";
+  addProductViaHeadless,
+  loginViaHeadless,
+  waitForActiveSessionViaHeadless
+} from "../../../support/flows";
 import { interceptConfigValues } from "../../../support/mocks/brand";
 import { gateways } from "../../../support/constants/gateways";
 import { URLs } from "../../../support/constants/urls";
-import { getSessionToken, getClientToken } from "../../../support/api/auth";
 import { Logins } from "../../../support/constants/logins";
-import { waitForSessionCookie } from "../../../support/helpers/session";
 let checkout: Checkout;
-let token: string;
-let orderId: string | null;
 test.describe("Verify checkout billing detail requirements", () => {
   // All tests below log in as Logins.brandUser via beforeEach. Serial mode
   // prevents them from racing against each other on the same staging account.
   test.describe.configure({ mode: "serial" });
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page }) => {
     checkout = new Checkout(page);
-    await getClientToken(
+    await page.goto(URLs.basket);
+    await loginViaHeadless(
       page,
       Logins.brandUser.username,
       Logins.brandUser.password
     );
-    await page.goto(URLs.basket);
-    await waitForSessionCookie(context);
-    token = await getSessionToken(context);
-    let order = await createOrder(token);
-    orderId = order.id;
-    await addProductToOrder(
-      `${token}`,
-      `${orderId}`,
-      "3de78642-de53-9714-76df-21208469530d",
-      1,
-      24,
-      [],
-      [],
-      {
+    await addProductViaHeadless(page, {
+      productId: "3de78642-de53-9714-76df-21208469530d",
+      quantity: 1,
+      billingCycleMonths: 24,
+      provisionFields: {
         domain: `${fakerEN_GB.string.alphanumeric({
           length: { min: 3, max: 15 }
         })}.com`
-      },
-      [],
-      true,
-      false
-    );
+      }
+    });
+    await waitForActiveSessionViaHeadless(page);
     await page.goto(URLs.basket);
-    await waitForSessionCookie(page.context());
   });
   test("Address required at checkout", async ({ page, context }) => {
-    interceptConfigValues(page, token, {
+    interceptConfigValues(page, {
       requireAddressForOrders: true,
       requireCompanyForOrders: false,
       requireRegionInAddress: false,
@@ -66,7 +51,7 @@ test.describe("Verify checkout billing detail requirements", () => {
     await expect(checkout.addNewAddress).toBeVisible();
   });
   test("Company required at checkout", async ({ page }) => {
-    interceptConfigValues(page, token, {
+    interceptConfigValues(page, {
       requireAddressForOrders: false,
       requireCompanyForOrders: true,
       requireRegionInAddress: false,
@@ -80,7 +65,7 @@ test.describe("Verify checkout billing detail requirements", () => {
     await expect(checkout.addNewCompany).toBeVisible();
   });
   test("Region required on address", async ({ page, context }) => {
-    interceptConfigValues(page, token, {
+    interceptConfigValues(page, {
       requireAddressForOrders: true,
       requireCompanyForOrders: false,
       requireRegionInAddress: true,
@@ -98,7 +83,7 @@ test.describe("Verify checkout billing detail requirements", () => {
     await expect(checkout.addressRegionMessage).toBeVisible();
   });
   test("Phone required at checkout", async ({ page }) => {
-    interceptConfigValues(page, token, {
+    interceptConfigValues(page, {
       requireAddressForOrders: false,
       requireCompanyForOrders: false,
       requireRegionInAddress: false,

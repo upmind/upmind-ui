@@ -23,7 +23,9 @@
           icon="alert-triangle"
           :title="alertTitle"
           :description="errors"
-          data-test-key="auth-alert"
+          :data-attrs="{
+            'data-test-value': 'auth'
+          }"
         />
 
         <Form
@@ -42,7 +44,10 @@
           @update:model-value="set"
           :class="styles.session.auth.form"
           :actions="formActions"
-          :data-test-key="`${currentForm}-form`"
+          :dataAttrs="{
+            'data-test-key': 'session-form',
+            'data-test-value': currentForm
+          }"
         >
           <template v-if="currentForm === SESSION_FORMS.REGISTER" #footer>
             <TermsAndConditions
@@ -63,7 +68,9 @@
             color="muted"
             :label="t('auth.forgot_password_qn')"
             size="lg"
-            data-test-key="forgot-password-link"
+            :data-attrs="{
+              'data-test-key': 'forgot-password-link'
+            }"
           />
         </slot>
       </div>
@@ -185,16 +192,20 @@ const formUischema = computed(() =>
 
 const formActions = computed(() => {
   let label: string;
+  let submitTestKey: string;
   switch (currentForm.value) {
     case SESSION_FORMS.LOGIN:
       label = t("action.log_in_to_your_account");
+      submitTestKey = "button-log-into-my-account";
       break;
     case SESSION_FORMS.RECOVER:
       label = t("action.send_reset");
+      submitTestKey = "button-send-reset";
       break;
     case SESSION_FORMS.REGISTER:
     default:
       label = t("action.continue_label");
+      submitTestKey = "button-continue";
       break;
   }
 
@@ -205,9 +216,7 @@ const formActions = computed(() => {
       block: true,
       needsValid: true,
       size: "lg" as const,
-      ...(currentForm.value === SESSION_FORMS.LOGIN
-        ? { dataAttrs: { "data-test-key": "button-log-into-my-account" } }
-        : {})
+      dataAttrs: { "data-test-key": submitTestKey }
     }
   };
 
@@ -273,10 +282,28 @@ async function toggleForm(type: SessionProps["modelValue"]) {
 }
 
 function doResolve(model: unknown) {
-  resolve(model as AuthModel).then(success => {
-    if (success) {
-      emit("resolve", model);
+  // Capture at submit time — after a successful login/register the machine
+  // leaves the form state, so currentForm changes before the .then runs.
+  const authenticates = currentForm.value !== SESSION_FORMS.RECOVER;
+  resolve(model as AuthModel).then(async success => {
+    if (!success) return;
+    // The auth machine resolves as soon as it holds a token, but promoting the
+    // active session + loading the user is the session store's job and lands a
+    // beat later. Consumers of this emit (e.g. checkout registering inline)
+    // re-read session-scoped state on resolve, so hand control back only once
+    // the session is actually authenticated. RECOVER never authenticates, so
+    // it emits immediately.
+    if (authenticates) {
+      try {
+        await session.useActions().whenAuthenticated();
+      } catch {
+        // Token issued but the user load failed — escalate to the reject path
+        // rather than hang the overlay waiting for a user that never loads.
+        emit("reject");
+        return;
+      }
     }
+    emit("resolve", model);
   });
 }
 
@@ -303,9 +330,18 @@ watch(show2fa, value => {
 
 watch(
   [canShowForms, isAuthenticated],
-  ([canShow, isAuth], [couldShow, wasAuth]) => {
+  async ([canShow, isAuth], [couldShow, wasAuth]) => {
     if (canShow && !couldShow) toggleForm(modelValue.value);
     if (isAuth && !wasAuth) {
+      // isAuthenticated flips at actor promotion; the user object can land a
+      // beat later — wait for the fully-loaded session before handing back.
+      try {
+        await session.useActions().whenAuthenticated();
+      } catch {
+        // User load failed after promotion — escalate rather than hang.
+        emit("reject");
+        return;
+      }
       emit("resolve", model.value);
     }
   }

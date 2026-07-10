@@ -8,7 +8,7 @@
       v-model="selected"
       multiple
       :disabled="disabled"
-      data-test-key="apply-to-others-group"
+      v-bind="groupTestAttrs"
     >
       <CheckboxGroupItem
         v-for="product in products"
@@ -33,7 +33,8 @@ import { useI18n } from "vue-i18n";
 import {
   CheckboxGroup,
   CheckboxGroupItem,
-  Skeleton
+  Skeleton,
+  useTestAttrs
 } from "@upmind-automation/upmind-ui";
 import type { BasketProduct } from "@upmind-automation/headless";
 
@@ -46,6 +47,8 @@ defineProps<{
 }>();
 
 const selected = defineModel<string[]>({ default: () => [] });
+
+const groupTestAttrs = useTestAttrs({ key: "apply-to-others-group" });
 
 const { t: _t } = useI18n();
 </script>

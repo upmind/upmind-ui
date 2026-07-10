@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { URLs } from "../support/constants/urls";
 import { Checkout } from "../support/page-objects/templates/checkout";
 import { GuestCheckout } from "../support/page-objects/templates/guest-checkout";
-import { getClientToken } from "../support/api/auth";
+import { loginViaHeadless } from "../support/flows/auth-setup";
 import { Logins } from "../support/constants/logins";
 import { goToCheckout } from "../support/flows/checkout";
 import { seedGuestBasket } from "../support/flows/guest-checkout";
@@ -136,12 +136,12 @@ for (const { language, locale, username, password } of localeLogins) {
       // mock), then read the REAL flag — `register/guest` is server-enforced and
       // cannot be faked, so skip (not fail) on a brand where guest checkout is
       // off, exactly like the functional journey scenarios.
-      await interceptConfigValues(page, null, { guestCheckoutEnabled: true });
+      await interceptConfigValues(page, { guestCheckoutEnabled: true });
 
       // A guest visitor with a non-recurring product (HAT) in their basket.
       // The guest-checkout option only renders without a recurring product
       // (Register.vue:64 !hasRecurringProducts).
-      await seedGuestBasket(page, context);
+      await seedGuestBasket(page);
 
       const settings = captureBrandSettings(page);
       await page.goto(URLs.register);
@@ -185,16 +185,9 @@ for (const { language, locale, username, password } of localeLogins) {
       });
     });
 
-    test("Checkout - Registered User", async ({ page, context }) => {
-      await getClientToken(page, username, password);
-      await goToCheckout(
-        page,
-        context,
-        products.STARTER_HOSTING,
-        null,
-        null,
-        false
-      );
+    test("Checkout - Registered User", async ({ page }) => {
+      await loginViaHeadless(page, username, password);
+      await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
       await waitForSessionCookie(page.context());
       await expect(checkout.paymentDetails).toBeVisible({ timeout: 30000 });
       await expect(checkout.gateways.first()).toBeVisible({ timeout: 30000 });
@@ -204,16 +197,9 @@ for (const { language, locale, username, password } of localeLogins) {
       });
     });
 
-    test("Checkout - Stripe Gateway Selected", async ({ page, context }) => {
-      await getClientToken(page, username, password);
-      await goToCheckout(
-        page,
-        context,
-        products.STARTER_HOSTING,
-        null,
-        null,
-        false
-      );
+    test("Checkout - Stripe Gateway Selected", async ({ page }) => {
+      await loginViaHeadless(page, username, password);
+      await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
       await waitForSessionCookie(page.context());
       await setLocale(page, locale);
 
@@ -242,16 +228,9 @@ for (const { language, locale, username, password } of localeLogins) {
       );
     });
 
-    test("Checkout - Pay Later Selected", async ({ page, context }) => {
-      await getClientToken(page, username, password);
-      await goToCheckout(
-        page,
-        context,
-        products.STARTER_HOSTING,
-        null,
-        null,
-        false
-      );
+    test("Checkout - Pay Later Selected", async ({ page }) => {
+      await loginViaHeadless(page, username, password);
+      await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
       await waitForSessionCookie(page.context());
       await setLocale(page, locale);
 
@@ -274,15 +253,8 @@ for (const { language, locale, username, password } of localeLogins) {
       // A fixed £100/£100 balance is deterministic (settings-class, P4-allowed).
       mockWalletBalance(context, { ownedAmount: 100, creditAmount: 100 });
 
-      await getClientToken(page, username, password);
-      await goToCheckout(
-        page,
-        context,
-        products.STARTER_HOSTING,
-        null,
-        null,
-        false
-      );
+      await loginViaHeadless(page, username, password);
+      await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
       await waitForSessionCookie(page.context());
       await setLocale(page, locale);
 
@@ -297,16 +269,9 @@ for (const { language, locale, username, password } of localeLogins) {
       );
     });
 
-    test("Checkout - Voucher Form Expanded", async ({ page, context }) => {
-      await getClientToken(page, username, password);
-      await goToCheckout(
-        page,
-        context,
-        products.STARTER_HOSTING,
-        null,
-        null,
-        false
-      );
+    test("Checkout - Voucher Form Expanded", async ({ page }) => {
+      await loginViaHeadless(page, username, password);
+      await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
       await waitForSessionCookie(page.context());
       await setLocale(page, locale);
 
@@ -322,16 +287,9 @@ for (const { language, locale, username, password } of localeLogins) {
       });
     });
 
-    test("Checkout - Change Amount Dialog", async ({ page, context }) => {
-      await getClientToken(page, username, password);
-      await goToCheckout(
-        page,
-        context,
-        products.STARTER_HOSTING,
-        null,
-        null,
-        false
-      );
+    test("Checkout - Change Amount Dialog", async ({ page }) => {
+      await loginViaHeadless(page, username, password);
+      await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
       await waitForSessionCookie(page.context());
       await setLocale(page, locale);
 
@@ -355,16 +313,9 @@ for (const { language, locale, username, password } of localeLogins) {
       );
     });
 
-    test("Checkout - Currency Selector Open", async ({ page, context }) => {
-      await getClientToken(page, username, password);
-      await goToCheckout(
-        page,
-        context,
-        products.STARTER_HOSTING,
-        null,
-        null,
-        false
-      );
+    test("Checkout - Currency Selector Open", async ({ page }) => {
+      await loginViaHeadless(page, username, password);
+      await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
       await waitForSessionCookie(page.context());
       await setLocale(page, locale);
 
@@ -374,7 +325,9 @@ for (const { language, locale, username, password } of localeLogins) {
       await expect(currencyTrigger).toBeVisible({ timeout: 30000 });
       await currencyTrigger.click();
 
-      const audOption = page.getByTestId("currency-option-AUD");
+      const audOption = page
+        .getByTestId("currency-option")
+        .and(page.locator('[data-test-value="AUD"]'));
       await expect(audOption).toBeVisible({ timeout: 30000 });
 
       await expect(page).toHaveScreenshot(`${language}/checkout-currency`, {

@@ -10,7 +10,7 @@ import { compact } from "lodash-es";
 
 export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd(), "");
-  const enableDevTools = (env.VITE_ENABLE_DEVTOOLS ?? "true") !== "false";
+  const enableDevTools = (env.VITE_ENABLE_DEVTOOLS ?? "true") === "true";
 
   console.log("*** BUILDING for mode:", mode, "command:", command, "***");
 

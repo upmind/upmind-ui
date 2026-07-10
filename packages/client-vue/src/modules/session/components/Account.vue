@@ -24,7 +24,9 @@
           icon="alert-triangle"
           :title="alertTitle"
           :description="errors"
-          data-test-key="auth-alert"
+          :data-attrs="{
+            'data-test-value': 'account'
+          }"
         />
 
         <Form
@@ -42,7 +44,10 @@
           @update:model-value="set"
           :class="styles.session.auth.form"
           :actions="formActions"
-          :data-test-key="`${currentForm}-form`"
+          :dataAttrs="{
+            'data-test-key': 'session-form',
+            'data-test-value': currentForm
+          }"
         >
           <template v-if="currentForm === SESSION_FORMS.GUEST" #footer>
             <TermsAndConditions
@@ -67,7 +72,7 @@
             <template v-if="canResend">
               <span
                 :class="styles.session.auth.resendPrompt"
-                data-test-key="resend-prompt"
+                v-bind="resendPromptTestAttrs"
               >
                 {{ t("auth.didnt_receive_code") }}
               </span>
@@ -75,7 +80,7 @@
               <Link
                 size="sm"
                 :label="t('action.resend_code')"
-                data-test-key="resend-code-link"
+                :data-attrs="{ 'data-test-key': 'resend-code-link' }"
                 @click.prevent="resend"
               />
             </template>
@@ -83,14 +88,14 @@
             <span
               v-else-if="isResending"
               :class="styles.session.auth.resendSending"
-              data-test-key="resend-sending"
+              v-bind="resendSendingTestAttrs"
             >
               {{ t("auth.verify_email_send") }}
             </span>
             <span
               v-else-if="resendComplete"
               :class="styles.session.auth.resendSent"
-              data-test-key="resend-sent"
+              v-bind="resendSentTestAttrs"
             >
               {{ t("auth.verify_email_sent") }}
             </span>
@@ -107,11 +112,13 @@ import { useI18n } from "vue-i18n";
 import {
   ScopeActorTypes,
   useAccount,
+  useActiveSession,
   type VerifyEmailModel,
   type CompleteRegistrationModel
 } from "@upmind-automation/headless";
 import {
   useStyles,
+  useTestAttrs,
   cn,
   Interstitial,
   Slot,
@@ -138,6 +145,7 @@ const { t } = useI18n();
 
 // --- Account for verify-email / guest-upgrade / resend (state-driven forms)
 const account = useAccount().as(ScopeActorTypes.CLIENT);
+const session = useActiveSession();
 const {
   canResend,
   canShowForms,
@@ -154,6 +162,12 @@ const { errors, model, schema, uischema, validationErrors } =
   account.useContext();
 
 const { cancel, register, resend, set, verify } = account.useActions();
+
+// --- test attrs
+
+const resendPromptTestAttrs = useTestAttrs({ key: "resend-prompt" });
+const resendSendingTestAttrs = useTestAttrs({ key: "resend-sending" });
+const resendSentTestAttrs = useTestAttrs({ key: "resend-sent" });
 
 // --- Surface bindings routed to the active form's owning composable
 const styles = useStyles(
@@ -196,6 +210,12 @@ const formActions = computed(() => {
       : currentForm.value === SESSION_FORMS.VERIFY
         ? t("action.verify")
         : t("action.continue_label");
+  const submitTestKey =
+    currentForm.value === SESSION_FORMS.GUEST
+      ? "button-complete-registration"
+      : currentForm.value === SESSION_FORMS.VERIFY
+        ? "button-verify"
+        : "button-continue";
 
   const actions: Record<string, FormActionProps> = {
     submit: {
@@ -204,9 +224,7 @@ const formActions = computed(() => {
       block: true,
       needsValid: true,
       size: "lg" as const,
-      ...(currentForm.value === SESSION_FORMS.GUEST
-        ? { dataAttrs: { "data-test-key": "button-complete-registration" } }
-        : {})
+      dataAttrs: { "data-test-key": submitTestKey }
     }
   };
 
@@ -277,10 +295,19 @@ function doResolve(model: unknown) {
       }
     });
   } else if (showGuestUpgradeForm.value) {
-    register(model as CompleteRegistrationModel).then(success => {
-      if (success) {
-        emit("resolve", model);
+    register(model as CompleteRegistrationModel).then(async success => {
+      if (!success) return;
+      // Guest→client promotion (loadUser + actor flip) lands a beat after
+      // register() resolves; wait for it so consumers re-reading session state
+      // on resolve see the promoted client. Escalate rather than hang if the
+      // user load fails.
+      try {
+        await session.useActions().whenAuthenticated();
+      } catch {
+        emit("reject");
+        return;
       }
+      emit("resolve", model);
     });
   }
 }

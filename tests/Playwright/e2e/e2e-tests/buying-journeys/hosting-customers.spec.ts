@@ -5,7 +5,7 @@ import { Checkout } from "../../support/page-objects/templates/checkout";
 import { gateways } from "../../support/constants/gateways";
 import { Basket } from "../../support/page-objects/templates/basket";
 import { URLs } from "../../support/constants/urls";
-import { getClientToken } from "../../support/api/auth";
+import { loginViaHeadless } from "../../support/flows";
 import { Login } from "../../support/page-objects/templates/login";
 import { Registration } from "../../support/page-objects/templates/registration";
 import { interceptConfigValues } from "../../support/mocks/brand";
@@ -39,7 +39,7 @@ test.describe("Hosting customers", async () => {
   test.describe.configure({ mode: "serial" });
   test.describe("Existing Customer", () => {
     test("Logged in customer", async ({ page }) => {
-      await getClientToken(
+      await loginViaHeadless(
         page,
         Logins.hosting1.username,
         Logins.hosting1.password
@@ -56,7 +56,7 @@ test.describe("Hosting customers", async () => {
       // HAT is non-configurable, so with funnelling=none it adds in-situ from
       // the catalogue card (a configurable product would navigate to configure).
       const { id } = products.HAT;
-      await getClientToken(
+      await loginViaHeadless(
         page,
         Logins.hosting1.username,
         Logins.hosting1.password
@@ -64,14 +64,17 @@ test.describe("Hosting customers", async () => {
       await page.goto(URLs.basket);
       overrideBasketProductsLimit(page);
       await waitForSessionCookie(page.context());
-      // null token: replay the request's own auth and strip cache-validation
-      // headers so the catalogue's config fetch isn't lost to a 304.
-      await interceptConfigValues(page, null, { basketFunnelling: "none" });
+      // interceptConfigValues replays the request's own auth and strips
+      // cache-validation headers so the catalogue's config fetch isn't lost to a 304.
+      await interceptConfigValues(page, { basketFunnelling: "none" });
       await page.goto(URLs.catalogueRoot1);
       // Search for the product so it's in the grid regardless of how the
       // catalogue is categorised or paginated — don't assume it's on page 1.
       // (The catalogue product is named "Hat"; the constant name is annotated.)
-      await page.getByTestId("input-product-search").fill("Hat");
+      await page
+        .getByTestId("input")
+        .and(page.locator(`[data-test-value="product-search"]`))
+        .fill("Hat");
       const cta = page
         .getByTestId("product-card")
         .and(page.locator(`[data-test-value="${id}"]`))

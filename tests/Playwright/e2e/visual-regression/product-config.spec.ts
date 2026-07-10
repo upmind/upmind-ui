@@ -64,12 +64,12 @@ for (const { language, locale } of languages) {
         fullPage: true
       });
     });
-    test("Product Config Drawer", async ({ page, context }) => {
+    test("Product Config Drawer", async ({ page }) => {
       // Inject a configurable hosting recommendation so reaching the
       // recommendations step is deterministic instead of depending on staging
       // recommendation config for the base product. Locators are testid-based
       // (not text/role-name) so they hold across every locale this suite runs.
-      interceptProductsToRecommend(context, [
+      interceptProductsToRecommend(page, [
         { object_id: products.STARTER_HOSTING.id }
       ]);
       await page.goto(URLs.recommendations1);

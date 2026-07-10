@@ -7,15 +7,17 @@ import { Checkout } from "../../support/page-objects/templates/checkout";
 import { gateways } from "../../support/constants/gateways";
 import { Basket } from "../../support/page-objects/templates/basket";
 import { URLs } from "../../support/constants/urls";
-import { getClientToken } from "../../support/api/auth";
-import { clearBasket, getCurrentOrder } from "../../support/api/basket";
 import { Login } from "../../support/page-objects/templates/login";
 import { Registration } from "../../support/page-objects/templates/registration";
 import { BillingPage } from "../../support/page-objects/templates/billing-page";
 import { captureProduct } from "../../support/mocks/products";
 import { captureBrandSettings } from "../../support/mocks/brand";
 import { waitForBillingUpdate } from "../../support/helpers/checkout";
-import { selectRequiredMultiDefaults } from "../../support/flows";
+import {
+  clearBasketViaHeadless,
+  loginViaHeadless,
+  selectRequiredMultiDefaults
+} from "../../support/flows";
 
 // Brand-config key deciding whether checkout demands a billing address. Same
 // literal key the brand mock uses (mocks/brand.ts) — mirrors
@@ -71,16 +73,14 @@ test.describe("Domain customers", () => {
   });
   test.describe("Existing Customer", async () => {
     test("Logged in customer", async ({ page }) => {
-      const session = await getClientToken(
+      await loginViaHeadless(
         page,
         Logins.domain1.username,
         Logins.domain1.password
       );
       // Shared staging account: clear any stale/invalid items left in the
       // persisted basket by prior runs before adding the test domain.
-      const token = session.access_token;
-      const order = await getCurrentOrder(token);
-      if (order?.id) await clearBasket(token, order.id);
+      await clearBasketViaHeadless(page);
       await enterDomainDetails();
       await productConfig.addToBasket.click();
       await basket.proceedToCheckout.click();

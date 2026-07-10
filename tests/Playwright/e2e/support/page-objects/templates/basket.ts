@@ -32,17 +32,20 @@ export class Basket {
     this.basketProduct = page.getByTestId("basket-product");
     this.basketProductSummary = page.getByTestId("basket-product-summary");
     this.addMissingDataLink = page.getByTestId("link-add-missing-data");
-    this.subtotalSummary = page.getByTestId("section-basket-summary");
+    this.subtotalSummary = page
+      .getByTestId("section")
+      .and(page.locator(`[data-test-value="basket-summary"]`));
     this.summaryFooter = page.getByTestId("summary-footer");
     this.promotionForm = page.getByTestId("promotions-form");
     this.addPromo = page.getByTestId("link-add-a-voucher-code");
     this.promoInput = this.promotionForm
-      .getByTestId("form-item-promocode")
+      .getByTestId("form-item")
+      .and(page.locator(`[data-test-value="promocode"]`))
       .locator("input");
     this.applyPromo = this.promotionForm.getByTestId("button-apply");
-    this.promoMessage = this.promotionForm.getByTestId(
-      "form-item-message-promocode"
-    );
+    this.promoMessage = this.promotionForm
+      .getByTestId("form-item-message")
+      .and(page.locator(`[data-test-value="promocode"]`));
     this.promoBadge = this.summaryFooter.getByTestId("badge");
     this.proceedToCheckout = page.getByTestId("basket-checkout-button");
 

@@ -1,5 +1,5 @@
 <template>
-  <Sections v-bind="forwarded" :sections="sections">
+  <Sections v-bind="forwarded" :sections="sections" :dataAttrs="dataAttrs">
     <template #default>
       <slot />
     </template>

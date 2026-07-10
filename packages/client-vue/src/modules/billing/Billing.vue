@@ -43,7 +43,7 @@
     >
       <slot name="markdown">
         <Markdown
-          data-test-key="slots:summary-append"
+          v-bind="summaryAppendTestAttrs"
           :model-value="data.trustMessagingMarkdown"
         />
       </slot>
@@ -74,7 +74,11 @@ import {
   validateTemplate
 } from "@upmind-automation/headless";
 import { UIContext } from "@upmind-automation/headless";
-import { useThemes, Markdown } from "@upmind-automation/upmind-ui";
+import {
+  useThemes,
+  Markdown,
+  useTestAttrs
+} from "@upmind-automation/upmind-ui";
 import Hero from "../../components/hero/Hero.vue";
 import BillingForm from "./components/BillingForm.vue";
 import BillingEnclosedTemplate from "./templates/BillingEnclosed.template.vue";
@@ -110,6 +114,8 @@ const { ui, data } = useConfig({
 set(ui.theme.value);
 
 const isSlotHidden = (name: string) => includes(props.hideSlots, name);
+
+const summaryAppendTestAttrs = useTestAttrs({ key: "slots:summary-append" });
 
 const template = computed(() =>
   validateTemplate(

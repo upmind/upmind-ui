@@ -66,15 +66,19 @@ test.describe("Guest checkout", () => {
     const guest = new GuestCheckout(page);
 
     // Given the brand allows guest checkout — mock the gate ON (a settings mock).
-    await interceptConfigValues(page, null, { guestCheckoutEnabled: true });
+    await interceptConfigValues(page, { guestCheckoutEnabled: true });
 
     // Given a guest visitor with a product in their basket
-    await seedGuestBasket(page, context);
+    await seedGuestBasket(page);
 
     // When the visitor opens the register page
     await page.goto(URLs.register);
     // control-flow guard — register form rendered
-    await expect(page.getByTestId("section-register")).toBeVisible();
+    await expect(
+      page
+        .getByTestId("section")
+        .and(page.locator(`[data-test-value="register"]`))
+    ).toBeVisible();
 
     // Then the guest checkout option is offered
     await expect(guest.cta).toBeVisible();
@@ -89,15 +93,19 @@ test.describe("Guest checkout", () => {
 
     // Given the brand does not allow guest checkout — mock the gate OFF (a
     // settings mock, not journey data) BEFORE any navigation.
-    await interceptConfigValues(page, null, { guestCheckoutEnabled: false });
+    await interceptConfigValues(page, { guestCheckoutEnabled: false });
 
     // Given a guest visitor with a product in their basket
-    await seedGuestBasket(page, context);
+    await seedGuestBasket(page);
 
     // When the visitor opens the register page
     await page.goto(URLs.register);
     // control-flow guard — register form rendered before asserting CTA absence
-    await expect(page.getByTestId("section-register")).toBeVisible();
+    await expect(
+      page
+        .getByTestId("section")
+        .and(page.locator(`[data-test-value="register"]`))
+    ).toBeVisible();
 
     // Then no guest checkout option is offered
     await expect(guest.cta).toHaveCount(0);
@@ -112,15 +120,19 @@ test.describe("Guest checkout", () => {
 
     // Given the brand allows guest checkout — mock the gate ON; the hidden CTA
     // must be attributable to the basket contents, not the brand flag.
-    await interceptConfigValues(page, null, { guestCheckoutEnabled: true });
+    await interceptConfigValues(page, { guestCheckoutEnabled: true });
 
     // But the visitor's basket contains a subscription product
-    await seedGuestBasket(page, context, products.STARTER_HOSTING);
+    await seedGuestBasket(page, products.STARTER_HOSTING);
 
     // When the visitor opens the register page
     await page.goto(URLs.register);
     // control-flow guard — register form rendered before asserting CTA absence
-    await expect(page.getByTestId("section-register")).toBeVisible();
+    await expect(
+      page
+        .getByTestId("section")
+        .and(page.locator(`[data-test-value="register"]`))
+    ).toBeVisible();
 
     // Then no guest checkout option is offered (recurring products require a
     // full account — `basketMeta.hasRecurringProducts` gates the CTA)
@@ -135,7 +147,7 @@ test.describe("Guest checkout", () => {
     const guest = new GuestCheckout(page);
 
     // Given a guest visitor with a product in their basket
-    await seedGuestBasket(page, context);
+    await seedGuestBasket(page);
 
     // Given the brand allows guest checkout — read the REAL flag (no mock; the
     // register/guest call is server-enforced) and skip where it's off.
@@ -192,7 +204,7 @@ test.describe("Guest checkout", () => {
     const registration = new Registration(page, context);
 
     // Given a guest visitor with a product in their basket
-    await seedGuestBasket(page, context);
+    await seedGuestBasket(page);
 
     // Given the brand allows guest checkout — read the REAL flag and skip where
     // off (complete_registration is server-enforced).

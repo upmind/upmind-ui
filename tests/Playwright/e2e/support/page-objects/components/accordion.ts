@@ -18,7 +18,9 @@ export class Accordion {
    *   `register` → `accordion-item-register`.
    */
   getAccordion(slug: string) {
-    return this.page.getByTestId(`accordion-item-${slug}`);
+    return this.page
+      .getByTestId("accordion-item")
+      .and(this.page.locator(`[data-test-value="${slug}"]`));
   }
 
   async clickAccordion(slug: string) {

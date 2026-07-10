@@ -150,11 +150,16 @@ export const useClientAddressManager = (
       });
   }
 
+  const debouncedInput = debounce(input, DEBOUNCE_DELAY);
+
   async function update(
     value?: AddressModel | Record<string, any>
   ): Promise<AddressModel> {
-    // first check if our model has changed, if it has, we need to send it
+    // Commit any typed input still pending on the debounce before saving,
+    // otherwise the save reads the pre-edit model.
+    await debouncedInput.flush()?.catch(() => undefined);
 
+    // first check if our model has changed, if it has, we need to send it
     const model = contextValue<AddressModel>(state, "model");
 
     if (!isEmpty(value) && !isEqual(value, model)) {
@@ -274,7 +279,7 @@ export const useClientAddressManager = (
      * @param {AddressModel} value - The model to input.
      * @returns {Promise<AddressModel>} The updated model.
      */
-    input: debounce(input, DEBOUNCE_DELAY),
+    input: debouncedInput,
 
     /**
      * Sends the current model to the service for processing.

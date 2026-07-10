@@ -21,6 +21,7 @@ export type { ErrorObject } from "ajv";
 
 export enum responseCodes {
   "Unknown" = 0,
+  "Network_Error" = 10,
   "Aborted" = 20,
   "OK" = 200,
   "No_Content" = 204,

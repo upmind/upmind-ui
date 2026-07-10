@@ -4,14 +4,9 @@ import { URLs } from "../../../support/constants/urls";
 import { Checkout } from "../../../support/page-objects/templates/checkout";
 import { Registration } from "../../../support/page-objects/templates/registration";
 import { ThreeDSecureCards } from "../../../support/constants/checkout/payment-cards/3dSecureCards";
-import {
-  getClientToken,
-  getSessionToken,
-  registerClient
-} from "../../../support/api/index";
-import { createOrder, addProductToOrder } from "../../../support/api/basket";
+import { registerClientViaHeadless } from "../../../support/flows/auth-setup";
+import { addProductViaHeadless } from "../../../support/flows/basket-setup";
 import { gateways } from "../../../support/constants/gateways";
-import { waitForSessionCookie } from "../../../support/helpers/session";
 
 let checkout: Checkout;
 let registration: Registration;
@@ -21,37 +16,20 @@ test.describe("3D Secure Authentication", async () => {
     checkout = new Checkout(page);
     registration = new Registration(page, context);
     await page.goto("/");
-    await waitForSessionCookie(context);
-    let guestToken = await getSessionToken(context);
-    let user = await registerClient(guestToken);
-    let username = user.email;
-    let password = user.password;
-    await getClientToken(page, username, password);
+    await registerClientViaHeadless(page);
   });
   for (const { name, cardNumber, expiryDate, cvcCode } of ThreeDSecureCards) {
-    test(`Stripe Cards - ${name}`, async ({ page, context }) => {
+    test(`Stripe Cards - ${name}`, async ({ page }) => {
       await page.goto(URLs.basket);
-      await waitForSessionCookie(context);
-      let token = await getSessionToken(context);
-      let order = await createOrder(token);
-      let orderId = order.id;
-      await addProductToOrder(
-        `${token}`,
-        `${orderId}`,
-        "3de78642-de53-9714-76df-21208469530d",
-        1,
-        24,
-        [],
-        [],
-        {
+      const { basketId: orderId } = await addProductViaHeadless(page, {
+        productId: "3de78642-de53-9714-76df-21208469530d",
+        billingCycleMonths: 24,
+        provisionFields: {
           domain: `${fakerEN_GB.string.alphanumeric({
             length: { min: 3, max: 15 }
           })}.com`
-        },
-        [],
-        true,
-        false
-      );
+        }
+      });
       await page.goto(URLs.checkout);
       await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);

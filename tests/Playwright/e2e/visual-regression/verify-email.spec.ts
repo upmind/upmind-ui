@@ -65,20 +65,20 @@ for (const { language, locale } of languages) {
       await page.unrouteAll({ behavior: "wait" });
     });
 
-    newUser(`Verify Email Overlay - ${language}`, async ({ page, context }) => {
+    newUser(`Verify Email Overlay - ${language}`, async ({ page }) => {
       const verify = new VerifyEmail(page);
 
       // Mock the require-verified-email gate ON (a P4-safe settings mock) BEFORE
       // any navigation so guardCheckout opens the overlay. Pass null bearerToken
       // so cached reloads replay a full 200 instead of a 304 with null data
       // (FE-2785).
-      await interceptConfigValues(page, null, { requireVerifiedEmail: true });
+      await interceptConfigValues(page, { requireVerifiedEmail: true });
 
       // The newUser fixture has already registered + authenticated a fresh
       // unverified client. goToCheckout creates an order, adds the product via
       // the API, and lands on /order/checkout/ where guardCheckout redirects the
       // unverified client to /order/checkout/verify-email/.
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
+      await goToCheckout(page, products.STARTER_HOSTING, null, null);
 
       // setLocale reloads, which re-renders the overlay in-locale and re-fires
       // the brand-values request the route above re-intercepts so the gate still
@@ -89,14 +89,22 @@ for (const { language, locale } of languages) {
       // label-derived heading or back-to-basket link. Its visibility is the
       // single deterministic settle signal before screenshotting.
       await expect(verify.otpInput.first()).toBeVisible();
+      const overlay = page.getByTestId("dialog-window");
 
-      await expect(page).toHaveScreenshot(`${language}/verify-email-overlay`, {
-        // Mask the animated 2fa avatar (lord-icon) — it is a non-deterministic
-        // animated icon (basket.spec.ts precedent). The OTP slots are empty in
-        // the idle state and this pre-payment screen has no order id, dates, or
-        // Stripe iframe, so no other masking is needed.
-        mask: [page.locator("lord-icon")]
-      });
+      // Screenshot the overlay ELEMENT, not the page: the overlay is the
+      // subject under test (see fileoverview) and the checkout page behind it
+      // settles non-deterministically (summary fetches, scroll state), which
+      // flakes full-page baselines.
+      await expect(overlay).toHaveScreenshot(
+        `${language}/verify-email-overlay`,
+        {
+          // Mask the avatar CONTAINER (static testid), not the lord-icon
+          // inside it — the icon nondeterministically renders as a lottie
+          // web component or a plain img fallback, so its element is not a
+          // stable mask target. The container box always exists.
+          mask: [overlay.getByTestId("interstitial-avatar")]
+        }
+      );
     });
   });
 }

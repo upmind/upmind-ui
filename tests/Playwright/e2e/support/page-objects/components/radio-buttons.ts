@@ -12,14 +12,16 @@ export class RadioButtons {
   }
 
   /**
-   * Locate a radio card by its STABLE cascade key — the `RadioCards` primitive
-   * tags each card `radio-card-${id || value}`, keyed off stable data (term
-   * `cycle`, subproduct `opt.id`), NOT the translated label.
+   * Locate a radio card by its stable value — the `RadioCards` primitive tags
+   * every card with the STATIC key `radio-card-item` and carries the stable
+   * datum (term `cycle`, subproduct `opt.id`) in `data-test-value`.
    *
-   * @param key - Stable cascade key, e.g. `12` (a term cycle) or a subproduct id.
+   * @param key - Stable value, e.g. `12` (a term cycle) or a subproduct id.
    */
   getRadioButton(key: string | number) {
-    return this.page.getByTestId(`radio-card-${key}`);
+    return this.page
+      .getByTestId("radio-card-item")
+      .and(this.page.locator(`[data-test-value="${key}"]`));
   }
 
   async selectRadioOption(key: string | number) {

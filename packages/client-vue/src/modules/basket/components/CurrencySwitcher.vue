@@ -66,7 +66,10 @@ const items = computed(() => {
           currency.code?.toUpperCase()
         )?.country_code?.toLowerCase()
       },
-      dataAttrs: { "data-test-key": `currency-option-${currency.code}` },
+      dataAttrs: {
+        "data-test-key": "currency-option",
+        "data-test-value": currency.code
+      },
       label: currency.code,
       selectedLabel: currency.code,
       value: currency.code,

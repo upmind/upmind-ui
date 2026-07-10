@@ -103,27 +103,19 @@ export const captureBrandSettings = (page: Page) =>
 
 export async function interceptConfigValues(
   page: Page,
-  bearerToken: string | null,
   overrides: ConfigOverrides
 ) {
   await page.route(
     "**/api/config/brand/values?**",
     async (route: Route, request: Request) => {
-      // When a bearerToken is provided, force it (legacy behaviour). When it's
-      // null/false, replay with the request's own auth and strip cache-validation
-      // headers, so cached (TanStack) reloads return a full 200 body instead of a
-      // 304 with null data. See FE-2785.
-      let headers = request.headers();
-      if (bearerToken) {
-        headers = { ...headers, authorization: `Bearer ${bearerToken}` };
-      } else {
-        const {
-          "if-none-match": _ifNoneMatch,
-          "if-modified-since": _ifModifiedSince,
-          ...rest
-        } = headers;
-        headers = rest;
-      }
+      // Replay the request's own auth and strip cache-validation headers, so
+      // cached (TanStack) reloads return a full 200 body instead of a 304 with
+      // null data. See FE-2785.
+      const {
+        "if-none-match": _ifNoneMatch,
+        "if-modified-since": _ifModifiedSince,
+        ...headers
+      } = request.headers();
       const response = await page.request.fetch(request, { headers });
       const json = await response.json();
       // Only override keys the caller actually passed — leave the rest at their
@@ -184,7 +176,6 @@ export async function interceptConfigValues(
 
 export async function interceptTermsAndConditions(
   page: Page,
-  bearerToken: string,
   id: string | null,
   name: string | null,
   url: string | null,
@@ -193,13 +184,9 @@ export async function interceptTermsAndConditions(
   await page.route(
     "**/api/terms_and_conditions/current?lang**",
     async (route: Route, request: Request) => {
-      const originalHeaders = request.headers();
-      const modifiedHeaders = {
-        ...originalHeaders,
-        authorization: `Bearer ${bearerToken}`
-      };
+      // Replay the request's own auth so no token is handled test-side.
       const response = await page.request.fetch(request, {
-        headers: modifiedHeaders
+        headers: request.headers()
       });
       const json = await response.json();
       json.data.terms["id"] = id;

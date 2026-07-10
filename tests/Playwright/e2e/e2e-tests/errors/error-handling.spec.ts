@@ -67,7 +67,9 @@ test.describe("Error Code Handling", () => {
           // Target the action by its stable, label-independent testid (the
           // interstitial's first action button) rather than the i18n label.
           await expect(
-            dialog.getByTestId("interstitial-action-0")
+            dialog
+              .getByTestId("interstitial-action")
+              .and(page.locator(`[data-test-value="0"]`))
           ).toBeVisible();
         } else if (errorType === "redirect") {
           await expect(page).toHaveURL(

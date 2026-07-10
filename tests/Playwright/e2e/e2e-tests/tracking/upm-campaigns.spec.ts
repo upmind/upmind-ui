@@ -4,8 +4,7 @@ import { URLs } from "../../support/constants/urls";
 import { Registration } from "../../support/page-objects/templates/registration";
 import { Checkout } from "../../support/page-objects/templates/checkout";
 import { gateways } from "../../support/constants/gateways";
-import { getSessionToken } from "../../support/api/auth";
-import { createOrder, addProductToOrder } from "../../support/api/basket";
+import { addProductViaHeadless } from "../../support/flows/basket-setup";
 import {
   waitForCookie,
   waitForSessionCookie
@@ -32,7 +31,12 @@ async function getTrackingCookie(
     throw new Error("Tracking cookie not found.");
   }
 
-  return JSON.parse(decodeURIComponent(trackingCookie.value)) as TrackingCookie;
+  // useCookies' defaultEncoder now base64-encodes (btoa) the JSON unless debug
+  // mode is on (then it's URI-encoded JSON). Decode base64 first, fall back to
+  // the legacy URI-encoded form.
+  const raw = trackingCookie.value;
+  const decoded = /%/.test(raw) ? decodeURIComponent(raw) : atob(raw);
+  return JSON.parse(decoded) as TrackingCookie;
 }
 
 async function getTrackingData(page: Page, matcher: string | RegExp) {
@@ -103,27 +107,16 @@ test.describe("UPM Campaign Tracking", () => {
       )
       .toBe(true);
     await page.goto(URLs.basket);
-    await waitForSessionCookie(context);
-    let token = await getSessionToken(context);
-    let order = await createOrder(token);
-    let orderId = order.id;
-    await addProductToOrder(
-      `${token}`,
-      `${orderId}`,
-      "3de78642-de53-9714-76df-21208469530d",
-      1,
-      24,
-      [],
-      [],
-      {
+    await addProductViaHeadless(page, {
+      productId: "3de78642-de53-9714-76df-21208469530d",
+      quantity: 1,
+      billingCycleMonths: 24,
+      provisionFields: {
         domain: `${fakerEN_GB.string.alphanumeric({
           length: { min: 3, max: 15 }
         })}.com`
-      },
-      [],
-      true,
-      false
-    );
+      }
+    });
     await page.goto(URLs.checkout);
     await registration.inputRegistration();
     await checkout.selectGatewayByType(gateways.STRIPE);

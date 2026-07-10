@@ -62,7 +62,7 @@
         label: t('action.dismiss_all'),
         dataAttrs: { 'data-test-key': 'link-dismiss-all' }
       }"
-      data-test-key="basket-warnings"
+      :dataAttrs="{ 'data-test-key': 'basket-warnings' }"
       @click="dismissAllWarnings"
     >
       <template #description>

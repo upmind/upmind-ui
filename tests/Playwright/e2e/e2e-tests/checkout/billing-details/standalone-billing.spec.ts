@@ -7,28 +7,42 @@ import { ProductSetup } from "../../../support/page-objects/templates/product-se
 import { Basket } from "../../../support/page-objects/templates/basket";
 import { URLs } from "../../../support/constants/urls";
 import {
+  addAddressViaHeadless,
   fillRegistrantDetails,
+  getBasketViaHeadless,
   goToCheckout,
   loginAsIncompleteCustomer,
-  seedInvalidProduct
+  registerClientViaHeadless,
+  seedInvalidProduct,
+  setOrderBillingViaHeadless
 } from "../../../support/flows";
-import { addAddressToClient } from "../../../support/api/client";
 import { products } from "../../../support/constants/products";
 import {
   interceptUISchema,
   interceptConfigValues
 } from "../../../support/mocks/brand";
 import { gateways } from "../../../support/constants/gateways";
-import { getSessionToken, getClientToken } from "../../../support/api/auth";
 import { Registration } from "../../../support/page-objects/templates/registration";
-import { getCurrentOrder, setOrderAddress } from "../../../support/api/basket";
-import { registerClient } from "../../../support/api/client";
 import { waitForSessionCookie } from "../../../support/helpers/session";
 import { waitForBillingUpdate } from "../../../support/helpers/checkout";
+import type { AddressModel } from "@upmind-automation/headless";
 
 let checkout: Checkout;
 let billingPage: BillingPage;
 let registration: Registration;
+
+// NB: no `name` — a `name` on the model triggers the Google address-search
+// path, which asynchronously re-derives the address and clobbers these fields.
+const SEEDED_ADDRESS: AddressModel = {
+  address: {
+    address1: "10 Downing Street",
+    address2: "",
+    city: "London",
+    countryId: "320e4357-95e7-8d18-484f-31643202d986",
+    postcode: "SW1A 2AB",
+    regionId: "de78642d-e539-7146-295f-21208469530d"
+  }
+};
 
 test.describe("Standalone Billing Details Page @standalone-billing", () => {
   test.describe("Checkout - Billing Summary Mode (default)", () => {
@@ -36,12 +50,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
       await page.goto("/");
-      await waitForSessionCookie(context);
-      let guestToken = await getSessionToken(context);
-      let user = await registerClient(guestToken);
-      let username = user.email;
-      let password = user.password;
-      await getClientToken(page, username, password);
+      await registerClientViaHeadless(page);
       interceptUISchema(context, {
         "@data.billing_details.billingDetailsDisabled": false
       });
@@ -51,41 +60,32 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       page,
       context
     }) => {
-      await goToCheckout(
-        page,
-        context,
-        products.STARTER_HOSTING,
-        null,
-        null,
-        false
-      );
+      await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
       await expect(checkout.addNewAddress).toBeVisible();
     });
 
     test("Summary displays selected address", async ({ page, context }) => {
-      await goToCheckout(
-        page,
-        context,
-        products.STARTER_HOSTING,
-        null,
-        null,
-        false
-      );
+      await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
       await checkout.billingDetails.waitFor();
-      let token = await getSessionToken(context);
-      let order = await getCurrentOrder(token);
-      let orderId = order?.id as string;
-      let client = order?.client_id as string;
-      let address = await addAddressToClient(token, client);
-      let addressId = address?.id as string;
-      await setOrderAddress(token, orderId, addressId);
-      await page.reload();
+      billingPage = new BillingPage(page);
+      await page.goto(URLs.billing);
+      await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
+      await expect(billingPage.personalTab).toBeVisible();
+      await billingPage.personalTab.click();
+      await billingPage.manuallyInputAddress(
+        "10 Downing Street",
+        "London",
+        "SW1A 2AB"
+      );
+      const billingUpdateRequest = waitForBillingUpdate(page);
+      await billingPage.saveDetails.click();
+      await billingUpdateRequest;
       await page.waitForURL("**/order/checkout**");
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
       // The address title is carried in billing-summary-address's
-      // data-test-value; addAddressToClient seeds "10 Downing Street" as the
-      // address name / line 1.
+      // data-test-value; the manually entered address uses "10 Downing Street"
+      // as the address name / line 1.
       await expect(checkout.billingSummaryAddress).toBeVisible();
       await expect(checkout.billingSummaryAddress).toHaveAttribute(
         "data-test-value",
@@ -97,24 +97,14 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       page,
       context
     }) => {
-      await goToCheckout(
-        page,
-        context,
-        products.STARTER_HOSTING,
-        null,
-        null,
-        false
-      );
+      await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
       await checkout.billingDetails.waitFor();
-      let token = await getSessionToken(context);
-      let order = await getCurrentOrder(token);
-      let orderId = order?.id as string;
-      let client = order?.client_id as string;
-      let address = await addAddressToClient(token, client);
-      let addressId = address?.id as string;
-      await setOrderAddress(token, orderId, addressId);
-      await page.reload();
-      await page.waitForURL("**/order/checkout**");
+      const order = await getBasketViaHeadless(page);
+      await addAddressViaHeadless(
+        page,
+        order?.client_id as string,
+        SEEDED_ADDRESS
+      );
       await expect(checkout.billingSummaryChangeLink).toBeVisible({
         timeout: 15000
       });
@@ -129,16 +119,11 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
       await page.goto("/");
-      await waitForSessionCookie(context);
-      let guestToken = await getSessionToken(context);
-      let user = await registerClient(guestToken);
-      let username = user.email;
-      let password = user.password;
-      await getClientToken(page, username, password);
+      await registerClientViaHeadless(page);
       interceptUISchema(context, {
         "@data.billing_details.billingDetailsDisabled": true
       });
-      await goToCheckout(page, context, products.STARTER_HOSTING);
+      await goToCheckout(page, products.STARTER_HOSTING);
     });
 
     test("Inline billing form shown when standalone is disabled", async () => {
@@ -153,16 +138,11 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
       await page.goto("/");
-      await waitForSessionCookie(context);
-      let guestToken = await getSessionToken(context);
-      let user = await registerClient(guestToken);
-      let username = user.email;
-      let password = user.password;
-      await getClientToken(page, username, password);
+      await registerClientViaHeadless(page);
       interceptUISchema(context, {
         "@data.billing_details.billingDetailsDisabled": false
       });
-      await goToCheckout(page, context, products.STARTER_HOSTING);
+      await goToCheckout(page, products.STARTER_HOSTING);
     });
 
     test("Billing page loads at /order/basket/billing/", async ({ page }) => {
@@ -203,16 +183,17 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       );
     });
 
-    // @quarantine(FE-2784, 2026-06-28)
-    // Billing-details cluster on the shared raw-HTTP/FE-2784 setup; tab
-    // switching flakes under the stale-cache account state.
-    test.skip("Personal/Business tab switching", async ({ page, context }) => {
+    test("Personal/Business tab switching", async ({ page, context }) => {
       await page.goto(URLs.billing);
       await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
       await expect(billingPage.personalTab).toBeVisible();
       await expect(billingPage.businessTab).toBeVisible();
       await billingPage.businessTab.click();
-      await expect(billingPage.companyName).toBeVisible({ timeout: 5000 });
+      // Business form loads via a skeleton (form-loading) then resolves to the
+      // loaded form (form-manage). Gate on the loaded marker before switching.
+      await expect(page.getByTestId("form-manage")).toBeVisible({
+        timeout: 15000
+      });
       await billingPage.personalTab.click();
     });
   });
@@ -223,26 +204,24 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       billingPage = new BillingPage(page);
       registration = new Registration(page, context);
       await page.goto("/");
-      await waitForSessionCookie(context);
-      let guestToken = await getSessionToken(context);
-      let user = await registerClient(guestToken);
-      let username = user.email;
-      let password = user.password;
-      await getClientToken(page, username, password);
+      await registerClientViaHeadless(page);
       interceptUISchema(context, {
         "@data.billing_details.billingDetailsDisabled": false
       });
-      await goToCheckout(page, context, products.STARTER_HOSTING);
-      let token = await getSessionToken(context);
-      let order = await getCurrentOrder(token);
-      let client = order?.client_id;
-      await addAddressToClient(token, client);
+      await goToCheckout(page, products.STARTER_HOSTING);
+      const order = await getBasketViaHeadless(page);
+      const client = order?.client_id as string;
+      const addressId = await addAddressViaHeadless(
+        page,
+        client,
+        SEEDED_ADDRESS
+      );
+      await setOrderBillingViaHeadless(page, { addressId });
       await page.reload();
       await page.waitForURL("**/order/checkout**");
     });
 
-    // @quarantine(FE-2784, 2026-06-28)
-    test.skip("Round-trip: update address on billing page", async ({
+    test("Round-trip: update address on billing page", async ({
       page,
       context
     }) => {
@@ -260,7 +239,28 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await billingPage.addressLine1.fill("15 White Hart Lane");
       await billingPage.city.fill("Manchester");
       await billingPage.postCode.fill("M1 1AA");
+      // The address form's input is debounced (DEBOUNCE_DELAY = 350ms). Blur to
+      // fire the change, confirm the field holds the edit, then let the debounced
+      // SET commit to the model before saving — otherwise the save PUTs the stale
+      // pre-edit model and the summary shows the old address.
+      await billingPage.postCode.blur();
+      await expect(billingPage.addressLine1).toHaveValue("15 White Hart Lane");
+      await page.waitForTimeout(350);
+      // ASSERT the edit reached the wire (tests assert, don't assume the settle
+      // worked): the address PUT payload must carry the new street, not the
+      // stale pre-edit model. This localises a debounce/race regression to the
+      // request instead of the far-downstream summary assertion.
+      const editRequest = page.waitForRequest(
+        r =>
+          r.method() === "PUT" &&
+          /\/clients\/[^/]+\/addresses\/[^/?]+/.test(r.url())
+      );
       await checkout.clickSaveDetails();
+      const req = await editRequest;
+      expect(JSON.stringify(req.postDataJSON())).toContain(
+        "15 White Hart Lane"
+      );
+      await expect(checkout.dialogWindow).toBeHidden();
       await billingPage.continue.click();
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
       // The updated address line 1 is carried in billing-summary-address's
@@ -272,8 +272,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       );
     });
 
-    // @quarantine(FE-2784, 2026-06-28)
-    test.skip("Round-trip: add company on billing page", async ({ page }) => {
+    test("Round-trip: add company on billing page", async ({ page }) => {
       await expect(checkout.billingSummaryChangeLink).toBeVisible({
         timeout: 15000
       });
@@ -282,12 +281,23 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
       await expect(billingPage.businessTab).toBeVisible();
       await billingPage.businessTab.click();
-      await expect(billingPage.companyName).toBeVisible();
-      await billingPage.companyName.fill("E2E Test Company Ltd");
-      await checkout.clickSaveDetails();
-      await billingPage.backToBasket.click();
-      await page.waitForURL("**/order/basket/**");
-      await page.goto(URLs.checkout);
+      await expect(page.getByTestId("form-manage")).toBeVisible({
+        timeout: 15000
+      });
+      const companyNameInput = page
+        .getByTestId("form-item")
+        .and(page.locator(`[data-test-value="company-name"]`))
+        .locator("input");
+      await companyNameInput.waitFor({ state: "visible" });
+      await companyNameInput.fill("E2E Test Company Ltd");
+      // The client already has a saved address (seeded in beforeEach), so the
+      // company form defaults its addressId to that address and renders the
+      // existing-address selector — not the Google address search. The company
+      // is therefore valid with just the name; save it to the companies endpoint.
+      await checkout.clickSaveDetails("companies");
+      // Adding a company commits billing and auto-advances to checkout
+      // (BillingForm.onFormResolve → navigateNext), so assert on the checkout
+      // summary directly rather than routing back through the basket.
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
       // The entered company name is carried in billing-summary-company's
       // data-test-value.
@@ -307,16 +317,10 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
       await page.goto("/");
-      await waitForSessionCookie(context);
-      let guestToken = await getSessionToken(context);
-      let user = await registerClient(guestToken);
-      let username = user.email;
-      let password = user.password;
-      await getClientToken(page, username, password);
-      await goToCheckout(page, context, products.STARTER_HOSTING);
+      await registerClientViaHeadless(page);
+      await goToCheckout(page, products.STARTER_HOSTING);
       await page.waitForURL("**/order/checkout/**");
-      const token = await getSessionToken(context);
-      interceptConfigValues(page, token, {
+      interceptConfigValues(page, {
         requireAddressForOrders: true,
         requireCompanyForOrders: false,
         requireRegionInAddress: false,
@@ -334,19 +338,13 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
       await page.goto("/");
-      await waitForSessionCookie(context);
-      let guestToken = await getSessionToken(context);
-      let user = await registerClient(guestToken);
-      let username = user.email;
-      let password = user.password;
-      let session = await getClientToken(page, username, password);
+      await registerClientViaHeadless(page);
       interceptUISchema(context, {
         "@data.billing_details.billingDetailsDisabled": false
       });
-      await goToCheckout(page, context, products.STARTER_HOSTING);
+      await goToCheckout(page, products.STARTER_HOSTING);
       await page.waitForURL("**/order/checkout/**");
-      let token = session?.access_token;
-      interceptConfigValues(page, token, {
+      interceptConfigValues(page, {
         requireAddressForOrders: false,
         requireCompanyForOrders: true,
         requireRegionInAddress: false,
@@ -364,19 +362,13 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
       await page.goto("/");
-      await waitForSessionCookie(context);
-      let guestToken = await getSessionToken(context);
-      let user = await registerClient(guestToken);
-      let username = user.email;
-      let password = user.password;
-      let session = await getClientToken(page, username, password);
+      await registerClientViaHeadless(page);
       interceptUISchema(context, {
         "@data.billing_details.billingDetailsDisabled": false
       });
-      await goToCheckout(page, context, products.STARTER_HOSTING);
+      await goToCheckout(page, products.STARTER_HOSTING);
       await page.waitForURL("**/order/checkout/**");
-      let token = session?.access_token;
-      interceptConfigValues(page, token, {
+      interceptConfigValues(page, {
         requireAddressForOrders: false,
         requireCompanyForOrders: false,
         requireRegionInAddress: false,
@@ -393,14 +385,11 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       billingPage = new BillingPage(page);
       registration = new Registration(page, context);
       await page.goto("/");
-      await waitForSessionCookie(context);
-      const guestToken = await getSessionToken(context);
-      const user = await registerClient(guestToken);
-      await getClientToken(page, user.email, user.password);
+      await registerClientViaHeadless(page);
       interceptUISchema(context, {
         "@data.billing_details.billingDetailsDisabled": false
       });
-      await goToCheckout(page, context, products.STARTER_HOSTING);
+      await goToCheckout(page, products.STARTER_HOSTING);
     });
 
     test("Continue button is hidden for first-time clients with no saved address or company", async ({
@@ -411,14 +400,17 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       expect(await billingPage.continueIsHidden()).toBe(true);
     });
 
-    // @quarantine(FE-2784, 2026-06-28)
-    test.skip("Continue button is rendered once the client has at least one saved address", async ({
+    test("Continue button is rendered once the client has at least one saved address", async ({
       page,
       context
     }) => {
-      const token = await getSessionToken(context);
-      const order = await getCurrentOrder(token);
-      await addAddressToClient(token, order?.client_id as string);
+      const order = await getBasketViaHeadless(page);
+      const addressId = await addAddressViaHeadless(
+        page,
+        order?.client_id as string,
+        SEEDED_ADDRESS
+      );
+      await setOrderBillingViaHeadless(page, { addressId });
 
       await page.goto(URLs.billing);
       await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
@@ -427,8 +419,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
   });
 
   test.describe("FE-2457: Navigation Billing → Product Setup → Checkout", () => {
-    // @quarantine(FE-2784, 2026-06-28)
-    test.skip("billing → product-setup → checkout chain works end-to-end", async ({
+    test("billing → product-setup → checkout chain works end-to-end", async ({
       page,
       context
     }) => {
@@ -437,8 +428,8 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       const productSetup = new ProductSetup(page);
       checkout = new Checkout(page);
 
-      const token = await loginAsIncompleteCustomer(page, context);
-      await seedInvalidProduct(products.DOMAIN_2, token);
+      await loginAsIncompleteCustomer(page);
+      await seedInvalidProduct(page, products.DOMAIN_2);
 
       await page.goto(URLs.basket);
       await basket.proceedToCheckout.click();

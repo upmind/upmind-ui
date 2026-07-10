@@ -7,6 +7,7 @@
   >
     <template v-if="!open">
       <Search
+        id="search"
         :autoFocus="formFieldProps?.autoFocus"
         :placeholder="t('form.address.placeholder')"
         :results="predictions"
@@ -23,6 +24,7 @@
           :label="t('action.enter_address_manually')"
           size="sm"
           color="muted"
+          :data-attrs="{ 'data-test-key': 'link-enter-address-manually' }"
           @click="setShowAddressFields(true)"
         />
       </footer>
