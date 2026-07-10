@@ -3,17 +3,19 @@
   <DetailsItem
     v-for="(item, index) in items"
     :key="`details-item-${index}`"
-    v-bind="item"
-    data-test-key="basket-product-option"
-    :data-test-value="item.name"
+    v-bind="{ ...item, ...detailsItemTestAttrs(item.name) }"
   />
 </template>
 
 <script lang="ts" setup>
+import { useTestAttrs } from "@upmind-automation/upmind-ui";
 import DetailsItem from "./DetailsItem.vue";
 import type { DetailsGroupProps } from "./types";
 
 // -----------------------------------------------------------------------------
 
 defineProps<DetailsGroupProps>();
+
+const detailsItemTestAttrs = (value?: string) =>
+  useTestAttrs({ key: "basket-product-option", value });
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div
-    data-test-key="address-card"
+    v-bind="cardTestAttrs"
     class="flex w-full flex-col gap-1"
     :class="!props.readonly && 'cursor-pointer!'"
   >
@@ -22,6 +22,7 @@
         size="sm"
         color="muted"
         tabindex="-1"
+        :dataAttrs="{ 'data-test-key': 'link-edit' }"
         @mousedown.stop.prevent
         @click.stop.prevent="doEdit"
       />
@@ -35,7 +36,7 @@
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { Badge, Link } from "@upmind-automation/upmind-ui";
+import { Badge, Link, useTestAttrs } from "@upmind-automation/upmind-ui";
 import type { Address } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
@@ -53,6 +54,8 @@ const emits = defineEmits<{
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
+
+const cardTestAttrs = useTestAttrs({ key: "address-card" });
 
 const doEdit = () => {
   if (!props?.id) return;

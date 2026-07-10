@@ -2,14 +2,13 @@
   <div v-if="!meta.isLoading" class="flex flex-col gap-4">
     <template v-for="product in products" :key="product.id">
       <BasketProduct
-        v-bind="product"
+        v-bind="{ ...product, ...basketProductTestAttrs }"
         :open="!!open[product.id]"
         :processing="meta.isProcessing(product.id)"
         :loading="meta.isLoading"
         @update:open="trackOpen(product.id, $event)"
         @remove="remove(product.id)"
         @update:quantity="updateQuantity(product.id, $event)"
-        data-test-key="basket-product"
         :edit-route="props.editRoute"
       >
         <template #default="slotProps">
@@ -44,7 +43,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useBasketProducts, useBrand } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, useTestAttrs } from "@upmind-automation/upmind-ui";
 import config from "./basketProduct.config";
 import BasketProduct from "./BasketProduct.vue";
 import BasketProductSkeleton from "./BasketProductSkeleton.vue";
@@ -63,6 +62,10 @@ const { t } = useI18n();
 const { meta, products, updateQuantity, remove } = useBasketProducts();
 const { includesTax } = useBrand();
 const styles = useStyles(["product.root"], {}, config);
+
+// --- test attrs
+
+const basketProductTestAttrs = useTestAttrs({ key: "basket-product" });
 
 const open = ref<Record<string, boolean>>(forceOpen(props.open));
 

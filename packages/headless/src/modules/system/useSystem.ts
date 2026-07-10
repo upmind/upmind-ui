@@ -7,7 +7,6 @@ import {
   find,
   forEach,
   get,
-  has,
   includes,
   isArray,
   isEmpty,
@@ -152,8 +151,10 @@ export const useSystem = () => {
     if (!country) return [];
 
     const countryCode = country.code;
-    // Check if we already have a query for this country
-    if (has(stores.regions.state, countryCode)) {
+    // Serve settled data from the store; an in-flight fetch must be awaited
+    // via its query promise (TanStack dedupes by queryKey) — a concurrent
+    // caller reading the store mid-flight gets [] and downstream rejects.
+    if (!isEmpty(stores.regions.state[countryCode])) {
       return stores.regions.state[countryCode];
     }
 

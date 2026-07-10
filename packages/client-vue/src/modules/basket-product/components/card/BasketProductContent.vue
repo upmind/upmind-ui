@@ -22,7 +22,7 @@
 
             <Link
               v-if="isMobile && !isEmpty(filteredDetails)"
-              data-test-key="button-product-information"
+              :dataAttrs="{ 'data-test-key': 'button-product-information' }"
               @click="open = !open"
               color="muted"
               aria-label="Product information"
@@ -37,8 +37,10 @@
 
           <ExPrice
             v-if="!summary.meta?.freeTrial"
-            data-test-key="regular-price"
-            :data-test-value="summary.price.regularPrice"
+            :dataAttrs="{
+              'data-test-key': 'regular-price',
+              'data-test-value': summary.price.regularPrice
+            }"
             :regular-price="summary.price.regularPrice"
             :monthly-from-regular-price="
               summary.price.monthlyFromRegularPrice ?? ''
@@ -58,8 +60,7 @@
               :class="styles.product.summary.title.link"
             >
               <strong
-                data-test-key="basket-product-name"
-                :data-test-value="id"
+                v-bind="productNameTestAttrs(id)"
                 :class="styles.product.summary.title.text"
               >
                 {{ data.productName || summary.title }}
@@ -72,7 +73,7 @@
                 :label="t('action.show_details')"
               >
                 <Link
-                  data-test-key="button-product-information"
+                  :dataAttrs="{ 'data-test-key': 'button-product-information' }"
                   @click="open = !open"
                   color="muted"
                   aria-label="Product information"
@@ -110,7 +111,7 @@
 
           <strong
             v-if="summary.meta?.freeTrial"
-            data-test-key="trial-price-label"
+            v-bind="trialPriceLabelTestAttrs"
             :class="styles.product.pricing.current"
           >
             {{ t("text.free_trial") }}
@@ -164,7 +165,7 @@
     <footer :class="styles.product.summary.footer.root">
       <div
         :class="styles.product.summary.footer.terms.root"
-        data-test-key="billing-term-section"
+        v-bind="billingTermSectionTestAttrs"
       >
         <div :class="styles.product.summary.footer.terms.controls">
           <BasketQuantityField
@@ -231,7 +232,7 @@ import {
   Image,
   Alert
 } from "@upmind-automation/upmind-ui";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, useTestAttrs } from "@upmind-automation/upmind-ui";
 import { isMobile } from "@upmind-automation/upmind-ui";
 import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";
 import ExPrice from "../../../product/components/pricing/ExPrice.vue";
@@ -266,6 +267,15 @@ const styles = useStyles(
   props,
   styleConfig
 );
+
+const trialPriceLabelTestAttrs = useTestAttrs({ key: "trial-price-label" });
+
+const billingTermSectionTestAttrs = useTestAttrs({
+  key: "billing-term-section"
+});
+
+const productNameTestAttrs = (value: string) =>
+  useTestAttrs({ key: "basket-product-name", value });
 
 const open = defineModel<boolean>("open");
 const quantity = defineModel<ProductModel["quantity"]>("quantity");

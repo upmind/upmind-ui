@@ -39,7 +39,7 @@
     >
       <slot name="markdown">
         <Markdown
-          data-test-key="slots:summary-append"
+          v-bind="summaryAppendTestAttrs"
           :model-value="data.trustMessagingMarkdown"
         />
       </slot>
@@ -65,7 +65,11 @@ import {
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { UIContext } from "@upmind-automation/headless";
-import { useThemes, Markdown } from "@upmind-automation/upmind-ui";
+import {
+  useThemes,
+  useTestAttrs,
+  Markdown
+} from "@upmind-automation/upmind-ui";
 import Back from "../../components/navigation/Back.vue";
 import CheckoutContent from "./components/CheckoutContent.vue";
 import CheckoutErrors from "./components/CheckoutErrors.vue";
@@ -87,6 +91,9 @@ const supportedTemplates = {
   [CHECKOUT_TEMPLATE.TWO_COLUMN_RTL]: CheckoutRTLTemplate,
   [CHECKOUT_TEMPLATE.ENCLOSED]: CheckoutEnclosedTemplate
 };
+
+/* Fallthrough onto Markdown's root; stripped from PROD builds at the source. */
+const summaryAppendTestAttrs = useTestAttrs({ key: "slots:summary-append" });
 
 // -----------------------------------------------------------------------------
 

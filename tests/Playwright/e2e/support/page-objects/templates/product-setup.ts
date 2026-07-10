@@ -16,7 +16,9 @@ export class ProductSetup {
 
   constructor(page: Page) {
     this.page = page;
-    this.section = page.getByTestId("section-product-setup-title");
+    this.section = page
+      .getByTestId("section")
+      .and(page.locator('[data-test-value="product-setup-title"]'));
     this.setupForm = page.locator("#setup-form");
     this.heroTitle = page.getByTestId("product-setup-hero-title");
     this.progress = page.getByTestId("product-setup-progress");
@@ -27,7 +29,9 @@ export class ProductSetup {
     this.errorAlert = page.getByRole("alert");
     this.applyToOthersGroup = page.getByTestId("apply-to-others-group");
     this.currentProductLabel = this.section.getByRole("heading").first();
-    this.termFormItem = page.getByTestId("form-item-term");
+    this.termFormItem = page
+      .getByTestId("form-item")
+      .and(page.locator('[data-test-value="term"]'));
     this.optionsFormItem = page.getByTestId("options-container-options");
   }
 
@@ -36,17 +40,24 @@ export class ProductSetup {
   }
 
   fieldFor(key: string): Locator {
-    return this.page.getByTestId(`form-item-provision-fields-update-${key}`);
+    return this.page
+      .getByTestId("form-item")
+      .and(
+        this.page.locator(`[data-test-value="provision-fields-update-${key}"]`)
+      );
   }
 
   async visibleFieldKeys(): Promise<string[]> {
     const handles = await this.setupForm
-      .getByTestId(/^form-item-provision-fields-update-/)
+      .getByTestId("form-item")
+      .and(
+        this.setupForm.locator('[data-test-value^="provision-fields-update-"]')
+      )
       .elementHandles();
     const keys: string[] = [];
     for (const h of handles) {
-      const id = await h.getAttribute("data-test-key");
-      if (id) keys.push(id.replace("form-item-provision-fields-update-", ""));
+      const value = await h.getAttribute("data-test-value");
+      if (value) keys.push(value.replace("provision-fields-update-", ""));
     }
     return keys;
   }

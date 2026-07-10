@@ -49,61 +49,80 @@ export class Checkout {
   readonly billingAddAddress: Locator;
   readonly billingAddCompany: Locator;
   readonly billingAddNumber: Locator;
-  readonly backToCheckout: Locator;
   private readonly textInputComponent: TextInput;
 
   constructor(page: Page) {
     this.page = page;
     this.textInputComponent = new TextInput(page);
     this.checkoutContent = this.page.getByTestId("checkout-content");
-    this.basketSummary = this.page.getByTestId("section-summary");
-    this.billingDetails = this.page.getByTestId("section-billing-details");
+    this.basketSummary = this.page
+      .getByTestId("section")
+      .and(page.locator(`[data-test-value="summary"]`));
+    this.billingDetails = this.page
+      .getByTestId("section")
+      .and(page.locator(`[data-test-value="billing-details"]`));
     this.billingCards = this.page.getByTestId("billing");
     this.addressCard = this.page.getByTestId("radio-card-group");
     this.addNewAddress = this.page.getByTestId("link-add-address");
     this.addNewCompany = this.page.getByTestId("link-add-company");
     this.addNewPhone = this.page.getByTestId("link-add-number");
-    this.addressSearch = this.page.getByTestId("input-search");
-    this.addressFormMessage = this.page.getByTestId(
-      "form-item-message-address"
-    );
-    this.addressRegionMessage = this.page.getByTestId(
-      "form-item-message-address-regionId"
-    );
-    this.companyFormMessage = this.page.getByTestId(
-      "form-item-message-company-name"
-    );
-    this.phone = this.page.getByTestId("form-item-phone-phone");
+    this.addressSearch = this.page
+      .getByTestId("input")
+      .and(page.locator(`[data-test-value="search"]`));
+    this.addressFormMessage = this.page
+      .getByTestId("form-item-message")
+      .and(page.locator(`[data-test-value="address"]`));
+    this.addressRegionMessage = this.page
+      .getByTestId("form-item-message")
+      .and(page.locator(`[data-test-value="address-region-id"]`));
+    this.companyFormMessage = this.page
+      .getByTestId("form-item-message")
+      .and(page.locator(`[data-test-value="company-name"]`));
+    this.phone = this.page
+      .getByTestId("form-item")
+      .and(page.locator(`[data-test-value="phone-phone"]`));
     this.addressManualEntry = this.page.getByTestId(
       "link-enter-address-manually"
     );
-    this.addressLine1 = this.page.getByTestId("input-properties-address-1");
-    this.addressLine2 = this.page.getByTestId("input-properties-address-2");
-    this.city = this.page.getByTestId("input-properties-city");
-    this.postCode = this.page.getByTestId("input-properties-postcode");
+    this.addressLine1 = this.page
+      .getByTestId("input")
+      .and(page.locator(`[data-test-value="properties-address-1"]`));
+    this.addressLine2 = this.page
+      .getByTestId("input")
+      .and(page.locator(`[data-test-value="properties-address-2"]`));
+    this.city = this.page
+      .getByTestId("input")
+      .and(page.locator(`[data-test-value="properties-city"]`));
+    this.postCode = this.page
+      .getByTestId("input")
+      .and(page.locator(`[data-test-value="properties-postcode"]`));
     this.phoneRegion = this.phone.getByTestId("popover-trigger");
     this.phoneInput = this.textInputComponent.getTextInputField(this.phone);
     this.paymentDetails = this.page.getByTestId("payment-details");
-    this.gateways = this.paymentDetails.getByTestId(/^gateway-/);
+    this.gateways = this.paymentDetails.getByTestId("gateway");
     this.expandPaymentDetails = this.page.getByTestId(
       "show-more-payment-options"
     );
     this.saveDetails = this.page.getByTestId("button-manage-save");
-    this.addVoucherForm = this.page.getByTestId("form-item-promocode");
+    this.addVoucherForm = this.page
+      .getByTestId("form-item")
+      .and(page.locator(`[data-test-value="promocode"]`));
     this.addVoucherButton = this.page.getByTestId("link-add-a-voucher-code");
     this.addVoucherInput = this.textInputComponent.getTextInputField(
       this.addVoucherForm
     );
-    this.addVoucherMessage = this.page.getByTestId(
-      "form-item-message-promocode"
-    );
+    this.addVoucherMessage = this.page
+      .getByTestId("form-item-message")
+      .and(page.locator(`[data-test-value="promocode"]`));
     this.applyVoucherButton = this.page.getByTestId("button-apply");
     this.dialogWindow = this.page.getByTestId("dialog-window");
     this.accountCredit = this.page.getByTestId("account-credit");
     this.completeCheckout = this.page.getByTestId("button-complete-checkout");
     this.payAmount = this.page.getByTestId("pay-amount-value");
     this.changeAmountButton = this.page.getByTestId("change-amount");
-    this.changeAmountForm = this.page.getByTestId("form-item-amount");
+    this.changeAmountForm = this.page
+      .getByTestId("form-item")
+      .and(page.locator(`[data-test-value="amount"]`));
     this.changeAmountInput =
       this.changeAmountForm.getByTestId("number-field-input");
     this.changeAmountIncrement = this.changeAmountForm.getByTestId(
@@ -132,7 +151,6 @@ export class Checkout {
     this.billingAddCompany =
       this.billingDetails.getByTestId("link-add-company");
     this.billingAddNumber = this.billingDetails.getByTestId("link-add-number");
-    this.backToCheckout = this.page.getByTestId("button-back-to-checkout");
   }
 
   async manuallyInputAddress(
@@ -151,8 +169,26 @@ export class Checkout {
   }
 
   async selectAddressFromSearch(searchQuery: string, expectedOption: string) {
-    await this.addressSearch.fill(searchQuery);
+    // Google Places autocomplete needs real keystrokes: fill() fires a single
+    // synthetic input event that the debounced lookup sometimes ignores,
+    // leaving the suggestions closed (screenshot-verified flake). Type the
+    // query for real, and if no suggestion surfaces, nudge the lookup by
+    // retyping the last character.
     const options = this.page.getByTestId("address-search-option");
+    await this.addressSearch.click();
+    await this.addressSearch.pressSequentially(searchQuery, { delay: 25 });
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const visible = await options
+        .first()
+        .waitFor({ state: "visible", timeout: 5000 })
+        .then(() => true)
+        .catch(() => false);
+      if (visible) break;
+      await this.addressSearch.press("Backspace");
+      await this.addressSearch.pressSequentially(searchQuery.slice(-1), {
+        delay: 50
+      });
+    }
     await expect(options.first()).toBeVisible();
     await options.filter({ hasText: expectedOption }).click();
   }
@@ -170,7 +206,15 @@ export class Checkout {
           response.ok(),
         { timeout: 2000 }
       );
-      await this.saveDetails.click();
+      // The add-company drawer flow mounts more than one visible
+      // `button-manage-save` (background form + the teleported drawer form).
+      // Teleported dialogs render last in the DOM, so target the last visible
+      // one — the active drawer's — to avoid a Playwright strict-mode violation.
+      await this.page
+        .getByTestId("button-manage-save")
+        .filter({ visible: true })
+        .last()
+        .click();
       try {
         await responsePromise;
         return;
@@ -192,7 +236,9 @@ export class Checkout {
   async getPaymentMethod(provider: string) {
     await expect(this.paymentDetails).toBeVisible({ timeout: 30000 });
     await this.page.waitForLoadState("domcontentloaded");
-    return this.paymentDetails.getByTestId(`gateway-${provider}`);
+    return this.paymentDetails
+      .getByTestId("gateway")
+      .and(this.page.locator(`[data-test-value="${provider}"]`));
   }
 
   /**
@@ -236,7 +282,7 @@ export class Checkout {
     // the "show more" expander. Wait for the list, reveal the expander, then
     // read the (visually-hidden Radix) radio once it is attached.
     await this.paymentDetails
-      .getByTestId(/^gateway-/)
+      .getByTestId("gateway")
       .first()
       .waitFor({ state: "visible", timeout: 30000 });
     if (await this.expandPaymentDetails.isVisible()) {
@@ -270,20 +316,22 @@ export class Checkout {
     // Gateways paint after an async fetch resolves — wait for the list to
     // render before reading it, otherwise the check races an empty container.
     await this.paymentDetails
-      .getByTestId(/^gateway-/)
+      .getByTestId("gateway")
       .first()
       .waitFor({ state: "visible", timeout: 30000 });
     if (await this.expandPaymentDetails.isVisible()) {
       await this.expandPaymentDetails.click();
     }
     await this.page.waitForLoadState("domcontentloaded");
-    const radio = this.paymentDetails.getByTestId(`gateway-${provider}`);
+    const radio = this.paymentDetails
+      .getByTestId("gateway")
+      .and(this.page.locator(`[data-test-value="${provider}"]`));
     if ((await radio.count()) === 0) {
       const available = await this.paymentDetails
-        .getByTestId(/^gateway-/)
-        .evaluateAll(els => els.map(el => el.getAttribute("data-test-key")));
+        .getByTestId("gateway")
+        .evaluateAll(els => els.map(el => el.getAttribute("data-test-value")));
       throw new Error(
-        `Gateway "gateway-${provider}" not found. Rendered: ${JSON.stringify(available)}`
+        `Gateway "${provider}" not found. Rendered: ${JSON.stringify(available)}`
       );
     }
     await radio.click();
@@ -303,7 +351,8 @@ export class Checkout {
     await expect(this.paymentDetails).toBeVisible({ timeout: 30000 });
     await this.page.waitForLoadState("domcontentloaded");
     await this.paymentDetails
-      .getByTestId("form-item-payment-details-id")
+      .getByTestId("form-item")
+      .and(this.page.locator(`[data-test-value="payment-details-id"]`))
       .locator("label")
       .first()
       .click();
@@ -313,28 +362,41 @@ export class Checkout {
     const checkoutUrlPattern = /\/order\/checkout/;
     const confirmationUrlPattern = /\/order\/.+\/\?payment_/;
     const modal = this.page.getByTestId("dialog-window");
-    for (let attempt = 0; attempt < 3; attempt++) {
-      const currentUrl = this.page.url();
-      if (confirmationUrlPattern.test(currentUrl)) return;
-      if (!checkoutUrlPattern.test(currentUrl)) continue;
-      try {
-        if (await modal.isVisible()) return;
-      } catch {
-        continue;
+
+    // Already at a terminal state (idempotent re-entry).
+    if (confirmationUrlPattern.test(this.page.url())) return;
+    if (await modal.isVisible().catch(() => false)) return;
+
+    // First click. Playwright auto-waits for the button to be visible, enabled
+    // and stable; give that a realistic budget instead of the old 2s.
+    await this.completeCheckout.click({ timeout: 15000 });
+
+    // Wait for a genuine terminal signal: the confirmation URL (success AND
+    // declined-card flows both navigate there) or a blocking dialog. Payment
+    // conversion involves gateway roundtrips, so the old 5s budget was far too
+    // tight. A click can also occasionally land before the handler is bound
+    // (a dud) — re-click ONLY when that is provable: still on the checkout
+    // URL, no dialog, and the button is idle (enabled) again. A conversion in
+    // flight disables the button, so this cannot double-submit.
+    const deadline = Date.now() + 45000;
+    let nextReclickAt = Date.now() + 8000;
+    while (Date.now() < deadline) {
+      if (confirmationUrlPattern.test(this.page.url())) return;
+      if (await modal.isVisible().catch(() => false)) return;
+
+      if (
+        Date.now() >= nextReclickAt &&
+        checkoutUrlPattern.test(this.page.url()) &&
+        (await this.completeCheckout.isEnabled().catch(() => false))
+      ) {
+        await this.completeCheckout.click({ timeout: 2000 }).catch(() => {});
+        nextReclickAt = Date.now() + 8000;
       }
-      try {
-        await this.completeCheckout.click({ timeout: 2000 });
-      } catch {
-        continue;
-      }
-      try {
-        await this.page.waitForURL(confirmationUrlPattern, { timeout: 5000 });
-        return;
-      } catch {
-        continue;
-      }
+      await this.page.waitForTimeout(250);
     }
-    throw new Error("Clicking 'Place Order' didn't work");
+    throw new Error(
+      "Place Order: no confirmation URL or dialog within 45s of the click"
+    );
   }
 
   async clickConfirmAmount() {
@@ -396,18 +458,63 @@ export class Checkout {
     await stripeFrame.locator("[id='payment-postalCodeInput']").fill(postCode);
   }
 
-  async inputIdealDetails(email: string, fullName: string) {
+  /**
+   * Completes an iDEAL checkout end-to-end: select the iDEAL tab in the Stripe
+   * Payment Element, fill email/name, submit, and return once the page has
+   * left checkout for the gateway's hosted page.
+   *
+   * Owned as ONE flow because the Payment Element RE-MOUNTS while the basket
+   * settles (screenshot-verified), silently resetting the accordion to an
+   * empty Card tab — a select-then-submit split loses that race. The loop
+   * re-establishes the selection whenever it was reset and only ever submits
+   * while the iDEAL panel is demonstrably open. The terminal signal is the
+   * real one: the offsite redirect.
+   *
+   * 3rd-party Stripe Elements: targets Stripe's own attributes, not our
+   * testids and not the translated label/role-name (which shift across
+   * locales and rebrands — the tab is now titled "iDEAL | Wero"). The tab
+   * anchor is data-value="ideal" (probe-verified; data-payment-method-type
+   * does not exist in this Payment Element version).
+   */
+  async completeIdealCheckout(email: string, fullName: string) {
+    const checkoutUrlPattern = /\/order\/checkout/;
     const stripeFrame = this.page.frameLocator(
       'iframe[title="Secure payment input frame"]'
     );
-    // 3rd-party Stripe Elements: target Stripe's own attributes, not our testids
-    // and not the translated label/role-name (which shift across locales).
-    // Stripe's Payment Element now renders methods as an accordion; the iDEAL
-    // tab carries `data-value="ideal"` and its name field is `name="name"`.
-    await stripeFrame.locator('[data-value="ideal"]').click();
-    await stripeFrame.locator('input[name="email"]').fill(email);
-    await stripeFrame.locator('input[name="name"]').fill(fullName);
-    await this.page.keyboard.press("Tab"); // clicking complete while focus is in the iframe causes a failure for unknown reasons
+    const tab = stripeFrame.locator('[data-value="ideal"]');
+    const emailInput = stripeFrame.locator('input[name="email"]');
+
+    const deadline = Date.now() + 90000;
+    while (Date.now() < deadline) {
+      // Redirect underway — done.
+      if (!checkoutUrlPattern.test(this.page.url())) return;
+
+      // (Re)establish the iDEAL selection if the element (re)mounted on Card.
+      if (!(await emailInput.isVisible().catch(() => false))) {
+        await tab.click({ timeout: 10000 }).catch(() => {});
+        const opened = await emailInput
+          .waitFor({ state: "visible", timeout: 5000 })
+          .then(() => true)
+          .catch(() => false);
+        if (!opened) continue;
+        await emailInput.fill(email);
+        await stripeFrame.locator('input[name="name"]').fill(fullName);
+        await this.page.keyboard.press("Tab"); // clicking complete while focus is in the iframe causes a failure for unknown reasons
+      }
+
+      // Submit only while idle (a confirm in flight disables the button) and
+      // only with the iDEAL panel still open.
+      if (
+        (await emailInput.isVisible().catch(() => false)) &&
+        (await this.completeCheckout.isEnabled().catch(() => false))
+      ) {
+        await this.completeCheckout.click({ timeout: 2000 }).catch(() => {});
+      }
+      await this.page.waitForTimeout(1000);
+    }
+    throw new Error(
+      "iDEAL: no offsite redirect within 90s — selection kept resetting or the confirm never fired"
+    );
   }
 
   async interceptPaymentResponse() {

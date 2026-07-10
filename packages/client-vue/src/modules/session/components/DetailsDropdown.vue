@@ -19,7 +19,7 @@
       <label
         class="text-md-tight flex flex-col items-start break-all not-italic"
         v-if="client"
-        data-test-key="dropdown-account-label"
+        v-bind="labelTestAttrs"
       >
         <strong class="font-medium">
           {{ isGuestClient ? t("auth.guest") : client.fullName }}
@@ -39,7 +39,7 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useActiveSession } from "@upmind-automation/headless";
-import { DropdownMenu } from "@upmind-automation/upmind-ui";
+import { DropdownMenu, useTestAttrs } from "@upmind-automation/upmind-ui";
 import type { DropdownMenuItemProps } from "@upmind-automation/upmind-ui";
 
 const emit = defineEmits<{
@@ -51,6 +51,8 @@ const session = useActiveSession();
 const { isAuthenticated, isGuestClient } = session.useMeta();
 const { activeUser: client } = session.useContext();
 const { logout } = session.useActions();
+
+const labelTestAttrs = useTestAttrs({ key: "dropdown-account-label" });
 
 const items = computed<DropdownMenuItemProps[]>(() => {
   const menuItems: DropdownMenuItemProps[] = [];

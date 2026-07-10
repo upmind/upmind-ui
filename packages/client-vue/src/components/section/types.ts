@@ -33,6 +33,7 @@ export type SectionsProps = {
   class?: HTMLAttributes["class"];
   sections: SectionItem[];
   modelValue?: string;
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
   uiConfig?: {
     section: {
       root: CxOptions;

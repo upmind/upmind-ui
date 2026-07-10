@@ -24,10 +24,7 @@
         variant="muted"
         size="sm"
       />
-      <dl
-        data-test-key="billing-details-summary"
-        :class="styles.billing.summary.root"
-      >
+      <dl v-bind="summaryTestAttrs" :class="styles.billing.summary.root">
         <div
           v-if="selectedCompany || billingMeta.needsCompany"
           :class="styles.billing.summary.row"
@@ -40,15 +37,14 @@
           </dt>
           <dd
             v-if="selectedCompany"
+            v-bind="companyTestAttrs(selectedCompany.name)"
             :class="styles.billing.summary.value"
-            data-test-key="billing-summary-company"
-            :data-test-value="selectedCompany.name"
           >
             {{ selectedCompany.name }}
           </dd>
           <dd v-else>
             <Link
-              data-test-key="link-add-company"
+              :dataAttrs="{ 'data-test-key': 'link-add-company' }"
               :label="t('action.add_company')"
               size="sm"
               color="danger"
@@ -77,7 +73,7 @@
           </dd>
           <dd v-else>
             <Link
-              data-test-key="link-add-number"
+              :dataAttrs="{ 'data-test-key': 'link-add-number' }"
               :label="t('action.add_number')"
               size="sm"
               color="danger"
@@ -95,8 +91,7 @@
           </dt>
           <dd
             v-if="selectedAddress"
-            data-test-key="billing-summary-address"
-            :data-test-value="selectedAddress.title"
+            v-bind="addressTestAttrs(selectedAddress.title)"
           >
             <p>{{ selectedAddress.title }}</p>
             <p v-if="selectedAddress.address.address2">
@@ -117,7 +112,7 @@
           </dd>
           <dd v-else>
             <Link
-              data-test-key="link-add-address"
+              :dataAttrs="{ 'data-test-key': 'link-add-address' }"
               :label="t('action.add_address')"
               size="sm"
               :color="billingMeta.needsAddress ? 'danger' : 'primary'"
@@ -140,7 +135,7 @@ import {
   useClientPhones,
   useRoutingEngine
 } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, useTestAttrs } from "@upmind-automation/upmind-ui";
 import { Alert, Avatar, Card, Link } from "@upmind-automation/upmind-ui";
 import Section from "../../../components/section/Section.vue";
 import config from "../billing.config";
@@ -160,6 +155,16 @@ const { t } = useI18n();
 const { navigate } = useRoutingEngine();
 
 const styles = useStyles(["billing.card", "billing.summary"], {}, config);
+
+// --- test attrs
+
+const summaryTestAttrs = useTestAttrs({ key: "billing-details-summary" });
+
+const companyTestAttrs = (value?: string) =>
+  useTestAttrs({ key: "billing-summary-company", value });
+
+const addressTestAttrs = (value?: string) =>
+  useTestAttrs({ key: "billing-summary-address", value });
 
 const { isReady, meta: billingMeta, model } = useBasketBilling();
 

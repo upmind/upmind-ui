@@ -1,5 +1,5 @@
 <template>
-  <Ribbon as="footer" background="surface" border="top" data-test-key="footer">
+  <Ribbon as="footer" background="surface" border="top" v-bind="testAttrs">
     <Container :class="styles.footer.stacked.root">
       <Column :class="styles.footer.stacked.column">
         <Content gap="none" items="end" :class="styles.footer.stacked.content">
@@ -23,7 +23,7 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, useTestAttrs } from "@upmind-automation/upmind-ui";
 import Column from "../../layout/components/column/Column.vue";
 import Container from "../../layout/components/container/Container.vue";
 import Content from "../../layout/components/content/Content.vue";
@@ -42,6 +42,8 @@ const props = defineProps<{
   localeCount: number;
   currencyCount: number;
 }>();
+
+const testAttrs = useTestAttrs({ key: "footer" });
 
 const { meta: footerMeta } = useFooter();
 

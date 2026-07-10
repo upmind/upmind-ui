@@ -1,7 +1,7 @@
 <template>
   <footer class="flex w-full flex-col gap-2 md:flex-row md:justify-start">
     <Button
-      data-test-key="button-manage-save"
+      :dataAttrs="{ 'data-test-key': 'button-manage-save' }"
       :label="t('action.save_details')"
       :block="props.noCancel"
       color="primary"
@@ -13,7 +13,7 @@
     />
     <Button
       v-if="!props.noCancel"
-      data-test-key="button-manage-cancel"
+      :dataAttrs="{ 'data-test-key': 'button-manage-cancel' }"
       :label="t('action.cancel')"
       variant="ghost"
       size="lg"

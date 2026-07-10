@@ -61,7 +61,7 @@ for (const { language, locale } of languages) {
     });
 
     test("Guest Account Menu", async ({ page, context }) => {
-      await seedGuestBasket(page, context);
+      await seedGuestBasket(page);
 
       const settings = captureBrandSettings(page);
       await page.goto(URLs.register);
@@ -99,7 +99,7 @@ for (const { language, locale } of languages) {
     });
 
     test("Guest Upgrade Form", async ({ page, context }) => {
-      await seedGuestBasket(page, context);
+      await seedGuestBasket(page);
 
       const settings = captureBrandSettings(page);
       await page.goto(URLs.register);

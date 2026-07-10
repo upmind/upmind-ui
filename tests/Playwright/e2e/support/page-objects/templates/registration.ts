@@ -23,10 +23,18 @@ export class Registration {
     this.page = page;
     this.registrationForm = page.getByTestId("register-form");
     this.context = context;
-    this.firstName = page.getByTestId("input-properties-firstname");
-    this.lastName = page.getByTestId("input-properties-lastname");
-    this.email = page.getByTestId("input-properties-username");
-    this.passwordItem = page.getByTestId("form-item-password");
+    this.firstName = page
+      .getByTestId("input")
+      .and(page.locator('[data-test-value="properties-firstname"]'));
+    this.lastName = page
+      .getByTestId("input")
+      .and(page.locator('[data-test-value="properties-lastname"]'));
+    this.email = page
+      .getByTestId("input")
+      .and(page.locator('[data-test-value="properties-username"]'));
+    this.passwordItem = page
+      .getByTestId("form-item")
+      .and(page.locator('[data-test-value="password"]'));
     this.password = this.passwordItem.getByRole("textbox");
     this.passwordMessage = this.passwordItem.getByTestId("password-message");
     this.passwordStrengthBars = this.passwordItem
@@ -43,9 +51,11 @@ export class Registration {
    */
   getValidationError(field: string) {
     if (field === "password") return this.passwordMessage;
-    return this.page.getByTestId(
-      `form-item-message-${field.replaceAll(".", "-")}`
-    );
+    return this.page
+      .getByTestId("form-item-message")
+      .and(
+        this.page.locator(`[data-test-value="${field.replaceAll(".", "-")}"]`)
+      );
   }
 
   async inputRegistration() {

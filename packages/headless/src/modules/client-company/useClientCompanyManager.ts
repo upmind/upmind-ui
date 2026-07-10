@@ -150,11 +150,16 @@ export const useClientCompanyManager = (
       });
   }
 
+  const debouncedInput = debounce(input, DEBOUNCE_DELAY);
+
   async function update(
     value?: CompanyModel | Record<string, any>
   ): Promise<CompanyModel> {
-    // first check if our model has changed, if it has we need to send it
+    // Commit any typed input still pending on the debounce before saving,
+    // otherwise the save reads the pre-edit model.
+    await debouncedInput.flush()?.catch(() => undefined);
 
+    // first check if our model has changed, if it has we need to send it
     const model = contextValue<CompanyModel>(state, "model");
 
     if (!isEmpty(value) && !isEqual(value, model)) {
@@ -270,7 +275,7 @@ export const useClientCompanyManager = (
      * @param {CompanyModel} model - The model to input.
      * @returns {Promise<CompanyModel>} The updated model.
      */
-    input: debounce(input, DEBOUNCE_DELAY),
+    input: debouncedInput,
 
     /**
      * Sends the current model to the service for processing.

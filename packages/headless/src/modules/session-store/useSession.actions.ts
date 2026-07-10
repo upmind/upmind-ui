@@ -107,6 +107,43 @@ export function createSessionActions(_sessionId?: string) {
     isReady: () => storeActions.isReady(),
 
     /**
+     * Wait until the active session is a fully-loaded client/staff.
+     *
+     * Unlike `isAuthenticated()` (a guard that rejects a guest immediately),
+     * this WAITS through the guest→client promotion window: after login the
+     * auth machine has the token, but loading the user + promoting the active
+     * session is the session store's job and lands a beat later. Resolves the
+     * moment that promotion completes, driven by the raw-store subscribe (the
+     * same signal `isAuthenticated` uses) — no polling, no timeout. Callers
+     * that need a bound (e.g. tests) get it from their own outer timeout; a
+     * login that never promotes simply never resolves here.
+     *
+     * @returns Promise<SessionUser> - Resolves once user data is loaded.
+     */
+    whenAuthenticated: (): Promise<SessionUser> =>
+      new Promise((resolve, reject) => {
+        let unsubscribe = (): void => {};
+        const check = (): void => {
+          if (sessionStore.state.activeActor === AccessRoleTypes.GUEST) return; // wait, don't reject
+          // An interactive login that promoted the session but failed to load
+          // the user records `userError`; surface it rather than wait forever
+          // for a user that will never arrive.
+          if (sessionStore.state.userError) {
+            unsubscribe();
+            reject(sessionStore.state.userError);
+            return;
+          }
+          const user = readActiveUser(sessionStore.state);
+          if (user) {
+            unsubscribe();
+            resolve(user);
+          }
+        };
+        unsubscribe = sessionStore.subscribe(check);
+        check();
+      }),
+
+    /**
      * Log out of THIS scope's session.
      * Removes cookie and state, falls back to next available session.
      */

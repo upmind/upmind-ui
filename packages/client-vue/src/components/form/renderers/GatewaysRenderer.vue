@@ -15,7 +15,7 @@
             color="muted"
             size="sm"
             :label="t('action.show_more_options')"
-            data-test-key="show-more-payment-options"
+            :dataAttrs="{ 'data-test-key': 'show-more-payment-options' }"
             @click="isExpanded = true"
             icon="plus"
           />
@@ -73,7 +73,7 @@ const items = computed(() => {
         index,
         modelValue: data,
         dataAttrs: provider
-          ? { "data-test-key": `gateway-${provider}` }
+          ? { "data-test-key": "gateway", "data-test-value": provider }
           : undefined
       };
     }
@@ -90,7 +90,10 @@ const items = computed(() => {
       label: t("form.payment_method_type.pay-later"),
       index: gateways.length,
       modelValue: data,
-      dataAttrs: { "data-test-key": `gateway-${PaymentType.PAY_LATER}` }
+      dataAttrs: {
+        "data-test-key": "gateway",
+        "data-test-value": PaymentType.PAY_LATER
+      }
     });
   } else {
     // console.debug("No Pay Later option available");

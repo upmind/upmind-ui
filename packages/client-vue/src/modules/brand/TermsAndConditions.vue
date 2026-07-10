@@ -5,7 +5,7 @@
     keypath="text.terms_and_conditions_desc"
     tag="p"
     scope="global"
-    data-test-key="terms-and-conditions"
+    v-bind="termsAndConditionsTestAttrs"
   >
     <template #brand>{{ brandName }}</template>
 
@@ -30,7 +30,7 @@
       <Link
         v-else
         @click="toggleOpen"
-        data-test-key="terms-link"
+        :dataAttrs="{ 'data-test-key': 'terms-link' }"
         :label="t(action)"
         color="inherit"
         size="inherit"
@@ -60,7 +60,12 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { useTermsAndConditions, useBrand } from "@upmind-automation/headless";
-import { Drawer, Markdown, Link } from "@upmind-automation/upmind-ui";
+import {
+  Drawer,
+  Markdown,
+  Link,
+  useTestAttrs
+} from "@upmind-automation/upmind-ui";
 import type { TermsAndConditionsProps } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -76,6 +81,9 @@ const open = defineModel<boolean>("open", {
 });
 
 const { t } = useI18n();
+const termsAndConditionsTestAttrs = useTestAttrs({
+  key: "terms-and-conditions"
+});
 const { name: brandName } = useBrand();
 const { meta, data } = useTermsAndConditions();
 

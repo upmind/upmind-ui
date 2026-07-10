@@ -4,7 +4,7 @@
     color="muted"
     size="sm"
     @click="openForm"
-    data-test-key="change-amount"
+    :dataAttrs="{ 'data-test-key': 'change-amount' }"
   />
 
   <FormModal

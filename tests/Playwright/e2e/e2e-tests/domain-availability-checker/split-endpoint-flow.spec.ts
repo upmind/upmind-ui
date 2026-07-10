@@ -1,7 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../../support/constants/urls";
-import { getSessionToken } from "../../support/api/auth";
-import { waitForSessionCookie } from "../../support/helpers/session";
+import { waitForActiveSessionViaHeadless } from "../../support/flows";
 import { interceptConfigValues } from "../../support/mocks/brand";
 import {
   mockDomainSuggestions,
@@ -43,9 +42,7 @@ test.describe("Domain split-endpoint DAC flow", () => {
       context
     }) => {
       await page.goto(URLs.baseUrl);
-      await waitForSessionCookie(context, { guestOnly: true });
-      const token = await getSessionToken(context);
-      await interceptConfigValues(page, token, {
+      await interceptConfigValues(page, {
         domainSearchMethod: "smart-suggest"
       });
       mockDomainSuggestions(context, { rows: baselineSuggestionRows(SLD) });
@@ -73,19 +70,19 @@ test.describe("Domain split-endpoint DAC flow", () => {
     });
 
     test("Searching on a legacy-lookup brand uses the legacy single-call search", async ({
-      page,
-      context
+      page
     }) => {
       // Register the override BEFORE the first load: domain_search_method is
       // fetched and cached on initial load, so the intercept must be active for
       // that fetch (registering it after goto misses it and staging's default
-      // smart-suggest wins). null token replays the request's own guest auth and
-      // strips cache-validation headers so the override isn't lost to a 304.
-      await interceptConfigValues(page, null, {
+      // smart-suggest wins). interceptConfigValues replays the request's own
+      // guest auth and strips cache-validation headers so the override isn't
+      // lost to a 304.
+      await interceptConfigValues(page, {
         domainSearchMethod: "legacy-lookup"
       });
       await page.goto(URLs.baseUrl);
-      await waitForSessionCookie(context, { guestOnly: true });
+      await waitForActiveSessionViaHeadless(page);
       const searchResponse = page.waitForResponse(res =>
         res.url().includes("/modules/web_hosting/domains/search")
       );
@@ -97,11 +94,9 @@ test.describe("Domain split-endpoint DAC flow", () => {
   });
 
   test.describe("Progressive rendering", () => {
-    test.beforeEach(async ({ page, context }) => {
+    test.beforeEach(async ({ page }) => {
       await page.goto(URLs.baseUrl);
-      await waitForSessionCookie(context, { guestOnly: true });
-      const token = await getSessionToken(context);
-      await interceptConfigValues(page, token, {
+      await interceptConfigValues(page, {
         domainSearchMethod: "smart-suggest"
       });
     });
@@ -155,11 +150,9 @@ test.describe("Domain split-endpoint DAC flow", () => {
   test.describe("Exact-match (TLD in query)", () => {
     const exactDomain = `${SLD}.com`;
 
-    test.beforeEach(async ({ page, context }) => {
+    test.beforeEach(async ({ page }) => {
       await page.goto(URLs.baseUrl);
-      await waitForSessionCookie(context, { guestOnly: true });
-      const token = await getSessionToken(context);
-      await interceptConfigValues(page, token, {
+      await interceptConfigValues(page, {
         domainSearchMethod: "smart-suggest"
       });
     });
@@ -279,9 +272,7 @@ test.describe("Domain split-endpoint DAC flow", () => {
   test.describe("Domain input sanitisation", () => {
     test.beforeEach(async ({ page, context }) => {
       await page.goto(URLs.baseUrl);
-      await waitForSessionCookie(context, { guestOnly: true });
-      const token = await getSessionToken(context);
-      await interceptConfigValues(page, token, {
+      await interceptConfigValues(page, {
         domainSearchMethod: "smart-suggest"
       });
       mockDomainSuggestions(context, { rows: baselineSuggestionRows(SLD) });
@@ -361,11 +352,9 @@ test.describe("Domain split-endpoint DAC flow", () => {
    * their stale results don't overwrite the final query's results.
    */
   test.describe("Race condition prevention", () => {
-    test.beforeEach(async ({ page, context }) => {
+    test.beforeEach(async ({ page }) => {
       await page.goto(URLs.baseUrl);
-      await waitForSessionCookie(context, { guestOnly: true });
-      const token = await getSessionToken(context);
-      await interceptConfigValues(page, token, {
+      await interceptConfigValues(page, {
         domainSearchMethod: "smart-suggest"
       });
     });
@@ -433,7 +422,9 @@ test.describe("Domain split-endpoint DAC flow", () => {
       // Use the search input directly to simulate rapid typing. The Input
       // primitive derives `input-domain-search-input` from the stable HTML id
       // (DomainSearch.vue), not a translated placeholder.
-      const searchInput = page.getByTestId("input-domain-search-input");
+      const searchInput = page
+        .getByTestId("input")
+        .and(page.locator(`[data-test-value="domain-search-input"]`));
       await searchInput.clear();
       await searchInput.fill(FAST_QUERY);
       await searchInput.press("Enter");

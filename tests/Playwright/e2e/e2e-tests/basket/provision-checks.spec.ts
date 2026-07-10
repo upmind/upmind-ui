@@ -1,13 +1,7 @@
 import { test, expect, Page } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
 import { URLs } from "../../support/constants/urls";
-import {
-  getSessionToken,
-  createOrder,
-  addProductToOrder,
-  getBasketProducts
-} from "../../support/api/index";
-import { waitForSessionCookie } from "../../support/helpers/session";
+import { addProductViaHeadless } from "../../support/flows/basket-setup";
 import { products } from "../../support/constants/products";
 import { Basket } from "../../support/page-objects/templates/basket";
 import { Footer } from "../../support/page-objects/templates/footer";
@@ -31,7 +25,9 @@ async function selectCurrency(page: Page, code: string) {
   await footer.currencySelector
     .getByTestId("currency-selector-trigger")
     .click();
-  const option = page.getByTestId(`currency-option-${code}`);
+  const option = page
+    .getByTestId("currency-option")
+    .and(page.locator(`[data-test-value="${code}"]`));
   await expect(option).toBeVisible();
   await option.click({ force: true });
   await expect(footer.currencyValue).toHaveAttribute("data-test-value", code);
@@ -41,30 +37,20 @@ test.describe("Basket provision checks", () => {
   // basket-product-name carries the in-basket product id in data-test-value;
   // captured here so each test can assert which line was seeded by its id.
   let basketProductId: string;
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page }) => {
     basket = new Basket(page);
     footer = new Footer(page);
     await page.goto(URLs.basket);
-    await waitForSessionCookie(context);
-    const token = await getSessionToken(context);
-    const order = await createOrder(token);
-    await addProductToOrder(
-      token,
-      order.id,
-      products.STARTER_HOSTING.id,
-      1,
-      24,
-      [],
-      [],
-      {
+    const seeded = await addProductViaHeadless(page, {
+      productId: products.STARTER_HOSTING.id,
+      quantity: 1,
+      billingCycleMonths: 24,
+      provisionFields: {
         domain: `${fakerEN_GB.string.alphanumeric({ length: { min: 6, max: 12 } })}.com`
-      },
-      [],
-      true,
-      false
-    );
-    const basketProducts = await getBasketProducts(token);
-    basketProductId = basketProducts[0].id;
+      }
+    });
+    expect(seeded.basketProductId).toBeTruthy();
+    basketProductId = seeded.basketProductId as string;
   });
 
   test("Initial basket load fetches provision fields", async ({ page }) => {
@@ -143,7 +129,10 @@ test.describe("Basket provision checks", () => {
     await footer.currencySelector
       .getByTestId("currency-selector-trigger")
       .click();
-    await page.getByTestId("currency-option-USD").click({ force: true });
+    await page
+      .getByTestId("currency-option")
+      .and(page.locator(`[data-test-value="USD"]`))
+      .click({ force: true });
     // Skeleton must appear during the in-flight PUT, then resolve once the
     // basket refresh completes.
     await expect(skeleton).toBeVisible();

@@ -1,7 +1,5 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../../support/constants/urls";
-import { getSessionToken } from "../../support/api/auth";
-import { waitForSessionCookie } from "../../support/helpers/session";
 import { interceptConfigValues } from "../../support/mocks/brand";
 import { mockDomainAvailability } from "../../support/mocks/domain";
 import { ProductConfig } from "../../support/page-objects/templates/product-config";
@@ -47,12 +45,10 @@ async function selectExistingAndFill(domain: string) {
 test.describe("DAC existing-domain mode (transfer checks)", () => {
   // Brand intercept registered directly in beforeEach so it's always wired up
   // before any test-side navigation triggers a brand-config fetch.
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page }) => {
     productConfig = new ProductConfig(page);
     await page.goto(URLs.baseUrl);
-    await waitForSessionCookie(context, { guestOnly: true });
-    const token = await getSessionToken(context);
-    await interceptConfigValues(page, token, {
+    await interceptConfigValues(page, {
       domainSearchMethod: "smart-suggest"
     });
   });

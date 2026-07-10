@@ -23,8 +23,12 @@ export class VerifyEmail {
     this.page = page;
     this.title = page.getByTestId("verify-email-heading");
     this.otpInput = page.getByTestId("input-otp-slot");
-    this.alert = page.getByTestId("auth-alert");
-    this.codeFieldError = page.getByTestId("form-item-message-code");
+    this.alert = page
+      .getByTestId("alert")
+      .and(page.locator('[data-test-value="account"]'));
+    this.codeFieldError = page
+      .getByTestId("form-item-message")
+      .and(page.locator('[data-test-value="code"]'));
     this.resendLink = page.getByTestId("resend-code-link");
     this.resentMessage = page.getByTestId("resend-sent");
     this.backToBasket = page.getByTestId("link-back-to-basket");

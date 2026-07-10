@@ -1,48 +1,28 @@
 import { test, expect } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
 import { URLs } from "../../support/constants/urls";
-import { getSessionToken } from "../../support/api/auth";
-import {
-  createOrder,
-  addProductToOrder,
-  getBasketProducts
-} from "../../support/api/basket";
-import { waitForSessionCookie } from "../../support/helpers/session";
+import { addProductViaHeadless } from "../../support/flows/basket-setup";
 import { Basket } from "../../support/page-objects/templates/basket";
 
 let basket: Basket;
 
 test.describe("Basket Tests", () => {
-  let token: string;
-  let orderId: string | null;
   test.beforeEach(async ({ page }) => {
     basket = new Basket(page);
   });
-  test("Basket with 1 item", async ({ page, context }) => {
+  test("Basket with 1 item", async ({ page }) => {
     const domain = `${fakerEN_GB.string.alphanumeric({ length: { min: 3, max: 15 } })}.com`;
     await page.goto(URLs.basket);
-    await waitForSessionCookie(context);
-    token = await getSessionToken(context);
-    let order = await createOrder(token);
-    orderId = order.id;
-    await addProductToOrder(
-      token,
-      orderId,
-      "3de78642-de53-9714-76df-21208469530d",
-      1,
-      24,
-      [],
-      [],
-      { domain: domain },
-      [],
-      true,
-      false
-    );
     // basket-product-name carries the in-basket product id in data-test-value;
-    // read it from the order so the assertion targets the actual seeded line
+    // the seed returns that id so the assertion targets the actual seeded line
     // rather than the (i18n) display name.
-    const basketProducts = await getBasketProducts(token);
-    const basketProductId = basketProducts[0].id;
+    const { basketProductId } = await addProductViaHeadless(page, {
+      productId: "3de78642-de53-9714-76df-21208469530d",
+      quantity: 1,
+      billingCycleMonths: 24,
+      provisionFields: { domain }
+    });
+    expect(basketProductId).toBeTruthy();
     await page.goto(URLs.basket);
     await expect(basket.basketProductSummary).toBeVisible();
     const productName = basket.basketProductSummary.getByTestId(
@@ -51,7 +31,7 @@ test.describe("Basket Tests", () => {
     await expect(productName).toBeVisible();
     await expect(productName).toHaveAttribute(
       "data-test-value",
-      basketProductId
+      basketProductId as string
     );
   });
   test("Empty basket", async ({ page }) => {

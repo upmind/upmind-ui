@@ -96,8 +96,6 @@ export class ProductConfig {
   readonly domainDrawer: Locator;
   readonly domainResults: Locator;
   readonly domainItem: Locator;
-  readonly domainButton: Locator;
-  readonly domainAddToBasket: Locator;
 
   /* Meta Slots*/
   readonly summaryMetaSlot: Locator;
@@ -123,10 +121,12 @@ export class ProductConfig {
 
     /* Product Options */
     this.textInput = new TextInput(page);
-    this.productConfigSection = page.getByTestId(
-      "section-product-configuration"
-    );
-    this.billingTerms = page.getByTestId("form-item-term");
+    this.productConfigSection = page
+      .getByTestId("section")
+      .and(page.locator(`[data-test-value="product-configuration"]`));
+    this.billingTerms = page
+      .getByTestId("form-item")
+      .and(page.locator(`[data-test-value="term"]`));
     this.configForm = page.getByTestId("product-config-form");
     this.options = page.getByTestId("options-container-options");
 
@@ -144,55 +144,107 @@ export class ProductConfig {
     // input rendered while the "existing" choice is expanded.
     this.domainRadioInput = page.locator("#domain-register-search input");
     this.domainExistingInput = page
-      .getByTestId("section-product-configuration")
+      .getByTestId("section")
+      .and(page.locator(`[data-test-value="product-configuration"]`))
       .locator('[role="radio"][value="existing"]')
       .locator('xpath=following::input[@type="text"][1]');
 
     /* Domain Accordion Options (legacy - deprecated) */
-    this.domainRegister = page.getByTestId("accordion-item-register");
+    this.domainRegister = page
+      .getByTestId("accordion-item")
+      .and(page.locator(`[data-test-value="register"]`));
     this.domainRegisterInput = page
-      .getByTestId("form-item-dac-register")
+      .getByTestId("form-item")
+      .and(page.locator(`[data-test-value="dac-register"]`))
       .locator("input");
-    this.domainTransfer = page.getByTestId("accordion-item-transfer");
-    this.domainExisting = page.getByTestId("accordion-item-existing");
-    this.domainBasket = page.getByTestId("accordion-item-basket");
+    this.domainTransfer = page
+      .getByTestId("accordion-item")
+      .and(page.locator(`[data-test-value="transfer"]`));
+    this.domainExisting = page
+      .getByTestId("accordion-item")
+      .and(page.locator(`[data-test-value="existing"]`));
+    this.domainBasket = page
+      .getByTestId("accordion-item")
+      .and(page.locator(`[data-test-value="basket"]`));
     this.registrantNameInput = page
-      .getByTestId("form-item-provision-fields-update-registrant-name")
+      .getByTestId("form-item")
+      .and(
+        page.locator(
+          `[data-test-value="provision-fields-update-registrant-name"]`
+        )
+      )
       .locator("input");
     this.registrantOrgInput = page
-      .getByTestId("form-item-provision-fields-update-registrant-organisation")
+      .getByTestId("form-item")
+      .and(
+        page.locator(
+          `[data-test-value="provision-fields-update-registrant-organisation"]`
+        )
+      )
       .locator("input");
     this.registrantEmailInput = page
-      .getByTestId("form-item-provision-fields-update-registrant-email")
+      .getByTestId("form-item")
+      .and(
+        page.locator(
+          `[data-test-value="provision-fields-update-registrant-email"]`
+        )
+      )
       .locator("input");
-    this.registrantPhoneForm = page.getByTestId(
-      "form-item-provision-fields-update-registrant-phone"
-    );
+    this.registrantPhoneForm = page
+      .getByTestId("form-item")
+      .and(
+        page.locator(
+          `[data-test-value="provision-fields-update-registrant-phone"]`
+        )
+      );
+
     this.registrantPhoneCountrySelectButton =
-      this.registrantPhoneForm.getByTestId("button-default");
+      this.registrantPhoneForm.getByTestId("button-phone-country");
     this.registrantPhoneCountrySelectInput =
       this.popover.popoverContent.locator("input");
     this.registrantPhoneCountrySelectItem =
       this.popover.popoverContent.getByRole("option");
     this.registrantPhoneInput = this.registrantPhoneForm.locator("input");
     this.registrantAddr1Input = page
-      .getByTestId("form-item-provision-fields-update-registrant-address-1")
+      .getByTestId("form-item")
+      .and(
+        page.locator(
+          `[data-test-value="provision-fields-update-registrant-address-1"]`
+        )
+      )
       .locator("input");
     this.registrantCityInput = page
-      .getByTestId("form-item-provision-fields-update-registrant-address-city")
+      .getByTestId("form-item")
+      .and(
+        page.locator(
+          `[data-test-value="provision-fields-update-registrant-address-city"]`
+        )
+      )
       .locator("input");
     this.registrantStateInput = page
-      .getByTestId("form-item-provision-fields-update-registrant-address-state")
+      .getByTestId("form-item")
+      .and(
+        page.locator(
+          `[data-test-value="provision-fields-update-registrant-address-state"]`
+        )
+      )
       .locator("input");
     this.registrantPostcodeInput = page
-      .getByTestId(
-        "form-item-provision-fields-update-registrant-address-postcode"
+      .getByTestId("form-item")
+      .and(
+        page.locator(
+          `[data-test-value="provision-fields-update-registrant-address-postcode"]`
+        )
       )
       .locator("input");
     this.registrantCountryInput = page
-      .getByTestId(
-        "form-item-provision-fields-update-registrant-address-country-code"
+      .getByTestId("form-item")
+      .and(
+        page.locator(
+          `[data-test-value="provision-fields-update-registrant-address-country-code"]`
+        )
       )
+
       .locator("button");
     this.promoBadge = page.getByTestId("badge");
 
@@ -200,69 +252,90 @@ export class ProductConfig {
     this.domainDrawer = this.drawer.drawerOverlay;
     this.domainResults = this.drawer.domainResults;
     this.domainItem = this.drawer.domainItem;
-    this.domainButton = this.drawer.domainButton;
-    this.domainAddToBasket = page.getByTestId("button-add-domain-to-basket");
 
     /* Order Summary */
     this.totalValue = page.getByTestId("total-price");
-    this.totalQty = page.getByTestId("quantity-input"); // TODO: Move to shared page object
+    this.totalQty = page.getByTestId("number-field-input"); // TODO: Move to shared page object
     this.billingCycle = page
-      .getByTestId("description-list-item-billing-cycle")
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="billing-cycle"]'))
       .locator("dd");
 
     // refactor all of this to better fit the dynamic naming of the sumamry fields
-    this.product = page.getByTestId("description-list-item-product");
-    this.development = page.getByTestId("description-list-item-dev-work");
-    this.webHosting = page.getByTestId("description-list-item-shared-hosting");
-    this.designServices = page.getByTestId(
-      "description-list-item-design-services"
-    );
-    this.consulting = page.getByTestId("description-list-item-consulting");
-    this.bundle = page.getByTestId("description-list-item-bundle");
-    this.meetingTypes = page.getByTestId("description-list-item-meeting-types");
-    this.addons = page.getByTestId("description-list-item-addons");
-    this.tracking = page.getByTestId("description-list-item-tracking");
-    this.tldValue = page.getByTestId("description-list-item-domain-names");
+    this.product = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="product"]'));
+    this.development = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="dev-work"]'));
+    this.webHosting = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="shared-hosting"]'));
+    this.designServices = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="design-services"]'));
+    this.consulting = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="consulting"]'));
+    this.bundle = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="bundle"]'));
+    this.meetingTypes = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="meeting-types"]'));
+    this.addons = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="addons"]'));
+    this.tracking = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="tracking"]'));
+    this.tldValue = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="domain-names"]'));
     this.domainName = page
-      .getByTestId("description-list-item-account-domain-name")
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="account-domain-name"]'))
       .locator("dd");
-    this.domainSetup = page.getByTestId(
-      "description-list-item-domain-setup-(free)"
-    );
-    this.domainLocking = page.getByTestId(
-      "description-list-item-domain-locking"
-    );
-    this.registrantName = page.getByTestId(
-      "description-list-item-registrant-name"
-    );
-    this.registrantOrg = page.getByTestId(
-      "description-list-item-registrant-organisation"
-    );
-    this.registrantEmail = page.getByTestId(
-      "description-list-item-registrant-email"
-    );
-    this.registrantPhone = page.getByTestId(
-      "description-list-item-registrant-phone"
-    );
-    this.registrantAddr1 = page.getByTestId(
-      "description-list-item-registrant-address-1"
-    );
-    this.registrantCity = page.getByTestId(
-      "description-list-item-registrant-city"
-    );
-    this.registrantState = page.getByTestId(
-      "description-list-item-registrant-state"
-    );
-    this.registrantPostcode = page.getByTestId(
-      "description-list-item-registrant-postcode"
-    );
+    this.domainSetup = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="domain-setup-(free)"]'));
+    this.domainLocking = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="domain-locking"]'));
+    this.registrantName = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="registrant-name"]'));
+    this.registrantOrg = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="registrant-organisation"]'));
+    this.registrantEmail = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="registrant-email"]'));
+    this.registrantPhone = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="registrant-phone"]'));
+    this.registrantAddr1 = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="registrant-address-1"]'));
+    this.registrantCity = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="registrant-city"]'));
+    this.registrantState = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="registrant-state"]'));
+    this.registrantPostcode = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="registrant-postcode"]'));
     this.registrantCountry = page
-      .getByTestId("description-list-item-registrant-country")
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="registrant-country"]'))
       .locator("dd");
-    this.engagementTypes = page.getByTestId(
-      "description-list-item-engagement-types"
-    );
-    this.outcomes = page.getByTestId("description-list-item-outcomes");
+    this.engagementTypes = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="engagement-types"]'));
+    this.outcomes = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="outcomes"]'));
     this.addToBasket = page.getByTestId("button-add-to-basket");
     this.confirm = page.getByTestId("button-confirm");
 
@@ -270,7 +343,9 @@ export class ProductConfig {
     this.summaryMetaSlot = page.getByTestId("slots:summary-append");
 
     /* Trial Opt-In (CheckboxCards) */
-    this.trialCheckbox = page.getByTestId("checkbox-item-try-before-you-buy");
+    this.trialCheckbox = page
+      .getByTestId("checkbox-item")
+      .and(page.locator('[data-test-value="try-before-you-buy"]'));
     this.trialBadge = this.trialCheckbox.getByTestId("badge");
     this.trialDescription = this.trialCheckbox.getByTestId(
       "secondary-item-description"
@@ -330,9 +405,13 @@ export class ProductConfig {
   }
 
   async enterSld(sld: string) {
-    const sldFormField = this.page.getByTestId(
-      "input-properties-provision-fields-properties-sld"
-    );
+    const sldFormField = this.page
+      .getByTestId("input")
+      .and(
+        this.page.locator(
+          '[data-test-value="properties-provision-fields-properties-sld"]'
+        )
+      );
     await sldFormField.fill(sld);
   }
 
@@ -448,7 +527,12 @@ export class ProductConfig {
     ) {
       await this.registrantCountryInput.click();
       await this.page
-        .getByTestId(`select-item-${details.registrantCountryCode}`)
+        .getByTestId("select-item")
+        .and(
+          this.page.locator(
+            `[data-test-value="${details.registrantCountryCode}"]`
+          )
+        )
         .click();
     }
   }
@@ -473,7 +557,9 @@ export class ProductConfig {
    *   `shared-hosting`, `term`), NOT a translated category label.
    */
   getSummaryItem(key: string) {
-    return this.page.getByTestId(`description-list-item-${key}`);
+    return this.page
+      .getByTestId("description-list-item")
+      .and(this.page.locator(`[data-test-value="${key}"]`));
   }
 
   async clickAddToBasket() {

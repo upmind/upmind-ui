@@ -2,12 +2,10 @@ import { test, expect, Page } from "@playwright/test";
 import { Login } from "../../support/page-objects/templates/login";
 import { Registration } from "../../support/page-objects/templates/registration";
 import { URLs } from "../../support/constants/urls";
-import { getSessionToken } from "../../support/api/auth";
-import { createOrder, addProductToOrder } from "../../support/api/basket";
+import { addProductViaHeadless } from "../../support/flows/basket-setup";
 import { products } from "../../support/constants/products";
 import { interceptUISchema, interceptSlots } from "../../support/mocks/brand";
 import { slotTemplates } from "../../support/constants/brand";
-import { waitForSessionCookie } from "../../support/helpers/session";
 
 let login: Login;
 let register: Registration;
@@ -83,23 +81,11 @@ test.describe("Template Slots", () => {
         });
         interceptSlots(page, "basket_summary_footer");
         await page.goto("/");
-        await waitForSessionCookie(context, { guestOnly: true });
-        let token = await getSessionToken(context);
-        let order = await createOrder(token);
-        let orderId = order?.id;
-        await addProductToOrder(
-          `${token}`,
-          `${orderId}`,
-          product.id,
-          1,
-          product.billingCycle,
-          [],
-          [],
-          [],
-          [],
-          true,
-          false
-        );
+        await addProductViaHeadless(page, {
+          productId: product.id,
+          quantity: 1,
+          billingCycleMonths: product.billingCycle
+        });
         await page.goto(URLs.basket);
         await expect(
           page.getByTestId("slot-sentinel-basket-summary-footer")

@@ -2,7 +2,13 @@
 import { execSync } from "node:child_process";
 import { defineConfig, devices } from "@playwright/test";
 
-const baseURL = process.env.PW_BASE_URL ?? "http://qa-automation.local:5173/";
+// The e2e suite runs the cart in test mode (`window.Upmind` bridge) on a
+// DEDICATED port so it never collides with a normal `pnpm dev` server on 5173
+// — a reused non-test-mode server has no bridge and every headless helper
+// times out. Keep this port distinct from the dev default.
+const TEST_PORT = 4000;
+const baseURL =
+  process.env.PW_BASE_URL ?? `http://qa-automation.local:${TEST_PORT}/`;
 
 function git(args: string): string | undefined {
   try {
@@ -86,10 +92,15 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: "pnpm start",
+    // Invoke vite directly — `pnpm start:test -- --port` leaks a stray `--`
+    // that vite ignores, booting on the 5173 default (see run-e2e.sh).
+    command: `pnpm exec vite --mode test --port ${TEST_PORT} --strictPort`,
     cwd: "./apps/cart",
     url: baseURL,
-    reuseExistingServer: !process.env.CI
+    // run-e2e.sh owns server lifecycle (frees the port, starts THIS build,
+    // tears it down) in every env, so always reuse the instance it started;
+    // gating on !CI made Playwright throw "port already used" in CI.
+    reuseExistingServer: true
   },
 
   use: {
@@ -110,14 +121,15 @@ export default defineConfig({
 
     viewport: { width: 1920, height: 1080 },
 
-    video: {
-      mode: "on-first-retry",
-      size: { width: 1920, height: 1080 }
-    }
+    // Video is off by default; opt in for triage with PW_VIDEO=1.
+    video: process.env.PW_VIDEO
+      ? { mode: "on", size: { width: 1920, height: 1080 } }
+      : "off",
 
-    // contextOptions: {
-    //   reducedMotion: "reduce"
-    // }
+    // Emulate prefers-reduced-motion so the app skips animations/transitions —
+    // faster renders and no waiting on animation frames. Replaces the deleted
+    // "--disable-animations" launch arg (which was not a real Chromium flag).
+    reducedMotion: "reduce"
   },
 
   /* Configure projects for major browsers */

@@ -9,7 +9,7 @@
         icon-append="arrow-right"
         size="lg"
         block
-        data-test-key="button-complete-checkout"
+        :data-attrs="{ 'data-test-key': 'button-complete-checkout' }"
         @click.prevent="onResolve"
       />
     </div>

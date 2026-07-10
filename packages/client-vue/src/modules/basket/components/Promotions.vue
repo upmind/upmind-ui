@@ -8,7 +8,7 @@
         :disabled="meta.isProcessing"
         @click="toggle = !toggle"
         :checked="toggle"
-        data-test-key="link-add-a-voucher-code"
+        :dataAttrs="{ 'data-test-key': 'link-add-a-voucher-code' }"
       />
     </header>
 
@@ -25,14 +25,14 @@
       @update:modelValue="input"
       :actions="actions"
       :ui-config="formConfig"
-      data-test-key="promotions-form"
+      :dataAttrs="{ 'data-test-key': 'promotions-form' }"
     />
 
     <footer
       class="flex flex-wrap items-center gap-1"
       v-if="meta.hasPromotions"
       v-auto-animate
-      data-test-key="summary-footer"
+      v-bind="footerTestAttrs"
     >
       <h4 class="sr-only">
         {{ t("cart.promotions_active") }}
@@ -78,7 +78,13 @@ import {
   useBasketPromotions,
   type PromotionDetails
 } from "@upmind-automation/headless";
-import { Icon, Badge, Tooltip, Link } from "@upmind-automation/upmind-ui";
+import {
+  Icon,
+  Badge,
+  Tooltip,
+  Link,
+  useTestAttrs
+} from "@upmind-automation/upmind-ui";
 import Form from "../../../components/form/Form.vue";
 import config from "../basket.config";
 import { set } from "lodash-es";
@@ -106,6 +112,8 @@ const processing = ref<Record<string, boolean>>({});
 const open = ref<Record<string, boolean>>({});
 
 const formConfig = config.basket.promotions as unknown as FormProps["uiConfig"];
+
+const footerTestAttrs = useTestAttrs({ key: "summary-footer" });
 
 function doAdd() {
   add()

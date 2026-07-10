@@ -51,12 +51,12 @@ for (const { language, locale } of languages) {
       // navigation so the brand-gated CTA renders. Pass null bearerToken so
       // cached reloads replay a full 200 instead of a 304 with null data
       // (FE-2785).
-      await interceptConfigValues(page, null, { guestCheckoutEnabled: true });
+      await interceptConfigValues(page, { guestCheckoutEnabled: true });
 
       // A guest visitor with a non-recurring product (HAT) in their basket.
       // Non-recurring so the guest-checkout CTA renders
       // (Register.vue:64 !hasRecurringProducts).
-      await seedGuestBasket(page, context);
+      await seedGuestBasket(page);
 
       // Navigate then set locale (the passing Checkout - Guest test uses this
       // order; setLocale-before-goto leaves section-register unrendered in some

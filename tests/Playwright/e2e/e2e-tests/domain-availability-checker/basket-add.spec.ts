@@ -1,8 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../../support/constants/urls";
-import { getSessionToken } from "../../support/api/auth";
-import { getBasketProducts } from "../../support/api/basket";
-import { waitForSessionCookie } from "../../support/helpers/session";
+import { getBasketProductsViaHeadless } from "../../support/flows";
 import { interceptConfigValues } from "../../support/mocks/brand";
 import { Dac } from "../../support/page-objects/templates/dac";
 
@@ -24,28 +22,27 @@ const SEARCH_QUERY = "my-upmind-domain";
 test.describe.configure({ mode: "parallel" });
 test.describe("DAC basket-add", () => {
   let dac: Dac;
-  let token: string;
 
   // Brand intercept registered directly in beforeEach so it's always wired up
   // before any test-side navigation triggers a brand-config fetch.
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page }) => {
     dac = new Dac(page);
     await page.goto(URLs.baseUrl);
-    await waitForSessionCookie(context, { guestOnly: true });
-    token = await getSessionToken(context);
-    await interceptConfigValues(page, token, {
+    await interceptConfigValues(page, {
       domainSearchMethod: "smart-suggest"
     });
   });
 
-  test("The exact domain the user clicked Add on is the one that gets sent to the basket", async () => {
+  test("The exact domain the user clicked Add on is the one that gets sent to the basket", async ({
+    page
+  }) => {
     // A registered suggestion (e.g. .com) is rejected on click and retried on
     // a fresh search, so allow a wider budget than the 60s default.
     test.setTimeout(150000);
     await dac.gotoSearch(SEARCH_QUERY);
     const domain = await dac.addFirstAvailableDomain(SEARCH_QUERY);
 
-    const products = await getBasketProducts(token);
+    const products = await getBasketProductsViaHeadless(page);
     const sld = domain.split(".")[0];
     expect(JSON.stringify(products).toLowerCase()).toContain(sld.toLowerCase());
   });
@@ -63,5 +60,22 @@ test.describe("DAC basket-add", () => {
         dac.cardByDomain(domain).getByTestId("domain-card-cta")
       ).toHaveAttribute("data-test-value", "added");
     });
+  });
+
+  // The two tests above search a bare SLD, whose first suggestion is `.com` —
+  // currently misconfigured on staging with a required multi-choice option that
+  // blocks a one-click Add (tracked separately; they stay red until that config
+  // is fixed). This test proves the add-to-basket mechanism itself works, using
+  // a clean `.co.uk` exact domain that carries no required option.
+  test("adds a domain with no required config to the basket (.co.uk)", async ({
+    page
+  }) => {
+    const domain = `my-upmind-domain-${Date.now()}.co.uk`;
+    await dac.gotoSearch(domain);
+    await dac.addExactDomain(domain);
+
+    const products = await getBasketProductsViaHeadless(page);
+    const sld = domain.split(".")[0];
+    expect(JSON.stringify(products).toLowerCase()).toContain(sld.toLowerCase());
   });
 });

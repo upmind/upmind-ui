@@ -14,7 +14,7 @@
       cursor="default"
       class="gap-0"
       list
-      data-test-key="dac-results"
+      :dataAttrs="{ 'data-test-key': 'dac-results' }"
       :ui-config="
         {
           checkboxCards: {
@@ -48,7 +48,7 @@
           :exactMatch="isExactMatch(value.toString())"
           @add="onAdd"
           @remove="onRemove"
-          data-test-key="dac-card"
+          v-bind="dacCardTestAttrs"
         />
       </template>
     </CheckboxCards>
@@ -96,7 +96,7 @@
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, useTestAttrs } from "@upmind-automation/upmind-ui";
 import {
   IconAnimated,
   CheckboxCards,
@@ -153,6 +153,9 @@ const stylesMeta = computed(() => ({
 
 const styles = useStyles(["domain.listings"], stylesMeta, config);
 
+// --- test attrs — routed through useTestAttrs so they are stripped in PROD
+const dacCardTestAttrs = useTestAttrs({ key: "dac-card" });
+
 const safeValue = computed(() => {
   return isNil(props.modelValue)
     ? []
@@ -174,7 +177,10 @@ function isExactMatch(value: string): boolean {
 const parsedValues = computed<CheckboxCardsItemProps[]>(() => {
   return map(props.items, item => {
     return {
-      dataAttrs: { "data-test-key": `checkbox-item-${item.domain}` },
+      dataAttrs: {
+        "data-test-key": "checkbox-item",
+        "data-test-value": item.domain
+      },
       id: item.domain,
       item,
       label: item.domain,

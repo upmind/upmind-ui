@@ -91,7 +91,10 @@ const productItems = computed((): DescriptionItem[] => {
             formatPrice(product?.price?.basePrice, {
               trimTrailingZeroes: data.trimTrailingZeroes
             }) || "",
-          dataAttrs: { "data-test-key": "description-list-item-product" }
+          dataAttrs: {
+            "data-test-key": "description-list-item",
+            "data-test-value": "product"
+          }
         };
       }) ?? [];
 

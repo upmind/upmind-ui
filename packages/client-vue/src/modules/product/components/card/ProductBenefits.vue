@@ -2,7 +2,7 @@
   <ul
     v-if="configMeta.hasBenefits"
     :class="styles.product.header.benefits.root"
-    data-test-key="product-benefits"
+    v-bind="benefitsTestAttrs"
   >
     <li
       v-for="(benefit, index) in normalizedBenefits"
@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, useTestAttrs } from "@upmind-automation/upmind-ui";
 import { Icon } from "@upmind-automation/upmind-ui";
 import config from "./card.config";
 import { isEmpty, isString, map } from "lodash-es";
@@ -40,6 +40,8 @@ const normalizedBenefits = computed(() =>
 const configMeta = computed(() => ({
   hasBenefits: !isEmpty(props.benefits)
 }));
+
+const benefitsTestAttrs = useTestAttrs({ key: "product-benefits" });
 
 const styles = useStyles(["product.header.benefits"], configMeta, config);
 </script>
