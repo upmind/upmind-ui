@@ -1,7 +1,7 @@
 <template>
   <section
     :class="styles.product.header.price.root"
-    data-test-key="product-card-price-display"
+    v-bind="priceDisplayTestAttrs"
   >
     <template v-if="!hidePrice">
       <header
@@ -61,7 +61,7 @@
       <p :class="styles.product.header.price.currentPrice.root">
         <strong
           :class="styles.product.header.price.currentPrice.amount"
-          data-test-key="product-card-price"
+          v-bind="priceTestAttrs"
           >{{
             formatPrice(currentPrice, {
               zeroPriceDisplayIsLabel: ui.zeroPriceDisplay.isLabel,
@@ -73,7 +73,7 @@
         <small
           :class="styles.product.header.price.currentPrice.term"
           v-if="has(props, 'cycle') && props.cycle! > 0"
-          data-test-key="product-card-price-cycle"
+          v-bind="priceCycleTestAttrs"
           >/
           {{
             meta.useMonthlyFromPrice
@@ -92,7 +92,7 @@
         has(props, 'cycle')
       "
       :class="styles.product.header.price.total"
-      data-test-key="product-card-footer"
+      v-bind="footerTestAttrs"
     >
       {{
         t("term.summary_msg", {
@@ -112,7 +112,12 @@ import {
   useMoney,
   useConfig
 } from "@upmind-automation/headless";
-import { useStyles, Badge, Tooltip } from "@upmind-automation/upmind-ui";
+import {
+  useStyles,
+  useTestAttrs,
+  Badge,
+  Tooltip
+} from "@upmind-automation/upmind-ui";
 import config from "./card.config";
 import { has } from "lodash-es";
 import type { ProductPriceProps } from "./types";
@@ -127,6 +132,13 @@ const props = withDefaults(defineProps<ProductPriceProps>(), {
 const { t } = useI18n();
 const { ui, data } = useConfig();
 const { formatPrice } = useMoney();
+
+const priceDisplayTestAttrs = useTestAttrs({
+  key: "product-card-price-display"
+});
+const priceTestAttrs = useTestAttrs({ key: "product-card-price" });
+const priceCycleTestAttrs = useTestAttrs({ key: "product-card-price-cycle" });
+const footerTestAttrs = useTestAttrs({ key: "product-card-footer" });
 
 const configMeta = computed(() => ({
   //

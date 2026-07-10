@@ -58,8 +58,8 @@ for (const { language, locale } of languages) {
 
     newUser(
       `Confirmation - Paid Order (Stripe 4242) - ${language}`,
-      async ({ page, context, checkout }) => {
-        await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
+      async ({ page, checkout }) => {
+        await goToCheckout(page, products.STARTER_HOSTING, null, null);
         await checkout.selectGatewayByType(gateways.STRIPE);
         await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
         await checkout.clickCompleteCheckout();
@@ -80,8 +80,8 @@ for (const { language, locale } of languages) {
 
     newUser(
       `Confirmation - Failed Payment (Stripe 4000000000009995) - ${language}`,
-      async ({ page, context, checkout }) => {
-        await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
+      async ({ page, checkout }) => {
+        await goToCheckout(page, products.STARTER_HOSTING, null, null);
         await checkout.selectGatewayByType(gateways.STRIPE);
         await checkout.inputStripeDetails("4000000000009995", "12/50", "123");
         await checkout.clickCompleteCheckout();
@@ -93,7 +93,7 @@ for (const { language, locale } of languages) {
         await expect(
           page.getByTestId("confirmation-payment-alert").first()
         ).toBeVisible();
-        await expect(page.getByTestId(/^gateway-/).first()).toBeVisible({
+        await expect(page.getByTestId("gateway").first()).toBeVisible({
           timeout: 30000
         });
         await expect(page).toHaveScreenshot(`${language}/confirmation-failed`, {
@@ -105,8 +105,8 @@ for (const { language, locale } of languages) {
 
     newUser(
       `Confirmation - Free Order - ${language}`,
-      async ({ page, context, checkout }) => {
-        await goToCheckout(page, context, products.FREE_HOSTING, null, null);
+      async ({ page, checkout }) => {
+        await goToCheckout(page, products.FREE_HOSTING, null, null);
         await checkout.completeCheckout.click();
         await page.waitForURL(`/order/**/?payment_success=true`);
         await setLocale(page, locale);
@@ -125,8 +125,8 @@ for (const { language, locale } of languages) {
 
     newUser(
       `Confirmation - Pay Later (non-card) - ${language}`,
-      async ({ page, context, checkout }) => {
-        await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
+      async ({ page, checkout }) => {
+        await goToCheckout(page, products.STARTER_HOSTING, null, null);
         await checkout.selectPayLater();
         await checkout.clickCompleteCheckout();
         await page.waitForURL(`/order/**/?payment_success=true`);
@@ -137,7 +137,7 @@ for (const { language, locale } of languages) {
         await expect(
           page.getByTestId("confirmation-payment-alert").first()
         ).toBeVisible();
-        await expect(page.getByTestId(/^gateway-/).first()).toBeVisible({
+        await expect(page.getByTestId("gateway").first()).toBeVisible({
           timeout: 30000
         });
         await expect(page).toHaveScreenshot(

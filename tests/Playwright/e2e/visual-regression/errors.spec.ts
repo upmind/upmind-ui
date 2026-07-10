@@ -79,9 +79,11 @@ for (const { language, locale } of languages) {
 
       const dialog = page.getByTestId("dialog-window").first();
       await expect(dialog).toBeVisible({ timeout: 15000 });
-
       await expect(page).toHaveScreenshot(`${language}/error-503-dialog`, {
-        mask: [page.locator("lord-icon")]
+        // Mask the avatar CONTAINER (static testid) — the icon inside
+        // nondeterministically renders as a lottie web component or an img
+        // fallback, so lord-icon is not a stable mask target.
+        mask: [dialog.getByTestId("interstitial-avatar")]
       });
     });
 
@@ -97,10 +99,14 @@ for (const { language, locale } of languages) {
 
       const notFound = page.getByTestId("dialog-window").first();
       await expect(notFound).toBeVisible({ timeout: 15000 });
-      await expect(notFound.getByTestId("interstitial-action-0")).toBeVisible();
-
+      await expect(
+        notFound
+          .getByTestId("interstitial-action")
+          .and(notFound.locator('[data-test-value="0"]'))
+      ).toBeVisible();
       await expect(page).toHaveScreenshot(`${language}/error-not-found`, {
-        mask: [page.locator("lord-icon")]
+        // Mask the avatar CONTAINER (static testid) — see 503 note above.
+        mask: [notFound.getByTestId("interstitial-avatar")]
       });
     });
 

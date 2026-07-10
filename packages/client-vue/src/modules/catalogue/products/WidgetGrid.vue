@@ -3,7 +3,7 @@
     :class="styles.products.main.root"
     role="main"
     aria-label="Product listing"
-    data-test-key="widget-grid"
+    v-bind="widgetGridTestAttrs"
     ref="container"
   >
     <!-- Search and controls -->
@@ -15,7 +15,6 @@
         :placeholder="t('form.product_name_search.placeholder')"
         :auto-focus="false"
         aria-label="Search products"
-        data-test-key="product-search"
         @update:model-value="doQuery"
         icon="search-md"
         class="max-w-full lg:max-w-xl"
@@ -33,7 +32,7 @@
     >
       <div
         :class="styles.products.main.grid.container"
-        data-test-key="products-grid"
+        v-bind="productsGridTestAttrs"
       >
         <!-- TODO: OR `loading` and `disabled` with the global `isNavigating`
              signal (sibling branch) to cover the click-to-route gap —
@@ -118,7 +117,8 @@ import {
   Input,
   Icon,
   Pagination,
-  useStyles
+  useStyles,
+  useTestAttrs
 } from "@upmind-automation/upmind-ui";
 import {
   ProductCard,
@@ -203,6 +203,9 @@ const { data, meta, pagination, nextPage, prevPage } = useProductCatalogue({
 });
 
 // --- context
+const widgetGridTestAttrs = useTestAttrs({ key: "widget-grid" });
+const productsGridTestAttrs = useTestAttrs({ key: "products-grid" });
+
 const lastProductCount = ref(limit.value);
 
 const stylesMeta = computed(() => ({

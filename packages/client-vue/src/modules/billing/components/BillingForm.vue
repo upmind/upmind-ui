@@ -13,7 +13,7 @@
       :class="styles.billing.form.sections"
       v-model="activeTab"
       :sections="tabs"
-      data-test-key="billing"
+      :dataAttrs="{ 'data-test-key': 'billing' }"
     >
       <template v-slot:[`section-personal`]>
         <TabPersonal
@@ -29,7 +29,7 @@
             formMeta.allowContinue &&
             !isInitialBilling
           "
-          data-test-key="button-continue"
+          :data-attrs="{ 'data-test-key': 'button-continue' }"
           :label="t('action.continue_label')"
           icon-append="arrow-right"
           color="primary"
@@ -69,6 +69,7 @@
   <Teleport v-if="isMounted && !inline && !isMobile" to="#billing-actions">
     <Button
       v-if="!autoUpdate && formMeta.allowContinue && !isInitialBilling"
+      :data-attrs="{ 'data-test-key': 'button-continue' }"
       :label="t('action.continue_label')"
       icon-append="arrow-right"
       color="primary"

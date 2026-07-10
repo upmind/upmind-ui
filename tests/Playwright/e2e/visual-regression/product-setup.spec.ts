@@ -58,11 +58,11 @@ for (const { language, locale } of languages) {
     for (const template of TEMPLATES) {
       newUser(
         `Single product setup (no apply-to-others) — ${template}`,
-        async ({ page, context, token }) => {
+        async ({ page, context }) => {
           interceptUISchema(context, {
             "@context.configure.template": template
           });
-          await seedInvalidProduct(products.DOMAIN_2, token);
+          await seedInvalidProduct(page, products.DOMAIN_2);
           await page.goto(SETUP_URL);
           await setLocale(page, locale);
           await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
@@ -75,17 +75,12 @@ for (const { language, locale } of languages) {
 
       newUser(
         `Multi-product with apply-to-others — ${template}`,
-        async ({ page, context, token }) => {
+        async ({ page, context }) => {
           interceptUISchema(context, {
             "@context.configure.template": template
           });
-          const orderId = await seedInvalidProduct(products.DOMAIN_2, token);
-          await seedInvalidProduct(
-            products.DOMAIN_3,
-            token,
-            undefined,
-            orderId
-          );
+          await seedInvalidProduct(page, products.DOMAIN_2);
+          await seedInvalidProduct(page, products.DOMAIN_3);
           await page.goto(SETUP_URL);
           await setLocale(page, locale);
           await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
@@ -97,31 +92,28 @@ for (const { language, locale } of languages) {
         }
       );
 
-      newUser(
-        `Deferred mode — ${template}`,
-        async ({ page, context, token }) => {
-          interceptUISchema(context, {
-            "@context.configure.template": template,
-            "@context.configure.productSetup": "deferred"
-          });
-          // SERVER_B is deferred-only: with no errored required field the funnel
-          // skips products-setup → checkout, so the form never renders. DOMAIN_2
-          // has errored registrant fields, so the setup form shows in deferred
-          // mode (the deferred schema just adds the deferred fields alongside).
-          await seedInvalidProduct(products.DOMAIN_2, token);
-          await page.goto(SETUP_URL);
-          await setLocale(page, locale);
-          await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
-          await expect(page).toHaveScreenshot(
-            `${language}/product-setup-deferred-${template}`,
-            { fullPage: true }
-          );
-        }
-      );
+      newUser(`Deferred mode — ${template}`, async ({ page, context }) => {
+        interceptUISchema(context, {
+          "@context.configure.template": template,
+          "@context.configure.productSetup": "deferred"
+        });
+        // SERVER_B is deferred-only: with no errored required field the funnel
+        // skips products-setup → checkout, so the form never renders. DOMAIN_2
+        // has errored registrant fields, so the setup form shows in deferred
+        // mode (the deferred schema just adds the deferred fields alongside).
+        await seedInvalidProduct(page, products.DOMAIN_2);
+        await page.goto(SETUP_URL);
+        await setLocale(page, locale);
+        await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
+        await expect(page).toHaveScreenshot(
+          `${language}/product-setup-deferred-${template}`,
+          { fullPage: true }
+        );
+      });
 
-      newUser(`Error state — ${template}`, async ({ page, context, token }) => {
+      newUser(`Error state — ${template}`, async ({ page, context }) => {
         interceptUISchema(context, { "@context.configure.template": template });
-        await seedInvalidProduct(products.DOMAIN_2, token);
+        await seedInvalidProduct(page, products.DOMAIN_2);
         await page.goto(SETUP_URL);
         await setLocale(page, locale);
         await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });

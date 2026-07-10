@@ -104,8 +104,7 @@
           <span
             v-if="total > 1"
             class="shrink-0 text-base font-semibold"
-            data-test-key="product-setup-progress"
-            :data-test-value="total"
+            v-bind="progressTestAttrs(total)"
           >
             {{ t("cart.product_setup_count", { count: total }) }}
           </span>
@@ -161,7 +160,12 @@ import {
   type BasketProduct,
   type UseProductConfigMeta
 } from "@upmind-automation/headless";
-import { Alert, Button, Loading } from "@upmind-automation/upmind-ui";
+import {
+  Alert,
+  Button,
+  Loading,
+  useTestAttrs
+} from "@upmind-automation/upmind-ui";
 import Form from "../../../components/form/Form.vue";
 import Hero from "../../../components/hero/Hero.vue";
 import Transitions from "../../../components/layout/components/transition/Transition.vue";
@@ -282,6 +286,10 @@ const currentProductTitle = computed(() =>
     get(product.value, "productDetails.title", "")
   )
 );
+
+// --- Test attrs
+const progressTestAttrs = (value: number) =>
+  useTestAttrs({ key: "product-setup-progress", value: String(value) });
 
 // --- Actions
 function doResolve() {

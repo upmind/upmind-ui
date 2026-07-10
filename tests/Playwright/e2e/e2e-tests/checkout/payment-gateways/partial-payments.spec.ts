@@ -2,38 +2,22 @@ import { test, expect } from "@playwright/test";
 import { Checkout } from "../../../support/page-objects/templates/checkout";
 import { goToCheckout } from "../../../support/flows/checkout";
 import { products } from "../../../support/constants/products";
-import {
-  getClientToken,
-  getSessionToken,
-  registerClient
-} from "../../../support/api/index";
-import {
-  expectedPayAmount,
-  waitForSessionCookie
-} from "../../../support/helpers";
+import { registerClientViaHeadless } from "../../../support/flows/auth-setup";
+import { expectedPayAmount } from "../../../support/helpers";
 import { gateways } from "../../../support/constants/gateways";
 import { mockPaymentSuccess } from "../../../support/mocks/checkout";
 
 let checkout: Checkout;
 
 test.describe("Partial payment at Checkout", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page }) => {
     checkout = new Checkout(page);
     await page.goto("/");
-    await waitForSessionCookie(context);
-    let guestToken = await getSessionToken(context);
-    let user = await registerClient(guestToken);
-    let username = user.email;
-    let password = user.password;
-    await getClientToken(page, username, password);
+    await registerClientViaHeadless(page);
   });
   test.describe("Partial Payments with Stripe", () => {
-    test("Partial Payment in base Currency (GBP)", async ({
-      page,
-      context
-    }) => {
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await waitForSessionCookie(page.context());
+    test("Partial Payment in base Currency (GBP)", async ({ page }) => {
+      await goToCheckout(page, products.STARTER_HOSTING, null, null);
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("20");
       await checkout.clickConfirmAmount();
@@ -51,12 +35,8 @@ test.describe("Partial payment at Checkout", () => {
         page.getByTestId("order-confirmation-heading")
       ).toBeVisible();
     });
-    test("Partial Payment in foreign currency (AUD)", async ({
-      page,
-      context
-    }) => {
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, "AUD");
-      await waitForSessionCookie(page.context());
+    test("Partial Payment in foreign currency (AUD)", async ({ page }) => {
+      await goToCheckout(page, products.STARTER_HOSTING, null, "AUD");
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("100");
       await checkout.clickConfirmAmount();
@@ -74,16 +54,9 @@ test.describe("Partial payment at Checkout", () => {
         page.getByTestId("order-confirmation-heading")
       ).toBeVisible();
     });
-    test("Partial payment with promo (GBP)", async ({ page, context }) => {
-      await goToCheckout(
-        page,
-        context,
-        products.STARTER_HOSTING,
-        "genericpromo",
-        null
-      );
-      await waitForSessionCookie(page.context());
-      const preTotal = await expectedPayAmount(context);
+    test("Partial payment with promo (GBP)", async ({ page }) => {
+      await goToCheckout(page, products.STARTER_HOSTING, "genericpromo", null);
+      const preTotal = await expectedPayAmount(page);
       await expect(checkout.payAmount).toBeVisible();
       await expect(checkout.payAmount).toHaveAttribute(
         "data-test-value",
@@ -106,16 +79,9 @@ test.describe("Partial payment at Checkout", () => {
         page.getByTestId("order-confirmation-heading")
       ).toBeVisible();
     });
-    test("Partial payment with promo (AUD)", async ({ page, context }) => {
-      await goToCheckout(
-        page,
-        context,
-        products.STARTER_HOSTING,
-        "genericpromo",
-        "AUD"
-      );
-      await waitForSessionCookie(page.context());
-      const preTotal = await expectedPayAmount(context);
+    test("Partial payment with promo (AUD)", async ({ page }) => {
+      await goToCheckout(page, products.STARTER_HOSTING, "genericpromo", "AUD");
+      const preTotal = await expectedPayAmount(page);
       await expect(checkout.payAmount).toBeVisible();
       await expect(checkout.payAmount).toHaveAttribute(
         "data-test-value",
@@ -141,13 +107,9 @@ test.describe("Partial payment at Checkout", () => {
   });
   test.describe("Partial Payments with PayPal", () => {
     // PayPal uses offsite redirect - mock the payment response per P6
-    test("Partial Payment in base Currency (GBP)", async ({
-      page,
-      context
-    }) => {
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await waitForSessionCookie(page.context());
-      const preTotal = await expectedPayAmount(context);
+    test("Partial Payment in base Currency (GBP)", async ({ page }) => {
+      await goToCheckout(page, products.STARTER_HOSTING, null, null);
+      const preTotal = await expectedPayAmount(page);
       await expect(checkout.payAmount).toBeVisible();
       await expect(checkout.payAmount).toHaveAttribute(
         "data-test-value",
@@ -167,13 +129,9 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.clickCompleteCheckout();
       await page.waitForURL(/\/order\/[a-f0-9-]+/);
     });
-    test("Partial Payment in foreign currency (AUD)", async ({
-      page,
-      context
-    }) => {
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, "AUD");
-      await waitForSessionCookie(page.context());
-      const preTotal = await expectedPayAmount(context);
+    test("Partial Payment in foreign currency (AUD)", async ({ page }) => {
+      await goToCheckout(page, products.STARTER_HOSTING, null, "AUD");
+      const preTotal = await expectedPayAmount(page);
       await expect(checkout.payAmount).toBeVisible();
       await expect(checkout.payAmount).toHaveAttribute(
         "data-test-value",
@@ -193,16 +151,9 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.clickCompleteCheckout();
       await page.waitForURL(/\/order\/[a-f0-9-]+/);
     });
-    test("Partial payment with promo (GBP)", async ({ page, context }) => {
-      await goToCheckout(
-        page,
-        context,
-        products.STARTER_HOSTING,
-        "genericpromo",
-        null
-      );
-      await waitForSessionCookie(page.context());
-      const preTotal = await expectedPayAmount(context);
+    test("Partial payment with promo (GBP)", async ({ page }) => {
+      await goToCheckout(page, products.STARTER_HOSTING, "genericpromo", null);
+      const preTotal = await expectedPayAmount(page);
       await expect(checkout.payAmount).toBeVisible();
       await expect(checkout.payAmount).toHaveAttribute(
         "data-test-value",

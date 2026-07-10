@@ -22,9 +22,9 @@ export class GuestCheckout {
    */
   readonly upgradeMenuItem: Locator;
   /**
-   * The guest upgrade form. Rendered by the shared `Auth` session-form; for a
-   * guest client `currentForm` is `SESSION_FORMS.GUEST` (`"guest"`), so the
-   * form's `data-test-key` is `guest-form`.
+   * The guest upgrade form. Rendered by the shared session-form; for a guest
+   * client `currentForm` is `SESSION_FORMS.GUEST` (`"guest"`), carried on the
+   * static `data-test-key="session-form"` via `data-test-value="guest"`.
    */
   readonly upgradeForm: Locator;
   /**
@@ -40,7 +40,9 @@ export class GuestCheckout {
     this.accountMenu = page.getByRole("menu");
     this.accountLabel = page.getByTestId("dropdown-account-label");
     this.upgradeMenuItem = this.accountMenu.getByTestId("button-register");
-    this.upgradeForm = page.getByTestId("guest-form");
+    this.upgradeForm = page
+      .getByTestId("session-form")
+      .and(page.locator(`[data-test-value="guest"]`));
     this.upgradeFormSubmit = this.upgradeForm.getByTestId(
       "button-complete-registration"
     );

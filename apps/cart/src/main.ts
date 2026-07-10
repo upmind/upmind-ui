@@ -16,7 +16,8 @@ const app = createApp(App);
 // ---
 UpmindClient.init({
   allowedScopes: [AccessRoleTypes.CLIENT, AccessRoleTypes.GUEST],
-  debug: import.meta.env.DEV,
+  debug: import.meta.env.VITE_ENABLE_DEVTOOLS === "true",
+  testMode: import.meta.env.MODE === "test",
   platformUrl: "https://upmind.com",
   pop: {
     name: import.meta.env.VITE_API_NAME,

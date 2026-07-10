@@ -1,9 +1,5 @@
 <template>
-  <li
-    :class="styles.product.root"
-    :data-test-key="props.dataAttrs?.['data-test-key'] ?? 'product-card'"
-    :data-test-value="props.dataAttrs?.['data-test-value'] ?? props.id"
-  >
+  <li :class="styles.product.root" v-bind="rootTestAttrs()">
     <div :class="styles.product.content">
       <div v-if="!configMeta.hideImage" :class="styles.product.image.container">
         <Link
@@ -103,9 +99,11 @@
               size="lg"
               block
               :disabled="loading || disabled || justAdded || isUnavailable"
-              data-test-key="product-card-cta"
               :aria-pressed="inBasket || justAdded"
-              :data-test-value="inBasket || justAdded ? 'added' : 'add'"
+              :dataAttrs="{
+                'data-test-key': 'product-card-cta',
+                'data-test-value': inBasket || justAdded ? 'added' : 'add'
+              }"
               @click="doResolve"
             />
           </Tooltip>
@@ -131,6 +129,7 @@ import {
   Link,
   Tooltip,
   useStyles,
+  useTestAttrs,
   Badge
 } from "@upmind-automation/upmind-ui";
 import config from "./card.config";
@@ -301,6 +300,17 @@ const styles = useStyles(
   configMeta,
   config
 );
+
+// --- test attrs — routed through useTestAttrs so they are stripped in PROD.
+// Template-called so `props.dataAttrs`/`props.id` stay reactive; the bag keeps
+// the override precedence: dataAttrs["data-test-key"/"data-test-value"] win
+// over the "product-card"/id fallbacks.
+const rootTestAttrs = () =>
+  useTestAttrs({
+    key: "product-card",
+    value: props.id,
+    dataAttrs: props.dataAttrs
+  });
 
 const isUnavailable = computed(() => !!productMeta.data.productUnavailable);
 

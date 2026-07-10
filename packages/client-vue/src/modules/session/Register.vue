@@ -82,7 +82,7 @@
                 color="inherit"
                 :label="t('auth.guest_checkout_action')"
                 :disabled="isRegisteringAsGuest"
-                data-test-key="guest-checkout-cta"
+                :dataAttrs="{ 'data-test-key': 'guest-checkout-cta' }"
               >
                 <template #append>
                   <Spinner

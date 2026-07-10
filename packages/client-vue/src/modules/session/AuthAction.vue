@@ -10,7 +10,7 @@
       variant="outline"
       :label="t('action.login')"
       icon="user-circle"
-      data-test-key="login-popover-trigger"
+      :dataAttrs="{ 'data-test-key': 'login-popover-trigger' }"
       :ui-config="{
         button: {
           label: ['hidden md:inline']
@@ -26,7 +26,7 @@
       :shape="shape"
       size="lg"
       class="cursor-pointer"
-      data-test-key="auth-avatar"
+      :dataAttrs="{ 'data-test-key': 'auth-avatar' }"
       focusable
     />
   </SessionDetailsDropdown>

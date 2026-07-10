@@ -61,7 +61,7 @@
         <slot name="markdown">
           <Markdown
             v-if="ui.trustMessaging.isVisible && data.trustMessagingMarkdown"
-            data-test-key="slots:summary-append"
+            v-bind="trustMessagingTestAttrs"
             :model-value="data.trustMessagingMarkdown"
           />
           <Markdown
@@ -114,7 +114,7 @@ import {
   UIContext,
   ClientTemplateSlotCodes
 } from "@upmind-automation/headless";
-import { useThemes } from "@upmind-automation/upmind-ui";
+import { useTestAttrs, useThemes } from "@upmind-automation/upmind-ui";
 import { Alert, Markdown } from "@upmind-automation/upmind-ui";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
 import { LAYOUT_VARIANTS } from "../../components/layout/types";
@@ -165,6 +165,8 @@ const { isReady, meta, basketId } = useBasket();
 const { variant } = useLayout();
 
 const open = ref(false);
+
+const trustMessagingTestAttrs = useTestAttrs({ key: "slots:summary-append" });
 
 const isSlotHidden = (name: string) => includes(props.hideSlots, name);
 

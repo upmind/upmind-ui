@@ -1,28 +1,24 @@
 // e2e/support/fixtures/auth-context.ts
-import { test as base, type Page, type BrowserContext } from "@playwright/test";
+import { test as base, type Page } from "@playwright/test";
 import { Checkout } from "../../support/page-objects/templates/checkout";
 import { Confirmation } from "../page-objects/templates/confirmation";
 import {
-  getClientToken,
-  getSessionToken,
-  registerClient
-} from "../../support/api/index";
-import type { RegisterClientResponse } from "../api/client";
-import { waitForSessionCookie } from "../helpers/session";
+  loginViaHeadless,
+  registerClientViaHeadless
+} from "../flows/auth-setup";
+import type { HeadlessRegisteredClient } from "../flows/auth-setup";
 import { URLs } from "../constants/urls";
 export { expect } from "@playwright/test";
 
 export const newUser = base.extend<{
   checkout: Checkout;
   confirmation: Confirmation;
-  user: RegisterClientResponse;
-  session: any;
-  token: string;
+  user: HeadlessRegisteredClient;
   clientId: string;
   _authReady: void;
 }>({
   checkout: async (
-    { page }: { page: Page; session: any },
+    { page }: { page: Page },
     use: (r: Checkout) => Promise<void>
   ) => {
     await use(new Checkout(page));
@@ -31,34 +27,20 @@ export const newUser = base.extend<{
     await use(new Confirmation(page));
   },
   user: async (
-    { page, context }: { page: Page; context: BrowserContext },
-    use: (r: RegisterClientResponse) => Promise<void>
+    { page }: { page: Page },
+    use: (r: HeadlessRegisteredClient) => Promise<void>
   ) => {
     await page.goto(URLs.baseUrl);
-    await waitForSessionCookie(context);
-    const guestToken = await getSessionToken(context);
-    await use(await registerClient(guestToken));
-  },
-  session: async (
-    { page, user }: { page: Page; user: RegisterClientResponse },
-    use: (r: any) => Promise<void>
-  ) => {
-    const session = await getClientToken(page, user.email, user.password);
-    await use(session);
-  },
-  token: async (
-    { session }: { session: any },
-    use: (r: string) => Promise<void>
-  ) => {
-    await use(session?.access_token);
+    await use(await registerClientViaHeadless(page));
   },
   clientId: async ({ user }, use) => {
     await use(user.id);
   },
   /* Playwright fixtures are lazy — they only resolve when something downstream requests them.
-    To ensure session is always passed, we run this auto-fixture */
+    Depend on `user` (which registers and auto-logs-in) so auth is always ready. */
   _authReady: [
-    async ({ session }, use) => {
+    async ({ user }, use) => {
+      void user;
       await use();
     },
     { auto: true }
@@ -68,17 +50,16 @@ export const newUser = base.extend<{
 export const registeredUser = base.extend<{
   checkout: Checkout;
   confirmation: Confirmation;
-  session: any;
-  token: string;
+  session: void;
   userLogin: string;
   userPassword: string;
-  loginAs: (username: string, password: string) => Promise<any>;
+  loginAs: (username: string, password: string) => Promise<void>;
   _authReady: void;
 }>({
   userLogin: ["", { option: true }],
   userPassword: ["", { option: true }],
   checkout: async (
-    { page }: { page: Page; session: any },
+    { page }: { page: Page },
     use: (r: Checkout) => Promise<void>
   ) => {
     await use(new Checkout(page));
@@ -89,44 +70,41 @@ export const registeredUser = base.extend<{
   session: async (
     {
       page,
-      context,
       userLogin,
       userPassword
     }: {
       page: Page;
-      context: BrowserContext;
       userLogin: string;
       userPassword: string;
     },
-    use: (r: any) => Promise<void>
+    use: (r: void) => Promise<void>
   ) => {
     await page.goto(URLs.baseUrl);
-    await waitForSessionCookie(context);
-    const session = await getClientToken(page, userLogin, userPassword);
-    await use(session);
-  },
-  token: async (
-    { session }: { session: any },
-    use: (r: string) => Promise<void>
-  ) => {
-    await use(session?.access_token);
+    // This auto-fixture (via _authReady) runs for every test using this base,
+    // including ones that authenticate per-test via `loginAs` and leave the
+    // userLogin/userPassword options at their "" sentinel. Only log in when
+    // credentials were actually provided via `test.use({ userLogin, ... })`.
+    if (userLogin && userPassword) {
+      await loginViaHeadless(page, userLogin, userPassword);
+    }
+    await use();
   },
   loginAs: async (
-    { page, context }: { page: Page; context: BrowserContext },
+    { page }: { page: Page },
     use: (
-      r: (username: string, password: string) => Promise<any>
+      r: (username: string, password: string) => Promise<void>
     ) => Promise<void>
   ) => {
     await use(async (username: string, password: string) => {
       await page.goto(URLs.baseUrl);
-      await waitForSessionCookie(context);
-      return await getClientToken(page, username, password);
+      await loginViaHeadless(page, username, password);
     });
   },
   /* Playwright fixtures are lazy — they only resolve when something downstream requests them.
     To ensure session is always passed, we run this auto-fixture */
   _authReady: [
     async ({ session }, use) => {
+      void session;
       await use();
     },
     { auto: true }

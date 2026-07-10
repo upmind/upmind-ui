@@ -2,7 +2,7 @@
   <ul
     v-if="!isEmpty(benefits)"
     :class="styles.product.option.benefits.list"
-    data-test-key="product-benefits"
+    v-bind="benefitsTestAttrs"
   >
     <li
       v-for="benefit in normalizedBenefits"
@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { Icon, useStyles } from "@upmind-automation/upmind-ui";
+import { Icon, useStyles, useTestAttrs } from "@upmind-automation/upmind-ui";
 import config from "../basketProduct.config";
 import { isEmpty, isString, map } from "lodash-es";
 import type { Benefit } from "@upmind-automation/headless";
@@ -41,4 +41,6 @@ const normalizedBenefits = computed(() =>
 );
 
 const styles = useStyles(["product.option.benefits"], props, config);
+
+const benefitsTestAttrs = useTestAttrs({ key: "product-benefits" });
 </script>

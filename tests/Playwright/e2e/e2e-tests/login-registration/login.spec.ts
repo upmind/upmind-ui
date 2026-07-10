@@ -39,7 +39,9 @@ test.describe("Login", async () => {
     test("Password field is the quiet variant (no meter, no generator)", async ({
       page
     }) => {
-      const passwordItem = page.getByTestId("form-item-password");
+      const passwordItem = page
+        .getByTestId("form-item")
+        .and(page.locator(`[data-test-value="password"]`));
       await expect(login.passwordField).toBeVisible();
       await expect(passwordItem.getByTestId("password-generate")).toHaveCount(
         0

@@ -23,7 +23,7 @@
       :disabled="meta.isLoading || meta.isUnavailable || isUnavailable"
       :label="action.label"
       :icon="action.icon"
-      data-test-key="button-add-to-basket"
+      :dataAttrs="{ 'data-test-key': 'button-add-to-basket' }"
       size="lg"
       @click="doResolve"
     />

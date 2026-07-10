@@ -5,17 +5,15 @@ import { BillingPage } from "../support/page-objects/templates/billing-page";
 import { products } from "../support/constants/products";
 import { gateways } from "../support/constants/gateways";
 import { goToCheckout } from "../support/flows/checkout";
-import { getSessionToken, getClientToken } from "../support/api/auth";
-import { registerClient, addAddressToClient } from "../support/api/client";
-import { getCurrentOrder, setOrderAddress } from "../support/api/basket";
-import { waitForSessionCookie } from "../support/helpers/session";
+import { registerClientViaHeadless } from "../support/flows/auth-setup";
+import { getBasketViaHeadless } from "../support/flows/basket-setup";
 import { setLocale } from "../support/helpers/locale";
 import {
   interceptUISchema,
   interceptConfigValues
 } from "../support/mocks/brand";
 import { Languages as languages } from "../support/constants/languages";
-import type { Page, BrowserContext } from "@playwright/test";
+import type { Page } from "@playwright/test";
 
 // -----------------------------------------------------------------------------
 /**
@@ -37,27 +35,49 @@ import type { Page, BrowserContext } from "@playwright/test";
  *   "you must add X" prompt a shopper needs to complete checkout.
  *
  * ## Determinism & locale strategy
- * Each iteration registers a FRESH client (registerClient + getClientToken) so
+ * Each iteration registers a FRESH client (registerClientViaHeadless, which
+ * drives the real auth composable and auto-logins) so
  * the empty states are genuinely empty and no sibling parallel test's saved
  * address bleeds in. goToCheckout drives the REAL basket/checkout modules — no
  * hand-rolled session, no hardcoded order UUIDs; the standalone URL's orderId is
  * read from the live current order. billingDetailsDisabled=false is mocked on so
  * the summary card / standalone page render (rather than the inline form). The
  * require* toggles for the validation-alert state are mocked via
- * interceptConfigValues with a null token so the setLocale reload replays a full
- * 200 (FE-2785). setLocale reloads the page, so it is called after navigation and
+ * interceptConfigValues, which replays the request's own auth so the setLocale
+ * reload returns a full 200 (FE-2785). setLocale reloads the page, so it is called after navigation and
  * the testid gate is re-asserted before every screenshot.
  */
 
 let checkout: Checkout;
 let billingPage: BillingPage;
 
-async function registerAndLogin(page: Page, context: BrowserContext) {
+async function registerAndLogin(page: Page): Promise<void> {
   await page.goto("/");
-  await waitForSessionCookie(context);
-  const guestToken = await getSessionToken(context);
-  const user = await registerClient(guestToken);
-  await getClientToken(page, user.email, user.password);
+  await registerClientViaHeadless(page);
+}
+
+/**
+ * Seeds the order's billing address through the real billing-page UI. Entering
+ * and saving the address runs the client-address create and the order-address
+ * update in-app (via the same composables the UI uses), so the TanStack Query
+ * cache stays fresh — unlike raw-HTTP seeding, which left it stale. Saving on
+ * the billing page redirects back to checkout, so the caller lands there.
+ */
+async function seedBillingAddressViaUi(
+  page: Page,
+  orderId: string
+): Promise<void> {
+  await page.goto(`${URLs.baseUrl}order/basket/${orderId}/billing/`);
+  await expect(billingPage.billingSection).toBeVisible({ timeout: 30000 });
+  await expect(billingPage.personalTab).toBeVisible();
+  await billingPage.personalTab.click();
+  await billingPage.manuallyInputAddress(
+    "10 Downing Street",
+    "London",
+    "SW1A 2AB"
+  );
+  await billingPage.saveDetails.click();
+  await page.waitForURL("**/order/checkout**");
 }
 
 for (const { language, locale } of languages) {
@@ -86,11 +106,11 @@ for (const { language, locale } of languages) {
     });
 
     test("Billing - Summary Empty", async ({ page, context }) => {
-      await registerAndLogin(page, context);
+      await registerAndLogin(page);
       interceptUISchema(context, {
         "@data.billing_details.billingDetailsDisabled": false
       });
-      await goToCheckout(page, context, products.STARTER_HOSTING);
+      await goToCheckout(page, products.STARTER_HOSTING);
       await page.waitForURL("**/order/checkout/**");
       await setLocale(page, locale);
       await expect(checkout.billingDetails).toBeVisible({ timeout: 30000 });
@@ -104,19 +124,16 @@ for (const { language, locale } of languages) {
     });
 
     test("Billing - Summary Populated", async ({ page, context }) => {
-      await registerAndLogin(page, context);
+      await registerAndLogin(page);
       interceptUISchema(context, {
         "@data.billing_details.billingDetailsDisabled": false
       });
-      await goToCheckout(page, context, products.STARTER_HOSTING);
+      await goToCheckout(page, products.STARTER_HOSTING);
       await page.waitForURL("**/order/checkout/**");
 
-      const token = await getSessionToken(context);
-      const order = await getCurrentOrder(token);
+      const order = await getBasketViaHeadless(page);
       const orderId = order?.id as string;
-      const clientId = order?.client_id as string;
-      const address = await addAddressToClient(token, clientId);
-      await setOrderAddress(token, orderId, address?.id as string);
+      await seedBillingAddressViaUi(page, orderId);
 
       await setLocale(page, locale);
       await expect(checkout.billingDetails).toBeVisible({ timeout: 30000 });
@@ -140,17 +157,18 @@ for (const { language, locale } of languages) {
     });
 
     test("Billing - Validation Alert", async ({ page, context }) => {
-      await registerAndLogin(page, context);
+      await registerAndLogin(page);
       interceptUISchema(context, {
         "@data.billing_details.billingDetailsDisabled": false
       });
-      await goToCheckout(page, context, products.STARTER_HOSTING);
+      await goToCheckout(page, products.STARTER_HOSTING);
       await page.waitForURL("**/order/checkout/**");
 
       // Force address required so complete-checkout raises the billing
-      // requirements alert. null token → setLocale's reload replays a full 200
-      // (FE-2785) rather than a 304 that would drop the override.
-      await interceptConfigValues(page, null, {
+      // requirements alert. interceptConfigValues replays the request's own
+      // auth so setLocale's reload returns a full 200 (FE-2785) rather than a
+      // 304 that would drop the override.
+      await interceptConfigValues(page, {
         requireAddressForOrders: true,
         requireCompanyForOrders: false,
         requireRegionInAddress: false,
@@ -178,15 +196,14 @@ for (const { language, locale } of languages) {
     });
 
     test("Billing - Standalone Empty", async ({ page, context }) => {
-      await registerAndLogin(page, context);
+      await registerAndLogin(page);
       interceptUISchema(context, {
         "@data.billing_details.billingDetailsDisabled": false
       });
-      await goToCheckout(page, context, products.STARTER_HOSTING);
+      await goToCheckout(page, products.STARTER_HOSTING);
       await page.waitForURL("**/order/checkout/**");
 
-      const token = await getSessionToken(context);
-      const order = await getCurrentOrder(token);
+      const order = await getBasketViaHeadless(page);
       const orderId = order?.id as string;
 
       await page.goto(`${URLs.baseUrl}order/basket/${orderId}/billing/`);
@@ -206,19 +223,16 @@ for (const { language, locale } of languages) {
     });
 
     test("Billing - Standalone With Address", async ({ page, context }) => {
-      await registerAndLogin(page, context);
+      await registerAndLogin(page);
       interceptUISchema(context, {
         "@data.billing_details.billingDetailsDisabled": false
       });
-      await goToCheckout(page, context, products.STARTER_HOSTING);
+      await goToCheckout(page, products.STARTER_HOSTING);
       await page.waitForURL("**/order/checkout/**");
 
-      const token = await getSessionToken(context);
-      const order = await getCurrentOrder(token);
+      const order = await getBasketViaHeadless(page);
       const orderId = order?.id as string;
-      const clientId = order?.client_id as string;
-      const address = await addAddressToClient(token, clientId);
-      await setOrderAddress(token, orderId, address?.id as string);
+      await seedBillingAddressViaUi(page, orderId);
 
       await page.goto(`${URLs.baseUrl}order/basket/${orderId}/billing/`);
       await setLocale(page, locale);

@@ -1,4 +1,4 @@
-import { expect } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import { newUser } from "../../support/fixtures/auth-context";
 import { goToCheckout } from "../../support/flows/checkout";
 import { seedGuestBasket } from "../../support/flows/guest-checkout";
@@ -66,7 +66,7 @@ newUser.describe("Email-verification enforcement (negative matrix)", () => {
   for (const checkoutFlow of FLOWS) {
     newUser(
       `Unverified client is blocked at checkout and never converts the order (${checkoutFlow})`,
-      async ({ page, context }) => {
+      async ({ page }) => {
         const verify = new VerifyEmail(page);
 
         let convertFired = false;
@@ -75,12 +75,12 @@ newUser.describe("Email-verification enforcement (negative matrix)", () => {
           await route.continue();
         });
 
-        await interceptConfigValues(page, null, {
+        await interceptConfigValues(page, {
           requireVerifiedEmail: true,
           checkoutFlow
         });
 
-        await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
+        await goToCheckout(page, products.STARTER_HOSTING, null, null);
 
         // The gate intercepts into the verify-email overlay before any
         // basket->invoice conversion.
@@ -95,11 +95,11 @@ newUser.describe("Email-verification enforcement (negative matrix)", () => {
 
   newUser(
     "Negative control: with enforcement OFF the same client reaches checkout (proves the gate, not another guard, blocks)",
-    async ({ page, context }) => {
+    async ({ page }) => {
       const verify = new VerifyEmail(page);
 
-      await interceptConfigValues(page, null, { requireVerifiedEmail: false });
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
+      await interceptConfigValues(page, { requireVerifiedEmail: false });
+      await goToCheckout(page, products.STARTER_HOSTING, null, null);
 
       // Gate OFF → no verify overlay; the client lands on the checkout page.
       await expect(page).not.toHaveURL(/verify-email/);
@@ -108,37 +108,39 @@ newUser.describe("Email-verification enforcement (negative matrix)", () => {
   );
 });
 
-newUser.describe("Email-verification enforcement — guest short-circuit", () => {
-  newUser.afterEach(async ({ page }) => {
+/* Plain `test` base, NOT the newUser fixture: since fd2073a86 the fixture
+   registers and logs in a client in-page, so the browser would no longer be an
+   anonymous guest and seedGuestBasket's `actor === "guest"` gate would fail. */
+test.describe("Email-verification enforcement — guest short-circuit", () => {
+  test.afterEach(async ({ page }) => {
     await page.unrouteAll({ behavior: "wait" });
   });
 
-  newUser(
-    "A guest-customer on an enforce-verified brand is NOT routed to the verify overlay (isGuestClient short-circuits isUnverified)",
-    async ({ page, context }) => {
-      // Attach the brand-settings listener before the basket nav that triggers
-      // the config GET, then await it — capturing it inline would wait forever
-      // for a response the fixture's initial load already consumed.
-      const brandSettings = captureBrandSettings(page);
+  test("A guest-customer on an enforce-verified brand is NOT routed to the verify overlay (isGuestClient short-circuits isUnverified)", async ({
+    page
+  }) => {
+    // Attach the brand-settings listener before the basket nav that triggers
+    // the config GET, then await it — capturing it inline would wait forever
+    // for a response the fixture's initial load already consumed.
+    const brandSettings = captureBrandSettings(page);
 
-      const verify = new VerifyEmail(page);
+    const verify = new VerifyEmail(page);
 
-      await seedGuestBasket(page, context, products.HAT);
+    await seedGuestBasket(page, products.HAT);
 
-      // Guest checkout must be enabled on this brand for the guest journey to be
-      // reachable; read the real value and skip rather than mock journey data.
-      const brand = await brandSettings;
-      newUser.skip(
-        brand["invoices.guest_checkout.enabled"] !== true,
-        "Brand does not allow guest checkout — guest short-circuit is unreachable here."
-      );
+    // Guest checkout must be enabled on this brand for the guest journey to be
+    // reachable; read the real value and skip rather than mock journey data.
+    const brand = await brandSettings;
+    test.skip(
+      brand["invoices.guest_checkout.enabled"] !== true,
+      "Brand does not allow guest checkout — guest short-circuit is unreachable here."
+    );
 
-      await interceptConfigValues(page, null, { requireVerifiedEmail: true });
-      await page.goto(URLs.checkout);
+    await interceptConfigValues(page, { requireVerifiedEmail: true });
+    await page.goto(URLs.checkout);
 
-      // The guest is short-circuited by isGuestClient — never the verify overlay.
-      await expect(page).not.toHaveURL(/verify-email/);
-      await expect(verify.otpInput).toHaveCount(0);
-    }
-  );
+    // The guest is short-circuited by isGuestClient — never the verify overlay.
+    await expect(page).not.toHaveURL(/verify-email/);
+    await expect(verify.otpInput).toHaveCount(0);
+  });
 });

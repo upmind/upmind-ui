@@ -1,6 +1,5 @@
-import { BrowserContext, Page, Route, request } from "@playwright/test";
+import { BrowserContext, Page, Route } from "@playwright/test";
 import { URLs } from "../constants/urls";
-import { getSessionToken } from "../api/auth";
 import { getTimestamp } from "../helpers/dates";
 
 /**
@@ -354,19 +353,9 @@ export interface ConditionalValue<T> {
  * `sub_pids` into structured `options`/`attributes`.
  */
 async function fetchProductData(
-  token: string,
+  page: Page,
   productId: string
 ): Promise<Record<string, any> | null> {
-  const apiContext = await request.newContext({
-    baseURL: URLs.apiUrl,
-    extraHTTPHeaders: {
-      accept: "*/*",
-      authorization: `Bearer ${token}`,
-      "content-type": "application/json",
-      origin: URLs.apiOrigin
-    }
-  });
-
   const withRelations = [
     "image",
     "images",
@@ -379,23 +368,36 @@ async function fetchProductData(
     "category"
   ].join(",");
 
-  try {
-    const response = await apiContext.get(
-      `/api/basket/products/${productId}?with=${withRelations}&lang=en`
-    );
-    if (!response.ok()) return null;
-    const body = await response.json();
-    return body?.data ?? null;
-  } finally {
-    await apiContext.dispose();
-  }
+  // Fetch the product IN-PAGE so the app's own live session authenticates the
+  // request — the bearer never leaves the browser (no token handled test-side,
+  // no raw request.newContext). Mirrors the endpoint the basket itself reads.
+  return page.evaluate(
+    async ({ productId, withRelations, apiUrl }) => {
+      const token =
+        window.Upmind?.useActiveSession().useContext().session.value
+          ?.access_token;
+      if (!token) return null;
+      const response = await fetch(
+        `${apiUrl}api/basket/products/${productId}?with=${withRelations}&lang=en`,
+        {
+          headers: {
+            accept: "application/json",
+            authorization: `Bearer ${token}`
+          }
+        }
+      );
+      if (!response.ok) return null;
+      const body = await response.json();
+      return body?.data ?? null;
+    },
+    { productId, withRelations, apiUrl: URLs.apiUrl }
+  );
 }
 
 interface RecommendationsMockState {
   productsToRecommend: RecommendationConfig[] | null;
   related: RecommendationConfig[] | null;
   productCache: Map<string, Promise<Record<string, any> | null>>;
-  tokenPromise: Promise<string> | null;
 }
 
 const recommendationsState = new WeakMap<
@@ -443,27 +445,22 @@ function buildRecommendationEntry(
   return entry;
 }
 
-function ensureRouteRegistered(
-  context: BrowserContext
-): RecommendationsMockState {
+function ensureRouteRegistered(page: Page): RecommendationsMockState {
+  const context = page.context();
   let state = recommendationsState.get(context);
   if (state) return state;
 
   state = {
     productsToRecommend: null,
     related: null,
-    productCache: new Map(),
-    tokenPromise: null
+    productCache: new Map()
   };
   recommendationsState.set(context, state);
 
   const getProduct = (productId: string) => {
     let cached = state!.productCache.get(productId);
     if (!cached) {
-      state!.tokenPromise ??= getSessionToken(context);
-      cached = state!.tokenPromise.then(token =>
-        fetchProductData(token, productId)
-      );
+      cached = fetchProductData(page, productId);
       state!.productCache.set(productId, cached);
     }
     return cached;
@@ -572,7 +569,7 @@ function ensureRouteRegistered(
  * mocks each source independently within a single route handler.
  *
  * @example
- * interceptProductsToRecommend(context, [
+ * interceptProductsToRecommend(page, [
  *   {
  *     object_id: products.STARTER_HOSTING.id,
  *     config: { sub_pids: ["tokyo-id", "mailbox-id"] }
@@ -580,10 +577,10 @@ function ensureRouteRegistered(
  * ]);
  */
 export function interceptProductsToRecommend(
-  context: BrowserContext,
+  page: Page,
   recommendations: RecommendationConfig[]
 ): void {
-  const state = ensureRouteRegistered(context);
+  const state = ensureRouteRegistered(page);
   state.productsToRecommend = recommendations;
 }
 
@@ -597,7 +594,7 @@ export function interceptProductsToRecommend(
  * test mocks each source independently within a single route handler.
  *
  * @example
- * interceptRelatedProducts(context, [
+ * interceptRelatedProducts(page, [
  *   {
  *     object_id: products.STARTER_HOSTING.id,
  *     config: { sub_pids: "tokyo-id,mailbox-id" }
@@ -605,9 +602,9 @@ export function interceptProductsToRecommend(
  * ]);
  */
 export function interceptRelatedProducts(
-  context: BrowserContext,
+  page: Page,
   recommendations: RecommendationConfig[]
 ): void {
-  const state = ensureRouteRegistered(context);
+  const state = ensureRouteRegistered(page);
   state.related = recommendations;
 }

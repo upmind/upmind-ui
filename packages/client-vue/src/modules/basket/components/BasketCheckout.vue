@@ -7,7 +7,7 @@
     :loading="props.loading"
     :label="t('action.proceed_to_checkout')"
     icon-append="arrow-right"
-    data-test-key="basket-checkout-button"
+    :dataAttrs="{ 'data-test-key': 'basket-checkout-button' }"
   />
 </template>
 <script lang="ts" setup>

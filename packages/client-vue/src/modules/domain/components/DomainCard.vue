@@ -8,7 +8,7 @@
           <Skeleton
             v-if="meta.isPriceLoading"
             :class="styles.card.skeleton.status"
-            data-test-key="dac-card-status-loading"
+            v-bind="statusLoadingTestAttrs"
           />
           <small
             v-else
@@ -31,8 +31,7 @@
         <section :class="styles.card.header.details.title.root">
           <h3
             :class="styles.card.header.details.title.fld"
-            data-test-key="domain-card-name"
-            :data-test-value="props.domain"
+            v-bind="domainNameTestAttrs(props.domain)"
           >
             <span :class="styles.card.header.details.title.sld">
               {{ props.sld }}
@@ -58,7 +57,7 @@
           <Skeleton
             v-if="meta.isPriceLoading"
             :class="styles.card.skeleton.description"
-            data-test-key="dac-card-description-loading"
+            v-bind="descriptionLoadingTestAttrs"
           />
           <DomainDescription
             v-else
@@ -75,7 +74,7 @@
         <section :class="styles.card.footer.price.root">
           <Skeleton
             :class="styles.card.skeleton.price"
-            data-test-key="dac-card-price-loading"
+            v-bind="priceLoadingTestAttrs"
           />
         </section>
       </template>
@@ -100,8 +99,10 @@
             is="h3"
             :class="styles.card.footer.price.amount"
             :current-price="props.price.currentPrice"
-            data-test-key="domain-card-price"
-            :data-test-value="props.price.currentPrice"
+            :dataAttrs="{
+              'data-test-key': 'domain-card-price',
+              'data-test-value': props.price.currentPrice
+            }"
           />
 
           <small v-if="!props.free" :class="styles.card.footer.price.term"
@@ -135,8 +136,9 @@
 
         <p
           class="text-muted text-sm-tight mt-1 md:mt-0 md:text-right"
-          data-test-key="domain-transfer-pricing-info"
-          :data-test-value="meta.isTransferFree ? 'free' : 'paid'"
+          v-bind="
+            transferPricingTestAttrs(meta.isTransferFree ? 'free' : 'paid')
+          "
         >
           {{ $t("domain.transfer_owner_question")
           }}<br class="hidden md:block" />
@@ -178,7 +180,7 @@
           styles.card.footer.button.root,
           styles.card.skeleton.priceButton
         ]"
-        data-test-key="dac-card-button-loading"
+        v-bind="buttonLoadingTestAttrs"
       />
 
       <Tooltip
@@ -221,6 +223,7 @@ import { useI18n } from "vue-i18n";
 import { parseBillingCycle } from "@upmind-automation/headless";
 import {
   useStyles,
+  useTestAttrs,
   isMobile,
   Badge,
   Button,
@@ -280,6 +283,18 @@ const styles = useStyles(
   meta,
   config
 );
+
+// --- test attrs — routed through useTestAttrs so they are stripped in PROD
+const statusLoadingTestAttrs = useTestAttrs({ key: "dac-card-status-loading" });
+const descriptionLoadingTestAttrs = useTestAttrs({
+  key: "dac-card-description-loading"
+});
+const priceLoadingTestAttrs = useTestAttrs({ key: "dac-card-price-loading" });
+const buttonLoadingTestAttrs = useTestAttrs({ key: "dac-card-button-loading" });
+const domainNameTestAttrs = (value: string) =>
+  useTestAttrs({ key: "domain-card-name", value });
+const transferPricingTestAttrs = (value: string) =>
+  useTestAttrs({ key: "domain-transfer-pricing-info", value });
 
 const getStatus = computed(() => {
   if (meta.value.isUnavailable) {
