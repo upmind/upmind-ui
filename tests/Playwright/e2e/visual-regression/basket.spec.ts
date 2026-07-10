@@ -1,11 +1,9 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../support/constants/urls";
-import { getSessionToken } from "../support/api/auth";
 import {
-  createOrder,
-  addProductToOrder,
-  addPromotionToOrder
-} from "../support/api/basket";
+  addProductViaHeadless,
+  addPromotionViaHeadless
+} from "../support/flows/basket-setup";
 import { setLocale } from "../support/helpers/locale";
 import { waitForSessionCookie } from "../support/helpers/session";
 import { Languages as languages } from "../support/constants/languages";
@@ -40,29 +38,21 @@ for (const { language, locale } of languages) {
         timeout: 15000
       });
       await expect(page).toHaveScreenshot(`${language}/empty-basket`, {
-        mask: [page.locator("lord-icon")]
+        // Mask the avatar CONTAINER (static testid) — the icon inside
+        // nondeterministically renders as a lottie web component or an img
+        // fallback, so lord-icon is not a stable mask target.
+        mask: [page.getByTestId("interstitial-avatar")]
       });
     });
-    test("Basket with single item", async ({ page, context }) => {
+    test("Basket with single item", async ({ page }) => {
       await page.goto(URLs.basket);
       await setLocale(page, locale);
-      await waitForSessionCookie(context);
-      const token = await getSessionToken(context);
-      const order = await createOrder(token);
-      const orderId = order.id;
-      await addProductToOrder(
-        token,
-        orderId,
-        "3de78642-de53-9714-76df-21208469530d",
-        1,
-        24,
-        [],
-        [],
-        { domain: "uitesting.com" },
-        [],
-        true,
-        false
-      );
+      await addProductViaHeadless(page, {
+        productId: "3de78642-de53-9714-76df-21208469530d",
+        quantity: 1,
+        billingCycleMonths: 24,
+        provisionFields: { domain: "uitesting.com" }
+      });
       await page.goto(URLs.basket);
       await waitForSessionCookie(page.context());
       await expect(page.getByTestId("basket-product").first()).toBeVisible({
@@ -70,39 +60,21 @@ for (const { language, locale } of languages) {
       });
       await expect(page).toHaveScreenshot(`${language}/basket-with-1-item`);
     });
-    test("Basket with multiple items", async ({ page, context }) => {
+    test("Basket with multiple items", async ({ page }) => {
       await page.goto(URLs.basket);
       await setLocale(page, locale);
-      await waitForSessionCookie(context);
-      const token = await getSessionToken(context);
-      const order = await createOrder(token);
-      const orderId = order.id;
-      await addProductToOrder(
-        token,
-        orderId,
-        "3de78642-de53-9714-76df-21208469530d",
-        1,
-        24,
-        [],
-        [],
-        { domain: "uitesting1.com" },
-        [],
-        true,
-        false
-      );
-      await addProductToOrder(
-        token,
-        orderId,
-        "3de78642-de53-9714-76df-21208469530d",
-        1,
-        24,
-        [],
-        [],
-        { domain: "uitesting2.com" },
-        [],
-        true,
-        false
-      );
+      await addProductViaHeadless(page, {
+        productId: "3de78642-de53-9714-76df-21208469530d",
+        quantity: 1,
+        billingCycleMonths: 24,
+        provisionFields: { domain: "uitesting1.com" }
+      });
+      await addProductViaHeadless(page, {
+        productId: "3de78642-de53-9714-76df-21208469530d",
+        quantity: 1,
+        billingCycleMonths: 24,
+        provisionFields: { domain: "uitesting2.com" }
+      });
       await page.goto(URLs.basket);
       await waitForSessionCookie(page.context());
       const basketProducts = page.getByTestId("basket-product");
@@ -110,27 +82,16 @@ for (const { language, locale } of languages) {
       await expect(basketProducts.last()).toBeVisible();
       await expect(page).toHaveScreenshot(`${language}/basket-with-2-items`);
     });
-    test("Basket with promotions", async ({ page, context }) => {
+    test("Basket with promotions", async ({ page }) => {
       await page.goto(URLs.basket);
       await setLocale(page, locale);
-      await waitForSessionCookie(context);
-      const token = await getSessionToken(context);
-      const order = await createOrder(token);
-      const orderId = order.id;
-      await addProductToOrder(
-        token,
-        orderId,
-        "3de78642-de53-9714-76df-21208469530d",
-        1,
-        24,
-        [],
-        [],
-        { domain: "uitesting1.com" },
-        [],
-        true,
-        false
-      );
-      await addPromotionToOrder(orderId, "genericpromo", token);
+      await addProductViaHeadless(page, {
+        productId: "3de78642-de53-9714-76df-21208469530d",
+        quantity: 1,
+        billingCycleMonths: 24,
+        provisionFields: { domain: "uitesting1.com" }
+      });
+      await addPromotionViaHeadless(page, "genericpromo");
       await page.reload();
       await page.waitForLoadState("load");
       await waitForSessionCookie(page.context());

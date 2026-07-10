@@ -11,17 +11,12 @@ import {
   mockTrialProduct
 } from "../../support/mocks/products";
 import {
-  getSessionToken,
-  registerClient,
-  createOrder,
-  addProductToOrder,
-  getClientToken,
-  addPromotionToOrder
-} from "../../support/api/index";
-import {
-  clickAndAwaitBasketAdd,
-  waitForSessionCookie
-} from "../../support/helpers";
+  addProductViaHeadless,
+  addPromotionViaHeadless,
+  registerClientViaHeadless,
+  waitForUpmindBridge
+} from "../../support/flows";
+import { clickAndAwaitBasketAdd } from "../../support/helpers";
 import { interceptConfigValues } from "../../support/mocks/brand";
 
 let productConfig: ProductConfig;
@@ -36,7 +31,7 @@ newUser.describe("Free Trials @free-trials", () => {
       productConfig = new ProductConfig(page);
       productPromise = captureProduct(page);
       await page.goto(URLs.optionalTrialProduct);
-      await waitForSessionCookie(page.context());
+      await waitForUpmindBridge(page);
     });
     newUser(
       "Trial checkbox visible & pre-selected for trial-supported product",
@@ -68,32 +63,19 @@ newUser.describe("Free Trials @free-trials", () => {
       await productConfig.toggleTrial();
       await productConfig.expectTrialSelected();
     });
-    newUser(
-      "Promo details display on trial product",
-      async ({ page, context, token }) => {
-        const order = await createOrder(token);
-        let orderId = order.id;
-        await addProductToOrder(
-          token,
-          orderId,
-          products.OPTIONAL_TRIAL_PRODUCT.id,
-          1,
-          products.OPTIONAL_TRIAL_PRODUCT.billingCycle,
-          [],
-          [],
-          {},
-          [],
-          true,
-          true
-        );
-        await addPromotionToOrder(orderId, "genericpromo", token);
-        await page.goto(URLs.optionalTrialProduct);
-        await expect(productConfig.trialCheckbox).toBeVisible();
-        await productConfig.promoBadgeExists(
-          products.OPTIONAL_TRIAL_PRODUCT.billingCycle
-        );
-      }
-    );
+    newUser("Promo details display on trial product", async ({ page }) => {
+      await addProductViaHeadless(page, {
+        productId: products.OPTIONAL_TRIAL_PRODUCT.id,
+        billingCycleMonths: products.OPTIONAL_TRIAL_PRODUCT.billingCycle,
+        startTrial: true
+      });
+      await addPromotionViaHeadless(page, "genericpromo");
+      await page.goto(URLs.optionalTrialProduct);
+      await expect(productConfig.trialCheckbox).toBeVisible();
+      await productConfig.promoBadgeExists(
+        products.OPTIONAL_TRIAL_PRODUCT.billingCycle
+      );
+    });
   });
   newUser.describe("Product Config — Forced Trial", () => {
     let productPromise: Promise<{ trial_duration: number }>;
@@ -101,7 +83,7 @@ newUser.describe("Free Trials @free-trials", () => {
       productConfig = new ProductConfig(page);
       productPromise = captureProduct(page);
       await page.goto(URLs.forcedTrialProduct);
-      await waitForSessionCookie(page.context());
+      await waitForUpmindBridge(page);
     });
     newUser("Trial checkbox visible but disabled", async () => {
       await expect(productConfig.trialCheckbox).toBeVisible();
@@ -118,7 +100,7 @@ newUser.describe("Free Trials @free-trials", () => {
     newUser("No trial checkbox for non-trial product", async ({ page }) => {
       productConfig = new ProductConfig(page);
       await page.goto(URLs.starterHosting);
-      await waitForSessionCookie(page.context());
+      await waitForUpmindBridge(page);
       await expect(productConfig.trialCheckbox).toBeHidden();
     });
   });
@@ -126,7 +108,7 @@ newUser.describe("Free Trials @free-trials", () => {
   newUser.describe("Product Card — Catalogue & Recommendations", () => {
     newUser("'Free Trial' badge on product card", async ({ page }) => {
       await page.goto(URLs.freeTrialsCategory);
-      await waitForSessionCookie(page.context());
+      await waitForUpmindBridge(page);
       await expect(page.getByTestId("free-trial-badge").first()).toBeVisible();
     });
     newUser("CTA button shows 'Try free for X days'", async ({ page }) => {
@@ -135,7 +117,7 @@ newUser.describe("Free Trials @free-trials", () => {
       // sibling tests that never await it.
       const productsPromise = captureProducts(page);
       await page.goto(URLs.freeTrialsCategory);
-      await waitForSessionCookie(page.context());
+      await waitForUpmindBridge(page);
       const products = await productsPromise;
       const trialProduct = products.find(
         (p: { id?: string; trial_duration?: number }) =>
@@ -160,7 +142,7 @@ newUser.describe("Free Trials @free-trials", () => {
         trialDuration: 7
       });
       await page.goto(URLs.catalogueRoot1);
-      await waitForSessionCookie(page.context());
+      await waitForUpmindBridge(page);
       await expect(page.getByTestId("free-trial-badge")).toHaveCount(0);
     });
     // Brand setting `ui.basket.add_to_basket_funnelling` controls whether
@@ -168,9 +150,8 @@ newUser.describe("Free Trials @free-trials", () => {
     // Each test pins the setting so the assertion is deterministic.
     newUser(
       "Quick-add fires trial-enabled basket POST when funnelling is in-situ",
-      async ({ page, context }) => {
-        const token = await getSessionToken(context);
-        await interceptConfigValues(page, token, {
+      async ({ page }) => {
+        await interceptConfigValues(page, {
           basketFunnelling: "none"
         });
 
@@ -183,9 +164,8 @@ newUser.describe("Free Trials @free-trials", () => {
 
     newUser(
       "Card click routes user onward when funnelling is next-step",
-      async ({ page, context }) => {
-        const token = await getSessionToken(context);
-        await interceptConfigValues(page, token, {
+      async ({ page }) => {
+        await interceptConfigValues(page, {
           basketFunnelling: "next_step"
         });
 
@@ -210,7 +190,7 @@ newUser.describe("Free Trials @free-trials", () => {
   // TODO: add coverage for Free Trials display on the Recommendations page.
   newUser.describe("Basket Display with Trial", () => {
     const TRIAL_DURATION_DAYS = 7;
-    newUser.beforeEach(async ({ page, context }) => {
+    newUser.beforeEach(async ({ page }) => {
       basket = new Basket(page);
       mockTrialProduct(page.context(), "/api/basket/products/", {
         trialSupported: true,
@@ -218,25 +198,13 @@ newUser.describe("Free Trials @free-trials", () => {
       });
 
       await page.goto("/");
-      await waitForSessionCookie(context);
-      const token = await getSessionToken(context);
-      const order = await createOrder(token);
-      const orderId = order.id;
-      await addProductToOrder(
-        token,
-        orderId,
-        products.OPTIONAL_TRIAL_PRODUCT.id,
-        1,
-        products.OPTIONAL_TRIAL_PRODUCT.billingCycle,
-        [],
-        [],
-        {},
-        [],
-        true,
-        true
-      );
+      await addProductViaHeadless(page, {
+        productId: products.OPTIONAL_TRIAL_PRODUCT.id,
+        billingCycleMonths: products.OPTIONAL_TRIAL_PRODUCT.billingCycle,
+        startTrial: true
+      });
       await page.goto(URLs.basket);
-      await waitForSessionCookie(page.context());
+      await waitForUpmindBridge(page);
     });
     newUser("'Free Trial' shown instead of price", async () => {
       await expect(basket.trialPriceLabel).toBeVisible();
@@ -269,18 +237,12 @@ newUser.describe("Free Trials @free-trials", () => {
     });
   });
   newUser.describe("Checkout with Trial Product", () => {
-    newUser.beforeEach(async ({ page, context }) => {
+    newUser.beforeEach(async ({ page }) => {
       checkout = new Checkout(page);
       await page.goto("/");
-      await waitForSessionCookie(context);
-      let guestToken = await getSessionToken(context);
-      let user = await registerClient(guestToken);
-      let username = user.email;
-      let password = user.password;
-      await getClientToken(page, username, password);
+      await registerClientViaHeadless(page);
       await goToCheckout(
         page,
-        context,
         products.OPTIONAL_TRIAL_PRODUCT,
         null,
         null,
@@ -295,7 +257,9 @@ newUser.describe("Free Trials @free-trials", () => {
       // ("product"/"term"/…), not the translated product name. The £0.00 price
       // is dynamic copy, so verify the trial line is present, not its text.
       await expect(
-        page.getByTestId("description-list-item-product")
+        page
+          .getByTestId("description-list-item")
+          .and(page.locator(`[data-test-value="product"]`))
       ).toBeVisible();
     });
     newUser(

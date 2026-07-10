@@ -152,7 +152,7 @@
         >
           <Markdown
             v-if="product?.productDetails"
-            data-test-key="slots:summary-append"
+            v-bind="summaryAppendTestAttrs"
             :model-value="configMeta.data.trustMessagingMarkdown"
           />
         </slot>
@@ -233,7 +233,11 @@ import {
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { BreadcrumbVariant, UIContext } from "@upmind-automation/headless";
 import { Breadcrumb, Markdown, Alert } from "@upmind-automation/upmind-ui";
-import { isMobile, useThemes } from "@upmind-automation/upmind-ui";
+import {
+  isMobile,
+  useTestAttrs,
+  useThemes
+} from "@upmind-automation/upmind-ui";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
 import Section from "../../components/section/Section.vue";
 import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
@@ -277,6 +281,8 @@ const { navigateBack, navigateNext } = useRoutingEngine();
 const { configure } = useBasketProducts();
 const { basketProductId } = useQueryParams();
 const { copy, copied, isSupported } = useClipboard({ legacy: true });
+
+const summaryAppendTestAttrs = useTestAttrs({ key: "slots:summary-append" });
 
 const {
   stop: _stop,

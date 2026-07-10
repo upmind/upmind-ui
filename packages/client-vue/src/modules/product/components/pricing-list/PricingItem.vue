@@ -7,7 +7,7 @@
       </template>
     </h5>
 
-    <p :class="styles.summary.list.item.title" data-test-key="summary-value">
+    <p :class="styles.summary.list.item.title" v-bind="titleTestAttrs">
       {{ title ?? "&ndash;" }}
     </p>
   </li>
@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, useTestAttrs } from "@upmind-automation/upmind-ui";
 import config from "./pricing.config";
 import type { PricingItemProps } from "./types";
 
@@ -26,4 +26,6 @@ const meta = computed(() => ({
 }));
 
 const styles = useStyles("summary.list.item", meta, config);
+
+const titleTestAttrs = useTestAttrs({ key: "summary-value" });
 </script>

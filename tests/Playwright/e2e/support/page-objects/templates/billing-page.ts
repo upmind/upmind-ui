@@ -25,12 +25,22 @@ export class BillingPage {
     this.addressManualEntry = this.page.getByTestId(
       "link-enter-address-manually"
     );
-    this.addressLine1 = this.page.getByTestId("input-properties-address-1");
-    this.city = this.page.getByTestId("input-properties-city");
-    this.postCode = this.page.getByTestId("input-properties-postcode");
-    this.companyName = this.page.getByTestId("input-properties-name");
+    this.addressLine1 = this.page
+      .getByTestId("input")
+      .and(page.locator(`[data-test-value="properties-address-1"]`));
+    this.city = this.page
+      .getByTestId("input")
+      .and(page.locator(`[data-test-value="properties-city"]`));
+    this.postCode = this.page
+      .getByTestId("input")
+      .and(page.locator(`[data-test-value="properties-postcode"]`));
+
+    this.companyName = this.page
+      .getByTestId("input")
+      .and(page.locator(`[data-test-value="properties-name"]`));
     this.regionSelect = this.page
-      .getByTestId("form-item-address-region-id")
+      .getByTestId("form-item")
+      .and(page.locator(`[data-test-value="address-region-id"]`))
       .getByRole("combobox")
       .first();
     this.saveDetails = this.page.getByTestId("button-manage-save");

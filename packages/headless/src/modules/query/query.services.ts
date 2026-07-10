@@ -3,7 +3,7 @@ import { GrantTypes, Methods } from "@upmind-automation/types";
 import { messageDisplays, messageTypes, useFeedback } from "../feedback";
 import { useActiveSession } from "../session-store";
 import { useI18n } from "../system-localisation";
-import { handleError, isAbortError, useQuery } from ".";
+import { handleError, isAbortError, isNetworkError, useQuery } from ".";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import {
   getTokenFromStorage,
@@ -66,7 +66,10 @@ async function doFetch<T = any>({
       // DC: change this as when we get service cors errors, we don't get a response object with status,
       // so we need to handle it differently, and that generally means the API is down
       return handleError(
-        response.status ?? responseCodes.Unknown,
+        response.status ??
+          (isNetworkError(response)
+            ? responseCodes.Network_Error
+            : responseCodes.Unknown),
         response?.error ?? response
       );
     });

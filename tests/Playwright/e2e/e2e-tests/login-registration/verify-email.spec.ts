@@ -48,11 +48,11 @@ newUser.describe("Email verification gate", () => {
 
   newUser(
     "An unverified client is routed to the verify-email overlay at checkout",
-    async ({ page, context }) => {
+    async ({ page }) => {
       const verify = new VerifyEmail(page);
 
-      await interceptConfigValues(page, null, { requireVerifiedEmail: true });
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
+      await interceptConfigValues(page, { requireVerifiedEmail: true });
+      await goToCheckout(page, products.STARTER_HOSTING, null, null);
 
       await expect(page).toHaveURL(/\/order\/checkout\/verify-email\//);
       await expect(verify.otpInput.first()).toBeVisible();
@@ -62,11 +62,11 @@ newUser.describe("Email verification gate", () => {
 
   newUser(
     "Back to basket from the verify overlay returns to the basket",
-    async ({ page, context }) => {
+    async ({ page }) => {
       const verify = new VerifyEmail(page);
 
-      await interceptConfigValues(page, null, { requireVerifiedEmail: true });
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
+      await interceptConfigValues(page, { requireVerifiedEmail: true });
+      await goToCheckout(page, products.STARTER_HOSTING, null, null);
       await expect(verify.backToBasket).toBeVisible();
 
       // The cancel action routes back to the basket — Auth's `cancelRoute` is
@@ -78,12 +78,12 @@ newUser.describe("Email verification gate", () => {
 
   newUser(
     "A valid code clears the overlay and lets the client through",
-    async ({ page, context }) => {
+    async ({ page }) => {
       const verify = new VerifyEmail(page);
 
-      await interceptConfigValues(page, null, { requireVerifiedEmail: true });
+      await interceptConfigValues(page, { requireVerifiedEmail: true });
       await mockVerifyCode(page, "success");
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
+      await goToCheckout(page, products.STARTER_HOSTING, null, null);
       await expect(verify.otpInput.first()).toBeVisible();
 
       // Entering a (well-formed) code auto-submits; the mocked success verifies
@@ -97,12 +97,12 @@ newUser.describe("Email verification gate", () => {
 
   newUser(
     "An invalid code is rejected inline and keeps the overlay open",
-    async ({ page, context }) => {
+    async ({ page }) => {
       const verify = new VerifyEmail(page);
 
-      await interceptConfigValues(page, null, { requireVerifiedEmail: true });
+      await interceptConfigValues(page, { requireVerifiedEmail: true });
       await mockVerifyCode(page, "failure");
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
+      await goToCheckout(page, products.STARTER_HOSTING, null, null);
       await expect(verify.otpInput.first()).toBeVisible();
 
       await verify.enterCode("123456");
@@ -115,12 +115,12 @@ newUser.describe("Email verification gate", () => {
 
   newUser(
     "Resending issues a new code and confirms it inline",
-    async ({ page, context }) => {
+    async ({ page }) => {
       const verify = new VerifyEmail(page);
 
-      await interceptConfigValues(page, null, { requireVerifiedEmail: true });
+      await interceptConfigValues(page, { requireVerifiedEmail: true });
       await mockResendVerification(page, "success");
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
+      await goToCheckout(page, products.STARTER_HOSTING, null, null);
       await expect(verify.resendLink).toBeVisible();
 
       await verify.resendLink.click();
@@ -131,12 +131,12 @@ newUser.describe("Email verification gate", () => {
 
   newUser(
     "A failed resend surfaces the error in the alert",
-    async ({ page, context }) => {
+    async ({ page }) => {
       const verify = new VerifyEmail(page);
 
-      await interceptConfigValues(page, null, { requireVerifiedEmail: true });
+      await interceptConfigValues(page, { requireVerifiedEmail: true });
       await mockResendVerification(page, "failure");
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
+      await goToCheckout(page, products.STARTER_HOSTING, null, null);
       await expect(verify.resendLink).toBeVisible();
 
       await verify.resendLink.click();

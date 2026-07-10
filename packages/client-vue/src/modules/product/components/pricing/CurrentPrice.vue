@@ -2,8 +2,7 @@
   <component
     :is="props.is"
     :class="styles.pricing.current"
-    data-test-key="current-price"
-    :data-test-value="formattedPrice"
+    v-bind="currentPriceTestAttrs(formattedPrice)"
   >
     <template v-if="props.loading">
       <Skeleton :class="styles.pricing.currentSkeleton" />
@@ -23,7 +22,11 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useMoney, useConfig } from "@upmind-automation/headless";
-import { useStyles, Skeleton } from "@upmind-automation/upmind-ui";
+import {
+  useStyles,
+  useTestAttrs,
+  Skeleton
+} from "@upmind-automation/upmind-ui";
 import config from "./pricing.config";
 import type { CurrentPriceProps } from "./types";
 
@@ -54,6 +57,13 @@ const formattedPrice = computed(() =>
     }
   )
 );
+
+const currentPriceTestAttrs = (value?: string | null) =>
+  useTestAttrs({
+    key: "current-price",
+    value,
+    dataAttrs: props.dataAttrs
+  });
 
 const styles = useStyles(["pricing"], priceMeta, config, props.uiConfig ?? {});
 </script>

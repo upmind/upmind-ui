@@ -35,7 +35,11 @@ for (const { language, locale } of languages) {
       await page.goto(URLs.login);
       await setLocale(page, locale);
       await waitForSessionCookie(page.context());
-      await expect(page.getByTestId("section-log-in")).toBeVisible({
+      await expect(
+        page
+          .getByTestId("section")
+          .and(page.locator('[data-test-value="log-in"]'))
+      ).toBeVisible({
         timeout: 15000
       });
       await expect(page).toHaveScreenshot(`${language}/login`);
@@ -84,7 +88,11 @@ for (const { language, locale } of languages) {
         timeout: 15000
       });
       await login.twoFactorInput.first().pressSequentially("123456");
-      await expect(page.getByTestId("form-item-message-token")).toBeVisible({
+      await expect(
+        page
+          .getByTestId("form-item-message")
+          .and(page.locator('[data-test-value="token"]'))
+      ).toBeVisible({
         timeout: 15000
       });
       await expect(page).toHaveScreenshot(`${language}/2fa-invalid-code`);

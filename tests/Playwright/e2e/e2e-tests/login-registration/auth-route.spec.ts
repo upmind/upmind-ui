@@ -31,7 +31,11 @@ test.describe("Login Modal", async () => {
   });
   test("Recover Password from drawer", async ({ page }) => {
     await page.getByTestId("forgot-password-link").click();
-    await expect(page.getByTestId("recover-form")).toBeVisible();
+    await expect(
+      page
+        .getByTestId("session-form")
+        .and(page.locator(`[data-test-value="recover"]`))
+    ).toBeVisible();
   });
   test("2FA Login from drawer", async ({ page, context }) => {
     const twoFactor = new TOTP({

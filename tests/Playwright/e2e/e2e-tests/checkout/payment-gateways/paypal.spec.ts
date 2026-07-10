@@ -5,25 +5,15 @@ import { payPalDetails } from "../../../support/secrets/paypal";
 import { goToCheckout } from "../../../support/flows/checkout";
 import { products } from "../../../support/constants/products";
 import { gateways } from "../../../support/constants/gateways";
-import {
-  getClientToken,
-  getSessionToken,
-  registerClient
-} from "../../../support/api/index";
-import { waitForSessionCookie } from "../../../support/helpers/session";
+import { registerClientViaHeadless } from "../../../support/flows/auth-setup";
 
 let checkout: Checkout;
 
 test.describe("Checkout with PayPal", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page }) => {
     checkout = new Checkout(page);
     await page.goto("/");
-    await waitForSessionCookie(context);
-    let guestToken = await getSessionToken(context);
-    let user = await registerClient(guestToken);
-    let username = user.email;
-    let password = user.password;
-    await getClientToken(page, username, password);
+    await registerClientViaHeadless(page);
   });
   // Quarantined: Drives the real PayPal sandbox login UI (sandbox.paypal.com).
   // PayPal periodically reshuffles their login flow (placeholders, captchas,
@@ -33,8 +23,8 @@ test.describe("Checkout with PayPal", () => {
   // when revisiting, mock the PayPal callback rather than logging in for real.
   // See ADR 021 §Flakiness policy.
   // @quarantine(FE-XXXX-PAYPAL, 2026-06-25)
-  test.skip("Pay with PayPal Express", async ({ page, context }) => {
-    await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
+  test.skip("Pay with PayPal Express", async ({ page }) => {
+    await goToCheckout(page, products.STARTER_HOSTING, null, null);
     await checkout.selectGatewayByType(gateways.PAYPAL_EXPRESS);
     await checkout.clickCompleteCheckout();
     await page.waitForURL(

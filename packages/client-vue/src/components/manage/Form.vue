@@ -7,7 +7,11 @@
     no-footer
     :title="t('action.add_new_or_update', !props.modelValue ? 1 : 0)"
   >
-    <Skeleton v-if="meta.isLoading" :modal="modal" />
+    <Skeleton
+      v-if="meta.isLoading"
+      :modal="modal"
+      v-bind="formLoadingTestAttrs"
+    />
 
     <template v-else>
       <Alert
@@ -21,6 +25,7 @@
       />
 
       <UpmForm
+        :dataAttrs="{ 'data-test-key': 'form-manage' }"
         :model-value="model"
         :schema="schema"
         :uischema="uischema"
@@ -55,7 +60,7 @@
 <script setup lang="ts">
 import { onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { Alert, Dialog } from "@upmind-automation/upmind-ui";
+import { Alert, Dialog, useTestAttrs } from "@upmind-automation/upmind-ui";
 import UpmForm from "../form/Form.vue";
 import Actions from "./Actions.vue";
 import Skeleton from "./Skeleton.vue";
@@ -83,6 +88,8 @@ const emits = defineEmits<{
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
+
+const formLoadingTestAttrs = useTestAttrs({ key: "form-loading" });
 
 // --- state
 const open = defineModel<boolean>("open");

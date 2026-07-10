@@ -16,10 +16,12 @@ export class Login {
     this.context = context;
     this.loginForm = page.getByTestId("login-form");
     this.usernameField = page
-      .getByTestId("form-item-username")
+      .getByTestId("form-item")
+      .and(page.locator(`[data-test-value="username"]`))
       .getByRole("textbox");
     this.passwordField = page
-      .getByTestId("form-item-password")
+      .getByTestId("form-item")
+      .and(page.locator(`[data-test-value="password"]`))
       .getByRole("textbox");
     // Locale-stable locator: the button testid is derived from the translated
     // label (button-${kebabCase(label)}), so getByTestId("button-log-in-to-
@@ -30,7 +32,9 @@ export class Login {
     this.twoFactorInput = page.getByTestId("input-otp-slot");
     this.popoverTrigger = page.getByTestId("login-popover-trigger");
     this.popoverContent = page.getByTestId("popover-content");
-    this.alert = page.getByTestId("auth-alert");
+    this.alert = page
+      .getByTestId("alert")
+      .and(page.locator('[data-test-value="auth"]'));
   }
 
   async inputLogin(username: string, password: string) {

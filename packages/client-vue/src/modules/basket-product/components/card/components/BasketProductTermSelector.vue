@@ -2,7 +2,7 @@
   <div
     v-if="hasTerms && terms"
     :class="styles.product.summary.footer.terms.root"
-    data-test-key="basket-product-term-selector"
+    v-bind="rootTestAttrs"
   >
     <SelectCards
       v-model="selectedTerm"
@@ -35,7 +35,11 @@ import {
   parseBillingCycle,
   PriceDisplayTypes
 } from "@upmind-automation/headless";
-import { SelectCards, useStyles } from "@upmind-automation/upmind-ui";
+import {
+  SelectCards,
+  useStyles,
+  useTestAttrs
+} from "@upmind-automation/upmind-ui";
 import TermCard from "../../../../product/components/terms/TermCard.vue";
 import styleConfig from "../basketProduct.config";
 import { map, toNumber } from "lodash-es";
@@ -51,6 +55,8 @@ const emits = defineEmits(["update:modelValue"]);
 const { t } = useI18n();
 
 const styles = useStyles(["product.summary.footer.terms"], {}, styleConfig);
+
+const rootTestAttrs = useTestAttrs({ key: "basket-product-term-selector" });
 
 const hasTerms = computed(() => (props.terms?.length ?? 0) > 1);
 

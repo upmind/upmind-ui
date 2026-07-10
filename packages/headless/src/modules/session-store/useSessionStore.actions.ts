@@ -132,6 +132,7 @@ export function useSessionStoreActions() {
     if (!isScopeAllowed(actor)) shouldActivate = false;
 
     // NEW: If user data not provided, load it asynchronously
+    let userLoadError: SessionState["userError"];
     if (!user && sessionId && token.access_token) {
       // Login must reflect server truth — bust the 24h-cached /self so a change
       // made elsewhere (e.g. a freshly verified email) is seen, not the stale
@@ -148,8 +149,13 @@ export function useSessionStoreActions() {
           `Failed to load user data for ${actor} session ${sessionId}:`,
           error
         );
+        // Don't throw — session is still usable without user data, and
+        // background hydration/refresh must stay a soft degrade. But on an
+        // INTERACTIVE login/register (`event` present) the caller is actively
+        // waiting, so capture the failure for whenAuthenticated() to surface
+        // rather than let it wait forever for a user that never loads.
+        if (event) userLoadError = error as SessionState["userError"];
         return undefined;
-        // Don't throw - session is still usable without user data
       });
     }
 
@@ -196,7 +202,10 @@ export function useSessionStoreActions() {
         guestSession,
         initialised: true,
         staffSessions,
-        ...activation
+        ...activation,
+        // Only interactive logins touch this: set it on `/self` failure, clear
+        // it (undefined) on success. Non-interactive adds preserve `...state`.
+        ...(event ? { userError: userLoadError } : {})
       };
     });
 

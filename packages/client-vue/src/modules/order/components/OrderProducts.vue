@@ -42,7 +42,7 @@
             v-if="orderData.summary?.discountAmount > 0"
             :class="styles.table.footer.row"
             data-muted
-            data-test-key="discount-line-item"
+            v-bind="discountRowTestAttrs"
           >
             <td></td>
             <td :class="styles.table.footer.cell">
@@ -100,7 +100,13 @@
 import { computed, inject, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { parseBillingCycle } from "@upmind-automation/headless";
-import { useStyles, Link, Icon, Card } from "@upmind-automation/upmind-ui";
+import {
+  useStyles,
+  useTestAttrs,
+  Link,
+  Icon,
+  Card
+} from "@upmind-automation/upmind-ui";
 import Section from "../../../components/section/Section.vue";
 import config from "../order.config";
 import OrderProductsRow from "./OrderProductsRow.vue";
@@ -116,6 +122,8 @@ const { t } = useI18n();
 const orderData = inject<ComputedRef<Invoice | undefined>>("orderInvoice");
 
 const open = ref(false);
+
+const discountRowTestAttrs = useTestAttrs({ key: "discount-line-item" });
 
 const styles = useStyles(
   ["table", "table.wrapper", "table.header", "table.footer"],

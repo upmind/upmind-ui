@@ -25,7 +25,7 @@
           <Transition name="count-slide" mode="out-in">
             <span
               :key="count"
-              data-test-key="basket-action-count"
+              v-bind="countTestAttrs"
               class="inline-block"
               :class="count < 10 ? 'min-w-2.5' : 'min-w-5'"
             >
@@ -39,7 +39,7 @@
 </template>
 <script lang="ts" setup>
 import { useActiveSession, useBasket } from "@upmind-automation/headless";
-import { Button } from "@upmind-automation/upmind-ui";
+import { Button, useTestAttrs } from "@upmind-automation/upmind-ui";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // --- types
@@ -53,6 +53,8 @@ const props = defineProps<{
 const { isAuthenticated } = useActiveSession().useMeta();
 
 const { count, meta } = useBasket();
+
+const countTestAttrs = useTestAttrs({ key: "basket-action-count" });
 </script>
 
 <style scoped>

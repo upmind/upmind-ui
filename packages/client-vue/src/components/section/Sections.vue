@@ -1,5 +1,9 @@
 <template>
-  <div v-if="!active" :class="props.class">
+  <div
+    v-if="!active"
+    :class="props.class"
+    v-bind="sectionTestAttrs(first(sections)?.value ?? 'default')"
+  >
     <slot name="default" />
   </div>
 
@@ -10,7 +14,7 @@
     :border="meta.hasBorder"
     align="between"
     :overflow="sections.length > 1 ? 'hidden' : 'visible'"
-    :data-test-key="`section-${first(sections)?.value ?? 'default'}`"
+    v-bind="sectionTestAttrs(first(sections)?.value ?? 'default')"
     :ui-config="{
       tabs: {
         root: [styles.section.tabs.root],
@@ -58,7 +62,13 @@
 
 <script setup lang="ts">
 import { computed, useSlots } from "vue";
-import { Tabs, useStyles, Link, cn } from "@upmind-automation/upmind-ui";
+import {
+  Tabs,
+  useStyles,
+  useTestAttrs,
+  Link,
+  cn
+} from "@upmind-automation/upmind-ui";
 import config from "./section.config";
 import { useSection } from "./useSection";
 import { find, first, isFunction, isString, isNil, isEmpty } from "lodash-es";
@@ -104,6 +114,11 @@ const styles = useStyles(
   config,
   props.uiConfig ?? {}
 );
+
+/* dataAttrs lets consumers (e.g. BillingForm's 'billing' key) override the
+   default section key through the strip-in-PROD path. */
+const sectionTestAttrs = (value?: string) =>
+  useTestAttrs({ key: "section", value, dataAttrs: props.dataAttrs });
 
 function doAction(item: SectionActionProps, $event: Event) {
   $event.preventDefault(); // prevent default form actions as we are handling it ourselves

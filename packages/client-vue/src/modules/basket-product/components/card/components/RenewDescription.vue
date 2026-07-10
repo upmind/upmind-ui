@@ -2,8 +2,7 @@
   <!-- e.g. "Renews every month." or "One-time payment." -->
   <p
     v-if="!isNil(props.cycle)"
-    data-test-key="renewal-term-label"
-    :data-test-value="props.cycle"
+    v-bind="renewalTermTestAttrs(props.cycle)"
     :class="styles.product.summary.renew.renews"
   >
     {{
@@ -25,8 +24,7 @@
   <!-- Free trial — e.g. "Usually $9.99." (post-trial renewal price) -->
   <p
     v-else-if="props.freeTrial && !props.oneoff && props.renewalPrice"
-    data-test-key="trial-renewal-price"
-    :data-test-value="props.renewalPrice"
+    v-bind="trialRenewalPriceTestAttrs(props.renewalPrice)"
     :class="styles.product.summary.renew.usually"
   >
     {{ t("term.renews_usually_msg", { price: props.renewalPrice }) }}.
@@ -36,7 +34,7 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { parseBillingCycle } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, useTestAttrs } from "@upmind-automation/upmind-ui";
 import config from "../basketProduct.config";
 import { isNil } from "lodash-es";
 import type { RenewDescriptionProps } from "./types";
@@ -48,4 +46,12 @@ const { t } = useI18n();
 const props = defineProps<RenewDescriptionProps>();
 
 const styles = useStyles(["product.summary.renew"], {}, config);
+
+// NB: value is stringified because useTestAttrs discards non-string values
+//     (lodash isEmpty is always true for numbers); the DOM output is unchanged.
+const renewalTermTestAttrs = (cycle: number) =>
+  useTestAttrs({ key: "renewal-term-label", value: String(cycle) });
+
+const trialRenewalPriceTestAttrs = (price: string) =>
+  useTestAttrs({ key: "trial-renewal-price", value: price });
 </script>

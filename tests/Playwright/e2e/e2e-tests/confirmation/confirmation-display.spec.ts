@@ -9,8 +9,8 @@ newUser.describe("Confirmation Page Display - New Users", () => {
   newUser.describe.configure({ mode: "parallel" });
   newUser(
     "Successful Paid Order (New Card)",
-    async ({ page, context, checkout, confirmation }) => {
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
+    async ({ page, checkout, confirmation }) => {
+      await goToCheckout(page, products.STARTER_HOSTING, null, null);
       await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
       await checkout.completeCheckout.click();
@@ -32,38 +32,27 @@ newUser.describe("Confirmation Page Display - New Users", () => {
       );
     }
   );
-  newUser(
-    "Successful Free Order",
-    async ({ page, context, checkout, confirmation }) => {
-      await goToCheckout(page, context, products.FREE_HOSTING, null, null);
-      await checkout.completeCheckout.click();
-      await page.waitForURL(`/order/**/?payment_success=true`);
-      await expect(confirmation.invoiceNumberHeading).toBeVisible();
-      await expect(confirmation.invoiceNumber).toBeVisible();
-      await confirmation.expectInvoiceNumberValue();
-      await expect(confirmation.orderDateHeading).toBeVisible();
-      await expect(confirmation.orderDate).toBeVisible();
-      await confirmation.expectOrderDateValue();
-      await expect(confirmation.orderDetails).toBeVisible();
-      await expect(confirmation.detailsRowPrice).toBeVisible();
-      await expect(confirmation.detailsRowQty).toBeVisible();
-      await expect(confirmation.detailsRowTotal).toBeVisible();
-      await confirmation.expectFirstRowQty("1");
-      await confirmation.expectFirstRowPriceValue(
-        products.FREE_HOSTING.gbpPrice
-      );
-    }
-  );
+  newUser("Successful Free Order", async ({ page, checkout, confirmation }) => {
+    await goToCheckout(page, products.FREE_HOSTING, null, null);
+    await checkout.completeCheckout.click();
+    await page.waitForURL(`/order/**/?payment_success=true`);
+    await expect(confirmation.invoiceNumberHeading).toBeVisible();
+    await expect(confirmation.invoiceNumber).toBeVisible();
+    await confirmation.expectInvoiceNumberValue();
+    await expect(confirmation.orderDateHeading).toBeVisible();
+    await expect(confirmation.orderDate).toBeVisible();
+    await confirmation.expectOrderDateValue();
+    await expect(confirmation.orderDetails).toBeVisible();
+    await expect(confirmation.detailsRowPrice).toBeVisible();
+    await expect(confirmation.detailsRowQty).toBeVisible();
+    await expect(confirmation.detailsRowTotal).toBeVisible();
+    await confirmation.expectFirstRowQty("1");
+    await confirmation.expectFirstRowPriceValue(products.FREE_HOSTING.gbpPrice);
+  });
   newUser(
     "Successful Order with Promo",
-    async ({ page, context, checkout, confirmation }) => {
-      await goToCheckout(
-        page,
-        context,
-        products.STARTER_HOSTING,
-        "genericpromo",
-        null
-      );
+    async ({ page, checkout, confirmation }) => {
+      await goToCheckout(page, products.STARTER_HOSTING, "genericpromo", null);
       await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
       await checkout.clickCompleteCheckout();
@@ -88,8 +77,8 @@ newUser.describe("Confirmation Page Display - New Users", () => {
   // dedicated test user with multi-tax address is provisioned.
   newUser(
     "Unsuccessful Payment on Order",
-    async ({ page, context, checkout, confirmation }) => {
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
+    async ({ page, checkout, confirmation }) => {
+      await goToCheckout(page, products.STARTER_HOSTING, null, null);
       await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputStripeDetails("4000000000009995", "12/50", "123");
       await checkout.clickCompleteCheckout();
@@ -116,33 +105,30 @@ newUser.describe("Confirmation Page Display - New Users", () => {
       );
     }
   );
-  newUser(
-    "Pay Later on Order",
-    async ({ page, context, checkout, confirmation }) => {
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await checkout.selectPayLater();
-      await checkout.completeCheckout.click();
-      await page.waitForURL(`/order/**/?payment_success=true`);
-      await expect(confirmation.invoiceNumberHeading).toBeVisible();
-      await expect(confirmation.invoiceNumber).toBeVisible();
-      await confirmation.expectInvoiceNumberValue();
-      await expect(confirmation.orderDateHeading).toBeVisible();
-      await expect(confirmation.orderDate).toBeVisible();
-      await confirmation.expectOrderDateValue();
-      await expect(confirmation.orderDetails).toBeVisible();
-      await expect(confirmation.detailsRowPrice).toBeVisible();
-      await expect(confirmation.detailsRowQty).toBeVisible();
-      await expect(confirmation.detailsRowTotal).toBeVisible();
-      await confirmation.expectFirstRowQty("1");
-      await confirmation.expectFirstRowPriceValue(
-        products.STARTER_HOSTING.gbpPrice
-      );
-    }
-  );
+  newUser("Pay Later on Order", async ({ page, checkout, confirmation }) => {
+    await goToCheckout(page, products.STARTER_HOSTING, null, null);
+    await checkout.selectPayLater();
+    await checkout.completeCheckout.click();
+    await page.waitForURL(`/order/**/?payment_success=true`);
+    await expect(confirmation.invoiceNumberHeading).toBeVisible();
+    await expect(confirmation.invoiceNumber).toBeVisible();
+    await confirmation.expectInvoiceNumberValue();
+    await expect(confirmation.orderDateHeading).toBeVisible();
+    await expect(confirmation.orderDate).toBeVisible();
+    await confirmation.expectOrderDateValue();
+    await expect(confirmation.orderDetails).toBeVisible();
+    await expect(confirmation.detailsRowPrice).toBeVisible();
+    await expect(confirmation.detailsRowQty).toBeVisible();
+    await expect(confirmation.detailsRowTotal).toBeVisible();
+    await confirmation.expectFirstRowQty("1");
+    await confirmation.expectFirstRowPriceValue(
+      products.STARTER_HOSTING.gbpPrice
+    );
+  });
   newUser(
     "Successful Partial Payment on Order",
-    async ({ page, context, checkout, confirmation }) => {
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
+    async ({ page, checkout, confirmation }) => {
+      await goToCheckout(page, products.STARTER_HOSTING, null, null);
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("20");
       await checkout.clickConfirmAmount();
@@ -188,16 +174,9 @@ newUser.describe("Confirmation Page Display - New Users", () => {
 registeredUser.describe("Confirmation Page Display - Existing Users", () => {
   registeredUser(
     "Successful Paid Order (Existing Card)",
-    async ({ page, context, checkout, confirmation, loginAs }) => {
+    async ({ page, checkout, confirmation, loginAs }) => {
       await loginAs(Logins.stripeCard.username, Logins.stripeCard.password);
-      await goToCheckout(
-        page,
-        context,
-        products.STARTER_HOSTING,
-        null,
-        null,
-        false
-      );
+      await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
       await checkout.selectFirstStoredPaymentMethod();
       await checkout.clickCompleteCheckout();
       await page.waitForURL(`/order/**/?payment_success=true`);

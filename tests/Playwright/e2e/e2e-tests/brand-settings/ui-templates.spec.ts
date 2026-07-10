@@ -6,20 +6,13 @@ import { Logins } from "../../support/constants/logins";
 import { Login } from "../../support/page-objects/templates/login";
 import { Registration } from "../../support/page-objects/templates/registration";
 import { Checkout } from "../../support/page-objects/templates/checkout";
-import { getClientToken } from "../../support/api/auth";
-import { getSessionToken } from "../../support/api/auth";
-import {
-  createOrder,
-  Order,
-  addProductToOrder
-} from "../../support/api/basket";
+import { loginViaHeadless } from "../../support/flows/auth-setup";
+import { addProductViaHeadless } from "../../support/flows/basket-setup";
 import { waitForSessionCookie } from "../../support/helpers/session";
 
 let checkout: Checkout;
 let login: Login;
 let register: Registration;
-let token: string | null;
-let orderId: string | null;
 
 // TODO: re-enable once UI template changes stabilise
 test.describe.skip("Brand Settings - UI Templates", () => {
@@ -96,30 +89,19 @@ test.describe.skip("Brand Settings - UI Templates", () => {
         "login-two-column-ltr.png"
       );
     });
-    test("Login with item in basket", async ({ page, context, request }) => {
+    test("Login with item in basket", async ({ page, context }) => {
       await page.goto(URLs.login);
-      await waitForSessionCookie(context);
-      token = await getSessionToken(page.context());
-      let order = await createOrder(token);
-      orderId = order.id;
-      await addProductToOrder(
-        `${token}`,
-        `${orderId}`,
-        "3de78642-de53-9714-76df-21208469530d",
-        1,
-        24,
-        [],
-        [],
-        {
+      await addProductViaHeadless(page, {
+        productId: "3de78642-de53-9714-76df-21208469530d",
+        quantity: 1,
+        billingCycleMonths: 24,
+        provisionFields: {
           domain: `${fakerEN_GB.string.alphanumeric({
             length: 5,
             casing: "lower"
           })}.com`
-        },
-        [],
-        true,
-        false
-      );
+        }
+      });
       interceptUISchema(context, {
         "@context.auth.template": "two-column-ltr"
       });
@@ -222,34 +204,19 @@ test.describe.skip("Brand Settings - UI Templates", () => {
         "register-two-column-ltr.png"
       );
     });
-    test("Registration with item in basket", async ({
-      page,
-      context,
-      request
-    }) => {
+    test("Registration with item in basket", async ({ page, context }) => {
       await page.goto(URLs.login);
-      await waitForSessionCookie(context);
-      token = await getSessionToken(page.context());
-      let order = await createOrder(token);
-      orderId = order.id;
-      await addProductToOrder(
-        `${token}`,
-        `${orderId}`,
-        "3de78642-de53-9714-76df-21208469530d",
-        1,
-        24,
-        [],
-        [],
-        {
+      await addProductViaHeadless(page, {
+        productId: "3de78642-de53-9714-76df-21208469530d",
+        quantity: 1,
+        billingCycleMonths: 24,
+        provisionFields: {
           domain: `${fakerEN_GB.string.alphanumeric({
             length: 5,
             casing: "lower"
           })}.com`
-        },
-        [],
-        true,
-        false
-      );
+        }
+      });
       interceptUISchema(context, {
         "@context.auth.template": "two-column-ltr"
       });
@@ -326,32 +293,22 @@ test.describe.skip("Brand Settings - UI Templates", () => {
   test.describe("Basket Product UI Templates", () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(URLs.login);
-      await getClientToken(
+      await loginViaHeadless(
         page,
         Logins.uiTesting.username,
         Logins.uiTesting.password
       );
       await page.reload();
-      token = await getSessionToken(page.context());
-      let order = await createOrder(token);
-      orderId = order.id;
-      await addProductToOrder(
-        `${token}`,
-        `${orderId}`,
-        "3de78642-de53-9714-76df-21208469530d",
-        1,
-        24,
-        [],
-        [],
-        {
+      await addProductViaHeadless(page, {
+        productId: "3de78642-de53-9714-76df-21208469530d",
+        quantity: 1,
+        billingCycleMonths: 24,
+        provisionFields: {
           domain: `${fakerEN_GB.string.alphanumeric({
             length: { min: 3, max: 15 }
           })}.com`
-        },
-        [],
-        true,
-        false
-      );
+        }
+      });
     });
     test("Fallback to default (Two Column (LTR))", async ({ page }) => {
       await page.goto(URLs.basket);
@@ -416,32 +373,22 @@ test.describe.skip("Brand Settings - UI Templates", () => {
   test.describe("Basket UI Templates", () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(URLs.login);
-      await getClientToken(
+      await loginViaHeadless(
         page,
         Logins.uiTesting.username,
         Logins.uiTesting.password
       );
       await page.reload();
-      token = await getSessionToken(page.context());
-      let order = await createOrder(token);
-      orderId = order.id;
-      await addProductToOrder(
-        `${token}`,
-        `${orderId}`,
-        "3de78642-de53-9714-76df-21208469530d",
-        1,
-        24,
-        [],
-        [],
-        {
+      await addProductViaHeadless(page, {
+        productId: "3de78642-de53-9714-76df-21208469530d",
+        quantity: 1,
+        billingCycleMonths: 24,
+        provisionFields: {
           domain: `${fakerEN_GB.string.alphanumeric({
             length: { min: 3, max: 15 }
           })}.com`
-        },
-        [],
-        true,
-        false
-      );
+        }
+      });
     });
     test("Fallback to default (Two Column (LTR))", async ({ page }) => {
       await page.goto(URLs.basket);
@@ -501,30 +448,18 @@ test.describe.skip("Brand Settings - UI Templates", () => {
     test.beforeEach(async ({ page }) => {
       checkout = new Checkout(page);
       await page.goto(URLs.login);
-      await getClientToken(
+      await loginViaHeadless(
         page,
         Logins.uiTesting.username,
         Logins.uiTesting.password
       );
       await page.reload();
-      token = await getSessionToken(page.context());
-      let order = await createOrder(token);
-      orderId = order.id;
-      await addProductToOrder(
-        `${token}`,
-        `${orderId}`,
-        "3de78642-de53-9714-76df-21208469530d",
-        1,
-        24,
-        [],
-        [],
-        {
-          domain: `testingdomain.com`
-        },
-        [],
-        true,
-        false
-      );
+      await addProductViaHeadless(page, {
+        productId: "3de78642-de53-9714-76df-21208469530d",
+        quantity: 1,
+        billingCycleMonths: 24,
+        provisionFields: { domain: `testingdomain.com` }
+      });
     });
     test("Fallback to Default (Two Column LTR)", async ({ page }) => {
       await page.goto(URLs.checkout);

@@ -80,8 +80,7 @@
   >
     <p
       :class="styles.field.transfer.text"
-      data-test-key="domain-transfer-pricing-info"
-      :data-test-value="transferOptionIsFree ? 'free' : 'paid'"
+      v-bind="transferPricingTestAttrs(transferOptionIsFree ? 'free' : 'paid')"
     >
       {{
         transferOptionIsFree
@@ -135,6 +134,7 @@ import {
   Link,
   FormMessage,
   useStyles,
+  useTestAttrs,
   isMobile
 } from "@upmind-automation/upmind-ui";
 import config from "../smartDomainField.config";
@@ -154,6 +154,9 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const styles = useStyles(["field.transfer"], {}, config);
+
+const transferPricingTestAttrs = (value: string) =>
+  useTestAttrs({ key: "domain-transfer-pricing-info", value });
 
 const searchValue = ref(props.modelValue ?? "");
 

@@ -4,7 +4,6 @@ import { ProductSetup } from "../../support/page-objects/templates/product-setup
 import { URLs } from "../../support/constants/urls";
 import { products } from "../../support/constants/products";
 import { seedInvalidProduct } from "../../support/flows";
-import { getBasketProducts } from "../../support/api";
 
 let basket: Basket;
 let productSetup: ProductSetup;
@@ -25,10 +24,11 @@ newUser.describe("Product Config — Field-level error panel", () => {
 
   newUser(
     "Lists each missing field with a Review link when a basket product has provision-field errors",
-    async ({ page, token }) => {
-      await seedInvalidProduct(products.DOMAIN_2, token);
-      let basketProducts = await getBasketProducts(token);
-      let product = basketProducts[0].id;
+    async ({ page }) => {
+      const { basketProductId: product } = await seedInvalidProduct(
+        page,
+        products.DOMAIN_2
+      );
       await page.goto(`/order/basket/edit/${product}`);
       const alert = incompleteAlert(page);
       await expect(alert).toBeVisible({ timeout: 15000 });
@@ -37,10 +37,11 @@ newUser.describe("Product Config — Field-level error panel", () => {
     }
   );
 
-  newUser("Review links have correct href values", async ({ page, token }) => {
-    await seedInvalidProduct(products.DOMAIN_2, token);
-    let basketProducts = await getBasketProducts(token);
-    let product = basketProducts[0].id;
+  newUser("Review links have correct href values", async ({ page }) => {
+    const { basketProductId: product } = await seedInvalidProduct(
+      page,
+      products.DOMAIN_2
+    );
     await page.goto(`/order/basket/edit/${product}`);
     const alert = incompleteAlert(page);
     await expect(alert).toBeVisible({ timeout: 15000 });
@@ -68,11 +69,12 @@ newUser.describe("Product Config — Field-level error panel", () => {
 
   newUser(
     "Errors are de-duplicated across multiple instances of the same product",
-    async ({ page, token }) => {
-      await seedInvalidProduct(products.DOMAIN_2, token);
-      await seedInvalidProduct(products.DOMAIN_2, token);
-      let basketProducts = await getBasketProducts(token);
-      let product = basketProducts[0].id;
+    async ({ page }) => {
+      const { basketProductId: product } = await seedInvalidProduct(
+        page,
+        products.DOMAIN_2
+      );
+      await seedInvalidProduct(page, products.DOMAIN_2);
       await page.goto(`/order/basket/edit/${product}`);
       const alert = incompleteAlert(page);
       await expect(alert).toBeVisible({ timeout: 15000 });
@@ -85,14 +87,12 @@ newUser.describe("Product Config — Field-level error panel", () => {
     }
   );
 
-  newUser(
-    "Panel hides when the product has no errors",
-    async ({ page, token }) => {
-      await seedInvalidProduct(products.STARTER_HOSTING, token);
-      let basketProducts = await getBasketProducts(token);
-      let product = basketProducts[0].id;
-      await page.goto(`/order/basket/edit/${product}`);
-      await expect(incompleteAlert(page)).toHaveCount(0);
-    }
-  );
+  newUser("Panel hides when the product has no errors", async ({ page }) => {
+    const { basketProductId: product } = await seedInvalidProduct(
+      page,
+      products.STARTER_HOSTING
+    );
+    await page.goto(`/order/basket/edit/${product}`);
+    await expect(incompleteAlert(page)).toHaveCount(0);
+  });
 });

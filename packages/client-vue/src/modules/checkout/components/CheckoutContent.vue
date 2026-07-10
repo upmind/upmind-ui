@@ -63,7 +63,7 @@
   <!-- Payment Details -->
   <PaymentDetails
     v-show="showCheckout"
-    data-test-key="payment-details"
+    v-bind="paymentDetailsTestAttrs"
     @resolve="checkout"
   />
 </template>
@@ -77,6 +77,7 @@ import {
   useBasketPaymentDetails
 } from "@upmind-automation/headless";
 import { useConfig, UIContext } from "@upmind-automation/headless";
+import { useTestAttrs } from "@upmind-automation/upmind-ui";
 import Form from "../../../components/form/Form.vue";
 import Section from "../../../components/section/Section.vue";
 import BasketAlerts from "../../basket/components/BasketAlerts.vue";
@@ -110,6 +111,8 @@ const billingDetailsDisabled = computed(
 
 const paymentDetail = useBasketPaymentDetails();
 provide("usePaymentDetail", paymentDetail);
+
+const paymentDetailsTestAttrs = useTestAttrs({ key: "payment-details" });
 
 const {
   errors: fieldsErrors,

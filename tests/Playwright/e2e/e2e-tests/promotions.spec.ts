@@ -2,22 +2,17 @@ import { test, expect, BrowserContext } from "@playwright/test";
 import { URLs } from "../support/constants/urls";
 import { ProductConfig } from "../support/page-objects/templates/product-config";
 import { Basket } from "../support/page-objects/templates/basket";
-import { addProductToOrder, createOrder } from "../support/api/basket";
 import { Registration } from "../support/page-objects/templates/registration";
 import { Checkout } from "../support/page-objects/templates/checkout";
 import { Confirmation } from "../support/page-objects/templates/confirmation";
 import { goToCheckout } from "../support/flows/checkout";
+import { addProductViaHeadless } from "../support/flows/basket-setup";
+import { registerClientViaHeadless } from "../support/flows/auth-setup";
 import { mockPromos } from "../support/mocks/promotions";
 import { returnError } from "../support/mocks/errors";
 import { fakerEN_GB } from "@faker-js/faker";
 import { products } from "../support/constants/products";
 import { gateways } from "../support/constants/gateways";
-import {
-  getClientToken,
-  getSessionToken,
-  registerClient
-} from "../support/api/index";
-import { waitForSessionCookie } from "../support/helpers/session";
 
 // TODO: migrate to the fixture-based pattern used by newer specs
 // (see support/fixtures/auth-context). Module-scope `let` declarations
@@ -152,26 +147,15 @@ test.describe("Promotions", () => {
     });
   });
   test.describe("Promotion displayed on Basket", () => {
-    test.beforeEach(async ({ page, context }) => {
+    test.beforeEach(async ({ page }) => {
       const domain = `${fakerEN_GB.string.alphanumeric({ length: 15 })}.com`;
       await page.goto("/");
-      await waitForSessionCookie(context);
-      let token = await getSessionToken(context);
-      let order = await createOrder(token);
-      let orderId = order.id;
-      await addProductToOrder(
-        token,
-        orderId,
-        products.STARTER_HOSTING.id,
-        1,
-        24,
-        [],
-        [],
-        { domain: domain },
-        [],
-        true,
-        false
-      );
+      await addProductViaHeadless(page, {
+        productId: products.STARTER_HOSTING.id,
+        quantity: 1,
+        billingCycleMonths: 24,
+        provisionFields: { domain }
+      });
     });
     test("Promo request sent when adding promo to basket", async ({ page }) => {
       await page.goto(URLs.basket);
@@ -197,7 +181,10 @@ test.describe("Promotions", () => {
         page.getByTestId("basket-product-summary").getByTestId("badge")
       ).toBeVisible();
       await expect(
-        page.getByTestId("section-basket-summary").getByTestId("badge")
+        page
+          .getByTestId("section")
+          .and(page.locator('[data-test-value="basket-summary"]'))
+          .getByTestId("badge")
       ).toContainText(promoCode);
     });
     for (const scenario of promoErrorScenarios) {
@@ -217,16 +204,11 @@ test.describe("Promotions", () => {
     }
   });
   test.describe("Promotion displayed on Checkout", () => {
-    test.beforeEach(async ({ page, context }) => {
+    test.beforeEach(async ({ page }) => {
       checkout = new Checkout(page);
       await page.goto("/");
-      await waitForSessionCookie(context);
-      let guestToken = await getSessionToken(context);
-      let user = await registerClient(guestToken);
-      let username = user.email;
-      let password = user.password;
-      await getClientToken(page, username, password);
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
+      await registerClientViaHeadless(page);
+      await goToCheckout(page, products.STARTER_HOSTING, null, null);
     });
     test("Promo badge/details displayed at checkout", async ({ page }) => {
       await checkout.addVoucherButton.click();
@@ -254,25 +236,12 @@ test.describe("Promotions", () => {
     }
   });
   test.describe("Promotion displayed on Confirmation", () => {
-    test("Promo badge/details displayed at confirmation", async ({
-      page,
-      context
-    }) => {
+    test("Promo badge/details displayed at confirmation", async ({ page }) => {
       checkout = new Checkout(page);
       confirmation = new Confirmation(page);
       await page.goto(URLs.catalogueRoot1);
-      await waitForSessionCookie(context, { guestOnly: true });
-      let guestToken = await getSessionToken(context);
-      let user = await registerClient(guestToken);
-      let username = user.email;
-      let password = user.password;
-      await getClientToken(page, username, password);
-      await goToCheckout(
-        page,
-        context,
-        products.STARTER_HOSTING,
-        "genericpromo"
-      );
+      await registerClientViaHeadless(page);
+      await goToCheckout(page, products.STARTER_HOSTING, "genericpromo");
       await expect(page.getByTestId("checkout-heading")).toBeVisible();
       await checkout.selectGatewayByType(gateways.BANK_TRANSFER);
       await checkout.clickCompleteCheckout();

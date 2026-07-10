@@ -7,8 +7,8 @@ import { Login } from "../support/page-objects/templates/login";
 import { Registration } from "../support/page-objects/templates/registration";
 import { ProductConfig } from "../support/page-objects/templates/product-config";
 import { Checkout } from "../support/page-objects/templates/checkout";
-import { getClientToken, getSessionToken } from "../support/api/auth";
-import { createOrder, addProductToOrder } from "../support/api/basket";
+import { loginViaHeadless } from "../support/flows/auth-setup";
+import { addProductViaHeadless } from "../support/flows/basket-setup";
 import { interceptUISchema } from "../support/mocks/brand";
 import { waitForSessionCookie } from "../support/helpers/session";
 
@@ -88,7 +88,7 @@ const disableAnimations = `
 
 test.describe("Template Matrix Visual Regression @template-matrix", () => {
   // The checkout tests authenticate the SHARED Logins.uiTesting account and each
-  // createOrder on it; serial makes the (single-locale) matrix take turns so a
+  // seed its basket; serial makes the (single-locale) matrix take turns so a
   // sibling can't flip that account's current order under fullyParallel
   // (mirrors checkout.spec.ts). Scope to a checkout-only sub-describe if the
   // matrix's wall-clock later matters more than the belt-and-braces.
@@ -156,27 +156,18 @@ test.describe("Template Matrix Visual Regression @template-matrix", () => {
   for (const template of ORDER_TEMPLATES) {
     test(`Basket — ${template}`, async ({ page, context }) => {
       await page.goto(URLs.login);
-      await getClientToken(
+      await loginViaHeadless(
         page,
         Logins.uiTesting.username,
         Logins.uiTesting.password
       );
       await page.reload();
-      const token = await getSessionToken(context);
-      const order = await createOrder(token);
-      await addProductToOrder(
-        token,
-        order.id,
-        products.STARTER_HOSTING.id,
-        1,
-        products.STARTER_HOSTING.billingCycle,
-        [],
-        [],
-        { domain: "uitesting.com" },
-        [],
-        true,
-        false
-      );
+      await addProductViaHeadless(page, {
+        productId: products.STARTER_HOSTING.id,
+        quantity: 1,
+        billingCycleMonths: products.STARTER_HOSTING.billingCycle,
+        provisionFields: { domain: "uitesting.com" }
+      });
       interceptUISchema(context, { "@context.basket.template": template });
       await page.goto(URLs.basket);
       await waitForSessionCookie(context);
@@ -195,27 +186,18 @@ test.describe("Template Matrix Visual Regression @template-matrix", () => {
     test(`Checkout — ${template}`, async ({ page, context }) => {
       const checkout = new Checkout(page);
       await page.goto(URLs.login);
-      await getClientToken(
+      await loginViaHeadless(
         page,
         Logins.uiTesting.username,
         Logins.uiTesting.password
       );
       await page.reload();
-      const token = await getSessionToken(context);
-      const order = await createOrder(token);
-      await addProductToOrder(
-        token,
-        order.id,
-        products.STARTER_HOSTING.id,
-        1,
-        products.STARTER_HOSTING.billingCycle,
-        [],
-        [],
-        { domain: "uitesting.com" },
-        [],
-        true,
-        false
-      );
+      await addProductViaHeadless(page, {
+        productId: products.STARTER_HOSTING.id,
+        quantity: 1,
+        billingCycleMonths: products.STARTER_HOSTING.billingCycle,
+        provisionFields: { domain: "uitesting.com" }
+      });
       interceptUISchema(context, { "@context.checkout.template": template });
       await page.goto(URLs.checkout);
       await waitForSessionCookie(context);

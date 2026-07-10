@@ -1,10 +1,12 @@
 import { Locator, Page } from "@playwright/test";
 
 export class Select {
+  readonly page: Page;
   readonly selectList: Locator;
   readonly selectOption: Locator;
 
   constructor(page: Page) {
+    this.page = page;
     this.selectList = page.getByTestId("combobox");
     this.selectOption = page.getByRole("option");
   }
@@ -17,6 +19,9 @@ export class Select {
    * @param key - Stable option key, e.g. `GB`.
    */
   async clickSelectOption(key: string) {
-    await this.selectList.getByTestId(`select-item-${key}`).click();
+    await this.selectList
+      .getByTestId("select-item")
+      .and(this.page.locator(`[data-test-value="${key}"]`))
+      .click();
   }
 }

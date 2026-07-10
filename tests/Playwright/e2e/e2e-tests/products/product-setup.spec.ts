@@ -1,5 +1,4 @@
 import { test } from "@playwright/test";
-import { fakerEN_GB } from "@faker-js/faker";
 import {
   newUser,
   registeredUser,
@@ -19,17 +18,25 @@ import {
   Logins,
   products
 } from "../../support/constants/index";
-import { getSessionToken } from "../../support/api/auth";
 import {
-  addProductToOrder,
-  createOrder,
-  getCurrentOrder
-} from "../../support/api/basket";
-import { fillRegistrantDetails, seedInvalidProduct } from "../../support/flows";
+  addBillingAddressViaHeadless,
+  seedInvalidProduct
+} from "../../support/flows";
 import { interceptUISchema, returnError } from "../../support/mocks/index";
-import { addAddressToClient } from "../../support/api";
+import type { AddressModel } from "@upmind-automation/headless";
 
 const SETUP_URL = `${URLs.baseUrl}order/basket/products-setup/`;
+const SEED_ADDRESS: AddressModel = {
+  name: "10 Downing Street",
+  address: {
+    address1: "10 Downing Street",
+    address2: "",
+    city: "London",
+    countryId: "320e4357-95e7-8d18-484f-31643202d986",
+    postcode: "SW1A 2AB",
+    regionId: "de78642d-e539-7146-295f-21208469530d"
+  }
+};
 let basket: Basket;
 let checkout: Checkout;
 let login: Login;
@@ -38,7 +45,7 @@ let productSetup: ProductSetup;
 
 newUser.describe.configure({ mode: "parallel" });
 newUser.describe("Product Setup flow", () => {
-  newUser.beforeEach(async ({ page, context, token }) => {
+  newUser.beforeEach(async ({ page, context }) => {
     basket = new Basket(page);
     checkout = new Checkout(page);
     login = new Login(page);
@@ -51,18 +58,18 @@ newUser.describe("Product Setup flow", () => {
   newUser.describe("Routing & guards", () => {
     newUser(
       "Redirects from BASKET to PRODUCTS_SETUP when an invalid product is in the basket",
-      async ({ page, token, clientId }) => {
-        await addAddressToClient(token, clientId);
-        await seedInvalidProduct(products.DOMAIN_2, token);
+      async ({ page, clientId }) => {
+        await seedInvalidProduct(page, products.DOMAIN_2);
         await page.goto(URLs.basket);
+        await addBillingAddressViaHeadless(page, clientId, SEED_ADDRESS);
         await basket.proceedToCheckout.click();
         await page.waitForURL(/products-setup/);
       }
     );
     newUser(
       "Skips PRODUCTS_SETUP when no products require setup",
-      async ({ page, token }) => {
-        await seedInvalidProduct(products.STARTER_HOSTING, token);
+      async ({ page }) => {
+        await seedInvalidProduct(page, products.STARTER_HOSTING);
         await page.goto(URLs.basket);
         await basket.proceedToCheckout.click();
         await page.waitForURL(/checkout/);
@@ -71,8 +78,8 @@ newUser.describe("Product Setup flow", () => {
     );
     newUser(
       "Direct visit to /products-setup/ with no invalid products redirects to checkout",
-      async ({ page, token }) => {
-        await seedInvalidProduct(products.STARTER_HOSTING, token);
+      async ({ page }) => {
+        await seedInvalidProduct(page, products.STARTER_HOSTING);
         await page.goto(SETUP_URL);
         await page.waitForURL(/checkout/);
       }
@@ -86,8 +93,8 @@ newUser.describe("Product Setup flow", () => {
     );
     newUser(
       "'Back to basket' from PRODUCTS_SETUP returns to basket",
-      async ({ page, token }) => {
-        await seedInvalidProduct(products.DOMAIN_2, token);
+      async ({ page }) => {
+        await seedInvalidProduct(page, products.DOMAIN_2);
         await page.goto(SETUP_URL);
         await productSetup.back();
         await page.waitForURL(/\/order\/basket\/?$/);
@@ -95,18 +102,19 @@ newUser.describe("Product Setup flow", () => {
     );
   });
   newUser.describe("Single invalid product", () => {
-    newUser.beforeEach(async ({ page, token, clientId }) => {
-      await addAddressToClient(token, clientId);
-      await seedInvalidProduct(products.DOMAIN_2, token);
-      await page.reload();
+    newUser.beforeEach(async ({ page, clientId }) => {
+      await seedInvalidProduct(page, products.DOMAIN_2);
       await page.goto(URLs.basket);
+      await addBillingAddressViaHeadless(page, clientId, SEED_ADDRESS);
       await basket.proceedToCheckout.click();
       await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
     });
     newUser(
       "Renders only the fields that have errors, not the full product configuration",
       async ({ page }) => {
-        await expect(page.getByTestId("input-tel")).toBeVisible();
+        await expect(
+          page.getByTestId("input").and(page.locator(`[data-test-value="tel"]`))
+        ).toBeVisible();
         await expect(productSetup.termFormItem).toHaveCount(0);
         await expect(productSetup.optionsFormItem).toHaveCount(0);
       }
@@ -130,11 +138,11 @@ newUser.describe("Product Setup flow", () => {
     });
   });
   newUser.describe("Multiple invalid products & apply-to-others", () => {
-    newUser.beforeEach(async ({ page, token, clientId }) => {
-      await addAddressToClient(token, clientId);
-      await seedInvalidProduct(products.DOMAIN_2, token);
-      await seedInvalidProduct(products.DOMAIN_3, token);
+    newUser.beforeEach(async ({ page, clientId }) => {
+      await seedInvalidProduct(page, products.DOMAIN_2);
+      await seedInvalidProduct(page, products.DOMAIN_3);
       await page.goto(URLs.basket);
+      await addBillingAddressViaHeadless(page, clientId, SEED_ADDRESS);
       await basket.proceedToCheckout.click();
       await page.waitForURL(/products-setup/);
       await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
@@ -193,10 +201,11 @@ newUser.describe("Product Setup flow", () => {
   newUser.describe("Apply-to-others edge cases", () => {
     newUser(
       "Apply-to-others is hidden when there are no overlapping products",
-      async ({ page, token, clientId }) => {
-        await addAddressToClient(token, clientId);
-        await seedInvalidProduct(products.DOMAIN_2, token);
-        await seedInvalidProduct(products.SERVER_A, token);
+      async ({ page, clientId }) => {
+        await seedInvalidProduct(page, products.DOMAIN_2);
+        await seedInvalidProduct(page, products.SERVER_A);
+        await page.goto(URLs.basket);
+        await addBillingAddressViaHeadless(page, clientId, SEED_ADDRESS);
         await page.goto(SETUP_URL);
         await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
         await expect(productSetup.applyToOthersGroup).toHaveCount(0);
@@ -206,10 +215,10 @@ newUser.describe("Product Setup flow", () => {
   newUser.describe("Generic non-domain products", () => {
     newUser(
       "Non-domain product with required provision fields lands on PRODUCTS_SETUP",
-      async ({ page, token, clientId }) => {
-        await addAddressToClient(token, clientId);
-        await seedInvalidProduct(products.SERVER_A, token);
+      async ({ page, clientId }) => {
+        await seedInvalidProduct(page, products.SERVER_A);
         await page.goto(URLs.basket);
+        await addBillingAddressViaHeadless(page, clientId, SEED_ADDRESS);
         await basket.proceedToCheckout.click();
         await page.waitForURL(/products-setup/);
         await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
@@ -217,11 +226,11 @@ newUser.describe("Product Setup flow", () => {
     );
     newUser(
       "Mixed basket: valid + invalid products, loops only over the invalid",
-      async ({ page, token, clientId }) => {
-        await addAddressToClient(token, clientId);
-        await seedInvalidProduct(products.STARTER_HOSTING, token);
-        await seedInvalidProduct(products.DOMAIN_2, token);
+      async ({ page, clientId }) => {
+        await seedInvalidProduct(page, products.STARTER_HOSTING);
+        await seedInvalidProduct(page, products.DOMAIN_2);
         await page.goto(URLs.basket);
+        await addBillingAddressViaHeadless(page, clientId, SEED_ADDRESS);
         await basket.proceedToCheckout.click();
         await page.waitForURL(/products-setup/);
         await expect(productSetup.progress).toHaveCount(0);
@@ -231,37 +240,38 @@ newUser.describe("Product Setup flow", () => {
   newUser.describe("Deferred mode", () => {
     newUser(
       "Default required mode skips deferred-only products",
-      async ({ page, token, clientId }) => {
-        await addAddressToClient(token, clientId);
-        await seedInvalidProduct(products.SERVER_B, token);
+      async ({ page, clientId }) => {
+        await seedInvalidProduct(page, products.SERVER_B);
         await page.goto(URLs.basket);
+        await addBillingAddressViaHeadless(page, clientId, SEED_ADDRESS);
         await basket.proceedToCheckout.click();
         await page.waitForURL(/checkout/);
       }
     );
     newUser(
       "Deferred product with all deferred fields populated does not route to PRODUCTS_SETUP",
-      async ({ page, context, token, clientId }) => {
+      async ({ page, context, clientId }) => {
         interceptUISchema(context, {
           "@context.checkout.productSetup": "deferred"
         });
-        await addAddressToClient(token, clientId);
-        await seedInvalidProduct(products.SERVER_B, token, {
+        await seedInvalidProduct(page, products.SERVER_B, {
           [DeferredFieldName]: "filled-via-api"
         });
         await page.goto(URLs.basket);
+        await addBillingAddressViaHeadless(page, clientId, SEED_ADDRESS);
         await basket.proceedToCheckout.click();
         await page.waitForURL(/checkout/);
       }
     );
     newUser(
       "Deferred mode renders deferred fields alongside any errored ones",
-      async ({ page, context, token, clientId }) => {
+      async ({ page, context, clientId }) => {
         interceptUISchema(context, {
           "@context.checkout.productSetup": "deferred"
         });
-        await addAddressToClient(token, clientId);
-        await seedInvalidProduct(products.DOMAIN_2, token);
+        await seedInvalidProduct(page, products.DOMAIN_2);
+        await page.goto(URLs.basket);
+        await addBillingAddressViaHeadless(page, clientId, SEED_ADDRESS);
         await page.goto(SETUP_URL);
         await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
         const visibleKeys = await productSetup.visibleFieldKeys();
@@ -281,9 +291,10 @@ newUser.describe("Product Setup flow", () => {
     };
     newUser(
       "When PRODUCTS_SETUP inputs are rejected, an error alert is shown and the user stays on the same product",
-      async ({ page, token, clientId }) => {
-        await addAddressToClient(token, clientId);
-        await seedInvalidProduct(products.DOMAIN_2, token);
+      async ({ page, clientId }) => {
+        await seedInvalidProduct(page, products.DOMAIN_2);
+        await page.goto(URLs.basket);
+        await addBillingAddressViaHeadless(page, clientId, SEED_ADDRESS);
         await page.goto(SETUP_URL);
         await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
         await returnError(page, ORDER_PUT, 422, forcedError);
@@ -297,9 +308,10 @@ newUser.describe("Product Setup flow", () => {
     );
     newUser(
       "Recoverable: clearing the route and resubmitting succeeds",
-      async ({ page, token, clientId }) => {
-        await addAddressToClient(token, clientId);
-        await seedInvalidProduct(products.DOMAIN_2, token);
+      async ({ page, clientId }) => {
+        await seedInvalidProduct(page, products.DOMAIN_2);
+        await page.goto(URLs.basket);
+        await addBillingAddressViaHeadless(page, clientId, SEED_ADDRESS);
         await page.goto(SETUP_URL);
         await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
         await returnError(page, ORDER_PUT, 422, forcedError);
@@ -323,7 +335,7 @@ test.describe("Backend auto-population of provision fields", () => {
     });
     registeredUser(
       "Client with complete saved address & phone skips PRODUCTS_SETUP",
-      async ({ page, context, token }) => {
+      async ({ page, context }) => {
         basket = new Basket(page);
         checkout = new Checkout(page);
         // The autopopulate client has a saved address + phone that satisfies
@@ -332,7 +344,7 @@ test.describe("Backend auto-population of provision fields", () => {
         interceptUISchema(context, {
           "@data.billing_details.billingDetailsDisabled": true
         });
-        await seedInvalidProduct(products.DOMAIN_2, token);
+        await seedInvalidProduct(page, products.DOMAIN_2);
         await page.goto(URLs.basket);
         await basket.proceedToCheckout.click();
         //await page.waitForURL(/checkout/);

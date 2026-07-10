@@ -100,7 +100,11 @@ for (const { language, locale } of languages) {
       await page.goto(URLs.catalogueDomainSearch);
       await setLocale(page, locale);
       await waitForSessionCookie(page.context());
-      await expect(page.getByTestId("input-domain-search-input")).toBeVisible({
+      await expect(
+        page
+          .getByTestId("input")
+          .and(page.locator('[data-test-value="domain-search-input"]'))
+      ).toBeVisible({
         timeout: 15000
       });
       await expect(page).toHaveScreenshot(
@@ -116,7 +120,7 @@ for (const { language, locale } of languages) {
       context
     }) => {
       const dac = new Dac(page);
-      await interceptConfigValues(page, null, {
+      await interceptConfigValues(page, {
         domainSearchMethod: "smart-suggest"
       });
       mockDomainSuggestions(context, { rows: baselineSuggestionRows(DAC_SLD) });
@@ -139,7 +143,7 @@ for (const { language, locale } of languages) {
       context
     }) => {
       const dac = new Dac(page);
-      await interceptConfigValues(page, null, {
+      await interceptConfigValues(page, {
         domainSearchMethod: "smart-suggest"
       });
       mockDomainSuggestions(context, { rows: baselineSuggestionRows(DAC_SLD) });
@@ -162,7 +166,7 @@ for (const { language, locale } of languages) {
     });
     test("Domain Search - Exact match available", async ({ page, context }) => {
       const dac = new Dac(page);
-      await interceptConfigValues(page, null, {
+      await interceptConfigValues(page, {
         domainSearchMethod: "smart-suggest"
       });
       mockDomainSuggestions(context, { rows: baselineSuggestionRows(DAC_SLD) });
@@ -206,7 +210,7 @@ for (const { language, locale } of languages) {
       context
     }) => {
       const dac = new Dac(page);
-      await interceptConfigValues(page, null, {
+      await interceptConfigValues(page, {
         domainSearchMethod: "smart-suggest"
       });
       mockDomainSuggestions(context, { rows: baselineSuggestionRows(DAC_SLD) });

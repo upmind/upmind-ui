@@ -9,11 +9,7 @@
     />
     <hgroup>
       <slot name="prepend" />
-      <h1
-        :class="styles.hero.title"
-        :data-test-key="props.dataAttrs?.['data-test-key'] ?? 'hero-title'"
-        v-bind="dataAttrsRest"
-      >
+      <h1 :class="styles.hero.title" v-bind="titleTestAttrs()">
         <slot name="title">
           <Sanitized v-if="props.title" :modelValue="props.title" />
         </slot>
@@ -68,11 +64,15 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { Badge, Button } from "@upmind-automation/upmind-ui";
-import { useStyles, Sanitized } from "@upmind-automation/upmind-ui";
+import {
+  useStyles,
+  useTestAttrs,
+  Sanitized
+} from "@upmind-automation/upmind-ui";
 
 // --- utils
 import config from "./hero.config";
-import { isString, omit } from "lodash-es";
+import { isString } from "lodash-es";
 
 // --- types
 import type { HeroProps } from "./types";
@@ -84,7 +84,8 @@ const emit = defineEmits<{
   (e: "action"): void;
 }>();
 
-const dataAttrsRest = computed(() => omit(props.dataAttrs, "data-test-key"));
+const titleTestAttrs = () =>
+  useTestAttrs({ key: "hero-title", dataAttrs: props.dataAttrs });
 
 const meta = computed(() => ({
   hasSubtitle: !!props.subtitle || !!slots.subtitle,

@@ -1,41 +1,31 @@
-import { test, expect, BrowserContext } from "@playwright/test";
+import { test, expect, Page } from "@playwright/test";
 import { URLs } from "../../support/constants/urls";
 import { products } from "../../support/constants/products";
 import { Basket } from "../../support/page-objects/templates/basket";
-import { getSessionToken } from "../../support/api/auth";
-import { createOrder, addProductToOrder } from "../../support/api/basket";
+import {
+  addProductViaHeadless,
+  waitForUpmindBridge
+} from "../../support/flows";
 import { interceptBasketUpsells, interceptUISchema } from "../../support/mocks";
-import { waitForSessionCookie } from "../../support/helpers/session";
 
 let basket: Basket;
 
 const STARTER = products.STARTER_HOSTING;
 
-async function seedStarterHosting(context: BrowserContext) {
-  const token = await getSessionToken(context);
-  const order = await createOrder(token);
-  await addProductToOrder(
-    token,
-    order.id,
-    STARTER.id,
-    1,
-    STARTER.billingCycle,
-    [],
-    [],
-    {},
-    [],
-    true,
-    false
-  );
+async function seedStarterHosting(page: Page): Promise<void> {
+  await addProductViaHeadless(page, {
+    productId: STARTER.id,
+    billingCycleMonths: STARTER.billingCycle
+  });
 }
 
 test.describe.configure({ mode: "parallel" });
 
 test.describe("Product Upsells in Basket @upsells", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page }) => {
     basket = new Basket(page);
     await page.goto("/");
-    await waitForSessionCookie(context);
+    await waitForUpmindBridge(page);
   });
 
   test.describe("Display — per-option gate", () => {
@@ -44,7 +34,7 @@ test.describe("Product Upsells in Basket @upsells", () => {
       context
     }) => {
       interceptBasketUpsells(context, { optionUpsellEnabled: true });
-      await seedStarterHosting(context);
+      await seedStarterHosting(page);
       await page.goto(URLs.basket);
       await expect(basket.basketProductSummary).toBeVisible();
       const firstUpsell = basket.basketProductUpsell.first();
@@ -56,7 +46,7 @@ test.describe("Product Upsells in Basket @upsells", () => {
       context
     }) => {
       interceptBasketUpsells(context, { optionUpsellEnabled: false });
-      await seedStarterHosting(context);
+      await seedStarterHosting(page);
       await page.goto(URLs.basket);
       await expect(basket.basketProductSummary).toBeVisible();
       await expect(basket.basketProductUpsell).toHaveCount(0);
@@ -71,7 +61,7 @@ test.describe("Product Upsells in Basket @upsells", () => {
         "@context.basket.optionUpsells": "hidden"
       });
       interceptBasketUpsells(context, { optionUpsellEnabled: true });
-      await seedStarterHosting(context);
+      await seedStarterHosting(page);
       await page.goto(URLs.basket);
       await expect(basket.basketProductSummary).toBeVisible();
       await expect(basket.basketProductUpsell).toHaveCount(0);
@@ -84,7 +74,7 @@ test.describe("Product Upsells in Basket @upsells", () => {
         "@context.basket.optionUpsells": "visible"
       });
       interceptBasketUpsells(context, { optionUpsellEnabled: true });
-      await seedStarterHosting(context);
+      await seedStarterHosting(page);
       await page.goto(URLs.basket);
       await expect(basket.basketProductSummary).toBeVisible();
       await expect(basket.basketProductUpsell.first()).toBeVisible();
@@ -104,7 +94,7 @@ test.describe("Product Upsells in Basket @upsells", () => {
         optionUpsellEnabled: true,
         optionBenefits: benefits
       });
-      await seedStarterHosting(context);
+      await seedStarterHosting(page);
       await page.goto(URLs.basket);
       const firstUpsell = basket.basketProductUpsell.first();
       await expect(firstUpsell).toBeVisible();
@@ -124,7 +114,7 @@ test.describe("Product Upsells in Basket @upsells", () => {
         optionUpsellEnabled: true,
         optionBenefits: []
       });
-      await seedStarterHosting(context);
+      await seedStarterHosting(page);
       await page.goto(URLs.basket);
       const firstUpsell = basket.basketProductUpsell.first();
       await expect(firstUpsell).toBeVisible();
@@ -143,7 +133,7 @@ test.describe("Product Upsells in Basket @upsells", () => {
         optionUpsellEnabled: true,
         optionBenefits: benefits
       });
-      await seedStarterHosting(context);
+      await seedStarterHosting(page);
       await page.goto(URLs.basket);
       const firstUpsell = basket.basketProductUpsell.first();
       await expect(firstUpsell).toBeVisible();
@@ -163,7 +153,7 @@ test.describe("Product Upsells in Basket @upsells", () => {
       context
     }) => {
       interceptBasketUpsells(context, { optionUpsellEnabled: true });
-      await seedStarterHosting(context);
+      await seedStarterHosting(page);
       await page.goto(URLs.basket);
       await expect(basket.basketProductUpsell.first()).toBeVisible();
       const count = await basket.basketProductUpsell.count();
@@ -176,11 +166,11 @@ test.describe("Product Upsells in Basket @upsells", () => {
     });
   });
   test.describe("Interaction", () => {
-    test.beforeEach(async ({ page, context }) => {
+    test.beforeEach(async ({ page }) => {
       // No upsell mock here: Starter Hosting's options are real upsells, and
       // mocking /orders/current makes the post-add refresh throw at teardown.
       // interceptBasketUpsells(context, { optionUpsellEnabled: true });
-      await seedStarterHosting(context);
+      await seedStarterHosting(page);
       await page.goto(URLs.basket);
     });
     test("Adding an upsell swaps the action button and patches the basket", async ({

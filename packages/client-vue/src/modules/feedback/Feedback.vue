@@ -8,7 +8,7 @@
         :scheduled="scheduled"
         block
         variant="stacked"
-        data-test-key="feedback"
+        :dataAttrs="{ 'data-test-key': 'feedback' }"
       />
     </aside>
 
@@ -28,7 +28,6 @@
       :status="error?.message.value?.data?.status"
       :open="error.meta.value.isActive"
       modal
-      data-test-key="error"
       :storefront-route="props.storefrontRoute"
       @dismiss="error.dismiss"
     />

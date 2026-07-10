@@ -7,13 +7,10 @@
   >
     <template #footer-actions v-if="meta.hasActions">
       <UpmLocale
-        data-test-key="locale-selector"
+        v-bind="localeTestAttrs"
         v-show="meta.showLocale && localeMeta.isAvailable"
       />
-      <UpmCurrency
-        data-test-key="currency-selector"
-        v-show="meta.showCurrency"
-      />
+      <UpmCurrency v-bind="currencyTestAttrs" v-show="meta.showCurrency" />
     </template>
 
     <template #footer-content v-if="meta.hasContent && meta.showPoweredBy">
@@ -38,7 +35,7 @@ import {
   useClientTemplate,
   ClientTemplateSlotCodes
 } from "@upmind-automation/headless";
-import { Markdown } from "@upmind-automation/upmind-ui";
+import { Markdown, useTestAttrs } from "@upmind-automation/upmind-ui";
 import UpmLocale from "../../components/LocaleSwitcher.vue";
 import UpmCurrency from "../../modules/basket/components/CurrencySwitcher.vue";
 import Content from "./components/Content.vue";
@@ -49,6 +46,9 @@ import { size } from "lodash-es";
 // --- components
 
 // -----------------------------------------------------------------------------
+
+const localeTestAttrs = useTestAttrs({ key: "locale-selector" });
+const currencyTestAttrs = useTestAttrs({ key: "currency-selector" });
 
 const { meta, layout } = useFooter();
 const { meta: localeMeta, supportedLanguages } = useLocale();
