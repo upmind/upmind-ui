@@ -1,6 +1,7 @@
 /** @internal */
 import { BrandConfigKeys, type ICompany } from "@upmind-automation/types";
 import { useQuery } from "../query";
+import { ScopeActorTypes } from "../scope";
 import { useBrand } from "../brand";
 import { useSystem } from "../system";
 import { useActiveSession } from "../session-store";
@@ -14,7 +15,6 @@ import type { AddressModel } from "../client-address";
 import type { EmailModel } from "../client-email";
 import type { PhoneModel } from "../client-phone";
 import { useClientAddressServices } from "../client-address";
-import { useClientEmailServices } from "../client-email";
 import { useClientPhoneServices } from "../client-phone";
 import { invalidateQueryByKey } from "../query";
 import {
@@ -87,11 +87,9 @@ async function loadLookups({
     data: phones
   } = useClientPhones();
 
-  const {
-    isReady: getEmails,
-    default: defaultEmail,
-    data: emails
-  } = useClientEmails();
+  const clientEmails = useClientEmails().as(ScopeActorTypes.SELF);
+  const { isReady: getEmails } = clientEmails.useActions();
+  const { default: defaultEmail, data: emails } = clientEmails.useContext();
 
   const {
     isReady: getAddresses,
@@ -302,7 +300,9 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
       )
     );
 
-  const { ensure: ensureEmail } = useClientEmailServices();
+  const { ensure: ensureEmail } = useClientEmails()
+    .as(ScopeActorTypes.SELF)
+    .useActions();
   const { ensure: ensurePhone } = useClientPhoneServices();
   const { ensure: ensureAddress } = useClientAddressServices();
 
@@ -313,11 +313,11 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
   return Promise.all([
     !data?.email && !data?.emailId
       ? Promise.resolve(null) // no email provided/needed
-      : ensureEmail({
-          model: (data?.email
+      : ensureEmail(
+          (data?.email
             ? { email: data.email }
             : { id: data?.emailId }) as unknown as EmailModel
-        }),
+        ),
 
     !data?.phone?.number && !data?.phoneId
       ? Promise.resolve(null) // no phone provided/needed

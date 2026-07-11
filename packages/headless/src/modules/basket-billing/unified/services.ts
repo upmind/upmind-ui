@@ -4,6 +4,7 @@ import { useClientAddresses } from "../../client-address";
 import { useClientCompanies } from "../../client-company";
 import { useClientEmails } from "../../client-email";
 import { useClientPhones } from "../../client-phone";
+import { ScopeActorTypes } from "../../scope";
 import { useBrand } from "../../brand";
 import { useClientAddressServices } from "../../client-address";
 import { useClientCompanyServices } from "../../client-company";
@@ -44,11 +45,9 @@ async function loadLookups({
     data: phones
   } = useClientPhones();
 
-  const {
-    isReady: getEmails,
-    default: defaultEmail,
-    data: emails
-  } = useClientEmails();
+  const clientEmails = useClientEmails().as(ScopeActorTypes.SELF);
+  const { isReady: getEmails } = clientEmails.useActions();
+  const { default: defaultEmail, data: emails } = clientEmails.useContext();
 
   const {
     isReady: getAddresses,
