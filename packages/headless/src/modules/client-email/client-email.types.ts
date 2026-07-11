@@ -1,5 +1,60 @@
+import { AccessRoleTypes } from "@upmind-automation/types";
+import { ScopeActorTypes } from "../scope";
 import type { DataManagerContext } from "../data-manager/data-manager.types";
 import type { IEmail } from "@upmind-automation/types";
+
+// -----------------------------------------------------------------------------
+// SCOPE
+// -----------------------------------------------------------------------------
+/**
+ * Context types for the client-emails **collection** — the entity whose email
+ * list is being read. Staff read on behalf of a client; a client reads their own
+ * (or a child client's) list.
+ */
+export enum ClientEmailsContextTypes {
+  /** Acting on a client's email collection. */
+  CLIENT = AccessRoleTypes.CLIENT
+}
+
+/**
+ * Scope matrix for `useClientEmails` (collection). Mirrors the account arc:
+ * - staff / client: can address a `client` collection
+ * - self / guest: not a valid collection scope
+ */
+export const CLIENT_EMAILS_SCOPE_MATRIX = {
+  [ScopeActorTypes.SELF]: null as never,
+  [ScopeActorTypes.STAFF]: ClientEmailsContextTypes.CLIENT,
+  [ScopeActorTypes.CLIENT]: ClientEmailsContextTypes.CLIENT,
+  [ScopeActorTypes.GUEST]: null as never
+} as const;
+
+/** Scope matrix type for `useClientEmails` (derived from the runtime const). */
+export type ClientEmailsScopeMatrix = typeof CLIENT_EMAILS_SCOPE_MATRIX;
+
+/**
+ * Context types for the client-email **manager** — the specific email being
+ * edited. The manager is scoped per-email so concurrent edit forms get isolated
+ * instances; a new email is minted with `.fresh()` (no context).
+ */
+export enum ClientEmailContextTypes {
+  /** Editing a specific email by id. */
+  EMAIL = "email"
+}
+
+/**
+ * Scope matrix for `useClientEmailManager` (per-email form).
+ * - staff / client: can edit a specific `email`
+ * - self / guest: no email-scoped edit context (new-email default only)
+ */
+export const CLIENT_EMAIL_SCOPE_MATRIX = {
+  [ScopeActorTypes.SELF]: null as never,
+  [ScopeActorTypes.STAFF]: ClientEmailContextTypes.EMAIL,
+  [ScopeActorTypes.CLIENT]: ClientEmailContextTypes.EMAIL,
+  [ScopeActorTypes.GUEST]: null as never
+} as const;
+
+/** Scope matrix type for `useClientEmailManager` (derived from the runtime const). */
+export type ClientEmailScopeMatrix = typeof CLIENT_EMAIL_SCOPE_MATRIX;
 
 // -----------------------------------------------------------------------------
 /**
