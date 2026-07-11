@@ -27,6 +27,40 @@
  *   vue-eslint-parser 10.2.0 · eslint-config-prettier 10.1.8 · prettier 3.7.4.
  *   (eslint 10 is NOT yet supported by eslint-plugin-vue 10 / typescript-eslint 8,
  *   so 9.39.2 is the latest correct ceiling.)
+ *
+ * -----------------------------------------------------------------------------
+ * SUPPRESSION LEDGER — how it is applied everywhere (FE-2842 Tranche 0)
+ * -----------------------------------------------------------------------------
+ * Existing violations of the "promoted to error" rules below are held in the
+ * native ESLint 9 bulk-suppressions ledger `eslint-suppressions.json` at the
+ * repo root. ESLint resolves that file — and computes every suppression key —
+ * RELATIVE TO `process.cwd()`. The ledger's keys are root-relative (e.g.
+ * "packages/headless/src/…"), so the ledger only matches when ESLint runs with
+ * cwd = repo root. A run from a package directory (the old `eslint . --fix`
+ * script, as invoked by `pnpm --filter <pkg> lint` / `pnpm -r lint`) computes
+ * package-relative keys, matches nothing, and reports every suppressed violation
+ * as a live error — so per-package lint and a root `eslint .` disagreed by
+ * ~1,005 violations on the same tree. Passing `--suppressions-location` alone
+ * does NOT fix this; the cwd itself must be the repo root.
+ *
+ * THE FIX: every lint entrypoint (root `pnpm lint`, `pnpm -r lint`,
+ * `pnpm --filter <pkg> lint`, and CI) routes through
+ * `scripts/lint/eslint-workspace.mjs`, which always runs ESLint with cwd = repo
+ * root while targeting the invoking package, so all entrypoints resolve the
+ * IDENTICAL suppression state. That wrapper — not this config — is the single
+ * source of truth for how the ledger is loaded (ESLint offers no config-level
+ * hook for the suppressions location; it is purely a CLI concern).
+ * `scripts/lint/verify-lint-convergence.mjs` (CI job `lint:convergence`, run via
+ * `pnpm lint:verify`) guards the invariant so the entrypoints cannot silently
+ * diverge again. Git-submodule packages (packages/ui, apps/hosting, apps/velia)
+ * must adopt the same wrapper in their OWN repos — the parent cannot edit their
+ * package.json without submodule churn; the guard flags any that haven't.
+ *
+ * Ledger ACCURACY (pruning stale entries, regenerating counts) is a SEPARATE
+ * concern from this wiring: the wrapper passes `--pass-on-unpruned-suppressions`
+ * so a package-scoped run does not fail merely because the whole-repo ledger
+ * carries other packages' (or stale) entries. Regeneration is done by re-running
+ * ESLint with `--prune-suppressions` in a later FE-2842 step, never here.
  */
 
 import { existsSync, readFileSync } from "node:fs";

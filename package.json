@@ -43,6 +43,8 @@
     "build": "pnpm -r build",
     "dev": "pnpm -r dev",
     "lint": "pnpm -r lint",
+    "lint:fix": "pnpm -r lint:fix",
+    "lint:verify": "node scripts/lint/verify-lint-convergence.mjs",
     "format": "pnpm -r format",
     "test": "pnpm -r test",
     "test:journeys": "vitest run --config tests/journeys/vitest.journeys.config.ts",

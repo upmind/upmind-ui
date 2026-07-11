@@ -22,6 +22,7 @@
   },
   "scripts": {
     "reset": "rm -rf node_modules",
-    "lint": "eslint . --fix"
+    "lint": "node ../../scripts/lint/eslint-workspace.mjs",
+    "lint:fix": "node ../../scripts/lint/eslint-workspace.mjs --fix"
   }
 }
