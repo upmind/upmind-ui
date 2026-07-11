@@ -1,0 +1,22 @@
+# FE-2842 Tranche 0 — ESLint suppression-ledger convergence guard.
+#
+# The monorepo's eslint-suppressions.json ledger only applies when ESLint runs
+# with cwd = repo root (its keys are root-relative). Every lint entrypoint is
+# therefore routed through scripts/lint/eslint-workspace.mjs so root, `pnpm -r`
+# and `pnpm --filter <pkg>` all resolve the SAME suppression state. This job runs
+# scripts/lint/verify-lint-convergence.mjs, which fails if any managed package's
+# lint script stops routing through that wrapper (i.e. reverts to `eslint .`,
+# which silently ignores the ledger). It is deliberately NOT a full `pnpm -r lint`
+# gate — burning down the remaining violations is later FE-2842 tranches.
+lint:convergence:
+  extends: .pnpm
+  stage: test
+  interruptible: true
+  needs:
+    - dependencies
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG
+  script:
+    - pnpm lint:verify

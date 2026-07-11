@@ -10,7 +10,8 @@
   },
   "scripts": {
     "reset": "rm -rf node_modules dist storybook-static *.tsbuildinfo",
-    "lint": "eslint . --fix",
+    "lint": "node ../../scripts/lint/eslint-workspace.mjs",
+    "lint:fix": "node ../../scripts/lint/eslint-workspace.mjs --fix",
     "start": "pnpm run storybook",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"

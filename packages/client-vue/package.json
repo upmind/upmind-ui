@@ -31,7 +31,8 @@
     "build-only": "vite build",
     "type-check": "vue-tsc -p tsconfig.build.json --noEmit",
     "preview": "vite preview",
-    "lint": "eslint . --fix",
+    "lint": "node ../../scripts/lint/eslint-workspace.mjs",
+    "lint:fix": "node ../../scripts/lint/eslint-workspace.mjs --fix",
     "format": "prettier --write src/"
   },
   "dependencies": {
