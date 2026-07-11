@@ -1,4 +1,4 @@
-import { castArray, find, get, isEmpty, omit } from "lodash-es";
+import { castArray, find, get, isEmpty, isNil, omit } from "lodash-es";
 
 export type TestAttrsOptions = {
   key?: string; // optional: omit to emit only what dataAttrs/overrides provide (Vue drops undefined-valued attrs)
@@ -37,11 +37,14 @@ export function useTestAttrs(input: TestAttrsOptions) {
   const overrideValue = get(input.dataAttrs ?? {}, "data-test-value");
 
   const key = overrideKey || input.key;
-  // NB: numbers are accepted explicitly — lodash isEmpty() is true for every
-  // number, so a plain !isEmpty cascade silently drops numeric values.
-  const value =
-    overrideValue ||
-    find(castArray(input.value), v => typeof v === "number" || !isEmpty(v));
+  // NB: guard the override with isNil (not truthiness) — a valid numeric 0
+  // override (e.g. an action index passed via dataAttrs) is falsy, so a plain
+  // `overrideValue || …` would silently drop it and fall through to the cascade.
+  // NB: the cascade itself accepts numbers explicitly — lodash isEmpty() is
+  // true for every number, so a plain !isEmpty predicate would drop them too.
+  const value = !isNil(overrideValue)
+    ? overrideValue
+    : find(castArray(input.value), v => typeof v === "number" || !isEmpty(v));
 
   const testAttrs: Record<string, string> = {};
   // Only emit defined keys — an undefined entry bound via v-bind would clash
