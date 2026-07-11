@@ -38,6 +38,9 @@ const LEDGER = resolve(REPO_ROOT, "eslint-suppressions.json");
 const WRAPPER_BASENAME = "scripts/lint/eslint-workspace.mjs";
 // Workspace globs that can contain a linted package (mirrors pnpm-workspace.yaml).
 const WORKSPACE_GLOBS = ["packages", "apps", "playgrounds"];
+// Workspace entries that ARE a package themselves (pnpm-workspace.yaml lists
+// them directly, not via a glob). Inert until they grow a lint script.
+const DIRECT_PACKAGES = ["docs", "tests/fixtures"];
 const DYNAMIC_SAMPLE = "playgrounds/labs";
 
 /** Canonical `lint` script for a package at the given repo-relative path. */
@@ -61,6 +64,10 @@ function readSubmodulePaths() {
 /** Enumerate every workspace package dir that has a package.json. */
 function listPackageDirs() {
   const dirs = [];
+  for (const direct of DIRECT_PACKAGES) {
+    const abs = join(REPO_ROOT, direct);
+    if (existsSync(join(abs, "package.json"))) dirs.push(abs);
+  }
   for (const glob of WORKSPACE_GLOBS) {
     const base = join(REPO_ROOT, glob);
     if (!existsSync(base)) continue;
@@ -126,6 +133,16 @@ for (const abs of listPackageDirs()) {
     failures.push(
       `  ${relPath}: lint script is ${JSON.stringify(lint)}\n` +
         `      expected ${JSON.stringify(want)} (must route through the shared wrapper)`
+    );
+  }
+
+  // lint:fix mutates rather than gates, but a package-cwd `eslint . --fix`
+  // would still apply a divergent suppression state — keep it on the wrapper.
+  const lintFix = pkg.scripts && pkg.scripts["lint:fix"];
+  if (lintFix && !lintFix.includes(WRAPPER_BASENAME)) {
+    failures.push(
+      `  ${relPath}: lint:fix script is ${JSON.stringify(lintFix)}\n` +
+        `      expected it to route through ${WRAPPER_BASENAME} (e.g. ${JSON.stringify(`${want} --fix`)})`
     );
   }
 }
