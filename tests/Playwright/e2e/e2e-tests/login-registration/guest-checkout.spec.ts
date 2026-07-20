@@ -21,7 +21,7 @@ import { Registration } from "../../support/page-objects/templates/registration"
  * upgrade promotes the guest to a fully registered client. When the brand
  * disallows guest checkout, no guest CTA is offered at all.
  *
- * Implements `tests/Playwright/features/login-registration/guest-checkout.feature`
+ * Implements `tests/features/login-registration/guest-checkout.feature`
  * (one test per Scenario).
  *
  * ## Gate dependency
@@ -234,11 +234,27 @@ test.describe("Guest checkout", () => {
     await expect(guest.upgradeForm).toBeVisible({ timeout: 15000 });
 
     // When they complete the registration form with valid details
+    const upgradeEmail = `nathan.robinson+${Date.now()}@upmind.com`;
     await registration.firstName.fill("Nathan");
     await registration.lastName.fill("Robinson");
-    await registration.email.fill(`nathan.robinson+${Date.now()}@upmind.com`);
+    await registration.email.fill(upgradeEmail);
     await registration.password.fill("Password1!");
+    // Assert the submitted details reach the wire (FE-2985 mutation-chain rule):
+    // the upgrade POSTs /clients/{id}/complete_registration (headless
+    // account.services), and its payload must carry the entered name and email —
+    // the cookie/unmount checks below only prove the guest state flipped, not
+    // that these fields were what promoted the account.
+    const upgradeRequest = page.waitForRequest(
+      r =>
+        r.method() === "POST" &&
+        /\/clients\/[^/]+\/complete_registration/.test(r.url())
+    );
     await guest.upgradeFormSubmit.click();
+    const upgradePayload = JSON.stringify(
+      (await upgradeRequest).postDataJSON()
+    );
+    expect(upgradePayload).toContain(upgradeEmail);
+    expect(upgradePayload).toContain("Nathan");
 
     // Then they become a fully registered client and the guest upgrade prompt
     // is no longer shown. A guest client already holds `upm_client_session`, so

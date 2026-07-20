@@ -1,0 +1,17 @@
+{
+  "name": "@upmind-automation/journeys",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Cross-package journey suite: boots the headless core and replays whole storefront journeys against MSW fixtures. Own executable vitest project (successor to the Playwright e2e suite).",
+  "scripts": {
+    "test": "vitest run --config vitest.journeys.config.ts",
+    "test:watch": "vitest --config vitest.journeys.config.ts"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.1",
+    "happy-dom": "^20.10.6",
+    "vite": "^7.1.2",
+    "vitest": "^3.2.4"
+  }
+}

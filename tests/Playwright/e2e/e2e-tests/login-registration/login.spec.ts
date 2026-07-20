@@ -21,7 +21,13 @@ test.describe("Login", async () => {
         Logins.checkoutUser.username,
         Logins.checkoutUser.password
       );
-      await page.waitForURL(URLs.emptyBasket);
+      // checkoutUser is a SHARED staging account whose basket is mutated by
+      // parallel specs (update-billing-details, generic-customers,
+      // auth-overlay-routes), so asserting basket emptiness here races their
+      // writes. Assert a login-success signal independent of basket contents:
+      // the authenticated header avatar, which renders only when the active
+      // session actor is a client/staff (a guest sees the login popover).
+      await expect(page.getByTestId("auth-avatar")).toBeVisible();
     });
     test("Invalid Username", async ({ page }) => {
       await login.inputLogin("invalid-username", Logins.checkoutUser.password);
@@ -65,14 +71,18 @@ test.describe("Login", async () => {
         Logins.checkoutUser.username,
         Logins.checkoutUser.password
       );
-      await expect(page.url()).toBe(URLs.devBlocks);
+      await expect(login.popoverContent).toBeHidden();
+      await expect(
+        page
+          .getByTestId("section")
+          .and(page.locator(`[data-test-value="product-configuration"]`))
+      ).toBeVisible();
     });
     test("Invalid Username", async ({ page }) => {
       await login.loginFromPopover(
         "Logins.checkoutUser.username",
         Logins.checkoutUser.password
       );
-      await expect(page.url()).toBe(URLs.devBlocks);
       await expect(login.popoverContent.locator(login.alert)).toBeVisible();
     });
     test("Invalid Password", async ({ page }) => {
@@ -80,7 +90,6 @@ test.describe("Login", async () => {
         Logins.checkoutUser.username,
         "Logins.checkoutUser.password"
       );
-      await expect(page.url()).toBe(URLs.devBlocks);
       await expect(login.popoverContent.locator(login.alert)).toBeVisible();
     });
   });

@@ -7,11 +7,11 @@ import {
   type IProductOption
 } from "@upmind-automation/types";
 import { useBasketCurrency } from "../basket";
-import { useI18n } from "../system-localisation";
-import { useQuery } from "../query";
-import { useSystem } from "../system";
 import { parseBasketSubproductConfig } from "../basket-product/basket-product.utils";
 import { useBrand } from "../brand";
+import { useQuery } from "../query";
+import { useSystem } from "../system";
+import { useI18n } from "../system-localisation";
 import { useProductConfigSchema } from "./product.schemas";
 import {
   parseTerm,

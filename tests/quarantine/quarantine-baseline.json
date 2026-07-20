@@ -1,0 +1,34 @@
+{
+  "$comment": "Grandfathered pre-existing quarantine/.skip debt (FE-2776). Each entry is a static .skip that predates mechanical enforcement and is deferred to the separate audit pass. Do NOT add new entries by hand — new skips must carry a valid @quarantine(<id>, <date>) tag. Regenerate with `pnpm lint:quarantine --update-baseline` only when burning debt down.",
+  "generated": "2026-07-10",
+  "entries": [
+    {
+      "key": "tests/Playwright/e2e/e2e-tests/basket/edit-basket-products.spec.ts::Edit product options",
+      "file": "tests/Playwright/e2e/e2e-tests/basket/edit-basket-products.spec.ts",
+      "title": "Edit product options",
+      "id": null,
+      "reason": "no @quarantine tag on .skip"
+    },
+    {
+      "key": "tests/Playwright/e2e/e2e-tests/brand-settings/ui-templates.spec.ts::Brand Settings - UI Templates",
+      "file": "tests/Playwright/e2e/e2e-tests/brand-settings/ui-templates.spec.ts",
+      "title": "Brand Settings - UI Templates",
+      "id": null,
+      "reason": "no @quarantine tag on .skip"
+    },
+    {
+      "key": "tests/Playwright/e2e/e2e-tests/promotions.spec.ts::Promotions DAC Drawer",
+      "file": "tests/Playwright/e2e/e2e-tests/promotions.spec.ts",
+      "title": "Promotions DAC Drawer",
+      "id": null,
+      "reason": "no @quarantine tag on .skip"
+    },
+    {
+      "key": "tests/Playwright/e2e/visual-regression/errors.spec.ts::FE-2798",
+      "file": "tests/Playwright/e2e/visual-regression/errors.spec.ts",
+      "title": "401 Not Authorized Dialog - ${language}",
+      "id": "FE-2798",
+      "reason": "tag @quarantine(FE-2798) is missing its delete-date"
+    }
+  ]
+}

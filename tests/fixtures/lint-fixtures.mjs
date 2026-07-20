@@ -9,6 +9,7 @@
  *
  * Fails (exit 1) on any of:
  *   - [pii]   UNMASKED PII (UUID, email, E.164 phone, JWT/Bearer) in a fixture
+ *             body OR filename
  *   - [slug]  a journey folder name that breaks the ADR 025 slug grammar
  *   - [dup]   two fixtures in ONE unit sharing a METHOD+identity (same templated
  *             path + identity params) with no distinguishing matcher — the
@@ -32,7 +33,10 @@ const __dirname = dirname(__filename);
 
 const REPO_ROOT = join(__dirname, "..", "..");
 const MODULES_ROOT = join(REPO_ROOT, "packages", "headless", "src", "modules");
-const TESTS_ROOT = join(REPO_ROOT, "tests");
+// Journey units live under tests/journeys/<surface>/<flow>/<slug>/ (ADR 025
+// Amendment A1.4 moved them beneath a `journeys/` wrapper; this is also where
+// tests/journeys/vitest.journeys.config.ts roots its `**/*.int.test.ts` glob).
+const JOURNEYS_ROOT = join(REPO_ROOT, "tests", "journeys");
 
 // --- slug grammar (ADR 025) — <surface>-<who>-<product>-<action>[-extras][-payment]
 
@@ -87,6 +91,7 @@ function isMasked(type, match) {
 function subdirs(path) {
   if (!existsSync(path)) return [];
   return readdirSync(path)
+    .filter(entry => entry !== "node_modules" && !entry.startsWith("."))
     .map(entry => join(path, entry))
     .filter(full => statSync(full).isDirectory());
 }
@@ -118,9 +123,7 @@ function findUnitDirs() {
     if (existsSync(fixturesDir)) units.push(fixturesDir);
   }
 
-  const SKIP = new Set(["Playwright", "fixtures", "guards", "node_modules"]);
-  for (const surface of subdirs(TESTS_ROOT)) {
-    if (SKIP.has(basename(surface))) continue;
+  for (const surface of subdirs(JOURNEYS_ROOT)) {
     for (const flow of subdirs(surface)) {
       for (const slug of subdirs(flow)) {
         const fixturesDir = join(slug, "fixtures");
@@ -135,9 +138,7 @@ function findUnitDirs() {
 /** Every journey slug folder (whether or not it has fixtures), for slug-shape. */
 function findJourneySlugs() {
   const slugs = [];
-  const SKIP = new Set(["Playwright", "fixtures", "guards", "node_modules"]);
-  for (const surface of subdirs(TESTS_ROOT)) {
-    if (SKIP.has(basename(surface))) continue;
+  for (const surface of subdirs(JOURNEYS_ROOT)) {
     for (const flow of subdirs(surface)) {
       for (const slug of subdirs(flow)) {
         slugs.push(slug);
@@ -162,12 +163,36 @@ function scanPii(file, findings) {
   }
 }
 
+/**
+ * The body remap masks PII in values, but a fixture's FILENAME is derived from
+ * the recorded request path and can still carry a real UUID (or other PII) even
+ * when the body is clean. Scan the basename with the same detectors so a leaked
+ * id in the filename cannot slip past a body-only gate.
+ */
+function scanFilenamePii(file, findings) {
+  const name = basename(file);
+  for (const { type, pattern } of DETECTORS) {
+    pattern.lastIndex = 0;
+    let match;
+    while ((match = pattern.exec(name)) !== null) {
+      if (!isMasked(type, match[0])) {
+        findings.push({
+          kind: "pii",
+          file,
+          detail: `unmasked ${type} in filename: ${match[0]}`
+        });
+      }
+    }
+  }
+}
+
 function checkUnit(fixturesDir, findings) {
   const files = jsonFiles(fixturesDir);
   const identities = new Map();
 
   for (const file of files) {
     scanPii(file, findings);
+    scanFilenamePii(file, findings);
 
     let fixture;
     try {

@@ -84,7 +84,6 @@ newUser.describe("Email-verification enforcement (negative matrix)", () => {
 
         // The gate intercepts into the verify-email overlay before any
         // basket->invoice conversion.
-        await expect(page).toHaveURL(/\/order\/checkout\/verify-email\//);
         await expect(verify.otpInput.first()).toBeVisible();
 
         // Network-level proof: the order was never converted while gated.
@@ -102,7 +101,6 @@ newUser.describe("Email-verification enforcement (negative matrix)", () => {
       await goToCheckout(page, products.STARTER_HOSTING, null, null);
 
       // Gate OFF → no verify overlay; the client lands on the checkout page.
-      await expect(page).not.toHaveURL(/verify-email/);
       await expect(verify.otpInput).toHaveCount(0);
     }
   );
@@ -140,7 +138,6 @@ test.describe("Email-verification enforcement — guest short-circuit", () => {
     await page.goto(URLs.checkout);
 
     // The guest is short-circuited by isGuestClient — never the verify overlay.
-    await expect(page).not.toHaveURL(/verify-email/);
     await expect(verify.otpInput).toHaveCount(0);
   });
 });

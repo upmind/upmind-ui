@@ -127,11 +127,12 @@ The 30-day deadline is the forcing function. The number can be adjusted; the dea
 
 **Trigger:** a test result with Allure status `flaky` (retried-pass) counts as one flake event. The first such event starts the investigation clock. A second `flaky` event for the same test within a 30-day window triggers quarantine (per the policy table above). Allure's flake history is the source of truth for counting events. (Wiring the history query is part of the `test-quarantine` tooling rollout — see Open items.)
 
-**Mechanical enforcement (per Linear ticket — `test-quarantine` tooling):**
+**Mechanical enforcement (per Linear ticket — `test-quarantine` tooling — LIVE, see [`tests/quarantine/docs/14-quarantine-tooling.md`](../../tests/quarantine/docs/14-quarantine-tooling.md) and [`tests/quarantine/`](../../tests/quarantine/)):**
 
-- Quarantined tests use a `@quarantine(<linear-id>, <delete-date>)` tag; a lint rule rejects bare `.skip` calls on tests in the regression suite that don't carry this tag.
+- Quarantined tests use a `@quarantine(<linear-id>, <delete-date>)` tag; a lint rule rejects bare `.skip` calls on tests in the regression suite that don't carry this tag. Run: `pnpm lint:quarantine` (CI: the `lint:quarantine` MR job).
 - `pnpm test:quarantined --age` reports every quarantined test by age in days.
-- A weekly CI job auto-files a Linear issue at day 25 ("Quarantine expiring: <test name>") and auto-fails CI at day 30 unless the test is deleted or the tag is refreshed with a documented justification.
+- `pnpm quarantine:flaky` queries Allure history for tests that flaked twice in a 30-day window (the quarantine trigger); emitted as a CI artefact.
+- A weekly CI job (`pnpm quarantine:enforce`) auto-files a Linear issue at day 25 ("Quarantine expiring: <test name>") and auto-fails CI at day 30 unless the test is deleted or the tag is refreshed with a documented justification.
 - The `test-quarantine` skill documents the canonical procedure for quarantining a test (file the issue, apply the tag with deadline, link the issue). Pairs with `test-triage`.
 
 ---

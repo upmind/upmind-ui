@@ -80,7 +80,7 @@
               <Link
                 size="sm"
                 :label="t('action.resend_code')"
-                :data-attrs="{ 'data-test-key': 'resend-code-link' }"
+                :dataAttrs="{ 'data-test-key': 'resend-code-link' }"
                 @click.prevent="resend"
               />
             </template>

@@ -10,8 +10,8 @@
 import { AccessRoleTypes } from "@upmind-automation/types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { ResponseError } from "../../utils";
-import type { IPhoneData } from "../client-phone";
 import type { Client } from "../client";
+import type { IPhoneData } from "../client-phone";
 import type { ScopeContext } from "../scope/scope.types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type { ActorRef } from "xstate";

@@ -5,9 +5,9 @@ import {
   BrandConfigKeys,
   type IImage
 } from "@upmind-automation/types";
-import { useI18n } from "../system-localisation";
-import { useQuery } from "../query";
 import { useBrand } from "../brand";
+import { useQuery } from "../query";
+import { useI18n } from "../system-localisation";
 import {
   DetailedError,
   ErrorOrigin,

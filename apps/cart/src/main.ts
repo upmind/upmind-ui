@@ -1,8 +1,8 @@
 import "./main.css";
 import * as Sentry from "@sentry/vue";
 import { createApp } from "vue";
-import { AccessRoleTypes } from "@upmind-automation/types";
 import UpmindClient from "@upmind-automation/client-vue";
+import { AccessRoleTypes } from "@upmind-automation/types";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
 import App from "./App.vue";
 import i18n from "./i18n";

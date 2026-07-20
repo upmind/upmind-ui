@@ -6,11 +6,15 @@
 import {
   useSchema as useDefaultSchema,
   useUischema as useDefaultUischema
-} from "../schemas";
-import { getPayerEmail, payerNeedsEmail, payerNeedsPhone } from "../utils";
+} from "../payment-gateways.schemas";
+import {
+  getPayerEmail,
+  payerNeedsEmail,
+  payerNeedsPhone
+} from "../payment-gateways.utils";
 
 // --- types
-import type { GatewayContext } from "../types";
+import type { GatewayContext } from "../payment-gateways.types";
 import { CURRENCY_TO_COUNTRY } from "./types";
 import type { JsonSchema, Layout } from "@jsonforms/core";
 import {

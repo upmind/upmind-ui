@@ -3,20 +3,17 @@ import { BrandConfigKeys, type ICompany } from "@upmind-automation/types";
 import { useQuery } from "../query";
 import { ScopeActorTypes } from "../scope";
 import { useBrand } from "../brand";
-import { useSystem } from "../system";
-import { useActiveSession } from "../session-store";
-import { useFeedback } from "../feedback";
-import { useClientPhones } from "../client-phone";
-import { useClientEmails } from "../client-email";
 import { useClientAddresses } from "../client-address";
-import { useI18n } from "../system-localisation";
-import type { QueryParams } from "../query";
-import type { AddressModel } from "../client-address";
-import type { EmailModel } from "../client-email";
 import type { PhoneModel } from "../client-phone";
 import { useClientAddressServices } from "../client-address";
+import { useClientEmails } from "../client-email";
+import { useClientPhones } from "../client-phone";
 import { useClientPhoneServices } from "../client-phone";
+import { useFeedback } from "../feedback";
 import { invalidateQueryByKey } from "../query";
+import { useActiveSession } from "../session-store";
+import { useSystem } from "../system";
+import { useI18n } from "../system-localisation";
 import {
   mapCompanies,
   mapCompany,
@@ -34,6 +31,9 @@ import {
   DEBOUNCE_DELAY
 } from "../../utils";
 import { get, isString, isEmpty, find, some, pick, isArray } from "lodash-es";
+import type { AddressModel } from "../client-address";
+import type { EmailModel } from "../client-email";
+import type { QueryParams } from "../query";
 import type {
   Company,
   CompanyModel,

@@ -159,11 +159,10 @@ test.describe("Recommendations", () => {
         await page.goto(URLs.rec1);
         await waitForUpmindBridge(page);
         await productConfig.addToBasket.click();
-        await page.waitForURL(/\/recommendations\/?$/);
         const card = page.getByTestId("carousel-card");
         await expect(card).toBeVisible();
         await addToBasketButton(card).click();
-        await page.waitForURL(/\/basket\/?$/);
+        await expect(page.getByTestId("basket-product").first()).toBeVisible();
         const order = await getBasketViaHeadless(page);
         const orderProducts = (order?.products ?? []) as Record<string, any>[];
         const subProdIds = collectSubproductIds(orderProducts[1]);
@@ -175,11 +174,10 @@ test.describe("Recommendations", () => {
         await page.goto(URLs.rec2);
         await waitForUpmindBridge(page);
         await productConfig.addToBasket.click();
-        await page.waitForURL(/\/recommendations\/?$/);
         const card = page.getByTestId("carousel-card");
         await expect(card).toBeVisible();
         await addToBasketButton(card).click();
-        await page.waitForURL(/\/basket\/?$/);
+        await expect(page.getByTestId("basket-product").first()).toBeVisible();
         const order = await getBasketViaHeadless(page);
         const orderProducts = (order?.products ?? []) as Record<string, any>[];
         const subProdIds = collectSubproductIds(orderProducts[1]);
@@ -192,11 +190,10 @@ test.describe("Recommendations", () => {
       }) => {
         await page.goto(URLs.rec4);
         await productConfig.addToBasket.click();
-        await page.waitForURL(/\/recommendations\/?$/);
         const card = page.getByTestId("carousel-card");
         await expect(card).toBeVisible();
         await addToBasketButton(card).click();
-        await page.waitForURL(/\/basket\/?$/);
+        await expect(page.getByTestId("basket-product").first()).toBeVisible();
         const order = await getBasketViaHeadless(page);
         const orderProducts = (order?.products ?? []) as Record<string, any>[];
         const subProdIds = collectSubproductIds(orderProducts[1]);
@@ -210,8 +207,8 @@ test.describe("Recommendations", () => {
         await seedBasketProduct(page, products.STARTER_HOSTING);
         await page.goto(URLs.rec1);
         await productConfig.addToBasket.click();
-        await page.waitForURL(/\/order\/basket\//);
-        await expect(page.url()).not.toMatch(/\/recommendations\/?$/);
+        await expect(page.getByTestId("basket-product").first()).toBeVisible();
+        await expect(page.getByTestId("carousel-card")).toHaveCount(0);
       });
       test("Customer cannot reach the recommendations step when there is nothing new to suggest", async ({
         page
@@ -220,8 +217,8 @@ test.describe("Recommendations", () => {
         await page.goto(`${URLs.baseUrl}order/recommendations/`);
         // The funnel rejects the recommendations route and forwards
         // through CHECKOUT_FLOW to BASKET
-        await page.waitForURL(/\/order\/basket\//);
-        await expect(page.url()).not.toMatch(/\/recommendations\/?$/);
+        await expect(page.getByTestId("basket-product").first()).toBeVisible();
+        await expect(page.getByTestId("carousel-card")).toHaveCount(0);
       });
 
       test.describe("Visibility — conditions field", () => {
@@ -231,8 +228,8 @@ test.describe("Recommendations", () => {
           await seedBasketProduct(page, products.STARTER_HOSTING);
           await page.goto(URLs.rec5);
           await productConfig.addToBasket.click();
-          await page.waitForURL(/\/order\/basket\//);
-          await expect(page.url()).not.toMatch(/\/recommendations\/?$/);
+          await expect(page.getByTestId("basket-product").first()).toBeVisible();
+          await expect(page.getByTestId("carousel-card")).toHaveCount(0);
         });
 
         test("Recommendations skipped when 'hide' rule is triggered by a specific product in basket", async ({
@@ -241,8 +238,8 @@ test.describe("Recommendations", () => {
           await seedBasketProduct(page, products.FREE_HOSTING);
           await page.goto(URLs.rec6);
           await productConfig.addToBasket.click();
-          await page.waitForURL(/\/order\/basket\//);
-          await expect(page.url()).not.toMatch(/\/recommendations\/?$/);
+          await expect(page.getByTestId("basket-product").first()).toBeVisible();
+          await expect(page.getByTestId("carousel-card")).toHaveCount(0);
         });
 
         test("Recommendations skipped when 'hide' rule is triggered by a product in basket with a specific billing term", async ({
@@ -264,8 +261,8 @@ test.describe("Recommendations", () => {
           ]);
           await seedBasketProduct(page, products.FREE_HOSTING);
           await visitRecommendationsPage(page);
-          await page.waitForURL(/\/order\/basket\//);
-          await expect(page.url()).not.toMatch(/\/recommendations\/?$/);
+          await expect(page.getByTestId("basket-product").first()).toBeVisible();
+          await expect(page.getByTestId("carousel-card")).toHaveCount(0);
         });
 
         test("Recommendations displayed when 'hide' rules do not apply", async ({
@@ -279,7 +276,6 @@ test.describe("Recommendations", () => {
           ]);
           await seedBasketProduct(page, products.STARTER_HOSTING);
           await visitRecommendationsPage(page);
-          await page.waitForURL(/\/recommendations\/?$/);
           await expect(
             recommendationCard(page, products.TSHIRT.id)
           ).toHaveCount(1);
@@ -296,8 +292,8 @@ test.describe("Recommendations", () => {
           ]);
           await seedBasketProduct(page, products.STARTER_HOSTING);
           await visitRecommendationsPage(page);
-          await page.waitForURL(/\/order\/basket\//);
-          await expect(page.url()).not.toMatch(/\/recommendations\/?$/);
+          await expect(page.getByTestId("basket-product").first()).toBeVisible();
+          await expect(page.getByTestId("carousel-card")).toHaveCount(0);
         });
       });
 
@@ -311,7 +307,6 @@ test.describe("Recommendations", () => {
           ]);
           await seedBasketProduct(page, products.STARTER_HOSTING);
           await visitRecommendationsPage(page);
-          await page.waitForURL(/\/recommendations\/?$/);
 
           const freeCard = recommendationCard(page, products.FREE_HOSTING.id);
           await expect(freeCard).toHaveCount(1);
@@ -324,7 +319,6 @@ test.describe("Recommendations", () => {
           await seedBasketProduct(page, products.STARTER_HOSTING);
           await page.goto(URLs.rec8);
           await productConfig.addToBasket.click();
-          await page.waitForURL(/\/recommendations\/?$/);
           const starterCard = recommendationCard(
             page,
             products.STARTER_HOSTING.id
@@ -346,7 +340,6 @@ test.describe("Recommendations", () => {
           ]);
           await seedBasketProduct(page, products.STARTER_HOSTING);
           await visitRecommendationsPage(page);
-          await page.waitForURL(/\/recommendations\/?$/);
 
           const starterCard = recommendationCard(
             page,
@@ -366,7 +359,6 @@ test.describe("Recommendations", () => {
           ]);
           await seedBasketProduct(page, products.STARTER_HOSTING);
           await visitRecommendationsPage(page);
-          await page.waitForURL(/\/recommendations\/?$/);
 
           const starterCard = recommendationCard(
             page,
@@ -387,7 +379,6 @@ test.describe("Recommendations", () => {
           ]);
           await seedBasketProduct(page, products.STARTER_HOSTING);
           await visitRecommendationsPage(page);
-          await page.waitForURL(/\/recommendations\/?$/);
 
           const freeCard = recommendationCard(page, products.FREE_HOSTING.id);
           await expect(addToBasketButton(freeCard)).toBeEnabled();
@@ -410,7 +401,6 @@ test.describe("Recommendations", () => {
           ]);
           await seedBasketProduct(page, products.STARTER_HOSTING);
           await visitRecommendationsPage(page);
-          await page.waitForURL(/\/recommendations\/?$/);
 
           await expect(
             recommendationCard(page, products.STARTER_HOSTING.id)

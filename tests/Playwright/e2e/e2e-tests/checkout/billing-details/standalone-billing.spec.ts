@@ -13,6 +13,7 @@ import {
   goToCheckout,
   loginAsIncompleteCustomer,
   registerClientViaHeadless,
+  seedGuestBasket,
   seedInvalidProduct,
   setOrderBillingViaHeadless
 } from "../../../support/flows";
@@ -81,7 +82,6 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       const billingUpdateRequest = waitForBillingUpdate(page);
       await billingPage.saveDetails.click();
       await billingUpdateRequest;
-      await page.waitForURL("**/order/checkout**");
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
       // The address title is carried in billing-summary-address's
       // data-test-value; the manually entered address uses "10 Downing Street"
@@ -109,7 +109,6 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
         timeout: 15000
       });
       await checkout.billingSummaryChangeLink.click();
-      await page.waitForURL("**/order/basket/**/billing/**");
       await expect(checkout.billingCards).toBeVisible({ timeout: 15000 });
     });
   });
@@ -154,8 +153,9 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await page.goto(URLs.billing);
       await expect(billingPage.backToBasket).toBeVisible({ timeout: 15000 });
       await billingPage.backToBasket.click();
-      await page.waitForURL("**/order/basket**");
-      await expect(page).toHaveURL("/order/basket/");
+      await expect(page.getByTestId("basket-product").first()).toBeVisible({
+        timeout: 15000
+      });
     });
 
     test("Can add new address on billing page", async ({ page }) => {
@@ -171,7 +171,6 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       const billingUpdateRequest = waitForBillingUpdate(page);
       await billingPage.saveDetails.click();
       await billingUpdateRequest;
-      await page.waitForURL("**/order/checkout**");
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
       // The entered address line 1 is carried in billing-summary-address's
       // data-test-value (the address title), separated from the multi-line
@@ -218,7 +217,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       );
       await setOrderBillingViaHeadless(page, { addressId });
       await page.reload();
-      await page.waitForURL("**/order/checkout**");
+      await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
     });
 
     test("Round-trip: update address on billing page", async ({
@@ -229,7 +228,6 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
         timeout: 15000
       });
       await checkout.billingSummaryChangeLink.click();
-      await page.waitForURL("**/order/basket/**/billing/**");
       await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
       await expect(billingPage.personalTab).toBeVisible();
       await billingPage.personalTab.click();
@@ -277,7 +275,6 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
         timeout: 15000
       });
       await checkout.billingSummaryChangeLink.click();
-      await page.waitForURL("**/order/basket/**/billing/**");
       await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
       await expect(billingPage.businessTab).toBeVisible();
       await billingPage.businessTab.click();
@@ -294,7 +291,17 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       // company form defaults its addressId to that address and renders the
       // existing-address selector — not the Google address search. The company
       // is therefore valid with just the name; save it to the companies endpoint.
+      // Mirror the sibling address round-trip (mutation-chain rule): the POST
+      // /clients/{id}/companies payload must carry the entered name, so a
+      // dropped/stale company fails at the wire, not only at the summary.
+      const companyRequest = page.waitForRequest(
+        r =>
+          r.method() === "POST" && /\/clients\/[^/]+\/companies/.test(r.url())
+      );
       await checkout.clickSaveDetails("companies");
+      expect(JSON.stringify((await companyRequest).postDataJSON())).toContain(
+        "E2E Test Company Ltd"
+      );
       // Adding a company commits billing and auto-advances to checkout
       // (BillingForm.onFormResolve → navigateNext), so assert on the checkout
       // summary directly rather than routing back through the basket.
@@ -319,7 +326,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await page.goto("/");
       await registerClientViaHeadless(page);
       await goToCheckout(page, products.STARTER_HOSTING);
-      await page.waitForURL("**/order/checkout/**");
+      await expect(checkout.basketSummary).toBeVisible({ timeout: 15000 });
       interceptConfigValues(page, {
         requireAddressForOrders: true,
         requireCompanyForOrders: false,
@@ -343,7 +350,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
         "@data.billing_details.billingDetailsDisabled": false
       });
       await goToCheckout(page, products.STARTER_HOSTING);
-      await page.waitForURL("**/order/checkout/**");
+      await expect(checkout.basketSummary).toBeVisible({ timeout: 15000 });
       interceptConfigValues(page, {
         requireAddressForOrders: false,
         requireCompanyForOrders: true,
@@ -367,7 +374,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
         "@data.billing_details.billingDetailsDisabled": false
       });
       await goToCheckout(page, products.STARTER_HOSTING);
-      await page.waitForURL("**/order/checkout/**");
+      await expect(checkout.basketSummary).toBeVisible({ timeout: 15000 });
       interceptConfigValues(page, {
         requireAddressForOrders: false,
         requireCompanyForOrders: false,
@@ -433,10 +440,10 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
 
       await page.goto(URLs.basket);
       await basket.proceedToCheckout.click();
-      await page.waitForURL(/products-setup/, { timeout: 15000 });
+      await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
       await fillRegistrantDetails(productConfig);
       await productSetup.submit();
-      await page.waitForURL(/checkout/);
+      await expect(checkout.basketSummary).toBeVisible({ timeout: 15000 });
       await checkout.selectGatewayByType(gateways.BANK_TRANSFER);
       await checkout.clickCompleteCheckout();
       await expect(page.getByTestId("order-confirmation-heading")).toBeVisible({
@@ -447,14 +454,23 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
 
   test.describe("Access Control", () => {
     test("Billing page requires authentication", async ({ page }) => {
+      // guardBilling checks products BEFORE auth: an empty basket is bounced to
+      // the basket route (Empty.vue), so ONLY a basket with products reaches the
+      // "unauthenticated → register" branch. Seed a guest product first so this
+      // exercises the AUTH guard, not the empty-basket guard.
+      await seedGuestBasket(page);
       await page.goto(URLs.billing);
       await waitForSessionCookie(page.context());
-      // Match pathname only — the previous regex also matched the
-      // `?returnUrl=/order/basket/billing/` querystring tail on the
-      // redirect-to-register flow.
-      await expect(page).not.toHaveURL(url =>
-        /\/order\/basket\/(?:[^/]+\/)?billing\/?$/.test(url.pathname)
-      );
+      // Behaviour, not URL shape: a signed-out visitor is funnel-guarded off
+      // the billing page and handed to the full-page register form. That form
+      // is Auth.vue's Form, which carries data-test-key="session-form" +
+      // data-test-value="register" (there is no `register-form` testid in app
+      // source) — see the sibling auth-route / guest-checkout specs.
+      await expect(
+        page
+          .getByTestId("session-form")
+          .and(page.locator(`[data-test-value="register"]`))
+      ).toBeVisible();
     });
 
     newUser(
@@ -467,9 +483,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
         });
         await page.goto(URLs.billing);
         await waitForSessionCookie(page.context());
-        await expect(page).not.toHaveURL(
-          /\/order\/basket\/(?:[^/]+\/)?billing\//
-        );
+        await expect(page.getByTestId("basket-empty-message")).toBeVisible();
       }
     );
   });

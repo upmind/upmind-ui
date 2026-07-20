@@ -1,10 +1,10 @@
 import { GatewayContext as GatewayCtx } from "@upmind-automation/types";
-import { useI18n, useLocale } from "../../system-localisation";
 import {
   registerOperation,
   clearOperation,
   getOperationReturnUrl
 } from "../../payment-details/payment-details.utils";
+import { useI18n, useLocale } from "../../system-localisation";
 import sharedServices from "../payment-gateways.services";
 import { beginSetup } from "../payment-gateways.services";
 import {

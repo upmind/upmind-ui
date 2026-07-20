@@ -1,9 +1,8 @@
 /** @internal */
 import { asyncDebounce } from "@tanstack/pacer";
 import { useBrand } from "../brand";
-import { useI18n } from "../system-localisation";
 import { useQuery } from "../query";
-import { useSessionStorage } from "../../utils/useStorage";
+import { useI18n } from "../system-localisation";
 import { resolveBaseModel } from "./basket-currency.utils";
 import {
   DetailedError,

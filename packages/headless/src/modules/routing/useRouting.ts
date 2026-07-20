@@ -1,6 +1,6 @@
 import { useDataLayer } from "../system-analytics";
-import { useRoutingEngine } from "./useRoutingEngine";
 import { decorateRoutes, hasRouteChanged } from "./routing.utils";
+import { useRoutingEngine } from "./useRoutingEngine";
 import type { Router, RouteLocation } from "vue-router";
 
 // -----------------------------------------------------------------------------

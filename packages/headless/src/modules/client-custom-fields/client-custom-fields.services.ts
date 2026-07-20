@@ -4,10 +4,10 @@ import {
   type ICustomField
 } from "@upmind-automation/types";
 import { RequestSortDirection, useQuery } from "../query";
-import type { QueryParams } from "../query";
 import { mapCustomField } from "./client-custom-fields.mappers";
 import { useTime } from "../../utils";
 import { map } from "lodash-es";
+import type { QueryParams } from "../query";
 import type { CustomField } from "./client-custom-fields.types";
 import type { QueryKey } from "@tanstack/vue-query";
 

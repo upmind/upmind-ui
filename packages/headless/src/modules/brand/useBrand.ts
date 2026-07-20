@@ -8,8 +8,8 @@ import {
   OrgFeatureKeys
 } from "@upmind-automation/types";
 import useUpmind from "../../useUpmind";
-import { invalidateQueryByKey } from "../query";
 import { useConfig } from "../config";
+import { invalidateQueryByKey } from "../query";
 import services from "./brand.services";
 import {
   get,

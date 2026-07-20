@@ -1,5 +1,6 @@
 import type { Page } from "@playwright/test";
 import type { AddressModel } from "@upmind-automation/headless";
+import { waitForUpmindBridge } from "./headless-bridge";
 
 declare global {
   interface Window {
@@ -31,17 +32,10 @@ export async function addAddressViaHeadless(
   clientId: string,
   model: AddressModel
 ): Promise<string | null> {
-  // The bridge attaches window.Upmind via a dynamic import during app init, so
-  // wait for it rather than racing the first call.
-  await page
-    .waitForFunction(() => !!window.Upmind?.useClientAddressManager, null, {
-      timeout: 15000
-    })
-    .catch(() => {
-      throw new Error(
-        "window.Upmind not exposed — is the cart running in test mode (pnpm start:test)?"
-      );
-    });
+  // The bridge attaches window.Upmind (the whole module) via a dynamic import
+  // during app init, so wait for it rather than racing the first call. The
+  // in-page guard below still asserts this seeder's specific composable exists.
+  await waitForUpmindBridge(page);
   return page.evaluate(
     async ({ clientId, model }) => {
       if (

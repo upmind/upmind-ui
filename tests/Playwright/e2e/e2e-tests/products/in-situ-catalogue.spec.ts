@@ -52,7 +52,7 @@ test.describe("In-Situ Catalogue Adds @in-situ-catalogue", () => {
       const cta = cardCta(page, id);
       await expect(cta).toBeVisible();
       await clickAndAwaitBasketAdd(page, cta);
-      await expect(page).toHaveURL(/\/order\/shop\b/);
+      await expect(page.getByTestId("products-grid")).toBeVisible();
     });
     test("Term-only product auto-adds with the default term", async ({
       page
@@ -61,7 +61,7 @@ test.describe("In-Situ Catalogue Adds @in-situ-catalogue", () => {
       const cta = cardCta(page, id);
       await expect(cta).toBeVisible();
       await clickAndAwaitBasketAdd(page, cta);
-      await expect(page).toHaveURL(/\/order\/shop\b/);
+      await expect(page.getByTestId("products-grid")).toBeVisible();
       await page.goto(URLs.basket);
       const basket = new Basket(page);
       // The auto-added term is the product's default billing cycle; the
@@ -101,7 +101,7 @@ test.describe("In-Situ Catalogue Adds @in-situ-catalogue", () => {
       await expect(siblingCta).toBeDisabled();
       await basketAddRequest;
       await expect(siblingCta).toBeEnabled();
-      await expect(page).toHaveURL(/\/order\/shop\b/);
+      await expect(page.getByTestId("products-grid")).toBeVisible();
       await expect(targetCta).toHaveAttribute("aria-pressed", "true");
       const newCount = Number(await basketCount.innerText());
       expect(newCount).toBeGreaterThan(initialCount);
@@ -113,7 +113,7 @@ test.describe("In-Situ Catalogue Adds @in-situ-catalogue", () => {
       const before = await page.evaluate(() => window.scrollY);
       expect(before).toBeGreaterThan(0);
       await clickAndAwaitBasketAdd(page, cta);
-      await expect(page).toHaveURL(/\/order\/shop\b/);
+      await expect(page.getByTestId("products-grid")).toBeVisible();
       const after = await page.evaluate(() => window.scrollY);
       // Allow a small drift (browser-driven layout shifts) but reject a
       // scroll-to-top, which is what the legacy router did.
@@ -125,7 +125,7 @@ test.describe("In-Situ Catalogue Adds @in-situ-catalogue", () => {
       const { id } = products.HAT;
       const cta = cardCta(page, id);
       await clickAndAwaitBasketAdd(page, cta);
-      await expect(page).toHaveURL(/\/order\/shop\b/);
+      await expect(page.getByTestId("products-grid")).toBeVisible();
       await expect(cta).toBeEnabled();
       await clickAndAwaitBasketAdd(page, cta);
       await page.goto(URLs.basket);

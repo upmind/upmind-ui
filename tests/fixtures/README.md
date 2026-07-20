@@ -94,17 +94,57 @@ keyed in the cache by its resolved path — so one unit can never bleed into
 another. A fixture's `journey` is set when it sits under a `journeys/<slug>/`
 ancestor directory.
 
-## Recording (deferred — requires staging credentials)
+## Generating fixtures (requires staging credentials)
+
+Every fixture is a **real capture, generated headlessly** (ADR 025 §A1.3 /
+FE-2937) — never hand-written, never hand-edited. Each unit owns a
+`<unit>.fixtures.ts` generator and regenerates its own co-located `fixtures/`
+with ONE entrypoint:
 
 ```sh
-pnpm record            # record a full journey against staging
+pnpm fixtures:generate <unit>     # e.g. pnpm fixtures:generate auth
+                                  #      pnpm fixtures:generate product-setup
+```
+
+It loads `packages/headless/.env.recording` (`VITE_API_URL` +
+`RECORDING_BRAND_ORIGIN` — the API resolves the brand from `Origin`), runs the
+unit's `<unit>.fixtures.ts` against real staging with `FIXTURE_MODE=record`, then
+**auto-runs `lint:fixtures`** so a bad or PII-leaking capture fails at the source
+(FE-2937 decision 5). Two generator flavours share the entrypoint — the flavour
+is an implementation detail of the unit's `.fixtures.ts`, not a flag:
+
+- **(a) direct-API** — the `Generator` (`generator.ts`) makes real `fetch` calls
+  and writes sanitised v3. Best for per-endpoint case captures (`auth`, `query`,
+  `account`, `session-store`).
+- **(b) headless Playwright** — the unit launches a real headless chromium
+  session, drives a real staging flow, and `playwright-recorder.mjs` captures the
+  browser's traffic via `context.route('**')` (the browser-native equivalent of
+  the `recording-proxy.mjs` reverse proxy: it forwards each request to staging,
+  captures it, and fulfils it back to the page with permissive CORS; `Origin` is
+  rewritten to the brand). Best for cross-module flows that need real
+  session/basket/order state — see
+  [`product-setup.fixtures.ts`](../../packages/headless/src/modules/product-setup/__tests__/product-setup.fixtures.ts),
+  which seats an INVALID configurable-product basket for the `useProductSetup`
+  integration tests (FE-2796).
+
+Both flavours go through the SAME pipeline (`fixture-naming.mjs` `sanitize` /
+`redactValue` / `generateFixtureName`, v3 `ApiFixtureV3` shape), so a
+browser-driven capture lands byte-identical to a direct-API one: PII-masked,
+deterministically named (long identity params collapse to a `…-<hash8>` suffix
+so a giant `?keys=` list can't overflow the filesystem), co-located, no central
+pool. Staging captures create real records on staging — that is sanctioned; be
+deliberate.
+
+### Legacy proxy recorder
+
+```sh
+pnpm record            # HTTP reverse-proxy recorder (recording-proxy.mjs)
 pnpm record:cases      # run record-cases.ts for individual case fixtures
 ```
 
-Both commands hit a live staging API and write v3 fixtures into the appropriate
-`cases/` or `journeys/<slug>/` directory. They are no-ops in CI and must be run
-locally with valid staging credentials. After recording, run `pnpm lint:fixtures`
-before committing.
+`recording-proxy.mjs` is the pre-generator recorder an app is pointed at; the
+Playwright recorder above supersedes it for headless capture (no hosted app to
+point at). After any recording, run `pnpm lint:fixtures` before committing.
 
 In integration tests, set `FIXTURE_MODE=record` or `FIXTURE_MODE=live` to bypass
 MSW and hit the real network directly (also requires staging credentials).

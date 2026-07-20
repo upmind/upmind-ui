@@ -4,12 +4,12 @@ import {
   BrandConfigKeys,
   type IBasket
 } from "@upmind-automation/types";
-import { useI18n } from "../system-localisation";
-import { useQuery } from "../query";
 import { useBrand } from "../brand";
+import { useQuery } from "../query";
 import { useActiveSession, useSessionStore } from "../session-store";
 import { useSystem } from "../system";
 import { useTracking } from "../system-analytics";
+import { useI18n } from "../system-localisation";
 import { parseBasketErrors } from "./basket.utils";
 import { hasProductChanges, preserveProvisionFields } from "./basket.utils";
 import {

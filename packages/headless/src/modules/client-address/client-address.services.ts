@@ -1,13 +1,12 @@
 /** @internal */
 import { BrandConfigKeys, type IAddress } from "@upmind-automation/types";
-import { useQuery } from "../query";
 import { useBrand } from "../brand";
-import { useSystem } from "../system";
-import { useActiveSession } from "../session-store";
 import { useFeedback } from "../feedback";
-import { useI18n } from "../system-localisation";
-import type { QueryParams } from "../query";
+import { useQuery } from "../query";
 import { invalidateQueryByKey } from "../query";
+import { useActiveSession } from "../session-store";
+import { useSystem } from "../system";
+import { useI18n } from "../system-localisation";
 import {
   mapAddress,
   mapAddresses,
@@ -25,6 +24,7 @@ import {
   DEBOUNCE_DELAY
 } from "../../utils";
 import { get, isString, isEmpty, find, some, pick, isArray } from "lodash-es";
+import type { QueryParams } from "../query";
 import type {
   Address,
   AddressModel,

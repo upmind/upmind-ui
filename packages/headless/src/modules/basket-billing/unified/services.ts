@@ -1,13 +1,13 @@
 import parsePhoneNumber, { type CountryCode } from "libphonenumber-js";
 import { BrandConfigKeys } from "@upmind-automation/types";
+import { useBrand } from "../../brand";
 import { useClientAddresses } from "../../client-address";
+import { useClientAddressServices } from "../../client-address";
 import { useClientCompanies } from "../../client-company";
+import { useClientCompanyServices } from "../../client-company";
 import { useClientEmails } from "../../client-email";
 import { useClientPhones } from "../../client-phone";
 import { ScopeActorTypes } from "../../scope";
-import { useBrand } from "../../brand";
-import { useClientAddressServices } from "../../client-address";
-import { useClientCompanyServices } from "../../client-company";
 import { useClientPhoneServices } from "../../client-phone";
 import { useSystem } from "../../system";
 import { useI18n } from "../../system-localisation";

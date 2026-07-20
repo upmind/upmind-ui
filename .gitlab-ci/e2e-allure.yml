@@ -111,4 +111,116 @@ e2e:allure:publish:
       gcloud storage cp tests/Playwright/e2e/reports/allure-results.tar.gz \
         "${BASE}/latest/results.tar.gz" --quiet
     # Rebuild the landing page
-    - node tests/Playwright/scripts/allure-index.mjs
+    - node tests/allure/allure-index.mjs
+
+#------------------------------------------------------------------------------
+# E2E full suite — nightly + pre-release tags (FE-2772, ADR 021 §CI strategy).
+#
+# The full e2e suite is too slow to gate every PR, so it runs as a safety net:
+# on a nightly SCHEDULE and on release / release-candidate TAGS. It NEVER runs on
+# a merge request, so it can never block a PR. `e2e:allure` above (the
+# critical-journey subset on develop-merge) is the PR-facing gate and is left
+# unchanged; this job is purely additive.
+#
+# "Full" means the whole spec set across ALL browsers (`pnpm test:all-browsers`
+# → chromium + firefox + webkit), the genuine superset of the develop-merge
+# chrome run — otherwise nightly would just repeat the develop job. Visual
+# regression is deliberately NOT included (out of scope until ADR 022 is
+# promoted; it runs on its own cadence and does not count toward the ceiling).
+#
+# 30-MINUTE CEILING — WARNS, NEVER FAILS. ADR 021 caps the full suite at 30min
+# to discipline coverage growth. The script measures wall-clock and emits a
+# warning if the run exceeds the ceiling, but the ceiling breach itself never
+# fails the job (and `allow_failure: true` keeps even genuine test failures
+# non-blocking — this is a report, not a gate).
+#
+# NOTIFICATION. After the run the job posts a pass/fail + duration summary to
+# Slack. It degrades gracefully (repo idiom, cf. ALLURE_GCS_BUCKET / the
+# quarantine cron): if the webhook variable is unset it prints the summary to
+# the job log instead of erroring.
+#
+# No GitLab `retry:` here — Playwright's `retries: 1` is the only retry (AC).
+#
+# OPS SETUP (one-time):
+#   - GitLab → CI/CD → Schedules: add a nightly schedule on the default branch
+#     and set the schedule variable  E2E_NIGHTLY = "true".
+#   - (optional) Add a masked CI/CD variable  E2E_NIGHTLY_SLACK_WEBHOOK  with an
+#     incoming-webhook URL for the target channel. Without it the summary is
+#     logged, not posted.
+#------------------------------------------------------------------------------
+e2e:full:
+  stage: test
+  image: mcr.microsoft.com/playwright:v1.54.2-noble
+  needs: [dependencies]
+  interruptible: true
+  rules:
+    - if: $SKIP_E2E_FULL == "true"
+      when: never
+    # Nightly cron (ops sets the schedule variable).
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $E2E_NIGHTLY == "true"
+    # Pre-release + release tags (run the full matrix before shipping).
+    - if: $CI_COMMIT_TAG =~ /-rc\d+$/
+    - if: $CI_COMMIT_TAG =~ /^(cart|velia|hosting|headless)-v\d+(\.\d+)+$/
+  # Non-blocking: this is a safety-net report, not a merge gate.
+  allow_failure: true
+  cache:
+    # Same key/paths as e2e:allure so the full run feeds the same per-branch
+    # Allure trend history.
+    key: allure-history-$CI_COMMIT_REF_SLUG
+    paths:
+      - tests/Playwright/e2e/reports/.allure-history/
+    policy: pull-push
+  artifacts:
+    when: always
+    expire_in: 30 days
+    paths:
+      - tests/Playwright/e2e/reports/allure-report
+      - tests/Playwright/e2e/reports/allure-results.tar.gz
+  variables:
+    # ADR 021 ceiling, in seconds. Warn (never fail) if the run exceeds it.
+    E2E_CEILING_SECONDS: "1800"
+  before_script:
+    # Identical setup to e2e:allure (kept inline rather than sharing a template
+    # so e2e:allure stays byte-for-byte unchanged per the AC).
+    - echo "127.0.0.1 qa-automation.local" >> /etc/hosts
+    - corepack enable
+    - corepack prepare pnpm@10.33.0 --activate
+    - pnpm install --force
+  script:
+    # Time the full cross-browser run; capture (don't propagate) test failure so
+    # the ceiling check + notification always run.
+    - START=$(date +%s)
+    - pnpm test:all-browsers || TESTS_FAILED=1
+    - END=$(date +%s)
+    - DURATION=$((END - START))
+    - |
+      if [ -d tests/Playwright/e2e/reports/allure-results ]; then
+        tar -czf tests/Playwright/e2e/reports/allure-results.tar.gz \
+          -C tests/Playwright/e2e/reports/allure-results .
+      fi
+    # 30-minute ceiling: WARN only, never fail.
+    - |
+      CEILING_STATUS="within ceiling"
+      if [ "${DURATION}" -gt "${E2E_CEILING_SECONDS}" ]; then
+        CEILING_STATUS="OVER CEILING"
+        echo "⚠️  WARNING: full e2e suite took ${DURATION}s, over the ${E2E_CEILING_SECONDS}s (30min) ADR-021 ceiling. Trim or re-layer tests (warning only — not failing)."
+      fi
+    # Build the notification summary.
+    - |
+      if [ "${TESTS_FAILED:-0}" -eq 0 ]; then RESULT="✅ passed"; else RESULT="❌ failed"; fi
+      SUMMARY="Nightly full e2e (${CI_COMMIT_REF_NAME:-$CI_COMMIT_TAG}): ${RESULT} in ${DURATION}s (${CEILING_STATUS}). Pipeline: ${CI_PIPELINE_URL}"
+      echo "${SUMMARY}"
+    # Report to the notification channel; degrade to log if no webhook configured.
+    - |
+      if [ -n "${E2E_NIGHTLY_SLACK_WEBHOOK:-}" ]; then
+        # SUMMARY is single-line and git refs cannot contain '"', so plain
+        # interpolation is safe JSON.
+        curl -sf -X POST -H 'Content-type: application/json' \
+          --data "{\"text\":\"${SUMMARY}\"}" "${E2E_NIGHTLY_SLACK_WEBHOOK}" \
+          || echo "Slack notification failed (non-fatal)."
+      else
+        echo "E2E_NIGHTLY_SLACK_WEBHOOK unset — summary logged above, not posted."
+      fi
+    # allow_failure:true already makes this non-blocking, but surface the real
+    # test status in the job result so the dashboard reflects pass/fail.
+    - exit ${TESTS_FAILED:-0}

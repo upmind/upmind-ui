@@ -1,3 +1,4 @@
+import { mapInitials, mapAccount } from "../client";
 import {
   includes,
   isBoolean,
@@ -9,7 +10,6 @@ import {
 } from "lodash-es";
 import type { SessionUser, Token } from "./session-store.types";
 import type { IClient, ISelf, IUser } from "@upmind-automation/types";
-import { mapInitials, mapAccount } from "../client";
 // -----------------------------------------------------------------------------
 /**
  * @internal

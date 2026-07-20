@@ -1,5 +1,35 @@
-import { Page } from "@playwright/test";
+import { Page, Response } from "@playwright/test";
 import { getBasketViaHeadless } from "../flows/basket-setup";
+
+/**
+ * Waits for a POST `/api/cart/calculate` response whose request payload
+ * `prices` satisfy `matchPrices`, and returns that Response. The URL + POST +
+ * `prices`-extraction (with its non-JSON guard) is the shared matcher every
+ * pricing spec repeats; the per-spec predicate on the extracted prices stays
+ * caller-side. Arm this BEFORE the action that triggers the calc, then await it.
+ *
+ * @param page - Playwright Page
+ * @param matchPrices - predicate on the request payload's `prices` (unknown, the
+ *   caller narrows); return true to accept that calc response
+ * @param options - optional `{ timeout }` forwarded to `page.waitForResponse`
+ */
+export function waitForCalculateResponse(
+  page: Page,
+  matchPrices: (prices: unknown) => boolean,
+  options?: { timeout?: number }
+): Promise<Response> {
+  return page.waitForResponse(response => {
+    if (!/\/api\/cart\/calculate(\?|$)/.test(response.url())) return false;
+    if (response.request().method() !== "POST") return false;
+    let prices: unknown = null;
+    try {
+      prices = response.request().postDataJSON()?.prices ?? null;
+    } catch {
+      prices = null;
+    }
+    return matchPrices(prices);
+  }, options);
+}
 
 /**
  * Returns a promise that resolves when the basket billing update PUT completes.

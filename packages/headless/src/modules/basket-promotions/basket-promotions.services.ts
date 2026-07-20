@@ -1,7 +1,7 @@
 /** @internal */
 import { asyncDebounce } from "@tanstack/pacer";
-import { useI18n } from "../system-localisation";
 import { invalidateQueryByKey, useQuery } from "../query";
+import { useI18n } from "../system-localisation";
 import {
   DEBOUNCE_DELAY,
   DetailedError,

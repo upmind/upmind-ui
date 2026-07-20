@@ -108,12 +108,32 @@ export class Dac {
         .getAttribute("data-test-value");
       if (!domain) continue;
 
-      // Resolve the CTA by domain identity so the commit check tracks the
-      // right row even when the results re-sort after the add.
+      // Resolve the CTA by domain identity so the click targets the right
+      // row even when the results re-sort after the add.
       const cta = this.cardByDomain(domain).getByTestId("domain-card-cta");
       await cta.click();
-      const committed = await expect(cta)
-        .toHaveAttribute("data-test-value", "added", { timeout: 14000 })
+
+      // Confirm the commit against the LIVE BASKET, not the card CTA. Now
+      // that `.com` (and the other suggested TLDs) add cleanly on staging,
+      // the click fires a real /products POST — but the smart-suggest list
+      // re-sorts and re-checks availability on add, so the tracked CTA can
+      // sit at `register`/disabled longer than a tight window even though the
+      // domain already landed. The basket is the source of truth (mirrors
+      // addExactDomain), so poll it for the committed domain instead.
+      const sld = domain.split(".")[0].toLowerCase();
+      const committed = await expect
+        .poll(
+          () =>
+            this.page.evaluate(
+              needle =>
+                JSON.stringify(window.Upmind?.useBasket().products.value ?? [])
+                  .toLowerCase()
+                  .includes(needle),
+              sld
+            ),
+          { timeout: 14000 }
+        )
+        .toBe(true)
         .then(() => true)
         .catch(() => false);
 
