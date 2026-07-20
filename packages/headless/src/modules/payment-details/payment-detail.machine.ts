@@ -29,8 +29,18 @@ import {
   useSessionStorage
 } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
+
 import { responseCodes } from "../../utils";
-import { isEqual, isEmpty, find, get, isNil, set, includes } from "lodash-es";
+import {
+  every,
+  find,
+  get,
+  includes,
+  isEmpty,
+  isEqual,
+  isNil,
+  set
+} from "lodash-es";
 import type { PaymentDetailsContext } from "./payment-details.types";
 import type { AnyEventObject } from "xstate";
 
@@ -139,6 +149,12 @@ export default createMachine(
                     {
                       target: "#valid",
                       cond: "needsNoPayment"
+                    },
+                    // incomplete gateway form: block PAY (invalid) without alert
+                    {
+                      target: "#invalid",
+                      actions: ["clearError"],
+                      cond: "isGatewayIncomplete"
                     },
                     {
                       target: "#invalid",
@@ -793,8 +809,15 @@ export default createMachine(
         );
       },
 
-      hasData: (context: PaymentDetailsContext, { data }: AnyEventObject) =>
-        !isEmpty(data)
+      // incomplete gateway form only — gateway `invalid` with no model-level
+      // errors (the thrown errors are read off the event, not context.error)
+      isGatewayIncomplete: (
+        { gatewayHelper }: PaymentDetailsContext,
+        { data }: AnyEventObject
+      ) =>
+        stateMatches(gatewayHelper, ["available.invalid"]) &&
+        !isEmpty(data?.data) &&
+        every(data?.data, ["keyword", "actorState"])
     },
 
     delays: {
