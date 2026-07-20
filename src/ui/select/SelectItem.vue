@@ -1,24 +1,10 @@
 <script setup lang="ts">
-import {
-  SelectItem,
-  type SelectItemProps,
-  SelectItemText,
-  useForwardProps
-} from "radix-vue";
-import { type HTMLAttributes, computed } from "vue";
-import { cn } from "../../utils";
+import { SelectItem, SelectItemText } from "radix-vue";
+import { computed } from "vue";
+import { cn, useForwardPropsTests } from "../../utils";
+import type { SelectItemProps } from "./types";
 
-const props = defineProps<
-  SelectItemProps & {
-    class?: HTMLAttributes["class"];
-    /** Stable identifier for the implicit testid cascade (id → value). */
-    id?: string;
-    /** Explicit data-* attributes spread onto the rendered option (e.g.
-     * `{ "data-test-key": "currency-gbp" }`). Overrides the implicit
-     * `select-item-*` testid; the uniform escape hatch across primitives. */
-    dataAttrs?: Record<`data-${string}`, string | number | boolean>;
-  }
->();
+const props = defineProps<SelectItemProps>();
 
 const delegatedProps = computed(() => {
   const { class: _, dataAttrs: __, id: ___, ...delegated } = props;
@@ -26,7 +12,11 @@ const delegatedProps = computed(() => {
   return delegated;
 });
 
-const forwardedProps = useForwardProps(delegatedProps);
+const forwardedProps = useForwardPropsTests(delegatedProps, {
+  key: "select-item",
+  value: [props.id, props.value],
+  dataAttrs: props.dataAttrs
+});
 </script>
 
 <template>
@@ -37,10 +27,6 @@ const forwardedProps = useForwardProps(delegatedProps);
         'relative flex w-full cursor-default items-center rounded-xs py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50',
         props.class
       )
-    "
-    :data-test-key="
-      props.dataAttrs?.['data-test-key'] ??
-      `select-item-${props.id || props.value}`
     "
   >
     <slot name="indicator" />

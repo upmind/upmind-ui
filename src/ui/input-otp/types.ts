@@ -51,11 +51,11 @@ export type InputOTPProps = {
   textAlign?: "left" | "center" | "right";
   // --- variants
   /** Width variant. */
-  width?: ContainerVariantProps["width"] | string | undefined;
+  width?: string | ContainerVariantProps["width"];
   /** Alignment variant. */
-  align?: ContainerVariantProps["align"] | string | undefined;
+  align?: string | ContainerVariantProps["align"];
   /** Size variant for slots. */
-  size?: SlotVariantProps["size"] | string | undefined;
+  size?: string | SlotVariantProps["size"];
   /** Aria invalid state for error styling. */
   ariaInvalid?: boolean | "true" | "false";
   // --- customisation

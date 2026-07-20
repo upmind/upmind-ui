@@ -1,6 +1,6 @@
 <template>
   <!--<link rel="stylesheet" :href="stylesheet" />-->
-  <Badge v-bind="props.dataAttrs" :class="cn(styles.badge.root, props.class)">
+  <Badge v-bind="testAttrs" :class="cn(styles.badge.root, props.class)">
     <slot name="prepend">
       <Icon v-if="icon" :icon="icon" size="nano" :class="styles.badge.icon" />
     </slot>
@@ -29,7 +29,7 @@ import { computed } from "vue";
 import { Icon } from "../icon";
 import config from "./badge.config";
 import Badge from "./Badge.vue";
-import { useStyles, cn } from "../../utils";
+import { useStyles, cn, useTestAttrs } from "../../utils";
 import type { BadgeProps } from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<BadgeProps>(), {
@@ -51,6 +51,13 @@ const meta = computed(() => ({
 }));
 
 const styles = useStyles("badge", meta, config, props.uiConfig ?? {});
+
+/* Routes props.dataAttrs through useTestAttrs (PROD-stripped) with NO default
+   key, so it stays a no-op unless a consumer supplies one — parents that
+   fallthrough-bind their own test attrs onto Badge keep working. */
+const testAttrs = useTestAttrs({
+  dataAttrs: props.dataAttrs
+});
 
 const emit = defineEmits<{
   close: [];

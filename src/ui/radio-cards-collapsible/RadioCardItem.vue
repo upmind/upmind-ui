@@ -1,6 +1,6 @@
 <template>
   <Label
-    v-bind="props.dataAttrs"
+    v-bind="testAttrs"
     :for="`${props.name}-${index}`"
     :class="styles.radioCards.item"
     :data-state="isSelected ? 'checked' : ''"
@@ -37,13 +37,21 @@ import { computed } from "vue";
 import Label from "../label/Label.ce.vue";
 import { RadioGroupItem } from "../radio-group";
 import config from "./radioCards.config";
-import { useStyles } from "../../utils";
+import { useStyles, useTestAttrs } from "../../utils";
 import type { RadioCardsCollapsibleItemProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<RadioCardsCollapsibleItemProps>(), {
   // -- variants
   columns: 1
+});
+
+/* Routes props.dataAttrs through useTestAttrs instead of binding it raw, so
+   data-test-* keys are stripped from PROD builds like everywhere else. */
+const testAttrs = useTestAttrs({
+  key: "radio-card-item",
+  value: props.value,
+  dataAttrs: props.dataAttrs
 });
 
 const _emits = defineEmits(["focus"]);

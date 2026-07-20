@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { TabsList, type TabsListProps } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
-import { cn } from "../../utils";
+import { cn, useForwardPropsTests } from "../../utils";
 
 const props = defineProps<
   TabsListProps & { class?: HTMLAttributes["class"] }
@@ -12,18 +12,21 @@ const delegatedProps = computed(() => {
 
   return delegated;
 });
+
+const forwardedProps = useForwardPropsTests(delegatedProps, {
+  key: "tabslist"
+});
 </script>
 
 <template>
   <TabsList
-    v-bind="delegatedProps"
+    v-bind="forwardedProps"
     :class="
       cn(
         'bg-base-muted text-muted-foreground inline-flex items-center justify-center rounded p-1',
         props.class
       )
     "
-    data-test-key="tabslist"
   >
     <slot />
   </TabsList>

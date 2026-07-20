@@ -4,7 +4,7 @@ import type { CxOptions, VariantProps } from "class-variance-authority";
 import type {
   SelectRootProps,
   SelectContentProps,
-  SelectItemProps,
+  SelectItemProps as SelectItemPropsRadix,
   SelectValueProps
 } from "radix-vue";
 import type { HTMLAttributes } from "vue";
@@ -51,4 +51,14 @@ export type SelectItemAdditional = {
   value: string;
   icon: IconProps["icon"];
   emitOnly?: boolean;
+};
+
+export type SelectItemProps = SelectItemPropsRadix & {
+  class?: HTMLAttributes["class"];
+  /** Stable identifier for the implicit testid cascade (id → value). */
+  id?: string;
+  /** Explicit data-* attributes spread onto the rendered option (e.g.
+   * `{ "data-test-key": "currency-gbp" }`). Overrides the implicit
+   * `select-item-*` testid; the uniform escape hatch across primitives. */
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
 };

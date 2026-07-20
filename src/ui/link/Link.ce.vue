@@ -5,10 +5,6 @@
     :aria-disabled="meta.isDisabled || undefined"
     :tabindex="meta.isFocusable ? '0' : '-1'"
     :class="cn(styles.link.root, props.class)"
-    :data-test-key="
-      props.dataAttrs?.['data-test-key'] ??
-      `link-${kebabCase(label ?? 'default')}`
-    "
     @click="$emit('click', $event)"
   >
     <slot name="prepend">
@@ -44,8 +40,8 @@ import { computed, useSlots } from "vue";
 import { RouterLink } from "vue-router";
 import config from "./link.config";
 import LinkItems from "./LinkItems.vue";
-import { useStyles, cn } from "../../utils";
-import { kebabCase, isEmpty } from "lodash-es";
+import { useStyles, cn, useForwardPropsTests } from "../../utils";
+import { isEmpty, kebabCase } from "lodash-es";
 import type { LinkProps } from "./types";
 
 const props = withDefaults(defineProps<LinkProps>(), {
@@ -72,10 +68,15 @@ const component = computed(() => {
 
 const isRouterLink = computed(() => component.value === RouterLink);
 
-const componentProps = computed(() =>
-  isRouterLink.value
-    ? { to: props.to, ...props.dataAttrs }
-    : { href: props.href, ...props.dataAttrs }
+const componentProps = useForwardPropsTests(
+  computed(() =>
+    isRouterLink.value ? { to: props.to } : { href: props.href }
+  ),
+  {
+    key: "link",
+    value: kebabCase(props.label),
+    dataAttrs: props.dataAttrs
+  }
 );
 
 const meta = computed(() => ({

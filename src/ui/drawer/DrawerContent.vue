@@ -1,9 +1,12 @@
 <script lang="ts" setup>
-import { useForwardPropsEmits } from "radix-vue";
 import { DrawerContent, DrawerPortal } from "vaul-vue";
 import { type HTMLAttributes, useTemplateRef } from "vue";
 import DrawerOverlay from "./DrawerOverlay.vue";
-import { cn, providePortalTarget } from "../../utils";
+import {
+  cn,
+  providePortalTarget,
+  useForwardPropsEmitsTests
+} from "../../utils";
 import type {
   DialogContentEmits,
   DialogContentProps,
@@ -27,7 +30,9 @@ const emits = defineEmits<
   }
 >();
 
-const forwarded = useForwardPropsEmits(props, emits);
+const forwarded = useForwardPropsEmitsTests(props, emits, {
+  key: "drawer-content"
+});
 
 function onOverlayClick() {
   if (props.dismissible) emits("close");
@@ -56,7 +61,6 @@ providePortalTarget(useTemplateRef("content"));
           props.class
         )
       "
-      data-test-key="drawer-content"
     >
       <slot />
     </DrawerContent>

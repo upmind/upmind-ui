@@ -8,7 +8,7 @@
   >
     <template #append>
       <Tooltip v-if="props.generator" :label="props.generateLabel" side="top">
-        <span data-test-key="password-generate" class="contents">
+        <span v-bind="testAttrs" class="contents">
           <Link
             :class="styles.inputPassword.action"
             :focusable="false"
@@ -21,7 +21,7 @@
       </Tooltip>
 
       <Tooltip :label="unmask ? props.hideLabel : props.showLabel" side="top">
-        <span data-test-key="password-toggle" class="contents">
+        <span v-bind="testAttrsToggle" class="contents">
           <Link
             :class="styles.inputPassword.toggle"
             :focusable="false"
@@ -44,7 +44,7 @@ import Input from "../input/Input.ce.vue";
 import { Link } from "../link";
 import Tooltip from "../tooltip/Tooltip.ce.vue";
 import config from "./input-password.config";
-import { useStyles } from "../../utils";
+import { useStyles, useTestAttrs } from "../../utils";
 import { omit } from "lodash-es";
 import type { InputPasswordProps } from "./types";
 // -----------------------------------------------------------------------------
@@ -94,4 +94,12 @@ const meta = computed(() => ({
   active: unmask.value
 }));
 const styles = useStyles(["inputPassword"], meta, config, props.uiConfig ?? {});
+
+const testAttrs = useTestAttrs({
+  key: "password-generate"
+});
+
+const testAttrsToggle = useTestAttrs({
+  key: "password-toggle"
+});
 </script>

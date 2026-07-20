@@ -4,6 +4,7 @@
   <AvatarRoot
     :class="cn(styles.avatar, props.class)"
     :tabindex="focusable ? 0 : -1"
+    v-bind="testAttrs"
   >
     <slot>
       <Icon
@@ -41,7 +42,8 @@ import IconAnimated from "../icon-animated/IconAnimated.ce.vue";
 import config from "./avatar.config";
 import {
   useStyles,
-  cn
+  cn,
+  useTestAttrs
   //stylesheet
 } from "../../utils";
 import { isEmpty, isString } from "lodash-es";
@@ -94,4 +96,9 @@ const mergedAnimatedIcon = computed(() => ({
 }));
 
 const styles = useStyles("avatar", meta, config, props.uiConfig ?? {});
+
+const testAttrs = useTestAttrs({
+  key: "avatar",
+  dataAttrs: props.dataAttrs
+});
 </script>

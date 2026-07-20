@@ -3,6 +3,7 @@
     v-model:open="open"
     :disabled="props.disabled"
     :class="styles.combobox.root"
+    v-bind="testAttrs"
   >
     <PopoverTrigger as-child :ring="false">
       <Button
@@ -15,7 +16,7 @@
         :checked="open"
         :data-hover="dataHover"
         :data-focus="dataFocus && !skipFocus"
-        v-bind="props.triggerDataAttrs"
+        :data-attrs="props.triggerDataAttrs"
         ring
       >
         <template #prepend v-if="!isEmpty(modelValue) || searchValue">
@@ -40,9 +41,9 @@
         </template>
 
         <template #default v-if="!isEmpty(modelValue)">
-          <span :class="styles.combobox.label" v-bind="props.valueDataAttrs">{{
-            label
-          }}</span>
+          <span v-bind="testAttrsLabel" :class="styles.combobox.label">
+            {{ label }}
+          </span>
         </template>
 
         <template #default>
@@ -99,16 +100,13 @@
               @select="doSelect(get(item, itemValue))"
               :class="cn(styles.combobox.listItem, styles.combobox.item)"
               :data-selected="isSelected(item) ? 'true' : 'false'"
-              v-bind="item.dataAttrs"
+              v-bind="testAttrsItem(item)"
             >
               <Avatar v-if="item.avatar" v-bind="item.avatar" size="xs" />
 
               <Icon v-if="item.icon" :icon="item.icon" size="xs" />
 
-              <span
-                class="flex w-full items-center justify-between"
-                :data-test-key="`combobox-item`"
-              >
+              <span class="flex w-full items-center justify-between">
                 <span
                   v-if="(item as Record<string, any>)?.[itemLabel]"
                   :class="styles.combobox.label"
@@ -146,8 +144,16 @@ import {
 import Icon from "../icon/Icon.ce.vue";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import config from "./combobox.config";
-import { cn, useStyles } from "../../utils";
-import { find, get, isEmpty, isEqual, isFunction, has } from "lodash-es";
+import { cn, useStyles, useTestAttrs } from "../../utils";
+import {
+  find,
+  get,
+  isEmpty,
+  isEqual,
+  isFunction,
+  has,
+  kebabCase
+} from "lodash-es";
 import type { ComboboxProps, ComboboxItemProps } from "./types";
 
 const props = withDefaults(defineProps<ComboboxProps>(), {
@@ -232,6 +238,32 @@ const filteredItems = computed(() => {
     );
   });
 });
+
+// Wrapped in computed so the emitted data-test-value re-tracks props that
+// resolve async (e.g. valueDataAttrs when the currency lands post-mount) —
+// useTestAttrs called bare at setup froze at the mount-time value.
+const testAttrs = computed(() =>
+  useTestAttrs({
+    key: "combobox",
+    value: [props.id, kebabCase(props.label)],
+    dataAttrs: props.dataAttrs
+  })
+);
+
+const testAttrsLabel = computed(() =>
+  useTestAttrs({
+    key: "combobox-label",
+    value: [props.id, kebabCase(props.label)],
+    dataAttrs: props.valueDataAttrs
+  })
+);
+
+/* Routes item.dataAttrs through useTestAttrs instead of binding it raw — raw
+   fallthrough attrs are auto-inherited onto the item's root element even in
+   PROD builds. */
+const testAttrsItem = (item: ComboboxItemProps) =>
+  useTestAttrs({ dataAttrs: item.dataAttrs });
+
 // --- methods
 function doSelect(item: string) {
   const selected: ComboboxItemProps = find(props.items, [

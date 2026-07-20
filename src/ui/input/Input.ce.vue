@@ -14,7 +14,6 @@
         v-bind="delegatedProps"
         v-model="modelValue"
         :class="styles.input.field"
-        :data-test-key="`input-${kebabCase(props.id || props.type)}`"
       />
     </slot>
 
@@ -33,9 +32,8 @@ import IMask, { type InputElement } from "imask";
 import { useTemplateRef, computed, onMounted, watch, ref } from "vue";
 import config from "./input.config";
 import InputItems from "./InputItems.vue";
-import { useStyles, cn } from "../../utils";
-import { kebabCase } from "lodash-es";
-import { omit } from "lodash-es";
+import { useStyles, cn, useForwardPropsTests } from "../../utils";
+import { kebabCase, omit } from "lodash-es";
 import type { InputProps } from "./types";
 import type { InputMask } from "imask";
 // -----------------------------------------------------------------------------
@@ -51,34 +49,29 @@ const props = withDefaults(defineProps<InputProps>(), {
 const input = useTemplateRef<InputElement>("input");
 const modelValue = defineModel<InputProps["modelValue"]>("modelValue", {});
 
-const delegatedProps = computed(
-  (): Omit<
-    InputProps,
-    | "class"
-    | "uiConfig"
-    | "defaultValue"
-    | "modelValue"
-    | "width"
-    | "size"
-    | "icon"
-    | "avatar"
-    | "iconAppend"
-    | "avatarAppend"
-    | "autoFocus"
-  > =>
-    omit(props, [
-      "class",
-      "uiConfig",
-      "defaultValue",
-      "modelValue",
-      "width",
-      "size",
-      "icon",
-      "avatar",
-      "iconAppend",
-      "avatarAppend",
-      "autoFocus"
-    ])
+const delegatedProps = useForwardPropsTests(
+  computed(
+    () =>
+      omit(props, [
+        "class",
+        "uiConfig",
+        "defaultValue",
+        "modelValue",
+        "width",
+        "size",
+        "icon",
+        "avatar",
+        "iconAppend",
+        "avatarAppend",
+        "autoFocus",
+        "mask",
+        "ring"
+      ]) as Record<string, unknown>
+  ),
+  {
+    key: "input",
+    value: [props.id, props.type, kebabCase(props.name)]
+  }
 );
 
 const meta = computed(() => ({
@@ -93,7 +86,7 @@ const styles = useStyles(
   props.uiConfig ?? {}
 );
 
-const maskedInstance = ref<InputMask<any> | null>(null);
+const maskedInstance = ref<InputMask<string> | null>(null);
 
 onMounted(() => {
   applyMask();
@@ -113,12 +106,15 @@ watch(
 function applyMask() {
   if (props.mask && input.value) {
     const maskOptions = {
-      mask: props.mask as any
-    };
+      mask: props.mask
+    } as Record<string, unknown>;
 
-    maskedInstance.value = IMask(input.value, maskOptions);
+    maskedInstance.value = IMask(
+      input.value,
+      maskOptions
+    ) as unknown as InputMask<string>;
 
-    maskedInstance.value.on("accept", () => {
+    maskedInstance.value?.on("accept", () => {
       modelValue.value = maskedInstance.value?.value;
     });
   }
