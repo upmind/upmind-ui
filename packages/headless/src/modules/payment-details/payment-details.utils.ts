@@ -16,6 +16,7 @@ import mercadoPagoConfig from "../payment-gateways/mercadoPago";
 import openPayConfig from "../payment-gateways/openPay";
 import razorpayConfig from "../payment-gateways/razorpay";
 import stripeConfig from "../payment-gateways/stripe";
+import nickyConfig from "../payment-gateways/nicky";
 import { useSessionStorage } from "../../utils";
 import {
   filter,
@@ -34,12 +35,12 @@ import type {
   PendingOperation
 } from "./payment-details.types";
 import type { BraintreeContext } from "../payment-gateways/braintree/types";
-import type { DLocalContext } from "../payment-gateways/dlocal/types";
 import type { MercadoPagoContext } from "../payment-gateways/mercadoPago/types";
 import type { OpenPayContext } from "../payment-gateways/openPay/types";
 import type { GatewayParams } from "../payment-gateways/payment-gateways.types";
 import type { RazorpayContext } from "../payment-gateways/razorpay/types";
 import type { StripeContext } from "../payment-gateways/stripe/types";
+import type { NickyContext } from "../payment-gateways/nicky/types";
 
 // -----------------------------------------------------------------------------
 
@@ -127,14 +128,40 @@ export function spawnGateway(params: GatewayParams) {
           .withConfig(razorpayConfig),
         { name: gateway.id, sync: true }
       );
-    case GatewayProviderCodes.D_LOCAL_CARD:
+    // NB: renderless gateway with no SDK to mount, but it must still render its
+    //     own form to collect the payer document. It is deliberately NOT flagged
+    //     `renderless` — that would hide the form in the UI. `sdk: false` keeps
+    //     `hasRendered` satisfied so the machine still reaches `available`
+    //     without a render step. The schema is overridden to collect the
+    //     document into payment_method_addition.
+    case GatewayProviderCodes.D_LOCAL:
       return spawn(
-        gatewayMachine<DLocalContext>(gateway.gateway_provider.code)
+        gatewayMachine(gateway.gateway_provider.code)
           .withContext({
             ...params,
+            sdk: false,
             supported: true
           })
           .withConfig(dlocalConfig),
+        { name: gateway.id, sync: true }
+      );
+
+    // SUPPORTED REDIRECT GATEWAY WITH CUSTOM SCHEMA
+    // NB: `renderless` is deliberately omitted (not `false`) — contextMatches
+    // treats any non-nil value as a match, so `renderless: false` would still
+    // suppress the form. With it absent, `isRenderless` is schema-driven: guests
+    // get a non-readOnly email field (form renders), registered clients get an
+    // all-readOnly schema (no form). `sdk: false` keeps `hasRendered` true so
+    // the SDK rendering state is still skipped.
+    case GatewayProviderCodes.NICKY:
+      return spawn(
+        gatewayMachine<NickyContext>(gateway.gateway_provider.code)
+          .withContext({
+            ...params,
+            sdk: false,
+            supported: true
+          })
+          .withConfig(nickyConfig),
         { name: gateway.id, sync: true }
       );
 
@@ -143,7 +170,6 @@ export function spawnGateway(params: GatewayParams) {
     case GatewayProviderCodes.BIT_PAY:
     case GatewayProviderCodes.BLOCKONOMICS:
     case GatewayProviderCodes.COIN_GATE:
-    case GatewayProviderCodes.D_LOCAL:
     case GatewayProviderCodes.FLUTTERWAVE:
     case GatewayProviderCodes.GO_CARDLESS:
     case GatewayProviderCodes.MICROPAYMENT:
