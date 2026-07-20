@@ -51,6 +51,12 @@ test.describe("Checkout - Pay Amount", () => {
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("10");
       await checkout.clickConfirmAmount();
+      // UI-only by design: confirming the amount dispatches the local
+      // SET_PARTIAL_PAYMENT machine event (headless usePaymentDetail.setAmount)
+      // — no request fires here. The typed amount only reaches the wire at
+      // placement, where partial-payments.spec.ts asserts the POST /api/payments
+      // body carries it (FE-2985 mutation-chain guard); this widget test stays
+      // scoped to the on-screen value.
       // £10.00 is the user's typed input — literal is correct here
       await expect(checkout.payAmount).toBeVisible();
       await expect(checkout.payAmount).toHaveAttribute(

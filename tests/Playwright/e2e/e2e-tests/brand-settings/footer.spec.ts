@@ -102,7 +102,9 @@ test.describe("Footer - Language and Currency controls", () => {
   }) => {
     interceptLanguageAndCurrency(page, singleLanguage, singleCurrency);
     await page.goto("/");
-    await page.waitForURL("/order/shop/");
+    await expect(page.getByTestId("products-grid")).toBeVisible({
+      timeout: 15000
+    });
     await waitForSessionCookie(page.context());
     await expect(page.getByTestId("locale-selector")).not.toBeVisible();
     await expect(page.getByTestId("currency-selector")).not.toBeVisible();
@@ -110,7 +112,9 @@ test.describe("Footer - Language and Currency controls", () => {
   test("Single currency, multiple languages", async ({ page }) => {
     interceptLanguageAndCurrency(page, multipleLanguages, singleCurrency);
     await page.goto("/");
-    await page.waitForURL("/order/shop/");
+    await expect(page.getByTestId("products-grid")).toBeVisible({
+      timeout: 15000
+    });
     await waitForSessionCookie(page.context());
     await expect(page.getByTestId("locale-selector")).toBeVisible();
     await expect(page.getByTestId("currency-selector")).not.toBeVisible();
@@ -118,7 +122,9 @@ test.describe("Footer - Language and Currency controls", () => {
   test("Multiple currency, single language", async ({ page }) => {
     interceptLanguageAndCurrency(page, singleLanguage, multipleCurrencies);
     await page.goto("/");
-    await page.waitForURL("/order/shop/");
+    await expect(page.getByTestId("products-grid")).toBeVisible({
+      timeout: 15000
+    });
     await waitForSessionCookie(page.context());
     await expect(page.getByTestId("locale-selector")).not.toBeVisible();
     await expect(page.getByTestId("currency-selector")).toBeVisible();
@@ -126,7 +132,9 @@ test.describe("Footer - Language and Currency controls", () => {
   test("Multiple currency, multiple languages", async ({ page }) => {
     interceptLanguageAndCurrency(page, multipleLanguages, multipleCurrencies);
     await page.goto("/");
-    await page.waitForURL("/order/shop/");
+    await expect(page.getByTestId("products-grid")).toBeVisible({
+      timeout: 15000
+    });
     await waitForSessionCookie(page.context());
     await expect(page.getByTestId("locale-selector")).toBeVisible();
     await expect(page.getByTestId("currency-selector")).toBeVisible();

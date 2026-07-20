@@ -1,0 +1,54 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/org/modules",
+    "headers": {
+      "accept": "application/json",
+      "authorization": "Bearer <REDACTED>",
+      "content-type": "application/json",
+      "origin": "null",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36",
+      "sec-ch-ua": "\"HeadlessChrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"macOS\""
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {},
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "mock-uuid-3",
+          "org_id": null,
+          "code": "web_hosting",
+          "name": "Web Hosting",
+          "description": "This module makes it simple to manage and sell products to automatically provision services such as shared web hosting accounts, domain names and more",
+          "created_at": "2022-02-26 01:49:10",
+          "updated_at": "2022-02-26 01:49:10",
+          "deleted_at": null,
+          "pivot": {
+            "org_id": "mock-uuid-1",
+            "module_id": "mock-uuid-3",
+            "created_at": "2025-05-07 08:38:43",
+            "updated_at": "2025-05-07 08:38:43"
+          }
+        }
+      ],
+      "related": null,
+      "total": 1,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-07-11T09:38:14.845Z",
+  "brand_domain": "qa-automation.local",
+  "source": "journey",
+  "provenance": {
+    "journey": "product-setup-invalid-basket"
+  }
+}

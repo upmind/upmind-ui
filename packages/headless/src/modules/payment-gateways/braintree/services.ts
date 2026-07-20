@@ -1,8 +1,8 @@
 // --- external
 // BraintreeDropin is dynamically imported in render() for lazy loading
 
-import { useI18n, useLocale } from "../../system-localisation";
 import { useQuery } from "../../query";
+import { useI18n, useLocale } from "../../system-localisation";
 import sharedServices from "../payment-gateways.services";
 import { beginSetup } from "../payment-gateways.services";
 import { parseSettings } from "../payment-gateways.utils";

@@ -1,0 +1,35 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/config/organisation/values?keys=package.enabled_features.create_user_api_tokens%2Cpackage.enabled_features.bulk_notifications%2Cpackage.enabled_features.multi_brand%2Cpackage.enabled_features.product_provisioning%2Cpackage.enabled_features.remove_upmind_branding%2Cpackage.enabled_features.unlimited_payment_gateways%2Cpackage.enabled_features.unlimited_provisioning_configurations%2Cpackage.enabled_features.webhooks"
+  },
+  "response": {
+    "status": 200,
+    "headers": {},
+    "body": {
+      "status": "ok",
+      "data": {
+        "package.enabled_features.multi_brand": false,
+        "package.enabled_features.product_provisioning": true,
+        "package.enabled_features.remove_upmind_branding": false,
+        "package.enabled_features.bulk_notifications": true,
+        "package.enabled_features.unlimited_payment_gateways": true,
+        "package.enabled_features.webhooks": true,
+        "package.enabled_features.unlimited_provisioning_configurations": true,
+        "package.enabled_features.create_user_api_tokens": true
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-06-01T00:00:00.000Z",
+  "brand_domain": "collab-studio.example.com",
+  "source": "journey",
+  "provenance": {
+    "journey": "storefront-guest-oneoff-checkout-stripe"
+  }
+}

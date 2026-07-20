@@ -2,7 +2,7 @@
 
 Edge cases and behaviours that surprise people. Written for developers wiring auth into UI and for testers designing scenarios — every gotcha carries a testable expected-behaviour statement (these are the behavioural spec for test authoring per ADR-021).
 
-> 2FA wire fixtures are not yet captured (pending FE-2788). The 2FA behaviours below are documented from the FE-2826 spec (`docs/plans/FE-2826.md`) and `tests/Playwright/features/login-registration/two-factor-login.feature` — treat them as the spec even though no recording backs them yet.
+> 2FA wire fixtures are not yet captured (pending FE-2788). The 2FA behaviours below are documented from the FE-2826 spec (`docs/plans/FE-2826.md`) and `tests/features/login-registration/two-factor-login.feature` — treat them as the spec even though no recording backs them yet.
 
 ## 1. A successful password grant is not necessarily a login (2FA)
 

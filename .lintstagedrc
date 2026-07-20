@@ -1,3 +1,4 @@
 {
-  "./**/*.{js,ts,html,json,vue}": "pnpm format"
+  "./**/*.{js,ts,html,json,vue}": "pnpm format",
+  "tests/features/**/*.feature": "bash tests/features/lint-feature-files.sh"
 }

@@ -14,13 +14,7 @@ import type { CustomField } from "../client-custom-fields";
 import type { PhoneModel } from "../client-phone";
 import type { ScopeContext } from "../scope/scope.types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-import type {
-  IAccount,
-  IClient,
-  ICurrency,
-  IPricelist,
-  IToken
-} from "@upmind-automation/types";
+import type { IClient, IToken } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 /**

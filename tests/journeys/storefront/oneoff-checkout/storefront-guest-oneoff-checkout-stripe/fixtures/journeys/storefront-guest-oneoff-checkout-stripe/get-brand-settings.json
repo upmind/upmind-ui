@@ -1,0 +1,525 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/brand/settings?lang=en-US"
+  },
+  "response": {
+    "status": 200,
+    "headers": {},
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "mock-uuid-3",
+        "code": "q5emenbm0y1p",
+        "name": "Collab Studio",
+        "style": {
+          "brand_color": "#CC0033",
+          "brand_font": {
+            "family": "Bricolage Grotesque",
+            "version": "v9"
+          },
+          "tokens": "mock-tokens"
+        },
+        "prefix": "q5emenbm0y1p",
+        "currency_id": "mock-uuid-10",
+        "country_id": "mock-uuid-12",
+        "language_id": "mock-uuid-13",
+        "pricelist_id": "mock-uuid-11",
+        "tax_type": 2,
+        "vat_exempt": 0,
+        "vat_number": "GB 000 0000",
+        "wipe_data": false,
+        "demo_data_import_id": "mock-uuid-14",
+        "region_id": null,
+        "meta": {
+          "cart": {
+            "@data.billing_details.billingDetailsDisabled": false,
+            "@data.clickwrapDisclaimer": "By clicking '{{ action }}', you confirm that you've read and agree to Webcentral's [Terms of Service](https://webcentral.au/terms-conditions), [Privacy Policy](https://webcentral.au/privacy-policy), and other applicable policies listed [here](https://webcentral.au/service-terms). You also confirm that you are placing an order with an obligation to pay.",
+            "@data.trimTrailingZeroes": false,
+            "@context.termSelector": "select",
+            "@context.optionUpsells": "visible",
+            "@context.basket.basketFields": {
+              "default": "hidden",
+              "rules": [
+                {
+                  "when": {
+                    "basket.item_count": {
+                      "$gte": 1
+                    }
+                  },
+                  "then": "hidden"
+                }
+              ]
+            }
+          },
+          "cart-previous": {
+            "@data.catalogueDisabled": true,
+            "@data.storeUrl": "https://www.velia.net",
+            "@context.theme": "default2",
+            "@context.*.productTermSelector": "visible",
+            "@context.termSelector": "select",
+            "@context.productTermSelector": "visible",
+            "@context.productListLayout": "4-col",
+            "@context.productImageRatio": "16:9",
+            "@context.recommendations.productImageRatio": "3:2",
+            "@context.activeCategoryDescription": "hidden",
+            "@context.productConfigFieldsSummary": "visible",
+            "@context.paymentGatewaysCap/lg": 8,
+            "@context.paymentGatewaysCap": 4,
+            "@context.catalogue.productImagesStyle": "carousel",
+            "@context.configure.productImagesStyle": "carousel",
+            "@data.storeHeading": "This is a heading",
+            "@data.storeBadge/lg": {
+              "label": "Price Guarantee",
+              "icon": "percent-01"
+            },
+            "@data.*.categoryBadge": "Test Badge",
+            "@data.trustMessagingMarkdown": "<ul style=\"list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;\"><li><strong style=\"color: var(--color-success, #22c55e);\">✓</strong> Money-back guarantee</li><li><strong style=\"color: var(--color-success, #22c55e);\">✓</strong> Secure payment</li><li><strong style=\"color: var(--color-success, #22c55e);\">✓</strong> 24/7 support</li></ul>"
+          },
+          "i18n-previous": {
+            "cart.store_heading": {
+              "*": "This is global",
+              "en": "This is english",
+              "fr": "This is french"
+            },
+            "cart.basket_title": {
+              "*": "Your <mark class='mask-primary'>basket</mark>"
+            },
+            "text.loading_title": {
+              "*": "Something <mark>exciting</mark> is around the corner"
+            },
+            "action.create_account": {
+              "*": "Create an <mark>account</mark>"
+            },
+            "auth.welcome_back": {
+              "*": "Log in to your <mark>account</mark>"
+            },
+            "text.secure_checkout": {
+              "*": "Secure <mark class='mask-secondary'>checkout</mark>",
+              "es": "This is spanish"
+            }
+          }
+        },
+        "domain": "q5emenbm0y1p.staging.upmind.dev",
+        "has_demo_data": true,
+        "currencies": [
+          {
+            "id": "mock-uuid-15",
+            "name": "South African Rand",
+            "prefix": "",
+            "suffix": "R",
+            "code": "ZAR",
+            "created_at": "2022-05-27 08:59:52",
+            "updated_at": "2026-04-20 16:15:26",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "mock-uuid-10",
+            "name": "US Dollar",
+            "prefix": "$",
+            "suffix": "",
+            "code": "USD",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2026-04-20 16:15:25",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "mock-uuid-9",
+            "name": "British Pound",
+            "prefix": "£",
+            "suffix": "",
+            "code": "GBP",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2026-04-20 16:15:25",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "mock-uuid-16",
+            "name": "Bangladeshi Taka",
+            "prefix": "",
+            "suffix": "৳",
+            "code": "BDT",
+            "created_at": "2022-05-25 09:25:07",
+            "updated_at": "2026-04-20 16:15:26",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "mock-uuid-6",
+            "name": "Euro",
+            "prefix": "",
+            "suffix": "€",
+            "code": "EUR",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2026-04-20 16:15:25",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "mock-uuid-17",
+            "name": "Canadian Dollar",
+            "prefix": "$",
+            "suffix": "",
+            "code": "CAD",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-04-20 16:15:25",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "mock-uuid-18",
+            "name": "Ugandan Shilling",
+            "prefix": "USh.",
+            "suffix": "/=",
+            "code": "UGX",
+            "created_at": "2022-08-05 08:29:50",
+            "updated_at": "2026-04-20 16:15:26",
+            "base": true,
+            "decimals": false,
+            "manual": 0
+          },
+          {
+            "id": "mock-uuid-19",
+            "name": "Malaysian Ringgit",
+            "prefix": "RM",
+            "suffix": "",
+            "code": "MYR",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-04-20 16:15:26",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "mock-uuid-13",
+            "name": "Australian Dollar",
+            "prefix": "AU $",
+            "suffix": "",
+            "code": "AUD",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-04-20 16:15:25",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "mock-uuid-20",
+            "name": "Nigerian Naira",
+            "prefix": "",
+            "suffix": "",
+            "code": "NGN",
+            "created_at": "2022-06-01 07:35:15",
+            "updated_at": "2026-04-20 16:15:26",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "mock-uuid-21",
+            "name": "Mexican Peso",
+            "prefix": "Mex$",
+            "suffix": "",
+            "code": "MXN",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-04-20 16:15:25",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "mock-uuid-22",
+            "name": "Indian Rupee",
+            "prefix": "₹",
+            "suffix": "",
+            "code": "INR",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-04-20 16:15:25",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "mock-uuid-23",
+            "name": "Colombian Peso",
+            "prefix": "COL$",
+            "suffix": "",
+            "code": "COP",
+            "created_at": "2022-08-05 08:29:49",
+            "updated_at": "2026-04-20 16:15:26",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "mock-uuid-24",
+            "name": "Brazilian Real",
+            "prefix": "R$",
+            "suffix": "",
+            "code": "BRL",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-04-20 16:15:25",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          }
+        ],
+        "oauth_clients": [
+          {
+            "id": "mock-uuid-25",
+            "user_id": "sys",
+            "name": "Collab Studio Portal",
+            "origin": "q5emenbm0y1p.staging.upmind.dev",
+            "org_id": "mock-uuid-2",
+            "brand_id": "mock-uuid-3",
+            "default": true,
+            "custom": false,
+            "staff_enabled": true,
+            "customer_enabled": true,
+            "provider": null,
+            "revoked": false,
+            "created_at": "2023-09-11 11:25:31",
+            "updated_at": "2025-07-08 11:38:16",
+            "origin_healthy": true
+          },
+          {
+            "id": "mock-uuid-26",
+            "user_id": "sys",
+            "name": "Collab Studio Portal",
+            "origin": "q5emenbm0y1p.upmind.dev",
+            "org_id": "mock-uuid-2",
+            "brand_id": "mock-uuid-3",
+            "default": false,
+            "custom": false,
+            "staff_enabled": true,
+            "customer_enabled": true,
+            "provider": null,
+            "revoked": false,
+            "created_at": "2023-09-11 11:25:31",
+            "updated_at": "2025-07-08 11:38:16",
+            "origin_healthy": true
+          },
+          {
+            "id": "mock-uuid-27",
+            "user_id": "sys",
+            "name": "Collab Studio Portal",
+            "origin": "q5emenbm0y1p.upmind.com",
+            "org_id": "mock-uuid-2",
+            "brand_id": "mock-uuid-3",
+            "default": false,
+            "custom": false,
+            "staff_enabled": true,
+            "customer_enabled": true,
+            "provider": null,
+            "revoked": false,
+            "created_at": "2023-09-11 11:25:31",
+            "updated_at": "2025-07-08 11:38:16",
+            "origin_healthy": true
+          },
+          {
+            "id": "mock-uuid-28",
+            "user_id": "mock-uuid-29",
+            "name": "Collab Studio Portal",
+            "origin": "collabstudio.local",
+            "org_id": "mock-uuid-2",
+            "brand_id": "mock-uuid-3",
+            "default": false,
+            "custom": true,
+            "staff_enabled": true,
+            "customer_enabled": true,
+            "provider": null,
+            "revoked": false,
+            "created_at": "2023-09-11 14:05:02",
+            "updated_at": "2025-07-08 11:38:16",
+            "origin_healthy": false
+          },
+          {
+            "id": "mock-uuid-30",
+            "user_id": "mock-uuid-29",
+            "name": "Collab Studio Portal",
+            "origin": "collabstudio.localhost",
+            "org_id": "mock-uuid-2",
+            "brand_id": "mock-uuid-3",
+            "default": false,
+            "custom": true,
+            "staff_enabled": true,
+            "customer_enabled": true,
+            "provider": null,
+            "revoked": false,
+            "created_at": "2025-12-17 06:58:00",
+            "updated_at": "2025-12-17 06:58:00",
+            "origin_healthy": false
+          }
+        ],
+        "languages": [
+          {
+            "id": "mock-uuid-9",
+            "language": "English",
+            "code": "en",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2017-10-18 14:16:22",
+            "pivot": {
+              "brand_id": "mock-uuid-3",
+              "language_id": "mock-uuid-9"
+            }
+          },
+          {
+            "id": "mock-uuid-13",
+            "language": "Portuguese",
+            "code": "pt",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2017-10-18 14:16:22",
+            "pivot": {
+              "brand_id": "mock-uuid-3",
+              "language_id": "mock-uuid-13"
+            }
+          },
+          {
+            "id": "mock-uuid-10",
+            "language": "Spanish",
+            "code": "es",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2017-10-18 14:16:22",
+            "pivot": {
+              "brand_id": "mock-uuid-3",
+              "language_id": "mock-uuid-10"
+            }
+          },
+          {
+            "id": "mock-uuid-17",
+            "language": "German",
+            "code": "de",
+            "created_at": "2021-02-24 10:22:06",
+            "updated_at": "2021-02-24 10:22:06",
+            "pivot": {
+              "brand_id": "mock-uuid-3",
+              "language_id": "mock-uuid-17"
+            }
+          },
+          {
+            "id": "mock-uuid-5",
+            "language": "English (US)",
+            "code": "en-US",
+            "created_at": "2022-11-04 11:48:45",
+            "updated_at": "2022-11-04 11:48:45",
+            "pivot": {
+              "brand_id": "mock-uuid-3",
+              "language_id": "mock-uuid-5"
+            }
+          },
+          {
+            "id": "mock-uuid-31",
+            "language": "French",
+            "code": "fr",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2017-10-18 14:16:22",
+            "pivot": {
+              "brand_id": "mock-uuid-3",
+              "language_id": "mock-uuid-31"
+            }
+          }
+        ],
+        "image": {
+          "id": "mock-uuid-32",
+          "object_id": "mock-uuid-3",
+          "image_category_id": "mock-uuid-9",
+          "type": "image",
+          "object_type": "brand",
+          "default": true,
+          "created_at": "2025-07-07 08:13:54",
+          "updated_at": "2025-07-07 08:14:16",
+          "origin_name": "327_1_280.svg",
+          "resized": true,
+          "order": 3,
+          "hash": "09bnXtr8cZOYM5VqjM3pMSfY36QVVORz",
+          "image_url": "api/images/mock-uuid-32/download",
+          "full_url": "https://api.staging.upmind.io/api/images/mock-uuid-32/download",
+          "size_category": {
+            "id": "mock-uuid-9",
+            "name": "brand_image"
+          }
+        },
+        "icon": {
+          "id": "mock-uuid-33",
+          "object_id": "mock-uuid-3",
+          "image_category_id": "mock-uuid-9",
+          "type": "icon",
+          "object_type": "brand",
+          "default": true,
+          "created_at": "2025-07-07 08:13:54",
+          "updated_at": "2025-07-07 08:13:58",
+          "origin_name": "327_1_281.svg",
+          "resized": true,
+          "order": 3,
+          "hash": "YiSVPAPZyKhDC7LYslN93VUx4DJgGze9",
+          "image_url": "api/images/mock-uuid-33/download",
+          "full_url": "https://api.staging.upmind.io/api/images/mock-uuid-33/download",
+          "size_category": {
+            "id": "mock-uuid-9",
+            "name": "brand_image"
+          }
+        },
+        "favicon": {
+          "id": "mock-uuid-34",
+          "object_id": "mock-uuid-3",
+          "image_category_id": "mock-uuid-35",
+          "type": "image",
+          "object_type": "brand",
+          "default": true,
+          "created_at": "2025-07-07 08:13:54",
+          "updated_at": "2025-07-07 08:13:54",
+          "origin_name": "327_10_282.svg",
+          "resized": true,
+          "order": 0,
+          "hash": "MShwz3oC3Lku50uv7k8fCa8KBFjVh1te",
+          "image_url": "api/images/mock-uuid-34/download",
+          "full_url": "https://api.staging.upmind.io/api/images/mock-uuid-34/download",
+          "size_category": {
+            "id": "mock-uuid-35",
+            "name": "brand_favicon"
+          }
+        },
+        "email_logo": {
+          "id": "mock-uuid-36",
+          "object_id": "mock-uuid-3",
+          "image_category_id": "mock-uuid-9",
+          "type": "email_logo",
+          "object_type": "brand",
+          "default": true,
+          "created_at": "2025-07-07 08:13:52",
+          "updated_at": "2025-07-07 08:13:52",
+          "origin_name": "327_1_279.svg",
+          "resized": true,
+          "order": 0,
+          "hash": "HlXgXiBoMD5NJIINobMR1w5ZdGnCR4Iq",
+          "image_url": "api/images/mock-uuid-36/download",
+          "full_url": "https://api.staging.upmind.io/api/images/mock-uuid-36/download",
+          "size_category": {
+            "id": "mock-uuid-9",
+            "name": "brand_image"
+          }
+        }
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-06-01T00:00:00.000Z",
+  "brand_domain": "collab-studio.example.com",
+  "source": "journey",
+  "provenance": {
+    "journey": "storefront-guest-oneoff-checkout-stripe"
+  }
+}

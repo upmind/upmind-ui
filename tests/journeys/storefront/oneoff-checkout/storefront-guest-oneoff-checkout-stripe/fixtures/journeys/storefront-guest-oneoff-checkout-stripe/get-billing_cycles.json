@@ -1,0 +1,111 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/billing_cycles?limit=0&lang=en-US"
+  },
+  "response": {
+    "status": 200,
+    "headers": {},
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "mock-uuid-9",
+          "name": "One Time",
+          "recurring": 0,
+          "months": 0
+        },
+        {
+          "id": "mock-uuid-6",
+          "name": "Monthly",
+          "recurring": 1,
+          "months": 1
+        },
+        {
+          "id": "mock-uuid-37",
+          "name": "Quarterly",
+          "recurring": 1,
+          "months": 3
+        },
+        {
+          "id": "mock-uuid-31",
+          "name": "Semiannually",
+          "recurring": 1,
+          "months": 6
+        },
+        {
+          "id": "mock-uuid-10",
+          "name": "Annually",
+          "recurring": 1,
+          "months": 12
+        },
+        {
+          "id": "mock-uuid-13",
+          "name": "Biennially",
+          "recurring": 1,
+          "months": 24
+        },
+        {
+          "id": "mock-uuid-24",
+          "name": "Triennially",
+          "recurring": 1,
+          "months": 36
+        },
+        {
+          "id": "mock-uuid-17",
+          "name": "Every 4 Years",
+          "recurring": 1,
+          "months": 48
+        },
+        {
+          "id": "mock-uuid-38",
+          "name": "Every 5 Years",
+          "recurring": 1,
+          "months": 60
+        },
+        {
+          "id": "mock-uuid-35",
+          "name": "Every 6 Years",
+          "recurring": 1,
+          "months": 72
+        },
+        {
+          "id": "mock-uuid-39",
+          "name": "Every 7 Years",
+          "recurring": 1,
+          "months": 84
+        },
+        {
+          "id": "mock-uuid-22",
+          "name": "Every 8 Years",
+          "recurring": 1,
+          "months": 96
+        },
+        {
+          "id": "mock-uuid-40",
+          "name": "Every 9 Years",
+          "recurring": 1,
+          "months": 108
+        },
+        {
+          "id": "mock-uuid-41",
+          "name": "Every 10 Years",
+          "recurring": 1,
+          "months": 120
+        }
+      ],
+      "related": null,
+      "total": 14,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-06-01T00:00:00.000Z",
+  "brand_domain": "collab-studio.example.com",
+  "source": "journey",
+  "provenance": {
+    "journey": "storefront-guest-oneoff-checkout-stripe"
+  }
+}

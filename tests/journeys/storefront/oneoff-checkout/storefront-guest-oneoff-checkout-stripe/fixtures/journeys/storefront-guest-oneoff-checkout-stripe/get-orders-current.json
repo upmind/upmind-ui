@@ -1,0 +1,34 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/orders/current?with=address%2Caddress.country%2Ccurrency%2Ccustom_fields.field%2Cpromotions%2Ctaxes%2Ctaxes.tax_tag_data%2Cclient%2Cproducts.product.image%2Cproducts.product.images%2Cproducts.product.prices%2Cproducts.product.products_attributes%2Cproducts.product.products_attributes.category%2Cproducts.product.products_options%2Cproducts.product.products_options.category%2Cproducts.product.products_options.prices%2Cproducts.product.provision_blueprint.category%2Cproducts.product.provision_field_values%2Cproducts.product.related%2Cproducts.product.category%2Cproducts.product.category.top_category.top_category.top_category.top_category&lang=en-US"
+  },
+  "response": {
+    "status": 401,
+    "headers": {},
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "5e88a291c30890f75159806e9deba6e58b770f24",
+        "type": 9,
+        "code": 401,
+        "message": "The resource owner or authorization server denied the request.",
+        "data": null
+      },
+      "messages": {
+        "hint": "Access token could not be verified"
+      },
+      "meta": null
+    }
+  },
+  "captured_at": "2026-06-01T00:00:00.000Z",
+  "brand_domain": "collab-studio.example.com",
+  "source": "journey",
+  "provenance": {
+    "journey": "storefront-guest-oneoff-checkout-stripe"
+  }
+}

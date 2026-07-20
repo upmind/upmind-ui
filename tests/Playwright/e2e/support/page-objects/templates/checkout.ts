@@ -49,6 +49,14 @@ export class Checkout {
   readonly billingAddAddress: Locator;
   readonly billingAddCompany: Locator;
   readonly billingAddNumber: Locator;
+  // --- FE-2789: fields backed by lazily-loaded system data (FE-1698) ---
+  readonly addressCountry: Locator;
+  readonly addressRegion: Locator;
+  readonly selectOptions: Locator;
+  readonly selectedSelectOption: Locator;
+  readonly phoneCountryTrigger: Locator;
+  readonly phoneCountryPopover: Locator;
+  readonly phoneDialCodeOptions: Locator;
   private readonly textInputComponent: TextInput;
 
   constructor(page: Page) {
@@ -151,6 +159,88 @@ export class Checkout {
     this.billingAddCompany =
       this.billingDetails.getByTestId("link-add-company");
     this.billingAddNumber = this.billingDetails.getByTestId("link-add-number");
+    // FE-2789: the address country/region controls render as JSONForms <Select>s
+    // (OneOfSelectRenderer). Their form-item carries the control path as a stable
+    // data-test-value (`address-country-id` / `address-region-id`, kebab of the
+    // JSONForms path) — mirrors BillingPage.regionSelect. The option list is
+    // teleported to the document body as `role=option`, so it is read page-wide,
+    // not nested under the form item.
+    this.addressCountry = this.page
+      .getByTestId("form-item")
+      .and(page.locator(`[data-test-value="address-country-id"]`));
+    this.addressRegion = this.page
+      .getByTestId("form-item")
+      .and(page.locator(`[data-test-value="address-region-id"]`));
+    this.selectOptions = this.page.getByRole("option");
+    // A Radix Select marks the chosen option `data-state="checked"` (verified in
+    // radix-vue's SelectItem) — a locale-independent "has a value" signal that
+    // never touches the translated option label (the FE-2840 trap).
+    this.selectedSelectOption = this.page
+      .getByRole("option")
+      .and(page.locator(`[data-state="checked"]`));
+    // The phone dialling-code control is a Combobox whose trigger Button is
+    // tagged `button-phone-country` by PhoneRenderer; its list is a popover of
+    // `role=option` command items.
+    this.phoneCountryTrigger = this.phone.getByTestId("button-phone-country");
+    this.phoneCountryPopover = this.page.getByTestId("popover-content");
+    this.phoneDialCodeOptions = this.phoneCountryPopover.getByRole("option");
+  }
+
+  // --- FE-2789: lazily-loaded system fields (country / region / dial code) ---
+  // Countries, regions and billing cycles load on demand (FE-1698), not on cart
+  // boot. These helpers drive the address country/region <Select>s and the phone
+  // dialling-code Combobox so a spec can prove the options POPULATE once the
+  // deferred load resolves. All targeting is by stable key or ARIA role — never
+  // a translated label — so it holds across every locale.
+
+  /** Opens the address country <Select> and waits for its option list. */
+  async openAddressCountry() {
+    await this.addressCountry.getByRole("combobox").first().click();
+    await this.selectOptions
+      .first()
+      .waitFor({ state: "visible", timeout: 15000 });
+  }
+
+  /** Opens the address region <Select> and waits for its option list. */
+  async openAddressRegion() {
+    await this.addressRegion.getByRole("combobox").first().click();
+    await this.selectOptions
+      .first()
+      .waitFor({ state: "visible", timeout: 15000 });
+  }
+
+  /** Closes an open <Select> list without choosing anything. */
+  async dismissSelect() {
+    await this.page.keyboard.press("Escape");
+    await this.selectOptions
+      .first()
+      .waitFor({ state: "hidden", timeout: 5000 })
+      .catch(() => {});
+  }
+
+  /** The stable keys (`data-test-value`) of every option in the open <Select>. */
+  async selectOptionKeys(): Promise<string[]> {
+    return this.selectOptions.evaluateAll(els =>
+      els.map(el => el.getAttribute("data-test-value") ?? "")
+    );
+  }
+
+  /**
+   * Chooses the open <Select> option carrying the stable key `key`
+   * (`data-test-value` — a country/region id, never a translated label).
+   */
+  async chooseSelectOption(key: string) {
+    await this.selectOptions
+      .and(this.page.locator(`[data-test-value="${key}"]`))
+      .click();
+  }
+
+  /** Opens the phone dialling-code selector and waits for its list. */
+  async openPhoneCountry() {
+    await this.phoneCountryTrigger.click();
+    await this.phoneDialCodeOptions
+      .first()
+      .waitFor({ state: "visible", timeout: 15000 });
   }
 
   async manuallyInputAddress(
@@ -517,9 +607,25 @@ export class Checkout {
     );
   }
 
+  /**
+   * Records every `/api/payments` round-trip on this page, capturing BOTH the
+   * outgoing request payload and the response. Returns the (initially empty)
+   * array by reference — call it BEFORE placing the order, then read the array
+   * AFTER the confirmation is visible.
+   *
+   * The placement mutation (`POST /api/payments`) is where `gateway_id` and
+   * `amount` reach the wire (see headless `payment.services.update` — the body
+   * is `{ invoice_id, ...paymentDetail }`). Asserting `request` closes the
+   * end-state-only gap the confirmation-suite specs had: a wrong `gateway_id`
+   * or `amount` on placement now fails a test instead of silently reaching a
+   * "Thank you" page. Currency is NOT in this body — it is fixed on the invoice
+   * and asserted via the currency-scoped pay-amount UI in those specs.
+   */
   async interceptPaymentResponse() {
     const paymentsResponse: Array<{
       url: string;
+      method: string;
+      request: any;
       status: number;
       headers: Record<string, string>;
       body: any;
@@ -528,10 +634,20 @@ export class Checkout {
     // regex (not a $-anchored glob) so a query string can't silently
     // unmatch the route
     await this.page.route(/\/api\/payments(\?|$)/, async route => {
+      // Snapshot the outgoing payload before fetching — the placement POST
+      // carries gateway_id/amount here (GET reads have no body → null).
+      let request: any = null;
+      try {
+        request = route.request().postDataJSON();
+      } catch {
+        request = null;
+      }
       const response = await route.fetch();
       const body = await response.json().catch(() => null);
       paymentsResponse.push({
         url: response.url(),
+        method: route.request().method(),
+        request,
         status: response.status(),
         headers: response.headers(),
         body

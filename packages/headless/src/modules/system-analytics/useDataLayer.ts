@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/vue";
+import packageJson from "../../../package.json";
 import { useBasket, useBasketCurrency } from "../basket";
 import { useI18n, useLocale } from "../system-localisation";
-import packageJson from "../../../package.json";
 import { mapIBasketProduct, mapBasketProduct } from "./system-analytics.utils";
 import {
   DetailedError,

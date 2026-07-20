@@ -1,8 +1,8 @@
 import { GrantTypes, type IToken } from "@upmind-automation/types";
-import { useI18n } from "../system-localisation";
 import { useQuery } from "../query";
 import { persistTokenToStorage } from "../session-store/session-store.utils";
 import { useSessionStoreActions } from "../session-store/useSessionStore.actions";
+import { useI18n } from "../system-localisation";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import type { IAuthTransfer, TransferContext } from "./session-transfer.types";
 // -----------------------------------------------------------------------------

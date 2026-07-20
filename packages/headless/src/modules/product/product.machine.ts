@@ -42,10 +42,9 @@ import {
   merge,
   xorBy
 } from "lodash-es";
-
-import type { AnyEventObject } from "xstate";
 import type { PriceDisplay, ProductConfigContext, ProductModel } from ".";
 import type { BasketProduct } from "../basket-product";
+import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 

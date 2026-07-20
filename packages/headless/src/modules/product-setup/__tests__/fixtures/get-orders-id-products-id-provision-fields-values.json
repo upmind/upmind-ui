@@ -1,0 +1,48 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/orders/mock-uuid-262/products/mock-uuid-265/provision_fields/values",
+    "headers": {
+      "accept": "application/json",
+      "authorization": "Bearer <REDACTED>",
+      "content-type": "application/json",
+      "origin": "null",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36",
+      "sec-ch-ua": "\"HeadlessChrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"macOS\""
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {},
+    "body": {
+      "status": "ok",
+      "data": {
+        "sld": null,
+        "update_registrant_name": null,
+        "update_registrant_organisation": null,
+        "update_registrant_email": null,
+        "update_registrant_phone": null,
+        "update_registrant_address_1": null,
+        "update_registrant_address_city": null,
+        "update_registrant_address_state": null,
+        "update_registrant_address_postcode": null,
+        "update_registrant_address_country_code": null
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-07-11T09:38:20.711Z",
+  "brand_domain": "qa-automation.local",
+  "source": "journey",
+  "provenance": {
+    "journey": "product-setup-invalid-basket"
+  }
+}

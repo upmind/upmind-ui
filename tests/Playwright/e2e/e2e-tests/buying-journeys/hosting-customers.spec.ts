@@ -5,10 +5,11 @@ import { Checkout } from "../../support/page-objects/templates/checkout";
 import { gateways } from "../../support/constants/gateways";
 import { Basket } from "../../support/page-objects/templates/basket";
 import { URLs } from "../../support/constants/urls";
-import { loginViaHeadless } from "../../support/flows";
+import { applySchemaDefaults, loginViaHeadless } from "../../support/flows";
 import { Login } from "../../support/page-objects/templates/login";
 import { Registration } from "../../support/page-objects/templates/registration";
 import { interceptConfigValues } from "../../support/mocks/brand";
+import { captureProduct } from "../../support/mocks/products";
 import { products } from "../../support/constants/products";
 import {
   clickAndAwaitBasketAdd,
@@ -23,10 +24,24 @@ let login: Login;
 let registration: Registration;
 
 async function addProductToBasket() {
+  // Capture the raw product BEFORE navigation so the schema-driven helper can
+  // satisfy any required option/attribute categories staging has configured on
+  // the hosting plan — without this spec hand-coding which fields those are.
+  const rawProductPromise = captureProduct(productConfig.page);
   await productConfig.page.goto(URLs.starterHosting);
+  const rawProduct = await rawProductPromise;
+  await applySchemaDefaults(productConfig.page, rawProduct);
   await productConfig.addToBasket.click();
 }
 
+// NB: every journey below completes via a BANK_TRANSFER (manual) placement.
+// FE-2985 payload guards do NOT apply here: headless mapPaymentData returns
+// undefined for BANK_TRANSFER, so no /api/payments request fires — the order is
+// placed via PATCH /orders/{id}/convert with an EMPTY payment body, and no
+// gateway_id/amount reaches the wire (both resolved server-side / fixed on the
+// invoice). These specs prove the buying JOURNEY end-to-end and assert the
+// end-state confirmation; placement-payload coverage lives in the Stripe
+// checkout-paths and existing-method specs.
 test.describe("Hosting customers", async () => {
   test.beforeEach(async ({ page, context }) => {
     productConfig = new ProductConfig(page);

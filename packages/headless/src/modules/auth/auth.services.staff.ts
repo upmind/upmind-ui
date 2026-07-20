@@ -5,11 +5,11 @@ import {
   type IToken
 } from "@upmind-automation/types";
 import { mapCustomField } from "../client-custom-fields/client-custom-fields.mappers";
-import { useI18n } from "../system-localisation";
 import { useQuery } from "../query";
-import { AuthEvents, useSessionStore } from "../session-store";
 import { ScopeActorTypes } from "../scope";
+import { AuthEvents, useSessionStore } from "../session-store";
 import { persistTokenToStorage } from "../session-store/session-store.utils";
+import { useI18n } from "../system-localisation";
 import { mapLoginData, mapRecoverData, mapRegisterData } from "./auth.mappers";
 import { AUTH_SESSION_QUERY_KEY_BASE, AuthContextTypes } from "./auth.types";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";

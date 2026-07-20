@@ -3,12 +3,13 @@ import {
   useQuery as vueUseQuery,
   useInfiniteQuery as vueUseInfiniteQuery
 } from "@tanstack/vue-query";
-import { ref, unref, computed, watch } from "vue";
+import { ref, unref, computed } from "vue";
 import { effectScope, getCurrentScope, type ComputedRef } from "vue";
 import { isArray, isFunction } from "xstate/lib/utils";
 import { Methods } from "@upmind-automation/types";
 import { useBasket, useBasketCurrency } from "../basket";
 import { useActiveSession } from "../session-store";
+import { getTokenFromStorage } from "../session-store";
 import { useI18n, useLocale } from "../system-localisation";
 import { queryClient } from "./client";
 import { doFetch, refreshToken } from "./query.services";
@@ -25,7 +26,6 @@ import {
   DetailedError,
   responseCodes
 } from "../../utils";
-import { getTokenFromStorage } from "../session-store";
 import {
   forEach,
   get,
@@ -377,7 +377,7 @@ export const useQuery = () => {
     if (withBasket) reactiveKeys.basketId = basketId;
 
     // This s used to persist paginatin and filter/sort on first load, so that if the user refreshes the page, we don't reset the pagination and filters to the default values. We only want to reset them if the user changes the sort or filter values.
-    let isInitialCall = ref(true);
+    const isInitialCall = ref(true);
 
     const response = scope.run(() =>
       vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>(
@@ -693,7 +693,7 @@ export const useQuery = () => {
     });
 
     // This s used to persist paginatin and filter/sort on first load, so that if the user refreshes the page, we don't reset the pagination and filters to the default values. We only want to reset them if the user changes the sort or filter values.
-    let isInitialCall = ref(true);
+    const isInitialCall = ref(true);
 
     // --- query
     const reactiveKeys: ReactiveQueryKeys = { sort, filters };

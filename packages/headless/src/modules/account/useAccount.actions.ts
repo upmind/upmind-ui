@@ -1,3 +1,4 @@
+import { unref } from "vue";
 import { remove } from "../scope";
 import {
   contextValue,
@@ -10,10 +11,9 @@ import type {
   GuestEmailModel,
   VerifyEmailModel
 } from "./account.types";
-import type { Client } from "../client";
 import type { UseActor } from "../../utils";
+import type { Client } from "../client";
 import type { ScopeActorTypes } from "../scope";
-import { unref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module account/useAccount.actions

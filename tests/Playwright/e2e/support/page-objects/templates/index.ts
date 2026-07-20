@@ -1,3 +1,4 @@
+export { AuthOverlay } from "./auth-overlay";
 export { Basket } from "./basket";
 export { BillingPage } from "./billing-page";
 export { Checkout } from "./checkout";

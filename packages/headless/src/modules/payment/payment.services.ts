@@ -1,7 +1,7 @@
 /** @internal */
 import { useBrand } from "../brand";
-import { useI18n } from "../system-localisation";
 import { useQuery } from "../query";
+import { useI18n } from "../system-localisation";
 import { mapRenderer } from "./payment.mappers";
 import { submitViaForm } from "./payment.utils";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";

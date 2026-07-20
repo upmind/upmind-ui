@@ -60,6 +60,12 @@ test.describe("Tracking — Product Setup step", () => {
 
     await fillRegistrantDetails(productConfig);
     await productSetup.submit();
+    // Gateway-independent checkout-arrival signal. button-complete-checkout
+    // only mounts once a gateway/stored method is selected (usePaymentDetail
+    // showPaymentActions), which these tracking tests never do — so gate on the
+    // navigation to /checkout/ instead. begin_checkout fires on checkout mount
+    // regardless of gateway selection, and the waitForEvent poll below tolerates
+    // it landing just after the URL settles.
     await page.waitForURL(/checkout/);
 
     // GTM fires begin_checkout on checkout mount, just after navigation settles —
@@ -76,10 +82,15 @@ test.describe("Tracking — Product Setup step", () => {
 
     await page.goto(URLs.basket);
     await basket.proceedToCheckout.click();
-    await page.waitForURL(/products-setup/);
     await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
     await fillRegistrantDetails(productConfig);
     await productSetup.submit();
+    // Gateway-independent checkout-arrival signal. button-complete-checkout
+    // only mounts once a gateway/stored method is selected (usePaymentDetail
+    // showPaymentActions), which these tracking tests never do — so gate on the
+    // navigation to /checkout/ instead. begin_checkout fires on checkout mount
+    // regardless of gateway selection, and the waitForEvent poll below tolerates
+    // it landing just after the URL settles.
     await page.waitForURL(/checkout/);
 
     const dataLayer = await getDataLayer(page);
@@ -103,10 +114,15 @@ test.describe("Tracking — Product Setup step", () => {
 
     await page.goto(URLs.basket);
     await basket.proceedToCheckout.click();
-    await page.waitForURL(/products-setup/);
     await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
     await fillRegistrantDetails(productConfig);
     await productSetup.submit();
+    // Gateway-independent checkout-arrival signal. button-complete-checkout
+    // only mounts once a gateway/stored method is selected (usePaymentDetail
+    // showPaymentActions), which these tracking tests never do — so gate on the
+    // navigation to /checkout/ instead. begin_checkout fires on checkout mount
+    // regardless of gateway selection, and the waitForEvent poll below tolerates
+    // it landing just after the URL settles.
     await page.waitForURL(/checkout/);
 
     // Wait for the event to fire (timing race), then assert it fired exactly once.

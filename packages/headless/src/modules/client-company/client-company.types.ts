@@ -1,6 +1,6 @@
-import type { Email, EmailModel } from "../client-email";
-import type { Phone, PhoneModel } from "../client-phone";
 import type { Address, AddressModel } from "../client-address";
+import type { Email } from "../client-email";
+import type { Phone, PhoneModel } from "../client-phone";
 import type { DataManagerContext } from "../data-manager/data-manager.types";
 import type { ICountry, ICompany, IRegion } from "@upmind-automation/types";
 

@@ -1,0 +1,39 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/orders/mock-uuid-288/products/mock-uuid-291/provision_fields/values?case=related-host",
+    "headers": {
+      "accept": "application/json",
+      "authorization": "Bearer <REDACTED>",
+      "content-type": "application/json",
+      "origin": "null",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36",
+      "sec-ch-ua": "\"HeadlessChrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"macOS\""
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {},
+    "body": {
+      "status": "ok",
+      "data": {
+        "domain": "fixturegenbeta.org"
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-07-11T18:57:11.555Z",
+  "brand_domain": "qa-automation.local",
+  "source": "journey",
+  "provenance": {
+    "journey": "product-setup-configured-basket"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/self?with=actor,accounts&lang=en",
+    "headers": {
+      "accept": "application/json",
+      "authorization": "Bearer <REDACTED>",
+      "content-type": "application/json",
+      "origin": "null",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36",
+      "sec-ch-ua": "\"HeadlessChrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"macOS\""
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {},
+    "body": {
+      "status": "ok",
+      "data": {
+        "role": "guest",
+        "actor_id": null,
+        "org_id": "mock-uuid-1",
+        "brand_id": "mock-uuid-2",
+        "account_id": null,
+        "impersonator_role": null,
+        "impersonator_id": null,
+        "actor": {
+          "upmind_brand_id": null,
+          "upmind_account_id": null,
+          "upmind_client_id": null
+        },
+        "brand_code": "kn6x1dzbtcgb",
+        "accounts": null,
+        "analytics": {
+          "environment": "staging",
+          "version": "staging-0.170.71",
+          "language": "en",
+          "clean_email": null,
+          "sha_user_id": null,
+          "salted_sha_user_id": null,
+          "logged_in": false,
+          "customer_type": null
+        },
+        "meta": null
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-07-11T09:38:13.226Z",
+  "brand_domain": "qa-automation.local",
+  "source": "journey",
+  "provenance": {
+    "journey": "product-setup-invalid-basket"
+  }
+}

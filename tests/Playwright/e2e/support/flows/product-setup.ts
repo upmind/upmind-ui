@@ -1,6 +1,5 @@
 import { fakerEN_GB } from "@faker-js/faker";
 import type { Page } from "@playwright/test";
-import type { IProduct, IProductOption } from "@upmind-automation/types";
 
 import { Logins } from "../constants/logins";
 import { URLs } from "../constants/urls";
@@ -70,51 +69,4 @@ export async function fillRegistrantDetails(
     },
     { ignoreNotVisible: true }
   );
-}
-
-/**
- * For each `required + multiple` option category on the raw product where the
- * machine cannot auto-select a default (single-select defaults are handled by
- * the product schema/parse pipeline — `buildSubproductGroupSchema` emits a
- * `default` / `const` and `useModelParser` writes it into the model; see
- * `product/schemas.ts` + `product/services.ts:284-286`. Multi-select requires
- * a user choice), click the first option (by `pivot.default desc`,
- * `pivot.order asc`) so form validation passes on submit.
- *
- * No-op for products without any `required + multiple` categories. Idempotent.
- * See FE-2781 for the wider schema-driven approach this is a tactical patch of.
- */
-export async function selectRequiredMultiDefaults(
-  page: Page,
-  rawProduct: IProduct
-): Promise<void> {
-  const options = rawProduct.products_options ?? [];
-
-  const byCategory = new Map<string, IProductOption[]>();
-  for (const option of options) {
-    const cat = option.category;
-    if (!cat?.required || !cat?.multiple) continue;
-    const arr = byCategory.get(option.category_id) ?? [];
-    arr.push(option);
-    byCategory.set(option.category_id, arr);
-  }
-
-  for (const opts of byCategory.values()) {
-    const sorted = [...opts].sort((a, b) => {
-      const defA = a.pivot?.default ?? 0;
-      const defB = b.pivot?.default ?? 0;
-      if (defA !== defB) return defB - defA;
-      return (a.pivot?.order ?? 0) - (b.pivot?.order ?? 0);
-    });
-    const choice = sorted[0];
-    if (!choice) continue;
-    // CheckboxCards (required + multiple) tag each option with its stable
-    // `value="${opt.id}"`; target that, not the translated option name. The
-    // primitive's `checkbox-item-${kebabCase(label)}` fallback is locale-unstable.
-    await page
-      .getByTestId("checkbox-group")
-      .locator(`[value="${choice.id}"]`)
-      .first()
-      .click();
-  }
 }

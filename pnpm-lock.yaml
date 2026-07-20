@@ -985,7 +985,7 @@ importers:
         version: 12.8.2(typescript@5.9.3)
       '@xstate/inspect':
         specifier: ^0.8.0
-        version: 0.8.0(@types/ws@8.18.1)(ws@8.18.3)(xstate@4.38.3)
+        version: 0.8.0(@types/ws@8.18.1)(ws@8.21.0)(xstate@4.38.3)
       '@xstate/vue':
         specifier: ^2.0.0
         version: 2.0.0(vue@3.5.25(typescript@5.9.3))(xstate@4.38.3)
@@ -1877,6 +1877,21 @@ importers:
       '@types/lodash-es':
         specifier: ^4.17.12
         version: 4.17.12
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.3)(happy-dom@20.10.6)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.30.2)(msw@2.14.6(@types/node@22.19.3)(typescript@5.9.3))(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0)
+
+  tests/journeys:
+    devDependencies:
+      '@vitejs/plugin-vue':
+        specifier: ^6.0.1
+        version: 6.0.3(vite@7.3.0(@types/node@22.19.3)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue@3.5.25(typescript@5.9.3))
+      happy-dom:
+        specifier: ^20.10.6
+        version: 20.10.6
+      vite:
+        specifier: ^7.1.2
+        version: 7.3.0(@types/node@22.19.3)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0)
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.3)(happy-dom@20.10.6)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.30.2)(msw@2.14.6(@types/node@22.19.3)(typescript@5.9.3))(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0)
@@ -13419,8 +13434,8 @@ packages:
   vue-component-type-helpers@2.2.12:
     resolution: {integrity: sha512-YbGqHZ5/eW4SnkPNR44mKVc6ZKQoRs/Rux1sxC6rdwXb4qpbOSYfDr9DsTHolOTGmIKgM9j141mZbBeg05R1pw==}
 
-  vue-component-type-helpers@3.3.5:
-    resolution: {integrity: sha512-Fe1jyPJoUGpJOYKOri44jduR7My4yYINOMJISuMAbmrs+L5LbIDUc8NTWZYY3EJLK0yPLuCmcd5zoCsE4k2/KA==}
+  vue-component-type-helpers@3.3.7:
+    resolution: {integrity: sha512-Skkhw9agYSgsWqv7bxSOGJZa9SaiJbZVGdXuFWnrzKaQYHnw9qbjD630rw6RyMqDbp54nfLCLw5SZA55if7JLg==}
 
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
@@ -17986,7 +18001,7 @@ snapshots:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.5.25(typescript@5.9.3)
-      vue-component-type-helpers: 3.3.5
+      vue-component-type-helpers: 3.3.7
 
   '@stripe/stripe-js@7.9.0': {}
 
@@ -19169,10 +19184,10 @@ snapshots:
     dependencies:
       xstate: 4.38.3
 
-  '@xstate/inspect@0.8.0(@types/ws@8.18.1)(ws@8.18.3)(xstate@4.38.3)':
+  '@xstate/inspect@0.8.0(@types/ws@8.18.1)(ws@8.21.0)(xstate@4.38.3)':
     dependencies:
       fast-safe-stringify: 2.1.1
-      ws: 8.18.3
+      ws: 8.21.0
       xstate: 4.38.3
     optionalDependencies:
       '@types/ws': 8.18.1
@@ -22901,7 +22916,7 @@ snapshots:
       whatwg-encoding: 3.1.1
       whatwg-mimetype: 4.0.0
       whatwg-url: 14.2.0
-      ws: 8.18.3
+      ws: 8.21.0
       xml-name-validator: 5.0.0
     transitivePeerDependencies:
       - bufferutil
@@ -27468,7 +27483,7 @@ snapshots:
 
   vue-component-type-helpers@2.2.12: {}
 
-  vue-component-type-helpers@3.3.5: {}
+  vue-component-type-helpers@3.3.7: {}
 
   vue-demi@0.14.10(vue@3.5.25(typescript@5.9.3)):
     dependencies:

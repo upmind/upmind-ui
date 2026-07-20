@@ -1,0 +1,891 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/countries/mock-uuid-12/regions?limit=0&lang=en-US"
+  },
+  "response": {
+    "status": 200,
+    "headers": {},
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "mock-uuid-262",
+          "country_id": "mock-uuid-12",
+          "code": "ABD",
+          "name": "Aberdeenshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-263",
+          "country_id": "mock-uuid-12",
+          "code": "AGB",
+          "name": "Argyll",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-264",
+          "country_id": "mock-uuid-12",
+          "code": "AN",
+          "name": "Aberdeen, City of",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-265",
+          "country_id": "mock-uuid-12",
+          "code": "ANS",
+          "name": "Angus (Forfarshire)",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-266",
+          "country_id": "mock-uuid-12",
+          "code": "ANT",
+          "name": "Antrim",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-267",
+          "country_id": "mock-uuid-12",
+          "code": "ARG",
+          "name": "Ayrshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-268",
+          "country_id": "mock-uuid-12",
+          "code": "ARM",
+          "name": "Armagh",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-269",
+          "country_id": "mock-uuid-12",
+          "code": "AVN",
+          "name": "Avon",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-270",
+          "country_id": "mock-uuid-12",
+          "code": "BAN",
+          "name": "Banffshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-271",
+          "country_id": "mock-uuid-12",
+          "code": "BDF",
+          "name": "Bedfordshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-272",
+          "country_id": "mock-uuid-12",
+          "code": "BEW",
+          "name": "Berwickshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-273",
+          "country_id": "mock-uuid-12",
+          "code": "BKM",
+          "name": "Buckinghamshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-274",
+          "country_id": "mock-uuid-12",
+          "code": "BLF",
+          "name": "Belfast, City of",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-275",
+          "country_id": "mock-uuid-12",
+          "code": "BRK",
+          "name": "Berkshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-276",
+          "country_id": "mock-uuid-12",
+          "code": "BUT",
+          "name": "Bute",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-277",
+          "country_id": "mock-uuid-12",
+          "code": "CAI",
+          "name": "Caithness",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-278",
+          "country_id": "mock-uuid-12",
+          "code": "CAM",
+          "name": "Cambridgeshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-279",
+          "country_id": "mock-uuid-12",
+          "code": "CHS",
+          "name": "Cheshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-280",
+          "country_id": "mock-uuid-12",
+          "code": "CLK",
+          "name": "Clackmannanshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-281",
+          "country_id": "mock-uuid-12",
+          "code": "CLV",
+          "name": "Cleveland",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-282",
+          "country_id": "mock-uuid-12",
+          "code": "CMA",
+          "name": "Cumbria",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-283",
+          "country_id": "mock-uuid-12",
+          "code": "COB",
+          "name": "Bristol, City of",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-284",
+          "country_id": "mock-uuid-12",
+          "code": "COC",
+          "name": "Cromartyshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-285",
+          "country_id": "mock-uuid-12",
+          "code": "CON",
+          "name": "Cornwall",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-286",
+          "country_id": "mock-uuid-12",
+          "code": "CWD",
+          "name": "Clwyd",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-287",
+          "country_id": "mock-uuid-12",
+          "code": "DBY",
+          "name": "Derbyshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-288",
+          "country_id": "mock-uuid-12",
+          "code": "DD",
+          "name": "Dundee, City of",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-289",
+          "country_id": "mock-uuid-12",
+          "code": "DEV",
+          "name": "Devon",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-290",
+          "country_id": "mock-uuid-12",
+          "code": "DFD",
+          "name": "Dyfed",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-291",
+          "country_id": "mock-uuid-12",
+          "code": "DFS",
+          "name": "Dumfriesshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-292",
+          "country_id": "mock-uuid-12",
+          "code": "DNB",
+          "name": "Dunbartonshire (Dumbarton)",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-293",
+          "country_id": "mock-uuid-12",
+          "code": "DOR",
+          "name": "Dorset",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-294",
+          "country_id": "mock-uuid-12",
+          "code": "DOW",
+          "name": "Down",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-295",
+          "country_id": "mock-uuid-12",
+          "code": "DRY",
+          "name": "Derry, City of",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-296",
+          "country_id": "mock-uuid-12",
+          "code": "DUR",
+          "name": "Durham",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-297",
+          "country_id": "mock-uuid-12",
+          "code": "EB",
+          "name": "Edinburgh, City of",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-298",
+          "country_id": "mock-uuid-12",
+          "code": "ELN",
+          "name": "East Lothian (Haddingtonshire)",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-299",
+          "country_id": "mock-uuid-12",
+          "code": "ESS",
+          "name": "Essex",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-300",
+          "country_id": "mock-uuid-12",
+          "code": "FER",
+          "name": "Fermanagh",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-301",
+          "country_id": "mock-uuid-12",
+          "code": "FIF",
+          "name": "Fife",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-302",
+          "country_id": "mock-uuid-12",
+          "code": "GLA",
+          "name": "Glasgow, City of",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-303",
+          "country_id": "mock-uuid-12",
+          "code": "GLS",
+          "name": "Gloucestershire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-304",
+          "country_id": "mock-uuid-12",
+          "code": "GNT",
+          "name": "Gwent",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-305",
+          "country_id": "mock-uuid-12",
+          "code": "GTM",
+          "name": "Greater Manchester",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-306",
+          "country_id": "mock-uuid-12",
+          "code": "GWN",
+          "name": "Gwynedd",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-307",
+          "country_id": "mock-uuid-12",
+          "code": "HAM",
+          "name": "Hampshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-308",
+          "country_id": "mock-uuid-12",
+          "code": "HEF",
+          "name": "Herefordshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-309",
+          "country_id": "mock-uuid-12",
+          "code": "HRT",
+          "name": "Hertfordshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-310",
+          "country_id": "mock-uuid-12",
+          "code": "HWR",
+          "name": "Hereford and Worcester",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-311",
+          "country_id": "mock-uuid-12",
+          "code": "INV",
+          "name": "Inverness-shire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-312",
+          "country_id": "mock-uuid-12",
+          "code": "IOW",
+          "name": "Isle of Wight",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-313",
+          "country_id": "mock-uuid-12",
+          "code": "KCD",
+          "name": "Kincardineshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-314",
+          "country_id": "mock-uuid-12",
+          "code": "KEN",
+          "name": "Kent",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-315",
+          "country_id": "mock-uuid-12",
+          "code": "KKD",
+          "name": "Kirkcudbrightshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-316",
+          "country_id": "mock-uuid-12",
+          "code": "KRS",
+          "name": "Kinross-shire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-317",
+          "country_id": "mock-uuid-12",
+          "code": "LAN",
+          "name": "Lancashire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-318",
+          "country_id": "mock-uuid-12",
+          "code": "LDN",
+          "name": "London",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-319",
+          "country_id": "mock-uuid-12",
+          "code": "LDY",
+          "name": "Londonderry",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-320",
+          "country_id": "mock-uuid-12",
+          "code": "LEI",
+          "name": "Leicestershire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-321",
+          "country_id": "mock-uuid-12",
+          "code": "LIN",
+          "name": "Lincolnshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-322",
+          "country_id": "mock-uuid-12",
+          "code": "LKS",
+          "name": "Lanarkshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-323",
+          "country_id": "mock-uuid-12",
+          "code": "LND",
+          "name": "Greater London",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-324",
+          "country_id": "mock-uuid-12",
+          "code": "MDX",
+          "name": "Middlesex",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-325",
+          "country_id": "mock-uuid-12",
+          "code": "MGM",
+          "name": "Mid Glamorgan",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-326",
+          "country_id": "mock-uuid-12",
+          "code": "MLN",
+          "name": "Midlothian (County of Edinburgh)",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-327",
+          "country_id": "mock-uuid-12",
+          "code": "MOR",
+          "name": "Moray (Elginshire)",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-328",
+          "country_id": "mock-uuid-12",
+          "code": "MSY",
+          "name": "Merseyside",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-329",
+          "country_id": "mock-uuid-12",
+          "code": "NAI",
+          "name": "Nairnshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-330",
+          "country_id": "mock-uuid-12",
+          "code": "NBL",
+          "name": "Northumberland",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-331",
+          "country_id": "mock-uuid-12",
+          "code": "NFK",
+          "name": "Norfolk",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-332",
+          "country_id": "mock-uuid-12",
+          "code": "NHM",
+          "name": "North Humberside",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-333",
+          "country_id": "mock-uuid-12",
+          "code": "NTH",
+          "name": "Northamptonshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-334",
+          "country_id": "mock-uuid-12",
+          "code": "NTT",
+          "name": "Nottinghamshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-335",
+          "country_id": "mock-uuid-12",
+          "code": "NYK",
+          "name": "North Yorkshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-336",
+          "country_id": "mock-uuid-12",
+          "code": "OKI",
+          "name": "Orkney",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-337",
+          "country_id": "mock-uuid-12",
+          "code": "OXF",
+          "name": "Oxfordshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-338",
+          "country_id": "mock-uuid-12",
+          "code": "PEE",
+          "name": "Peeblesshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-339",
+          "country_id": "mock-uuid-12",
+          "code": "PER",
+          "name": "Perthshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-340",
+          "country_id": "mock-uuid-12",
+          "code": "POW",
+          "name": "Powys",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-341",
+          "country_id": "mock-uuid-12",
+          "code": "RFW",
+          "name": "Renfrewshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-342",
+          "country_id": "mock-uuid-12",
+          "code": "ROC",
+          "name": "Ross and Cromarty",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-343",
+          "country_id": "mock-uuid-12",
+          "code": "ROS",
+          "name": "Ross-shire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-344",
+          "country_id": "mock-uuid-12",
+          "code": "ROX",
+          "name": "Roxburghshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-345",
+          "country_id": "mock-uuid-12",
+          "code": "RUT",
+          "name": "Rutland",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-346",
+          "country_id": "mock-uuid-12",
+          "code": "SAL",
+          "name": "Shropshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-347",
+          "country_id": "mock-uuid-12",
+          "code": "SEL",
+          "name": "Selkirkshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-348",
+          "country_id": "mock-uuid-12",
+          "code": "SFK",
+          "name": "Suffolk",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-349",
+          "country_id": "mock-uuid-12",
+          "code": "SGM",
+          "name": "South Glamorgan",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-350",
+          "country_id": "mock-uuid-12",
+          "code": "SHI",
+          "name": "Shetland (Zetland)",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-351",
+          "country_id": "mock-uuid-12",
+          "code": "SHM",
+          "name": "South Humberside",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-352",
+          "country_id": "mock-uuid-12",
+          "code": "SOM",
+          "name": "Somerset",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-353",
+          "country_id": "mock-uuid-12",
+          "code": "SRY",
+          "name": "Surrey",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-354",
+          "country_id": "mock-uuid-12",
+          "code": "STI",
+          "name": "Stirlingshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-355",
+          "country_id": "mock-uuid-12",
+          "code": "STS",
+          "name": "Staffordshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-356",
+          "country_id": "mock-uuid-12",
+          "code": "SUT",
+          "name": "Sutherland",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-357",
+          "country_id": "mock-uuid-12",
+          "code": "SXE",
+          "name": "East Sussex",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-358",
+          "country_id": "mock-uuid-12",
+          "code": "SXW",
+          "name": "West Sussex",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-359",
+          "country_id": "mock-uuid-12",
+          "code": "SYK",
+          "name": "South Yorkshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-360",
+          "country_id": "mock-uuid-12",
+          "code": "TWR",
+          "name": "Tyne and Wear",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-361",
+          "country_id": "mock-uuid-12",
+          "code": "TYR",
+          "name": "Tyrone",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-362",
+          "country_id": "mock-uuid-12",
+          "code": "WAR",
+          "name": "Warwickshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-363",
+          "country_id": "mock-uuid-12",
+          "code": "WGM",
+          "name": "West Glamorgan",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-364",
+          "country_id": "mock-uuid-12",
+          "code": "WIG",
+          "name": "Wigtownshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-365",
+          "country_id": "mock-uuid-12",
+          "code": "WIL",
+          "name": "Wiltshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-366",
+          "country_id": "mock-uuid-12",
+          "code": "WLN",
+          "name": "West Lothian (Linlithgowshire)",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-367",
+          "country_id": "mock-uuid-12",
+          "code": "WMD",
+          "name": "West Midlands",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-368",
+          "country_id": "mock-uuid-12",
+          "code": "WOR",
+          "name": "Worcestershire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "mock-uuid-369",
+          "country_id": "mock-uuid-12",
+          "code": "WYK",
+          "name": "West Yorkshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        }
+      ],
+      "related": null,
+      "total": 108,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-06-01T00:00:00.000Z",
+  "brand_domain": "collab-studio.example.com",
+  "source": "journey",
+  "provenance": {
+    "journey": "storefront-guest-oneoff-checkout-stripe"
+  }
+}

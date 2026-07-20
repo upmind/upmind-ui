@@ -3,8 +3,8 @@ import { createMachine, assign } from "xstate";
 import { BrandConfigKeys, TwofaProviders } from "@upmind-automation/types";
 import { useBrand } from "../brand";
 import { useFeedback } from "../feedback";
-import { useI18n } from "../system-localisation";
 import { ScopeActorTypes } from "../scope";
+import { useI18n } from "../system-localisation";
 import {
   useLoginSchema,
   useLoginUischema,
@@ -24,7 +24,7 @@ import {
   useValidationParser
 } from "../../utils";
 import { cloneDeep } from "lodash-es";
-import type { AuthContext, LoginModel, RegisterModel } from "./auth.types";
+import type { AuthContext } from "./auth.types";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 /**
