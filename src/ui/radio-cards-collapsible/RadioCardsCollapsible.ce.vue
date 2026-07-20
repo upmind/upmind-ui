@@ -24,8 +24,11 @@
           :dataAttrs="{
             ...selectedItem.dataAttrs,
             'data-test-key':
-              selectedItem.dataAttrs?.['data-test-key'] ??
-              `radio-card-${selectedItem.id || selectedItem.value}`
+              selectedItem.dataAttrs?.['data-test-key'] ?? 'radio-card-item',
+            'data-test-value':
+              selectedItem.dataAttrs?.['data-test-value'] ??
+              selectedItem.id ??
+              selectedItem.value
           }"
           :uiConfig="selectedItemUiConfig"
         >
@@ -79,8 +82,11 @@
               :dataAttrs="{
                 ...option.dataAttrs,
                 'data-test-key':
-                  option.dataAttrs?.['data-test-key'] ??
-                  `radio-card-${option.id || option.value}`
+                  option.dataAttrs?.['data-test-key'] ?? 'radio-card-item',
+                'data-test-value':
+                  option.dataAttrs?.['data-test-value'] ??
+                  option.id ??
+                  option.value
               }"
               :uiConfig="props.uiConfig"
               @keydown.enter="onSelectionChange(option.value)"

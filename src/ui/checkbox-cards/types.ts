@@ -62,4 +62,6 @@ export type CheckboxCardsProps = ToggleGroupRootProps & {
   itemClass?: HTMLClassAttributes;
   dataHover?: boolean;
   dataFocus?: boolean;
+  /** Root-level test/data attributes; overrides the default `checkbox-group` key. */
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
 };

@@ -33,6 +33,7 @@ export type ComboboxSearchFunction = {
 export type ComboboxProps = PopoverRootProps &
   PopoverContentProps &
   PopoverTriggerProps & {
+    id?: string;
     label?: string;
     sublabel?: string;
     tag?: string;
@@ -64,6 +65,7 @@ export type ComboboxProps = PopoverRootProps &
     dataHover?: boolean;
     dataFocus?: boolean;
     tabindex?: HTMLAttributes["tabindex"];
+    dataAttrs?: Record<`data-${string}`, string | number | boolean>;
     triggerDataAttrs?: Record<`data-${string}`, string | number | boolean>;
     valueDataAttrs?: Record<`data-${string}`, string | number | boolean>;
   };

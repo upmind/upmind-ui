@@ -62,6 +62,7 @@ export { default as plugins } from "./plugins";
 export {
   useStyles,
   cn,
+  useTestAttrs,
   useThemes,
   useThemeIcons,
   useStyleSheet,

@@ -6,7 +6,7 @@ import {
   type AccordionTriggerProps
 } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
-import { cn } from "../../utils";
+import { cn, useForwardPropsTests } from "../../utils";
 
 const props = defineProps<
   AccordionTriggerProps & { class?: HTMLAttributes["class"]; open?: boolean }
@@ -17,19 +17,23 @@ const delegatedProps = computed(() => {
 
   return delegated;
 });
+
+const forwardedProps = useForwardPropsTests(delegatedProps, {
+  key: "accordion-trigger",
+  value: props.open ? "open" : "closed"
+});
 </script>
 
 <template>
   <AccordionHeader as="div" class="flex">
     <AccordionTrigger
-      v-bind="delegatedProps"
+      v-bind="forwardedProps"
       :class="
         cn(
           'control-radius flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180',
           props.class
         )
       "
-      data-test-key="accordion-trigger"
       :data-state="props.open ? 'open' : 'closed'"
     >
       <slot />

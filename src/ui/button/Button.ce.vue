@@ -5,10 +5,6 @@
     :disabled="meta.isDisabled || meta.isLoading"
     :tabindex="meta.isFocusable ? '0' : '-1'"
     :class="cn(styles.button.root, props.class)"
-    :data-test-key="
-      props.dataAttrs?.['data-test-key'] ??
-      `button-${kebabCase(label ?? 'default')}`
-    "
     @click="$emit('click', $event)"
   >
     <slot name="prepend">
@@ -54,7 +50,7 @@ import { Spinner } from "../spinner";
 import config from "./button.config";
 import Button from "./Button.vue";
 import ButtonItems from "./ButtonItems.vue";
-import { useStyles, cn } from "../../utils";
+import { useStyles, cn, useForwardPropsTests } from "../../utils";
 import { kebabCase } from "lodash-es";
 import type { ButtonProps } from "./types";
 
@@ -87,11 +83,18 @@ const component = computed(() => {
   return Button;
 });
 
-const componentProps = computed(() => {
-  if (props.to) return { to: props.to, ...props.dataAttrs };
-  if (props.href) return { href: props.href, ...props.dataAttrs };
-  return { type: props.type, ...props.dataAttrs };
-});
+const componentProps = useForwardPropsTests(
+  computed(() => {
+    if (props.to) return { to: props.to };
+    if (props.href) return { href: props.href };
+    return { type: props.type };
+  }),
+  {
+    key: "button",
+    value: kebabCase(props.label),
+    dataAttrs: props.dataAttrs
+  }
+);
 
 const meta = computed(() => ({
   size: props.size,

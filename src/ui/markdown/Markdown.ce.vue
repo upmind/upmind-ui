@@ -8,7 +8,7 @@
         props.class
       )
     "
-    data-test-key="markdown"
+    v-bind="testAttrs"
   />
 </template>
 
@@ -17,7 +17,7 @@ import dompurify from "dompurify";
 import { onMounted, computed, useSlots, shallowRef } from "vue";
 import Sanitized from "../sanitized/Sanitized.vue";
 import { INLINE_TAGS, INLINE_ATTRS } from "./types";
-import { cn } from "../../utils";
+import { cn, useTestAttrs } from "../../utils";
 import { first, lowerCase } from "lodash-es";
 import type { MarkdownProps } from "./types";
 import type { Marked } from "marked";
@@ -63,5 +63,9 @@ const compiledMarkdown = computed((): string => {
   }
 
   return markedInstance.value.parse(modelValue, { async: false });
+});
+
+const testAttrs = useTestAttrs({
+  key: "markdown"
 });
 </script>

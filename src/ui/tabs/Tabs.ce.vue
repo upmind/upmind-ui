@@ -3,7 +3,7 @@
     :is="useTabs ? Tabs : 'div'"
     v-bind="forwarded"
     v-model="modelValue"
-    :class="class"
+    :class="props.class"
   >
     <header :class="styles.tabs.root">
       <div v-if="!isEmptySlot('prepend', slots)" :class="styles.tabs.prepend">
@@ -23,8 +23,7 @@
             :ref="(el: HTMLElement | null) => setTriggerRef(el, index)"
             :value="item.value"
             :class="[styles.tabs.trigger, 'cursor-pointer']"
-            :data-test-key="`tab-${kebabCase(item.label)}`"
-            v-bind="item.dataAttrs"
+            v-bind="testAttrs(item, index)"
           >
             <Icon
               v-if="item.icon"
@@ -35,11 +34,12 @@
             <span>{{ item.label }}</span>
           </component>
         </template>
-        <template v-else>
+        <template v-else-if="tabs.length">
           <div
             :key="first(tabs)?.value"
             :class="[styles.tabs.trigger, 'cursor-text']"
             data-state="active"
+            v-bind="testAttrs(first(tabs)!, 0)"
           >
             <Icon
               v-if="first(tabs)?.icon"
@@ -47,7 +47,9 @@
               :class="styles.tabs.icon"
               size="2xs"
             />
-            <h4 v-bind="first(tabs)?.dataAttrs">{{ first(tabs)?.label }}</h4>
+            <h4>
+              {{ first(tabs)?.label }}
+            </h4>
           </div>
         </template>
 
@@ -86,13 +88,12 @@ import Tabs from "./Tabs.vue";
 import TabsContent from "./TabsContent.vue";
 import TabsList from "./TabsList.vue";
 import TabsTrigger from "./TabsTrigger.vue";
-import { useStyles } from "../../utils";
+import { useStyles, useTestAttrs } from "../../utils";
 import { isEmptySlot } from "../../utils";
-import { kebabCase } from "lodash-es";
 import { first } from "lodash-es";
 import type { TabsProps, TabItem } from ".";
 import type { TabsRootEmits } from "radix-vue";
-import type { Slots } from "vue";
+import type { ComponentPublicInstance, Slots } from "vue";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<TabsProps>(), {
@@ -134,9 +135,12 @@ const styles = useStyles("tabs", meta, config, props.uiConfig ?? {});
 const useTabs = computed(() => props.tabs.length > 1 || props.force);
 
 // Store trigger refs from template
-const setTriggerRef = (el: any, index: number) => {
+const setTriggerRef = (
+  el: Element | ComponentPublicInstance | null,
+  index: number
+) => {
   if (el) {
-    triggerRefs.value[index] = el.$el || el;
+    triggerRefs.value[index] = ("$el" in el ? el.$el : el) as HTMLElement;
   }
 };
 
@@ -149,7 +153,7 @@ const currentTab = computed(() =>
 
 // Calculate indicator position and width to match active tab
 const indicatorStyle = computed(() => {
-  listWidth.value; // Trigger reactivity on layout changes
+  const _trigger = listWidth.value; // HACK: Trigger reactivity on layout changes
 
   const activeTrigger = triggerRefs.value[currentTab.value];
   if (!activeTrigger) return null;
@@ -159,4 +163,11 @@ const indicatorStyle = computed(() => {
     width: `${activeTrigger.offsetWidth}px`
   };
 });
+
+const testAttrs = (item: TabItem, index: number) =>
+  useTestAttrs({
+    key: "tab-item",
+    value: [item.value, index],
+    dataAttrs: item.dataAttrs
+  });
 </script>

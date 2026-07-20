@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Plus } from "lucide-vue-next";
-import { NumberFieldIncrement, useForwardProps } from "radix-vue";
+import { NumberFieldIncrement } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
-import { cn } from "../../utils";
+import { cn, useForwardPropsTests } from "../../utils";
 import type { NumberFieldIncrementProps } from "radix-vue";
 
 const props = defineProps<
@@ -15,7 +15,9 @@ const delegatedProps = computed(() => {
   return delegated;
 });
 
-const forwarded = useForwardProps(delegatedProps);
+const forwarded = useForwardPropsTests(delegatedProps, {
+  key: "number-field-increment"
+});
 </script>
 
 <template>
@@ -28,7 +30,6 @@ const forwarded = useForwardProps(delegatedProps);
         props.class
       )
     "
-    data-test-key="number-field-increment"
   >
     <slot>
       <Plus class="h-4 w-4" />

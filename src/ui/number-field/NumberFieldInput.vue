@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { NumberFieldInput } from "radix-vue";
-import { cn } from "../../utils";
+import { cn, useTestAttrs } from "../../utils";
 import { toNumber } from "lodash-es";
 import type { HTMLAttributes } from "vue";
 
 const props = defineProps<{
   class?: HTMLAttributes["class"];
 }>();
+
+const testAttrs = useTestAttrs({
+  key: "number-field-input"
+});
 
 const emit = defineEmits<{
   (e: "resize", value: number): void;
@@ -31,6 +35,6 @@ const handleResize = (event: InputEvent) => {
         props.class
       )
     "
-    :data-test-key="`number-field-input`"
+    v-bind="testAttrs"
   />
 </template>

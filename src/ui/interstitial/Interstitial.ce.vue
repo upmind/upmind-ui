@@ -17,6 +17,7 @@
         <Avatar
           :animated-icon="animatedIcon"
           class="size-36 overflow-visible bg-transparent"
+          :dataAttrs="{ 'data-test-key': 'interstitial-avatar' }"
         />
       </slot>
 
@@ -42,12 +43,15 @@
           <Button
             v-for="(action, index) in actions"
             :key="`action-${index}`"
-            :data-test-key="`interstitial-action-${index}`"
             size="lg"
-            v-bind="action"
             :loading="meta.isProcessing"
             :variant="action?.variant || 'solid'"
             :color="action?.color || 'primary'"
+            :dataAttrs="{
+              'data-test-key': 'interstitial-action',
+              'data-test-value': index
+            }"
+            v-bind="action"
             @click.stop="doAction(action?.handler)"
           />
         </slot>
@@ -63,7 +67,7 @@ import { Button } from "../button";
 import { Dialog } from "../dialog";
 import Sanitized from "../sanitized/Sanitized.vue";
 import config from "./interstitial.config";
-import { useStyles, cn, isEmptySlot } from "../../utils";
+import { useStyles, cn, isEmptySlot, useTestAttrs } from "../../utils";
 import { isEmpty } from "lodash-es";
 import { isFunction } from "lodash-es";
 import type { InterstitialActionProps, InterstitialProps } from "./types";
@@ -93,12 +97,17 @@ const meta = computed(() => ({
   isModal: props.modal
 }));
 
+const testAttrs = useTestAttrs({
+  key: "interstitial-avatar",
+  dataAttrs: props.dataAttrs
+});
+
 // When modal the root is a Dialog: hand it `dataAttrs` so it can override the
 // content's `dialog-window` testid (a raw fallthrough would die on the
 // render-less DialogRoot). When inline the root is a plain `div`, so spread the
 // attrs straight onto it.
 const rootDataAttrs = computed(() =>
-  props.modal ? { dataAttrs: props.dataAttrs } : props.dataAttrs
+  props.modal ? { dataAttrs: props.dataAttrs } : testAttrs
 );
 
 const slots = useSlots();

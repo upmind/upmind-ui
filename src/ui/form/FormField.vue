@@ -4,7 +4,7 @@
     v-if="meta.isVisible"
     :class="cn('flex flex-wrap', props.class)"
     :data-visible="meta.isVisible"
-    :data-test-key="`form-item-${kebabCase(props.name || props.label)}`"
+    v-bind="testAttrs"
   >
     <slot name="field">
       <!-- label -->
@@ -72,7 +72,7 @@
             :formMessageId="`form-item-message-${props.id}`"
             :name="name"
             :errors="errors"
-            :data-test-key="`form-item-message-${props.name.replaceAll('.', '-')}`"
+            v-bind="testAttrsMessages"
           />
         </slot>
 
@@ -92,7 +92,6 @@
 import { ref, computed, useSlots } from "vue";
 import { Icon } from "../icon";
 import { Tooltip } from "../tooltip";
-import config from "./form.config";
 import {
   FormItem,
   FormLabel,
@@ -102,7 +101,7 @@ import {
   FormDescription,
   FormMessage
 } from ".";
-import { cn, useStyles } from "../../utils";
+import { cn, useTestAttrs } from "../../utils";
 import { isEmpty, isNil, some, kebabCase } from "lodash-es";
 import type { FormControlProps } from "./types";
 // -----------------------------------------------------------------------------
@@ -135,7 +134,6 @@ const props = withDefaults(defineProps<FormControlProps>(), {
 
 const slots = useSlots();
 // --- state
-const target = ref();
 const tooltipOpen = ref(false);
 // --- computed
 const meta = computed(
@@ -175,13 +173,15 @@ const meta = computed(
   })
 );
 
-const _styles = useStyles(
-  ["input", "input.feedback", "input.description"],
-  meta,
-  config,
-  target,
-  props.uiConfig ?? {}
-);
+const testAttrs = useTestAttrs({
+  key: "form-item",
+  value: [kebabCase(props.name), props.id]
+});
+
+const testAttrsMessages = useTestAttrs({
+  key: "form-item-message",
+  value: [kebabCase(props.name), props.id]
+});
 // --- methods
 function toggleTooltip(force?: boolean) {
   tooltipOpen.value = force ?? !tooltipOpen.value;

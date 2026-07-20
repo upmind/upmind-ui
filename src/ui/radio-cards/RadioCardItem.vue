@@ -1,6 +1,6 @@
 <template>
   <Label
-    v-bind="props.dataAttrs"
+    v-bind="testAttrs"
     :for="`${props.name}-${index}`"
     :class="cn(styles.radioCards.item.root, styles.radioCards.item.size)"
     :data-state="isSelected ? 'checked' : ''"
@@ -87,7 +87,7 @@ import Label from "../label/Label.ce.vue";
 import { Link } from "../link";
 import { RadioGroupItem } from "../radio-group";
 import config from "./radioCards.config";
-import { cn, useStyles } from "../../utils";
+import { cn, useStyles, useTestAttrs } from "../../utils";
 import { isFunction, isString, isNil } from "lodash-es";
 import type { RadioCardsItemActionProps, RadioCardsItemProps } from "./types";
 // -----------------------------------------------------------------------------
@@ -95,6 +95,14 @@ import type { RadioCardsItemActionProps, RadioCardsItemProps } from "./types";
 const props = withDefaults(defineProps<RadioCardsItemProps>(), {
   // -- variants
   columns: 1
+});
+
+/* Routes props.dataAttrs through useTestAttrs instead of binding it raw, so
+   data-test-* keys are stripped from PROD builds like everywhere else. */
+const testAttrs = useTestAttrs({
+  key: "radio-card-item",
+  value: props.value,
+  dataAttrs: props.dataAttrs
 });
 
 const emits = defineEmits<{

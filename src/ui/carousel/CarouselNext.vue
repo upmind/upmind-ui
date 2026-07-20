@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-vue-next";
 import { Button } from "../button";
 import { useCarousel } from "./useCarousel";
 import { cn } from "../../utils";
-import type { WithClassAsProps } from "./interface";
+import type { WithClassAsProps } from "./types";
 
 const props = defineProps<WithClassAsProps>();
 

@@ -10,9 +10,9 @@
         <Link
           @click="open = !open"
           :label="meta.isOpen ? labelLess : labelMore"
-          data-test-key="lineclamp"
           color="inherit"
           size="inherit"
+          v-bind="testAttrs"
         />
       </p>
     </transition>
@@ -31,7 +31,7 @@ import {
 } from "vue";
 import { Link } from "../link"; //
 import config from "./lineclamp.config";
-import { useStyles } from "../../utils";
+import { useStyles, useTestAttrs } from "../../utils";
 import type { ComputedRef } from "vue";
 // ---------------------------------------------------------------------------
 
@@ -73,6 +73,12 @@ const windowWidth: ComputedRef<number> = computed(() => {
 });
 
 const observer = ref<MutationObserver | null>(null);
+
+const testAttrs = useTestAttrs({
+  key: "lineclamp",
+  value: props.lines
+});
+
 // --- methods
 function setDefaultClampState() {
   if (props.disabled) return;

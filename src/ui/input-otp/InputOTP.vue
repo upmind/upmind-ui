@@ -21,7 +21,7 @@
         pattern="\d*"
         inputmode="numeric"
         autocomplete="one-time-code"
-        data-test-key="input-otp-slot"
+        v-bind="testAttrs(idx - 1)"
         @input="onChange(idx - 1, ($event.target as HTMLInputElement).value)"
         @focus="onSlotFocus(idx - 1)"
         @keydown.delete="onDelete(idx - 1)"
@@ -52,7 +52,7 @@
         pattern="\d*"
         inputmode="numeric"
         autocomplete="one-time-code"
-        data-test-key="input-otp-slot"
+        v-bind="testAttrs(idx - 1)"
         @input="
           onChange(
             idx - 1 + midpoint,
@@ -79,7 +79,7 @@
 import { computed, nextTick, onMounted, ref, watch } from "vue";
 import InputItems from "../input/InputItems.vue";
 import config from "./input-otp.config";
-import { cn, useStyles } from "../../utils";
+import { cn, useStyles, useTestAttrs } from "../../utils";
 import { ceil } from "lodash-es";
 import type { InputOTPProps } from "./types";
 
@@ -134,7 +134,7 @@ const containerStyles = computed(() => styles.value.input.container);
 
 function slotClass(index: number) {
   return config.input.slot({
-    size: (props.size as any) ?? "md",
+    size: (props.size as "md" | "lg" | null | undefined) ?? "md",
     hasRing: props.ring ?? true,
     isFocused: isFocused.value && focusedIndex.value === index
   });
@@ -147,6 +147,12 @@ const effectiveInvalid = computed(
 const groupClass = computed(() =>
   cn("flex items-center", effectiveInvalid.value ? "gap-4" : "gap-3")
 );
+
+const testAttrs = (index: number) =>
+  useTestAttrs({
+    key: "input-otp-slot",
+    value: index.toString()
+  });
 
 // --- methods
 

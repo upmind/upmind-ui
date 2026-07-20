@@ -1,6 +1,10 @@
 <script lang="ts" setup>
-import { cn } from "../../utils";
+import { cn, useTestAttrs } from "../../utils";
 import type { HtmlHTMLAttributes } from "vue";
+
+const testAttrs = useTestAttrs({
+  key: "drawer-footer"
+});
 
 const props = defineProps<{
   class?: HtmlHTMLAttributes["class"];
@@ -10,7 +14,7 @@ const props = defineProps<{
 <template>
   <div
     :class="cn('mt-auto flex flex-col gap-2 pt-4', props.class)"
-    data-test-key="drawer-footer"
+    v-bind="testAttrs"
   >
     <slot />
   </div>

@@ -51,6 +51,7 @@ export type FormProps<T = Record<string, any>> = {
   // --- Provide a way to add custom variants for a specific instance of the component
   uiConfig?: { form: CxOptions };
   class?: HTMLAttributes["class"];
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
 };
 
 export type FormMeta = {

@@ -79,20 +79,31 @@ import { Toaster as Sonner } from "vue-sonner";
 import config from "./sonner.config";
 import {
   useStyles,
-  cn
+  cn,
+  useTestAttrs
   //stylesheet
 } from "../../utils";
-import { omit } from "lodash-es";
+import { get, omit, set } from "lodash-es";
 import type { SonnerProps } from ".";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<SonnerProps>();
 
-const containerProps = computed(() => ({
-  ...omit(props, "dataAttrs"),
-  "data-test-key": "sonner-toast",
-  ...props.dataAttrs
-}));
+const testAttrs = useTestAttrs({
+  key: "sonner-toast",
+  dataAttrs: props.dataAttrs
+});
+
+const containerProps = computed(() => {
+  const attrs = omit(props, "dataAttrs");
+
+  const key = get(testAttrs, "data-test-key");
+  const value = get(testAttrs, "data-test-value");
+  if (key) set(attrs, "data-test-key", key);
+  if (value) set(attrs, "data-test-value", value);
+
+  return attrs;
+});
 
 const styles = useStyles(
   [
