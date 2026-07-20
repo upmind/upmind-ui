@@ -188,7 +188,6 @@ export function mapPaymentData({
       // Type 1: CARD (SDK/REDIRECT) GATEWAYS
       case GatewayProviderCodes.BRAINTREE:
       case GatewayProviderCodes.COIN_GATE:
-      case GatewayProviderCodes.D_LOCAL_CARD:
       case GatewayProviderCodes.FLUTTERWAVE:
       case GatewayProviderCodes.MERCADO_PAGO_OTHER_PAYMENTS:
       case GatewayProviderCodes.MICROPAYMENT:
@@ -226,6 +225,7 @@ export function mapPaymentData({
       case GatewayProviderCodes.COIN_GATE:
       case GatewayProviderCodes.D_LOCAL:
       case GatewayProviderCodes.MERCADO_PAGO:
+      case GatewayProviderCodes.NICKY:
       case GatewayProviderCodes.OPENPAY_NON_CARD:
       case GatewayProviderCodes.PAYTM:
         return defaults(

@@ -246,7 +246,7 @@ export function useProductSetup() {
 
   function getNextInvalid(actor?: ActorRef<any>): BasketProduct | undefined {
     const pid = get(actor, "state.context.model.productId", {});
-    return first(reject(products.value, ["productId", pid]));
+    return first(reject(products.value, ["configuration.productId", pid]));
   }
 
   function getNextRelated(actor: ActorRef<any>): BasketProduct | undefined {
