@@ -1,4 +1,5 @@
 export { addAddressViaHeadless } from "./address-setup";
+export { addCompanyViaHeadless } from "./company-setup";
 export {
   waitForUpmindBridge,
   waitForActiveSessionViaHeadless
@@ -7,6 +8,7 @@ export {
   addProductViaHeadless,
   clearBasketViaHeadless,
   addPromotionViaHeadless,
+  removeProductViaHeadless,
   setBasketCurrencyViaHeadless,
   getBasketIdViaHeadless,
   getBasketViaHeadless,
@@ -28,6 +30,6 @@ export { seedGuestBasket } from "./guest-checkout";
 export {
   loginAsIncompleteCustomer,
   seedInvalidProduct,
-  fillRegistrantDetails,
-  selectRequiredMultiDefaults
+  fillRegistrantDetails
 } from "./product-setup";
+export { applySchemaDefaults } from "./products";

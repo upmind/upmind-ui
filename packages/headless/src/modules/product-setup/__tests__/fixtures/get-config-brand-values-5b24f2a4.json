@@ -1,0 +1,47 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/config/brand/values?keys=ui.basket.default_currency,ui.basket.add_to_basket_funnelling,ui.checkout.checkout_flow,ui.checkout.hide_promotions_field,invoices.common.require_address_for_orders,invoices.common.require_company_for_orders,invoices.common.required_region_in_address,provisioning.domain_names.search_method,ui.client_area.show_catalog",
+    "headers": {
+      "accept": "application/json",
+      "authorization": "Bearer <REDACTED>",
+      "content-type": "application/json",
+      "origin": "null",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36",
+      "sec-ch-ua": "\"HeadlessChrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"macOS\""
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {},
+    "body": {
+      "status": "ok",
+      "data": {
+        "invoices.common.require_address_for_orders": false,
+        "invoices.common.require_company_for_orders": false,
+        "invoices.common.required_region_in_address": false,
+        "provisioning.domain_names.search_method": "smart-suggest",
+        "ui.client_area.show_catalog": "show",
+        "ui.basket.default_currency": "brand",
+        "ui.basket.add_to_basket_funnelling": "none",
+        "ui.checkout.checkout_flow": "stepped",
+        "ui.checkout.hide_promotions_field": false
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-07-11T09:38:14.211Z",
+  "brand_domain": "qa-automation.local",
+  "source": "journey",
+  "provenance": {
+    "journey": "product-setup-invalid-basket"
+  }
+}

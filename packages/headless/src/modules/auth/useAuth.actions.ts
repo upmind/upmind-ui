@@ -1,6 +1,5 @@
 import { unref } from "vue";
 import { ScopeActorTypes } from "../scope";
-import type { State } from "xstate";
 import { remove } from "../scope";
 import { createClientAuthActions } from "./useAuth.actions.client";
 import { createStaffAuthActions } from "./useAuth.actions.staff";
@@ -19,6 +18,7 @@ import type {
   TwoFAModel
 } from "./auth.types";
 import type { UseActor } from "../../utils";
+import type { State } from "xstate";
 // -----------------------------------------------------------------------------
 /**
  * @module auth/useAuth.actions

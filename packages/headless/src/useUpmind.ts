@@ -3,14 +3,14 @@ import { inspect } from "@xstate/inspect";
 import { type Ref, ref } from "vue";
 import { BrandConfigKeys } from "@upmind-automation/types";
 import { useBrand } from "./modules/brand";
+import { useQuery } from "./modules/query";
+import { useRoutingEngine } from "./modules/routing";
+import { useRouting } from "./modules/routing/useRouting";
+import { useSessionStore } from "./modules/session-store";
+import { useSystem } from "./modules/system";
 import { useDataLayer, useTracking } from "./modules/system-analytics";
 import { useLocale, useLocalisation } from "./modules/system-localisation";
 import { useRecaptcha } from "./modules/system-recaptcha";
-import { useRoutingEngine } from "./modules/routing";
-import { useSessionStore } from "./modules/session-store";
-import { useSystem } from "./modules/system";
-import { useQuery } from "./modules/query";
-import { useRouting } from "./modules/routing/useRouting";
 import { useTheming } from "./modules/theming/useTheming";
 import {
   usePOP,
@@ -22,8 +22,8 @@ import {
 } from "./utils";
 import { get, isFunction } from "lodash-es";
 import type { Funnels, FunnelWatcher } from "./modules/routing";
-import type { GlobbedFiles } from "./modules/system-localisation";
 import type { SessionStoreConfig } from "./modules/session-store/session-store.types";
+import type { GlobbedFiles } from "./modules/system-localisation";
 import type { Theme } from "./modules/theming";
 import type { IApiPop } from "./utils";
 import type { I18n, Composer } from "vue-i18n";

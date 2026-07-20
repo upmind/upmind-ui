@@ -151,3 +151,9 @@ This **sharpens where "co-located" resolves** (the journey folder, not a paralle
 > **Supersedes:** §Escalation gate, condition 1 parenthetical «Tracked via PR review-comment counts on `.feature` files…» — the *location* counts are gathered from.
 
 Review-uptake counts are now gathered **per journey folder** `tests/<surface>/<flow>/<slug>/`, not per `tests/Playwright/features/<flow>/`. The three gate conditions and the ~10-story trigger are **UNCHANGED** (not reset). A generated `tests/JOURNEYS.md` index links every journey's `.feature` so discoverability for non-engineer reviewers is no worse than the flat tree — low uptake must be attributed to genuine disengagement, not folder depth, before failing the gate.
+
+### Amendment 3 — single-surface `.feature` specs relocate to `tests/features/` (July 2026)
+
+> **Supersedes:** §Decision item 1 and Amendment 1's «Single-surface legacy features stay put … under `tests/Playwright/features/<flow>/`» — the *staging* location for specs whose journey is not yet built.
+
+The Playwright e2e suite is being deprecated and replaced piece-by-piece by the unit / integration / journey layers (ADR 021, ADR 025); the whole `tests/Playwright/` tree will be removed. `.feature` files are framework-agnostic planning specs, **not** Playwright artefacts, so they must not die with it. Single-surface `.feature` specs (those whose journey has not yet been built as a co-located unit) now live at **`tests/features/<flow>/`** — a neutral house alongside their linter (`lint-feature-files.sh`) and style guide (`10-feature-style.md`), no longer under the deprecating Playwright tree. The end state is **unchanged**: when a spec's journey is built, its `.feature` graduates into that journey's co-located folder (Amendment 1 / ADR 025). `tests/features/` is the staging home until then.

@@ -1,10 +1,9 @@
 /** @internal */
-import { useQuery } from "../query";
-import { useActiveSession } from "../session-store";
 import { useFeedback } from "../feedback";
-import { useI18n } from "../system-localisation";
-import type { QueryParams } from "../query";
+import { useQuery } from "../query";
 import { invalidateQueryByKey } from "../query";
+import { useActiveSession } from "../session-store";
+import { useI18n } from "../system-localisation";
 import { mapEmail, mapEmails, mapIEmail } from "./client-email.mappers";
 import {
   useTime,
@@ -18,6 +17,7 @@ import {
   DEBOUNCE_DELAY
 } from "../../utils";
 import { get, isString, isEmpty, omitBy, isArray } from "lodash-es";
+import type { QueryParams } from "../query";
 import type { Email, EmailModel, EmailContext } from "./client-email.types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IEmail } from "@upmind-automation/types";

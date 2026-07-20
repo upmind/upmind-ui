@@ -19,5 +19,12 @@ test.describe("Checkout with Offline Payment", () => {
     await checkout.selectGatewayByType(gateways.OFFLINE);
     await checkout.clickCompleteCheckout();
     await expect(page.getByTestId("order-confirmation-heading")).toBeVisible();
+    // FE-2985 out of scope: offline is a MANUAL gateway. Headless mapPaymentData
+    // returns undefined for OFFLINE, so no /api/payments request ever fires — the
+    // order is placed via PATCH /orders/{id}/convert with an EMPTY payment body.
+    // No gateway_id or amount reaches the wire on placement (both are resolved
+    // server-side / fixed on the invoice), so there is no placement payload to
+    // guard here; the end-state confirmation above is the assertion. Payment-
+    // payload coverage lives in the Stripe checkout-paths and existing-method specs.
   });
 });

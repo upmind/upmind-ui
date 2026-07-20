@@ -21,8 +21,8 @@
 
 import { join } from "node:path";
 import { describe, it, expect } from "vitest";
-import { useQuery } from "../useQuery";
 import { getFixtureBody } from "@upmind-automation/test-fixtures";
+import { useQuery } from "../useQuery";
 import type { DetailedError } from "../../../utils";
 import "./setup.integration";
 

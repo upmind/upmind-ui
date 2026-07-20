@@ -8,13 +8,13 @@ import {
   ProvisionCategoryCodes,
   type IProduct
 } from "@upmind-automation/types";
-import { useQuery } from "../query";
 import { useBasketCurrency, useBasketPromotions } from "../basket";
+import { useQuery } from "../query";
 import { parseProduct } from "./product-catalogue.mappers";
 import { useTime } from "../../utils";
 import { map } from "lodash-es";
-import type { QueryParams } from "../query";
 import type { Product } from "../product";
+import type { QueryParams } from "../query";
 
 // -----------------------------------------------------------------------------
 // QUERIES

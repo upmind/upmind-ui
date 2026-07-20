@@ -1,7 +1,7 @@
 import { AccessRoleTypes } from "@upmind-automation/types";
-import { useSessionStore } from ".";
-import { sessionStore } from "./session-store.store";
 import { useI18n } from "../system-localisation";
+import { sessionStore } from "./session-store.store";
+import { useSessionStore } from ".";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import { get } from "lodash-es";
 import type { SessionState, SessionUser } from "./session-store.types";

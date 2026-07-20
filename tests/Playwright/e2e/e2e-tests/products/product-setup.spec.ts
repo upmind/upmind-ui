@@ -63,7 +63,7 @@ newUser.describe("Product Setup flow", () => {
         await page.goto(URLs.basket);
         await addBillingAddressViaHeadless(page, clientId, SEED_ADDRESS);
         await basket.proceedToCheckout.click();
-        await page.waitForURL(/products-setup/);
+        await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
       }
     );
     newUser(
@@ -72,8 +72,8 @@ newUser.describe("Product Setup flow", () => {
         await seedInvalidProduct(page, products.STARTER_HOSTING);
         await page.goto(URLs.basket);
         await basket.proceedToCheckout.click();
-        await page.waitForURL(/checkout/);
-        expect(page.url()).not.toContain("products-setup");
+        await expect(checkout.basketSummary).toBeVisible({ timeout: 15000 });
+        await expect(productSetup.setupForm).toHaveCount(0);
       }
     );
     newUser(
@@ -81,14 +81,14 @@ newUser.describe("Product Setup flow", () => {
       async ({ page }) => {
         await seedInvalidProduct(page, products.STARTER_HOSTING);
         await page.goto(SETUP_URL);
-        await page.waitForURL(/checkout/);
+        await expect(checkout.basketSummary).toBeVisible({ timeout: 15000 });
       }
     );
     newUser(
       "Direct visit to /products-setup/ with empty basket redirects to basket-empty",
       async ({ page }) => {
         await page.goto(SETUP_URL);
-        await page.waitForURL(/basket(\/empty)?\/?$/);
+        await expect(page.getByTestId("basket-empty-message")).toBeVisible();
       }
     );
     newUser(
@@ -97,7 +97,7 @@ newUser.describe("Product Setup flow", () => {
         await seedInvalidProduct(page, products.DOMAIN_2);
         await page.goto(SETUP_URL);
         await productSetup.back();
-        await page.waitForURL(/\/order\/basket\/?$/);
+        await expect(basket.basketProduct.first()).toBeVisible();
       }
     );
   });
@@ -129,8 +129,20 @@ newUser.describe("Product Setup flow", () => {
       "Submitting fills the provision fields and proceeds to checkout",
       async ({ page }) => {
         await productConfig.registrantPhoneInput.fill("07111111111");
+        // Assert the entered phone reaches the wire (FE-2985 mutation-chain
+        // rule): submit runs updateMany → PUT /orders/{id} (a full-basket
+        // replace), whose payload must carry the provision-field phone. The
+        // significant digits survive any E.164 normalisation, so a dropped or
+        // stale phone fails here rather than passing on the checkout-reached UI.
+        const setupRequest = page.waitForRequest(
+          r =>
+            r.method() === "PUT" && /\/api\/orders\/[^/]+(\?|$)/.test(r.url())
+        );
         await productSetup.submit();
-        await page.waitForURL(/checkout/);
+        expect(JSON.stringify((await setupRequest).postDataJSON())).toContain(
+          "7111111111"
+        );
+        await expect(checkout.basketSummary).toBeVisible({ timeout: 15000 });
       }
     );
     newUser("Submit is disabled while fields are invalid", async () => {
@@ -144,7 +156,6 @@ newUser.describe("Product Setup flow", () => {
       await page.goto(URLs.basket);
       await addBillingAddressViaHeadless(page, clientId, SEED_ADDRESS);
       await basket.proceedToCheckout.click();
-      await page.waitForURL(/products-setup/);
       await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
     });
     newUser(
@@ -161,7 +172,7 @@ newUser.describe("Product Setup flow", () => {
         await productConfig.registrantPhoneInput.fill("07111111111");
         await productSetup.submit();
         await expect(productSetup.progress).toBeHidden();
-        await expect(page).toHaveURL(/products-setup/);
+        await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
       }
     );
     newUser(
@@ -181,7 +192,7 @@ newUser.describe("Product Setup flow", () => {
       async ({ page }) => {
         await productConfig.registrantPhoneInput.fill("07111111111");
         await productSetup.submit();
-        await page.waitForURL(/checkout/);
+        await expect(checkout.basketSummary).toBeVisible({ timeout: 15000 });
       }
     );
     newUser(
@@ -193,7 +204,6 @@ newUser.describe("Product Setup flow", () => {
           .click();
         await productConfig.registrantPhoneInput.fill("07111111111");
         await productSetup.submit();
-        await expect(page).toHaveURL(/products-setup/);
         await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
       }
     );
@@ -220,7 +230,6 @@ newUser.describe("Product Setup flow", () => {
         await page.goto(URLs.basket);
         await addBillingAddressViaHeadless(page, clientId, SEED_ADDRESS);
         await basket.proceedToCheckout.click();
-        await page.waitForURL(/products-setup/);
         await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
       }
     );
@@ -232,7 +241,7 @@ newUser.describe("Product Setup flow", () => {
         await page.goto(URLs.basket);
         await addBillingAddressViaHeadless(page, clientId, SEED_ADDRESS);
         await basket.proceedToCheckout.click();
-        await page.waitForURL(/products-setup/);
+        await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
         await expect(productSetup.progress).toHaveCount(0);
       }
     );
@@ -245,7 +254,7 @@ newUser.describe("Product Setup flow", () => {
         await page.goto(URLs.basket);
         await addBillingAddressViaHeadless(page, clientId, SEED_ADDRESS);
         await basket.proceedToCheckout.click();
-        await page.waitForURL(/checkout/);
+        await expect(checkout.basketSummary).toBeVisible({ timeout: 15000 });
       }
     );
     newUser(
@@ -260,7 +269,7 @@ newUser.describe("Product Setup flow", () => {
         await page.goto(URLs.basket);
         await addBillingAddressViaHeadless(page, clientId, SEED_ADDRESS);
         await basket.proceedToCheckout.click();
-        await page.waitForURL(/checkout/);
+        await expect(checkout.basketSummary).toBeVisible({ timeout: 15000 });
       }
     );
     newUser(
@@ -303,7 +312,7 @@ newUser.describe("Product Setup flow", () => {
         await productSetup.submit();
 
         await expect(productSetup.errorAlert).toBeVisible({ timeout: 10000 });
-        await expect(page).toHaveURL(/products-setup/);
+        await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
       }
     );
     newUser(
@@ -322,7 +331,7 @@ newUser.describe("Product Setup flow", () => {
 
         await page.unroute(ORDER_PUT);
         await productSetup.submit();
-        await page.waitForURL(/checkout/);
+        await expect(checkout.basketSummary).toBeVisible({ timeout: 15000 });
       }
     );
   });
@@ -347,8 +356,7 @@ test.describe("Backend auto-population of provision fields", () => {
         await seedInvalidProduct(page, products.DOMAIN_2);
         await page.goto(URLs.basket);
         await basket.proceedToCheckout.click();
-        //await page.waitForURL(/checkout/);
-        expect(page.url()).not.toContain("products-setup");
+        await expect(checkout.basketSummary).toBeVisible({ timeout: 15000 });
       }
     );
   });

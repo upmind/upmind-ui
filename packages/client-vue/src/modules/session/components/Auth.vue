@@ -68,7 +68,7 @@
             color="muted"
             :label="t('auth.forgot_password_qn')"
             size="lg"
-            :data-attrs="{
+            :dataAttrs="{
               'data-test-key': 'forgot-password-link'
             }"
           />

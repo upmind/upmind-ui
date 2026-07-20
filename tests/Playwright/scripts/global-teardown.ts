@@ -47,7 +47,7 @@ export default function globalTeardown(): void {
 
   try {
     writeExecutorInfo();
-    execSync("bash tests/Playwright/scripts/allure-generate.sh", {
+    execSync("bash tests/allure/allure-generate.sh", {
       stdio: "inherit"
     });
   } catch (err) {

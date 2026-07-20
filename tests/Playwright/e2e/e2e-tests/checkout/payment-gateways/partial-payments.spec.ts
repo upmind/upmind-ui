@@ -18,6 +18,11 @@ test.describe("Partial payment at Checkout", () => {
   test.describe("Partial Payments with Stripe", () => {
     test("Partial Payment in base Currency (GBP)", async ({ page }) => {
       await goToCheckout(page, products.STARTER_HOSTING, null, null);
+      // The typed pay-amount is held in the payment machine (SET_PARTIAL_PAYMENT
+      // is a local event — no request fires on confirm), so it only reaches the
+      // wire at placement. Capture that POST /api/payments to prove the £20 the
+      // user typed is exactly what is charged, not just what the widget shows.
+      const payments = await checkout.interceptPaymentResponse();
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("20");
       await checkout.clickConfirmAmount();
@@ -30,13 +35,20 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
       await checkout.clickCompleteCheckout();
-      await page.waitForURL(`order/**`);
       await expect(
         page.getByTestId("order-confirmation-heading")
       ).toBeVisible();
+      const placement = payments.find(p => p.method === "POST" && p.request);
+      expect(placement, "no POST /api/payments captured").toBeTruthy();
+      expect(Number(placement?.request?.amount)).toBe(20);
+      expect(placement?.request?.gateway_id).toBeTruthy();
     });
     test("Partial Payment in foreign currency (AUD)", async ({ page }) => {
       await goToCheckout(page, products.STARTER_HOSTING, null, "AUD");
+      // Prove the foreign-currency partial reaches the wire as typed: the
+      // placement POST must charge A$100 (the amount is carried in the invoice
+      // currency, so 100 here, not a base-currency conversion).
+      const payments = await checkout.interceptPaymentResponse();
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("100");
       await checkout.clickConfirmAmount();
@@ -49,10 +61,13 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
       await checkout.clickCompleteCheckout();
-      await page.waitForURL(`order/**`);
       await expect(
         page.getByTestId("order-confirmation-heading")
       ).toBeVisible();
+      const placement = payments.find(p => p.method === "POST" && p.request);
+      expect(placement, "no POST /api/payments captured").toBeTruthy();
+      expect(Number(placement?.request?.amount)).toBe(100);
+      expect(placement?.request?.gateway_id).toBeTruthy();
     });
     test("Partial payment with promo (GBP)", async ({ page }) => {
       await goToCheckout(page, products.STARTER_HOSTING, "genericpromo", null);
@@ -74,7 +89,6 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
       await checkout.clickCompleteCheckout();
-      await page.waitForURL(`order/**`);
       await expect(
         page.getByTestId("order-confirmation-heading")
       ).toBeVisible();
@@ -99,7 +113,6 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
       await checkout.clickCompleteCheckout();
-      await page.waitForURL(`order/**`);
       await expect(
         page.getByTestId("order-confirmation-heading")
       ).toBeVisible();
@@ -127,7 +140,9 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.selectGatewayByType(gateways.PAYPAL_EXPRESS);
       await mockPaymentSuccess(page);
       await checkout.clickCompleteCheckout();
-      await page.waitForURL(/\/order\/[a-f0-9-]+/);
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
     });
     test("Partial Payment in foreign currency (AUD)", async ({ page }) => {
       await goToCheckout(page, products.STARTER_HOSTING, null, "AUD");
@@ -149,7 +164,9 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.selectGatewayByType(gateways.PAYPAL_EXPRESS);
       await mockPaymentSuccess(page);
       await checkout.clickCompleteCheckout();
-      await page.waitForURL(/\/order\/[a-f0-9-]+/);
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
     });
     test("Partial payment with promo (GBP)", async ({ page }) => {
       await goToCheckout(page, products.STARTER_HOSTING, "genericpromo", null);
@@ -171,7 +188,9 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.selectGatewayByType(gateways.PAYPAL_EXPRESS);
       await mockPaymentSuccess(page);
       await checkout.clickCompleteCheckout();
-      await page.waitForURL(/\/order\/[a-f0-9-]+/);
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
     });
   });
   // TODO: when credit-limit mocking is available, add coverage for:

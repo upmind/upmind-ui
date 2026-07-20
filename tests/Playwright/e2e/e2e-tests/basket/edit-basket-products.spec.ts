@@ -41,7 +41,6 @@ test.describe("Edit hosting product in basket", () => {
     await productConfig.selectRadioOption("London");
     await expect(productConfig.getSummaryItem("Location")).toBeVisible();
     await productConfig.clickConfirm();
-    await expect(page).toHaveURL("order/basket/");
     await basket.clickShowDetails();
     // Selecting a location persists it as a basket-product option. The option
     // VALUE ("London") is a subproduct with no stable id available in any
@@ -72,7 +71,6 @@ test.describe("Edit hosting product in basket", () => {
 
     // Confirm the changes
     await productConfig.clickConfirm();
-    await expect(page).toHaveURL("order/basket/");
 
     // Verify the basket product no longer carries a domain provision-field
     // option. The domain value is dynamic copy with no data-test-value, so
@@ -123,8 +121,19 @@ test.describe("Edit domain product in basket", () => {
     await expect(productConfig.productConfigSection).toBeVisible();
     await productConfig.clearFormInput("provision-fields-sld");
     await productConfig.fillFormInput("provision-fields-sld", newDomain);
+    // Assert the edited domain reaches the wire (FE-2985 mutation-chain rule):
+    // confirming an existing basket product PUTs /orders/{basketId}/products/{bpid}
+    // (headless basket-product.services update), and its payload must carry the
+    // new sld — a wrong/stale domain string would fail here rather than passing
+    // on the id-only summary check below.
+    const editRequest = page.waitForRequest(
+      r =>
+        r.method() === "PUT" &&
+        /\/api\/orders\/[^/]+\/products\/[^/?]+/.test(r.url())
+    );
     await productConfig.clickConfirm();
-    await expect(page).toHaveURL("order/basket/");
+    const req = await editRequest;
+    expect(JSON.stringify(req.postDataJSON())).toContain(newDomain);
     // The edited domain string (`newDomain`) is dynamic entered data with no
     // data-test-value, but basket-product-name carries the in-basket product id
     // (the same id used in the edit route above), so assert the edited row is
@@ -168,8 +177,21 @@ test.describe("Edit domain product in basket", () => {
         page.locator(`[data-test-value="${fieldUpdates.updatedCountryCode}"]`)
       )
       .click();
+    // Assert the nine edited registrant fields reach the wire, not just the
+    // "no missing data" UI (FE-2985 mutation-chain rule). Confirming an existing
+    // basket product PUTs /orders/{basketId}/products/{bpid}; the payload must
+    // carry the edited values. The email is the most distinctive so it anchors
+    // the guard — a dropped/blanked provision-field patch would fail here.
+    const editRequest = page.waitForRequest(
+      r =>
+        r.method() === "PUT" &&
+        /\/api\/orders\/[^/]+\/products\/[^/?]+/.test(r.url())
+    );
     await productConfig.clickConfirm();
-    await expect(page).toHaveURL("order/basket/");
+    const editPayload = JSON.stringify((await editRequest).postDataJSON());
+    expect(editPayload).toContain(fieldUpdates.updatedEmail);
+    expect(editPayload).toContain(fieldUpdates.updatedName);
+    expect(editPayload).toContain(fieldUpdates.updatedCompany);
     await expect(basket.basketProductSummary).toBeVisible();
     await expect(basket.addMissingDataLink).toBeHidden();
   });

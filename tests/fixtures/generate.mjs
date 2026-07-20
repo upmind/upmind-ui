@@ -13,8 +13,13 @@
  * (e.g. packages/headless/.env.recording) is loaded before the run; we fail
  * loud if VITE_API_URL is still unset.
  *
- * Mode (a) direct-API only. Mode (b) headless Playwright journey capture is
- * deferred to FE-2935.
+ * Two generator flavours share this ONE entrypoint (the flavour is an
+ * implementation detail of the unit's `<unit>.fixtures.ts`, not a flag here):
+ *   (a) direct-API — real `fetch` calls via `Generator` (auth/query/account/…).
+ *   (b) headless Playwright — a real chromium session drives a real staging flow
+ *       and `playwright-recorder.mjs` captures the browser's traffic through the
+ *       SAME pipeline (see `product-setup.fixtures.ts`, FE-2937 mode (b)).
+ * Both write v3, PII-masked, co-located fixtures and are linted below.
  */
 
 import { spawnSync } from "node:child_process";

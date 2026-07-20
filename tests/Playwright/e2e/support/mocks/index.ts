@@ -38,4 +38,8 @@ export type {
   RecommendationConfig
 } from "./products";
 export { mockPromos } from "./promotions";
+export {
+  mockTwoFactorVerifySuccess,
+  mockEmailTwoFactorChallenge
+} from "./two-factor";
 export { mockWalletBalance } from "./wallet";

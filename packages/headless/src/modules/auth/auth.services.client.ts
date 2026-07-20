@@ -4,15 +4,15 @@ import {
   GrantTypes,
   type IToken
 } from "@upmind-automation/types";
-import { useRecaptcha } from "../system-recaptcha";
-import { useTracking } from "../system-analytics";
-import { mapCustomField } from "../client-custom-fields";
 import { useBasket } from "../basket";
-import { useI18n } from "../system-localisation";
+import { mapCustomField } from "../client-custom-fields";
 import { useQuery } from "../query";
-import { AuthEvents, useSessionStore } from "../session-store";
 import { ScopeActorTypes } from "../scope";
+import { AuthEvents, useSessionStore } from "../session-store";
 import { persistTokenToStorage } from "../session-store/session-store.utils";
+import { useTracking } from "../system-analytics";
+import { useI18n } from "../system-localisation";
+import { useRecaptcha } from "../system-recaptcha";
 import { mapLoginData, mapRecoverData, mapRegisterData } from "./auth.mappers";
 import { AUTH_SESSION_QUERY_KEY_BASE, AuthContextTypes } from "./auth.types";
 import {

@@ -1,0 +1,5 @@
+# Gherkin `.feature` files are declarative specs reviewed like prose (ADR 020).
+# Diff them with git's built-in markdown hunk-header driver so review diffs read
+# as behaviour changes rather than code, and normalise line endings.
+*.feature diff=markdown
+*.feature text eol=lf

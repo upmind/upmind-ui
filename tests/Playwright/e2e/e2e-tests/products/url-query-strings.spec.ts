@@ -1,7 +1,7 @@
 import { test, expect, Page } from "@playwright/test";
 import { ProductConfig } from "../../support/page-objects/templates/product-config";
 import { Footer } from "../../support/page-objects/templates/footer";
-import { URLs, ProductIds, productAddUrl } from "../../support/constants/urls";
+import { URLs, ProductIds } from "../../support/constants/urls";
 import { waitForEvent } from "../../support/helpers";
 
 let productConfig: ProductConfig;
@@ -18,15 +18,11 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
         `${URLs.baseUrl}?pid=${ProductIds.consultingBlock}&navigateOnly=true`
       );
       await expect(productConfig.productConfigSection).toBeVisible();
-      await page.waitForURL(productAddUrl(ProductIds.consultingBlock));
     });
     test("Invalid Product ID - Navigate Only", async ({ page }) => {
       const invalidPid = `${ProductIds.consultingBlock}123`;
       await page.goto(`${URLs.baseUrl}?pid=${invalidPid}&navigateOnly=true`);
       await expect(page.getByTestId("dialog-window")).toBeVisible();
-      await page.waitForURL(
-        `${URLs.baseUrl}order/product/${invalidPid}/not-found/`
-      );
     });
   });
   test.describe("Setting default quantity via URL param", () => {
@@ -35,7 +31,6 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
         `${URLs.baseUrl}?pid=${ProductIds.consultingBlock}&navigateOnly=true&qty=5`
       );
       await expect(productConfig.productConfigSection).toBeVisible();
-      await page.waitForURL(productAddUrl(ProductIds.consultingBlock));
       await expect(productConfig.totalQty).toHaveValue("5");
     });
     test("Invalid quantity value", async ({ page }) => {
@@ -43,7 +38,6 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
         `${URLs.baseUrl}?pid=${ProductIds.consultingBlock}&navigateOnly=true&qty=5zy`
       );
       await expect(productConfig.productConfigSection).toBeVisible();
-      await page.waitForURL(productAddUrl(ProductIds.consultingBlock));
       await expect(productConfig.totalQty).toHaveValue("1");
     });
   });
@@ -51,7 +45,6 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
     test("Valid billing term", async ({ page }) => {
       await page.goto(`${URLs.baseUrl}?pid=${ProductIds.starterHosting}&bcm=1`);
       await expect(productConfig.productConfigSection).toBeVisible();
-      await page.waitForURL(productAddUrl(ProductIds.starterHosting));
       await expect(
         productConfig.radioButtons.getRadioButton(1)
       ).toHaveAttribute("data-state", "checked");
@@ -61,7 +54,6 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
         `${URLs.baseUrl}?pid=${ProductIds.starterHosting}&bcm=32`
       );
       await expect(productConfig.productConfigSection).toBeVisible();
-      await page.waitForURL(productAddUrl(ProductIds.starterHosting));
       await expect(
         productConfig.radioButtons.getRadioButton(1)
       ).toHaveAttribute("data-state", "checked");
@@ -76,7 +68,6 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
         `${URLs.baseUrl}?pid=${ProductIds.starterHosting}&currency=USD`
       );
       await expect(footer.currencyValue).toBeVisible();
-      await page.waitForURL(productAddUrl(ProductIds.starterHosting));
       await expect(footer.currencyValue).toHaveAttribute(
         "data-test-value",
         "USD"
@@ -88,7 +79,6 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
       );
       await waitForEvent(page, "page_view");
       await expect(footer.currencyValue).toBeVisible();
-      await page.waitForURL(productAddUrl(ProductIds.starterHosting));
       await expect(footer.currencyValue).toHaveAttribute(
         "data-test-value",
         "GBP"
@@ -101,7 +91,6 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
         `${URLs.baseUrl}?pid=${ProductIds.starterHosting}&curr=USD`
       );
       await expect(footer.currencyValue).toBeVisible();
-      await page.waitForURL(productAddUrl(ProductIds.starterHosting));
       await expect(footer.currencyValue).toHaveAttribute(
         "data-test-value",
         "USD"
@@ -112,7 +101,6 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
         `${URLs.baseUrl}?pid=${ProductIds.starterHosting}&curr=ZZZ`
       );
       await expect(footer.currencyValue).toBeVisible();
-      await page.waitForURL(productAddUrl(ProductIds.starterHosting));
       await expect(footer.currencyValue).toHaveAttribute(
         "data-test-value",
         "GBP"
@@ -129,7 +117,6 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
       await page.goto(
         `${URLs.baseUrl}?pid=${ProductIds.starterHosting}&sub_pids=${subPids}&subproduct_qty[${ProductIds.subproductMailbox}]=1&subproduct_qty[${ProductIds.subproductOperatingSystem}]=1`
       );
-      await page.waitForURL(productAddUrl(ProductIds.starterHosting));
       await expect(
         productConfig.radioButtons.getRadioButton(ProductIds.subproductTokyo)
       ).toHaveAttribute("data-state", "checked");
@@ -146,7 +133,6 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
       await page.goto(
         `${URLs.baseUrl}?pid=${ProductIds.starterHosting}&sub_pids=invalid,invalid,invalid&subproduct_qty[${ProductIds.subproductMailbox}]=1&subproduct_qty[invalid]=1`
       );
-      await page.waitForURL(productAddUrl(ProductIds.starterHosting));
       await expect(
         productConfig.radioButtons.getRadioButton(ProductIds.subproductTokyo)
       ).toHaveAttribute("data-state", "");

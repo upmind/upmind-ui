@@ -1,8 +1,8 @@
 import { computed } from "vue";
 import { AccessRoleTypes } from "@upmind-automation/types";
+import { useBrand } from "../brand";
 import { getExpiresAt } from "./session-store.utils";
 import { useSessionStore } from ".";
-import { useBrand } from "../brand";
 import { has } from "lodash-es";
 import type { ComputedRef } from "vue";
 /** Threshold in ms before expiry to consider "about to expire" (5 minutes) */

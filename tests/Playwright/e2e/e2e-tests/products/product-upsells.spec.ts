@@ -187,9 +187,19 @@ test.describe("Product Upsells in Basket @upsells", () => {
           ["PATCH", "PUT", "POST"].includes(req.method())
       );
       await addButton.click();
-      await updateRequest;
+      const req = await updateRequest;
       await expect(addedButton).toBeVisible();
       await expect(addButton).toHaveCount(0);
+      // FE-2985: a URL-only wait let a wrong/blank option id through. The
+      // add serialises the product's selected options as `options[].product_id`
+      // (headless parseBasketProductData), so assert the patch actually carried
+      // at least one option id — an empty/malformed options payload fails here.
+      const payload = req.postDataJSON() ?? {};
+      const rawOptions = payload.options ?? payload.product?.options ?? [];
+      const optionIds = (Array.isArray(rawOptions) ? rawOptions : [])
+        .map((o: { product_id?: string }) => o?.product_id)
+        .filter(Boolean);
+      expect(optionIds.length).toBeGreaterThan(0);
     });
     test("Removing a selected upsell swaps the action button back to Add option", async () => {
       const firstUpsell = basket.basketProductUpsell.first();

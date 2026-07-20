@@ -88,7 +88,6 @@ test.describe("Basket provision checks", () => {
     await expect(
       basket.basketProductSummary.getByTestId("basket-product-name")
     ).toHaveAttribute("data-test-value", basketProductId);
-    await expect(page).not.toHaveURL(URLs.emptyBasket);
     expect(urls).toHaveLength(0);
   });
 

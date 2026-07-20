@@ -158,7 +158,7 @@ newUser.describe("Free Trials @free-trials", () => {
         await page.goto(URLs.freeTrialsCategory);
         const cta = page.getByTestId("product-card-cta").first();
         await clickAndAwaitBasketAdd(page, cta);
-        await expect(page).toHaveURL(/\/order\/shop\b/);
+        await expect(page.getByTestId("products-grid")).toBeVisible();
       }
     );
 
@@ -172,7 +172,6 @@ newUser.describe("Free Trials @free-trials", () => {
         await page.goto(URLs.freeTrialsCategory);
         const cta = page.getByTestId("product-card-cta").first();
         const basketCount = page.getByTestId("basket-action-count");
-        const catalogueUrl = page.url();
         const initialCount = (await basketCount.count())
           ? Number(await basketCount.innerText())
           : 0;
@@ -181,7 +180,7 @@ newUser.describe("Free Trials @free-trials", () => {
 
         // next-step funnels onward — exact destination depends on
         // recommendations / brand config; we just assert it moved.
-        await expect(page).not.toHaveURL(catalogueUrl);
+        await expect(page.getByTestId("products-grid")).toBeHidden();
         const newCount = Number(await basketCount.innerText());
         expect(newCount).toBeGreaterThan(initialCount);
       }

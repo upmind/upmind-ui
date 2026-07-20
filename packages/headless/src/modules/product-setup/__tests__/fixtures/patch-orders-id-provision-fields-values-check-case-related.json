@@ -1,0 +1,94 @@
+{
+  "version": 3,
+  "request": {
+    "method": "PATCH",
+    "path": "/api/orders/mock-uuid-288/provision_fields/values/check?case=related",
+    "headers": {
+      "accept": "application/json",
+      "authorization": "Bearer <REDACTED>",
+      "content-type": "application/json",
+      "origin": "null",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36",
+      "sec-ch-ua": "\"HeadlessChrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"macOS\""
+    },
+    "body": null
+  },
+  "response": {
+    "status": 409,
+    "headers": {},
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "27aff99784edae1b64b98f184701e08c671eab00",
+        "type": 666,
+        "code": 409,
+        "message": "Some order information is missing or invalid",
+        "data": {
+          "products.0.provision_field_values.update_registrant_name": [
+            "The update registrant name field is required when update registrant organisation is not present."
+          ],
+          "products.0.provision_field_values.update_registrant_organisation": [
+            "The update registrant organisation field is required when update registrant name is not present."
+          ],
+          "products.0.provision_field_values.update_registrant_email": [
+            "The update registrant email must be a string.",
+            "The update registrant email field is required."
+          ],
+          "products.0.provision_field_values.update_registrant_phone": [
+            "The update registrant phone field is required."
+          ],
+          "products.0.provision_field_values.update_registrant_address_1": [
+            "The update registrant address 1 field is required."
+          ],
+          "products.0.provision_field_values.update_registrant_address_city": [
+            "The update registrant address city field is required."
+          ],
+          "products.0.provision_field_values.update_registrant_address_postcode": [
+            "The update registrant address postcode field is required."
+          ],
+          "products.0.provision_field_values.update_registrant_address_country_code": [
+            "The update registrant address country code field is required."
+          ],
+          "products.1.provision_field_values.update_registrant_name": [
+            "The update registrant name field is required when update registrant organisation is not present."
+          ],
+          "products.1.provision_field_values.update_registrant_organisation": [
+            "The update registrant organisation field is required when update registrant name is not present."
+          ],
+          "products.1.provision_field_values.update_registrant_email": [
+            "The update registrant email must be a string.",
+            "The update registrant email field is required."
+          ],
+          "products.1.provision_field_values.update_registrant_phone": [
+            "The update registrant phone field is required."
+          ],
+          "products.1.provision_field_values.update_registrant_address_1": [
+            "The update registrant address 1 field is required."
+          ],
+          "products.1.provision_field_values.update_registrant_address_city": [
+            "The update registrant address city field is required."
+          ],
+          "products.1.provision_field_values.update_registrant_address_postcode": [
+            "The update registrant address postcode field is required."
+          ],
+          "products.1.provision_field_values.update_registrant_address_country_code": [
+            "The update registrant address country code field is required."
+          ]
+        }
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-07-11T18:57:10.294Z",
+  "brand_domain": "qa-automation.local",
+  "source": "journey",
+  "provenance": {
+    "journey": "product-setup-configured-basket"
+  }
+}

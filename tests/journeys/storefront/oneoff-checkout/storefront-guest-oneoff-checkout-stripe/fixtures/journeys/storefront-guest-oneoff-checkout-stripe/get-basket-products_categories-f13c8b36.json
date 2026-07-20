@@ -1,0 +1,669 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/basket/products_categories?with=subcategories.image%2Csubcategories.subcategories.image%2Csubcategories.subcategories.subcategories.image%2Csubcategories.subcategories.subcategories.subcategories.image&with_count=products%2Csubcategories.products%2Csubcategories.subcategories.products%2Csubcategories.subcategories.subcategories.products%2Csubcategories.subcategories.subcategories.subcategories.products&limit=0&offset=0&lang=en-US"
+  },
+  "response": {
+    "status": 200,
+    "headers": {},
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "mock-uuid-127",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "module_code": null,
+          "module_sub_id": null,
+          "name": "Consulting",
+          "description": "Expert guidance to help you plan, optimize, and scale your digital projects. From strategy to implementation, we align tech solutions with your business goals.",
+          "short_description": "Expert guidance to help you plan, optimize, and scale your digital projects.",
+          "parent_id": null,
+          "level": 1,
+          "brand_id": "mock-uuid-3",
+          "org_id": "mock-uuid-2",
+          "user_id": "mock-uuid-29",
+          "reseller_account_id": null,
+          "created_at": "2023-09-11 12:03:48",
+          "updated_at": "2026-01-27 12:19:40",
+          "deleted_at": null,
+          "order": 2,
+          "category_type": 1,
+          "multiple": false,
+          "required": false,
+          "provision_setup_field_defer_mode": "none",
+          "meta": {
+            "uischema": {
+              "form": [],
+              "list": {
+                "icon": "consulting"
+              },
+              "detail": {
+                "layout": "stacked | aside | aside:rtl"
+              },
+              "widget": []
+            }
+          },
+          "price_override": false,
+          "ui_settings": null,
+          "hidden": false,
+          "subcategories_count": 0,
+          "sub_subcategories_count": 0,
+          "products_count": 3,
+          "sub_products_count": 0,
+          "name_translated": "Consulting",
+          "description_translated": "Expert guidance to help you plan, optimize, and scale your digital projects. From strategy to implementation, we align tech solutions with your business goals.",
+          "short_description_translated": "Expert guidance to help you plan, optimize, and scale your digital projects.",
+          "translations": [],
+          "subcategories": []
+        },
+        {
+          "id": "mock-uuid-128",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "module_code": null,
+          "module_sub_id": null,
+          "name": "Development",
+          "description": "Custom software, websites, and apps built to perform and scale. We turn your ideas into secure, efficient, and future-ready digital solutions.",
+          "short_description": "Support after completion is included within the price.",
+          "parent_id": null,
+          "level": 1,
+          "brand_id": "mock-uuid-3",
+          "org_id": "mock-uuid-2",
+          "user_id": "mock-uuid-29",
+          "reseller_account_id": null,
+          "created_at": "2023-09-11 12:03:58",
+          "updated_at": "2026-04-30 16:16:25",
+          "deleted_at": null,
+          "order": 3,
+          "category_type": 1,
+          "multiple": false,
+          "required": false,
+          "provision_setup_field_defer_mode": "none",
+          "meta": {
+            "@data.categoryBadge": {
+              "label": "Support included",
+              "icon": "user-03"
+            },
+            "@data.productsToRecommendOld": [
+              {
+                "object_id": 227,
+                "object_type": "product",
+                "active": false,
+                "label": "Should Fail",
+                "name": "Discovery Session",
+                "description": "This free 30-minute in-person Discovery Meeting provides an opportunity to connect and explore your goals or challenges. It’s a chance to understand your needs and determine the best path forward together.",
+                "short_description": null,
+                "config": {
+                  "qty": 1,
+                  "bcm": 0,
+                  "sub_pids": "",
+                  "pfields": [],
+                  "coupons": []
+                }
+              },
+              {
+                "object_id": 227,
+                "object_type": "product",
+                "active": true,
+                "label": "Add & claim 2 free meetings",
+                "name": "Ideation Session",
+                "description": "The Ideation Session includes three 30-minute in-person meetings designed to brainstorm and discuss your ideas in detail. Together, we’ll identify opportunities, generate solutions, and lay the groundwork for your next steps.",
+                "short_description": null,
+                "image_url": "/beginner_wordpress_offer.webp",
+                "config": {
+                  "qty": 2,
+                  "bcm": 0,
+                  "sub_pids": "mock-uuid-237",
+                  "pfields": [],
+                  "coupons": []
+                }
+              },
+              {
+                "object_id": 227,
+                "object_type": "product",
+                "active": true,
+                "label": "Add & claim 1 free meeting",
+                "name": "Validate your Processes",
+                "description": "This package includes two 30-minute in-person meetings focused on reviewing and discussing your existing processes. Together, we’ll identify areas for improvement and ensure your workflows are as efficient and effective as possible.",
+                "short_description": null,
+                "image_url": "/pro_email_offer.webp",
+                "config": {
+                  "qty": 2,
+                  "bcm": 0,
+                  "sub_pids": "mock-uuid-2",
+                  "pfields": [],
+                  "coupons": []
+                }
+              }
+            ],
+            "@data.productsToBundleOld": {
+              "ideation": [
+                {
+                  "object_id": 512,
+                  "object_type": "product",
+                  "active": true,
+                  "config": {
+                    "qty": 2,
+                    "bcm": 0,
+                    "sub_pids": "mock-uuid-237",
+                    "pfields": [],
+                    "coupons": []
+                  }
+                }
+              ],
+              "validation": [
+                {
+                  "object_id": 227,
+                  "object_type": "product",
+                  "active": true,
+                  "config": {
+                    "qty": 2,
+                    "bcm": 0,
+                    "sub_pids": "mock-uuid-2",
+                    "pfields": [],
+                    "coupons": []
+                  }
+                }
+              ],
+              "discovery": [
+                {
+                  "object_id": 512,
+                  "object_type": "product",
+                  "active": true,
+                  "config": {
+                    "qty": 1,
+                    "bcm": 0,
+                    "sub_pids": "",
+                    "pfields": [],
+                    "coupons": []
+                  }
+                }
+              ]
+            },
+            "test@data.productsToBundle": [
+              {
+                "object_id": 227,
+                "object_type": "product",
+                "active": true,
+                "config": {
+                  "qty": 2,
+                  "bcm": 0,
+                  "sub_pids": "mock-uuid-237",
+                  "pfields": [],
+                  "coupons": []
+                }
+              },
+              {
+                "object_id": 227,
+                "object_type": "product",
+                "active": true,
+                "config": {
+                  "qty": 2,
+                  "bcm": 0,
+                  "sub_pids": "mock-uuid-2",
+                  "pfields": [],
+                  "coupons": []
+                }
+              },
+              {
+                "object_id": 227,
+                "object_type": "product",
+                "active": true,
+                "config": {
+                  "qty": 1,
+                  "bcm": 0,
+                  "sub_pids": "",
+                  "pfields": [],
+                  "coupons": []
+                }
+              }
+            ],
+            "DEPRECATED": {
+              "uischema": {
+                "icon": "development",
+                "config": {
+                  "summary": {
+                    "append": "<div><img src='https://checkout.webcentral.au/Guarantee.png' class='m-0 ml-auto' style='height: 3rem'/><div>"
+                  }
+                }
+              }
+            }
+          },
+          "price_override": false,
+          "ui_settings": null,
+          "hidden": false,
+          "subcategories_count": 1,
+          "sub_subcategories_count": 1,
+          "products_count": 3,
+          "sub_products_count": 1,
+          "name_translated": "Development",
+          "description_translated": "Custom software, websites, and apps built to perform and scale. We turn your ideas into secure, efficient, and future-ready digital solutions.",
+          "short_description_translated": "Support after completion is included within the price.",
+          "translations": [],
+          "subcategories": [
+            {
+              "id": "mock-uuid-202",
+              "import_id": null,
+              "staged_import": false,
+              "external_id": null,
+              "module_code": null,
+              "module_sub_id": null,
+              "name": "Website",
+              "description": "",
+              "short_description": "",
+              "parent_id": "mock-uuid-128",
+              "level": 2,
+              "brand_id": "mock-uuid-3",
+              "org_id": "mock-uuid-2",
+              "user_id": "mock-uuid-157",
+              "reseller_account_id": null,
+              "created_at": "2025-02-26 17:10:47",
+              "updated_at": "2025-02-26 17:24:23",
+              "deleted_at": null,
+              "order": 1,
+              "category_type": 1,
+              "multiple": false,
+              "required": false,
+              "provision_setup_field_defer_mode": "none",
+              "meta": {
+                "subcategory": "Website",
+                "subcategory2": 2
+              },
+              "price_override": false,
+              "ui_settings": null,
+              "hidden": false,
+              "subcategories_count": 1,
+              "sub_subcategories_count": 0,
+              "products_count": 0,
+              "sub_products_count": 1,
+              "name_translated": "Website",
+              "description_translated": "",
+              "short_description_translated": "",
+              "translations": [],
+              "image": null,
+              "subcategories": [
+                {
+                  "id": "mock-uuid-203",
+                  "import_id": null,
+                  "staged_import": false,
+                  "external_id": null,
+                  "module_code": null,
+                  "module_sub_id": null,
+                  "name": "Frontend",
+                  "description": "",
+                  "short_description": "",
+                  "parent_id": "mock-uuid-202",
+                  "level": 3,
+                  "brand_id": "mock-uuid-3",
+                  "org_id": "mock-uuid-2",
+                  "user_id": "mock-uuid-157",
+                  "reseller_account_id": null,
+                  "created_at": "2025-02-26 17:10:54",
+                  "updated_at": "2025-02-26 17:24:13",
+                  "deleted_at": null,
+                  "order": 1,
+                  "category_type": 1,
+                  "multiple": false,
+                  "required": false,
+                  "provision_setup_field_defer_mode": "none",
+                  "meta": {
+                    "subcategory": "Frontend",
+                    "subcategory1": 1
+                  },
+                  "price_override": false,
+                  "ui_settings": null,
+                  "hidden": false,
+                  "subcategories_count": 0,
+                  "sub_subcategories_count": 0,
+                  "products_count": 1,
+                  "sub_products_count": 0,
+                  "name_translated": "Frontend",
+                  "description_translated": "",
+                  "short_description_translated": "",
+                  "translations": [],
+                  "image": null,
+                  "subcategories": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "mock-uuid-139",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "module_code": "web_hosting",
+          "module_sub_id": "domains",
+          "name": "Domain Names",
+          "description": "Find and secure the perfect domain for your brand. Easy registration, transfers, and management with full support every step of the way.",
+          "short_description": "Find and secure the perfect domain for your brand. It all starts here.",
+          "parent_id": null,
+          "level": 1,
+          "brand_id": "mock-uuid-3",
+          "org_id": "mock-uuid-2",
+          "user_id": "sys",
+          "reseller_account_id": null,
+          "created_at": "2023-10-13 05:56:23",
+          "updated_at": "2026-04-30 10:44:04",
+          "deleted_at": null,
+          "order": 6,
+          "category_type": 1,
+          "multiple": false,
+          "required": false,
+          "provision_setup_field_defer_mode": "hidden",
+          "meta": {
+            "@data.productsToRecommend.DEP": [
+              {
+                "object_id": 214,
+                "object_type": "product",
+                "active": true,
+                "label": "Add 12 Months of Adcanced Hosting",
+                "name": "Advanced Hosting Deal",
+                "badge": {
+                  "label": "Exipres Soon"
+                },
+                "description": "Take advantage of this exclusive annual retainer offer and receive your first 5 months absolutely free. By committing to a year-long partnership, you can save significantly while ensuring consistent support and services throughout the year.",
+                "image_url": "/beginner_hosting_offer.webp",
+                "benefits": [
+                  {
+                    "icon": {
+                      "icon": "paying"
+                    },
+                    "label": "Save 40% with this exclusive annual offer"
+                  },
+                  {
+                    "icon": {
+                      "icon": "plus-circle"
+                    },
+                    "label": "5 months free when you commit to 12 months"
+                  },
+                  {
+                    "icon": {
+                      "icon": "email"
+                    },
+                    "label": "Enjoy reliable support for your business year round"
+                  }
+                ],
+                "config": {
+                  "qty": 1,
+                  "bcm": 12,
+                  "pfields": {
+                    "domain": "${service_identifier}"
+                  },
+                  "coupons": ["5onus"]
+                }
+              }
+            ],
+            "@data.productsToBundle": [
+              {
+                "object_id": 213,
+                "object_type": "product",
+                "active": false,
+                "config": {
+                  "qty": 1,
+                  "bcm": 12,
+                  "pfields": {
+                    "domain": "${service_identifier}"
+                  }
+                }
+              }
+            ],
+            "uischema": {
+              "icon": "domain",
+              "title": "",
+              "billing": {
+                "control": "TermsConfigSelect"
+              },
+              "config": {
+                "summary": {
+                  "append": "<img src='/Guarantee.png' class='h-14 mx-auto'/>",
+                  "title": {
+                    "name": "{{name_translated}}",
+                    "category": "Tld"
+                  }
+                }
+              }
+            },
+            "widgets": {
+              "dac": true
+            }
+          },
+          "price_override": false,
+          "ui_settings": null,
+          "hidden": false,
+          "subcategories_count": 0,
+          "sub_subcategories_count": 0,
+          "products_count": 15,
+          "sub_products_count": 0,
+          "name_translated": "Domain Names",
+          "description_translated": "Find and secure the perfect domain for your brand. Easy registration, transfers, and management with full support every step of the way.",
+          "short_description_translated": "Find and secure the perfect domain for your brand. It all starts here.",
+          "translations": [],
+          "subcategories": []
+        },
+        {
+          "id": "mock-uuid-141",
+          "import_id": "mock-uuid-14",
+          "staged_import": false,
+          "external_id": "hosting",
+          "module_code": null,
+          "module_sub_id": null,
+          "name": "Web Hosting",
+          "description": "Reliable, high-performance hosting to keep your website fast, secure, and always online. Scalable plans for businesses of all sizes.",
+          "short_description": "Reliable, high-performance hosting to keep your website fast, secure, and always online.",
+          "parent_id": null,
+          "level": 1,
+          "brand_id": "mock-uuid-3",
+          "org_id": "mock-uuid-2",
+          "user_id": null,
+          "reseller_account_id": null,
+          "created_at": "2023-10-13 05:56:23",
+          "updated_at": "2026-01-27 12:20:58",
+          "deleted_at": null,
+          "order": 1,
+          "category_type": 1,
+          "multiple": false,
+          "required": false,
+          "provision_setup_field_defer_mode": "none",
+          "meta": {
+            "@data.categoryBadge": {
+              "label": "99% Uptime",
+              "icon": "star-04"
+            },
+            "uischema": {
+              "icon": "hosting"
+            }
+          },
+          "price_override": false,
+          "ui_settings": null,
+          "hidden": false,
+          "subcategories_count": 0,
+          "sub_subcategories_count": 0,
+          "products_count": 3,
+          "sub_products_count": 0,
+          "name_translated": "Web Hosting",
+          "description_translated": "Reliable, high-performance hosting to keep your website fast, secure, and always online. Scalable plans for businesses of all sizes.",
+          "short_description_translated": "Reliable, high-performance hosting to keep your website fast, secure, and always online.",
+          "translations": [],
+          "subcategories": []
+        },
+        {
+          "id": "mock-uuid-142",
+          "import_id": "mock-uuid-14",
+          "staged_import": false,
+          "external_id": "design_services",
+          "module_code": null,
+          "module_sub_id": null,
+          "name": "Design Services",
+          "description": "From logos to UI/UX, our design services bring your brand to life. Visually compelling and user-centered creations tailored to your audience.",
+          "short_description": "From logos to UI/UX, our design services bring your brand to life. Visually compelling and user-centered creations.",
+          "parent_id": null,
+          "level": 1,
+          "brand_id": "mock-uuid-3",
+          "org_id": "mock-uuid-2",
+          "user_id": null,
+          "reseller_account_id": null,
+          "created_at": "2023-10-13 05:56:23",
+          "updated_at": "2026-01-27 12:21:12",
+          "deleted_at": null,
+          "order": 0,
+          "category_type": 1,
+          "multiple": false,
+          "required": false,
+          "provision_setup_field_defer_mode": "none",
+          "meta": {
+            "uischema": {
+              "icon": "design"
+            }
+          },
+          "price_override": false,
+          "ui_settings": null,
+          "hidden": false,
+          "subcategories_count": 0,
+          "sub_subcategories_count": 0,
+          "products_count": 2,
+          "sub_products_count": 0,
+          "name_translated": "Design Services",
+          "description_translated": "From logos to UI/UX, our design services bring your brand to life. Visually compelling and user-centered creations tailored to your audience.",
+          "short_description_translated": "From logos to UI/UX, our design services bring your brand to life. Visually compelling and user-centered creations.",
+          "translations": [],
+          "subcategories": []
+        },
+        {
+          "id": "mock-uuid-187",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "module_code": null,
+          "module_sub_id": null,
+          "name": "Frankfurt, Germany",
+          "description": "",
+          "short_description": "",
+          "parent_id": null,
+          "level": 1,
+          "brand_id": "mock-uuid-3",
+          "org_id": "mock-uuid-2",
+          "user_id": "mock-uuid-157",
+          "reseller_account_id": null,
+          "created_at": "2024-12-10 15:08:20",
+          "updated_at": "2024-12-10 15:08:20",
+          "deleted_at": null,
+          "order": 7,
+          "category_type": 1,
+          "multiple": false,
+          "required": false,
+          "provision_setup_field_defer_mode": "none",
+          "meta": null,
+          "price_override": false,
+          "ui_settings": null,
+          "hidden": false,
+          "subcategories_count": 0,
+          "sub_subcategories_count": 0,
+          "products_count": 1,
+          "sub_products_count": 0,
+          "name_translated": "Frankfurt, Germany",
+          "description_translated": "",
+          "short_description_translated": "",
+          "translations": [],
+          "subcategories": []
+        },
+        {
+          "id": "mock-uuid-205",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "module_code": null,
+          "module_sub_id": null,
+          "name": "Managed Hosting for Wordpress",
+          "description": "Ensure flawless performance across all devices and platforms. Our QA services identify bugs, enhance usability, and safeguard user experience.",
+          "short_description": "Ensure flawless performance across all devices and platforms. Our QA services identify bugs, enhance usability.",
+          "parent_id": null,
+          "level": 1,
+          "brand_id": "mock-uuid-3",
+          "org_id": "mock-uuid-2",
+          "user_id": "mock-uuid-175",
+          "reseller_account_id": null,
+          "created_at": "2025-05-05 16:48:03",
+          "updated_at": "2026-01-27 12:18:42",
+          "deleted_at": null,
+          "order": 8,
+          "category_type": 1,
+          "multiple": false,
+          "required": false,
+          "provision_setup_field_defer_mode": "none",
+          "meta": {
+            "uischema": {
+              "icon": "testing"
+            }
+          },
+          "price_override": false,
+          "ui_settings": null,
+          "hidden": false,
+          "subcategories_count": 0,
+          "sub_subcategories_count": 0,
+          "products_count": 1,
+          "sub_products_count": 0,
+          "name_translated": "Managed Hosting for Wordpress",
+          "description_translated": "Ensure flawless performance across all devices and platforms. Our QA services identify bugs, enhance usability, and safeguard user experience.",
+          "short_description_translated": "Ensure flawless performance across all devices and platforms. Our QA services identify bugs, enhance usability.",
+          "translations": [],
+          "subcategories": []
+        },
+        {
+          "id": "mock-uuid-258",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "module_code": null,
+          "module_sub_id": null,
+          "name": "Variants",
+          "description": "",
+          "short_description": "",
+          "parent_id": null,
+          "level": 1,
+          "brand_id": "mock-uuid-3",
+          "org_id": "mock-uuid-2",
+          "user_id": "mock-uuid-157",
+          "reseller_account_id": null,
+          "created_at": "2026-04-29 10:55:03",
+          "updated_at": "2026-05-15 15:46:11",
+          "deleted_at": null,
+          "order": 9,
+          "category_type": 1,
+          "multiple": false,
+          "required": false,
+          "provision_setup_field_defer_mode": "none",
+          "meta": [],
+          "price_override": false,
+          "ui_settings": null,
+          "hidden": false,
+          "subcategories_count": 0,
+          "sub_subcategories_count": 0,
+          "products_count": 8,
+          "sub_products_count": 0,
+          "name_translated": "Variants",
+          "description_translated": "",
+          "short_description_translated": "",
+          "translations": [],
+          "subcategories": []
+        }
+      ],
+      "related": null,
+      "total": 8,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-06-01T00:00:00.000Z",
+  "brand_domain": "collab-studio.example.com",
+  "source": "journey",
+  "provenance": {
+    "journey": "storefront-guest-oneoff-checkout-stripe"
+  }
+}

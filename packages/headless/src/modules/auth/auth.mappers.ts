@@ -4,8 +4,8 @@
  * @module auth/mappers
  * @description Auth model mappers.
  */
-import type { GrantTypes } from "@upmind-automation/types";
 import type { LoginModel, RecoverModel, RegisterModel } from "./auth.types";
+import type { GrantTypes } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * Map login model to API request data.

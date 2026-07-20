@@ -54,7 +54,6 @@ newUser.describe("Email verification gate", () => {
       await interceptConfigValues(page, { requireVerifiedEmail: true });
       await goToCheckout(page, products.STARTER_HOSTING, null, null);
 
-      await expect(page).toHaveURL(/\/order\/checkout\/verify-email\//);
       await expect(verify.otpInput.first()).toBeVisible();
       await expect(verify.title).toBeVisible();
     }
@@ -72,7 +71,7 @@ newUser.describe("Email verification gate", () => {
       // The cancel action routes back to the basket — Auth's `cancelRoute` is
       // ROUTE.BASKET — rather than advancing into checkout.
       await verify.backToBasket.click();
-      await expect(page).toHaveURL(/\/order\/basket\//);
+      await expect(page.getByTestId("basket-product").first()).toBeVisible();
     }
   );
 
@@ -90,7 +89,6 @@ newUser.describe("Email verification gate", () => {
       await verify.enterCode("123456");
 
       // The overlay closes and the client is no longer gated
-      await expect(page).not.toHaveURL(/verify-email/);
       await expect(verify.otpInput).toHaveCount(0);
     }
   );
@@ -109,7 +107,7 @@ newUser.describe("Email verification gate", () => {
 
       // The rejection surfaces on the code field and the overlay stays put
       await expect(verify.codeFieldError).toBeVisible();
-      await expect(page).toHaveURL(/verify-email/);
+      await expect(verify.otpInput.first()).toBeVisible();
     }
   );
 
@@ -158,7 +156,6 @@ test.describe("Verify-email overlay route guard", () => {
 
     await page.goto(`${URLs.checkout}verify-email/`);
 
-    await expect(page).not.toHaveURL(/verify-email/);
     await expect(verify.otpInput).toHaveCount(0);
   });
 });

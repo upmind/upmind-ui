@@ -126,7 +126,8 @@ for (const { language, locale, username, password } of localeLogins) {
 
     test.afterEach(async ({ page, context }) => {
       // Tear down both page- and context-level route mocks (the account-credit
-      // test registers wallet routes on the context via mockWalletBalance).
+      // test registers a wallet-balance route via mockWalletBalance plus a
+      // local snapshot-only cart/calculate stub, both on the context).
       await page.unrouteAll({ behavior: "wait" });
       await context.unrouteAll({ behavior: "wait" });
     });
@@ -248,10 +249,56 @@ for (const { language, locale, username, password } of localeLogins) {
     });
 
     test("Checkout - Account Credit Applied", async ({ page, context }) => {
-      // Mock wallet balance BEFORE navigation so the GET /api/wallet/balance and
-      // POST /api/cart/calculate intercepts are registered when checkout loads.
-      // A fixed £100/£100 balance is deterministic (settings-class, P4-allowed).
-      mockWalletBalance(context, { ownedAmount: 100, creditAmount: 100 });
+      // A fixed £100/£100 wallet balance renders the Account Credit row
+      // deterministically (settings-class, P4-allowed). `mockWalletBalance` no
+      // longer stubs POST /cart/calculate — FE-2791 removed that P4 violation
+      // at the source, so the credit total is now formatted through the REAL
+      // cart/calculate (proven functionally in account-credit.spec.ts).
+      //
+      // A pixel snapshot, however, needs that total byte-stable across the
+      // 28-locale matrix, so here — and ONLY here — we register a LOCAL,
+      // snapshot-only calc stub (not shared journey data) returning the fixed
+      // owned+credit sum the baseline was captured under. This keeps the row
+      // deterministic without depending on live staging; the broader vis-reg
+      // staging-data concern is owned by FE-2839. Registered on the context,
+      // so it must also answer the cross-origin CORS preflight.
+      const ownedAmount = 100;
+      const creditAmount = 100;
+      mockWalletBalance(context, { ownedAmount, creditAmount });
+
+      const creditTotal = ownedAmount + creditAmount;
+      await context.route("**/api/cart/calculate**", async route => {
+        const request = route.request();
+        const cors = {
+          "Access-Control-Allow-Origin": request.headers()["origin"] || "*",
+          "Access-Control-Allow-Credentials": "true"
+        };
+        if (request.method() === "OPTIONS") {
+          await route.fulfill({
+            status: 204,
+            headers: {
+              ...cors,
+              "Access-Control-Allow-Methods":
+                "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+              "Access-Control-Allow-Headers":
+                "authorization, content-type, accept, x-requested-with"
+            }
+          });
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          headers: cors,
+          body: JSON.stringify({
+            status: "success",
+            data: {
+              total: creditTotal,
+              total_formatted: `£${creditTotal.toFixed(2)}`
+            }
+          })
+        });
+      });
 
       await loginViaHeadless(page, username, password);
       await goToCheckout(page, products.STARTER_HOSTING, null, null, false);

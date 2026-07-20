@@ -1,12 +1,12 @@
 /** @internal */
 import { AccessRoleTypes } from "@upmind-automation/types";
-import { useI18n } from "../system-localisation";
+import { mapCustomField } from "../client-custom-fields";
 import { useQuery } from "../query";
 import { useSessionStore, mapSessionUser } from "../session-store";
 import { useSystem } from "../system";
-import { mapCompleteRegistrationData } from "./account.mappers";
-import { mapCustomField } from "../client-custom-fields";
+import { useI18n } from "../system-localisation";
 import { useRecaptcha } from "../system-recaptcha";
+import { mapCompleteRegistrationData } from "./account.mappers";
 import {
   DetailedError,
   ErrorOrigin,
@@ -16,8 +16,8 @@ import {
 } from "../../utils";
 import { map } from "lodash-es";
 import type { ClientContext, CompleteRegistrationModel } from "./account.types";
-import type { AnyEventObject } from "xstate";
 import type { IClient, IUser } from "@upmind-automation/types";
+import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 /**
  * @module account/account.services

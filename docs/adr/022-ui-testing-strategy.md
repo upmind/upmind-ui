@@ -284,6 +284,20 @@ If any condition stalls, the ADR stays Proposed. Tighten, retry, or revert — n
 
 ---
 
+## Amendments
+
+Append-only. The Proposed decision, the three-pronged stack, and the "visual regression tool is explicitly open" position above are **unchanged**. This amendment sets the discipline for the *interim* Playwright visual-regression suite that §"Visual regression — explicitly open" says to "keep running as today" — until a story-aligned tool (Chromatic/Percy) is chosen.
+
+### Amendment 1 — Interim Playwright vis-reg: shared-helpers-only (FE-2839, July 2026)
+
+**Context.** The 2026-06-12 chrome regression run failed 324/853 (+69 flaky), and 5 of 7 failure clusters were **drift**, not real UI regressions: visual-regression specs had hand-rolled their own navigation, locators, and mocks that diverged from the shared `support/flows` / page objects the *functional* e2e specs already used correctly. Confirmed clusters: a serial-only login helper run under `fullyParallel`; a locator targeting a component that had been replaced; an error mock pointed at the wrong endpoint; staging-data dependence via non-retrying URL asserts; a stale testid; and a locale-derived `kebabCase(label)` testid that broke non-English login. Full triage: [`docs/testing/regression-findings-2026-06-12.md`](../testing/regression-findings-2026-06-12.md).
+
+**Rule.** A Playwright visual-regression spec MUST NOT contain journey logic that already exists in [`tests/Playwright/e2e/support/flows`](../../tests/Playwright/e2e/support/flows/) or a page object. Each vis-reg spec reduces to: **shared journey/setup → gate on a stable, non-translated testid → freeze animations → `toHaveScreenshot`**. Setup goes through the same flows/page objects/fixtures the functional suite drives (`goToCheckout`, `addProductViaHeadless`, `loginViaHeadless`, the `Checkout`/`ProductConfig`/`Dac`/… page objects, the `newUser`/`checkout` fixtures). If a page object lacks a step, add it to the page object and consume it — never inline the sequence in the spec. Settings/flag mocks stay allowed (P4); journey data does not (ADR 021 §"Mock settings, not data" and §"shadow implementations").
+
+**Enforcement.** Pseudo-Nathan review-checklist item (`tests/Playwright/docs/12-pseudo-nathan.md`), documented alongside the working conventions in `tests/Playwright/docs/06-visual-regression.md`. This does not change the "keep Playwright snapshots for now, decide the tool later" posture — it stops the interim suite drifting from the functional specs in the meantime. When the visual tool decision lands (Open Question 1), this amendment retires with the Playwright snapshot suite.
+
+---
+
 ## Related Documents
 
 - [ADR 021: Testing Pyramid & Agentic Workflow](./021-testing-pyramid-and-agentic-workflow.md) — parent ADR.

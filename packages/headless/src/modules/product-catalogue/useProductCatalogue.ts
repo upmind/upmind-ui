@@ -1,5 +1,6 @@
-import { computed, ref, toValue, watch, type MaybeRefOrGetter } from "vue";
-import { useBasket, useBasketCurrency } from "../basket";
+import { computed, toValue, watch, type MaybeRefOrGetter } from "vue";
+import { useBasket } from "../basket";
+import { useProductCategories } from "../product-categories";
 import { invalidateQueryByKey, RequestSortDirection } from "../query";
 import service from "./product-catalogue.services";
 import {
@@ -13,7 +14,6 @@ import {
 } from "lodash-es";
 import type { Product } from "../product";
 import type { QueryProps, RequestFilters } from "../query";
-import { useProductCategories } from "../product-categories";
 
 /**
  * Properties by which products can be sorted.

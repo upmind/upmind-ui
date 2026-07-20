@@ -1,0 +1,84 @@
+# Flake-quarantine mechanical enforcement (FE-2776, ADR 021 §Flakiness policy).
+#
+# Three jobs back the policy "flake once → root-cause; flake twice → quarantine
+# with a linked issue; quarantined > 30 days → deleted":
+#
+#   lint:quarantine          every MR — blocks merge if a static `.skip` lacks a
+#                            valid @quarantine(<id>, <date>) tag.
+#   quarantine:flaky-report  post-e2e — emits the "flaked twice in 30 days"
+#                            artefact from Allure history (informational).
+#   quarantine:cron          WEEKLY SCHEDULE — day-25 files "Quarantine expiring"
+#                            Linear issues; day-30 fails on any past-deadline
+#                            quarantine.
+#
+# The scripts are dependency-free Node (built-ins only), so the cron and report
+# jobs need no `pnpm install` — only the lint reuses the `dependencies` artefact
+# for parity with the other test jobs.
+#
+# OPS SETUP for the weekly cron (one-time, GitLab → CI/CD → Schedules):
+#   - Add a schedule (e.g. weekly, Mondays) on the default branch.
+#   - Set the schedule variable  QUARANTINE_CRON = "true".
+#   - Add masked CI/CD variables  LINEAR_API_KEY  and  LINEAR_TEAM_ID  so the
+#     day-25 reminder can file issues. Without them the reminder DRY-RUNS
+#     (prints) and the day-30 fail still works.
+
+lint:quarantine:
+  extends: .pnpm
+  stage: test
+  interruptible: true
+  needs:
+    - dependencies
+  rules:
+    - if: $SKIP_QUARANTINE_LINT == "true"
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - pnpm lint:quarantine
+
+quarantine:flaky-report:
+  image: ${NODE_IMAGE}
+  stage: test
+  interruptible: true
+  allow_failure: true
+  needs:
+    - job: e2e:allure
+      artifacts: true
+      optional: true
+  rules:
+    - if: $SKIP_QUARANTINE_FLAKY == "true"
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'main'
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $QUARANTINE_CRON == "true"
+  cache:
+    # Same key as e2e:allure so we read the branch's accumulated flake history.
+    key: allure-history-$CI_COMMIT_REF_SLUG
+    paths:
+      - tests/Playwright/e2e/reports/.allure-history/
+    policy: pull
+  artifacts:
+    when: always
+    expire_in: 30 days
+    paths:
+      - tests/Playwright/e2e/reports/quarantine-flaky-report.json
+  script:
+    # Extract the current run's raw results (retried-pass flaky flags) if the
+    # e2e:allure artefact is present; the history cache is the primary source.
+    - |
+      if [ -f tests/Playwright/e2e/reports/allure-results.tar.gz ]; then
+        mkdir -p tests/Playwright/e2e/reports/allure-results
+        tar -xzf tests/Playwright/e2e/reports/allure-results.tar.gz \
+          -C tests/Playwright/e2e/reports/allure-results || true
+      fi
+    - node tests/quarantine/allure-flaky-report.mjs
+
+quarantine:cron:
+  image: ${NODE_IMAGE}
+  stage: test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $QUARANTINE_CRON == "true"
+  script:
+    # Day-25 reminders (best-effort Linear file) + day-30 deadline enforcement.
+    # A non-zero exit here means a quarantine blew its 30-day deadline.
+    - node tests/quarantine/quarantine-enforce.mjs --remind --enforce --apply

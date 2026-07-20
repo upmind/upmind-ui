@@ -1,8 +1,8 @@
 import { useActor as useXStateActor } from "@xstate/vue";
 import { computed, unref } from "vue";
 import { InterpreterStatus } from "xstate";
-import { isString } from "lodash-es";
 import { waitFor } from "xstate/lib/waitFor";
+import { isString } from "lodash-es";
 import {
   isFunction,
   some,

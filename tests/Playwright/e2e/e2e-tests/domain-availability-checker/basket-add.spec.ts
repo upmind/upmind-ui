@@ -62,11 +62,16 @@ test.describe("DAC basket-add", () => {
     });
   });
 
-  // The two tests above search a bare SLD, whose first suggestion is `.com` —
-  // currently misconfigured on staging with a required multi-choice option that
-  // blocks a one-click Add (tracked separately; they stay red until that config
-  // is fixed). This test proves the add-to-basket mechanism itself works, using
-  // a clean `.co.uk` exact domain that carries no required option.
+  // The two tests above search a bare SLD whose first suggestion is `.com`.
+  // Dom removed the `.com` required multi-choice option on staging, so a
+  // one-click Add now commits — test 1 verifies this via the live basket.
+  // Test 2's in-place `added` CTA assertion still fails because the
+  // smart-suggest card does not reflect the in-basket state without a
+  // re-search (verified: click commits the domain, basket count rises, but
+  // the card CTA stays `register` until a reload). That is a product/UX
+  // behaviour flagged to product, not a test-layer defect, so the assertion
+  // is left intact. This test proves the add-to-basket mechanism
+  // independently, using a clean `.co.uk` exact domain.
   test("adds a domain with no required config to the basket (.co.uk)", async ({
     page
   }) => {

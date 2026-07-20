@@ -8,15 +8,22 @@ One file per surface, each covering:
 
 | Spec | Surface | Per-locale variants |
 | --- | --- | --- |
-| [login.spec.ts](../e2e/visual-regression/login.spec.ts) | login page, 2FA entry, forgotten-password page | yes, 28 locales |
-| [registration.spec.ts](../e2e/visual-regression/registration.spec.ts) | registration page | yes |
+| [login.spec.ts](../e2e/visual-regression/login.spec.ts) | login page, 2FA entry, forgotten-password page, login/2FA errors | yes, 28 locales |
+| [registration.spec.ts](../e2e/visual-regression/registration.spec.ts) | registration page, guest-checkout CTA, password-strength meter, email-validation error | yes |
 | [basket.spec.ts](../e2e/visual-regression/basket.spec.ts) | empty basket, basket with 1 item, basket with 2 items, basket with promotions | yes |
-| [catalogue.spec.ts](../e2e/visual-regression/catalogue.spec.ts) | catalogue pages | yes |
-| [checkout.spec.ts](../e2e/visual-regression/checkout.spec.ts) | guest checkout (currently skipped) + registered-user checkout | yes |
-| [product-config.spec.ts](../e2e/visual-regression/product-config.spec.ts) | product configuration page | yes |
+| [catalogue.spec.ts](../e2e/visual-regression/catalogue.spec.ts) | catalogue root/category pages, domain-search entry + DAC result states | yes |
+| [checkout.spec.ts](../e2e/visual-regression/checkout.spec.ts) | guest + registered-user checkout, gateway-selected states, account-credit, voucher/change-amount/currency surfaces | yes |
+| [billing.spec.ts](../e2e/visual-regression/billing.spec.ts) | checkout billing summary (empty/populated), validation alert, standalone billing page | yes |
+| [confirmation.spec.ts](../e2e/visual-regression/confirmation.spec.ts) | paid / failed / free / pay-later confirmation outcomes | yes |
+| [errors.spec.ts](../e2e/visual-regression/errors.spec.ts) | 503 dialog, 404 not-found, 500 toast error surfaces | yes |
+| [guest-account.spec.ts](../e2e/visual-regression/guest-account.spec.ts) | guest account menu, guest upgrade form | yes |
+| [verify-email.spec.ts](../e2e/visual-regression/verify-email.spec.ts) | verify-email OTP overlay | yes |
+| [product-config.spec.ts](../e2e/visual-regression/product-config.spec.ts) | hosting/domain product config, domain drawer, config drawer | yes |
+| [product-setup.spec.ts](../e2e/visual-regression/product-setup.spec.ts) | products-setup single/multi/deferred/error states | yes |
+| [template-matrix.spec.ts](../e2e/visual-regression/template-matrix.spec.ts) | page × brand-template layout matrix | no (English-only, by design) |
 | [display-price-type.spec.ts](../e2e/visual-regression/display-price-type.spec.ts) | different brand price-display types | partial |
 
-Every locale-looped test follows the same shape:
+Every locale-looped test follows the same shape — set up the journey with the **shared flows / page objects** (see [Shared helpers only](#shared-helpers-only--no-drift-from-the-functional-suite) below), gate on a **locale-stable testid**, then screenshot:
 
 ```ts
 for (const { language, locale } of languages) {
@@ -29,12 +36,35 @@ for (const { language, locale } of languages) {
     test("Login Page", async ({ page }) => {
       await page.goto(URLs.login);
       await setLocale(page, locale);
-      await page.waitForLoadState("networkidle");
+      // Gate on a stable testid, never `networkidle` (a late CORS preflight can
+      // resolve after the shot; the testid is the deterministic settle signal).
+      await expect(page.getByTestId("section").and(page.locator('[data-test-value="log-in"]'))).toBeVisible({ timeout: 15000 });
       await expect(page).toHaveScreenshot(`${language}/login`);
     });
   });
 }
 ```
+
+## Shared helpers only — no drift from the functional suite
+
+**Rule (FE-2839): a visual-regression spec MUST NOT hand-roll journey logic that already lives in [`support/flows`](../e2e/support/flows/) or a page object.** A vis-reg spec reduces to: *shared journey/setup → gate on a stable testid → freeze animations → `toHaveScreenshot`*. It captures pixels; it does not re-implement navigation.
+
+Why: the 2026-06-12 chrome run failed 324/853 (+69 flaky), and 5 of 7 failure clusters were **drift** — vis-reg specs had hand-rolled their own navigation, locators, and mocks that diverged from the shared helpers the functional specs already used correctly (a serial-only login helper run under `fullyParallel`, a locator for a component that had been replaced, an error mock pointed at the wrong endpoint, a locale-fragile `kebabCase(label)` testid). The functional suite never saw these because it drove the shared flows. See the full triage in [`docs/testing/regression-findings-2026-06-12.md`](../../../docs/testing/regression-findings-2026-06-12.md).
+
+### Do
+
+- Seed baskets/products/promotions with [`addProductViaHeadless`](../e2e/support/flows/basket-setup.ts) / [`goToCheckout`](../e2e/support/flows/checkout.ts) / [`seedGuestBasket`](../e2e/support/flows/guest-checkout.ts) — the same flows the functional specs use.
+- Authenticate with [`loginViaHeadless`](../e2e/support/flows/auth-setup.ts) / [`registerClientViaHeadless`](../e2e/support/flows/auth-setup.ts), or the `newUser` / `checkout` fixtures.
+- Drive UI steps through the page object for the surface (`Checkout`, `ProductConfig`, `GuestCheckout`, `Dac`, `BillingPage`, …). If the page object lacks a method you need, add it there and consume it — don't inline the sequence in the spec.
+- Gate on stable, non-translated testids (`getByTestId(...)` + a `data-test-value`), never a `kebabCase(label)`-derived testid or a translated string.
+
+### Don't
+
+- Re-implement a journey the shared flows/page objects already cover (e.g. `page.locator("#register").click()` + `page.keyboard.type(...)` when `ProductConfig.enterDomainRadio("register", …)` exists).
+- Hand-roll raw-HTTP seeding, hardcoded order UUIDs, or a pinned auth token (ADR 021 §"shadow implementations").
+- Mock journey data. Settings/flag mocks (brand config, feature toggles) are fine (P4); journey data comes from the real modules + staging.
+
+**Enforcement:** this is pseudo-Nathan review principle P9 — see [12-pseudo-nathan.md](./12-pseudo-nathan.md). The rule is also recorded as an amendment to [ADR 022](../../docs/adr/022-ui-testing-strategy.md#amendments) (the ADR that owns the interim Playwright visual layer).
 
 ## Snapshot paths
 

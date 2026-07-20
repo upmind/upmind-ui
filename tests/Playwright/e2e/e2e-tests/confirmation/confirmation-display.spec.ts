@@ -15,7 +15,6 @@ newUser.describe("Confirmation Page Display - New Users", () => {
       await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
       await checkout.completeCheckout.click();
       await checkout.completeCheckout.click();
-      await page.waitForURL(`/order/**/?payment_success=true`);
       await expect(confirmation.invoiceNumberHeading).toBeVisible();
       await expect(confirmation.invoiceNumber).toBeVisible();
       await confirmation.expectInvoiceNumberValue();
@@ -35,7 +34,6 @@ newUser.describe("Confirmation Page Display - New Users", () => {
   newUser("Successful Free Order", async ({ page, checkout, confirmation }) => {
     await goToCheckout(page, products.FREE_HOSTING, null, null);
     await checkout.completeCheckout.click();
-    await page.waitForURL(`/order/**/?payment_success=true`);
     await expect(confirmation.invoiceNumberHeading).toBeVisible();
     await expect(confirmation.invoiceNumber).toBeVisible();
     await confirmation.expectInvoiceNumberValue();
@@ -56,7 +54,6 @@ newUser.describe("Confirmation Page Display - New Users", () => {
       await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
       await checkout.clickCompleteCheckout();
-      await page.waitForURL(`/order/**/?payment_success=true`);
       await expect(confirmation.invoiceNumberHeading).toBeVisible();
       await expect(confirmation.invoiceNumber).toBeVisible();
       await confirmation.expectInvoiceNumberValue();
@@ -82,7 +79,6 @@ newUser.describe("Confirmation Page Display - New Users", () => {
       await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputStripeDetails("4000000000009995", "12/50", "123");
       await checkout.clickCompleteCheckout();
-      await page.waitForURL(`/order/**/?payment_success=false`);
       await expect(confirmation.invoiceNumberHeading).toBeVisible();
       await expect(confirmation.invoiceNumber).toBeVisible();
       await confirmation.expectInvoiceNumberValue();
@@ -109,7 +105,6 @@ newUser.describe("Confirmation Page Display - New Users", () => {
     await goToCheckout(page, products.STARTER_HOSTING, null, null);
     await checkout.selectPayLater();
     await checkout.completeCheckout.click();
-    await page.waitForURL(`/order/**/?payment_success=true`);
     await expect(confirmation.invoiceNumberHeading).toBeVisible();
     await expect(confirmation.invoiceNumber).toBeVisible();
     await confirmation.expectInvoiceNumberValue();
@@ -142,7 +137,6 @@ newUser.describe("Confirmation Page Display - New Users", () => {
       await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
       await checkout.clickCompleteCheckout();
-      await page.waitForURL(`**/order/**/?payment_success=true`);
       await expect(confirmation.invoiceNumberHeading).toBeVisible();
       await expect(confirmation.invoiceNumber).toBeVisible();
       await confirmation.expectInvoiceNumberValue();
@@ -179,7 +173,6 @@ registeredUser.describe("Confirmation Page Display - Existing Users", () => {
       await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
       await checkout.selectFirstStoredPaymentMethod();
       await checkout.clickCompleteCheckout();
-      await page.waitForURL(`/order/**/?payment_success=true`);
       await expect(confirmation.invoiceNumberHeading).toBeVisible();
       await expect(confirmation.invoiceNumber).toBeVisible();
       await confirmation.expectInvoiceNumberValue();

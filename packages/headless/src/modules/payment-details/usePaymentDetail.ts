@@ -5,6 +5,7 @@ import {
   GatewayTypes,
   PaymentType
 } from "@upmind-automation/types";
+import { useConfig } from "../config";
 import { zeroDecimalCurrencies } from "../payment-gateways/payment-gateways.utils";
 import { useI18n } from "../system-localisation";
 import {
@@ -29,7 +30,6 @@ import {
   useContext,
   useContextActor
 } from "../../utils";
-import { useConfig } from "../config";
 import {
   isEmpty,
   isEqual,

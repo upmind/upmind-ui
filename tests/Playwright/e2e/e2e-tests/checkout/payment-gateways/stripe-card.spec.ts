@@ -10,6 +10,7 @@ import { ErrorCards } from "../../../support/constants/checkout/payment-cards/In
 import { products } from "../../../support/constants/products";
 import { gateways } from "../../../support/constants/gateways";
 import { TEST_EMAILS } from "../../../support/constants/test-data";
+import { OFFSITE_PAYMENT_TIMEOUT } from "../../../support/constants/timeouts";
 
 newUser.describe.configure({ mode: "parallel" });
 newUser.describe("Checkout with Stripe", () => {
@@ -20,13 +21,25 @@ newUser.describe("Checkout with Stripe", () => {
           `Accepted Stripe Cards - ${name}`,
           async ({ page, checkout }) => {
             await goToCheckout(page, products.STARTER_HOSTING, null, null);
+            // Capture the placement mutation: a card success must POST
+            // /api/payments carrying the Stripe gateway_id and a positive
+            // amount — not just land on the confirmation page.
+            const payments = await checkout.interceptPaymentResponse();
             await checkout.selectGatewayByType(gateways.STRIPE);
             await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
             await checkout.clickCompleteCheckout();
-            await page.waitForURL(`order/**`);
             await expect(
               page.getByTestId("order-confirmation-heading")
             ).toBeVisible();
+            const placement = payments.find(
+              p => p.method === "POST" && p.request
+            );
+            expect(
+              placement,
+              "no POST /api/payments captured on placement"
+            ).toBeTruthy();
+            expect(placement?.request?.gateway_id).toBeTruthy();
+            expect(Number(placement?.request?.amount)).toBeGreaterThan(0);
           }
         );
       }
@@ -40,7 +53,6 @@ newUser.describe("Checkout with Stripe", () => {
             await checkout.selectGatewayByType(gateways.STRIPE);
             await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
             await checkout.clickCompleteCheckout();
-            await page.waitForURL(`order/**`);
             await expect(
               page.getByTestId("confirmation-payment-alert")
             ).toHaveAttribute("data-test-value", "failed");
@@ -57,7 +69,6 @@ newUser.describe("Checkout with Stripe", () => {
             await checkout.selectGatewayByType(gateways.STRIPE);
             await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
             await checkout.clickCompleteCheckout();
-            await page.waitForURL(`order/**`);
             await expect(
               page.getByTestId("confirmation-payment-alert")
             ).toHaveAttribute("data-test-value", "failed");
@@ -97,7 +108,10 @@ newUser.describe("Checkout with Stripe", () => {
     // Pay-Amount tax-inclusive display regression (parked for Dom's review;
     // see overnight summary). If the Pay-Amount fix doesn't auto-resolve this
     // when applied, this needs its own investigation. See ADR 021 §Flakiness.
-    // @quarantine(FE-XXXX-SEPA, 2026-06-25)
+    // Re-quarantined not deleted: sole SEPA Debit coverage in the suite
+    // (inputSepaDetails is used nowhere else), so load-bearing pending the
+    // Pay-Amount fix.
+    // @quarantine(FE-2787, 2026-08-10)
     newUser.skip("Valid SEPA Debit", async ({ page, checkout }) => {
       await goToCheckout(page, products.STARTER_HOSTING, null, "EUR");
       await checkout.selectGatewayByType(gateways.STRIPE);
@@ -110,7 +124,6 @@ newUser.describe("Checkout with Stripe", () => {
         "SW1A 2AA"
       );
       await checkout.clickCompleteCheckout();
-      await page.waitForURL(`order/**`);
       await expect(
         page.getByTestId("order-confirmation-heading")
       ).toBeVisible();
@@ -118,11 +131,8 @@ newUser.describe("Checkout with Stripe", () => {
   });
   newUser.describe("iDEAL", async () => {
     newUser("Successful iDEAL payment", async ({ page, checkout }) => {
-      // Offsite roundtrip (register + checkout + Stripe element + hosted
-      // authorize page + return + confirmation) is the longest flow in the
-      // suite and straddles the global 60s. Realistic budget, matched to the
-      // measured flow — the journey is verified end-to-end.
-      newUser.setTimeout(120000);
+      // Offsite iDEAL round-trip through Stripe's hosted authorize page.
+      newUser.setTimeout(OFFSITE_PAYMENT_TIMEOUT);
       await goToCheckout(page, products.STARTER_HOSTING, null, "EUR");
       await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.completeIdealCheckout(TEST_EMAILS.ideal, "Test User");
@@ -131,22 +141,18 @@ newUser.describe("Checkout with Stripe", () => {
       await page
         .locator('[data-testid="authorize-test-payment-button"]')
         .click();
-      await page.waitForURL(`order/**`);
       await expect(
         page.getByTestId("order-confirmation-heading")
       ).toBeVisible();
     });
     newUser("Failed iDEAL payment", async ({ page, checkout }) => {
-      // Offsite roundtrip (register + checkout + Stripe element + hosted
-      // authorize page + return + confirmation) is the longest flow in the
-      // suite and straddles the global 60s. Realistic budget, matched to the
-      // measured flow — the journey is verified end-to-end.
-      newUser.setTimeout(120000);
+      // Offsite iDEAL round-trip through Stripe's hosted authorize page
+      // (failure path).
+      newUser.setTimeout(OFFSITE_PAYMENT_TIMEOUT);
       await goToCheckout(page, products.STARTER_HOSTING, null, "EUR");
       await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.completeIdealCheckout(TEST_EMAILS.ideal, "Test User");
       await page.locator('[data-testid="fail-test-payment-button"]').click();
-      await page.waitForURL(`order/**`);
       await expect(
         page.getByTestId("confirmation-payment-alert")
       ).toHaveAttribute("data-test-value", "failed");
