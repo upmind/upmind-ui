@@ -6,8 +6,8 @@ import type {
   FieldsModel,
   ProfileField
 } from "./client-personal-details.types";
-import type { SessionUser } from "../session-store";
 import type { CustomField } from "../client-custom-fields";
+import type { SessionUser } from "../session-store";
 import type { IClient } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------

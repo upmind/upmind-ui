@@ -170,6 +170,56 @@ export async function addPromotionViaHeadless(
 }
 
 /**
+ * Removes a single basket product via the live headless system.
+ *
+ * Drives `useBasketProducts().remove(bpid)` — the same debounced action the UI
+ * fires — then polls until the product is gone from the live basket. Removing a
+ * product is what fires the `remove_from_cart` dataLayer event, so a spec that
+ * asserts on that event must drive the removal through this real module path
+ * rather than a hand-rolled DELETE (ADR 021 — test your code, not a shadow of it).
+ *
+ * @param page - The Playwright page (the live system lives on its `window`).
+ * @param basketProductId - The basket-product id to remove.
+ */
+export async function removeProductViaHeadless(
+  page: Page,
+  basketProductId: string
+): Promise<void> {
+  await waitForUpmindBridge(page);
+  await page.evaluate(
+    async ({ basketProductId, pollTimeout, pollInterval }) => {
+      if (!window.Upmind?.useBasket || !window.Upmind?.useBasketProducts) {
+        throw new Error(
+          "window.Upmind not exposed — is the cart running in test mode (pnpm start:test)?"
+        );
+      }
+      const basket = window.Upmind.useBasket();
+      const ready = await basket.isReady();
+      if (!ready) {
+        throw new Error(
+          "removeProductViaHeadless: basket did not become ready"
+        );
+      }
+
+      await window.Upmind.useBasketProducts().remove(basketProductId);
+
+      const deadline = Date.now() + pollTimeout;
+      while (Date.now() < deadline) {
+        const stillPresent = (basket.products.value ?? []).some(
+          product => product.id === basketProductId
+        );
+        if (!stillPresent) return;
+        await new Promise(resolve => setTimeout(resolve, pollInterval));
+      }
+      throw new Error(
+        "removeProductViaHeadless: product was not removed from the basket in time"
+      );
+    },
+    { basketProductId, pollTimeout: POLL_TIMEOUT, pollInterval: POLL_INTERVAL }
+  );
+}
+
+/**
  * Sets the basket currency (by ISO code) via the live headless system.
  *
  * @param page - The Playwright page (the live system lives on its `window`).

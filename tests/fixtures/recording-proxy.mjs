@@ -19,8 +19,10 @@ import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import {
   generateFixtureName,
+  parseJsonOrNull,
   redactValue,
-  sanitize
+  sanitize,
+  sanitizeHeaders
 } from "./fixture-naming.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -45,38 +47,6 @@ if (!existsSync(FIXTURES_DIR)) {
 // under journeys/<slug>/. The loader (tests/fixtures/index.ts) builds any
 // key lookup in memory by walking the pool, so the recorder never maintains a
 // giant index that would balloon with every request of every journey.
-
-const SENSITIVE_HEADERS = new Set([
-  "authorization",
-  "cookie",
-  "set-cookie",
-  "x-api-key",
-  "x-auth-token"
-]);
-
-function sanitizeHeaders(headers) {
-  const result = {};
-  for (const [key, value] of Object.entries(headers)) {
-    if (SENSITIVE_HEADERS.has(key.toLowerCase())) {
-      // Preserve scheme prefix (e.g. "Bearer <REDACTED>") for readability
-      const stringValue = String(value);
-      const schemeMatch = stringValue.match(/^(\S+)\s+/);
-      result[key] = schemeMatch ? `${schemeMatch[1]} <REDACTED>` : "<REDACTED>";
-    } else {
-      result[key] = value;
-    }
-  }
-  return result;
-}
-
-function parseJsonOrNull(body) {
-  if (!body) return null;
-  try {
-    return JSON.parse(body);
-  } catch {
-    return null;
-  }
-}
 
 function saveFixture(
   method,

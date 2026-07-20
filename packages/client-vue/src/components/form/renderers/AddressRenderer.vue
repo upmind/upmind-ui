@@ -24,7 +24,7 @@
           :label="t('action.enter_address_manually')"
           size="sm"
           color="muted"
-          :data-attrs="{ 'data-test-key': 'link-enter-address-manually' }"
+          :dataAttrs="{ 'data-test-key': 'link-enter-address-manually' }"
           @click="setShowAddressFields(true)"
         />
       </footer>

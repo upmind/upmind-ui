@@ -50,7 +50,13 @@ export default defineConfig({
   },
 
   /*Filepaths*/
-  testDir: "./tests/Playwright/e2e/",
+  // Widened from ./tests/Playwright/e2e/ to ./tests (ADR 025 migration step 6)
+  // so the co-located journey-unit `.spec.ts` slices under
+  // tests/journeys/<surface>/<flow>/<slug>/ are discovered alongside the legacy
+  // suite. Legacy specs still match under the wider root; the journeys' Vitest
+  // `.int.test.ts` files and the fixtures tool are ignored so the two runners
+  // never collide (the file-suffix contract, ADR 025 decision 2).
+  testDir: "./tests",
   outputDir: "./tests/Playwright/e2e/test-output/test-results",
   testMatch: "**/*.spec.ts",
   testIgnore: [

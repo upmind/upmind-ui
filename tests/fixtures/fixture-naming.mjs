@@ -68,6 +68,28 @@ function renderParams(params) {
     .join("&");
 }
 
+/**
+ * Stable 8-hex-char hash of a string (FNV-1a). Used to keep a fixture FILENAME
+ * bounded when a route's identity params render too long for the filesystem
+ * (e.g. a `config brand values?keys=<40 keys>` request — ENAMETOOLONG otherwise).
+ * The filename is cosmetic + a uniqueness key; MSW matching and the `[dup]` lint
+ * read the request's identity from the fixture JSON, never the filename — so a
+ * hashed name never changes which fixture serves. Deterministic: the same params
+ * always hash the same, so a re-record overwrites in place.
+ */
+function hashParams(input) {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < input.length; i += 1) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0");
+}
+
+// A fixture filename beyond this collapses its params to a hash. Chosen well
+// under the 255-byte POSIX/macOS limit while keeping short names readable.
+const MAX_FIXTURE_NAME = 100;
+
 /** Sensitive field patterns to sanitize in fixture data. */
 export const SENSITIVE_PATTERNS = [
   /token/i,
@@ -135,10 +157,22 @@ export function generateFixtureName(method, path, responseBody) {
   const { path: endpoint, params } = fixtureIdentity(method, path);
   const paramsStr = renderParams(params);
 
-  let name = `${method.toLowerCase()}-${endpoint}${paramsStr ? `-${paramsStr}` : ""}`
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+  const clean = str =>
+    str
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+  let name = clean(
+    `${method.toLowerCase()}-${endpoint}${paramsStr ? `-${paramsStr}` : ""}`
+  );
+
+  // Long identity params (e.g. a giant `?keys=` list) would overflow the
+  // filesystem name limit — collapse just the params to a stable hash, mirroring
+  // the pilot journey's `…-<hash8>` fixtures. Identity/matching are unaffected.
+  if (name.length > MAX_FIXTURE_NAME && paramsStr) {
+    name = clean(`${method.toLowerCase()}-${endpoint}-${hashParams(paramsStr)}`);
+  }
 
   if (responseBody && typeof responseBody === "object") {
     const isTokenEndpoint = path.includes("/oauth/access_token");
@@ -243,4 +277,55 @@ export function sanitize(obj, depth = 0) {
   }
 
   return obj;
+}
+
+// --- HTTP transport helpers (shared by both recorders) -----------------------
+// The reverse proxy (`recording-proxy.mjs`) and the browser interception
+// recorder (`playwright-recorder.mjs`) sanitize headers and parse bodies
+// identically — one definition here keeps them from drifting apart.
+
+/** Header names whose values are redacted before a request lands in a fixture. */
+export const SENSITIVE_HEADERS = new Set([
+  "authorization",
+  "cookie",
+  "set-cookie",
+  "x-api-key",
+  "x-auth-token"
+]);
+
+/**
+ * Redact the values of {@link SENSITIVE_HEADERS}, preserving any auth scheme
+ * prefix for readability (e.g. `Bearer <REDACTED>`). Null-safe: a missing header
+ * bag yields an empty object.
+ *
+ * @param {Record<string, unknown>} [headers]
+ * @returns {Record<string, unknown>}
+ */
+export function sanitizeHeaders(headers) {
+  const result = {};
+  for (const [key, value] of Object.entries(headers ?? {})) {
+    if (SENSITIVE_HEADERS.has(key.toLowerCase())) {
+      const schemeMatch = String(value).match(/^(\S+)\s+/);
+      result[key] = schemeMatch ? `${schemeMatch[1]} <REDACTED>` : "<REDACTED>";
+    } else {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+
+/**
+ * Parse a JSON string, returning `null` for empty or non-JSON input (assets,
+ * HTML) rather than throwing.
+ *
+ * @param {string | null | undefined} text
+ * @returns {unknown}
+ */
+export function parseJsonOrNull(text) {
+  if (!text) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
 }

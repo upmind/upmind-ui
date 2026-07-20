@@ -2,11 +2,11 @@
 import { AsyncQueuer } from "@tanstack/pacer";
 import { BrandConfigKeys } from "@upmind-automation/types";
 import { useBasket, useBasketCurrency } from "../basket";
+import { useBrand } from "../brand";
+import { parseQuantity } from "../product/product.utils";
 import { invalidateQueryByKey, RequestSortDirection, useQuery } from "../query";
 import { useDataLayer, useTracking } from "../system-analytics";
 import { useI18n } from "../system-localisation";
-import { useBrand } from "../brand";
-import { parseQuantity } from "../product/product.utils";
 import {
   parseBasketProductData,
   parseBasketProductError,

@@ -12,6 +12,13 @@ import { URLs } from "../../../support/constants/urls";
 import { Logins } from "../../../support/constants/logins";
 let checkout: Checkout;
 test.describe("Verify checkout billing detail requirements", () => {
+  // FE-2985 out of scope (no mutation to guard): every test here is a
+  // requirement/validation NEGATIVE path — it proves checkout BLOCKS (the
+  // billing-needs-input alert, the region-required message) when a required
+  // field is missing, so no successful billing PUT ever fires to assert a
+  // payload against. The change→save mutation-payload guards for billing edits
+  // live in standalone-billing.spec.ts and update-billing-details.spec.ts.
+  //
   // All tests below log in as Logins.brandUser via beforeEach. Serial mode
   // prevents them from racing against each other on the same staging account.
   test.describe.configure({ mode: "serial" });

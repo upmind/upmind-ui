@@ -58,15 +58,22 @@ export class Registration {
       );
   }
 
+  /**
+   * Fills and submits the registration form with fresh faker details.
+   * Returns the generated credentials so callers can assert they reached the
+   * wire (the register POST payload), not just that a session cookie appeared.
+   */
   async inputRegistration() {
-    await this.firstName.fill(`${faker.person.firstName()}`);
-    await this.lastName.fill(`${faker.person.lastName()}`);
-    await this.email.fill(
-      `nathan.robinson+${faker.string.alpha({ length: 10 })}@upmind.com`
-    );
+    const firstName = `${faker.person.firstName()}`;
+    const lastName = `${faker.person.lastName()}`;
+    const email = `nathan.robinson+${faker.string.alpha({ length: 10 })}@upmind.com`;
+    await this.firstName.fill(firstName);
+    await this.lastName.fill(lastName);
+    await this.email.fill(email);
     await this.password.fill(STRONG_PASSWORD);
     await this.page.getByTestId("button-continue").click();
     await this.page.waitForLoadState("networkidle");
+    return { firstName, lastName, email };
   }
 
   async getCookie(tokenType: string) {

@@ -20,6 +20,7 @@
         size="sm"
         color="muted"
         tabindex="-1"
+        :dataAttrs="{ 'data-test-key': 'link-edit' }"
         @mousedown.stop.prevent
         class="pointer-events-auto h-4"
         @click.stop.prevent="doEdit"

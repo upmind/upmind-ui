@@ -5,7 +5,7 @@ import { assign } from "xstate";
 import { useSchema, useUischema } from "./schemas";
 
 // --- types
-import type { GatewayContext } from "../types";
+import type { GatewayContext } from "../payment-gateways.types";
 
 // -----------------------------------------------------------------------------
 // The dLocal redirect gateway uses the generic services; only the schema is

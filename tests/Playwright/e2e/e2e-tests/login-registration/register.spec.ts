@@ -66,8 +66,20 @@ test.describe("User Registration", () => {
   });
 
   test("Registering via /auth/register/", async ({ page }) => {
-    await registration.inputRegistration();
-    await page.waitForURL(URLs.emptyBasket, { timeout: 30000 });
+    // Assert the submitted details reach the wire (FE-2985 mutation-chain rule):
+    // registration POSTs /clients/register (headless auth.services.client), and
+    // its payload must carry the entered email — the cookie check below only
+    // proves a session was issued, not that this account is the one submitted.
+    const registerRequest = page.waitForRequest(
+      r => r.method() === "POST" && /\/clients\/register(\?|$)/.test(r.url())
+    );
+    const creds = await registration.inputRegistration();
+    expect(JSON.stringify((await registerRequest).postDataJSON())).toContain(
+      creds.email
+    );
+    await expect(page.getByTestId("basket-empty-message")).toBeVisible({
+      timeout: 30000
+    });
     await expect(registration.getCookie("client")).toBeDefined();
   });
 

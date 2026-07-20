@@ -1,6 +1,6 @@
 import { isFunction } from "xstate/lib/utils";
-import { useI18n } from "../../system-localisation";
 import { useQuery } from "../../query";
+import { useI18n } from "../../system-localisation";
 import sharedServices from "../payment-gateways.services";
 import { beginSetup } from "../payment-gateways.services";
 import { parseSettings } from "../payment-gateways.utils";

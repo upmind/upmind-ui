@@ -48,8 +48,9 @@ for (const { language, locale } of languages) {
       const guest = new GuestCheckout(page);
 
       // Mock the guest-checkout gate ON (a P4-safe settings mock) BEFORE any
-      // navigation so the brand-gated CTA renders. Pass null bearerToken so
-      // cached reloads replay a full 200 instead of a 304 with null data
+      // navigation so the brand-gated CTA renders. interceptConfigValues
+      // replays the request's own auth and strips cache-validation headers so
+      // cached reloads return a full 200 instead of a 304 with null data
       // (FE-2785).
       await interceptConfigValues(page, { guestCheckoutEnabled: true });
 

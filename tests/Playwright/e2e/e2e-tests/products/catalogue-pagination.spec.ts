@@ -6,6 +6,10 @@ import { waitForSessionCookie } from "../../support/helpers";
 let pagination: Pagination;
 
 test.describe("Catalogue Pagination", () => {
+  // FE-2782 Category 3 (documented, unavoidable): the `?page=` query string IS
+  // the deep-linkable pagination contract this suite exists to protect — the
+  // component exposes no page-number testid, and users bookmark/share paginated
+  // URLs. Asserting the query is asserting the behaviour, not a route-name shape.
   test.beforeEach(async ({ page }) => {
     pagination = new Pagination(page);
   });

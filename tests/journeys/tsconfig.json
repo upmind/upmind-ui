@@ -1,15 +1,51 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig/vue-library.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
+    "noEmit": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    // Match the journeys vitest config's runtime resolution (vite = bundler):
+    // headless, @upmind-automation/test-fixtures and vitest all ship exports
+    // maps that node10 resolution can't read.
     "moduleResolution": "bundler",
-    "strict": true,
+    // The barrel graph imports a handful of type-only symbols in value position;
+    // that is fine for a noEmit gate, so don't fail on verbatim import syntax.
+    "verbatimModuleSyntax": false,
+    // @types/google.maps is a headless dependency, symlinked only under its own
+    // node_modules — headless source (system-places) needs it in the program.
+    "typeRoots": [
+      "../../node_modules/@types",
+      "../../packages/headless/node_modules/@types"
+    ],
+    "types": ["node", "google.maps"],
     "paths": {
+      // Mirror tests/journeys/vitest.journeys.config.ts: the barrels resolve to
+      // their workspace SOURCE (not built dist), so the journey type-checks
+      // against the exact graph it runs against.
       "@upmind-automation/headless": ["../../packages/headless/src/index.ts"],
+      "@upmind-automation/types": ["../../packages/types/src/index.ts"],
+      "@upmind-automation/i18n": ["../../packages/i18n/src/index.ts"],
       "@upmind-automation/test-fixtures": ["../fixtures/index.ts"],
-      "@upmind-automation/test-fixtures/*": ["../fixtures/*"]
+      "@upmind-automation/test-fixtures/*": ["../fixtures/*"],
+      // vitest is a dep of tests/fixtures, not hoisted to a node_modules
+      // reachable from tests/journeys; point at the workspace copy so the int
+      // test's `import ... from "vitest"` resolves.
+      "vitest": ["../fixtures/node_modules/vitest"],
+      // psl ships its types outside its package.json "exports", so exports-aware
+      // resolution can't find them; point at the shipped declarations directly.
+      "psl": ["../../packages/headless/node_modules/psl/types/index.d.ts"]
     }
   },
-  "include": ["**/*.ts"],
-  "exclude": ["node_modules"]
+  // Scoped to the barrel-importing integration surface. The .spec.ts Playwright
+  // slices reuse the shared tests/Playwright support library and root
+  // playwright.config; those are compiled by the Playwright toolchain, not this
+  // gate. vite-env.d.ts pulls vite/client (import.meta.env) into the program.
+  "include": [
+    "storefront/**/*.int.test.ts",
+    "storefront/**/journey.ts",
+    "storefront/**/setup.ts",
+    "vite-env.d.ts"
+  ],
+  "exclude": ["node_modules", "**/*.spec.ts"]
 }

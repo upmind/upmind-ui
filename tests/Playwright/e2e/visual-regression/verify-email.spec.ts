@@ -69,8 +69,9 @@ for (const { language, locale } of languages) {
       const verify = new VerifyEmail(page);
 
       // Mock the require-verified-email gate ON (a P4-safe settings mock) BEFORE
-      // any navigation so guardCheckout opens the overlay. Pass null bearerToken
-      // so cached reloads replay a full 200 instead of a 304 with null data
+      // any navigation so guardCheckout opens the overlay. interceptConfigValues
+      // replays the request's own auth and strips cache-validation headers so
+      // cached reloads return a full 200 instead of a 304 with null data
       // (FE-2785).
       await interceptConfigValues(page, { requireVerifiedEmail: true });
 

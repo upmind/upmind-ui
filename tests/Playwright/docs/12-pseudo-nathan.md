@@ -108,6 +108,12 @@ his commits and is reproduced here under cautious labels.
 - **Evidence:** [04-writing-tests.md:191-203](./04-writing-tests.md#L191-L203); [login.spec.ts:13](../e2e/e2e-tests/login-registration/login.spec.ts#L13) carries a comment explaining *why* serial is used there (the `Logins.checkoutUser` account is also used in `update-billing-details.spec.ts`).
 - **Prevents:** cross-test corruption of a single staging account; non-deterministic order failures.
 
+### P9 — Visual-regression specs consume the shared flows / page objects; they never hand-roll journey logic
+
+- **Rule:** A `visual-regression/*.spec.ts` MUST NOT re-implement navigation, seeding, auth, or interaction that already lives in [`support/flows`](../e2e/support/flows/) or a page object. A vis-reg spec reduces to *shared journey/setup → gate on a stable testid → freeze animations → `toHaveScreenshot`*. If a page object lacks a step, add it there and consume it — don't inline the sequence (a raw `page.locator("#…")` + `page.keyboard.*` where a page-object method exists is the tell). Settings/flag mocks stay allowed; journey data does not (P3/P4).
+- **Evidence:** [06-visual-regression.md](./06-visual-regression.md#shared-helpers-only--no-drift-from-the-functional-suite); the 2026-06-12 chrome run failed 324/853 with 5 of 7 clusters traced to vis-reg drift ([docs/testing/regression-findings-2026-06-12.md](../../../docs/testing/regression-findings-2026-06-12.md)); recorded as [ADR 022 Amendment 1](../../../docs/adr/022-ui-testing-strategy.md#amendments).
+- **Prevents:** the vis-reg suite silently diverging from the functional specs — serial-only helpers under `fullyParallel`, locators for removed components, mocks on the wrong endpoint, locale-fragile `kebabCase(label)` testids — none of which the functional suite sees because it drives the shared helpers.
+
 ---
 
 ## 4. Conventions (style)
@@ -149,6 +155,7 @@ These are preferences. Useful to follow for consistency; not failing-grade if mi
 8. **Stale `test.describe.configure({ mode: "parallel" })` calls.** Now redundant since `fullyParallel` is global. *"Don't add new ones; they only make the intent ambiguous."* ([04-writing-tests.md:204](./04-writing-tests.md#L204)).
 9. **TitleCase or snake-case `.spec.ts` names.** Explicit don't-do — *"`partial-payments.spec.ts`, not `PartialPayments.spec.ts` or `test_partial.spec.ts`."* ([04-writing-tests.md:9](./04-writing-tests.md#L9)).
 10. **Migrating existing tests when adopting new patterns.** Nathan's pattern (and ADR 020): convention applies to new tests; existing tests stay as-is unless they're broken. Source: [08-qa-handover.md:39](./08-qa-handover.md#L39); [ADR 020:39](../../../docs/adr/020-gherkin-test-planning.md#L39).
+11. **Asserting the URL instead of the behaviour (FE-2782).** `waitForURL` / `toHaveURL` / `not.toHaveURL` / `expect(page.url())…` on an app-router path couples the suite to route names — a rename breaks specs that never cared about the route. Flag any such assertion on review: after an action-triggered nav, assert the destination's `data-test-key` content (which also serves as the auto-retrying wait); delete a tautological `toHaveURL` right after a `page.goto`. Only three cases survive, each with an inline justification: external redirects, deep-linkable query contracts (e.g. pagination `?page=`), and overlay-routing contracts. `req.url()`/`res.url()` inside route/request matchers are out of scope (they match network requests, not the page). Full convention: [15-url-assertions.md](./15-url-assertions.md).
 
 ---
 
@@ -232,7 +239,7 @@ Stylistic markers so future authors (or agents) can write *like* Nathan.
 - **The non-Stripe gateway thinness in detail.** Nathan flagged it as a known gap ([08-qa-handover.md:46](./08-qa-handover.md#L46)) but the *what fails today* picture per-gateway isn't here. The wishlist says the off-site spoof pattern *might* be where AI-assisted testing finally pays off — that's a hypothesis, not a recipe.
 - **CDP-hang specifics.** [flows/checkout.ts:14-29](../e2e/support/flows/checkout.ts#L14-L29) mentions "occasional CDP hangs on the registration UI" — the reproduction trigger and the root cause aren't documented; only the workaround is.
 - **The judgment behind "this is a unit test in disguise."** ~30% of the suite is unit-test-shaped ([08-qa-handover.md:18](./08-qa-handover.md#L18)) but which 30% is the work of the audit (ADR 021). Nathan would have done it by hand; the audit's verdict column is the codified replacement.
-- **The Allure dashboard's read habits.** [08-allure-dashboard.md](./08-allure-dashboard.md) documents the dashboard; how Nathan used it day-to-day (which views first, what triggered investigation) isn't captured.
+- **The Allure dashboard's read habits.** [08-allure-dashboard.md](../../allure/docs/08-allure-dashboard.md) documents the dashboard; how Nathan used it day-to-day (which views first, what triggered investigation) isn't captured.
 - **`secrets/` content.** Gitignored — by design. New contributors will need to ask for the PayPal sandbox credentials etc. out-of-band.
 
 ---

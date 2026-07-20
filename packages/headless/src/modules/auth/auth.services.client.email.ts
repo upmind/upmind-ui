@@ -1,7 +1,7 @@
 /** @internal */
-import { useI18n } from "../system-localisation";
 import { useQuery } from "../query";
 import { useSessionStore } from "../session-store";
+import { useI18n } from "../system-localisation";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import type { VerifyFromLinkParams } from "./auth.types";
 // -----------------------------------------------------------------------------

@@ -21,6 +21,13 @@ test.describe("Checkout with Existing Payment Method", () => {
       Logins.existingMethodUser.password
     );
     await goToCheckout(page, products.STARTER_HOSTING, null, null);
+    // Capture the placement mutation so a wrong payment method / amount on the
+    // POST /api/payments body fails here, not just at the confirmation UI.
+    // A stored method places by payment_details_id, NOT a gateway: headless
+    // unsets gateway_id and mapStoredPaymentDetailData returns
+    // { payment_details_id }, so the body is
+    // { invoice_id, payment_details_id, amount, ... } — assert those.
+    const payments = await checkout.interceptPaymentResponse();
     // The stored-payment-method radio is keyed off a dynamic `payment_details_id`
     // (no stable, hard-codeable testid), so select the first saved card in the
     // stored-methods group structurally — the fixture user has exactly one. The
@@ -29,5 +36,12 @@ test.describe("Checkout with Existing Payment Method", () => {
     await checkout.clickCompleteCheckout();
     await checkout.dialogWindow.waitFor();
     await expect(page.getByTestId("order-confirmation-heading")).toBeVisible();
+    const placement = payments.find(p => p.method === "POST" && p.request);
+    expect(
+      placement,
+      "no POST /api/payments captured on placement"
+    ).toBeTruthy();
+    expect(placement?.request?.payment_details_id).toBeTruthy();
+    expect(Number(placement?.request?.amount)).toBeGreaterThan(0);
   });
 });

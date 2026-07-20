@@ -1,0 +1,25 @@
+# Gherkin `.feature` spec lint (ADR 020 Phase B / FE-2771).
+#
+# `.feature` files are a declarative planning artefact — spec-only, never
+# executed. This job mechanically fails imperative drift (selectors, URLs,
+# click/type/fill/press) before it lands. It is a pure bash+grep check with no
+# application dependencies, so it needs neither the `dependencies` job nor the
+# submodules, and it blocks the merge on failure.
+lint:features:
+  image: ${NODE_IMAGE}
+  stage: test
+  interruptible: true
+  needs: []
+  variables:
+    GIT_SUBMODULE_STRATEGY: none
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_PIPELINE_SOURCE == 'web'
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG
+  before_script:
+    # node:*-alpine ships busybox sh + grep; install bash and GNU grep so the
+    # lint script's shebang and POSIX-ERE patterns behave as they do locally.
+    - apk add --no-cache bash grep
+  script:
+    - bash tests/features/lint-feature-files.sh

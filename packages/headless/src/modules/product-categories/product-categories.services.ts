@@ -1,13 +1,13 @@
 /** @internal */
-import type { QueryParams } from "../query";
-import { useQuery } from "../query";
+import { keepPreviousData, type QueryKey } from "@tanstack/vue-query";
 import { useBasketCurrency } from "../basket";
 import { useBrand } from "../brand";
+import { useQuery } from "../query";
 import { parseProductCategory } from "./product-categories.mappers";
 import { useTime } from "../../utils";
 import { map } from "lodash-es";
+import type { QueryParams } from "../query";
 import type { ProductCategory } from "./product-categories.types";
-import { keepPreviousData, type QueryKey } from "@tanstack/vue-query";
 import type { IProductCategory } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------

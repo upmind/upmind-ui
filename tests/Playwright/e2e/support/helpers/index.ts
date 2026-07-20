@@ -6,7 +6,8 @@ export {
 export {
   expectedPayAmount,
   expectedPayAmountText,
-  waitForBillingUpdate
+  waitForBillingUpdate,
+  waitForCalculateResponse
 } from "./checkout";
 export { getFormattedDate, getTimestamp } from "./dates";
 export { getDataLayer, waitForEvent } from "./gtm";

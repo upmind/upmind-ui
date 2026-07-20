@@ -4,9 +4,9 @@ import {
   GatewayContext as GatewayCtx
 } from "@upmind-automation/types";
 import { useBrand } from "../brand";
-import { useI18n } from "../system-localisation";
 import { useQuery } from "../query";
 import { useActiveSession } from "../session-store";
+import { useI18n } from "../system-localisation";
 import { canBeStored } from "./payment-gateways.utils";
 import {
   DetailedError,

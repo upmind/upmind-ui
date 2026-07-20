@@ -4,6 +4,7 @@ packages:
   - "playgrounds/*"
   - "apps/*"
   - "tests/fixtures"
+  - "tests/journeys"
 allowBuilds:
   '@parcel/watcher': true
   '@sentry/cli': true

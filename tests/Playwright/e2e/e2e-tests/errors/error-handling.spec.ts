@@ -60,24 +60,43 @@ test.describe("Error Code Handling", () => {
         await waitForSessionCookie(page.context());
 
         if (errorType === "dialog") {
-          // Use .first() to handle potential duplicate dialogs from multiple API calls
-          const dialog = page.getByTestId("dialog-window").first();
+          // The maintenance interstitial (system/Error.vue) passes
+          // dataAttrs={ 'data-test-key': 'error' }, which — because the
+          // Interstitial is modal — OVERRIDES the Dialog's default
+          // `dialog-window` testid (Interstitial.ce.vue rootDataAttrs). So the
+          // 503 dialog is data-test-key="error", NOT "dialog-window"; the
+          // stacked "product not found" interstitial (no override) keeps
+          // `dialog-window`. Target the maintenance dialog by its real testid,
+          // still filtered by the expected message so a message-less dialog
+          // matches nothing and toBeVisible fails.
+          const dialog = page
+            .getByTestId("error")
+            .filter({ hasText: responseError.message });
           await expect(dialog).toBeVisible();
-          await expect(dialog).toContainText(responseError.message);
-          // Target the action by its stable, label-independent testid (the
-          // interstitial's first action button) rather than the i18n label.
-          await expect(
-            dialog
-              .getByTestId("interstitial-action")
-              .and(page.locator(`[data-test-value="0"]`))
-          ).toBeVisible();
+          // Assert the retry/action affordance by its stable, label-independent
+          // testid. NB the interstitial's action Button sets `data-test-value`
+          // to its v-for index (0 for the sole 503 action), but useTestAttrs
+          // treats numeric 0 as falsy in its `overrideValue || …` cascade and
+          // drops it — so `[data-test-value="0"]` NEVER renders. The
+          // `data-test-key="interstitial-action"` pair does render; scoped to
+          // the error dialog it resolves the single action button uniquely.
+          await expect(dialog.getByTestId("interstitial-action")).toBeVisible();
         } else if (errorType === "redirect") {
+          // FE-2782 Category 3 (documented, unavoidable): the errored product
+          // resolves to its not-found route; that redirect IS the behaviour and
+          // the NotFound page exposes no stable in-app testid to assert instead.
           await expect(page).toHaveURL(
             `${URLs.baseUrl}order/product/3de78642-de53-9714-76df-21208469530d/not-found/`
           );
         } else if (errorType === "toast") {
           const toast = page.getByTestId("sonner-toast").locator("li");
           await expect(toast.first()).toBeVisible({ timeout: 10000 });
+          // The error surfaces as a toast while the user stays on the product
+          // page — assert the toast plus that we did NOT navigate away.
+          // NB: do NOT assert the product-configuration section here; it renders
+          // from the orders/current basket call that this test intercepts with a
+          // 500, so it can never appear (FE-2782 over-reach; reverted to the
+          // behaviour the URL stood for).
           await expect(page.url()).toContain(`${URLs.baseUrl}order/product/`);
         } else {
           throw new Error(`Invalid errorType on ErrorCodes: ${errorType}`);

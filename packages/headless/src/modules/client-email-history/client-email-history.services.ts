@@ -1,13 +1,13 @@
 /** @internal */
+import upmind from "../../useUpmind";
 import { RequestSortDirection, useQuery } from "../query";
 import { useActiveSession } from "../session-store";
-import type { QueryParams } from "../query";
-import upmind from "../../useUpmind";
 import {
   mapEmailHistory,
   mapReceivedEmail
 } from "./client-email-history.mappers";
 import { useTime, NotAuthenticatedError } from "../../utils";
+import type { QueryParams } from "../query";
 import type { SentEmail } from "./client-email-history.types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IEmail, ISentEmail } from "@upmind-automation/types";

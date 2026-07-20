@@ -16,7 +16,7 @@ import { waitForBillingUpdate } from "../../support/helpers/checkout";
 import {
   clearBasketViaHeadless,
   loginViaHeadless,
-  selectRequiredMultiDefaults
+  applySchemaDefaults
 } from "../../support/flows";
 
 // Brand-config key deciding whether checkout demands a billing address. Same
@@ -35,8 +35,9 @@ let registration: Registration;
 let brandSettings: Record<string, unknown> = {};
 
 async function enterDomainDetails() {
-  // Capture the raw product BEFORE navigation so we can introspect its schema
-  // for any `required + multiple` option categories the machine cannot auto-default.
+  // Capture the raw product BEFORE navigation so the schema-driven helper can
+  // derive which required option categories to fill (the `.com` canary has a
+  // `required + multiple` category the machine cannot auto-default).
   const rawProductPromise = captureProduct(productConfig.page);
   await productConfig.page.goto(URLs.comDomain);
   const rawProduct = await rawProductPromise;
@@ -44,7 +45,7 @@ async function enterDomainDetails() {
   await productConfig.enterSld(
     `${fakerEN_GB.string.alpha({ length: { min: 5, max: 10 } })}${fakerEN_GB.string.numeric({ length: { min: 2, max: 5 } })}`
   );
-  await selectRequiredMultiDefaults(productConfig.page, rawProduct);
+  await applySchemaDefaults(productConfig.page, rawProduct);
   await productConfig.enterRegistrantDetails({
     registrantName: `${fakerEN_GB.person.fullName()}`,
     registrantOrg: `${fakerEN_GB.person.zodiacSign()}`,
@@ -58,6 +59,14 @@ async function enterDomainDetails() {
   });
 }
 
+// NB: every journey below completes via a BANK_TRANSFER (manual) placement.
+// FE-2985 payload guards do NOT apply here: headless mapPaymentData returns
+// undefined for BANK_TRANSFER, so no /api/payments request fires — the order is
+// placed via PATCH /orders/{id}/convert with an EMPTY payment body, and no
+// gateway_id/amount reaches the wire (both resolved server-side / fixed on the
+// invoice). These specs prove the buying JOURNEY end-to-end and assert the
+// end-state confirmation; placement-payload coverage lives in the Stripe
+// checkout-paths and existing-method specs.
 test.describe("Domain customers", () => {
   test.beforeEach(async ({ page, context }) => {
     productConfig = new ProductConfig(page);
@@ -132,7 +141,7 @@ test.describe("Domain customers", () => {
       const billingUpdate = waitForBillingUpdate(page);
       await billingPage.saveDetails.click();
       await billingUpdate;
-      await page.waitForURL("**/order/checkout**");
+      await expect(checkout.basketSummary).toBeVisible({ timeout: 15000 });
       await checkout.selectGatewayByType(gateways.BANK_TRANSFER);
       await checkout.clickCompleteCheckout();
       await expect(

@@ -64,6 +64,7 @@ export class ProductConfig {
   /* Order Summary */
   readonly totalValue: Locator;
   readonly totalQty: Locator;
+  readonly quantityIncrement: Locator;
   readonly billingCycle: Locator;
   readonly product: Locator;
   readonly development: Locator;
@@ -256,6 +257,7 @@ export class ProductConfig {
     /* Order Summary */
     this.totalValue = page.getByTestId("total-price");
     this.totalQty = page.getByTestId("number-field-input"); // TODO: Move to shared page object
+    this.quantityIncrement = page.getByTestId("number-field-increment"); // TODO: Move to shared page object
     this.billingCycle = page
       .getByTestId("description-list-item")
       .and(page.locator('[data-test-value="billing-cycle"]'))

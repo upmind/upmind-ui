@@ -255,6 +255,35 @@ export function interceptUISchema(
   });
 }
 
+/**
+ * Simulate a domain that resolves to no configured brand.
+ *
+ * `useUpmind` treats a brand with no `name` as unavailable (`isAvailable` is
+ * false) and short-circuits cart start-up with a hard `window.location`
+ * redirect to the Upmind platform (`platformUrl`) — see FE-2554. This helper
+ * replays the app's real `brand/settings` response (a 200, so it is NOT the
+ * 503 "service unavailable" error path in `error-codes.ts`) and strips the
+ * brand name so that availability check flips.
+ *
+ * A settings-shape mock (P4-safe): it mutates the real response rather than
+ * fabricating data, mirroring `interceptLanguageAndCurrency` /
+ * `interceptConfigValues`. `name_translated` is dropped alongside `name` so an
+ * unnamed brand stays unnamed regardless of the locale fallback.
+ *
+ * Attach BEFORE the navigation that boots the cart. Pair with
+ * `page.unrouteAll()` in `afterEach` so the route does not leak into later
+ * tests.
+ */
+export async function interceptBrandUnavailable(page: Page) {
+  await page.route("**/api/brand/settings**", async (route: Route) => {
+    const response = await route.fetch();
+    const json = await response.json();
+    delete json.data.name;
+    delete json.data.name_translated;
+    await route.fulfill({ response, json });
+  });
+}
+
 export async function interceptSlots(page: Page, slot: string) {
   page.route(`**/api/templates/client_area/slots/${slot}/render**`, route =>
     route.fulfill({

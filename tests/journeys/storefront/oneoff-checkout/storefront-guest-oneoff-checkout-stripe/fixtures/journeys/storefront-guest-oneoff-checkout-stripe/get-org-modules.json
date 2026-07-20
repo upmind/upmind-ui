@@ -1,0 +1,43 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/org/modules"
+  },
+  "response": {
+    "status": 200,
+    "headers": {},
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "mock-uuid-9",
+          "org_id": null,
+          "code": "web_hosting",
+          "name": "Hospedagem de sites",
+          "description": "This module makes it simple to manage and sell products to automatically provision services such as shared web hosting accounts, domain names and more",
+          "created_at": "2022-02-26 01:49:10",
+          "updated_at": "2022-02-26 01:49:10",
+          "deleted_at": null,
+          "pivot": {
+            "org_id": "mock-uuid-2",
+            "module_id": "mock-uuid-9",
+            "created_at": "2023-09-11 11:25:31",
+            "updated_at": "2023-09-11 11:25:31"
+          }
+        }
+      ],
+      "related": null,
+      "total": 1,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-06-01T00:00:00.000Z",
+  "brand_domain": "collab-studio.example.com",
+  "source": "journey",
+  "provenance": {
+    "journey": "storefront-guest-oneoff-checkout-stripe"
+  }
+}

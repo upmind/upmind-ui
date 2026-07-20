@@ -7,13 +7,13 @@ import {
   storePersister
 } from "../query";
 import { useI18n } from "../system-localisation";
-import type { QueryParams } from "../query";
 import {
   useTime,
   ErrorOrigin,
   responseCodes,
   DetailedError
 } from "../../utils";
+import type { QueryParams } from "../query";
 import type {
   IRegion,
   IStatus,

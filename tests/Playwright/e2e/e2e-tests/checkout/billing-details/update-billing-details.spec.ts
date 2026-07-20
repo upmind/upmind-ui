@@ -5,6 +5,7 @@ import { goToCheckout } from "../../../support/flows/checkout";
 import {
   addAddressViaHeadless,
   addBillingAddressViaHeadless,
+  addCompanyViaHeadless,
   getBasketAddressIdViaHeadless
 } from "../../../support/flows";
 import { waitForBillingUpdate } from "../../../support/helpers/checkout";
@@ -108,9 +109,12 @@ newUser.describe("New User - Billing Details at checkout", () => {
   */
 
 newUser.describe("Existing Address - Billing Details at checkout", () => {
-  // All tests below log in as Logins.checkoutUser, which is also used in
-  // login-registration/login.spec.ts. Serial mode prevents these tests from
-  // racing against each other on the same staging account.
+  // Each test registers its OWN fresh client via the `newUser` fixture — there
+  // is no shared staging account, so nothing races on shared server state. The
+  // "existing address/company" these tests edit is seeded per-test through the
+  // headless bridge (addBillingAddressViaHeadless / addCompanyViaHeadless).
+  // Serial mode is retained only to keep concurrent headless seeds from
+  // hammering the staging API.
   newUser.describe.configure({ mode: "serial" });
   newUser(
     "Existing Address - add new address at checkout",
@@ -141,8 +145,14 @@ newUser.describe("Existing Address - Billing Details at checkout", () => {
       // the order (PUT /orders/{id}), which fires afterwards. Wait for that order
       // PUT before reading the current address id, otherwise it is read stale.
       await billingUpdate;
-      let newAddress = await getBasketAddressIdViaHeadless(page);
-      expect(newAddress).not.toBe(currentAddress);
+      // The order PUT resolving does not guarantee the live-basket TanStack
+      // cache has refetched the committed address_id — basket.isRefreshed() can
+      // settle on the pre-PUT snapshot, so a single read can return the stale
+      // (pre-add, null) id. Poll the headless read until it reflects the newly
+      // committed address instead of reading once and racing the refetch.
+      await expect
+        .poll(() => getBasketAddressIdViaHeadless(page), { timeout: 15000 })
+        .not.toBe(currentAddress);
     }
   );
   newUser(
@@ -219,8 +229,24 @@ newUser.describe("Existing Address - Billing Details at checkout", () => {
         .getByTestId("input")
         .and(page.locator(`[data-test-value="properties-address-1"]`))
         .fill(newAddress);
+      // Assert the edit reaches the wire (FE-2985 mutation-chain rule, same
+      // debounce-race shape as FE-2784): the address PUT payload must carry the
+      // new street, so a stale pre-edit model fails at the request rather than
+      // silently passing the summary check.
+      const addressRequest = page.waitForRequest(
+        r =>
+          ["PUT", "PATCH"].includes(r.method()) &&
+          /\/clients\/[^/]+\/addresses\/[^/?]+/.test(r.url())
+      );
       await checkout.clickSaveDetails();
-      await expect(checkout.dialogWindow).toBeHidden();
+      expect(JSON.stringify((await addressRequest).postDataJSON())).toContain(
+        newAddress
+      );
+      // Saving an edited address returns to the address-selection list INSIDE
+      // the same dialog-window (radio cards + Continue), so the whole dialog
+      // stays open BY DESIGN — assert the edit FORM closed instead of the whole
+      // dialog (the analogous sibling company-edit fix, commit 5e745f0dc).
+      await expect(page.getByTestId("form-manage")).toBeHidden();
       // The address radio card carries no data-test-value (presence-only); the
       // edited street is carried in billing-summary-address's data-test-value.
       await expect(page.getByTestId("radio-card-item").first()).toBeVisible();
@@ -232,11 +258,42 @@ newUser.describe("Existing Address - Billing Details at checkout", () => {
       );
     }
   );
+  // Edit-company mirrors edit-address: the company-seed race is fixed
+  // (addCompanyViaHeadless drives the real useClientCompanyManager), the Edit
+  // link now carries data-test-key="link-edit" (CompanyItem.vue), and saving an
+  // edited company returns to the still-open business-details selection list and
+  // needs an explicit Continue click to collapse — the same designed asymmetry
+  // proven for edit vs add, asserted at the test layer below.
   newUser(
     "Edit existing company at checkout",
     async ({ page, checkout, clientId }) => {
       await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
-      await addBillingAddressViaHeadless(page, clientId, SEEDED_ADDRESS);
+      // The client needs (1) a billing address committed to the order and (2) a
+      // real company (with an id) to EDIT — otherwise link-edit opens an empty
+      // create form and the save hits the POST branch, never the PUT/PATCH the
+      // assertion below waits for.
+      //
+      // ONE address serves both: the company and the order billing share it.
+      // Seeding the same street twice 422s as a duplicate address, so we create
+      // it once and reuse its id. Seed the billing address FIRST, while the
+      // client still has zero addresses — addBillingAddressViaHeadless drives
+      // the address *manager*, whose SET is only valid on the schema's
+      // full-`address` branch (the branch a client takes until a default address
+      // exists; once one does the schema flips to require `addressId` and the
+      // manager SET rejects with a reactive XState state that cannot cross the
+      // page↔node bridge). Then reuse that id for the company: passing
+      // `addressId` puts the company schema on its `addressId` branch (a default
+      // address now exists), and the manager's add chain reuses that existing
+      // address instead of re-creating it.
+      const billingAddressId = await addBillingAddressViaHeadless(
+        page,
+        clientId,
+        SEEDED_ADDRESS
+      );
+      await addCompanyViaHeadless(page, clientId, {
+        name: fakerEN_GB.company.name(),
+        addressId: billingAddressId ?? undefined
+      });
       await page.getByTestId("link-change").click();
       await expect(checkout.billingCards).toBeVisible();
       await page.getByTestId("tab-business-details").click();
@@ -253,13 +310,29 @@ newUser.describe("Existing Address - Billing Details at checkout", () => {
         .getByTestId("input")
         .and(page.locator(`[data-test-value="properties-name"]`))
         .fill(newCompany);
+      // Assert the edited company reaches the wire (FE-2985 mutation-chain
+      // rule): the company update payload must carry the new name, so a stale
+      // model fails at the request rather than passing the summary check below.
+      const companyRequest = page.waitForRequest(
+        r =>
+          ["PUT", "PATCH"].includes(r.method()) &&
+          /\/clients\/[^/]+\/companies\/[^/?]+/.test(r.url())
+      );
       await checkout.clickSaveDetails("companies");
-      await expect(checkout.dialogWindow).toBeHidden();
-      // Saving the edited company commits it to the basket billing and the app
-      // returns to the checkout summary BY ITSELF — clicking Continue here
-      // raced that navigation (screenshot showed the summary already updated
-      // while the test hunted for the button). Assert the user-visible
-      // outcome directly: the summary carries the edited name.
+      expect(JSON.stringify((await companyRequest).postDataJSON())).toContain(
+        newCompany
+      );
+      // Saving an edited company returns to the business-details selection list
+      // INSIDE the same dialog-window (radio cards + Continue), so the whole
+      // dialog stays open BY DESIGN — only ADD collapses straight back to the
+      // billing summary; EDIT (company AND address alike) requires an explicit
+      // Continue click to commit and collapse. Assert the edit FORM closed
+      // instead of the whole dialog (mirrors the sibling address-edit flow).
+      await expect(page.getByTestId("form-manage")).toBeHidden();
+      // The company radio card carries no data-test-value (presence-only); the
+      // edited name is carried in billing-summary-company's data-test-value.
+      await expect(page.getByTestId("radio-card-item").first()).toBeVisible();
+      await page.getByTestId("button-continue").click();
       await expect(checkout.billingSummaryCompany).toBeVisible({
         timeout: 15000
       });

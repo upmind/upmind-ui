@@ -1,9 +1,9 @@
 /** @internal */
 import { BrandConfigKeys } from "@upmind-automation/types";
 import { useBrand } from "../brand";
+import { useQuery } from "../query";
 import { useActiveSession } from "../session-store";
 import { useI18n } from "../system-localisation";
-import { useQuery } from "../query";
 import {
   DetailedError,
   ErrorOrigin,

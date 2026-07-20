@@ -1,5 +1,5 @@
-import type { CustomField } from "../client-custom-fields";
 import type { ResponseError } from "../../utils";
+import type { CustomField } from "../client-custom-fields";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 

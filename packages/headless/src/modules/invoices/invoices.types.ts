@@ -1,8 +1,8 @@
 import type { FormattedDate } from "../../utils";
 import type { BasketProduct } from "../basket-product";
+import type { Client } from "../client";
 import type { Address } from "../client-address/client-address.types";
 import type { Currency } from "../currency/currency.types";
-import type { Client } from "../client";
 import type { InvoiceStatus } from "@upmind-automation/types";
 
 export enum PAYMENT_STATE {

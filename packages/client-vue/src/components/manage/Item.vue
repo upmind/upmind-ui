@@ -15,7 +15,7 @@
       <Link
         v-if="!props.readonly"
         :label="t('action.edit')"
-        :data-attrs="{ 'data-test-key': 'link-edit' }"
+        :dataAttrs="{ 'data-test-key': 'link-edit' }"
         size="sm"
         color="muted"
         tabindex="-1"

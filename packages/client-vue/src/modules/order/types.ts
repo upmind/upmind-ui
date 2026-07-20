@@ -1,5 +1,5 @@
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
 import type { StorefrontRoute } from "../../types";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 export { PAYMENT_STATE, type PaymentState } from "@upmind-automation/headless";
 

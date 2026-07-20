@@ -1,5 +1,5 @@
 // --- types
-import type { GatewayContext } from "../types";
+import type { GatewayContext } from "../payment-gateways.types";
 
 // -----------------------------------------------------------------------------
 

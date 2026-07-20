@@ -3,9 +3,9 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
-import { useActiveSession } from "../session-store";
 import { useBrand } from "../brand";
 import { dataManagerMachine } from "../data-manager";
+import { useActiveSession } from "../session-store";
 import { useProfileDetailsActions, useProfileDetailsGuards } from "./actions";
 import { useProfileDetailsServices } from "./client-personal-details.services";
 import {

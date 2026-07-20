@@ -6,9 +6,8 @@
  */
 
 import { map, slice, first, includes } from "lodash-es";
-import type { IAccount, IClient } from "@upmind-automation/types";
-import type { GrantTypes } from "@upmind-automation/types";
 import type { Account, Client } from "./";
+import type { IAccount, IClient } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 
 /**
