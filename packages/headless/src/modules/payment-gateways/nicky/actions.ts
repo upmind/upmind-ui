@@ -5,7 +5,7 @@ import { type AnyEventObject, assign } from "xstate";
 import { useSchema, useUischema } from "./schemas";
 
 // --- utils
-import { useModelParser } from "../../../../utils";
+import { useModelParser } from "../../../utils";
 
 // --- types
 import type { GatewayData } from "@upmind-automation/types";
