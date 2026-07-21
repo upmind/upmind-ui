@@ -114,7 +114,7 @@ function doPageFinish(el: Element, route: RouteLocation) {
 
 ## Related
 
-- [ADR 019: Shell State Architecture](../../../../../../docs/adr/019-shell-state-architecture.md)
+- [ADR 019: Shell State Architecture](../../../../../../docs/adr/030-shell-state-architecture.md)
 - [useLayout](../../layout/useLayout.ts)
 - [useHeader](../../header/useHeader.ts)
 - [useFooter](../../footer/useFooter.ts)

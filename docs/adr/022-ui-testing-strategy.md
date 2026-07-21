@@ -298,6 +298,16 @@ Append-only. The Proposed decision, the three-pronged stack, and the "visual reg
 
 ---
 
+## Implementation Status
+
+*As of July 2026.* **Proposed / partially in effect.**
+
+- **In effect:** the interim Playwright visual-regression suite runs on its own cadence (outside the ADR 021 30-min e2e ceiling); the "shared journey/page-object setup, gate on stable testid, freeze, `toHaveScreenshot`" convention and its pseudo-Nathan review-checklist enforcement are live.
+- **Not yet decided:** the permanent visual-diff tool (Open Question 1) — Playwright snapshots are the placeholder; the anti-drift amendment retires with them when the tool lands.
+- **Governed by ADR 029:** UI-layer test authoring is subject to the mechanical seat-separation + negative-control + gates-green≠correct doctrine ([ADR 029](./029-agent-plugin-seat-separation-and-anti-cosplay.md) / ADR 021 Amendment 2) — a component/vis-reg test that asserts only DOM presence (not real interaction/outcome) is a tautology under that doctrine.
+
+---
+
 ## Related Documents
 
 - [ADR 021: Testing Pyramid & Agentic Workflow](./021-testing-pyramid-and-agentic-workflow.md) — parent ADR.

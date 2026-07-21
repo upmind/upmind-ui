@@ -1,7 +1,7 @@
 # ADR 021: Testing Trophy, Agentic Workflow & Coverage Policy
 
 **Date:** May 2026
-**Status:** Accepted (Amended June 2026 — see [Amendments](#amendments))
+**Status:** Accepted (Amended June 2026 & July 2026 — see [Amendments](#amendments); Amendment 2 ratified with [ADR 029](./029-agent-plugin-seat-separation-and-anti-cosplay.md))
 **Authors:** Dominic da Costa
 **Supersedes:** [ADR 013: Testing Strategy](./013-testing-strategy.md)
 **Related:**
@@ -266,9 +266,9 @@ The reviewer's preference is stylistic, not structural. Defending it transparent
 
 ## Open items
 
-- **Future enforcement of "test-writer ≠ code-writer":** the principle is currently enforced at skill-level (each `code-test-*` skill forbids reading the implementation source under test when authoring assertions). A mechanical enforcement path — separate subagent invocations in `agent-run` / `sdd-tasks`, refusing to combine code-writing and test-authoring memory — is a follow-up to evaluate once the agentic harness supports subagent isolation primitives. Tracked in Linear when scoped.
+- ~~**Future enforcement of "test-writer ≠ code-writer":**~~ **CLOSED by [Amendment 2, Delta A](#amendment-2--mechanical-seat-separation--anti-cosplay-closure-july-2026) (July 2026)** — now mechanically enforced by the `upmind-agent` plugin's separate `developer`/`prover` seats + `seat-guard` + workflow-lint, per [ADR 029](./029-agent-plugin-seat-separation-and-anti-cosplay.md).
 - **Future skill: `test-pin-regression`** — a regression-pinning skill that takes `<bug-id> + <fix-commit>` and asserts a test exists that catches the bug. Out of scope for current rollout; scoped when needed.
-- **Mutation testing (Stryker on Vitest):** considered, deferred. Mutation testing earns its keep on mature, stable suites; we're building the suite from scratch. The active preventions of tautological tests are: Principle #3 (test-writer ≠ code-writer with skill-level rule), the `articulable production bug` filter, and PR review. If agentic tests become a measured quality concern (PR review repeatedly catches tautological agent-authored tests), evaluate Stryker on the `auth`/`session` modules at that point.
+- **Mutation testing (Stryker on Vitest):** considered, deferred *as a suite-wide programme*. **Superseded in part by [Amendment 2, Delta B](#amendment-2--mechanical-seat-separation--anti-cosplay-closure-july-2026) (July 2026):** rather than blanket Stryker, the plugin requires **targeted negative controls** — every gate ships committed known-bad mutants a CI lane proves go RED. This is the "active prevention of tautological tests" the original item asked for, scoped to gates rather than the whole suite. Blanket Stryker remains deferred on the same rationale.
 
 ---
 
@@ -327,3 +327,13 @@ Append-only. The Decision, layers, coverage policy, and layer ownership above ar
 **Delta D — Module scope-matrix loop.** EXTENDS the §Coverage policy scope-composables row; links [ADR 001](./001-scope-based-composables.md). Each scope-bearing module exports a matrix const enumerating user-types; its scope test LOOPS the const (add a user-type → red). Lives in per-module `__tests__/`, **NOT** the journey folder — re-anchors the Delta-A boundary.
 
 **Delta E — pointer hygiene.** §Implementation sequencing Step 3's `tests/Playwright/features/<flow>/` path is corrected to the co-located journey tree for cross-module verdicts; single-surface move-downs may stay on the legacy path until lazily migrated. Step 3 is amended, not redone.
+
+### Amendment 2 — Mechanical seat-separation & anti-cosplay closure (July 2026)
+
+> **Home:** [ADR 029: Agent Plugin — Seat Separation & Anti-Cosplay Enforcement](./029-agent-plugin-seat-separation-and-anti-cosplay.md) (ratified with ADR 029). The Trophy shape, coverage policy, and priority-ordered layer table are **untouched**; this amendment closes two open items and adds one doctrine. Prompted by the FE-2824 client-email "cosplay" incident.
+
+**Delta A — `test-writer ≠ code-writer` is now MECHANICALLY closed (was: Core principle / honour-system + Open item).** The principle stated in §Core principles is enforced by the `upmind-agent` plugin's dispatch structure and blocking hooks: separate `developer` and `prover`/`tester` seats, the prover fed the **contract** (ACs / spec) with the builder's implementation and hand-off withheld at dispatch (workflow-lint V4/V11 + `seat-guard`). Self-authored assertions are no longer possible by construction, not by request.
+
+**Delta B — Negative-control mutation protocol REPLACES "deferred Stryker" (see Open items).** Every gate/check ships ≥2 committed known-bad fixtures under `mutants/<ID>/<defect>/` (each holding `mutant.patch` + `target.test.js`); a CI lane applies each mutant, runs the targeted test, asserts it **FAILS**, then reverts. "A gate nobody has seen fail is not a gate." A capability whose only proof is a tautological (never-RED) assertion is not covered — this is precisely the FE-2824 `STAFF === STAFF` failure.
+
+**Delta C — gates-green ≠ correct (doctrine).** A green `typecheck`/`lint`/unit suite means type-consistent and style-clean, NOT that the capability is present. Delivery presence is a separate, fail-closed PRESENT/ABSENT verdict (`/code-verify`) graded against the ADR 001 actor×context parity oracle and the vue-app legacy — never against the new code's own tests. Half-landed = ABSENT.

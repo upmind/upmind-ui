@@ -100,7 +100,7 @@ Architectural decisions for the routing module are documented in the centralized
 
 | ADR                                                                                                       | Decision                                                                    | Status   |
 | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | -------- |
-| [019 — Shell State Architecture](../../../../../docs/adr/019-shell-state-architecture.md)                 | Shell component tracking to prevent cross-page layout bleed                 | Accepted |
+| [019 — Shell State Architecture](../../../../../docs/adr/030-shell-state-architecture.md)                 | Shell component tracking to prevent cross-page layout bleed                 | Accepted |
 | [018 — Funnel Reactive Watchers](../../../../../docs/adr/018-funnel-reactive-watchers.md)                 | Watcher subscription mechanism, subscribe vs watch, state tracking patterns | Accepted |
 | [017 — Funnel Navigation via State Meta](../../../../../docs/adr/017-funnel-navigation-via-state-meta.md) | Declarative meta-driven navigation                                          | Accepted |
 

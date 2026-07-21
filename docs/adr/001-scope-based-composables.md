@@ -432,6 +432,17 @@ The team agreed on a composable-focused playground:
 
 ---
 
+## Implementation Status
+
+*As of July 2026.* Adoption is **partial and in progress**, not complete.
+
+- **Reference implementations (pattern proven):** `auth/`, `session-store/`, and the `scope/` primitive itself carry the four-layer return + `createScopedComposable`.
+- **Pilot (this ADR's proving ground):** `client-email` was the first feature-module adoption (FE-2824). It exposed a critical failure mode now governed by [ADR 029](./029-agent-plugin-seat-separation-and-anti-cosplay.md): the scope *shape* can be present (actor matrix incl. `STAFF`, four-layer return) while an actor is **behaviourally unwired** — services hardwired the session's own client id and the `.for('client', id)` target was dropped, so the `staff` actor was cosmetic. **Correctness of a scope adoption is defined by the actor×context matrix behaving against the vue-app legacy — not by the matrix's mere existence.**
+- **Remaining feature modules:** conventional (pre-scope) composables; adoption is fanned out per-module (FE-2824 sub-epic), each gated by the parity oracle in ADR 029.
+- **Open (unchanged):** the direct-props vs four-layer sketch in this ADR is superseded by the four-layer return as canonical (see `scoped-composables` rule + the `auth/` reference); session-management architecture still TBD.
+
+---
+
 ## Meeting Notes Reference
 
 **Jan 20, 2026** — Dominic da Costa, Chris Garner, Dominik Piska, Rhodri Jones
