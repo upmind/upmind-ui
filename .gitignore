@@ -13,7 +13,11 @@ dist
 bin/pnpm
 bin/pnpx
 tsconfig.tsbuildinfo
-.claude/*
+# .claude is tracked (agent config, rules + companions, commands); runtime/personal bits are not
+.claude/.DS_Store
+.claude/settings.local.json
+.claude/tasks/
+.claude/worktrees/
 
 
 # Playwright
