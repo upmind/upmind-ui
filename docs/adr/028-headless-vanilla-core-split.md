@@ -1,9 +1,9 @@
 # ADR 028: Headless Vanilla Core Split (`headless` / `headless-vue` / `headless-svelte`)
 
 **Date:** July 16, 2026
-**Status:** Proposed
+**Status:** **Superseded (2026-07-20)** — the split is cancelled. A new Upmind API is being built ground-up as a separate project, which supersedes the vanilla-core rationale; `@upmind-automation/headless` stays Vue-coupled as-is. Linear FE-2997–3000 canceled; this ADR's design is retained as history. See `docs/plans/client-portal-execution-order.md` (pivot note). ADR 027's "headless going Vue-agnostic" ruling is reversed by this pivot.
 **Authors:** Dom da Costa
-**Updated:** July 17, 2026 — amended per review panel (docs/reviews/2026-07-16-headless-split-plan/review_panel_report.md); Status: Proposed (pending owner sign-off; both owner decisions — delivery/licensing and customer surface — resolved 2026-07-17, see §9).
+**History:** July 17, 2026 — amended per review panel (docs/reviews/2026-07-16-headless-split-plan/review_panel_report.md); both owner decisions (delivery/licensing, customer surface) resolved 2026-07-17, see §9. Then superseded 2026-07-20 (above).
 
 ---
 

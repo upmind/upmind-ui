@@ -127,4 +127,4 @@ DEBOUNCE_DELAY; // Delay before enabling transition
 
 - [Shell Tracking](../../components/shell/docs/README.md)
 - [Routing Engine](../../../../headless/src/modules/routing/docs/README.md)
-- [ADR 019: Shell State Architecture](../../../../../docs/adr/019-shell-state-architecture.md)
+- [ADR 019: Shell State Architecture](../../../../../docs/adr/030-shell-state-architecture.md)
