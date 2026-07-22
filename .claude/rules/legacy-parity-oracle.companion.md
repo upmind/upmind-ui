@@ -8,17 +8,12 @@ In this monorepo the oracle is **legacy application + recorded acceptance**: the
 
 ## The axis of variation
 
-The axis of behavioural variation is the **ADR-001 (Scope-Based Composable Architecture) actor × context** matrix. The parity table carries **one row per ADR-001 actor×context cell**. Cite ADR-001; do not restate it.
+The axis of behavioural variation is the **ADR-001 (Scope-Based Composable Architecture) actor × context** matrix. The parity table carries **one row per ADR-001 actor×context cell**. Cite ADR-001; do not restate it. ADR-001 itself presupposes the legacy-consultation discipline this rule structures — this rule is that discipline's structured form.
 
 ## The receipt
 
 The failure archetype in the base rule is **FE-2824**: the client-email pilot acquired the right shape (matrix entry, filenames, green tests) while `staff acting for a client` — a capability legacy plainly supported — was silently dropped, `.for('client', id)` removed, every gate green. Nobody was required to consult vue-app, so the drop went unnoticed.
 
-## Machinery (owned elsewhere)
+## The Dropped disposition binds to Linear
 
-- Machine-readable artifact: `docs/sdd/<ID>/parity.yaml` — one entry per ADR-001 cell, disposition enum, drop-token field. Template and emission owned by another package.
-- CI enforcement of cell coverage + disposition validity: `ci/lint-plan-compliance.mjs`.
-- The `Dropped-with-tracked-issue` disposition binds to **Linear** (`Dropped-with-Linear-issue`).
-- SDD-chain integration is out of scope for the current tranche.
-
-Reference these; do not build or define them here.
+The base rule's generic **`Dropped-with-tracked-issue`** disposition binds here to **Linear**: a dropped capability is recorded as **`Dropped-with-Linear-issue`**, carrying the Linear issue reference.

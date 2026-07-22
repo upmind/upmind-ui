@@ -1,65 +1,44 @@
-> Companion to [agent-labels.md](./agent-labels.md) — Upmind-monorepo-specific bindings/examples.
+> Companion to [agent-labels.md](./agent-labels.md) — Upmind-monorepo Linear bindings.
 
-The Upmind binding of the three-axis model onto **Linear**: label taxonomy, workflow statuses, the `pick-*` routines, the "agent never reviews" narrowing (ADR-029), and the migration map from the deprecated flat `agent:*` family. The base rule owns the axis doctrine; this companion owns the Linear-specific values verbatim.
+The base rule owns the axis doctrine, the routine roles (`pick-plan` / `pick-dev` / `pick-test` / `sdd-review`), the lifecycle shape, and the handoff invariants. This companion owns only the Linear-specific values: the label strings, the workflow statuses, the routine→status bindings, and the migration from the deprecated flat `agent:*` family.
 
-Supersedes the deprecated flat `agent:*` label family (`agent:plan`, `agent:dev`, `agent:review`, `agent:plan-review`, `agent:queued`, `agent:processing`, `agent:planned`, `agent:reviewed`, `agent:failed`, `🤖 agent`). See the migration map at the bottom.
+Supersedes the deprecated flat `agent:*` label family (`agent:plan`, `agent:dev`, `agent:review`, `agent:plan-review`, `agent:queued`, `agent:processing`, `agent:planned`, `agent:reviewed`, `agent:failed`, `🤖 agent`) — see the migration map at the bottom.
 
-## The three axes
+## Labels (Linear taxonomy)
 
-A story's agent state is three orthogonal labels plus its Linear **status** (workflow column). Never overload one axis to mean another.
+The three axes are realized as Linear issue labels:
 
-| Axis | Values | Means |
-| --- | --- | --- |
-| **`actor:`** | `AI` · `Human` | **Whose turn it is.** This is the gate. The agent runner only ever picks up `actor:AI` (scanning Backlog / Needs Refinement / Todo — see status below). `actor:Human` = the story is in the operator's lap (reviewing AI output, or unblocking a failed run). Also the permanent provenance marker — a story that has ever carried `actor:AI` was agent-touched. |
-| **`skill:`** | `Plan` · `Dev` | **What kind of build work.** `Plan` → write the SDD (routine `pick-plan`). `Dev` → implement the change, **including its tests and docs, with the suite green**, and open the MR (routine `pick-dev`). |
-| **`action:`** | `Review` · `Test` | **A discrete step on top of build work.** `Review` → a human reviews (plan or code — always human, never the agent). `Test` → an **opt-in** dedicated test pass (run / triage / quarantine), attached only when a story needs more than dev's own green-check (routine `pick-test`). |
+- **`actor:`** — `actor:AI` · `actor:Human`
+- **`skill:`** — `skill:Plan` · `skill:Dev`
+- **`action:`** — `action:Review` · `action:Test`
 
-Status (workflow column) carries lifecycle — it is **not** a label. The agent's **intake pool** is `actor:AI` in **Backlog**, **Needs Refinement**, or **Todo** (a plan can be labelled for the agent at any of these stages). **When the agent claims a story it moves it to Todo** (staged for this run), then to **In Progress** while actively working, then hands off to **Needs Review** or, on a stall, **Blocked** — **Done** is the human-only terminal.
+Preserve the non-agent labels (area, priority, provenance, releases) on every write: Linear `save_issue`'s `labels` **replaces the whole set**, so always `get_issue` → compute → `save_issue` (the base's read → compute → write invariant).
+
+## Statuses (Linear workflow columns) and the lifecycle mapping
+
+The base's generic stages map onto these Linear statuses:
+
+| Base stage | Linear status |
+| --- | --- |
+| intake pool (`actor:AI`, fair game) | **Backlog**, **Needs Refinement**, or **Todo** (a plan can be labelled for the agent at any of these) |
+| claimed / staged | **Todo** |
+| working | **In Progress** |
+| handed to human — review | **Needs Review** |
+| handed to human — stall | **Blocked** |
+| terminal (human-only) | **Done** (also terminal: **Deployed**, **Canceled**) |
 
 ```text
 Backlog / Needs Refinement / Todo   →   Todo        →   In Progress   →   Needs Review / Blocked   →   Done
    (intake: actor:AI, fair game)     (claimed/staged)   (working)          (handed to human)          (human only)
 ```
 
-> **There is no agent review routine.** Both plan review and code review are always `actor:Human` + `action:Review`. The agent never reviews. (The `action:Review` label's stock description mentions a `pick-review` routine — that predates this decision and is not used here.)
->
-> **Amendment (2026-07-20, ADR-029 pending ratification):** "the agent never reviews" is narrowed to "the agent never emits the review **verdict**". Reviewer/verifier seats defined in `agents/` (per rules/seat-separation.md) may **pre-gate** — block a story from reaching Needs Review — but may **never** emit the `actor:Human` review verdict. The only `actor:Human`→`actor:AI` transition remains the human-authored review verdict.
->
-> **There is no `action:Docs`.** Docs are written inside `skill:Dev` and reviewed inside the normal human `action:Review`. You don't "run" docs, so docs have no execution gate — unlike tests.
+"Queued" / "processing" are **not** labels — they are the **Todo** and **In Progress** columns.
 
-## The lifecycle
+## Runner query and routine → status bindings
 
-```text
-        ┌─────────────────────── operator sets ───────────────────────┐
-        │  actor:AI + skill:Plan  (Backlog / Needs Refinement / Todo)  │
-        ▼                                                              │
-  [pick-plan] agent claims → moves to Todo → In Progress, writes SDD  │
-        │                                                              │
-        ▼  hand back                                                   │
-  actor:Human + skill:Plan + action:Review  (Todo → your lane)         │
-        │                                                              │
-  you run /sdd-review ── In Progress                                   │
-        ├── approve →  actor:AI + skill:Dev            (Todo) ─────────┤
-        └── reject  →  actor:AI + skill:Plan + notes   (Todo) ─────────┘
-                                                                        
-  [pick-dev] agent implements code + tests + docs, greens suite,       
-            opens MR ── In Progress                                    
-        │                                                              
-        ├── (optional) actor:AI + action:Test ── dedicated test pass   
-        │                                                              
-        ▼  hand back                                                   
-  actor:Human + action:Review  (Needs Review → your lane)              
-        │                                                              
-  you review the code ── In Progress                                   
-        ├── approve →  Done            (human-only)                    
-        └── reject  →  actor:AI + skill:Dev  (Todo)  → back to pick-dev 
-                                                                        
-  any failure at any agent step →  actor:Human  (Blocked)              
-```
+The runner scans `actor:AI` in **Backlog**, **Needs Refinement**, or **Todo**, routed by the work label (`skill:Plan` → `pick-plan`, `skill:Dev` → `pick-dev`, `action:Test` → `pick-test`). On claim it moves the story to **Todo** (staged), then **In Progress** when work begins. It **ignores** anything `actor:Human`, anything already **In Progress** / **Needs Review** / **Blocked**, and any terminal status (**Done**, **Deployed**, **Canceled**).
 
-### Handoff rules (exact transitions)
-
-Every handoff **flips `actor:`** and **moves the status column**. Linear `save_issue`'s `labels` replaces the whole set — always `get_issue` → compute → `save_issue`, preserving non-agent labels (area, priority, provenance, releases).
+Exact transitions (every handoff flips `actor:` and moves the column):
 
 | At | From | To | Status |
 | --- | --- | --- | --- |
@@ -76,15 +55,9 @@ Every handoff **flips `actor:`** and **moves the status column**. Linear `save_i
 | Any agent failure | `actor:AI` + `*` | `actor:Human` + *(work label kept)* | → Blocked |
 | Opt-in test pass | `actor:AI` + `action:Test` | `actor:Human` on completion/failure | In Progress → Needs Review / Blocked |
 
-## What the agent runner picks up
+Plan review is the human `/sdd-review` skill; code review is the human reading the MR. The `action:Review` label's stock description mentions a `pick-review` routine — that predates this decision and is **not** used here.
 
-Query: `actor:AI` in **Backlog**, **Needs Refinement**, or **Todo**, routed by the work label:
-
-- `actor:AI` + `skill:Plan` → `pick-plan`
-- `actor:AI` + `skill:Dev` → `pick-dev`
-- `actor:AI` + `action:Test` → `pick-test` (opt-in)
-
-On claim, the story is **moved to Todo** (staged), then to **In Progress** when work begins. Rejects and hand-backs re-enter as `actor:AI` in Todo, so they're picked up on the next pass. The runner **ignores** anything `actor:Human` (not its turn), anything already **In Progress** / **Needs Review** / **Blocked**, and any terminal status (**Done**, **Deployed**, **Canceled**). "Queued"/"processing" are not labels — they are the Todo and In Progress columns.
+**ADR-029 (2026-07-20, pending ratification):** the base's "the agent never emits the review **verdict**" law is the ratified narrowing of the earlier "the agent never reviews". Reviewer/verifier seats defined in `agents/` (per `rules/seat-separation.md`) may pre-gate a story out of **Needs Review** but never emit the `actor:Human` review verdict; the only `actor:Human` → `actor:AI` transition remains the human-authored verdict.
 
 ## Migration map (deprecated `agent:*` → this model)
 

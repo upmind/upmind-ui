@@ -11,7 +11,3 @@ Same concept, one name everywhere: always `storeUrl`, never sometimes `storefron
 ## Enum vs registration example
 
 A template defined in the `SESSION_TEMPLATE` enum is **not** necessarily registered in `supportedTemplates` (the whitelist the `.vue` session pages actually accept). Always check both — Appendix B must cross-reference enum values against `supportedTemplates`.
-
-## Audit slug example
-
-A real source slug: `cart-2.0-notion-docs-review`.

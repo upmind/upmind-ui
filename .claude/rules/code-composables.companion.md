@@ -4,7 +4,6 @@
 
 - The architectural rationale for the scoped pattern is [ADR-001: Scope-Based Composables](../../docs/adr/001-scope-based-composables.md) — cite it, never restate it.
 - **Reference implementation (scoped):** `packages/headless/src/modules/auth/` is the canonical example.
-- Scoped work uses the `/code-scoped-composable` workflow.
 
 ## Exemplars (Pre-Generation Requirement)
 

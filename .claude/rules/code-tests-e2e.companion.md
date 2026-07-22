@@ -23,10 +23,9 @@ Where this rule and the ADRs disagree, the ADR wins. Track the tension by its T-
 | **T5** | Visual regression is Playwright today; future tool is open. | ADR 022 — don't add new visual coverage until tool decision lands. |
 | **T6** | Cucumber/Gherkin runner was on the table; deferred. | ADR 020 — don't add `@cucumber/cucumber`. `.feature` files stay non-executable. |
 
-## Field guide, subagent, and doc paths
+## Field guide and doc paths
 
-- The base rule distils the load-bearing principles of [`tests/Playwright/docs/12-pseudo-nathan.md`](../../tests/Playwright/docs/12-pseudo-nathan.md) — the full evidence + worked examples live there, per-principle anchors `#p1`…`#p9` and the tensions section `#7`.
-- **Subagent:** [pseudo-nathan.md](../agents/pseudo-nathan.md) is the auto-dispatched e2e reviewer.
+- The base rule distils the load-bearing principles of [`tests/Playwright/docs/12-pseudo-nathan.md`](../../tests/Playwright/docs/12-pseudo-nathan.md) — the full evidence + worked examples live there, per-principle anchors `#p1`…`#p9` and the tensions section `#7`. (This monorepo field-guide doc is distinct from the base rule's `pseudo-nathan` reviewer seat at `../agents/pseudo-nathan.md`.)
 - **Workflow:** [code-test-e2e.md](../workflows/code-test-e2e.md) (Gherkin → `.spec.ts`).
 - The e2e support tree is rooted at `tests/Playwright/e2e/support/`; specs at `tests/Playwright/e2e/e2e-tests/**`; features at `tests/Playwright/features/**`. The base rule's generic `support/` directory table maps 1:1 onto these paths.
 - Failure screenshots are auto-saved under `test-output/test-results/**/test-failed-1.png` in this repo.
@@ -50,12 +49,6 @@ The concrete label-derived-fallback offenders are `Button.ce.vue:8`, `Link.ce.vu
 ## Sanctioned test-mode divergence
 
 The single sanctioned PROD-path divergence is the **FE-2865 `useTestAttrs`** carve-out (enforced by `ci/lint-scope-purity.mjs`) — the mechanism that strips `data-test-*` in production while keeping them in test mode.
-
-## Receipts (provenance)
-
-- **P5 / setup pattern:** FE-1365's 97 failures were the receipt for hand-rolled-HTTP shadow setup.
-- **P9 / testid contract:** FE-2874 — 283 violations across 53 files that passed in English and silently timed out across the 28-locale visual-regression matrix. Repeat offenders: add-to-basket, the login submit button, the gateway radio-cards, the "show more options" expander (FE-2854).
-- **Mutation chain:** FE-2784 — (a) a round-trip address edit showed the OLD address; the failure screenshot + trace Network tab showed the PUT carried the stale body (a `DEBOUNCE_DELAY = 350ms` debounced-input race), mis-theorised as a cache bug for hours because nobody opened them. (b) an add-company test "silently didn't save" — the auto-saved screenshot showed the drawer's "Your address is required" validation error directly; grepping logs never surfaced it.
 
 ## Canonical route-cleanup example
 
