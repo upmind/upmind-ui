@@ -19,3 +19,7 @@ Machine-readable bindings `ci/docs-corpus-gate.mjs` reads from this companion (r
 - capability-globs: docs/reference/**/*.md,**/README.md,**/foundation.md
 - a7-url-pattern: \b(?:recordedRequest|capturedRequest|outbound|sentRequest|request|req)\b[^\n;]*\.url\b
 - a7-auth-pattern: \b(?:authorization|x-acting-as|acting[-_]?as|actingAs|sessionToken|session[-_]?token)\b
+
+## Gate bindings (docs-corpus-gate.mjs)
+
+- adrImplStatus: 001,022
