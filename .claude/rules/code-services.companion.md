@@ -2,10 +2,17 @@
 
 ## Actor set
 
-The base rule's generic "user / admin" split is, in this monorepo, the **`ScopeActorTypes`** actor set: `ScopeActorTypes.CLIENT` and `ScopeActorTypes.STAFF` (the guest/anonymous actor also flows through the same scoped-service machinery). Wherever the base says `ActorTypes`, read `ScopeActorTypes`; wherever it says `AccessRoleTypes` in a permission guard, use the repo's `AccessRoleTypes` enum.
+The base rule's generic "user / admin" split is, in this monorepo, the **`ScopeActorTypes`** actor set: `ScopeActorTypes.CLIENT` and `ScopeActorTypes.STAFF` (the guest/anonymous actor also flows through the same scoped-service machinery).
 
-- User → `ScopeActorTypes.CLIENT`
-- Admin/privileged → `ScopeActorTypes.STAFF`
+The base writes a single generic `ActorTypes` at every site, but it resolves to **two different repo enums** depending on where it appears — disambiguate by site so the two mappings never collapse into one:
+
+- **Factory / scoping** — the `scopedServices` factory and the machine-services wiring → **`ScopeActorTypes`**. So the base's `ActorTypes.USER` / `ActorTypes.ADMIN` inside `scopedServices` read as `ScopeActorTypes.CLIENT` / `ScopeActorTypes.STAFF`.
+- **Permission guards / actor-check branches** — e.g. the `deleteInvoice` guard (criterion 5) and the `updateItem` branch (Pattern 2) → **`AccessRoleTypes`**. So the base's `ActorTypes.ADMIN` in those guards reads as `AccessRoleTypes.STAFF`.
+
+Actor mapping (both enums expose the same CLIENT/STAFF members):
+
+- User → `.CLIENT`
+- Admin/privileged → `.STAFF`
 
 ## Grant types
 

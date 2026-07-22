@@ -8,10 +8,6 @@ The receipt is FE-2824. Right shape, right filenames, green tests, zero new capa
 
 The whole FE-2824 failure class exists because gates that grade structure can be satisfied without delivering capability.
 
-## The ban — story-review binding
-
-This is the same ban the live story-review Step 2b already carries ("typecheck green / tests pass must never be reported as correctness verified"); the base rule is consistent with it, not a replacement for it.
-
 ## ADR binding
 
 This is the correctness-coverage discipline of ADR-021 (Testing Trophy, Agentic Workflow & Coverage Policy). Cite ADR-021; do not restate it.

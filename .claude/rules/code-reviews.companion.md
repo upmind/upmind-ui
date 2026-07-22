@@ -15,8 +15,6 @@ The base pointer block reads generically; in this monorepo it binds to:
 
 The module-structure example uses real Upmind file types: `AuthPage.vue`, `auth.styles.ts` (CVA styles), `auth.machine.ts` (XState).
 
-## Review Depth Tiers — `/core-review` + thresholds
+## Review Depth Tiers — escalation thresholds
 
-The review machinery (finder fan-out at Step 5b, CONFIRMED/PLAUSIBLE/REFUTED verification at 5c, gap sweep at 5d, per-phase model pins) is defined once in **`/core-review`**; this doc only sets defaults. Models per phase are pinned by `/core-review` per `agent-token-budget.md`.
-
-**Escalate `high` → `xhigh`** when the diff is **> 8 files, > 300 lines, or > 2 modules**, or when a behaviour-bearing module in the diff lacks unit tests (thresholds provisional — tune against real MRs).
+**Escalate `high` → `xhigh`** when the diff is **> 8 files, > 300 lines, or > 2 modules**, or when a behaviour-bearing module in the diff lacks unit tests (thresholds provisional — tune against real MRs); the machinery + model pins live in `/core-review` per `agent-token-budget.md`.
