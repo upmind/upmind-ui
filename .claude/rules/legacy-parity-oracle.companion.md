@@ -17,3 +17,9 @@ The failure archetype in the base rule is **FE-2824**: the client-email pilot ac
 ## The Dropped disposition binds to Linear
 
 The base rule's generic **`Dropped-with-tracked-issue`** disposition binds here to **Linear**: a dropped capability is recorded as **`Dropped-with-Linear-issue`**, carrying the Linear issue reference.
+
+## Gate bindings (lint-plan-compliance.mjs)
+
+Machine-readable bindings `ci/lint-plan-compliance.mjs` reads from this companion (resolved via `git rev-parse --show-toplevel` → `.claude/rules/`, mirroring `hooks/seat-guard.sh`). No env-var channel exists; absent this section the gate uses its generic default (the tracker is named "issue tracker" in messages only). This binds the tracker name the drop-disposition messages cite.
+
+- issue-tracker: Linear

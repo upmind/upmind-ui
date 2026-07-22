@@ -40,3 +40,10 @@ const total = reduce(items, (sum, item) => sum + item.price, 0);
 **Prefer one traversal, and mutating utilities over immutable chains.** Each lodash call is a full pass — deriving subsets with `filter` + `reject` + `map` loops the same array repeatedly. Use a single `remove(arr, predicate)` (mutates in place, returns the pulled items) so one call yields both subsets; at worst one `reduce`/`forEach`. Side effects inline in an `assign` are idiomatic here (precedent: `setAuthHelper`).
 
 **Exception:** Do NOT use `lodash.get` for state/context access — use the Upmind state-read utilities instead (see `code-xstate.md`).
+
+## Gate bindings (graphify-gate.sh)
+
+Machine-readable bindings `hooks/graphify-gate.sh` reads from this companion (resolved via `git rev-parse --show-toplevel` → `.claude/rules/`, exactly like `hooks/seat-guard.sh`). No env-var channel exists. This section is what ACTIVATES the graphify gate: absent it (or absent a `citation-pattern`) the gate is INACTIVE and exits 0 for every write. With it present, a Write/Edit of a public-surface file (or one introducing an exported enum) is denied unless the content carries the citation substring.
+
+- citation-pattern: graphify-out/
+- public-surface-globs: *.types.ts
