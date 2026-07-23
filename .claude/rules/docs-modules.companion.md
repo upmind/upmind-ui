@@ -6,7 +6,7 @@
 
 - The rebuild deliverable is the **Contabo workshop** (per-module foundation doc, SDD, build-your-own guide).
 - The audience does not know **Upmind**.
-- Workflows: `/story-docs` (defines *when*), `/docs-module` and `/docs-module-review`.
+- Workflows: `/story-docs` (defines *when*), `/docs-module` and `/docs-review` (module/foundation lane).
 
 ## Paths
 

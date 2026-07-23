@@ -7,7 +7,6 @@
 - **Base branch** (worktree diff base): `develop`.
 - **Issue-branch pattern** (worktree auto-detection grep): `feature/FE-XXXX`
   (issue-tracker ids of the form `FE-<n>`); e.g. `/story-docs FE-2476`.
-- **Doc import path** (README Quick Start template): `@upmind-automation/headless`.
 
 ## Bound commands
 
