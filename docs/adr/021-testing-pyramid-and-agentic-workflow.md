@@ -206,7 +206,7 @@ Verify blocks progression to review. A failing layer is a failed exit criterion.
 
 ### Document
 
-- `story-docs`, `docs-module`, `docs-module-review`, `guide-create`
+- `story-docs`, `docs-module`, `docs-review`, `docs-guide`
 - Mostly derivation from code + Gherkin, not creative authoring
 
 ---
