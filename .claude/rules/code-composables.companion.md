@@ -3,7 +3,7 @@
 ## Decision record & reference implementation
 
 - The architectural rationale for the scoped pattern is [ADR-001: Scope-Based Composables](../../docs/adr/001-scope-based-composables.md) — cite it, never restate it.
-- **Reference implementation (scoped):** `packages/headless/src/modules/auth/` is the canonical example.
+- **Reference implementation (scoped):** `useAuth` at `packages/headless/src/modules/auth/` is the canonical example. **Read it first** — before writing or reviewing any scoped composable — and where any doc's template and the canonical disagree, the canonical wins.
 
 ## Exemplars (Pre-Generation Requirement)
 
@@ -18,8 +18,8 @@
 - **Scoped factory:** `createScopedComposable<ReturnType, Matrix>(...)`.
 - **Scope-key generator:** `generateScopeKey("module-name", { ...config, actor: actorScope })`.
 - **Scope matrix example:** `AUTH_SCOPE_MATRIX`.
-- **Actor-specific files** are `.client.ts` / `.staff.ts`, with factories `createStaffModuleContext` / `createClientModuleContext` (same for actions and meta).
-- **Type exports** use the actor names: `export type ClientModuleContext`, `export type StaffModuleContext`.
+- **Per-actor arm bindings:** services `auth.services.client.ts` / `auth.services.guest.ts` / `auth.services.staff.ts` (resolved by `scopedServices` in `auth.services.ts`); actions `useAuth.actions.client.ts` / `useAuth.actions.staff.ts` (merged by spread in `useAuth.actions.ts` — the tree's only actions split); meta/context are single factories today (`createAuthMeta` / `createAuthContext`) — no `.meta.{actor}.ts` / `.context.{actor}.ts` exists in the tree yet. Type exports: `UseAuthActions` / `UseAuthContext` / `UseAuthMeta` = `ReturnType` of the factories.
+- **Union-health receipt:** `registerAsGuest` is implemented only in `auth.services.client.ts` — the services-arm divergence behind the optional `AuthServices.registerAsGuest` in `auth.types.ts` and the `registerAsGuest!` assertion in `auth.services.ts`; the client actions arm (`useAuth.actions.client.ts`, sends `GUEST`) makes `UseAuthActions` key-incompatible across arms.
 
 ## TanStack Query worked examples
 
