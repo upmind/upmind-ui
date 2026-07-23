@@ -1,8 +1,11 @@
 > Companion to the upmind-agent skill /code-scoped-composable — Upmind-monorepo-specific bindings/overrides.
 
+**Read the canonical first:** `useAuth` at `packages/headless/src/modules/auth/` — end-to-end, before scaffolding anything. It is the authority on where actor variance lives; where the base workflow's templates and the canonical disagree, the canonical wins.
+
 ## Actor model
 
-- Actor enum (`ActorType` in the base): **`AccessRoleTypes`**, whose members are the actor set **`GUEST`, `CLIENT`, `STAFF`**. Create per-actor variants (`.services.{actor}.ts`, `.actions.{actor}.ts`, `.context.{actor}.ts`, `.meta.{actor}.ts`) for exactly these.
+- Actor enum (`ActorType` in the base): **`AccessRoleTypes`**, whose members are the actor set **`GUEST`, `CLIENT`, `STAFF`**.
+- Per-actor arm bindings in the canonical: services `auth.services.client.ts` / `auth.services.guest.ts` / `auth.services.staff.ts`; actions `useAuth.actions.client.ts` / `useAuth.actions.staff.ts` (the tree's only actions split); context and meta are single factories today (`createAuthContext` in `useAuth.context.ts`, `createAuthMeta` in `useAuth.meta.ts`) — no per-actor meta/context file exists in the tree yet.
 - Actor-scope enum (`ActorScope` in the base): **`ScopeActorTypes`**; `ScopeActorTypes.SELF` resolves to `activeActor.value`.
 - Base Step 5 service matrix binds concretely to:
 
@@ -16,7 +19,7 @@
   ```
 
   `DEFAULT` maps to `clientServices`.
-- Base Step 7 actions union example binds to: `UseModuleActions = ClientActions | StaffActions`.
+- Base Step 7 actions type export binds to the canonical's merged shape: `UseAuthActions = ReturnType<typeof createAuthActions>` (`useAuth.actions.ts`), actor arm spread into the shared return. The live union-health receipt (`registerAsGuest`) is bound in `code-composables.companion.md`.
 
 ## Paths
 
