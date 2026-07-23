@@ -1,4 +1,4 @@
-> Companion to the upmind-agent skill /release-notes — Upmind-monorepo-specific bindings/overrides.
+> Companion to the upmind-agent skill /docs-release-notes — Upmind-monorepo-specific bindings/overrides.
 
 Binds the base skill's generic placeholders (issue tracker, git host, issue-ID pattern, app/tag names, `<NOISE_EXCLUDE>`, output directory) to this repo's concrete values. The base doctrine is authoritative; this file only supplies the values.
 

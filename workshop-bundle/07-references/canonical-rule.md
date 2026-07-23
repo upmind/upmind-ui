@@ -7,7 +7,7 @@ paths:
 
 # Module Documentation Rules
 
-These rules apply to per-module reference documentation produced for the Contabo workshop and equivalent deliverables. They sit alongside `docs-writing.md` (general writing standard) and `docs-reviews.md` (review standard). Use with the `/docs-module` and `/docs-module-review` workflows.
+These rules apply to per-module reference documentation produced for the Contabo workshop and equivalent deliverables. They sit alongside `docs-writing.md` (general writing standard) and `docs-reviews.md` (review standard). Use with the `/docs-module` and `/docs-review` workflows.
 
 > **Audience**: architects and senior developers rebuilding the platform in a different language or stack. They know how to build software; they don't know Upmind. They are NOT consumers of our existing client code.
 
