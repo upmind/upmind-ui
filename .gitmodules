@@ -10,3 +10,7 @@
 [submodule "apps/hosting"]
 	path = apps/hosting
 	url = git@git.upmind.io:upmind/groups/frontend-team/hosting.com-checkout.git
+[submodule "docs/published-docs"]
+	path = docs/published-docs
+	url = git@github.com:upmind/mintlify-docs.git
+	branch = develop

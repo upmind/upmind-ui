@@ -3,7 +3,11 @@
 **Date:** May 2026
 **Status:** Accepted
 **Authors:** Dominic da Costa
-**Related:** [.agent/rules/docs-modules.md](../../.agent/rules/docs-modules.md) — living canonical rule
+**Related:** the `docs-modules` agent-plugin rule + [`.claude/rules/docs-modules.companion.md`](../../.claude/rules/docs-modules.companion.md) — living canonical rule
+
+---
+
+> **Amendment (2026-07-24, FE-2752 AC6):** Line 26's required-section label "Gotchas" is renamed **"Lessons (hard-won)"** — "Lessons" wins per the `docs-modules` rule's `### Lessons (hard-won) [REQUIRED]` section; the corpus schema and emitter (FE-2752) use only the `lessons` label, never "gotchas". Separately, the `Related` pointer above is corrected: `.agent/rules/docs-modules.md` does not exist in this checkout — the live rule is the agent-plugin `docs-modules` rule plus `.claude/rules/docs-modules.companion.md`.
 
 ---
 
@@ -23,7 +27,7 @@ Seven decisions locked at the time of approval:
 
 Module docs omit sections that don't apply (no `n/a` filler), but when a section appears it uses the canonical name in the canonical order. Some sections are required for every module; others are optional based on the module's nature.
 
-- **Required** (every module doc): What it is · Operations · Data shape · Dependencies · API endpoints · Gotchas
+- **Required** (every module doc): What it is · Operations · Data shape · Dependencies · API endpoints · Lessons (hard-won)
 - **Optional** (use these names when present): Core concepts · State model · Side effects · Coordination · Flows
 
 ### 2. API endpoints included in module docs
@@ -63,6 +67,6 @@ Added between Side effects and Flows. Documents helpers, subscriptions, sequenci
 
 ## Where the live version lives
 
-[`.agent/rules/docs-modules.md`](../../.agent/rules/docs-modules.md) is the authoritative current rule. It has been sharpened across 7 review cycles with additional guidance: meta-note conditional, producer-side strip list, sibling-module scope boundaries, dependants table direction, capability count overflow guidance, and three lesson-pattern examples. Refer to that file when writing or reviewing docs.
+The `docs-modules` agent-plugin rule plus [`.claude/rules/docs-modules.companion.md`](../../.claude/rules/docs-modules.companion.md) are the authoritative current rule (`.agent/rules/docs-modules.md` does not exist in this checkout). It has been sharpened across 7 review cycles with additional guidance: meta-note conditional, producer-side strip list, sibling-module scope boundaries, dependants table direction, capability count overflow guidance, and three lesson-pattern examples. Refer to that rule when writing or reviewing docs.
 
 This ADR holds the *why*. The rule holds the *how*.

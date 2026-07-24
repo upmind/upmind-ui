@@ -27,7 +27,7 @@ This script:
   - Writes graphify-out/.graphify_ast_resolved.json.
 
 Run from monorepo root:
-  python3 .agent/scripts/graphify/resolver.py
+  python3 .claude/scripts/graphify/resolver.py
 """
 from __future__ import annotations
 

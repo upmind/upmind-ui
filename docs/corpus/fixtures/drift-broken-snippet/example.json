@@ -1,0 +1,8 @@
+{
+  "description": "The corpus `examples` entry the gate:examples selftest injects (FE-2752 bdd B7). `codeFile` points at the sibling snippet.ts; the selftest reads it into the entry's `code`, clones the real corpus.json with this entry added, runs gate:examples, and asserts exit 1 naming the example id and the missing export in `expectFinding`. corpus.json is backed up and restored unconditionally.",
+  "id": "example:fe2752-broken-snippet",
+  "title": "FE-2752 negative control — snippet importing a non-existent export",
+  "lang": "ts",
+  "codeFile": "snippet.ts",
+  "expectFinding": "__upmind_fe2752_nonexistent_export__"
+}

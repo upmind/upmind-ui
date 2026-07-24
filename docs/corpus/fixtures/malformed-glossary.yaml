@@ -1,0 +1,24 @@
+# docs/corpus/fixtures/malformed-glossary.yaml
+#
+# Negative-control fixture — FE-2752 T5 (prover seat).
+#
+# Swapped in for docs/corpus/glossary.yaml for the duration of
+# build.selftest.mjs's "red-malformed-glossary-fails-build" case, then
+# restored unconditionally. One entry whose `referents` field violates the
+# design §5.5 / corpus.types.ts `GlossaryTerm` shape (`referents` must be a
+# non-empty array of `{type, id}` records) — `build.mjs` is documented
+# (design §7.1 corpus:build "Fails when" row: "glossary parse error";
+# tasks.md T3 action 1: "compile glossary.yaml → glossary.terms failing on
+# malformed entries") to reject a malformed glossary entry at build time
+# rather than silently compiling it into corpus.glossary.terms.
+#
+# This is deliberately a single-entry glossary — build.mjs's own validation
+# is glossary *shape* (missing/mistyped fields), not referent *resolution*
+# (that's gate:symbols' job, 3003-AC2, out of this task's scope).
+basket:
+  term: basket
+  kind: domain
+  aliases: [cart]
+  definition: >-
+    Malformed entry for negative-control probing — referents is not an array.
+  referents: "not-an-array"

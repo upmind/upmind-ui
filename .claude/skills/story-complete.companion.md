@@ -27,3 +27,13 @@ The `id` is Linear's internal issue UUID; the human `FE-XXXX` id resolves to it 
 ## Change-request host (Step 5)
 
 Step 5 delegates change-request creation to `/mr-create`; the git-host binding (GitLab, project identifier, target-branch detection: `release/*` → `develop`) lives in `/mr-create`'s own companion. Do not re-bind it here.
+
+## Docs-corpus refresh — final step (replaces the removed PostToolUse hook, FE-2752)
+
+The FE-2752 PostToolUse `docs-corpus-refresh` hook was removed: keeping the corpus in sync with the code is a completion **step**, not a per-tool trigger. On story completion, if the story touched `packages/*/src` or `docs/`, run the refresh as a final step and commit the result with the story:
+
+```bash
+pnpm --filter docs corpus:refresh   # corpus:build (corpus.json) && corpus:emit
+```
+
+Commit the regenerated `docs/corpus/corpus.json`. NOTE: `corpus:emit` writes the rendered tree into the `docs/published-docs` submodule; committing/pushing that tree — and re-enabling the (currently paused) docs-corpus CI — is gated on the mintlify-docs bot PAT (FE-2949). Until then this keeps `corpus.json` current in-repo.

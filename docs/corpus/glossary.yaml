@@ -1,0 +1,144 @@
+# docs/corpus/glossary.yaml
+#
+# Hand-authored glossary source (FE-3003 corpus slice, design §5.5). This is the
+# ONLY hand-authored file under docs/corpus/ and is explicitly excluded from the
+# machine-owned manifest (design §8.1) — it encodes human intent, so a referent
+# that no longer resolves FAILS CI rather than being pruned (design §5.3, 3003-AC2).
+#
+# One entry per term. Compiled by build.mjs into corpus.glossary.terms (keyed by
+# slug); every referent `id` must resolve in corpus.index.
+#
+# Format (design §5.5):
+#   <slug>:
+#     term: <canonical name>
+#     kind: domain | system
+#     aliases: [ ... ]
+#     definition: <one short paragraph>
+#     referents:
+#       - { type: symbol | guide | adr | example, id: <CorpusId> }
+#
+# Referent id conventions (corpus.types.ts):
+#   symbol -> "@upmind-automation/headless!<export>"   (TypeDoc pkg!export)
+#   adr    -> "adr:<basename-without-extension>"
+#
+# Seed (~10 core terms) proving the format. Every referent below was verified
+# against packages/headless/src (TypeDoc-documented exports) and docs/adr/.
+# Population is FE-3003's later work.
+
+basket:
+  term: basket
+  kind: domain
+  aliases: [cart]
+  definition: >-
+    The customer's in-progress order — the collection of products, billing
+    cycles, promotions, and currency selected before checkout. The headless
+    basket is the reactive source of truth the cart UI reads and mutates.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useBasket" }
+    - { type: symbol, id: "@upmind-automation/headless!BasketContext" }
+
+session:
+  term: session
+  kind: system
+  aliases: [auth session]
+  definition: >-
+    The authenticated (or guest) context a basket and its actions run within,
+    including the current client, brand, and access tokens. Session state is
+    coordinated by the session composable and its state machine.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useSessionStore" }
+    - { type: adr, id: "adr:002-session-and-service-architecture" }
+
+scope:
+  term: scope
+  kind: system
+  aliases: [scoped composable]
+  definition: >-
+    The keyed registry mechanism that gives each composable instance an isolated,
+    reusable footprint so multiple baskets or products can coexist on one page
+    without sharing state. Scope keys namespace every module's reactive state.
+  referents:
+    - { type: adr, id: "adr:001-scope-based-composables" }
+
+product:
+  term: product
+  kind: domain
+  aliases: [catalogue product]
+  definition: >-
+    A sellable item in a brand's catalogue — hosting plans, domains, add-ons —
+    with its pricing, billing cycles, and configuration options. Products are
+    browsed via the catalogue and added to the basket.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useProductCatalogue" }
+    - { type: symbol, id: "@upmind-automation/headless!Product" }
+
+promotion:
+  term: promotion
+  kind: domain
+  aliases: [coupon, discount]
+  definition: >-
+    A discount or offer applied to a basket, typically via a promo code, that
+    adjusts line-item or order totals. Promotions are validated and applied
+    through the basket promotions composable.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useBasketPromotions" }
+    - { type: symbol, id: "@upmind-automation/headless!PromotionModel" }
+
+payment-gateway:
+  term: payment gateway
+  kind: domain
+  aliases: [gateway]
+  definition: >-
+    A provider integration (Stripe, PayPal, and others) that authorises and
+    captures payment for an order. Gateways are abstracted behind a common
+    interface so the checkout flow is provider-agnostic.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!usePaymentGateway" }
+    - { type: adr, id: "adr:015-payment-gateway-abstractions" }
+
+currency:
+  term: currency
+  kind: domain
+  aliases: [display currency]
+  definition: >-
+    The currency a basket is priced and displayed in. Changing the basket
+    currency re-prices every line item; the selection is managed by the basket
+    currency composable.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useBasketCurrency" }
+
+domain:
+  term: domain
+  kind: domain
+  aliases: [domain name]
+  definition: >-
+    A domain-name product — searched for availability, registered or
+    transferred, and configured as part of an order. Domain search and lifecycle
+    are handled by the domain composable.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useDomain" }
+    - { type: symbol, id: "@upmind-automation/headless!DomainModel" }
+
+theming:
+  term: theming
+  kind: system
+  aliases: [theme]
+  definition: >-
+    The per-brand visual configuration (colours, typography, layout tokens) that
+    lets one headless codebase render many branded storefronts. Theme values are
+    resolved by the theming composable.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useTheming" }
+    - { type: adr, id: "adr:012-multi-theme-architecture" }
+
+query:
+  term: query
+  kind: system
+  aliases: [tanstack query, query client]
+  definition: >-
+    The TanStack Query layer that fetches, caches, and invalidates server data
+    behind every composable. Query keys and the shared query client are exposed
+    through the query composable.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useQuery" }
+    - { type: adr, id: "adr:006-tanstack-query" }
