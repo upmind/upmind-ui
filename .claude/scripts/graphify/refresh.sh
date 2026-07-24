@@ -9,8 +9,8 @@
 #   5. Module-level rollup (graph-modules.{html,json})
 #
 # Usage:
-#   bash .agent/scripts/graphify/refresh.sh           # always run
-#   bash .agent/scripts/graphify/refresh.sh --check   # exit 0 silently if no code changed since last run
+#   bash .claude/scripts/graphify/refresh.sh           # always run
+#   bash .claude/scripts/graphify/refresh.sh --check   # exit 0 silently if no code changed since last run
 #
 # Idempotent and safe to call from a git post-merge hook.
 set -euo pipefail
@@ -19,7 +19,7 @@ set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 
-SCRIPTS_DIR="$ROOT/.agent/scripts/graphify"
+SCRIPTS_DIR="$ROOT/.claude/scripts/graphify"
 OUT_DIR="$ROOT/graphify-out"
 MARKER="$OUT_DIR/.refresh_marker"
 

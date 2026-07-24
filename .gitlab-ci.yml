@@ -3,8 +3,10 @@ variables:
   GIT_STRATEGY: clone
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_SUBMODULE_FORCE_HTTPS: true
-  # NOTE: Stop Gitlab-CI automatically fetching GitHub repos as we need extra auth
-  GIT_SUBMODULE_PATHS: ":(exclude)packages/types :(exclude)packages/ui"
+  # NOTE: Stop Gitlab-CI automatically fetching GitHub repos as we need extra auth.
+  # docs/published-docs (mintlify-docs) is excluded too — DISABLED in CI until devops
+  # provisions its bot PAT / deploy key (FE-2752). Re-add auth + drop the exclude then.
+  GIT_SUBMODULE_PATHS: ":(exclude)packages/types :(exclude)packages/ui :(exclude)docs/published-docs"
   INTERNAL_NPMRC: |
     @upmind-automation:registry=https://git.upmind.io/api/v4/projects/105/packages/npm/
     //git.upmind.io/api/v4/projects/105/packages/npm/:_authToken=${CI_JOB_TOKEN}
@@ -35,6 +37,7 @@ include:
   - local: .gitlab-ci/lint.yml
   - local: .gitlab-ci/e2e-allure.yml
   - local: .gitlab-ci/quarantine.yml
+  - local: .gitlab-ci/docs-corpus.yml
   - local: .gitlab-ci/storybook.yml
     rules:
       - changes:
@@ -138,7 +141,8 @@ dependencies:
       chmod 600 ~/.ssh/id*
 
     - git config --global --add safe.directory '*'
-    - git submodule update --init --recursive
+    # Skip docs/published-docs (mintlify-docs) — no CI auth until the devops bot PAT lands (FE-2752).
+    - git -c submodule."docs/published-docs".update=none submodule update --init --recursive
     - pnpm install
     - pnpm --filter types install
     - pnpm --filter types build

@@ -23,7 +23,7 @@ Cross-module edges are aggregated with a weight = number of file-level imports.
 Intra-module edges are dropped (they're noise at this zoom level).
 
 Run from monorepo root:
-  python3 .agent/scripts/graphify/module-rollup.py
+  python3 .claude/scripts/graphify/module-rollup.py
 """
 from __future__ import annotations
 

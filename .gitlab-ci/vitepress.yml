@@ -1,39 +1,9 @@
-(docs) build:
-  extends: .pnpm
-  stage: build
-  interruptible: true
-  needs:
-    - dependencies
-  rules:
-    - if: $SKIP_BUILD_DOCS == 'true'
-      when: never
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
-      allow_failure: true
-    - if: $CI_COMMIT_TAG =~ /^docs-v\d+(\.\d+)*$/
-    - if: $CI_FORCE_DOCS == "true"
-  cache:
-    - key:
-        files:
-          - docs/package.json
-          - docs/package-lock.json
-      paths:
-        - docs/node_modules
-  artifacts:
-    when: on_success
-    access: all
-    expire_in: "1 day"
-    paths:
-      - docs/dist
-  script:
-    - pnpm --filter docs docs:build
-
 (docs) deploy preview:
   extends: .pnpm
   stage: deploy
   interruptible: true
   needs:
     - dependencies
-    - (docs) build
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
       allow_failure: true
@@ -75,7 +45,6 @@
   stage: deploy
   needs:
     - dependencies
-    - (docs) build
   environment:
     name: docs/production
     action: start
