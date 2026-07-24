@@ -12,7 +12,7 @@
  *   per-package clones existed ONLY to re-state shared rules — flat config
  *   `files`/`ignores` give us per-area scoping without duplicate files.
  *   packages/ui, apps/velia, apps/hosting are standalone submodules that get a
- *   FULL BYTE-COPY of this file (kept in lockstep via scripts/lint/sync-configs.mjs).
+ *   FULL BYTE-COPY of this file (kept in lockstep via .claude/scripts/lint/sync-configs.mjs).
  *
  * Correctness baselines (the floor that was lost in the flat migration — every
  * rule in eslint:recommended, typescript-eslint/recommended, and vue3-essential
@@ -45,12 +45,12 @@
  *
  * THE FIX: every lint entrypoint (root `pnpm lint`, `pnpm -r lint`,
  * `pnpm --filter <pkg> lint`, and CI) routes through
- * `scripts/lint/eslint-workspace.mjs`, which always runs ESLint with cwd = repo
+ * `.claude/scripts/lint/eslint-workspace.mjs`, which always runs ESLint with cwd = repo
  * root while targeting the invoking package, so all entrypoints resolve the
  * IDENTICAL suppression state. That wrapper — not this config — is the single
  * source of truth for how the ledger is loaded (ESLint offers no config-level
  * hook for the suppressions location; it is purely a CLI concern).
- * `scripts/lint/verify-lint-convergence.mjs` (CI job `lint:convergence`, run via
+ * `.claude/scripts/lint/verify-lint-convergence.mjs` (CI job `lint:convergence`, run via
  * `pnpm lint:verify`) guards the invariant so the entrypoints cannot silently
  * diverge again. Git-submodule packages (packages/ui, apps/hosting, apps/velia)
  * must adopt the same wrapper in their OWN repos — the parent cannot edit their
@@ -489,6 +489,13 @@ export default [
       "**/public/**",
       "**/jsdoc/**",
       "**/templates/**",
+      // Machine-owned generated docs corpus (FE-2752 / FE-2950) — byte-identity is
+      // the authorship-guard contract; never linted/reformatted (builder is sole formatter).
+      "docs/corpus/corpus.json",
+      "docs/corpus/relations.json",
+      "docs/published-docs/developers/reference/**",
+      "docs/published-docs/developers/changelog/**",
+      "docs/published-docs/developers/corpus-version.json",
       "**/tests/bench/**",
       "**/tests/fixtures/**",
       "**/tests/performance/**",
@@ -531,13 +538,12 @@ export default [
 
   // ---------------------------------------------------------------------------
   // 4. Runtime globals — node areas (build scripts, config files, agent scripts,
-  //    test fixtures). Covers: scripts/**, .agent/scripts/**, *.config.*,
+  //    test fixtures). Covers: .claude/scripts/**, *.config.*,
   //    tests/fixtures/** — all are Node runtime environments.
   // ---------------------------------------------------------------------------
   {
     files: [
-      "scripts/**/*.{ts,tsx,mts,cts,js,cjs,mjs}",
-      ".agent/scripts/**/*.{ts,tsx,mts,cts,js,cjs,mjs}",
+      ".claude/scripts/**/*.{ts,tsx,mts,cts,js,cjs,mjs}",
       "**/*.config.{ts,mts,cts,js,cjs,mjs}",
       "tests/fixtures/**/*.{mjs,js,ts}"
     ],

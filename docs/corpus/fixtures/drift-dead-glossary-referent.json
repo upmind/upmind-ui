@@ -1,0 +1,5 @@
+{
+  "description": "Negative control for the glossary drift-check leg of gate:symbols (FE-2752 bdd B12 / 3003-AC2). The selftest clones the real docs/corpus/corpus.json, finds the first glossary term carrying a symbol-type referent, and repoints its first referent at a symbol id absent from the fresh TypeDoc reflection. gate:symbols must RED naming the glossary source, the offending term, and the dead referent id. The real corpus.json is backed up and restored unconditionally around the swapped-in run.",
+  "deadReferentId": "@upmind-automation/headless!__FE2752_DEAD_REFERENT__",
+  "type": "symbol"
+}

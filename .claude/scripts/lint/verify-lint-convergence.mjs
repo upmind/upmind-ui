@@ -4,7 +4,7 @@
  * FE-2842 Tranche 0 — convergence guard.
  *
  * Locks the invariant that EVERY lint entrypoint resolves the same suppression
- * state (see scripts/lint/eslint-workspace.mjs for why cwd matters). Run in CI
+ * state (see .claude/scripts/lint/eslint-workspace.mjs for why cwd matters). Run in CI
  * (`pnpm lint:verify`) so the ledger can't silently stop applying to per-package
  * lint again.
  *
@@ -31,11 +31,11 @@ import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(scriptDir, "..", "..");
+const REPO_ROOT = resolve(scriptDir, "..", "..", "..");
 const ESLINT_BIN = resolve(REPO_ROOT, "node_modules/eslint/bin/eslint.js");
 const LEDGER = resolve(REPO_ROOT, "eslint-suppressions.json");
 
-const WRAPPER_BASENAME = "scripts/lint/eslint-workspace.mjs";
+const WRAPPER_BASENAME = ".claude/scripts/lint/eslint-workspace.mjs";
 // Workspace globs that can contain a linted package (mirrors pnpm-workspace.yaml).
 const WORKSPACE_GLOBS = ["packages", "apps", "playgrounds"];
 // Workspace entries that ARE a package themselves (pnpm-workspace.yaml lists

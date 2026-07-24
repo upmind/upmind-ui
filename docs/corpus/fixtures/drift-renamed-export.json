@@ -1,0 +1,5 @@
+{
+  "description": "Negative control for gate:symbols + gate:api-drift (FE-2752 bdd B6 / 2753-AC1, 2753-AC4). Simulates an export renamed in packages/*/src whose corpus entry was NOT regenerated: the selftest clones the real docs/corpus/corpus.json, removes the first documented symbol id, and re-adds that same entry under a renamed id that is absent from the fresh TypeDoc reflection (.reflection.json). gate:symbols must then RED naming the dead id; gate:api-drift must RED naming both the now-undocumented real export and the removed-but-still-documented renamed id. The real corpus.json is backed up and restored unconditionally around the swapped-in run.",
+  "renamedId": "@upmind-automation/headless!__FE2752_GATE_DRIFT_RENAMED__",
+  "renamedName": "__FE2752_GATE_DRIFT_RENAMED__"
+}

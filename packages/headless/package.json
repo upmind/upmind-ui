@@ -27,8 +27,8 @@
     "test:integration": "vitest run --project integration",
     "test:integration:record": "FIXTURE_MODE=record vitest run --project integration",
     "test:integration:live": "FIXTURE_MODE=live vitest run --project integration",
-    "lint": "node ../../scripts/lint/eslint-workspace.mjs",
-    "lint:fix": "node ../../scripts/lint/eslint-workspace.mjs --fix",
+    "lint": "node ../../.claude/scripts/lint/eslint-workspace.mjs",
+    "lint:fix": "node ../../.claude/scripts/lint/eslint-workspace.mjs --fix",
     "format": "prettier --write src/"
   },
   "dependencies": {
