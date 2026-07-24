@@ -3,3 +3,15 @@
 # as behaviour changes rather than code, and normalise line endings.
 *.feature diff=markdown
 *.feature text eol=lf
+
+# Docs-corpus machine-owned manifest (FE-2752, design §8.1/§8.2). These paths are
+# derived build artifacts, never hand-authored (ADR-026 decision 1). `linguist-
+# generated=true` collapses their MR diff noise; `eol=lf` pins line endings so the
+# authorship guard's byte-exact regen-and-compare (gate:authorship, §8.2 check 1)
+# is environment-independent — a CRLF checkout can never false-RED against the
+# LF CI re-emit.
+docs/published-docs/developers/reference/**       linguist-generated=true text eol=lf
+docs/published-docs/developers/changelog/**       linguist-generated=true text eol=lf
+docs/published-docs/developers/corpus-version.json linguist-generated=true text eol=lf
+docs/corpus/corpus.json          linguist-generated=true text eol=lf
+docs/corpus/relations.json       linguist-generated=true text eol=lf

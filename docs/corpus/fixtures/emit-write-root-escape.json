@@ -1,0 +1,4 @@
+{
+  "_comment": "Negative-control fixture — FE-2752 T5 (prover seat). Not a file path consumed by emit-mdx.mjs directly: emit-mdx.selftest.mjs's \"red-out-of-partition-write-fails-emit\" case reads `namePayload` below and injects it as both the export-segment of `.id` and the `.name` of one cloned SymbolEntry, in an in-memory copy of the real docs/corpus/corpus.json. That mutated corpus.json is swapped into place for the duration of a single `emit-mdx.mjs --out <tempDir>` run, then the original corpus.json is restored unconditionally. Proves the design §9 / §8.1 guarantee that emit-mdx.mjs \"hard-asserts its own write-root\" — refusing to write a page whose computed path escapes the --out partition root — rather than silently writing (or crashing while writing) outside it.",
+  "namePayload": "../../../../../../../tmp/fe2752-escape-proof"
+}

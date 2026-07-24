@@ -2,9 +2,9 @@
 #
 # The monorepo's eslint-suppressions.json ledger only applies when ESLint runs
 # with cwd = repo root (its keys are root-relative). Every lint entrypoint is
-# therefore routed through scripts/lint/eslint-workspace.mjs so root, `pnpm -r`
+# therefore routed through .claude/scripts/lint/eslint-workspace.mjs so root, `pnpm -r`
 # and `pnpm --filter <pkg>` all resolve the SAME suppression state. This job runs
-# scripts/lint/verify-lint-convergence.mjs, which fails if any managed package's
+# .claude/scripts/lint/verify-lint-convergence.mjs, which fails if any managed package's
 # lint script stops routing through that wrapper (i.e. reverts to `eslint .`,
 # which silently ignores the ledger). It is deliberately NOT a full `pnpm -r lint`
 # gate — burning down the remaining violations is later FE-2842 tranches.

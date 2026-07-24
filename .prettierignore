@@ -9,3 +9,13 @@ node_modules
 
 # Ignore Presets:
 src/presets
+
+# Machine-owned generated docs corpus (FE-2752 / FE-2950 authorship guard):
+# byte-identity with corpus:build/emit IS the guard contract — a formatter must
+# never rewrite these, or gate:authorship false-REDs. The builder's serializer is
+# the sole canonical formatter for this partition.
+docs/corpus/corpus.json
+docs/corpus/relations.json
+docs/published-docs/developers/corpus-version.json
+docs/published-docs/developers/reference/
+docs/published-docs/developers/changelog/

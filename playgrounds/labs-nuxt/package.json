@@ -31,8 +31,8 @@
     "type-check": "nuxt typecheck",
     "postinstall": "nuxt prepare",
     "preview": "nuxt preview",
-    "lint": "node ../../scripts/lint/eslint-workspace.mjs",
-    "lint:fix": "node ../../scripts/lint/eslint-workspace.mjs --fix",
+    "lint": "node ../../.claude/scripts/lint/eslint-workspace.mjs",
+    "lint:fix": "node ../../.claude/scripts/lint/eslint-workspace.mjs --fix",
     "format": "prettier --write .",
     "localazy": "localazy download && pnpm format",
     "deploy": "pnpm build:prod && firebase deploy --only hosting:cart"

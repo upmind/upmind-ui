@@ -25,7 +25,7 @@
  * WHAT THIS DOES
  * --------------
  * Every managed package's `lint`/`lint:fix` script calls this wrapper. It:
- *   1. Locates the repo root from its own location (scripts/lint/../..).
+ *   1. Locates the repo root from its own location (.claude/scripts/lint/../../..).
  *   2. Uses the INVOKING directory (process.cwd()) as the lint target, so
  *      `pnpm --filter <pkg> lint` lints just that package and a root run lints
  *      the whole tree — but ESLint always executes with cwd = repo root, so the
@@ -43,7 +43,7 @@
  *
  * This wrapper is THE single source of truth: every lint entrypoint (root
  * `pnpm lint`, `pnpm -r lint`, `pnpm --filter <pkg> lint`, CI) routes through it,
- * so they all resolve the identical suppression state. `scripts/lint/
+ * so they all resolve the identical suppression state. `.claude/scripts/lint/
  * verify-lint-convergence.mjs` guards that invariant.
  *
  * SUBMODULE BOUNDARY: packages/ui, apps/hosting, apps/velia are git submodules
@@ -60,7 +60,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(scriptDir, "..", "..");
+const REPO_ROOT = resolve(scriptDir, "..", "..", "..");
 const ESLINT_BIN = resolve(REPO_ROOT, "node_modules/eslint/bin/eslint.js");
 const LEDGER = resolve(REPO_ROOT, "eslint-suppressions.json");
 
