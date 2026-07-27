@@ -509,9 +509,7 @@ async function validate(
     : waitFor(
         gatewayHelper,
         state =>
-          !["loading", "available.checking", "available.rendering"].some(
-            state.matches
-          ),
+          !["loading", "rendering", "available.checking"].some(state.matches),
         { timeout: 60_000 }
       ).then(state => {
         if (

@@ -80,7 +80,7 @@ async function load(context: RazorpayContext, _event: AnyEventObject) {
 async function render({ sdk }: RazorpayContext, { data }: AnyEventObject) {
   const { t } = useI18n();
 
-  if (!sdk?.razorpay) {
+  if (!sdk || !sdk.razorpay) {
     throw new DetailedError(
       t("error.payment_gateway_not_available"),
       responseCodes.Not_Found,
@@ -110,7 +110,7 @@ async function pay({
 }: RazorpayContext) {
   const { t } = useI18n();
 
-  if (!sdk?.razorpay)
+  if (!sdk || !sdk.razorpay)
     return Promise.reject(
       new DetailedError(
         t("error.payment_gateway_not_available"),
@@ -140,7 +140,11 @@ async function pay({
     customer_id: setup.customer_id,
     key: setup.key_id,
     order_id: setup.order_id,
-    recurring: model?.store_on_payment ?? true
+    recurring: model?.store_on_payment ?? true,
+    prefill: {
+      ...setup.prefill,
+      email: get(model, "payment_method_addition.email") || setup.prefill?.email
+    }
   });
 
   // 3. Open Razorpay modal and handle response
@@ -199,7 +203,7 @@ async function add(context: RazorpayContext) {
   const { sdk, model, currency, client, amount, gateway } = context;
   const { t } = useI18n();
 
-  if (!sdk?.razorpay)
+  if (!sdk || !sdk.razorpay)
     throw new DetailedError(
       t("error.payment_gateway_not_available"),
       responseCodes.Not_Found,
@@ -239,7 +243,11 @@ async function add(context: RazorpayContext) {
     customer_id: setup.customer_id,
     key: setup.key_id,
     order_id: setup.order_id,
-    recurring: model?.store_on_payment ?? true
+    recurring: model?.store_on_payment ?? true,
+    prefill: {
+      ...setup.prefill,
+      email: get(model, "payment_method_addition.email") || setup.prefill?.email
+    }
   });
 
   return new Promise((resolve, reject) => {
