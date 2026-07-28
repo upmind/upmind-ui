@@ -1,3 +1,11 @@
+---
+paths:
+  - '**/modules/**/use*.ts'
+  - '**/modules/**/use*.actions.ts'
+  - '**/modules/**/use*.context.ts'
+  - '**/modules/**/use*.meta.ts'
+  - '**/composables/**/*.ts'
+---
 > Companion to [code-composables.md](./code-composables.md) — Upmind-monorepo-specific bindings/examples.
 
 ## Decision record & reference implementation

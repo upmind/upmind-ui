@@ -1,4 +1,11 @@
-> Companion to [guides-writing.md](./guides-writing.md) — Upmind-monorepo-specific bindings/examples.
+---
+paths:
+  - 'docs/learn/**/*.md'
+  - '**/README.md'
+  - '**/docs/guides/**/*.md'
+  - '**/guides/**/*.md'
+---
+> Companion to [docs-guides.md](./docs-guides.md) — Upmind-monorepo-specific bindings/examples.
 
 # Guide writing — Upmind bindings
 

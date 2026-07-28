@@ -1,3 +1,9 @@
+---
+paths:
+  - '**/*.vue'
+  - '**/*.styles.ts'
+  - '**/*.css'
+---
 > Companion to [code-ui.md](./code-ui.md) — Upmind-monorepo-specific bindings/examples.
 
 ## JSON/UI Schema Conventions (Uischema / JSONForms)

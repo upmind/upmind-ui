@@ -1,10 +1,10 @@
-> Companion to [agent-labels.md](./agent-labels.md) — Upmind-monorepo Linear bindings.
+> Companion to [agent-orchestration.md](./agent-orchestration.md) — Upmind-monorepo Linear + account bindings. Section numbers below are the base rule's.
 
-The base rule owns the axis doctrine, the routine roles (`pick-plan` / `pick-dev` / `pick-test` / `sdd-review`), the lifecycle shape, and the handoff invariants. This companion owns only the Linear-specific values: the label strings, the workflow statuses, the routine→status bindings, and the migration from the deprecated flat `agent:*` family.
+## §2 Lifecycle — the Linear taxonomy
 
 Supersedes the deprecated flat `agent:*` label family (`agent:plan`, `agent:dev`, `agent:review`, `agent:plan-review`, `agent:queued`, `agent:processing`, `agent:planned`, `agent:reviewed`, `agent:failed`, `🤖 agent`) — see the migration map at the bottom.
 
-## Labels (Linear taxonomy)
+### Labels (Linear taxonomy)
 
 The three axes are realized as Linear issue labels:
 
@@ -14,7 +14,7 @@ The three axes are realized as Linear issue labels:
 
 Preserve the non-agent labels (area, priority, provenance, releases) on every write: Linear `save_issue`'s `labels` **replaces the whole set**, so always `get_issue` → compute → `save_issue` (the base's read → compute → write invariant).
 
-## Statuses (Linear workflow columns) and the lifecycle mapping
+### Statuses (Linear workflow columns) and the lifecycle mapping
 
 The base's generic stages map onto these Linear statuses:
 
@@ -34,7 +34,7 @@ Backlog / Needs Refinement / Todo   →   Todo        →   In Progress   →   
 
 "Queued" / "processing" are **not** labels — they are the **Todo** and **In Progress** columns.
 
-## Runner query and routine → status bindings
+### Runner query and routine → status bindings
 
 The runner scans `actor:AI` in **Backlog**, **Needs Refinement**, or **Todo**, routed by the work label (`skill:Plan` → `pick-plan`, `skill:Dev` → `pick-dev`, `action:Test` → `pick-test`). On claim it moves the story to **Todo** (staged), then **In Progress** when work begins. It **ignores** anything `actor:Human`, anything already **In Progress** / **Needs Review** / **Blocked**, and any terminal status (**Done**, **Deployed**, **Canceled**).
 
@@ -57,9 +57,9 @@ Exact transitions (every handoff flips `actor:` and moves the column):
 
 Plan review is the human `/sdd-review` skill; code review is the human reading the MR. The `action:Review` label's stock description mentions a `pick-review` routine — that predates this decision and is **not** used here.
 
-**ADR-029 (2026-07-20, pending ratification):** the base's "the agent never emits the review **verdict**" law is the ratified narrowing of the earlier "the agent never reviews". Reviewer/verifier seats defined in `agents/` (per `rules/seat-separation.md`) may pre-gate a story out of **Needs Review** but never emit the `actor:Human` review verdict; the only `actor:Human` → `actor:AI` transition remains the human-authored verdict.
+**ADR-029 (2026-07-20, pending ratification):** the base's "the agent never emits the review **verdict**" law is the ratified narrowing of the earlier "the agent never reviews". Reviewer/verifier seats defined in `agents/` (per `rules/agent-seat-separation.md`) may pre-gate a story out of **Needs Review** but never emit the `actor:Human` review verdict; the only `actor:Human` → `actor:AI` transition remains the human-authored verdict.
 
-## Migration map (deprecated `agent:*` → this model)
+### Migration map (deprecated `agent:*` → this model)
 
 | Old | New |
 | --- | --- |
@@ -75,3 +75,19 @@ Plan review is the human `/sdd-review` skill; code review is the human reading t
 | `🤖 agent` *(provenance)* | *(no label)* — `actor:*` is the provenance marker |
 
 New capability with no old equivalent: `action:Test` (`pick-test`) — the opt-in dedicated test pass.
+
+## §3 Cost — this account's fan-out caps
+
+The base leaves these as operator-declared scope:
+
+| Binding | Value | Applies to |
+| --- | --- | --- |
+| `maxAgents` (total-agent cap) | **40** (default) | fix runs / wave-runner fan-outs |
+| `reserve` (budget-floor fraction) | **0.3** | every budget-guarded run |
+
+- **`maxAgents: 40`** is the default total-agent ceiling for fix runs — the Gap-1 bounded-fan-out cap, not the concurrency limit. A runner may scope higher/lower per its declared budget target, but absent an explicit override, fix runs stop gracefully at 40.
+- **`reserve: 0.3`** keeps 30% of the launch budget target unspent as graceful-stop headroom (the base rule's budget-floor fraction).
+
+### Why these values (this account)
+
+This account is on **metered session and week limits** — the same limits an unbounded run once exhausted mid-loop. The caps exist so a fan-out stops on a self-declared proxy ceiling well before it hits the provider's hard session/week limit and starts thrashing dead agents. The base rule's honest ruling stands: the runner **cannot** read the live session/week remaining quota, so these are proxy ceilings, not a live meter. The metered limits are the reason the defaults are this conservative.

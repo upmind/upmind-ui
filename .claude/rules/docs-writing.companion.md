@@ -1,3 +1,9 @@
+---
+paths:
+  - '**/docs/**/*.md'
+  - '**/README.md'
+  - '**/CHANGELOG.md'
+---
 > Companion to [docs-writing.md](./docs-writing.md) — Upmind-monorepo-specific bindings/examples.
 
 # Documentation writing — Upmind bindings

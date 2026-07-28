@@ -1,4 +1,4 @@
-> Companion to [negative-controls.md](./negative-controls.md) — Upmind-monorepo-specific bindings/examples.
+> Companion to [verify-negative-controls.md](./verify-negative-controls.md) — Upmind-monorepo-specific bindings/examples.
 
 # Negative controls — Upmind bindings
 

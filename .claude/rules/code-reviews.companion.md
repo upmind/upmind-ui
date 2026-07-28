@@ -1,3 +1,12 @@
+---
+paths:
+  - '**/*.ts'
+  - '**/*.tsx'
+  - '**/*.js'
+  - '**/*.mjs'
+  - '**/*.css'
+  - '**/*.vue'
+---
 > Companion to [code-reviews.md](./code-reviews.md) — Upmind-monorepo-specific bindings/examples.
 
 ## Path glob
@@ -17,4 +26,4 @@ The module-structure example uses real Upmind file types: `AuthPage.vue`, `auth.
 
 ## Review Depth Tiers — escalation thresholds
 
-**Escalate `high` → `xhigh`** when the diff is **> 8 files, > 300 lines, or > 2 modules**, or when a behaviour-bearing module in the diff lacks unit tests (thresholds provisional — tune against real MRs); the machinery + model pins live in `/core-review` per `agent-token-budget.md`.
+**Escalate `high` → `xhigh`** when the diff is **> 8 files, > 300 lines, or > 2 modules**, or when a behaviour-bearing module in the diff lacks unit tests (thresholds provisional — tune against real MRs); the machinery + model pins live in `/core-review` per `agent-orchestration.md` §3.

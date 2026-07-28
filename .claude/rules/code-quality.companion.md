@@ -1,3 +1,11 @@
+---
+paths:
+  - '**/*.ts'
+  - '**/*.tsx'
+  - '**/*.vue'
+  - '**/*.js'
+  - '**/*.mjs'
+---
 > Companion to [code-quality.md](./code-quality.md) — Upmind-monorepo-specific bindings/examples.
 
 ## The graphify gate (existing-type mechanical gate)

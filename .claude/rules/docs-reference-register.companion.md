@@ -1,3 +1,8 @@
+---
+paths:
+  - 'docs/reference/**/*.md'
+  - 'docs/adr/**/*.md'
+---
 > Companion to [docs-reference-register.md](./docs-reference-register.md) — Upmind-monorepo-specific bindings/examples.
 
 # Reference & register docs — Upmind bindings

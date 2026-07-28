@@ -1,3 +1,12 @@
+---
+paths:
+  - '**/*.spec.ts'
+  - '**/*.test.ts'
+  - '**/*.spec.js'
+  - '**/*.test.js'
+  - '**/__tests__/**'
+  - '**/tests/**'
+---
 > Companion to [code-tests.md](./code-tests.md) — Upmind-monorepo-specific bindings/examples.
 
 ## Test-id / `dataAttrs` contract

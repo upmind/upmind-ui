@@ -1,4 +1,4 @@
-> Companion to [gates-green-not-correct.md](./gates-green-not-correct.md) — Upmind-monorepo-specific bindings/examples.
+> Companion to [verify-cosplay.md](./verify-cosplay.md) — Upmind-monorepo-specific bindings/examples.
 
 # Green gates are not correctness — Upmind bindings
 
