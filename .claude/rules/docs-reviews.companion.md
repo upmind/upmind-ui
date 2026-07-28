@@ -1,3 +1,7 @@
+---
+paths:
+  - 'docs/audit/**/*.md'
+---
 > Companion to [docs-reviews.md](./docs-reviews.md) — Upmind-monorepo-specific bindings/examples.
 
 # Documentation review — Upmind bindings

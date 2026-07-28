@@ -1,4 +1,4 @@
-> Companion to [evidence-filing.md](./evidence-filing.md) — Upmind-monorepo-specific bindings/examples.
+> Companion to [verify-evidence-filing.md](./verify-evidence-filing.md) — Upmind-monorepo-specific bindings/examples.
 
 ## Decision record (ADR-021)
 

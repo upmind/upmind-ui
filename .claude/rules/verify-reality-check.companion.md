@@ -1,4 +1,4 @@
-> Companion to [reality-check.md](./reality-check.md) — Upmind-monorepo-specific bindings/examples.
+> Companion to [verify-reality-check.md](./verify-reality-check.md) — Upmind-monorepo-specific bindings/examples.
 
 ## Identity-retargeting = scope work (the A7 clause)
 

@@ -1,3 +1,8 @@
+---
+paths:
+  - '**/*.ts'
+  - '**/*.tsx'
+---
 > Companion to [code-typescript.md](./code-typescript.md) — Upmind-monorepo-specific bindings/examples.
 
 ## Types-module suffix

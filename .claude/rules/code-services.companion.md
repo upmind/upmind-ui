@@ -1,3 +1,8 @@
+---
+paths:
+  - '**/modules/**/*.services.ts'
+  - '**/modules/**/*.services.*.ts'
+---
 > Companion to [code-services.md](./code-services.md) — Upmind-monorepo-specific bindings/examples.
 
 ## Actor set

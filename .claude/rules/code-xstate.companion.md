@@ -1,3 +1,8 @@
+---
+paths:
+  - '**/*.machine.ts'
+  - '**/*.machine.*.ts'
+---
 > Companion to [code-xstate.md](./code-xstate.md) — Upmind-monorepo-specific bindings.
 
 ## Our machines are battle-hardened

@@ -1,4 +1,4 @@
-> Companion to [legacy-parity-oracle.md](./legacy-parity-oracle.md) — Upmind-monorepo-specific bindings/examples.
+> Companion to [verify-parity-oracle.md](./verify-parity-oracle.md) — Upmind-monorepo-specific bindings/examples.
 
 # Parity oracle — Upmind bindings
 

@@ -1,3 +1,8 @@
+---
+paths:
+  - '**/modules/**/docs/foundation.md'
+  - '**/modules/**/docs/**/*.md'
+---
 > Companion to [docs-modules.md](./docs-modules.md) — Upmind-monorepo-specific bindings/examples.
 
 # Module documentation — Upmind bindings

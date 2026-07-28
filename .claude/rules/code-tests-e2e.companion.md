@@ -1,3 +1,9 @@
+---
+paths:
+  - '**/e2e/**/*.spec.ts'
+  - '**/e2e/**/support/**/*.ts'
+  - '**/*.feature'
+---
 > Companion to [code-tests-e2e.md](./code-tests-e2e.md) — Upmind-monorepo-specific bindings/examples.
 
 ## Governing ADRs (the policy that wins)

@@ -1,4 +1,4 @@
-> Companion to [seat-separation.md](./seat-separation.md) — Upmind-monorepo-specific bindings/examples.
+> Companion to [agent-seat-separation.md](./agent-seat-separation.md) — Upmind-monorepo-specific bindings/examples.
 
 # Seat separation — Upmind bindings
 
@@ -10,7 +10,7 @@ The self-certification archetype in the base rule is **FE-2824**: the only "staf
 
 The base registry roster is authoritative; these bind its generic lanes to Upmind paths and issue-tracker states.
 
-- **developer** — "protected core" is **headless core**; the operator token gates edits to it.
+- **developer** — "protected core" is **headless core** (`packages/headless/**`, `**/*.machine.ts`, `**/machines/**`). No plugin hook guards it; protection is `permissions.deny` in `settings.json` (ADR 003). See [agent-behavior.companion.md](./agent-behavior.companion.md) §5.
 - **verifier** — the base "issue-tracker comment" is a **Linear comment** (filed alongside `verify.md`).
 - **pre-gate** — "block a story from advancing" means block it from reaching Linear status **Needs Review**.
-- **review verdict** — the base "stays with a human" binds to `actor:Human`, per the dated amendment in `agent-labels.md`.
+- **review verdict** — the base "stays with a human" binds to `actor:Human`, per the dated amendment in [agent-orchestration.companion.md](./agent-orchestration.companion.md) §2.
