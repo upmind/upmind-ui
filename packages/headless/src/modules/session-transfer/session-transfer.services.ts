@@ -7,6 +7,7 @@ import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import type { IAuthTransfer, TransferContext } from "./session-transfer.types";
 // -----------------------------------------------------------------------------
 /**
+ * @internal
  * @module session-transfer/services
  * @description API services for session transfer operations.
  */

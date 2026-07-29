@@ -1,3 +1,4 @@
+/** @internal */
 import {
   type IToken,
   type ISelf,

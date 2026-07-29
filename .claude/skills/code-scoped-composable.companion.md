@@ -1,6 +1,6 @@
 > Companion to the upmind-agent skill /code-scoped-composable — Upmind-monorepo-specific bindings/overrides.
 
-**Read the canonical first:** `useAuth` at `packages/headless/src/modules/auth/` — end-to-end, before scaffolding anything. It is the authority on where actor variance lives; where the base workflow's templates and the canonical disagree, the canonical wins.
+**Read the canonical first:** `useAuth` at `packages/headless/src/modules/auth/` — end-to-end, before scaffolding anything. **The rules and the docs are the authority; `useAuth` is one worked example of them, not a match target.** Where the base workflow's templates and the canonical disagree, that is a surfaced finding — say so out loud, never silently resolve toward the example.
 
 ## Actor model
 
