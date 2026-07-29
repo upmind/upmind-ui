@@ -4,7 +4,7 @@ import {
   GrantTypes,
   type IToken
 } from "@upmind-automation/types";
-import { mapCustomField } from "../client-custom-fields/client-custom-fields.mappers";
+import { mapCustomField } from "../client-custom-fields";
 import { useQuery } from "../query";
 import { ScopeActorTypes } from "../scope";
 import { AuthEvents, useSessionStore } from "../session-store";

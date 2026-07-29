@@ -75,6 +75,7 @@ import eslintPluginImport from "eslint-plugin-import";
 import eslintPluginUnusedImports from "eslint-plugin-unused-imports";
 import vueParser from "vue-eslint-parser";
 import globals from "globals";
+import scopeBasedPlugin from "@upmind-automation/eslint-plugin-scope-based";
 
 // typescript-eslint's flat/recommended is a 3-config array:
 //   [0] base    — registers the @typescript-eslint plugin + parser + sourceType
@@ -545,7 +546,8 @@ export default [
     files: [
       ".claude/scripts/**/*.{ts,tsx,mts,cts,js,cjs,mjs}",
       "**/*.config.{ts,mts,cts,js,cjs,mjs}",
-      "tests/fixtures/**/*.{mjs,js,ts}"
+      "tests/fixtures/**/*.{mjs,js,ts}",
+      "packages/eslint-plugin-scope-based/**/*.{js,mjs}"
     ],
     languageOptions: {
       globals: { ...globals.node }
@@ -638,6 +640,31 @@ export default [
     },
     rules: {
       "@internal/no-barrel-imports": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 8d. Scope-based composable variance law (ADR-001 / FE-2967) — custom AST
+  //     plugin, the enforcement replacement for the hand-rolled law-checker.mjs.
+  //     Scoped to headless modules; each rule self-gates further (arm files,
+  //     composable entries, data-layer files). Tolerated exceptions are silenced
+  //     in place with a native `// eslint-disable-*-line scope-based/<rule> -- <reason>`.
+  //     Pre-existing violations across legacy modules are grandfathered via the
+  //     bulk-suppressions ledger (see the SUPPRESSION LEDGER note above), so a
+  //     new/edited scoped construct errors while unscoped legacy stays advisory.
+  // ---------------------------------------------------------------------------
+  {
+    files: ["packages/headless/src/modules/**/*.{ts,tsx,mts,cts}"],
+    ignores: ["**/*.test.ts", "**/*.spec.ts", "**/*.d.ts"],
+    plugins: {
+      "scope-based": scopeBasedPlugin
+    },
+    rules: {
+      "scope-based/no-self-branch": "error",
+      "scope-based/require-decision": "error",
+      "scope-based/no-cosplay-arm": "error",
+      "scope-based/complete-layer-set": "error",
+      "scope-based/arm-in-matrix": "error"
     }
   },
 

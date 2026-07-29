@@ -55,29 +55,20 @@ unit:test:
 #------------------------------------------------------------------------------
 # Integration — every PR push, blocks merge, ADR 021 target < 5min.
 #
-# PLACEHOLDER (permitted by this issue's AC). The pyramid-level `pnpm
-# test:integration` command and its cross-package, MSW-replay integration
-# project are the deliverable of Story B (FE-2773), which has NOT landed —
-# "standing up the integration Vitest project itself" is explicitly out of this
-# issue's scope. This job is therefore a documented no-op that keeps the layer's
-# slot (and its blocking position in the pipeline) reserved: when FE-2773 lands,
-# swap the echo below for `pnpm test:integration` and the gate goes live with no
-# other change.
-#
-# No coverage is lost in the interim: `packages/headless` already owns an `int`
-# Vitest project (`*.int.test.ts`), and those integration tests continue to run
-# today inside the `(headless) test` job (`pnpm --filter headless test`).
-#
-# Kept deliberately cheap — a pure echo needs neither the `dependencies`
-# artefact nor the submodules (mirrors `lint:features`).
+# `pnpm test:integration` (root) fans out to every workspace package's own
+# `test:integration` script via `pnpm -r test:integration`, mirroring `unit:test`
+# above. Today only `packages/headless` defines it (its Vitest `integration`
+# project — `*.int.test.ts` replayed through MSW, FE-2773); as more packages grow
+# an integration project they join automatically with no CI change. Fixtures are
+# replayed offline, so this job needs no staging network and no submodules beyond
+# what `dependencies` already provides.
 #------------------------------------------------------------------------------
 integration:test:
-  image: ${NODE_IMAGE}
+  extends: .pnpm
   stage: test
   interruptible: true
-  needs: []
-  variables:
-    GIT_SUBMODULE_STRATEGY: none
+  needs:
+    - dependencies
   rules:
     - if: $SKIP_INTEGRATION_TESTS == "true"
       when: never
@@ -85,13 +76,4 @@ integration:test:
     - if: $CI_PIPELINE_SOURCE == "web"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   script:
-    # Literal block: the ': ' inside these echo strings would otherwise be
-    # parsed as YAML mapping syntax, turning script entries into maps and
-    # invalidating the job (script must be strings). A '|' block keeps them text.
-    - |
-      echo "TODO: integration layer blocked on Story B (FE-2773)."
-      echo "      The pyramid-level 'pnpm test:integration' command + its"
-      echo "      cross-package MSW-replay project ship with FE-2773; this job"
-      echo "      is a placeholder until then (ADR 021 §CI strategy per layer)."
-      echo "      Interim: headless '*.int.test.ts' still run under '(headless) test'."
-      exit 0
+    - pnpm test:integration
