@@ -371,11 +371,11 @@ function linePrice(detail: Product["details"][number]): string {
   return displayPrice(amount);
 }
 
-// the per-single price beside a multi-quantity line (e.g. "@ £250.00"); absent
-// unless the line carries a served unit price
+// the per-single price beside a multi-quantity line (e.g. "@ £250.00"), read
+// pre-discount so it multiplies up to the line total beside it
 function lineEach(detail: Product["details"][number]): string | undefined {
   if (!("price" in detail)) return undefined;
-  const price = displayPrice(detail.price.unit?.totalFormatted);
+  const price = displayPrice(detail.price.unitPrice);
   if (!price) return undefined;
   return t("text.price_each", { price });
 }

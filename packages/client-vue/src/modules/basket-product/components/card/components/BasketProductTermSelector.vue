@@ -17,12 +17,7 @@
       }"
     >
       <template #dropdown-item="slotProps">
-        <TermCard
-          v-bind="slotProps.item"
-          layout="inline"
-          :summary="false"
-          :type="PriceDisplayTypes.CYCLE"
-        />
+        <TermCard v-bind="slotProps.item" layout="inline" :summary="false" />
       </template>
     </SelectCards>
   </div>
@@ -38,10 +33,7 @@ import { SelectCards, useStyles } from "@upmind-automation/upmind-ui";
 import TermCard from "../../../../product/components/terms/TermCard.vue";
 
 // --- internal
-import {
-  parseBillingCycle,
-  PriceDisplayTypes
-} from "@upmind-automation/headless";
+import { parseBillingCycle } from "@upmind-automation/headless";
 import styleConfig from "../basketProduct.config";
 
 // --- utils

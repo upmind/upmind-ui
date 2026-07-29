@@ -27,7 +27,9 @@ export default {
       multiplier: cva("text-muted ml-1 font-normal"),
       total: cva("shrink-0 text-right font-medium"),
       subtitle: cva("text-muted text-sm"),
-      box: cva("mt-2 flex flex-col rounded-lg p-4 text-sm", {
+      // -mx-4 cancels the padding, so the enclosed lines sit flush with the
+      // header above them
+      box: cva("-mx-4 mt-2 flex flex-col rounded-lg p-4 text-sm", {
         variants: {
           card: {
             true: "bg-canvas",

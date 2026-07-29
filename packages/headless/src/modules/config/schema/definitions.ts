@@ -595,6 +595,11 @@ export const DATA_DEFINITIONS = {
     contexts: [UIContext.BASKET, UIContext.CHECKOUT],
     scopes: [UIScope.OPTION]
   },
+  productAutoUpdate: {
+    default: false,
+    contexts: [UIContext.CONFIGURE],
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
   productBadge: {
     default: undefined,
     contexts: [
