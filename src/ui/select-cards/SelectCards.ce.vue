@@ -7,6 +7,7 @@
     >
       <TriggerButton
         :open="open"
+        :disabled="disabled"
         :selected="selected"
         :class="props.class"
         :label="props.label"
