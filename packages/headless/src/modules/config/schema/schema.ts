@@ -212,6 +212,13 @@ export interface DataSchema {
   /** Enable in-basket product option upsells (Eg. Domain Privacy Addon) */
   optionUpsellEnabled?: boolean;
 
+  /**
+   * Add the product to the basket straight away, skipping the configure step.
+   * Equivalent to arriving with `?autoupdate=true`; if the product can't be
+   * added unconfigured the configure step still opens.
+   */
+  productAutoUpdate?: boolean;
+
   /** Optional product badge. Eg. 'Hot Right Now' or { label: 'Hot Right Now', icon: 'fire' } */
   productBadge?: Badge;
 
