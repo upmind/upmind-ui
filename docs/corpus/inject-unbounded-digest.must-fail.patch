@@ -1,0 +1,11 @@
+--- a/glossary-inject.mjs
++++ b/glossary-inject.mjs
+@@ -189,7 +189,7 @@ function main() {
+ 
+   const candidates = matchTerms(terms, index, payload.tool_name, payload.tool_input);
+   const alreadyInjected = loadInjectedSlugs(sessionId);
+-  const slugs = candidates.filter((slug) => !alreadyInjected.has(slug)).slice(0, MAX_TERMS_PER_INJECT);
++  const slugs = candidates.filter((slug) => !alreadyInjected.has(slug)); // MUTANT: drops the token-budget cap — the injected digest grows unbounded as the glossary grows
+   if (!slugs.length) process.exit(0);
+ 
+   const lines = slugs.map((slug) => digestLine(slug, terms[slug], index));

@@ -56,6 +56,7 @@ const REFLECTION_OUT = join(CORPUS_DIR, '.reflection.json'); // gates reuse this
 const RELATIONS_IN = join(CORPUS_DIR, 'relations.json');
 const GLOSSARY_IN = join(CORPUS_DIR, 'glossary.yaml');
 const CORPUS_OUT = join(CORPUS_DIR, 'corpus.json');
+const GLOSSARY_OUT = join(CORPUS_DIR, 'glossary.json'); // slim discovery-channel artifact (FE-3003)
 const ADR_DIR = join(DOCS_DIR, 'adr');
 const GUIDE_GLOB_ROOT = join(DOCS_DIR, '@upmind-automation');
 
@@ -548,6 +549,20 @@ function buildChangelog(symbols) {
 // 6. Glossary — compile glossary.yaml, fail on malformed entries (design §5.5).
 //    Purpose-built reader for the documented format (no yaml dep in CI).
 // ---------------------------------------------------------------------------
+// Independent re-scan of the curated slug set (ultra-review MR !504 P3-7):
+// deliberately does not reuse parseGlossary's own bookkeeping, so it still
+// catches a future build step that merges terms into `glossary.terms` from a
+// source other than this hand-authored file (guides/adrs/symbol comments).
+function curatedGlossarySlugs() {
+  if (!existsSync(GLOSSARY_IN)) return new Set();
+  const slugs = new Set();
+  for (const line of readFileSync(GLOSSARY_IN, 'utf8').split('\n')) {
+    const m = /^([A-Za-z0-9][\w-]*):\s*$/.exec(line);
+    if (m) slugs.add(m[1]);
+  }
+  return slugs;
+}
+
 function parseGlossary() {
   if (!existsSync(GLOSSARY_IN)) die(`glossary source not found at ${toRepoRel(GLOSSARY_IN)}`);
   const rel = toRepoRel(GLOSSARY_IN);
@@ -682,6 +697,14 @@ function main() {
   } = buildRelations(symbolByFileName);
   const changelog = { bySymbol: buildChangelog(symbols) };
   const glossary = parseGlossary();
+  const curated = curatedGlossarySlugs();
+  const widenedSlugs = Object.keys(glossary.terms).filter((slug) => !curated.has(slug));
+  if (widenedSlugs.length)
+    die(
+      `corpus.glossary.terms contains slug(s) absent from ${toRepoRel(GLOSSARY_IN)} — the discovery-channel ` +
+        `source must stay the curated glossary file, never widened to another partition (P3-7 invariant): ` +
+        widenedSlugs.join(', '),
+    );
   const index = buildIndex({ symbols, guides, adrs, examples, glossary, fileIndex });
 
   const content = { symbols, guides, adrs, examples, relations, changelog, glossary, index };
@@ -729,7 +752,21 @@ function main() {
   const corpus = { meta, ...content };
   writeFileSync(CORPUS_OUT, stableStringify(corpus));
 
+  // Slim discovery-channel artifact (FE-3003): the runtime pull CLI and the
+  // PreToolUse inject hook read only the glossary plus the index entries its
+  // referents point at — emit a small dedicated file so a tool call never has
+  // to parse the full ~3MB corpus.json. corpus.json stays the source of truth
+  // for the gates and the MDX emit.
+  const glossaryIndex = {};
+  for (const term of Object.values(glossary.terms)) {
+    for (const ref of term.referents ?? []) {
+      if (index[ref.id]) glossaryIndex[ref.id] = index[ref.id];
+    }
+  }
+  writeFileSync(GLOSSARY_OUT, stableStringify({ glossary, index: glossaryIndex }));
+
   console.log(`corpus:build: wrote ${toRepoRel(CORPUS_OUT)} (${corpusVersion})`);
+  console.log(`corpus:build: wrote ${toRepoRel(GLOSSARY_OUT)} (discovery channel, ${Object.keys(glossaryIndex).length} index entries)`);
   console.log(
     `corpus:build: relations.prunedCount=${relations.prunedCount} ` +
       `(${relations.edges.length} edges kept)`,

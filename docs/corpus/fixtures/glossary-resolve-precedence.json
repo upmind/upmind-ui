@@ -1,0 +1,39 @@
+{
+  "description": "Precedence fixture for glossary-resolve.selftest.mjs (FE-3003 3003p-AC2, plan panel P2-1). 'widget' is the exact slug/name of one term and a colliding alias of another (gizmo); resolving 'widget' must return only the widget term, never gizmo.",
+  "glossary": {
+    "terms": {
+      "widget": {
+        "term": "widget",
+        "kind": "domain",
+        "aliases": ["thing"],
+        "definition": "The exact-slug term.",
+        "referents": [
+          { "type": "symbol", "id": "@upmind-automation/headless!useWidget" }
+        ]
+      },
+      "gizmo": {
+        "term": "gizmo",
+        "kind": "domain",
+        "aliases": ["widget"],
+        "definition": "A different term whose alias collides with widget's own slug.",
+        "referents": [
+          { "type": "symbol", "id": "@upmind-automation/headless!useGizmo" }
+        ]
+      }
+    }
+  },
+  "index": {
+    "@upmind-automation/headless!useWidget": {
+      "kind": "symbol",
+      "path": "packages/headless/src/modules/widget/useWidget.ts",
+      "module": "widget",
+      "title": "useWidget"
+    },
+    "@upmind-automation/headless!useGizmo": {
+      "kind": "symbol",
+      "path": "packages/headless/src/modules/gizmo/useGizmo.ts",
+      "module": "gizmo",
+      "title": "useGizmo"
+    }
+  }
+}

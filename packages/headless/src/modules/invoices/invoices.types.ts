@@ -15,6 +15,10 @@ export enum PAYMENT_STATE {
 
 export type PaymentState = `${PAYMENT_STATE}`;
 
+/**
+ * A billable invoice raised against an order — the client, currency, line
+ * items, payment history, and amount/status summary.
+ */
 export type Invoice = {
   id: string;
   locked: boolean;
