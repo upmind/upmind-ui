@@ -165,7 +165,7 @@ export default {
     const checkoutFlow = getConfigValue(BrandConfigKeys.CHECKOUT_FLOW);
 
     if (checkoutFlow === CheckoutFlows.ONE_PAGE)
-      return { funnel: FUNNEL.ONE_PAGE, target: { name: ROUTE.CHECKOUT } };
+      return { funnel: FUNNEL.ONE_PAGE, target: { name: ROUTE.BASKET } };
 
     if (checkoutFlow === CheckoutFlows.STEPPED)
       return { funnel: FUNNEL.STEPPED, target: { name: ROUTE.BASKET } };
@@ -306,7 +306,7 @@ export default {
     );
 
     // The autoupdate/express(legacy) param indicates that we should try add the product to the basket straight away
-    const autoupdate =
+    const hasAutoupdateParam =
       (consumeParam("autoupdate", false) || consumeParam("express", false)) ==
       true;
 
@@ -314,11 +314,17 @@ export default {
     // the configure flow has no in-flight operation to track here, and a
     // user who abandons configuration would otherwise leak `processing[pid]`.
     return getPendingProduct(productId, {
-      sync: autoupdate,
-      silent: autoupdate
+      sync: hasAutoupdateParam,
+      silent: hasAutoupdateParam
     })
       .then(basketItem => {
         return basketItem.isReady().then(() => {
+          const { data } = useConfig({
+            context: UIContext.CONFIGURE,
+            product: basketItem.product
+          });
+          const autoupdate = hasAutoupdateParam || !!data.productAutoUpdate;
+
           if (!autoupdate) {
             return {
               target: {
