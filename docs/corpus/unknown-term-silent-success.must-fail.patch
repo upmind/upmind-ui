@@ -1,0 +1,11 @@
+--- a/glossary-resolve.mjs
++++ b/glossary-resolve.mjs
+@@ -104,7 +104,7 @@ function main() {
+   const { primary, alias } = findMatches(terms, input);
+   const winners = primary.length ? primary : alias;
+ 
+-  if (!winners.length) fail(`no term or alias matches "${input}"`, 1);
++  if (!winners.length) process.exit(0); // MUTANT: unknown term silently "succeeds"
+ 
+   if (winners.length > 1) {
+     const detail = primary.length

@@ -1,0 +1,50 @@
+// docs/corpus/glossary-lib.mjs — shared helpers for glossary-inject.mjs /
+// glossary-resolve.mjs (ultra-review MR !504 P3-8: the norm/escapeRegExp +
+// referent-resolution logic had already drifted between the two scripts).
+//
+// Plain node ESM, no runtime deps (matching the docs/corpus/*.mjs siblings).
+
+import { resolve } from 'node:path';
+
+export const norm = (s) => String(s ?? '').trim().toLowerCase();
+
+export const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// Resolves a term's `referents` array through `corpus.index`, splitting into
+// referents that resolve (each paired with its index entry) and the ids of
+// any that don't. An unresolved id is a corpus-integrity gap, not something
+// either caller should ever silently drop.
+export function classifyReferents(referents, index) {
+  const resolved = [];
+  const unresolved = [];
+  for (const ref of referents ?? []) {
+    const entry = index[ref.id];
+    if (entry) resolved.push({ ref, entry });
+    else unresolved.push(ref.id);
+  }
+  return { resolved, unresolved };
+}
+
+// Shared CLI parse for both faces: pulls `--corpus <file>` (resolved against
+// cwd) and returns the remaining positional args. A `--corpus` with no value is
+// reported via `error` rather than silently becoming cwd (which surfaced as a
+// misleading "not valid JSON / EISDIR"); the caller decides how to surface it —
+// the resolve CLI fails loudly, the inject hook stays silent and never throws.
+export function parseCorpusArgs(argv, defaultCorpusPath) {
+  let corpusPath = defaultCorpusPath;
+  let error = null;
+  const positional = [];
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === '--corpus') {
+      const val = argv[++i];
+      if (val == null) {
+        error = '--corpus requires a file path';
+        continue;
+      }
+      corpusPath = resolve(process.cwd(), val);
+    } else {
+      positional.push(argv[i]);
+    }
+  }
+  return { corpusPath, positional, error };
+}

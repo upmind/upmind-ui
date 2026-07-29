@@ -1,0 +1,39 @@
+{
+  "description": "Genuine-alias-tie fixture for glossary-resolve.selftest.mjs (FE-3003 3003p-AC2, plan panel P2-1). 'thing' is a shared alias of two terms with no slug/name match; resolving it must print every tied match and warn, never silently pick one.",
+  "glossary": {
+    "terms": {
+      "widget": {
+        "term": "widget",
+        "kind": "domain",
+        "aliases": ["thing"],
+        "definition": "First widget term.",
+        "referents": [
+          { "type": "symbol", "id": "@upmind-automation/headless!useWidget" }
+        ]
+      },
+      "gizmo": {
+        "term": "gizmo",
+        "kind": "domain",
+        "aliases": ["thing"],
+        "definition": "Second, unrelated gizmo term sharing the alias thing with widget.",
+        "referents": [
+          { "type": "symbol", "id": "@upmind-automation/headless!useGizmo" }
+        ]
+      }
+    }
+  },
+  "index": {
+    "@upmind-automation/headless!useWidget": {
+      "kind": "symbol",
+      "path": "packages/headless/src/modules/widget/useWidget.ts",
+      "module": "widget",
+      "title": "useWidget"
+    },
+    "@upmind-automation/headless!useGizmo": {
+      "kind": "symbol",
+      "path": "packages/headless/src/modules/gizmo/useGizmo.ts",
+      "module": "gizmo",
+      "title": "useGizmo"
+    }
+  }
+}
