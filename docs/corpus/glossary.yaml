@@ -21,21 +21,37 @@
 #   symbol -> "@upmind-automation/headless!<export>"   (TypeDoc pkg!export)
 #   adr    -> "adr:<basename-without-extension>"
 #
-# Seed (~10 core terms) proving the format. Every referent below was verified
-# against packages/headless/src (TypeDoc-documented exports) and docs/adr/.
-# Population is FE-3003's later work.
+# Populated (FE-3003p-AC1) to core-vocabulary coverage. Every referent below was
+# verified against packages/headless/src (TypeDoc-documented exports) and
+# docs/adr/ — no invented ids (gate:symbols would RED otherwise).
+#
+# NOTE (ontology fix, FE-3003p-AC1): "cart" is NOT an alias of "basket". Basket
+# is the domain concept (the in-progress order); cart (apps/cart) is the Vue
+# storefront app that renders it. They are related, not synonymous — see the
+# "cart" term below.
 
 basket:
   term: basket
   kind: domain
-  aliases: [cart]
   definition: >-
     The customer's in-progress order — the collection of products, billing
     cycles, promotions, and currency selected before checkout. The headless
-    basket is the reactive source of truth the cart UI reads and mutates.
+    basket is the reactive source of truth the storefront app reads and
+    mutates.
   referents:
     - { type: symbol, id: "@upmind-automation/headless!useBasket" }
     - { type: symbol, id: "@upmind-automation/headless!BasketContext" }
+
+cart:
+  term: cart
+  kind: system
+  definition: >-
+    The Vue.js storefront app (`apps/cart`) that renders the customer-facing
+    basket and checkout UI. It is a consumer of the headless business logic
+    and the client-vue integration layer, not the basket concept itself — see
+    the package-layer split in ADR-007.
+  referents:
+    - { type: adr, id: "adr:007-headless-architecture" }
 
 session:
   term: session
@@ -142,3 +158,139 @@ query:
   referents:
     - { type: symbol, id: "@upmind-automation/headless!useQuery" }
     - { type: adr, id: "adr:006-tanstack-query" }
+
+order:
+  term: order
+  kind: domain
+  aliases: [purchase]
+  definition: >-
+    The invoice-payment lifecycle a basket converts into at checkout —
+    orchestrated by the order machine, which spawns the payment-detail actor
+    and drives retry and partial-payment loops until the invoice is settled.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useOrder" }
+    - { type: symbol, id: "@upmind-automation/headless!OrderContext" }
+
+invoice:
+  term: invoice
+  kind: domain
+  aliases: [bill]
+  definition: >-
+    The billable document raised for an order — client, currency, line items,
+    payment history, and the paid/unpaid amount summary. Invoice data is
+    loaded and invalidated by the invoice composable.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useInvoice" }
+    - { type: symbol, id: "@upmind-automation/headless!Invoice" }
+
+client:
+  term: client
+  kind: domain
+  aliases: [client profile]
+  definition: >-
+    The authenticated customer's profile and account standing — identity,
+    contact details, and the account-lifecycle state (unregistered, unverified,
+    verified) layered on top of it.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!Client" }
+    - { type: symbol, id: "@upmind-automation/headless!Account" }
+
+brand:
+  term: brand
+  kind: system
+  definition: >-
+    The white-labelled organisation a storefront runs as — its settings,
+    configuration values, and enabled modules, fetched and unified by the
+    brand composable.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useBrand" }
+
+account:
+  term: account
+  kind: system
+  aliases: [client lifecycle]
+  definition: >-
+    The post-auth standing arc a client moves through — unregistered,
+    unverified, verified — scoped by actor and managed by the account
+    composable.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useAccount" }
+
+auth:
+  term: auth
+  kind: system
+  aliases: [authentication, login]
+  definition: >-
+    Unified authentication for guest, client, and staff actors — login,
+    registration, and session establishment, handled by the auth composable.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useAuth" }
+
+payment:
+  term: payment
+  kind: domain
+  aliases: [payment method]
+  definition: >-
+    The state, context, and actions that orchestrate a single payment attempt
+    against a gateway — meta-information, error handling, and the pay/refresh
+    event triggers, driven by the payment composable's state machine.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!usePayment" }
+    - { type: symbol, id: "@upmind-automation/headless!PaymentContext" }
+
+system:
+  term: system
+  kind: system
+  aliases: [reference data]
+  definition: >-
+    Brand-agnostic reference data (countries, currencies, statuses, billing
+    cycles, ticket departments, and similar lookups) exposed through the
+    system composable.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useSystem" }
+
+billing:
+  term: billing
+  kind: domain
+  aliases: [basket billing, billing cycle]
+  definition: >-
+    The billing details attached to a basket — validating, updating, and
+    clearing them, and observing the billing lifecycle's state transitions —
+    managed by the basket billing composable.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useBasketBilling" }
+
+recommendations:
+  term: recommendations
+  kind: domain
+  aliases: [product recommendations, upsell]
+  definition: >-
+    Suggested products surfaced from the recommendation engine — either scoped
+    to a specific product (for product-detail or post-add-to-basket upsell) or
+    fetched generally — via the recommendations composables.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useProductRecommendations" }
+    - { type: symbol, id: "@upmind-automation/headless!useRecommendations" }
+
+routing:
+  term: routing
+  kind: system
+  aliases: [funnel navigation]
+  definition: >-
+    Route management, navigation, and flow control across the storefront —
+    integrating internationalisation, session, and basket state to resolve
+    routes and drive funnel progression.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useRoutingEngine" }
+    - { type: adr, id: "adr:017-funnel-navigation-via-state-meta" }
+
+feedback:
+  term: feedback
+  kind: system
+  aliases: [notifications]
+  definition: >-
+    User-facing messages — errors, successes, warnings, and system
+    notifications — added, dismissed, and displayed through a global feedback
+    state machine.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useFeedback" }

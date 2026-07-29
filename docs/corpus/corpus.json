@@ -896,11 +896,33 @@
   "examples": {},
   "glossary": {
     "terms": {
-      "basket": {
-        "aliases": [
-          "cart"
+      "account": {
+        "aliases": ["client lifecycle"],
+        "definition": "The post-auth standing arc a client moves through — unregistered, unverified, verified — scoped by actor and managed by the account composable.",
+        "kind": "system",
+        "referents": [
+          {
+            "id": "@upmind-automation/headless!useAccount",
+            "type": "symbol"
+          }
         ],
-        "definition": "The customer's in-progress order — the collection of products, billing cycles, promotions, and currency selected before checkout. The headless basket is the reactive source of truth the cart UI reads and mutates.",
+        "term": "account"
+      },
+      "auth": {
+        "aliases": ["authentication", "login"],
+        "definition": "Unified authentication for guest, client, and staff actors — login, registration, and session establishment, handled by the auth composable.",
+        "kind": "system",
+        "referents": [
+          {
+            "id": "@upmind-automation/headless!useAuth",
+            "type": "symbol"
+          }
+        ],
+        "term": "auth"
+      },
+      "basket": {
+        "aliases": [],
+        "definition": "The customer's in-progress order — the collection of products, billing cycles, promotions, and currency selected before checkout. The headless basket is the reactive source of truth the storefront app reads and mutates.",
         "kind": "domain",
         "referents": [
           {
@@ -914,10 +936,60 @@
         ],
         "term": "basket"
       },
-      "currency": {
-        "aliases": [
-          "display currency"
+      "billing": {
+        "aliases": ["basket billing", "billing cycle"],
+        "definition": "The billing details attached to a basket — validating, updating, and clearing them, and observing the billing lifecycle's state transitions — managed by the basket billing composable.",
+        "kind": "domain",
+        "referents": [
+          {
+            "id": "@upmind-automation/headless!useBasketBilling",
+            "type": "symbol"
+          }
         ],
+        "term": "billing"
+      },
+      "brand": {
+        "aliases": [],
+        "definition": "The white-labelled organisation a storefront runs as — its settings, configuration values, and enabled modules, fetched and unified by the brand composable.",
+        "kind": "system",
+        "referents": [
+          {
+            "id": "@upmind-automation/headless!useBrand",
+            "type": "symbol"
+          }
+        ],
+        "term": "brand"
+      },
+      "cart": {
+        "aliases": [],
+        "definition": "The Vue.js storefront app (`apps/cart`) that renders the customer-facing basket and checkout UI. It is a consumer of the headless business logic and the client-vue integration layer, not the basket concept itself — see the package-layer split in ADR-007.",
+        "kind": "system",
+        "referents": [
+          {
+            "id": "adr:007-headless-architecture",
+            "type": "adr"
+          }
+        ],
+        "term": "cart"
+      },
+      "client": {
+        "aliases": ["client profile"],
+        "definition": "The authenticated customer's profile and account standing — identity, contact details, and the account-lifecycle state (unregistered, unverified, verified) layered on top of it.",
+        "kind": "domain",
+        "referents": [
+          {
+            "id": "@upmind-automation/headless!Client",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!Account",
+            "type": "symbol"
+          }
+        ],
+        "term": "client"
+      },
+      "currency": {
+        "aliases": ["display currency"],
         "definition": "The currency a basket is priced and displayed in. Changing the basket currency re-prices every line item; the selection is managed by the basket currency composable.",
         "kind": "domain",
         "referents": [
@@ -929,9 +1001,7 @@
         "term": "currency"
       },
       "domain": {
-        "aliases": [
-          "domain name"
-        ],
+        "aliases": ["domain name"],
         "definition": "A domain-name product — searched for availability, registered or transferred, and configured as part of an order. Domain search and lifecycle are handled by the domain composable.",
         "kind": "domain",
         "referents": [
@@ -946,10 +1016,68 @@
         ],
         "term": "domain"
       },
-      "payment-gateway": {
-        "aliases": [
-          "gateway"
+      "feedback": {
+        "aliases": ["notifications"],
+        "definition": "User-facing messages — errors, successes, warnings, and system notifications — added, dismissed, and displayed through a global feedback state machine.",
+        "kind": "system",
+        "referents": [
+          {
+            "id": "@upmind-automation/headless!useFeedback",
+            "type": "symbol"
+          }
         ],
+        "term": "feedback"
+      },
+      "invoice": {
+        "aliases": ["bill"],
+        "definition": "The billable document raised for an order — client, currency, line items, payment history, and the paid/unpaid amount summary. Invoice data is loaded and invalidated by the invoice composable.",
+        "kind": "domain",
+        "referents": [
+          {
+            "id": "@upmind-automation/headless!useInvoice",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!Invoice",
+            "type": "symbol"
+          }
+        ],
+        "term": "invoice"
+      },
+      "order": {
+        "aliases": ["purchase"],
+        "definition": "The invoice-payment lifecycle a basket converts into at checkout — orchestrated by the order machine, which spawns the payment-detail actor and drives retry and partial-payment loops until the invoice is settled.",
+        "kind": "domain",
+        "referents": [
+          {
+            "id": "@upmind-automation/headless!useOrder",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!OrderContext",
+            "type": "symbol"
+          }
+        ],
+        "term": "order"
+      },
+      "payment": {
+        "aliases": ["payment method"],
+        "definition": "The state, context, and actions that orchestrate a single payment attempt against a gateway — meta-information, error handling, and the pay/refresh event triggers, driven by the payment composable's state machine.",
+        "kind": "domain",
+        "referents": [
+          {
+            "id": "@upmind-automation/headless!usePayment",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!PaymentContext",
+            "type": "symbol"
+          }
+        ],
+        "term": "payment"
+      },
+      "payment-gateway": {
+        "aliases": ["gateway"],
         "definition": "A provider integration (Stripe, PayPal, and others) that authorises and captures payment for an order. Gateways are abstracted behind a common interface so the checkout flow is provider-agnostic.",
         "kind": "domain",
         "referents": [
@@ -965,9 +1093,7 @@
         "term": "payment gateway"
       },
       "product": {
-        "aliases": [
-          "catalogue product"
-        ],
+        "aliases": ["catalogue product"],
         "definition": "A sellable item in a brand's catalogue — hosting plans, domains, add-ons — with its pricing, billing cycles, and configuration options. Products are browsed via the catalogue and added to the basket.",
         "kind": "domain",
         "referents": [
@@ -983,10 +1109,7 @@
         "term": "product"
       },
       "promotion": {
-        "aliases": [
-          "coupon",
-          "discount"
-        ],
+        "aliases": ["coupon", "discount"],
         "definition": "A discount or offer applied to a basket, typically via a promo code, that adjusts line-item or order totals. Promotions are validated and applied through the basket promotions composable.",
         "kind": "domain",
         "referents": [
@@ -1002,10 +1125,7 @@
         "term": "promotion"
       },
       "query": {
-        "aliases": [
-          "tanstack query",
-          "query client"
-        ],
+        "aliases": ["tanstack query", "query client"],
         "definition": "The TanStack Query layer that fetches, caches, and invalidates server data behind every composable. Query keys and the shared query client are exposed through the query composable.",
         "kind": "system",
         "referents": [
@@ -1020,10 +1140,40 @@
         ],
         "term": "query"
       },
-      "scope": {
-        "aliases": [
-          "scoped composable"
+      "recommendations": {
+        "aliases": ["product recommendations", "upsell"],
+        "definition": "Suggested products surfaced from the recommendation engine — either scoped to a specific product (for product-detail or post-add-to-basket upsell) or fetched generally — via the recommendations composables.",
+        "kind": "domain",
+        "referents": [
+          {
+            "id": "@upmind-automation/headless!useProductRecommendations",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!useRecommendations",
+            "type": "symbol"
+          }
         ],
+        "term": "recommendations"
+      },
+      "routing": {
+        "aliases": ["funnel navigation"],
+        "definition": "Route management, navigation, and flow control across the storefront — integrating internationalisation, session, and basket state to resolve routes and drive funnel progression.",
+        "kind": "system",
+        "referents": [
+          {
+            "id": "@upmind-automation/headless!useRoutingEngine",
+            "type": "symbol"
+          },
+          {
+            "id": "adr:017-funnel-navigation-via-state-meta",
+            "type": "adr"
+          }
+        ],
+        "term": "routing"
+      },
+      "scope": {
+        "aliases": ["scoped composable"],
         "definition": "The keyed registry mechanism that gives each composable instance an isolated, reusable footprint so multiple baskets or products can coexist on one page without sharing state. Scope keys namespace every module's reactive state.",
         "kind": "system",
         "referents": [
@@ -1035,9 +1185,7 @@
         "term": "scope"
       },
       "session": {
-        "aliases": [
-          "auth session"
-        ],
+        "aliases": ["auth session"],
         "definition": "The authenticated (or guest) context a basket and its actions run within, including the current client, brand, and access tokens. Session state is coordinated by the session composable and its state machine.",
         "kind": "system",
         "referents": [
@@ -1052,10 +1200,20 @@
         ],
         "term": "session"
       },
-      "theming": {
-        "aliases": [
-          "theme"
+      "system": {
+        "aliases": ["reference data"],
+        "definition": "Brand-agnostic reference data (countries, currencies, statuses, billing cycles, ticket departments, and similar lookups) exposed through the system composable.",
+        "kind": "system",
+        "referents": [
+          {
+            "id": "@upmind-automation/headless!useSystem",
+            "type": "symbol"
+          }
         ],
+        "term": "system"
+      },
+      "theming": {
+        "aliases": ["theme"],
         "definition": "The per-brand visual configuration (colours, typography, layout tokens) that lets one headless codebase render many branded storefronts. Theme values are resolved by the theming composable.",
         "kind": "system",
         "referents": [
@@ -4614,6 +4772,12 @@
       "path": "packages/headless/src/modules/config/config.conditions.ts",
       "title": "validateMeta"
     },
+    "account": {
+      "kind": "term",
+      "module": "",
+      "path": "docs/corpus/glossary.yaml",
+      "title": "account"
+    },
     "adr:001-scope-based-composables": {
       "kind": "adr",
       "module": "",
@@ -4800,11 +4964,41 @@
       "path": "docs/adr/031-product-setup-over-domain-registrant.md",
       "title": "ADR-031: Generic Product Setup Flow Over Domain-Specific Registrant"
     },
+    "auth": {
+      "kind": "term",
+      "module": "",
+      "path": "docs/corpus/glossary.yaml",
+      "title": "auth"
+    },
     "basket": {
       "kind": "term",
       "module": "",
       "path": "docs/corpus/glossary.yaml",
       "title": "basket"
+    },
+    "billing": {
+      "kind": "term",
+      "module": "",
+      "path": "docs/corpus/glossary.yaml",
+      "title": "billing"
+    },
+    "brand": {
+      "kind": "term",
+      "module": "",
+      "path": "docs/corpus/glossary.yaml",
+      "title": "brand"
+    },
+    "cart": {
+      "kind": "term",
+      "module": "",
+      "path": "docs/corpus/glossary.yaml",
+      "title": "cart"
+    },
+    "client": {
+      "kind": "term",
+      "module": "",
+      "path": "docs/corpus/glossary.yaml",
+      "title": "client"
     },
     "currency": {
       "kind": "term",
@@ -4817,6 +5011,12 @@
       "module": "",
       "path": "docs/corpus/glossary.yaml",
       "title": "domain"
+    },
+    "feedback": {
+      "kind": "term",
+      "module": "",
+      "path": "docs/corpus/glossary.yaml",
+      "title": "feedback"
     },
     "file:apps/cart-nuxt/app/composables/useStorefrontRoute.ts": {
       "kind": "file",
@@ -13020,6 +13220,24 @@
       "path": "docs/@upmind-automation/headless/system-guide.md",
       "title": "System"
     },
+    "invoice": {
+      "kind": "term",
+      "module": "",
+      "path": "docs/corpus/glossary.yaml",
+      "title": "invoice"
+    },
+    "order": {
+      "kind": "term",
+      "module": "",
+      "path": "docs/corpus/glossary.yaml",
+      "title": "order"
+    },
+    "payment": {
+      "kind": "term",
+      "module": "",
+      "path": "docs/corpus/glossary.yaml",
+      "title": "payment"
+    },
     "payment-gateway": {
       "kind": "term",
       "module": "",
@@ -13044,6 +13262,18 @@
       "path": "docs/corpus/glossary.yaml",
       "title": "query"
     },
+    "recommendations": {
+      "kind": "term",
+      "module": "",
+      "path": "docs/corpus/glossary.yaml",
+      "title": "recommendations"
+    },
+    "routing": {
+      "kind": "term",
+      "module": "",
+      "path": "docs/corpus/glossary.yaml",
+      "title": "routing"
+    },
     "scope": {
       "kind": "term",
       "module": "",
@@ -13056,6 +13286,12 @@
       "path": "docs/corpus/glossary.yaml",
       "title": "session"
     },
+    "system": {
+      "kind": "term",
+      "module": "",
+      "path": "docs/corpus/glossary.yaml",
+      "title": "system"
+    },
     "theming": {
       "kind": "term",
       "module": "",
@@ -13064,21 +13300,21 @@
     }
   },
   "meta": {
-    "built_at": "2026-07-24T08:22:20.229Z",
-    "corpus_version": "1+4dac29647587",
+    "built_at": "2026-07-25T08:14:51.504Z",
+    "corpus_version": "1+988179cae6d0",
     "counts": {
       "adrs": 31,
       "changelogSymbols": 0,
       "examples": 0,
-      "glossaryTerms": 10,
+      "glossaryTerms": 23,
       "guides": 3,
-      "indexEntries": 1986,
+      "indexEntries": 1999,
       "relationEdges": 7179,
       "relationsPruned": 358,
       "symbols": 578
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "faa8784ae2d13d77a9c972b671fb12478fc8a330"
+    "source_commit": "2332d128fa55e74c5987bc981587fec8090f33f3"
   },
   "relations": {
     "edges": [
@@ -72155,8 +72391,8 @@
       "name": "Invoice",
       "signature": "Symbol Invoice",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 18,
-      "tsdoc": null
+      "sourceLine": 22,
+      "tsdoc": "A billable invoice raised against an order — the client, currency, line\nitems, payment history, and amount/status summary."
     },
     "@upmind-automation/headless!LIST_STYLE": {
       "id": "@upmind-automation/headless!LIST_STYLE",
@@ -72606,7 +72842,7 @@
       "name": "Payment",
       "signature": "Symbol Payment",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 45,
+      "sourceLine": 49,
       "tsdoc": null
     },
     "@upmind-automation/headless!PaymentArgs": {
@@ -74729,7 +74965,7 @@
       "name": "UseOrder",
       "signature": "Symbol UseOrder",
       "sourceFile": "packages/headless/src/modules/orders/useOrder.ts",
-      "sourceLine": 207,
+      "sourceLine": 212,
       "tsdoc": null
     },
     "@upmind-automation/headless!UsePayment": {
@@ -76489,8 +76725,8 @@
       "name": "useOrder",
       "signature": "useOrder(invoiceId: string): object",
       "sourceFile": "packages/headless/src/modules/orders/useOrder.ts",
-      "sourceLine": 29,
-      "tsdoc": null
+      "sourceLine": 34,
+      "tsdoc": "Composable that orchestrates invoice payment via the order machine.\nSpawns paymentDetailMachine as a child actor, invokes paymentMachine for\nprocessing, and supports retry and partial payment loops."
     },
     "@upmind-automation/headless!usePayment": {
       "id": "@upmind-automation/headless!usePayment",

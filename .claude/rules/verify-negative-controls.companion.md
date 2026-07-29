@@ -4,8 +4,8 @@
 
 ## Repo bindings
 
-- **CI mutation lane.** The base `ci/negative-control-enforce` lane is owned by another package in this tranche; its shape is the live `quarantine:enforce` lane — cite that lane by name.
-- **U7 review handoff.** U7's review-ready gate maps to the Linear status **Needs Review**: no green mutation-lane run for every new control the story adds, no Needs Review.
+- **CI negative-control lane.** The base `ci/negative-control-enforce` lane is owned by another package in this tranche; its shape is the live `quarantine:enforce` lane — cite that lane by name.
+- **U7 review handoff.** U7's review-ready gate maps to the Linear status **Needs Review**: no green negative-control run for every new control the story adds, no Needs Review.
 
 ## ADR binding
 

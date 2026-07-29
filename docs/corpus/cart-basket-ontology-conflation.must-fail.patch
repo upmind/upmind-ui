@@ -1,0 +1,32 @@
+--- a/glossary.json
++++ b/glossary.json
+@@ -31,7 +31,9 @@
+         "term": "auth"
+       },
+       "basket": {
+-        "aliases": [],
++        "aliases": [
++          "cart"
++        ],
+         "definition": "The customer's in-progress order — the collection of products, billing cycles, promotions, and currency selected before checkout. The headless basket is the reactive source of truth the storefront app reads and mutates.",
+         "kind": "domain",
+         "referents": [
+@@ -73,18 +75,6 @@
+         ],
+         "term": "brand"
+       },
+-      "cart": {
+-        "aliases": [],
+-        "definition": "The Vue.js storefront app (`apps/cart`) that renders the customer-facing basket and checkout UI. It is a consumer of the headless business logic and the client-vue integration layer, not the basket concept itself — see the package-layer split in ADR-007.",
+-        "kind": "system",
+-        "referents": [
+-          {
+-            "id": "adr:007-headless-architecture",
+-            "type": "adr"
+-          }
+-        ],
+-        "term": "cart"
+-      },
+       "client": {
+         "aliases": [
+           "client profile"
