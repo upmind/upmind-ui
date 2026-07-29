@@ -1,0 +1,17 @@
+--- a/glossary-inject.mjs
++++ b/glossary-inject.mjs
+@@ -69,10 +69,8 @@ function readStdinJson() {
+ }
+ 
+ function loadCorpus(corpusPath) {
+-  if (!existsSync(corpusPath)) return null;
+-  try {
+-    return JSON.parse(readFileSync(corpusPath, 'utf8'));
+-  } catch {
+-    return null;
+-  }
++  // MUTANT: drops the corpus-absent guard and the parse try/catch — a
++  // missing or unparseable corpus.json now throws uncaught instead of
++  // degrading silently, which crashes the PreToolUse hook.
++  return JSON.parse(readFileSync(corpusPath, 'utf8'));
+ }

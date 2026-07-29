@@ -21,11 +21,14 @@ import type { ResponseError } from "../../utils";
 // -----------------------------------------------------------------------------
 /**
  * @module orders/useOrder
- * @description Composable that orchestrates invoice payment via the order machine.
- * Spawns paymentDetailMachine as a child actor, invokes paymentMachine for processing,
- * and supports retry and partial payment loops.
+ * @description See the `useOrder` export below.
  */
 
+/**
+ * Composable that orchestrates invoice payment via the order machine.
+ * Spawns paymentDetailMachine as a child actor, invokes paymentMachine for
+ * processing, and supports retry and partial payment loops.
+ */
 export const useOrder = (invoiceId: string) => {
   const { isAuthenticated } = useActiveSession().useMeta();
   const { getParam, setParam } = useQueryParams();

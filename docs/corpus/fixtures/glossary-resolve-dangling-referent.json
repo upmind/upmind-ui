@@ -1,0 +1,20 @@
+{
+  "description": "Corpus-integrity fixture for glossary-resolve.selftest.mjs (FE-3003 3003p-AC2). 'ghost' carries a referent id absent from index — the resolver must name the id and exit 2, never drop it silently.",
+  "glossary": {
+    "terms": {
+      "ghost": {
+        "term": "ghost",
+        "kind": "domain",
+        "aliases": [],
+        "definition": "A term whose referent does not resolve in the index.",
+        "referents": [
+          {
+            "type": "symbol",
+            "id": "@upmind-automation/headless!useNonexistent"
+          }
+        ]
+      }
+    }
+  },
+  "index": {}
+}

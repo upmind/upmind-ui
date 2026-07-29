@@ -1,0 +1,11 @@
+--- a/glossary-resolve.mjs
++++ b/glossary-resolve.mjs
+@@ -118,7 +118,7 @@ function main() {
+   const index = corpus.index ?? {};
+
+   const { primary, alias } = findMatches(terms, input);
+-  const winners = primary.length ? primary : alias;
++  const winners = alias.length ? alias : primary; // MUTANT: alias match now outranks an exact term-slug match
+
+   if (!winners.length) fail(`no term or alias matches "${input}"`, 1);
+
