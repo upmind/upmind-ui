@@ -1,6 +1,7 @@
 <template>
   <Button
     :loading="loading"
+    :disabled="props.disabled"
     :class="cn(variants.select.trigger, props.class)"
     :size="size"
     :aria-expanded="open"
