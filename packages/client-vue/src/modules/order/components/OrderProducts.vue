@@ -3,10 +3,11 @@
     id="order-products"
     :label="t('invoice.your_order')"
     icon="shopping-bag-02"
-    :card="false"
+    card
     :border="false"
+    :class="styles.table.section"
   >
-    <Card :class="styles.table.wrapper">
+    <div :class="styles.table.wrapper">
       <table :class="styles.table.root">
         <thead :class="styles.table.header.root">
           <tr>
@@ -89,7 +90,7 @@
           </tr>
         </tfoot>
       </table>
-    </Card>
+    </div>
 
     <slot name="append" />
   </Section>
@@ -105,7 +106,8 @@ import { flatMap, map, filter } from "lodash-es";
 import Section from "../../../components/section/Section.vue";
 import OrderProductsRow from "./OrderProductsRow.vue";
 import config from "../order.config";
-import { useStyles, Link, Icon, Card } from "@upmind-automation/upmind-ui";
+import { useSection } from "../../../components/section/useSection";
+import { useStyles, Link, Icon } from "@upmind-automation/upmind-ui";
 import { parseBillingCycle } from "@upmind-automation/headless";
 import { buildPricingRow, buildOptionRow, buildDetailRow } from "../utils";
 
@@ -121,9 +123,13 @@ const orderData = inject<ComputedRef<Invoice | undefined>>("orderInvoice");
 
 const open = ref(false);
 
+const { inset } = useSection();
+
+const meta = computed(() => ({ isInset: inset.value }));
+
 const styles = useStyles(
   ["table", "table.wrapper", "table.header", "table.footer"],
-  computed(() => ({})),
+  meta,
   config,
   {}
 );

@@ -82,5 +82,16 @@
   "terms_and_conditions_desc": "By clicking '{label}', I agree to the {action} of {brand}.",
   "terms_of_service": "Terms of service",
   "total": "Total",
-  "welcome_back_msg": "Welcome back, {name}"
+  "welcome_back_msg": "Welcome back, {name}",
+  "taxes": "Taxes",
+  "taxes_calculated_next": "Calculated Next",
+  "basket_custom_price_alert": "The total price for this order has been manually adjusted.",
+  "custom_price": "Custom Price",
+  "custom_price_applied": "Custom price applied",
+  "free_trial_alert": "This item comes with a {days}-day free trial.",
+  "price_manually_adjusted_msg": "The price has been manually adjusted",
+  "price_one_time": "{price} one-time",
+  "price_per_cycle": "{price} every {cycle}",
+  "prices_shown_exclude_taxes": "* Prices shown exclude taxes.",
+  "prices_shown_include_taxes": "* Prices shown include taxes."
 }

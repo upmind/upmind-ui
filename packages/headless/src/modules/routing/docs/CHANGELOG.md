@@ -1,5 +1,26 @@
 # Changelog — Routing Module
 
+## [Unreleased] - 2026-07-27
+
+### Added
+
+- **Funnel inheritance (`extends`)** — `FunnelProps.extends` names a registered base funnel; a variant declares only what it adds or diverges on
+- **`extendFunnel()`** — Flattens an `extends` chain base-first in `utils.ts`; nests to any depth, throws on an unregistered base or a circular chain
+- **`FunnelContext.funnel`** — Handover slot read off `complete`'s final data, naming the funnel to load next instead of falling back to the default
+- **`FunnelResponse.funnel`** — Lets a guard service request a funnel handover alongside its target route
+- **`extendFunnel` unit tests** — `__tests__/extendFunnel.test.ts` covers single-level, nested, wholesale-override, non-mutation and cycle cases
+
+### Changed
+
+- **`prepare()`** — Resolves a funnel's `extends` chain before generating endpoint nodes, so overlay eligibility sees the full inherited state set
+
+### Documentation
+
+- **[ADR 023](../../../../../../docs/adr/023-funnel-inheritance.md)** — Funnel inheritance: rejected alternatives, merge semantics, and where the starting funnel is chosen
+- **`architecture.md`** — Funnel Composition and Starting-Funnel sections
+- **`gotchas.md`** — #3: an `extends` override owns the whole state node
+- **`usage.md`** — `register()` / `switchFunnel()` notes on funnel selection vs runtime override
+
 ## [FE-1365] - 2026-04-21
 
 ### Added

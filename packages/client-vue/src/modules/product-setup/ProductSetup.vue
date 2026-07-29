@@ -32,8 +32,7 @@ import { onUnmounted, ref } from "vue";
 import {
   useRoutingEngine,
   useProductSetup,
-  useBasket,
-  type ProductModel
+  useBasket
 } from "@upmind-automation/headless";
 
 // --- components
@@ -53,7 +52,6 @@ const { navigateBack, navigateNext } = useRoutingEngine();
 const { isReady: isBasketReady } = useBasket();
 
 const {
-  apply,
   reset,
   getNextRequiringSetup,
   isReady: isSetupReady
@@ -65,20 +63,14 @@ await isSetupReady();
 /** Current basket product ID - changes trigger view remount via :key binding. */
 const currentBpid = ref<string | undefined>(getNextRequiringSetup()?.id);
 
-/** Called when Setup emits resolve - applies config then advances to next product or checkout. */
-async function onResolve(model: Partial<ProductModel>) {
-  return apply(model)
-    .then(() => {
-      const next = getNextRequiringSetup();
-      if (next) {
-        currentBpid.value = next.id;
-      } else {
-        navigateNext();
-      }
-    })
-    .catch(() => {
-      // Error is captured in useProductSetup error state
-    });
+/** Called when Setup emits resolve (config already applied) - advances to the next product or checkout. */
+function onResolve() {
+  const next = getNextRequiringSetup();
+  if (next) {
+    currentBpid.value = next.id;
+  } else {
+    navigateNext();
+  }
 }
 
 /** Navigates back to basket. */

@@ -7,7 +7,7 @@
     no-footer
     :title="t('action.add_new_or_update', !props.modelValue ? 1 : 0)"
   >
-    <Skeleton v-if="meta.isLoading" :modal="modal" />
+    <Skeleton v-if="meta.isLoading" :modal="modal" :no-actions="noActions" />
 
     <template v-else>
       <Alert

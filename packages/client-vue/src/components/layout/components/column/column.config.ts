@@ -3,7 +3,9 @@ import { cva } from "class-variance-authority";
 export const variants = {
   width: {
     auto: "",
-    full: "w-full"
+    // full-width (content) columns shrink so scroll containers inside them (e.g.
+    // section tabs) bound to the viewport; auto columns (asides) keep their width.
+    full: "w-full min-w-0"
   },
   flow: {
     horizontal: "flex flex-col lg:flex-row",

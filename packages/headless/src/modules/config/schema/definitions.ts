@@ -407,10 +407,24 @@ export const UI_META_DEFINITIONS = {
     locked: { [UIContext.BASKET]: VISIBILITY.VISIBLE },
     conditional: true
   },
+  basketItemConfig: {
+    type: EDITABILITY,
+    default: EDITABILITY.READONLY,
+    contexts: [UIContext.BASKET],
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
   basketItems: {
     type: VISIBILITY,
     default: VISIBILITY.HIDDEN,
     contexts: [UIContext.CHECKOUT],
+    scopes: [UIScope.BRAND]
+  },
+  basketPromotionCode: {
+    type: VISIBILITY,
+    default: VISIBILITY.VISIBLE,
+    // basket only in practice — the checkout field stays on the legacy
+    // `ui.checkout.hide_promotions_field` setting, so no brand changes on upgrade
+    contexts: [UIContext.BASKET, UIContext.CHECKOUT],
     scopes: [UIScope.BRAND]
   },
   basketSummary: {
@@ -419,6 +433,12 @@ export const UI_META_DEFINITIONS = {
     contexts: [UIContext.AUTH, UIContext.CHECKOUT],
     scopes: [UIScope.BRAND],
     locked: { [UIContext.CHECKOUT]: VISIBILITY.VISIBLE }
+  },
+  basketSummaryDetails: {
+    type: VISIBILITY,
+    default: VISIBILITY.HIDDEN,
+    contexts: [UIContext.BASKET, UIContext.CHECKOUT],
+    scopes: [UIScope.BRAND]
   },
   basketTaxes: {
     type: TAXES_DISPLAY,
@@ -450,6 +470,12 @@ export const UI_META_DEFINITIONS = {
     contexts: [UIContext.CONFIGURE, UIContext.BASKET, UIContext.CHECKOUT],
     scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT],
     conditional: true
+  },
+  basketAction: {
+    type: VISIBILITY,
+    default: VISIBILITY.VISIBLE,
+    contexts: ALL_CONTEXTS,
+    scopes: [UIScope.BRAND]
   },
   breadcrumbs: {
     type: BREADCRUMBS,

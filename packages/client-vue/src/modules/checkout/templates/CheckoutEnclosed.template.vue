@@ -21,6 +21,7 @@ import { onMounted } from "vue";
 
 // --- internal
 import { useFooter } from "../../../components/footer/useFooter";
+import { useConfig } from "@upmind-automation/headless";
 import { useHeader } from "../../../components/header/useHeader";
 import { useSection } from "../../../components/section/useSection";
 
@@ -35,8 +36,11 @@ defineOptions({
   inheritAttrs: false
 });
 
+const { ui } = useConfig();
+
 onMounted(() => {
   useHeader({
+    noBasket: ui.basketAction.isHidden,
     background: HEADER_BACKGROUND.SURFACE,
     border: "none",
     items: "end"

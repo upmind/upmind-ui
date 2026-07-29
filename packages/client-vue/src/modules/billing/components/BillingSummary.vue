@@ -3,16 +3,22 @@
     id="basket-billing"
     :label="t('text.billing_details')"
     icon="building-07"
-    :card="false"
+    :card="card"
     :border="false"
     :actions="[
       {
         label: t('action.change'),
-        handler: navigateToBilling
+        handler: onEdit
       }
     ]"
   >
-    <Card :class="styles.billing.card.root" size="sm">
+    <!-- flat inside the Section card (no nested card) when the Section is the
+         card; otherwise the details keep their own enclosing card -->
+    <component
+      :is="card ? 'div' : Card"
+      size="sm"
+      :class="styles.billing.card.root"
+    >
       <Alert
         v-if="billingMeta.isAvailable && !billingMeta.isComplete"
         :title="t('billing.details_required_msg')"
@@ -40,7 +46,7 @@
               :label="t('action.add_company')"
               size="sm"
               color="danger"
-              @click="navigateToBilling"
+              @click="onEdit"
             />
           </dd>
         </div>
@@ -68,7 +74,7 @@
               :label="t('action.add_number')"
               size="sm"
               color="danger"
-              @click="navigateToBilling"
+              @click="onEdit"
             />
           </dd>
         </div>
@@ -103,12 +109,12 @@
               :label="t('action.add_address')"
               size="sm"
               :color="billingMeta.needsAddress ? 'danger' : 'primary'"
-              @click="navigateToBilling"
+              @click="onEdit"
             />
           </dd>
         </div>
       </dl>
-    </Card>
+    </component>
   </Section>
 </template>
 
@@ -122,11 +128,9 @@ import {
   useBasketBilling,
   useClientAddresses,
   useClientCompanies,
-  useClientPhones,
-  useRoutingEngine
+  useClientPhones
 } from "@upmind-automation/headless";
 
-import type { FunnelTarget } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- components
@@ -139,26 +143,33 @@ import config from "../billing.config";
 // --- utils
 import { lowerCase } from "lodash-es";
 
-// --- types
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
-
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
-  billingRoute: RouteLocationAsRelativeGeneric;
+  card?: boolean;
+}>();
+
+const emit = defineEmits<{
+  edit: [];
 }>();
 
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { navigate } = useRoutingEngine();
 
-const styles = useStyles(["billing.card", "billing.summary"], {}, config);
+const styles = useStyles(
+  ["billing.card", "billing.summary"],
+  computed(() => ({ card: props.card })),
+  config
+);
 
 const { isReady, meta: billingMeta, model } = useBasketBilling();
 
 // --- data loading
 
+// The client-data isReady()s resolve once the auth check settles (checkout
+// only mounts this summary for authenticated sessions), so a refresh
+// mid-token-validation still loads saved billing.
 await Promise.allSettled([
   isReady(),
   useClientAddresses().isReady(),
@@ -182,7 +193,5 @@ const selectedAddress = computed(() =>
   getAddress(model.value?.addressId ?? undefined)
 );
 
-const navigateToBilling = () => {
-  if (props.billingRoute) navigate(props.billingRoute as FunnelTarget);
-};
+const onEdit = () => emit("edit");
 </script>

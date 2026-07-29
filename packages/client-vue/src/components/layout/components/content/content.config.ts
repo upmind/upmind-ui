@@ -6,6 +6,10 @@ export const variants = {
     top: "sticky top-0",
     bottom: "sticky bottom-0"
   },
+  oversized: {
+    true: "static",
+    false: ""
+  },
   width: {
     auto: "",
     full: "w-full",
@@ -48,7 +52,7 @@ export const variants = {
 };
 
 export default {
-  content: cva("w-full", {
+  content: cva("w-full min-w-0 [&>*]:min-w-0", {
     variants,
     defaultVariants: {
       flow: "none",

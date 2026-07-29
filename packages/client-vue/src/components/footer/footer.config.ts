@@ -51,7 +51,11 @@ export default {
           variants: {
             background: {
               LTR: "flex-1",
-              RTL: "bg-canvas flex-none"
+              RTL: "bg-canvas flex-none",
+              // pr-0 mirrors the inset layout's content column (its inner padding is
+              // dropped so the cards meet the aside) — keeps the actions on the
+              // section's right edge
+              canvas: "flex-1 lg:pr-0"
             }
           }
         }),
@@ -59,7 +63,8 @@ export default {
           variants: {
             background: {
               LTR: "",
-              RTL: "max-w-app-aside lg:min-w-app-aside"
+              RTL: "max-w-app-aside lg:min-w-app-aside",
+              canvas: ""
             }
           }
         })
@@ -69,7 +74,9 @@ export default {
           variants: {
             background: {
               LTR: "bg-canvas flex-none",
-              RTL: "flex-1"
+              RTL: "flex-1",
+              // pl-0 mirrors the inset layout's aside column's dropped inner padding
+              canvas: "flex-none lg:pl-0"
             }
           }
         }),
@@ -77,7 +84,8 @@ export default {
           variants: {
             background: {
               LTR: "max-w-app-aside lg:min-w-app-aside",
-              RTL: ""
+              RTL: "",
+              canvas: "max-w-app-aside lg:min-w-app-aside"
             }
           }
         })

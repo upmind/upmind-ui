@@ -36,6 +36,14 @@ interface ConfigOverrides {
    * for an unverified client; mock OFF for the normal checkout path.
    */
   requireVerifiedEmail?: boolean;
+  /**
+   * Overrides the legacy `ui.checkout.checkout_flow` brand setting
+   * (`BrandConfigKeys.CHECKOUT_FLOW`) — the fallback the checkout-flow
+   * resolver reads when no `flow` cart meta is configured. Pass `null` to
+   * clear it; combined with blanking the `flow` cart meta (see
+   * `interceptCheckoutFlow`) this yields a brand with NO configured flow.
+   */
+  checkoutFlow?: string | null;
 }
 
 /**
@@ -158,6 +166,9 @@ export async function interceptConfigValues(
         json.data["security.orders.require_verified_email"] =
           overrides.requireVerifiedEmail;
       }
+      if (overrides.checkoutFlow !== undefined) {
+        json.data["ui.checkout.checkout_flow"] = overrides.checkoutFlow;
+      }
       const updatedResponseBody = {
         ...json
       };
@@ -255,6 +266,49 @@ export function interceptUISchema(
       body: JSON.stringify(json)
     });
   });
+}
+
+/** The checkout-flow union the resolver validates `flow` values against. */
+export type CheckoutFlowSetting =
+  | "stepped"
+  | "stepped-skip-basket"
+  | "one-page";
+
+/**
+ * Points the brand at a checkout flow — a settings mock, not journey data.
+ *
+ * The flow resolver reads the `flow` cart meta first and falls back to the
+ * legacy `ui.checkout.checkout_flow` brand setting, so:
+ *   - a flow value mocks the meta at both the global and checkout contexts;
+ *   - `null` blanks the meta (an empty string fails flow validation, so the
+ *     resolver falls through) AND clears the legacy setting — a brand with no
+ *     configured checkout flow (baseline stepped behaviour).
+ *
+ * Only ONE brand-settings route handler is active at a time, so pass any
+ * additional cart meta overrides here rather than calling `interceptUISchema`
+ * a second time. Attach BEFORE the navigation that boots the app, so the
+ * funnel resolves the flow against the mocked config.
+ */
+export async function interceptCheckoutFlow(
+  page: Page,
+  context: BrowserContext,
+  flow: CheckoutFlowSetting | null,
+  cartOverrides: CartOverrides = {}
+) {
+  let metaValue: string;
+  if (flow === null) {
+    metaValue = "";
+  } else {
+    metaValue = flow;
+  }
+  interceptUISchema(context, {
+    "@context.*.flow": metaValue,
+    "@context.checkout.flow": metaValue,
+    ...cartOverrides
+  });
+  if (flow === null) {
+    await interceptConfigValues(page, null, { checkoutFlow: null });
+  }
 }
 
 export async function interceptSlots(page: Page, slot: string) {

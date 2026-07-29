@@ -183,6 +183,8 @@ export const useRoutingEngine = () => {
 
   const errors = useContext<RoutingEngineContext["error"]>(state, "error");
 
+  const target = useContext<FunnelTarget>(funnel, "targetRoute");
+
   // --- methods
   function register({
     defaultFunnel,
@@ -425,6 +427,7 @@ export const useRoutingEngine = () => {
     router,
     errors,
     currentRoute: computed(() => router?.currentRoute.value),
+    target,
 
     //  --- methods
     init: (instance: Router) => (router ??= instance),
