@@ -24,6 +24,7 @@ import {
   omit,
   omitBy,
   set,
+  some,
   unset
 } from "lodash-es";
 import {
@@ -51,8 +52,8 @@ export type UseBasketProductPending = ReturnType<
 
 let productConfigs: Record<ProductProps["productId"], ProductModel> = {};
 // Reactive registry of pending product machines, keyed by the model-hash id.
-// Presence of a machine for a given productId is the source of truth for
-// `meta.isProcessing(pid)` — no separate processing flag needed.
+// A machine here persists a product's configuration; `meta.isProcessing(pid)`
+// reads the machine's own state — presence alone is not activity.
 const productsPending = shallowRef<
   Record<ProductProps["productId"], UseBasketProductPending>
 >({});
@@ -411,12 +412,12 @@ export const useBasketProductsPending = () => {
     meta: computed(() => ({
       hasProducts: !isEmpty(products.value),
       isProcessing: (pid?: ProductProps["productId"]) =>
-        pid
-          ? !!find(
-              productsPending.value,
-              ({ model }) => model.value?.productId === pid
-            )
-          : !isEmpty(productsPending.value),
+        some(
+          productsPending.value,
+          ({ model, meta }) =>
+            (!pid || model.value?.productId === pid) &&
+            (meta.value.isLoading || meta.value.isProcessing)
+        ),
       isInBasket: (pid?: ProductProps["productId"]) =>
         pid ? !!productExists({ productId: pid }) : !isEmpty(products.value)
     })),

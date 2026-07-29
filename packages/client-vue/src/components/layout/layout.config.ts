@@ -45,5 +45,28 @@ export default {
     card: cva("mx-auto flex w-full max-w-2xl flex-col justify-between"),
     contentHeader: cva("w-full"),
     content: cva("w-full")
+  },
+
+  inset: {
+    // Compact back row: strip the Column's default vertical padding.
+    backColumn: cva("py-0 lg:py-0"),
+    backContent: cva("pt-10 pb-0 lg:pt-10 lg:pb-0"),
+    // Centered: the card owns the full column, so horizontal padding drops at lg.
+    content: cva("", {
+      variants: {
+        centered: { true: "lg:px-0" }
+      }
+    }),
+    headerColumn: cva("py-0 lg:py-0"),
+    contentColumn: cva("lg:pt-0", {
+      variants: {
+        centered: {
+          true: "mx-auto w-full max-w-xl lg:px-0",
+          false: "lg:pr-0"
+        }
+      }
+    }),
+    // Drop the aside's inner (left) padding so the summary sits close to content.
+    aside: cva("lg:pt-0 lg:pl-0")
   }
 };

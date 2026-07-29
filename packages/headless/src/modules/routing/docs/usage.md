@@ -112,6 +112,8 @@ register({
 });
 ```
 
+`register()` runs after brand, system and session have resolved, so `defaultFunnel` may be derived from brand config rather than hardcoded. This is the single place a brand's starting funnel is chosen — do not re-derive it from inside a funnel state.
+
 ### `guard(route)`
 
 `(route: RouteLocation) => Promise<RouteLocation>` — Run the funnel guard pipeline for a route. Used in router guards.
@@ -129,6 +131,10 @@ router.beforeEach(async to => {
 ```typescript
 await switchFunnel("domains", currentRoute);
 ```
+
+`useRouting` calls this automatically when a route carries `?funnel=`, before guarding the route. It is ignored when the id is unregistered or already active.
+
+The engine holds `currentFunnel` across navigations, so the switch persists without the query param being repeated — provided the target funnel can serve the routes the user then visits. A funnel that hits a route it does not declare completes and the engine reloads the default, undoing the switch; a variant should `extends` the base so it inherits those routes instead of evicting itself. See [ADR 023](../../../../../../docs/adr/023-funnel-inheritance.md).
 
 ### `refresh()`
 

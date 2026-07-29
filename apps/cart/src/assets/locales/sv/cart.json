@@ -65,6 +65,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "product_setup_count": "Inga produkter kvar |{count} återstående produkt |{count} återstående produkter",
   "product_setup_desc": "Vissa produkter kräver ytterligare information innan utcheckningen. Vänligen granska och ange eventuella saknade uppgifter.",
+  "product_setup_details": "Detaljer om produktkonfigurationen",
   "product_setup_msg": "Använd även dessa uppgifter för{name}",
   "product_setup_title": "Slutför produktinstallationen",
   "promotion_help": "{code} ger {amount} rabatt {description}",
@@ -75,5 +76,6 @@
   "show_more_payment_options": "Visa fler betalningsalternativ",
   "stored_payment_methods_limited_desc": "Alla betalningsmetoder är inte synliga eftersom de inte är tillgängliga för ditt land eller din valuta.",
   "stored_payment_methods_limited_title": "Begränsade betalningsmetoder",
-  "warning_notes_title": "Varning för varukorg | Varningar för varukorg"
+  "warning_notes_title": "Varning för varukorg | Varningar för varukorg",
+  "your_order": "Din beställning"
 }

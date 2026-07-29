@@ -11,6 +11,12 @@ import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 export interface BasketProductProps extends BasketProduct {
   open?: boolean;
+  loading?: boolean;
+  processing?: boolean;
+  disabled?: boolean;
+  editRoute: RouteLocationAsRelativeGeneric;
+  // own Card (default) vs flat inside a parent card
+  card?: boolean;
 }
 
 export interface BasketProductContentProps {
@@ -25,6 +31,8 @@ export interface BasketProductContentProps {
   open: boolean;
   image: boolean;
   error: boolean;
+  // a product error nothing on the card explains — warning presentation
+  warning?: boolean;
   processing: boolean;
   loading: boolean;
   pricesUpdating?: boolean;
@@ -41,6 +49,8 @@ export interface BasketProductContentProps {
   upsellOptions?: SubproductDetails[];
   terms?: TermDetails[];
   modelValue?: ProductModel;
+  // configured inline: suppresses the "add missing data" alert
+  configurable?: boolean;
 }
 
 export interface BasketProductSummaryProps {
@@ -69,4 +79,13 @@ export interface BasketProductConfigDetailsProps {
 export interface BasketProductCardsProps {
   open?: boolean;
   editRoute: RouteLocationAsRelativeGeneric;
+  disabled?: boolean;
+}
+
+export interface BasketProductSkeletonsProps {
+  card?: boolean;
+}
+
+export interface BasketProductSkeletonProps {
+  card?: boolean;
 }

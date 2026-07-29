@@ -1,11 +1,11 @@
 // --- internal
-import { useBrand, useDataLayer, useRoutingEngine } from "../";
+import { useBrand, useDataLayer, useQueryParams, useRoutingEngine } from "../";
 
 // --- utils
 import { get } from "lodash-es";
 
 // --- types
-import type { Router, RouteLocation } from "vue-router";
+import type { Router, RouteLocation, RouteLocationGeneric } from "vue-router";
 import { type UIRouteOptions } from "../brand/types";
 import { decorateRoutes, hasRouteChanged } from "./utils";
 
@@ -31,7 +31,9 @@ export const useRouting = (router: Router): void => {
    */
   async function guardRoute(route: RouteLocation) {
     if (route?.query?.funnel) {
-      await switchFunnel(route.query.funnel.toString(), route);
+      const { consumeParam } = useQueryParams(route as RouteLocationGeneric);
+      const funnel = consumeParam("funnel");
+      await switchFunnel(funnel.toString(), route);
     }
     const target = await guard(route);
 

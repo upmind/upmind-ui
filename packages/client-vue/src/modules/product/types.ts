@@ -13,9 +13,12 @@ export type ConfigureProps = {
 
 export type ConfigProps = {
   as?: "form" | "fieldset";
+  /** Resolve whenever the form validates, for hosts that save inline. */
+  autosave?: boolean;
   disabled?: boolean;
   required?: boolean;
   hideTerms?: boolean;
+  touched?: boolean;
   noFooter?: boolean;
   class?: HTMLAttributes["class"];
   meta: UseMetaResult;
@@ -37,5 +40,6 @@ export enum PRODUCT_TEMPLATE {
   FULL = "full",
   TWO_COLUMN_LTR = "two-column-ltr",
   TWO_COLUMN_RTL = "two-column-rtl",
-  ENCLOSED = "enclosed"
+  ENCLOSED = "enclosed",
+  INSET = "inset"
 }

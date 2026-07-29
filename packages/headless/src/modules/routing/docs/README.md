@@ -24,6 +24,7 @@ if (meta.value.isResolved) {
 | Feature                   | Status | Description                                    |
 | ------------------------- | ------ | ---------------------------------------------- |
 | Funnel-based routing      | ✅     | Declarative state-driven navigation            |
+| Funnel inheritance        | ✅     | Variants extend a base funnel (ADR 023)        |
 | Overlay routes            | ✅     | Auth/session modals via named routes           |
 | Reactive watchers         | ✅     | Auto-redirect on session/basket changes        |
 | Query param normalization | ✅     | `QUERY_PARAMS` enum for type-safe param access |
@@ -37,6 +38,8 @@ if (meta.value.isResolved) {
 ### Funnels
 
 A funnel is a set of routing rules for a specific customer journey (e.g., cart checkout, web hosting setup). The **Routing Engine** acts as a broker — it picks the right funnel and delegates.
+
+Funnels relate to each other in two distinct ways. **Sequencing** is for disjoint journeys: a funnel completes and hands control to the next one, or back to the default. **Inheritance** (`extends`) is for variants: a funnel that is the standard journey except for a few routes declares only its divergence and inherits the rest. See [ADR 023](../../../../../../docs/adr/023-funnel-inheritance.md).
 
 ### Watchers
 

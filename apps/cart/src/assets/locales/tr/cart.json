@@ -65,6 +65,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "product_setup_count": "Son ürün stokta yok.{count} kalan ürün |{count} kalan ürünler",
   "product_setup_desc": "Bazı ürünler için ödeme işleminden önce ek bilgi gerekmektedir. Lütfen bilgileri gözden geçirin ve eksik olan bilgileri sağlayın.",
+  "product_setup_details": "Ürün kurulum ayrıntıları",
   "product_setup_msg": "Bu bilgileri ayrıca şunlar için de kullanabilirsiniz:{name}",
   "product_setup_title": "Ürün kurulumu tamamlandı.",
   "promotion_help": "{code} sağlar {amount} indirim {description}",
@@ -75,5 +76,6 @@
   "show_more_payment_options": "Daha fazla ödeme seçeneği göster",
   "stored_payment_methods_limited_desc": "Tüm ödeme yöntemleri görünmüyor çünkü ülkeniz veya para biriminiz için mevcut değiller.",
   "stored_payment_methods_limited_title": "Sınırlı Ödeme Yöntemleri",
-  "warning_notes_title": "Sepet uyarısı | Sepet uyarıları"
+  "warning_notes_title": "Sepet uyarısı | Sepet uyarıları",
+  "your_order": "Siparişiniz"
 }

@@ -48,6 +48,12 @@ export class Checkout {
   readonly billingAddCompany: Locator;
   readonly billingAddNumber: Locator;
   readonly backToCheckout: Locator;
+
+  /* One-page checkout sections (stable DOM ids, locale-independent) */
+  readonly billingSection: Locator;
+  readonly billingForm: Locator;
+  readonly fieldsSection: Locator;
+  readonly fieldsForm: Locator;
   private readonly textInputComponent: TextInput;
 
   constructor(page: Page) {
@@ -117,6 +123,33 @@ export class Checkout {
     this.billingAddCompany = this.billingDetails.getByText("Add company");
     this.billingAddNumber = this.billingDetails.getByText("Add number");
     this.backToCheckout = this.page.getByTestId("button-back-to-checkout");
+
+    /* One-page checkout sections */
+    // #checkout-billing wraps both billing variants (saved-details summary and
+    // the entry form); #basket-fields is the "Additional details" custom-fields
+    // section. Both are stable DOM ids.
+    this.billingSection = this.page.locator("#checkout-billing");
+    this.billingForm = this.billingSection.getByTestId("form");
+    this.fieldsSection = this.page.locator("#basket-fields");
+    this.fieldsForm = this.fieldsSection.getByTestId("form");
+  }
+
+  /**
+   * A single Place Order attempt for refusal paths — unlike
+   * `clickCompleteCheckout` it does not retry or await navigation, so the
+   * machine's refusal reaction can be asserted.
+   */
+  async attemptPlaceOrder() {
+    await this.completeCheckout.click();
+  }
+
+  /**
+   * The first form validation message inside a section — the incomplete-state
+   * signal a Place Order refusal surfaces. Field names differ per brand, so
+   * this matches the renderer's `form-item-message-*` prefix.
+   */
+  sectionValidationMessage(section: Locator): Locator {
+    return section.locator('[data-testid^="form-item-message"]').first();
   }
 
   async manuallyInputAddress(

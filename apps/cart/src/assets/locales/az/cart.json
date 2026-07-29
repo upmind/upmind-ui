@@ -65,6 +65,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "product_setup_count": "Məhsul qalmayıb | {count} qalan məhsul | {count} qalan məhsullar",
   "product_setup_desc": "Bəzi məhsullar sifariş verməzdən əvvəl əlavə məlumat tələb edir. Zəhmət olmasa, nəzərdən keçirin və çatışmayan məlumatları təqdim edin.",
+  "product_setup_details": "Məhsulun quraşdırılması detalları",
   "product_setup_msg": "Həmçinin bu detallardan istifadə edin {name}",
   "product_setup_title": "Məhsulun tam quraşdırılması",
   "promotion_help": "{code} təmin edir {amount} endirim {description}",
@@ -75,5 +76,6 @@
   "show_more_payment_options": "Daha çox ödəniş seçimi göstər",
   "stored_payment_methods_limited_desc": "Bütün ödəniş üsulları görünmür, çünki onlar sizin ölkəniz və ya valyutanız üçün mövcud deyil.",
   "stored_payment_methods_limited_title": "Məhdud Ödəniş Metodları",
-  "warning_notes_title": "Səbət xəbərdarlığı | Səbət xəbərdarlıqları"
+  "warning_notes_title": "Səbət xəbərdarlığı | Səbət xəbərdarlıqları",
+  "your_order": "Sifarişiniz"
 }

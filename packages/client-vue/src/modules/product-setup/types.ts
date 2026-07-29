@@ -20,3 +20,7 @@ export type ProductSetupProps = {
   basketRoute?: RouteLocationAsRelativeGeneric;
   hideSlots?: string[];
 };
+
+export type ProductSetupFormProps = {
+  bpid: string;
+};

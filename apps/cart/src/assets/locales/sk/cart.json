@@ -65,6 +65,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "product_setup_count": "Žiadne zostávajúce produkty |{count} zostávajúci produkt |{count} zostávajúce produkty",
   "product_setup_desc": "Niektoré produkty vyžadujú pred dokončením objednávky ďalšie informácie. Skontrolujte ich a poskytnite všetky chýbajúce údaje.",
+  "product_setup_details": "Podrobnosti o nastavení produktu",
   "product_setup_msg": "Použite aj tieto údaje na{name}",
   "product_setup_title": "Dokončite nastavenie produktu",
   "promotion_help": "{code} poskytuje {amount} zľava {description}",
@@ -75,5 +76,6 @@
   "show_more_payment_options": "Zobraziť viac možností platby",
   "stored_payment_methods_limited_desc": "Nie všetky spôsoby platby sú viditeľné, pretože nie sú dostupné pre vašu krajinu alebo menu.",
   "stored_payment_methods_limited_title": "Obmedzené spôsoby platby",
-  "warning_notes_title": "Upozornenie na košík | Upozornenia na košík"
+  "warning_notes_title": "Upozornenie na košík | Upozornenia na košík",
+  "your_order": "Vaša objednávka"
 }
