@@ -308,6 +308,11 @@ export function useProductSetup() {
   // basket refreshes — e.g. after auth swaps the guest token, validation
   // re-runs and produces a fresh basketErrors we want to capture.
   function captureSchemas(): void {
+    // Never while an apply is in flight. The snapshot is what that save is scoped
+    // to (see apply above), and emptying it mid-save unmounts the form gating on
+    // hasSchema — taking the pending resolve with it, so nothing advances.
+    if (processing.value) return;
+
     const ctx = contextValue<ProductConfigContext>(
       currentConfig.value?.service
     )!;

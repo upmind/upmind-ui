@@ -60,6 +60,7 @@
               <ProductConfig
                 v-if="basketProduct && productMeta?.isAvailable"
                 :meta="configMeta"
+                :touched="productMeta?.showErrors"
                 :item="basketProduct"
                 :model-value="basketProduct?.id"
                 :hide-terms="props.hideTerms"
@@ -113,7 +114,9 @@
 
             <slot
               v-if="
-                template === BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR && !isMobile
+                template === BASKET_PRODUCT_TEMPLATE.INSET ||
+                (template === BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR &&
+                  !isMobile)
               "
               name="actions"
               :product="product"
@@ -255,12 +258,14 @@ import BasketProductFullTemplate from "./templates/BasketProductFull.template.vu
 import BasketProductLTRTemplate from "./templates/BasketProductLTR.template.vue";
 import BasketProductRTLTemplate from "./templates/BasketProductRTL.template.vue";
 import BasketProductEnclosedTemplate from "./templates/BasketProductEnclosed.template.vue";
+import BasketProductInsetTemplate from "./templates/BasketProductInset.template.vue";
 
 const supportedTemplates = {
   [BASKET_PRODUCT_TEMPLATE.FULL]: BasketProductFullTemplate,
   [BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR]: BasketProductLTRTemplate,
   [BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL]: BasketProductRTLTemplate,
-  [BASKET_PRODUCT_TEMPLATE.ENCLOSED]: BasketProductEnclosedTemplate
+  [BASKET_PRODUCT_TEMPLATE.ENCLOSED]: BasketProductEnclosedTemplate,
+  [BASKET_PRODUCT_TEMPLATE.INSET]: BasketProductInsetTemplate
 };
 // --- utils
 import { get, includes, take, isEmpty } from "lodash-es";
@@ -355,7 +360,8 @@ const stylesMeta = computed(() => {
       (template.value === BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL &&
         isMobile.value) ||
       template.value === BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR ||
-      template.value === BASKET_PRODUCT_TEMPLATE.FULL
+      template.value === BASKET_PRODUCT_TEMPLATE.FULL ||
+      template.value === BASKET_PRODUCT_TEMPLATE.INSET
   };
 });
 

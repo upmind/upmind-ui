@@ -661,11 +661,9 @@ export default createMachine(
         const { model, rawBasketProduct, coupons, silent } = context;
 
         // NB:ensure we ad dout basket product id to the model, so we update instead of add
-        if (rawBasketProduct && model) model.id = rawBasketProduct.id;
-
         return sendTo(context.basketHelper, {
           type: "UPDATE",
-          target: { ...model, silent, coupons },
+          target: { ...model, id: rawBasketProduct?.id, silent, coupons },
           context
         });
       }),

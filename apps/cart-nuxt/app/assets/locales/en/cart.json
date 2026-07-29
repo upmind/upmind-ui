@@ -58,5 +58,22 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Show more payment options",
   "stored_payment_methods_limited_desc": "Not all payment methods are visible because they are not available for your country or currency.",
-  "stored_payment_methods_limited_title": "Limited Payment Methods"
+  "stored_payment_methods_limited_title": "Limited Payment Methods",
+  "add_billing_first": "Add your billing details to continue.",
+  "complete_account_first": "Complete your account details to continue.",
+  "complete_setup_first": "Complete your product setup to continue.",
+  "product_setup_details": "Product setup details",
+  "your_account": "Your account",
+  "your_order": "Your order",
+  "warning_notes_title": "Basket warning | Basket warnings",
+  "add_payment_method": "Add payment method",
+  "basket_summary_desc_free": "You have {count} item in your basket. | You have {count} items in your basket.",
+  "payment_amount_reset": "Pay outstanding balance of {amount}",
+  "payment_challenge_msg": "Please complete the verification below to continue.",
+  "payment_challenge_title": "**Verify** your payment",
+  "payment_challenge_title_md": "@.markdown:{'cart.payment_challenge_title'}",
+  "product_setup_count": "No products remaining | {count} product remaining | {count} products remaining",
+  "product_setup_desc": "Some products require additional information before checkout. Please review and provide any missing details.",
+  "product_setup_msg": "Also use these details for {name}",
+  "product_setup_title": "Complete product setup"
 }

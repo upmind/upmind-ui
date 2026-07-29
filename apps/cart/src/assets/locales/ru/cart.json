@@ -65,6 +65,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "product_setup_count": "Товаров не осталось |{count} Осталось товара |{count} оставшиеся товары",
   "product_setup_desc": "Для некоторых товаров перед оформлением заказа требуется дополнительная информация. Пожалуйста, ознакомьтесь с ней и укажите недостающие данные.",
+  "product_setup_details": "Подробная информация о настройке продукта",
   "product_setup_msg": "Также используйте эти данные для{name}",
   "product_setup_title": "Полная настройка продукта",
   "promotion_help": "{code} обеспечивает {amount} скидка {description}",
@@ -75,5 +76,6 @@
   "show_more_payment_options": "Показать больше вариантов оплаты",
   "stored_payment_methods_limited_desc": "Не все способы оплаты видны, потому что они недоступны в вашей стране или для вашей валюты.",
   "stored_payment_methods_limited_title": "Ограниченные методы оплаты",
-  "warning_notes_title": "Предупреждение о корзине | Предупреждения о корзине"
+  "warning_notes_title": "Предупреждение о корзине | Предупреждения о корзине",
+  "your_order": "Ваш заказ"
 }

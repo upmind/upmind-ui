@@ -65,6 +65,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "product_setup_count": "Ingen produkter igjen |{count} gjenværende produkt |{count} gjenværende produkter",
   "product_setup_desc": "Noen produkter krever ytterligere informasjon før betaling. Vennligst gjennomgå og oppgi eventuelle manglende detaljer.",
+  "product_setup_details": "Detaljer om produktoppsett",
   "product_setup_msg": "Bruk også disse detaljene til{name}",
   "product_setup_title": "Fullfør produktoppsettet",
   "promotion_help": "{code} gir {amount} rabatt {description}",
@@ -75,5 +76,6 @@
   "show_more_payment_options": "Vis flere betalingsalternativer",
   "stored_payment_methods_limited_desc": "Ikke alle betalingsmetoder er synlige fordi de ikke er tilgjengelige for ditt land eller din valuta.",
   "stored_payment_methods_limited_title": "Begrensede betalingsmetoder",
-  "warning_notes_title": "Handlekurvadvarsel | Handlekurvadvarsler"
+  "warning_notes_title": "Handlekurvadvarsel | Handlekurvadvarsler",
+  "your_order": "Din bestilling"
 }

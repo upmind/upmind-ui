@@ -65,6 +65,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "product_setup_count": "Nincsenek termékek |{count} maradék termék |{count} fennmaradó termékek",
   "product_setup_desc": "Néhány termékhez további információk szükségesek a fizetés előtt. Kérjük, ellenőrizze és adja meg a hiányzó adatokat.",
+  "product_setup_details": "A termék beállításának részletei",
   "product_setup_msg": "Használja ezeket az adatokat a következőkhöz is:{name}",
   "product_setup_title": "Teljes termékbeállítás",
   "promotion_help": "{code} biztosít {amount} kedvezmény {description}",
@@ -75,5 +76,6 @@
   "show_more_payment_options": "További fizetési lehetőségek megjelenítése",
   "stored_payment_methods_limited_desc": "Nem minden fizetési mód látható, mert nem érhetők el az Ön országában vagy pénznemében.",
   "stored_payment_methods_limited_title": "Korlátozott fizetési módok",
-  "warning_notes_title": "Kosár figyelmeztetés | Kosár figyelmeztetések"
+  "warning_notes_title": "Kosár figyelmeztetés | Kosár figyelmeztetések",
+  "your_order": "Rendelése"
 }

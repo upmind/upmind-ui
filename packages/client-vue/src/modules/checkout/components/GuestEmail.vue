@@ -4,6 +4,7 @@
     id="guest-email"
     :label="t('form.guest_email.label')"
     icon="mail-01"
+    :disabled="props.disabled"
   >
     <Form
       :disabled="meta.isProcessing"
@@ -30,7 +31,12 @@ import { useGuestEmail } from "@upmind-automation/headless";
 import Section from "../../../components/section/Section.vue";
 import Form from "../../../components/form/Form.vue";
 
+// --- types
+import type { GuestEmailProps } from "../types";
+
 // -----------------------------------------------------------------------------
+
+const props = defineProps<GuestEmailProps>();
 
 const { t } = useI18n();
 const {

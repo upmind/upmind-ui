@@ -23,15 +23,33 @@
       </slot>
     </template>
 
+    <template #back>
+      <slot name="back">
+        <!-- One-page reaches billing as a checkout sub-step, so it needs a Back;
+             stepped billing templates never showed one. -->
+        <Back
+          v-if="template === BILLING_TEMPLATE.INSET"
+          :label="t('action.back')"
+          icon="arrow-narrow-left"
+          size="md"
+          @click.prevent="navigateBack"
+        />
+      </slot>
+    </template>
+
     <template #content>
       <slot name="content">
         <BillingForm
           expand
           :auto-update="false"
+          :card="template === BILLING_TEMPLATE.INSET"
           :inline="
+            template === BILLING_TEMPLATE.INSET ||
             template === BILLING_TEMPLATE.ENCLOSED ||
             template === BILLING_TEMPLATE.FULL
           "
+          :inline-editing="template === BILLING_TEMPLATE.INSET"
+          @resolve="navigateNext()"
         />
       </slot>
     </template>
@@ -79,6 +97,7 @@ import { useThemes, Markdown } from "@upmind-automation/upmind-ui";
 
 // --- components
 import Hero from "../../components/hero/Hero.vue";
+import Back from "../../components/navigation/Back.vue";
 import BillingForm from "./components/BillingForm.vue";
 
 // --- templates
@@ -86,12 +105,14 @@ import BillingFullTemplate from "./templates/BillingFull.template.vue";
 import BillingLTRTemplate from "./templates/BillingLTR.template.vue";
 import BillingRTLTemplate from "./templates/BillingRTL.template.vue";
 import BillingEnclosedTemplate from "./templates/BillingEnclosed.template.vue";
+import BillingInsetTemplate from "./templates/BillingInset.template.vue";
 
 const supportedTemplates = {
   [BILLING_TEMPLATE.FULL]: BillingFullTemplate,
   [BILLING_TEMPLATE.TWO_COLUMN_LTR]: BillingLTRTemplate,
   [BILLING_TEMPLATE.TWO_COLUMN_RTL]: BillingRTLTemplate,
-  [BILLING_TEMPLATE.ENCLOSED]: BillingEnclosedTemplate
+  [BILLING_TEMPLATE.ENCLOSED]: BillingEnclosedTemplate,
+  [BILLING_TEMPLATE.INSET]: BillingInsetTemplate
 };
 
 // --- utils
@@ -110,7 +131,7 @@ const props = withDefaults(defineProps<BillingProps>(), {
 
 const { t } = useI18n();
 const { set } = useThemes();
-const { navigateBack, isNavigating } = useRoutingEngine();
+const { navigateBack, navigateNext, isNavigating } = useRoutingEngine();
 
 const { ui, data } = useConfig({
   context: UIContext.BILLING_DETAILS,

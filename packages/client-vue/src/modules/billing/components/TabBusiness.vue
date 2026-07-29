@@ -23,11 +23,7 @@
         :readonly="readonly"
         :force-open="props.expand"
         @processing="wait"
-        @resolve="
-          (add: boolean) => {
-            if (add) emit('formResolve');
-          }
-        "
+        @resolve="() => emit('formResolve')"
         v-model:touched="touched"
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
@@ -51,11 +47,7 @@
             :show-label="!!selectedPhone"
             :readonly="readonly"
             @processing="wait"
-            @resolve="
-              (add: boolean) => {
-                if (add) emit('formResolve');
-              }
-            "
+            @resolve="() => emit('formResolve')"
             v-model:touched="touched"
           >
             <template #item="{ item, readonly, doEdit, doRemove }">

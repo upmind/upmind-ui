@@ -22,6 +22,14 @@ export class Basket {
   /* Upsells */
   readonly basketProductUpsell: Locator;
 
+  /* One-page order page ("Your Order") */
+  readonly yourOrderCard: Locator;
+  readonly quantityInput: Locator;
+  readonly quantityIncrement: Locator;
+  readonly termSelector: Locator;
+  readonly summarySection: Locator;
+  readonly summaryTotalValue: Locator;
+
   constructor(page: Page) {
     this.page = page;
     this.basketProduct = page.getByTestId("basket-product");
@@ -51,6 +59,31 @@ export class Basket {
 
     /* Upsells */
     this.basketProductUpsell = page.getByTestId("basket-product-upsell");
+
+    /* One-page order page ("Your Order") */
+    // Section testids are derived from the translated label (en run), matching
+    // the suite's existing section locators. The card only renders under the
+    // one-page flow, so its presence doubles as the flow marker.
+    this.yourOrderCard = page.getByTestId("section-your-order");
+    this.quantityInput = this.basketProduct.getByTestId("quantity-input");
+    this.quantityIncrement = this.basketProduct.getByTestId(
+      "number-field-increment"
+    );
+    this.termSelector = this.basketProduct.getByTestId(
+      "basket-product-term-selector"
+    );
+    // #basket-summary is a stable DOM id on the summary section of both the
+    // basket/order page and the checkout page.
+    this.summarySection = page.locator("#basket-summary");
+    this.summaryTotalValue = this.summarySection
+      .locator("dt", { hasText: /^Total$/ })
+      .locator("xpath=following-sibling::dd[1]");
+  }
+
+  /** Opens the inline term selector and picks the term matching the label. */
+  async selectTerm(termLabel: string | RegExp) {
+    await this.termSelector.click();
+    await this.page.getByRole("option", { name: termLabel }).click();
   }
 
   upsellTitle(upsell: Locator): Locator {

@@ -10,6 +10,12 @@ export interface LayoutProps {
 export interface VariantProps extends LayoutProps {
   uiConfig?: { layout: CxOptions };
 }
+export interface InsetProps extends VariantProps {
+  /** Persistent summary column (Your Order / Billing / Payment). Off for auth. */
+  aside?: boolean;
+  /** Single centred column, no aside (the Create Account step). */
+  centered?: boolean;
+}
 export interface SectionProps {
   title?: string;
   as?: string;

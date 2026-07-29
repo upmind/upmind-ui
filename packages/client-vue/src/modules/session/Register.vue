@@ -3,7 +3,15 @@
   <component :is="templateVariant" v-bind="props" v-else>
     <template #back>
       <slot name="back">
-        <Back />
+        <!-- One-page uses the compact "← Back" per the designs; other templates
+             keep the default "Back to basket". -->
+        <Back
+          :label="meta.isInset ? t('action.back') : t('action.back_to_basket')"
+          :icon="meta.isInset ? 'arrow-narrow-left' : undefined"
+          :size="meta.isInset ? 'md' : 'lg'"
+          :color="meta.isInset ? 'muted' : 'default'"
+          @click.prevent="doReject"
+        />
       </slot>
     </template>
 
@@ -11,7 +19,7 @@
       <slot name="hero">
         <Hero
           :title="
-            meta.isGuestClient
+            sessionMeta.isGuestClient
               ? t('auth.guest_register_title')
               : t('action.create_account')
           "
@@ -19,12 +27,14 @@
           <template #subtitle>
             <!-- A guest client is upgrading, not choosing login vs register —
                  show the save-your-details prompt, not the log-in link. -->
-            <span v-if="meta.isGuestClient" class="font-normal">{{
-              t("auth.guest_register_description")
-            }}</span>
+            <span
+              v-if="sessionMeta.isGuestClient"
+              :class="styles.session.subtitle"
+              >{{ t("auth.guest_register_description") }}</span
+            >
 
             <template v-else>
-              <span class="font-normal"
+              <span :class="styles.session.subtitle"
                 >{{ t("auth.register_description") }}&nbsp;</span
               >
 
@@ -33,7 +43,7 @@
                 size="inherit"
                 color="inherit"
                 :label="t('action.log_in_here')"
-                class="font-normal"
+                :class="styles.session.subtitle"
               />
             </template>
           </template>
@@ -46,14 +56,28 @@
         <!-- One register form for new sign-ups AND guest-client upgrades; Auth
              picks the right form from the session machine (a guest client's
              upgrade form is owned by the client machine). Shown unless the user
-             is a fully-registered client. -->
+             is a fully-registered client. One-page titles it "Create Account" as
+             a card with a "Log in" cross-link (one-page drops the hero); other
+             templates keep the plain section titled "Register". -->
         <Section
-          :label="t('action.register')"
+          :card="meta.isInset"
+          :label="
+            meta.isInset ? t('action.create_account') : t('action.register')
+          "
           icon="user-03"
-          v-show="!meta.isAuthenticated || meta.isGuestClient"
-          class="max-w-3xl"
+          :class="styles.session.formWidth"
+          v-show="!sessionMeta.isAuthenticated || sessionMeta.isGuestClient"
           :active="templateMeta.hasActiveSection"
         >
+          <template v-if="meta.isInset && !sessionMeta.isGuestClient" #actions>
+            <Link
+              :label="t('action.login')"
+              color="muted"
+              size="sm"
+              @click.prevent="doUpdate('login')"
+            />
+          </template>
+
           <Markdown
             v-if="templateMeta.hasActiveSection && registerTemplate?.body"
             tag="div"
@@ -62,7 +86,7 @@
 
           <Alert
             v-if="
-              meta.canRegisterAsGuest &&
+              sessionMeta.canRegisterAsGuest &&
               !basketMeta.isLoading &&
               !basketMeta.hasRecurringProducts
             "
@@ -78,12 +102,12 @@
                 @click="registerAsGuest"
                 color="inherit"
                 :label="t('auth.guest_checkout_action')"
-                :disabled="meta.isRegisteringAsGuest"
+                :disabled="sessionMeta.isRegisteringAsGuest"
                 data-testid="guest-checkout-cta"
               >
                 <template #append>
                   <Spinner
-                    v-if="meta.isRegisteringAsGuest"
+                    v-if="sessionMeta.isRegisteringAsGuest"
                     size="badge"
                     class="m-1.5"
                   />
@@ -99,7 +123,7 @@
           </Alert>
 
           <Auth
-            v-show="!meta.isLoading && !basketMeta.isLoading"
+            v-show="!sessionMeta.isLoading && !basketMeta.isLoading"
             class="rounded-box w-full max-w-5xl items-start"
             no-tabs
             no-header
@@ -109,7 +133,7 @@
           />
 
           <div
-            v-if="meta.isLoading || basketMeta.isLoading"
+            v-if="sessionMeta.isLoading || basketMeta.isLoading"
             class="flex w-full max-w-5xl flex-col gap-6"
           >
             <div>
@@ -212,7 +236,7 @@ import {
 } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
 import Hero from "../../components/hero/Hero.vue";
-import Back from "./components/Back.vue";
+import Back from "../../components/navigation/Back.vue";
 import Loading from "../system/Loading.vue";
 import Section from "../../components/section/Section.vue";
 import Summary from "../basket/components/Summary.vue";
@@ -224,6 +248,7 @@ import SessionSurfaceBoxTemplate from "./templates/SessionSurfaceBox.template.vu
 import SessionLTRTemplate from "./templates/SessionLTR.template.vue";
 import SessionRTLTemplate from "./templates/SessionRTL.template.vue";
 import SessionEnclosedTemplate from "./templates/SessionEnclosed.template.vue";
+import SessionInsetTemplate from "./templates/SessionInset.template.vue";
 
 const supportedTemplates = {
   [SESSION_TEMPLATE.SPLIT]: SessionSplitTemplate,
@@ -231,7 +256,8 @@ const supportedTemplates = {
   [SESSION_TEMPLATE.SURFACE_BOX]: SessionSurfaceBoxTemplate,
   [SESSION_TEMPLATE.TWO_COLUMN_LTR]: SessionLTRTemplate,
   [SESSION_TEMPLATE.TWO_COLUMN_RTL]: SessionRTLTemplate,
-  [SESSION_TEMPLATE.ENCLOSED]: SessionEnclosedTemplate
+  [SESSION_TEMPLATE.ENCLOSED]: SessionEnclosedTemplate,
+  [SESSION_TEMPLATE.INSET]: SessionInsetTemplate
 };
 
 // --- utils
@@ -263,13 +289,13 @@ const props = defineProps<
 const { t } = useI18n();
 const { set } = useThemes();
 
-const { meta, isReady, registerAsGuest } = useSession();
+const { meta: sessionMeta, isReady, registerAsGuest } = useSession();
 const { meta: basketMeta } = useBasket();
 const { navigateNext, navigateBack, navigate } = useRoutingEngine();
 const { brandId } = useBrand();
 
 const styles = useStyles(
-  ["session", "session.guestCheckout"],
+  ["session", "session.guestCheckout", "session.formWidth"],
   computed(() => ({
     template: template.value
   })),
@@ -298,6 +324,10 @@ const template = computed(() =>
     SESSION_TEMPLATE.TWO_COLUMN_LTR
   )
 );
+
+const meta = computed(() => ({
+  isInset: template.value === SESSION_TEMPLATE.INSET
+}));
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));
 const { meta: templateMeta } = useSessionTemplates(template);

@@ -65,6 +65,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "product_setup_count": "Nu au mai rămas produse |{count} produs rămas |{count} produse rămase",
   "product_setup_desc": "Unele produse necesită informații suplimentare înainte de finalizarea comenzii. Vă rugăm să le verificați și să furnizați orice detalii lipsă.",
+  "product_setup_details": "Detalii privind configurarea produsului",
   "product_setup_msg": "Folosește aceste detalii și pentru{name}",
   "product_setup_title": "Configurarea completă a produsului",
   "promotion_help": "{code} oferă {amount} reducere {description}",
@@ -75,5 +76,6 @@
   "show_more_payment_options": "Afișează mai multe opțiuni de plată",
   "stored_payment_methods_limited_desc": "Nu toate metodele de plată sunt vizibile deoarece nu sunt disponibile pentru țara sau moneda dumneavoastră.",
   "stored_payment_methods_limited_title": "Metode de plată limitate",
-  "warning_notes_title": "Avertisment coș | Avertismente coș"
+  "warning_notes_title": "Avertisment coș | Avertismente coș",
+  "your_order": "Comanda dumneavoastră"
 }

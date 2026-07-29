@@ -65,6 +65,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "product_setup_count": "No products remaining | {count} product remaining | {count} products remaining",
   "product_setup_desc": "Some products require additional information before checkout. Please review and provide any missing details.",
+  "product_setup_details": "Product setup details",
   "product_setup_msg": "Also use these details for {name}",
   "product_setup_title": "Complete product setup",
   "promotion_help": "{code} provides {amount} discount {description}",
@@ -75,5 +76,6 @@
   "show_more_payment_options": "Show more payment options",
   "stored_payment_methods_limited_desc": "Not all payment methods are visible because they are not available for your country or currency.",
   "stored_payment_methods_limited_title": "Limited Payment Methods",
-  "warning_notes_title": "Basket warning | Basket warnings"
+  "warning_notes_title": "Basket warning | Basket warnings",
+  "your_order": "Your order"
 }
