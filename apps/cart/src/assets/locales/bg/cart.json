@@ -65,6 +65,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "product_setup_count": "Няма останали продукти | {count} оставащ продукт | {count} оставащи продукти",
   "product_setup_desc": "Някои продукти изискват допълнителна информация преди плащане. Моля, прегледайте и предоставете всички липсващи данни.",
+  "product_setup_details": "Подробности за настройката на продукта",
   "product_setup_msg": "Използвайте и тези данни за {name}",
   "product_setup_title": "Пълна настройка на продукта",
   "promotion_help": "{code} осигурява {amount} отстъпка {description}",
@@ -75,5 +76,6 @@
   "show_more_payment_options": "Показване на повече опции за плащане",
   "stored_payment_methods_limited_desc": "Не всички методи за плащане са видими, защото не са налични за вашата страна или валута.",
   "stored_payment_methods_limited_title": "Ограничени методи на плащане",
-  "warning_notes_title": "Предупреждение за кошницата | Предупреждения за кошницата"
+  "warning_notes_title": "Предупреждение за кошницата | Предупреждения за кошницата",
+  "your_order": "Вашата поръчка"
 }

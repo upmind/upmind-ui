@@ -2,7 +2,7 @@
   <!-- Domain search -->
   <Search
     v-model="searchValue"
-    auto-focus
+    :auto-focus="meta.shouldAutoFocus"
     :results="ownedItems"
     :placeholder="t('domain.existing.placeholder')"
     :disabled="disabled || removing || registering"
@@ -150,6 +150,13 @@ const { t } = useI18n();
 const styles = useStyles(["field.transfer"], {}, config);
 
 const searchValue = ref(props.modelValue ?? "");
+
+// only an unresolved empty field is awaiting input — a prefilled or
+// transfer-satisfied one (the input is empty; the domain lives in the
+// transfer section) must not grab focus on mount and hijack the scroll
+const meta = computed(() => ({
+  shouldAutoFocus: !props.transferred && !props.modelValue && !searchValue.value
+}));
 
 const ownedItems = computed((): SearchItem[] | null => {
   if (!props.filteredOwned) return null;

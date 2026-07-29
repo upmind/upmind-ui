@@ -597,8 +597,13 @@ export default <FunnelProps>{
       invoke: {
         src: "guardCheckoutFlow",
         onDone: [
-          { target: ROUTE.BASKET, cond: "isBasket" },
-          { target: ROUTE.CHECKOUT, cond: "isCheckout" }
+          {
+            target: "#complete",
+            actions: ["handoverFunnel"],
+            cond: "hasFunnel"
+          },
+          { target: ROUTE.CHECKOUT, cond: "isCheckout" },
+          { target: ROUTE.BASKET } // FAILSAFE
         ],
         onError: ROUTE.BASKET // FAILSAFE
       }
@@ -746,5 +751,14 @@ export default <FunnelProps>{
   },
   guards,
   services,
-  actions
+  actions: {
+    ...actions,
+    handoverFunnel: assign({
+      funnel: (_context: FunnelContext, { data }: AnyEventObject) =>
+        data?.funnel,
+      targetRoute: (_context: FunnelContext, { data }: AnyEventObject) =>
+        data?.target,
+      resolved: false
+    })
+  }
 };

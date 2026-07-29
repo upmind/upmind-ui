@@ -65,6 +65,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "product_setup_count": "Non ci sono più prodotti disponibili |{count} prodotto rimanente |{count} prodotti rimanenti",
   "product_setup_desc": "Alcuni prodotti richiedono informazioni aggiuntive prima del pagamento. Si prega di verificare e fornire eventuali dettagli mancanti.",
+  "product_setup_details": "Dettagli sulla configurazione del prodotto",
   "product_setup_msg": "Utilizzare anche questi dettagli per{name}",
   "product_setup_title": "Configurazione completa del prodotto",
   "promotion_help": "{code} fornisce {amount} sconto {description}",
@@ -75,5 +76,6 @@
   "show_more_payment_options": "Mostra più opzioni di pagamento",
   "stored_payment_methods_limited_desc": "Non tutti i metodi di pagamento sono visibili perché non sono disponibili per il tuo paese o la tua valuta.",
   "stored_payment_methods_limited_title": "Metodi di pagamento limitati",
-  "warning_notes_title": "Avviso carrello | Avvisi carrello"
+  "warning_notes_title": "Avviso carrello | Avvisi carrello",
+  "your_order": "Il tuo ordine"
 }

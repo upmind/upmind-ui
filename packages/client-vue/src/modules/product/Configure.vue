@@ -63,6 +63,7 @@
               :item="pendingProduct"
               :model-value="pendingProduct?.id"
               :meta="configMeta"
+              :touched="productMeta?.showErrors"
               no-footer
               :hide-terms="hideTerms"
               @resolve="doResolve"
@@ -111,7 +112,10 @@
           <PricingSkeleton v-else />
 
           <slot
-            v-if="template === PRODUCT_TEMPLATE.TWO_COLUMN_LTR && !isMobile"
+            v-if="
+              template === PRODUCT_TEMPLATE.INSET ||
+              (template === PRODUCT_TEMPLATE.TWO_COLUMN_LTR && !isMobile)
+            "
             name="actions"
             :product="product"
             :config-meta="configMeta"
@@ -248,12 +252,14 @@ import ProductFullTemplate from "./templates/ProductFull.template.vue";
 import ProductLTRTemplate from "./templates/ProductLTR.template.vue";
 import ProductRTLTemplate from "./templates/ProductRTL.template.vue";
 import ProductEnclosedTemplate from "./templates/ProductEnclosed.template.vue";
+import ProductInsetTemplate from "./templates/ProductInset.template.vue";
 
 const supportedTemplates = {
   [PRODUCT_TEMPLATE.FULL]: ProductFullTemplate,
   [PRODUCT_TEMPLATE.TWO_COLUMN_LTR]: ProductLTRTemplate,
   [PRODUCT_TEMPLATE.TWO_COLUMN_RTL]: ProductRTLTemplate,
-  [PRODUCT_TEMPLATE.ENCLOSED]: ProductEnclosedTemplate
+  [PRODUCT_TEMPLATE.ENCLOSED]: ProductEnclosedTemplate,
+  [PRODUCT_TEMPLATE.INSET]: ProductInsetTemplate
 };
 // --- utils
 import { get, includes, take, isEmpty } from "lodash-es";
@@ -344,7 +350,8 @@ const stylesMeta = computed(() => {
     showTotal:
       (template.value === PRODUCT_TEMPLATE.TWO_COLUMN_RTL && isMobile.value) ||
       template.value === PRODUCT_TEMPLATE.TWO_COLUMN_LTR ||
-      template.value === PRODUCT_TEMPLATE.FULL
+      template.value === PRODUCT_TEMPLATE.FULL ||
+      template.value === PRODUCT_TEMPLATE.INSET
   };
 });
 

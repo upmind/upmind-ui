@@ -65,6 +65,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "product_setup_count": "Geen producten meer beschikbaar |{count} resterend product |{count} resterende producten",
   "product_setup_desc": "Voor sommige producten is aanvullende informatie nodig voordat u kunt afrekenen. Controleer deze informatie en vul eventuele ontbrekende gegevens aan.",
+  "product_setup_details": "Details over de productconfiguratie",
   "product_setup_msg": "Gebruik deze gegevens ook voor{name}",
   "product_setup_title": "Volledige productinstallatie",
   "promotion_help": "{code} biedt {amount} korting {description}",
@@ -75,5 +76,6 @@
   "show_more_payment_options": "Meer betalingsopties weergeven",
   "stored_payment_methods_limited_desc": "Niet alle betaalmethoden zijn zichtbaar omdat ze niet beschikbaar zijn voor uw land of valuta.",
   "stored_payment_methods_limited_title": "Beperkte Betaalmethoden",
-  "warning_notes_title": "Winkelmandje waarschuwing | Winkelmandje waarschuwingen"
+  "warning_notes_title": "Winkelmandje waarschuwing | Winkelmandje waarschuwingen",
+  "your_order": "Uw bestelling"
 }

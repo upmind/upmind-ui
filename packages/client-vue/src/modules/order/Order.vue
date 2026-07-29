@@ -7,6 +7,7 @@
         :description="text"
         :loading="meta.isLoading"
         :badge="badge"
+        size="xl"
       >
         <template #append>
           <div v-if="action && !meta.isComplete">
@@ -185,6 +186,7 @@ import {
   useSession,
   useOrder,
   useUrl,
+  validateTemplate,
   QUERY_PARAMS,
   UIContext
 } from "@upmind-automation/headless";
@@ -225,12 +227,14 @@ import OrderFullTemplate from "./templates/OrderFull.template.vue";
 import OrderLTRTemplate from "./templates/OrderLTR.template.vue";
 import OrderRTLTemplate from "./templates/OrderRTL.template.vue";
 import OrderEnclosedTemplate from "./templates/OrderEnclosed.template.vue";
+import OrderInsetTemplate from "./templates/OrderInset.template.vue";
 
 const supportedTemplates = {
   [ORDER_TEMPLATE.FULL]: OrderFullTemplate,
   [ORDER_TEMPLATE.TWO_COLUMN_LTR]: OrderLTRTemplate,
   [ORDER_TEMPLATE.TWO_COLUMN_RTL]: OrderRTLTemplate,
-  [ORDER_TEMPLATE.ENCLOSED]: OrderEnclosedTemplate
+  [ORDER_TEMPLATE.ENCLOSED]: OrderEnclosedTemplate,
+  [ORDER_TEMPLATE.INSET]: OrderInsetTemplate
 };
 
 const props = defineProps<OrderProps>();
@@ -283,11 +287,12 @@ const configMeta = useConfig({
   provide: true
 });
 
-const template = computed(
-  () =>
-    props.template ||
-    configMeta.ui.template.value ||
+const template = computed(() =>
+  validateTemplate(
+    props.template || configMeta.ui.template.value,
+    ORDER_TEMPLATE,
     ORDER_TEMPLATE.TWO_COLUMN_RTL
+  )
 );
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));

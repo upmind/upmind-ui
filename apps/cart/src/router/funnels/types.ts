@@ -200,3 +200,13 @@ export enum ROUTE {
    */
   REDIRECT = "#calculating"
 }
+
+/** Funnel registry keys — the id under which each funnel is registered. */
+export const FUNNEL = {
+  CART: "cart",
+  STEPPED: "stepped",
+  ONE_PAGE: "one-page",
+  DOMAINS: "domains"
+} as const;
+
+export type FunnelId = (typeof FUNNEL)[keyof typeof FUNNEL];

@@ -47,7 +47,32 @@ The factory acts as a **Dependency Injector**, wiring up the logic provided by t
 | **Guards** (Conditions)    | `guards` object           | Passed to the `createMachine` options object (second argument).        |
 | **Services** (Async Logic) | `services` object         | Passed to the `createMachine` options object (second argument).        |
 
-### B. Funnel Completion (`type: 'final'`)
+### B. Funnel Inheritance (`extends`)
+
+A funnel that is a **variant** of another declares `extends: '<funnelId>'` instead of restating it. `prepare()` flattens the chain base-first via `extendFunnel()` before the factory runs, so the variant only declares what it adds or diverges on.
+
+```typescript
+export default <FunnelProps>{
+  id: "one-page",
+  extends: FUNNEL.CART,
+  states: {
+    // the all-in-one page absorbs what the stepped flow diverts away to
+    [ROUTE.BILLING]: { always: [{ target: ROUTE.CHECKOUT }] }
+  }
+};
+```
+
+| Key                               | Merge behaviour                                                      |
+| :-------------------------------- | :------------------------------------------------------------------- |
+| `states`                          | Per key. A key the variant declares **replaces the base node whole** |
+| `guards` / `services` / `actions` | Per key. The variant's entry wins on a name collision                |
+| `context`                         | Per key. The variant's value wins on a key collision                 |
+
+Chains nest to any depth (`express` → `one-page` → `cart`) and resolve deepest-layer-wins. An unregistered base id or a circular chain throws, surfacing through `prepare`'s `onError`.
+
+> **A declared state node is all-or-nothing.** There is no partial override: if you declare a state key you must restate every part of that node you still want — `meta`, `entry`, `invoke`, `on`. Arrays such as `invoke.onError` are ordered decision lists, so they are swapped whole rather than concatenated. Omit the key entirely to inherit the base node untouched.
+
+### C. Funnel Completion (`type: 'final'`)
 
 Every funnel must conclude by transitioning to a state defined as `type: 'final'`. This is the signal for the parent machine to regain control.
 

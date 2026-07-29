@@ -63,6 +63,13 @@ export type FunnelProps = {
     any
   >;
   context?: FunnelContext;
+  /**
+   * The id of a registered funnel to inherit from. The base funnel's states,
+   * guards, services, actions and context are layered underneath this one, so a
+   * funnel need only declare the states it adds or diverges on. Chains resolve
+   * base-first; a state key declared here replaces the base's wholesale.
+   */
+  extends?: string;
   /** Endpoint state nodes generated from overlay definitions (merged in services.ts). */
   endpoints?: Pick<FunnelProps, "states" | "guards" | "actions">;
 } & Pick<FunnelMachineOptions, "guards" | "services" | "actions">;
@@ -152,6 +159,12 @@ export type FunnelContext = {
    */
   watchers?: FunnelWatcher[];
 
+  /**
+   * The funnel to load on completion. Read off `complete`'s final data by the
+   * routing engine; unset falls back to the default funnel.
+   */
+  funnel?: string;
+
   // ---
   /**
    * An error object encountered by the funnel.
@@ -171,6 +184,8 @@ export type FunnelTarget = {
 export type FunnelResponse = {
   type?: FunnelActions;
   target?: FunnelTarget;
+  /** Requests a handover to another registered funnel, which resolves `target`. */
+  funnel?: string;
 };
 
 /**
@@ -285,11 +300,6 @@ declare module "vue-router" {
     overlayId?: string;
     /** Set to false to prevent overlay child routes from being injected */
     allowOverlays?: boolean;
-    /**
-     * When true, the funnel redirects to the basket-empty route if the basket
-     * has no products. Routes that render basket contents should set this.
-     */
-    actionEmptyBasket?: boolean;
     /**
      * When true, this route replaces the current history entry rather than
      * pushing a new one. Used on transitional routes like loading.

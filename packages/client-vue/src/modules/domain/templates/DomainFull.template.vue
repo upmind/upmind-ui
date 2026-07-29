@@ -27,9 +27,16 @@ defineOptions({
   inheritAttrs: false
 });
 
+// --- internal
+import { useSection } from "../../../components/section/useSection";
+
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
 
 // --- types
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
+
+// plain sections (defaults); clears a carded environment left by an
+// enclosed or inset page
+useSection({});
 </script>

@@ -65,6 +65,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "product_setup_count": "Žádné zbývající produkty |{count} zbývající produkt |{count} zbývající produkty",
   "product_setup_desc": "U některých produktů je před dokončením objednávky nutné doplnit informace. Zkontrolujte je a uveďte všechny chybějící údaje.",
+  "product_setup_details": "Podrobnosti o nastavení produktu",
   "product_setup_msg": "Použijte také tyto údaje pro{name}",
   "product_setup_title": "Dokončete nastavení produktu",
   "promotion_help": "{code} poskytuje {amount} sleva {description}",
@@ -75,5 +76,6 @@
   "show_more_payment_options": "Zobrazit více platebních možností",
   "stored_payment_methods_limited_desc": "Ne všechny platební metody jsou viditelné, protože nejsou dostupné pro vaši zemi nebo měnu.",
   "stored_payment_methods_limited_title": "Omezené platební metody",
-  "warning_notes_title": "Varování před košem | Varování před košem"
+  "warning_notes_title": "Varování před košem | Varování před košem",
+  "your_order": "Vaše objednávka"
 }
