@@ -1,0 +1,23 @@
+{
+  "name": "@upmind-automation/eslint-plugin-scope-based",
+  "version": "1.0.0",
+  "description": "ESLint rules enforcing the scope-based composable variance law (ADR-001 / FE-2967) for packages/headless modules.",
+  "private": true,
+  "type": "module",
+  "main": "index.mjs",
+  "exports": {
+    ".": "./index.mjs"
+  },
+  "scripts": {
+    "test:unit": "node --test scope-based.test.mjs"
+  },
+  "dependencies": {
+    "@typescript-eslint/parser": "8.50.0"
+  },
+  "peerDependencies": {
+    "eslint": ">=9"
+  },
+  "devDependencies": {
+    "eslint": "9.39.2"
+  }
+}
