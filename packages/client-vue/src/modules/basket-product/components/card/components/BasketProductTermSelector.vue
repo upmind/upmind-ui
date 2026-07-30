@@ -12,10 +12,28 @@
       size="sm"
       :ui-config="{
         select: {
+          trigger: [styles.product.summary.footer.terms.trigger],
           content: [styles.product.summary.footer.terms.content]
         }
       }"
     >
+      <template #item="slotProps">
+        {{ slotProps.label }}
+
+        <CurrentPrice
+          v-if="slotProps.item.meta?.useMonthlyFromPrice"
+          :current-price="slotProps.item.price.currentPrice"
+          :monthly-from-current-price="
+            slotProps.item.price.monthlyFromCurrentPrice
+          "
+          :free="slotProps.item.meta?.free"
+          use-monthly-from-price
+          :ui-config="{
+            pricing: { current: [styles.product.summary.footer.terms.price] }
+          }"
+        />
+      </template>
+
       <template #dropdown-item="slotProps">
         <TermCard v-bind="slotProps.item" layout="inline" :summary="false" />
       </template>
@@ -31,6 +49,7 @@ import { useI18n } from "vue-i18n";
 // --- components
 import { SelectCards, useStyles } from "@upmind-automation/upmind-ui";
 import TermCard from "../../../../product/components/terms/TermCard.vue";
+import CurrentPrice from "../../../../product/components/pricing/CurrentPrice.vue";
 
 // --- internal
 import { parseBillingCycle } from "@upmind-automation/headless";
