@@ -31,7 +31,7 @@ import {
   SemanticTypes,
   UpmindModuleCodes
 } from "@upmind-automation/types";
-import { ROUTE } from "../types";
+import { FUNNEL, ROUTE } from "../types";
 import guards from "./guards";
 import { filter, first, includes, reduce } from "lodash-es";
 import type { RouteLocationGeneric } from "vue-router";
@@ -164,12 +164,15 @@ export default {
   ): Promise<FunnelResponse> => {
     const { getConfigValue } = useBrand();
     const checkoutFlow = getConfigValue(BrandConfigKeys.CHECKOUT_FLOW);
-    const route =
-      checkoutFlow === CheckoutFlows.ONE_PAGE ? ROUTE.CHECKOUT : ROUTE.BASKET;
 
-    return {
-      target: { name: route }
-    };
+    if (checkoutFlow === CheckoutFlows.ONE_PAGE)
+      return { funnel: FUNNEL.ONE_PAGE, target: { name: ROUTE.BASKET } };
+
+    if (checkoutFlow === CheckoutFlows.STEPPED)
+      return { funnel: FUNNEL.STEPPED, target: { name: ROUTE.BASKET } };
+
+    // fallback....
+    return { target: { name: ROUTE.CHECKOUT } };
   },
 
   guardCatalogue: async (context: FunnelContext): Promise<FunnelResponse> => {
@@ -304,7 +307,7 @@ export default {
     );
 
     // The autoupdate/express(legacy) param indicates that we should try add the product to the basket straight away
-    const autoupdate =
+    const hasAutoupdateParam =
       (consumeParam("autoupdate", false) || consumeParam("express", false)) ==
       true;
 
@@ -312,11 +315,17 @@ export default {
     // the configure flow has no in-flight operation to track here, and a
     // user who abandons configuration would otherwise leak `processing[pid]`.
     return getPendingProduct(productId, {
-      sync: autoupdate,
-      silent: autoupdate
+      sync: hasAutoupdateParam,
+      silent: hasAutoupdateParam
     })
       .then(basketItem => {
         return basketItem.isReady().then(() => {
+          const { data } = useConfig({
+            context: UIContext.CONFIGURE,
+            product: basketItem.product
+          });
+          const autoupdate = hasAutoupdateParam || !!data.productAutoUpdate;
+
           if (!autoupdate) {
             return {
               target: {
@@ -499,7 +508,7 @@ export default {
    * 3. If the bid is invalid/expired, fall through to current basket.
    *
    * **Without bid (current basket):**
-   * 1. Wait for basket to be ready.
+   * 1. Wait for the basket to be ready and any refresh to finish.
    * 2. Reject if basket has no products (→ BASKET_EMPTY).
    */
   guardBasket: async ({
@@ -508,7 +517,7 @@ export default {
   }: FunnelContext): Promise<FunnelResponse> => {
     const {
       meta: _meta,
-      isReady,
+      isRefreshed,
       setTargetBasket,
       targetBasketId
     } = useBasket();
@@ -562,8 +571,10 @@ export default {
       // Fall through to the standard basket check below.
     }
 
-    // Standard basket guard — check current basket has products
-    await isReady();
+    // isRefreshed(), not isReady(): isReady resolves mid-refresh, so a product
+    // still being added reads as empty and the funnel ping-pongs with
+    // BASKET_EMPTY. Resolves immediately when nothing is refreshing.
+    await isRefreshed();
     if (!guards.hasProducts()) return Promise.reject();
 
     return { target: targetRoute ?? { name: ROUTE.BASKET } };
@@ -574,7 +585,6 @@ export default {
 
     const { isRefreshed } = useBasket();
     const { isReady: isFieldsReady, meta: fieldsMeta } = useBasketFields();
-    const { getConfigValue } = useBrand();
 
     await isRefreshed();
 
@@ -636,15 +646,17 @@ export default {
       });
     }
 
-    // Fields validation only in stepped flow
-    if (
-      getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) === CheckoutFlows.STEPPED
-    ) {
-      await isFieldsReady();
-      const validFields = fieldsMeta.value.isComplete;
-      if (!validFields) {
-        return Promise.reject({ target: { name: ROUTE.BASKET } });
-      }
+    // Fields: bounce only when this checkout page won't collect them itself.
+    // The basket always renders them (locked visible), so it is the step to
+    // fall back to — no flow comparison needed, any funnel can be served.
+    const { ui: checkoutUi } = useConfig({ context: UIContext.CHECKOUT });
+    await isFieldsReady();
+
+    const needsFields = !fieldsMeta.value.isComplete;
+    const collectFields = checkoutUi.basketFields.isVisible;
+
+    if (needsFields && !collectFields) {
+      return Promise.reject({ target: { name: ROUTE.BASKET } });
     }
 
     return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };

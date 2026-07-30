@@ -65,6 +65,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "product_setup_count": "Tidak ada produk yang tersisa |{count} produk yang tersisa |{count} produk yang tersisa",
   "product_setup_desc": "Beberapa produk memerlukan informasi tambahan sebelum proses pembayaran. Harap tinjau dan berikan detail yang kurang.",
+  "product_setup_details": "Rincian pengaturan produk",
   "product_setup_msg": "Gunakan juga detail ini untuk{name}",
   "product_setup_title": "Penyiapan produk lengkap",
   "promotion_help": "{code} menyediakan {amount} diskon {description}",
@@ -75,5 +76,6 @@
   "show_more_payment_options": "Tampilkan lebih banyak opsi pembayaran",
   "stored_payment_methods_limited_desc": "Tidak semua metode pembayaran terlihat karena tidak tersedia untuk negara atau mata uang Anda.",
   "stored_payment_methods_limited_title": "Metode Pembayaran Terbatas",
-  "warning_notes_title": "Peringatan keranjang belanja | Peringatan keranjang belanja"
+  "warning_notes_title": "Peringatan keranjang belanja | Peringatan keranjang belanja",
+  "your_order": "Pesanan Anda"
 }

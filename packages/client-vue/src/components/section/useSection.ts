@@ -8,7 +8,8 @@ import type { UseSectionProps } from "./types";
 
 const defaultSectionProps: UseSectionProps = {
   card: false,
-  border: true
+  border: true,
+  inset: false
 };
 
 const sectionConfig = new Store<UseSectionProps>(defaultSectionProps);
@@ -33,6 +34,7 @@ export const useSection = (initial?: Partial<UseSectionProps>) => {
   // --- state
   const card = computed(() => config.value.card ?? true);
   const border = computed(() => config.value.border ?? true);
+  const inset = computed(() => config.value.inset ?? false);
 
   // --- methods
   function update(values: Partial<UseSectionProps>) {
@@ -58,6 +60,12 @@ export const useSection = (initial?: Partial<UseSectionProps>) => {
      * @type {ComputedRef<LayoutMode>}
      */
     border,
+
+    /**
+     * Whether carded sections draw their header inside the card.
+     * @type {ComputedRef<boolean>}
+     */
+    inset,
 
     // --- methods
     /**

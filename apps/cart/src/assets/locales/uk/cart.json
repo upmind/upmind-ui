@@ -65,6 +65,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "product_setup_count": "Не залишилося товарів |{count} залишок продукту |{count} залишки продуктів",
   "product_setup_desc": "Для деяких товарів потрібна додаткова інформація перед оформленням замовлення. Будь ласка, перевірте та надайте будь-які відсутні дані.",
+  "product_setup_details": "Деталі налаштування продукту",
   "product_setup_msg": "Також використовуйте ці дані для{name}",
   "product_setup_title": "Завершіть налаштування продукту",
   "promotion_help": "{code} забезпечує {amount} знижка {description}",
@@ -75,5 +76,6 @@
   "show_more_payment_options": "Показати більше варіантів оплати",
   "stored_payment_methods_limited_desc": "Не всі способи оплати відображаються, оскільки вони недоступні для вашої країни або валюти.",
   "stored_payment_methods_limited_title": "Обмежені способи оплати",
-  "warning_notes_title": "Попередження про кошик | Попередження про кошик"
+  "warning_notes_title": "Попередження про кошик | Попередження про кошик",
+  "your_order": "Ваше замовлення"
 }

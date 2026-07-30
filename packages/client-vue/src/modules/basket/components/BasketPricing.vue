@@ -6,7 +6,13 @@
     icon="shopping-bag-02"
     :class="styles.basket.aside"
   >
-    <Summary :show-total="props.showTotal" />
+    <!-- itemized per-product breakdown when the brand asks for it (priced from
+         the saved server basket), otherwise a plain totals summary -->
+    <Summary
+      :show-breakdown="ui.basketSummaryDetails.isVisible"
+      :show-total="props.showTotal"
+      :show-promotions="ui.basketPromotionCode.isVisible"
+    />
 
     <footer v-if="props.showCheckout" class="w-full">
       <BasketCheckout
@@ -20,6 +26,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
+import { useConfig } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import Section from "../../../components/section/Section.vue";
 import config from "../basket.config";
@@ -51,6 +58,7 @@ const emit = defineEmits<{
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
+const { ui } = useConfig();
 
 const styles = useStyles(["basket.aside"], { variant: props.layout }, config);
 

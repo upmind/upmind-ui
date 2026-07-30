@@ -4,6 +4,7 @@
     id="guest-email"
     :label="t('form.guest_email.label')"
     icon="mail-01"
+    :disabled="props.disabled"
   >
     <Form
       :disabled="account.isProcessing.value"
@@ -25,7 +26,12 @@ import { ScopeActorTypes, useAccount } from "@upmind-automation/headless";
 import Form from "../../../components/form/Form.vue";
 import Section from "../../../components/section/Section.vue";
 
+// --- types
+import type { GuestEmailProps } from "../types";
+
 // -----------------------------------------------------------------------------
+
+const props = defineProps<GuestEmailProps>();
 
 const { t } = useI18n();
 const accountScope = useAccount().as(ScopeActorTypes.CLIENT);

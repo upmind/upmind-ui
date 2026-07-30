@@ -65,6 +65,7 @@
   "product_not_found_md": "@.markdown：{'cart.product_not_found'}",
   "product_setup_count": "已無剩餘商品 |{count}剩餘產品 |{count}剩餘產品",
   "product_setup_desc": "部分商品在結帳前需要提供補充資料。請仔細核對並填寫所有缺失的資訊。",
+  "product_setup_details": "產品設定詳情",
   "product_setup_msg": "也請使用這些詳細信息{name}",
   "product_setup_title": "完整的產品設置",
   "promotion_help": "{code} 提供 {amount} 折扣 {description}",
@@ -75,5 +76,6 @@
   "show_more_payment_options": "顯示更多付款選項",
   "stored_payment_methods_limited_desc": "並非所有付款方式都可見，因為它們不適用於您的國家或貨幣。",
   "stored_payment_methods_limited_title": "付款方式有限",
-  "warning_notes_title": "購物籃警告 | 購物籃警告"
+  "warning_notes_title": "購物籃警告 | 購物籃警告",
+  "your_order": "您的訂單"
 }

@@ -1,6 +1,7 @@
 <template>
-  <Card as="li" :class="styles.product.root.card">
-    <div :class="styles.product.root.summaries">
+  <!-- own Card (default) vs flat inside a parent card (card=false) -->
+  <component :is="props.card ? Card : 'div'" :class="styles.product.container">
+    <div :class="styles.product.summaries">
       <article :class="styles.product.summary.article">
         <!-- Header: Image, Category/ExPrice, Name/CurrentPrice -->
         <header :class="styles.product.summary.header.root">
@@ -37,17 +38,28 @@
       </article>
     </div>
 
-    <slot />
-  </Card>
+    <div :class="styles.product.config">
+      <slot />
+    </div>
+  </component>
 </template>
 
 <script lang="ts" setup>
 import { Card, Skeleton, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basketProduct.config";
 
+// --- types
+import type { BasketProductSkeletonProps } from "./types";
+
+const props = withDefaults(defineProps<BasketProductSkeletonProps>(), {
+  card: true
+});
+
 const styles = useStyles(
   [
-    "product.root",
+    "product.container",
+    "product.summaries",
+    "product.config",
     "product.summary",
     "product.summary.header",
     "product.summary.category",
@@ -57,7 +69,8 @@ const styles = useStyles(
     "product.skeleton",
     "product.skeleton.title"
   ],
-  {},
+  // flat (card=false) drops the summary's own inset — the parent card owns it
+  { card: props.card },
   config
 );
 </script>

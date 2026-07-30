@@ -138,6 +138,21 @@ export type PriceDetail = PriceDisplay & {
    * including any adjustments or quantity modifiers.
    */
   configuration?: Price;
+  /**
+   * The per-unit price of the product on its own, its options excluded,
+   * formatted per the brand's tax basis, pre-discount. Every `configuration*`
+   * price includes the options, so a line that prices only the product — a
+   * summary's term row, say — has to read this one. `unit` maps the same
+   * figures but is only built above quantity 1.
+   */
+  unitPrice?: string;
+  /**
+   * The per-unit price of the whole configuration (product + its options),
+   * formatted per the brand's tax basis, pre-discount — the one-unit companion
+   * to the all-units `regularPrice`. Formatted-only (no `Amount` pair): the API
+   * serves no numeric for the per-unit aggregate. Basket products only.
+   */
+  configurationUnitPrice?: string;
 };
 
 // -----------------------------------------------------------------------------
@@ -492,8 +507,11 @@ export type ProductSummaryDetail = {
   cycle?: number;
   /** The category name of the item. */
   category?: string;
-  /** The quantity of the item. */
+  /** Total quantity across all units of the parent product. */
   quantity?: number;
+  /** Quantity per single unit of the parent product. A product ordered twice
+   *  with three of this item per unit reports quantity 6, unitQuantity 3. */
+  unitQuantity?: number;
   /** An array of {@link PromotionDetails} applied to this item. */
   promotions?: PromotionDetails[];
   /** Meta-information about this summary detail. */

@@ -10,6 +10,7 @@
     <Skeleton
       v-if="meta.isLoading"
       :modal="modal"
+      :no-actions="noActions"
       v-bind="formLoadingTestAttrs"
     />
 
@@ -71,11 +72,11 @@ const props = defineProps<{
   useMutate: ManageRendererProps["useMutate"]; // the mutation composable needed to create or update the model
   modelValue?: string;
   readonly?: boolean;
-  open?: boolean;
   modal?: boolean;
-  touched?: boolean;
   options?: Record<string, any>; // additional options for the mutation composable
   noActions?: boolean;
+  // open?: boolean;
+  // touched?: boolean;
 }>();
 
 const emits = defineEmits<{

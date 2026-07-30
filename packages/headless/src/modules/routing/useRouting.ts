@@ -1,7 +1,8 @@
 import { useDataLayer } from "../system-analytics";
 import { decorateRoutes, hasRouteChanged } from "./routing.utils";
 import { useRoutingEngine } from "./useRoutingEngine";
-import type { Router, RouteLocation } from "vue-router";
+import { useQueryParams } from "./useQueryParams";
+import type { Router, RouteLocation, RouteLocationGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
@@ -25,7 +26,9 @@ export const useRouting = (router: Router): void => {
    */
   async function guardRoute(route: RouteLocation) {
     if (route?.query?.funnel) {
-      await switchFunnel(route.query.funnel.toString(), route);
+      const { consumeParam } = useQueryParams(route as RouteLocationGeneric);
+      const funnel = consumeParam("funnel");
+      await switchFunnel(funnel.toString(), route);
     }
     const target = await guard(route);
 

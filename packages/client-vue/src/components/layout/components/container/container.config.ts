@@ -27,7 +27,7 @@ export const variants = {
 };
 
 export default {
-  container: cva("max-w-app mx-auto flex-1", {
+  container: cva("max-w-app mx-auto min-w-0 flex-1", {
     variants,
     compoundVariants: [
       {

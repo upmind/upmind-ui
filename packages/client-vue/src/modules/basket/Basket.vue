@@ -3,7 +3,7 @@
     <component :is="templateVariant" :key="props.template">
       <template v-if="!isSlotHidden('summary')" #summary>
         <slot name="summary">
-          <BasketSummary :loading="meta.isLoading">
+          <BasketHero :loading="meta.isLoading">
             <template #append>
               <Back
                 v-if="props.storefrontRoute"
@@ -11,7 +11,7 @@
                 :label="t('action.continue_shopping')"
               />
             </template>
-          </BasketSummary>
+          </BasketHero>
         </slot>
       </template>
 
@@ -24,7 +24,13 @@
             :basket-products-route="props.editRoute"
           />
         </slot>
-        <BasketProducts v-model:open="open" :edit-route="props.editRoute">
+        <BasketProducts
+          v-model:open="open"
+          :edit-route="props.editRoute"
+          :configurable="ui.basketItemConfig.isEditable"
+          :disabled="isNavigating"
+          @resolve="scrollToProduct"
+        >
           <template #products="{ open }">
             <slot name="products" :open="open" />
           </template>
@@ -36,11 +42,7 @@
           <BasketPricing
             @resolve="navigateNext"
             :disabled="
-              meta.isProcessing ||
-              meta.isLoading ||
-              !meta.hasFields ||
-              !meta.hasProducts ||
-              meta.hasLockedProducts
+              !meta.hasFields || !meta.hasProducts || meta.hasLockedProducts
             "
             :loading="meta.isProcessing || isNavigating"
             :show-checkout="
@@ -48,7 +50,7 @@
               template !== BASKET_TEMPLATE.ENCLOSED &&
               !meta.isLoading
             "
-            :show-total="variant !== LAYOUT_VARIANTS.TWO_COLUMN_RTL"
+            :show-total="template !== BASKET_TEMPLATE.TWO_COLUMN_RTL"
           />
         </slot>
       </template>
@@ -76,11 +78,7 @@
           <BasketCheckout
             @resolve="navigateNext"
             :disabled="
-              meta.isProcessing ||
-              meta.isLoading ||
-              !meta.hasFields ||
-              !meta.hasProducts ||
-              meta.hasLockedProducts
+              !meta.hasFields || !meta.hasProducts || meta.hasLockedProducts
             "
             :loading="meta.isProcessing || isNavigating"
           />
@@ -104,7 +102,11 @@
 <script lang="ts" setup>
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { useBasket, useRoutingEngine } from "@upmind-automation/headless";
+import {
+  useBasket,
+  useQueryParams,
+  useRoutingEngine
+} from "@upmind-automation/headless";
 import {
   useConfig,
   validateTemplate,
@@ -117,17 +119,16 @@ import {
 import { useTestAttrs, useThemes } from "@upmind-automation/upmind-ui";
 import { Alert, Markdown } from "@upmind-automation/upmind-ui";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
-import { LAYOUT_VARIANTS } from "../../components/layout/types";
-import { useLayout } from "../../components/layout/useLayout";
 import Back from "../../components/navigation/Back.vue";
 import BasketAlerts from "./components/BasketAlerts.vue";
 import BasketCheckout from "./components/BasketCheckout.vue";
+import BasketHero from "./components/BasketHero.vue";
 import BasketPricing from "./components/BasketPricing.vue";
 import BasketProducts from "./components/BasketProducts.vue";
-import BasketSummary from "./components/BasketSummary.vue";
 import BasketTotal from "./components/BasketTotal.vue";
 import BasketEnclosedTemplate from "./templates/BasketEnclosed.template.vue";
 import BasketFullTemplate from "./templates/BasketFull.template.vue";
+import BasketInsetTemplate from "./templates/BasketInset.template.vue";
 import BasketLTRTemplate from "./templates/BasketLTR.template.vue";
 import BasketRTLTemplate from "./templates/BasketRTL.template.vue";
 import { BASKET_TEMPLATE } from "./types";
@@ -139,7 +140,8 @@ const supportedTemplates = {
   [BASKET_TEMPLATE.FULL]: BasketFullTemplate,
   [BASKET_TEMPLATE.TWO_COLUMN_LTR]: BasketLTRTemplate,
   [BASKET_TEMPLATE.TWO_COLUMN_RTL]: BasketRTLTemplate,
-  [BASKET_TEMPLATE.ENCLOSED]: BasketEnclosedTemplate
+  [BASKET_TEMPLATE.ENCLOSED]: BasketEnclosedTemplate,
+  [BASKET_TEMPLATE.INSET]: BasketInsetTemplate
 };
 // -----------------------------------------------------------------------------
 
@@ -162,11 +164,24 @@ const { t } = useI18n();
 const { set } = useThemes();
 const { navigateNext, isNavigating } = useRoutingEngine();
 const { isReady, meta, basketId } = useBasket();
-const { variant } = useLayout();
+const { consumeParam } = useQueryParams();
 
 const open = ref(false);
 
 const trustMessagingTestAttrs = useTestAttrs({ key: "slots:summary-append" });
+// The checkout summary links a product here with ?product=<bpid>. Once the
+// cards have resolved into the DOM (Suspense @resolve), bring that one into
+// view — block:nearest is a no-op when it's already visible. consumeParam
+// reads and clears it, so it's a one-shot on arrival.
+
+function scrollToProduct() {
+  const bpid = consumeParam("product");
+  if (!bpid) return;
+
+  document
+    .getElementById(`basket-product-${bpid}`)
+    ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
 
 const isSlotHidden = (name: string) => includes(props.hideSlots, name);
 
@@ -174,6 +189,7 @@ const { ui, data } = useConfig({
   context: UIContext.BASKET,
   provide: true
 });
+
 const template = computed(() =>
   validateTemplate(
     ui.template.value || props.template,

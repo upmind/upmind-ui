@@ -10,6 +10,7 @@ declare global {
       key: string;
       order_id: string;
       recurring: boolean;
+      prefill?: Partial<RazorpayPrefill>;
     }) => RazorpayInstance;
   }
 }
@@ -39,17 +40,26 @@ export type RazorpayErrorResponse = {
   };
 };
 
+export type RazorpayPrefill = {
+  name: string | null;
+  email: string | null;
+  contact: string | null;
+};
+
 export type IRazorpaySetupDetails = {
   key_id: string;
   customer_id: string;
   order_id: string;
   callback_url: string;
+  prefill?: RazorpayPrefill;
 };
 
 export type RazorpayContext = GatewayContext<{
-  sdk?: {
-    razorpay: () => RazorpayInstance;
-  };
+  sdk?:
+    | {
+        razorpay: () => RazorpayInstance;
+      }
+    | false;
   // gateway settings
 }>;
 

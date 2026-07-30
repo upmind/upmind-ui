@@ -8,6 +8,7 @@
         :loading="orderMeta.isLoading"
         :badge="badge"
         :dataAttrs="{ 'data-test-key': 'order-confirmation-heading' }"
+        size="xl"
       >
         <template #append>
           <div v-if="action && !orderMeta.isComplete">
@@ -183,6 +184,7 @@ import {
   useTransfer,
   useOrder,
   useUrl,
+  validateTemplate,
   QUERY_PARAMS,
   ScopeActorTypes,
   UIContext
@@ -209,6 +211,7 @@ import OrderProducts from "./components/OrderProducts.vue";
 import config from "./order.config";
 import OrderEnclosedTemplate from "./templates/OrderEnclosed.template.vue";
 import OrderFullTemplate from "./templates/OrderFull.template.vue";
+import OrderInsetTemplate from "./templates/OrderInset.template.vue";
 import OrderLTRTemplate from "./templates/OrderLTR.template.vue";
 import OrderRTLTemplate from "./templates/OrderRTL.template.vue";
 import { ORDER_TEMPLATE } from "./types";
@@ -221,7 +224,8 @@ const supportedTemplates = {
   [ORDER_TEMPLATE.FULL]: OrderFullTemplate,
   [ORDER_TEMPLATE.TWO_COLUMN_LTR]: OrderLTRTemplate,
   [ORDER_TEMPLATE.TWO_COLUMN_RTL]: OrderRTLTemplate,
-  [ORDER_TEMPLATE.ENCLOSED]: OrderEnclosedTemplate
+  [ORDER_TEMPLATE.ENCLOSED]: OrderEnclosedTemplate,
+  [ORDER_TEMPLATE.INSET]: OrderInsetTemplate
 };
 
 const props = defineProps<OrderProps>();
@@ -291,11 +295,12 @@ const configMeta = useConfig({
   provide: true
 });
 
-const template = computed(
-  () =>
-    props.template ||
-    configMeta.ui.template.value ||
+const template = computed(() =>
+  validateTemplate(
+    props.template || configMeta.ui.template.value,
+    ORDER_TEMPLATE,
     ORDER_TEMPLATE.TWO_COLUMN_RTL
+  )
 );
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));

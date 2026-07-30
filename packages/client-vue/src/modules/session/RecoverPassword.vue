@@ -2,12 +2,14 @@
   <component :is="templateVariant" v-bind="props" v-if="!isResolving">
     <template #back>
       <slot name="back">
-        <Link
-          class="flex items-center gap-x-2"
+        <!-- One-page uses the compact "← Back" per the designs; other templates
+             keep the default "Back to login". -->
+        <Back
+          :label="meta.isInset ? t('action.back') : t('action.back_to_login')"
+          :icon="meta.isInset ? 'arrow-narrow-left' : 'arrow-left'"
+          :size="meta.isInset ? 'md' : 'lg'"
+          :color="meta.isInset ? 'muted' : 'default'"
           @click.prevent="doReject"
-          icon="arrow-left"
-          :label="t('action.back_to_login')"
-          size="lg"
         />
       </slot>
     </template>
@@ -38,11 +40,15 @@
 
     <template #form>
       <slot name="form">
+        <!-- One-page renders the form as a titled card; other templates keep the
+             plain section. The Back button already returns to login, so no header
+             cross-link is needed either way. -->
         <Section
+          :card="meta.isInset"
           :label="t('action.recover_password')"
           icon="user-03"
           v-show="!isAuthenticated"
-          class="max-w-3xl"
+          :class="styles.session.formWidth"
         >
           <Auth
             class="rounded-box w-full max-w-5xl items-start"
@@ -80,14 +86,16 @@ import {
   useRoutingEngine,
   UIContext
 } from "@upmind-automation/headless";
-import { useThemes } from "@upmind-automation/upmind-ui";
-import { Link } from "@upmind-automation/upmind-ui";
+import { useThemes, useStyles, Link } from "@upmind-automation/upmind-ui";
 import Hero from "../../components/hero/Hero.vue";
+import Back from "../../components/navigation/Back.vue";
 import Section from "../../components/section/Section.vue";
 import Summary from "../basket/components/Summary.vue";
 import Auth from "./components/Auth.vue";
+import sessionConfig from "./session.config";
 import SessionCanvasCardTemplate from "./templates/SessionCanvasCard.template.vue";
 import SessionEnclosedTemplate from "./templates/SessionEnclosed.template.vue";
+import SessionInsetTemplate from "./templates/SessionInset.template.vue";
 import SessionLTRTemplate from "./templates/SessionLTR.template.vue";
 import SessionRTLTemplate from "./templates/SessionRTL.template.vue";
 import SessionSplitTemplate from "./templates/SessionSplit.template.vue";
@@ -105,7 +113,8 @@ const supportedTemplates = {
   [SESSION_TEMPLATE.SURFACE_BOX]: SessionSurfaceBoxTemplate,
   [SESSION_TEMPLATE.TWO_COLUMN_LTR]: SessionLTRTemplate,
   [SESSION_TEMPLATE.TWO_COLUMN_RTL]: SessionRTLTemplate,
-  [SESSION_TEMPLATE.ENCLOSED]: SessionEnclosedTemplate
+  [SESSION_TEMPLATE.ENCLOSED]: SessionEnclosedTemplate,
+  [SESSION_TEMPLATE.INSET]: SessionInsetTemplate
 };
 
 // -----------------------------------------------------------------------------
@@ -130,6 +139,14 @@ const { ui } = useConfig({
   provide: true
 });
 
+const styles = useStyles(
+  ["session", "session.formWidth"],
+  computed(() => ({
+    template: template.value
+  })),
+  sessionConfig
+);
+
 await isReady();
 
 set(ui.theme.value);
@@ -143,6 +160,10 @@ const template = computed(() =>
     SESSION_TEMPLATE.TWO_COLUMN_LTR
   )
 );
+
+const meta = computed(() => ({
+  isInset: template.value === SESSION_TEMPLATE.INSET
+}));
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));
 

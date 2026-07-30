@@ -18,8 +18,10 @@
 
 <script lang="ts" setup>
 import { onMounted } from "vue";
+import { useConfig } from "@upmind-automation/headless";
 import { useHeader } from "../../../components/header/useHeader";
 import { useFooter } from "../../../components/footer/useFooter";
+import { useSection } from "../../../components/section/useSection";
 import Layout from "../../../components/layout/Layout.vue";
 import { isMobile } from "@upmind-automation/upmind-ui";
 import { HEADER_BACKGROUND } from "../../../components/header/types";
@@ -33,12 +35,19 @@ defineOptions({
   inheritAttrs: false
 });
 
+const { ui } = useConfig();
+
 onMounted(() => {
   useHeader({
+    noBasket: ui.basketAction.isHidden,
     background: HEADER_BACKGROUND.LTR,
     border: "none",
     items: "end"
   });
+
+  // plain sections (defaults); clears a carded environment left by an
+  // enclosed or inset page
+  useSection({});
 
   useFooter({
     layout: FOOTER_LAYOUT.FLAT,

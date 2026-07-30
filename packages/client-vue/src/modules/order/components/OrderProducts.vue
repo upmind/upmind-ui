@@ -3,10 +3,11 @@
     id="order-products"
     :label="t('invoice.your_order')"
     icon="shopping-bag-02"
-    :card="false"
+    card
     :border="false"
+    :class="styles.table.section"
   >
-    <Card :class="styles.table.wrapper">
+    <div :class="styles.table.wrapper">
       <table :class="styles.table.root">
         <thead :class="styles.table.header.root">
           <tr>
@@ -90,7 +91,7 @@
           </tr>
         </tfoot>
       </table>
-    </Card>
+    </div>
 
     <slot name="append" />
   </Section>
@@ -104,10 +105,10 @@ import {
   useStyles,
   useTestAttrs,
   Link,
-  Icon,
-  Card
+  Icon
 } from "@upmind-automation/upmind-ui";
 import Section from "../../../components/section/Section.vue";
+import { useSection } from "../../../components/section/useSection";
 import config from "../order.config";
 import OrderProductsRow from "./OrderProductsRow.vue";
 import { buildPricingRow, buildOptionRow, buildDetailRow } from "../utils";
@@ -124,10 +125,13 @@ const orderData = inject<ComputedRef<Invoice | undefined>>("orderInvoice");
 const open = ref(false);
 
 const discountRowTestAttrs = useTestAttrs({ key: "discount-line-item" });
+const { inset } = useSection();
+
+const meta = computed(() => ({ isInset: inset.value }));
 
 const styles = useStyles(
   ["table", "table.wrapper", "table.header", "table.footer"],
-  computed(() => ({})),
+  meta,
   config,
   {}
 );

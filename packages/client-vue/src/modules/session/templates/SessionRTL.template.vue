@@ -18,7 +18,9 @@
 import { onMounted } from "vue";
 import Layout from "../../../components/layout/Layout.vue";
 import { useFooter } from "../../../components/footer/useFooter";
+import { useConfig } from "@upmind-automation/headless";
 import { useHeader } from "../../../components/header/useHeader";
+import { useSection } from "../../../components/section/useSection";
 import { HEADER_BACKGROUND } from "../../../components/header/types";
 import {
   FOOTER_LAYOUT,
@@ -38,12 +40,19 @@ defineOptions({
 });
 
 // --- methods
+const { ui } = useConfig();
+
 onMounted(() => {
   useHeader({
+    noBasket: ui.basketAction.isHidden,
     background: HEADER_BACKGROUND.RTL,
     border: "none",
     items: "end"
   });
+
+  // plain sections (defaults); clears a carded environment left by an
+  // enclosed or inset page
+  useSection({});
 
   useFooter({
     layout: FOOTER_LAYOUT.FLAT,

@@ -65,6 +65,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "product_setup_count": "کوئی مصنوعات باقی نہیں |{count} باقی مصنوعات |{count} باقی مصنوعات",
   "product_setup_desc": "کچھ پروڈکٹس کو چیک آؤٹ کرنے سے پہلے اضافی معلومات درکار ہوتی ہیں۔ براہ کرم جائزہ لیں اور کوئی بھی گمشدہ تفصیلات فراہم کریں۔",
+  "product_setup_details": "پروڈکٹ سیٹ اپ کی تفصیلات",
   "product_setup_msg": "ان تفصیلات کے لیے بھی استعمال کریں۔{name}",
   "product_setup_title": "پروڈکٹ سیٹ اپ مکمل کریں۔",
   "promotion_help": "{code} فراہم کرتا ہے {amount} رعایت {description}",
@@ -75,5 +76,6 @@
   "show_more_payment_options": "مزید ادائیگی کے اختیارات دکھائیں",
   "stored_payment_methods_limited_desc": "تمام ادائیگی کے طریقے نظر نہیں آ رہے کیونکہ وہ آپ کے ملک یا کرنسی کے لیے دستیاب نہیں ہیں۔",
   "stored_payment_methods_limited_title": "محدود ادائیگی کے طریقے",
-  "warning_notes_title": "ٹوکری وارننگ | ٹوکری کے انتباہات"
+  "warning_notes_title": "ٹوکری وارننگ | ٹوکری کے انتباہات",
+  "your_order": "آپ کا حکم"
 }
