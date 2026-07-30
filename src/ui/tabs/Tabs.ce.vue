@@ -130,7 +130,10 @@ const meta = computed(() => ({
   hasBorder: props.border
 }));
 
-const styles = useStyles("tabs", meta, config, props.uiConfig ?? {});
+// The override must stay reactive — a captured `props.uiConfig` value freezes
+// consumer classes at mount (useStyles only unrefs configs inside its computed).
+const uiConfig = computed(() => props.uiConfig ?? {});
+const styles = useStyles("tabs", meta, config, uiConfig);
 
 const useTabs = computed(() => props.tabs.length > 1 || props.force);
 
