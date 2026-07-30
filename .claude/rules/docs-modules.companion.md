@@ -45,6 +45,16 @@ Do not duplicate scope across these pairs:
 - **TanStack Query**: query keys, refetch, persisters.
 - **Scoped composables**: `useX().as('client')` — the actor-scoping accessor (ADR-001).
 
+## SDD / process vocabulary to strip (Upmind bindings)
+
+Binds the base rule's **"SDD / process vocabulary & references"** strip category (`docs-modules.md`) to this repo's concrete tokens — the base carries the principle + generic examples; only the repo-specific bindings live here.
+
+- **Id schemes:** decision ids are `D1`–`D4`; acceptance-criteria ids follow `AC-<cell><n>` — `AC-A1` / `AC-A2` / `AC-B1` / `AC-B2` / `AC-B3` / `AC-S1` / `AC-12a`…
+- **Tracker:** the `FE-####` provenance ids the base forbids are **Linear** issues.
+- **SDD tree:** the links that must never surface are `docs/sdd/<story>/` (`design.md`, `parity.yaml`, `research.md`) and its `evidence/` (`verify.md`, `test-report.md`, `operator-ruling-*.md`).
+
+**Receipt (2026-07-30 · client-phone-dry).** The `client-phone-dry` module docs shipped with all of the above transcribed straight from `docs/sdd/client-phone-dry-smoke/` — docs-review scored 83/100, dragged down entirely by this leak; `foundation.md`'s ADR-025 provenance cite was flagged 🔴 for the rebuild audience. The base category (added `docs-modules.md` v0.9.9) + this binding close it at authoring time; not a gate.
+
 ## The `.meta` / `object_meta` envelope (the client-only bag)
 
 The client-only bag in Upmind is **`.meta`** (and `object_meta`). Top-of-doc note:

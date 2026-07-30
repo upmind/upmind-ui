@@ -669,6 +669,22 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
+  // 8e. Integration-test fixture provenance — the AST re-home of the retired
+  //     regex scanner `tests/fixtures/lint-int-test-provenance.mjs`. A journey
+  //     body fed to `HttpResponse.json(...)` must replay a recorded fixture
+  //     (getFixtureBody/getFixture), never a hand-rolled local builder.
+  // ---------------------------------------------------------------------------
+  {
+    files: ["**/*.int.test.ts"],
+    plugins: {
+      "scope-based": scopeBasedPlugin
+    },
+    rules: {
+      "scope-based/no-hand-rolled-int-fixture": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
   // 9. Plain JS / CJS / MJS — config & tooling files. Correctness from
   //    js.configs.recommended still applies; we only relax module + format here.
   // ---------------------------------------------------------------------------

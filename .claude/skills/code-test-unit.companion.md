@@ -12,7 +12,8 @@
 
 ## Gherkin scenario path (base Hard Rules)
 
-- The tagged Gherkin feature file for a layer lives at **`tests/Playwright/features/<flow>/*.feature`**.
+- The e2e journey feature (`@layer-e2e`) lives at **`tests/features/<flow>/*.feature`**.
+- **Module business-logic feature — bindings for the base *Anchor every test to the feature (TDD)* rule.** Feature location: co-located at **`packages/headless/src/modules/<name>/__tests__/<name>.feature`** or in the SDD dir (**`docs/sdd/<story>/*.feature`**). Scenario-id scheme: **`@AC-<cell><n>`** (the `design.md` §6 ids). Enforcement: the co-located **`<name>.traceability.test.ts`** (Vitest, rides the module suite). Authored by `/code-test-bdd`.
 
 ## Fixtures (base "Test Data: Use Fixtures")
 
