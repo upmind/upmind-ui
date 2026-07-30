@@ -117,7 +117,7 @@ const titleVariants = cva("text-md-tight font-medium", {
     },
     color: variants.color,
     action: {
-      true: "flex items-start justify-between gap-x-3",
+      true: "flex flex-col items-start gap-y-1 sm:flex-row sm:justify-between sm:gap-x-3",
       false: ""
     }
   },

@@ -4,6 +4,7 @@
       <FormControl
         :key="props.id"
         :disabled="props.disabled"
+        :invalid="props.invalid"
         :formItemId="`${props.id}-search`"
         :auto-focus="props.autoFocus"
         :placeholder="placeholder"
@@ -75,6 +76,8 @@ const props = withDefaults(
   defineProps<{
     id?: string;
     disabled?: boolean;
+    /** marks the input invalid (danger ring) for form validation display */
+    invalid?: boolean;
     autoFocus?: boolean;
     modelValue?: string;
     /** `null` = no search performed yet, `[]` = search returned no results. */
