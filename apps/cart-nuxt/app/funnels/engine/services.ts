@@ -334,7 +334,8 @@ export default {
             } as FunnelResponse;
           }
           return basketItem
-            .update()
+            .silence()
+            .then(() => basketItem.update())
             .then(async () => {
               const returnUrl = consumeParam("returnUrl", false);
               if (returnUrl) {
