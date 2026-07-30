@@ -23,6 +23,8 @@ export type PaymentDetailsProps = {
   icon?: string;
   processing?: boolean;
   error?: string;
+  /** Closes the section until the steps before it are done. */
+  disabled?: boolean;
 };
 
 export type PaymentGatewayProps = {

@@ -91,7 +91,7 @@
                   v-for="(promotion, index) in summary.promotions"
                   :key="index"
                   v-bind="promotion"
-                  :disabled="error"
+                  :disabled="warning"
                 />
 
                 <Tooltip
@@ -155,8 +155,10 @@
       color="promo"
     />
 
+    <!-- configurable cards show the config inline, so the "add missing
+         data" alert — which links out to the configure page — is redundant. -->
     <RequiredAlert
-      v-if="error || !isEmpty(props.configErrors)"
+      v-if="(error || !isEmpty(props.configErrors)) && !props.configurable"
       :id="id"
       size="sm"
       :edit-route="props.editRoute"
@@ -191,11 +193,7 @@
           />
 
           <BasketProductTermSelector
-            v-if="
-              props.inlineMeta?.showTermSelector &&
-              props.terms &&
-              !productDetails.readonly
-            "
+            v-if="meta.showTermSelector && props.terms"
             :terms="props.terms"
             v-model="term"
             :disabled="error || !isEmpty(props.configErrors)"
@@ -283,6 +281,20 @@ const term = defineModel<ProductModel["term"]>("term");
 
 const { ui, data } = useConfig().with({
   basketProduct: () => props
+});
+
+const meta = computed(() => {
+  // a configurable card owns inline editing, so it offers term selection
+  // whatever the brand's default (which targets the catalogue)
+  const canSelectTerm =
+    props.configurable || props.inlineMeta?.showTermSelector;
+  const isOneoff = !!props.summary.meta?.oneoff;
+  const isReadonly = !!props.productDetails.readonly;
+  const hasTerms = !isEmpty(props.terms);
+
+  return {
+    showTermSelector: !!canSelectTerm && hasTerms && !isOneoff && !isReadonly
+  };
 });
 
 const filteredDetails = computed(() => {

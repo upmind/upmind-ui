@@ -4,7 +4,8 @@ import { useFunnelMachine } from "./funnel.machine";
 import { createEndpointNodes } from "./overlays";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import { get } from "lodash-es";
-import type { RoutingEngineContext } from "./routing.types";
+import type { FunnelProps, RoutingEngineContext } from "./routing.types";
+import { extendFunnel } from "./routing.utils";
 
 // -----------------------------------------------------------------------------
 
@@ -24,7 +25,7 @@ async function prepare({
   watchers
 }: RoutingEngineContext) {
   const { t } = useI18n();
-  const funnelConfig = get(funnels, currentFunnel);
+  const funnelConfig = extendFunnel(funnels, get(funnels, currentFunnel));
   // Spread to avoid mutating the original config object across invocations
   const context = {
     ...(funnelConfig?.context ?? {}),
@@ -48,7 +49,7 @@ async function prepare({
       );
     }
     // Return the default machine config with an updated context + endpoints
-    const config = funnels[defaultFunnel];
+    const config = extendFunnel(funnels, funnels[defaultFunnel]) as FunnelProps;
     return useFunnelMachine({
       ...config,
       context,

@@ -5,6 +5,7 @@
     :icon="sectionIcon"
     :label="sectionLabel"
     :dataAttrs="payAmountDataAttrs"
+    :disabled="props.disabled"
   >
     <template #actions>
       <PaymentAmount

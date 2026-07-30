@@ -12,17 +12,30 @@
       size="sm"
       :ui-config="{
         select: {
+          trigger: [styles.product.summary.footer.terms.trigger],
           content: [styles.product.summary.footer.terms.content]
         }
       }"
     >
-      <template #dropdown-item="slotProps">
-        <TermCard
-          v-bind="slotProps.item"
-          layout="inline"
-          :summary="false"
-          :type="PriceDisplayTypes.CYCLE"
+      <template #item="slotProps">
+        {{ slotProps.label }}
+
+        <CurrentPrice
+          v-if="slotProps.item.meta?.useMonthlyFromPrice"
+          :current-price="slotProps.item.price.currentPrice"
+          :monthly-from-current-price="
+            slotProps.item.price.monthlyFromCurrentPrice
+          "
+          :free="slotProps.item.meta?.free"
+          use-monthly-from-price
+          :ui-config="{
+            pricing: { current: [styles.product.summary.footer.terms.price] }
+          }"
         />
+      </template>
+
+      <template #dropdown-item="slotProps">
+        <TermCard v-bind="slotProps.item" layout="inline" :summary="false" />
       </template>
     </SelectCards>
   </div>
@@ -41,6 +54,7 @@ import {
   useTestAttrs
 } from "@upmind-automation/upmind-ui";
 import TermCard from "../../../../product/components/terms/TermCard.vue";
+import CurrentPrice from "../../../../product/components/pricing/CurrentPrice.vue";
 import styleConfig from "../basketProduct.config";
 import { map, toNumber } from "lodash-es";
 import type { TermSelectorProps } from "./types";

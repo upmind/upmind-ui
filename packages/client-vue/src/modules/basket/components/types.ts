@@ -1,3 +1,4 @@
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 import type {
   AvatarProps,
   DialogProps,
@@ -44,7 +45,41 @@ export interface PromotionBadgeProps {
   color?: BadgeProps["color"];
 }
 
+export interface BasketActionProps {
+  basketRoute?: RouteLocationAsRelativeGeneric;
+}
+
 export interface BasketCheckoutProps {
   disabled: boolean;
   loading: boolean;
+}
+
+export interface BasketProductsProps {
+  editRoute: RouteLocationAsRelativeGeneric;
+  configurable?: boolean;
+  disabled?: boolean;
+}
+
+export interface SummaryProps {
+  /** Itemise each product's configuration instead of listing plain totals. */
+  showBreakdown?: boolean;
+  /** Links each product back to the step where it is configured. Breakdown only. */
+  editRoute?: RouteLocationAsRelativeGeneric;
+  showProducts?: boolean;
+  showPromotions?: boolean;
+  showTotal?: boolean;
+  /** The basket aside shows a checkout button below the summary, so its loading
+   * skeleton includes a button stand-in; the checkout summary has none. */
+  showButton?: boolean;
+}
+
+export interface BasketHeroProps {
+  loading?: boolean;
+}
+
+export interface SummarySkeletonProps {
+  showBreakdown?: boolean;
+  showProducts?: boolean;
+  showButton?: boolean;
+  card?: boolean;
 }

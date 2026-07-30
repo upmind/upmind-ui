@@ -65,6 +65,7 @@
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
   "product_setup_count": "Δεν έχουν απομείνει προϊόντα |{count} προϊόν που απομένει |{count} προϊόντα που απομένουν",
   "product_setup_desc": "Ορισμένα προϊόντα απαιτούν πρόσθετες πληροφορίες πριν από την ολοκλήρωση της αγοράς. Ελέγξτε τα και δώστε τυχόν στοιχεία που λείπουν.",
+  "product_setup_details": "Λεπτομέρειες ρύθμισης προϊόντος",
   "product_setup_msg": "Χρησιμοποιήστε επίσης αυτές τις λεπτομέρειες για{name}",
   "product_setup_title": "Ολοκλήρωση εγκατάστασης προϊόντος",
   "promotion_help": "{code} παρέχει {amount} έκπτωση {description}",
@@ -75,5 +76,6 @@
   "show_more_payment_options": "Εμφάνιση περισσότερων επιλογών πληρωμής",
   "stored_payment_methods_limited_desc": "Δεν είναι ορατές όλες οι μέθοδοι πληρωμής επειδή δεν είναι διαθέσιμες για τη χώρα ή το νόμισμά σας.",
   "stored_payment_methods_limited_title": "Περιορισμένες Μέθοδοι Πληρωμής",
-  "warning_notes_title": "Προειδοποίηση καλαθιού | Προειδοποιήσεις καλαθιού"
+  "warning_notes_title": "Προειδοποίηση καλαθιού | Προειδοποιήσεις καλαθιού",
+  "your_order": "Η παραγγελία σας"
 }

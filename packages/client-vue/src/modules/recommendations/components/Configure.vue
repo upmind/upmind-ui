@@ -13,6 +13,7 @@
       :item="pendingProduct"
       :model-value="pendingProduct?.id"
       :meta="configMeta"
+      :touched="productMeta?.showErrors"
       no-footer
       @resolve="doResolve"
       @reject="doReject"

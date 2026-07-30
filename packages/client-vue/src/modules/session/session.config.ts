@@ -15,6 +15,17 @@ export default {
     ),
     content: cva("rounded-box w-full max-w-5xl items-start"),
     markdown: cva("my-6"),
+    subtitle: cva("font-normal"),
+
+    // Auth form width: capped on every template except one-page, which fills
+    // its centred card. Shared by the login/register/recover sections.
+    formWidth: cva("max-w-3xl", {
+      variants: {
+        template: {
+          inset: "max-w-none"
+        }
+      }
+    }),
 
     transition: {
       enter: {

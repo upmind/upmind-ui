@@ -12,13 +12,17 @@ import {
   camelCase,
   defaultsDeep,
   get,
+  includes,
+  isArray,
   isEqual,
+  mergeWith,
   some,
   upperFirst
 } from "lodash-es";
 import type { UIRouteOptions } from "../brand/brand.types";
 import type { RouteLocation, RouteRecordRaw } from "vue-router";
 import type { ActorRef } from "xstate";
+import type { FunnelProps, Funnels } from "./routing.types";
 
 // -----------------------------------------------------------------------------
 
@@ -173,4 +177,53 @@ export async function decorateRoutes(routes: RouteRecordRaw[]) {
 }
 export function pascalCase(str: string): string {
   return upperFirst(camelCase(str));
+}
+
+/**
+ * Flattens a funnel's `extends` chain into a single config, base-first.
+ *
+ * A funnel that extends another inherits its states, guards, services, actions
+ * and context, so it need only declare what it adds or diverges on. Anything the
+ * extending funnel declares wins — a state key replaces the base's wholesale
+ * rather than deep-merging, so an override owns its whole node.
+ *
+ * @param funnels - The registry to resolve base ids against.
+ * @param config - The funnel to flatten. Returned untouched when it extends nothing.
+ * @param chain - Funnel ids already walked in this chain, used to detect cycles.
+ * @throws {DetailedError} When a base id is unregistered or the chain is circular.
+ */
+export function extendFunnel(
+  funnels: Funnels,
+  config?: FunnelProps,
+  chain: string[] = []
+): FunnelProps | undefined {
+  const baseId = config?.extends;
+  if (!config || !baseId) return config;
+
+  const { t } = useI18n();
+  const base = get(funnels, baseId);
+
+  if (!base || includes(chain, baseId)) {
+    throw new DetailedError(
+      t("error.funnel_not_available"),
+      responseCodes.Conflict,
+      ErrorOrigin.Headless
+    );
+  }
+
+  const resolved = extendFunnel(funnels, base, [...chain, config.id, baseId]);
+
+  // The customizer is the merge policy: a state node and any array are taken
+  // whole from whichever layer declares them; everything else merges by key.
+  // NB it reads `source` (where lodash is reading from), not the 4th arg, which
+  // is the destination clone and never matches a layer's own `states`.
+  return mergeWith(
+    {},
+    resolved,
+    config,
+    (_base, child, _key, _parent, source) =>
+      source === config.states || source === resolved?.states || isArray(child)
+        ? child
+        : undefined
+  );
 }

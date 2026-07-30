@@ -127,10 +127,16 @@ export interface UISchema {
   // --- Basket
   /** Display custom basket fields */
   basketFields?: Visibility;
+  /** Configure basket items in place (term, quantity and options on the item) */
+  basketItemConfig?: Editability;
   /** Display basket items */
   basketItems?: Visibility;
+  /** Display the promotion code field */
+  basketPromotionCode?: Visibility;
   /** Display basket summary */
   basketSummary?: Visibility;
+  /** Display each item's configuration in the basket summary */
+  basketSummaryDetails?: Visibility;
   /** Display basket taxes (if consolidated, show breakdown in popover) */
   basketTaxes?: TaxesDisplay;
 
@@ -165,6 +171,8 @@ export interface UISchema {
   seoTwitterImage?: string;
 
   // --- Global
+  /** Display the basket shortcut in the header */
+  basketAction?: Visibility;
   /** Display breadcrumbs (defaults to showing immediate parent category) */
   breadcrumbs?: Breadcrumbs;
   /** Icon variant/style */
@@ -203,6 +211,13 @@ export interface DataSchema {
 
   /** Enable in-basket product option upsells (Eg. Domain Privacy Addon) */
   optionUpsellEnabled?: boolean;
+
+  /**
+   * Add the product to the basket straight away, skipping the configure step.
+   * Equivalent to arriving with `?autoupdate=true`; if the product can't be
+   * added unconfigured the configure step still opens.
+   */
+  productAutoUpdate?: boolean;
 
   /** Optional product badge. Eg. 'Hot Right Now' or { label: 'Hot Right Now', icon: 'fire' } */
   productBadge?: Badge;

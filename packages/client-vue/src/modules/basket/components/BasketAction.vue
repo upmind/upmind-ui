@@ -1,11 +1,11 @@
 <template>
   <Button
-    v-if="props.basketRoute"
+    v-if="meta.showBasket"
     as="router-link"
     :to="props.basketRoute"
     :loading="
-      !meta.isAvailable &&
-      (meta.isLoading || meta.isProcessing) &&
+      !basketMeta.isAvailable &&
+      (basketMeta.isLoading || basketMeta.isProcessing) &&
       isAuthenticated
     "
     variant="ghost"
@@ -38,22 +38,27 @@
   </Button>
 </template>
 <script lang="ts" setup>
+import { computed } from "vue";
 import { useActiveSession, useBasket } from "@upmind-automation/headless";
 import { Button, useTestAttrs } from "@upmind-automation/upmind-ui";
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
+import { useHeader } from "../../../components/header/useHeader";
 
 // --- types
+import type { BasketActionProps } from "./types";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<{
-  basketRoute?: RouteLocationAsRelativeGeneric;
-}>();
+const props = defineProps<BasketActionProps>();
 
 const { isAuthenticated } = useActiveSession().useMeta();
 
-const { count, meta } = useBasket();
+const { count, meta: basketMeta } = useBasket();
+const { meta: headerMeta } = useHeader();
 
+const meta = computed(() => ({
+  // the chrome decides whether a basket shortcut belongs in the header
+  showBasket: !!props.basketRoute && headerMeta.value.showBasket
+}));
 const countTestAttrs = useTestAttrs({ key: "basket-action-count" });
 </script>
 

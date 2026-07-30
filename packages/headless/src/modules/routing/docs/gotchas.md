@@ -41,3 +41,30 @@ if (!routingMeta.value.isResolved) return;
 if (!routingMeta.value.isResolved) return;
 wasAuthenticated = isAuthenticated; // ← never reached when unresolved
 ```
+
+---
+
+## 3. An `extends` Override Owns the Whole State Node
+
+**Problem:** Declaring a state key in a funnel that `extends` another replaces the base's node wholesale — it does not deep-merge. Parts you omit are gone, not inherited.
+
+**Symptoms:** A `NEXT` transition, an `entry` action, or a `meta.prev` that "worked in the base funnel" silently stops working in the variant.
+
+**Fix:** Restate every part of the node you still want, or omit the key entirely to inherit it untouched:
+
+```typescript
+// ❌ Loses the base node's `on.NEXT` and `entry`
+[ROUTE.CHECKOUT]: { invoke: { src: "guardCheckout", onError: [...] } }
+
+// ✅ Restates the whole node
+[ROUTE.CHECKOUT]: {
+  meta: { prev: ROUTE.BASKET },
+  entry: ["setCurrency", "setBasket"],
+  invoke: { src: "guardCheckout", onError: [...] },
+  on: { NEXT: { ... } }
+}
+```
+
+Arrays are swapped, never concatenated — `invoke.onError` is an ordered "first matching `cond` wins" list, so appending the base's entries would re-add the very transitions the variant exists to remove.
+
+> **🧪 For Testers:** After adding an `extends` override, exercise NEXT/BACK on that route in the variant funnel, not just the base.

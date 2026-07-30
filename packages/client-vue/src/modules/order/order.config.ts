@@ -4,7 +4,15 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 export default {
   table: {
-    wrapper: cva("w-0 min-w-full overflow-x-auto lg:px-9 lg:py-9"),
+    // An inset section's py-5/md:py-6 overshoots the pb-4 under the table
+    // header, so match it.
+    section: cva("", {
+      variants: {
+        isInset: { true: "pt-4 md:pt-4", false: "" }
+      },
+      defaultVariants: { isInset: false }
+    }),
+    wrapper: cva("w-0 min-w-full overflow-x-auto"),
     root: cva("w-full text-sm"),
     header: {
       root: cva(""),

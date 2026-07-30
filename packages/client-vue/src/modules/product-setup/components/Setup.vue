@@ -19,54 +19,17 @@
               :label="currentProductTitle"
               icon="settings-04"
             >
-              <slot name="errors">
-                <Alert
-                  v-if="externalErrors?.message || setupMeta?.hasError"
-                  class="w-full"
-                  color="danger"
-                  variant="minimal"
-                  icon="alert-triangle"
-                  :title="t('error.product_setup', total)"
-                  :description="externalErrors?.message || setupError?.message"
-                />
-              </slot>
-
-              <form
-                id="setup-form"
-                @submit.prevent="doResolve"
-                @reset.prevent
-                autocomplete="on"
+              <ProductSetupForm
+                :bpid="props.bpid"
+                @resolve="onFormResolve"
+                @reject="doReject"
               >
-                <Form
-                  v-if="basketProduct && productMeta?.isAvailable"
-                  :loading="productMeta.isLoading"
-                  :processing="setupMeta.isProcessing"
-                  :disabled="setupMeta.isProcessing"
-                  :schema="schema"
-                  :uischema="uischema"
-                  :model-value="model"
-                  :additional-errors="additionalErrors"
-                  :touched="productMeta?.showErrors"
-                  @update:modelValue="setConfig"
-                  no-actions
-                  as="fieldset"
-                />
-                <!-- <ConfigSkeleton v-else /> -->
-              </form>
+                <template v-if="$slots.errors" #errors>
+                  <slot name="errors" />
+                </template>
+              </ProductSetupForm>
             </Section>
           </Loading>
-        </slot>
-      </template>
-
-      <template #apply-to-others>
-        <slot name="apply-to-others" :other-products="similarProducts">
-          <ApplyToOthers
-            v-if="setupMeta.hasSimilar && !setupMeta.isLoading"
-            v-model="selected"
-            :products="similarProducts"
-            :loading="setupMeta.isLoading"
-            :disabled="setupMeta.isProcessing"
-          />
         </slot>
       </template>
 
@@ -114,7 +77,6 @@
       <template #actions>
         <slot
           name="actions"
-          :do-resolve="doResolve"
           :do-reject="doReject"
           :is-processing="setupMeta?.isProcessing"
         >
@@ -155,18 +117,10 @@ import {
 } from "@upmind-automation/headless";
 import {
   UIContext,
-  type ProductModel,
   type Product,
-  type BasketProduct,
   type UseProductConfigMeta
 } from "@upmind-automation/headless";
-import {
-  Alert,
-  Button,
-  Loading,
-  useTestAttrs
-} from "@upmind-automation/upmind-ui";
-import Form from "../../../components/form/Form.vue";
+import { Button, Loading, useTestAttrs } from "@upmind-automation/upmind-ui";
 import Hero from "../../../components/hero/Hero.vue";
 import Transitions from "../../../components/layout/components/transition/Transition.vue";
 import Section from "../../../components/section/Section.vue";
@@ -175,7 +129,7 @@ import ProductSetupFullTemplate from "../templates/ProductSetupFull.template.vue
 import ProductSetupLTRTemplate from "../templates/ProductSetupLTR.template.vue";
 import ProductSetupRTLTemplate from "../templates/ProductSetupRTL.template.vue";
 import { PRODUCT_SETUP_TEMPLATE, type ProductSetupProps } from "../types";
-import ApplyToOthers from "./ApplyToOthers.vue";
+import ProductSetupForm from "./ProductSetupForm.vue";
 import { get } from "lodash-es";
 import type { ActorRef } from "xstate";
 
@@ -200,7 +154,7 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-  resolve: [model: Partial<ProductModel>];
+  resolve: [];
   reject: [];
 }>();
 
@@ -211,30 +165,20 @@ defineSlots<{
     productMeta: UseProductConfigMeta;
   }): void;
   "content-header"(): void;
-  "apply-to-others"(props: { otherProducts: BasketProduct[] }): void;
   aside(): void;
   progress(): void;
-  actions(props: {
-    doResolve: () => void;
-    doReject: () => void;
-    isProcessing: boolean;
-  }): void;
+  actions(props: { doReject: () => void; isProcessing: boolean }): void;
   errors(): void;
 }>();
 
 const { t } = useI18n();
 
 // --- Product Setup composable (singleton - shared with parent)
-const {
-  configure,
-  error: setupError,
-  meta: setupMeta,
-  schema,
-  uischema,
-  selected,
-  similarProducts,
-  total
-} = useProductSetup();
+// The form itself (schema/errors/apply-to-others/Continue) lives in the shared
+// ProductSetupForm; this host keeps its own config wiring for the page chrome
+// (title, slots, button gating) — useProductConfig is a pure wrapper over the
+// same machine, so both reading it is safe.
+const { configure, meta: setupMeta, total } = useProductSetup();
 
 const { isNavigating } = useRoutingEngine();
 
@@ -252,15 +196,7 @@ if (!basketProductConfig) {
 }
 provide("useProductConfig", basketProductConfig);
 
-const {
-  meta: productMeta,
-  model,
-  product,
-  externalErrors,
-  validationErrors: _validationErrors,
-  additionalErrors,
-  setConfig
-} = basketProductConfig;
+const { meta: productMeta, product } = basketProductConfig;
 
 // --- Config context
 const configMeta = useConfig({
@@ -292,9 +228,8 @@ const progressTestAttrs = (value: number) =>
   useTestAttrs({ key: "product-setup-progress", value: String(value) });
 
 // --- Actions
-function doResolve() {
-  if (!model.value || productMeta.value.isInvalid) return;
-  emit("resolve", model.value);
+function onFormResolve() {
+  emit("resolve");
 }
 
 function doReject() {

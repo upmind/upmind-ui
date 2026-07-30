@@ -117,13 +117,21 @@ export function spawnGateway(params: GatewayParams) {
           .withConfig(gateway?.use_frontend_implementation ? stripeConfig : {}),
         { name: gateway.id, sync: true }
       );
+    // NB: payment happens in Razorpay's own modal (no SDK to mount), but the
+    // gateway must still render its own form to collect the payer email (when
+    // they have none on file) so the modal prefills. It is deliberately NOT
+    // flagged `renderless` — that would hide the form in the UI. `sdk: false`
+    // keeps `hasRendered` satisfied so the machine still reaches `available`
+    // without a render step; visibility is then schema-driven: guests get a
+    // non-readOnly email field (form renders), clients with an email on file
+    // get an all-readOnly schema (no form).
     case GatewayProviderCodes.RAZOR_PAY_CHECKOUT:
       return spawn(
         gatewayMachine<RazorpayContext>(gateway.gateway_provider.code)
           .withContext({
             ...params,
-            supported: true,
-            renderless: true
+            sdk: false,
+            supported: true
           })
           .withConfig(razorpayConfig),
         { name: gateway.id, sync: true }

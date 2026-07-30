@@ -36,9 +36,10 @@ import { useMoney } from "@upmind-automation/headless";
 import { Skeleton } from "@upmind-automation/upmind-ui";
 import Hero from "../../../components/hero/Hero.vue";
 
-defineProps<{
-  loading?: boolean;
-}>();
+// --- types
+import type { BasketHeroProps } from "./types";
+
+defineProps<BasketHeroProps>();
 
 const { t } = useI18n();
 const { count, summary, meta } = useBasket();

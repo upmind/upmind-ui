@@ -2,11 +2,11 @@
   <component
     :is="button ? Button : Link"
     :label="safeLabel"
+    :icon="icon"
     :to="to"
     :href="href"
-    size="lg"
-    :variant="button ? 'subtle' : undefined"
-    :color="!button ? 'muted' : undefined"
+    :size="size"
+    v-bind="styleProps"
     class="self-start"
   />
 </template>
@@ -19,28 +19,20 @@ import type {
   RouteLocationAsRelativeGeneric,
   RouteLocationAsPathGeneric
 } from "vue-router";
+import type { BackProps } from "./types";
 
 const { t } = useI18n();
 
-const props = withDefaults(
-  defineProps<
-    {
-      label?: string;
-      button?: boolean;
-    } & (
-      | {
-          to:
-            | string
-            | RouteLocationAsRelativeGeneric
-            | RouteLocationAsPathGeneric;
-          href?: never;
-        }
-      | { href: string; to?: never }
-      | { to?: undefined; href?: undefined }
-    )
-  >(),
-  {}
-);
+const props = withDefaults(defineProps<BackProps>(), {
+  size: "lg",
+  color: "muted"
+});
 
 const safeLabel = computed(() => props.label || t("action.back_to_basket"));
+
+// Button styles via variant; Link via color — bind only the one in play.
+const styleProps = computed(() => {
+  if (props.button) return { variant: "subtle" };
+  return { color: props.color };
+});
 </script>

@@ -1,7 +1,7 @@
 <template>
   <!-- Summary mode -->
   <SmartDomainSummary
-    v-if="meta.showSummary && !editing && !props.errors?.length"
+    v-if="domainMeta.showSummary && !editing && !props.errors?.length"
     :domain="model ?? ''"
     :disabled="props.disabled"
     @change="onChangeClick"
@@ -42,7 +42,7 @@
               <FormControl
                 v-if="!open"
                 form-item-id="domain-register-search"
-                auto-focus
+                :auto-focus="meta.shouldAutoFocus"
               >
                 <Input
                   :model-value="queryValue"
@@ -73,18 +73,18 @@
                 :filtered-owned="filteredOwned"
                 :is-domain-like="isDomainLike"
                 :disabled="props.disabled"
-                :validating="meta.isExistingValidating"
-                :checked="meta.isExistingChecked"
-                :registerable="meta.isExistingRegisterable"
-                :registering="meta.isExistingPendingRegistration"
-                :transferred="meta.isExistingTransferred"
-                :transferring="meta.isExistingPendingTransfer"
-                :removing="meta.isExistingRemoving"
-                :unavailable="meta.isExistingUnavailable"
+                :validating="domainMeta.isExistingValidating"
+                :checked="domainMeta.isExistingChecked"
+                :registerable="domainMeta.isExistingRegisterable"
+                :registering="domainMeta.isExistingPendingRegistration"
+                :transferred="domainMeta.isExistingTransferred"
+                :transferring="domainMeta.isExistingPendingTransfer"
+                :removing="domainMeta.isExistingRemoving"
+                :unavailable="domainMeta.isExistingUnavailable"
                 :dns-only="
-                  meta.isExistingValid ||
-                  meta.isExistingError ||
-                  meta.isExistingOwned
+                  domainMeta.isExistingValid ||
+                  domainMeta.isExistingError ||
+                  domainMeta.isExistingOwned
                 "
                 :transfer-price="pricing?.price ?? ''"
                 :renewal-price="pricing?.regularPrice ?? ''"
@@ -141,11 +141,11 @@
       :available="available || []"
       :offset="pagination.offset"
       :result-count="resultCount"
-      :searching="meta.isSearching"
-      :processing="meta.isProcessing"
-      :loading="meta.isLoading"
-      :valid="meta.isValid"
-      :empty="meta.isEmpty"
+      :searching="domainMeta.isSearching"
+      :processing="domainMeta.isProcessing"
+      :loading="domainMeta.isLoading"
+      :valid="domainMeta.isValid"
+      :empty="domainMeta.isEmpty"
       @search="search"
       @search-more="searchMore"
       @add="add"
@@ -200,7 +200,7 @@ const emit = defineEmits<{
 const { t, tm, rt } = useI18n();
 
 const stylesMeta = computed(() => ({
-  hasInfo: meta.value.hasInfo
+  hasInfo: domainMeta.value.hasInfo
 }));
 
 const styles = useStyles(
@@ -220,7 +220,7 @@ const {
   add,
   basket,
   choices,
-  meta,
+  meta: domainMeta,
   model,
   pagination,
   query,
@@ -251,6 +251,10 @@ const editing = ref(false);
 const open = ref(false);
 const resultCount = ref(0);
 const queryValue = ref(query.value || "");
+
+// only an empty field is awaiting input — a prefilled one must not grab
+// focus on mount and hijack the page's scroll
+const meta = computed(() => ({ shouldAutoFocus: !queryValue.value }));
 
 // --- Sorted and filtered choices
 const sortedChoices = computed(() =>
@@ -347,14 +351,14 @@ watch(selected, value => {
 // Ensures null is emitted on skip even when no domain was ever selected
 // (selected stays undefined, so watch(selected) won't fire).
 watch(
-  () => meta.value.isSkip,
+  () => domainMeta.value.isSkip,
   isSkip => {
     if (isSkip) emit("update:modelValue", null);
   }
 );
 
 // Open drawer when machine enters searching or has results
-watch(meta, ({ isSearching, showSearchResults, showDac }) => {
+watch(domainMeta, ({ isSearching, showSearchResults, showDac }) => {
   if (showDac && (showSearchResults || isSearching)) {
     open.value = true;
   }
@@ -366,7 +370,7 @@ watch(available, previous => {
 
 // Show summary after domain is added to basket via registration
 watch(
-  () => meta.value.isExistingValid,
+  () => domainMeta.value.isExistingValid,
   valid => {
     if (valid) {
       editing.value = false;

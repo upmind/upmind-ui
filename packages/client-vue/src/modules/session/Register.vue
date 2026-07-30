@@ -3,7 +3,15 @@
   <component :is="templateVariant" v-bind="props" v-else>
     <template #back>
       <slot name="back">
-        <Back />
+        <!-- One-page uses the compact "← Back" per the designs; other templates
+             keep the default "Back to basket". -->
+        <Back
+          :label="meta.isInset ? t('action.back') : t('action.back_to_basket')"
+          :icon="meta.isInset ? 'arrow-narrow-left' : undefined"
+          :size="meta.isInset ? 'md' : 'lg'"
+          :color="meta.isInset ? 'muted' : 'default'"
+          @click.prevent="doReject"
+        />
       </slot>
     </template>
 
@@ -19,12 +27,12 @@
           <template #subtitle>
             <!-- A guest client is upgrading, not choosing login vs register —
                  show the save-your-details prompt, not the log-in link. -->
-            <span v-if="isGuestClient" class="font-normal">{{
+            <span v-if="isGuestClient" :class="styles.session.subtitle">{{
               t("auth.guest_register_description")
             }}</span>
 
             <template v-else>
-              <span class="font-normal"
+              <span :class="styles.session.subtitle"
                 >{{ t("auth.register_description") }}&nbsp;</span
               >
 
@@ -34,7 +42,7 @@
                 color="inherit"
                 :label="t('action.log_in_here')"
                 :dataAttrs="{ 'data-test-key': 'checkout-login-link' }"
-                class="font-normal"
+                :class="styles.session.subtitle"
               />
             </template>
           </template>
@@ -47,15 +55,28 @@
         <!-- One register form for new sign-ups AND guest-client upgrades; Auth
              picks the right form from the session machine (a guest client's
              upgrade form is owned by the client machine). Shown unless the user
-             is a fully-registered client. -->
+             is a fully-registered client. One-page titles it "Create Account" as
+             a card with a "Log in" cross-link (one-page drops the hero); other
+             templates keep the plain section titled "Register". -->
         <Section
-          :label="t('action.register')"
-          value="register"
+          :card="meta.isInset"
+          :label="
+            meta.isInset ? t('action.create_account') : t('action.register')
+          "
           icon="user-03"
+          :class="styles.session.formWidth"
           v-show="!isAuthenticated || isGuestClient"
-          class="max-w-3xl"
           :active="templateMeta.hasActiveSection"
         >
+          <template v-if="meta.isInset && !isGuestClient" #actions>
+            <Link
+              :label="t('action.login')"
+              color="muted"
+              size="sm"
+              @click.prevent="doUpdate('login')"
+            />
+          </template>
+
           <Markdown
             v-if="templateMeta.hasActiveSection && registerTemplate?.body"
             tag="div"
@@ -109,7 +130,6 @@
           />
 
           <Auth
-            v-else
             v-show="!isLoading && !basketMeta.isLoading"
             class="rounded-box w-full max-w-5xl items-start"
             no-tabs
@@ -236,6 +256,7 @@ import sessionConfig from "./session.config";
 import { useSessionTemplates } from "./session.utils";
 import SessionCanvasCardTemplate from "./templates/SessionCanvasCard.template.vue";
 import SessionEnclosedTemplate from "./templates/SessionEnclosed.template.vue";
+import SessionInsetTemplate from "./templates/SessionInset.template.vue";
 import SessionLTRTemplate from "./templates/SessionLTR.template.vue";
 import SessionRTLTemplate from "./templates/SessionRTL.template.vue";
 import SessionSplitTemplate from "./templates/SessionSplit.template.vue";
@@ -253,7 +274,8 @@ const supportedTemplates = {
   [SESSION_TEMPLATE.SURFACE_BOX]: SessionSurfaceBoxTemplate,
   [SESSION_TEMPLATE.TWO_COLUMN_LTR]: SessionLTRTemplate,
   [SESSION_TEMPLATE.TWO_COLUMN_RTL]: SessionRTLTemplate,
-  [SESSION_TEMPLATE.ENCLOSED]: SessionEnclosedTemplate
+  [SESSION_TEMPLATE.ENCLOSED]: SessionEnclosedTemplate,
+  [SESSION_TEMPLATE.INSET]: SessionInsetTemplate
 };
 
 // -----------------------------------------------------------------------------
@@ -285,7 +307,7 @@ const { navigateNext, navigateBack, navigate } = useRoutingEngine();
 const { brandId } = useBrand();
 
 const styles = useStyles(
-  ["session", "session.guestCheckout"],
+  ["session", "session.guestCheckout", "session.formWidth"],
   computed(() => ({
     template: template.value
   })),
@@ -315,6 +337,10 @@ const template = computed(() =>
   )
 );
 
+const meta = computed(() => ({
+  isInset: template.value === SESSION_TEMPLATE.INSET
+}));
+
 const templateVariant = computed(() => get(supportedTemplates, template.value));
 const { meta: templateMeta } = useSessionTemplates(template);
 
@@ -331,7 +357,7 @@ function doUpdate(value: SessionProps["modelValue"]) {
   }
 }
 
-function _doReject() {
+function doReject() {
   isResolving.value = true;
   navigateBack().catch(() => {
     isResolving.value = false;

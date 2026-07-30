@@ -1245,7 +1245,7 @@ export const parseProduct = (
 
   // ---------------------------------------------------------------------------
   return {
-    id: model.id,
+    id: rawBasketProduct?.id,
     configuration: model,
     productDetails: lookups.product,
     promotions: term?.promotions,

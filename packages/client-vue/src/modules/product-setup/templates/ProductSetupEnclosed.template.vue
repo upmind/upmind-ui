@@ -23,6 +23,7 @@
 
 <script lang="ts" setup>
 import { onMounted } from "vue";
+import { useConfig } from "@upmind-automation/headless";
 import { useHeader } from "../../../components/header/useHeader";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useLayout } from "../../../components/layout/useLayout";
@@ -39,8 +40,11 @@ useLayout({
   variant: LAYOUT_VARIANTS.SPLIT_VERTICAL
 });
 
+const { ui } = useConfig();
+
 onMounted(() => {
   useHeader({
+    noBasket: ui.basketAction.isHidden,
     background: HEADER_BACKGROUND.SURFACE,
     border: "none",
     items: "end"

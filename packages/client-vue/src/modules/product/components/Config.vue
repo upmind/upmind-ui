@@ -18,8 +18,10 @@
           :uischema="filteredUischema"
           :model-value="model"
           :additional-errors="additionalErrors"
-          :touched="meta.showErrors"
+          :touched="props.touched"
+          :autosave="props.autosave"
           @update:modelValue="onConfigChange"
+          @resolve="doResolve"
           no-actions
           as="fieldset"
         />
@@ -70,6 +72,8 @@
 <script lang="ts" setup>
 import { computed, inject, onUpdated } from "vue";
 import { useI18n } from "vue-i18n";
+import { assign, filter, omit, reject } from "lodash-es";
+import { isLayout } from "@jsonforms/core";
 import {
   type UseProductConfig,
   DetailedError,
@@ -79,7 +83,6 @@ import {
 import { useStyles, Link, Button, cn } from "@upmind-automation/upmind-ui";
 import Form from "../../../components/form/Form.vue";
 import config from "../product.config";
-import { reject } from "lodash-es";
 import type { ConfigProps } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -130,14 +133,11 @@ const { ui } = props.meta;
 // TODO: @Rhod convert /extend this to be ui meta
 const filteredUischema = computed(() => {
   if (!props.hideTerms || !uischema.value) return uischema.value;
+  if (!isLayout(uischema.value)) return uischema.value;
 
-  return {
-    ...uischema.value,
-    elements: reject((uischema.value as any).elements, [
-      "scope",
-      "#/properties/term"
-    ])
-  };
+  return assign(omit(uischema.value, "elements"), {
+    elements: reject(uischema.value.elements, ["scope", "#/properties/term"])
+  });
 });
 
 const stylesMeta = computed(() => {

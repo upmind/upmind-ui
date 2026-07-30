@@ -29,7 +29,10 @@ export interface SectionItem extends TabItem {
 export type SectionsProps = {
   card?: boolean;
   border?: boolean;
+  /** Draw the section header inside the card. Defaults from the section store, set by the active template. */
+  inset?: boolean;
   active?: boolean;
+  disabled?: boolean;
   class?: HTMLAttributes["class"];
   sections: SectionItem[];
   modelValue?: string;
@@ -47,4 +50,5 @@ export type SectionsProps = {
 export type UseSectionProps = {
   card?: boolean;
   border?: boolean;
+  inset?: boolean;
 };

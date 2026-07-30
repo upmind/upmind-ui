@@ -6,7 +6,8 @@ export enum BILLING_TEMPLATE {
   FULL = "full",
   TWO_COLUMN_LTR = "two-column-ltr",
   TWO_COLUMN_RTL = "two-column-rtl",
-  ENCLOSED = "enclosed"
+  ENCLOSED = "enclosed",
+  INSET = "inset"
 }
 
 export interface BillingFormProps {
@@ -17,6 +18,12 @@ export interface BillingFormProps {
   billingRoute?: RouteLocationAsRelativeGeneric;
   expand?: boolean;
   inline?: boolean;
+  card?: boolean;
+  /** Edit-in-place hosting (the checkout's inline billing section): manual
+   * (non-autosave) state is an edit with its own Continue, commits on every
+   * form resolve, and only resolves once billing is complete. Off = the
+   * stepped standalone-page choreography. */
+  inlineEditing?: boolean;
 }
 
 export interface BillingProps {
@@ -26,4 +33,8 @@ export interface BillingProps {
 
 export interface BillingHeroProps {
   template?: BILLING_TEMPLATE;
+}
+
+export interface BillingSummarySkeletonProps {
+  card?: boolean;
 }

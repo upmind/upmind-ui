@@ -183,7 +183,10 @@ export function parseSummary(subproduct: IBasketProduct): ProductSummaryDetail {
     }),
     category: useTranslateName(subproduct.product.category),
     cycle: subproduct.billing_cycle_months,
+    // quantity of this subproduct across all units of the parent product
     quantity: subproduct.quantity,
+    // quantity of this subproduct within a single unit of the parent product
+    unitQuantity: subproduct.unit_quantity,
     meta: {}
   };
 }
@@ -270,6 +273,19 @@ export function parsePrice(raw: IBasketProduct): PriceDetail {
         }
       : undefined;
 
+  // product-only unit price before promotions, read at any quantity — `unit` is
+  // only built when the product is bought more than once. `net_selling_price_*`
+  // arrives discount-applied, so it never reconciles with a pre-discount total
+  let unitPrice = raw.net_selling_price_base_formatted;
+  if (includesTax.value) {
+    unitPrice = raw.selling_price_formatted;
+  }
+
+  let configurationUnitPrice = raw.configuration_net_selling_price_formatted;
+  if (includesTax.value) {
+    configurationUnitPrice = raw.configuration_selling_price_formatted;
+  }
+
   const configuration = {
     total: includesTax.value ? raw.total_amount : raw.net_amount,
     totalFormatted: includesTax.value
@@ -299,7 +315,13 @@ export function parsePrice(raw: IBasketProduct): PriceDetail {
     baseAmount: raw.configuration_net_amount_converted,
     basePrice: raw.configuration_net_amount_formatted,
     unit,
-    configuration
+    configuration,
+    // per-unit price of the product on its own — every configuration_* field
+    // folds in the options, so a product-only line has to read this
+    unitPrice,
+    // per-unit price of the whole configuration (incl options), pre-discount —
+    // the one-unit companion to regularPrice's all-units aggregate
+    configurationUnitPrice
   } as PriceDetail;
 }
 

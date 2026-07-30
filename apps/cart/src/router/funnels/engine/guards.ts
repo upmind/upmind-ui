@@ -115,6 +115,9 @@ const guards = {
     return !!isGuestClient.value;
   },
 
+  hasFunnel: (_context: FunnelContext, { data }: AnyEventObject) =>
+    !isEmpty(data?.funnel),
+
   /**
    * Returns true when targetRoute.query contains a returnUrl.
    * Used to conditionally resolve returnUrl after auth success.
@@ -152,18 +155,18 @@ const guards = {
   },
 
   /**
-   * Returns true when billing page is needed (standalone billing incomplete or domains need address).
+   * Returns true when billing details are still outstanding, or a domain needs its
+   * address. Says nothing about whether that means a page: the funnel decides —
+   * stepped routes to BILLING, one-page absorbs the reject and renders inline. NB
+   * deliberately blind to `billingDetails` editability on checkout, which is how
+   * billing is displayed there, not whether it has been collected.
    */
   needsAddress: () => {
-    const { ui } = useConfig({ context: UIContext.CHECKOUT });
     const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
     const { meta: billingMeta } = useBasketBilling();
 
-    // Standalone billing page is enabled when billing is readonly on checkout and incomplete
     const needsBillingPage =
-      !data.billingDetailsDisabled &&
-      ui.billingDetails.isReadonly &&
-      !billingMeta.value.isComplete;
+      !data.billingDetailsDisabled && !billingMeta.value.isComplete;
 
     return needsBillingPage || guards.needsAddressForDomains();
   }
