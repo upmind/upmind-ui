@@ -191,12 +191,14 @@ describe("generator round-trip (FE-2937)", () => {
   it("AC4: lint:fixtures passes on the output (PII scrubbed, v3)", async () => {
     await captureInto(dir);
 
-    // Sanity: the real email/uuid we fed in must NOT survive in the files.
+    // Sanity: the real email we fed in must NOT survive (it is a secret). A UUID
+    // is NOT PII — it is an opaque, non-identifying id kept verbatim so recorded
+    // CRUD stays chainable and fixtures stay faithful to the real response.
     const raw = readdirSync(dir)
       .map(f => readFileSync(join(dir, f), "utf-8"))
       .join("\n");
     expect(raw).not.toContain("someone@real-domain.com");
-    expect(raw).not.toContain("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+    expect(raw).toContain("3fa85f64-5717-4562-b3fc-2c963f66afa6");
 
     // The repo linter scans real unit dirs; here we point a child node run at
     // our temp dir via a tiny inline check using the same detectors would be

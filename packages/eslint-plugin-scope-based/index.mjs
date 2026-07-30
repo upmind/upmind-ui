@@ -6,11 +6,13 @@
  * `// eslint-disable-*` waiver mechanism (disable / disable-line /
  * disable-next-line) for free.
  *
- *   no-self-branch      — clause 4: a module must not branch on the SELF sentinel
- *   require-decision    — clause 5: every @decision carries what/why/rejected
- *   no-cosplay-arm      — clauses 2+3: no byte-identical override, no empty scaffold
- *   complete-layer-set  — clause 1 (decidable): full sub-layer set + @internal markers
- *   arm-in-matrix       — an arm's actor must be declared in the scope matrix
+ *   no-self-branch          — clause 4: a module must not branch on the SELF sentinel
+ *   require-decision        — clause 5: every @decision carries what/why/rejected
+ *   no-cosplay-arm          — clauses 2+3: no byte-identical override, no empty scaffold
+ *   complete-layer-set      — clause 1 (decidable): full sub-layer set + @internal markers
+ *   arm-in-matrix           — an arm's actor must be declared in the scope matrix
+ *   no-hand-rolled-int-fixture — *.int.test.ts response bodies must replay recorded
+ *                                fixtures, never a hand-rolled local builder
  *
  * @module packages/eslint-plugin-scope-based
  */
@@ -20,6 +22,7 @@ import requireDecision from "./rules/require-decision.mjs";
 import noCosplayArm from "./rules/no-cosplay-arm.mjs";
 import completeLayerSet from "./rules/complete-layer-set.mjs";
 import armInMatrix from "./rules/arm-in-matrix.mjs";
+import noHandRolledIntFixture from "./rules/no-hand-rolled-int-fixture.mjs";
 
 const plugin = {
   meta: { name: "scope-based", version: "1.0.0" },
@@ -28,7 +31,8 @@ const plugin = {
     "require-decision": requireDecision,
     "no-cosplay-arm": noCosplayArm,
     "complete-layer-set": completeLayerSet,
-    "arm-in-matrix": armInMatrix
+    "arm-in-matrix": armInMatrix,
+    "no-hand-rolled-int-fixture": noHandRolledIntFixture
   }
 };
 

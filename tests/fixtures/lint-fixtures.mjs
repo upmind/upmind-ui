@@ -61,11 +61,6 @@ function isValidSlug(slug) {
 
 const DETECTORS = [
   {
-    type: "uuid",
-    pattern:
-      /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi
-  },
-  {
     // Lowercase TLD only — avoids false positives on object keys / template
     // expressions like "test@data.productsToBundle" (camelCase, not an email).
     type: "email",

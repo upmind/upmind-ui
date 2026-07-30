@@ -110,12 +110,6 @@ export const SENSITIVE_PATTERNS = [
  */
 export const PII_VALUE_PATTERNS = [
   {
-    type: "uuid",
-    pattern:
-      /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi,
-    replace: n => `mock-uuid-${n}`
-  },
-  {
     type: "email",
     pattern: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g,
     replace: n => `mock-email-${n}@example.com`

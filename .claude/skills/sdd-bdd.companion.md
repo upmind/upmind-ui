@@ -2,13 +2,22 @@
 
 Repo-specific bindings for the base doctrine. The base wording is generic; these are the concrete values that apply in this repo.
 
+## Scope — this skill is CLASS 1 (e2e journeys) only
+
+`/sdd-bdd` here owns **cross-module e2e journey** features (`@layer-e2e`, in the e2e features
+tree). It does **not** author a module's co-located business-logic feature — that is a distinct
+artefact class owned by **`/code-test-bdd`** (see `.claude/skills/code-test-bdd.companion.md`),
+which writes a non-executable `<module>/__tests__/<module>.feature` at capability altitude with
+`@AC-*` anchor tags. Never produce a module business-logic feature from this skill, and never
+route an e2e journey through `/code-test-bdd`.
+
 ## Path bindings
 
 | Base placeholder | This repo |
 |------------------|-----------|
-| BDD feature directory (`<features-dir>/<flow>/*.feature`) | `tests/Playwright/features/<flow>/*.feature` |
+| BDD feature directory (`<features-dir>/<flow>/*.feature`) | `tests/features/<flow>/*.feature` |
 | e2e spec directory (`<flow>/*.spec.ts`) | `tests/Playwright/e2e/e2e-tests/<flow>/*.spec.ts` |
-| Feature-file style guide | `tests/Playwright/docs/10-feature-style.md` — re-read it in step 3, and verify against its PR review checklist in step 8 |
+| Feature-file style guide | `tests/features/10-feature-style.md` — re-read it in step 3, and verify against its PR review checklist in step 8 |
 | Owning module's unit-test folder | the headless module's `__tests__/`; unit runner is Vitest |
 
 ## Decision-record binding
@@ -25,7 +34,7 @@ Repo-specific bindings for the base doctrine. The base wording is generic; these
 
 ## Flow-folder set
 
-The `<flow>` folder must be one of this repo's flows: `basket`, `checkout`, `login-registration`, `account`, `admin`. If the behaviour spans flows, pick the dominant one — never split one user journey across files.
+The `<flow>` folder must be one of this repo's flows under `tests/features/`: `basket`, `brand-settings`, `buying-journeys`, `checkout`, `confirmation`, `domain-availability-checker`, `errors`, `login-registration`, `orders`, `products`, `tracking`. If the behaviour spans flows, pick the dominant one — never split one user journey across files.
 
 ## Stable-test-id binding
 
@@ -33,5 +42,5 @@ The `<flow>` folder must be one of this repo's flows: `basket`, `checkout`, `log
 - Add `data-test-key` to the banned-selector grep in step 8 — a `.feature` file must never reference it:
 
 ```bash
-grep -nE '(data-test-key|click |type |navigate |#[a-z]|/[a-z])' tests/Playwright/features/<flow>/<feature-name>.feature || echo "Clean: no banned selectors"
+grep -nE '(data-test-key|click |type |navigate |#[a-z]|/[a-z])' tests/features/<flow>/<feature-name>.feature || echo "Clean: no banned selectors"
 ```

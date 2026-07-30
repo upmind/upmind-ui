@@ -14,7 +14,7 @@ export const API_CREDENTIALS = {
     password: "bnd0ATW-udt3bxr0zmw"
   },
   staff: {
-    username: "staff@upmind.com",
+    username: "nathan.robinson+staffuser@upmind.com",
     password: "password123"
   }
 };
