@@ -93,7 +93,9 @@ export default {
         terms: {
           root: cva("flex flex-wrap items-center gap-x-4 gap-y-2"),
           controls: cva("flex items-center gap-2"),
-          content: cva("max-h-74!")
+          content: cva("max-h-74!"),
+          trigger: cva("[&>i]:ml-0 [&>i]:pl-1"),
+          price: cva("ml-3 text-sm")
         },
         remove: cva("p-2 [&>span>i>svg]:size-4")
       }
