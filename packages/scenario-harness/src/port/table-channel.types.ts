@@ -1,5 +1,5 @@
 /**
- * Controlled-table channel types (design §3). TYPE only — zero table
+ * Controlled-table channel types. TYPE only — zero table
  * dependency; the library choice is FE-2977's.
  */
 export interface TableModel {

@@ -15,6 +15,7 @@
     "lint": "node ../../.claude/scripts/lint/eslint-workspace.mjs",
     "lint:fix": "node ../../.claude/scripts/lint/eslint-workspace.mjs --fix",
     "test": "vitest run",
+    "test:unit": "tsc --noEmit -p tsconfig.test.json && vitest run",
     "typecheck": "tsc --noEmit -p tsconfig.test.json"
   },
   "dependencies": {

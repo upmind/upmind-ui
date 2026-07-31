@@ -6,13 +6,15 @@ import type { ComposableRegistry } from "../registry.types";
 /**
  * @AC-6 — composableRegistry and the one shared key union.
  *
- * The two `@ts-expect-error` fixtures below are the bdd @AC-6 scenarios 2–3
- * (missing/extra manifest key), verified by a `tsc` pass over this file (the
- * package's own tsconfig excludes `**\/*.test.*` from its editor/lint
- * program, so this is proved by an ad hoc `tsc --noEmit` invocation at
- * read-back time, not by `vitest run`, which transpiles types away). The
- * rename mutation (bdd @AC-6 scenario 1) is a `tsc` transcript only — no
- * committed failing file — produced the same way at read-back time.
+ * The two `@ts-expect-error` fixtures below prove the missing-key/extra-key
+ * mutation controls. `vitest run` alone transpiles types away and would let
+ * a removed or wrong `@ts-expect-error` directive pass silently; `test:unit`
+ * closes that gap by running `tsc -p tsconfig.test.json` over this file
+ * before `vitest run`, so these two fixtures are enforced — not merely
+ * verified ad hoc — on every `test:unit` run. The rename mutation (renaming
+ * `COMPOSABLE_KEY.AUTH` itself) is a `tsc` transcript only — no committed
+ * failing file, since renaming the real, committed key would break this
+ * whole suite's imports, not just one case.
  */
 describe("@AC-6 composableRegistry — the one shared key union", () => {
   it("COMPOSABLE_KEY is the single defining manifest", () => {

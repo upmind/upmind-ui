@@ -1,10 +1,10 @@
 diff --git a/packages/scenario-harness/src/registry/registry.ts b/packages/scenario-harness/src/registry/registry.ts
-index 91efbfa..031883b 100644
+index b063dabf9..c772efde6 100644
 --- a/packages/scenario-harness/src/registry/registry.ts
 +++ b/packages/scenario-harness/src/registry/registry.ts
 @@ -1,3 +1,5 @@
 +import { ref } from "vue";
 +
  /**
-  * The one shared composable-key manifest (design §5). Executors declare their
+  * The one shared composable-key manifest. Executors declare their
   * own live-factory maps `satisfies ComposableRegistry<…>` against this union —

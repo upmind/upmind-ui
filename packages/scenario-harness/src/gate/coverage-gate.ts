@@ -1,7 +1,7 @@
 import type { GateInput, GateReport, GateVerdict } from "./gate.types";
 
 /**
- * The pure coverage-gate verdict function (design §8). Tags are read as data
+ * The pure coverage-gate verdict function. Tags are read as data
  * only — untagged non-input-taking members default to include (fail on
  * coverage, not on tagging, if uncovered); "input-taking" is keyed off
  * {@link GateInput.actionSchemas}, never runtime param introspection.

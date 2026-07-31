@@ -1,5 +1,5 @@
 /**
- * The `@playground-include`/`@playground-exclude` JSDoc grammar (design §8).
+ * The `@playground-include`/`@playground-exclude` JSDoc grammar.
  * This story owns the grammar; FE-2968's stamper is the emitter — it writes
  * a tag only where none exists (auto-derived + overridable, ADR-027 Am.6).
  */

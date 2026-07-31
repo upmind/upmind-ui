@@ -85,7 +85,7 @@ time.
 ### 4. `defineSteps` / `World` — the step-authoring contract
 
 `World`: `src/world/world.types.ts:22-28`. Step shapes:
-`src/steps/steps.types.ts:10-14` (`StepDef`), `:24-28` (`StepRegistrar`).
+`src/steps/steps.types.ts:10-14` (`StepDef`), `:36-40` (`StepRegistrar`).
 Builder: `src/steps/step-catalog.ts:15-33` (`defineSteps`).
 
 A `<module>.steps.ts` file's import surface is exactly `{ defineSteps, World,
@@ -111,8 +111,9 @@ for the reference walk of an in-process catalog).
 
 ### 5. `createTraceabilityCheck`
 
-`src/steps/traceability.ts:76-107`, returns a `TraceabilityResult`
-(`:16-20`: `ok`, `unmatchedFeatureSteps`, `orphanStepDefs`).
+`src/steps/traceability.ts:67-98` (`createTraceabilityCheck`), returns a
+`TraceabilityResult` (`src/steps/steps.types.ts:26-30`: `ok`,
+`unmatchedFeatureSteps`, `orphanStepDefs`).
 
 Usage, per module: read the sibling `.feature` file as text, import its
 `.steps.ts` catalog, and assert
@@ -129,6 +130,12 @@ pattern already in use elsewhere in the codebase
 applied here to a feature↔steps pair instead of a feature↔test-id pair. That
 file is a precedent to model a new `<module>.traceability.test.ts` on, not a
 test of this package.
+
+**Dependency-policy deviation:** `@cucumber/cucumber-expressions` is declared
+as a runtime `dependency`, not a `devDependency` (`package.json:22`) — this
+module is barrel-exported production src, so the import executes for every
+consumer of the package, not only this package's own tests (see the
+`@remarks` at `src/steps/traceability.ts:62-66`).
 
 ### 6. Seam port + meta rule
 
@@ -170,6 +177,8 @@ spec pair, alongside that module's own feature/steps/traceability files.
 ## Fixtures and negative controls
 
 - [`src/__fixtures__/fixture-module.ts`](./src/__fixtures__/fixture-module.ts), [`fixture.feature`](./src/__fixtures__/fixture.feature), [`fixture.steps.ts`](./src/__fixtures__/fixture.steps.ts), [`node-world.ts`](./src/__fixtures__/node-world.ts) — a minimal four-member stand-in module plus its full spec pair and an in-process `World`, showing the shape end to end: module → `.feature` → `steps.ts` → `World`. The switch it models is a stand-in, not product behaviour.
+- **The package depends on itself.** `"@upmind-automation/scenario-harness": "workspace:*"` sits in this package's own `devDependencies` (`package.json:29`) so that [`fixture.steps.ts`](./src/__fixtures__/fixture.steps.ts) can import `{ defineSteps, World, COMPOSABLE_KEY }` by the package's public name — the same binding contract a real consumer follows — instead of a relative path. There is no `exports` map in `package.json`, so this only resolves because pnpm materialises a self-symlink for the workspace dependency and resolution falls back to the plain `main`/`types` fields; it is a standard pnpm dogfooding pattern, not a runtime circular dependency.
+- **The seven `.feature` files under `src/__tests__/`** (e.g. [`tag-grammar-coverage-gate.feature`](./src/__tests__/tag-grammar-coverage-gate.feature), [`shared-key-union.feature`](./src/__tests__/shared-key-union.feature)) are documentation anchors, not an executed spec: a header comment on each names the sibling vitest suite that actually realizes it (for example, `tag-grammar-coverage-gate.feature` → `src/gate/__tests__/coverage-gate.test.ts`). None of the seven run through a Gherkin/BDD runner in this package — the only `.feature` file actually executed here is [`__fixtures__/fixture.feature`](./src/__fixtures__/fixture.feature), via the root `test:bdd` lane. Drift between one of these seven and the suite it names is caught at review, not by an automated gate.
 - [`src/__tests__/known-bad/vue-value-import.must-fail.patch`](./src/__tests__/known-bad/vue-value-import.must-fail.patch), [`headless-type-import.must-fail.patch`](./src/__tests__/known-bad/headless-type-import.must-fail.patch) — reference patches for the no-vue lint boundary described above: applying either to a source file and running the workspace lint is expected to turn it red naming the banned specifier; reverting is expected to return it to green.
 
 ## Layout

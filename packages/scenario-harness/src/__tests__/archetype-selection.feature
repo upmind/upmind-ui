@@ -1,6 +1,5 @@
-# Realized as unit tests over `classify()` — src/archetype/__tests__/archetype.test.ts
-# (bdd.md "Archetype selection", FE-2976 SDD). This file is the declarative
-# spec; the vitest suite is the executable form (bdd.md Execution mapping).
+# Realized as unit tests over `classify()` — src/archetype/__tests__/archetype.test.ts.
+# This file is the declarative spec; the vitest suite is the executable form.
 
 @AC-3
 Feature: Archetype selection is deterministic and structural

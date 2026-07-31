@@ -2,10 +2,11 @@ import { describe, expect, it } from "vitest";
 import { SCOPE_ACTOR } from "../scope-actor";
 
 /**
- * @AC-4 — the actor value set the port/world contracts are built on (design
- * §1). Pinned here as a canary: `AccessRoleTypes.STAFF`'s wire value is
- * `"user"`, never `"staff"` — T13's drift test asserts this same value set
- * equals live headless `ScopeActorTypes`.
+ * @AC-4 — the actor value set the port/world contracts are built on. Pinned
+ * here as a canary: `AccessRoleTypes.STAFF`'s wire value is `"user"`, never
+ * `"staff"` — the journeys-lane drift test
+ * (tests/journeys/scenario-harness/scope-actor-drift.int.test.ts) asserts
+ * this same value set equals live headless `ScopeActorTypes`.
  */
 describe("@AC-4 SCOPE_ACTOR — the runtime value set", () => {
   it("pins the exact runtime value set {self, guest, client, user}", () => {

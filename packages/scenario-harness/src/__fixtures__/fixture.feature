@@ -1,6 +1,6 @@
 # The @AC-5 exemplar — proves the feature → catalog → world plumbing before
-# any real module adopts the lane (design §4). The switch is a stand-in
-# domain, not product behaviour.
+# any real module adopts the lane. The switch is a stand-in domain, not
+# product behaviour.
 
 @AC-4 @AC-5
 Feature: Fixture switch exemplar

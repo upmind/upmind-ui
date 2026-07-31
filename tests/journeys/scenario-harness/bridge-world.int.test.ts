@@ -1,12 +1,24 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview @AC-4 — the bridge-world typed skeleton (T14). Its only
- * runtime behaviour today is a loud, explicit "not implemented" rejection;
+ * @fileoverview @AC-4 — the bridge-world typed skeleton. Its only runtime
+ * behaviour today is a loud, explicit "not implemented" rejection;
  * the typecheck-against-World proof is structural (this file compiling
  * against `BridgeWorld implements World` IS the @AC-4 stub-leg-2 proof).
+ *
+ * FE-3051 — blocked, not executed, in this MR: `./registry` imports
+ * `useAuth` from `@upmind-automation/headless`, whose barrel transitively
+ * pulls in `packages/headless/src/modules/payment-gateways/razorpay/
+ * schemas.ts` — a pre-existing, unrelated broken relative import
+ * (`../schemas`/`../utils`/`../types`, none of which exist) that fails
+ * `vitest run`'s collection step for any headless-importing test in this
+ * lane, reproduced identically on the pre-existing
+ * `storefront-guest-oneoff-checkout-stripe.int.test.ts` journey.
+ * Typecheck-clean (`pnpm run typecheck:journeys`, zero errors here);
+ * unexecuted until FE-3051 lands.
  */
 
 import { describe, expect, it } from "vitest";
+import { COMPOSABLE_KEY } from "@upmind-automation/scenario-harness";
 import { BRIDGE_WORLD_NOT_IMPLEMENTED, BridgeWorld } from "./bridge-world";
 import { registry } from "./registry";
 
@@ -14,9 +26,9 @@ describe("@AC-4 bridge-world.int — the typed Node/bridge skeleton", () => {
   it("boot() rejects with an explicit not-implemented marker, never a silent no-op", async () => {
     const world = new BridgeWorld();
 
-    await expect(world.boot("auth", { actor: "self" })).rejects.toThrow(
-      BRIDGE_WORLD_NOT_IMPLEMENTED
-    );
+    await expect(
+      world.boot(COMPOSABLE_KEY.AUTH, { actor: "self" })
+    ).rejects.toThrow(BRIDGE_WORLD_NOT_IMPLEMENTED);
   });
 
   it("fire()/expectMeta()/dispose() all reject with the same marker", async () => {
@@ -35,8 +47,9 @@ describe("@AC-4 bridge-world.int — the typed Node/bridge skeleton", () => {
     // Deliberately does not invoke `registry.auth()`: calling it accesses the
     // builder without `.as(actor)`, which would boot a default-scoped
     // singleton into the shared scope registry as an unwanted side effect
-    // (risk §11.1) and leak across this file's other tests. The compiles-
-    // against-ComposableRegistry `satisfies` clause is the real proof here.
+    // (enumerating/invoking a builder-alike prematurely instantiates it) and
+    // leak across this file's other tests. The compiles-against-
+    // ComposableRegistry `satisfies` clause is the real proof here.
     expect(Object.keys(registry)).toStrictEqual(["auth"]);
     expect(typeof registry.auth).toBe("function");
   });

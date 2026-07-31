@@ -13,7 +13,7 @@ const MEMBER_NAME =
 
 /**
  * Parses `@playground-include`/`@playground-exclude` JSDoc tags out of a
- * module's source text (design §8) — plain regex/line scanning over source
+ * module's source text — plain regex/line scanning over source
  * text, no TS compiler dependency. Each tag is associated with the identifier
  * immediately following its doc block.
  */

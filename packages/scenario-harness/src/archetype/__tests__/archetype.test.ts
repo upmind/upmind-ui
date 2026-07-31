@@ -97,7 +97,8 @@ describe("@AC-3 classify — deterministic, structural archetype selection", () 
     const snapshot: ReflectedSnapshot = {
       actions: ["selectRow"],
       // A list module may also expose a selected-row model; List still wins
-      // (design §6 precedence rationale — table/data before model).
+      // because the table/data-array signal outranks the plain-model signal
+      // in classify()'s precedence.
       context: { model: { id: "row-1" } },
       meta: {}
     };

@@ -1,5 +1,4 @@
-# Realized as unit tests over `runGate()` — src/gate/__tests__/coverage-gate.test.ts
-# (bdd.md "Tag grammar and the coverage gate").
+# Realized as unit tests over `runGate()` — src/gate/__tests__/coverage-gate.test.ts.
 
 @AC-7
 Feature: Playground tag grammar and the coverage gate

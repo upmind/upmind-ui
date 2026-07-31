@@ -1,6 +1,7 @@
-# Realized as the workspace-lint red/green transcript pair — T04's known-bad
-# patches under __tests__/known-bad/ (bdd.md "The no-vue lint boundary").
-# @lint-run: the Then is the lint run's exit status, not a vitest assertion.
+# Realized as the workspace-lint red/green transcript pair — the known-bad
+# patches under __tests__/known-bad/ prove the boundary red-on-inject,
+# green-on-revert. @lint-run: the Then is the lint run's exit status, not a
+# vitest assertion.
 
 @AC-1 @lint-run
 Feature: The generation core carries no framework code

@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { fixtureSteps } from "../__fixtures__/fixture.steps";
 import { NodeWorld } from "../__fixtures__/node-world";
 import { COMPOSABLE_KEY } from "../registry/registry";
+import { SCOPE_ACTOR } from "../world/scope-actor";
 import type { StepDef } from "../steps/steps.types";
 import type { World } from "../world/world.types";
 
@@ -73,14 +74,18 @@ describe("@AC-4 World — the interface every step definition speaks", () => {
 
   it("booting establishes a live scoped module for the scenario", async () => {
     world = new NodeWorld();
-    await world.boot(COMPOSABLE_KEY.AUTH, { actor: "self" });
+    // world-interface.feature names "guest" explicitly for this
+    // scenario — the feature leads, so the test boots that actor.
+    await world.boot(COMPOSABLE_KEY.AUTH, { actor: SCOPE_ACTOR.GUEST });
 
     await expect(world.expectMeta({ isOn: false })).resolves.toBeUndefined();
   });
 
   it("firing an action changes the observable meta", async () => {
     world = new NodeWorld();
-    await world.boot(COMPOSABLE_KEY.AUTH, { actor: "self" });
+    // world-interface.feature names "guest" explicitly for this
+    // scenario — the feature leads, so the test boots that actor.
+    await world.boot(COMPOSABLE_KEY.AUTH, { actor: SCOPE_ACTOR.GUEST });
 
     await world.fire("turnOn");
 

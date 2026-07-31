@@ -46,7 +46,7 @@ describe("@AC-1 @AC-4 package.json — the dependency policy", () => {
     }
   });
 
-  it("runtime dependencies are exactly @upmind-automation/types and lodash-es (design §1)", () => {
+  it("runtime dependencies are exactly @cucumber/cucumber-expressions, @jsonforms/core, @upmind-automation/types and lodash-es — cucumber-expressions is runtime (not dev) because createTraceabilityCheck is barrel-exported production src, so every consumer's import executes it, not only this package's own tests", () => {
     expect(Object.keys(packageJson.dependencies ?? {}).sort()).toStrictEqual(
       [
         "@cucumber/cucumber-expressions",

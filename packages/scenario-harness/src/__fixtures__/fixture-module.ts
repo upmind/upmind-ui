@@ -1,7 +1,7 @@
 import type { ScopeActor } from "../world/scope-actor";
 
 /**
- * The @AC-5 exemplar module (design §4) — a plain-TS stand-in for a real
+ * The @AC-5 exemplar module — a plain-TS stand-in for a real
  * scope-based composable's four-layer shape (actions/context/meta/internals),
  * used only to prove the feature → catalog → world plumbing. No reactivity
  * library: `meta`/`context` members are plain getters over a closured state

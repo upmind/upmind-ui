@@ -28,7 +28,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 # The .feature specs live alongside this linter, grouped by flow, plus any
 # package-colocated features under packages/*/src/** (e.g. __tests__/,
-# __fixtures__/ — FE-2976 T18).
+# __fixtures__/).
 FEATURES_DIR="${SCRIPT_DIR}"
 PACKAGES_DIR="${REPO_ROOT}/packages"
 STYLE_GUIDE="tests/features/10-feature-style.md"

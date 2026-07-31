@@ -6,8 +6,10 @@ import type { SeedRef, World, WorldScope } from "../world.types";
  * @AC-4 — the `world` interface every step definition speaks. `expectTypeOf`
  * assertions are type-level only: they document and pin the contract here,
  * but (like the @AC-6 `@ts-expect-error` fixtures) need a real `tsc` pass to
- * have teeth — `vitest run` transpiles types away. Verified ad hoc via `tsc`
- * at read-back time; see the prover's read-back transcript.
+ * have teeth — `vitest run` alone transpiles types away. `test:unit` runs
+ * `tsc -p tsconfig.test.json` over this file before `vitest run`, so these
+ * assertions are enforced on every `test:unit` run, not merely verified ad
+ * hoc.
  */
 describe("@AC-4 World — type surface", () => {
   it("every member returns a Promise (never a DOM/Playwright shape)", () => {

@@ -1,7 +1,7 @@
 import type { ScopeActor } from "./scope-actor";
 import type { ComposableKey } from "../registry/registry";
 
-/** Names a recorded journey; each world resolves it via the `defineJourney` fixture pool (design §4). */
+/** Names a recorded journey; each world resolves it via the `defineJourney` fixture pool. */
 export type SeedRef = { journey: string };
 
 export interface WorldScope {
@@ -12,7 +12,7 @@ export interface WorldScope {
 }
 
 /**
- * The BDD execution seam a `<module>.steps.ts` speaks through (design §4) —
+ * The BDD execution seam a `<module>.steps.ts` speaks through —
  * the seam port wearing scenario clothes. Both executors (Playwright bridge,
  * in-page playground) implement the same surface; every member returns a
  * Promise so the bridge world can round-trip the browser. `expectMeta` and

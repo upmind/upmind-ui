@@ -12,10 +12,11 @@ const REAL_SCHEMA = {
 
 /**
  * A port that throws on any property access outside its named `snapshot`/
- * `table` members, and on any enumeration trap — the risk §11.1 builder-guard
- * fixture. If `reflect()` ever enumerates the port (or reads `getMeta`/
- * `actions`, which belong to other consumers, never reflection), this
- * throws and the test fails loud.
+ * `table` members, and on any enumeration trap — the builder-guard fixture
+ * for the risk that enumerating a builder-alike port side-effectfully
+ * instantiates it. If `reflect()` ever enumerates the port (or reads
+ * `getMeta`/`actions`, which belong to other consumers, never reflection),
+ * this throws and the test fails loud.
  */
 function buildGuardedPort(
   snapshot: ReflectedSnapshot,
@@ -71,7 +72,7 @@ describe("@AC-2 reflect — pure, stateless reflection", () => {
     expect(snapshotCalls()).toBe(2);
   });
 
-  it("never enumerates the port and never reads getMeta/actions — only snapshot/table (risk §11.1)", () => {
+  it("never enumerates the port and never reads getMeta/actions — only snapshot/table", () => {
     const { port } = buildGuardedPort({
       actions: ["turnOn"],
       context: {},

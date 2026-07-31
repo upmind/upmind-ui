@@ -3,7 +3,7 @@ import type { ScopeActor } from "../world/scope-actor";
 import type { JsonSchema } from "@jsonforms/core";
 
 /**
- * Everything `runGate` needs for one scope-matrix cell (design §8): the live
+ * Everything `runGate` needs for one scope-matrix cell: the live
  * action names, their parsed tags, the action-schema map ("input-taking" is
  * keyed off this map, never runtime param introspection — ADR-027 Am.6), and
  * the steps catalog's covered action ids. Core logic is pure; a per-module

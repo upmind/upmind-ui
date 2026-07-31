@@ -25,9 +25,9 @@ export function createModuleActions() {
 `;
 
 /**
- * @AC-7 — the `@playground-include`/`@playground-exclude` JSDoc grammar
- * (design §8). Parsing fixtures only — the coverage-gate verdict behaviours
- * themselves are `coverage-gate.test.ts`.
+ * @AC-7 — the `@playground-include`/`@playground-exclude` JSDoc grammar.
+ * Parsing fixtures only — the coverage-gate verdict behaviours themselves
+ * are `coverage-gate.test.ts`.
  */
 describe("@AC-7 parsePlaygroundTags — the tag grammar parser", () => {
   const tags = parsePlaygroundTags(SOURCE);

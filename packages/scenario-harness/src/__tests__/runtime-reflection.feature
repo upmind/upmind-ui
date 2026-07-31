@@ -1,7 +1,12 @@
-# Realized as unit tests (src/reflection/__tests__/reflect.test.ts) plus, for
-# the live-useAuth group only, the journeys-lane integration adapter
-# (tests/journeys/scenario-harness/reflection.int.test.ts) — bdd.md
-# "Runtime reflection" §Placement.
+# Realized as unit tests (src/reflection/__tests__/reflect.test.ts) — green,
+# using package-local port fixtures. For the live-useAuth group only (the
+# scenarios that boot a real composable instead of a fixture), a journeys-lane
+# integration suite (tests/journeys/scenario-harness/reflection.int.test.ts)
+# is AUTHORED and typecheck-clean against the live graph, but its runtime
+# execution is BLOCKED by FE-3051 (pre-existing, unrelated headless razorpay
+# broken relative imports — see that file's header) and is UNEXECUTED in this
+# MR. Do not read this as a claim that the live-useAuth scenarios have run
+# green.
 
 @AC-2
 Feature: Runtime reflection of a live scope-based composable

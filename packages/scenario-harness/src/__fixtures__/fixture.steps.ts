@@ -5,10 +5,11 @@ import {
 import type { World } from "@upmind-automation/scenario-harness";
 
 /**
- * The @AC-5 exemplar's step definitions (design §4) — engine-free: the only
+ * The @AC-5 exemplar's step definitions — engine-free: the only
  * import surface is `{ defineSteps, World, COMPOSABLE_KEY }`, and every body
  * speaks solely through `world`. Playwright-bdd registers these patterns
- * itself (T12); nothing here knows an engine exists.
+ * itself (root `playwright.bdd.config.ts`); nothing here knows an engine
+ * exists.
  */
 export const fixtureSteps = defineSteps(({ Given, When, Then }) => {
   Given("a fresh fixture switch", async (world: World) => {

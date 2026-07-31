@@ -471,7 +471,7 @@ const sharedVueRules = {
 };
 
 // -----------------------------------------------------------------------------
-// No-vue lint boundary (design §9, FE-2976) — packages/scenario-harness is
+// No-vue lint boundary — packages/scenario-harness is
 // framework-agnostic by design. This IS the explicit decision to reintroduce
 // `no-restricted-imports`: FE-2820 §3 removed the legacy version for
 // COARSENESS (a suffix-glob over all headless modules), not principle — this
@@ -482,7 +482,7 @@ const sharedVueRules = {
 // here — even type-only coupling to a vue-tainted package defeats the point.
 // -----------------------------------------------------------------------------
 const NO_VUE_BOUNDARY_MESSAGE =
-  "packages/scenario-harness is framework-agnostic (design §9, FE-2976) — vue and vue-tainted packages banned, incl. import type.";
+  "packages/scenario-harness is framework-agnostic — vue and vue-tainted packages banned, incl. import type.";
 
 const bannedScenarioHarnessSpecifiers = [
   "vue",
@@ -722,8 +722,8 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
-  // 8f. No-vue lint boundary — packages/scenario-harness only (design §9,
-  //    FE-2976). See the const definitions above for the full rationale.
+  // 8f. No-vue lint boundary — packages/scenario-harness only. See the const
+  //    definitions above for the full rationale.
   // ---------------------------------------------------------------------------
   {
     files: ["packages/scenario-harness/**/*.{ts,tsx,mts,cts}"],

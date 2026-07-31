@@ -7,12 +7,12 @@ import type { ScopeActor } from "../world/scope-actor";
 import type { World, WorldScope } from "../world/world.types";
 
 /**
- * Test-local factory registry (T10 recorded assumption, tasks.md): binds the
- * exemplar fixture to the existing `COMPOSABLE_KEY.AUTH` manifest entry rather
- * than adding a fixture-only key to the shared manifest — the manifest stays
- * single-sourced (design §5). Each entry returns the per-actor builder,
- * mirroring the real adapter's "invoke the builder once with `.as(actor)`"
- * shape (design §7) without a second key source anywhere.
+ * Test-local factory registry: binds the exemplar fixture to the existing
+ * `COMPOSABLE_KEY.AUTH` manifest entry rather than adding a fixture-only key
+ * to the shared manifest — the manifest stays single-sourced. Each entry
+ * returns the per-actor builder, mirroring the real adapter's "invoke the
+ * builder once with `.as(actor)`" shape without a second key source
+ * anywhere.
  */
 const fixtureRegistry = {
   [COMPOSABLE_KEY.AUTH]: () => createFixtureModule
@@ -38,7 +38,7 @@ function readMeta(module: FixtureModule): Record<string, boolean> {
 }
 
 /**
- * The in-process Node `World` (design §4) — the @AC-5 exemplar's execution
+ * The in-process Node `World` — the @AC-5 exemplar's execution
  * channel. Wraps the fixture module directly (no bridge, no browser): `boot`
  * builds one instance per scenario, `fire`/`expectMeta` read and drive it
  * through plain data, `dispose` drops the reference so the next `boot` starts

@@ -1,5 +1,5 @@
 /**
- * The one shared composable-key manifest (design §5). Executors declare their
+ * The one shared composable-key manifest. Executors declare their
  * own live-factory maps `satisfies ComposableRegistry<…>` against this union —
  * renaming or removing a key fails compilation in every executor and fixture
  * typed against {@link ComposableKey}. There is no second key source.

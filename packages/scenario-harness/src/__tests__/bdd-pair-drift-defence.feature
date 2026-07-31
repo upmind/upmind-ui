@@ -1,7 +1,7 @@
 # Realized as unit tests over `createTraceabilityCheck()` —
 # src/steps/__tests__/traceability.test.ts, run against the exemplar pair in
-# __fixtures__/ (bdd.md "The BDD pair stays in lockstep"). The first scenario
-# also runs end to end under playwright-bdd (root test:bdd lane).
+# __fixtures__/. The first scenario also runs end to end under playwright-bdd
+# (root test:bdd lane).
 
 @AC-5
 Feature: The BDD pair stays in lockstep

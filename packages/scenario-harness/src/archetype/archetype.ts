@@ -8,7 +8,7 @@ import type { ReflectedSnapshot } from "../reflection/reflection.types";
 import type { JsonSchema } from "@jsonforms/core";
 
 /**
- * The Form guard (design §6): a non-null plain object typed `"object"`,
+ * The Form guard: a non-null plain object typed `"object"`,
  * carrying a plain `properties` map, or declaring a composition keyword —
  * the structural minimum of `@jsonforms/core`'s `JsonSchema`. Reads only the
  * candidate's own structure, never a key name, so neither confirmed
@@ -30,7 +30,7 @@ export function isRealJsonSchema(candidate: unknown): candidate is JsonSchema {
 }
 
 /**
- * Pure, total, first-match archetype classification (design §6). Never
+ * Pure, total, first-match archetype classification. Never
  * throws; an unmatched snapshot resolves to Action-panel, with every
  * predicate result recorded on {@link ArchetypeDecision.signals} so the
  * fallback is auditable rather than silent.

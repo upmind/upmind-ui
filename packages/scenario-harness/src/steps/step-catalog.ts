@@ -8,7 +8,7 @@ import type {
 
 /**
  * Collects a `<module>.steps.ts`'s `Given`/`When`/`Then` registrations into a
- * {@link StepCatalog} (design §4). Engine-free: the catalog holds pattern
+ * {@link StepCatalog}. Engine-free: the catalog holds pattern
  * strings and handlers only — matching and registration against a real
  * engine is each executor's job, never this package's.
  */

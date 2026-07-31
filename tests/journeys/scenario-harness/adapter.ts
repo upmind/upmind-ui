@@ -1,12 +1,12 @@
 // -----------------------------------------------------------------------------
 /**
  * @module tests/journeys/scenario-harness/adapter
- * @description The @AC-2 test-side adapter (FE-2976 design §7/§9): builds a
- * `CompositionPort` from live `useAuth` layer-factory returns. Lives OUTSIDE
- * `packages/scenario-harness/**` — the core bans headless (and vue) imports
- * even in its own tests (design §9); this adapter is the journeys-layer
- * consumer that is allowed to import both, mirroring what FE-2977's real
- * renderer adapter will do.
+ * @description The @AC-2 test-side adapter: builds a `CompositionPort` from
+ * live `useAuth` layer-factory returns. Lives OUTSIDE
+ * `packages/scenario-harness/**` — the core has a lint boundary banning
+ * headless (and vue) imports, even in its own tests; this adapter is the
+ * journeys-layer consumer that is allowed to import both, mirroring what a
+ * future renderer's own adapter will do.
  *
  * Booting always chains `.fresh()`: `isNewSession` is a synchronous machine
  * guard (`auth.machine.ts` `checking.always`), so a fresh instance lands on
@@ -16,10 +16,11 @@
  */
 
 import { unref } from "vue";
-import { ScopeActorTypes, useAuth } from "@upmind-automation/headless";
+import { useAuth } from "@upmind-automation/headless";
+import type { ScopeActorTypes } from "@upmind-automation/headless";
 import type { CompositionPort } from "@upmind-automation/scenario-harness";
 
-/** T13 only needs the two actors the bdd @AC-2 scenarios drive (client/staff) — both carry a valid `AUTH_SCOPE_MATRIX` context, so `.as(actor)` resolves to the fluent (`.fresh()`-bearing) overload; a wider `ScopeActor` union collapses to the finalized (non-fluent) overload instead. */
+/** This suite only needs the two actors the @AC-2 scenarios drive (client/staff) — both carry a valid `AUTH_SCOPE_MATRIX` context, so `.as(actor)` resolves to the fluent (`.fresh()`-bearing) overload; a wider `ScopeActor` union collapses to the finalized (non-fluent) overload instead. */
 export type AuthTestActor = ScopeActorTypes.CLIENT | ScopeActorTypes.STAFF;
 
 type Derefable = Record<string, unknown>;
@@ -43,7 +44,9 @@ export interface AuthBoot {
  * Boots `useAuth` as `actor` (always `.fresh()`, never session-probed) and
  * builds a `CompositionPort` from ONLY its three named layer members —
  * `.useActions()` / `.useContext()` / `.useMeta()` — never enumerating the
- * builder Proxy (risk §11.1; `scope.builder.ts:266-328`).
+ * builder Proxy: enumerating it (e.g. `Object.keys`/spread) would
+ * side-effectfully instantiate through `scope.builder.ts:266-328`'s
+ * `ownKeys` trap instead of the deliberate named-member boot.
  */
 export function bootAuthPort(actor: AuthTestActor): AuthBoot {
   const auth = useAuth().as(actor).fresh();
@@ -79,8 +82,9 @@ interface EnumerationSpy {
  * named-member access) in a Proxy that only counts enumeration-trap calls —
  * `ownKeys` / `getOwnPropertyDescriptor` / `has` — without altering behaviour
  * for named-property `get`. Used to prove reflection's "no builder
- * enumeration" invariant against the REAL scope builder (risk §11.1),
- * without needing to spy inside `scope.builder.ts` itself.
+ * enumeration" invariant (enumerating a builder-alike port side-effectfully
+ * instantiates it) against the REAL scope builder, without needing to spy
+ * inside `scope.builder.ts` itself.
  */
 export function wrapWithEnumerationSpy<T extends object>(
   target: T

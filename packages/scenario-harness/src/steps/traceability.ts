@@ -2,22 +2,15 @@ import {
   CucumberExpression,
   ParameterTypeRegistry
 } from "@cucumber/cucumber-expressions";
-import type { StepCatalog, StepDef, StepKind } from "./steps.types";
+import type {
+  FeatureStep,
+  StepCatalog,
+  StepKind,
+  TraceabilityResult
+} from "./steps.types";
 
 const STEP_LINE = /^(Given|When|Then|And|But)\s+(.+)$/;
 const SCENARIO_HEADER = /^(Scenario|Scenario Outline|Background):/;
-
-export interface FeatureStep {
-  readonly kind: StepKind;
-  readonly text: string;
-  readonly line: number;
-}
-
-export interface TraceabilityResult {
-  readonly ok: boolean;
-  readonly unmatchedFeatureSteps: readonly FeatureStep[];
-  readonly orphanStepDefs: readonly StepDef[];
-}
 
 // And/But steps carry the kind of the nearest preceding Given/When/Then
 // within the same scenario (Gherkin semantics); the boundary resets per
@@ -49,13 +42,12 @@ function parseFeatureSteps(featureText: string): FeatureStep[] {
 }
 
 /**
- * Bidirectional feature<->steps drift check (design §4, ruling 3's drift
- * clause). Parses `featureText` with a minimal Given/When/Then/And/But line
- * grammar and matches each step's text against every {@link StepDef} pattern
- * in `catalog` via `CucumberExpression` — the same matcher an executor uses
- * at registration time, so a match here is a match there. Keyword is cosmetic
- * for matching (real Cucumber runners treat it the same way): a step only
- * needs a pattern match, never a kind match.
+ * Bidirectional feature<->steps drift check. Parses `featureText` with a
+ * minimal Given/When/Then/And/But line grammar and matches each step's text
+ * against every `StepDef` pattern in `catalog` via `CucumberExpression` — the
+ * same matcher an executor uses at registration time, so a match here is a
+ * match there. Keyword is cosmetic for matching (real Cucumber runners treat
+ * it the same way): a step only needs a pattern match, never a kind match.
  *
  * FE-2968's per-module conveyor consumes this contract directly: a
  * `<module>.traceability.test.ts` reads its sibling `.feature` and imports
@@ -68,10 +60,9 @@ function parseFeatureSteps(featureText: string): FeatureStep[] {
  * only when both are empty.
  *
  * @remarks `@cucumber/cucumber-expressions` is declared in this package's
- * `dependencies`, not `devDependencies` (design §1 anticipated dev-only use):
- * this module is barrel-exported production src, so the import executes at
- * runtime for every consumer of the package, not only this package's own
- * tests.
+ * `dependencies`, not `devDependencies`: this module is barrel-exported
+ * production src, so the import executes at runtime for every consumer of
+ * the package, not only this package's own tests.
  */
 export function createTraceabilityCheck(
   featureText: string,

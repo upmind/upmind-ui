@@ -3,9 +3,9 @@ import { fixtureSteps } from "../../__fixtures__/fixture.steps";
 import { defineSteps } from "../step-catalog";
 
 /**
- * @AC-4 — the engine-free `defineSteps`/`StepCatalog` registration surface
- * (design §4). The exemplar `fixture.steps.ts` doubles as the "import
- * surface compiles" proof (its own import surface is asserted textually in
+ * @AC-4 — the engine-free `defineSteps`/`StepCatalog` registration surface.
+ * The exemplar `fixture.steps.ts` doubles as the "import surface compiles"
+ * proof (its own import surface is asserted textually in
  * `traceability.test.ts`).
  */
 describe("@AC-4 defineSteps — the catalog collects StepDefs in registration order", () => {

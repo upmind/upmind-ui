@@ -1,8 +1,10 @@
-# Realized as a type-level suite — src/registry/__tests__/registry.types.test.ts
-# (bdd.md "One shared composable key union"). `@compile-time`: the Then is a
-# compilation failure, proven by a tsc pass over the `@ts-expect-error`
-# fixtures (scenarios 2-3, committed) and a tsc transcript at read-back time
-# for the rename mutation (scenario 1, not a committed failing file).
+# Realized as a type-level suite — src/registry/__tests__/registry.types.test.ts.
+# `@compile-time`: the Then is a compilation failure. `test:unit` runs
+# `tsc -p tsconfig.test.json` over this suite, so the two committed
+# `@ts-expect-error` fixtures (missing-key/extra-key) are enforced on every
+# run; the rename mutation is proven by an ad hoc tsc pass over a scratch
+# copy, not a committed failing file (renaming the real, committed key would
+# break this whole suite's imports, not just one case).
 
 @AC-6 @compile-time
 Feature: One shared composable key union

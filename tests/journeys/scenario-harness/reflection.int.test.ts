@@ -6,8 +6,9 @@
  * Prove the core's reflected surface is EXACTLY live `useAuth`'s surface —
  * per-actor action sets, all context keys (incl. schema/uischema), all meta
  * flags as plain booleans — through the journeys-lane test-side adapter
- * (`./adapter`), never the package itself (design §9 bans headless imports
- * under `packages/scenario-harness/**`, tests included — bdd.md §Placement).
+ * (`./adapter`), never the package itself: `packages/scenario-harness/**`
+ * has a lint boundary banning headless imports, tests included, so the live
+ * boot has to happen out here.
  *
  * Every boot below chains `.fresh()`: the machine's `isNewSession` guard is
  * synchronous (`auth.machine.ts` `checking.always`), so no MSW/session-store
@@ -19,6 +20,20 @@
  * The playground would validate against a stale or partial mirror of a real
  * module — silently hiding actions, context keys or meta flags that a
  * developer's business logic actually exposes.
+ *
+ * ## FE-3051 — blocked, not executed, in this MR
+ * Runtime execution of this file is blocked by FE-3051 (pre-existing,
+ * unrelated): `packages/headless/src/modules/payment-gateways/razorpay/
+ * schemas.ts` imports three non-existent relative modules
+ * (`../schemas`/`../utils`/`../types`), and any import of
+ * `@upmind-automation/headless`'s single barrel — including this file's —
+ * transitively pulls that module in, so `vitest run` fails to even collect.
+ * Reproduces identically on the pre-existing
+ * `storefront-guest-oneoff-checkout-stripe.int.test.ts` journey, confirming
+ * it is not introduced by FE-2976. This file is typecheck-clean against the
+ * live graph (`pnpm run typecheck:journeys` reports zero errors here) but
+ * UNEXECUTED as of this MR — do not read a green CI run of this suite until
+ * FE-3051 lands.
  */
 
 import { afterEach, describe, expect, it } from "vitest";
@@ -117,7 +132,7 @@ describe("@AC-2 reflection.int — live useAuth reflected through the port", () 
     );
   });
 
-  it("exactly one deliberate boot — no builder enumeration (risk §11.1, scope.builder.ts:266-328)", () => {
+  it("exactly one deliberate boot — no builder enumeration (scope.builder.ts:266-328's ownKeys trap side-effectfully instantiates on enumeration)", () => {
     const { proxy, spy } = wrapWithEnumerationSpy(useAuth());
 
     const auth = proxy.as(ScopeActorTypes.CLIENT).fresh();

@@ -17,9 +17,21 @@ export interface StepCatalog {
   steps: ReadonlyArray<StepDef>;
 }
 
+export interface FeatureStep {
+  readonly kind: StepKind;
+  readonly text: string;
+  readonly line: number;
+}
+
+export interface TraceabilityResult {
+  readonly ok: boolean;
+  readonly unmatchedFeatureSteps: readonly FeatureStep[];
+  readonly orphanStepDefs: readonly StepDef[];
+}
+
 /**
- * The registration surface `defineSteps` hands its builder callback (design
- * §4). Plain data collection only — no engine import, no matching.
+ * The registration surface `defineSteps` hands its builder callback. Plain
+ * data collection only — no engine import, no matching.
  */
 export interface StepRegistrar {
   Given(pattern: string, handler: StepHandler): void;

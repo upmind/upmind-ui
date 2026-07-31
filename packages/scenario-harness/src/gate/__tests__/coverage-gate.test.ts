@@ -7,14 +7,15 @@ import type { JsonSchema } from "@jsonforms/core";
 const INPUT_TAKING_SCHEMA: JsonSchema = { type: "object", properties: {} };
 
 /**
- * @AC-7 — one shared fixture covering all six bdd verdict behaviours (design
- * §8), each asserted as its own case — the transcript this suite prints IS
- * the @AC-7 read-back.
+ * @AC-7 — one shared fixture covering all six verdict behaviours, each
+ * asserted as its own case — the transcript this suite prints IS the @AC-7
+ * read-back.
  */
 const INPUT: GateInput = {
   actor: SCOPE_ACTOR.CLIENT,
   actionKeys: [
     "exemptAction",
+    "coveredAction",
     "uncoveredIncluded",
     "untaggedInputTaking",
     "noReasonExclude",
@@ -22,13 +23,14 @@ const INPUT: GateInput = {
   ],
   tags: {
     exemptAction: { kind: "exclude", reason: "lifecycle" },
+    coveredAction: { kind: "include" },
     uncoveredIncluded: { kind: "include" },
     noReasonExclude: { kind: "exclude" }
   },
   actionSchemas: {
     untaggedInputTaking: INPUT_TAKING_SCHEMA
   },
-  coveredActionIds: ["ghostStep"]
+  coveredActionIds: ["coveredAction", "ghostStep"]
 };
 
 function find(verdicts: readonly GateVerdict[], actionId: string): GateVerdict {
@@ -43,6 +45,11 @@ describe("@AC-7 runGate — the six coverage-gate verdicts", () => {
   it("an excluded action is skipped with its reason recorded", () => {
     const verdict = find(verdicts, "exemptAction");
     expect(verdict).toMatchObject({ status: "exempt", reason: "lifecycle" });
+  });
+
+  it("an included action with a covering step is covered — the happy path", () => {
+    const verdict = find(verdicts, "coveredAction");
+    expect(verdict).toMatchObject({ status: "covered" });
   });
 
   it("an included action with no covering step is red as uncovered", () => {
