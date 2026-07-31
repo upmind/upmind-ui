@@ -1,0 +1,60 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/addresses?case=invalid",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "name": "Fixture Address 1785486103059",
+      "address_1": "1 Fixture Street",
+      "address_2": "",
+      "city": "Fixture City",
+      "postcode": "FX1 1FX",
+      "country_id": "3825d96e-763e-d091-3dc4-174825283406"
+    }
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a23b30f17c8fd665-LIS",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Fri, 31 Jul 2026 08:21:43 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=LL7WaQUx7M1MwXdXElPVgJct5PWAVF2rQMv6nV431pV%2FX1AeXJUxJn9UeDlBrCwaYv8DzW74%2F50254FVBI9fAHXJWWSRY7L8CqIyGEUuFIfxGmMGJLIq9EjOMRSAyQpZyYHHwEsJyQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "c2f43187ea22cad9a7884537984e7fc1b7df55f7",
+        "type": 0,
+        "code": 409,
+        "message": "You already have this address.",
+        "data": []
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-07-31T08:21:43.468Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-address-dry"
+  }
+}

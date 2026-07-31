@@ -1,0 +1,22 @@
+--- a/packages/headless/src/modules/client-address-dry/client-address-dry.services.staff.ts
++++ b/packages/headless/src/modules/client-address-dry/client-address-dry.services.staff.ts
+@@ -1,6 +1,7 @@
+ /** @internal */
+ import { useFeedback } from "../feedback";
+ import { useQuery, invalidateQueryByKey } from "../query";
++import { useActiveSession } from "../session-store";
+ import { useI18n } from "../system-localisation";
+ import { mapAddresses, mapIAddressData } from "./client-address-dry.mappers";
+ import { CLIENT_ADDRESS_DRY_QUERY_KEY_BASE } from "./client-address-dry.types";
+@@ -66,7 +67,10 @@
+   scopeContext?: ScopeContext
+ ) {
+   const { list, useUrl } = useQuery();
+-  const id = targetId(scopeContext);
++  // MUTANT (must-fail: url-retarget): session-hardwired — drops
++  // .for('client', id) entirely, the client-email pilot archetype (FE-2824).
++  const { activeUser } = useActiveSession().useContext();
++  const id = activeUser.value?.id;
+   const token = getStaffToken();
+
+   return list<IAddress[], Address[]>({

@@ -1,0 +1,27 @@
+--- a/packages/headless/src/modules/client-address-dry/useClientAddressesDry.meta.ts
++++ b/packages/headless/src/modules/client-address-dry/useClientAddressesDry.meta.ts
+@@ -38,15 +38,16 @@
+   // (not omitted) so the return shape stays uniform across actors (clause 1)
+   // — a client/self actor's `useMeta().canDelete` reads `undefined`, never a
+   // missing key (AC-B5).
++  // MUTANT (must-fail: capability-meta-exclusivity): the actor branch is
++  // dropped — every actor, including client/self, now reads the staff
++  // capability flags as `true` instead of `undefined` (AC-B5).
+   const staffMeta: Partial<ClientAddressDryStaffCapabilities> =
+-    actorScope === ScopeActorTypes.STAFF && staffCapabilities
+-      ? createStaffClientAddressDryMeta(staffCapabilities)
+-      : {
+-          canList: undefined,
+-          canCreate: undefined,
+-          canUpdate: undefined,
+-          canDelete: undefined
+-        };
++    createStaffClientAddressDryMeta({
++      canList: true,
++      canCreate: true,
++      canUpdate: true,
++      canDelete: true
++    });
+
+   return {
+     /** True if the list query resolved with an error. */

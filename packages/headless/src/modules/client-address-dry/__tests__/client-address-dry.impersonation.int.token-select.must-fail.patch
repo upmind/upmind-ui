@@ -1,0 +1,15 @@
+--- a/packages/headless/src/modules/client-address-dry/client-address-dry.services.ts
++++ b/packages/headless/src/modules/client-address-dry/client-address-dry.services.ts
+@@ -105,7 +105,11 @@
+       with: ["region", "country"].join(),
+       with_staged_imports: 1
+     }),
+-    withAccessToken: session.value?.access_token,
++    // MUTANT (must-fail: token-select): cookie-order fallback instead of
++    // the active-session token select — under impersonation the cached
++    // staff cookie wins (staff-first fallback), so the self-path list
++    // read sends the staff token as the impersonated client (AC-C1).
++    withAccessToken: true,
+     guard: async () =>
+       new Promise((resolve, reject) => {
+         if (isAuthenticated.value && !!client.value?.id) {

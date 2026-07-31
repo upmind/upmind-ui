@@ -1,0 +1,73 @@
+{
+  "version": 3,
+  "request": {
+    "method": "PUT",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/addresses/20e43579-5e78-d182-494a-31643202d986?case=set-default",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "default": 1
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a23b30ed5b9dd665-LIS",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 31 Jul 2026 08:21:43 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=bsSIti3nqsHmHfeBBYztMDaZ1FgJGm%2BRYp%2FCERrEVPm97bJvmxXXY14wyMd4DcRRjDZURv6wIWuA1R5stnR83jk1HC7Qq8d45W9DzYPwQbkkcXmbJo3opRRCVEQafSbrXn2p0dICQg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "20e43579-5e78-d182-494a-31643202d986",
+        "import_id": null,
+        "staged_import": false,
+        "external_id": null,
+        "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "user_id": "sys",
+        "default": true,
+        "type": 2,
+        "name": "Fixture Address 1785486101680",
+        "address_1": "1 Fixture Street",
+        "address_2": "",
+        "region_id": "none",
+        "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+        "city": "Fixture City",
+        "county": null,
+        "postcode": "FX1 1FX",
+        "created_at": "2026-07-31 08:21:41",
+        "updated_at": "2026-07-31 08:21:42",
+        "deleted_at": null,
+        "verified": 0,
+        "can_delete": true
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-07-31T08:21:43.058Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-address-dry"
+  }
+}

@@ -1,0 +1,15 @@
+--- a/packages/headless/src/modules/client-address-dry/client-address-dry.services.staff.ts
++++ b/packages/headless/src/modules/client-address-dry/client-address-dry.services.staff.ts
+@@ -78,7 +78,10 @@
+     url: useUrl(`admin/clients/${id}/addresses`, {
+       with: ["region", "country"].join(),
+       with_staged_imports: 1
+     }),
+-    withAccessToken: token?.access_token,
++    // MUTANT (must-fail: token-select): active-session default instead of
++    // the explicit staff-token select — under multi-session the active
++    // session may be a client session (design.md §3.1).
++    withAccessToken: true,
+     guard: async () =>
+       new Promise((resolve, reject) => {
+         if (token?.access_token && id) {
