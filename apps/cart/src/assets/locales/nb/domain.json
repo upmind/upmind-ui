@@ -38,6 +38,7 @@
     "dns_info": "For å kunne bruke dette domenet må du oppdatere domenets DNS hos den nåværende registraren.",
     "placeholder": "Oppgi hvilket domene du ønsker å bruke.",
     "register_info": "Gode nyheter – dette domenet kan registreres for bare {price}, inkludert en registrering {period}.",
+    "register_info_free": "Gode nyheter – dette domenet kan registreres GRATIS, og dette inkluderer en registrering {period}.",
     "remove_transfer": "Fjern overføring",
     "transfer_added": "Overføring lagt til",
     "transfer_info": "Hvis du eier dette domenet, kan du overføre det til oss for bare {transferPrice}. Senere fornyelser koster {term}. Alternativt må du oppdatere domenets navneserveroppføringer (NS).",

@@ -38,6 +38,7 @@
     "dns_info": "Aby korzystać z tej domeny, należy zaktualizować ustawienia DNS domeny u obecnego rejestratora.",
     "placeholder": "Podaj nam nazwę domeny, której chcesz używać.",
     "register_info": "Dobra wiadomość — tę domenę można zarejestrować za jedyne {price}, w cenie zawarta jest opłata rejestracyjna {period}.",
+    "register_info_free": "Dobra wiadomość — tę domenę można zarejestrować ZA DARMO, co obejmuje rejestrację {period}.",
     "remove_transfer": "Usuń przelew",
     "transfer_added": "Dodano transfer",
     "transfer_info": "Jeśli jesteś właścicielem tej domeny, możesz ją przenieść do nas za jedyne {transferPrice}. Kolejne przedłużenia kosztują {term}. W przeciwnym razie konieczne będzie zaktualizowanie rekordów serwerów nazw (NS) domeny.",
