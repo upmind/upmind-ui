@@ -38,6 +38,7 @@
     "dns_info": "Om dit domein te kunnen gebruiken, moet u de DNS-instellingen van het domein bij de huidige registrar aanpassen.",
     "placeholder": "Geef aan welk domein u wilt gebruiken.",
     "register_info": "Goed nieuws: dit domein is te registreren voor slechts {price}, inclusief een registratie {period}.",
+    "register_info_free": "Goed nieuws — dit domein kan GRATIS worden geregistreerd, inclusief een registratieperiode {period}.",
     "remove_transfer": "Overdracht verwijderen",
     "transfer_added": "Overdracht toegevoegd",
     "transfer_info": "Als u eigenaar bent van dit domein, kunt u het voor slechts {transferPrice} naar ons overdragen. Volgende verlengingen kosten {term}. Als alternatief moet u de nameserver-records (NS) van het domein aanpassen.",

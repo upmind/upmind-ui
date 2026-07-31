@@ -53,6 +53,7 @@
     "transfer_info_free": "If you own this domain you can transfer it to us FREE. Subsequent renewals charged at {renewalPrice}/{term}. Alternatively, you will need to update the domain's nameserver (NS) records.",
     "add_transfer": "Add transfer",
     "register_info": "Good news — this domain is available to register for only {price}, which includes a {period} registration.",
+    "register_info_free": "Good news — this domain is available to register for FREE, which includes a {period} registration.",
     "add_registration": "Add to basket",
     "dns_info": "To use this domain, you will need to update the domain's DNS with the existing registrar.",
     "unavailable": "This domain cannot be registered or transferred.",

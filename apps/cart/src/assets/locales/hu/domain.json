@@ -38,6 +38,7 @@
     "dns_info": "A domain használatához frissítenie kell a domain DNS-beállításait a jelenlegi regisztrátornál.",
     "placeholder": "Kérjük, adja meg a használni kívánt domainnevet.",
     "register_info": "Jó hír: ez a domain mindössze {price} dollárért regisztrálható, ami magában foglalja a {period} regisztrációs díjat is.",
+    "register_info_free": "Jó hír – ez a domain INGYEN regisztrálható, ami magában foglalja a {period} regisztrációt is.",
     "remove_transfer": "Átutalás törlése",
     "transfer_added": "Átvitel hozzáadva",
     "transfer_info": "Ha Ön a domain tulajdonosa, mindössze {transferPrice} ért átruházhatja hozzánk. A későbbi megújítások díja {term}. Alternatív megoldásként frissítenie kell a domain névkiszolgáló (NS) bejegyzéseit.",

@@ -38,6 +38,7 @@
     "dns_info": "Bu domendən istifadə etmək üçün domenin DNS-ini mövcud qeydiyyatçı ilə yeniləməlisiniz.",
     "placeholder": "İstifadə etmək istədiyiniz domeni bizə bildirin.",
     "register_info": "Xoş xəbər — bu domen yalnız {period} qeydiyyatı da daxil olmaqla {price} üçün qeydiyyatdan keçə bilər.",
+    "register_info_free": "Xoş xəbər — bu domendə {period} qeydiyyatı da daxil olmaqla PULSUZ qeydiyyatdan keçmək mümkündür.",
     "remove_transfer": "Transferi silin",
     "transfer_added": "Transfer əlavə edildi",
     "transfer_info": "Əgər bu domen sizə məxsusdursa, onu bizə yalnız 58HTPM qiymətinə köçürə bilərsiniz. Sonrakı yeniləmələr üçün ödəniş 103HTPM/117HTPM təşkil edir. Alternativ olaraq, domenin ad serveri (NS) qeydlərini yeniləməlisiniz.",
