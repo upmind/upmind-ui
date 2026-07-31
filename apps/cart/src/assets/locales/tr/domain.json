@@ -38,6 +38,7 @@
     "dns_info": "Bu alan adını kullanmak için, mevcut kayıt kuruluşunda alan adının DNS ayarlarını güncellemeniz gerekecektir.",
     "placeholder": "Kullanmak istediğiniz alan adını bize bildirin.",
     "register_info": "İyi haber — bu alan adı sadece {price} dolara kayıt edilebilir; bu fiyata {period} kayıt ücreti de dahildir.",
+    "register_info_free": "İyi haber — bu alan adı ÜCRETSİZ olarak kaydedilebilir; buna {period} kayıt süresi de dahildir.",
     "remove_transfer": "Aktarımı kaldır",
     "transfer_added": "Transfer eklendi",
     "transfer_info": "Bu alan adının sahibiyseniz, sadece {transferPrice} karşılığında bize devredebilirsiniz. Sonraki yenilemeler {term} olarak ücretlendirilir. Alternatif olarak, alan adının ad sunucusu (NS) kayıtlarını güncellemeniz gerekecektir.",

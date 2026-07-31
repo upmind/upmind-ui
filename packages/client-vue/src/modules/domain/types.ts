@@ -204,6 +204,7 @@ export interface SmartDomainDrawerProps {
   searching: boolean;
   processing: boolean;
   loading: boolean;
+  disabled?: boolean;
   valid: boolean;
   empty: boolean;
 }

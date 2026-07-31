@@ -56,7 +56,8 @@
         color="primary"
         size="lg"
         icon-append="arrow-right"
-        :disabled="props.processing || props.empty || props.loading"
+        :loading="props.loading || props.disabled"
+        :disabled="props.processing || props.empty"
         :block="isMobile"
         @click="emit('resolve')"
       />

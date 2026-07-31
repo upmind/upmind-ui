@@ -38,6 +38,7 @@
     "dns_info": "To use this domain, you will need to update the domain's DNS with the existing registrar.",
     "placeholder": "Tell us the domain you want to use.",
     "register_info": "Good news — this domain is available to register for only {price}, which includes a {period} registration.",
+    "register_info_free": "Good news — this domain is available to register for FREE, which includes a {period} registration.",
     "remove_transfer": "Remove transfer",
     "transfer_added": "Transfer added",
     "transfer_info": "If you own this domain you can transfer it to us for only {transferPrice}. Subsequent renewals charged at {renewalPrice}/{term}. Alternatively, you will need to update the domain's nameserver (NS) records.",

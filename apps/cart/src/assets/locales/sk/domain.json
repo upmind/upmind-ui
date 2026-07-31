@@ -38,6 +38,7 @@
     "dns_info": "Ak chcete túto doménu používať, budete musieť aktualizovať jej nastavenia DNS u súčasného registrátora.",
     "placeholder": "Napíšte nám, akú doménu chcete používať.",
     "register_info": "Dobrá správa – túto doménu si môžete zaregistrovať už za {price}, čo zahŕňa aj registráciu {period}.",
+    "register_info_free": "Dobrá správa – túto doménu je možné zaregistrovať ZADARMO, čo zahŕňa registráciu {period}.",
     "remove_transfer": "Zrušiť prevod",
     "transfer_added": "Pridaný prevod",
     "transfer_info": "Ak ste vlastníkom tejto domény, môžete ju k nám preniesť už za {transferPrice}. Nasledujúce predĺženia sa účtujú vo výške {term}. Inak budete musieť aktualizovať záznamy menných serverov (NS) domény.",

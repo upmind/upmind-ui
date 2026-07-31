@@ -38,6 +38,7 @@
     "dns_info": "若要使用此網域，您需要透過現有的網域註冊商更新該網域的 DNS 設定。",
     "placeholder": "請告訴我們您想使用的網域名稱。",
     "register_info": "好消息——這個網域名稱現正開放註冊，價格僅需{price}，其中已包含{period}元的註冊費。",
+    "register_info_free": "好消息——這個網域名稱現可免費註冊，並包含{period}年的註冊期限。",
     "remove_transfer": "取消轉帳",
     "transfer_added": "已新增轉帳",
     "transfer_info": "如果您擁有此網域，只需支付{transferPrice}即可將其轉移至我們名下。後續續約費用為{term}。否則，您需要更新該網域的名稱伺服器 (NS) 記錄。",
