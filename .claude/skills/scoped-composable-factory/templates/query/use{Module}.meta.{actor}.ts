@@ -59,6 +59,12 @@ export function createClientModuleMeta(query: ModuleListQuery) {
    * shared today, not arm-split) — the same client-exclusive capability the
    * services/actions arms illustrate (`module.services.{actor}.ts` /
    * `useModule.actions.{actor}.ts`'s own `registerAsGuest`).
+   *
+   * @single-source If this capability flag ALSO gates an `actions`-arm member,
+   * do NOT recompute it here — compute it once (e.g. in `useModule.ts` or a
+   * shared util) and pass the one value to both this meta arm and the actions
+   * arm, so the displayed flag and the gate can never drift. See ARMS.md
+   * "When to arm".
    */
   const canRegisterAsGuest = computed(() => true);
 

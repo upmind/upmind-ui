@@ -1,6 +1,6 @@
 ---
 name: scoped-composable-factory
-description: The pick-dev conductor for scoped composables — one skill that conducts intake, research, plan, code, tests, verify, review, and docs end-to-end by dispatching the existing named skills and seats, so a conversion or net-new module never re-derives the process. This is the SPEC for the skill; a run of it is FE-2968, not this bundle.
+description: The pick-dev conductor for scoped composables — one skill that conducts intake, research, plan, code, tests, verify, review, and docs end-to-end by dispatching the existing named skills and seats, so a conversion or net-new module never re-derives the process. Invocation arguments may pre-fill the six intake answers — an answered question is never re-asked. This is the SPEC for the skill; a run of it is FE-2968, not this bundle.
 ---
 
 # /scoped-composable-factory — the pick-dev conductor for scoped composables
@@ -13,12 +13,13 @@ This skill **conducts**; it never authors an artefact itself. Every stage below 
 
 ## Trigger
 
-- `/scoped-composable-factory` — invoked by the FE-2968 runner (or an operator) with the intake answers below.
+- `/scoped-composable-factory [intake arguments]` — invoked by the FE-2968 runner (or an operator); the arguments may carry any or all of the intake answers below (see "Invocation arguments pre-fill intake").
 - Never self-triggered mid-conversation from "build me a composable" without the intake answers — a missing answer is one blocking question, not an assumption.
+- **Arguments are intake, never a substitute spec.** However detailed the invocation, it is input to THIS skill's intake — parse it, echo it, then run the stage map exactly as written. Freehand-interpreting a detailed invocation instead of conducting through this skill is a run defect (the skill was named; the skill runs), not a shortcut.
 
 ## Intake (JTBD-first)
 
-Collect, in this order, before any stage runs. A missing answer is **one blocking question**, never a batch and never a default:
+Collect, in this order, before any stage runs — **from the invocation arguments first** (see "Invocation arguments pre-fill intake" below), then by asking. A missing answer is **one blocking question**, never a batch and never a default; an answer the invocation already carries is never re-asked:
 
 1. **The module's job to be done** — the anchor every later stage and every `@decision` traces back to. Not "what layers does it need" — what job does a consumer hire it to do.
 2. **Target module** (name/path under `packages/headless/src/modules/`).
@@ -27,27 +28,57 @@ Collect, in this order, before any stage runs. A missing answer is **one blockin
 5. **ADR-001 cells in scope** — the actor × context cells this module's parity table will carry (cite ADR-001; do not re-derive the matrix here).
 6. **Worktree** — where the run executes (`/worktree`).
 
+### Invocation arguments pre-fill intake
+
+The invocation line may answer any or all of the six questions up front. (`arms=` is NOT a seventh question — the arms determination is derived at Plan from the parity table; the optional `arms=` key exists only as an operator override — see below.) Parse the arguments against the six-question list above **before asking anything**: a question the arguments answer is collected — never re-asked. Exactly two conditions make a field the one blocking question: it is **missing**, or it parses to **two conflicting values**. There is no free-standing "ambiguous" ground for re-asking — a closed-vocabulary field (`mode`, `variant`) whose value matches none of its allowed values, or a `cells` value yielding no actor×context pairs, counts as missing; a free-prose field (`jtbd`) is taken as given, never graded for quality at intake.
+
+Two canonical forms, mixable with surrounding free prose (prose that unambiguously answers a question counts — the forms are conveniences, not gates):
+
+1. **Keyed one-liner** — `key=value` pairs; key ↔ question map: `jtbd`→1, `module`→2, `mode`→3 (`conversion` | `net-new`), `variant`→4 (`machine` | `query`), `cells`→5 (comma-separated actor×context pairs; `×` or `x`), `worktree`→6 (a path, or `none` for the current branch). Quote any value carrying spaces (as `jtbd` always will). Optional `arms=` (comma-separated earning layers, or `none`) is an operator OVERRIDE of the Plan-stage arms derivation, not an answer to a question — omit it unless deliberately overruling.
+
+   ```text
+   /scoped-composable-factory jtbd="let a consumer manage a client's postal addresses at full parity with legacy vue-app + current headless" module=packages/headless/src/modules/client-address-dry/ mode=conversion variant=query cells=client×self,staff×admin-context,staff×acting-as-client worktree=none arms=none
+   ```
+
+2. **Labelled intake block** — an `Intake answers:` block whose numbering matches the list above (a lead-in prose line before it is fine; an optional `7. Arms:` row is the same operator override as `arms=`):
+
+   ```text
+   /scoped-composable-factory full-parity conversion port of client-address → client-address-dry (query variant)
+
+   Intake answers:
+   1. JTBD: let a consumer manage a client's postal addresses at full parity with legacy vue-app + current headless.
+   2. Target module: packages/headless/src/modules/client-address-dry/
+   3. Mode: conversion
+   4. Variant: query
+   5. ADR-001 cells: client×self; staff×admin-context; staff×acting-as-client (.for('client', id))
+   6. Worktree: none — current branch
+   ```
+
+**Run constraints ride along — bounds only.** Additional directives the invocation carries bind as run-scoped constraints **only when they are prohibitions or process bounds** — what not to touch (e.g. "do NOT touch `client-address/`"), commit/branch policy (e.g. "no commits"): record them verbatim in the intake echo and hold every stage and seat dispatch to them (an operator-typed invocation carries tier-1 force — `${CLAUDE_PLUGIN_ROOT}/rules/agent-behavior.md` §1). Substantive design or technical direction in the invocation is **intake material for the Plan stage's `/sdd` chain, never a constraint** — routing it around Plan and Review is exactly the freehand-interpretation defect the Trigger bans ("Arguments are intake, never a substitute spec").
+
+**Intake echo, then go.** Before anything runs, the conductor emits one parsed-intake table — the six questions, each with its parsed value and source (`args` | `asked`), plus an **arms row** reading `derived-at-Plan` (or the operator override, flagged as such), plus the recorded run constraints — then conducts. The echo is run reporting, not an artefact (nothing lands on disk, so the conductor's never-authors rule is untouched). A fully-answered invocation gets **zero questions** — the echo is a record, not a confirmation prompt, and nothing in it (tier-1 constraints included) waits for a go-ahead. A missing field, or two argument answers that conflict for the same question, gets exactly one blocking question — never a batch and never a default. Arms is never asked: absent an override it is derived at Plan (see the Plan gate), so a fully-answered six-question invocation always runs with zero questions.
+
 ## Stage map
 
 Every artefact-producing stage names its skill and its seat; every gate names the structured field it resolves on. Docs runs **after** Verify — deliberately, not incidentally (see Docs row).
 
 | Stage | Skill | Seat | Gate (structured field) |
 | --- | --- | --- | --- |
-| Research | `/graphify query` + docs-corpus sweep (glossary + `docs/reference/`) | planner | **citation count** ≥ 1 generic-sweep + ≥ 1 mode-specific-oracle citation (conversion → current module; net-new → vue-app legacy-parity oracle); 0 of either = fail |
-| Plan | **`/sdd` — the FULL set** (requirements → design → BDD/Gherkin → tasks); a ported/net-new module is never trivial, so the `/story-plan` shortcut is **not** an option here | planner | **full-SDD-set-exists** (`requirements.md` + `design.md` + a co-located `<module>.feature` + `tasks.md`) AND **undispositioned parity-cell count** = 0 (every ADR-001 cell in `parity.yaml` carries a disposition) |
+| Research | `/graphify query` + docs-corpus sweep (glossary + `docs/reference/`) | planner | **citation count** ≥ 1 generic-sweep + ≥ 1 mode-specific-oracle citation (conversion → wherever the existing implementation lives: the current headless module and/or the legacy vue-app surface being ported — a module can be new to headless and still a conversion; net-new → no existing implementation anywhere, oracle is the closest vue-app legacy-parity analogue); 0 of either = fail |
+| Plan | **`/sdd` — the FULL set** (requirements → design → BDD/Gherkin → tasks); a ported/net-new module is never trivial, so the `/story-plan` shortcut is **not** an option here | planner | **full-SDD-set-exists** (`requirements.md` + `design.md` + a co-located `<module>.feature` + `tasks.md`) AND **undispositioned parity-cell count** = 0 (every ADR-001 cell in `parity.yaml` carries a disposition) AND **arms determination present** (`parity.yaml` carries a per-layer `arms:` block — services/actions/context/meta/schemas each `none` or its earning actors, every earned arm citing the parity row that earns it — derived per clause 3, never asked) |
 | Code | `/code-scoped-composable` (scaffold) + `/code-generate` (checklist) with this skill's own `templates/{machine,query}/` set | developer | **diff file count** > 0 AND **hand-off-filed** = true (public-surface contract handed to Tests; diff/hand-off withheld from it — ADR-029) |
 | Tests | `/test-module` — the test factory; routes each contract behaviour to unit/integration/e2e itself | prover (contract-fed public surface only — `design.md`, Gherkin, `parity.yaml`, exported types; diff and hand-off withheld) | **suite exit code** = 0 per layer dispatched; a no-boundary determination on the integration branch is a recorded field, not a silent skip |
 | Verify | `/code-verify` | verifier | **verdict field** = `PRESENT` (ABSENT halts — see Failure states) |
 | Review | `/code-review` (loads this repo's `code-reviews.companion.md`, which carries the FE-2967 variance-law cues) | reviewer (pre-gate) | **🔴 blocker count** = 0 |
 | Docs | `/docs-module` — the docs factory; internally dispatches `/docs-foundation`, `/docs-guide` (persona-facing only), `/docs-review` | documenter | **missing-artefact count** = 0 AND **docs-review verdict** = clean AND upstream **verifier verdict** = `PRESENT` (a capability may not be described as delivered without it) |
 
-**Code-stage intake sub-question — clause-3 arms.** Before scaffolding, the developer seat asks one more question, folded into the existing intake (not a new stage) — a **per-layer multi-select**, not a single yes/no: **"Does this module's ADR-001 parity table give any actor a member exclusive to it or overriding the shared factory (clause 3, `code-composables.companion.md` "Variance law")? Select every layer where that's true: services / actions / context / meta / schemas."**
+**Code-stage clause-3 arms — derived at Plan, independently re-verified at Code, never asked.** The determination is a **per-layer multi-select**, not a single yes/no: does this module's ADR-001 parity table give any actor a member exclusive to it or overriding the shared factory (clause 3, `code-composables.companion.md` "Variance law") at any of services / actions / context / meta / schemas? The **planner** derives it mechanically at Plan from the parity table + research oracle — a per-actor route, capability gate, or member at a layer earns that layer's arm — and records it as `parity.yaml`'s `arms:` block (see the Plan gate). The SDD can get this wrong, so the **developer seat re-derives it independently before scaffolding**, from the landed parity table against the clause-3 rules themselves — never by trusting the recorded block: a mismatch between the seat's re-derivation and the recorded `arms:` block (or an operator `arms=` override) is a gate failure surfaced verbatim with both determinations shown — the run never silently picks a side (`agent-behavior.md` §1: contradiction escalates).
 
 Clause 3 applies independently to each of the five sub-composable layers — a module may earn a services arm and nothing else, or earn arms at two layers and stay armless at the rest. Answer per layer, not once for the whole module:
 
-- **A layer selected "no"** → scaffold that layer armless only (its own shared `{module}.services.ts` / `use{Module}.actions.ts` / `use{Module}.context.ts` / `use{Module}.meta.ts` / `{module}.schemas.ts` default shape) — the majority case (`account/` is the canonical armless exemplar).
-- **A layer selected "yes"** → copy that layer's `templates/{machine,query}/{module}.services.{actor}.ts` / `use{Module}.actions.{actor}.ts` / `use{Module}.context.{actor}.ts` / `use{Module}.meta.{actor}.ts` / `{module}.schemas.{actor}.ts` arm template per earning actor, concretise its worked-example members into this module's real ones, and wire it into that layer's shared file — a `case` in `scopedServices()` / `scopedSchemas()` for services and schemas, an `actorScope === …` branch plus a last-position spread for actions/context/meta. No signature changes and nothing is renamed: every shared file already carries its resolution seam as live code, so the file looks the same armed or armless. Full when/how/lint-gate decision tree: `templates/ARMS.md` (one file, covers both variants; per-variant differences are tabled in its own "Variant deltas" section).
-- **`schemas`** → answer "yes" when the same form carries **different fields or different required rules per actor** (e.g. a client registering themselves supplies fields a staff member registering on their behalf does not, and is held to a tighter required list). No module in this codebase has earned this split yet — every current `.schemas*.ts` split is by form/flow — so a "yes" here is new ground: cite the parity-table row that justifies it in the arm file's own `@decision` block.
+- **A layer determined armless** → scaffold that layer armless only (its own shared `{module}.services.ts` / `use{Module}.actions.ts` / `use{Module}.context.ts` / `use{Module}.meta.ts` / `{module}.schemas.ts` default shape) — the majority case (`account/` is the canonical armless exemplar).
+- **A layer determined earning** → copy that layer's `templates/{machine,query}/{module}.services.{actor}.ts` / `use{Module}.actions.{actor}.ts` / `use{Module}.context.{actor}.ts` / `use{Module}.meta.{actor}.ts` / `{module}.schemas.{actor}.ts` arm template per earning actor, concretise its worked-example members into this module's real ones, and wire it into that layer's shared file — a `case` in `scopedServices()` / `scopedSchemas()` for services and schemas, an `actorScope === …` branch plus a last-position spread for actions/context/meta. No signature changes and nothing is renamed: every shared file already carries its resolution seam as live code, so the file looks the same armed or armless. Full when/how/lint-gate decision tree: `templates/ARMS.md` (one file, covers both variants; per-variant differences are tabled in its own "Variant deltas" section).
+- **`schemas`** → earns only when the same form carries **different fields or different required rules per actor** (e.g. a client registering themselves supplies fields a staff member registering on their behalf does not, and is held to a tighter required list). No module in this codebase has earned this split yet — every current `.schemas*.ts` split is by form/flow — so an earned `schemas` arm is new ground: cite the parity-table row that justifies it in the arm file's own `@decision` block.
 
 **Every arm carries at least one member exclusive to it, OR one overriding the shared factory** (the arm templates demonstrate one of each; an arm carries only what it earned) — **and an override is A vs A+B**: the shared factory does A; the arm does A *and something more*. An "override" whose body is byte-equal to the shared implementation is cosplay: it claims to override and delivers nothing (`verify-cosplay.md`). Kill it, or make the difference real.
 
@@ -62,6 +93,12 @@ This sub-question exists because the templates alone previously could not produc
 **FULL TESTS = unit + integration only (the `<module>.feature` still anchors them).** Per the binding ruling in `review-notes.md`, the factory's Tests stage never dispatches e2e — `/test-module` would only route a behaviour there if asked to, and this conductor never asks. The co-located Gherkin `<module>.feature` is still authored at Plan/BDD and remains the behavioural anchor the unit + integration tests trace to; not running e2e means its journey scenarios are proven at the integration altitude here, not that the feature is skipped.
 
 ## Dispatch contract
+
+**Dispatch-only conductor — loading this skill is not running it.** The only permitted actions per stage are: (1) spawn that stage's named seat as a real seat dispatch — explicit model, stamped `UPMIND_SEAT` + `UPMIND_LIFECYCLE`; (2) collect the structured gate field the seat returns; (3) route on it — advance, repair loop, or halt-and-surface-verbatim (a mid-run blocking question does not exist: anything a seat cannot proceed without was settled at intake or is a halt). A gate resolves **only** on a field a dispatched seat returned, never on the conductor's own artefact inspection — a pre-existing/approved SDD set still gets a planner dispatch, briefed to *validate the existing set and return the gate fields*, not re-author it. Doing any stage's work in the conductor's own context — hand-resolving a gate, settling the arms determination in the conductor's own context, authoring any stage output inline — is the Trigger's freehand-interpretation defect **even with this SKILL.md loaded in context**: zero seat dispatches by the first gate is the tell that the run is cosplay, not conduction.
+
+**Namespace resolution.** Every skill this file names in short form (`/sdd`, `/code-scoped-composable`, `/code-generate`, `/test-module`, `/code-verify`, `/code-review`, `/docs-module`, `/worktree`, `/code-workflow`, `/mr-create`, …) ships in the **`upmind-agent` plugin**: invoke it via the Skill tool as `upmind-agent:<name>`, and spawn seats as `upmind-agent:<seat>` agent types (`upmind-agent:planner`, `upmind-agent:developer`, `upmind-agent:prover`, `upmind-agent:verifier`, `upmind-agent:reviewer`, `upmind-agent:documenter`). A short name missing from the session's listing while its `upmind-agent:`-prefixed form is present is a namespacing fact, not a missing dependency — resolve the prefix and proceed; halt only when neither form exists in the main session.
+
+**Conduction runs in the MAIN session — never inside a subagent.** The Skill registry exists only in the main session, so the conductor (the main loop that loaded this skill) invokes every stage skill itself (`upmind-agent:<name>`) and dispatches seats as `upmind-agent:<seat>` agent types. The stage map is never wrapped in a background runner or any other Agent-tool subagent: a subagent has no Skill registry, so every `Skill(…)` call there returns Unknown skill and the run either dies or degrades into freehand cosplay.
 
 Every seat dispatch sets an **explicit model** (never inherits the session/max-price model — `${CLAUDE_PLUGIN_ROOT}/rules/agent-orchestration.md` §3, "no exceptions") and an **explicit `UPMIND_SEAT` + `UPMIND_LIFECYCLE`** pair in the spawn environment before the tool call, per the seat-identity-transport mechanics in `${CLAUDE_PLUGIN_ROOT}/rules/agent-seat-separation.md` (cite, don't restate — `hooks/seat-guard.sh` reads only this transport, never prose).
 
@@ -99,6 +136,8 @@ Review holds the built module to the FE-2967 law — cited, never restated:
 ## Repair loop
 
 A **legitimately-red test** is not a run halt. The prover (diff-blind, contract-fed only) files the failure against the public-surface contract; the conductor routes the failure back to the **developer** seat for repair as a fresh dispatch (never the same invocation that produced the original diff — seat separation holds across a repair, same as a rejected-CR re-do) and re-enters the Tests stage once the fix lands. This repeats up to **three cycles** on the same failure (`${CLAUDE_PLUGIN_ROOT}/rules/agent-behavior.md` §5); a fourth failure of the same behaviour escalates to the operator instead of cycling again.
+
+When a repaired (or newly-armed) behaviour needs a fresh negative control, the `.must-fail.patch` is authored by the **developer** — it knows the mutated line — and verified RED, blind, by the **prover**; a prover never reads src to hand-build the mutant (author-of-mutation ≠ verifier-of-red — `.claude/rules/agent-seat-separation.companion.md`, "Must-fail negative-control patches — who authors them").
 
 ## Other failure states
 
