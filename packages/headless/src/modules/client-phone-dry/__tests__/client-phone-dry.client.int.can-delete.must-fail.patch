@@ -1,0 +1,13 @@
+--- a/packages/headless/src/modules/client-phone-dry/useClientPhonesDry.actions.ts
++++ b/packages/headless/src/modules/client-phone-dry/useClientPhonesDry.actions.ts
+@@ -89,7 +89,9 @@
+    */
+   function remove(id: Phone["id"]): Promise<unknown> {
+     const phone = getOne(id);
+-    if (!phone || !phone.meta.canDelete || !canEdit(phone)) {
++    // MUTANT (must-fail: can-delete-gate): `meta.canDelete` is no longer
++    // checked — a locked (can_delete: false) phone becomes deletable.
++    if (!phone || !canEdit(phone)) {
+       return Promise.resolve(undefined);
+     }
+     return service.remove(id).mutateAsync();

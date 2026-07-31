@@ -1,0 +1,79 @@
+{
+  "version": 3,
+  "request": {
+    "method": "PUT",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/addresses/20e43579-5e78-d182-494a-31643202d986",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "name": "Fixture Address 1785486101680",
+      "address_1": "1 Fixture Street",
+      "address_2": "",
+      "city": "Fixture City",
+      "postcode": "FX1 1FX",
+      "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+      "type": 2
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a23b30e94ab7d665-LIS",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 31 Jul 2026 08:21:42 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=cXfk2C01ldZmTkUFzemk91xR%2FqUp9LwGHbO3ycH6Hrvne1q%2F7QDd8coxKNovXIntbcKLgk%2Bnr7pK%2F8rWz66KkcoIC6pDUnjwqSv162REnYRxoP%2BDZZt%2BluH5LnP1PhpW0SaXjWMFEg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "20e43579-5e78-d182-494a-31643202d986",
+        "import_id": null,
+        "staged_import": false,
+        "external_id": null,
+        "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "user_id": "sys",
+        "default": false,
+        "type": 2,
+        "name": "Fixture Address 1785486101680",
+        "address_1": "1 Fixture Street",
+        "address_2": "",
+        "region_id": "none",
+        "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+        "city": "Fixture City",
+        "county": null,
+        "postcode": "FX1 1FX",
+        "created_at": "2026-07-31 08:21:41",
+        "updated_at": "2026-07-31 08:21:42",
+        "deleted_at": null,
+        "verified": 0,
+        "can_delete": true
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-07-31T08:21:42.403Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-address-dry"
+  }
+}

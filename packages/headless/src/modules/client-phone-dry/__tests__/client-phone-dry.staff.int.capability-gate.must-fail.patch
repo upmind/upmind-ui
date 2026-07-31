@@ -1,0 +1,16 @@
+--- a/packages/headless/src/modules/client-phone-dry/client-phone-dry.utils.ts
++++ b/packages/headless/src/modules/client-phone-dry/client-phone-dry.utils.ts
+@@ -59,7 +59,12 @@
+   const user = getActiveStaffEntry()?.user as
+     | { functionalities?: IFunctionality[] }
+     | undefined;
+-  return some(user?.functionalities, ["code", capability]);
++  void user;
++  void capability;
++  // MUTANT (must-fail: capability-gate): the check is bypassed entirely —
++  // every staff-gated member (refresh/add/ensure/update/setDefault/remove)
++  // becomes reachable regardless of the session's actual capabilities.
++  return true;
+ }
+ 
+ /** D4 — a staged-import row, per `staged_import` surfaced as `meta.isStaged`. */
