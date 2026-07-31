@@ -38,6 +38,7 @@
     "dns_info": "Pour utiliser ce domaine, vous devrez mettre à jour les paramètres DNS du domaine auprès de votre registraire actuel.",
     "placeholder": "Indiquez-nous le nom de domaine que vous souhaitez utiliser.",
     "register_info": "Bonne nouvelle : ce nom de domaine est disponible à l'enregistrement pour seulement {price}, ce qui comprend les frais d'enregistrement {period} €.",
+    "register_info_free": "Bonne nouvelle : ce nom de domaine est disponible à l'enregistrement GRATUITEMENT, avec une durée d'enregistrement {period}.",
     "remove_transfer": "Supprimer le transfert",
     "transfer_added": "Transfert ajouté",
     "transfer_info": "Si vous êtes propriétaire de ce domaine, vous pouvez nous le transférer pour seulement {transferPrice} €. Les renouvellements ultérieurs seront facturés {term} €. Sinon, vous devrez mettre à jour les enregistrements des serveurs de noms (NS) du domaine.",

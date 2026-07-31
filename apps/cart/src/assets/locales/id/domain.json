@@ -38,6 +38,7 @@
     "dns_info": "Untuk menggunakan domain ini, Anda perlu memperbarui pengaturan DNS domain tersebut melalui penyedia layanan pendaftaran domain yang bersangkutan.",
     "placeholder": "Beritahu kami domain yang ingin Anda gunakan.",
     "register_info": "Kabar baik — domain ini bisa didaftarkan hanya dengan {price}, yang sudah termasuk biaya pendaftaran {period}.",
+    "register_info_free": "Kabar baik — domain ini bisa didaftarkan secara GRATIS, termasuk masa pendaftaran {period}.",
     "remove_transfer": "Hapus transfer",
     "transfer_added": "Transfer telah ditambahkan",
     "transfer_info": "Jika Anda memiliki domain ini, Anda dapat mentransfernya kepada kami hanya dengan {transferPrice}. Biaya perpanjangan selanjutnya sebesar {term}. Atau, Anda perlu memperbarui catatan nameserver (NS) domain tersebut.",
