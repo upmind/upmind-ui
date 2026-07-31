@@ -1,0 +1,11 @@
+diff --git a/packages/scenario-harness/src/port/port.types.ts b/packages/scenario-harness/src/port/port.types.ts
+index c6a2eff..ac34a11 100644
+--- a/packages/scenario-harness/src/port/port.types.ts
++++ b/packages/scenario-harness/src/port/port.types.ts
+@@ -1,5 +1,6 @@
+ import type { ControlledTableChannel } from "./table-channel.types";
+ import type { ReflectedSnapshot } from "../reflection/reflection.types";
++import type { UseAuth } from "@upmind-automation/headless";
+ 
+ /**
+  * The seam port (ADR-027 d.4 shape). Meta rule, stated once: flags cross the

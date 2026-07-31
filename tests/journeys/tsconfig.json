@@ -26,6 +26,15 @@
       "@upmind-automation/headless": ["../../packages/headless/src/index.ts"],
       "@upmind-automation/types": ["../../packages/types/src/index.ts"],
       "@upmind-automation/i18n": ["../../packages/i18n/src/index.ts"],
+      "@upmind-automation/scenario-harness": [
+        "../../packages/scenario-harness/src/index.ts"
+      ],
+      // The scenario-harness journeys adapter imports `unref` from vue directly
+      // (mirroring FE-2977's future renderer adapter) — vue isn't hoisted to a
+      // node_modules reachable from tests/journeys (only under
+      // packages/headless/node_modules, same gap the runtime alias map in
+      // vitest.journeys.config.ts already works around for bundling).
+      "vue": ["../../packages/headless/node_modules/vue"],
       "@upmind-automation/test-fixtures": ["../fixtures/index.ts"],
       "@upmind-automation/test-fixtures/*": ["../fixtures/*"],
       // vitest is a dep of tests/fixtures, not hoisted to a node_modules
@@ -45,6 +54,8 @@
     "storefront/**/*.int.test.ts",
     "storefront/**/journey.ts",
     "storefront/**/setup.ts",
+    "scenario-harness/**/*.int.test.ts",
+    "scenario-harness/**/*.ts",
     "vite-env.d.ts"
   ],
   "exclude": ["node_modules", "**/*.spec.ts"]

@@ -1,0 +1,31 @@
+{
+  "name": "@upmind-automation/scenario-harness",
+  "version": "0.0.0",
+  "description": "Framework-agnostic generation core: reflection, archetype selection and shared BDD contracts for scope-based composables.",
+  "type": "module",
+  "sideEffects": false,
+  "keywords": [],
+  "license": "UNLICENSED",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "lint": "node ../../.claude/scripts/lint/eslint-workspace.mjs",
+    "lint:fix": "node ../../.claude/scripts/lint/eslint-workspace.mjs --fix",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.test.json"
+  },
+  "dependencies": {
+    "@cucumber/cucumber-expressions": "^20.0.0",
+    "@jsonforms/core": "^3.6.0",
+    "@upmind-automation/types": "workspace:*",
+    "lodash-es": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/lodash-es": "^4.17.12",
+    "@upmind-automation/scenario-harness": "workspace:*",
+    "vitest": "^3.2.4"
+  }
+}

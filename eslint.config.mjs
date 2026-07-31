@@ -470,6 +470,43 @@ const sharedVueRules = {
   "import/order": importOrderRule
 };
 
+// -----------------------------------------------------------------------------
+// No-vue lint boundary (design §9, FE-2976) — packages/scenario-harness is
+// framework-agnostic by design. This IS the explicit decision to reintroduce
+// `no-restricted-imports`: FE-2820 §3 removed the legacy version for
+// COARSENESS (a suffix-glob over all headless modules), not principle — this
+// block is package-scoped, so that coarseness doesn't apply. Banned: the vue
+// family plus the vue-tainted workspace packages (a headless import taints
+// transitively even when "vue" never appears in the specifier). The base
+// `no-restricted-imports` rule also flags `import type`, which is intentional
+// here — even type-only coupling to a vue-tainted package defeats the point.
+// -----------------------------------------------------------------------------
+const NO_VUE_BOUNDARY_MESSAGE =
+  "packages/scenario-harness is framework-agnostic (design §9, FE-2976) — vue and vue-tainted packages banned, incl. import type.";
+
+const bannedScenarioHarnessSpecifiers = [
+  "vue",
+  "vue-router",
+  "vue-i18n",
+  "pinia",
+  "@xstate/vue",
+  "@upmind-automation/headless",
+  "@upmind-automation/client-vue",
+  "@upmind-automation/upmind-ui",
+  "@upmind-automation/i18n"
+];
+
+const noRestrictedVueImportsRule = [
+  "error",
+  {
+    paths: bannedScenarioHarnessSpecifiers.map(name => ({
+      name,
+      message: NO_VUE_BOUNDARY_MESSAGE
+    })),
+    patterns: [{ group: ["vue/*", "@vue/*"], message: NO_VUE_BOUNDARY_MESSAGE }]
+  }
+];
+
 export default [
   // ---------------------------------------------------------------------------
   // 1. Global ignores
@@ -681,6 +718,17 @@ export default [
     },
     rules: {
       "scope-based/no-hand-rolled-int-fixture": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 8f. No-vue lint boundary — packages/scenario-harness only (design §9,
+  //    FE-2976). See the const definitions above for the full rationale.
+  // ---------------------------------------------------------------------------
+  {
+    files: ["packages/scenario-harness/**/*.{ts,tsx,mts,cts}"],
+    rules: {
+      "no-restricted-imports": noRestrictedVueImportsRule
     }
   },
 
