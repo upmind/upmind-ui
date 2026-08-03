@@ -18,8 +18,9 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { COMPOSABLE_KEY } from "./manifest";
+import { SCOPE_ACTOR } from "@upmind-automation/scenario-harness";
 import { BRIDGE_WORLD_NOT_IMPLEMENTED, BridgeWorld } from "./bridge-world";
+import { COMPOSABLE_KEY } from "./manifest";
 import { registry } from "./registry";
 
 describe("@AC-4 bridge-world.int — the typed Node/bridge skeleton", () => {
@@ -27,7 +28,7 @@ describe("@AC-4 bridge-world.int — the typed Node/bridge skeleton", () => {
     const world = new BridgeWorld();
 
     await expect(
-      world.boot(COMPOSABLE_KEY.AUTH, { actor: "self" })
+      world.boot(COMPOSABLE_KEY.AUTH, { actor: SCOPE_ACTOR.SELF })
     ).rejects.toThrow(BRIDGE_WORLD_NOT_IMPLEMENTED);
   });
 

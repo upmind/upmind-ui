@@ -49,7 +49,14 @@ export type GateVerdict =
       cause: GateCause;
     };
 
-/** The full verdict set produced by one `runGate` call. */
+/**
+ * The full verdict set produced by one `runGate` call. Echoes `GateInput.actor`
+ * so a caller aggregating one scope-matrix ROW (client/guest/staff/self,
+ * ADR-027's multi-actor matrix) can attribute each `GateReport` back to the
+ * actor it was computed for — verdicts from different cells are otherwise
+ * byte-identical and un-attributable once concatenated.
+ */
 export interface GateReport {
+  actor: ScopeActor;
   verdicts: readonly GateVerdict[];
 }

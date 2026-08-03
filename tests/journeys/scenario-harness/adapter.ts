@@ -16,6 +16,7 @@
  */
 
 import { unref } from "vue";
+import { mapValues } from "lodash-es";
 import { useAuth } from "@upmind-automation/headless";
 import type { ScopeActorTypes } from "@upmind-automation/headless";
 import type { CompositionPort } from "@upmind-automation/scenario-harness";
@@ -26,11 +27,7 @@ export type AuthTestActor = ScopeActorTypes.CLIENT | ScopeActorTypes.STAFF;
 type Derefable = Record<string, unknown>;
 
 function toPlainRecord(source: Derefable): Record<string, unknown> {
-  const plain: Record<string, unknown> = {};
-  for (const key of Object.keys(source)) {
-    plain[key] = unref(source[key] as never);
-  }
-  return plain;
+  return mapValues(source, value => unref(value as never));
 }
 
 export interface AuthBoot {

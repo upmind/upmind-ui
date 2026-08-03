@@ -25,7 +25,12 @@ export interface WorldScope {
 export interface World<K extends string = string> {
   boot(key: K, scope: WorldScope): Promise<void>;
   fire(actionId: string, input?: unknown): Promise<void>;
-  expectMeta(expected: Partial<Record<string, boolean>>): Promise<void>;
+  // `Record`, never `Partial<Record<…>>` — `Partial` over an index signature
+  // only widens the value type to `boolean | undefined`, so a typo'd or
+  // absent-flag expectation (`{ isAuthenitcated: undefined }`) would
+  // typecheck and then vacuously pass at runtime (`undefined !== undefined`
+  // is false). Every expectation must be a real boolean.
+  expectMeta(expected: Record<string, boolean>): Promise<void>;
   expectContext?(expected: Record<string, unknown>): Promise<void>;
   dispose(): Promise<void>;
 }

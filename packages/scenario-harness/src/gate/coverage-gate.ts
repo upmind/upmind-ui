@@ -9,6 +9,7 @@ import type { GateInput, GateReport, GateVerdict } from "./gate.types";
  * {@link GateInput.actionSchemas}, never runtime param introspection.
  */
 export function runGate({
+  actor,
   actionKeys,
   tags,
   actionSchemas,
@@ -65,5 +66,5 @@ export function runGate({
     }
   }
 
-  return { verdicts };
+  return { actor, verdicts };
 }

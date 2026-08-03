@@ -46,7 +46,7 @@
     "lint:fix": "pnpm -r lint:fix",
     "lint:verify": "node .claude/scripts/lint/verify-lint-convergence.mjs",
     "format": "pnpm -r format",
-    "test": "pnpm -r test",
+    "test": "pnpm -r test && pnpm test:bdd",
     "test:unit": "pnpm -r test:unit",
     "test:integration": "pnpm -r test:integration",
     "test:journeys": "pnpm --filter @upmind-automation/journeys test",

@@ -488,6 +488,7 @@ const bannedScenarioHarnessSpecifiers = [
   "vue",
   "vue-router",
   "vue-i18n",
+  "vue-demi",
   "pinia",
   "@xstate/vue",
   "@upmind-automation/headless",
@@ -503,9 +504,106 @@ const noRestrictedVueImportsRule = [
       name,
       message: NO_VUE_BOUNDARY_MESSAGE
     })),
-    patterns: [{ group: ["vue/*", "@vue/*"], message: NO_VUE_BOUNDARY_MESSAGE }]
+    patterns: [
+      // Bare-package deep subpaths (vue's own + the vue-composition-utils
+      // family): glob groups suffice here because none of these names
+      // collide with an unrelated prefix.
+      {
+        group: ["vue/*", "@vue/*", "@vueuse/*"],
+        message: NO_VUE_BOUNDARY_MESSAGE
+      },
+      // Workspace-package deep subpaths — `paths` above only matches the
+      // bare specifier exactly, so `@upmind-automation/headless/src/...`
+      // (or any other file inside a vue-tainted workspace package) needs
+      // its own check. `regex` (not `group`) because the glob matcher
+      // wouldn't otherwise anchor "must start with this exact package name
+      // plus a slash" without also catching unrelated `@upmind-automation/*`
+      // packages (e.g. `@upmind-automation/types`, which is NOT banned).
+      {
+        regex:
+          "^@upmind-automation/(headless|client-vue|upmind-ui|i18n)/",
+        message: NO_VUE_BOUNDARY_MESSAGE
+      }
+    ]
   }
 ];
+
+// Two shapes `no-restricted-imports` structurally cannot see, verified against
+// the installed rule source (node_modules/eslint/lib/rules/no-restricted-imports.js):
+// it registers only an `ImportDeclaration` visitor, never `ImportExpression`, so a
+// dynamic `await import("vue")` is invisible to it; and its `paths`/`patterns`
+// match on the raw specifier TEXT, so a relative escape (`../../headless/src/index`)
+// that never types a banned name is invisible too. Both need the import resolved —
+// dynamic imports need the *specifier value itself checked against the same banned
+// list, and relative escapes need the specifier resolved to a concrete disk path
+// (the same technique block 8c's `no-barrel-imports` uses, so it is depth-agnostic)
+// and rejected if that path falls outside packages/scenario-harness entirely.
+const SCENARIO_HARNESS_ROOT = resolve(
+  import.meta.dirname,
+  "packages/scenario-harness"
+);
+
+// Mirrors noRestrictedVueImportsRule's own ban list (exact + subpath + vueuse),
+// as a single regex so the custom rule below and the base rule stay in lockstep.
+const bannedScenarioHarnessSpecifierPattern = new RegExp(
+  "^(?:vue|vue-router|vue-i18n|vue-demi|pinia|@xstate/vue)(?:/.*)?$" +
+    "|^@vue/" +
+    "|^@vueuse/" +
+    "|^@upmind-automation/(?:headless|client-vue|upmind-ui|i18n)(?:/.*)?$"
+);
+
+const scenarioHarnessBoundaryPlugin = {
+  rules: {
+    "no-vue-boundary-escape": {
+      meta: {
+        type: "problem",
+        docs: {
+          description:
+            "Disallow dynamic import() of a banned framework specifier and any relative import that resolves outside packages/scenario-harness."
+        },
+        schema: []
+      },
+      create(context) {
+        function check(node, sourceNode) {
+          const specifier = sourceNode?.value;
+          if (typeof specifier !== "string") return;
+
+          if (bannedScenarioHarnessSpecifierPattern.test(specifier)) {
+            context.report({ node, message: NO_VUE_BOUNDARY_MESSAGE });
+            return;
+          }
+
+          if (!specifier.startsWith(".")) return;
+
+          const importerFile = context.filename ?? context.getFilename();
+          const target = resolveRelativeTarget(importerFile, specifier);
+
+          if (target && !target.startsWith(`${SCENARIO_HARNESS_ROOT}/`)) {
+            context.report({
+              node,
+              message: `${NO_VUE_BOUNDARY_MESSAGE} (relative import resolves outside packages/scenario-harness: "${specifier}")`
+            });
+          }
+        }
+
+        return {
+          ImportDeclaration(node) {
+            check(node, node.source);
+          },
+          ExportNamedDeclaration(node) {
+            check(node, node.source);
+          },
+          ExportAllDeclaration(node) {
+            check(node, node.source);
+          },
+          ImportExpression(node) {
+            check(node, node.source);
+          }
+        };
+      }
+    }
+  }
+};
 
 export default [
   // ---------------------------------------------------------------------------
@@ -547,7 +645,11 @@ export default [
       // Frozen audit evidence — per-package .eslintrc.cjs baseline captures, @next-legacy
       // eslint.config.mjs snapshot, proposed config copy, and classify.mjs. Not live code;
       // linting/fixing them would mutate the baseline (FE-2820 cycle-1 triage).
-      "**/.artifacts/**"
+      "**/.artifacts/**",
+      // playwright-bdd's generated spec files (bddgen output, FE-2976) — machine
+      // output sitting in the tree (gitignored, but not previously excluded from
+      // a root-cwd lint pass), never hand-edited or reformatted.
+      ".features-gen/**"
     ]
   },
 
@@ -584,7 +686,8 @@ export default [
       ".claude/scripts/**/*.{ts,tsx,mts,cts,js,cjs,mjs}",
       "**/*.config.{ts,mts,cts,js,cjs,mjs}",
       "tests/fixtures/**/*.{mjs,js,ts}",
-      "packages/eslint-plugin-scope-based/**/*.{js,mjs}"
+      "packages/eslint-plugin-scope-based/**/*.{js,mjs}",
+      "packages/*/scripts/**/*.{ts,mts,cts,js,cjs,mjs}"
     ],
     languageOptions: {
       globals: { ...globals.node }
@@ -723,12 +826,20 @@ export default [
 
   // ---------------------------------------------------------------------------
   // 8f. No-vue lint boundary — packages/scenario-harness only. See the const
-  //    definitions above for the full rationale.
+  //    definitions above for the full rationale. Widened past .ts/.tsx/.mts/.cts
+  //    to .js/.jsx/.mjs/.cjs/.vue so a future tooling file (vitest.config.mjs,
+  //    a .vue playground fixture) in this package cannot import vue unguarded.
   // ---------------------------------------------------------------------------
   {
-    files: ["packages/scenario-harness/**/*.{ts,tsx,mts,cts}"],
+    files: [
+      "packages/scenario-harness/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}"
+    ],
+    plugins: {
+      "@scenario-harness": scenarioHarnessBoundaryPlugin
+    },
     rules: {
-      "no-restricted-imports": noRestrictedVueImportsRule
+      "no-restricted-imports": noRestrictedVueImportsRule,
+      "@scenario-harness/no-vue-boundary-escape": "error"
     }
   },
 

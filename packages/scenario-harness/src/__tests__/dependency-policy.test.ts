@@ -13,11 +13,19 @@ const packageJsonPath = fileURLToPath(
 const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8")) as {
   dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
+  optionalDependencies?: Record<string, string>;
 };
 
+// Scans all four dependency blocks — a banned package declared in
+// peerDependencies/optionalDependencies is as real an agnosticism violation
+// as one in dependencies/devDependencies (finding 35): it is the natural way
+// a "framework-agnostic" package would start accepting a framework.
 const allDeclaredDependencies = {
   ...packageJson.dependencies,
-  ...packageJson.devDependencies
+  ...packageJson.devDependencies,
+  ...packageJson.peerDependencies,
+  ...packageJson.optionalDependencies
 };
 
 describe("@AC-1 @AC-4 package.json — the dependency policy", () => {
@@ -56,5 +64,10 @@ describe("@AC-1 @AC-4 package.json — the dependency policy", () => {
         "lodash-es"
       ].sort()
     );
+  });
+
+  it("declares no peerDependencies or optionalDependencies at all — the declared-policy gate has no field left for a banned package to hide in", () => {
+    expect(packageJson.peerDependencies ?? {}).toStrictEqual({});
+    expect(packageJson.optionalDependencies ?? {}).toStrictEqual({});
   });
 });

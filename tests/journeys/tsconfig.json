@@ -35,6 +35,16 @@
       // packages/headless/node_modules, same gap the runtime alias map in
       // vitest.journeys.config.ts already works around for bundling).
       "vue": ["../../packages/headless/node_modules/vue"],
+      // Same gap as "vue" above — the journeys adapter uses lodash-es's
+      // mapValues (the house Lodash-for-collection-ops rule). lodash-es ships
+      // no types of its own (unlike vue): pointing at the runtime package dir
+      // alone loses the @types/lodash-es declarations project-wide (every
+      // lodash-es import in the whole program routes through this one `paths`
+      // entry), so point straight at @types/lodash-es's own index, same
+      // pattern as the "psl" entry below.
+      "lodash-es": [
+        "../../packages/headless/node_modules/@types/lodash-es/index.d.ts"
+      ],
       "@upmind-automation/test-fixtures": ["../fixtures/index.ts"],
       "@upmind-automation/test-fixtures/*": ["../fixtures/*"],
       // vitest is a dep of tests/fixtures, not hoisted to a node_modules

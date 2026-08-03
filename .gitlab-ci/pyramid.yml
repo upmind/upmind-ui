@@ -36,6 +36,14 @@
 # project); as more packages grow a unit project they join automatically with no
 # CI change. The HTTP layer is fully stubbed in unit tests, so this job needs no
 # staging network and no submodules beyond what `dependencies` already provides.
+#
+# `packages/scenario-harness`'s own `test:unit` chain additionally runs
+# `scripts/verify-negative-controls.mjs` (FE-2976 review cluster 7): it applies
+# each `src/__tests__/known-bad/*.must-fail.patch`, asserts the package lint
+# goes RED naming the patch's own banned specifier, reverts, and asserts GREEN —
+# so this job is also where the no-vue boundary's negative controls get proven,
+# not just asserted in README prose. A patch that no longer applies against
+# HEAD fails this job loudly (the staleness alarm) rather than silently.
 #------------------------------------------------------------------------------
 unit:test:
   extends: .pnpm

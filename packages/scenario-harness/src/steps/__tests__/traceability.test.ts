@@ -95,7 +95,7 @@ describe("@AC-5 createTraceabilityCheck — the BDD pair stays in lockstep", () 
       .filter(Boolean);
 
     expect(new Set(namedImports)).toStrictEqual(
-      new Set(["defineSteps", "World", "FIXTURE_KEY"])
+      new Set(["defineSteps", "World", "FIXTURE_KEY", "SCOPE_ACTOR"])
     );
   });
 });

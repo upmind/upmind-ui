@@ -25,19 +25,24 @@ const INPUT: GateInput = {
     "uncoveredIncluded",
     "untaggedInputTaking",
     "noReasonExclude",
-    "uncoveredDefault"
+    "uncoveredDefault",
+    "taggedInputTakingUncovered"
   ],
   tags: {
     exemptAction: { kind: TAG_KIND.EXCLUDE, reason: "lifecycle" },
     coveredAction: { kind: TAG_KIND.INCLUDE },
     uncoveredIncluded: { kind: TAG_KIND.INCLUDE },
-    noReasonExclude: { kind: TAG_KIND.EXCLUDE }
+    noReasonExclude: { kind: TAG_KIND.EXCLUDE },
+    taggedInputTakingUncovered: { kind: TAG_KIND.INCLUDE }
   },
   actionSchemas: {
-    untaggedInputTaking: INPUT_TAKING_SCHEMA
+    untaggedInputTaking: INPUT_TAKING_SCHEMA,
+    taggedInputTakingUncovered: INPUT_TAKING_SCHEMA
   },
   coveredActionIds: ["coveredAction", "ghostStep"]
 };
+
+const EXPECTED_ACTION_IDS = [...INPUT.actionKeys, "ghostStep"];
 
 function find(verdicts: readonly GateVerdict[], actionId: string): GateVerdict {
   const verdict = verdicts.find(v => v.actionId === actionId);
@@ -46,7 +51,19 @@ function find(verdicts: readonly GateVerdict[], actionId: string): GateVerdict {
 }
 
 describe("@AC-7 runGate — the six coverage-gate verdicts", () => {
-  const { verdicts } = runGate(INPUT);
+  const report = runGate(INPUT);
+  const { verdicts } = report;
+
+  it("echoes GateInput.actor onto the report — an aggregating caller can attribute the report back to its scope-matrix cell", () => {
+    expect(report.actor).toBe(SCOPE_ACTOR.CLIENT);
+  });
+
+  it("emits exactly one verdict per action key plus one per dead step — no extra, no duplicate, no dropped verdict", () => {
+    expect(verdicts).toHaveLength(EXPECTED_ACTION_IDS.length);
+    expect(new Set(verdicts.map(v => v.actionId))).toStrictEqual(
+      new Set(EXPECTED_ACTION_IDS)
+    );
+  });
 
   it("an excluded action is skipped with its reason recorded", () => {
     const verdict = find(verdicts, "exemptAction");
@@ -95,6 +112,20 @@ describe("@AC-7 runGate — the six coverage-gate verdicts", () => {
 
   it("an untagged action with no input schema and no step defaults to included, red as uncovered — never untagged", () => {
     const verdict = find(verdicts, "uncoveredDefault");
+    expect(verdict).toMatchObject({
+      status: GATE_STATUS.RED,
+      cause: GATE_CAUSE.UNCOVERED
+    });
+  });
+
+  it("a TAGGED input-taking action with a covering-step gap is red as uncovered, not untagged-input-taking — cause is keyed off the tag, never off having a schema", () => {
+    // Genuine control for the case above: this action DOES carry an input
+    // schema (same as "untaggedInputTaking"), but unlike it, it is also
+    // tagged include. If `runGate` ever regressed to flagging
+    // untagged-input-taking off `actionSchemas` alone (ignoring whether a
+    // tag exists), this case would flip to UNTAGGED_INPUT_TAKING instead of
+    // UNCOVERED.
+    const verdict = find(verdicts, "taggedInputTakingUncovered");
     expect(verdict).toMatchObject({
       status: GATE_STATUS.RED,
       cause: GATE_CAUSE.UNCOVERED

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import type { ComposableRegistry } from "../registry.types";
 
 /**
@@ -31,7 +31,13 @@ const TEST_KEY = {
 type TestKey = (typeof TEST_KEY)[keyof typeof TEST_KEY];
 
 describe("@AC-6 ComposableRegistry<K, T> — the registry-generic contract", () => {
-  it("a registry satisfying its own manifest resolves the same key type at every binding site", () => {
+  it("[shape pin] a registry satisfying its own manifest resolves the same key type at every binding site", () => {
+    // Both registries below are keyed by the identical expression
+    // `[TEST_KEY.FOO]`/`[TEST_KEY.BAR]`, so the Object.keys comparison below
+    // cannot fail at runtime — it documents the intended shape, not a
+    // falsifiable behaviour. The genuine exhaustiveness proof against THIS
+    // manifest is the two `@ts-expect-error` mutation controls below
+    // (missing-key / extra-key), which do have teeth under `tsc`.
     const registryA = {
       [TEST_KEY.FOO]: () => "a",
       [TEST_KEY.BAR]: () => "b"
@@ -44,6 +50,21 @@ describe("@AC-6 ComposableRegistry<K, T> — the registry-generic contract", () 
     expect(Object.keys(registryA).sort()).toStrictEqual(
       Object.keys(registryB).sort()
     );
+  });
+
+  it("the manifest's own key union is not silently widened to string (would defeat every mutation control below)", () => {
+    expectTypeOf<TestKey>().toEqualTypeOf<
+      (typeof TEST_KEY)[keyof typeof TEST_KEY]
+    >();
+    // A registry declared against the widened `string` key admits any extra
+    // key and omits any manifest key with no compile error — this is the
+    // escape the original package-baked `ComposableKey` manifest was
+    // vulnerable to (finding 45); confirming `ComposableRegistry<string, …>`
+    // is a strictly weaker, DIFFERENT contract than `ComposableRegistry<
+    // TestKey, …>` from the caller's perspective:
+    expectTypeOf<ComposableRegistry<string, unknown>>().not.toEqualTypeOf<
+      ComposableRegistry<TestKey, unknown>
+    >();
   });
 
   it("a registry missing a key from its own manifest fails compilation", () => {

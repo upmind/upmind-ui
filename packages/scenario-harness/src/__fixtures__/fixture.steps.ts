@@ -1,4 +1,4 @@
-import { defineSteps } from "@upmind-automation/scenario-harness";
+import { SCOPE_ACTOR, defineSteps } from "@upmind-automation/scenario-harness";
 import { FIXTURE_KEY } from "./fixture-registry";
 import type { World } from "@upmind-automation/scenario-harness";
 
@@ -12,11 +12,11 @@ import type { World } from "@upmind-automation/scenario-harness";
  */
 export const fixtureSteps = defineSteps(({ Given, When, Then }) => {
   Given("a fresh fixture switch", async (world: World) => {
-    await world.boot(FIXTURE_KEY.SWITCH, { actor: "self" });
+    await world.boot(FIXTURE_KEY.SWITCH, { actor: SCOPE_ACTOR.SELF });
   });
 
   Given("a fixture switch that is on", async world => {
-    await world.boot(FIXTURE_KEY.SWITCH, { actor: "self" });
+    await world.boot(FIXTURE_KEY.SWITCH, { actor: SCOPE_ACTOR.SELF });
     await world.fire("turnOn");
   });
 

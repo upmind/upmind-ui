@@ -8,17 +8,18 @@ import type { ReflectedSnapshot } from "../../reflection/reflection.types";
 import type { ModuleDescriptor } from "../archetype.types";
 
 /**
- * @AC-8 leg 1 — a hand-built `ModuleDescriptor` (the reflect-produced leg 2
- * lives in `reflection/__tests__/reflect.test.ts`). The IR is the plain
- * snapshot + typed descriptors and nothing more (ADR-027 Am.13): every value
- * here is JSON-primitive-shaped, so a round-trip must be lossless.
- *
- * A `ModuleDescriptor` that is round-trip-asserted must never carry an
- * undefined-valued key directly (contract violation by construction:
- * `reflect()` itself omits undefined-valued context/meta entries, deeply, so
- * the emitted snapshot is strictly JSON data) — `toStrictEqual` treats
- * `{ x: undefined }` and `{}` as different, so such a fixture would fail
- * this exact round-trip for real, not pass it tautologically.
+ * @AC-8 leg 1 [shape pin, not behaviour] — a hand-built `ModuleDescriptor`.
+ * No production function runs on this leg's round-trip: the fixture below is
+ * hand-typed JSON-primitive data one screen above the assertion that reads
+ * it back, so `JSON.parse(JSON.stringify(descriptor))` only proves
+ * `JSON.stringify` works on JSON — it documents the @AC-8 shape contract
+ * (ADR-027 Am.13: plain snapshot + typed descriptors, nothing more) but
+ * cannot fail for any reason other than a compile error or a REQUIRED
+ * non-JSON field being added to `ModuleDescriptor` itself. The real,
+ * production-code-exercising @AC-8 proof is the reflect()-produced legs
+ * below (which DO run `reflect()` over a `CompositionPort` and DO catch a
+ * regression in `deepOmitUndefined`), and `reflect.test.ts`'s own round-trip
+ * cases.
  */
 describe("@AC-8 ModuleDescriptor — JSON round-trip (hand-built leg)", () => {
   const descriptor: ModuleDescriptor = {
@@ -47,11 +48,11 @@ describe("@AC-8 ModuleDescriptor — JSON round-trip (hand-built leg)", () => {
     }
   };
 
-  it("survives a JSON round-trip against the original, unchanged", () => {
+  it("[shape pin] survives a JSON round-trip against the original, unchanged", () => {
     expect(JSON.parse(JSON.stringify(descriptor))).toStrictEqual(descriptor);
   });
 
-  it("carries no classes, no methods, no framework types on the descriptor itself", () => {
+  it("[shape pin] carries no classes, no methods, no framework types on the descriptor itself", () => {
     const values = [
       descriptor,
       descriptor.archetype,

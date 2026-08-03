@@ -49,6 +49,14 @@ export class NodeWorld<K extends string> implements World<K> {
   ) {}
 
   async boot(key: K, scope: WorldScope): Promise<void> {
+    // Dispose-then-boot: a second `boot()` in one scenario tears down the
+    // previous instance first rather than silently overwriting the
+    // reference. `FixtureModule` itself owns nothing to tear down, but this
+    // is the exemplar every real world (over a destroyable module, e.g. an
+    // `AuthBoot`-shaped port with a `destroy()`) is meant to copy — without
+    // this, that copy would leak a live instance into a shared registry.
+    await this.dispose();
+
     const buildModule = this.registry[key]();
 
     this.module = buildModule(scope.actor);
@@ -58,7 +66,7 @@ export class NodeWorld<K extends string> implements World<K> {
     await readAction(this.requireModule(), actionId)(input);
   }
 
-  async expectMeta(expected: Partial<Record<string, boolean>>): Promise<void> {
+  async expectMeta(expected: Record<string, boolean>): Promise<void> {
     const live = readMeta(this.requireModule());
 
     for (const [flag, value] of Object.entries(expected)) {

@@ -66,13 +66,26 @@ describe("@AC-2 reflection.int — live useAuth reflected through the port", () 
     const { port, destroy } = bootAuthPort(ScopeActorTypes.CLIENT);
     cleanups.push(destroy);
 
+    // Canary counts against the LIVE, pre-reflect surface (useAuth.meta.ts:
+    // 18-152, useAuth.context.ts:35-37). reflect() legitimately omits
+    // undefined-valued context keys (schema/uischema included, pre-boot) —
+    // that omit-undefined contract is what the loop below proves survives
+    // reflection; the completeness canary belongs on the raw snapshot, not
+    // the post-reflect descriptor.
+    const rawContext = port.snapshot().context;
+    expect(Object.keys(rawContext)).toHaveLength(12);
+    expect(rawContext).toHaveProperty("schema");
+    expect(rawContext).toHaveProperty("uischema");
+
     const descriptor = reflect(COMPOSABLE_KEY.AUTH, SCOPE_ACTOR.CLIENT, port);
 
-    // Canary counts (useAuth.meta.ts:18-152, useAuth.context.ts:35-37).
     expect(Object.keys(descriptor.snapshot.meta)).toHaveLength(20);
-    expect(Object.keys(descriptor.snapshot.context)).toHaveLength(12);
-    expect(descriptor.snapshot.context).toHaveProperty("schema");
-    expect(descriptor.snapshot.context).toHaveProperty("uischema");
+    // Every surviving context key came from the live surface, and — the
+    // omit-undefined contract — none of them is undefined-valued.
+    for (const [key, value] of Object.entries(descriptor.snapshot.context)) {
+      expect(rawContext).toHaveProperty(key);
+      expect(value).not.toBeUndefined();
+    }
   });
 
   it("action sets differ per actor and both are reported truthfully, sharing the lifecycle arm", () => {

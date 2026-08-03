@@ -15,8 +15,10 @@
     "lint": "node ../../.claude/scripts/lint/eslint-workspace.mjs",
     "lint:fix": "node ../../.claude/scripts/lint/eslint-workspace.mjs --fix",
     "test": "vitest run",
-    "test:unit": "tsc --noEmit -p tsconfig.test.json && vitest run",
-    "typecheck": "tsc --noEmit -p tsconfig.test.json"
+    "test:unit": "tsc --noEmit -p tsconfig.test.json && vitest run && node scripts/verify-negative-controls.mjs",
+    "test:negative-controls": "node scripts/verify-negative-controls.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.test.json",
+    "format": "prettier --write src/ scripts/"
   },
   "dependencies": {
     "@cucumber/cucumber-expressions": "^20.0.0",

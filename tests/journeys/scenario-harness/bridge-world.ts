@@ -25,7 +25,7 @@ export class BridgeWorld implements World<ComposableKey> {
     throw new Error(BRIDGE_WORLD_NOT_IMPLEMENTED);
   }
 
-  async expectMeta(_expected: Partial<Record<string, boolean>>): Promise<void> {
+  async expectMeta(_expected: Record<string, boolean>): Promise<void> {
     throw new Error(BRIDGE_WORLD_NOT_IMPLEMENTED);
   }
 

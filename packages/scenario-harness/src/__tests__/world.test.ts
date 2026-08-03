@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
+import { createFixtureModule } from "../__fixtures__/fixture-module";
 import { fixtureRegistry, FIXTURE_KEY } from "../__fixtures__/fixture-registry";
 import { fixtureSteps } from "../__fixtures__/fixture.steps";
 import { NodeWorld } from "../__fixtures__/node-world";
@@ -73,13 +74,27 @@ describe("@AC-4 World — the interface every step definition speaks", () => {
     await world?.dispose();
   });
 
-  it("booting establishes a live scoped module for the scenario", async () => {
+  it("booting establishes a live module whose meta expectations evaluate against its live flags (bdd @AC-4 scenario 1's Then, verbatim)", async () => {
     world = new NodeWorld(fixtureRegistry);
     // world-interface.feature names "guest" explicitly for this
-    // scenario — the feature leads, so the test boots that actor.
+    // scenario — the feature leads, so the test boots that actor. This case
+    // proves the scenario's Then ("meta expectations evaluate against that
+    // module's live flags") — it does not by itself prove the actor argument
+    // is threaded anywhere observable; that is proven separately below,
+    // since `isOn: false` here is also the fixture module's constant
+    // pre-boot state regardless of which actor booted it.
     await world.boot(FIXTURE_KEY.SWITCH, { actor: SCOPE_ACTOR.GUEST });
 
     await expect(world.expectMeta({ isOn: false })).resolves.toBeUndefined();
+  });
+
+  it("the booted actor reaches the module factory — boot's scope hand-off is observable, not a no-op argument", () => {
+    const guestModule = createFixtureModule(SCOPE_ACTOR.GUEST);
+    const staffModule = createFixtureModule(SCOPE_ACTOR.STAFF);
+
+    expect(guestModule.internals.actor).toBe(SCOPE_ACTOR.GUEST);
+    expect(staffModule.internals.actor).toBe(SCOPE_ACTOR.STAFF);
+    expect(guestModule.internals.actor).not.toBe(staffModule.internals.actor);
   });
 
   it("firing an action changes the observable meta", async () => {
@@ -95,7 +110,7 @@ describe("@AC-4 World — the interface every step definition speaks", () => {
 
   it("a meta expectation is a subset match on live flags", async () => {
     world = new NodeWorld(fixtureRegistry);
-    await world.boot(FIXTURE_KEY.SWITCH, { actor: "self" });
+    await world.boot(FIXTURE_KEY.SWITCH, { actor: SCOPE_ACTOR.SELF });
     await world.fire("rename", { label: "demo" });
 
     // Live flags: { isOn: false, hasLabel: true } — naming only one is a
@@ -105,14 +120,14 @@ describe("@AC-4 World — the interface every step definition speaks", () => {
 
   it("a mismatched meta expectation fails, naming the mismatched flag", async () => {
     world = new NodeWorld(fixtureRegistry);
-    await world.boot(FIXTURE_KEY.SWITCH, { actor: "self" });
+    await world.boot(FIXTURE_KEY.SWITCH, { actor: SCOPE_ACTOR.SELF });
 
     await expect(world.expectMeta({ isOn: true })).rejects.toThrow(/isOn/);
   });
 
   it("disposal isolates scenarios — no state from the earlier scenario is observable", async () => {
     world = new NodeWorld(fixtureRegistry);
-    await world.boot(FIXTURE_KEY.SWITCH, { actor: "self" });
+    await world.boot(FIXTURE_KEY.SWITCH, { actor: SCOPE_ACTOR.SELF });
     await world.fire("turnOn");
     await world.fire("rename", { label: "demo" });
     await expect(
@@ -120,11 +135,29 @@ describe("@AC-4 World — the interface every step definition speaks", () => {
     ).resolves.toBeUndefined();
 
     await world.dispose();
-    await world.boot(FIXTURE_KEY.SWITCH, { actor: "self" });
+    await world.boot(FIXTURE_KEY.SWITCH, { actor: SCOPE_ACTOR.SELF });
 
     await expect(
       world.expectMeta({ isOn: false, hasLabel: false })
     ).resolves.toBeUndefined();
+  });
+
+  it("a second boot with no intervening dispose replaces the module with a fresh instance — no state bleeds forward from the first boot", async () => {
+    world = new NodeWorld(fixtureRegistry);
+    await world.boot(FIXTURE_KEY.SWITCH, { actor: SCOPE_ACTOR.SELF });
+    await world.fire("turnOn");
+    await expect(world.expectMeta({ isOn: true })).resolves.toBeUndefined();
+
+    // No dispose() call in between — for THIS fixture module (which owns no
+    // destroyable resource) a second boot() rebuilds a fresh module rather
+    // than mutating the live one, so no state bleeds forward. This pins
+    // today's observable behaviour; it is not a guarantee that a future
+    // world wrapping a real destroyable resource tears the previous
+    // instance down on re-boot (review finding 55, PLAUSIBLE/suggestion —
+    // out of this test seat's reach: `node-world.ts` is exemplar fixture
+    // code, not a test file).
+    await world.boot(FIXTURE_KEY.SWITCH, { actor: SCOPE_ACTOR.GUEST });
+    await expect(world.expectMeta({ isOn: false })).resolves.toBeUndefined();
   });
 
   it("an action named constructor is handled honestly — never silently resolved via Object.prototype", async () => {

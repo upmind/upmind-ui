@@ -1,0 +1,1 @@
+../../.agent/workflows/lint-i18n.md
