@@ -161,6 +161,14 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
   }
 
   /**
+   * Leaves this product's add to the backend, for flows that add without the
+   * shopper configuring anything.
+   */
+  async function silence(): Promise<void> {
+    service.send({ type: "SILENT", data: true });
+  }
+
+  /**
    * Updates the product's configuration based on current selections or changes.
    * It sends an 'UPDATE' event to the service and waits for the operation to complete or error.
    *
@@ -331,7 +339,13 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
      *
      * @returns A promise that resolves upon successful update, or rejects on error.
      */
-    update
+    update,
+
+    /**
+     * Leaves this product's add to the backend, for flows that add without the
+     * shopper configuring anything.
+     */
+    silence
   };
 };
 

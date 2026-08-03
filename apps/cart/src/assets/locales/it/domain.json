@@ -38,6 +38,7 @@
     "dns_info": "Per utilizzare questo dominio, dovrai aggiornare i record DNS del dominio presso il tuo registrar attuale.",
     "placeholder": "Indicaci il dominio che desideri utilizzare.",
     "register_info": "Buone notizie: questo dominio è disponibile per la registrazione a soli {price}, compreso un {period} di registrazione.",
+    "register_info_free": "Buone notizie: questo dominio è disponibile per la registrazione GRATUITA, che include un periodo di registrazione {period}.",
     "remove_transfer": "Elimina il trasferimento",
     "transfer_added": "Aggiunto il trasferimento",
     "transfer_info": "Se sei il proprietario di questo dominio, puoi trasferirlo a noi a soli {transferPrice} €. I rinnovi successivi avranno un costo di {term} €. In alternativa, dovrai aggiornare i record dei server dei nomi (NS) del dominio.",

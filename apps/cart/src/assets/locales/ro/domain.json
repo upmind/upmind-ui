@@ -38,6 +38,7 @@
     "dns_info": "Pentru a utiliza acest domeniu, va trebui să actualizați setările DNS ale domeniului la registratorul actual.",
     "placeholder": "Spune-ne ce domeniu dorești să folosești.",
     "register_info": "Vești bune — acest domeniu poate fi înregistrat la doar {price}, preț care include și înregistrarea {period} de ani.",
+    "register_info_free": "Vești bune — acest domeniu poate fi înregistrat GRATUIT, inclusiv o perioadă de înregistrare {period}.",
     "remove_transfer": "Anulează transferul",
     "transfer_added": "S-a adăugat transferul",
     "transfer_info": "Dacă dețineți acest domeniu, îl puteți transfera la noi pentru doar {transferPrice}. Reînnoirile ulterioare se taxează cu {term}. În caz contrar, va trebui să actualizați înregistrările serverelor de nume (NS) ale domeniului.",
