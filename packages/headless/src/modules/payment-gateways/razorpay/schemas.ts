@@ -1,11 +1,11 @@
 // --- internal
 
 // --- utils
-import { useSchema as useDefaultSchema } from "../schemas";
-import { getPayerEmail, payerNeedsEmail } from "../utils";
+import { useSchema as useDefaultSchema } from "../payment-gateways.schemas";
+import { getPayerEmail, payerNeedsEmail } from "../payment-gateways.utils";
 
 // --- types
-import type { GatewayContext } from "../types";
+import type { GatewayContext } from "../payment-gateways.types";
 import type { JsonSchema, Layout, UISchemaElement } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------

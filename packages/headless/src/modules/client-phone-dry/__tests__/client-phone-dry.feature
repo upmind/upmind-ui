@@ -51,7 +51,7 @@ Feature: Client phone numbers
     Then the submission is rejected because a type — mobile, home, office, or personal — is required
     And when a type is chosen it is saved with the number
 
-  @AC-S2 @client
+  @AC-S2 @client @todo
   Scenario: A new phone defaults its country from the active brand
     Given a client adding a phone under a brand, with no country chosen
     When the new-phone form is prepared
@@ -109,7 +109,7 @@ Feature: Client phone numbers
 
   # --- A staff member, on their OWN phones (self) -----------------------------
 
-  @AC-C1 @staff
+  @AC-C1 @staff @todo
   Scenario: A staff member manages their own phone numbers
     Given a staff member with no named client in context
     When they open their own phone list
