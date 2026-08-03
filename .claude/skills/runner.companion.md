@@ -1,4 +1,4 @@
-> Companion to the upmind-agent skill /code-workflow — Upmind-monorepo-specific bindings/overrides.
+> Companion to the upmind-agent skill /runner (the bounded fan-out standard inside `/start`'s staged route — was `/code-workflow`) — Upmind-monorepo-specific bindings/overrides.
 
 Additive. Binds where the docs-corpus refresh sits in a runner. Repo wins on any conflict.
 

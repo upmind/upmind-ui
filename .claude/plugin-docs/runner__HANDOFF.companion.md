@@ -21,7 +21,7 @@ The generic "issue tracker" / "issue-tracker MCP" in the base docs is **Linear**
 
 ## Change-request / VCS system
 
-The generic "VCS/change-request MCP" is **GitLab MR creation** here, used by `/story-complete`.
+The generic "VCS/change-request MCP" is **GitLab MR creation** here, used by `/complete` (the change-request opener; was `/story-complete` + `/mr-create`).
 
 The workspace file's commented-out `vcs` MCP block is a GitLab MCP server (`@zereight/mcp-gitlab`) pointed at `GITLAB_API_URL: https://git.upmind.io/api/v4`.
 

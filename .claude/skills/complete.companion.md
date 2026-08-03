@@ -1,4 +1,4 @@
-> Companion to the upmind-agent skill /story-complete — Upmind-monorepo-specific bindings/overrides.
+> Companion to the upmind-agent skill /complete — Upmind-monorepo-specific bindings/overrides.
 
 Binds the base skill's generic `<ID>`, "issue tracker", and "review state" placeholders to this repo's concrete systems. The base doctrine is authoritative; this file only supplies the values.
 
@@ -24,9 +24,21 @@ linear__save_issue(id: "<issue-uuid>", state: "Needs Review")
 
 The `id` is Linear's internal issue UUID; the human `FE-XXXX` id resolves to it via `linear__get_issue`.
 
-## Change-request host (Step 5)
+## Change-request host (Step 5) — absorbed from the retired `/mr-create`
 
-Step 5 delegates change-request creation to `/mr-create`; the git-host binding (GitLab, project identifier, target-branch detection: `release/*` → `develop`) lives in `/mr-create`'s own companion. Do not re-bind it here.
+`/complete` now opens the change request itself (the former `/mr-create` step is absorbed into this door). Git host is **GitLab** (`git.upmind.io`); the change request is a **merge request**. Target-branch detection: a `release/*` source targets its release branch, everything else targets **`develop`**. Open it via the GitLab push-option incantation (single-line description — push-option values cannot contain newlines):
+
+```bash
+git push -u origin $BRANCH \
+  -o merge_request.create \
+  -o merge_request.target=develop \
+  -o "merge_request.title=feat(FE-XXXX): [story title]" \
+  -o "merge_request.description=[Brief summary]. [FE-XXXX](https://linear.app/upmind/issue/FE-XXXX) | 🤖 Agent Runner" \
+  -o merge_request.label=agent \
+  -o merge_request.remove_source_branch
+```
+
+On a re-do branch that already has an open MR, the push updates it (no new MR). The queue's CR-URL field is `mrUrl`.
 
 ## Docs-corpus refresh — final step (replaces the removed PostToolUse hook, FE-2752)
 
