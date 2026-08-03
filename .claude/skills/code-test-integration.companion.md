@@ -29,7 +29,7 @@
   **`tests/fixtures/index`** (from a deep module test the relative import is
   `../../../../../../tests/fixtures/index`).
 - The e2e journey feature (base Hard Rules) lives at **`tests/features/<flow>/*.feature`**.
-- **Module business-logic feature — bindings for the base *Anchor every test to the feature (TDD)* rule.** Feature location: co-located at **`packages/headless/src/modules/<name>/__tests__/<name>.feature`** or in the SDD dir (**`docs/sdd/<story>/*.feature`**). Scenario-id scheme: **`@AC-<cell><n>`** (the `design.md` §6 ids). Enforcement: the co-located **`<name>.traceability.test.ts`** (Vitest, rides the module suite). Authored by `/code-test-bdd`.
+- **Module business-logic feature — bindings for the base *Anchor every test to the feature (TDD)* rule.** Feature location: co-located at **`packages/headless/src/modules/<name>/__tests__/<name>.feature`** or in the SDD dir (**`docs/sdd/<story>/*.feature`**). Scenario-id scheme: **`@AC-<cell><n>`** (the `design.md` §6 ids). Enforcement: the co-located **`<name>.traceability.test.ts`** (Vitest, rides the module suite). NOTE: the `/code-test-bdd` skill that authored this feature was retired in the skill-doors restructure with no direct replacement door — its home post-restructure is an open operator decision (see `sdd-bdd.companion.md`).
 
 ## Governance + reference (base "governing decision record" + reference-doc pointer)
 

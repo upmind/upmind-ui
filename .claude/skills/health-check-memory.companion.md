@@ -1,4 +1,4 @@
-> Companion to the upmind-agent skill /memory-cleanup — Upmind-monorepo-specific bindings/overrides.
+> Companion to the upmind-agent skill /health-check-memory (was /memory-cleanup) — Upmind-monorepo-specific bindings/overrides.
 
 ## Phase 7 — graphify output directory binding
 

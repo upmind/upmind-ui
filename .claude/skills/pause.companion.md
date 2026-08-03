@@ -1,4 +1,4 @@
-> Companion to the upmind-agent skill /story-pause — Upmind-monorepo-specific bindings/overrides.
+> Companion to the upmind-agent skill /pause — Upmind-monorepo-specific bindings/overrides.
 
 ## Issue tracker: Linear
 

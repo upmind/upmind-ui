@@ -2,14 +2,18 @@
 
 Repo-specific bindings for the base doctrine. The base wording is generic; these are the concrete values that apply in this repo.
 
-## Scope — this skill is CLASS 1 (e2e journeys) only
+## Scope — e2e journeys only
 
-`/sdd-bdd` here owns **cross-module e2e journey** features (`@layer-e2e`, in the e2e features
-tree). It does **not** author a module's co-located business-logic feature — that is a distinct
-artefact class owned by **`/code-test-bdd`** (see `.claude/skills/code-test-bdd.companion.md`),
-which writes a non-executable `<module>/__tests__/<module>.feature` at capability altitude with
-`@AC-*` anchor tags. Never produce a module business-logic feature from this skill, and never
-route an e2e journey through `/code-test-bdd`.
+`/sdd-bdd` (the base skill `sdd-bdd` at `plan/sdd/bdd`, invoked by `/plan`) owns **cross-module
+e2e journey** features (`@layer-e2e`, in the e2e features tree). It does **not** author a module's
+co-located business-logic feature (`<module>/__tests__/<module>.feature` at capability altitude with
+`@AC-*` anchor tags).
+
+> **Restructure note (skill-doors):** the separate `/code-test-bdd` skill that used to own the
+> module business-logic feature class was **retired with no direct replacement door** — `sdd-bdd`
+> is now the plugin's only BDD skill and remains e2e-only. Where the module `.feature` is authored
+> post-restructure is unresolved (operator decision). Its path/`@AC` bindings still live in
+> `code-test-integration.companion.md` and `code-test-unit.companion.md`.
 
 ## Path bindings
 
