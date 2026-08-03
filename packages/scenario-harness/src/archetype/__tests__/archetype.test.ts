@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { classify, isRealJsonSchema } from "../archetype";
+import { ARCHETYPE, OBJECT_SCHEMA_TYPE } from "../archetype.types";
 import type { ReflectedSnapshot } from "../../reflection/reflection.types";
 
 const REAL_SCHEMA = {
-  type: "object",
+  type: OBJECT_SCHEMA_TYPE,
   properties: { username: { type: "string" } }
 };
 
@@ -58,7 +59,7 @@ describe("@AC-3 classify — deterministic, structural archetype selection", () 
       meta: { isValid: false }
     };
 
-    expect(classify(snapshot, false).archetype).toBe("form-flow");
+    expect(classify(snapshot, false).archetype).toBe(ARCHETYPE.FORM_FLOW);
   });
 
   it("a useAuth-shaped snapshot (schema + model + lifecycle actions) is classified Form-Flow", () => {
@@ -90,7 +91,7 @@ describe("@AC-3 classify — deterministic, structural archetype selection", () 
       meta: { isIdle: false, showLoginForm: true, isAuthenticated: false }
     };
 
-    expect(classify(snapshot, false).archetype).toBe("form-flow");
+    expect(classify(snapshot, false).archetype).toBe(ARCHETYPE.FORM_FLOW);
   });
 
   it("a module that owns table state is classified List", () => {
@@ -103,7 +104,7 @@ describe("@AC-3 classify — deterministic, structural archetype selection", () 
       meta: {}
     };
 
-    expect(classify(snapshot, true).archetype).toBe("list");
+    expect(classify(snapshot, true).archetype).toBe(ARCHETYPE.LIST);
   });
 
   it("a collection module without a schema is classified List", () => {
@@ -113,7 +114,7 @@ describe("@AC-3 classify — deterministic, structural archetype selection", () 
       meta: { isLoading: false }
     };
 
-    expect(classify(snapshot, false).archetype).toBe("list");
+    expect(classify(snapshot, false).archetype).toBe(ARCHETYPE.LIST);
   });
 
   it("a single-record module without a real schema is classified Detail", () => {
@@ -123,7 +124,7 @@ describe("@AC-3 classify — deterministic, structural archetype selection", () 
       meta: {}
     };
 
-    expect(classify(snapshot, false).archetype).toBe("detail");
+    expect(classify(snapshot, false).archetype).toBe(ARCHETYPE.DETAIL);
   });
 
   it("a bag of callables is classified Action-panel", () => {
@@ -133,7 +134,7 @@ describe("@AC-3 classify — deterministic, structural archetype selection", () 
       meta: { isOn: false }
     };
 
-    expect(classify(snapshot, false).archetype).toBe("action-panel");
+    expect(classify(snapshot, false).archetype).toBe(ARCHETYPE.ACTION_PANEL);
   });
 
   it("a boolean-bag uischema is not mistaken for a form (confirmed useBasket false-friend)", () => {
@@ -144,8 +145,8 @@ describe("@AC-3 classify — deterministic, structural archetype selection", () 
     };
 
     const decision = classify(snapshot, false);
-    expect(decision.archetype).not.toBe("form-flow");
-    expect(decision.archetype).toBe("action-panel");
+    expect(decision.archetype).not.toBe(ARCHETYPE.FORM_FLOW);
+    expect(decision.archetype).toBe(ARCHETYPE.ACTION_PANEL);
     expect(decision.signals.hasRealSchema).toBe(false);
   });
 
@@ -165,7 +166,7 @@ describe("@AC-3 classify — deterministic, structural archetype selection", () 
       meta: {}
     };
 
-    expect(classify(snapshot, false).archetype).not.toBe("form-flow");
+    expect(classify(snapshot, false).archetype).not.toBe(ARCHETYPE.FORM_FLOW);
   });
 
   it("a context key merely named like uischema is never inspected by name", () => {
@@ -178,7 +179,7 @@ describe("@AC-3 classify — deterministic, structural archetype selection", () 
       meta: {}
     };
 
-    expect(classify(snapshot, false).archetype).not.toBe("form-flow");
+    expect(classify(snapshot, false).archetype).not.toBe(ARCHETYPE.FORM_FLOW);
   });
 
   it("no structural match falls back to Action-panel with every signal recorded, never throwing", () => {
@@ -189,7 +190,7 @@ describe("@AC-3 classify — deterministic, structural archetype selection", () 
       decision = classify(snapshot, false);
     }).not.toThrow();
 
-    expect(decision?.archetype).toBe("action-panel");
+    expect(decision?.archetype).toBe(ARCHETYPE.ACTION_PANEL);
     expect(decision?.signals).toStrictEqual({
       hasRealSchema: false,
       hasModel: false,
@@ -223,7 +224,7 @@ describe("@AC-3 classify — deterministic, structural archetype selection", () 
       meta: { isIdle: false, showLoginForm: true }
     };
 
-    expect(classify(early, false).archetype).toBe("action-panel");
-    expect(classify(later, false).archetype).toBe("form-flow");
+    expect(classify(early, false).archetype).toBe(ARCHETYPE.ACTION_PANEL);
+    expect(classify(later, false).archetype).toBe(ARCHETYPE.FORM_FLOW);
   });
 });

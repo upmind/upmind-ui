@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { COMPOSABLE_KEY } from "../../registry/registry";
+import { FIXTURE_KEY } from "../../__fixtures__/fixture-registry";
+import { ARCHETYPE, OBJECT_SCHEMA_TYPE } from "../../archetype/archetype.types";
 import { SCOPE_ACTOR } from "../../world/scope-actor";
 import { reflect } from "../reflect";
 import type { CompositionPort } from "../../port/port.types";
 import type { ReflectedSnapshot } from "../reflection.types";
 
 const REAL_SCHEMA = {
-  type: "object",
+  type: OBJECT_SCHEMA_TYPE,
   properties: { username: { type: "string" } }
 };
 
@@ -65,10 +66,10 @@ describe("@AC-2 reflect — pure, stateless reflection", () => {
       meta: { isOn: false }
     });
 
-    reflect(COMPOSABLE_KEY.AUTH, SCOPE_ACTOR.CLIENT, port);
+    reflect(FIXTURE_KEY.SWITCH, SCOPE_ACTOR.CLIENT, port);
     expect(snapshotCalls()).toBe(1);
 
-    reflect(COMPOSABLE_KEY.AUTH, SCOPE_ACTOR.CLIENT, port);
+    reflect(FIXTURE_KEY.SWITCH, SCOPE_ACTOR.CLIENT, port);
     expect(snapshotCalls()).toBe(2);
   });
 
@@ -80,7 +81,7 @@ describe("@AC-2 reflect — pure, stateless reflection", () => {
     });
 
     expect(() =>
-      reflect(COMPOSABLE_KEY.AUTH, SCOPE_ACTOR.CLIENT, port)
+      reflect(FIXTURE_KEY.SWITCH, SCOPE_ACTOR.CLIENT, port)
     ).not.toThrow();
   });
 
@@ -91,9 +92,9 @@ describe("@AC-2 reflect — pure, stateless reflection", () => {
       meta: {}
     });
 
-    const descriptor = reflect(COMPOSABLE_KEY.AUTH, SCOPE_ACTOR.STAFF, port);
+    const descriptor = reflect(FIXTURE_KEY.SWITCH, SCOPE_ACTOR.STAFF, port);
 
-    expect(descriptor.key).toBe(COMPOSABLE_KEY.AUTH);
+    expect(descriptor.key).toBe(FIXTURE_KEY.SWITCH);
     expect(descriptor.actor).toBe(SCOPE_ACTOR.STAFF);
   });
 
@@ -104,9 +105,9 @@ describe("@AC-2 reflect — pure, stateless reflection", () => {
       meta: { isValid: true }
     });
 
-    const descriptor = reflect(COMPOSABLE_KEY.AUTH, SCOPE_ACTOR.CLIENT, port);
+    const descriptor = reflect(FIXTURE_KEY.SWITCH, SCOPE_ACTOR.CLIENT, port);
 
-    expect(descriptor.archetype.archetype).toBe("form-flow");
+    expect(descriptor.archetype.archetype).toBe(ARCHETYPE.FORM_FLOW);
   });
 
   it("every reflected meta value is a literal boolean — no wrapper object crosses reflection", () => {
@@ -116,7 +117,7 @@ describe("@AC-2 reflect — pure, stateless reflection", () => {
       meta: { isOn: true, isOff: false }
     });
 
-    const descriptor = reflect(COMPOSABLE_KEY.AUTH, SCOPE_ACTOR.CLIENT, port);
+    const descriptor = reflect(FIXTURE_KEY.SWITCH, SCOPE_ACTOR.CLIENT, port);
 
     for (const value of Object.values(descriptor.snapshot.meta)) {
       expect(typeof value).toBe("boolean");
@@ -130,7 +131,7 @@ describe("@AC-2 reflect — pure, stateless reflection", () => {
       meta: { isValid: true, isIdle: false }
     });
 
-    const descriptor = reflect(COMPOSABLE_KEY.AUTH, SCOPE_ACTOR.CLIENT, port);
+    const descriptor = reflect(FIXTURE_KEY.SWITCH, SCOPE_ACTOR.CLIENT, port);
     const roundTripped = JSON.parse(JSON.stringify(descriptor)) as unknown;
 
     expect(roundTripped).toStrictEqual(descriptor);

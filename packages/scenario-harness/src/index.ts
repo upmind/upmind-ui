@@ -6,7 +6,7 @@ export * from "./port/port.types";
 export * from "./port/table-channel.types";
 export * from "./reflection/reflect";
 export * from "./reflection/reflection.types";
-export * from "./registry/registry";
+export * from "./registry/harness";
 export * from "./registry/registry.types";
 export * from "./steps/step-catalog";
 export * from "./steps/steps.types";

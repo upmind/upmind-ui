@@ -1,22 +1,7 @@
-import { COMPOSABLE_KEY } from "../registry/registry";
-import { createFixtureModule } from "./fixture-module";
-import type { FixtureModule } from "./fixture-module";
-import type { ComposableKey } from "../registry/registry";
+import type { FixtureModule } from "./fixture-module.types";
 import type { ComposableRegistry } from "../registry/registry.types";
 import type { ScopeActor } from "../world/scope-actor";
 import type { World, WorldScope } from "../world/world.types";
-
-/**
- * Test-local factory registry: binds the exemplar fixture to the existing
- * `COMPOSABLE_KEY.AUTH` manifest entry rather than adding a fixture-only key
- * to the shared manifest — the manifest stays single-sourced. Each entry
- * returns the per-actor builder, mirroring the real adapter's "invoke the
- * builder once with `.as(actor)`" shape without a second key source
- * anywhere.
- */
-const fixtureRegistry = {
-  [COMPOSABLE_KEY.AUTH]: () => createFixtureModule
-} satisfies ComposableRegistry<(actor: ScopeActor) => FixtureModule>;
 
 function readAction(
   module: FixtureModule,
@@ -43,12 +28,24 @@ function readMeta(module: FixtureModule): Record<string, boolean> {
  * builds one instance per scenario, `fire`/`expectMeta` read and drive it
  * through plain data, `dispose` drops the reference so the next `boot` starts
  * clean.
+ *
+ * Registry-generic (item 4/4a): the caller hands its own
+ * `ComposableRegistry<K, …>` in at construction — no manifest is baked into
+ * this class or the package. `./fixture-registry.ts` builds the local
+ * registry this package's own fixture consumes.
  */
-export class NodeWorld implements World {
+export class NodeWorld<K extends string> implements World<K> {
   private module: FixtureModule | undefined;
 
-  async boot(key: ComposableKey, scope: WorldScope): Promise<void> {
-    const buildModule = fixtureRegistry[key]();
+  constructor(
+    private readonly registry: ComposableRegistry<
+      K,
+      (actor: ScopeActor) => FixtureModule
+    >
+  ) {}
+
+  async boot(key: K, scope: WorldScope): Promise<void> {
+    const buildModule = this.registry[key]();
 
     this.module = buildModule(scope.actor);
   }

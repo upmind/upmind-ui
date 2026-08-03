@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parsePlaygroundTags } from "../tags";
+import { TAG_KIND } from "../tags.types";
 
 const SOURCE = `
 export function createModuleActions() {
@@ -33,31 +34,31 @@ describe("@AC-7 parsePlaygroundTags — the tag grammar parser", () => {
   const tags = parsePlaygroundTags(SOURCE);
 
   it("parses an include tag with no reason", () => {
-    expect(tags.doThing).toStrictEqual({ kind: "include" });
+    expect(tags.doThing).toStrictEqual({ kind: TAG_KIND.INCLUDE });
   });
 
   it("parses an exclude tag with its reason text", () => {
     expect(tags.destroy).toStrictEqual({
-      kind: "exclude",
+      kind: TAG_KIND.EXCLUDE,
       reason: "lifecycle"
     });
   });
 
   it("carries the full reason text, including free text after the conventional first token", () => {
     expect(tags.resolve).toStrictEqual({
-      kind: "exclude",
+      kind: TAG_KIND.EXCLUDE,
       reason: "internal — never surfaced to the playground"
     });
   });
 
   it("surfaces a reason-less exclude as a violation, never coerced into a valid entry", () => {
-    expect(tags.brokenExclude?.kind).toBe("exclude");
+    expect(tags.brokenExclude?.kind).toBe(TAG_KIND.EXCLUDE);
     expect(tags.brokenExclude?.reason).toBeUndefined();
   });
 
   it("carries an unconventional first token as free text, never validated against an enum", () => {
     expect(tags.freeform).toStrictEqual({
-      kind: "exclude",
+      kind: TAG_KIND.EXCLUDE,
       reason: "retro-note-not-a-conventional-token"
     });
   });

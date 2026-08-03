@@ -18,16 +18,35 @@ export interface GateInput {
   coveredActionIds: readonly string[];
 }
 
+/** One `GateVerdict`'s `status`. */
+export const GATE_STATUS = {
+  COVERED: "covered",
+  EXEMPT: "exempt",
+  RED: "red"
+} as const;
+
+export type GateStatus = (typeof GATE_STATUS)[keyof typeof GATE_STATUS];
+
+/** A `red` verdict's `cause`. */
+export const GATE_CAUSE = {
+  UNTAGGED_INPUT_TAKING: "untagged-input-taking",
+  UNCOVERED: "uncovered",
+  MISSING_REASON: "missing-reason",
+  DEAD_STEP: "dead-step"
+} as const;
+
+export type GateCause = (typeof GATE_CAUSE)[keyof typeof GATE_CAUSE];
+
 export type GateVerdict =
-  | { actionId: string; status: "covered" | "exempt"; reason?: string }
   | {
       actionId: string;
-      status: "red";
-      cause:
-        | "untagged-input-taking"
-        | "uncovered"
-        | "missing-reason"
-        | "dead-step";
+      status: typeof GATE_STATUS.COVERED | typeof GATE_STATUS.EXEMPT;
+      reason?: string;
+    }
+  | {
+      actionId: string;
+      status: typeof GATE_STATUS.RED;
+      cause: GateCause;
     };
 
 /** The full verdict set produced by one `runGate` call. */

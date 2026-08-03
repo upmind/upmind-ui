@@ -71,8 +71,19 @@ describe("@AC-5 createTraceabilityCheck — the BDD pair stays in lockstep", () 
 
     expect(importStatements.length).toBeGreaterThan(0);
 
+    // Engine-free means exactly two allowed sources: the package itself
+    // (`defineSteps` + type `World`) and this package's own local fixture
+    // manifest (`FIXTURE_KEY` from `./fixture-registry`) — never an engine,
+    // never a package-wide manifest (item 4: the harness carries no
+    // baked-in manifest).
+    const allowedSpecifiers = new Set([
+      "@upmind-automation/scenario-harness",
+      "./fixture-registry"
+    ]);
     for (const statement of importStatements) {
-      expect(statement).toContain('"@upmind-automation/scenario-harness"');
+      const specifierMatch = /from\s+"([^"]+)"/.exec(statement);
+      expect(specifierMatch).not.toBeNull();
+      expect(allowedSpecifiers.has(specifierMatch![1])).toBe(true);
     }
 
     const namedImports = importStatements
@@ -84,7 +95,7 @@ describe("@AC-5 createTraceabilityCheck — the BDD pair stays in lockstep", () 
       .filter(Boolean);
 
     expect(new Set(namedImports)).toStrictEqual(
-      new Set(["COMPOSABLE_KEY", "defineSteps", "World"])
+      new Set(["defineSteps", "World", "FIXTURE_KEY"])
     );
   });
 });

@@ -1,3 +1,4 @@
+import { STEP_KIND } from "./steps.types";
 import type {
   StepCatalog,
   StepDef,
@@ -24,9 +25,9 @@ export function defineSteps(
     };
 
   build({
-    Given: register("Given"),
-    When: register("When"),
-    Then: register("Then")
+    Given: register(STEP_KIND.GIVEN),
+    When: register(STEP_KIND.WHEN),
+    Then: register(STEP_KIND.THEN)
   });
 
   return { steps };

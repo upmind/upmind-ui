@@ -1,3 +1,4 @@
+import { ARCHETYPE, OBJECT_SCHEMA_TYPE } from "./archetype.types";
 import { isPlainObject } from "lodash-es";
 import type {
   Archetype,
@@ -21,7 +22,7 @@ export function isRealJsonSchema(candidate: unknown): candidate is JsonSchema {
   const schema = candidate as Record<string, unknown>;
 
   return (
-    schema.type === "object" ||
+    schema.type === OBJECT_SCHEMA_TYPE ||
     isPlainObject(schema.properties) ||
     "anyOf" in schema ||
     "oneOf" in schema ||
@@ -48,12 +49,12 @@ export function classify(
 
   const archetype: Archetype =
     signals.hasRealSchema && signals.hasModel
-      ? "form-flow"
+      ? ARCHETYPE.FORM_FLOW
       : signals.hasTable || signals.hasDataArray
-        ? "list"
+        ? ARCHETYPE.LIST
         : signals.hasModel
-          ? "detail"
-          : "action-panel";
+          ? ARCHETYPE.DETAIL
+          : ARCHETYPE.ACTION_PANEL;
 
   return { archetype, signals };
 }

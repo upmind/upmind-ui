@@ -1,5 +1,5 @@
 import { describe, expectTypeOf, it } from "vitest";
-import type { ComposableKey } from "../../registry/registry";
+import type { FixtureKey } from "../../__fixtures__/fixture-registry";
 import type { SeedRef, World, WorldScope } from "../world.types";
 
 /**
@@ -21,9 +21,13 @@ describe("@AC-4 World — type surface", () => {
     expectTypeOf<ReturnType<World["dispose"]>>().toEqualTypeOf<Promise<void>>();
   });
 
-  it("boot() takes a ComposableKey and a WorldScope, nothing engine-specific", () => {
-    expectTypeOf<World["boot"]>().parameter(0).toEqualTypeOf<ComposableKey>();
-    expectTypeOf<World["boot"]>().parameter(1).toEqualTypeOf<WorldScope>();
+  it("boot() takes K (the consumer's own manifest key) and a WorldScope, nothing engine-specific", () => {
+    expectTypeOf<World<FixtureKey>["boot"]>()
+      .parameter(0)
+      .toEqualTypeOf<FixtureKey>();
+    expectTypeOf<World<FixtureKey>["boot"]>()
+      .parameter(1)
+      .toEqualTypeOf<WorldScope>();
   });
 
   it("expectMeta() is a subset match over plain booleans", () => {
@@ -38,7 +42,7 @@ describe("@AC-4 World — type surface", () => {
   });
 
   it("an in-page-shaped stub typechecks against World (@AC-4 stub leg 1)", () => {
-    const inPageStub: World = {
+    const inPageStub: World<FixtureKey> = {
       async boot() {},
       async fire() {},
       async expectMeta() {},
@@ -46,6 +50,6 @@ describe("@AC-4 World — type surface", () => {
       async dispose() {}
     };
 
-    expectTypeOf(inPageStub).toMatchTypeOf<World>();
+    expectTypeOf(inPageStub).toMatchTypeOf<World<FixtureKey>>();
   });
 });

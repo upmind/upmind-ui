@@ -1,3 +1,4 @@
+import type { FixtureModule, FixtureState } from "./fixture-module.types";
 import type { ScopeActor } from "../world/scope-actor";
 
 /**
@@ -7,11 +8,6 @@ import type { ScopeActor } from "../world/scope-actor";
  * library: `meta`/`context` members are plain getters over a closured state
  * object, so a fresh read after a fired action always sees the current value.
  */
-interface FixtureState {
-  on: boolean;
-  label: string;
-}
-
 function createFixtureActions(state: FixtureState) {
   return {
     turnOn(): void {
@@ -47,13 +43,6 @@ function createFixtureMeta(state: FixtureState) {
 
 function createFixtureInternals(actor: ScopeActor, state: FixtureState) {
   return { actor, state };
-}
-
-export interface FixtureModule {
-  actions: ReturnType<typeof createFixtureActions>;
-  context: ReturnType<typeof createFixtureContext>;
-  meta: ReturnType<typeof createFixtureMeta>;
-  internals: ReturnType<typeof createFixtureInternals>;
 }
 
 export function createFixtureModule(actor: ScopeActor): FixtureModule {

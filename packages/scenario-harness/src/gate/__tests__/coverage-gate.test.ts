@@ -1,10 +1,16 @@
 import { describe, expect, it } from "vitest";
+import { OBJECT_SCHEMA_TYPE } from "../../archetype/archetype.types";
+import { TAG_KIND } from "../../tags/tags.types";
 import { SCOPE_ACTOR } from "../../world/scope-actor";
 import { runGate } from "../coverage-gate";
+import { GATE_CAUSE, GATE_STATUS } from "../gate.types";
 import type { GateInput, GateVerdict } from "../gate.types";
 import type { JsonSchema } from "@jsonforms/core";
 
-const INPUT_TAKING_SCHEMA: JsonSchema = { type: "object", properties: {} };
+const INPUT_TAKING_SCHEMA: JsonSchema = {
+  type: OBJECT_SCHEMA_TYPE,
+  properties: {}
+};
 
 /**
  * @AC-7 — one shared fixture covering all six verdict behaviours, each
@@ -22,10 +28,10 @@ const INPUT: GateInput = {
     "uncoveredDefault"
   ],
   tags: {
-    exemptAction: { kind: "exclude", reason: "lifecycle" },
-    coveredAction: { kind: "include" },
-    uncoveredIncluded: { kind: "include" },
-    noReasonExclude: { kind: "exclude" }
+    exemptAction: { kind: TAG_KIND.EXCLUDE, reason: "lifecycle" },
+    coveredAction: { kind: TAG_KIND.INCLUDE },
+    uncoveredIncluded: { kind: TAG_KIND.INCLUDE },
+    noReasonExclude: { kind: TAG_KIND.EXCLUDE }
   },
   actionSchemas: {
     untaggedInputTaking: INPUT_TAKING_SCHEMA
@@ -44,40 +50,57 @@ describe("@AC-7 runGate — the six coverage-gate verdicts", () => {
 
   it("an excluded action is skipped with its reason recorded", () => {
     const verdict = find(verdicts, "exemptAction");
-    expect(verdict).toMatchObject({ status: "exempt", reason: "lifecycle" });
+    expect(verdict).toMatchObject({
+      status: GATE_STATUS.EXEMPT,
+      reason: "lifecycle"
+    });
   });
 
   it("an included action with a covering step is covered — the happy path", () => {
     const verdict = find(verdicts, "coveredAction");
-    expect(verdict).toMatchObject({ status: "covered" });
+    expect(verdict).toMatchObject({ status: GATE_STATUS.COVERED });
   });
 
   it("an included action with no covering step is red as uncovered", () => {
     const verdict = find(verdicts, "uncoveredIncluded");
-    expect(verdict).toMatchObject({ status: "red", cause: "uncovered" });
+    expect(verdict).toMatchObject({
+      status: GATE_STATUS.RED,
+      cause: GATE_CAUSE.UNCOVERED
+    });
   });
 
   it("an untagged input-taking action is red as untagged-input-taking", () => {
     const verdict = find(verdicts, "untaggedInputTaking");
     expect(verdict).toMatchObject({
-      status: "red",
-      cause: "untagged-input-taking"
+      status: GATE_STATUS.RED,
+      cause: GATE_CAUSE.UNTAGGED_INPUT_TAKING
     });
   });
 
   it("an exclusion with no reason is red as missing-reason", () => {
     const verdict = find(verdicts, "noReasonExclude");
-    expect(verdict).toMatchObject({ status: "red", cause: "missing-reason" });
+    expect(verdict).toMatchObject({
+      status: GATE_STATUS.RED,
+      cause: GATE_CAUSE.MISSING_REASON
+    });
   });
 
   it("a step naming a non-live action is red as dead-step", () => {
     const verdict = find(verdicts, "ghostStep");
-    expect(verdict).toMatchObject({ status: "red", cause: "dead-step" });
+    expect(verdict).toMatchObject({
+      status: GATE_STATUS.RED,
+      cause: GATE_CAUSE.DEAD_STEP
+    });
   });
 
   it("an untagged action with no input schema and no step defaults to included, red as uncovered — never untagged", () => {
     const verdict = find(verdicts, "uncoveredDefault");
-    expect(verdict).toMatchObject({ status: "red", cause: "uncovered" });
-    expect(verdict).not.toMatchObject({ cause: "untagged-input-taking" });
+    expect(verdict).toMatchObject({
+      status: GATE_STATUS.RED,
+      cause: GATE_CAUSE.UNCOVERED
+    });
+    expect(verdict).not.toMatchObject({
+      cause: GATE_CAUSE.UNTAGGED_INPUT_TAKING
+    });
   });
 });

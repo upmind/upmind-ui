@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { fixtureSteps } from "../../__fixtures__/fixture.steps";
 import { defineSteps } from "../step-catalog";
+import { STEP_KIND } from "../steps.types";
 
 /**
  * @AC-4 — the engine-free `defineSteps`/`StepCatalog` registration surface.
@@ -18,9 +19,9 @@ describe("@AC-4 defineSteps — the catalog collects StepDefs in registration or
 
     expect(catalog.steps).toHaveLength(3);
     expect(catalog.steps.map(s => s.kind)).toStrictEqual([
-      "Given",
-      "When",
-      "Then"
+      STEP_KIND.GIVEN,
+      STEP_KIND.WHEN,
+      STEP_KIND.THEN
     ]);
     expect(catalog.steps.map(s => s.pattern)).toStrictEqual([
       "a first thing",
@@ -40,7 +41,7 @@ describe("@AC-4 defineSteps — the catalog collects StepDefs in registration or
   it("the exemplar fixture catalog compiles and collects its declared steps", () => {
     expect(fixtureSteps.steps.length).toBeGreaterThan(0);
     for (const step of fixtureSteps.steps) {
-      expect(["Given", "When", "Then"]).toContain(step.kind);
+      expect(Object.values(STEP_KIND)).toContain(step.kind);
       expect(typeof step.pattern).toBe("string");
       expect(typeof step.handler).toBe("function");
     }

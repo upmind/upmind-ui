@@ -10,16 +10,13 @@
  * ships this silently" marker rather than a silent no-op.
  */
 
-import type {
-  ComposableKey,
-  World,
-  WorldScope
-} from "@upmind-automation/scenario-harness";
+import type { World, WorldScope } from "@upmind-automation/scenario-harness";
+import type { ComposableKey } from "./manifest";
 
 export const BRIDGE_WORLD_NOT_IMPLEMENTED =
   "bridge-world: not implemented — the runnable bridge world ships with the first FE-2968 module";
 
-export class BridgeWorld implements World {
+export class BridgeWorld implements World<ComposableKey> {
   async boot(_key: ComposableKey, _scope: WorldScope): Promise<void> {
     throw new Error(BRIDGE_WORLD_NOT_IMPLEMENTED);
   }

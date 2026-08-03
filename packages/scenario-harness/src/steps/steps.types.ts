@@ -1,6 +1,13 @@
 import type { World } from "../world/world.types";
 
-export type StepKind = "Given" | "When" | "Then";
+/** Gherkin's exact wire strings for the three step kinds. */
+export const STEP_KIND = {
+  GIVEN: "Given",
+  WHEN: "When",
+  THEN: "Then"
+} as const;
+
+export type StepKind = (typeof STEP_KIND)[keyof typeof STEP_KIND];
 
 export type StepHandler = (
   world: World,

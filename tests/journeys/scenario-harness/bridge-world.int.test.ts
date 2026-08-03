@@ -18,7 +18,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { COMPOSABLE_KEY } from "@upmind-automation/scenario-harness";
+import { COMPOSABLE_KEY } from "./manifest";
 import { BRIDGE_WORLD_NOT_IMPLEMENTED, BridgeWorld } from "./bridge-world";
 import { registry } from "./registry";
 

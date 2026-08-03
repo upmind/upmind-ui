@@ -1,4 +1,4 @@
-import { PLAYGROUND_JSDOC_TAG } from "./tags.types";
+import { PLAYGROUND_JSDOC_TAG, TAG_KIND } from "./tags.types";
 import type { PlaygroundTag, PlaygroundTagMap } from "./tags.types";
 
 const JSDOC_BLOCK = /\/\*\*([\s\S]*?)\*\//g;
@@ -34,9 +34,9 @@ export function parsePlaygroundTags(sourceText: string): PlaygroundTagMap {
     tags[memberName] =
       tagMatch[1] === PLAYGROUND_JSDOC_TAG.EXCLUDE
         ? reason.length > 0
-          ? { kind: "exclude", reason }
-          : { kind: "exclude" }
-        : { kind: "include" };
+          ? { kind: TAG_KIND.EXCLUDE, reason }
+          : { kind: TAG_KIND.EXCLUDE }
+        : { kind: TAG_KIND.INCLUDE };
   }
 
   return tags;

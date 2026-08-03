@@ -1,7 +1,10 @@
 import { defineConfig } from "@playwright/test";
 import { createBdd, defineBddConfig, test as base } from "playwright-bdd";
+import { fixtureRegistry } from "./packages/scenario-harness/src/__fixtures__/fixture-registry";
 import { fixtureSteps } from "./packages/scenario-harness/src/__fixtures__/fixture.steps";
 import { NodeWorld } from "./packages/scenario-harness/src/__fixtures__/node-world";
+import { STEP_KIND } from "./packages/scenario-harness/src/steps/steps.types";
+import type { FixtureKey } from "./packages/scenario-harness/src/__fixtures__/fixture-registry";
 import type {
   StepCatalog,
   StepKind
@@ -23,12 +26,12 @@ const testDir = defineBddConfig({
   arityCheck: false
 });
 
-export const test = base.extend<{ world: World }>({
+export const test = base.extend<{ world: World<FixtureKey> }>({
   // Playwright requires the fixture function's first param to be an
   // object-destructuring pattern, even with no dependency fixtures read.
   // eslint-disable-next-line no-empty-pattern
   world: async ({}, use) => {
-    const world = new NodeWorld();
+    const world = new NodeWorld(fixtureRegistry);
 
     await use(world);
     await world.dispose();
@@ -38,8 +41,8 @@ export const test = base.extend<{ world: World }>({
 const bdd = createBdd(test, { worldFixture: "world" });
 
 function registrarFor(kind: StepKind) {
-  if (kind === "Given") return bdd.Given;
-  if (kind === "When") return bdd.When;
+  if (kind === STEP_KIND.GIVEN) return bdd.Given;
+  if (kind === STEP_KIND.WHEN) return bdd.When;
 
   return bdd.Then;
 }

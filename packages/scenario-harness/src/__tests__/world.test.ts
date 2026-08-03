@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, it } from "vitest";
+import { fixtureRegistry, FIXTURE_KEY } from "../__fixtures__/fixture-registry";
 import { fixtureSteps } from "../__fixtures__/fixture.steps";
 import { NodeWorld } from "../__fixtures__/node-world";
-import { COMPOSABLE_KEY } from "../registry/registry";
 import { SCOPE_ACTOR } from "../world/scope-actor";
+import type { FixtureKey } from "../__fixtures__/fixture-registry";
 import type { StepDef } from "../steps/steps.types";
 import type { World } from "../world/world.types";
 
@@ -13,7 +14,7 @@ import type { World } from "../world/world.types";
  * @AC-4 "the same step definitions run against a second world implementation
  * unchanged").
  */
-class DoubleWorld implements World {
+class DoubleWorld implements World<FixtureKey> {
   private flags = new Map<string, boolean>();
 
   async boot(): Promise<void> {
@@ -55,7 +56,7 @@ function findStep(pattern: string): StepDef {
 }
 
 async function runExemplarScenario(
-  world: World,
+  world: World<FixtureKey>,
   steps: ReadonlyArray<{ pattern: string; arg?: string }>
 ): Promise<void> {
   for (const { pattern, arg } of steps) {
@@ -66,26 +67,26 @@ async function runExemplarScenario(
 }
 
 describe("@AC-4 World — the interface every step definition speaks", () => {
-  let world: NodeWorld;
+  let world: NodeWorld<FixtureKey>;
 
   afterEach(async () => {
     await world?.dispose();
   });
 
   it("booting establishes a live scoped module for the scenario", async () => {
-    world = new NodeWorld();
+    world = new NodeWorld(fixtureRegistry);
     // world-interface.feature names "guest" explicitly for this
     // scenario — the feature leads, so the test boots that actor.
-    await world.boot(COMPOSABLE_KEY.AUTH, { actor: SCOPE_ACTOR.GUEST });
+    await world.boot(FIXTURE_KEY.SWITCH, { actor: SCOPE_ACTOR.GUEST });
 
     await expect(world.expectMeta({ isOn: false })).resolves.toBeUndefined();
   });
 
   it("firing an action changes the observable meta", async () => {
-    world = new NodeWorld();
+    world = new NodeWorld(fixtureRegistry);
     // world-interface.feature names "guest" explicitly for this
     // scenario — the feature leads, so the test boots that actor.
-    await world.boot(COMPOSABLE_KEY.AUTH, { actor: SCOPE_ACTOR.GUEST });
+    await world.boot(FIXTURE_KEY.SWITCH, { actor: SCOPE_ACTOR.GUEST });
 
     await world.fire("turnOn");
 
@@ -93,8 +94,8 @@ describe("@AC-4 World — the interface every step definition speaks", () => {
   });
 
   it("a meta expectation is a subset match on live flags", async () => {
-    world = new NodeWorld();
-    await world.boot(COMPOSABLE_KEY.AUTH, { actor: "self" });
+    world = new NodeWorld(fixtureRegistry);
+    await world.boot(FIXTURE_KEY.SWITCH, { actor: "self" });
     await world.fire("rename", { label: "demo" });
 
     // Live flags: { isOn: false, hasLabel: true } — naming only one is a
@@ -103,15 +104,15 @@ describe("@AC-4 World — the interface every step definition speaks", () => {
   });
 
   it("a mismatched meta expectation fails, naming the mismatched flag", async () => {
-    world = new NodeWorld();
-    await world.boot(COMPOSABLE_KEY.AUTH, { actor: "self" });
+    world = new NodeWorld(fixtureRegistry);
+    await world.boot(FIXTURE_KEY.SWITCH, { actor: "self" });
 
     await expect(world.expectMeta({ isOn: true })).rejects.toThrow(/isOn/);
   });
 
   it("disposal isolates scenarios — no state from the earlier scenario is observable", async () => {
-    world = new NodeWorld();
-    await world.boot(COMPOSABLE_KEY.AUTH, { actor: "self" });
+    world = new NodeWorld(fixtureRegistry);
+    await world.boot(FIXTURE_KEY.SWITCH, { actor: "self" });
     await world.fire("turnOn");
     await world.fire("rename", { label: "demo" });
     await expect(
@@ -119,7 +120,7 @@ describe("@AC-4 World — the interface every step definition speaks", () => {
     ).resolves.toBeUndefined();
 
     await world.dispose();
-    await world.boot(COMPOSABLE_KEY.AUTH, { actor: "self" });
+    await world.boot(FIXTURE_KEY.SWITCH, { actor: "self" });
 
     await expect(
       world.expectMeta({ isOn: false, hasLabel: false })
@@ -127,7 +128,7 @@ describe("@AC-4 World — the interface every step definition speaks", () => {
   });
 
   it("the same step definitions run against a second world implementation unchanged", async () => {
-    const nodeWorld = new NodeWorld();
+    const nodeWorld = new NodeWorld(fixtureRegistry);
     const doubleWorld = new DoubleWorld();
 
     for (const target of [nodeWorld, doubleWorld]) {

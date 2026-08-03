@@ -3,7 +3,6 @@ import { isArray, isPlainObject, transform } from "lodash-es";
 import type { ReflectedSnapshot } from "./reflection.types";
 import type { ModuleDescriptor } from "../archetype/archetype.types";
 import type { CompositionPort } from "../port/port.types";
-import type { ComposableKey } from "../registry/registry";
 import type { ScopeActor } from "../world/scope-actor";
 
 function deepOmitUndefined<T>(value: T): T {
@@ -35,11 +34,11 @@ function deepOmitUndefined<T>(value: T): T {
  * depth from `context`/`meta`; other non-JSON values are the adapter's
  * responsibility.
  */
-export function reflect(
-  key: ComposableKey,
+export function reflect<K extends string>(
+  key: K,
   actor: ScopeActor,
   port: CompositionPort
-): ModuleDescriptor {
+): ModuleDescriptor<K> {
   const raw = port.snapshot();
   const snapshot: ReflectedSnapshot = {
     actions: raw.actions,

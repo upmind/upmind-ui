@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { FIXTURE_KEY } from "../../__fixtures__/fixture-registry";
 import { reflect } from "../../reflection/reflect";
-import { COMPOSABLE_KEY } from "../../registry/registry";
 import { SCOPE_ACTOR } from "../../world/scope-actor";
+import { ARCHETYPE, OBJECT_SCHEMA_TYPE } from "../archetype.types";
 import type { CompositionPort } from "../../port/port.types";
 import type { ReflectedSnapshot } from "../../reflection/reflection.types";
 import type { ModuleDescriptor } from "../archetype.types";
@@ -21,10 +22,10 @@ import type { ModuleDescriptor } from "../archetype.types";
  */
 describe("@AC-8 ModuleDescriptor — JSON round-trip (hand-built leg)", () => {
   const descriptor: ModuleDescriptor = {
-    key: COMPOSABLE_KEY.AUTH,
+    key: FIXTURE_KEY.SWITCH,
     actor: SCOPE_ACTOR.CLIENT,
     archetype: {
-      archetype: "form-flow",
+      archetype: ARCHETYPE.FORM_FLOW,
       signals: {
         hasRealSchema: true,
         hasModel: true,
@@ -36,7 +37,7 @@ describe("@AC-8 ModuleDescriptor — JSON round-trip (hand-built leg)", () => {
       actions: ["destroy", "onDone", "onError", "reject", "resolve", "set"],
       context: {
         schema: {
-          type: "object",
+          type: OBJECT_SCHEMA_TYPE,
           properties: { username: { type: "string" } }
         },
         uischema: { type: "VerticalLayout", elements: [] },
@@ -71,7 +72,7 @@ describe("@AC-8 ModuleDescriptor — JSON round-trip (hand-built leg)", () => {
       actions: ["destroy", "resolve"],
       context: {
         schema: {
-          type: "object",
+          type: OBJECT_SCHEMA_TYPE,
           properties: { username: { type: "string" } }
         },
         model: { username: "" },
@@ -94,7 +95,7 @@ describe("@AC-8 ModuleDescriptor — JSON round-trip (hand-built leg)", () => {
       actions: {}
     };
 
-    const reflected = reflect(COMPOSABLE_KEY.AUTH, SCOPE_ACTOR.CLIENT, port);
+    const reflected = reflect(FIXTURE_KEY.SWITCH, SCOPE_ACTOR.CLIENT, port);
 
     expect(reflected.snapshot.context).not.toHaveProperty("session");
     expect(reflected.snapshot.context).not.toHaveProperty("brandId");
@@ -109,7 +110,7 @@ describe("@AC-8 ModuleDescriptor — JSON round-trip (hand-built leg)", () => {
       actions: ["set"],
       context: {
         schema: {
-          type: "object",
+          type: OBJECT_SCHEMA_TYPE,
           properties: { username: { type: "string" } }
         },
         model: { username: undefined, email: "x" }
@@ -123,7 +124,7 @@ describe("@AC-8 ModuleDescriptor — JSON round-trip (hand-built leg)", () => {
       actions: {}
     };
 
-    const reflected = reflect(COMPOSABLE_KEY.AUTH, SCOPE_ACTOR.CLIENT, port);
+    const reflected = reflect(FIXTURE_KEY.SWITCH, SCOPE_ACTOR.CLIENT, port);
     const model = reflected.snapshot.context.model as Record<string, unknown>;
 
     expect(model).not.toHaveProperty("username");

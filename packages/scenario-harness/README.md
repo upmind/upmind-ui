@@ -24,7 +24,7 @@ Section numbers below match the numbered headings that follow.
 | --- | --- | --- | --- |
 | 1 | Tag grammar + parser | grammar constants + read-only parser | the pipeline that stamps action members |
 | 2 | Coverage gate | `GateInput` shape + `runGate` verdict function | a per-module test that supplies live data |
-| 3 | `COMPOSABLE_KEY` manifest | the one shared key union | every executor's own factory registry |
+| 3 | `ComposableRegistry<K,T>` + `createHarness` | the registry-generic contract type + harness constructor | the consumer's own manifest (e.g. `tests/journeys/scenario-harness/manifest.ts`) |
 | 4 | `defineSteps` / `World` | the step-registration + execution-seam types | whoever authors a module's spec pair |
 | 5 | `createTraceabilityCheck` | the bidirectional drift checker | one drift test per adopted module |
 | 6 | Seam port + meta rule | `CompositionPort` shape + the booleans-only rule | the adapter that builds a port from a live composable |
@@ -45,8 +45,8 @@ over source text, no TypeScript compiler involved.
 
 ### 2. Coverage gate — `GateInput` + `runGate`
 
-Types: `src/gate/gate.types.ts:13-19` (`GateInput`), `:21-31` (`GateVerdict`).
-Function: `src/gate/coverage-gate.ts:9-55` (`runGate`) — pure, one call per
+Types: `src/gate/gate.types.ts:13-19` (`GateInput`), `:40-50` (`GateVerdict`).
+Function: `src/gate/coverage-gate.ts:11-65` (`runGate`) — pure, one call per
 scope-matrix cell.
 
 `GateInput` is everything one verdict pass needs: `actionKeys` (live action
@@ -55,7 +55,7 @@ names for that actor), `tags` (this package's parsed map), `actionSchemas`
 module's step catalog exercises).
 
 "Input-taking" is keyed **only** off `actionSchemas[actionId] !== undefined`
-(`coverage-gate.ts:31`) — never runtime parameter introspection. Verdict
+(`coverage-gate.ts:37`) — never runtime parameter introspection. Verdict
 shape per action: `exempt` (excluded, reason recorded) · `red
 missing-reason` (excluded, no reason) · `red untagged-input-taking`
 (schema present, no tag) · `covered` / `red uncovered` (tag or no-schema
@@ -68,36 +68,48 @@ Nothing in this package enumerates live actions or parses source — a
 per-module test assembles `GateInput` (live enumeration + this package's tag
 parser + the module's own schema map) and asserts on `runGate(...).verdicts`.
 
-### 3. `COMPOSABLE_KEY` manifest
+### 3. `ComposableRegistry<K, T>` + `createHarness`
 
-`src/registry/registry.ts:7-9` (`COMPOSABLE_KEY` as-const), `:11-12`
-(`ComposableKey`); `src/registry/registry.types.ts:4` (`ComposableRegistry<T>`).
+`src/registry/registry.types.ts:8-11` (`ComposableRegistry<K, T>`);
+`src/registry/harness.ts:11-18` (`Harness<K>`), `:27-34` (`createHarness`).
 
-This is the **only** key list. Extension procedure for a new module:
+**This package ships no manifest of its own.** `K` is never baked in here —
+a consumer builds its own `as-const` key object plus its derived key union,
+shapes a factory map as `ComposableRegistry<K, T>`, and hands that registry
+to `createHarness(registry)` (or constructs a `World<K>` directly against it,
+§4) at construction time. `K` is inferred from the registry argument alone,
+so every surface `createHarness` returns — and every `World<K>` built from
+the same registry — is typed by that one argument: renaming or removing a
+key in the consumer's manifest fails compilation at every construction site
+built from it, with no second manifest to keep in sync.
 
-1. Add one entry to `COMPOSABLE_KEY` in `registry.ts`.
-2. Every executor that declares its live-factory map as `const registry = { ... } satisfies ComposableRegistry<...>` now fails to compile until it binds the new key — there is no second manifest to remember to update, and no executor can silently skip a key.
-
-Renaming or removing a key is the same mechanism in reverse: every binding
-site (and any fixture typed against `ComposableKey`) goes red at the same
-time.
+Upmind's own manifest — the sole current consumer — lives at
+`tests/journeys/scenario-harness/manifest.ts` (its own `COMPOSABLE_KEY`),
+outside this package, since journeys is where the harness is actually
+consumed today. This is an interim home: it re-homes once the app itself
+starts consuming the harness directly — a follow-on piece of work, not this
+package's concern.
 
 ### 4. `defineSteps` / `World` — the step-authoring contract
 
-`World`: `src/world/world.types.ts:22-28`. Step shapes:
-`src/steps/steps.types.ts:10-14` (`StepDef`), `:36-40` (`StepRegistrar`).
-Builder: `src/steps/step-catalog.ts:15-33` (`defineSteps`).
+`World`: `src/world/world.types.ts:25-31` (generic over `K`, the consumer's
+own key union — never a package-baked key type). Step shapes:
+`src/steps/steps.types.ts:17-21` (`StepDef`), `:43-47` (`StepRegistrar`).
+Builder: `src/steps/step-catalog.ts:16-34` (`defineSteps`).
 
-A `<module>.steps.ts` file's import surface is exactly `{ defineSteps, World,
-COMPOSABLE_KEY }` from this package — nothing else, no test-engine import.
-Inside, `defineSteps(({ Given, When, Then }) => { ... })` registers
-`Given`/`When`/`Then` patterns whose handlers each receive a `world` and talk
-to the module only through its five methods: `boot(key, scope)`,
-`fire(actionId, input?)`, `expectMeta(expected)`, the optional
-`expectContext(expected)`, and `dispose()`. `expectMeta`/`expectContext` are
-subset matches over already-plain data — never a UI assertion. Every member
-returns a `Promise`, so a remote-driving `World` implementation and an
-in-process one satisfy the same type. See
+A `<module>.steps.ts` file's import surface is exactly `{ defineSteps, World
+}` from this package, plus the consumer's **own** manifest key — never a
+package-exported one (this package's own fixtures import `FIXTURE_KEY` from
+their local `./fixture-registry.ts`, §3). Inside, `defineSteps(({ Given,
+When, Then }) => { ... })` registers `Given`/`When`/`Then` patterns whose
+handlers each receive a `world` and talk to the module only through its five
+methods: `boot(key, scope)`, `fire(actionId, input?)`, `expectMeta(expected)`,
+the optional `expectContext(expected)`, and `dispose()`. `expectMeta`/
+`expectContext` are subset matches over already-plain data — never a UI
+assertion. Every member returns a `Promise`, so a remote-driving `World`
+implementation and an in-process one satisfy the same type; a `World<K>`
+implementation is constructed with (or typed against) the consumer's own
+`ComposableRegistry<K, …>` — never a global. See
 [`src/__fixtures__/fixture.steps.ts`](./src/__fixtures__/fixture.steps.ts)
 for the exact import surface and step shape in practice.
 
@@ -111,8 +123,8 @@ for the reference walk of an in-process catalog).
 
 ### 5. `createTraceabilityCheck`
 
-`src/steps/traceability.ts:67-98` (`createTraceabilityCheck`), returns a
-`TraceabilityResult` (`src/steps/steps.types.ts:26-30`: `ok`,
+`src/steps/traceability.ts:73-104` (`createTraceabilityCheck`), returns a
+`TraceabilityResult` (`src/steps/steps.types.ts:33-37`: `ok`,
 `unmatchedFeatureSteps`, `orphanStepDefs`).
 
 Usage, per module: read the sibling `.feature` file as text, import its
@@ -135,7 +147,7 @@ test of this package.
 as a runtime `dependency`, not a `devDependency` (`package.json:22`) — this
 module is barrel-exported production src, so the import executes for every
 consumer of the package, not only this package's own tests (see the
-`@remarks` at `src/steps/traceability.ts:62-66`).
+`@remarks` at `src/steps/traceability.ts:68-72`).
 
 ### 6. Seam port + meta rule
 
@@ -167,17 +179,17 @@ spec pair, alongside that module's own feature/steps/traceability files.
 
 ## Onboarding a new module
 
-1. **Add a key.** One entry in `COMPOSABLE_KEY` (`src/registry/registry.ts`).
+1. **Add a key to your own manifest.** This package ships none — add one entry to your manifest's `as-const` key object (Upmind's current one: `tests/journeys/scenario-harness/manifest.ts`) and shape a factory map against it as `ComposableRegistry<K, T>` (§3).
 2. **Stamp the module's action members.** One `@playground-include` or `@playground-exclude <reason>` doc-comment per public action (§1) — write only where a member has no existing tag.
 3. **Write the spec pair.** A human-readable `.feature` next to a `<module>.steps.ts` built with `defineSteps` over `World` (§4) — the step bodies are the only place the module's real behaviour is driven from.
 4. **Wire the drift test.** A `<module>.traceability.test.ts` that reads the `.feature` text, imports the steps catalog, and asserts `createTraceabilityCheck(...).ok` (§5).
 5. **Wire the coverage test.** A per-module test that assembles a `GateInput` (live action enumeration + this package's tag parser + the module's action-schema map) and asserts on `runGate(...)` (§2).
-6. **Bind the executor registries.** Every place a `ComposableRegistry` is declared now needs the new key bound, or it will not compile (§3).
+6. **Construct the harness.** Hand your registry to `createHarness(registry)` (or construct a `World<K>` directly against it, e.g. `new NodeWorld(registry)`) — everything returned is typed by that one registry argument, so renaming or removing a key fails compilation at every construction site built from it (§3).
 
 ## Fixtures and negative controls
 
-- [`src/__fixtures__/fixture-module.ts`](./src/__fixtures__/fixture-module.ts), [`fixture.feature`](./src/__fixtures__/fixture.feature), [`fixture.steps.ts`](./src/__fixtures__/fixture.steps.ts), [`node-world.ts`](./src/__fixtures__/node-world.ts) — a minimal four-member stand-in module plus its full spec pair and an in-process `World`, showing the shape end to end: module → `.feature` → `steps.ts` → `World`. The switch it models is a stand-in, not product behaviour.
-- **The package depends on itself.** `"@upmind-automation/scenario-harness": "workspace:*"` sits in this package's own `devDependencies` (`package.json:29`) so that [`fixture.steps.ts`](./src/__fixtures__/fixture.steps.ts) can import `{ defineSteps, World, COMPOSABLE_KEY }` by the package's public name — the same binding contract a real consumer follows — instead of a relative path. There is no `exports` map in `package.json`, so this only resolves because pnpm materialises a self-symlink for the workspace dependency and resolution falls back to the plain `main`/`types` fields; it is a standard pnpm dogfooding pattern, not a runtime circular dependency.
+- [`src/__fixtures__/fixture-module.ts`](./src/__fixtures__/fixture-module.ts), [`fixture-registry.ts`](./src/__fixtures__/fixture-registry.ts), [`fixture.feature`](./src/__fixtures__/fixture.feature), [`fixture.steps.ts`](./src/__fixtures__/fixture.steps.ts), [`node-world.ts`](./src/__fixtures__/node-world.ts) — a minimal four-member stand-in module, its own local manifest (`FIXTURE_KEY`), its full spec pair, and a registry-constructed in-process `World`, showing the shape end to end: manifest → module → `.feature` → `steps.ts` → `World`. The switch it models is a stand-in, not product behaviour.
+- **The package depends on itself.** `"@upmind-automation/scenario-harness": "workspace:*"` sits in this package's own `devDependencies` (`package.json:29`) so that [`fixture.steps.ts`](./src/__fixtures__/fixture.steps.ts) can import `{ defineSteps, World }` by the package's public name — the same binding contract a real consumer follows — instead of a relative path; the manifest key itself (`FIXTURE_KEY`) comes from this package's own local [`fixture-registry.ts`](./src/__fixtures__/fixture-registry.ts), never the package barrel (§3). There is no `exports` map in `package.json`, so the public-name import only resolves because pnpm materialises a self-symlink for the workspace dependency and resolution falls back to the plain `main`/`types` fields; it is a standard pnpm dogfooding pattern, not a runtime circular dependency.
 - **The seven `.feature` files under `src/__tests__/`** (e.g. [`tag-grammar-coverage-gate.feature`](./src/__tests__/tag-grammar-coverage-gate.feature), [`shared-key-union.feature`](./src/__tests__/shared-key-union.feature)) are documentation anchors, not an executed spec: a header comment on each names the sibling vitest suite that actually realizes it (for example, `tag-grammar-coverage-gate.feature` → `src/gate/__tests__/coverage-gate.test.ts`). None of the seven run through a Gherkin/BDD runner in this package — the only `.feature` file actually executed here is [`__fixtures__/fixture.feature`](./src/__fixtures__/fixture.feature), via the root `test:bdd` lane. Drift between one of these seven and the suite it names is caught at review, not by an automated gate.
 - [`src/__tests__/known-bad/vue-value-import.must-fail.patch`](./src/__tests__/known-bad/vue-value-import.must-fail.patch), [`headless-type-import.must-fail.patch`](./src/__tests__/known-bad/headless-type-import.must-fail.patch) — reference patches for the no-vue lint boundary described above: applying either to a source file and running the workspace lint is expected to turn it red naming the banned specifier; reverting is expected to return it to green.
 
@@ -194,7 +206,7 @@ packages/scenario-harness/
     ├── port/                port.types.ts · table-channel.types.ts
     ├── world/               world.types.ts · scope-actor.ts
     ├── steps/                steps.types.ts · step-catalog.ts · traceability.ts
-    ├── registry/             registry.ts · registry.types.ts
+    ├── registry/             harness.ts · registry.types.ts
     ├── tags/                 tags.types.ts · tags.ts
     ├── gate/                 gate.types.ts · coverage-gate.ts
     └── __fixtures__/         worked example module + spec pair + in-process world

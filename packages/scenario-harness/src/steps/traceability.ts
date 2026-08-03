@@ -2,6 +2,7 @@ import {
   CucumberExpression,
   ParameterTypeRegistry
 } from "@cucumber/cucumber-expressions";
+import { STEP_KIND } from "./steps.types";
 import type {
   FeatureStep,
   StepCatalog,
@@ -9,7 +10,12 @@ import type {
   TraceabilityResult
 } from "./steps.types";
 
-const STEP_LINE = /^(Given|When|Then|And|But)\s+(.+)$/;
+// Given/When/Then are pinned to STEP_KIND (this package's own vocabulary);
+// And/But are Gherkin's own conjunction keywords with no StepKind entry of
+// their own — they resolve to the nearest preceding kind below.
+const STEP_LINE = new RegExp(
+  `^(${STEP_KIND.GIVEN}|${STEP_KIND.WHEN}|${STEP_KIND.THEN}|And|But)\\s+(.+)$`
+);
 const SCENARIO_HEADER = /^(Scenario|Scenario Outline|Background):/;
 
 // And/But steps carry the kind of the nearest preceding Given/When/Then
@@ -17,13 +23,13 @@ const SCENARIO_HEADER = /^(Scenario|Scenario Outline|Background):/;
 // Scenario/Scenario Outline/Background block so it never leaks across them.
 function parseFeatureSteps(featureText: string): FeatureStep[] {
   const steps: FeatureStep[] = [];
-  let lastKind: StepKind = "Given";
+  let lastKind: StepKind = STEP_KIND.GIVEN;
 
   featureText.split(/\r?\n/).forEach((rawLine, index) => {
     const line = rawLine.trim();
 
     if (SCENARIO_HEADER.test(line)) {
-      lastKind = "Given";
+      lastKind = STEP_KIND.GIVEN;
       return;
     }
 

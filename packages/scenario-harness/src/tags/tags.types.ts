@@ -8,7 +8,12 @@ export const PLAYGROUND_JSDOC_TAG = {
   EXCLUDE: "@playground-exclude"
 } as const;
 
-export type PlaygroundTagKind = "include" | "exclude";
+export const TAG_KIND = {
+  INCLUDE: "include",
+  EXCLUDE: "exclude"
+} as const;
+
+export type PlaygroundTagKind = (typeof TAG_KIND)[keyof typeof TAG_KIND];
 
 /**
  * One parsed tag. `reason` is present only for a well-formed exclude; a bare

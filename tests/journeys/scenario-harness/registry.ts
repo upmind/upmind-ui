@@ -2,7 +2,8 @@
 /**
  * @module tests/journeys/scenario-harness/registry
  * @description The Node/Playwright-executor live-factory map: keys come from
- * the ONE shared manifest (`COMPOSABLE_KEY`); the factory values are
+ * this consumer's own manifest (`./manifest.ts`'s `COMPOSABLE_KEY`) — the
+ * package itself ships no manifest (item 4). The factory values are
  * executor-side, live from day one — `useAuth` is already 4-layer, so this
  * binds real behaviour, not a stub. `satisfies ComposableRegistry<…>` gives
  * exhaustiveness: renaming or removing `COMPOSABLE_KEY.AUTH` fails
@@ -10,9 +11,10 @@
  */
 
 import { useAuth } from "@upmind-automation/headless";
-import { COMPOSABLE_KEY } from "@upmind-automation/scenario-harness";
+import { COMPOSABLE_KEY } from "./manifest";
+import type { ComposableKey } from "./manifest";
 import type { ComposableRegistry } from "@upmind-automation/scenario-harness";
 
 export const registry = {
   [COMPOSABLE_KEY.AUTH]: () => useAuth()
-} satisfies ComposableRegistry<ReturnType<typeof useAuth>>;
+} satisfies ComposableRegistry<ComposableKey, ReturnType<typeof useAuth>>;

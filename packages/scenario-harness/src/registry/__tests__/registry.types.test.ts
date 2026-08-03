@@ -1,10 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { COMPOSABLE_KEY } from "../registry";
-import type { ComposableKey } from "../registry";
 import type { ComposableRegistry } from "../registry.types";
 
 /**
- * @AC-6 — composableRegistry and the one shared key union.
+ * @AC-6 — the registry-generic contract (human-review item 4/4a): the
+ * package ships no manifest of its own — `ComposableRegistry<K, T>` is
+ * generic over a CONSUMER-supplied key union `K`. This suite proves the
+ * exhaustiveness property holds for ANY manifest a consumer supplies — a
+ * local stand-in manifest here plays the role a real consumer's own
+ * `COMPOSABLE_KEY`-style as-const object would play at its own construction
+ * site (e.g. `tests/journeys/scenario-harness/manifest.ts`'s `ComposableKey`
+ * binding `createHarness`/`NodeWorld`).
  *
  * The two `@ts-expect-error` fixtures below prove the missing-key/extra-key
  * mutation controls. `vitest run` alone transpiles types away and would let
@@ -12,45 +17,61 @@ import type { ComposableRegistry } from "../registry.types";
  * closes that gap by running `tsc -p tsconfig.test.json` over this file
  * before `vitest run`, so these two fixtures are enforced — not merely
  * verified ad hoc — on every `test:unit` run. The rename mutation (renaming
- * `COMPOSABLE_KEY.AUTH` itself) is a `tsc` transcript only — no committed
- * failing file, since renaming the real, committed key would break this
- * whole suite's imports, not just one case.
+ * a manifest key after a registry has bound against it) is a `tsc`
+ * transcript only — no committed failing file, since the failure is a
+ * property of THIS suite's own local manifest+registry pairing, and renaming
+ * a committed manifest key here would just break every case below at once
+ * rather than isolate one.
  */
-describe("@AC-6 composableRegistry — the one shared key union", () => {
-  it("COMPOSABLE_KEY is the single defining manifest", () => {
-    expect(COMPOSABLE_KEY).toStrictEqual({ AUTH: "auth" });
-    expect(Object.keys(COMPOSABLE_KEY)).toStrictEqual(["AUTH"]);
-  });
+const TEST_KEY = {
+  FOO: "foo",
+  BAR: "bar"
+} as const;
 
-  it("both executor registries and a steps fixture resolve to the same key type", () => {
-    const executorA = {
-      [COMPOSABLE_KEY.AUTH]: () => "a"
-    } satisfies ComposableRegistry<string>;
-    const executorB: Record<ComposableKey, () => unknown> = {
-      [COMPOSABLE_KEY.AUTH]: () => 1
+type TestKey = (typeof TEST_KEY)[keyof typeof TEST_KEY];
+
+describe("@AC-6 ComposableRegistry<K, T> — the registry-generic contract", () => {
+  it("a registry satisfying its own manifest resolves the same key type at every binding site", () => {
+    const registryA = {
+      [TEST_KEY.FOO]: () => "a",
+      [TEST_KEY.BAR]: () => "b"
+    } satisfies ComposableRegistry<TestKey, string>;
+    const registryB: Record<TestKey, () => unknown> = {
+      [TEST_KEY.FOO]: () => 1,
+      [TEST_KEY.BAR]: () => 2
     };
 
-    expect(Object.keys(executorA)).toStrictEqual(Object.keys(executorB));
+    expect(Object.keys(registryA).sort()).toStrictEqual(
+      Object.keys(registryB).sort()
+    );
   });
 
-  it("an executor registry missing a manifest key fails compilation (bdd @AC-6 scenario 2)", () => {
-    // @ts-expect-error — `Record<ComposableKey, () => unknown>` requires the
-    // `auth` entry; a registry that omits a manifest key must not satisfy
-    // `ComposableRegistry`.
-    const missingKey = {} satisfies ComposableRegistry<unknown>;
+  it("a registry missing a key from its own manifest fails compilation", () => {
+    const missingKey = {
+      [TEST_KEY.FOO]: () => undefined
+      // @ts-expect-error — `Record<TestKey, () => unknown>` requires both
+      // `foo` and `bar`; a registry that omits a manifest key must not
+      // satisfy `ComposableRegistry<TestKey, …>`. TS reports the missing
+      // member against the `satisfies` clause's own closing line, not the
+      // opening `{` — the directive must sit immediately above THAT line.
+    } satisfies ComposableRegistry<TestKey, unknown>;
 
-    expect(missingKey).toStrictEqual({});
+    expect(Object.keys(missingKey)).toStrictEqual([TEST_KEY.FOO]);
   });
 
-  it("an executor registry with a key outside the manifest fails compilation (bdd @AC-6 scenario 3)", () => {
+  it("a registry with a key outside its own manifest fails compilation", () => {
     const extraKey = {
-      [COMPOSABLE_KEY.AUTH]: () => undefined,
-      // @ts-expect-error — `extraneous` is not a `ComposableKey`; a registry
-      // adding a key the manifest does not define must not satisfy
-      // `ComposableRegistry` (excess-property check on the fresh literal).
+      [TEST_KEY.FOO]: () => undefined,
+      [TEST_KEY.BAR]: () => undefined,
+      // @ts-expect-error — `extraneous` is not a `TestKey` member; a
+      // registry adding a key its own manifest does not define must not
+      // satisfy `ComposableRegistry<TestKey, …>` (excess-property check on
+      // the fresh literal).
       extraneous: () => undefined
-    } satisfies ComposableRegistry<unknown>;
+    } satisfies ComposableRegistry<TestKey, unknown>;
 
-    expect(Object.keys(extraKey)).toContain(COMPOSABLE_KEY.AUTH);
+    expect(Object.keys(extraKey)).toEqual(
+      expect.arrayContaining([TEST_KEY.FOO, TEST_KEY.BAR])
+    );
   });
 });

@@ -1,3 +1,5 @@
+import { TAG_KIND } from "../tags/tags.types";
+import { GATE_CAUSE, GATE_STATUS } from "./gate.types";
 import type { GateInput, GateReport, GateVerdict } from "./gate.types";
 
 /**
@@ -19,11 +21,15 @@ export function runGate({
   for (const actionId of actionKeys) {
     const tag = tags[actionId];
 
-    if (tag?.kind === "exclude") {
+    if (tag?.kind === TAG_KIND.EXCLUDE) {
       verdicts.push(
         tag.reason
-          ? { actionId, status: "exempt", reason: tag.reason }
-          : { actionId, status: "red", cause: "missing-reason" }
+          ? { actionId, status: GATE_STATUS.EXEMPT, reason: tag.reason }
+          : {
+              actionId,
+              status: GATE_STATUS.RED,
+              cause: GATE_CAUSE.MISSING_REASON
+            }
       );
       continue;
     }
@@ -31,23 +37,27 @@ export function runGate({
     if (!tag && actionSchemas[actionId] !== undefined) {
       verdicts.push({
         actionId,
-        status: "red",
-        cause: "untagged-input-taking"
+        status: GATE_STATUS.RED,
+        cause: GATE_CAUSE.UNTAGGED_INPUT_TAKING
       });
       continue;
     }
 
     verdicts.push(
       covered.has(actionId)
-        ? { actionId, status: "covered" }
-        : { actionId, status: "red", cause: "uncovered" }
+        ? { actionId, status: GATE_STATUS.COVERED }
+        : { actionId, status: GATE_STATUS.RED, cause: GATE_CAUSE.UNCOVERED }
     );
   }
 
   // A step naming an action no longer live is drift, not a coverage gap.
   for (const actionId of coveredActionIds) {
     if (!live.has(actionId)) {
-      verdicts.push({ actionId, status: "red", cause: "dead-step" });
+      verdicts.push({
+        actionId,
+        status: GATE_STATUS.RED,
+        cause: GATE_CAUSE.DEAD_STEP
+      });
     }
   }
 

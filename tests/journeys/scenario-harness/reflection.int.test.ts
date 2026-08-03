@@ -42,12 +42,9 @@ import {
   ScopeActorTypes,
   useAuth
 } from "@upmind-automation/headless";
-import {
-  COMPOSABLE_KEY,
-  reflect,
-  SCOPE_ACTOR
-} from "@upmind-automation/scenario-harness";
+import { reflect, SCOPE_ACTOR } from "@upmind-automation/scenario-harness";
 import { bootAuthPort, wrapWithEnumerationSpy } from "./adapter";
+import { COMPOSABLE_KEY } from "./manifest";
 
 const SHARED_LIFECYCLE_ACTIONS = [
   "destroy",

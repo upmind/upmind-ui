@@ -77,3 +77,26 @@ integration:test:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   script:
     - pnpm test:integration
+
+#------------------------------------------------------------------------------
+# BDD exemplar (FE-2976) — every PR push, blocks merge.
+#
+# `pnpm run test:bdd` generates the playwright-bdd step registrations from
+# `packages/scenario-harness/src/__fixtures__/*.feature` (`bddgen`), then runs
+# them through `playwright test` against the in-process `NodeWorld` — no
+# browser, no webServer, no submodules beyond what `dependencies` already
+# provides. Raised as a gap in FE-2976's MR review: without this job the
+# exemplar lane can silently rot.
+#------------------------------------------------------------------------------
+bdd:test:
+  extends: .pnpm
+  stage: test
+  interruptible: true
+  needs:
+    - dependencies
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - pnpm run test:bdd
