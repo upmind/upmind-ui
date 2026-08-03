@@ -10,7 +10,7 @@ Additive. These bind the generic gate, tracker, module-root, ADR designations, a
 
 ## Module-root binding (step 1 inventory, step 5 scope)
 
-- Per-module workshop deliverables live at **`packages/**/docs/foundation.md`**; module READMEs under **`packages/**`**. `/docs-module-review` reviews `packages/headless/src/modules/<name>/docs/foundation.md` — that is the module-level `foundation.md` the base refers to.
+- Per-module workshop deliverables live at **`packages/**/docs/foundation.md`**; module READMEs under **`packages/**`**. `/docs-review` (the module/foundation lane) reviews `packages/headless/src/modules/<name>/docs/foundation.md` — that is the module-level `foundation.md` the base refers to.
 
 ## Designated ADRs (step 4 Implementation-Status enforcement)
 

@@ -1,4 +1,4 @@
-> Companion to the upmind-agent skill /lint-i18n — Upmind-monorepo-specific bindings/overrides.
+> Companion to the upmind-agent skill /health-check-i18n (was /lint-i18n) — Upmind-monorepo-specific bindings/overrides.
 
 ## Sync trigger
 

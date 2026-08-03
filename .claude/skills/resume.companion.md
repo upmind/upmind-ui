@@ -1,4 +1,4 @@
-> Companion to the upmind-agent skill /story-continue — Upmind-monorepo-specific bindings/overrides.
+> Companion to the upmind-agent skill /resume — Upmind-monorepo-specific bindings/overrides.
 
 The issue tracker is **Linear** (via the Linear MCP tools). Ticket IDs use the `FE-` prefix (e.g. `FE-2476`).
 
