@@ -1,11 +1,11 @@
-> Companion to the upmind-agent skill /story-review — Upmind-monorepo-specific bindings/overrides.
+> Companion to the upmind-agent skill /review — Upmind-monorepo-specific bindings/overrides.
 
-Binds the base skill's generic placeholders to this repo's concrete systems. The base doctrine is authoritative; this file only supplies the values.
+Binds the base skill's generic placeholders to this repo's concrete systems. The base doctrine is authoritative; this file only supplies the values. Bare `/review` is the story-scoped working-diff review (the former `/story-review`); the `/review` door also routes to `code`, `verify`, `docs`, and `sdd` lanes by artifact.
 
 ## ID / branch / worktree format
 
 - Story IDs use the `FE-` prefix on the `FE` team (e.g. `FE-2476`); everywhere the base says `<ID>`, use `FE-XXXX`.
-- The feature/worktree branch is `feature/FE-XXXX` — so the base's `git worktree list | grep "feature/<ID>"` and `/worktree checkout <ID>` bind to `feature/FE-XXXX` / `FE-XXXX`.
+- The feature/worktree branch is `feature/FE-XXXX` — so the base's `git worktree list | grep "feature/<ID>"` and `/resume <ID>` (worktree checkout now lives on the `/resume` door) bind to `feature/FE-XXXX` / `FE-XXXX`.
 - `<integration-branch>` = `develop`; `<target-branch>` = `main`. So Step 1's comparison points are `origin/main` and `develop..HEAD` (worktree mode).
 
 ## Gate commands (Step 3, Worktree Auto-Detection)
