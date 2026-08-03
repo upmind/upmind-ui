@@ -1,7 +1,7 @@
 <template>
   <!-- Summary mode -->
   <SmartDomainSummary
-    v-if="domainMeta.showSummary && !editing && !props.errors?.length"
+    v-if="meta.showSummary"
     :domain="model ?? ''"
     :disabled="props.disabled"
     @change="onChangeClick"
@@ -143,7 +143,8 @@
       :result-count="resultCount"
       :searching="domainMeta.isSearching"
       :processing="domainMeta.isProcessing"
-      :loading="domainMeta.isLoading"
+      :loading="meta.isLoading"
+      :disabled="props.disabled"
       :valid="domainMeta.isValid"
       :empty="domainMeta.isEmpty"
       @search="search"
@@ -160,6 +161,7 @@
 import { computed, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import {
+  useBasket,
   useDomain,
   DomainTypes,
   DEBOUNCE_DELAY,
@@ -246,15 +248,25 @@ const {
   required: props.required
 });
 
+const { meta: basketMeta } = useBasket();
+
 // --- State
 const editing = ref(false);
 const open = ref(false);
 const resultCount = ref(0);
 const queryValue = ref(query.value || "");
 
-// only an empty field is awaiting input — a prefilled one must not grab
-// focus on mount and hijack the page's scroll
-const meta = computed(() => ({ shouldAutoFocus: !queryValue.value }));
+const meta = computed(() => ({
+  shouldAutoFocus: !queryValue.value,
+  isLoading: domainMeta.value.isLoading || basketMeta.value.isProcessing,
+  // errors raised before a save are re-evaluated against a moving baseline
+  // while the basket catches up, so they briefly resurface after being fixed
+  hasErrors: !!props.errors?.length && !basketMeta.value.isProcessing,
+  showSummary:
+    domainMeta.value.showSummary &&
+    !editing.value &&
+    (basketMeta.value.isProcessing || !props.errors?.length)
+}));
 
 // --- Sorted and filtered choices
 const sortedChoices = computed(() =>
@@ -266,7 +278,7 @@ const sortedChoices = computed(() =>
 // Show the field error only once touched. The form marks the field touched
 // (validationMode → ValidateAndShow) when there's an outstanding error or the
 // user submits — so a pristine required field stays quiet until then.
-const showError = computed(() => !!(props.touched && props.errors?.length));
+const showError = computed(() => !!props.touched && meta.value.hasErrors);
 
 // --- Basket items for Select
 const basketItems = computed((): SelectItemProps[] =>

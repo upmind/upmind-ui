@@ -364,6 +364,9 @@ export default createMachine(
       PROCESSING: {
         target: "processing.updating"
       },
+      SILENT: {
+        actions: ["setSilent"]
+      },
       ERROR: {
         target: "available.error",
         actions: [
@@ -689,6 +692,12 @@ export default createMachine(
           attempts++;
           return attempts;
         }
+      }),
+
+      // leaves the add to the backend, for flows that configure nothing
+      setSilent: assign({
+        silent: (_context: ProductConfigContext, { data }: AnyEventObject) =>
+          !!data
       }),
 
       clearSilent: assign({

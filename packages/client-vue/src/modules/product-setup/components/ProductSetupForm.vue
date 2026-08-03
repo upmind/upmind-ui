@@ -23,7 +23,7 @@
       v-if="setupMeta.hasSchema && productMeta?.isAvailable"
       :loading="productMeta.isLoading"
       :processing="setupMeta.isProcessing"
-      :disabled="setupMeta.isProcessing"
+      :disabled="setupMeta.isProcessing || productMeta.isProcessing"
       :schema="schema"
       :uischema="uischema"
       :model-value="model"

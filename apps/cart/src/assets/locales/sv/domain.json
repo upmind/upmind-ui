@@ -38,6 +38,7 @@
     "dns_info": "För att kunna använda den här domänen måste du uppdatera domänens DNS-inställningar hos din nuvarande webbhotellleverantör.",
     "placeholder": "Ange vilken domän du vill använda.",
     "register_info": "Goda nyheter – den här domänen kan registreras för endast {price}, vilket inkluderar en registreringsavgift {period}.",
+    "register_info_free": "Goda nyheter – den här domänen går att registrera GRATIS, vilket inkluderar en registrering {period}.",
     "remove_transfer": "Ta bort överföringen",
     "transfer_added": "Överföring tillagd",
     "transfer_info": "Om du äger den här domänen kan du överföra den till oss för endast {transferPrice}. Efterföljande förnyelser kostar {term}. Annars måste du uppdatera domänens namnserveruppgifter (NS).",
