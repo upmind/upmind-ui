@@ -17,10 +17,24 @@ Feature: Archetype selection is deterministic and structural
     When the snapshot is classified
     Then the archetype is List
 
+  Scenario: A list module carrying a real filter schema and model is still classified List, not Form-Flow
+    Given a reflected snapshot from a port carrying a controlled-table channel
+    And its context also carries a structurally real JSON schema and a model
+    When the snapshot is classified
+    Then the archetype is List
+    And the archetype is not Form-Flow
+
   Scenario: A collection module without a schema is classified List
     Given a reflected snapshot whose context data is a collection and whose context carries no schema
     When the snapshot is classified
     Then the archetype is List
+
+  Scenario: A collection module that also carries a real schema and model is still classified List, not Form-Flow
+    Given a reflected snapshot whose context data is a collection
+    And its context also carries a structurally real JSON schema and a model
+    When the snapshot is classified
+    Then the archetype is List
+    And the archetype is not Form-Flow
 
   Scenario: A single-record module without a real schema is classified Detail
     Given a reflected snapshot whose context carries a model and no structurally real schema

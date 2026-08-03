@@ -124,6 +124,87 @@ describe("@AC-2 reflect — pure, stateless reflection", () => {
     }
   });
 
+  it("an undefined array element inside context is dropped, not carried as null — JSON round-trip stays clean", () => {
+    const { port } = buildGuardedPort({
+      actions: [],
+      context: { list: ["a", undefined, "b"] },
+      meta: {}
+    });
+
+    const descriptor = reflect(FIXTURE_KEY.SWITCH, SCOPE_ACTOR.CLIENT, port);
+
+    expect(descriptor.snapshot.context.list).toStrictEqual(["a", "b"]);
+
+    const roundTripped = JSON.parse(JSON.stringify(descriptor)) as unknown;
+    expect(roundTripped).toStrictEqual(descriptor);
+  });
+
+  it("a self-referential context does not throw — the cycle guard drops the revisited value", () => {
+    const circular: Record<string, unknown> = { name: "self-ref" };
+    circular.self = circular;
+
+    const { port } = buildGuardedPort({
+      actions: [],
+      context: { thing: circular },
+      meta: {}
+    });
+
+    expect(() =>
+      reflect(FIXTURE_KEY.SWITCH, SCOPE_ACTOR.CLIENT, port)
+    ).not.toThrow();
+
+    const descriptor = reflect(FIXTURE_KEY.SWITCH, SCOPE_ACTOR.CLIENT, port);
+    const thing = descriptor.snapshot.context.thing as Record<string, unknown>;
+    expect(thing.name).toBe("self-ref");
+    expect(thing).not.toHaveProperty("self");
+  });
+
+  it("an own __proto__-named key in context does not pollute Object.prototype and does not leak into the emitted snapshot", () => {
+    const rawContext: Record<string, unknown> = {};
+    Object.defineProperty(rawContext, "__proto__", {
+      value: { polluted: true },
+      enumerable: true,
+      configurable: true
+    });
+
+    const { port } = buildGuardedPort({
+      actions: [],
+      context: rawContext,
+      meta: {}
+    });
+
+    const descriptor = reflect(FIXTURE_KEY.SWITCH, SCOPE_ACTOR.CLIENT, port);
+
+    expect(({} as Record<string, unknown>).polluted).toBeUndefined();
+    expect(descriptor.snapshot.context).not.toHaveProperty("polluted");
+
+    const roundTripped = JSON.parse(JSON.stringify(descriptor)) as unknown;
+    expect(roundTripped).toStrictEqual(descriptor);
+  });
+
+  it("two successive descriptors never share the same snapshot.actions array instance", () => {
+    const sharedActions = ["turnOn", "turnOff"];
+    const rawSnapshot: ReflectedSnapshot = {
+      actions: sharedActions,
+      context: {},
+      meta: {}
+    };
+    const port: CompositionPort = {
+      snapshot: () => rawSnapshot,
+      getMeta: () => ({}),
+      actions: {}
+    };
+
+    const first = reflect(FIXTURE_KEY.SWITCH, SCOPE_ACTOR.CLIENT, port);
+    const second = reflect(FIXTURE_KEY.SWITCH, SCOPE_ACTOR.CLIENT, port);
+
+    expect(first.snapshot.actions).not.toBe(second.snapshot.actions);
+    expect(first.snapshot.actions).not.toBe(sharedActions);
+
+    sharedActions.push("mutatedAfterTheFact");
+    expect(first.snapshot.actions).toStrictEqual(["turnOn", "turnOff"]);
+  });
+
   it("a reflect-produced descriptor survives a JSON round-trip unchanged (@AC-8 leg 2)", () => {
     const { port } = buildGuardedPort({
       actions: ["destroy", "resolve"],

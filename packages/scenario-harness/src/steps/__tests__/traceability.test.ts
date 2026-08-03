@@ -99,3 +99,127 @@ describe("@AC-5 createTraceabilityCheck — the BDD pair stays in lockstep", () 
     );
   });
 });
+
+/**
+ * @AC-5 — the real `@cucumber/gherkin` AST rewrite: Scenario Outline
+ * expansion, Background steps, and DocString/DataTable bodies must never be
+ * mistaken for scenario steps of their own.
+ */
+describe("@AC-5 createTraceabilityCheck — gherkin AST behaviour", () => {
+  it("a Scenario Outline's steps match after Examples-row expansion", () => {
+    const outlineFeature = `
+Feature: Outline expansion
+  Scenario Outline: Labelling the switch with different values
+    Given a fresh fixture switch
+    When the switch is labelled "<label>"
+    Then the switch reports a label is set
+
+    Examples:
+      | label |
+      | demo  |
+      | other |
+`;
+
+    const result = createTraceabilityCheck(outlineFeature, fixtureSteps);
+
+    // Asserted on unmatchedFeatureSteps only: this synthetic feature doesn't
+    // exercise every fixtureSteps entry, so orphanStepDefs (and therefore
+    // .ok) legitimately carries unrelated noise unconnected to expansion.
+    expect(result.unmatchedFeatureSteps).toStrictEqual([]);
+  });
+
+  it("a Background step is counted against the catalog, not dropped", () => {
+    const backgroundFeature = `
+Feature: Background counts
+  Background:
+    Given a fresh fixture switch
+
+  Scenario: Turning it on after background boot
+    When the switch is turned on
+    Then the switch reports itself as on
+`;
+
+    const result = createTraceabilityCheck(backgroundFeature, fixtureSteps);
+
+    // Asserted on unmatchedFeatureSteps only — see the Outline test above.
+    expect(result.unmatchedFeatureSteps).toStrictEqual([]);
+  });
+
+  it("a Background step with no matching definition is still red, naming the unmatched step", () => {
+    const backgroundFeature = `
+Feature: Background drift is still caught
+  Background:
+    Given a step nobody registered anywhere
+
+  Scenario: Turning it on after background boot
+    When the switch is turned on
+    Then the switch reports itself as on
+`;
+
+    const result = createTraceabilityCheck(backgroundFeature, fixtureSteps);
+
+    expect(result.ok).toBe(false);
+    expect(
+      result.unmatchedFeatureSteps.some(
+        step => step.text === "a step nobody registered anywhere"
+      )
+    ).toBe(true);
+  });
+
+  it("a DocString body is not parsed as its own step, even one containing a fake Given/When/Then line", () => {
+    const docStringFeature = `
+Feature: DocStrings are not steps
+  Scenario: A step carries a docstring body
+    Given a fresh fixture switch
+    When the switch is labelled "demo"
+    """
+    This text is a docstring body attached to the previous step, not a
+    step of its own.
+    Given this line must never be parsed as a step of its own.
+    """
+    Then the switch reports a label is set
+`;
+
+    const result = createTraceabilityCheck(docStringFeature, fixtureSteps);
+
+    // Asserted on unmatchedFeatureSteps only — see the Outline test above.
+    expect(result.unmatchedFeatureSteps).toStrictEqual([]);
+  });
+
+  it("a DataTable body is not parsed as its own step", () => {
+    const dataTableFeature = `
+Feature: DataTables are not steps
+  Scenario: A step carries a data table
+    Given a fresh fixture switch
+    When the switch is turned on
+    Then the switch reports itself as on
+      | field | value  |
+      | mode  | manual |
+`;
+
+    const result = createTraceabilityCheck(dataTableFeature, fixtureSteps);
+
+    // Asserted on unmatchedFeatureSteps only — see the Outline test above.
+    expect(result.unmatchedFeatureSteps).toStrictEqual([]);
+  });
+
+  it("a StepDef whose pattern fails to compile as a cucumber expression surfaces as a structured malformed entry, never a throw", () => {
+    const malformedStepDef: StepDef = {
+      kind: "Given",
+      pattern: "a value of {unregisteredCustomParameterType}",
+      handler: () => {}
+    };
+    const catalog: StepCatalog = {
+      steps: [...fixtureSteps.steps, malformedStepDef]
+    };
+
+    let result: ReturnType<typeof createTraceabilityCheck> | undefined;
+    expect(() => {
+      result = createTraceabilityCheck(featureText, catalog);
+    }).not.toThrow();
+
+    expect(result?.malformedStepDefs).toContainEqual(
+      expect.objectContaining({ pattern: malformedStepDef.pattern })
+    );
+  });
+});

@@ -30,10 +30,22 @@ export interface FeatureStep {
   readonly line: number;
 }
 
+/**
+ * A catalog `StepDef` whose `pattern` failed to compile as a cucumber
+ * expression (e.g. an unregistered custom parameter type, unbalanced
+ * optional-text) — surfaced as data instead of throwing out of
+ * `createTraceabilityCheck`.
+ */
+export interface MalformedStepDef {
+  readonly pattern: string;
+  readonly message: string;
+}
+
 export interface TraceabilityResult {
   readonly ok: boolean;
   readonly unmatchedFeatureSteps: readonly FeatureStep[];
   readonly orphanStepDefs: readonly StepDef[];
+  readonly malformedStepDefs: readonly MalformedStepDef[];
 }
 
 /**

@@ -7,13 +7,13 @@ Feature: Playground tag grammar and the coverage gate
   So that every exemption is a visible decision, never a heuristic
 
   Scenario: An excluded action is skipped with its reason recorded
-    Given an action tagged playground-exclude with a reason
+    Given an action tagged scenario-exclude with a reason
     When the coverage gate runs
     Then the action's verdict is exempt
     And the recorded reason is the tag's reason
 
   Scenario: An included action with no covering step is red
-    Given an action tagged playground-include
+    Given an action tagged scenario-include
     And no registered step covers it
     When the coverage gate runs
     Then the gate is red for that action as uncovered
@@ -24,7 +24,7 @@ Feature: Playground tag grammar and the coverage gate
     Then the gate is red for that action as untagged
 
   Scenario: An exclusion without a reason is red
-    Given an action tagged playground-exclude with no reason
+    Given an action tagged scenario-exclude with no reason
     When the coverage gate runs
     Then the gate is red for that action as missing its reason
 

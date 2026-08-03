@@ -7,9 +7,13 @@ function readAction(
   module: FixtureModule,
   actionId: string
 ): (input?: unknown) => unknown {
-  const action = (
-    module.actions as Record<string, (input?: unknown) => unknown>
-  )[actionId];
+  const actions = module.actions as Record<
+    string,
+    (input?: unknown) => unknown
+  >;
+  const action = Object.hasOwn(actions, actionId)
+    ? actions[actionId]
+    : undefined;
 
   if (typeof action !== "function") {
     throw new Error(`node-world: unknown action "${actionId}"`);

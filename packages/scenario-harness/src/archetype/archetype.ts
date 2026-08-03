@@ -47,11 +47,14 @@ export function classify(
     hasDataArray: Array.isArray(snapshot.context.data)
   };
 
+  // List outranks Form-Flow (ADR-027 Am.4): a list module carrying its
+  // mandated filters schema+model — hasRealSchema && hasModel are both true —
+  // still classifies List when it also owns a table/data-array channel.
   const archetype: Archetype =
-    signals.hasRealSchema && signals.hasModel
-      ? ARCHETYPE.FORM_FLOW
-      : signals.hasTable || signals.hasDataArray
-        ? ARCHETYPE.LIST
+    signals.hasTable || signals.hasDataArray
+      ? ARCHETYPE.LIST
+      : signals.hasRealSchema && signals.hasModel
+        ? ARCHETYPE.FORM_FLOW
         : signals.hasModel
           ? ARCHETYPE.DETAIL
           : ARCHETYPE.ACTION_PANEL;

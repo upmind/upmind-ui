@@ -104,3 +104,38 @@ describe("@AC-7 runGate — the six coverage-gate verdicts", () => {
     });
   });
 });
+
+/**
+ * @AC-7 — an action literally named after an `Object.prototype` member must
+ * be read as honest, own data — never silently resolved via the prototype
+ * chain (e.g. a `tags`/`actionSchemas` lookup that isn't `Object.hasOwn`-
+ * guarded would read `Object.prototype.constructor`/`.toString` instead of
+ * "no entry for this key").
+ */
+describe("@AC-7 runGate — Object.prototype-named actions are handled honestly", () => {
+  const input: GateInput = {
+    actor: SCOPE_ACTOR.CLIENT,
+    actionKeys: ["constructor", "toString"],
+    tags: {},
+    actionSchemas: {},
+    coveredActionIds: []
+  };
+
+  const { verdicts } = runGate(input);
+
+  it("an untagged action named constructor with no input schema and no step is a real red-uncovered verdict, not silently skipped", () => {
+    const verdict = find(verdicts, "constructor");
+    expect(verdict).toMatchObject({
+      status: GATE_STATUS.RED,
+      cause: GATE_CAUSE.UNCOVERED
+    });
+  });
+
+  it("an untagged action named toString with no input schema and no step is a real red-uncovered verdict, not silently skipped", () => {
+    const verdict = find(verdicts, "toString");
+    expect(verdict).toMatchObject({
+      status: GATE_STATUS.RED,
+      cause: GATE_CAUSE.UNCOVERED
+    });
+  });
+});

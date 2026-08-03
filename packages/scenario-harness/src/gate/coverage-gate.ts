@@ -19,7 +19,7 @@ export function runGate({
   const verdicts: GateVerdict[] = [];
 
   for (const actionId of actionKeys) {
-    const tag = tags[actionId];
+    const tag = Object.hasOwn(tags, actionId) ? tags[actionId] : undefined;
 
     if (tag?.kind === TAG_KIND.EXCLUDE) {
       verdicts.push(
@@ -34,7 +34,11 @@ export function runGate({
       continue;
     }
 
-    if (!tag && actionSchemas[actionId] !== undefined) {
+    const actionSchema = Object.hasOwn(actionSchemas, actionId)
+      ? actionSchemas[actionId]
+      : undefined;
+
+    if (!tag && actionSchema !== undefined) {
       verdicts.push({
         actionId,
         status: GATE_STATUS.RED,

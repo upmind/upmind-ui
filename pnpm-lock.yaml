@@ -1183,6 +1183,9 @@ importers:
       '@cucumber/cucumber-expressions':
         specifier: ^20.0.0
         version: 20.0.0
+      '@cucumber/gherkin':
+        specifier: ^39.1.0
+        version: 39.1.0
       '@jsonforms/core':
         specifier: ^3.6.0
         version: 3.7.0

@@ -117,6 +117,36 @@ describe("@AC-3 classify — deterministic, structural archetype selection", () 
     expect(classify(snapshot, false).archetype).toBe(ARCHETYPE.LIST);
   });
 
+  it("a table channel plus a real filter schema and model is still classified List, not Form-Flow (ADR-027 Am.4's mandated shape)", () => {
+    const snapshot: ReflectedSnapshot = {
+      actions: ["applyFilters"],
+      context: { schema: REAL_SCHEMA, model: { username: "" } },
+      meta: { isLoading: false }
+    };
+
+    const decision = classify(snapshot, true);
+
+    expect(decision.archetype).toBe(ARCHETYPE.LIST);
+    expect(decision.archetype).not.toBe(ARCHETYPE.FORM_FLOW);
+  });
+
+  it("a context.data array plus a real schema is still classified List, not Form-Flow", () => {
+    const snapshot: ReflectedSnapshot = {
+      actions: ["refresh"],
+      context: {
+        data: [{ id: "a" }, { id: "b" }],
+        schema: REAL_SCHEMA,
+        model: { username: "" }
+      },
+      meta: { isLoading: false }
+    };
+
+    const decision = classify(snapshot, false);
+
+    expect(decision.archetype).toBe(ARCHETYPE.LIST);
+    expect(decision.archetype).not.toBe(ARCHETYPE.FORM_FLOW);
+  });
+
   it("a single-record module without a real schema is classified Detail", () => {
     const snapshot: ReflectedSnapshot = {
       actions: ["update"],

@@ -28,3 +28,29 @@ Feature: The BDD pair stays in lockstep
     Given the exemplar step definitions
     When their import surface is inspected
     Then it contains only the world interface and the shared keys
+
+  Scenario: A Scenario Outline's steps match the catalog after Examples-row expansion
+    Given a feature scenario outline with an Examples table
+    When the traceability check runs
+    Then every expanded row's steps match the catalog
+
+  Scenario: A Background step is checked the same as any other scenario step
+    Given a feature background step with a matching step definition
+    When the traceability check runs
+    Then the background step counts as matched
+
+  Scenario: A Background step with no matching definition is still red
+    Given a feature background step with no matching step definition
+    When the traceability check runs
+    Then the check fails naming the unmatched background step
+
+  Scenario: A DocString or DataTable body is never parsed as a step of its own
+    Given a feature step carrying a docstring or data table body
+    When the traceability check runs
+    Then the docstring or data table content is not treated as a step
+
+  Scenario: An unregistered custom parameter type is a structured failure, not a thrown error
+    Given a step definition whose pattern names an unregistered custom parameter type
+    When the traceability check runs
+    Then the check reports a malformed step definition naming the pattern
+    And the traceability check does not throw

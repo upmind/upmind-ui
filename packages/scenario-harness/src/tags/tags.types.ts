@@ -1,11 +1,11 @@
 /**
- * The `@playground-include`/`@playground-exclude` JSDoc grammar.
+ * The `@scenario-include`/`@scenario-exclude` JSDoc grammar.
  * This story owns the grammar; FE-2968's stamper is the emitter — it writes
  * a tag only where none exists (auto-derived + overridable, ADR-027 Am.6).
  */
-export const PLAYGROUND_JSDOC_TAG = {
-  INCLUDE: "@playground-include",
-  EXCLUDE: "@playground-exclude"
+export const SCENARIO_JSDOC_TAG = {
+  INCLUDE: "@scenario-include",
+  EXCLUDE: "@scenario-exclude"
 } as const;
 
 export const TAG_KIND = {
@@ -17,10 +17,12 @@ export type PlaygroundTagKind = (typeof TAG_KIND)[keyof typeof TAG_KIND];
 
 /**
  * One parsed tag. `reason` is present only for a well-formed exclude; a bare
- * `@playground-exclude` with no reason text parses to `reason` absent — never
+ * `@scenario-exclude` with no reason text parses to `reason` absent — never
  * coerced into a valid entry (the gate reads that as `missing-reason`).
- * Conventional first tokens (`lifecycle | internal | delegated`) are carried
- * as free text inside `reason`, never validated against an enum.
+ * `reason` is the remainder of the TAG'S OWN doc-comment line only — a reason
+ * written on a following line is not picked up. Conventional first tokens
+ * (`lifecycle | internal | delegated`) are carried as free text inside
+ * `reason`, never validated against an enum.
  */
 export interface PlaygroundTag {
   kind: PlaygroundTagKind;

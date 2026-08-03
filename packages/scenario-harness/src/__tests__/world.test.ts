@@ -127,6 +127,20 @@ describe("@AC-4 World — the interface every step definition speaks", () => {
     ).resolves.toBeUndefined();
   });
 
+  it("an action named constructor is handled honestly — never silently resolved via Object.prototype", async () => {
+    world = new NodeWorld(fixtureRegistry);
+    await world.boot(FIXTURE_KEY.SWITCH, { actor: SCOPE_ACTOR.GUEST });
+
+    await expect(world.fire("constructor")).rejects.toThrow(/constructor/);
+  });
+
+  it("an action named toString is handled honestly — never silently resolved via Object.prototype", async () => {
+    world = new NodeWorld(fixtureRegistry);
+    await world.boot(FIXTURE_KEY.SWITCH, { actor: SCOPE_ACTOR.GUEST });
+
+    await expect(world.fire("toString")).rejects.toThrow(/toString/);
+  });
+
   it("the same step definitions run against a second world implementation unchanged", async () => {
     const nodeWorld = new NodeWorld(fixtureRegistry);
     const doubleWorld = new DoubleWorld();
