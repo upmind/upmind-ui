@@ -1,5 +1,6 @@
 import { interpret } from "xstate";
-import { createScopedComposable, ScopeActorTypes } from "../scope";
+import { createScopedComposable } from "../scope/scope.builder";
+import { ScopeActorTypes } from "../scope/scope.types";
 import { dataManagerMachine } from "../data-manager";
 import { useActiveSession } from "../session-store";
 import { useI18n } from "../system-localisation";

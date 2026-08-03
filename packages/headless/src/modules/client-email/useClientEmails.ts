@@ -1,4 +1,4 @@
-import { createScopedComposable } from "../scope";
+import { createScopedComposable } from "../scope/scope.builder";
 import service from "./client-email.services";
 import { createClientEmailsActions } from "./useClientEmails.actions";
 import { createClientEmailsContext } from "./useClientEmails.context";

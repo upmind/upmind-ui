@@ -1,5 +1,5 @@
 import { AccessRoleTypes } from "@upmind-automation/types";
-import { ScopeActorTypes } from "../scope";
+import { ScopeActorTypes } from "../scope/scope.types";
 import type { DataManagerContext } from "../data-manager/data-manager.types";
 import type { IEmail } from "@upmind-automation/types";
 

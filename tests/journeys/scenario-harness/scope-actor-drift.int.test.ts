@@ -6,15 +6,8 @@
  * the shared vue-free `AccessRoleTypes` source; this test is what would
  * catch the two definitions diverging).
  *
- * FE-3051 — blocked, not executed, in this MR: this file imports
- * `@upmind-automation/headless`, whose barrel transitively pulls in
- * `packages/headless/src/modules/payment-gateways/razorpay/schemas.ts` — a
- * pre-existing, unrelated broken relative import (`../schemas`/`../utils`/
- * `../types`, none of which exist) that fails `vitest run`'s collection step
- * for any headless-importing test in this lane, reproduced identically on
- * the pre-existing `storefront-guest-oneoff-checkout-stripe.int.test.ts`
- * journey. Typecheck-clean (`pnpm run typecheck:journeys`, zero errors here);
- * unexecuted until FE-3051 lands.
+ * FE-3051 — the barrel-cycle bug that previously blocked collection of any
+ * headless-importing test in this lane is fixed; this file now executes.
  */
 
 import { describe, expect, it } from "vitest";
@@ -23,10 +16,24 @@ import { SCOPE_ACTOR } from "@upmind-automation/scenario-harness";
 
 describe("@AC-4 scope-actor-drift.int — SCOPE_ACTOR mirrors live ScopeActorTypes", () => {
   it("carries exactly the same runtime value set as headless ScopeActorTypes", () => {
-    const live = Object.values(ScopeActorTypes).sort();
+    // GUEST/CLIENT/STAFF are initialized from AccessRoleTypes.X (a property
+    // access, not a literal), so esbuild emits a reverse mapping for each —
+    // e.g. both ScopeActorTypes.GUEST === "guest" and
+    // ScopeActorTypes["guest"] === "GUEST" exist at runtime. The reverse key
+    // is always inserted immediately after its forward pair (JS assignment
+    // evaluation order), so the first time a key is seen it is the forward
+    // (actor-value) entry — skip any key already recorded as a value.
+    const seenAsValue = new Set<string>();
+    const live: string[] = [];
+    for (const [key, value] of Object.entries(ScopeActorTypes)) {
+      if (seenAsValue.has(key)) continue;
+      live.push(value);
+      seenAsValue.add(value);
+    }
+
     const mirrored = Object.values(SCOPE_ACTOR).sort();
 
-    expect(mirrored).toStrictEqual(live);
+    expect(live.sort()).toStrictEqual(mirrored);
   });
 
   it('STAFF\'s wire value is "user" on both sides, never "staff"', () => {
