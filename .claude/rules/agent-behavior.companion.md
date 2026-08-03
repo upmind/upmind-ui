@@ -2,7 +2,7 @@
 
 ## §1 Precedence — the ADR tier
 
-Tier 2 ("ADR") is `docs/adr/` in this repo. The per-story ruling mechanism is `review-notes.md`, owned by `skills/sdd/SKILL.md` — read first on re-runs, mirrored to Linear, never silently overriding an explicit NO.
+Tier 2 ("ADR") is `docs/adr/` in this repo. The per-story ruling mechanism is `review-notes.md`, owned by `skills/plan/sdd/SKILL.md` — read first on re-runs, mirrored to Linear, never silently overriding an explicit NO.
 
 The label state machine's "the agent never reviews" clause was narrowed by a dated amendment (2026-07-20, ratified with ADR-029) to "the agent never emits the review **verdict**": agent seats pre-gate, humans verdict. That amendment binds at ADR level — see [agent-orchestration.companion.md](./agent-orchestration.companion.md).
 
