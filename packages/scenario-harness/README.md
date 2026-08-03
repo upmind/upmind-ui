@@ -136,12 +136,12 @@ feature step matched by no `StepDef` lands in `unmatchedFeatureSteps`
 (with its line number); a `StepDef` matched by no feature step lands in
 `orphanStepDefs`. `ok` is true only when both are empty.
 
-This checker is designed to extend an existing feature↔test traceability
-pattern already in use elsewhere in the codebase
-(`packages/headless/src/modules/client-address-dry/__tests__/client-address-dry.traceability.test.ts`),
-applied here to a feature↔steps pair instead of a feature↔test-id pair. That
-file is a precedent to model a new `<module>.traceability.test.ts` on, not a
-test of this package.
+This checker extends the feature↔test traceability pattern (a colocated test
+parses the feature's tags and fails on unproven scenarios both ways), applied
+here to a feature↔steps pair instead of a feature↔test-id pair. The in-repo
+exemplar is this package's own `src/__tests__/traceability.test.ts` over the
+`__fixtures__` pair; a per-module `<module>.traceability.test.ts` follows the
+same shape.
 
 **Dependency-policy deviation:** `@cucumber/cucumber-expressions` is declared
 as a runtime `dependency`, not a `devDependency` (`package.json:22`) — this
