@@ -35,10 +35,15 @@
   <div v-if="registerable || registering" :class="styles.field.transfer.root">
     <p :class="styles.field.transfer.text">
       {{
-        t("domain.existing.register_info", {
-          price: registerPrice ?? "",
-          period: parseBillingCycle(props.cycle ?? 0).numeric
-        })
+        t(
+          meta.isFreeRegistration
+            ? "domain.existing.register_info_free"
+            : "domain.existing.register_info",
+          {
+            price: registerPrice ?? "",
+            period: parseBillingCycle(props.cycle ?? 0).numeric
+          }
+        )
       }}
     </p>
 
@@ -63,8 +68,8 @@
   <!-- Transfer info section (checked or transferred) -->
   <!--
     Two i18n variants:
-      - `transfer_info_free` — brand has configured a price override of 0
-        (e.g. ".com transfer for free"). Drives off `transferOptionIsFree`
+      - `transfer_info_free` — the transfer costs nothing (brand price
+        override of 0, or a zero price). Drives off `meta.isFreeTransfer`
         rather than string-matching the formatted label so any locale's
         "FREE" translation works without code changes.
       - `transfer_info` — paid transfer. `transferPrice` is the value
@@ -83,16 +88,16 @@
       v-bind="transferPricingTestAttrs(transferOptionIsFree ? 'free' : 'paid')"
     >
       {{
-        transferOptionIsFree
-          ? t("domain.existing.transfer_info_free", {
-              renewalPrice: renewalPrice ?? transferPrice ?? "",
-              term: parseBillingCycle(props.cycle ?? 0).suffix
-            })
-          : t("domain.existing.transfer_info", {
-              transferPrice: transferOptionPrice ?? transferPrice ?? "",
-              renewalPrice: renewalPrice ?? transferPrice ?? "",
-              term: parseBillingCycle(props.cycle ?? 0).suffix
-            })
+        t(
+          meta.isFreeTransfer
+            ? "domain.existing.transfer_info_free"
+            : "domain.existing.transfer_info",
+          {
+            transferPrice: transferOptionPrice ?? transferPrice ?? "",
+            renewalPrice: renewalPrice ?? transferPrice ?? "",
+            term: parseBillingCycle(props.cycle ?? 0).suffix
+          }
+        )
       }}
     </p>
 
@@ -126,7 +131,12 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { DEBOUNCE_DELAY, parseBillingCycle } from "@upmind-automation/headless";
+import {
+  DEBOUNCE_DELAY,
+  parseBillingCycle,
+  useConfig,
+  useMoney
+} from "@upmind-automation/headless";
 import {
   Search,
   Button,
@@ -153,6 +163,8 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+const { ui } = useConfig();
+const { isFree } = useMoney();
 const styles = useStyles(["field.transfer"], {}, config);
 
 const transferPricingTestAttrs = (value: string) =>
@@ -164,7 +176,13 @@ const searchValue = ref(props.modelValue ?? "");
 // transfer-satisfied one (the input is empty; the domain lives in the
 // transfer section) must not grab focus on mount and hijack the scroll
 const meta = computed(() => ({
-  shouldAutoFocus: !props.transferred && !props.modelValue && !searchValue.value
+  shouldAutoFocus:
+    !props.transferred && !props.modelValue && !searchValue.value,
+  // a zero price only reads as "FREE" when the brand renders it as a label
+  isFreeTransfer:
+    !!props.transferOptionIsFree ||
+    (ui.zeroPriceDisplay.isLabel && isFree(props.transferPrice)),
+  isFreeRegistration: ui.zeroPriceDisplay.isLabel && isFree(props.registerPrice)
 }));
 
 const ownedItems = computed((): SearchItem[] | null => {

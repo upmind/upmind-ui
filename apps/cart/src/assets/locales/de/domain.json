@@ -38,6 +38,7 @@
     "dns_info": "Um diese Domain zu nutzen, müssen Sie die DNS-Einstellungen der Domain bei Ihrem derzeitigen Registrar aktualisieren.",
     "placeholder": "Teilen Sie uns bitte mit, welche Domain Sie verwenden möchten.",
     "register_info": "Gute Nachrichten – diese Domain kann für nur {price} registriert werden, inklusive einer {period} Registrierung.",
+    "register_info_free": "Gute Nachrichten – diese Domain kann KOSTENLOS registriert werden, einschließlich einer Laufzeit {period}.",
     "remove_transfer": "Übertragung entfernen",
     "transfer_added": "Transfer hinzugefügt",
     "transfer_info": "Wenn Sie Eigentümer dieser Domain sind, können Sie sie für nur {transferPrice} zu uns übertragen. Nachfolgende Verlängerungen kosten {term} €. Alternativ müssen Sie die Nameserver-Einträge (NS) der Domain aktualisieren.",
