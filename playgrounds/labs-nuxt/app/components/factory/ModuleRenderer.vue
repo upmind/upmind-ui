@@ -15,7 +15,7 @@
     :actions="port.actions"
   />
   <ListSurface
-    v-else-if="descriptor.archetype.archetype === ARCHETYPE.LIST && port.table"
+    v-else-if="descriptor.archetype.archetype === ARCHETYPE.LIST"
     :snapshot="descriptor.snapshot"
     :actions="port.actions"
     :table="port.table"

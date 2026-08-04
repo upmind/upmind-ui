@@ -36,7 +36,7 @@
     -->
     <DropdownMenuRoot v-model:open="contextMenuOpen">
       <DropdownMenuTrigger as-child>
-        <span class="sr-only" aria-hidden="true" />
+        <span aria-hidden="true" />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuGroup>
