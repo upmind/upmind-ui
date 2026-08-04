@@ -46,24 +46,22 @@ type Layered = {
 function makeComposable() {
   const captured: { config?: ScopeConfig; key?: ScopeKey } = {};
 
-  const factory = vi.fn(
-    (config: ScopeConfig, _session: unknown, scopeKey: ScopeKey): Layered => {
-      captured.config = config;
-      captured.key = scopeKey;
-      let count = 0;
-      const id = Symbol("instance");
-      return {
-        useContext: () => ({ actor: config.actor }),
-        useMeta: () => ({ count }),
-        useActions: () => ({
-          inc: () => {
-            count++;
-          }
-        }),
-        useInternals: () => ({ id })
-      };
-    }
-  );
+  const factory = vi.fn((config: ScopeConfig, scopeKey: ScopeKey): Layered => {
+    captured.config = config;
+    captured.key = scopeKey;
+    let count = 0;
+    const id = Symbol("instance");
+    return {
+      useContext: () => ({ actor: config.actor }),
+      useMeta: () => ({ count }),
+      useActions: () => ({
+        inc: () => {
+          count++;
+        }
+      }),
+      useInternals: () => ({ id })
+    };
+  });
 
   return {
     use: createScopedComposable<Layered>("basket", factory),

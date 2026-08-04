@@ -34,11 +34,7 @@ import type { IToken } from "@upmind-automation/types";
  * `context.client`; the machine reads only its own context thereafter.
  * @private
  */
-function createAccountForScope(
-  config: ScopeConfig,
-  _session: IToken | undefined,
-  scopeKey: ScopeKey
-) {
+function createAccountForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const { t } = useI18n();
 
   // Actor is already resolved by the scope builder (SELF → concrete actor)

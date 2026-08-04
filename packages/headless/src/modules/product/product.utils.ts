@@ -1150,7 +1150,7 @@ export const parseProduct = (
     model,
     lookups,
     error,
-    rawBasketProduct: _rawBasketProduct,
+    rawBasketProduct,
     schema
   }: Partial<ProductConfigContext>
 ): Product => {
