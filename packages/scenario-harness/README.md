@@ -24,7 +24,7 @@ Section numbers below match the numbered headings that follow.
 | --- | --- | --- | --- |
 | 1 | Tag grammar + parser | grammar constants + read-only parser | the pipeline that stamps action members |
 | 2 | Coverage gate | `GateInput` shape + `runGate` verdict function | a per-module test that supplies live data |
-| 3 | `ComposableRegistry<K,T>` + `createHarness` | the registry-generic contract type + harness constructor | the consumer's own manifest (e.g. `tests/journeys/scenario-harness/manifest.ts`) |
+| 3 | `ScenarioRegistry<K,T>` + `createHarness` | the registry-generic contract type + harness constructor | the consumer's own manifest (e.g. `tests/journeys/scenario-harness/manifest.ts`) |
 | 4 | `defineSteps` / `World` | the step-registration + execution-seam types | whoever authors a module's spec pair |
 | 5 | `createTraceabilityCheck` | the bidirectional drift checker | one drift test per adopted module |
 | 6 | Seam port + meta rule | `CompositionPort` shape + the booleans-only rule | the adapter that builds a port from a live composable |
@@ -68,14 +68,14 @@ Nothing in this package enumerates live actions or parses source — a
 per-module test assembles `GateInput` (live enumeration + this package's tag
 parser + the module's own schema map) and asserts on `runGate(...).verdicts`.
 
-### 3. `ComposableRegistry<K, T>` + `createHarness`
+### 3. `ScenarioRegistry<K, T>` + `createHarness`
 
-`src/registry/registry.types.ts:8-11` (`ComposableRegistry<K, T>`);
+`src/registry/registry.types.ts:8-11` (`ScenarioRegistry<K, T>`);
 `src/registry/harness.ts:11-18` (`Harness<K>`), `:27-34` (`createHarness`).
 
 **This package ships no manifest of its own.** `K` is never baked in here —
 a consumer builds its own `as-const` key object plus its derived key union,
-shapes a factory map as `ComposableRegistry<K, T>`, and hands that registry
+shapes a factory map as `ScenarioRegistry<K, T>`, and hands that registry
 to `createHarness(registry)` (or constructs a `World<K>` directly against it,
 §4) at construction time. `K` is inferred from the registry argument alone,
 so every surface `createHarness` returns — and every `World<K>` built from
@@ -109,7 +109,7 @@ the optional `expectContext(expected)`, and `dispose()`. `expectMeta`/
 assertion. Every member returns a `Promise`, so a remote-driving `World`
 implementation and an in-process one satisfy the same type; a `World<K>`
 implementation is constructed with (or typed against) the consumer's own
-`ComposableRegistry<K, …>` — never a global. See
+`ScenarioRegistry<K, …>` — never a global. See
 [`src/__fixtures__/fixture.steps.ts`](./src/__fixtures__/fixture.steps.ts)
 for the exact import surface and step shape in practice.
 
@@ -179,7 +179,7 @@ spec pair, alongside that module's own feature/steps/traceability files.
 
 ## Onboarding a new module
 
-1. **Add a key to your own manifest.** This package ships none — add one entry to your manifest's `as-const` key object (Upmind's current one: `tests/journeys/scenario-harness/manifest.ts`) and shape a factory map against it as `ComposableRegistry<K, T>` (§3).
+1. **Add a key to your own manifest.** This package ships none — add one entry to your manifest's `as-const` key object (Upmind's current one: `tests/journeys/scenario-harness/manifest.ts`) and shape a factory map against it as `ScenarioRegistry<K, T>` (§3).
 2. **Stamp the module's action members.** One `@playground-include` or `@playground-exclude <reason>` doc-comment per public action (§1) — write only where a member has no existing tag.
 3. **Write the spec pair.** A human-readable `.feature` next to a `<module>.steps.ts` built with `defineSteps` over `World` (§4) — the step bodies are the only place the module's real behaviour is driven from.
 4. **Wire the drift test.** A `<module>.traceability.test.ts` that reads the `.feature` text, imports the steps catalog, and asserts `createTraceabilityCheck(...).ok` (§5).
