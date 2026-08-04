@@ -116,6 +116,10 @@ export default defineNuxtConfig({
       __dirname,
       "../../packages/headless/src/index.ts"
     ),
+    "@upmind-automation/scenario-harness": resolve(
+      __dirname,
+      "../../packages/scenario-harness/src/index.ts"
+    ),
     "@upmind-automation/upmind-ui/styles": resolve(
       __dirname,
       "../../packages/ui/src/assets/styles/index.css"

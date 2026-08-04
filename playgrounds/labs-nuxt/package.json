@@ -46,6 +46,7 @@
     "@upmind-automation/client-vue": "workspace:*",
     "@upmind-automation/headless": "workspace:*",
     "@upmind-automation/i18n": "workspace:*",
+    "@upmind-automation/scenario-harness": "workspace:*",
     "@upmind-automation/types": "workspace:*",
     "@upmind-automation/upmind-ui": "workspace:*",
     "@vueuse/components": "^13.6.0",

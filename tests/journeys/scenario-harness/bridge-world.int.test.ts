@@ -50,7 +50,7 @@ describe("@AC-4 bridge-world.int — the typed Node/bridge skeleton", () => {
     // singleton into the shared scope registry as an unwanted side effect
     // (enumerating/invoking a builder-alike prematurely instantiates it) and
     // leak across this file's other tests. The compiles-against-
-    // ComposableRegistry `satisfies` clause is the real proof here.
+    // ScenarioRegistry `satisfies` clause is the real proof here.
     expect(Object.keys(registry)).toStrictEqual(["auth"]);
     expect(typeof registry.auth).toBe("function");
   });

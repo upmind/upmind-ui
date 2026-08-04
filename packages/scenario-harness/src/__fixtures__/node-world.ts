@@ -1,5 +1,5 @@
 import type { FixtureModule } from "./fixture-module.types";
-import type { ComposableRegistry } from "../registry/registry.types";
+import type { ScenarioRegistry } from "../registry/registry.types";
 import type { ScopeActor } from "../world/scope-actor";
 import type { World, WorldScope } from "../world/world.types";
 
@@ -34,7 +34,7 @@ function readMeta(module: FixtureModule): Record<string, boolean> {
  * clean.
  *
  * Registry-generic (item 4/4a): the caller hands its own
- * `ComposableRegistry<K, …>` in at construction — no manifest is baked into
+ * `ScenarioRegistry<K, …>` in at construction — no manifest is baked into
  * this class or the package. `./fixture-registry.ts` builds the local
  * registry this package's own fixture consumes.
  */
@@ -42,7 +42,7 @@ export class NodeWorld<K extends string> implements World<K> {
   private module: FixtureModule | undefined;
 
   constructor(
-    private readonly registry: ComposableRegistry<
+    private readonly registry: ScenarioRegistry<
       K,
       (actor: ScopeActor) => FixtureModule
     >

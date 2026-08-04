@@ -20,7 +20,7 @@ export interface WorldScope {
  *
  * `K` is the consumer's own manifest key union, never a package-baked
  * `ComposableKey` (item 4/4a) — a `World<K>` implementation is constructed
- * with (or typed against) the consumer's own `ComposableRegistry<K, …>`.
+ * with (or typed against) the consumer's own `ScenarioRegistry<K, …>`.
  */
 export interface World<K extends string = string> {
   boot(key: K, scope: WorldScope): Promise<void>;

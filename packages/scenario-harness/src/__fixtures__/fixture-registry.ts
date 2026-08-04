@@ -1,6 +1,6 @@
 import { createFixtureModule } from "./fixture-module";
 import type { FixtureModule } from "./fixture-module.types";
-import type { ComposableRegistry } from "../registry/registry.types";
+import type { ScenarioRegistry } from "../registry/registry.types";
 import type { ScopeActor } from "../world/scope-actor";
 
 /**
@@ -17,7 +17,4 @@ export type FixtureKey = (typeof FIXTURE_KEY)[keyof typeof FIXTURE_KEY];
 
 export const fixtureRegistry = {
   [FIXTURE_KEY.SWITCH]: () => createFixtureModule
-} satisfies ComposableRegistry<
-  FixtureKey,
-  (actor: ScopeActor) => FixtureModule
->;
+} satisfies ScenarioRegistry<FixtureKey, (actor: ScopeActor) => FixtureModule>;
