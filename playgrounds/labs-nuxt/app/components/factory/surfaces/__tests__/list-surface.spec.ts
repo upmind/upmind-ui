@@ -195,3 +195,61 @@ describe("@AC3 list-actions — ListSurface fires the live action map", () => {
     expect(wrapper.text()).toMatch(/b@x\.com/);
   });
 });
+
+describe("@AC3 list-actions (table-backed) — the real client-emails canary path", () => {
+  it("fires actions.remove with the row id from the table row's delete control", async () => {
+    const actions = { [LIST_SURFACE_ACTION.DELETE]: vi.fn() };
+    const wrapper = mountListWithActions(actions, fakeTable());
+
+    expect(wrapper.find("table").exists()).toBe(true);
+    const dataRows = wrapper.findAll("tbody tr");
+    await dataRows[1]
+      .find(`[data-test-value="${LIST_SURFACE_ACTION.DELETE}"]`)
+      .trigger("click");
+
+    expect(actions[LIST_SURFACE_ACTION.DELETE]).toHaveBeenCalledTimes(1);
+    expect(actions[LIST_SURFACE_ACTION.DELETE]).toHaveBeenCalledWith(
+      rows[1].id
+    );
+  });
+
+  it("fires actions.setDefault with the row id from the table row's set-default control", async () => {
+    const actions = { [LIST_SURFACE_ACTION.SET_DEFAULT]: vi.fn() };
+    const wrapper = mountListWithActions(actions, fakeTable());
+
+    const dataRows = wrapper.findAll("tbody tr");
+    await dataRows[0].find('[data-test-value="set-default"]').trigger("click");
+
+    expect(actions[LIST_SURFACE_ACTION.SET_DEFAULT]).toHaveBeenCalledTimes(1);
+    expect(actions[LIST_SURFACE_ACTION.SET_DEFAULT]).toHaveBeenCalledWith(
+      rows[0].id
+    );
+  });
+
+  it("fires actions.verify with the row id from the table row's resend control", async () => {
+    const actions = { [LIST_SURFACE_ACTION.RESEND]: vi.fn() };
+    const wrapper = mountListWithActions(actions, fakeTable());
+
+    const dataRows = wrapper.findAll("tbody tr");
+    await dataRows[1]
+      .find(`[data-test-value="${LIST_SURFACE_ACTION.RESEND}"]`)
+      .trigger("click");
+
+    expect(actions[LIST_SURFACE_ACTION.RESEND]).toHaveBeenCalledTimes(1);
+    expect(actions[LIST_SURFACE_ACTION.RESEND]).toHaveBeenCalledWith(
+      rows[1].id
+    );
+  });
+
+  it("fires actions.ensure from the collection-level add control alongside a table channel", async () => {
+    const actions = { [LIST_SURFACE_ACTION.ADD]: vi.fn() };
+    const wrapper = mountListWithActions(actions, fakeTable());
+
+    expect(wrapper.find("table").exists()).toBe(true);
+    await wrapper
+      .find(`[data-test-value="${LIST_SURFACE_ACTION.ADD}"]`)
+      .trigger("click");
+
+    expect(actions[LIST_SURFACE_ACTION.ADD]).toHaveBeenCalledTimes(1);
+  });
+});

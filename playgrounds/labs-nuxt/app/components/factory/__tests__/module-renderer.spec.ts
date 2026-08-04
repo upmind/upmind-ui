@@ -106,3 +106,28 @@ describe("@AC1 ModuleRenderer — archetype dispatch, zero renderer logic", () =
     }
   });
 });
+
+describe("@AC3 ModuleRenderer — LIST degrades without a table channel (finding #7)", () => {
+  it("routes a LIST descriptor with no table channel to ListSurface and still renders its rows", () => {
+    const port: CompositionPort = {
+      snapshot: () => ({
+        actions: [],
+        context: { data: [{ id: 1 }, { id: 2 }] },
+        meta: {}
+      }),
+      getMeta: () => ({}),
+      actions: {},
+      table: undefined
+    };
+    const descriptor = reflect(ARCHETYPE.LIST, SCOPE_ACTOR.SELF, port);
+
+    expect(descriptor.archetype.archetype).toBe(ARCHETYPE.LIST);
+    expect(descriptor.archetype.signals.hasTable).toBe(false);
+
+    const wrapper = mount(ModuleRenderer, { props: { descriptor, port } });
+
+    expect(wrapper.findComponent(ListSurface).exists()).toBe(true);
+    expect(wrapper.find("table").exists()).toBe(false);
+    expect(wrapper.findAll("li")).toHaveLength(2);
+  });
+});
