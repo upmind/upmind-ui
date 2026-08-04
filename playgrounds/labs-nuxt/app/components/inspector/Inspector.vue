@@ -208,7 +208,6 @@ import {
   map,
   reduce,
   size,
-  sortBy,
   split,
   startCase,
   values
