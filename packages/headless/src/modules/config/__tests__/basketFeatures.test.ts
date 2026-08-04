@@ -32,7 +32,7 @@ vi.mock("../../system/localisation", () => ({
   useI18n: () => ({ t: (key: string) => key })
 }));
 
-import { initializeMeta, createUIMetaProxy } from "../utils";
+import { initializeMeta, createUIMetaProxy } from "../config.utils";
 import { UIContext } from "../schema";
 import type { RawMeta } from "../types";
 

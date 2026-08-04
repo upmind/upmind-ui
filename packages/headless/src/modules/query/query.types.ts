@@ -1,10 +1,18 @@
+/**
+ * @graphify-citation `graphify query "ListQuery TanStack query return type"`
+ * (2026-08-04) — no existing `ListQuery`/`MutationResult` type/enum node in
+ * `graphify-out/` (the graph still reflects the pre-remedy tree). No
+ * duplicate to reuse; minting is warranted. See `graphify-out/GRAPH_REPORT.md`.
+ */
 import type { responseCodes } from "../../utils";
 import type {
   DefaultError,
   MutationObserverOptions,
-  QueryObserverOptions
+  QueryObserverOptions,
+  useMutation,
+  useQuery as vueUseQuery
 } from "@tanstack/vue-query";
-import type { MaybeRef } from "vue";
+import type { ComputedRef, MaybeRef } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -248,6 +256,58 @@ export type MutationParams<
     MutationObserverOptions<TData, TError, TVariables, TContext>,
     "mutationFn"
   >;
+
+/**
+ * The `list()` query's return shape (`useQuery.ts`), parameterised by the raw
+ * fetch type and the (optionally `select`-mapped) data type — mirrors
+ * `list`'s own generic order/defaults. Extracted from `list`'s own inline
+ * return-statement cast so a scoped module can express its list-query return
+ * type without deriving `ReturnType<typeof localFn>` from its own
+ * already-instantiated service function (graphify-out/ citation above — no
+ * prior node for this type).
+ *
+ * @template TQueryFnData - The raw type `list`'s `queryFn` resolves.
+ * @template TData - The type after `select`, defaults to `TQueryFnData`.
+ */
+export type ListQuery<
+  TQueryFnData = unknown,
+  TData = TQueryFnData
+> = ReturnType<
+  typeof vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>
+> & {
+  data: ComputedRef<TData>;
+  pagination: ComputedRef<PaginationInfo>;
+  meta: ComputedRef<{
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+    hasPages: boolean;
+  }>;
+  total: ComputedRef<number>;
+  fetchNextPage: () => void;
+  fetchPreviousPage: () => void;
+  sort: (values?: QueryParams["sort"]) => void;
+  filter: (values: QueryParams["filters"]) => void;
+  resetQuery: () => Promise<void>;
+};
+
+/**
+ * The `mutate()` mutation's return shape (`useQuery.ts`), parameterised by
+ * its resolved data type. Extracted from `mutate`'s own inline return-
+ * statement cast for the same reason as {@link ListQuery}.
+ *
+ * @template TData - The mutation's resolved data type.
+ * @template TError - The mutation's error type, defaults to {@link DefaultError}.
+ * @template TVariables - The mutation's input variables type, defaults to `void`.
+ * @template TContext - The mutation's context type, defaults to `unknown`.
+ */
+export type MutationResult<
+  TData = unknown,
+  TError = DefaultError,
+  TVariables = void,
+  TContext = unknown
+> = ReturnType<
+  typeof useMutation<QueryResponse<TData>, TError, TVariables, TContext>
+>;
 
 // ---  ENUMS
 

@@ -31,6 +31,7 @@ import noSelfBranch from "./rules/no-self-branch.mjs";
 import requireDecision from "./rules/require-decision.mjs";
 import noCosplayArm from "./rules/no-cosplay-arm.mjs";
 import completeLayerSet from "./rules/complete-layer-set.mjs";
+import actorScopeFirst from "./rules/actor-scope-first.mjs";
 import armInMatrix from "./rules/arm-in-matrix.mjs";
 
 const ruleTester = new RuleTester({
@@ -389,6 +390,83 @@ test("complete-layer-set", () => {
         ]
       },
       { ...read(internalBad), errors: [{ messageId: "missingInternal" }] }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("actor-scope-first", () => {
+  // A scope-based entry (uses createScopedComposable) — its layer factories
+  // must take actorScope first.
+  const scopedEntry = code =>
+    `import { createScopedComposable } from "@upmind-automation/headless";\n${code}`;
+
+  // GOOD: actorScope first (consumed).
+  fixture("asf-good/useThing.ts", scopedEntry(`export const useThing = 1;\n`));
+  const goodFirst = fixture(
+    "asf-good/useThing.context.ts",
+    `export function createThingContext(actorScope: ScopeActorTypes, query: Q) {\n  return { actorScope };\n}\n`
+  );
+  // GOOD: unused scope is `_actorScope` first (the manager convention).
+  fixture(
+    "asf-unused/useThing.ts",
+    scopedEntry(`export const useThing = 1;\n`)
+  );
+  const goodUnused = fixture(
+    "asf-unused/useThing.meta.ts",
+    `export function createThingMeta(_actorScope: ScopeActorTypes, query: Q) {\n  return { query };\n}\n`
+  );
+  // GOOD: arrow-const factory, actorScope first.
+  fixture("asf-arrow/useThing.ts", scopedEntry(`export const useThing = 1;\n`));
+  const goodArrow = fixture(
+    "asf-arrow/useThing.actions.ts",
+    `export const createThingActions = (actorScope: ScopeActorTypes, svc: S) => ({ actorScope });\n`
+  );
+  // GOOD (gate): a singleton store — entry does NOT use createScopedComposable —
+  // is not held to the actor-scoped signature (session-store analog).
+  fixture("asf-singleton/useSession.ts", `export const useSession = 1;\n`);
+  const singleton = fixture(
+    "asf-singleton/useSession.context.ts",
+    `export function createSessionContext(_sessionId?: string) {\n  return {};\n}\n`
+  );
+  // GOOD (arm): an actor arm takes the resolved actor context, never actorScope.
+  fixture("asf-arm/useThing.ts", scopedEntry(`export const useThing = 1;\n`));
+  const arm = fixture(
+    "asf-arm/useThing.context.client.ts",
+    `export function createThingClientContext(query: Q) {\n  return {};\n}\n`
+  );
+
+  // BAD: actorScope dropped entirely (the FE-2968 incident shape).
+  fixture("asf-drop/useThing.ts", scopedEntry(`export const useThing = 1;\n`));
+  const dropped = fixture(
+    "asf-drop/useThing.context.ts",
+    `export function createThingContext(query: Q) {\n  return { query };\n}\n`
+  );
+  // BAD: actorScope present but SECOND — position is load-bearing.
+  fixture("asf-pos/useThing.ts", scopedEntry(`export const useThing = 1;\n`));
+  const misPositioned = fixture(
+    "asf-pos/useThing.internals.ts",
+    `export function createThingInternals(query: Q, actorScope: ScopeActorTypes) {\n  return { query, actorScope };\n}\n`
+  );
+  // BAD: no parameters at all.
+  fixture("asf-none/useThing.ts", scopedEntry(`export const useThing = 1;\n`));
+  const noParams = fixture(
+    "asf-none/useThing.meta.ts",
+    `export function createThingMeta() {\n  return {};\n}\n`
+  );
+
+  ruleTester.run("actor-scope-first", actorScopeFirst, {
+    valid: [
+      read(goodFirst),
+      read(goodUnused),
+      read(goodArrow),
+      read(singleton),
+      read(arm)
+    ],
+    invalid: [
+      { ...read(dropped), errors: [{ messageId: "actorScopeFirst" }] },
+      { ...read(misPositioned), errors: [{ messageId: "actorScopeFirst" }] },
+      { ...read(noParams), errors: [{ messageId: "actorScopeFirst" }] }
     ]
   });
 });

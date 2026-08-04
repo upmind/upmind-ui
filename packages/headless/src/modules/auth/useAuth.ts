@@ -30,11 +30,7 @@ import type { IToken } from "@upmind-automation/types";
  * Scope key is passed from the builder — no need to regenerate.
  * @private
  */
-function createAuthForScope(
-  config: ScopeConfig,
-  _session: IToken | undefined,
-  scopeKey: ScopeKey
-) {
+function createAuthForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const { t } = useI18n();
 
   // Actor is already resolved by the scope builder (SELF → concrete actor)

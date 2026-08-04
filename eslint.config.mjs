@@ -664,6 +664,7 @@ export default [
       "scope-based/require-decision": "error",
       "scope-based/no-cosplay-arm": "error",
       "scope-based/complete-layer-set": "error",
+      "scope-based/actor-scope-first": "error",
       "scope-based/arm-in-matrix": "error"
     }
   },

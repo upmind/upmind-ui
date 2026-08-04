@@ -119,11 +119,11 @@ import {
 import { useThemes, useStyles } from "@upmind-automation/upmind-ui";
 import { Link, Markdown } from "@upmind-automation/upmind-ui";
 import Hero from "../../components/hero/Hero.vue";
+import Back from "../../components/navigation/Back.vue";
 import Section from "../../components/section/Section.vue";
 import Summary from "../basket/components/Summary.vue";
 import Loading from "../system/Loading.vue";
 import Auth from "./components/Auth.vue";
-import Back from "./components/Back.vue";
 import sessionConfig from "./session.config";
 import { useSessionTemplates } from "./session.utils";
 import SessionCanvasCardTemplate from "./templates/SessionCanvasCard.template.vue";
@@ -219,7 +219,7 @@ function doUpdate(value: SessionProps["modelValue"]) {
   }
 }
 
-function _doReject() {
+function doReject() {
   isResolving.value = true;
   navigateBack().catch(() => {
     isResolving.value = false;
