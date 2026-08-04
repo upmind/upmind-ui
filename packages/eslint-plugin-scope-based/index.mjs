@@ -10,6 +10,7 @@
  *   require-decision        — clause 5: every @decision carries what/why/rejected
  *   no-cosplay-arm          — clauses 2+3: no byte-identical override, no empty scaffold
  *   complete-layer-set      — clause 1 (decidable): full sub-layer set + @internal markers
+ *   actor-scope-first       — clause 1 (input signature): every sub-composable factory takes actorScope first
  *   arm-in-matrix           — an arm's actor must be declared in the scope matrix
  *   no-hand-rolled-int-fixture — *.int.test.ts response bodies must replay recorded
  *                                fixtures, never a hand-rolled local builder
@@ -21,6 +22,7 @@ import noSelfBranch from "./rules/no-self-branch.mjs";
 import requireDecision from "./rules/require-decision.mjs";
 import noCosplayArm from "./rules/no-cosplay-arm.mjs";
 import completeLayerSet from "./rules/complete-layer-set.mjs";
+import actorScopeFirst from "./rules/actor-scope-first.mjs";
 import armInMatrix from "./rules/arm-in-matrix.mjs";
 import noHandRolledIntFixture from "./rules/no-hand-rolled-int-fixture.mjs";
 
@@ -31,6 +33,7 @@ const plugin = {
     "require-decision": requireDecision,
     "no-cosplay-arm": noCosplayArm,
     "complete-layer-set": completeLayerSet,
+    "actor-scope-first": actorScopeFirst,
     "arm-in-matrix": armInMatrix,
     "no-hand-rolled-int-fixture": noHandRolledIntFixture
   }

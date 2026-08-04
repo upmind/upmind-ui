@@ -71,8 +71,8 @@ vi.mock("../../brand", () => ({
 
 // -----------------------------------------------------------------------------
 
-import { extendFunnel } from "../utils";
-import type { FunnelProps, Funnels } from "../types";
+import { extendFunnel } from "../routing.utils";
+import type { FunnelProps, Funnels } from "../routing.types";
 
 // -----------------------------------------------------------------------------
 // Fixtures — shaped like the real cart / one-page funnels.

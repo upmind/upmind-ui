@@ -82,15 +82,14 @@ import {
 import Back from "../../components/navigation/Back.vue";
 import CheckoutContent from "./components/CheckoutContent.vue";
 import CheckoutErrors from "./components/CheckoutErrors.vue";
+import CheckoutHero from "./components/CheckoutHero.vue";
 import CheckoutPricing from "./components/CheckoutPricing.vue";
 import CheckoutProcessing from "./components/CheckoutProcessing.vue";
-import CheckoutSummary from "./components/CheckoutSummary.vue";
-import CheckoutHero from "./components/CheckoutHero.vue";
+import CheckoutEnclosedTemplate from "./templates/CheckoutEnclosed.template.vue";
 import CheckoutFullTemplate from "./templates/CheckoutFull.template.vue";
+import CheckoutInsetTemplate from "./templates/CheckoutInset.template.vue";
 import CheckoutLTRTemplate from "./templates/CheckoutLTR.template.vue";
 import CheckoutRTLTemplate from "./templates/CheckoutRTL.template.vue";
-import CheckoutEnclosedTemplate from "./templates/CheckoutEnclosed.template.vue";
-import CheckoutInsetTemplate from "./templates/CheckoutInset.template.vue";
 import { CHECKOUT_TEMPLATE } from "./types";
 import { get, isEqual, includes } from "lodash-es";
 import type { StorefrontRoute } from "../../types";
@@ -164,6 +163,7 @@ const template = computed(() =>
 // configured; a plain totals summary has nothing to link.
 const summaryProductRoute = computed(() => {
   if (ui.basketSummaryDetails.isVisible) return props.fieldsRoute;
+  return undefined;
 });
 
 // One-page uses a compact "Back" with a leading arrow per the designs; other
