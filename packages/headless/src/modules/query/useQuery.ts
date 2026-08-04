@@ -47,7 +47,9 @@ import type {
   MutationParams,
   InfiniteQueryPage,
   ReactiveQueryKeys,
-  PaginationInfo
+  PaginationInfo,
+  ListQuery,
+  MutationResult
 } from "./query.types";
 import type { DefaultError, MutationKey, QueryKey } from "@tanstack/vue-query";
 
@@ -183,7 +185,9 @@ export const useQuery = () => {
         : await useActiveSession()
             .useActions()
             .isReady()
-            .then(() => getTokenFromStorage()?.access_token);
+            .then(
+              () => useActiveSession().useContext().session.value?.access_token
+            );
       if (token) set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 
@@ -627,23 +631,7 @@ export const useQuery = () => {
         pageIndex.value = 1;
         return queryClient.resetQueries({ queryKey });
       }
-    } as ReturnType<
-      typeof vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>
-    > & {
-      data: ComputedRef<TData>;
-      pagination: ComputedRef<PaginationInfo>;
-      meta: ComputedRef<{
-        hasNextPage: boolean;
-        hasPrevPage: boolean;
-        hasPages: boolean;
-      }>;
-      total: ComputedRef<number>;
-      fetchNextPage: () => void;
-      fetchPreviousPage: () => void;
-      sort: (values?: QueryParams["sort"]) => void;
-      filter: (values: QueryParams["filters"]) => void;
-      resetQuery: () => Promise<void>;
-    };
+    } as ListQuery<TQueryFnData, TData>;
   }
 
   /**
@@ -906,9 +894,7 @@ export const useQuery = () => {
       )
     );
 
-    return response as ReturnType<
-      typeof useMutation<QueryResponse<TData>, TError, TVariables, TContext>
-    >;
+    return response as MutationResult<TData, TError, TVariables, TContext>;
   }
 
   // --- Async methods

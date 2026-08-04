@@ -32,3 +32,29 @@
 - "Actor-retargeting" is expressed in this repo as **`.for(actor, id)`** (e.g. `.for('client', id)`); a "cross-actor capability delta" is a **staff-vs-client** capability delta.
 - The `legacy:` disposition citation must point into the legacy codebase at **`repos/vue-app`**.
 - Drop dispositions that require a `reason:` + operator `signoff:` include the issue-tracker-referenced drop rows (issue tracker = Linear).
+
+## Shared-machine config factory (`dataManagerMachine`)
+
+A per-item manager composable is backed by the SHARED `dataManagerMachine` (`../data-manager`), not its own `createMachine`. Assemble its `.withConfig(...)` payload in ONE typed factory — file `use{Module}.machine.ts`, export `create{Module}MachineConfig(service): Parameters<typeof dataManagerMachine.withConfig>[0]` returning `{ actions, guards, services }`; consume it inline at the `interpret`:
+
+```typescript
+const machineService = interpret(
+  dataManagerMachine
+    .withConfig(createModuleMachineConfig(service))
+    .withContext({ id, model, allowMultipleEdits: true })
+);
+
+export function createModuleMachineConfig(
+  service: ModuleServices
+): Parameters<typeof dataManagerMachine.withConfig>[0] {
+  return {
+    actions: { /* assign(...) updaters, typed off DataManagerContext */ },
+    guards: { /* bodied off DataManagerContext */ },
+    services: useModuleServices(service)
+  };
+}
+```
+
+NEVER hand the machine three separate `useXActions()` / `useXGuards()` / `useXServices()` hooks cast `as any` inline — the `as any ×3` at the `interpret(...)` call site is the tell the payload is untyped. Pinning the factory's return to `Parameters<typeof dataManagerMachine.withConfig>[0]` type-checks every updater and guard and removes the casts.
+
+**This IS the pattern — no on-disk module is the exemplar.** Every current `dataManagerMachine` consumer (`client-address`, `client-company`, `client-phone`, `client-personal-details`, `basket-billing/unified`) is still on the old inline three-hook `as any` shape and is a migration target, not a reference. Scaffolded by `scoped-composable-factory`'s `templates/machine/use{Module}.machine.ts`. (2026-08-04, surfaced by the FE-2968 client-email smoke run.)

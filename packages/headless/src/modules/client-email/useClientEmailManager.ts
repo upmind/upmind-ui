@@ -1,5 +1,6 @@
 import { interpret } from "xstate";
-import { createScopedComposable, ScopeActorTypes } from "../scope";
+import { createScopedComposable } from "../scope/scope.builder";
+import { ScopeActorTypes } from "../scope/scope.types";
 import { dataManagerMachine } from "../data-manager";
 import { useActiveSession } from "../session-store";
 import { useI18n } from "../system-localisation";
@@ -40,7 +41,6 @@ import type { IToken } from "@upmind-automation/types";
  */
 function createClientEmailManagerForScope(
   config: ScopeConfig,
-  _session: IToken | undefined,
   scopeKey: ScopeKey
 ) {
   const { t } = useI18n();

@@ -69,7 +69,8 @@ the full when/how/checker-gate decision tree; do not scaffold an arm un-earned.
 ```text
 module/
 ├── module.types.ts
-├── module.machine.ts
+├── module.machine.ts       # owns its machine — OR useModule.machine.ts (shared machine), never both
+├── useModule.machine.ts    # shared-machine config factory (dataManagerMachine) — see companion "Shared-machine config factory"
 ├── module.services.ts
 ├── module.services.{actor}.ts    # opt-in — see .claude/skills/scoped-composable-factory/templates/ARMS.md
 ├── module.mappers.ts

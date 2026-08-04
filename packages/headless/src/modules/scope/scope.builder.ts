@@ -9,7 +9,6 @@ import type {
   ScopeContext,
   ScopeKey
 } from "./scope.types";
-import type { IToken } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module scope/builder
@@ -20,7 +19,6 @@ import type { IToken } from "@upmind-automation/types";
  */
 export type ScopedFactory<T, TContextType extends string = string> = (
   config: ScopeConfig<TContextType>,
-  session: IToken | undefined,
   scopeKey: ScopeKey
 ) => T;
 
@@ -240,7 +238,7 @@ export type ScopeBuilder<T, TMatrix extends ActorContextMatrix> = {
  *
  * const useBasket = createScopedComposable<BasketComposable, BasketMatrix>(
  *   'basket',
- *   (config, session) => ({
+ *   (config, scopeKey) => ({
  *     useMeta: () => ({ isLoading: computed(() => false) }),
  *     useActions: () => ({ refresh: () => {} })
  *   })
@@ -276,7 +274,7 @@ export function createScopedComposable<
         const resolvedActor = resolveSelfActor(config.actor);
         const resolvedConfig: ScopeConfig = { ...config, actor: resolvedActor };
         const key = generateScopeKey(name, resolvedConfig);
-        instance = ensure(key, () => factory(resolvedConfig, undefined, key));
+        instance = ensure(key, () => factory(resolvedConfig, key));
       }
       return instance;
     };
