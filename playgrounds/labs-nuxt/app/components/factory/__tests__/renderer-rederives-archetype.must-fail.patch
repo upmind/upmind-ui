@@ -1,5 +1,5 @@
 diff --git a/playgrounds/labs-nuxt/app/components/factory/ModuleRenderer.vue b/playgrounds/labs-nuxt/app/components/factory/ModuleRenderer.vue
-index 3c988a913..227018e99 100644
+index fb2d7e98b..ad89f390b 100644
 --- a/playgrounds/labs-nuxt/app/components/factory/ModuleRenderer.vue
 +++ b/playgrounds/labs-nuxt/app/components/factory/ModuleRenderer.vue
 @@ -1,21 +1,21 @@
@@ -23,8 +23,8 @@ index 3c988a913..227018e99 100644
      :actions="port.actions"
    />
    <ListSurface
--    v-else-if="descriptor.archetype.archetype === ARCHETYPE.LIST && port.table"
-+    v-else-if="liveArchetype === ARCHETYPE.LIST && port.table"
+-    v-else-if="descriptor.archetype.archetype === ARCHETYPE.LIST"
++    v-else-if="liveArchetype === ARCHETYPE.LIST"
      :snapshot="descriptor.snapshot"
      :actions="port.actions"
      :table="port.table"

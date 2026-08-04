@@ -1,17 +1,17 @@
 diff --git a/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.vue
-index 13d9c24de..8ef7ce978 100644
+index be7f4977b..68cf4143c 100644
 --- a/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.vue
 +++ b/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.vue
-@@ -94,7 +94,7 @@
+@@ -138,7 +138,7 @@
   */
 
  import { getCoreRowModel, useVueTable } from "@tanstack/vue-table";
 -import { computed } from "vue";
 +import { computed, ref } from "vue";
- import { Alert, Icon, Input, Pagination } from "@upmind-automation/upmind-ui";
- import { resolveModuleState } from "../module-state";
- import ModuleStateNotice from "../ModuleStateNotice.vue";
-@@ -163,17 +163,12 @@ const columnFiltersState = computed<ColumnFiltersState>(() =>
+ import {
+   Alert,
+   Icon,
+@@ -231,17 +231,12 @@ const columnFiltersState = computed<ColumnFiltersState>(() =>
    map(entries(tableModel.value.filter), ([id, value]) => ({ id, value }))
  );
 
@@ -23,7 +23,7 @@ index 13d9c24de..8ef7ce978 100644
 +  localSorting.value = isFunction(updaterOrValue)
 +    ? updaterOrValue(localSorting.value)
      : updaterOrValue;
--  props.table.emit({
+-  props.table?.emit({
 -    type: "sort",
 -    sort: map(next, entry => ({
 -      field: entry.id,
@@ -33,7 +33,7 @@ index 13d9c24de..8ef7ce978 100644
  };
 
  const onColumnFiltersChange: OnChangeFn<
-@@ -205,7 +200,7 @@ const vueTable = useVueTable({
+@@ -273,7 +268,7 @@ const vueTable = useVueTable({
    manualPagination: true,
    state: {
      get sorting() {
