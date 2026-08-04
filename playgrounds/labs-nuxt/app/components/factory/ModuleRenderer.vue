@@ -1,0 +1,44 @@
+<template>
+  <FormFlowSurface
+    v-if="descriptor.archetype.archetype === ARCHETYPE.FORM_FLOW"
+    :snapshot="descriptor.snapshot"
+    :actions="port.actions"
+  />
+  <DetailSurface
+    v-else-if="descriptor.archetype.archetype === ARCHETYPE.DETAIL"
+    :snapshot="descriptor.snapshot"
+    :actions="port.actions"
+  />
+  <ActionPanelSurface
+    v-else-if="descriptor.archetype.archetype === ARCHETYPE.ACTION_PANEL"
+    :snapshot="descriptor.snapshot"
+    :actions="port.actions"
+  />
+  <ListSurface
+    v-else-if="descriptor.archetype.archetype === ARCHETYPE.LIST && port.table"
+    :snapshot="descriptor.snapshot"
+    :actions="port.actions"
+    :table="port.table"
+  />
+</template>
+
+<script lang="ts" setup>
+// -----------------------------------------------------------------------------
+/**
+ * @module factory/ModuleRenderer
+ * @description The archetype dispatcher (design.md FE-2977 §Block C). Reads
+ * `descriptor.archetype.archetype` only — never re-derives it, never imports
+ * `classify`/a predicate/any headless business module (AC1). Holds no
+ * business logic itself; each surface owns its own state/content rendering.
+ */
+
+import { ARCHETYPE } from "@upmind-automation/scenario-harness";
+import ActionPanelSurface from "./surfaces/ActionPanelSurface.vue";
+import DetailSurface from "./surfaces/DetailSurface.vue";
+import FormFlowSurface from "./surfaces/FormFlowSurface.vue";
+import ListSurface from "./surfaces/ListSurface.vue";
+import type { ModuleRendererProps } from "./ModuleRenderer.types";
+// -----------------------------------------------------------------------------
+
+const { descriptor, port } = defineProps<ModuleRendererProps>();
+</script>

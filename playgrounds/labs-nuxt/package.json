@@ -43,6 +43,7 @@
     "@nuxtjs/web-vitals": "^0.2.7",
     "@tailwindcss/typography": "^0.5.16",
     "@tanstack/vue-query": "^5.83.1",
+    "@tanstack/vue-table": "^8.21.3",
     "@upmind-automation/client-vue": "workspace:*",
     "@upmind-automation/headless": "workspace:*",
     "@upmind-automation/i18n": "workspace:*",
