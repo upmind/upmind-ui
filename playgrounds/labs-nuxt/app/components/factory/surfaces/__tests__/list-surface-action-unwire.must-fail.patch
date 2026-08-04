@@ -1,0 +1,12 @@
+diff --git a/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.vue
+index 3333333..4444444 100644
+--- a/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.vue
++++ b/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.vue
+@@ -310,7 +310,6 @@
+ // same gate ActionPanelSurface trusts) so a module missing a capability
+ // simply never surfaces that control.
+ const ROW_ACTION_KEYS = [
+-  LIST_SURFACE_ACTION.DELETE,
+   LIST_SURFACE_ACTION.SET_DEFAULT,
+   LIST_SURFACE_ACTION.RESEND
+ ] as const;
