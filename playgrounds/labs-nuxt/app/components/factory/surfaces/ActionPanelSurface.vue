@@ -1,10 +1,10 @@
 <template>
   <ModuleStateNotice v-if="state !== 'ready'" :state="state" :detail="detail" />
-  <div v-else class="space-y-4">
+  <div v-else :class="styles.actionPanelSurface.root">
     <ActionSlots :actions="slotItems" />
     <UpmForm
       v-if="schema"
-      class="max-w-xl"
+      :class="styles.actionPanelSurface.form"
       :schema="schema"
       :uischema="uischema"
       :model-value="model"
@@ -28,9 +28,11 @@
 
 import { computed } from "vue";
 import { formRenderers, UpmForm } from "@upmind-automation/client-vue";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import ActionSlots from "../ActionSlots.vue";
 import { resolveModuleState } from "../module-state";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
+import config from "./ActionPanelSurface.styles";
 import { isFunction, map, startCase } from "lodash-es";
 import type { ActionSlotItem } from "../ActionSlots.types";
 import type { ActionPanelSurfaceProps } from "./ActionPanelSurface.types";
@@ -69,4 +71,7 @@ const slotItems = computed<ActionSlotItem[]>(() =>
     }
   }))
 );
+
+const meta = computed(() => ({ state: state.value }));
+const styles = useStyles(["actionPanelSurface"], meta, config);
 </script>

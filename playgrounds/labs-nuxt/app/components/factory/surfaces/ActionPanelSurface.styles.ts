@@ -1,0 +1,14 @@
+import { cva } from "class-variance-authority";
+// -----------------------------------------------------------------------------
+/**
+ * @module factory/surfaces/ActionPanelSurface.styles
+ * @description CVA configuration for ActionPanelSurface.
+ */
+
+export default {
+  actionPanelSurface: {
+    root: cva("space-y-4"),
+
+    form: cva("max-w-xl")
+  }
+};
