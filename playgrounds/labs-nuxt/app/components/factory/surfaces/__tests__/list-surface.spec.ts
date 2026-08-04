@@ -1,6 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
-import { ListSurface } from "../index";
+import { LIST_SURFACE_ACTION, ListSurface } from "../index";
+import type { SurfaceActions } from "../surface.types";
 import type { ControlledTableChannel } from "@upmind-automation/scenario-harness";
 
 const rows = [
@@ -13,6 +14,24 @@ function mountList(table: ControlledTableChannel) {
     props: {
       snapshot: { actions: [], context: { data: rows }, meta: {} },
       actions: {},
+      table
+    }
+  });
+}
+
+function mountListWithActions(
+  actions: SurfaceActions,
+  table?: ControlledTableChannel
+) {
+  return mount(ListSurface, {
+    attachTo: document.body,
+    props: {
+      snapshot: {
+        actions: Object.keys(actions),
+        context: { data: rows },
+        meta: {}
+      },
+      actions,
       table
     }
   });
@@ -102,5 +121,77 @@ describe("@AC2 ListSurface — controlled-table consumed, never owned", () => {
       "second@x.com"
     );
     expect(wrapper.find("p").text()).toBe("Page 2 of 2");
+  });
+});
+
+describe("@AC3 list-actions — ListSurface fires the live action map", () => {
+  it("fires actions.remove with the row id from that row's delete control", async () => {
+    const actions = { [LIST_SURFACE_ACTION.DELETE]: vi.fn() };
+    const wrapper = mountListWithActions(actions);
+
+    const rowsInDom = wrapper.findAll("li");
+    await rowsInDom[1]
+      .find(`[data-test-value="${LIST_SURFACE_ACTION.DELETE}"]`)
+      .trigger("click");
+
+    expect(actions[LIST_SURFACE_ACTION.DELETE]).toHaveBeenCalledTimes(1);
+    expect(actions[LIST_SURFACE_ACTION.DELETE]).toHaveBeenCalledWith(
+      rows[1].id
+    );
+  });
+
+  it("fires actions.setDefault with the row id from that row's set-default control", async () => {
+    const actions = { [LIST_SURFACE_ACTION.SET_DEFAULT]: vi.fn() };
+    const wrapper = mountListWithActions(actions);
+
+    const rowsInDom = wrapper.findAll("li");
+    await rowsInDom[0].find('[data-test-value="set-default"]').trigger("click");
+
+    expect(actions[LIST_SURFACE_ACTION.SET_DEFAULT]).toHaveBeenCalledTimes(1);
+    expect(actions[LIST_SURFACE_ACTION.SET_DEFAULT]).toHaveBeenCalledWith(
+      rows[0].id
+    );
+  });
+
+  it("fires actions.verify with the row id from that row's resend control", async () => {
+    const actions = { [LIST_SURFACE_ACTION.RESEND]: vi.fn() };
+    const wrapper = mountListWithActions(actions);
+
+    const rowsInDom = wrapper.findAll("li");
+    await rowsInDom[1]
+      .find(`[data-test-value="${LIST_SURFACE_ACTION.RESEND}"]`)
+      .trigger("click");
+
+    expect(actions[LIST_SURFACE_ACTION.RESEND]).toHaveBeenCalledTimes(1);
+    expect(actions[LIST_SURFACE_ACTION.RESEND]).toHaveBeenCalledWith(
+      rows[1].id
+    );
+  });
+
+  it("fires actions.ensure from the collection-level add control", async () => {
+    const actions = { [LIST_SURFACE_ACTION.ADD]: vi.fn() };
+    const wrapper = mountListWithActions(actions);
+
+    await wrapper
+      .find(`[data-test-value="${LIST_SURFACE_ACTION.ADD}"]`)
+      .trigger("click");
+
+    expect(actions[LIST_SURFACE_ACTION.ADD]).toHaveBeenCalledTimes(1);
+  });
+
+  it("degrades to a read-only row list — never blank — when no table channel is present", () => {
+    const actions = {
+      [LIST_SURFACE_ACTION.DELETE]: vi.fn(),
+      [LIST_SURFACE_ACTION.SET_DEFAULT]: vi.fn(),
+      [LIST_SURFACE_ACTION.RESEND]: vi.fn(),
+      [LIST_SURFACE_ACTION.ADD]: vi.fn()
+    };
+    const wrapper = mountListWithActions(actions);
+
+    expect(wrapper.find("table").exists()).toBe(false);
+    const rowsInDom = wrapper.findAll("li");
+    expect(rowsInDom).toHaveLength(rows.length);
+    expect(wrapper.text()).toMatch(/a@x\.com/);
+    expect(wrapper.text()).toMatch(/b@x\.com/);
   });
 });

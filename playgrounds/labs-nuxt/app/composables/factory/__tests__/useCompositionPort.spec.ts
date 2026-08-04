@@ -75,11 +75,17 @@ describe("@AC5 useCompositionPort", () => {
     expect(context.nested).toEqual({});
   });
 
-  it("getMeta() cannot diverge from snapshot().meta", () => {
+  it("getMeta() and snapshot().meta each independently track a live mutation — neither reads a stale value the other cached", () => {
     const { cell, on } = createFakeLiveCell();
     const port = useCompositionPort(cell);
+
+    expect(port.getMeta().isOn).toBe(false);
+
     on.value = true;
 
-    expect(port.getMeta()).toEqual(port.snapshot().meta);
+    // snapshot() is read first here, on purpose — proving it isn't reading
+    // back whatever getMeta() cached above, before getMeta() is asked again.
+    expect(port.snapshot().meta.isOn).toBe(true);
+    expect(port.getMeta().isOn).toBe(true);
   });
 });

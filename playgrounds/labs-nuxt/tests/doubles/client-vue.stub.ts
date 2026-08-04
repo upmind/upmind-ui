@@ -7,6 +7,12 @@
 import { defineComponent } from "vue";
 import type { PropType } from "vue";
 
+// A real `formRenderers` array, not `undefined` — previously absent from
+// this double, which masked the barrel's missing export (FE-2977 finding #3):
+// every component spec fed a stub that never noticed the real import
+// resolved to nothing.
+export const formRenderers: unknown[] = [];
+
 export const UpmForm = defineComponent({
   name: "UpmForm",
   props: {

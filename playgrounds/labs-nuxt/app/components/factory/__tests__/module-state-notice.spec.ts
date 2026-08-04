@@ -3,11 +3,7 @@ import { describe, expect, it } from "vitest";
 import { ModuleStateNotice } from "../index";
 import type { ModuleState } from "../module-state.types";
 
-const nonReadyStates: Exclude<ModuleState, "ready">[] = [
-  "scope-invalid",
-  "loading",
-  "error"
-];
+const nonReadyStates: Exclude<ModuleState, "ready">[] = ["loading", "error"];
 
 describe("@AC3 ModuleStateNotice — the cross-archetype non-ready-state notice", () => {
   it.each(nonReadyStates)("renders an alert for the %s state", state => {
