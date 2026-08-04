@@ -16,8 +16,8 @@
 // -----------------------------------------------------------------------------
 /**
  * @module factory/ModuleStateNotice
- * @description The shared scope-invalid/loading/error notice every archetype
- * surface renders in place of its normal content (design.md FE-2977 §Block C).
+ * @description The shared loading/error notice every archetype surface
+ * renders in place of its normal content (design.md FE-2977 §Block C).
  */
 
 import { computed } from "vue";
@@ -32,13 +32,6 @@ import type {
 const props = defineProps<ModuleStateNoticeProps>();
 
 const CONTENT: Record<ModuleStateNoticeProps["state"], ModuleStateContent> = {
-  "scope-invalid": {
-    color: "danger",
-    icon: "lock-01",
-    title: "Scope not permitted",
-    description:
-      "The active actor cannot access this module in the current scope."
-  },
   loading: {
     color: "info",
     icon: "clock",

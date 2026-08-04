@@ -11,14 +11,18 @@ import type { ModuleState } from "./module-state.types";
 // -----------------------------------------------------------------------------
 
 /**
- * Resolves `scope-invalid` / `loading` / `error` / `ready` from the
- * already-evaluated meta booleans. A flag the composable doesn't expose is
- * `undefined` — treated as `false`, never a false positive.
+ * Resolves `loading` / `error` / `ready` from the already-evaluated meta
+ * booleans. A flag the composable doesn't expose is `undefined` — treated as
+ * `false`, never a false positive. The error guard tolerates both the
+ * collection's `hasError` and the manager's `hasErrors` (R-D1).
  * @param meta `ModuleDescriptor.snapshot.meta`.
  */
 export function resolveModuleState(meta: Record<string, boolean>): ModuleState {
-  if (meta[MODULE_STATE_META_FLAG.SCOPE_INVALID]) return "scope-invalid";
   if (meta[MODULE_STATE_META_FLAG.LOADING]) return "loading";
-  if (meta[MODULE_STATE_META_FLAG.HAS_ERRORS]) return "error";
+  if (
+    meta[MODULE_STATE_META_FLAG.HAS_ERROR] ||
+    meta[MODULE_STATE_META_FLAG.HAS_ERRORS]
+  )
+    return "error";
   return "ready";
 }
