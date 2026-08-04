@@ -135,20 +135,7 @@
             v-if="section.meta && size(keys(section.meta))"
             :class="styles.inspector.section"
           >
-            <div :class="styles.inspector.sectionHeader">
-              <h2 :class="styles.inspector.sectionTitle">Meta</h2>
-            </div>
-            <div :class="styles.inspector.metaList">
-              <Badge
-                v-for="item in getSortedMetaItems(section.meta)"
-                :key="item.key"
-                size="sm"
-                :variant="item.variant"
-                :color="item.color"
-              >
-                {{ formatKey(item.key) }}
-              </Badge>
-            </div>
+            <MetaPanel :meta="resolveMetaFlags(section.meta)" />
           </div>
 
           <!-- Context Section -->
@@ -205,6 +192,7 @@ import {
   Tabs,
   useStyles
 } from "@upmind-automation/upmind-ui";
+import MetaPanel from "../factory/MetaPanel.vue";
 import config from "./inspector.styles";
 import { useInspector } from "./useInspector";
 import {
@@ -218,13 +206,14 @@ import {
   join,
   keys,
   map,
+  reduce,
   size,
   sortBy,
   split,
   startCase,
   values
 } from "lodash-es";
-import type { ContextItem, MetaBadgeColor } from "./inspector.types";
+import type { ContextItem } from "./inspector.types";
 import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 
@@ -302,67 +291,20 @@ function getVisibleContextItems(
   );
 }
 
-/** Get meta badge color for Badge component */
-function getMetaBadgeColor(
-  key: string,
-  value: boolean | ComputedRef<boolean> | undefined
-): MetaBadgeColor {
-  const resolved = unref(value);
-  const lowerKey = key.toLowerCase();
-  const isErrorFlag =
-    lowerKey.includes("error") || lowerKey.includes("invalid");
-  const isSuccessFlag =
-    lowerKey.includes("authenticated") ||
-    lowerKey.includes("valid") ||
-    lowerKey.includes("success");
-
-  if (resolved) {
-    if (isErrorFlag) return "danger";
-    if (isSuccessFlag) return "success";
-    return "info";
-  }
-  // Show danger for valid/success flags when false
-  if (isSuccessFlag) return "danger";
-  return "neutral";
-}
-
-/** Color priority for sorting (lower = higher priority) */
-function getColorPriority(color: string): number {
-  switch (color) {
-    case "danger":
-      return 0;
-    case "success":
-      return 1;
-    case "warning":
-      return 2;
-    case "primary":
-    case "promo":
-    case "info":
-      return 3;
-    default:
-      return 4;
-  }
-}
-
-/** Get sorted meta items by color priority then alphabetically */
-function getSortedMetaItems(
-  meta?: Record<string, boolean | ComputedRef<boolean> | undefined>
-) {
-  if (!meta) return [];
-
-  const items = map(entries(meta), ([key, value]) => {
-    const resolved = unref(value);
-    return {
-      key,
-      value: resolved,
-      color: getMetaBadgeColor(key, resolved),
-      variant: (getMetaBadgeColor(key, resolved) === "neutral"
-        ? "minimal"
-        : "solid") as "minimal" | "solid"
-    };
-  });
-
-  return sortBy(items, [item => getColorPriority(item.color), "key"]);
+/** Unrefs every meta value (MetaPanel's contract is plain booleans) and drops any still-undefined entry. */
+function resolveMetaFlags(
+  sectionMeta?: Record<string, boolean | ComputedRef<boolean> | undefined>
+): Record<string, boolean> {
+  if (!sectionMeta) return {};
+  return reduce(
+    entries(sectionMeta),
+    (acc, [key, value]) => {
+      const resolved = unref(value);
+      if (resolved !== undefined) acc[key] = resolved;
+      return acc;
+    },
+    {} as Record<string, boolean>
+  );
 }
 
 /** Get error count from error object */

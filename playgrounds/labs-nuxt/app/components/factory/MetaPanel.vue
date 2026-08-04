@@ -45,7 +45,7 @@ function badgeColor(key: string, value: boolean): MetaBadgeColor {
     lowerKey.includes("error") || lowerKey.includes("invalid");
   const isSuccessFlag =
     lowerKey.includes("authenticated") ||
-    lowerKey.includes("valid") ||
+    (lowerKey.includes("valid") && !lowerKey.includes("invalid")) ||
     lowerKey.includes("success");
 
   if (value) {
