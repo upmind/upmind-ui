@@ -1,0 +1,49 @@
+diff --git a/playgrounds/labs-nuxt/app/components/factory/ModuleRenderer.vue b/playgrounds/labs-nuxt/app/components/factory/ModuleRenderer.vue
+index 3c988a913..227018e99 100644
+--- a/playgrounds/labs-nuxt/app/components/factory/ModuleRenderer.vue
++++ b/playgrounds/labs-nuxt/app/components/factory/ModuleRenderer.vue
+@@ -1,21 +1,21 @@
+ <template>
+   <FormFlowSurface
+-    v-if="descriptor.archetype.archetype === ARCHETYPE.FORM_FLOW"
++    v-if="liveArchetype === ARCHETYPE.FORM_FLOW"
+     :snapshot="descriptor.snapshot"
+     :actions="port.actions"
+   />
+   <DetailSurface
+-    v-else-if="descriptor.archetype.archetype === ARCHETYPE.DETAIL"
++    v-else-if="liveArchetype === ARCHETYPE.DETAIL"
+     :snapshot="descriptor.snapshot"
+     :actions="port.actions"
+   />
+   <ActionPanelSurface
+-    v-else-if="descriptor.archetype.archetype === ARCHETYPE.ACTION_PANEL"
++    v-else-if="liveArchetype === ARCHETYPE.ACTION_PANEL"
+     :snapshot="descriptor.snapshot"
+     :actions="port.actions"
+   />
+   <ListSurface
+-    v-else-if="descriptor.archetype.archetype === ARCHETYPE.LIST && port.table"
++    v-else-if="liveArchetype === ARCHETYPE.LIST && port.table"
+     :snapshot="descriptor.snapshot"
+     :actions="port.actions"
+     :table="port.table"
+@@ -32,7 +32,8 @@
+  * business logic itself; each surface owns its own state/content rendering.
+  */
+
+-import { ARCHETYPE } from "@upmind-automation/scenario-harness";
++import { computed } from "vue";
++import { ARCHETYPE, classify } from "@upmind-automation/scenario-harness";
+ import ActionPanelSurface from "./surfaces/ActionPanelSurface.vue";
+ import DetailSurface from "./surfaces/DetailSurface.vue";
+ import FormFlowSurface from "./surfaces/FormFlowSurface.vue";
+@@ -41,4 +42,8 @@ import type { ModuleRendererProps } from "./ModuleRenderer.types";
+ // -----------------------------------------------------------------------------
+
+ const { descriptor, port } = defineProps<ModuleRendererProps>();
++
++const liveArchetype = computed(
++  () => classify(descriptor.snapshot, !!port.table).archetype
++);
+ </script>
