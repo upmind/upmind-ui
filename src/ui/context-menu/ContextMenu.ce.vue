@@ -76,6 +76,7 @@ const props = withDefaults(defineProps<ContextMenuProps>(), {
   disabled: false,
   // -- styles
   size: "md",
+  width: "md",
   // --- styles
   uiConfig: () => ({
     contextMenu: {
@@ -90,6 +91,7 @@ const props = withDefaults(defineProps<ContextMenuProps>(), {
 });
 
 const meta = computed(() => ({
+  width: props.width,
   size: props.size
 }));
 

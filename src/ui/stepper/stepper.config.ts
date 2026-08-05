@@ -49,14 +49,14 @@ export const triggerVariants = cva("z-10 inline-flex shrink-0");
 // Half-line. A completed step colours both halves; an active step colours its
 // leading half (:first-child) so the connector into it reads as done.
 export const separatorVariants = cva(
-  "flex-1 rounded-full bg-accent-neutral/20 group-data-[state=completed]:bg-control-checked group-data-[state=active]:first:bg-control-checked group-data-disabled:opacity-50",
+  "bg-accent-neutral/20 group-data-[state=completed]:bg-control-checked group-data-[state=active]:first:bg-control-checked flex-1 rounded-full group-data-disabled:opacity-50",
   {
     variants: {
       orientation: {
         horizontal: "h-0.5",
         // min-h gives the vertical connector its length (step spacing) so the
         // item height isn't driven by the label.
-        vertical: "w-0.5 min-h-4"
+        vertical: "min-h-4 w-0.5"
       }
     },
     defaultVariants: {

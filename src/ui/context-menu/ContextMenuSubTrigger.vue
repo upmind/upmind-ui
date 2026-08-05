@@ -1,18 +1,15 @@
 <script lang="ts" setup>
+import { ChevronRight } from "lucide-vue-next";
 import {
   ContextMenuSubTrigger,
   type ContextMenuSubTriggerProps,
   useForwardProps
 } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
-import { Icon } from "../icon";
 import { cn } from "../../utils";
 
 const props = defineProps<
-  ContextMenuSubTriggerProps & {
-    class?: HTMLAttributes["class"];
-    inset?: boolean;
-  }
+  ContextMenuSubTriggerProps & { class?: HTMLAttributes["class"] }
 >();
 
 const delegatedProps = computed(() => {
@@ -29,13 +26,12 @@ const forwardedProps = useForwardProps(delegatedProps);
     v-bind="forwardedProps"
     :class="
       cn(
-        'control-radius data-highlighted:bg-button-ghost-hover data-[state=open]:bg-button-ghost-hover flex cursor-default items-center px-2 py-1.5 text-sm outline-none select-none',
-        inset && 'pl-8',
+        'focus:bg-accent data-[state=open]:bg-accent flex cursor-default items-center rounded-xs px-2 py-1.5 text-sm outline-hidden select-none',
         props.class
       )
     "
   >
     <slot />
-    <Icon icon="chevron-right" class="ml-auto h-4 w-4" />
+    <ChevronRight class="ml-auto h-4 w-4" />
   </ContextMenuSubTrigger>
 </template>
