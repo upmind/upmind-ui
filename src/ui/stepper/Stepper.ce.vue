@@ -14,6 +14,10 @@
         :class="cn(styles.stepper.item, props.itemClass)"
       >
         <slot name="item" v-bind="{ item, index }">
+          <StepperSeparator
+            v-if="index < steps.length - 1"
+            :class="styles.stepper.separator"
+          />
           <StepperTrigger :class="styles.stepper.trigger">
             <StepperIndicator :class="styles.stepper.indicator">
               <slot name="indicator" v-bind="{ item, index }">
@@ -22,28 +26,23 @@
                 <template v-else>{{ item.step }}</template>
               </slot>
             </StepperIndicator>
-
-            <div
-              v-if="item.title || item.description"
-              :class="styles.stepper.content"
-            >
-              <StepperTitle v-if="item.title" :class="styles.stepper.title">
-                {{ item.title }}
-              </StepperTitle>
-              <StepperDescription
-                v-if="item.description"
-                :class="styles.stepper.description"
-              >
-                {{ item.description }}
-              </StepperDescription>
-            </div>
           </StepperTrigger>
-        </slot>
 
-        <StepperSeparator
-          v-if="index < steps.length - 1"
-          :class="styles.stepper.separator"
-        />
+          <div
+            v-if="item.title || item.description"
+            :class="styles.stepper.content"
+          >
+            <StepperTitle v-if="item.title" :class="styles.stepper.title">
+              {{ item.title }}
+            </StepperTitle>
+            <StepperDescription
+              v-if="item.description"
+              :class="styles.stepper.description"
+            >
+              {{ item.description }}
+            </StepperDescription>
+          </div>
+        </slot>
       </StepperItem>
     </template>
   </Stepper>
