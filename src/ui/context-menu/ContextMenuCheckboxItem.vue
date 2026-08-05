@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { Check } from "lucide-vue-next";
 import {
   ContextMenuCheckboxItem,
   type ContextMenuCheckboxItemEmits,
@@ -7,7 +8,6 @@ import {
   useForwardPropsEmits
 } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
-import { Icon } from "../icon";
 import { cn } from "../../utils";
 
 const props = defineProps<
@@ -29,14 +29,14 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
     v-bind="forwarded"
     :class="
       cn(
-        'control-radius data-highlighted:bg-button-ghost-hover relative flex cursor-default items-center py-1.5 pr-2 pl-8 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+        'focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center rounded-xs py-1.5 pr-2 pl-8 text-sm outline-hidden transition-colors select-none data-disabled:pointer-events-none data-disabled:opacity-50',
         props.class
       )
     "
   >
     <span class="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
       <ContextMenuItemIndicator>
-        <Icon icon="check" class="h-4 w-4" />
+        <Check class="h-4 w-4" />
       </ContextMenuItemIndicator>
     </span>
     <slot />

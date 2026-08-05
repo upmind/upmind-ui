@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import {
   ContextMenuItem,
-  type ContextMenuItemEmits,
   type ContextMenuItemProps,
-  useForwardPropsEmits
+  useForwardProps
 } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
 import { cn } from "../../utils";
@@ -11,7 +10,6 @@ import { cn } from "../../utils";
 const props = defineProps<
   ContextMenuItemProps & { class?: HTMLAttributes["class"]; inset?: boolean }
 >();
-const emits = defineEmits<ContextMenuItemEmits>();
 
 const delegatedProps = computed(() => {
   const { class: _, ...delegated } = props;
@@ -19,15 +17,15 @@ const delegatedProps = computed(() => {
   return delegated;
 });
 
-const forwarded = useForwardPropsEmits(delegatedProps, emits);
+const forwardedProps = useForwardProps(delegatedProps);
 </script>
 
 <template>
   <ContextMenuItem
-    v-bind="forwarded"
+    v-bind="forwardedProps"
     :class="
       cn(
-        'control-radius data-highlighted:bg-button-ghost-hover relative flex cursor-default items-center px-2 py-1.5 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+        'relative flex cursor-default items-center rounded-xs px-2 py-1.5 text-sm outline-hidden transition-colors select-none data-disabled:pointer-events-none data-disabled:opacity-50',
         inset && 'pl-8',
         props.class
       )

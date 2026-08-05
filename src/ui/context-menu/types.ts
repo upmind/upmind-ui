@@ -2,13 +2,16 @@ import type { PortalTarget } from "../../utils";
 import type { AvatarProps } from "../avatar";
 import type { ButtonProps } from "../button";
 import type { IconProps } from "../icon";
-import type { CxOptions } from "class-variance-authority";
+import type { contentVariants } from "./context-menu.config";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 import type {
   ContextMenuContentProps,
   ContextMenuRootProps,
   ContextMenuTriggerProps
 } from "radix-vue";
 import type { HTMLAttributes } from "vue";
+
+type ContentVariantProps = VariantProps<typeof contentVariants>;
 
 export type ContextMenuItemProps = {
   label: string;
@@ -32,6 +35,7 @@ export type ContextMenuProps = ContextMenuRootProps &
     items: ContextMenuItemProps[];
     // --- variants
     size?: ButtonProps["size"];
+    width?: ContentVariantProps["width"];
     // --- styles
     uiConfig?: {
       contextMenu: {
