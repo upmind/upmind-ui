@@ -60,6 +60,8 @@ import { Button } from "@upmind-automation/upmind-ui";
 | `Dialog` | Modal dialogs |
 | `Popover` | Contextual overlays |
 | `Tooltip` | Hover information |
+| `ContextMenu` | Right-click contextual menu |
+| `Stepper` | Multi-step progress indicator |
 
 ### Form Components
 
