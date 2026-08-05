@@ -1,21 +1,15 @@
-import service from "./client-email.services";
-import type { ScopeActorTypes } from "../scope";
+import type { ClientEmailListQuery } from "./client-email.types";
+import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmails.internals
- * @description Client-emails collection internals sub-composable (debugging).
- */
-
-/** The reactive list query minted by `service.loadList`. */
-type EmailListQuery = ReturnType<typeof service.loadList>;
-
-/**
- * Creates the client-emails collection internals for debugging.
- * @internal
+ * @description Collection internals (debugging). The query half exposes the
+ * raw `query` object; the manager half exposes `send`/`state`/`service`.
+ * @doctrine clause 1 (uniform four-layer default) — TanStack-variant form.
  */
 export function createClientEmailsInternals(
-  query: EmailListQuery,
-  actorScope: ScopeActorTypes
+  actorScope: ScopeActorTypes,
+  query: ClientEmailListQuery
 ) {
   return {
     /** Actor scope for this instance. */

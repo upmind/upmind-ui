@@ -1,18 +1,19 @@
 import { computed } from "vue";
-import { stateValue, contextValue, stateMatches } from "../../utils";
-import { isEqual } from "lodash-es";
-import type { DataManagerContext } from "../data-manager/data-manager.types";
+import { contextValue, stateMatches, stateValue } from "../../utils";
+import { isEmpty, isEqual } from "lodash-es";
+import type { EmailContext } from "./client-email.types";
 import type { UseActor } from "../../utils";
-import type { ScopeActorTypes } from "../scope";
+import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmailManager.meta
- * @description Client-email manager meta factory (computed state flags).
- */
-
-/**
- * Creates the client-email manager meta (computed state flags).
- * @internal
+ * @description Manager meta — FLAT computeds, one per flag, read through the
+ * canonical state utilities only.
+ *
+ * A consumer porting off the pre-scope manager reads `useMeta().isValid` where
+ * it used to read `meta.value.isValid`: the single `meta` object is gone.
+ *
+ * @doctrine clause 2 — shared-only (armless).
  */
 export function createClientEmailManagerMeta(
   _actorScope: ScopeActorTypes,
@@ -20,34 +21,84 @@ export function createClientEmailManagerMeta(
 ) {
   const { state } = actor;
 
-  const meta = computed(() => ({
-    /** True once the form is available for input. */
-    isAvailable: stateMatches(state, "available"),
-    /** True while subscribing or loading lookups. */
-    isLoading: stateMatches(state, ["subscribing", "loading"]),
-    /** True if the available form has errors. */
-    hasErrors: stateMatches(state, "available.error"),
-    /** True if the current model is valid. */
-    isValid: stateMatches(state, "available.valid"),
-    /** True if the model differs from its persisted baseline. */
-    isDirty: !isEqual(
-      contextValue<DataManagerContext["model"]>(state, "model"),
-      contextValue<DataManagerContext["baseModel"]>(state, "baseModel")
-    ),
-    /** True if the email is new (not yet saved). */
-    isNew: !stateMatches(state, "model.id"),
-    /** True while a save is being processed. */
-    isProcessing: stateMatches(state, "processing"),
-    /** True once the email has been saved/completed. */
-    isComplete:
-      stateValue(state, "done", false) ||
-      stateMatches(state, ["processed", "complete"])
-  }));
+  /** True once the form is available for input. */
+  const isAvailable = computed(() => stateMatches(state, "available"));
 
-  // ---------------------------------------------------------------------------
+  /**
+   * True while the machine is waiting for its client id or resolving lookups.
+   * `subscribing` is included deliberately: a manager whose `hasSubscription`
+   * guard has not passed yet is loading, not broken.
+   */
+  const isLoading = computed(() =>
+    stateMatches(state, ["subscribing", "loading"])
+  );
+
+  /** True if the machine captured an error. */
+  const hasErrors = computed(
+    () =>
+      stateMatches(state, "available.error") ||
+      !isEmpty(contextValue<EmailContext["error"]>(state, "error"))
+  );
+
+  /** True if the current model passes schema validation. */
+  const isValid = computed(() => stateMatches(state, "available.valid"));
+
+  /** True if the model differs from its persisted baseline. */
+  const isDirty = computed(
+    () =>
+      !isEqual(
+        contextValue<EmailContext["model"]>(state, "model"),
+        contextValue<EmailContext["baseModel"]>(state, "baseModel")
+      )
+  );
+
+  /**
+   * True if the address is new. Reads the context `id` the machine's own
+   * `isNew` guard reads (`({ id }) => !id`), not a `stateMatches` call against
+   * a context path — which can only ever return false.
+   */
+  const isNew = computed(() => !contextValue<EmailContext["id"]>(state, "id"));
+
+  /** True while a save is being processed. */
+  const isProcessing = computed(() => stateMatches(state, "processing"));
+
+  /** True once the address has been saved. */
+  const isComplete = computed(
+    () =>
+      stateValue<boolean>(state, "done", false) === true ||
+      stateMatches(state, ["processed", "complete"])
+  );
+
+  // --- actor-specific meta: none earned yet (clause 2). When a scope earns
+  // one, add `useClientEmailManager.meta.{actor}.ts` and spread it LAST.
+
   return {
-    /** Meta-information about the manager state. */
-    meta
+    /** True if the machine captured an error. */
+    hasErrors,
+
+    /** True once the form is available for input. */
+    isAvailable,
+
+    /** True once the address has been saved. */
+    isComplete,
+
+    /** True if the model differs from its persisted baseline. */
+    isDirty,
+
+    /** True while subscribing or loading. */
+    isLoading,
+
+    /** True if the address is new (never saved). */
+    isNew,
+
+    /** True while a save is being processed. */
+    isProcessing,
+
+    /** True if the current model passes schema validation. */
+    isValid
+
+    // The arm merges in HERE, last.
+    // ...actorMeta
   };
 }
 

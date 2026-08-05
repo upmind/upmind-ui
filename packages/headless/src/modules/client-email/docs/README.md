@@ -1,120 +1,133 @@
-# Client Email
+# client-email
 
-Scoped composables for a client's email addresses: a **collection**
-(`useClientEmails`) and a per-email **form editor** (`useClientEmailManager`).
-Both follow the ADR 001 scope pattern — `.as(actor)` + the four-layer return
-(`useContext` / `useMeta` / `useActions` / `useInternals`), no direct props.
+> A client's own email-address book — list, add, edit, delete, set a default, and ask for a verification message.
 
-## ELI5
+## What Is This?
 
-A client has one or more email addresses (one is the default; each is verified
-or not). This module gives you two things:
+Think of `client-email` as a client's personal address book, but for email addresses instead of contacts.
 
-- `useClientEmails` — the **list**: read the emails, find the default, remove
-  one, resend a verification, set a new default, or find-or-create one.
-- `useClientEmailManager` — the **single-email form**: type into it, validate,
-  and save one email (add or edit).
+- Every entry is an address the client owns.
+- One entry can be flagged as the **default** — the one used first.
+- Each entry carries its own status: **verified**, **bounced**, and whether it **can be deleted**.
 
-You always say _who_ you are with `.as(...)`: `.as('self')` (the current
-session's client) or `.as('staff').for('client', id)` (staff acting on a
-client). You never pass a client id by hand — the active session supplies it.
+The module ships **two composables**, because reading a list and filling in a form are different jobs:
 
-## Quick start
+| Surface            | Composable              | Use it when                                                                            |
+| ------------------ | ----------------------- | -------------------------------------------------------------------------------------- |
+| **The collection** | `useClientEmails`       | You are showing the list and acting on rows — delete, set default, resend verification |
+| **The editor**     | `useClientEmailManager` | You are showing a form — add a new address, or change an existing one                  |
+
+Both always manage the **calling client's own** book. There is no capability here to open or edit someone else's.
+
+> **🧪 For Testers:** Both composables support the client's own (`self`) scope only. `staff` and `guest` are compile-time errors — there is nothing in this module for one client or a staff member to reach another client's addresses.
+
+## Quick Start
 
 ```ts
 import {
   useClientEmails,
   useClientEmailManager
 } from "@upmind-automation/headless";
-import { ScopeActorTypes } from "@upmind-automation/headless"; // for .as(SELF)
 
-// --- Collection (current session's client)
-const emails = useClientEmails().as(ScopeActorTypes.SELF);
+// --- The collection: read the list, promote a verified address
+const emails = useClientEmails().as("self");
+const { data } = emails.useContext(); // the reactive list you render
+await emails.useActions().isReady();
+await emails.useActions().setDefault("some-verified-email-id");
 
-const { data, default: getDefault, getOne } = emails.useContext();
-const { isLoading, isEmpty, hasError } = emails.useMeta();
-const { isReady, refresh, remove, verify, setDefault, ensure } =
-  emails.useActions();
-
-await isReady(); // resolves once the list is loaded
-const list = data.value; // Email[]
-const primary = getDefault(); // the default Email (or undefined)
-
-// --- Manager (edit one email)
-const manager = useClientEmailManager()
-  .as(ScopeActorTypes.CLIENT)
-  .for("email", emailId);
-const { model, schema, uischema, errors } = manager.useContext();
-const { meta } = manager.useMeta(); // { isValid, isDirty, isProcessing, ... }
-const { input, update, isReady: ready } = manager.useActions();
-
-await ready();
-await input({ email: "new@example.com" }); // debounced parse + validate
-await update(); // persists, resolves the saved model
+// --- The editor: add a new address through the validated form
+const draft = useClientEmailManager().as("self").fresh();
+await draft.useActions().isReady();
+await draft.useActions().update({ email: "me@example.com" });
 ```
 
-## Actor usage
+The editor's save invalidates the shared cache, so an open collection picks the change up on its next read.
 
-| Call                                                    | Meaning                               |
-| ------------------------------------------------------- | ------------------------------------- |
-| `useClientEmails().as('self')`                          | The active session's own email list   |
-| `useClientEmails().as('client')`                        | A client's list (self)                |
-| `useClientEmails().as('staff').for('client', id)`       | Staff reading a client's list         |
-| `useClientEmailManager().as('client').for('email', id)` | Edit a specific email                 |
-| `useClientEmailManager().as('client').fresh()`          | A brand-new email (isolated instance) |
+## Features
 
-`.as(...)` takes the `ScopeActorTypes` enum. Use `ScopeActorTypes.SELF` for the
-common "current session" case.
+| Capability                             | Surface                                                      | What it does                                                 |
+| -------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| List own addresses                     | `useClientEmails().useContext().data`                        | Reactive list of the client's own addresses                  |
+| Read per-address status                | `…useContext().data[].meta`                                  | Default / verified / bounced / deletable flags               |
+| Know whether the list is yours to read | `useClientEmails().useMeta().isAvailable`                    | Authenticated **and** a client id resolved                   |
+| Delete                                 | `useClientEmails().useActions().remove()`                    | Removes a deletable address                                  |
+| Set default                            | `…useActions().setDefault()`                                 | Promotes a **verified** address to the default               |
+| Request verification                   | `…useActions().verify()`                                     | Asks the platform to (re-)send a verification message        |
+| Find or create                         | `…useActions().ensure()`                                     | Resolves an existing match, or creates the address if absent |
+| Filter                                 | `…useActions().filters.query()`                              | Narrows the list to a search term                            |
+| Page                                   | `…useActions().nextPage()` / `.prevPage()`                   | Moves through the list when a page size was asked for        |
+| Add a new address                      | `useClientEmailManager().as('self').fresh()` then `update()` | Creates through the validated form                           |
+| Change an address                      | `…for('email', id)` then `update()`                          | Edits through the validated form; resets the verified flag   |
+| Validate as the client types           | `…useActions().input()` + `useMeta().isValid`                | Reports acceptance and which field is wrong                  |
+| Render the form                        | `…useContext().schema` / `.uischema`                         | The form definition, served by the editor                    |
 
-## Layers
+## Key Concepts
 
-**Collection (`useClientEmails`)** — query-backed (TanStack), no machine:
+### Two surfaces, one client
 
-- `useContext()` → `data`, `default()`, `error`, `pagination`, `getOne`, `findOne`
-- `useMeta()` → `isAvailable`, `isEmpty`, `hasError`, `isLoading`
-- `useActions()` → `isReady`, `ensure`, `remove`, `verify`, `setDefault`,
-  `refresh`, `nextPage`, `prevPage`, `invalidate`, `filters.query`, `destroy`
-- `useInternals()` → `actorScope`, `query` (raw TanStack query)
+The collection and the editor are separate composables, but they share one identity seam, one cache key and one set of request gates. Whichever surface issues a request, it resolves the same target client — from the scope the consumer opened, never from a direct session read.
 
-**Manager (`useClientEmailManager`)** — backed by the shared `dataManagerMachine`:
+> **👩‍💻 For Developers:** Per-address form editing (`add`, `update`, field validation) lives on the **editor**, not on the collection. The collection's create seam is `ensure()` — find-or-create. If you are reaching for `add()` on the collection, you want the editor.
 
-- `useContext()` → `model`, `schema`, `uischema`, `errors`, `validationErrors`,
-  `title`, `description`, `id`, `context`
-- `useMeta()` → `meta` (`isAvailable`, `isValid`, `isDirty`, `isNew`,
-  `isProcessing`, `isComplete`, `hasErrors`, `isLoading`)
-- `useActions()` → `input` (debounced), `update`, `clear`, `stop`, `isReady`,
-  `onDone`, `destroy`
-- `useInternals()` → `actorScope`, `send`, `service`, `state`
+### The collection is always the client's own
 
-## Gotchas
+`useClientEmails().as('self')` resolves to the calling client's own address book. There is no acting-on-behalf-of-another-client capability in this module.
 
-- **Lifecycle.** Both composables are non-singletons in spirit — call
-  `useActions().destroy()` on unmount. The collection's `destroy()` evicts the
-  registry entry; the manager's `destroy()` also **stops the service** first.
-  `stop()` (manager) only halts the service and leaves a stale registry entry —
-  prefer `destroy()`.
-- **Singletons per scope key.** Two calls with the same `(actor, context)` share
-  one instance (one query / one machine). `.fresh()` forces a new manager
-  instance for a new-email form.
-- **The manager seeds its model from the collection.** Editing `for('email', id)`
-  reads the initial model from the active client's `useClientEmails` list, so a
-  stale list yields a stale starting model — `refresh()` the collection first if
-  needed.
-- **`update()` flushes the debounce.** It commits any pending debounced `input()`
-  before saving, so the save never reads a pre-edit model.
-- **Save keeps the form editable.** Scoped manager instances run with
-  `allowMultipleEdits`, so after a save the machine returns to `available`
-  (not the `complete` final state) and a remounting form reuses the instance.
-- **Errors are never silent empties.** A 401/4xx on the list surfaces through
-  `useMeta().hasError` + `useContext().error` — do not read an empty `data` as
-  "no emails".
+> **🧪 For Testers:** With no authenticated client session, the list never fires a request, `useMeta().isAvailable` is `false`, and any mutation rejects immediately rather than reaching the network.
 
-## Tests
+### `isAvailable` has two limbs
 
-- `__tests__/useClientEmails.test.ts` — collection scope resolution, four-layer
-  surface, action delegation, singleton + eviction (query layer mocked).
-- `__tests__/useClientEmailManager.test.ts` — manager actions/meta/context
-  factories in isolation (machine seam mocked).
-- `__tests__/client-email.int.test.ts` — real collection query over a seeded
-  client session against replayed fixtures: happy mapping, 401, 4xx, and the
-  remove DELETE contract. Fixtures in `__tests__/fixtures/`.
+`useMeta().isAvailable` is `true` when the session is authenticated **and** the scope resolved a client id to address. Both limbs matter: a session that authenticates without resolving a client correctly reports `false`.
+
+It is the _same predicate_ every request gate in the module calls, not a second copy — so the flag you render and the guard the wire enforces cannot drift apart. It is reactive: it flips `false` in the same tick the session goes away.
+
+> **🧪 For Testers:** Before sign-in, `isAvailable` is `false` while `isLoading` is still `true` — the pair distinguishes "not mine to read" from "not read yet". On sign-out it flips `false` immediately, emitting no request.
+
+### Editing resets verification
+
+Changing an address's value also resets that record's verified flag — even when the submitted value is identical to what is already stored.
+
+> **🧪 For Testers:** A save through the editor on an existing address always sends `{ email, verified: 0 }`. A previously verified address is unverified again after any save, regardless of whether the address text actually changed.
+
+### Defaulting needs a verified address
+
+The platform rejects a promotion to default when the target is unverified, with a `409` and the message _"The default email cannot be changed to unverified email address!"_. Nothing is checked locally before the request goes out — the record's own `isVerified` flag is your only advance warning.
+
+> **🧪 For Testers:** `setDefault()` on an unverified address is a real server rejection, not a local guard. The failure lands in `useContext().error` for the consumer to render.
+
+### Status flags are informational client-side
+
+`meta.canDelete` and `meta.isDefault` describe what the platform last reported. This module does not block a `remove()` or `setDefault()` call based on them.
+
+> **🧪 For Testers:** Calling `remove()` against a record whose flags suggest it should not be allowed is not stopped here — whatever happens next is decided by the platform.
+
+### Find-or-create avoids duplicate adds
+
+`ensure({ email })` checks the loaded collection first; only when no match is found does it create. Saving a fresh draft in the editor takes the same path.
+
+> **🧪 For Testers:** Calling `ensure({ email })` twice with the same address issues at most one create request — the second call resolves the existing record.
+
+### Errors are state — the module raises nothing
+
+No toast, no notification, no message is raised on your behalf. Every failure is captured where the consumer can read and render it: `useContext().error` / `useMeta().hasError` on the collection, `useContext().errors` and `.validationErrors` / `useMeta().hasErrors` on the editor.
+
+> **👩‍💻 For Developers:** If your UI shows nothing after a failed delete, the error was not lost — it is sitting in `useContext().error` waiting to be rendered.
+
+### Two drafts never collide
+
+Each `.fresh()` call mints its own editor instance with its own model. Two new-address forms open at the same time do not interfere.
+
+## Documentation
+
+| Doc                                  | Audience                                                    | Content                                                                                 |
+| ------------------------------------ | ----------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| **This README**                      | Everyone                                                    | Overview, concepts, quick start                                                         |
+| [usage.md](./usage.md)               | All devs                                                    | Full API reference for both composables, plus the paste-ready form schema and UI schema |
+| [architecture.md](./architecture.md) | Internal / contributors                                     | Data flow, the shared identity seam, dependencies                                       |
+| [gotchas.md](./gotchas.md)           | All                                                         | The sharp edges — verification reset, informational flags, scope, error handling        |
+| [foundation.md](./foundation.md)     | Teams building against the Upmind back end on another stack | Framework-neutral platform spec: endpoints, payloads, failure modes                     |
+| [CHANGELOG.md](./CHANGELOG.md)       | All                                                         | Change history and porting notes                                                        |
+
+## Playground
+
+None yet. Drive the collection and the editor through wherever a client manages their own contact email addresses.

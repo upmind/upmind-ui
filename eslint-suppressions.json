@@ -522,16 +522,6 @@
       "count": 1
     }
   },
-  "packages/headless/src/modules/client-email/client-email.services.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 7
-    }
-  },
-  "packages/headless/src/modules/client-email/useClientEmailManager.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 5
-    }
-  },
   "packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2

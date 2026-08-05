@@ -25,9 +25,8 @@
 
 import { assign } from "xstate";
 import { dataManagerMachine } from "../data-manager";
-import { useModuleServices } from "./module.services";
+import moduleServices from "./module.services";
 import type { DataManagerContext } from "../data-manager/data-manager.types";
-import type { ModuleServices } from "./module.types";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 /**
@@ -38,7 +37,7 @@ import type { AnyEventObject } from "xstate";
  *
  *   const machineService = interpret(
  *     dataManagerMachine
- *       .withConfig(createModuleMachineConfig(service))
+ *       .withConfig(createModuleMachineConfig())
  *       .withContext({ ...seed })
  *   );
  */
@@ -51,9 +50,9 @@ import type { AnyEventObject } from "xstate";
  * three-hook shape forced.
  * @internal
  */
-export function createModuleMachineConfig(
-  service: ModuleServices
-): Parameters<typeof dataManagerMachine.withConfig>[0] {
+export function createModuleMachineConfig(): Parameters<
+  typeof dataManagerMachine.withConfig
+>[0] {
   return {
     // Actions keyed by the names the shared machine references (e.g.
     // setModel / setMeta / refreshContext). Type each updater's context arg as
@@ -73,9 +72,11 @@ export function createModuleMachineConfig(
       //   !!clientId
     },
 
-    // The services adapter for this scoped instance — what the old inline shape
-    // passed as `useXServices() as any`. Thread in the already-scoped `service`.
-    services: useModuleServices(service)
+    // The services map — what the old inline shape passed as
+    // `useXServices() as any`. The machine variant's dispatchers resolve the
+    // arm from `context.scopeActor` per call (no construction-time seam), so
+    // the object is passed directly, not through a per-instance factory.
+    services: moduleServices
   };
 }
 

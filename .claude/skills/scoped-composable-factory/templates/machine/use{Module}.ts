@@ -23,7 +23,6 @@ import {
 import type { ModuleContext, ModuleScopeMatrix } from "./module.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { ScopeConfig, ScopeKey } from "../scope/scope.types";
-import type { IToken } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module module/useModule
@@ -45,11 +44,9 @@ import type { IToken } from "@upmind-automation/types";
  * earned) lives inside the sub-composable factories below, per clause 3.
  * @private
  */
-function createModuleForScope(
-  config: ScopeConfig,
-  _session: IToken | undefined,
-  scopeKey: ScopeKey
-) {
+// Two args — `scope.builder.ts`'s `finalize` calls `factory(resolvedConfig, key)`;
+// a third parameter would misbind `scopeKey` to `undefined`.
+function createModuleForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const actorScope = config.actor as ScopeActorTypes;
 
   const service = interpret(
