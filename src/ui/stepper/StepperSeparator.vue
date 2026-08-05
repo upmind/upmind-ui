@@ -17,16 +17,18 @@ const delegatedProps = computed(() => {
   return delegated;
 });
 
-const forwardedProps = useForwardProps(delegatedProps);
+const forwarded = useForwardProps(delegatedProps);
 </script>
 
 <template>
   <StepperSeparator
-    v-bind="forwardedProps"
+    v-bind="forwarded"
     :class="
       cn(
-        'bg-control-default',
-        'group-data-[disabled]:opacity-50',
+        'bg-accent-neutral/20',
+        // Disabled
+        'group-data-[disabled]:bg-accent-neutral/20 group-data-[disabled]:opacity-50',
+        // Completed
         'group-data-[state=completed]:bg-control-checked',
         props.class
       )

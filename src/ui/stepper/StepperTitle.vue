@@ -17,12 +17,12 @@ const delegatedProps = computed(() => {
   return delegated;
 });
 
-const forwardedProps = useForwardProps(delegatedProps);
+const forwarded = useForwardProps(delegatedProps);
 </script>
 
 <template>
   <StepperTitle
-    v-bind="forwardedProps"
+    v-bind="forwarded"
     :class="cn('text-md font-semibold whitespace-nowrap', props.class)"
   >
     <slot />

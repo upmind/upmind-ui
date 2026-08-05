@@ -17,13 +17,13 @@ const delegatedProps = computed(() => {
   return delegated;
 });
 
-const forwardedProps = useForwardProps(delegatedProps);
+const forwarded = useForwardProps(delegatedProps);
 </script>
 
 <template>
   <StepperDescription
     v-slot="slotProps"
-    v-bind="forwardedProps"
+    v-bind="forwarded"
     :class="cn('text-muted text-xs', props.class)"
   >
     <slot v-bind="slotProps" />
