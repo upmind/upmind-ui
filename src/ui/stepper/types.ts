@@ -16,7 +16,6 @@ export type StepperProps = Omit<
   StepperRootProps,
   "modelValue" | "defaultValue" | "orientation"
 > & {
-  modelValue?: number;
   defaultValue?: number;
   // --- state
   steps: StepperStepProps[];
