@@ -1,0 +1,37 @@
+<script lang="ts" setup>
+import { ChevronRight } from "lucide-vue-next";
+import {
+  ContextMenuSubTrigger,
+  type ContextMenuSubTriggerProps,
+  useForwardProps
+} from "radix-vue";
+import { type HTMLAttributes, computed } from "vue";
+import { cn } from "../../utils";
+
+const props = defineProps<
+  ContextMenuSubTriggerProps & { class?: HTMLAttributes["class"] }
+>();
+
+const delegatedProps = computed(() => {
+  const { class: _, ...delegated } = props;
+
+  return delegated;
+});
+
+const forwardedProps = useForwardProps(delegatedProps);
+</script>
+
+<template>
+  <ContextMenuSubTrigger
+    v-bind="forwardedProps"
+    :class="
+      cn(
+        'focus:bg-accent data-[state=open]:bg-accent flex cursor-default items-center rounded-xs px-2 py-1.5 text-sm outline-hidden select-none',
+        props.class
+      )
+    "
+  >
+    <slot />
+    <ChevronRight class="ml-auto h-4 w-4" />
+  </ContextMenuSubTrigger>
+</template>
