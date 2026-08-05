@@ -1,5 +1,5 @@
 import { mount, type VueWrapper } from "@vue/test-utils";
-import { describe, it, expect, afterEach, beforeAll } from "vitest";
+import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import type { ContextMenuItemProps } from "../../../index";
 
@@ -68,17 +68,63 @@ describe("context-menu", () => {
     expect(document.body.textContent).toContain("Resend verification");
   });
 
-  it("mounts the data-driven convenience component from its items prop", () => {
+  it("renders every visible item's label from the items prop", async () => {
     const items: ContextMenuItemProps[] = [
       { label: "Resend verification", value: "resend" },
       { label: "Delete", value: "delete" }
     ];
 
     wrapper = mount(barrel.ContextMenu, {
-      props: { items },
+      props: { items, label: "Actions" },
       attachTo: document.body
     });
 
-    expect(wrapper.exists()).toBe(true);
+    await wrapper.get("span").trigger("contextmenu");
+
+    expect(document.body.textContent).toContain("Resend verification");
+    expect(document.body.textContent).toContain("Delete");
+    expect(wrapper.findAllComponents(barrel.ContextMenuItem)).toHaveLength(
+      items.length
+    );
+  });
+
+  it("does not render an item marked hidden", async () => {
+    const items: ContextMenuItemProps[] = [
+      { label: "Resend verification", value: "resend" },
+      { label: "Delete", value: "delete", hidden: true }
+    ];
+
+    wrapper = mount(barrel.ContextMenu, {
+      props: { items, label: "Actions" },
+      attachTo: document.body
+    });
+
+    await wrapper.get("span").trigger("contextmenu");
+
+    expect(document.body.textContent).toContain("Resend verification");
+    expect(document.body.textContent).not.toContain("Delete");
+    expect(wrapper.findAllComponents(barrel.ContextMenuItem)).toHaveLength(1);
+  });
+
+  it("invokes only the selected item's own handler", async () => {
+    const resendHandler = vi.fn();
+    const deleteHandler = vi.fn();
+    const items: ContextMenuItemProps[] = [
+      { label: "Resend verification", value: "resend", handler: resendHandler },
+      { label: "Delete", value: "delete", handler: deleteHandler }
+    ];
+
+    wrapper = mount(barrel.ContextMenu, {
+      props: { items, label: "Actions" },
+      attachTo: document.body
+    });
+
+    await wrapper.get("span").trigger("contextmenu");
+
+    const menuItems = wrapper.findAllComponents(barrel.ContextMenuItem);
+    await menuItems[1].vm.$emit("select", new Event("select"));
+
+    expect(deleteHandler).toHaveBeenCalledTimes(1);
+    expect(resendHandler).not.toHaveBeenCalled();
   });
 });

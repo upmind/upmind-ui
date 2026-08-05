@@ -64,4 +64,28 @@ describe("stepper", () => {
       steps.length
     );
   });
+
+  it("forwards each step's own disabled flag to its StepperItem, not a shared value", () => {
+    const steps: StepperStepProps[] = [
+      { step: 1, title: "Details", description: "Enter your details" },
+      {
+        step: 2,
+        title: "Payment",
+        description: "Add a payment method",
+        disabled: true
+      },
+      { step: 3, title: "Confirm", description: "Review and confirm" }
+    ];
+
+    const wrapper = mount(barrel.Stepper, {
+      props: { steps, modelValue: 1 }
+    });
+
+    const stepperItems = wrapper.findAllComponents(barrel.StepperItem);
+
+    expect(stepperItems).toHaveLength(steps.length);
+    expect(stepperItems[0].props("disabled")).toBeFalsy();
+    expect(stepperItems[1].props("disabled")).toBe(true);
+    expect(stepperItems[2].props("disabled")).toBeFalsy();
+  });
 });
