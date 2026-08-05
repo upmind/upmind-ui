@@ -1,18 +1,15 @@
 <script lang="ts" setup>
-import { Icon } from "../icon";
 import {
   ContextMenuSubTrigger,
   type ContextMenuSubTriggerProps,
   useForwardProps
 } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
+import { Icon } from "../icon";
 import { cn } from "../../utils";
 
 const props = defineProps<
-  ContextMenuSubTriggerProps & {
-    class?: HTMLAttributes["class"];
-    inset?: boolean;
-  }
+  ContextMenuSubTriggerProps & { class?: HTMLAttributes["class"] }
 >();
 
 const delegatedProps = computed(() => {
@@ -29,8 +26,7 @@ const forwardedProps = useForwardProps(delegatedProps);
     v-bind="forwardedProps"
     :class="
       cn(
-        'focus:bg-accent data-[state=open]:bg-accent flex cursor-default items-center rounded-xs px-2 py-1.5 text-sm outline-hidden select-none',
-        inset && 'pl-8',
+        'data-highlighted:bg-button-ghost-hover data-[state=open]:bg-button-ghost-hover control-radius flex cursor-default items-center px-2 py-1.5 text-sm outline-hidden select-none',
         props.class
       )
     "

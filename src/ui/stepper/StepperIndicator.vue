@@ -25,10 +25,8 @@ const forwardedProps = useForwardProps(delegatedProps);
     v-bind="forwardedProps"
     :class="
       cn(
-        'text-muted-foreground/50 inline-flex h-10 w-10 items-center justify-center rounded-full',
-        'group-data-[disabled]:text-muted-foreground group-data-[disabled]:opacity-50',
-        'group-data-[state=active]:bg-primary group-data-[state=active]:text-primary-foreground',
-        'group-data-[state=completed]:bg-accent group-data-[state=completed]:text-accent-foreground',
+        'inline-flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-medium transition-colors duration-200',
+        'group-data-[disabled]:opacity-50',
         props.class
       )
     "
