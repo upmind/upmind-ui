@@ -1,11 +1,9 @@
 <script lang="ts" setup>
-import {
-  StepperIndicator,
-  type StepperIndicatorProps,
-  useForwardProps
-} from "radix-vue";
-import { type HTMLAttributes, computed } from "vue";
+import { StepperIndicator, useForwardProps } from "radix-vue";
+import { computed } from "vue";
 import { cn } from "../../utils";
+import type { StepperIndicatorProps } from "radix-vue";
+import type { HTMLAttributes } from "vue";
 
 const props = defineProps<
   StepperIndicatorProps & { class?: HTMLAttributes["class"] }
@@ -25,13 +23,13 @@ const forwarded = useForwardProps(delegatedProps);
     v-bind="forwarded"
     :class="
       cn(
-        'text-muted/50 inline-flex h-10 w-10 items-center justify-center rounded-full',
+        'text-muted-foreground/50 inline-flex h-10 w-10 items-center justify-center rounded-full',
         // Disabled
-        'group-data-[disabled]:text-muted group-data-[disabled]:opacity-50',
+        'group-data-[disabled]:text-muted-foreground group-data-[disabled]:opacity-50',
         // Active
-        'group-data-[state=active]:bg-control-checked group-data-[state=active]:text-control-checked-contrast',
+        'group-data-[state=active]:bg-primary group-data-[state=active]:text-primary-foreground',
         // Completed
-        'group-data-[state=completed]:bg-control-checked group-data-[state=completed]:text-control-checked-contrast',
+        'group-data-[state=completed]:bg-accent group-data-[state=completed]:text-accent-foreground',
         props.class
       )
     "

@@ -1,11 +1,9 @@
 <script lang="ts" setup>
-import {
-  StepperTrigger,
-  type StepperTriggerProps,
-  useForwardProps
-} from "radix-vue";
-import { type HTMLAttributes, computed } from "vue";
+import { StepperTrigger, useForwardProps } from "radix-vue";
+import { computed } from "vue";
 import { cn } from "../../utils";
+import type { StepperTriggerProps } from "radix-vue";
+import type { HTMLAttributes } from "vue";
 
 const props = defineProps<
   StepperTriggerProps & { class?: HTMLAttributes["class"] }

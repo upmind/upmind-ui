@@ -1,12 +1,9 @@
 <script lang="ts" setup>
-import {
-  StepperRoot,
-  type StepperRootEmits,
-  type StepperRootProps,
-  useForwardPropsEmits
-} from "radix-vue";
-import { type HTMLAttributes, computed } from "vue";
+import { StepperRoot, useForwardPropsEmits } from "radix-vue";
+import { computed } from "vue";
 import { cn } from "../../utils";
+import type { StepperRootEmits, StepperRootProps } from "radix-vue";
+import type { HTMLAttributes } from "vue";
 
 const props = defineProps<
   StepperRootProps & { class?: HTMLAttributes["class"] }
@@ -25,8 +22,8 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
 <template>
   <StepperRoot
     v-slot="slotProps"
-    v-bind="forwarded"
     :class="cn('flex gap-2', props.class)"
+    v-bind="forwarded"
   >
     <slot v-bind="slotProps" />
   </StepperRoot>

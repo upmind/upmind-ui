@@ -1,11 +1,9 @@
 <script lang="ts" setup>
-import {
-  StepperSeparator,
-  type StepperSeparatorProps,
-  useForwardProps
-} from "radix-vue";
-import { type HTMLAttributes, computed } from "vue";
+import { StepperSeparator, useForwardProps } from "radix-vue";
+import { computed } from "vue";
 import { cn } from "../../utils";
+import type { StepperSeparatorProps } from "radix-vue";
+import type { HTMLAttributes } from "vue";
 
 const props = defineProps<
   StepperSeparatorProps & { class?: HTMLAttributes["class"] }
@@ -25,11 +23,11 @@ const forwarded = useForwardProps(delegatedProps);
     v-bind="forwarded"
     :class="
       cn(
-        'bg-accent-neutral/20',
+        'bg-muted',
         // Disabled
-        'group-data-[disabled]:bg-accent-neutral/20 group-data-[disabled]:opacity-50',
+        'group-data-[disabled]:bg-muted group-data-[disabled]:opacity-50',
         // Completed
-        'group-data-[state=completed]:bg-control-checked',
+        'group-data-[state=completed]:bg-accent-foreground',
         props.class
       )
     "
