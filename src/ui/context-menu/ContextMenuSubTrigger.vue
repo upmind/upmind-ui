@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ChevronRight } from "lucide-vue-next";
+import { Icon } from "../icon";
 import {
   ContextMenuSubTrigger,
   type ContextMenuSubTriggerProps,
@@ -36,6 +36,6 @@ const forwardedProps = useForwardProps(delegatedProps);
     "
   >
     <slot />
-    <ChevronRight class="ml-auto h-4 w-4" />
+    <Icon icon="chevron-right" class="ml-auto h-4 w-4" />
   </ContextMenuSubTrigger>
 </template>

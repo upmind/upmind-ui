@@ -1,6 +1,7 @@
 <template>
   <Stepper
     v-model="modelValue"
+    :default-value="props.defaultValue"
     :orientation="props.orientation"
     :linear="props.linear"
     :class="cn(styles.stepper.root, props.class)"
@@ -16,7 +17,7 @@
           <StepperTrigger :class="styles.stepper.trigger">
             <StepperIndicator :class="styles.stepper.indicator">
               <slot name="indicator" v-bind="{ item, index }">
-                <Check v-if="item.completed" class="h-4 w-4" />
+                <Icon v-if="item.completed" icon="check" size="nano" />
                 <Icon v-else-if="item.icon" :icon="item.icon" size="nano" />
                 <template v-else>{{ item.step }}</template>
               </slot>
@@ -49,8 +50,6 @@
 </template>
 
 <script lang="ts" setup>
-import { useVModel } from "@vueuse/core";
-import { Check } from "lucide-vue-next";
 import { computed } from "vue";
 import { Icon } from "../icon";
 import config from "./stepper.config";
@@ -87,14 +86,7 @@ const props = withDefaults(defineProps<StepperProps>(), {
   itemClass: ""
 });
 
-const emits = defineEmits<{
-  "update:modelValue": [number | undefined];
-}>();
-
-const modelValue = useVModel(props, "modelValue", emits, {
-  passive: true,
-  defaultValue: props.defaultValue
-});
+const modelValue = defineModel<number>();
 
 const meta = computed(() => ({
   orientation: props.orientation
