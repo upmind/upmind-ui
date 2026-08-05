@@ -51,6 +51,7 @@ export * from "./ui/separator";
 export * from "./ui/skeleton";
 export * from "./ui/sonner";
 export * from "./ui/spinner";
+export * from "./ui/stepper";
 export * from "./ui/switch";
 export * from "./ui/tabs";
 export * from "./ui/tabs";
