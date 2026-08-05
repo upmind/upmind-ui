@@ -1,13 +1,14 @@
 import { cva } from "class-variance-authority";
 
-// Layout mirrors shadcn-vue's Stepper example (absolute-positioned separators);
-// only the colours are swapped for Upmind design tokens.
+// Connector = two flex-1 lines either side of the pill: they auto-centre the
+// pill and meet the neighbouring item's line, so nothing is pinned to the
+// pill's pixel size and both orientations come from swapping the flex axis.
 
 export const rootVariants = cva("flex w-full", {
   variants: {
     orientation: {
-      horizontal: "items-start gap-2",
-      vertical: "flex-col justify-start gap-10"
+      horizontal: "",
+      vertical: "flex-col"
     }
   },
   defaultVariants: {
@@ -15,11 +16,14 @@ export const rootVariants = cva("flex w-full", {
   }
 });
 
-export const itemVariants = cva("relative flex w-full", {
+// `group` is the hook the group-data-[state=…] selectors resolve against.
+// gap-1 is the single pill↔content spacing knob; flex orients it per layout
+// (vertical gap when horizontal/column, horizontal gap when vertical/row).
+export const itemVariants = cva("group flex gap-1", {
   variants: {
     orientation: {
-      horizontal: "flex-col items-center justify-center",
-      vertical: "items-start gap-6"
+      horizontal: "flex-1 flex-col items-center",
+      vertical: ""
     }
   },
   defaultVariants: {
@@ -27,17 +31,32 @@ export const itemVariants = cva("relative flex w-full", {
   }
 });
 
-// z-10 keeps the indicator above the absolute connector line.
+// [line][pill][line] track — runs perpendicular to the item axis.
+export const railVariants = cva("flex items-center", {
+  variants: {
+    orientation: {
+      horizontal: "w-full",
+      vertical: "flex-col self-stretch"
+    }
+  },
+  defaultVariants: {
+    orientation: "horizontal"
+  }
+});
+
 export const triggerVariants = cva("z-10 inline-flex shrink-0");
 
+// Half-line. A completed step colours both halves; an active step colours its
+// leading half (:first-child) so the connector into it reads as done.
 export const separatorVariants = cva(
-  "block shrink-0 rounded-full bg-accent-neutral/20 group-data-[state=completed]:bg-control-checked group-data-[disabled]:opacity-50",
+  "flex-1 rounded-full bg-accent-neutral/20 group-data-[state=completed]:bg-control-checked group-data-[state=active]:first:bg-control-checked group-data-disabled:opacity-50",
   {
     variants: {
       orientation: {
-        horizontal:
-          "absolute top-5 left-[calc(50%+20px)] right-[calc(-50%+20px)] h-0.5",
-        vertical: "absolute top-[42px] left-[20px] h-[105%] w-0.5"
+        horizontal: "h-0.5",
+        // min-h gives the vertical connector its length (step spacing) so the
+        // item height isn't driven by the label.
+        vertical: "w-0.5 min-h-4"
       }
     },
     defaultVariants: {
@@ -49,8 +68,8 @@ export const separatorVariants = cva(
 export const contentVariants = cva("flex flex-col", {
   variants: {
     orientation: {
-      horizontal: "mt-5 items-center gap-0.5 text-center",
-      vertical: "gap-1"
+      horizontal: "items-center text-center",
+      vertical: "self-center"
     }
   },
   defaultVariants: {
@@ -62,6 +81,7 @@ export default {
   stepper: {
     root: rootVariants,
     item: itemVariants,
+    rail: railVariants,
     trigger: triggerVariants,
     indicator: cva(
       "bg-control-surface text-control-foreground shadow-control-default group-data-[state=active]:bg-control-checked group-data-[state=active]:text-control-checked-contrast group-data-[state=active]:shadow-control-checked group-data-[state=completed]:bg-control-checked group-data-[state=completed]:text-control-checked-contrast flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-medium transition-colors duration-200 group-data-[disabled]:opacity-50"
@@ -69,6 +89,7 @@ export default {
     content: contentVariants,
     title: cva("text-display text-sm font-semibold"),
     description: cva("text-muted text-xs"),
-    separator: separatorVariants
+    separator: separatorVariants,
+    separatorHidden: cva("invisible")
   }
 };
