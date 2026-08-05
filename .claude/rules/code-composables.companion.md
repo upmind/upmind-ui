@@ -36,6 +36,13 @@ paths:
 
 The data-fetching lifecycle variant is exemplified by the **auth / product-catalogue** modules.
 
+## Platform seams every composable consumes (never re-derives)
+
+Two platform surfaces touch EVERY composable; consuming them is mandatory, re-deriving them is a defect:
+
+- **Query types** — `modules/query/query.types.ts` exports **`ListQuery<TQueryFnData, TData>`** and **`MutationResult<TData, …>`** precisely so a module never derives `ReturnType<typeof localServiceFn>` from its own instantiated service (the `ListQuery` docblock states this ban verbatim). A module-local `type XQuery = ReturnType<...>` alias over a query/mutation result is the tell.
+- **Identity/target resolution** — the scope builder owns ACTOR resolution (clause 4 above; `resolveSelfActor`, `scope/scope.utils.ts`); the request TARGET id follows the live convention (client-phone / client-address): **scope-context id wins when a `.for()` context is present; the session's `activeUser` id supplies the self case** (`const { activeUser } = useActiveSession().useContext()`). The FE-2824 defect is a services file that **ignores the scope context** and hardwires the session id for every call — dropping `.for('client', id)` retargeting — not the session read itself. Tell: a request URL built from `activeUser` with no scope-context check upstream.
+
 ## Machine-node sweep receipt
 
 Nesting `registering` under `available` made `useSession.completeRegistration`'s `waitFor(["available","done"])` resolve immediately, so the submit was never awaited and the form navigated on — the silent-resolve failure the base rule's sweep exists to catch.

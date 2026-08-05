@@ -14,6 +14,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import "./mocks";
+import { ScopeActorTypes } from "../../scope";
 import { useAccount } from "../useAccount";
 import { sendMock } from "./mocks";
 import type { CompleteRegistrationModel } from "../account.types";
@@ -22,12 +23,12 @@ import type { CompleteRegistrationModel } from "../account.types";
 
 describe("useAccount actions", () => {
   beforeEach(() => {
-    useAccount().as("client").useActions().destroy();
+    useAccount().as(ScopeActorTypes.CLIENT).useActions().destroy();
     vi.clearAllMocks();
   });
 
   it("register(model) sends COMPLETE_REGISTRATION with the model payload", () => {
-    const account = useAccount().as("client");
+    const account = useAccount().as(ScopeActorTypes.CLIENT);
     const model: CompleteRegistrationModel = {
       email: "guest@example.com",
       firstname: "Guest",
@@ -44,7 +45,7 @@ describe("useAccount actions", () => {
   });
 
   it("verify(model) sends VERIFY with the code payload", () => {
-    const account = useAccount().as("client");
+    const account = useAccount().as(ScopeActorTypes.CLIENT);
 
     account.useActions().verify({ code: "123456" });
 
@@ -55,12 +56,12 @@ describe("useAccount actions", () => {
   });
 
   it("destroy() evicts the instance so the next .as() is fresh", () => {
-    const first = useAccount().as("client");
+    const first = useAccount().as(ScopeActorTypes.CLIENT);
     const firstInternals = first.useInternals();
 
     first.useActions().destroy();
 
-    const second = useAccount().as("client");
+    const second = useAccount().as(ScopeActorTypes.CLIENT);
     const secondInternals = second.useInternals();
 
     expect(secondInternals).not.toBe(firstInternals);

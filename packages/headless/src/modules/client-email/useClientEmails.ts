@@ -1,69 +1,86 @@
-import { createScopedComposable } from "../scope/scope.builder";
-import service from "./client-email.services";
+import { createScopedComposable } from "../scope";
+import createClientEmailServices from "./client-email.services";
 import { createClientEmailsActions } from "./useClientEmails.actions";
 import { createClientEmailsContext } from "./useClientEmails.context";
 import { createClientEmailsInternals } from "./useClientEmails.internals";
 import { createClientEmailsMeta } from "./useClientEmails.meta";
 import type { ClientEmailsScopeMatrix } from "./client-email.types";
-import type { ScopeActorTypes } from "../scope";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { IToken } from "@upmind-automation/types";
+import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmails
- * @description Scoped client-emails collection composable. Query-backed (no
- * machine): one TanStack list query per concrete `(actor, context)` scope,
- * minted once at construction inside the scope registry's detached effect scope
- * so the query survives component lifecycles. Returns ONLY the four
- * sub-composable factories — no direct props (ADR 001 four-layer return).
- */
-// -----------------------------------------------------------------------------
-/**
- * Creates the client-emails collection for a specific scope. Actor is already
- * resolved by the scope builder (SELF → concrete actor); the list is addressed
- * to the active session's client by the underlying service.
- * @private
+ * @description Scoped, query-backed collection of a client's email addresses:
+ * one TanStack list query per concrete `(actor, context)` scope, minted once at
+ * construction so it survives component lifecycles. Its sibling is
+ * `useClientEmailManager` — a second scoped composable in the same module,
+ * registered under the SAME module name; the composable name and the scope key
+ * carry the differentiation.
+ *
+ * @doctrine clause 1 (uniform four-layer default).
+ * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
+ * actor; the scope builder resolves SELF before this factory runs.
  */
 function createClientEmailsForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const actorScope = config.actor as ScopeActorTypes;
 
-  // Mint the list query once per scope (persists via the registry effect scope).
+  /**
+   * ONE services instance for this scope. `config.context` goes in here and
+   * nowhere else, so every request the collection issues resolves the same
+   * target client.
+   */
+  const service = createClientEmailServices(actorScope, config.context);
+
+  // Mint the list query ONCE per scope — a `service.loadList()` inside a layer
+  // factory mints a second query, with its own refs, key and effect scope.
   const query = service.loadList({ pagination: { limit: 0 } });
 
+  /**
+   * ONE actions instance per scope, not one per `useActions()` call: the
+   * collection's applied `filters` live in that factory, so a factory minted
+   * per call gives every handle its own filter state — one handle's
+   * `filters.query()` would be invisible to the next, and a second handle's
+   * first filter would silently drop the first handle's. The stateless layers
+   * below stay lazy. Mirrors the manager half.
+   */
+  const actions = createClientEmailsActions(
+    actorScope,
+    service,
+    query,
+    scopeKey
+  );
+
   return {
-    // --- Sub-composables (no direct props)
-    /** Sub-composable for collection actions (mutations, pagination, filters). */
-    useActions: () => createClientEmailsActions(query, scopeKey),
+    // --- Sub-composables (no direct props — clause 1 four-layer return)
+    /** Sub-composable for collection actions (row mutations, lifecycle). */
+    useActions: () => actions,
 
     /** Sub-composable for collection context (reactive list + lookups). */
-    useContext: () => createClientEmailsContext(query),
+    useContext: () => createClientEmailsContext(actorScope, service, query),
 
     /** Sub-composable for advanced debugging and internal access. */
-    useInternals: () => createClientEmailsInternals(query, actorScope),
+    useInternals: () => createClientEmailsInternals(actorScope, query),
 
     /** Sub-composable for collection meta (state flags). */
-    useMeta: () => createClientEmailsMeta(query)
+    useMeta: () => createClientEmailsMeta(actorScope, service, query)
   };
 }
 // -----------------------------------------------------------------------------
 /**
- * Scoped composable for a client's email collection.
+ * Scoped composable for a client's own email collection.
  *
  * @example
  * ```ts
- * // Active session's emails (resolves SELF → active actor)
  * const emails = useClientEmails().as('self')
- * const { data, default: getDefault } = emails.useContext()
+ * const { data, default: defaultEmail } = emails.useContext()
  * await emails.useActions().isReady()
- *
- * // Staff viewing a specific client's emails
- * const clientEmails = useClientEmails().as('staff').for('client', clientId)
+ * await emails.useActions().setDefault(id)
  * ```
  */
 export const useClientEmails = createScopedComposable<
   ReturnType<typeof createClientEmailsForScope>,
   ClientEmailsScopeMatrix
->("client-emails", createClientEmailsForScope);
+>("client-email", createClientEmailsForScope);
 
 // Type export for consumers
 export type UseClientEmails = ReturnType<typeof useClientEmails>;

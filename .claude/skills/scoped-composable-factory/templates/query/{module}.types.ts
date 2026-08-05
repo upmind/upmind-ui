@@ -22,8 +22,7 @@
 
 import { AccessRoleTypes } from "@upmind-automation/types";
 import { ScopeActorTypes } from "../scope/scope.types";
-import type { QueryParams } from "../query";
-import { useQuery } from "../query";
+import type { ListQuery, QueryParams } from "../query";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 /**
@@ -70,7 +69,7 @@ export type ModuleScopeMatrix = typeof MODULE_SCOPE_MATRIX;
  * No machine-context type exists in the query variant — the query itself IS
  * the state (`code-composables.md` Part B "State Machine vs TanStack Query").
  */
-export interface ModuleItem {
+export type ModuleItem = {
   id: string;
   /**
    * Present because `use{Module}.context.{actor}.ts`'s own client-exclusive
@@ -78,7 +77,7 @@ export interface ModuleItem {
    * per-item fields at intake.
    */
   entitlements?: string[];
-}
+};
 
 /**
  * Placeholder wire shape for the list endpoint's raw response item — replace
@@ -89,9 +88,9 @@ export interface ModuleItem {
  * wire type comes from `@upmind-automation/types` there; this skeleton has no
  * such generated type to cite, so `ModuleWireItem` stands in for it).
  */
-export interface ModuleWireItem {
+export type ModuleWireItem = {
   id: string;
-}
+};
 
 /**
  * The CLIENT surface's shape for the same record. This actor's arm reads
@@ -100,10 +99,10 @@ export interface ModuleWireItem {
  * wire type and its own mapper (`mapClientModuleItems`, `module.mappers.ts`).
  * Replace the illustrative extras with this module's real client-only fields.
  */
-export interface ClientModuleWireItem extends ModuleWireItem {
+export type ClientModuleWireItem = ModuleWireItem & {
   internal_notes?: string;
   flagged_by?: string;
-}
+};
 
 /**
  * The view-model half of the pair. `mapClientModuleItems` maps
@@ -111,10 +110,10 @@ export interface ClientModuleWireItem extends ModuleWireItem {
  * `list<Wire[], View[]>` generics. A wire type without its view-model half does
  * not build — add them together.
  */
-export interface ClientModuleItem extends ModuleItem {
+export type ClientModuleItem = ModuleItem & {
   internalNotes?: string;
   flaggedBy?: string;
-}
+};
 
 // --- Add the module's form/request/response model types below this line.
 export type ModuleModel = Record<string, unknown>;
@@ -136,7 +135,14 @@ export type ModuleModel = Record<string, unknown>;
  * no query-backed module has earned a services arm, so this contract's SHAPE is
  * borrowed from the machine variant, not from a live query-variant precedent.
  */
-export interface ModuleServices {
+export type ModuleServices = {
+  /**
+   * The stable base query key the module's list caches under — the shared
+   * factory always supplies it (`invalidate`/`refresh` in the actions layer
+   * key off it). Declared here so the factory's annotated return literal
+   * passes TS excess-property checking.
+   */
+  queryKey: (string | Record<string, unknown>)[];
   /**
    * OVERRIDING MEMBER contract — the clearest per-actor divergence this layer
    * has: the SAME list and the SAME endpoint, but each actor asks for what it
@@ -146,7 +152,7 @@ export interface ModuleServices {
    */
   loadList: (
     params?: Partial<QueryParams<ModuleWireItem[], ModuleItem[]>>
-  ) => ReturnType<ReturnType<typeof useQuery>["list"]>;
+  ) => ListQuery<ModuleWireItem[], ModuleItem[]>;
   /**
    * Shared domain mutation — required, because the shared factory always
    * supplies it and both the shared `login` action and the actions arm's
@@ -174,7 +180,7 @@ export interface ModuleServices {
    * `auth/auth.types.ts:236-243`.
    */
   registerAsGuest?: () => Promise<unknown>;
-}
+};
 
 /**
  * The common type `scopedSchemas()` in `module.schemas.ts` resolves to — same
@@ -182,16 +188,20 @@ export interface ModuleServices {
  * required because the shared factory always supplies them; an arm overriding
  * one types its own export as `Partial<ModuleSchemas>`.
  */
-export interface ModuleSchemas {
+export type ModuleSchemas = {
   useSchema: () => JsonSchema7;
   useUischema: () => UISchemaElement;
   useModuleModelParser: (model?: ModuleModel) => ModuleModel;
-}
+};
 
 /**
  * The reactive list query. Minted ONCE per scope in `useModule.ts` and passed
  * into every layer factory and arm — never re-minted per sub-composable, or
  * each one gets its own query key, refs and effect scope.
- * @precedent `client-email/useClientEmails.context.ts`'s own `EmailListQuery`.
+ *
+ * Aliased from the query platform's own `ListQuery` — NEVER derived with
+ * `ReturnType<typeof localServiceFn>`; `ListQuery`'s docblock states that ban
+ * verbatim (`modules/query/query.types.ts`). Platform seams law:
+ * `code-composables.companion.md` "Platform seams every composable consumes".
  */
-export type ModuleListQuery = ReturnType<ModuleServices["loadList"]>;
+export type ModuleListQuery = ListQuery<ModuleWireItem[], ModuleItem[]>;
