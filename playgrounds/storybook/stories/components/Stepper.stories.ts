@@ -49,3 +49,33 @@ export const Base: Story = {};
 export const Vertical: Story = {
   args: { orientation: "vertical" }
 };
+
+// One step per state so completed / active / inactive / disabled are all visible.
+export const States: Story = {
+  args: {
+    defaultValue: 2,
+    steps: [
+      {
+        step: 1,
+        title: "Completed",
+        description: "Done step",
+        completed: true
+      },
+      { step: 2, title: "Active", description: "Current step" },
+      { step: 3, title: "Inactive", description: "Upcoming step" },
+      {
+        step: 4,
+        title: "Disabled",
+        description: "Cannot proceed",
+        disabled: true
+      }
+    ] as StepperStepProps[]
+  }
+};
+
+export const StatesVertical: Story = {
+  args: {
+    ...States.args,
+    orientation: "vertical"
+  }
+};
