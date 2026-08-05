@@ -15,7 +15,7 @@ export const rootVariants = cva("flex gap-2", {
 export const itemVariants = cva("group flex gap-2", {
   variants: {
     orientation: {
-      horizontal: "flex-1 flex-col items-center text-center",
+      horizontal: "relative flex-1 flex-col items-center text-center",
       vertical: "w-full items-start text-left"
     }
   },
@@ -37,11 +37,11 @@ export const triggerVariants = cva("flex gap-2 rounded-lg p-1", {
 });
 
 export const separatorVariants = cva(
-  "bg-control-default group-data-[state=completed]:bg-control-checked group-data-[disabled]:opacity-50",
+  "bg-accent-neutral/20 group-data-[state=completed]:bg-control-checked group-data-[disabled]:opacity-50",
   {
     variants: {
       orientation: {
-        horizontal: "mt-5 h-px flex-1",
+        horizontal: "absolute top-5 -right-1/2 left-1/2 mx-5 h-0.5",
         vertical: "ml-5 h-8 w-px"
       }
     },

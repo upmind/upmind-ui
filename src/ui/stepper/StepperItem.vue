@@ -13,13 +13,13 @@ const delegatedProps = computed(() => {
   return delegated;
 });
 
-const forwardedProps = useForwardProps(delegatedProps);
+const forwarded = useForwardProps(delegatedProps);
 </script>
 
 <template>
   <StepperItem
     v-slot="slotProps"
-    v-bind="forwardedProps"
+    v-bind="forwarded"
     :class="
       cn(
         'group flex items-center gap-2 data-[disabled]:pointer-events-none',

@@ -9,7 +9,10 @@ import { Icon } from "../icon";
 import { cn } from "../../utils";
 
 const props = defineProps<
-  ContextMenuSubTriggerProps & { class?: HTMLAttributes["class"] }
+  ContextMenuSubTriggerProps & {
+    class?: HTMLAttributes["class"];
+    inset?: boolean;
+  }
 >();
 
 const delegatedProps = computed(() => {
@@ -26,7 +29,8 @@ const forwardedProps = useForwardProps(delegatedProps);
     v-bind="forwardedProps"
     :class="
       cn(
-        'data-highlighted:bg-button-ghost-hover data-[state=open]:bg-button-ghost-hover control-radius flex cursor-default items-center px-2 py-1.5 text-sm outline-hidden select-none',
+        'control-radius data-highlighted:bg-button-ghost-hover data-[state=open]:bg-button-ghost-hover flex cursor-default items-center px-2 py-1.5 text-sm outline-none select-none',
+        inset && 'pl-8',
         props.class
       )
     "

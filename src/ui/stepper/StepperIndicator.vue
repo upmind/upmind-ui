@@ -17,16 +17,21 @@ const delegatedProps = computed(() => {
   return delegated;
 });
 
-const forwardedProps = useForwardProps(delegatedProps);
+const forwarded = useForwardProps(delegatedProps);
 </script>
 
 <template>
   <StepperIndicator
-    v-bind="forwardedProps"
+    v-bind="forwarded"
     :class="
       cn(
-        'inline-flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-medium transition-colors duration-200',
-        'group-data-[disabled]:opacity-50',
+        'text-muted/50 inline-flex h-10 w-10 items-center justify-center rounded-full',
+        // Disabled
+        'group-data-[disabled]:text-muted group-data-[disabled]:opacity-50',
+        // Active
+        'group-data-[state=active]:bg-control-checked group-data-[state=active]:text-control-checked-contrast',
+        // Completed
+        'group-data-[state=completed]:bg-control-checked group-data-[state=completed]:text-control-checked-contrast',
         props.class
       )
     "
