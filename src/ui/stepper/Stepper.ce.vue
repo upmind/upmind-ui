@@ -6,17 +6,23 @@
     :linear="props.linear"
     :class="cn(styles.stepper.root, props.class)"
   >
-    <template v-for="(item, index) in steps" :key="`stepper-item-${item.step}`">
-      <StepperItem
-        :step="item.step"
-        :disabled="item.disabled"
-        :completed="item.completed"
-        :class="cn(styles.stepper.item, props.itemClass)"
-      >
-        <slot name="item" v-bind="{ item, index }">
-          <StepperSeparator
-            v-if="index < steps.length - 1"
-            :class="styles.stepper.separator"
+    <StepperItem
+      v-for="(item, index) in steps"
+      :key="`stepper-item-${item.step}`"
+      :step="item.step"
+      :disabled="item.disabled"
+      :completed="item.completed"
+      :class="cn(styles.stepper.item, props.itemClass)"
+    >
+      <slot name="item" v-bind="{ item, index }">
+        <div :class="styles.stepper.rail">
+          <span
+            :class="
+              cn(
+                styles.stepper.separator,
+                index === 0 && styles.stepper.separatorHidden
+              )
+            "
           />
           <StepperTrigger :class="styles.stepper.trigger">
             <StepperIndicator :class="styles.stepper.indicator">
@@ -27,24 +33,32 @@
               </slot>
             </StepperIndicator>
           </StepperTrigger>
+          <span
+            :class="
+              cn(
+                styles.stepper.separator,
+                index === steps.length - 1 && styles.stepper.separatorHidden
+              )
+            "
+          />
+        </div>
 
-          <div
-            v-if="item.title || item.description"
-            :class="styles.stepper.content"
+        <div
+          v-if="item.title || item.description"
+          :class="styles.stepper.content"
+        >
+          <StepperTitle v-if="item.title" :class="styles.stepper.title">
+            {{ item.title }}
+          </StepperTitle>
+          <StepperDescription
+            v-if="item.description"
+            :class="styles.stepper.description"
           >
-            <StepperTitle v-if="item.title" :class="styles.stepper.title">
-              {{ item.title }}
-            </StepperTitle>
-            <StepperDescription
-              v-if="item.description"
-              :class="styles.stepper.description"
-            >
-              {{ item.description }}
-            </StepperDescription>
-          </div>
-        </slot>
-      </StepperItem>
-    </template>
+            {{ item.description }}
+          </StepperDescription>
+        </div>
+      </slot>
+    </StepperItem>
   </Stepper>
 </template>
 
@@ -56,7 +70,6 @@ import Stepper from "./Stepper.vue";
 import StepperDescription from "./StepperDescription.vue";
 import StepperIndicator from "./StepperIndicator.vue";
 import StepperItem from "./StepperItem.vue";
-import StepperSeparator from "./StepperSeparator.vue";
 import StepperTitle from "./StepperTitle.vue";
 import StepperTrigger from "./StepperTrigger.vue";
 import { cn, useStyles } from "../../utils";
@@ -73,12 +86,14 @@ const props = withDefaults(defineProps<StepperProps>(), {
     stepper: {
       root: [],
       item: [],
+      rail: [],
       trigger: [],
       indicator: [],
       content: [],
       title: [],
       description: [],
-      separator: []
+      separator: [],
+      separatorHidden: []
     }
   }),
   class: "",
