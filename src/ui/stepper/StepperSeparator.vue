@@ -25,9 +25,9 @@ const forwardedProps = useForwardProps(delegatedProps);
     v-bind="forwardedProps"
     :class="
       cn(
-        'bg-muted',
-        'group-data-[disabled]:bg-muted group-data-[disabled]:opacity-50',
-        'group-data-[state=completed]:bg-accent-foreground',
+        'bg-control-default',
+        'group-data-[disabled]:opacity-50',
+        'group-data-[state=completed]:bg-control-checked',
         props.class
       )
     "

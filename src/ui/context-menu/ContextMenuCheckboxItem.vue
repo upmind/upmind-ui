@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { Icon } from "../icon";
 import {
   ContextMenuCheckboxItem,
   type ContextMenuCheckboxItemEmits,
@@ -8,6 +7,7 @@ import {
   useForwardPropsEmits
 } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
+import { Icon } from "../icon";
 import { cn } from "../../utils";
 
 const props = defineProps<
@@ -29,7 +29,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
     v-bind="forwarded"
     :class="
       cn(
-        'focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center rounded-xs py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50',
+        'data-highlighted:bg-button-ghost-hover control-radius relative flex cursor-default items-center py-1.5 pr-2 pl-8 text-sm outline-hidden transition-colors select-none data-disabled:pointer-events-none data-disabled:opacity-50',
         props.class
       )
     "
