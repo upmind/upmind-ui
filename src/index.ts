@@ -12,6 +12,7 @@ export * from "./ui/button-group";
 export * from "./ui/card";
 export * from "./ui/carousel";
 export * from "./ui/checkbox";
+export * from "./ui/context-menu";
 export * from "./ui/checkbox-cards";
 export * from "./ui/checkbox-group";
 export * from "./ui/combobox";
