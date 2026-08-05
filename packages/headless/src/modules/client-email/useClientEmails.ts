@@ -24,11 +24,7 @@ import type { IToken } from "@upmind-automation/types";
  * to the active session's client by the underlying service.
  * @private
  */
-function createClientEmailsForScope(
-  config: ScopeConfig,
-  _session: IToken | undefined,
-  scopeKey: ScopeKey
-) {
+function createClientEmailsForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const actorScope = config.actor as ScopeActorTypes;
 
   // Mint the list query once per scope (persists via the registry effect scope).

@@ -41,7 +41,6 @@ import type { IToken } from "@upmind-automation/types";
  */
 function createClientEmailManagerForScope(
   config: ScopeConfig,
-  _session: IToken | undefined,
   scopeKey: ScopeKey
 ) {
   const { t } = useI18n();

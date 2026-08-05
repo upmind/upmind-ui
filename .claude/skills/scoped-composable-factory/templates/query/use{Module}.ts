@@ -21,7 +21,6 @@ import { createModuleMeta } from "./useModule.meta";
 import type { ModuleScopeMatrix } from "./module.types";
 import { ScopeActorTypes } from "../scope";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { IToken } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module module/useModule
@@ -36,11 +35,7 @@ import type { IToken } from "@upmind-automation/types";
  * here is ALREADY a concrete actor.
  * @precedent `client-email/useClientEmails.ts`.
  */
-function createModuleForScope(
-  config: ScopeConfig,
-  _session: IToken | undefined,
-  scopeKey: ScopeKey
-) {
+function createModuleForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const actorScope = config.actor as ScopeActorTypes;
 
   const service = createModuleServices(actorScope, config.context);

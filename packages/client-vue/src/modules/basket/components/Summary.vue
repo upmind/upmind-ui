@@ -243,8 +243,6 @@ import {
   reject,
   some
 } from "lodash-es";
-
-// --- types
 import type { SummaryProps } from "./types";
 import type { Product } from "@upmind-automation/headless";
 
@@ -260,7 +258,7 @@ const props = withDefaults(defineProps<SummaryProps>(), {
 
 const { t } = useI18n();
 const { meta, products, summary } = useBasket();
-const { ui: _ui, data } = useConfig();
+const { ui, data } = useConfig();
 const { formatPrice } = useMoney();
 const { card } = useSection();
 
