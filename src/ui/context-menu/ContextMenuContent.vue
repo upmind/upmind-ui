@@ -10,17 +10,12 @@ import { type HTMLAttributes, computed } from "vue";
 import { persistentRing } from "../../assets/styles";
 import { cn, usePortalTarget, type PortalTarget } from "../../utils";
 
-const props = withDefaults(
-  defineProps<
-    ContextMenuContentProps & {
-      class?: HTMLAttributes["class"];
-      to?: PortalTarget;
-    }
-  >(),
-  {
-    sideOffset: 4
+const props = defineProps<
+  ContextMenuContentProps & {
+    class?: HTMLAttributes["class"];
+    to?: PortalTarget;
   }
-);
+>();
 const emits = defineEmits<ContextMenuContentEmits>();
 
 const delegatedProps = computed(() => {
