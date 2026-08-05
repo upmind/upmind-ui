@@ -1,11 +1,9 @@
 <script lang="ts" setup>
-import {
-  StepperDescription,
-  type StepperDescriptionProps,
-  useForwardProps
-} from "radix-vue";
-import { type HTMLAttributes, computed } from "vue";
+import { StepperDescription, useForwardProps } from "radix-vue";
+import { computed } from "vue";
 import { cn } from "../../utils";
+import type { StepperDescriptionProps } from "radix-vue";
+import type { HTMLAttributes } from "vue";
 
 const props = defineProps<
   StepperDescriptionProps & { class?: HTMLAttributes["class"] }
@@ -24,7 +22,7 @@ const forwarded = useForwardProps(delegatedProps);
   <StepperDescription
     v-slot="slotProps"
     v-bind="forwarded"
-    :class="cn('text-muted text-xs', props.class)"
+    :class="cn('text-muted-foreground text-xs', props.class)"
   >
     <slot v-bind="slotProps" />
   </StepperDescription>
