@@ -1,45 +1,69 @@
 import { computed } from "vue";
-import service from "./client-email.services";
-import { useCollection } from "../../utils";
+import { mapToHeadlessError, useCollection } from "../../utils";
 import { isArray } from "lodash-es";
-import type { Email } from "./client-email.types";
+import type {
+  ClientEmailListQuery,
+  ClientEmailServices,
+  Email
+} from "./client-email.types";
+import type { ResponseError } from "../../utils";
+import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmails.context
- * @description Client-emails collection context factory — the reactive list and
- * its lookup helpers. Query-backed (no machine): the context reads directly from
- * the shared TanStack query minted once per scope in the composable factory.
+ * @description Collection context — the reactive list and its lookup helpers.
+ * Query-backed: data is mapped in `client-email.services.ts` via `select`,
+ * never here.
+ *
+ * ERRORS ARE STATE, NOT EVENTS. `error` is the scope's captured failure —
+ * the last rejected row mutation, else the list query's own — exposed for the
+ * consumer to render. This layer never raises it.
+ *
+ * @doctrine clause 2 — shared-only (armless).
  */
-
-/** The reactive list query minted by `service.loadList`. */
-type EmailListQuery = ReturnType<typeof service.loadList>;
-
-/**
- * Creates the client-emails collection context (reactive data + lookups).
- * @internal
- */
-export function createClientEmailsContext(query: EmailListQuery) {
+export function createClientEmailsContext(
+  _actorScope: ScopeActorTypes,
+  service: ClientEmailServices,
+  query: ClientEmailListQuery
+) {
   const { findOne, getOne, getDefault } = useCollection<Email>(query.data);
 
-  // ---------------------------------------------------------------------------
-  return {
-    /** The reactive list of the client's emails (always an array). */
-    data: computed(() => (isArray(query.data.value) ? query.data.value : [])),
+  // `castArray(undefined)` yields a phantom element, so the empty case is
+  // spelled out rather than cast.
+  const data = computed(() =>
+    isArray(query.data.value) ? query.data.value : []
+  );
 
-    /** Returns the client's default email, or undefined if none. */
+  const error = computed<ResponseError | undefined>(
+    () =>
+      service.error.value ??
+      (query.error.value ? mapToHeadlessError(query.error.value) : undefined)
+  );
+
+  // --- actor-specific context: none earned yet (clause 2). When a scope earns
+  // one, add `useClientEmails.context.{actor}.ts` and spread it LAST.
+
+  return {
+    /** The reactive list of this scope's addresses (always an array). */
+    data,
+
+    /** This scope's default address, or undefined if none. */
     default: getDefault,
 
-    /** The current error state of the list query, if any. */
-    error: query.error,
+    /** The scope's captured error — read, never raised. */
+    error,
 
-    /** Finds a single email by a partial mapping (title/description match). */
+    /** Finds a single address by a partial mapping. */
     findOne,
 
-    /** Finds a single email by id. */
+    /** Finds a single address by id. */
     getOne,
 
     /** Reactive pagination descriptor for the list query. */
     pagination: query.pagination
+
+    // The arm merges in HERE, last.
+    // ...actorContext
   };
 }
 

@@ -1,20 +1,25 @@
 import { useContext } from "../../utils";
-import type { DataManagerContext } from "../data-manager/data-manager.types";
+import type { EmailContext, EmailModel } from "./client-email.types";
 import type { ResponseError, UseActor } from "../../utils";
-import type { ScopeActorTypes } from "../scope";
+import type { ScopeActorTypes } from "../scope/scope.types";
 import type { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmailManager.context
- * @description Client-email manager context factory (computed form values).
+ * @description Manager context — the reactive read side of the machine
+ * context. Every member goes through the `useContext` state-read utility;
+ * `state.value.context` is never read directly.
  *
- * NOTE: Never access state.value.context directly — always use the useContext
- * utility.
- */
-
-/**
- * Creates the client-email manager context (computed form values).
- * @internal
+ * THIS is where the schema and uischema surface. They enter the system in
+ * `useClientEmailManager.machine.ts`'s `setSchemas`, live in machine context,
+ * and reach consumers HERE — the barrel exports no bare pair, because a form
+ * rendered from a schema the machine has not adopted validates against a
+ * different contract than the one that saves.
+ *
+ * ERRORS ARE STATE, NOT EVENTS. `errors` and `validationErrors` are the
+ * machine's captured failure, exposed for the consumer to render.
+ *
+ * @doctrine clause 2 — shared-only (armless).
  */
 export function createClientEmailManagerContext(
   _actorScope: ScopeActorTypes,
@@ -22,34 +27,39 @@ export function createClientEmailManagerContext(
 ) {
   const { state } = actor;
 
-  // ---------------------------------------------------------------------------
+  // --- actor-specific context: none earned yet (clause 2). When a scope earns
+  // one, add `useClientEmailManager.context.{actor}.ts` and spread it LAST.
+
   return {
     /** The full data-manager context object. */
-    context: useContext<DataManagerContext>(state),
+    context: useContext<EmailContext>(state),
 
-    /** Description of the email. */
+    /** Description of the email being managed. */
     description: useContext<string | undefined>(state, "description"),
 
-    /** Error message(s) from the context, if any. */
+    /** Machine-captured error message, if any — read, never raised. */
     errors: useContext<ResponseError["message"]>(state, "error.message"),
 
-    /** The id of the email being managed (undefined for a new email). */
+    /** The id of the email being managed (undefined for a new address). */
     id: useContext<string | undefined>(state, "id"),
 
     /** The current form model. */
-    model: useContext<DataManagerContext["model"]>(state, "model"),
+    model: useContext<EmailModel | undefined>(state, "model"),
 
-    /** The JSON schema for the form. */
-    schema: useContext<DataManagerContext["schema"]>(state, "schema"),
+    /** The JSON schema for the form (from machine context — see JSDoc). */
+    schema: useContext<EmailContext["schema"]>(state, "schema"),
 
     /** Display title of the email. */
     title: useContext<string | undefined>(state, "title"),
 
-    /** The UI schema for the form. */
-    uischema: useContext<DataManagerContext["uischema"]>(state, "uischema"),
+    /** The UI schema for the form (from machine context — see JSDoc). */
+    uischema: useContext<EmailContext["uischema"]>(state, "uischema"),
 
-    /** Field-level validation errors (AJV ErrorObject[]). */
+    /** Field-level validation errors (AJV `ErrorObject[]`) — read, never raised. */
     validationErrors: useContext<ErrorObject[]>(state, "error.data")
+
+    // The arm merges in HERE, last.
+    // ...actorContext
   };
 }
 

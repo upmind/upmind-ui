@@ -48,7 +48,7 @@ describe("useAccount meta", () => {
     useStateMatchesMock.mockReturnValue({ value: false });
     contextValueMock.mockReturnValue(undefined);
     useContextMock.mockReturnValue({ value: undefined });
-    useAccount().as("client").useActions().destroy();
+    useAccount().as(ScopeActorTypes.CLIENT).useActions().destroy();
   });
 
   it("scope matrix: self/guest → null, staff/client → CLIENT", () => {
@@ -65,7 +65,7 @@ describe("useAccount meta", () => {
     );
 
     // acct-gotchas §4 🧪 — unsupported scope yields no client lifecycle
-    const guestInstance = useAccount().as("guest");
+    const guestInstance = useAccount().as(ScopeActorTypes.GUEST);
     expect(guestInstance.useMeta().canShowForms.value).toBe(false);
   });
 
@@ -74,14 +74,14 @@ describe("useAccount meta", () => {
     contextValueMock.mockReturnValue(ClientFormType.REGISTER as never);
     useContextMock.mockReturnValue({ value: ClientFormType.REGISTER } as never);
 
-    const meta = useAccount().as("client").useMeta();
+    const meta = useAccount().as(ScopeActorTypes.CLIENT).useMeta();
 
     expect(meta.showGuestUpgradeForm.value).toBe(true);
     expect(meta.showGuestEmailForm.value).toBe(false);
 
     contextValueMock.mockReturnValue(ClientFormType.EMAIL as never);
     useContextMock.mockReturnValue({ value: ClientFormType.EMAIL } as never);
-    const metaEmail = useAccount().as("client").useMeta();
+    const metaEmail = useAccount().as(ScopeActorTypes.CLIENT).useMeta();
 
     expect(metaEmail.showGuestUpgradeForm.value).toBe(false);
     expect(metaEmail.showGuestEmailForm.value).toBe(true);
@@ -92,7 +92,7 @@ describe("useAccount meta", () => {
     contextValueMock.mockReturnValue(ClientFormType.REGISTER as never);
     useContextMock.mockReturnValue({ value: ClientFormType.REGISTER } as never);
 
-    const meta = useAccount().as("client").useMeta();
+    const meta = useAccount().as(ScopeActorTypes.CLIENT).useMeta();
 
     expect(meta.canShowForms.value).toBe(false);
   });

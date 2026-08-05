@@ -1,0 +1,13 @@
+--- a/packages/headless/src/modules/client-email/index.ts
++++ b/packages/headless/src/modules/client-email/index.ts
+@@ -18,10 +18,6 @@
+ 
+ // --- Composables (collection + manager)
+ export { useClientEmails, type UseClientEmails } from "./useClientEmails";
+-export {
+-  useClientEmailManager,
+-  type UseClientEmailManager
+-} from "./useClientEmailManager";
+ 
+ // --- Scope matrices — one per composable, both public
+ export {

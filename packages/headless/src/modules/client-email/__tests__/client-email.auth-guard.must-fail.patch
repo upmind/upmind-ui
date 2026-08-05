@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-email/client-email.services.ts
++++ b/packages/headless/src/modules/client-email/client-email.services.ts
+@@ -95,7 +95,7 @@
+ function isAddressable(clientId?: string): boolean {
+   const { isAuthenticated } = useActiveSession().useMeta();
+ 
+-  return isAuthenticated.value && !!clientId;
++  return !isAuthenticated.value || !!clientId;
+ }
+ 
+ /**

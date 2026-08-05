@@ -12,7 +12,7 @@ import { http, HttpResponse } from "msw";
 import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
 import { filter, forEach } from "lodash-es";
 import type { IToken } from "@upmind-automation/types";
-import type { SetupServerApi } from "msw/node";
+import type { SetupServer } from "msw/node";
 
 // -----------------------------------------------------------------------------
 
@@ -40,7 +40,7 @@ export type FixtureOverrides = {
  * installing the override.
  */
 export function makeFixtureOverrides(
-  server: SetupServerApi | undefined,
+  server: SetupServer | undefined,
   recordingsDir: string
 ): FixtureOverrides {
   function overrideToken(key: string): IToken {

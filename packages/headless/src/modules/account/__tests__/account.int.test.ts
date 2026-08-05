@@ -18,6 +18,7 @@ import { http, HttpResponse } from "msw";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
 import { clearSessionCookies } from "../../../__tests__/int-test-helpers";
+import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   useSessionStore,
   useActiveSession,
@@ -144,7 +145,7 @@ describe("account integration (fixture replay)", () => {
   beforeEach(() => {
     clearSessionCookies();
     sessionStorage.clear();
-    useAccount().as("client").useActions().destroy();
+    useAccount().as(ScopeActorTypes.CLIENT).useActions().destroy();
     brandStub.enforceEmailVerification.value = true;
   });
 
@@ -157,7 +158,7 @@ describe("account integration (fixture replay)", () => {
       emailVerified: false
     });
 
-    const meta = useAccount().as("client").useMeta();
+    const meta = useAccount().as(ScopeActorTypes.CLIENT).useMeta();
 
     expect(meta.isGuest.value).toBe(true);
     expect(meta.showVerifyEmailForm.value).toBe(false);
@@ -172,7 +173,7 @@ describe("account integration (fixture replay)", () => {
       emailVerified: false
     });
 
-    const meta = useAccount().as("client").useMeta();
+    const meta = useAccount().as(ScopeActorTypes.CLIENT).useMeta();
 
     expect(meta.showVerifyEmailForm.value).toBe(false);
     expect(meta.canShowForms.value).toBe(false);
@@ -187,7 +188,7 @@ describe("account integration (fixture replay)", () => {
       emailVerified: false
     });
 
-    const meta = useAccount().as("client").useMeta();
+    const meta = useAccount().as(ScopeActorTypes.CLIENT).useMeta();
 
     expect(meta.showVerifyEmailForm.value).toBe(true);
   });
@@ -201,7 +202,7 @@ describe("account integration (fixture replay)", () => {
       verified: false,
       emailVerified: false
     });
-    const account = useAccount().as("client");
+    const account = useAccount().as(ScopeActorTypes.CLIENT);
     // Drain the authSubscription's initial AUTHENTICATED/SESSION reset before
     // acting, so it can't abort the in-flight verify (see seedStanding).
     await vi.waitFor(() =>
@@ -242,7 +243,7 @@ describe("account integration (fixture replay)", () => {
       verified: false,
       emailVerified: false
     });
-    const account = useAccount().as("client");
+    const account = useAccount().as(ScopeActorTypes.CLIENT);
 
     const requests: string[] = [];
     const spy = ({ request }: { request: Request }): void => {
@@ -269,7 +270,7 @@ describe("account integration (fixture replay)", () => {
       verified: false,
       emailVerified: false
     });
-    const account = useAccount().as("client");
+    const account = useAccount().as(ScopeActorTypes.CLIENT);
     // Drain the authSubscription's initial AUTHENTICATED/SESSION reset before
     // acting, so it can't reset the resend region mid-flight (see seedStanding).
     await vi.waitFor(() =>
@@ -307,7 +308,7 @@ describe("account integration (fixture replay)", () => {
       verified: false,
       emailVerified: false
     });
-    const context = useAccount().as("client").useContext();
+    const context = useAccount().as(ScopeActorTypes.CLIENT).useContext();
 
     // The register schema is set synchronously on entry with EMPTY custom
     // fields; profile_picture only appears once getCustomFields resolves. Wait
@@ -334,7 +335,7 @@ describe("account integration (fixture replay)", () => {
       recordingsDir
     });
     const seededEmail = selfResponse.data.actor.username;
-    const account = useAccount().as("client");
+    const account = useAccount().as(ScopeActorTypes.CLIENT);
 
     const requestMethods: string[] = [];
     const spy = ({ request }: { request: Request }): void => {

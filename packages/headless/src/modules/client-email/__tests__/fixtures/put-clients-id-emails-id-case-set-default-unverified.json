@@ -1,0 +1,55 @@
+{
+  "version": 3,
+  "request": {
+    "method": "PUT",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/emails/d7382485-0793-15e5-770b-81e642d59e06?case=set-default-unverified",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "default": true
+    }
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a26742f35a2b2b28-DUR",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Wed, 05 Aug 2026 16:43:34 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=PxiT51eP5e7joSM9izEDn2A5DGi1Unu9hHEd7jSv3a0HAlZXEMnYY%2FK8C2X7Gn9kXm%2FX3tVkqAnz11F%2Bf%2BuGUmZBSPf8azqnyUzVSDJwR%2Fu55XwkyK7YVv77EVu%2FTenJmGHIEM%2FXKQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "7f6e0474ece629c847bd86c8b72a5c7c6edae9a0",
+        "type": 0,
+        "code": 409,
+        "message": "The default email cannot be changed to unverified email address!",
+        "data": []
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-05T16:43:34.689Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-email"
+  }
+}

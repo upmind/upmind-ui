@@ -71,7 +71,7 @@ export type ModuleScopeMatrix = typeof MODULE_SCOPE_MATRIX;
  * `resolveSelfActor` in `scope/scope.utils.ts`, called once from
  * `scope/scope.builder.ts`.
  */
-export interface ModuleContext {
+export type ModuleContext = {
   scopeActor?: ScopeActorTypes;
   /** Who the actor is acting on behalf of, if anyone. */
   scopeContext?: ScopeContext<`${ModuleContextTypes}`>;
@@ -92,7 +92,7 @@ export interface ModuleContext {
   /** Base reference data, extended per-actor by a context arm if one is earned. */
   lookups?: Record<string, unknown>[];
   error?: unknown;
-}
+};
 
 // --- Add the module's form/request/response model types below this line.
 // Naming/shape doctrine for these is `code-typescript.md` + its companion
@@ -112,7 +112,7 @@ export type ModuleModel = Record<string, unknown>;
  * It marks `register` required because auth is never armless; a template that
  * ships armless cannot.
  */
-export interface ModuleServices {
+export type ModuleServices = {
   /**
    * OVERRIDING MEMBER contract — every arm that earns this layer implements it
    * with divergent business logic, never a shared default.
@@ -138,7 +138,7 @@ export interface ModuleServices {
     context: ModuleContext,
     event: AnyEventObject
   ) => Promise<unknown>;
-}
+};
 
 /**
  * The common type `scopedSchemas()` in `module.schemas.ts` resolves to — same
@@ -146,8 +146,8 @@ export interface ModuleServices {
  * required because the shared factory always supplies them; an arm overriding
  * one types its own export as `Partial<ModuleSchemas>`.
  */
-export interface ModuleSchemas {
+export type ModuleSchemas = {
   useModuleSchemaParser: () => JsonSchema;
   useModuleUischemaParser: () => UISchemaElement;
   useModuleModelParser: (model?: ModuleModel) => ModuleModel;
-}
+};
