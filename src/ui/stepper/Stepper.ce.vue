@@ -38,12 +38,12 @@
             </div>
           </StepperTrigger>
         </slot>
-      </StepperItem>
 
-      <StepperSeparator
-        v-if="index < steps.length - 1"
-        :class="styles.stepper.separator"
-      />
+        <StepperSeparator
+          v-if="index < steps.length - 1"
+          :class="styles.stepper.separator"
+        />
+      </StepperItem>
     </template>
   </Stepper>
 </template>
