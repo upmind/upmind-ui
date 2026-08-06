@@ -94,7 +94,7 @@ import type { ConfigProps } from "../types";
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 
-const emit = defineEmits(["reject", "resolve"]);
+const emit = defineEmits(["reject", "resolve", "change"]);
 
 const props = withDefaults(defineProps<ConfigProps>(), {
   as: "form",
@@ -132,6 +132,7 @@ const {
 // can't clobber it.
 function onConfigChange(data: Parameters<typeof setConfig>[0]) {
   setConfig(props.hideTerms ? { ...data, term: model.value?.term } : data);
+  emit("change");
 }
 
 const { ui } = props.meta;

@@ -239,9 +239,14 @@ export default createMachine(
             }
           ],
 
-          UPDATE: {
-            target: "processing"
-          },
+          UPDATE: [
+            {
+              target: "processing.updating",
+              actions: ["update"],
+              cond: "isForced"
+            },
+            { target: "processing" }
+          ],
 
           CALCULATING: {
             actions: ["setCalculating"]
@@ -823,6 +828,8 @@ export default createMachine(
             model
           )
         ),
+
+      isForced: ({ silent }: ProductConfigContext) => !!silent,
 
       continueEditing: ({ allowMultipleEdits }: ProductConfigContext) =>
         !!allowMultipleEdits,

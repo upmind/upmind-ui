@@ -60,8 +60,7 @@
           no-footer
           as="fieldset"
           data-testid="basket-product-config"
-          autosave
-          @resolve="debouncedUpdate"
+          @change="debouncedUpdate"
         />
 
         <!-- Upsell options render inline inside the product card. -->
@@ -75,7 +74,6 @@
             :id="id"
             :summary="upsell"
             :option="option"
-            :error="meta.hasErrors"
             :processing="meta.isProcessing"
             @update:quantity="
               (value: number) => onOptionQuantity(upsell, option, value)
