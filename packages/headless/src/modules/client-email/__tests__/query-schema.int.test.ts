@@ -12,6 +12,11 @@
  * keyword — and that a `query` term fails at the root, because this endpoint
  * does not honour one so the schema declares no `query` property (S-D9).
  *
+ * The sort floor is part of that declaration, not code: operator ruling FB5e
+ * nuked `assertSortFloor`, so the `sort` branch carries `default: DEFAULT_SORT`
+ * and rejects an empty array outright. The behavioural half — an emptied sort
+ * refilling itself on the next parse — is in `translate-query.int.test.ts`.
+ *
  * Also settles the S-D16 OPEN question by EXECUTION, not argument: does a leaf
  * `const` alone inject a forced filter into an empty model?
  *
@@ -24,6 +29,7 @@
 import { describe, expect, it } from "vitest";
 import { useClientEmails } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
+import { DEFAULT_SORT } from "../client-email.types";
 import { seedClientSession } from "./client-email.int-helpers";
 import { useValidation } from "../../../utils";
 import type { ErrorObject } from "ajv";
@@ -120,6 +126,18 @@ describe("client-email query schema — §4a ajv proof (Task 35)", () => {
       filters: { email: { like: "" } }
     });
     expect(keywords).toContain("minLength");
+  });
+
+  it("declares the sort floor as its own default and rejects an empty array (FB5e)", async () => {
+    const { ajv, schema } = await bootQueryValidator();
+    const sortBranch = (
+      schema as { properties: { sort: { default?: unknown } } }
+    ).properties.sort;
+
+    expect(sortBranch.default).toEqual(DEFAULT_SORT);
+    expect(keywordsFor(ajv.compile(schema), { sort: [] })).toContain(
+      "minItems"
+    );
   });
 
   it("declares no query property — a search term fails at the root (S-D9)", async () => {

@@ -12,15 +12,27 @@
  * filter's param is ABSENT from the next request rather than stale; and the
  * search box binds `filters.email.like` — no `query=`/`q=`/`search=` (Task 39).
  *
+ * The operator rulings of 2026-08-06 replaced the four hand-rolled helpers this
+ * pipeline used to run on, so the last three describes below prove the
+ * REPLACEMENTS rather than the deleted functions: the sort floor is the schema's
+ * own `default` (FB5e, was `assertSortFloor`/`forcedSortHead`), the empty
+ * container is stripped by `useModelParser`'s `preserveContainers: false` (FB5a,
+ * was `pruneQuery`), and a model that still fails validation SURFACES its ajv
+ * errors on `useContext().error` instead of being quietly discarded (FB5c, was
+ * `acceptOrRetain`). The parser flag's own contract is proven at
+ * `utils/__tests__/useValidation.model-parser.test.ts`.
+ *
  * ## What Breaks If These Fail
  * A merge-not-replace leaves stale `filter[…]` on the wire (an HTTP 500); a
  * mis-mapped direction ships `order=desccreated_at`; an ungated field ships an
- * `order=` an unknown column 500s on.
+ * `order=` an unknown column 500s on; a swallowed validation error shows the
+ * user a filter they never asked for with nothing to say why.
  */
 
 import { describe, expect, it, vi } from "vitest";
 import { useClientEmails } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
+import { DEFAULT_SORT } from "../client-email.types";
 import {
   installFilteredEmailsHandler,
   observeEmailRequests,
@@ -29,6 +41,8 @@ import {
 import { server } from "./setup.integration";
 
 // -----------------------------------------------------------------------------
+
+type Collection = Awaited<ReturnType<typeof bootCollection>>;
 
 async function bootCollection(): Promise<
   ReturnType<ReturnType<typeof useClientEmails>["as"]>
@@ -40,15 +54,44 @@ async function bootCollection(): Promise<
   return emails;
 }
 
+/** The last observed value of `key`, skipping requests that omit it. */
+function lastParam(
+  observed: ReturnType<typeof observeEmailRequests>,
+  key: string
+): string | undefined {
+  const values = observed
+    .all()
+    .map(request => new URL(request.url).searchParams.get(key))
+    .filter((value): value is string => value !== null);
+  return values.at(-1) ?? undefined;
+}
+
 /** The `order=` value of the last observed request carrying one, or `undefined`. */
 function lastOrder(
   observed: ReturnType<typeof observeEmailRequests>
 ): string | undefined {
-  const withOrder = observed
-    .all()
-    .map(request => new URL(request.url).searchParams.get("order"))
-    .filter((order): order is string => order !== null);
-  return withOrder.at(-1) ?? undefined;
+  return lastParam(observed, "order");
+}
+
+/** Every `filter[…]` key on the most recent observed request. */
+function latestFilterKeys(
+  observed: ReturnType<typeof observeEmailRequests>
+): string[] {
+  const latest = observed.all().at(-1);
+  if (!latest) return [];
+  return [...new URL(latest.url).searchParams.keys()].filter(key =>
+    key.startsWith("filter[")
+  );
+}
+
+/** The ajv errors the collection surfaced on its normal error channel (FB5c). */
+function surfacedAjvErrors(
+  emails: Collection
+): { keyword: string; instancePath: string }[] {
+  const error = emails.useContext().error.value as unknown as
+    | { status?: number; data?: { keyword: string; instancePath: string }[] }
+    | undefined;
+  return error?.data ?? [];
 }
 
 // -----------------------------------------------------------------------------
@@ -97,7 +140,7 @@ describe("client-email table channel + translateQuery — sort (Task 36)", () =>
     observed.stop();
   });
 
-  it("an undeclared sort field never reaches the wire", async () => {
+  it("an undeclared sort field never reaches the wire, and surfaces the ajv enum error", async () => {
     const emails = await bootCollection();
     const observed = observeEmailRequests();
 
@@ -110,6 +153,36 @@ describe("client-email table channel + translateQuery — sort (Task 36)", () =>
       .all()
       .map(request => new URL(request.url).searchParams.get("order") ?? "");
     expect(orders.some(order => order.includes("title"))).toBe(false);
+
+    const surfaced = surfacedAjvErrors(emails);
+    expect(surfaced.map(entry => entry.keyword)).toContain("enum");
+    expect(surfaced.map(entry => entry.instancePath)).toContain(
+      "/sort/0/field"
+    );
+  });
+});
+
+describe("client-email sort — the schema's default IS the floor (FB5e)", () => {
+  it("boots on the sort the schema declares as its default", async () => {
+    const emails = await bootCollection();
+
+    expect(emails.useContext().query.value.sort).toEqual(DEFAULT_SORT);
+  });
+
+  it("an emptied sort refills from the default and re-queries order=-created_at", async () => {
+    const emails = await bootCollection();
+    const observed = observeEmailRequests();
+
+    emails.useActions().sortBy([{ field: "email", dir: "desc" }]);
+    await vi.waitFor(() => expect(lastOrder(observed)).toBe("-email"));
+
+    emails.useActions().sortBy([]);
+
+    await vi.waitFor(() => expect(lastOrder(observed)).toBe("-created_at"));
+    observed.stop();
+    expect(emails.useContext().query.value.sort).toEqual(DEFAULT_SORT);
+    // The refill precedes validation, so the schema's `minItems: 1` never fires.
+    expect(surfacedAjvErrors(emails)).toEqual([]);
   });
 });
 
@@ -192,5 +265,101 @@ describe("client-email filters — translateQuery (Task 35/36, Task 39)", () => 
     expect(emails.useContext().query.value.filters).toEqual({
       default: { eq: true }
     });
+  });
+});
+
+describe("client-email filters — an emptied container does not survive (FB5a)", () => {
+  it("an emptied column is stripped by the parse — its param leaves the wire", async () => {
+    const emails = await bootCollection();
+    const observed = observeEmailRequests();
+
+    emails.useActions().filterBy({ email: { like: "mock-email-3" } });
+    await vi.waitFor(() =>
+      expect(lastParam(observed, "filter[email|like]")).toBe("%mock-email-3%")
+    );
+
+    emails.useActions().filterBy({ email: {} });
+
+    await vi.waitFor(() => expect(latestFilterKeys(observed)).toEqual([]));
+    observed.stop();
+    expect(emails.useContext().query.value.filters).toBeUndefined();
+  });
+
+  it("a cleared bag leaves no filter param at all and surfaces no error", async () => {
+    const emails = await bootCollection();
+
+    emails.useActions().filterBy({ verified: { eq: false } });
+    await vi.waitFor(() =>
+      expect(emails.useContext().query.value.filters).toEqual({
+        verified: { eq: false }
+      })
+    );
+
+    const observed = observeEmailRequests();
+    emails.useActions().filterBy({});
+
+    await vi.waitFor(() => {
+      expect(observed.all().length).toBeGreaterThan(0);
+      expect(latestFilterKeys(observed)).toEqual([]);
+    });
+    observed.stop();
+    expect(emails.useContext().query.value.filters).toBeUndefined();
+    expect(surfacedAjvErrors(emails)).toEqual([]);
+  });
+});
+
+describe("client-email invalid query model — the ajv errors surface (FB5c)", () => {
+  it("a wrong-typed filter value surfaces the ajv type error, and never reverts to the last valid model", async () => {
+    const emails = await bootCollection();
+
+    emails.useActions().filterBy({ email: { like: "mock-email-3" } });
+    await vi.waitFor(() =>
+      expect(emails.useContext().query.value.filters).toEqual({
+        email: { like: "mock-email-3" }
+      })
+    );
+
+    emails.useActions().filterBy({ email: { like: 123 } } as never);
+
+    await vi.waitFor(() => {
+      const surfaced = surfacedAjvErrors(emails);
+      expect(surfaced.map(entry => entry.keyword)).toContain("type");
+      expect(surfaced.map(entry => entry.instancePath)).toContain(
+        "/filters/email/like"
+      );
+    });
+    expect(emails.useContext().query.value.filters).toEqual({
+      email: { like: 123 }
+    });
+  });
+
+  it("an undeclared column cannot survive the parse — nothing surfaces and nothing re-queries", async () => {
+    const emails = await bootCollection();
+    const observed = observeEmailRequests();
+
+    emails.useActions().filterBy({ title: { like: "x" } } as never);
+
+    await new Promise(resolve => setTimeout(resolve, 250));
+    observed.stop();
+    expect(observed.all()).toEqual([]);
+    expect(surfacedAjvErrors(emails)).toEqual([]);
+    expect(emails.useContext().query.value.filters).toBeUndefined();
+  });
+
+  it("a valid model afterwards clears the surfaced error", async () => {
+    const emails = await bootCollection();
+
+    emails.useActions().filterBy({ email: { like: 123 } } as never);
+    await vi.waitFor(() =>
+      expect(surfacedAjvErrors(emails).map(entry => entry.keyword)).toContain(
+        "type"
+      )
+    );
+
+    emails.useActions().filterBy({ email: { like: "mock-email-3" } });
+
+    await vi.waitFor(() =>
+      expect(emails.useContext().error.value).toBeUndefined()
+    );
   });
 });
