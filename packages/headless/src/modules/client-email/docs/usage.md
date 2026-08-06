@@ -42,7 +42,7 @@ Both composables return the same four sub-composables:
 
 ### Collection actions — `useActions()`
 
-Eleven members. Per-address **form** editing (`add` / `update` / field validation) is deliberately not here — that lives on the editor, which owns the dirty/valid state those need.
+Twelve members. Per-address **form** editing (`add` / `update` / field validation) is deliberately not here — that lives on the editor, which owns the dirty/valid state those need.
 
 #### `ensure(model)`
 
@@ -112,11 +112,29 @@ Moves the collection to the next or previous page.
 
 > **🧪 For Testers:** The collection is unpaged by default — the whole list arrives in one response, and both calls are no-ops with no other page to move to. They only do anything when a page size was requested.
 
-#### `filters.query(value)`
+#### `filterBy(intent)`
 
-Applies a free-text filter and re-issues the list request.
+Applies a filter and re-issues the list request, resetting to page 1. `intent` is the `filters` branch of the collection's query model — the same shape published at `useContext().query.value.filters` and described by `useContext().schemas.query.schema`.
+
+| Param    | Type          | Required |
+| -------- | ------------- | -------- |
+| `intent` | `FilterModel` | Yes      |
 
 **Returns:** `void`.
+
+> **🧪 For Testers:** `filterBy({ email: { like: "nathan" } })` narrows the wire request to `filter[email|like]=%nathan%`; `filterBy({ verified: { eq: false } })` puts `filter[verified|eq]=0` on it. An empty `intent` (`{}`) clears every filter — no stale `filter[…]` param survives on the next request. The free-text search box binds `email.like`: `GET /clients/{id}/emails` does not honour a bare `query=`/`q=`/`search=` term, so those never appear on the wire regardless of what is typed.
+
+#### `sortBy(intent)`
+
+Applies a sort order and re-issues the list request. `intent` is the `sort` branch of the same query model — an ordered array, first entry wins.
+
+| Param    | Type        | Required |
+| -------- | ----------- | -------- |
+| `intent` | `SortModel` | Yes      |
+
+**Returns:** `void`.
+
+> **🧪 For Testers:** `sortBy([{ field: "email", dir: "asc" }])` puts `order=email` on the wire; `dir: "desc"` puts `order=-email`. Sorting by a field the module does not declare (only `created_at`, `email` and `default` are sortable) never reaches the wire at all. Clearing the sort (`sortBy([])`) does not remove the `order=` param — it re-applies the collection's own default order (`-created_at`).
 
 #### `destroy()` — releasing the collection
 
@@ -136,8 +154,10 @@ Removes this scoped instance from the registry.
 | `findOne()`  | `(mapping, data?, searchableProps?) => Email \| undefined` | Finds a single address by a partial mapping or free text |
 | `getOne(id)` | `(id, data?) => Email \| undefined`                        | Finds a single address by id                             |
 | `pagination` | `ComputedRef<PaginationInfo>`                              | `{ limit, total, page, pages, from, to }`                |
+| `query`      | `ComputedRef<QueryModel>`                                  | This scope's active request state — read-only            |
+| `schemas`    | `{ query: { schema, uischema } }`                          | The query schema + uischema to render a filter bar       |
 
-> **🧪 For Testers:** `data` is always an array — before the first read completes, and when the read errors. Read `useMeta().isLoading` / `hasError` rather than inferring state from an empty list. `error` is **state you read**, never an event: a failed mutation lands here and stays until the next one supersedes it.
+> **🧪 For Testers:** `data` is always an array — before the first read completes, and when the read errors. Read `useMeta().isLoading` / `hasError` rather than inferring state from an empty list. `error` is **state you read**, never an event: a failed mutation lands here and stays until the next one supersedes it. `query` is read-only — write it through `useActions().filterBy()` / `.sortBy()`, never by mutating the object it returns. Both `query` and `schemas` travel as plain JSON — no function crosses either.
 
 ### Collection meta — `useMeta()`
 
@@ -309,7 +329,6 @@ The two blocks below are that same pair rendered as plain JSON. Paste them into 
     "id": {
       "type": ["string", "null"],
       "title": "ID",
-      "description": "The auto-generated ID of this email.",
       "readOnly": true
     },
     "email": {
@@ -345,8 +364,7 @@ The two blocks below are that same pair rendered as plain JSON. Paste them into 
       "i18n": "form.email",
       "options": {
         "autoFocus": true,
-        "autocomplete": "email",
-        "placeholder": "name@email.com"
+        "autocomplete": "email"
       }
     }
   ]
@@ -370,6 +388,149 @@ Notes for the paste:
 - **The pair moves together.** A schema field with no matching control renders as a required-but-invisible input, which is why these two blocks are never edited apart.
 
 > **🧪 For Testers:** The barrel exposes no `useSchema` / `useUischema`. The only supported way to obtain the form definition is the editor's context — a consumer reaching for a bare export is reaching for something the module does not offer.
+
+---
+
+## The collection's query schema — paste-ready
+
+The collection serves a **second** schema/uischema pair — not a form for one record, but the rules for the whole list's request state: which columns can be filtered, which operators they accept, and how the list is sorted. It travels through **`useClientEmails().useContext().schemas.query`** (`.schema` / `.uischema`), never the barrel, for the same reason as the form pair above: setting the model through `useActions().filterBy()` / `.sortBy()` is what actually re-queries the server.
+
+Paste the two blocks below into [jsonforms.io](https://jsonforms.io/examples/basic) to see the filter bar's shape. The three boolean controls render as plain Yes/No dropdowns there — the module's own tri-state control (an "Any" third option that clears the filter) is a custom renderer that ships with the rendering playground below, not with this generic pair.
+
+### Query schema
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Client email query",
+  "description": "How the email list is filtered, sorted and paged.",
+  "additionalProperties": false,
+  "properties": {
+    "filters": {
+      "type": "object",
+      "title": "Client email filters",
+      "additionalProperties": false,
+      "properties": {
+        "email": {
+          "type": "object",
+          "title": "Email address",
+          "description": "Show emails containing this text.",
+          "additionalProperties": false,
+          "properties": {
+            "like": { "type": "string", "minLength": 1, "title": "contains" }
+          }
+        },
+        "verified": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "eq": {
+              "type": ["boolean", "null"],
+              "title": "Verified",
+              "oneOf": [
+                { "const": true, "title": "Yes" },
+                { "const": false, "title": "No" }
+              ]
+            }
+          }
+        },
+        "bounced": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "eq": {
+              "type": ["boolean", "null"],
+              "title": "Bounced",
+              "oneOf": [
+                { "const": true, "title": "Yes" },
+                { "const": false, "title": "No" }
+              ]
+            }
+          }
+        },
+        "default": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "eq": {
+              "type": ["boolean", "null"],
+              "title": "Default address",
+              "oneOf": [
+                { "const": true, "title": "Yes" },
+                { "const": false, "title": "No" }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "sort": {
+      "type": "array",
+      "title": "Client email sort",
+      "description": "The order the list is in. The first entry wins.",
+      "default": [{ "field": "created_at", "dir": "desc" }],
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["field", "dir"],
+        "properties": {
+          "field": { "enum": ["created_at", "email", "default"] },
+          "dir": { "enum": ["asc", "desc"] }
+        }
+      }
+    },
+    "pagination": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "limit": { "type": "integer", "minimum": 0 },
+        "offset": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}
+```
+
+### Query UI schema
+
+```json
+{
+  "type": "HorizontalLayout",
+  "elements": [
+    {
+      "type": "Control",
+      "scope": "#/properties/filters/properties/email/properties/like",
+      "i18n": "form.email"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/filters/properties/verified/properties/eq",
+      "options": { "format": "tristate" }
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/filters/properties/bounced/properties/eq",
+      "options": { "format": "tristate" }
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/filters/properties/default/properties/eq",
+      "options": { "format": "tristate" }
+    }
+  ]
+}
+```
+
+Notes for the paste:
+
+- **No `query` property.** `GET /clients/{id}/emails` does not honour a bare search term, so the search box binds `filters.email.like` instead — pasting a `{ "query": "…" }` instance against this schema fails validation, by design.
+- **`sort` and `pagination` carry no control** — this uischema only draws the filter bar. Sort is driven by clicking a table column header; pagination by the pager. Both branches still validate and still translate to the wire.
+- **See it fully wired** — with the tri-state "Any" control, the sortable columns, and the live outbound request — in the rendering playground: see this module's [README](./README.md#playground).
+
+> **🧪 For Testers:** The barrel exposes no `useQuerySchema` / `useQueryUischema` either. `useContext().schemas.query` is the only supported way to obtain this pair, and it is plain JSON — nothing on it is a function.
 
 ---
 

@@ -22,7 +22,7 @@ await draft.useActions().isReady();
 await draft.useActions().update({ email: "me@example.com" });
 ```
 
-The collection's eleven actions are `destroy`, `ensure`, `filters.query`, `invalidate`, `isReady`, `nextPage`, `prevPage`, `refresh`, `remove`, `setDefault`, `verify`. Nothing else.
+The collection's twelve actions are `destroy`, `ensure`, `filterBy`, `invalidate`, `isReady`, `nextPage`, `prevPage`, `refresh`, `remove`, `setDefault`, `sortBy`, `verify`. Nothing else.
 
 > **🧪 For Testers:** Asserting `add` on the collection asserts `undefined`. The create request is issued by `ensure()` or by an editor save — both go through the same find-or-create path, so neither can produce a duplicate the other would not.
 
@@ -225,3 +225,25 @@ else if (isEmpty.value) showEmptyState();
 ```
 
 > **🧪 For Testers:** Pair `isReady()` with `hasError` before treating an empty list as an empty collection. `isReady()` resolves `false` only when the session settles without an addressable client.
+
+## 16. Filtering and sorting are schema-gated — an unrecognised column is silently dropped, not an error
+
+`filterBy()` and `sortBy()` only accept the columns and operators `useContext().schemas.query.schema` declares (`email`, `verified`, `bounced`, `default` for filters; `created_at`, `email`, `default` for sort). Anything else is quietly left out of the resulting model — it never reaches `useContext().error` and it never reaches the wire; it behaves as if it had never been passed.
+
+```ts
+// ⚠️ Wrong: expecting an unrecognised column to surface a validation error
+await filterBy({ title: { like: "x" } }); // silently has no effect at all
+
+// ✅ Right: only filter/sort on what the schema declares
+await filterBy({ email: { like: "x" } });
+```
+
+A **declared** column with an invalid value is different — the model still gains it (nothing coerces it away), and it fails validation on `useContext().error` (see item 17). Only an _unknown key_ is dropped silently; a _wrong value on a known key_ is surfaced.
+
+> **🧪 For Testers:** `filterBy({ title: { like: "x" } })` leaves the request exactly as it was before the call — no `filter[title|…]` param, no error, and any _other_ filter in the same call still applies. Assert the wire params, not a rejected promise or a raised error, to see this behaviour.
+
+## 17. The free-text search box has one filter behind it — and clearing it can show a validation error
+
+The search box binds `filters.email.like`, which is typed as a non-empty string (`minLength: 1`). Clearing the box is a real, valid "no search term" state in the UI, but the schema does not special-case it: a value of `null` fails the leaf's `type` check and a value of `""` fails its `minLength` check — either way the failure is a declared-key content violation (item 16's second case), which surfaces on `useContext().error` rather than being coerced away. **Reproduced live**, not merely theorised: the module's own rendering demo shows exactly this red "must be string" message the moment the search control is cleared, even though the rendered list has already reverted to the unfiltered set.
+
+> **🧪 For Testers:** After clearing a text search, check `useContext().error` as well as `useContext().data` — the list can already show the correct, unfiltered rows while the error member still reports the leaf's validation failure. Which of the two a consumer's UI reads first decides whether the user sees a spurious error message on an otherwise-correct screen.

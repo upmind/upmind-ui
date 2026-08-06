@@ -15,12 +15,15 @@ All notable changes to the `client-email` module are documented here. Format fol
 - **A per-address read** behind the editor: opening one address no longer requires the whole collection to have loaded first.
 - **Form definition through the editor** — `useContext().schema` and `.uischema`, adopted by the editor and served as a pair. The pair is also published as plain copy-pasteable JSON in [usage.md](./usage.md#the-form-definition--paste-ready).
 - **A captured rejection for defaulting an unverified address** (`409`, _"The default email cannot be changed to unverified email address!"_), documented in [foundation.md](./foundation.md#failure-modes) and [gotchas.md](./gotchas.md).
+- **Schema-driven filtering and sorting.** `useContext().schemas.query` publishes one JSON Schema + UI schema describing the collection's whole request state: which columns can be filtered (`email` substring, `verified` / `bounced` / `default` status), which columns can be sorted (`created_at`, `email`, `default`), and the current page window. `useContext().query` is the live, read-only model; write it through `useActions().filterBy()` / `.sortBy()`. Both re-query the server — neither filters nor sorts the already-loaded rows client-side. See [usage.md](./usage.md#the-collections-query-schema--paste-ready) for the paste-ready pair, and this module's [README](./README.md#playground) for a live rendering.
+- **`sortBy(intent)`** — applies a sort order (`[{ field, dir }, …]`); an empty intent re-applies the collection's own default order rather than leaving the list unordered.
 
 ### Changed
 
 - **The editor's `useMeta()` returns flat computeds, not a single `meta` object.** Read `useMeta().isValid`; the `meta.value.isValid` form is gone. See the migration guide below.
 - **`UseClientEmail` is now `UseClientEmailManager`**, alongside `UseClientEmailManagerActions` / `…Context` / `…Meta` / `…Internals`.
-- **The collection's create seam is `ensure()` (find-or-create).** Per-address `add`, `update` and field validation are the editor's, because they need the dirty/valid state the editor owns. The collection's eleven actions are `destroy`, `ensure`, `filters.query`, `invalidate`, `isReady`, `nextPage`, `prevPage`, `refresh`, `remove`, `setDefault`, `verify`.
+- **The collection's create seam is `ensure()` (find-or-create).** Per-address `add`, `update` and field validation are the editor's, because they need the dirty/valid state the editor owns. The collection's twelve actions are `destroy`, `ensure`, `filterBy`, `invalidate`, `isReady`, `nextPage`, `prevPage`, `refresh`, `remove`, `setDefault`, `sortBy`, `verify`.
+- **The free-text search now reaches the server.** The earlier `filters.query(value)` sent a search term `GET /clients/{id}/emails` silently ignored — every keystroke re-fetched the same unfiltered list. It is replaced by `filterBy({ email: { like: value } })`, which narrows through a real `filter[email|like]` parameter.
 - **`refresh()` rejects with `NotAuthenticatedError`** when the scope cannot address a client — both before the request is issued and if the session dies mid-flight. Every other collection read resolves quietly.
 - **The collection's `useMeta()` is four members** — `hasError`, `isAvailable`, `isEmpty`, `isLoading`.
 - **Documentation refreshed against the shipped surface** — README, usage, architecture, gotchas and foundation now describe both composables, the real recorded fixtures, and the real failure modes.
@@ -29,6 +32,7 @@ All notable changes to the `client-email` module are documented here. Format fol
 
 - **Toast and notification feedback.** `remove`, `verify` and `setDefault` no longer raise success or error messages. Errors are captured as state; the consumer raises its own feedback. See the migration guide below.
 - **`useSchema` / `useUischema` are not exported** from the module barrel. The form definition is reachable only through the editor's context, because a form rendered from a definition the editor has not adopted validates against a different contract than the one that saves.
+- **`filters.query(value)`** — replaced by `filterBy()` (see Changed and the migration guide below). The old call shape is now a compile error, not a silent no-op.
 
 ### Fixed
 
@@ -134,4 +138,36 @@ import { useSchema, useUischema } from "@upmind-automation/headless";
 
 // After
 const { schema, uischema } = manager.useContext();
+```
+
+### Filtering the collection
+
+**Breaking change:** `filters.query(value)` is gone — it sent a search term the platform silently ignored.
+
+```ts
+// Before — a no-op search
+await emails.useActions().filters.query("nathan");
+
+// After — a real substring filter that re-queries the server
+await emails.useActions().filterBy({ email: { like: "nathan" } });
+
+// Verified / bounced / default are the other three declared filters
+await emails.useActions().filterBy({ verified: { eq: false } });
+
+// Clear every active filter
+await emails.useActions().filterBy({});
+```
+
+The declared columns and operators are on `useContext().schemas.query.schema` — see [usage.md](./usage.md#the-collections-query-schema--paste-ready).
+
+### Sorting the collection
+
+**New:** there was no sort action before this change.
+
+```ts
+await emails.useActions().sortBy([{ field: "email", dir: "asc" }]);
+
+// Clearing the sort re-applies the collection's own default order,
+// rather than leaving the list unordered
+await emails.useActions().sortBy([]);
 ```

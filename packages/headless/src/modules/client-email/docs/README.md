@@ -54,7 +54,8 @@ The editor's save invalidates the shared cache, so an open collection picks the 
 | Set default                            | `…useActions().setDefault()`                                 | Promotes a **verified** address to the default               |
 | Request verification                   | `…useActions().verify()`                                     | Asks the platform to (re-)send a verification message        |
 | Find or create                         | `…useActions().ensure()`                                     | Resolves an existing match, or creates the address if absent |
-| Filter                                 | `…useActions().filters.query()`                              | Narrows the list to a search term                            |
+| Filter                                 | `…useActions().filterBy()`                                   | Narrows by email text or verified/bounced/default status     |
+| Sort                                   | `…useActions().sortBy()`                                     | Reorders by a declared column, re-querying the server        |
 | Page                                   | `…useActions().nextPage()` / `.prevPage()`                   | Moves through the list when a page size was asked for        |
 | Add a new address                      | `useClientEmailManager().as('self').fresh()` then `update()` | Creates through the validated form                           |
 | Change an address                      | `…for('email', id)` then `update()`                          | Edits through the validated form; resets the verified flag   |
@@ -130,4 +131,12 @@ Each `.fresh()` call mints its own editor instance with its own model. Two new-a
 
 ## Playground
 
-None yet. Drive the collection and the editor through wherever a client manages their own contact email addresses.
+The collection's filter bar, sortable columns and pager render live in a Storybook story, driven by the module's own query schema against recorded fixtures (no network calls):
+
+```bash
+pnpm --filter @upmind-automation/storybook storybook
+```
+
+Open `http://localhost:6006` and find it in the sidebar under **modules › ClientEmailList** — the **Base** story renders the list; **Overview** is its generated docs page. The story mounts the recorded 3-address corpus, and a panel underneath the table prints the derived query model beside the outbound wire params, so a filter, a sort, or a page click can be checked against the schema-to-wire mapping without opening devtools.
+
+The per-address form editor has no playground yet.
