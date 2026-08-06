@@ -40,10 +40,6 @@ function createClientEmailsForScope(config: ScopeConfig, scopeKey: ScopeKey) {
    */
   const service = createClientEmailServices(actorScope, config.context);
 
-  // Mint the list query ONCE per scope — a `service.loadList()` inside a layer
-  // factory mints a second query, with its own refs, key and effect scope.
-  const query = service.loadList({ pagination: { limit: 0 } });
-
   /**
    * ONE query model per scope (S-D9): the user's INTENT in a ref, and a derived
    * read-only model — prune → validate → the value the wire is derived from.
@@ -65,6 +61,15 @@ function createClientEmailsForScope(config: ScopeConfig, scopeKey: ScopeKey) {
       queryModel
     )
   );
+
+  // Mint the list query ONCE per scope — a `service.loadList()` inside a layer
+  // factory mints a second query, with its own refs, key and effect scope. The
+  // translator seeds the initial fetch from the default model (DEFAULT_SORT);
+  // runtime changes reach the wire through `filterBy` / `sortBy`.
+  const query = service.loadList({
+    pagination: { limit: 0 },
+    queryModel: queryModel.value
+  });
 
   /**
    * ONE actions instance per scope, not one per `useActions()` call: the

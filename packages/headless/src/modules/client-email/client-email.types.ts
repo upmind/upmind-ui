@@ -222,8 +222,17 @@ export type ClientEmailServices = {
   isAvailable: ComputedRef<boolean>;
   /** The last failed collection mutation, captured as state — never raised. */
   error: ComputedRef<ResponseError | undefined>;
+  /**
+   * The ONE translator (S-D9): the whole query model → the `QueryProps` the
+   * query layer already accepts. Exposed here so there is exactly one
+   * implementation, called by `loadList` at instantiation and by
+   * `useActions().filterBy` / `.sortBy` at runtime.
+   */
+  translateQuery: TranslateQuery;
   loadList: (
-    params?: Partial<QueryParams<IEmail[], Email[]>>
+    params?: Partial<QueryParams<IEmail[], Email[]>> & {
+      queryModel?: QueryModel;
+    }
   ) => ClientEmailListQuery;
   /** Per-email read; seeds the manager when no collection is loaded. */
   loadOne: (id?: IEmail["id"]) => Promise<Email | undefined>;
