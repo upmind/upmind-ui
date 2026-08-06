@@ -36,7 +36,7 @@ import type { Product } from "../product";
  */
 export const useBasketProduct = (
   bpid: string,
-  options?: { allowMultipleEdits?: boolean }
+  options?: { allowMultipleEdits?: boolean; silent?: boolean }
 ) => {
   const { t } = useI18n();
   const { basket: rawBasket, errors } = useBasket();
@@ -68,7 +68,8 @@ export const useBasketProduct = (
       // ---
       rawBasketProduct,
       basketErrors: errors.value,
-      allowMultipleEdits: options?.allowMultipleEdits
+      allowMultipleEdits: options?.allowMultipleEdits,
+      silent: options?.silent
     }),
     {
       id: bpid,

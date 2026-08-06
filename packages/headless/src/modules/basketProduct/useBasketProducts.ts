@@ -337,7 +337,7 @@ export const useBasketProducts = () => {
      */
     configure: async (
       bpid: string,
-      options?: { allowMultipleEdits?: boolean }
+      options?: { allowMultipleEdits?: boolean; silent?: boolean }
     ): Promise<UseBasketProduct> => {
       // --- reuse cached config if the underlying service is still running
       const cached = get(configRegistry, bpid) as UseBasketProduct | undefined;
