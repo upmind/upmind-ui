@@ -664,17 +664,25 @@ export default createMachine(
         }
       ),
 
-      update: pure((context: ProductConfigContext, _event) => {
-        if (!context.basketHelper) return;
-        const { model, rawBasketProduct, coupons, silent } = context;
+      update: pure(
+        (context: ProductConfigContext, { data }: AnyEventObject) => {
+          if (!context.basketHelper) return;
+          const { model, rawBasketProduct, coupons, silent } = context;
+          const forced = !!data?.forced;
 
-        // NB:ensure we ad dout basket product id to the model, so we update instead of add
-        return sendTo(context.basketHelper, {
-          type: "UPDATE",
-          target: { ...model, id: rawBasketProduct?.id, silent, coupons },
-          context
-        });
-      }),
+          // NB:ensure we ad dout basket product id to the model, so we update instead of add
+          return sendTo(context.basketHelper, {
+            type: "UPDATE",
+            target: {
+              ...model,
+              id: rawBasketProduct?.id,
+              silent: forced || silent,
+              coupons
+            },
+            context
+          });
+        }
+      ),
 
       addBundle: pure(
         (context: ProductConfigContext, { data }: AnyEventObject) => {
@@ -829,7 +837,8 @@ export default createMachine(
           )
         ),
 
-      isForced: ({ silent }: ProductConfigContext) => !!silent,
+      isForced: ({ silent }: ProductConfigContext, { data }: AnyEventObject) =>
+        !!silent || !!data?.forced,
 
       continueEditing: ({ allowMultipleEdits }: ProductConfigContext) =>
         !!allowMultipleEdits,
