@@ -131,8 +131,8 @@ export function createClientEmailsActions(
   /**
    * Applies a filter INTENT — the `filters` branch of the one query model, so
    * `sort` and `pagination` are untouched by construction. The intent is written
-   * as a fresh object; the derived model prunes → validates, and the one
-   * translator re-issues the list request (resetting to page 1).
+   * as a fresh object; the derived model compacts → parses → validates, and the
+   * one translator re-issues the list request (resetting to page 1).
    */
   function filterBy(intent: FilterModel): void {
     queryIntent.value = { ...queryIntent.value, filters: intent };
@@ -141,9 +141,10 @@ export function createClientEmailsActions(
 
   /**
    * Applies a sort INTENT — the `sort` branch of the one query model, so
-   * `filters` and `pagination` are untouched. `assertSortFloor` re-asserts the
-   * schema's floor on the derived model, so a `[]` intent lands as `DEFAULT_SORT`
-   * rather than an absent order; the one translator re-issues the request.
+   * `filters` and `pagination` are untouched. A `[]` intent is compacted away
+   * and the parse refills the schema's `default` order, so clearing the sort
+   * lands as the default rather than an absent order; the one translator
+   * re-issues the request.
    */
   function sortBy(intent: SortModel): void {
     queryIntent.value = { ...queryIntent.value, sort: intent };

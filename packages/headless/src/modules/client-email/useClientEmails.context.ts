@@ -18,9 +18,9 @@ import type { ComputedRef } from "vue";
  * Query-backed: data is mapped in `client-email.services.ts` via `select`,
  * never here.
  *
- * ERRORS ARE STATE, NOT EVENTS. `error` is the scope's captured failure —
- * the last rejected row mutation, else the list query's own — exposed for the
- * consumer to render. This layer never raises it.
+ * ERRORS ARE STATE, NOT EVENTS. `error` is the scope's captured failure — an
+ * invalid query model, else the last rejected row mutation, else the list
+ * query's own — exposed for the consumer to render. This layer never raises it.
  *
  * @doctrine clause 2 — shared-only (armless).
  */
@@ -28,7 +28,8 @@ export function createClientEmailsContext(
   _actorScope: ScopeActorTypes,
   service: ClientEmailServices,
   query: ClientEmailListQuery,
-  queryModel: ComputedRef<QueryModel>
+  queryModel: ComputedRef<QueryModel>,
+  queryError: ComputedRef<ResponseError | undefined>
 ) {
   const { findOne, getOne, getDefault } = useCollection<Email>(query.data);
 
@@ -40,6 +41,7 @@ export function createClientEmailsContext(
 
   const error = computed<ResponseError | undefined>(
     () =>
+      queryError.value ??
       service.error.value ??
       (query.error.value ? mapToHeadlessError(query.error.value) : undefined)
   );

@@ -1,23 +1,7 @@
 /** @internal */
-import { useValidation } from "../../utils";
-import {
-  isArray,
-  isEmpty,
-  isPlainObject,
-  omitBy,
-  reduce,
-  reject,
-  uniqBy
-} from "lodash-es";
-import type {
-  FilterModel,
-  QueryModel,
-  QuerySchema,
-  SortEntry,
-  SortModel
-} from "./client-email.types";
+import { DEFAULT_SORT } from "./client-email.types";
+import type { QuerySchema } from "./client-email.types";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
-import type { ComputedRef, Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/client-email.schemas
@@ -33,34 +17,31 @@ import type { ComputedRef, Ref } from "vue";
  *    (the model) and `.schemas.query` (the schema pair), plus the per-action
  *    INPUT schemas (`useActionInputSchemas`) the coverage gate reads.
  *
+ * Every schema is a SELF-CONTAINED JSON literal — no helper builds one, so any
+ * of them can be lifted straight into ajv or a test and run standalone.
+ *
  * WARNING: Do not import directly from another module. The barrel exports no
  * schema — a form rendered from a schema the machine has not adopted validates
  * against a different contract than the one that saves.
  */
-
-/** Reusable field definitions the schema `$ref`s. */
-export function useSchemaDefinitions(): JsonSchema7["definitions"] {
-  return {
-    id: {
-      type: ["string", "null"],
-      title: "ID",
-      description: "The auto-generated ID of this email.",
-      readOnly: true
-    },
-    email: {
-      type: "string",
-      format: "email",
-      title: "Email"
-    }
-  };
-}
 
 export const useSchema = (): JsonSchema7 => {
   return {
     type: "object",
     title: "Email",
     required: ["email"],
-    definitions: useSchemaDefinitions(),
+    definitions: {
+      id: {
+        type: ["string", "null"],
+        title: "ID",
+        readOnly: true
+      },
+      email: {
+        type: "string",
+        format: "email",
+        title: "Email"
+      }
+    },
     properties: {
       id: { $ref: "#/definitions/id" },
       email: { $ref: "#/definitions/email" }
@@ -68,38 +49,30 @@ export const useSchema = (): JsonSchema7 => {
   };
 };
 
-/** Reusable control definitions — the uischema counterpart of the above. */
-export function useUischemaDefinitions() {
-  return {
-    id: {
-      type: "Control",
-      scope: "#/properties/id",
-      // Force-hidden: without the rule the auto-generated id renders in the
-      // email field's place.
-      rule: {
-        effect: "HIDE",
-        condition: { const: true }
-      }
-    },
-    email: {
-      type: "Control",
-      scope: "#/properties/email",
-      i18n: "form.email",
-      options: {
-        autoFocus: true,
-        autocomplete: "email",
-        placeholder: "name@email.com"
-      }
-    }
-  };
-}
-
 export const useUischema = (): UISchemaElement => {
-  const controls = useUischemaDefinitions();
-
   return {
     type: "VerticalLayout",
-    elements: [controls.id, controls.email]
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/id",
+        // Force-hidden: without the rule the auto-generated id renders in the
+        // email field's place.
+        rule: {
+          effect: "HIDE",
+          condition: { const: true }
+        }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/email",
+        i18n: "form.email",
+        options: {
+          autoFocus: true,
+          autocomplete: "email"
+        }
+      }
+    ]
   } as UISchemaElement;
 };
 
@@ -108,24 +81,12 @@ export const useUischema = (): UISchemaElement => {
 // -----------------------------------------------------------------------------
 
 /**
- * The input JSON Schema for an action whose only argument is an email id
- * (`remove`, `setDefault`, `verify`). An object schema rather than a bare
- * `{type:"string"}` because the harness's `isRealJsonSchema` guard accepts a
- * schema only when it is object-typed or carries `properties`.
- */
-const idInputSchema: JsonSchema7 = {
-  type: "object",
-  additionalProperties: false,
-  required: ["id"],
-  properties: { id: { type: "string", title: "ID" } }
-};
-
-/**
  * Per-action INPUT schemas for the collection — the map `runGate` enumerates to
  * decide which actions are "input-taking" (ADR-027 Am.6): an action with an
  * entry takes input; one absent from the map does not, and absence is the whole
  * meaning of "not input-taking". Every entry is a real object JSON Schema so the
- * harness's `isRealJsonSchema` guard accepts it. Reached only through
+ * harness's `isRealJsonSchema` guard accepts it — which is why an id-only action
+ * declares an object rather than a bare `{type:"string"}`. Reached only through
  * `useClientEmails().useInternals().actionSchemas`; `runGate` is its sole
  * consumer.
  *
@@ -135,39 +96,30 @@ const idInputSchema: JsonSchema7 = {
 export function useActionInputSchemas(): Record<string, JsonSchema7> {
   return {
     ensure: useSchema(),
-    remove: idInputSchema,
-    setDefault: idInputSchema,
-    verify: idInputSchema
+    remove: {
+      type: "object",
+      additionalProperties: false,
+      required: ["id"],
+      properties: { id: { type: "string", title: "ID" } }
+    },
+    setDefault: {
+      type: "object",
+      additionalProperties: false,
+      required: ["id"],
+      properties: { id: { type: "string", title: "ID" } }
+    },
+    verify: {
+      type: "object",
+      additionalProperties: false,
+      required: ["id"],
+      properties: { id: { type: "string", title: "ID" } }
+    }
   };
 }
 
 // -----------------------------------------------------------------------------
 // QUERY schema — the whole request state as ONE Draft-07 schema (S-D9)
 // -----------------------------------------------------------------------------
-
-/** The default sort — a fixed leading order the user may change (S-D16). */
-export const DEFAULT_SORT: SortModel = [{ field: "created_at", dir: "desc" }];
-
-/**
- * Emits a tri-state boolean filter branch inline — source-level reuse without a
- * `$ref` (the translator would need a second, partial JSON-Schema resolver to
- * follow one). Repetition in the JSON, none in the source (S-D1).
- */
-function boolFilter(yesKey: string, noKey: string): JsonSchema7 {
-  return {
-    type: "object",
-    additionalProperties: false,
-    properties: {
-      eq: {
-        type: "boolean",
-        oneOf: [
-          { const: true, title: yesKey },
-          { const: false, title: noKey }
-        ]
-      }
-    }
-  };
-}
 
 /**
  * The rules for this collection's whole REQUEST STATE, as Draft-07 JSON Schema:
@@ -180,7 +132,13 @@ function boolFilter(yesKey: string, noKey: string): JsonSchema7 {
  * Inside `filters`, `properties` are WIRE column names and each column's own
  * `properties` are the operators it allows, so `additionalProperties: false` at
  * both levels makes a disallowed operator unspellable rather than merely
- * invalid, and the ajv error names the column.
+ * invalid, and the ajv error names the column. A field absent from `sort`'s
+ * `field` enum is unsortable for the same reason — an unknown `order=` column is
+ * an HTTP 500.
+ *
+ * The tri-state filter leaves are typed `["boolean", "null"]`: unset is a third
+ * state, and `useModelParser` coerces a plain `boolean` leaf to `false` — which
+ * would put `filter[verified|eq]=0` on the wire for a filter nobody set.
  *
  * A FUNCTION, not a constant, and deliberately so: a module whose filterable
  * columns are only known once the server answers (custom fields — S-D13) merges
@@ -203,46 +161,70 @@ export function useQuerySchema(): QuerySchema {
     $schema: "http://json-schema.org/draft-07/schema#",
     type: "object",
     title: "Client email query",
-    description:
-      "The whole request state for GET /clients/{clientId}/emails: the filter predicates, the sort order and the page window. One schema, one model, one uischema.",
+    description: "How the email list is filtered, sorted and paged.",
     additionalProperties: false,
     properties: {
       filters: {
         type: "object",
         title: "Client email filters",
-        description:
-          "Every filterable column on GET /clients/{clientId}/emails. A column absent from this branch cannot be filtered; an operator absent from a column cannot be spelled.",
         additionalProperties: false,
         properties: {
           email: {
             type: "object",
             title: "Email address",
-            description:
-              "Substring match on the raw `email` column. The translator supplies the % wildcards.",
+            description: "Show emails containing this text.",
             additionalProperties: false,
             properties: {
+              // The bare term — the translator adds the % wildcards.
               like: { type: "string", minLength: 1, title: "contains" }
             }
           },
-          verified: boolFilter(
-            "client_email.filter.verified_yes",
-            "client_email.filter.verified_no"
-          ),
-          bounced: boolFilter(
-            "client_email.filter.bounced_yes",
-            "client_email.filter.bounced_no"
-          ),
-          default: boolFilter(
-            "client_email.filter.default_yes",
-            "client_email.filter.default_no"
-          )
+          verified: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              eq: {
+                type: ["boolean", "null"],
+                oneOf: [
+                  { const: true, title: "client_email.filter.verified_yes" },
+                  { const: false, title: "client_email.filter.verified_no" }
+                ]
+              }
+            }
+          },
+          bounced: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              eq: {
+                type: ["boolean", "null"],
+                oneOf: [
+                  { const: true, title: "client_email.filter.bounced_yes" },
+                  { const: false, title: "client_email.filter.bounced_no" }
+                ]
+              }
+            }
+          },
+          default: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              eq: {
+                type: ["boolean", "null"],
+                oneOf: [
+                  { const: true, title: "client_email.filter.default_yes" },
+                  { const: false, title: "client_email.filter.default_no" }
+                ]
+              }
+            }
+          }
         }
       },
       sort: {
         type: "array",
         title: "Client email sort",
-        description:
-          "Ordered, additive: list position is precedence. A field absent from the enum cannot be sorted on — an unknown `order=` column is an HTTP 500.",
+        description: "The order the list is in. The first entry wins.",
+        default: DEFAULT_SORT,
         minItems: 1,
         uniqueItems: true,
         items: {
@@ -283,8 +265,7 @@ export function useQueryUischema(): UISchemaElement {
       {
         type: "Control",
         scope: "#/properties/filters/properties/email/properties/like",
-        i18n: "client_email.filter.email",
-        options: { placeholder: "name@email.com" }
+        i18n: "client_email.filter.email"
       },
       {
         type: "Control",
@@ -306,88 +287,4 @@ export function useQueryUischema(): UISchemaElement {
       }
     ]
   } as UISchemaElement;
-}
-
-/**
- * Drops every filter leaf that is `undefined`, `null` or `""`, then any operator
- * bag left empty, then an empty `filters` bag. Runs BEFORE validation: a cleared
- * JSONForms control writes `null`, so validating first turns clearing a filter
- * into an error. Schema-free and module-agnostic; returns a fresh object.
- */
-export function pruneQuery(model: QueryModel): QueryModel {
-  const pruned: QueryModel = { ...model };
-
-  if (isPlainObject(pruned.filters)) {
-    const filters = reduce(
-      pruned.filters,
-      (acc: Record<string, Record<string, unknown>>, ops, column) => {
-        const kept = omitBy(
-          ops as Record<string, unknown>,
-          value => value === undefined || value === null || value === ""
-        );
-        if (!isEmpty(kept)) acc[column] = kept;
-        return acc;
-      },
-      {}
-    );
-
-    if (isEmpty(filters)) delete pruned.filters;
-    else pruned.filters = filters as FilterModel;
-  }
-
-  return pruned;
-}
-
-/**
- * Validates `candidate` against `schema` and returns it, or retains `current`
- * when it fails. Never throws and never lets an invalid model reach the wire —
- * an unknown filter column is an HTTP 500. Uses the repo's own ajv
- * (`useValidation`), so its formats, keywords and `useDefaults` const/`default`
- * injection all apply.
- */
-export function acceptOrRetain<T>(
-  schema: JsonSchema7,
-  candidate: T,
-  current: Ref<T> | ComputedRef<T>
-): T {
-  const { validate } = useValidation();
-  return validate(schema, candidate).length === 0 ? candidate : current.value;
-}
-
-/**
- * Reads a `const`-forced leading sort declared as a Draft-07 TUPLE head
- * (`items: [ … ]`). The family's forced-primary-sort mechanism; client-emails
- * declares its `sort.items` as an object, so this is a no-op here.
- */
-function forcedSortHead(schema: QuerySchema): SortEntry | undefined {
-  const items = schema.properties?.sort?.items;
-  const head = isArray(items) ? items[0] : undefined;
-  const field = head?.properties?.field?.const;
-  const dir = head?.properties?.dir?.const;
-
-  return typeof field === "string"
-    ? { field, dir: dir === "asc" ? "asc" : "desc" }
-    : undefined;
-}
-
-/**
- * Re-asserts the schema's floor on the query intent's `sort` branch:
- * substitutes `DEFAULT_SORT` for an empty array (`minItems: 1`), dedupes by
- * `field` (`uniqueItems` compares whole objects, so one field in two directions
- * would otherwise pass), and preserves any `const`-forced leading entry.
- * TanStack's non-multi click path replaces the whole array, so without this a
- * forced head is destroyed by one header click. Takes and returns the whole
- * model — one pipeline, one object.
- */
-export function assertSortFloor(
-  schema: QuerySchema,
-  intent: QueryModel
-): QueryModel {
-  const deduped = uniqBy(intent.sort ?? [], entry => entry.field);
-  const forced = forcedSortHead(schema);
-  const withHead = forced
-    ? [forced, ...reject(deduped, entry => entry.field === forced.field)]
-    : deduped;
-
-  return { ...intent, sort: withHead.length > 0 ? withHead : DEFAULT_SORT };
 }

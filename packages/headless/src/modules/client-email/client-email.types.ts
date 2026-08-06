@@ -173,6 +173,12 @@ export type SortEntry = { field: string; dir: "asc" | "desc" };
 export type SortModel = NonNullable<QueryModel["sort"]>;
 
 /**
+ * The order the list starts in — newest first. Declared as the query schema's
+ * `sort` default, so an emptied sort refills itself on the next parse.
+ */
+export const DEFAULT_SORT: SortModel = [{ field: "created_at", dir: "desc" }];
+
+/**
  * The collection's query schema. A `JsonSchema7`: a query schema IS a real
  * Draft-07 schema, and the translator/validators walk it at runtime, so the
  * type stays general rather than a module-specific literal (see the `@decision`
