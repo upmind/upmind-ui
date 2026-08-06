@@ -22,13 +22,13 @@
       description="This collection is empty."
     />
 
-    <table v-else-if="hasTableChannel" :class="styles.listSurface.table">
-      <thead>
-        <tr
+    <Table v-else-if="hasTableChannel" :class="styles.listSurface.table">
+      <TableHeader>
+        <TableRow
           v-for="headerGroup in vueTable.getHeaderGroups()"
           :key="headerGroup.id"
         >
-          <th
+          <TableHead
             v-for="header in headerGroup.headers"
             :key="header.id"
             :class="styles.listSurface.headerCell"
@@ -62,25 +62,28 @@
                 />
               </label>
             </template>
-          </th>
-          <th v-if="hasRowActions" :class="styles.listSurface.headerCell" />
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="row in vueTable.getRowModel().rows" :key="row.id">
-          <td
+          </TableHead>
+          <TableHead
+            v-if="hasRowActions"
+            :class="styles.listSurface.headerCell"
+          />
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        <TableRow v-for="row in vueTable.getRowModel().rows" :key="row.id">
+          <TableCell
             v-for="cell in row.getAllCells()"
             :key="cell.id"
             :class="styles.listSurface.dataCell"
           >
             {{ cell.getValue() }}
-          </td>
-          <td v-if="hasRowActions" :class="styles.listSurface.dataCell">
+          </TableCell>
+          <TableCell v-if="hasRowActions" :class="styles.listSurface.dataCell">
             <ActionSlots :actions="rowActionItems(row.original)" />
-          </td>
-        </tr>
-      </tbody>
-    </table>
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
 
     <!-- Degrade (finding #7): a data-array-without-table descriptor still
          renders every row, read-only — never blank. -->
@@ -144,6 +147,12 @@ import {
   Icon,
   Input,
   Pagination,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
   useStyles
 } from "@upmind-automation/upmind-ui";
 import ActionSlots from "../ActionSlots.vue";
