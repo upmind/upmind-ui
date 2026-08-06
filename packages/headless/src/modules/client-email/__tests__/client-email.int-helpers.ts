@@ -427,6 +427,53 @@ export function installPagedEmailsHandler(
   return { offsets: () => offsets };
 }
 
+/**
+ * Serves the RECORDED 3-row corpus (page-1's two rows + page-2's one) narrowed
+ * by the request's own `filter[col|op]=` params — so a `filterBy` re-query is
+ * answered by the real subset the server would return, never a client-side
+ * slice. Boolean columns match `1`/`0`; `email|like` matches the needle inside
+ * the `%…%` the translator wraps. The row bodies are verbatim recordings; only
+ * WHICH recorded rows are returned varies, which is what a param-branching
+ * handler must do (design §1.7 — the shipped `installEmailsListHandler` ignores
+ * the url and makes any narrowing assertion vacuous).
+ */
+export function installFilteredEmailsHandler(
+  mswServer: SetupServer | undefined,
+  clientId: string
+): { reads: () => number } {
+  const envelope = recorded.pageOne();
+  const corpus = [...recorded.pageOne().data, ...recorded.pageTwo().data];
+  let reads = 0;
+
+  mswServer?.use(
+    http.get(`*/clients/${clientId}/emails`, ({ request }) => {
+      reads += 1;
+      const params = new URL(request.url).searchParams;
+      let rows = corpus;
+
+      for (const column of ["verified", "bounced", "default"] as const) {
+        const value = params.get(`filter[${column}|eq]`);
+        if (value === "1") rows = rows.filter(row => row[column] === true);
+        else if (value === "0")
+          rows = rows.filter(row => row[column] === false);
+      }
+
+      const like = params.get("filter[email|like]");
+      if (like) {
+        const needle = like.replace(/%/g, "").toLowerCase();
+        rows = rows.filter(row => row.email.toLowerCase().includes(needle));
+      }
+
+      return HttpResponse.json(
+        { ...envelope, data: rows, total: rows.length },
+        { status: 200 }
+      );
+    })
+  );
+
+  return { reads: () => reads };
+}
+
 // -----------------------------------------------------------------------------
 
 /** Every header key the identity-transport read-back must NOT carry (A7). */

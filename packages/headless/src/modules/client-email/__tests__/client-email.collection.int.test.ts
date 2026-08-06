@@ -140,7 +140,7 @@ describe("client-email collection — list controls (AC-8)", () => {
     );
   });
 
-  it("AC-8 filters.query() re-issues the list request carrying the filter term", async () => {
+  it("AC-8 the search box binds filters.email.like — no query=/q=/search= reaches the wire (Task 39)", async () => {
     const { clientId } = await seedClientSession();
     const { primary } = recordedRows();
     installEmailsListHandler(server, clientId, [primary]);
@@ -149,14 +149,25 @@ describe("client-email collection — list controls (AC-8)", () => {
     await emails.useActions().isReady();
 
     const observed = observeEmailRequests();
-    await emails.useActions().filters.query("a@b");
+    emails.useActions().filterBy({ email: { like: "a@b" } });
 
     await vi.waitFor(() => {
-      expect(
-        observed.all().some(request => request.url.includes("a%40b"))
-      ).toBe(true);
+      const likes = observed
+        .all()
+        .map(request =>
+          new URL(request.url).searchParams.get("filter[email|like]")
+        )
+        .filter((value): value is string => value !== null);
+      expect(likes).toContain("%a@b%");
     });
     observed.stop();
+
+    for (const request of observed.all()) {
+      const params = new URL(request.url).searchParams;
+      expect(params.get("query")).toBeNull();
+      expect(params.get("q")).toBeNull();
+      expect(params.get("search")).toBeNull();
+    }
   });
 
   it("AC-8 fetches ALL my addresses by default — limit=0, offset=0, one page holding the collection", async () => {
