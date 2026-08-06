@@ -152,6 +152,7 @@ describe("client-email table channel + translateQuery — sort (Task 36)", () =>
     const orders = observed
       .all()
       .map(request => new URL(request.url).searchParams.get("order") ?? "");
+    expect(observed.all().length).toBeGreaterThan(0);
     expect(orders.some(order => order.includes("title"))).toBe(false);
 
     const surfaced = surfacedAjvErrors(emails);
@@ -163,9 +164,21 @@ describe("client-email table channel + translateQuery — sort (Task 36)", () =>
 });
 
 describe("client-email sort — the schema's default IS the floor (FB5e)", () => {
-  it("boots on the sort the schema declares as its default", async () => {
-    const emails = await bootCollection();
+  it("boots on the sort the schema declares as its default, carried as the literal order param", async () => {
+    const { clientId } = await seedClientSession();
+    installFilteredEmailsHandler(server, clientId);
+    const observed = observeEmailRequests();
 
+    const emails = useClientEmails().as(ScopeActorTypes.CLIENT);
+    await emails.useActions().isReady();
+    observed.stop();
+
+    const params = new URL(observed.first().url).searchParams;
+    expect([...params.keys()]).toContain("order");
+    expect(params.get("order")).toBe("-created_at");
+    expect(emails.useContext().query.value.sort).toEqual([
+      { field: "created_at", dir: "desc" }
+    ]);
     expect(emails.useContext().query.value.sort).toEqual(DEFAULT_SORT);
   });
 

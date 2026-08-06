@@ -40,17 +40,43 @@ const ACTION_IDS =
 // First token of its own doc-comment line — the harness's TAG_LINE shape.
 const TAG_LINE = /^\s*\*\s*(@scenario-(?:include|exclude))\b[ \t]*(.*)$/;
 
-/** The member a doc-block tag governs — the first action id below the block. */
+/** Leading tokens that modify a member rather than name one. */
+const NON_MEMBER_TOKENS = new Set([
+  "async",
+  "await",
+  "const",
+  "let",
+  "var",
+  "function",
+  "export",
+  "default",
+  "return",
+  "get",
+  "set",
+  "public",
+  "private",
+  "protected",
+  "readonly",
+  "static",
+  "new"
+]);
+
+/**
+ * The member a doc-block tag governs: the first identifier on the first
+ * non-blank line after the block closes, cut at `:` or `,`. Resolved
+ * GENERICALLY — never against the action-id alternation — so a block that stops
+ * sitting directly above its member resolves to whatever token IS there, which
+ * is what gives the orphan assertion below a reachable red state and pins the
+ * same block→member association the harness's `resolveMemberName` relies on.
+ */
 function memberBelow(lines: string[], tagIndex: number): string | undefined {
   let cursor = tagIndex;
   while (cursor < lines.length && !lines[cursor].includes("*/")) cursor++;
-  for (
-    let ahead = cursor + 1;
-    ahead < Math.min(cursor + 6, lines.length);
-    ahead++
-  ) {
-    const match = lines[ahead].match(new RegExp(`\\b(${ACTION_IDS})\\b`));
-    if (match) return match[1];
+  for (let ahead = cursor + 1; ahead < lines.length; ahead++) {
+    if (lines[ahead].trim() === "") continue;
+    const head = lines[ahead].split(/[:,]/)[0];
+    const identifiers = head.match(/[A-Za-z_$][\w$]*/g) ?? [];
+    return identifiers.find(token => !NON_MEMBER_TOKENS.has(token));
   }
   return undefined;
 }

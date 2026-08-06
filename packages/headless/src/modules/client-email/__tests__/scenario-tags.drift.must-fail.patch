@@ -1,0 +1,10 @@
+--- a/packages/headless/src/modules/client-email/useClientEmails.actions.ts
++++ b/packages/headless/src/modules/client-email/useClientEmails.actions.ts
+@@ -218,6 +218,7 @@ export function createClientEmailsActions(
+      * Refetches the list from the server; rejects if it cannot address one.
+      * @scenario-include
+      */
++    // eslint-disable-next-line no-console
+     refresh,
+ 
+     /**
