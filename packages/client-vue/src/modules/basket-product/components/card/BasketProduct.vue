@@ -60,7 +60,9 @@
           no-footer
           as="fieldset"
           data-testid="basket-product-config"
-          @change="debouncedUpdate"
+          autosave
+          :resolve-fields="['term', 'quantity', 'options', 'attributes']"
+          @resolve="debouncedUpdate"
         />
 
         <!-- Upsell options render inline inside the product card. -->
@@ -223,6 +225,7 @@ const meta = computed(() => {
     isUnavailable: isEmpty(props.id),
     hasErrors,
     hasConfigErrors: !!config?.meta?.value?.hasErrors,
+    isConfigInvalid: !!config?.meta?.value?.isInvalid,
     // the inline form opens alongside the product, so errors seeded before the
     // user edited anything must not paint it red
     showConfigErrors:
@@ -280,7 +283,10 @@ const configErrors = computed(
 // would fire mid-adjustment on repeated quantity taps
 const UPDATE_DEBOUNCE_MS = 500;
 
-const debouncedUpdate = debounce(() => config?.update(), UPDATE_DEBOUNCE_MS);
+const debouncedUpdate = debounce(
+  (options?: { forced?: boolean }) => config?.update(options),
+  UPDATE_DEBOUNCE_MS
+);
 
 // flush on unmount — updateQuantity only writes the local model, so cancelling
 // a queued save here discards the edit instead of deferring it
@@ -298,7 +304,7 @@ const quantityModel = computed({
   set: (value: number) => {
     if (!config) return;
     config.updateQuantity(value);
-    debouncedUpdate();
+    debouncedUpdate({ forced: meta.value.isConfigInvalid });
   }
 });
 
@@ -307,7 +313,7 @@ const termModel = computed({
   set: (value: number) => {
     if (!config) return;
     const applied = config.updateTerm(value);
-    applied?.then(() => config.update());
+    applied?.then(() => config.update({ forced: meta.value.isConfigInvalid }));
   }
 });
 
@@ -319,7 +325,7 @@ function onUpsellToggle(
   if (!config) return;
   config
     .toggleOption(option, upsell.toggle.valueId, enabled)
-    .then(() => config.update());
+    .then(() => config.update({ forced: meta.value.isConfigInvalid }));
 }
 
 function onOptionQuantity(
@@ -329,7 +335,7 @@ function onOptionQuantity(
 ) {
   if (!config) return;
   config.updateOptionQuantity(option, upsell.toggle.valueId, quantity);
-  debouncedUpdate();
+  debouncedUpdate({ forced: meta.value.isConfigInvalid });
 }
 
 function doRemove() {
