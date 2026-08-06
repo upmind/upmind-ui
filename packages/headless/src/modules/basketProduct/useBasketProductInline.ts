@@ -220,8 +220,7 @@ export const useBasketProductInline = (bpid: string) => {
   // ---------------------------------------------------------------------------
   return {
     /** Product config API, available once the machine has resolved. */
-    configure: () =>
-      configure(bpid, { allowMultipleEdits: true, silent: true }),
+    configure: () => configure(bpid, { allowMultipleEdits: true }),
 
     /**
      * Filters options to only those eligible for inline upsell.

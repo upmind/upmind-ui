@@ -36,7 +36,7 @@ import type { Product } from "../product";
  */
 export const useBasketProduct = (
   bpid: string,
-  options?: { allowMultipleEdits?: boolean; silent?: boolean }
+  options?: { allowMultipleEdits?: boolean }
 ) => {
   const { t } = useI18n();
   const { basket: rawBasket, errors } = useBasket();
@@ -68,8 +68,7 @@ export const useBasketProduct = (
       // ---
       rawBasketProduct,
       basketErrors: errors.value,
-      allowMultipleEdits: options?.allowMultipleEdits,
-      silent: options?.silent
+      allowMultipleEdits: options?.allowMultipleEdits
     }),
     {
       id: bpid,
@@ -116,8 +115,9 @@ export const useBasketProduct = (
     });
   }
 
-  async function update(): Promise<void> {
-    service.send({ type: "UPDATE" });
+  /** @param options.forced saves without the local check, for the platform to arbitrate. */
+  async function update(options?: { forced?: boolean }): Promise<void> {
+    service.send({ type: "UPDATE", data: options });
     return waitFor(service, state => !stateMatches(state, "processing"), {
       timeout: 60_000
     })
