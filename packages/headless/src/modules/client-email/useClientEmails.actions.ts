@@ -1,9 +1,8 @@
-import { ref, watch } from "vue";
+import { watch } from "vue";
 import { invalidateQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { useActiveSession } from "../session-store";
 import { NotAuthenticatedError } from "../../utils";
-import { set } from "lodash-es";
 import type {
   ClientEmailListQuery,
   ClientEmailServices,
@@ -11,7 +10,6 @@ import type {
   QueryModel,
   SortModel
 } from "./client-email.types";
-import type { RequestFilters } from "../query";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { ComputedRef, Ref } from "vue";
 // -----------------------------------------------------------------------------
@@ -130,14 +128,6 @@ export function createClientEmailsActions(
   }
 
   // --- filters
-  const filters = ref<RequestFilters & { query?: string }>({});
-
-  /** Applies a free-text filter and re-issues the list request. */
-  function filterQuery(value?: string): void {
-    set(filters.value, "query", value);
-    query.filter(filters.value);
-  }
-
   /**
    * Applies a filter INTENT — the `filters` branch of the one query model, so
    * `sort` and `pagination` are untouched by construction. The intent is written
@@ -192,18 +182,12 @@ export function createClientEmailsActions(
     ensure: service.ensure,
 
     /**
-     * Applies a filter intent to the query model.
+     * Applies a filter intent to the query model. The free-text search binds
+     * `filters.email.like` here — the old `filters.query` setter was a live
+     * no-op on this endpoint (A-D5 finding 9) and is removed (Task 39).
      * @scenario-include
      */
     filterBy,
-
-    /**
-     * Filters for the list query.
-     * @scenario-exclude no-op free-text setter on this endpoint; the search box maps to filters.email.like (Task 39)
-     */
-    filters: {
-      query: filterQuery
-    },
 
     /**
      * Marks the shared cache key stale so the next read refetches.
