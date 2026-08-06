@@ -185,9 +185,10 @@ export function useQuerySchema(): QuerySchema {
             properties: {
               eq: {
                 type: ["boolean", "null"],
+                title: "Verified",
                 oneOf: [
-                  { const: true, title: "client_email.filter.verified_yes" },
-                  { const: false, title: "client_email.filter.verified_no" }
+                  { const: true, title: "Yes" },
+                  { const: false, title: "No" }
                 ]
               }
             }
@@ -198,9 +199,10 @@ export function useQuerySchema(): QuerySchema {
             properties: {
               eq: {
                 type: ["boolean", "null"],
+                title: "Bounced",
                 oneOf: [
-                  { const: true, title: "client_email.filter.bounced_yes" },
-                  { const: false, title: "client_email.filter.bounced_no" }
+                  { const: true, title: "Yes" },
+                  { const: false, title: "No" }
                 ]
               }
             }
@@ -211,9 +213,10 @@ export function useQuerySchema(): QuerySchema {
             properties: {
               eq: {
                 type: ["boolean", "null"],
+                title: "Default address",
                 oneOf: [
-                  { const: true, title: "client_email.filter.default_yes" },
-                  { const: false, title: "client_email.filter.default_no" }
+                  { const: true, title: "Yes" },
+                  { const: false, title: "No" }
                 ]
               }
             }
@@ -257,6 +260,10 @@ export function useQuerySchema(): QuerySchema {
  * Each `scope` names an exact `(branch, column, operator)` predicate, so the
  * scope IS the operator selection. The `sort` and `pagination` branches carry
  * no element: a branch no element draws is still validated and still translated.
+ *
+ * An `i18n` key is declared only where `packages/i18n` defines one — an
+ * unresolved key falls back to the schema `title`, so a key for a string nobody
+ * has translated yet would be a label channel that silently never fires.
  */
 export function useQueryUischema(): UISchemaElement {
   return {
@@ -265,24 +272,21 @@ export function useQueryUischema(): UISchemaElement {
       {
         type: "Control",
         scope: "#/properties/filters/properties/email/properties/like",
-        i18n: "client_email.filter.email"
+        i18n: "form.email"
       },
       {
         type: "Control",
         scope: "#/properties/filters/properties/verified/properties/eq",
-        i18n: "client_email.filter.verified",
         options: { format: "tristate" }
       },
       {
         type: "Control",
         scope: "#/properties/filters/properties/bounced/properties/eq",
-        i18n: "client_email.filter.bounced",
         options: { format: "tristate" }
       },
       {
         type: "Control",
         scope: "#/properties/filters/properties/default/properties/eq",
-        i18n: "client_email.filter.default",
         options: { format: "tristate" }
       }
     ]
