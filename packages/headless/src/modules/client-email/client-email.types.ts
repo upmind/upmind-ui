@@ -26,10 +26,11 @@ import { AccessRoleTypes } from "@upmind-automation/types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { ResponseError } from "../../utils";
 import type { DataManagerContext } from "../data-manager/data-manager.types";
-import type { ListQuery, QueryParams } from "../query";
+import type { ListQuery, QueryParams, QueryProps } from "../query";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IEmail } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
+import type { JsonSchema7 } from "@jsonforms/core";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 // SCOPE — two matrices, one per composable
@@ -122,6 +123,69 @@ export type Email = EmailModel & {
     isBounced: boolean;
   };
 };
+
+// -----------------------------------------------------------------------------
+// QUERY MODEL — the collection's whole request state as ONE model (S-D9)
+// -----------------------------------------------------------------------------
+//
+// @graphify-citation `graphify query "client email query filter sort model"`
+// (2026-08-06) — no `QueryModel` / `FilterModel` / `SortModel` / `QuerySchema`
+// node in `graphify-out/graph.json`; the query platform's `QueryProps` /
+// `RequestFilters` describe the WIRE shape, this describes the schema-validated
+// MODEL. No live duplicate to consume, so minting here is warranted.
+
+/** One filter operator a client-email column declares (S-D1). */
+export type FilterOperator = "like" | "eq";
+
+/**
+ * The whole request state as one model — `filters` (nested column → operator →
+ * value, S-D1), `sort` (ordered, precedence = position) and `pagination`. This
+ * is the instance validated against `useQuerySchema()`; the translator maps it
+ * to the `QueryProps` the query layer already accepts. No `query` member: this
+ * endpoint does not honour a search term, so the search box binds
+ * `filters.email.like` (A-D5 finding 9 / Task 39).
+ */
+export type QueryModel = {
+  filters?: {
+    email?: { like?: string };
+    verified?: { eq?: boolean };
+    bounced?: { eq?: boolean };
+    default?: { eq?: boolean };
+  };
+  sort?: SortEntry[];
+  pagination?: { limit?: number; offset?: number };
+};
+
+/** The nested filter model — the `filters` branch of {@link QueryModel}. */
+export type FilterModel = NonNullable<QueryModel["filters"]>;
+
+/**
+ * One sort entry. Declared STRUCTURALLY identical to the harness's
+ * `TableModel["sort"]` member rather than imported from it — `packages/headless`
+ * has no `@upmind-automation/scenario-harness` dependency and adding that edge
+ * would invert the dependency direction. The compile-time bridge is the
+ * playground's channel builder, whose `satisfies TableModel["sort"]` reds on
+ * drift.
+ */
+export type SortEntry = { field: string; dir: "asc" | "desc" };
+
+/** The ordered sort model — the `sort` branch of {@link QueryModel}. */
+export type SortModel = NonNullable<QueryModel["sort"]>;
+
+/**
+ * The collection's query schema. A `JsonSchema7`: a query schema IS a real
+ * Draft-07 schema, and the translator/validators walk it at runtime, so the
+ * type stays general rather than a module-specific literal (see the `@decision`
+ * adjacent to `useQuerySchema` for why `as const` is not used).
+ */
+export type QuerySchema = JsonSchema7;
+
+/**
+ * The whole query model → the `QueryProps` the query layer already accepts
+ * (`query.types.ts`). Re-exported on the services contract below so there is
+ * exactly one translator implementation (S-D9).
+ */
+export type TranslateQuery = (model: QueryModel) => QueryProps;
 
 /** The manager's machine context — the shared machine's, over this form model. */
 export type EmailContext = DataManagerContext<EmailModel>;

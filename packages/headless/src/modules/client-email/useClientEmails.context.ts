@@ -1,13 +1,16 @@
 import { computed } from "vue";
 import { mapToHeadlessError, useCollection } from "../../utils";
 import { isArray } from "lodash-es";
+import { useQuerySchema, useQueryUischema } from "./client-email.schemas";
 import type {
   ClientEmailListQuery,
   ClientEmailServices,
-  Email
+  Email,
+  QueryModel
 } from "./client-email.types";
 import type { ResponseError } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmails.context
@@ -24,7 +27,8 @@ import type { ScopeActorTypes } from "../scope/scope.types";
 export function createClientEmailsContext(
   _actorScope: ScopeActorTypes,
   service: ClientEmailServices,
-  query: ClientEmailListQuery
+  query: ClientEmailListQuery,
+  queryModel: ComputedRef<QueryModel>
 ) {
   const { findOne, getOne, getDefault } = useCollection<Email>(query.data);
 
@@ -60,7 +64,22 @@ export function createClientEmailsContext(
     getOne,
 
     /** Reactive pagination descriptor for the list query. */
-    pagination: query.pagination
+    pagination: query.pagination,
+
+    /**
+     * This scope's ACTIVE request state — `{ filters, sort, pagination }`,
+     * derived and read-only; write through `useActions().filterBy` / `.sortBy`.
+     */
+    query: queryModel,
+
+    /**
+     * The module's schema family, plain JSON so it survives the renderer port's
+     * `JSON` round-trip. `query` is the request-state schema pair (S-D9); the
+     * renderer's only door to it is `useContext()`.
+     */
+    schemas: {
+      query: { schema: useQuerySchema(), uischema: useQueryUischema() }
+    }
 
     // The arm merges in HERE, last.
     // ...actorContext

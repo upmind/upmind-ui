@@ -6,10 +6,14 @@ import { NotAuthenticatedError } from "../../utils";
 import { set } from "lodash-es";
 import type {
   ClientEmailListQuery,
-  ClientEmailServices
+  ClientEmailServices,
+  FilterModel,
+  QueryModel,
+  SortModel
 } from "./client-email.types";
 import type { RequestFilters } from "../query";
 import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ComputedRef, Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmails.actions
@@ -27,7 +31,9 @@ export function createClientEmailsActions(
   _actorScope: ScopeActorTypes,
   service: ClientEmailServices,
   query: ClientEmailListQuery,
-  scopeKey: string
+  scopeKey: string,
+  queryIntent: Ref<QueryModel>,
+  queryModel: ComputedRef<QueryModel>
 ) {
   const { isAvailable: isSessionInitialised, isLoading: isSessionSettling } =
     useActiveSession().useMeta();
@@ -133,6 +139,26 @@ export function createClientEmailsActions(
   }
 
   /**
+   * Applies a filter INTENT — the `filters` branch of the one query model, so
+   * `sort` and `pagination` are untouched by construction. The derived model
+   * prunes, validates and (Task 36) re-issues the request; the intent is written
+   * as a fresh object so the derivation compares by value.
+   */
+  function filterBy(intent: FilterModel): void {
+    queryIntent.value = { ...queryIntent.value, filters: intent };
+  }
+
+  /**
+   * Applies a sort INTENT — the `sort` branch of the one query model, so
+   * `filters` and `pagination` are untouched. `assertSortFloor` re-asserts the
+   * schema's floor on the derived model, so a `[]` intent lands as `DEFAULT_SORT`
+   * rather than an absent order.
+   */
+  function sortBy(intent: SortModel): void {
+    queryIntent.value = { ...queryIntent.value, sort: intent };
+  }
+
+  /**
    * Destroys this scoped instance — removes it from the registry so the next
    * `.as()` mints a fresh collection.
    */
@@ -162,6 +188,12 @@ export function createClientEmailsActions(
      * @scenario-include
      */
     ensure: service.ensure,
+
+    /**
+     * Applies a filter intent to the query model.
+     * @scenario-include
+     */
+    filterBy,
 
     /**
      * Filters for the list query.
@@ -212,6 +244,12 @@ export function createClientEmailsActions(
      * @scenario-include
      */
     setDefault: service.setDefault,
+
+    /**
+     * Applies a sort intent to the query model.
+     * @scenario-include
+     */
+    sortBy,
 
     /**
      * Resends the verification email for an address.
