@@ -35,11 +35,19 @@ function isRevisitedRef(value: unknown, seen: WeakSet<object>): boolean {
   return false;
 }
 
+// A live composable publishes callables on `useContext()` (client-email's
+// `default`/`findOne`/`getOne`), and `reflect()` declares every other non-JSON
+// value "the adapter's responsibility" (reflect.ts docblock) — so a function is
+// omitted exactly like an undefined entry, never handed to the core.
+function isOmitted(value: unknown): boolean {
+  return value === undefined || typeof value === "function";
+}
+
 /**
  * Unwraps `ref`/`computed`/`reactive` at every depth into plain, JSON-safe
- * data, omitting undefined-valued entries (including array holes) — mirrors
- * `reflect()`'s own `deepOmitUndefined`, so `port.snapshot()` is already
- * plain by the time it reaches the core.
+ * data, omitting undefined-valued and function-valued entries (including array
+ * holes) — mirrors `reflect()`'s own `deepOmitUndefined`, so `port.snapshot()`
+ * is already plain by the time it reaches the core.
  */
 function deepUnref(
   value: unknown,
@@ -51,8 +59,7 @@ function deepUnref(
     const result: unknown[] = [];
     for (const entry of raw) {
       const normalized = normalize(entry);
-      if (normalized === undefined || isRevisitedRef(normalized, seen))
-        continue;
+      if (isOmitted(normalized) || isRevisitedRef(normalized, seen)) continue;
       result.push(deepUnref(normalized, seen));
     }
     return result;
@@ -63,8 +70,7 @@ function deepUnref(
       raw as Record<string, unknown>,
       (result: Record<string, unknown>, entry, key) => {
         const normalized = normalize(entry);
-        if (normalized === undefined || isRevisitedRef(normalized, seen))
-          return;
+        if (isOmitted(normalized) || isRevisitedRef(normalized, seen)) return;
         // `Object.defineProperty`, never `result[key] = …` — mirrors
         // `reflect()`'s own `__proto__`-safety (see reflect.ts).
         Object.defineProperty(result, key, {
