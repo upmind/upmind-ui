@@ -1,0 +1,20 @@
+diff --git a/playgrounds/labs-nuxt/app/composables/factory/useCompositionPort.ts b/playgrounds/labs-nuxt/app/composables/factory/useCompositionPort.ts
+index ba5886207..0c917150c 100644
+--- a/playgrounds/labs-nuxt/app/composables/factory/useCompositionPort.ts
++++ b/playgrounds/labs-nuxt/app/composables/factory/useCompositionPort.ts
+@@ -140,6 +140,14 @@ export function useCompositionPort(
+     /** One fresh, plain-data pull per call — never cached across calls. */
+     snapshot: () => snapshot.value,
+     /** Present iff the caller wired a table channel — never fabricated here. */
+-    table: options.table
++    table: {
++      read: () =>
++        options.table?.read() ?? {
++          filter: {},
++          sort: [],
++          pagination: { page: 1, perPage: 25 }
++        },
++      emit: intent => options.table?.emit(intent)
++    }
+   };
+ }
