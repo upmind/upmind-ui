@@ -1,0 +1,9 @@
+--- a/packages/headless/src/modules/client-email/client-email.services.ts
++++ b/packages/headless/src/modules/client-email/client-email.services.ts
+@@ -112,5 +112,5 @@ function toWireFilterValue(operator: string, value: unknown): string {
+ function toWireFilterValue(operator: string, value: unknown): string {
+   if (value === undefined || value === null || value === "") return "";
+-  if (operator === "like" || operator === "nlike") return `%${value}%`;
++  if (operator === "like" || operator === "nlike") return `${value}`;
+   if (typeof value === "boolean") return value ? "1" : "0";
+   if (isArray(value)) return value.join(",");

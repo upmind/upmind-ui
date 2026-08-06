@@ -1,0 +1,8 @@
+--- a/packages/headless/src/modules/client-email/useClientEmails.actions.ts
++++ b/packages/headless/src/modules/client-email/useClientEmails.actions.ts
+@@ -222,5 +222,4 @@
+     /**
+      * Deletes a deletable address.
+-     * @scenario-include
+      */
+     remove: service.remove,
