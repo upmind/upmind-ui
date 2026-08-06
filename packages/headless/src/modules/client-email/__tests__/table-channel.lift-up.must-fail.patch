@@ -1,0 +1,15 @@
+--- a/playgrounds/labs-nuxt/app/composables/factory/useTableChannel.ts
++++ b/playgrounds/labs-nuxt/app/composables/factory/useTableChannel.ts
+@@ -61,11 +61,5 @@ function operatorFor(schema: unknown, column: string): string | undefined {
+ /** The single declared operator for a wire column, read from the query schema. */
+ function operatorFor(schema: unknown, column: string): string | undefined {
+-  const operators = get(schema, [
+-    "properties",
+-    "filters",
+-    "properties",
+-    column,
+-    "properties"
+-  ]);
++  const operators = get(schema, ["properties", column, "properties"]);
+   return operators ? keys(operators)[0] : undefined;
+ }

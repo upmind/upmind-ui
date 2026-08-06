@@ -1,0 +1,15 @@
+--- a/playgrounds/labs-nuxt/app/composables/factory/useTableChannel.ts
++++ b/playgrounds/labs-nuxt/app/composables/factory/useTableChannel.ts
+@@ -107,9 +107,10 @@ export function useTableChannel(
+   const actions = cell.useActions();
+   const schema = context.schemas.query.schema;
+
++  const model = context.query.value;
++  const page = context.pagination.value;
++
+   return {
+     read(): TableModel {
+-      const model = context.query.value;
+-      const page = context.pagination.value;
+       return {
+         filter: flattenFilters(model.filters ?? {}),
