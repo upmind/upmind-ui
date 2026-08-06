@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { computed, ref } from "vue";
 import { useCompositionPort } from "../useCompositionPort";
 import type { LiveCompositionCell } from "../useCompositionPort.types";
+import type { ControlledTableChannel } from "@upmind-automation/scenario-harness";
 
 function createFakeLiveCell() {
   const on = ref(false);
@@ -30,6 +31,18 @@ function createFakeLiveCell() {
   };
 
   return { cell, on, label, nested };
+}
+
+/** A channel as a CALLER builds one — the object `port.table` must hand back. */
+function createCallerChannel(): ControlledTableChannel {
+  return {
+    read: () => ({
+      filter: { verified: true },
+      sort: [{ field: "email", dir: "asc" }],
+      pagination: { page: 2, perPage: 25 }
+    }),
+    emit: () => undefined
+  };
 }
 
 describe("@AC5 useCompositionPort", () => {
@@ -87,5 +100,42 @@ describe("@AC5 useCompositionPort", () => {
     // back whatever getMeta() cached above, before getMeta() is asked again.
     expect(port.snapshot().meta.isOn).toBe(true);
     expect(port.getMeta().isOn).toBe(true);
+  });
+
+  it("hands the caller's own channel through on port.table — the same object, never a reshaped copy", () => {
+    const { cell } = createFakeLiveCell();
+    const channel = createCallerChannel();
+
+    const port = useCompositionPort(cell, { table: channel });
+
+    expect(port.table).toBe(channel);
+    expect(port.table?.read).toBe(channel.read);
+    expect(port.table?.emit).toBe(channel.emit);
+    expect(port.table?.read()).toEqual(channel.read());
+  });
+
+  it("leaves port.table undefined for a module whose caller supplies no channel", () => {
+    const { cell } = createFakeLiveCell();
+
+    const port = useCompositionPort(cell);
+
+    expect(port.table).toBeUndefined();
+  });
+
+  it("keeps the snapshot plain, its meta literal-boolean and its reads next-pull-fresh while a channel is wired", () => {
+    const { cell, on } = createFakeLiveCell();
+    const port = useCompositionPort(cell, { table: createCallerChannel() });
+
+    const snapshot = port.snapshot();
+
+    expect(JSON.parse(JSON.stringify(snapshot))).toEqual(snapshot);
+    expect(snapshot.context.table).toBeUndefined();
+    for (const value of Object.values(snapshot.meta)) {
+      expect(typeof value).toBe("boolean");
+    }
+
+    on.value = true;
+
+    expect(port.snapshot().meta.isOn).toBe(true);
   });
 });
