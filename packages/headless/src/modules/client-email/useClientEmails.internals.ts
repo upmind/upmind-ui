@@ -1,3 +1,4 @@
+import { useActionInputSchemas } from "./client-email.schemas";
 import type { ClientEmailListQuery } from "./client-email.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
@@ -12,6 +13,11 @@ export function createClientEmailsInternals(
   query: ClientEmailListQuery
 ) {
   return {
+    /**
+     * Per-action INPUT schemas, keyed by action id — the map `runGate` reads to
+     * decide "input-taking" (ADR-027 Am.6). Absent for non-input actions.
+     */
+    actionSchemas: useActionInputSchemas(),
     /** Actor scope for this instance. */
     actorScope,
     /** Raw TanStack query object backing the collection. */

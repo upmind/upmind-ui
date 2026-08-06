@@ -77,3 +77,41 @@ export const useUischema = (): UISchemaElement => {
     elements: [controls.id, controls.email]
   } as UISchemaElement;
 };
+
+// -----------------------------------------------------------------------------
+// Per-action INPUT schemas (Task 33) — the coverage-gate map
+// -----------------------------------------------------------------------------
+
+/**
+ * The input JSON Schema for an action whose only argument is an email id
+ * (`remove`, `setDefault`, `verify`). An object schema rather than a bare
+ * `{type:"string"}` because the harness's `isRealJsonSchema` guard accepts a
+ * schema only when it is object-typed or carries `properties`.
+ */
+const idInputSchema: JsonSchema7 = {
+  type: "object",
+  additionalProperties: false,
+  required: ["id"],
+  properties: { id: { type: "string", title: "ID" } }
+};
+
+/**
+ * Per-action INPUT schemas for the collection — the map `runGate` enumerates to
+ * decide which actions are "input-taking" (ADR-027 Am.6): an action with an
+ * entry takes input; one absent from the map does not, and absence is the whole
+ * meaning of "not input-taking". Every entry is a real object JSON Schema so the
+ * harness's `isRealJsonSchema` guard accepts it. Reached only through
+ * `useClientEmails().useInternals().actionSchemas`; `runGate` is its sole
+ * consumer.
+ *
+ * `ensure` takes an `EmailModel`, so its input schema IS the per-email form
+ * schema. `remove`/`setDefault`/`verify` take an id.
+ */
+export function useActionInputSchemas(): Record<string, JsonSchema7> {
+  return {
+    ensure: useSchema(),
+    remove: idInputSchema,
+    setDefault: idInputSchema,
+    verify: idInputSchema
+  };
+}
