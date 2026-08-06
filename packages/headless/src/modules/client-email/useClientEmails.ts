@@ -1,7 +1,5 @@
 import { computed, ref } from "vue";
-import type { ComputedRef } from "vue";
 import { createScopedComposable } from "../scope";
-import createClientEmailServices from "./client-email.services";
 import {
   DEFAULT_SORT,
   acceptOrRetain,
@@ -9,6 +7,7 @@ import {
   pruneQuery,
   useQuerySchema
 } from "./client-email.schemas";
+import createClientEmailServices from "./client-email.services";
 import { createClientEmailsActions } from "./useClientEmails.actions";
 import { createClientEmailsContext } from "./useClientEmails.context";
 import { createClientEmailsInternals } from "./useClientEmails.internals";
@@ -16,6 +15,7 @@ import { createClientEmailsMeta } from "./useClientEmails.meta";
 import type { ClientEmailsScopeMatrix, QueryModel } from "./client-email.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
 import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmails

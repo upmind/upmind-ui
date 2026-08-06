@@ -27,10 +27,10 @@ import { ScopeActorTypes } from "../scope/scope.types";
 import type { ResponseError } from "../../utils";
 import type { DataManagerContext } from "../data-manager/data-manager.types";
 import type { ListQuery, QueryParams, QueryProps } from "../query";
+import type { JsonSchema7 } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IEmail } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
-import type { JsonSchema7 } from "@jsonforms/core";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 // SCOPE — two matrices, one per composable

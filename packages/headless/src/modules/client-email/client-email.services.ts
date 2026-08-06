@@ -1,6 +1,7 @@
 /** @internal */
 import { computed, ref } from "vue";
 import { useQuery, invalidateQueryByKey } from "../query";
+import { RequestSortDirection } from "../query";
 import { useActiveSession } from "../session-store";
 import { useI18n } from "../system-localisation";
 import { mapEmail, mapEmails, mapIEmail } from "./client-email.mappers";
@@ -18,7 +19,6 @@ import {
   NotAuthenticatedError,
   DEBOUNCE_DELAY
 } from "../../utils";
-import { RequestSortDirection } from "../query";
 import { filter, forEach, get, isArray, isEmpty, map, omitBy } from "lodash-es";
 import type { QueryParams, QueryProps, RequestFilters } from "../query";
 import type { ScopeContext } from "../scope";
@@ -35,9 +35,9 @@ import type {
 } from "./client-email.types";
 import type { ResponseError } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
+import type { JsonSchema7 } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IEmail } from "@upmind-automation/types";
-import type { JsonSchema7 } from "@jsonforms/core";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 /**

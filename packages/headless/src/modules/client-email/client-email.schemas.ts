@@ -9,7 +9,6 @@ import {
   reject,
   uniqBy
 } from "lodash-es";
-import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type {
   FilterModel,
   QueryModel,
@@ -17,6 +16,7 @@ import type {
   SortEntry,
   SortModel
 } from "./client-email.types";
+import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type { ComputedRef, Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**

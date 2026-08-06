@@ -1,7 +1,7 @@
 import { computed } from "vue";
+import { useQuerySchema, useQueryUischema } from "./client-email.schemas";
 import { mapToHeadlessError, useCollection } from "../../utils";
 import { isArray } from "lodash-es";
-import { useQuerySchema, useQueryUischema } from "./client-email.schemas";
 import type {
   ClientEmailListQuery,
   ClientEmailServices,
