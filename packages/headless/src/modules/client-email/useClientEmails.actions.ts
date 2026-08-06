@@ -151,39 +151,72 @@ export function createClientEmailsActions(
   // the day an arm overrides a shared member.
 
   return {
-    /** Destroys this scoped instance — removes it from the registry. */
+    /**
+     * Destroys this scoped instance — removes it from the registry.
+     * @scenario-include
+     */
     destroy,
 
-    /** Finds an address by id or value, creating it only if absent. */
+    /**
+     * Finds an address by id or value, creating it only if absent.
+     * @scenario-include
+     */
     ensure: service.ensure,
 
-    /** Filters for the list query. */
+    /**
+     * Filters for the list query.
+     * @scenario-exclude no-op free-text setter on this endpoint; the search box maps to filters.email.like (Task 39)
+     */
     filters: {
       query: filterQuery
     },
 
-    /** Marks the shared cache key stale so the next read refetches. */
+    /**
+     * Marks the shared cache key stale so the next read refetches.
+     * @scenario-exclude internal cache-key invalidation, not a user-facing capability
+     */
     invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
 
-    /** Resolves true when the collection is ready to read. */
+    /**
+     * Resolves true when the collection is ready to read.
+     * @scenario-include
+     */
     isReady,
 
-    /** Fetches the next page of addresses. */
+    /**
+     * Fetches the next page of addresses.
+     * @scenario-include
+     */
     nextPage: query.fetchNextPage,
 
-    /** Fetches the previous page of addresses. */
+    /**
+     * Fetches the previous page of addresses.
+     * @scenario-include
+     */
     prevPage: query.fetchPreviousPage,
 
-    /** Refetches the list from the server; rejects if it cannot address one. */
+    /**
+     * Refetches the list from the server; rejects if it cannot address one.
+     * @scenario-include
+     */
     refresh,
 
-    /** Deletes a deletable address. */
+    /**
+     * Deletes a deletable address.
+     * @scenario-include
+     */
     remove: service.remove,
 
-    /** Promotes a verified address to the client's default. */
+    /**
+     * Promotes a verified address to the client's default.
+     * @scenario-include
+     */
     setDefault: service.setDefault,
 
-    /** Resends the verification email for an address. */
+    /**
+     * Resends the verification email for an address.
+     * @scenario-include
+     */
     verify: service.verify
 
     // The arm merges in HERE, last — a spread overwrites, which is what lets
