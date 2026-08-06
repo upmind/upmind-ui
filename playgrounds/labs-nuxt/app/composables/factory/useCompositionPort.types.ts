@@ -11,11 +11,19 @@ import type { ComputedRef, Ref } from "vue";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * One live action, as a real composable declares it — each with its OWN input
+ * type (`remove(id)`, `ensure(model)`), not the port's opaque single input.
+ *
+ * @graphify-citation `graphify-out/graph.json` (2026-08-06) — every `action`
+ * node is a per-module factory (`createClientEmailsActions`,
+ * `createAuthActions`, …); no generic callable-action type exists to consume,
+ * so naming the one this file already declared inline is warranted.
+ */
+export type LiveAction = (...args: never[]) => unknown;
+
 /** The live `useActions()` return of an already-scoped composable cell. */
-export type LiveActions = Record<
-  string,
-  (input?: unknown) => unknown | Promise<unknown>
->;
+export type LiveActions = Record<string, LiveAction>;
 
 /** The live `useContext()` return — refs/computeds/reactive objects at any depth, unwrapped by the adapter. */
 export type LiveContext = Record<string, unknown>;

@@ -122,8 +122,12 @@ export function useCompositionPort(
 
   return {
     /** The live `useActions()` return, re-read on every access — never the builder itself. */
-    get actions() {
-      return cell.useActions();
+    get actions(): CompositionPort["actions"] {
+      // Each real action types its own input; the port's contract is ONE opaque
+      // input invoked by name (`world.fire(actionId, input?)`). Parameters are
+      // contravariant, so no concretely-typed action map is assignable to it —
+      // widening to the seam's contract is this adapter's job, done once here.
+      return cell.useActions() as CompositionPort["actions"];
     },
     /** Reads `snapshot().meta` — the same computed slice, never a second evaluation. */
     getMeta: () => snapshot.value.meta,
