@@ -106,13 +106,13 @@ Fixture: `__tests__/fixtures/post-clients-id-emails.json`.
 
 > **🧪 For Testers:** `ensure({ email })` against an already-loaded collection containing that address resolves the existing record with **no** create request fired; against an absent address it creates. Its answer is exactly as fresh as the last list read.
 
-## 8. The collection loads unpaged by default
+## 8. The collection's default page is 10 rows, not the whole list
 
-The list read defaults to a single request returning the entire collection. Paging and filtering exist, but with the default configuration `nextPage()` / `prevPage()` have no other page to move to.
+The list read boots on the collection's declared page size — `limit=10&offset=0` — rather than returning the entire collection in one unbounded response. For a collection of ten addresses or fewer this is invisible: everything still arrives on the first read, and `nextPage()` / `prevPage()` still have no other page to move to. A collection larger than that now needs paging to see the rest, which previously required nothing at all.
 
-> **🧪 For Testers:** Do not assume a large collection needs `nextPage()` calls to see every address — the default read already returns everything. Paging behaviour is only observable when a page size was requested.
+> **🧪 For Testers:** Asserting the first request's `limit` param now asserts `"10"`, not `"0"`. A fixture with ten rows or fewer will not exercise paging by itself — seed more than that to see `nextPage()` actually reach the wire.
 
-Fixtures: `__tests__/fixtures/get-clients-id-emails.json` (unpaged), `get-clients-id-emails-case-page-1.json` / `-page-2.json` (paged).
+Fixtures: `__tests__/fixtures/get-clients-id-emails.json` (the default page, under ten rows), `get-clients-id-emails-case-page-1.json` / `-page-2.json` (an explicitly requested smaller page, walked in full).
 
 ## 9. `isAvailable` is two limbs, not one — and it is the request gate itself
 

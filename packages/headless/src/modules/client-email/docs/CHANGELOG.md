@@ -12,6 +12,7 @@ All notable changes to the `client-email` module are documented here. Format fol
   - 8 flat meta flags — `hasErrors`, `isAvailable`, `isComplete`, `isDirty`, `isLoading`, `isNew`, `isProcessing`, `isValid`.
   - 4 internals — `actorScope`, `send`, `service`, `state`.
 - **`useClientEmails().useMeta().isAvailable`** — reports whether this scope can address a client at all. It is `true` only when the session is authenticated **and** the scope resolved a client id, it is reactive (it flips `false` in the same tick the session goes away, emitting no request), and it is the _same predicate_ every request gate in the module calls rather than a second copy of it.
+- **`useClientEmails().useMeta().isFiltered`** — reports whether any declared filter column currently carries a value, read straight off the collection's own query criteria. Distinguishes a collection that is empty _because_ a filter narrowed it to nothing from one with no addresses at all.
 - **A per-address read** behind the editor: opening one address no longer requires the whole collection to have loaded first.
 - **Form definition through the editor** — `useContext().schema` and `.uischema`, adopted by the editor and served as a pair. The pair is also published as plain copy-pasteable JSON in [usage.md](./usage.md#the-form-definition--paste-ready).
 - **A captured rejection for defaulting an unverified address** (`409`, _"The default email cannot be changed to unverified email address!"_), documented in [foundation.md](./foundation.md#failure-modes) and [gotchas.md](./gotchas.md).
@@ -25,7 +26,9 @@ All notable changes to the `client-email` module are documented here. Format fol
 - **The collection's create seam is `ensure()` (find-or-create).** Per-address `add`, `update` and field validation are the editor's, because they need the dirty/valid state the editor owns. The collection's twelve actions are `destroy`, `ensure`, `filterBy`, `invalidate`, `isReady`, `nextPage`, `prevPage`, `refresh`, `remove`, `setDefault`, `sortBy`, `verify`.
 - **The free-text search now reaches the server.** The earlier `filters.query(value)` sent a search term `GET /clients/{id}/emails` silently ignored — every keystroke re-fetched the same unfiltered list. It is replaced by `filterBy({ email: { like: value } })`, which narrows through a real `filter[email|like]` parameter.
 - **`refresh()` rejects with `NotAuthenticatedError`** when the scope cannot address a client — both before the request is issued and if the session dies mid-flight. Every other collection read resolves quietly.
-- **The collection's `useMeta()` is four members** — `hasError`, `isAvailable`, `isEmpty`, `isLoading`.
+- **The collection's `useMeta()` is five members** — `hasError`, `isAvailable`, `isEmpty`, `isFiltered`, `isLoading`.
+- **The collection's declared page size is `10`, not `0`.** The list now boots on `limit=10&offset=0` — the schema's own declared default — instead of requesting the entire collection unpaged. A collection of ten addresses or fewer still sees everything on the first read; a larger one now needs `nextPage()` to see the rest.
+- **Filtering and sorting no longer translate in the actions layer.** `filterBy()` / `sortBy()` only declare intent; the one function that turns the declared model into `filter[col|op]=` / `order=` / `limit=`&`offset=` now lives in the shared query layer, not this module's services file.
 - **Documentation refreshed against the shipped surface** — README, usage, architecture, gotchas and foundation now describe both composables, the real recorded fixtures, and the real failure modes.
 
 ### Removed
@@ -42,18 +45,18 @@ All notable changes to the `client-email` module are documented here. Format fol
 
 Ten request/response pairs captured against a live environment back the documented behaviour:
 
-| Fixture                                                     | Covers                                             |
-| ----------------------------------------------------------- | -------------------------------------------------- |
-| `get-clients-id-emails.json`                                | the unpaged list read                              |
-| `get-clients-id-emails-case-page-1.json`                    | first page, `limit=2&offset=0`                     |
-| `get-clients-id-emails-case-page-2.json`                    | second page, `limit=2&offset=2`                    |
-| `get-clients-id-emails-id.json`                             | the per-address read                               |
-| `post-clients-id-emails.json`                               | create (request body captured too)                 |
-| `put-clients-id-emails-id.json`                             | change the address value, `{ email, verified: 0 }` |
-| `put-clients-id-emails-id-case-set-default.json`            | promote a verified address to default              |
-| `put-clients-id-emails-id-case-set-default-unverified.json` | the `409` rejection on an unverified target        |
-| `delete-clients-id-emails-id.json`                          | delete                                             |
-| `patch-clients-id-emails-id-send-verify.json`               | request a fresh verification message               |
+| Fixture                                                     | Covers                                              |
+| ----------------------------------------------------------- | --------------------------------------------------- |
+| `get-clients-id-emails.json`                                | the default list read, under the schema's page size |
+| `get-clients-id-emails-case-page-1.json`                    | first page, `limit=2&offset=0`                      |
+| `get-clients-id-emails-case-page-2.json`                    | second page, `limit=2&offset=2`                     |
+| `get-clients-id-emails-id.json`                             | the per-address read                                |
+| `post-clients-id-emails.json`                               | create (request body captured too)                  |
+| `put-clients-id-emails-id.json`                             | change the address value, `{ email, verified: 0 }`  |
+| `put-clients-id-emails-id-case-set-default.json`            | promote a verified address to default               |
+| `put-clients-id-emails-id-case-set-default-unverified.json` | the `409` rejection on an unverified target         |
+| `delete-clients-id-emails-id.json`                          | delete                                              |
+| `patch-clients-id-emails-id-send-verify.json`               | request a fresh verification message                |
 
 ### Notes
 

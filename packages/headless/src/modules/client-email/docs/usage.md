@@ -110,7 +110,7 @@ Moves the collection to the next or previous page.
 
 **Returns:** `void`.
 
-> **🧪 For Testers:** The collection is unpaged by default — the whole list arrives in one response, and both calls are no-ops with no other page to move to. They only do anything when a page size was requested.
+> **🧪 For Testers:** The collection boots on a default page of 10 addresses (`limit=10&offset=0`), not the whole list in one response. For a collection of ten addresses or fewer both calls are still no-ops — there is no other page to move to. They start doing something once the collection holds more than the default page.
 
 #### `filterBy(intent)`
 
@@ -161,14 +161,17 @@ Removes this scoped instance from the registry.
 
 ### Collection meta — `useMeta()`
 
-Four flags.
+Five flags.
 
 | Flag          | True when                                                                      |
 | ------------- | ------------------------------------------------------------------------------ |
 | `hasError`    | a row mutation or the list read failed                                         |
 | `isAvailable` | the session is authenticated **and** the scope resolved a client id to address |
 | `isEmpty`     | the resolved collection has no addresses                                       |
+| `isFiltered`  | any declared filter column carries a value                                     |
 | `isLoading`   | the list read is in flight or has not completed its first fetch                |
+
+`isFiltered` reads straight off the collection's own query criteria, so a list that is empty _because_ a filter narrowed it to nothing reports differently from a collection with no addresses at all.
 
 `isAvailable` is worth reading twice. It is **both limbs**: authenticated, _and_ a client id resolved. A session that authenticates but resolves no client correctly reports `false`. It is also the _same predicate_ every request gate in this module calls — not a second copy of it — so the flag you render and the guard the wire enforces cannot drift apart. It is reactive: it flips to `false` in the same tick the session goes away.
 

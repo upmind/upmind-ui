@@ -94,12 +94,12 @@ flowchart TD
 
 ## Sub-composables
 
-| Sub-composable   | Collection                                                               | Editor                                                                                |
-|------------------|--------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
-| `useActions()`   | 12 members — row mutations, filter/sort, list controls, lifecycle        | 7 members — form input, save, lifecycle                                               |
-| `useContext()`   | 8 members — reactive list, lookups, captured error, query state, schemas | 9 members — model, schema pair, id, errors, display text                              |
-| `useMeta()`      | 4 flags — `hasError`, `isAvailable`, `isEmpty`, `isLoading`              | 8 flat flags — availability, loading, dirty, valid, new, processing, complete, errors |
-| `useInternals()` | 3 — actor scope, raw query, per-action input-schema map                  | 4 — actor scope, raw sender, raw service, raw state                                   |
+| Sub-composable   | Collection                                                                | Editor                                                                                |
+| ---------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `useActions()`   | 12 members — row mutations, filter/sort, list controls, lifecycle         | 7 members — form input, save, lifecycle                                               |
+| `useContext()`   | 8 members — reactive list, lookups, captured error, query state, schemas  | 9 members — model, schema pair, id, errors, display text                              |
+| `useMeta()`      | 5 flags — `hasError`, `isAvailable`, `isEmpty`, `isFiltered`, `isLoading` | 8 flat flags — availability, loading, dirty, valid, new, processing, complete, errors |
+| `useInternals()` | 3 — actor scope, raw query, per-action input-schema map                   | 4 — actor scope, raw sender, raw service, raw state                                   |
 
 Both halves return the identical four-layer shape; only the contents differ, because one is query-backed and the other machine-backed.
 
@@ -107,14 +107,14 @@ Both halves return the identical four-layer shape; only the contents differ, bec
 
 One services file serves both halves. There are no per-actor service arms today — the actor switch exists with only a default branch, so the shape is the same whether or not an arm is ever earned.
 
-| Concern                   | Where it lives                                                                                                                                                             |
-|---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Target-client resolution  | one function, consumed by all eight request functions                                                                                                                      |
-| Addressability predicate  | one function; its reactive form is what `isAvailable` exposes                                                                                                              |
-| Cache key                 | one base key, shared by both halves                                                                                                                                        |
-| Wire ↔ view-model mapping | pure mappers, no actor awareness                                                                                                                                           |
-| Machine services adapter  | takes the already-scoped services instance as an argument, so the machine inherits the same resolved client                                                                |
-| Request-state translation | one function (`translateQuery`), called at query instantiation and by `filterBy` / `sortBy` — turns the query model into `filter[col|op]=` / `order=` / `limit=`&`offset=` |
+| Concern                   | Where it lives                                                                                                                                                                                                                                                                              |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Target-client resolution  | one function, consumed by all eight request functions                                                                                                                                                                                                                                       |
+| Addressability predicate  | one function; its reactive form is what `isAvailable` exposes                                                                                                                                                                                                                               |
+| Cache key                 | one base key, shared by both halves                                                                                                                                                                                                                                                         |
+| Wire ↔ view-model mapping | pure mappers, no actor awareness                                                                                                                                                                                                                                                            |
+| Machine services adapter  | takes the already-scoped services instance as an argument, so the machine inherits the same resolved client                                                                                                                                                                                 |
+| Request-state translation | one function, invoked whenever the declared model changes — turns it into `filter[col\|op]=` / `order=` / `limit=`&`offset=`. It now lives in the shared query layer's criteria seam, not this module's services file; `filterBy` / `sortBy` write intent only and never translate directly |
 
 The module owns **no machine of its own** — it builds a typed configuration payload for the shared `dataManagerMachine`, whose actions, guards and invoked services it overrides. One guard override is load-bearing: the editor is held out of its loading state until a client id exists, which is what stops it firing an unaddressed request on a cold boot.
 
@@ -123,7 +123,7 @@ The module owns **no machine of its own** — it builds a typed configuration pa
 Errors are **state**, not events. Nothing in this module raises a toast or notification.
 
 | Surface                           | Where a failure lands                                                                                                                    |
-|-----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | Collection filter/sort validation | the derived query model's ajv failure → `useContext().error`, checked BEFORE the two rows below                                          |
 | Collection row mutation           | the services instance's captured error → `useContext().error`, `useMeta().hasError`                                                      |
 | Collection list read              | the query's own error → the same two members                                                                                             |

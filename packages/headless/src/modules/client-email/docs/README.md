@@ -50,13 +50,14 @@ The editor's save invalidates the shared cache, so an open collection picks the 
 | List own addresses                     | `useClientEmails().useContext().data`                        | Reactive list of the client's own addresses                  |
 | Read per-address status                | `…useContext().data[].meta`                                  | Default / verified / bounced / deletable flags               |
 | Know whether the list is yours to read | `useClientEmails().useMeta().isAvailable`                    | Authenticated **and** a client id resolved                   |
+| Know whether the list is filtered      | `useClientEmails().useMeta().isFiltered`                     | True while any declared filter column carries a value        |
 | Delete                                 | `useClientEmails().useActions().remove()`                    | Removes a deletable address                                  |
 | Set default                            | `…useActions().setDefault()`                                 | Promotes a **verified** address to the default               |
 | Request verification                   | `…useActions().verify()`                                     | Asks the platform to (re-)send a verification message        |
 | Find or create                         | `…useActions().ensure()`                                     | Resolves an existing match, or creates the address if absent |
 | Filter                                 | `…useActions().filterBy()`                                   | Narrows by email text or verified/bounced/default status     |
 | Sort                                   | `…useActions().sortBy()`                                     | Reorders by a declared column, re-querying the server        |
-| Page                                   | `…useActions().nextPage()` / `.prevPage()`                   | Moves through the list when a page size was asked for        |
+| Page                                   | `…useActions().nextPage()` / `.prevPage()`                   | Moves through the list past its default 10-address page      |
 | Add a new address                      | `useClientEmailManager().as('self').fresh()` then `update()` | Creates through the validated form                           |
 | Change an address                      | `…for('email', id)` then `update()`                          | Edits through the validated form; resets the verified flag   |
 | Validate as the client types           | `…useActions().input()` + `useMeta().isValid`                | Reports acceptance and which field is wrong                  |
