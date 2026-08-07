@@ -1,22 +1,15 @@
---- a/packages/headless/src/modules/query/useQuery.ts
-+++ b/packages/headless/src/modules/query/useQuery.ts
-@@ -500,7 +500,6 @@ export const useQuery = () => {
-       if (isEqual(unref(target), next)) return;
-       target.value = next;
-       if (isInitialCall.value) return;
--      pageIndex.value = 1;
-       queryClient.resetQueries({ queryKey });
-     }
- 
-@@ -512,9 +511,8 @@ export const useQuery = () => {
-         // `limit`/`offset` are computed straight off `props`, so a pagination
-         // change needs no assignment — only the page it lands on, seeded by the
-         // same arithmetic as the initial `pageIndex`.
--        const page = !offset.value
--          ? 1
--          : Math.ceil(offset.value / limit.value) + 1;
-+        if (!offset.value) return;
-+        const page = Math.ceil(offset.value / limit.value) + 1;
-         if (pageIndex.value === page) return;
-         pageIndex.value = page;
-         if (!isInitialCall.value) queryClient.resetQueries({ queryKey });
+diff --git a/packages/headless/src/modules/query/useQueryCriteria.ts b/packages/headless/src/modules/query/useQueryCriteria.ts
+index 6b40b4e24..f73b248c8 100644
+--- a/packages/headless/src/modules/query/useQueryCriteria.ts
++++ b/packages/headless/src/modules/query/useQueryCriteria.ts
+@@ -231,9 +231,7 @@ export function useQueryCriteria<
+       !has(model.value, "pagination")
+         ? {}
+         : {
+-            pagination: assign({}, get(intent.value, "pagination"), {
+-              offset: 0
+-            })
++            pagination: assign({}, get(intent.value, "pagination"))
+           };
+     intent.value = assign({}, intent.value, next, cursor) as Partial<TModel>;
+   }

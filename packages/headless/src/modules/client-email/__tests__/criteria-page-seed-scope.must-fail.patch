@@ -1,10 +1,15 @@
---- a/packages/headless/src/modules/query/useQuery.ts
-+++ b/packages/headless/src/modules/query/useQuery.ts
-@@ -514,7 +514,6 @@
-         // overwrite the page reset `applyBranch` just made — `set` merges at
-         // branch level, so a filter write preserves a non-zero offset and would
-         // narrow the results while staying on page 3.
--        if (isEqual(next.pagination, previous.pagination)) return;
-         // `limit`/`offset` are computed straight off `props`, so a pagination
-         // change needs no assignment — only the page it lands on, seeded by the
-         // same arithmetic as the initial `pageIndex`.
+diff --git a/packages/headless/src/modules/query/useQueryCriteria.ts b/packages/headless/src/modules/query/useQueryCriteria.ts
+index 6b40b4e24..1530c4850 100644
+--- a/packages/headless/src/modules/query/useQueryCriteria.ts
++++ b/packages/headless/src/modules/query/useQueryCriteria.ts
+@@ -226,9 +226,7 @@ export function useQueryCriteria<
+   function set(next: Partial<TModel>): void {
+     rejectedSeed.value = [];
+     const cursor =
+-      isEmpty(next) ||
+-      has(next, "pagination") ||
+-      !has(model.value, "pagination")
++      isEmpty(next) || !has(model.value, "pagination")
+         ? {}
+         : {
+             pagination: assign({}, get(intent.value, "pagination"), {

@@ -1,0 +1,33 @@
+diff --git a/packages/headless/src/modules/query/useQuery.ts b/packages/headless/src/modules/query/useQuery.ts
+index e3d573cfb..a11fef89d 100644
+--- a/packages/headless/src/modules/query/useQuery.ts
++++ b/packages/headless/src/modules/query/useQuery.ts
+@@ -501,10 +501,13 @@ export const useQuery = () => {
+ 
+     // In criteria mode the cursor IS the model's `pagination.offset` — the wire,
+     // the published model and the page number all read the one number.
++    const shadowOffset = ref<number | undefined>(undefined);
+     const offset = computed(() =>
+       raw
+         ? (raw.pageIndex.value - 1) * limit.value
+-        : (props.value.pagination?.offset ?? PAGINATION.offset)
++        : (shadowOffset.value ??
++          props.value.pagination?.offset ??
++          PAGINATION.offset)
+     );
+ 
+     /**
+@@ -521,12 +524,7 @@ export const useQuery = () => {
+           raw.pageIndex.value = Math.max(page, 1);
+           return;
+         }
+-        const nextPagination: Record<string, unknown> = {
+-          pagination: assign({}, props.value.pagination, {
+-            offset: Math.max(page - 1, 0) * limit.value
+-          })
+-        };
+-        criteria?.set(nextPagination as Partial<TModel>);
++        shadowOffset.value = Math.max(page - 1, 0) * limit.value;
+       }
+     });
+ 

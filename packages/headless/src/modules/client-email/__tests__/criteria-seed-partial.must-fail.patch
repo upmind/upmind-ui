@@ -1,0 +1,15 @@
+diff --git a/packages/headless/src/modules/query/useQueryCriteria.ts b/packages/headless/src/modules/query/useQueryCriteria.ts
+index 6b40b4e24..722f87e70 100644
+--- a/packages/headless/src/modules/query/useQueryCriteria.ts
++++ b/packages/headless/src/modules/query/useQueryCriteria.ts
+@@ -179,8 +179,8 @@ export function useQueryCriteria<
+   const intent = ref({}) as Ref<Partial<TModel>>;
+   if (!isEmpty(seed)) {
+     const errors = useValidation().validate(schema, parse(seed));
+-    if (isEmpty(errors)) intent.value = seed as Partial<TModel>;
+-    else rejectedSeed.value = errors;
++    intent.value = seed as Partial<TModel>;
++    if (!isEmpty(errors)) rejectedSeed.value = errors;
+   }
+ 
+   const model = computed<TModel>(() => parse(intent.value));
