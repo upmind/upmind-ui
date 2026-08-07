@@ -15,6 +15,8 @@ export type ConfigProps = {
   as?: "form" | "fieldset";
   /** Resolve whenever the form validates, for hosts that save inline. */
   autosave?: boolean;
+  /** Fields that resolve on change, without waiting for the form to validate. */
+  resolveFields?: string[];
   disabled?: boolean;
   required?: boolean;
   hideTerms?: boolean;
