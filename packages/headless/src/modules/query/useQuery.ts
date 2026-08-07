@@ -287,25 +287,32 @@ export const useQuery = () => {
     // --- state
 
     // ONE source for the request branches: the criteria owns them when declared
-    // and the caller spells them raw when it is not — never both.
+    // and the caller spells them raw when it is not — never both. Every reader
+    // DERIVES from that source rather than mirroring it into a second ref, so
+    // there is nothing to drift.
     const props = computed<QueryProps>(() =>
       criteria
         ? criteria.props.value
         : { sort: options?.sort, filters: options?.filters }
     );
 
-    const filters = ref<QueryParams["filters"]>({
-      ...(props.value.filters ?? {})
-    });
+    // The raw arm's own state: a caller spelling the branches raw has no model
+    // to write into, so its setters need somewhere to land. Not constructed at
+    // all in criteria mode.
+    const raw = criteria
+      ? undefined
+      : {
+          sort: ref<QueryProps["sort"]>(props.value.sort),
+          filters: ref<QueryParams["filters"]>({
+            ...(props.value.filters ?? {})
+          })
+        };
 
-    const sort = ref(props.value.sort);
+    const sort = computed(() => (raw ? raw.sort.value : props.value.sort));
 
-    if (criteria)
-      watch(props, next => {
-        if (!isEqual(unref(sort), next.sort)) sort.value = next.sort;
-        if (!isEqual(unref(filters), next.filters))
-          filters.value = next.filters;
-      });
+    const filters = computed(() =>
+      raw ? raw.filters.value : props.value.filters
+    );
 
     // --- query
     const reactiveKeys: ReactiveQueryKeys = { sort, filters };
@@ -380,10 +387,10 @@ export const useQuery = () => {
     return {
       ...handle,
       sort: (values?: QueryParams["sort"]) => {
-        sort.value = unref(values);
+        if (raw) raw.sort.value = unref(values);
       },
       filter: (values: QueryParams["filters"]) => {
-        filters.value = unref(values);
+        if (raw) raw.filters.value = unref(values);
       }
     } as SimpleQuery<TQueryFnData, TData>;
   }
@@ -443,16 +450,12 @@ export const useQuery = () => {
     const { currencyCode } = useBasketCurrency();
     const { basketId } = useBasket();
 
-    // The criteria is constructed here, never handed in: a module declares a
-    // schema and passes it, so it cannot wire the pipeline wrongly.
     const criteria = declaration
       ? useQueryCriteria<TModel>(declaration)
       : undefined;
 
     // --- state
 
-    // ONE source for the three request branches: the criteria owns them when
-    // declared and the caller spells them raw when it is not — never both.
     const props = computed<QueryProps>(() =>
       criteria
         ? criteria.props.value
@@ -469,26 +472,39 @@ export const useQuery = () => {
       () => props.value.pagination?.limit ?? PAGINATION.limit
     );
     const total = ref(0);
-    const sort = ref(props.value.sort);
-    const filters = ref<QueryParams["filters"]>({
-      ...(props.value.filters ?? {})
-    });
+
+    // The raw arm's own state: a caller spelling the branches raw has no model
+    // to write into, so its setters and its pager need somewhere to land. Not
+    // constructed at all in criteria mode, where the model IS the state.
+    const raw = criteria
+      ? undefined
+      : {
+          sort: ref<QueryProps["sort"]>(props.value.sort),
+          filters: ref<QueryParams["filters"]>({
+            ...(props.value.filters ?? {})
+          }),
+          pageIndex: ref(
+            !limit.value
+              ? 1
+              : Math.floor(
+                  (props.value.pagination?.offset ?? PAGINATION.offset) /
+                    limit.value
+                ) + 1
+          )
+        };
+
+    const sort = computed(() => (raw ? raw.sort.value : props.value.sort));
+
+    const filters = computed(() =>
+      raw ? raw.filters.value : props.value.filters
+    );
 
     // In criteria mode the cursor IS the model's `pagination.offset` — the wire,
-    // the published model and the page number all read the one number. A raw
-    // caller has no model to hold it, so its cursor stays the local page index
-    // the raw setters move.
-    const rawPageIndex = ref(
-      !limit.value
-        ? 1
-        : Math.floor(
-            (props.value.pagination?.offset ?? PAGINATION.offset) / limit.value
-          ) + 1
-    );
+    // the published model and the page number all read the one number.
     const offset = computed(() =>
-      criteria
-        ? (props.value.pagination?.offset ?? PAGINATION.offset)
-        : (rawPageIndex.value - 1) * limit.value
+      raw
+        ? (raw.pageIndex.value - 1) * limit.value
+        : (props.value.pagination?.offset ?? PAGINATION.offset)
     );
 
     /**
@@ -501,16 +517,16 @@ export const useQuery = () => {
       get: () =>
         !limit.value ? 1 : Math.floor(offset.value / limit.value) + 1,
       set: page => {
-        if (!criteria) {
-          rawPageIndex.value = Math.max(page, 1);
+        if (raw) {
+          raw.pageIndex.value = Math.max(page, 1);
           return;
         }
         const nextPagination: Record<string, unknown> = {
-          pagination: assign({}, get(criteria.model.value, "pagination"), {
+          pagination: assign({}, props.value.pagination, {
             offset: Math.max(page - 1, 0) * limit.value
           })
         };
-        criteria.set(nextPagination as Partial<TModel>);
+        criteria?.set(nextPagination as Partial<TModel>);
       }
     });
 
@@ -542,16 +558,15 @@ export const useQuery = () => {
     }
 
     if (criteria)
-      watch(props, next => {
-        // `limit`/`offset` are computed straight off `props`, so pagination
-        // needs no assignment — only the two branches the query key holds by ref.
+      watch(props, (next, previous) => {
+        // Nothing is assigned here: every branch is derived from the criteria,
+        // and `set` has already returned the cursor to the first page. A real
+        // change owes the cache reset and nothing else.
         if (
-          isEqual(unref(sort), next.sort) &&
-          isEqual(unref(filters), next.filters)
+          isEqual(next.sort, previous.sort) &&
+          isEqual(next.filters, previous.filters)
         )
           return;
-        sort.value = next.sort;
-        filters.value = next.filters;
         if (!isInitialCall.value) queryClient.resetQueries({ queryKey });
       });
 
@@ -629,21 +644,31 @@ export const useQuery = () => {
       )
     );
 
+    // The split total reads the SAME source the list does, and keeps reading
+    // it: captured once at mint, a `setCriteria({ filters })` would leave the
+    // count describing the previous result set.
     if (withSplitCount)
-      countRequest({
-        queryKey,
-        url,
-        sort: sort.value,
-        filters: filters.value,
-        withCurrency,
-        withoutLocale,
-        init: {
-          ...init
+      watch(
+        [sort, filters],
+        (next, previous) => {
+          if (isEqual(next, previous)) return;
+          countRequest({
+            queryKey,
+            url,
+            sort: sort.value,
+            filters: filters.value,
+            withCurrency,
+            withoutLocale,
+            init: {
+              ...init
+            },
+            withAccessToken
+          }).then(count => {
+            total.value = count as number;
+          });
         },
-        withAccessToken
-      }).then(count => {
-        total.value = count as number;
-      });
+        { immediate: true }
+      );
 
     // -------------------------------------------------------------------------
 
@@ -784,8 +809,6 @@ export const useQuery = () => {
       }
     };
 
-    // ONE write path: the criteria owns the request state when declared, and
-    // the raw setters are the whole surface when it is not.
     if (criteria)
       return {
         ...handle,
@@ -799,10 +822,13 @@ export const useQuery = () => {
     return {
       ...handle,
 
-      sort: (values?: QueryParams["sort"]) => applyBranch(sort, unref(values)),
+      sort: (values?: QueryParams["sort"]) => {
+        if (raw) applyBranch(raw.sort, unref(values));
+      },
 
-      filter: (values: QueryParams["filters"]) =>
-        applyBranch(filters, unref(values))
+      filter: (values: QueryParams["filters"]) => {
+        if (raw) applyBranch(raw.filters, unref(values));
+      }
     } as ListQuery<TQueryFnData, TData>;
   }
 
@@ -858,16 +884,12 @@ export const useQuery = () => {
     const { currencyCode } = useBasketCurrency();
     const { basketId } = useBasket();
 
-    // The criteria is constructed here, never handed in: a module declares a
-    // schema and passes it, so it cannot wire the pipeline wrongly.
     const criteria = declaration
       ? useQueryCriteria<TModel>(declaration)
       : undefined;
 
     // --- state
 
-    // ONE source for the request branches: the criteria owns them when declared
-    // and the caller spells them raw when it is not — never both.
     const props = computed<QueryProps>(() =>
       criteria
         ? criteria.props.value
@@ -879,19 +901,35 @@ export const useQuery = () => {
     );
 
     // Reactive, not captured at mint: a live page-size change re-keys the query
-    // and reaches the wire.
+    // and reaches the wire. The criteria's `pagination` reaches this entry point
+    // as the page SIZE only — the cursor is the infinite query's own `pageParam`,
+    // which is why there is no `offset` to write back here.
     const limit = computed(
       () => props.value.pagination?.limit ?? PAGINATION.limit
     );
-    const sort = ref(props.value.sort);
     const total = ref(0);
     const pageTotal = computed(() => {
       if (!limit.value) return 1; // Can only be 1 page if limit=0
       return Math.max(Math.ceil(total.value / limit.value), 1);
     });
-    const filters = ref<QueryParams["filters"]>({
-      ...(props.value.filters ?? {})
-    });
+
+    // The raw arm's own state: a caller spelling the branches raw has no model
+    // to write into, so its setters need somewhere to land. Not constructed at
+    // all in criteria mode.
+    const raw = criteria
+      ? undefined
+      : {
+          sort: ref<QueryProps["sort"]>(props.value.sort),
+          filters: ref<QueryParams["filters"]>({
+            ...(props.value.filters ?? {})
+          })
+        };
+
+    const sort = computed(() => (raw ? raw.sort.value : props.value.sort));
+
+    const filters = computed(() =>
+      raw ? raw.filters.value : props.value.filters
+    );
 
     // This s used to persist paginatin and filter/sort on first load, so that if the user refreshes the page, we don't reset the pagination and filters to the default values. We only want to reset them if the user changes the sort or filter values.
     const isInitialCall = ref(true);
@@ -906,16 +944,12 @@ export const useQuery = () => {
     if (withBasket) reactiveKeys.basketId = basketId;
 
     if (criteria)
-      watch(props, next => {
-        // A `limit` change needs no assignment — it re-keys the query, which
-        // restarts the cursor at the first page on its own.
+      watch(props, (next, previous) => {
         if (
-          isEqual(unref(sort), next.sort) &&
-          isEqual(unref(filters), next.filters)
+          isEqual(next.sort, previous.sort) &&
+          isEqual(next.filters, previous.filters)
         )
           return;
-        sort.value = next.sort;
-        filters.value = next.filters;
         if (!isInitialCall.value) queryClient.resetQueries({ queryKey }); // Reset to first page
       });
 
@@ -977,20 +1011,27 @@ export const useQuery = () => {
     // -------------------------------------------------------------------------
 
     if (withSplitCount)
-      countRequest({
-        queryKey,
-        url,
-        sort: sort.value,
-        filters: filters.value,
-        withCurrency,
-        withoutLocale,
-        init: {
-          ...init
+      watch(
+        [sort, filters],
+        (next, previous) => {
+          if (isEqual(next, previous)) return;
+          countRequest({
+            queryKey,
+            url,
+            sort: sort.value,
+            filters: filters.value,
+            withCurrency,
+            withoutLocale,
+            init: {
+              ...init
+            },
+            withAccessToken
+          }).then(count => {
+            total.value = count as number;
+          });
         },
-        withAccessToken
-      }).then(count => {
-        total.value = count as number;
-      });
+        { immediate: true }
+      );
 
     const handle = {
       ...response,
@@ -1043,8 +1084,6 @@ export const useQuery = () => {
       resetQuery: () => queryClient.resetQueries({ queryKey })
     };
 
-    // ONE write path: the criteria owns the request state when declared, and
-    // the raw setters are the whole surface when it is not.
     if (criteria)
       return {
         ...handle,
@@ -1059,12 +1098,14 @@ export const useQuery = () => {
       ...handle,
 
       sort: (values?: QueryParams["sort"]) => {
-        sort.value = unref(values);
+        if (!raw) return;
+        raw.sort.value = unref(values);
         if (!isInitialCall.value) queryClient.resetQueries({ queryKey }); // Reset to first page
       },
 
       filter: (values: QueryParams["filters"]) => {
-        filters.value = unref(values);
+        if (!raw) return;
+        raw.filters.value = unref(values);
         if (!isInitialCall.value) queryClient.resetQueries({ queryKey }); // Reset to first page
       }
     } as InfiniteListQuery<TQueryFnData, TData>;
