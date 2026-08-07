@@ -1,4 +1,6 @@
+import { translateQuery } from "../query";
 import { useActionInputSchemas } from "./client-email.schemas";
+import type { QueryProps } from "../query";
 import type { ClientEmailListQuery } from "./client-email.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
@@ -21,7 +23,10 @@ export function createClientEmailsInternals(
     /** Actor scope for this instance. */
     actorScope,
     /** Raw TanStack query object backing the collection. */
-    query
+    query,
+    /** Diagnostics: the wire the live criteria BUILDS — nothing is requested. */
+    translateQuery: (): QueryProps =>
+      translateQuery(query.schema, query.criteria.value)
   };
 }
 

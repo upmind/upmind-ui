@@ -45,6 +45,14 @@ export function createClientEmailsMeta(
     /** True if this scope has no addresses. */
     isEmpty: isEmptyList,
 
+    /**
+     * True while any declared filter column carries a value. Handed straight
+     * through from the query's published criteria — so an empty list that is
+     * empty BECAUSE it is filtered can say so, instead of both emptinesses
+     * reading the same.
+     */
+    isFiltered: query.isFiltered,
+
     /** True while the list is loading or has not completed its first fetch. */
     isLoading
 

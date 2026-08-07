@@ -90,7 +90,7 @@ function toWireFilterValue(operator: string, value: unknown): string {
  * through. A FRESH object every call so `useQuery`'s `isEqual` guard is a value
  * comparison and `pageIndex` resets.
  */
-function translateQuery(
+export function translateQuery(
   schema: JsonSchema,
   model: Record<string, unknown>
 ): QueryProps {

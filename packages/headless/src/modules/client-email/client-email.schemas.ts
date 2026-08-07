@@ -243,10 +243,12 @@ export function useQuerySchema(): QuerySchema {
       pagination: {
         type: "object",
         additionalProperties: false,
-        // `minimum: 0`, NOT 1: `limit: 0` is this module's own default
-        // (`client-email.services.ts`) and a value `useQuery` preserves.
+        // `minimum: 0`, NOT 1: `limit: 0` stays a legal declarable value for a
+        // module that wants one unpaged page. THIS module declares 10 (matching
+        // `PAGINATION.limit`) — the page size the list boots on, so the pager
+        // has something to step to.
         properties: {
-          limit: { type: "integer", minimum: 0 },
+          limit: { type: "integer", minimum: 0, default: 10 },
           offset: { type: "integer", minimum: 0 }
         }
       }

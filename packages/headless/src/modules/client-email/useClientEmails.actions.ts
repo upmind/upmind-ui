@@ -7,11 +7,9 @@ import type {
   ClientEmailListQuery,
   ClientEmailServices,
   FilterModel,
-  QueryModel,
   SortModel
 } from "./client-email.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
-import type { ComputedRef, Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmails.actions
@@ -29,9 +27,7 @@ export function createClientEmailsActions(
   _actorScope: ScopeActorTypes,
   service: ClientEmailServices,
   query: ClientEmailListQuery,
-  scopeKey: string,
-  queryIntent: Ref<QueryModel>,
-  queryModel: ComputedRef<QueryModel>
+  scopeKey: string
 ) {
   const { isAvailable: isSessionInitialised, isLoading: isSessionSettling } =
     useActiveSession().useMeta();
@@ -130,25 +126,20 @@ export function createClientEmailsActions(
   // --- filters
   /**
    * Applies a filter INTENT — the `filters` branch of the one query model, so
-   * `sort` and `pagination` are untouched by construction. The intent is written
-   * as a fresh object; the derived model compacts → parses → validates, and the
-   * one translator re-issues the list request (resetting to page 1).
+   * `sort` and `pagination` are untouched by construction.
    */
   function filterBy(intent: FilterModel): void {
-    queryIntent.value = { ...queryIntent.value, filters: intent };
-    query.filter(service.translateQuery(queryModel.value).filters);
+    query.setCriteria({ filters: intent });
   }
 
   /**
    * Applies a sort INTENT — the `sort` branch of the one query model, so
    * `filters` and `pagination` are untouched. A `[]` intent is compacted away
    * and the parse refills the schema's `default` order, so clearing the sort
-   * lands as the default rather than an absent order; the one translator
-   * re-issues the request.
+   * lands as the default rather than an absent order.
    */
   function sortBy(intent: SortModel): void {
-    queryIntent.value = { ...queryIntent.value, sort: intent };
-    query.sort(service.translateQuery(queryModel.value).sort);
+    query.setCriteria({ sort: intent });
   }
 
   /**

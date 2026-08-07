@@ -26,7 +26,7 @@ import { AccessRoleTypes } from "@upmind-automation/types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { ResponseError } from "../../utils";
 import type { DataManagerContext } from "../data-manager/data-manager.types";
-import type { ListQuery, QueryParams, QueryProps } from "../query";
+import type { ListQuery, WithCriteria } from "../query";
 import type { JsonSchema7 } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IEmail } from "@upmind-automation/types";
@@ -186,13 +186,6 @@ export const DEFAULT_SORT: SortModel = [{ field: "created_at", dir: "desc" }];
  */
 export type QuerySchema = JsonSchema7;
 
-/**
- * The whole query model → the `QueryProps` the query layer already accepts
- * (`query.types.ts`). Re-exported on the services contract below so there is
- * exactly one translator implementation (S-D9).
- */
-export type TranslateQuery = (model: QueryModel) => QueryProps;
-
 /** The manager's machine context — the shared machine's, over this form model. */
 export type EmailContext = DataManagerContext<EmailModel>;
 
@@ -200,8 +193,15 @@ export type EmailContext = DataManagerContext<EmailModel>;
  * The reactive list query, minted ONCE per scope in `useClientEmails.ts`.
  * Aliased from the query platform's own `ListQuery` — never derived with
  * `ReturnType<typeof localServiceFn>`.
+ *
+ * In criteria mode, so the write-only `sort()`/`filter()` setters are gone and
+ * the handle publishes `criteria` / `schema` / `isFiltered` / `criteriaError` /
+ * `setCriteria`: every layer below reads THAT one source, never a shadow copy.
  */
-export type ClientEmailListQuery = ListQuery<IEmail[], Email[]>;
+export type ClientEmailListQuery = WithCriteria<
+  ListQuery<IEmail[], Email[]>,
+  QueryModel
+>;
 
 /** Lands a failed collection mutation in the services instance's error state. */
 export type ClientEmailErrorCapture = (error: unknown) => void;
@@ -229,17 +229,11 @@ export type ClientEmailServices = {
   /** The last failed collection mutation, captured as state — never raised. */
   error: ComputedRef<ResponseError | undefined>;
   /**
-   * The ONE translator (S-D9): the whole query model → the `QueryProps` the
-   * query layer already accepts. Exposed here so there is exactly one
-   * implementation, called by `loadList` at instantiation and by
-   * `useActions().filterBy` / `.sortBy` at runtime.
+   * The collection's list query. Takes NOTHING: the request state is the
+   * declared query schema, handed to `list({ criteria })`, so there is no
+   * params back door a caller could contradict it through.
    */
-  translateQuery: TranslateQuery;
-  loadList: (
-    params?: Partial<QueryParams<IEmail[], Email[]>> & {
-      queryModel?: QueryModel;
-    }
-  ) => ClientEmailListQuery;
+  loadList: () => ClientEmailListQuery;
   /** Per-email read; seeds the manager when no collection is loaded. */
   loadOne: (id?: IEmail["id"]) => Promise<Email | undefined>;
   add: (model: EmailModel) => Promise<IEmail | undefined>;

@@ -5,12 +5,10 @@ import { isArray } from "lodash-es";
 import type {
   ClientEmailListQuery,
   ClientEmailServices,
-  Email,
-  QueryModel
+  Email
 } from "./client-email.types";
 import type { ResponseError } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
-import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmails.context
@@ -27,9 +25,7 @@ import type { ComputedRef } from "vue";
 export function createClientEmailsContext(
   _actorScope: ScopeActorTypes,
   service: ClientEmailServices,
-  query: ClientEmailListQuery,
-  queryModel: ComputedRef<QueryModel>,
-  queryError: ComputedRef<ResponseError | undefined>
+  query: ClientEmailListQuery
 ) {
   const { findOne, getOne, getDefault } = useCollection<Email>(query.data);
 
@@ -41,7 +37,7 @@ export function createClientEmailsContext(
 
   const error = computed<ResponseError | undefined>(
     () =>
-      queryError.value ??
+      query.criteriaError.value ??
       service.error.value ??
       (query.error.value ? mapToHeadlessError(query.error.value) : undefined)
   );
@@ -69,10 +65,11 @@ export function createClientEmailsContext(
     pagination: query.pagination,
 
     /**
-     * This scope's ACTIVE request state — `{ filters, sort, pagination }`,
-     * derived and read-only; write through `useActions().filterBy` / `.sortBy`.
+     * This scope's ACTIVE request state — `{ filters, sort, pagination }`, the
+     * query's own published criteria rather than a copy of it; read-only, write
+     * through `useActions().filterBy` / `.sortBy`.
      */
-    query: queryModel,
+    query: query.criteria,
 
     /**
      * The module's schema family, plain JSON so it survives the renderer port's

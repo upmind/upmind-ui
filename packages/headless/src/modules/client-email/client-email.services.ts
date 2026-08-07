@@ -1,7 +1,6 @@
 /** @internal */
 import { computed, ref } from "vue";
 import { useQuery, invalidateQueryByKey } from "../query";
-import { RequestSortDirection } from "../query";
 import { useActiveSession } from "../session-store";
 import { useI18n } from "../system-localisation";
 import { mapEmail, mapEmails, mapIEmail } from "./client-email.mappers";
@@ -19,8 +18,7 @@ import {
   NotAuthenticatedError,
   DEBOUNCE_DELAY
 } from "../../utils";
-import { filter, forEach, get, isArray, isEmpty, map, omitBy } from "lodash-es";
-import type { QueryParams, QueryProps, RequestFilters } from "../query";
+import { get, isArray, isEmpty, omitBy } from "lodash-es";
 import type { ScopeContext } from "../scope";
 import type {
   ClientEmailErrorCapture,
@@ -30,12 +28,10 @@ import type {
   Email,
   EmailContext,
   EmailModel,
-  QueryModel,
-  QuerySchema
+  QueryModel
 } from "./client-email.types";
 import type { ResponseError } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
-import type { JsonSchema7 } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IEmail } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
@@ -103,79 +99,6 @@ function isAddressable(clientId?: string): boolean {
 }
 
 /**
- * One filter leaf → its wire string. Inactive (nil/empty) → `""`, the CLEARING
- * value `useQuery`'s serialiser deletes; active always a NON-empty string so the
- * lodash falsy-drop cannot eat a boolean filter. `like`/`nlike` get the `%`
- * wildcards (the model holds the bare term so a rehydrate cannot double-wrap);
- * booleans map to `"1"`/`"0"`; an array leaf comma-joins (S-D12).
- */
-function toWireFilterValue(operator: string, value: unknown): string {
-  if (value === undefined || value === null || value === "") return "";
-  if (operator === "like" || operator === "nlike") return `%${value}%`;
-  if (typeof value === "boolean") return value ? "1" : "0";
-  if (isArray(value)) return value.join(",");
-  return String(value);
-}
-
-/**
- * The ONE translator (S-D9): the whole query model → the `QueryProps` the query
- * layer already accepts. Generic and schema-injected — it imports nothing
- * module-specific, so promotion to `modules/query/**` is a cut-paste (S-D2 keeps
- * it module-local for now).
- *
- * `filters` walks the schema's DECLARED `(column, operator)` pairs — never the
- * model's keys — so it emits exactly one key per declared filter, active as its
- * wire value and inactive as `""`. `sort` re-shapes `{field,dir}[]` to the
- * `[direction, property]` tuple form, dropping any field the schema's enum does
- * not declare (an unknown `order=` column is an HTTP 500). `pagination` passes
- * through. A FRESH object every call so `useQuery`'s `isEqual` guard is a value
- * comparison and `pageIndex` resets.
- *
- * @internal
- */
-function translateQuery(schema: QuerySchema, model: QueryModel): QueryProps {
-  const filterProps =
-    (schema.properties?.filters as JsonSchema7)?.properties ?? {};
-  const filters: RequestFilters = {};
-  forEach(filterProps, (columnSchema, column) => {
-    const operators = (columnSchema as JsonSchema7).properties ?? {};
-    forEach(operators, (_operatorSchema, operator) => {
-      filters[`filter[${column}|${operator}]`] = toWireFilterValue(
-        operator,
-        get(model, ["filters", column, operator])
-      );
-    });
-  });
-
-  const sortFields = new Set(
-    (get(schema, [
-      "properties",
-      "sort",
-      "items",
-      "properties",
-      "field",
-      "enum"
-    ]) as string[] | undefined) ?? []
-  );
-  const tuples = map(
-    filter(model.sort ?? [], entry => sortFields.has(entry.field)),
-    entry =>
-      [
-        entry.dir === "asc"
-          ? RequestSortDirection.ASC
-          : RequestSortDirection.DESC,
-        entry.field
-      ] as [RequestSortDirection, string]
-  );
-
-  return {
-    filters,
-    sort: tuples.length === 1 ? tuples[0] : tuples,
-    pagination: model.pagination
-  };
-}
-
-/**
  * COLLECTION — the reactive list query, minted once per scope.
  *
  * Minted once, but the target client can resolve AFTER construction — an
@@ -191,32 +114,19 @@ function translateQuery(schema: QuerySchema, model: QueryModel): QueryProps {
  * The URL is re-pointed in the `guard`, the last hook before `list()` builds
  * the request: `list()` closes over the URL object it is handed and never
  * re-reads it, so this is what targets the id resolved at FIRE time.
+ *
+ * The whole request state is the DECLARED query schema: `list()` constructs the
+ * criteria from it, owns filters/sort/pagination, and publishes them back on the
+ * handle. Spelling any of the three raw beside `criteria` is a compile error.
  */
-function loadList(
-  params: Partial<QueryParams<IEmail[], Email[]>> & {
-    queryModel?: QueryModel;
-  } = {
-    pagination: { limit: 0 }
-  },
-  scopeContext?: ScopeContext
-): ClientEmailListQuery {
+function loadList(scopeContext?: ScopeContext): ClientEmailListQuery {
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
-  // The ONE translation site, and now the ONE translator. Returns QueryProps —
-  // the shape `list()` already accepts — so this is a spread, not a mapping.
-  const { queryModel, ...listParams } = params;
-  const { filters, sort, pagination } = translateQuery(
-    useQuerySchema(),
-    queryModel ?? {}
-  );
   const targetUrl = () => useUrl(`clients/${clientId.value}/emails`);
   const url = targetUrl();
 
-  return list<IEmail[], Email[]>({
-    ...listParams,
-    filters,
-    sort,
-    pagination: listParams.pagination ?? pagination,
+  return list<IEmail[], Email[], QueryModel>({
+    criteria: { schema: useQuerySchema() },
     queryKey: [...queryKey, { client: clientId }],
     url,
     // `enabled:` only stops the query starting; this rejects a forced
@@ -326,7 +236,7 @@ async function ensure(
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  const query = loadList(undefined, scopeContext);
+  const query = loadList(scopeContext);
   await query.promise.value.finally();
 
   const { findOne } = useCollection<Email>(
@@ -520,8 +430,7 @@ export const createClientEmailServices = (
     clientId,
     isAvailable: computed(() => isAddressable(clientId.value)),
     error: computed(() => mutationError.value),
-    translateQuery: model => translateQuery(useQuerySchema(), model),
-    loadList: params => loadList(params, scopeContext),
+    loadList: () => loadList(scopeContext),
     loadOne: id => loadOne(id, scopeContext),
     add: model => add(model, scopeContext),
     update: (id, model) => update(id, model, scopeContext),
