@@ -43,7 +43,6 @@ import {
 } from "./client-email.int-helpers";
 import { server } from "./setup.integration";
 import { NotAuthenticatedError } from "../../../utils";
-import { uniq } from "lodash-es";
 import type { ObservedRequest } from "./client-email.int-helpers";
 
 // -----------------------------------------------------------------------------
@@ -264,11 +263,12 @@ describe("client-email collection — list controls (AC-8)", () => {
     await vi.waitFor(() => expect(query.data.value).toHaveLength(2));
     observed.stop();
 
-    // Page one is served from cache on the way back, so the walk's WIRE
-    // evidence is the two offsets it asked for and no third — the boot read at
-    // the schema's own window is the repeat of `0`.
-    expect(uniq(paged.offsets())).toEqual(["0", "2"]);
-    expect(paged.offsets().at(-1)).toBe("2");
+    // The EXACT sequence, not a de-duplicated one (W7): page one, then page two,
+    // and page one again from cache. Once paging writes through the criteria
+    // there is no second `offset=0` to tolerate — a repeated `0` is the
+    // duplicate-request symptom this walk exists to catch, so it must fail here
+    // rather than collapse under `uniq`.
+    expect(paged.offsets()).toEqual(["0", "2"]);
   });
 });
 

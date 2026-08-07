@@ -218,7 +218,7 @@ describe("client-email query criteria — the merge law (Task 41, W-D33)", () =>
     expect(criteria.props.value.filters?.["filter[verified|eq]"]).toBe("");
   });
 
-  it("an emptied filter branch clears the filters and un-flags isFiltered, leaving sort and pagination alone", () => {
+  it("an emptied filter branch clears the filters and un-flags isFiltered, keeps the sort and the page SIZE, and returns to the first page", () => {
     const criteria = bootCriteria();
     criteria.set({ sort: [{ field: "email", dir: "asc" }] });
     criteria.set({ filters: { verified: { eq: false } } });
@@ -228,7 +228,10 @@ describe("client-email query criteria — the merge law (Task 41, W-D33)", () =>
     expect(criteria.model.value.filters).toBeUndefined();
     expect(criteria.isFiltered.value).toBe(false);
     expect(criteria.model.value.sort).toEqual([{ field: "email", dir: "asc" }]);
-    expect(criteria.model.value.pagination).toEqual({ limit: DECLARED_LIMIT });
+    expect(criteria.model.value.pagination).toEqual({
+      limit: DECLARED_LIMIT,
+      offset: 0
+    });
   });
 });
 
