@@ -505,10 +505,16 @@ export const useQuery = () => {
     }
 
     if (criteria)
-      watch(props, next => {
+      watch(props, (next, previous) => {
         applyBranch(sort, next.sort);
         applyBranch(filters, next.filters);
 
+        // PAGINATION-ONLY, and deliberately so: this re-seed ASSIGNS the page
+        // from the model's offset, so running it on a filter/sort change would
+        // overwrite the page reset `applyBranch` just made — `set` merges at
+        // branch level, so a filter write preserves a non-zero offset and would
+        // narrow the results while staying on page 3.
+        if (isEqual(next.pagination, previous.pagination)) return;
         // `limit`/`offset` are computed straight off `props`, so a pagination
         // change needs no assignment — only the page it lands on, seeded by the
         // same arithmetic as the initial `pageIndex`.

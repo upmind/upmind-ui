@@ -5,15 +5,15 @@
  import { computed, ref } from "vue";
 +import { useFeedback } from "../feedback";
  import { useQuery, invalidateQueryByKey } from "../query";
- import { RequestSortDirection } from "../query";
  import { useActiveSession } from "../session-store";
-@@ -512,7 +513,8 @@ export const createClientEmailServices = (
+ import { useI18n } from "../system-localisation";
+@@ -422,7 +423,8 @@ export const createClientEmailServices = (
    const clientId = resolveClientId(scopeContext);
-
+ 
    const captureError: ClientEmailErrorCapture = error => {
 -    mutationError.value = mapToHeadlessError(error);
 +    const mapped = mapToHeadlessError(error);
 +    useFeedback().addError({ title: mapped.message, data: mapped.data });
    };
-
+ 
    return {
