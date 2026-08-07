@@ -65,7 +65,6 @@ export interface BasketProductUpsellProps {
   id: BasketProduct["id"];
   summary: BasketUpsellSummary;
   option: SubproductDetails;
-  error: boolean;
   processing: boolean;
 }
 

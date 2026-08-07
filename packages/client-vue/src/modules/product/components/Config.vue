@@ -20,6 +20,7 @@
           :touched="props.touched"
           :autosave="props.autosave"
           @update:modelValue="onConfigChange"
+          @valid="onFormValid"
           @resolve="doResolve"
           no-actions
           as="fieldset"
@@ -71,8 +72,16 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { computed, inject, onUpdated } from "vue";
-import { assign, filter, omit, reject } from "lodash-es";
+import { computed, inject, onUpdated, ref } from "vue";
+import {
+  assign,
+  filter,
+  isEmpty,
+  isEqual,
+  omit,
+  pick,
+  reject
+} from "lodash-es";
 import { isLayout } from "@jsonforms/core";
 
 // --- internal
@@ -92,11 +101,15 @@ import Form from "../../../components/form/Form.vue";
 import type { ConfigProps } from "../types";
 
 // -----------------------------------------------------------------------------
+
 const { t } = useI18n();
 
 const emit = defineEmits(["reject", "resolve"]);
 
+const isValid = ref(true);
+
 const props = withDefaults(defineProps<ConfigProps>(), {
+  resolveFields: () => [],
   as: "form",
   disabled: false,
   required: false,
@@ -131,7 +144,19 @@ const {
 // the term to the model's current value (the selector owns it) so the form
 // can't clobber it.
 function onConfigChange(data: Parameters<typeof setConfig>[0]) {
+  // A valid form resolves through autosave, so only force an invalid one — and
+  // only for these fields. Compared against the model the form was rendered
+  // from, before it is set.
+  const resolves =
+    !isValid.value &&
+    !isEmpty(props.resolveFields) &&
+    !isEqual(
+      pick(data, props.resolveFields),
+      pick(model.value, props.resolveFields)
+    );
+
   setConfig(props.hideTerms ? { ...data, term: model.value?.term } : data);
+  if (resolves) emit("resolve", { forced: true });
 }
 
 const { ui } = props.meta;
@@ -166,8 +191,12 @@ function doReject() {
   emit("reject");
 }
 
+function onFormValid(valid: boolean) {
+  isValid.value = valid;
+}
+
 function doResolve() {
-  emit("resolve");
+  emit("resolve", { forced: false });
 }
 
 onUpdated(() => {

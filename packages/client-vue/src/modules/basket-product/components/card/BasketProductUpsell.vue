@@ -22,7 +22,7 @@
       color="neutral"
       size="md"
       :class="styles.product.option.action"
-      :disabled="error || processing"
+      :disabled="processing"
       @click="$emit('toggle', true)"
     />
 
@@ -34,7 +34,7 @@
       color="secondary"
       size="md"
       :class="styles.product.option.action"
-      :disabled="error || processing"
+      :disabled="processing"
       @click="$emit('toggle', false)"
     />
 
@@ -47,7 +47,7 @@
       :min="summary.min"
       :max="summary.max"
       :step="summary.step"
-      :disabled="error || processing"
+      :disabled="processing"
       @update:quantity="value => $emit('update:quantity', value)"
       @remove="$emit('toggle', false)"
     />

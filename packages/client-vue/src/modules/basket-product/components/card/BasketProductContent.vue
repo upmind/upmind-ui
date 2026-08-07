@@ -179,7 +179,6 @@
             v-if="meta.showTermSelector && props.terms"
             :terms="props.terms"
             v-model="term"
-            :disabled="error || !isEmpty(props.configErrors)"
             :processing="processing"
           />
         </div>
