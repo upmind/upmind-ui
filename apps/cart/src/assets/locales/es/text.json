@@ -57,7 +57,7 @@
   "free": "GRATIS",
   "free_trial": "Prueba gratuita",
   "free_trial_alert": "Este artículo incluye una prueba gratuita de {days} días.",
-  "free_trial_desc": "Buenas noticias: ahora puedes probar este producto gratis durante {days} días, sin ningún compromiso. Una vez finalizado el periodo de prueba, se activará tu plan {term}.",
+  "free_trial_desc": "Buenas noticias: ahora puedes probar este producto gratis con un periodo de prueba {days}, sin compromiso alguno. Una vez finalizado el periodo de prueba, se activará tu plan {term}.",
   "free_trial_included_desc": "Este producto incluye un periodo de prueba gratuito.",
   "from": "De",
   "fully_encrypted_title": "Completamente encriptado",

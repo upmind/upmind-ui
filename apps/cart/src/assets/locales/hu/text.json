@@ -57,7 +57,7 @@
   "free": "INGYENES",
   "free_trial": "Ingyenes próbaverzió",
   "free_trial_alert": "Ez a termék {days} napos ingyenes próbaidőszakot tartalmaz.",
-  "free_trial_desc": "Jó hír: mostantól {days} napig ingyenesen kipróbálhatja ezt a terméket, mindenféle kötelezettség nélkül. A próbaidőszak lejárta után a {term} csomagja lép érvénybe.",
+  "free_trial_desc": "Jó hír: mostantól {days} próbaidőszak keretében ingyenesen kipróbálhatja ezt a terméket, mindenféle kötelezettség nélkül. A próbaidőszak lejárta után a {term} csomagja lép életbe.",
   "free_trial_included_desc": "Ez a termék ingyenes próbaidőszakot tartalmaz.",
   "from": "Tól",
   "fully_encrypted_title": "Teljesen titkosított",
