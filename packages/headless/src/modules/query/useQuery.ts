@@ -28,6 +28,7 @@ import {
   responseCodes
 } from "../../utils";
 import {
+  assign,
   forEach,
   get,
   has,
@@ -401,7 +402,7 @@ export const useQuery = () => {
    * @param withBasket Whether to automagically add the basket ID to the request based on the `useBasket` composable.
    * @param withoutLocale Whether to exclude the locale from the request.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
-   * @param criteria The collection's declared query schema (and optional starting model). Mutually exclusive with `sort`/`filters`/`pagination` — declaring both is a compile error. In criteria mode the handle publishes `criteria`/`schema`/`isFiltered`/`criteriaError`/`setCriteria` and does NOT expose `sort()`/`filter()`.
+   * @param criteria The collection's declared query schema (and optional starting model). Mutually exclusive with `sort`/`filters`/`pagination` — declaring both is a compile error. In criteria mode the handle publishes `criteria`/`schema`/`isFiltered`/`criteriaError`/`setCriteria` and does NOT expose `sort()`/`filter()`, and PAGING WRITES THROUGH IT: `fetchNextPage`/`fetchPreviousPage`/`resetQuery` move `pagination.offset` in the model, which is the cursor the wire carries.
    * @param options Additional options to pass to TanStack query.
    */
   function list<TQueryFnData = unknown, TData = TQueryFnData>(
@@ -467,22 +468,57 @@ export const useQuery = () => {
     const limit = computed(
       () => props.value.pagination?.limit ?? PAGINATION.limit
     );
-    const offset = computed(
-      () => props.value.pagination?.offset ?? PAGINATION.offset
-    );
     const total = ref(0);
     const sort = ref(props.value.sort);
-    const pageIndex = ref(
-      !offset.value ? 1 : Math.ceil(offset.value / limit.value) + 1
-    );
     const filters = ref<QueryParams["filters"]>({
       ...(props.value.filters ?? {})
     });
+
+    // In criteria mode the cursor IS the model's `pagination.offset` — the wire,
+    // the published model and the page number all read the one number. A raw
+    // caller has no model to hold it, so its cursor stays the local page index
+    // the raw setters move.
+    const rawPageIndex = ref(
+      !limit.value
+        ? 1
+        : Math.floor(
+            (props.value.pagination?.offset ?? PAGINATION.offset) / limit.value
+          ) + 1
+    );
+    const offset = computed(() =>
+      criteria
+        ? (props.value.pagination?.offset ?? PAGINATION.offset)
+        : (rawPageIndex.value - 1) * limit.value
+    );
+
+    /**
+     * The page the cursor lands on, and the ONE verb that moves it: the setter
+     * writes `pagination.offset` back through the criteria, so `fetchNextPage`,
+     * `fetchPreviousPage` and `resetQuery` move the MODEL rather than a second,
+     * private page state that the published model could then disagree with.
+     */
+    const pageIndex = computed<number>({
+      get: () =>
+        !limit.value ? 1 : Math.floor(offset.value / limit.value) + 1,
+      set: page => {
+        if (!criteria) {
+          rawPageIndex.value = Math.max(page, 1);
+          return;
+        }
+        const nextPagination: Record<string, unknown> = {
+          pagination: assign({}, get(criteria.model.value, "pagination"), {
+            offset: Math.max(page - 1, 0) * limit.value
+          })
+        };
+        criteria.set(nextPagination as Partial<TModel>);
+      }
+    });
+
     // --- query
-    // NB the limit/pageIndex keys attach UNCONDITIONALLY: a `if (limit)` guard
+    // NB the limit/offset keys attach UNCONDITIONALLY: a `if (limit)` guard
     // is evaluated once on the initial value, so a `limit: 0` list would never
     // carry them and a later 0 → 10 would not re-key the query.
-    const reactiveKeys: ReactiveQueryKeys = { sort, filters, limit, pageIndex };
+    const reactiveKeys: ReactiveQueryKeys = { sort, filters, limit, offset };
     if (!withoutLocale && locale.value) reactiveKeys.locale = locale;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
     if (withBasket) reactiveKeys.basketId = basketId;
@@ -491,10 +527,11 @@ export const useQuery = () => {
     const isInitialCall = ref(true);
 
     /**
-     * The ONE guarded write into a request branch: the `isEqual` early return so
-     * an unchanged branch is inert, then the page reset and cache reset a real
-     * change owes. Shared by the raw setters and the criteria watcher, so both
-     * modes keep identical pagination-reset semantics.
+     * The ONE guarded write into a RAW request branch: the `isEqual` early
+     * return so an unchanged branch is inert, then the page reset and cache
+     * reset a real change owes. The criteria mode owes no page reset here — its
+     * cursor lives in the model, and `useQueryCriteria.set` returns it to the
+     * first page as part of the same write.
      */
     function applyBranch<T>(target: Ref<T>, next: T): void {
       if (isEqual(unref(target), next)) return;
@@ -505,24 +542,16 @@ export const useQuery = () => {
     }
 
     if (criteria)
-      watch(props, (next, previous) => {
-        applyBranch(sort, next.sort);
-        applyBranch(filters, next.filters);
-
-        // PAGINATION-ONLY, and deliberately so: this re-seed ASSIGNS the page
-        // from the model's offset, so running it on a filter/sort change would
-        // overwrite the page reset `applyBranch` just made — `set` merges at
-        // branch level, so a filter write preserves a non-zero offset and would
-        // narrow the results while staying on page 3.
-        if (isEqual(next.pagination, previous.pagination)) return;
-        // `limit`/`offset` are computed straight off `props`, so a pagination
-        // change needs no assignment — only the page it lands on, seeded by the
-        // same arithmetic as the initial `pageIndex`.
-        const page = !offset.value
-          ? 1
-          : Math.ceil(offset.value / limit.value) + 1;
-        if (pageIndex.value === page) return;
-        pageIndex.value = page;
+      watch(props, next => {
+        // `limit`/`offset` are computed straight off `props`, so pagination
+        // needs no assignment — only the two branches the query key holds by ref.
+        if (
+          isEqual(unref(sort), next.sort) &&
+          isEqual(unref(filters), next.filters)
+        )
+          return;
+        sort.value = next.sort;
+        filters.value = next.filters;
         if (!isInitialCall.value) queryClient.resetQueries({ queryKey });
       });
 
@@ -545,7 +574,7 @@ export const useQuery = () => {
                 filters: filters.value,
                 pagination: {
                   limit: limit.value,
-                  offset: (pageIndex.value - 1) * limit.value
+                  offset: offset.value
                 },
                 withCurrency,
                 withBasket,
@@ -561,8 +590,7 @@ export const useQuery = () => {
                 request<TQueryFnData>(params)
                   // NB: we need to ensure that if we are given an offset that is greater than the total number of pages, we adjust it accordingly
                   .then(response => {
-                    const pageOffset = (pageIndex.value - 1) * limit.value;
-                    if (response.total && pageOffset >= response.total) {
+                    if (response.total && offset.value >= response.total) {
                       // modify the params and re-request with the new offset
                       // Calculate the correct offset for the last page so it doesn't exceed the total
                       const safeOffset = Math.max(
@@ -571,7 +599,8 @@ export const useQuery = () => {
                           (response.total % limit.value || limit.value)
                       );
                       params.pagination.offset = safeOffset;
-                      pageIndex.value = Math.ceil(safeOffset / limit.value) + 1;
+                      pageIndex.value =
+                        Math.floor(safeOffset / limit.value) + 1;
                       return request<TQueryFnData>(params);
                     }
                     return response;

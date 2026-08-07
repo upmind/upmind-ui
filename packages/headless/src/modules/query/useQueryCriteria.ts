@@ -18,6 +18,7 @@ import {
   assign,
   filter,
   get,
+  has,
   includes,
   isArray,
   isBoolean,
@@ -88,7 +89,7 @@ function toWireFilterValue(operator: string, value: unknown): string {
  * `[direction, property]` tuple form, dropping any field the schema's enum does
  * not declare (an unknown `order=` column is an HTTP 500). `pagination` passes
  * through. A FRESH object every call so `useQuery`'s `isEqual` guard is a value
- * comparison and `pageIndex` resets.
+ * comparison.
  */
 export function translateQuery(
   schema: JsonSchema,
@@ -213,10 +214,28 @@ export function useQueryCriteria<
    * cannot silently clear a drawer filter and a rehydrated url cannot clear a
    * live sort. A FRESH object every call, so the model recomputes and
    * `useQuery`'s `isEqual` guard is a genuine value comparison.
+   *
+   * ONE exception, and it is the cursor's whole law: a write that changes the
+   * RESULT SET without declaring its own window returns `pagination.offset` to
+   * the first page — page SIZE survives, page POSITION does not, because page 4
+   * of the old filter set is not page 4 of the new one. A write that DOES carry
+   * `pagination` — paging, a page-size change, a rehydrated url — is honoured
+   * exactly as given, and a schema with no `pagination` branch has no cursor to
+   * return.
    */
   function set(next: Partial<TModel>): void {
     rejectedSeed.value = [];
-    intent.value = assign({}, intent.value, next);
+    const cursor =
+      isEmpty(next) ||
+      has(next, "pagination") ||
+      !has(model.value, "pagination")
+        ? {}
+        : {
+            pagination: assign({}, get(intent.value, "pagination"), {
+              offset: 0
+            })
+          };
+    intent.value = assign({}, intent.value, next, cursor) as Partial<TModel>;
   }
 
   return { model, schema, props, error, isFiltered, set };
