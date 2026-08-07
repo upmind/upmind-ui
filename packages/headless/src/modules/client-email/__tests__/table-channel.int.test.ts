@@ -16,14 +16,17 @@
  * names this package's suite, so the proof is co-located with the recorded
  * corpus and the cell it bridges.
  *
- * ## The `limit: 0` × paginate collision — RECORDED, not a passing capability
- * This module's own default page window is `limit: 0` (one unlimited page), so
- * `pageTotal` is always 1 and BOTH paginate branches raise out of `emit()`:
- * a step up throws `text.page_next_not_available`, a step down
- * `text.page_previous_not_available`. Asserted below as the shipped behaviour —
- * the two distinct keys are also what prove the ±1 branch discriminates
- * direction — and `perPage` never reaches the model or the wire (design §4.4(b):
- * `limit` is captured `const` at query construction).
+ * ## The one-page × paginate collision — RECORDED, not a passing capability
+ * The recorded corpus is 3 rows and the schema declares `pagination.limit`
+ * `default: 10` (Wave A moved the default out of the service call site and off
+ * `0`, design §11.4), so `pageTotal` is still 1 and BOTH paginate branches
+ * raise out of `emit()`: a step up throws `text.page_next_not_available`, a
+ * step down `text.page_previous_not_available`. Asserted below as the shipped
+ * behaviour — the two distinct keys are also what prove the ±1 branch
+ * discriminates direction — and an intent's `perPage` still never reaches the
+ * model or the wire: the channel has no pagination sink of its own. The LIVE
+ * page-size change that Wave A did make possible goes through
+ * `setCriteria({ pagination })`, proven in `list-criteria.int.test.ts`.
  *
  * ## What Breaks If These Fail
  * A renderer whose header controls read a synthesised or stale model, or whose
@@ -47,6 +50,9 @@ import { server } from "./setup.integration";
 
 type Collection = ReturnType<ReturnType<typeof useClientEmails>["as"]>;
 type Channel = ReturnType<typeof useTableChannel>;
+
+/** The `pagination.limit` default `useQuerySchema()` declares (design §11.4). */
+const DECLARED_LIMIT = 10;
 
 /** Every row the recorded corpus serves — the two page-1 rows plus page-2's. */
 function corpusSize(): number {
@@ -90,18 +96,21 @@ function paramValues(
 // -----------------------------------------------------------------------------
 
 describe("client-email table channel — read() flattens the live model down (Task 36)", () => {
-  it("reads the boot sort, an empty filter slice and the module's own limit-0 page window", async () => {
+  it("reads the boot sort, an empty filter slice and the page window the SCHEMA declares", async () => {
     const { emails, channel } = await bootChannel();
 
     expect(channel.read()).toEqual({
       filter: {},
       sort: [{ field: "created_at", dir: "desc" }],
-      pagination: { page: 1, perPage: 0, total: corpusSize() }
+      pagination: { page: 1, perPage: DECLARED_LIMIT, total: corpusSize() }
     });
     expect(emails.useContext().pagination.value).toMatchObject({
-      limit: 0,
+      limit: DECLARED_LIMIT,
       page: 1,
       pages: 1
+    });
+    expect(emails.useContext().query.value.pagination).toEqual({
+      limit: DECLARED_LIMIT
     });
   });
 
@@ -206,8 +215,8 @@ describe("client-email table channel — emit() lifts intent up into the real ac
   });
 });
 
-describe("client-email table channel — the paginate ±1 branch on a limit-0 window (Task 36)", () => {
-  it("a step up routes to nextPage, which this module's own limit-0 default makes unavailable", async () => {
+describe("client-email table channel — the paginate ±1 branch on a one-page window (Task 36)", () => {
+  it("a step up routes to nextPage, which a 3-row corpus inside the declared window makes unavailable", async () => {
     const { emails, channel } = await bootChannel();
     const observed = observeEmailRequests();
 
@@ -260,7 +269,9 @@ describe("client-email table channel — the paginate ±1 branch on a limit-0 wi
     observed.stop();
 
     expect(observed.all().map(request => request.url)).toEqual([]);
-    expect(emails.useContext().query.value.pagination).toBeUndefined();
-    expect(channel.read().pagination.perPage).toBe(0);
+    expect(emails.useContext().query.value.pagination).toEqual({
+      limit: DECLARED_LIMIT
+    });
+    expect(channel.read().pagination.perPage).toBe(DECLARED_LIMIT);
   });
 });

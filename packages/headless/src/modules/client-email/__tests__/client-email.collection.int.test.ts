@@ -10,9 +10,10 @@
  * AC-3 the collection's state is readable, its readiness awaitable, and its
  *      addressability (`useMeta().isAvailable`) readable without the consumer
  *      ever inspecting the session;
- * AC-8 refresh / invalidate / filter reach the wire, the collection fetches
- * ALL addresses by default (limit=0, one page, no cursor to advance), and a
- * caller who supplies a page size gets a real paged walk;
+ * AC-8 refresh / invalidate / filter reach the wire, the collection boots on
+ * the page window its SCHEMA declares (`pagination.limit` `default: 10`, which
+ * Wave A moved out of the deleted `loadList(params)` back door — design §11.4),
+ * and a caller who asks for a different page size gets a real paged walk;
  * AC-9 destroying the collection releases its scope entry;
  * AC-10 nothing touches a client's emails without an authenticated session.
  *
@@ -42,9 +43,13 @@ import {
 } from "./client-email.int-helpers";
 import { server } from "./setup.integration";
 import { NotAuthenticatedError } from "../../../utils";
+import { uniq } from "lodash-es";
 import type { ObservedRequest } from "./client-email.int-helpers";
 
 // -----------------------------------------------------------------------------
+
+/** The `pagination.limit` default `useQuerySchema()` declares (design §11.4). */
+const DECLARED_LIMIT = 10;
 
 describe("client-email collection — read and state", () => {
   it("AC-1 lists my own addresses from the scope-resolved client's own resource, with my token and no acting-as headers", async () => {
@@ -170,7 +175,7 @@ describe("client-email collection — list controls (AC-8)", () => {
     }
   });
 
-  it("AC-8 fetches ALL my addresses by default — limit=0, offset=0, one page holding the collection", async () => {
+  it("AC-8 fetches my addresses on the page window the SCHEMA declares — limit=10, offset=0, one page holding the collection", async () => {
     const { clientId } = await seedClientSession();
     const { primary, secondary } = recordedRows();
     installEmailsListHandler(server, clientId, [primary, secondary]);
@@ -181,10 +186,10 @@ describe("client-email collection — list controls (AC-8)", () => {
     observed.stop();
 
     const listed = new URL(observed.first().url);
-    expect(listed.searchParams.get("limit")).toBe("0");
+    expect(listed.searchParams.get("limit")).toBe(String(DECLARED_LIMIT));
     expect(listed.searchParams.get("offset")).toBe("0");
     expect(emails.useContext().pagination.value).toMatchObject({
-      limit: 0,
+      limit: DECLARED_LIMIT,
       page: 1,
       pages: 1
     });
@@ -221,18 +226,23 @@ describe("client-email collection — list controls (AC-8)", () => {
     expect(emails.useContext().pagination.value.page).toBe(1);
   });
 
-  it("AC-8 pages when a caller asks for it — loadList({ pagination: { limit: 2 } }) walks limit=2&offset=0 to limit=2&offset=2 and back", async () => {
+  it("AC-8 pages when a caller asks for it — setCriteria({ pagination: { limit: 2 } }) walks limit=2&offset=0 to limit=2&offset=2 and back", async () => {
     const { clientId } = await seedClientSession();
     const paged = installPagedEmailsHandler(server, clientId);
 
     const observed = observeEmailRequests();
-    const query = createClientEmailServices(ScopeActorTypes.CLIENT).loadList({
-      pagination: { limit: 2 }
-    });
+    // The `loadList(params)` back door is deleted (design §11.6): a caller asks
+    // for a page size through the criteria, which is the same one source the
+    // schema's own default seeds.
+    const query = createClientEmailServices(ScopeActorTypes.CLIENT).loadList();
+    query.setCriteria({ pagination: { limit: 2 } });
 
+    await vi.waitFor(() =>
+      expect(observed.matching("limit=2").length).toBeGreaterThan(0)
+    );
     await vi.waitFor(() => expect(query.data.value).toHaveLength(2));
 
-    const firstRequest = new URL(observed.all()[0].url);
+    const firstRequest = new URL(observed.matching("limit=2")[0].url);
     expect(firstRequest.searchParams.get("limit")).toBe("2");
     expect(firstRequest.searchParams.get("offset")).toBe("0");
     expect(query.pagination.value).toMatchObject({ limit: 2, page: 1 });
@@ -255,8 +265,10 @@ describe("client-email collection — list controls (AC-8)", () => {
     observed.stop();
 
     // Page one is served from cache on the way back, so the walk's WIRE
-    // evidence is the two offsets it asked for and no third.
-    expect(paged.offsets()).toEqual(["0", "2"]);
+    // evidence is the two offsets it asked for and no third — the boot read at
+    // the schema's own window is the repeat of `0`.
+    expect(uniq(paged.offsets())).toEqual(["0", "2"]);
+    expect(paged.offsets().at(-1)).toBe("2");
   });
 });
 
@@ -345,13 +357,15 @@ describe("client-email collection — addressability (AC-3)", () => {
 
     const { clientId } = await resolveClientIdOnActiveSession();
 
-    // This collection's own read is the limit=0 one (AC-8's default page) —
+    // This collection's own read is the one on the schema's declared window —
     // other live queries in the file share the observer's `/emails` filter.
     const listReads = (): ObservedRequest[] =>
       observed
         .all()
         .filter(
-          request => new URL(request.url).searchParams.get("limit") === "0"
+          request =>
+            new URL(request.url).searchParams.get("limit") ===
+            String(DECLARED_LIMIT)
         );
 
     await vi.waitFor(() => expect(listReads().length).toBeGreaterThan(0));
