@@ -3,8 +3,16 @@
  * (2026-08-04) — no existing `ListQuery`/`MutationResult` type/enum node in
  * `graphify-out/` (the graph still reflects the pre-remedy tree). No
  * duplicate to reuse; minting is warranted. See `graphify-out/GRAPH_REPORT.md`.
+ *
+ * @graphify-citation `graphify query "query criteria filter operator sort
+ * direction"` (2026-08-07) — no `QueryCriteria` / `RequestFilterOperator` /
+ * `SortDirection` node in `graphify-out/graph.json` (2717 nodes, same
+ * pre-remedy tree). `config.types.ts`'s `ScalarOperator`/`ArrayOperator` are a
+ * different domain (UI-meta conditions) and cross-module import is barred, so
+ * there is no duplicate to consume.
  */
-import type { responseCodes } from "../../utils";
+import type { responseCodes, ResponseError } from "../../utils";
+import type { JsonSchema } from "@jsonforms/core";
 import type {
   DefaultError,
   MutationObserverOptions,
@@ -291,6 +299,58 @@ export type ListQuery<
 };
 
 /**
+ * What a collection declares about its request state — the schema/model pair
+ * JSONForms already pairs everywhere else. `list({ criteria: { schema } })` is
+ * the whole integration; `criteria` names the same concept going in as
+ * `query.criteria` does coming out.
+ *
+ * @template TModel - The module's own query model (filters · sort · pagination).
+ */
+export type QueryCriteriaOptions<
+  TModel extends Record<string, unknown> = Record<string, unknown>
+> = {
+  /** The collection's declared query schema — filters · sort · pagination. */
+  schema: JsonSchema;
+  /**
+   * The starting model, so a cold boot is already correct: a list rehydrated
+   * from a url's page/sort/filters fetches once, rather than fetching
+   * unfiltered and then correcting itself.
+   *
+   * UNTRUSTED — a user can edit that url. It takes the same compact → parse →
+   * validate path as any `set`, and a candidate that fails validation is
+   * discarded WHOLE back to the schema's defaults (a partially-honoured stale
+   * url is worse than a clean default) with ajv's verdict surfaced on `error`.
+   */
+  model?: Partial<TModel>;
+};
+
+/**
+ * A collection's REQUEST STATE as a schema-governed model: intent → parse →
+ * validate → translate. Knows nothing about fetching, urls, vue-query or scope,
+ * so it can be exercised with no HTTP at all. Constructed by `list()` from
+ * {@link QueryCriteriaOptions} — a module never mints one, and so cannot mint
+ * one wrongly.
+ *
+ * @template TModel - The module's own query model (filters · sort · pagination).
+ */
+export type QueryCriteria<
+  TModel extends Record<string, unknown> = Record<string, unknown>
+> = {
+  /** The parsed, defaulted, compacted model. Read-only; write through `set`. */
+  model: ComputedRef<TModel>;
+  /** The declaration itself, so the handle can re-publish what is filterable/sortable. */
+  schema: JsonSchema;
+  /** The translated wire triple. `list()` is its only consumer. */
+  props: ComputedRef<QueryProps>;
+  /** ajv's verdict on the parsed model, as the module's normal error shape. Never swallowed. */
+  error: ComputedRef<ResponseError | undefined>;
+  /** Any declared filter column carries a non-nil operator value. */
+  isFiltered: ComputedRef<boolean>;
+  /** MERGES the given branches into the intent; never replaces the whole model. */
+  set: (next: Partial<TModel>) => void;
+};
+
+/**
  * The `mutate()` mutation's return shape (`useQuery.ts`), parameterised by
  * its resolved data type. Extracted from `mutate`'s own inline return-
  * statement cast for the same reason as {@link ListQuery}.
@@ -325,6 +385,63 @@ export enum RequestSortDirection {
    * Descending order.
    */
   DESC = "-"
+}
+
+/**
+ * A sort direction as the MODEL spells it — what a query schema's `dir` enum
+ * declares and a consumer writes. {@link RequestSortDirection} is the same fact
+ * in its wire form; the criteria's translator is the one place that maps
+ * between them.
+ *
+ * @enum {string}
+ */
+export enum SortDirection {
+  ASC = "asc",
+  DESC = "desc"
+}
+
+/**
+ * One entry in a query model's `sort` branch — precedence is position. The
+ * MODEL's ordered form; {@link QueryProps.sort}'s `[direction, property]`
+ * tuple is its wire form.
+ */
+export type QuerySortEntry = {
+  field: string;
+  dir: SortDirection;
+};
+
+/**
+ * The filter operators the API accepts, as the `filter[column|operator]` key's
+ * operator half. ONE vocabulary for all three consumers: the criteria's
+ * translator, a query schema's declared operator leaves, and the filter
+ * renderer's dispatch.
+ *
+ * Grounded on the legacy app's own `ApiOperators` enum
+ * (`vue-app/src/data/table.ts:4-17`) — the parity oracle, not this module's
+ * current usage. Two deliberate omissions: its `DEFAULT = ""` member is the
+ * suffix-LESS form (`filter[column]`), not an operator a schema can name; and
+ * `any` / `none` are UI-level members of its sibling `FilterOperators` enum
+ * with no `ApiOperators` counterpart, so they are not wire vocabulary.
+ *
+ * A schema keeps PLAIN STRING KEYS so it stays a liftable JSON literal — a
+ * computed key would break that. This enum names the operator in CODE; the two
+ * are kept in step by the schema being walked at runtime, where an operator no
+ * column declares is unspellable.
+ *
+ * @enum {string}
+ */
+export enum RequestFilterOperator {
+  EQUAL = "eq",
+  NOT_EQUAL = "neq",
+  LIKE = "like",
+  NOT_LIKE = "nlike",
+  GREATER_THAN = "gt",
+  GREATER_THAN_OR_EQUAL = "gte",
+  LESS_THAN = "lt",
+  LESS_THAN_OR_EQUAL = "lte",
+  BEFORE = "before",
+  AFTER = "after",
+  ALL = "all"
 }
 
 /**
