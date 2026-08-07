@@ -57,7 +57,7 @@
   "free": "GRATIS",
   "free_trial": "Gratis prøveperiode",
   "free_trial_alert": "Denne varen inkluderer en {days}-dagers gratis prøveperiode.",
-  "free_trial_desc": "Gode nyheter – du kan nå prøve dette produktet gratis i 7 dager, helt uten forpliktelser. Når prøveperioden din er over, starter {term}-planen din.",
+  "free_trial_desc": "Gode nyheter – du kan nå prøve dette produktet gratis i {days} dager, helt uten forpliktelser. Når prøveperioden er over, starter {term} abonnementet ditt.",
   "free_trial_included_desc": "Dette produktet kommer med en gratis prøveperiode.",
   "from": "Fra",
   "fully_encrypted_title": "Fullt kryptert",
