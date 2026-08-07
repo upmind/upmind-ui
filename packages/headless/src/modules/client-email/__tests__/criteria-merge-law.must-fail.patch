@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/query/useQueryCriteria.ts
++++ b/packages/headless/src/modules/query/useQueryCriteria.ts
+@@ -216,7 +216,7 @@ export function useQueryCriteria<
+    */
+   function set(next: Partial<TModel>): void {
+     rejectedSeed.value = [];
+-    intent.value = assign({}, intent.value, next);
++    intent.value = assign({}, next);
+   }
+ 
+   return { model, schema, props, error, isFiltered, set };

@@ -1,0 +1,24 @@
+--- a/packages/headless/src/modules/query/useQuery.ts
++++ b/packages/headless/src/modules/query/useQuery.ts
+@@ -464,9 +464,7 @@ export const useQuery = () => {
+ 
+     // Reactive, not captured at mint: a live page-size change re-keys the query
+     // and reaches the wire, which is what finally gives `paginate` a sink.
+-    const limit = computed(
+-      () => props.value.pagination?.limit ?? PAGINATION.limit
+-    );
++    const limit = ref(props.value.pagination?.limit ?? PAGINATION.limit);
+     const offset = computed(
+       () => props.value.pagination?.offset ?? PAGINATION.offset
+     );
+@@ -845,9 +843,7 @@ export const useQuery = () => {
+ 
+     // Reactive, not captured at mint: a live page-size change re-keys the query
+     // and reaches the wire.
+-    const limit = computed(
+-      () => props.value.pagination?.limit ?? PAGINATION.limit
+-    );
++    const limit = ref(props.value.pagination?.limit ?? PAGINATION.limit);
+     const sort = ref(props.value.sort);
+     const total = ref(0);
+     const pageTotal = computed(() => {

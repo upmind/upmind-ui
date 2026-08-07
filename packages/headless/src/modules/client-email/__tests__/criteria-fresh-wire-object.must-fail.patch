@@ -1,0 +1,20 @@
+--- a/packages/headless/src/modules/query/useQueryCriteria.ts
++++ b/packages/headless/src/modules/query/useQueryCriteria.ts
+@@ -90,6 +90,8 @@ function toWireFilterValue(operator: string, value: unknown): string {
+  * through. A FRESH object every call so `useQuery`'s `isEqual` guard is a value
+  * comparison and `pageIndex` resets.
+  */
++const wireFilters: RequestFilters = {};
++
+ export function translateQuery(
+   schema: JsonSchema,
+   model: Record<string, unknown>
+@@ -108,7 +110,7 @@ export function translateQuery(
+         },
+         result
+       ),
+-    {}
++    wireFilters
+   );
+ 
+   const sortFields = get(

@@ -1,0 +1,22 @@
+--- a/packages/headless/src/modules/query/useQuery.ts
++++ b/packages/headless/src/modules/query/useQuery.ts
+@@ -500,7 +500,6 @@ export const useQuery = () => {
+       if (isEqual(unref(target), next)) return;
+       target.value = next;
+       if (isInitialCall.value) return;
+-      pageIndex.value = 1;
+       queryClient.resetQueries({ queryKey });
+     }
+ 
+@@ -512,9 +511,8 @@ export const useQuery = () => {
+         // `limit`/`offset` are computed straight off `props`, so a pagination
+         // change needs no assignment — only the page it lands on, seeded by the
+         // same arithmetic as the initial `pageIndex`.
+-        const page = !offset.value
+-          ? 1
+-          : Math.ceil(offset.value / limit.value) + 1;
++        if (!offset.value) return;
++        const page = Math.ceil(offset.value / limit.value) + 1;
+         if (pageIndex.value === page) return;
+         pageIndex.value = page;
+         if (!isInitialCall.value) queryClient.resetQueries({ queryKey });
