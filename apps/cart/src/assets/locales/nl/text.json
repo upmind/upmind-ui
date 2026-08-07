@@ -57,7 +57,7 @@
   "free": "VRIJ",
   "free_trial": "Gratis proefperiode",
   "free_trial_alert": "Bij dit item is een gratis proefperiode van {days} dagen inbegrepen.",
-  "free_trial_desc": "Goed nieuws - je kunt dit product nu 7 dagen gratis uitproberen, zonder verplichtingen. Zodra je proefperiode is afgelopen, start je {term}-abonnement.",
+  "free_trial_desc": "Goed nieuws: je kunt dit product nu {days} dagen lang gratis uitproberen, zonder enige verplichting. Zodra je proefperiode is afgelopen, gaat je {term} van start.",
   "free_trial_included_desc": "Bij dit product is een gratis proefperiode inbegrepen.",
   "from": "Van",
   "fully_encrypted_title": "Volledig gecodeerd",

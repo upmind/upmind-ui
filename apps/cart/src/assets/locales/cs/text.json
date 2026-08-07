@@ -57,7 +57,7 @@
   "free": "UVOLNIT",
   "free_trial": "Bezplatná zkušební verze",
   "free_trial_alert": "Tato položka obsahuje {days} denní bezplatné zkušební období.",
-  "free_trial_desc": "Dobrá zpráva - nyní můžete tento produkt vyzkoušet zdarma na 7 dní, bez jakýchkoli závazků. Po skončení zkušebního období pak začne váš plán {term}.",
+  "free_trial_desc": "Dobrá zpráva – tento produkt si nyní můžete vyzkoušet zdarma po dobu {days} dnů, a to bez jakýchkoli závazků. Po skončení zkušební doby vám začne platit tarif {term}.",
   "free_trial_included_desc": "Tento produkt zahrnuje bezplatné zkušební období.",
   "from": "Z",
   "fully_encrypted_title": "Plně šifrované",
