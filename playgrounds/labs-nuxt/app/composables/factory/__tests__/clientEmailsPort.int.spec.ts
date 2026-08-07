@@ -43,10 +43,13 @@ describe("@AC5 useClientEmailsPort — the adapter hands the live channel throug
     const port = useClientEmailsPort();
 
     expect(port.table).toBeDefined();
+    // `perPage: 10` is the schema's ratified `pagination.limit` default, not a
+    // page size this spec chose: `limit: 0` left the pager with nothing to step
+    // to. Do not "restore" the 0 — the source is the authority here.
     expect(port.table?.read()).toMatchObject({
       filter: {},
       sort: [{ field: "created_at", dir: "desc" }],
-      pagination: { page: 1, perPage: 0 }
+      pagination: { page: 1, perPage: 10 }
     });
     expect(port.actions.sortBy).toBeTypeOf("function");
   });
@@ -83,7 +86,11 @@ describe("@AC5 useClientEmailsPort — the adapter hands the live channel throug
     await vi.waitFor(() =>
       expect(port.table?.read().sort).toEqual([{ field: "email", dir: "asc" }])
     );
+    // The published query carries the schema's ratified `pagination.limit`
+    // default alongside the emitted sort; `toEqual` stays exact so a silently
+    // widening model is a failure, not a pass.
     expect(port.snapshot().context.query).toEqual({
+      pagination: { limit: 10 },
       sort: [{ field: "email", dir: "asc" }]
     });
   });

@@ -13,7 +13,10 @@
  * - the criteria's model reaches the url as `filter[col|op]=` / `order=` /
  *   `limit=` / `offset=`, with no `query=`, `q=` or `search=` anywhere;
  * - a second `setCriteria({ filters })` REPLACES the filter set and resets the
- *   page cursor, through the same guarded assignment the old setters used;
+ *   page cursor, through the same guarded assignment the old setters used —
+ *   including when the cursor is one the MODEL carries (`pagination.offset`),
+ *   which is the only shape in which the watcher's page re-seed is observable
+ *   at all: `nextPage()` moves `pageIndex` without ever writing `offset` back;
  * - **`setCriteria({ pagination: { limit } })` changes the outbound `limit=` on
  *   a LIVE instance** — the assertion that was impossible before Wave A,
  *   because `limit` was captured once at mint and its reactive key was attached
@@ -39,6 +42,7 @@ import {
   seedClientSession
 } from "./client-email.int-helpers";
 import { server } from "./setup.integration";
+import { filter, map } from "lodash-es";
 import type { ClientEmailListQuery, QueryModel } from "../client-email.types";
 import "./setup.integration";
 
@@ -74,6 +78,21 @@ function latestParams(
   const latest = observed.all().at(-1);
   expect(latest).toBeDefined();
   return new URL(latest!.url).searchParams;
+}
+
+/**
+ * The params of EVERY observed request carrying `filterKey` — asserted over all
+ * of them, not just the latest, so an extra request at the wrong cursor cannot
+ * hide behind a later corrected one.
+ */
+function paramsCarrying(
+  observed: ReturnType<typeof observeEmailRequests>,
+  filterKey: string
+): URLSearchParams[] {
+  return filter(
+    map(observed.all(), request => new URL(request.url).searchParams),
+    params => params.get(filterKey) !== null
+  );
 }
 
 /** Every `filter[…]` key on the most recent observed request. */
@@ -215,6 +234,31 @@ describe("client-email list({ criteria }) — a filter reaches the wire (Task 42
       expect(params.get("offset")).toBe("0");
     });
     observed.stop();
+    expect(emails.useContext().pagination.value.page).toBe(1);
+  });
+
+  it("a filter change resets a cursor the MODEL ITSELF carries, not only one nextPage() moved", async () => {
+    const emails = await bootPagedCollection();
+    const observed = observeEmailRequests();
+
+    setCriteria(emails, { pagination: { limit: 2, offset: 2 } });
+
+    await vi.waitFor(() => {
+      const params = latestParams(observed);
+      expect(params.get("limit")).toBe("2");
+      expect(params.get("offset")).toBe("2");
+    });
+    expect(emails.useContext().pagination.value.page).toBe(2);
+
+    setCriteria(emails, { filters: { verified: { eq: false } } });
+
+    await vi.waitFor(() =>
+      expect(latestParams(observed).get("filter[verified|eq]")).toBe("0")
+    );
+    observed.stop();
+    const narrowed = paramsCarrying(observed, "filter[verified|eq]");
+    expect(narrowed.length).toBeGreaterThan(0);
+    for (const params of narrowed) expect(params.get("offset")).toBe("0");
     expect(emails.useContext().pagination.value.page).toBe(1);
   });
 });
