@@ -115,8 +115,11 @@ export const useBasketProduct = (
     });
   }
 
-  /** @param options.forced saves without the local check, for the platform to arbitrate. */
-  async function update(options?: { forced?: boolean }): Promise<void> {
+  /**
+   * @param options.forced saves without the local check, for the platform to arbitrate.
+   * `| void` so a point-free `.then(update)` still type-checks.
+   */
+  async function update(options?: { forced?: boolean } | void): Promise<void> {
     service.send({ type: "UPDATE", data: options });
     return waitFor(service, state => !stateMatches(state, "processing"), {
       timeout: 60_000
