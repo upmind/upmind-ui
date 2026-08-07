@@ -57,7 +57,7 @@
   "free": "ÖZGÜR",
   "free_trial": "Ücretsiz Deneme",
   "free_trial_alert": "Bu öğe, {days} gün ücretsiz deneme içerir.",
-  "free_trial_desc": "İyi haber: Artık bu ürünü {days} gün boyunca hiçbir koşul olmadan ücretsiz olarak deneyebilirsiniz. Deneme süreniz sona erdikten sonra {term} planınız devreye girecektir.",
+  "free_trial_desc": "İyi haber: Artık bu ürünü {days} deneme süresiyle hiçbir koşul olmadan ücretsiz olarak deneyebilirsiniz. Deneme süreniz sona erdikten sonra {term} planınız devreye girecektir.",
   "free_trial_included_desc": "Bu ürün ücretsiz deneme süresi sunar.",
   "from": "İtibaren",
   "fully_encrypted_title": "Tamamen Şifrelenmiş",

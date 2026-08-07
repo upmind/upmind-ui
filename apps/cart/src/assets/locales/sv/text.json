@@ -57,7 +57,7 @@
   "free": "GRATIS",
   "free_trial": "Gratis provperiod",
   "free_trial_alert": "Den här artikeln kommer med en {days}-dagars gratis provperiod.",
-  "free_trial_desc": "Goda nyheter – nu kan du prova den här produkten gratis i {days} dagar, helt utan förpliktelser. När provperioden har löpt ut börjar ditt {term} gälla.",
+  "free_trial_desc": "Goda nyheter – nu kan du prova den här produkten gratis under en {days} provperiod, helt utan förpliktelser. När provperioden har löpt ut börjar ditt {term} gälla.",
   "free_trial_included_desc": "Den här produkten kommer med en gratis provperiod.",
   "from": "Från",
   "fully_encrypted_title": "Helt krypterad",
