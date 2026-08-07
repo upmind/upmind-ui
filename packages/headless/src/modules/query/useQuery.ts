@@ -3,8 +3,8 @@ import {
   useQuery as vueUseQuery,
   useInfiniteQuery as vueUseInfiniteQuery
 } from "@tanstack/vue-query";
-import { ref, unref, computed } from "vue";
-import { effectScope, getCurrentScope, type ComputedRef } from "vue";
+import { ref, unref, computed, watch } from "vue";
+import { effectScope, getCurrentScope, type Ref } from "vue";
 import { isArray, isFunction } from "xstate/lib/utils";
 import { Methods } from "@upmind-automation/types";
 import { useBasket, useBasketCurrency } from "../basket";
@@ -19,6 +19,7 @@ import {
   cleanQueryKey,
   canRetryAuthorization
 } from "./query.utils";
+import { useQueryCriteria } from "./useQueryCriteria";
 import {
   useUrl,
   isPromise,
@@ -42,13 +43,20 @@ import {
 } from "lodash-es";
 import type {
   QueryParams,
+  QueryProps,
   QueryResponse,
   RequestParams,
   MutationParams,
   InfiniteQueryPage,
   ReactiveQueryKeys,
   PaginationInfo,
+  CriteriaInput,
+  RawCriteria,
+  SchemaCriteria,
+  WithCriteria,
   ListQuery,
+  SimpleQuery,
+  InfiniteListQuery,
   MutationResult
 } from "./query.types";
 import type { DefaultError, MutationKey, QueryKey } from "@tanstack/vue-query";
@@ -229,9 +237,26 @@ export const useQuery = () => {
    * @param withBasket Whether to automagically add the basket ID to the request based on the `useBasket` composable.
    * @param withoutLocale Whether to exclude the locale from the request.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param criteria The collection's declared query schema (and optional starting model). Mutually exclusive with `sort`/`filters` — declaring both is a compile error. `query()` has no pagination, so the criteria's `pagination` branch is not read here.
    * @param options Additional options to pass to TanStack query.
    */
-  function query<TQueryFnData = unknown, TData = TQueryFnData>({
+  function query<TQueryFnData = unknown, TData = TQueryFnData>(
+    params: Omit<QueryParams<TQueryFnData, TData>, "pagination"> &
+      RawCriteria<"sort" | "filters">
+  ): SimpleQuery<TQueryFnData, TData>;
+  function query<
+    TQueryFnData = unknown,
+    TData = TQueryFnData,
+    TModel extends Record<string, unknown> = Record<string, unknown>
+  >(
+    params: Omit<QueryParams<TQueryFnData, TData>, "pagination"> &
+      SchemaCriteria<TModel, "sort" | "filters">
+  ): WithCriteria<SimpleQuery<TQueryFnData, TData>, TModel>;
+  function query<
+    TQueryFnData = unknown,
+    TData = TQueryFnData,
+    TModel extends Record<string, unknown> = Record<string, unknown>
+  >({
     url,
     init,
     guard,
@@ -241,20 +266,45 @@ export const useQuery = () => {
     withBasket,
     withoutLocale,
     withAccessToken,
+    criteria: declaration,
     ...options
-  }: Omit<QueryParams<TQueryFnData, TData>, "pagination">) {
+  }: Omit<QueryParams<TQueryFnData, TData>, "pagination"> &
+    CriteriaInput<TModel, "sort" | "filters">):
+    | SimpleQuery<TQueryFnData, TData>
+    | WithCriteria<SimpleQuery<TQueryFnData, TData>, TModel> {
     // ensure we have a scope, in case we call this outside of a setup function
     // Check if current scope is active - stopped scopes cause scope.run() to return undefined
     const currentScope = getCurrentScope();
     const scope = currentScope?.active ? currentScope : effectScope(true);
 
+    // The criteria is constructed here, never handed in: a module declares a
+    // schema and passes it, so it cannot wire the pipeline wrongly.
+    const criteria = declaration
+      ? useQueryCriteria<TModel>(declaration)
+      : undefined;
+
     // --- state
 
+    // ONE source for the request branches: the criteria owns them when declared
+    // and the caller spells them raw when it is not — never both.
+    const props = computed<QueryProps>(() =>
+      criteria
+        ? criteria.props.value
+        : { sort: options?.sort, filters: options?.filters }
+    );
+
     const filters = ref<QueryParams["filters"]>({
-      ...(options?.filters ?? {})
+      ...(props.value.filters ?? {})
     });
 
-    const sort = ref(options?.sort);
+    const sort = ref(props.value.sort);
+
+    if (criteria)
+      watch(props, next => {
+        if (!isEqual(unref(sort), next.sort)) sort.value = next.sort;
+        if (!isEqual(unref(filters), next.filters))
+          filters.value = next.filters;
+      });
 
     // --- query
     const reactiveKeys: ReactiveQueryKeys = { sort, filters };
@@ -306,24 +356,35 @@ export const useQuery = () => {
       )
     );
 
-    return {
+    const handle = {
       ...response,
       data: computed((): TData => response?.data?.value ?? ([] as TData)),
+      resetQuery: () => {
+        return queryClient.resetQueries({ queryKey });
+      }
+    };
+
+    // ONE write path: the criteria owns the request state when declared, and
+    // the raw setters are the whole surface when it is not.
+    if (criteria)
+      return {
+        ...handle,
+        criteria: criteria.model,
+        schema: criteria.schema,
+        isFiltered: criteria.isFiltered,
+        criteriaError: criteria.error,
+        setCriteria: criteria.set
+      } as WithCriteria<SimpleQuery<TQueryFnData, TData>, TModel>;
+
+    return {
+      ...handle,
       sort: (values?: QueryParams["sort"]) => {
         sort.value = unref(values);
       },
       filter: (values: QueryParams["filters"]) => {
         filters.value = unref(values);
-      },
-      resetQuery: () => {
-        return queryClient.resetQueries({ queryKey });
       }
-    } as ReturnType<typeof vueUseQuery<TQueryFnData, DefaultError, TData>> & {
-      data: ComputedRef<TData>;
-      sort: (values?: QueryParams["sort"]) => void;
-      filter: (values: QueryParams["filters"]) => void;
-      resetQuery: () => Promise<void>;
-    };
+    } as SimpleQuery<TQueryFnData, TData>;
   }
 
   /**
@@ -340,9 +401,24 @@ export const useQuery = () => {
    * @param withBasket Whether to automagically add the basket ID to the request based on the `useBasket` composable.
    * @param withoutLocale Whether to exclude the locale from the request.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param criteria The collection's declared query schema (and optional starting model). Mutually exclusive with `sort`/`filters`/`pagination` — declaring both is a compile error. In criteria mode the handle publishes `criteria`/`schema`/`isFiltered`/`criteriaError`/`setCriteria` and does NOT expose `sort()`/`filter()`.
    * @param options Additional options to pass to TanStack query.
    */
-  function list<TQueryFnData = unknown, TData = TQueryFnData>({
+  function list<TQueryFnData = unknown, TData = TQueryFnData>(
+    params: QueryParams<TQueryFnData, TData> & RawCriteria
+  ): ListQuery<TQueryFnData, TData>;
+  function list<
+    TQueryFnData = unknown,
+    TData = TQueryFnData,
+    TModel extends Record<string, unknown> = Record<string, unknown>
+  >(
+    params: QueryParams<TQueryFnData, TData> & SchemaCriteria<TModel>
+  ): WithCriteria<ListQuery<TQueryFnData, TData>, TModel>;
+  function list<
+    TQueryFnData = unknown,
+    TData = TQueryFnData,
+    TModel extends Record<string, unknown> = Record<string, unknown>
+  >({
     url,
     init,
     guard,
@@ -353,8 +429,11 @@ export const useQuery = () => {
     withoutLocale,
     withAccessToken,
     withSplitCount,
+    criteria: declaration,
     ...options
-  }: QueryParams<TQueryFnData, TData>) {
+  }: QueryParams<TQueryFnData, TData> & CriteriaInput<TModel>):
+    | ListQuery<TQueryFnData, TData>
+    | WithCriteria<ListQuery<TQueryFnData, TData>, TModel> {
     // ensure we have a scope, in case we call this outside of a setup function
     // Check if current scope is active - stopped scopes cause scope.run() to return undefined
     const currentScope = getCurrentScope();
@@ -363,25 +442,83 @@ export const useQuery = () => {
     const { currencyCode } = useBasketCurrency();
     const { basketId } = useBasket();
 
+    // The criteria is constructed here, never handed in: a module declares a
+    // schema and passes it, so it cannot wire the pipeline wrongly.
+    const criteria = declaration
+      ? useQueryCriteria<TModel>(declaration)
+      : undefined;
+
     // --- state
-    const limit = options?.pagination?.limit ?? PAGINATION.limit;
-    const offset = options?.pagination?.offset ?? PAGINATION.offset;
+
+    // ONE source for the three request branches: the criteria owns them when
+    // declared and the caller spells them raw when it is not — never both.
+    const props = computed<QueryProps>(() =>
+      criteria
+        ? criteria.props.value
+        : {
+            sort: options?.sort,
+            filters: options?.filters,
+            pagination: options?.pagination
+          }
+    );
+
+    // Reactive, not captured at mint: a live page-size change re-keys the query
+    // and reaches the wire, which is what finally gives `paginate` a sink.
+    const limit = computed(
+      () => props.value.pagination?.limit ?? PAGINATION.limit
+    );
+    const offset = computed(
+      () => props.value.pagination?.offset ?? PAGINATION.offset
+    );
     const total = ref(0);
-    const sort = ref(options?.sort);
-    const pageIndex = ref(!offset ? 1 : Math.ceil(offset / limit) + 1);
+    const sort = ref(props.value.sort);
+    const pageIndex = ref(
+      !offset.value ? 1 : Math.ceil(offset.value / limit.value) + 1
+    );
     const filters = ref<QueryParams["filters"]>({
-      ...(options?.filters ?? {})
+      ...(props.value.filters ?? {})
     });
     // --- query
-    const reactiveKeys: ReactiveQueryKeys = { sort, filters };
+    // NB the limit/pageIndex keys attach UNCONDITIONALLY: a `if (limit)` guard
+    // is evaluated once on the initial value, so a `limit: 0` list would never
+    // carry them and a later 0 → 10 would not re-key the query.
+    const reactiveKeys: ReactiveQueryKeys = { sort, filters, limit, pageIndex };
     if (!withoutLocale && locale.value) reactiveKeys.locale = locale;
-    if (limit) reactiveKeys.limit = limit;
-    if (limit) reactiveKeys.pageIndex = pageIndex;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
     if (withBasket) reactiveKeys.basketId = basketId;
 
     // This s used to persist paginatin and filter/sort on first load, so that if the user refreshes the page, we don't reset the pagination and filters to the default values. We only want to reset them if the user changes the sort or filter values.
     const isInitialCall = ref(true);
+
+    /**
+     * The ONE guarded write into a request branch: the `isEqual` early return so
+     * an unchanged branch is inert, then the page reset and cache reset a real
+     * change owes. Shared by the raw setters and the criteria watcher, so both
+     * modes keep identical pagination-reset semantics.
+     */
+    function applyBranch<T>(target: Ref<T>, next: T): void {
+      if (isEqual(unref(target), next)) return;
+      target.value = next;
+      if (isInitialCall.value) return;
+      pageIndex.value = 1;
+      queryClient.resetQueries({ queryKey });
+    }
+
+    if (criteria)
+      watch(props, next => {
+        applyBranch(sort, next.sort);
+        applyBranch(filters, next.filters);
+
+        // `limit`/`offset` are computed straight off `props`, so a pagination
+        // change needs no assignment — only the page it lands on, seeded by the
+        // same arithmetic as the initial `pageIndex`.
+        const page = !offset.value
+          ? 1
+          : Math.ceil(offset.value / limit.value) + 1;
+        if (pageIndex.value === page) return;
+        pageIndex.value = page;
+        if (!isInitialCall.value) queryClient.resetQueries({ queryKey });
+      });
 
     const response = scope.run(() =>
       vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>(
@@ -401,8 +538,8 @@ export const useQuery = () => {
                 sort: sort.value,
                 filters: filters.value,
                 pagination: {
-                  limit,
-                  offset: (pageIndex.value - 1) * limit
+                  limit: limit.value,
+                  offset: (pageIndex.value - 1) * limit.value
                 },
                 withCurrency,
                 withBasket,
@@ -418,16 +555,17 @@ export const useQuery = () => {
                 request<TQueryFnData>(params)
                   // NB: we need to ensure that if we are given an offset that is greater than the total number of pages, we adjust it accordingly
                   .then(response => {
-                    const offset = (pageIndex.value - 1) * limit;
-                    if (response.total && offset >= response.total) {
+                    const pageOffset = (pageIndex.value - 1) * limit.value;
+                    if (response.total && pageOffset >= response.total) {
                       // modify the params and re-request with the new offset
                       // Calculate the correct offset for the last page so it doesn't exceed the total
                       const safeOffset = Math.max(
                         0,
-                        response.total - (response.total % limit || limit)
+                        response.total -
+                          (response.total % limit.value || limit.value)
                       );
                       params.pagination.offset = safeOffset;
-                      pageIndex.value = Math.ceil(safeOffset / limit) + 1;
+                      pageIndex.value = Math.ceil(safeOffset / limit.value) + 1;
                       return request<TQueryFnData>(params);
                     }
                     return response;
@@ -474,7 +612,7 @@ export const useQuery = () => {
 
     // -------------------------------------------------------------------------
 
-    return {
+    const handle = {
       ...response,
 
       data: computed((): TData => response?.data?.value?.data ?? ([] as TData)),
@@ -497,18 +635,18 @@ export const useQuery = () => {
        */
       pagination: computed((): PaginationInfo => {
         total.value = response?.data?.value?.total ?? total.value;
-        const pageTotal = !limit
+        const pageTotal = !limit.value
           ? 1
-          : Math.max(Math.ceil(total.value / limit), 1);
+          : Math.max(Math.ceil(total.value / limit.value), 1);
         return {
-          limit,
+          limit: limit.value,
           total: total.value,
           page: pageIndex.value,
           pages: pageTotal,
-          from: !total.value ? 0 : limit * (pageIndex.value - 1) + 1,
-          to: !limit
+          from: !total.value ? 0 : limit.value * (pageIndex.value - 1) + 1,
+          to: !limit.value
             ? total.value
-            : Math.min(limit * pageIndex.value, total.value)
+            : Math.min(limit.value * pageIndex.value, total.value)
         } as PaginationInfo;
       }),
 
@@ -521,9 +659,9 @@ export const useQuery = () => {
        */
       meta: computed(() => {
         total.value = response?.data?.value?.total ?? total.value;
-        const pageTotal = !limit
+        const pageTotal = !limit.value
           ? 1
-          : Math.max(Math.ceil(total.value / limit), 1);
+          : Math.max(Math.ceil(total.value / limit.value), 1);
         return {
           hasNextPage: pageIndex.value < pageTotal,
           hasPrevPage: pageIndex.value > 1,
@@ -542,9 +680,9 @@ export const useQuery = () => {
       fetchPreviousPage: (): void => {
         const { t } = useI18n();
         total.value = response?.data?.value?.total ?? total.value;
-        const pageTotal = !limit
+        const pageTotal = !limit.value
           ? 1
-          : Math.max(Math.ceil(total.value / limit), 1);
+          : Math.max(Math.ceil(total.value / limit.value), 1);
 
         if (!response?.isPlaceholderData.value && pageIndex.value <= 1) {
           throw new DetailedError(
@@ -552,14 +690,14 @@ export const useQuery = () => {
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             {
-              limit,
+              limit: limit.value,
               page: pageIndex.value,
-              from: !total.value ? 0 : limit * (pageIndex.value - 1) + 1,
+              from: !total.value ? 0 : limit.value * (pageIndex.value - 1) + 1,
               total: total.value,
               pages: pageTotal,
-              to: !limit
-                ? total
-                : Math.min(limit * pageIndex.value, total.value)
+              to: !limit.value
+                ? total.value
+                : Math.min(limit.value * pageIndex.value, total.value)
             }
           );
         }
@@ -577,9 +715,9 @@ export const useQuery = () => {
         const { t } = useI18n();
 
         total.value = response?.data?.value?.total ?? 0;
-        const pageTotal = !limit
+        const pageTotal = !limit.value
           ? 1
-          : Math.max(Math.ceil(total.value / limit), 1);
+          : Math.max(Math.ceil(total.value / limit.value), 1);
         if (
           !response?.isPlaceholderData.value &&
           pageIndex.value >= pageTotal
@@ -589,14 +727,14 @@ export const useQuery = () => {
             responseCodes.No_Content,
             ErrorOrigin.Headless,
             {
-              limit,
+              limit: limit.value,
               page: pageIndex.value,
-              from: !total.value ? 0 : limit * (pageIndex.value - 1) + 1,
+              from: !total.value ? 0 : limit.value * (pageIndex.value - 1) + 1,
               total: total.value,
               pages: pageTotal,
-              to: !limit
+              to: !limit.value
                 ? total.value
-                : Math.min(limit * pageIndex.value, total.value)
+                : Math.min(limit.value * pageIndex.value, total.value)
             }
           );
         }
@@ -605,32 +743,31 @@ export const useQuery = () => {
         }
       },
 
-      sort: (values?: QueryParams["sort"]) => {
-        const prev = unref(sort);
-        const next = unref(values);
-        if (isEqual(prev, next)) return;
-        sort.value = next;
-        if (!isInitialCall.value) {
-          pageIndex.value = 1;
-          queryClient.resetQueries({ queryKey });
-        }
-      },
-
-      filter: (values: QueryParams["filters"]) => {
-        const prev = unref(filters);
-        const next = unref(values);
-        if (isEqual(prev, next)) return;
-        filters.value = next;
-        if (!isInitialCall.value) {
-          pageIndex.value = 1;
-          queryClient.resetQueries({ queryKey });
-        }
-      },
-
       resetQuery: () => {
         pageIndex.value = 1;
         return queryClient.resetQueries({ queryKey });
       }
+    };
+
+    // ONE write path: the criteria owns the request state when declared, and
+    // the raw setters are the whole surface when it is not.
+    if (criteria)
+      return {
+        ...handle,
+        criteria: criteria.model,
+        schema: criteria.schema,
+        isFiltered: criteria.isFiltered,
+        criteriaError: criteria.error,
+        setCriteria: criteria.set
+      } as WithCriteria<ListQuery<TQueryFnData, TData>, TModel>;
+
+    return {
+      ...handle,
+
+      sort: (values?: QueryParams["sort"]) => applyBranch(sort, unref(values)),
+
+      filter: (values: QueryParams["filters"]) =>
+        applyBranch(filters, unref(values))
     } as ListQuery<TQueryFnData, TData>;
   }
 
@@ -645,9 +782,24 @@ export const useQuery = () => {
    * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
    * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param criteria The collection's declared query schema (and optional starting model). Mutually exclusive with `sort`/`filters`/`pagination` — declaring both is a compile error. The criteria's `pagination` reaches this entry point as the page SIZE only; the cursor stays the infinite query's own, exactly as a raw caller's `pagination` does.
    * @param options Additional options to pass to TanStack query.
    */
-  function listInfinite<TQueryFnData = unknown, TData = TQueryFnData>({
+  function listInfinite<TQueryFnData = unknown, TData = TQueryFnData>(
+    params: QueryParams<TQueryFnData, TData> & RawCriteria
+  ): InfiniteListQuery<TQueryFnData, TData>;
+  function listInfinite<
+    TQueryFnData = unknown,
+    TData = TQueryFnData,
+    TModel extends Record<string, unknown> = Record<string, unknown>
+  >(
+    params: QueryParams<TQueryFnData, TData> & SchemaCriteria<TModel>
+  ): WithCriteria<InfiniteListQuery<TQueryFnData, TData>, TModel>;
+  function listInfinite<
+    TQueryFnData = unknown,
+    TData = TQueryFnData,
+    TModel extends Record<string, unknown> = Record<string, unknown>
+  >({
     url,
     init,
     guard,
@@ -658,8 +810,11 @@ export const useQuery = () => {
     withoutLocale,
     withAccessToken,
     withSplitCount,
+    criteria: declaration,
     ...options
-  }: QueryParams<TQueryFnData, TData>) {
+  }: QueryParams<TQueryFnData, TData> & CriteriaInput<TModel>):
+    | InfiniteListQuery<TQueryFnData, TData>
+    | WithCriteria<InfiniteListQuery<TQueryFnData, TData>, TModel> {
     // ensure we have a scope, in case we call this outside of a setup function
     // Check if current scope is active - stopped scopes cause scope.run() to return undefined
     const currentScope = getCurrentScope();
@@ -668,27 +823,66 @@ export const useQuery = () => {
     const { currencyCode } = useBasketCurrency();
     const { basketId } = useBasket();
 
+    // The criteria is constructed here, never handed in: a module declares a
+    // schema and passes it, so it cannot wire the pipeline wrongly.
+    const criteria = declaration
+      ? useQueryCriteria<TModel>(declaration)
+      : undefined;
+
     // --- state
-    const limit = options?.pagination?.limit ?? PAGINATION.limit;
-    const sort = ref(options?.sort);
+
+    // ONE source for the request branches: the criteria owns them when declared
+    // and the caller spells them raw when it is not — never both.
+    const props = computed<QueryProps>(() =>
+      criteria
+        ? criteria.props.value
+        : {
+            sort: options?.sort,
+            filters: options?.filters,
+            pagination: options?.pagination
+          }
+    );
+
+    // Reactive, not captured at mint: a live page-size change re-keys the query
+    // and reaches the wire.
+    const limit = computed(
+      () => props.value.pagination?.limit ?? PAGINATION.limit
+    );
+    const sort = ref(props.value.sort);
     const total = ref(0);
     const pageTotal = computed(() => {
-      if (!limit) return 1; // Can only be 1 page if limit=0
-      return Math.max(Math.ceil(total.value / limit), 1);
+      if (!limit.value) return 1; // Can only be 1 page if limit=0
+      return Math.max(Math.ceil(total.value / limit.value), 1);
     });
     const filters = ref<QueryParams["filters"]>({
-      ...(options?.filters ?? {})
+      ...(props.value.filters ?? {})
     });
 
     // This s used to persist paginatin and filter/sort on first load, so that if the user refreshes the page, we don't reset the pagination and filters to the default values. We only want to reset them if the user changes the sort or filter values.
     const isInitialCall = ref(true);
 
     // --- query
-    const reactiveKeys: ReactiveQueryKeys = { sort, filters };
+    // NB the limit key attaches UNCONDITIONALLY: a `if (limit)` guard is
+    // evaluated once on the initial value, so a `limit: 0` list would never
+    // carry it and a later 0 → 10 would not re-key the query.
+    const reactiveKeys: ReactiveQueryKeys = { sort, filters, limit };
     if (!withoutLocale && locale.value) reactiveKeys.locale = locale;
-    if (limit) reactiveKeys.limit = limit;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
     if (withBasket) reactiveKeys.basketId = basketId;
+
+    if (criteria)
+      watch(props, next => {
+        // A `limit` change needs no assignment — it re-keys the query, which
+        // restarts the cursor at the first page on its own.
+        if (
+          isEqual(unref(sort), next.sort) &&
+          isEqual(unref(filters), next.filters)
+        )
+          return;
+        sort.value = next.sort;
+        filters.value = next.filters;
+        if (!isInitialCall.value) queryClient.resetQueries({ queryKey }); // Reset to first page
+      });
 
     const response = scope.run(() =>
       vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>(
@@ -707,7 +901,7 @@ export const useQuery = () => {
                 url,
                 sort: sort.value,
                 filters: filters.value,
-                pagination: { limit, offset },
+                pagination: { limit: limit.value, offset },
                 withCurrency,
                 withBasket,
                 withoutLocale,
@@ -726,9 +920,9 @@ export const useQuery = () => {
 
                   return {
                     nextOffset:
-                      !limit || offset + limit >= total.value
+                      !limit.value || offset + limit.value >= total.value
                         ? undefined
-                        : offset + limit,
+                        : offset + limit.value,
                     pageData: data
                   };
                 })
@@ -763,7 +957,7 @@ export const useQuery = () => {
         total.value = count as number;
       });
 
-    return {
+    const handle = {
       ...response,
 
       // ---state
@@ -785,10 +979,11 @@ export const useQuery = () => {
         const itemsFetched = (response?.data.value as any[])?.length ?? 0;
 
         // Calculate pages fetched based on items and limit
-        const pagesFetched = limit > 0 ? Math.ceil(itemsFetched / limit) : 1;
+        const pagesFetched =
+          limit.value > 0 ? Math.ceil(itemsFetched / limit.value) : 1;
 
         return {
-          limit,
+          limit: limit.value,
           total: total.value,
           page: pagesFetched,
           pages: pageTotal.value,
@@ -810,6 +1005,24 @@ export const useQuery = () => {
         hasPages: pageTotal.value > 1
       })),
 
+      resetQuery: () => queryClient.resetQueries({ queryKey })
+    };
+
+    // ONE write path: the criteria owns the request state when declared, and
+    // the raw setters are the whole surface when it is not.
+    if (criteria)
+      return {
+        ...handle,
+        criteria: criteria.model,
+        schema: criteria.schema,
+        isFiltered: criteria.isFiltered,
+        criteriaError: criteria.error,
+        setCriteria: criteria.set
+      } as WithCriteria<InfiniteListQuery<TQueryFnData, TData>, TModel>;
+
+    return {
+      ...handle,
+
       sort: (values?: QueryParams["sort"]) => {
         sort.value = unref(values);
         if (!isInitialCall.value) queryClient.resetQueries({ queryKey }); // Reset to first page
@@ -818,22 +1031,8 @@ export const useQuery = () => {
       filter: (values: QueryParams["filters"]) => {
         filters.value = unref(values);
         if (!isInitialCall.value) queryClient.resetQueries({ queryKey }); // Reset to first page
-      },
-
-      resetQuery: () => queryClient.resetQueries({ queryKey })
-    } as ReturnType<
-      typeof vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>
-    > & {
-      pagination: ComputedRef<PaginationInfo>;
-      meta: ComputedRef<{
-        hasNextPage: boolean;
-        hasPrevPage: boolean;
-        hasPages: boolean;
-      }>;
-      sort: (values?: QueryParams["sort"]) => void;
-      filter: (values: QueryParams["filters"]) => void;
-      resetQuery: () => Promise<void>;
-    };
+      }
+    } as InfiniteListQuery<TQueryFnData, TData>;
   }
 
   /**
