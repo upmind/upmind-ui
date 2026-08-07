@@ -56,7 +56,7 @@
   "free": "FREE",
   "free_trial": "Free Trial",
   "free_trial_alert": "This item includes a {days}-day free trial.",
-  "free_trial_desc": "Good news—you can now try this product free for 7 days, no strings attached. After your trial period ends, your {term} plan will then begin.",
+  "free_trial_desc": "Good news—you can now try this product free for {days} days, no strings attached. After your trial period ends, your {term} plan will then begin.",
   "free_trial_included_desc": "Includes a free trial period.",
   "from": "From",
   "fully_encrypted_title": "Fully Encrypted",
