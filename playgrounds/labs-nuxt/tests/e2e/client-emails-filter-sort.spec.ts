@@ -131,6 +131,7 @@ test.describe("@AC7 client-emails filter and sort on the canary", () => {
     await expect(renderedAddresses(page)).toHaveCount(2);
 
     const beforeReload = page.url();
+    const readsBeforeReload = collectionReads(traffic).length;
     await page.reload();
 
     await expect(renderedAddresses(page)).toHaveText([
@@ -139,8 +140,14 @@ test.describe("@AC7 client-emails filter and sort on the canary", () => {
     ]);
     expect(page.url()).toBe(beforeReload);
 
-    const afterReload = collectionReads(traffic).at(-1) ?? "";
-    expect(afterReload).toContain("filter[verified|eq]=0");
-    expect(afterReload).toContain("order=-email");
+    // CHECKPOINT A answer 1: the cold boot must SEED the criteria, not fetch
+    // unfiltered and correct itself. Reading only the last request cannot tell
+    // those apart, so the whole reload path is read and counted.
+    await page.waitForTimeout(1000);
+    const afterReload = collectionReads(traffic).slice(readsBeforeReload);
+
+    expect(afterReload).toHaveLength(1);
+    expect(afterReload[0]).toContain("filter[verified|eq]=0");
+    expect(afterReload[0]).toContain("order=-email");
   });
 });

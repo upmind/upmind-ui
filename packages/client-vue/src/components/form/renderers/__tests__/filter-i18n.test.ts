@@ -8,11 +8,13 @@
  * Negative control: `filter-i18n.must-fail.patch`.
  */
 
+import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
+import { h } from "vue";
 import {
   useQuerySchema,
   useQueryUischema
-} from "../../../../../../headless/src/modules/client-email/client-email.schemas";
+} from "@upmind-automation/headless-test-kit/client-email.internal-kit";
 import form from "../../../../../../i18n/src/core/form-en.json";
 import text from "../../../../../../i18n/src/core/text-en.json";
 import { labelOf, mountFilters, renderedStrings } from "./filter.harness";
@@ -155,6 +157,18 @@ describe("option labels resolve from the column's own oneOf titles", () => {
 
     expect(column("verified").text()).toContain(text.bounced_label);
     expect(column("verified").text()).not.toContain(text.yes);
+  });
+});
+
+describe("the sweep the no-raw-key assertion rests on", () => {
+  it("sees a key that shares its element with an element child", () => {
+    const wrapper = mount({
+      render: () => h("label", [h("span", "Verified"), " form.verified_filter"])
+    });
+
+    expect(rawKeysIn(renderedStrings(wrapper))).toEqual([
+      "form.verified_filter"
+    ]);
   });
 });
 

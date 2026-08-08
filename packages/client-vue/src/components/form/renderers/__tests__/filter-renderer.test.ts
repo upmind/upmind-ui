@@ -13,7 +13,8 @@ import { describe, expect, it } from "vitest";
 import {
   useQuerySchema,
   useQueryUischema
-} from "../../../../../../headless/src/modules/client-email/client-email.schemas";
+} from "@upmind-automation/headless-test-kit/client-email.internal-kit";
+import error from "../../../../../../i18n/src/core/error-en.json";
 import { labelOf, messagesOf, mountFilters } from "./filter.harness";
 import { cloneDeep, filter, get, has, map, set, some } from "lodash-es";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
@@ -278,9 +279,7 @@ describe("an unhandled operator shape fails loudly", () => {
     expect(column("weird").exists()).toBe(true);
     expect(column("weird").findAll("input")).toHaveLength(0);
     expect(column("weird").findAll("select")).toHaveLength(0);
-    expect(messagesOf(column("weird"))).toEqual([
-      "This filter can't be shown here."
-    ]);
+    expect(messagesOf(column("weird"))).toEqual([error.filter_unsupported]);
     expect(labelOf(column("weird"))).toBeTruthy();
   });
 });

@@ -27,13 +27,13 @@
  */
 
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { CLIENT_EMAILS_SCENARIO } from "@upmind-automation/headless/scenarios";
 import {
   installFilteredEmailsHandler,
   seedClientSession
 } from "@upmind-automation/headless-test-kit/client-email.int-helpers";
+import { CLIENT_EMAILS_ACTIONS_SOURCE } from "@upmind-automation/headless-test-kit/client-email.internal-kit";
 import { coveredActionIds } from "@upmind-automation/headless-test-kit/client-emails.steps";
 import { server } from "@upmind-automation/headless-test-kit/setup.integration";
 import {
@@ -51,11 +51,6 @@ import type { GateVerdict } from "@upmind-automation/scenario-harness";
 
 /** Action id → its input schema, as `useInternals()` publishes it. */
 type ActionSchemaMap = Record<string, object | undefined>;
-
-const ACTIONS_SOURCE = join(
-  import.meta.dirname,
-  "../../../../../../packages/headless/src/modules/client-email/useClientEmails.actions.ts"
-);
 
 /** The exemption the module declares on its own cache-key member. */
 const EXPECTED_EXEMPT = "invalidate";
@@ -98,7 +93,9 @@ async function verdicts(
   return runGate({
     actor: SCOPE_ACTOR.CLIENT,
     actionKeys,
-    tags: parsePlaygroundTags(readFileSync(ACTIONS_SOURCE, "utf-8")),
+    tags: parsePlaygroundTags(
+      readFileSync(CLIENT_EMAILS_ACTIONS_SOURCE, "utf-8")
+    ),
     actionSchemas: actionSchemas as never,
     coveredActionIds: covered
   }).verdicts;

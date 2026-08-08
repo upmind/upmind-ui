@@ -24,7 +24,7 @@ import validation from "../../../../../../i18n/src/core/validation-en.json";
 import { UpmForm } from "../../index";
 import { useFormI18n } from "../../useFormI18n";
 import { formRenderers } from "../index";
-import { compact, filter, flatMap, map } from "lodash-es";
+import { compact, filter, flatMap, map, trim, uniq } from "lodash-es";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type { DOMWrapper, VueWrapper } from "@vue/test-utils";
 
@@ -104,20 +104,34 @@ export const labelOf = (column: DOMWrapper<Element>) => {
 const USER_VISIBLE_ATTRIBUTES = ["placeholder", "aria-label", "title"];
 
 /**
- * Every string the mount puts in front of a user — the text of each leaf node
- * plus the user-visible attributes — as atomic strings, so a whole-value key
- * match means a raw key reached the surface.
+ * The element's OWN text, split per text node — `<label><span>x</span> form.foo</label>`
+ * yields `["form.foo"]`. Collecting `.text()` off leaf elements instead would
+ * miss that key entirely, and collecting it off every element would concatenate
+ * descendants into one string no whole-value key match can see.
+ */
+const ownText = (element: Element) =>
+  map(
+    filter(element.childNodes, node => node.nodeType === Node.TEXT_NODE),
+    node => trim(node.textContent ?? "")
+  );
+
+/**
+ * Every string the mount puts in front of a user — each rendered text node plus
+ * the user-visible attributes — as atomic strings, so a whole-value key match
+ * means a raw key reached the surface.
  */
 export const renderedStrings = (root: VueWrapper | DOMWrapper<Element>) => {
-  const nodes: DOMWrapper<Element>[] = root.findAll("*");
+  // `findAll` reaches the root itself off a `VueWrapper` but not off a
+  // `DOMWrapper`, so the root is added and the list deduped rather than assumed.
+  const elements: Element[] = uniq([
+    root.element as Element,
+    ...map(root.findAll("*"), node => node.element)
+  ]);
 
   return compact([
-    ...map(
-      filter(nodes, node => node.element.children.length === 0),
-      node => node.text().trim()
-    ),
-    ...flatMap(nodes, node =>
-      map(USER_VISIBLE_ATTRIBUTES, attribute => node.attributes(attribute))
+    ...flatMap(elements, ownText),
+    ...flatMap(elements, element =>
+      map(USER_VISIBLE_ATTRIBUTES, attribute => element.getAttribute(attribute))
     )
   ]);
 };
