@@ -22,16 +22,10 @@ import {
   useClientEmails
 } from "@upmind-automation/headless";
 import scenarios from "@upmind-automation/headless/scenarios";
-import { useCompositionPort } from "./useCompositionPort";
-import { useTableChannel } from "./useTableChannel";
-import { get, isFunction, keys } from "lodash-es";
-import type { ScenarioBinding, ScenarioScopedCell } from "./registry.types";
-import type { TableChannelCell } from "./useTableChannel";
+import { keys } from "lodash-es";
+import type { ScenarioBinding } from "./registry.types";
 import type { ScenarioKey } from "@upmind-automation/headless/scenarios";
-import type {
-  CompositionPort,
-  ScenarioRegistry
-} from "@upmind-automation/scenario-harness";
+import type { ScenarioRegistry } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
 
@@ -72,41 +66,3 @@ export const scenarioRegistry: ScenarioRegistry<ScenarioKey, unknown> =
 
 /** Every declared key, in declaration order — what the playground loops. */
 export const scenarioKeys = keys(registry) as ScenarioKey[];
-
-/**
- * True when the cell publishes the query criteria a controlled table channel
- * reads. Whether a scenario owns table state is DERIVED, never declared: the
- * cell publishes criteria or it does not.
- */
-export function ownsQueryState(cell: ScenarioScopedCell): boolean {
-  const context = cell.useContext();
-  return !!get(context, "query") && !!get(context, ["schemas", "query"]);
-}
-
-/**
- * Boots one binding into the seam port at the scope the binding declares —
- * the whole of what used to be per-module port code.
- *
- * @param entry The binding, from {@link registry}.
- * @param scope Overrides — the actor a feature named, and the context id a
- * handoff (or a route) supplies. Absent, the binding's own scope is used.
- */
-export function bootScenarioPort(
-  entry: ScenarioBinding,
-  scope: { actor?: ScopeActorTypes; contextId?: string } = {}
-): CompositionPort {
-  const scoped = entry.useList().as(scope.actor ?? entry.scope.actor);
-  const cell =
-    entry.scope.contextType && scope.contextId && isFunction(scoped.for)
-      ? scoped.for(entry.scope.contextType, scope.contextId)
-      : scoped;
-
-  // `LiveContext` is deliberately opaque (`Record<string, unknown>`), so the
-  // channel's structural cell shape is asserted once, here, behind the
-  // `ownsQueryState` guard that just proved the members exist.
-  return useCompositionPort(cell, {
-    table: ownsQueryState(cell)
-      ? useTableChannel(cell as unknown as TableChannelCell)
-      : undefined
-  });
-}

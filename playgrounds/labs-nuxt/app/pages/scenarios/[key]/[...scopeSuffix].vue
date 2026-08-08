@@ -27,11 +27,8 @@ import type { ScenarioKey } from "@upmind-automation/headless/scenarios";
 import type { ScopeActor } from "@upmind-automation/scenario-harness";
 import { ModuleRenderer } from "~/components/factory";
 import { useInspector } from "~/components/inspector";
-import {
-  bootScenarioPort,
-  registry,
-  scenarioRegistry
-} from "~/composables/factory/registry";
+import { registry, scenarioRegistry } from "~/composables/factory/registry";
+import { useModulePort } from "~/composables/factory/useModulePort";
 import { useActorScope, useContextScope } from "~/composables/scope";
 
 // -----------------------------------------------------------------------------
@@ -57,7 +54,7 @@ if (!entry)
 const actorScope = useActorScope();
 const contextScope = useContextScope();
 
-const port = bootScenarioPort(entry, {
+const port = useModulePort(entry, {
   actor: actorScope.value,
   contextId: contextScope.value?.id
 });
@@ -76,6 +73,18 @@ register({
     name: startCase(scenarioKey),
     meta: port.getMeta(),
     context: descriptor.value.snapshot.context
+  })
+});
+
+// The RAW half of "raw vs rendered" (W-D34), in its own tab beside the
+// rendered surface: the Inspector already renders one code-styled collapsible
+// per context key, so the chain needs no panel of its own. The wire row is
+// BUILT from the live criteria — no request is fired to produce it.
+register({
+  key: `scenario-${scenarioKey}-debug-${route.fullPath}`,
+  factory: () => ({
+    name: "Debug",
+    context: port.snapshot().debug ?? {}
   })
 });
 

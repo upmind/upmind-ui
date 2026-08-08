@@ -16,16 +16,14 @@ import {
   ErrorOrigin,
   responseCodes
 } from "@upmind-automation/headless";
-import { bootScenarioPort, registry } from "./registry";
+import { registry } from "./registry";
+import { useModulePort } from "./useModulePort";
 import { get, isFunction, isMatch, keys, pick } from "lodash-es";
 import type { ScenarioBinding } from "./registry.types";
+import type { ModulePort } from "./useModulePort.types";
 import type { ScopeActorTypes } from "@upmind-automation/headless";
 import type { ScenarioKey } from "@upmind-automation/headless/scenarios";
-import type {
-  CompositionPort,
-  World,
-  WorldScope
-} from "@upmind-automation/scenario-harness";
+import type { World, WorldScope } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
 
@@ -47,9 +45,9 @@ function fail(message: string): never {
 export function useScenarioWorld(
   bindings: Record<ScenarioKey, ScenarioBinding> = registry
 ): World<ScenarioKey> {
-  let port: CompositionPort | undefined;
+  let port: ModulePort | undefined;
 
-  function requirePort(): CompositionPort {
+  function requirePort(): ModulePort {
     if (!port) fail("boot() has not been called yet");
     return port;
   }
@@ -71,7 +69,7 @@ export function useScenarioWorld(
       // over the vue-free source enum (`world/scope-actor.ts`), sharing its
       // wire values — so a feature may name the actor and it lands as the
       // enum the scope builder takes.
-      port = bootScenarioPort(entry, {
+      port = useModulePort(entry, {
         actor: scope.actor as ScopeActorTypes,
         contextId: get(scope, ["context", "id"])
       });

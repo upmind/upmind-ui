@@ -31,6 +31,8 @@ export const DEFAULT_ROW_IDENTIFIER = "id";
  */
 export type ScenarioScopedCell = LiveCompositionCell & {
   for?(type: string, id: string): LiveCompositionCell;
+  /** The module's own internals — reachable only where the raw cell is held. */
+  useInternals?(): Record<string, unknown>;
 };
 
 /**
