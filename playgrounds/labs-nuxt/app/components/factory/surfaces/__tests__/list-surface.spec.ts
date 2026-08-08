@@ -1,5 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
+import { CONTROL_TEST_VALUE } from "../../__tests__/control-test-values";
 import { LIST_SURFACE_ACTION, ListSurface } from "../index";
 import type { SurfaceActions } from "../surface.types";
 import type { ControlledTableChannel } from "@upmind-automation/scenario-harness";
@@ -131,7 +132,9 @@ describe("@AC3 list-actions — ListSurface fires the live action map", () => {
 
     const rowsInDom = wrapper.findAll("li");
     await rowsInDom[1]
-      .find(`[data-test-value="${LIST_SURFACE_ACTION.DELETE}"]`)
+      .find(
+        `[data-test-value="${CONTROL_TEST_VALUE[LIST_SURFACE_ACTION.DELETE]}"]`
+      )
       .trigger("click");
 
     expect(actions[LIST_SURFACE_ACTION.DELETE]).toHaveBeenCalledTimes(1);
@@ -145,7 +148,11 @@ describe("@AC3 list-actions — ListSurface fires the live action map", () => {
     const wrapper = mountListWithActions(actions);
 
     const rowsInDom = wrapper.findAll("li");
-    await rowsInDom[0].find('[data-test-value="set-default"]').trigger("click");
+    await rowsInDom[0]
+      .find(
+        `[data-test-value="${CONTROL_TEST_VALUE[LIST_SURFACE_ACTION.SET_DEFAULT]}"]`
+      )
+      .trigger("click");
 
     expect(actions[LIST_SURFACE_ACTION.SET_DEFAULT]).toHaveBeenCalledTimes(1);
     expect(actions[LIST_SURFACE_ACTION.SET_DEFAULT]).toHaveBeenCalledWith(
@@ -159,7 +166,9 @@ describe("@AC3 list-actions — ListSurface fires the live action map", () => {
 
     const rowsInDom = wrapper.findAll("li");
     await rowsInDom[1]
-      .find(`[data-test-value="${LIST_SURFACE_ACTION.RESEND}"]`)
+      .find(
+        `[data-test-value="${CONTROL_TEST_VALUE[LIST_SURFACE_ACTION.RESEND]}"]`
+      )
       .trigger("click");
 
     expect(actions[LIST_SURFACE_ACTION.RESEND]).toHaveBeenCalledTimes(1);
@@ -173,7 +182,9 @@ describe("@AC3 list-actions — ListSurface fires the live action map", () => {
     const wrapper = mountListWithActions(actions);
 
     await wrapper
-      .find(`[data-test-value="${LIST_SURFACE_ACTION.ADD}"]`)
+      .find(
+        `[data-test-value="${CONTROL_TEST_VALUE[LIST_SURFACE_ACTION.ADD]}"]`
+      )
       .trigger("click");
 
     expect(actions[LIST_SURFACE_ACTION.ADD]).toHaveBeenCalledTimes(1);
@@ -204,7 +215,9 @@ describe("@AC3 list-actions (table-backed) — the real client-emails canary pat
     expect(wrapper.find("table").exists()).toBe(true);
     const dataRows = wrapper.findAll("tbody tr");
     await dataRows[1]
-      .find(`[data-test-value="${LIST_SURFACE_ACTION.DELETE}"]`)
+      .find(
+        `[data-test-value="${CONTROL_TEST_VALUE[LIST_SURFACE_ACTION.DELETE]}"]`
+      )
       .trigger("click");
 
     expect(actions[LIST_SURFACE_ACTION.DELETE]).toHaveBeenCalledTimes(1);
@@ -218,7 +231,11 @@ describe("@AC3 list-actions (table-backed) — the real client-emails canary pat
     const wrapper = mountListWithActions(actions, fakeTable());
 
     const dataRows = wrapper.findAll("tbody tr");
-    await dataRows[0].find('[data-test-value="set-default"]').trigger("click");
+    await dataRows[0]
+      .find(
+        `[data-test-value="${CONTROL_TEST_VALUE[LIST_SURFACE_ACTION.SET_DEFAULT]}"]`
+      )
+      .trigger("click");
 
     expect(actions[LIST_SURFACE_ACTION.SET_DEFAULT]).toHaveBeenCalledTimes(1);
     expect(actions[LIST_SURFACE_ACTION.SET_DEFAULT]).toHaveBeenCalledWith(
@@ -232,7 +249,9 @@ describe("@AC3 list-actions (table-backed) — the real client-emails canary pat
 
     const dataRows = wrapper.findAll("tbody tr");
     await dataRows[1]
-      .find(`[data-test-value="${LIST_SURFACE_ACTION.RESEND}"]`)
+      .find(
+        `[data-test-value="${CONTROL_TEST_VALUE[LIST_SURFACE_ACTION.RESEND]}"]`
+      )
       .trigger("click");
 
     expect(actions[LIST_SURFACE_ACTION.RESEND]).toHaveBeenCalledTimes(1);
@@ -247,7 +266,9 @@ describe("@AC3 list-actions (table-backed) — the real client-emails canary pat
 
     expect(wrapper.find("table").exists()).toBe(true);
     await wrapper
-      .find(`[data-test-value="${LIST_SURFACE_ACTION.ADD}"]`)
+      .find(
+        `[data-test-value="${CONTROL_TEST_VALUE[LIST_SURFACE_ACTION.ADD]}"]`
+      )
       .trigger("click");
 
     expect(actions[LIST_SURFACE_ACTION.ADD]).toHaveBeenCalledTimes(1);

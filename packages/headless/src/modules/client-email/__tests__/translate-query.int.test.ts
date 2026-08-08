@@ -22,6 +22,10 @@
  * `acceptOrRetain`). The parser flag's own contract is proven at
  * `utils/__tests__/useValidation.model-parser.test.ts`.
  *
+ * What a REJECTED criteria does to the live one — the sort/filter/pagination
+ * three-way law — is proven once, at `criteria-rejected.int.test.ts`, and is
+ * deliberately not re-asserted here.
+ *
  * ## What Breaks If These Fail
  * A merge-not-replace leaves stale `filter[…]` on the wire (an HTTP 500); a
  * mis-mapped direction ships `order=desccreated_at`; an ungated field ships an
@@ -138,28 +142,6 @@ describe("client-email table channel + translateQuery — sort (Task 36)", () =>
       expect(lastOrder(observed)).toBe("-default,created_at")
     );
     observed.stop();
-  });
-
-  it("an undeclared sort field never reaches the wire, and surfaces the ajv enum error", async () => {
-    const emails = await bootCollection();
-    const observed = observeEmailRequests();
-
-    emails.useActions().sortBy([{ field: "title", dir: "asc" }]);
-
-    await new Promise(resolve => setTimeout(resolve, 250));
-    observed.stop();
-
-    const orders = observed
-      .all()
-      .map(request => new URL(request.url).searchParams.get("order") ?? "");
-    expect(observed.all().length).toBeGreaterThan(0);
-    expect(orders.some(order => order.includes("title"))).toBe(false);
-
-    const surfaced = surfacedAjvErrors(emails);
-    expect(surfaced.map(entry => entry.keyword)).toContain("enum");
-    expect(surfaced.map(entry => entry.instancePath)).toContain(
-      "/sort/0/field"
-    );
   });
 });
 
@@ -322,30 +304,6 @@ describe("client-email filters — an emptied container does not survive (FB5a)"
 });
 
 describe("client-email invalid query model — the ajv errors surface (FB5c)", () => {
-  it("a wrong-typed filter value surfaces the ajv type error, and never reverts to the last valid model", async () => {
-    const emails = await bootCollection();
-
-    emails.useActions().filterBy({ email: { like: "mock-email-3" } });
-    await vi.waitFor(() =>
-      expect(emails.useContext().query.value.filters).toEqual({
-        email: { like: "mock-email-3" }
-      })
-    );
-
-    emails.useActions().filterBy({ email: { like: 123 } } as never);
-
-    await vi.waitFor(() => {
-      const surfaced = surfacedAjvErrors(emails);
-      expect(surfaced.map(entry => entry.keyword)).toContain("type");
-      expect(surfaced.map(entry => entry.instancePath)).toContain(
-        "/filters/email/like"
-      );
-    });
-    expect(emails.useContext().query.value.filters).toEqual({
-      email: { like: 123 }
-    });
-  });
-
   it("an undeclared column cannot survive the parse — nothing surfaces and nothing re-queries", async () => {
     const emails = await bootCollection();
     const observed = observeEmailRequests();

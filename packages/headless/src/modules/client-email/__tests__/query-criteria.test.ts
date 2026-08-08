@@ -16,9 +16,10 @@
  * 2. **The schema is the floor.** An emptied `sort` refills from the branch's
  *    own `default` (compact-before-parse, FB5e); an undeclared column never
  *    enters the model at all.
- * 3. **FB5c — a validation failure is SURFACED, never swallowed and never
- *    reverted.** The model keeps what the user asked for and `error` carries
- *    ajv's verdict beside it.
+ * 3. **FB5c — a validation failure is SURFACED, never swallowed.** `error`
+ *    carries ajv's verdict, and the rejected candidate is discarded so the last
+ *    VALID criteria stands: refused loudly, not retained. What that costs the
+ *    wire is proven at `criteria-rejected.int.test.ts`.
  * 4. **An untrusted seed is discarded WHOLE.** `criteria.model` rehydrates a
  *    cold boot from a url, and a url is user-editable: a candidate that fails
  *    validation falls back to schema defaults in its entirety rather than
@@ -236,8 +237,9 @@ describe("client-email query criteria — the merge law (Task 41, W-D33)", () =>
 });
 
 describe("client-email query criteria — the ajv verdict surfaces (FB5c)", () => {
-  it("a limit below the declared minimum surfaces 422 and does NOT revert the model", () => {
+  it("a limit below the declared minimum surfaces 422 and leaves the live pagination standing", () => {
     const criteria = bootCriteria();
+    criteria.set({ pagination: { limit: 2 } });
 
     criteria.set({ pagination: { limit: -5 } });
 
@@ -245,7 +247,8 @@ describe("client-email query criteria — the ajv verdict surfaces (FB5c)", () =
     expect(verdict.status).toBe(422);
     expect(verdict.keywords).toContain("minimum");
     expect(verdict.paths).toContain("/pagination/limit");
-    expect(criteria.model.value.pagination).toEqual({ limit: -5 });
+    expect(criteria.model.value.pagination).toEqual({ limit: 2 });
+    expect(criteria.props.value.pagination).toEqual({ limit: 2 });
   });
 
   it("the surfaced message is an i18n key, never English prose", () => {
@@ -256,15 +259,21 @@ describe("client-email query criteria — the ajv verdict surfaces (FB5c)", () =
     expect(ajvVerdict(criteria).message).toBe(VALIDATION_ERROR_KEY);
   });
 
-  it("a wrong-typed filter value surfaces the ajv type error and keeps what the user asked for", () => {
+  it("a wrong-typed filter value surfaces the ajv type error and leaves the live filter standing", () => {
     const criteria = bootCriteria();
+    criteria.set({ filters: { email: { like: "mock-email-3" } } });
 
     criteria.set({ filters: { email: { like: 123 } } } as never);
 
     const verdict = ajvVerdict(criteria);
     expect(verdict.keywords).toContain("type");
     expect(verdict.paths).toContain("/filters/email/like");
-    expect(criteria.model.value.filters).toEqual({ email: { like: 123 } });
+    expect(criteria.model.value.filters).toEqual({
+      email: { like: "mock-email-3" }
+    });
+    expect(criteria.props.value.filters?.["filter[email|like]"]).toBe(
+      "%mock-email-3%"
+    );
   });
 
   it("the next valid set clears the surfaced verdict", () => {

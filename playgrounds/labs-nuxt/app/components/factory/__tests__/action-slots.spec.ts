@@ -1,6 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ActionSlots } from "../index";
+import { OVERFLOW_TRIGGER_TEST_VALUE } from "./control-test-values";
 import type { ActionSlotItem } from "../ActionSlots.types";
 
 const actionItems: ActionSlotItem[] = [
@@ -36,7 +37,9 @@ describe("@AC3 ActionSlots — every action reachable in all three placements", 
   it("reaches every action in the overflow placement once opened", async () => {
     const { wrapper } = mountAttached();
 
-    await wrapper.find('[data-test-value="more-actions"]').trigger("click");
+    await wrapper
+      .find(`[data-test-value="${OVERFLOW_TRIGGER_TEST_VALUE}"]`)
+      .trigger("click");
     await new Promise(r => setTimeout(r, 0));
 
     for (const action of actionItems) {
