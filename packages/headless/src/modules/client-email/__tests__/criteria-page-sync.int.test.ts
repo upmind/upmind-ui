@@ -1,24 +1,26 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview client-email criteria — the three page shapes the W4
+ * @fileoverview client-email criteria — the four page shapes the W4
  * write-through did not reach (FE-3071 B1-R5 / W-R7-4 / B2-R5)
  *
  * ## Job To Be Done
  * `list({ criteria })` moves its cursor through the criteria, so the model and
- * the wire state one page. Three shapes sit outside that walk, all proven here
+ * the wire state one page. Four shapes sit outside that walk, all proven here
  * through the REAL composable against the RECORDED pages:
  *
  * - a declared schema whose `pagination` branch has nowhere for a cursor to
  *   land. `hasNextPage` is derived from `total`/`limit`, not from the schema, so
  *   the module offers a Next control; an offered control must move the page,
  *   and it must move it in one request per step;
- * - a `setCriteria` the declared schema cannot hold at all. `criteriaError` is
- *   where a discarded candidate is read (`QueryCriteriaHandle.criteriaError`,
- *   FB5c) — a write may be refused, never swallowed;
+ * - a `setCriteria` the declared schema cannot hold at all — a write may be
+ *   refused on `criteriaError` (`QueryCriteriaHandle.criteriaError`, FB5c) or
+ *   honoured on the wire, never swallowed between the two;
+ * - the walk running OUT of pages. A control the module withdraws must also
+ *   refuse the call behind it, leaving the wire, the published page and the
+ *   criteria all where they were;
  * - `listInfinite({ criteria: { model } })`, whose cursor is the infinite
  *   query's own `pageParam`. Whichever page the published model states, the
- *   first request must be on it, and a seed it cannot carry must be readable
- *   rather than dropped.
+ *   first request must be on it.
  *
  * ## What Breaks If These Fail
  * Wave B serialises the published page into the url. An enabled control that
@@ -36,7 +38,7 @@ import {
   seedClientSession
 } from "./client-email.int-helpers";
 import { server } from "./setup.integration";
-import { cloneDeep, isNil, last, map, omit } from "lodash-es";
+import { cloneDeep, map, omit } from "lodash-es";
 import type {
   InfiniteListQuery,
   ListQuery,
@@ -59,6 +61,7 @@ const PAGE_SIZE = 2;
 const PAGE_ONE_OFFSET = 0;
 const PAGE_TWO_OFFSET = 2;
 const RECORDED_TOTAL = 3;
+const RECORDED_PAGES = 2;
 
 /**
  * 10 both ways: the `pagination.limit` default the module's schema declares,
@@ -66,23 +69,9 @@ const RECORDED_TOTAL = 3;
  */
 const DEFAULT_LIMIT = 10;
 
-/**
- * A write the declared schema cannot hold: honoured on the wire, or refused
- * and readable on `criteriaError`. Nothing else is lawful.
- */
-const LAWFUL_WRITE_FATES = [
-  { limit: String(PAGE_SIZE), refusalSurfaced: false },
-  { limit: String(DEFAULT_LIMIT), refusalSurfaced: true }
-];
-
-/**
- * A seeded page the entry point cannot carry: honoured on the FIRST request, or
- * discarded and readable on `criteriaError`. Silently publishing it is neither.
- */
-const LAWFUL_SEED_FATES = [
-  { offset: PAGE_TWO_OFFSET, discardSurfaced: false },
-  { offset: PAGE_ONE_OFFSET, discardSurfaced: true }
-];
+/** The i18n keys the withdrawn pager controls refuse with (`packages/i18n`). */
+const NEXT_REFUSED = "text.page_next_not_available";
+const PREVIOUS_REFUSED = "text.page_previous_not_available";
 
 /** The module's own declared schema with the cursor property removed. */
 function schemaWithoutCursor(): QuerySchema {
@@ -150,29 +139,34 @@ describe("client-email list({ criteria }) — a schema with no cursor to write i
         String(PAGE_SIZE)
       ])
     );
-    await vi.waitFor(() => expect(query.pagination.value.pages).toBe(2));
+    await vi.waitFor(() =>
+      expect(query.pagination.value.pages).toBe(RECORDED_PAGES)
+    );
     expect(query.meta.value.hasNextPage).toBe(true);
 
     query.fetchNextPage();
 
-    await vi.waitFor(() => expect(query.pagination.value.page).toBe(2));
+    await vi.waitFor(() =>
+      expect(observedOffsets(observed)).toEqual([
+        String(PAGE_ONE_OFFSET),
+        String(PAGE_ONE_OFFSET),
+        String(PAGE_TWO_OFFSET)
+      ])
+    );
     observed.stop();
 
-    expect(observedOffsets(observed)).toEqual([
-      String(PAGE_ONE_OFFSET),
-      String(PAGE_ONE_OFFSET),
-      String(PAGE_TWO_OFFSET)
-    ]);
     expect(observedLimits(observed)).toEqual([
       String(DEFAULT_LIMIT),
       String(PAGE_SIZE),
       String(PAGE_SIZE)
     ]);
+    expect(query.pagination.value.page).toBe(RECORDED_PAGES);
+    expect(query.criteria.value.pagination?.offset).toBe(PAGE_TWO_OFFSET);
   });
 });
 
 describe("client-email list({ criteria }) — a write the schema cannot hold is refused, never swallowed (FE-3071 W-R7-4)", () => {
-  it("setCriteria on an undeclared branch either reaches the wire or lands on criteriaError", async () => {
+  it("setCriteria on an undeclared branch reaches the wire rather than dying silently", async () => {
     const { clientId } = await seedClientSession();
     installPagedEmailsHandler(server, clientId);
     const observed = observeEmailRequests();
@@ -191,17 +185,94 @@ describe("client-email list({ criteria }) — a write the schema cannot hold is 
     query.setCriteria({ pagination: { limit: PAGE_SIZE } });
 
     await vi.waitFor(() =>
-      expect(LAWFUL_WRITE_FATES).toContainEqual({
-        limit: last(observedLimits(observed)) ?? null,
-        refusalSurfaced: !isNil(query.criteriaError.value)
-      })
+      expect(observedLimits(observed)).toEqual([
+        String(DEFAULT_LIMIT),
+        String(PAGE_SIZE)
+      ])
     );
     observed.stop();
+
+    expect(query.criteria.value.pagination?.limit).toBe(PAGE_SIZE);
+    expect(query.criteriaError.value).toBeUndefined();
+  });
+});
+
+describe("client-email list({ criteria }) — the walk runs out of pages honestly (FE-3071 B1-R5)", () => {
+  it("a next-page call past the last page is refused, and moves neither the wire nor the published page", async () => {
+    const { clientId } = await seedClientSession();
+    installPagedEmailsHandler(server, clientId);
+    const observed = observeEmailRequests();
+
+    const query = useQuery().list({
+      url: useQuery().useUrl(`clients/${clientId}/emails`),
+      queryKey: ["criteria-past-the-end"],
+      withAccessToken: true,
+      criteria: {
+        schema: useQuerySchema(),
+        model: { pagination: { limit: PAGE_SIZE, offset: PAGE_TWO_OFFSET } }
+      }
+    }) as unknown as CriteriaList;
+
+    await vi.waitFor(() =>
+      expect(query.pagination.value.total).toBe(RECORDED_TOTAL)
+    );
+    expect(query.pagination.value.page).toBe(RECORDED_PAGES);
+    expect(query.meta.value.hasNextPage).toBe(false);
+
+    expect(() => query.fetchNextPage()).toThrowError(NEXT_REFUSED);
+
+    await vi.waitFor(() =>
+      expect(query.pagination.value.page).toBe(RECORDED_PAGES)
+    );
+    observed.stop();
+
+    expect(observedOffsets(observed)).toEqual([String(PAGE_TWO_OFFSET)]);
+    expect(query.criteria.value.pagination?.offset).toBe(PAGE_TWO_OFFSET);
+  });
+
+  it("the same refusal guards the bottom of the walk, and the page in between still moves", async () => {
+    const { clientId } = await seedClientSession();
+    installPagedEmailsHandler(server, clientId);
+    const observed = observeEmailRequests();
+
+    const query = useQuery().list({
+      url: useQuery().useUrl(`clients/${clientId}/emails`),
+      queryKey: ["criteria-before-the-start"],
+      withAccessToken: true,
+      criteria: {
+        schema: useQuerySchema(),
+        model: { pagination: { limit: PAGE_SIZE, offset: PAGE_TWO_OFFSET } }
+      }
+    }) as unknown as CriteriaList;
+
+    await vi.waitFor(() =>
+      expect(query.pagination.value.total).toBe(RECORDED_TOTAL)
+    );
+
+    query.fetchPreviousPage();
+
+    await vi.waitFor(() =>
+      expect(observedOffsets(observed)).toEqual([
+        String(PAGE_TWO_OFFSET),
+        String(PAGE_ONE_OFFSET)
+      ])
+    );
+    expect(query.pagination.value.page).toBe(1);
+    expect(query.meta.value.hasPrevPage).toBe(false);
+
+    expect(() => query.fetchPreviousPage()).toThrowError(PREVIOUS_REFUSED);
+
+    observed.stop();
+    expect(observedOffsets(observed)).toEqual([
+      String(PAGE_TWO_OFFSET),
+      String(PAGE_ONE_OFFSET)
+    ]);
+    expect(query.criteria.value.pagination?.offset).toBe(PAGE_ONE_OFFSET);
   });
 });
 
 describe("client-email listInfinite({ criteria: { model } }) — the model never states a page the wire is not on (FE-3071 B2-R5)", () => {
-  it("a seeded page reaches the FIRST request, or is discarded where it can be read", async () => {
+  it("a seeded page is the page of the FIRST request, with no correcting second one", async () => {
     const { clientId } = await seedClientSession();
     installPagedEmailsHandler(server, clientId);
     const observed = observeEmailRequests();
@@ -218,17 +289,14 @@ describe("client-email listInfinite({ criteria: { model } }) — the model never
       }
     }) as unknown as CriteriaInfinite;
 
-    await vi.waitFor(() => expect(observed.all().length).toBeGreaterThan(0));
+    await vi.waitFor(() =>
+      expect(query.pagination.value.total).toBe(RECORDED_TOTAL)
+    );
     observed.stop();
 
-    const first = new URL(observed.first().url).searchParams;
-    expect(first.get("limit")).toBe(String(PAGE_SIZE));
-    expect(first.get("offset")).toBe(
-      String(query.criteria.value.pagination?.offset ?? PAGE_ONE_OFFSET)
-    );
-    expect(LAWFUL_SEED_FATES).toContainEqual({
-      offset: query.criteria.value.pagination?.offset ?? PAGE_ONE_OFFSET,
-      discardSurfaced: !isNil(query.criteriaError.value)
-    });
+    expect(observedOffsets(observed)).toEqual([String(PAGE_TWO_OFFSET)]);
+    expect(observedLimits(observed)).toEqual([String(PAGE_SIZE)]);
+    expect(query.criteria.value.pagination?.offset).toBe(PAGE_TWO_OFFSET);
+    expect(query.criteriaError.value).toBeUndefined();
   });
 });

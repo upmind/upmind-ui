@@ -86,11 +86,12 @@ describe("@AC5 useClientEmailsPort — the adapter hands the live channel throug
     await vi.waitFor(() =>
       expect(port.table?.read().sort).toEqual([{ field: "email", dir: "asc" }])
     );
-    // The published query carries the schema's ratified `pagination.limit`
-    // default alongside the emitted sort; `toEqual` stays exact so a silently
-    // widening model is a failure, not a pass.
+    // The published query carries the schema's ratified `pagination` defaults —
+    // the cursor included, since the model is where the page is now stated —
+    // alongside the emitted sort; `toEqual` stays exact so a silently widening
+    // model is a failure, not a pass.
     expect(port.snapshot().context.query).toEqual({
-      pagination: { limit: 10 },
+      pagination: { limit: 10, offset: 0 },
       sort: [{ field: "email", dir: "asc" }]
     });
   });
