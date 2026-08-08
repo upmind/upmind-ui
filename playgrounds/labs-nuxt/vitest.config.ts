@@ -26,6 +26,17 @@ const alias = {
     root,
     "../../packages/headless/src/index.ts"
   ),
+  // Test-lane-only keys — never in `nuxt.config.ts`, since nothing at runtime
+  // may reach recorded fixtures or a package's `__tests__` tree. Both mirror
+  // the mechanism headless already uses for its own fixtures
+  // (`packages/headless/vitest.config.ts:7-11`); an alias is what MAKES a
+  // specifier resolve, which is why the integration kit is reached by name
+  // rather than by a relative path into the package.
+  "@upmind-automation/test-fixtures": resolve(root, "../../tests/fixtures"),
+  "@upmind-automation/headless-test-kit": resolve(
+    root,
+    "../../packages/headless/src/modules/client-email/__tests__"
+  ),
   "@upmind-automation/scenario-harness": resolve(
     root,
     "../../packages/scenario-harness/src/index.ts"
