@@ -1,8 +1,8 @@
 diff --git a/packages/headless/src/modules/query/useQuery.ts b/packages/headless/src/modules/query/useQuery.ts
-index e3d573cfb..2b5145a5e 100644
+index 5e9d87010..353da33bf 100644
 --- a/packages/headless/src/modules/query/useQuery.ts
 +++ b/packages/headless/src/modules/query/useQuery.ts
-@@ -468,9 +468,7 @@ export const useQuery = () => {
+@@ -506,9 +506,7 @@ export const useQuery = () => {
  
      // Reactive, not captured at mint: a live page-size change re-keys the query
      // and reaches the wire, which is what finally gives `paginate` a sink.
@@ -13,14 +13,14 @@ index e3d573cfb..2b5145a5e 100644
      const total = ref(0);
  
      // The raw arm's own state: a caller spelling the branches raw has no model
-@@ -904,9 +902,7 @@ export const useQuery = () => {
-     // and reaches the wire. The criteria's `pagination` reaches this entry point
-     // as the page SIZE only — the cursor is the infinite query's own `pageParam`,
-     // which is why there is no `offset` to write back here.
+@@ -940,9 +938,7 @@ export const useQuery = () => {
+ 
+     // Reactive, not captured at mint: a live page-size change re-keys the query
+     // and reaches the wire.
 -    const limit = computed(
 -      () => props.value.pagination?.limit ?? PAGINATION.limit
 -    );
 +    const limit = ref(props.value.pagination?.limit ?? PAGINATION.limit);
-     const total = ref(0);
-     const pageTotal = computed(() => {
-       if (!limit.value) return 1; // Can only be 1 page if limit=0
+ 
+     // The declared window's `offset` is where the list STARTS — the FIRST page
+     // param, not a live cursor. Every page after it is the infinite query's own

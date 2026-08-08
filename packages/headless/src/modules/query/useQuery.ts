@@ -38,6 +38,7 @@ import {
   isObject,
   isString,
   map,
+  merge,
   set,
   toNumber,
   unset
@@ -52,6 +53,7 @@ import type {
   ReactiveQueryKeys,
   PaginationInfo,
   CriteriaInput,
+  QueryCriteriaOptions,
   RawCriteria,
   SchemaCriteria,
   WithCriteria,
@@ -60,9 +62,45 @@ import type {
   InfiniteListQuery,
   MutationResult
 } from "./query.types";
+import type { JsonSchema } from "@jsonforms/core";
 import type { DefaultError, MutationKey, QueryKey } from "@tanstack/vue-query";
 
 // -----------------------------------------------------------------------------
+
+/**
+ * The page window belongs to the PAGER, not to the module: `list()` and
+ * `listInfinite()` publish a pager and write the cursor themselves, so the
+ * branch they write into is theirs to declare. A schema that under-declares
+ * `pagination` has nowhere for that write to land — `useModelParser`'s
+ * `allowExtraProps: false` strips it — and an offered Next control then moves
+ * nothing, silently. Merged UNDER the declaration, so a module's own bounds and
+ * defaults win and only the missing keys are added.
+ */
+function withPageWindow<TModel extends Record<string, unknown>>(
+  declaration: QueryCriteriaOptions<TModel>
+): QueryCriteriaOptions<TModel> {
+  return assign({}, declaration, {
+    schema: merge(
+      {
+        properties: {
+          pagination: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              limit: {
+                type: "integer",
+                minimum: 0,
+                default: PAGINATION.limit
+              },
+              offset: { type: "integer", minimum: 0 }
+            }
+          }
+        }
+      },
+      declaration.schema
+    ) as JsonSchema
+  });
+}
 
 // This will then be used in the `useUpmind` composable, which initializes the Upmind instance
 // BEFORE vue has an injectable for the query client
@@ -451,7 +489,7 @@ export const useQuery = () => {
     const { basketId } = useBasket();
 
     const criteria = declaration
-      ? useQueryCriteria<TModel>(declaration)
+      ? useQueryCriteria<TModel>(withPageWindow(declaration))
       : undefined;
 
     // --- state
@@ -843,7 +881,7 @@ export const useQuery = () => {
    * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
    * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
-   * @param criteria The collection's declared query schema (and optional starting model). Mutually exclusive with `sort`/`filters`/`pagination` — declaring both is a compile error. The criteria's `pagination` reaches this entry point as the page SIZE only; the cursor stays the infinite query's own, exactly as a raw caller's `pagination` does.
+   * @param criteria The collection's declared query schema (and optional starting model). Mutually exclusive with `sort`/`filters`/`pagination` — declaring both is a compile error. The criteria's `pagination` reaches this entry point as the page size and the FIRST page param; every page after it is the infinite query's own accumulating cursor, exactly as a raw caller's `pagination` does.
    * @param options Additional options to pass to TanStack query.
    */
   function listInfinite<TQueryFnData = unknown, TData = TQueryFnData>(
@@ -885,7 +923,7 @@ export const useQuery = () => {
     const { basketId } = useBasket();
 
     const criteria = declaration
-      ? useQueryCriteria<TModel>(declaration)
+      ? useQueryCriteria<TModel>(withPageWindow(declaration))
       : undefined;
 
     // --- state
@@ -901,11 +939,16 @@ export const useQuery = () => {
     );
 
     // Reactive, not captured at mint: a live page-size change re-keys the query
-    // and reaches the wire. The criteria's `pagination` reaches this entry point
-    // as the page SIZE only — the cursor is the infinite query's own `pageParam`,
-    // which is why there is no `offset` to write back here.
+    // and reaches the wire.
     const limit = computed(
       () => props.value.pagination?.limit ?? PAGINATION.limit
+    );
+
+    // The declared window's `offset` is where the list STARTS — the FIRST page
+    // param, not a live cursor. Every page after it is the infinite query's own
+    // accumulating `pageParam`, so nothing is ever written back here.
+    const initialOffset = computed(
+      () => props.value.pagination?.offset ?? PAGINATION.offset
     );
     const total = ref(0);
     const pageTotal = computed(() => {
@@ -957,7 +1000,8 @@ export const useQuery = () => {
       vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>(
         {
           queryKey: [...queryKey, reactiveKeys],
-          queryFn: async ({ pageParam = 0, signal }) => {
+          initialPageParam: initialOffset,
+          queryFn: async ({ pageParam, signal }) => {
             const offset = toNumber(pageParam);
             const hasGuard = isPromise(guard);
             const safeguard: Promise<void | boolean> = hasGuard
