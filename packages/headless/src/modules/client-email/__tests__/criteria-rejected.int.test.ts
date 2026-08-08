@@ -244,8 +244,8 @@ describe("client-email — a REJECTED pagination leaves the live page on the wir
   });
 });
 
-describe("client-email — what the rejected criteria does NOT yet reach (measured, not narrated)", () => {
-  it("meta.hasError stays false, so resolveModuleState keeps the surface `ready` — DEFECT, owed to the developer seat", async () => {
+describe("client-email — a refused criteria is a verdict, not a module error", () => {
+  it("leaves meta.hasError false so resolveModuleState keeps the surface `ready`, and carries the verdict on context.error alone", async () => {
     const emails = await bootCollection();
 
     emails.useActions().sortBy([{ field: "title", dir: "asc" }] as never);
@@ -253,11 +253,10 @@ describe("client-email — what the rejected criteria does NOT yet reach (measur
       expect(criteriaVerdict(emails).keywords).toContain("enum")
     );
 
-    // The verdict reaches `context.error` (asserted above) but `meta.hasError`
-    // reads only the service/query error, and `resolveModuleState` reads meta —
-    // so the canary renders the table as if nothing happened. Not a law: a
-    // measurement of the standing gap. It goes RED when the flag learns to see
-    // the criteria, which is when this case should be deleted.
+    // The two channels are deliberately separate: nothing failed to load, the
+    // rows on screen are the last VALID ones, and `resolveModuleState` reads
+    // meta — so raising `hasError` here would replace a correct table with an
+    // error state over a write that changed nothing.
     expect(emails.useContext().error.value).toBeDefined();
     expect(emails.useMeta().hasError.value).toBe(false);
   });

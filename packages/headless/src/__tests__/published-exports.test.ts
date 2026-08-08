@@ -177,19 +177,4 @@ describe("headless — the scenario keys never touch the main barrel (F-1)", () 
     ]);
     forEach(entry.default, thunk => expect(typeof thunk).toBe("function"));
   });
-
-  it("the SOURCE main barrel cannot be evaluated at all — a live runtime import cycle through modules/scope (DEFECT, owed to the developer seat)", async () => {
-    // Not a law — a characterisation of a standing defect, so it is measured
-    // rather than discovered again by the next reader. The runtime edge that
-    // closes the loop is `modules/scope/scope.utils.ts -> ../session-store`:
-    // from there the graph reaches `useUpmind -> query -> basket ->
-    // client-company.services -> client-email/index`, which calls
-    // `createScopedComposable` while `scope.builder.ts` is still initialising.
-    // The published `dist/` barrel above is unaffected (rollup re-orders it),
-    // and `import "../modules/session-store"` before the barrel also loads
-    // clean. DELETE this case with the fix — it goes RED when the cycle dies.
-    await expect(import("../index")).rejects.toThrow(
-      /createScopedComposable\) is not a function/
-    );
-  });
 });

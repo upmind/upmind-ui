@@ -20,10 +20,8 @@
  * `*.must-fail.patch` removes that export block and must land here, red.
  *
  * `ScopeActorTypes` is imported by its deep path — exactly as
- * `client-email.types.ts` imports it — never through the scope barrel, whose
- * static import from this package faults `createScopedComposable` on load
- * order (the aggregator-barrel `export *` hazard in
- * `code-quality.companion.md`).
+ * `client-email.types.ts` imports it — never through the scope barrel
+ * (the aggregator-barrel `export *` hazard in `code-quality.companion.md`).
  *
  * ## What Breaks If These Fail
  * A consumer loses a whole surface (the FE-2824 archetype one altitude up) or
