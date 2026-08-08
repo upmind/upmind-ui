@@ -1,9 +1,12 @@
 <template>
   <UpmLayout>
-    <div class="space-y-8">
+    <!-- The Inspector is a fixed 24rem overlay, so the rendered half is given
+         its width back — "raw vs rendered" has to be readable side by side. -->
+    <div class="space-y-8" :class="{ 'pr-96': isOpen }">
       <h1 class="text-display text-3xl font-bold">
         {{ startCase(scenarioKey) }}
       </h1>
+      <FilterBar v-if="port.criteria" :criteria="port.criteria" />
       <ModuleRenderer :descriptor="descriptor" :port="port" />
     </div>
   </UpmLayout>
@@ -18,6 +21,11 @@
  * module knowledge — the key resolves a binding in the scenario contract, the
  * binding boots the seam port, and the harness reflects that port into the
  * descriptor `ModuleRenderer` dispatches on.
+ *
+ * It is also the RENDERED half of "raw vs rendered" (W-D34): a cell that owns
+ * criteria gets its own declared filter bar above the surface, and the
+ * Inspector — where the raw schema · uischema · model · built wire live — opens
+ * with the page, so the declaration and what it produced are read side by side.
  */
 
 import { UpmLayout } from "@upmind-automation/client-vue";
@@ -26,7 +34,7 @@ import { get, startCase } from "lodash-es";
 import type { ScenarioKey } from "@upmind-automation/headless/scenarios";
 import type { ScopeActor } from "@upmind-automation/scenario-harness";
 import type { ScenarioBinding } from "~/composables/factory/registry.types";
-import { ModuleRenderer } from "~/components/factory";
+import { FilterBar, ModuleRenderer } from "~/components/factory";
 import { useInspector } from "~/components/inspector";
 import { registry, scenarioRegistry } from "~/composables/factory/registry";
 import { useCriteriaUrlSync } from "~/composables/factory/useCriteriaUrlSync";
@@ -70,7 +78,7 @@ const descriptor = computed(() =>
 );
 
 // --- Inspector debug registration
-const { register } = useInspector();
+const { isOpen, register } = useInspector();
 
 register({
   key: `scenario-${scenarioKey}-${route.fullPath}`,
@@ -95,6 +103,8 @@ register({
 
 // --- Lifecycle
 onMounted(() => {
+  isOpen.value = true;
+
   const isReady = get(port.actions, "isReady");
   if (isReady) isReady();
 });

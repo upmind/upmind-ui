@@ -45,6 +45,8 @@ export type ModulePortDebug = {
 export type ModulePortCriteria = {
   /** The declared query schema (a plain Draft-07 JSON literal) — the whole of what may be persisted. */
   schema: unknown;
+  /** The module's OWN filter-bar presentation over that schema — what the holistic filter form renders. */
+  uischema: unknown;
   /** The live criteria model; read-only, write through {@link ModulePortCriteria.set}. */
   model: ComputedRef<Record<string, unknown>>;
   /** MERGES the given branches into the intent; never replaces the whole model. */

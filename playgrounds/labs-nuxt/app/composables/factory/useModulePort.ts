@@ -105,6 +105,7 @@ function readCriteria(
 
   return {
     schema: get(context, ["schemas", "query", "schema"]),
+    uischema: get(context, ["schemas", "query", "uischema"]),
     model: get(context, "query") as ComputedRef<Record<string, unknown>>,
     set: set as ModulePortCriteria["set"]
   };

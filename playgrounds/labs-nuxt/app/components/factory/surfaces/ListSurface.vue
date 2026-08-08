@@ -135,8 +135,9 @@
  * composable owns the model — this surface sorts/filters/paginates nothing
  * itself (`manualSorting`/`manualFiltering`/`manualPagination`, and only
  * `getCoreRowModel()` — no `getSortedRowModel`/`getFilteredRowModel`/
- * `getPaginationRowModel`). Holistic filters (FE-1335's schema-driven form)
- * are Task 14 — this is the generic per-column keyword filter only. A module
+ * `getPaginationRowModel`). This is the generic per-column keyword filter only:
+ * the holistic filter form (FE-1335's schema-driven bar) is `FilterBar`, mounted
+ * by the page over the same composable-owned criteria (W-D33). A module
  * with no table channel (`hasDataArray` without `hasTable`) degrades to a
  * read-only row list instead of rendering blank. Row/collection actions bind
  * to the well-known `LIST_SURFACE_ACTION` names only when the live port
