@@ -91,3 +91,24 @@ describe("@AC5 reflect — adapter port drives createHarness().reflect() to the 
     expect(descriptor.archetype.archetype).toBe(ARCHETYPE.ACTION_PANEL);
   });
 });
+
+describe("@AC5 reflect — the seam where undefined is omitted (W-D29's hand-off)", () => {
+  it("emits a JSON-plain snapshot from a port that hands undefined through at depth", () => {
+    const port = useCompositionPort(
+      cellWith({
+        model: { note: undefined, kept: "kept" },
+        tags: [undefined, "kept"]
+      })
+    );
+
+    const { snapshot } = harness.reflect(
+      REFLECT_FIXTURE_KEY.PROBE,
+      SCOPE_ACTOR.SELF,
+      port
+    );
+
+    expect(JSON.parse(JSON.stringify(snapshot))).toEqual(snapshot);
+    expect(snapshot.context.model).toEqual({ kept: "kept" });
+    expect(snapshot.context.tags).toEqual(["kept"]);
+  });
+});

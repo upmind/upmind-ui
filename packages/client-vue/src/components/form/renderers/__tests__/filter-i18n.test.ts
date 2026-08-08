@@ -15,13 +15,14 @@ import {
 } from "../../../../../../headless/src/modules/client-email/client-email.schemas";
 import form from "../../../../../../i18n/src/core/form-en.json";
 import text from "../../../../../../i18n/src/core/text-en.json";
-import { labelOf, mountFilters } from "./filter.harness";
-import { cloneDeep, get, map, set } from "lodash-es";
+import { labelOf, mountFilters, renderedStrings } from "./filter.harness";
+import { cloneDeep, filter, get, map, set } from "lodash-es";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 
 const I18N_KEY_SHAPE = /^[a-z][a-zA-Z0-9_]*\.[a-zA-Z][a-zA-Z0-9_.]*$/;
 
-const COLUMNS = ["email", "verified", "bounced", "default"];
+const rawKeysIn = (strings: string[]) =>
+  filter(strings, string => I18N_KEY_SHAPE.test(string));
 
 describe("control labels resolve through packages/i18n", () => {
   it("renders the per-field label form-en.json declares", async () => {
@@ -35,17 +36,27 @@ describe("control labels resolve through packages/i18n", () => {
     expect(labelOf(column("default"))).toBe(form.default_filter.label);
   });
 
-  it("renders no raw i18n key anywhere in the filter bar", async () => {
+  it("renders no raw i18n key anywhere in the filter bar, at any switch position", async () => {
+    const { column, settle, wrapper } = await mountFilters({
+      schema: useQuerySchema(),
+      uischema: useQueryUischema()
+    });
+
+    for (let position = 0; position < 3; position += 1) {
+      expect(rawKeysIn(renderedStrings(wrapper))).toEqual([]);
+      await column("verified").find('[role="switch"]').trigger("click");
+      await settle();
+    }
+  });
+
+  it("draws no label at all for the column whose key declares none", async () => {
     const { column } = await mountFilters({
       schema: useQuerySchema(),
       uischema: useQueryUischema()
     });
 
-    const rendered = map(COLUMNS, name => [name, labelOf(column(name))]);
-
-    expect(
-      rendered.filter(([, label]) => I18N_KEY_SHAPE.test(label as string))
-    ).toEqual([]);
+    expect(form.email_search.label).toBeNull();
+    expect(column("email").findAll("label")).toHaveLength(0);
   });
 
   it("gives the search box the search hint, not the per-email field's address example", async () => {
@@ -149,7 +160,7 @@ describe("option labels resolve from the column's own oneOf titles", () => {
 
 describe("the translator is load-bearing", () => {
   it("falls back to the raw schema title when the mount supplies no i18n", async () => {
-    const { column } = await mountFilters({
+    const { column, wrapper } = await mountFilters({
       schema: useQuerySchema(),
       uischema: useQueryUischema(),
       translate: false
@@ -168,5 +179,7 @@ describe("the translator is load-bearing", () => {
       expect(labelOf(column(name))).toBe(titleOf(name));
       expect(I18N_KEY_SHAPE.test(labelOf(column(name)))).toBe(true);
     }
+
+    expect(rawKeysIn(renderedStrings(wrapper)).length).toBeGreaterThan(0);
   });
 });

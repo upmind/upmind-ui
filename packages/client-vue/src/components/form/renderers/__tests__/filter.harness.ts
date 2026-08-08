@@ -24,6 +24,7 @@ import validation from "../../../../../../i18n/src/core/validation-en.json";
 import { UpmForm } from "../../index";
 import { useFormI18n } from "../../useFormI18n";
 import { formRenderers } from "../index";
+import { compact, filter, flatMap, map } from "lodash-es";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type { DOMWrapper, VueWrapper } from "@vue/test-utils";
 
@@ -90,5 +91,33 @@ export const messagesOf = (column: DOMWrapper<Element>) =>
     .findAll('[data-test-key="form-item-message"]')
     .map(node => node.text());
 
-export const labelOf = (column: DOMWrapper<Element>) =>
-  column.find("label span span").text().trim();
+/**
+ * The column's rendered label, or `""` for a column that declares none —
+ * §13.2 files `form.email_search` with `label: null`, so "no label" is a
+ * legitimate answer this must be able to express rather than throw on.
+ */
+export const labelOf = (column: DOMWrapper<Element>) => {
+  const label = column.find("label span span");
+  return label.exists() ? label.text().trim() : "";
+};
+
+const USER_VISIBLE_ATTRIBUTES = ["placeholder", "aria-label", "title"];
+
+/**
+ * Every string the mount puts in front of a user — the text of each leaf node
+ * plus the user-visible attributes — as atomic strings, so a whole-value key
+ * match means a raw key reached the surface.
+ */
+export const renderedStrings = (root: VueWrapper | DOMWrapper<Element>) => {
+  const nodes: DOMWrapper<Element>[] = root.findAll("*");
+
+  return compact([
+    ...map(
+      filter(nodes, node => node.element.children.length === 0),
+      node => node.text().trim()
+    ),
+    ...flatMap(nodes, node =>
+      map(USER_VISIBLE_ATTRIBUTES, attribute => node.attributes(attribute))
+    )
+  ]);
+};

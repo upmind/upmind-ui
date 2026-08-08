@@ -1,3 +1,20 @@
+Negative control for useCompositionPort.spec.ts (and, downstream, reflect.int.spec.ts).
+
+Fabricates a table channel the caller never wired, so every module reads as
+table-owning and `port.table` stops being the caller's own object.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Proven RED 2026-08-08 (`pnpm --filter @upmind-automation/labs-nuxt test`):
+  x hands the caller's own channel through on port.table
+      -> expected { read, emit } to be { read, emit } // Object.is equality
+  x leaves port.table undefined for a module whose caller supplies no channel
+      -> expected { read, emit } to be undefined
+  x classifies a schema+model cell as form-flow   -> expected 'list' to be 'form-flow'
+  x classifies a model-only cell as detail        -> expected 'list' to be 'detail'
+  x classifies a bare-actions cell as action-panel -> expected 'list' to be 'action-panel'
+  5 failed | 14 passed
+
 diff --git a/playgrounds/labs-nuxt/app/composables/factory/useCompositionPort.ts b/playgrounds/labs-nuxt/app/composables/factory/useCompositionPort.ts
 index ba5886207..0c917150c 100644
 --- a/playgrounds/labs-nuxt/app/composables/factory/useCompositionPort.ts

@@ -1,3 +1,17 @@
+Negative control for filter-i18n.test.ts.
+
+Points the tri-state's `true` position at a key no catalogue carries, so the
+option-label channel (§13.3's renderer-internal lookup) resolves to the raw key.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Proven RED 2026-08-08 (`pnpm --filter @upmind-automation/client-vue test`):
+  x renders no raw i18n key anywhere in the filter bar, at any switch position
+      -> expected [ 'text.absent_option_key' ] to deeply equal []
+  x renders All / Yes / No across the tri-state's three positions
+      -> expected 'Verified Optionaltext.absent_option_k...' to contain 'Yes'
+  2 failed | 17 passed
+
 diff --git a/packages/headless/src/modules/client-email/client-email.schemas.ts b/packages/headless/src/modules/client-email/client-email.schemas.ts
 index 3094f7bb0..aec00851c 100644
 --- a/packages/headless/src/modules/client-email/client-email.schemas.ts

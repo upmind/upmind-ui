@@ -1,13 +1,30 @@
+/**
+ * @module factory/__tests__/useCompositionPort
+ * @description What the adapter itself owns after W-D29 narrowed it to one
+ * level: top-level derefs, function omission, literal-boolean meta,
+ * next-pull-fresh reads and a caller's channel handed straight through.
+ * JSON-plainness at depth is `reflect()`'s, proven at the seam in
+ * `reflect.int.spec.ts` — never re-proven here.
+ *
+ * Negative control: `port-table-fabricated.must-fail.patch`.
+ */
+
 import { describe, expect, it } from "vitest";
-import { computed, ref } from "vue";
+import { computed, isRef, ref } from "vue";
 import { useCompositionPort } from "../useCompositionPort";
+import { filter, flatMap, has, isFunction, isObject, values } from "lodash-es";
 import type { LiveCompositionCell } from "../useCompositionPort.types";
 import type { ControlledTableChannel } from "@upmind-automation/scenario-harness";
 
+const deepValues = (value: unknown): unknown[] =>
+  isObject(value)
+    ? flatMap(values(value), inner => [inner, ...deepValues(inner)])
+    : [];
+
+/** A cell in the shape `LiveContext` declares — refs at the TOP level only. */
 function createFakeLiveCell() {
   const on = ref(false);
   const label = ref("");
-  const nested = ref<{ value: string | undefined }>({ value: undefined });
 
   const cell: LiveCompositionCell = {
     useActions: () => ({
@@ -19,9 +36,9 @@ function createFakeLiveCell() {
       }
     }),
     useContext: () => ({
-      label: label.value,
-      tags: [label.value || undefined, "kept"],
-      nested: nested.value
+      label,
+      tags: computed(() => [label.value, "kept"]),
+      destroy: () => undefined
     }),
     useMeta: () => ({
       isOn: on.value,
@@ -30,7 +47,7 @@ function createFakeLiveCell() {
     })
   };
 
-  return { cell, on, label, nested };
+  return { cell, on, label };
 }
 
 /** A channel as a CALLER builds one — the object `port.table` must hand back. */
@@ -46,13 +63,26 @@ function createCallerChannel(): ControlledTableChannel {
 }
 
 describe("@AC5 useCompositionPort", () => {
-  it("survives a JSON round-trip — no reactive wrapper crosses the port", () => {
+  it("derefs every value the cell publishes — no ref or computed crosses the port", () => {
+    const { cell, label } = createFakeLiveCell();
+    const port = useCompositionPort(cell);
+    label.value = "named";
+
+    const snapshot = port.snapshot();
+
+    expect(filter(deepValues(snapshot), isRef)).toEqual([]);
+    expect(snapshot.context.label).toBe("named");
+    expect(snapshot.context.tags).toEqual(["named", "kept"]);
+  });
+
+  it("drops a callable context entry rather than handing a function across the seam", () => {
     const { cell } = createFakeLiveCell();
     const port = useCompositionPort(cell);
 
     const snapshot = port.snapshot();
 
-    expect(JSON.parse(JSON.stringify(snapshot))).toEqual(snapshot);
+    expect(has(snapshot.context, "destroy")).toBe(false);
+    expect(filter(deepValues(snapshot.context), isFunction)).toEqual([]);
   });
 
   it("evaluates every meta flag to a literal boolean", () => {
@@ -62,7 +92,7 @@ describe("@AC5 useCompositionPort", () => {
 
     const meta = port.snapshot().meta;
 
-    for (const value of Object.values(meta)) {
+    for (const value of values(meta)) {
       expect(typeof value).toBe("boolean");
     }
     expect(meta).toEqual({ isOn: false, isReady: true, isLocked: true });
@@ -76,16 +106,6 @@ describe("@AC5 useCompositionPort", () => {
     on.value = true;
 
     expect(port.snapshot().meta.isOn).toBe(true);
-  });
-
-  it("omits undefined-valued entries from context at every depth, including array elements", () => {
-    const { cell } = createFakeLiveCell();
-    const port = useCompositionPort(cell);
-
-    const context = port.snapshot().context;
-
-    expect(context.tags).toEqual(["kept"]);
-    expect(context.nested).toEqual({});
   });
 
   it("getMeta() and snapshot().meta each independently track a live mutation — neither reads a stale value the other cached", () => {
@@ -122,15 +142,15 @@ describe("@AC5 useCompositionPort", () => {
     expect(port.table).toBeUndefined();
   });
 
-  it("keeps the snapshot plain, its meta literal-boolean and its reads next-pull-fresh while a channel is wired", () => {
+  it("keeps the wired channel out of the snapshot, and the snapshot deref'd and next-pull-fresh", () => {
     const { cell, on } = createFakeLiveCell();
     const port = useCompositionPort(cell, { table: createCallerChannel() });
 
     const snapshot = port.snapshot();
 
-    expect(JSON.parse(JSON.stringify(snapshot))).toEqual(snapshot);
     expect(snapshot.context.table).toBeUndefined();
-    for (const value of Object.values(snapshot.meta)) {
+    expect(filter(deepValues(snapshot), isRef)).toEqual([]);
+    for (const value of values(snapshot.meta)) {
       expect(typeof value).toBe("boolean");
     }
 
