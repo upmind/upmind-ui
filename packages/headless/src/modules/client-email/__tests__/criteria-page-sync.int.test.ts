@@ -44,7 +44,12 @@ import type {
   ListQuery,
   WithCriteria
 } from "../../query/query.types";
-import type { Email, QueryModel, QuerySchema } from "../client-email.types";
+import type {
+  Email,
+  QueryModel,
+  QuerySchema,
+  SortEntry
+} from "../client-email.types";
 import type { IEmail } from "@upmind-automation/types";
 import "./setup.integration";
 
@@ -72,6 +77,18 @@ const DEFAULT_LIMIT = 10;
 /** The i18n keys the withdrawn pager controls refuse with (`packages/i18n`). */
 const NEXT_REFUSED = "text.page_next_not_available";
 const PREVIOUS_REFUSED = "text.page_previous_not_available";
+
+/** The `order=` the module's declared sort default puts on every boot request. */
+const BOOT_ORDER = "-created_at";
+
+/**
+ * A sort write and the `order=` it produces — the settle control for a claim
+ * about what did NOT reach the wire. Its request is one the boot cannot be
+ * confused with, so waiting for it proves the observation window stayed open,
+ * and any request that slipped in between breaks the exact sequence.
+ */
+const SETTLE_SORT: SortEntry = { field: "email", dir: "asc" };
+const SETTLE_ORDER = "email";
 
 /** The module's own declared schema with the cursor property removed. */
 function schemaWithoutCursor(): QuerySchema {
@@ -111,6 +128,10 @@ const observedOffsets = (
 const observedLimits = (
   observed: ReturnType<typeof observeEmailRequests>
 ): (string | null)[] => observedParams(observed, "limit");
+
+const observedOrders = (
+  observed: ReturnType<typeof observeEmailRequests>
+): (string | null)[] => observedParams(observed, "order");
 
 // -----------------------------------------------------------------------------
 
@@ -220,14 +241,27 @@ describe("client-email list({ criteria }) — the walk runs out of pages honestl
     expect(query.meta.value.hasNextPage).toBe(false);
 
     expect(() => query.fetchNextPage()).toThrowError(NEXT_REFUSED);
+    expect(query.pagination.value.page).toBe(RECORDED_PAGES);
+    expect(query.criteria.value.pagination?.offset).toBe(PAGE_TWO_OFFSET);
+
+    // The cursor moves synchronously, so the two reads above catch a leak into
+    // the model; the wire does not settle in the same tick. The control the
+    // module still offers is the settle — a leaked next page would already be
+    // captured ahead of it, breaking the sequence.
+    query.fetchPreviousPage();
 
     await vi.waitFor(() =>
-      expect(query.pagination.value.page).toBe(RECORDED_PAGES)
+      expect(observedOffsets(observed)).toEqual([
+        String(PAGE_TWO_OFFSET),
+        String(PAGE_ONE_OFFSET)
+      ])
     );
     observed.stop();
 
-    expect(observedOffsets(observed)).toEqual([String(PAGE_TWO_OFFSET)]);
-    expect(query.criteria.value.pagination?.offset).toBe(PAGE_TWO_OFFSET);
+    expect(observedLimits(observed)).toEqual([
+      String(PAGE_SIZE),
+      String(PAGE_SIZE)
+    ]);
   });
 
   it("the same refusal guards the bottom of the walk, and the page in between still moves", async () => {
@@ -292,11 +326,27 @@ describe("client-email listInfinite({ criteria: { model } }) — the model never
     await vi.waitFor(() =>
       expect(query.pagination.value.total).toBe(RECORDED_TOTAL)
     );
-    observed.stop();
-
-    expect(observedOffsets(observed)).toEqual([String(PAGE_TWO_OFFSET)]);
-    expect(observedLimits(observed)).toEqual([String(PAGE_SIZE)]);
     expect(query.criteria.value.pagination?.offset).toBe(PAGE_TWO_OFFSET);
     expect(query.criteriaError.value).toBeUndefined();
+
+    // `total` lands inside the FIRST response, so stopping on it would shut the
+    // window before a correcting second request could ever arrive. The sort
+    // write is the settle: waiting for ITS `order=` holds the window open, and
+    // a correction would sit between the two entries of every sequence below.
+    query.setCriteria({ sort: [SETTLE_SORT] });
+
+    await vi.waitFor(() =>
+      expect(observedOrders(observed)).toEqual([BOOT_ORDER, SETTLE_ORDER])
+    );
+    observed.stop();
+
+    expect(observedOffsets(observed)).toEqual([
+      String(PAGE_TWO_OFFSET),
+      String(PAGE_ONE_OFFSET)
+    ]);
+    expect(observedLimits(observed)).toEqual([
+      String(PAGE_SIZE),
+      String(PAGE_SIZE)
+    ]);
   });
 });
