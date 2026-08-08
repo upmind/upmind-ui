@@ -1772,15 +1772,6 @@ importers:
       '@storybook/addon-docs':
         specifier: ^8.6.14
         version: 8.6.14(@types/react@19.2.7)(storybook@8.6.14(prettier@3.7.4))
-      '@upmind-automation/headless':
-        specifier: workspace:*
-        version: link:../../packages/headless
-      '@upmind-automation/i18n':
-        specifier: workspace:*
-        version: link:../../packages/i18n
-      '@upmind-automation/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       '@upmind-automation/upmind-ui':
         specifier: workspace:*
         version: link:../../packages/ui
