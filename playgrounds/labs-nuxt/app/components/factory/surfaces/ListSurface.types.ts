@@ -6,7 +6,7 @@
  */
 
 import type { SurfaceProps } from "./surface.types";
-import type { ControlledTableChannel } from "@upmind-automation/scenario-harness";
+import type { DeclaringTableChannel } from "../../../composables/factory/useTableChannel";
 
 // -----------------------------------------------------------------------------
 
@@ -28,5 +28,5 @@ export const LIST_SURFACE_ACTION = {
 
 export type ListSurfaceProps = SurfaceProps & {
   /** The controlled-table seam — present iff the module owns table state (`classify`'s `hasTable`); absent modules degrade to a read-only row list. */
-  table?: ControlledTableChannel;
+  table?: DeclaringTableChannel;
 };

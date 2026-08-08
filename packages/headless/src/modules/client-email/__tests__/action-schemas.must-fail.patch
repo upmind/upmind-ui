@@ -1,6 +1,8 @@
+diff --git a/packages/headless/src/modules/client-email/client-email.schemas.ts b/packages/headless/src/modules/client-email/client-email.schemas.ts
+index 3094f7bb0..e0c1c7f60 100644
 --- a/packages/headless/src/modules/client-email/client-email.schemas.ts
 +++ b/packages/headless/src/modules/client-email/client-email.schemas.ts
-@@ -96,12 +96,6 @@
+@@ -94,12 +94,6 @@ export const useUischema = (): UISchemaElement => {
  export function useActionInputSchemas(): Record<string, JsonSchema7> {
    return {
      ensure: useSchema(),
@@ -8,7 +10,7 @@
 -      type: "object",
 -      additionalProperties: false,
 -      required: ["id"],
--      properties: { id: { type: "string", title: "ID" } }
+-      properties: { id: { type: "string" } }
 -    },
      setDefault: {
        type: "object",

@@ -2,6 +2,7 @@
 import { computed, ref } from "vue";
 import { useQuery, invalidateQueryByKey } from "../query";
 import { resolveClientId } from "../scope";
+import { useActiveSession } from "../session-store";
 import { useI18n } from "../system-localisation";
 import { mapEmail, mapEmails, mapIEmail } from "./client-email.mappers";
 import { useSchema, useQuerySchema } from "./client-email.schemas";
@@ -33,6 +34,7 @@ import type { ResponseError } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IEmail } from "@upmind-automation/types";
+import type { ComputedRef } from "vue";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 /**
@@ -61,6 +63,26 @@ export const queryKey: QueryKey = ["client", "emails"];
 const baseModel: EmailModel = { email: null };
 
 /**
+ * The client id this module may ADDRESS: a resolved target AND an authenticated
+ * session. Every gate below reads this rather than `resolveClientId`, so the
+ * conjunct is stated once and no request path can be written without it.
+ *
+ * A resolved id is not the guard. `.for(client, id)` takes the target from the
+ * CALLER, so it resolves on a session that never authenticated; only the self
+ * case borrows `activeUser` and so carries the session's proof implicitly. A
+ * predicate that cannot tell those apart lets a guest read another client's
+ * collection — the one thing legacy's `<guard :if-client>` never allowed.
+ */
+function addressableClientId(
+  scopeContext?: ScopeContext
+): ComputedRef<string | undefined> {
+  const clientId = resolveClientId(scopeContext);
+  const { isAuthenticated } = useActiveSession().useMeta();
+
+  return computed(() => (isAuthenticated.value ? clientId.value : undefined));
+}
+
+/**
  * COLLECTION — the reactive list query, minted once per scope.
  *
  * Minted once, but the target client can resolve AFTER construction — an
@@ -83,7 +105,7 @@ const baseModel: EmailModel = { email: null };
  */
 function loadList(scopeContext?: ScopeContext): ClientEmailListQuery {
   const { list, useUrl } = useQuery();
-  const clientId = resolveClientId(scopeContext);
+  const clientId = addressableClientId(scopeContext);
   const targetUrl = () => useUrl(`clients/${clientId.value}/emails`);
   const url = targetUrl();
 
@@ -123,7 +145,7 @@ async function loadOne(
   if (!id) return undefined;
 
   const { get: getOne, useUrl } = useQuery();
-  const clientId = resolveClientId(scopeContext);
+  const clientId = addressableClientId(scopeContext);
 
   if (!clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
@@ -143,7 +165,7 @@ async function add(
   scopeContext?: ScopeContext
 ): Promise<IEmail | undefined> {
   const { post, useUrl } = useQuery();
-  const clientId = resolveClientId(scopeContext);
+  const clientId = addressableClientId(scopeContext);
 
   if (!clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
@@ -164,7 +186,7 @@ async function update(
   scopeContext?: ScopeContext
 ): Promise<IEmail | undefined> {
   const { put, useUrl } = useQuery();
-  const clientId = resolveClientId(scopeContext);
+  const clientId = addressableClientId(scopeContext);
 
   if (!clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
@@ -189,7 +211,7 @@ async function ensure(
   captureError: ClientEmailErrorCapture
 ): Promise<Email> {
   const { t } = useI18n();
-  const clientId = resolveClientId(scopeContext);
+  const clientId = addressableClientId(scopeContext);
 
   // Checked here as well as by the list `guard`: an unaddressable session
   // leaves the query DISABLED, and a disabled query's `promise` never settles,
@@ -241,7 +263,7 @@ async function remove(
   captureError: ClientEmailErrorCapture
 ): Promise<void> {
   const { del, useUrl } = useQuery();
-  const clientId = resolveClientId(scopeContext);
+  const clientId = addressableClientId(scopeContext);
 
   if (!clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
@@ -267,7 +289,7 @@ async function setDefault(
   captureError: ClientEmailErrorCapture
 ): Promise<IEmail | undefined> {
   const { put, useUrl } = useQuery();
-  const clientId = resolveClientId(scopeContext);
+  const clientId = addressableClientId(scopeContext);
 
   if (!clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
@@ -293,7 +315,7 @@ async function verify(
   captureError: ClientEmailErrorCapture
 ): Promise<void> {
   const { patch, useUrl } = useQuery();
-  const clientId = resolveClientId(scopeContext);
+  const clientId = addressableClientId(scopeContext);
 
   if (!clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
@@ -381,7 +403,7 @@ export const createClientEmailServices = (
   scopeContext?: ScopeContext
 ): ClientEmailServices => {
   const mutationError = ref<ResponseError | undefined>(undefined);
-  const clientId = resolveClientId(scopeContext);
+  const clientId = addressableClientId(scopeContext);
 
   const captureError: ClientEmailErrorCapture = error => {
     mutationError.value = mapToHeadlessError(error);
@@ -390,9 +412,6 @@ export const createClientEmailServices = (
   return {
     queryKey,
     clientId,
-    // Addressability IS a resolved client id: `resolveClientId` falls back to
-    // `activeUser`, which exists only while authenticated, so the flag the
-    // consumer renders and the gate every request applies are one expression.
     isAvailable: computed(() => !!clientId.value),
     error: computed(() => mutationError.value),
     loadList: () => loadList(scopeContext),

@@ -40,6 +40,22 @@ export const TableIntentTypes = {
   PAGINATE: "paginate"
 } as const satisfies Record<string, TableIntent["type"]>;
 
+/**
+ * The channel plus the columns the query schema DECLARES steerable. A renderer
+ * that offers a control the schema never declared offers one that cannot work:
+ * the intent reaches the criteria, ajv refuses it, and the list draws a failure
+ * for a header the user was invited to click. `ControlledTableChannel` is
+ * frozen in `packages/scenario-harness` (outside this story's write set; the
+ * member lands at source with FE-3071), so the declaration rides alongside it
+ * rather than inside `TableModel`.
+ *
+ * Optional on purpose: a channel that cannot declare leaves every column live,
+ * which is where a module with no query schema already stands.
+ */
+export type DeclaringTableChannel = ControlledTableChannel & {
+  declared?(): { sort: string[]; filter: string[] };
+};
+
 /** One sort entry — the harness-frozen shape (`TableModel["sort"]` member). */
 type SortEntry = TableModel["sort"][number];
 
@@ -109,14 +125,27 @@ function liftFilters(
  * and actions are resolved ONCE — `query`/`pagination` are computeds that stay
  * reactive, and the actions instance is minted once per scope.
  */
-export function useTableChannel(
-  cell: TableChannelCell
-): ControlledTableChannel {
+export function useTableChannel(cell: TableChannelCell): DeclaringTableChannel {
   const context = cell.useContext();
   const actions = cell.useActions();
   const schema = context.schemas.query.schema;
 
   return {
+    declared() {
+      return {
+        sort:
+          get(schema, [
+            "properties",
+            "sort",
+            "items",
+            "properties",
+            "field",
+            "enum"
+          ]) ?? [],
+        filter: keys(get(schema, ["properties", "filters", "properties"]))
+      };
+    },
+
     read(): TableModel {
       const model = context.query.value;
       const page = context.pagination.value;

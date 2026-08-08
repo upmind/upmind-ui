@@ -1,15 +1,13 @@
+diff --git a/playgrounds/labs-nuxt/app/composables/factory/useTableChannel.ts b/playgrounds/labs-nuxt/app/composables/factory/useTableChannel.ts
+index bce73411a..61e4c7729 100644
 --- a/playgrounds/labs-nuxt/app/composables/factory/useTableChannel.ts
 +++ b/playgrounds/labs-nuxt/app/composables/factory/useTableChannel.ts
-@@ -61,11 +61,5 @@ function operatorFor(schema: unknown, column: string): string | undefined {
+@@ -75,7 +75,7 @@ export interface TableChannelCell {
  /** The single declared operator for a wire column, read from the query schema. */
  function operatorFor(schema: unknown, column: string): string | undefined {
--  const operators = get(schema, [
--    "properties",
--    "filters",
--    "properties",
--    column,
--    "properties"
--  ]);
-+  const operators = get(schema, ["properties", column, "properties"]);
-   return operators ? keys(operators)[0] : undefined;
+   return keys(
+-    get(schema, ["properties", "filters", "properties", column, "properties"])
++    get(schema, ["properties", column, "properties"])
+   )[0];
  }
+ 

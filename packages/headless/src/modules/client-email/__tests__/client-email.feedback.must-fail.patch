@@ -1,3 +1,4 @@
+diff --git a/packages/headless/src/modules/client-email/client-email.services.ts b/packages/headless/src/modules/client-email/client-email.services.ts
 --- a/packages/headless/src/modules/client-email/client-email.services.ts
 +++ b/packages/headless/src/modules/client-email/client-email.services.ts
 @@ -1,5 +1,6 @@
@@ -5,10 +6,10 @@
  import { computed, ref } from "vue";
 +import { useFeedback } from "../feedback";
  import { useQuery, invalidateQueryByKey } from "../query";
+ import { resolveClientId } from "../scope";
  import { useActiveSession } from "../session-store";
- import { useI18n } from "../system-localisation";
-@@ -422,7 +423,8 @@ export const createClientEmailServices = (
-   const clientId = resolveClientId(scopeContext);
+@@ -406,7 +407,8 @@
+   const clientId = addressableClientId(scopeContext);
  
    const captureError: ClientEmailErrorCapture = error => {
 -    mutationError.value = mapToHeadlessError(error);

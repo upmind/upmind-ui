@@ -1,11 +1,11 @@
---- a/packages/headless/src/modules/client-email/client-email.services.ts
-+++ b/packages/headless/src/modules/client-email/client-email.services.ts
-@@ -75,7 +75,7 @@
+diff --git a/packages/headless/src/modules/scope/scope.utils.ts b/packages/headless/src/modules/scope/scope.utils.ts
+--- a/packages/headless/src/modules/scope/scope.utils.ts
++++ b/packages/headless/src/modules/scope/scope.utils.ts
+@@ -99,6 +99,6 @@
    return computed(() =>
-     scopeContext?.type === ClientEmailsContextTypes.CLIENT
+     scopeContext?.type === AccessRoleTypes.CLIENT
        ? scopeContext.id
 -      : activeUser.value?.id
 +      : "legacy-hardwired-client-id"
    );
  }
- 

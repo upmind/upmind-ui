@@ -1,3 +1,5 @@
+diff --git a/packages/headless/src/modules/client-email/index.ts b/packages/headless/src/modules/client-email/index.ts
+index bbbbb1399..bb379e95f 100644
 --- a/packages/headless/src/modules/client-email/index.ts
 +++ b/packages/headless/src/modules/client-email/index.ts
 @@ -18,10 +18,6 @@
@@ -9,5 +11,5 @@
 -  type UseClientEmailManager
 -} from "./useClientEmailManager";
  
- // --- Scope matrices — one per composable, both public
- export {
+ // NO SCENARIO KEYS HERE. The module declares its own in `client-email.types.ts`
+ // (F-1's self-registration), but they reach consumers only through

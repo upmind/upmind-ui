@@ -1,10 +1,10 @@
 diff --git a/packages/headless/src/modules/query/useQueryCriteria.ts b/packages/headless/src/modules/query/useQueryCriteria.ts
-index 6b40b4e24..1530c4850 100644
+index 370deda0d..b238a52e5 100644
 --- a/packages/headless/src/modules/query/useQueryCriteria.ts
 +++ b/packages/headless/src/modules/query/useQueryCriteria.ts
-@@ -226,9 +226,7 @@ export function useQueryCriteria<
+@@ -236,9 +236,7 @@ export function useQueryCriteria<
+    */
    function set(next: Partial<TModel>): void {
-     rejectedSeed.value = [];
      const cursor =
 -      isEmpty(next) ||
 -      has(next, "pagination") ||

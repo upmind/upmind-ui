@@ -1,8 +1,8 @@
 diff --git a/packages/headless/src/modules/query/useQueryCriteria.ts b/packages/headless/src/modules/query/useQueryCriteria.ts
-index 6b40b4e24..f73b248c8 100644
+index 370deda0d..67c655b41 100644
 --- a/packages/headless/src/modules/query/useQueryCriteria.ts
 +++ b/packages/headless/src/modules/query/useQueryCriteria.ts
-@@ -231,9 +231,7 @@ export function useQueryCriteria<
+@@ -241,9 +241,7 @@ export function useQueryCriteria<
        !has(model.value, "pagination")
          ? {}
          : {
@@ -11,5 +11,5 @@ index 6b40b4e24..f73b248c8 100644
 -            })
 +            pagination: assign({}, get(intent.value, "pagination"))
            };
-     intent.value = assign({}, intent.value, next, cursor) as Partial<TModel>;
+     commit(assign({}, intent.value, next, cursor) as Partial<TModel>);
    }

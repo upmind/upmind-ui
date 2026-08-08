@@ -239,13 +239,22 @@ const tableModel = computed<TableModel>(() => {
   );
 });
 
+// What the module's query schema declares steerable. A control the schema never
+// declared cannot work — the intent reaches the criteria, ajv refuses it, and
+// the list draws a failure for a header the user was invited to click — so it
+// is not offered at all. A channel that declares nothing leaves every column
+// live, which is where a module with no query schema already stands.
+const declared = computed(() => props.table?.declared?.());
+
 function deriveColumns(data: ListRow[]): ColumnDef<ListRow>[] {
   const columnKeys = uniq(flatMap(data, row => keys(row)));
+  const steerable = declared.value;
   return map(columnKeys, key => ({
     id: key,
     header: fieldLabel(key),
     accessorFn: (row: ListRow) => row[key],
-    enableColumnFilter: true
+    enableSorting: !steerable || includes(steerable.sort, key),
+    enableColumnFilter: !steerable || includes(steerable.filter, key)
   }));
 }
 
@@ -325,6 +334,10 @@ const pagination = computed(() => tableModel.value.pagination);
 const pageCount = computed(() => {
   const total = pagination.value.total;
   if (isNil(total)) return pagination.value.page;
+  // An unpaged window is ONE page, not Infinity: `limit: 0` is legal against
+  // the schema's deliberate `minimum: 0`, so it reaches here as `perPage: 0`.
+  // Same guard `useQuery`'s own `pageTotal` applies.
+  if (!pagination.value.perPage) return 1;
   return Math.max(1, Math.ceil(total / pagination.value.perPage));
 });
 
