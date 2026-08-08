@@ -2,8 +2,13 @@
 import { defineConfig, devices } from "@playwright/test";
 import { createBdd, defineBddConfig, test as base } from "playwright-bdd";
 import { STEP_KIND } from "@upmind-automation/scenario-harness";
+import { SCENARIO_WORLD_KEY } from "./app/composables/factory/useScenarioWorld.types";
 import { createBrowserWorld } from "./tests/e2e/browser-world";
-import { catalogs } from "./tests/e2e/catalogs";
+import { canaryRoute, catalogs, features } from "./tests/e2e/catalogs";
+import {
+  installRecordedCorpus,
+  seedRecordedClientSession
+} from "./tests/e2e/recorded-corpus";
 import type { ScenarioKey } from "@upmind-automation/headless/scenarios";
 import type {
   StepCatalog,
@@ -30,8 +35,13 @@ const baseURL =
 
 const testDir = defineBddConfig({
   // A module's feature is colocated with its module source (ADR-027 Am.2),
-  // which is why this lane reaches out of the playground to find it.
-  features: ["../../packages/*/src/modules/**/*.feature"],
+  // which is why this lane reaches out of the playground to find it. The
+  // adopted pairs are named one by one beside their catalogs — a directory
+  // glob also swallows the spec-only ADR-020 features that have no steps.
+  features,
+  // The pairs live outside this playground, so the generation root is the
+  // workspace root rather than the package.
+  featuresRoot: "../../",
   // The registrations below live in this file, so it doubles as its own
   // "steps" module for playwright-bdd's generation pass.
   steps: "playwright.config.ts",
@@ -44,6 +54,14 @@ const testDir = defineBddConfig({
 
 export const test = base.extend<{ world: World<ScenarioKey> }>({
   world: async ({ page }, use) => {
+    await installRecordedCorpus(page);
+    await seedRecordedClientSession(page);
+    await page.goto(canaryRoute);
+    await page.waitForFunction(
+      key => Boolean((window as unknown as Record<string, unknown>)[key]),
+      SCENARIO_WORLD_KEY
+    );
+
     const world = createBrowserWorld(page);
 
     await use(world);
@@ -72,7 +90,6 @@ function registerCatalog(catalog: StepCatalog): void {
 catalogs.forEach(registerCatalog);
 
 export default defineConfig({
-  testDir,
   timeout: 60000,
   expect: { timeout: 30000 },
   reporter: "list",
@@ -91,5 +108,14 @@ export default defineConfig({
     reuseExistingServer: false,
     timeout: 120000
   },
-  projects: [{ name: "chrome", use: { ...devices["Desktop Chrome"] } }]
+  // Two lanes, one browser: the generated `.feature` pair, and the read-backs
+  // the `World` seam cannot express (page, wire, reload).
+  projects: [
+    { name: "bdd", testDir, use: { ...devices["Desktop Chrome"] } },
+    {
+      name: "lane",
+      testDir: "./tests/e2e",
+      use: { ...devices["Desktop Chrome"] }
+    }
+  ]
 });

@@ -1,0 +1,35 @@
+Negative control for client-emails-filter-sort.spec.ts (AC7).
+
+Makes the recorded-corpus collection handler ignore the request's own params and
+serve all three rows unconditionally — design §7's named hazard ("the shipped
+`installEmailsListHandler` ignores `request.url` entirely, so any filter/sort
+assertion behind it is vacuously green") made executable. Under it, a filter
+that never reached the wire would still leave the rendered rows intact, so the
+narrowing and reordering assertions must go RED.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Proven RED 2026-08-08
+(`pnpm exec playwright test --config=playwright.config.ts --project lane`):
+  x a filter narrows the rendered rows through a real re-query
+      -> toHaveCount failed: Expected 2, Received 3
+  x a sort reorders the rendered rows and ships the order param
+      -> toHaveText failed (rendered order unchanged)
+  x the filter and the sort survive a reload
+      -> toHaveCount failed: Expected 2, Received 3
+  v a sort field the module does not offer never reaches the wire
+      (stays green by design — a pure wire assertion the served rows cannot mask)
+  3 failed | 1 passed
+
+diff --git a/playgrounds/labs-nuxt/tests/e2e/recorded-corpus.ts b/playgrounds/labs-nuxt/tests/e2e/recorded-corpus.ts
+index a3f4548e1..852fadf31 100644
+--- a/playgrounds/labs-nuxt/tests/e2e/recorded-corpus.ts
++++ b/playgrounds/labs-nuxt/tests/e2e/recorded-corpus.ts
+@@ -90,6 +90,7 @@ const BOOLEAN_COLUMNS = ["verified", "bounced", "default"] as const;
+ 
+ /** Applies the request's own criteria to the recorded corpus. */
+ function servedRows(params: URLSearchParams): WireEmail[] {
++  return corpus();
+   let rows = corpus();
+ 
+   for (const column of BOOLEAN_COLUMNS) {
