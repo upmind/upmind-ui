@@ -2,8 +2,8 @@
 
 // -- components
 import { Stepper } from "@upmind-automation/upmind-ui";
-import type { StepperStepProps } from "@upmind-automation/upmind-ui";
 import type { Meta, StoryObj } from "@storybook/vue3";
+import type { StepperStepProps } from "@upmind-automation/upmind-ui";
 
 // --- types
 

@@ -2,8 +2,8 @@
 
 // -- components
 import { ContextMenu } from "@upmind-automation/upmind-ui";
-import type { ContextMenuItemProps } from "@upmind-automation/upmind-ui";
 import type { Meta, StoryObj } from "@storybook/vue3";
+import type { ContextMenuItemProps } from "@upmind-automation/upmind-ui";
 
 // --- types
 

@@ -1,8 +1,8 @@
+import { useClientEmailManager, useClientEmails } from "./modules/client-email";
 import {
   CLIENT_EMAIL_SCENARIO,
   CLIENT_EMAILS_SCENARIO
 } from "./modules/client-email/client-email.types";
-import { useClientEmailManager, useClientEmails } from "./modules/client-email";
 // -----------------------------------------------------------------------------
 /**
  * @module scenarios

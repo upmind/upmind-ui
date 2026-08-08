@@ -187,7 +187,20 @@ export default defineNuxtConfig({
         types: ["google.maps"]
       },
       include: ["app/**/*"],
-      exclude: ["node_modules", "dist", ".output", "**/*.spec.*"]
+      // Nuxt writes these verbatim into `.nuxt/tsconfig.*.json`, and TS
+      // resolves a relative pattern against the config's OWN directory — so a
+      // bare `**/*.spec.*` matches nothing outside `.nuxt/` and every spec
+      // stayed in the app's type program, resolving test-lane-only aliases it
+      // has no business knowing. `../` is what makes the exclusion the sibling
+      // packages already declare (`tsconfig.build.json`) actually bite.
+      exclude: [
+        "node_modules",
+        "dist",
+        ".output",
+        "../**/*.spec.*",
+        "../**/*.test.*",
+        "../**/__tests__/**"
+      ]
     }
   },
 

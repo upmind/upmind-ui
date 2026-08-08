@@ -114,6 +114,7 @@ import {
   intersection,
   isEmpty,
   isNil,
+  isPlainObject,
   keys,
   map,
   omit,
@@ -229,14 +230,30 @@ const selectItems = computed(() =>
   map(options.value, option => ({ value: option.value, title: option.title }))
 );
 
-const fieldProps = computed(() =>
-  meta.value.isUnsupported
-    ? assign({}, formFieldProps.value, {
+/**
+ * The element's OWN `i18n` object — label · description · placeholder. `Form`
+ * merges it into `options`, but only from `onMounted` and without a reactive
+ * trigger, so the control's first paint reads `options` before it lands and
+ * never re-reads: the placeholder never renders and a `label: null` never
+ * suppresses the schema-title fallback. Resolved here off the injected
+ * translator instead — no merge, so a flat key that resolves to a STRING must
+ * be dropped rather than spread across the props as numbered characters.
+ */
+const declared = computed(() => {
+  const resolved = resolve(get(control.value.uischema, "i18n"));
+  return isPlainObject(resolved) ? (resolved as Record<string, unknown>) : {};
+});
+
+const fieldProps = computed(() => {
+  const merged = assign({}, formFieldProps.value, declared.value);
+
+  return meta.value.isUnsupported
+    ? assign(merged, {
         errors: [translate(FILTER_UNSUPPORTED_I18N_KEY)],
         touched: true
       })
-    : formFieldProps.value
-);
+    : merged;
+});
 
 // --- methods
 
@@ -244,8 +261,12 @@ function typesOf(operator: RequestFilterOperator): string[] {
   return castArray(get(operators.value, [operator, "type"], []));
 }
 
+function resolve(key?: string): unknown {
+  return jsonforms?.i18n?.translate?.(toString(key), toString(key));
+}
+
 function translate(key?: string): string {
-  return jsonforms?.i18n?.translate?.(toString(key), toString(key)) ?? "";
+  return toString(resolve(key) ?? "");
 }
 
 function leaf(operator: RequestFilterOperator): unknown {
