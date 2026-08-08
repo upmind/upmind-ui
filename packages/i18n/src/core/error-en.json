@@ -82,6 +82,7 @@
   "domain_transfer_unavailable": "This domain is unavailable for transfer",
   "domain_unavailable": "This domain is unavailable",
   "feedback_action_not_available": "Action with value '{data}' not available.",
+  "filter_unsupported": "This filter can't be shown here.",
   "funnel_not_available": "Funnel not available",
   "funnels_not_available": "Funnels not available",
   "generic_error": "error",

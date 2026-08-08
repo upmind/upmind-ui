@@ -28,18 +28,16 @@ import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 export const useSchema = (): JsonSchema7 => {
   return {
     type: "object",
-    title: "Email",
     required: ["email"],
     definitions: {
       id: {
         type: ["string", "null"],
-        title: "ID",
         readOnly: true
       },
       email: {
         type: "string",
         format: "email",
-        title: "Email"
+        title: "form.email"
       }
     },
     properties: {
@@ -100,19 +98,19 @@ export function useActionInputSchemas(): Record<string, JsonSchema7> {
       type: "object",
       additionalProperties: false,
       required: ["id"],
-      properties: { id: { type: "string", title: "ID" } }
+      properties: { id: { type: "string" } }
     },
     setDefault: {
       type: "object",
       additionalProperties: false,
       required: ["id"],
-      properties: { id: { type: "string", title: "ID" } }
+      properties: { id: { type: "string" } }
     },
     verify: {
       type: "object",
       additionalProperties: false,
       required: ["id"],
-      properties: { id: { type: "string", title: "ID" } }
+      properties: { id: { type: "string" } }
     }
   };
 }
@@ -136,9 +134,18 @@ export function useActionInputSchemas(): Record<string, JsonSchema7> {
  * `field` enum is unsortable for the same reason — an unknown `order=` column is
  * an HTTP 500.
  *
- * The tri-state filter leaves are typed `["boolean", "null"]`: unset is a third
- * state, and `useModelParser` coerces a plain `boolean` leaf to `false` — which
- * would put `filter[verified|eq]=0` on the wire for a filter nobody set.
+ * Every OPTIONAL leaf is typed `["<type>", "null"]`: unset is a third state, and
+ * `useModelParser` coerces a plain `boolean` leaf to `false` — which would put
+ * `filter[verified|eq]=0` on the wire for a filter nobody set. `minLength`
+ * applies only to strings, so a cleared `like` still validates while `""` does
+ * not, which is what makes "empty means unset" enforceable at the renderer seam.
+ *
+ * Every `title` here holds an i18n KEY, never English (design §4.1/§13.3): the
+ * column titles are what JSONForms falls back to when an element's `i18n` key
+ * fails to resolve, and each `oneOf` member's title is the option label the
+ * `Filter` renderer translates. English in either place is a translation that
+ * silently never fires. A title no element and no renderer reads is not keyed —
+ * it is deleted.
  *
  * A FUNCTION, not a constant, and deliberately so: a module whose filterable
  * columns are only known once the server answers (custom fields — S-D13) merges
@@ -160,63 +167,59 @@ export function useQuerySchema(): QuerySchema {
   return {
     $schema: "http://json-schema.org/draft-07/schema#",
     type: "object",
-    title: "Client email query",
-    description: "How the email list is filtered, sorted and paged.",
     additionalProperties: false,
     properties: {
       filters: {
         type: "object",
-        title: "Client email filters",
         additionalProperties: false,
         properties: {
           email: {
             type: "object",
-            title: "Email address",
-            description: "Show emails containing this text.",
+            title: "text.email_address",
             additionalProperties: false,
             properties: {
               // The bare term — the translator adds the % wildcards.
-              like: { type: "string", minLength: 1, title: "contains" }
+              like: { type: ["string", "null"], minLength: 1 }
             }
           },
           verified: {
             type: "object",
+            title: "text.verified_label",
             additionalProperties: false,
             properties: {
               eq: {
                 type: ["boolean", "null"],
-                title: "Verified",
                 oneOf: [
-                  { const: true, title: "Yes" },
-                  { const: false, title: "No" }
+                  { const: true, title: "text.yes" },
+                  { const: false, title: "text.no" }
                 ]
               }
             }
           },
           bounced: {
             type: "object",
+            title: "text.bounced_label",
             additionalProperties: false,
             properties: {
               eq: {
                 type: ["boolean", "null"],
-                title: "Bounced",
                 oneOf: [
-                  { const: true, title: "Yes" },
-                  { const: false, title: "No" }
+                  { const: true, title: "text.yes" },
+                  { const: false, title: "text.no" }
                 ]
               }
             }
           },
           default: {
             type: "object",
+            title: "text.default_label",
             additionalProperties: false,
             properties: {
               eq: {
                 type: ["boolean", "null"],
-                title: "Default address",
                 oneOf: [
-                  { const: true, title: "Yes" },
-                  { const: false, title: "No" }
+                  { const: true, title: "text.yes" },
+                  { const: false, title: "text.no" }
                 ]
               }
             }
@@ -225,8 +228,6 @@ export function useQuerySchema(): QuerySchema {
       },
       sort: {
         type: "array",
-        title: "Client email sort",
-        description: "The order the list is in. The first entry wins.",
         default: DEFAULT_SORT,
         minItems: 1,
         uniqueItems: true,
@@ -259,37 +260,52 @@ export function useQuerySchema(): QuerySchema {
 /**
  * The module's DEFAULT filter-bar presentation — ONE uischema over the one query
  * schema, so a search box and three filter controls are a single JSONForms form.
- * Each `scope` names an exact `(branch, column, operator)` predicate, so the
- * scope IS the operator selection. The `sort` and `pagination` branches carry
- * no element: a branch no element draws is still validated and still translated.
+ * The search sits full width on its own row with the filters below it.
  *
- * An `i18n` key is declared only where `packages/i18n` defines one — an
- * unresolved key falls back to the schema `title`, so a key for a string nobody
- * has translated yet would be a label channel that silently never fires.
+ * Every element is a `Filter` (client-vue's dispatching renderer) scoping the
+ * COLUMN, never an operator leaf: the renderer reads the column's own declared
+ * operators and picks the control, so adding a filter is a schema line and a
+ * uischema line naming the column — never a line naming its operator. Identity
+ * lives in `type`, the data shape in `scope`, presentation in `options`.
+ *
+ * Every element carries an `i18n` key: it is the only channel that can set a
+ * control's label and placeholder (the resolved value is merged into `options`,
+ * so the key must resolve to an OBJECT — a flat `text.*` key cannot be used
+ * here). The `sort` and `pagination` branches carry no element: a branch no
+ * element draws is still validated and still translated.
  */
 export function useQueryUischema(): UISchemaElement {
   return {
-    type: "HorizontalLayout",
+    type: "VerticalLayout",
     elements: [
       {
-        type: "Control",
-        scope: "#/properties/filters/properties/email/properties/like",
-        i18n: "form.email"
+        type: "Filter",
+        scope: "#/properties/filters/properties/email",
+        i18n: "form.email_search",
+        options: { width: "full" }
       },
       {
-        type: "Control",
-        scope: "#/properties/filters/properties/verified/properties/eq",
-        options: { format: "tristate" }
-      },
-      {
-        type: "Control",
-        scope: "#/properties/filters/properties/bounced/properties/eq",
-        options: { format: "tristate" }
-      },
-      {
-        type: "Control",
-        scope: "#/properties/filters/properties/default/properties/eq",
-        options: { format: "tristate" }
+        type: "HorizontalLayout",
+        elements: [
+          {
+            type: "Filter",
+            scope: "#/properties/filters/properties/verified",
+            i18n: "form.verified_filter",
+            options: { variant: "switch" }
+          },
+          {
+            type: "Filter",
+            scope: "#/properties/filters/properties/bounced",
+            i18n: "form.bounced_filter",
+            options: { variant: "switch" }
+          },
+          {
+            type: "Filter",
+            scope: "#/properties/filters/properties/default",
+            i18n: "form.default_filter",
+            options: { variant: "switch" }
+          }
+        ]
       }
     ]
   } as UISchemaElement;

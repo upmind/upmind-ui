@@ -10,6 +10,7 @@ import PaymentDetailsRenderer from "./PaymentDetailsRenderer.vue";
 import GatewaysRenderer from "./GatewaysRenderer.vue";
 import TermsRenderer from "./TermsRenderer.vue";
 import SubProductRenderer from "./SubProductRenderer.vue";
+import FilterRenderer from "./FilterRenderer.vue";
 
 // -----------------------------------------------------------------------------
 import { tester as domainTest } from "./DomainRenderer.vue";
@@ -21,8 +22,11 @@ import { tester as paymentMethodTest } from "./PaymentDetailsRenderer.vue";
 import { tester as gatewayMethodTest } from "./GatewaysRenderer.vue";
 import { tester as termsTest } from "./TermsRenderer.vue";
 import { tester as subProductTest } from "./SubProductRenderer.vue";
+import { tester as filterTest } from "./FilterRenderer.vue";
 
 // -----------------------------------------------------------------------------
+
+export * from "./FilterRenderer.types";
 
 export const formRenderers = [
   registerEntry(DomainRenderer, domainTest),
@@ -33,5 +37,6 @@ export const formRenderers = [
   registerEntry(PaymentDetailsRenderer, paymentMethodTest),
   registerEntry(GatewaysRenderer, gatewayMethodTest),
   registerEntry(TermsRenderer, termsTest),
-  registerEntry(SubProductRenderer, subProductTest)
+  registerEntry(SubProductRenderer, subProductTest),
+  registerEntry(FilterRenderer, filterTest)
 ];
