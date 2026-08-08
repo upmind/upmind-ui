@@ -1,7 +1,7 @@
 import { watch } from "vue";
 import { interpret } from "xstate";
 import { dataManagerMachine } from "../data-manager";
-import { createScopedComposable } from "../scope";
+import { createScopedComposable } from "../scope/scope.builder";
 import { useI18n } from "../system-localisation";
 import createClientEmailServices from "./client-email.services";
 import { ClientEmailContextTypes } from "./client-email.types";

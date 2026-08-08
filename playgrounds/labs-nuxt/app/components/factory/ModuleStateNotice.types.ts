@@ -20,3 +20,8 @@ export type ModuleStateContent = Pick<
   AlertProps,
   "color" | "icon" | "title" | "description"
 >;
+
+export type ModuleStateContentMap = Record<
+  ModuleStateNoticeProps["state"],
+  ModuleStateContent
+>;

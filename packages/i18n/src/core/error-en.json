@@ -145,6 +145,8 @@
   "session_transfer_failed": "We experienced an error processing your transfer",
   "session_transfer_not_available": "Transfer not available",
   "session_verify_failed": "We experienced an error while trying to verify your email address.",
+  "something_went_wrong": "Something went wrong",
+  "something_went_wrong_text": "We couldn't load this. Please try again.",
   "system_not_available": "System not available",
   "system_upload_add_failed": "Add upload failed",
   "terms_not_available": "Billing terms not available",

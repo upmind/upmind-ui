@@ -21,33 +21,39 @@
  */
 
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { Alert, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./ModuleStateNotice.styles";
 import { isNil } from "lodash-es";
 import type {
   ModuleStateContent,
+  ModuleStateContentMap,
   ModuleStateNoticeProps
 } from "./ModuleStateNotice.types";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<ModuleStateNoticeProps>();
 
-const CONTENT: Record<ModuleStateNoticeProps["state"], ModuleStateContent> = {
-  loading: {
-    color: "info",
-    icon: "clock",
-    title: "Loading",
-    description: "The module is loading its data."
-  },
-  error: {
-    color: "danger",
-    icon: "alert-triangle",
-    title: "Something went wrong",
-    description: "The module reported an error."
-  }
-};
+const { t } = useI18n();
 
-const content = computed(() => CONTENT[props.state]);
+const content = computed<ModuleStateContent>(() => {
+  const catalogue: ModuleStateContentMap = {
+    loading: {
+      color: "info",
+      icon: "clock",
+      title: t("text.loading"),
+      description: t("text.moment_short_desc")
+    },
+    error: {
+      color: "danger",
+      icon: "alert-triangle",
+      title: t("error.something_went_wrong"),
+      description: t("error.something_went_wrong_text")
+    }
+  };
+
+  return catalogue[props.state];
+});
 
 const formattedDetail = computed(() =>
   isNil(props.detail) ? "" : JSON.stringify(props.detail, null, 2)

@@ -67,6 +67,7 @@
   "from": "From",
   "fully_encrypted_title": "Fully Encrypted",
   "item": "Item",
+  "loading": "Loading",
   "loading_title": "Something **exciting** is around the corner",
   "loading_title_md": "@.markdown:{'text.loading_title'}",
   "moment_short_desc": "This should only take a moment.",

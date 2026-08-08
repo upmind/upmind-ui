@@ -1,4 +1,8 @@
-import { createScopedComposable } from "../scope";
+// `../scope`'s own graph reaches this module before its barrel finishes
+// (scope.utils → session-store → … → client-company.services → client-email),
+// so a value read off that barrel at module scope is `undefined` here. The
+// declaring file is safe: `createScopedComposable` is a hoisted declaration.
+import { createScopedComposable } from "../scope/scope.builder";
 import createClientEmailServices from "./client-email.services";
 import { createClientEmailsActions } from "./useClientEmails.actions";
 import { createClientEmailsContext } from "./useClientEmails.context";
