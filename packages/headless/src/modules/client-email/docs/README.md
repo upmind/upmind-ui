@@ -132,12 +132,22 @@ Each `.fresh()` call mints its own editor instance with its own model. Two new-a
 
 ## Playground
 
-The collection's filter bar, sortable columns and pager render live in a Storybook story, driven by the module's own query schema against recorded fixtures (no network calls):
+The collection's filter bar, sortable columns and pager render live — real requests, no mocked layer — in the `labs-nuxt` playground:
 
 ```bash
-pnpm --filter @upmind-automation/storybook storybook
+pnpm --filter @upmind-automation/labs-nuxt dev
 ```
 
-Open `http://localhost:6006` and find it in the sidebar under **modules › ClientEmailList** — the **Base** story renders the list; **Overview** is its generated docs page. The story mounts the recorded 3-address corpus, and a panel underneath the table prints the derived query model beside the outbound wire params, so a filter, a sort, or a page click can be checked against the schema-to-wire mapping without opening devtools.
+Open:
+
+```text
+http://labs.localhost:3000/scenarios/client_emails/as/client
+```
+
+That renders the signed-in client's own collection: a full-width search box and three status switches above a sortable, pageable table — every control drawn from `useContext().schemas.query` alone, with no per-field UI code written for it. The panel on the right (open by default) shows, side by side and with zero requests fired to produce it, the query schema, its UI schema, the current parsed model, and the exact request parameters that model builds — so a filter, a sort, or a page click can be checked against the schema-to-wire mapping before it reaches the network.
+
+The collection boots on its declared page size of **10** rows; filtering, sorting and the current page all survive a browser reload.
 
 The per-address form editor has no playground yet.
+
+See [labs-nuxt's own README](../../../../../../playgrounds/labs-nuxt/README.md) for how the playground itself works — the scenario-key pattern, the dumb rendering pipeline, and the full test-driving commands.

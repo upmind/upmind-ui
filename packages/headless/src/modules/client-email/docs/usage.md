@@ -396,9 +396,9 @@ Notes for the paste:
 
 ## The collection's query schema — paste-ready
 
-The collection serves a **second** schema/uischema pair — not a form for one record, but the rules for the whole list's request state: which columns can be filtered, which operators they accept, and how the list is sorted. It travels through **`useClientEmails().useContext().schemas.query`** (`.schema` / `.uischema`), never the barrel, for the same reason as the form pair above: setting the model through `useActions().filterBy()` / `.sortBy()` is what actually re-queries the server.
+The collection serves a **second** schema/uischema pair — not a form for one record, but the rules for the whole list's request state: which columns can be filtered, which operators they accept, and how the list is sorted and paged. It travels through **`useClientEmails().useContext().schemas.query`** (`.schema` / `.uischema`), never the barrel, for the same reason as the form pair above: setting the model through `useActions().filterBy()` / `.sortBy()` is what actually re-queries the server.
 
-Paste the two blocks below into [jsonforms.io](https://jsonforms.io/examples/basic) to see the filter bar's shape. The three boolean controls render as plain Yes/No dropdowns there — the module's own tri-state control (an "Any" third option that clears the filter) is a custom renderer that ships with the rendering playground below, not with this generic pair.
+Paste the two blocks below into [jsonforms.io](https://jsonforms.io/examples/basic) to see the schema's shape. **jsonforms.io will not render the filter bar correctly** — every element below is a `type: "Filter"`, a custom element that only resolves to a control (search box / switch / select / range, chosen from the column's own declared operators) where the real renderer is registered; the generic jsonforms.io demo has no such renderer and will render nothing for these elements. Paste them there anyway to see the **schema** — required for the shape, wrong for the shape's rendering.
 
 ### Query schema
 
@@ -417,51 +417,50 @@ Paste the two blocks below into [jsonforms.io](https://jsonforms.io/examples/bas
       "properties": {
         "email": {
           "type": "object",
-          "title": "Email address",
-          "description": "Show emails containing this text.",
+          "title": "text.email_address",
           "additionalProperties": false,
           "properties": {
-            "like": { "type": "string", "minLength": 1, "title": "contains" }
+            "like": { "type": ["string", "null"], "minLength": 1 }
           }
         },
         "verified": {
           "type": "object",
+          "title": "text.verified_label",
           "additionalProperties": false,
           "properties": {
             "eq": {
               "type": ["boolean", "null"],
-              "title": "Verified",
               "oneOf": [
-                { "const": true, "title": "Yes" },
-                { "const": false, "title": "No" }
+                { "const": true, "title": "text.yes" },
+                { "const": false, "title": "text.no" }
               ]
             }
           }
         },
         "bounced": {
           "type": "object",
+          "title": "text.bounced_label",
           "additionalProperties": false,
           "properties": {
             "eq": {
               "type": ["boolean", "null"],
-              "title": "Bounced",
               "oneOf": [
-                { "const": true, "title": "Yes" },
-                { "const": false, "title": "No" }
+                { "const": true, "title": "text.yes" },
+                { "const": false, "title": "text.no" }
               ]
             }
           }
         },
         "default": {
           "type": "object",
+          "title": "text.default_label",
           "additionalProperties": false,
           "properties": {
             "eq": {
               "type": ["boolean", "null"],
-              "title": "Default address",
               "oneOf": [
-                { "const": true, "title": "Yes" },
-                { "const": false, "title": "No" }
+                { "const": true, "title": "text.yes" },
+                { "const": false, "title": "text.no" }
               ]
             }
           }
@@ -489,7 +488,7 @@ Paste the two blocks below into [jsonforms.io](https://jsonforms.io/examples/bas
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "limit": { "type": "integer", "minimum": 0 },
+        "limit": { "type": "integer", "minimum": 0, "default": 10 },
         "offset": { "type": "integer", "minimum": 0 }
       }
     }
@@ -497,41 +496,58 @@ Paste the two blocks below into [jsonforms.io](https://jsonforms.io/examples/bas
 }
 ```
 
+**Two things this schema now says on purpose, worth reading twice:**
+
+- **`filters.email.like` accepts `null`.** An optional filter's "cleared" state is `null` (or absent), never `""` — `""` still fails the leaf's own `minLength: 1`. This is what lets a search box be cleared without the form going invalid; see [gotchas.md](./gotchas.md#17-clearing-the-search-box-is-a-valid-empty-state-not-an-error).
+- **`title` values that look like `text.yes` or `form.verified_filter` are i18n keys, not literal English.** Every option label and control title in this schema resolves through the app's translation vocabulary rather than being hard-coded — a rendering layer with no translator configured falls back to the raw key, which is expected, not a bug.
+- **`pagination.limit` declares a `default` of `10`.** This is the collection's own declared page size (see [gotchas.md](./gotchas.md#8-the-collections-default-page-is-10-rows-not-the-whole-list)) — a module that wanted the whole collection back in one page would omit the `default` (`limit: 0` stays a legal value; this module stops declaring it).
+
 ### Query UI schema
 
 ```json
 {
-  "type": "HorizontalLayout",
+  "type": "VerticalLayout",
   "elements": [
     {
-      "type": "Control",
-      "scope": "#/properties/filters/properties/email/properties/like",
-      "i18n": "form.email"
+      "type": "Filter",
+      "scope": "#/properties/filters/properties/email",
+      "i18n": "form.email_search",
+      "options": { "width": "full" }
     },
     {
-      "type": "Control",
-      "scope": "#/properties/filters/properties/verified/properties/eq",
-      "options": { "format": "tristate" }
-    },
-    {
-      "type": "Control",
-      "scope": "#/properties/filters/properties/bounced/properties/eq",
-      "options": { "format": "tristate" }
-    },
-    {
-      "type": "Control",
-      "scope": "#/properties/filters/properties/default/properties/eq",
-      "options": { "format": "tristate" }
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Filter",
+          "scope": "#/properties/filters/properties/verified",
+          "i18n": "form.verified_filter",
+          "options": { "variant": "switch" }
+        },
+        {
+          "type": "Filter",
+          "scope": "#/properties/filters/properties/bounced",
+          "i18n": "form.bounced_filter",
+          "options": { "variant": "switch" }
+        },
+        {
+          "type": "Filter",
+          "scope": "#/properties/filters/properties/default",
+          "i18n": "form.default_filter",
+          "options": { "variant": "switch" }
+        }
+      ]
     }
   ]
 }
 ```
 
+Every `Filter` element scopes the whole **column** (`.../properties/verified`), never one of its operator leaves — the renderer that resolves this uischema reads the column's own declared operators (`eq`, `like`, …) and picks a search box, a tri-state switch, a select, or a range purely from that, which is what lets a new filter be added as one schema line plus one uischema line naming the column, with no renderer code written for it. That renderer is `@upmind-automation/client-vue`'s `Filter` renderer, registered on every `Form` this package ships — not something this module builds or owns.
+
 Notes for the paste:
 
 - **No `query` property.** `GET /clients/{id}/emails` does not honour a bare search term, so the search box binds `filters.email.like` instead — pasting a `{ "query": "…" }` instance against this schema fails validation, by design.
-- **`sort` and `pagination` carry no control** — this uischema only draws the filter bar. Sort is driven by clicking a table column header; pagination by the pager. Both branches still validate and still translate to the wire.
-- **See it fully wired** — with the tri-state "Any" control, the sortable columns, and the live outbound request — in the rendering playground: see this module's [README](./README.md#playground).
+- **`sort` and `pagination` carry no element** — this uischema only draws the filter bar. Sort is driven by clicking a table column header; pagination by the pager. Both branches still validate and still translate to the wire.
+- **See it fully wired** — the switches, the full-width search, the sortable columns, and the live outbound request — in the `labs-nuxt` playground: see this module's [README](./README.md#playground) for the exact command and url.
 
 > **🧪 For Testers:** The barrel exposes no `useQuerySchema` / `useQueryUischema` either. `useContext().schemas.query` is the only supported way to obtain this pair, and it is plain JSON — nothing on it is a function.
 

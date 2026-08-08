@@ -226,9 +226,9 @@ else if (isEmpty.value) showEmptyState();
 
 > **🧪 For Testers:** Pair `isReady()` with `hasError` before treating an empty list as an empty collection. `isReady()` resolves `false` only when the session settles without an addressable client.
 
-## 16. Filtering and sorting are schema-gated — an unrecognised column is silently dropped, not an error
+## 16. An unrecognised filter or sort column is silently dropped, a known column with a bad value is REJECTED WHOLE, not partially applied
 
-`filterBy()` and `sortBy()` only accept the columns and operators `useContext().schemas.query.schema` declares (`email`, `verified`, `bounced`, `default` for filters; `created_at`, `email`, `default` for sort). Anything else is quietly left out of the resulting model — it never reaches `useContext().error` and it never reaches the wire; it behaves as if it had never been passed.
+`filterBy()` and `sortBy()` only accept the columns and operators `useContext().schemas.query.schema` declares (`email`, `verified`, `bounced`, `default` for filters; `created_at`, `email`, `default` for sort). An **unknown** key is quietly left out of the candidate before it is ever checked — it never reaches `useContext().error` and it never reaches the wire; it behaves as if it had never been passed.
 
 ```ts
 // ⚠️ Wrong: expecting an unrecognised column to surface a validation error
@@ -238,12 +238,18 @@ await filterBy({ title: { like: "x" } }); // silently has no effect at all
 await filterBy({ email: { like: "x" } });
 ```
 
-A **declared** column with an invalid value is different — the model still gains it (nothing coerces it away), and it fails validation on `useContext().error` (see item 17). Only an _unknown key_ is dropped silently; a _wrong value on a known key_ is surfaced.
+A **declared** column carrying an invalid value is a different case, and it is stricter than it looks: the whole write is refused, not just the bad part. The candidate is validated **before** it is committed, and a failing candidate never reaches the live model at all — `useContext().query` (what you render) keeps its last valid state, **no new request is fired**, and the only trace of the attempt is `useContext().error`, which carries ajv's verdict (the failing keyword and the exact path inside the model that failed).
 
-> **🧪 For Testers:** `filterBy({ title: { like: "x" } })` leaves the request exactly as it was before the call — no `filter[title|…]` param, no error, and any _other_ filter in the same call still applies. Assert the wire params, not a rejected promise or a raised error, to see this behaviour.
+```ts
+await filterBy({ verified: { eq: false } }); // applies, re-queries
+await filterBy({ verified: { eq: "nope" } } as never); // REFUSED — model unchanged, zero requests, error set
+// useContext().query.value.filters is still { verified: { eq: false } }
+```
 
-## 17. The free-text search box has one filter behind it — and clearing it can show a validation error
+> **🧪 For Testers:** `filterBy({ title: { like: "x" } })` (unknown column) leaves the request exactly as it was before the call — no `filter[title|…]` param, no error, and any _other_ filter in the same call still applies. `filterBy({ verified: { eq: "nope" } })` (known column, bad value) also leaves the request and the rendered rows exactly as they were — **but** `useContext().error` is now set with the ajv failure, and `useMeta().hasError` stays `false` (a refused write is a verdict on the write, not a broken collection — the rows on screen are still correct for the criteria that IS applied). Assert the wire params and the model together, not a rejected promise — nothing here ever rejects.
 
-The search box binds `filters.email.like`, which is typed as a non-empty string (`minLength: 1`). Clearing the box is a real, valid "no search term" state in the UI, but the schema does not special-case it: a value of `null` fails the leaf's `type` check and a value of `""` fails its `minLength` check — either way the failure is a declared-key content violation (item 16's second case), which surfaces on `useContext().error` rather than being coerced away. **Reproduced live**, not merely theorised: the module's own rendering demo shows exactly this red "must be string" message the moment the search control is cleared, even though the rendered list has already reverted to the unfiltered set.
+## 17. Clearing the search box is a valid empty state, not an error
 
-> **🧪 For Testers:** After clearing a text search, check `useContext().error` as well as `useContext().data` — the list can already show the correct, unfiltered rows while the error member still reports the leaf's validation failure. Which of the two a consumer's UI reads first decides whether the user sees a spurious error message on an otherwise-correct screen.
+The search box binds `filters.email.like`, which accepts `null` as well as a non-empty string (`minLength: 1` applies only when the value is a string). Clearing the box writes `null` (or omits the key entirely) rather than an empty string, so the model stays valid and no request narrows to nothing — this is a deliberate schema shape (`["string", "null"]`), not an accident of what happened to be typed.
+
+> **🧪 For Testers:** Clearing the rendered search control leaves `useContext().error` undefined and the list back to its unfiltered rows. The one way to still hit a validation failure here is to write the leaf directly as an empty string — `filterBy({ email: { like: "" } })` — which item 16's "known column, bad value" rule applies to: the write is refused whole, the previous filter (if any) stays live, and `useContext().error` reports the `minLength` failure. A consumer driving the module through its own rendered controls never produces that state; only a caller writing `""` by hand does.
