@@ -66,5 +66,11 @@ export type ScenarioBinding = {
   scope: { actor: ScopeActorTypes; contextType?: string };
   /** The row property carrying a row's identity, when it is not {@link DEFAULT_ROW_IDENTIFIER}. */
   identifier?: string;
+  /**
+   * Opt in to persisting this scenario's request state to the browser url
+   * (W-D33). The page reads it; the flag lives here because it is a per-
+   * scenario choice, and the page is generic over every key.
+   */
+  persistCriteria?: boolean;
   handoff?: Record<string, ScenarioHandoff>;
 };

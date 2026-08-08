@@ -37,6 +37,7 @@ export const registry = {
       actor: ScopeActorTypes.CLIENT,
       contextType: ClientEmailsContextTypes.CLIENT
     },
+    persistCriteria: true,
     handoff: {
       edit: {
         target: CLIENT_EMAIL_SCENARIO,

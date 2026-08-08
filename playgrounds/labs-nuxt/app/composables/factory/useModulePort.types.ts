@@ -17,6 +17,7 @@ import type {
   CompositionPort,
   ReflectedSnapshot
 } from "@upmind-automation/scenario-harness";
+import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -36,6 +37,20 @@ export type ModulePortDebug = {
   request: Record<string, string>;
 };
 
+/**
+ * The cell's own request state, relayed by the one site that holds the raw
+ * cell — present iff the cell owns criteria. The model stays composable-owned:
+ * this is a read plus the composable's own merging write, never a second copy.
+ */
+export type ModulePortCriteria = {
+  /** The declared query schema (a plain Draft-07 JSON literal) — the whole of what may be persisted. */
+  schema: unknown;
+  /** The live criteria model; read-only, write through {@link ModulePortCriteria.set}. */
+  model: ComputedRef<Record<string, unknown>>;
+  /** MERGES the given branches into the intent; never replaces the whole model. */
+  set(next: Record<string, unknown>): void;
+};
+
 /** A snapshot carrying the debug chain, absent for a cell that owns no criteria. */
 export type ModulePortSnapshot = ReflectedSnapshot & {
   debug?: ModulePortDebug;
@@ -44,4 +59,5 @@ export type ModulePortSnapshot = ReflectedSnapshot & {
 /** The seam port, widened by the debug branch — still a `CompositionPort` to every core consumer. */
 export type ModulePort = Omit<CompositionPort, "snapshot"> & {
   snapshot(): ModulePortSnapshot;
+  criteria?: ModulePortCriteria;
 };

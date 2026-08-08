@@ -25,9 +25,11 @@ import { createHarness } from "@upmind-automation/scenario-harness";
 import { get, startCase } from "lodash-es";
 import type { ScenarioKey } from "@upmind-automation/headless/scenarios";
 import type { ScopeActor } from "@upmind-automation/scenario-harness";
+import type { ScenarioBinding } from "~/composables/factory/registry.types";
 import { ModuleRenderer } from "~/components/factory";
 import { useInspector } from "~/components/inspector";
 import { registry, scenarioRegistry } from "~/composables/factory/registry";
+import { useCriteriaUrlSync } from "~/composables/factory/useCriteriaUrlSync";
 import { useModulePort } from "~/composables/factory/useModulePort";
 import { useActorScope, useContextScope } from "~/composables/scope";
 
@@ -43,7 +45,7 @@ definePageMeta({
 
 const route = useRoute();
 const scenarioKey = route.params.key as ScenarioKey;
-const entry = get(registry, scenarioKey);
+const entry: ScenarioBinding | undefined = get(registry, scenarioKey);
 
 if (!entry)
   throw createError({
@@ -58,6 +60,9 @@ const port = useModulePort(entry, {
   actor: actorScope.value,
   contextId: contextScope.value?.id
 });
+
+// --- Request state ⇄ url, when the scenario opts in
+useCriteriaUrlSync(port.criteria, { enabled: entry.persistCriteria });
 
 const harness = createHarness(scenarioRegistry);
 const descriptor = computed(() =>

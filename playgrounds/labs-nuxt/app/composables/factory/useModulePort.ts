@@ -30,11 +30,13 @@ import {
 import type { ScenarioBinding, ScenarioScopedCell } from "./registry.types";
 import type {
   ModulePort,
+  ModulePortCriteria,
   ModulePortDebug,
   ModulePortScope
 } from "./useModulePort.types";
 import type { TableChannelCell } from "./useTableChannel";
 import type { QueryProps } from "@upmind-automation/headless";
+import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -91,6 +93,23 @@ function readDebug(cell: ScenarioScopedCell): ModulePortDebug | undefined {
   };
 }
 
+/** The cell's own request state, relayed; absent for a cell that owns no criteria. */
+function readCriteria(
+  cell: ScenarioScopedCell
+): ModulePortCriteria | undefined {
+  if (!ownsQueryState(cell)) return undefined;
+
+  const context = cell.useContext();
+  const set = get(cell.useInternals?.() ?? {}, ["query", "setCriteria"]);
+  if (!isFunction(set)) return undefined;
+
+  return {
+    schema: get(context, ["schemas", "query", "schema"]),
+    model: get(context, "query") as ComputedRef<Record<string, unknown>>,
+    set: set as ModulePortCriteria["set"]
+  };
+}
+
 // -----------------------------------------------------------------------------
 
 /**
@@ -123,6 +142,7 @@ export function useModulePort(
     get actions() {
       return port.actions;
     },
+    criteria: readCriteria(cell),
     getMeta: port.getMeta,
     snapshot: () => ({ ...port.snapshot(), debug: readDebug(cell) }),
     table: port.table
