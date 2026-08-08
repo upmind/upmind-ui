@@ -33,6 +33,21 @@ import type { IEmail } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
+// SCENARIO KEYS — the module's own self-registration (ruling F-1)
+// -----------------------------------------------------------------------------
+
+/**
+ * Scenario key for the email COLLECTION. The module declares its own key here;
+ * `packages/headless/src/scenarios.ts` assembles the keyed map, and each
+ * executor supplies its own registry against it. Never on the main barrel as a
+ * map — the keys are, the map is not.
+ */
+export const CLIENT_EMAILS_SCENARIO = "client_emails" as const;
+
+/** Scenario key for the per-email MANAGER — the collection's handoff target. */
+export const CLIENT_EMAIL_SCENARIO = "client_email" as const;
+
+// -----------------------------------------------------------------------------
 // SCOPE — two matrices, one per composable
 // -----------------------------------------------------------------------------
 

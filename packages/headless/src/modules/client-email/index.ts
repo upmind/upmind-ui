@@ -23,6 +23,12 @@ export {
   type UseClientEmailManager
 } from "./useClientEmailManager";
 
+// --- Scenario keys — one per composable, both public (F-1)
+export {
+  CLIENT_EMAILS_SCENARIO,
+  CLIENT_EMAIL_SCENARIO
+} from "./client-email.types";
+
 // --- Scope matrices — one per composable, both public
 export {
   CLIENT_EMAILS_SCOPE_MATRIX,

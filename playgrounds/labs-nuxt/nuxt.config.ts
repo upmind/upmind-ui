@@ -112,6 +112,13 @@ export default defineNuxtConfig({
       "../../packages/types/src/index.ts"
     ),
     "@upmind-automation/i18n": resolve(__dirname, "../../packages/i18n/src"),
+    // Above the bare key on purpose: alias matching is prefix-based and
+    // first-match-wins, so the bare entry would rewrite the subpath to
+    // `…/src/index.ts/scenarios`.
+    "@upmind-automation/headless/scenarios": resolve(
+      __dirname,
+      "../../packages/headless/src/scenarios.ts"
+    ),
     "@upmind-automation/headless": resolve(
       __dirname,
       "../../packages/headless/src/index.ts"
