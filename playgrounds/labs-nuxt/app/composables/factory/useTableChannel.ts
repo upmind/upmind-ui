@@ -17,7 +17,7 @@
  * (a §4/renderer concern), not here.
  */
 
-import { forEach, get, keys } from "lodash-es";
+import { forEach, get, isNil, keys } from "lodash-es";
 import type {
   ControlledTableChannel,
   TableIntent,
@@ -60,14 +60,9 @@ export interface TableChannelCell {
 
 /** The single declared operator for a wire column, read from the query schema. */
 function operatorFor(schema: unknown, column: string): string | undefined {
-  const operators = get(schema, [
-    "properties",
-    "filters",
-    "properties",
-    column,
-    "properties"
-  ]);
-  return operators ? keys(operators)[0] : undefined;
+  return keys(
+    get(schema, ["properties", "filters", "properties", column, "properties"])
+  )[0];
 }
 
 /** Nested `{ col: { op: v } }` → flat `{ col: v }` for the renderer. */
@@ -77,7 +72,7 @@ function flattenFilters(
   const flat: Record<string, unknown> = {};
   forEach(nested, (operators, column) => {
     const operator = keys(operators)[0];
-    if (operator !== undefined) flat[column] = operators[operator];
+    if (!isNil(operator)) flat[column] = operators[operator];
   });
   return flat;
 }
@@ -90,7 +85,7 @@ function liftFilters(
   const nested: Record<string, Record<string, unknown>> = {};
   forEach(flat, (value, column) => {
     const operator = operatorFor(schema, column);
-    if (operator) nested[column] = { [operator]: value };
+    if (!isNil(operator)) nested[column] = { [operator]: value };
   });
   return nested;
 }

@@ -29,7 +29,7 @@
 import { computed } from "vue";
 import { Badge, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./MetaPanel.styles";
-import { entries, map, sortBy, startCase } from "lodash-es";
+import { entries, includes, map, sortBy, startCase } from "lodash-es";
 import type {
   MetaBadgeColor,
   MetaPanelItem,
@@ -42,11 +42,11 @@ const props = defineProps<MetaPanelProps>();
 function badgeColor(key: string, value: boolean): MetaBadgeColor {
   const lowerKey = key.toLowerCase();
   const isErrorFlag =
-    lowerKey.includes("error") || lowerKey.includes("invalid");
+    includes(lowerKey, "error") || includes(lowerKey, "invalid");
   const isSuccessFlag =
-    lowerKey.includes("authenticated") ||
-    (lowerKey.includes("valid") && !lowerKey.includes("invalid")) ||
-    lowerKey.includes("success");
+    includes(lowerKey, "authenticated") ||
+    (includes(lowerKey, "valid") && !includes(lowerKey, "invalid")) ||
+    includes(lowerKey, "success");
 
   if (value) {
     if (isErrorFlag) return "danger";

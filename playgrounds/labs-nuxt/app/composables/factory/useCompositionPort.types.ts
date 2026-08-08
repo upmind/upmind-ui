@@ -25,7 +25,7 @@ export type LiveAction = (...args: never[]) => unknown;
 /** The live `useActions()` return of an already-scoped composable cell. */
 export type LiveActions = Record<string, LiveAction>;
 
-/** The live `useContext()` return — refs/computeds/reactive objects at any depth, unwrapped by the adapter. */
+/** The live `useContext()` return — top-level refs/computeds over plain values, unwrapped by the adapter. */
 export type LiveContext = Record<string, unknown>;
 
 /** A single `useMeta()` flag — MUST deref to a sync boolean (ADR-027 Am.11). */

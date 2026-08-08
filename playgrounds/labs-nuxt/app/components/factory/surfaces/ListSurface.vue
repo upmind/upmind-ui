@@ -2,27 +2,27 @@
   <ModuleStateNotice v-if="state !== 'ready'" :state="state" :detail="detail" />
   <div v-else :class="styles.listSurface.root">
     <ActionSlots
-      v-if="collectionActionItems.length"
+      v-if="meta.hasCollectionActions"
       :class="styles.listSurface.collectionActions"
       :actions="collectionActionItems"
     />
 
     <Alert
-      v-if="isEmpty && hasActiveFilters"
+      v-if="meta.isEmpty && meta.hasActiveFilters"
       variant="minimal"
       icon="search-lg"
       title="No matching rows"
       description="No rows match the active filters."
     />
     <Alert
-      v-else-if="isEmpty"
+      v-else-if="meta.isEmpty"
       variant="minimal"
       icon="inbox-01"
       title="No data"
       description="This collection is empty."
     />
 
-    <Table v-else-if="hasTableChannel" :class="styles.listSurface.table">
+    <Table v-else-if="meta.hasTable" :class="styles.listSurface.table">
       <TableHeader>
         <TableRow
           v-for="headerGroup in vueTable.getHeaderGroups()"
@@ -64,7 +64,7 @@
             </template>
           </TableHead>
           <TableHead
-            v-if="hasRowActions"
+            v-if="meta.hasRowActions"
             :class="styles.listSurface.headerCell"
           />
         </TableRow>
@@ -78,7 +78,10 @@
           >
             {{ cell.getValue() }}
           </TableCell>
-          <TableCell v-if="hasRowActions" :class="styles.listSurface.dataCell">
+          <TableCell
+            v-if="meta.hasRowActions"
+            :class="styles.listSurface.dataCell"
+          >
             <ActionSlots :actions="rowActionItems(row.original)" />
           </TableCell>
         </TableRow>
@@ -110,7 +113,7 @@
     </ul>
 
     <Pagination
-      v-if="!isEmpty && hasTableChannel"
+      v-if="!meta.isEmpty && meta.hasTable"
       :total="pagination.total ?? 0"
       :page="pagination.page"
       :pages="pageCount"
@@ -165,7 +168,9 @@ import {
   flatMap,
   fromPairs,
   includes,
+  isEmpty,
   isFunction,
+  isNil,
   keys,
   map,
   reduce,
@@ -193,10 +198,6 @@ const rows = computed<ListRow[]>(
   () => (props.snapshot.context.data as ListRow[] | undefined) ?? []
 );
 
-const isEmpty = computed(() => rows.value.length === 0);
-
-const hasTableChannel = computed(() => Boolean(props.table));
-
 // One `channel.read()` per render, tied to `snapshot` so any composable pull
 // (its own re-query after a sort/filter/paginate, or an unrelated refresh)
 // is always reflected — the port's "never cache across pulls" contract, one
@@ -212,10 +213,6 @@ const tableModel = computed<TableModel>(() => {
     }
   );
 });
-
-const hasActiveFilters = computed(
-  () => keys(tableModel.value.filter).length > 0
-);
 
 function deriveColumns(data: ListRow[]): ColumnDef<ListRow>[] {
   const columnKeys = uniq(flatMap(data, row => keys(row)));
@@ -302,7 +299,7 @@ const pagination = computed(() => tableModel.value.pagination);
 
 const pageCount = computed(() => {
   const total = pagination.value.total;
-  if (total === undefined) return pagination.value.page;
+  if (isNil(total)) return pagination.value.page;
   return Math.max(1, Math.ceil(total / pagination.value.perPage));
 });
 
@@ -346,8 +343,6 @@ function rowActionItems(row: ListRow): ActionSlotItem[] {
   );
 }
 
-const hasRowActions = computed(() => some(ROW_ACTION_KEYS, isActionAvailable));
-
 const collectionActionItems = computed<ActionSlotItem[]>(() => {
   if (!isActionAvailable(LIST_SURFACE_ACTION.ADD)) return [];
   return [
@@ -365,13 +360,19 @@ function rowEntries(row: ListRow): Array<[string, unknown]> {
 }
 
 function rowKey(row: ListRow, index: number): string {
-  return row.id !== undefined ? String(row.id) : String(index);
+  return isNil(row.id) ? String(index) : String(row.id);
 }
 
+// The component's ONE flag surface (W-29) — every is/has/can flag the template
+// reads, and the same object `useStyles` resolves its CVA variants from.
 const meta = computed(() => ({
   state: state.value,
-  isEmpty: isEmpty.value,
-  hasTable: hasTableChannel.value
+  isEmpty: isEmpty(rows.value),
+  hasTable: !!props.table,
+  hasActiveFilters: !isEmpty(tableModel.value.filter),
+  hasRowActions: some(ROW_ACTION_KEYS, isActionAvailable),
+  hasCollectionActions: !isEmpty(collectionActionItems.value)
 }));
+
 const styles = useStyles(["listSurface"], meta, config);
 </script>

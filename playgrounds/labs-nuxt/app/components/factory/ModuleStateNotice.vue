@@ -23,6 +23,7 @@
 import { computed } from "vue";
 import { Alert, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./ModuleStateNotice.styles";
+import { isNil } from "lodash-es";
 import type {
   ModuleStateContent,
   ModuleStateNoticeProps
@@ -49,7 +50,7 @@ const CONTENT: Record<ModuleStateNoticeProps["state"], ModuleStateContent> = {
 const content = computed(() => CONTENT[props.state]);
 
 const formattedDetail = computed(() =>
-  props.detail === undefined ? "" : JSON.stringify(props.detail, null, 2)
+  isNil(props.detail) ? "" : JSON.stringify(props.detail, null, 2)
 );
 
 const meta = computed(() => ({ state: props.state }));

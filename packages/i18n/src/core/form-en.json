@@ -138,10 +138,30 @@
     "label": null,
     "placeholder": "Search for a domain..."
   },
+  "email_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search email addresses..."
+  },
   "product_name_search": {
     "description": null,
     "label": null,
     "placeholder": "Search by product name..."
+  },
+  "bounced_filter": {
+    "description": null,
+    "label": "Bounced",
+    "placeholder": null
+  },
+  "default_filter": {
+    "description": null,
+    "label": "Default",
+    "placeholder": null
+  },
+  "verified_filter": {
+    "description": null,
+    "label": "Verified",
+    "placeholder": null
   },
   "product_trial": {
     "description": null,

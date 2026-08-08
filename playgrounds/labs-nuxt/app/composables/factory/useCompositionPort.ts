@@ -7,11 +7,10 @@
  * stays here; the core (`reflect`/`classify`) receives plain data only.
  */
 
-import { computed, toRaw, unref } from "vue";
-import { isArray, isPlainObject, mapValues, transform } from "lodash-es";
+import { computed, unref } from "vue";
+import { isFunction, keys, mapValues, omitBy } from "lodash-es";
 import type {
   LiveCompositionCell,
-  LiveMeta,
   UseCompositionPortOptions
 } from "./useCompositionPort.types";
 import type {
@@ -20,89 +19,6 @@ import type {
 } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
-
-function normalize(value: unknown): unknown {
-  return toRaw(unref(value));
-}
-
-// Mirrors `reflect()`'s own `isRevisitedRef`
-// (packages/scenario-harness/src/reflection/reflect.ts) — same stack-safety
-// contract, applied one layer upstream of it.
-function isRevisitedRef(value: unknown, seen: WeakSet<object>): boolean {
-  if (typeof value !== "object" || value === null) return false;
-  if (seen.has(value)) return true;
-  seen.add(value);
-  return false;
-}
-
-// A live composable publishes callables on `useContext()` (client-email's
-// `default`/`findOne`/`getOne`), and `reflect()` declares every other non-JSON
-// value "the adapter's responsibility" (reflect.ts docblock) — so a function is
-// omitted exactly like an undefined entry, never handed to the core.
-function isOmitted(value: unknown): boolean {
-  return value === undefined || typeof value === "function";
-}
-
-/**
- * Unwraps `ref`/`computed`/`reactive` at every depth into plain, JSON-safe
- * data, omitting undefined-valued and function-valued entries (including array
- * holes) — mirrors `reflect()`'s own `deepOmitUndefined`, so `port.snapshot()`
- * is already plain by the time it reaches the core.
- */
-function deepUnref(
-  value: unknown,
-  seen: WeakSet<object> = new WeakSet()
-): unknown {
-  const raw = normalize(value);
-
-  if (isArray(raw)) {
-    const result: unknown[] = [];
-    for (const entry of raw) {
-      const normalized = normalize(entry);
-      if (isOmitted(normalized) || isRevisitedRef(normalized, seen)) continue;
-      result.push(deepUnref(normalized, seen));
-    }
-    return result;
-  }
-
-  if (isPlainObject(raw)) {
-    return transform(
-      raw as Record<string, unknown>,
-      (result: Record<string, unknown>, entry, key) => {
-        const normalized = normalize(entry);
-        if (isOmitted(normalized) || isRevisitedRef(normalized, seen)) return;
-        // `Object.defineProperty`, never `result[key] = …` — mirrors
-        // `reflect()`'s own `__proto__`-safety (see reflect.ts).
-        Object.defineProperty(result, key, {
-          value: deepUnref(normalized, seen),
-          enumerable: true,
-          writable: true,
-          configurable: true
-        });
-      },
-      {}
-    );
-  }
-
-  return raw;
-}
-
-function assertSyncBoolean(flag: string, value: unknown): boolean {
-  if (typeof value === "boolean") return value;
-
-  throw new Error(
-    `useCompositionPort: meta flag "${flag}" did not deref to a sync boolean ` +
-      `(ADR-027 Am.11) — got ${typeof value}. An async-derived meta flag must ` +
-      "resolve to a sync boolean upstream in the composable; the adapter " +
-      "never papers over it."
-  );
-}
-
-function evalMeta(meta: LiveMeta): Record<string, boolean> {
-  return mapValues(meta, (flagValue, flag) =>
-    assertSyncBoolean(flag, unref(flagValue))
-  );
-}
 
 /**
  * Reflects a live, already-scoped 4-layer composable cell (`useActions()` /
@@ -120,10 +36,16 @@ export function useCompositionPort(
   cell: LiveCompositionCell,
   options: UseCompositionPortOptions = {}
 ): CompositionPort {
+  // One `unref` pass per layer, never a deep walk: the four-layer contract puts
+  // refs at the TOP of a layer over plain values — confirmed against the live
+  // client-email cell, which holds no ref and no cycle below it. Only the
+  // function omission survives that: a context legitimately publishes callables
+  // (`default`/`findOne`/`getOne`), the non-JSON values `reflect()` calls the
+  // adapter's responsibility. `undefined` is left to `reflect()`'s own deep omit.
   const snapshot = computed<ReflectedSnapshot>(() => ({
-    actions: Object.keys(cell.useActions()),
-    context: deepUnref(cell.useContext()) as Record<string, unknown>,
-    meta: evalMeta(cell.useMeta())
+    actions: keys(cell.useActions()),
+    context: omitBy(mapValues(cell.useContext(), unref), isFunction),
+    meta: mapValues(cell.useMeta(), flag => !!unref(flag))
   }));
 
   return {

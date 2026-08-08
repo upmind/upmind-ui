@@ -66,6 +66,7 @@
   "loading_title": "Something **exciting** is around the corner",
   "loading_title_md": "@.markdown:{'text.loading_title'}",
   "moment_short_desc": "This should only take a moment.",
+  "no": "No",
   "none": "None",
   "on_sale": "On Sale",
   "option_overrides_price_desc": "This option overrides the main product price for the initial order",
@@ -144,5 +145,7 @@
   "unavailable": "Unavailable",
   "unit_price": "Unit price",
   "unverified_label": "Unverified",
-  "welcome_back_msg": "Welcome back, {name}"
+  "verified_label": "Verified",
+  "welcome_back_msg": "Welcome back, {name}",
+  "yes": "Yes"
 }
