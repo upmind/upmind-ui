@@ -1,11 +1,10 @@
 /** @internal */
 import { computed, ref } from "vue";
 import { useQuery, invalidateQueryByKey } from "../query";
-import { useActiveSession } from "../session-store";
+import { resolveClientId } from "../scope";
 import { useI18n } from "../system-localisation";
 import { mapEmail, mapEmails, mapIEmail } from "./client-email.mappers";
 import { useSchema, useQuerySchema } from "./client-email.schemas";
-import { ClientEmailsContextTypes } from "./client-email.types";
 import {
   useTime,
   ErrorOrigin,
@@ -62,43 +61,6 @@ export const queryKey: QueryKey = ["client", "emails"];
 const baseModel: EmailModel = { email: null };
 
 /**
- * Derives the target client id from the RESOLVED scope — the ONE seam every
- * request-issuing function in this file shares, and the fix for a services
- * layer that hardwires the session's client for every call.
- *
- * A `.for('client', id)` context names the client being addressed; with none it
- * falls back to the active session's own client (the self case). This compares
- * the CONTEXT the scope builder resolved, never the actor, so it is not a
- * branch on `ScopeActorTypes.SELF`. A manager scoped `.for('email', id)` falls
- * through to the session — correct, because an email context names the entity,
- * not its owner.
- */
-function resolveClientId(scopeContext?: ScopeContext) {
-  const { activeUser } = useActiveSession().useContext();
-
-  return computed(() =>
-    scopeContext?.type === ClientEmailsContextTypes.CLIENT
-      ? scopeContext.id
-      : activeUser.value?.id
-  );
-}
-
-/**
- * Resolves true only for an authenticated session with an addressable client.
- *
- * The module's ONE addressability predicate. Every request gate here calls it,
- * and `createClientEmailServices` exposes its reactive form as
- * `service.isAvailable` so the composable layers READ this function rather than
- * re-deriving the expression — a flag the consumer renders and the gate the
- * wire enforces cannot drift apart if there is only one of them.
- */
-function isAddressable(clientId?: string): boolean {
-  const { isAuthenticated } = useActiveSession().useMeta();
-
-  return isAuthenticated.value && !!clientId;
-}
-
-/**
  * COLLECTION — the reactive list query, minted once per scope.
  *
  * Minted once, but the target client can resolve AFTER construction — an
@@ -135,7 +97,7 @@ function loadList(scopeContext?: ScopeContext): ClientEmailListQuery {
     // guard by `isPromise`, which tests for an AsyncFunction.
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (!isAddressable(clientId.value)) {
+        if (!clientId.value) {
           reject(new NotAuthenticatedError());
           return;
         }
@@ -146,7 +108,7 @@ function loadList(scopeContext?: ScopeContext): ClientEmailListQuery {
     select: mapEmails,
     staleTime: useTime().DAY,
     retryDelay: DEBOUNCE_DELAY,
-    enabled: () => isAddressable(clientId.value)
+    enabled: () => !!clientId.value
   });
 }
 
@@ -163,7 +125,7 @@ async function loadOne(
   const { get: getOne, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  if (!isAddressable(clientId.value)) {
+  if (!clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
@@ -183,7 +145,7 @@ async function add(
   const { post, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  if (!isAddressable(clientId.value)) {
+  if (!clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
@@ -204,7 +166,7 @@ async function update(
   const { put, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  if (!isAddressable(clientId.value)) {
+  if (!clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
@@ -232,7 +194,7 @@ async function ensure(
   // Checked here as well as by the list `guard`: an unaddressable session
   // leaves the query DISABLED, and a disabled query's `promise` never settles,
   // so the await below would hang rather than reject.
-  if (!isAddressable(clientId.value)) {
+  if (!clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
@@ -281,7 +243,7 @@ async function remove(
   const { del, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  if (!isAddressable(clientId.value)) {
+  if (!clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
@@ -307,7 +269,7 @@ async function setDefault(
   const { put, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  if (!isAddressable(clientId.value)) {
+  if (!clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
@@ -333,7 +295,7 @@ async function verify(
   const { patch, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  if (!isAddressable(clientId.value)) {
+  if (!clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
@@ -428,7 +390,10 @@ export const createClientEmailServices = (
   return {
     queryKey,
     clientId,
-    isAvailable: computed(() => isAddressable(clientId.value)),
+    // Addressability IS a resolved client id: `resolveClientId` falls back to
+    // `activeUser`, which exists only while authenticated, so the flag the
+    // consumer renders and the gate every request applies are one expression.
+    isAvailable: computed(() => !!clientId.value),
     error: computed(() => mutationError.value),
     loadList: () => loadList(scopeContext),
     loadOne: id => loadOne(id, scopeContext),

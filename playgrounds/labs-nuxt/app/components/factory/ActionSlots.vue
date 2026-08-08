@@ -24,7 +24,7 @@
       icon="dots-vertical"
       icon-only
       size="sm"
-      label="More actions"
+      :label="t('action.show_more_options')"
       :class="styles.actionSlots.overflowTrigger"
     />
 
@@ -66,6 +66,7 @@
  */
 
 import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   Button,
   DropdownMenu,
@@ -83,6 +84,8 @@ import type { DropdownMenuItemProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<ActionSlotsProps>();
+
+const { t } = useI18n();
 
 const contextMenuOpen = ref(false);
 

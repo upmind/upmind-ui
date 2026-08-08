@@ -26,6 +26,20 @@ import type {
 
 // -----------------------------------------------------------------------------
 
+/**
+ * The `TableIntent` discriminators as members, so no comparison below spells a
+ * raw string. Their real home is the harness's own `table-channel.types.ts`,
+ * where `TableIntent` is declared as a bare string-literal union with nothing
+ * keying it; `packages/scenario-harness` is outside this story's write set, so
+ * the members are mirrored here — `satisfies` reds if the union ever moves —
+ * and the enum lands at the source with FE-3071.
+ */
+export const TableIntentTypes = {
+  FILTER: "filter",
+  SORT: "sort",
+  PAGINATE: "paginate"
+} as const satisfies Record<string, TableIntent["type"]>;
+
 /** One sort entry — the harness-frozen shape (`TableModel["sort"]` member). */
 type SortEntry = TableModel["sort"][number];
 
@@ -118,12 +132,12 @@ export function useTableChannel(
     },
 
     emit(intent: TableIntent): void {
-      if (intent.type === "filter") {
+      if (intent.type === TableIntentTypes.FILTER) {
         actions.filterBy(liftFilters(intent.model, schema));
         return;
       }
 
-      if (intent.type === "sort") {
+      if (intent.type === TableIntentTypes.SORT) {
         actions.sortBy([...intent.sort]);
         return;
       }
