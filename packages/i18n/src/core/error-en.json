@@ -126,7 +126,7 @@
   "promotion_update_failed": "We experienced an error updating the basket promotions",
   "promotion_validation_failed": "Promotion validation failed",
   "query_not_found": "No query provided",
-  "query_validation_failed": "Query validation failed",
+  "query_validation_failed": "We can't show the list that way, so nothing changed.",
   "recaptcha_load_failed": "Failed to load recaptcha",
   "recaptcha_not_available": "Recaptcha not available",
   "region_not_available": "Region id or code not available",

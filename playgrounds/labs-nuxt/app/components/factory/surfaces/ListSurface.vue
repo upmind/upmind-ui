@@ -1,6 +1,12 @@
 <template>
   <ModuleStateNotice v-if="state !== 'ready'" :state="state" :detail="detail" />
   <div v-else :class="styles.listSurface.root">
+    <!-- A rejected criteria write leaves the list VALID and showing its last
+         good rows, so its verdict belongs beside the table, never in place of
+         it: swapping the surface out would unmount the very controls that
+         issue the next valid write. -->
+    <ModuleStateNotice v-if="detail" state="error" :detail="detail" />
+
     <ActionSlots
       v-if="meta.hasCollectionActions"
       :class="styles.listSurface.collectionActions"

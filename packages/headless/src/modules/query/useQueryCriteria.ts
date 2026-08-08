@@ -169,34 +169,42 @@ export function useQueryCriteria<
   }
 
   /**
-   * ajv's verdict on a REJECTED starting model. The seed is untrusted, so a
-   * candidate that does not validate is discarded whole rather than partly
-   * honoured — but discarding is not swallowing (FB5c), so its verdict is held
-   * here and surfaced on `error` until the first `set` writes real intent.
+   * ajv's verdict on the last REJECTED write, held until a valid one replaces
+   * it. Discarding is not swallowing (FB5c): the rejection is what `error`
+   * publishes, so the surface can say WHY the criteria did not move.
    */
-  const rejectedSeed = ref<ValidationErrorObject[]>([]);
+  const rejected = ref<ValidationErrorObject[]>([]);
 
   const intent = ref({}) as Ref<Partial<TModel>>;
-  if (!isEmpty(seed)) {
-    const errors = useValidation().validate(schema, parse(seed));
-    if (isEmpty(errors)) intent.value = seed as Partial<TModel>;
-    else rejectedSeed.value = errors;
+
+  /**
+   * The ONE gate every write passes — the seed and every `set` alike. ajv reads
+   * the PARSED candidate, which is the exact document `model` would publish, so
+   * a clean verdict here means the committed criteria is valid by construction:
+   * `props` can never translate a model ajv has already rejected onto the wire,
+   * and a rejected write cannot destroy the sort, filters or page the user
+   * already has. A candidate is committed WHOLE or not at all — its valid
+   * branches go with its invalid one, because half a request state is a list
+   * that lies about what it is showing.
+   */
+  function commit(candidate: Partial<TModel>): void {
+    rejected.value = useValidation().validate(schema, parse(candidate));
+    if (isEmpty(rejected.value)) intent.value = candidate;
   }
+
+  if (!isEmpty(seed)) commit(seed as Partial<TModel>);
 
   const model = computed<TModel>(() => parse(intent.value));
 
   const error = computed<ResponseError | undefined>(() => {
-    const errors = isEmpty(rejectedSeed.value)
-      ? useValidation().validate(schema, model.value)
-      : rejectedSeed.value;
-    if (isEmpty(errors)) return undefined;
+    if (isEmpty(rejected.value)) return undefined;
 
     return mapToHeadlessError(
       new DetailedError(
         useI18n().t("error.query_validation_failed"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless,
-        errors
+        rejected.value
       )
     );
   });
@@ -222,9 +230,11 @@ export function useQueryCriteria<
    * `pagination` — paging, a page-size change, a rehydrated url — is honoured
    * exactly as given, and a schema with no `pagination` branch has no cursor to
    * return.
+   *
+   * The merged candidate is offered to {@link commit}, never assigned: an
+   * invalid write leaves the live criteria standing and surfaces on `error`.
    */
   function set(next: Partial<TModel>): void {
-    rejectedSeed.value = [];
     const cursor =
       isEmpty(next) ||
       has(next, "pagination") ||
@@ -235,7 +245,7 @@ export function useQueryCriteria<
               offset: 0
             })
           };
-    intent.value = assign({}, intent.value, next, cursor) as Partial<TModel>;
+    commit(assign({}, intent.value, next, cursor) as Partial<TModel>);
   }
 
   return { model, schema, props, error, isFiltered, set };

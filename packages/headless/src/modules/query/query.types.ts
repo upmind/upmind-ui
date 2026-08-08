@@ -346,17 +346,24 @@ export type QueryCriteriaOptions<
 export type QueryCriteria<
   TModel extends Record<string, unknown> = Record<string, unknown>
 > = {
-  /** The parsed, defaulted, compacted model. Read-only; write through `set`. */
+  /**
+   * The parsed, defaulted, compacted model — always the last VALID one, since
+   * a rejected write is never committed. Read-only; write through `set`.
+   */
   model: ComputedRef<TModel>;
   /** The declaration itself, so the handle can re-publish what is filterable/sortable. */
   schema: JsonSchema;
   /** The translated wire triple. `list()` is its only consumer. */
   props: ComputedRef<QueryProps>;
-  /** ajv's verdict on the parsed model, as the module's normal error shape. Never swallowed. */
+  /** ajv's verdict on the last REJECTED write, as the module's normal error shape. Never swallowed. */
   error: ComputedRef<ResponseError | undefined>;
   /** Any declared filter column carries a non-nil operator value. */
   isFiltered: ComputedRef<boolean>;
-  /** MERGES the given branches into the intent; never replaces the whole model. */
+  /**
+   * MERGES the given branches into the intent; never replaces the whole model.
+   * The merged candidate is committed only if it validates — an invalid write
+   * leaves the live criteria standing and surfaces on `error`.
+   */
   set: (next: Partial<TModel>) => void;
 };
 
@@ -415,7 +422,8 @@ export type QueryCriteriaHandle<
   /** Any declared filter column carries a value. */
   isFiltered: ComputedRef<boolean>;
   /**
-   * ajv's verdict on the criteria — NOT the fetch failure. The handle extends
+   * ajv's verdict on the last REJECTED criteria write — NOT the fetch failure,
+   * and never a state the wire carries. The handle extends
    * the vue-query result, which already owns `error`; these are two different
    * facts and FB5c forbids swallowing either, so this one is named for the
    * collision rather than around it.
