@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/client-email/client-email.schemas.ts b/packages/headless/src/modules/client-email/client-email.schemas.ts
+index 3094f7bb0..aec00851c 100644
+--- a/packages/headless/src/modules/client-email/client-email.schemas.ts
++++ b/packages/headless/src/modules/client-email/client-email.schemas.ts
+@@ -190,7 +190,7 @@ export function useQuerySchema(): QuerySchema {
+               eq: {
+                 type: ["boolean", "null"],
+                 oneOf: [
+-                  { const: true, title: "text.yes" },
++                  { const: true, title: "text.absent_option_key" },
+                   { const: false, title: "text.no" }
+                 ]
+               }
