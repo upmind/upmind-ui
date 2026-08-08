@@ -14,7 +14,8 @@ export default defineConfig({
   build: {
     lib: {
       entry: {
-        index: resolve(__dirname, "src/index.ts")
+        index: resolve(__dirname, "src/index.ts"),
+        scenarios: resolve(__dirname, "src/scenarios.ts")
       },
       name: "@upmind-automation/headless",
       formats: ["es"]

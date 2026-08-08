@@ -14,6 +14,10 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./scenarios": {
+      "types": "./dist/scenarios.d.ts",
+      "import": "./dist/scenarios.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
