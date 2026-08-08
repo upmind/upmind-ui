@@ -13,15 +13,16 @@
  */
 
 import {
-  CLIENT_EMAIL_SCENARIO,
-  CLIENT_EMAILS_SCENARIO,
   ClientEmailContextTypes,
   ClientEmailsContextTypes,
   ScopeActorTypes,
   useClientEmailManager,
   useClientEmails
 } from "@upmind-automation/headless";
-import scenarios from "@upmind-automation/headless/scenarios";
+import scenarios, {
+  CLIENT_EMAIL_SCENARIO,
+  CLIENT_EMAILS_SCENARIO
+} from "@upmind-automation/headless/scenarios";
 import { keys } from "lodash-es";
 import type { ScenarioBinding } from "./registry.types";
 import type { ScenarioKey } from "@upmind-automation/headless/scenarios";

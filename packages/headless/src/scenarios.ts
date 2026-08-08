@@ -1,9 +1,8 @@
 import {
   CLIENT_EMAIL_SCENARIO,
-  CLIENT_EMAILS_SCENARIO,
-  useClientEmailManager,
-  useClientEmails
-} from "./modules/client-email";
+  CLIENT_EMAILS_SCENARIO
+} from "./modules/client-email/client-email.types";
+import { useClientEmailManager, useClientEmails } from "./modules/client-email";
 // -----------------------------------------------------------------------------
 /**
  * @module scenarios
@@ -26,6 +25,13 @@ const scenarios = {
   [CLIENT_EMAILS_SCENARIO]: () => useClientEmails(),
   [CLIENT_EMAIL_SCENARIO]: () => useClientEmailManager()
 } as const;
+
+/**
+ * The keys themselves, re-exported HERE and nowhere else. A consumer's registry
+ * names a key and boots a thunk through ONE specifier, and the main barrel's
+ * curated surface stays exactly what it was.
+ */
+export { CLIENT_EMAIL_SCENARIO, CLIENT_EMAILS_SCENARIO };
 
 /** The union of every registered scenario key — a registry must cover it exactly. */
 export type ScenarioKey = keyof typeof scenarios;
