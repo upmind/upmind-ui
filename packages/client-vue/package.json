@@ -1,6 +1,6 @@
 {
   "name": "@upmind-automation/client-vue",
-  "version": "0.0.1",
+  "version": "0.20.11",
   "description": "",
   "type": "module",
   "sideEffects": [
