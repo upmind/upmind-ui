@@ -13,7 +13,7 @@ import {
   useQuerySchema,
   useQueryUischema
 } from "@upmind-automation/headless-test-kit/client-email.internal-kit";
-import form from "../../../../../../i18n/src/core/form-en.json";
+import form from "@upmind-automation/i18n/core/form-en.json";
 import { fieldLayoutOf, labelOf, mountFilters } from "./filter.harness";
 
 const ROW = "flex-row";

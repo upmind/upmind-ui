@@ -15,8 +15,8 @@ import {
   useQuerySchema,
   useQueryUischema
 } from "@upmind-automation/headless-test-kit/client-email.internal-kit";
-import form from "../../../../../../i18n/src/core/form-en.json";
-import text from "../../../../../../i18n/src/core/text-en.json";
+import form from "@upmind-automation/i18n/core/form-en.json";
+import text from "@upmind-automation/i18n/core/text-en.json";
 import {
   labelOf,
   mountFilters,

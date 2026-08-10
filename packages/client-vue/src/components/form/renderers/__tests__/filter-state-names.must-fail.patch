@@ -11,8 +11,8 @@ Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
 diff --git a/packages/client-vue/src/components/form/renderers/FilterRenderer.vue b/packages/client-vue/src/components/form/renderers/FilterRenderer.vue
 --- a/packages/client-vue/src/components/form/renderers/FilterRenderer.vue
 +++ b/packages/client-vue/src/components/form/renderers/FilterRenderer.vue
-@@ -297,8 +297,7 @@
-  */
+@@ -290,8 +290,7 @@
+
  const stateItems = computed<ToggleGroupItem[]>(() =>
    map(options.value, option => {
 -    const key = get(stateKeys.value, option.value);
@@ -20,4 +20,4 @@ diff --git a/packages/client-vue/src/components/form/renderers/FilterRenderer.vu
 +    return { value: option.value, label: option.title };
    })
  );
- 
+

@@ -17,7 +17,7 @@ import {
   useQuerySchema,
   useQueryUischema
 } from "@upmind-automation/headless-test-kit/client-email.internal-kit";
-import error from "../../../../../../i18n/src/core/error-en.json";
+import error from "@upmind-automation/i18n/core/error-en.json";
 import {
   labelOf,
   messagesOf,

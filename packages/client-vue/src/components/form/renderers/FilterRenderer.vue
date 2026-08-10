@@ -1,14 +1,14 @@
 <template>
   <FormField v-bind="fieldProps">
     <ButtonGroup
-      v-if="meta.isButtonGroup"
+      v-if="isButtonGroup"
       :items="buttonGroupItems"
       :disabled="fieldProps.disabled"
       size="sm"
     />
 
     <ToggleGroup
-      v-else-if="meta.isToggleGroup"
+      v-else-if="isToggleGroup"
       :items="stateItems"
       :model-value="selected"
       :disabled="fieldProps.disabled"
@@ -17,7 +17,7 @@
     />
 
     <Search
-      v-else-if="meta.isSearch"
+      v-else-if="branch === FilterBranch.Search"
       :id="fieldProps.id"
       :results="null"
       :model-value="toString(leaf(RequestFilterOperator.LIKE))"
@@ -25,7 +25,7 @@
       :disabled="fieldProps.disabled"
       @update:model-value="write(RequestFilterOperator.LIKE, $event)"
     >
-      <template v-if="meta.isSet" #append>
+      <template v-if="isSet" #append>
         <Tooltip :label="unsetLabel">
           <Button
             icon="x-close"
@@ -42,7 +42,7 @@
     </Search>
 
     <div
-      v-else-if="meta.isSelect"
+      v-else-if="branch === FilterBranch.Select"
       class="flex flex-row flex-nowrap items-center gap-x-3"
     >
       <Select
@@ -53,7 +53,7 @@
         :disabled="fieldProps.disabled"
         @update:model-value="onPick"
       />
-      <Tooltip v-if="meta.isSet" :label="unsetLabel">
+      <Tooltip v-if="isSet" :label="unsetLabel">
         <Button
           icon="x-close"
           icon-only
@@ -68,12 +68,12 @@
     </div>
 
     <div
-      v-else-if="meta.isRange"
+      v-else-if="branch === FilterBranch.Range"
       class="flex flex-row flex-nowrap items-center gap-x-3"
     >
       <Input
         :id="`${fieldProps.id}-from`"
-        :type="meta.isNumericRange ? 'number' : 'text'"
+        :type="isNumericRange ? 'number' : 'text'"
         :disabled="fieldProps.disabled"
         :model-value="
           toString(leaf(RequestFilterOperator.GREATER_THAN_OR_EQUAL))
@@ -85,7 +85,7 @@
       <span aria-hidden="true">&ndash;</span>
       <Input
         :id="`${fieldProps.id}-to`"
-        :type="meta.isNumericRange ? 'number' : 'text'"
+        :type="isNumericRange ? 'number' : 'text'"
         :disabled="fieldProps.disabled"
         :model-value="toString(leaf(RequestFilterOperator.LESS_THAN_OR_EQUAL))"
         @update:model-value="
@@ -163,8 +163,7 @@ const { control, formFieldProps, handleChange } = useUpmindUIRenderer(
 
 // --- computed
 
-/** The column's DECLARED operator set — the scope resolves to the column, so
- * its `properties` are the operators it allows and nothing else is consulted. */
+/** The column's declared operators — its schema `properties` keys. */
 const operators = computed(() => get(control.value.schema, "properties", {}));
 
 const options = computed<FilterOption[]>(() => {
@@ -224,10 +223,6 @@ const branch = computed<FilterBranch>(() => {
   return FilterBranch.Unsupported;
 });
 
-/**
- * A tri-state's control is PRESENTATION, so the uischema names it and anything
- * it fails to name draws the treatment that shows its own unset position.
- */
 const treatment = computed(() =>
   get(
     control.value.uischema,
@@ -236,31 +231,34 @@ const treatment = computed(() =>
   )
 );
 
-/** The state name each position carries, keyed by the position's own value. */
+/** Position value → the i18n key naming that position's state. */
 const stateKeys = computed<Record<string, string>>(() =>
   get(control.value.uischema, ["options", FILTER_STATES_OPTION], {})
 );
 
-const meta = computed(() => ({
-  isSearch: branch.value === FilterBranch.Search,
-  isBoolean: branch.value === FilterBranch.Boolean,
-  isToggleGroup:
+const isToggleGroup = computed(
+  () =>
     branch.value === FilterBranch.Boolean &&
-    treatment.value === FilterTreatment.ToggleGroup,
-  isButtonGroup:
+    treatment.value === FilterTreatment.ToggleGroup
+);
+
+const isButtonGroup = computed(
+  () =>
     branch.value === FilterBranch.Boolean &&
-    treatment.value !== FilterTreatment.ToggleGroup,
-  isSelect: branch.value === FilterBranch.Select,
-  isRange: branch.value === FilterBranch.Range,
-  isUnsupported: branch.value === FilterBranch.Unsupported,
-  isNumericRange: !isEmpty(
-    intersection(typesOf(RequestFilterOperator.GREATER_THAN_OR_EQUAL), [
-      "number",
-      "integer"
-    ])
-  ),
-  isSet: !isEmpty(control.value.data)
-}));
+    treatment.value !== FilterTreatment.ToggleGroup
+);
+
+const isNumericRange = computed(
+  () =>
+    !isEmpty(
+      intersection(typesOf(RequestFilterOperator.GREATER_THAN_OR_EQUAL), [
+        "number",
+        "integer"
+      ])
+    )
+);
+
+const isSet = computed(() => !isEmpty(control.value.data));
 
 const unsetLabel = computed(() => translate(FILTER_UNSET_I18N_KEY));
 
@@ -273,7 +271,6 @@ const selectItems = computed(() =>
   map(options.value, option => ({ value: option.value, title: option.title }))
 );
 
-/** `All` first, then every declared position — the unset is a position, not a ✕. */
 const buttonGroupItems = computed<ButtonGroupItem[]>(() =>
   concat<ButtonGroupItem>(
     {
@@ -291,11 +288,6 @@ const buttonGroupItems = computed<ButtonGroupItem[]>(() =>
   )
 );
 
-/**
- * The label-less treatment's positions: the column's name never renders, so
- * each position must say what it MEANS, which only the uischema knows. Absent a
- * state name the schema's own `oneOf` title stands in.
- */
 const stateItems = computed<ToggleGroupItem[]>(() =>
   map(options.value, option => {
     const key = get(stateKeys.value, option.value);
@@ -304,13 +296,11 @@ const stateItems = computed<ToggleGroupItem[]>(() =>
 );
 
 /**
- * The element's OWN `i18n` object — label · description · placeholder. `Form`
- * merges it into `options`, but only from `onMounted` and without a reactive
- * trigger, so the control's first paint reads `options` before it lands and
- * never re-reads: the placeholder never renders and a `label: null` never
- * suppresses the schema-title fallback. Resolved here off the injected
- * translator instead — no merge, so a flat key that resolves to a STRING must
- * be dropped rather than spread across the props as numbered characters.
+ * The element's own `i18n` object — label · description · placeholder.
+ * Resolved here rather than read off `options`: `Form` merges it in from
+ * `onMounted` with no reactive trigger, so the first paint misses it and never
+ * re-reads. Unmerged, a key resolving to a STRING must be dropped, or it
+ * spreads across the props as numbered characters.
  */
 const declared = computed(() => {
   const resolved = resolve(get(control.value.uischema, "i18n"));
@@ -323,17 +313,18 @@ const fieldProps = computed<FormControlProps>(() => {
     FILTER_STATES_OPTION
   ]) as FormControlProps;
 
-  if (meta.value.isUnsupported)
+  if (branch.value === FilterBranch.Unsupported)
     return assign(merged, {
       errors: [translate(FILTER_UNSUPPORTED_I18N_KEY)],
       touched: true
     });
 
   return assign(merged, {
-    layout: meta.value.isBoolean
-      ? FORM_FIELD_LAYOUT.INLINE
-      : FORM_FIELD_LAYOUT.STACKED,
-    noLabel: meta.value.isToggleGroup || !!merged.noLabel
+    layout:
+      branch.value === FilterBranch.Boolean
+        ? FORM_FIELD_LAYOUT.INLINE
+        : FORM_FIELD_LAYOUT.STACKED,
+    noLabel: isToggleGroup.value || !!merged.noLabel
   });
 });
 
@@ -356,11 +347,9 @@ function leaf(operator: RequestFilterOperator): unknown {
 }
 
 /**
- * Sets or clears ONE leaf, always MERGED onto the column's current value, and
- * writes the whole column. The merge is what lets a two-ended range keep its
- * untouched end. Nil and `""` mean unset — the leaf is removed rather than
- * written empty, so a cleared filter is absent from the wire and still passes
- * the leaf's own `minLength`.
+ * Sets or clears ONE leaf, merged onto the column's current value so a
+ * two-ended range keeps its untouched end, and writes the whole column. Nil and
+ * `""` mean unset: the leaf is removed rather than written empty.
  */
 function write(operator: RequestFilterOperator, value: unknown): void {
   const column =
@@ -372,10 +361,10 @@ function write(operator: RequestFilterOperator, value: unknown): void {
 }
 
 /**
- * The ONE clear path every single-select treatment shares. Radix's own re-press
- * emits `undefined`, `All` emits the unset value, and both must remove the leaf
- * rather than resolve to a position — `find` on a nil value would otherwise
- * match the first option and silently set the filter it was asked to clear.
+ * The clear path every single-select treatment shares. Radix's re-press emits
+ * `undefined` and `All` emits the unset value; both must short-circuit, since
+ * `find` on a nil value matches the first option and would silently set the
+ * filter it was asked to clear.
  */
 function onPick(value?: string | string[]): void {
   const picked = isArray(value) ? first(value) : value;
@@ -390,9 +379,6 @@ function onPick(value?: string | string[]): void {
 
 // --- side effects
 
-// A column no branch claims is a DECLARATION mistake, so it must not take the
-// form down with it: the visible affordance is `fieldProps`' error, and the
-// operator keys a developer needs go here rather than into a user's sentence.
 watch(
   branch,
   next => {

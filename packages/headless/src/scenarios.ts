@@ -17,7 +17,7 @@ import {
  *
  * Each value is a boot THUNK, never an invoked builder: enumerating the map
  * must not instantiate a scope. The consumer's own registry supplies scope,
- * pairing and handoff (S-D4).
+ * pairing and handoff.
  */
 // -----------------------------------------------------------------------------
 

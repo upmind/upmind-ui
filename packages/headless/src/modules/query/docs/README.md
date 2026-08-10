@@ -8,6 +8,8 @@ Every list-backed composable in this codebase already builds on `useQuery`'s `li
 
 **`useQueryCriteria`** closes that gap. A module hands its **declared query schema** to `list()` (or `query()` / `listInfinite()`) as `criteria`, and the query constructs the whole pipeline itself — intent → parse → validate → translate — and publishes it back on the handle. There is no second object to keep in sync, because there is no second object.
 
+This is the **only** pipeline: `sort` / `filters` / `pagination` can never be spelt raw at the top level of `list()`, `query()` or `listInfinite()` — passing any of them is a compile error whether or not `criteria` is also given. A collection declares its schema through `criteria` or it declares nothing at all; there is no third way to ask for filtering, sorting or pagination.
+
 ```ts
 import { useQuery } from "@upmind-automation/headless";
 
@@ -27,7 +29,7 @@ query.criteriaError; // ajv's verdict on the last REJECTED write — never swall
 query.setCriteria(next); // the ONE write verb
 ```
 
-> **👩‍💻 For Developers:** `criteria` and the raw `filters` / `sort` / `pagination` params are **mutually exclusive by type** — passing both is a compile error, not a runtime surprise. Every existing raw caller is untouched; nothing about this is a breaking change to `useQuery` itself.
+> **👩‍💻 For Developers:** `filters` / `sort` / `pagination` are typed `never` at the top level of `list()`, `query()` and `listInfinite()` — a compile error, not a runtime surprise, catches a raw spelling before it ships. The schema is what makes a branch legal to write at all: an undeclared filter column, an undeclared sort field, or a filter operator the branch's schema doesn't list is not a value that can reach `setCriteria`.
 
 ## Quick Start
 
@@ -100,24 +102,21 @@ There is no per-column "is this one filtered" member — the published model alr
 
 ### `isSorted` does not exist, deliberately
 
-A query schema in this family always declares a `sort` default, so "is the collection sorted" is unconditionally `true` and would be a helper that never returns a useful answer. If a module ever needs "sorted **other than** the declared default", that is a different, nameable question — built when a real consumer needs it, with that definition.
+There is no published `isSorted` flag. A schema that declares no `sort` branch at all has nothing to ask — a "picker" collection like client-phone's, read whole with `limit: 0`, is never sorted by definition. A schema that does declare `sort` almost always gives it a `default`, so "is the collection sorted" would be unconditionally `true` and a helper that never returns a useful answer. If a module ever needs "sorted **other than** the declared default", that is a different, nameable question — built when a real consumer needs it, with that definition.
 
-### Returning to a combination already fetched repaints it; it never restarts from empty
+### Returning to a combination already fetched costs nothing — ever
 
-`list()` and `listInfinite()` keep every distinct `(filters, sort, page)` combination they have fetched, and landing back on one repaints it instead of wiping it and blocking on a fresh round trip:
+Every distinct `(filters, sort, limit, offset)` combination `list()` shows is its own cache entry, because its reactive query key carries exactly those branches (`listInfinite()` keys on `filters`, `sort` and `limit` alone — its `offset` is the accumulating page cursor described below, not a branch swap). Neither entry point invalidates a sibling entry when one branch changes: a filter write does not mark every other filter's cache stale, a sort write does not mark every other sort's, and paging back to a page already shown does not re-fetch it. Landing back on any combination already seen repaints straight from that entry — no request goes out, and what's on screen is the exact response first captured for it, timestamp included.
 
-- **The same page** — going back to a page already shown costs nothing at all: no request goes out, and what's on screen is the exact response first captured for it, timestamp included.
-- **A previous filter or sort** — paints instantly from what is still held, then makes exactly one request in the background to confirm nothing changed underneath. The screen never goes empty while that check runs.
+Nothing is thrown away by a filter, sort, or page change on its own — each one only ever _selects_ a cache entry, never invalidates one. The one verb that does discard a combination outright is `resetQuery()`, present on every handle: a caller reaching for it explicitly gets exactly that — the combination is gone, and the next read for it starts from nothing.
 
-Nothing is thrown away by a filter, sort, or page change on its own — each one only ever asks "is this still right?", never "burn it down and start over." The one verb that does discard a combination outright is `resetQuery()`, present on the handle in both raw and criteria mode: a caller reaching for it explicitly gets exactly that — the combination is gone, and the next read for it starts from nothing.
-
-> **🧪 For Testers:** these are two different guarantees, not the same claim twice. A page revisit is provably free — the timestamp on the data after revisiting a page is identical to the one stamped on its very first fetch, because nothing re-fetched it. A filter/sort revisit is provably _not_ free in that same sense: it paints the old rows immediately, but the request count still goes up by exactly one as it revalidates behind them. Neither is "no request, ever" — each is precisely what it claims to be.
+> **🧪 For Testers:** this is one guarantee, not two different ones for pages versus filters. Revisiting a page, a filter, or a sort you have already fetched all land on the same law — zero additional requests, and the data's timestamp stays the one stamped on its very first fetch. Toggling between two filter values four times issues exactly two requests, not four; re-selecting either value a third time issues none. What is _not_ free is landing on a combination for the first time — that always fetches, exactly once, and every later revisit of it is free from then on.
 
 ### `list()` bridges the gap between combinations; `listInfinite()` has none to bridge
 
 Switching `list()` to a combination it has never shown before replaces the page on screen outright, so without help the moment between "old page gone" and "new page arrived" would flash empty. `list()` closes that gap by holding onto the **previous** combination's rows for the duration the new one is in flight, so the screen never empties mid-switch.
 
-`listInfinite()` doesn't get the same treatment, because it has nothing to bridge: it never replaces anything to make room for what's loading — every additional page it pulls in is rows _added_ to what's already there, never rows _ousting_ them. There is no in-between state to paper over, so nothing was added to paper over one.
+`listInfinite()` doesn't get the same treatment, because it has nothing to bridge: it never replaces anything to make room for what's loading — every additional page it pulls in is rows **added** to what's already there, never rows **ousting** them. There is no in-between state to paper over, so nothing was added to paper over one.
 
 ## Where it fits
 
@@ -138,14 +137,15 @@ import {
   type QueryCriteria,
   type QueryCriteriaOptions,
   type QueryCriteriaHandle,
-  type CriteriaInput,
-  type RawCriteria,
-  type SchemaCriteria,
-  type WithCriteria
+  type CriteriaInput
 } from "@upmind-automation/headless";
 ```
 
 `translateQuery(schema, model)` is the one function that turns a model into the wire's `filter[column|operator]=` / `order=` / `limit=`&`offset=` parameters. It is exported for diagnostics — a consumer that wants to show "what would this model send" without firing a request — not as a second way to build request params; `list()` is its only production consumer.
+
+### A filter's wire column can differ from its model property
+
+A filter branch's wire column defaults to its own property name, but a branch may declare a `column` keyword to bind it to a different one — for an API whose filterable column is spelt differently from the name the model reads and writes. `client-phone`'s query schema is the concrete case: the model property is `number` (what a consumer filters by), but the branch declares `column: "phone"`, because the API's own `filter[phone|like]` is what the server actually accepts — `filter[number|like]` answers with an HTTP 500. `translateQuery` reads the branch's `column` when present and falls back to the property name when it isn't; a module never has to rename its own model property to match an oddly-spelt wire column.
 
 ## See it driven live
 

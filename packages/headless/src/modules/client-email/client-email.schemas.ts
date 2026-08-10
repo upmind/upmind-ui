@@ -68,7 +68,7 @@ export const useUischema = (): UISchemaElement => {
 };
 
 // -----------------------------------------------------------------------------
-// Per-action INPUT schemas (Task 33) — the coverage-gate map
+// Per-action INPUT schemas — the coverage-gate map
 // -----------------------------------------------------------------------------
 
 /**
@@ -109,7 +109,7 @@ export function useActionInputSchemas(): Record<string, JsonSchema7> {
 }
 
 // -----------------------------------------------------------------------------
-// QUERY schema — the whole request state as ONE Draft-07 schema (S-D9)
+// QUERY schema — the whole request state as ONE Draft-07 schema
 // -----------------------------------------------------------------------------
 
 /**
@@ -130,8 +130,7 @@ export function useActionInputSchemas(): Record<string, JsonSchema7> {
  * once the server answers merges them in at call time.
  *
  * @decision as-const-vs-satisfies
- * what: authored `satisfies JsonSchema7`, NOT `as const satisfies JsonSchema7`
- *   (the §1.5a idiom).
+ * what: authored `satisfies JsonSchema7`, NOT `as const satisfies JsonSchema7`.
  * why: nothing consumes the schema's literal types — `FilterModel`/`SortModel`
  *   are hand-authored in `client-email.types.ts`, and the translator + ajv walk
  *   the schema at RUNTIME, where `additionalProperties: false` enforces
@@ -139,7 +138,7 @@ export function useActionInputSchemas(): Record<string, JsonSchema7> {
  * rejected: `as const satisfies JsonSchema7` — `@jsonforms/core`@3.7.0 types
  *   `oneOf`/`enum`/`items`/`required` as MUTABLE arrays, so `as const`'s
  *   readonly arrays fail the `satisfies` check (a compile error), and the
- *   compile-time literal benefit §1.5a sought has no consumer here.
+ *   compile-time literal types it would buy have no consumer here.
  */
 export function useQuerySchema(): QuerySchema {
   return {

@@ -13,7 +13,7 @@ import {
   useQuerySchema,
   useQueryUischema
 } from "@upmind-automation/headless-test-kit/client-email.internal-kit";
-import text from "../../../../../../i18n/src/core/text-en.json";
+import text from "@upmind-automation/i18n/core/text-en.json";
 import {
   mountFilters,
   positionAt,

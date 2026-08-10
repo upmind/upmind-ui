@@ -15,12 +15,12 @@
 import { mount } from "@vue/test-utils";
 import { defineComponent, h, ref } from "vue";
 import { createI18n } from "vue-i18n";
+import action from "@upmind-automation/i18n/core/action-en.json";
+import error from "@upmind-automation/i18n/core/error-en.json";
+import form from "@upmind-automation/i18n/core/form-en.json";
+import text from "@upmind-automation/i18n/core/text-en.json";
+import validation from "@upmind-automation/i18n/core/validation-en.json";
 import { Form } from "@upmind-automation/upmind-ui";
-import action from "../../../../../../i18n/src/core/action-en.json";
-import error from "../../../../../../i18n/src/core/error-en.json";
-import form from "../../../../../../i18n/src/core/form-en.json";
-import text from "../../../../../../i18n/src/core/text-en.json";
-import validation from "../../../../../../i18n/src/core/validation-en.json";
 import { UpmForm } from "../../index";
 import { useFormI18n } from "../../useFormI18n";
 import { formRenderers } from "../index";
