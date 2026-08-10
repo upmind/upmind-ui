@@ -1,16 +1,15 @@
 /** @internal */
 import { BrandConfigKeys, type ICompany } from "@upmind-automation/types";
-import { useQuery } from "../query";
-import { ScopeActorTypes } from "../scope";
 import { useBrand } from "../brand";
 import { useClientAddresses } from "../client-address";
-import type { PhoneModel } from "../client-phone";
 import { useClientAddressServices } from "../client-address";
 import { useClientEmails } from "../client-email";
 import { useClientPhones } from "../client-phone";
 import { useClientPhoneServices } from "../client-phone";
 import { useFeedback } from "../feedback";
+import { useQuery } from "../query";
 import { invalidateQueryByKey } from "../query";
+import { ScopeActorTypes } from "../scope";
 import { useActiveSession } from "../session-store";
 import { useSystem } from "../system";
 import { useI18n } from "../system-localisation";
@@ -19,6 +18,7 @@ import {
   mapCompany,
   mapICompany
 } from "./client-company.mappers";
+import { useQuerySchema } from "./client-company.schemas";
 import {
   useTime,
   ErrorOrigin,
@@ -33,11 +33,12 @@ import {
 import { get, isString, isEmpty, find, some, pick, isArray } from "lodash-es";
 import type { AddressModel } from "../client-address";
 import type { EmailModel } from "../client-email";
-import type { QueryParams } from "../query";
+import type { PhoneModel } from "../client-phone";
 import type {
   Company,
   CompanyModel,
-  CompanyContext
+  CompanyContext,
+  CompanyQueryModel
 } from "./client-company.types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
@@ -47,13 +48,18 @@ import type { AnyEventObject } from "xstate";
 
 const queryKey: QueryKey = ["client", "companies"];
 
-function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
+/**
+ * The whole request state is the DECLARED query schema: `list()` constructs the
+ * criteria from it and publishes it back on the handle, so there is no params
+ * back door a caller could contradict it through.
+ */
+function loadList(model?: Partial<CompanyQueryModel>) {
   const { isAuthenticated } = useActiveSession().useMeta();
   const { sessionId: clientId } = useActiveSession().useContext();
   const { list, useUrl } = useQuery();
 
-  return list<ICompany[], Company[]>({
-    ...(params as any),
+  return list<ICompany[], Company[], CompanyQueryModel>({
+    criteria: { schema: useQuerySchema(), model },
     queryKey: [...queryKey, { client: clientId.value }],
     url: useUrl(`clients/${clientId.value}/companies`, {
       with: ["address", "address.country", "address.region"].join()

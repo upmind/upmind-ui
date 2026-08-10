@@ -1,5 +1,5 @@
 import { experimental_createQueryPersister } from "@tanstack/query-persist-client-core";
-import { isArray, isString } from "xstate/lib/utils";
+import { isString } from "xstate/lib/utils";
 import {
   type Message,
   messageDisplays,
@@ -7,6 +7,11 @@ import {
   useFeedback
 } from "../feedback";
 import { useI18n } from "../system-localisation";
+import {
+  RequestFilterOperator,
+  RequestSortDirection,
+  SortDirection
+} from "./query.types";
 import { useQuery } from "./useQuery";
 import {
   compactDeep,
@@ -15,17 +20,35 @@ import {
   responseCodes
 } from "../../utils";
 import {
+  assign,
+  filter,
+  isArray,
+  isBoolean,
+  isEmpty,
   isNil,
   includes,
   isObject,
+  join,
+  map,
   merge,
   omit,
+  reduce,
   set,
+  size,
   toNumber,
   values,
   get
 } from "lodash-es";
-import type { QueryResponse } from "./query.types";
+import type {
+  PaginationInfo,
+  QueryCriteriaOptions,
+  QueryProps,
+  QueryResponse,
+  QuerySortEntry,
+  RequestFilters,
+  RequestPagination
+} from "./query.types";
+import type { JsonSchema } from "@jsonforms/core";
 import type { InvalidateQueryFilters, QueryKey } from "@tanstack/vue-query";
 import type { AnyUpdater } from "@tanstack/vue-store";
 import type { Store } from "@tanstack/vue-store";
@@ -408,4 +431,159 @@ export function isNetworkError(error: unknown): boolean {
   return (
     error instanceof TypeError || get(error, "message") === "Network Error"
   );
+}
+
+// --- criteria
+
+/**
+ * One filter leaf as its wire string. An inactive leaf becomes `""` — the
+ * clearing value the request serialiser deletes — and an active one is always
+ * non-empty, so a `false` filter cannot be dropped as falsy.
+ */
+function toWireFilterValue(operator: string, value: unknown): string {
+  if (isNil(value) || (isString(value) && isEmpty(value))) return "";
+  if (
+    includes(
+      [RequestFilterOperator.LIKE, RequestFilterOperator.NOT_LIKE],
+      operator
+    )
+  )
+    return `%${value}%`;
+  if (isBoolean(value)) return value ? "1" : "0";
+  if (isArray(value)) return join(value, ",");
+  return String(value);
+}
+
+/**
+ * A whole query model as the {@link QueryProps} the request layer accepts.
+ *
+ * Walks the schema's DECLARED `(column, operator)` pairs rather than the
+ * model's keys, so it emits one key per declared filter; drops any sort field
+ * the schema's enum does not declare, because an undeclared `order=` column is
+ * an HTTP 500.
+ *
+ * A filter branch's WIRE column is its own property name unless the branch
+ * declares a `column` — the binding for an API whose filterable column is spelt
+ * differently from the model's property (client-phone's `number` → `phone`).
+ *
+ * @param schema - The collection's declared query schema.
+ * @param model - The parsed, validated query model.
+ * @returns A FRESH `QueryProps` on every call, so callers can compare by value.
+ */
+export function translateQuery(
+  schema: JsonSchema,
+  model: Record<string, unknown>
+): QueryProps {
+  const filters = reduce(
+    get(schema, ["properties", "filters", "properties"], {}),
+    (result: RequestFilters, branchSchema, property) => {
+      const column = get(branchSchema, "column", property) as string;
+      return reduce(
+        get(branchSchema, "properties", {}),
+        (acc: RequestFilters, _operatorSchema, operator) => {
+          acc[`filter[${column}|${operator}]`] = toWireFilterValue(
+            operator,
+            get(model, ["filters", property, operator])
+          );
+          return acc;
+        },
+        result
+      );
+    },
+    {}
+  );
+
+  const sortFields = get(
+    schema,
+    ["properties", "sort", "items", "properties", "field", "enum"],
+    []
+  ) as string[];
+
+  const tuples = map(
+    filter(get(model, "sort", []) as QuerySortEntry[], entry =>
+      includes(sortFields, entry.field)
+    ),
+    entry =>
+      [
+        entry.dir === SortDirection.ASC
+          ? RequestSortDirection.ASC
+          : RequestSortDirection.DESC,
+        entry.field
+      ] as [RequestSortDirection, string]
+  );
+
+  return {
+    filters,
+    sort: size(tuples) === 1 ? tuples[0] : tuples,
+    pagination: get(model, "pagination") as RequestPagination | undefined
+  };
+}
+
+/**
+ * Merges the pager's own `pagination` window UNDER a declared query schema, so
+ * the cursor `list()` writes always has a branch to land in — a schema that
+ * under-declares it would have the write stripped by the model parser and an
+ * offered Next control would silently move nothing. The declaration's own
+ * bounds and defaults win.
+ *
+ * @param declaration - The collection's criteria declaration, if it made one.
+ * @returns A declaration whose schema is guaranteed to carry a page window.
+ */
+export function withPageWindow<TModel extends Record<string, unknown>>(
+  declaration?: QueryCriteriaOptions<TModel>
+): QueryCriteriaOptions<TModel> {
+  return assign({}, declaration, {
+    schema: merge(
+      {
+        properties: {
+          pagination: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              limit: {
+                type: "integer",
+                minimum: 0,
+                default: PAGINATION.limit
+              },
+              offset: { type: "integer", minimum: 0 }
+            }
+          }
+        }
+      },
+      declaration?.schema
+    ) as JsonSchema
+  });
+}
+
+// --- pagination
+
+/**
+ * How many pages a result set of `total` items spans at `limit` per page.
+ * An unpaged list (`limit: 0`) is always exactly one page.
+ */
+export function resolvePageTotal(total: number, limit: number): number {
+  return !limit ? 1 : Math.max(Math.ceil(total / limit), 1);
+}
+
+/**
+ * The published page state for a result set — the one shape both the `list()`
+ * handle and its out-of-range page errors report.
+ *
+ * @param total - Total items in the result set.
+ * @param limit - Items per page; `0` means unpaged.
+ * @param page - The current 1-indexed page.
+ */
+export function toPaginationInfo(
+  total: number,
+  limit: number,
+  page: number
+): PaginationInfo {
+  return {
+    limit,
+    total,
+    page,
+    pages: resolvePageTotal(total, limit),
+    from: !total ? 0 : limit * (page - 1) + 1,
+    to: !limit ? total : Math.min(limit * page, total)
+  };
 }

@@ -1,24 +1,23 @@
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import service from "./client-custom-fields.services";
 import { useCollection } from "../../utils";
-import { set, isEmpty, isArray } from "lodash-es";
-import type { CustomField } from "./client-custom-fields.types";
-import type { QueryProps, RequestFilters } from "../query";
+import { isEmpty, isArray } from "lodash-es";
+import type {
+  CustomField,
+  CustomFieldQueryModel
+} from "./client-custom-fields.types";
 
 /**
- * Composable function for managing client phones.
- * It handles fetching, displaying, filtering, and performing actions on client phones,
+ * Composable function for managing client custom fields.
+ * It handles fetching, displaying, filtering, and performing actions on custom fields,
  * leveraging an underlying service and TanStack Query for data management.
  *
- * @param initial - Optional initial query parameters for loading the phone list. Defaults to pagination limit of 0.
- * @returns The {@link useClientCustomFields} API for interacting with client phones.
+ * @param initial - The starting query model (filters · sort · pagination).
+ * Untrusted; it takes the same parse → validate path as any criteria write.
+ * @returns The {@link useClientCustomFields} API for interacting with custom fields.
  */
 export const useClientCustomFields = (
-  initial: QueryProps = {
-    pagination: {
-      limit: 0
-    }
-  }
+  initial?: Partial<CustomFieldQueryModel>
 ) => {
   // --- state
 
@@ -46,21 +45,6 @@ export const useClientCustomFields = (
       }, 100);
     });
   }
-
-  // --- filters
-
-  const filters = ref<
-    RequestFilters & {
-      query?: string;
-    }
-  >({
-    query: ""
-  });
-
-  const filterQuery = (value?: string) => {
-    set(filters.value, "query", value ?? "");
-    query.filter(filters.value);
-  };
 
   // ---------------------------------------------------------------------------
 
@@ -162,15 +146,28 @@ export const useClientCustomFields = (
      */
     // invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
 
+    // --- criteria
+
     /**
-     * Filters for the query.
-     * These filters can be used to modify the query parameters before fetching the data.
-     * @type {RequestFilters & { query?: string }}
-     * @property query - The search query to filter the client phones by title or description.
+     * The collection's request state — filters · sort · pagination — as the
+     * schema-validated model. Read-only; write through {@link setCriteria}.
      */
-    filters: {
-      query: filterQuery
-    }
+    criteria: query.criteria,
+
+    /** What is filterable and sortable at all. */
+    schema: query.schema,
+
+    /** Any declared filter column carries a value. */
+    isFiltered: query.isFiltered,
+
+    /** ajv's verdict on the last REJECTED criteria write — not a fetch failure. */
+    criteriaError: query.criteriaError,
+
+    /**
+     * The ONE write verb for the request state. Merges at BRANCH level, and a
+     * write that changes the result set returns to the first page.
+     */
+    setCriteria: query.setCriteria
   };
 };
 

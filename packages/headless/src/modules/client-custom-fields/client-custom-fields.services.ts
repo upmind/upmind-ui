@@ -3,12 +3,15 @@ import {
   CustomFieldsMajorTypes,
   type ICustomField
 } from "@upmind-automation/types";
-import { RequestSortDirection, useQuery } from "../query";
+import { useQuery } from "../query";
 import { mapCustomField } from "./client-custom-fields.mappers";
+import { useQuerySchema } from "./client-custom-fields.schemas";
 import { useTime } from "../../utils";
 import { map } from "lodash-es";
-import type { QueryParams } from "../query";
-import type { CustomField } from "./client-custom-fields.types";
+import type {
+  CustomField,
+  CustomFieldQueryModel
+} from "./client-custom-fields.types";
 import type { QueryKey } from "@tanstack/vue-query";
 
 // -----------------------------------------------------------------------------
@@ -16,16 +19,21 @@ import type { QueryKey } from "@tanstack/vue-query";
 
 const queryKey: QueryKey = ["client", "customFields"];
 
-function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
+/**
+ * The whole request state is the DECLARED query schema: `list()` constructs the
+ * criteria from it and publishes it back on the handle, so there is no params
+ * back door a caller could contradict it through. `filter[object_type]` stays
+ * on the URL — it scopes WHICH collection this is, not how it is queried.
+ */
+function loadList(model?: Partial<CustomFieldQueryModel>) {
   const { list, useUrl } = useQuery();
 
-  return list<ICustomField[], CustomField[]>({
-    ...(params as any),
+  return list<ICustomField[], CustomField[], CustomFieldQueryModel>({
+    criteria: { schema: useQuerySchema(), model },
     queryKey,
     url: useUrl(`custom_fields`, {
       "filter[object_type]": CustomFieldsMajorTypes.CLIENT
     }),
-    sort: [[RequestSortDirection.ASC, "order"]],
     withAccessToken: true,
     // --- options
     select: data => map(data ?? [], mapCustomField),

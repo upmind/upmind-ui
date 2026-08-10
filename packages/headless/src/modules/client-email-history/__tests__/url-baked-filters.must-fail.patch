@@ -1,0 +1,12 @@
+--- a/packages/headless/src/modules/client-email-history/client-email-history.services.ts
++++ b/packages/headless/src/modules/client-email-history/client-email-history.services.ts
+@@ -55,7 +55,8 @@
+     criteria: { schema: useQuerySchema(), model },
+     queryKey: [...queryKey, admin],
+     url: useUrl(admin ? "admin/self/email_history" : "self/email_history", {
+-      with: ["recipient", "recipient_type", "recipient.image"].join(",")
++      with: ["recipient", "recipient_type", "recipient.image"].join(","),
++      ...model?.filters
+     }),
+     withSplitCount: true,
+     withAccessToken: true,

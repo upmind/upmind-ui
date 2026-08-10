@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/query/query.utils.ts
++++ b/packages/headless/src/modules/query/query.utils.ts
+@@ -449,7 +449,7 @@
+     )
+   )
+     return `%${value}%`;
+-  if (isBoolean(value)) return value ? "1" : "0";
++  if (isBoolean(value)) return value ? "1" : "";
+   if (isArray(value)) return join(value, ",");
+   return String(value);
+ }

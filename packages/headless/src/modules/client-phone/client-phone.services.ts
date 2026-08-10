@@ -6,6 +6,7 @@ import { invalidateQueryByKey } from "../query";
 import { useActiveSession } from "../session-store";
 import { useSystem } from "../system";
 import { useI18n } from "../system-localisation";
+import { useQuerySchema } from "./client-phone.schemas";
 import { mapIPhone, mapPhone, mapPhones } from "./mapper";
 import {
   useTime,
@@ -19,8 +20,12 @@ import {
   DEBOUNCE_DELAY
 } from "../../utils";
 import { get, isString, isEmpty, omitBy, isArray } from "lodash-es";
-import type { QueryParams } from "../query";
-import type { Phone, PhoneModel, PhoneContext } from "./client-phone.types";
+import type {
+  Phone,
+  PhoneModel,
+  PhoneContext,
+  PhoneQueryModel
+} from "./client-phone.types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IPhone } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
@@ -30,13 +35,18 @@ import type { AnyEventObject } from "xstate";
 
 const queryKey: QueryKey = ["client", "phones"];
 
-function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
+/**
+ * The whole request state is the DECLARED query schema: `list()` constructs the
+ * criteria from it and publishes it back on the handle, so there is no params
+ * back door a caller could contradict it through.
+ */
+function loadList(model?: Partial<PhoneQueryModel>) {
   const { isAuthenticated } = useActiveSession().useMeta();
   const { activeUser: client } = useActiveSession().useContext();
   const { list, useUrl } = useQuery();
 
-  return list<IPhone[], Phone[]>({
-    ...(params as any),
+  return list<IPhone[], Phone[], PhoneQueryModel>({
+    criteria: { schema: useQuerySchema(), model },
     queryKey: [...queryKey, { client: client.value?.id }],
     url: useUrl(`clients/${client.value?.id}/phones`),
     withAccessToken: true,

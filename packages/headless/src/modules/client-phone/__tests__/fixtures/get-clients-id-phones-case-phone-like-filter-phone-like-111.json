@@ -1,0 +1,93 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/phones?filter[phone|like]=%25111%25&limit=2&case=phone-like",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a2901fbd5d95b27e-DUR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 10 Aug 2026 15:44:48 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=GGxsZLvndECREyn1NEIPfSmrD1jYVBYmn6xvZKEHGuA8r%2F4I3jtuyrVOGlFkNwpBlpvPREW7dkxv608kNT%2Byj0CYKOFmGfm2HDsdv5b7vmlP8tLJyjw8x4YKdpWeOX%2FDYpg2uo%2BxvQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "4"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "25d96e76-3ed0-913d-357a-417482528340",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "user_id": "sys",
+          "type": 1,
+          "default": true,
+          "verified": 0,
+          "syntax_valid": true,
+          "phone": "7111111111",
+          "phone_code": "+44",
+          "international_phone": "mock-phone-1",
+          "phone_country_code": "GB",
+          "created_at": "2025-06-26 08:32:10",
+          "updated_at": "2026-08-10 11:52:34",
+          "deleted_at": null,
+          "full_phone": "mock-phone-1",
+          "can_delete": true
+        },
+        {
+          "id": "d085e69d-5623-7197-266f-218e940d4237",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "user_id": "sys",
+          "type": 1,
+          "default": false,
+          "verified": 0,
+          "syntax_valid": true,
+          "phone": "7111111112",
+          "phone_code": "+44",
+          "international_phone": "mock-phone-2",
+          "phone_country_code": "GB",
+          "created_at": "2025-06-26 08:41:45",
+          "updated_at": "2026-08-10 11:52:34",
+          "deleted_at": null,
+          "full_phone": "mock-phone-2",
+          "can_delete": true
+        }
+      ],
+      "related": null,
+      "total": 4,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-10T15:44:48.554Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-phone"
+  }
+}

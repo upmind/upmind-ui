@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/query/query.utils.ts
++++ b/packages/headless/src/modules/query/query.utils.ts
+@@ -495,7 +495,7 @@
+ 
+   const tuples = map(
+     filter(get(model, "sort", []) as QuerySortEntry[], entry =>
+-      includes(sortFields, entry.field)
++      true
+     ),
+     entry =>
+       [

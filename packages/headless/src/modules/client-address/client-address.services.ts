@@ -12,6 +12,7 @@ import {
   mapAddresses,
   mapIAddressData
 } from "./client-address.mappers";
+import { useQuerySchema } from "./client-address.schemas";
 import {
   useTime,
   ErrorOrigin,
@@ -24,11 +25,11 @@ import {
   DEBOUNCE_DELAY
 } from "../../utils";
 import { get, isString, isEmpty, find, some, pick, isArray } from "lodash-es";
-import type { QueryParams } from "../query";
 import type {
   Address,
   AddressModel,
-  AddressContext
+  AddressContext,
+  AddressQueryModel
 } from "./client-address.types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
@@ -38,13 +39,18 @@ import type { AnyEventObject } from "xstate";
 
 const queryKey: QueryKey = ["client", "addresses"];
 
-function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
+/**
+ * The whole request state is the DECLARED query schema: `list()` constructs the
+ * criteria from it and publishes it back on the handle, so there is no params
+ * back door a caller could contradict it through.
+ */
+function loadList(model?: Partial<AddressQueryModel>) {
   const { isAuthenticated } = useActiveSession().useMeta();
   const { sessionId: clientId } = useActiveSession().useContext();
   const { list, useUrl } = useQuery();
 
-  return list<IAddress[], Address[]>({
-    ...(params as any),
+  return list<IAddress[], Address[], AddressQueryModel>({
+    criteria: { schema: useQuerySchema(), model },
     queryKey: [...queryKey, { client: clientId.value }],
     url: useUrl(`clients/${clientId.value}/addresses`, {
       with: ["region", "country"].join()

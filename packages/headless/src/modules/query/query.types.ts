@@ -277,36 +277,40 @@ export type MutationParams<
 
 /**
  * The `list()` query's return shape (`useQuery.ts`), parameterised by the raw
- * fetch type and the (optionally `select`-mapped) data type — mirrors
- * `list`'s own generic order/defaults. Extracted from `list`'s own inline
- * return-statement cast so a scoped module can express its list-query return
- * type without deriving `ReturnType<typeof localFn>` from its own
- * already-instantiated service function (graphify-out/ citation above — no
+ * fetch type, the (optionally `select`-mapped) data type and the collection's
+ * query model — mirrors `list`'s own generic order/defaults. Extracted from
+ * `list`'s own inline return-statement cast so a scoped module can express its
+ * list-query return type without deriving `ReturnType<typeof localFn>` from its
+ * own already-instantiated service function (graphify-out/ citation above — no
  * prior node for this type).
+ *
+ * ONE shape: sort, filters and pagination are the criteria's, so there are no
+ * `sort()`/`filter()` setters beside {@link QueryCriteriaHandle.setCriteria}.
  *
  * @template TQueryFnData - The raw type `list`'s `queryFn` resolves.
  * @template TData - The type after `select`, defaults to `TQueryFnData`.
+ * @template TModel - The module's own query model (filters · sort · pagination).
  */
 export type ListQuery<
   TQueryFnData = unknown,
-  TData = TQueryFnData
+  TData = TQueryFnData,
+  TModel extends Record<string, unknown> = Record<string, unknown>
 > = ReturnType<
   typeof vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>
-> & {
-  data: ComputedRef<TData>;
-  pagination: ComputedRef<PaginationInfo>;
-  meta: ComputedRef<{
-    hasNextPage: boolean;
-    hasPrevPage: boolean;
-    hasPages: boolean;
-  }>;
-  total: ComputedRef<number>;
-  fetchNextPage: () => void;
-  fetchPreviousPage: () => void;
-  sort: (values?: QueryParams["sort"]) => void;
-  filter: (values: QueryParams["filters"]) => void;
-  resetQuery: () => Promise<void>;
-};
+> &
+  QueryCriteriaHandle<TModel> & {
+    data: ComputedRef<TData>;
+    pagination: ComputedRef<PaginationInfo>;
+    meta: ComputedRef<{
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
+      hasPages: boolean;
+    }>;
+    total: ComputedRef<number>;
+    fetchNextPage: () => void;
+    fetchPreviousPage: () => void;
+    resetQuery: () => Promise<void>;
+  };
 
 /**
  * What a collection declares about its request state — the schema/model pair
@@ -368,47 +372,32 @@ export type QueryCriteria<
 };
 
 /**
- * A caller spelling the request branches RAW — the shape every existing call
- * site already has, plus the `criteria?: never` half of the mutual exclusion.
+ * The ONE way a collection says what it asks for: it DECLARES the request
+ * branches, so spelling any of them raw beside the declaration is a compile
+ * error rather than a second source of truth. A collection with no filters,
+ * sort or pagination at all declares no criteria — that stays legal, and it
+ * simply has nothing to write.
  *
- * @template TBranch - Which of {@link QueryProps}' branches this entry point
- * accepts at all; `query()` narrows it to `"sort" | "filters"` because it has
- * no pagination.
- */
-export type RawCriteria<TBranch extends keyof QueryProps = keyof QueryProps> =
-  Pick<QueryProps, TBranch> & { criteria?: never };
-
-/**
- * A caller DECLARING the request branches instead — the criteria owns them, so
- * spelling any of them raw beside it is a compile error rather than a silent
- * second source of truth.
+ * Intersected with an entry point's own params, NOT folded into
+ * {@link RequestParams}: the one-shot promise helpers (`getRequest`,
+ * `listRequest`, `countRequest`) still take the branches as plain params.
  *
- * @template TModel - The module's own query model (filters · sort · pagination).
- * @template TBranch - The branches this entry point forbids raw, mirroring
- * {@link RawCriteria}'s.
- */
-export type SchemaCriteria<
-  TModel extends Record<string, unknown> = Record<string, unknown>,
-  TBranch extends keyof QueryProps = keyof QueryProps
-> = { criteria: QueryCriteriaOptions<TModel> } & { [K in TBranch]?: never };
-
-/**
- * The two mutually-exclusive ways to say what a query asks for. Intersected
- * with an entry point's own params, NOT folded into {@link RequestParams}:
- * `Omit` over a union collapses it, and `query()` / `getRequest()` /
- * `countRequest()` are all declared through `Omit<QueryParams, "pagination">`.
+ * @graphify-citation `graphify query "query criteria input raw schema criteria"`
+ * (2026-08-10) — still no `CriteriaInput` node in `graphify-out/graph.json`;
+ * this NARROWS the type minted above (the `RawCriteria`/`SchemaCriteria` union
+ * collapses with the raw arm), it does not mint a new one.
  *
  * @template TModel - The module's own query model (filters · sort · pagination).
- * @template TBranch - The branches the entry point governs.
  */
 export type CriteriaInput<
-  TModel extends Record<string, unknown> = Record<string, unknown>,
-  TBranch extends keyof QueryProps = keyof QueryProps
-> = RawCriteria<TBranch> | SchemaCriteria<TModel, TBranch>;
+  TModel extends Record<string, unknown> = Record<string, unknown>
+> = {
+  criteria?: QueryCriteriaOptions<TModel>;
+} & { [K in keyof QueryProps]?: never };
 
 /**
- * What a query handle publishes in criteria mode, so every layer reads ONE
- * source and no consumer needs a shadow copy.
+ * What every list handle publishes about its request state, so each layer reads
+ * ONE source and no consumer needs a shadow copy.
  *
  * @template TModel - The module's own query model (filters · sort · pagination).
  */
@@ -422,11 +411,10 @@ export type QueryCriteriaHandle<
   /** Any declared filter column carries a value. */
   isFiltered: ComputedRef<boolean>;
   /**
-   * ajv's verdict on the last REJECTED criteria write — NOT the fetch failure,
-   * and never a state the wire carries. The handle extends
-   * the vue-query result, which already owns `error`; these are two different
-   * facts and FB5c forbids swallowing either, so this one is named for the
-   * collision rather than around it.
+   * ajv's verdict on the last REJECTED criteria write — NOT the fetch failure.
+   * The handle extends the vue-query result, which already owns `error`; these
+   * are two different facts, so this one is named for the collision rather than
+   * around it.
    */
   criteriaError: ComputedRef<ResponseError | undefined>;
   /** The ONE write verb — {@link QueryCriteria.set}. */
@@ -434,61 +422,58 @@ export type QueryCriteriaHandle<
 };
 
 /**
- * A query handle in criteria mode: the two raw setters REMOVED and the criteria
- * surface added. Keeping `sort()`/`filter()` beside `setCriteria` would be a
- * second write path into one state — the exact defect the criteria removes.
+ * The `query()` query's return shape (`useQuery.ts`), parameterised by the raw
+ * fetch type, the (optionally `select`-mapped) data type and the collection's
+ * query model. Extracted from `query`'s own inline return-statement cast for
+ * the same reason as {@link ListQuery}.
  *
- * @template TQuery - The entry point's raw handle ({@link ListQuery},
- * {@link SimpleQuery}, {@link InfiniteListQuery}).
- * @template TModel - The module's own query model (filters · sort · pagination).
- */
-export type WithCriteria<
-  TQuery,
-  TModel extends Record<string, unknown> = Record<string, unknown>
-> = Omit<TQuery, "sort" | "filter"> & QueryCriteriaHandle<TModel>;
-
-/**
- * The `query()` query's return shape (`useQuery.ts`) — a plain GET with no
- * pagination. Extracted from `query`'s own inline return-statement cast for the
- * same reason as {@link ListQuery}.
+ * ONE shape: sort and filters are the criteria's, so there are no
+ * `sort()`/`filter()` setters beside {@link QueryCriteriaHandle.setCriteria}.
+ * A plain GET has no page window, so the model's `pagination` branch — if the
+ * collection declares one — is honoured in the model and never reaches the
+ * wire; a collection that pages is a {@link ListQuery}.
  *
  * @template TQueryFnData - The raw type `query`'s `queryFn` resolves.
  * @template TData - The type after `select`, defaults to `TQueryFnData`.
+ * @template TModel - The module's own query model (filters · sort).
  */
 export type SimpleQuery<
   TQueryFnData = unknown,
-  TData = TQueryFnData
-> = ReturnType<typeof vueUseQuery<TQueryFnData, DefaultError, TData>> & {
-  data: ComputedRef<TData>;
-  sort: (values?: QueryProps["sort"]) => void;
-  filter: (values: QueryProps["filters"]) => void;
-  resetQuery: () => Promise<void>;
-};
+  TData = TQueryFnData,
+  TModel extends Record<string, unknown> = Record<string, unknown>
+> = ReturnType<typeof vueUseQuery<TQueryFnData, DefaultError, TData>> &
+  QueryCriteriaHandle<TModel> & {
+    data: ComputedRef<TData>;
+    resetQuery: () => Promise<void>;
+  };
 
 /**
  * The `listInfinite()` query's return shape (`useQuery.ts`). Extracted from
  * `listInfinite`'s own inline return-statement cast for the same reason as
  * {@link ListQuery}.
  *
+ * `data` is the accumulated pages FLATTENED — the same flat rows
+ * {@link ListQuery} publishes, so a surface can consume either arm.
+ *
  * @template TQueryFnData - The raw type `listInfinite`'s `queryFn` resolves.
  * @template TData - The type after `select`, defaults to `TQueryFnData`.
+ * @template TModel - The module's own query model (filters · sort · pagination).
  */
 export type InfiniteListQuery<
   TQueryFnData = unknown,
-  TData = TQueryFnData
-> = ReturnType<
-  typeof vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>
-> & {
-  pagination: ComputedRef<PaginationInfo>;
-  meta: ComputedRef<{
-    hasNextPage: boolean;
-    hasPrevPage: boolean;
-    hasPages: boolean;
-  }>;
-  sort: (values?: QueryProps["sort"]) => void;
-  filter: (values: QueryProps["filters"]) => void;
-  resetQuery: () => Promise<void>;
-};
+  TData = TQueryFnData,
+  TModel extends Record<string, unknown> = Record<string, unknown>
+> = ReturnType<typeof vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>> &
+  QueryCriteriaHandle<TModel> & {
+    data: ComputedRef<TData>;
+    pagination: ComputedRef<PaginationInfo>;
+    meta: ComputedRef<{
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
+      hasPages: boolean;
+    }>;
+    resetQuery: () => Promise<void>;
+  };
 
 /**
  * The `mutate()` mutation's return shape (`useQuery.ts`), parameterised by

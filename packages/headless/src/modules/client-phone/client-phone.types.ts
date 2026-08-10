@@ -1,4 +1,5 @@
 import type { DataManagerContext } from "../data-manager/data-manager.types";
+import type { JsonSchema7 } from "@jsonforms/core";
 import type { IPhone, ICountry } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -117,3 +118,33 @@ export interface PhoneContext extends DataManagerContext<PhoneModel> {
    */
   country?: ICountry;
 }
+
+// -----------------------------------------------------------------------------
+// QUERY MODEL — the collection's whole request state as ONE model
+// -----------------------------------------------------------------------------
+
+/**
+ * The whole request state as one model — `filters` (nested column → operator →
+ * value) and `pagination`. No `sort` branch: the collection is read unpaged and
+ * unsorted. This is the instance validated against `useQuerySchema()`; the
+ * translator maps it to the `QueryProps` the query layer accepts.
+ *
+ * @graphify-citation `graphify query "module query model filter sort pagination
+ * schema"` (2026-08-10) — no `PhoneQueryModel` / `PhoneQuerySchema` node anywhere in
+ * `graphify-out/graph.json`. The query platform's `QueryProps` describes the
+ * WIRE shape; this describes the schema-validated MODEL. No duplicate to
+ * consume, so minting here is warranted.
+ */
+export type PhoneQueryModel = {
+  filters?: {
+    number?: { like?: string };
+  };
+  pagination?: { limit?: number; offset?: number };
+};
+
+/**
+ * The collection's query schema. A `JsonSchema7`: the translator and the
+ * validators walk it at runtime, so the type stays general rather than a
+ * module-specific literal.
+ */
+export type PhoneQuerySchema = JsonSchema7;

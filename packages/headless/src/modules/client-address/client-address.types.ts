@@ -1,4 +1,12 @@
+/**
+ * @graphify-citation `graphify query "module query model filter sort pagination
+ * schema"` (2026-08-10) — no `AddressQueryModel` / `AddressQuerySchema` node anywhere in
+ * `graphify-out/graph.json`. The query platform's `QueryProps` describes the
+ * WIRE shape; this describes the schema-validated MODEL. No duplicate to
+ * consume, so minting here is warranted.
+ */
 import type { DataManagerContext } from "../data-manager/data-manager.types";
+import type { JsonSchema7 } from "@jsonforms/core";
 import type { ICountry, IRegion, IAddress } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -152,3 +160,28 @@ export interface AddressContext extends DataManagerContext<AddressModel> {
    */
   countries: ICountry[];
 }
+
+// -----------------------------------------------------------------------------
+// QUERY MODEL — the collection's whole request state as ONE model
+// -----------------------------------------------------------------------------
+
+/**
+ * The whole request state as one model — `filters` (nested column → operator →
+ * value) and `pagination`. No `sort` branch: the collection is read unpaged and
+ * unsorted. This is the instance validated against `useQuerySchema()`; the
+ * translator maps it to the `QueryProps` the query layer accepts.
+ *
+ */
+export type AddressQueryModel = {
+  filters?: {
+    name?: { like?: string };
+  };
+  pagination?: { limit?: number; offset?: number };
+};
+
+/**
+ * The collection's query schema. A `JsonSchema7`: the translator and the
+ * validators walk it at runtime, so the type stays general rather than a
+ * module-specific literal.
+ */
+export type AddressQuerySchema = JsonSchema7;

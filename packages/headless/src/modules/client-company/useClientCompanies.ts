@@ -1,27 +1,21 @@
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import { invalidateQueryByKey } from "../query";
 import { useActiveSession } from "../session-store";
 import service from "./client-company.services";
 import { useCollection } from "../../utils";
-import { set, isEmpty, isArray } from "lodash-es";
-import type { Company } from "./client-company.types";
-import type { QueryProps, RequestFilters } from "../query";
+import { isEmpty, isArray } from "lodash-es";
+import type { Company, CompanyQueryModel } from "./client-company.types";
 
 /**
  * Composable function to manage client companies.  Provides methods for fetching, filtering,
  * updating, and interacting with a list of client companies. Uses the `service` to interact with
  * backend data and integrates with the application's session and query management.
  *
- * @param initial - Optional initial query parameters for loading the company list. Defaults to pagination limit of 0.
+ * @param initial - The starting query model (filters · pagination). Untrusted;
+ * it takes the same parse → validate path as any criteria write.
  * @returns The {@link UseClientCompanies} API for interacting with client companies.
  */
-export const useClientCompanies = (
-  initial: QueryProps = {
-    pagination: {
-      limit: 0
-    }
-  }
-) => {
+export const useClientCompanies = (initial?: Partial<CompanyQueryModel>) => {
   // --- state
 
   const { isReady: ensureAuth } = useActiveSession().useActions();
@@ -66,19 +60,6 @@ export const useClientCompanies = (
   function setDefault(id: Company["id"]) {
     return service.setDefault(id).mutate();
   }
-
-  // --- filters
-
-  const filters = ref<
-    RequestFilters & {
-      query?: string;
-    }
-  >({});
-
-  const filterQuery = (value?: string) => {
-    set(filters.value, "query", value);
-    query.filter(filters.value);
-  };
 
   // ---------------------------------------------------------------------------
 
@@ -194,15 +175,28 @@ export const useClientCompanies = (
      */
     invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
 
+    // --- criteria
+
     /**
-     * Filters for the query.
-     * These filters can be used to modify the query parameters before fetching the data.
-     * @type {RequestFilters & { query?: string }}
-     * @property query - The search query to filter the client companies by title or description.
+     * The collection's request state — filters · pagination — as the
+     * schema-validated model. Read-only; write through {@link setCriteria}.
      */
-    filters: {
-      query: filterQuery
-    }
+    criteria: query.criteria,
+
+    /** What is filterable and sortable at all. */
+    schema: query.schema,
+
+    /** Any declared filter column carries a value. */
+    isFiltered: query.isFiltered,
+
+    /** ajv's verdict on the last REJECTED criteria write — not a fetch failure. */
+    criteriaError: query.criteriaError,
+
+    /**
+     * The ONE write verb for the request state. Merges at BRANCH level, and a
+     * write that changes the result set returns to the first page.
+     */
+    setCriteria: query.setCriteria
   };
 };
 

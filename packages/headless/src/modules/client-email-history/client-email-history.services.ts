@@ -1,16 +1,19 @@
 /** @internal */
 import upmind from "../../useUpmind";
-import { RequestSortDirection, useQuery } from "../query";
+import { useQuery } from "../query";
 import { useActiveSession } from "../session-store";
 import {
   mapEmailHistory,
   mapReceivedEmail
 } from "./client-email-history.mappers";
+import { useQuerySchema } from "./client-email-history.schemas";
 import { useTime, NotAuthenticatedError } from "../../utils";
-import type { QueryParams } from "../query";
-import type { SentEmail } from "./client-email-history.types";
+import type {
+  SentEmailQueryModel,
+  SentEmail
+} from "./client-email-history.types";
 import type { QueryKey } from "@tanstack/vue-query";
-import type { IEmail, ISentEmail } from "@upmind-automation/types";
+import type { ISentEmail } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 // QUERIES
@@ -37,19 +40,23 @@ function load({ emailId }: { emailId?: SentEmail["id"] }) {
   });
 }
 
-function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
+/**
+ * The whole request state is the DECLARED query schema: `list()` constructs the
+ * criteria from it and publishes it back on the handle. The URL carries only
+ * what scopes the collection (`with`) — a filter baked into it there would be
+ * frozen at construction while the same filter moved through the criteria.
+ */
+function loadList(model?: Partial<SentEmailQueryModel>) {
   const { isAuthenticated } = useActiveSession().useMeta();
   const { list, useUrl } = useQuery();
   const { admin } = upmind;
 
-  return list<IEmail[], SentEmail[]>({
-    ...(params as any),
+  return list<ISentEmail[], SentEmail[], SentEmailQueryModel>({
+    criteria: { schema: useQuerySchema(), model },
     queryKey: [...queryKey, admin],
     url: useUrl(admin ? "admin/self/email_history" : "self/email_history", {
-      with: ["recipient", "recipient_type", "recipient.image"].join(","),
-      ...params.filters
+      with: ["recipient", "recipient_type", "recipient.image"].join(",")
     }),
-    sort: [[RequestSortDirection.DESC, "created_at"]],
     withSplitCount: true,
     withAccessToken: true,
     guard: async () =>

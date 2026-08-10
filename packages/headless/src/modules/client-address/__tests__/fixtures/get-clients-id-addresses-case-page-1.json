@@ -1,0 +1,97 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/addresses?limit=2&offset=0&case=page-1",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a2901bf5bf8e881b-DUR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 10 Aug 2026 15:42:13 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=JO9WC4GkuoZFnTDVqUNH5AOia%2Bx9bxiIyPEkqzdBwyskGxk1q49C42qdl6xP7ZevtMjYuyklKxL1uDwLyU8%2FdzK8N4E3Ojof4f4nILxMlhxIjW4DC00gWcopIachGsQoR3Fk%2ByWjfA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "98"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "20e43579-5e78-d184-78db-31643202d986",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "user_id": "sys",
+          "default": true,
+          "type": 1,
+          "name": "10 Downing St",
+          "address_1": "197 Highfield Road",
+          "address_2": "",
+          "region_id": "8d632507-9806-5d1e-82ec-8174e234e98d",
+          "country_id": "825d96e7-63ed-0913-46c4-174825283406",
+          "city": "London",
+          "county": null,
+          "postcode": "SW1A 2AB",
+          "created_at": "2025-06-04 09:05:58",
+          "updated_at": "2026-08-08 10:34:22",
+          "deleted_at": null,
+          "verified": 0,
+          "can_delete": false
+        },
+        {
+          "id": "d0367942-4d0e-7109-44da-3153698d582e",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "user_id": "sys",
+          "default": false,
+          "type": 1,
+          "name": "12 Downing St",
+          "address_1": "26 Downing Street",
+          "address_2": "",
+          "region_id": null,
+          "country_id": "78985742-6489-7012-046b-21e325d0ed36",
+          "city": "London",
+          "county": null,
+          "postcode": "SW1A 2AD",
+          "created_at": "2025-06-26 12:23:59",
+          "updated_at": "2026-08-08 10:35:19",
+          "deleted_at": null,
+          "verified": 0,
+          "can_delete": false
+        }
+      ],
+      "related": null,
+      "total": 98,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-10T15:42:13.728Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-address"
+  }
+}

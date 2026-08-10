@@ -14,8 +14,10 @@ import {
   concat,
   isArray
 } from "lodash-es";
-import type { QueryProps } from "../query";
-import type { ProductCategory } from "./product-categories.types";
+import type {
+  ProductCategory,
+  ProductCategoryQueryModel
+} from "./product-categories.types";
 
 // -----------------------------------------------------------------------------
 
@@ -23,10 +25,13 @@ import type { ProductCategory } from "./product-categories.types";
  * A composable function that manages and interacts with product categories.
  * Provides reactive state and utilities for handling hierarchical category structures.
  * The primary use case is to interact with category data via query operations.
- * @param {QueryProps} initial - Initial query parameters for loading product categories.
+ * @param initial - The starting query model (pagination). Untrusted; it takes
+ * the same parse → validate path as any criteria write.
  * @returns The {@link UseProductCategories} composable methods and state for product categories.
  */
-export const useProductCategories = (initial?: QueryProps) => {
+export const useProductCategories = (
+  initial?: Partial<ProductCategoryQueryModel>
+) => {
   // --- state
 
   const query = service.loadList(initial);

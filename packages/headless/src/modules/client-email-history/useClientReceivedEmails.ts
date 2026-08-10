@@ -1,14 +1,9 @@
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import { invalidateQueryByKey } from "../query";
-import {
-  type QueryProps,
-  type RequestFilters,
-  RequestSortDirection
-} from "../query";
 import { useActiveSession } from "../session-store";
 import service from "./client-email-history.services";
-import { set, isEmpty, isArray } from "lodash-es";
-import type { ISentEmail } from "@upmind-automation/types";
+import { isEmpty, isArray } from "lodash-es";
+import type { SentEmailQueryModel } from "./client-email-history.types";
 
 /**
  * Properties by which products can be sorted.
@@ -23,24 +18,19 @@ export enum ReceivedEmailsSortableProperties {
  * It handles fetching, displaying, filtering, and performing actions on client emails,
  * leveraging an underlying service and TanStack Query for data management.
  *
- * @param initial - Optional initial query parameters for loading the email list (e.g. pagination settings). Defaults to pagination limit of 0.
+ * @param initial - The starting query model (filters · sort · pagination).
+ * Untrusted; it takes the same parse → validate path as any criteria write.
  * @returns The {@link useClientReceivedEmails} API for interacting with client emails.
  */
 export const useClientReceivedEmails = (
-  initial: QueryProps = {
-    pagination: {
-      limit: 0
-    }
-  }
+  initial?: Partial<SentEmailQueryModel>
 ) => {
   // --- state
 
   const { isReady: ensureAuth } = useActiveSession().useActions();
   const { isAuthenticated } = useActiveSession().useMeta();
 
-  const { ...params } = initial || {};
-
-  const query = service.loadList({ ...params });
+  const query = service.loadList(initial);
 
   const meta = computed(() => ({
     isLoading: query?.isLoading.value || !query.isFetched.value,
@@ -68,36 +58,6 @@ export const useClientReceivedEmails = (
   // --- context
 
   // --- mutations
-
-  // --- filters
-
-  const sort = (
-    property?: ReceivedEmailsSortableProperties,
-    direction?: RequestSortDirection
-  ) => {
-    if (!property || isEmpty(property)) {
-      query.sort();
-    } else {
-      query.sort([direction ?? RequestSortDirection.ASC, property]);
-    }
-  };
-
-  const filters = ref<
-    RequestFilters & {
-      query?: string;
-      subject?: string;
-    }
-  >({});
-
-  const filterQuery = (value?: string) => {
-    set(filters.value, "query", value);
-    query.filter(filters.value);
-  };
-
-  const filterSubject = (value?: ISentEmail["subject"]) => {
-    set(filters.value, "subject", value);
-    query.filter(filters.value);
-  };
 
   // ---------------------------------------------------------------------------
 
@@ -155,15 +115,6 @@ export const useClientReceivedEmails = (
     refresh: query.refetch,
 
     /**
-     * Sorts the query by the given property and direction.
-     * If no property is provided, it clears the sort.
-     * @param {string} [property] The property to sort by.
-     * @param {RequestSortDirection} [direction=RequestSortDirection.ASC] The direction to sort by.
-     * @return {void}
-     */
-    sort,
-
-    /**
      * Go to the next page of items.
      * Increments the page number by 1 if pagination is enabled and the current offset is less than the total number of items.
      * This will only work if the current offset is less than the total number of items.
@@ -189,16 +140,28 @@ export const useClientReceivedEmails = (
      */
     invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
 
+    // --- criteria
+
     /**
-     * Filters for the query.
-     * These filters can be used to modify the query parameters before fetching the data.
-     * @type {RequestFilters & { query?: string }}
-     * @property query - The search query to filter the client emails by title or description.
+     * The collection's request state — filters · sort · pagination — as the
+     * schema-validated model. Read-only; write through {@link setCriteria}.
      */
-    filters: {
-      query: filterQuery,
-      subject: filterSubject
-    }
+    criteria: query.criteria,
+
+    /** What is filterable and sortable at all. */
+    schema: query.schema,
+
+    /** Any declared filter column carries a value. */
+    isFiltered: query.isFiltered,
+
+    /** ajv's verdict on the last REJECTED criteria write — not a fetch failure. */
+    criteriaError: query.criteriaError,
+
+    /**
+     * The ONE write verb for the request state. Merges at BRANCH level, and a
+     * write that changes the result set returns to the first page.
+     */
+    setCriteria: query.setCriteria
   };
 };
 

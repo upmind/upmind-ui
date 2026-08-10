@@ -1,27 +1,21 @@
-import { ref, computed } from "vue";
+import { computed } from "vue";
 import { invalidateQueryByKey } from "../query";
 import { useActiveSession } from "../session-store";
 import service from "./client-address.services";
 import { useCollection } from "../../utils";
-import { set, isEmpty, isArray } from "lodash-es";
-import type { Address } from "./client-address.types";
-import type { QueryProps, RequestFilters } from "../query";
+import { isEmpty, isArray } from "lodash-es";
+import type { Address, AddressQueryModel } from "./client-address.types";
 
 /**
  * Composable function for managing client addresses.
  * It handles fetching, displaying, filtering, and performing actions on client addresses,
  * leveraging an underlying service and TanStack Query for data management.
  *
- * @param initial - Optional initial query parameters for loading the address list. Defaults to pagination limit of 0.
+ * @param initial - The starting query model (filters · pagination). Untrusted;
+ * it takes the same parse → validate path as any criteria write.
  * @returns The {@link UseClientAddresses} API for interacting with client addresses.
  */
-export const useClientAddresses = (
-  initial: QueryProps = {
-    pagination: {
-      limit: 0
-    }
-  }
-) => {
+export const useClientAddresses = (initial?: Partial<AddressQueryModel>) => {
   // --- state
 
   const { isReady: ensureAuth } = useActiveSession().useActions();
@@ -65,19 +59,6 @@ export const useClientAddresses = (
   function setDefault(id: Address["id"]) {
     return service.setDefault(id).mutate();
   }
-
-  // --- filters
-
-  const filters = ref<
-    RequestFilters & {
-      query?: string;
-    }
-  >({});
-
-  const filterQuery = (value?: string) => {
-    set(filters.value, "query", value);
-    query.filter(filters.value);
-  };
 
   // ---------------------------------------------------------------------------
 
@@ -192,15 +173,28 @@ export const useClientAddresses = (
      */
     invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
 
+    // --- criteria
+
     /**
-     * Filters for the query.
-     * These filters can be used to modify the query parameters before fetching the data.
-     * @type {RequestFilters & { query?: string }}
-     * @property query - The search query to filter the client addresses by title or description.
+     * The collection's request state — filters · pagination — as the
+     * schema-validated model. Read-only; write through {@link setCriteria}.
      */
-    filters: {
-      query: filterQuery
-    }
+    criteria: query.criteria,
+
+    /** What is filterable and sortable at all. */
+    schema: query.schema,
+
+    /** Any declared filter column carries a value. */
+    isFiltered: query.isFiltered,
+
+    /** ajv's verdict on the last REJECTED criteria write — not a fetch failure. */
+    criteriaError: query.criteriaError,
+
+    /**
+     * The ONE write verb for the request state. Merges at BRANCH level, and a
+     * write that changes the result set returns to the first page.
+     */
+    setCriteria: query.setCriteria
   };
 };
 

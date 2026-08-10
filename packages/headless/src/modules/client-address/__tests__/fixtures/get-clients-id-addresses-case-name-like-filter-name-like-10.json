@@ -1,0 +1,97 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/addresses?filter[name|like]=%2510%20%25&limit=2&case=name-like",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a2901bfb1aea881b-DUR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 10 Aug 2026 15:42:14 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=5WmdVw%2FoaZUeKM3fngV2TRFNgPIG863HcqlcVFOCTyMl3uV4TDiYClsG9bAs%2BIUV2957HTfCYC1oJte4SxRXjHgz559JI26zjnxi9dDrUfSMQgcF4tgI%2F1iuU9z2joBVyKUiwT2OdQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "5"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "20e43579-5e78-d184-78db-31643202d986",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "user_id": "sys",
+          "default": true,
+          "type": 1,
+          "name": "10 Downing St",
+          "address_1": "197 Highfield Road",
+          "address_2": "",
+          "region_id": "8d632507-9806-5d1e-82ec-8174e234e98d",
+          "country_id": "825d96e7-63ed-0913-46c4-174825283406",
+          "city": "London",
+          "county": null,
+          "postcode": "SW1A 2AB",
+          "created_at": "2025-06-04 09:05:58",
+          "updated_at": "2026-08-08 10:34:22",
+          "deleted_at": null,
+          "verified": 0,
+          "can_delete": false
+        },
+        {
+          "id": "952098d3-de40-917e-72ea-31578626e347",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "user_id": "sys",
+          "default": false,
+          "type": 1,
+          "name": "10 Downing St",
+          "address_1": "16 Downing Street",
+          "address_2": "",
+          "region_id": "de78642d-e539-7146-295f-21208469530d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "city": "London",
+          "county": null,
+          "postcode": "SW1A 2AB",
+          "created_at": "2025-06-27 08:15:55",
+          "updated_at": "2026-08-08 10:35:19",
+          "deleted_at": null,
+          "verified": 0,
+          "can_delete": false
+        }
+      ],
+      "related": null,
+      "total": 5,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-10T15:42:14.561Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-address"
+  }
+}

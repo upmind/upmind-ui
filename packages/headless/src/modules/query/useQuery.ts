@@ -4,8 +4,8 @@ import {
   useQuery as vueUseQuery,
   useInfiniteQuery as vueUseInfiniteQuery
 } from "@tanstack/vue-query";
-import { ref, unref, computed, watch } from "vue";
-import { effectScope, getCurrentScope, type Ref } from "vue";
+import { ref, computed, watch } from "vue";
+import { effectScope, getCurrentScope } from "vue";
 import { isArray, isFunction } from "xstate/lib/utils";
 import { Methods } from "@upmind-automation/types";
 import { useBasket, useBasketCurrency } from "../basket";
@@ -18,7 +18,10 @@ import {
   parseData,
   PAGINATION,
   cleanQueryKey,
-  canRetryAuthorization
+  canRetryAuthorization,
+  resolvePageTotal,
+  toPaginationInfo,
+  withPageWindow
 } from "./query.utils";
 import { useQueryCriteria } from "./useQueryCriteria";
 import {
@@ -30,6 +33,7 @@ import {
 } from "../../utils";
 import {
   assign,
+  flatMap,
   forEach,
   get,
   has,
@@ -39,69 +43,27 @@ import {
   isObject,
   isString,
   map,
-  merge,
   set,
+  size,
   toNumber,
   unset
 } from "lodash-es";
 import type {
   QueryParams,
-  QueryProps,
   QueryResponse,
   RequestParams,
   MutationParams,
   InfiniteQueryPage,
   ReactiveQueryKeys,
-  PaginationInfo,
   CriteriaInput,
-  QueryCriteriaOptions,
-  RawCriteria,
-  SchemaCriteria,
-  WithCriteria,
   ListQuery,
   SimpleQuery,
   InfiniteListQuery,
   MutationResult
 } from "./query.types";
-import type { JsonSchema } from "@jsonforms/core";
 import type { DefaultError, MutationKey, QueryKey } from "@tanstack/vue-query";
 
 // -----------------------------------------------------------------------------
-
-/**
- * The page window belongs to the PAGER, not to the module: `list()` and
- * `listInfinite()` publish a pager and write the cursor themselves, so the
- * branch they write into is theirs to declare. A schema that under-declares
- * `pagination` has nowhere for that write to land — `useModelParser`'s
- * `allowExtraProps: false` strips it — and an offered Next control then moves
- * nothing, silently. Merged UNDER the declaration, so a module's own bounds and
- * defaults win and only the missing keys are added.
- */
-function withPageWindow<TModel extends Record<string, unknown>>(
-  declaration: QueryCriteriaOptions<TModel>
-): QueryCriteriaOptions<TModel> {
-  return assign({}, declaration, {
-    schema: merge(
-      {
-        properties: {
-          pagination: {
-            type: "object",
-            additionalProperties: false,
-            properties: {
-              limit: {
-                type: "integer",
-                minimum: 0,
-                default: PAGINATION.limit
-              },
-              offset: { type: "integer", minimum: 0 }
-            }
-          }
-        }
-      },
-      declaration.schema
-    ) as JsonSchema
-  });
-}
 
 // This will then be used in the `useUpmind` composable, which initializes the Upmind instance
 // BEFORE vue has an injectable for the query client
@@ -277,21 +239,9 @@ export const useQuery = () => {
    * @param withBasket Whether to automagically add the basket ID to the request based on the `useBasket` composable.
    * @param withoutLocale Whether to exclude the locale from the request.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
-   * @param criteria The collection's declared query schema (and optional starting model). Mutually exclusive with `sort`/`filters` — declaring both is a compile error. `query()` has no pagination, so the criteria's `pagination` branch is not read here.
+   * @param criteria The collection's declared query schema (and optional starting model). Sort and filters are the criteria's alone — spelling either raw beside it is a compile error. NO PAGE WINDOW: a plain GET has no cursor, so a declared `pagination` branch is honoured in the model and dropped at the wire. A collection that declares none of the branches declares no criteria and simply has nothing to write.
    * @param options Additional options to pass to TanStack query.
    */
-  function query<TQueryFnData = unknown, TData = TQueryFnData>(
-    params: Omit<QueryParams<TQueryFnData, TData>, "pagination"> &
-      RawCriteria<"sort" | "filters">
-  ): SimpleQuery<TQueryFnData, TData>;
-  function query<
-    TQueryFnData = unknown,
-    TData = TQueryFnData,
-    TModel extends Record<string, unknown> = Record<string, unknown>
-  >(
-    params: Omit<QueryParams<TQueryFnData, TData>, "pagination"> &
-      SchemaCriteria<TModel, "sort" | "filters">
-  ): WithCriteria<SimpleQuery<TQueryFnData, TData>, TModel>;
   function query<
     TQueryFnData = unknown,
     TData = TQueryFnData,
@@ -309,49 +259,24 @@ export const useQuery = () => {
     criteria: declaration,
     ...options
   }: Omit<QueryParams<TQueryFnData, TData>, "pagination"> &
-    CriteriaInput<TModel, "sort" | "filters">):
-    | SimpleQuery<TQueryFnData, TData>
-    | WithCriteria<SimpleQuery<TQueryFnData, TData>, TModel> {
+    CriteriaInput<TModel>): SimpleQuery<TQueryFnData, TData, TModel> {
     // ensure we have a scope, in case we call this outside of a setup function
     // Check if current scope is active - stopped scopes cause scope.run() to return undefined
     const currentScope = getCurrentScope();
     const scope = currentScope?.active ? currentScope : effectScope(true);
 
-    // The criteria is constructed here, never handed in: a module declares a
-    // schema and passes it, so it cannot wire the pipeline wrongly.
-    const criteria = declaration
-      ? useQueryCriteria<TModel>(declaration)
-      : undefined;
+    // Constructed here, never handed in — the same law `list()` holds to. No
+    // page window is merged under the declaration: this entry point owns no
+    // cursor, so the wire below carries no `pagination` at all.
+    const criteria = useQueryCriteria<TModel>({
+      schema: {},
+      ...declaration
+    });
 
     // --- state
 
-    // ONE source for the request branches: the criteria owns them when declared
-    // and the caller spells them raw when it is not — never both. Every reader
-    // DERIVES from that source rather than mirroring it into a second ref, so
-    // there is nothing to drift.
-    const props = computed<QueryProps>(() =>
-      criteria
-        ? criteria.props.value
-        : { sort: options?.sort, filters: options?.filters }
-    );
-
-    // The raw arm's own state: a caller spelling the branches raw has no model
-    // to write into, so its setters need somewhere to land. Not constructed at
-    // all in criteria mode.
-    const raw = criteria
-      ? undefined
-      : {
-          sort: ref<QueryProps["sort"]>(props.value.sort),
-          filters: ref<QueryParams["filters"]>({
-            ...(props.value.filters ?? {})
-          })
-        };
-
-    const sort = computed(() => (raw ? raw.sort.value : props.value.sort));
-
-    const filters = computed(() =>
-      raw ? raw.filters.value : props.value.filters
-    );
+    const sort = computed(() => criteria.props.value.sort);
+    const filters = computed(() => criteria.props.value.filters);
 
     // --- query
     const reactiveKeys: ReactiveQueryKeys = { sort, filters };
@@ -403,35 +328,19 @@ export const useQuery = () => {
       )
     );
 
-    const handle = {
+    return {
       ...response,
       data: computed((): TData => response?.data?.value ?? ([] as TData)),
-      resetQuery: () => {
-        return queryClient.resetQueries({ queryKey });
-      }
-    };
+      resetQuery: () => queryClient.resetQueries({ queryKey }),
 
-    // ONE write path: the criteria owns the request state when declared, and
-    // the raw setters are the whole surface when it is not.
-    if (criteria)
-      return {
-        ...handle,
-        criteria: criteria.model,
-        schema: criteria.schema,
-        isFiltered: criteria.isFiltered,
-        criteriaError: criteria.error,
-        setCriteria: criteria.set
-      } as WithCriteria<SimpleQuery<TQueryFnData, TData>, TModel>;
+      // --- criteria
 
-    return {
-      ...handle,
-      sort: (values?: QueryParams["sort"]) => {
-        if (raw) raw.sort.value = unref(values);
-      },
-      filter: (values: QueryParams["filters"]) => {
-        if (raw) raw.filters.value = unref(values);
-      }
-    } as SimpleQuery<TQueryFnData, TData>;
+      criteria: criteria.model,
+      schema: criteria.schema,
+      isFiltered: criteria.isFiltered,
+      criteriaError: criteria.error,
+      setCriteria: criteria.set
+    } as SimpleQuery<TQueryFnData, TData, TModel>;
   }
 
   /**
@@ -448,19 +357,9 @@ export const useQuery = () => {
    * @param withBasket Whether to automagically add the basket ID to the request based on the `useBasket` composable.
    * @param withoutLocale Whether to exclude the locale from the request.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
-   * @param criteria The collection's declared query schema (and optional starting model). Mutually exclusive with `sort`/`filters`/`pagination` — declaring both is a compile error. In criteria mode the handle publishes `criteria`/`schema`/`isFiltered`/`criteriaError`/`setCriteria` and does NOT expose `sort()`/`filter()`, and PAGING WRITES THROUGH IT: `fetchNextPage`/`fetchPreviousPage`/`resetQuery` move `pagination.offset` in the model, which is the cursor the wire carries.
+   * @param criteria The collection's declared query schema (and optional starting model). Sort, filters and pagination are the criteria's alone — spelling any of them raw beside it is a compile error. PAGING WRITES THROUGH IT: `fetchNextPage`/`fetchPreviousPage`/`resetQuery` move `pagination.offset` in the model, which is the cursor the wire carries. A collection with none of the three declares no criteria and simply has nothing to write.
    * @param options Additional options to pass to TanStack query.
    */
-  function list<TQueryFnData = unknown, TData = TQueryFnData>(
-    params: QueryParams<TQueryFnData, TData> & RawCriteria
-  ): ListQuery<TQueryFnData, TData>;
-  function list<
-    TQueryFnData = unknown,
-    TData = TQueryFnData,
-    TModel extends Record<string, unknown> = Record<string, unknown>
-  >(
-    params: QueryParams<TQueryFnData, TData> & SchemaCriteria<TModel>
-  ): WithCriteria<ListQuery<TQueryFnData, TData>, TModel>;
   function list<
     TQueryFnData = unknown,
     TData = TQueryFnData,
@@ -478,9 +377,11 @@ export const useQuery = () => {
     withSplitCount,
     criteria: declaration,
     ...options
-  }: QueryParams<TQueryFnData, TData> & CriteriaInput<TModel>):
-    | ListQuery<TQueryFnData, TData>
-    | WithCriteria<ListQuery<TQueryFnData, TData>, TModel> {
+  }: QueryParams<TQueryFnData, TData> & CriteriaInput<TModel>): ListQuery<
+    TQueryFnData,
+    TData,
+    TModel
+  > {
     // ensure we have a scope, in case we call this outside of a setup function
     // Check if current scope is active - stopped scopes cause scope.run() to return undefined
     const currentScope = getCurrentScope();
@@ -489,84 +390,41 @@ export const useQuery = () => {
     const { currencyCode } = useBasketCurrency();
     const { basketId } = useBasket();
 
-    const criteria = declaration
-      ? useQueryCriteria<TModel>(withPageWindow(declaration))
-      : undefined;
+    // Constructed here, never handed in: a module declares a schema and passes
+    // it, so it cannot wire the pipeline wrongly. Undeclared still yields a
+    // criteria — the pager owns a page window whatever the module declared.
+    const criteria = useQueryCriteria<TModel>(withPageWindow(declaration));
 
     // --- state
+    // Every branch DERIVES from the criteria; nothing is mirrored into a second
+    // ref, so there is nothing to drift. Reactive, not captured at mint: a live
+    // page-size change re-keys the query and reaches the wire.
 
-    const props = computed<QueryProps>(() =>
-      criteria
-        ? criteria.props.value
-        : {
-            sort: options?.sort,
-            filters: options?.filters,
-            pagination: options?.pagination
-          }
-    );
-
-    // Reactive, not captured at mint: a live page-size change re-keys the query
-    // and reaches the wire, which is what finally gives `paginate` a sink.
+    const sort = computed(() => criteria.props.value.sort);
+    const filters = computed(() => criteria.props.value.filters);
     const limit = computed(
-      () => props.value.pagination?.limit ?? PAGINATION.limit
+      () => criteria.props.value.pagination?.limit ?? PAGINATION.limit
+    );
+    const offset = computed(
+      () => criteria.props.value.pagination?.offset ?? PAGINATION.offset
     );
     const total = ref(0);
-
-    // The raw arm's own state: a caller spelling the branches raw has no model
-    // to write into, so its setters and its pager need somewhere to land. Not
-    // constructed at all in criteria mode, where the model IS the state.
-    const raw = criteria
-      ? undefined
-      : {
-          sort: ref<QueryProps["sort"]>(props.value.sort),
-          filters: ref<QueryParams["filters"]>({
-            ...(props.value.filters ?? {})
-          }),
-          pageIndex: ref(
-            !limit.value
-              ? 1
-              : Math.floor(
-                  (props.value.pagination?.offset ?? PAGINATION.offset) /
-                    limit.value
-                ) + 1
-          )
-        };
-
-    const sort = computed(() => (raw ? raw.sort.value : props.value.sort));
-
-    const filters = computed(() =>
-      raw ? raw.filters.value : props.value.filters
-    );
-
-    // In criteria mode the cursor IS the model's `pagination.offset` — the wire,
-    // the published model and the page number all read the one number.
-    const offset = computed(() =>
-      raw
-        ? (raw.pageIndex.value - 1) * limit.value
-        : (props.value.pagination?.offset ?? PAGINATION.offset)
-    );
 
     /**
      * The page the cursor lands on, and the ONE verb that moves it: the setter
      * writes `pagination.offset` back through the criteria, so `fetchNextPage`,
      * `fetchPreviousPage` and `resetQuery` move the MODEL rather than a second,
-     * private page state that the published model could then disagree with.
+     * private page state the published model could then disagree with.
      */
     const pageIndex = computed<number>({
       get: () =>
         !limit.value ? 1 : Math.floor(offset.value / limit.value) + 1,
-      set: page => {
-        if (raw) {
-          raw.pageIndex.value = Math.max(page, 1);
-          return;
-        }
-        const nextPagination: Record<string, unknown> = {
-          pagination: assign({}, props.value.pagination, {
+      set: page =>
+        criteria.set({
+          pagination: assign({}, criteria.props.value.pagination, {
             offset: Math.max(page - 1, 0) * limit.value
           })
-        };
-        criteria?.set(nextPagination as Partial<TModel>);
-      }
+        } as unknown as Partial<TModel>)
     });
 
     // --- query
@@ -577,37 +435,6 @@ export const useQuery = () => {
     if (!withoutLocale && locale.value) reactiveKeys.locale = locale;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
     if (withBasket) reactiveKeys.basketId = basketId;
-
-    // This s used to persist paginatin and filter/sort on first load, so that if the user refreshes the page, we don't reset the pagination and filters to the default values. We only want to reset them if the user changes the sort or filter values.
-    const isInitialCall = ref(true);
-
-    /**
-     * The ONE guarded write into a RAW request branch: the `isEqual` early
-     * return so an unchanged branch is inert, then the page reset and cache
-     * invalidation a real change owes. The criteria mode owes no page reset
-     * here — its cursor lives in the model, and `useQueryCriteria.set` returns
-     * it to the first page as part of the same write.
-     */
-    function applyBranch<T>(target: Ref<T>, next: T): void {
-      if (isEqual(unref(target), next)) return;
-      target.value = next;
-      if (isInitialCall.value) return;
-      pageIndex.value = 1;
-      queryClient.invalidateQueries({ queryKey });
-    }
-
-    if (criteria)
-      watch(props, (next, previous) => {
-        // Nothing is assigned here: every branch is derived from the criteria,
-        // and `set` has already returned the cursor to the first page. A real
-        // change owes the cache invalidation and nothing else.
-        if (
-          isEqual(next.sort, previous.sort) &&
-          isEqual(next.filters, previous.filters)
-        )
-          return;
-        if (!isInitialCall.value) queryClient.invalidateQueries({ queryKey });
-      });
 
     const response = scope.run(() =>
       vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>(
@@ -670,9 +497,6 @@ export const useQuery = () => {
                     }
                     return response;
                   })
-                  .finally(() => {
-                    isInitialCall.value = false;
-                  })
               );
             });
           },
@@ -712,7 +536,7 @@ export const useQuery = () => {
 
     // -------------------------------------------------------------------------
 
-    const handle = {
+    return {
       ...response,
 
       data: computed((): TData => response?.data?.value?.data ?? ([] as TData)),
@@ -733,21 +557,9 @@ export const useQuery = () => {
        * @property {number} from - The starting item index for the current page.
        * @property {number} to - The ending item index for the current page.
        */
-      pagination: computed((): PaginationInfo => {
+      pagination: computed(() => {
         total.value = response?.data?.value?.total ?? total.value;
-        const pageTotal = !limit.value
-          ? 1
-          : Math.max(Math.ceil(total.value / limit.value), 1);
-        return {
-          limit: limit.value,
-          total: total.value,
-          page: pageIndex.value,
-          pages: pageTotal,
-          from: !total.value ? 0 : limit.value * (pageIndex.value - 1) + 1,
-          to: !limit.value
-            ? total.value
-            : Math.min(limit.value * pageIndex.value, total.value)
-        } as PaginationInfo;
+        return toPaginationInfo(total.value, limit.value, pageIndex.value);
       }),
 
       /**
@@ -759,13 +571,11 @@ export const useQuery = () => {
        */
       meta: computed(() => {
         total.value = response?.data?.value?.total ?? total.value;
-        const pageTotal = !limit.value
-          ? 1
-          : Math.max(Math.ceil(total.value / limit.value), 1);
+        const pages = resolvePageTotal(total.value, limit.value);
         return {
-          hasNextPage: pageIndex.value < pageTotal,
+          hasNextPage: pageIndex.value < pages,
           hasPrevPage: pageIndex.value > 1,
-          hasPages: pageTotal > 1
+          hasPages: pages > 1
         };
       }),
 
@@ -780,25 +590,13 @@ export const useQuery = () => {
       fetchPreviousPage: (): void => {
         const { t } = useI18n();
         total.value = response?.data?.value?.total ?? total.value;
-        const pageTotal = !limit.value
-          ? 1
-          : Math.max(Math.ceil(total.value / limit.value), 1);
 
         if (!response?.isPlaceholderData.value && pageIndex.value <= 1) {
           throw new DetailedError(
             t("text.page_previous_not_available"),
             responseCodes.No_Content,
             ErrorOrigin.Headless,
-            {
-              limit: limit.value,
-              page: pageIndex.value,
-              from: !total.value ? 0 : limit.value * (pageIndex.value - 1) + 1,
-              total: total.value,
-              pages: pageTotal,
-              to: !limit.value
-                ? total.value
-                : Math.min(limit.value * pageIndex.value, total.value)
-            }
+            toPaginationInfo(total.value, limit.value, pageIndex.value)
           );
         }
         pageIndex.value = Math.max(pageIndex.value - 1, 1);
@@ -815,61 +613,34 @@ export const useQuery = () => {
         const { t } = useI18n();
 
         total.value = response?.data?.value?.total ?? 0;
-        const pageTotal = !limit.value
-          ? 1
-          : Math.max(Math.ceil(total.value / limit.value), 1);
-        if (
-          !response?.isPlaceholderData.value &&
-          pageIndex.value >= pageTotal
-        ) {
+        const pages = resolvePageTotal(total.value, limit.value);
+
+        if (!response?.isPlaceholderData.value && pageIndex.value >= pages) {
           throw new DetailedError(
             t("text.page_next_not_available"),
             responseCodes.No_Content,
             ErrorOrigin.Headless,
-            {
-              limit: limit.value,
-              page: pageIndex.value,
-              from: !total.value ? 0 : limit.value * (pageIndex.value - 1) + 1,
-              total: total.value,
-              pages: pageTotal,
-              to: !limit.value
-                ? total.value
-                : Math.min(limit.value * pageIndex.value, total.value)
-            }
+            toPaginationInfo(total.value, limit.value, pageIndex.value)
           );
         }
         if (!response?.isPlaceholderData.value) {
-          pageIndex.value = Math.min(pageIndex.value + 1, pageTotal);
+          pageIndex.value = Math.min(pageIndex.value + 1, pages);
         }
       },
 
       resetQuery: () => {
         pageIndex.value = 1;
         return queryClient.resetQueries({ queryKey });
-      }
-    };
-
-    if (criteria)
-      return {
-        ...handle,
-        criteria: criteria.model,
-        schema: criteria.schema,
-        isFiltered: criteria.isFiltered,
-        criteriaError: criteria.error,
-        setCriteria: criteria.set
-      } as WithCriteria<ListQuery<TQueryFnData, TData>, TModel>;
-
-    return {
-      ...handle,
-
-      sort: (values?: QueryParams["sort"]) => {
-        if (raw) applyBranch(raw.sort, unref(values));
       },
 
-      filter: (values: QueryParams["filters"]) => {
-        if (raw) applyBranch(raw.filters, unref(values));
-      }
-    } as ListQuery<TQueryFnData, TData>;
+      // --- criteria
+
+      criteria: criteria.model,
+      schema: criteria.schema,
+      isFiltered: criteria.isFiltered,
+      criteriaError: criteria.error,
+      setCriteria: criteria.set
+    } as ListQuery<TQueryFnData, TData, TModel>;
   }
 
   /**
@@ -883,19 +654,9 @@ export const useQuery = () => {
    * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
    * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
-   * @param criteria The collection's declared query schema (and optional starting model). Mutually exclusive with `sort`/`filters`/`pagination` — declaring both is a compile error. The criteria's `pagination` reaches this entry point as the page size and the FIRST page param; every page after it is the infinite query's own accumulating cursor, exactly as a raw caller's `pagination` does.
+   * @param criteria The collection's declared query schema (and optional starting model). Sort, filters and pagination are the criteria's alone — spelling any of them raw beside it is a compile error. The criteria's `pagination` reaches this entry point as the page size and the FIRST page param; every page after it is the infinite query's own accumulating cursor, so a criteria write that changes the result set restarts the accumulation from that first page.
    * @param options Additional options to pass to TanStack query.
    */
-  function listInfinite<TQueryFnData = unknown, TData = TQueryFnData>(
-    params: QueryParams<TQueryFnData, TData> & RawCriteria
-  ): InfiniteListQuery<TQueryFnData, TData>;
-  function listInfinite<
-    TQueryFnData = unknown,
-    TData = TQueryFnData,
-    TModel extends Record<string, unknown> = Record<string, unknown>
-  >(
-    params: QueryParams<TQueryFnData, TData> & SchemaCriteria<TModel>
-  ): WithCriteria<InfiniteListQuery<TQueryFnData, TData>, TModel>;
   function listInfinite<
     TQueryFnData = unknown,
     TData = TQueryFnData,
@@ -913,9 +674,8 @@ export const useQuery = () => {
     withSplitCount,
     criteria: declaration,
     ...options
-  }: QueryParams<TQueryFnData, TData> & CriteriaInput<TModel>):
-    | InfiniteListQuery<TQueryFnData, TData>
-    | WithCriteria<InfiniteListQuery<TQueryFnData, TData>, TModel> {
+  }: QueryParams<TQueryFnData, TData> &
+    CriteriaInput<TModel>): InfiniteListQuery<TQueryFnData, TData, TModel> {
     // ensure we have a scope, in case we call this outside of a setup function
     // Check if current scope is active - stopped scopes cause scope.run() to return undefined
     const currentScope = getCurrentScope();
@@ -924,79 +684,36 @@ export const useQuery = () => {
     const { currencyCode } = useBasketCurrency();
     const { basketId } = useBasket();
 
-    const criteria = declaration
-      ? useQueryCriteria<TModel>(withPageWindow(declaration))
-      : undefined;
+    const criteria = useQueryCriteria<TModel>(withPageWindow(declaration));
 
     // --- state
 
-    const props = computed<QueryProps>(() =>
-      criteria
-        ? criteria.props.value
-        : {
-            sort: options?.sort,
-            filters: options?.filters,
-            pagination: options?.pagination
-          }
-    );
-
-    // Reactive, not captured at mint: a live page-size change re-keys the query
-    // and reaches the wire.
+    const sort = computed(() => criteria.props.value.sort);
+    const filters = computed(() => criteria.props.value.filters);
     const limit = computed(
-      () => props.value.pagination?.limit ?? PAGINATION.limit
+      () => criteria.props.value.pagination?.limit ?? PAGINATION.limit
     );
 
     // The declared window's `offset` is where the list STARTS — the FIRST page
     // param, not a live cursor. Every page after it is the infinite query's own
     // accumulating `pageParam`, so nothing is ever written back here.
     const initialOffset = computed(
-      () => props.value.pagination?.offset ?? PAGINATION.offset
+      () => criteria.props.value.pagination?.offset ?? PAGINATION.offset
     );
     const total = ref(0);
-    const pageTotal = computed(() => {
-      if (!limit.value) return 1; // Can only be 1 page if limit=0
-      return Math.max(Math.ceil(total.value / limit.value), 1);
-    });
-
-    // The raw arm's own state: a caller spelling the branches raw has no model
-    // to write into, so its setters need somewhere to land. Not constructed at
-    // all in criteria mode.
-    const raw = criteria
-      ? undefined
-      : {
-          sort: ref<QueryProps["sort"]>(props.value.sort),
-          filters: ref<QueryParams["filters"]>({
-            ...(props.value.filters ?? {})
-          })
-        };
-
-    const sort = computed(() => (raw ? raw.sort.value : props.value.sort));
-
-    const filters = computed(() =>
-      raw ? raw.filters.value : props.value.filters
+    const pageTotal = computed(() =>
+      resolvePageTotal(total.value, limit.value)
     );
-
-    // This s used to persist paginatin and filter/sort on first load, so that if the user refreshes the page, we don't reset the pagination and filters to the default values. We only want to reset them if the user changes the sort or filter values.
-    const isInitialCall = ref(true);
 
     // --- query
     // NB the limit key attaches UNCONDITIONALLY: a `if (limit)` guard is
     // evaluated once on the initial value, so a `limit: 0` list would never
     // carry it and a later 0 → 10 would not re-key the query.
+    // A branch change invalidates nothing here either — see `applyBranch`.
     const reactiveKeys: ReactiveQueryKeys = { sort, filters, limit };
     if (!withoutLocale && locale.value) reactiveKeys.locale = locale;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
     if (withBasket) reactiveKeys.basketId = basketId;
-
-    if (criteria)
-      watch(props, (next, previous) => {
-        if (
-          isEqual(next.sort, previous.sort) &&
-          isEqual(next.filters, previous.filters)
-        )
-          return;
-        if (!isInitialCall.value) queryClient.invalidateQueries({ queryKey });
-      });
 
     const response = scope.run(() =>
       vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>(
@@ -1025,25 +742,21 @@ export const useQuery = () => {
                   signal // Pass the new signal to the request to allow cancellation
                 },
                 withAccessToken
-              })
-                .then(response => {
-                  total.value = response.total || 0; // Set the total items count
+              }).then(response => {
+                total.value = response.total || 0; // Set the total items count
 
-                  const data = isFunction(select)
-                    ? select(response.data!)
-                    : response.data;
+                const data = isFunction(select)
+                  ? select(response.data!)
+                  : response.data;
 
-                  return {
-                    nextOffset:
-                      !limit.value || offset + limit.value >= total.value
-                        ? undefined
-                        : offset + limit.value,
-                    pageData: data
-                  };
-                })
-                .finally(() => {
-                  isInitialCall.value = false;
-                });
+                return {
+                  nextOffset:
+                    !limit.value || offset + limit.value >= total.value
+                      ? undefined
+                      : offset + limit.value,
+                  pageData: data
+                };
+              });
             });
           },
           getNextPageParam: (lastPage: InfiniteQueryPage<TQueryFnData>) =>
@@ -1079,8 +792,20 @@ export const useQuery = () => {
         { immediate: true }
       );
 
-    const handle = {
+    // Pages accumulate; consumers read rows — flattened so this arm publishes
+    // the same flat `data` as `list()`.
+    const rows = computed(
+      (): TData =>
+        flatMap(
+          get(response?.data?.value, "pages", []) as InfiniteQueryPage<TData>[],
+          "pageData"
+        ) as TData
+    );
+
+    return {
       ...response,
+
+      data: rows,
 
       // ---state
 
@@ -1094,20 +819,13 @@ export const useQuery = () => {
        * @property {number} from - The starting item index for the current page.
        * @property {number} to - The ending item index for the current page.
        */
-      pagination: computed((): PaginationInfo => {
-        // We use the length of the final, selected data array.
-        // The `as any[]` is a safe type assertion here because we know
-        // our `select` function returns an array.
-        const itemsFetched = (response?.data.value as any[])?.length ?? 0;
-
-        // Calculate pages fetched based on items and limit
-        const pagesFetched =
-          limit.value > 0 ? Math.ceil(itemsFetched / limit.value) : 1;
+      pagination: computed(() => {
+        const itemsFetched = size(rows.value as unknown[]);
 
         return {
           limit: limit.value,
           total: total.value,
-          page: pagesFetched,
+          page: limit.value > 0 ? Math.ceil(itemsFetched / limit.value) : 1,
           pages: pageTotal.value,
           from: 1, // For "load more", we always show from item 1
           to: itemsFetched // The last item is simply the total number fetched
@@ -1127,34 +845,16 @@ export const useQuery = () => {
         hasPages: pageTotal.value > 1
       })),
 
-      resetQuery: () => queryClient.resetQueries({ queryKey })
-    };
+      resetQuery: () => queryClient.resetQueries({ queryKey }),
 
-    if (criteria)
-      return {
-        ...handle,
-        criteria: criteria.model,
-        schema: criteria.schema,
-        isFiltered: criteria.isFiltered,
-        criteriaError: criteria.error,
-        setCriteria: criteria.set
-      } as WithCriteria<InfiniteListQuery<TQueryFnData, TData>, TModel>;
+      // --- criteria
 
-    return {
-      ...handle,
-
-      sort: (values?: QueryParams["sort"]) => {
-        if (!raw) return;
-        raw.sort.value = unref(values);
-        if (!isInitialCall.value) queryClient.invalidateQueries({ queryKey });
-      },
-
-      filter: (values: QueryParams["filters"]) => {
-        if (!raw) return;
-        raw.filters.value = unref(values);
-        if (!isInitialCall.value) queryClient.invalidateQueries({ queryKey });
-      }
-    } as InfiniteListQuery<TQueryFnData, TData>;
+      criteria: criteria.model,
+      schema: criteria.schema,
+      isFiltered: criteria.isFiltered,
+      criteriaError: criteria.error,
+      setCriteria: criteria.set
+    } as InfiniteListQuery<TQueryFnData, TData, TModel>;
   }
 
   /**
