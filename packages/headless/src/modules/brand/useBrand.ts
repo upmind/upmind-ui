@@ -16,7 +16,6 @@ import {
   first,
   every,
   reduce,
-  capitalize,
   isArray,
   isEmpty,
   forEach,
@@ -267,15 +266,7 @@ export const useBrand = () => {
 
   const ensureConfig = async (
     keys: BrandConfigKeys | BrandConfigKeys[]
-  ): Promise<Record<string, any>> => {
-    keys = isArray(keys) ? keys : [keys];
-
-    return (
-      services
-        .fetchBrandConfig(keys)
-        ?.promise.value.then(data => pick(data, keys)) ?? {}
-    );
-  };
+  ): Promise<Record<string, any>> => services.ensureBrandConfig(keys);
 
   const getAnalytics = async (): Promise<Record<string, any>> =>
     isReady().then(() =>

@@ -6,7 +6,7 @@ import { invalidateQueryByKey, localStoragePersister, useQuery } from "../..";
 
 // --- utils
 import { mapBrandConfig, mapBrandSettings } from "./mappers";
-import { uniq } from "lodash-es";
+import { castArray, pick, uniq } from "lodash-es";
 
 // --- types
 import {
@@ -95,40 +95,54 @@ function fetchBrandSettings() {
  * all previously requested keys.
  *
  * Because keys only grow, a single stable queryKey (`["brand", "config"]`) is
- * used. When new keys are added, `refetch()` is called to re-fetch with the
- * expanded key set. Vue-query auto-cancels any in-flight request for the same
- * queryKey, so an older (smaller) response can never overwrite a newer (larger) one.
+ * used, and the query returns cached data (`staleTime: "static"`) without hitting
+ * the API. Newly added keys are fetched by {@link ensureBrandConfig}, which owns
+ * the refetch so the caller can await the response that answers for them.
  *
- * If no new keys are added (same accumulated set), the query returns cached data
- * (`staleTime: "static"`) without hitting the API.
- *
- * @param keys - Brand config keys to ensure are fetched. Defaults to the core set.
+ * @param keys - Brand config keys to add to the requested set. Defaults to the core set.
  */
 function fetchBrandConfig(keys: BrandConfigKeys[] = defaultBrandConfigKeys) {
   const { query, useUrl } = useQuery();
 
-  const currentKeys = brandConfigKeysStore.state;
-  const newKeys = uniq([...currentKeys, ...keys]);
-  brandConfigKeysStore.setState(newKeys);
-  const hasNewKeys = newKeys.length > currentKeys.length;
+  brandConfigKeysStore.setState(uniq([...brandConfigKeysStore.state, ...keys]));
 
-  const result = query<Record<BrandConfigKeys, unknown>>({
-    url: useUrl("config/brand/values", {
-      keys: brandConfigKeysStore.state.join()
-    }),
+  return query<Record<BrandConfigKeys, unknown>>({
+    url: useUrl("config/brand/values"),
+    // A function filter is evaluated by `request` at REQUEST time, not when the
+    // query is created — so the fetch always carries the current key set while
+    // the queryKey stays stable. Setting `keys` on the url here would freeze it
+    // at whatever the set was when this query was first registered.
+    filters: { keys: () => brandConfigKeysStore.state.join() },
     queryKey: ["brand", "config"],
     select: data => mapBrandConfig(data, brandConfigKeysStore.state),
     staleTime: "static",
     withoutLocale: true,
     persister: localStoragePersister.persisterFn
   });
+}
 
-  // New keys added → refetch with expanded URL.
-  // Vue-query auto-cancels any in-flight request for the same queryKey,
-  // so the old (smaller key set) response can never overwrite the new one.
-  if (hasNewKeys && currentKeys?.length) result.refetch();
-
-  return result;
+/**
+ * Ensures `keys` are answered by the brand config, and resolves once they are.
+ *
+ * Adds the keys to the requested set. A key that was already requested is already
+ * in the cached config, so it resolves without a request; a genuinely new key
+ * needs the one refetch that re-requests the widened set — the cached response
+ * predates it and can never contain it.
+ *
+ * The queryKey stays stable, so this stays a SINGLE cache (and persisted) entry
+ * that grows — `fetchBrandConfig` re-registers it with a url carrying the widened
+ * set, and the refetch below is what sends it.
+ *
+ * A key the API does not return is back-filled as `null` by {@link mapBrandConfig},
+ * so "answered" means present, not truthy.
+ *
+ * @param keys - Brand config keys to ensure are fetched.
+ */
+async function ensureBrandConfig(keys: BrandConfigKeys | BrandConfigKeys[]) {
+  const safekeys = castArray(keys) as BrandConfigKeys[];
+  const result = fetchBrandConfig(safekeys);
+  await result.promise.value;
+  return pick(result.data.value, safekeys);
 }
 
 function fetchModules() {
@@ -167,6 +181,7 @@ function fetchOrganisationConfig() {
 // -----------------------------------------------------------------------------
 
 export default {
+  ensureBrandConfig,
   fetchBrandConfig,
   fetchBrandSettings,
   fetchModules,
