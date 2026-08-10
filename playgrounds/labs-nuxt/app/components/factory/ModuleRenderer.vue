@@ -26,10 +26,10 @@
 // -----------------------------------------------------------------------------
 /**
  * @module factory/ModuleRenderer
- * @description The archetype dispatcher (design.md FE-2977 §Block C). Reads
+ * @description The archetype dispatcher. Reads
  * `descriptor.archetype.archetype` only — never re-derives it, never imports
- * `classify`/a predicate/any headless business module (AC1). Holds no
- * business logic itself; each surface owns its own state/content rendering.
+ * `classify`/a predicate/any headless business module. Holds no business logic
+ * itself; each surface owns its own state/content rendering.
  */
 
 import { ARCHETYPE } from "@upmind-automation/scenario-harness";

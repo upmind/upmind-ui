@@ -1,5 +1,9 @@
 <template>
-  <ModuleStateNotice v-if="state !== 'ready'" :state="state" :detail="detail" />
+  <ModuleStateNotice
+    v-if="state !== ModuleState.READY"
+    :state="state"
+    :detail="detail"
+  />
   <UpmForm
     v-else
     :schema="schema"
@@ -16,15 +20,16 @@
 /**
  * @module factory/surfaces/FormFlowSurface
  * @description The Form-Flow archetype surface — `UpmForm` bound to
- * `snapshot.context.{schema,uischema,model}` (design.md FE-2977 §Block C).
- * `set`/`resolve` are the Form-Flow archetype's own action-name convention
- * (mirrored from the `useAuth` reference usage, `pages/useAuth/[...scopeSuffix].vue`) —
- * never invented here.
+ * `snapshot.context.{schema,uischema,model}`. `set`/`resolve` are the
+ * Form-Flow archetype's own action-name convention (mirrored from the
+ * `useAuth` reference usage, `pages/useAuth/[...scopeSuffix].vue`) — never
+ * invented here.
  */
 
 import { computed } from "vue";
 import { formRenderers, UpmForm } from "@upmind-automation/client-vue";
 import { resolveModuleState } from "../module-state";
+import { ModuleState } from "../module-state.types";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
 import { isFunction } from "lodash-es";
 import type { FormFlowSurfaceProps } from "./FormFlowSurface.types";

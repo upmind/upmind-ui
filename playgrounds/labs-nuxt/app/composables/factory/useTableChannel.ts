@@ -2,7 +2,7 @@
 /**
  * @module factory/useTableChannel
  * @description Builds a `ControlledTableChannel` over a live 4-layer LIST cell
- * that owns query state (S-D9's one model). `read()` reflects the composable's
+ * that owns query state — its one model. `read()` reflects the composable's
  * filter/sort/pagination DOWN to the renderer; `emit()` lifts a table intent UP
  * through the composable's own `filterBy`/`sortBy`/paging actions, which own and
  * apply it (ADR-027 Am.3). Adapter-side because `packages/headless` has no
@@ -14,12 +14,16 @@
  * them, sourcing the operator per column from the query schema. Client-emails
  * declares one operator per column, so the flat value maps unambiguously; a
  * multi-operator column is disambiguated by the column uischema's `filterScope`
- * (a §4/renderer concern), not here.
+ * (a renderer concern), not here.
  */
 
+import { TABLE_INTENT_TYPE } from "@upmind-automation/scenario-harness";
 import { forEach, get, isNil, keys } from "lodash-es";
 import type {
-  ControlledTableChannel,
+  DeclaringTableChannel,
+  TableChannelCell
+} from "./useTableChannel.types";
+import type {
   TableIntent,
   TableModel
 } from "@upmind-automation/scenario-harness";
@@ -27,66 +31,12 @@ import type {
 // -----------------------------------------------------------------------------
 
 /**
- * The `TableIntent` discriminators as members, so no comparison below spells a
- * raw string. Their real home is the harness's own `table-channel.types.ts`,
- * where `TableIntent` is declared as a bare string-literal union with nothing
- * keying it; `packages/scenario-harness` is outside this story's write set, so
- * the members are mirrored here — `satisfies` reds if the union ever moves —
- * and the enum lands at the source with FE-3071.
+ * The intent discriminator's members under the labs spelling. Their one home is
+ * the seam that declares the union — `port/table-channel.types.ts` in
+ * `@upmind-automation/scenario-harness`, where FE-3071 minted them — so this is
+ * an alias to that object, never a consumer-side copy of its values.
  */
-export const TableIntentTypes = {
-  FILTER: "filter",
-  SORT: "sort",
-  PAGINATE: "paginate"
-} as const satisfies Record<string, TableIntent["type"]>;
-
-/**
- * The channel plus the columns the query schema DECLARES steerable. A renderer
- * that offers a control the schema never declared offers one that cannot work:
- * the intent reaches the criteria, ajv refuses it, and the list draws a failure
- * for a header the user was invited to click. `ControlledTableChannel` is
- * frozen in `packages/scenario-harness` (outside this story's write set; the
- * member lands at source with FE-3071), so the declaration rides alongside it
- * rather than inside `TableModel`.
- *
- * Optional on purpose: a channel that cannot declare leaves every column live,
- * which is where a module with no query schema already stands.
- */
-export type DeclaringTableChannel = ControlledTableChannel & {
-  declared?(): { sort: string[]; filter: string[] };
-};
-
-/** One sort entry — the harness-frozen shape (`TableModel["sort"]` member). */
-type SortEntry = TableModel["sort"][number];
-
-/** The nested query model the cell publishes on `useContext().query`. */
-type NestedQueryModel = {
-  filters?: Record<string, Record<string, unknown>>;
-  sort?: SortEntry[];
-  pagination?: { limit?: number; offset?: number };
-};
-
-/**
- * The minimal live-cell surface the channel reads — structural, so the channel
- * stays module-agnostic. `sortBy` takes the harness sort shape, so a drift
- * between it and the composable's own `SortModel` reds where the real cell is
- * bound to this type (the compile-time bridge design §2.3 names).
- */
-export interface TableChannelCell {
-  useContext(): {
-    query: { value: NestedQueryModel };
-    schemas: { query: { schema: unknown } };
-    pagination: { value: { page?: number; limit?: number; total?: number } };
-  };
-  useActions(): {
-    filterBy(model: Record<string, Record<string, unknown>>): void;
-    sortBy(sort: SortEntry[]): void;
-    nextPage(): void;
-    prevPage(): void;
-  };
-}
-
-// -----------------------------------------------------------------------------
+export const TableIntentTypes = TABLE_INTENT_TYPE;
 
 /** The single declared operator for a wire column, read from the query schema. */
 function operatorFor(schema: unknown, column: string): string | undefined {
@@ -161,18 +111,18 @@ export function useTableChannel(cell: TableChannelCell): DeclaringTableChannel {
     },
 
     emit(intent: TableIntent): void {
-      if (intent.type === TableIntentTypes.FILTER) {
+      if (intent.type === TABLE_INTENT_TYPE.FILTER) {
         actions.filterBy(liftFilters(intent.model, schema));
         return;
       }
 
-      if (intent.type === TableIntentTypes.SORT) {
+      if (intent.type === TABLE_INTENT_TYPE.SORT) {
         actions.sortBy([...intent.sort]);
         return;
       }
 
       // paginate — the composable exposes only ±1 steppers; a jump-to-page and a
-      // live page-size are named gaps in `useQuery` (§4.4b), filed.
+      // live page-size are named gaps in `useQuery`, filed.
       const current = context.pagination.value.page ?? 1;
       if (intent.page > current) actions.nextPage();
       else if (intent.page < current) actions.prevPage();

@@ -2,18 +2,34 @@
 /**
  * @module factory/MetaPanel
  * @description Type definitions for MetaPanel — the generalised-Inspector
- * meta-flags display (design.md FE-2977 §Block C).
+ * meta-flags display.
+ *
+ * @graphify-citation `graphify query "badge colour variant meta flag"`
+ * (2026-08-10) — no `MetaBadgeColor`/`MetaBadgeVariant` node in
+ * `graphify-out/graph.json`, and `packages/ui`'s Badge exposes its palette
+ * only as a CVA-derived string union (`badge.config.ts`), never an enum. The
+ * members below are the subset of that union this panel draws from.
  */
 
 // -----------------------------------------------------------------------------
 
-export type MetaBadgeColor = "success" | "info" | "neutral" | "danger";
+export enum MetaBadgeColor {
+  SUCCESS = "success",
+  INFO = "info",
+  NEUTRAL = "neutral",
+  DANGER = "danger"
+}
+
+export enum MetaBadgeVariant {
+  MINIMAL = "minimal",
+  SOLID = "solid"
+}
 
 export type MetaPanelItem = {
   key: string;
   value: boolean;
   color: MetaBadgeColor;
-  variant: "minimal" | "solid";
+  variant: MetaBadgeVariant;
 };
 
 export type MetaPanelProps = {

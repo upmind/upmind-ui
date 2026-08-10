@@ -32,9 +32,8 @@
 
     <!--
       context-menu placement: a thin seam on the existing dropdown-menu
-      primitives (Task 17 swaps this for the installed shadcn `context-menu`
-      once packages/ui lands it) — externally opened on right-click, never
-      the sole path to an action (always-visible + overflow already cover 100%).
+      primitives — externally opened on right-click, never the sole path to an
+      action (always-visible + overflow already cover 100%).
     -->
     <DropdownMenuRoot v-model:open="contextMenuOpen">
       <DropdownMenuTrigger as-child>
@@ -61,10 +60,10 @@
 /**
  * @module factory/ActionSlots
  * @description Renders every action identically across the always-visible,
- * overflow (`DropdownMenu`) and context-menu placements (design.md FE-2977
- * §Block C) — dumb trigger fan-out only, no business logic. The always-visible
- * and overflow placements alone already reach every action; the context-menu
- * is a redundant, never-required additional placement.
+ * overflow (`DropdownMenu`) and context-menu placements — dumb trigger fan-out
+ * only, no business logic. The always-visible and overflow placements alone
+ * already reach every action; the context-menu is a redundant, never-required
+ * additional placement.
  */
 
 import { computed, ref } from "vue";

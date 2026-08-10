@@ -9,7 +9,7 @@
 /**
  * @module factory/useModulePort.types
  * @description The one generic port's shapes — the seam port plus the debug
- * chain only the raw-cell holder can assemble (W-D34).
+ * chain only the raw-cell holder can assemble.
  */
 
 import type { ScopeActorTypes } from "@upmind-automation/headless";

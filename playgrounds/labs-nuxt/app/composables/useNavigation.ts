@@ -3,7 +3,7 @@
  * @module composables/useNavigation
  * @description The playground's ONE navigation derivation. Two declarative
  * sources feed the same tree — a route's `meta.nav` (the `useAuth` precedent)
- * and the scenario contract (`factory/registry`, ruling S-D4) — so a module
+ * and the scenario contract (`factory/registry`) — so a module
  * reaching the factory as a registry entry appears in the sidebar AND on the
  * landing page with neither hand-edited.
  *
@@ -32,56 +32,16 @@ import {
   values,
   words
 } from "lodash-es";
+import type {
+  LabEntry,
+  LabFamily,
+  NavItem,
+  NavMeta,
+  NavSection,
+  NavSource
+} from "./useNavigation.types";
 
 // -----------------------------------------------------------------------------
-
-export interface NavMeta {
-  label: string;
-  icon?: string;
-  section?: string; // e.g., "Labs", "Portal", "Admin"
-  order?: number; // Sort order within section
-  hidden?: boolean; // Hide from nav (for dynamic routes like :id)
-  parent?: string; // Parent route name for nesting
-}
-
-export interface NavItem {
-  label: string;
-  icon?: string;
-  /** A named route record. */
-  route?: string;
-  /** A path, for an item the registry declares rather than a route record. */
-  to?: string;
-  dynamic?: boolean;
-  children?: NavItem[];
-}
-
-export interface NavSection {
-  label: string;
-  icon?: string;
-  order: number;
-  children: NavItem[];
-}
-
-/** One composable a developer can open, whichever source declared it. */
-export interface LabEntry {
-  key: string;
-  label: string;
-  icon: string;
-  family: string;
-  route?: string;
-  to?: string;
-  tags: string[];
-}
-
-/** Entries sharing a natural family — `client` owns email, phone, address… */
-export interface LabFamily {
-  name: string;
-  label: string;
-  icon: string;
-  entries: LabEntry[];
-}
-
-type NavSource = { nav: NavMeta; route?: string; to?: string };
 
 // Section config - defines section order and icons
 const SECTION_CONFIG: Record<string, { icon: string; order: number }> = {
@@ -280,6 +240,3 @@ export function useNavigation() {
 
   return { composables, families, navigation };
 }
-
-// Re-export NavItem type for use in components
-export type { NavItem as NavItemType };

@@ -2,9 +2,9 @@
 /**
  * @module factory/useCompositionPort
  * @description Generic reflection of a live 4-layer scoped composable cell
- * into the scenario-harness `CompositionPort` seam (design.md FE-2977
- * §Block A) — the only framework-aware part of the flow factory. Reactivity
- * stays here; the core (`reflect`/`classify`) receives plain data only.
+ * into the scenario-harness `CompositionPort` seam — the only framework-aware
+ * part of the flow factory. Reactivity stays here; the core
+ * (`reflect`/`classify`) receives plain data only.
  */
 
 import { computed, unref } from "vue";

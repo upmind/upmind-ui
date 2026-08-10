@@ -2,9 +2,9 @@
 /**
  * @module factory/surfaces/surface
  * @description The shape every archetype surface projects from — a plain
- * snapshot to read and the live seam actions to call (design.md FE-2977
- * §Block C). Surfaces never see the raw `CompositionPort`/`ModuleDescriptor` —
- * `ModuleRenderer` is the only place those are unpacked.
+ * snapshot to read and the live seam actions to call. Surfaces never see the
+ * raw `CompositionPort`/`ModuleDescriptor` — `ModuleRenderer` is the only place
+ * those are unpacked.
  */
 
 import type {

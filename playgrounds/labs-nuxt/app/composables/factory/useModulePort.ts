@@ -2,7 +2,7 @@
 /**
  * @module factory/useModulePort
  * @description THE port call site — one generic function over every scenario
- * key (W-D31). A module reaches the factory by declaring a registry entry and
+ * key. A module reaches the factory by declaring a registry entry and
  * nothing else: which composable to boot, which scope to boot it at, and
  * whether it owns table state are the entry's data, derived or declared, never
  * a per-module file. There is deliberately no `use<Module>Port.ts`.
@@ -34,7 +34,7 @@ import type {
   ModulePortDebug,
   ModulePortScope
 } from "./useModulePort.types";
-import type { TableChannelCell } from "./useTableChannel";
+import type { TableChannelCell } from "./useTableChannel.types";
 import type { QueryProps } from "@upmind-automation/headless";
 import type { ComputedRef } from "vue";
 
@@ -51,11 +51,14 @@ export function ownsQueryState(cell: ScenarioScopedCell): boolean {
 }
 
 /**
- * The translated wire as SEARCH PARAMS, mirroring the serialisation
- * `useQuery`'s `request()` performs (`useQuery.ts:154-176`) — the tuple (or
- * tuples) joined into `order`, the cursor as `limit`/`offset`, and the
- * `filter[column|operator]` keys `translateQuery` already emits, with the
- * inactive ones dropped exactly as the request drops them.
+ * The translated wire as SEARCH PARAMS — the tuple (or tuples) joined into
+ * `order`, the cursor as `limit`/`offset`, and the `filter[column|operator]`
+ * keys `translateQuery` already emits, with the inactive ones dropped.
+ *
+ * It mirrors rather than calls `useQuery`'s own serialisation: that lives inline
+ * in `request()`, which writes onto a live `URL` and then FETCHES, and the debug
+ * chain must be producible without firing anything. Deleting this copy means
+ * exporting a pure serialiser from the query module.
  */
 function toRequestParams(props: QueryProps): Record<string, string> {
   const sort = props.sort ?? [];
@@ -76,7 +79,7 @@ function toRequestParams(props: QueryProps): Record<string, string> {
   ) as Record<string, string>;
 }
 
-/** The four artefacts W-D34 shows side by side; absent for a cell that owns no criteria. */
+/** The four artefacts shown side by side; absent for a cell that owns no criteria. */
 function readDebug(cell: ScenarioScopedCell): ModulePortDebug | undefined {
   if (!ownsQueryState(cell)) return undefined;
 

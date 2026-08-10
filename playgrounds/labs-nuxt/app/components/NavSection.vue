@@ -70,7 +70,7 @@ import { computed, ref, watch } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 import { Icon } from "@upmind-automation/upmind-ui";
 import { some, startsWith } from "lodash-es";
-import type { NavItem } from "../composables/useNavigation";
+import type { NavItem } from "../composables/useNavigation.types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(
   defineProps<{

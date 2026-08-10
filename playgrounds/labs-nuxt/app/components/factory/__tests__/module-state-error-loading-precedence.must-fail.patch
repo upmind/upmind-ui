@@ -2,16 +2,16 @@ diff --git a/playgrounds/labs-nuxt/app/components/factory/module-state.ts b/play
 index 1111111..2222222 100644
 --- a/playgrounds/labs-nuxt/app/components/factory/module-state.ts
 +++ b/playgrounds/labs-nuxt/app/components/factory/module-state.ts
-@@ -18,11 +18,11 @@
+@@ -16,11 +16,11 @@
   * @param meta `ModuleDescriptor.snapshot.meta`.
   */
  export function resolveModuleState(meta: Record<string, boolean>): ModuleState {
--  if (meta[MODULE_STATE_META_FLAG.LOADING]) return "loading";
+-  if (meta[MODULE_STATE_META_FLAG.LOADING]) return ModuleState.LOADING;
    if (
      meta[MODULE_STATE_META_FLAG.HAS_ERROR] ||
      meta[MODULE_STATE_META_FLAG.HAS_ERRORS]
    )
-     return "error";
-+  if (meta[MODULE_STATE_META_FLAG.LOADING]) return "loading";
-   return "ready";
+     return ModuleState.ERROR;
++  if (meta[MODULE_STATE_META_FLAG.LOADING]) return ModuleState.LOADING;
+   return ModuleState.READY;
  }

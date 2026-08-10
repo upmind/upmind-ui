@@ -17,12 +17,13 @@
 /**
  * @module factory/ModuleStateNotice
  * @description The shared loading/error notice every archetype surface
- * renders in place of its normal content (design.md FE-2977 §Block C).
+ * renders in place of its normal content.
  */
 
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { Alert, useStyles } from "@upmind-automation/upmind-ui";
+import { ModuleState } from "./module-state.types";
 import config from "./ModuleStateNotice.styles";
 import { isNil } from "lodash-es";
 import type {
@@ -38,13 +39,13 @@ const { t } = useI18n();
 
 const content = computed<ModuleStateContent>(() => {
   const catalogue: ModuleStateContentMap = {
-    loading: {
+    [ModuleState.LOADING]: {
       color: "info",
       icon: "clock",
       title: t("text.loading"),
       description: t("text.moment_short_desc")
     },
-    error: {
+    [ModuleState.ERROR]: {
       color: "danger",
       icon: "alert-triangle",
       title: t("error.something_went_wrong"),

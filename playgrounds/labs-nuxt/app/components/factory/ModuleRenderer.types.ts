@@ -1,8 +1,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module factory/ModuleRenderer
- * @description Type definitions for ModuleRenderer — the archetype dispatcher
- * (design.md FE-2977 §Block C).
+ * @description Type definitions for ModuleRenderer — the archetype dispatcher.
  */
 
 import type {

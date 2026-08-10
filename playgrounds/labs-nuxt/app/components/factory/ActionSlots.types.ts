@@ -2,8 +2,7 @@
 /**
  * @module factory/ActionSlots
  * @description Type definitions for ActionSlots — every action, rendered
- * identically across the always-visible, overflow and context-menu placements
- * (design.md FE-2977 §Block C).
+ * identically across the always-visible, overflow and context-menu placements.
  */
 
 // -----------------------------------------------------------------------------

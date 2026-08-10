@@ -5,7 +5,11 @@
          good rows, so its verdict belongs beside the table, never in place of
          it: swapping the surface out would unmount the very controls that
          issue the next valid write. -->
-    <ModuleStateNotice v-if="verdict" state="error" :detail="verdict" />
+    <ModuleStateNotice
+      v-if="verdict"
+      :state="ModuleState.ERROR"
+      :detail="verdict"
+    />
 
     <ActionSlots
       v-if="meta.hasCollectionActions"
@@ -80,17 +84,17 @@
       </TableBody>
     </Table>
 
-    <!-- Degrade (finding #7): a data-array-without-table descriptor still
-         renders every row, read-only — never blank. -->
+    <!-- A data-array-without-table descriptor still renders every row,
+         read-only — never blank. -->
     <ul v-else :class="styles.listSurface.rowList">
       <li
         v-for="(row, index) in rows"
-        :key="rowKey(row, index)"
+        :key="isNil(row.id) ? String(index) : String(row.id)"
         :class="styles.listSurface.rowListItem"
       >
         <div :class="styles.listSurface.rowListFields">
           <span
-            v-for="entry in rowEntries(row)"
+            v-for="entry in entries(row)"
             :key="entry[0]"
             :class="styles.listSurface.rowListField"
           >
@@ -124,14 +128,14 @@
 /**
  * @module factory/surfaces/ListSurface
  * @description The List archetype surface — `@tanstack/vue-table` in
- * controlled/manual mode bound to `port.table` (design.md FE-2977 §Block D).
+ * controlled/manual mode bound to `port.table`.
  * Sort/filter/paginate interactions emit a `TableIntent` via `channel.emit`;
  * rows and table state are always re-read from `channel.read()`. The
  * composable owns the model — this surface sorts/paginates nothing
  * itself (`manualSorting`/`manualPagination`, and only
  * `getCoreRowModel()` — no `getSortedRowModel`/`getPaginationRowModel`).
  * Filtering has exactly ONE surface: `FilterBar` (FE-1335's schema-driven
- * bar) over the composable-owned criteria (W-D33, P1-R15). A module
+ * bar) over the composable-owned criteria. A module
  * with no table channel (`hasDataArray` without `hasTable`) degrades to a
  * read-only row list instead of rendering blank. Row/collection actions bind
  * to the well-known `LIST_SURFACE_ACTION` names only when the live port
@@ -141,6 +145,7 @@
 import { getCoreRowModel, useVueTable } from "@tanstack/vue-table";
 import { computed, ref, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
+import { SortDirection } from "@upmind-automation/headless";
 import {
   Icon,
   Interstitial,
@@ -156,6 +161,7 @@ import {
 import { TableIntentTypes } from "../../../composables/factory/useTableChannel";
 import ActionSlots from "../ActionSlots.vue";
 import { resolveModuleState } from "../module-state";
+import { ModuleState } from "../module-state.types";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
 import { useActionFeedback } from "../useActionFeedback";
 import config from "./ListSurface.styles";
@@ -178,7 +184,12 @@ import {
 } from "lodash-es";
 import type { ActionSlotItem } from "../ActionSlots.types";
 import type { ListRow, ListSurfaceProps } from "./ListSurface.types";
-import type { ColumnDef, OnChangeFn, SortingState } from "@tanstack/vue-table";
+import type {
+  ColumnDef,
+  OnChangeFn,
+  SortDirection as TableSortDirection,
+  SortingState
+} from "@tanstack/vue-table";
 import type { TableModel } from "@upmind-automation/scenario-harness";
 // -----------------------------------------------------------------------------
 
@@ -207,11 +218,13 @@ const feedback = useActionFeedback();
 // the list away over one refused row, with nothing left to recover with.
 const hasPresented = ref(false);
 watchEffect(() => {
-  if (state.value === "ready") hasPresented.value = true;
+  if (state.value === ModuleState.READY) hasPresented.value = true;
 });
 
 const notice = computed(() =>
-  hasPresented.value || state.value === "ready" ? undefined : state.value
+  hasPresented.value || state.value === ModuleState.READY
+    ? undefined
+    : state.value
 );
 
 // A failure this surface already reported as a toast is not drawn a second time
@@ -264,7 +277,7 @@ const columns = computed<ColumnDef<ListRow>[]>(() => deriveColumns(rows.value));
 const sortingState = computed<SortingState>(() =>
   map(tableModel.value.sort, entry => ({
     id: entry.field,
-    desc: entry.dir === "desc"
+    desc: entry.dir === SortDirection.DESC
   }))
 );
 
@@ -276,7 +289,7 @@ const onSortingChange: OnChangeFn<SortingState> = updaterOrValue => {
     type: TableIntentTypes.SORT,
     sort: map(next, entry => ({
       field: entry.id,
-      dir: entry.desc ? "desc" : "asc"
+      dir: entry.desc ? SortDirection.DESC : SortDirection.ASC
     }))
   });
 };
@@ -303,9 +316,9 @@ const vueTable = useVueTable({
   onSortingChange
 });
 
-function sortIcon(direction: false | "asc" | "desc"): string {
-  if (direction === "asc") return "chevron-up";
-  if (direction === "desc") return "chevron-down";
+function sortIcon(direction: false | TableSortDirection): string {
+  if (direction === SortDirection.ASC) return "chevron-up";
+  if (direction === SortDirection.DESC) return "chevron-down";
   return "chevron-selector-vertical";
 }
 
@@ -329,10 +342,10 @@ function onPaginate(page: number): void {
   });
 }
 
-// --- actions (finding #5) — bound to the live CompositionPort action map,
-// gated on `snapshot.actions` (the booted cell's own live-name list, the
-// same gate ActionPanelSurface trusts) so a module missing a capability
-// simply never surfaces that control.
+// --- actions — bound to the live CompositionPort action map, gated on
+// `snapshot.actions` (the booted cell's own live-name list, the same gate
+// ActionPanelSurface trusts) so a module missing a capability simply never
+// surfaces that control.
 const ROW_ACTION_KEYS = [
   LIST_SURFACE_ACTION.DELETE,
   LIST_SURFACE_ACTION.SET_DEFAULT,
@@ -425,17 +438,8 @@ const collectionActionItems = computed<ActionSlotItem[]>(() => {
   ];
 });
 
-// --- degrade-mode (finding #7) row rendering
-function rowEntries(row: ListRow): Array<[string, unknown]> {
-  return entries(row);
-}
-
-function rowKey(row: ListRow, index: number): string {
-  return isNil(row.id) ? String(index) : String(row.id);
-}
-
-// The component's ONE flag surface (W-29) — every is/has/can flag the template
-// reads, and the same object `useStyles` resolves its CVA variants from.
+// The component's ONE flag surface — every is/has/can flag the template reads,
+// and the same object `useStyles` resolves its CVA variants from.
 const meta = computed(() => ({
   state: state.value,
   isEmpty: isEmpty(rows.value),

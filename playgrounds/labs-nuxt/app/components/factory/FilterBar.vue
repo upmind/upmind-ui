@@ -13,14 +13,14 @@
 // -----------------------------------------------------------------------------
 /**
  * @module factory/FilterBar
- * @description The holistic filter bar (design.md FE-2977 §Block D, §12) — the
- * module's OWN query schema and uischema mounted through JSONForms, so the
+ * @description The holistic filter bar — the module's OWN query schema and
+ * uischema mounted through JSONForms, so the
  * `Filter` elements resolve against the renderer set `UpmForm` already
  * registers and the controls are whatever the declaration says. Presentation
  * (the full-width search over its row of switches) is the uischema's, never
  * this component's. It owns no model and no state: it reads the composable's
  * live criteria and writes back through the composable's own merging
- * `setCriteria` — the model stays composable-owned (W-D33).
+ * `setCriteria` — the model stays composable-owned.
  */
 
 import { computed } from "vue";

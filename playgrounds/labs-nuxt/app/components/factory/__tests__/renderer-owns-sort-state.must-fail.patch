@@ -2,21 +2,13 @@ diff --git a/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.v
 index 2d48fd90e..1793bb378 100644
 --- a/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.vue
 +++ b/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.vue
-@@ -155,7 +155,7 @@
-  */
- 
- import { getCoreRowModel, useVueTable } from "@tanstack/vue-table";
--import { computed } from "vue";
-+import { computed, ref } from "vue";
- import { useI18n } from "vue-i18n";
- import {
-   Icon,
-@@ -262,17 +262,12 @@ const columnFiltersState = computed<ColumnFiltersState>(() =>
-   map(entries(tableModel.value.filter), ([id, value]) => ({ id, value }))
+@@ -280,18 +280,13 @@
+     desc: entry.dir === SortDirection.DESC
+   }))
  );
- 
-+const localSorting = ref<SortingState>([]);
 +
++const localSorting = ref<SortingState>([]);
+
  const onSortingChange: OnChangeFn<SortingState> = updaterOrValue => {
 -  const next = isFunction(updaterOrValue)
 -    ? updaterOrValue(sortingState.value)
@@ -27,18 +19,18 @@ index 2d48fd90e..1793bb378 100644
 -    type: TableIntentTypes.SORT,
 -    sort: map(next, entry => ({
 -      field: entry.id,
--      dir: entry.desc ? "desc" : "asc"
+-      dir: entry.desc ? SortDirection.DESC : SortDirection.ASC
 -    }))
 -  });
  };
- 
- const onColumnFiltersChange: OnChangeFn<
-@@ -304,7 +299,7 @@ const vueTable = useVueTable({
+
+ // `useVueTable` (v8) has no built-in deep reactivity of its own — every
+@@ -310,7 +305,7 @@
    manualPagination: true,
    state: {
      get sorting() {
 -      return sortingState.value;
 +      return localSorting.value;
-     },
-     get columnFilters() {
-       return columnFiltersState.value;
+     }
+   },
+   onSortingChange

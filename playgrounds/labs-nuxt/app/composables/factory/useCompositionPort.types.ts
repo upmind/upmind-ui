@@ -3,7 +3,7 @@
  * @module factory/useCompositionPort.types
  * @description Type definitions for the composition-port adapter — the
  * shape of a live 4-layer scoped composable cell `useCompositionPort` reads,
- * and the seam it hands back (design.md FE-2977 §Block A).
+ * and the seam it hands back.
  */
 
 import type { ControlledTableChannel } from "@upmind-automation/scenario-harness";

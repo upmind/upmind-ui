@@ -9,11 +9,11 @@
 // -----------------------------------------------------------------------------
 /**
  * @module factory/registry.types
- * @description The scenario CONTRACT's shapes (ruling S-D4). Everything
- * scenario-specific — which composable a key boots, the scope it boots at, the
- * editor a row hands off to, and the row identifier when it is not `id` — is
- * declared once by the consumer, here. Core is agnostic of UI, routes and
- * hrefs (S-D3), so none of this may live in `packages/headless`.
+ * @description The scenario CONTRACT's shapes. Everything scenario-specific —
+ * which composable a key boots, the scope it boots at, the editor a row hands
+ * off to, and the row identifier when it is not `id` — is declared once by the
+ * consumer, here. Core is agnostic of UI, routes and hrefs, so none of this may
+ * live in `packages/headless`.
  */
 
 import type { LiveCompositionCell } from "./useCompositionPort.types";
@@ -67,9 +67,9 @@ export type ScenarioBinding = {
   /** The row property carrying a row's identity, when it is not {@link DEFAULT_ROW_IDENTIFIER}. */
   identifier?: string;
   /**
-   * Opt in to persisting this scenario's request state to the browser url
-   * (W-D33). The page reads it; the flag lives here because it is a per-
-   * scenario choice, and the page is generic over every key.
+   * Opt in to persisting this scenario's request state to the browser url. The
+   * page reads it; the flag lives here because it is a per-scenario choice, and
+   * the page is generic over every key.
    */
   persistCriteria?: boolean;
   handoff?: Record<string, ScenarioHandoff>;

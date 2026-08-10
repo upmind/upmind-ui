@@ -15,7 +15,7 @@
  * asserts.
  */
 
-import { clientEmailsSteps } from "../../../../packages/headless/src/modules/client-email/__tests__/client-emails.steps";
+import { clientEmailsSteps } from "@upmind-automation/headless-test-kit/client-emails.steps";
 import type { StepCatalog } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------

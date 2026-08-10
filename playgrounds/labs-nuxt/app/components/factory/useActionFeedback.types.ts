@@ -2,7 +2,7 @@
 /**
  * @module factory/useActionFeedback
  * @description Type definitions for the action-outcome seam — the surface that
- * FIRES an action reports it (design.md FE-2977 §Block C).
+ * FIRES an action reports it.
  */
 
 // -----------------------------------------------------------------------------

@@ -26,7 +26,7 @@
  * @module factory/ContextPanel
  * @description Generalises the Inspector's Context section (`inspector/Inspector.vue`)
  * over a plain `snapshot.context` — every entry shown as a raw, collapsible
- * value (design.md FE-2977 §Block C). Purely presentational, archetype-agnostic.
+ * value. Purely presentational, archetype-agnostic.
  */
 
 import { computed } from "vue";

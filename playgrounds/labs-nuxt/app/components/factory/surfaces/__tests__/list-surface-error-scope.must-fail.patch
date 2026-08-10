@@ -2,12 +2,14 @@ diff --git a/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.v
 index 5555555..6666666 100644
 --- a/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.vue
 +++ b/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.vue
-@@ -234,7 +234,7 @@
+@@ -222,9 +222,7 @@
  });
 
  const notice = computed(() =>
--  hasPresented.value || state.value === "ready" ? undefined : state.value
-+  state.value === "ready" ? undefined : state.value
+-  hasPresented.value || state.value === ModuleState.READY
+-    ? undefined
+-    : state.value
++  state.value === ModuleState.READY ? undefined : state.value
  );
 
  // A failure this surface already reported as a toast is not drawn a second time

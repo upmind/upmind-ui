@@ -2,7 +2,7 @@
 /**
  * @module factory/ContextPanel
  * @description Type definitions for ContextPanel — the generalised-Inspector
- * raw context display (design.md FE-2977 §Block C).
+ * raw context display.
  */
 
 // -----------------------------------------------------------------------------

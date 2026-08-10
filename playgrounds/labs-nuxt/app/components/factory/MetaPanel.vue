@@ -9,7 +9,7 @@
         :variant="item.variant"
         :color="item.color"
       >
-        {{ formatKey(item.key) }}
+        {{ startCase(item.key) }}
       </Badge>
     </div>
   </section>
@@ -21,20 +21,17 @@
  * @module factory/MetaPanel
  * @description Generalises the Inspector's Meta section (`inspector/Inspector.vue`)
  * over a plain `snapshot.meta` — every scoped composable's meta flags, shown as
- * colour-coded badges (design.md FE-2977 §Block C). Purely presentational —
- * no business logic, no runtime heuristics beyond the existing Inspector
- * flag-name colouring convention it generalises.
+ * colour-coded badges. Purely presentational — no business logic, no runtime
+ * heuristics beyond the existing Inspector flag-name colouring convention it
+ * generalises.
  */
 
 import { computed } from "vue";
 import { Badge, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./MetaPanel.styles";
+import { MetaBadgeColor, MetaBadgeVariant } from "./MetaPanel.types";
 import { entries, includes, map, sortBy, startCase } from "lodash-es";
-import type {
-  MetaBadgeColor,
-  MetaPanelItem,
-  MetaPanelProps
-} from "./MetaPanel.types";
+import type { MetaPanelItem, MetaPanelProps } from "./MetaPanel.types";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<MetaPanelProps>();
@@ -49,29 +46,25 @@ function badgeColor(key: string, value: boolean): MetaBadgeColor {
     includes(lowerKey, "success");
 
   if (value) {
-    if (isErrorFlag) return "danger";
-    if (isSuccessFlag) return "success";
-    return "info";
+    if (isErrorFlag) return MetaBadgeColor.DANGER;
+    if (isSuccessFlag) return MetaBadgeColor.SUCCESS;
+    return MetaBadgeColor.INFO;
   }
-  if (isSuccessFlag) return "danger";
-  return "neutral";
+  if (isSuccessFlag) return MetaBadgeColor.DANGER;
+  return MetaBadgeColor.NEUTRAL;
 }
 
 function colorPriority(color: MetaBadgeColor): number {
   switch (color) {
-    case "danger":
+    case MetaBadgeColor.DANGER:
       return 0;
-    case "success":
+    case MetaBadgeColor.SUCCESS:
       return 1;
-    case "info":
+    case MetaBadgeColor.INFO:
       return 2;
     default:
       return 3;
   }
-}
-
-function formatKey(key: string): string {
-  return startCase(key);
 }
 
 const items = computed<MetaPanelItem[]>(() => {
@@ -81,9 +74,10 @@ const items = computed<MetaPanelItem[]>(() => {
       key,
       value,
       color,
-      variant: (color === "neutral" ? "minimal" : "solid") as
-        | "minimal"
-        | "solid"
+      variant:
+        color === MetaBadgeColor.NEUTRAL
+          ? MetaBadgeVariant.MINIMAL
+          : MetaBadgeVariant.SOLID
     };
   });
   return sortBy(built, [item => colorPriority(item.color), "key"]);

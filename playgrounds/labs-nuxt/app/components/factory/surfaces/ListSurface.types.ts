@@ -2,11 +2,11 @@
 /**
  * @module factory/surfaces/ListSurface
  * @description Type definitions for the List archetype surface — TanStack
- * controlled/manual-mode binding to `port.table` (design.md FE-2977 §Block D).
+ * controlled/manual-mode binding to `port.table`.
  */
 
 import type { SurfaceProps } from "./surface.types";
-import type { DeclaringTableChannel } from "../../../composables/factory/useTableChannel";
+import type { DeclaringTableChannel } from "../../../composables/factory/useTableChannel.types";
 
 // -----------------------------------------------------------------------------
 

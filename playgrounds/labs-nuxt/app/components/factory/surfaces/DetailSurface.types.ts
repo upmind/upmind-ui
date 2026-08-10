@@ -1,8 +1,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module factory/surfaces/DetailSurface
- * @description Type definitions for the Detail archetype surface
- * (design.md FE-2977 §Block C).
+ * @description Type definitions for the Detail archetype surface.
  */
 
 import type { SurfaceProps } from "./surface.types";

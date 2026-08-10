@@ -1,5 +1,9 @@
 <template>
-  <ModuleStateNotice v-if="state !== 'ready'" :state="state" :detail="detail" />
+  <ModuleStateNotice
+    v-if="state !== ModuleState.READY"
+    :state="state"
+    :detail="detail"
+  />
   <div v-else :class="styles.actionPanelSurface.root">
     <ActionSlots :actions="slotItems" />
     <UpmForm
@@ -23,7 +27,7 @@
  * per `snapshot.actions` member; when the module is mid-edit
  * (`context.schema` present) it also renders the input form from
  * `context.{schema,uischema,model}`, the same `UpmForm` wiring
- * `FormFlowSurface` uses (design.md FE-2977 §Block C).
+ * `FormFlowSurface` uses.
  */
 
 import { computed } from "vue";
@@ -31,6 +35,7 @@ import { formRenderers, UpmForm } from "@upmind-automation/client-vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import ActionSlots from "../ActionSlots.vue";
 import { resolveModuleState } from "../module-state";
+import { ModuleState } from "../module-state.types";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
 import config from "./ActionPanelSurface.styles";
 import { isFunction, map, startCase } from "lodash-es";

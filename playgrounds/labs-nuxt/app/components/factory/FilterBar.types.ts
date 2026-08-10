@@ -8,8 +8,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module factory/FilterBar.types
- * @description Type definitions for the holistic filter bar (design.md
- * FE-2977 §Block D / §12).
+ * @description Type definitions for the holistic filter bar.
  */
 
 import type { ModulePortCriteria } from "../../composables/factory/useModulePort.types";

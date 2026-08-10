@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module factory/registry
- * @description THE scenario contract for this playground (ruling S-D4) — the
+ * @description THE scenario contract for this playground — the
  * only place that holds both scenario keys, so the only place their
  * correlation can live. The portal and any customer app write their own; a
  * row→editor relation is consumer knowledge, not core's.
