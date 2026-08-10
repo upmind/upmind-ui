@@ -13,7 +13,7 @@
  */
 
 import { join } from "node:path";
-import { http, HttpResponse } from "msw";
+import { delay, http, HttpResponse } from "msw";
 import { expect, vi } from "vitest";
 import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
 import { queryClient } from "../../query/client";
@@ -24,6 +24,7 @@ import {
   useSessionStore
 } from "../../session-store";
 import { recordingsDir, server } from "./setup.integration";
+import { isFunction } from "lodash-es";
 import type { IToken } from "@upmind-automation/types";
 import type { SetupServer } from "msw/node";
 
@@ -408,16 +409,19 @@ export function installEmailsListHandler(
  */
 export function installPagedEmailsHandler(
   mswServer: SetupServer | undefined,
-  clientId: string
+  clientId: string,
+  options?: ResponseTiming
 ): { offsets: () => string[] } {
   const pageOne = recorded.pageOne();
   const pageTwo = recorded.pageTwo();
   const offsets: string[] = [];
 
   mswServer?.use(
-    http.get(`*/clients/${clientId}/emails`, ({ request }) => {
-      const offset = new URL(request.url).searchParams.get("offset") ?? "0";
+    http.get(`*/clients/${clientId}/emails`, async ({ request }) => {
+      const params = new URL(request.url).searchParams;
+      const offset = params.get("offset") ?? "0";
       offsets.push(offset);
+      await heldFor(params, options);
       return HttpResponse.json(offset === "0" ? pageOne : pageTwo, {
         status: 200
       });
@@ -425,6 +429,25 @@ export function installPagedEmailsHandler(
   );
 
   return { offsets: () => offsets };
+}
+
+/**
+ * How long a handler holds a response before serving it. A cache read-back is
+ * a claim about the window BEFORE a response lands, so that window has to have
+ * a length; the bodies served are the recorded ones either way.
+ */
+export type ResponseTiming = {
+  delayMs?: number | ((params: URLSearchParams) => number);
+};
+
+async function heldFor(
+  params: URLSearchParams,
+  options?: ResponseTiming
+): Promise<void> {
+  const ms = isFunction(options?.delayMs)
+    ? options.delayMs(params)
+    : options?.delayMs;
+  if (ms) await delay(ms);
 }
 
 /**
@@ -439,14 +462,15 @@ export function installPagedEmailsHandler(
  */
 export function installFilteredEmailsHandler(
   mswServer: SetupServer | undefined,
-  clientId: string
+  clientId: string,
+  options?: ResponseTiming
 ): { reads: () => number } {
   const envelope = recorded.pageOne();
   const corpus = [...recorded.pageOne().data, ...recorded.pageTwo().data];
   let reads = 0;
 
   mswServer?.use(
-    http.get(`*/clients/${clientId}/emails`, ({ request }) => {
+    http.get(`*/clients/${clientId}/emails`, async ({ request }) => {
       reads += 1;
       const params = new URL(request.url).searchParams;
       let rows = corpus;
@@ -463,6 +487,8 @@ export function installFilteredEmailsHandler(
         const needle = like.replace(/%/g, "").toLowerCase();
         rows = rows.filter(row => row.email.toLowerCase().includes(needle));
       }
+
+      await heldFor(params, options);
 
       return HttpResponse.json(
         { ...envelope, data: rows, total: rows.length },

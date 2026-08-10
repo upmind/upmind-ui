@@ -10,6 +10,9 @@ const root = fileURLToPath(new URL("./", import.meta.url));
 // because vitest never boots the Nuxt runtime itself.
 const alias = {
   "@": resolve(root, "./app"),
+  // Nuxt's own srcDir alias, provided by the framework rather than declared in
+  // `nuxt.config.ts` — pages reach their composables through it.
+  "~": resolve(root, "./app"),
   "@upmind-automation/types": resolve(
     root,
     "../../packages/types/src/index.ts"
@@ -87,7 +90,10 @@ export default defineConfig({
           test: {
             name: "component",
             environment: "jsdom",
-            include: ["app/components/**/__tests__/**/*.spec.ts"],
+            include: [
+              "app/components/**/__tests__/**/*.spec.ts",
+              "app/pages/**/__tests__/**/*.spec.ts"
+            ],
             setupFiles: ["tests/setup/component.setup.ts"]
           }
         })
