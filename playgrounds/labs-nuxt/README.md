@@ -81,6 +81,16 @@ export const registry = {
 
 `app/pages/scenarios/[key]/[...scopeSuffix].vue` is the **only** page. It reads the key from the url, resolves the registry entry, boots the composable at the named scope (or a scope the url overrides, e.g. `/for/client/<id>`), and hands the result to the adapter. Adding a module to this playground is a headless line plus a registry entry — **zero new files, zero new pages, zero new components.**
 
+## The sidebar and the landing page read the same registry — nothing is hand-listed
+
+A scenario key, the moment it is registered, needs nothing added to the sidebar or to the home page by hand — both derive from the same registry entries the scenario page itself boots from, so the two can never drift out of sync with each other or with what is actually reachable.
+
+- **The sidebar** carries one item per registered scenario key, each linking straight to the actor its own entry declares (`/scenarios/<key>/as/<actor>`). A composable can reach the sidebar the other way too — by declaring its own route metadata on its page, the pattern `useAuth`'s page already follows — and either source lands it under the same "Composables" heading.
+- **The landing page** counts every composable reachable either way, groups them into families (derived from the leading word of the key or label — `client`, `basket`, `auth`, and so on), and renders one card per composable linking the same way the sidebar does. The counts, the grouping, and the card grid are all read off the registry and the route table; none of it is typed in, so a newly registered scenario appears on both surfaces without either being touched.
+- A registered entry also carries small badges on its landing card describing what its own declaration sets — that it hands editing off to another scenario, that its request state persists to the url — read off which fields the entry declares, not typed in per composable. Every key in the registry surfaces this way, including one that exists only as another scenario's edit target.
+
+The one page that used to list scenarios by hand (`/scenarios`) stays reachable by url but is no longer linked from the sidebar — every scenario it once listed now carries its own item derived the way described above.
+
 ## The rendering pipeline — dumb by construction
 
 ```text
