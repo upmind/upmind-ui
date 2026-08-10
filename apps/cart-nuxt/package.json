@@ -1,7 +1,7 @@
 {
   "name": "@upmind-automation/cart-nuxt",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.20.11",
   "description": "Nuxt-based e-commerce cart with SSR/SSG and middleware-based routing built on the Upmind platform",
   "keywords": [
     "Upmind",

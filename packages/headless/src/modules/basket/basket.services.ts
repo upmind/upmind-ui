@@ -125,13 +125,16 @@ async function load(context: BasketContext, _event: AnyEventObject) {
   const { ensureConfig } = useBrand();
   const { ensureBillingCycles, ensureCountries } = useSystem();
 
-  // NB ensure we get this in order to be able to use in basket machine actions
-  ensureConfig([BrandConfigKeys.REQUIRE_PAYMENT_METHOD_FOR_FREE_ORDERS]);
-
   // FE-1698: ensure lazy system data is loaded before any downstream consumer
   // (basketProduct, recommendations, productCatalogue) parses prices/terms via
   // sync getBillingCycle() / getCountry(). See system/docs/gotchas.md#1.
-  await Promise.all([ensureBillingCycles(), ensureCountries()]);
+  await Promise.all([
+    // NB awaited: basket machine actions read this synchronously when spawning
+    // the payment-details machine, so it must be resolved before `load` returns.
+    ensureConfig([BrandConfigKeys.REQUIRE_PAYMENT_METHOD_FOR_FREE_ORDERS]),
+    ensureBillingCycles(),
+    ensureCountries()
+  ]);
 
   await claimBasket();
 
