@@ -1,8 +1,33 @@
-// Navigation composable - auto-generates navigation from router routes
-// Each route should have meta.nav to appear in the sidebar
+// -----------------------------------------------------------------------------
+/**
+ * @module composables/useNavigation
+ * @description The playground's ONE navigation derivation. Two declarative
+ * sources feed the same tree — a route's `meta.nav` (the `useAuth` precedent)
+ * and the scenario contract (`factory/registry`, ruling S-D4) — so a module
+ * reaching the factory as a registry entry appears in the sidebar AND on the
+ * landing page with neither hand-edited.
+ */
 
 import { computed } from "vue";
 import { useRouter, type RouteRecordNormalized } from "vue-router";
+import { registry, scenarioKeys } from "./factory/registry";
+import {
+  compact,
+  filter,
+  first,
+  get,
+  groupBy,
+  keys,
+  map,
+  reduce,
+  replace,
+  sortBy,
+  startCase,
+  toLower,
+  words
+} from "lodash-es";
+
+// -----------------------------------------------------------------------------
 
 export interface NavMeta {
   label: string;
@@ -16,7 +41,10 @@ export interface NavMeta {
 export interface NavItem {
   label: string;
   icon?: string;
+  /** A named route record. */
   route?: string;
+  /** A path, for an item the registry declares rather than a route record. */
+  to?: string;
   dynamic?: boolean;
   children?: NavItem[];
 }
@@ -27,6 +55,27 @@ export interface NavSection {
   order: number;
   children: NavItem[];
 }
+
+/** One composable a developer can open, whichever source declared it. */
+export interface LabEntry {
+  key: string;
+  label: string;
+  icon: string;
+  family: string;
+  route?: string;
+  to?: string;
+  tags: string[];
+}
+
+/** Entries sharing a natural family — `client` owns email, phone, address… */
+export interface LabFamily {
+  name: string;
+  label: string;
+  icon: string;
+  entries: LabEntry[];
+}
+
+type NavSource = { nav: NavMeta; route?: string; to?: string };
 
 // Section config - defines section order and icons
 const SECTION_CONFIG: Record<string, { icon: string; order: number }> = {
@@ -40,59 +89,70 @@ const SECTION_CONFIG: Record<string, { icon: string; order: number }> = {
   Admin: { icon: "shield-01", order: 8 }
 };
 
+/** A family with no icon of its own still lists — it falls back. */
+const FAMILY_CONFIG: Record<string, string> = {
+  auth: "lock-01",
+  basket: "shopping-cart-01",
+  client: "users-01",
+  invoices: "receipt",
+  orders: "shopping-bag-02",
+  products: "package"
+};
+
+/** Which declared binding fields a developer is shown, and as what. */
+const BINDING_TAGS: Record<string, string> = {
+  handoff: "Handoff",
+  persistCriteria: "URL state",
+  useMutate: "Editable"
+};
+
+const COMPOSABLES_SECTION = "Composables";
+const SCENARIO_ICON = "code-browser";
+const FALLBACK_FAMILY_ICON = "layers-three-01";
+
 // --- Helper Functions
-function getNavMeta(route: RouteRecordNormalized): NavMeta | undefined {
-  return route.meta?.nav as NavMeta | undefined;
+function familyOf(identifier: string): string {
+  return toLower(first(words(replace(identifier, /^use/, ""))) ?? identifier);
 }
 
-function buildNavItem(route: RouteRecordNormalized): NavItem | null {
-  const nav = getNavMeta(route);
-  if (!nav || nav.hidden) return null;
+const SCENARIO_ENTRIES: LabEntry[] = map(scenarioKeys, key => ({
+  key,
+  label: startCase(key),
+  icon: SCENARIO_ICON,
+  family: familyOf(key),
+  to: `/scenarios/${key}/as/${get(registry, [key, "scope", "actor"])}`,
+  tags: compact(
+    map(keys(get(registry, key)), field => get(BINDING_TAGS, field))
+  )
+}));
 
-  return {
-    label: nav.label,
-    icon: nav.icon,
-    route: route.name as string,
-    dynamic: false
-  };
+function routeSources(routes: RouteRecordNormalized[]): NavSource[] {
+  return reduce(
+    routes,
+    (sources: NavSource[], route) => {
+      const nav = get(route, "meta.nav") as NavMeta | undefined;
+      if (nav && !nav.hidden)
+        sources.push({ nav, route: route.name as string });
+      return sources;
+    },
+    []
+  );
 }
 
-function buildNavigationTree(
-  routes: RouteRecordNormalized[]
-): Map<string, NavItem[]> {
+function buildNavigationTree(sources: NavSource[]): Map<string, NavItem[]> {
   const sectionMap = new Map<string, NavItem[]>();
   const childMap = new Map<string, NavItem[]>(); // parent route name -> children
 
-  // First pass: collect all nav items
-  const navItems: Array<{ route: RouteRecordNormalized; nav: NavMeta }> = [];
+  for (const { nav, route, to } of sortBy(
+    sources,
+    source => source.nav.order ?? 99
+  )) {
+    const bucket = nav.parent ? childMap : sectionMap;
+    const bucketKey = nav.parent ?? nav.section ?? "Other";
+    const items = bucket.get(bucketKey) ?? [];
 
-  for (const route of routes) {
-    const nav = getNavMeta(route);
-    if (nav && !nav.hidden) {
-      navItems.push({ route, nav });
-    }
-  }
-
-  // Sort by order
-  navItems.sort((a, b) => (a.nav.order ?? 99) - (b.nav.order ?? 99));
-
-  // Second pass: build tree structure
-  for (const { route, nav } of navItems) {
-    const item = buildNavItem(route);
-    if (!item) continue;
-
-    if (nav.parent) {
-      // This is a child item
-      const children = childMap.get(nav.parent) || [];
-      children.push(item);
-      childMap.set(nav.parent, children);
-    } else {
-      // This is a top-level item in a section
-      const section = nav.section || "Other";
-      const items = sectionMap.get(section) || [];
-      items.push(item);
-      sectionMap.set(section, items);
-    }
+    items.push({ label: nav.label, icon: nav.icon, route, to, dynamic: false });
+    bucket.set(bucketKey, items);
   }
 
   // Attach children to parent items
@@ -113,9 +173,20 @@ function buildNavigationTree(
 export function useNavigation() {
   const router = useRouter();
 
+  const routes = computed((): NavSource[] => routeSources(router.getRoutes()));
+
   const navigation = computed((): NavItem[] => {
-    const routes = router.getRoutes();
-    const sectionMap = buildNavigationTree(routes);
+    const sectionMap = buildNavigationTree([
+      ...routes.value,
+      ...map(SCENARIO_ENTRIES, entry => ({
+        nav: {
+          label: entry.label,
+          icon: entry.icon,
+          section: COMPOSABLES_SECTION
+        },
+        to: entry.to
+      }))
+    ]);
 
     // Build final navigation array
     const result: NavItem[] = [];
@@ -129,9 +200,7 @@ export function useNavigation() {
 
       // Labs items go directly to top level (not grouped)
       if (sectionName === "Labs") {
-        for (const item of items) {
-          result.push(item);
-        }
+        result.push(...items);
       } else {
         sections.push({
           label: sectionName,
@@ -142,11 +211,8 @@ export function useNavigation() {
       }
     }
 
-    // Sort sections by order and add to result
-    sections.sort((a, b) => a.order - b.order);
-
     // Add top-level Labs items first (already in result), then sections
-    for (const section of sections) {
+    for (const section of sortBy(sections, "order")) {
       result.push({
         label: section.label,
         icon: section.icon,
@@ -157,7 +223,44 @@ export function useNavigation() {
     return result;
   });
 
-  return { navigation };
+  /** Every composable the playground can open, both sources merged. */
+  const composables = computed((): LabEntry[] =>
+    sortBy(
+      [
+        ...map(
+          filter(
+            routes.value,
+            source =>
+              source.nav.section === COMPOSABLES_SECTION && !source.nav.parent
+          ),
+          source => ({
+            key: source.route as string,
+            label: source.nav.label,
+            icon: source.nav.icon ?? SCENARIO_ICON,
+            family: familyOf(source.nav.label),
+            route: source.route,
+            tags: [] as string[]
+          })
+        ),
+        ...SCENARIO_ENTRIES
+      ],
+      "label"
+    )
+  );
+
+  const families = computed((): LabFamily[] =>
+    sortBy(
+      map(groupBy(composables.value, "family"), (entries, name) => ({
+        name,
+        label: startCase(name),
+        icon: get(FAMILY_CONFIG, name, FALLBACK_FAMILY_ICON),
+        entries
+      })),
+      "label"
+    )
+  );
+
+  return { composables, families, navigation };
 }
 
 // Re-export NavItem type for use in components

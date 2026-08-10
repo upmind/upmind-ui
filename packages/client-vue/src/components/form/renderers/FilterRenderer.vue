@@ -1,5 +1,41 @@
 <template>
   <FormField v-bind="fieldProps">
+    <template v-if="meta.isSwitch" #field>
+      <div
+        class="flex w-full flex-row flex-nowrap items-center justify-between gap-x-3"
+      >
+        <FormLabel v-if="fieldProps.label" :formItemId="fieldProps.id">
+          <span class="inline-flex items-center gap-x-2">
+            <span>{{ fieldProps.label }}</span>
+          </span>
+        </FormLabel>
+
+        <div
+          class="control-radius bg-control-surface shadow-control-default inline-flex flex-row flex-nowrap items-center gap-x-2 py-1 pr-1 pl-3"
+        >
+          <Switch
+            :id="fieldProps.id"
+            :disabled="fieldProps.disabled"
+            :checked="leaf(RequestFilterOperator.EQUAL) === true"
+            @update:checked="write(RequestFilterOperator.EQUAL, $event)"
+          />
+          <span class="text-sm">{{ positionLabel }}</span>
+          <Tooltip v-if="meta.isSet" :label="unsetLabel">
+            <Button
+              icon="x-close"
+              icon-only
+              variant="ghost"
+              color="neutral"
+              size="sm"
+              :label="unsetLabel"
+              :disabled="fieldProps.disabled"
+              @click="write(RequestFilterOperator.EQUAL, undefined)"
+            />
+          </Tooltip>
+        </div>
+      </div>
+    </template>
+
     <Search
       v-if="meta.isSearch"
       :id="fieldProps.id"
@@ -8,30 +44,22 @@
       :placeholder="fieldProps.placeholder"
       :disabled="fieldProps.disabled"
       @update:model-value="write(RequestFilterOperator.LIKE, $event)"
-    />
-
-    <div
-      v-else-if="meta.isSwitch"
-      class="flex flex-row flex-nowrap items-center gap-x-3"
     >
-      <Switch
-        :id="fieldProps.id"
-        :disabled="fieldProps.disabled"
-        :checked="leaf(RequestFilterOperator.EQUAL) === true"
-        @update:checked="write(RequestFilterOperator.EQUAL, $event)"
-      />
-      <span class="text-sm">{{ positionLabel }}</span>
-      <Button
-        v-if="meta.isSet"
-        icon="x-close"
-        variant="ghost"
-        color="neutral"
-        size="sm"
-        :label="unsetLabel"
-        :disabled="fieldProps.disabled"
-        @click="write(RequestFilterOperator.EQUAL, undefined)"
-      />
-    </div>
+      <template v-if="meta.isSet" #append>
+        <Tooltip :label="unsetLabel">
+          <Button
+            icon="x-close"
+            icon-only
+            variant="ghost"
+            color="neutral"
+            size="sm"
+            :label="unsetLabel"
+            :disabled="fieldProps.disabled"
+            @click="write(RequestFilterOperator.LIKE, undefined)"
+          />
+        </Tooltip>
+      </template>
+    </Search>
 
     <div
       v-else-if="meta.isSelect"
@@ -45,16 +73,18 @@
         :disabled="fieldProps.disabled"
         @update:model-value="onSelect"
       />
-      <Button
-        v-if="meta.isSet"
-        icon="x-close"
-        variant="ghost"
-        color="neutral"
-        size="sm"
-        :label="unsetLabel"
-        :disabled="fieldProps.disabled"
-        @click="write(RequestFilterOperator.EQUAL, undefined)"
-      />
+      <Tooltip v-if="meta.isSet" :label="unsetLabel">
+        <Button
+          icon="x-close"
+          icon-only
+          variant="ghost"
+          color="neutral"
+          size="sm"
+          :label="unsetLabel"
+          :disabled="fieldProps.disabled"
+          @click="write(RequestFilterOperator.EQUAL, undefined)"
+        />
+      </Tooltip>
     </div>
 
     <div
@@ -94,10 +124,12 @@ import { RequestFilterOperator } from "@upmind-automation/headless";
 import {
   Button,
   FormField,
+  FormLabel,
   Input,
   Search,
   Select,
   Switch,
+  Tooltip,
   useUpmindUIRenderer
 } from "@upmind-automation/upmind-ui";
 import {

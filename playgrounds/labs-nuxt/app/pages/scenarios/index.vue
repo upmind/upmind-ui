@@ -38,7 +38,10 @@ definePageMeta({
     label: "Scenarios",
     icon: "grid-01",
     section: "Labs",
-    order: 1
+    order: 1,
+    // Superseded: every composable now carries its own item under Composables,
+    // so this index is a dead end in the sidebar and stays url-reachable only.
+    hidden: true
   }
 });
 

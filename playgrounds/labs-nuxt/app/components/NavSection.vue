@@ -46,8 +46,8 @@
 
   <!-- Regular navigable route -->
   <RouterLink
-    v-else-if="item.route"
-    :to="{ name: item.route }"
+    v-else-if="item.to || item.route"
+    :to="item.to ?? { name: item.route! }"
     :class="[
       'flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors',
       'text-muted hover:bg-canvas hover:text-display',
@@ -69,6 +69,7 @@
 import { computed, ref, watch } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 import { Icon } from "@upmind-automation/upmind-ui";
+import { some, startsWith } from "lodash-es";
 import type { NavItem } from "../composables/useNavigation";
 // -----------------------------------------------------------------------------
 const props = withDefaults(
@@ -83,16 +84,22 @@ const props = withDefaults(
 
 const route = useRoute();
 
-// Check if this item is the active route
-const isActive = computed(() => route.name === props.item.route);
+// A registry-derived item owns a path rather than a route record, and its
+// scope suffix (`/as/:actor/for/:type/:id`) extends that path.
+const isItemActive = (item: NavItem): boolean =>
+  item.to
+    ? startsWith(route.path, item.to)
+    : !!item.route && route.name === item.route;
+
+const isActive = computed(() => isItemActive(props.item));
 
 // Check if any child route is currently active
 const hasActiveChild = (item: NavItem): boolean => {
-  if (item.route && route.name === item.route) {
+  if (isItemActive(item)) {
     return true;
   }
   if (item.children) {
-    return item.children.some(child => hasActiveChild(child));
+    return some(item.children, child => hasActiveChild(child));
   }
   return false;
 };

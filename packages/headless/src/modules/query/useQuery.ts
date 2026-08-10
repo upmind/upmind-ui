@@ -1,4 +1,5 @@
 import {
+  keepPreviousData,
   useMutation,
   useQuery as vueUseQuery,
   useInfiniteQuery as vueUseInfiniteQuery
@@ -583,29 +584,29 @@ export const useQuery = () => {
     /**
      * The ONE guarded write into a RAW request branch: the `isEqual` early
      * return so an unchanged branch is inert, then the page reset and cache
-     * reset a real change owes. The criteria mode owes no page reset here — its
-     * cursor lives in the model, and `useQueryCriteria.set` returns it to the
-     * first page as part of the same write.
+     * invalidation a real change owes. The criteria mode owes no page reset
+     * here — its cursor lives in the model, and `useQueryCriteria.set` returns
+     * it to the first page as part of the same write.
      */
     function applyBranch<T>(target: Ref<T>, next: T): void {
       if (isEqual(unref(target), next)) return;
       target.value = next;
       if (isInitialCall.value) return;
       pageIndex.value = 1;
-      queryClient.resetQueries({ queryKey });
+      queryClient.invalidateQueries({ queryKey });
     }
 
     if (criteria)
       watch(props, (next, previous) => {
         // Nothing is assigned here: every branch is derived from the criteria,
         // and `set` has already returned the cursor to the first page. A real
-        // change owes the cache reset and nothing else.
+        // change owes the cache invalidation and nothing else.
         if (
           isEqual(next.sort, previous.sort) &&
           isEqual(next.filters, previous.filters)
         )
           return;
-        if (!isInitialCall.value) queryClient.resetQueries({ queryKey });
+        if (!isInitialCall.value) queryClient.invalidateQueries({ queryKey });
       });
 
     const response = scope.run(() =>
@@ -676,6 +677,7 @@ export const useQuery = () => {
             });
           },
 
+          placeholderData: keepPreviousData,
           ...(options as any)
         },
         queryClient
@@ -993,7 +995,7 @@ export const useQuery = () => {
           isEqual(next.filters, previous.filters)
         )
           return;
-        if (!isInitialCall.value) queryClient.resetQueries({ queryKey }); // Reset to first page
+        if (!isInitialCall.value) queryClient.invalidateQueries({ queryKey });
       });
 
     const response = scope.run(() =>
@@ -1144,13 +1146,13 @@ export const useQuery = () => {
       sort: (values?: QueryParams["sort"]) => {
         if (!raw) return;
         raw.sort.value = unref(values);
-        if (!isInitialCall.value) queryClient.resetQueries({ queryKey }); // Reset to first page
+        if (!isInitialCall.value) queryClient.invalidateQueries({ queryKey });
       },
 
       filter: (values: QueryParams["filters"]) => {
         if (!raw) return;
         raw.filters.value = unref(values);
-        if (!isInitialCall.value) queryClient.resetQueries({ queryKey }); // Reset to first page
+        if (!isInitialCall.value) queryClient.invalidateQueries({ queryKey });
       }
     } as InfiniteListQuery<TQueryFnData, TData>;
   }
