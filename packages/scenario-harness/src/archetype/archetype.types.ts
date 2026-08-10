@@ -24,26 +24,26 @@ export const OBJECT_SCHEMA_TYPE = "object" satisfies JsonSchema["type"];
  * Every structural predicate `classify()` evaluated, recorded so a fallback
  * classification is auditable rather than silent.
  */
-export interface ArchetypeSignals {
+export type ArchetypeSignals = {
   hasRealSchema: boolean;
   hasModel: boolean;
   hasTable: boolean;
   hasDataArray: boolean;
-}
+};
 
-export interface ArchetypeDecision {
+export type ArchetypeDecision = {
   archetype: Archetype;
   signals: ArchetypeSignals; // every predicate result — auditable rather than silent
-}
+};
 
 /**
  * The reflect() output: one module, one actor, one point-in-time read. `K`
  * is the consumer's own manifest key union (item 4/4a) — never a
  * package-baked `ComposableKey`.
  */
-export interface ModuleDescriptor<K extends string = string> {
+export type ModuleDescriptor<K extends string = string> = {
   key: K;
   actor: ScopeActor;
   archetype: ArchetypeDecision;
   snapshot: ReflectedSnapshot;
-}
+};

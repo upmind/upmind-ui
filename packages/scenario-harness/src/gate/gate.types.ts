@@ -10,13 +10,13 @@ import type { JsonSchema } from "@jsonforms/core";
  * vitest wrapper combines live enumeration + `tags/tags.ts` parsing to build
  * this input.
  */
-export interface GateInput {
+export type GateInput = {
   actor: ScopeActor;
   actionKeys: readonly string[];
   tags: Record<string, PlaygroundTag | undefined>;
   actionSchemas: Record<string, JsonSchema | undefined>;
   coveredActionIds: readonly string[];
-}
+};
 
 /** One `GateVerdict`'s `status`. */
 export const GATE_STATUS = {
@@ -56,7 +56,7 @@ export type GateVerdict =
  * actor it was computed for — verdicts from different cells are otherwise
  * byte-identical and un-attributable once concatenated.
  */
-export interface GateReport {
+export type GateReport = {
   actor: ScopeActor;
   verdicts: readonly GateVerdict[];
-}
+};

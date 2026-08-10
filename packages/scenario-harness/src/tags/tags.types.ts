@@ -24,10 +24,10 @@ export type PlaygroundTagKind = (typeof TAG_KIND)[keyof typeof TAG_KIND];
  * (`lifecycle | internal | delegated`) are carried as free text inside
  * `reason`, never validated against an enum.
  */
-export interface PlaygroundTag {
+export type PlaygroundTag = {
   kind: PlaygroundTagKind;
   reason?: string;
-}
+};
 
 /** Action member name → its parsed tag; an untagged member is absent (not `undefined`-valued). */
 export type PlaygroundTagMap = Record<string, PlaygroundTag | undefined>;

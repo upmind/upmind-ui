@@ -4,12 +4,12 @@ import type { ScopeActor } from "../world/scope-actor";
  * The @AC-5 exemplar module's plain-TS state shape and its
  * four-layer (actions/context/meta/internals) return shape.
  */
-export interface FixtureState {
+export type FixtureState = {
   on: boolean;
   label: string;
-}
+};
 
-export interface FixtureModule {
+export type FixtureModule = {
   actions: {
     turnOn(): void;
     turnOff(): void;
@@ -26,4 +26,4 @@ export interface FixtureModule {
     actor: ScopeActor;
     state: FixtureState;
   };
-}
+};

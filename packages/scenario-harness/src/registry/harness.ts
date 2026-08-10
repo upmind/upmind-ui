@@ -8,14 +8,14 @@ import type { ScopeActor } from "../world/scope-actor";
  * The registry-typed surface `createHarness` hands back — every member is
  * keyed by `K`, the consumer's own manifest union (item 4/4a).
  */
-export interface Harness<K extends string> {
+export type Harness<K extends string> = {
   readonly keys: readonly K[];
   reflect(
     key: K,
     actor: ScopeActor,
     port: CompositionPort
   ): ModuleDescriptor<K>;
-}
+};
 
 /**
  * Initialises the harness WITH the consumer's own registry (Dom's ruling,

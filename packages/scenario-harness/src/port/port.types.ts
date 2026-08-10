@@ -6,7 +6,7 @@ import type { ReflectedSnapshot } from "../reflection/reflection.types";
  * port as already-evaluated booleans — the adapter derefs every `.value`, the
  * core never owns a predicate.
  */
-export interface CompositionPort {
+export type CompositionPort = {
   snapshot(): ReflectedSnapshot;
   // ADR-027 d.4's port shape names this member explicitly; kept for that
   // reason even though the core never calls it — `reflect()` reads meta
@@ -19,4 +19,4 @@ export interface CompositionPort {
   getMeta(): Record<string, boolean>;
   actions: Record<string, (input?: unknown) => unknown | Promise<unknown>>;
   table?: ControlledTableChannel; // present iff the module owns table state
-}
+};

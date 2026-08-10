@@ -3,12 +3,12 @@ import type { ScopeActor } from "./scope-actor";
 /** Names a recorded journey; each world resolves it via the `defineJourney` fixture pool. */
 export type SeedRef = { journey: string };
 
-export interface WorldScope {
+export type WorldScope = {
   actor: ScopeActor;
   context?: { type: string; id: string };
   brandId?: string;
   seed?: SeedRef;
-}
+};
 
 /**
  * The BDD execution seam a `<module>.steps.ts` speaks through —
@@ -22,7 +22,7 @@ export interface WorldScope {
  * `ComposableKey` (item 4/4a) — a `World<K>` implementation is constructed
  * with (or typed against) the consumer's own `ScenarioRegistry<K, …>`.
  */
-export interface World<K extends string = string> {
+export type World<K extends string = string> = {
   boot(key: K, scope: WorldScope): Promise<void>;
   fire(actionId: string, input?: unknown): Promise<void>;
   // `Record`, never `Partial<Record<…>>` — `Partial` over an index signature
@@ -33,4 +33,4 @@ export interface World<K extends string = string> {
   expectMeta(expected: Record<string, boolean>): Promise<void>;
   expectContext?(expected: Record<string, unknown>): Promise<void>;
   dispose(): Promise<void>;
-}
+};

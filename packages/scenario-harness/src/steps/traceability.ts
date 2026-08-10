@@ -7,6 +7,7 @@ import {
   GherkinClassicTokenMatcher,
   Parser
 } from "@cucumber/gherkin";
+import { StepKeywordType } from "@cucumber/messages";
 import { STEP_KIND } from "./steps.types";
 import type {
   FeatureStep,
@@ -15,72 +16,28 @@ import type {
   StepKind,
   TraceabilityResult
 } from "./steps.types";
+import type {
+  Feature,
+  Rule,
+  RuleChild,
+  Scenario,
+  Step
+} from "@cucumber/messages";
 
-// Structural subsets of @cucumber/messages' AST shapes — declared locally so
-// this module never needs a direct type-import from `@cucumber/messages`
-// itself (only `@cucumber/gherkin` is a declared dependency); the real
-// parser's output is a structural superset of every shape below.
-interface GherkinLocation {
-  readonly line: number;
-}
-interface GherkinTableCell {
-  readonly value: string;
-}
-interface GherkinTableRow {
-  readonly cells: readonly GherkinTableCell[];
-}
-interface GherkinExamples {
-  readonly tableHeader?: GherkinTableRow;
-  readonly tableBody: readonly GherkinTableRow[];
-}
-interface GherkinStep {
-  readonly location: GherkinLocation;
-  readonly keywordType?: string;
-  readonly text: string;
-}
-interface GherkinStepContainer {
-  readonly steps: readonly GherkinStep[];
-}
-interface GherkinScenario extends GherkinStepContainer {
-  readonly examples: readonly GherkinExamples[];
-}
-interface GherkinRuleChild {
-  readonly background?: GherkinStepContainer;
-  readonly scenario?: GherkinScenario;
-}
-interface GherkinRule {
-  readonly children: readonly GherkinRuleChild[];
-}
-interface GherkinFeatureChild {
-  readonly background?: GherkinStepContainer;
-  readonly scenario?: GherkinScenario;
-  readonly rule?: GherkinRule;
-}
-interface GherkinFeature {
-  readonly children: readonly GherkinFeatureChild[];
-}
-
-// `@cucumber/messages`' StepKeywordType enum values (Given/When/Then are
-// pinned to STEP_KIND, this package's own vocabulary; And/But/`*` carry no
-// kind of their own — Conjunction and the bullet form's Unknown both inherit
-// the nearest preceding Given/When/Then within the same step sequence).
-const STEP_KEYWORD_TYPE = {
-  CONTEXT: "Context",
-  ACTION: "Action",
-  OUTCOME: "Outcome"
-} as const;
-
+// And/But/`*` carry no kind of their own — Conjunction and the bullet form's
+// Unknown both inherit the nearest preceding Given/When/Then within the same
+// step sequence.
 function resolveStepKind(
-  keywordType: string | undefined,
+  keywordType: StepKeywordType | undefined,
   lastKind: StepKind
 ): StepKind {
-  if (keywordType === STEP_KEYWORD_TYPE.CONTEXT) return STEP_KIND.GIVEN;
-  if (keywordType === STEP_KEYWORD_TYPE.ACTION) return STEP_KIND.WHEN;
-  if (keywordType === STEP_KEYWORD_TYPE.OUTCOME) return STEP_KIND.THEN;
+  if (keywordType === StepKeywordType.CONTEXT) return STEP_KIND.GIVEN;
+  if (keywordType === StepKeywordType.ACTION) return STEP_KIND.WHEN;
+  if (keywordType === StepKeywordType.OUTCOME) return STEP_KIND.THEN;
   return lastKind;
 }
 
-function collectSteps(steps: readonly GherkinStep[]): FeatureStep[] {
+function collectSteps(steps: readonly Step[]): FeatureStep[] {
   let lastKind: StepKind = STEP_KIND.GIVEN;
 
   return steps.map(step => {
@@ -104,7 +61,7 @@ function substitutePlaceholders(
   );
 }
 
-function expandScenarioSteps(scenario: GherkinScenario): FeatureStep[] {
+function expandScenarioSteps(scenario: Scenario): FeatureStep[] {
   if (scenario.examples.length === 0) {
     return collectSteps(scenario.steps);
   }
@@ -133,26 +90,23 @@ function expandScenarioSteps(scenario: GherkinScenario): FeatureStep[] {
   return expanded;
 }
 
-function parseGherkinFeature(featureText: string): GherkinFeature | undefined {
+function parseGherkinFeature(featureText: string): Feature | undefined {
   let nextId = 0;
   const builder = new AstBuilder(() => String(nextId++));
   const matcher = new GherkinClassicTokenMatcher();
   const parser = new Parser(builder, matcher);
 
-  return parser.parse(featureText).feature as GherkinFeature | undefined;
+  return parser.parse(featureText).feature;
 }
 
-function collectContainerSteps(entry: {
-  readonly background?: GherkinStepContainer;
-  readonly scenario?: GherkinScenario;
-}): FeatureStep[] {
+function collectContainerSteps(entry: RuleChild): FeatureStep[] {
   return [
     ...(entry.background ? collectSteps(entry.background.steps) : []),
     ...(entry.scenario ? expandScenarioSteps(entry.scenario) : [])
   ];
 }
 
-function collectRuleSteps(rule: GherkinRule): FeatureStep[] {
+function collectRuleSteps(rule: Rule): FeatureStep[] {
   return rule.children.flatMap(collectContainerSteps);
 }
 
@@ -189,11 +143,12 @@ function parseFeatureSteps(featureText: string): FeatureStep[] {
  * type) is listed in `malformedStepDefs` instead of throwing. `ok` is `true`
  * only when all three are empty.
  *
- * @remarks `@cucumber/cucumber-expressions` and `@cucumber/gherkin` are
- * declared in this package's `dependencies`, not `devDependencies`: this
- * module is barrel-exported production src, so the import executes at
- * runtime for every consumer of the package, not only this package's own
- * tests.
+ * @remarks `@cucumber/cucumber-expressions`, `@cucumber/gherkin` and
+ * `@cucumber/messages` are declared in this package's `dependencies`, not
+ * `devDependencies`: this module is barrel-exported production src, so the
+ * import executes at runtime for every consumer of the package, not only this
+ * package's own tests. `@cucumber/messages` is a value import
+ * ({@link StepKeywordType}), not a type-only one.
  */
 export function createTraceabilityCheck(
   featureText: string,

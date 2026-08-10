@@ -64,20 +64,23 @@ describe("@AC-5 createTraceabilityCheck — the BDD pair stays in lockstep", () 
     expect(result.orphanStepDefs).toContainEqual(orphanStepDef);
   });
 
-  it("the exemplar step definitions' import surface is exactly the allowed trio (bdd @AC-5 scenario 4)", () => {
+  it("the exemplar step definitions' import surface is exactly the allowed specifiers (bdd @AC-5 scenario 4)", () => {
     const importStatements = [
       ...stepsSourceText.matchAll(/^import\b[\s\S]*?;/gm)
     ].map(match => match[0]);
 
     expect(importStatements.length).toBeGreaterThan(0);
 
-    // Engine-free means exactly two allowed sources: the package itself
-    // (`defineSteps` + type `World`) and this package's own local fixture
-    // manifest (`FIXTURE_KEY` from `./fixture-registry`) — never an engine,
-    // never a package-wide manifest (item 4: the harness carries no
-    // baked-in manifest).
+    // Engine-free means only this package's own modules, reached relatively —
+    // three internal (`defineSteps`, `SCOPE_ACTOR`, type `World`) plus the
+    // local fixture manifest (`FIXTURE_KEY`). Never an engine, never a
+    // package-wide manifest (item 4: the harness carries no baked-in
+    // manifest), and never the package's own published specifier, which would
+    // route an internal fixture back through the barrel.
     const allowedSpecifiers = new Set([
-      "@upmind-automation/scenario-harness",
+      "../steps/step-catalog",
+      "../world/scope-actor",
+      "../world/world.types",
       "./fixture-registry"
     ]);
     for (const statement of importStatements) {
