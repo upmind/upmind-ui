@@ -1,3 +1,4 @@
+import { computed } from "vue";
 import {
   AccessRoleTypes,
   type ISelf,
@@ -7,7 +8,11 @@ import { useSessionStore } from "../session-store";
 import { useDataLayer } from "../system-analytics";
 import { useI18n } from "../system-localisation";
 import { mapToken } from "./session-store.mappers";
-import { sessionStore as store, isScopeAllowed } from "./session-store.store";
+import {
+  sessionStore as store,
+  storeTick,
+  isScopeAllowed
+} from "./session-store.store";
 import {
   DetailedError,
   ErrorOrigin,
@@ -15,18 +20,59 @@ import {
   useCookies,
   useSessionStorage
 } from "../../utils";
-import { first, has, isObject, keys, omit, omitBy, values } from "lodash-es";
+import {
+  first,
+  get,
+  has,
+  isObject,
+  keys,
+  omit,
+  omitBy,
+  values
+} from "lodash-es";
 import type {
   AuthEventType,
   PersistedSessionState,
   SessionEntry,
   Token
 } from "./session-store.types";
+import type { ScopeContext } from "../scope/scope.types";
+import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module session-store/utils
  * @description Session store utility functions.
  */
+
+/**
+ * Resolves the client id a call addresses: a `client` scope context wins,
+ * otherwise the active session's own user.
+ *
+ * @param scopeContext - The resolved scope context, if the scope carries one
+ * @returns The client id to address, or `undefined` while none resolves
+ */
+export function resolveClientId(
+  scopeContext?: ScopeContext
+): ComputedRef<string | undefined> {
+  return computed(() => {
+    if (scopeContext?.type === AccessRoleTypes.CLIENT) return scopeContext.id;
+
+    // `store.state` is a plain read, so the tick is what makes this reactive.
+    void storeTick.value;
+    const { activeActor, activeSessionId, clientSessions, staffSessions } =
+      store.state;
+    if (!activeSessionId || !isScopeAllowed(activeActor)) return undefined;
+
+    if (activeActor === AccessRoleTypes.CLIENT) {
+      return get(clientSessions, [activeSessionId, "user", "id"]);
+    }
+    if (activeActor === AccessRoleTypes.STAFF) {
+      return get(staffSessions, [activeSessionId, "user", "id"]);
+    }
+
+    return undefined;
+  });
+}
 
 /**
  * Compute the expiration timestamp for a session from created_at + expires_in.

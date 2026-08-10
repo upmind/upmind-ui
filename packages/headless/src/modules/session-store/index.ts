@@ -11,7 +11,8 @@ export { authSubscription } from "./session-store.sync";
 export {
   getTokenFromStorage,
   dumpTokenFromStorage,
-  persistTokenToStorage
+  persistTokenToStorage,
+  resolveClientId
 } from "./session-store.utils";
 
 // --- Mappers (curated re-export for cross-module consumers)

@@ -1,14 +1,7 @@
-import { computed } from "vue";
 import { AccessRoleTypes } from "@upmind-automation/types";
-import { useActiveSession, useSessionStore } from "../session-store";
+import { useSessionStore } from "../session-store";
 import { ScopeActorTypes } from "./scope.types";
-import type {
-  ScopeActor,
-  ScopeConfig,
-  ScopeContext,
-  ScopeKey
-} from "./scope.types";
-import type { ComputedRef } from "vue";
+import type { ScopeActor, ScopeConfig, ScopeKey } from "./scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module scope/utils
@@ -69,36 +62,4 @@ export function resolveSelfActor(
   const { activeActor } = session.useContext();
 
   return activeActor.value ?? AccessRoleTypes.GUEST;
-}
-
-/**
- * Derives the target client id from the RESOLVED scope — the one seam every
- * request-issuing services file shares, and the FE-2824 fix for a services
- * layer that hardwires the session's own client for every call and so silently
- * drops `.for('client', id)` retargeting.
- *
- * A `client` context names the client being addressed; with none it falls back
- * to the active session's own client (the self case). It compares the CONTEXT
- * the scope builder resolved, never the actor, so it is not a branch on
- * `ScopeActorTypes.SELF`. A context naming some other entity (an email, an
- * invoice) falls through to the session — such a context names the entity, not
- * its owner.
- *
- * The result is a computed, never a snapshot: an authenticated cold boot
- * carries no `activeUser` until `/self` lands, so a caller that reads the id at
- * mint time addresses `undefined`.
- *
- * @param scopeContext - The resolved scope context, if the scope carries one
- * @returns The client id to address, or `undefined` while none resolves
- */
-export function resolveClientId(
-  scopeContext?: ScopeContext
-): ComputedRef<string | undefined> {
-  const { activeUser } = useActiveSession().useContext();
-
-  return computed(() =>
-    scopeContext?.type === AccessRoleTypes.CLIENT
-      ? scopeContext.id
-      : activeUser.value?.id
-  );
 }
