@@ -6,6 +6,9 @@
  * and the scenario contract (`factory/registry`, ruling S-D4) — so a module
  * reaching the factory as a registry entry appears in the sidebar AND on the
  * landing page with neither hand-edited.
+ *
+ * Navigability is derived from the contract's own handoff relations rather than
+ * declared a second time: one composable family is one menu item.
  */
 
 import { computed } from "vue";
@@ -13,8 +16,10 @@ import { useRouter, type RouteRecordNormalized } from "vue-router";
 import { registry, scenarioKeys } from "./factory/registry";
 import {
   compact,
+  difference,
   filter,
   first,
+  flatMap,
   get,
   groupBy,
   keys,
@@ -24,6 +29,7 @@ import {
   sortBy,
   startCase,
   toLower,
+  values,
   words
 } from "lodash-es";
 
@@ -115,7 +121,19 @@ function familyOf(identifier: string): string {
   return toLower(first(words(replace(identifier, /^use/, ""))) ?? identifier);
 }
 
-const SCENARIO_ENTRIES: LabEntry[] = map(scenarioKeys, key => ({
+const HANDOFF_TARGET_KEYS: string[] = flatMap(scenarioKeys, key =>
+  map(values(get(registry, [key, "handoff"])), "target")
+);
+
+/**
+ * A key another scenario hands off to is an internal destination — the editor
+ * a row opens — so it is not its own menu item; one composable family is one
+ * entry. Derived from the handoff relation the contract already declares, so a
+ * module never has to remember a second flag as the registry grows.
+ */
+const NAVIGABLE_KEYS = difference(scenarioKeys, HANDOFF_TARGET_KEYS);
+
+const SCENARIO_ENTRIES: LabEntry[] = map(NAVIGABLE_KEYS, key => ({
   key,
   label: startCase(key),
   icon: SCENARIO_ICON,

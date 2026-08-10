@@ -1,21 +1,23 @@
 // -----------------------------------------------------------------------------
 /**
  * @module tests/e2e/criteria-clear-remount
- * @description DIAGNOSIS lane (P1-R7 · P1-R2, step 0): the operator's own
- * reproduction, driven in the browser over the recorded corpus.
+ * @description The clear law and the remount law, composed on the real page
+ * (P1-R7 · P1-R2) over the recorded corpus.
  *
  * Every layer beneath this passes on its own — core clears
  * (`criteria-clear.int.test.ts`), the renderer's ✕ empties its leaf
  * (`filter-clear.test.ts`), the bar forwards it verbatim
  * (`filter-bar-clear.spec.ts`) and the url sync drops the param
  * (`criteria-url-sync-clear.spec.ts`). What no unit lane can see is the three
- * of them composed: the ✕ clicked on the REAL page, with the url writing
- * itself and the page keyed on `route.fullPath`.
+ * of them composed: the ✕ clicked on the REAL page, with the url writing itself
+ * under a page that is keyed.
  *
- * Measured together, because they are the same event:
- *   - the clear: rows widen and the param leaves the LAST collection read;
- *   - the remount: how much of the page's DOM survives a filter change (P1-R2
- *     says none of it should be torn down) versus a scope change (which must).
+ * The remount law: **a criteria write preserves the page, a scope change resets
+ * it.** The criteria persists into the QUERY string and the scope into the
+ * PATH, so the key is the path — a page that keyed on `route.fullPath` tore
+ * itself down on every filter and re-booted the composable from scratch.
+ * Teardown is read off stamps written onto the live DOM, since what survives an
+ * interaction is the only observable the key has.
  */
 
 import { expect, test } from "@playwright/test";
@@ -31,11 +33,17 @@ import type { Page } from "@playwright/test";
 
 const FILTER_BAR = '[data-test-key="filters"]';
 const VERIFIED = `${FILTER_BAR} [data-test-key="form-item"][data-test-value="filters-verified"]`;
-const SWITCH = '[role="switch"]';
+/** The labelled treatment's set position, and the unset one it clears back to. */
+const SET = '[data-test-value="yes"]';
 const CLEAR = '[data-test-value="all"]';
 const VERIFIED_PARAM = "filter[verified|eq]";
 /** The url's own spelling of the same column (task 58's persistence). */
 const VERIFIED_URL_PARAM = "filter.verified.eq";
+/** A second column, so the settle below is a combination nothing has fetched. */
+const SETTLE_CONTROL = `${FILTER_BAR} [data-test-key="form-item"][data-test-value="filters-bounced"]`;
+/** The label-less treatment names its positions by the value each writes. */
+const SETTLE_POSITION = '[data-test-value="true"]';
+const SETTLE_PARAM = "filter[bounced|eq]";
 
 const urlParam = (page: Page, name: string): string | null =>
   new URL(page.url()).searchParams.get(name);
@@ -47,6 +55,18 @@ const collectionReads = (traffic: RecordedTraffic): string[] =>
     .requests()
     .filter(entry => /GET \S+\/emails\?/.test(entry))
     .map(entry => decodeURIComponent(entry));
+
+/**
+ * Toggles a column no earlier step wrote, so the claim "the cleared param left
+ * the wire" is read off a request that exists: clearing lands back on the boot
+ * combination, which the cache law (P1-R1) says must issue none of its own.
+ */
+async function settle(page: Page, traffic: RecordedTraffic): Promise<void> {
+  await page.locator(SETTLE_CONTROL).locator(SETTLE_POSITION).click();
+  await expect
+    .poll(() => collectionReads(traffic).at(-1) ?? "")
+    .toContain(SETTLE_PARAM);
+}
 
 async function openCanary(page: Page): Promise<RecordedTraffic> {
   const traffic = await installRecordedCorpus(page);
@@ -78,6 +98,31 @@ async function stampPageTree(page: Page): Promise<number> {
 const survivingStamps = (page: Page): Promise<number> =>
   page.evaluate(() => document.querySelectorAll("[data-probe-mount]").length);
 
+/**
+ * Navigates through the app's OWN router. A `page.goto` is a document
+ * navigation: it would wipe the stamps whatever the page is keyed on, and so
+ * prove nothing about the key.
+ */
+async function driveRouter(
+  page: Page,
+  verb: "push" | "replace",
+  to: string
+): Promise<void> {
+  await page.evaluate(
+    async ([method, target]) => {
+      const nuxt = (
+        window as unknown as {
+          useNuxtApp: () => {
+            $router: Record<string, (to: string) => Promise<void>>;
+          };
+        }
+      ).useNuxtApp();
+      await nuxt.$router[method]!(target);
+    },
+    [verb, to] as const
+  );
+}
+
 // -----------------------------------------------------------------------------
 
 test.describe("@P1-R7 clearing a tri-state filter on the real page", () => {
@@ -87,7 +132,7 @@ test.describe("@P1-R7 clearing a tri-state filter on the real page", () => {
     const traffic = await openCanary(page);
     const control = page.locator(VERIFIED);
 
-    await control.locator(SWITCH).click();
+    await control.locator(SET).click();
     await expect(rows(page)).toHaveCount(1);
     expect(collectionReads(traffic).at(-1)).toContain(`${VERIFIED_PARAM}=1`);
     // The url carries it too, so the clear below has a persisted value to
@@ -97,8 +142,10 @@ test.describe("@P1-R7 clearing a tri-state filter on the real page", () => {
     await control.locator(CLEAR).click();
 
     await expect(rows(page)).toHaveCount(3);
-    expect(collectionReads(traffic).at(-1)).not.toContain(VERIFIED_PARAM);
     await expect.poll(() => urlParam(page, VERIFIED_URL_PARAM)).toBeNull();
+
+    await settle(page, traffic);
+    expect(collectionReads(traffic).at(-1)).not.toContain(VERIFIED_PARAM);
   });
 
   test("survives a reload after the clear — the url carries no cleared column", async ({
@@ -107,7 +154,7 @@ test.describe("@P1-R7 clearing a tri-state filter on the real page", () => {
     const traffic = await openCanary(page);
     const control = page.locator(VERIFIED);
 
-    await control.locator(SWITCH).click();
+    await control.locator(SET).click();
     await expect(rows(page)).toHaveCount(1);
     await control.locator(CLEAR).click();
     await expect(rows(page)).toHaveCount(3);
@@ -119,11 +166,6 @@ test.describe("@P1-R7 clearing a tri-state filter on the real page", () => {
   });
 });
 
-// Measured 2026-08-10 on `feature/FE-2977`: a filter write leaves all 11
-// stamped ancestors standing, a scope push leaves 5 (the layout shell). The
-// url sync writes through `history.replaceState`, which vue-router never
-// observes, so `route.fullPath` — and the page key derived from it — does not
-// move on a filter change. The key is a latent hazard, not the active defect.
 test.describe("@P1-R2 what a criteria change tears down", () => {
   test("a filter change remounts nothing — the page tree survives it", async ({
     page
@@ -131,11 +173,32 @@ test.describe("@P1-R2 what a criteria change tears down", () => {
     await openCanary(page);
     const stamped = await stampPageTree(page);
 
-    await page.locator(VERIFIED).locator(SWITCH).click();
+    await page.locator(VERIFIED).locator(SET).click();
     await expect(rows(page)).toHaveCount(1);
     // The url DID change — so a page keyed on `fullPath` had every chance to
     // tear the tree down, and the survival count below is falsifiable.
     await expect.poll(() => urlParam(page, VERIFIED_URL_PARAM)).toBe("true");
+
+    expect(await survivingStamps(page)).toBe(stamped);
+  });
+
+  test("a criteria change carried by the ROUTER remounts nothing either", async ({
+    page
+  }) => {
+    await openCanary(page);
+    const stamped = await stampPageTree(page);
+    expect(stamped).toBeGreaterThan(0);
+
+    // The url sync writes through `history.replaceState` today, which
+    // vue-router never observes — so only a router-carried write actually moves
+    // `route.fullPath` and exercises the key the page is built on.
+    await driveRouter(
+      page,
+      "replace",
+      `${canaryRoute}?${VERIFIED_URL_PARAM}=true`
+    );
+    await expect.poll(() => urlParam(page, VERIFIED_URL_PARAM)).toBe("true");
+    await expect(page.locator(FILTER_BAR)).toHaveCount(1);
 
     expect(await survivingStamps(page)).toBe(stamped);
   });
@@ -147,19 +210,7 @@ test.describe("@P1-R2 what a criteria change tears down", () => {
     const stamped = await stampPageTree(page);
     expect(stamped).toBeGreaterThan(0);
 
-    // Pushed through the app's OWN router, never `page.goto` — a full document
-    // navigation would wipe the stamps whatever the page is keyed on, and
-    // prove nothing about the key.
-    await page.evaluate(async path => {
-      const nuxt = (
-        window as unknown as {
-          useNuxtApp: () => {
-            $router: { push: (to: string) => Promise<void> };
-          };
-        }
-      ).useNuxtApp();
-      await nuxt.$router.push(path);
-    }, `${canaryRoute}/for/client/mock-client-id`);
+    await driveRouter(page, "push", `${canaryRoute}/for/client/mock-client-id`);
     await expect
       .poll(() => new URL(page.url()).pathname)
       .toContain(`${canaryRoute}/for/client/mock-client-id`);

@@ -7,13 +7,9 @@ import { cva } from "class-variance-authority";
 
 export default {
   inspector: {
-    root: cva(
-      "bg-surface border-surface fixed top-0 right-0 z-50 h-screen w-96 overflow-hidden border-l transition-all duration-300"
-    ),
+    root: cva("flex flex-col gap-0 overflow-hidden p-0"),
 
     tabs: cva("bg-canvas h-full flex-1 overflow-hidden p-4"),
-
-    toggleButton: cva("absolute top-2 right-2 z-20"),
 
     spacer: cva("flex-1"),
 

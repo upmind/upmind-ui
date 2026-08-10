@@ -1,11 +1,11 @@
 // -----------------------------------------------------------------------------
 /**
  * @module tests/e2e/client-emails-filter-bar
- * @description ⛳ CANARY, the half no bridge call can reach (Task 14, Task 61):
+ * @description ⛳ CANARY, the half no bridge call can reach (Task 14, P1-R12):
  * the filter bar the operator SEES is the `Filter` renderer built from the
  * module's own query schema — not a fallback Select, not a header keyword box —
  * typing in it narrows the rendered rows through a REAL re-query, and the
- * Inspector's debug row shows schema → uischema → model → the BUILT wire.
+ * Inspector carries the page's OWN tab and no deleted Debug one.
  *
  * Its sibling `client-emails-filter-sort.spec.ts` drives the same capability
  * through the harness action bridge; this file drives it through the rendered
@@ -31,13 +31,23 @@ import type { Page } from "@playwright/test";
 const FILTER_BAR = '[data-test-key="filters"]';
 const SEARCH = 'input[data-test-value="properties-filters-properties-email"]';
 
-/** The four controls §12's uischema declares, in the order it lays them out. */
+/** The three controls §12's uischema declares, in the order it lays them out. */
 const DECLARED_CONTROLS = [
   "filters-email",
   "filters-verified",
-  "filters-bounced",
-  "filters-default"
+  "filters-bounced"
 ];
+
+/** The two P1-R3 treatments, each by the test key its own control carries. */
+const BUTTON_POSITION = '[data-test-key="button"]';
+const TOGGLE_POSITION = '[data-test-key="toggle-group-item"]';
+const UNSET_POSITION = '[data-test-value="all"]';
+const YES_POSITION = '[data-test-value="yes"]';
+
+const columnIn = (page: Page, name: string) =>
+  page
+    .locator(FILTER_BAR)
+    .locator(`[data-test-key="form-item"][data-test-value="filters-${name}"]`);
 
 const RECORDED = {
   verified: "mock-email-1@example.com",
@@ -61,23 +71,28 @@ async function openCanary(page: Page): Promise<RecordedTraffic> {
   return traffic;
 }
 
-/** Expands one of the Inspector's debug collapsibles and parses its `<pre>`. */
-async function debugSection(page: Page, name: string): Promise<unknown> {
-  const trigger = page.locator(`button:text-is("${name}")`).first();
-  if ((await trigger.getAttribute("aria-expanded")) !== "true") {
-    await trigger.click();
-  }
-  const content = page.locator(
-    `#${await trigger.getAttribute("aria-controls")}`
-  );
-  await expect(content).toBeVisible();
-  return JSON.parse(await content.innerText());
+const tab = (page: Page, name: string) =>
+  page.locator(`[data-test-key="tab-item"][data-test-value="${name}"]`);
+
+/** The Inspector boots closed (P1-R4), so its own trigger opens it first. */
+async function openInspector(page: Page) {
+  await page
+    .locator('[data-test-key="button"][data-test-value="inspect"]')
+    .click();
+  await expect(tab(page, "Session (Scoped)")).toHaveCount(1);
 }
 
-async function openDebugTab(page: Page) {
-  await page
-    .locator('[data-test-key="tab-item"][data-test-value="Debug"]')
-    .click();
+/** Navigates through the app's OWN router, so the page unmounts as it does live. */
+async function leaveCanary(page: Page): Promise<void> {
+  await page.evaluate(async () => {
+    const nuxt = (
+      window as unknown as {
+        useNuxtApp: () => { $router: { push: (to: string) => Promise<void> } };
+      }
+    ).useNuxtApp();
+    await nuxt.$router.push("/");
+  });
+  await expect.poll(() => new URL(page.url()).pathname).toBe("/");
 }
 
 // -----------------------------------------------------------------------------
@@ -101,31 +116,39 @@ test.describe("@AC7 the canary's filter bar IS the Filter renderer (Task 14)", (
     );
   });
 
-  test("the three boolean columns are tri-state SWITCHES with an unset position — never a Select (W-D13/W-D21)", async ({
+  test("the two boolean columns draw the treatment their uischema names — never a switch, never a Select (P1-R3/W-D21)", async ({
     page
   }) => {
     await openCanary(page);
     const bar = page.locator(FILTER_BAR);
 
-    await expect(bar.locator('[role="switch"]')).toHaveCount(3);
+    await expect(
+      columnIn(page, "verified").locator(BUTTON_POSITION)
+    ).toHaveCount(3);
+    await expect(
+      columnIn(page, "bounced").locator(TOGGLE_POSITION)
+    ).toHaveCount(2);
+    await expect(bar.locator('[role="switch"]')).toHaveCount(0);
     await expect(bar.locator("select")).toHaveCount(0);
     await expect(bar.locator('[role="combobox"]')).toHaveCount(0);
+  });
 
-    // Unset is a THIRD position, not a falsy switch: every boolean column boots
-    // showing it, which is what makes "no opinion" spellable at all.
-    for (const control of [
-      "filters-verified",
-      "filters-bounced",
-      "filters-default"
-    ]) {
-      const item = bar.locator(
-        `[data-test-key="form-item"][data-test-value="${control}"]`
-      );
-      await expect(item.locator('[role="switch"]')).toHaveAttribute(
-        "aria-checked",
-        "false"
-      );
-    }
+  test("both treatments boot unset — the labelled one standing on All, the label-less one on nothing", async ({
+    page
+  }) => {
+    await openCanary(page);
+
+    await expect(
+      columnIn(page, "verified").locator(UNSET_POSITION)
+    ).toHaveAttribute("aria-pressed", "true");
+    await expect(
+      columnIn(page, "bounced").locator(
+        `${TOGGLE_POSITION}[aria-pressed="true"]`
+      )
+    ).toHaveCount(0);
+    await expect(columnIn(page, "bounced").locator(UNSET_POSITION)).toHaveCount(
+      0
+    );
   });
 
   test("the search box is the email column's own control, translated, full width above the switches", async ({
@@ -162,7 +185,7 @@ test.describe("@AC7 typing in the bar narrows the rows through a real re-query",
     expect(issued[0]).toContain("filter[email|like]=%mock-email-3%");
   });
 
-  test("a switch narrows on the wire too, and clearing the search restores every row", async ({
+  test("a boolean position narrows on the wire too, and clearing the search restores every row", async ({
     page
   }) => {
     const traffic = await openCanary(page);
@@ -173,8 +196,16 @@ test.describe("@AC7 typing in the bar narrows the rows through a real re-query",
     await page.locator(SEARCH).fill("");
 
     await expect(rows(page)).toHaveCount(3);
-    const restored = collectionReads(traffic).at(-1) ?? "";
-    expect(restored).not.toContain("filter[email|like]");
+
+    // The restore lands back on the boot combination, which is cached and
+    // issues no request (P1-R1) — so the position below is what puts the next
+    // request on the wire, and what the cleared search must be absent from.
+    await columnIn(page, "verified").locator(YES_POSITION).click();
+
+    await expect
+      .poll(() => collectionReads(traffic).at(-1) ?? "")
+      .toContain("filter[verified|eq]=1");
+    expect(collectionReads(traffic).at(-1)).not.toContain("filter[email|like]");
   });
 
   test("the rows the operator sees are the rows the SERVER returned — not a client-side slice", async ({
@@ -194,61 +225,30 @@ test.describe("@AC7 typing in the bar narrows the rows through a real re-query",
   });
 });
 
-test.describe("@AC7 the Inspector's debug row shows the BUILT wire (Task 61)", () => {
-  test("carries schema, uischema, model and the built request side by side", async ({
+test.describe("@P1-R12 the Inspector carries the page's own tab, and no Debug one", () => {
+  test("names the composable it is mounted over, and offers no Debug tab at all", async ({
     page
   }) => {
     await openCanary(page);
-    await openDebugTab(page);
 
-    const schema = (await debugSection(page, "Schema")) as {
-      properties: Record<string, unknown>;
-    };
-    expect(Object.keys(schema.properties)).toEqual(
-      expect.arrayContaining(["filters", "sort", "pagination"])
-    );
+    await openInspector(page);
 
-    const uischema = (await debugSection(page, "Uischema")) as {
-      elements: { type: string; elements?: { type: string }[] }[];
-    };
-    const leaves = uischema.elements.flatMap(element =>
-      element.elements
-        ? element.elements.map(child => child.type)
-        : [element.type]
-    );
-    expect(leaves).toEqual(["Filter", "Filter", "Filter", "Filter"]);
-
-    expect(await debugSection(page, "Model")).toEqual({
-      pagination: { limit: 10 },
-      sort: [{ field: "created_at", dir: "desc" }]
-    });
-
-    // The WIRE, beside the model it was built from — the "raw vs rendered"
-    // pairing W-D34 asked for, in the serialised form the request carries.
-    expect(await debugSection(page, "Request")).toEqual({
-      order: "-created_at",
-      limit: "10"
-    });
+    await expect(tab(page, "Client Emails")).toHaveCount(1);
+    await expect(tab(page, "Debug")).toHaveCount(0);
   });
 
-  test("the wire row is BUILT from the live criteria — it updates with no request in flight", async ({
+  test("takes its tab with it when the page unmounts — the registration is page-scoped", async ({
     page
   }) => {
-    const traffic = await openCanary(page);
+    await openCanary(page);
+    await openInspector(page);
+    await expect(tab(page, "Client Emails")).toHaveCount(1);
 
-    await openDebugTab(page);
-    await debugSection(page, "Request");
-    await page.route("**/emails?*", route => route.abort());
-    const before = collectionReads(traffic).length;
+    await leaveCanary(page);
 
-    await page.locator(SEARCH).fill("mock-email-3");
-
-    // No collection read can have completed — the row can only be showing what
-    // the criteria BUILDS, which is SB2's whole point (the panel used to read
-    // `searchParams` off the last actual fetch and sat empty until one landed).
-    await expect
-      .poll(() => debugSection(page, "Request"))
-      .toMatchObject({ "filter[email|like]": "%mock-email-3%" });
-    expect(collectionReads(traffic).length).toBe(before);
+    await expect(tab(page, "Client Emails")).toHaveCount(0);
+    // The Inspector itself survives the navigation, so the count above is a
+    // deregistration rather than a panel that simply closed.
+    await expect(tab(page, "Session (Scoped)")).toHaveCount(1);
   });
 });

@@ -46,6 +46,14 @@
 
   <!-- Inspector sidebar (fixed position) -->
   <Inspector />
+
+  <!-- Where every action outcome is reported (`useActionFeedback`) -->
+  <Sonner
+    position="bottom-right"
+    close-button
+    rich-colors
+    :visible-toasts="6"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -58,7 +66,7 @@ import {
   useActiveSession,
   useSessionStore
 } from "@upmind-automation/client-vue";
-import { Button } from "@upmind-automation/upmind-ui";
+import { Button, Sonner } from "@upmind-automation/upmind-ui";
 import { includes } from "lodash-es";
 import { Inspector, useInspector } from "~/components/inspector";
 import NavSection from "~/components/NavSection.vue";

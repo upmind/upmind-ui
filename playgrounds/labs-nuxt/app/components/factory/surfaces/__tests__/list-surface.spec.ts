@@ -66,17 +66,10 @@ describe("@AC2 ListSurface — controlled-table consumed, never owned", () => {
     expect(intent.sort[0].field).toBe("id");
   });
 
-  it("emits a filter intent to channel.emit() when the filter model changes", async () => {
-    const emit = vi.fn();
-    const wrapper = mountList(fakeTable({}, emit));
+  it("renders NO filter input in the table header — the FilterBar is the ONE filter surface (P1-R15)", () => {
+    const wrapper = mountList(fakeTable({ filter: { address: "b@x.com" } }));
 
-    const addressFilter = wrapper.findAll('input[data-test-key="input"]')[1];
-    await addressFilter.setValue("b@x.com");
-
-    expect(emit).toHaveBeenCalledWith({
-      type: "filter",
-      model: { address: "b@x.com" }
-    });
+    expect(wrapper.find("thead input").exists()).toBe(false);
   });
 
   it("emits a paginate intent to channel.emit() when the next page is activated", async () => {
@@ -94,33 +87,20 @@ describe("@AC2 ListSurface — controlled-table consumed, never owned", () => {
     });
   });
 
-  it("renders its filter/sort/pagination display from channel.read(), never from an owned state field", async () => {
+  it("renders its sort/pagination display from channel.read(), never from an owned state field", async () => {
     const wrapper = mountList(
-      fakeTable({
-        filter: { address: "existing@x.com" },
-        pagination: { page: 1, perPage: 10, total: 2 }
-      })
+      fakeTable({ pagination: { page: 1, perPage: 10, total: 2 } })
     );
 
-    const initialInput = wrapper.findAll('input[data-test-key="input"]')[1];
-    expect((initialInput.element as HTMLInputElement).value).toBe(
-      "existing@x.com"
-    );
+    expect(wrapper.find("p").text()).toBe("Page 1 of 1");
 
     // A brand-new `table` prop, never anything ListSurface mutates itself —
     // if it cached the model into its own ref at setup time, this would not
     // change the rendered output.
     await wrapper.setProps({
-      table: fakeTable({
-        filter: { address: "second@x.com" },
-        pagination: { page: 2, perPage: 1, total: 2 }
-      })
+      table: fakeTable({ pagination: { page: 2, perPage: 1, total: 2 } })
     });
 
-    const updatedInput = wrapper.findAll('input[data-test-key="input"]')[1];
-    expect((updatedInput.element as HTMLInputElement).value).toBe(
-      "second@x.com"
-    );
     expect(wrapper.find("p").text()).toBe("Page 2 of 2");
   });
 });

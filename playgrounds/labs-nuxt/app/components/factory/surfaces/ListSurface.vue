@@ -1,11 +1,11 @@
 <template>
-  <ModuleStateNotice v-if="state !== 'ready'" :state="state" :detail="detail" />
+  <ModuleStateNotice v-if="notice" :state="notice" :detail="detail" />
   <div v-else :class="styles.listSurface.root">
     <!-- A rejected criteria write leaves the list VALID and showing its last
          good rows, so its verdict belongs beside the table, never in place of
          it: swapping the surface out would unmount the very controls that
          issue the next valid write. -->
-    <ModuleStateNotice v-if="detail" state="error" :detail="detail" />
+    <ModuleStateNotice v-if="verdict" state="error" :detail="verdict" />
 
     <ActionSlots
       v-if="meta.hasCollectionActions"
@@ -53,21 +53,6 @@
                 />
               </button>
               <span v-else>{{ header.column.columnDef.header }}</span>
-
-              <label
-                v-if="header.column.getCanFilter()"
-                :class="styles.listSurface.filterLabel"
-              >
-                <span :class="styles.listSurface.filterLabelText">
-                  {{
-                    t("text.filter_by", { field: fieldLabel(header.column.id) })
-                  }}
-                </span>
-                <Input
-                  :model-value="String(header.column.getFilterValue() ?? '')"
-                  @update:model-value="header.column.setFilterValue($event)"
-                />
-              </label>
             </template>
           </TableHead>
           <TableHead
@@ -142,12 +127,11 @@
  * controlled/manual mode bound to `port.table` (design.md FE-2977 §Block D).
  * Sort/filter/paginate interactions emit a `TableIntent` via `channel.emit`;
  * rows and table state are always re-read from `channel.read()`. The
- * composable owns the model — this surface sorts/filters/paginates nothing
- * itself (`manualSorting`/`manualFiltering`/`manualPagination`, and only
- * `getCoreRowModel()` — no `getSortedRowModel`/`getFilteredRowModel`/
- * `getPaginationRowModel`). This is the generic per-column keyword filter only:
- * the holistic filter form (FE-1335's schema-driven bar) is `FilterBar`, mounted
- * by the page over the same composable-owned criteria (W-D33). A module
+ * composable owns the model — this surface sorts/paginates nothing
+ * itself (`manualSorting`/`manualPagination`, and only
+ * `getCoreRowModel()` — no `getSortedRowModel`/`getPaginationRowModel`).
+ * Filtering has exactly ONE surface: `FilterBar` (FE-1335's schema-driven
+ * bar) over the composable-owned criteria (W-D33, P1-R15). A module
  * with no table channel (`hasDataArray` without `hasTable`) degrades to a
  * read-only row list instead of rendering blank. Row/collection actions bind
  * to the well-known `LIST_SURFACE_ACTION` names only when the live port
@@ -155,11 +139,10 @@
  */
 
 import { getCoreRowModel, useVueTable } from "@tanstack/vue-table";
-import { computed } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   Icon,
-  Input,
   Interstitial,
   Pagination,
   Table,
@@ -174,12 +157,13 @@ import { TableIntentTypes } from "../../../composables/factory/useTableChannel";
 import ActionSlots from "../ActionSlots.vue";
 import { resolveModuleState } from "../module-state";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
+import { useActionFeedback } from "../useActionFeedback";
 import config from "./ListSurface.styles";
 import { LIST_SURFACE_ACTION } from "./ListSurface.types";
 import {
   entries,
   flatMap,
-  fromPairs,
+  get,
   includes,
   isEmpty,
   isFunction,
@@ -194,12 +178,7 @@ import {
 } from "lodash-es";
 import type { ActionSlotItem } from "../ActionSlots.types";
 import type { ListRow, ListSurfaceProps } from "./ListSurface.types";
-import type {
-  ColumnDef,
-  ColumnFiltersState,
-  OnChangeFn,
-  SortingState
-} from "@tanstack/vue-table";
+import type { ColumnDef, OnChangeFn, SortingState } from "@tanstack/vue-table";
 import type { TableModel } from "@upmind-automation/scenario-harness";
 // -----------------------------------------------------------------------------
 
@@ -218,6 +197,29 @@ function fieldLabel(key: string): string {
 
 const state = computed(() => resolveModuleState(props.snapshot.meta));
 const detail = computed(() => props.snapshot.context.error);
+
+const feedback = useActionFeedback();
+
+// The notice stands in for the list only BEFORE the module first presents it. A
+// row action that the API refuses lands in the very same `hasError` channel a
+// failed load does, and the module keeps it indefinitely — so reading that
+// channel afterwards would take the table, its controls and the user's place in
+// the list away over one refused row, with nothing left to recover with.
+const hasPresented = ref(false);
+watchEffect(() => {
+  if (state.value === "ready") hasPresented.value = true;
+});
+
+const notice = computed(() =>
+  hasPresented.value || state.value === "ready" ? undefined : state.value
+);
+
+// A failure this surface already reported as a toast is not drawn a second time
+// as the list's verdict — the module holds it as state, so re-reading it would
+// brand the list with one refusal for the rest of the session.
+const verdict = computed(() =>
+  feedback.isReported(detail.value) ? undefined : detail.value
+);
 
 const rows = computed<ListRow[]>(
   () => (props.snapshot.context.data as ListRow[] | undefined) ?? []
@@ -253,8 +255,7 @@ function deriveColumns(data: ListRow[]): ColumnDef<ListRow>[] {
     id: key,
     header: fieldLabel(key),
     accessorFn: (row: ListRow) => row[key],
-    enableSorting: !steerable || includes(steerable.sort, key),
-    enableColumnFilter: !steerable || includes(steerable.filter, key)
+    enableSorting: !steerable || includes(steerable.sort, key)
   }));
 }
 
@@ -267,10 +268,6 @@ const sortingState = computed<SortingState>(() =>
   }))
 );
 
-const columnFiltersState = computed<ColumnFiltersState>(() =>
-  map(entries(tableModel.value.filter), ([id, value]) => ({ id, value }))
-);
-
 const onSortingChange: OnChangeFn<SortingState> = updaterOrValue => {
   const next = isFunction(updaterOrValue)
     ? updaterOrValue(sortingState.value)
@@ -281,18 +278,6 @@ const onSortingChange: OnChangeFn<SortingState> = updaterOrValue => {
       field: entry.id,
       dir: entry.desc ? "desc" : "asc"
     }))
-  });
-};
-
-const onColumnFiltersChange: OnChangeFn<
-  ColumnFiltersState
-> = updaterOrValue => {
-  const next = isFunction(updaterOrValue)
-    ? updaterOrValue(columnFiltersState.value)
-    : updaterOrValue;
-  props.table?.emit({
-    type: TableIntentTypes.FILTER,
-    model: fromPairs(map(next, entry => [entry.id, entry.value]))
   });
 };
 
@@ -309,18 +294,13 @@ const vueTable = useVueTable({
   },
   getCoreRowModel: getCoreRowModel(),
   manualSorting: true,
-  manualFiltering: true,
   manualPagination: true,
   state: {
     get sorting() {
       return sortingState.value;
-    },
-    get columnFilters() {
-      return columnFiltersState.value;
     }
   },
-  onSortingChange,
-  onColumnFiltersChange
+  onSortingChange
 });
 
 function sortIcon(direction: false | "asc" | "desc"): string {
@@ -367,6 +347,43 @@ const ACTION_LABEL_KEY = {
   [LIST_SURFACE_ACTION.ADD]: "action.add_new"
 } as const;
 
+/**
+ * What each row action SAYS when it settles — the shared vocabulary again,
+ * grounded on the same client-emails canary the action names themselves are
+ * (`LIST_SURFACE_ACTION`). A success that changes no row (`verify` mails a
+ * link; the flag flips when the recipient clicks it) has nothing but this to
+ * show for itself.
+ */
+const ACTION_FEEDBACK_KEY = {
+  [LIST_SURFACE_ACTION.DELETE]: {
+    success: "confirm.email_removed",
+    failure: "error.client_email_delete_failed"
+  },
+  [LIST_SURFACE_ACTION.SET_DEFAULT]: {
+    success: "confirm.email_set_default",
+    failure: "error.client_email_set_default_failed"
+  },
+  [LIST_SURFACE_ACTION.RESEND]: {
+    success: "confirm.email_verification_sent",
+    failure: "error.client_email_verify_failed"
+  }
+} as const;
+
+/**
+ * The precondition each row action carries in the ROW's own meta — never a
+ * client-side rule the record does not declare. An action the API refuses on
+ * grounds the row cannot express (a default address must be verified first)
+ * stays live, and the refusal's own sentence speaks.
+ */
+const ACTION_PRECONDITION = {
+  [LIST_SURFACE_ACTION.DELETE]: (row: ListRow) =>
+    get(row, ["meta", "canDelete"]) !== false,
+  [LIST_SURFACE_ACTION.SET_DEFAULT]: (row: ListRow) =>
+    !get(row, ["meta", "isDefault"]),
+  [LIST_SURFACE_ACTION.RESEND]: (row: ListRow) =>
+    !get(row, ["meta", "isVerified"])
+} as const;
+
 function isActionAvailable(name: string): boolean {
   return (
     includes(props.snapshot.actions, name) && isFunction(props.actions[name])
@@ -377,12 +394,20 @@ function rowActionItems(row: ListRow): ActionSlotItem[] {
   return reduce(
     ROW_ACTION_KEYS,
     (acc: ActionSlotItem[], key) => {
-      if (isActionAvailable(key))
+      if (isActionAvailable(key)) {
+        const control = `${key}:${row.id}`;
         acc.push({
           name: key,
           label: t(ACTION_LABEL_KEY[key]),
-          onSelect: () => props.actions[key](row.id)
+          disabled:
+            !ACTION_PRECONDITION[key](row) || feedback.isPending(control),
+          onSelect: () =>
+            feedback.fire(control, () => props.actions[key](row.id), {
+              success: t(ACTION_FEEDBACK_KEY[key].success),
+              failure: t(ACTION_FEEDBACK_KEY[key].failure)
+            })
         });
+      }
       return acc;
     },
     [] as ActionSlotItem[]

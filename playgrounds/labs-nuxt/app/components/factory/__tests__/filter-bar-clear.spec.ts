@@ -22,10 +22,21 @@ import {
   useQueryUischema
 } from "@upmind-automation/headless-test-kit/client-email.internal-kit";
 import FilterBar from "../FilterBar.vue";
+import { get, values } from "lodash-es";
 import type { ModulePortCriteria } from "../../../composables/factory/useModulePort.types";
 
 const SET_FILTER = { filters: { verified: { eq: false } } };
 const CLEARED_LEAF = { filters: { verified: {} } };
+
+/**
+ * The cleared shape each tri-state treatment emits — the labelled group's unset
+ * position and the label-less group's un-press both empty the leaf rather than
+ * dropping it, so the bar has one shape to forward, not two.
+ */
+const CLEARED_BY_TREATMENT = {
+  "button-group": { filters: { verified: {} } },
+  "toggle-group": { filters: { bounced: {} } }
+};
 
 function mountBar(seed: Record<string, unknown>) {
   const model = ref<Record<string, unknown>>(seed);
@@ -51,6 +62,20 @@ describe("PROBE — the filter bar's clear forward (P1-R7)", () => {
 
     expect(set).toHaveBeenCalledTimes(1);
     expect(set.mock.calls[0][0]).toEqual(CLEARED_LEAF);
+  });
+
+  it("forwards either treatment's cleared leaf without reshaping it", async () => {
+    for (const cleared of values(CLEARED_BY_TREATMENT)) {
+      const { form, set } = mountBar(SET_FILTER);
+
+      form().vm.$emit("update:modelValue", cleared);
+      await Promise.resolve();
+
+      expect(set.mock.calls[0][0]).toEqual(cleared);
+      expect(values(values(get(set.mock.calls[0][0], "filters"))[0])).toEqual(
+        []
+      );
+    }
   });
 
   it("re-seeds the form with the CLEARED model the composable published", async () => {

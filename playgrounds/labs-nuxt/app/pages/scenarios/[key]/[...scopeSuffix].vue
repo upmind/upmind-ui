@@ -1,8 +1,6 @@
 <template>
   <UpmLayout>
-    <!-- The Inspector is a fixed 24rem overlay, so the rendered half is given
-         its width back — "raw vs rendered" has to be readable side by side. -->
-    <div class="space-y-8" :class="{ 'pr-96': isOpen }">
+    <div class="space-y-8">
       <h1 class="text-display text-3xl font-bold">
         {{ startCase(scenarioKey) }}
       </h1>
@@ -24,8 +22,9 @@
  *
  * It is also the RENDERED half of "raw vs rendered" (W-D34): a cell that owns
  * criteria gets its own declared filter bar above the surface, and the
- * Inspector — where the raw schema · uischema · model · built wire live — opens
- * with the page, so the declaration and what it produced are read side by side.
+ * Inspector — where the raw schema · uischema · model · built wire live —
+ * overlays it on demand, so the declaration and what it produced are read side
+ * by side.
  */
 
 import { UpmLayout } from "@upmind-automation/client-vue";
@@ -45,9 +44,11 @@ import { useActorScope, useContextScope } from "~/composables/scope";
 
 definePageMeta({
   name: "scenario",
-  // Key by fullPath so a scope change remounts: setup re-runs and the port is
-  // rebuilt at the new scope (the `useAuth` page's precedent).
-  key: route => route.fullPath,
+  // Key by PATH, never `fullPath`: the scope segments (`/:brandId`, `/as/:actor`,
+  // `/for/:type/:id`) are what the port is built from, so they must remount and
+  // rebuild it — while the criteria, which task 58 persists into the QUERY
+  // string, must not. A `fullPath` key ties a teardown to every filter write.
+  key: route => route.path,
   nav: { hidden: true }
 });
 
@@ -78,10 +79,10 @@ const descriptor = computed(() =>
 );
 
 // --- Inspector debug registration
-const { isOpen, register } = useInspector();
+const { register } = useInspector();
 
 register({
-  key: `scenario-${scenarioKey}-${route.fullPath}`,
+  key: `scenario-${scenarioKey}-${route.path}`,
   factory: () => ({
     name: startCase(scenarioKey),
     meta: port.getMeta(),
@@ -89,22 +90,8 @@ register({
   })
 });
 
-// The RAW half of "raw vs rendered" (W-D34), in its own tab beside the
-// rendered surface: the Inspector already renders one code-styled collapsible
-// per context key, so the chain needs no panel of its own. The wire row is
-// BUILT from the live criteria — no request is fired to produce it.
-register({
-  key: `scenario-${scenarioKey}-debug-${route.fullPath}`,
-  factory: () => ({
-    name: "Debug",
-    context: port.snapshot().debug ?? {}
-  })
-});
-
 // --- Lifecycle
 onMounted(() => {
-  isOpen.value = true;
-
   const isReady = get(port.actions, "isReady");
   if (isReady) isReady();
 });

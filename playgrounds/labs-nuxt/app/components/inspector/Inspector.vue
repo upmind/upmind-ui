@@ -1,25 +1,13 @@
 <template>
-  <aside v-show="meta.isOpen" :class="styles.inspector.root">
-    <header>
-      <!-- Close Button -->
-      <Button
-        :class="styles.inspector.toggleButton"
-        variant="subtle"
-        color="secondary"
-        size="sm"
-        icon="x-close"
-        icon-only
-        @click="open = false"
-      />
-
-      <!-- Empty state when no sections registered -->
-      <div v-if="!hasSections" :class="styles.inspector.tabs">
-        <p class="text-muted p-4 text-center text-sm">
-          No debug sections registered
-        </p>
-      </div>
-    </header>
-
+  <Sheet
+    v-model:open="isDrawerOpen"
+    :modal="false"
+    side="right"
+    no-header
+    :title="activeSection"
+    :class="styles.inspector.root"
+    @interact-outside="event => event.preventDefault()"
+  >
     <!-- Tabs with content (multi-section) -->
     <Tabs
       v-model="activeSection"
@@ -171,7 +159,7 @@
         </div>
       </template>
     </Tabs>
-  </aside>
+  </Sheet>
 </template>
 
 <script lang="ts" setup>
@@ -185,10 +173,10 @@ import { ref, computed, unref, watch } from "vue";
 import { ScopeActorTypes } from "@upmind-automation/headless";
 import {
   Badge,
-  Button,
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
+  Sheet,
   Tabs,
   useStyles
 } from "@upmind-automation/upmind-ui";
@@ -216,18 +204,23 @@ import type { ContextItem } from "./inspector.types";
 import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 
-const {
-  sections: registeredSections,
-  hasSections,
-  isOpen: open
-} = useInspector();
+const { sections: registeredSections, hasSections, isOpen } = useInspector();
 
 // --- state
 const activeSection = ref("");
 
+/**
+ * The drawer's own open state: the persisted preference, but only while there
+ * is something to inspect. Closing from inside the drawer (its close button or
+ * Escape) writes the preference back, so the next page load matches.
+ */
+const isDrawerOpen = computed({
+  get: () => isOpen.value && hasSections.value,
+  set: value => (isOpen.value = value)
+});
+
 // --- styles
-const meta = computed(() => ({ isOpen: open.value }));
-const styles = useStyles(["inspector"], meta, config);
+const styles = useStyles(["inspector"], {}, config);
 
 // --- computed
 /** Get sections from the global registry */

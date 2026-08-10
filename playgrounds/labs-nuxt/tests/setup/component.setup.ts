@@ -1,6 +1,7 @@
 import { config } from "@vue/test-utils";
 import { createI18n } from "vue-i18n";
 import action from "@upmind-automation/i18n/core/action-en.json";
+import confirm from "@upmind-automation/i18n/core/confirm-en.json";
 import error from "@upmind-automation/i18n/core/error-en.json";
 import form from "@upmind-automation/i18n/core/form-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
@@ -17,9 +18,17 @@ config.global.plugins = [
   createI18n({
     legacy: false,
     locale: "en",
-    messages: { en: { action, error, form, text, validation } }
+    messages: { en: { action, confirm, error, form, text, validation } }
   })
 ];
+
+// `lottie-web` also opens a 100ms `setInterval` at import time that clears
+// itself only once `document.readyState` is `"complete"` — a state jsdom's
+// synthetic document never reaches, so the interval outlives the environment
+// and throws `document is not defined` after teardown, failing the run with
+// every test passing. The document IS fully constructed here, so reporting it
+// as such is the environment telling the truth, not silencing the library.
+Object.defineProperty(document, "readyState", { get: () => "complete" });
 
 // jsdom has no canvas backend; `@upmind-automation/upmind-ui` pulls in
 // `lottie-web`, which probes `HTMLCanvasElement#getContext('2d')` at import

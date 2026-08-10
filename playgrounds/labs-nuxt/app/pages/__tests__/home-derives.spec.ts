@@ -37,6 +37,7 @@ forEach(vue, (value, key) => vi.stubGlobal(key, value));
 vi.stubGlobal("definePageMeta", () => undefined);
 
 const SPROCKET = "sprocket_widgets";
+const SPROCKET_EDITOR = "sprocket_widget";
 const GIZMO = "basket_gizmos";
 const COG = "basket_cogs";
 const UNDECLARED = "client_emails";
@@ -182,5 +183,52 @@ describe("@AC nothing on the landing page is hand-listed (G6 · C17)", () => {
     expect(wrapper.html()).not.toContain(UNDECLARED);
     expect(wrapper.text()).not.toContain("Client Emails");
     expect(wrapper.text()).not.toContain("useAuth");
+  });
+});
+
+/**
+ * @AC The landing page cards one entry per family, not one per registry key
+ * (P1-R8)
+ *
+ * The home page cards showed the collection AND the manager it hands off to
+ * under the same family. Both surfaces read the one navigation derivation, so
+ * the exclusion is measured here as well as in the sidebar — the shop window is
+ * where a duplicate is most visible at 60 modules.
+ */
+describe("@AC a handoff target is not carded on the landing page (P1-R8)", () => {
+  it("links the collection, never the editor it hands off to", async () => {
+    assign(declared.registry, {
+      [SPROCKET]: scenario("staff", {
+        handoff: { edit: { target: SPROCKET_EDITOR, contextType: "client" } }
+      }),
+      [SPROCKET_EDITOR]: scenario("staff"),
+      [GIZMO]: scenario("guest")
+    });
+
+    const wrapper = await home();
+
+    expect(hrefs(wrapper)).toEqual(
+      expect.arrayContaining([
+        `/scenarios/${SPROCKET}/as/staff`,
+        `/scenarios/${GIZMO}/as/guest`
+      ])
+    );
+    expect(hrefs(wrapper)).not.toContain(
+      `/scenarios/${SPROCKET_EDITOR}/as/staff`
+    );
+  });
+
+  it("counts destinations, not registry keys", async () => {
+    assign(declared.registry, {
+      [SPROCKET]: scenario("staff", {
+        handoff: { edit: { target: SPROCKET_EDITOR, contextType: "client" } }
+      }),
+      [SPROCKET_EDITOR]: scenario("staff")
+    });
+
+    const strings = renderedStrings(await home());
+
+    expect(strings).toContain("1 composables");
+    expect(strings).toContain("1 families");
   });
 });

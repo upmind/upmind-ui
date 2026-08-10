@@ -5,7 +5,8 @@
  * Pages can register sections that auto-update via computed refs.
  */
 
-import { computed, onUnmounted, ref, shallowRef, triggerRef, watch } from "vue";
+import { useStorage } from "@vueuse/core";
+import { computed, onUnmounted, shallowRef, triggerRef } from "vue";
 import { map } from "lodash-es";
 import type { InspectorSection } from "./inspector.types";
 import type {
@@ -16,17 +17,12 @@ import type {
 
 // --- Global state (shared across all component instances)
 const registry = shallowRef<Map<string, InspectorItemEntry>>(new Map());
-const isOpen = ref(false);
 
-// Auto-close inspector when all sections are removed
-watch(
-  () => registry.value.size,
-  size => {
-    if (size === 0) {
-      isOpen.value = false;
-    }
-  }
-);
+// The user's own preference, closed until they say otherwise. It survives a
+// reload deliberately, and is never written by navigation: a page that
+// registers no sections hides the Inspector (`hasSections`) without recording
+// "closed", so returning to a page that has them restores what they last chose.
+const isOpen = useStorage("upmind.labs.inspector.open", false);
 
 // -----------------------------------------------------------------------------
 
@@ -138,7 +134,7 @@ export function useInspector() {
     /** True if any sections are registered. */
     hasSections,
 
-    /** Reactive open state for the inspector. */
+    /** The user's persisted open preference for the inspector. */
     isOpen
   };
 }

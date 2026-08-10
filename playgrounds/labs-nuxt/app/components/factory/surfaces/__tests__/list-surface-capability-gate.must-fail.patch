@@ -1,0 +1,20 @@
+diff --git a/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.vue
+index 9999999..aaaaaaa 100644
+--- a/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.vue
++++ b/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.vue
+@@ -421,12 +421,9 @@
+  * stays live, and the refusal's own sentence speaks.
+  */
+ const ACTION_PRECONDITION = {
+-  [LIST_SURFACE_ACTION.DELETE]: (row: ListRow) =>
+-    get(row, ["meta", "canDelete"]) !== false,
+-  [LIST_SURFACE_ACTION.SET_DEFAULT]: (row: ListRow) =>
+-    !get(row, ["meta", "isDefault"]),
+-  [LIST_SURFACE_ACTION.RESEND]: (row: ListRow) =>
+-    !get(row, ["meta", "isVerified"])
++  [LIST_SURFACE_ACTION.DELETE]: (_row: ListRow) => true,
++  [LIST_SURFACE_ACTION.SET_DEFAULT]: (_row: ListRow) => true,
++  [LIST_SURFACE_ACTION.RESEND]: (_row: ListRow) => true
+ } as const;
+
+ function isActionAvailable(name: string): boolean {

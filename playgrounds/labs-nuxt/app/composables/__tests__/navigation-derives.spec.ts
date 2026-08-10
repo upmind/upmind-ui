@@ -28,7 +28,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as vue from "vue";
 import { defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
-import { CLIENT_EMAILS_SCENARIO } from "@upmind-automation/headless/scenarios";
+import {
+  CLIENT_EMAIL_SCENARIO,
+  CLIENT_EMAILS_SCENARIO
+} from "@upmind-automation/headless/scenarios";
 import { assign, find, forEach, map, sortBy } from "lodash-es";
 import type { RouteRecordRaw } from "vue-router";
 
@@ -38,6 +41,7 @@ import type { RouteRecordRaw } from "vue-router";
 forEach(vue, (value, key) => vi.stubGlobal(key, value));
 
 const SPROCKET = "sprocket_widgets";
+const SPROCKET_EDITOR = "sprocket_widget";
 const GIZMO = "basket_gizmos";
 const COMPOSABLES_SECTION = "Composables";
 
@@ -241,7 +245,7 @@ describe("@AC the grouping and the badges are derived too (G6 · C17)", () => {
       [SPROCKET]: scenario("client", {
         useMutate: () => ({}),
         persistCriteria: true,
-        handoff: { edit: { target: GIZMO, contextType: "client" } }
+        handoff: { edit: { target: SPROCKET_EDITOR, contextType: "client" } }
       }),
       [GIZMO]: scenario("guest")
     });
@@ -250,5 +254,94 @@ describe("@AC the grouping and the badges are derived too (G6 · C17)", () => {
 
     expect(find(composables, { key: GIZMO })?.tags).toEqual([]);
     expect(find(composables, { key: SPROCKET })?.tags).toHaveLength(3);
+  });
+});
+
+/**
+ * @AC A handoff target is an internal destination, not a menu item (P1-R8)
+ *
+ * The operator's sidebar listed BOTH `Client Emails` and `Client Email` — the
+ * collection and the manager `Edit` navigates to — so one composable family
+ * published two entries. The manager is reachable only through the collection's
+ * `handoff.edit.target`; a derivation that reads the registry blindly promotes
+ * it to a top-level destination.
+ *
+ * What breaks if these fail: the mass run's ~60 modules publish a sidebar of
+ * ~120 entries, half of them dead ends a user cannot meaningfully land on.
+ */
+describe("@AC a handoff-target scenario is not a navigable destination (P1-R8)", () => {
+  it("publishes the collection and drops the editor it hands off to", async () => {
+    assign(declared.registry, {
+      [SPROCKET]: scenario("client", {
+        handoff: {
+          edit: { target: SPROCKET_EDITOR, contextType: "client" }
+        }
+      }),
+      [SPROCKET_EDITOR]: scenario("client"),
+      [GIZMO]: scenario("guest")
+    });
+
+    const { navigation, composables, families } = await derive();
+
+    expect(sortBy(map(composablesSection(navigation)?.children, "to"))).toEqual(
+      sortBy([
+        `/scenarios/${SPROCKET}/as/client`,
+        `/scenarios/${GIZMO}/as/guest`
+      ])
+    );
+    expect(sortBy(map(composables, "key"))).toEqual(sortBy([SPROCKET, GIZMO]));
+    expect(map(find(families, { name: "sprocket" })?.entries, "key")).toEqual([
+      SPROCKET
+    ]);
+  });
+
+  it("one family, one item for the real client-email pair", async () => {
+    assign(declared.registry, {
+      [CLIENT_EMAILS_SCENARIO]: scenario("client", {
+        handoff: {
+          edit: { target: CLIENT_EMAIL_SCENARIO, contextType: "email" }
+        }
+      }),
+      [CLIENT_EMAIL_SCENARIO]: scenario("client")
+    });
+
+    const { navigation, families } = await derive();
+
+    expect(map(composablesSection(navigation)?.children, "label")).toEqual([
+      "Client Emails"
+    ]);
+    expect(map(find(families, { name: "client" })?.entries, "key")).toEqual([
+      CLIENT_EMAILS_SCENARIO
+    ]);
+  });
+
+  it("excludes on the declared relation, not on how the key is spelled", async () => {
+    assign(declared.registry, {
+      [SPROCKET]: scenario("client"),
+      [SPROCKET_EDITOR]: scenario("client")
+    });
+
+    const { navigation, composables } = await derive();
+
+    expect(sortBy(map(composables, "key"))).toEqual(
+      sortBy([SPROCKET, SPROCKET_EDITOR])
+    );
+    expect(map(composablesSection(navigation)?.children, "to")).toHaveLength(2);
+  });
+
+  it("keeps a scenario nobody hands off to, and keeps the source of the handoff", async () => {
+    assign(declared.registry, {
+      [SPROCKET]: scenario("client", {
+        handoff: { edit: { target: GIZMO, contextType: "client" } }
+      }),
+      [GIZMO]: scenario("guest"),
+      [SPROCKET_EDITOR]: scenario("client")
+    });
+
+    const { composables } = await derive();
+
+    expect(sortBy(map(composables, "key"))).toEqual(
+      sortBy([SPROCKET, SPROCKET_EDITOR])
+    );
   });
 });

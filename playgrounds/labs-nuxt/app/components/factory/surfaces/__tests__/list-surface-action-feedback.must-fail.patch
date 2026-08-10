@@ -1,0 +1,17 @@
+diff --git a/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.vue
+index 7777777..8888888 100644
+--- a/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.vue
++++ b/playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.vue
+@@ -446,11 +446,7 @@
+           label: t(ACTION_LABEL_KEY[key]),
+           disabled:
+             !ACTION_PRECONDITION[key](row) || feedback.isPending(control),
+-          onSelect: () =>
+-            feedback.fire(control, () => props.actions[key](row.id), {
+-              success: t(ACTION_FEEDBACK_KEY[key].success),
+-              failure: t(ACTION_FEEDBACK_KEY[key].failure)
+-            })
++          onSelect: () => props.actions[key](row.id)
+         });
+       }
+       return acc;

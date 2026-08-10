@@ -17,10 +17,6 @@ export default {
 
     sortButton: cva("flex items-center gap-1"),
 
-    filterLabel: cva("mt-1 block"),
-
-    filterLabelText: cva("sr-only"),
-
     dataCell: cva("border-surface border-b p-2"),
 
     rowList: cva("space-y-2"),

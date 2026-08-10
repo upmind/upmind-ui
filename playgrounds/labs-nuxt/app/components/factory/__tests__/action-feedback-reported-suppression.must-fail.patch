@@ -1,0 +1,14 @@
+diff --git a/playgrounds/labs-nuxt/app/components/factory/useActionFeedback.ts b/playgrounds/labs-nuxt/app/components/factory/useActionFeedback.ts
+index fffffff..1010101 100644
+--- a/playgrounds/labs-nuxt/app/components/factory/useActionFeedback.ts
++++ b/playgrounds/labs-nuxt/app/components/factory/useActionFeedback.ts
+@@ -65,8 +65,5 @@
+     isPending: (key: string) => includes(pending.value, key),
+
+-    isReported: (error: unknown) => {
+-      const message = get(error, "message");
+-      return isString(message) && message === reported.value;
+-    }
++    isReported: () => false
+   };
+ }
