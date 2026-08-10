@@ -19,7 +19,10 @@
  * `resetQueries` DELETES the entry rather than marking it stale, so paging back
  * and forth re-fetches the same page forever and empties the table on every
  * step — the "it used to cache" regression, and a flash of empty on every
- * filter change.
+ * filter change. A prefix-wide `invalidateQueries` on a branch change is the
+ * same defect one step quieter: the rows survive but every sibling combination
+ * refetches on revisit (P1-R1). The request COUNTS are law at
+ * `criteria-cache-law.int.test.ts`; what stands on screen is law here.
  *
  * ## Provenance
  * Both handlers branch on the request's OWN params and answer from the
@@ -236,7 +239,7 @@ describe("a page already fetched costs nothing to return to (G1 · C3)", () => {
 });
 
 describe("a filter combination already fetched paints from its own entry (G1 · C3)", () => {
-  it("shows the cached rows at their original timestamp, then refreshes behind them", async () => {
+  it("shows the cached rows at their original timestamp and fetches nothing behind them", async () => {
     const { clientId } = await seedClientSession();
     installFilteredEmailsHandler(server, clientId, { delayMs: IN_FLIGHT_MS });
     const observed = observeEmailRequests();
@@ -272,29 +275,22 @@ describe("a filter combination already fetched paints from its own entry (G1 · 
     const beforeRevisit = observed.all().length;
 
     query.setCriteria({ filters: VERIFIED });
-    await vi.waitFor(() => expect(query.isFetching.value).toBe(true), {
-      timeout: IN_FLIGHT_MS,
-      interval: 5
-    });
-
-    // In flight, and already showing the verified rows stamped by the FIRST
-    // verified fetch — the entry survived, so the paint owes nothing to the
-    // request now in the air.
-    expect(idsOf(query.data.value as { id: string }[])).toEqual(
-      recordedIds.verified()
-    );
-    expect(query.dataUpdatedAt.value).toBe(verifiedAt);
-
     await vi.waitFor(
-      () => expect(query.dataUpdatedAt.value).toBeGreaterThan(verifiedAt),
+      () =>
+        expect(idsOf(query.data.value as { id: string }[])).toEqual(
+          recordedIds.verified()
+        ),
       { timeout: 2000 }
     );
+
+    // Twice the handler's own delay: a refetch the revisit launched would have
+    // answered and re-stamped the entry inside this window.
+    await new Promise(resolve => setTimeout(resolve, IN_FLIGHT_MS * 2));
     observed.stop();
 
-    expect(idsOf(query.data.value as { id: string }[])).toEqual(
-      recordedIds.verified()
-    );
-    expect(observed.all().length - beforeRevisit).toBe(1);
+    expect(query.dataUpdatedAt.value).toBe(verifiedAt);
+    expect(query.isFetching.value).toBe(false);
+    expect(observed.all().length - beforeRevisit).toBe(0);
     expect(some(rows.snapshots(), isEmpty)).toBe(false);
   });
 

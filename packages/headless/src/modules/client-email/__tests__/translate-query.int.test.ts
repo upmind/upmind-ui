@@ -11,6 +11,9 @@
  * translator's `%` wildcards and narrows the collection by re-query; a cleared
  * filter's param is ABSENT from the next request rather than stale; and the
  * search box binds `filters.email.like` — no `query=`/`q=`/`search=` (Task 39).
+ * A cleared branch lands back on a combination already cached, so what left the
+ * wire is read off the next FRESH combination (the settles below), never off a
+ * request the cache law says must not happen (P1-R1).
  *
  * The operator rulings of 2026-08-06 replaced the four hand-rolled helpers this
  * pipeline used to run on, so the last three describes below prove the
@@ -75,6 +78,42 @@ function lastOrder(
   observed: ReturnType<typeof observeEmailRequests>
 ): string | undefined {
   return lastParam(observed, "order");
+}
+
+/**
+ * Clearing lands back on a combination already fetched, which under the cache
+ * law (P1-R1) issues no request of its own — so a claim about what left the
+ * wire is read off a FRESH combination written after it. Each settle moves the
+ * branch the assertion does not measure.
+ */
+const SETTLE_SORT = { field: "email", dir: "asc" } as const;
+const SETTLE_ORDER = "email";
+const SETTLE_FILTER = { bounced: { eq: true } };
+const SETTLE_FILTER_PARAM = "filter[bounced|eq]";
+
+async function settleBySort(
+  emails: Collection,
+  observed: ReturnType<typeof observeEmailRequests>
+): Promise<void> {
+  emails.useActions().sortBy([SETTLE_SORT]);
+  await vi.waitFor(() => expect(lastOrder(observed)).toBe(SETTLE_ORDER));
+}
+
+async function settleByFilter(
+  emails: Collection,
+  observed: ReturnType<typeof observeEmailRequests>
+): Promise<void> {
+  emails.useActions().filterBy(SETTLE_FILTER);
+  await vi.waitFor(() =>
+    expect(lastParam(observed, SETTLE_FILTER_PARAM)).toBe("1")
+  );
+}
+
+/** The search params of the most recent observed request. */
+function latestParams(
+  observed: ReturnType<typeof observeEmailRequests>
+): URLSearchParams {
+  return new URL(observed.all().at(-1)!.url).searchParams;
 }
 
 /** Every `filter[…]` key on the most recent observed request. */
@@ -164,7 +203,7 @@ describe("client-email sort — the schema's default IS the floor (FB5e)", () =>
     expect(emails.useContext().query.value.sort).toEqual(DEFAULT_SORT);
   });
 
-  it("an emptied sort refills from the default and re-queries order=-created_at", async () => {
+  it("an emptied sort refills from the default and the next request carries order=-created_at", async () => {
     const emails = await bootCollection();
     const observed = observeEmailRequests();
 
@@ -173,8 +212,9 @@ describe("client-email sort — the schema's default IS the floor (FB5e)", () =>
 
     emails.useActions().sortBy([]);
 
-    await vi.waitFor(() => expect(lastOrder(observed)).toBe("-created_at"));
+    await settleByFilter(emails, observed);
     observed.stop();
+    expect(latestParams(observed).get("order")).toBe("-created_at");
     expect(emails.useContext().query.value.sort).toEqual(DEFAULT_SORT);
     // The refill precedes validation, so the schema's `minItems: 1` never fires.
     expect(surfacedAjvErrors(emails)).toEqual([]);
@@ -242,14 +282,14 @@ describe("client-email filters — translateQuery (Task 35/36, Task 39)", () => 
     );
 
     const observed = observeEmailRequests();
-    emails.useActions().filterBy({ default: { eq: true } });
+    emails.useActions().filterBy({ bounced: { eq: true } });
 
     await vi.waitFor(() => {
       const request = observed
         .all()
         .find(
           entry =>
-            new URL(entry.url).searchParams.get("filter[default|eq]") === "1"
+            new URL(entry.url).searchParams.get("filter[bounced|eq]") === "1"
         );
       expect(request).toBeDefined();
       expect(
@@ -258,7 +298,7 @@ describe("client-email filters — translateQuery (Task 35/36, Task 39)", () => 
     });
     observed.stop();
     expect(emails.useContext().query.value.filters).toEqual({
-      default: { eq: true }
+      bounced: { eq: true }
     });
   });
 });
@@ -275,9 +315,12 @@ describe("client-email filters — an emptied container does not survive (FB5a)"
 
     emails.useActions().filterBy({ email: {} });
 
-    await vi.waitFor(() => expect(latestFilterKeys(observed)).toEqual([]));
+    await vi.waitFor(() =>
+      expect(emails.useContext().query.value.filters).toBeUndefined()
+    );
+    await settleBySort(emails, observed);
     observed.stop();
-    expect(emails.useContext().query.value.filters).toBeUndefined();
+    expect(latestFilterKeys(observed)).toEqual([]);
   });
 
   it("a cleared bag leaves no filter param at all and surfaces no error", async () => {
@@ -293,12 +336,12 @@ describe("client-email filters — an emptied container does not survive (FB5a)"
     const observed = observeEmailRequests();
     emails.useActions().filterBy({});
 
-    await vi.waitFor(() => {
-      expect(observed.all().length).toBeGreaterThan(0);
-      expect(latestFilterKeys(observed)).toEqual([]);
-    });
+    await vi.waitFor(() =>
+      expect(emails.useContext().query.value.filters).toBeUndefined()
+    );
+    await settleBySort(emails, observed);
     observed.stop();
-    expect(emails.useContext().query.value.filters).toBeUndefined();
+    expect(latestFilterKeys(observed)).toEqual([]);
     expect(surfacedAjvErrors(emails)).toEqual([]);
   });
 });

@@ -9,8 +9,7 @@ import { createClientEmailsContext } from "./useClientEmails.context";
 import { createClientEmailsInternals } from "./useClientEmails.internals";
 import { createClientEmailsMeta } from "./useClientEmails.meta";
 import type { ClientEmailsScopeMatrix } from "./client-email.types";
-import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ScopeActorTypes, ScopeConfig, ScopeKey } from "../scope";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmails
@@ -20,10 +19,6 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * `useClientEmailManager` — a second scoped composable in the same module,
  * registered under the SAME module name; the composable name and the scope key
  * carry the differentiation.
- *
- * @doctrine clause 1 (uniform four-layer default).
- * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
- * actor; the scope builder resolves SELF before this factory runs.
  */
 function createClientEmailsForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const actorScope = config.actor as ScopeActorTypes;
@@ -35,10 +30,8 @@ function createClientEmailsForScope(config: ScopeConfig, scopeKey: ScopeKey) {
    */
   const service = createClientEmailServices(actorScope, config.context);
 
-  // Mint the list query ONCE per scope — a `service.loadList()` inside a layer
-  // factory mints a second query, with its own refs, key and effect scope. It
-  // carries the whole request state: the declared schema goes in, and the
-  // criteria the layers below read and write comes back on the handle.
+  // Minted ONCE per scope — a `service.loadList()` inside a layer factory
+  // mints a second query, with its own refs, key and effect scope.
   const query = service.loadList();
 
   /** ONE actions instance per scope; the layers below stay lazy. */
@@ -50,7 +43,6 @@ function createClientEmailsForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   );
 
   return {
-    // --- Sub-composables (no direct props — clause 1 four-layer return)
     /** Sub-composable for collection actions (row mutations, lifecycle). */
     useActions: () => actions,
 
@@ -81,5 +73,4 @@ export const useClientEmails = createScopedComposable<
   ClientEmailsScopeMatrix
 >("client-email", createClientEmailsForScope);
 
-// Type export for consumers
 export type UseClientEmails = ReturnType<typeof useClientEmails>;

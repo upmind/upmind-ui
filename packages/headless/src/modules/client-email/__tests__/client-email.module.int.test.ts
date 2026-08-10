@@ -325,16 +325,14 @@ describe("client-email — the addresses I act on are the ones my scope named (A
   });
 
   it("AC-23 resolves the target client through the SHARED scope seam — no module file reads the session's active user at all (Task 57)", async () => {
-    // The seam left the module: `resolveClientId` lives on `scope.utils.ts`
-    // now, so the FE-2824 fix exists once for every client module instead of
-    // being hand-rolled per module. The module keeps zero copies of it.
+    // The shared seam lives on session-store (P1-R11); the module keeps zero copies.
     expect(moduleFilesReferencing("activeUser")).toEqual([]);
     expect(moduleFilesReferencing("function resolveClientId")).toEqual([]);
     expect(moduleFilesReferencing("resolveClientId")).toEqual([
       "client-email.services.ts"
     ]);
 
-    const scope = await import("../../scope");
-    expect(typeof scope.resolveClientId).toBe("function");
+    const sessionStore = await import("../../session-store");
+    expect(typeof sessionStore.resolveClientId).toBe("function");
   });
 });

@@ -1,8 +1,7 @@
 /** @internal */
 import { computed, ref } from "vue";
 import { useQuery, invalidateQueryByKey } from "../query";
-import { resolveClientId } from "../scope";
-import { useActiveSession } from "../session-store";
+import { resolveClientId, useActiveSession } from "../session-store";
 import { useI18n } from "../system-localisation";
 import { mapEmail, mapEmails, mapIEmail } from "./client-email.mappers";
 import { useSchema, useQuerySchema } from "./client-email.schemas";
@@ -19,7 +18,7 @@ import {
   DEBOUNCE_DELAY
 } from "../../utils";
 import { get, isArray, isEmpty, omitBy } from "lodash-es";
-import type { ScopeContext } from "../scope";
+import type { ScopeActorTypes, ScopeContext } from "../scope";
 import type {
   ClientEmailErrorCapture,
   ClientEmailListQuery,
@@ -31,7 +30,6 @@ import type {
   QueryModel
 } from "./client-email.types";
 import type { ResponseError } from "../../utils";
-import type { ScopeActorTypes } from "../scope/scope.types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IEmail } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
@@ -41,8 +39,8 @@ import type { AnyEventObject } from "xstate";
  * @module client-email/client-email.services
  * @description The ONE services file both halves consume — the collection's
  * `loadList`, the manager's per-email read and writes, and the XState services
- * adapter the shared `dataManagerMachine` invokes. One factory on purpose: one
- * identity seam, one cache key, one arm-resolution switch.
+ * adapter the shared `dataManagerMachine` invokes. One factory: one identity
+ * seam, one cache key, one arm-resolution switch.
  *
  * Nothing here raises feedback. A failure rejects for the caller and lands in
  * the scope's own error state, which the composables expose.
@@ -63,15 +61,11 @@ export const queryKey: QueryKey = ["client", "emails"];
 const baseModel: EmailModel = { email: null };
 
 /**
- * The client id this module may ADDRESS: a resolved target AND an authenticated
- * session. Every gate below reads this rather than `resolveClientId`, so the
- * conjunct is stated once and no request path can be written without it.
- *
- * A resolved id is not the guard. `.for(client, id)` takes the target from the
- * CALLER, so it resolves on a session that never authenticated; only the self
- * case borrows `activeUser` and so carries the session's proof implicitly. A
- * predicate that cannot tell those apart lets a guest read another client's
- * collection — the one thing legacy's `<guard :if-client>` never allowed.
+ * The client id this module may ADDRESS: a resolved target AND an
+ * authenticated session. Every gate below reads this rather than
+ * `resolveClientId` — a resolved id alone is not the guard, because
+ * `.for(client, id)` takes the target from the CALLER and so resolves on a
+ * session that never authenticated.
  */
 function addressableClientId(
   scopeContext?: ScopeContext
@@ -85,23 +79,16 @@ function addressableClientId(
 /**
  * COLLECTION — the reactive list query, minted once per scope.
  *
- * Minted once, but the target client can resolve AFTER construction — an
- * authenticated cold boot carries no `activeUser` until `/self` lands — so
- * neither half of the request may snapshot the id at mint time.
+ * The target client can resolve AFTER construction (an authenticated cold boot
+ * carries no `activeUser` until `/self` lands), so neither half of the request
+ * may snapshot the id: the KEY carries the REF, since vue-query deep-unwraps
+ * refs and a late id re-derives into a DIFFERENT cache entry, and the URL is
+ * re-pointed in the `guard` — the last hook before `list()` closes over it.
+ * `enabled` and `guard` hold an unaddressable entry shut so it is never
+ * written to and a late arrival cannot inherit a poisoned one.
  *
- * The KEY carries the REF, as `list()` already does for sort, filters and
- * locale: vue-query deep-unwraps refs inside a query key, so a late id
- * re-derives the options into a DIFFERENT cache entry. `enabled` and `guard`
- * hold the unaddressable entry shut, so it is never written to and a late
- * arrival cannot inherit a poisoned one.
- *
- * The URL is re-pointed in the `guard`, the last hook before `list()` builds
- * the request: `list()` closes over the URL object it is handed and never
- * re-reads it, so this is what targets the id resolved at FIRE time.
- *
- * The whole request state is the DECLARED query schema: `list()` constructs the
- * criteria from it, owns filters/sort/pagination, and publishes them back on the
- * handle. Spelling any of the three raw beside `criteria` is a compile error.
+ * The whole request state is the DECLARED query schema: `list()` builds the
+ * criteria from it and publishes filters/sort/pagination back on the handle.
  */
 function loadList(scopeContext?: ScopeContext): ClientEmailListQuery {
   const { list, useUrl } = useQuery();
@@ -201,9 +188,9 @@ async function update(
 }
 
 /**
- * Find-or-create. ONE body, two call sites: the collection's `ensure` action
- * and the machine's `add` service both resolve here, so a form save and a
- * programmatic add cannot drift.
+ * Find-or-create. ONE body, two call sites — the collection's `ensure` action
+ * and the machine's `add` service — so a form save and a programmatic add
+ * cannot drift.
  */
 async function ensure(
   model: EmailModel,
@@ -251,11 +238,9 @@ async function ensure(
 }
 
 /**
- * COLLECTION — delete a deletable address.
- *
- * The auth precondition is checked here rather than passed as `guard:`, which
- * `useQuery().mutate()` accepts but never awaits (only `list()` honours it) —
- * a guard handed to a mutation issues the request anyway.
+ * COLLECTION — delete a deletable address. The auth precondition is checked
+ * here rather than passed as `guard:`, which `useQuery().mutate()` accepts but
+ * never awaits — a guard handed to a mutation issues the request anyway.
  */
 async function remove(
   id: IEmail["id"],
@@ -336,8 +321,8 @@ async function verify(
 
 /**
  * Schema validation. Rejects with a `DetailedError` carrying the AJV errors as
- * `data`; the shared machine's `setError` lands that in context, where the
- * manager exposes it as `validationErrors`. Nothing here raises feedback.
+ * `data`, which the machine's `setError` lands in context for the manager to
+ * expose as `validationErrors`.
  */
 async function validate(model?: EmailModel): Promise<EmailModel | undefined> {
   const { t } = useI18n();
@@ -362,10 +347,9 @@ async function validate(model?: EmailModel): Promise<EmailModel | undefined> {
 }
 
 /**
- * Invalidates this module's cache key so the collection refetches. The manager
- * calls it after a settled save rather than reaching into the collection
- * composable's query instance, which belongs to a different scope key and may
- * not exist in this consumer at all.
+ * Invalidates this module's cache key so the collection refetches. Called after
+ * a settled save rather than reaching into the collection composable's query
+ * instance, which belongs to a different scope key and may not exist at all.
  */
 async function refresh(): Promise<void> {
   await invalidateQueryByKey(queryKey, { exact: false })(undefined);
@@ -374,11 +358,7 @@ async function refresh(): Promise<void> {
 // -----------------------------------------------------------------------------
 // Service Factory
 
-/**
- * Service matrix: maps scopeActor types to their service implementations. The
- * shape is the same armed or armless — an armless module has only the
- * `default:` case, so nothing here or downstream changes when an arm is earned.
- */
+/** Maps a scope actor to its service overrides. Armless today. */
 function scopedServices(
   scopeActor: ScopeActorTypes,
   _scopeContext?: ScopeContext
@@ -393,10 +373,10 @@ function scopedServices(
 // Scope-Ready Services
 
 /**
- * Services factory — the concrete actor and the context it acts upon arrive
- * first, at construction. `useClientEmails.ts` calls it once and so does
- * `useClientEmailManager.ts`, each with ITS OWN resolved scope, so the two
- * instances share no mutable state.
+ * Services factory — the concrete actor and the context it acts upon arrive at
+ * construction. `useClientEmails.ts` and `useClientEmailManager.ts` each call
+ * it once with THEIR OWN resolved scope, so the two instances share no mutable
+ * state.
  */
 export const createClientEmailServices = (
   scopeActor: ScopeActorTypes,
@@ -432,13 +412,10 @@ export const createClientEmailServices = (
 // Machine-Ready Services (manager half)
 
 /**
- * Parses a form model and floors it at the base model.
- *
- * `useModelParser` compacts null members away, so an untouched form parses to
- * `{}` — which is NOT the base model. Left there, a fresh draft reports itself
- * dirty against `{ email: null }` before a key is pressed and `clear()` can
- * never get back to it. Re-applying the floor on both sides of the parse is
- * what makes "untouched" and "the base model" the same value.
+ * Parses a form model and floors it at the base model. `useModelParser`
+ * compacts null members away, so an untouched form parses to `{}` — re-applying
+ * the floor on both sides of the parse is what keeps "untouched" and the base
+ * model the same value, and so keeps a fresh draft from reading dirty.
  */
 function parseModel(
   schema: EmailContext["schema"],
@@ -452,23 +429,18 @@ function parseModel(
 
 /**
  * Adapts the ALREADY-SCOPED services object into the XState services map the
- * shared `dataManagerMachine` invokes.
- *
- * The adapter takes `service` as an argument rather than minting its own: the
- * scope, and therefore the target client, is resolved ONCE in
- * `useClientEmailManager.ts` and threaded in. An adapter that built its own
- * services instance would silently drop the scope's retarget.
+ * shared `dataManagerMachine` invokes. `service` is threaded in rather than
+ * minted here — an adapter that built its own instance would silently drop the
+ * scope's retarget.
  * @internal
  */
 export const useClientEmailManagerServices = (
   service: ClientEmailServices
 ): ClientEmailManagerMachineServices => ({
   /**
-   * `loading` — the context patch the form starts from, and the manager's only
-   * read of the email it edits. Seeding `model` and `baseModel` to the same
-   * parsed value is what makes `isDirty` read false on a freshly-opened form.
-   * `schema` is still undefined here; `setSchemas` runs on this invoke's
-   * `onDone`, and the model is re-parsed by `parse` on the first SET.
+   * `loading` — the context patch the form starts from. Seeding `model` and
+   * `baseModel` to the same parsed value is what makes `isDirty` read false on
+   * a freshly-opened form.
    */
   loadLookups: async ({ id, model, schema }: EmailContext) => {
     const seed = isEmpty(model) ? await service.loadOne(id) : model;

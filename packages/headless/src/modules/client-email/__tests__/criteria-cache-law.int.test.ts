@@ -12,11 +12,10 @@
  * number of distinct request signatures those reads carry. Component state
  * cannot see this — the rows are correct either way.
  *
- * ## Status — DIAGNOSIS, expected RED until R1 lands
- * `it.fails` is deliberate: these are the acceptance tests for dropping the
- * branch-change `invalidateQueries` (prefix-wide, so every sibling combination
- * is marked stale and a revisit refetches). When R1 lands, `it.fails` starts
- * failing and each becomes a plain `it` — the flip is the read-back.
+ * ## What Breaks If These Fail
+ * A branch-change `invalidateQueries` is prefix-wide, so every sibling
+ * combination is marked stale and revisiting one refetches instead of serving
+ * its own entry — the seven-requests-for-two the operator counted.
  *
  * ## Provenance
  * `installFilteredEmailsHandler` branches on the request's own params and
@@ -103,54 +102,46 @@ async function toggle(
 // -----------------------------------------------------------------------------
 
 describe("the cache law — a combination is fetched ONCE, ever (P1-R1)", () => {
-  it.fails(
-    "issues one request per distinct combination across a four-write toggle",
-    async () => {
-      const { emails, observed } = await bootCollection();
+  it("issues one request per distinct combination across a four-write toggle", async () => {
+    const { emails, observed } = await bootCollection();
 
-      await toggle(emails, VERIFIED, idsWhere(true));
-      await toggle(emails, UNVERIFIED, idsWhere(false));
-      await toggle(emails, VERIFIED, idsWhere(true));
-      await toggle(emails, UNVERIFIED, idsWhere(false));
-      observed.stop();
+    await toggle(emails, VERIFIED, idsWhere(true));
+    await toggle(emails, UNVERIFIED, idsWhere(false));
+    await toggle(emails, VERIFIED, idsWhere(true));
+    await toggle(emails, UNVERIFIED, idsWhere(false));
+    observed.stop();
 
-      expect(uniq(signatures(observed))).toHaveLength(DISTINCT_COMBINATIONS);
-      expect(size(signatures(observed))).toBe(DISTINCT_COMBINATIONS);
-    }
-  );
+    expect(uniq(signatures(observed))).toHaveLength(DISTINCT_COMBINATIONS);
+    expect(size(signatures(observed))).toBe(DISTINCT_COMBINATIONS);
+  });
 
-  it.fails(
-    "re-selecting a combination through filterBy costs no request at all",
-    async () => {
-      const { emails, observed } = await bootCollection();
-      const actions = emails.useActions();
+  it("re-selecting a combination through filterBy costs no request at all", async () => {
+    const { emails, observed } = await bootCollection();
+    const actions = emails.useActions();
 
-      actions.filterBy(VERIFIED);
-      await vi.waitFor(
-        () =>
-          expect(idsOf(emails.useContext().data.value)).toEqual(idsWhere(true)),
-        { timeout: 2000 }
-      );
-      actions.filterBy(UNVERIFIED);
-      await vi.waitFor(
-        () =>
-          expect(idsOf(emails.useContext().data.value)).toEqual(
-            idsWhere(false)
-          ),
-        { timeout: 2000 }
-      );
-      const before = size(observed.all());
+    actions.filterBy(VERIFIED);
+    await vi.waitFor(
+      () =>
+        expect(idsOf(emails.useContext().data.value)).toEqual(idsWhere(true)),
+      { timeout: 2000 }
+    );
+    actions.filterBy(UNVERIFIED);
+    await vi.waitFor(
+      () =>
+        expect(idsOf(emails.useContext().data.value)).toEqual(idsWhere(false)),
+      { timeout: 2000 }
+    );
+    const before = size(observed.all());
 
-      actions.filterBy(VERIFIED);
-      await vi.waitFor(
-        () =>
-          expect(idsOf(emails.useContext().data.value)).toEqual(idsWhere(true)),
-        { timeout: 2000 }
-      );
-      await new Promise(resolve => setTimeout(resolve, 200));
-      observed.stop();
+    actions.filterBy(VERIFIED);
+    await vi.waitFor(
+      () =>
+        expect(idsOf(emails.useContext().data.value)).toEqual(idsWhere(true)),
+      { timeout: 2000 }
+    );
+    await new Promise(resolve => setTimeout(resolve, 200));
+    observed.stop();
 
-      expect(size(observed.all()) - before).toBe(0);
-    }
-  );
+    expect(size(observed.all()) - before).toBe(0);
+  });
 });

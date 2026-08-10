@@ -2,13 +2,12 @@ import { translateQuery } from "../query";
 import { useActionInputSchemas } from "./client-email.schemas";
 import type { QueryProps } from "../query";
 import type { ClientEmailListQuery } from "./client-email.types";
-import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ScopeActorTypes } from "../scope";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmails.internals
  * @description Collection internals (debugging). The query half exposes the
  * raw `query` object; the manager half exposes `send`/`state`/`service`.
- * @doctrine clause 1 (uniform four-layer default) — TanStack-variant form.
  */
 export function createClientEmailsInternals(
   actorScope: ScopeActorTypes,
@@ -30,7 +29,6 @@ export function createClientEmailsInternals(
   };
 }
 
-// Type export for consumers
 export type UseClientEmailsInternals = ReturnType<
   typeof createClientEmailsInternals
 >;

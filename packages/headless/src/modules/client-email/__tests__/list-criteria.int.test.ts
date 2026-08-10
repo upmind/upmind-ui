@@ -224,15 +224,15 @@ describe("client-email list({ criteria }) — a filter reaches the wire (Task 42
       expect(latestParams(observed).get("filter[verified|eq]")).toBe("0")
     );
 
-    setCriteria(emails, { filters: { default: { eq: true } } });
+    setCriteria(emails, { filters: { bounced: { eq: true } } });
 
     await vi.waitFor(() =>
-      expect(latestParams(observed).get("filter[default|eq]")).toBe("1")
+      expect(latestParams(observed).get("filter[bounced|eq]")).toBe("1")
     );
     observed.stop();
     expect(latestParams(observed).get("filter[verified|eq]")).toBeNull();
     expect(emails.useContext().query.value.filters).toEqual({
-      default: { eq: true }
+      bounced: { eq: true }
     });
   });
 

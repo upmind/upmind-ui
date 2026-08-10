@@ -137,9 +137,9 @@ describe("client-email query criteria — model to wire (Task 41)", () => {
   it("the true half of the same column is 1, not the string 'true'", () => {
     const criteria = bootCriteria();
 
-    criteria.set({ filters: { default: { eq: true } } });
+    criteria.set({ filters: { bounced: { eq: true } } });
 
-    expect(criteria.props.value.filters?.["filter[default|eq]"]).toBe("1");
+    expect(criteria.props.value.filters?.["filter[bounced|eq]"]).toBe("1");
   });
 
   it("a like filter carries the translator's % wildcards; an unset column carries no value", () => {
@@ -162,6 +162,17 @@ describe("client-email query criteria — model to wire (Task 41)", () => {
     criteria.set({ sort: [{ field: "email", dir: "asc" }] });
 
     expect(criteria.props.value.sort).toEqual(["", "email"]);
+  });
+
+  it("each criteria translates into its OWN wire object — one instance's filters never land in another's", () => {
+    const first = bootCriteria();
+    const second = bootCriteria();
+    const firstWire = first.props.value.filters;
+
+    second.set({ filters: { bounced: { eq: true } } });
+
+    expect(firstWire?.["filter[bounced|eq]"]).toBe("");
+    expect(first.props.value.filters).not.toBe(second.props.value.filters);
   });
 
   it("pagination reaches the wire triple as the model declares it", () => {
@@ -198,12 +209,12 @@ describe("client-email query criteria — the merge law (Task 41, W-D33)", () =>
 
   it("a pagination change touches neither the live filter nor the live sort", () => {
     const criteria = bootCriteria();
-    criteria.set({ filters: { default: { eq: true } } });
+    criteria.set({ filters: { bounced: { eq: true } } });
     criteria.set({ sort: [{ field: "email", dir: "asc" }] });
 
     criteria.set({ pagination: { limit: 2 } });
 
-    expect(criteria.model.value.filters).toEqual({ default: { eq: true } });
+    expect(criteria.model.value.filters).toEqual({ bounced: { eq: true } });
     expect(criteria.model.value.sort).toEqual([{ field: "email", dir: "asc" }]);
     expect(criteria.model.value.pagination).toEqual({ limit: 2 });
   });
@@ -212,10 +223,10 @@ describe("client-email query criteria — the merge law (Task 41, W-D33)", () =>
     const criteria = bootCriteria();
     criteria.set({ filters: { verified: { eq: false } } });
 
-    criteria.set({ filters: { default: { eq: true } } });
+    criteria.set({ filters: { bounced: { eq: true } } });
 
-    expect(criteria.model.value.filters).toEqual({ default: { eq: true } });
-    expect(criteria.props.value.filters?.["filter[default|eq]"]).toBe("1");
+    expect(criteria.model.value.filters).toEqual({ bounced: { eq: true } });
+    expect(criteria.props.value.filters?.["filter[bounced|eq]"]).toBe("1");
     expect(criteria.props.value.filters?.["filter[verified|eq]"]).toBe("");
   });
 

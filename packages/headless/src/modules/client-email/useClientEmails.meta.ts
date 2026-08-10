@@ -4,14 +4,11 @@ import type {
   ClientEmailListQuery,
   ClientEmailServices
 } from "./client-email.types";
-import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ScopeActorTypes } from "../scope";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmails.meta
  * @description Collection meta — computed state flags, one computed per flag.
- * @doctrine clause 2 — shared-only (armless). No capability read-state exists
- * in this module, so `meta` legitimately stays shared-only rather than needing
- * a per-actor capability arm.
  */
 export function createClientEmailsMeta(
   _actorScope: ScopeActorTypes,
@@ -27,9 +24,6 @@ export function createClientEmailsMeta(
   const isLoading = computed(
     () => query.isLoading.value || !query.isFetched.value
   );
-
-  // --- actor-specific meta: none earned yet (clause 2). When a scope earns
-  // one, add `useClientEmails.meta.{actor}.ts` and spread it LAST.
 
   return {
     /** True if a row mutation or the list query failed. */
@@ -55,11 +49,7 @@ export function createClientEmailsMeta(
 
     /** True while the list is loading or has not completed its first fetch. */
     isLoading
-
-    // The arm merges in HERE, last.
-    // ...actorMeta
   };
 }
 
-// Type export for consumers
 export type UseClientEmailsMeta = ReturnType<typeof createClientEmailsMeta>;

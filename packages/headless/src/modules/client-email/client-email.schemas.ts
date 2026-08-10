@@ -1,24 +1,17 @@
 /** @internal */
+import { SortDirection } from "../query/query.types";
+import { PAGINATION } from "../query/query.utils";
 import { DEFAULT_SORT } from "./client-email.types";
 import type { QuerySchema } from "./client-email.types";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/client-email.schemas
- * @description The module's schema family. TWO concerns live here, both
- * `@internal` and both reaching consumers only through a sub-composable return:
- *
- * 1. The per-email FORM (`useSchema`/`useUischema`) — a schema/uischema PAIR the
- *    manager's machine adopts (`setSchemas`) and surfaces on
- *    `useClientEmailManager().useContext().schema` / `.uischema`.
- * 2. The collection's QUERY schema (`useQuerySchema`/`useQueryUischema`) — the
- *    whole request state (filters · sort · pagination) as ONE Draft-07 schema
- *    over one model (S-D9), surfaced on `useClientEmails().useContext().query`
- *    (the model) and `.schemas.query` (the schema pair), plus the per-action
- *    INPUT schemas (`useActionInputSchemas`) the coverage gate reads.
- *
- * Every schema is a SELF-CONTAINED JSON literal — no helper builds one, so any
- * of them can be lifted straight into ajv or a test and run standalone.
+ * @description The module's schema family: the per-email FORM pair
+ * (`useSchema`/`useUischema`), the collection's QUERY schema pair
+ * (`useQuerySchema`/`useQueryUischema`) and the per-action INPUT schemas
+ * (`useActionInputSchemas`). Every schema is a self-contained JSON literal, so
+ * any of them lifts straight into ajv or a test.
  *
  * WARNING: Do not import directly from another module. The barrel exports no
  * schema — a form rendered from a schema the machine has not adopted validates
@@ -120,36 +113,21 @@ export function useActionInputSchemas(): Record<string, JsonSchema7> {
 // -----------------------------------------------------------------------------
 
 /**
- * The rules for this collection's whole REQUEST STATE, as Draft-07 JSON Schema:
- * `filters` (nested column → operator → value), `sort` and `pagination` — the
- * three members `QueryProps` already accepts — over one model. No `query`
- * property: `GET /clients/{id}/emails` ignores a search term (A-D5 finding 9),
- * so declaring one would reproduce the exact live defect Task 39 fixes; the
- * search box binds `filters.email.like`.
+ * The collection's whole REQUEST STATE as Draft-07 JSON Schema — `filters`
+ * (WIRE column → declared operator → value), `sort` and `pagination`. No
+ * `query` property: this endpoint ignores a search term, so the search box
+ * binds `filters.email.like`.
  *
- * Inside `filters`, `properties` are WIRE column names and each column's own
- * `properties` are the operators it allows, so `additionalProperties: false` at
- * both levels makes a disallowed operator unspellable rather than merely
- * invalid, and the ajv error names the column. A field absent from `sort`'s
- * `field` enum is unsortable for the same reason — an unknown `order=` column is
- * an HTTP 500.
+ * `additionalProperties: false` at both filter levels makes an undeclared
+ * column or operator unspellable rather than merely invalid; a field absent
+ * from `sort`'s `field` enum is unsortable for the same reason (an unknown
+ * `order=` column is an HTTP 500). Optional leaves are typed
+ * `["<type>", "null"]` because `useModelParser` coerces a plain `boolean` leaf
+ * to `false`, putting a filter nobody set on the wire. Every `title` holds an
+ * i18n key, never English.
  *
- * Every OPTIONAL leaf is typed `["<type>", "null"]`: unset is a third state, and
- * `useModelParser` coerces a plain `boolean` leaf to `false` — which would put
- * `filter[verified|eq]=0` on the wire for a filter nobody set. `minLength`
- * applies only to strings, so a cleared `like` still validates while `""` does
- * not, which is what makes "empty means unset" enforceable at the renderer seam.
- *
- * Every `title` here holds an i18n KEY, never English (design §4.1/§13.3): the
- * column titles are what JSONForms falls back to when an element's `i18n` key
- * fails to resolve, and each `oneOf` member's title is the option label the
- * `Filter` renderer translates. English in either place is a translation that
- * silently never fires. A title no element and no renderer reads is not keyed —
- * it is deleted.
- *
- * A FUNCTION, not a constant, and deliberately so: a module whose filterable
- * columns are only known once the server answers (custom fields — S-D13) merges
- * them in here at call time. Client-emails has none.
+ * A function, not a constant: a module whose filterable columns are only known
+ * once the server answers merges them in at call time.
  *
  * @decision as-const-vs-satisfies
  * what: authored `satisfies JsonSchema7`, NOT `as const satisfies JsonSchema7`
@@ -209,20 +187,6 @@ export function useQuerySchema(): QuerySchema {
                 ]
               }
             }
-          },
-          default: {
-            type: "object",
-            title: "text.default_label",
-            additionalProperties: false,
-            properties: {
-              eq: {
-                type: ["boolean", "null"],
-                oneOf: [
-                  { const: true, title: "text.yes" },
-                  { const: false, title: "text.no" }
-                ]
-              }
-            }
           }
         }
       },
@@ -237,19 +201,17 @@ export function useQuerySchema(): QuerySchema {
           required: ["field", "dir"],
           properties: {
             field: { enum: ["created_at", "email", "default"] },
-            dir: { enum: ["asc", "desc"] }
+            dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
           }
         }
       },
       pagination: {
         type: "object",
         additionalProperties: false,
-        // `minimum: 0`, NOT 1: `limit: 0` stays a legal declarable value for a
-        // module that wants one unpaged page. THIS module declares 10 (matching
-        // `PAGINATION.limit`) — the page size the list boots on, so the pager
-        // has something to step to.
+        // `minimum: 0`, not 1: `limit: 0` stays legal for a module that wants
+        // one unpaged page.
         properties: {
-          limit: { type: "integer", minimum: 0, default: 10 },
+          limit: { type: "integer", minimum: 0, default: PAGINATION.limit },
           offset: { type: "integer", minimum: 0 }
         }
       }
@@ -258,21 +220,20 @@ export function useQuerySchema(): QuerySchema {
 }
 
 /**
- * The module's DEFAULT filter-bar presentation — ONE uischema over the one query
- * schema, so a search box and three filter controls are a single JSONForms form.
- * The search sits full width on its own row with the filters below it.
+ * The module's DEFAULT filter-bar presentation — ONE uischema over the one
+ * query schema.
  *
  * Every element is a `Filter` (client-vue's dispatching renderer) scoping the
  * COLUMN, never an operator leaf: the renderer reads the column's own declared
- * operators and picks the control, so adding a filter is a schema line and a
- * uischema line naming the column — never a line naming its operator. Identity
- * lives in `type`, the data shape in `scope`, presentation in `options`.
+ * operators and picks the control. `options.treatment` names which tri-state
+ * control a boolean column draws (client-vue's `FilterTreatment`, spelt as a
+ * literal because headless cannot import from client-vue); `options.states`
+ * names a toggle group's two positions by the position's own value.
  *
- * Every element carries an `i18n` key: it is the only channel that can set a
- * control's label and placeholder (the resolved value is merged into `options`,
- * so the key must resolve to an OBJECT — a flat `text.*` key cannot be used
- * here). The `sort` and `pagination` branches carry no element: a branch no
- * element draws is still validated and still translated.
+ * Every element carries an `i18n` key — the only channel that can set a
+ * control's label and placeholder, so it must resolve to an OBJECT rather than
+ * a flat `text.*` key. The `sort` and `pagination` branches carry no element: a
+ * branch no element draws is still validated and still translated.
  */
 export function useQueryUischema(): UISchemaElement {
   return {
@@ -291,19 +252,19 @@ export function useQueryUischema(): UISchemaElement {
             type: "Filter",
             scope: "#/properties/filters/properties/verified",
             i18n: "form.verified_filter",
-            options: { variant: "switch" }
+            options: { treatment: "button-group" }
           },
           {
             type: "Filter",
             scope: "#/properties/filters/properties/bounced",
             i18n: "form.bounced_filter",
-            options: { variant: "switch" }
-          },
-          {
-            type: "Filter",
-            scope: "#/properties/filters/properties/default",
-            i18n: "form.default_filter",
-            options: { variant: "switch" }
+            options: {
+              treatment: "toggle-group",
+              states: {
+                true: "text.bounced_label",
+                false: "text.not_bounced_label"
+              }
+            }
           }
         ]
       }

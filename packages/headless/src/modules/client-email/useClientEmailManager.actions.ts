@@ -14,7 +14,7 @@ import {
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
 import type { ClientEmailServices, EmailModel } from "./client-email.types";
 import type { UseActor } from "../../utils";
-import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ScopeActorTypes } from "../scope";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmailManager.actions
@@ -24,8 +24,6 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * feedback. A failure rejects with a `DetailedError` for the CALLER to render,
  * while the machine keeps its own copy in context for
  * `useClientEmailManager.context.ts` to expose.
- *
- * @doctrine clause 2 (fresh modules start armless).
  */
 export function createClientEmailManagerActions(
   _actorScope: ScopeActorTypes,
@@ -158,58 +156,44 @@ export function createClientEmailManagerActions(
     removeFromRegistry(scopeKey);
   }
 
-  // --- actor-specific actions: none earned yet (clause 2). When a scope earns
-  // one, add `useClientEmailManager.actions.{actor}.ts` and spread it LAST.
-
   return {
     /**
-     * Clears the current form context.
      * @scenario-include
      */
     clear,
 
     /**
-     * Destroys this scoped instance — stops the machine and deregisters it.
      * @scenario-include
      */
     destroy,
 
     /**
-     * Inputs a model (debounced), resolving the parsed/validated model.
      * @scenario-include
      */
     input: debouncedInput,
 
     /**
-     * Resolves true when the manager is ready, false on error.
      * @scenario-include
      */
     isReady,
 
     /**
-     * Resolves true once a save has completed.
      * @scenario-include
      */
     onDone,
 
     /**
-     * Stops the underlying machine.
      * @scenario-include
      */
     stop,
 
     /**
-     * Saves the current (or provided) model, resolving the persisted model.
      * @scenario-include
      */
     update
-
-    // The arm merges in HERE, last.
-    // ...actorActions
   };
 }
 
-// Type export for consumers
 export type UseClientEmailManagerActions = ReturnType<
   typeof createClientEmailManagerActions
 >;

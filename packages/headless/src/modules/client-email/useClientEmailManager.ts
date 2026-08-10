@@ -18,8 +18,7 @@ import {
   responseCodes
 } from "../../utils";
 import type { ClientEmailScopeMatrix } from "./client-email.types";
-import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ScopeActorTypes, ScopeConfig, ScopeKey } from "../scope";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmailManager
@@ -28,11 +27,6 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * the address being edited comes from `.for('email', id)`, and a new one is
  * minted with `.fresh()`. Registered under the same module name as
  * `useClientEmails`; the scope key carries the differentiation.
- *
- * @doctrine clause 1 (uniform four-layer default) — identical return shape to
- * the collection half.
- * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
- * actor; never branch on SELF in this file.
  */
 function createClientEmailManagerForScope(
   config: ScopeConfig,
@@ -122,7 +116,6 @@ function createClientEmailManagerForScope(
   );
 
   return {
-    // --- Sub-composables (no direct props — clause 1 four-layer return)
     /** Sub-composable for manager actions (form input, save, lifecycle). */
     useActions: () => actions,
 
@@ -157,5 +150,4 @@ export const useClientEmailManager = createScopedComposable<
   ClientEmailScopeMatrix
 >("client-email", createClientEmailManagerForScope);
 
-// Type export for consumers
 export type UseClientEmailManager = ReturnType<typeof useClientEmailManager>;
