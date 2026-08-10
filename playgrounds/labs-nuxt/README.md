@@ -63,9 +63,14 @@ export const registry = {
   client_emails: {
     useList: useClientEmails,
     useMutate: useClientEmailManager,
-    scope: { actor: ScopeActorTypes.CLIENT, contextType: ClientEmailsContextTypes.CLIENT },
+    scope: {
+      actor: ScopeActorTypes.CLIENT,
+      contextType: ClientEmailsContextTypes.CLIENT
+    },
     persistCriteria: true,
-    handoff: { edit: { target: "client_email", contextType: "email", contextFrom: "/id" } }
+    handoff: {
+      edit: { target: "client_email", contextType: "email", contextFrom: "/id" }
+    }
   }
 } satisfies Record<ScenarioKey, ScenarioBinding>;
 ```

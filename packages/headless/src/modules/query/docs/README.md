@@ -42,15 +42,25 @@ const schema = {
     filters: {
       type: "object",
       properties: {
-        title: { type: "object", properties: { like: { type: ["string", "null"] } } }
+        title: {
+          type: "object",
+          properties: { like: { type: ["string", "null"] } }
+        }
       }
     },
     sort: { type: "array", default: [{ field: "created_at", dir: "desc" }] },
-    pagination: { type: "object", properties: { limit: { type: "integer", default: 10 } } }
+    pagination: {
+      type: "object",
+      properties: { limit: { type: "integer", default: 10 } }
+    }
   }
 };
 
-const query = list({ url: "/items", queryKey: ["items"], criteria: { schema } });
+const query = list({
+  url: "/items",
+  queryKey: ["items"],
+  criteria: { schema }
+});
 
 // Read the live state
 console.log(query.criteria.value); // { filters: {}, sort: [...], pagination: { limit: 10 } }
