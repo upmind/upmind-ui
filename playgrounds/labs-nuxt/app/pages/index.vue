@@ -124,7 +124,7 @@ import {
   List
 } from "@upmind-automation/upmind-ui";
 import { filter, includes, isEmpty, reduce, toLower, trim } from "lodash-es";
-import type { LabFamily } from "~/composables/useNavigation";
+import type { LabFamily } from "~/composables/useNavigation.types";
 import { useNavigation } from "~/composables/useNavigation";
 
 // -----------------------------------------------------------------------------

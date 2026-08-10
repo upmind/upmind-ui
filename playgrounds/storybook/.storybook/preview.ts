@@ -53,9 +53,8 @@ setup(app => {
 
   app.use(upmindUI);
 
-  // TEMP (FE-2977, uncommitted): Storybook never sets an active icon theme, so
-  // pack icons (check, edit-05, …) resolve to nothing. The app sets this; mirror
-  // it here so the new components' icons render for review.
+  // Storybook never sets an active icon theme, so pack icons (check, edit-05, …)
+  // resolve to nothing. The app sets this; mirror it here.
   useThemeIcons().setIconTheme("Line");
 });
 

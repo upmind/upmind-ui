@@ -27,7 +27,7 @@
 
 import { UpmLayout } from "@upmind-automation/client-vue";
 import { get, startCase } from "lodash-es";
-import type { NavMeta } from "~/composables/useNavigation";
+import type { NavMeta } from "~/composables/useNavigation.types";
 import { registry, scenarioKeys } from "~/composables/factory/registry";
 
 // -----------------------------------------------------------------------------

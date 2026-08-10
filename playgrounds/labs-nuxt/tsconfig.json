@@ -1,6 +1,18 @@
 {
   // https://nuxt.com/docs/guide/concepts/typescript
   "files": [],
+  // Inert for tsc (`files: []` compiles nothing here) — this is the resolve seam
+  // for the Playwright BDD lane, which reads the nearest tsconfig and has no
+  // alias map of its own. Same test-lane-only key as `vitest.config.ts`, so the
+  // catalog reaches another package's steps by specifier rather than by path.
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@upmind-automation/headless-test-kit/*": [
+        "../../packages/headless/src/modules/client-email/__tests__/*"
+      ]
+    }
+  },
   "references": [
     {
       "path": "./.nuxt/tsconfig.app.json"

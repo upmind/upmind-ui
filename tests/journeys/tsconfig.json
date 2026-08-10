@@ -12,12 +12,9 @@
     // The barrel graph imports a handful of type-only symbols in value position;
     // that is fine for a noEmit gate, so don't fail on verbatim import syntax.
     "verbatimModuleSyntax": false,
-    // @types/google.maps is a headless dependency, symlinked only under its own
-    // node_modules — headless source (system-places) needs it in the program.
-    "typeRoots": [
-      "../../node_modules/@types",
-      "../../packages/headless/node_modules/@types"
-    ],
+    // headless source (system-places) is in this program, so its google.maps
+    // types must be too — declared as this package's own devDependency.
+    "typeRoots": ["./node_modules/@types", "../../node_modules/@types"],
     "types": ["node", "google.maps"],
     "paths": {
       // Mirror tests/journeys/vitest.journeys.config.ts: the barrels resolve to
@@ -29,31 +26,11 @@
       "@upmind-automation/scenario-harness": [
         "../../packages/scenario-harness/src/index.ts"
       ],
-      // The scenario-harness journeys adapter imports `unref` from vue directly
-      // (mirroring FE-2977's future renderer adapter) — vue isn't hoisted to a
-      // node_modules reachable from tests/journeys (only under
-      // packages/headless/node_modules, same gap the runtime alias map in
-      // vitest.journeys.config.ts already works around for bundling).
-      "vue": ["../../packages/headless/node_modules/vue"],
-      // Same gap as "vue" above — the journeys adapter uses lodash-es's
-      // mapValues (the house Lodash-for-collection-ops rule). lodash-es ships
-      // no types of its own (unlike vue): pointing at the runtime package dir
-      // alone loses the @types/lodash-es declarations project-wide (every
-      // lodash-es import in the whole program routes through this one `paths`
-      // entry), so point straight at @types/lodash-es's own index, same
-      // pattern as the "psl" entry below.
-      "lodash-es": [
-        "../../packages/headless/node_modules/@types/lodash-es/index.d.ts"
-      ],
       "@upmind-automation/test-fixtures": ["../fixtures/index.ts"],
       "@upmind-automation/test-fixtures/*": ["../fixtures/*"],
-      // vitest is a dep of tests/fixtures, not hoisted to a node_modules
-      // reachable from tests/journeys; point at the workspace copy so the int
-      // test's `import ... from "vitest"` resolves.
-      "vitest": ["../fixtures/node_modules/vitest"],
       // psl ships its types outside its package.json "exports", so exports-aware
       // resolution can't find them; point at the shipped declarations directly.
-      "psl": ["../../packages/headless/node_modules/psl/types/index.d.ts"]
+      "psl": ["./node_modules/psl/types/index.d.ts"]
     }
   },
   // Scoped to the barrel-importing integration surface. The .spec.ts Playwright

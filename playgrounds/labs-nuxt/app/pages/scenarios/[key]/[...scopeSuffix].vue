@@ -20,7 +20,7 @@
  * binding boots the seam port, and the harness reflects that port into the
  * descriptor `ModuleRenderer` dispatches on.
  *
- * It is also the RENDERED half of "raw vs rendered" (W-D34): a cell that owns
+ * It is also the RENDERED half of "raw vs rendered": a cell that owns
  * criteria gets its own declared filter bar above the surface, and the
  * Inspector — where the raw schema · uischema · model · built wire live —
  * overlays it on demand, so the declaration and what it produced are read side

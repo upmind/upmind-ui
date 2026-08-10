@@ -1,15 +1,18 @@
 import { defineConfig } from "@playwright/test";
 import { createBdd, defineBddConfig, test as base } from "playwright-bdd";
+import { STEP_KIND } from "@upmind-automation/scenario-harness";
+// The `__fixtures__` trio stays on a path: it is the harness's own exemplar
+// corpus, which `fixture-registry.ts` declares is never exported from the
+// barrel — so there is no specifier to reach it by.
 import { fixtureRegistry } from "./packages/scenario-harness/src/__fixtures__/fixture-registry";
 import { fixtureSteps } from "./packages/scenario-harness/src/__fixtures__/fixture.steps";
 import { NodeWorld } from "./packages/scenario-harness/src/__fixtures__/node-world";
-import { STEP_KIND } from "./packages/scenario-harness/src/steps/steps.types";
 import type { FixtureKey } from "./packages/scenario-harness/src/__fixtures__/fixture-registry";
 import type {
   StepCatalog,
-  StepKind
-} from "./packages/scenario-harness/src/steps/steps.types";
-import type { World } from "./packages/scenario-harness/src/world/world.types";
+  StepKind,
+  World
+} from "@upmind-automation/scenario-harness";
 
 // Separate from the root playwright.config.ts: the e2e lane stays untouched,
 // and this lane skips the cart webServer entirely — the only shipped `world`
