@@ -17,16 +17,18 @@
     </div>
 
     <!-- overflow: the same actions, batteries-included DropdownMenu -->
-    <DropdownMenu
-      v-if="actions.length"
-      :items="overflowItems"
-      variant="ghost"
-      icon="dots-vertical"
-      icon-only
-      size="sm"
-      :label="t('action.show_more_options')"
-      :class="styles.actionSlots.overflowTrigger"
-    />
+    <DropdownMenu v-if="actions.length" :items="overflowItems" size="sm">
+      <template #trigger>
+        <Button
+          size="sm"
+          variant="outline"
+          icon="dots-vertical"
+          icon-only
+          :label="t('action.show_more_options')"
+          :class="styles.actionSlots.overflowTrigger"
+        />
+      </template>
+    </DropdownMenu>
 
     <!--
       context-menu placement: a thin seam on the existing dropdown-menu
