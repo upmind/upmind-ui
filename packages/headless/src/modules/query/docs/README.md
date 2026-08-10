@@ -111,13 +111,13 @@ A query schema in this family always declares a `sort` default, so "is the colle
 
 Nothing is thrown away by a filter, sort, or page change on its own — each one only ever asks "is this still right?", never "burn it down and start over." The one verb that does discard a combination outright is `resetQuery()`, present on the handle in both raw and criteria mode: a caller reaching for it explicitly gets exactly that — the combination is gone, and the next read for it starts from nothing.
 
-> **🧪 For Testers:** these are two different guarantees, not the same claim twice. A page revisit is provably free — the timestamp on the data after revisiting a page is identical to the one stamped on its very first fetch, because nothing re-fetched it. A filter/sort revisit is provably *not* free in that same sense: it paints the old rows immediately, but the request count still goes up by exactly one as it revalidates behind them. Neither is "no request, ever" — each is precisely what it claims to be.
+> **🧪 For Testers:** these are two different guarantees, not the same claim twice. A page revisit is provably free — the timestamp on the data after revisiting a page is identical to the one stamped on its very first fetch, because nothing re-fetched it. A filter/sort revisit is provably _not_ free in that same sense: it paints the old rows immediately, but the request count still goes up by exactly one as it revalidates behind them. Neither is "no request, ever" — each is precisely what it claims to be.
 
 ### `list()` bridges the gap between combinations; `listInfinite()` has none to bridge
 
 Switching `list()` to a combination it has never shown before replaces the page on screen outright, so without help the moment between "old page gone" and "new page arrived" would flash empty. `list()` closes that gap by holding onto the **previous** combination's rows for the duration the new one is in flight, so the screen never empties mid-switch.
 
-`listInfinite()` doesn't get the same treatment, because it has nothing to bridge: it never replaces anything to make room for what's loading — every additional page it pulls in is rows *added* to what's already there, never rows *ousting* them. There is no in-between state to paper over, so nothing was added to paper over one.
+`listInfinite()` doesn't get the same treatment, because it has nothing to bridge: it never replaces anything to make room for what's loading — every additional page it pulls in is rows _added_ to what's already there, never rows _ousting_ them. There is no in-between state to paper over, so nothing was added to paper over one.
 
 ## Where it fits
 
