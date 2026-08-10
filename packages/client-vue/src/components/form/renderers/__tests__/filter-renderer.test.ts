@@ -1,10 +1,13 @@
 /**
  * @module form/renderers/__tests__/filter-renderer
  * @description The `Filter` renderer family's dispatch contract (design §12,
- * tasks 46–48): the uischema scopes the COLUMN, the control is chosen from
- * that column's own declared operators, the tri-state's unset position writes
- * `undefined`, a cleared search validates clean (SB5), and a column no branch
- * claims fails loudly instead of rendering nothing.
+ * tasks 46–48): the uischema scopes the COLUMN, the BRANCH is chosen from that
+ * column's own declared operators, a cleared search validates clean (SB5), and
+ * a column no branch claims fails loudly instead of rendering nothing.
+ *
+ * Which of the two CONTROLS a boolean branch draws is the uischema's call, not
+ * the schema's — proven in `filter-treatment.test.ts`; what the tri-state writes
+ * and clears is proven in `filter-clear-unset.test.ts`.
  *
  * Negative control: `filter-renderer.must-fail.patch`.
  */
@@ -15,7 +18,12 @@ import {
   useQueryUischema
 } from "@upmind-automation/headless-test-kit/client-email.internal-kit";
 import error from "../../../../../../i18n/src/core/error-en.json";
-import { labelOf, messagesOf, mountFilters } from "./filter.harness";
+import {
+  labelOf,
+  messagesOf,
+  mountFilters,
+  positionsOf
+} from "./filter.harness";
 import { cloneDeep, filter, get, has, map, set, some } from "lodash-es";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 
@@ -48,7 +56,7 @@ describe("the declaration a Filter element makes", () => {
   it("scopes the column and never its operator", () => {
     const scopes = map(filterElements(), "scope");
 
-    expect(scopes).toHaveLength(4);
+    expect(scopes).toHaveLength(3);
     expect(
       some(scopes, scope =>
         /\/properties\/(eq|like|gte|lte|nlike)$/.test(scope)
@@ -75,18 +83,19 @@ describe("the declaration a Filter element makes", () => {
 });
 
 describe("the control is chosen from the column's own schema", () => {
-  it("draws a switch for a boolean eq column and a text box for a like column", async () => {
+  it("draws chooseable positions for a boolean eq column and a text box for a like column", async () => {
     const { column } = await mountFilters({
       schema: useQuerySchema(),
       uischema: useQueryUischema()
     });
 
-    for (const name of ["verified", "bounced", "default"]) {
-      expect(column(name).findAll('[role="switch"]')).toHaveLength(1);
+    for (const name of ["verified", "bounced"]) {
+      expect(positionsOf(column(name)).length).toBeGreaterThan(1);
       expect(column(name).findAll("select")).toHaveLength(0);
+      expect(column(name).findAll("input")).toHaveLength(0);
     }
 
-    expect(column("email").findAll('[role="switch"]')).toHaveLength(0);
+    expect(positionsOf(column("email"))).toEqual([]);
     expect(column("email").find('input[type="text"]').exists()).toBe(true);
   });
 
@@ -155,33 +164,12 @@ describe("what the control writes", () => {
       uischema: useQueryUischema()
     });
 
-    await column("verified").find('[role="switch"]').trigger("click");
-    await settle();
-    expect(get(model(), ["filters", "verified"])).toEqual({ eq: true });
-
-    await column("verified").find('[role="switch"]').trigger("click");
-    await settle();
-    expect(get(model(), ["filters", "verified"])).toEqual({ eq: false });
-
     await column("email").find("input").setValue("case");
     await settle();
+
     expect(get(model(), ["filters", "email"])).toEqual({ like: "case" });
-    expect(get(model(), ["filters", "verified"])).toEqual({ eq: false });
-  });
-
-  it("empties the leaf on unset — never an empty string, never null", async () => {
-    const { column, model, settle } = await mountFilters({
-      schema: useQuerySchema(),
-      uischema: useQueryUischema()
-    });
-
-    await column("verified").find('[role="switch"]').trigger("click");
-    await settle();
-    await column("verified").find('[data-test-value="all"]').trigger("click");
-    await settle();
-
-    expect(get(model(), ["filters", "verified"])).toEqual({});
     expect(has(model(), ["filters", "verified", "eq"])).toBe(false);
+    expect(has(model(), ["filters", "bounced", "eq"])).toBe(false);
   });
 
   it("merges the untouched end of a range instead of clearing it", async () => {

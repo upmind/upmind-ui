@@ -1,0 +1,24 @@
+Negative control for the tri-state CLEAR path (P1-R7).
+
+Drops the unset guard from `onPick`, so clearing resolves through `find` on a
+nil value — which lodash matches against the FIRST option, silently setting the
+filter it was asked to clear. Any assertion that reads the WIRE (the cleared
+`eq` leaf is absent) goes red; one that only reads the control's own pressed
+state stays green, which is the point.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+diff --git a/packages/client-vue/src/components/form/renderers/FilterRenderer.vue b/packages/client-vue/src/components/form/renderers/FilterRenderer.vue
+--- a/packages/client-vue/src/components/form/renderers/FilterRenderer.vue
++++ b/packages/client-vue/src/components/form/renderers/FilterRenderer.vue
+@@ -381,9 +381,7 @@
+ 
+   write(
+     RequestFilterOperator.EQUAL,
+-    isNil(picked) || picked === FILTER_UNSET_VALUE
+-      ? undefined
+-      : get(find(options.value, { value: picked }), "const")
++    get(find(options.value, { value: picked }), "const")
+   );
+ }
+ 

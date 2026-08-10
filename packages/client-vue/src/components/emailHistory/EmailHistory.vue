@@ -44,7 +44,8 @@ import { UpmSection, UpmSections } from "../section";
 import EmailHistoryListing from "./EmailHistoryListing.vue";
 import type {
   ReceivedEmailsSortableProperties,
-  RequestSortDirection
+  RequestSortDirection,
+  SentEmailQueryModel
 } from "@upmind-automation/headless";
 import type { TabItem } from "@upmind-automation/upmind-ui";
 
@@ -78,21 +79,15 @@ const params = useUrlSearchParams<{
   removeFalsyValues: true
 });
 
-const filters = computed(() => {
+const filters = computed<SentEmailQueryModel["filters"]>(() => {
   switch (active.value) {
     case "sent":
-      return {
-        "filter[sent]": "true",
-        "filter[bounced]": "false"
-      };
+      return { sent: { eq: true }, bounced: { eq: false } };
     case "bounced":
-      return {
-        "filter[bounced]": "true"
-      };
+      return { bounced: { eq: true } };
+    // A send that errored carries an `error_id`, so "not null" IS the failures.
     case "failed":
-      return {
-        "filter[error_id|neq]": "null"
-      };
+      return { error_id: { neq: "null" } };
     default:
       return {};
   }

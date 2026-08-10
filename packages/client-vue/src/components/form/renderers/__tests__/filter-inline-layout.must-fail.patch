@@ -1,0 +1,23 @@
+Negative control for the INLINE layout the tri-state is owed (P1-R3).
+
+Sends every filter to the stacked layout, so a boolean control drops back under
+its label instead of beside it — the exact rejected treatment. Any assertion
+that reads the field's declared layout goes red; one that only asserts a control
+rendered stays green.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+diff --git a/packages/client-vue/src/components/form/renderers/FilterRenderer.vue b/packages/client-vue/src/components/form/renderers/FilterRenderer.vue
+--- a/packages/client-vue/src/components/form/renderers/FilterRenderer.vue
++++ b/packages/client-vue/src/components/form/renderers/FilterRenderer.vue
+@@ -329,9 +329,7 @@
+     });
+ 
+   return assign(merged, {
+-    layout: meta.value.isBoolean
+-      ? FORM_FIELD_LAYOUT.INLINE
+-      : FORM_FIELD_LAYOUT.STACKED,
++    layout: FORM_FIELD_LAYOUT.STACKED,
+     noLabel: meta.value.isToggleGroup || !!merged.noLabel
+   });
+ });

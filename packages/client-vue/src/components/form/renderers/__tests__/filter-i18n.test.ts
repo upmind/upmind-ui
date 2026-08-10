@@ -17,7 +17,13 @@ import {
 } from "@upmind-automation/headless-test-kit/client-email.internal-kit";
 import form from "../../../../../../i18n/src/core/form-en.json";
 import text from "../../../../../../i18n/src/core/text-en.json";
-import { labelOf, mountFilters, renderedStrings } from "./filter.harness";
+import {
+  labelOf,
+  mountFilters,
+  positionAt,
+  positionsOf,
+  renderedStrings
+} from "./filter.harness";
 import { cloneDeep, filter, get, map, set } from "lodash-es";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 
@@ -34,21 +40,21 @@ describe("control labels resolve through packages/i18n", () => {
     });
 
     expect(labelOf(column("verified"))).toBe(form.verified_filter.label);
-    expect(labelOf(column("bounced"))).toBe(form.bounced_filter.label);
-    expect(labelOf(column("default"))).toBe(form.default_filter.label);
   });
 
-  it("renders no raw i18n key anywhere in the filter bar, at any switch position", async () => {
+  it("renders no raw i18n key anywhere in the filter bar, at any position", async () => {
     const { column, settle, wrapper } = await mountFilters({
       schema: useQuerySchema(),
       uischema: useQueryUischema()
     });
 
-    for (let position = 0; position < 3; position += 1) {
+    for (const value of ["yes", "no", "all"]) {
       expect(rawKeysIn(renderedStrings(wrapper))).toEqual([]);
-      await column("verified").find('[role="switch"]').trigger("click");
+      await positionAt(column("verified"), value).trigger("click");
       await settle();
     }
+
+    expect(rawKeysIn(renderedStrings(wrapper))).toEqual([]);
   });
 
   it("draws no label at all for the column whose key declares none", async () => {
@@ -76,20 +82,16 @@ describe("control labels resolve through packages/i18n", () => {
 
 describe("option labels resolve from the column's own oneOf titles", () => {
   it("renders All / Yes / No across the tri-state's three positions", async () => {
-    const { column, settle } = await mountFilters({
+    const { column } = await mountFilters({
       schema: useQuerySchema(),
       uischema: useQueryUischema()
     });
 
-    expect(column("verified").text()).toContain(text.all);
-
-    await column("verified").find('[role="switch"]').trigger("click");
-    await settle();
-    expect(column("verified").text()).toContain(text.yes);
-
-    await column("verified").find('[role="switch"]').trigger("click");
-    await settle();
-    expect(column("verified").text()).toContain(text.no);
+    expect(positionsOf(column("verified"))).toEqual([
+      text.all,
+      text.yes,
+      text.no
+    ]);
   });
 
   it("translates an arbitrary enum's titles through the same channel", async () => {
@@ -144,19 +146,19 @@ describe("option labels resolve from the column's own oneOf titles", () => {
         0,
         "title"
       ],
-      "text.bounced_label"
+      "text.none"
     );
 
-    const { column, settle } = await mountFilters({
+    const { column } = await mountFilters({
       schema,
       uischema: useQueryUischema()
     });
 
-    await column("verified").find('[role="switch"]').trigger("click");
-    await settle();
-
-    expect(column("verified").text()).toContain(text.bounced_label);
-    expect(column("verified").text()).not.toContain(text.yes);
+    expect(positionsOf(column("verified"))).toEqual([
+      text.all,
+      text.none,
+      text.no
+    ]);
   });
 });
 
@@ -189,10 +191,8 @@ describe("the translator is load-bearing", () => {
         "title"
       ]);
 
-    for (const name of ["verified", "bounced", "default"]) {
-      expect(labelOf(column(name))).toBe(titleOf(name));
-      expect(I18N_KEY_SHAPE.test(labelOf(column(name)))).toBe(true);
-    }
+    expect(labelOf(column("verified"))).toBe(titleOf("verified"));
+    expect(I18N_KEY_SHAPE.test(labelOf(column("verified")))).toBe(true);
 
     expect(rawKeysIn(renderedStrings(wrapper)).length).toBeGreaterThan(0);
   });

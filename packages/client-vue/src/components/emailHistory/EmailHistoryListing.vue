@@ -98,23 +98,25 @@ import {
   useClientReceivedEmails,
   DEBOUNCE_DELAY,
   ReceivedEmailsSortableProperties,
-  RequestSortDirection
+  RequestSortDirection,
+  SortDirection
 } from "@upmind-automation/headless";
 // import { ROUTE } from "../../../router/types";
 import { Pagination, Link, Input, Avatar } from "@upmind-automation/upmind-ui";
 import EmailHistorySort from "./EmailHistorySort.vue";
-import { debounce, isArray, isEmpty } from "lodash-es";
+import { assign, debounce, isArray, isEmpty } from "lodash-es";
 import type { ReceivedEmailsSortProps, ReceivedEmailsProps } from "./types";
+import type { SentEmailQueryModel } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(
   defineProps<{
-    manualFilters: any;
+    manualFilters: SentEmailQueryModel["filters"];
     routeViewName?: string;
   }>(),
   {
-    manualFilters: {},
+    manualFilters: () => ({}),
     routeViewName: "account-email-history-view"
   }
 );
@@ -150,16 +152,14 @@ const {
   data,
   meta,
   pagination,
-  filters,
-  sort,
+  setCriteria,
   nextPage,
   prevPage
 } = useClientReceivedEmails({
   pagination: {
     limit: 10,
     offset: (urlPage.value - 1) * 10
-  },
-  filters: props.manualFilters
+  }
 });
 
 await getEmailHistory();
@@ -189,9 +189,37 @@ watch(
   },
   { immediate: true }
 );
-watch(query, filters.query, { immediate: true });
-watch(sortBy, value => sort(value, direction.value), { immediate: true });
-watch(direction, value => sort(sortBy.value, value), { immediate: true });
+// The tab filters and the search box are ONE branch: a criteria write replaces
+// `filters` whole, so writing them separately would have each clear the other.
+const filters = computed<SentEmailQueryModel["filters"]>(() =>
+  assign({}, props.manualFilters, {
+    subject: { like: query.value }
+  })
+);
+
+watch(filters, value => setCriteria({ filters: value }), {
+  immediate: true,
+  deep: true
+});
+
+watch(
+  [sortBy, direction],
+  ([property, value]) =>
+    setCriteria({
+      sort: !property
+        ? []
+        : [
+            {
+              field: property,
+              dir:
+                value === RequestSortDirection.DESC
+                  ? SortDirection.DESC
+                  : SortDirection.ASC
+            }
+          ]
+    }),
+  { immediate: true }
+);
 watch(
   () => pagination.value.page,
   newPage => {

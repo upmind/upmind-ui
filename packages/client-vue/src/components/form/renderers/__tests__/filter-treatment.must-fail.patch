@@ -1,0 +1,22 @@
+Negative control for the tri-state TREATMENT dispatch (P1-R3).
+
+Points the Bounced column's uischema at the OTHER treatment, so the column that
+must render a label-less toggle group renders the labelled All|Yes|No button
+group instead. Any assertion that reads the treatment from the uischema —
+rather than from the branch — goes red; an assertion that merely counts
+"some control rendered" stays green, which is the point.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+diff --git a/packages/headless/src/modules/client-email/client-email.schemas.ts b/packages/headless/src/modules/client-email/client-email.schemas.ts
+--- a/packages/headless/src/modules/client-email/client-email.schemas.ts
++++ b/packages/headless/src/modules/client-email/client-email.schemas.ts
+@@ -259,7 +259,7 @@
+             scope: "#/properties/filters/properties/bounced",
+             i18n: "form.bounced_filter",
+             options: {
+-              treatment: "toggle-group",
++              treatment: "button-group",
+               states: {
+                 true: "text.bounced_label",
+                 false: "text.not_bounced_label"

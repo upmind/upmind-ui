@@ -1,8 +1,16 @@
+Negative control for the `Filter` renderer's DISPATCH.
+
+Points the Verified element at the generic `Control` type, so the filter bar
+draws JSONForms' default control instead of the dispatching Filter renderer.
+Any assertion that reads the tri-state's own positions goes red; one that only
+asserts the form rendered stays green.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
 diff --git a/packages/headless/src/modules/client-email/client-email.schemas.ts b/packages/headless/src/modules/client-email/client-email.schemas.ts
-index 3094f7bb0..c4781e343 100644
 --- a/packages/headless/src/modules/client-email/client-email.schemas.ts
 +++ b/packages/headless/src/modules/client-email/client-email.schemas.ts
-@@ -288,7 +288,7 @@ export function useQueryUischema(): UISchemaElement {
+@@ -249,7 +249,7 @@
          type: "HorizontalLayout",
          elements: [
            {
@@ -10,4 +18,4 @@ index 3094f7bb0..c4781e343 100644
 +            type: "Control",
              scope: "#/properties/filters/properties/verified",
              i18n: "form.verified_filter",
-             options: { variant: "switch" }
+             options: { treatment: "button-group" }

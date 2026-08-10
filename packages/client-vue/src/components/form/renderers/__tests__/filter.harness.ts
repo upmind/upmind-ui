@@ -91,6 +91,35 @@ export const messagesOf = (column: DOMWrapper<Element>) =>
     .findAll('[data-test-key="form-item-message"]')
     .map(node => node.text());
 
+/** The two tri-state treatments, each by the test key its own control carries. */
+export const BUTTON_GROUP_POSITION = '[data-test-key="button"]';
+export const TOGGLE_GROUP_POSITION = '[data-test-key="toggle-group-item"]';
+const ANY_POSITION = `${BUTTON_GROUP_POSITION},${TOGGLE_GROUP_POSITION}`;
+
+/** Every position the column offers, in order, as a user reads them. */
+export const positionsOf = (column: DOMWrapper<Element>) =>
+  map(column.findAll(ANY_POSITION), node => trim(node.text()));
+
+/** The positions the column announces as chosen — never more than one. */
+export const pressedIn = (column: DOMWrapper<Element>) =>
+  map(
+    filter(
+      column.findAll(ANY_POSITION),
+      node => node.attributes("aria-pressed") === "true"
+    ),
+    node => trim(node.text())
+  );
+
+export const positionAt = (column: DOMWrapper<Element>, value: string) =>
+  column.find(`[data-test-value="${value}"]`);
+
+/**
+ * The field's own wrapper — the element `FormField` lays the label and the
+ * control out in, and therefore the one carrying the layout variant.
+ */
+export const fieldLayoutOf = (column: DOMWrapper<Element>) =>
+  column.find("div").classes();
+
 /**
  * The column's rendered label, or `""` for a column that declares none —
  * §13.2 files `form.email_search` with `label: null`, so "no label" is a

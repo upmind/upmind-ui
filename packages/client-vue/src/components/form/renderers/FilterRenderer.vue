@@ -1,43 +1,23 @@
 <template>
   <FormField v-bind="fieldProps">
-    <template v-if="meta.isSwitch" #field>
-      <div
-        class="flex w-full flex-row flex-nowrap items-center justify-between gap-x-3"
-      >
-        <FormLabel v-if="fieldProps.label" :formItemId="fieldProps.id">
-          <span class="inline-flex items-center gap-x-2">
-            <span>{{ fieldProps.label }}</span>
-          </span>
-        </FormLabel>
+    <ButtonGroup
+      v-if="meta.isButtonGroup"
+      :items="buttonGroupItems"
+      :disabled="fieldProps.disabled"
+      size="sm"
+    />
 
-        <div
-          class="control-radius bg-control-surface shadow-control-default inline-flex flex-row flex-nowrap items-center gap-x-2 py-1 pr-1 pl-3"
-        >
-          <Switch
-            :id="fieldProps.id"
-            :disabled="fieldProps.disabled"
-            :checked="leaf(RequestFilterOperator.EQUAL) === true"
-            @update:checked="write(RequestFilterOperator.EQUAL, $event)"
-          />
-          <span class="text-sm">{{ positionLabel }}</span>
-          <Tooltip v-if="meta.isSet" :label="unsetLabel">
-            <Button
-              icon="x-close"
-              icon-only
-              variant="ghost"
-              color="neutral"
-              size="sm"
-              :label="unsetLabel"
-              :disabled="fieldProps.disabled"
-              @click="write(RequestFilterOperator.EQUAL, undefined)"
-            />
-          </Tooltip>
-        </div>
-      </div>
-    </template>
+    <ToggleGroup
+      v-else-if="meta.isToggleGroup"
+      :items="stateItems"
+      :model-value="selected"
+      :disabled="fieldProps.disabled"
+      size="sm"
+      @update:model-value="onPick"
+    />
 
     <Search
-      v-if="meta.isSearch"
+      v-else-if="meta.isSearch"
       :id="fieldProps.id"
       :results="null"
       :model-value="toString(leaf(RequestFilterOperator.LIKE))"
@@ -68,10 +48,10 @@
       <Select
         :id="fieldProps.id"
         :items="selectItems"
-        :model-value="toString(leaf(RequestFilterOperator.EQUAL))"
+        :model-value="selected"
         :placeholder="fieldProps.placeholder"
         :disabled="fieldProps.disabled"
-        @update:model-value="onSelect"
+        @update:model-value="onPick"
       />
       <Tooltip v-if="meta.isSet" :label="unsetLabel">
         <Button
@@ -123,27 +103,36 @@ import { computed, inject, watch } from "vue";
 import { RequestFilterOperator } from "@upmind-automation/headless";
 import {
   Button,
+  ButtonGroup,
+  ButtonGroupTypes,
   FormField,
-  FormLabel,
   Input,
   Search,
   Select,
-  Switch,
+  ToggleGroup,
   Tooltip,
+  FORM_FIELD_LAYOUT,
   useUpmindUIRenderer
 } from "@upmind-automation/upmind-ui";
 import {
   FilterBranch,
+  FilterTreatment,
+  FILTER_STATES_OPTION,
+  FILTER_TREATMENT_OPTION,
   FILTER_UNSET_I18N_KEY,
+  FILTER_UNSET_VALUE,
   FILTER_UNSUPPORTED_I18N_KEY
 } from "./FilterRenderer.types";
 import {
   assign,
   castArray,
+  concat,
   find,
+  first,
   get,
   includes,
   intersection,
+  isArray,
   isEmpty,
   isNil,
   isPlainObject,
@@ -156,6 +145,11 @@ import {
 import type { FilterOption } from "./FilterRenderer.types";
 import type { ControlElement, JsonFormsSubStates } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
+import type {
+  ButtonGroupItem,
+  FormControlProps,
+  ToggleGroupItem
+} from "@upmind-automation/upmind-ui";
 // --- external
 
 // -----------------------------------------------------------------------------
@@ -212,7 +206,7 @@ const branch = computed<FilterBranch>(() => {
 
   if (isEmpty(xor(declared, [RequestFilterOperator.EQUAL]))) {
     if (includes(typesOf(RequestFilterOperator.EQUAL), "boolean"))
-      return FilterBranch.Switch;
+      return FilterBranch.Boolean;
 
     if (
       !isEmpty(options.value) &&
@@ -230,9 +224,32 @@ const branch = computed<FilterBranch>(() => {
   return FilterBranch.Unsupported;
 });
 
+/**
+ * A tri-state's control is PRESENTATION, so the uischema names it and anything
+ * it fails to name draws the treatment that shows its own unset position.
+ */
+const treatment = computed(() =>
+  get(
+    control.value.uischema,
+    ["options", FILTER_TREATMENT_OPTION],
+    FilterTreatment.ButtonGroup
+  )
+);
+
+/** The state name each position carries, keyed by the position's own value. */
+const stateKeys = computed<Record<string, string>>(() =>
+  get(control.value.uischema, ["options", FILTER_STATES_OPTION], {})
+);
+
 const meta = computed(() => ({
   isSearch: branch.value === FilterBranch.Search,
-  isSwitch: branch.value === FilterBranch.Switch,
+  isBoolean: branch.value === FilterBranch.Boolean,
+  isToggleGroup:
+    branch.value === FilterBranch.Boolean &&
+    treatment.value === FilterTreatment.ToggleGroup,
+  isButtonGroup:
+    branch.value === FilterBranch.Boolean &&
+    treatment.value !== FilterTreatment.ToggleGroup,
   isSelect: branch.value === FilterBranch.Select,
   isRange: branch.value === FilterBranch.Range,
   isUnsupported: branch.value === FilterBranch.Unsupported,
@@ -247,19 +264,43 @@ const meta = computed(() => ({
 
 const unsetLabel = computed(() => translate(FILTER_UNSET_I18N_KEY));
 
-const positionLabel = computed(() =>
-  get(
-    find(
-      options.value,
-      option => option.const === leaf(RequestFilterOperator.EQUAL)
-    ),
-    "title",
-    unsetLabel.value
-  )
-);
+const selected = computed(() => {
+  const value = leaf(RequestFilterOperator.EQUAL);
+  return isNil(value) ? FILTER_UNSET_VALUE : toString(value);
+});
 
 const selectItems = computed(() =>
   map(options.value, option => ({ value: option.value, title: option.title }))
+);
+
+/** `All` first, then every declared position — the unset is a position, not a ✕. */
+const buttonGroupItems = computed<ButtonGroupItem[]>(() =>
+  concat<ButtonGroupItem>(
+    {
+      type: ButtonGroupTypes.Button,
+      active: selected.value === FILTER_UNSET_VALUE,
+      props: { label: unsetLabel.value },
+      handler: () => write(RequestFilterOperator.EQUAL, undefined)
+    },
+    map(options.value, option => ({
+      type: ButtonGroupTypes.Button,
+      active: selected.value === option.value,
+      props: { label: option.title },
+      handler: () => write(RequestFilterOperator.EQUAL, option.const)
+    }))
+  )
+);
+
+/**
+ * The label-less treatment's positions: the column's name never renders, so
+ * each position must say what it MEANS, which only the uischema knows. Absent a
+ * state name the schema's own `oneOf` title stands in.
+ */
+const stateItems = computed<ToggleGroupItem[]>(() =>
+  map(options.value, option => {
+    const key = get(stateKeys.value, option.value);
+    return { value: option.value, label: key ? translate(key) : option.title };
+  })
 );
 
 /**
@@ -276,15 +317,24 @@ const declared = computed(() => {
   return isPlainObject(resolved) ? (resolved as Record<string, unknown>) : {};
 });
 
-const fieldProps = computed(() => {
-  const merged = assign({}, formFieldProps.value, declared.value);
+const fieldProps = computed<FormControlProps>(() => {
+  const merged = omit(assign({}, formFieldProps.value, declared.value), [
+    FILTER_TREATMENT_OPTION,
+    FILTER_STATES_OPTION
+  ]) as FormControlProps;
 
-  return meta.value.isUnsupported
-    ? assign(merged, {
-        errors: [translate(FILTER_UNSUPPORTED_I18N_KEY)],
-        touched: true
-      })
-    : merged;
+  if (meta.value.isUnsupported)
+    return assign(merged, {
+      errors: [translate(FILTER_UNSUPPORTED_I18N_KEY)],
+      touched: true
+    });
+
+  return assign(merged, {
+    layout: meta.value.isBoolean
+      ? FORM_FIELD_LAYOUT.INLINE
+      : FORM_FIELD_LAYOUT.STACKED,
+    noLabel: meta.value.isToggleGroup || !!merged.noLabel
+  });
 });
 
 // --- methods
@@ -321,10 +371,20 @@ function write(operator: RequestFilterOperator, value: unknown): void {
   handleChange(control.value.path, column);
 }
 
-function onSelect(value: string): void {
+/**
+ * The ONE clear path every single-select treatment shares. Radix's own re-press
+ * emits `undefined`, `All` emits the unset value, and both must remove the leaf
+ * rather than resolve to a position — `find` on a nil value would otherwise
+ * match the first option and silently set the filter it was asked to clear.
+ */
+function onPick(value?: string | string[]): void {
+  const picked = isArray(value) ? first(value) : value;
+
   write(
     RequestFilterOperator.EQUAL,
-    get(find(options.value, { value }), "const")
+    isNil(picked) || picked === FILTER_UNSET_VALUE
+      ? undefined
+      : get(find(options.value, { value: picked }), "const")
   );
 }
 
