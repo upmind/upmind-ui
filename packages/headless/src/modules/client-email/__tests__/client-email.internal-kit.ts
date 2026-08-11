@@ -8,10 +8,10 @@
  * Visibility Law draws — a breach the "zero deep subpath imports" grep cannot
  * see, because it matches specifiers rather than resolved paths.
  *
- * Cross-package specs reach this file by the aliased
- * `@upmind-automation/headless-test-kit` specifier declared in each consuming
- * package's vitest config; the alias is test-lane only and never appears in a
- * runtime config.
+ * Cross-package specs reach this file by the package's own
+ * `@upmind-automation/headless/testing/client-email/internal-kit` subpath
+ * export — a real entry in `package.json`, never re-exported from the main
+ * barrel, so the test-only surface stays out of the production export graph.
  */
 
 import { join } from "node:path";

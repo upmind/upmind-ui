@@ -14,7 +14,7 @@ import { h } from "vue";
 import {
   useQuerySchema,
   useQueryUischema
-} from "@upmind-automation/headless-test-kit/client-email.internal-kit";
+} from "@upmind-automation/headless/testing/client-email/internal-kit";
 import form from "@upmind-automation/i18n/core/form-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import {

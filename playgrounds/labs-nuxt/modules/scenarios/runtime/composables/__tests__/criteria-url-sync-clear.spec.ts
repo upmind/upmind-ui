@@ -19,7 +19,7 @@ import { computed, nextTick, ref } from "vue";
 import {
   useQuerySchema,
   useQueryUischema
-} from "@upmind-automation/headless-test-kit/client-email.internal-kit";
+} from "@upmind-automation/headless/testing/client-email/internal-kit";
 import {
   criteriaToParams,
   paramsToCriteria,

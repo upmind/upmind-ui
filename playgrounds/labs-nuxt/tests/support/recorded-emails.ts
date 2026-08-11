@@ -3,8 +3,8 @@
  * @description The client-emails canary's rows and its 409, read from the
  * capture run's own recordings under
  * `packages/headless/src/modules/client-email/__tests__/fixtures` (reached by
- * the test-lane `@upmind-automation/headless-test-kit` alias). Nothing here is
- * authored: the addresses, the flags and the rejection sentence are the bytes
+ * the package's own `./testing/client-email/fixtures/*` export). Nothing here
+ * is authored: the addresses, the flags and the rejection sentence are the bytes
  * staging returned on 2026-08-05.
  *
  * Only the PROJECTION is written here — wire record to the `Email` row shape
@@ -12,9 +12,9 @@
  * `@internal` to headless and unreachable from this package's test lane.
  */
 
-import one from "@upmind-automation/headless-test-kit/fixtures/get-clients-id-emails-id.json";
-import list from "@upmind-automation/headless-test-kit/fixtures/get-clients-id-emails.json";
-import rejected from "@upmind-automation/headless-test-kit/fixtures/put-clients-id-emails-id-case-set-default-unverified.json";
+import one from "@upmind-automation/headless/testing/client-email/fixtures/get-clients-id-emails-id.json";
+import list from "@upmind-automation/headless/testing/client-email/fixtures/get-clients-id-emails.json";
+import rejected from "@upmind-automation/headless/testing/client-email/fixtures/put-clients-id-emails-id-case-set-default-unverified.json";
 
 type WireEmail = {
   id: string;

@@ -20,7 +20,7 @@ import { UpmForm } from "@upmind-automation/client-vue";
 import {
   useQuerySchema,
   useQueryUischema
-} from "@upmind-automation/headless-test-kit/client-email.internal-kit";
+} from "@upmind-automation/headless/testing/client-email/internal-kit";
 import FilterBar from "../FilterBar.vue";
 import { get, values } from "lodash-es";
 import type { ModulePortCriteria } from "../../composables/useModulePort.types";

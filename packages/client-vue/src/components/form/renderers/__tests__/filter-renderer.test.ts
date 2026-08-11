@@ -16,7 +16,7 @@ import { describe, expect, it } from "vitest";
 import {
   useQuerySchema,
   useQueryUischema
-} from "@upmind-automation/headless-test-kit/client-email.internal-kit";
+} from "@upmind-automation/headless/testing/client-email/internal-kit";
 import error from "@upmind-automation/i18n/core/error-en.json";
 import {
   labelOf,

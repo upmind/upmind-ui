@@ -15,7 +15,7 @@
  * asserts.
  */
 
-import { clientEmailsSteps } from "@upmind-automation/headless-test-kit/client-email.canary.steps";
+import { clientEmailsSteps } from "@upmind-automation/headless/testing/client-email/canary.steps";
 import type { StepCatalog } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------

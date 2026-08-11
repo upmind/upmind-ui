@@ -44,27 +44,47 @@ export default defineConfig({
     }
   },
   resolve: {
-    alias: {
-      "@": resolve(__dirname, "./src"),
-      "@icons": resolve(__dirname, "../icons/assets"),
-      "@themes": resolve(__dirname, "./src/assets/themes"),
-      "@animations": resolve(__dirname, "./src/assets/animations"),
+    alias: [
+      { find: "@", replacement: resolve(__dirname, "./src") },
+      { find: "@icons", replacement: resolve(__dirname, "../icons/assets") },
+      {
+        find: "@themes",
+        replacement: resolve(__dirname, "./src/assets/themes")
+      },
+      {
+        find: "@animations",
+        replacement: resolve(__dirname, "./src/assets/animations")
+      },
       // ---
-      "@upmind-automation/types": resolve(__dirname, "../types/src/index.ts"),
-      "@upmind-automation/i18n": resolve(__dirname, "../../packages/i18n/src"),
-      "@upmind-automation/headless": resolve(
-        __dirname,
-        "../headless/src/index.ts"
-      ),
-      "@upmind-automation/upmind-ui/styles": resolve(
-        __dirname,
-        "../ui/src/assets/styles/index.css"
-      ),
-      "@upmind-automation/upmind-ui/vars": resolve(
-        __dirname,
-        "../ui/src/assets/styles/vars.css"
-      ),
-      "@upmind-automation/upmind-ui": resolve(__dirname, "../ui/src/index.ts")
-    }
+      {
+        find: "@upmind-automation/types",
+        replacement: resolve(__dirname, "../types/src/index.ts")
+      },
+      {
+        find: "@upmind-automation/i18n",
+        replacement: resolve(__dirname, "../../packages/i18n/src")
+      },
+      // Anchored: a bare string `find` also captures every subpath under it,
+      // which would rewrite `@upmind-automation/headless/testing/*` — the
+      // package's real test-kit export — to a path THROUGH `index.ts`.
+      // Exact-match only, so subpaths fall through to the package's own
+      // `exports` map.
+      {
+        find: /^@upmind-automation\/headless$/,
+        replacement: resolve(__dirname, "../headless/src/index.ts")
+      },
+      {
+        find: "@upmind-automation/upmind-ui/styles",
+        replacement: resolve(__dirname, "../ui/src/assets/styles/index.css")
+      },
+      {
+        find: "@upmind-automation/upmind-ui/vars",
+        replacement: resolve(__dirname, "../ui/src/assets/styles/vars.css")
+      },
+      {
+        find: "@upmind-automation/upmind-ui",
+        replacement: resolve(__dirname, "../ui/src/index.ts")
+      }
+    ]
   }
 });

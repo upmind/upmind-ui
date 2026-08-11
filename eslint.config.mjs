@@ -610,12 +610,14 @@ const scenarioHarnessBoundaryPlugin = {
 // because a path escape and a subpath specifier are different shapes:
 //
 //   arm 1 — `no-restricted-imports` on the deep subpaths of the two packages
-//           whose public surface is bounded: headless publishes exactly "." and
-//           "./scenarios" (its `exports` map), scenario-harness exactly ".".
-//           The map alone does NOT gate the playgrounds — a vite/vitest alias
-//           to the package DIRECTORY resolves ahead of `exports`, so a subpath
-//           keeps resolving there no matter what the map says. This arm is the
-//           gate for that lane.
+//           whose public surface is bounded: headless publishes exactly ".",
+//           "./scenarios" and "./testing/*" (its `exports` map), scenario-harness
+//           exactly ".". The map alone does NOT gate the playgrounds — a
+//           vite/vitest alias to the package DIRECTORY resolves ahead of
+//           `exports`, so a subpath keeps resolving there no matter what the map
+//           says. This arm is the gate for that lane. "./testing/*" is published
+//           for OTHER packages' test lanes, so block 8h re-arms it there and
+//           8g keeps it banned everywhere else.
 //   arm 2 — the same law for relative escapes, which no specifier pattern can
 //           see: `../../packages/headless/src/...` never types a package name.
 //           Resolved to a disk path (the technique block 8c uses) and compared
@@ -628,13 +630,18 @@ const scenarioHarnessBoundaryPlugin = {
 const PACKAGE_BOUNDARY_MESSAGE =
   "Import a workspace package by its published specifier — its internals are private.";
 
-const noWorkspaceSubpathImportsRule = [
+/**
+ * @param testLane Whether headless's `./testing/*` export — its published
+ *   test-kit surface, kept off the main barrel so it never enters the
+ *   production graph — is reachable from these files. Test lanes only.
+ */
+const noWorkspaceSubpathImportsRule = testLane => [
   "error",
   {
     patterns: [
       {
-        regex: "^@upmind-automation/headless/(?!scenarios$|package\\.json$)",
-        message: `${PACKAGE_BOUNDARY_MESSAGE} headless publishes "." and "./scenarios" only.`
+        regex: `^@upmind-automation/headless/(?!scenarios$|package\\.json$${testLane ? "|testing/" : ""})`,
+        message: `${PACKAGE_BOUNDARY_MESSAGE} headless publishes ".", "./scenarios" and "./testing/*" (test lanes only).`
       },
       {
         regex: "^@upmind-automation/scenario-harness/",
@@ -992,8 +999,30 @@ export default [
       "@workspace": workspaceBoundaryPlugin
     },
     rules: {
-      "no-restricted-imports": noWorkspaceSubpathImportsRule,
+      "no-restricted-imports": noWorkspaceSubpathImportsRule(false),
       "@workspace/no-cross-package-path-imports": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 8h. The test lane of 8g. headless publishes "./testing/*" for exactly these
+  //    files — another package's specs reaching its module kits, its replay
+  //    setup and its recorded fixtures by specifier. 8g still bans the subpath
+  //    everywhere else, so nothing in a production graph can reach it. Flat
+  //    config REPLACES `no-restricted-imports`, so this restates the whole rule
+  //    rather than adding to it; arm 2 (the relative-escape rule) is untouched
+  //    and still forbids reaching the same files by path.
+  // ---------------------------------------------------------------------------
+  {
+    files: [
+      "**/__tests__/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      "**/*.{test,spec}.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
+      "playgrounds/*/tests/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      "tests/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}"
+    ],
+    ignores: ["packages/scenario-harness/**"],
+    rules: {
+      "no-restricted-imports": noWorkspaceSubpathImportsRule(true)
     }
   },
 

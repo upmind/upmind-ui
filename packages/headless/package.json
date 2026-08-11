@@ -14,7 +14,12 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./testing/client-email/internal-kit": "./src/modules/client-email/__tests__/client-email.internal-kit.ts",
+    "./testing/client-email/int-helpers": "./src/modules/client-email/__tests__/client-email.int-helpers.ts",
+    "./testing/client-email/canary.steps": "./src/modules/client-email/__tests__/client-email.canary.steps.ts",
+    "./testing/client-email/setup.integration": "./src/modules/client-email/__tests__/setup.integration.ts",
+    "./testing/client-email/fixtures/*.json": "./src/modules/client-email/__tests__/fixtures/*.json"
   },
   "files": [
     "dist"

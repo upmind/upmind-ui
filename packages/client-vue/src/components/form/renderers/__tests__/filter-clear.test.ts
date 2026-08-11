@@ -15,7 +15,7 @@ import { describe, expect, it } from "vitest";
 import {
   useQuerySchema,
   useQueryUischema
-} from "@upmind-automation/headless-test-kit/client-email.internal-kit";
+} from "@upmind-automation/headless/testing/client-email/internal-kit";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import { mountFilters, renderedStrings } from "./filter.harness";
 import { filter, get, has, trim } from "lodash-es";

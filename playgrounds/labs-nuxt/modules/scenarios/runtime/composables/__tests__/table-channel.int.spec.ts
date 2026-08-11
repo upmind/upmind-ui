@@ -28,8 +28,8 @@
  * channel's own flatten/lift contract.
  *
  * The recorded corpus, its replay server and the session seed are reached by
- * the test-lane-only `@upmind-automation/headless-test-kit` alias
- * (`vitest.config.ts`), never by a relative path into the package.
+ * headless's own `./testing/client-email/*` subpath export, never by a relative
+ * path into the package.
  *
  * ## The one-page × paginate collision — RECORDED, not a passing capability
  * The recorded corpus is 3 rows and the schema declares `pagination.limit`
@@ -54,8 +54,8 @@ import {
   observeEmailRequests,
   recorded,
   seedClientSession
-} from "@upmind-automation/headless-test-kit/client-email.int-helpers";
-import { server } from "@upmind-automation/headless-test-kit/setup.integration";
+} from "@upmind-automation/headless/testing/client-email/int-helpers";
+import { server } from "@upmind-automation/headless/testing/client-email/setup.integration";
 import { useTableChannel } from "../useTableChannel";
 
 // -----------------------------------------------------------------------------
