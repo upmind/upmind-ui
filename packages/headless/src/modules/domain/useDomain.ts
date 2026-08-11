@@ -58,6 +58,8 @@ export type DomainChoice = { value: DomainTypes; label: string };
  * @param options - required configuration for the domain type.
  * @param options.type - The type of domain to manage (e.g., "dac", "existing", "basket").
  *                     If not provided, defaults to all available domain types.
+ * @param options.tlds - Restricts the DAC search to these TLDs (bare, lowercase labels).
+ *                     Supplied by the caller — this composable never reads it from the route.
  * @returns Domain management API (state, computed, and methods)
  */
 export const useDomain = (
@@ -65,6 +67,7 @@ export const useDomain = (
   options: {
     type?: DomainTypes;
     required?: boolean;
+    tlds?: string[];
   } = {
     type: undefined
   }
@@ -93,6 +96,7 @@ export const useDomain = (
       model: parseDomain(value),
       preferredCycle: getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS),
       coupons: getParam(QUERY_PARAMS.COUPONS),
+      tlds: options?.tlds,
       useSuggestions,
       // `setContext` + `setBasketHelper` overwrite these on entry, but
       // `withContext` requires the full `DomainContext` shape — keeping
