@@ -11,15 +11,18 @@ import {
   compact,
   concat,
   first,
+  flatMap,
   forEach,
   get,
   includes,
   isArray,
   isEmpty,
   isFunction,
+  map,
   reduce,
   set,
   toNumber,
+  trim,
   uniq
 } from "lodash-es";
 
@@ -95,6 +98,24 @@ export const useQueryParams = (route?: RouteLocation) => {
     const value = get(params, type, get(query, type, fallback));
     if (isEmpty(value)) return isFunction(fallback) ? fallback() : fallback;
     return compact(isArray(value) ? value : [value]);
+  }
+
+  /**
+   * Reads a param as a list of strings, accepting either a comma-delimited
+   * value (`?tlds=.com,.co.uk`) or repeated keys (`?tlds=.com&tlds=.co.uk`) —
+   * `getParams` normalises the string-vs-array shape, the split handles the
+   * comma form, so both arrive down the same path. Entries are trimmed and
+   * empties dropped.
+   *
+   * Always returns an array, so an absent param reads as "no filter" rather
+   * than needing a fallback at every call site.
+   */
+  function getParamList(type: string): string[] {
+    const values = getParams(type, []);
+    const split = flatMap(values, (value: unknown) =>
+      value?.toString()?.split(",")
+    );
+    return compact(map(split, value => trim(value)));
   }
 
   // parse our query/params that may be passed in as STRING
@@ -224,6 +245,7 @@ export const useQueryParams = (route?: RouteLocation) => {
     parse: useSafeParse,
     getParams,
     getParam,
+    getParamList,
     consumeParam,
     setParam,
     unsetParam,
