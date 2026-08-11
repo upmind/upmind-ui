@@ -6,6 +6,7 @@ export {
   parseDomainParts,
   isDomainProduct,
   getDomainBasketProducts,
+  normaliseTlds,
   sanitiseDomainInput,
   useDomainParser
 } from "./utils";

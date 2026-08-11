@@ -29,6 +29,8 @@ import {
   map,
   some,
   sortBy,
+  trim,
+  uniq,
   uniqBy
 } from "lodash-es";
 
@@ -431,6 +433,20 @@ export function useDomainParser(domain: Ref<string>) {
   });
 
   return { sanitisedDomain, sanitisedSld, sanitisedTld };
+}
+
+/**
+ * Normalises a raw list of TLD labels into the bare, lowercase form the
+ * `/suggestions` endpoints expect — `[".COM", " .co.uk ", "."]` becomes
+ * `["com", "co.uk"]`.
+ *
+ * Only the *leading* dot is stripped: the API takes bare labels, but a
+ * multi-part TLD (`co.uk`) has to keep its inner dot.
+ */
+export function normaliseTlds(values: string[]): string[] {
+  return uniq(
+    compact(map(values, value => trim(value).toLowerCase().replace(/^\./, "")))
+  );
 }
 
 // ----------------------------------------------------------------------------
