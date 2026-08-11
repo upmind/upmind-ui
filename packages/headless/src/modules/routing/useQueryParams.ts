@@ -100,24 +100,6 @@ export const useQueryParams = (route?: RouteLocation) => {
     return compact(isArray(value) ? value : [value]);
   }
 
-  /**
-   * Reads a param as a list of strings, accepting either a comma-delimited
-   * value (`?tlds=.com,.co.uk`) or repeated keys (`?tlds=.com&tlds=.co.uk`) —
-   * `getParams` normalises the string-vs-array shape, the split handles the
-   * comma form, so both arrive down the same path. Entries are trimmed and
-   * empties dropped.
-   *
-   * Always returns an array, so an absent param reads as "no filter" rather
-   * than needing a fallback at every call site.
-   */
-  function getParamList(type: string): string[] {
-    const values = getParams(type, []);
-    const split = flatMap(values, (value: unknown) =>
-      value?.toString()?.split(",")
-    );
-    return compact(map(split, value => trim(value)));
-  }
-
   // parse our query/params that may be passed in as STRING
   function getParam(type: string, fallback?: any) {
     const { query, params } = safeRoute;
@@ -240,12 +222,28 @@ export const useQueryParams = (route?: RouteLocation) => {
     return model;
   }
 
+  function getTlds(): string[] {
+    // Accepts either the comma-delimited client form (`?tlds=.com,.co.uk`) or
+    // repeated keys; `getParams` settles the string-vs-array shape first so
+    // both arrive down one path.
+    const values = flatMap(getParams(QUERY_PARAMS.TLDS, []), (value: unknown) =>
+      value?.toString()?.split(",")
+    );
+
+    // Only the LEADING dot goes: the API takes bare labels, but a multi-part
+    // TLD (`co.uk`) has to keep its inner dot.
+    return uniq(
+      compact(
+        map(values, value => trim(value).toLowerCase().replace(/^\./, ""))
+      )
+    );
+  }
+
   return {
     route: safeRoute,
     parse: useSafeParse,
     getParams,
     getParam,
-    getParamList,
     consumeParam,
     setParam,
     unsetParam,
@@ -255,6 +253,8 @@ export const useQueryParams = (route?: RouteLocation) => {
     productConfig: first(getProductConfigs()),
     basketProductId: getParam(QUERY_PARAMS.BASKET_PRODUCT_ID),
     categoryId: getParam(QUERY_PARAMS.CATEGORY_ID),
+    /** TLD filter as bare lowercase labels, e.g. `["com", "co.uk"]`. */
+    tlds: getTlds(),
     // ---
     currency: consumeParam(
       QUERY_PARAMS.CURRENCY,
