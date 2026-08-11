@@ -25,6 +25,12 @@ export default defineNuxtConfig({
   sourcemap: { client: "hidden" },
   spaLoadingTemplate: true,
 
+  // Build artifacts must never enter the dev watcher: chokidar 4 holds one fd
+  // per watched file on macOS, and a populated .output/ (10k+ files) pushes the
+  // process past the OS spawn ceiling — every esbuild/fork child then dies with
+  // EBADF (same failure class the typeCheck-in-dev comment above dodges).
+  ignore: ["**/.output/**", "**/test-results/**"],
+
   /**
    * ---------------------------------------------------------------------------
    * MODULES
