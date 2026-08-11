@@ -49,7 +49,7 @@ const declared = vi.hoisted(() => ({
 
 // Getters, not values: the module double is read at import time, so a snapshot
 // taken here would answer every later test with the first test's registry.
-vi.mock("../../composables/factory/registry", () => ({
+vi.mock("../../../modules/scenarios/runtime/registry", () => ({
   get registry() {
     return declared.registry;
   },
@@ -123,9 +123,9 @@ describe("@AC the landing page lists what the registry declares (G6 · C17)", ()
 
     expect(hrefs(wrapper)).toEqual(
       expect.arrayContaining([
-        `/scenarios/${SPROCKET}/as/staff`,
-        `/scenarios/${GIZMO}/as/guest`,
-        `/scenarios/${COG}/as/client`
+        `/${SPROCKET}/as/staff`,
+        `/${GIZMO}/as/guest`,
+        `/${COG}/as/client`
       ])
     );
     expect(wrapper.text()).toContain("Sprocket Widgets");
@@ -168,10 +168,10 @@ describe("@AC nothing on the landing page is hand-listed (G6 · C17)", () => {
     assign(declared.registry, { [GIZMO]: scenario("guest") });
     const second = await home();
 
-    expect(hrefs(first)).toContain(`/scenarios/${SPROCKET}/as/staff`);
-    expect(hrefs(first)).not.toContain(`/scenarios/${GIZMO}/as/guest`);
-    expect(hrefs(second)).toContain(`/scenarios/${GIZMO}/as/guest`);
-    expect(hrefs(second)).not.toContain(`/scenarios/${SPROCKET}/as/staff`);
+    expect(hrefs(first)).toContain(`/${SPROCKET}/as/staff`);
+    expect(hrefs(first)).not.toContain(`/${GIZMO}/as/guest`);
+    expect(hrefs(second)).toContain(`/${GIZMO}/as/guest`);
+    expect(hrefs(second)).not.toContain(`/${SPROCKET}/as/staff`);
     expect(renderedStrings(second)).toContain("1 composables");
   });
 
@@ -208,14 +208,9 @@ describe("@AC a handoff target is not carded on the landing page (P1-R8)", () =>
     const wrapper = await home();
 
     expect(hrefs(wrapper)).toEqual(
-      expect.arrayContaining([
-        `/scenarios/${SPROCKET}/as/staff`,
-        `/scenarios/${GIZMO}/as/guest`
-      ])
+      expect.arrayContaining([`/${SPROCKET}/as/staff`, `/${GIZMO}/as/guest`])
     );
-    expect(hrefs(wrapper)).not.toContain(
-      `/scenarios/${SPROCKET_EDITOR}/as/staff`
-    );
+    expect(hrefs(wrapper)).not.toContain(`/${SPROCKET_EDITOR}/as/staff`);
   });
 
   it("counts destinations, not registry keys", async () => {

@@ -1,0 +1,13 @@
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/useActionFeedback.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/useActionFeedback.ts
+index bbbbbbb..ccccccc 100644
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/useActionFeedback.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/useActionFeedback.ts
+@@ -53,7 +53,7 @@
+       const message = get(error, "message");
+       reported.value = isString(message) ? message : undefined;
+
+-      report(copy.failure, TOAST_VARIANTS.DANGER, reported.value);
++      report(copy.failure, TOAST_VARIANTS.DANGER);
+     } finally {
+       pull(pending.value, key);
+     }

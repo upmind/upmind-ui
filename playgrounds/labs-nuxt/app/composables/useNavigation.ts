@@ -13,7 +13,10 @@
 
 import { computed } from "vue";
 import { useRouter, type RouteRecordNormalized } from "vue-router";
-import { registry, scenarioKeys } from "./factory/registry";
+import {
+  registry,
+  scenarioKeys
+} from "../../modules/scenarios/runtime/registry";
 import {
   compact,
   difference,
@@ -93,16 +96,22 @@ const HANDOFF_TARGET_KEYS: string[] = flatMap(scenarioKeys, key =>
  */
 const NAVIGABLE_KEYS = difference(scenarioKeys, HANDOFF_TARGET_KEYS);
 
-const SCENARIO_ENTRIES: LabEntry[] = map(NAVIGABLE_KEYS, key => ({
-  key,
-  label: startCase(key),
-  icon: SCENARIO_ICON,
-  family: familyOf(key),
-  to: `/scenarios/${key}/as/${get(registry, [key, "scope", "actor"])}`,
-  tags: compact(
-    map(keys(get(registry, key)), field => get(BINDING_TAGS, field))
-  )
-}));
+const SCENARIO_ENTRIES: LabEntry[] = map(NAVIGABLE_KEYS, key => {
+  // The url segment is the scenario's own DIRECTORY, which is also its route
+  // name — so the sidebar link and the registered route cannot drift.
+  const route = get(registry, [key, "route"], key) as string;
+
+  return {
+    key,
+    label: startCase(route),
+    icon: SCENARIO_ICON,
+    family: familyOf(route),
+    to: `/${route}/as/${get(registry, [key, "scope", "actor"])}`,
+    tags: compact(
+      map(keys(get(registry, key)), field => get(BINDING_TAGS, field))
+    )
+  };
+});
 
 function routeSources(routes: RouteRecordNormalized[]): NavSource[] {
   return reduce(

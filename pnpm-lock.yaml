@@ -1606,6 +1606,9 @@ importers:
       '@formkit/auto-animate':
         specifier: ^0.8.2
         version: 0.8.4
+      '@jsonforms/core':
+        specifier: ^3.6.0
+        version: 3.7.0
       '@nuxtjs/seo':
         specifier: ^3.3.0
         version: 3.3.0(@unhead/vue@2.1.2(vue@3.5.25(typescript@5.9.3)))(db0@0.3.4(@electric-sql/pglite@0.3.14))(ioredis@5.9.0(supports-color@10.2.2))(magicast@0.5.1)(rollup@4.53.5)(supports-color@10.2.2)(unhead@2.1.2)(unstorage@1.17.3(db0@0.3.4(@electric-sql/pglite@0.3.14))(ioredis@5.9.0(supports-color@10.2.2)))(vite@7.3.0(@types/node@22.19.3)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue@3.5.25(typescript@5.9.3))(zod@3.25.76)
@@ -15797,7 +15800,7 @@ snapshots:
       '@types/json-schema': 7.0.15
       ajv: 8.17.1
       ajv-formats: 2.1.1(ajv@8.17.1)
-      lodash: 4.17.21
+      lodash: 4.18.1
 
   '@jsonforms/vue@3.7.0(@jsonforms/core@3.7.0)(vue@3.5.25(typescript@5.9.3))':
     dependencies:
@@ -18388,7 +18391,7 @@ snapshots:
       chalk: 3.0.0
       css.escape: 1.5.1
       dom-accessibility-api: 0.6.3
-      lodash: 4.17.21
+      lodash: 4.18.1
       redent: 3.0.0
 
   '@testing-library/user-event@14.5.2(@testing-library/dom@10.4.0)':
@@ -21632,7 +21635,7 @@ snapshots:
       glob: 10.5.0
       json-ptr: 3.1.1
       json-schema-traverse: 1.0.0
-      lodash: 4.17.21
+      lodash: 4.18.1
       openapi3-ts: 3.2.0
       promise-breaker: 6.0.0
       qs: 6.14.0
@@ -26636,7 +26639,7 @@ snapshots:
       glob-slasher: 1.0.1
       is-url: 1.2.4
       join-path: 1.1.1
-      lodash: 4.17.21
+      lodash: 4.18.1
       mime-types: 2.1.35
       minimatch: 6.2.0
       morgan: 1.10.1(supports-color@10.2.2)

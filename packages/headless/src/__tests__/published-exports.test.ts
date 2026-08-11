@@ -4,27 +4,24 @@
  * play (Task 62 · ruling F-1 · W-D22).
  *
  * ## Job To Be Done
- * A consumer reaches the scenario map as `@upmind-automation/headless/scenarios`
- * and cannot reach anything else inside the package. Every other read-back in
- * this bundle resolves that specifier through a Vite/Vitest **alias**, and an
- * alias outranks package `exports` — so it stays green with the `exports` map
- * and the build entry both missing. This file is the only proof of the
- * published contract: resolution runs in a **spawned Node process** whose cwd is
- * a real consumer package, so the resolver in play is Node's own.
+ * A consumer reaches the package through its ONE barrel and cannot reach
+ * anything else inside it. Every other read-back in this bundle resolves that
+ * specifier through a Vite/Vitest **alias**, and an alias outranks package
+ * `exports` — so it stays green with the `exports` map missing. This file is
+ * the only proof of the published contract: resolution runs in a **spawned Node
+ * process** whose cwd is a real consumer package, so the resolver in play is
+ * Node's own.
  *
  * ## What Breaks If These Fail
- * `pnpm build` emits `dist/index.js` alone, `"./scenarios"` dangles at a file
- * that was never written, and the failure surfaces only on publish — after the
- * playground has been green for weeks. Or the map is absent and every path
- * inside the package is reachable again, which is the boundary W-D22 exists to
- * close.
+ * The map is absent and every path inside the package is reachable again, which
+ * is the boundary W-D22 exists to close.
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
-import { forEach, fromPairs, keys, map } from "lodash-es";
+import { flatMap, forEach, fromPairs, keys, map } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -34,15 +31,10 @@ const repoRoot = join(packageRoot, "..", "..");
 /** A real consumer of the package, outside it — the vantage point that matters. */
 const consumerCwd = join(repoRoot, "playgrounds", "labs-nuxt");
 
-const BUILT_ENTRIES = [
-  "dist/index.js",
-  "dist/scenarios.js",
-  "dist/scenarios.d.ts"
-];
+const BUILT_ENTRIES = ["dist/index.js", "dist/index.d.ts"];
 
 const SANCTIONED = [
   "@upmind-automation/headless",
-  "@upmind-automation/headless/scenarios",
   "@upmind-automation/headless/package.json"
 ];
 
@@ -53,12 +45,31 @@ const SANCTIONED = [
  */
 const BANNED = [
   "@upmind-automation/headless/modules/client-email",
-  "@upmind-automation/headless/src/scenarios",
-  "@upmind-automation/headless/dist/scenarios.js",
+  "@upmind-automation/headless/scenarios",
+  "@upmind-automation/headless/dist/index.js",
   "@upmind-automation/headless/src/modules/client-email/__tests__/fixtures/get-clients-id-emails.json"
 ];
 
 type Resolution = { ok: boolean; url?: string; code?: string };
+
+/**
+ * Shipped `.ts` under `src/` — `__tests__` excluded, since a spec naming a
+ * banned symbol in order to ban it would answer its own question.
+ */
+function sourceFilesMatching(pattern: RegExp): string[] {
+  const walk = (dir: string): string[] =>
+    flatMap(readdirSync(dir, { withFileTypes: true }), entry => {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory())
+        return entry.name === "__tests__" ? [] : walk(path);
+      return entry.name.endsWith(".ts") &&
+        pattern.test(readFileSync(path, "utf8"))
+        ? [path]
+        : [];
+    });
+
+  return walk(join(packageRoot, "src"));
+}
 
 /**
  * Node's own resolver, in its own process: no Vite, no Vitest, no alias map.
@@ -104,20 +115,17 @@ beforeAll(() => {
 // -----------------------------------------------------------------------------
 
 describe("headless — the published exports map, resolved with no alias in play (Task 62)", () => {
-  it("emits every file the exports map points at — including the second lib entry", () => {
+  it("emits every file the exports map points at", () => {
     forEach(BUILT_ENTRIES, entry =>
       expect(existsSync(join(packageRoot, entry)), entry).toBe(true)
     );
   });
 
-  it("resolves the three sanctioned specifiers to the built files", () => {
+  it("resolves the two sanctioned specifiers to the built files", () => {
     const resolved = resolveOutsideBundler(SANCTIONED);
 
     expect(resolved["@upmind-automation/headless"].url).toContain(
       "/packages/headless/dist/index.js"
-    );
-    expect(resolved["@upmind-automation/headless/scenarios"].url).toContain(
-      "/packages/headless/dist/scenarios.js"
     );
     expect(resolved["@upmind-automation/headless/package.json"].url).toContain(
       "/packages/headless/package.json"
@@ -141,15 +149,15 @@ describe("headless — the published exports map, resolved with no alias in play
       exports: Record<string, Record<string, string> | string>;
     };
 
-    forEach(["." as const, "./scenarios" as const], entry => {
+    forEach(["." as const], entry => {
       const conditions = manifest.exports[entry] as Record<string, string>;
       expect(keys(conditions)[0], entry).toBe("types");
     });
   });
 });
 
-describe("headless — the scenario keys never touch the main barrel (F-1)", () => {
-  it("the published main barrel carries neither scenario key nor the map", async () => {
+describe("headless — the package has NO scenario concept at all (G3b)", () => {
+  it("the published barrel carries no scenario key and no map", async () => {
     const barrel = await import("../../dist/index.js");
 
     expect(keys(barrel).length).toBeGreaterThan(10);
@@ -158,23 +166,25 @@ describe("headless — the scenario keys never touch the main barrel (F-1)", () 
     expect(keys(barrel)).not.toContain("scenarios");
   });
 
-  it("the published ./scenarios entry carries both keys and a boot THUNK per key — enumerating it instantiates no scope", async () => {
-    const entry = (await import("../../dist/scenarios.js")) as {
-      default: Record<string, () => unknown>;
-      CLIENT_EMAILS_SCENARIO: string;
-      CLIENT_EMAIL_SCENARIO: string;
+  it("declares no ./scenarios entry point to publish one through", async () => {
+    const manifest = (await import("../../package.json")).default as {
+      exports: Record<string, unknown>;
     };
 
-    expect(keys(entry)).toEqual(
-      expect.arrayContaining([
-        "CLIENT_EMAILS_SCENARIO",
-        "CLIENT_EMAIL_SCENARIO"
-      ])
-    );
-    expect(keys(entry.default)).toEqual([
-      entry.CLIENT_EMAILS_SCENARIO,
-      entry.CLIENT_EMAIL_SCENARIO
-    ]);
-    forEach(entry.default, thunk => expect(typeof thunk).toBe("function"));
+    expect(keys(manifest.exports)).not.toContain("./scenarios");
+  });
+
+  it("holds no scenario key anywhere in its SOURCE, built or not", () => {
+    expect(existsSync(join(packageRoot, "src/scenarios.ts"))).toBe(false);
+    expect(sourceFilesMatching(/_SCENARIO\b/)).toEqual([]);
+  });
+
+  // The sweep above is an absence claim, so it is worth nothing until it is
+  // shown to find something: this is the same walk over a symbol the module
+  // tree does carry.
+  it("runs a sweep that can actually find a symbol", () => {
+    expect(
+      sourceFilesMatching(/CLIENT_EMAILS_SCOPE_MATRIX/).length
+    ).toBeGreaterThan(0);
   });
 });

@@ -1,0 +1,29 @@
+Negative control for the row action's outcome feedback (P1-R13).
+
+Fires the live action directly, bypassing `useActionFeedback` — so a mutation
+that succeeds says nothing and one that fails says nothing either, which is the
+fire-and-forget defect the operator drove into ("none of the actions actually
+work").
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: list-surface-action-feedback.spec.ts — the success-toast and
+failure-toast cases.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+index c87e606c0..ba6b358c3 100644
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+@@ -441,11 +441,7 @@ function rowActionItems(row: ListRow): ActionSlotItem[] {
+       // The precondition is the ROW's own — a rule over the meta the record
+       // itself carries, never a client-side guess about what the API allows.
+       disabled: !isRuleEnabled(action, row) || feedback.isPending(control),
+-      onSelect: () =>
+-        feedback.fire(control, () => props.actions[action.name](row.id), {
+-          success: t(get(action, ["feedback", "success"], "")),
+-          failure: t(get(action, ["feedback", "failure"], ""))
+-        })
++      onSelect: () => props.actions[action.name](row.id)
+     };
+   });
+ }

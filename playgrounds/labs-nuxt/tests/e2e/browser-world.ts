@@ -10,9 +10,9 @@
  * carries that rejection back here as the step's failure.
  */
 
-import { SCENARIO_WORLD_KEY } from "../../app/composables/factory/useScenarioWorld.types";
+import { SCENARIO_WORLD_KEY } from "../../modules/scenarios/runtime/composables/useScenarioWorld.types";
+import type { ScenarioKey } from "../../modules/scenarios/runtime/scenario.types";
 import type { Page } from "@playwright/test";
-import type { ScenarioKey } from "@upmind-automation/headless/scenarios";
 import type { World, WorldScope } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------

@@ -28,10 +28,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as vue from "vue";
 import { defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
-import {
-  CLIENT_EMAIL_SCENARIO,
-  CLIENT_EMAILS_SCENARIO
-} from "@upmind-automation/headless/scenarios";
+import { CLIENT_EMAIL_SCENARIO } from "../../../modules/scenarios/useClientEmail/scenario";
+import { CLIENT_EMAILS_SCENARIO } from "../../../modules/scenarios/useClientEmails/scenario";
 import { assign, find, forEach, map, sortBy } from "lodash-es";
 import type { RouteRecordRaw } from "vue-router";
 
@@ -52,7 +50,7 @@ const declared = vi.hoisted(() => ({
 
 // Getters, not values: the module double is read at import time, so a snapshot
 // taken here would answer every later test with the first test's registry.
-vi.mock("../factory/registry", () => ({
+vi.mock("../../../modules/scenarios/runtime/registry", () => ({
   get registry() {
     return declared.registry;
   },
@@ -170,9 +168,9 @@ describe("@AC every declared scenario is a sidebar entry, and only declared ones
 
     expect(sortBy(map(section?.children, "to"))).toEqual(
       sortBy([
-        `/scenarios/${SPROCKET}/as/staff`,
-        `/scenarios/${GIZMO}/as/guest`,
-        `/scenarios/${CLIENT_EMAILS_SCENARIO}/as/client`
+        `/${SPROCKET}/as/staff`,
+        `/${GIZMO}/as/guest`,
+        `/${CLIENT_EMAILS_SCENARIO}/as/client`
       ])
     );
     expect(sortBy(map(section?.children, "label"))).toEqual(
@@ -189,10 +187,10 @@ describe("@AC every declared scenario is a sidebar entry, and only declared ones
     const second = await derive();
 
     expect(map(composablesSection(first.navigation)?.children, "to")).toEqual([
-      `/scenarios/${SPROCKET}/as/staff`
+      `/${SPROCKET}/as/staff`
     ]);
     expect(map(composablesSection(second.navigation)?.children, "to")).toEqual([
-      `/scenarios/${GIZMO}/as/guest`
+      `/${GIZMO}/as/guest`
     ]);
   });
 
@@ -284,10 +282,7 @@ describe("@AC a handoff-target scenario is not a navigable destination (P1-R8)",
     const { navigation, composables, families } = await derive();
 
     expect(sortBy(map(composablesSection(navigation)?.children, "to"))).toEqual(
-      sortBy([
-        `/scenarios/${SPROCKET}/as/client`,
-        `/scenarios/${GIZMO}/as/guest`
-      ])
+      sortBy([`/${SPROCKET}/as/client`, `/${GIZMO}/as/guest`])
     );
     expect(sortBy(map(composables, "key"))).toEqual(sortBy([SPROCKET, GIZMO]));
     expect(map(find(families, { name: "sprocket" })?.entries, "key")).toEqual([

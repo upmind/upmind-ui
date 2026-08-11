@@ -1,5 +1,5 @@
-import { useScenarioWorld } from "~/composables/factory/useScenarioWorld";
-import { SCENARIO_WORLD_KEY } from "~/composables/factory/useScenarioWorld.types";
+import { useScenarioWorld } from "../../modules/scenarios/runtime/composables/useScenarioWorld";
+import { SCENARIO_WORLD_KEY } from "../../modules/scenarios/runtime/composables/useScenarioWorld.types";
 // -----------------------------------------------------------------------------
 /**
  * @module plugins/scenario-world.client

@@ -2,14 +2,14 @@
 import { defineConfig, devices } from "@playwright/test";
 import { createBdd, defineBddConfig, test as base } from "playwright-bdd";
 import { STEP_KIND } from "@upmind-automation/scenario-harness";
-import { SCENARIO_WORLD_KEY } from "./app/composables/factory/useScenarioWorld.types";
+import { SCENARIO_WORLD_KEY } from "./modules/scenarios/runtime/composables/useScenarioWorld.types";
 import { createBrowserWorld } from "./tests/e2e/browser-world";
 import { canaryRoute, catalogs, features } from "./tests/e2e/catalogs";
 import {
   installRecordedCorpus,
   seedRecordedClientSession
 } from "./tests/e2e/recorded-corpus";
-import type { ScenarioKey } from "@upmind-automation/headless/scenarios";
+import type { ScenarioKey } from "./modules/scenarios/runtime/scenario.types";
 import type {
   StepCatalog,
   StepKind,

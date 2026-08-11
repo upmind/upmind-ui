@@ -18,13 +18,6 @@ const alias = {
     "../../packages/types/src/index.ts"
   ),
   "@upmind-automation/i18n": resolve(root, "../../packages/i18n/src"),
-  // Above the bare key on purpose: alias matching is prefix-based and
-  // first-match-wins, so the bare entry would rewrite the subpath to
-  // `…/src/index.ts/scenarios`.
-  "@upmind-automation/headless/scenarios": resolve(
-    root,
-    "../../packages/headless/src/scenarios.ts"
-  ),
   "@upmind-automation/headless": resolve(
     root,
     "../../packages/headless/src/index.ts"
@@ -79,7 +72,10 @@ export default defineConfig({
           test: {
             name: "unit",
             environment: "node",
-            include: ["app/composables/**/__tests__/**/*.spec.ts"]
+            include: [
+              "app/composables/**/__tests__/**/*.spec.ts",
+              "modules/scenarios/runtime/composables/**/__tests__/**/*.spec.ts"
+            ]
           }
         })
       ),
@@ -92,7 +88,8 @@ export default defineConfig({
             environment: "jsdom",
             include: [
               "app/components/**/__tests__/**/*.spec.ts",
-              "app/pages/**/__tests__/**/*.spec.ts"
+              "app/pages/**/__tests__/**/*.spec.ts",
+              "modules/scenarios/runtime/components/**/__tests__/**/*.spec.ts"
             ],
             setupFiles: ["tests/setup/component.setup.ts"]
           }

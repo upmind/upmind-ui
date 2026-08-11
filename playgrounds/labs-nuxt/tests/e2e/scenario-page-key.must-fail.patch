@@ -15,14 +15,16 @@ carried by the ROUTER remounts nothing either" (measured 2026-08-10: 1 failed,
 under it on purpose: that write goes through `history.replaceState`, which
 vue-router never observes, so only the router-carried case exercises the key.
 
---- a/playgrounds/labs-nuxt/app/pages/scenarios/[key]/[...scopeSuffix].vue
-+++ b/playgrounds/labs-nuxt/app/pages/scenarios/[key]/[...scopeSuffix].vue
-@@ -49,7 +49,7 @@
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/ScenarioPlayground.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/ScenarioPlayground.vue
+index bd521931e..bc60d6c40 100644
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/ScenarioPlayground.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/ScenarioPlayground.vue
+@@ -54,7 +54,7 @@ definePageMeta({
    // `/for/:type/:id`) are what the port is built from, so they must remount and
    // rebuild it — while the criteria, which task 58 persists into the QUERY
    // string, must not. A `fullPath` key ties a teardown to every filter write.
--  key: route => route.path,
-+  key: route => route.fullPath,
-   nav: { hidden: true }
- });
-
+-  key: route => route.path
++  key: route => route.fullPath
+   // NO `name`/`path` here: `augmentPages` assigns an extracted macro name onto
+   // every route sharing this file, so one declared here would collapse all
+   // sixty scenario routes onto a single name.

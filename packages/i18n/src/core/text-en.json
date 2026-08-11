@@ -127,6 +127,7 @@
   "session_expired_return_store_msg": "We're unable to retrieve your past order as your session has expired. To start a new purchase, please click the button below to return to our store.",
   "shop": "Shop",
   "start_free_trial": "Start free trial",
+  "status": "Status",
   "subject": "Subject",
   "subtotal": "Subtotal",
   "summary": "Summary",

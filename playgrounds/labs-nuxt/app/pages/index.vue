@@ -164,7 +164,7 @@ const visibleFamilies = computed((): LabFamily[] => {
 });
 
 const gettingStarted = [
-  "Every composable opens at the scope its scenario declares — retarget it from the header, or in the url: /scenarios/:key/as/:actor/for/:type/:id",
+  "Every composable opens at the scope its scenario declares — retarget it from the header, or in the url: /:scenario/as/:actor/for/:type/:id",
   "The Inspector, top right, holds the raw schema, uischema, model and built wire beside the rendered surface.",
   "Nothing here is hand-listed: declaring a scenario in the registry adds it to this page and to the sidebar."
 ];

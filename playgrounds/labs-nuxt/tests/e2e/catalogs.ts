@@ -32,4 +32,4 @@ export const features: string[] = [
  * table share one scope-registry cell, so a step that fires an action moves the
  * rows the operator is looking at — which is the whole point of the canary.
  */
-export const canaryRoute = "/scenarios/client_emails/as/client";
+export const canaryRoute = "/useClientEmails/as/client";

@@ -13,10 +13,17 @@
 
 import { defineSteps } from "@upmind-automation/scenario-harness";
 import { ScopeActorTypes } from "../../scope/scope.types";
-import { CLIENT_EMAILS_SCENARIO } from "../client-email.types";
 import type { World } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
+
+/**
+ * The scenario key this feature is driven under. A literal here rather than an
+ * import: `packages/headless` holds no scenario concept at all — the key is the
+ * consuming playground's, and this catalog names it the same way a `.feature`
+ * names a url.
+ */
+export const CLIENT_EMAILS_SCENARIO = "client_emails";
 
 /**
  * The action ids these steps drive. Exported as the gate's `coveredActionIds`

@@ -180,7 +180,7 @@ import {
   Tabs,
   useStyles
 } from "@upmind-automation/upmind-ui";
-import MetaPanel from "../factory/MetaPanel.vue";
+import MetaPanel from "../../../modules/scenarios/runtime/components/MetaPanel.vue";
 import config from "./inspector.styles";
 import { useInspector } from "./useInspector";
 import {

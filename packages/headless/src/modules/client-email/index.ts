@@ -23,10 +23,6 @@ export {
   type UseClientEmailManager
 } from "./useClientEmailManager";
 
-// NO SCENARIO KEYS HERE. The module declares its own in `client-email.types.ts`
-// (F-1's self-registration), but they reach consumers only through
-// `@upmind-automation/headless/scenarios` — the keys never touch this barrel.
-
 // --- Scope matrices — one per composable, both public
 export {
   CLIENT_EMAILS_SCOPE_MATRIX,
