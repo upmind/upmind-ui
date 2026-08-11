@@ -8,6 +8,7 @@ import services from "./engine/services";
 // --- types
 import {
   assign,
+  QUERY_PARAMS,
   useBasketProducts,
   useQueryParams,
   type FunnelProps,
@@ -15,7 +16,18 @@ import {
 } from "@upmind-automation/client-vue";
 
 import { ROUTE } from "./types";
-import { isEmpty } from "lodash-es";
+import { isEmpty, pick } from "lodash-es";
+import type { LocationQuery } from "vue-router";
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Query params `setCompleteRoute` carries onto the route it completes into.
+ * It builds a fresh route object, so anything not named here is dropped on
+ * that hop — an allowlist rather than a spread keeps every other param's
+ * current behaviour untouched.
+ */
+const FORWARDED_QUERY_PARAMS = [QUERY_PARAMS.TLDS];
 
 // -----------------------------------------------------------------------------
 
@@ -99,7 +111,16 @@ export default <FunnelProps>{
           ? ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING
           : ROUTE.DOMAINS_WITH_PRODUCT;
 
-        return { name: route, params: { pid: productId } };
+        // Annotated so `pick` resolves against a non-nullable query: the
+        // nullable overload widens every value with `| undefined`, which
+        // `FunnelTarget["query"]` rejects.
+        const query: LocationQuery = currentRoute?.query ?? {};
+
+        return {
+          name: route,
+          params: { pid: productId },
+          query: pick(query, FORWARDED_QUERY_PARAMS)
+        };
       },
       resolved: false
     })
