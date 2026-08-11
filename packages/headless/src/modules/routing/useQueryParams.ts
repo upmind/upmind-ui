@@ -7,7 +7,6 @@ import { router } from "../routing";
 
 // --- utils
 import { useSafeParse } from "../../utils";
-import { sanitiseDomainInput } from "../domain/utils";
 import {
   compact,
   concat,
@@ -23,6 +22,7 @@ import {
   set,
   split,
   toNumber,
+  trim,
   uniq
 } from "lodash-es";
 
@@ -226,7 +226,7 @@ export const useQueryParams = (route?: RouteLocation) => {
     return reduce(
       split(join(getParams(QUERY_PARAMS.TLDS, []), ","), ","),
       (result: string[], entry: string) => {
-        const tld = sanitiseDomainInput(entry);
+        const tld = trim(entry).replace(/^\./, "").toLowerCase();
         if (tld && !includes(result, tld)) result.push(tld);
         return result;
       },
