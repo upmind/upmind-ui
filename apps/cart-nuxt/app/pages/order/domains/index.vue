@@ -5,8 +5,6 @@
 <script lang="ts" setup>
 import { useRoute } from "vue-router";
 import {
-  normaliseTlds,
-  QUERY_PARAMS,
   UpmDac,
   useQueryParams,
   useRoutingEngine
@@ -18,12 +16,11 @@ import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 const route = useRoute();
 const { navigateNext } = useRoutingEngine();
-const { getParamList } = useQueryParams(route);
 
 // The page owns the query read — `UpmDac` stays prop-driven. Read, never
 // consumed: the param has to stay on the URL so a refresh (or a shared link)
 // re-seeds the same filter.
-const tlds = normaliseTlds(getParamList(QUERY_PARAMS.TLDS));
+const { tlds } = useQueryParams(route);
 
 function doResolve(value?: string[]) {
   const primaryDomain = first(value);
