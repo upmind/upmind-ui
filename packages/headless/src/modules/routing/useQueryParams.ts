@@ -226,7 +226,7 @@ export const useQueryParams = (route?: RouteLocation) => {
     return reduce(
       split(join(getParams(QUERY_PARAMS.TLDS, []), ","), ","),
       (result: string[], entry: string) => {
-        const tld = trim(trim(entry), ".").toLowerCase();
+        const tld = entry.replace(/^[\s.]+|[\s.]+$/g, "").toLowerCase();
         if (tld && !includes(result, tld)) result.push(tld);
         return result;
       },
