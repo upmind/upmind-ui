@@ -1,10 +1,11 @@
+diff --git a/playgrounds/labs-nuxt/tests/e2e/catalogs.ts b/playgrounds/labs-nuxt/tests/e2e/catalogs.ts
 --- a/playgrounds/labs-nuxt/tests/e2e/catalogs.ts
 +++ b/playgrounds/labs-nuxt/tests/e2e/catalogs.ts
 @@ -15,7 +15,7 @@
   * asserts.
   */
  
--import { clientEmailsSteps } from "@upmind-automation/headless-test-kit/client-email.canary.steps";
+-import { clientEmailsSteps } from "@upmind-automation/headless/testing/client-email/canary.steps";
 +import { clientEmailsSteps } from "../../../../packages/headless/src/modules/client-email/__tests__/client-email.canary.steps";
  import type { StepCatalog } from "@upmind-automation/scenario-harness";
  

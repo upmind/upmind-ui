@@ -1,6 +1,7 @@
---- a/packages/headless/src/modules/query/useQueryCriteria.ts
-+++ b/packages/headless/src/modules/query/useQueryCriteria.ts
-@@ -71,7 +71,7 @@ function toWireFilterValue(operator: string, value: unknown): string {
+diff --git a/packages/headless/src/modules/query/query.utils.ts b/packages/headless/src/modules/query/query.utils.ts
+--- a/packages/headless/src/modules/query/query.utils.ts
++++ b/packages/headless/src/modules/query/query.utils.ts
+@@ -448,7 +448,7 @@ function toWireFilterValue(operator: string, value: unknown): string {
        operator
      )
    )

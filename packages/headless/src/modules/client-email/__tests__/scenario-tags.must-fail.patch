@@ -1,8 +1,17 @@
+diff --git a/packages/headless/src/modules/client-email/useClientEmails.actions.ts b/packages/headless/src/modules/client-email/useClientEmails.actions.ts
 --- a/packages/headless/src/modules/client-email/useClientEmails.actions.ts
 +++ b/packages/headless/src/modules/client-email/useClientEmails.actions.ts
-@@ -223,5 +223,4 @@
+@@ -175,13 +175,10 @@ export function createClientEmailsActions(
      /**
-      * Deletes a deletable address.
--     * @scenario-include
+      * @scenario-include
       */
+     refresh,
+ 
+-    /**
+-     * @scenario-include
+-     */
      remove: service.remove,
+ 
+     /**
+      * @scenario-include
+      */

@@ -9,19 +9,40 @@ way of the router.
 
 Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
 
-Reds (module lane, measured 2026-08-11 — 10 failed, 8 passed, of which 2
-failures are the pre-existing declared-nav gap this mutant does not touch):
-  scenario-routes.spec.ts   "ends every scenario path in the scope catch-all"
-                            + all five "@G3d the four scope shapes still
-                              resolve" cases
-  scenario-nav-routes.spec.ts
-                            "derives a link for the canary and excludes its
-                              handoff target (R8)"
-                            "leaves no derived link unmatched by the router"
+Reds (module lane, measured 2026-08-11 — `pnpm vitest run --project module`
+from playgrounds/labs-nuxt). Baseline is 28/28 green, so all 10 failures below
+are this mutant's:
 
-The collision lane stays green, which is the point: the two guards are
-independent, and narrowing the suffix is invisible to the one that only reads
-route names.
+  10 failed | 18 passed (28)
+
+  scenario-routes.spec.ts (6)
+    @G3d the directory IS the route — nothing else names one
+      x ends every scenario path in the scope catch-all
+    @G3d the four scope shapes still resolve (operator: NON-NEGOTIABLE)
+      x serves the bare url, where the binding's own scope applies
+      x serves /:page/as/:actor
+      x serves /:brandId/:page/as/:actor
+      x serves the full path — brand, actor and the .for() retarget together
+      x keeps the retarget reachable with no brand in the url
+
+  scenario-nav-routes.spec.ts (3)
+    @G6 every derived link resolves against the registered routes
+      x derives a link for the canary and excludes its handoff target (R8)
+      x leaves no derived link unmatched by the router
+    @G6 the sidebar entry is the composable's own NAME (D1)
+      x links the very entry it labels, so the two cannot drift
+
+  scenario-auth-collect.spec.ts (1)
+    @G6 the overlay the funnel names is MOUNTED on that page (D2)
+      x resolves it as a child of the page, so the page stays underneath
+
+The blast radius is every guard that RESOLVES a scenario url — the nav lane's
+derived links and the auth funnel's page-child overlay resolve through the same
+registered paths, so narrowing the suffix reds them too.
+
+The collision guard stays green (all four "@G3d amendment 2" cases pass), which
+is the point: it only reads route NAMES, so narrowing the suffix is invisible
+to it.
 
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/scenario.constants.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/scenario.constants.ts
 index 199138386..218cc6d31 100644

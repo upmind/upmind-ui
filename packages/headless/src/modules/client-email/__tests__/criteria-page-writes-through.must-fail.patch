@@ -1,33 +1,35 @@
 diff --git a/packages/headless/src/modules/query/useQuery.ts b/packages/headless/src/modules/query/useQuery.ts
-index e3d573cfb..a11fef89d 100644
 --- a/packages/headless/src/modules/query/useQuery.ts
 +++ b/packages/headless/src/modules/query/useQuery.ts
-@@ -501,10 +501,13 @@ export const useQuery = () => {
- 
-     // In criteria mode the cursor IS the model's `pagination.offset` — the wire,
-     // the published model and the page number all read the one number.
-+    const shadowOffset = ref<number | undefined>(undefined);
-     const offset = computed(() =>
-       raw
-         ? (raw.pageIndex.value - 1) * limit.value
--        : (props.value.pagination?.offset ?? PAGINATION.offset)
-+        : (shadowOffset.value ??
-+          props.value.pagination?.offset ??
-+          PAGINATION.offset)
+@@ -405,8 +405,12 @@ export const useQuery = () => {
+     const limit = computed(
+       () => criteria.props.value.pagination?.limit ?? PAGINATION.limit
      );
++    const shadowOffset = ref<number | undefined>(undefined);
+     const offset = computed(
+-      () => criteria.props.value.pagination?.offset ?? PAGINATION.offset
++      () =>
++        shadowOffset.value ??
++        criteria.props.value.pagination?.offset ??
++        PAGINATION.offset
+     );
+     const total = ref(0);
  
-     /**
-@@ -521,12 +524,7 @@ export const useQuery = () => {
-           raw.pageIndex.value = Math.max(page, 1);
-           return;
-         }
--        const nextPagination: Record<string, unknown> = {
--          pagination: assign({}, props.value.pagination, {
+@@ -419,12 +423,12 @@ export const useQuery = () => {
+     const pageIndex = computed<number>({
+       get: () =>
+         !limit.value ? 1 : Math.floor(offset.value / limit.value) + 1,
+-      set: page =>
++      set: page => {
++        shadowOffset.value = Math.max(page - 1, 0) * limit.value;
+         criteria.set({
+-          pagination: assign({}, criteria.props.value.pagination, {
 -            offset: Math.max(page - 1, 0) * limit.value
 -          })
--        };
--        criteria?.set(nextPagination as Partial<TModel>);
-+        shadowOffset.value = Math.max(page - 1, 0) * limit.value;
-       }
+-        } as unknown as Partial<TModel>)
++          pagination: assign({}, criteria.props.value.pagination)
++        } as unknown as Partial<TModel>);
++      }
      });
  
+     // --- query

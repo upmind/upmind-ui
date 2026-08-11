@@ -18,13 +18,12 @@
  * user never chose, and a url rehydrated from the criteria opens the wrong page.
  *
  * ## Why this proof lives beside client-address
- * The law is `useQuery.ts`'s, and its negative control ships at
- * `modules/query/__tests__/pager-writes-through-criteria.must-fail.patch`. A
- * bare `useQuery().list()` outside a module never issues its first fetch in this
- * harness, so the only place the walk can be driven end to end today is through
- * a migrated module — this one, whose recorded corpus is a real `limit=2` walk.
- * Relocating the mutant beside this file (or adding a query-local harness) is
- * escalated, not decided here.
+ * The law is `useQuery.ts`'s, and its negative control ships beside this file
+ * (`pager-writes-through-criteria.must-fail.patch`, applied from the repo
+ * root). A bare `useQuery().list()` outside a module never issues its first
+ * fetch in this harness, so the only place the walk can be driven end to end
+ * today is through a migrated module — this one, whose recorded corpus is a
+ * real `limit=2` walk.
  */
 
 import { describe, expect, it, vi } from "vitest";

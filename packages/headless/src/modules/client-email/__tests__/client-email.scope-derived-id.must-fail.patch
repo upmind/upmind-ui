@@ -1,11 +1,12 @@
-diff --git a/packages/headless/src/modules/scope/scope.utils.ts b/packages/headless/src/modules/scope/scope.utils.ts
---- a/packages/headless/src/modules/scope/scope.utils.ts
-+++ b/packages/headless/src/modules/scope/scope.utils.ts
-@@ -99,6 +99,6 @@
-   return computed(() =>
-     scopeContext?.type === AccessRoleTypes.CLIENT
-       ? scopeContext.id
--      : activeUser.value?.id
-+      : "legacy-hardwired-client-id"
-   );
- }
+diff --git a/packages/headless/src/modules/session-store/session-store.utils.ts b/packages/headless/src/modules/session-store/session-store.utils.ts
+--- a/packages/headless/src/modules/session-store/session-store.utils.ts
++++ b/packages/headless/src/modules/session-store/session-store.utils.ts
+@@ -64,7 +64,7 @@ export function resolveClientId(
+     if (!activeSessionId || !isScopeAllowed(activeActor)) return undefined;
+ 
+     if (activeActor === AccessRoleTypes.CLIENT) {
+-      return get(clientSessions, [activeSessionId, "user", "id"]);
++      return "legacy-hardwired-client-id";
+     }
+     if (activeActor === AccessRoleTypes.STAFF) {
+       return get(staffSessions, [activeSessionId, "user", "id"]);

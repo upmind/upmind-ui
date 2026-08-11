@@ -1,24 +1,32 @@
 Negative control for the tri-state CLEAR path (P1-R7).
 
-Drops the unset guard from `onPick`, so clearing resolves through `find` on a
-nil value — which lodash matches against the FIRST option, silently setting the
-filter it was asked to clear. Any assertion that reads the WIRE (the cleared
-`eq` leaf is absent) goes red; one that only reads the control's own pressed
-state stays green, which is the point.
+Drops the unset guard from `write`, so a cleared leaf is ASSIGNED empty instead
+of being removed from the column — the filter keeps an `eq` key on the wire
+after being asked to clear. Any assertion that reads the WIRE (the cleared `eq`
+leaf is absent) goes red; one that only reads the control's own pressed state
+stays green, because `selected` maps a nil leaf back to the unset value — which
+is the point.
+
+Supersedes an earlier version that dropped the guard from `onPick` instead.
+That mutation was inert: `FILTER_UNSET_VALUE` is `""`, and lodash `find` with
+`{ value: undefined }` or `{ value: "" }` matches no option, so the clear still
+resolved to `undefined` and still landed. The guard `write` owns is the one that
+carries the behaviour.
 
 Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
 
 diff --git a/packages/client-vue/src/components/form/renderers/FilterRenderer.vue b/packages/client-vue/src/components/form/renderers/FilterRenderer.vue
 --- a/packages/client-vue/src/components/form/renderers/FilterRenderer.vue
 +++ b/packages/client-vue/src/components/form/renderers/FilterRenderer.vue
-@@ -381,9 +381,7 @@
+@@ -368,10 +368,7 @@ function leaf(operator: RequestFilterOperator): unknown {
+  * `""` mean unset: the leaf is removed rather than written empty.
+  */
+ function write(operator: RequestFilterOperator, value: unknown): void {
+-  const column =
+-    isNil(value) || value === ""
+-      ? omit(control.value.data, operator)
+-      : assign({}, control.value.data, { [operator]: value });
++  const column = assign({}, control.value.data, { [operator]: value });
  
-   write(
-     RequestFilterOperator.EQUAL,
--    isNil(picked) || picked === FILTER_UNSET_VALUE
--      ? undefined
--      : get(find(options.value, { value: picked }), "const")
-+    get(find(options.value, { value: picked }), "const")
-   );
+   handleChange(control.value.path, column);
  }
- 
