@@ -37,6 +37,9 @@ export default {
       }
     }),
     description: cva("text-muted w-full text-sm font-normal"),
+    field: cva("flex w-full flex-col gap-1"),
+    label: cva(""),
+    control: cva(""),
     actions: cva("flex w-full flex-wrap gap-2 transition-all duration-200", {
       variants: {
         disabled: {

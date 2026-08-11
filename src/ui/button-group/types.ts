@@ -6,6 +6,7 @@ import type { HTMLAttributes } from "vue";
 export type ButtonGroupItem = ButtonGroupButtonItem | ButtonGroupDropdownItem;
 export type ButtonGroupProps = {
   items: ButtonGroupItem[];
+  size?: Exclude<ButtonProps["size"], "icon">;
   disabled?: boolean;
   to?: string;
   uiConfig?: { buttonGroup: CxOptions };

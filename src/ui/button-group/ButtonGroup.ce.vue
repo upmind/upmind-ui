@@ -12,8 +12,14 @@
         <Button
           v-if="item.type === ButtonGroup.Button"
           v-bind="item.props"
-          :class="styles.buttonGroup.button"
-          size="lg"
+          :class="
+            cn(
+              styles.buttonGroup.button,
+              item.active && styles.buttonGroup.active
+            )
+          "
+          :size="size"
+          :aria-pressed="item.active"
           :disabled="disabled || item.props.disabled"
           variant="ghost"
           :ring="false"
@@ -25,7 +31,7 @@
           v-bind="item.props"
           :class="styles.buttonGroup.button"
           :ring="false"
-          size="lg"
+          :size="size"
           variant="ghost"
           :to="to"
           @update:modelValue="item.handler?.($event)"

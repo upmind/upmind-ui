@@ -49,6 +49,7 @@ export * from "./ui/select";
 export * from "./ui/select-cards";
 export * from "./ui/search";
 export * from "./ui/separator";
+export * from "./ui/sheet";
 export * from "./ui/skeleton";
 export * from "./ui/sonner";
 export * from "./ui/spinner";
@@ -56,8 +57,9 @@ export * from "./ui/stepper";
 export * from "./ui/switch";
 export * from "./ui/table";
 export * from "./ui/tabs";
-export * from "./ui/tabs";
 export * from "./ui/textarea";
+export * from "./ui/toggle";
+export * from "./ui/toggle-group";
 export * from "./ui/tooltip";
 
 export { default as plugins } from "./plugins";
