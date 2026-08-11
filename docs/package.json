@@ -1,6 +1,6 @@
 {
   "name": "@upmind-automation/docs",
-  "version": "1.0.0",
+  "version": "0.20.12",
   "description": "",
   "main": "index.js",
   "scripts": {
