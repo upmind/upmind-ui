@@ -14,6 +14,8 @@ useSeoMeta({
 });
 
 definePageMeta({
-  name: ROUTE.SESSION
+  name: ROUTE.SESSION,
+  // The session pages ARE the auth surface — never layer the auth overlay here.
+  allowOverlays: false
 });
 </script>

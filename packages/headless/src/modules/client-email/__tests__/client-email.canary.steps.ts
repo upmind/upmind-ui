@@ -1,8 +1,8 @@
 // -----------------------------------------------------------------------------
 /**
- * @module client-email/__tests__/client-emails.steps
+ * @module client-email/__tests__/client-email.canary.steps
  * @description The executed half of the canary spec pair — the step catalog for
- * the colocated `client-emails.feature` (ADR-027 Am.2). Engine-free by
+ * the colocated `client-email.canary.feature` (ADR-027 Am.2). Engine-free by
  * construction: it imports `defineSteps` and `World` and nothing else, so the
  * same catalog can be re-registered against any runner (this repo's
  * `playgrounds/labs-nuxt` Playwright lane does exactly that).

@@ -120,16 +120,25 @@ function readCriteria(
  * Boots one registry entry into its seam port.
  *
  * @param entry The binding, from the scenario contract (`registry.ts`).
- * @param scope Overrides — the actor a feature or a route named, and the
- * context id a handoff supplies. Absent, the binding's own scope is used.
+ * @param scope Overrides — the actor a feature or a route named, the context id
+ * a handoff supplies, and whether the instance is a fresh one. Absent, the
+ * binding's own scope is used.
  */
 export function useModulePort(
   entry: ScenarioBinding,
   scope: ModulePortScope = {}
 ): ModulePort {
   const scoped = entry.useList().as(scope.actor ?? entry.scope.actor);
-  const cell =
-    entry.scope.contextType && !isNil(scope.contextId) && isFunction(scoped.for)
+
+  // A fresh instance addresses no record, so it takes neither `.for()` nor the
+  // registry's cached cell: the two steps are alternatives, never a sequence.
+  const cell = scope.fresh
+    ? isFunction(scoped.fresh)
+      ? scoped.fresh()
+      : scoped
+    : entry.scope.contextType &&
+        !isNil(scope.contextId) &&
+        isFunction(scoped.for)
       ? scoped.for(entry.scope.contextType, scope.contextId)
       : scoped;
 

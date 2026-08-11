@@ -1,12 +1,64 @@
-import { assign, type FunnelProps } from "@upmind-automation/client-vue";
+import {
+  assign,
+  type FunnelContext,
+  type FunnelProps,
+  QUERY_PARAMS,
+  SESSION_FORMS
+} from "@upmind-automation/client-vue";
+import { scenarioRoutes } from "../../modules/scenarios/runtime/registry";
 import actions from "./engine/actions";
 import guards from "./engine/guards";
 import services from "./engine/services";
 import { ROUTE } from "./types";
+import { mapValues, toString } from "lodash-es";
+
 // -----------------------------------------------------------------------------
+
+/** The overlay suffix `registerOverlayRoutes` injects the auth modal under. */
+const AUTH_OVERLAY_ID = "auth";
+
+/**
+ * 🎯 EVERY SCENARIO ROUTE
+ * One guarded state per registered scenario — the route name IS the state name,
+ * so `is{Route}` matches it and the funnel can gate what the registry declares
+ * without a hand-listed state. `guardScenario` rejects toward SESSION when the
+ * scope the url names needs a session the visitor does not have; the auth modal
+ * is then collected IN PLACE by re-targeting the route to its own `--auth`
+ * child, which resolves through the generated `endpoint:auth` node and renders
+ * over the page. Dismissing it lands on HOME.
+ */
+const scenarioStates = mapValues(scenarioRoutes, () => ({
+  invoke: {
+    src: "guardScenario",
+    onDone: { actions: ["setResolved"] },
+    onError: [
+      {
+        target: ROUTE.SESSION_LOGIN,
+        actions: [
+          "setUnresolved",
+          assign({
+            targetRoute: ({ currentRoute }: FunnelContext) => ({
+              name: `${toString(currentRoute?.name)}--${AUTH_OVERLAY_ID}`,
+              params: currentRoute?.params,
+              query: {
+                mode: SESSION_FORMS.LOGIN,
+                [QUERY_PARAMS.CANCEL_URL]: ROUTE.HOME
+              }
+            })
+          })
+        ],
+        cond: "isSession"
+      },
+      { actions: ["setResolved"] }
+    ]
+  }
+}));
+
 export default <FunnelProps>{
   id: "labs",
   states: {
+    ...scenarioStates,
+
     /**
      * 🎯 idle (override)
      * This is the idle state of the funnel, which acts as a catch-all for unsupported routes.

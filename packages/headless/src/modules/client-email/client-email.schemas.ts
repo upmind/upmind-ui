@@ -233,10 +233,16 @@ export function useQuerySchema(): QuerySchema {
  * control's label and placeholder, so it must resolve to an OBJECT rather than
  * a flat `text.*` key. The `sort` and `pagination` branches carry no element: a
  * branch no element draws is still validated and still translated.
+ *
+ * The bar is ONE row: `flow` opts the layout into the toolbar treatment
+ * (client-vue's `FilterRowRenderer`, spelt as a literal because headless cannot
+ * import from client-vue), where each control keeps its natural width and the
+ * leftover width goes to the one element declaring `width: "full"`.
  */
 export function useQueryUischema(): UISchemaElement {
   return {
-    type: "VerticalLayout",
+    type: "HorizontalLayout",
+    options: { flow: true },
     elements: [
       {
         type: "Filter",
@@ -245,27 +251,22 @@ export function useQueryUischema(): UISchemaElement {
         options: { width: "full" }
       },
       {
-        type: "HorizontalLayout",
-        elements: [
-          {
-            type: "Filter",
-            scope: "#/properties/filters/properties/verified",
-            i18n: "form.verified_filter",
-            options: { treatment: "button-group" }
-          },
-          {
-            type: "Filter",
-            scope: "#/properties/filters/properties/bounced",
-            i18n: "form.bounced_filter",
-            options: {
-              treatment: "toggle-group",
-              states: {
-                true: "text.bounced_label",
-                false: "text.not_bounced_label"
-              }
-            }
+        type: "Filter",
+        scope: "#/properties/filters/properties/verified",
+        i18n: "form.verified_filter",
+        options: { treatment: "button-group" }
+      },
+      {
+        type: "Filter",
+        scope: "#/properties/filters/properties/bounced",
+        i18n: "form.bounced_filter",
+        options: {
+          treatment: "toggle-group",
+          states: {
+            true: "text.bounced_label",
+            false: "text.not_bounced_label"
           }
-        ]
+        }
       }
     ]
   } as UISchemaElement;

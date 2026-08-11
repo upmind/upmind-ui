@@ -1,0 +1,29 @@
+Negative control for the editor's SETTLED close.
+
+Closes the editor whichever way the save settles, so a refused save dismisses
+the form and takes the user's input with it — leaving the toast as the only
+trace of a record that was never persisted.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the form-flow save specs — a rejected save keeps the form on screen.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/FormFlowSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/FormFlowSurface.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/FormFlowSurface.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/FormFlowSurface.vue
+@@ -182,13 +182,13 @@
+   const submit = props.actions[submitAction.value];
+   if (!isFunction(submit)) return;
+ 
+-  const settled = await feedback.fire(
++  await feedback.fire(
+     SUBMIT_CONTROL,
+     () => submit(model.value),
+     submitCopy.value
+   );
+ 
+-  if (settled) emit("resolved");
++  emit("resolved");
+ }
+ 
+ const meta = computed(() => ({

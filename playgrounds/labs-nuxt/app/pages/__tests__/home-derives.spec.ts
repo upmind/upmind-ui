@@ -27,7 +27,7 @@ import * as vue from "vue";
 import { defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { renderedStrings } from "../../../tests/support/rendered";
-import { assign, forEach, map, size } from "lodash-es";
+import { assign, forEach, map, size, startCase } from "lodash-es";
 import type { VueWrapper } from "@vue/test-utils";
 import type { RouteRecordRaw } from "vue-router";
 
@@ -41,6 +41,18 @@ const SPROCKET_EDITOR = "sprocket_widget";
 const GIZMO = "basket_gizmos";
 const COG = "basket_cogs";
 const UNDECLARED = "client_emails";
+
+/**
+ * The DIRECTORY each declaration was found in, spelled unlike its key on
+ * purpose: D1 makes the composable's own name the identity every surface shows,
+ * so the card's title and the link it opens are the same one name.
+ */
+const ROUTE: Record<string, string> = {
+  [SPROCKET]: "useSprocketWidgets",
+  [SPROCKET_EDITOR]: "useSprocketWidget",
+  [GIZMO]: "useBasketGizmos",
+  [COG]: "useBasketCogs"
+};
 
 /** The mutable module double: what a scenario DECLARES, and nothing more. */
 const declared = vi.hoisted(() => ({
@@ -80,8 +92,20 @@ const NuxtLink = defineComponent({
       h("a", { href: String(props.to) }, slots.default?.())
 });
 
-const scenario = (actor: string, extras?: Record<string, unknown>) =>
-  assign({ useList: () => ({}), scope: { actor, contextType: actor } }, extras);
+/** A registry ENTRY as the registry publishes one — declaration plus directory. */
+const scenario = (
+  key: string,
+  actor: string,
+  extras?: Record<string, unknown>
+) =>
+  assign(
+    {
+      useList: () => ({}),
+      route: ROUTE[key],
+      scope: { actor, contextType: actor }
+    },
+    extras
+  );
 
 /**
  * Mounts the page over the CURRENT registry. The module graph is reset first:
@@ -114,29 +138,31 @@ beforeEach(() => {
 describe("@AC the landing page lists what the registry declares (G6 · C17)", () => {
   it("links every declared scenario at the scope its own declaration names", async () => {
     assign(declared.registry, {
-      [SPROCKET]: scenario("staff"),
-      [GIZMO]: scenario("guest"),
-      [COG]: scenario("client")
+      [SPROCKET]: scenario(SPROCKET, "staff"),
+      [GIZMO]: scenario(GIZMO, "guest"),
+      [COG]: scenario(COG, "client")
     });
 
     const wrapper = await home();
 
     expect(hrefs(wrapper)).toEqual(
       expect.arrayContaining([
-        `/${SPROCKET}/as/staff`,
-        `/${GIZMO}/as/guest`,
-        `/${COG}/as/client`
+        `/${ROUTE[SPROCKET]}/as/staff`,
+        `/${ROUTE[GIZMO]}/as/guest`,
+        `/${ROUTE[COG]}/as/client`
       ])
     );
-    expect(wrapper.text()).toContain("Sprocket Widgets");
-    expect(wrapper.text()).toContain("Basket Gizmos");
+    expect(wrapper.text()).toContain(ROUTE[SPROCKET]);
+    expect(wrapper.text()).toContain(ROUTE[GIZMO]);
+    // The rejected alias: a card titled anything but the composable it opens.
+    expect(wrapper.text()).not.toContain(startCase(ROUTE[SPROCKET]));
   });
 
   it("counts what is declared rather than restating a number", async () => {
     assign(declared.registry, {
-      [SPROCKET]: scenario("staff"),
-      [GIZMO]: scenario("guest"),
-      [COG]: scenario("client")
+      [SPROCKET]: scenario(SPROCKET, "staff"),
+      [GIZMO]: scenario(GIZMO, "guest"),
+      [COG]: scenario(COG, "client")
     });
 
     const strings = renderedStrings(await home());
@@ -147,9 +173,9 @@ describe("@AC the landing page lists what the registry declares (G6 · C17)", ()
 
   it("groups the entries under the family each key declares", async () => {
     assign(declared.registry, {
-      [SPROCKET]: scenario("staff"),
-      [GIZMO]: scenario("guest"),
-      [COG]: scenario("client")
+      [SPROCKET]: scenario(SPROCKET, "staff"),
+      [GIZMO]: scenario(GIZMO, "guest"),
+      [COG]: scenario(COG, "client")
     });
 
     const text = (await home()).text();
@@ -161,27 +187,27 @@ describe("@AC the landing page lists what the registry declares (G6 · C17)", ()
 
 describe("@AC nothing on the landing page is hand-listed (G6 · C17)", () => {
   it("follows the registry when it changes", async () => {
-    assign(declared.registry, { [SPROCKET]: scenario("staff") });
+    assign(declared.registry, { [SPROCKET]: scenario(SPROCKET, "staff") });
     const first = await home();
 
     delete declared.registry[SPROCKET];
-    assign(declared.registry, { [GIZMO]: scenario("guest") });
+    assign(declared.registry, { [GIZMO]: scenario(GIZMO, "guest") });
     const second = await home();
 
-    expect(hrefs(first)).toContain(`/${SPROCKET}/as/staff`);
-    expect(hrefs(first)).not.toContain(`/${GIZMO}/as/guest`);
-    expect(hrefs(second)).toContain(`/${GIZMO}/as/guest`);
-    expect(hrefs(second)).not.toContain(`/${SPROCKET}/as/staff`);
+    expect(hrefs(first)).toContain(`/${ROUTE[SPROCKET]}/as/staff`);
+    expect(hrefs(first)).not.toContain(`/${ROUTE[GIZMO]}/as/guest`);
+    expect(hrefs(second)).toContain(`/${ROUTE[GIZMO]}/as/guest`);
+    expect(hrefs(second)).not.toContain(`/${ROUTE[SPROCKET]}/as/staff`);
     expect(renderedStrings(second)).toContain("1 composables");
   });
 
   it("shows no composable the registry does not declare", async () => {
-    assign(declared.registry, { [SPROCKET]: scenario("staff") });
+    assign(declared.registry, { [SPROCKET]: scenario(SPROCKET, "staff") });
 
     const wrapper = await home();
 
     expect(wrapper.html()).not.toContain(UNDECLARED);
-    expect(wrapper.text()).not.toContain("Client Emails");
+    expect(wrapper.text()).not.toContain("useClientEmails");
     expect(wrapper.text()).not.toContain("useAuth");
   });
 });
@@ -198,27 +224,30 @@ describe("@AC nothing on the landing page is hand-listed (G6 · C17)", () => {
 describe("@AC a handoff target is not carded on the landing page (P1-R8)", () => {
   it("links the collection, never the editor it hands off to", async () => {
     assign(declared.registry, {
-      [SPROCKET]: scenario("staff", {
+      [SPROCKET]: scenario(SPROCKET, "staff", {
         handoff: { edit: { target: SPROCKET_EDITOR, contextType: "client" } }
       }),
-      [SPROCKET_EDITOR]: scenario("staff"),
-      [GIZMO]: scenario("guest")
+      [SPROCKET_EDITOR]: scenario(SPROCKET_EDITOR, "staff"),
+      [GIZMO]: scenario(GIZMO, "guest")
     });
 
     const wrapper = await home();
 
     expect(hrefs(wrapper)).toEqual(
-      expect.arrayContaining([`/${SPROCKET}/as/staff`, `/${GIZMO}/as/guest`])
+      expect.arrayContaining([
+        `/${ROUTE[SPROCKET]}/as/staff`,
+        `/${ROUTE[GIZMO]}/as/guest`
+      ])
     );
-    expect(hrefs(wrapper)).not.toContain(`/${SPROCKET_EDITOR}/as/staff`);
+    expect(hrefs(wrapper)).not.toContain(`/${ROUTE[SPROCKET_EDITOR]}/as/staff`);
   });
 
   it("counts destinations, not registry keys", async () => {
     assign(declared.registry, {
-      [SPROCKET]: scenario("staff", {
+      [SPROCKET]: scenario(SPROCKET, "staff", {
         handoff: { edit: { target: SPROCKET_EDITOR, contextType: "client" } }
       }),
-      [SPROCKET_EDITOR]: scenario("staff")
+      [SPROCKET_EDITOR]: scenario(SPROCKET_EDITOR, "staff")
     });
 
     const strings = renderedStrings(await home());

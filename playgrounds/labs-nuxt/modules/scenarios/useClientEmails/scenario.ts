@@ -40,14 +40,21 @@ export default {
     contextType: ClientEmailsContextTypes.CLIENT
   },
   persistCriteria: true,
+  // Both halves of the editor's job are the SAME target: the record the handoff
+  // carries is what decides whether its save creates or updates, so `add`
+  // declares no `contextFrom` and edit points at the row's own id.
   handoff: {
+    add: {
+      target: CLIENT_EMAIL_SCENARIO,
+      contextType: ClientEmailContextTypes.EMAIL
+    },
     edit: {
       target: CLIENT_EMAIL_SCENARIO,
       contextType: ClientEmailContextTypes.EMAIL,
       contextFrom: "/id"
     }
   },
-  nav: { i18n: "text.emails", icon: "mail-01" },
+  nav: { icon: "mail-01" },
   presentation: {
     row: rowUischema,
     card: cardUischema,

@@ -5,8 +5,10 @@ import {
   type FunnelResponse,
   FunnelActions
 } from "@upmind-automation/client-vue";
+import { ScopeActorTypes } from "@upmind-automation/headless";
 import { ROUTE } from "..";
-import { isArray, join } from "lodash-es";
+import { scenarioRoutes } from "../../../modules/scenarios/runtime/registry";
+import { get, isArray, join, toString } from "lodash-es";
 import {
   parseScopeSuffix,
   stripScopeSuffix
@@ -63,6 +65,41 @@ export default {
     return {
       type: FunnelActions.NEXT
     };
+  },
+
+  /**
+   * Every scenario route's gate. A scenario boots its composable at the actor
+   * the url names, and an unauthenticated visitor to a client- or staff-scoped
+   * one has nothing to read — so rejecting toward SESSION is what makes the
+   * funnel collect auth over the page (`<route>--auth`) instead of leaving it
+   * on skeletons that never settle.
+   */
+  guardScenario: async ({
+    currentRoute,
+    targetRoute
+  }: FunnelContext): Promise<FunnelResponse> => {
+    const route = targetRoute ?? currentRoute;
+    const scenario = get(scenarioRoutes, toString(route?.name));
+    if (!scenario) return { type: FunnelActions.NEXT };
+
+    const rawSuffix = get(route, ["params", "scopeSuffix"]);
+    const actor =
+      parseScopeSuffix(
+        isArray(rawSuffix) ? join(rawSuffix, "/") : (rawSuffix as string)
+      ).actor ?? scenario.scope.actor;
+
+    if (actor === ScopeActorTypes.GUEST) return { type: FunnelActions.NEXT };
+
+    const { isAuthenticated } = useActiveSession().useActions();
+    const authenticated = await isAuthenticated()
+      .then(() => true)
+      .catch(() => false);
+
+    if (authenticated) return { type: FunnelActions.NEXT };
+
+    return Promise.reject({
+      target: { name: ROUTE.SESSION }
+    } as FunnelResponse);
   },
 
   guardSession: async ({

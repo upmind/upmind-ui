@@ -1,0 +1,30 @@
+Negative control for the ONE toolbar row (D4).
+
+Lifts the filter bar out of the toolbar onto a line of its own, so the filters,
+the view toggle and Add new stack into three rows of chrome above a table that
+has not started yet — the layout the ruling collapsed into one row. Nothing else
+moves: the same controls, the same order, one container fewer.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the toolbar-row spec — the bar and the collection's controls share a
+container that is not merely the surface root.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+@@ -13,12 +13,9 @@
+ 
+     <!-- ONE toolbar row: what steers the list and what acts on it sit together
+          and wrap, never on stacked lines of their own. -->
++    <FilterBar v-if="criteria" :criteria="criteria" />
++
+     <div v-if="meta.hasToolbar" :class="styles.listSurface.toolbar">
+-      <FilterBar
+-        v-if="criteria"
+-        :criteria="criteria"
+-        :class="styles.listSurface.toolbarFilters"
+-      />
+       <div :class="styles.listSurface.toolbarControls">
+         <!-- The same rows, from the scenario's second declaration. Which view is
+              on is the RENDERER's own ephemeral state (AC2) — no refetch, no

@@ -16,18 +16,10 @@ import text from "@upmind-automation/i18n/core/text-en.json";
 import {
   TOGGLE_GROUP_POSITION,
   mountFilters,
-  positionsOf
+  positionsOf,
+  uischemaWithout
 } from "./filter.harness";
-import { cloneDeep, map, unset } from "lodash-es";
-import type { UISchemaElement } from "@jsonforms/core";
-
-const BOUNCED_OPTIONS = ["elements", 1, "elements", 1, "options"];
-
-const uischemaWithoutStates = () => {
-  const uischema = cloneDeep(useQueryUischema());
-  unset(uischema, [...BOUNCED_OPTIONS, "states"]);
-  return uischema as UISchemaElement;
-};
+import { map } from "lodash-es";
 
 describe("the label-less treatment names its own states", () => {
   it("reads each position's name from the uischema's states keys", async () => {
@@ -78,7 +70,7 @@ describe("the label-less treatment names its own states", () => {
   it("falls back to the schema's titles for a column declaring no states", async () => {
     const { column } = await mountFilters({
       schema: useQuerySchema(),
-      uischema: uischemaWithoutStates()
+      uischema: uischemaWithout(useQueryUischema(), "bounced", "states")
     });
 
     expect(positionsOf(column("bounced"))).toEqual([text.yes, text.no]);

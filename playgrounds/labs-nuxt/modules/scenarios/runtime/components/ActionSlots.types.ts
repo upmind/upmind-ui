@@ -35,4 +35,9 @@ export type ActionSlotItem = {
 export type ActionSlotsProps = {
   /** Every available action; this component only decides WHERE each is drawn. */
   actions: ActionSlotItem[];
+  /**
+   * Beside a row, where the icon is the control: the declared label draws as
+   * the tooltip and the accessible name instead of beside the icon.
+   */
+  iconOnly?: boolean;
 };

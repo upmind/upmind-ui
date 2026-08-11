@@ -19,6 +19,7 @@ import {
   toDataPath
 } from "@jsonforms/core";
 import { useValidation } from "@upmind-automation/headless";
+import { compact, get, split } from "lodash-es";
 import type { Rule, UISchemaElement } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
@@ -40,6 +41,18 @@ export function resolveScope(
   scope: string
 ): unknown {
   return Resolve.data(row, toDataPath(scope));
+}
+
+/**
+ * The value a handoff's `contextFrom` addresses on one row. A JSON Pointer
+ * (`/id`), NOT a uischema scope: it points into the row's data, where a scope
+ * points into its schema, and `toDataPath` resolves the two differently.
+ */
+export function resolvePointer(
+  row: Record<string, unknown>,
+  pointer: string
+): unknown {
+  return get(row, compact(split(pointer, "/")));
 }
 
 /** Whether a declared control is ENABLED for this row. */

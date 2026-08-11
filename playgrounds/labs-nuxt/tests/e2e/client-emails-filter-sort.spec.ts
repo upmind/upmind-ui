@@ -1,11 +1,12 @@
 // -----------------------------------------------------------------------------
 /**
  * @module tests/e2e/client-emails-filter-sort
- * @description The AC7 read-backs the shared `client-emails.feature` cannot
- * carry, because `World` has five members and none of them is the page, the
- * wire or a reload: a filter NARROWS THE RENDERED ROWS through a real re-query,
- * a sort REORDERS them, a sort field the module does not offer never reaches the
- * wire, and both survive a reload (design §6 — "assert the outbound request").
+ * @description The AC7 read-backs the shared `client-email.canary.feature`
+ * cannot carry, because `World` has five members and none of them is the page,
+ * the wire or a reload: a filter NARROWS THE RENDERED ROWS through a real
+ * re-query, a sort REORDERS them, a sort field the module does not offer never
+ * reaches the wire, and both survive a reload (design §6 — "assert the outbound
+ * request").
  *
  * The rows are the recorded 3-row corpus and the collection handler branches on
  * the request's own params, so a client-side-only filter leaves the served rows

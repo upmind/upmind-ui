@@ -36,6 +36,7 @@ import {
 } from "./client-email.int-helpers";
 import { server } from "./setup.integration";
 import { DEBOUNCE_DELAY } from "../../../utils";
+import { find } from "lodash-es";
 import type { ObservedRequest } from "./client-email.int-helpers";
 
 // -----------------------------------------------------------------------------
@@ -303,6 +304,39 @@ describe("client-email editor — saving (AC-14, AC-15, AC-20)", () => {
     await manager.useActions().update({ email: primary.email });
 
     expect(posted).toBe(false);
+  });
+
+  it("AC-20 shows a brand-new address in my open list the moment the editor creates it", async () => {
+    const { clientId } = await seedClientSession();
+    const { primary } = recordedRows();
+    const list = installEmailsListHandler(server, clientId, [primary]);
+    const created = recorded.created().data;
+
+    const emails = useClientEmails().as(ScopeActorTypes.SELF);
+    await vi.waitFor(() =>
+      expect(emails.useContext().data.value).toHaveLength(1)
+    );
+
+    server?.use(
+      http.post(`*/clients/${clientId}/emails`, () => {
+        list.setRows([primary, created]);
+        return HttpResponse.json(recorded.created(), { status: 200 });
+      })
+    );
+
+    // `isNew` routes creates down a different post-effect from the update
+    // below, so the list refresh has to be proven on both.
+    const editor = useClientEmailManager().as(ScopeActorTypes.SELF).fresh();
+    await editor.useActions().isReady();
+    expect(editor.useMeta().isNew.value).toBe(true);
+
+    await editor.useActions().update({ email: created.email });
+
+    await vi.waitFor(() => {
+      expect(
+        find(emails.useContext().data.value, { id: created.id })?.email
+      ).toBe(created.email);
+    });
   });
 
   it("AC-20 shows the saved value in my open list after I save in the editor", async () => {

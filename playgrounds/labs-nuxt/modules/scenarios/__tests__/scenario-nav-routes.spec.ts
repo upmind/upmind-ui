@@ -26,7 +26,10 @@ import { defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import routerOptions from "../../../app/router.options";
-import clientEmails from "../useClientEmails/scenario";
+import { registry } from "../runtime/registry";
+import clientEmails, {
+  CLIENT_EMAILS_SCENARIO
+} from "../useClientEmails/scenario";
 import { registerScenarioRoutes } from "./nuxt-build-context";
 import {
   compact,
@@ -36,8 +39,10 @@ import {
   forEach,
   get,
   map,
+  startCase,
   uniq
 } from "lodash-es";
+import type { RegisteredScenario } from "../runtime/scenario.types";
 import type { Router } from "vue-router";
 
 // -----------------------------------------------------------------------------
@@ -139,16 +144,41 @@ describe("@G6 every derived link resolves against the registered routes", () => 
   });
 });
 
-describe("@G6 the sidebar entry is the one the scenario DECLARED", () => {
-  it("labels the canary with its declared nav key, translated", () => {
-    const declared = get(text, clientEmails.nav!.i18n.replace(/^text\./, ""));
+/**
+ * @AC The sidebar entry IS the composable's name (D1)
+ *
+ * The operator's sidebar said "Emails" over a path reading `/useClientEmails`.
+ * A prettified alias is a second name for one thing, and the two are free to
+ * disagree — so the menu item, the url segment and the route name are all the
+ * declaring DIRECTORY, and the declaration carries no label to disagree with.
+ *
+ * What breaks if these fail: the alias comes back and the sidebar stops naming
+ * what the url opens.
+ */
+describe("@G6 the sidebar entry is the composable's own NAME (D1)", () => {
+  const canary = get(registry, CLIENT_EMAILS_SCENARIO) as RegisteredScenario;
 
-    expect(map(flatten(navigation), "label")).toContain(declared);
+  it("labels the canary with the directory its url already carries", () => {
+    expect(map(flatten(navigation), "label")).toContain(canary.route);
   });
 
-  it("carries the icon the declaration chose", () => {
-    const declared = get(text, clientEmails.nav!.i18n.replace(/^text\./, ""));
-    const entry = find(flatten(navigation), { label: declared });
+  it("prettifies nothing — no alias stands between the menu item and the path", () => {
+    const labels = map(flatten(navigation), "label");
+
+    expect(labels).not.toContain(startCase(canary.route));
+    expect(labels).not.toContain(get(text, "emails"));
+    expect(labels).not.toContain(canary.key);
+  });
+
+  it("links the very entry it labels, so the two cannot drift", () => {
+    const entry = find(flatten(navigation), { label: canary.route });
+
+    expect(entry?.to).toBe(`/${canary.route}/as/${canary.scope.actor}`);
+    expect(router.resolve(entry!.to as string).name).toBe(canary.route);
+  });
+
+  it("carries the icon the declaration chose — the one thing it still declares", () => {
+    const entry = find(flatten(navigation), { label: canary.route });
 
     expect(entry?.icon).toBe(clientEmails.nav!.icon);
   });

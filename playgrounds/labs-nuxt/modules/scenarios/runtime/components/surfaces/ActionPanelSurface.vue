@@ -35,7 +35,7 @@ import { formRenderers, UpmForm } from "@upmind-automation/client-vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import { ActionPlacementTypes } from "../../scenario.types";
 import ActionSlots from "../ActionSlots.vue";
-import { resolveModuleState } from "../module-state";
+import { resolveModuleDetail, resolveModuleState } from "../module-state";
 import { ModuleState } from "../module-state.types";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
 import config from "./ActionPanelSurface.styles";
@@ -48,7 +48,7 @@ import type { FormProps } from "@upmind-automation/upmind-ui";
 const props = defineProps<ActionPanelSurfaceProps>();
 
 const state = computed(() => resolveModuleState(props.snapshot.meta));
-const detail = computed(() => props.snapshot.context.error);
+const detail = computed(() => resolveModuleDetail(props.snapshot.context));
 
 const schema = computed(
   () => props.snapshot.context.schema as FormProps["schema"]

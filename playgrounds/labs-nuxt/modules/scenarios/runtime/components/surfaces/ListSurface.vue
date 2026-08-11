@@ -11,33 +11,123 @@
       :detail="verdict"
     />
 
-    <ActionSlots
-      v-if="meta.hasCollectionActions"
-      :class="styles.listSurface.collectionActions"
-      :actions="collectionActionItems"
-    />
+    <!-- ONE toolbar row: what steers the list and what acts on it sit together
+         and wrap, never on stacked lines of their own. -->
+    <div v-if="meta.hasToolbar" :class="styles.listSurface.toolbar">
+      <FilterBar
+        v-if="criteria"
+        :criteria="criteria"
+        :class="styles.listSurface.toolbarFilters"
+      />
+      <div :class="styles.listSurface.toolbarControls">
+        <!-- The same rows, from the scenario's second declaration. Which view is
+             on is the RENDERER's own ephemeral state (AC2) — no refetch, no
+             declaration, no url. -->
+        <ToggleGroup
+          v-if="meta.hasCardView"
+          type="single"
+          size="sm"
+          :model-value="view"
+          :items="viewItems"
+          @update:model-value="onView"
+        />
+        <ActionSlots
+          v-if="meta.hasCollectionActions"
+          :actions="collectionActionItems"
+        />
+      </div>
+    </div>
 
-    <Interstitial
-      v-if="meta.isEmpty && meta.isFiltered"
-      :title="t('text.results_not_found')"
-      :text="t('text.adjust_search_filters_msg')"
-    >
-      <template #avatar><Icon icon="search-lg" size="xl" /></template>
-    </Interstitial>
-    <Interstitial
-      v-else-if="meta.isEmpty"
-      :title="t('text.collection_empty')"
-      :text="t('text.collection_empty_msg')"
-    >
-      <template #avatar><Icon icon="inbox-01" size="xl" /></template>
-    </Interstitial>
+    <template v-if="meta.isCardView">
+      <div
+        v-if="meta.isLoading || !meta.isEmpty"
+        :class="styles.listSurface.cardGrid"
+      >
+        <!-- The placeholder is the CARD's own shape, field for field, so the
+             layout that lands is the layout the user was waiting for (C8). -->
+        <template v-if="meta.isLoading">
+          <Card
+            v-for="placeholder in SKELETON_ROWS"
+            :key="placeholder"
+            :class="dataCard()"
+          >
+            <Skeleton
+              v-for="element in cardElements"
+              :key="element.scope"
+              :class="styles.listSurface.skeletonCard"
+            />
+          </Card>
+        </template>
+        <template v-else>
+          <Card
+            v-for="(row, index) in rows"
+            :key="rowKey(row, index)"
+            :class="dataCard({ isMarked: isMarked(row) })"
+          >
+            <header :class="styles.listSurface.cardHeader">
+              <div :class="styles.listSurface.cardLead">
+                <Icon
+                  v-if="marker"
+                  :icon="marker.icon"
+                  :variant="isMarked(row) ? marker.marked : marker.unmarked"
+                  size="nano"
+                  :class="rowMarker({ isMarked: isMarked(row) })"
+                />
+                <h3 :class="styles.listSurface.cardTitle">
+                  <RowCell
+                    v-for="element in cardSlot(CardSlotTypes.TITLE)"
+                    :key="element.scope"
+                    :element="element"
+                    :row="row"
+                  />
+                </h3>
+              </div>
+              <ActionSlots
+                v-if="rowActionItems(row).length"
+                icon-only
+                :actions="rowActionItems(row)"
+              />
+            </header>
 
-    <Table v-else-if="meta.hasTable" :class="styles.listSurface.table">
+            <p
+              v-for="element in cardSlot(CardSlotTypes.SUBTITLE)"
+              :key="element.scope"
+              :class="styles.listSurface.cardSubtitle"
+            >
+              <RowCell :element="element" :row="row" />
+            </p>
+
+            <div
+              v-if="cardSlot(CardSlotTypes.BODY).length"
+              :class="styles.listSurface.cardBody"
+            >
+              <RowCell
+                v-for="element in cardSlot(CardSlotTypes.BODY)"
+                :key="element.scope"
+                :element="element"
+                :row="row"
+              />
+            </div>
+          </Card>
+        </template>
+      </div>
+      <ListEmpty v-else :is-filtered="meta.isFiltered" />
+    </template>
+
+    <!-- The table is the FRAME: its headers stay through every state, and each
+         state is drawn inside its body rather than in place of it (C8/C9). -->
+    <Table v-else-if="meta.hasTable">
       <TableHeader>
         <TableRow
           v-for="headerGroup in vueTable.getHeaderGroups()"
           :key="headerGroup.id"
         >
+          <!-- The marker column is deliberately header-less: it labels nothing,
+               it IS the row's own flag. -->
+          <TableHead
+            v-if="meta.hasMarker"
+            :class="styles.listSurface.markerCell"
+          />
           <!-- The whole header cell is the hit area, so the handler sits on it
                rather than on the button inside; the button's own click (mouse
                OR keyboard) bubbles here, and TanStack's handler no-ops on a
@@ -45,70 +135,89 @@
           <TableHead
             v-for="header in headerGroup.headers"
             :key="header.id"
-            :class="styles.listSurface.headerCell"
+            :class="headerCell({ isSortable: header.column.getCanSort() })"
             @click="header.column.getToggleSortingHandler()?.($event)"
           >
             <template v-if="!header.isPlaceholder">
-              <button
+              <Button
                 v-if="header.column.getCanSort()"
-                type="button"
-                :class="styles.listSurface.sortButton"
-              >
-                {{ header.column.columnDef.header }}
-                <Icon
-                  :icon="sortIcon(header.column.getIsSorted())"
-                  size="2xs"
-                />
-              </button>
+                size="sm"
+                variant="ghost"
+                color="neutral"
+                :class="styles.listSurface.sortControl"
+                :label="toString(header.column.columnDef.header)"
+                :icon-append="sortIcon(header.column.getIsSorted())"
+              />
               <span v-else>{{ header.column.columnDef.header }}</span>
             </template>
           </TableHead>
           <TableHead
             v-if="meta.hasRowActions"
-            :class="styles.listSurface.headerCell"
+            :class="styles.listSurface.actionsCell"
           />
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow
-          v-for="row in vueTable.getRowModel().rows"
-          :key="row.id"
-          :class="dataRow({ isMarked: isMarked(row.original) })"
-        >
-          <TableCell
-            v-for="(element, index) in columnElements"
-            :key="element.scope"
-            :class="styles.listSurface.dataCell"
+        <template v-if="meta.isLoading">
+          <TableRow v-for="placeholder in SKELETON_ROWS" :key="placeholder">
+            <TableCell
+              v-if="meta.hasMarker"
+              :class="styles.listSurface.markerCell"
+            >
+              <Skeleton :class="styles.listSurface.skeletonMarker" />
+            </TableCell>
+            <TableCell v-for="element in columnElements" :key="element.scope">
+              <Skeleton :class="styles.listSurface.skeletonCell" />
+            </TableCell>
+            <TableCell
+              v-if="meta.hasRowActions"
+              :class="styles.listSurface.actionsCell"
+            >
+              <Skeleton :class="styles.listSurface.skeletonActions" />
+            </TableCell>
+          </TableRow>
+        </template>
+
+        <TableEmpty v-else-if="meta.isEmpty" :colspan="columnCount">
+          <ListEmpty :is-filtered="meta.isFiltered" />
+        </TableEmpty>
+
+        <template v-else>
+          <TableRow
+            v-for="row in vueTable.getRowModel().rows"
+            :key="row.id"
+            :class="dataRow({ isMarked: isMarked(row.original) })"
           >
-            <!-- The marker rides the FIRST declared column, so the default row
-                 reads as the default without spending a column on it (C12). -->
-            <Icon
-              v-if="!index && marker && isMarked(row.original)"
-              :icon="marker.icon"
-              size="xs"
-            />
-            <template v-if="element.options.cell === RowCellTypes.BADGES">
-              <Badge
-                v-for="badge in visibleBadges(element, row.original)"
-                :key="badge.flag"
-                size="sm"
-                variant="minimal"
-                :color="badge.color"
-                :icon="badge.icon"
-                :label="t(badge.i18n)"
+            <!-- The marker is its OWN column, ahead of every declared one, so
+                 the default row reads as the default without the flag riding
+                 (and crowding) a cell that means something else (C12). -->
+            <TableCell v-if="marker" :class="styles.listSurface.markerCell">
+              <Icon
+                :icon="marker.icon"
+                :variant="
+                  isMarked(row.original) ? marker.marked : marker.unmarked
+                "
+                size="nano"
+                :class="rowMarker({ isMarked: isMarked(row.original) })"
               />
-            </template>
-            <template v-else>{{ cellText(element, row.original) }}</template>
-          </TableCell>
-          <TableCell
-            v-if="meta.hasRowActions"
-            :class="styles.listSurface.dataCell"
-          >
-            <ActionSlots :actions="rowActionItems(row.original)" />
-          </TableCell>
-        </TableRow>
+            </TableCell>
+            <TableCell v-for="element in columnElements" :key="element.scope">
+              <div :class="styles.listSurface.cellContent">
+                <RowCell :element="element" :row="row.original" />
+              </div>
+            </TableCell>
+            <TableCell
+              v-if="meta.hasRowActions"
+              :class="styles.listSurface.actionsCell"
+            >
+              <ActionSlots icon-only :actions="rowActionItems(row.original)" />
+            </TableCell>
+          </TableRow>
+        </template>
       </TableBody>
     </Table>
+
+    <ListEmpty v-else-if="meta.isEmpty" :is-filtered="meta.isFiltered" />
 
     <!-- A data-array-without-table descriptor still renders every row,
          read-only — never blank. The DECLARATION drives it exactly as it drives
@@ -117,7 +226,7 @@
     <ul v-else :class="styles.listSurface.rowList">
       <li
         v-for="(row, index) in rows"
-        :key="isNil(row.id) ? String(index) : String(row.id)"
+        :key="rowKey(row, index)"
         :class="styles.listSurface.rowListItem"
       >
         <div :class="styles.listSurface.rowListFields">
@@ -127,29 +236,19 @@
             :class="styles.listSurface.rowListField"
           >
             <strong>{{ t(element.i18n) }}</strong>
-            <template v-if="element.options.cell === RowCellTypes.BADGES">
-              <Badge
-                v-for="badge in visibleBadges(element, row)"
-                :key="badge.flag"
-                size="sm"
-                variant="minimal"
-                :color="badge.color"
-                :icon="badge.icon"
-                :label="t(badge.i18n)"
-              />
-            </template>
-            <template v-else>{{ cellText(element, row) }}</template>
+            <RowCell :element="element" :row="row" />
           </span>
         </div>
         <ActionSlots
           v-if="rowActionItems(row).length"
+          icon-only
           :actions="rowActionItems(row)"
         />
       </li>
     </ul>
 
     <Pagination
-      v-if="!meta.isEmpty && meta.hasTable"
+      v-if="meta.hasTable && !meta.isEmpty && !meta.isLoading"
       :total="pagination.total ?? 0"
       :page="pagination.page"
       :pages="pageCount"
@@ -159,6 +258,14 @@
       "
       @next="onPaginate(pagination.page + 1)"
       @prev="onPaginate(pagination.page - 1)"
+    />
+
+    <ManageDialog
+      v-if="manage"
+      :key="manageKey"
+      :handoff="manage.handoff"
+      :context-id="manage.contextId"
+      @close="manage = undefined"
     />
   </div>
 </template>
@@ -175,7 +282,8 @@
  * itself (`manualSorting`/`manualPagination`, and only
  * `getCoreRowModel()` — no `getSortedRowModel`/`getPaginationRowModel`).
  * Filtering has exactly ONE surface: `FilterBar` (FE-1335's schema-driven
- * bar) over the composable-owned criteria. A module
+ * bar) over the composable-owned criteria, drawn in the SAME toolbar row as the
+ * view toggle and the collection's own actions. A module
  * with no table channel (`hasDataArray` without `hasTable`) degrades to a
  * read-only row list instead of rendering blank.
  *
@@ -183,7 +291,13 @@
  * declaration (`presentation`), never inferred: the surface has no vocabulary
  * of any module's fields or action names, so a column exists because it was
  * declared and an action is offered because the row's own meta permits it
- * (C5 · C10 · C11 · C12 · C15).
+ * (C5 · C10 · C11 · C12 · C15). The same rows draw as CARDS from the scenario's
+ * second declaration, and creating or editing one is a declared HANDOFF to the
+ * editor scenario that owns that form (C1 · C2 · C13).
+ *
+ * The table is also the FRAME (C8/C9): loading and empty are drawn inside it,
+ * under the real headers, so nothing the user is waiting for moves when the
+ * rows land.
  */
 
 import { toDataPath } from "@jsonforms/core";
@@ -192,31 +306,45 @@ import { computed, ref, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 import { SortDirection } from "@upmind-automation/headless";
 import {
-  Badge,
+  Button,
+  Card,
   Icon,
-  Interstitial,
   Pagination,
+  Skeleton,
   Table,
   TableBody,
   TableCell,
+  TableEmpty,
   TableHead,
   TableHeader,
   TableRow,
+  ToggleGroup,
   useStyles
 } from "@upmind-automation/upmind-ui";
 import { TableIntentTypes } from "../../composables/useTableChannel";
-import { RowCellTypes } from "../../scenario.types";
+import { CardSlotTypes } from "../../scenario.types";
 import {
   isRuleEnabled,
   isRuleVisible,
+  resolvePointer,
   resolveScope
 } from "../../scenario.utils";
 import ActionSlots from "../ActionSlots.vue";
-import { resolveModuleState } from "../module-state";
+import FilterBar from "../FilterBar.vue";
+import ManageDialog from "../ManageDialog.vue";
+import { resolveModuleDetail, resolveModuleState } from "../module-state";
 import { ModuleState } from "../module-state.types";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
 import { useActionFeedback } from "../useActionFeedback";
-import config, { dataRow } from "./ListSurface.styles";
+import ListEmpty from "./ListEmpty.vue";
+import config, {
+  dataCard,
+  dataRow,
+  headerCell,
+  rowMarker
+} from "./ListSurface.styles";
+import { ListViewTypes } from "./ListSurface.types";
+import RowCell from "./RowCell.vue";
 import {
   filter,
   get,
@@ -227,12 +355,9 @@ import {
   map,
   toString
 } from "lodash-es";
-import type {
-  RowBadge,
-  RowElement,
-  ScenarioAction
-} from "../../scenario.types";
+import type { RowElement, ScenarioAction } from "../../scenario.types";
 import type { ActionSlotItem } from "../ActionSlots.types";
+import type { ManageDialogProps } from "../ManageDialog.types";
 import type { ListRow, ListSurfaceProps } from "./ListSurface.types";
 import type {
   ColumnDef,
@@ -241,14 +366,18 @@ import type {
   SortingState
 } from "@tanstack/vue-table";
 import type { TableModel } from "@upmind-automation/scenario-harness";
+import type { ToggleGroupItem } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<ListSurfaceProps>();
 
 const { t } = useI18n();
 
+/** How many placeholders stand in for the rows that have not landed yet. */
+const SKELETON_ROWS = 5;
+
 const state = computed(() => resolveModuleState(props.snapshot.meta));
-const detail = computed(() => props.snapshot.context.error);
+const detail = computed(() => resolveModuleDetail(props.snapshot.context));
 
 const feedback = useActionFeedback();
 
@@ -262,11 +391,13 @@ watchEffect(() => {
   if (state.value === ModuleState.READY) hasPresented.value = true;
 });
 
-const notice = computed(() =>
-  hasPresented.value || state.value === ModuleState.READY
-    ? undefined
-    : state.value
-);
+const notice = computed(() => {
+  if (state.value === ModuleState.READY || hasPresented.value) return undefined;
+  // A declared frame draws its OWN loading: the headers stay and skeleton rows
+  // stand in for the data, so the layout never jumps when it arrives (C8).
+  if (state.value === ModuleState.LOADING && hasTable.value) return undefined;
+  return state.value;
+});
 
 // A failure this surface already reported as a toast is not drawn a second time
 // as the list's verdict — the module holds it as state, so re-reading it would
@@ -278,6 +409,12 @@ const verdict = computed(() =>
 const rows = computed<ListRow[]>(
   () => (props.snapshot.context.data as ListRow[] | undefined) ?? []
 );
+
+/** A row's own identity, with its position as the fallback for a row without one. */
+function rowKey(row: ListRow, index: number): string {
+  const id = get(row, "id");
+  return isNil(id) ? toString(index) : toString(id);
+}
 
 // One `channel.read()` per render, tied to `snapshot` so any composable pull
 // (its own re-query after a sort/filter/paginate, or an unrelated refresh)
@@ -304,14 +441,50 @@ const declared = computed(() => props.table?.declared?.());
 
 /** The declared columns, in declaration order. Undeclared row keys never render. */
 const columnElements = computed<RowElement[]>(
-  () => props.presentation?.row.elements ?? []
+  () => props.presentation?.row?.elements ?? []
 );
 
+/** The same row's declared CARD fields — the scenario's second declaration. */
+const cardElements = computed<RowElement[]>(
+  () => props.presentation?.card?.elements ?? []
+);
+
+function cardSlot(slot: CardSlotTypes): RowElement[] {
+  return filter(cardElements.value, element => element.options.slot === slot);
+}
+
 /** The declared default-row treatment (C12), if this scenario names one. */
-const marker = computed(() => props.presentation?.row.options?.marker);
+const marker = computed(
+  () => props.presentation?.row?.options?.marker ?? undefined
+);
 
 function isMarked(row: ListRow): boolean {
   return !!marker.value && !!resolveScope(row, marker.value.scope);
+}
+
+// A table needs BOTH the controlled channel and a declared column set: with
+// key-sniffing gone, a scenario that declares no row has no table to draw and
+// degrades to the read-only list rather than rendering empty headers.
+const hasTable = computed(
+  () => !!props.table && !isEmpty(columnElements.value)
+);
+
+const hasCardView = computed(
+  () => hasTable.value && !isEmpty(cardElements.value)
+);
+
+const view = ref<ListViewTypes>(ListViewTypes.TABLE);
+
+const viewItems = computed<ToggleGroupItem[]>(() => [
+  { value: ListViewTypes.TABLE, label: t("text.table_view"), icon: "table" },
+  { value: ListViewTypes.CARD, label: t("text.card_view"), icon: "grid-01" }
+]);
+
+// Un-clicking the active segment leaves the view where it is: a list is always
+// drawn as something.
+function onView(next: unknown): void {
+  if (next === ListViewTypes.TABLE || next === ListViewTypes.CARD)
+    view.value = next;
 }
 
 /**
@@ -343,24 +516,13 @@ const columns = computed<ColumnDef<ListRow>[]>(() =>
   })
 );
 
-/** The badges a {@link RowCellTypes.BADGES} cell shows for this row — truthy flags only. */
-function visibleBadges(element: RowElement, row: ListRow): RowBadge[] {
-  const value = resolveScope(row, element.scope) as Record<string, unknown>;
-  return filter(
-    element.options.badges ?? [],
-    badge => !!get(value, badge.flag)
-  );
-}
-
-/** What a non-badge cell reads. A `useDate` descriptor speaks its relative form. */
-function cellText(element: RowElement, row: ListRow): string {
-  const value = resolveScope(row, element.scope);
-  if (isNil(value)) return "";
-
-  return element.options.cell === RowCellTypes.DATE
-    ? toString(get(value, "relative"))
-    : toString(value);
-}
+/** The empty state spans every column the frame draws, marker and actions included. */
+const columnCount = computed(
+  () =>
+    columnElements.value.length +
+    (marker.value ? 1 : 0) +
+    (meta.value.hasRowActions ? 1 : 0)
+);
 
 const sortingState = computed<SortingState>(() =>
   map(tableModel.value.sort, entry => ({
@@ -430,6 +592,30 @@ function onPaginate(page: number): void {
   });
 }
 
+// --- the editor a declared handoff opens, over the list it was opened from
+const manage = ref<ManageDialogProps | undefined>(undefined);
+
+/** One editor instance per target AND record — never one carried across rows. */
+const manageKey = computed(
+  () =>
+    `${manage.value?.handoff.scenario.key}:${manage.value?.contextId ?? "new"}`
+);
+
+function openHandoff(action: ScenarioAction, row?: ListRow): void {
+  const handoff = get(props.handoffs, action.handoff as string);
+  if (!handoff) return;
+
+  const target =
+    handoff.contextFrom && row
+      ? resolvePointer(row, handoff.contextFrom)
+      : undefined;
+
+  manage.value = {
+    handoff,
+    contextId: isNil(target) ? undefined : toString(target)
+  };
+}
+
 // --- actions — every one DECLARED by the scenario, then gated on
 // `snapshot.actions` (the booted cell's own live-name list, the same gate
 // ActionPanelSurface trusts) so a declaration naming a capability the live port
@@ -438,9 +624,14 @@ const rowActions = computed<ScenarioAction[]>(
   () => props.presentation?.rowActions ?? []
 );
 
-function isActionAvailable(name: string): boolean {
+function isActionAvailable(action: ScenarioAction): boolean {
+  // A handoff control calls no action: what it needs is the target it opens,
+  // and without one it would be a button that does nothing (C2).
+  if (action.handoff) return !!get(props.handoffs, action.handoff);
+
   return (
-    includes(props.snapshot.actions, name) && isFunction(props.actions[name])
+    includes(props.snapshot.actions, action.name) &&
+    isFunction(props.actions[action.name])
   );
 }
 
@@ -448,7 +639,7 @@ function isActionAvailable(name: string): boolean {
 function availableActions(row: ListRow): ScenarioAction[] {
   return filter(
     rowActions.value,
-    action => isActionAvailable(action.name) && isRuleVisible(action, row)
+    action => isActionAvailable(action) && isRuleVisible(action, row)
   );
 }
 
@@ -466,19 +657,19 @@ function rowActionItems(row: ListRow): ActionSlotItem[] {
       // itself carries, never a client-side guess about what the API allows.
       disabled: !isRuleEnabled(action, row) || feedback.isPending(control),
       onSelect: () =>
-        feedback.fire(control, () => props.actions[action.name](row.id), {
-          success: t(get(action, ["feedback", "success"], "")),
-          failure: t(get(action, ["feedback", "failure"], ""))
-        })
+        action.handoff
+          ? openHandoff(action, row)
+          : feedback.fire(control, () => props.actions[action.name](row.id), {
+              success: t(get(action, ["feedback", "success"], "")),
+              failure: t(get(action, ["feedback", "failure"], ""))
+            })
     };
   });
 }
 
 const collectionActionItems = computed<ActionSlotItem[]>(() =>
   map(
-    filter(props.presentation?.collectionActions ?? [], action =>
-      isActionAvailable(action.name)
-    ),
+    filter(props.presentation?.collectionActions ?? [], isActionAvailable),
     action => ({
       name: action.name,
       label: t(action.i18n),
@@ -486,7 +677,8 @@ const collectionActionItems = computed<ActionSlotItem[]>(() =>
       color: action.color,
       variant: action.variant,
       placement: action.placement,
-      onSelect: () => props.actions[action.name]()
+      onSelect: () =>
+        action.handoff ? openHandoff(action) : props.actions[action.name]()
     })
   )
 );
@@ -495,19 +687,24 @@ const collectionActionItems = computed<ActionSlotItem[]>(() =>
 // and the same object `useStyles` resolves its CVA variants from.
 const meta = computed(() => ({
   state: state.value,
+  isLoading: state.value === ModuleState.LOADING,
   isEmpty: isEmpty(rows.value),
-  // A table needs BOTH the controlled channel and a declared column set: with
-  // key-sniffing gone, a scenario that declares no row has no table to draw and
-  // degrades to the read-only list rather than rendering empty headers.
-  hasTable: !!props.table && !isEmpty(columnElements.value),
+  hasTable: hasTable.value,
+  // The card is a SECOND declaration over the same rows, so the toggle exists
+  // only where the scenario wrote one.
+  hasCardView: hasCardView.value,
+  isCardView: hasCardView.value && view.value === ListViewTypes.CARD,
   // The module's own answer (`useMeta().isFiltered`), never a renderer-side
   // guess off the flattened filter model: *empty because nothing exists* and
   // *empty because your filters match nothing* are different states.
   isFiltered: !!props.snapshot.meta.isFiltered,
-  hasRowActions: !isEmpty(
-    filter(rowActions.value, action => isActionAvailable(action.name))
-  ),
-  hasCollectionActions: !isEmpty(collectionActionItems.value)
+  hasMarker: !!marker.value,
+  hasRowActions: !isEmpty(filter(rowActions.value, isActionAvailable)),
+  hasCollectionActions: !isEmpty(collectionActionItems.value),
+  hasToolbar:
+    !!props.criteria ||
+    hasCardView.value ||
+    !isEmpty(collectionActionItems.value)
 }));
 
 const styles = useStyles(["listSurface"], meta, config);

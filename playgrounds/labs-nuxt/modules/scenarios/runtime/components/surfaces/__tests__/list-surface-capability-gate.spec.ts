@@ -32,7 +32,7 @@ import {
   OVERFLOW_TRIGGER_TEST_VALUE
 } from "../../__tests__/control-test-values";
 import { ListSurface } from "../index";
-import { keys, map } from "lodash-es";
+import { filter, keys, map } from "lodash-es";
 import type { ScenarioAction } from "../../../scenario.types";
 import type { SurfaceActions } from "../surface.types";
 
@@ -171,6 +171,9 @@ describe("@AC3 the gate is DECLARED — it is not the renderer's opinion", () =>
     );
 
     expect(gated).toEqual([
+      // The editor a row hands off to is reached on every row: whether THIS
+      // address may be changed is the manager's own answer, not a list flag.
+      ["edit", undefined],
       ["remove", "DISABLE"],
       ["setDefault", "HIDE"],
       ["verify", "HIDE"]
@@ -178,8 +181,24 @@ describe("@AC3 the gate is DECLARED — it is not the renderer's opinion", () =>
   });
 
   it("names only live members of the composable's action map", () => {
-    const declared = map(presentation.rowActions as ScenarioAction[], "name");
+    const calls = filter(
+      presentation.rowActions as ScenarioAction[],
+      action => !action.handoff
+    );
 
-    expect(declared).toEqual(keys(ACTIONS));
+    expect(map(calls, "name")).toEqual(keys(ACTIONS));
+  });
+
+  it("gates a HANDOFF control on its target, never on a row flag", () => {
+    const handoffs = filter(
+      presentation.rowActions as ScenarioAction[],
+      "handoff"
+    );
+
+    expect(map(handoffs, "name")).toEqual(["edit"]);
+    for (const action of handoffs) {
+      expect(action.rule).toBeUndefined();
+      expect(keys(ACTIONS)).not.toContain(action.name);
+    }
   });
 });

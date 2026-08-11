@@ -1,13 +1,22 @@
+Negative control for the API's own sentence reaching the user.
+
+Drops the captured message from the failure toast, so a refusal reads as
+generic copy and the business rule that caused it ("The default email cannot be
+changed to unverified email address!") never reaches the person who hit it.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: action-feedback.spec.ts — the API-message case.
+
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/useActionFeedback.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/useActionFeedback.ts
-index bbbbbbb..ccccccc 100644
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/useActionFeedback.ts
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/useActionFeedback.ts
-@@ -53,7 +53,7 @@
+@@ -54,7 +54,7 @@
        const message = get(error, "message");
        reported.value = isString(message) ? message : undefined;
-
--      report(copy.failure, TOAST_VARIANTS.DANGER, reported.value);
-+      report(copy.failure, TOAST_VARIANTS.DANGER);
+ 
+-      if (copy) report(copy.failure, TOAST_VARIANTS.DANGER, reported.value);
++      if (copy) report(copy.failure, TOAST_VARIANTS.DANGER);
+       return false;
      } finally {
        pull(pending.value, key);
-     }

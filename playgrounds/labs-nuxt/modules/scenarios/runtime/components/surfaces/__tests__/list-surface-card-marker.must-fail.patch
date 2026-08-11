@@ -1,0 +1,27 @@
+Negative control for the default-row marker in CARD view (C12/D14).
+
+Drops the star from the card's lead, so the default row reads as the default in
+the table's marker column and as an ordinary row in cards — the same rows
+telling two different stories depending on which view is on.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the card-view marker spec — the declared marker is present in BOTH views.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+@@ -66,13 +66,6 @@
+           >
+             <header :class="styles.listSurface.cardHeader">
+               <div :class="styles.listSurface.cardLead">
+-                <Icon
+-                  v-if="marker"
+-                  :icon="marker.icon"
+-                  :variant="isMarked(row) ? marker.marked : marker.unmarked"
+-                  size="nano"
+-                  :class="rowMarker({ isMarked: isMarked(row) })"
+-                />
+                 <h3 :class="styles.listSurface.cardTitle">
+                   <RowCell
+                     v-for="element in cardSlot(CardSlotTypes.TITLE)"

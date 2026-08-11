@@ -1,12 +1,12 @@
 <template>
   <UpmLayout>
     <div class="space-y-8">
-      <h1 class="text-display text-3xl font-bold">{{ title }}</h1>
-      <FilterBar v-if="port.criteria" :criteria="port.criteria" />
+      <h1 class="text-display text-3xl font-bold">{{ scenario.route }}</h1>
       <ModuleRenderer
         :descriptor="descriptor"
         :port="port"
         :presentation="scenario.presentation"
+        :handoffs="handoffs"
       />
     </div>
   </UpmLayout>
@@ -29,20 +29,20 @@
  * them.
  *
  * It is also the RENDERED half of "raw vs rendered": a cell that owns criteria
- * gets its own declared filter bar above the surface, and the Inspector — where
- * the raw schema · uischema · model · built wire live — overlays it on demand.
+ * gets its own declared filter bar inside the surface's toolbar, and the
+ * Inspector — where the raw schema · uischema · model · built wire live —
+ * overlays it on demand.
  */
 
-import { useI18n } from "vue-i18n";
 import { UpmLayout } from "@upmind-automation/client-vue";
 import { createHarness } from "@upmind-automation/scenario-harness";
-import { FilterBar, ModuleRenderer } from "./components";
+import { ModuleRenderer } from "./components";
 import { useCriteriaUrlSync } from "./composables/useCriteriaUrlSync";
 import { useModulePort } from "./composables/useModulePort";
-import { scenarioRegistry, scenarioRoutes } from "./registry";
+import { registry, scenarioRegistry, scenarioRoutes } from "./registry";
 import { SCENARIO_ROUTE_META_KEY } from "./scenario.constants";
-import { get, startCase } from "lodash-es";
-import type { RegisteredScenario } from "./scenario.types";
+import { get, isNil, mapValues, omitBy } from "lodash-es";
+import type { RegisteredScenario, ResolvedHandoff } from "./scenario.types";
 import type { ScopeActor } from "@upmind-automation/scenario-harness";
 import { useInspector } from "~/components/inspector";
 import { useActorScope, useContextScope } from "~/composables/scope";
@@ -61,7 +61,6 @@ definePageMeta({
 });
 
 const route = useRoute();
-const { t } = useI18n();
 
 const scenarioRoute = get(route.meta, SCENARIO_ROUTE_META_KEY) as string;
 const scenario: RegisteredScenario | undefined = get(
@@ -77,12 +76,28 @@ if (!scenario)
 
 const scenarioKey = scenario.key;
 
-const title = computed(() =>
-  scenario.nav ? t(scenario.nav.i18n) : startCase(scenario.route)
-);
-
 const actorScope = useActorScope();
 const contextScope = useContextScope();
+
+// The registry is read HERE and nowhere below: a surface opens the target it
+// was handed. A handoff naming a scenario nobody registered resolves to
+// nothing, so its control is never offered rather than offered and dead.
+const handoffs = computed(
+  () =>
+    omitBy(
+      mapValues(scenario.handoff ?? {}, handoff => {
+        const target = get(registry, handoff.target);
+        return target
+          ? {
+              scenario: target,
+              actor: actorScope.value,
+              contextFrom: handoff.contextFrom
+            }
+          : undefined;
+      }),
+      isNil
+    ) as Record<string, ResolvedHandoff>
+);
 
 const port = useModulePort(scenario, {
   actor: actorScope.value,
@@ -103,7 +118,7 @@ const { register } = useInspector();
 register({
   key: `scenario-${scenarioKey}-${route.path}`,
   factory: () => ({
-    name: title.value,
+    name: scenario.route,
     meta: port.getMeta(),
     context: descriptor.value.snapshot.context
   })

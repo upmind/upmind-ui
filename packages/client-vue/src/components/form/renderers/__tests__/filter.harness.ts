@@ -24,8 +24,19 @@ import { Form } from "@upmind-automation/upmind-ui";
 import { UpmForm } from "../../index";
 import { useFormI18n } from "../../useFormI18n";
 import { formRenderers } from "../index";
-import { compact, filter, flatMap, map, trim, uniq } from "lodash-es";
-import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
+import {
+  cloneDeep,
+  compact,
+  endsWith,
+  filter,
+  find,
+  flatMap,
+  map,
+  trim,
+  uniq,
+  unset
+} from "lodash-es";
+import type { JsonSchema7, Layout, UISchemaElement } from "@jsonforms/core";
 import type { DOMWrapper, VueWrapper } from "@vue/test-utils";
 
 export type QueryModel = Record<string, unknown>;
@@ -85,6 +96,26 @@ export async function mountFilters(options: {
     settle
   };
 }
+
+/**
+ * The shipped uischema with one option dropped from the element filtering a
+ * named column — located by the scope it carries, never by its position, since
+ * the layout IS the uischema and moves whenever the toolbar is re-expressed.
+ */
+export const uischemaWithout = (
+  uischema: UISchemaElement,
+  column: string,
+  option: string
+) => {
+  const next = cloneDeep(uischema) as Layout;
+  unset(
+    find(next.elements, ({ scope }: UISchemaElement & { scope?: string }) =>
+      endsWith(scope, `/${column}`)
+    ),
+    ["options", option]
+  );
+  return next as UISchemaElement;
+};
 
 export const messagesOf = (column: DOMWrapper<Element>) =>
   column

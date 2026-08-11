@@ -1,14 +1,24 @@
+Negative control for the descriptor being the ONE archetype verdict.
+
+Re-derives the archetype in the renderer instead of reading the descriptor the
+harness produced, so the surface dispatched on can disagree with the reflected
+verdict — two classifiers, one job.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: module-renderer.spec.ts — the descriptor's archetype is what dispatches.
+
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleRenderer.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleRenderer.vue
-index 8a649861b..e62a9acfc 100644
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleRenderer.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleRenderer.vue
-@@ -1,21 +1,21 @@
+@@ -1,22 +1,22 @@
  <template>
    <FormFlowSurface
 -    v-if="descriptor.archetype.archetype === ARCHETYPE.FORM_FLOW"
 +    v-if="liveArchetype === ARCHETYPE.FORM_FLOW"
      :snapshot="descriptor.snapshot"
      :actions="port.actions"
+     :form="presentation?.form"
    />
    <DetailSurface
 -    v-else-if="descriptor.archetype.archetype === ARCHETYPE.DETAIL"
@@ -28,7 +38,7 @@ index 8a649861b..e62a9acfc 100644
      :snapshot="descriptor.snapshot"
      :actions="port.actions"
      :table="port.table"
-@@ -33,7 +33,8 @@
+@@ -35,7 +35,8 @@
   * itself; each surface owns its own state/content rendering.
   */
  
@@ -38,10 +48,10 @@ index 8a649861b..e62a9acfc 100644
  import ActionPanelSurface from "./surfaces/ActionPanelSurface.vue";
  import DetailSurface from "./surfaces/DetailSurface.vue";
  import FormFlowSurface from "./surfaces/FormFlowSurface.vue";
-@@ -42,4 +43,8 @@ import type { ModuleRendererProps } from "./ModuleRenderer.types";
- // -----------------------------------------------------------------------------
+@@ -45,4 +46,8 @@
  
- const { descriptor, port, presentation } = defineProps<ModuleRendererProps>();
+ const { descriptor, port, presentation, handoffs } =
+   defineProps<ModuleRendererProps>();
 +
 +const liveArchetype = computed(
 +  () => classify(descriptor.snapshot, !!port.table).archetype

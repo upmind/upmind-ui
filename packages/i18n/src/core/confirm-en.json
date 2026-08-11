@@ -7,6 +7,7 @@
   "domain_in_basket_msg": "This domain is already in your basket.",
   "domain_owned_msg": "You already own this domain.",
   "email_removed": "Email removed successfully",
+  "email_saved": "Email saved successfully",
   "email_set_default": "Email successfully set as default",
   "email_verification_sent": "Email verification sent successfully",
   "email_verified": "Email verified successfully",

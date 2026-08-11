@@ -42,6 +42,9 @@
         <slot />
       </UpmRoot>
     </UpmMain>
+
+    <!-- Overlay routes — the auth a guarded scenario collects in place -->
+    <UpmOverlayController />
   </UpmPage>
 
   <!-- Inspector sidebar (fixed position) -->
@@ -61,6 +64,7 @@ import {
   UpmPage,
   UpmHeader,
   UpmMain,
+  UpmOverlayController,
   UpmRoot,
   useRoutingEngine,
   useActiveSession,

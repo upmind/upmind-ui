@@ -7,10 +7,8 @@ import { cva } from "class-variance-authority";
 
 export default {
   actionSlots: {
-    root: cva("flex flex-wrap items-center gap-2"),
-
-    alwaysVisible: cva("flex flex-wrap items-center gap-2"),
-
-    overflowTrigger: cva("")
+    // `w-full` because the ui ContextMenu's trigger is a `span`: without it the
+    // controls sit in an inline box and never reach their container's edge.
+    root: cva("flex w-full flex-wrap items-center justify-end gap-2")
   }
 };

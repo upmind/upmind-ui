@@ -18,18 +18,10 @@ import {
   TOGGLE_GROUP_POSITION,
   labelOf,
   mountFilters,
-  positionsOf
+  positionsOf,
+  uischemaWithout
 } from "./filter.harness";
-import { cloneDeep, get, unset } from "lodash-es";
-import type { UISchemaElement } from "@jsonforms/core";
-
-const BOUNCED_ELEMENT = ["elements", 1, "elements", 1, "options"];
-
-const uischemaWithout = (option: string) => {
-  const uischema = cloneDeep(useQueryUischema());
-  unset(uischema, [...BOUNCED_ELEMENT, option]);
-  return uischema as UISchemaElement;
-};
+import { get } from "lodash-es";
 
 describe("the treatment a column draws is the one its uischema names", () => {
   it("draws the labelled three-position group for the column that asks for it", async () => {
@@ -89,7 +81,7 @@ describe("the treatment a column draws is the one its uischema names", () => {
   it("falls back to the treatment that shows its unset position when none is named", async () => {
     const { column } = await mountFilters({
       schema: useQuerySchema(),
-      uischema: uischemaWithout("treatment")
+      uischema: uischemaWithout(useQueryUischema(), "bounced", "treatment")
     });
 
     expect(column("bounced").findAll(BUTTON_GROUP_POSITION)).toHaveLength(3);

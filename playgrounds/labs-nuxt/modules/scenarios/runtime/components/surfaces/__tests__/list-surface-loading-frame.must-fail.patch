@@ -1,0 +1,22 @@
+Negative control for the table as the FRAME during loading (C8).
+
+Restores the whole-surface loading notice, so the table — headers included —
+is swapped out while the rows load and the layout jumps when they land. The
+"loading state is awful" defect, exactly.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the loading-state specs — the real headers stay rendered with skeleton
+rows beneath them.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+@@ -356,7 +356,6 @@
+   if (state.value === ModuleState.READY || hasPresented.value) return undefined;
+   // A declared frame draws its OWN loading: the headers stay and skeleton rows
+   // stand in for the data, so the layout never jumps when it arrives (C8).
+-  if (state.value === ModuleState.LOADING && hasTable.value) return undefined;
+   return state.value;
+ });
+ 

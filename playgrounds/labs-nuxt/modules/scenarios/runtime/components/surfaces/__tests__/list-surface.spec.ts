@@ -32,8 +32,16 @@ import {
   CONTROL_TEST_VALUE,
   OVERFLOW_TRIGGER_TEST_VALUE
 } from "../../__tests__/control-test-values";
+import { RESOLVED_HANDOFFS } from "../../__tests__/resolved-handoffs";
 import { ListSurface } from "../index";
-import { filter, keys, map } from "lodash-es";
+import {
+  ACTIONS_COLUMN,
+  DECLARED_HEADERS,
+  FIRST_DECLARED_COLUMN,
+  TABLE_COLUMNS
+} from "./table-geometry";
+import { filter, keys, map, slice } from "lodash-es";
+import type { ResolvedHandoff } from "../../../scenario.types";
 import type { SurfaceActions } from "../surface.types";
 import type { ControlledTableChannel } from "@upmind-automation/scenario-harness";
 
@@ -55,7 +63,8 @@ const declaredIn = (placement: ActionPlacementTypes) =>
 
 function mountList(
   table?: ControlledTableChannel,
-  actions: SurfaceActions = {}
+  actions: SurfaceActions = {},
+  handoffs?: Record<string, ResolvedHandoff>
 ) {
   return mount(ListSurface, {
     attachTo: document.body,
@@ -67,7 +76,8 @@ function mountList(
       },
       actions,
       presentation,
-      table
+      table,
+      handoffs
     }
   });
 }
@@ -138,7 +148,7 @@ describe("@AC2 ListSurface — controlled-table consumed, never owned", () => {
     const emit = vi.fn();
     const wrapper = mountList(fakeTable({}, emit));
 
-    await wrapper.findAll("th")[0].trigger("click");
+    await wrapper.findAll("th")[FIRST_DECLARED_COLUMN].trigger("click");
 
     expect(emit).toHaveBeenCalledTimes(1);
     const intent = emit.mock.calls[0][0];
@@ -216,15 +226,17 @@ describe("@AC3 list-actions — a declared action fires the live map member it n
     expect(actions.verify).toHaveBeenCalledWith(rows[OPEN_ROW].id);
   });
 
-  it("fires actions.ensure from the declared collection-level control", async () => {
+  it("offers no collection-level control at all when its handoff is not registered", () => {
+    // A live `ensure` buys `add` nothing: it is a handoff control, and the
+    // editor is what collects an address. The offered half is owned by
+    // `list-surface-handoff.spec.ts`.
     const actions = { ensure: vi.fn() };
     const wrapper = mountList(undefined, actions);
 
-    await wrapper
-      .find(`[data-test-value="${CONTROL_TEST_VALUE.ensure}"]`)
-      .trigger("click");
-
-    expect(actions.ensure).toHaveBeenCalledTimes(1);
+    expect(
+      wrapper.find(`[data-test-value="${CONTROL_TEST_VALUE.add}"]`).exists()
+    ).toBe(false);
+    expect(actions.ensure).not.toHaveBeenCalled();
   });
 
   it("degrades to a read-only row list — never blank — when no table channel is present", () => {
@@ -274,16 +286,14 @@ describe("@AC3 list-actions (table-backed) — the real client-emails canary pat
     expect(actions.verify).toHaveBeenCalledWith(rows[OPEN_ROW].id);
   });
 
-  it("fires actions.ensure from the collection-level control alongside a table channel", async () => {
+  it("withholds the unregistered collection-level control alongside a table channel too", () => {
     const actions = { ensure: vi.fn() };
     const wrapper = mountList(fakeTable(), actions);
 
     expect(wrapper.find("table").exists()).toBe(true);
-    await wrapper
-      .find(`[data-test-value="${CONTROL_TEST_VALUE.ensure}"]`)
-      .trigger("click");
-
-    expect(actions.ensure).toHaveBeenCalledTimes(1);
+    expect(
+      wrapper.find(`[data-test-value="${CONTROL_TEST_VALUE.add}"]`).exists()
+    ).toBe(false);
   });
 });
 
@@ -292,13 +302,12 @@ describe("@AC3 the declaration is the ONLY source of columns and controls (C15)"
     const wrapper = mountList(fakeTable(), { remove: vi.fn() });
     const headers = map(wrapper.findAll("thead th"), th => th.text());
 
-    // The trailing header is the action column, which no element declares.
-    expect(headers.slice(0, presentation.row.elements.length)).toEqual([
-      "Email address",
-      "Status",
-      "Date bounced"
-    ]);
-    expect(headers).toHaveLength(presentation.row.elements.length + 1);
+    // The leading header is the marker column and the trailing one the action
+    // column — neither is declared by any element.
+    expect(slice(headers, FIRST_DECLARED_COLUMN, ACTIONS_COLUMN)).toEqual(
+      DECLARED_HEADERS
+    );
+    expect(headers).toHaveLength(TABLE_COLUMNS);
   });
 
   it("renders no cell for a row property the declaration never declared", () => {
@@ -309,7 +318,7 @@ describe("@AC3 the declaration is the ONLY source of columns and controls (C15)"
 
   it("places each action where the declaration placed it, not where the renderer prefers", async () => {
     const actions = { remove: vi.fn(), setDefault: vi.fn(), verify: vi.fn() };
-    const wrapper = mountList(undefined, actions);
+    const wrapper = mountList(undefined, actions, RESOLVED_HANDOFFS);
 
     const overflowed = declaredIn(ActionPlacementTypes.OVERFLOW);
 

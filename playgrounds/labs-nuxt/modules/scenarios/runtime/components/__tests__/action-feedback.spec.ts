@@ -101,7 +101,16 @@ describe("@AC3 action feedback — an outcome reaches the user", () => {
 
     await expect(
       feedback.fire(KEY, () => Promise.reject(recordedRejection()), COPY)
-    ).resolves.toBeUndefined();
+    ).resolves.toBe(false);
+  });
+
+  it("answers the caller whether the action actually settled", async () => {
+    mountToaster();
+    const feedback = useActionFeedback();
+
+    await expect(
+      feedback.fire(KEY, () => Promise.resolve({ status: "ok" }), COPY)
+    ).resolves.toBe(true);
   });
 });
 

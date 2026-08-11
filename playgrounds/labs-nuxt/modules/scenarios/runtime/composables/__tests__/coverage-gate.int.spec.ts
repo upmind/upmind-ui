@@ -28,12 +28,12 @@
 
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { coveredActionIds } from "@upmind-automation/headless-test-kit/client-email.canary.steps";
 import {
   installFilteredEmailsHandler,
   seedClientSession
 } from "@upmind-automation/headless-test-kit/client-email.int-helpers";
 import { CLIENT_EMAILS_ACTIONS_SOURCE } from "@upmind-automation/headless-test-kit/client-email.internal-kit";
-import { coveredActionIds } from "@upmind-automation/headless-test-kit/client-emails.steps";
 import { server } from "@upmind-automation/headless-test-kit/setup.integration";
 import {
   GATE_CAUSE,

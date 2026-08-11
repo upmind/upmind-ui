@@ -2,6 +2,9 @@ import { registerEntry } from "@upmind-automation/upmind-ui";
 import AddressRenderer, { tester as addressTest } from "./AddressRenderer.vue";
 import DomainRenderer, { tester as domainTest } from "./DomainRenderer.vue";
 import FilterRenderer, { tester as filterTest } from "./FilterRenderer.vue";
+import FilterRowRenderer, {
+  tester as filterRowTest
+} from "./FilterRowRenderer.vue";
 import GatewaysRenderer, {
   tester as gatewayMethodTest
 } from "./GatewaysRenderer.vue";
@@ -30,5 +33,6 @@ export const formRenderers = [
   registerEntry(GatewaysRenderer, gatewayMethodTest),
   registerEntry(TermsRenderer, termsTest),
   registerEntry(SubProductRenderer, subProductTest),
-  registerEntry(FilterRenderer, filterTest)
+  registerEntry(FilterRenderer, filterTest),
+  registerEntry(FilterRowRenderer, filterRowTest)
 ];

@@ -3,10 +3,11 @@
  * @fileoverview client-emails spec pair — feature ↔ steps traceability (Task 21)
  *
  * ## Job To Be Done
- * The executed pair cannot drift: every step written in `client-emails.feature`
- * is matched by a `StepDef` in `client-emails.steps.ts`, and every `StepDef` is
- * exercised by at least one feature step. Both directions, by name, using the
- * same cucumber-expression engine the runner matches with at registration time.
+ * The executed pair cannot drift: every step written in
+ * `client-email.canary.feature` is matched by a `StepDef` in
+ * `client-email.canary.steps.ts`, and every `StepDef` is exercised by at least
+ * one feature step. Both directions, by name, using the same
+ * cucumber-expression engine the runner matches with at registration time.
  *
  * ## What Breaks If These Fail
  * A feature step nobody implements is an undefined step at generation time; a
@@ -18,12 +19,15 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { createTraceabilityCheck } from "@upmind-automation/scenario-harness";
-import { clientEmailsSteps, coveredActionIds } from "./client-emails.steps";
+import {
+  clientEmailsSteps,
+  coveredActionIds
+} from "./client-email.canary.steps";
 
 // -----------------------------------------------------------------------------
 
 const featureText = readFileSync(
-  join(import.meta.dirname, "client-emails.feature"),
+  join(import.meta.dirname, "client-email.canary.feature"),
   "utf-8"
 );
 
@@ -43,7 +47,7 @@ describe("client-emails spec pair — feature ↔ steps traceability (Task 21)",
 
   it("fires every action it declares as covered", () => {
     const stepsSource = readFileSync(
-      join(import.meta.dirname, "client-emails.steps.ts"),
+      join(import.meta.dirname, "client-email.canary.steps.ts"),
       "utf-8"
     );
 

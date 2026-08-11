@@ -111,7 +111,6 @@ import {
   Select,
   ToggleGroup,
   Tooltip,
-  FORM_FIELD_LAYOUT,
   useUpmindUIRenderer
 } from "@upmind-automation/upmind-ui";
 import {
@@ -248,6 +247,15 @@ const isButtonGroup = computed(
     treatment.value !== FilterTreatment.ToggleGroup
 );
 
+/**
+ * A tri-state treatment sits BESIDE its label, never under it. The layout is
+ * the uischema's to declare — `options.treatment` names the control, and a
+ * named tri-state is drawn inline — so it is expressed as a `uiConfig` override
+ * on the field's existing style slots rather than as a layout prop on the ui
+ * primitive.
+ */
+const isInline = computed(() => isButtonGroup.value || isToggleGroup.value);
+
 const isNumericRange = computed(
   () =>
     !isEmpty(
@@ -319,12 +327,17 @@ const fieldProps = computed<FormControlProps>(() => {
       touched: true
     });
 
+  if (!isInline.value) return merged;
+
   return assign(merged, {
-    layout:
-      branch.value === FilterBranch.Boolean
-        ? FORM_FIELD_LAYOUT.INLINE
-        : FORM_FIELD_LAYOUT.STACKED,
-    noLabel: isToggleGroup.value || !!merged.noLabel
+    noLabel: isToggleGroup.value || !!merged.noLabel,
+    uiConfig: {
+      form: {
+        field: "flex-row flex-wrap items-center gap-3",
+        label: "w-auto shrink-0",
+        control: "w-auto"
+      }
+    }
   });
 });
 

@@ -21,10 +21,22 @@ import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 
-/** How a caller overrides the scope the binding declares. */
+/**
+ * How a caller overrides the scope the binding declares.
+ *
+ * @graphify-citation `graphify-out/graph.json` (2026-08-10, 6795 nodes) — the
+ * `fresh` member below relays `scope.builder.ts`'s own `.fresh()`; no
+ * fresh-boot node exists in the tree.
+ */
 export type ModulePortScope = {
   actor?: ScopeActorTypes;
   contextId?: string;
+  /**
+   * Boot a distinct instance rather than the registry's cached one — what an
+   * editor opened on a record that does not exist yet needs, so two drafts (or
+   * a draft after a save) never share one machine.
+   */
+  fresh?: boolean;
 };
 
 /** Raw vs rendered: the whole chain in one place, plain data all the way down. */

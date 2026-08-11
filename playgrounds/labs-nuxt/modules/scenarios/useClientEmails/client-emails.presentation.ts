@@ -15,10 +15,11 @@
  * was declared, never because a key happened to be on the row.
  *
  * `sortable` names the wire field from the query schema's own `sort.field`
- * enum, which is why Status sorts by `default` — the flag the server orders on
- * behind that column's badges. `bouncedAt` declares none: the enum offers
- * `created_at`, never a bounce date, and a header the API would refuse is a
- * header the user is not invited to click.
+ * enum, which is why Status sorts by `default` — the marker column has no
+ * header to click, so that column is where the enum's `default` field stays
+ * reachable. `bouncedAt` declares none: the enum offers `created_at`, never a
+ * bounce date, and a header the API would refuse is a header the user is not
+ * invited to click.
  */
 
 import { RuleEffect } from "@jsonforms/core";
@@ -31,14 +32,12 @@ import type { RowUischema, ScenarioAction } from "../runtime/scenario.types";
 
 // -----------------------------------------------------------------------------
 
-/** The row's status flags, drawn as badges — the same `meta` C11's rules gate on. */
+/**
+ * The row's status flags, drawn as badges — the same `meta` C11's rules gate on.
+ * `isDefault` is NOT among them: default-ness is the marker column's one job,
+ * and a badge repeating it would be the same fact told twice.
+ */
 const STATUS_BADGES = [
-  {
-    flag: "isDefault",
-    i18n: "text.default_label",
-    color: "primary" as const,
-    icon: "star-01"
-  },
   {
     flag: "isVerified",
     i18n: "text.verified_label",
@@ -50,8 +49,14 @@ const STATUS_BADGES = [
 export const rowUischema: RowUischema = {
   type: "HorizontalLayout",
   options: {
-    // C12 — the one default row reads as the default at a glance.
-    marker: { scope: "#/properties/meta/properties/isDefault", icon: "star-01" }
+    // C12 — the one default row reads as the default at a glance: every row
+    // carries the star, filled on that row and outlined on the rest.
+    marker: {
+      scope: "#/properties/meta/properties/isDefault",
+      icon: "star-01",
+      marked: "Solid",
+      unmarked: "Line"
+    }
   },
   elements: [
     {
@@ -119,6 +124,16 @@ export const cardUischema: RowUischema = {
  */
 export const rowActions: ScenarioAction[] = [
   {
+    name: "edit",
+    i18n: "action.edit",
+    icon: "edit-01",
+    variant: "outline",
+    placement: ActionPlacementTypes.VISIBLE,
+    // The collection has no update path at all — editing one address is the
+    // MANAGER's job, and the row hands off to it carrying its own id (C1).
+    handoff: "edit"
+  },
+  {
     name: "remove",
     i18n: "action.remove",
     icon: "trash-01",
@@ -180,11 +195,15 @@ export const rowActions: ScenarioAction[] = [
 
 export const collectionActions: ScenarioAction[] = [
   {
-    name: "ensure",
+    name: "add",
     i18n: "action.add_new",
     icon: "plus",
     color: "primary",
     variant: "solid",
-    placement: ActionPlacementTypes.VISIBLE
+    placement: ActionPlacementTypes.VISIBLE,
+    // `ensure` takes an address; a button cannot supply one. The editor the
+    // handoff opens is what collects it, and its save calls the same
+    // find-or-create service the collection's own action would have (C2).
+    handoff: "add"
   }
 ];

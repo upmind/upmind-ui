@@ -15,10 +15,10 @@ Proven RED 2026-08-08
       -> declared covered but fired by no step: sortBy
   2 failed
 
-diff --git a/packages/headless/src/modules/client-email/__tests__/client-emails.steps.ts b/packages/headless/src/modules/client-email/__tests__/client-emails.steps.ts
+diff --git a/packages/headless/src/modules/client-email/__tests__/client-email.canary.steps.ts b/packages/headless/src/modules/client-email/__tests__/client-email.canary.steps.ts
 index bcbf35bb4..98e305e74 100644
---- a/packages/headless/src/modules/client-email/__tests__/client-emails.steps.ts
-+++ b/packages/headless/src/modules/client-email/__tests__/client-emails.steps.ts
+--- a/packages/headless/src/modules/client-email/__tests__/client-email.canary.steps.ts
++++ b/packages/headless/src/modules/client-email/__tests__/client-email.canary.steps.ts
 @@ -149,12 +149,6 @@ export const clientEmailsSteps = defineSteps(({ Given, When, Then }) => {
      })
    );

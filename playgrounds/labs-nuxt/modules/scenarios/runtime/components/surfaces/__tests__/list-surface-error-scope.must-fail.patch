@@ -1,15 +1,24 @@
+Negative control for the error SCOPE (P1-R13).
+
+Drops the "has already presented" guard, so a row action the API refuses
+replaces the whole list with the load-error panel — the defect the operator
+drove into: one 409 takes the table, its controls and the user's place in the
+list away, with no way back short of a page reload.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: list-surface-error-scope.spec.ts — the cases holding the presented list
+on screen through an action failure.
+
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-index 5555555..6666666 100644
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-@@ -222,9 +222,7 @@
+@@ -353,7 +353,7 @@
  });
-
- const notice = computed(() =>
--  hasPresented.value || state.value === ModuleState.READY
--    ? undefined
--    : state.value
-+  state.value === ModuleState.READY ? undefined : state.value
- );
-
- // A failure this surface already reported as a toast is not drawn a second time
+ 
+ const notice = computed(() => {
+-  if (state.value === ModuleState.READY || hasPresented.value) return undefined;
++  if (state.value === ModuleState.READY) return undefined;
+   // A declared frame draws its OWN loading: the headers stay and skeleton rows
+   // stand in for the data, so the layout never jumps when it arrives (C8).
+   if (state.value === ModuleState.LOADING && hasTable.value) return undefined;

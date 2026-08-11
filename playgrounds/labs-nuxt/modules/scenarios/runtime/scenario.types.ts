@@ -26,7 +26,11 @@
 import type { LiveCompositionCell } from "./composables/useCompositionPort.types";
 import type { ControlElement, Layout, Rule } from "@jsonforms/core";
 import type { ScopeActorTypes } from "@upmind-automation/headless";
-import type { BadgeProps, ButtonProps } from "@upmind-automation/upmind-ui";
+import type {
+  BadgeProps,
+  ButtonProps,
+  IconProps
+} from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
@@ -42,10 +46,20 @@ export type ScenarioKey = string;
 
 /**
  * A four-layer cell once an actor is named — plus the optional `.for()` step
- * for a matrix that declares contexts for that actor.
+ * for a matrix that declares contexts for that actor, and the `.fresh()` step a
+ * caller opening a NEW record takes.
+ *
+ * @graphify-citation `graphify-out/graph.json` (2026-08-10, 6795 nodes) — both
+ * steps are `scope.builder.ts`'s own builder methods, named here rather than
+ * minted.
  */
 export type ScenarioScopedCell = LiveCompositionCell & {
   for?(type: string, id: string): LiveCompositionCell;
+  /**
+   * A distinct instance, never served from the scope registry's cache — what an
+   * editor opened on a record that does not exist yet is booted with.
+   */
+  fresh?(): LiveCompositionCell;
   /** The module's own internals — reachable only where the raw cell is held. */
   useInternals?(): Record<string, unknown>;
 };
@@ -59,12 +73,34 @@ export type FourLayerComposable = (...args: never[]) => {
   as(actor: ScopeActorTypes): ScenarioScopedCell;
 };
 
-/** Where a row action hands off to, and which row property supplies the target's id. */
+/**
+ * Where an action hands off to, and which row property supplies the target's id.
+ *
+ * @graphify-citation `graphify-out/graph.json` (2026-08-10, 6795 nodes) — no
+ * handoff node exists; `contextFrom` is relaxed here rather than a second shape
+ * being minted for the add case.
+ */
 export type ScenarioHandoff = {
   target: ScenarioKey;
   contextType: string;
-  /** A JSON Pointer into the ROW, validated against the row schema — never a live composable reference. */
-  contextFrom: string;
+  /**
+   * A JSON Pointer into the ROW, validated against the row schema — never a
+   * live composable reference. Absent, the handoff opens the target on a record
+   * that does not exist yet, so it boots `.fresh()` with an empty model.
+   */
+  contextFrom?: string;
+};
+
+/**
+ * A declared handoff once the playground has resolved it: the target's own
+ * declaration, ready to boot, at the actor the collection itself is driven at.
+ * A surface never reads the registry — it opens what it was handed.
+ */
+export type ResolvedHandoff = {
+  scenario: RegisteredScenario;
+  actor: ScopeActorTypes;
+  /** {@link ScenarioHandoff.contextFrom} — absent means a new record. */
+  contextFrom?: string;
 };
 
 // -----------------------------------------------------------------------------
@@ -132,11 +168,26 @@ export type RowElement = ControlElement & {
   options: RowCellOptions;
 };
 
-/** The row's own marker treatment — the flag that makes one row read as special. */
+/**
+ * The row's own marker treatment — the flag that makes one row read as special.
+ * EVERY row draws it, in its own column: the flagged row filled, the rest
+ * outlined, so the marker reads as one choice among many rather than as the
+ * only row carrying a glyph.
+ *
+ * @graphify-citation `graphify-out/graph.json` (2026-08-10, 6795 nodes) — no
+ * marker or icon-pack node exists in the tree. Filled and outlined are the SAME
+ * glyph in two of the icon set's own packs, so the two states are declared as
+ * the ui `Icon`'s `variant` rather than as a second icon name.
+ */
 export type RowMarker = {
   /** A pointer into the row, e.g. `#/properties/meta/properties/isDefault`. */
   scope: string;
+  /** The glyph — one name, drawn on every row. */
   icon: string;
+  /** The pack the flagged row draws from — the filled glyph. */
+  marked: NonNullable<IconProps["variant"]>;
+  /** The pack every other row draws from — the same glyph, outlined. */
+  unmarked: NonNullable<IconProps["variant"]>;
 };
 
 /**
@@ -166,8 +217,22 @@ export enum ActionPlacementTypes {
  * control declaratively instead of being hand-coded into a renderer (C11).
  */
 export type ScenarioAction = {
-  /** The action's live name on the composable's action map. */
+  /**
+   * The action's live name on the composable's action map — or, for a
+   * {@link ScenarioAction.handoff} control, the name the surface keys it by.
+   *
+   * @graphify-citation `graphify-out/graph.json` (2026-08-10, 6795 nodes) — the
+   * handoff member below extends this existing type; no action-handoff node
+   * exists anywhere in the tree.
+   */
   name: string;
+  /**
+   * The declared handoff this control OPENS instead of calling an action: the
+   * editor gathers the model the composable could never be handed by a bare
+   * click (C1/C2). A control declaring one is offered only where the scenario
+   * declares that handoff and its target is registered.
+   */
+  handoff?: string;
   /** The control's label — an i18n key, never English. */
   i18n: string;
   icon?: string;
@@ -179,10 +244,39 @@ export type ScenarioAction = {
   rule?: Rule;
 };
 
+/**
+ * The Form-Flow archetype's own action-name convention, used by a scenario that
+ * declares no {@link ScenarioForm} of its own.
+ *
+ * @graphify-citation `graphify-out/graph.json` (2026-08-10, 6795 nodes) — the
+ * two names are the `useAuth` reference usage's, lifted into an enum rather
+ * than repeated as string literals in the surface.
+ */
+export enum FormFlowActionTypes {
+  INPUT = "set",
+  SUBMIT = "resolve"
+}
+
+/**
+ * How an EDITOR scenario is driven: which action each keystroke is fed to,
+ * which action SAVES, and what the surface says when the save settles. Declared
+ * because the names are the module's, not the archetype's — `useAuth` inputs
+ * through `set` and saves through `resolve`, the client-email manager through
+ * `input` and `update`.
+ */
+export type ScenarioForm = {
+  input: string;
+  submit: string;
+  /** i18n keys — the sentence the toast carries either way. */
+  feedback?: { success: string; failure: string };
+};
+
 /** Everything a scenario declares about how it is DRAWN. */
 export type ScenarioPresentation = {
-  /** The table row — the declared columns, in order. */
-  row: RowUischema;
+  /** The table row — the declared columns, in order. Absent on an editor. */
+  row?: RowUischema;
+  /** How this scenario's form is driven, where it IS one. */
+  form?: ScenarioForm;
   /** The same row drawn as a card. */
   card?: RowUischema;
   /** Per-row actions, in declaration order. */
@@ -191,11 +285,17 @@ export type ScenarioPresentation = {
   collectionActions?: ScenarioAction[];
 };
 
-/** How a scenario appears in the navigation and on the landing page. */
+/**
+ * How a scenario appears in the navigation and on the landing page.
+ *
+ * There is no label here on purpose (D1): a scenario's identity IS the
+ * composable it boots, which is its own directory — the url segment, the route
+ * name, the menu item, the page title and the Inspector tab are all that one
+ * name, exactly as `useAuth`'s entry is. A prettified alias would let those
+ * surfaces disagree with the path.
+ */
 export type ScenarioNav = {
-  /** The menu label — an i18n key, never English. */
-  i18n: string;
-  icon?: string;
+  icon: string;
 };
 
 // -----------------------------------------------------------------------------

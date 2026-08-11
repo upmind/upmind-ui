@@ -10,15 +10,14 @@ Reds: list-surface-capability-gate.spec.ts — the `meta.canDelete === false`
 case (the control must be disabled).
 
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-index c87e606c0..258368d82 100644
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-@@ -440,7 +440,7 @@ function rowActionItems(row: ListRow): ActionSlotItem[] {
+@@ -613,7 +613,7 @@
        placement: action.placement,
        // The precondition is the ROW's own — a rule over the meta the record
        // itself carries, never a client-side guess about what the API allows.
 -      disabled: !isRuleEnabled(action, row) || feedback.isPending(control),
 +      disabled: feedback.isPending(control),
        onSelect: () =>
-         feedback.fire(control, () => props.actions[action.name](row.id), {
-           success: t(get(action, ["feedback", "success"], "")),
+         action.handoff
+           ? openHandoff(action, row)

@@ -3,7 +3,7 @@
 # Distinct from the sibling `client-email.feature`, which is the module's
 # spec-only capability record (ADR-020: no steps file, no runner, read only by
 # `client-email.traceability.test.ts`). This file is the executed half: every
-# step below resolves in `client-emails.steps.ts`, and `playgrounds/labs-nuxt`'s
+# step below resolves in `client-email.canary.steps.ts`, and `playgrounds/labs-nuxt`'s
 # Playwright lane drives it through the `world` bridge over the RECORDED corpus.
 #
 # Declarative only — no selector, URL or UI mechanic appears here, and the steps

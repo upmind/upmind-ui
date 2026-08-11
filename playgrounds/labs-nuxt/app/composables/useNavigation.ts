@@ -12,7 +12,6 @@
  */
 
 import { computed } from "vue";
-import { useI18n } from "vue-i18n";
 import { useRouter, type RouteRecordNormalized } from "vue-router";
 import {
   registry,
@@ -100,11 +99,11 @@ const NAVIGABLE_KEYS = difference(scenarioKeys, HANDOFF_TARGET_KEYS);
 
 /**
  * Every navigable scenario as a menu entry, read from the declaration the same
- * way the playground reads it: a scenario that declared `nav` is called and
- * iconed what it said, and only one that declared none falls back to its own
- * directory humanised.
+ * way the playground reads it. The LABEL is the composable's own name — the
+ * directory the url already carries (D1) — so the menu item, the page title and
+ * the path can never disagree; only the icon is declarable.
  */
-function scenarioEntries(translate: (key: string) => string): LabEntry[] {
+function scenarioEntries(): LabEntry[] {
   return map(NAVIGABLE_KEYS, key => {
     // The url segment is the scenario's own DIRECTORY, which is also its route
     // name — so the sidebar link and the registered route cannot drift.
@@ -113,7 +112,7 @@ function scenarioEntries(translate: (key: string) => string): LabEntry[] {
 
     return {
       key,
-      label: nav ? translate(nav.i18n) : startCase(route),
+      label: route,
       icon: nav?.icon ?? SCENARIO_ICON,
       // The FAMILY stays the directory's: a declared label is a human name for
       // one entry, never the grouping every entry in the family answers to.
@@ -172,11 +171,10 @@ function buildNavigationTree(sources: NavSource[]): Map<string, NavItem[]> {
 // --- Composable
 export function useNavigation() {
   const router = useRouter();
-  const { t } = useI18n();
 
   const routes = computed((): NavSource[] => routeSources(router.getRoutes()));
 
-  const scenarios = computed((): LabEntry[] => scenarioEntries(t));
+  const scenarios = computed((): LabEntry[] => scenarioEntries());
 
   const navigation = computed((): NavItem[] => {
     const sectionMap = buildNavigationTree([

@@ -1,0 +1,23 @@
+Negative control for the CARD declaration (C13).
+
+Draws the card view from the row uischema, so the toggle switches the frame but
+not the declaration — the card becomes a re-labelled table row and the
+scenario's second declaration goes unread.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the card-view specs — card view renders `presentation.card`, slots and
+all.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+@@ -407,7 +407,7 @@
+ 
+ /** The same row's declared CARD fields — the scenario's second declaration. */
+ const cardElements = computed<RowElement[]>(
+-  () => props.presentation?.card?.elements ?? []
++  () => props.presentation?.row?.elements ?? []
+ );
+ 
+ function cardSlot(slot: CardSlotTypes): RowElement[] {

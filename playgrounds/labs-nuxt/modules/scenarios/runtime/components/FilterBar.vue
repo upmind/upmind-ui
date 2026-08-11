@@ -17,8 +17,9 @@
  * uischema mounted through JSONForms, so the
  * `Filter` elements resolve against the renderer set `UpmForm` already
  * registers and the controls are whatever the declaration says. Presentation
- * (the full-width search over its row of switches) is the uischema's, never
- * this component's. It owns no model and no state: it reads the composable's
+ * (the flowing row of controls the declaration's `flow` layout draws) is the
+ * uischema's, never this component's — including which control takes the row's
+ * leftover width. It owns no model and no state: it reads the composable's
  * live criteria and writes back through the composable's own merging
  * `setCriteria` — the model stays composable-owned.
  */

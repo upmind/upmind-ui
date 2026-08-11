@@ -3,6 +3,7 @@
     v-if="descriptor.archetype.archetype === ARCHETYPE.FORM_FLOW"
     :snapshot="descriptor.snapshot"
     :actions="port.actions"
+    :form="presentation?.form"
   />
   <DetailSurface
     v-else-if="descriptor.archetype.archetype === ARCHETYPE.DETAIL"
@@ -19,7 +20,9 @@
     :snapshot="descriptor.snapshot"
     :actions="port.actions"
     :table="port.table"
+    :criteria="port.criteria"
     :presentation="presentation"
+    :handoffs="handoffs"
   />
 </template>
 
@@ -41,5 +44,6 @@ import ListSurface from "./surfaces/ListSurface.vue";
 import type { ModuleRendererProps } from "./ModuleRenderer.types";
 // -----------------------------------------------------------------------------
 
-const { descriptor, port, presentation } = defineProps<ModuleRendererProps>();
+const { descriptor, port, presentation, handoffs } =
+  defineProps<ModuleRendererProps>();
 </script>

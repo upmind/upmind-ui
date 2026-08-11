@@ -27,5 +27,19 @@ export default {
   scope: {
     actor: ScopeActorTypes.CLIENT,
     contextType: ClientEmailContextTypes.EMAIL
+  },
+  presentation: {
+    // The manager's own action names, read from
+    // `useClientEmailManager.actions.ts`: `input` parses each keystroke through
+    // the machine, `update` saves — creating where the scope carries no email
+    // and updating where it does.
+    form: {
+      input: "input",
+      submit: "update",
+      feedback: {
+        success: "confirm.email_saved",
+        failure: "error.client_email_update_failed"
+      }
+    }
   }
 } satisfies ScenarioDeclaration;

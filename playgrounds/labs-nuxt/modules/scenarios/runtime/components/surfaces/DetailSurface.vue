@@ -23,7 +23,7 @@
 import { computed } from "vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import ContextPanel from "../ContextPanel.vue";
-import { resolveModuleState } from "../module-state";
+import { resolveModuleDetail, resolveModuleState } from "../module-state";
 import { ModuleState } from "../module-state.types";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
 import config from "./DetailSurface.styles";
@@ -33,7 +33,7 @@ import type { DetailSurfaceProps } from "./DetailSurface.types";
 const props = defineProps<DetailSurfaceProps>();
 
 const state = computed(() => resolveModuleState(props.snapshot.meta));
-const detail = computed(() => props.snapshot.context.error);
+const detail = computed(() => resolveModuleDetail(props.snapshot.context));
 const model = computed(
   () =>
     (props.snapshot.context.model as Record<string, unknown> | undefined) ?? {}

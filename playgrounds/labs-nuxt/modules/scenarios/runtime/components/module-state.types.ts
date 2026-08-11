@@ -24,6 +24,13 @@ export const MODULE_STATE_META_FLAG = {
   HAS_ERRORS: "hasErrors"
 } as const;
 
+/**
+ * The context key carrying WHAT went wrong, split by the same two composables
+ * under the same two names (`error` vs `errors`) — read in declaration order,
+ * so a module publishing one is never asked for the other.
+ */
+export const MODULE_STATE_CONTEXT_ERROR = ["error", "errors"] as const;
+
 export enum ModuleState {
   LOADING = "loading",
   ERROR = "error",

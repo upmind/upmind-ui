@@ -5,7 +5,12 @@
  * instead of its normal content.
  */
 
-import { MODULE_STATE_META_FLAG, ModuleState } from "./module-state.types";
+import {
+  MODULE_STATE_CONTEXT_ERROR,
+  MODULE_STATE_META_FLAG,
+  ModuleState
+} from "./module-state.types";
+import { find, get, isNil } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -23,4 +28,18 @@ export function resolveModuleState(meta: Record<string, boolean>): ModuleState {
   )
     return ModuleState.ERROR;
   return ModuleState.READY;
+}
+
+/**
+ * The module's own copy of what went wrong, under whichever name it publishes
+ * it. A surface serves every archetype, so it reads the concept rather than one
+ * module's spelling of it.
+ * @param context `ModuleDescriptor.snapshot.context`.
+ */
+export function resolveModuleDetail(context: Record<string, unknown>): unknown {
+  const key = find(
+    MODULE_STATE_CONTEXT_ERROR,
+    name => !isNil(get(context, name))
+  );
+  return key ? get(context, key) : undefined;
 }

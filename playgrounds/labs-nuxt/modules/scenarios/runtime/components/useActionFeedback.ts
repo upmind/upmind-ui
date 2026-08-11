@@ -37,14 +37,15 @@ export function useActionFeedback(): UseActionFeedback {
   async function fire(
     key: string,
     invoke: () => unknown,
-    copy: ActionFeedbackCopy
-  ): Promise<void> {
-    if (includes(pending.value, key)) return;
+    copy?: ActionFeedbackCopy
+  ): Promise<boolean> {
+    if (includes(pending.value, key)) return false;
     pending.value.push(key);
 
     try {
       await invoke();
-      report(copy.success, TOAST_VARIANTS.SUCCESS);
+      if (copy) report(copy.success, TOAST_VARIANTS.SUCCESS);
+      return true;
     } catch (error) {
       // The API's own sentence is the only copy that says WHY a request was
       // refused ("The default email cannot be changed to unverified email
@@ -53,7 +54,8 @@ export function useActionFeedback(): UseActionFeedback {
       const message = get(error, "message");
       reported.value = isString(message) ? message : undefined;
 
-      report(copy.failure, TOAST_VARIANTS.DANGER, reported.value);
+      if (copy) report(copy.failure, TOAST_VARIANTS.DANGER, reported.value);
+      return false;
     } finally {
       pull(pending.value, key);
     }

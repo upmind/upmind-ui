@@ -11,19 +11,17 @@ Reds: list-surface-action-feedback.spec.ts — the success-toast and
 failure-toast cases.
 
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-index c87e606c0..ba6b358c3 100644
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-@@ -441,11 +441,7 @@ function rowActionItems(row: ListRow): ActionSlotItem[] {
-       // The precondition is the ROW's own — a rule over the meta the record
-       // itself carries, never a client-side guess about what the API allows.
-       disabled: !isRuleEnabled(action, row) || feedback.isPending(control),
--      onSelect: () =>
--        feedback.fire(control, () => props.actions[action.name](row.id), {
--          success: t(get(action, ["feedback", "success"], "")),
--          failure: t(get(action, ["feedback", "failure"], ""))
--        })
-+      onSelect: () => props.actions[action.name](row.id)
+@@ -617,10 +617,7 @@
+       onSelect: () =>
+         action.handoff
+           ? openHandoff(action, row)
+-          : feedback.fire(control, () => props.actions[action.name](row.id), {
+-              success: t(get(action, ["feedback", "success"], "")),
+-              failure: t(get(action, ["feedback", "failure"], ""))
+-            })
++          : props.actions[action.name](row.id)
      };
    });
  }
