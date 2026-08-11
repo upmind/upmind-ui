@@ -751,7 +751,7 @@ function rowActionItems(row: ListRow): ActionSlotItem[] {
       placement: action.placement,
       // The precondition is the ROW's own — a rule over the meta the record
       // itself carries, never a client-side guess about what the API allows.
-      disabled: false,
+      disabled: !isRuleEnabled(action, row),
       // In flight says so on the control that was clicked, in the Button's own
       // treatment: an action nobody can see working reads as an action that did
       // nothing (E12).
