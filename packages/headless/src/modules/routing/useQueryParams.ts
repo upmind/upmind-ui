@@ -11,14 +11,12 @@ import {
   compact,
   concat,
   first,
-  flatMap,
   forEach,
   get,
   includes,
   isArray,
   isEmpty,
   isFunction,
-  map,
   reduce,
   set,
   toNumber,
@@ -222,20 +220,18 @@ export const useQueryParams = (route?: RouteLocation) => {
     return model;
   }
 
+  // tlds, as bare labels — only the leading dot goes, `co.uk` keeps its own
   function getTlds(): string[] {
-    // Accepts either the comma-delimited client form (`?tlds=.com,.co.uk`) or
-    // repeated keys; `getParams` settles the string-vs-array shape first so
-    // both arrive down one path.
-    const values = flatMap(getParams(QUERY_PARAMS.TLDS, []), (value: unknown) =>
-      value?.toString()?.split(",")
-    );
-
-    // Only the LEADING dot goes: the API takes bare labels, but a multi-part
-    // TLD (`co.uk`) has to keep its inner dot.
-    return uniq(
-      compact(
-        map(values, value => trim(value).toLowerCase().replace(/^\./, ""))
-      )
+    return reduce(
+      getParams(QUERY_PARAMS.TLDS, []),
+      (result: string[], value: unknown) => {
+        forEach(value?.toString()?.split(",") ?? [], entry => {
+          const tld = trim(entry).toLowerCase().replace(/^\./, "");
+          if (tld && !includes(result, tld)) result.push(tld);
+        });
+        return result;
+      },
+      []
     );
   }
 
@@ -253,7 +249,6 @@ export const useQueryParams = (route?: RouteLocation) => {
     productConfig: first(getProductConfigs()),
     basketProductId: getParam(QUERY_PARAMS.BASKET_PRODUCT_ID),
     categoryId: getParam(QUERY_PARAMS.CATEGORY_ID),
-    /** TLD filter as bare lowercase labels, e.g. `["com", "co.uk"]`. */
     tlds: getTlds(),
     // ---
     currency: consumeParam(

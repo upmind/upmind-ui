@@ -20,7 +20,12 @@ import {
 } from "../../utils";
 
 // --- types
-import { type DomainContext, type DomainProduct, DomainMode } from "./types";
+import {
+  type DomainContext,
+  type DomainProduct,
+  type UseDacOptions,
+  DomainMode
+} from "./types";
 import { PAGINATION } from "../query";
 
 // -----------------------------------------------------------------------------
@@ -32,15 +37,10 @@ import { PAGINATION } from "../query";
  * @param value - Initial domain(s) to use as the model.
  * @param options - required configuration for the domain type.
  * @param options.mode - The domain operation mode (register or transfer). Defaults to register.
- * @param options.tlds - Restricts the search to these TLDs (bare, lowercase labels).
- *                     Supplied by the caller — this composable never reads it from the route.
+ * @param options.tlds - Restricts the search to these TLDs.
  * @returns Domain management API (state, computed, and methods)
  */
-export const useDac = (options?: {
-  mode?: DomainMode;
-  limit?: number;
-  tlds?: string[];
-}) => {
+export const useDac = (options?: UseDacOptions) => {
   const { t } = useI18n();
   const { getParam, getParams, setParam, unsetParam } = useQueryParams();
 
