@@ -44,8 +44,8 @@ import { calculateBillingTerm, parseTermDetails } from "../product/utils";
 import {
   DomainTypes,
   type DomainContext,
-  type DomainProduct,
-  type UseDomainOptions
+  type DomainOptions,
+  type DomainProduct
 } from "./types";
 import type { BasketProduct } from "../basketProduct/types";
 import { PAGINATION } from "../query";
@@ -68,7 +68,7 @@ export type DomainChoice = { value: DomainTypes; label: string };
  */
 export const useDomain = (
   value: string,
-  options: UseDomainOptions = { type: undefined }
+  options: DomainOptions = { type: undefined }
 ) => {
   const { t } = useI18n();
   const { getParam, setParam, unsetParam } = useQueryParams();

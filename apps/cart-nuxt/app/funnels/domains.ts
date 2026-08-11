@@ -16,8 +16,7 @@ import {
 } from "@upmind-automation/client-vue";
 
 import { ROUTE } from "./types";
-import { isEmpty, pick } from "lodash-es";
-import type { LocationQuery } from "vue-router";
+import { isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -91,7 +90,7 @@ export default <FunnelProps>{
     ...actions,
     setCompleteRoute: assign({
       targetRoute: ({ currentRoute }) => {
-        const { productId } = useQueryParams(currentRoute);
+        const { productId, tlds } = useQueryParams(currentRoute);
         const { products } = useBasketProducts();
         const domains = getDomainBasketProducts(products.value);
 
@@ -101,12 +100,10 @@ export default <FunnelProps>{
           ? ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING
           : ROUTE.DOMAINS_WITH_PRODUCT;
 
-        const query: LocationQuery = currentRoute?.query ?? {};
-
         return {
           name: route,
           params: { pid: productId },
-          query: pick(query, [QUERY_PARAMS.TLDS])
+          query: { [QUERY_PARAMS.TLDS]: tlds }
         };
       },
       resolved: false

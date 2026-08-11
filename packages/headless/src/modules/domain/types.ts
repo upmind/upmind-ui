@@ -300,13 +300,9 @@ export interface DacContext extends BasketHelperContext<DomainProduct> {
   useSuggestions?: boolean;
 }
 
-export interface UseDacOptions {
+export interface DomainOptions {
   mode?: DomainMode;
   limit?: number;
-  tlds?: string[];
-}
-
-export interface UseDomainOptions {
   type?: DomainTypes;
   required?: boolean;
   tlds?: string[];

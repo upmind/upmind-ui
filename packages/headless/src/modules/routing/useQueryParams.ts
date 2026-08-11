@@ -7,6 +7,7 @@ import { router } from "../routing";
 
 // --- utils
 import { useSafeParse } from "../../utils";
+import { sanitiseDomainInput } from "../domain/utils";
 import {
   compact,
   concat,
@@ -17,10 +18,11 @@ import {
   isArray,
   isEmpty,
   isFunction,
+  join,
   reduce,
   set,
+  split,
   toNumber,
-  trim,
   uniq
 } from "lodash-es";
 
@@ -220,15 +222,12 @@ export const useQueryParams = (route?: RouteLocation) => {
     return model;
   }
 
-  // tlds, as bare labels — only the leading dot goes, `co.uk` keeps its own
   function getTlds(): string[] {
     return reduce(
-      getParams(QUERY_PARAMS.TLDS, []),
-      (result: string[], value: unknown) => {
-        forEach(value?.toString()?.split(",") ?? [], entry => {
-          const tld = trim(entry).toLowerCase().replace(/^\./, "");
-          if (tld && !includes(result, tld)) result.push(tld);
-        });
+      split(join(getParams(QUERY_PARAMS.TLDS, []), ","), ","),
+      (result: string[], entry: string) => {
+        const tld = sanitiseDomainInput(entry);
+        if (tld && !includes(result, tld)) result.push(tld);
         return result;
       },
       []
