@@ -21,7 +21,8 @@ import {
   keyBy,
   map,
   omitBy,
-  reject
+  reject,
+  sortBy
 } from "lodash-es";
 import {
   applyDacTransferOverride,
@@ -271,6 +272,9 @@ function search(context: DacContext) {
   const { t } = useI18n();
   const { cancel } = useQuery();
 
+  // sorted so ?tlds=io,com and ?tlds=com,io share one cache entry
+  const tldsKey = sortBy(tlds);
+
   // --- Callback-based service: sends events as each call completes
   return (sendBack: (event: any) => void) => {
     if (!search?.query?.length) {
@@ -516,7 +520,7 @@ function search(context: DacContext) {
     // Mirrors the `/tlds` call below for consistency.
     queryClient
       .fetchQuery<DomainEnvelopeResponse<IDomainSuggestionResult[]>>({
-        queryKey: ["domains", "suggestions", sld, page, tlds],
+        queryKey: ["domains", "suggestions", sld, page, tldsKey],
         // Accept TanStack's `signal` and forward it to `fetch` via `init`,
         // so the `cancel(["domains", "suggestions"])` call above actually
         // aborts the HTTP request when the user types another character.
@@ -591,7 +595,7 @@ function search(context: DacContext) {
     // domain envelope extension (`DomainEnvelopeResponse`) narrows it.
     queryClient
       .fetchQuery<DomainEnvelopeResponse<IProduct[]>>({
-        queryKey: ["domains", "suggestions", "tlds", sld, page, tlds],
+        queryKey: ["domains", "suggestions", "tlds", sld, page, tldsKey],
         // See the `/suggestions` queryFn above — same contract: accept
         // TanStack's `signal` and forward it to `fetch` so the previous
         // round's request can actually abort when search restarts.
