@@ -16,7 +16,7 @@ import {
 } from "@upmind-automation/client-vue";
 
 import { ROUTE } from "./types";
-import { isEmpty } from "lodash-es";
+import { isEmpty, join } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -103,7 +103,9 @@ export default <FunnelProps>{
         return {
           name: route,
           params: { pid: productId },
-          query: { [QUERY_PARAMS.TLDS]: tlds }
+          ...(isEmpty(tlds)
+            ? {}
+            : { query: { [QUERY_PARAMS.TLDS]: join(tlds, ",") } })
         };
       },
       resolved: false

@@ -25,6 +25,7 @@ export interface DomainProps {
   modelValue?: string;
   touched?: boolean;
   disabled?: boolean;
+  tlds?: string[];
 }
 
 export interface DacProps {
@@ -138,6 +139,7 @@ export interface SmartDomainFieldProps {
   required?: boolean;
   errors?: string[];
   touched?: boolean;
+  tlds?: string[];
 }
 
 export interface SmartDomainSummaryProps {
