@@ -17,9 +17,6 @@ const { t } = useI18n();
 const route = useRoute();
 const { navigateNext } = useRoutingEngine();
 
-// The page owns the query read — `UpmDac` stays prop-driven. Read, never
-// consumed: the param has to stay on the URL so a refresh (or a shared link)
-// re-seeds the same filter.
 const { tlds } = useQueryParams(route);
 
 function doResolve(value?: string[]) {

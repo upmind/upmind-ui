@@ -31,11 +31,6 @@ export interface DacProps {
   template?: DOMAIN_TEMPLATE;
   type?: string;
   touched?: boolean;
-  /**
-   * Restricts the search to these TLDs — bare, lowercase labels
-   * (`["com", "co.uk"]`). Supplied by the page, which owns reading and
-   * normalising the route query; this component only forwards it.
-   */
   tlds?: string[];
 }
 

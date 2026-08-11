@@ -41,7 +41,12 @@ import {
 import { calculateBillingTerm, parseTermDetails } from "../product/utils";
 
 // --- types
-import { DomainTypes, type DomainContext, type DomainProduct } from "./types";
+import {
+  DomainTypes,
+  type DomainContext,
+  type DomainProduct,
+  type UseDomainOptions
+} from "./types";
 import type { BasketProduct } from "../basketProduct/types";
 import { PAGINATION } from "../query";
 import type { IDomainAvailabilityResponse } from "@upmind-automation/types";
@@ -58,19 +63,12 @@ export type DomainChoice = { value: DomainTypes; label: string };
  * @param options - required configuration for the domain type.
  * @param options.type - The type of domain to manage (e.g., "dac", "existing", "basket").
  *                     If not provided, defaults to all available domain types.
- * @param options.tlds - Restricts the DAC search to these TLDs (bare, lowercase labels).
- *                     Supplied by the caller — this composable never reads it from the route.
+ * @param options.tlds - Restricts the DAC search to these TLDs.
  * @returns Domain management API (state, computed, and methods)
  */
 export const useDomain = (
   value: string,
-  options: {
-    type?: DomainTypes;
-    required?: boolean;
-    tlds?: string[];
-  } = {
-    type: undefined
-  }
+  options: UseDomainOptions = { type: undefined }
 ) => {
   const { t } = useI18n();
   const { getParam, setParam, unsetParam } = useQueryParams();
