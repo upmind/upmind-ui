@@ -21,6 +21,8 @@ export class Dac {
   readonly descriptionLoadingSkeletons: Locator;
 
   /* Actions */
+  readonly searchInput: Locator;
+  readonly continueButton: Locator;
   readonly loadMoreButton: Locator;
   readonly cardAddToBasketButtons: Locator;
 
@@ -37,6 +39,8 @@ export class Dac {
       "dac-card-description-loading"
     );
 
+    this.searchInput = page.locator("#domain-search");
+    this.continueButton = page.getByTestId("button-continue");
     this.loadMoreButton = page.getByRole("button", { name: /load more/i });
     this.cardAddToBasketButtons = this.cards.getByTestId(
       "button-add-to-basket"
@@ -58,6 +62,12 @@ export class Dac {
     await this.page.goto(
       `${URLs.domainSearch}?search=${encodeURIComponent(query)}`
     );
+  }
+
+  /** Type into the search field and submit, for flows that arrive without a `search` param. */
+  async searchFor(query: string) {
+    await this.searchInput.fill(query);
+    await this.searchInput.press("Enter");
   }
 
   /**
