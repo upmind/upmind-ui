@@ -1,15 +1,29 @@
 <template>
-  <UpmDac @resolve="doResolve" />
+  <UpmDac :tlds="tlds" @resolve="doResolve" />
 </template>
 
 <script lang="ts" setup>
-import { UpmDac, useRoutingEngine } from "@upmind-automation/client-vue";
+import { useRoute } from "vue-router";
+import {
+  normaliseTlds,
+  QUERY_PARAMS,
+  UpmDac,
+  useQueryParams,
+  useRoutingEngine
+} from "@upmind-automation/client-vue";
 import { first } from "lodash-es";
 import { ROUTE } from "~/funnels/types";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
+const route = useRoute();
 const { navigateNext } = useRoutingEngine();
+const { getParamList } = useQueryParams(route);
+
+// The page owns the query read — `UpmDac` stays prop-driven. Read, never
+// consumed: the param has to stay on the URL so a refresh (or a shared link)
+// re-seeds the same filter.
+const tlds = normaliseTlds(getParamList(QUERY_PARAMS.TLDS));
 
 function doResolve(value?: string[]) {
   const primaryDomain = first(value);
