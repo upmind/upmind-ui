@@ -30,9 +30,13 @@ const RECORDED = {
   unverifiedOlder: "mock-email-3@example.com"
 } as const;
 
-/** The address cell of every rendered row, in render order. */
+/**
+ * The address cell of every rendered row, in render order — the FIRST column
+ * since G3, because `client-emails.presentation.ts` declares `email` first and
+ * the table draws declared columns only.
+ */
 function renderedAddresses(page: Page) {
-  return page.locator("tbody tr td:nth-child(2)");
+  return page.locator("tbody tr td:nth-child(1)");
 }
 
 /** Every collection read this lane observed, newest last. */

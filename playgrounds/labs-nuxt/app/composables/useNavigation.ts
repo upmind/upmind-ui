@@ -12,6 +12,7 @@
  */
 
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter, type RouteRecordNormalized } from "vue-router";
 import {
   registry,
@@ -43,6 +44,7 @@ import type {
   NavSection,
   NavSource
 } from "./useNavigation.types";
+import type { ScenarioNav } from "../../modules/scenarios/runtime/scenario.types";
 
 // -----------------------------------------------------------------------------
 
@@ -96,22 +98,33 @@ const HANDOFF_TARGET_KEYS: string[] = flatMap(scenarioKeys, key =>
  */
 const NAVIGABLE_KEYS = difference(scenarioKeys, HANDOFF_TARGET_KEYS);
 
-const SCENARIO_ENTRIES: LabEntry[] = map(NAVIGABLE_KEYS, key => {
-  // The url segment is the scenario's own DIRECTORY, which is also its route
-  // name — so the sidebar link and the registered route cannot drift.
-  const route = get(registry, [key, "route"], key) as string;
+/**
+ * Every navigable scenario as a menu entry, read from the declaration the same
+ * way the playground reads it: a scenario that declared `nav` is called and
+ * iconed what it said, and only one that declared none falls back to its own
+ * directory humanised.
+ */
+function scenarioEntries(translate: (key: string) => string): LabEntry[] {
+  return map(NAVIGABLE_KEYS, key => {
+    // The url segment is the scenario's own DIRECTORY, which is also its route
+    // name — so the sidebar link and the registered route cannot drift.
+    const route = get(registry, [key, "route"], key) as string;
+    const nav = get(registry, [key, "nav"]) as ScenarioNav | undefined;
 
-  return {
-    key,
-    label: startCase(route),
-    icon: SCENARIO_ICON,
-    family: familyOf(route),
-    to: `/${route}/as/${get(registry, [key, "scope", "actor"])}`,
-    tags: compact(
-      map(keys(get(registry, key)), field => get(BINDING_TAGS, field))
-    )
-  };
-});
+    return {
+      key,
+      label: nav ? translate(nav.i18n) : startCase(route),
+      icon: nav?.icon ?? SCENARIO_ICON,
+      // The FAMILY stays the directory's: a declared label is a human name for
+      // one entry, never the grouping every entry in the family answers to.
+      family: familyOf(route),
+      to: `/${route}/as/${get(registry, [key, "scope", "actor"])}`,
+      tags: compact(
+        map(keys(get(registry, key)), field => get(BINDING_TAGS, field))
+      )
+    };
+  });
+}
 
 function routeSources(routes: RouteRecordNormalized[]): NavSource[] {
   return reduce(
@@ -159,13 +172,16 @@ function buildNavigationTree(sources: NavSource[]): Map<string, NavItem[]> {
 // --- Composable
 export function useNavigation() {
   const router = useRouter();
+  const { t } = useI18n();
 
   const routes = computed((): NavSource[] => routeSources(router.getRoutes()));
+
+  const scenarios = computed((): LabEntry[] => scenarioEntries(t));
 
   const navigation = computed((): NavItem[] => {
     const sectionMap = buildNavigationTree([
       ...routes.value,
-      ...map(SCENARIO_ENTRIES, entry => ({
+      ...map(scenarios.value, entry => ({
         nav: {
           label: entry.label,
           icon: entry.icon,
@@ -229,7 +245,7 @@ export function useNavigation() {
             tags: [] as string[]
           })
         ),
-        ...SCENARIO_ENTRIES
+        ...scenarios.value
       ],
       "label"
     )

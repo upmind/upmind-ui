@@ -27,7 +27,9 @@ import { mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as vue from "vue";
 import { defineComponent, h } from "vue";
+import { createI18n } from "vue-i18n";
 import { createMemoryHistory, createRouter } from "vue-router";
+import text from "@upmind-automation/i18n/core/text-en.json";
 import { CLIENT_EMAIL_SCENARIO } from "../../../modules/scenarios/useClientEmail/scenario";
 import { CLIENT_EMAILS_SCENARIO } from "../../../modules/scenarios/useClientEmails/scenario";
 import { assign, find, forEach, map, sortBy } from "lodash-es";
@@ -63,6 +65,17 @@ vi.mock("../../../modules/scenarios/runtime/registry", () => ({
 }));
 
 const blank = defineComponent({ render: () => h("div") });
+
+/**
+ * `useNavigation` translates a scenario's declared `nav.i18n`, so it needs an
+ * installed plugin. The REAL catalogue, never a stub: a raw key on screen would
+ * otherwise satisfy every label assertion below.
+ */
+const i18n = createI18n({
+  legacy: false,
+  locale: "en",
+  messages: { en: { text } }
+});
 
 /**
  * A route table with no nav metadata of its own — including the `/scenarios`
@@ -134,7 +147,7 @@ async function derive(): Promise<Navigation> {
         return () => h("div");
       }
     }),
-    { global: { plugins: [router] } }
+    { global: { plugins: [router, i18n] } }
   );
 
   return {

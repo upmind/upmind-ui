@@ -71,6 +71,9 @@ async function openCanary(page: Page): Promise<RecordedTraffic> {
   return traffic;
 }
 
+/** The canary's own `nav.i18n`, resolved — the label its declaration chose. */
+const CANARY_TAB = "Emails";
+
 const tab = (page: Page, name: string) =>
   page.locator(`[data-test-key="tab-item"][data-test-value="${name}"]`);
 
@@ -226,14 +229,14 @@ test.describe("@AC7 typing in the bar narrows the rows through a real re-query",
 });
 
 test.describe("@P1-R12 the Inspector carries the page's own tab, and no Debug one", () => {
-  test("names the composable it is mounted over, and offers no Debug tab at all", async ({
+  test("carries the tab the scenario DECLARED, and offers no Debug tab at all", async ({
     page
   }) => {
     await openCanary(page);
 
     await openInspector(page);
 
-    await expect(tab(page, "Client Emails")).toHaveCount(1);
+    await expect(tab(page, CANARY_TAB)).toHaveCount(1);
     await expect(tab(page, "Debug")).toHaveCount(0);
   });
 
@@ -242,11 +245,11 @@ test.describe("@P1-R12 the Inspector carries the page's own tab, and no Debug on
   }) => {
     await openCanary(page);
     await openInspector(page);
-    await expect(tab(page, "Client Emails")).toHaveCount(1);
+    await expect(tab(page, CANARY_TAB)).toHaveCount(1);
 
     await leaveCanary(page);
 
-    await expect(tab(page, "Client Emails")).toHaveCount(0);
+    await expect(tab(page, CANARY_TAB)).toHaveCount(0);
     // The Inspector itself survives the navigation, so the count above is a
     // deregistration rather than a panel that simply closed.
     await expect(tab(page, "Session (Scoped)")).toHaveCount(1);

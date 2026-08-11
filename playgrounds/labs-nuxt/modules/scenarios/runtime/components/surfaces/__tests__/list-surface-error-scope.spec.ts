@@ -33,8 +33,12 @@ import {
   clearToasts,
   mountToaster
 } from "../../../../../../tests/support/toaster";
-import { CONTROL_TEST_VALUE } from "../../__tests__/control-test-values";
-import { LIST_SURFACE_ACTION, ListSurface } from "../index";
+import clientEmails from "../../../../useClientEmails/scenario";
+import {
+  CONTROL_TEST_VALUE,
+  OVERFLOW_TRIGGER_TEST_VALUE
+} from "../../__tests__/control-test-values";
+import { ListSurface } from "../index";
 import { keys } from "lodash-es";
 import type { SurfaceActions } from "../surface.types";
 
@@ -55,25 +59,43 @@ const snapshot = (actions: SurfaceActions, hasError: boolean) => ({
 const mountList = (actions: SurfaceActions) =>
   mount(ListSurface, {
     attachTo: document.body,
-    props: { snapshot: snapshot(actions, false), actions }
+    props: {
+      snapshot: snapshot(actions, false),
+      actions,
+      presentation: clientEmails.presentation
+    }
   });
+
+type Wrapper = ReturnType<typeof mountList>;
+
+/** `setDefault` is declared into the overflow, so that is where it is reached. */
+async function fireSetDefault(wrapper: Wrapper) {
+  await wrapper
+    .findAll("li")[1]
+    .find(`[data-test-value="${OVERFLOW_TRIGGER_TEST_VALUE}"]`)
+    .trigger("click");
+  await new Promise(resolve => setTimeout(resolve, 0));
+  document
+    .querySelector(
+      `[role="menuitem"] [data-test-value="${CONTROL_TEST_VALUE.setDefault}"]`
+    )
+    ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  await flushPromises();
+}
 
 /** Fire the target row's control, then let the module capture the rejection. */
 async function rejectSetDefault(actions: SurfaceActions) {
   const wrapper = mountList(actions);
-  await wrapper
-    .findAll("li")[1]
-    .find(
-      `[data-test-value="${CONTROL_TEST_VALUE[LIST_SURFACE_ACTION.SET_DEFAULT]}"]`
-    )
-    .trigger("click");
-  await flushPromises();
+  await fireSetDefault(wrapper);
   await wrapper.setProps({ snapshot: snapshot(actions, true) });
   await flushPromises();
   return wrapper;
 }
 
-afterEach(clearToasts);
+afterEach(() => {
+  clearToasts();
+  document.body.innerHTML = "";
+});
 
 // -----------------------------------------------------------------------------
 
@@ -81,22 +103,18 @@ describe("@AC3 error scope — the list survives a refused row action (P1-R13)",
   it("leaves every row on screen after the 409", async () => {
     mountToaster();
     const wrapper = await rejectSetDefault({
-      [LIST_SURFACE_ACTION.SET_DEFAULT]: vi
-        .fn()
-        .mockRejectedValue(recordedRejection())
+      setDefault: vi.fn().mockRejectedValue(recordedRejection())
     });
 
     expect(wrapper.findAll("li")).toHaveLength(rows.length);
-    expect(wrapper.text()).toContain(defaultRow.title);
-    expect(wrapper.text()).toContain(unverifiedRow.title);
+    expect(wrapper.text()).toContain(defaultRow.email);
+    expect(wrapper.text()).toContain(unverifiedRow.email);
   });
 
   it("does not tell the operator his LIST failed to load", async () => {
     mountToaster();
     const wrapper = await rejectSetDefault({
-      [LIST_SURFACE_ACTION.SET_DEFAULT]: vi
-        .fn()
-        .mockRejectedValue(recordedRejection())
+      setDefault: vi.fn().mockRejectedValue(recordedRejection())
     });
 
     const onScreen = renderedStrings(wrapper);
@@ -107,9 +125,7 @@ describe("@AC3 error scope — the list survives a refused row action (P1-R13)",
   it("gives him the API's own explanation instead", async () => {
     const toaster = mountToaster();
     await rejectSetDefault({
-      [LIST_SURFACE_ACTION.SET_DEFAULT]: vi
-        .fn()
-        .mockRejectedValue(recordedRejection())
+      setDefault: vi.fn().mockRejectedValue(recordedRejection())
     });
 
     const reported = await toaster.reported();
@@ -121,17 +137,13 @@ describe("@AC3 error scope — the list survives a refused row action (P1-R13)",
     mountToaster();
     const remove = vi.fn().mockResolvedValue(undefined);
     const wrapper = await rejectSetDefault({
-      [LIST_SURFACE_ACTION.SET_DEFAULT]: vi
-        .fn()
-        .mockRejectedValue(recordedRejection()),
-      [LIST_SURFACE_ACTION.DELETE]: remove
+      setDefault: vi.fn().mockRejectedValue(recordedRejection()),
+      remove
     });
 
     await wrapper
       .findAll("li")[1]
-      .find(
-        `[data-test-value="${CONTROL_TEST_VALUE[LIST_SURFACE_ACTION.DELETE]}"]`
-      )
+      .find(`[data-test-value="${CONTROL_TEST_VALUE.remove}"]`)
       .trigger("click");
     await flushPromises();
 
@@ -143,16 +155,10 @@ describe("@AC3 error scope — the list survives a refused row action (P1-R13)",
     mountToaster();
     const setDefault = vi.fn().mockRejectedValue(recordedRejection());
     const wrapper = await rejectSetDefault({
-      [LIST_SURFACE_ACTION.SET_DEFAULT]: setDefault
+      setDefault
     });
 
-    await wrapper
-      .findAll("li")[1]
-      .find(
-        `[data-test-value="${CONTROL_TEST_VALUE[LIST_SURFACE_ACTION.SET_DEFAULT]}"]`
-      )
-      .trigger("click");
-    await flushPromises();
+    await fireSetDefault(wrapper);
 
     expect(setDefault).toHaveBeenCalledTimes(2);
   });

@@ -19,7 +19,9 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import text from "@upmind-automation/i18n/core/text-en.json";
+import { defaultRow } from "../../../../../../tests/support/recorded-emails";
 import { renderedStrings } from "../../../../../../tests/support/rendered";
+import clientEmails from "../../../../useClientEmails/scenario";
 import { ListSurface } from "../index";
 import { includes } from "lodash-es";
 
@@ -87,16 +89,17 @@ describe("@AC3 states — the two empty states (Task 55)", () => {
       props: {
         snapshot: {
           actions: [],
-          context: { data: [{ id: 1, address: "a@x.com" }] },
+          context: { data: [defaultRow] },
           meta: { isEmpty: false, isFiltered: true }
         },
-        actions: {}
+        actions: {},
+        presentation: clientEmails.presentation
       }
     });
 
     const strings = renderedStrings(wrapper);
     expect(strings).not.toContain(text.collection_empty);
     expect(strings).not.toContain(text.results_not_found);
-    expect(strings).toContain("a@x.com");
+    expect(strings).toContain(defaultRow.email);
   });
 });

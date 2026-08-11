@@ -22,12 +22,22 @@ type WireEmail = {
   default: boolean;
   verified: boolean;
   bounced: boolean;
+  bounced_at: string | null;
   can_delete: boolean;
 };
 
+/**
+ * `bouncedAt` is present only when the recording carries one: `useDate`'s
+ * relative form is computed inside headless and unreachable here, so a bounce
+ * date is never synthesised to fill the declared column.
+ */
 const toRow = (wire: WireEmail) => ({
   id: wire.id,
+  email: wire.email,
   title: wire.email,
+  bouncedAt: wire.bounced_at
+    ? { date: wire.bounced_at, relative: wire.bounced_at }
+    : undefined,
   meta: {
     isDefault: wire.default,
     canDelete: wire.can_delete,

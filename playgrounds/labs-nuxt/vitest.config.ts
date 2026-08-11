@@ -94,6 +94,27 @@ export default defineConfig({
             setupFiles: ["tests/setup/component.setup.ts"]
           }
         })
+      ),
+      // The registrar runs in Nuxt's Node/jiti BUILD context, so it belongs to
+      // neither lane above: it is not a composable and renders nothing. jsdom,
+      // not node, because proving the registered routes carry the scope shapes
+      // pulls in the app's own scope parser and headless behind it.
+      mergeConfig(
+        base,
+        defineConfig({
+          test: {
+            name: "module",
+            environment: "jsdom",
+            include: ["modules/scenarios/__tests__/**/*.spec.ts"],
+            // The registrar's own seam with the app mounts components — the
+            // derived navigation resolves a scenario's declared `nav.i18n` —
+            // so this lane needs the same installed catalogue the component
+            // lane does, for the same reason: a missing translator is a raw
+            // key on screen that still passes a shape assertion.
+            setupFiles: ["tests/setup/component.setup.ts"],
+            testTimeout: 20000
+          }
+        })
       )
     ]
   }

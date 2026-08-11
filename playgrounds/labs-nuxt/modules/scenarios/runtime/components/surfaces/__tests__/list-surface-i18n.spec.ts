@@ -14,9 +14,11 @@
  * - a raw KEY on screen (`text.foo`) — supplied but never translated;
  * - a rendered string that is in no catalogue at all — hardcoded English.
  *
- * Labels the surface derives from the DATA's own keys (`Id:`, `Address:`) are
- * neither, and are allowed by construction rather than by exception: they are
- * computed from the row keys this spec hands in.
+ * The old key-derived allowance (`Id:`, `Address:` — labels the surface computed
+ * off whatever keys a row happened to carry) is GONE on purpose: since G3 the
+ * scenario declares its columns and their i18n keys, so a label computed from a
+ * row key is a hardcoded string like any other, and `id` is the exact value
+ * C15 says must never reach a column.
  *
  * ## What Breaks If These Fail
  * The one surface the operator opens ships English that Localazy never sees,
@@ -32,8 +34,13 @@ import error from "@upmind-automation/i18n/core/error-en.json";
 import form from "@upmind-automation/i18n/core/form-en.json";
 import textCatalogue from "@upmind-automation/i18n/core/text-en.json";
 import validation from "@upmind-automation/i18n/core/validation-en.json";
+import {
+  defaultRow,
+  unverifiedRow
+} from "../../../../../../tests/support/recorded-emails";
 import { renderedStrings } from "../../../../../../tests/support/rendered";
-import { LIST_SURFACE_ACTION, ListSurface } from "../index";
+import clientEmails from "../../../../useClientEmails/scenario";
+import { ListSurface } from "../index";
 import {
   difference,
   flatMap,
@@ -42,7 +49,6 @@ import {
   map,
   reject,
   split,
-  startCase,
   trim,
   uniq,
   values
@@ -78,21 +84,11 @@ const CARRIES_NO_COPY = /^[\s\d.,:/|()%+-]*$/;
 /** The debug `<pre>` dumps the error PAYLOAD verbatim — data, not authored copy. */
 const SERIALISED_PAYLOAD = /^[{[]/;
 
-const rows = [
-  { id: 1, email: "a@x.com", verified: true },
-  { id: 2, email: "b@x.com", verified: false }
-];
+/** The capture run's own records — the rows the declared columns draw from. */
+const rows = [defaultRow, unverifiedRow];
 
-/** Labels the surface derives from the DATA it was handed, in every casing form. */
-const dataDerived = uniq([
-  ...flatMap(rows, row => map(values(row), String)),
-  ...flatMap(keys(rows[0]), key => [
-    key,
-    startCase(key),
-    `${startCase(key)}:`,
-    startCase(key).toUpperCase()
-  ])
-]);
+/** Values that came out of the RECORDING; copy is what is left over. */
+const dataDerived = uniq(flatMap(rows, row => [row.id, row.email]));
 
 /**
  * Every rendered string that is neither translated, nor data, nor punctuation —
@@ -118,10 +114,10 @@ function mountList(overrides: {
 }) {
   const actions = overrides.withActions
     ? {
-        [LIST_SURFACE_ACTION.DELETE]: vi.fn(),
-        [LIST_SURFACE_ACTION.SET_DEFAULT]: vi.fn(),
-        [LIST_SURFACE_ACTION.RESEND]: vi.fn(),
-        [LIST_SURFACE_ACTION.ADD]: vi.fn()
+        remove: vi.fn(),
+        setDefault: vi.fn(),
+        verify: vi.fn(),
+        ensure: vi.fn()
       }
     : {};
 
@@ -136,7 +132,8 @@ function mountList(overrides: {
         },
         meta: overrides.meta ?? { isEmpty: false, isFiltered: false }
       },
-      actions
+      actions,
+      presentation: clientEmails.presentation
     }
   });
 }

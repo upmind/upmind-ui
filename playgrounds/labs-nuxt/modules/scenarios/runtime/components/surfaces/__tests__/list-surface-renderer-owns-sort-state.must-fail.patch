@@ -1,0 +1,64 @@
+Negative control for the ONE law the controlled table rests on: the module owns
+the sort model, and this surface only lifts intent to it.
+
+Makes the renderer own sorting instead. `state.sorting` reads a local ref the
+component mutates, and the header click updates that ref rather than emitting a
+`TableIntent` through `channel.emit`. The table still LOOKS right — the header
+toggles, the chevron flips, the arrow points the way the user clicked — while
+the composable is never told, the query is never re-run, and the rows underneath
+never move. Precisely the shape a screenshot cannot tell from a working sort.
+
+Its target is the sort path restored on 2026-08-11: before that the columns
+carried no sort declaration at all, `getCanSort()` was false for every header,
+and this mutant was DEAD — nothing it changes could be reached. It is live again
+because a declared-sortable column now renders a real control.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds (component lane, measured 2026-08-11 — 1 failed, 67 passed, plus the
+pre-existing `list-surface-states.spec.ts` row-list case this mutant does not
+touch):
+  list-surface.spec.ts   "emits a sort intent naming the DECLARED column, not a
+                           row key"
+
+Everything else stays GREEN, including "renders its sort/pagination display from
+channel.read(), never from an owned state field" — that case measures the
+PAGINATION display, so the sort half of its own title is unguarded. A suite that
+graded this mutant a pass on the strength of that title would be measuring its
+own wording.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+index d7c8eb16d..f6cee30df 100644
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+@@ -369,17 +369,12 @@ const sortingState = computed<SortingState>(() =>
+   }))
+ );
+ 
++const ownedSorting = ref<SortingState>([]);
++
+ const onSortingChange: OnChangeFn<SortingState> = updaterOrValue => {
+-  const next = isFunction(updaterOrValue)
+-    ? updaterOrValue(sortingState.value)
++  ownedSorting.value = isFunction(updaterOrValue)
++    ? updaterOrValue(ownedSorting.value)
+     : updaterOrValue;
+-  props.table?.emit({
+-    type: TableIntentTypes.SORT,
+-    sort: map(next, entry => ({
+-      field: entry.id,
+-      dir: entry.desc ? SortDirection.DESC : SortDirection.ASC
+-    }))
+-  });
+ };
+ 
+ // `useVueTable` (v8) has no built-in deep reactivity of its own — every
+@@ -398,7 +393,7 @@ const vueTable = useVueTable({
+   manualPagination: true,
+   state: {
+     get sorting() {
+-      return sortingState.value;
++      return ownedSorting.value;
+     }
+   },
+   onSortingChange

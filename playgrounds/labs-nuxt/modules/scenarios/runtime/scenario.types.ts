@@ -98,13 +98,26 @@ export type RowBadge = {
   icon?: string;
 };
 
-/** The presentation channel of a declared column / card field. */
+/**
+ * The presentation channel of a declared column / card field.
+ *
+ * @graphify-citation `graphify-out/graph.json` — `sortable` extends this
+ * existing type rather than minting one; no sort-declaration node exists.
+ */
 export type RowCellOptions = {
   cell: RowCellTypes;
   /** Declared for a {@link RowCellTypes.BADGES} cell, ignored otherwise. */
   badges?: RowBadge[];
   /** Where the field sits when the row draws as a card. */
   slot?: CardSlotTypes;
+  /**
+   * The WIRE field this column sorts by — a member of the query schema's own
+   * `sort.field` enum. A NAME rather than a flag because a column's data path
+   * and the field the API orders on are different vocabularies (`meta` draws
+   * the status badges; `default` is what the server sorts them by). A column
+   * declaring none carries no sort control at all.
+   */
+  sortable?: string;
 };
 
 /**

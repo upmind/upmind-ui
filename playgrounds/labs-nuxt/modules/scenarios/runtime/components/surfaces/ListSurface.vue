@@ -38,17 +38,21 @@
           v-for="headerGroup in vueTable.getHeaderGroups()"
           :key="headerGroup.id"
         >
+          <!-- The whole header cell is the hit area, so the handler sits on it
+               rather than on the button inside; the button's own click (mouse
+               OR keyboard) bubbles here, and TanStack's handler no-ops on a
+               column that declared no sort field, so neither fires twice. -->
           <TableHead
             v-for="header in headerGroup.headers"
             :key="header.id"
             :class="styles.listSurface.headerCell"
+            @click="header.column.getToggleSortingHandler()?.($event)"
           >
             <template v-if="!header.isPlaceholder">
               <button
                 v-if="header.column.getCanSort()"
                 type="button"
                 :class="styles.listSurface.sortButton"
-                @click="header.column.getToggleSortingHandler()?.($event)"
               >
                 {{ header.column.columnDef.header }}
                 <Icon
@@ -107,7 +111,9 @@
     </Table>
 
     <!-- A data-array-without-table descriptor still renders every row,
-         read-only — never blank. -->
+         read-only — never blank. The DECLARATION drives it exactly as it drives
+         the table, so the same columns are shown, under the same labels, and a
+         property nobody declared is as absent here as it is there (C15). -->
     <ul v-else :class="styles.listSurface.rowList">
       <li
         v-for="(row, index) in rows"
@@ -116,11 +122,23 @@
       >
         <div :class="styles.listSurface.rowListFields">
           <span
-            v-for="entry in entries(row)"
-            :key="entry[0]"
+            v-for="element in columnElements"
+            :key="element.scope"
             :class="styles.listSurface.rowListField"
           >
-            <strong>{{ fieldLabel(entry[0]) }}:</strong> {{ entry[1] }}
+            <strong>{{ t(element.i18n) }}</strong>
+            <template v-if="element.options.cell === RowCellTypes.BADGES">
+              <Badge
+                v-for="badge in visibleBadges(element, row)"
+                :key="badge.flag"
+                size="sm"
+                variant="minimal"
+                :color="badge.color"
+                :icon="badge.icon"
+                :label="t(badge.i18n)"
+              />
+            </template>
+            <template v-else>{{ cellText(element, row) }}</template>
           </span>
         </div>
         <ActionSlots
@@ -200,7 +218,6 @@ import ModuleStateNotice from "../ModuleStateNotice.vue";
 import { useActionFeedback } from "../useActionFeedback";
 import config, { dataRow } from "./ListSurface.styles";
 import {
-  entries,
   filter,
   get,
   includes,
@@ -208,8 +225,6 @@ import {
   isFunction,
   isNil,
   map,
-  snakeCase,
-  startCase,
   toString
 } from "lodash-es";
 import type {
@@ -231,14 +246,6 @@ import type { TableModel } from "@upmind-automation/scenario-harness";
 const props = defineProps<ListSurfaceProps>();
 
 const { t } = useI18n();
-
-// The read-only degradation path keeps its humanised key: it renders a row the
-// scenario declared nothing about, so there is no label to resolve.
-function fieldLabel(key: string): string {
-  const vocabularyKey = `text.${snakeCase(key)}`;
-  const label = t(vocabularyKey);
-  return label === vocabularyKey ? startCase(key) : label;
-}
 
 const state = computed(() => resolveModuleState(props.snapshot.meta));
 const detail = computed(() => props.snapshot.context.error);
@@ -307,17 +314,31 @@ function isMarked(row: ListRow): boolean {
   return !!marker.value && !!resolveScope(row, marker.value.scope);
 }
 
+/**
+ * The wire field a column sorts by — the DECLARATION's own `sortable`, withheld
+ * where the query schema does not offer it. A control the schema never declared
+ * cannot work: the intent reaches the criteria, ajv refuses it, and the list
+ * draws a failure for a header the user was invited to click. A channel that
+ * declares nothing leaves every declared column live, which is where a module
+ * with no query schema already stands.
+ */
+function sortField(element: RowElement): string | undefined {
+  const field = element.options.sortable;
+  const offered = declared.value?.sort;
+  return field && (!offered || includes(offered, field)) ? field : undefined;
+}
+
 const columns = computed<ColumnDef<ListRow>[]>(() =>
   map(columnElements.value, element => {
-    const field = toDataPath(element.scope);
+    const field = sortField(element);
     return {
-      id: field,
+      // The column's id IS the wire sort field wherever one is declared, so the
+      // model's sort entry, the header's own indicator and the emitted intent
+      // all name the same thing with nothing to translate between them.
+      id: field ?? toDataPath(element.scope),
       header: t(element.i18n),
       accessorFn: (row: ListRow) => resolveScope(row, element.scope),
-      // A column the query schema never declared sortable cannot work — the
-      // intent reaches the criteria, ajv refuses it, and the list draws a
-      // failure for a header the user was invited to click.
-      enableSorting: includes(declared.value?.sort, field)
+      enableSorting: !!field
     };
   })
 );

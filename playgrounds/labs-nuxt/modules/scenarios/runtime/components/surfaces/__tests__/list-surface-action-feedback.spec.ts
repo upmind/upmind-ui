@@ -31,8 +31,12 @@ import {
   clearToasts,
   mountToaster
 } from "../../../../../../tests/support/toaster";
-import { CONTROL_TEST_VALUE } from "../../__tests__/control-test-values";
-import { LIST_SURFACE_ACTION, ListSurface } from "../index";
+import clientEmails from "../../../../useClientEmails/scenario";
+import {
+  CONTROL_TEST_VALUE,
+  OVERFLOW_TRIGGER_TEST_VALUE
+} from "../../__tests__/control-test-values";
+import { ListSurface } from "../index";
 import {
   flatMap,
   includes,
@@ -73,21 +77,41 @@ const mountList = (actions: SurfaceActions) =>
         context: { data: rows },
         meta: { isEmpty: false, isFiltered: false }
       },
-      actions
+      actions,
+      presentation: clientEmails.presentation
     }
   });
 
-const fire = (
+/**
+ * Activates a declared control wherever the scenario placed it — beside the row
+ * or behind its overflow, which closes after each selection and so is reopened
+ * per action.
+ */
+async function fire(
   wrapper: ReturnType<typeof mountList>,
   row: number,
   action: string
-) =>
-  wrapper
-    .findAll("li")
-    [row].find(`[data-test-value="${CONTROL_TEST_VALUE[action]}"]`)
-    .trigger("click");
+) {
+  const host = wrapper.findAll("li")[row];
+  const beside = host.find(`[data-test-value="${CONTROL_TEST_VALUE[action]}"]`);
+  if (beside.exists()) return beside.trigger("click");
 
-afterEach(clearToasts);
+  await host
+    .find(`[data-test-value="${OVERFLOW_TRIGGER_TEST_VALUE}"]`)
+    .trigger("click");
+  await new Promise(resolve => setTimeout(resolve, 0));
+  document
+    .querySelector(
+      `[role="menuitem"] [data-test-value="${CONTROL_TEST_VALUE[action]}"]`
+    )
+    ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  await wrapper.vm.$nextTick();
+}
+
+afterEach(() => {
+  clearToasts();
+  document.body.innerHTML = "";
+});
 
 // -----------------------------------------------------------------------------
 
@@ -95,10 +119,10 @@ describe("@AC3 action feedback — the resolved send_verify the operator could n
   it("tells him the verification email went out", async () => {
     const toaster = mountToaster();
     const wrapper = mountList({
-      [LIST_SURFACE_ACTION.RESEND]: vi.fn().mockResolvedValue({ status: "ok" })
+      verify: vi.fn().mockResolvedValue({ status: "ok" })
     });
 
-    await fire(wrapper, 1, LIST_SURFACE_ACTION.RESEND);
+    await fire(wrapper, 1, "verify");
 
     expect(await toaster.reported()).toContain(confirm.email_verification_sent);
   });
@@ -106,9 +130,9 @@ describe("@AC3 action feedback — the resolved send_verify the operator could n
   it("says nothing until the call has actually settled", async () => {
     const toaster = mountToaster();
     const verify = vi.fn().mockReturnValue(new Promise(() => undefined));
-    const wrapper = mountList({ [LIST_SURFACE_ACTION.RESEND]: verify });
+    const wrapper = mountList({ verify });
 
-    await fire(wrapper, 1, LIST_SURFACE_ACTION.RESEND);
+    await fire(wrapper, 1, "verify");
     await flushPromises();
 
     expect(verify).toHaveBeenCalledTimes(1);
@@ -120,10 +144,10 @@ describe("@AC3 action feedback — every sentence is real copy", () => {
   it("draws a resolved outcome from the shipped catalogue, never a raw key", async () => {
     const toaster = mountToaster();
     const wrapper = mountList({
-      [LIST_SURFACE_ACTION.RESEND]: vi.fn().mockResolvedValue({ status: "ok" })
+      verify: vi.fn().mockResolvedValue({ status: "ok" })
     });
 
-    await fire(wrapper, 1, LIST_SURFACE_ACTION.RESEND);
+    await fire(wrapper, 1, "verify");
 
     const unaccounted = reject(
       await toaster.reported(),
@@ -135,12 +159,10 @@ describe("@AC3 action feedback — every sentence is real copy", () => {
   it("adds the API's verbatim sentence to a rejected outcome, and nothing else untranslated", async () => {
     const toaster = mountToaster();
     const wrapper = mountList({
-      [LIST_SURFACE_ACTION.SET_DEFAULT]: vi
-        .fn()
-        .mockRejectedValue(recordedRejection())
+      setDefault: vi.fn().mockRejectedValue(recordedRejection())
     });
 
-    await fire(wrapper, 1, LIST_SURFACE_ACTION.SET_DEFAULT);
+    await fire(wrapper, 1, "setDefault");
 
     const reported = await toaster.reported();
     expect(reported).toContain(API_MESSAGE);
@@ -157,14 +179,12 @@ describe("@AC3 action feedback — every sentence is real copy", () => {
   it("reports two different outcomes with two different sentences", async () => {
     const toaster = mountToaster();
     const wrapper = mountList({
-      [LIST_SURFACE_ACTION.RESEND]: vi.fn().mockResolvedValue({ status: "ok" }),
-      [LIST_SURFACE_ACTION.SET_DEFAULT]: vi
-        .fn()
-        .mockRejectedValue(recordedRejection())
+      verify: vi.fn().mockResolvedValue({ status: "ok" }),
+      setDefault: vi.fn().mockRejectedValue(recordedRejection())
     });
 
-    await fire(wrapper, 1, LIST_SURFACE_ACTION.RESEND);
-    await fire(wrapper, 1, LIST_SURFACE_ACTION.SET_DEFAULT);
+    await fire(wrapper, 1, "verify");
+    await fire(wrapper, 1, "setDefault");
 
     const reported = await toaster.reported();
     expect(includes(reported, confirm.email_verification_sent)).toBe(true);

@@ -1,0 +1,39 @@
+Negative control for the route-collision guard the registrar adds (amendment 2).
+
+Nuxt's own duplicate check runs before `pages:extend` and only warns — never at
+all for hook-pushed routes — so the registrar's `pages:resolved` guard is the
+only thing standing between a scenario directory and a page that already owns
+its name. This mutant puts the guard to sleep without removing it: a duplicate
+must now appear THREE times to count, so a colliding PAIR — the only shape the
+defect ever takes — walks straight through and the build ships two router
+records over one url, exactly as silently as before the guard existed.
+
+Off-by-one rather than an amputation on purpose: a deleted guard is visible in
+any diff, while a threshold nobody reads is what actually survives review.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds (module lane, measured 2026-08-11 — 2 failed, 16 passed):
+  scenario-routes.spec.ts   "hard-fails when a page already owns a scenario's
+                              name"
+                            "names the offending route rather than failing
+                              anonymously"
+
+The other two collision cases stay GREEN — "lets an unrelated page through" and
+"passes on the shipped tree" both assert the guard does NOT fire, and a sleeping
+guard satisfies them perfectly. That asymmetry is the control's whole point: a
+suite carrying only the negative cases would grade this mutant as a pass.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/index.ts b/playgrounds/labs-nuxt/modules/scenarios/index.ts
+index 6efb64b30..4ddfee5bf 100644
+--- a/playgrounds/labs-nuxt/modules/scenarios/index.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/index.ts
+@@ -43,7 +43,7 @@ const MODULE_NAME = "scenarios";
+
+ /** Every duplicate in a list of route names or paths, as a readable clause. */
+ function duplicatesOf(values: string[]): string[] {
+-  return keys(pickBy(countBy(values), count => count > 1));
++  return keys(pickBy(countBy(values), count => count > 2));
+ }
+
+ export default defineNuxtModule({

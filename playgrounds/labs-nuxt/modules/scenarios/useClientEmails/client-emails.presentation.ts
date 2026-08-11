@@ -13,6 +13,12 @@
  * `description` is always empty; and `type` is the `const 1` the server fixes
  * and the mapper's own docblock calls deprecated. A column exists because it
  * was declared, never because a key happened to be on the row.
+ *
+ * `sortable` names the wire field from the query schema's own `sort.field`
+ * enum, which is why Status sorts by `default` — the flag the server orders on
+ * behind that column's badges. `bouncedAt` declares none: the enum offers
+ * `created_at`, never a bounce date, and a header the API would refuse is a
+ * header the user is not invited to click.
  */
 
 import { RuleEffect } from "@jsonforms/core";
@@ -52,13 +58,17 @@ export const rowUischema: RowUischema = {
       type: "Control",
       scope: "#/properties/email",
       i18n: "text.email_address",
-      options: { cell: RowCellTypes.TEXT }
+      options: { cell: RowCellTypes.TEXT, sortable: "email" }
     },
     {
       type: "Control",
       scope: "#/properties/meta",
       i18n: "text.status",
-      options: { cell: RowCellTypes.BADGES, badges: STATUS_BADGES }
+      options: {
+        cell: RowCellTypes.BADGES,
+        badges: STATUS_BADGES,
+        sortable: "default"
+      }
     },
     {
       type: "Control",
