@@ -22,7 +22,7 @@ import {
 // --- types
 import {
   type DomainContext,
-  type DomainOptions,
+  type DacOptions,
   type DomainProduct,
   DomainMode
 } from "./types";
@@ -40,7 +40,7 @@ import { PAGINATION } from "../query";
  * @param options.tlds - Restricts the search to these TLDs.
  * @returns Domain management API (state, computed, and methods)
  */
-export const useDac = (options?: DomainOptions) => {
+export const useDac = (options?: DacOptions) => {
   const { t } = useI18n();
   const { getParam, getParams, setParam, unsetParam } = useQueryParams();
 

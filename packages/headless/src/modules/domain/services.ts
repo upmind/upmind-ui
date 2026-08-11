@@ -516,7 +516,7 @@ function search(context: DacContext) {
     // Mirrors the `/tlds` call below for consistency.
     queryClient
       .fetchQuery<DomainEnvelopeResponse<IDomainSuggestionResult[]>>({
-        queryKey: ["domains", "suggestions", sld, page],
+        queryKey: ["domains", "suggestions", sld, page, tlds],
         // Accept TanStack's `signal` and forward it to `fetch` via `init`,
         // so the `cancel(["domains", "suggestions"])` call above actually
         // aborts the HTTP request when the user types another character.
@@ -591,7 +591,7 @@ function search(context: DacContext) {
     // domain envelope extension (`DomainEnvelopeResponse`) narrows it.
     queryClient
       .fetchQuery<DomainEnvelopeResponse<IProduct[]>>({
-        queryKey: ["domains", "suggestions", "tlds", sld, page],
+        queryKey: ["domains", "suggestions", "tlds", sld, page, tlds],
         // See the `/suggestions` queryFn above — same contract: accept
         // TanStack's `signal` and forward it to `fetch` so the previous
         // round's request can actually abort when search restarts.
@@ -845,7 +845,7 @@ async function checkAvailability({
  * as the new suggestions-based search so the machine handles both uniformly.
  */
 function legacySearch(context: DacContext) {
-  const { search, basketId, brandId, coupons, preferredCycle } = context;
+  const { search, basketId, brandId, coupons, preferredCycle, tlds } = context;
   const { t } = useI18n();
   const { cancel, getList, useUrl } = useQuery();
 
@@ -869,6 +869,7 @@ function legacySearch(context: DacContext) {
       {
         sld,
         tld,
+        tlds,
         with: DOMAIN_WITH_RELATIONS,
         basket_id: basketId,
         brand_id: brandId,
