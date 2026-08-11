@@ -71,6 +71,7 @@
   },
   "devDependencies": {
     "@localazy/cli": "^2.0.8",
+    "@nuxt/cli": "3.37.0",
     "@nuxt/eslint": "^1.5.0",
     "@playwright/test": "^1.54.2",
     "@tailwindcss/vite": "^4.1.11",
