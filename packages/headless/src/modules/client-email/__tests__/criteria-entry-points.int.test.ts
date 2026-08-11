@@ -85,7 +85,8 @@ describe("criteria on query() — filters and sort, and NO pagination (client-em
 
     expect(typeof simple.setCriteria).toBe("function");
     expect(simple.criteria.value.sort).toEqual([
-      { field: "created_at", dir: "desc" }
+      { field: "default", dir: "desc" },
+      { field: "email", dir: "asc" }
     ]);
     expect(simple.schema).toEqual(useQuerySchema());
     expect(simple.sort).toBeUndefined();
@@ -107,7 +108,7 @@ describe("criteria on query() — filters and sort, and NO pagination (client-em
     observed.stop();
 
     const params = latestParams(observed);
-    expect(params.get("order")).toBe("-created_at");
+    expect(params.get("order")).toBe("-default,email");
     expect(params.get("limit")).toBeNull();
     expect(params.get("offset")).toBeNull();
   });
@@ -212,7 +213,7 @@ describe("criteria on listInfinite() — the full treatment (client-email schema
     observed.stop();
 
     const params = latestParams(observed);
-    expect(params.get("order")).toBe("-created_at");
+    expect(params.get("order")).toBe("-default,email");
     expect(params.get("limit")).toBe("10");
     expect(params.get("offset")).toBe("0");
   });
@@ -227,7 +228,7 @@ describe("criteria on listInfinite() — the full treatment (client-email schema
     }) as unknown as CriteriaHandle;
     const observed = observeEmailRequests();
     await vi.waitFor(() =>
-      expect(latestParams(observed).get("order")).toBe("-created_at")
+      expect(latestParams(observed).get("order")).toBe("-default,email")
     );
 
     infinite.setCriteria({ sort: [{ field: "email", dir: "asc" }] });

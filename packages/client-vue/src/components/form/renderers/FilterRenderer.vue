@@ -316,10 +316,13 @@ const declared = computed(() => {
 });
 
 const fieldProps = computed<FormControlProps>(() => {
-  const merged = omit(assign({}, formFieldProps.value, declared.value), [
-    FILTER_TREATMENT_OPTION,
-    FILTER_STATES_OPTION
-  ]) as FormControlProps;
+  const merged = omit(
+    // A filter is optional by definition — every one of them — so the field's
+    // own optional indicator is suppressed for the whole family rather than
+    // declared away column by column in every module's query uischema.
+    assign({}, formFieldProps.value, declared.value, { optionalText: "" }),
+    [FILTER_TREATMENT_OPTION, FILTER_STATES_OPTION]
+  ) as FormControlProps;
 
   if (branch.value === FilterBranch.Unsupported)
     return assign(merged, {

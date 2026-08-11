@@ -117,7 +117,10 @@ describe("client-email table channel — read() flattens the live model down (Ta
 
     expect(channel.read()).toEqual({
       filter: {},
-      sort: [{ field: "created_at", dir: "desc" }],
+      sort: [
+        { field: "default", dir: "desc" },
+        { field: "email", dir: "asc" }
+      ],
       pagination: { page: 1, perPage: DECLARED_LIMIT, total: corpusSize() }
     });
     expect(emails.useContext().pagination.value).toMatchObject({

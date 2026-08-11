@@ -7,8 +7,13 @@ import { cva } from "class-variance-authority";
 
 export default {
   actionSlots: {
-    // `w-full` because the ui ContextMenu's trigger is a `span`: without it the
-    // controls sit in an inline box and never reach their container's edge.
-    root: cva("flex w-full flex-wrap items-center justify-end gap-2")
+    // ONE horizontal cluster, whatever it is drawn inside. `inline-flex` +
+    // `align-middle` because the ui ContextMenu's trigger is a `span`, and a
+    // block box inside it would take the whole line; `flex-nowrap` because a
+    // shrink-to-fit table cell resolves a wrapping cluster at its narrowest —
+    // one control per line, and a row as tall as it has actions.
+    root: cva(
+      "inline-flex flex-nowrap items-center justify-end gap-1 align-middle"
+    )
   }
 };

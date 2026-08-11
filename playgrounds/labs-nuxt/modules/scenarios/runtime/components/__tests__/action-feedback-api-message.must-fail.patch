@@ -11,10 +11,12 @@ Reds: action-feedback.spec.ts — the API-message case.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/useActionFeedback.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/useActionFeedback.ts
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/useActionFeedback.ts
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/useActionFeedback.ts
-@@ -54,7 +54,7 @@
-       const message = get(error, "message");
+@@ -81,9 +81,9 @@
        reported.value = isString(message) ? message : undefined;
- 
+       failures.value = assign({}, failures.value, {
+         [key]: reported.value ?? copy?.failure ?? ""
+       });
+
 -      if (copy) report(copy.failure, TOAST_VARIANTS.DANGER, reported.value);
 +      if (copy) report(copy.failure, TOAST_VARIANTS.DANGER);
        return false;

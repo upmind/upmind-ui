@@ -25,6 +25,7 @@
             :icon-only="iconOnly"
             :aria-label="action.label"
             :disabled="action.disabled"
+            :loading="action.loading"
             @click="action.onSelect"
           />
         </Tooltip>
@@ -36,6 +37,10 @@
           size="sm"
           width="md"
         >
+          <!-- No tooltip here: the ui DropdownMenu binds its trigger to the
+               FIRST element of this slot, and a Tooltip in between would take
+               that binding and leave the menu unopenable. The trigger keeps its
+               accessible name, and the menu it opens names every action in it. -->
           <template #trigger>
             <Button
               size="sm"
@@ -89,13 +94,17 @@ const visibleActions = computed(() =>
   filter(props.actions, { placement: ActionPlacementTypes.VISIBLE })
 );
 
-/** One declared action as a menu entry — the icon rides it into every menu. */
+/**
+ * One declared action as a menu entry — the icon rides it into every menu. A
+ * menu item has no spinner of its own, so an action in flight holds its entry
+ * closed rather than inviting a second click the seam would drop.
+ */
 function menuItem(action: ActionSlotItem): DropdownMenuItemProps {
   return {
     label: action.label,
     value: action.name,
     icon: action.icon,
-    disabled: action.disabled,
+    disabled: action.disabled || action.loading,
     handler: action.onSelect
   };
 }

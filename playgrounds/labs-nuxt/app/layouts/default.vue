@@ -50,12 +50,17 @@
   <!-- Inspector sidebar (fixed position) -->
   <Inspector />
 
-  <!-- Where every action outcome is reported (`useActionFeedback`) -->
+  <!-- Where every action outcome is reported (`useActionFeedback`). Top-centre
+       because the bottom corner is where the operator missed it entirely (E13):
+       the outcome lands in the path of the eye that just clicked, over the
+       surface it happened on. -->
   <Sonner
-    position="bottom-right"
+    position="top-center"
     close-button
     rich-colors
+    expand
     :visible-toasts="6"
+    :duration="6000"
   />
 </template>
 

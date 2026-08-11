@@ -1,0 +1,27 @@
+Negative control for the row's ONE horizontal action cluster (E1).
+
+Drops `flex-nowrap` from the cluster's own treatment. The cluster still lays out
+as a flex box, so nothing crashes and every control still sits inside the one
+container — it wraps instead, and a shrink-to-fit (`w-px`) actions cell resolves
+a wrapping cluster at its narrowest: one control per line, and a row as tall as
+it has actions. That IS E1's defect verbatim — the operator's "rows are massive;
+actions stacking VERTICALLY".
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the actions-anchor spec's E1 block — the cluster is laid out along the
+row, never down it, in the table row AND in the card.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ActionSlots.styles.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ActionSlots.styles.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ActionSlots.styles.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ActionSlots.styles.ts
+@@ -12,8 +12,6 @@
+     // block box inside it would take the whole line; `flex-nowrap` because a
+     // shrink-to-fit table cell resolves a wrapping cluster at its narrowest —
+     // one control per line, and a row as tall as it has actions.
+-    root: cva(
+-      "inline-flex flex-nowrap items-center justify-end gap-1 align-middle"
+-    )
++    root: cva("inline-flex items-center justify-end gap-1 align-middle")
+   }
+ };

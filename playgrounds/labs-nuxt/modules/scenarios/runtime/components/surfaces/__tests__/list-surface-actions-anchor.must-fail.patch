@@ -14,26 +14,32 @@ that cell shrinks to its contents.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-@@ -172,6 +172,9 @@
-             :key="row.id"
-             :class="dataRow({ isMarked: isMarked(row.original) })"
-           >
-+            <TableCell v-if="meta.hasRowActions">
-+              <ActionSlots icon-only :actions="rowActionItems(row.original)" />
-+            </TableCell>
-             <TableCell
-               v-for="(element, index) in columnElements"
-               :key="element.scope"
-@@ -188,12 +191,6 @@
-                 <RowCell :element="element" :row="row.original" />
-               </div>
-             </TableCell>
--            <TableCell
--              v-if="meta.hasRowActions"
--              :class="styles.listSurface.actionsCell"
--            >
--              <ActionSlots icon-only :actions="rowActionItems(row.original)" />
--            </TableCell>
-           </TableRow>
-         </template>
-       </TableBody>
+@@ -218,6 +218,12 @@
+                 })
+               "
+             >
++              <TableCell v-if="meta.hasRowActions">
++                <ActionSlots
++                  icon-only
++                  :actions="rowActionItems(row.original)"
++                />
++              </TableCell>
+               <!-- The marker is its OWN column, ahead of every declared one, so
+                    the default row reads as the default without the flag riding
+                    (and crowding) a cell that means something else (C12). -->
+@@ -235,15 +241,6 @@
+                 <div :class="styles.listSurface.cellContent">
+                   <RowCell :element="element" :row="row.original" />
+                 </div>
+-              </TableCell>
+-              <TableCell
+-                v-if="meta.hasRowActions"
+-                :class="styles.listSurface.actionsCell"
+-              >
+-                <ActionSlots
+-                  icon-only
+-                  :actions="rowActionItems(row.original)"
+-                />
+               </TableCell>
+             </TableRow>
+ 

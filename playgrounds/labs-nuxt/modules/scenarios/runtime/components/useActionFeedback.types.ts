@@ -38,6 +38,24 @@ export type UseActionFeedback = {
   /** True while the keyed control's action is in flight. */
   isPending(key: string): boolean;
 
+  /**
+   * True for as long as the keyed control's last action stays worth pointing
+   * at — the cue that says WHICH record just changed, beside the toast that
+   * says what happened. It expires on its own; nothing clears it.
+   */
+  isSucceeded(key: string): boolean;
+
+  /**
+   * The keyed control's last failure, held until it is dismissed or the action
+   * is fired again — the API's own sentence where it gave one, the action's
+   * declared failure copy otherwise. `undefined` where the control has not
+   * failed; an empty string where a copy-less action failed silently.
+   */
+  failure(key: string): string | undefined;
+
+  /** Drops the keyed control's failure — the user's own "I've seen it". */
+  dismiss(key: string): void;
+
   /** True when the module's captured error is one this seam already reported. */
   isReported(error: unknown): boolean;
 };

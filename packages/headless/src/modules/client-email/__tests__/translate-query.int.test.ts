@@ -157,8 +157,8 @@ describe("client-email table channel + translateQuery — sort (Task 36)", () =>
     const emails = await bootCollection();
     const observed = observeEmailRequests();
 
-    // `email`, not `created_at`: the DEFAULT_SORT is already `created_at desc`,
-    // so re-sorting to it is an isEqual no-op that never reaches the wire.
+    // `-email`, not the default's own `email asc`: re-sorting to the model
+    // already in hand is an isEqual no-op that never reaches the wire.
     emails.useActions().sortBy([{ field: "email", dir: "desc" }]);
 
     await vi.waitFor(() => expect(lastOrder(observed)).toBe("-email"));
@@ -196,14 +196,15 @@ describe("client-email sort — the schema's default IS the floor (FB5e)", () =>
 
     const params = new URL(observed.first().url).searchParams;
     expect([...params.keys()]).toContain("order");
-    expect(params.get("order")).toBe("-created_at");
+    expect(params.get("order")).toBe("-default,email");
     expect(emails.useContext().query.value.sort).toEqual([
-      { field: "created_at", dir: "desc" }
+      { field: "default", dir: "desc" },
+      { field: "email", dir: "asc" }
     ]);
     expect(emails.useContext().query.value.sort).toEqual(DEFAULT_SORT);
   });
 
-  it("an emptied sort refills from the default and the next request carries order=-created_at", async () => {
+  it("an emptied sort refills from the default and the next request carries order=-default,email", async () => {
     const emails = await bootCollection();
     const observed = observeEmailRequests();
 
@@ -214,10 +215,25 @@ describe("client-email sort — the schema's default IS the floor (FB5e)", () =>
 
     await settleByFilter(emails, observed);
     observed.stop();
-    expect(latestParams(observed).get("order")).toBe("-created_at");
+    expect(latestParams(observed).get("order")).toBe("-default,email");
     expect(emails.useContext().query.value.sort).toEqual(DEFAULT_SORT);
     // The refill precedes validation, so the schema's `minItems: 1` never fires.
     expect(surfacedAjvErrors(emails)).toEqual([]);
+  });
+
+  it("stops leading with the default address the moment the user picks an order (E8)", async () => {
+    const emails = await bootCollection();
+    const observed = observeEmailRequests();
+
+    emails.useActions().sortBy([{ field: "email", dir: "desc" }]);
+
+    await vi.waitFor(() => expect(lastOrder(observed)).toBe("-email"));
+    observed.stop();
+    // Replaced wholesale, never pinned: `default` leaves the wire entirely.
+    expect(latestParams(observed).get("order")).not.toContain("default");
+    expect(emails.useContext().query.value.sort).toEqual([
+      { field: "email", dir: "desc" }
+    ]);
   });
 });
 

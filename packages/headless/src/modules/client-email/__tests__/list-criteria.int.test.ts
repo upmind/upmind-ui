@@ -156,7 +156,7 @@ describe("client-email list({ criteria }) — the declared model boots the first
     observed.stop();
 
     const params = new URL(observed.first().url).searchParams;
-    expect(params.get("order")).toBe("-created_at");
+    expect(params.get("order")).toBe("-default,email");
     expect(params.get("limit")).toBe(String(DECLARED_LIMIT));
     expect(params.get("offset")).toBe("0");
     expect([...params.keys()].filter(key => key.startsWith("filter["))).toEqual(

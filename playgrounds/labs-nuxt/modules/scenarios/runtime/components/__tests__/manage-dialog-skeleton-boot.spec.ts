@@ -30,7 +30,7 @@ import { ModuleState } from "../module-state.types";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
 import { FormFlowSurface } from "../surfaces";
 import { EMAIL_EDITOR } from "./resolved-handoffs";
-import { filter } from "lodash-es";
+import { filter, times } from "lodash-es";
 import type { ResolvedHandoff } from "../../scenario.types";
 
 // -----------------------------------------------------------------------------
@@ -69,6 +69,45 @@ function mountSurface(meta: Record<string, boolean>) {
       form
     }
   });
+}
+
+/** The editor booting over a published uischema of exactly this many controls. */
+function bootingOn(controls: number) {
+  return mount(FormFlowSurface, {
+    props: {
+      snapshot: {
+        actions: ["input", "update"],
+        context: {
+          uischema: {
+            type: "VerticalLayout",
+            elements: times(controls, index => ({
+              type: "Control",
+              scope: `#/properties/field-${index}`
+            }))
+          }
+        },
+        meta: { isLoading: true }
+      },
+      actions: { input: vi.fn(), update: vi.fn() },
+      form
+    }
+  });
+}
+
+/** The bar the real form lands with stands in as a group of its own. */
+const ACTION_BAR_GROUPS = 1;
+
+/** How many label-and-control pairs the boot drew. */
+function fieldGroups(wrapper: ReturnType<typeof bootingOn>) {
+  const perGroup = new Map<Element, number>();
+  for (const skeleton of wrapper.findAllComponents(Skeleton)) {
+    const group = skeleton.element.parentElement as Element;
+    perGroup.set(group, (perGroup.get(group) ?? 0) + 1);
+  }
+  return filter(
+    Array.from(perGroup.values()),
+    count => count === PLACEHOLDERS_PER_FIELD
+  ).length;
 }
 
 afterEach(() => {
@@ -132,6 +171,18 @@ describe("@AC3 loading is a skeleton; a boot FAILURE is still a sentence (D12)",
     );
 
     expect(fields.length).toBeGreaterThan(1);
+  });
+
+  it("stands one field placeholder per control the port PUBLISHED, not a fixed pair (E11)", () => {
+    for (const controls of [1, 2, 3]) {
+      expect(fieldGroups(bootingOn(controls))).toBe(
+        controls + ACTION_BAR_GROUPS
+      );
+    }
+  });
+
+  it("re-shapes with the declaration, so the container never resizes under the form (E11)", () => {
+    expect(fieldGroups(bootingOn(3)) - fieldGroups(bootingOn(1))).toBe(2);
   });
 
   it("still reports a module that failed before it ever presented", () => {

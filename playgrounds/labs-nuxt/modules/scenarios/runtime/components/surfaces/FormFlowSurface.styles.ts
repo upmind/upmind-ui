@@ -22,6 +22,10 @@ export default {
 
     skeletonActions: cva("flex w-full flex-wrap gap-2"),
 
-    skeletonAction: cva("h-9 w-28")
+    skeletonAction: cva("h-9 w-28"),
+
+    // The ui Form's own `gap-6` sits between the elements it renders; the
+    // verdict rides above the form, at the same rhythm.
+    failure: cva("mb-6")
   }
 };

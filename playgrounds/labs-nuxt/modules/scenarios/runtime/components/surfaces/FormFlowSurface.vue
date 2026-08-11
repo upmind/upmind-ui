@@ -12,7 +12,7 @@
   >
     <div :class="styles.formFlowSurface.skeletonFields">
       <div
-        v-for="field in SKELETON_FIELDS"
+        v-for="field in skeletonFields"
         :key="field"
         :class="styles.formFlowSurface.skeletonField"
       >
@@ -31,19 +31,46 @@
     </div>
   </section>
 
-  <UpmForm
-    v-else
-    :schema="schema"
-    :uischema="uischema"
-    :model-value="model"
-    :additional-errors="validationErrors"
-    :additional-renderers="formRenderers"
-    :actions="actions"
-    :processing="isSubmitting"
-    @update:model-value="onUpdate"
-    @resolve="onResolve"
-    @reject="emit('rejected')"
-  />
+  <template v-else>
+    <!-- A refused save is answered where the user is looking — beside the very
+         fields the next attempt is made from, not only in the corner of the
+         screen the toast lands in. -->
+    <Alert
+      v-if="saveFailure"
+      color="danger"
+      variant="muted"
+      size="sm"
+      icon="alert-triangle"
+      :title="saveFailure"
+      :class="styles.formFlowSurface.failure"
+    >
+      <template #action>
+        <Button
+          size="sm"
+          variant="ghost"
+          color="danger"
+          icon="x-close"
+          icon-only
+          :label="t('action.dismiss')"
+          :aria-label="t('action.dismiss')"
+          @click="feedback.dismiss(SUBMIT_CONTROL)"
+        />
+      </template>
+    </Alert>
+
+    <UpmForm
+      :schema="schema"
+      :uischema="uischema"
+      :model-value="model"
+      :additional-errors="validationErrors"
+      :additional-renderers="formRenderers"
+      :actions="actions"
+      :processing="isSubmitting"
+      @update:model-value="onUpdate"
+      @resolve="onResolve"
+      @reject="emit('rejected')"
+    />
+  </template>
 </template>
 
 <script lang="ts" setup>
@@ -64,18 +91,25 @@
  * shape of what is coming (C8) — never a notice standing where a form will be.
  */
 
+import { isControlElement, RuleEffect } from "@jsonforms/core";
 import { computed, ref, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 import { formRenderers, UpmForm } from "@upmind-automation/client-vue";
-import { Skeleton, useStyles } from "@upmind-automation/upmind-ui";
+import {
+  Alert,
+  Button,
+  Skeleton,
+  useStyles
+} from "@upmind-automation/upmind-ui";
 import { FormFlowActionTypes } from "../../scenario.types";
 import { resolveModuleDetail, resolveModuleState } from "../module-state";
 import { ModuleState } from "../module-state.types";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
 import { useActionFeedback } from "../useActionFeedback";
 import config from "./FormFlowSurface.styles";
-import { isFunction, keys } from "lodash-es";
+import { get, isFunction, isNil, keys, sumBy } from "lodash-es";
 import type { FormFlowSurfaceProps } from "./FormFlowSurface.types";
+import type { UISchemaElement } from "@jsonforms/core";
 import type { FormProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
@@ -95,12 +129,9 @@ const feedback = useActionFeedback();
 /** The one control this surface fires — its save. */
 const SUBMIT_CONTROL = "submit";
 
-// How many field placeholders stand in for the form that has not landed yet.
-// The schema arrives WITH the record (`data-manager.machine` assigns the pair
-// on `loading` → `available`), so the count is the house form skeleton's own
-// (`client-vue/components/manage/Skeleton.vue`) rather than a guess at a schema
-// nobody can read yet.
-const SKELETON_FIELDS = 2;
+// What a form has at least one of, so the boot of a module that has not
+// published its uischema yet is still form-shaped rather than empty.
+const MIN_SKELETON_FIELDS = 1;
 
 const state = computed(() => resolveModuleState(props.snapshot.meta));
 const detail = computed(() => resolveModuleDetail(props.snapshot.context));
@@ -137,6 +168,24 @@ const validationErrors = computed(
       []) as FormProps["additionalErrors"]
 );
 
+/**
+ * How many controls a uischema DRAWS — the placeholder count, so the skeleton
+ * stands one field where the form will stand one field and the container it
+ * opens in is already the size the form needs. A `HIDE` rule is a field the
+ * user never sees (the auto-generated `id`), and a layout is counted through
+ * rather than as a field of its own.
+ */
+function countControls(element: unknown): number {
+  if (isNil(element)) return 0;
+  if (isControlElement(element as UISchemaElement))
+    return get(element, ["rule", "effect"]) === RuleEffect.HIDE ? 0 : 1;
+  return sumBy(get(element, "elements", []), countControls);
+}
+
+const skeletonFields = computed(
+  () => countControls(uischema.value) || MIN_SKELETON_FIELDS
+);
+
 const inputAction = computed(
   () => props.form?.input ?? FormFlowActionTypes.INPUT
 );
@@ -145,6 +194,14 @@ const submitAction = computed(
 );
 
 const isSubmitting = computed(() => feedback.isPending(SUBMIT_CONTROL));
+
+// The API's own sentence where the refusal carried one — a save the user has
+// not yet dismissed or re-attempted.
+const saveFailure = computed(() => {
+  const failure = feedback.failure(SUBMIT_CONTROL);
+  if (isNil(failure)) return undefined;
+  return failure || t("error.something_went_wrong");
+});
 
 // The form's own action bar, in the shared vocabulary — `UpmForm`'s defaults are
 // hardcoded English, and `doAction` falls through to submit/reset on type alone,

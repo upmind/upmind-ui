@@ -79,7 +79,7 @@ const NEXT_REFUSED = "text.page_next_not_available";
 const PREVIOUS_REFUSED = "text.page_previous_not_available";
 
 /** The `order=` the module's declared sort default puts on every boot request. */
-const BOOT_ORDER = "-created_at";
+const BOOT_ORDER = "-default,email";
 
 /**
  * A sort write and the `order=` it produces — the settle control for a claim

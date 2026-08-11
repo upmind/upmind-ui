@@ -12,14 +12,14 @@ other row the outlined one.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-@@ -194,9 +194,7 @@
-             <TableCell v-if="marker" :class="styles.listSurface.markerCell">
-               <Icon
-                 :icon="marker.icon"
--                :variant="
--                  isMarked(row.original) ? marker.marked : marker.unmarked
--                "
-+                :variant="marker.marked"
-                 size="nano"
-                 :class="rowMarker({ isMarked: isMarked(row.original) })"
-               />
+@@ -224,9 +224,7 @@
+               <TableCell v-if="marker" :class="styles.listSurface.markerCell">
+                 <Icon
+                   :icon="marker.icon"
+-                  :variant="
+-                    isMarked(row.original) ? marker.marked : marker.unmarked
+-                  "
++                  :variant="marker.marked"
+                   size="nano"
+                   :class="rowMarker({ isMarked: isMarked(row.original) })"
+                 />

@@ -34,6 +34,7 @@ import { CONTROL_TEST_VALUE } from "../../__tests__/control-test-values";
 import { RESOLVED_HANDOFFS } from "../../__tests__/resolved-handoffs";
 import FilterBar from "../../FilterBar.vue";
 import { ListSurface, ListViewTypes } from "../index";
+import { compact, map } from "lodash-es";
 import type { ModulePortCriteria } from "../../../composables/useModulePort.types";
 import type { ControlledTableChannel } from "@upmind-automation/scenario-harness";
 
@@ -63,7 +64,10 @@ function liveCriteria(): ModulePortCriteria {
   };
 }
 
-function mountList(criteria?: ModulePortCriteria) {
+function mountList(
+  criteria?: ModulePortCriteria,
+  channel: ControlledTableChannel = table
+) {
   return mount(ListSurface, {
     attachTo: document.body,
     props: {
@@ -74,12 +78,24 @@ function mountList(criteria?: ModulePortCriteria) {
       },
       actions: { remove: vi.fn() },
       presentation,
-      table,
+      table: channel,
       criteria,
       handoffs: RESOLVED_HANDOFFS
     }
   });
 }
+
+/** The toolbar's own sort control, by the test key it carries. */
+const SORT_CONTROL = '[data-test-key="sort"]';
+
+/** A channel already carrying a sort — what the control flips the direction of. */
+const sortedTable = (emit: ControlledTableChannel["emit"]) => ({
+  read: () => ({
+    ...table.read(),
+    sort: [{ field: "email", dir: "asc" }]
+  }),
+  emit
+});
 
 type Wrapper = ReturnType<typeof mountList>;
 
@@ -140,6 +156,69 @@ describe("@AC2 filters, the view toggle and the collection's controls are ONE ro
 
     expect(row).not.toBe(wrapper.element);
     expect(row.querySelector("table")).toBeNull();
+  });
+});
+
+describe("@AC2 card view can sort, from the toolbar (E9)", () => {
+  it("offers a sort control where there are no headers to click", async () => {
+    const wrapper = mountList(liveCriteria());
+
+    expect(wrapper.find(SORT_CONTROL).exists()).toBe(false);
+    await wrapper
+      .find(`[data-test-value="${ListViewTypes.CARD}"]`)
+      .trigger("click");
+
+    expect(wrapper.find(SORT_CONTROL).exists()).toBe(true);
+  });
+
+  it("offers exactly the fields the scenario declared sortable, in its order", async () => {
+    const wrapper = mountList(liveCriteria());
+    await wrapper
+      .find(`[data-test-value="${ListViewTypes.CARD}"]`)
+      .trigger("click");
+
+    const offered = map(wrapper.findAll(`${SORT_CONTROL} option`), option =>
+      option.attributes("value")
+    );
+
+    expect(offered).toEqual(
+      compact(map(presentation.row?.elements, "options.sortable"))
+    );
+  });
+
+  it("writes through the SAME channel the headers write — one source of truth", async () => {
+    const emit = vi.fn();
+    const wrapper = mountList(liveCriteria(), sortedTable(emit));
+    await wrapper
+      .find(`[data-test-value="${ListViewTypes.CARD}"]`)
+      .trigger("click");
+
+    await wrapper
+      .find(`${SORT_CONTROL} [data-test-key="button"]`)
+      .trigger("click");
+
+    expect(emit).toHaveBeenCalledTimes(1);
+    const intent = emit.mock.calls[0][0];
+    expect(intent.type).toBe("sort");
+    expect(intent.sort[0]).toEqual({ field: "email", dir: "desc" });
+  });
+
+  it("offers no sort at all where the module owns no table state", async () => {
+    const wrapper = mount(ListSurface, {
+      attachTo: document.body,
+      props: {
+        snapshot: {
+          actions: ["remove"],
+          context: { data: rows },
+          meta: { isEmpty: false, isFiltered: false }
+        },
+        actions: { remove: vi.fn() },
+        presentation,
+        handoffs: RESOLVED_HANDOFFS
+      }
+    });
+
+    expect(wrapper.find(SORT_CONTROL).exists()).toBe(false);
   });
 });
 

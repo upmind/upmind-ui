@@ -13,7 +13,7 @@ registered), never call a collection action.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-@@ -585,8 +585,6 @@
+@@ -718,8 +718,6 @@
  function isActionAvailable(action: ScenarioAction): boolean {
    // A handoff control calls no action: what it needs is the target it opens,
    // and without one it would be a button that does nothing (C2).
@@ -22,13 +22,20 @@ diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces
    return (
      includes(props.snapshot.actions, action.name) &&
      isFunction(props.actions[action.name])
-@@ -635,8 +633,7 @@
-       color: action.color,
-       variant: action.variant,
+@@ -805,12 +803,10 @@
        placement: action.placement,
--      onSelect: () =>
--        action.handoff ? openHandoff(action) : props.actions[action.name]()
-+      onSelect: () => props.actions[action.name]()
+       loading: feedback.isPending(action.name),
+       onSelect: () =>
+-        action.handoff
+-          ? openHandoff(action)
+-          : feedback.fire(action.name, () => props.actions[action.name](), {
+-              success: t(get(action, ["feedback", "success"], "")),
+-              failure: t(get(action, ["feedback", "failure"], ""))
+-            })
++        feedback.fire(action.name, () => props.actions[action.name](), {
++          success: t(get(action, ["feedback", "success"], "")),
++          failure: t(get(action, ["feedback", "failure"], ""))
++        })
      })
    )
  );

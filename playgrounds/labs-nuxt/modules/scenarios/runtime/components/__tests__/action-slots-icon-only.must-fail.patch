@@ -19,4 +19,4 @@ diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ActionSl
 -            :icon-only="iconOnly"
              :aria-label="action.label"
              :disabled="action.disabled"
-             @click="action.onSelect"
+             :loading="action.loading"

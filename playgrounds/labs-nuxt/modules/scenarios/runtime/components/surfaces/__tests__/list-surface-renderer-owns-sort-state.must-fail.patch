@@ -28,12 +28,11 @@ graded this mutant a pass on the strength of that title would be measuring its
 own wording.
 
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-index d7c8eb16d..f6cee30df 100644
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-@@ -369,17 +369,12 @@ const sortingState = computed<SortingState>(() =>
-   }))
- );
+@@ -623,16 +623,12 @@
+   props.table?.emit({ type: TableIntentTypes.SORT, sort });
+ }
  
 +const ownedSorting = ref<SortingState>([]);
 +
@@ -43,17 +42,16 @@ index d7c8eb16d..f6cee30df 100644
 +  ownedSorting.value = isFunction(updaterOrValue)
 +    ? updaterOrValue(ownedSorting.value)
      : updaterOrValue;
--  props.table?.emit({
--    type: TableIntentTypes.SORT,
--    sort: map(next, entry => ({
+-  emitSort(
+-    map(next, entry => ({
 -      field: entry.id,
 -      dir: entry.desc ? SortDirection.DESC : SortDirection.ASC
 -    }))
--  });
+-  );
  };
  
  // `useVueTable` (v8) has no built-in deep reactivity of its own — every
-@@ -398,7 +393,7 @@ const vueTable = useVueTable({
+@@ -651,7 +647,7 @@
    manualPagination: true,
    state: {
      get sorting() {

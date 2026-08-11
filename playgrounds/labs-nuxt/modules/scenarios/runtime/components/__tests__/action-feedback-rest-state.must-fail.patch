@@ -10,7 +10,7 @@ Reds: action-feedback.spec.ts — the pending-then-released cases.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/useActionFeedback.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/useActionFeedback.ts
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/useActionFeedback.ts
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/useActionFeedback.ts
-@@ -56,8 +56,6 @@
+@@ -85,8 +85,6 @@
  
        if (copy) report(copy.failure, TOAST_VARIANTS.DANGER, reported.value);
        return false;

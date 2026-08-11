@@ -20,6 +20,15 @@
         :class="styles.listSurface.toolbarFilters"
       />
       <div :class="styles.listSurface.toolbarControls">
+        <!-- The card view has no headers to click, so the sort moves into the
+             toolbar there — the same criteria, written through the same emit,
+             never a second source of truth. -->
+        <SortControl
+          v-if="meta.hasSortControl"
+          :fields="sortFields"
+          :sort="tableModel.sort"
+          @update:sort="emitSort"
+        />
         <!-- The same rows, from the scenario's second declaration. Which view is
              on is the RENDERER's own ephemeral state (AC2) — no refetch, no
              declaration, no url. -->
@@ -33,6 +42,7 @@
         />
         <ActionSlots
           v-if="meta.hasCollectionActions"
+          icon-only
           :actions="collectionActionItems"
         />
       </div>
@@ -41,6 +51,7 @@
     <template v-if="meta.isCardView">
       <div
         v-if="meta.isLoading || !meta.isEmpty"
+        v-auto-animate
         :class="styles.listSurface.cardGrid"
       >
         <!-- The placeholder is the CARD's own shape, field for field, so the
@@ -62,7 +73,13 @@
           <Card
             v-for="(row, index) in rows"
             :key="rowKey(row, index)"
-            :class="dataCard({ isMarked: isMarked(row) })"
+            :class="
+              dataCard({
+                isMarked: isMarked(row),
+                isFailed: !!rowFailure(row),
+                isSucceeded: isSucceeded(row)
+              })
+            "
           >
             <header :class="styles.listSurface.cardHeader">
               <div :class="styles.listSurface.cardLead">
@@ -108,6 +125,14 @@
                 :row="row"
               />
             </div>
+
+            <!-- The same verdict the table draws under its row, drawn inside
+                 the card the action was fired from (E12). -->
+            <RowFailure
+              v-if="rowFailure(row)"
+              :message="rowFailure(row) || ''"
+              @dismiss="dismissRow(row)"
+            />
           </Card>
         </template>
       </div>
@@ -116,7 +141,7 @@
 
     <!-- The table is the FRAME: its headers stay through every state, and each
          state is drawn inside its body rather than in place of it (C8/C9). -->
-    <Table v-else-if="meta.hasTable">
+    <Table v-else-if="meta.hasTable" :class="styles.listSurface.table">
       <TableHeader>
         <TableRow
           v-for="headerGroup in vueTable.getHeaderGroups()"
@@ -135,7 +160,7 @@
           <TableHead
             v-for="header in headerGroup.headers"
             :key="header.id"
-            :class="headerCell({ isSortable: header.column.getCanSort() })"
+            :class="styles.listSurface.headerCell"
             @click="header.column.getToggleSortingHandler()?.($event)"
           >
             <template v-if="!header.isPlaceholder">
@@ -157,7 +182,7 @@
           />
         </TableRow>
       </TableHeader>
-      <TableBody>
+      <TableBody v-auto-animate>
         <template v-if="meta.isLoading">
           <TableRow v-for="placeholder in SKELETON_ROWS" :key="placeholder">
             <TableCell
@@ -183,36 +208,63 @@
         </TableEmpty>
 
         <template v-else>
-          <TableRow
-            v-for="row in vueTable.getRowModel().rows"
-            :key="row.id"
-            :class="dataRow({ isMarked: isMarked(row.original) })"
-          >
-            <!-- The marker is its OWN column, ahead of every declared one, so
-                 the default row reads as the default without the flag riding
-                 (and crowding) a cell that means something else (C12). -->
-            <TableCell v-if="marker" :class="styles.listSurface.markerCell">
-              <Icon
-                :icon="marker.icon"
-                :variant="
-                  isMarked(row.original) ? marker.marked : marker.unmarked
-                "
-                size="nano"
-                :class="rowMarker({ isMarked: isMarked(row.original) })"
-              />
-            </TableCell>
-            <TableCell v-for="element in columnElements" :key="element.scope">
-              <div :class="styles.listSurface.cellContent">
-                <RowCell :element="element" :row="row.original" />
-              </div>
-            </TableCell>
-            <TableCell
-              v-if="meta.hasRowActions"
-              :class="styles.listSurface.actionsCell"
+          <template v-for="row in vueTable.getRowModel().rows" :key="row.id">
+            <TableRow
+              :class="
+                dataRow({
+                  isMarked: isMarked(row.original),
+                  isFailed: !!rowFailure(row.original),
+                  isSucceeded: isSucceeded(row.original)
+                })
+              "
             >
-              <ActionSlots icon-only :actions="rowActionItems(row.original)" />
-            </TableCell>
-          </TableRow>
+              <!-- The marker is its OWN column, ahead of every declared one, so
+                   the default row reads as the default without the flag riding
+                   (and crowding) a cell that means something else (C12). -->
+              <TableCell v-if="marker" :class="styles.listSurface.markerCell">
+                <Icon
+                  :icon="marker.icon"
+                  :variant="
+                    isMarked(row.original) ? marker.marked : marker.unmarked
+                  "
+                  size="nano"
+                  :class="rowMarker({ isMarked: isMarked(row.original) })"
+                />
+              </TableCell>
+              <TableCell v-for="element in columnElements" :key="element.scope">
+                <div :class="styles.listSurface.cellContent">
+                  <RowCell :element="element" :row="row.original" />
+                </div>
+              </TableCell>
+              <TableCell
+                v-if="meta.hasRowActions"
+                :class="styles.listSurface.actionsCell"
+              >
+                <ActionSlots
+                  icon-only
+                  :actions="rowActionItems(row.original)"
+                />
+              </TableCell>
+            </TableRow>
+
+            <!-- The refusal rides UNDER the row it happened to, in the same
+                 tint, so the two read as one record in an error state and the
+                 row after it can never be mistaken for part of it (E12/F4). -->
+            <TableRow
+              v-if="rowFailure(row.original)"
+              :class="styles.listSurface.failureRow"
+            >
+              <TableCell
+                :colspan="columnCount"
+                :class="styles.listSurface.failureCell"
+              >
+                <RowFailure
+                  :message="rowFailure(row.original) || ''"
+                  @dismiss="dismissRow(row.original)"
+                />
+              </TableCell>
+            </TableRow>
+          </template>
         </template>
       </TableBody>
     </Table>
@@ -227,7 +279,7 @@
       <li
         v-for="(row, index) in rows"
         :key="rowKey(row, index)"
-        :class="styles.listSurface.rowListItem"
+        :class="rowListItem({ isFailed: !!rowFailure(row) })"
       >
         <div :class="styles.listSurface.rowListFields">
           <span
@@ -243,6 +295,12 @@
           v-if="rowActionItems(row).length"
           icon-only
           :actions="rowActionItems(row)"
+        />
+        <RowFailure
+          v-if="rowFailure(row)"
+          :message="rowFailure(row) || ''"
+          :class="styles.listSurface.rowListFailure"
+          @dismiss="dismissRow(row)"
         />
       </li>
     </ul>
@@ -300,6 +358,7 @@
  * rows land.
  */
 
+import { vAutoAnimate } from "@formkit/auto-animate";
 import { toDataPath } from "@jsonforms/core";
 import { getCoreRowModel, useVueTable } from "@tanstack/vue-table";
 import { computed, ref, watchEffect } from "vue";
@@ -335,29 +394,37 @@ import ManageDialog from "../ManageDialog.vue";
 import { resolveModuleDetail, resolveModuleState } from "../module-state";
 import { ModuleState } from "../module-state.types";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
+import SortControl from "../SortControl.vue";
 import { useActionFeedback } from "../useActionFeedback";
 import ListEmpty from "./ListEmpty.vue";
 import config, {
   dataCard,
   dataRow,
-  headerCell,
+  rowListItem,
   rowMarker
 } from "./ListSurface.styles";
 import { ListViewTypes } from "./ListSurface.types";
 import RowCell from "./RowCell.vue";
+import RowFailure from "./RowFailure.vue";
 import {
   filter,
+  find,
+  forEach,
   get,
   includes,
   isEmpty,
   isFunction,
   isNil,
+  isString,
   map,
+  reduce,
+  some,
   toString
 } from "lodash-es";
 import type { RowElement, ScenarioAction } from "../../scenario.types";
 import type { ActionSlotItem } from "../ActionSlots.types";
 import type { ManageDialogProps } from "../ManageDialog.types";
+import type { SortField } from "../SortControl.types";
 import type { ListRow, ListSurfaceProps } from "./ListSurface.types";
 import type {
   ColumnDef,
@@ -501,6 +568,23 @@ function sortField(element: RowElement): string | undefined {
   return field && (!offered || includes(offered, field)) ? field : undefined;
 }
 
+/**
+ * The same fields the headers sort by, under the same declared labels — the
+ * toolbar control's whole vocabulary. Read off the ROW declaration in both
+ * views: `sortable` names the module's wire field wherever the rows draw.
+ */
+const sortFields = computed<SortField[]>(() =>
+  reduce(
+    columnElements.value,
+    (fields: SortField[], element) => {
+      const field = sortField(element);
+      if (field) fields.push({ value: field, label: t(element.i18n) });
+      return fields;
+    },
+    []
+  )
+);
+
 const columns = computed<ColumnDef<ListRow>[]>(() =>
   map(columnElements.value, element => {
     const field = sortField(element);
@@ -531,17 +615,24 @@ const sortingState = computed<SortingState>(() =>
   }))
 );
 
+/**
+ * The ONE way this surface writes a sort — a header click and the toolbar
+ * control both land here, so the two can never disagree about the criteria.
+ */
+function emitSort(sort: TableModel["sort"]): void {
+  props.table?.emit({ type: TableIntentTypes.SORT, sort });
+}
+
 const onSortingChange: OnChangeFn<SortingState> = updaterOrValue => {
   const next = isFunction(updaterOrValue)
     ? updaterOrValue(sortingState.value)
     : updaterOrValue;
-  props.table?.emit({
-    type: TableIntentTypes.SORT,
-    sort: map(next, entry => ({
+  emitSort(
+    map(next, entry => ({
       field: entry.id,
       dir: entry.desc ? SortDirection.DESC : SortDirection.ASC
     }))
-  });
+  );
 };
 
 // `useVueTable` (v8) has no built-in deep reactivity of its own — every
@@ -643,9 +734,14 @@ function availableActions(row: ListRow): ScenarioAction[] {
   );
 }
 
+/** The control ONE action on ONE row is fired from — what its outcome is keyed by. */
+function rowControl(action: ScenarioAction, row: ListRow): string {
+  return `${action.name}:${row.id}`;
+}
+
 function rowActionItems(row: ListRow): ActionSlotItem[] {
   return map(availableActions(row), action => {
-    const control = `${action.name}:${row.id}`;
+    const control = rowControl(action, row);
     return {
       name: action.name,
       label: t(action.i18n),
@@ -655,7 +751,11 @@ function rowActionItems(row: ListRow): ActionSlotItem[] {
       placement: action.placement,
       // The precondition is the ROW's own — a rule over the meta the record
       // itself carries, never a client-side guess about what the API allows.
-      disabled: !isRuleEnabled(action, row) || feedback.isPending(control),
+      disabled: false,
+      // In flight says so on the control that was clicked, in the Button's own
+      // treatment: an action nobody can see working reads as an action that did
+      // nothing (E12).
+      loading: feedback.isPending(control),
       onSelect: () =>
         action.handoff
           ? openHandoff(action, row)
@@ -665,6 +765,32 @@ function rowActionItems(row: ListRow): ActionSlotItem[] {
             })
     };
   });
+}
+
+/** Every control this row can fire, whether or not it is offered right now. */
+function rowControls(row: ListRow): string[] {
+  return map(rowActions.value, action => rowControl(action, row));
+}
+
+/**
+ * What this row's last refused action said — the API's own sentence where it
+ * gave one. Held until the user dismisses it or fires the action again, so a
+ * refusal is answered on the record it happened to rather than only in a toast
+ * that has already gone.
+ */
+function rowFailure(row: ListRow): string | undefined {
+  const failure = find(map(rowControls(row), feedback.failure), isString);
+  if (isNil(failure)) return undefined;
+  return failure || t("error.something_went_wrong");
+}
+
+/** True while one of this row's actions is still worth pointing at (E13). */
+function isSucceeded(row: ListRow): boolean {
+  return some(rowControls(row), feedback.isSucceeded);
+}
+
+function dismissRow(row: ListRow): void {
+  forEach(rowControls(row), feedback.dismiss);
 }
 
 const collectionActionItems = computed<ActionSlotItem[]>(() =>
@@ -677,8 +803,14 @@ const collectionActionItems = computed<ActionSlotItem[]>(() =>
       color: action.color,
       variant: action.variant,
       placement: action.placement,
+      loading: feedback.isPending(action.name),
       onSelect: () =>
-        action.handoff ? openHandoff(action) : props.actions[action.name]()
+        action.handoff
+          ? openHandoff(action)
+          : feedback.fire(action.name, () => props.actions[action.name](), {
+              success: t(get(action, ["feedback", "success"], "")),
+              failure: t(get(action, ["feedback", "failure"], ""))
+            })
     })
   )
 );
@@ -694,6 +826,12 @@ const meta = computed(() => ({
   // only where the scenario wrote one.
   hasCardView: hasCardView.value,
   isCardView: hasCardView.value && view.value === ListViewTypes.CARD,
+  // Sorting has ONE affordance per view: the headers where they are drawn, the
+  // toolbar control where the cards leave nothing to click.
+  hasSortControl:
+    hasCardView.value &&
+    view.value === ListViewTypes.CARD &&
+    !isEmpty(sortFields.value),
   // The module's own answer (`useMeta().isFiltered`), never a renderer-side
   // guess off the flattened filter model: *empty because nothing exists* and
   // *empty because your filters match nothing* are different states.

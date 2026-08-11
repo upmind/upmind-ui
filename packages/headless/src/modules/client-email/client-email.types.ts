@@ -161,11 +161,16 @@ export type SortEntry = { field: string; dir: SortDirection };
 export type SortModel = NonNullable<QueryModel["sort"]>;
 
 /**
- * The order the list starts in — newest first. Declared as the query schema's
- * `sort` default, so an emptied sort refills itself on the next parse.
+ * The order the list starts in — the client's DEFAULT address first, then the
+ * rest alphabetically (`order=-default,email` on the wire). Declared as the
+ * query schema's `sort` default, so an emptied sort refills itself on the next
+ * parse. This is the BOOT state only: a user sort replaces the whole model, so
+ * the default address stops leading the moment they choose their own order —
+ * it is never a pinned row.
  */
 export const DEFAULT_SORT: SortModel = [
-  { field: "created_at", dir: SortDirection.DESC }
+  { field: "default", dir: SortDirection.DESC },
+  { field: "email", dir: SortDirection.ASC }
 ];
 
 /**

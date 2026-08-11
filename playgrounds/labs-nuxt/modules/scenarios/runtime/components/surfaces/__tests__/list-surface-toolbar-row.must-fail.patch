@@ -26,5 +26,5 @@ diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces
 -        :class="styles.listSurface.toolbarFilters"
 -      />
        <div :class="styles.listSurface.toolbarControls">
-         <!-- The same rows, from the scenario's second declaration. Which view is
-              on is the RENDERER's own ephemeral state (AC2) — no refetch, no
+         <!-- The card view has no headers to click, so the sort moves into the
+              toolbar there — the same criteria, written through the same emit,

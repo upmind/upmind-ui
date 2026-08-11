@@ -72,3 +72,12 @@ export type RowCellProps = {
 export type ListEmptyProps = {
   isFiltered?: boolean;
 };
+
+/**
+ * What went wrong on ONE record, drawn under the record it happened to. The
+ * message is already resolved by the surface that fired the action — the API's
+ * own sentence wherever it gave one.
+ */
+export type RowFailureProps = {
+  message: string;
+};

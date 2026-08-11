@@ -29,6 +29,8 @@ export type ActionSlotItem = {
   /** Where the scenario placed it. Absent, it falls to the overflow. */
   placement?: ActionPlacementTypes;
   disabled?: boolean;
+  /** In flight — the control says so itself, in the Button's own treatment. */
+  loading?: boolean;
   onSelect: () => void;
 };
 

@@ -157,7 +157,10 @@ describe("client-email query criteria — model to wire (Task 41)", () => {
   it("the sort model translates to the wire's [direction, property] tuple", () => {
     const criteria = bootCriteria();
 
-    expect(criteria.props.value.sort).toEqual(["-", "created_at"]);
+    expect(criteria.props.value.sort).toEqual([
+      ["-", "default"],
+      ["", "email"]
+    ]);
 
     criteria.set({ sort: [{ field: "email", dir: "asc" }] });
 

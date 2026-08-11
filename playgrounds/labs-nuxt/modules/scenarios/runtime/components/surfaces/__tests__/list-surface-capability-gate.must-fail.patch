@@ -12,12 +12,12 @@ case (the control must be disabled).
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-@@ -613,7 +613,7 @@
+@@ -751,7 +751,7 @@
        placement: action.placement,
        // The precondition is the ROW's own — a rule over the meta the record
        // itself carries, never a client-side guess about what the API allows.
--      disabled: !isRuleEnabled(action, row) || feedback.isPending(control),
-+      disabled: feedback.isPending(control),
-       onSelect: () =>
-         action.handoff
-           ? openHandoff(action, row)
+-      disabled: !isRuleEnabled(action, row),
++      disabled: false,
+       // In flight says so on the control that was clicked, in the Button's own
+       // treatment: an action nobody can see working reads as an action that did
+       // nothing (E12).

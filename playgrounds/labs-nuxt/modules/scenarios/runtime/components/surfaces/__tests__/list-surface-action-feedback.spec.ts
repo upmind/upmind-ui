@@ -108,6 +108,21 @@ async function fire(
   await wrapper.vm.$nextTick();
 }
 
+/** One record's own control, re-read after every render it may have changed in. */
+const controlIn = (
+  wrapper: ReturnType<typeof mountList>,
+  row: number,
+  action: string
+) =>
+  wrapper
+    .findAll("li")
+    [row].find(`[data-test-value="${CONTROL_TEST_VALUE[action]}"]`);
+
+const settle = async (wrapper: ReturnType<typeof mountList>) => {
+  await flushPromises();
+  await wrapper.vm.$nextTick();
+};
+
 afterEach(() => {
   clearToasts();
   document.body.innerHTML = "";
@@ -189,5 +204,81 @@ describe("@AC3 action feedback — every sentence is real copy", () => {
     const reported = await toaster.reported();
     expect(includes(reported, confirm.email_verification_sent)).toBe(true);
     expect(includes(reported, API_MESSAGE)).toBe(true);
+  });
+});
+
+describe("@AC3 the control itself says it is working (E12)", () => {
+  it("holds the control it was fired from busy until the call settles", async () => {
+    const wrapper = mountList({
+      remove: vi.fn().mockReturnValue(new Promise(() => undefined))
+    });
+
+    await fire(wrapper, 1, "remove");
+    await flushPromises();
+
+    const control = controlIn(wrapper, 1, "remove");
+    expect(control.attributes("disabled")).toBeDefined();
+    expect(control.find('[role="status"]').exists()).toBe(true);
+  });
+
+  it("leaves every OTHER record's control alone — one action, one pending control", async () => {
+    const wrapper = mountList({
+      remove: vi.fn().mockReturnValue(new Promise(() => undefined))
+    });
+
+    await fire(wrapper, 1, "remove");
+    await flushPromises();
+
+    expect(
+      controlIn(wrapper, 0, "remove").find('[role="status"]').exists()
+    ).toBe(false);
+  });
+
+  it("returns it to rest once the call has settled", async () => {
+    const wrapper = mountList({
+      remove: vi.fn().mockResolvedValue({ status: "ok" })
+    });
+
+    await fire(wrapper, 1, "remove");
+    await flushPromises();
+    await wrapper.vm.$nextTick();
+
+    const control = controlIn(wrapper, 1, "remove");
+    expect(control.attributes("disabled")).toBeUndefined();
+    expect(control.find('[role="status"]').exists()).toBe(false);
+  });
+});
+
+describe("@AC3 a refusal marks the RECORD it happened to (E12)", () => {
+  it("draws the API's own sentence on that record, and on no other", async () => {
+    const wrapper = mountList({
+      remove: vi.fn().mockRejectedValue(recordedRejection())
+    });
+
+    await fire(wrapper, 1, "remove");
+    await settle(wrapper);
+
+    const failed = wrapper.findAll("li")[1].find('[role="alert"]');
+    expect(failed.exists()).toBe(true);
+    expect(failed.text()).toContain(API_MESSAGE);
+    expect(wrapper.findAll("li")[0].find('[role="alert"]').exists()).toBe(
+      false
+    );
+  });
+
+  it("clears on the user's own dismiss, and takes nothing else with it", async () => {
+    const wrapper = mountList({
+      remove: vi.fn().mockRejectedValue(recordedRejection())
+    });
+
+    await fire(wrapper, 1, "remove");
+    await settle(wrapper);
+    await wrapper
+      .findAll("li")[1]
+      .find('[data-test-value="dismiss"]')
+      .trigger("click");
+
+    expect(wrapper.findAll('[role="alert"]')).toHaveLength(0);
+    expect(wrapper.findAll("li")).toHaveLength(rows.length);
   });
 });

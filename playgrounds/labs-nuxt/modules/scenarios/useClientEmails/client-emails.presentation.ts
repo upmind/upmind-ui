@@ -84,7 +84,12 @@ export const rowUischema: RowUischema = {
   ]
 };
 
-/** The SAME row, drawn as a card — a second declaration, never a second component. */
+/**
+ * The SAME row, drawn as a card — a second declaration, never a second
+ * component. The status rides the TITLE slot because that is the manage/billing
+ * card's own law (`manage/Item.vue`): star, address and badges read as one line,
+ * with the muted line under it.
+ */
 export const cardUischema: RowUischema = {
   type: "VerticalLayout",
   options: rowUischema.options,
@@ -97,19 +102,19 @@ export const cardUischema: RowUischema = {
     },
     {
       type: "Control",
-      scope: "#/properties/bouncedAt",
-      i18n: "text.date_bounced",
-      options: { cell: RowCellTypes.DATE, slot: CardSlotTypes.SUBTITLE }
-    },
-    {
-      type: "Control",
       scope: "#/properties/meta",
       i18n: "text.status",
       options: {
         cell: RowCellTypes.BADGES,
         badges: STATUS_BADGES,
-        slot: CardSlotTypes.BODY
+        slot: CardSlotTypes.TITLE
       }
+    },
+    {
+      type: "Control",
+      scope: "#/properties/bouncedAt",
+      i18n: "text.date_bounced",
+      options: { cell: RowCellTypes.DATE, slot: CardSlotTypes.SUBTITLE }
     }
   ]
 };

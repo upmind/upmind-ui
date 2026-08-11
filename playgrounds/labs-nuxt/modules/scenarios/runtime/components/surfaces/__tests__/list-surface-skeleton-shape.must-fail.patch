@@ -11,10 +11,10 @@ Reds: the loading-state specs — one skeleton cell per declared column.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-@@ -150,7 +150,7 @@
-       <TableBody>
-         <template v-if="meta.isLoading">
-           <TableRow v-for="placeholder in SKELETON_ROWS" :key="placeholder">
+@@ -191,7 +191,7 @@
+             >
+               <Skeleton :class="styles.listSurface.skeletonMarker" />
+             </TableCell>
 -            <TableCell v-for="element in columnElements" :key="element.scope">
 +            <TableCell :colspan="columnCount">
                <Skeleton :class="styles.listSurface.skeletonCell" />

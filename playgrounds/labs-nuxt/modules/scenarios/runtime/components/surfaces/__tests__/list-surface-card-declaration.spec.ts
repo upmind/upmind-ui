@@ -28,9 +28,10 @@ import {
 } from "../../../../../../tests/support/recorded-emails";
 import clientEmails from "../../../../useClientEmails/scenario";
 import { RESOLVED_HANDOFFS } from "../../__tests__/resolved-handoffs";
+import { CardSlotTypes } from "../../../scenario.types";
 import { ListSurface, ListViewTypes } from "../index";
 import RowCell from "../RowCell.vue";
-import { keys, map, values } from "lodash-es";
+import { every, filter, keys, map, values } from "lodash-es";
 import type { RowElement } from "../../../scenario.types";
 import type { SurfaceActions } from "../surface.types";
 
@@ -86,6 +87,16 @@ const drawnIn = (root: { findAllComponents: Wrapper["findAllComponents"] }) =>
 
 const declaredScopes = (elements: RowElement[] = []) => map(elements, "scope");
 
+/** The card fields the declaration placed in one named slot, in its own order. */
+const slotted = (slot: CardSlotTypes) =>
+  declaredScopes(
+    filter(presentation.card?.elements, ["options.slot", slot]) as RowElement[]
+  );
+
+/** The element the cards are laid out in — the grid itself, whatever it is called. */
+const gridOf = (wrapper: Wrapper) =>
+  wrapper.findAllComponents(Card)[0].element.parentElement as HTMLElement;
+
 // -----------------------------------------------------------------------------
 
 describe("@AC2 the toggle — two views over one row set", () => {
@@ -138,26 +149,34 @@ describe("@AC3 the card draws the CARD declaration — the scenario's second one
     }
   });
 
-  it("draws the card declaration rather than the table's — the two differ in order", async () => {
+  it("draws the card declaration rather than the table's — the two differ in SLOTS", async () => {
     const { wrapper } = mountList();
     await view(wrapper, ListViewTypes.CARD);
 
-    const cardOrder = declaredScopes(presentation.card?.elements);
-    const rowOrder = declaredScopes(presentation.row?.elements);
+    const card = wrapper.findAllComponents(Card)[0];
 
-    expect(cardOrder).not.toEqual(rowOrder);
-    expect(drawnIn(wrapper.findAllComponents(Card)[0])).toEqual(cardOrder);
+    expect(drawnIn(card)).toEqual(declaredScopes(presentation.card?.elements));
+    expect(drawnIn(card.find("h3"))).toEqual(slotted(CardSlotTypes.TITLE));
+    expect(drawnIn(card.find("p"))).toEqual(slotted(CardSlotTypes.SUBTITLE));
+    // The table's declaration carries no slots at all, so a card drawn from it
+    // could not group into a heading and a line under it in the first place.
+    expect(slotted(CardSlotTypes.TITLE)).not.toEqual(
+      declaredScopes(presentation.row?.elements)
+    );
   });
 
-  it("puts the declared TITLE field in the card's heading", async () => {
+  it("puts EVERY declared TITLE field on the heading line — badge beside the address (E4)", async () => {
     const { wrapper } = mountList();
     await view(wrapper, ListViewTypes.CARD);
 
     const heading = wrapper.findAllComponents(Card)[0].find("h3");
-    const title = presentation.card?.elements[0] as RowElement;
 
-    expect(drawnIn(heading)).toEqual([title.scope]);
+    expect(drawnIn(heading)).toEqual(slotted(CardSlotTypes.TITLE));
+    expect(drawnIn(heading).length).toBeGreaterThan(1);
     expect(heading.text()).toContain(defaultRow.email);
+    expect(
+      map(heading.findAll('[data-test-key="badge"]'), badge => badge.text())
+    ).toEqual(["Verified"]);
   });
 
   it("draws the declared BADGES field, so status reads as badges in cards too", async () => {
@@ -187,5 +206,53 @@ describe("@AC3 the card draws the CARD declaration — the scenario's second one
 
     const cells = drawnIn(wrapper.findAll("tbody tr")[0]);
     expect(cells).toEqual(declaredScopes(presentation.row?.elements));
+  });
+});
+
+describe("@AC2 the cards are a responsive GRID, not a column (E6)", () => {
+  it("lays every card out in ONE grid", async () => {
+    const { wrapper } = mountList();
+    await view(wrapper, ListViewTypes.CARD);
+
+    const grid = gridOf(wrapper);
+    const cards = map(wrapper.findAllComponents(Card), card => card.element);
+
+    expect(grid.className).toContain("grid");
+    expect(every(cards, card => card.parentElement === grid)).toBe(true);
+  });
+
+  it("fits three across on desktop and collapses below it", async () => {
+    const { wrapper } = mountList();
+    await view(wrapper, ListViewTypes.CARD);
+
+    const grid = gridOf(wrapper).className;
+
+    expect(grid).toContain("lg:grid-cols-3");
+    expect(grid).toContain("sm:grid-cols-2");
+    expect(grid).not.toContain("grid-cols-1");
+  });
+});
+
+describe("@AC2 a card reserves no space for what the row never had (E5)", () => {
+  it("collapses a slot the record left empty rather than holding its height", async () => {
+    const { wrapper } = mountList();
+    await view(wrapper, ListViewTypes.CARD);
+
+    // The unverified row carries no bounce date, so its SUBTITLE slot draws
+    // nothing — the gap the operator saw under the content.
+    const subtitle = wrapper.findAllComponents(Card)[1].find("p");
+
+    expect(subtitle.text()).toBe("");
+    expect(subtitle.classes()).toContain("empty:hidden");
+  });
+
+  it("centres what it does carry instead of pinning it to the top edge", async () => {
+    const { wrapper } = mountList();
+    await view(wrapper, ListViewTypes.CARD);
+
+    const card = wrapper.findAllComponents(Card)[1];
+
+    expect(card.classes()).toContain("justify-center");
+    expect(card.classes()).toContain("h-full");
   });
 });

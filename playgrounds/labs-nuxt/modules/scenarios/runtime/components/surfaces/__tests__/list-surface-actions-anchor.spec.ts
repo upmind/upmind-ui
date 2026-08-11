@@ -1,7 +1,8 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview @AC3 the actions column is ANCHORED to the row's right edge, and
- * the controls in it are the icons D5 made them (D11 · D5).
+ * @fileoverview @AC3 the actions column is ANCHORED to the row's right edge, the
+ * controls in it are the icons D5 made them wherever they are drawn, and they
+ * sit in one horizontal cluster (D11 · D5 · E1 · E10).
  *
  * ## Job To Be Done
  * The operator's table had the controls floating after the last data column with
@@ -21,6 +22,7 @@
 
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
+import { Card } from "@upmind-automation/upmind-ui";
 import {
   defaultRow,
   unverifiedRow
@@ -28,9 +30,18 @@ import {
 import clientEmails from "../../../../useClientEmails/scenario";
 import { CONTROL_TEST_VALUE } from "../../__tests__/control-test-values";
 import { RESOLVED_HANDOFFS } from "../../__tests__/resolved-handoffs";
-import { ListSurface } from "../index";
+import { ListSurface, ListViewTypes } from "../index";
 import { ACTIONS_COLUMN, TABLE_COLUMNS } from "./table-geometry";
-import { every, filter, last, map } from "lodash-es";
+import {
+  every,
+  filter,
+  first,
+  last,
+  map,
+  slice,
+  startsWith,
+  uniq
+} from "lodash-es";
 import type { ControlledTableChannel } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
@@ -68,6 +79,14 @@ function mountList(isLoading = false) {
 type Wrapper = ReturnType<typeof mountList>;
 
 const CONTROL = "[data-test-value]";
+
+/** The nearest element holding both — the cluster they are drawn in. */
+function sharedAncestor(one: Element, two: Element): HTMLElement {
+  let candidate = one.parentElement;
+  while (candidate && !candidate.contains(two))
+    candidate = candidate.parentElement;
+  return candidate as HTMLElement;
+}
 
 /** Which cell of its row a control sits in, per row. */
 const controlColumns = (wrapper: Wrapper) =>
@@ -120,6 +139,27 @@ describe("@AC3 the actions column is the LAST column (D11)", () => {
   });
 });
 
+describe("@AC3 column widths do not move when the data does (E7)", () => {
+  it("gives every declared column the same width treatment, so none is measured from its content", () => {
+    const wrapper = mountList();
+    const declared = slice(wrapper.findAll("thead th"), 1, ACTIONS_COLUMN);
+
+    expect(declared.length).toBeGreaterThan(1);
+    expect(
+      uniq(map(declared, header => header.classes().join(" ")))
+    ).toHaveLength(1);
+  });
+
+  it("keeps that treatment through the state swap a sort repaints in", () => {
+    const widths = (wrapper: Wrapper) =>
+      map(wrapper.findAll("thead th"), header =>
+        filter(header.classes(), name => startsWith(name, "w-"))
+      );
+
+    expect(widths(mountList(true))).toEqual(widths(mountList()));
+  });
+});
+
 describe("@AC3 the controls in the anchored column are icons (D5)", () => {
   it("shows no words beside a row — the labels are the accessible name only", () => {
     const wrapper = mountList();
@@ -131,11 +171,51 @@ describe("@AC3 the controls in the anchored column are icons (D5)", () => {
     expect(control.attributes("aria-label")).toBeTruthy();
   });
 
-  it("leaves the COLLECTION's own control its words — it is not beside a row", () => {
+  it("gives the COLLECTION's own control the same treatment — D5 has no exceptions (E10)", () => {
     const wrapper = mountList();
     const add = wrapper.find(`[data-test-value="${CONTROL_TEST_VALUE.add}"]`);
 
     expect(add.exists()).toBe(true);
-    expect(add.find("span.sr-only").exists()).toBe(false);
+    expect(add.find("span.sr-only").exists()).toBe(true);
+    expect(add.attributes("aria-label")).toBeTruthy();
+  });
+});
+
+describe("@AC3 a row's controls are ONE horizontal cluster (E1)", () => {
+  it("draws every one of them inside a single container", () => {
+    const wrapper = mountList();
+    const cell = last(wrapper.findAll("tbody tr")[1].findAll("td"))!;
+    const controls = map(cell.findAll(CONTROL), control => control.element);
+
+    expect(controls.length).toBeGreaterThan(1);
+    const cluster = sharedAncestor(first(controls)!, last(controls)!);
+
+    expect(every(controls, control => cluster.contains(control))).toBe(true);
+  });
+
+  it("lays that container out along the row, never down it", () => {
+    const wrapper = mountList();
+    const cell = last(wrapper.findAll("tbody tr")[1].findAll("td"))!;
+    const controls = map(cell.findAll(CONTROL), control => control.element);
+    const cluster = sharedAncestor(first(controls)!, last(controls)!);
+
+    expect(cluster.className).toContain("flex-nowrap");
+    expect(cluster.className).not.toContain("flex-col");
+  });
+
+  it("clusters the CARD's controls the same way — one row height everywhere", async () => {
+    const wrapper = mountList();
+    await wrapper
+      .find(`[data-test-value="${ListViewTypes.CARD}"]`)
+      .trigger("click");
+
+    const card = wrapper.findAllComponents(Card)[1];
+    const controls = map(card.findAll(CONTROL), control => control.element);
+
+    expect(controls.length).toBeGreaterThan(1);
+    const cluster = sharedAncestor(first(controls)!, last(controls)!);
+
+    expect(cluster.className).toContain("flex-nowrap");
+    expect(cluster.className).not.toContain("flex-col");
   });
 });

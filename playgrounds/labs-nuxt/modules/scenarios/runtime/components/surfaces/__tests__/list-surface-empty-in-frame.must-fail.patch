@@ -12,12 +12,15 @@ table body.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-@@ -112,7 +112,7 @@
-
+@@ -141,7 +141,10 @@
+ 
      <!-- The table is the FRAME: its headers stay through every state, and each
           state is drawn inside its body rather than in place of it (C8/C9). -->
--    <Table v-else-if="meta.hasTable">
-+    <Table v-else-if="meta.hasTable && !meta.isEmpty">
+-    <Table v-else-if="meta.hasTable" :class="styles.listSurface.table">
++    <Table
++      v-else-if="meta.hasTable && !meta.isEmpty"
++      :class="styles.listSurface.table"
++    >
        <TableHeader>
          <TableRow
            v-for="headerGroup in vueTable.getHeaderGroups()"

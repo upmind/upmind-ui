@@ -1,0 +1,31 @@
+Negative control for the frame-reserved column widths (E7).
+
+Takes `headerCell`'s `w-full` off the declared columns that carry no sort
+control, so the share is reserved only where a control happens to sit and every
+other column is sized from whatever the current page's data measures. That is
+E7's defect — the columns resize/jump as a sort swaps the rows under them.
+
+The drop has to be PARTIAL to be a control: `w-full` removed from all of them
+leaves the header row uniform, and uniformity across the declared columns is
+the whole of what the E7 spec can see (jsdom resolves no widths, so "equal
+share" is asserted as one shared treatment, never a measured pixel).
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the actions-anchor spec's E7 block — every declared column gets the same
+width treatment, so none is measured from its content.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+@@ -160,7 +160,9 @@
+           <TableHead
+             v-for="header in headerGroup.headers"
+             :key="header.id"
+-            :class="styles.listSurface.headerCell"
++            :class="
++              header.column.getCanSort() ? styles.listSurface.headerCell : ''
++            "
+             @click="header.column.getToggleSortingHandler()?.($event)"
+           >
+             <template v-if="!header.isPlaceholder">
