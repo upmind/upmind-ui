@@ -14,6 +14,7 @@ export const variants = {
     full: "w-full"
   },
   size: {
+    sm: "text-sm",
     md: "text-sm",
     lg: "text-md"
   },

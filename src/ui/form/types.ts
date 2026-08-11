@@ -112,10 +112,13 @@ export type FormControlProps = InputProps & {
   uiConfig?: {
     input?: CxOptions;
     form?: {
-      root: CxOptions;
-      loading: CxOptions;
-      content: CxOptions;
-      actions: CxOptions;
+      root?: CxOptions;
+      loading?: CxOptions;
+      content?: CxOptions;
+      actions?: CxOptions;
+      field?: CxOptions;
+      label?: CxOptions;
+      control?: CxOptions;
     };
   };
   class?: HTMLAttributes["class"];

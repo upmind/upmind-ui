@@ -8,7 +8,7 @@
         : `${props.formDescriptionId} ${props.formMessageId}`
     "
     :aria-invalid="!!props.invalid"
-    class="w-full"
+    :class="cn('w-full', props.class)"
     v-bind="attributesToRemove"
   >
     <slot />
@@ -19,8 +19,9 @@
 import { useIntersectionObserver } from "@vueuse/core"; // or '@vueuse/integrations' in some setups
 import { Slot } from "radix-vue";
 import { ref, computed, watch } from "vue";
+import { cn } from "../../utils";
 import { first, isFunction } from "lodash-es";
-import type { ComponentPublicInstance } from "vue";
+import type { ComponentPublicInstance, HTMLAttributes } from "vue";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
@@ -29,6 +30,7 @@ const props = defineProps<{
   formMessageId?: string;
   invalid?: boolean;
   autoFocus?: boolean;
+  class?: HTMLAttributes["class"];
 }>();
 // -----------------------------------------------------------------------------
 

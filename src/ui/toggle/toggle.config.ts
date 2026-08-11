@@ -1,20 +1,24 @@
 // ---  external
 import { cva } from "class-variance-authority";
+import { focusVisibleRing } from "../../assets/styles";
+import { variants as buttonStyles } from "../button/button.config";
 // -----------------------------------------------------------------------------
 
 export const toggleVariants = cva(
-  "hover:bg-base-muted focus-visible:ring-ring ring-offset-core-canvas hover:text-muted-foreground data-[state=on]:bg-accent data-[state=on]:text-accent-foreground inline-flex items-center justify-center rounded text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
+  `control-radius hover:bg-control-unchecked-hover hover:text-muted data-[state=on]:bg-control-checked data-[state=on]:text-control-checked-contrast data-[state=on]:shadow-control-checked data-[state=on]:hover:bg-control-checked-hover data-[state=on]:hover:text-control-checked-contrast inline-flex items-center justify-center text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 ${focusVisibleRing}`,
   {
     variants: {
       variant: {
         default: "bg-transparent",
         outline:
-          "border-input hover:bg-accent hover:text-accent-foreground border bg-transparent"
+          "border-control-default hover:bg-control-checked-hover hover:text-control-checked-contrast border bg-transparent"
       },
+      // The registry's own `default | sm | lg` API, sized from `Button`'s size
+      // tokens so a toggle sits at the same height as the rest of a control row.
       size: {
-        default: "h-10 px-3",
-        sm: "h-9 px-2.5",
-        lg: "h-11 px-5"
+        default: buttonStyles.size.md,
+        sm: buttonStyles.size.sm,
+        lg: buttonStyles.size.lg
       }
     },
     defaultVariants: {

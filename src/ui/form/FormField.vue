@@ -8,8 +8,12 @@
   >
     <slot name="field">
       <!-- label -->
-      <div class="flex w-full flex-col gap-1">
-        <FormLabel v-if="meta.hasLabel" :formItemId="id">
+      <div :class="styles.form.field">
+        <FormLabel
+          v-if="meta.hasLabel"
+          :formItemId="id"
+          :class="styles.form.label"
+        >
           <slot name="label" :label="label">
             <span class="inline-flex w-full items-center gap-x-2">
               <slot v-if="props.icon" name="icon">
@@ -42,7 +46,7 @@
               </Tooltip>
 
               <FormNotRequiredIndicator
-                v-if="!meta.isRequired"
+                v-if="meta.hasOptionalIndicator"
                 :formItemId="id"
                 class="ml-auto"
                 :text="props.optionalText"
@@ -54,6 +58,7 @@
         <!-- input -->
         <FormControl
           :key="props.id"
+          :class="styles.form.control"
           :invalid="meta.isInvalid"
           :disabled="props.disabled"
           :required="props.required"
@@ -92,6 +97,7 @@
 import { ref, computed, useSlots } from "vue";
 import { Icon } from "../icon";
 import { Tooltip } from "../tooltip";
+import config from "./form.config";
 import {
   FormItem,
   FormLabel,
@@ -101,7 +107,7 @@ import {
   FormDescription,
   FormMessage
 } from ".";
-import { cn, useTestAttrs } from "../../utils";
+import { useStyles, cn, useTestAttrs } from "../../utils";
 import { isEmpty, isNil, some, kebabCase } from "lodash-es";
 import type { FormControlProps } from "./types";
 // -----------------------------------------------------------------------------
@@ -145,6 +151,7 @@ const meta = computed(
     isRequired: boolean;
     isVisible: boolean | null;
     isDisabled: boolean;
+    hasOptionalIndicator: boolean;
     hasDescription: boolean;
     hasLabel: boolean;
     hasFeedback: boolean;
@@ -164,6 +171,10 @@ const meta = computed(
     isRequired: props.required,
     isVisible: isNil(props.visible) || props.visible,
     isDisabled: props.disabled,
+    // An EMPTY `optionalText` is the caller saying this field's optionality
+    // needs no indicator — a form whose every control is optional by nature
+    // reads as noise with one on each. Undefined still draws the default text.
+    hasOptionalIndicator: !props.required && props.optionalText !== "",
     hasDescription: !isEmpty(props.description),
     hasLabel: (!isEmpty(props.label) || some(slots, "label")) && !props.noLabel,
     hasFeedback:
@@ -172,6 +183,8 @@ const meta = computed(
     shouldFocus: !!props.autoFocus
   })
 );
+
+const styles = useStyles(["form"], meta, config, props.uiConfig ?? {});
 
 const testAttrs = useTestAttrs({
   key: "form-item",
