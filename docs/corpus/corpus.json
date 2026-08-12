@@ -671,6 +671,30 @@
       "path": "docs/adr/022-ui-testing-strategy.md",
       "title": "ADR 022: UI Testing Strategy (Storybook, Component Tests & Accessibility)"
     },
+    "adr:023-funnel-inheritance": {
+      "crossRefs": [],
+      "headings": [
+        "ADR 023: Funnel Inheritance via `extends`",
+        "Context",
+        "Decision",
+        "Where composition happens",
+        "Merge semantics",
+        "Where the starting funnel is chosen",
+        "Chains and failure modes",
+        "Consequences",
+        "Positive",
+        "Negative",
+        "Neutral",
+        "Files Modified",
+        "Implementation Notes",
+        "Why the merge is not a plain `lodash.merge`",
+        "Negative controls",
+        "Related Documents"
+      ],
+      "id": "adr:023-funnel-inheritance",
+      "path": "docs/adr/023-funnel-inheritance.md",
+      "title": "ADR 023: Funnel Inheritance via `extends`"
+    },
     "adr:023-ui-domain-package-architecture": {
       "crossRefs": [],
       "headings": [
@@ -761,9 +785,7 @@
       "title": "ADR 025: Co-located Cross-Module Journey Units (Test Platform)"
     },
     "adr:026-mintlify-docs-platform": {
-      "crossRefs": [
-        "adr:019-module-doc-shape"
-      ],
+      "crossRefs": ["adr:019-module-doc-shape"],
       "headings": [
         "ADR 026: Mintlify as the Docs Renderer over a Drift-Gated Corpus",
         "Context",
@@ -796,9 +818,7 @@
       "title": "ADR 027: Flow Factory — Dynamic, Framework-Agnostic Playground Generation for Scope-Based Composables"
     },
     "adr:028-headless-vanilla-core-split": {
-      "crossRefs": [
-        "adr:023-ui-domain-package-architecture"
-      ],
+      "crossRefs": ["adr:023-ui-domain-package-architecture"],
       "headings": [
         "ADR 028: Headless Vanilla Core Split (`headless` / `headless-vue` / `headless-svelte`)",
         "Context",
@@ -1000,6 +1020,30 @@
         ],
         "term": "currency"
       },
+      "custom-field": {
+        "aliases": [],
+        "definition": "A brand-configured question attached to clients — its definition (code, type, required/visibility rules) is shared across every client on the brand; only the value differs per client. Definitions and their value semantics (per-type coercion, schema/form generation, the image-upload flow for the IMAGE type) are read through the client custom fields composables; a specific client's own values live on that client's personal details.",
+        "kind": "domain",
+        "referents": [
+          {
+            "id": "@upmind-automation/headless!useClientCustomFields",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!useClientCustomFieldImage",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!CustomField",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!CustomFieldModel",
+            "type": "symbol"
+          }
+        ],
+        "term": "custom field"
+      },
       "domain": {
         "aliases": ["domain name"],
         "definition": "A domain-name product — searched for availability, registered or transferred, and configured as part of an order. Domain search and lifecycle are handled by the domain composable.",
@@ -1091,6 +1135,26 @@
           }
         ],
         "term": "payment gateway"
+      },
+      "personal-details": {
+        "aliases": ["profile"],
+        "definition": "A client's own profile record — native fields (first name, last name, public name, interface language) plus the client's own custom field values — read and edited through a diff-only save. Distinct from the custom field definitions and value semantics it consumes, which are owned by the client custom fields composables.",
+        "kind": "domain",
+        "referents": [
+          {
+            "id": "@upmind-automation/headless!usePersonalDetails",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!usePersonalDetailsManager",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!ProfileModel",
+            "type": "symbol"
+          }
+        ],
+        "term": "personal details"
       },
       "product": {
         "aliases": ["catalogue product"],
@@ -1592,6 +1656,18 @@
       "path": "packages/headless/src/modules/config/schema/types.ts",
       "title": "CLAMP_LINES"
     },
+    "@upmind-automation/headless!CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
+      "title": "CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX"
+    },
+    "@upmind-automation/headless!CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
+      "title": "CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX"
+    },
     "@upmind-automation/headless!CLIENT_EMAILS_SCOPE_MATRIX": {
       "kind": "symbol",
       "module": "client-email",
@@ -1640,6 +1716,30 @@
       "path": "packages/headless/src/modules/client/client.types.ts",
       "title": "Client"
     },
+    "@upmind-automation/headless!ClientCustomFieldContextTypes": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
+      "title": "ClientCustomFieldContextTypes"
+    },
+    "@upmind-automation/headless!ClientCustomFieldImageScopeMatrix": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
+      "title": "ClientCustomFieldImageScopeMatrix"
+    },
+    "@upmind-automation/headless!ClientCustomFieldsContextTypes": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
+      "title": "ClientCustomFieldsContextTypes"
+    },
+    "@upmind-automation/headless!ClientCustomFieldsScopeMatrix": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
+      "title": "ClientCustomFieldsScopeMatrix"
+    },
     "@upmind-automation/headless!ClientEmailContextTypes": {
       "kind": "symbol",
       "module": "client-email",
@@ -1669,6 +1769,12 @@
       "module": "account",
       "path": "packages/headless/src/modules/account/account.types.ts",
       "title": "ClientFormType"
+    },
+    "@upmind-automation/headless!ClientPersonalDetailsContextTypes": {
+      "kind": "symbol",
+      "module": "client-personal-details",
+      "path": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
+      "title": "ClientPersonalDetailsContextTypes"
     },
     "@upmind-automation/headless!ClientTemplateSlotCodes": {
       "kind": "symbol",
@@ -1747,6 +1853,18 @@
       "module": "client-custom-fields",
       "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
       "title": "CustomField"
+    },
+    "@upmind-automation/headless!CustomFieldDisplay": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
+      "title": "CustomFieldDisplay"
+    },
+    "@upmind-automation/headless!CustomFieldImageContext": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
+      "title": "CustomFieldImageContext"
     },
     "@upmind-automation/headless!CustomFieldModel": {
       "kind": "symbol",
@@ -1945,18 +2063,6 @@
       "module": "product",
       "path": "packages/headless/src/modules/product/product.types.ts",
       "title": "ExternalError"
-    },
-    "@upmind-automation/headless!FieldsContext": {
-      "kind": "symbol",
-      "module": "client-personal-details",
-      "path": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
-      "title": "FieldsContext"
-    },
-    "@upmind-automation/headless!FieldsModel": {
-      "kind": "symbol",
-      "module": "client-personal-details",
-      "path": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
-      "title": "FieldsModel"
     },
     "@upmind-automation/headless!FormComposable": {
       "kind": "symbol",
@@ -2216,6 +2322,12 @@
       "path": "packages/headless/src/modules/orders/order.types.ts",
       "title": "LastPaymentModel"
     },
+    "@upmind-automation/headless!ListQuery": {
+      "kind": "symbol",
+      "module": "query",
+      "path": "packages/headless/src/modules/query/query.types.ts",
+      "title": "ListQuery"
+    },
     "@upmind-automation/headless!ListStyle": {
       "kind": "symbol",
       "module": "config",
@@ -2299,6 +2411,12 @@
       "module": "query",
       "path": "packages/headless/src/modules/query/query.types.ts",
       "title": "MutationParams"
+    },
+    "@upmind-automation/headless!MutationResult": {
+      "kind": "symbol",
+      "module": "query",
+      "path": "packages/headless/src/modules/query/query.types.ts",
+      "title": "MutationResult"
     },
     "@upmind-automation/headless!OPTION_GROUP_SPACING": {
       "kind": "symbol",
@@ -2395,6 +2513,12 @@
       "module": "invoices",
       "path": "packages/headless/src/modules/invoices/invoices.types.ts",
       "title": "PAYMENT_STATE"
+    },
+    "@upmind-automation/headless!PERSONAL_DETAILS_SCOPE_MATRIX": {
+      "kind": "symbol",
+      "module": "client-personal-details",
+      "path": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
+      "title": "PERSONAL_DETAILS_SCOPE_MATRIX"
     },
     "@upmind-automation/headless!POST_BASKET_CONTEXTS": {
       "kind": "symbol",
@@ -2509,6 +2633,12 @@
       "module": "session-store",
       "path": "packages/headless/src/modules/session-store/session-store.types.ts",
       "title": "PersistedSessionState"
+    },
+    "@upmind-automation/headless!PersonalDetailsScopeMatrix": {
+      "kind": "symbol",
+      "module": "client-personal-details",
+      "path": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
+      "title": "PersonalDetailsScopeMatrix"
     },
     "@upmind-automation/headless!Phone": {
       "kind": "symbol",
@@ -2738,11 +2868,29 @@
       "path": "packages/headless/src/modules/product/product.types.ts",
       "title": "ProductSummaryMeta"
     },
+    "@upmind-automation/headless!ProfileContext": {
+      "kind": "symbol",
+      "module": "client-personal-details",
+      "path": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
+      "title": "ProfileContext"
+    },
     "@upmind-automation/headless!ProfileField": {
       "kind": "symbol",
       "module": "client-personal-details",
       "path": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
       "title": "ProfileField"
+    },
+    "@upmind-automation/headless!ProfileModel": {
+      "kind": "symbol",
+      "module": "client-personal-details",
+      "path": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
+      "title": "ProfileModel"
+    },
+    "@upmind-automation/headless!ProfileRecord": {
+      "kind": "symbol",
+      "module": "client-personal-details",
+      "path": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
+      "title": "ProfileRecord"
     },
     "@upmind-automation/headless!PromotionDetails": {
       "kind": "symbol",
@@ -3476,17 +3624,71 @@
       "path": "packages/headless/src/modules/client-company/useClientCompanyManager.ts",
       "title": "UseClientCompany"
     },
+    "@upmind-automation/headless!UseClientCustomFieldImage": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/useClientCustomFieldImage.ts",
+      "title": "UseClientCustomFieldImage"
+    },
+    "@upmind-automation/headless!UseClientCustomFieldImageActions": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/useClientCustomFieldImage.actions.ts",
+      "title": "UseClientCustomFieldImageActions"
+    },
+    "@upmind-automation/headless!UseClientCustomFieldImageContext": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/useClientCustomFieldImage.context.ts",
+      "title": "UseClientCustomFieldImageContext"
+    },
+    "@upmind-automation/headless!UseClientCustomFieldImageInternals": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/useClientCustomFieldImage.internals.ts",
+      "title": "UseClientCustomFieldImageInternals"
+    },
+    "@upmind-automation/headless!UseClientCustomFieldImageMeta": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/useClientCustomFieldImage.meta.ts",
+      "title": "UseClientCustomFieldImageMeta"
+    },
     "@upmind-automation/headless!UseClientCustomFields": {
       "kind": "symbol",
       "module": "client-custom-fields",
       "path": "packages/headless/src/modules/client-custom-fields/useClientCustomFields.ts",
       "title": "UseClientCustomFields"
     },
-    "@upmind-automation/headless!UseClientEmail": {
+    "@upmind-automation/headless!UseClientCustomFieldsActions": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/useClientCustomFields.actions.ts",
+      "title": "UseClientCustomFieldsActions"
+    },
+    "@upmind-automation/headless!UseClientCustomFieldsContext": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/useClientCustomFields.context.ts",
+      "title": "UseClientCustomFieldsContext"
+    },
+    "@upmind-automation/headless!UseClientCustomFieldsInternals": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/useClientCustomFields.internals.ts",
+      "title": "UseClientCustomFieldsInternals"
+    },
+    "@upmind-automation/headless!UseClientCustomFieldsMeta": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/useClientCustomFields.meta.ts",
+      "title": "UseClientCustomFieldsMeta"
+    },
+    "@upmind-automation/headless!UseClientEmailManager": {
       "kind": "symbol",
       "module": "client-email",
       "path": "packages/headless/src/modules/client-email/useClientEmailManager.ts",
-      "title": "UseClientEmail"
+      "title": "UseClientEmailManager"
     },
     "@upmind-automation/headless!UseClientEmailManagerActions": {
       "kind": "symbol",
@@ -3638,6 +3840,66 @@
       "path": "packages/headless/src/modules/basket-product/useBasketProductPending.ts",
       "title": "UsePendingProduct"
     },
+    "@upmind-automation/headless!UsePersonalDetails": {
+      "kind": "symbol",
+      "module": "client-personal-details",
+      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts",
+      "title": "UsePersonalDetails"
+    },
+    "@upmind-automation/headless!UsePersonalDetailsActions": {
+      "kind": "symbol",
+      "module": "client-personal-details",
+      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetails.actions.ts",
+      "title": "UsePersonalDetailsActions"
+    },
+    "@upmind-automation/headless!UsePersonalDetailsContext": {
+      "kind": "symbol",
+      "module": "client-personal-details",
+      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetails.context.ts",
+      "title": "UsePersonalDetailsContext"
+    },
+    "@upmind-automation/headless!UsePersonalDetailsInternals": {
+      "kind": "symbol",
+      "module": "client-personal-details",
+      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetails.internals.ts",
+      "title": "UsePersonalDetailsInternals"
+    },
+    "@upmind-automation/headless!UsePersonalDetailsManager": {
+      "kind": "symbol",
+      "module": "client-personal-details",
+      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
+      "title": "UsePersonalDetailsManager"
+    },
+    "@upmind-automation/headless!UsePersonalDetailsManagerActions": {
+      "kind": "symbol",
+      "module": "client-personal-details",
+      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.actions.ts",
+      "title": "UsePersonalDetailsManagerActions"
+    },
+    "@upmind-automation/headless!UsePersonalDetailsManagerContext": {
+      "kind": "symbol",
+      "module": "client-personal-details",
+      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.context.ts",
+      "title": "UsePersonalDetailsManagerContext"
+    },
+    "@upmind-automation/headless!UsePersonalDetailsManagerInternals": {
+      "kind": "symbol",
+      "module": "client-personal-details",
+      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.internals.ts",
+      "title": "UsePersonalDetailsManagerInternals"
+    },
+    "@upmind-automation/headless!UsePersonalDetailsManagerMeta": {
+      "kind": "symbol",
+      "module": "client-personal-details",
+      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.meta.ts",
+      "title": "UsePersonalDetailsManagerMeta"
+    },
+    "@upmind-automation/headless!UsePersonalDetailsMeta": {
+      "kind": "symbol",
+      "module": "client-personal-details",
+      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetails.meta.ts",
+      "title": "UsePersonalDetailsMeta"
+    },
     "@upmind-automation/headless!UseProductCatalogue": {
       "kind": "symbol",
       "module": "product-catalogue",
@@ -3667,12 +3929,6 @@
       "module": "product-setup",
       "path": "packages/headless/src/modules/product-setup/useProductSetup.ts",
       "title": "UseProductSetup"
-    },
-    "@upmind-automation/headless!UseProfileDetails": {
-      "kind": "symbol",
-      "module": "client-personal-details",
-      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts",
-      "title": "UseProfileDetails"
     },
     "@upmind-automation/headless!UseRecommendations": {
       "kind": "symbol",
@@ -3944,6 +4200,12 @@
       "path": "packages/headless/src/modules/config/config.conditions.ts",
       "title": "evaluateRules"
     },
+    "@upmind-automation/headless!extendFunnel": {
+      "kind": "symbol",
+      "module": "routing",
+      "path": "packages/headless/src/modules/routing/routing.utils.ts",
+      "title": "extendFunnel"
+    },
     "@upmind-automation/headless!fieldRequiresSetup": {
       "kind": "symbol",
       "module": "product-setup",
@@ -4094,6 +4356,30 @@
       "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.mappers.ts",
       "title": "mapCustomField"
     },
+    "@upmind-automation/headless!mapCustomFieldDisplay": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.mappers.ts",
+      "title": "mapCustomFieldDisplay"
+    },
+    "@upmind-automation/headless!mapCustomFieldValue": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.mappers.ts",
+      "title": "mapCustomFieldValue"
+    },
+    "@upmind-automation/headless!mapCustomFieldValues": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.mappers.ts",
+      "title": "mapCustomFieldValues"
+    },
+    "@upmind-automation/headless!mapCustomFieldValuesToRequest": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.mappers.ts",
+      "title": "mapCustomFieldValuesToRequest"
+    },
     "@upmind-automation/headless!mapInitials": {
       "kind": "symbol",
       "module": "client",
@@ -4237,6 +4523,12 @@
       "module": "config",
       "path": "packages/headless/src/modules/config/config.utils.ts",
       "title": "replaceDataVariables"
+    },
+    "@upmind-automation/headless!resolveFieldByValue": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.mappers.ts",
+      "title": "resolveFieldByValue"
     },
     "@upmind-automation/headless!resolveSelfActor": {
       "kind": "symbol",
@@ -4406,6 +4698,12 @@
       "path": "packages/headless/src/modules/client-company/client-company.services.ts",
       "title": "useClientCompanyServices"
     },
+    "@upmind-automation/headless!useClientCustomFieldImage": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/useClientCustomFieldImage.ts",
+      "title": "useClientCustomFieldImage"
+    },
     "@upmind-automation/headless!useClientCustomFields": {
       "kind": "symbol",
       "module": "client-custom-fields",
@@ -4483,6 +4781,24 @@
       "module": "config",
       "path": "packages/headless/src/modules/config/useConfig.ts",
       "title": "useConfig"
+    },
+    "@upmind-automation/headless!useCustomFieldsModel": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.schemas.ts",
+      "title": "useCustomFieldsModel"
+    },
+    "@upmind-automation/headless!useCustomFieldsSchema": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.schemas.ts",
+      "title": "useCustomFieldsSchema"
+    },
+    "@upmind-automation/headless!useCustomFieldsUischema": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.schemas.ts",
+      "title": "useCustomFieldsUischema"
     },
     "@upmind-automation/headless!useDac": {
       "kind": "symbol",
@@ -4910,6 +5226,12 @@
       "path": "docs/adr/022-ui-testing-strategy.md",
       "title": "ADR 022: UI Testing Strategy (Storybook, Component Tests & Accessibility)"
     },
+    "adr:023-funnel-inheritance": {
+      "kind": "adr",
+      "module": "",
+      "path": "docs/adr/023-funnel-inheritance.md",
+      "title": "ADR 023: Funnel Inheritance via `extends`"
+    },
     "adr:023-ui-domain-package-architecture": {
       "kind": "adr",
       "module": "",
@@ -5005,6 +5327,12 @@
       "module": "",
       "path": "docs/corpus/glossary.yaml",
       "title": "currency"
+    },
+    "custom-field": {
+      "kind": "term",
+      "module": "",
+      "path": "docs/corpus/glossary.yaml",
+      "title": "custom field"
     },
     "domain": {
       "kind": "term",
@@ -6404,12 +6732,6 @@
       "path": "packages/client-vue/src/modules/basket/components/BasketProducts.vue",
       "title": "BasketProducts.vue"
     },
-    "file:packages/client-vue/src/modules/basket/components/BasketSummary.vue": {
-      "kind": "file",
-      "module": "basket",
-      "path": "packages/client-vue/src/modules/basket/components/BasketSummary.vue",
-      "title": "BasketSummary.vue"
-    },
     "file:packages/client-vue/src/modules/basket/components/BasketTotal.vue": {
       "kind": "file",
       "module": "basket",
@@ -6739,12 +7061,6 @@
       "module": "checkout",
       "path": "packages/client-vue/src/modules/checkout/components/CheckoutProcessing.vue",
       "title": "CheckoutProcessing.vue"
-    },
-    "file:packages/client-vue/src/modules/checkout/components/CheckoutSummary.vue": {
-      "kind": "file",
-      "module": "checkout",
-      "path": "packages/client-vue/src/modules/checkout/components/CheckoutSummary.vue",
-      "title": "CheckoutSummary.vue"
     },
     "file:packages/client-vue/src/modules/checkout/components/GuestEmail.vue": {
       "kind": "file",
@@ -7555,12 +7871,6 @@
       "module": "session",
       "path": "packages/client-vue/src/modules/session/components/Auth.vue",
       "title": "Auth.vue"
-    },
-    "file:packages/client-vue/src/modules/session/components/Back.vue": {
-      "kind": "file",
-      "module": "session",
-      "path": "packages/client-vue/src/modules/session/components/Back.vue",
-      "title": "Back.vue"
     },
     "file:packages/client-vue/src/modules/session/components/DetailsDropdown.vue": {
       "kind": "file",
@@ -8510,36 +8820,6 @@
       "path": "packages/headless/src/modules/client-email-history/useClientReceivedEmails.ts",
       "title": "useClientReceivedEmails.ts"
     },
-    "file:packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts": {
-      "kind": "file",
-      "module": "client-email",
-      "path": "packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-      "title": "client-email.int.test.ts"
-    },
-    "file:packages/headless/src/modules/client-email/__tests__/setup.integration.ts": {
-      "kind": "file",
-      "module": "client-email",
-      "path": "packages/headless/src/modules/client-email/__tests__/setup.integration.ts",
-      "title": "setup.integration.ts"
-    },
-    "file:packages/headless/src/modules/client-email/__tests__/useClientEmailManager.test.ts": {
-      "kind": "file",
-      "module": "client-email",
-      "path": "packages/headless/src/modules/client-email/__tests__/useClientEmailManager.test.ts",
-      "title": "useClientEmailManager.test.ts"
-    },
-    "file:packages/headless/src/modules/client-email/__tests__/useClientEmails.test.ts": {
-      "kind": "file",
-      "module": "client-email",
-      "path": "packages/headless/src/modules/client-email/__tests__/useClientEmails.test.ts",
-      "title": "useClientEmails.test.ts"
-    },
-    "file:packages/headless/src/modules/client-email/actions.ts": {
-      "kind": "file",
-      "module": "client-email",
-      "path": "packages/headless/src/modules/client-email/actions.ts",
-      "title": "actions.ts"
-    },
     "file:packages/headless/src/modules/client-email/client-email.mappers.ts": {
       "kind": "file",
       "module": "client-email",
@@ -8629,12 +8909,6 @@
       "module": "client-email",
       "path": "packages/headless/src/modules/client-email/useClientEmails.ts",
       "title": "useClientEmails.ts"
-    },
-    "file:packages/headless/src/modules/client-personal-details/actions.ts": {
-      "kind": "file",
-      "module": "client-personal-details",
-      "path": "packages/headless/src/modules/client-personal-details/actions.ts",
-      "title": "actions.ts"
     },
     "file:packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts": {
       "kind": "file",
@@ -13244,6 +13518,12 @@
       "path": "docs/corpus/glossary.yaml",
       "title": "payment gateway"
     },
+    "personal-details": {
+      "kind": "term",
+      "module": "",
+      "path": "docs/corpus/glossary.yaml",
+      "title": "personal details"
+    },
     "product": {
       "kind": "term",
       "module": "",
@@ -13300,21 +13580,21 @@
     }
   },
   "meta": {
-    "built_at": "2026-07-25T08:14:51.504Z",
-    "corpus_version": "1+988179cae6d0",
+    "built_at": "2026-08-11T21:22:32.339Z",
+    "corpus_version": "1+9673db9fd864",
     "counts": {
-      "adrs": 31,
+      "adrs": 32,
       "changelogSymbols": 0,
       "examples": 0,
-      "glossaryTerms": 23,
+      "glossaryTerms": 25,
       "guides": 3,
-      "indexEntries": 1999,
-      "relationEdges": 7179,
-      "relationsPruned": 358,
-      "symbols": 578
+      "indexEntries": 2035,
+      "relationEdges": 7125,
+      "relationsPruned": 412,
+      "symbols": 620
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "2332d128fa55e74c5987bc981587fec8090f33f3"
+    "source_commit": "7edb47ddead8a26d50b02b5e5821ad9912da920e"
   },
   "relations": {
     "edges": [
@@ -14132,6 +14412,78 @@
         "granularity": "file",
         "relation": "calls",
         "sourceFile": "packages/headless/src/modules/payment-gateways/usePaymentGateway.ts",
+        "to": "file:packages/headless/src/utils/useState.ts"
+      },
+      {
+        "confidence": 0.8,
+        "from": "@upmind-automation/headless!UsePersonalDetails",
+        "granularity": "symbol",
+        "relation": "calls",
+        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts",
+        "to": "@upmind-automation/headless!UseActiveSession"
+      },
+      {
+        "confidence": 0.8,
+        "from": "@upmind-automation/headless!UsePersonalDetails",
+        "granularity": "symbol",
+        "relation": "calls",
+        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts",
+        "to": "@upmind-automation/headless!UseClientCustomFields"
+      },
+      {
+        "confidence": 0.8,
+        "from": "@upmind-automation/headless!UsePersonalDetails",
+        "granularity": "file",
+        "relation": "calls",
+        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts",
+        "to": "file:packages/headless/src/utils/useState.ts"
+      },
+      {
+        "confidence": 0.8,
+        "from": "@upmind-automation/headless!UsePersonalDetailsManager",
+        "granularity": "symbol",
+        "relation": "calls",
+        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
+        "to": "@upmind-automation/headless!UseActiveSession"
+      },
+      {
+        "confidence": 0.8,
+        "from": "@upmind-automation/headless!UsePersonalDetailsManager",
+        "granularity": "symbol",
+        "relation": "calls",
+        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
+        "to": "@upmind-automation/headless!UseBrand"
+      },
+      {
+        "confidence": 0.8,
+        "from": "@upmind-automation/headless!UsePersonalDetailsManager",
+        "granularity": "symbol",
+        "relation": "calls",
+        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
+        "to": "@upmind-automation/headless!useI18n"
+      },
+      {
+        "confidence": 0.8,
+        "from": "@upmind-automation/headless!UsePersonalDetailsManager",
+        "granularity": "file",
+        "relation": "calls",
+        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
+        "to": "file:packages/headless/src/modules/client-personal-details/client-personal-details.services.ts"
+      },
+      {
+        "confidence": 0.8,
+        "from": "@upmind-automation/headless!UsePersonalDetailsManager",
+        "granularity": "file",
+        "relation": "calls",
+        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
+        "to": "file:packages/headless/src/utils/useState.ts"
+      },
+      {
+        "confidence": 0.8,
+        "from": "@upmind-automation/headless!UsePersonalDetailsManager",
+        "granularity": "file",
+        "relation": "calls",
+        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
         "to": "file:packages/headless/src/utils/useState.ts"
       },
       {
@@ -15205,94 +15557,6 @@
         "relation": "calls",
         "sourceFile": "packages/headless/src/modules/system-localisation/useLocalisation.ts",
         "to": "@upmind-automation/headless!useI18n"
-      },
-      {
-        "confidence": 0.8,
-        "from": "@upmind-automation/headless!usePersonalDetails",
-        "granularity": "symbol",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts",
-        "to": "@upmind-automation/headless!UseActiveSession"
-      },
-      {
-        "confidence": 0.8,
-        "from": "@upmind-automation/headless!usePersonalDetails",
-        "granularity": "symbol",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts",
-        "to": "@upmind-automation/headless!UseClientCustomFields"
-      },
-      {
-        "confidence": 0.8,
-        "from": "@upmind-automation/headless!usePersonalDetails",
-        "granularity": "file",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts",
-        "to": "file:packages/headless/src/utils/useState.ts"
-      },
-      {
-        "confidence": 0.8,
-        "from": "@upmind-automation/headless!usePersonalDetailsManager",
-        "granularity": "symbol",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "@upmind-automation/headless!UseActiveSession"
-      },
-      {
-        "confidence": 0.8,
-        "from": "@upmind-automation/headless!usePersonalDetailsManager",
-        "granularity": "symbol",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "@upmind-automation/headless!UseBrand"
-      },
-      {
-        "confidence": 0.8,
-        "from": "@upmind-automation/headless!usePersonalDetailsManager",
-        "granularity": "symbol",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "@upmind-automation/headless!useI18n"
-      },
-      {
-        "confidence": 0.8,
-        "from": "@upmind-automation/headless!usePersonalDetailsManager",
-        "granularity": "file",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "file:packages/headless/src/modules/client-personal-details/actions.ts"
-      },
-      {
-        "confidence": 0.8,
-        "from": "@upmind-automation/headless!usePersonalDetailsManager",
-        "granularity": "file",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "file:packages/headless/src/modules/client-personal-details/actions.ts"
-      },
-      {
-        "confidence": 0.8,
-        "from": "@upmind-automation/headless!usePersonalDetailsManager",
-        "granularity": "file",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "file:packages/headless/src/modules/client-personal-details/client-personal-details.services.ts"
-      },
-      {
-        "confidence": 0.8,
-        "from": "@upmind-automation/headless!usePersonalDetailsManager",
-        "granularity": "file",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "file:packages/headless/src/utils/useState.ts"
-      },
-      {
-        "confidence": 0.8,
-        "from": "@upmind-automation/headless!usePersonalDetailsManager",
-        "granularity": "file",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "file:packages/headless/src/utils/useState.ts"
       },
       {
         "confidence": 0.8,
@@ -22332,14 +22596,6 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/basket/Basket.vue",
-        "to": "file:packages/client-vue/src/modules/basket/components/BasketSummary.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/basket/Basket.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/basket/Basket.vue",
         "to": "file:packages/client-vue/src/modules/basket/components/BasketTotal.vue"
       },
       {
@@ -22701,46 +22957,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/basket/components/BasketProducts.vue",
         "to": "file:packages/ui/src/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/basket/components/BasketSummary.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/basket/components/BasketSummary.vue",
-        "to": "file:packages/client-vue/src/components/hero/Hero.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/basket/components/BasketSummary.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/basket/components/BasketSummary.vue",
-        "to": "file:packages/headless/src/modules/basket/useBasket.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/basket/components/BasketSummary.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/basket/components/BasketSummary.vue",
-        "to": "file:packages/headless/src/modules/config/useConfig.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/basket/components/BasketSummary.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/basket/components/BasketSummary.vue",
-        "to": "file:packages/headless/src/utils/useMoney.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/basket/components/BasketSummary.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/basket/components/BasketSummary.vue",
-        "to": "file:packages/ui/src/ui/skeleton/index.ts"
       },
       {
         "confidence": 1,
@@ -24980,14 +25196,6 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/checkout/Checkout.vue",
-        "to": "file:packages/client-vue/src/modules/checkout/components/CheckoutSummary.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/checkout/Checkout.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/checkout/Checkout.vue",
         "to": "file:packages/client-vue/src/modules/checkout/templates/CheckoutEnclosed.template.vue"
       },
       {
@@ -25277,30 +25485,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/checkout/components/CheckoutProcessing.vue",
         "to": "file:packages/ui/src/ui/interstitial/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/checkout/components/CheckoutSummary.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/checkout/components/CheckoutSummary.vue",
-        "to": "file:packages/client-vue/src/components/hero/Hero.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/checkout/components/CheckoutSummary.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/checkout/components/CheckoutSummary.vue",
-        "to": "file:packages/client-vue/src/modules/checkout/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/checkout/components/CheckoutSummary.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/checkout/components/CheckoutSummary.vue",
-        "to": "file:packages/headless/src/modules/basket/useBasket.ts"
       },
       {
         "confidence": 1,
@@ -31300,14 +31484,6 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/Back.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
         "to": "file:packages/client-vue/src/modules/session/session.config.ts"
       },
       {
@@ -31541,14 +31717,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
         "to": "file:packages/client-vue/src/modules/session/components/Auth.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/Back.vue"
       },
       {
         "confidence": 1,
@@ -32036,30 +32204,6 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/session/components/Auth.vue",
-        "to": "file:packages/ui/src/ui/link/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Back.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Back.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/Back.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Back.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Back.vue",
-        "to": "file:packages/headless/src/modules/routing/useRoutingEngine.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Back.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Back.vue",
         "to": "file:packages/ui/src/ui/link/index.ts"
       },
       {
@@ -43271,230 +43415,6 @@
         "to": "file:packages/types/src/models/emails.ts"
       },
       {
-        "confidence": 0.8,
-        "from": "file:packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "granularity": "file",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "to": "@upmind-automation/headless!UseSessionStore"
-      },
-      {
-        "confidence": 0.8,
-        "from": "file:packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "granularity": "file",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "to": "@upmind-automation/headless!mapSessionUser"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "to": "file:packages/headless/src/__tests__/int-test-helpers.ts"
-      },
-      {
-        "confidence": 0.8,
-        "from": "file:packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "granularity": "file",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "to": "file:packages/headless/src/modules/basket-promotions/basket-promotions.services.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "to": "file:packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "to": "file:packages/headless/src/modules/client-email/__tests__/setup.integration.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "to": "file:packages/headless/src/modules/client-email/client-email.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "to": "file:packages/headless/src/modules/client-email/useClientEmails.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "to": "file:packages/headless/src/modules/scope/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "to": "file:packages/headless/src/modules/session-store/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-email/__tests__/client-email.int.test.ts",
-        "to": "file:packages/types/src/models/self.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/__tests__/useClientEmailManager.test.ts",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/headless/src/modules/client-email/__tests__/useClientEmailManager.test.ts",
-        "to": "file:packages/headless/src/modules/client-email/__tests__/useClientEmailManager.test.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/__tests__/useClientEmailManager.test.ts",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/headless/src/modules/client-email/__tests__/useClientEmailManager.test.ts",
-        "to": "file:packages/headless/src/modules/client-email/__tests__/useClientEmailManager.test.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/__tests__/useClientEmailManager.test.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-email/__tests__/useClientEmailManager.test.ts",
-        "to": "file:packages/headless/src/modules/client-email/useClientEmailManager.actions.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/__tests__/useClientEmailManager.test.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-email/__tests__/useClientEmailManager.test.ts",
-        "to": "file:packages/headless/src/modules/client-email/useClientEmailManager.context.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/__tests__/useClientEmailManager.test.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-email/__tests__/useClientEmailManager.test.ts",
-        "to": "file:packages/headless/src/modules/client-email/useClientEmailManager.meta.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/__tests__/useClientEmailManager.test.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-email/__tests__/useClientEmailManager.test.ts",
-        "to": "file:packages/headless/src/utils/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/__tests__/useClientEmails.test.ts",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/headless/src/modules/client-email/__tests__/useClientEmails.test.ts",
-        "to": "file:packages/headless/src/modules/client-email/__tests__/useClientEmails.test.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/__tests__/useClientEmails.test.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-email/__tests__/useClientEmails.test.ts",
-        "to": "file:packages/headless/src/modules/client-email/client-email.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/__tests__/useClientEmails.test.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-email/__tests__/useClientEmails.test.ts",
-        "to": "file:packages/headless/src/modules/client-email/useClientEmails.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/__tests__/useClientEmails.test.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-email/__tests__/useClientEmails.test.ts",
-        "to": "file:packages/headless/src/modules/scope/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/actions.ts",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/headless/src/modules/client-email/actions.ts",
-        "to": "file:packages/headless/src/modules/client-email/actions.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/actions.ts",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/headless/src/modules/client-email/actions.ts",
-        "to": "file:packages/headless/src/modules/client-email/actions.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/actions.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-email/actions.ts",
-        "to": "file:packages/headless/src/modules/client-email/client-email.schemas.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/actions.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-email/actions.ts",
-        "to": "file:packages/headless/src/modules/client-email/client-email.types.ts"
-      },
-      {
-        "confidence": 0.8,
-        "from": "file:packages/headless/src/modules/client-email/actions.ts",
-        "granularity": "file",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-email/actions.ts",
-        "to": "file:packages/headless/src/modules/payment-details/payment-details.schemas.ts"
-      },
-      {
-        "confidence": 0.8,
-        "from": "file:packages/headless/src/modules/client-email/actions.ts",
-        "granularity": "file",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-email/actions.ts",
-        "to": "file:packages/headless/src/modules/payment-details/payment-details.schemas.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/actions.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-email/actions.ts",
-        "to": "file:packages/headless/src/utils/index.ts"
-      },
-      {
         "confidence": 1,
         "from": "file:packages/headless/src/modules/client-email/client-email.mappers.ts",
         "granularity": "file",
@@ -44236,30 +44156,6 @@
         "granularity": "file",
         "relation": "calls",
         "sourceFile": "packages/headless/src/modules/client-email/useClientEmailManager.ts",
-        "to": "file:packages/headless/src/modules/client-email/actions.ts"
-      },
-      {
-        "confidence": 0.8,
-        "from": "file:packages/headless/src/modules/client-email/useClientEmailManager.ts",
-        "granularity": "file",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-email/useClientEmailManager.ts",
-        "to": "file:packages/headless/src/modules/client-email/actions.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-email/useClientEmailManager.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-email/useClientEmailManager.ts",
-        "to": "file:packages/headless/src/modules/client-email/actions.ts"
-      },
-      {
-        "confidence": 0.8,
-        "from": "file:packages/headless/src/modules/client-email/useClientEmailManager.ts",
-        "granularity": "file",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-email/useClientEmailManager.ts",
         "to": "file:packages/headless/src/modules/client-email/client-email.services.ts"
       },
       {
@@ -44613,46 +44509,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/headless/src/modules/client-email/useClientEmails.ts",
         "to": "file:packages/headless/src/modules/scope/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-personal-details/actions.ts",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/actions.ts",
-        "to": "file:packages/headless/src/modules/client-personal-details/actions.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-personal-details/actions.ts",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/actions.ts",
-        "to": "file:packages/headless/src/modules/client-personal-details/actions.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-personal-details/actions.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/actions.ts",
-        "to": "file:packages/headless/src/modules/client-personal-details/client-personal-details.schemas.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-personal-details/actions.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/actions.ts",
-        "to": "file:packages/headless/src/modules/client-personal-details/client-personal-details.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-personal-details/actions.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/actions.ts",
-        "to": "file:packages/headless/src/utils/index.ts"
       },
       {
         "confidence": 0.8,
@@ -45028,7 +44884,7 @@
         "granularity": "file",
         "relation": "contains",
         "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts",
-        "to": "@upmind-automation/headless!usePersonalDetails"
+        "to": "@upmind-automation/headless!UsePersonalDetails"
       },
       {
         "confidence": 1,
@@ -45060,7 +44916,7 @@
         "granularity": "file",
         "relation": "contains",
         "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "@upmind-automation/headless!usePersonalDetailsManager"
+        "to": "@upmind-automation/headless!UsePersonalDetailsManager"
       },
       {
         "confidence": 1,
@@ -45077,14 +44933,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
         "to": "file:packages/headless/src/modules/client-custom-fields/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "file:packages/headless/src/modules/client-personal-details/actions.ts"
       },
       {
         "confidence": 1,
@@ -70751,8 +70599,8 @@
         "to": "file:packages/ui/vite.config.ts"
       }
     ],
-    "prunedCount": 358,
-    "sourcedAt": ""
+    "prunedCount": 412,
+    "sourcedAt": "2026-08-10"
   },
   "symbols": {
     "@upmind-automation/headless!ACCOUNT_SCOPE_MATRIX": {
@@ -71192,7 +71040,7 @@
       "name": "Benefit",
       "signature": "Symbol Benefit",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 841,
+      "sourceLine": 859,
       "tsdoc": "Represents a benefit associated with a product.\nCan be either a simple string label or an object with label and optional icon."
     },
     "@upmind-automation/headless!BillingContext": {
@@ -71214,7 +71062,7 @@
       "name": "BillingCycleFormats",
       "signature": "Symbol BillingCycleFormats",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 516,
+      "sourceLine": 534,
       "tsdoc": "Type alias for various formats of billing cycle descriptions."
     },
     "@upmind-automation/headless!BillingModel": {
@@ -71236,7 +71084,7 @@
       "name": "BreadcrumbVariant",
       "signature": "Enum BreadcrumbVariant",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 626,
+      "sourceLine": 644,
       "tsdoc": null
     },
     "@upmind-automation/headless!Breadcrumbs": {
@@ -71283,6 +71131,28 @@
       "sourceLine": 135,
       "tsdoc": null
     },
+    "@upmind-automation/headless!CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX": {
+      "id": "@upmind-automation/headless!CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX",
+      "signature": "CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX: object",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
+      "sourceLine": 60,
+      "tsdoc": "Scope matrix for `useClientCustomFields`. `client` is the only actor that\nresolves; `staff` and `guest` are `null as never`, which makes\n`.as('staff')` a compile-time error rather than an advertised-but-absent\ncapability."
+    },
+    "@upmind-automation/headless!CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX": {
+      "id": "@upmind-automation/headless!CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX",
+      "signature": "CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX: object",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
+      "sourceLine": 87,
+      "tsdoc": "Scope matrix for `useClientCustomFieldImage`. Separate from the\ncollection's — the two composables scope on different things and cannot\nshare one."
+    },
     "@upmind-automation/headless!CLIENT_EMAILS_SCOPE_MATRIX": {
       "id": "@upmind-automation/headless!CLIENT_EMAILS_SCOPE_MATRIX",
       "kind": "Variable",
@@ -71291,8 +71161,8 @@
       "name": "CLIENT_EMAILS_SCOPE_MATRIX",
       "signature": "CLIENT_EMAILS_SCOPE_MATRIX: object",
       "sourceFile": "packages/headless/src/modules/client-email/client-email.types.ts",
-      "sourceLine": 24,
-      "tsdoc": "Scope matrix for `useClientEmails` (collection). Mirrors the account arc:\n- staff / client: can address a `client` collection\n- self / guest: not a valid collection scope"
+      "sourceLine": 51,
+      "tsdoc": "Scope matrix for `useClientEmails`. `client` is the only actor that resolves;\n`staff` and `guest` are `null as never`, which makes `.as('staff')` a\ncompile-time error rather than an advertised-but-absent capability."
     },
     "@upmind-automation/headless!CLIENT_EMAIL_SCOPE_MATRIX": {
       "id": "@upmind-automation/headless!CLIENT_EMAIL_SCOPE_MATRIX",
@@ -71302,8 +71172,8 @@
       "name": "CLIENT_EMAIL_SCOPE_MATRIX",
       "signature": "CLIENT_EMAIL_SCOPE_MATRIX: object",
       "sourceFile": "packages/headless/src/modules/client-email/client-email.types.ts",
-      "sourceLine": 49,
-      "tsdoc": "Scope matrix for `useClientEmailManager` (per-email form).\n- staff / client: can edit a specific `email`\n- self / guest: no email-scoped edit context (new-email default only)"
+      "sourceLine": 75,
+      "tsdoc": "Scope matrix for `useClientEmailManager`. Separate from the collection's —\nthe two composables scope on different things and cannot share one."
     },
     "@upmind-automation/headless!CONFIG_KEY": {
       "id": "@upmind-automation/headless!CONFIG_KEY",
@@ -71371,6 +71241,50 @@
       "sourceLine": 26,
       "tsdoc": "Profile and authentication details of an authenticated client."
     },
+    "@upmind-automation/headless!ClientCustomFieldContextTypes": {
+      "id": "@upmind-automation/headless!ClientCustomFieldContextTypes",
+      "kind": "Enum",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "ClientCustomFieldContextTypes",
+      "signature": "Enum ClientCustomFieldContextTypes",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
+      "sourceLine": 77,
+      "tsdoc": "Context types for the per-field IMAGE editor — WHICH field's image is\nbeing edited. The context names the ENTITY (the field), not its owner: the\nowning client falls through the same `resolveClientId` seam as every other\ncall."
+    },
+    "@upmind-automation/headless!ClientCustomFieldImageScopeMatrix": {
+      "id": "@upmind-automation/headless!ClientCustomFieldImageScopeMatrix",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "ClientCustomFieldImageScopeMatrix",
+      "signature": "Symbol ClientCustomFieldImageScopeMatrix",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
+      "sourceLine": 95,
+      "tsdoc": "Scope matrix type for `useClientCustomFieldImage` (derived from the runtime const)."
+    },
+    "@upmind-automation/headless!ClientCustomFieldsContextTypes": {
+      "id": "@upmind-automation/headless!ClientCustomFieldsContextTypes",
+      "kind": "Enum",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "ClientCustomFieldsContextTypes",
+      "signature": "Enum ClientCustomFieldsContextTypes",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
+      "sourceLine": 49,
+      "tsdoc": "Context types for the definitions/values COLLECTION — WHICH client's\ncustom-field value set is being addressed. The context names the ENTITY\n(the value set), not its owner: there is no `client` context type here, so\n`.for('client', id)` does not exist (parity.yaml A-client-onbehalf)."
+    },
+    "@upmind-automation/headless!ClientCustomFieldsScopeMatrix": {
+      "id": "@upmind-automation/headless!ClientCustomFieldsScopeMatrix",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "ClientCustomFieldsScopeMatrix",
+      "signature": "Symbol ClientCustomFieldsScopeMatrix",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
+      "sourceLine": 68,
+      "tsdoc": "Scope matrix type for `useClientCustomFields` (derived from the runtime const)."
+    },
     "@upmind-automation/headless!ClientEmailContextTypes": {
       "id": "@upmind-automation/headless!ClientEmailContextTypes",
       "kind": "Enum",
@@ -71379,8 +71293,8 @@
       "name": "ClientEmailContextTypes",
       "signature": "Enum ClientEmailContextTypes",
       "sourceFile": "packages/headless/src/modules/client-email/client-email.types.ts",
-      "sourceLine": 39,
-      "tsdoc": "Context types for the client-email **manager** — the specific email being\nedited. The manager is scoped per-email so concurrent edit forms get isolated\ninstances; a new email is minted with `.fresh()` (no context)."
+      "sourceLine": 66,
+      "tsdoc": "Context types for the per-email MANAGER — which email is being edited. The\ncontext names the ENTITY, not its owner: the owning client falls through the\nsame `resolveClientId` seam as every other call."
     },
     "@upmind-automation/headless!ClientEmailScopeMatrix": {
       "id": "@upmind-automation/headless!ClientEmailScopeMatrix",
@@ -71390,7 +71304,7 @@
       "name": "ClientEmailScopeMatrix",
       "signature": "Symbol ClientEmailScopeMatrix",
       "sourceFile": "packages/headless/src/modules/client-email/client-email.types.ts",
-      "sourceLine": 57,
+      "sourceLine": 83,
       "tsdoc": "Scope matrix type for `useClientEmailManager` (derived from the runtime const)."
     },
     "@upmind-automation/headless!ClientEmailsContextTypes": {
@@ -71401,8 +71315,8 @@
       "name": "ClientEmailsContextTypes",
       "signature": "Enum ClientEmailsContextTypes",
       "sourceFile": "packages/headless/src/modules/client-email/client-email.types.ts",
-      "sourceLine": 14,
-      "tsdoc": "Context types for the client-emails **collection** — the entity whose email\nlist is being read. Staff read on behalf of a client; a client reads their own\n(or a child client's) list."
+      "sourceLine": 41,
+      "tsdoc": "Context types for the email COLLECTION — whose list is being addressed."
     },
     "@upmind-automation/headless!ClientEmailsScopeMatrix": {
       "id": "@upmind-automation/headless!ClientEmailsScopeMatrix",
@@ -71412,7 +71326,7 @@
       "name": "ClientEmailsScopeMatrix",
       "signature": "Symbol ClientEmailsScopeMatrix",
       "sourceFile": "packages/headless/src/modules/client-email/client-email.types.ts",
-      "sourceLine": 32,
+      "sourceLine": 59,
       "tsdoc": "Scope matrix type for `useClientEmails` (derived from the runtime const)."
     },
     "@upmind-automation/headless!ClientFormType": {
@@ -71425,6 +71339,17 @@
       "sourceFile": "packages/headless/src/modules/account/account.types.ts",
       "sourceLine": 48,
       "tsdoc": null
+    },
+    "@upmind-automation/headless!ClientPersonalDetailsContextTypes": {
+      "id": "@upmind-automation/headless!ClientPersonalDetailsContextTypes",
+      "kind": "Enum",
+      "lessons": [],
+      "module": "client-personal-details",
+      "name": "ClientPersonalDetailsContextTypes",
+      "signature": "Enum ClientPersonalDetailsContextTypes",
+      "sourceFile": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
+      "sourceLine": 42,
+      "tsdoc": "Context type for BOTH halves — WHICH profile is being read/edited. The\ncontext names the ENTITY (the profile), not its owner: there is no\n`client` context type here, so `.for('client', id)` does not exist\n(parity.yaml B-client-onbehalf, NOT-SUPPORTED)."
     },
     "@upmind-automation/headless!ClientTemplateSlotCodes": {
       "id": "@upmind-automation/headless!ClientTemplateSlotCodes",
@@ -71566,8 +71491,30 @@
       "name": "CustomField",
       "signature": "Symbol CustomField",
       "sourceFile": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
-      "sourceLine": 20,
-      "tsdoc": "type representing a comprehensive client custom field object, extending CustomFieldModel\nwith additional identifiers, computed display fields, and meta-data about its status.\nThis is typically used for custom field retrieved from the API or displayed in the UI."
+      "sourceLine": 143,
+      "tsdoc": "A brand's custom field definition, at full `ICustomField` fidelity.\n\ngraphify-out/graph.json (2026-08-10): `typeId` — 0 nodes, minted (an\nadditive member on this existing `CustomField` node, not a re-mint)."
+    },
+    "@upmind-automation/headless!CustomFieldDisplay": {
+      "id": "@upmind-automation/headless!CustomFieldDisplay",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "CustomFieldDisplay",
+      "signature": "Symbol CustomFieldDisplay",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
+      "sourceLine": 194,
+      "tsdoc": "Read-only display projection for a single value (AC-17): a plain display\nstring, or an IMAGE's link + preview pair."
+    },
+    "@upmind-automation/headless!CustomFieldImageContext": {
+      "id": "@upmind-automation/headless!CustomFieldImageContext",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "CustomFieldImageContext",
+      "signature": "Symbol CustomFieldImageContext",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
+      "sourceLine": 204,
+      "tsdoc": "The field identity `useUpload` (system-upload) expects — exactly what\n`useFieldsUischemaParser` already emits as an IMAGE control's\n`options.field` (`utils/useFields.ts:167-175`), so the two already fit."
     },
     "@upmind-automation/headless!CustomFieldModel": {
       "id": "@upmind-automation/headless!CustomFieldModel",
@@ -71577,8 +71524,8 @@
       "name": "CustomFieldModel",
       "signature": "Symbol CustomFieldModel",
       "sourceFile": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
-      "sourceLine": 9,
-      "tsdoc": null
+      "sourceLine": 188,
+      "tsdoc": "The code-keyed value record — the S-1 request shape and the model's\n`customFields` branch (seam A-2). Fills the pre-existing empty stub."
     },
     "@upmind-automation/headless!DATA_DEFINITIONS": {
       "id": "@upmind-automation/headless!DATA_DEFINITIONS",
@@ -71588,7 +71535,7 @@
       "name": "DATA_DEFINITIONS",
       "signature": "DATA_DEFINITIONS: object",
       "sourceFile": "packages/headless/src/modules/config/schema/definitions.ts",
-      "sourceLine": 531,
+      "sourceLine": 557,
       "tsdoc": null
     },
     "@upmind-automation/headless!DESCRIPTION_DISPLAY": {
@@ -71753,7 +71700,7 @@
       "name": "DataSchema",
       "signature": "Interface DataSchema",
       "sourceFile": "packages/headless/src/modules/config/schema/schema.ts",
-      "sourceLine": 182,
+      "sourceLine": 190,
       "tsdoc": null
     },
     "@upmind-automation/headless!DescriptionDisplay": {
@@ -71879,14 +71826,14 @@
     },
     "@upmind-automation/headless!Email": {
       "id": "@upmind-automation/headless!Email",
-      "kind": "Interface",
+      "kind": "2097152",
       "lessons": [],
       "module": "client-email",
       "name": "Email",
-      "signature": "Interface Email",
+      "signature": "Symbol Email",
       "sourceFile": "packages/headless/src/modules/client-email/client-email.types.ts",
-      "sourceLine": 85,
-      "tsdoc": "Interface representing a comprehensive email object, extending EmailModel\nwith additional identifiers, computed display fields, and meta-data about its status.\nThis is typically used for email addresses retrieved from the API or displayed in the UI."
+      "sourceLine": 101,
+      "tsdoc": "An email address as read from the API, with its display and status fields."
     },
     "@upmind-automation/headless!EmailContext": {
       "id": "@upmind-automation/headless!EmailContext",
@@ -71896,19 +71843,19 @@
       "name": "EmailContext",
       "signature": "Symbol EmailContext",
       "sourceFile": "packages/headless/src/modules/client-email/client-email.types.ts",
-      "sourceLine": 136,
-      "tsdoc": "Interface representing the context for email management within a client item context.\nIt extends `DataManagerContext` with specific data relevant to email operations."
+      "sourceLine": 127,
+      "tsdoc": "The manager's machine context — the shared machine's, over this form model."
     },
     "@upmind-automation/headless!EmailModel": {
       "id": "@upmind-automation/headless!EmailModel",
-      "kind": "Interface",
+      "kind": "2097152",
       "lessons": [],
       "module": "client-email",
       "name": "EmailModel",
-      "signature": "Interface EmailModel",
+      "signature": "Symbol EmailModel",
       "sourceFile": "packages/headless/src/modules/client-email/client-email.types.ts",
-      "sourceLine": 69,
-      "tsdoc": "Interface representing the data model for an email address, suitable for forms\nor API payloads."
+      "sourceLine": 93,
+      "tsdoc": "The form/request model for an email address."
     },
     "@upmind-automation/headless!EmailTypes": {
       "id": "@upmind-automation/headless!EmailTypes",
@@ -71918,8 +71865,8 @@
       "name": "EmailTypes",
       "signature": "EmailTypes: object[]",
       "sourceFile": "packages/headless/src/modules/client-email/client-email.types.ts",
-      "sourceLine": 63,
-      "tsdoc": "An array of predefined email types, used for categorising different kinds of email addresses."
+      "sourceLine": 90,
+      "tsdoc": "Predefined email categories, keyed by the API's `type` field."
     },
     "@upmind-automation/headless!ExternalError": {
       "id": "@upmind-automation/headless!ExternalError",
@@ -71929,29 +71876,7 @@
       "name": "ExternalError",
       "signature": "Symbol ExternalError",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 869,
-      "tsdoc": null
-    },
-    "@upmind-automation/headless!FieldsContext": {
-      "id": "@upmind-automation/headless!FieldsContext",
-      "kind": "Interface",
-      "lessons": [],
-      "module": "client-personal-details",
-      "name": "FieldsContext",
-      "signature": "Interface FieldsContext",
-      "sourceFile": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
-      "sourceLine": 16,
-      "tsdoc": null
-    },
-    "@upmind-automation/headless!FieldsModel": {
-      "id": "@upmind-automation/headless!FieldsModel",
-      "kind": "Interface",
-      "lessons": [],
-      "module": "client-personal-details",
-      "name": "FieldsModel",
-      "signature": "Interface FieldsModel",
-      "sourceFile": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
-      "sourceLine": 7,
+      "sourceLine": 887,
       "tsdoc": null
     },
     "@upmind-automation/headless!FormComposable": {
@@ -71973,7 +71898,7 @@
       "name": "FunnelActions",
       "signature": "Enum FunnelActions",
       "sourceFile": "packages/headless/src/modules/routing/routing.types.ts",
-      "sourceLine": 190,
+      "sourceLine": 205,
       "tsdoc": null
     },
     "@upmind-automation/headless!FunnelContext": {
@@ -71984,7 +71909,7 @@
       "name": "FunnelContext",
       "signature": "Symbol FunnelContext",
       "sourceFile": "packages/headless/src/modules/routing/routing.types.ts",
-      "sourceLine": 127,
+      "sourceLine": 134,
       "tsdoc": "Interface representing the context for the funnel, typically managed by an XState machine.\nIt holds the state of active flows, current route, and references to other services."
     },
     "@upmind-automation/headless!FunnelMetaTarget": {
@@ -71995,7 +71920,7 @@
       "name": "FunnelMetaTarget",
       "signature": "Symbol FunnelMetaTarget",
       "sourceFile": "packages/headless/src/modules/routing/routing.types.ts",
-      "sourceLine": 224,
+      "sourceLine": 239,
       "tsdoc": "A single conditional navigation target.\nUsed in meta.next / meta.prev arrays for guard-based routing."
     },
     "@upmind-automation/headless!FunnelProps": {
@@ -72017,7 +71942,7 @@
       "name": "FunnelResponse",
       "signature": "Symbol FunnelResponse",
       "sourceFile": "packages/headless/src/modules/routing/routing.types.ts",
-      "sourceLine": 171,
+      "sourceLine": 184,
       "tsdoc": null
     },
     "@upmind-automation/headless!FunnelStateMeta": {
@@ -72028,7 +71953,7 @@
       "name": "FunnelStateMeta",
       "signature": "Symbol FunnelStateMeta",
       "sourceFile": "packages/headless/src/modules/routing/routing.types.ts",
-      "sourceLine": 240,
+      "sourceLine": 255,
       "tsdoc": "Meta properties for funnel state nodes.\nUsed by the factory to auto-generate NEXT/BACK handlers (FE-2583).\n\n`next` / `prev` accept either:\n- A **string** — unconditional target (simple case).\n- An **array of FunnelMetaTarget** — evaluated in order; first matching\n  `cond` wins. Omit `cond` on the last entry for a default fallback."
     },
     "@upmind-automation/headless!FunnelTarget": {
@@ -72039,7 +71964,7 @@
       "name": "FunnelTarget",
       "signature": "Symbol FunnelTarget",
       "sourceFile": "packages/headless/src/modules/routing/routing.types.ts",
-      "sourceLine": 162,
+      "sourceLine": 175,
       "tsdoc": null
     },
     "@upmind-automation/headless!FunnelWatcher": {
@@ -72050,7 +71975,7 @@
       "name": "FunnelWatcher",
       "signature": "Symbol FunnelWatcher",
       "sourceFile": "packages/headless/src/modules/routing/routing.types.ts",
-      "sourceLine": 206,
+      "sourceLine": 221,
       "tsdoc": "A reactive watcher that subscribes to state changes and triggers\nnavigation through the funnel pipeline.\n\nMust return a cleanup function (unsubscribe).\nThe watcher receives the funnel context for `resolved` mutex checking."
     },
     "@upmind-automation/headless!FunnelWatcherHandler": {
@@ -72061,7 +71986,7 @@
       "name": "FunnelWatcherHandler",
       "signature": "Symbol FunnelWatcherHandler",
       "sourceFile": "packages/headless/src/modules/routing/routing.types.ts",
-      "sourceLine": 218,
+      "sourceLine": 233,
       "tsdoc": "Signature for the watcher handler function.\nSets up a reactive subscription and returns a cleanup function.\nMust be self-contained — the handler manages its own lifecycle."
     },
     "@upmind-automation/headless!Funnels": {
@@ -72072,7 +71997,7 @@
       "name": "Funnels",
       "signature": "Symbol Funnels",
       "sourceFile": "packages/headless/src/modules/routing/routing.types.ts",
-      "sourceLine": 70,
+      "sourceLine": 77,
       "tsdoc": null
     },
     "@upmind-automation/headless!GATEWAY_CAP": {
@@ -72325,7 +72250,7 @@
       "name": "IProductConfig",
       "signature": "Interface IProductConfig",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 412,
+      "sourceLine": 427,
       "tsdoc": "Interface representing raw product configuration properties, typically passed\nfrom a backend API or extracted from URL parameters."
     },
     "@upmind-automation/headless!IconVariant": {
@@ -72380,7 +72305,7 @@
       "name": "InfiniteQueryPage",
       "signature": "Symbol InfiniteQueryPage",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 54,
+      "sourceLine": 62,
       "tsdoc": "Represents the structure of a single page returned from an infinite query's `queryFn`.\nThis type is used internally by the `useInfiniteQuery` hook."
     },
     "@upmind-automation/headless!Invoice": {
@@ -72426,6 +72351,17 @@
       "sourceFile": "packages/headless/src/modules/orders/order.types.ts",
       "sourceLine": 19,
       "tsdoc": "Persisted payment selections for retry/partial payment UX.\nThese values seed the paymentDetail machine on re-spawn\nso the user sees their previous choices pre-filled."
+    },
+    "@upmind-automation/headless!ListQuery": {
+      "id": "@upmind-automation/headless!ListQuery",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "query",
+      "name": "ListQuery",
+      "signature": "Symbol ListQuery",
+      "sourceFile": "packages/headless/src/modules/query/query.types.ts",
+      "sourceLine": 272,
+      "tsdoc": "The `list()` query's return shape (`useQuery.ts`), parameterised by the raw\nfetch type and the (optionally `select`-mapped) data type — mirrors\n`list`'s own generic order/defaults. Extracted from `list`'s own inline\nreturn-statement cast so a scoped module can express its list-query return\ntype without deriving `ReturnType<typeof localFn>` from its own\nalready-instantiated service function (graphify-out/ citation above — no\nprior node for this type)."
     },
     "@upmind-automation/headless!ListStyle": {
       "id": "@upmind-automation/headless!ListStyle",
@@ -72578,8 +72514,19 @@
       "name": "MutationParams",
       "signature": "Symbol MutationParams",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 241,
+      "sourceLine": 249,
       "tsdoc": "Type alias defining parameters for TanStack Query's `useMutation` hook,\nextending RequestParams with `MutationObserverOptions` and omitting `mutationFn`,\nwhich is handled internally."
+    },
+    "@upmind-automation/headless!MutationResult": {
+      "id": "@upmind-automation/headless!MutationResult",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "query",
+      "name": "MutationResult",
+      "signature": "Symbol MutationResult",
+      "sourceFile": "packages/headless/src/modules/query/query.types.ts",
+      "sourceLine": 303,
+      "tsdoc": "The `mutate()` mutation's return shape (`useQuery.ts`), parameterised by\nits resolved data type. Extracted from `mutate`'s own inline return-\nstatement cast for the same reason as ListQuery."
     },
     "@upmind-automation/headless!OPTION_GROUP_SPACING": {
       "id": "@upmind-automation/headless!OPTION_GROUP_SPACING",
@@ -72699,7 +72646,7 @@
       "name": "OverlayDefinition",
       "signature": "Symbol OverlayDefinition",
       "sourceFile": "packages/headless/src/modules/routing/routing.types.ts",
-      "sourceLine": 267,
+      "sourceLine": 282,
       "tsdoc": "Definition for an overlay route that can be injected as a child on eligible routes."
     },
     "@upmind-automation/headless!OverlayRegistry": {
@@ -72721,7 +72668,7 @@
       "name": "OverlayResponse",
       "signature": "Symbol OverlayResponse",
       "sourceFile": "packages/headless/src/modules/routing/routing.types.ts",
-      "sourceLine": 183,
+      "sourceLine": 198,
       "tsdoc": "Alternative guard payload (resolve/reject) for rendering an overlay over a\nbase route. The `setOverlay` action turns this into a `{base}--{overlayId}`\ntarget, looking the overlay id up in the overlay registry. Funnel-agnostic —\n`target` is the base FunnelTarget the overlay renders over (carrying any\nparams/query), `overlay` is the registered overlay route name."
     },
     "@upmind-automation/headless!OverlayType": {
@@ -72732,7 +72679,7 @@
       "name": "OverlayType",
       "signature": "Enum OverlayType",
       "sourceFile": "packages/headless/src/modules/routing/routing.types.ts",
-      "sourceLine": 258,
+      "sourceLine": 273,
       "tsdoc": "Enumeration representing the UI container type for overlay routes."
     },
     "@upmind-automation/headless!PAGINATION": {
@@ -72756,6 +72703,17 @@
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
       "sourceLine": 8,
       "tsdoc": null
+    },
+    "@upmind-automation/headless!PERSONAL_DETAILS_SCOPE_MATRIX": {
+      "id": "@upmind-automation/headless!PERSONAL_DETAILS_SCOPE_MATRIX",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "client-personal-details",
+      "name": "PERSONAL_DETAILS_SCOPE_MATRIX",
+      "signature": "PERSONAL_DETAILS_SCOPE_MATRIX: object",
+      "sourceFile": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
+      "sourceLine": 55,
+      "tsdoc": "Scope matrix shared by `usePersonalDetails` and `usePersonalDetailsManager`\n(design.md §3.2 — a deliberate divergence from `client-email`'s two\nmatrices, since both composables here scope on the same entity). `client`\nis the only actor that resolves; `staff` and `guest` are `null as never`,\nwhich makes `.as('staff')` a compile-time error rather than an\nadvertised-but-absent capability."
     },
     "@upmind-automation/headless!POST_BASKET_CONTEXTS": {
       "id": "@upmind-automation/headless!POST_BASKET_CONTEXTS",
@@ -72831,7 +72789,7 @@
       "name": "PaginationInfo",
       "signature": "Interface PaginationInfo",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 294,
+      "sourceLine": 354,
       "tsdoc": "Interface representing comprehensive pagination information, typically returned\nby an API to describe the current state of paginated results."
     },
     "@upmind-automation/headless!Payment": {
@@ -72966,6 +72924,17 @@
       "sourceLine": 213,
       "tsdoc": "Shape persisted to sessionStorage.\nContains all session data needed to fully restore the store on page reload.\nExcludes transient flags (`initialised`, `loading`) which reset on each load."
     },
+    "@upmind-automation/headless!PersonalDetailsScopeMatrix": {
+      "id": "@upmind-automation/headless!PersonalDetailsScopeMatrix",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-personal-details",
+      "name": "PersonalDetailsScopeMatrix",
+      "signature": "Symbol PersonalDetailsScopeMatrix",
+      "sourceFile": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
+      "sourceLine": 63,
+      "tsdoc": "Scope matrix type, shared by both composables (derived from the runtime const)."
+    },
     "@upmind-automation/headless!Phone": {
       "id": "@upmind-automation/headless!Phone",
       "kind": "Interface",
@@ -73084,7 +73053,7 @@
       "name": "PriceCalculations",
       "signature": "Symbol PriceCalculations",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 855,
+      "sourceLine": 873,
       "tsdoc": null
     },
     "@upmind-automation/headless!PriceDetail": {
@@ -73128,7 +73097,7 @@
       "name": "PriceEntry",
       "signature": "Symbol PriceEntry",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 853,
+      "sourceLine": 871,
       "tsdoc": "Type alias for displaying price calculation states."
     },
     "@upmind-automation/headless!Product": {
@@ -73139,7 +73108,7 @@
       "name": "Product",
       "signature": "Symbol Product",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 150,
+      "sourceLine": 165,
       "tsdoc": "Represents a \"configured\" product with its configuration, pricing, and associated details.\nThis type aggregates all information necessary for displaying and managing a product\nin various contexts, such as a product page or shopping basket."
     },
     "@upmind-automation/headless!ProductBreadcrumb": {
@@ -73150,7 +73119,7 @@
       "name": "ProductBreadcrumb",
       "signature": "Symbol ProductBreadcrumb",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 225,
+      "sourceLine": 240,
       "tsdoc": "Type alias for a product breadcrumb item, used for navigational paths."
     },
     "@upmind-automation/headless!ProductBundle": {
@@ -73161,7 +73130,7 @@
       "name": "ProductBundle",
       "signature": "Interface ProductBundle",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 874,
+      "sourceLine": 892,
       "tsdoc": "Interface representing a product bundle, extending IRelatedObject."
     },
     "@upmind-automation/headless!ProductBundleConfig": {
@@ -73183,7 +73152,7 @@
       "name": "ProductBundles",
       "signature": "Symbol ProductBundles",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 883,
+      "sourceLine": 901,
       "tsdoc": "Type alias for a collection of product bundles."
     },
     "@upmind-automation/headless!ProductCategory": {
@@ -73205,7 +73174,7 @@
       "name": "ProductConfigContext",
       "signature": "Interface ProductConfigContext",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 891,
+      "sourceLine": 909,
       "tsdoc": "Interface representing the context for product configuration, typically managed by an XState machine.\nIt holds the state for configuring a single product, including its model, lookups, pricing, and associated errors."
     },
     "@upmind-automation/headless!ProductDetails": {
@@ -73216,7 +73185,7 @@
       "name": "ProductDetails",
       "signature": "Symbol ProductDetails",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 236,
+      "sourceLine": 251,
       "tsdoc": "Represents the actual store product details, typically retrieved from the API.\nThis contains all the displayable and configurable information for a product."
     },
     "@upmind-automation/headless!ProductImage": {
@@ -73227,7 +73196,7 @@
       "name": "ProductImage",
       "signature": "Symbol ProductImage",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 707,
+      "sourceLine": 725,
       "tsdoc": "Type alias for a product image."
     },
     "@upmind-automation/headless!ProductInput": {
@@ -73260,7 +73229,7 @@
       "name": "ProductModel",
       "signature": "Symbol ProductModel",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 323,
+      "sourceLine": 338,
       "tsdoc": "Represents the product model used for configuration, which is built and verified by a schema.\nThis is the core data structure for configuring a product's attributes, options, and provision fields."
     },
     "@upmind-automation/headless!ProductProps": {
@@ -73271,7 +73240,7 @@
       "name": "ProductProps",
       "signature": "Interface ProductProps",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 380,
+      "sourceLine": 395,
       "tsdoc": "Interface defining the properties required to create or configure a product.\nIt extends ProductModel with additional client, currency, and promotion details."
     },
     "@upmind-automation/headless!ProductRecommendConfig": {
@@ -73348,7 +73317,7 @@
       "name": "ProductSummary",
       "signature": "Symbol ProductSummary",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 430,
+      "sourceLine": 445,
       "tsdoc": "Type alias for a product summary, aggregating key pricing and detail information."
     },
     "@upmind-automation/headless!ProductSummaryDetail": {
@@ -73359,7 +73328,7 @@
       "name": "ProductSummaryDetail",
       "signature": "Symbol ProductSummaryDetail",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 484,
+      "sourceLine": 499,
       "tsdoc": "Type alias for a product summary detail, providing name, title, cycle, and meta-information."
     },
     "@upmind-automation/headless!ProductSummaryDetailWithPrice": {
@@ -73370,7 +73339,7 @@
       "name": "ProductSummaryDetailWithPrice",
       "signature": "Symbol ProductSummaryDetailWithPrice",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 508,
+      "sourceLine": 526,
       "tsdoc": "Type alias for a product summary detail that also includes pricing information."
     },
     "@upmind-automation/headless!ProductSummaryMeta": {
@@ -73381,8 +73350,19 @@
       "name": "ProductSummaryMeta",
       "signature": "Symbol ProductSummaryMeta",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 442,
+      "sourceLine": 457,
       "tsdoc": "Type alias for meta-information about a product summary."
+    },
+    "@upmind-automation/headless!ProfileContext": {
+      "id": "@upmind-automation/headless!ProfileContext",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-personal-details",
+      "name": "ProfileContext",
+      "signature": "Symbol ProfileContext",
+      "sourceFile": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
+      "sourceLine": 143,
+      "tsdoc": "The manager's machine context — the shared machine's, over this form\nmodel. Was `FieldsContext` — renamed to resolve its collision with\n`basket-fields.types.ts:11` (design.md §0). `lookups.fields` /\n`.filterFields` / `.languages` are read via the generic `lookups?: Record<string, any[]>`\nDataManagerContext already declares — never widened here, matching\n`EmailContext = DataManagerContext<EmailModel>`'s own precedent."
     },
     "@upmind-automation/headless!ProfileField": {
       "id": "@upmind-automation/headless!ProfileField",
@@ -73392,8 +73372,30 @@
       "name": "ProfileField",
       "signature": "Symbol ProfileField",
       "sourceFile": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
-      "sourceLine": 34,
-      "tsdoc": null
+      "sourceLine": 146,
+      "tsdoc": "One profile field projected for display — native or custom."
+    },
+    "@upmind-automation/headless!ProfileModel": {
+      "id": "@upmind-automation/headless!ProfileModel",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-personal-details",
+      "name": "ProfileModel",
+      "signature": "Symbol ProfileModel",
+      "sourceFile": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
+      "sourceLine": 88,
+      "tsdoc": "The form/request model for the profile editor. Was `FieldsModel` — renamed\nto resolve its collision with `basket-fields.types.ts:6` (design.md §0)."
+    },
+    "@upmind-automation/headless!ProfileRecord": {
+      "id": "@upmind-automation/headless!ProfileRecord",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-personal-details",
+      "name": "ProfileRecord",
+      "signature": "Symbol ProfileRecord",
+      "sourceFile": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
+      "sourceLine": 74,
+      "tsdoc": "The client's profile as read off the wire — native fields plus the raw\nembedded custom field values (each carrying its own definition, AC-16).\n`mapProfile` produces this; `mapProfileFields` projects it for display."
     },
     "@upmind-automation/headless!PromotionDetails": {
       "id": "@upmind-automation/headless!PromotionDetails",
@@ -73403,7 +73405,7 @@
       "name": "PromotionDetails",
       "signature": "Symbol PromotionDetails",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 593,
+      "sourceLine": 611,
       "tsdoc": "Type alias for detailed information about a promotion."
     },
     "@upmind-automation/headless!PromotionDisplayTypes": {
@@ -73425,7 +73427,7 @@
       "name": "PromotionModel",
       "signature": "Symbol PromotionModel",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 371,
+      "sourceLine": 386,
       "tsdoc": "Type alias for a promotion model, containing the promotion code."
     },
     "@upmind-automation/headless!PropertyDefinition": {
@@ -73458,7 +73460,7 @@
       "name": "QueryParams",
       "signature": "Symbol QueryParams",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 177,
+      "sourceLine": 185,
       "tsdoc": "Type alias defining parameters for TanStack Query's `useQuery` hook,\nextending RequestParams with `QueryObserverOptions` and omitting\n`queryFn` and `initialData`, which are handled internally."
     },
     "@upmind-automation/headless!QueryProps": {
@@ -73469,7 +73471,7 @@
       "name": "QueryProps",
       "signature": "Symbol QueryProps",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 105,
+      "sourceLine": 113,
       "tsdoc": "Type alias defining common properties for API queries, including sorting, filtering, and pagination."
     },
     "@upmind-automation/headless!QueryResponse": {
@@ -73480,7 +73482,7 @@
       "name": "QueryResponse",
       "signature": "Interface QueryResponse",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 71,
+      "sourceLine": 79,
       "tsdoc": "Interface representing a standardised response structure from an API query.\nIt encapsulates the status, data, total count, error, and messages."
     },
     "@upmind-automation/headless!QueryResponseError": {
@@ -73491,7 +73493,7 @@
       "name": "QueryResponseError",
       "signature": "Interface QueryResponseError",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 21,
+      "sourceLine": 29,
       "tsdoc": "Interface representing a structured error response from an API query."
     },
     "@upmind-automation/headless!REQUIRES_ACTION": {
@@ -73535,7 +73537,7 @@
       "name": "ReactiveQueryKeys",
       "signature": "Symbol ReactiveQueryKeys",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 190,
+      "sourceLine": 198,
       "tsdoc": "Type alias for reactive query keys used to create dynamic query keys for TanStack Query.\nThis allows query keys to automatically update based on reactive sources."
     },
     "@upmind-automation/headless!RecaptchaContext": {
@@ -73667,7 +73669,7 @@
       "name": "RequestFilters",
       "signature": "Symbol RequestFilters",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 274,
+      "sourceLine": 334,
       "tsdoc": "Interface representing a collection of filter parameters for a request.\nIt's a record where keys are filter names and values are the filter criteria."
     },
     "@upmind-automation/headless!RequestPagination": {
@@ -73678,7 +73680,7 @@
       "name": "RequestPagination",
       "signature": "Interface RequestPagination",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 279,
+      "sourceLine": 339,
       "tsdoc": "Interface representing pagination parameters for a request."
     },
     "@upmind-automation/headless!RequestParams": {
@@ -73689,7 +73691,7 @@
       "name": "RequestParams",
       "signature": "Symbol RequestParams",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 127,
+      "sourceLine": 135,
       "tsdoc": "Type alias defining the parameters for an API request, combining QueryProps\nwith additional request-specific options."
     },
     "@upmind-automation/headless!RequestSortDirection": {
@@ -73700,7 +73702,7 @@
       "name": "RequestSortDirection",
       "signature": "Enum RequestSortDirection",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 259,
+      "sourceLine": 319,
       "tsdoc": "Enumeration defining the direction for sorting query results."
     },
     "@upmind-automation/headless!RouteQueryParams": {
@@ -73722,7 +73724,7 @@
       "name": "RoutingEngineContext",
       "signature": "Symbol RoutingEngineContext",
       "sourceFile": "packages/headless/src/modules/routing/routing.types.ts",
-      "sourceLine": 75,
+      "sourceLine": 82,
       "tsdoc": "Interface representing the context for the routing engine, typically managed by an XState machine.\nIt holds the state of active flows, current route, and references to other services."
     },
     "@upmind-automation/headless!Rule": {
@@ -73810,7 +73812,7 @@
       "name": "ScopeBuilder",
       "signature": "Symbol ScopeBuilder",
       "sourceFile": "packages/headless/src/modules/scope/scope.builder.ts",
-      "sourceLine": 204,
+      "sourceLine": 202,
       "tsdoc": "Builder interface with fluent chaining.\nReturns different types based on actor type and matrix:\n- SELF: Returns T (runtime resolution, no chaining)\n- GUEST: Returns T, or T & { for } if matrix defines contexts for guest\n- CLIENT: Returns T, or T & { for } if matrix defines contexts for client\n- STAFF: Returns T with .inBrand(), and optionally .for() if matrix defines contexts"
     },
     "@upmind-automation/headless!ScopeBuilderActorWithContexts": {
@@ -73821,7 +73823,7 @@
       "name": "ScopeBuilderActorWithContexts",
       "signature": "Symbol ScopeBuilderActorWithContexts",
       "sourceFile": "packages/headless/src/modules/scope/scope.builder.ts",
-      "sourceLine": 160,
+      "sourceLine": 158,
       "tsdoc": "Builder for any non-staff actor when they have valid contexts in the matrix.\nOnly .for() is available (no .inBrand() — brand is determined by session/token).\n\nUsage patterns:\n- `.as('client')` - Client acting as self\n- `.as('client').for('client', '456')` - Client acting on behalf of child client\n- `.as('guest').for('lead', '789')` - Guest with lead context (if matrix allows)"
     },
     "@upmind-automation/headless!ScopeBuilderAfterBrand": {
@@ -73832,7 +73834,7 @@
       "name": "ScopeBuilderAfterBrand",
       "signature": "Symbol ScopeBuilderAfterBrand",
       "sourceFile": "packages/headless/src/modules/scope/scope.builder.ts",
-      "sourceLine": 54,
+      "sourceLine": 52,
       "tsdoc": "Builder after .inBrand() has been called for staff with contexts.\nCan optionally chain with .for() to select a specific context."
     },
     "@upmind-automation/headless!ScopeBuilderAfterFor": {
@@ -73843,7 +73845,7 @@
       "name": "ScopeBuilderAfterFor",
       "signature": "Symbol ScopeBuilderAfterFor",
       "sourceFile": "packages/headless/src/modules/scope/scope.builder.ts",
-      "sourceLine": 31,
+      "sourceLine": 29,
       "tsdoc": "Builder after .for() has been called.\nCan optionally chain with .inBrand() for explicit brand validation."
     },
     "@upmind-automation/headless!ScopeBuilderResult": {
@@ -73854,7 +73856,7 @@
       "name": "ScopeBuilderResult",
       "signature": "Symbol ScopeBuilderResult",
       "sourceFile": "packages/headless/src/modules/scope/scope.builder.ts",
-      "sourceLine": 186,
+      "sourceLine": 184,
       "tsdoc": "Result type for any actor based on actor type.\nMaps each actor to the appropriate return type.\n\n- STAFF: Gets .inBrand() and optionally .for() (based on matrix)\n- All others: Gets .for() only when matrix defines contexts for that actor"
     },
     "@upmind-automation/headless!ScopeBuilderStaffNoContexts": {
@@ -73865,7 +73867,7 @@
       "name": "ScopeBuilderStaffNoContexts",
       "signature": "Symbol ScopeBuilderStaffNoContexts",
       "sourceFile": "packages/headless/src/modules/scope/scope.builder.ts",
-      "sourceLine": 118,
+      "sourceLine": 116,
       "tsdoc": "Builder for staff when they have NO valid contexts in the matrix.\nOnly .inBrand() is available."
     },
     "@upmind-automation/headless!ScopeBuilderStaffResult": {
@@ -73876,7 +73878,7 @@
       "name": "ScopeBuilderStaffResult",
       "signature": "Symbol ScopeBuilderStaffResult",
       "sourceFile": "packages/headless/src/modules/scope/scope.builder.ts",
-      "sourceLine": 142,
+      "sourceLine": 140,
       "tsdoc": "Result type for staff based on whether they have contexts in matrix.\n\nNote: Uses tuple wrapping `[T] extends [never]` to avoid TypeScript's\ndistribution behavior where `never extends X` evaluates to `never`."
     },
     "@upmind-automation/headless!ScopeBuilderStaffWithContexts": {
@@ -73887,7 +73889,7 @@
       "name": "ScopeBuilderStaffWithContexts",
       "signature": "Symbol ScopeBuilderStaffWithContexts",
       "sourceFile": "packages/headless/src/modules/scope/scope.builder.ts",
-      "sourceLine": 84,
+      "sourceLine": 82,
       "tsdoc": "Builder for staff when they have valid contexts in the matrix.\nBoth .inBrand() and .for() are available, in either order.\n\nUsage patterns:\n- `.as('staff')` - View all across org\n- `.as('staff').inBrand('x')` - View all in brand\n- `.as('staff').for('client', '123')` - Specific client (BE infers brand)\n- `.as('staff').inBrand('x').for('client', '123')` - Specific client in brand\n- `.as('staff').for('client', '123').inBrand('x')` - Same as above"
     },
     "@upmind-automation/headless!ScopeConfig": {
@@ -73942,7 +73944,7 @@
       "name": "ScopedFactory",
       "signature": "Symbol ScopedFactory",
       "sourceFile": "packages/headless/src/modules/scope/scope.builder.ts",
-      "sourceLine": 21,
+      "sourceLine": 20,
       "tsdoc": "Factory function that creates a composable instance from scope config."
     },
     "@upmind-automation/headless!SentEmail": {
@@ -74096,7 +74098,7 @@
       "name": "SubproductDetails",
       "signature": "Symbol SubproductDetails",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 542,
+      "sourceLine": 560,
       "tsdoc": "Type alias for detailed information about a subproduct."
     },
     "@upmind-automation/headless!SubproductModel": {
@@ -74107,7 +74109,7 @@
       "name": "SubproductModel",
       "signature": "Symbol SubproductModel",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 360,
+      "sourceLine": 375,
       "tsdoc": "Type alias for a subproduct model, structured as a nested record to organise subproducts\nby category ID and then by their value ID."
     },
     "@upmind-automation/headless!SubproductModelValue": {
@@ -74118,7 +74120,7 @@
       "name": "SubproductModelValue",
       "signature": "Symbol SubproductModelValue",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 347,
+      "sourceLine": 362,
       "tsdoc": "Type alias for a subproduct model value, defining the configuration for a single subproduct instance."
     },
     "@upmind-automation/headless!SubproductValue": {
@@ -74129,7 +74131,7 @@
       "name": "SubproductValue",
       "signature": "Symbol SubproductValue",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 577,
+      "sourceLine": 595,
       "tsdoc": "Type alias for a specific value/option of a subproduct, extending ProductDetails."
     },
     "@upmind-automation/headless!TAXES_DISPLAY": {
@@ -74173,7 +74175,7 @@
       "name": "TermDetails",
       "signature": "Symbol TermDetails",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 532,
+      "sourceLine": 550,
       "tsdoc": "Type alias for term-specific details in a product summary, including pricing and tax display options."
     },
     "@upmind-automation/headless!TermSelector": {
@@ -74283,7 +74285,7 @@
       "name": "UIConfig",
       "signature": "Interface UIConfig",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 670,
+      "sourceLine": 688,
       "tsdoc": "Interface representing general UI configuration settings."
     },
     "@upmind-automation/headless!UIContext": {
@@ -74316,7 +74318,7 @@
       "name": "UIMeta",
       "signature": "Interface UIMeta",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 633,
+      "sourceLine": 651,
       "tsdoc": "Interface representing UI meta-data for a product or view.\nIt encapsulates configurations for UI elements, related items, and product-specific overrides."
     },
     "@upmind-automation/headless!UIMetaProxy": {
@@ -74349,7 +74351,7 @@
       "name": "UIProductMeta",
       "signature": "Interface UIProductMeta",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 640,
+      "sourceLine": 658,
       "tsdoc": "Interface representing UI meta-data specific to a product, allowing for granular control\nover how product components are displayed in the user interface."
     },
     "@upmind-automation/headless!UIPropertyDefinition": {
@@ -74371,7 +74373,7 @@
       "name": "UISchema",
       "signature": "Interface UISchema",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 676,
+      "sourceLine": 694,
       "tsdoc": "Interface representing a UI Schema for form rendering.\nIt provides configurations for billing, grouping, and other form-specific UI aspects."
     },
     "@upmind-automation/headless!UIScope": {
@@ -74404,7 +74406,7 @@
       "name": "UI_SCHEMA_DEFAULTS",
       "signature": "UI_SCHEMA_DEFAULTS: UISchema",
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 697,
+      "sourceLine": 715,
       "tsdoc": null
     },
     "@upmind-automation/headless!UnifiedType": {
@@ -74470,7 +74472,7 @@
       "name": "UseAccount",
       "signature": "Symbol UseAccount",
       "sourceFile": "packages/headless/src/modules/account/useAccount.ts",
-      "sourceLine": 106,
+      "sourceLine": 102,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseAccountActions": {
@@ -74536,7 +74538,7 @@
       "name": "UseAuth",
       "signature": "Symbol UseAuth",
       "sourceFile": "packages/headless/src/modules/auth/useAuth.ts",
-      "sourceLine": 113,
+      "sourceLine": 109,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseAuthActions": {
@@ -74635,7 +74637,7 @@
       "name": "UseBasketProduct",
       "signature": "Symbol UseBasketProduct",
       "sourceFile": "packages/headless/src/modules/basket-product/useBasketProduct.ts",
-      "sourceLine": 249,
+      "sourceLine": 253,
       "tsdoc": "Represents the type definition for the return value of the `useBasketProduct` function.\n\nThis is a utility type that references the return type of the `useBasketProduct` function.\nIt encapsulates the structure and expected properties returned by that function, ensuring\ntype safety and consistency when using its output throughout the codebase."
     },
     "@upmind-automation/headless!UseBasketProductInline": {
@@ -74657,7 +74659,7 @@
       "name": "UseBasketProductPending",
       "signature": "Symbol UseBasketProductPending",
       "sourceFile": "packages/headless/src/modules/basket-product/useBasketProductsPending.ts",
-      "sourceLine": 39,
+      "sourceLine": 40,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseBasketProducts": {
@@ -74737,6 +74739,61 @@
       "sourceLine": 292,
       "tsdoc": "The return type of the useClientCompanyManager composable function."
     },
+    "@upmind-automation/headless!UseClientCustomFieldImage": {
+      "id": "@upmind-automation/headless!UseClientCustomFieldImage",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "UseClientCustomFieldImage",
+      "signature": "Symbol UseClientCustomFieldImage",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/useClientCustomFieldImage.ts",
+      "sourceLine": 105,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseClientCustomFieldImageActions": {
+      "id": "@upmind-automation/headless!UseClientCustomFieldImageActions",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "UseClientCustomFieldImageActions",
+      "signature": "Symbol UseClientCustomFieldImageActions",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/useClientCustomFieldImage.actions.ts",
+      "sourceLine": 64,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseClientCustomFieldImageContext": {
+      "id": "@upmind-automation/headless!UseClientCustomFieldImageContext",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "UseClientCustomFieldImageContext",
+      "signature": "Symbol UseClientCustomFieldImageContext",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/useClientCustomFieldImage.context.ts",
+      "sourceLine": 48,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseClientCustomFieldImageInternals": {
+      "id": "@upmind-automation/headless!UseClientCustomFieldImageInternals",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "UseClientCustomFieldImageInternals",
+      "signature": "Symbol UseClientCustomFieldImageInternals",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/useClientCustomFieldImage.internals.ts",
+      "sourceLine": 23,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseClientCustomFieldImageMeta": {
+      "id": "@upmind-automation/headless!UseClientCustomFieldImageMeta",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "UseClientCustomFieldImageMeta",
+      "signature": "Symbol UseClientCustomFieldImageMeta",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/useClientCustomFieldImage.meta.ts",
+      "sourceLine": 76,
+      "tsdoc": null
+    },
     "@upmind-automation/headless!UseClientCustomFields": {
       "id": "@upmind-automation/headless!UseClientCustomFields",
       "kind": "2097152",
@@ -74745,19 +74802,63 @@
       "name": "UseClientCustomFields",
       "signature": "Symbol UseClientCustomFields",
       "sourceFile": "packages/headless/src/modules/client-custom-fields/useClientCustomFields.ts",
-      "sourceLine": 180,
-      "tsdoc": "The return type of the UseClientCustomFields composable function."
+      "sourceLine": 170,
+      "tsdoc": null
     },
-    "@upmind-automation/headless!UseClientEmail": {
-      "id": "@upmind-automation/headless!UseClientEmail",
+    "@upmind-automation/headless!UseClientCustomFieldsActions": {
+      "id": "@upmind-automation/headless!UseClientCustomFieldsActions",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "UseClientCustomFieldsActions",
+      "signature": "Symbol UseClientCustomFieldsActions",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/useClientCustomFields.actions.ts",
+      "sourceLine": 189,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseClientCustomFieldsContext": {
+      "id": "@upmind-automation/headless!UseClientCustomFieldsContext",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "UseClientCustomFieldsContext",
+      "signature": "Symbol UseClientCustomFieldsContext",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/useClientCustomFields.context.ts",
+      "sourceLine": 96,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseClientCustomFieldsInternals": {
+      "id": "@upmind-automation/headless!UseClientCustomFieldsInternals",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "UseClientCustomFieldsInternals",
+      "signature": "Symbol UseClientCustomFieldsInternals",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/useClientCustomFields.internals.ts",
+      "sourceLine": 23,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseClientCustomFieldsMeta": {
+      "id": "@upmind-automation/headless!UseClientCustomFieldsMeta",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "UseClientCustomFieldsMeta",
+      "signature": "Symbol UseClientCustomFieldsMeta",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/useClientCustomFields.meta.ts",
+      "sourceLine": 65,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseClientEmailManager": {
+      "id": "@upmind-automation/headless!UseClientEmailManager",
       "kind": "2097152",
       "lessons": [],
       "module": "client-email",
-      "name": "UseClientEmail",
-      "signature": "Symbol UseClientEmail",
+      "name": "UseClientEmailManager",
+      "signature": "Symbol UseClientEmailManager",
       "sourceFile": "packages/headless/src/modules/client-email/useClientEmailManager.ts",
-      "sourceLine": 144,
-      "tsdoc": "The return type of the useClientEmailManager composable."
+      "sourceLine": 161,
+      "tsdoc": null
     },
     "@upmind-automation/headless!UseClientEmailManagerActions": {
       "id": "@upmind-automation/headless!UseClientEmailManagerActions",
@@ -74767,7 +74868,7 @@
       "name": "UseClientEmailManagerActions",
       "signature": "Symbol UseClientEmailManagerActions",
       "sourceFile": "packages/headless/src/modules/client-email/useClientEmailManager.actions.ts",
-      "sourceLine": 183,
+      "sourceLine": 192,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseClientEmailManagerContext": {
@@ -74778,7 +74879,7 @@
       "name": "UseClientEmailManagerContext",
       "signature": "Symbol UseClientEmailManagerContext",
       "sourceFile": "packages/headless/src/modules/client-email/useClientEmailManager.context.ts",
-      "sourceLine": 57,
+      "sourceLine": 67,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseClientEmailManagerInternals": {
@@ -74789,7 +74890,7 @@
       "name": "UseClientEmailManagerInternals",
       "signature": "Symbol UseClientEmailManagerInternals",
       "sourceFile": "packages/headless/src/modules/client-email/useClientEmailManager.internals.ts",
-      "sourceLine": 30,
+      "sourceLine": 27,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseClientEmailManagerMeta": {
@@ -74800,7 +74901,7 @@
       "name": "UseClientEmailManagerMeta",
       "signature": "Symbol UseClientEmailManagerMeta",
       "sourceFile": "packages/headless/src/modules/client-email/useClientEmailManager.meta.ts",
-      "sourceLine": 55,
+      "sourceLine": 106,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseClientEmails": {
@@ -74811,7 +74912,7 @@
       "name": "UseClientEmails",
       "signature": "Symbol UseClientEmails",
       "sourceFile": "packages/headless/src/modules/client-email/useClientEmails.ts",
-      "sourceLine": 73,
+      "sourceLine": 86,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseClientEmailsActions": {
@@ -74822,7 +74923,7 @@
       "name": "UseClientEmailsActions",
       "signature": "Symbol UseClientEmailsActions",
       "sourceFile": "packages/headless/src/modules/client-email/useClientEmails.actions.ts",
-      "sourceLine": 123,
+      "sourceLine": 196,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseClientEmailsContext": {
@@ -74833,7 +74934,7 @@
       "name": "UseClientEmailsContext",
       "signature": "Symbol UseClientEmailsContext",
       "sourceFile": "packages/headless/src/modules/client-email/useClientEmails.context.ts",
-      "sourceLine": 47,
+      "sourceLine": 71,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseClientEmailsInternals": {
@@ -74844,7 +74945,7 @@
       "name": "UseClientEmailsInternals",
       "signature": "Symbol UseClientEmailsInternals",
       "sourceFile": "packages/headless/src/modules/client-email/useClientEmails.internals.ts",
-      "sourceLine": 29,
+      "sourceLine": 23,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseClientEmailsMeta": {
@@ -74855,7 +74956,7 @@
       "name": "UseClientEmailsMeta",
       "signature": "Symbol UseClientEmailsMeta",
       "sourceFile": "packages/headless/src/modules/client-email/useClientEmails.meta.ts",
-      "sourceLine": 40,
+      "sourceLine": 57,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseClientPhone": {
@@ -74965,7 +75066,7 @@
       "name": "UseOrder",
       "signature": "Symbol UseOrder",
       "sourceFile": "packages/headless/src/modules/orders/useOrder.ts",
-      "sourceLine": 212,
+      "sourceLine": 210,
       "tsdoc": null
     },
     "@upmind-automation/headless!UsePayment": {
@@ -75031,8 +75132,118 @@
       "name": "UsePendingProduct",
       "signature": "Symbol UsePendingProduct",
       "sourceFile": "packages/headless/src/modules/basket-product/useBasketProductPending.ts",
-      "sourceLine": 342,
+      "sourceLine": 356,
       "tsdoc": "Type definition for the return value of the `useBasketProductPending` composable,\nensuring type safety for consumers."
+    },
+    "@upmind-automation/headless!UsePersonalDetails": {
+      "id": "@upmind-automation/headless!UsePersonalDetails",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-personal-details",
+      "name": "UsePersonalDetails",
+      "signature": "Symbol UsePersonalDetails",
+      "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts",
+      "sourceLine": 82,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UsePersonalDetailsActions": {
+      "id": "@upmind-automation/headless!UsePersonalDetailsActions",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-personal-details",
+      "name": "UsePersonalDetailsActions",
+      "signature": "Symbol UsePersonalDetailsActions",
+      "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.actions.ts",
+      "sourceLine": 115,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UsePersonalDetailsContext": {
+      "id": "@upmind-automation/headless!UsePersonalDetailsContext",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-personal-details",
+      "name": "UsePersonalDetailsContext",
+      "signature": "Symbol UsePersonalDetailsContext",
+      "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.context.ts",
+      "sourceLine": 69,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UsePersonalDetailsInternals": {
+      "id": "@upmind-automation/headless!UsePersonalDetailsInternals",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-personal-details",
+      "name": "UsePersonalDetailsInternals",
+      "signature": "Symbol UsePersonalDetailsInternals",
+      "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.internals.ts",
+      "sourceLine": 22,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UsePersonalDetailsManager": {
+      "id": "@upmind-automation/headless!UsePersonalDetailsManager",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-personal-details",
+      "name": "UsePersonalDetailsManager",
+      "signature": "Symbol UsePersonalDetailsManager",
+      "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
+      "sourceLine": 177,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UsePersonalDetailsManagerActions": {
+      "id": "@upmind-automation/headless!UsePersonalDetailsManagerActions",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-personal-details",
+      "name": "UsePersonalDetailsManagerActions",
+      "signature": "Symbol UsePersonalDetailsManagerActions",
+      "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.actions.ts",
+      "sourceLine": 212,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UsePersonalDetailsManagerContext": {
+      "id": "@upmind-automation/headless!UsePersonalDetailsManagerContext",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-personal-details",
+      "name": "UsePersonalDetailsManagerContext",
+      "signature": "Symbol UsePersonalDetailsManagerContext",
+      "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.context.ts",
+      "sourceLine": 71,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UsePersonalDetailsManagerInternals": {
+      "id": "@upmind-automation/headless!UsePersonalDetailsManagerInternals",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-personal-details",
+      "name": "UsePersonalDetailsManagerInternals",
+      "signature": "Symbol UsePersonalDetailsManagerInternals",
+      "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.internals.ts",
+      "sourceLine": 26,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UsePersonalDetailsManagerMeta": {
+      "id": "@upmind-automation/headless!UsePersonalDetailsManagerMeta",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-personal-details",
+      "name": "UsePersonalDetailsManagerMeta",
+      "signature": "Symbol UsePersonalDetailsManagerMeta",
+      "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.meta.ts",
+      "sourceLine": 100,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UsePersonalDetailsMeta": {
+      "id": "@upmind-automation/headless!UsePersonalDetailsMeta",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-personal-details",
+      "name": "UsePersonalDetailsMeta",
+      "signature": "Symbol UsePersonalDetailsMeta",
+      "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.meta.ts",
+      "sourceLine": 54,
+      "tsdoc": null
     },
     "@upmind-automation/headless!UseProductCatalogue": {
       "id": "@upmind-automation/headless!UseProductCatalogue",
@@ -75086,19 +75297,8 @@
       "name": "UseProductSetup",
       "signature": "Symbol UseProductSetup",
       "sourceFile": "packages/headless/src/modules/product-setup/useProductSetup.ts",
-      "sourceLine": 413,
+      "sourceLine": 418,
       "tsdoc": null
-    },
-    "@upmind-automation/headless!UseProfileDetails": {
-      "id": "@upmind-automation/headless!UseProfileDetails",
-      "kind": "2097152",
-      "lessons": [],
-      "module": "client-personal-details",
-      "name": "UseProfileDetails",
-      "signature": "Symbol UseProfileDetails",
-      "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts",
-      "sourceLine": 92,
-      "tsdoc": "The return type of the UseProfileDetails composable function."
     },
     "@upmind-automation/headless!UseRecommendations": {
       "id": "@upmind-automation/headless!UseRecommendations",
@@ -75119,7 +75319,7 @@
       "name": "UseRoutingEngine",
       "signature": "Symbol UseRoutingEngine",
       "sourceFile": "packages/headless/src/modules/routing/useRoutingEngine.ts",
-      "sourceLine": 444,
+      "sourceLine": 447,
       "tsdoc": "The return type of useSession composable."
     },
     "@upmind-automation/headless!UseSessionStore": {
@@ -75383,7 +75583,7 @@
       "name": "awaitResolved",
       "signature": "awaitResolved(service: ActorRef<any, any>): Promise<RouteLocationGeneric>",
       "sourceFile": "packages/headless/src/modules/routing/routing.utils.ts",
-      "sourceLine": 28,
+      "sourceLine": 32,
       "tsdoc": "Awaits until the provided service reaches a specific state and resolves with the current route from the state context."
     },
     "@upmind-automation/headless!basketProductRequiresSetup": {
@@ -75493,7 +75693,7 @@
       "name": "createScopedComposable",
       "signature": "createScopedComposable(name: string, factory: ScopedFactory<T>): object",
       "sourceFile": "packages/headless/src/modules/scope/scope.builder.ts",
-      "sourceLine": 266,
+      "sourceLine": 264,
       "tsdoc": "Creates a scope-based composable with fluent chaining API.\nThe matrix type parameter enforces which contexts are valid for each actor."
     },
     "@upmind-automation/headless!createUIMetaProxy": {
@@ -75526,7 +75726,7 @@
       "name": "decorateRoutes",
       "signature": "decorateRoutes(routes: RouteRecordRaw[]): Promise<void>",
       "sourceFile": "packages/headless/src/modules/routing/routing.utils.ts",
-      "sourceLine": 154,
+      "sourceLine": 158,
       "tsdoc": "Decorate all route records with brand specific UIschema or layout information\nThis modifies the route definitions (records) rather than the navigation location,\nwhich avoids Vue Router warnings about mutating route.meta during navigation."
     },
     "@upmind-automation/headless!default": {
@@ -75570,7 +75770,7 @@
       "name": "ensureTrailingSlash",
       "signature": "ensureTrailingSlash(route: RouteLocationGeneric): object | undefined",
       "sourceFile": "packages/headless/src/modules/routing/routing.utils.ts",
-      "sourceLine": 74,
+      "sourceLine": 78,
       "tsdoc": "Ensures the route path ends with a trailing slash.\nReturns a redirect location if a trailing slash needs to be appended,\nor undefined if the path already has one."
     },
     "@upmind-automation/headless!evaluateOperator": {
@@ -75594,6 +75794,17 @@
       "sourceFile": "packages/headless/src/modules/config/config.conditions.ts",
       "sourceLine": 85,
       "tsdoc": "Resolves a `SettingValue` against a `ConditionState`.\n\nReturns the first rule's `then` whose `when` matches state; falls back to\n`default` if no rule matches. A rule with no `when` is a catch-all and\nalways matches. Plain (non-conditional) values are returned as-is."
+    },
+    "@upmind-automation/headless!extendFunnel": {
+      "id": "@upmind-automation/headless!extendFunnel",
+      "kind": "Function",
+      "lessons": [],
+      "module": "routing",
+      "name": "extendFunnel",
+      "signature": "extendFunnel(funnels: Funnels, config: FunnelProps, chain: string[]): FunnelProps | undefined",
+      "sourceFile": "packages/headless/src/modules/routing/routing.utils.ts",
+      "sourceLine": 195,
+      "tsdoc": "Flattens a funnel's `extends` chain into a single config, base-first.\n\nA funnel that extends another inherits its states, guards, services, actions\nand context, so it need only declare what it adds or diverges on. Anything the\nextending funnel declares wins — a state key replaces the base's wholesale\nrather than deep-merging, so an override owns its whole node."
     },
     "@upmind-automation/headless!fieldRequiresSetup": {
       "id": "@upmind-automation/headless!fieldRequiresSetup",
@@ -75724,7 +75935,7 @@
       "name": "hasRouteChanged",
       "signature": "hasRouteChanged(route: RouteLocationGeneric, target: Record<string, any>, __namedParameters: object): boolean",
       "sourceFile": "packages/headless/src/modules/routing/routing.utils.ts",
-      "sourceLine": 95,
+      "sourceLine": 99,
       "tsdoc": "Determine if the route has meaningfully changed compared to a target object\nWe only check keys present in the target object to avoid unnecessary comparisons."
     },
     "@upmind-automation/headless!initializeMeta": {
@@ -75867,8 +76078,52 @@
       "name": "mapCustomField",
       "signature": "mapCustomField(raw: ICustomField): CustomField",
       "sourceFile": "packages/headless/src/modules/client-custom-fields/client-custom-fields.mappers.ts",
-      "sourceLine": 19,
+      "sourceLine": 51,
+      "tsdoc": "Maps one wire definition to the view-model, at full `ICustomField` fidelity."
+    },
+    "@upmind-automation/headless!mapCustomFieldDisplay": {
+      "id": "@upmind-automation/headless!mapCustomFieldDisplay",
+      "kind": "Function",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "mapCustomFieldDisplay",
+      "signature": "mapCustomFieldDisplay(value: unknown, field: CustomField): CustomFieldDisplay",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/client-custom-fields.mappers.ts",
+      "sourceLine": 187,
+      "tsdoc": "Read-only display projection for a single value (AC-17)."
+    },
+    "@upmind-automation/headless!mapCustomFieldValue": {
+      "id": "@upmind-automation/headless!mapCustomFieldValue",
+      "kind": "Function",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "mapCustomFieldValue",
+      "signature": "mapCustomFieldValue(value: unknown, field: CustomField): unknown",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/client-custom-fields.mappers.ts",
+      "sourceLine": 90,
       "tsdoc": null
+    },
+    "@upmind-automation/headless!mapCustomFieldValues": {
+      "id": "@upmind-automation/headless!mapCustomFieldValues",
+      "kind": "Function",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "mapCustomFieldValues",
+      "signature": "mapCustomFieldValues(values: ICustomFieldValue[], fields: CustomField[]): CustomFieldModel",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/client-custom-fields.mappers.ts",
+      "sourceLine": 133,
+      "tsdoc": "Client record values → the code-keyed model (seam A-9). `fields` is an\nexplicit argument here so this stays a pure mapper — the seam's bound\nconvenience (`useClientCustomFields().useContext().resolveFieldByValue`,\n`mapCustomFieldValues` re-exported unbound) supplies the loaded collection."
+    },
+    "@upmind-automation/headless!mapCustomFieldValuesToRequest": {
+      "id": "@upmind-automation/headless!mapCustomFieldValuesToRequest",
+      "kind": "Function",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "mapCustomFieldValuesToRequest",
+      "signature": "mapCustomFieldValuesToRequest(model: CustomFieldModel, baseModel: CustomFieldModel): CustomFieldModel | undefined",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/client-custom-fields.mappers.ts",
+      "sourceLine": 155,
+      "tsdoc": "Dirty diff against `baseModel`, `\"\"` → `null`, code-keyed (seam A-7).\n`undefined` signals an empty diff so a caller can short-circuit with zero\nrequests — legacy's own `_.isEmpty(this.customFieldsValues)` guard\n(`clientCustomFieldsForm.vue:128-137`)."
     },
     "@upmind-automation/headless!mapInitials": {
       "id": "@upmind-automation/headless!mapInitials",
@@ -76021,7 +76276,7 @@
       "name": "pascalCase",
       "signature": "pascalCase(str: string): string",
       "sourceFile": "packages/headless/src/modules/routing/routing.utils.ts",
-      "sourceLine": 174,
+      "sourceLine": 178,
       "tsdoc": null
     },
     "@upmind-automation/headless!paymentDetailsMachine": {
@@ -76134,6 +76389,17 @@
       "sourceLine": 379,
       "tsdoc": "Interpolates template variables with values from data object.\ne.g., \"{{ name }} - {{ service_identifier }}\" → \"Product - abc123\"\nMissing variables and orphaned braces are removed."
     },
+    "@upmind-automation/headless!resolveFieldByValue": {
+      "id": "@upmind-automation/headless!resolveFieldByValue",
+      "kind": "Function",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "resolveFieldByValue",
+      "signature": "resolveFieldByValue(value: ICustomFieldValue, fields: CustomField[]): CustomField | undefined",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/client-custom-fields.mappers.ts",
+      "sourceLine": 177,
+      "tsdoc": "Resolves a value's definition, preferring the EMBEDDED `value.field`\n(seam A-8, AC-16) so a caller never needs the collection loaded. Falls\nback to the supplied definitions list when no embedded field is present."
+    },
     "@upmind-automation/headless!resolveSelfActor": {
       "id": "@upmind-automation/headless!resolveSelfActor",
       "kind": "Function",
@@ -76208,7 +76474,7 @@
       "name": "useAccount",
       "signature": "useAccount: object",
       "sourceFile": "packages/headless/src/modules/account/useAccount.ts",
-      "sourceLine": 100,
+      "sourceLine": 96,
       "tsdoc": "Scoped composable for the account standing arc."
     },
     "@upmind-automation/headless!useActiveSession": {
@@ -76230,7 +76496,7 @@
       "name": "useAuth",
       "signature": "useAuth: object",
       "sourceFile": "packages/headless/src/modules/auth/useAuth.ts",
-      "sourceLine": 107,
+      "sourceLine": 103,
       "tsdoc": "Scoped composable for authentication flows."
     },
     "@upmind-automation/headless!useBasket": {
@@ -76340,7 +76606,7 @@
       "name": "useBasketProductsPending",
       "signature": "useBasketProductsPending(): object",
       "sourceFile": "packages/headless/src/modules/basket-product/useBasketProductsPending.ts",
-      "sourceLine": 63,
+      "sourceLine": 64,
       "tsdoc": "Provides functionalities to manage products that are being configured and are pending addition to the basket.\nThis composable handles the lifecycle of pending products, including their addition, resolution,\nand integration with the main basket state."
     },
     "@upmind-automation/headless!useBasketPromotions": {
@@ -76442,16 +76708,27 @@
       "sourceLine": 460,
       "tsdoc": null
     },
+    "@upmind-automation/headless!useClientCustomFieldImage": {
+      "id": "@upmind-automation/headless!useClientCustomFieldImage",
+      "kind": "Function",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "useClientCustomFieldImage",
+      "signature": "useClientCustomFieldImage(): ScopeBuilder<object, object>",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/useClientCustomFieldImage.ts",
+      "sourceLine": 91,
+      "tsdoc": null
+    },
     "@upmind-automation/headless!useClientCustomFields": {
       "id": "@upmind-automation/headless!useClientCustomFields",
       "kind": "Function",
       "lessons": [],
       "module": "client-custom-fields",
       "name": "useClientCustomFields",
-      "signature": "useClientCustomFields(initial: QueryProps): object",
+      "signature": "useClientCustomFields(): ScopeBuilder<object, object>",
       "sourceFile": "packages/headless/src/modules/client-custom-fields/useClientCustomFields.ts",
-      "sourceLine": 16,
-      "tsdoc": "Composable function for managing client phones.\nIt handles fetching, displaying, filtering, and performing actions on client phones,\nleveraging an underlying service and TanStack Query for data management."
+      "sourceLine": 156,
+      "tsdoc": null
     },
     "@upmind-automation/headless!useClientEmailManager": {
       "id": "@upmind-automation/headless!useClientEmailManager",
@@ -76461,8 +76738,8 @@
       "name": "useClientEmailManager",
       "signature": "useClientEmailManager: object",
       "sourceFile": "packages/headless/src/modules/client-email/useClientEmailManager.ts",
-      "sourceLine": 136,
-      "tsdoc": "Scoped composable for managing a single client email (a form editor)."
+      "sourceLine": 155,
+      "tsdoc": "Scoped composable for editing ONE client email address."
     },
     "@upmind-automation/headless!useClientEmails": {
       "id": "@upmind-automation/headless!useClientEmails",
@@ -76472,8 +76749,8 @@
       "name": "useClientEmails",
       "signature": "useClientEmails: object",
       "sourceFile": "packages/headless/src/modules/client-email/useClientEmails.ts",
-      "sourceLine": 67,
-      "tsdoc": "Scoped composable for a client's email collection."
+      "sourceLine": 80,
+      "tsdoc": "Scoped composable for a client's own email collection."
     },
     "@upmind-automation/headless!useClientPhoneManager": {
       "id": "@upmind-automation/headless!useClientPhoneManager",
@@ -76584,6 +76861,39 @@
       "sourceFile": "packages/headless/src/modules/config/useConfig.ts",
       "sourceLine": 26,
       "tsdoc": null
+    },
+    "@upmind-automation/headless!useCustomFieldsModel": {
+      "id": "@upmind-automation/headless!useCustomFieldsModel",
+      "kind": "Function",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "useCustomFieldsModel",
+      "signature": "useCustomFieldsModel(fields: CustomField[], values: CustomFieldModel): CustomFieldModel",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/client-custom-fields.schemas.ts",
+      "sourceLine": 36,
+      "tsdoc": "Re-export of `useFieldsModelParser` (seam A-5)."
+    },
+    "@upmind-automation/headless!useCustomFieldsSchema": {
+      "id": "@upmind-automation/headless!useCustomFieldsSchema",
+      "kind": "Function",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "useCustomFieldsSchema",
+      "signature": "useCustomFieldsSchema(fields: CustomField[]): JsonSchema7",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/client-custom-fields.schemas.ts",
+      "sourceLine": 26,
+      "tsdoc": "Re-export of `useFieldsSchemaParser` (seam A-3)."
+    },
+    "@upmind-automation/headless!useCustomFieldsUischema": {
+      "id": "@upmind-automation/headless!useCustomFieldsUischema",
+      "kind": "Function",
+      "lessons": [],
+      "module": "client-custom-fields",
+      "name": "useCustomFieldsUischema",
+      "signature": "useCustomFieldsUischema(fields: CustomField[], i18nKey: string): ControlElement[]",
+      "sourceFile": "packages/headless/src/modules/client-custom-fields/client-custom-fields.schemas.ts",
+      "sourceLine": 30,
+      "tsdoc": "Re-export of `useFieldsUischemaParser` (seam A-4)."
     },
     "@upmind-automation/headless!useDac": {
       "id": "@upmind-automation/headless!useDac",
@@ -76725,7 +77035,7 @@
       "name": "useOrder",
       "signature": "useOrder(invoiceId: string): object",
       "sourceFile": "packages/headless/src/modules/orders/useOrder.ts",
-      "sourceLine": 34,
+      "sourceLine": 32,
       "tsdoc": "Composable that orchestrates invoice payment via the order machine.\nSpawns paymentDetailMachine as a child actor, invokes paymentMachine for\nprocessing, and supports retry and partial payment loops."
     },
     "@upmind-automation/headless!usePayment": {
@@ -76785,25 +77095,25 @@
     },
     "@upmind-automation/headless!usePersonalDetails": {
       "id": "@upmind-automation/headless!usePersonalDetails",
-      "kind": "Function",
+      "kind": "Variable",
       "lessons": [],
       "module": "client-personal-details",
       "name": "usePersonalDetails",
-      "signature": "usePersonalDetails(): object",
+      "signature": "usePersonalDetails: object",
       "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts",
-      "sourceLine": 17,
-      "tsdoc": "Composable function for managing client phones.\nIt handles fetching, displaying, filtering, and performing actions on client phones,\nleveraging an underlying service and TanStack Query for data management."
+      "sourceLine": 76,
+      "tsdoc": "Scoped composable for reading a client's own profile."
     },
     "@upmind-automation/headless!usePersonalDetailsManager": {
       "id": "@upmind-automation/headless!usePersonalDetailsManager",
-      "kind": "Function",
+      "kind": "Variable",
       "lessons": [],
       "module": "client-personal-details",
       "name": "usePersonalDetailsManager",
-      "signature": "usePersonalDetailsManager(__namedParameters: object): object",
+      "signature": "usePersonalDetailsManager: object",
       "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-      "sourceLine": 39,
-      "tsdoc": null
+      "sourceLine": 171,
+      "tsdoc": "Scoped composable for editing a client's own profile. Callable bare\n(AC-43) — `usePersonalDetailsManager().as('client')` constructs and\nsettles without a caller-supplied option."
     },
     "@upmind-automation/headless!usePhoneSchema": {
       "id": "@upmind-automation/headless!usePhoneSchema",
@@ -76923,7 +77233,7 @@
       "name": "useQuery",
       "signature": "useQuery(): object",
       "sourceFile": "packages/headless/src/modules/query/useQuery.ts",
-      "sourceLine": 65,
+      "sourceLine": 67,
       "tsdoc": "A composable function that provides utilities for making HTTP requests\nwith advanced functionalities like pagination, sorting, filtering, currency handling,\nand caching using TanStack Query. It provides methods for sending requests and handling\nresponses in a reactive way."
     },
     "@upmind-automation/headless!useQueryParams": {

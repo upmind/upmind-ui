@@ -1,0 +1,9 @@
+--- a/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
++++ b/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
+@@ -322,5 +322,5 @@
+     })
+   );
+
+-  return { ...model, ...Object.fromEntries(uploaded) };
++  return model;
+ }

@@ -1,0 +1,147 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/custom_fields?filter[object_type]=client&brand_id=2785d26e-9678-3d16-999f-314502e70439&limit=0&sort=order:asc",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a28faf5d6bc89a50-WAW",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 10 Aug 2026 14:28:05 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=0emfBbQvmJi86w1wX8GfDmNaCVil%2B%2BfkL9bCzRXtWtK24LIe2rrb0%2ByO1cKtHn3nMgc1%2FM7CrQPxLbr8n53k9tXmCehU0DCNfWIQP%2FRbmUhHXQO7GAfZ6NLIn%2FljgAb6i67hDS%2F%2FyQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "2"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "20403869-6e54-721d-29f5-18d9305e7d23",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "object_type": "client",
+          "name": "Age",
+          "short_description": null,
+          "description": null,
+          "type": 7,
+          "group": 0,
+          "hidden": false,
+          "client_readonly": false,
+          "required": false,
+          "user_id": "320e4357-95e7-8d18-42ef-31643202d986",
+          "order": 1,
+          "values": {
+            "min": {
+              "label": "",
+              "value": ""
+            },
+            "max": {
+              "label": "",
+              "value": ""
+            },
+            "step": {
+              "label": "",
+              "value": ""
+            }
+          },
+          "created_at": "2025-12-19 12:58:10",
+          "updated_at": "2026-02-19 13:17:58",
+          "code": "age",
+          "user_only": false,
+          "show_on_order_form": false,
+          "show_on_invoice": false,
+          "deleted_at": null,
+          "validation_rules": [],
+          "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "name_translated": "Age",
+          "short_description_translated": null,
+          "description_translated": null,
+          "values_translated": {
+            "min": {
+              "label": "",
+              "value": ""
+            },
+            "max": {
+              "label": "",
+              "value": ""
+            },
+            "step": {
+              "label": "",
+              "value": ""
+            }
+          },
+          "type_code": "number",
+          "display_type": "Number",
+          "translations": []
+        },
+        {
+          "id": "3de78642-de53-9714-7ec2-1208469530d0",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "object_type": "client",
+          "name": "Profile Picture",
+          "short_description": null,
+          "description": null,
+          "type": 8,
+          "group": 0,
+          "hidden": false,
+          "client_readonly": false,
+          "required": false,
+          "user_id": "320e4357-95e7-8d18-42ef-31643202d986",
+          "order": 2,
+          "values": [],
+          "created_at": "2025-12-19 12:58:57",
+          "updated_at": "2025-12-19 12:58:57",
+          "code": "profile_picture",
+          "user_only": false,
+          "show_on_order_form": true,
+          "show_on_invoice": false,
+          "deleted_at": null,
+          "validation_rules": [],
+          "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "name_translated": "Profile Picture",
+          "short_description_translated": null,
+          "description_translated": null,
+          "values_translated": [],
+          "type_code": "image",
+          "display_type": "Image",
+          "translations": []
+        }
+      ],
+      "related": null,
+      "total": 2,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-10T14:28:05.424Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-custom-fields"
+  }
+}

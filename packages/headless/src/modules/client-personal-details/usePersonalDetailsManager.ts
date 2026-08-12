@@ -1,257 +1,179 @@
-import { useActor } from "@xstate/vue";
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
+import { watch } from "vue";
 import { interpret } from "xstate";
-import { waitFor } from "xstate/lib/waitFor";
-import { useBrand } from "../brand";
 import { dataManagerMachine } from "../data-manager";
-import { useActiveSession } from "../session-store";
-import { useProfileDetailsActions, useProfileDetailsGuards } from "./actions";
-import { useProfileDetailsServices } from "./client-personal-details.services";
+import { createScopedComposable } from "../scope";
+import { useI18n } from "../system-localisation";
+import createClientPersonalDetailsServices from "./client-personal-details.services";
+import { createPersonalDetailsManagerActions } from "./usePersonalDetailsManager.actions";
+import { createPersonalDetailsManagerContext } from "./usePersonalDetailsManager.context";
+import { createPersonalDetailsManagerInternals } from "./usePersonalDetailsManager.internals";
+import { createPersonalDetailsManagerMachineConfig } from "./usePersonalDetailsManager.machine";
+import { createPersonalDetailsManagerMeta } from "./usePersonalDetailsManager.meta";
 import {
+  createActor,
+  contextMatches,
   DetailedError,
   ErrorOrigin,
-  responseCodes,
-  useContext,
-  contextMatches,
-  stateMatches,
-  stateValue,
-  contextValue,
-  stopService
+  responseCodes
 } from "../../utils";
-import { isEqual, get } from "lodash-es";
-import type { CustomField } from "../client-custom-fields";
-import type {
-  FieldsContext,
-  FieldsModel
-} from "./client-personal-details.types";
-import type { DataManagerContext } from "../data-manager/data-manager.types";
-
+import type { PersonalDetailsScopeMatrix } from "./client-personal-details.types";
+import type { ScopeConfig, ScopeKey } from "../scope";
+import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
-// We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
-
-// /**
-//  * Manages the basket fields, state, and interactions.
-//  * Provides reactive state, context, and methods to manage basket fields.
-//  * Uses internal actors to manage complex state interactions, including field validation and updates.
-//  */
-
-export const usePersonalDetailsManager = ({
-  allowMultipleEdits = true,
-  filterFields = []
-}: {
-  allowMultipleEdits?: boolean;
-  filterFields?: string[];
-}) => {
+/**
+ * @module client-personal-details/usePersonalDetailsManager
+ * @description Scoped `dataManagerMachine`-backed editor for a client's own
+ * profile. One interpreter per concrete `(actor, context)` scope.
+ *
+ * @decision registered under its OWN registry name, not the read half's.
+ * what:    this composable's `createScopedComposable` call names
+ *          `"client-personal-details-manager"`, not
+ *          `"client-personal-details"` — a deliberate departure from
+ *          `useClientEmailManager`'s literal precedent (same name as
+ *          `useClientEmails`).
+ * why:     `generateScopeKey(name, config)` is `name:actor[:context.type:
+ *          context.id][:brand][:fresh]` (`scope.utils.ts`) — NOTHING else
+ *          differentiates two composables sharing one name. `client-email`
+ *          gets away with sharing a name only because its manager is NEVER
+ *          called bare: every call site supplies either `.for('email', id)`
+ *          (an existing address) or `.fresh()` (a new draft), both of which
+ *          add a segment the collection's own `.as('client')` (no `.for()`)
+ *          never has. This module's shared single-member `PROFILE` context
+ *          has no such guarantee — `.as('client')` with NO `.for()` is the
+ *          NORMAL call for BOTH halves (a client has exactly one profile, so
+ *          there is nothing to pick), which would make the read half's and
+ *          the manager's scope keys IDENTICAL under a shared name — the
+ *          registry would hand one consumer the other's instance. A modules
+ *          two DISTINCT registry names is the fix; the SHARED scope MATRIX
+ *          (design.md §3.2) still holds — both use the same
+ *          `ClientPersonalDetailsContextTypes.PROFILE` context and the same
+ *          identity seam, only the registry key's `name:` segment differs.
+ * rejected: keeping one shared name and requiring every manager call site to
+ *          add `.for('profile', clientId)` — rejected: it forces every
+ *          caller to know and re-supply the client's own id just to avoid a
+ *          collision, for an entity that already has exactly one profile;
+ *          brittle and easy to forget.
+ *
+ * @doctrine clause 1 (uniform four-layer default) — identical return shape
+ * to the read half.
+ * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
+ * actor; never branch on SELF in this file.
+ */
+function createPersonalDetailsManagerForScope(
+  config: ScopeConfig,
+  scopeKey: ScopeKey
+) {
   const { t } = useI18n();
-  const { isReady: sessionReady } = useActiveSession().useActions();
-  const { activeUser } = useActiveSession().useContext();
-  const { languages } = useBrand();
 
-  // --- state
-  const service = interpret(
-    dataManagerMachine
-      .withConfig({
-        actions: useProfileDetailsActions() as any,
-        guards: useProfileDetailsGuards() as any,
-        services: useProfileDetailsServices() as any
-      })
-      .withContext({
-        allowMultipleEdits,
-        lookups: {
-          filterFields,
-          languages: languages.value
-        }
-      }),
-    {
-      id: "client-profile-fields",
-      devTools: true
-    }
+  const actorScope = config.actor as ScopeActorTypes;
+
+  /**
+   * ONE services instance for this scope, threaded into the machine config.
+   * `config.context` goes in here and nowhere else — every request the
+   * manager issues, directly or through the machine, inherits the same
+   * resolved client.
+   */
+  const service = createClientPersonalDetailsServices(
+    actorScope,
+    config.context
   );
 
-  const { state, send } = useActor(service.start());
-
-  // the clientId is required to bring the machine into the available state
-  sessionReady().then(() => {
-    if (activeUser.value?.id && !contextMatches(state, "id")) {
-      send({
-        type: "REFRESH",
-        data: { id: activeUser.value.id, clientId: activeUser.value.id }
-      });
+  const machineService = interpret(
+    dataManagerMachine
+      .withConfig(createPersonalDetailsManagerMachineConfig(service))
+      .withContext({
+        // The PROFILE entity's id IS the owning client's id (design.md
+        // §3.4) — both fields seed from the ONE resolved seam.
+        id: service.clientId.value,
+        clientId: service.clientId.value,
+        lookups: { fields: [], filterFields: [], languages: [] },
+        // Scoped instances are persistent editors — stay editable after a
+        // save (the machine returns to `available` instead of the
+        // `complete` final state) so a remounting form re-uses the same
+        // instance.
+        allowMultipleEdits: true
+      }),
+    {
+      id: scopeKey,
+      devTools: false
     }
-  });
+  );
+  machineService.start();
 
-  async function isReady(): Promise<boolean> {
-    return sessionReady().then(() =>
-      waitFor(
-        service,
-        state => stateMatches(state, ["available", "unavailable"]),
-        {
-          timeout: Infinity
-        }
-      ).then(state => !stateMatches(state, "error"))
+  const actorRef = createActor(machineService);
+  if (!actorRef) {
+    throw new DetailedError(
+      t("error.client_personal_details_not_available"),
+      responseCodes.Service_Unavailable,
+      ErrorOrigin.Headless,
+      { scope: config }
     );
   }
 
-  const meta = computed(() => ({
-    isAvailable: stateMatches(state, "available"),
-    isLoading: stateMatches(state, ["subscribing", "loading"]),
-    hasErrors: stateMatches(state, "available.error"),
-    isValid: stateMatches(state, "available.valid"),
-    isDirty: !isEqual(
-      contextValue<DataManagerContext["model"]>(state, "model"),
-      contextValue<DataManagerContext["baseModel"]>(state, "baseModel")
-    ),
-    showErrors:
-      contextMatches(state, ["error"]) && contextMatches(state, ["attempts"]),
-    isNew: !stateMatches(state, "model.id"),
-    isProcessing: stateMatches(state, "processing"),
-    isComplete:
-      stateValue(state, "done", false) ||
-      stateMatches(state, ["processed", "complete"])
-  }));
+  /**
+   * Late top-up ONLY. The machine's `hasSubscription` guard holds it in
+   * `subscribing` until a client id exists, and at construction the session
+   * may not have resolved yet. The id is watched off `service.clientId` —
+   * the ONE identity seam, never a second session read — and
+   * `refreshContext` keeps an already-present value, so this can never
+   * clobber a resolved retarget. A session that never authenticates simply
+   * never fires it, leaving the machine in `subscribing` with no
+   * unaddressed request (AC-42).
+   */
+  const stopClientIdTopUp = watch(service.clientId, clientId => {
+    if (!clientId || contextMatches(actorRef.state, "clientId")) return;
+    stopClientIdTopUp();
+    actorRef.send({ type: "REFRESH", data: { clientId, id: clientId } });
+  });
 
-  // --- context
+  /**
+   * ONE actions instance per scope, not one per `useActions()` call: `input`
+   * is debounced, so a debouncer minted per call gives two keystrokes two
+   * independent timers.
+   */
+  const actions = createPersonalDetailsManagerActions(
+    actorScope,
+    actorRef,
+    scopeKey
+  );
 
-  const context = useContext<FieldsContext>(state);
-  const fields = useContext<CustomField[]>(state, "lookups.fields");
-  const errors = useContext<FieldsContext["error"]>(state, "error");
-  const model = useContext<FieldsContext["model"]>(state, "model");
-  const schema = useContext<FieldsContext["schema"]>(state, "schema");
-  const uischema = useContext<FieldsContext["uischema"]>(state, "uischema");
-
-  // --- methods
-
-  async function input(
-    model: FieldsModel | Record<string, any>
-  ): Promise<FieldsModel> {
-    send({ type: "SET", data: model });
-    // then we wait until the module has been checked and is valid/invalid
-    return waitFor(service, state =>
-      stateMatches(state, ["available.valid", "available.invalid"])
-    )
-      .then(state => get(state, "context.model") as FieldsModel)
-      .catch(() => {
-        return Promise.reject(
-          new DetailedError(
-            t("error.input_not_available"),
-            responseCodes.Forbidden,
-            ErrorOrigin.Headless
-          )
-        );
-      });
-  }
-
-  async function update(): Promise<FieldsModel> {
-    send({ type: "UPDATE" });
-
-    // we have to ensure the update is processed and the state is either processed or available.error
-    return waitFor(
-      service,
-      state =>
-        stateMatches(state, [
-          "processed",
-          "available.error",
-          "available.invalid"
-        ]),
-      { timeout: 60_000 }
-    )
-      .then(state => {
-        if (stateMatches(state, ["available.error", "available.invalid"]))
-          throw state.context.error;
-        return state.context.model;
-      })
-      .catch(error => {
-        return Promise.reject(
-          new DetailedError(
-            t("error.profile_details_update_failed"),
-            error?.status ?? responseCodes.Timeout,
-            ErrorOrigin.Headless,
-            {
-              error,
-              state: state.value
-            }
-          )
-        );
-      });
-  }
-
-  function clear(): void {
-    service.send({ type: "CLEAR" });
-  }
-
-  function stop(): void {
-    stopService(service);
-  }
-  //   // ---------------------------------------------------------------------------
   return {
-    // --- state
+    // --- Sub-composables (no direct props — clause 1 four-layer return)
+    /** Sub-composable for manager actions (form input, save, revert, lifecycle). */
+    useActions: () => actions,
 
-    /**
-     * Waits for the fields actor to be ready (not loading or error state).
-     * @returns {Promise<boolean>} Resolves true if ready, false if error.
-     */
-    isReady,
+    /** Sub-composable for manager context (model, schema, errors). */
+    useContext: () => createPersonalDetailsManagerContext(actorScope, actorRef),
 
-    //     /**
-    //      * Meta-information about the basket fields state.
-    //      * @property {boolean} isAvailable - Indicates if the fields actor is available.
-    //      * @property {boolean} isLoading - Indicates if the fields actor is loading.
-    //      * @property {boolean} hasFields - Indicates if a fields is set.
-    //      * @property {boolean} hasErrors - Indicates if there are errors.
-    //      * @property {boolean} isProcessing - Indicates if the fields is processing.
-    //      * @property {boolean} isValid - Indicates if the fields is valid.
-    //      * @property {boolean} isDirty - Indicates if the fields is dirty.
-    //      * @property {boolean} isComplete - Indicates if the fields is complete.
-    //      */
-    meta,
+    /** Sub-composable for advanced debugging and internal access. */
+    useInternals: () =>
+      createPersonalDetailsManagerInternals(actorScope, actorRef),
 
-    /** The full fields context object. */
-    context,
-
-    /** The list of available fields. */
-    fields,
-
-    /** Any error returned by the fields actor. */
-    errors,
-
-    /** The current fields model. */
-    model,
-
-    /** The fields schema. */
-    schema,
-
-    /** The fields UI schema. */
-    uischema,
-
-    // --- methods
-
-    /** Clears the fields state. */
-    clear,
-
-    /** Sends a SET event to update the fields model.
-     * @param {FieldsModel} value The fields model to set.
-     * @returns {void} Does not return anything.
-     */
-
-    input,
-
-    /**
-     * Updates the fields if the code has changed.
-     * @param {FieldsModel} value The new fields model to set.
-     * @returns {Promise<void>} Resolves when updated, rejects on error.
-     */
-    // update: debounce(update, DEBOUNCE_DELAY),
-    update,
-
-    /** Stops the fields service. */
-    stop
+    /** Sub-composable for manager meta (state flags). */
+    useMeta: () => createPersonalDetailsManagerMeta(actorScope, actorRef)
   };
-};
-
+}
+// -----------------------------------------------------------------------------
 /**
- * The return type of usePersonalDetailsManager composable.
+ * Scoped composable for editing a client's own profile. Callable bare
+ * (AC-43) — `usePersonalDetailsManager().as('client')` constructs and
+ * settles without a caller-supplied option.
+ *
+ * @example
+ * ```ts
+ * const manager = usePersonalDetailsManager().as('self')
+ * const { model, schema, uischema } = manager.useContext()
+ * manager.useActions().filterFields(['firstName'])
+ * await manager.useActions().isReady()
+ * await manager.useActions().update({ firstName: 'New' })
+ * ```
  */
-export type usePersonalDetailsManager = ReturnType<
+export const usePersonalDetailsManager = createScopedComposable<
+  ReturnType<typeof createPersonalDetailsManagerForScope>,
+  PersonalDetailsScopeMatrix
+>("client-personal-details-manager", createPersonalDetailsManagerForScope);
+
+// Type export for consumers
+export type UsePersonalDetailsManager = ReturnType<
   typeof usePersonalDetailsManager
 >;

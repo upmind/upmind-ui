@@ -1,0 +1,12 @@
+--- a/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
++++ b/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
+@@ -76,8 +76,6 @@
+   const { activeUser } = useActiveSession().useContext();
+
+   return computed(() =>
+-    scopeContext?.type === ClientCustomFieldsContextTypes.VALUES
+-      ? scopeContext.id
+-      : activeUser.value?.id
++    activeUser.value?.id
+   );
+ }

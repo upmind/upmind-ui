@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts
++++ b/packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts
+@@ -156,7 +156,7 @@
+     model.customFields,
+     baseModel.customFields
+   );
+-  if (customFields !== undefined) diff.custom_fields = customFields;
++  if (customFields !== undefined) diff.custom_fields = Object.fromEntries(Object.entries(customFields).filter(([, v]) => v !== null));
+ 
+   return Object.keys(diff).length ? diff : undefined;
+ }

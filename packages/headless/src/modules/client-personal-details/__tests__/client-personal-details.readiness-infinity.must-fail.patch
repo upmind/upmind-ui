@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.actions.ts
++++ b/packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.actions.ts
+@@ -48,7 +48,7 @@
+    */
+   async function isReady(): Promise<boolean> {
+     return waitFor(machineService, s => stateMatches(s, "available"), {
+-      timeout: 30_000
++      timeout: Infinity
+     })
+       .then(s => !stateMatches(s, "error"))
+       .catch(() => false);

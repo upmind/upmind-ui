@@ -1,0 +1,19 @@
+--- a/packages/headless/src/modules/client-personal-details/client-personal-details.services.ts
++++ b/packages/headless/src/modules/client-personal-details/client-personal-details.services.ts
+@@ -443,11 +443,11 @@
+ ): Promise<Partial<ProfileContext>> {
+   const incoming = get(data, "model", data) as Partial<ProfileModel>;
+
+-  const safeModel = restoreClearedFields(
+-    useModelParser<ProfileModel>(context.schema, incoming, context.baseModel, {
+-      allowExtraProps: false
+-    }),
+-    incoming
++  const safeModel = useModelParser<ProfileModel>(
++    context.schema,
++    incoming,
++    context.baseModel,
++    { allowExtraProps: false }
+   );
+
+   return { model: safeModel };

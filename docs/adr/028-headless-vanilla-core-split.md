@@ -33,7 +33,7 @@ Headless's Vue coupling is concentrated in chokepoints we already own:
 | `modules/system-localisation/useI18n.ts` | ~90 of 93 `t()` consumers go through this wrapper, not vue-i18n |
 | `computed()` projections | 256 call sites across 64 files — the one spread-out surface, but pure projection: a single `onUnmounted` exists in the whole package (`useOrder`) |
 
-Stragglers: `vue-router` (type-only imports; instance injected by host), `vue-i18n` direct imports in 2 runtime files (`useMoney`, `usePersonalDetailsManager`) **+ 4 type-only files, 3 of them outside the §4 rewrite target** (corrected 2026-07-17), `@vueuse/core` (1 file, `useBreakpoints`), `@sentry/vue` (2 files, logging only), `@vue/devtools-api` (scope inspector), `provide`/`inject` (config module only), `nextTick` (1 file), `@tanstack/vue-store` (used as a vanilla cache — `useStore()` deliberately avoided, reactivity hand-bridged via `storeTick`).
+Stragglers: `vue-router` (type-only imports; instance injected by host), `vue-i18n` direct import in 1 runtime file (`useMoney`) — `usePersonalDetailsManager` discharged 2026-08-10 (`client-personal-details` T-B8: the file now imports the `system-localisation` wrapper only) — **+ 4 type-only files, 3 of them outside the §4 rewrite target** (corrected 2026-07-17), `@vueuse/core` (1 file, `useBreakpoints`), `@sentry/vue` (2 files, logging only), `@vue/devtools-api` (scope inspector), `provide`/`inject` (config module only), `nextTick` (1 file), `@tanstack/vue-store` (used as a vanilla cache — `useStore()` deliberately avoided, reactivity hand-bridged via `storeTick`).
 
 ---
 
@@ -80,7 +80,7 @@ A future `headless-react` follows the same shape (`useSyncExternalStore` bridge)
 - Core translates via **`@intlify/core-base`** — vue-i18n's own runtime published Vue-free — behind the existing `useI18n` wrapper (`createCoreContext` + `translate`). **Catalogs are untouched**: pipe plurals, linked messages (`@:`), and the `@.markdown`/`@.html` modifiers are all intlify features, not Vue features. No ICU rewrite.
 - Locale state (the `useLocale` precedence chain) and brand message overrides live in core, as today.
 - `headless-vue` mirrors the same messages + locale into the host app's vue-i18n instance, so component-land `$t` and the `<i18n-t>` usages (12 occurrences across 10 files) keep working unchanged. One source of truth in core; vue-i18n is a mirror.
-- The 2 files importing vue-i18n directly (`utils/useMoney.ts`, `client-personal-details/usePersonalDetailsManager.ts`) are redirected to the wrapper.
+- The file importing vue-i18n directly is `utils/useMoney.ts`; `client-personal-details/usePersonalDetailsManager.ts` was the other one and is discharged (2026-08-10, T-B8) — redirected to the `system-localisation` wrapper, same as every other consumer. `utils/useMoney.ts` remains the sole runtime straggler.
 - A future non-Vue consumer gets `t()` from the same intlify context; a later catalog migration to ICU (if ever wanted) is a separate decision this ADR does not take.
 
 ### 5. Scope registry

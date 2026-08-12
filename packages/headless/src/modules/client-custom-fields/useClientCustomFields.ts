@@ -1,180 +1,170 @@
-import { computed, ref } from "vue";
-import service from "./client-custom-fields.services";
-import { useCollection } from "../../utils";
-import { set, isEmpty, isArray } from "lodash-es";
-import type { CustomField } from "./client-custom-fields.types";
-import type { QueryProps, RequestFilters } from "../query";
-
+import { ref } from "vue";
+import { createScopedComposable } from "../scope";
+import { createClientCustomFieldsServices } from "./client-custom-fields.services";
+import { createClientCustomFieldsActions } from "./useClientCustomFields.actions";
+import { createClientCustomFieldsContext } from "./useClientCustomFields.context";
+import { createClientCustomFieldsInternals } from "./useClientCustomFields.internals";
+import { createClientCustomFieldsMeta } from "./useClientCustomFields.meta";
+import type {
+  ClientCustomFieldsScopeMatrix,
+  CustomField
+} from "./client-custom-fields.types";
+import type { ScopeBuilder, ScopeConfig, ScopeKey } from "../scope";
+import type { ScopeActorTypes } from "../scope/scope.types";
+// -----------------------------------------------------------------------------
 /**
- * Composable function for managing client phones.
- * It handles fetching, displaying, filtering, and performing actions on client phones,
- * leveraging an underlying service and TanStack Query for data management.
+ * @module client-custom-fields/useClientCustomFields
+ * @description Scoped, query-backed collection of a client's brand's custom
+ * field definitions: one TanStack list query per concrete `(actor, context)`
+ * scope, minted once at construction so it survives component lifecycles.
+ * Its sibling is `useClientCustomFieldImage` — a second scoped composable
+ * registered under the SAME `name` string (`"client-custom-fields"`, passed
+ * to `createScopedComposable` by BOTH files below). `generateScopeKey`
+ * (`scope.utils.ts`) builds `name:actor[:context.type:context.id][:brand]
+ * [:fresh]` from that `name` — the CALLING COMPOSABLE's own function name is
+ * not part of the key at all, so it carries no differentiation between the
+ * two. What keeps their registry entries apart in practice is that each
+ * composable's OWN context-type enum differs
+ * (`ClientCustomFieldsContextTypes.VALUES` here vs
+ * `ClientCustomFieldContextTypes.FIELD` in the image editor) and lands in
+ * the key ONLY when a context is supplied via `.for()`. This is latent, not
+ * structurally guaranteed: a bare `.as(actor)` call with NO `.for()` on
+ * either composable produces the identical key for that actor (no context
+ * segment on either side) — safe here only because `useClientCustomFieldImage`
+ * has no consumer that calls it bare (it addresses a single field and is
+ * meaningless without `.for('field', id)`), never because the platform
+ * enforces it.
  *
- * @param initial - Optional initial query parameters for loading the phone list. Defaults to pagination limit of 0.
- * @returns The {@link useClientCustomFields} API for interacting with client phones.
+ * @doctrine clause 1 (uniform four-layer default).
+ * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
+ * actor; the scope builder resolves SELF before this factory runs.
  */
-export const useClientCustomFields = (
-  initial: QueryProps = {
-    pagination: {
-      limit: 0
-    }
-  }
-) => {
-  // --- state
+function createClientCustomFieldsForScope(
+  config: ScopeConfig,
+  scopeKey: ScopeKey
+) {
+  const actorScope = config.actor as ScopeActorTypes;
 
-  const query = service.loadList(initial);
+  /**
+   * ONE services instance for this scope. `config.context` goes in here and
+   * nowhere else, so every request the collection issues resolves the same
+   * target client.
+   */
+  const service = createClientCustomFieldsServices(actorScope, config.context);
 
-  const meta = computed(() => ({
-    isLoading: query?.isLoading.value || !query.isFetched.value,
-    hasError: !isEmpty(query.error.value),
-    isEmpty: isEmpty(query.data?.value) || query.pagination.value.total == 0,
-    isAvailable: query.isFetched.value
-  }));
+  // Mint the list query ONCE per scope — a `service.loadList()` inside a
+  // layer factory mints a second query, with its own refs, key and effect
+  // scope.
+  const query = service.loadList({ pagination: { limit: 0 } });
 
-  const { findOne, getOne, getDefault } = useCollection<CustomField>(
-    query.data
+  /**
+   * The client-SIDE filter mapping (AC-8) — never touches the query's own
+   * `filters`/key, so applying it issues no new request. Minted once here so
+   * the actions layer's SETTER and the context layer's FILTERED `data` share
+   * the one ref.
+   */
+  const clientSideFilter = ref<Partial<CustomField>>({});
+
+  /**
+   * ONE actions instance per scope, not one per `useActions()` call: the
+   * collection's applied `filters` live in that factory. The stateless
+   * layers below stay lazy. Mirrors `useClientEmails`.
+   */
+  const actions = createClientCustomFieldsActions(
+    actorScope,
+    service,
+    query,
+    scopeKey,
+    clientSideFilter
   );
 
-  // --- readiness check
-  async function isReady(): Promise<boolean> {
-    return new Promise(resolve => {
-      const interval = setInterval(() => {
-        if (meta.value.isAvailable) {
-          clearInterval(interval);
-          resolve(!meta.value.hasError);
-        }
-      }, 100);
-    });
-  }
-
-  // --- filters
-
-  const filters = ref<
-    RequestFilters & {
-      query?: string;
-    }
-  >({
-    query: ""
-  });
-
-  const filterQuery = (value?: string) => {
-    set(filters.value, "query", value ?? "");
-    query.filter(filters.value);
-  };
-
-  // ---------------------------------------------------------------------------
-
   return {
-    // --- state
+    // --- Sub-composables (no direct props — clause 1 four-layer return)
+    /** Sub-composable for collection actions (readiness, refresh, filters). */
+    useActions: () => actions,
 
-    /**
-     * Resolves when the client items are ready to be used.
-     * Returns true if ready, false if an error occurred.
-     * @returns {Promise<boolean>} A promise resolving to true if ready, false if error.
-     */
-    isReady,
+    /** Sub-composable for collection context (reactive list + lookups). */
+    useContext: () =>
+      createClientCustomFieldsContext(
+        actorScope,
+        service,
+        query,
+        clientSideFilter
+      ),
 
-    /**
-     * Meta-information about the basket state.
-     * @typedef {Object} ClientPhoneMeta
-     * @property {boolean} isError - Indicates if there was an error during the query.
-     * @property {boolean} isEmpty - Indicates if the basket is empty.
-     * @property {boolean} isLoading - Indicates if the query is currently loading.
-     * @property {boolean} isAuthenticated - Indicates if the client is authenticated.
-     */
-    meta,
+    /** Sub-composable for advanced debugging and internal access. */
+    useInternals: () => createClientCustomFieldsInternals(actorScope, query),
 
-    // --- context
-
-    /**
-     * The reactive data property containing the list of client items.
-     * This is populated by the query and updates automatically when the query state changes.
-     */
-    data: computed(() => (isArray(query.data.value) ? query.data.value : [])),
-
-    /**
-     * The current error state of the query.
-     * This will be populated if the query fails to fetch data.
-     */
-    error: query.error,
-
-    /**
-     * Indicates if pagination is available
-     * If pagination is not set, it defaults to false.
-     * Otherwise, it returns the pagination object from the query parameters.
-     * @return {boolean|RequestPagination} The pagination object if available, otherwise false.
-     */
-    pagination: query.pagination,
-
-    /**
-     * The default item for the current client.
-     * This is the company that is set as default for the current client.
-     * @returns {CustomField} The default address if found, is otherwise undefined.
-     */
-    default: getDefault,
-
-    // --- methods
-
-    /**
-     * Get a single address by id.
-     * @param id The id of the address to get.
-     * @returns The address object if found, is otherwise undefined.
-     */
-    getOne,
-
-    /**
-     * Find a single address based on the given param. The param is matched against the title and description.
-     * @param mapping The filter to match against the address title and description.
-     * @returns The address object if found, is otherwise undefined.
-     */
-    findOne,
-
-    /**
-     * Refresh the query to get the latest data.
-     * This will refetch the data from the server and update the query state.
-     * @returns {void}
-     */
-    refresh: query.refetch,
-
-    /**
-     * Go to the next page of items.
-     * Increments the page number by 1 if pagination is enabled and the current offset is less than the total number of items.
-     * This will only work if the current offset is less than the total number of items.
-     * @param value The new pagination parameters to set.
-     * @return {void}
-     */
-    nextPage: query.fetchNextPage,
-
-    /**
-     * Go to the previous page of items.
-     * Decrements the page number by 1 if pagination is enabled and the current offset is greater than or equal to the limit.
-     * This will only work if the current offset is greater than or equal to the limit.
-     * @param value The new pagination parameters to set.
-     * @return {void}
-     */
-    prevPage: query.fetchPreviousPage,
-
-    /**
-     * Invalidate the query cache for client items.
-     * This will trigger a refetch of the items when the next query is made.
-     * @param {boolean} [exact=false] If true, only the exact query key will be invalidated.
-     * @return {void}
-     */
-    // invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
-
-    /**
-     * Filters for the query.
-     * These filters can be used to modify the query parameters before fetching the data.
-     * @type {RequestFilters & { query?: string }}
-     * @property query - The search query to filter the client phones by title or description.
-     */
-    filters: {
-      query: filterQuery
-    }
+    /** Sub-composable for collection meta (state flags). */
+    useMeta: () => createClientCustomFieldsMeta(actorScope, service, query)
   };
-};
-
+}
+// -----------------------------------------------------------------------------
 /**
- * The return type of the {@link UseClientCustomFields} composable function.
+ * @decision defer the `createScopedComposable` REGISTRATION call to first
+ * invocation, rather than performing it at module-evaluation time.
+ * what:    `useClientCustomFields` is a plain function with the SAME call
+ *          signature and return type `createScopedComposable(...)` itself
+ *          produces (`() => ScopeBuilder<T, TMatrix>`) — no barrel or
+ *          consumer changes. On first call it registers via
+ *          `createScopedComposable` and caches the returned builder-factory;
+ *          every call (first or not) then delegates to that cached factory.
+ * why:     `client-email`'s own composable (the R7 reference idiom) performs
+ *          this registration EAGERLY, at module top level. That is provably
+ *          fatal here: `useClientCustomFields.ts:2` imports `createScopedComposable`
+ *          from `../scope`, whose own dependency chain
+ *          (`scope.builder.ts:2` -> `scope.utils.ts:3` -> `session-store/index.ts:2`
+ *          -> `useActiveSession.ts:1` -> `useSession.actions.ts:2` ->
+ *          `system-localisation/index.ts` -> `useLocalisation.ts:3` ->
+ *          `useI18n.ts:2` -> `brand/index.ts:1` -> `useBrand.ts:10` ->
+ *          `query/index.ts:1` -> `useQuery.ts:10` -> `basket/index.ts:5` -> ... ->
+ *          `basket-billing/unified/schemas.ts:6` ->
+ *          `basket-fields/basket-fields.services.ts:3`
+ *          (`import { mapCustomField } from "../client-custom-fields"`))
+ *          reaches back into THIS module's own barrel while `../scope` is
+ *          still mid-evaluation. An eager top-level call re-enters `../scope`
+ *          before `scope.builder.ts` has hoisted `createScopedComposable`,
+ *          throwing `TypeError: createScopedComposable is not a function`.
+ *          Deferring the call to first USE (well after the whole module
+ *          graph has settled, since real consumers run during Vue `setup()`
+ *          or a test body — never during module evaluation) means nothing
+ *          ever dereferences `../scope` while it is still initialising; the
+ *          cycle stays in the import GRAPH but stops being fatal.
+ * rejected: reordering this file's own imports (services-chain before
+ *          `../scope`) — tried and reverted: it only changes WHICH module
+ *          wins the race to be the fresh entrant, and traded this module's
+ *          green for `client-email`'s (proven: `client-email.mappers.test.ts`
+ *          then crashed inside `useClientCustomFields.ts` instead). Editing
+ *          `scope.utils.ts`'s eager `session-store` import, or
+ *          `basket-fields.services.ts`'s eager `client-custom-fields` import
+ *          — both rejected: forbidden/shared core, outside this module's
+ *          contract, and not this repair's call to make unilaterally.
+ * @example
+ * ```ts
+ * const fields = useClientCustomFields().as('client')
+ * const { data } = fields.useContext()
+ * await fields.useActions().isReady()
+ * ```
  */
+let registeredUseClientCustomFields:
+  | (() => ScopeBuilder<
+      ReturnType<typeof createClientCustomFieldsForScope>,
+      ClientCustomFieldsScopeMatrix
+    >)
+  | undefined;
+
+export function useClientCustomFields(): ScopeBuilder<
+  ReturnType<typeof createClientCustomFieldsForScope>,
+  ClientCustomFieldsScopeMatrix
+> {
+  if (!registeredUseClientCustomFields) {
+    registeredUseClientCustomFields = createScopedComposable<
+      ReturnType<typeof createClientCustomFieldsForScope>,
+      ClientCustomFieldsScopeMatrix
+    >("client-custom-fields", createClientCustomFieldsForScope);
+  }
+  return registeredUseClientCustomFields();
+}
+
+// Type export for consumers
 export type UseClientCustomFields = ReturnType<typeof useClientCustomFields>;

@@ -294,3 +294,35 @@ feedback:
     state machine.
   referents:
     - { type: symbol, id: "@upmind-automation/headless!useFeedback" }
+
+custom-field:
+  term: custom field
+  kind: domain
+  definition: >-
+    A brand-configured question attached to clients — its definition (code,
+    type, required/visibility rules) is shared across every client on the
+    brand; only the value differs per client. Definitions and their value
+    semantics (per-type coercion, schema/form generation, the image-upload
+    flow for the IMAGE type) are read through the client custom fields
+    composables; a specific client's own values live on that client's
+    personal details.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useClientCustomFields" }
+    - { type: symbol, id: "@upmind-automation/headless!useClientCustomFieldImage" }
+    - { type: symbol, id: "@upmind-automation/headless!CustomField" }
+    - { type: symbol, id: "@upmind-automation/headless!CustomFieldModel" }
+
+personal-details:
+  term: personal details
+  kind: domain
+  aliases: [profile]
+  definition: >-
+    A client's own profile record — native fields (first name, last name,
+    public name, interface language) plus the client's own custom field
+    values — read and edited through a diff-only save. Distinct from the
+    custom field definitions and value semantics it consumes, which are owned
+    by the client custom fields composables.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!usePersonalDetails" }
+    - { type: symbol, id: "@upmind-automation/headless!usePersonalDetailsManager" }
+    - { type: symbol, id: "@upmind-automation/headless!ProfileModel" }

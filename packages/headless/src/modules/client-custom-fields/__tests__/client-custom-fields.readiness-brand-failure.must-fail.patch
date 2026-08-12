@@ -1,0 +1,10 @@
+--- a/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
++++ b/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
+@@ -293,6 +293,6 @@
+     // rejection instead of a permanently-disabled entry `isFetched` can never
+     // reach. A `!!brand.brandId.value` gate can never fetch AT ALL on that
+     // failure, which is what left `isReady()` unbounded.
+-    enabled: () => isAddressable(clientId.value) && brand.isSettled.value
++    enabled: () => isAddressable(clientId.value) && !!brand.brandId.value
+   });
+ }

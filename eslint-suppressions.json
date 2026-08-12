@@ -522,36 +522,6 @@
       "count": 1
     }
   },
-  "packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 2
-    }
-  },
-  "packages/headless/src/modules/client-personal-details/client-personal-details.schemas.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
-  "packages/headless/src/modules/client-personal-details/client-personal-details.services.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 4
-    }
-  },
-  "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 2
-    }
-  },
-  "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts": {
-    "no-async-promise-executor": {
-      "count": 1
-    }
-  },
-  "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 4
-    }
-  },
   "packages/headless/src/modules/client-phone/client-phone.services.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 3

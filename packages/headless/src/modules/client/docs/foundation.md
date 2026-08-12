@@ -108,7 +108,7 @@ type ProfileUpdateBody = {
   lastname?: string;
   public_name?: string;
   interface_language_id?: string;
-  custom_fields?: Array<{ field_id: string; value: unknown }>;
+  custom_fields?: Record<string, unknown>; // keyed by field CODE, not field_id
 };
 ```
 
@@ -1047,14 +1047,14 @@ flowchart TD
     B --> C["CustomField[] catalogue<br/>(definitions + visibility flags)"]
     C --> D["Client record (from /self or<br/>/clients/{id}) carries<br/>customer's values in custom_fields"]
     D --> E["Join catalogue × client.custom_fields<br/>by field_id; filter out<br/>client_readonly + user_only"]
-    E --> F["PUT /clients/{client_id}<br/>{ custom_fields:<br/>[{ field_id, value }, …] }"]
+    E --> F["PUT /clients/{client_id}<br/>{ custom_fields:<br/>{ field code: value, … } }"]
     F --> G([Client updated with new custom_fields])
 ```
 
 Guarantees the platform holds:
 
 - The catalogue is brand-scoped — the same brand returns the same catalogue for every client. Visibility flags (`show_on_order_form`, `show_on_invoice`, `client_readonly`, `user_only`) are stable per field.
-- Writing `custom_fields` on a profile PUT replaces the values for the supplied `field_id`s only; omitted fields retain their prior values.
+- Writing `custom_fields` on a profile PUT is an object keyed by field CODE; it replaces the values for the supplied codes only, and omitted fields retain their prior values.
 - The values are typed by the catalogue entry's `type` / `type_code`; the platform validates server-side and rejects values that don't match (e.g. a string for a `number` field).
 
 Constraints the caller has to plan around:

@@ -1,0 +1,16 @@
+--- a/packages/headless/src/modules/client-custom-fields/useClientCustomFields.actions.ts
++++ b/packages/headless/src/modules/client-custom-fields/useClientCustomFields.actions.ts
+@@ -99,6 +99,10 @@
+    */
+   async function isReady(): Promise<boolean> {
+-    if (!(await whenSessionSettles())) return false;
+-
+-    return whenListFetched();
++    return new Promise(resolve => {
++      setInterval(() => {
++        if (service.isAvailable.value) {
++          resolve(true);
++        }
++      }, 100);
++    });
+   }

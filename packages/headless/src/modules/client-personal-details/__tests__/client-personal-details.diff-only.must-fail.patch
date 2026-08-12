@@ -1,0 +1,9 @@
+--- a/packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts
++++ b/packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts
+@@ -158,5 +158,5 @@
+   );
+   if (customFields !== undefined) diff.custom_fields = customFields;
+ 
+-  return Object.keys(diff).length ? diff : undefined;
++  return { firstname: model.firstName, lastname: model.lastName, public_name: model.publicName, interface_language_id: model.language, document_language_id: model.language, custom_fields: model.customFields };
+ }
