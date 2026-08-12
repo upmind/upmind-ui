@@ -252,7 +252,8 @@ const {
   filteredOwned
 } = useDomain(props.modelValue ?? "", {
   type: undefined,
-  required: props.required
+  required: props.required,
+  tlds: props.tlds
 });
 
 const { meta: basketMeta } = useBasket();

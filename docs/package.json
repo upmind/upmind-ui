@@ -1,6 +1,6 @@
 {
   "name": "@upmind-automation/docs",
-  "version": "1.0.0",
+  "version": "0.20.12",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -18,5 +18,6 @@
     "typedoc-vitepress-theme": "^1.1.2",
     "vitepress": "^1.6.4",
     "vitepress-jsdoc": "^1.0.4"
-  }
+  },
+  "private": true
 }

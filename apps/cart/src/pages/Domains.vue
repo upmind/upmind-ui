@@ -1,10 +1,17 @@
 <template>
-  <UpmDac @resolve="doResolve" />
+  <UpmDac :tlds="tlds" @resolve="doResolve" />
 </template>
 
 <script lang="ts" setup>
+// --- external
+import { useRoute } from "vue-router";
+
 // --- components
-import { UpmDac, useRoutingEngine } from "@upmind-automation/client-vue";
+import {
+  UpmDac,
+  useQueryParams,
+  useRoutingEngine
+} from "@upmind-automation/client-vue";
 
 // --- internal
 
@@ -13,7 +20,9 @@ import { first } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
+const route = useRoute();
 const { navigateNext } = useRoutingEngine();
+const { tlds } = useQueryParams(route);
 
 function doResolve(value?: string[]) {
   const primaryDomain = first(value);

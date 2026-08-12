@@ -20,7 +20,12 @@ import {
 } from "../../utils";
 
 // --- types
-import { type DomainContext, type DomainProduct, DomainMode } from "./types";
+import {
+  type DomainContext,
+  type DacOptions,
+  type DomainProduct,
+  DomainMode
+} from "./types";
 import { PAGINATION } from "../query";
 
 // -----------------------------------------------------------------------------
@@ -32,9 +37,10 @@ import { PAGINATION } from "../query";
  * @param value - Initial domain(s) to use as the model.
  * @param options - required configuration for the domain type.
  * @param options.mode - The domain operation mode (register or transfer). Defaults to register.
+ * @param options.tlds - Restricts the search to these TLDs.
  * @returns Domain management API (state, computed, and methods)
  */
-export const useDac = (options?: { mode?: DomainMode; limit?: number }) => {
+export const useDac = (options?: DacOptions) => {
   const { t } = useI18n();
   const { getParam, getParams, setParam, unsetParam } = useQueryParams();
 
@@ -47,6 +53,7 @@ export const useDac = (options?: { mode?: DomainMode; limit?: number }) => {
       useSuggestions,
       preferredCycle: getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS),
       coupons: getParams(QUERY_PARAMS.COUPONS),
+      tlds: options?.tlds,
       // `setContext` + `setBasketHelper` overwrite these on entry, but
       // `withContext` requires the full `DacContext` shape — keeping the
       // placeholders explicit avoids an `as unknown as DacContext`.
