@@ -4,7 +4,7 @@
       <div v-if="!configMeta.hideImage" :class="styles.product.image.container">
         <Link
           v-if="navigate && !isUnavailable"
-          :to="productRoute"
+          :to="navigateRoute"
           :disabled="loading || disabled"
           @click="doResolve"
           :tabindex="images.length === 1 ? '0' : '-1'"
@@ -229,11 +229,14 @@ const canAddDirectly = computed(() => {
 const productRoute = computed(() =>
   merge({}, props.configureRoute, {
     params: { pid: props.id },
-    query: {
-      [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm.value,
-      autoupdate: "false"
-    }
+    query: { [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm.value }
   })
+);
+
+// Navigating only — an explicit false stops the brand's auto-update setting
+// adding the product behind a title/image click.
+const navigateRoute = computed(() =>
+  merge({}, productRoute.value, { query: { autoupdate: "false" } })
 );
 
 const actionRoute = computed(() => {
