@@ -8,6 +8,7 @@ import services from "./engine/services";
 // --- types
 import {
   assign,
+  QUERY_PARAMS,
   useBasketProducts,
   useQueryParams,
   type FunnelProps,
@@ -15,7 +16,7 @@ import {
 } from "@upmind-automation/client-vue";
 
 import { ROUTE } from "./types";
-import { isEmpty } from "lodash-es";
+import { isEmpty, join } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -89,7 +90,7 @@ export default <FunnelProps>{
     ...actions,
     setCompleteRoute: assign({
       targetRoute: ({ currentRoute }) => {
-        const { productId } = useQueryParams(currentRoute);
+        const { productId, tlds } = useQueryParams(currentRoute);
         const { products } = useBasketProducts();
         const domains = getDomainBasketProducts(products.value);
 
@@ -99,7 +100,13 @@ export default <FunnelProps>{
           ? ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING
           : ROUTE.DOMAINS_WITH_PRODUCT;
 
-        return { name: route, params: { pid: productId } };
+        return {
+          name: route,
+          params: { pid: productId },
+          ...(isEmpty(tlds)
+            ? {}
+            : { query: { [QUERY_PARAMS.TLDS]: join(tlds, ",") } })
+        };
       },
       resolved: false
     })

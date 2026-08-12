@@ -141,7 +141,10 @@ const styles = useStyles(
 const titleRoute = computed(() =>
   merge({}, props.configureRoute, {
     params: { pid: props.id },
-    query: { [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: props.selectedTerm }
+    query: {
+      [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: props.selectedTerm,
+      autoupdate: "false"
+    }
   })
 );
 

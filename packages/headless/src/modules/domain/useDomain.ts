@@ -41,7 +41,12 @@ import {
 import { calculateBillingTerm, parseTermDetails } from "../product/utils";
 
 // --- types
-import { DomainTypes, type DomainContext, type DomainProduct } from "./types";
+import {
+  DomainTypes,
+  type DomainContext,
+  type DomainOptions,
+  type DomainProduct
+} from "./types";
 import type { BasketProduct } from "../basketProduct/types";
 import { PAGINATION } from "../query";
 import type { IDomainAvailabilityResponse } from "@upmind-automation/types";
@@ -58,16 +63,12 @@ export type DomainChoice = { value: DomainTypes; label: string };
  * @param options - required configuration for the domain type.
  * @param options.type - The type of domain to manage (e.g., "dac", "existing", "basket").
  *                     If not provided, defaults to all available domain types.
+ * @param options.tlds - Restricts the DAC search to these TLDs.
  * @returns Domain management API (state, computed, and methods)
  */
 export const useDomain = (
   value: string,
-  options: {
-    type?: DomainTypes;
-    required?: boolean;
-  } = {
-    type: undefined
-  }
+  options: DomainOptions = { type: undefined }
 ) => {
   const { t } = useI18n();
   const { getParam, setParam, unsetParam } = useQueryParams();
@@ -93,6 +94,7 @@ export const useDomain = (
       model: parseDomain(value),
       preferredCycle: getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS),
       coupons: getParam(QUERY_PARAMS.COUPONS),
+      tlds: options?.tlds,
       useSuggestions,
       // `setContext` + `setBasketHelper` overwrite these on entry, but
       // `withContext` requires the full `DomainContext` shape — keeping

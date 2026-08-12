@@ -163,7 +163,7 @@ const {
   add,
   reset,
   stop
-} = useDac();
+} = useDac({ tlds: props.tlds });
 // } = useDac({ useSuggestions: false });
 
 const { count, summary, meta: basketMeta } = useBasket();
