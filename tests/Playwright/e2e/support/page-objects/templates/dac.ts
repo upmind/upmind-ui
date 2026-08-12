@@ -21,6 +21,8 @@ export class Dac {
   readonly descriptionLoadingSkeletons: Locator;
 
   /* Actions */
+  readonly searchInput: Locator;
+  readonly continueButton: Locator;
   readonly loadMoreButton: Locator;
   readonly cardAddToBasketButtons: Locator;
 
@@ -39,6 +41,8 @@ export class Dac {
 
     this.loadMoreButton = page.getByTestId("button-load-more");
     this.cardAddToBasketButtons = this.cards.getByTestId("domain-card-cta");
+    this.searchInput = page.locator("#domain-search");
+    this.continueButton = page.getByTestId("button-continue");
   }
 
   /** Locator for the nth card (0-indexed). */
@@ -188,6 +192,12 @@ export class Dac {
     await this.page.goto(
       `${URLs.domainSearch}?search=${encodeURIComponent(query)}`
     );
+  }
+
+  /** Type into the search field and submit, for flows that arrive without a `search` param. */
+  async searchFor(query: string) {
+    await this.searchInput.fill(query);
+    await this.searchInput.press("Enter");
   }
 
   /**
