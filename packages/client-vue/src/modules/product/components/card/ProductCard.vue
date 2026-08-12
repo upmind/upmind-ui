@@ -229,7 +229,10 @@ const canAddDirectly = computed(() => {
 const productRoute = computed(() =>
   merge({}, props.configureRoute, {
     params: { pid: props.id },
-    query: { [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm.value }
+    query: {
+      [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm.value,
+      autoupdate: "false"
+    }
   })
 );
 
