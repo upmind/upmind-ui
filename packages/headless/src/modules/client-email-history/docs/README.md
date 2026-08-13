@@ -1,0 +1,107 @@
+# client-email-history
+
+> A client's own record of every email the system has sent them — a browsable collection, and a full single read.
+
+## What Is This?
+
+Think of `client-email-history` as a client's sent-mail log: every email the platform has sent them, in one place.
+
+- Every entry was sent **to** the client — never something the client sent.
+- Each entry carries its own delivery outcome: sending, sent, bounced, or errored.
+- Opening one entry shows its full rendered body; the list itself only shows the summary fields.
+
+The module ships **two composables**, because browsing a list and reading one email in full are different jobs:
+
+| Surface              | Composable                | Use it when                                                              |
+| -------------------- | ------------------------- | ------------------------------------------------------------------------ |
+| **The collection**   | `useClientReceivedEmails` | You are showing the history list — search, sort, narrow by outcome, page |
+| **The single email** | `useClientReceivedEmail`  | You are showing one email's full content                                 |
+
+Both always read the **calling client's own** history. There is nothing here to compose, send, resend, or delete an email — this module only reads what has already been sent — and there is no capability here to open a different client's history.
+
+> **🧪 For Testers:** Both composables support the client's own (`self`) scope only. `staff` and `guest` are compile-time errors — the underlying platform endpoints have no client-targeted form for a staff member to be given in the first place.
+
+## Quick Start
+
+```ts
+import {
+  useClientReceivedEmails,
+  useClientReceivedEmail
+} from "@upmind-automation/headless";
+
+// The collection — browse, search, narrow by delivery outcome
+const history = useClientReceivedEmails().as("client");
+await history.useActions().isReady();
+const { data } = history.useContext();
+
+// The single email — open one in full, including its body
+const email = useClientReceivedEmail().as("client").for("email", emailId);
+await email.useActions().isReady();
+```
+
+## Features
+
+| Capability                            | Surface                                                  | What it does                                               |
+| ------------------------------------- | -------------------------------------------------------- | ---------------------------------------------------------- |
+| List my email history                 | `useClientReceivedEmails().useContext().data`            | Reactive list of emails sent to me                         |
+| Sort                                  | `…useActions().sort(property?, direction?)`              | Re-orders the list; no argument restores the default order |
+| Free-text / subject filter            | `…useActions().filters.query()` / `.subject()`           | Narrows the list; the two compose rather than clobber      |
+| Narrow by delivery outcome            | `…useActions().filters.status()`                         | The four tabs — all, sent, bounced, error                  |
+| Page                                  | `…useActions().nextPage()` / `.prevPage()`               | Moves through the list one page at a time                  |
+| Know whether the list is mine to read | `…useMeta().isAvailable`                                 | Authenticated **and** a client resolved                    |
+| Refresh / invalidate                  | `…useActions().refresh()` / `.invalidate()`              | Forces or schedules a re-read                              |
+| Open one email in full                | `useClientReceivedEmail().as('client').for('email', id)` | Reads that email's complete rendered body                  |
+| Know its delivery outcome             | `…useMeta().isBounced` / `.isError` / `.isSent`          | Named flags, mirrored on the collection's own rows         |
+
+## Key Concepts
+
+### Two surfaces, one identity seam
+
+The collection and the single read are separate composables, but they share one identity seam and one cache key. Whichever surface issues a request, it resolves the same target client — from the active session, never from a direct read of it inside either composable.
+
+> **🧪 For Testers:** With no authenticated client session, NEITHER surface fires a request. `useMeta().isAvailable` reads `false` on both, and any forced `refresh()` rejects rather than reaching the network.
+
+### The collection is always the client's own — and so is the single read
+
+`useClientReceivedEmails().as('client')` and `useClientReceivedEmail().as('client')` both resolve to the calling client's own history. There is no acting-on-behalf-of-another-client capability anywhere in this module, because the underlying platform endpoints have no client-targeted form at all.
+
+> **👩‍💻 For Developers:** Passing a different client's id into `.for('client', id)` on the collection does **not** retarget the read — see [gotchas.md](./gotchas.md#1-forclient-otherid-is-type-reachable-on-the-collection--and-does-nothing-youd-expect) before reaching for it.
+
+### Delivery outcome has a strict precedence
+
+An email carrying both an error and a bounce reports as **errored**, never as bounced. The order is error, then bounced, then sent, then sending — checked in that order, always.
+
+> **🧪 For Testers:** `useMeta().isError` / `.isBounced` / `.isSent` on the single read mirror the SAME status logic the collection's rows use — one mapper serves both, so the two can never disagree about the same email.
+
+### `isAvailable` has two limbs
+
+`useMeta().isAvailable` is `true` when the session is authenticated **and** the scope resolved a client id. Both limbs matter: a session that authenticates without resolving a client correctly reports `false`. It is the _same predicate_ every request gate in the module reads — not a second copy of it — so the flag you render and the guard the wire enforces cannot drift apart.
+
+> **🧪 For Testers:** Before sign-in, `isAvailable` is `false` while `isLoading` is still `true` — the pair distinguishes "not mine to read" from "not read yet."
+
+### The read-only module
+
+There is no `add`, `update`, `remove`, `send`, or `resend` anywhere in this module. Every action either reads, re-reads, narrows, sorts, pages, or releases an instance.
+
+> **🧪 For Testers:** Asserting a mutation-shaped action on either composable asserts `undefined`.
+
+### Errors are state — the module raises nothing
+
+No toast, no notification, no message is raised on your behalf. Every failure is captured where the consumer can read and render it: `useContext().error` / `useMeta().hasError` on both surfaces.
+
+> **👩‍💻 For Developers:** If your UI shows nothing after a failed read, the error was not lost — it is sitting in `useContext().error` waiting to be rendered.
+
+## Documentation
+
+| Doc                                  | Audience                                                    | Content                                                             |
+| ------------------------------------ | ----------------------------------------------------------- | ------------------------------------------------------------------- |
+| **This README**                      | Everyone                                                    | Overview, concepts, quick start                                     |
+| [usage.md](./usage.md)               | All devs                                                    | Full API reference for both composables                             |
+| [architecture.md](./architecture.md) | Internal / contributors                                     | Data flow, the shared identity seam, dependencies                   |
+| [gotchas.md](./gotchas.md)           | All                                                         | The sharp edges — the `.for()` hazard, outcome precedence, filters  |
+| [foundation.md](./foundation.md)     | Teams building against the Upmind back end on another stack | Framework-neutral platform spec: endpoints, payloads, failure modes |
+| [CHANGELOG.md](./CHANGELOG.md)       | All                                                         | Change history and porting notes                                    |
+
+## Playground
+
+None yet. Drive both composables through wherever a client's account area shows their email history.

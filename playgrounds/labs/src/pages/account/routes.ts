@@ -130,6 +130,33 @@ export default {
           }
         },
         {
+          path: "email-history-scoped",
+          name: "account.email-history.scoped",
+          component: () => import("./emailHistory/Scoped.vue"),
+          meta: {
+            nav: {
+              label: "Email History (scoped)",
+              icon: "mail-02",
+              section: "Portal",
+              order: 11
+            }
+          }
+        },
+        {
+          path: "email-history-scoped/:emailId",
+          name: "account.email-history.scoped.view",
+          component: () => import("./emailHistory/ScopedEmail.vue"),
+          meta: {
+            nav: {
+              label: "Email View (scoped)",
+              icon: "eye",
+              section: "Portal",
+              order: 11,
+              hidden: true
+            }
+          }
+        },
+        {
           path: "security",
           name: "account.security",
           component: () => import("./security/Security.vue"),

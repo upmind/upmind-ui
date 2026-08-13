@@ -1,0 +1,36 @@
+# client-email-history.sort-enum.must-fail.patch
+#
+# Targets: AC-20 (the way a consumer names a sort order is still offered;
+# removing it turns this red).
+# Authored by: developer seat (agent-seat-separation.companion.md — the seat
+# that knows the exact line it changed authors the mutant; the prover applies
+# it blind, confirms RED, then reverts — never reading src to construct it).
+#
+# Mutates: index.ts — removes `ReceivedEmailsSortableProperties` from the
+# named re-export list (Research R5 — 4 client-vue importers depend on it by
+# name), leaving the two scope-matrix exports and both context-type enums in
+# place.
+#
+# Expected RED: the public-surface test asserting every named export (parity
+# C16/M1) goes RED because `ReceivedEmailsSortableProperties` is no longer on
+# the barrel; `EmailHistorySort.vue`, `EmailHistory.vue`,
+# `EmailHistoryListing.vue` and `emailHistory/types.ts` fail to resolve the
+# import.
+#
+# Apply / verify / revert:
+#   git apply <this file>     # mutate
+#   pnpm test <AC-20 spec>    # must go RED
+#   git apply -R <this file>  # revert — must return to green
+#
+--- a/packages/headless/src/modules/client-email-history/index.ts
++++ b/packages/headless/src/modules/client-email-history/index.ts
+@@ -19,8 +19,7 @@
+   RECEIVED_EMAILS_SCOPE_MATRIX,
+   ReceivedEmailsContextTypes,
+   RECEIVED_EMAIL_SCOPE_MATRIX,
+-  ReceivedEmailContextTypes,
+-  ReceivedEmailsSortableProperties
++  ReceivedEmailContextTypes
+ } from "./client-email-history.types";
+ export type {
+   ReceivedEmailsScopeMatrix,

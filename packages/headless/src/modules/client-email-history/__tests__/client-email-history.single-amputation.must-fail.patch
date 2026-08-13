@@ -1,0 +1,32 @@
+# client-email-history.single-amputation.must-fail.patch
+#
+# Targets: AC-20 (the module offers both surfaces; removing the single-email
+# surface from the barrel turns this red).
+# Authored by: developer seat (agent-seat-separation.companion.md — the seat
+# that knows the exact line it changed authors the mutant; the prover applies
+# it blind, confirms RED, then reverts — never reading src to construct it).
+#
+# Mutates: index.ts — removes the `useClientReceivedEmail` /
+# `UseClientReceivedEmail` named re-exports (the single-read composable),
+# leaving the collection's exports untouched.
+#
+# Expected RED: the public-surface test asserting every named export (parity
+# M1/S9) goes RED because `useClientReceivedEmail` is no longer on the
+# barrel; `EmailOverview.vue`'s import of it fails to resolve.
+#
+# Apply / verify / revert:
+#   git apply <this file>     # mutate
+#   pnpm test <AC-20 spec>    # must go RED
+#   git apply -R <this file>  # revert — must return to green
+#
+--- a/packages/headless/src/modules/client-email-history/index.ts
++++ b/packages/headless/src/modules/client-email-history/index.ts
+@@ -11,8 +11,6 @@
+ // --- Composables
+ export { useClientReceivedEmails } from "./useClientReceivedEmails";
+ export type { UseClientReceivedEmails } from "./useClientReceivedEmails";
+-export { useClientReceivedEmail } from "./useClientReceivedEmail";
+-export type { UseClientReceivedEmail } from "./useClientReceivedEmail";
+
+ // --- Scope matrices — one per composable, both public
+ export {
