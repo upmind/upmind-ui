@@ -1,0 +1,1241 @@
+# client-phone — ADR-001 capability parity table (planned, 2026-08-08)
+#
+# ############################################################################
+# # OPEN: 12 DROPPED CAPABILITIES ARE TRACKED NOWHERE YET (blocker B1)       #
+# ############################################################################
+# The disposition `Dropped-with-Linear-issue` carries a contract in its name
+# (verify-parity-oracle.companion.md): a dropped capability is recorded WITH its
+# Linear issue reference. Twelve rows — R1, S1-S7, L1, L2, L3, L9 — carry
+# `linear: UNFILED` because the Linear MCP session was UNAUTHENTICATED when this
+# repair ran (2026-08-10). No issue ids were invented and none were created.
+#
+# THE PASTE-READY FILING LIST IS THE SIBLING FILE `DROPS-TO-FILE.md` — row id,
+# capability, oracle citation and a suggested issue title for each of the 12.
+#
+# B1 CANNOT BE CLOSED FROM THE PLANNING SEAT. It requires an authenticated
+# Linear session: the operator (or an authenticated run) files the 12 issues,
+# then replaces each row's `linear: UNFILED ...` with the issue identifier.
+# Until then this table's twelve drops are signed but untracked.
+# ############################################################################
+#
+# Oracle (verify-parity-oracle.companion.md — legacy application + recorded
+# acceptance), three sources, all consulted at the Research stage:
+#   1. the current headless module on this branch
+#      (packages/headless/src/modules/client-phone/ — 9 files, 1,195 LOC)
+#   2. the LEGACY vue-app client phone surface at /Users/dom/Documents/Upmind/vue-app
+#      — src/store/modules/data/clients/phones.ts,
+#        src/components/app/global/client/{clientPhonesComp,clientPhonesList,
+#        clientPhoneRow,addEditClientPhoneModal}.vue,
+#        src/components/app/global/fields/{clientPhoneSelect,phoneNumberField}.vue,
+#        src/components/app/global/baskets/basket/basketClientPhoneSelector.vue,
+#        src/views/{client/account,admin/clients/client}/profile/index.vue,
+#        src/data/status.ts:384 (PhoneTypes)
+#   3. recorded acceptance — NONE EXISTS for phone management. No e2e spec
+#      asserts it; the module ships zero colocated tests; the single in-repo
+#      test that touches it (basket-billing/unified/__tests__/unified.int.test.ts:50)
+#      MOCKS the whole module. This is why row X4 (fixture capture) is a
+#      first-class row rather than a task detail.
+# The new module's own tests are NOT the oracle and were not used as one.
+#
+# ADR-001 axis of variation: actor x context. This module has exactly ONE
+# resolving cell — client x self — by OPERATOR RULING 1 (2026-08-08). Both
+# scope matrices set SELF / STAFF / GUEST to `null as never`, so `.as('staff')`
+# is a compile-time error rather than an advertised-but-absent capability.
+#
+# THE ORACLE DOES EXPOSE STAFF CAPABILITY. Unlike client-email-history (whose
+# oracle had no client-targeted endpoint at all), legacy vue-app ships a
+# distinct admin endpoint family `api/admin/clients/{clientId}/phones`, four
+# staff capability gates, an acting-as-client impersonation branch and an admin
+# view mounted against an arbitrary client id. Every one of those is recorded
+# below as a `Dropped-with-Linear-issue` row (S1-S7) under the operator
+# sign-off of 2026-08-08 — the client-email R27-R33 shape. NONE is converted to
+# a "never existed" row: converting an oracle-demonstrated capability into
+# not-applicable is paperwork standing in for permission, which
+# verify-parity-oracle.md forbids.
+#
+# Dispositions used (declared vocabulary):
+#   Direct                              byte-for-byte unchanged
+#   Renamed                             behaviour carried; access path changed
+#                                       with the four-layer shape
+#   Absorbed-by                         capability survives inside another member
+#   Added-by-pattern                    new capability the reference conversion
+#                                       brings; not a parity obligation
+#   Fixed-with-decision                 oracle behaviour deliberately corrected;
+#                                       carries a design.md @decision block
+#   Dropped-with-Linear-issue           capability the oracle has and this
+#                                       delivery does not; operator-signed
+#   NOT-SUPPORTED-IN-LEGACY-with-reason no oracle capability to carry
+#   NOT-A-HEADLESS-CAPABILITY-with-reason  a consumer/presentation concern, not
+#                                       a headless capability
+#
+# UNDISPOSITIONED ROWS: 0. Every row below carries a `disposition:`.
+#
+# Convention: `Renamed` marks a capability whose behaviour is carried over but
+# whose consumer-facing access path changed with the four-layer shape
+# (`meta.value.isLoading` -> `useMeta().isLoading`, and so on). `Direct` is
+# reserved for what is byte-for-byte unchanged.
+#
+# STATUS: PLANNED, not as-built. `proof:` keys name the read-back each row OWES;
+# the prover fills the concrete spec/line at Test, and Verify grades the
+# delivered module against this table.
+
+module: client-phone
+story: client-phone (scoped-composable-factory conversion)
+oracle-kind: legacy-application-plus-recorded-acceptance
+adr: ADR-001
+variant: hybrid
+recorded: 2026-08-08
+status: planned
+bundle-path: docs/story-bundles/client-phone
+bundle-path-note: >-
+  docs/sdd is a dangling symlink to /Users/domdacosta/Dev/Upmind/agent-runner/docs/sdd
+  (another machine) and is unwritable here. Everything downstream that would
+  have read docs/sdd/client-phone/** reads this directory instead — including
+  the traceability test's second feature path. See design.md section 9.
+
+operator-rulings:
+  - id: ruling-1
+    date: 2026-08-08
+    tier: 1
+    summary: >-
+      cells = client x self stands. Every staff capability the legacy oracle
+      reveals is recorded here as a Dropped-with-Linear-issue row citing this
+      sign-off. Rows S1-S7.
+  - id: ruling-2
+    date: 2026-08-08
+    tier: 1
+    summary: >-
+      The advertised-but-absent `clientId` option on useClientPhoneManager is
+      REMOVED, not carried forward unwired. Row R1.
+  - id: ruling-3
+    date: 2026-08-08
+    tier: 1
+    summary: >-
+      Narrow lift of the do-not-modify constraint — the 14 importer call sites
+      may be updated ONLY to add the mandatory `.as(...)` (plus the four-layer
+      destructure that shape forces, and the `ensure` re-route the reference
+      already uses). Rows X1, X3.
+
+# --- Arms determination (variance law clauses 2 and 3) ----------------------
+# Five layers x two composables. ALL ARMLESS — derived, not asserted.
+#
+# DERIVATION. An arm earns its place only when an actor gets a member EXCLUSIVE
+# to it, or one OVERRIDING the shared factory with a genuine A-vs-A+B
+# divergence. Both tests are relational: they compare one actor's members
+# against another's. Under ruling 1 exactly ONE actor resolves in either matrix
+# (CLIENT); SELF is resolved by the scope builder before any factory runs
+# (clause 4), and STAFF / GUEST are `null as never`. With a single resolving
+# actor there is no second actor to be exclusive against and no shared-versus-
+# actor pair to override, so no member of any layer can satisfy either test.
+# Independently, scope-based/arm-in-matrix makes an arm for an undeclared actor
+# an orphan, and scope-based/no-cosplay-arm makes an arm with nothing exclusive
+# an empty scaffold.
+#
+# ROW-LEVEL CHECK: the rows that could have earned an arm are S1-S7 (the staff
+# endpoint family, the four capability gates, the acting-as-client branch, the
+# staff copy). Every one is a Dropped-with-Linear-issue row. A dropped
+# capability has no code path, and a layer cannot vary over behaviour that is
+# not implemented. Therefore: no layer is armed, and no row earns one.
+arms:
+  services:
+    armed: false
+    earned-by: []
+    reason: >-
+      One resolving actor (client) in both matrices; no per-actor member to
+      select. `scopedServices(scopeActor, scopeContext)` carries a `default:`
+      case only. `scopeActor` is accepted and unused, kept in the signature so a
+      future arm switches on it without a call-site change.
+  actions:
+    armed: false
+    earned-by: []
+    reason: >-
+      Every action is shared across the single cell, in both the collection and
+      the manager factory. The merge seam (a spread that lands LAST, never a
+      `.base.ts` file) is marked in-file in both.
+  context:
+    armed: false
+    earned-by: []
+    reason: One data shape per surface, actor-independent.
+  meta:
+    armed: false
+    earned-by: []
+    reason: >-
+      No per-actor capability read-state exists. Legacy's `$userCan(...)` gates
+      (S2-S5) and its actor-derived guidance copy (S7) are the only candidates;
+      all of them are staff-side and every staff row S1-S7 is dropped, so there
+      is no "can this actor do X" flag to vary. `meta` is nonetheless the layer
+      most likely to earn the FIRST arm if any staff cell is ever restored.
+  schemas:
+    armed: false
+    earned-by: []
+    reason: >-
+      One schema, built from the resolved country and nothing actor-derived.
+      No `client-phone.schemas.{actor}.ts` file exists.
+
+# ---------------------------------------------------------------------------
+# CAPABILITY CELLS
+# ---------------------------------------------------------------------------
+cells:
+
+  # === THE COLLECTION — useClientPhones ====================================
+
+  - id: C1
+    actor: client
+    context: self
+    capability: Read my own phone collection
+    oracle: useClientPhones().data — service.loadList, GET clients/{session.client.id}/phones
+    now: useClientPhones().as(CLIENT).useContext().data
+    disposition: Renamed
+    ac: AC-1
+    note: >-
+      Same URL, same base query key ["client","phones"], same select: mapPhones,
+      same staleTime: DAY, same retryDelay: DEBOUNCE_DELAY. Access path moved
+      behind the four-layer return; the resolved client id now travels as a ref
+      INSIDE the query key so a late-resolving id re-derives into a different
+      cache entry rather than poisoning the unaddressable one.
+    proof: >-
+      collection.int.test.ts AC-1 — assert the intercepted request URL carries
+      the session client id AND the client bearer token, then the mapped row ids
+      against the recorded fixture. Negative control: scope-derived-id.must-fail.patch.
+
+  - id: C2
+    actor: client
+    context: self
+    capability: See each phone's parsed number, display fields and status flags
+    oracle: mapPhone — id, title (international_phone), description (phone_country_code), parsed phone{number,nationalNumber,countryCallingCode,country}, type, meta{isDefault,canDelete,isVerified}
+    now: identical mapper, moved to client-phone.mappers.ts (@internal)
+    disposition: Renamed
+    ac: AC-2
+    note: >-
+      File renamed mapper.ts -> client-phone.mappers.ts for reference parity;
+      the mapping itself is byte-identical. `meta.canDelete` is the capability
+      behind legacy's non-deletable tooltip (see L5).
+    proof: >-
+      mappers.test.ts (unit) — one assertion per field against a recorded row;
+      collection.int.test.ts AC-2 asserts the three-row default/non-deletable/
+      unverified fixture's meta triples independently, not as a snapshot.
+
+  - id: C3
+    actor: client
+    context: self
+    capability: Know whether the list is loading, empty or errored
+    oracle: meta computed — isLoading, isEmpty, hasError
+    now: useMeta().isLoading / .isEmpty / .hasError — one flat computed per flag
+    disposition: Renamed
+    ac: AC-3
+    note: >-
+      The single `meta` object is gone; consumers read useMeta().isLoading where
+      they read meta.value.isLoading. `hasError` becomes truthiness rather than
+      isEmpty(), because a TanStack error is an Error instance with no own
+      enumerable keys, which isEmpty reports as empty.
+    proof: collection.int.test.ts AC-3 — each flag asserted at the transition that owns it.
+
+  - id: C4
+    actor: client
+    context: self
+    capability: Know whether the collection is addressable at all
+    oracle: meta.isAvailable — isAuthenticated.value
+    now: useMeta().isAvailable — handed straight through from service.isAvailable
+    disposition: Fixed-with-decision
+    ac: AC-3, AC-15
+    decision: design.md D-2
+    note: >-
+      The oracle's flag reads isAuthenticated ALONE while its list query's
+      `enabled` reads isAuthenticated && !!client.id — the rendered flag and the
+      enforced gate disagree. The conversion makes them the SAME function:
+      isAddressable(clientId) is the module's one predicate, exposed reactively
+      as service.isAvailable, and meta reads it rather than re-deriving it.
+    proof: >-
+      guard.int.test.ts AC-15 — an authenticated session with no resolved client
+      reads isAvailable false and fires zero requests. Negative control:
+      client-id-limb.must-fail.patch.
+
+  - id: C5
+    actor: client
+    context: self
+    capability: Wait for the collection to be ready
+    oracle: isReady() — polls query.isFetched on a 100ms setInterval, else ensureAuth().then(refetch)
+    now: useActions().isReady() — awaits the settled addressability outcome, then the first fetch
+    disposition: Fixed-with-decision
+    ac: AC-4
+    decision: design.md D-2 (same predicate-unification decision)
+    note: >-
+      The oracle's setInterval poll never clears on the unauthenticated path and
+      its ensureAuth() branch resolves only on INITIALISED, so a failed session
+      boot leaves it pending forever. The reference's addressableOutcome() /
+      whenSessionSettles() pair resolves false on both terminal outcomes. Same
+      capability, no hang.
+    proof: >-
+      collection.int.test.ts AC-4 — a guest-floor session resolves isReady() to
+      false within the spec timeout with zero requests recorded.
+
+  - id: C6
+    actor: client
+    context: self
+    capability: Read the default phone
+    oracle: default — useCollection().getDefault, matches meta.isDefault
+    now: useContext().default
+    disposition: Renamed
+    ac: AC-5
+    proof: collection.int.test.ts AC-5 — default()?.id against a fixture whose SECOND row is the default; undefined against an all-non-default fixture.
+
+  - id: C7
+    actor: client
+    context: self
+    capability: Look a phone up by id
+    oracle: getOne(id) — useCollection
+    now: useContext().getOne
+    disposition: Renamed
+    ac: AC-6
+    proof: collection.int.test.ts AC-6 — hit and miss, with zero outbound requests.
+
+  - id: C8
+    actor: client
+    context: self
+    capability: Find a phone by partial mapping
+    oracle: findOne(mapping) — useCollection; the seam `ensure` matches on
+    now: useContext().findOne
+    disposition: Renamed
+    ac: AC-6
+    proof: collection.int.test.ts AC-6 — findOne({phone:{number}}) resolves the row by parsed number.
+
+  - id: C9
+    actor: client
+    context: self
+    capability: Delete a phone
+    oracle: remove(id) — DELETE clients/{id}/phones/{phoneId}, feedback error.client_phone_delete_failed / confirm.phone_removed, invalidate non-exact
+    now: useActions().remove(id)
+    disposition: Renamed
+    ac: AC-7, AC-9
+    note: >-
+      Feedback behaviour is preserved EXACTLY as the oracle has it — this is the
+      one place client-phone's oracle raises feedback from a row mutation and
+      dropping it would be a silent capability loss. Note the divergence from
+      the client-email reference, which raises none; client-phone's oracle does,
+      so client-phone keeps it. The mutation error is ALSO captured into
+      useContext().error as state (C10).
+    proof: >-
+      mutations.int.test.ts AC-7 — one DELETE to the session-client URL on the
+      client token; success feedback carries confirm.phone_removed; cache key
+      invalidated non-exact. Negative control: feedback.must-fail.patch.
+
+  - id: C10
+    actor: client
+    context: self
+    capability: Surface a failed row mutation as readable state
+    oracle: none — the oracle raises feedback and discards the error
+    now: useContext().error — the scope's captured failure, read never raised; useMeta().hasError
+    disposition: Added-by-pattern
+    ac: AC-9
+    note: >-
+      ERRORS ARE STATE, NOT EVENTS (the reference's rule). This ADDS a read
+      surface; it does not remove the oracle's feedback (C9, C11), which still
+      fires. No parity obligation — recorded so Verify does not read it as scope creep.
+    proof: mutations.int.test.ts AC-9 — on a recorded 422, error.value is populated AND the error feedback fires. Both, not one.
+
+  - id: C11
+    actor: client
+    context: self
+    capability: Promote a phone to default
+    oracle: setDefault(id) — PUT clients/{id}/phones/{phoneId} body {default:true}, feedback error.client_phone_set_default_failed / confirm.phone_set_default, invalidate
+    now: useActions().setDefault(id)
+    disposition: Renamed
+    ac: AC-8
+    note: The request body is the capability. A PUT with any other body is a different operation.
+    proof: >-
+      mutations.int.test.ts AC-8 — the PUT body is asserted to be exactly
+      {default:true}. Negative control: default-body.must-fail.patch.
+
+  - id: C12
+    actor: client
+    context: self
+    capability: Re-read the list from the server
+    oracle: refresh — query.refetch, bare
+    now: useActions().refresh() — rejects with NotAuthenticatedError when unaddressable
+    disposition: Fixed-with-decision
+    ac: AC-10
+    decision: design.md D-2
+    note: >-
+      TanStack's refetch() resolves with the error on the result rather than
+      rejecting, so the oracle's bare refetch silently reports success over an
+      empty list on an unaddressable scope. Wrapped per the reference so a forced
+      read can reject at all.
+    proof: collection.int.test.ts AC-10 — rejects and fires zero requests when unaddressable; exactly one GET when addressable.
+
+  - id: C13
+    actor: client
+    context: self
+    capability: Mark the cached collection stale
+    oracle: invalidate — invalidateQueryByKey(service.queryKey, {exact:false})
+    now: useActions().invalidate — same key, same exactness
+    disposition: Renamed
+    ac: AC-10
+    proof: module.int.test.ts AC-10 — a manager save and a bare invalidate() both trigger exactly one collection refetch.
+
+  - id: C14
+    actor: client
+    context: self
+    capability: Page through the collection
+    oracle: nextPage / prevPage (query.fetchNextPage / fetchPreviousPage) + pagination descriptor
+    now: >-
+      NOT on the public actions surface. `useClientPhones.ts:41` opens the list
+      with `service.loadList({ pagination: { limit: 0 } })` — an UNPAGINATED read
+      (`limit=0&offset=0`) that returns the client's ENTIRE phone collection in
+      one request, so a consumer of `useContext().data` never needs a second page.
+      Page-walking survives one layer down, at the services layer:
+      `createClientPhoneServices(CLIENT).loadList({ pagination: { limit: n } })`
+      returns a genuinely paged query with working `fetchNextPage` /
+      `fetchPreviousPage` and a live `pagination` descriptor.
+      `useContext().pagination` is carried through and populated.
+    disposition: Absorbed-by
+    absorbed-by: C1
+    ac: AC-11
+    defect: >-
+      `useActions()` STILL ADVERTISES `nextPage` and `prevPage`
+      (useClientPhones.actions.ts:154,157 — bound to the `limit: 0` query's
+      `fetchNextPage` / `fetchPreviousPage`). Because that query is unpaginated,
+      both members ALWAYS THROW `text.page_next_not_available`; they can never
+      succeed through the public surface. Advertised-but-absent, recorded here
+      rather than left implicit. NO user-facing capability is lost — the consumer
+      already holds every row — but two public members are unreachable.
+    proof: >-
+      collection.int.test.ts AC-11 (:340-367) — two recorded page fixtures; the
+      first GET carries limit=2&offset=0, `fetchNextPage()` produces
+      limit=2&offset=2, and pagination.value.total matches the recorded envelope
+      total. NOTE: this proof exercises the SERVICES layer
+      (`createClientPhoneServices(ScopeActorTypes.CLIENT).loadList(...)` and the
+      raw query's `fetchNextPage`); it never touches `useClientPhones()`,
+      `.as(...)` or `useActions()`. That is honest for THIS row as now worded —
+      the services layer is where paging lives — but the row's proof does NOT and
+      cannot cover the two public members, which have no passing read-back.
+    note: >-
+      RE-DISPOSITIONED at plan repair (2026-08-10, reviewer finding W4). Formerly
+      `Renamed` claiming `useActions().nextPage / .prevPage`; execution showed
+      that claim false. `Absorbed-by: C1` because the capability the oracle
+      delivers — the consumer can see all of their phone numbers — is delivered
+      whole by C1's single unpaginated read, not because paging was reproduced.
+      NOT a client-phone regression: the merged, accepted client-email reference
+      does the identical thing (`loadList({pagination:{limit:0}})` with
+      `nextPage: query.fetchNextPage`), so this is a property of the RATIFIED
+      conversion pattern. That is why the reviewer graded it amber, not red.
+    follow-up: >-
+      AGAINST THE REFERENCE PATTERN, NOT THIS MODULE. R1 and C14 are the same
+      defect class — a member the public surface advertises and cannot deliver
+      (R1's own note names it "the FE-2824 archetype in miniature") — and they
+      are resolved OPPOSITE ways: operator ruling 2 REMOVED R1's `clientId` limb,
+      while C14 keeps two always-throwing members because the ratified reference
+      keeps them. Recorded, not resolved: ruling 2 is not re-litigated here and no
+      code changed. The consistent resolutions are either (a) drop `nextPage` /
+      `prevPage` from the public actions layer of every module built on this
+      pattern, or (b) let the collection accept a pagination argument so they can
+      work. Both are pattern-level decisions the operator owns.
+
+  - id: C15
+    actor: client
+    context: self
+    capability: Filter the collection by free text
+    oracle: filters.query(value) — set(filters,'query',value) then query.filter(filters)
+    now: useActions().filters.query(value)
+    disposition: Renamed
+    ac: AC-12
+    note: >-
+      The oracle initialises filters to { query: "" } and defaults an absent
+      value to ""; the reference initialises to {} and passes value through.
+      Behaviour is equivalent for every live consumer (none reads the initial
+      filter object); the reference shape is taken.
+    proof: collection.int.test.ts AC-12 — the second GET carries the filter in its query string; the pre-filter request is not re-fired.
+
+  - id: C16
+    actor: client
+    context: self
+    capability: Destroy the scoped collection instance
+    oracle: none — the pre-scope composable has no registry to leave
+    now: useActions().destroy() — removes the registry entry
+    disposition: Added-by-pattern
+    ac: AC-14
+    note: >-
+      Required by the scoped architecture, not by parity. Without it a scoped
+      collection holds a live TanStack observer at staleTime: DAY past its
+      consumer's unmount — the leak client-email-history's W-B repair round
+      recorded. Recorded here so a consumer knows to call it.
+    proof: collection.int.test.ts AC-14 — registry size decreases by one; the post-destroy handle is not reference-equal to the pre-destroy one.
+
+  # === THE MANAGER — useClientPhoneManager =================================
+
+  - id: M1
+    actor: client
+    context: self
+    capability: The per-phone form editor exists at all
+    oracle: useClientPhoneManager — dataManagerMachine-backed, exported from the barrel
+    now: useClientPhoneManager().as(CLIENT).for(PHONE, id) / .fresh()
+    disposition: Renamed
+    ac: AC-16, AC-17
+    note: >-
+      THE AMPUTATION ROW. On 2026-08-05 a client-email run took variant=query
+      against an oracle that shipped a manager and deleted the whole half with
+      every gate green. client-phone ships BOTH halves and both are consumed as
+      a pair by five live call sites. This row is why variant=hybrid.
+    proof: >-
+      surface.test.ts AC-16 — the barrel's runtime value exports are enumerated
+      against an explicit allow-list that names useClientPhoneManager. Negative
+      control: manager-amputation.must-fail.patch MUST land red.
+
+  - id: M2
+    actor: client
+    context: self
+    capability: Resolve the country and seed the form's base model before it is usable
+    oracle: loadLookups — useSystem().isReady/ensureCountries/getCountry, rejects error.system_not_available / error.countries_load_failed, seeds baseModel.phone.country
+    now: the machine's loadLookups service, threaded the scoped services instance
+    disposition: Renamed
+    ac: AC-18
+    note: >-
+      Also absorbs legacy's brand-country default (L8): the capability is "the
+      form opens on a sensible dial country"; the SOURCE moves from brand.country_id
+      to useSystem().getCountry.
+    proof: manager.int.test.ts AC-18 — on a recorded countries fixture, a fresh draft's model.phone.country equals the resolved code and isDirty reads false before a keystroke.
+
+  - id: M3
+    actor: client
+    context: self
+    capability: Read the form's JSON schema and UI schema
+    oracle: schema / uischema from machine context; ALSO exported bare from the barrel as usePhoneSchema / usePhoneUischema
+    now: useContext().schema / .uischema — machine context only; the bare pair leaves the barrel
+    disposition: Renamed
+    ac: AC-19
+    decision: design.md D-4
+    note: >-
+      The schema itself is unchanged, including required ["number","nationalNumber",
+      "countryCallingCode","country"] and the custom AJV keyword phone_country_code.
+      What changes is the ACCESS PATH: a form rendered from a schema the machine
+      has not adopted validates against a different contract than the one that
+      saves. The one consumer of the bare pair is handled in X2.
+    proof: >-
+      schemas.test.ts (unit) — required array and the phone_country_code keyword;
+      surface.test.ts AC-19 — the bare pair is absent from the barrel.
+
+  - id: M4
+    actor: client
+    context: self
+    capability: Parse typed input into the four-part phone model
+    oracle: parse — libphonenumber-js, fallback chain (parsed -> prior model value -> event country -> context country), re-resolves country via useSystem().getCountry on change
+    now: the machine's parse service — same chain, same re-resolution
+    disposition: Direct
+    ac: AC-20
+    note: >-
+      The fallback chain is the capability and it is subtle. Each `||` arm exists
+      because a partially-parseable number must not lose the component the
+      previous parse established.
+    proof: >-
+      manager.int.test.ts AC-20 — a bare national number under a GB context
+      yields +44... and countryCallingCode 44; a number whose country differs
+      re-resolves country. Negative control: parse-fallback.must-fail.patch.
+
+  - id: M5
+    actor: client
+    context: self
+    capability: Validate the model and report field-level errors
+    oracle: validate — useValidation().validate(schema,model), rejects DetailedError(error.client_phone_validation_failed, 422) carrying ErrorObject[]
+    now: the machine's validate service; errors read at useContext().validationErrors
+    disposition: Renamed
+    ac: AC-21
+    proof: manager.int.test.ts AC-21 — an unparseable number yields a non-empty validationErrors array whose first entry's instancePath names the phone subtree, and zero outbound requests.
+
+  - id: M6
+    actor: client
+    context: self
+    capability: Input a model (debounced)
+    oracle: input — debounce(input, DEBOUNCE_DELAY), waits for available.valid/invalid, rejects error.input_not_available
+    now: useActions().input — one debouncer per SCOPE, not per useActions() call
+    disposition: Renamed
+    ac: AC-20
+    note: >-
+      The per-scope actions instance is load-bearing: a debouncer minted per call
+      gives two keystrokes two independent timers and leaves update()'s pre-save
+      flush with nothing to flush.
+    proof: manager.int.test.ts AC-20 — two useActions() handles from the same scope share one debouncer (the second call cancels the first's pending parse).
+
+  - id: M7
+    actor: client
+    context: self
+    capability: Save a NEW phone
+    oracle: the machine's `add` service -> service.ensure -> POST clients/{id}/phones body mapIPhone(model)
+    now: identical, through the scoped services instance
+    disposition: Renamed
+    ac: AC-22
+    note: >-
+      Wired to find-or-create, so saving a number the collection already holds
+      resolves the existing record instead of creating a duplicate.
+    proof: mutations.int.test.ts AC-22 — exactly one POST whose body is literally {phone:<nationalNumber>, phone_code:"+<cc>", phone_country_code:"<ISO2>"} on the client token.
+
+  - id: M8
+    actor: client
+    context: self
+    capability: Save an EDIT to an existing phone
+    oracle: the machine's `update` service -> PUT clients/{id}/phones/{phoneId} body mapIPhone(model); update() flushes the pending debounce first
+    now: identical, through the scoped services instance
+    disposition: Renamed
+    ac: AC-23
+    note: >-
+      The debounce flush is a real fix already present in the oracle (commit
+      "flush any typed input still pending before saving") — carried forward
+      verbatim, not re-derived.
+    proof: manager.int.test.ts AC-23 — type via input(), call update() inside the debounce window; the single PUT body carries the TYPED value.
+
+  - id: M9
+    actor: client
+    context: self
+    capability: A settled save refreshes the collection
+    oracle: update().then(() => useClientPhoneServices().refresh())
+    now: service.refresh() on the SCOPED instance — invalidates the shared cache key
+    disposition: Fixed-with-decision
+    ac: AC-24
+    decision: design.md section 5
+    note: >-
+      The oracle mints a FRESH services instance to refresh, which under the
+      scoped architecture would drop the scope's resolved client. The reference's
+      rule — never mint a fresh instance here — is taken. Same capability, correct
+      identity.
+    proof: module.int.test.ts AC-24 — a collection handle open across the save re-fetches exactly once and its data reflects the saved record.
+
+  - id: M10
+    actor: client
+    context: self
+    capability: Report the editor's own progress
+    oracle: meta object — isAvailable, isLoading, hasErrors, isValid, isNew, isDirty, isProcessing, isComplete
+    now: useMeta() — the same eight flags, each a flat computed
+    disposition: Renamed
+    ac: AC-25
+    note: >-
+      One correction carried from the reference: the oracle computes isNew as
+      `!stateMatches(state,"model.id")` — a stateMatches call against a CONTEXT
+      path, which can only ever return false, so isNew is permanently false
+      today. The reference reads the context id the machine's own isNew guard
+      reads. Recorded as part of this row rather than a separate bug row because
+      the flag's INTENT is unambiguous and no consumer can depend on a constant.
+    proof: manager.int.test.ts AC-25 — isNew true for .fresh(), false for .for(PHONE, id); isDirty false on open, true after input, false after clear().
+
+  - id: M11
+    actor: client
+    context: self
+    capability: Read the model, ids, display strings and captured errors
+    oracle: context, title, description, id, errors, validationErrors, model
+    now: useContext() — the same members, every one through the useContext state utility
+    disposition: Renamed
+    ac: AC-26
+    note: title = model.phone.number; description = the resolved country name. Both from the machine's setMeta action, unchanged.
+    proof: manager.int.test.ts AC-26 — title and description asserted after a parse settles.
+
+  - id: M12
+    actor: client
+    context: self
+    capability: Clear and stop the editor
+    oracle: clear() (CLEAR event), stop() (stopService)
+    now: useActions().clear() / .stop()
+    disposition: Renamed
+    ac: AC-27
+    proof: manager.int.test.ts AC-27 — clear() returns the model to the base model byte-for-byte.
+
+  - id: M13
+    actor: client
+    context: self
+    capability: Destroy the scoped manager instance; await save completion
+    oracle: none
+    now: useActions().destroy() (stops the machine AND deregisters) and .onDone()
+    disposition: Added-by-pattern
+    ac: AC-27
+    note: >-
+      destroy() is the scoped-architecture requirement (cf. C16); the manager's
+      does both halves where the collection's only deregisters, because a query
+      has no service to stop. onDone() is the reference's completion await.
+    proof: manager.int.test.ts AC-27 — destroy() stops the interpreter and removes the registry entry.
+
+  - id: M14
+    actor: client
+    context: self
+    capability: Hold the form until an addressable client exists
+    oracle: the hasSubscription guard (!!clientId) plus an ensureAuth().then(send REFRESH) top-up
+    now: the same guard, with the top-up watching service.clientId — the ONE identity seam
+    disposition: Renamed
+    ac: AC-28
+    note: >-
+      refreshContext keeps `clientId ||` so a later session-derived REFRESH can
+      never clobber a scope-resolved value. The oracle already has this; it is
+      carried, not invented.
+    proof: manager.int.test.ts AC-28 — constructed before /self lands, the machine sits in `subscribing` with zero outbound requests, then advances.
+
+  - id: M15
+    actor: client
+    context: self
+    capability: Edit two phones, or hold two drafts, concurrently
+    oracle: allowMultipleEdits option; interpreter id defaults to `id ?? "new-phone"`
+    now: one interpreter per scope key; .fresh() mints a unique key per call; allowMultipleEdits is set true unconditionally for scoped instances
+    disposition: Renamed
+    ac: AC-17
+    note: >-
+      The oracle's shared "new-phone" interpreter id means two concurrent drafts
+      COLLIDE on one machine. Keying on the scope key is what makes them two
+      instances. The option itself disappears from the public signature because a
+      scoped instance is always a persistent editor.
+    proof: manager.int.test.ts AC-17 — two .fresh() handles hold different scope keys; typing into one leaves the other's model untouched.
+
+  # === WIRE, MODEL AND DECISIONS ===========================================
+
+  - id: W1
+    actor: client
+    context: self
+    capability: The read mapping IPhone -> Phone
+    oracle: mapPhone / mapPhones — libphonenumber-js parse of (raw.phone, raw.phone_country_code)
+    now: identical, in client-phone.mappers.ts
+    disposition: Renamed
+    ac: AC-2
+    proof: mappers.test.ts — field-by-field against a recorded row.
+
+  - id: W2
+    actor: client
+    context: self
+    capability: The write mapping PhoneModel -> IPhone
+    oracle: >-
+      mapIPhone — {phone: nationalNumber, phone_code: "+"+countryCallingCode, phone_country_code: country}
+    now: identical
+    disposition: Direct
+    ac: AC-22
+    note: >-
+      The national number goes out WITHOUT the country code and the dial code
+      goes out WITH a leading "+". Both are the API's contract, not a formatting
+      choice.
+    proof: mappers.test.ts + mutations.int.test.ts AC-22 (the POST body is asserted literally).
+
+  - id: W3
+    actor: client
+    context: self
+    capability: The shared cache key
+    oracle: >-
+      ["client","phones"], partitioned by {client: id} on the list query
+    now: unchanged, with the client id carried as a REF inside the key
+    disposition: Renamed
+    ac: AC-1, AC-24
+    note: Keeping the key means an in-flight consumer's cache is not orphaned by the conversion.
+    proof: module.int.test.ts — a manager save invalidates the key the collection reads.
+
+  - id: W4
+    actor: client
+    context: self
+    capability: The phone `type` field (1 mobile / 2 home / 3 office / 4 personal)
+    oracle: LEGACY makes it a REQUIRED select on the add/edit form and sends it on create and update. CURRENT HEADLESS exposes it read-only (Phone.type) and sends none.
+    now: read-only — Phone.type stays exposed; mapIPhone still emits none; the schema gains no control
+    disposition: Fixed-with-decision
+    ac: AC-2
+    decision: design.md D-1
+    note: >-
+      THE ONE PLACE "parity with legacy" AND "parity with current headless"
+      DIRECTLY CONFLICT, and the JTBD names both. Ruled explicitly rather than
+      silently picked. Adding a required `type` would fail every live consumer's
+      save on day one (none has a UI to collect it) — a capability regression
+      dressed as parity. Legacy's REQUIRED SELECT is separately recorded as the
+      drop it is, in L1.
+    proof: mappers.test.ts asserts Phone.type is mapped from IPhone.type AND that mapIPhone's output has no `type` key.
+
+  - id: W5
+    actor: client
+    context: self
+    capability: The unauthenticated-request guard on remove / setDefault
+    oracle: >-
+      `if (isAuthenticated.value || !client.value?.id) resolve(true)` — an OR where every other guard in the same file uses AND
+    now: the module's ONE addressability predicate — isAuthenticated && !!clientId
+    disposition: Fixed-with-decision
+    ac: AC-15
+    decision: design.md D-2
+    note: >-
+      A latent bug, fixed with a recorded decision rather than reproduced or
+      silently cleaned. It enables no capability — it removes a safety check, and
+      the request it lets through targets clients/undefined/phones. Reproducing
+      it would require a read-back asserting that an unauthenticated delete
+      reaches the wire, which no reviewer could sign.
+    proof: >-
+      guard.int.test.ts AC-15 — zero requests recorded with no session. Negative control: client-id-limb.must-fail.patch.
+
+  - id: W6
+    actor: client
+    context: self
+    capability: Feedback on row mutations
+    oracle: remove -> confirm.phone_removed / error.client_phone_delete_failed; setDefault -> confirm.phone_set_default / error.client_phone_set_default_failed
+    now: identical
+    disposition: Direct
+    ac: AC-7, AC-8, AC-9
+    note: >-
+      DELIBERATE DIVERGENCE FROM THE REFERENCE. client-email raises no feedback
+      from any layer; client-phone's oracle DOES, on exactly these two mutations,
+      and dropping it to match the reference would be a silent capability loss.
+      The oracle wins over the pattern here. The manager half raises none, which
+      matches both the oracle and the reference.
+    proof: >-
+      mutations.int.test.ts AC-7/AC-8. Negative control: feedback.must-fail.patch.
+
+  # === CROSS-MODULE SURFACE AND RULINGS ====================================
+
+  - id: X1
+    actor: client
+    context: self
+    capability: Cross-module find-or-create (`ensure`)
+    oracle: useClientPhoneServices().ensure — exported from the barrel; consumed by client-company.services.ts:306 and basket-billing/unified/services.ts:143
+    now: useClientPhones().as(SELF).useActions().ensure — client-phone.services.ts becomes @internal
+    disposition: Renamed
+    ac: AC-13, AC-33
+    decision: design.md D-3
+    ruling: ruling-3
+    note: >-
+      RESOLVES the Research stage's jtbd_risk #7 without widening the lift. The
+      reference already routes this need this way in the SAME two files
+      (client-company.services.ts:303-305 and unified/services.ts:48-50 both take
+      the email `ensure` off useClientEmails().as(SELF).useActions()), and
+      useClientEmailServices is exported from no barrel. The importer edit is
+      therefore: add .as(SELF); move isReady to .useActions() and default/data to
+      .useContext() (forced by the four-layer return, not a behaviour change);
+      re-route ensure — the one substantive line, and the line ruling 3 names.
+    proof: >-
+      collection.int.test.ts AC-13 — ensure fires no POST when a row matches, one
+      POST when none does. surface.test.ts AC-29 — useClientPhoneServices is
+      absent from the barrel. Workspace `pnpm type-check` is the importer proof.
+
+  - id: X2
+    actor: client
+    context: self
+    capability: Compose the phone schema into the unified billing schema
+    oracle: usePhoneSchema({country}) / usePhoneUischema() imported bare from the barrel by basket-billing/unified/schemas.ts:76,129
+    now: imported by deep internal path with an @internal acknowledgement comment; the barrel exports neither
+    disposition: Renamed
+    ac: AC-19, AC-33
+    decision: design.md D-4
+    note: >-
+      THE ONE ROW CARRYING A REAL ESCALATION RISK. unified/schemas.ts composes
+      the phone schema into a LARGER schema at module scope, where no manager
+      instance exists to read it from machine context — so the reference's
+      "schema reaches consumers through useContext()" route does not fit this
+      consumer. Keeping the barrel export would re-open the hazard the reference
+      closed. The deep-path import adds no public surface and is one line. IF THE
+      LINT RULES REJECT THE DEEP PATH TOO, STOP AND ESCALATE — do not re-export
+      the pair. Tracked as tasks.md T-6.
+    proof: surface.test.ts AC-19 — neither usePhoneSchema nor usePhoneUischema appears in the barrel's runtime exports. Workspace type-check covers the consumer.
+
+  - id: X3
+    actor: client
+    context: self
+    capability: Every existing consumer keeps working
+    oracle: 14 call sites invoking useClientPhones() / useClientPhoneManager() bare
+    now: the same 14, each with the mandatory .as(...) added
+    disposition: Renamed
+    ac: AC-33
+    ruling: ruling-3
+    note: >-
+      Call sites — client-vue: TabBusiness.vue, TabPersonal.vue, BillingForm.vue,
+      BillingSummary.vue. headless: client-company.services.ts (x2 seams),
+      basket-billing/unified/services.ts (x2 seams), unified/schemas.ts (X2),
+      unified/__tests__/unified.int.test.ts (the vi.mock factory). apps:
+      cart/src/router/funnels/engine/services.ts:137,
+      cart-nuxt/app/funnels/engine/services.ts:137. playgrounds:
+      account/profile/components/ClientPhones.vue, client/Phones.vue.
+      The cart funnel engines are runtime-critical — `default: defaultPhone`
+      gates checkout billing.
+    proof: workspace `pnpm type-check` passes; unified.int.test.ts passes with its mock factory updated only to the new seam.
+
+  - id: X4
+    actor: client
+    context: self
+    capability: Every read-back replays genuinely recorded data
+    oracle: NONE — the module ships zero tests and zero fixtures; no e2e asserts phone management
+    now: __tests__/fixtures/*.json captured by `pnpm fixtures:generate client-phone` against real staging
+    disposition: Added-by-pattern
+    ac: AC-30
+    note: >-
+      This module starts from ZERO baseline coverage, so there is no recorded
+      acceptance to regress against and every fixture is a first capture. Staging
+      credentials EXIST at packages/headless/.env.recording (350 bytes, in-tree):
+      "no credentials" is not available as a reason. Hand-authoring a fixture and
+      presenting it as recorded is cosplay with a named receipt
+      (verify-cosplay.companion.md, 2026-08-05).
+    proof: >-
+      `pnpm lint:fixtures` passes; scope-based/no-hand-rolled-int-fixture reports no handRolled or vestigialReplay finding.
+
+  - id: R1
+    actor: client
+    context: self
+    capability: Target a client other than the session client from the manager
+    oracle: useClientPhoneManager(id, { clientId }) — ADVERTISED and JSDoc-documented ("the client to whom this phone belongs"), but ABSENT — clientId reaches only actions.ts:34 refreshContext and actions.ts:43 hasSubscription; no service reads it and no URL is retargeted
+    now: removed from the public signature entirely
+    disposition: Dropped-with-Linear-issue
+    ac: AC-32
+    ruling: ruling-2
+    signoff: operator, 2026-08-08, tier-1
+    linear: UNFILED — operator to file; Linear MCP unauthenticated 2026-08-10; reference this row id (see DROPS-TO-FILE.md)
+    note: >-
+      An advertised-but-absent capability is the FE-2824 archetype in miniature.
+      Ruling 2: removed, not carried forward unwired. It is recorded as a DROP
+      rather than a no-op cleanup because the module's public surface genuinely
+      shrinks — a consumer reading the JSDoc could believe the capability exists.
+      Nothing is lost in fact, because nothing worked.
+    proof: surface.test.ts AC-32 — the manager's construction takes no options object carrying clientId; a module grep finds no clientId reaching a URL other than via service.clientId.
+
+  # === STAFF CAPABILITY THE ORACLE HAS AND THIS DELIVERY DOES NOT ==========
+  # All seven rows: operator ruling 1, 2026-08-08, tier-1. The client-email
+  # R27-R33 shape. Each is a real, oracle-demonstrated capability — not a
+  # not-applicable row.
+
+  - id: S1
+    actor: staff
+    context: client
+    capability: Read and write ANOTHER client's phones through the admin endpoint family
+    oracle: >-
+      vue-app src/store/modules/data/clients/phones.ts — apiPath returns
+      admin: `api/admin/clients/{clientId}/phones` alongside
+      client: `api/clients/{clientId}/phones`, selected by
+      `isAdminContext && !isMockClientContext()`. All four actions (list,
+      create, update, remove) route through `.contextual`.
+    now: not delivered — STAFF is `null as never` in both scope matrices, so `.as('staff')` is a compile-time error
+    disposition: Dropped-with-Linear-issue
+    ruling: ruling-1
+    signoff: operator, 2026-08-08, tier-1
+    linear: UNFILED — operator to file; Linear MCP unauthenticated 2026-08-10; reference this row id (see DROPS-TO-FILE.md)
+    note: >-
+      The largest single drop in this table. The admin path is a DIFFERENT
+      endpoint family, not a parameterisation of the client one. Restoring it is
+      a matrix edit plus a services arm, which is why design.md section 4 keeps
+      resolveClientId's context branch rather than hardcoding the session id.
+
+  - id: S2
+    actor: staff
+    context: client
+    capability: Gate listing another client's phones on the `list_client_phones` capability
+    oracle: vue-app clientPhonesList.vue — `<guard :if-client="true" :if-admin="['list_client_phones']">` and the created() hook's `this.$userCan('list_client_phones')` branch
+    now: not delivered
+    disposition: Dropped-with-Linear-issue
+    ruling: ruling-1
+    signoff: operator, 2026-08-08, tier-1
+    linear: UNFILED — operator to file; Linear MCP unauthenticated 2026-08-10; reference this row id (see DROPS-TO-FILE.md)
+    note: ADR-001 section 6 (capabilities filter staff actions) is the mechanism this would use when restored.
+
+  - id: S3
+    actor: staff
+    context: client
+    capability: Gate creating a phone on the `create_client_phone` capability
+    oracle: vue-app clientPhonesComp.vue — the "Add new" link renders only under `$userCan('create_client_phone')`, and createPhone() re-checks before opening the modal
+    now: not delivered
+    disposition: Dropped-with-Linear-issue
+    ruling: ruling-1
+    signoff: operator, 2026-08-08, tier-1
+    linear: UNFILED — operator to file; Linear MCP unauthenticated 2026-08-10; reference this row id (see DROPS-TO-FILE.md)
+
+  - id: S4
+    actor: staff
+    context: client
+    capability: Gate set-as-default on the `update_client_phone` capability
+    oracle: vue-app clientPhoneRow.vue (the dropdown item is disabled without it) and phones.ts makeDefault (`if (!rootGetters["user/can"]("update_client_phone")) return`)
+    now: not delivered
+    disposition: Dropped-with-Linear-issue
+    ruling: ruling-1
+    signoff: operator, 2026-08-08, tier-1
+    linear: UNFILED — operator to file; Linear MCP unauthenticated 2026-08-10; reference this row id (see DROPS-TO-FILE.md)
+
+  - id: S5
+    actor: staff
+    context: client
+    capability: Gate deletion on the `delete_client_phone` capability
+    oracle: vue-app clientPhoneRow.vue (disabled without it) and phones.ts confirmDelete (`if (!rootGetters["user/can"]("delete_client_phone")) return`)
+    now: not delivered
+    disposition: Dropped-with-Linear-issue
+    ruling: ruling-1
+    signoff: operator, 2026-08-08, tier-1
+    linear: UNFILED — operator to file; Linear MCP unauthenticated 2026-08-10; reference this row id (see DROPS-TO-FILE.md)
+
+  - id: S6
+    actor: staff
+    context: client
+    capability: Act AS a client (impersonation) while managing their phones
+    oracle: >-
+      vue-app phones.ts — the `!isMockClientContext()` half of the contextual
+      selector deliberately routes an impersonating staff session back to the
+      CLIENT path while the target clientId stays the impersonated client's.
+    now: not delivered
+    disposition: Dropped-with-Linear-issue
+    ruling: ruling-1
+    signoff: operator, 2026-08-08, tier-1
+    linear: UNFILED — operator to file; Linear MCP unauthenticated 2026-08-10; reference this row id (see DROPS-TO-FILE.md)
+    note: >-
+      THE FE-2824 SHAPE VERBATIM — the acting-as-client capability whose silent
+      loss is the receipt behind verify-parity-oracle. Recorded explicitly and
+      by name so it can never again be lost without a signature. When restored,
+      verify-reality-check.companion.md's A7 clause applies: the read-back must
+      assert the request URL retarget AND the auth identity transport (which
+      session token was selected, which acting-as headers were sent) — never the
+      response payload alone.
+
+  - id: S7
+    actor: staff
+    context: client
+    capability: Show staff-specific guidance copy on the phones section
+    oracle: >-
+      vue-app clientPhonesComp.vue — `isAdmin ? _sentence.manage_phones_desc_for_staff : _sentence.manage_phones_desc_for_client` (the latter interpolating the brand name)
+    now: not delivered
+    disposition: Dropped-with-Linear-issue
+    ruling: ruling-1
+    signoff: operator, 2026-08-08, tier-1
+    linear: UNFILED — operator to file; Linear MCP unauthenticated 2026-08-10; reference this row id (see DROPS-TO-FILE.md)
+    note: >-
+      The smallest of the seven, and recorded anyway. It is the only place the
+      oracle carries an actor-derived READ value, which makes it the only
+      candidate that could ever have earned a `meta` arm — see the arms block.
+
+  # === LEGACY-ONLY CLIENT-SURFACE BEHAVIOURS ================================
+  # Each either in scope with a row above, or dispositioned here. None unlisted.
+
+  - id: L1
+    actor: client
+    context: self
+    capability: Choose a phone TYPE when adding or editing (required select)
+    oracle: vue-app addEditClientPhoneModal.vue — a required `type` b-select over src/data/status.ts:384 PhoneTypes (1 mobile, 2 home, 3 office, 4 personal), sent on create and update
+    now: not delivered — the form schema carries no `type` control and mapIPhone emits none
+    disposition: Dropped-with-Linear-issue
+    decision: design.md D-1
+    signoff: operator, 2026-08-08, tier-1 (covered by the D-1 ruling recorded in W4)
+    linear: UNFILED — operator to file; Linear MCP unauthenticated 2026-08-10; reference this row id (see DROPS-TO-FILE.md)
+    note: >-
+      The READ side survives (W4 — Phone.type stays exposed). What is dropped is
+      the ability to SET it. Current headless already dropped it; this row makes
+      the drop visible instead of inherited-and-unrecorded.
+
+  - id: L2
+    actor: client
+    context: self
+    capability: >-
+      Include staged imports in the list (`with_staged_imports: 1`)
+    oracle: >-
+      vue-app phones.ts list action — params always carry with_staged_imports: 1
+    now: not delivered — current headless sends no such param
+    disposition: Dropped-with-Linear-issue
+    signoff: operator, 2026-08-08, tier-1
+    linear: UNFILED — operator to file; Linear MCP unauthenticated 2026-08-10; reference this row id (see DROPS-TO-FILE.md)
+    note: >-
+      Staged imports are an admin-import concept; no client-surface consumer
+      reads IPhone.staged_import. Recorded rather than assumed irrelevant,
+      because it changes which ROWS the list returns — a data-visibility
+      difference, not a formatting one.
+
+  - id: L3
+    actor: client
+    context: self
+    capability: Deterministic list ordering
+    oracle: vue-app clientPhonesList.vue sorts created_at ASCENDING; clientPhoneSelect.vue requests order "-created_at"
+    now: not delivered — current headless sends no sort; the server default applies
+    disposition: Dropped-with-Linear-issue
+    signoff: operator, 2026-08-08, tier-1
+    linear: UNFILED — operator to file; Linear MCP unauthenticated 2026-08-10; reference this row id (see DROPS-TO-FILE.md)
+    note: >-
+      Adding a sort would change every live consumer's row order on day one — a
+      behaviour change dressed as parity. Recorded as the drop it is rather than
+      silently skipped, and rather than fixed without a mandate.
+
+  - id: L4
+    actor: client
+    context: self
+    capability: Disable phone controls while the client record is a staged import
+    oracle: vue-app clientPhonesComp/clientPhonesList/clientPhoneRow — the `isStaged` prop disables the add link and every row dropdown
+    now: not delivered as behaviour; the data it needs (IPhone.staged_import) remains on the read model
+    disposition: NOT-A-HEADLESS-CAPABILITY-with-reason
+    signoff: operator, 2026-08-08, tier-1
+    signoff-note: >-
+      Signature added at plan repair (2026-08-10, reviewer finding W6) for
+      consistency with the other 14 signed dispositions. It RECORDS the existing
+      2026-08-08 ruling's scope; it grants nothing new. FLAGGED FOR OPERATOR
+      CONFIRMATION.
+    reason: >-
+      A UI disabled-state driven by an admin-context prop the client surface
+      never sets. The headless capability — expose staged_import so a consumer
+      CAN gate on it — is satisfied by the read model.
+
+  - id: L5
+    actor: client
+    context: self
+    capability: Explain why a phone cannot be deleted
+    oracle: vue-app clientPhoneRow.vue — the delete item is disabled on !phone.can_delete with a tooltip carrying _sentence.record_cannot_be_deleted_msg
+    now: meta.canDelete on every row (C2)
+    disposition: Absorbed-by
+    absorbed-by: C2
+    reason: The capability is knowing a record is non-deletable; the tooltip is presentation and belongs to the consumer.
+
+  - id: L6
+    actor: client
+    context: self
+    capability: Confirm before deleting a phone
+    oracle: vue-app phones.ts confirmDelete — a confirm modal, then remove, then a toast
+    now: useActions().remove(id) fires immediately; the success toast survives (C9/W6)
+    disposition: NOT-A-HEADLESS-CAPABILITY-with-reason
+    signoff: operator, 2026-08-08, tier-1
+    signoff-note: >-
+      Signature added at plan repair (2026-08-10, reviewer finding W6) for
+      consistency with the other 14 signed dispositions. It RECORDS the existing
+      2026-08-08 ruling's scope; it grants nothing new. FLAGGED FOR OPERATOR
+      CONFIRMATION.
+    reason: >-
+      A confirmation dialog is a consumer concern — headless owns the mutation,
+      not the interaction that precedes it. The toast half of the oracle's
+      behaviour IS carried (W6), so nothing observable to the API is lost.
+
+  - id: L7
+    actor: client
+    context: self
+    capability: Add a new phone inline from a phone selector
+    oracle: vue-app clientPhoneSelect.vue — a "+ add new phone" option opens the add modal and re-selects the created record on success
+    now: composition of useClientPhones (C1, C7) and useClientPhoneManager().fresh() (M1, M7)
+    disposition: Absorbed-by
+    absorbed-by: M1
+    reason: Both underlying capabilities ship; the orchestration is the consumer's. This is precisely the pair TabPersonal.vue / TabBusiness.vue already compose as {useList, useMutate}.
+
+  - id: L8
+    actor: client
+    context: self
+    capability: Default the dial country sensibly when the form opens
+    oracle: vue-app phoneNumberField.vue — defaultCountryCode = countryCode prop, else the BRAND's country (brand.country_id)
+    now: loadLookups seeds baseModel.phone.country from useSystem().getCountry (M2)
+    disposition: Absorbed-by
+    absorbed-by: M2
+    reason: >-
+      The capability — the form opens on a sensible dial country — survives; the
+      SOURCE differs (system-resolved rather than brand-config-resolved).
+      Recorded because the resolved value can differ for a brand whose country
+      differs from the session's.
+
+  - id: L9
+    actor: client
+    context: self
+    capability: Confirm a successful add or edit with a toast
+    oracle: vue-app addEditClientPhoneModal.vue — _sentence.confirm.add / _sentence.confirm.update on success
+    now: not delivered — the manager half raises no feedback; update() resolves the saved model for the caller
+    disposition: Dropped-with-Linear-issue
+    signoff: operator, 2026-08-08, tier-1
+    linear: UNFILED — operator to file; Linear MCP unauthenticated 2026-08-10; reference this row id (see DROPS-TO-FILE.md)
+    note: >-
+      Current headless already raises none from the manager, and the reference
+      raises none from any layer. Reproducing legacy's toasts here would
+      double-report against the consumer's own success handling. Recorded as a
+      drop rather than dismissed as a UI detail, because it is user-visible
+      behaviour the oracle has.
+
+  - id: L10
+    actor: client
+    context: self
+    capability: Verify a phone number (confirm ownership)
+    oracle: NONE. IPhone.verified exists and is displayed (meta.isVerified, C2), but a grep of the legacy phone store and every phone component for `verify` returns nothing, and current headless has no verify service.
+    now: meta.isVerified is exposed read-only (C2); no verify action exists
+    disposition: NOT-SUPPORTED-IN-LEGACY-with-reason
+    signoff: operator, 2026-08-08, tier-1
+    signoff-note: >-
+      Signature added at plan repair (2026-08-10, reviewer blocker B2): the
+      signed-disposition invariant covers every `Dropped` AND `Not-supported`
+      disposition on a core cell, and this row previously carried none. It
+      RECORDS the existing 2026-08-08 ruling's scope over a row that grants no
+      discretion — nothing is granted. FLAGGED FOR OPERATOR CONFIRMATION.
+    reason: >-
+      NEITHER ORACLE SHIPPED PHONE VERIFICATION. The legacy vue-app has no verify
+      flow — a grep of src/store/modules/data/clients/phones.ts and every phone
+      component for `verify` returns nothing, and no admin or client endpoint
+      exists for it. The pre-conversion headless module has no verify service
+      either. There is therefore no capability to carry: this row's absence is a
+      RECORDED FACT about both oracles, not an amputation, and no capability is
+      lost by it. The read side that does exist — IPhone.verified, surfaced as
+      meta.isVerified — IS carried (C2). Recorded explicitly because the
+      client-email reference DOES ship a `verify` action, and a reader
+      pattern-matching from that module would otherwise expect one here and read
+      its absence as a drop.
+
+# ---------------------------------------------------------------------------
+# TALLY
+# ---------------------------------------------------------------------------
+tally:
+  total-rows: 59
+  by-disposition:
+    Direct: 3                                   # M4, W2, W6
+    Renamed: 27                                 # was 28; C14 re-dispositioned 2026-08-10
+    Absorbed-by: 4                              # C14, L5, L7, L8
+    Added-by-pattern: 4                         # C10, C16, M13, X4
+    Fixed-with-decision: 6                      # C4, C5, C12, M9, W4, W5
+    Dropped-with-Linear-issue: 12
+    NOT-SUPPORTED-IN-LEGACY-with-reason: 1      # L10
+    NOT-A-HEADLESS-CAPABILITY-with-reason: 2    # L4, L6
+  undispositioned: 0
+  dropped-rows: [R1, S1, S2, S3, S4, S5, S6, S7, L1, L2, L3, L9]
+  dropped-without-signoff: 0
+  signature-requiring-rows: 15                  # 12 Dropped + L10 + L4 + L6
+  signature-requiring-rows-unsigned: 0          # all 15 carry `signoff:`
+  drops-without-tracker-reference: 12           # ALL twelve — see the B1 block at
+                                                # the head of this file and
+                                                # DROPS-TO-FILE.md. Needs an
+                                                # authenticated Linear session;
+                                                # cannot be closed from the plan seat.
+  jtbd-contradicted-drops: 0
+  jtbd-check: >-
+    Every Dropped-* row was re-read against the JTBD as amended by ruling 1
+    ("full parity on the client x self surface, with every staff capability
+    recorded as a signed drop"). S1-S7 are staff-cell capabilities — outside the
+    amended JTBD by the ruling that amended it. R1 drops a capability that never
+    functioned. L1, L2, L3, L9 are client-cell rows and are the only ones that
+    could contradict the JTBD: each was checked and none removes a capability the
+    CURRENT headless delivers — all four are already absent from current headless
+    and are being recorded rather than newly lost. Zero contradictions.
+
+# ---------------------------------------------------------------------------
+# OPEN FINDINGS AFTER PLAN REPAIR (2026-08-10)
+# ---------------------------------------------------------------------------
+# Recorded, not resolved. No code changed at this repair.
+open-findings:
+  - id: B1
+    severity: blocker
+    owner: operator
+    summary: >-
+      All 12 Dropped-with-Linear-issue rows carry `linear: UNFILED`. The
+      disposition's contract (verify-parity-oracle.companion.md) requires the
+      Linear reference. Needs an authenticated Linear session; the planning seat
+      cannot close it. Paste-ready filing list: DROPS-TO-FILE.md.
+  - id: B2
+    severity: blocker-cleared-pending-confirmation
+    owner: operator
+    summary: >-
+      L10's unsigned NOT-SUPPORTED disposition now carries
+      `signoff: operator, 2026-08-08, tier-1`, RECORDING the existing ruling's
+      scope over a row that grants no discretion. Substance is unchanged and
+      nothing is lost — neither oracle shipped phone verification. Awaiting
+      operator confirmation of the recorded signature (same for L4 and L6, W6).
+  - id: W4
+    severity: pattern-level
+    owner: operator
+    summary: >-
+      C14 re-dispositioned Renamed -> Absorbed-by (C1). `useActions().nextPage` /
+      `.prevPage` always throw `text.page_next_not_available` because the
+      collection opens `limit: 0`; paging works at the services layer, which is
+      what AC-11 actually proves. The ratified client-email reference does the
+      identical thing, so this is a PATTERN property, not a client-phone
+      regression. THE TENSION: R1 and C14 are the same advertised-but-absent
+      defect class resolved opposite ways — ruling 2 removed R1's `clientId`
+      limb; C14 keeps two always-throwing members. Ruling 2 is not re-litigated.
+      See row C14's `follow-up:` for the two consistent resolutions.
+  - id: yaml-parseability
+    severity: clerical-fixed
+    owner: none
+    summary: >-
+      FOUND AND FIXED at this repair, not previously reported: this file did not
+      PARSE as YAML. Eleven plain scalars contained a `: ` or opened with a flow
+      indicator (`{`, `[`) — W2/W3/L2 `oracle:`, C11 `oracle:`, S7 `oracle:`, L2
+      `capability:`, W5/W6/M7 `proof:`, L7 `reason:` — so `js-yaml` failed at row
+      W2 and any gate that loads this table (ci/lint-plan-compliance.mjs) could
+      never have read it. Each was converted to a folded (`>-`) block; every
+      value is byte-identical after folding, verified by re-parse. No
+      disposition, sign-off, oracle citation or count changed.
+  - id: mirror
+    severity: informational
+    owner: none
+    summary: >-
+      The bundle's client-phone.feature is now byte-identical to the colocated
+      copy at packages/headless/src/modules/client-phone/__tests__/ (40
+      scenarios; AC-35 mirrored in). Two comment lines in BOTH copies now read
+      slightly stale — the S1-S7 header says each drop carries "a Linear issue
+      reference in parity.yaml", which B1 shows it does not yet. NOT corrected:
+      the colocated copy is the prover's write lane, and editing only the bundle
+      copy would re-break the mirror. Fix both together once B1 is closed.

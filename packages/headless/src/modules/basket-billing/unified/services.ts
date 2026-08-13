@@ -8,7 +8,6 @@ import { useClientCompanyServices } from "../../client-company";
 import { useClientEmails } from "../../client-email";
 import { useClientPhones } from "../../client-phone";
 import { ScopeActorTypes } from "../../scope";
-import { useClientPhoneServices } from "../../client-phone";
 import { useSystem } from "../../system";
 import { useI18n } from "../../system-localisation";
 import { UnifiedType } from "./types";
@@ -39,11 +38,9 @@ async function loadLookups({
   schema,
   type
 }: UnifiedContext): Promise<UnifiedContext> {
-  const {
-    isReady: getPhones,
-    default: defaultPhone,
-    data: phones
-  } = useClientPhones();
+  const clientPhones = useClientPhones().as(ScopeActorTypes.SELF);
+  const { isReady: getPhones } = clientPhones.useActions();
+  const { default: defaultPhone, data: phones } = clientPhones.useContext();
 
   const clientEmails = useClientEmails().as(ScopeActorTypes.SELF);
   const { isReady: getEmails } = clientEmails.useActions();
@@ -140,13 +137,15 @@ async function loadLookups({
 
 async function add(type: UnifiedType, data: UnifiedModel) {
   const { ensure: ensureAddress } = useClientAddressServices();
-  const { ensure: ensurePhone } = useClientPhoneServices();
+  const { ensure: ensurePhone } = useClientPhones()
+    .as(ScopeActorTypes.SELF)
+    .useActions();
   const { ensure: ensureCompany } = useClientCompanyServices();
   const promises: Promise<any>[] = [];
 
   promises.push(
     data?.phone && type == UnifiedType.PERSONAL
-      ? ensurePhone({ model: data.phone })
+      ? ensurePhone(data.phone)
       : Promise.resolve(undefined)
   );
 

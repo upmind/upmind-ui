@@ -51,7 +51,15 @@ vi.mock("../../../client-phone", async importOriginal => {
   const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,
-    useClientPhoneServices: () => ({ ensure: spies.ensurePhone })
+    useClientPhones: () => ({
+      as: () => ({
+        useActions: () => ({
+          ensure: spies.ensurePhone,
+          isReady: () => Promise.resolve(true)
+        }),
+        useContext: () => ({ default: () => undefined, data: { value: [] } })
+      })
+    })
   };
 });
 
@@ -126,7 +134,7 @@ describe("useUnifiedServices().add — once-only phone POST (FE-2711)", () => {
 
     // Personal is the ONLY path where the phone is POSTed standalone — once.
     expect(spies.ensurePhone).toHaveBeenCalledTimes(1);
-    expect(spies.ensurePhone).toHaveBeenCalledWith({ model: phone });
+    expect(spies.ensurePhone).toHaveBeenCalledWith(phone);
 
     // No company is created on the personal path.
     expect(spies.ensureCompany).not.toHaveBeenCalled();

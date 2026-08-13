@@ -21,6 +21,7 @@ import {
   useConfig,
   UIContext,
   FunnelActions,
+  ScopeActorTypes,
   type FunnelTarget,
   type OverlayResponse
 } from "@upmind-automation/client-vue";
@@ -134,7 +135,9 @@ export async function applyBillingDefaults(): Promise<void> {
     useClientAddresses();
   const { default: defaultCompany, isReady: isCompaniesReady } =
     useClientCompanies();
-  const { default: defaultPhone, isReady: isPhonesReady } = useClientPhones();
+  const clientPhones = useClientPhones().as(ScopeActorTypes.SELF);
+  const { isReady: isPhonesReady } = clientPhones.useActions();
+  const { default: defaultPhone } = clientPhones.useContext();
 
   await Promise.allSettled([
     isAddressesReady(),

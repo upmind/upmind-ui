@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-phone/client-phone.services.ts
++++ b/packages/headless/src/modules/client-phone/client-phone.services.ts
+@@ -330,7 +330,7 @@
+   return put<IPhone>({
+     mutationKey: [...queryKey, id, "default"],
+     url: useUrl(`clients/${clientId.value}/phones/${id}`),
+-    data: { default: true },
++    data: {},
+     withAccessToken: true
+   })
+     .then(invalidateQueryByKey(queryKey, { exact: false }))
