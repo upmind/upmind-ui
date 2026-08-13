@@ -62,11 +62,4 @@ docs/audit/
 docs/reviews/
 docs/decisions/
 docs/stories/
-# Contents-glob rather than `docs/sdd/` so a specific bundle can be re-included
-# below: git cannot re-include anything beneath an excluded DIRECTORY.
-docs/sdd/*
-# ...except a bundle whose evidence must ship with the MR it justifies: the
-# parity table, the drop dispositions and the recorded wire captures are the
-# review-ready evidence U7 gates on (verify-evidence-filing), so they cannot
-# live in an ignored path. Operator ruling 2026-08-11.
-!docs/sdd/client-custom-field-values/
+docs/sdd/
