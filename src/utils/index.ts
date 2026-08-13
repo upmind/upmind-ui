@@ -9,6 +9,8 @@ export * from "./useArrowNavigation";
 export * from "./parseVariants";
 export * from "./isEmptySlot";
 export * from "./isMobile";
+export * from "./useHighlightRing";
+export * from "./useInvalidRing";
 export * from "./useTestAttrs";
 export * from "./useForwardPropsTests";
 export { useForwardPropsEmits, useForwardProps } from "radix-vue";

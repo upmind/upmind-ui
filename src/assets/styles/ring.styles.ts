@@ -17,5 +17,12 @@ export const groupRingClasses = `${ringClasses} ${groupFocusRing}`;
 export const invalidRingClasses =
   "aria-invalid:outline-[var(--color-danger-ring)]!";
 
+// The always-on counterpart: a surface in a deliberate mode, not one reporting a
+// fault, so primary rather than danger and unconditional rather than state-gated.
+// It carries its own width and offset because nothing has to be reserved — the
+// outline appears and disappears without moving a pixel of the surface it rings.
+export const highlightRingClasses =
+  "outline outline-2 outline-offset-4 outline-[var(--color-primary-default)]";
+
 // Persistent ring (always shown, not just on focus)
 export const persistentRing = "ring-2 ring-control-ring";

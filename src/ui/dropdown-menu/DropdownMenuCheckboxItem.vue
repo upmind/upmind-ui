@@ -8,6 +8,7 @@ import {
   useForwardPropsEmits
 } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
+import { checkboxVariants } from "../checkbox-group/checkboxGroup.config";
 import { cn } from "../../utils";
 
 const props = defineProps<
@@ -29,14 +30,14 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
     v-bind="forwarded"
     :class="
       cn(
-        'focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center rounded-xs py-1.5 pr-2 pl-8 text-sm outline-hidden transition-colors select-none data-disabled:pointer-events-none data-disabled:opacity-50',
+        'group data-highlighted:bg-button-ghost-hover relative flex cursor-pointer items-center gap-2 rounded-xs px-2 py-1.5 text-sm outline-hidden transition-colors select-none data-disabled:pointer-events-none data-disabled:opacity-50',
         props.class
       )
     "
   >
-    <span class="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+    <span :class="checkboxVariants()">
       <DropdownMenuItemIndicator>
-        <Check class="h-4 w-4" />
+        <Check class="text-control-checked-contrast h-3 w-3" />
       </DropdownMenuItemIndicator>
     </span>
     <slot />
