@@ -161,6 +161,12 @@ export default defineNuxtConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    server: {
+      // The QA host the e2e creds are scoped to. Vite allows only localhost
+      // and *.localhost by default, so a dev-server restart silently 403s the
+      // very origin the recorded corpus and credentials were captured against.
+      allowedHosts: ["qa-automation.local"]
+    },
     resolve: {
       dedupe: ["vue-router"],
       // Vite's array form takes a RegExp `find`, which Nuxt's `alias` map

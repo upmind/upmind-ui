@@ -38,7 +38,7 @@ function presetResolver(
   preset: ForcePreset,
   session: CorpusSession
 ): HttpResponseResolver {
-  return ({ request }) => {
+  return async ({ request }) => {
     const url = new URL(request.url);
     const answer = presetAnswer(preset, session.bodies(), request.method, url);
 
@@ -51,8 +51,17 @@ function presetResolver(
     // The answer is served as recorded and the collection moves AFTER it: the
     // read the module fires next is the one that shows the write landed, which
     // is the whole of "the surface follows the scene" (`R7-4`). A refusal lands
-    // nothing — `error-action` forces exactly that.
-    if (answer.status < REFUSED_FROM) session.apply(request.method, url);
+    // nothing — `error-action` forces exactly that. The request's own body
+    // rides along so what lands is the write the wire accepted.
+    if (answer.status < REFUSED_FROM)
+      session.apply(
+        request.method,
+        url,
+        await request
+          .clone()
+          .json()
+          .catch(() => undefined)
+      );
 
     // A recording served with its sentence withheld carries no body at all, so
     // the status is the whole answer — `json(undefined)` would put the string

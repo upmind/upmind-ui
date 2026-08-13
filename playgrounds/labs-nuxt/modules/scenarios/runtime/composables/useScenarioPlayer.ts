@@ -56,7 +56,6 @@ import {
   find,
   get,
   isEqual,
-  isNumber,
   keys,
   mapValues,
   noop,
@@ -236,12 +235,13 @@ export function useScenarioPlayer(
     return forced.isAvailable && track.isPlayable;
   }
 
-  async function armTrack(track: FeatureTrack, resume?: number): Promise<void> {
+  async function armTrack(track: FeatureTrack): Promise<void> {
     if (!canArm(track)) return;
     handled = track.slug;
 
     // Written first: the link is what carries the track across the remount a
-    // scope navigation causes.
+    // scope navigation causes. The track is ALL the url carries — the playhead
+    // is playback state, and a pasted link arms at the start, like a video.
     url.write({ track: track.slug, scene: undefined });
 
     const foreign = foreignScope(track);
@@ -253,8 +253,6 @@ export function useScenarioPlayer(
 
     await forced.arm("replay");
     resetCriteria();
-
-    if (isNumber(resume) && resume > SCENE_UNPLAYED) await replayTo(resume);
   }
 
   async function runScene(index: number): Promise<void> {
@@ -264,14 +262,12 @@ export function useScenarioPlayer(
     await scene.run(world);
 
     playhead.value = index;
-    url.scene.value = index;
     if (status.value !== SCENARIO_PLAYER_STATUS.PLAYING)
       status.value = SCENARIO_PLAYER_STATUS.PAUSED;
   }
 
   async function replayTo(index: number): Promise<void> {
     playhead.value = SCENE_UNPLAYED;
-    url.scene.value = undefined;
     resetCriteria();
     // Re-armed, not merely re-run: the scenes about to fire again are the ones
     // that already moved the replay's collection, so it goes back to the
@@ -333,10 +329,7 @@ export function useScenarioPlayer(
       }
       if (next === armed.value || next.slug === handled) return;
 
-      // Read before the arm writes: a pasted link's own scene is what the
-      // player resumes at.
-      const resume = url.scene.value;
-      void enqueue(() => armTrack(next, resume));
+      void enqueue(() => armTrack(next));
     },
     { immediate: true }
   );

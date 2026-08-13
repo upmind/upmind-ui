@@ -271,6 +271,8 @@ Feature: A client manages their own email addresses
   Scenario: A client adds an email address
     When the client adds the address "mock-email-9@example.com"
     Then the collection reports no failure
+    And the collection holds 4 addresses
+    And "mock-email-9@example.com" is listed
 
   @layer-e2e
   Scenario: A client deletes an email address
@@ -286,6 +288,7 @@ Feature: A client manages their own email addresses
   Scenario: A client sets a default email
     When the client makes their non-default address the default
     Then the collection reports no failure
+    And "mock-email-4@example.com" is now the default
 
   @layer-e2e
   Scenario: A client refreshes their collection

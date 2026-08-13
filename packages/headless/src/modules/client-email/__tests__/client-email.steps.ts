@@ -171,6 +171,12 @@ export const clientEmailsSteps = defineSteps(({ Given, When, Then }) => {
     settles(() => world.expectContext({ data: [{ email }] }))
   );
 
+  Then("{string} is now the default", (world, email) =>
+    settles(() =>
+      world.expectContext({ data: [{ email, meta: { isDefault: true } }] })
+    )
+  );
+
   Then("the collection reports no failure", world =>
     settles(() => world.expectMeta({ hasError: false }))
   );

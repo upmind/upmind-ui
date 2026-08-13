@@ -21,16 +21,7 @@
  */
 
 import { corpusBodies, isCorpusSourceResolved } from "./corpus.source";
-import {
-  filter,
-  find,
-  get,
-  last,
-  map,
-  orderBy,
-  reject,
-  split
-} from "lodash-es";
+import { filter, get, last, map, orderBy, reject, split } from "lodash-es";
 import type {
   CorpusBodies,
   CorpusFixtureName,
@@ -80,7 +71,7 @@ export type CorpusSession = {
   /** The recordings as this replay has them now. */
   bodies: () => CorpusBodies;
   /** Lands a served mutation on the collection the next read is answered from. */
-  apply: (method: string, url: URL) => void;
+  apply: (method: string, url: URL, body?: unknown) => void;
 };
 
 const BOOLEAN_COLUMNS = ["verified", "bounced", "default"] as const;
@@ -213,15 +204,6 @@ function recordedRow(
   return get(bodies[name].response, ["body", "data"]) as WireEmail | undefined;
 }
 
-/** The recorded row in place of the one it addresses, or appended if it is new. */
-function upsert(rows: WireEmail[], row: WireEmail | undefined): WireEmail[] {
-  if (!row) return rows;
-
-  return find(rows, ["id", row.id])
-    ? map(rows, current => (current.id === row.id ? row : current))
-    : [...rows, row];
-}
-
 /** One paged capture carrying the rows the session holds. */
 function withRows(
   fixture: RecordedFixture,
@@ -268,20 +250,46 @@ export function createCorpusSession(source: CorpusBodies): CorpusSession {
       )
     }),
 
-    apply(method, url) {
+    // What lands is the WRITE the wire accepted — the addressed row, the
+    // request's own values — never a recording's row verbatim: the recordings
+    // were captured against each other, so their ids collide with the very
+    // rows they would land beside (the POST recording IS one of the three
+    // committed rows), and a set-default recording names whichever row was
+    // default at capture time. Served BODIES stay the recordings' own (S13);
+    // this is only the collection the next read is answered from.
+    apply(method, url, body) {
       const { pathname } = url;
+      const requested = body as Partial<WireEmail> | undefined;
 
       if (MEMBER_PATH.test(pathname)) {
         const id = last(split(pathname, "/"));
 
         if (method === "DELETE") rows = reject(rows, ["id", id]);
-        if (method === "PUT")
-          rows = upsert(rows, recordedRow(source, "put-clients-id-emails-id"));
+        if (method === "PUT") {
+          rows = requested?.default
+            ? map(rows, row => ({ ...row, default: row.id === id }))
+            : map(rows, row =>
+                row.id === id ? { ...row, ...requested } : row
+              );
+        }
         return;
       }
 
-      if (COLLECTION_PATH.test(pathname) && method === "POST")
-        rows = upsert(rows, recordedRow(source, "post-clients-id-emails"));
+      if (COLLECTION_PATH.test(pathname) && method === "POST") {
+        const recorded = recordedRow(source, "post-clients-id-emails");
+        if (!recorded) return;
+
+        rows = [
+          ...rows,
+          {
+            ...recorded,
+            ...requested,
+            // Distinct by construction: the capture created the recorded row,
+            // so its id names a committed row and a verbatim append collides.
+            id: `${recorded.id}:${rows.length}`
+          }
+        ];
+      }
     }
   };
 }
