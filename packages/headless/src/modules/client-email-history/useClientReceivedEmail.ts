@@ -1,90 +1,88 @@
-import { computed } from "vue";
-import service from "./client-email-history.services";
-import { isEmpty } from "lodash-es";
-import type { EmailModel } from "../client-email";
-
+import { createScopedComposable } from "../scope";
+import createClientEmailHistoryServices from "./client-email-history.services";
+import { ReceivedEmailContextTypes } from "./client-email-history.types";
+import { createClientReceivedEmailActions } from "./useClientReceivedEmail.actions";
+import { createClientReceivedEmailContext } from "./useClientReceivedEmail.context";
+import { createClientReceivedEmailInternals } from "./useClientReceivedEmail.internals";
+import { createClientReceivedEmailMeta } from "./useClientReceivedEmail.meta";
+import type { ReceivedEmailScopeMatrix } from "./client-email-history.types";
+import type { ScopeConfig, ScopeKey } from "../scope";
+import type { ScopeActorTypes } from "../scope/scope.types";
+// -----------------------------------------------------------------------------
 /**
- * Composable function for managing client phones.
- * It handles fetching, displaying, filtering, and performing actions on client phones,
- * leveraging an underlying service and TanStack Query for data management.
+ * @module client-email-history/useClientReceivedEmail
+ * @description Scoped, query-backed read of ONE of a client's own received
+ * emails: one TanStack item query per concrete `(actor, context)` scope,
+ * minted once at construction. A separately exported, separately consumed
+ * capability with its own route (`Email.vue` → `EmailOverview.vue`) — its
+ * sibling is `useClientReceivedEmails`, registered under the SAME module
+ * name; the composable name and the scope key carry the differentiation.
  *
- * @param initial - Optional initial query parameters for loading the phone list. Defaults to pagination limit of 0.
- * @returns The {@link useClientReceivedEmail} API for interacting with client phones.
+ * @doctrine clause 1 (uniform four-layer default).
+ * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
+ * actor; the scope builder resolves SELF before this factory runs.
  */
-export const useClientReceivedEmail = ({
-  emailId
-}: {
-  emailId: EmailModel["id"];
-}) => {
-  // --- state
-  const query = service.load({ emailId });
+function createClientReceivedEmailForScope(
+  config: ScopeConfig,
+  scopeKey: ScopeKey
+) {
+  const actorScope = config.actor as ScopeActorTypes;
 
-  const meta = computed(() => ({
-    isLoading: query?.isLoading.value || !query?.isFetched.value,
-    hasError: !isEmpty(query?.error.value),
-    isEmpty: isEmpty(query.data.value?.id),
-    isAvailable: true,
-    isComplete: query?.isFetched.value,
-    ...query?.data?.value?.meta // add any generated meta info here
-  }));
+  /**
+   * ONE services instance for this scope. `config.context` goes in here and
+   * nowhere else, so every request this read issues resolves the same target
+   * client.
+   */
+  const service = createClientEmailHistoryServices(actorScope, config.context);
 
-  async function isReady(): Promise<boolean> {
-    return new Promise(resolve => {
-      const interval = setInterval(() => {
-        if (meta.value.isComplete) {
-          clearInterval(interval);
-          resolve(!meta.value.hasError);
-        }
-      }, 100);
-    });
-  }
+  // The scope context names the EMAIL; the id comes from it, never from a
+  // construction argument — that is what makes the instance keyed per email.
+  const emailId =
+    config.context?.type === ReceivedEmailContextTypes.EMAIL
+      ? config.context.id
+      : undefined;
 
-  // ---------------------------------------------------------------------------
+  // Mint the item query ONCE per scope.
+  const query = service.loadOne(emailId);
+
+  const actions = createClientReceivedEmailActions(
+    actorScope,
+    service,
+    query,
+    scopeKey
+  );
 
   return {
-    // --- state
+    // --- Sub-composables (no direct props — clause 1 four-layer return)
+    /** Sub-composable for single-read actions (lifecycle). */
+    useActions: () => actions,
 
-    /**
-     * Resolves when the client items are ready to be used.
-     * Returns true if ready, false if an error occurred.
-     * @returns {Promise<boolean>} A promise resolving to true if ready, false if error.
-     */
-    isReady,
+    /** Sub-composable for single-read context (the mapped email + error). */
+    useContext: () =>
+      createClientReceivedEmailContext(actorScope, service, query),
 
-    /**
-     * Meta-information about the basket state.
-     * @typedef {Object} ClientPhoneMeta
-     * @property {boolean} isError - Indicates if there was an error during the query.
-     * @property {boolean} isEmpty - Indicates if the basket is empty.
-     * @property {boolean} isLoading - Indicates if the query is currently loading.
-     * @property {boolean} isAuthenticated - Indicates if the client is authenticated.
-     */
-    meta,
+    /** Sub-composable for advanced debugging and internal access. */
+    useInternals: () => createClientReceivedEmailInternals(actorScope, query),
 
-    // --- methods
-
-    /**
-     * The reactive data property containing the list of client items.
-     * This is populated by the query and updates automatically when the query state changes.
-     */
-    data: query.data,
-
-    /**
-     * The current error state of the query.
-     * This will be populated if the query fails to fetch data.
-     */
-    error: query?.error,
-
-    /**
-     * Refresh the query to get the latest data.
-     * This will refetch the data from the server and update the query state.
-     * @returns {void}
-     */
-    refresh: query?.refetch
+    /** Sub-composable for single-read meta (state flags). */
+    useMeta: () => createClientReceivedEmailMeta(actorScope, service, query)
   };
-};
-
+}
+// -----------------------------------------------------------------------------
 /**
- * The return type of the {@link useClientReceivedEmail} composable function.
+ * Scoped composable for one of a client's own received emails, read in full.
+ *
+ * @example
+ * ```ts
+ * const email = useClientReceivedEmail().as('client').for('email', emailId)
+ * const { data } = email.useContext()
+ * await email.useActions().isReady()
+ * ```
  */
-export type useClientReceivedEmail = ReturnType<typeof useClientReceivedEmail>;
+export const useClientReceivedEmail = createScopedComposable<
+  ReturnType<typeof createClientReceivedEmailForScope>,
+  ReceivedEmailScopeMatrix
+>("client-email-history", createClientReceivedEmailForScope);
+
+// Type export for consumers
+export type UseClientReceivedEmail = ReturnType<typeof useClientReceivedEmail>;

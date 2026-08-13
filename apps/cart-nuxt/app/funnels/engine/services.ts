@@ -309,17 +309,19 @@ export default {
       route as RouteLocationGeneric
     );
 
-    // The autoupdate/express(legacy) param indicates that we should try add the product to the basket straight away
-    const hasAutoupdateParam =
-      (consumeParam("autoupdate", false) || consumeParam("express", false)) ==
-      true;
+    // autoupdate/express(legacy): explicitly true from an add button, false
+    // from a navigate-only title/image link, absent lets the brand decide.
+    const autoupdateParam =
+      consumeParam("autoupdate", undefined) ??
+      consumeParam("express", undefined);
+    const isNavigateOnly = autoupdateParam === false;
 
     // Only sync (set processing flag + subscribe) on the autoupdate path —
     // the configure flow has no in-flight operation to track here, and a
     // user who abandons configuration would otherwise leak `processing[pid]`.
     return getPendingProduct(productId, {
-      sync: hasAutoupdateParam,
-      silent: hasAutoupdateParam
+      sync: autoupdateParam,
+      silent: autoupdateParam
     })
       .then(basketItem => {
         return basketItem.isReady().then(() => {
@@ -327,7 +329,8 @@ export default {
             context: UIContext.CONFIGURE,
             product: basketItem.product
           });
-          const autoupdate = hasAutoupdateParam || !!data.productAutoUpdate;
+          const autoupdate =
+            !isNavigateOnly && (autoupdateParam || !!data.productAutoUpdate);
 
           if (!autoupdate) {
             return {

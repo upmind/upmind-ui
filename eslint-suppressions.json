@@ -517,11 +517,6 @@
       "count": 1
     }
   },
-  "packages/headless/src/modules/client-email-history/client-email-history.services.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
   "packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
