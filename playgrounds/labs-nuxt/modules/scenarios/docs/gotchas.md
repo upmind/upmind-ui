@@ -38,7 +38,7 @@ A handoff's `context.from` pointer, and the row key used for animation/tracking,
 
 ## 10. The column picker's option list is wider than what is visible by default
 
-Every field the table (or card) declares is a switchable option in the picker, whether or not it is part of the *default* visible set. If a field seems "missing," check the picker before assuming it was never declared — it may simply be off by default.
+Every field the table (or card) declares is a switchable option in the picker, whether or not it is part of the _default_ visible set. If a field seems "missing," check the picker before assuming it was never declared — it may simply be off by default.
 
 ## 11. Neither module code nor this app's own tooling may reference planning material under a story's own working directory
 

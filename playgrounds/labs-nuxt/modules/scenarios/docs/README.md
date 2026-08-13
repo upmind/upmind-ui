@@ -51,7 +51,7 @@ See [usage.md](./usage.md) for the full walkthrough, including what a generated 
 
 ### One declaration, one page, no page file to maintain
 
-A directory holding a declaration file *is* a route. There is no separate `.vue` page per module to write or to keep in sync — the one shared page component reads the declaration for whichever route it was given and draws accordingly.
+A directory holding a declaration file _is_ a route. There is no separate `.vue` page per module to write or to keep in sync — the one shared page component reads the declaration for whichever route it was given and draws accordingly.
 
 ### The composable is the single source of truth
 

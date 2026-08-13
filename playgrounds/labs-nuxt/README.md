@@ -38,7 +38,7 @@ This playground renders; it does not implement. Every rendered surface reads a *
 The app header carries one grouped control, mounted once in `app/layouts/default.vue`, never per page: brand, then the session pool, then who the page is acting for.
 
 - **The session pool** (`app/components/scope/SessionSwitcher.vue`) is every session the app holds in one menu — staff with their impersonated clients nested beneath them, direct clients in their own group, and ways to add another session (or a guest) at the foot. Logging a session out is per-row; logging out a session that is not the one currently active removes exactly that session. Logging out the **currently active** session is a known rough edge — the row's own logout does not yet fully clear the browser-cookie session behind it, so it can reappear. While the active session has a parent, a small badge beside the avatar says so and a tooltip names who — the same always-visible cue a page's own chrome used to carry, now inside the identity control itself.
-- **Acting-for** (`app/components/scope/ActingForSegment.vue`) is who the *current page* boots at when it isn't the signed-in actor: pick an actor row, then a client from the session pool's own known clients, the ones recently acted for, or an explicit id. A page's own scope matrix greys an actor row it cannot serve, with the reason in a tooltip — the session pool itself is never gated by that matrix, so switching to an actor a page can't render stays available from the header regardless of what the page on screen supports.
+- **Acting-for** (`app/components/scope/ActingForSegment.vue`) is who the _current page_ boots at when it isn't the signed-in actor: pick an actor row, then a client from the session pool's own known clients, the ones recently acted for, or an explicit id. A page's own scope matrix greys an actor row it cannot serve, with the reason in a tooltip — the session pool itself is never gated by that matrix, so switching to an actor a page can't render stays available from the header regardless of what the page on screen supports.
 
 This cluster is global and stays mounted across every route. The scenario bar described below is the opposite: it belongs to the page.
 
@@ -64,7 +64,12 @@ export default {
   handoff: {
     edit: { target: "client_email", contextType: "email", contextFrom: "/id" }
   },
-  presentation: { row: rowUischema, card: cardUischema, rowActions, collectionActions }
+  presentation: {
+    row: rowUischema,
+    card: cardUischema,
+    rowActions,
+    collectionActions
+  }
 } satisfies ScenarioDeclaration;
 ```
 
