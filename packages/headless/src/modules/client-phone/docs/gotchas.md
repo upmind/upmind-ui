@@ -122,16 +122,14 @@ This module's `findOne` is deliberately **not** the shared `useCollection().find
 
 ```ts
 // ✅ Safe: ensure() with a full model
-await phones
-  .useActions()
-  .ensure({
-    phone: {
-      number: "+447911123456",
-      nationalNumber: "7911123456",
-      countryCallingCode: "44",
-      country: "GB"
-    }
-  });
+await phones.useActions().ensure({
+  phone: {
+    number: "+447911123456",
+    nationalNumber: "7911123456",
+    countryCallingCode: "44",
+    country: "GB"
+  }
+});
 
 // ⚠️ Risky: a partial mapping through ensure() can silently create a duplicate
 await phones.useActions().ensure({ phone: { number: "+447911123456" } } as any);
