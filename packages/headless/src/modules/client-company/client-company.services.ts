@@ -1,16 +1,14 @@
 /** @internal */
 import { BrandConfigKeys, type ICompany } from "@upmind-automation/types";
-import { useQuery } from "../query";
-import { ScopeActorTypes } from "../scope";
 import { useBrand } from "../brand";
 import { useClientAddresses } from "../client-address";
-import type { PhoneModel } from "../client-phone";
 import { useClientAddressServices } from "../client-address";
 import { useClientEmails } from "../client-email";
 import { useClientPhones } from "../client-phone";
-import { useClientPhoneServices } from "../client-phone";
 import { useFeedback } from "../feedback";
+import { useQuery } from "../query";
 import { invalidateQueryByKey } from "../query";
+import { ScopeActorTypes } from "../scope";
 import { useActiveSession } from "../session-store";
 import { useSystem } from "../system";
 import { useI18n } from "../system-localisation";
@@ -33,6 +31,7 @@ import {
 import { get, isString, isEmpty, find, some, pick, isArray } from "lodash-es";
 import type { AddressModel } from "../client-address";
 import type { EmailModel } from "../client-email";
+import type { PhoneModel } from "../client-phone";
 import type { QueryParams } from "../query";
 import type {
   Company,
@@ -81,11 +80,9 @@ async function loadLookups({
   model,
   schema
 }: CompanyContext): Promise<CompanyContext> {
-  const {
-    isReady: getPhones,
-    default: defaultPhone,
-    data: phones
-  } = useClientPhones();
+  const clientPhones = useClientPhones().as(ScopeActorTypes.SELF);
+  const { isReady: getPhones } = clientPhones.useActions();
+  const { default: defaultPhone, data: phones } = clientPhones.useContext();
 
   const clientEmails = useClientEmails().as(ScopeActorTypes.SELF);
   const { isReady: getEmails } = clientEmails.useActions();
@@ -303,7 +300,9 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
   const { ensure: ensureEmail } = useClientEmails()
     .as(ScopeActorTypes.SELF)
     .useActions();
-  const { ensure: ensurePhone } = useClientPhoneServices();
+  const { ensure: ensurePhone } = useClientPhones()
+    .as(ScopeActorTypes.SELF)
+    .useActions();
   const { ensure: ensureAddress } = useClientAddressServices();
 
   // for our dependencies we need to check if they already exists by finding them in their respective stores
@@ -321,11 +320,11 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
 
     !data?.phone?.number && !data?.phoneId
       ? Promise.resolve(null) // no phone provided/needed
-      : ensurePhone({
-          model: (data?.phone
+      : ensurePhone(
+          (data?.phone
             ? { phone: data.phone }
             : { id: data?.phoneId }) as PhoneModel
-        }),
+        ),
 
     ensureAddress({
       model: (data?.address

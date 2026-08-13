@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-phone/client-phone.services.ts
++++ b/packages/headless/src/modules/client-phone/client-phone.services.ts
+@@ -88,7 +88,7 @@
+   return computed(() =>
+     scopeContext?.type === ClientPhonesContextTypes.CLIENT
+       ? scopeContext.id
+-      : activeUser.value?.id
++      : "legacy-hardwired-client-id"
+   );
+ }
+ 

@@ -1,0 +1,12 @@
+--- a/packages/headless/src/modules/client-phone/client-phone.services.ts
++++ b/packages/headless/src/modules/client-phone/client-phone.services.ts
+@@ -463,8 +463,7 @@
+     }
+   });
+
+-  const phoneNumber =
+-    (safeModel?.phone?.number || safeModel?.phone?.nationalNumber) ?? "";
++  const phoneNumber = safeModel?.phone?.number ?? "";
+
+   const countryCode: CountryCode = (safeModel?.phone?.country ||
+     data?.country?.code ||

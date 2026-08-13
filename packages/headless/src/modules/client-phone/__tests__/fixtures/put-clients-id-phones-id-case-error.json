@@ -1,0 +1,57 @@
+{
+  "version": 3,
+  "request": {
+    "method": "PUT",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/phones/00000000-0000-0000-0000-000000000000?case=error",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "default": true
+    }
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a27eb1835aafee43-WAW",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Sat, 08 Aug 2026 12:58:35 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=vQlynC1zHLS6NEj0LaH0zXwNSZeYNCz4PD%2Bhx5%2Bron0eZpOXCqhPYAsQezBBbBOuYGs5PnndYtWnpYOUvQsylV2QAK9e%2FXr59VxHF6WHRsK6xIdClBRua7VDx1om2GNHSI%2FxssEP%2BQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "1042ac9282b7255d76a760e45d340a16b3187063",
+        "type": 0,
+        "code": 422,
+        "message": "API request invalid!",
+        "data": {
+          "phone_id": ["The identifier (phone id) is invalid!"]
+        }
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-08T12:58:35.475Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-phone"
+  }
+}

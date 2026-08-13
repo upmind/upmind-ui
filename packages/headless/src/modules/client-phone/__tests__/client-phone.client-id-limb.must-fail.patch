@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-phone/client-phone.services.ts
++++ b/packages/headless/src/modules/client-phone/client-phone.services.ts
+@@ -106,7 +106,7 @@
+ function isAddressable(clientId?: string): boolean {
+   const { isAuthenticated } = useActiveSession().useMeta();
+ 
+-  return isAuthenticated.value && !!clientId;
++  return isAuthenticated.value;
+ }
+ 
+ /**

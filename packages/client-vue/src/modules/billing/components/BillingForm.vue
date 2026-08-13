@@ -83,7 +83,8 @@ import {
   useClientAddresses,
   useClientCompanies,
   useClientPhones,
-  useRoutingEngine
+  useRoutingEngine,
+  ScopeActorTypes
 } from "@upmind-automation/headless";
 import {
   Loading,
@@ -144,7 +145,7 @@ const { isNavigating } = useRoutingEngine();
 const activeTab = ref<UnifiedType>();
 
 const meta = computed(() => {
-  const phoneReady = !billingMeta.value.needsPhone || !phoneMeta.value.isEmpty;
+  const phoneReady = !billingMeta.value.needsPhone || !phonesEmpty.value;
   const addressReady =
     !billingMeta.value.needsAddress || !addressMeta.value.isEmpty;
   // Business billing needs a company to continue with, even when the brand
@@ -174,7 +175,7 @@ await Promise.allSettled([
   isReady(),
   useClientAddresses().isReady(),
   useClientCompanies().isReady(),
-  useClientPhones().isReady()
+  useClientPhones().as(ScopeActorTypes.SELF).useActions().isReady()
 ]).then(() => {
   const { default: defaultCompany } = useClientCompanies();
   // set initial value from the basket billing model
@@ -202,11 +203,9 @@ const {
   meta: companyMeta,
   default: defaultCompany
 } = useClientCompanies();
-const {
-  getOne: getPhone,
-  meta: phoneMeta,
-  default: defaultPhone
-} = useClientPhones();
+const clientPhones = useClientPhones().as(ScopeActorTypes.SELF);
+const { getOne: getPhone, default: defaultPhone } = clientPhones.useContext();
+const { isEmpty: phonesEmpty } = clientPhones.useMeta();
 
 const _selectedAddress = computed(() =>
   getAddress(model.value?.addressId ?? undefined)
