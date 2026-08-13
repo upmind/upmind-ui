@@ -38,8 +38,13 @@
   </UpmSection>
 </template>
 <script lang="ts" setup>
+import { onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { useClientReceivedEmail } from "@upmind-automation/headless";
+import {
+  useClientReceivedEmail,
+  ReceivedEmailContextTypes,
+  ScopeActorTypes
+} from "@upmind-automation/headless";
 import { UpmSection } from "../section";
 
 // --- types
@@ -50,9 +55,15 @@ const props = defineProps<{ emailId: string }>();
 
 const { t } = useI18n();
 
-const { data: emailData, isReady } = useClientReceivedEmail({
-  emailId: props.emailId
-});
+const email = useClientReceivedEmail()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ReceivedEmailContextTypes.EMAIL, props.emailId);
+const { data: emailData } = email.useContext();
+const { destroy, isReady } = email.useActions();
+
+// Per-email scoped instance — released on unmount so a detached registry
+// entry (and its live TanStack observer) doesn't outlive this view.
+onUnmounted(() => destroy());
 
 await isReady();
 </script>

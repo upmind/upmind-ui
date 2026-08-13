@@ -1,0 +1,118 @@
+# client-email-history.auth-guard.must-fail.patch
+#
+# Targets: AC-18 (whole-module auth guard negative control).
+# Authored by: developer seat (agent-seat-separation.companion.md — the seat
+# that knows the exact line it changed authors the mutant; the prover applies
+# it blind, confirms RED, then reverts — never reading src to construct it).
+#
+# Revision 2 (repair-loop cycle 3): the first revision mutated ONLY the
+# `guard:` member in `client-email-history.services.ts`. The prover confirmed
+# it applies/reverts cleanly but never flips AC-18 RED: `refresh()` in BOTH
+# `useClientReceivedEmails.actions.ts` and `useClientReceivedEmail.actions.ts`
+# carries an INDEPENDENT pre-check —
+#   if (!service.isAvailable.value) throw new NotAuthenticatedError();
+# — that short-circuits before `query.refetch()` is ever called, so stripping
+# only `guard:` is masked: the pre-check throws regardless of whether the
+# query layer's `guard` exists. The reverse is equally true and was verified
+# the same way: stripping ONLY the two actions-layer pre-checks (leaving
+# `guard:` in place) also stays green, because TanStack's `refetch()` still
+# runs the disabled query's `queryFn`, where the untouched `guard` rejects
+# with `NotAuthenticatedError` before `request()` fires, and `refresh()`'s
+# second check (`if (error instanceof NotAuthenticatedError) throw error;`)
+# forwards that rejection — the exact same observable outcome. The two
+# mechanisms are REDUNDANT gates over the same predicate
+# (`service.isAvailable` / `isAddressable(clientId.value)`); AC-18's
+# "forced read rejects" assertions only go RED when BOTH are removed in the
+# SAME mutation, verified empirically (developer's own run, cycle 3 dispatch)
+# before authoring this revision — 5/7 tests stay green, exactly the two
+# "forced read" assertions flip RED, matching this file's "Expected RED"
+# below.
+#
+# Revision 3 (repair dispatch, client-email-history rework to product-catalogue
+# parity): the services.ts hunks' context lines carried a `withSplitCount:
+# true,` line immediately above `guard:` in `loadList` — removed from
+# `loadList` by the rework — so both hunks no longer matched. Re-context'd
+# against the current file (loadList also gained `placeholderData:
+# keepPreviousData` after `staleTime`); the mutated lines themselves —
+# the `guard:` member in both `loadList`/`loadOne`, and the actions-file
+# pre-checks below — are unchanged from Revision 2.
+#
+# Mutates (three files, one combined mutant):
+#   1. client-email-history.services.ts — removes the `guard:` member from
+#      BOTH `loadList` and `loadOne`, leaving only `enabled:` in place.
+#   2. useClientReceivedEmails.actions.ts — removes `refresh()`'s
+#      `if (!service.isAvailable.value) throw new NotAuthenticatedError();`
+#      pre-check.
+#   3. useClientReceivedEmail.actions.ts — removes the identical pre-check
+#      from its own `refresh()`.
+#
+# Expected RED: with no authenticated client session, `enabled: () =>
+# isAddressable(...)` still stops the query from auto-firing (AC-18's
+# "makes no request" assertion, and AC-5/AC-16, stay GREEN), but a FORCED
+# read — `actions.refresh()` on either composable — no longer rejects with
+# NotAuthenticatedError before or during `query.refetch()`. AC-18's two
+# "any forced read is refused as not-authenticated" assertions go RED.
+#
+# Apply / verify / revert:
+#   git apply <this file>     # mutate
+#   pnpm test <AC-18 spec>    # must go RED (exactly 2 of 7 tests)
+#   git apply -R <this file>  # revert — must return to green
+#
+--- a/packages/headless/src/modules/client-email-history/client-email-history.services.ts
++++ b/packages/headless/src/modules/client-email-history/client-email-history.services.ts
+@@ -138,14 +138,6 @@
+     }),
+     sort: [[RequestSortDirection.DESC, "created_at"]],
+     withAccessToken: true,
+-    guard: async () =>
+-      new Promise((resolve, reject) => {
+-        if (!isAddressable(clientId.value)) {
+-          reject(new NotAuthenticatedError());
+-          return;
+-        }
+-        resolve(true);
+-      }),
+     enabled: () => isAddressable(clientId.value),
+     select: mapEmailHistory,
+     staleTime: useTime().DAY,
+@@ -169,14 +161,6 @@
+     queryKey: [...queryKey, "email", emailId, { client: clientId }],
+     url: useUrl(`emails/${emailId}`, { with: "data" }),
+     withAccessToken: true,
+-    guard: async () =>
+-      new Promise((resolve, reject) => {
+-        if (!emailId || !isAddressable(clientId.value)) {
+-          reject(new NotAuthenticatedError());
+-          return;
+-        }
+-        resolve(true);
+-      }),
+     enabled: () => !!emailId && isAddressable(clientId.value),
+     select: mapReceivedEmail,
+     staleTime: useTime().DAY
+--- a/packages/headless/src/modules/client-email-history/useClientReceivedEmails.actions.ts
++++ b/packages/headless/src/modules/client-email-history/useClientReceivedEmails.actions.ts
+@@ -101,12 +101,6 @@
+    * @throws {NotAuthenticatedError} when the session cannot address a client.
+    */
+   async function refresh(): Promise<void> {
+-    // TanStack's `refetch()` resolves with the error on the result rather
+-    // than rejecting, so a forced read has to be wrapped to reject at all:
+-    // the pre-check leaves the request unfired, the result check catches a
+-    // session that died between the two.
+-    if (!service.isAvailable.value) throw new NotAuthenticatedError();
+-
+     const { error } = await query.refetch();
+     if (error instanceof NotAuthenticatedError) throw error;
+   }
+--- a/packages/headless/src/modules/client-email-history/useClientReceivedEmail.actions.ts
++++ b/packages/headless/src/modules/client-email-history/useClientReceivedEmail.actions.ts
+@@ -92,8 +92,6 @@
+    * @throws {NotAuthenticatedError} when the session cannot address a client.
+    */
+   async function refresh(): Promise<void> {
+-    if (!service.isAvailable.value) throw new NotAuthenticatedError();
+-
+     const { error } = await query.refetch();
+     if (error instanceof NotAuthenticatedError) throw error;
+   }

@@ -17,7 +17,7 @@
           :dataAttrs="{ 'data-test-key': 'emailHistory' }"
         />
         <EmailHistoryListing
-          :manual-filters="filters"
+          :status="status"
           v-model:sort="params.sort"
           v-model:direction="params.direction"
           v-model:query="params.query"
@@ -37,7 +37,7 @@ import { useRouteQuery } from "@vueuse/router";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
-import { useActiveSession } from "@upmind-automation/headless";
+import { useActiveSession, SentEmailStatus } from "@upmind-automation/headless";
 import { UpmLayout } from "../layout";
 import { LAYOUT_VARIANTS } from "../layout/types";
 import { UpmSection, UpmSections } from "../section";
@@ -78,23 +78,16 @@ const params = useUrlSearchParams<{
   removeFalsyValues: true
 });
 
-const filters = computed(() => {
+const status = computed<SentEmailStatus | undefined>(() => {
   switch (active.value) {
     case "sent":
-      return {
-        "filter[sent]": "true",
-        "filter[bounced]": "false"
-      };
+      return SentEmailStatus.SENT;
     case "bounced":
-      return {
-        "filter[bounced]": "true"
-      };
+      return SentEmailStatus.BOUNCED;
     case "failed":
-      return {
-        "filter[error_id|neq]": "null"
-      };
+      return SentEmailStatus.ERROR;
     default:
-      return {};
+      return undefined;
   }
 });
 
