@@ -1,0 +1,30 @@
+Negative control for the picker opening on a real SURFACE (`R7-3`).
+
+Puts the ui menu panel back on shadcn's `bg-popover` / `text-popover-foreground`,
+which this theme defines nowhere — so the panel keeps its portal, its ring, its
+position and its behaviour, and paints no fill at all. The table rows and the
+status badges under it read straight through the menu, which is exactly what the
+operator was shown.
+
+The control is on the ui panel rather than on the picker deliberately: the
+picker composes the package's menu, so a picker that renders opaque only because
+it restated some background of its own would leave every other menu in the
+product transparent.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the column-picker spec's panel case — the opened menu no longer carries
+the theme's own surface and elevation.
+
+diff --git a/packages/ui/src/ui/dropdown-menu/DropdownMenuContent.vue b/packages/ui/src/ui/dropdown-menu/DropdownMenuContent.vue
+--- a/packages/ui/src/ui/dropdown-menu/DropdownMenuContent.vue
++++ b/packages/ui/src/ui/dropdown-menu/DropdownMenuContent.vue
+@@ -43,7 +43,7 @@
+       v-bind="forwarded"
+       :class="
+         cn(
+-          'bg-control-surface text-display shadow-control-default control-radius data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-32 p-1',
++          'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-32 rounded-lg p-1',
+           props.class,
+           persistentRing
+         )

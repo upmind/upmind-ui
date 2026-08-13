@@ -1,1 +1,0 @@
-../../.agent/workflows/verify-gateway.md

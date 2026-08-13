@@ -1,0 +1,50 @@
+Negative control for the `G3` declaration law at the `tracks` channel (T4.4).
+
+Moves the client-emails page's playlist OUT of its declaration and into the registry, as a
+default every scenario missing a `tracks` channel inherits. Nothing about the
+the client-emails page changes — its bar still lists the same tracks from the same seam — so
+the mutation is invisible to any assertion that only reads the client-emails page.
+
+What it breaks is the law: the runtime now carries one scenario's knowledge
+(its feature, its catalog and its three pinned names, verbatim), and a scenario
+declaring NO tracks — `useClientEmail`, the editor — stops rendering Live-only
+and inherits a playlist that has nothing to do with it. Generic machinery, per
+scenario data; this is the inverse.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds the T4.4 module-lane assertions that (a) no file under `runtime/` names a
+scenario's own feature, catalog or pins, and (b) a declaration without `tracks`
+resolves without one. No spec on HEAD covers either claim, so this mutant is
+green until that spec lands — which is itself the reading: T4.4's oracle does
+not exist until the prover writes it.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/registry.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/registry.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/registry.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/registry.ts
+@@ -13,6 +13,7 @@
+  * the build if two ever collide.
+  */
+
++import { featureText, stepCatalog } from "./force/corpus.source";
+ import { fromPairs, get, keyBy, keys, map, values } from "lodash-es";
+ import type {
+   RegisteredScenario,
+@@ -35,7 +36,16 @@
+   map(keys(declared), path => {
+     const declaration = get(declared, [path, "default"]);
+     const route = SCENARIO_DIRECTORY.exec(path)?.[1] as string;
+-    return [declaration.key, { ...declaration, route }];
++    const tracks = declaration.tracks ?? {
++      feature: featureText,
++      catalog: stepCatalog,
++      pinned: [
++        "A client sees their email collection",
++        "A client adds an email address",
++        "Staff acting for a client read that client's collection"
++      ]
++    };
++    return [declaration.key, { ...declaration, route, tracks }];
+   })
+ );
+

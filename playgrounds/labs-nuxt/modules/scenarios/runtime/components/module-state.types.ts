@@ -12,13 +12,21 @@
  */
 
 /**
- * The real meta flag names the client-emails canary exposes for these states.
+ * The real meta flag names the client-emails module exposes for these states.
  * The error concept itself is split across two names by headless's own
  * composables — `hasError` (collection, `useClientEmails.meta.ts`) vs
  * `hasErrors` (manager, `useClientEmailManager.meta.ts`) — so the resolver
  * tolerates both rather than picking a side.
+ *
+ * `isServed` is the PORT's own — published only where the matrix refuses the
+ * scope, never a claim about a composable's meta. The module flag carrying the
+ * same idea, `isAvailable`, is overloaded (collection: addressability; editor:
+ * `stateMatches(state, "available")`, false for every booting form), so reading
+ * it here would call a loading editor unavailable. Disambiguating it is
+ * protected-core work, the split `R-D1` recorded for `hasError`/`hasErrors`.
  */
 export const MODULE_STATE_META_FLAG = {
+  SERVED: "isServed",
   LOADING: "isLoading",
   HAS_ERROR: "hasError",
   HAS_ERRORS: "hasErrors"
@@ -32,6 +40,7 @@ export const MODULE_STATE_META_FLAG = {
 export const MODULE_STATE_CONTEXT_ERROR = ["error", "errors"] as const;
 
 export enum ModuleState {
+  UNSERVED = "unserved",
   LOADING = "loading",
   ERROR = "error",
   READY = "ready"

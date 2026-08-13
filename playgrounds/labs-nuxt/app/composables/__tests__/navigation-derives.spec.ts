@@ -14,7 +14,7 @@
  * The subject is the DERIVATION, not any particular scenario: a nav hand-listing
  * today's two entries passes any assertion written against today's two entries.
  * So the registry handed in declares composables this codebase has never heard
- * of, alongside the canary's own real scenario key, and the assertion is that
+ * of, alongside the client-emails page's own real scenario key, and the assertion is that
  * what comes out follows what went in. No wire data is involved — a registry
  * entry is a declaration, not a recording.
  *
@@ -30,8 +30,7 @@ import { defineComponent, h } from "vue";
 import { createI18n } from "vue-i18n";
 import { createMemoryHistory, createRouter } from "vue-router";
 import text from "@upmind-automation/i18n/core/text-en.json";
-import { CLIENT_EMAIL_SCENARIO } from "../../../modules/scenarios/useClientEmail/scenario";
-import { CLIENT_EMAILS_SCENARIO } from "../../../modules/scenarios/useClientEmails/scenario";
+import { CLIENT_EMAILS_SCENARIO } from "../../../modules/scenarios/useClientEmails/client-email.scenario";
 import {
   assign,
   find,
@@ -52,6 +51,7 @@ const SPROCKET = "sprocket_widgets";
 const SPROCKET_EDITOR = "sprocket_widget";
 const GIZMO = "basket_gizmos";
 const COMPOSABLES_SECTION = "Composables";
+const ICON = "icon-widget";
 
 /**
  * The DIRECTORY each declaration was found in — deliberately spelled unlike its
@@ -63,9 +63,10 @@ const ROUTE: Record<string, string> = {
   [SPROCKET]: "useSprocketWidgets",
   [SPROCKET_EDITOR]: "useSprocketWidget",
   [GIZMO]: "useBasketGizmos",
-  [CLIENT_EMAILS_SCENARIO]: "useClientEmails",
-  [CLIENT_EMAIL_SCENARIO]: "useClientEmail"
+  [CLIENT_EMAILS_SCENARIO]: "useClientEmails"
 };
+
+const linkTo = (key: string) => `/${ROUTE[key]}`;
 
 /** The mutable module double: what a scenario DECLARES, and nothing more. */
 const declared = vi.hoisted(() => ({
@@ -143,17 +144,19 @@ type Navigation = {
   navigation: NavItem[];
 };
 
-/** A registry ENTRY as the registry publishes one — the declaration plus the directory it was found in. */
-function scenario(
-  key: string,
-  actor: string,
-  extras?: Record<string, unknown>
-) {
+/**
+ * A registry ENTRY as the registry publishes one — the declaration plus the
+ * directory it was found in. It names no boot scope, because the reshaped
+ * contract has no channel for one: a page boots as self and only the url's own
+ * segments move it.
+ */
+function scenario(key: string, extras?: Record<string, unknown>) {
   return assign(
     {
+      key,
       useList: () => ({}),
-      route: ROUTE[key],
-      scope: { actor, contextType: actor }
+      presentation: { icon: ICON },
+      route: ROUTE[key]
     },
     extras
   );
@@ -201,22 +204,18 @@ beforeEach(() => {
 // -----------------------------------------------------------------------------
 
 describe("@AC every declared scenario is a sidebar entry, and only declared ones are (G6 · C16)", () => {
-  it("routes each entry at the scope its own declaration names", async () => {
+  it("links each entry at the directory its declaration was found in, carrying no actor", async () => {
     assign(declared.registry, {
-      [SPROCKET]: scenario(SPROCKET, "staff"),
-      [GIZMO]: scenario(GIZMO, "guest"),
-      [CLIENT_EMAILS_SCENARIO]: scenario(CLIENT_EMAILS_SCENARIO, "client")
+      [SPROCKET]: scenario(SPROCKET),
+      [GIZMO]: scenario(GIZMO),
+      [CLIENT_EMAILS_SCENARIO]: scenario(CLIENT_EMAILS_SCENARIO)
     });
 
     const { navigation } = await derive();
     const section = composablesSection(navigation);
 
     expect(sortBy(map(section?.children, "to"))).toEqual(
-      sortBy([
-        `/${ROUTE[SPROCKET]}/as/staff`,
-        `/${ROUTE[GIZMO]}/as/guest`,
-        `/${ROUTE[CLIENT_EMAILS_SCENARIO]}/as/client`
-      ])
+      sortBy([linkTo(SPROCKET), linkTo(GIZMO), linkTo(CLIENT_EMAILS_SCENARIO)])
     );
     expect(sortBy(map(section?.children, "label"))).toEqual(
       sortBy([
@@ -229,8 +228,8 @@ describe("@AC every declared scenario is a sidebar entry, and only declared ones
 
   it("names each entry after the composable, never a prettified alias of it (D1)", async () => {
     assign(declared.registry, {
-      [SPROCKET]: scenario(SPROCKET, "staff"),
-      [CLIENT_EMAILS_SCENARIO]: scenario(CLIENT_EMAILS_SCENARIO, "client")
+      [SPROCKET]: scenario(SPROCKET),
+      [CLIENT_EMAILS_SCENARIO]: scenario(CLIENT_EMAILS_SCENARIO)
     });
 
     const { navigation, composables } = await derive();
@@ -241,22 +240,22 @@ describe("@AC every declared scenario is a sidebar entry, and only declared ones
     expect(labels).not.toContain(text.emails);
     // The label a menu item shows and the segment its link opens are ONE name.
     for (const entry of composables)
-      expect(startsWith(entry.to, `/${entry.label}/as/`)).toBe(true);
+      expect(startsWith(entry.to, `/${entry.label}`)).toBe(true);
   });
 
   it("follows the registry when it changes rather than restating today's entries", async () => {
-    assign(declared.registry, { [SPROCKET]: scenario(SPROCKET, "staff") });
+    assign(declared.registry, { [SPROCKET]: scenario(SPROCKET) });
     const first = await derive();
 
     delete declared.registry[SPROCKET];
-    assign(declared.registry, { [GIZMO]: scenario(GIZMO, "guest") });
+    assign(declared.registry, { [GIZMO]: scenario(GIZMO) });
     const second = await derive();
 
     expect(map(composablesSection(first.navigation)?.children, "to")).toEqual([
-      `/${ROUTE[SPROCKET]}/as/staff`
+      linkTo(SPROCKET)
     ]);
     expect(map(composablesSection(second.navigation)?.children, "to")).toEqual([
-      `/${ROUTE[GIZMO]}/as/guest`
+      linkTo(GIZMO)
     ]);
   });
 
@@ -271,7 +270,7 @@ describe("@AC every declared scenario is a sidebar entry, and only declared ones
 
 describe("@AC the Scenarios menu item is gone (G6 · C16)", () => {
   it("names no Scenarios entry and links nothing at the /scenarios index", async () => {
-    assign(declared.registry, { [SPROCKET]: scenario(SPROCKET, "client") });
+    assign(declared.registry, { [SPROCKET]: scenario(SPROCKET) });
 
     const { navigation } = await derive();
     const everyItem = [
@@ -287,9 +286,9 @@ describe("@AC the Scenarios menu item is gone (G6 · C16)", () => {
 describe("@AC the grouping and the badges are derived too (G6 · C17)", () => {
   it("files each entry under the family its key declares", async () => {
     assign(declared.registry, {
-      [SPROCKET]: scenario(SPROCKET, "client"),
-      [GIZMO]: scenario(GIZMO, "guest"),
-      [CLIENT_EMAILS_SCENARIO]: scenario(CLIENT_EMAILS_SCENARIO, "client")
+      [SPROCKET]: scenario(SPROCKET),
+      [GIZMO]: scenario(GIZMO),
+      [CLIENT_EMAILS_SCENARIO]: scenario(CLIENT_EMAILS_SCENARIO)
     });
 
     const { families } = await derive();
@@ -306,12 +305,14 @@ describe("@AC the grouping and the badges are derived too (G6 · C17)", () => {
 
   it("tags an entry with the capabilities its declaration carries, and no others", async () => {
     assign(declared.registry, {
-      [SPROCKET]: scenario(SPROCKET, "client", {
+      [SPROCKET]: scenario(SPROCKET, {
         useMutate: () => ({}),
         persistCriteria: true,
-        handoff: { edit: { target: SPROCKET_EDITOR, contextType: "client" } }
+        handoff: {
+          edit: { context: { type: "client", from: "#/properties/id" } }
+        }
       }),
-      [GIZMO]: scenario(GIZMO, "guest")
+      [GIZMO]: scenario(GIZMO)
     });
 
     const { composables } = await derive();
@@ -322,33 +323,34 @@ describe("@AC the grouping and the badges are derived too (G6 · C17)", () => {
 });
 
 /**
- * @AC A handoff target is an internal destination, not a menu item (P1-R8)
+ * @AC An editor is an INLINE channel, not a second menu item (R6-27)
  *
  * The operator's sidebar listed BOTH `Client Emails` and `Client Email` — the
- * collection and the manager `Edit` navigates to — so one composable family
- * published two entries. The manager is reachable only through the collection's
- * `handoff.edit.target`; a derivation that reads the registry blindly promotes
- * it to a top-level destination.
+ * collection and the manager `Edit` opened — so one module published two
+ * entries. The fix is upstream of the sidebar: a module declares ONE scenario,
+ * and the editor is a `handoff` spec inside it rather than a declaration of its
+ * own. The derivation therefore has nothing to exclude, and the claim is that a
+ * module carrying an editor still publishes exactly one destination.
  *
  * What breaks if these fail: the mass run's ~60 modules publish a sidebar of
  * ~120 entries, half of them dead ends a user cannot meaningfully land on.
  */
-describe("@AC a handoff-target scenario is not a navigable destination (P1-R8)", () => {
-  it("publishes the collection and drops the editor it hands off to", async () => {
+describe("@AC a module declaring an editor still publishes ONE destination (R6-27)", () => {
+  it("publishes one entry for a collection carrying an inline editor handoff", async () => {
     assign(declared.registry, {
-      [SPROCKET]: scenario(SPROCKET, "client", {
+      [SPROCKET]: scenario(SPROCKET, {
+        useMutate: () => ({}),
         handoff: {
-          edit: { target: SPROCKET_EDITOR, contextType: "client" }
+          edit: { context: { type: "client", from: "#/properties/id" } }
         }
       }),
-      [SPROCKET_EDITOR]: scenario(SPROCKET_EDITOR, "client"),
-      [GIZMO]: scenario(GIZMO, "guest")
+      [GIZMO]: scenario(GIZMO)
     });
 
     const { navigation, composables, families } = await derive();
 
     expect(sortBy(map(composablesSection(navigation)?.children, "to"))).toEqual(
-      sortBy([`/${ROUTE[SPROCKET]}/as/client`, `/${ROUTE[GIZMO]}/as/guest`])
+      sortBy([linkTo(SPROCKET), linkTo(GIZMO)])
     );
     expect(sortBy(map(composables, "key"))).toEqual(sortBy([SPROCKET, GIZMO]));
     expect(map(find(families, { name: "sprocket" })?.entries, "key")).toEqual([
@@ -356,14 +358,14 @@ describe("@AC a handoff-target scenario is not a navigable destination (P1-R8)",
     ]);
   });
 
-  it("one family, one item for the real client-email pair", async () => {
+  it("one family, one item for the real client-email module", async () => {
     assign(declared.registry, {
-      [CLIENT_EMAILS_SCENARIO]: scenario(CLIENT_EMAILS_SCENARIO, "client", {
+      [CLIENT_EMAILS_SCENARIO]: scenario(CLIENT_EMAILS_SCENARIO, {
+        useMutate: () => ({}),
         handoff: {
-          edit: { target: CLIENT_EMAIL_SCENARIO, contextType: "email" }
+          edit: { context: { type: "email", from: "#/properties/id" } }
         }
-      }),
-      [CLIENT_EMAIL_SCENARIO]: scenario(CLIENT_EMAIL_SCENARIO, "client")
+      })
     });
 
     const { navigation, families } = await derive();
@@ -376,10 +378,10 @@ describe("@AC a handoff-target scenario is not a navigable destination (P1-R8)",
     ]);
   });
 
-  it("excludes on the declared relation, not on how the key is spelled", async () => {
+  it("publishes a key merely SPELLED like an editor, since nothing hands off to it", async () => {
     assign(declared.registry, {
-      [SPROCKET]: scenario(SPROCKET, "client"),
-      [SPROCKET_EDITOR]: scenario(SPROCKET_EDITOR, "client")
+      [SPROCKET]: scenario(SPROCKET),
+      [SPROCKET_EDITOR]: scenario(SPROCKET_EDITOR)
     });
 
     const { navigation, composables } = await derive();
@@ -388,21 +390,5 @@ describe("@AC a handoff-target scenario is not a navigable destination (P1-R8)",
       sortBy([SPROCKET, SPROCKET_EDITOR])
     );
     expect(map(composablesSection(navigation)?.children, "to")).toHaveLength(2);
-  });
-
-  it("keeps a scenario nobody hands off to, and keeps the source of the handoff", async () => {
-    assign(declared.registry, {
-      [SPROCKET]: scenario(SPROCKET, "client", {
-        handoff: { edit: { target: GIZMO, contextType: "client" } }
-      }),
-      [GIZMO]: scenario(GIZMO, "guest"),
-      [SPROCKET_EDITOR]: scenario(SPROCKET_EDITOR, "client")
-    });
-
-    const { composables } = await derive();
-
-    expect(sortBy(map(composables, "key"))).toEqual(
-      sortBy([SPROCKET, SPROCKET_EDITOR])
-    );
   });
 });

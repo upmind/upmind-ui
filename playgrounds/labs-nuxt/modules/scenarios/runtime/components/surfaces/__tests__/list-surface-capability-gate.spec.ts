@@ -26,13 +26,14 @@ import {
   defaultRow,
   unverifiedRow
 } from "../../../../../../tests/support/recorded-emails";
-import clientEmails from "../../../../useClientEmails/scenario";
+import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import {
   CONTROL_TEST_VALUE,
   OVERFLOW_TRIGGER_TEST_VALUE
 } from "../../__tests__/control-test-values";
 import { ListSurface } from "../index";
-import { filter, keys, map } from "lodash-es";
+import { ActionPlacementTypes } from "../../../scenario.types";
+import { filter, keys, map, reject } from "lodash-es";
 import type { ScenarioAction } from "../../../scenario.types";
 import type { SurfaceActions } from "../surface.types";
 
@@ -163,10 +164,15 @@ describe("@AC3 capabilities — the gate is a gate, not a blanket withdrawal", (
   });
 });
 
+/** The declared actions a ROW offers — one list now (`R6-33`), split by placement alone. */
+const rowActions = reject(presentation.actions.elements as ScenarioAction[], {
+  placement: ActionPlacementTypes.HEADER
+});
+
 describe("@AC3 the gate is DECLARED — it is not the renderer's opinion", () => {
   it("declares a rule for every action a row flag governs", () => {
     const gated = map(
-      presentation.rowActions as ScenarioAction[],
+      rowActions,
       action => [action.name, action.rule?.effect] as const
     );
 
@@ -181,19 +187,13 @@ describe("@AC3 the gate is DECLARED — it is not the renderer's opinion", () =>
   });
 
   it("names only live members of the composable's action map", () => {
-    const calls = filter(
-      presentation.rowActions as ScenarioAction[],
-      action => !action.handoff
-    );
+    const calls = filter(rowActions, action => !action.handoff);
 
     expect(map(calls, "name")).toEqual(keys(ACTIONS));
   });
 
   it("gates a HANDOFF control on its target, never on a row flag", () => {
-    const handoffs = filter(
-      presentation.rowActions as ScenarioAction[],
-      "handoff"
-    );
+    const handoffs = filter(rowActions, "handoff");
 
     expect(map(handoffs, "name")).toEqual(["edit"]);
     for (const action of handoffs) {

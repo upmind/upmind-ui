@@ -7,8 +7,9 @@
  * reaching the factory as a registry entry appears in the sidebar AND on the
  * landing page with neither hand-edited.
  *
- * Navigability is derived from the contract's own handoff relations rather than
- * declared a second time: one composable family is one menu item.
+ * Every declaration is one menu item, and nothing is excluded: one module is
+ * one declaration (`R6-27`), so an editor is a handoff inside its own module's
+ * page rather than a second destination that had to be filtered out.
  */
 
 import { computed } from "vue";
@@ -19,10 +20,8 @@ import {
 } from "../../modules/scenarios/runtime/registry";
 import {
   compact,
-  difference,
   filter,
   first,
-  flatMap,
   get,
   groupBy,
   keys,
@@ -32,7 +31,6 @@ import {
   sortBy,
   startCase,
   toLower,
-  values,
   words
 } from "lodash-es";
 import type {
@@ -43,7 +41,6 @@ import type {
   NavSection,
   NavSource
 } from "./useNavigation.types";
-import type { ScenarioNav } from "../../modules/scenarios/runtime/scenario.types";
 
 // -----------------------------------------------------------------------------
 
@@ -85,39 +82,30 @@ function familyOf(identifier: string): string {
   return toLower(first(words(replace(identifier, /^use/, ""))) ?? identifier);
 }
 
-const HANDOFF_TARGET_KEYS: string[] = flatMap(scenarioKeys, key =>
-  map(values(get(registry, [key, "handoff"])), "target")
-);
-
 /**
- * A key another scenario hands off to is an internal destination — the editor
- * a row opens — so it is not its own menu item; one composable family is one
- * entry. Derived from the handoff relation the contract already declares, so a
- * module never has to remember a second flag as the registry grows.
- */
-const NAVIGABLE_KEYS = difference(scenarioKeys, HANDOFF_TARGET_KEYS);
-
-/**
- * Every navigable scenario as a menu entry, read from the declaration the same
- * way the playground reads it. The LABEL is the composable's own name — the
- * directory the url already carries (D1) — so the menu item, the page title and
- * the path can never disagree; only the icon is declarable.
+ * Every scenario as a menu entry, read from the declaration the same way the
+ * playground reads it. ONE module is ONE declaration and one entry (`R6-27`),
+ * so nothing has to be excluded: an editor is a handoff inside its own module's
+ * page, never a second destination. The LABEL is the composable's own name —
+ * the directory the url already carries (D1) — so the menu item, the page title
+ * and the path can never disagree; only the icon is declarable.
  */
 function scenarioEntries(): LabEntry[] {
-  return map(NAVIGABLE_KEYS, key => {
+  return map(scenarioKeys, key => {
     // The url segment is the scenario's own DIRECTORY, which is also its route
     // name — so the sidebar link and the registered route cannot drift.
     const route = get(registry, [key, "route"], key) as string;
-    const nav = get(registry, [key, "nav"]) as ScenarioNav | undefined;
 
     return {
       key,
       label: route,
-      icon: nav?.icon ?? SCENARIO_ICON,
+      icon: get(registry, [key, "presentation", "icon"], SCENARIO_ICON),
       // The FAMILY stays the directory's: a declared label is a human name for
       // one entry, never the grouping every entry in the family answers to.
       family: familyOf(route),
-      to: `/${route}/as/${get(registry, [key, "scope", "actor"])}`,
+      // Bare — every page boots as self, and only a url segment moves it off
+      // that (`R6-30b`), so the menu link states no scope at all.
+      to: `/${route}`,
       tags: compact(
         map(keys(get(registry, key)), field => get(BINDING_TAGS, field))
       )

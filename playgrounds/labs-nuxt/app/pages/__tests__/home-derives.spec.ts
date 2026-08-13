@@ -17,12 +17,12 @@
  * is involved: a registry entry is a declaration, not a recording.
  *
  * ## What Breaks If These Fail
- * The counts go stale the moment a module lands, and the canary that exists is
+ * The counts go stale the moment a module lands, and the client-emails page that exists is
  * missing from the one page a developer starts on.
  */
 
 import { mount } from "@vue/test-utils";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import * as vue from "vue";
 import { defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
@@ -126,6 +126,20 @@ async function home(): Promise<VueWrapper> {
 
 const hrefs = (wrapper: VueWrapper) =>
   map(wrapper.findAll("a"), link => link.attributes("href"));
+
+// Every case re-executes the whole page graph (`home()` resets the module
+// registry, which the warm-up below cannot amortize), and one mounts twice.
+vi.setConfig({ testTimeout: 20000 });
+
+/**
+ * The page's first resolve+transform costs ~3.3 s of the 5 s per-case budget,
+ * so whichever case mounted first reddened under the full suite's parallel
+ * load. Paid once here — a later `home()` re-executes an already-transformed
+ * graph in ~0.2 s — so every case measures its own work.
+ */
+beforeAll(async () => {
+  (await home()).unmount();
+}, 30000);
 
 beforeEach(() => {
   forEach(Object.keys(declared.registry), key => {

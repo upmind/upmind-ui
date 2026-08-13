@@ -1,0 +1,94 @@
+Negative control for the session pool's impersonation nest (parity cell P2 ·
+F5 CORRECTED · H9 · AC1.3).
+
+Removes the NESTING. Every impersonated client still renders, still carries its
+expiry badge and its exit-impersonation control, and still switches the session
+— they simply become flat siblings of the staff row instead of that staff
+session's own group: no Collapsible, no "Impersonating" trigger, no auto-expand
+on the active child, no indent rail. This is the capability the operator named
+as the one the existing component had and the mock's sketch had dropped, so a
+suite that cannot tell a nest from a list is not proving parity at all.
+
+The mutant is deliberately NOT a deletion of the clients: a spec that only
+asserts the impersonated client is somewhere in the pool stays GREEN under it,
+which is the point — that spec was never testing P2.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: session-switcher.spec.ts — the P2 cases (an impersonated client draws
+under its parent staff node, the nest is open on load because that client is
+active, and the nest's trigger collapses and re-expands it without closing the
+pool).
+
+  PROVER VERIFIED (blind) — 2026-08-12, component lane:
+  `vitest run --project component app/components/scope/__tests__/session-switcher.spec.ts`.
+  Applied from the repo root, RED, reverted with `git apply -R`, tree restored.
+
+  RED set — exactly the three declared P2 cases:
+    · draws the impersonated client inside its parent's node and nobody else's
+      (expected [] to have a length of 1 — no nest rendered at all)
+    · is already open on load because the active session is the nested one
+    · collapses and re-expands from its own trigger without closing the pool
+
+  Every other cell stayed GREEN under it, which is the point: P1/P3 grouping,
+  P4 expiry, P6 exit-impersonation, P7/P8, P9, P10-P12 and P13 cannot tell a
+  nest from a flat list, and none of them claims to.
+
+  Standing RED unrelated to this mutant (present with AND without it):
+  @P5 "removes only the session whose control was pressed".
+
+diff --git a/playgrounds/labs-nuxt/app/components/scope/SessionSwitcher.vue b/playgrounds/labs-nuxt/app/components/scope/SessionSwitcher.vue
+index c23cd1a..6729402 100644
+--- a/playgrounds/labs-nuxt/app/components/scope/SessionSwitcher.vue
++++ b/playgrounds/labs-nuxt/app/components/scope/SessionSwitcher.vue
+@@ -85,37 +85,9 @@
+               </Tooltip>
+             </span>
+           </DropdownMenuItem>
+ 
+-          <!-- The impersonation nest. Its trigger is deliberately NOT a menu
+-               item: opening and closing a staff session's clients is not a
+-               choice of session, so the pool stays open through it. -->
+-          <Collapsible
+-            v-if="nestOf(node).length"
+-            :open="isExpanded(node)"
+-            :class="styles.sessionSwitcher.nest"
+-            @update:open="open => expanded.set(node.id, open)"
+-          >
+-            <CollapsibleTrigger
+-              :class="styles.sessionSwitcher.nestTrigger"
+-              @click.stop
+-            >
+-              <Icon
+-                icon="chevron-right"
+-                size="nano"
+-                :class="nestChevron({ isOpen: isExpanded(node) })"
+-              />
+-              <span>{{ t("labs.session_impersonating") }}</span>
+-              <Badge
+-                size="sm"
+-                variant="muted"
+-                color="warning"
+-                :label="String(nestOf(node).length)"
+-                :class="styles.sessionSwitcher.nestCount"
+-              />
+-            </CollapsibleTrigger>
+-
+-            <CollapsibleContent>
++          <template v-if="nestOf(node).length">
+               <DropdownMenuItem
+                 v-for="client in nestOf(node)"
+                 :key="client.id"
+                 :class="sessionItem({ isActive: client.isActive })"
+@@ -170,10 +142,9 @@
+                     />
+                   </Tooltip>
+                 </span>
+               </DropdownMenuItem>
+-            </CollapsibleContent>
+-          </Collapsible>
++          </template>
+         </template>
+       </DropdownMenuGroup>
+     </template>
+ 

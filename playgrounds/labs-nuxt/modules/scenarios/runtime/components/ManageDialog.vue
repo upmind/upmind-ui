@@ -12,7 +12,7 @@
     <FormFlowSurface
       :snapshot="port.snapshot()"
       :actions="port.actions"
-      :form="handoff.scenario.presentation?.form"
+      :feedback="handoff.feedback"
       @resolved="emit('close')"
       @rejected="emit('close')"
     />
@@ -25,8 +25,8 @@
  * @module scenarios/runtime/components/ManageDialog
  * @description The editor a collection hands off to, opened OVER its list — the
  * add and edit halves of `Manage.vue`'s job, through the scenario architecture:
- * the handoff names the target, the target's own declaration boots it, and the
- * form the target publishes is the one the user fills in.
+ * the handoff is declared INLINE (`R6-27`), the module's own `useMutate` boots
+ * it, and the form the user fills in is that composable's own schemas.
  *
  * The record's id decides which half runs and the manager machine does the rest:
  * an id boots the editor `.for()` that record and its save UPDATES, no id boots
@@ -56,7 +56,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-const isNew = computed(() => isNil(props.contextId));
+const isNew = computed(() => isNil(props.context));
 
 // The shared vocabulary's own add-or-update pair, chosen the way `Manage.vue`
 // chooses it — by whether a record is being edited at all.
@@ -64,9 +64,9 @@ const title = computed(() =>
   t("action.add_new_or_update", isNew.value ? 1 : 0)
 );
 
-const port = useModulePort(props.handoff.scenario, {
+const port = useModulePort(props.handoff.useMutate, {
   actor: props.handoff.actor,
-  contextId: props.contextId,
+  context: props.context,
   fresh: isNew.value
 });
 

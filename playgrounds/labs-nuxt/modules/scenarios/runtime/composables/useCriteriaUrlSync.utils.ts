@@ -11,6 +11,7 @@
  */
 
 import {
+  declaredSortFields,
   RequestSortDirection,
   SortDirection
 } from "@upmind-automation/headless";
@@ -36,6 +37,7 @@ import {
   toNumber,
   toString
 } from "lodash-es";
+import type { JsonSchema } from "@jsonforms/core";
 import type { QuerySortEntry } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
@@ -139,11 +141,7 @@ export function paramsToCriteria(
     if (!isNil(value)) set(criteria, ["filters", column, operator], value);
   });
 
-  const fields = get(
-    schema,
-    ["properties", "sort", "items", "properties", "field", "enum"],
-    []
-  ) as string[];
+  const fields = declaredSortFields(schema as JsonSchema);
   const rawSort = get(params, SORT_PARAM);
   if (isString(rawSort) && !isEmpty(rawSort)) {
     const entries = compact(

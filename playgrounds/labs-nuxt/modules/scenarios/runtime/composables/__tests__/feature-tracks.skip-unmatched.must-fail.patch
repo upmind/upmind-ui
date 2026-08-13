@@ -1,0 +1,60 @@
+Negative control for feature-tracks.spec.ts (T4.1, AC2.5).
+
+A track is only honest if it runs EVERY step its scenario declares. The one
+mechanism keeping it honest is that a step no catalog pattern matches still
+becomes a scene — carrying `isMatched: false`, refusing when `run`, and pulling
+`isPlayable` down with it — instead of being dropped on the way in.
+
+This mutant is the skip: unmatched scenes are filtered out of the track, so the
+scene list holds only what happened to match, and `isPlayable` is asserted
+rather than computed. The playlist still parses, every track still plays, and a
+step the module can no longer run has silently left the demo — which is exactly
+the failure the control exists to catch, because a track that quietly plays a
+subset misrepresents what the module did.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: feature-tracks.spec.ts — the unmatched-step case (an unmatched step is
+surfaced as a scene that refuses and an unplayable track, never dropped).
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useFeatureTracks.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useFeatureTracks.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useFeatureTracks.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useFeatureTracks.ts
+@@ -28,7 +28,15 @@ import {
+   parseFeatureScenarios,
+   STEP_KIND
+ } from "@upmind-automation/scenario-harness";
+-import { every, forEach, kebabCase, map, noop, takeWhile } from "lodash-es";
++import {
++  every,
++  filter,
++  forEach,
++  kebabCase,
++  map,
++  noop,
++  takeWhile
++} from "lodash-es";
+ import type {
+   FeatureTrack,
+   FeatureTracksSource,
+@@ -121,7 +129,10 @@ function toTrack(
+   matcher: StepMatcher,
+   taken: Set<string>
+ ): FeatureTrack {
+-  const scenes = map(scenario.steps, step => toScene(step, matcher));
++  const scenes = filter(
++    map(scenario.steps, step => toScene(step, matcher)),
++    "isMatched"
++  );
+ 
+   return {
+     name: scenario.name,
+@@ -130,7 +141,7 @@ function toTrack(
+     line: scenario.line,
+     scope: declaredScope(scenes),
+     scenes,
+-    isPlayable: every(scenes, "isMatched")
++    isPlayable: true
+   };
+ }
+ 

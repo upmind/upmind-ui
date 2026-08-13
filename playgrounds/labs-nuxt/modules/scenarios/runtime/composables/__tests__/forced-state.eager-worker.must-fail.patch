@@ -1,0 +1,59 @@
+Negative control for forced-state.spec.ts (T3.12, AC8.1).
+
+Live is the default and the worker is not registered until something asks for a
+preset, so the ONE mechanism keeping msw out of a bare load is the dynamic
+`import("msw/browser")` inside `reconcile` — nothing else in the module names msw
+at all. This mutant hoists it to a static top-level import and drops the dynamic
+one, which is the whole defect in one line: importing `useForcedState` now pulls
+`msw/browser` into the boot graph whether or not a preset is ever armed.
+
+The observable is the MODULE GRAPH, not a call count, so this control still reds
+while the corpus seam is unresolved (`ESC6`): with `isCorpusSourceResolved` false
+`preset` is never armed at all, so no arm reaches `setupWorker` and an assertion
+counting calls would pass under the mutant. What must go red is that
+`msw/browser` was EVALUATED on a bare load — the spec's mock factory for that
+specifier must never run while `force=` is absent and no track is armed.
+
+Requires msw resolvable from `playgrounds/labs-nuxt` (present at `^2.11.4`) and
+`../force/handlers` (T3.11 owns it); until that lands, this patch and the spec
+that reads it both report a resolution failure rather than a verdict.
+
+Rebased 2026-08-12 onto the R6-10 revalidation fix: `reconcile` now branches
+rather than early-returns, so the hunk context moved. The mutation is unchanged.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: forced-state.spec.ts — the no-eager-import / no-worker-on-a-bare-load case.
+
+diff --git aa/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useForcedState.ts bb/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useForcedState.ts
+index e31a78fcb..f1f7a7906 100644
+--- aa/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useForcedState.ts
++++ bb/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useForcedState.ts
+@@ -20,12 +20,13 @@
+  * So a reconcile that lands ends by invalidating the cache: the preset is only
+  * visible because the page asks again through it (`AC8.4`, `R6-10`).
+  */
+ 
+ import { computed, effectScope, nextTick, ref, watch } from "vue";
+ import { queryClient } from "@upmind-automation/headless";
++import { setupWorker } from "msw/browser";
+ import { usePlaygroundUrlState } from "../../../../app/composables/usePlaygroundUrlState";
+ import { isCorpusSourceResolved } from "../force/corpus.source";
+ import { FORCE_URL_PRESETS } from "./useForcedState.types";
+ import { noop, some } from "lodash-es";
+ import type {
+   ForcePreset,
+@@ -90,13 +91,12 @@ function create(): UseForcedState {
+     else {
+       const { createForceHandlers } = await import("../force/handlers");
+       const handlers = createForceHandlers(next);
+ 
+       if (worker) worker.resetHandlers(...handlers);
+       else {
+-        const { setupWorker } = await import("msw/browser");
+         const armed: ForceWorker = setupWorker(...handlers);
+ 
+         // Held before it starts: a `start()` that throws still leaves a worker
+         // this tab can stop.
+         worker = armed;
+         registration = await armed.start({ onUnhandledRequest: "bypass" });

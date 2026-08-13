@@ -5,8 +5,8 @@ diff --git a/playgrounds/labs-nuxt/tests/e2e/catalogs.ts b/playgrounds/labs-nuxt
   * asserts.
   */
  
--import { clientEmailsSteps } from "@upmind-automation/headless/testing/client-email/canary.steps";
-+import { clientEmailsSteps } from "@upmind-automation/headless/src/modules/client-email/__tests__/client-email.canary.steps";
+-import { clientEmailsSteps } from "@upmind-automation/headless/testing/client-email/steps";
++import { clientEmailsSteps } from "@upmind-automation/headless/src/modules/client-email/__tests__/client-email.steps";
  import type { StepCatalog } from "@upmind-automation/scenario-harness";
  
  // -----------------------------------------------------------------------------

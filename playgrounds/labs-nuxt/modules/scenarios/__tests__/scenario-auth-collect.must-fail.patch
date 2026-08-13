@@ -5,6 +5,13 @@ Sends a guarded scenario to the standalone login page instead of its own
 than kept underneath — the "log in somewhere else and find your way back"
 journey the ruling replaced.
 
+Retargeted for T5.2: the overlay target now lives in `authOverlayTarget`, the one
+place the add-session ≠ log-in-to-proceed split is stated (H5), so the mutation
+lands on the builder rather than on the funnel's inline assign.
+
+Re-cut for R6-15b: `authOverlayTarget` now resolves the parent route name once,
+above the query it builds, so the mutation lands on that one return line.
+
 Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
 
 Reds: the auth-collect spec — the rejection re-targets the page's own overlay,
@@ -13,14 +20,12 @@ whose name is the one the overlay registry injects.
 diff --git a/playgrounds/labs-nuxt/app/funnels/labs.ts b/playgrounds/labs-nuxt/app/funnels/labs.ts
 --- a/playgrounds/labs-nuxt/app/funnels/labs.ts
 +++ b/playgrounds/labs-nuxt/app/funnels/labs.ts
-@@ -37,8 +37,8 @@
-         actions: [
-           "setUnresolved",
-           assign({
--            targetRoute: ({ currentRoute }: FunnelContext) => ({
--              name: `${toString(currentRoute?.name)}--${AUTH_OVERLAY_ID}`,
-+            targetRoute: () => ({
-+              name: ROUTE.SESSION_LOGIN,
-               params: currentRoute?.params,
-               query: {
-                 mode: SESSION_FORMS.LOGIN,
+@@ -87,7 +87,7 @@ export function authOverlayTarget(
+       };
+
+   return {
+-    name: `${parent}--${AUTH_OVERLAY_ID}`,
++    name: ROUTE.SESSION_LOGIN,
+     params: route?.params,
+     query
+   };

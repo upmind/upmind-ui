@@ -3,6 +3,7 @@ import { createScopedComposable, remove } from "../scope";
 import { useSessionStore } from "../session-store";
 import { useI18n } from "../system-localisation";
 import { authMachine } from "./auth.machine";
+import { AUTH_SCOPE_MATRIX } from "./auth.types";
 import { createAuthActions } from "./useAuth.actions";
 import { createAuthContext } from "./useAuth.context";
 import { createAuthInternals } from "./useAuth.internals";
@@ -103,7 +104,7 @@ function createAuthForScope(config: ScopeConfig, scopeKey: ScopeKey) {
 export const useAuth = createScopedComposable<
   ReturnType<typeof createAuthForScope>,
   AuthScopeMatrix
->("auth", createAuthForScope);
+>("auth", createAuthForScope, AUTH_SCOPE_MATRIX);
 
 // Type export for consumers
 export type UseAuth = ReturnType<typeof useAuth>;

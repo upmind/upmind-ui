@@ -1,0 +1,27 @@
+Negative control for the COMPLETE-CONTEXT law (`R6-30c` / `R6-30d`).
+
+Hands the editor a context whose id was never found on the row — `undefined`
+stringified — instead of opening a record that does not exist yet. The half-set
+case the headless type makes unrepresentable is reintroduced at the one place
+that builds a context from a row, so an Add-new control boots `.for()` against a
+record id nobody supplied rather than `.fresh()`.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the list-surface handoff spec — the Add-new control opens the editor on a
+NEW record (no context, booted fresh), and only a row-supplied id produces one.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+@@ -709,9 +709,7 @@
+     // A context is only ever COMPLETE (`R6-30c`): no id off the row means a
+     // record that does not exist yet, which the editor boots fresh.
+     context:
+-      handoff.context && !isNil(id)
+-        ? { type: handoff.context.type, id: toString(id) }
+-        : undefined
++      handoff.context && { type: handoff.context.type, id: toString(id) }
+   };
+ }
+ 

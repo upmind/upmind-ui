@@ -7,9 +7,10 @@
  * dismissal is the user's only copy of that input. A save the API refuses — the
  * capture run's own 409, verbatim — must leave the form on screen with the typed
  * value intact and the reason reported; only a save that actually settled
- * resolves the flow and lets the dialog close. The names come from the scenario's
- * own `presentation.form` (`input` / `update`), not from the archetype's
- * convention, because the manager's action names are the module's.
+ * resolves the flow and lets the dialog close. There is no declared form channel
+ * (`R6-29`): the surface takes whichever drive pair the live PORT publishes, so
+ * a manager-backed editor saves through `update` because that is the member the
+ * module exposes — never because a declaration said so.
  *
  * ## What Breaks If These Fail
  * A rejected save dismisses the form and takes the user's input with it, leaving
@@ -30,12 +31,13 @@ import {
   clearToasts,
   mountToaster
 } from "../../../../../../tests/support/toaster";
-import clientEmail from "../../../../useClientEmail/scenario";
+import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { FormFlowSurface } from "../index";
 
 // -----------------------------------------------------------------------------
 
-const form = clientEmail.presentation?.form;
+/** What the editor says either way — the handoff that opens it carries it (`R6-27`). */
+const feedback = clientEmails.handoff?.edit?.feedback;
 
 const schema = {
   type: "object",
@@ -47,18 +49,25 @@ const uischema = {
   elements: [{ type: "Control", scope: "#/properties/email" }]
 };
 
-function mountEditor(update: () => unknown) {
-  const actions = { input: vi.fn(), update: vi.fn(update) };
+/** A port publishing ONE drive pair — the manager's by default, the flow machine's on ask. */
+function mountEditor(
+  submit: () => unknown,
+  pair: [string, string] = ["input", "update"]
+) {
+  const actions: Record<string, ReturnType<typeof vi.fn>> = {
+    [pair[0]]: vi.fn(),
+    [pair[1]]: vi.fn(submit)
+  };
   const wrapper = mount(FormFlowSurface, {
     attachTo: document.body,
     props: {
       snapshot: {
-        actions: ["input", "update"],
+        actions: pair,
         context: { schema, uischema, model: { email: unverifiedRow.email } },
         meta: {}
       },
       actions,
-      form
+      feedback
     }
   });
   return { wrapper, actions };
@@ -73,10 +82,26 @@ afterEach(clearToasts);
 
 // -----------------------------------------------------------------------------
 
-describe("@AC3 the editor's save is driven by the DECLARED action names", () => {
-  it("declares the manager's own names rather than the archetype's convention", () => {
-    expect(form?.input).toBe("input");
-    expect(form?.submit).toBe("update");
+describe("R6-29 the editor's save is driven by the member the PORT publishes", () => {
+  it("saves a manager-backed editor through the manager's own member", async () => {
+    mountToaster();
+    const { wrapper, actions } = mountEditor(() => Promise.resolve({ id: 1 }));
+
+    await save(wrapper);
+
+    expect(actions.update).toHaveBeenCalledTimes(1);
+  });
+
+  it("saves a flow-machine-backed editor through the flow machine's member", async () => {
+    mountToaster();
+    const { wrapper, actions } = mountEditor(
+      () => Promise.resolve({ id: 1 }),
+      ["set", "resolve"]
+    );
+
+    await save(wrapper);
+
+    expect(actions.resolve).toHaveBeenCalledTimes(1);
   });
 
   it("fires the declared submit action with the model it holds", async () => {
@@ -107,9 +132,7 @@ describe("@AC3 a settled save resolves the flow", () => {
     await save(wrapper);
 
     expect(await toaster.reported()).toContain(
-      confirm[
-        form?.feedback?.success.replace("confirm.", "") as keyof typeof confirm
-      ]
+      confirm[feedback?.success.replace("confirm.", "") as keyof typeof confirm]
     );
   });
 });
@@ -143,7 +166,7 @@ describe("@AC3 a REFUSED save keeps the form on screen", () => {
 
     const reported = await toaster.reported();
     expect(reported).toContain(
-      error[form?.feedback?.failure.replace("error.", "") as keyof typeof error]
+      error[feedback?.failure.replace("error.", "") as keyof typeof error]
     );
     expect(reported).toContain(API_MESSAGE);
   });

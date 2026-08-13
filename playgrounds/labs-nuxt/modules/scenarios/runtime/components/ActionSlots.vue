@@ -13,8 +13,8 @@
         <Tooltip
           v-for="action in visibleActions"
           :key="`always-${action.name}`"
-          :label="action.label"
-          :active="!!iconOnly"
+          :label="locked ? t('labs.replay_locked') : action.label"
+          :active="!!iconOnly || !!locked"
         >
           <Button
             size="sm"
@@ -39,8 +39,10 @@
         >
           <!-- No tooltip here: the ui DropdownMenu binds its trigger to the
                FIRST element of this slot, and a Tooltip in between would take
-               that binding and leave the menu unopenable. The trigger keeps its
-               accessible name, and the menu it opens names every action in it. -->
+               that binding and leave the menu unopenable. So the trigger says
+               why it is refused in its own `title`, the way the pagination
+               region does — a trigger that still opens a menu of dead controls
+               is the lock leaking (`R6-23`). -->
           <template #trigger>
             <Button
               size="sm"
@@ -49,6 +51,8 @@
               icon-only
               :label="t('action.show_more_options')"
               :aria-label="t('action.show_more_options')"
+              :disabled="locked"
+              :title="locked ? t('labs.replay_locked') : undefined"
             />
           </template>
         </DropdownMenu>
@@ -68,6 +72,10 @@
  * The context-menu is the one deliberate duplicate: it carries every action so
  * a right-click always reaches all of them, and it is never the sole path to
  * any (the two declared placements together already are).
+ *
+ * While a scenario drives the surface every control here is locked (`R6-23`),
+ * and the tooltip says WHY rather than repeating the label of a control that
+ * will not fire — a refusal nobody can explain reads as a broken button.
  */
 
 import { computed } from "vue";

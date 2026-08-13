@@ -1,228 +1,280 @@
+// -----------------------------------------------------------------------------
+/**
+ * @module steps/__tests__/traceability
+ * @description The reshaped spec-to-catalog gate, verdict by verdict. One
+ * `.feature` per module holds driveable and not-yet-driveable scenarios side by
+ * side, so the gate is no longer a flat "every step matched" flag: each scenario
+ * falls in exactly one of `driveable` / `partial` / `notYet`, and only `partial`
+ * fails — it reads as driveable and silently is not. Three further drift
+ * conditions ride alongside as their own lists: an orphan definition, a pattern
+ * a second catalog also claims, and a pattern that does not compile.
+ *
+ * `featureAcTags` is proven here too, and its return being an ARRAY is a claim
+ * in its own right: lodash `difference` reads a `Set` as having no elements, so
+ * a `Set` on either side of the AC link would pass vacuously in both directions.
+ *
+ * ## What Breaks If These Fail
+ * A module's spec and the catalog that drives it drift apart in silence — the
+ * half-matched scenario nobody runs, the definition nobody calls, the phrasing
+ * two modules answer, the AC nobody proves.
+ *
+ * Negative controls: `traceability-partial-verdict.must-fail.patch`,
+ * `traceability-not-yet-verdict.must-fail.patch`,
+ * `traceability-cross-catalog-duplicate.must-fail.patch`,
+ * `traceability-malformed-preserved.must-fail.patch`,
+ * `feature-ac-tags-todo-excluded.must-fail.patch`.
+ */
+
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { fixtureSteps } from "../../__fixtures__/fixture.steps";
-import { createTraceabilityCheck } from "../traceability";
-import type { StepCatalog, StepDef } from "../steps.types";
+import { STEP_KIND } from "../steps.types";
+import { createTraceabilityCheck, featureAcTags } from "../traceability";
+import { difference, intersection, isArray, map } from "lodash-es";
+import type { StepCatalog, StepCatalogs, StepDef } from "../steps.types";
+
+// -----------------------------------------------------------------------------
 
 const featureText = readFileSync(
   fileURLToPath(new URL("../../__fixtures__/fixture.feature", import.meta.url)),
   "utf-8"
 );
-const stepsSourceText = readFileSync(
-  fileURLToPath(
-    new URL("../../__fixtures__/fixture.steps.ts", import.meta.url)
-  ),
-  "utf-8"
-);
 
-/**
- * @AC-5 — the feature<->steps drift check, both directions, over the real
- * @AC-5 exemplar pair (`__fixtures__/fixture.feature` + `fixture.steps.ts`).
- */
-describe("@AC-5 createTraceabilityCheck — the BDD pair stays in lockstep", () => {
-  it("the exemplar pair runs green end to end (bdd @AC-5 scenario 1)", () => {
-    const result = createTraceabilityCheck(featureText, fixtureSteps);
+const NO_OTHER_CATALOGS: StepCatalogs = {};
 
-    expect(result.ok).toBe(true);
-    expect(result.unmatchedFeatureSteps).toStrictEqual([]);
-    expect(result.orphanStepDefs).toStrictEqual([]);
-  });
+const orphan: StepDef = {
+  kind: STEP_KIND.GIVEN,
+  pattern: "an orphan step nothing in the feature uses",
+  handler: () => {}
+};
 
-  it("a feature step with no matching step definition is red, naming the unmatched step (bdd @AC-5 scenario 2)", () => {
-    const driftedFeature = `${featureText}
+const malformed: StepDef = {
+  kind: STEP_KIND.GIVEN,
+  pattern: "a value of {unregisteredCustomParameterType}",
+  handler: () => {}
+};
 
-  Scenario: An orphaned scenario step
+const withExtraDef = (def: StepDef): StepCatalog => ({
+  steps: [...fixtureSteps.steps, def]
+});
+
+const MIXED_FEATURE = `
+Feature: One file, both states
+  Scenario: fully driveable
+    Given a fresh fixture switch
+    When the switch is turned on
+    Then the switch reports itself as on
+
+  Scenario: half driveable
+    Given a fresh fixture switch
+    Then the switch reports something nobody implemented
+
+  Scenario: not driveable at all
     Given a step nobody registered anywhere
+    Then another step nobody registered anywhere
 `;
 
-    const result = createTraceabilityCheck(driftedFeature, fixtureSteps);
+const SHARED_BACKGROUND_FEATURE = `
+Feature: A Background every scenario shares
+  Background:
+    Given a fresh fixture switch
 
-    expect(result.ok).toBe(false);
-    expect(result.orphanStepDefs).toStrictEqual([]);
-    expect(
-      result.unmatchedFeatureSteps.some(
-        step => step.text === "a step nobody registered anywhere"
-      )
-    ).toBe(true);
-  });
+  Scenario: driven
+    When the switch is turned on
+    Then the switch reports itself as on
 
-  it("a step definition matching no feature step is red, naming the orphan definition (bdd @AC-5 scenario 3)", () => {
-    const orphanStepDef: StepDef = {
-      kind: "Given",
-      pattern: "an orphan step nothing in the feature uses",
-      handler: () => {}
-    };
-    const driftedCatalog: StepCatalog = {
-      steps: [...fixtureSteps.steps, orphanStepDef]
-    };
+  Scenario: written down, not yet driven
+    When something nobody implemented happens
+    Then something nobody implemented is reported
+`;
 
-    const result = createTraceabilityCheck(featureText, driftedCatalog);
+const AC_FEATURE = `
+Feature: AC tags
+  @AC-1 @collection
+  Scenario: proven
+    Given a fresh fixture switch
 
-    expect(result.ok).toBe(false);
-    expect(result.unmatchedFeatureSteps).toStrictEqual([]);
-    expect(result.orphanStepDefs).toContainEqual(orphanStepDef);
-  });
+  @AC-2 @todo
+  Scenario: parked
+    Given a fresh fixture switch
 
-  it("the exemplar step definitions' import surface is exactly the allowed specifiers (bdd @AC-5 scenario 4)", () => {
-    const importStatements = [
-      ...stepsSourceText.matchAll(/^import\b[\s\S]*?;/gm)
-    ].map(match => match[0]);
+  @AC-1
+  Scenario: proven again by another angle
+    Given a fresh fixture switch
 
-    expect(importStatements.length).toBeGreaterThan(0);
+  @AC-3
+  Scenario: also proven
+    Given a fresh fixture switch
+`;
 
-    // Engine-free means only this package's own modules, reached relatively —
-    // three internal (`defineSteps`, `SCOPE_ACTOR`, type `World`) plus the
-    // local fixture manifest (`FIXTURE_KEY`). Never an engine, never a
-    // package-wide manifest (item 4: the harness carries no baked-in
-    // manifest), and never the package's own published specifier, which would
-    // route an internal fixture back through the barrel.
-    const allowedSpecifiers = new Set([
-      "../steps/step-catalog",
-      "../world/scope-actor",
-      "../world/world.types",
-      "./fixture-registry"
-    ]);
-    for (const statement of importStatements) {
-      const specifierMatch = /from\s+"([^"]+)"/.exec(statement);
-      expect(specifierMatch).not.toBeNull();
-      expect(allowedSpecifiers.has(specifierMatch![1])).toBe(true);
-    }
+// -----------------------------------------------------------------------------
 
-    const namedImports = importStatements
-      .flatMap(statement => {
-        const match = /\{([^}]*)\}/.exec(statement);
-        return match ? match[1].split(",") : [];
-      })
-      .map(name => name.trim())
-      .filter(Boolean);
-
-    expect(new Set(namedImports)).toStrictEqual(
-      new Set(["defineSteps", "World", "FIXTURE_KEY", "SCOPE_ACTOR"])
+describe("createTraceabilityCheck — one verdict per scenario", () => {
+  it("grades the exemplar pair driveable end to end, with nothing left over", () => {
+    const result = createTraceabilityCheck(
+      featureText,
+      fixtureSteps,
+      NO_OTHER_CATALOGS
     );
+
+    expect(result.driveable).toStrictEqual(result.scenarios);
+    expect(result.partial).toStrictEqual([]);
+    expect(result.notYet).toStrictEqual([]);
+    expect(result.orphanStepDefs).toStrictEqual([]);
+    expect(result.duplicatedPatterns).toStrictEqual([]);
+    expect(result.malformedStepDefs).toStrictEqual([]);
+  });
+
+  it("partitions every scenario into exactly one bucket, so the driveable-of-total count is total", () => {
+    const { scenarios, driveable, partial, notYet } = createTraceabilityCheck(
+      MIXED_FEATURE,
+      fixtureSteps,
+      NO_OTHER_CATALOGS
+    );
+
+    expect(driveable.length + partial.length + notYet.length).toBe(
+      scenarios.length
+    );
+    expect(intersection(driveable, partial, notYet)).toStrictEqual([]);
+    expect(map(driveable, "name")).toStrictEqual(["fully driveable"]);
+  });
+
+  it("FAILS a scenario matched only in part — the case that reads driveable and silently is not", () => {
+    const { partial } = createTraceabilityCheck(
+      MIXED_FEATURE,
+      fixtureSteps,
+      NO_OTHER_CATALOGS
+    );
+
+    expect(map(partial, "name")).toStrictEqual(["half driveable"]);
+  });
+
+  it("PASSES a scenario no step matches at all — a capability written down and not yet driven", () => {
+    const { partial, notYet } = createTraceabilityCheck(
+      MIXED_FEATURE,
+      fixtureSteps,
+      NO_OTHER_CATALOGS
+    );
+
+    expect(map(notYet, "name")).toStrictEqual(["not driveable at all"]);
+    expect(map(partial, "name")).not.toContain("not driveable at all");
+  });
+
+  it("does not let a shared IMPLEMENTED Background make an un-stepped scenario partial", () => {
+    const { scenarios, driveable, partial, notYet } = createTraceabilityCheck(
+      SHARED_BACKGROUND_FEATURE,
+      fixtureSteps,
+      NO_OTHER_CATALOGS
+    );
+
+    expect(map(scenarios, "backgroundStepCount")).toStrictEqual([1, 1]);
+    expect(map(driveable, "name")).toStrictEqual(["driven"]);
+    expect(map(notYet, "name")).toStrictEqual(["written down, not yet driven"]);
+    expect(partial).toStrictEqual([]);
   });
 });
 
-/**
- * @AC-5 — the real `@cucumber/gherkin` AST rewrite: Scenario Outline
- * expansion, Background steps, and DocString/DataTable bodies must never be
- * mistaken for scenario steps of their own.
- */
-describe("@AC-5 createTraceabilityCheck — gherkin AST behaviour", () => {
-  it("a Scenario Outline's steps match after Examples-row expansion", () => {
-    const outlineFeature = `
-Feature: Outline expansion
-  Scenario Outline: Labelling the switch with different values
-    Given a fresh fixture switch
-    When the switch is labelled "<label>"
-    Then the switch reports a label is set
+describe("createTraceabilityCheck — the drift no bucket carries", () => {
+  it("FAILS a step definition matched by no scenario, naming the orphan", () => {
+    const { orphanStepDefs, partial } = createTraceabilityCheck(
+      featureText,
+      withExtraDef(orphan),
+      NO_OTHER_CATALOGS
+    );
 
-    Examples:
-      | label |
-      | demo  |
-      | other |
-`;
-
-    const result = createTraceabilityCheck(outlineFeature, fixtureSteps);
-
-    // Asserted on unmatchedFeatureSteps only: this synthetic feature doesn't
-    // exercise every fixtureSteps entry, so orphanStepDefs (and therefore
-    // .ok) legitimately carries unrelated noise unconnected to expansion.
-    expect(result.unmatchedFeatureSteps).toStrictEqual([]);
+    expect(orphanStepDefs).toStrictEqual([orphan]);
+    expect(partial).toStrictEqual([]);
   });
 
-  it("a Background step is counted against the catalog, not dropped", () => {
-    const backgroundFeature = `
-Feature: Background counts
-  Background:
-    Given a fresh fixture switch
-
-  Scenario: Turning it on after background boot
-    When the switch is turned on
-    Then the switch reports itself as on
-`;
-
-    const result = createTraceabilityCheck(backgroundFeature, fixtureSteps);
-
-    // Asserted on unmatchedFeatureSteps only — see the Outline test above.
-    expect(result.unmatchedFeatureSteps).toStrictEqual([]);
-  });
-
-  it("a Background step with no matching definition is still red, naming the unmatched step", () => {
-    const backgroundFeature = `
-Feature: Background drift is still caught
-  Background:
-    Given a step nobody registered anywhere
-
-  Scenario: Turning it on after background boot
-    When the switch is turned on
-    Then the switch reports itself as on
-`;
-
-    const result = createTraceabilityCheck(backgroundFeature, fixtureSteps);
-
-    expect(result.ok).toBe(false);
-    expect(
-      result.unmatchedFeatureSteps.some(
-        step => step.text === "a step nobody registered anywhere"
-      )
-    ).toBe(true);
-  });
-
-  it("a DocString body is not parsed as its own step, even one containing a fake Given/When/Then line", () => {
-    const docStringFeature = `
-Feature: DocStrings are not steps
-  Scenario: A step carries a docstring body
-    Given a fresh fixture switch
-    When the switch is labelled "demo"
-    """
-    This text is a docstring body attached to the previous step, not a
-    step of its own.
-    Given this line must never be parsed as a step of its own.
-    """
-    Then the switch reports a label is set
-`;
-
-    const result = createTraceabilityCheck(docStringFeature, fixtureSteps);
-
-    // Asserted on unmatchedFeatureSteps only — see the Outline test above.
-    expect(result.unmatchedFeatureSteps).toStrictEqual([]);
-  });
-
-  it("a DataTable body is not parsed as its own step", () => {
-    const dataTableFeature = `
-Feature: DataTables are not steps
-  Scenario: A step carries a data table
-    Given a fresh fixture switch
-    When the switch is turned on
-    Then the switch reports itself as on
-      | field | value  |
-      | mode  | manual |
-`;
-
-    const result = createTraceabilityCheck(dataTableFeature, fixtureSteps);
-
-    // Asserted on unmatchedFeatureSteps only — see the Outline test above.
-    expect(result.unmatchedFeatureSteps).toStrictEqual([]);
-  });
-
-  it("a StepDef whose pattern fails to compile as a cucumber expression surfaces as a structured malformed entry, never a throw", () => {
-    const malformedStepDef: StepDef = {
-      kind: "Given",
-      pattern: "a value of {unregisteredCustomParameterType}",
-      handler: () => {}
-    };
-    const catalog: StepCatalog = {
-      steps: [...fixtureSteps.steps, malformedStepDef]
+  it("FAILS a pattern a second catalog also claims, naming the modules that claim it", () => {
+    const shared = "a fresh fixture switch";
+    const catalogs: StepCatalogs = {
+      "other-module": {
+        steps: [{ kind: STEP_KIND.GIVEN, pattern: shared, handler: () => {} }]
+      }
     };
 
+    const { duplicatedPatterns } = createTraceabilityCheck(
+      featureText,
+      fixtureSteps,
+      catalogs
+    );
+
+    expect(duplicatedPatterns).toStrictEqual([
+      { pattern: shared, modules: ["other-module"] }
+    ]);
+  });
+
+  it("leaves a pattern no other catalog claims out of the collision list", () => {
+    const catalogs: StepCatalogs = {
+      "other-module": {
+        steps: [
+          {
+            kind: STEP_KIND.GIVEN,
+            pattern: "a phrasing this catalog never uses",
+            handler: () => {}
+          }
+        ]
+      }
+    };
+
+    const { duplicatedPatterns } = createTraceabilityCheck(
+      featureText,
+      fixtureSteps,
+      catalogs
+    );
+
+    expect(duplicatedPatterns).toStrictEqual([]);
+  });
+
+  it("FAILS a pattern that does not compile, surfacing it as data rather than throwing", () => {
     let result: ReturnType<typeof createTraceabilityCheck> | undefined;
+
     expect(() => {
-      result = createTraceabilityCheck(featureText, catalog);
+      result = createTraceabilityCheck(
+        featureText,
+        withExtraDef(malformed),
+        NO_OTHER_CATALOGS
+      );
     }).not.toThrow();
 
-    expect(result?.malformedStepDefs).toContainEqual(
-      expect.objectContaining({ pattern: malformedStepDef.pattern })
+    expect(map(result?.malformedStepDefs, "pattern")).toStrictEqual([
+      malformed.pattern
+    ]);
+  });
+
+  it("keeps an uncompilable definition out of the orphan list, so one defect is not reported as two", () => {
+    const { orphanStepDefs } = createTraceabilityCheck(
+      featureText,
+      withExtraDef(malformed),
+      NO_OTHER_CATALOGS
     );
+
+    expect(orphanStepDefs).toStrictEqual([]);
+  });
+});
+
+describe("featureAcTags — the AC link's left-hand side", () => {
+  it("returns an ARRAY, so lodash difference sees its elements instead of nothing", () => {
+    const tags = featureAcTags(AC_FEATURE);
+
+    expect(isArray(tags)).toBe(true);
+    expect(difference(tags, ["AC-1"])).toStrictEqual(["AC-3"]);
+    expect(difference(["AC-9"], tags)).toStrictEqual(["AC-9"]);
+  });
+
+  it("omits the AC id of a @todo-tagged scenario, so a parked capability demands no proof", () => {
+    expect(featureAcTags(AC_FEATURE)).toStrictEqual(["AC-1", "AC-3"]);
+  });
+
+  it("de-duplicates an AC two scenarios both tag, keeping document order", () => {
+    const tags = featureAcTags(`${AC_FEATURE}
+  @AC-0
+  Scenario: last
+    Given a fresh fixture switch
+`);
+
+    expect(tags).toStrictEqual(["AC-1", "AC-3", "AC-0"]);
   });
 });

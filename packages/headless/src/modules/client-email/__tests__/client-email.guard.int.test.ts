@@ -23,7 +23,7 @@
  * is. The second shape is the one the guard has to hold on its own; a suite
  * that drives only the first cannot tell an authentication gate from an
  * "is there an id" gate, because on that path the two are the same question.
- * The canary reaches it at `/scenarios/client-emails/as/client/for/client/<id>`.
+ * The playground reaches it at `/scenarios/client-emails/as/client/for/client/<id>`.
  *
  * ## What Breaks If These Fail
  * An unauthenticated caller reaches a client's email collection at all — the

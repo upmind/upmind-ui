@@ -80,14 +80,25 @@ export function useOverlayRoute() {
     }
   }
 
-  /** Dismiss the overlay (backdrop click) — go back, or to parent route if no history */
+  /**
+   * Dismiss the overlay (close control, ESC, backdrop) — to the funnel's own
+   * cancel landing, else back, else the parent route.
+   *
+   * `cancelUrl` is read off the LIVE route and it goes FIRST. Both were bugs:
+   * `useQueryParams()` snapshots `router.currentRoute` at call time and this
+   * composable is set up once in the app shell, so what it read was the route
+   * the app BOOTED on and no overlay's own cancel landing ever reached here;
+   * and history-first sent a guarded page's overlay back into the guard that
+   * opened it, which re-targets the overlay — so the close control, ESC and the
+   * backdrop all appeared to do nothing at all. A funnel that names where
+   * cancelling lands has said something the history stack cannot.
+   */
   function dismiss(): void {
-    if (window.history.state?.back) {
-      router.back();
-    } else {
-      const cancelUrl = getParam(QUERY_PARAMS.CANCEL_URL);
-      router.push(cancelUrl ? { name: cancelUrl } : resolveParentRoute());
-    }
+    const cancelUrl = useQueryParams(route).getParam(QUERY_PARAMS.CANCEL_URL);
+
+    if (cancelUrl) router.push({ name: cancelUrl });
+    else if (window.history.state?.back) router.back();
+    else router.push(resolveParentRoute());
   }
 
   /** Waits for the composable to be ready — resolves immediately (no async init). */

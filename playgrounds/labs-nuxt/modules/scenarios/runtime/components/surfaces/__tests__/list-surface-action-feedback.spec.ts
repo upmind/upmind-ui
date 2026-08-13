@@ -12,7 +12,7 @@
  * any other.
  *
  * ## What Breaks If These Fail
- * The canary goes back to fire-and-forget: no way to tell a succeeded action
+ * The client-emails page goes back to fire-and-forget: no way to tell a succeeded action
  * from a swallowed one, and no way to tell two different outcomes apart.
  */
 
@@ -31,7 +31,7 @@ import {
   clearToasts,
   mountToaster
 } from "../../../../../../tests/support/toaster";
-import clientEmails from "../../../../useClientEmails/scenario";
+import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import {
   CONTROL_TEST_VALUE,
   OVERFLOW_TRIGGER_TEST_VALUE

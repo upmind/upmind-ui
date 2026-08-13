@@ -1,0 +1,33 @@
+Negative control for the rail never exporting its own width (`AC2.4` · `R6-7`).
+
+Drops the stop's `min-w-0` and leaves the rest — the rail still takes the page's
+width, still draws every stop, still seeks. So the only claim that can go red is
+the ruled one: a stop's label wraps INSIDE its own column. A flex item defaults
+to `min-width:auto` and refuses to go below its content, so one long Gherkin
+sentence sets the row's minimum, the page shell sizes itself to it, and the
+canvas gains the horizontal scrollbar the rail is supposed to absorb.
+
+Re-targeted 2026-08-13: under `R7-8` the rail is its own full-width row, so the
+mechanism that keeps it inside the page moved from the lane's `w-0 flex-1` basis
+to the stop's own `min-w-0`. Same claim, same red, current mechanism.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the scene-rail width case — the rail's stops are shrinkable, so the row
+cannot report a long scene as the page's minimum width.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRail.styles.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRail.styles.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRail.styles.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRail.styles.ts
+@@ -18,11 +18,6 @@
+     // a stop's label wraps inside its own column instead (`AC2.4`).
+     root: cva("w-full min-w-0"),
+
+-    // A flex item defaults to `min-width:auto` and refuses to go below its
+-    // content, so one long Gherkin sentence would set the row's width and the
+-    // PAGE would gain the horizontal scrollbar the rail is supposed to absorb.
+-    item: cva("min-w-0"),
+-
+     // The played part of the track reads primary, the rest neutral — the
+     // playing treatment is the primary family throughout (H2).
+     indicator: cva(

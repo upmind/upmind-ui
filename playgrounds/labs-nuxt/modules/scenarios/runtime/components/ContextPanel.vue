@@ -1,6 +1,6 @@
 <template>
   <section v-if="items.length" :class="styles.contextPanel.root">
-    <h2 :class="styles.contextPanel.title">Context</h2>
+    <h2 :class="styles.contextPanel.title">{{ t("labs.debug_context") }}</h2>
     <div :class="styles.contextPanel.list">
       <Collapsible
         v-for="item in items"
@@ -8,9 +8,13 @@
         :class="styles.contextPanel.collapsible"
       >
         <CollapsibleTrigger as-child>
-          <button :class="styles.contextPanel.trigger">
-            {{ formatKey(item.key) }}
-          </button>
+          <Button
+            variant="ghost"
+            color="neutral"
+            size="sm"
+            :label="formatKey(item.key)"
+            :class="styles.contextPanel.trigger"
+          />
         </CollapsibleTrigger>
         <CollapsibleContent>
           <pre :class="styles.contextPanel.pre">{{ item.value }}</pre>
@@ -30,7 +34,9 @@
  */
 
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import {
+  Button,
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
@@ -42,6 +48,8 @@ import type { ContextPanelItem, ContextPanelProps } from "./ContextPanel.types";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<ContextPanelProps>();
+
+const { t } = useI18n();
 
 function formatKey(key: string): string {
   return startCase(key);

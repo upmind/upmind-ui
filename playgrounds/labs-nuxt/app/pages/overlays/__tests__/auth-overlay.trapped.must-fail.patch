@@ -1,0 +1,43 @@
+Negative control for the auth overlay being dismissable (`R7-12`).
+
+Drops the route's own `dismissable` declaration. The overlay still renders, the
+journey still collects, and every auth case still passes — but the visitor is
+trapped, because `OverlayController` declares `dismissable` as a Boolean prop
+absent from its `withDefaults`, and Vue casts an unpassed Boolean to `false`
+rather than leaving it undefined. The dialog is therefore handed a hard `false`:
+no close control drawn, ESC prevented, backdrop inert. Proven at runtime — a
+component with `dismissable: { type: Boolean }` and no default resolves the
+absent prop to `false`, while the neighbouring `modal: { type: Boolean, default:
+undefined }` resolves to `undefined`.
+
+This is the subtlest kind of regression the round found, because it removes a
+line that looks decorative: the meta is the only thing standing between the
+overlay and a gate nobody can leave, and nothing else in the tree says so.
+
+Nothing else moves — the chooser, the journey, the hand-off and the cancel
+landing are untouched — so a red here is the way out and not a crash.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: auth-overlay.spec.ts — the case asserting the overlay declares itself
+dismissable (and, where the controller is mounted for real, that the dialog gets
+`dismissable: true` and draws a close control). Every case about which journey
+is collected stays GREEN by construction; if they go red too, the control has
+been over-applied.
+
+  FOR THE PROVER: authored by the developer seat, which knew the line to mutate;
+  it carries no verification run. Apply it blind, confirm the dismissal case
+  goes red and the journey cases stay green, then revert.
+
+--- a/playgrounds/labs-nuxt/app/pages/overlays/auth.vue
++++ b/playgrounds/labs-nuxt/app/pages/overlays/auth.vue
+@@ -89,8 +89,7 @@
+  */
+ definePageMeta({
+   name: ROUTE.OVERLAY_AUTH,
+-  overlay: OverlayType.MODAL,
+-  dismissable: true
++  overlay: OverlayType.MODAL
+ });
+
+ const route = useRoute();

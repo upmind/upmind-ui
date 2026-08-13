@@ -4,6 +4,7 @@
 // declaring file is safe: `createScopedComposable` is a hoisted declaration.
 import { createScopedComposable } from "../scope/scope.builder";
 import createClientEmailServices from "./client-email.services";
+import { CLIENT_EMAILS_SCOPE_MATRIX } from "./client-email.types";
 import { createClientEmailsActions } from "./useClientEmails.actions";
 import { createClientEmailsContext } from "./useClientEmails.context";
 import { createClientEmailsInternals } from "./useClientEmails.internals";
@@ -71,6 +72,6 @@ function createClientEmailsForScope(config: ScopeConfig, scopeKey: ScopeKey) {
 export const useClientEmails = createScopedComposable<
   ReturnType<typeof createClientEmailsForScope>,
   ClientEmailsScopeMatrix
->("client-email", createClientEmailsForScope);
+>("client-email", createClientEmailsForScope, CLIENT_EMAILS_SCOPE_MATRIX);
 
 export type UseClientEmails = ReturnType<typeof useClientEmails>;

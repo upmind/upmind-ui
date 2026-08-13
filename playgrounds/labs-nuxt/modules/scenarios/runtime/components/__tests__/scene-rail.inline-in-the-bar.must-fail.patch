@@ -1,0 +1,46 @@
+Negative control for the scene rail's own row (`R7-8`).
+
+Puts the rail back inside the controls row, beside the transport, and takes the
+full-width row away with it — the same rail, the same stops, the same seek — so
+the only claim that can go red is the ruled one: the rail is a SIBLING of the
+bar, not another instrument crammed into it. Inline it shares the row with the
+menu, the transport and the sheet toggle, which is what squashed five Gherkin
+sentences into truncated fragments in the operator's screenshot; and the armed
+track loses the one place wide enough to write its whole name.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the scene-rail placement case — the rail is a child of the bar's root and
+NOT of its controls row, it takes the page's own width, and the armed track is
+named at its head.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioBar.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioBar.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioBar.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioBar.vue
+@@ -29,6 +29,8 @@
+           @next="player.next"
+           @stop="player.stop"
+         />
++
++        <SceneRail v-model="playhead" :scenes="armed.scenes" />
+       </template>
+
+       <Tooltip v-if="failure" :label="failure">
+@@ -48,17 +50,6 @@
+       </div>
+     </div>
+
+-    <div v-if="armed" :class="styles.scenarioBar.rail">
+-      <p
+-        :class="styles.scenarioBar.trackName"
+-        data-test-key="track-name"
+-        :data-test-value="armed.slug"
+-      >
+-        {{ armed.name }}
+-      </p>
+-
+-      <SceneRail v-model="playhead" :scenes="armed.scenes" />
+-    </div>
+   </div>
+ </template>
+

@@ -1,30 +1,52 @@
-Negative control for the ONE toolbar row (D4).
+Negative control for the display cluster the rulings replaced D4 with.
 
-Lifts the filter bar out of the toolbar onto a line of its own, so the filters,
-the view toggle and Add new stack into three rows of chrome above a table that
-has not started yet — the layout the ruling collapsed into one row. Nothing else
-moves: the same controls, the same order, one container fewer.
+D4 — filters, the view toggle and Add new on ONE row — is dead: G3 moved the
+ordering onto the data surface, G4 took the collection's own control out to the
+page header, G5 gave the refinements a row of their own and H1 sent the count to
+Results. This patch restores exactly that superseded layout: one flowing row,
+the refinements row gone, and Add new back in the display cluster it left.
+
+Nothing else moves — the same controls, bound the same way, one row instead of
+three.
 
 Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
 
-Reds: the toolbar-row spec — the bar and the collection's controls share a
-container that is not merely the surface root.
+Reds: the toolbar-row spec — the surface draws the facets, the refinements they
+produced and the display row as three rows of one cluster, and the collection's
+own control is NOT among them (it is published to the page that renders it).
 
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-@@ -13,12 +13,9 @@
+@@ -11,15 +11,10 @@
+       :detail="verdict"
+     />
  
-     <!-- ONE toolbar row: what steers the list and what acts on it sit together
-          and wrap, never on stacked lines of their own. -->
-+    <FilterBar v-if="criteria" :criteria="criteria" />
-+
-     <div v-if="meta.hasToolbar" :class="styles.listSurface.toolbar">
--      <FilterBar
--        v-if="criteria"
--        :criteria="criteria"
--        :class="styles.listSurface.toolbarFilters"
--      />
-       <div :class="styles.listSurface.toolbarControls">
-         <!-- The card view has no headers to click, so the sort moves into the
-              toolbar there — the same criteria, written through the same emit,
+-    <!-- The three rows the list is steered from: the facets, what they have
+-         narrowed it to, and what it amounts to. The collection's own action is
+-         NOT among them — it belongs to the page, above this surface (G4). -->
+-    <div v-if="meta.hasControls" :class="styles.listSurface.controls">
+-      <FilterBar v-if="criteria" :criteria="criteria" />
+-      <RefinementsRow v-if="criteria" :criteria="criteria" />
+-      <!-- Ordering and the view choice sit with the data they change, in BOTH
+-           views — the same criteria, written through the same emit as a column
+-           header, never a second source of truth (G3/E9). -->
++    <!-- ONE toolbar row: the filters, the view choice and the collection's own
++         control back together, with no refinements row of their own. -->
++    <div v-if="meta.hasControls" class="flex flex-wrap items-end gap-3">
++      <FilterBar v-if="criteria" :criteria="criteria" class="min-w-64 flex-1" />
+       <DisplayRow
+         v-if="meta.hasTable"
+         :count="rows.length"
+@@ -30,6 +25,11 @@
+         :has-card-view="meta.hasCardView"
+         @update:sort="emitSort"
+         @update:view="onView"
++      />
++      <ActionSlots
++        v-if="!isEmpty(collectionActionItems)"
++        icon-only
++        :actions="collectionActionItems"
+       />
+     </div>
+ 

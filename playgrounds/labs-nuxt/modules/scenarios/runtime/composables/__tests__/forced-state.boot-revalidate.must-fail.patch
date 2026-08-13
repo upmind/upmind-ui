@@ -1,0 +1,37 @@
+Negative control for forced-state.spec.ts (T3.12, AC8.1 · S12).
+
+The revalidation that makes a preset visible must not fire for the preset a tab
+already has. `reconcile` is watched with `immediate: true`, so it runs once on
+every bare load with Live — and Live is what a booting tab already is. Without
+the `next === served` guard that first run drops every answer the page has just
+fetched and re-issues them, so a page nobody forced anything on re-reads itself
+on boot: a doubled request for every module on the page, and a visible flash of
+its own loading state.
+
+This mutant removes the guard alone. The worker still never registers on a bare
+load (`AC8.1` is untouched), which is why this is a control the eager-worker one
+cannot stand in for: the defect here is a re-read nobody asked for, not an import.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: forced-state.spec.ts — the case proving a bare load re-reads nothing.
+
+diff --git aa/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useForcedState.ts bb/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useForcedState.ts
+index e31a78fcb..6a9b8caeb 100644
+--- aa/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useForcedState.ts
++++ bb/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useForcedState.ts
+@@ -81,13 +81,13 @@ function create(): UseForcedState {
+ 
+     await registration?.unregister();
+     registration = undefined;
+   }
+ 
+   async function reconcile(next: ForcePreset | undefined): Promise<void> {
+-    if (typeof window === "undefined" || next === served) return;
++    if (typeof window === "undefined") return;
+ 
+     if (!next) await release();
+     else {
+       const { createForceHandlers } = await import("../force/handlers");
+       const handlers = createForceHandlers(next);
+ 

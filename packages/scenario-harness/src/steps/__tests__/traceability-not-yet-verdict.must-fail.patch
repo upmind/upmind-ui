@@ -1,0 +1,40 @@
+Negative control for the reshaped `createTraceabilityCheck` (the NOT-YET verdict).
+
+Grades a scenario NONE of whose own steps match as `partial` instead of `notYet`.
+A capability written down and not yet driven is a legitimate state — under one
+`.feature` per module it is the majority state — so this mutant turns every
+un-stepped scenario into a failure and makes a shared implemented Background the
+thing that reds the module.
+
+The assertion that must go RED: the one asserting `partial` is empty over a
+feature holding a scenario nothing matches (the module's own feature is one).
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Proven RED 2026-08-12, blind
+(`pnpm --filter @upmind-automation/scenario-harness exec vitest run src/steps/__tests__/traceability.test.ts`):
+  x PASSES a scenario no step matches at all — a capability written down and not yet driven
+      -> expected [] to strictly equal [ 'not driveable at all' ]
+  x does not let a shared IMPLEMENTED Background make an un-stepped scenario partial
+      -> expected [] to strictly equal [ 'written down, not yet driven' ]
+  x FAILS a scenario matched only in part
+      -> expected [ 'half driveable', 'not driveable at all' ] to strictly equal [ 'half driveable' ]
+  3 failed | 10 passed. Reverted with `git apply -R`; suite back to 13 passed.
+
+Behaviour shift measured by the author (NOT the red proof) — over
+`client-email.feature`:
+  before: driveable = 11, partial = 0,  notYet = 28
+  after:  driveable = 11, partial = 28, notYet = 0
+
+diff --git a/packages/scenario-harness/src/steps/traceability.ts b/packages/scenario-harness/src/steps/traceability.ts
+--- a/packages/scenario-harness/src/steps/traceability.ts
++++ b/packages/scenario-harness/src/steps/traceability.ts
+@@ -335,7 +335,7 @@ export function createTraceabilityCheck(
+     const ownMatched = drop(matched, scenario.backgroundStepCount);
+ 
+     const verdict: Verdict = !some(ownMatched)
+-      ? VERDICT.NOT_YET
++      ? VERDICT.PARTIAL
+       : every(matched)
+         ? VERDICT.DRIVEABLE
+         : VERDICT.PARTIAL;

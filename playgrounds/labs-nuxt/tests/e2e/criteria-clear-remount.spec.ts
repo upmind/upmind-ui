@@ -21,7 +21,7 @@
  */
 
 import { expect, test } from "@playwright/test";
-import { canaryRoute } from "./catalogs";
+import { clientEmailsRoute } from "./catalogs";
 import {
   installRecordedCorpus,
   seedRecordedClientSession
@@ -68,10 +68,10 @@ async function settle(page: Page, traffic: RecordedTraffic): Promise<void> {
     .toContain(SETTLE_PARAM);
 }
 
-async function openCanary(page: Page): Promise<RecordedTraffic> {
+async function openClientEmails(page: Page): Promise<RecordedTraffic> {
   const traffic = await installRecordedCorpus(page);
   await seedRecordedClientSession(page);
-  await page.goto(canaryRoute);
+  await page.goto(clientEmailsRoute);
   await expect(rows(page)).toHaveCount(3);
   return traffic;
 }
@@ -129,7 +129,7 @@ test.describe("@P1-R7 clearing a tri-state filter on the real page", () => {
   test("takes the column off the wire and brings every row back", async ({
     page
   }) => {
-    const traffic = await openCanary(page);
+    const traffic = await openClientEmails(page);
     const control = page.locator(VERIFIED);
 
     await control.locator(SET).click();
@@ -151,7 +151,7 @@ test.describe("@P1-R7 clearing a tri-state filter on the real page", () => {
   test("survives a reload after the clear — the url carries no cleared column", async ({
     page
   }) => {
-    const traffic = await openCanary(page);
+    const traffic = await openClientEmails(page);
     const control = page.locator(VERIFIED);
 
     await control.locator(SET).click();
@@ -170,7 +170,7 @@ test.describe("@P1-R2 what a criteria change tears down", () => {
   test("a filter change remounts nothing — the page tree survives it", async ({
     page
   }) => {
-    await openCanary(page);
+    await openClientEmails(page);
     const stamped = await stampPageTree(page);
 
     await page.locator(VERIFIED).locator(SET).click();
@@ -185,7 +185,7 @@ test.describe("@P1-R2 what a criteria change tears down", () => {
   test("a criteria change carried by the ROUTER remounts nothing either", async ({
     page
   }) => {
-    await openCanary(page);
+    await openClientEmails(page);
     const stamped = await stampPageTree(page);
     expect(stamped).toBeGreaterThan(0);
 
@@ -195,7 +195,7 @@ test.describe("@P1-R2 what a criteria change tears down", () => {
     await driveRouter(
       page,
       "replace",
-      `${canaryRoute}?${VERIFIED_URL_PARAM}=true`
+      `${clientEmailsRoute}?${VERIFIED_URL_PARAM}=true`
     );
     await expect.poll(() => urlParam(page, VERIFIED_URL_PARAM)).toBe("true");
     await expect(page.locator(FILTER_BAR)).toHaveCount(1);
@@ -206,14 +206,18 @@ test.describe("@P1-R2 what a criteria change tears down", () => {
   test("a scope change DOES remount, and retargets the read", async ({
     page
   }) => {
-    const traffic = await openCanary(page);
+    const traffic = await openClientEmails(page);
     const stamped = await stampPageTree(page);
     expect(stamped).toBeGreaterThan(0);
 
-    await driveRouter(page, "push", `${canaryRoute}/for/client/mock-client-id`);
+    await driveRouter(
+      page,
+      "push",
+      `${clientEmailsRoute}/for/client/mock-client-id`
+    );
     await expect
       .poll(() => new URL(page.url()).pathname)
-      .toContain(`${canaryRoute}/for/client/mock-client-id`);
+      .toContain(`${clientEmailsRoute}/for/client/mock-client-id`);
     await expect(page.locator(FILTER_BAR)).toHaveCount(1);
 
     expect(await survivingStamps(page)).toBeLessThan(stamped);

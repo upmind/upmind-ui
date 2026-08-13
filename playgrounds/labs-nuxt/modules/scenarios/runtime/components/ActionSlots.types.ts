@@ -5,7 +5,10 @@
  * once in `runtime/scenario.types.ts` and consumed here rather than
  * re-declared, and the colour/variant props are
  * `@upmind-automation/upmind-ui`'s own `ButtonProps`. See
- * `graphify-out/GRAPH_REPORT.md`.
+ * `graphify-out/GRAPH_REPORT.md`. Re-queried 2026-08-13 over the same
+ * `graphify-out/graph.json` for a replay-LOCK shape (`lock*`): the twelve
+ * matches are all `block*` parser helpers, so nothing exists to consume — and
+ * nothing is minted either, the lock being a boolean on the props already here.
  */
 // -----------------------------------------------------------------------------
 /**
@@ -42,4 +45,11 @@ export type ActionSlotsProps = {
    * the tooltip and the accessible name instead of beside the icon.
    */
   iconOnly?: boolean;
+  /**
+   * A scenario is driving the surface, so every control here is held to what
+   * the script fires (`R6-23`). The caller has already disabled the items; what
+   * this adds is the REASON, said where the hand lands — a control that refuses
+   * without saying why reads as broken rather than as intentional.
+   */
+  locked?: boolean;
 };

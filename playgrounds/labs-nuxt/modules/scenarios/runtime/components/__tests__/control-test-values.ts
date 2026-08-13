@@ -13,11 +13,11 @@
  * `code-tests.companion.md`), one edit re-points every spec.
  */
 
-import clientEmails from "../../../useClientEmails/scenario";
+import clientEmails from "../../../useClientEmails/client-email.scenario";
 import { fromPairs, map } from "lodash-es";
 
 /**
- * Keyed off the canary's OWN declaration rather than a renderer-side action
+ * Keyed off the client-emails page's OWN declaration rather than a renderer-side action
  * vocabulary: with the actions declared per scenario, `LIST_SURFACE_ACTION` no
  * longer exists and the declared names are the only source there is.
  */
@@ -30,13 +30,10 @@ const DECLARED_TEST_VALUE: Record<string, string> = {
 };
 
 export const CONTROL_TEST_VALUE: Record<string, string> = fromPairs(
-  map(
-    [
-      ...(clientEmails.presentation?.rowActions ?? []),
-      ...(clientEmails.presentation?.collectionActions ?? [])
-    ],
-    action => [action.name, DECLARED_TEST_VALUE[action.name] as string]
-  )
+  map(clientEmails.presentation.actions.elements, action => [
+    action.name,
+    DECLARED_TEST_VALUE[action.name] as string
+  ])
 );
 
 /** The overflow trigger `ActionSlots` renders, same derivation. */

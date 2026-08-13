@@ -1,0 +1,30 @@
+Negative control for the picker being a CHECKBOX list (`R7-3`).
+
+Takes the checkbox off the package's checkable menu item and leaves the bare
+tick it used to draw: an entry that is on carries a glyph, an entry that is off
+carries nothing at all, so the menu reads as a list of words rather than a list
+of controls and there is no box to aim at. Every behaviour survives — the same
+roles, the same `aria-checked`, the same keyboard, the same emit — which is the
+point: the defect is what the entry IS, not what it does.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the column-picker spec's control case — an unchecked entry draws no
+checkbox, so the entries are not controls.
+
+diff --git a/packages/ui/src/ui/dropdown-menu/DropdownMenuCheckboxItem.vue b/packages/ui/src/ui/dropdown-menu/DropdownMenuCheckboxItem.vue
+--- a/packages/ui/src/ui/dropdown-menu/DropdownMenuCheckboxItem.vue
++++ b/packages/ui/src/ui/dropdown-menu/DropdownMenuCheckboxItem.vue
+@@ -40,9 +40,9 @@
+         props.class
+       )
+     "
+   >
+-    <span :class="checkboxVariants()">
++    <span class="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+       <DropdownMenuItemIndicator>
+-        <Check class="text-control-checked-contrast h-3 w-3" />
++        <Check class="h-4 w-4" />
+       </DropdownMenuItemIndicator>
+     </span>
+     <slot />

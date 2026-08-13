@@ -101,13 +101,13 @@ import {
   Skeleton,
   useStyles
 } from "@upmind-automation/upmind-ui";
-import { FormFlowActionTypes } from "../../scenario.types";
 import { resolveModuleDetail, resolveModuleState } from "../module-state";
 import { ModuleState } from "../module-state.types";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
 import { useActionFeedback } from "../useActionFeedback";
 import config from "./FormFlowSurface.styles";
-import { get, isFunction, isNil, keys, sumBy } from "lodash-es";
+import { FormFlowActionTypes } from "./FormFlowSurface.types";
+import { find, get, isFunction, isNil, keys, sumBy } from "lodash-es";
 import type { FormFlowSurfaceProps } from "./FormFlowSurface.types";
 import type { UISchemaElement } from "@jsonforms/core";
 import type { FormProps } from "@upmind-automation/upmind-ui";
@@ -186,11 +186,20 @@ const skeletonFields = computed(
   () => countControls(uischema.value) || MIN_SKELETON_FIELDS
 );
 
+// The module's OWN member names, taken from the live port rather than declared
+// beside it (`R6-29`): a Form-Flow module drives through the flow machine's
+// pair or the data manager's, and which one is a fact the port already carries.
 const inputAction = computed(
-  () => props.form?.input ?? FormFlowActionTypes.INPUT
+  () =>
+    find([FormFlowActionTypes.SET, FormFlowActionTypes.INPUT], name =>
+      isFunction(props.actions[name])
+    ) ?? FormFlowActionTypes.SET
 );
 const submitAction = computed(
-  () => props.form?.submit ?? FormFlowActionTypes.SUBMIT
+  () =>
+    find([FormFlowActionTypes.RESOLVE, FormFlowActionTypes.UPDATE], name =>
+      isFunction(props.actions[name])
+    ) ?? FormFlowActionTypes.RESOLVE
 );
 
 const isSubmitting = computed(() => feedback.isPending(SUBMIT_CONTROL));
@@ -222,10 +231,10 @@ const actions = computed<FormProps["actions"]>(() => ({
 }));
 
 const submitCopy = computed(() =>
-  props.form?.feedback
+  props.feedback
     ? {
-        success: t(props.form.feedback.success),
-        failure: t(props.form.feedback.failure)
+        success: t(props.feedback.success),
+        failure: t(props.feedback.failure)
       }
     : undefined
 );

@@ -1,16 +1,25 @@
 Negative control for client-emails-filter-sort.spec.ts (AC7).
 
-Makes the recorded-corpus collection handler ignore the request's own params and
+Makes the corpus resolver's collection branch ignore the request's own params and
 serve all three rows unconditionally — design §7's named hazard ("the shipped
 `installEmailsListHandler` ignores `request.url` entirely, so any filter/sort
-assertion behind it is vacuously green") made executable. Under it, a filter
-that never reached the wire would still leave the rendered rows intact, so the
+assertion behind it is vacuously green") made executable. Under it, a filter that
+never reached the wire would still leave the rendered rows intact, so the
 narrowing and reordering assertions must go RED.
+
+The resolver is the ONE the browser lane answers through — `recorded-corpus.ts`
+is now the Playwright adapter over it (`installRecordedCorpus` →
+`resolveCorpusRequest` → `servedRows`), and the force worker calls the same
+function, so the mutant plants at the single seam both lanes share.
 
 Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
 
-Proven RED 2026-08-08
-(`pnpm exec playwright test --config=playwright.config.ts --project lane`):
+Reds: client-emails-filter-sort.spec.ts — the narrowing, the reordering and the
+reload case. The e2e lane owns this red; wave 6 re-proves it.
+
+Proven RED 2026-08-08 against the same function at its former home
+(`tests/e2e/recorded-corpus.ts`, before the resolver moved behind the `ESC6`
+seam) — `pnpm exec playwright test --config=playwright.config.ts --project lane`:
   x a filter narrows the rendered rows through a real re-query
       -> toHaveCount failed: Expected 2, Received 3
   x a sort reorders the rendered rows and ships the order param
@@ -21,15 +30,20 @@ Proven RED 2026-08-08
       (stays green by design — a pure wire assertion the served rows cannot mask)
   3 failed | 1 passed
 
-diff --git a/playgrounds/labs-nuxt/tests/e2e/recorded-corpus.ts b/playgrounds/labs-nuxt/tests/e2e/recorded-corpus.ts
-index a3f4548e1..852fadf31 100644
---- a/playgrounds/labs-nuxt/tests/e2e/recorded-corpus.ts
-+++ b/playgrounds/labs-nuxt/tests/e2e/recorded-corpus.ts
-@@ -90,6 +90,7 @@ const BOOLEAN_COLUMNS = ["verified", "bounced", "default"] as const;
- 
- /** Applies the request's own criteria to the recorded corpus. */
- function servedRows(params: URLSearchParams): WireEmail[] {
-+  return corpus();
-   let rows = corpus();
- 
-   for (const column of BOOLEAN_COLUMNS) {
+  Re-targeted 2026-08-12 (converge) onto `modules/scenarios/runtime/force/
+  corpus.ts:95`, where the diff moved `servedRows`. Same defect, same declared
+  red; `git apply --check` is clean from the repo root. The RED above is the
+  2026-08-08 observation, NOT a re-run — this lane is not executed off the wave-6
+  browser run, which re-proves it.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.ts
+@@ -95,6 +95,7 @@ export function corpusRows(bodies: CorpusBodies): WireEmail[] {
+ export function servedRows(
+   bodies: CorpusBodies,
+   params: URLSearchParams
+ ): WireEmail[] {
++  return corpusRows(bodies);
+   let rows = corpusRows(bodies);
+

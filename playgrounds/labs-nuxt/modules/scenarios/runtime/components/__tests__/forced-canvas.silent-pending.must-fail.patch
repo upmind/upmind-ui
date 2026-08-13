@@ -1,0 +1,28 @@
+Negative control for the armed-and-waiting statement (`R7-5`).
+
+Empties the hint catalogue and leaves everything else — the chip still names the
+preset, the frame still glows, the worker still serves the recorded refusal on
+the next write — so the only claim that can go red is the ruled one: a preset
+that cannot show itself the moment it is armed says so. `error-action` answers a
+WRITE, so with the statement gone the page is armed and visibly unchanged, which
+is the control-that-does-nothing the ruling refused to ship.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the forced-canvas pending case — an armed `error-action` renders a
+statement beside its chip, and the other presets render none.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.types.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.types.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.types.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.types.ts
+@@ -45,9 +45,7 @@
+  * that fired the write ITSELF to make the state appear would be inventing an
+  * action nobody asked for, against whichever row it guessed.
+  */
+-export const FORCE_PRESET_HINTS: Partial<Record<ForcePreset, string>> = {
+-  "error-action": "labs.force_preset_error_action_pending"
+-};
++export const FORCE_PRESET_HINTS: Partial<Record<ForcePreset, string>> = {};
+
+ export type ForcedCanvasProps = {
+   /**

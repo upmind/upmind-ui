@@ -7,7 +7,7 @@
  * "One source of truth for sorting, filters and pagination through the query
  * layer" is only true if an intent ajv refuses has **no** effect. The failure
  * this file exists to catch had three limbs at once, all reachable from one
- * click in the canary:
+ * click in the playground:
  *
  * 1. the invalid field entered the model, so the table header drew `Title ▲`;
  * 2. the translator then filtered it back out, so `props.sort` collapsed to
@@ -28,7 +28,7 @@
  * filter/sort assertions are not vacuous. No hand-authored bodies.
  *
  * ## What Breaks If These Fail
- * Six of the canary's seven sortable headers clear the user's sort and re-query
+ * Six of the playground's seven sortable headers clear the user's sort and re-query
  * unsorted, the table draws a sort the request does not carry, and a hand-edited
  * `?limit=-5` in the address bar reaches the API as a rejected model.
  */

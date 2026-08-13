@@ -341,7 +341,7 @@ describe("a filter combination already fetched paints from its own entry (G1 · 
   });
 });
 
-describe("the collection the canary drives inherits the same law (G1 · C3)", () => {
+describe("the collection the playground drives inherits the same law (G1 · C3)", () => {
   it("re-selecting a filter through filterBy paints the cached rows, never an empty table", async () => {
     const { clientId } = await seedClientSession();
     installFilteredEmailsHandler(server, clientId, { delayMs: IN_FLIGHT_MS });

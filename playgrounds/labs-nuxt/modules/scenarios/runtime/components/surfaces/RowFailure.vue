@@ -1,7 +1,7 @@
 <template>
   <Alert
     color="danger"
-    variant="muted"
+    variant="minimal"
     size="sm"
     icon="alert-triangle"
     :title="message"
@@ -25,8 +25,11 @@
 // -----------------------------------------------------------------------------
 /**
  * @module scenarios/runtime/components/surfaces/RowFailure
- * @description The verdict on ONE record — the strip that says which row an
- * action was refused on and why, under the row it belongs to (E12).
+ * @description The verdict on ONE record — the slim strip that says which row
+ * an action was refused on and why, under the row it belongs to (`E12`/`H6`).
+ * Minimal, never a filled alert: the refusal is the row's ring plus this
+ * sentence in the danger colour, and a wash is the treatment the ruling killed
+ * (`H8`).
  *
  * A toast is a corner of the screen the user was not looking at, and it leaves:
  * the record it happened to keeps saying so until it is dismissed or the action

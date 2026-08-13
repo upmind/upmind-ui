@@ -1,0 +1,39 @@
+Negative control for a scene that THREW being said out loud (`S14` · `R6-13`).
+
+Takes the failure chip off the bar and leaves everything else — the player still
+catches the throw, still holds the reason, still flips to `FAILED` — so the only
+claim that can go red is the ruled one: a failed arm or a refused assertion is
+reported where the hand that pressed the control is looking. Without it the only
+trace is a bar that has quietly stopped moving, which reads as a dead control.
+
+Re-targeted 2026-08-13 after the `R7-10`/`R7-8` restructure: the hunk's context
+moved when the bar grew its controls row and its rail row. Same claim, same red,
+current source.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the scene-failure case — a player holding a failure renders it on the bar,
+with the thrower's own sentence.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioBar.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioBar.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioBar.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioBar.vue
+@@ -31,18 +31,6 @@
+         />
+       </template>
+
+-      <Tooltip v-if="failure" :label="failure">
+-        <Badge
+-          size="sm"
+-          color="danger"
+-          variant="muted"
+-          icon="alert-triangle"
+-          :label="t('labs.scene_failed', { reason: failure })"
+-          :class="styles.scenarioBar.failure"
+-          :data-attrs="{ 'data-test-key': 'scene-failure' }"
+-        />
+-      </Tooltip>
+-
+       <div :class="styles.scenarioBar.tail">
+         <SheetToggle />
+       </div>

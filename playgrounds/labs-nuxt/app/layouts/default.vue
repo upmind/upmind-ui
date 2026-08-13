@@ -1,24 +1,8 @@
 <template>
-  <ImpersonationBar />
-
   <UpmPage>
     <UpmHeader :storefront-route="{ to: { name: ROUTE.HOME } }">
       <template #actions>
-        <div class="flex items-center gap-2">
-          <!-- Scope selectors: Brand, Actor, Context -->
-          <BrandScopeSelector />
-          <ActorScopeSelector show-label />
-          <ContextScopeSelector />
-          <Button
-            :color="isOpen ? 'primary' : 'secondary'"
-            :variant="isOpen ? 'solid' : 'ghost'"
-            icon-only
-            icon="code-browser"
-            label="Inspect"
-            @click="toggle"
-            :disabled="!hasSections"
-          />
-        </div>
+        <ScopeBar />
       </template>
     </UpmHeader>
 
@@ -37,8 +21,12 @@
         </nav>
       </aside>
 
-      <!-- Main content area -->
-      <UpmRoot>
+      <!-- Main content area. `min-w-0` stops the column EXPORTING its content
+           width: a flex item defaults to `min-width:auto`, so a row that
+           outgrew its share squeezed the sidebar and gave the DOCUMENT a
+           horizontal scrollbar instead of truncating inside the page (`AC2.4`).
+           It takes no width in any state, so it is not `P1-R5` compensation. -->
+      <UpmRoot class="min-w-0">
         <slot />
       </UpmRoot>
     </UpmMain>
@@ -47,8 +35,11 @@
     <UpmOverlayController />
   </UpmPage>
 
-  <!-- Inspector sidebar (fixed position) -->
-  <Inspector />
+  <!-- The ONE sheet over the page — Debug │ Code │ Scenario, opened by the
+       toggle in the page's own scenario bar (`G1`) and never by the chrome.
+       Mounted here, once: it overlays the canvas, so nothing above it
+       compensates with padding and the page keeps its full width (`P1-R5`). -->
+  <SheetHost />
 
   <!-- Where every action outcome is reported (`useActionFeedback`). Top-centre
        because the bottom corner is where the operator missed it entirely (E13):
@@ -65,6 +56,7 @@
 </template>
 
 <script lang="ts" setup>
+import { useI18n } from "vue-i18n";
 import {
   UpmPage,
   UpmHeader,
@@ -75,26 +67,22 @@ import {
   useActiveSession,
   useSessionStore
 } from "@upmind-automation/client-vue";
-import { Button, Sonner } from "@upmind-automation/upmind-ui";
+import { Sonner } from "@upmind-automation/upmind-ui";
 import { includes } from "lodash-es";
-import { Inspector, useInspector } from "~/components/inspector";
 import NavSection from "~/components/NavSection.vue";
-import {
-  ActorScopeSelector,
-  BrandScopeSelector,
-  ContextScopeSelector,
-  ImpersonationBar
-} from "~/components/scope";
+import { ScopeBar } from "~/components/scope";
+import { SheetHost, usePlaygroundSheet } from "~/components/sheets";
 import { useNavigation } from "~/composables/useNavigation";
 import { ROUTE } from "~/funnels";
 // -----------------------------------------------------------------------------
 const { navigation } = useNavigation();
+const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const { meta: routingMeta, isReady } = useRoutingEngine();
 
 // --- debug items
-const { hasSections, isOpen, toggle, register } = useInspector();
+const { register } = usePlaygroundSheet();
 
 // --- computed
 const _isAuthRoute = computed(() =>
@@ -125,7 +113,9 @@ register(
   {
     key: "useAuth-session",
     factory: () => ({
-      name: "Session (Scoped)",
+      // The section NAME is what the host draws as the tab (`SheetHost`), so it
+      // is resolved here rather than carried as a key the tab would print raw.
+      name: t("labs.debug_session"),
       state: actor.value || "guest",
       meta: activeSession.useMeta(),
       context: {

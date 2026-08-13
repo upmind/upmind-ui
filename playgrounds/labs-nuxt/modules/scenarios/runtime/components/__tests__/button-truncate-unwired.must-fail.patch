@@ -1,0 +1,29 @@
+Negative control for `Button`'s own `truncate` (R6-7 · R6-9).
+
+Unhooks the prop from the meta the label variant reads, leaving the prop, its
+default and its type exactly where they are — the state this control was written
+against, where `truncate` was declared public, defaulted `true`, and consumed by
+nothing at all. The chip keeps its cap and the menu keeps its width, so the only
+claim that can go red is that a bounded label ELLIPSIZES rather than being
+chopped by its own container.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the track-list truncation case — the rendered chip's label no longer
+carries the treatment the component was asked for.
+
+  Developer smoke (apply → revert, tree restored), 2026-08-12. This is a dead
+  public prop made real, not a new one: the wiring mirrors `Combobox`, which
+  already carries the identical `truncate` meta key and label variant.
+
+diff --git a/packages/ui/src/ui/button/Button.ce.vue b/packages/ui/src/ui/button/Button.ce.vue
+--- a/packages/ui/src/ui/button/Button.ce.vue
++++ b/packages/ui/src/ui/button/Button.ce.vue
+@@ -101,7 +101,6 @@
+   variant: props.variant,
+   color: props.color,
+   align: props.align,
+-  truncate: props.truncate,
+   isIconOnly: props.iconOnly,
+   isBlock: props.block,
+   isDisabled: props.disabled || props.loading,

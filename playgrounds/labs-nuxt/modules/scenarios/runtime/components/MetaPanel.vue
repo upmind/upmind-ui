@@ -1,6 +1,6 @@
 <template>
   <section v-if="items.length" :class="styles.metaPanel.root">
-    <h2 :class="styles.metaPanel.title">Meta</h2>
+    <h2 :class="styles.metaPanel.title">{{ t("labs.debug_meta") }}</h2>
     <div :class="styles.metaPanel.list">
       <Badge
         v-for="item in items"
@@ -27,6 +27,7 @@
  */
 
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { Badge, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./MetaPanel.styles";
 import { MetaBadgeColor, MetaBadgeVariant } from "./MetaPanel.types";
@@ -35,6 +36,8 @@ import type { MetaPanelItem, MetaPanelProps } from "./MetaPanel.types";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<MetaPanelProps>();
+
+const { t } = useI18n();
 
 function badgeColor(key: string, value: boolean): MetaBadgeColor {
   const lowerKey = key.toLowerCase();

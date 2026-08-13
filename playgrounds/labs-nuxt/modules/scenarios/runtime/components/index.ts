@@ -6,6 +6,7 @@
  */
 
 export { default as ActionSlots } from "./ActionSlots.vue";
+export { default as ColumnPicker } from "./ColumnPicker.vue";
 export { default as ContextPanel } from "./ContextPanel.vue";
 export { default as FilterBar } from "./FilterBar.vue";
 export { default as MetaPanel } from "./MetaPanel.vue";
@@ -13,6 +14,8 @@ export { default as ModuleRenderer } from "./ModuleRenderer.vue";
 export { default as ModuleStateNotice } from "./ModuleStateNotice.vue";
 export { default as SortControl } from "./SortControl.vue";
 export * from "./ActionSlots.types";
+export * from "./cells";
+export * from "./ColumnPicker.types";
 export * from "./ContextPanel.types";
 export * from "./FilterBar.types";
 export * from "./MetaPanel.types";

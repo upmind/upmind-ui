@@ -23,10 +23,26 @@ import type {
 // -----------------------------------------------------------------------------
 
 /**
- * The channel plus the columns the query schema DECLARES steerable. A renderer
- * that offers a control the schema never declared offers one that cannot work:
- * the intent reaches the criteria, ajv refuses it, and the list draws a failure
- * for a header the user was invited to click. `ControlledTableChannel` is the
+ * One field the query schema declares ORDERABLE, under the title the schema
+ * gives it. Both halves are the schema's: the collection's whole ordering
+ * vocabulary is its own `sort` enum and no declaration restates it (`R6-28`).
+ *
+ * @graphify-citation `graphify-out/graph.json` (2026-08-12) — no sort-option
+ * node exists in the tree; the field is `client-email.schemas.ts`'s own
+ * `sort.items.properties.field` member, which is what `order=` spells on the
+ * wire.
+ */
+export type DeclaredSortField = {
+  field: string;
+  /** The schema's own title for that field, where it declares one — an i18n key. */
+  i18n?: string;
+};
+
+/**
+ * The channel plus what the query schema DECLARES steerable. A renderer that
+ * offers a control the schema never declared offers one that cannot work: the
+ * intent reaches the criteria, ajv refuses it, and the list draws a failure for
+ * a header the user was invited to click. `ControlledTableChannel` is the
  * harness's frozen seam shape, so the declaration rides alongside it rather
  * than inside `TableModel`.
  *
@@ -34,7 +50,7 @@ import type {
  * which is where a module with no query schema already stands.
  */
 export type DeclaringTableChannel = ControlledTableChannel & {
-  declared?(): { sort: string[]; filter: string[] };
+  declared?(): { sort: DeclaredSortField[]; filter: string[] };
 };
 
 /**

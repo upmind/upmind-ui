@@ -11,7 +11,7 @@
  * publishes, never a renderer-side reconstruction of the filter model.
  *
  * ## What Breaks If These Fail
- * The canary's filter bar becomes untestable by eye: every over-narrow filter
+ * The client-emails page's filter bar becomes untestable by eye: every over-narrow filter
  * looks exactly like a broken fetch. And an `interstitial` that defaults to
  * `modal` traps the operator behind a dialog he has to dismiss to keep filtering.
  */
@@ -21,7 +21,7 @@ import { describe, expect, it } from "vitest";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import { defaultRow } from "../../../../../../tests/support/recorded-emails";
 import { renderedStrings } from "../../../../../../tests/support/rendered";
-import clientEmails from "../../../../useClientEmails/scenario";
+import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { ListSurface } from "../index";
 import { includes } from "lodash-es";
 

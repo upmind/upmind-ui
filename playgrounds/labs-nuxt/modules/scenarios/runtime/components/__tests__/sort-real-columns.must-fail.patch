@@ -1,0 +1,40 @@
+Negative control for the sort offer being the REAL, TITLED columns
+(`R6-6` · `R6-6b` · `R6-28`).
+
+Puts the query schema's sort vocabulary back to a bare, untitled enum naming
+`created_at` · `email` · `default`. Nothing declares the boolean columns the
+ruling named (`verified`, `bounced`), and a bare enum can title nothing, so the
+control offers two options under their WIRE names — the live defect this
+replaced. The status composite stays absent either way, which is the half of
+`R6-6b` this must not be able to claim credit for.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the sort-offer spec — the control offers the schema's declared sort
+columns under the schema's own titles, and no option renders as a wire name.
+
+diff --git a/packages/headless/src/modules/client-email/client-email.schemas.ts b/packages/headless/src/modules/client-email/client-email.schemas.ts
+--- a/packages/headless/src/modules/client-email/client-email.schemas.ts
++++ b/packages/headless/src/modules/client-email/client-email.schemas.ts
+@@ -199,20 +199,7 @@ export function useQuerySchema(): QuerySchema {
+           additionalProperties: false,
+           required: ["field", "dir"],
+           properties: {
+-            // `oneOf` const/title, not a bare enum: the sort control's option
+-            // labels are the schema's own titles (`R6-28`), and a bare enum can
+-            // carry none — which is what left `created_at` and `default`
+-            // rendering as wire names. The columns are the REAL ones the API
+-            // orders on, the status composite never among them (`R6-6`/`R6-6b`).
+-            field: {
+-              oneOf: [
+-                { const: "default", title: "text.default_label" },
+-                { const: "email", title: "text.email_address" },
+-                { const: "verified", title: "text.verified_label" },
+-                { const: "bounced", title: "text.bounced_label" },
+-                { const: "created_at", title: "text.date_added" }
+-              ]
+-            },
++            field: { enum: ["created_at", "email", "default"] },
+             dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
+           }
+         }

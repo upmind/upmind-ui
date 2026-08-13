@@ -1,0 +1,39 @@
+Negative control for `featureAcTags` (the `@todo` exclusion).
+
+Points the `@todo` marker at a spelling no feature uses, so a scenario tagged
+`@todo` is reported as a live AC. The AC link then demands a proving spec for a
+capability deliberately parked, and the only way back to green is to write a
+test for something nobody built.
+
+The assertion that must go RED: the one asserting `featureAcTags` omits the AC
+id of a `@todo`-tagged scenario.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Proven RED 2026-08-12, blind
+(`pnpm --filter @upmind-automation/scenario-harness exec vitest run src/steps/__tests__/traceability.test.ts`):
+  x omits the AC id of a @todo-tagged scenario, so a parked capability demands no proof
+      -> expected [ 'AC-1', 'AC-2', 'AC-3' ] to strictly equal [ 'AC-1', 'AC-3' ]
+  x returns an ARRAY, so lodash difference sees its elements instead of nothing
+      -> expected [ 'AC-2', 'AC-3' ] to strictly equal [ 'AC-3' ]
+  x de-duplicates an AC two scenarios both tag, keeping document order
+      -> expected [ 'AC-1', 'AC-2', 'AC-3', 'AC-0' ] to strictly equal [ 'AC-1', 'AC-3', 'AC-0' ]
+  3 failed | 10 passed. Reverted with `git apply -R`; suite back to 13 passed.
+
+Behaviour shift measured by the author (NOT the red proof) — over a feature with
+`@AC-1` and `@AC-2 @todo`:
+  before: ["AC-1"]
+  after:  ["AC-1", "AC-2"]
+
+diff --git a/packages/scenario-harness/src/steps/traceability.ts b/packages/scenario-harness/src/steps/traceability.ts
+--- a/packages/scenario-harness/src/steps/traceability.ts
++++ b/packages/scenario-harness/src/steps/traceability.ts
+@@ -363,7 +363,7 @@ export function createTraceabilityCheck(
+ }
+ 
+ const AC_TAG = /^@(AC-\d+)$/;
+-const TODO_TAG = "@todo";
++const TODO_TAG = "@to-do";
+ 
+ /**
+  * The `AC-<n>` ids tagged on `featureText`'s scenarios, `@todo` ones excluded,

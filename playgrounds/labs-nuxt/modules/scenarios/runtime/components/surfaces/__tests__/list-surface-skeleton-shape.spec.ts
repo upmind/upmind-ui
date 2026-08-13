@@ -19,9 +19,9 @@
  */
 
 import { mount } from "@vue/test-utils";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Card, Skeleton } from "@upmind-automation/upmind-ui";
-import clientEmails from "../../../../useClientEmails/scenario";
+import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { RESOLVED_HANDOFFS } from "../../__tests__/resolved-handoffs";
 import { ListSurface, ListViewTypes } from "../index";
 import {
@@ -30,13 +30,21 @@ import {
   TABLE_COLUMNS
 } from "./table-geometry";
 import { map, times, uniq } from "lodash-es";
+import type { VueWrapper } from "@vue/test-utils";
 
 // -----------------------------------------------------------------------------
 
 const presentation = clientEmails.presentation;
 
+/**
+ * Which view is drawn is url state now (`AC9.1`/K8) — one writer, process-wide
+ * and outliving any single mount — so a case that switched view hands it back,
+ * rather than leaving the next case booting into the previous one's choice.
+ */
+let viewed: VueWrapper | undefined;
+
 function mountLoading() {
-  return mount(ListSurface, {
+  viewed = mount(ListSurface, {
     attachTo: document.body,
     props: {
       snapshot: {
@@ -57,7 +65,15 @@ function mountLoading() {
       }
     }
   });
+
+  return viewed;
 }
+
+afterEach(async () => {
+  const table = viewed?.find(`[data-test-value="${ListViewTypes.TABLE}"]`);
+  if (table?.exists()) await table.trigger("click");
+  viewed = undefined;
+});
 
 // -----------------------------------------------------------------------------
 

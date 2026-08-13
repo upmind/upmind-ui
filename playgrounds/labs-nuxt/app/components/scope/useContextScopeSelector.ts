@@ -4,13 +4,19 @@
  * @description Global context scope management for labs playground.
  * Allows pages to register available context types based on their composable's scope matrix.
  * Syncs with URL context segments.
+ *
+ * The matrix is always the COMPOSABLE's own (`R6-31`): a page registers what
+ * the cell it booted publishes, and a declaration never restates it.
  */
 
+import { useStorage } from "@vueuse/core";
 import { computed, onUnmounted, ref } from "vue";
-import { filter, forEach, map } from "lodash-es";
+import { resolveMatrixContext } from "../../composables/scope";
+import { filter, forEach, map, reject, take, toPairs } from "lodash-es";
 import type {
   ActorContextMatrix,
-  ScopeActorTypes
+  ScopeActorTypes,
+  ScopeContext
 } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
@@ -25,13 +31,37 @@ export type AvailableContext = {
   actor: ScopeActorTypes;
 };
 
+/**
+ * One row of a registered matrix — the axis AC1.4 greys. A matrix maps ACTOR to
+ * context type, so an actor the matrix marks `never` carries a `null` type and
+ * is the row that reads as unavailable.
+ */
+export type ActorContextRow = {
+  actor: ScopeActorTypes;
+  contextType: string | null;
+};
+
+/** A context the user has acted for before, carried with whatever it was called. */
+export type RecentContext = ScopeContext & { label?: string };
+
 // --- Global state (shared across all component instances)
 
 // --- Available contexts (can be dynamically modified by pages based on their matrix)
 const availableContexts = ref<AvailableContext[]>([]);
 
+// --- The matrix those contexts came from, kept whole so the unsupported actors survive
+const registeredMatrix = ref<ActorContextMatrix | null>(null);
+
 // --- Track which component set the contexts (for cleanup)
 let contextOwner: symbol | null = null;
+
+// --- Contexts acted for before, newest first. No client search exists in core
+//     (ESC4), so what has already been used is half of what can be offered.
+const RECENT_LIMIT = 5;
+const recentContexts = useStorage<RecentContext[]>(
+  "upmind.labs.scope.recent-contexts",
+  []
+);
 
 // -----------------------------------------------------------------------------
 
@@ -57,6 +87,17 @@ export function useContextScopeSelector() {
     availableContexts.value.forEach(ctx => types.add(ctx.type));
     return Array.from(types);
   });
+
+  /**
+   * One row per actor the registered matrix declares, in the matrix's own
+   * order — the unsupported actors included, since they are what AC1.4 greys.
+   */
+  const actorContexts = computed<ActorContextRow[]>(() =>
+    map(toPairs(registeredMatrix.value ?? {}), ([actor, contextType]) => ({
+      actor: actor as ScopeActorTypes,
+      contextType: resolveMatrixContext(contextType)
+    }))
+  );
 
   /** Get available context types for a specific actor. */
   function getContextTypesForActor(actor: ScopeActorTypes): string[] {
@@ -87,20 +128,7 @@ export function useContextScopeSelector() {
     const owner = Symbol("context-owner");
     contextOwner = owner;
 
-    // Extract contexts from matrix
-    const contexts: AvailableContext[] = [];
-
-    forEach(matrix, (contextType, actor) => {
-      // Skip if no context for this actor (null/never)
-      if (!contextType || contextType === "never") return;
-
-      contexts.push({
-        type: contextType as string,
-        actor: actor as ScopeActorTypes
-      });
-    });
-
-    availableContexts.value = contexts;
+    apply(matrix);
 
     onUnmounted(() => {
       // Only reset if this component still owns the contexts
@@ -108,6 +136,35 @@ export function useContextScopeSelector() {
         reset();
       }
     });
+  }
+
+  /** Hold the matrix whole, and the contexts it resolves for each actor. */
+  function apply(matrix: ActorContextMatrix) {
+    const contexts: AvailableContext[] = [];
+
+    forEach(matrix, (contextType, actor) => {
+      const type = resolveMatrixContext(contextType);
+      if (!type) return;
+
+      contexts.push({ type, actor: actor as ScopeActorTypes });
+    });
+
+    registeredMatrix.value = matrix;
+    availableContexts.value = contexts;
+  }
+
+  /** Record a context as acted for, newest first, deduped on type + id. */
+  function remember(context: RecentContext) {
+    recentContexts.value = take(
+      [
+        context,
+        ...reject(
+          recentContexts.value,
+          entry => entry.type === context.type && entry.id === context.id
+        )
+      ],
+      RECENT_LIMIT
+    );
   }
 
   /**
@@ -123,10 +180,14 @@ export function useContextScopeSelector() {
    */
   function reset() {
     availableContexts.value = [];
+    registeredMatrix.value = null;
     contextOwner = null;
   }
 
   return {
+    /** One row per actor the registered matrix declares, unsupported included. */
+    actorContexts,
+
     /** All unique context types available. */
     availableContextTypes,
 
@@ -139,8 +200,14 @@ export function useContextScopeSelector() {
     /** True if any contexts are registered. */
     hasContexts,
 
+    /** Contexts acted for before, newest first. */
+    recentContexts,
+
     /** Register contexts from matrix with auto-cleanup (recommended). */
     register,
+
+    /** Record a context as acted for. */
+    remember,
 
     /** Reset to empty contexts. */
     reset,

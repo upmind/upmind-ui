@@ -1,40 +1,58 @@
-# client-email — the module's behavioural source of truth (capability altitude).
+# client-email — the module's ONE feature file: its capability spec, the source
+# `client-email.steps.ts` implements, and the playlist the scenario bar plays.
 #
 # CO-LOCATION IS THE REQUIREMENT (operator ruling 2026-08-05): this file lives at
 #   packages/headless/src/modules/client-email/__tests__/client-email.feature
-# The copy in docs/sdd/client-email/ is the planner's source; the co-located copy
-# is what client-email.traceability.test.ts reads and what the @AC link is
-# enforced against, both ways.
+# and it is the only spec this module's tests know.
 #
-# NON-EXECUTABLE per ADR-020 (".feature files are spec-only, not executable").
-# No runner touches it and no steps file is produced — the colocated unit and
-# integration specs are the tests that run, each anchored to a scenario by its
-# @AC tag.
+# EXECUTED — which AMENDS ADR-020's ".feature files are spec-only, not
+# executable" clause. A scenario the step catalog matches is driveable: it runs,
+# and it appears as a track. One nothing matches is a capability written down and
+# not yet driven — a legitimate state, carrying no marking of its own, because
+# the catalog already tells the two apart.
 #
 # One scenario per capability the parity table carries, INCLUDING every manager
 # behaviour (load-one, readiness, input/validate, save-edit, save-draft,
 # schema-via-context, clear, isolated drafts, state flags, refresh-the-list,
-# lifecycle). Business language only — the wire-level read-backs that PROVE each
-# scenario (URL retarget, token, headers) live in requirements.md / parity.yaml.
+# lifecycle). Business language only, declarative only: no selector, URL or UI
+# mechanic appears here, and the steps that drive it reach the module through
+# the five `World` members and nothing else. The wire-level read-backs that PROVE
+# a scenario (URL retarget, token, headers) live in the colocated integration
+# specs that assert them.
 #
 # Actors: a client manages their OWN email addresses. There is no staff cell and
 # no guest cell in this module — staff capabilities the oracle reveals are
-# recorded drops (parity.yaml R27-R33, operator scope ruling 2026-08-05), and an
-# email address belongs to a client record, so a guest is neither a client nor
-# acting for one.
+# recorded drops (operator scope ruling 2026-08-05), and an email address belongs
+# to a client record, so a guest is neither a client nor acting for one.
+#
+# Three AC7 read-backs are NOT here, because the `World` seam cannot express them
+# (`world.types.ts` — five members, no page, no wire and no reload): the RENDERED
+# row order after a sort, survival across a reload, and the sort field the module
+# does not offer never reaching the wire. All three are proven in
+# `playgrounds/labs-nuxt/tests/e2e/client-emails-filter-sort.spec.ts`, tagged
+# `@AC7`, which the same `--grep "@AC7"` selects.
+#
+# The FE-2824 watch-point is HALF proven by the driven scenarios. The staff one
+# proves the staff cell boots and reads the named client's collection; it does
+# NOT prove the identity TRANSPORT (which token, which acting-as headers),
+# because the recorded session pool holds a client capture and a guest capture
+# and no staff one. That half stays in the integration lane's
+# `assertClientIdentityTransport`, and a staff capture is a recording gap, not a
+# test to fake.
 
-@module:client-email @variant:hybrid @cell:client-self
+@module:client-email @variant:hybrid @cell:client-self @FE-2977
 Feature: A client manages their own email addresses
 
   A client holds one or more email addresses — one marked default, each
   independently verifiable. Two surfaces serve them: a COLLECTION they read and
   act on row by row, and a per-email FORM EDITOR they open to add or change an
   address. Both act on that client's own addresses, under that client's own
-  identity, and never on another account's.
+  identity, and never on another account's. Every scenario below is read under
+  that framing — an authenticated client, acting on their own collection, as
+  that client.
 
   Background:
-    Given I am an authenticated client managing my own account
-    And every request I make is addressed to my own email collection as that client
+    Given the client-emails playground is generated for the active client
 
   # === THE COLLECTION ========================================================
 
@@ -66,8 +84,7 @@ Feature: A client manages their own email addresses
     Given I am signed in as a client
     When I look at my email collection
     Then it tells me the collection is available to me
-    And before I am signed in it tells me the collection is not available, while still
-      telling me it is loading
+    And before I am signed in it tells me the collection is not available, while still telling me it is loading
     And the moment my session goes away it tells me the collection is no longer available
     And I never have to inspect the session myself to learn any of this
 
@@ -150,8 +167,8 @@ Feature: A client manages their own email addresses
     And it never sends a request before it knows whose address it is editing
 
   @AC-13 @manager
-  Scenario Outline: Type an address and see whether it is acceptable
-    When I type "<address>" into the editor
+  Scenario Outline: Give the editor an address and see whether it is acceptable
+    When I give the editor the address "<address>"
     Then the editor reports the address as "<outcome>"
     And when it is rejected I can read which field is wrong and why
 
@@ -191,12 +208,12 @@ Feature: A client manages their own email addresses
   @AC-18 @manager
   Scenario: Two new-address forms do not interfere
     Given I have started two new email addresses at the same time
-    When I type into the first
+    When I change the address in the first
     Then the second is untouched
 
   @AC-19 @manager
   Scenario: See the editor's state while I work
-    When I open the editor and type into it
+    When I open the editor and change the address in it
     Then I can see whether it is loading, ready, changed, valid, saving, or finished
     And whether the address I am editing is a brand-new one
 
@@ -235,3 +252,74 @@ Feature: A client manages their own email addresses
     Then both are offered, with every type a consumer imports
     And removing the editor from what the module offers turns this red
     And every dependent module still compiles with no new error
+
+  # === END TO END ============================================================
+  # The same collection capabilities in the phrasing `client-email.steps.ts`
+  # matches, so they play as tracks rather than only being written down. Where
+  # one restates an @AC scenario above, that is deliberate: the @AC scenario is
+  # the capability, this is the drive of it.
+
+  @layer-e2e @smoke
+  Scenario: A client sees their email collection
+    Then the collection holds 3 addresses
+    And "mock-email-1@example.com" is listed
+    And "mock-email-3@example.com" is listed
+    And "mock-email-4@example.com" is listed
+
+  @layer-e2e @smoke
+  Scenario: A client adds an email address
+    When the client adds the address "mock-email-9@example.com"
+    Then the collection reports no failure
+
+  @layer-e2e
+  Scenario: A client deletes an email address
+    When the client deletes the address the server allows them to delete
+    Then the collection reports no failure
+
+  @layer-e2e
+  Scenario: A client resends a verification email
+    When the client resends the verification for their unverified address
+    Then the collection reports no failure
+
+  @layer-e2e
+  Scenario: A client sets a default email
+    When the client makes their non-default address the default
+    Then the collection reports no failure
+
+  @layer-e2e
+  Scenario: A client refreshes their collection
+    When the client refreshes the collection
+    Then the collection holds 3 addresses
+    And the collection reports no failure
+
+  @layer-e2e
+  Scenario: Asking for a page that is not there is refused, not guessed
+    When the client asks for a next page they do not have
+    And the client asks for a previous page they do not have
+    Then the collection holds 3 addresses
+    And the collection reports no failure
+
+  @layer-e2e
+  Scenario: Discarding the collection releases it
+    When the client discards the collection
+    Then the collection reports no failure
+
+  @layer-e2e @AC7
+  Scenario: Filtering narrows the collection
+    When the client filters to unverified addresses only
+    Then the collection holds 2 addresses
+    And "mock-email-3@example.com" is listed
+    And "mock-email-4@example.com" is listed
+    And the collection reports that it is filtered
+
+  @layer-e2e @AC7
+  Scenario: Sorting reorders the collection
+    When the client sorts the collection by address descending
+    Then the collection is sorted by "email" descending
+    And the collection reports no failure
+
+  @layer-e2e @fe-2824
+  Scenario: Staff acting for a client read that client's collection
+    Given a staff member acting for that client
+    Then the collection holds 3 addresses
+    And "mock-email-1@example.com" is listed

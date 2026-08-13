@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module tests/e2e/client-emails-filter-sort
- * @description The AC7 read-backs the shared `client-email.canary.feature`
+ * @description The AC7 read-backs the shared `client-email.feature`
  * cannot carry, because `World` has five members and none of them is the page,
  * the wire or a reload: a filter NARROWS THE RENDERED ROWS through a real
  * re-query, a sort REORDERS them, a sort field the module does not offer never
@@ -14,7 +14,7 @@
  */
 
 import { expect, test } from "@playwright/test";
-import { canaryRoute } from "./catalogs";
+import { clientEmailsRoute } from "./catalogs";
 import {
   installRecordedCorpus,
   seedRecordedClientSession
@@ -48,10 +48,10 @@ function collectionReads(traffic: RecordedTraffic): string[] {
     .map(entry => decodeURIComponent(entry));
 }
 
-async function openCanary(page: Page): Promise<RecordedTraffic> {
+async function openClientEmails(page: Page): Promise<RecordedTraffic> {
   const traffic = await installRecordedCorpus(page);
   await seedRecordedClientSession(page);
-  await page.goto(canaryRoute);
+  await page.goto(clientEmailsRoute);
   await expect(renderedAddresses(page)).toHaveCount(3);
   await page.evaluate(async () => {
     const world = (window as unknown as Record<string, unknown>)
@@ -78,11 +78,11 @@ async function drive(page: Page, action: string, input: unknown) {
 
 // -----------------------------------------------------------------------------
 
-test.describe("@AC7 client-emails filter and sort on the canary", () => {
+test.describe("@AC7 client-emails filter and sort on the client-emails page", () => {
   test("a filter narrows the rendered rows through a real re-query", async ({
     page
   }) => {
-    const traffic = await openCanary(page);
+    const traffic = await openClientEmails(page);
 
     await drive(page, "filterBy", { verified: { eq: false } });
 
@@ -96,7 +96,7 @@ test.describe("@AC7 client-emails filter and sort on the canary", () => {
   test("a sort reorders the rendered rows and ships the order param", async ({
     page
   }) => {
-    const traffic = await openCanary(page);
+    const traffic = await openClientEmails(page);
 
     await drive(page, "sortBy", [{ field: "email", dir: "asc" }]);
     await expect(renderedAddresses(page)).toHaveText([
@@ -118,7 +118,7 @@ test.describe("@AC7 client-emails filter and sort on the canary", () => {
   test("a sort field the module does not offer never reaches the wire", async ({
     page
   }) => {
-    const traffic = await openCanary(page);
+    const traffic = await openClientEmails(page);
 
     await drive(page, "sortBy", [{ field: "title", dir: "asc" }]);
     await page.waitForTimeout(1000);
@@ -129,7 +129,7 @@ test.describe("@AC7 client-emails filter and sort on the canary", () => {
   });
 
   test("the filter and the sort survive a reload", async ({ page }) => {
-    const traffic = await openCanary(page);
+    const traffic = await openClientEmails(page);
 
     await drive(page, "filterBy", { verified: { eq: false } });
     await drive(page, "sortBy", [{ field: "email", dir: "desc" }]);

@@ -1,6 +1,6 @@
 /**
  * @module tests/support/recorded-emails
- * @description The client-emails canary's rows and its 409, read from the
+ * @description The client-emails page's rows and its 409, read from the
  * capture run's own recordings under
  * `packages/headless/src/modules/client-email/__tests__/fixtures` (reached by
  * the package's own `./testing/client-email/fixtures/*` export). Nothing here
@@ -23,13 +23,17 @@ type WireEmail = {
   verified: boolean;
   bounced: boolean;
   bounced_at: string | null;
+  created_at: string;
   can_delete: boolean;
 };
 
 /**
  * `bouncedAt` is present only when the recording carries one: `useDate`'s
  * relative form is computed inside headless and unreachable here, so a bounce
- * date is never synthesised to fill the declared column.
+ * date is never synthesised to fill the declared column. `createdAt` is the
+ * same projection over the one date every recorded record DOES carry, which is
+ * what lets a date cell be proven against recorded bytes rather than a made-up
+ * timestamp.
  */
 const toRow = (wire: WireEmail) => ({
   id: wire.id,
@@ -38,6 +42,7 @@ const toRow = (wire: WireEmail) => ({
   bouncedAt: wire.bounced_at
     ? { date: wire.bounced_at, relative: wire.bounced_at }
     : undefined,
+  createdAt: { date: wire.created_at, relative: wire.created_at },
   meta: {
     isDefault: wire.default,
     canDelete: wire.can_delete,

@@ -33,7 +33,7 @@ import {
   clearToasts,
   mountToaster
 } from "../../../../../../tests/support/toaster";
-import clientEmails from "../../../../useClientEmails/scenario";
+import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import {
   CONTROL_TEST_VALUE,
   OVERFLOW_TRIGGER_TEST_VALUE

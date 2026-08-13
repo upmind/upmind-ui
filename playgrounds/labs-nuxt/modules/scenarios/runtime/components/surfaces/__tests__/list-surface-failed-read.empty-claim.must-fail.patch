@@ -1,0 +1,27 @@
+Negative control for the empty state after a FAILED collection read.
+
+Drops the guard, so *Nothing here yet — there is nothing to show in this
+collection* is drawn under the very notice saying the collection could not be
+read: the surface asserts a collection is empty when it never got an answer,
+which is what the forced `error-collection` preset put on screen.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the list-surface empty-state spec — the empty sentences are drawn only
+for a read that came back.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+@@ -976,10 +976,7 @@
+   state: state.value,
+   isLoading: state.value === ModuleState.LOADING,
+   isEmpty: isEmpty(rows.value),
+-  // *Nothing here yet* is a CLAIM about the collection, so it is drawn only
+-  // where the surface can vouch for it: a failed read has no rows AND no
+-  // answer, and the notice above it already says which of the two happened.
+-  hasEmptyState: isEmpty(rows.value) && !isLoadFailed.value,
++  hasEmptyState: isEmpty(rows.value),
+   hasTable: hasTable.value,
+   // The card is a SECOND declaration over the same rows, so the toggle exists
+   // only where the scenario wrote one.

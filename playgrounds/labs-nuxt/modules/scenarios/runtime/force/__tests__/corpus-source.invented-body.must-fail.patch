@@ -1,0 +1,33 @@
+Negative control for the resolved seam (T1.5 · S13 · AC8.5).
+
+`ESC6` route (a) armed the seam, so `corpus-source.spec.ts`'s resolved branch is
+now the live guard on provenance: what the seam hands a consumer must BE the
+committed recording, not something shaped like one. This mutant swaps a single
+recorded body for a hand-authored envelope built around the recording's own
+rows — same addresses, same flags, same status, same row count.
+
+What must go red is PROVENANCE, not the rows: the recording carries `version`,
+`captured_at`, `brand_domain`, `source`, `provenance` and its response headers
+beside `request`/`response`, and under the mutant that whole envelope is gone
+because the served object was constructed here rather than read. An assertion
+that only counts rows, reads `body.data`, or checks the ten keys are present
+passes the mutant and proves nothing — the FE-2824 data-provenance shape. Only a
+comparison of the served body against the committed file catches it.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.source.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.source.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.source.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.source.ts
+@@ -77,7 +77,10 @@
+   return {
+     "delete-clients-id-emails-id": destroyEmail,
+     "get-clients-id-emails-case-page-1": listPageOne,
+-    "get-clients-id-emails-case-page-2": listPageTwo,
++    "get-clients-id-emails-case-page-2": {
++      request: { method: "GET", path: listPageTwo.request.path },
++      response: { status: 200, body: listPageTwo.response.body }
++    },
+     "get-clients-id-emails-id": readEmail,
+     "get-clients-id-emails": listEmails,
+     "patch-clients-id-emails-id-send-verify": sendVerify,

@@ -1,1 +1,0 @@
-../../.agent/workflows/story-pause.md

@@ -1,0 +1,51 @@
+Negative control for world-adopt.spec.ts (T4.3, AC2.5 — design §3.1 ruling 2 /
+§7.1, the DISPOSE branch).
+
+The adopt rule is "same key AND same scope". This mutant keeps the key half and
+drops the scope half, so ANY second boot of the same scenario key adopts —
+including one at a different actor or a different `.for()` context. Nothing
+throws, the world answers every call, and the port it answers with belongs to a
+scope the operator is not looking at: the track drives an INVISIBLE SECOND
+INSTANCE while the rendered surface sits unmoved. That is the precise risk
+design §7.1 names, and without this control it is unpinned — the client-emails page's 11th
+scenario (`Staff acting for a client…`) declares exactly this mismatch.
+
+The `isEqual` import goes with the conjunct so the mutated file is clean; the
+mutation is one condition, not a rewrite.
+
+Note the asymmetry with the sibling `.dispose-shared-cell` mutant: the Playwright
+bridge lane IS a net for this branch (its scenario 11 boots a second, different
+scope inside one page), but it is not a net for the adopt branch (`tasks.md`
+K12). Both mutants exist because neither branch's net covers the other.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: world-adopt.spec.ts — the dispose cases (booting a different actor, or a
+different `.for()` context id, under the same key still fires the previous
+cell's `destroy` and mints a port at the newly named scope).
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioWorld.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioWorld.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioWorld.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioWorld.ts
+@@ -17,9 +17,9 @@ import {
+   responseCodes
+ } from "@upmind-automation/headless";
+ import { registry } from "../registry";
+ import { useModulePort } from "./useModulePort";
+-import { get, isEqual, isFunction, isMatch, keys, pick } from "lodash-es";
++import { get, isFunction, isMatch, keys, pick } from "lodash-es";
+ import type { ScenarioBinding, ScenarioKey } from "../scenario.types";
+ import type { ModulePort } from "./useModulePort.types";
+ import type { ScopeActorTypes } from "@upmind-automation/headless";
+ import type { World, WorldScope } from "@upmind-automation/scenario-harness";
+@@ -64,9 +64,9 @@ export function useScenarioWorld(
+       // The scope registry caches by scope key, so `port` IS the cell the page
+       // renders: re-booting the scope already on screen ADOPTS it, because
+       // disposing would `destroy()` the rendered surface mid-track. A different
+       // key or scope addresses a different cell and disposes exactly as before.
+-      if (booted?.key === key && isEqual(booted.scope, scope)) return;
++      if (booted?.key === key) return;
+
+       dispose();
+
+       const entry = get(bindings, key);

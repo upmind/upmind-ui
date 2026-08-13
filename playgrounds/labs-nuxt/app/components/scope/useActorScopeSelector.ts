@@ -8,18 +8,26 @@
 
 import { computed, onUnmounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { ScopeActorTypes, useSessionStore } from "@upmind-automation/headless";
+import {
+  getTokenFromStorage,
+  ScopeActorTypes,
+  useSessionStore
+} from "@upmind-automation/headless";
 import { AccessRoleTypes } from "@upmind-automation/types";
 import { useActorScope, buildScopePath } from "../../composables/scope";
+import { usePlaygroundUrlState } from "../../composables/usePlaygroundUrlState";
 import {
   capitalize,
   filter,
   findKey,
+  get,
   has,
   map,
   sortBy,
   toPairs
 } from "lodash-es";
+import type { ScopeConfig } from "../../composables/scope";
+import { authOverlayTarget } from "~/funnels/labs";
 
 // -----------------------------------------------------------------------------
 
@@ -30,6 +38,7 @@ export type SessionItem = {
   id: string;
   actor: AccessRoleTypes;
   label: string;
+  /** i18n key naming the session's actor — resolved by the surface (AC10.4). */
   sublabel?: string;
   icon: string;
   isActive: boolean;
@@ -38,6 +47,14 @@ export type SessionItem = {
     caption: string;
     src?: string;
   };
+};
+
+/** The i18n key naming each actor — the ONE place an actor becomes words. */
+export const ACTOR_LABEL_KEYS: Record<ScopeActorTypes, string> = {
+  [ScopeActorTypes.SELF]: "labs.actor_self",
+  [ScopeActorTypes.CLIENT]: "labs.actor_client",
+  [ScopeActorTypes.STAFF]: "labs.actor_staff",
+  [ScopeActorTypes.GUEST]: "labs.actor_guest"
 };
 
 /**
@@ -82,9 +99,13 @@ export function useActorScopeSelector() {
   // Get actor scope from URL (via scope composable)
   const actorScope = useActorScope();
 
+  // The playground's surface state lives outside the router (history), so a
+  // scope push rebuilding the query would drop it (design §7.3).
+  const { preserveQuery } = usePlaygroundUrlState();
+
   // Session store for activating sessions on scope switch
   const store = useSessionStore();
-  const { activate, logout, getExpiresAt } = store.useActions();
+  const { activate, getExpiresAt, logout, remove } = store.useActions();
   const {
     activeActor,
     activeSessionId,
@@ -132,10 +153,6 @@ export function useActorScopeSelector() {
     entry: (typeof allSessions.value)[string]
   ): SessionItem {
     const actor = entry.scope;
-    const actorKey = findKey(
-      ScopeActorTypes,
-      v => (v as string) === (actor as string)
-    );
 
     const label =
       entry.user?.publicName ?? entry.user?.fullName ?? entry.user?.email ?? id;
@@ -146,9 +163,10 @@ export function useActorScopeSelector() {
         .toUpperCase()
         .substring(0, 2) || "G";
 
-    const avatar = entry.user?.avatar
-      ? { ...entry.user.avatar, initials }
-      : { caption: label, initials };
+    // The store's own avatar already captions itself with the user's initials
+    // (`mapSessionUser`), so a session with no profile captions itself the same
+    // way rather than dropping a whole name into a 32px circle.
+    const avatar = entry.user?.avatar ?? { caption: initials };
 
     return {
       id,
@@ -158,7 +176,7 @@ export function useActorScopeSelector() {
       icon: getScopeIcon(actor as unknown as ScopeActorTypes),
       isActive: id === activeSessionId.value,
       label,
-      sublabel: capitalize(actorKey ?? actor)
+      sublabel: ACTOR_LABEL_KEYS[actor as unknown as ScopeActorTypes]
     };
   }
 
@@ -245,7 +263,7 @@ export function useActorScopeSelector() {
 
     // Update scope in URL path while preserving current route and brand
     const currentBrand = route.params.brandIdOrOrg as string | undefined;
-    const currentContext = (route.meta?.scopeConfig as { context?: any })
+    const currentContext = (route.meta?.scopeConfig as ScopeConfig | undefined)
       ?.context;
 
     // Extract page name from current path
@@ -254,12 +272,14 @@ export function useActorScopeSelector() {
     const page = currentBrand ? pathParts[1] || "" : pathParts[0] || "";
 
     router.push(
-      buildScopePath({
-        page,
-        brandId: currentBrand,
-        actor: scope,
-        context: currentContext
-      })
+      preserveQuery(
+        buildScopePath({
+          page,
+          brandId: currentBrand,
+          actor: scope,
+          context: currentContext
+        })
+      )
     );
   }
 
@@ -280,7 +300,7 @@ export function useActorScopeSelector() {
 
     // Update scope in URL path while preserving current route and brand
     const currentBrand = route.params.brandIdOrOrg as string | undefined;
-    const currentContext = (route.meta?.scopeConfig as { context?: any })
+    const currentContext = (route.meta?.scopeConfig as ScopeConfig | undefined)
       ?.context;
 
     // Extract page name from current path
@@ -289,33 +309,28 @@ export function useActorScopeSelector() {
     const page = currentBrand ? pathParts[1] || "" : pathParts[0] || "";
 
     router.push(
-      buildScopePath({
-        page,
-        brandId: currentBrand,
-        actor: scopeType,
-        context: currentContext
-      })
+      preserveQuery(
+        buildScopePath({
+          page,
+          brandId: currentBrand,
+          actor: scopeType,
+          context: currentContext
+        })
+      )
     );
   }
 
   /**
-   * Navigate to auth page to add a new session for a given scope.
+   * Add a session — the auth OVERLAY over the page the pool is open on, never a
+   * navigation away to `useAuth` (`AC7.2`).
+   *
+   * The control's own scope IS the choice (`R6-15b`): "Add another staff
+   * session" opens the overlay at the staff actor and "Add another client" at
+   * the client one, the same `/as/<actor>` pick the `useAuth` page collects a
+   * session under. So it is carried, not asked for a second time.
    */
   function addSession(scope: ScopeActorTypes) {
-    const currentBrand = route.params.brandIdOrOrg as string | undefined;
-
-    // `fresh` marker tells the useAuth page to spawn a fresh instance (.fresh())
-    // so the login form renders even while a session of this scope is active.
-    // Nonce value: an identical fullPath is a router no-op, so a repeat
-    // add-session from the auth page itself would never remount it.
-    router.push({
-      path: buildScopePath({
-        page: "useAuth",
-        brandId: currentBrand,
-        actor: scope
-      }),
-      query: { fresh: Date.now().toString() }
-    });
+    router.push(authOverlayTarget(route, { actor: scope, fresh: true }));
   }
 
   /**
@@ -362,17 +377,19 @@ export function useActorScopeSelector() {
   }
 
   /**
-   * Label for the "add a new session" action of a given scope.
+   * i18n key for the "add a new session" action of a given scope.
    * Reads "Add another …" once a session of that scope already exists,
    * so the affordance is unambiguous while a user is already logged in.
    */
   function getAddSessionLabel(scope: ScopeActorTypes): string {
     if (scope === ScopeActorTypes.STAFF) {
       return hasStaffSession.value
-        ? "Add another staff session"
-        : "Log in as staff";
+        ? "labs.session_add_staff_another"
+        : "labs.session_add_staff";
     }
-    return hasClientSession.value ? "Add another client" : "Log in as client";
+    return hasClientSession.value
+      ? "labs.session_add_client_another"
+      : "labs.session_add_client";
   }
 
   /**
@@ -401,19 +418,24 @@ export function useActorScopeSelector() {
   }
 
   /**
-   * Exit impersonation by logging out of active session.
-   * The session store automatically restores the parent session.
+   * End the ONE session whose control was pressed (`P5`).
+   *
+   * A row names its own session, so the store's targeted `remove` is what a row
+   * control means, and it restores the impersonation parent when the session
+   * ended was the active one — exiting an impersonation is this same call on
+   * the impersonated row (`P6`).
+   *
+   * One row per scope is the exception: `remove` never touches the scope
+   * cookie, and the store's write gate re-overlays a cookie-backed session
+   * straight back into the map, so that row would come back. It ends through
+   * `logout(actor)` instead, which dumps the cookie — the same "only when the
+   * dead session IS the cookie-backed one" test the store applies internally —
+   * and then removes exactly the session the cookie names.
    */
-  function exitImpersonation() {
-    logout(); // Removes active session, restores parent via built-in logic
-  }
-
-  /**
-   * Logout a specific session by actor type.
-   * Removes the session and restores the next available session.
-   */
-  function logoutSession(actor: AccessRoleTypes) {
-    logout(actor);
+  function logoutSession(actor: AccessRoleTypes, sessionId: string) {
+    if (get(getTokenFromStorage(actor), "actor_id") === sessionId)
+      logout(actor);
+    else remove(actor, sessionId);
   }
 
   return {
@@ -426,7 +448,7 @@ export function useActorScopeSelector() {
     /** Scopes that can add new sessions (no existing session, scope allowed). */
     addableScopes,
 
-    /** Add a new session for a given scope (navigates to auth). */
+    /** Add a session for a scope — opens the auth overlay on its chooser. */
     addSession,
 
     /** Available scopes for the scope switcher. */
@@ -438,10 +460,7 @@ export function useActorScopeSelector() {
     /** Client sessions not impersonated by any staff session. */
     directClientItems,
 
-    /** Exit impersonation and restore parent session. */
-    exitImpersonation,
-
-    /** Label for the "add a new session" action of a scope. */
+    /** i18n key for the "add a new session" action of a scope. */
     getAddSessionLabel,
 
     /** Stable test hook for the "add session" control of a scope. */
@@ -465,7 +484,7 @@ export function useActorScopeSelector() {
     /** True if current scope is staff. */
     isStaff,
 
-    /** Logout a specific session by actor type. */
+    /** End one named session; the store restores its parent or the next one. */
     logoutSession,
 
     /** Register scopes with auto-cleanup on unmount (recommended). */

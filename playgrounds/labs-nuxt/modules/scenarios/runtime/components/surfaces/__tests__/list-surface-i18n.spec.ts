@@ -7,7 +7,7 @@
  * A source grep for `"No data"` proves nothing: a string can be hardcoded in a
  * primitive the surface mounts, and a key can be *supplied* correctly and still
  * reach the user raw because no translator was installed. So the measurement is
- * the DOM the operator actually reads, over every state the canary's list can be
+ * the DOM the operator actually reads, over every state the client-emails page's list can be
  * in, against the shipped `packages/i18n/src/core` catalogue.
  *
  * Two failures are caught, not one:
@@ -22,7 +22,7 @@
  *
  * ## What Breaks If These Fail
  * The one surface the operator opens ships English that Localazy never sees,
- * and the canary reads as broken in every locale but `en`.
+ * and the client-emails page reads as broken in every locale but `en`.
  */
 
 import { mount } from "@vue/test-utils";
@@ -39,7 +39,7 @@ import {
   unverifiedRow
 } from "../../../../../../tests/support/recorded-emails";
 import { renderedStrings } from "../../../../../../tests/support/rendered";
-import clientEmails from "../../../../useClientEmails/scenario";
+import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { ListSurface } from "../index";
 import {
   difference,

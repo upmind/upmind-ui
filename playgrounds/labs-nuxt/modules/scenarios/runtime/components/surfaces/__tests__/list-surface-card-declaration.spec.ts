@@ -8,7 +8,7 @@
  * A card is not a second component, it is a SECOND uischema over the same row —
  * which is FE-2977's own AC, *"the same schema must render several ways"*. So
  * the toggle chooses between two declarations: the table draws
- * `presentation.row` in its order, the card draws `presentation.card` in its
+ * `presentation.table` in its order, the card draws `presentation.card` in its
  * order and its slots, and neither view invents a field. Which view is on is the
  * renderer's own ephemeral state (AC2) — no refetch, no declaration, no url.
  *
@@ -20,20 +20,21 @@
  */
 
 import { mount } from "@vue/test-utils";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Card } from "@upmind-automation/upmind-ui";
 import {
   defaultRow,
   unverifiedRow
 } from "../../../../../../tests/support/recorded-emails";
-import clientEmails from "../../../../useClientEmails/scenario";
-import { RESOLVED_HANDOFFS } from "../../__tests__/resolved-handoffs";
+import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { CardSlotTypes } from "../../../scenario.types";
+import { RESOLVED_HANDOFFS } from "../../__tests__/resolved-handoffs";
+import { CellDispatcher } from "../../cells";
 import { ListSurface, ListViewTypes } from "../index";
-import RowCell from "../RowCell.vue";
 import { every, filter, keys, map, values } from "lodash-es";
-import type { RowElement } from "../../../scenario.types";
+import type { TableCell } from "../../../scenario.types";
 import type { SurfaceActions } from "../surface.types";
+import type { VueWrapper } from "@vue/test-utils";
 
 // -----------------------------------------------------------------------------
 
@@ -55,6 +56,13 @@ const fakeTable = (emit = vi.fn()) => ({
   emit
 });
 
+/**
+ * Which view is drawn is url state now (`AC9.1`/K8) — one writer, process-wide
+ * and outliving any single mount — so a case that switched view hands it back,
+ * rather than leaving the next case booting into the previous one's choice.
+ */
+let viewed: VueWrapper | undefined;
+
 function mountList(emit = vi.fn()) {
   const wrapper = mount(ListSurface, {
     attachTo: document.body,
@@ -70,6 +78,8 @@ function mountList(emit = vi.fn()) {
       table: fakeTable(emit)
     }
   });
+  viewed = wrapper;
+
   return { wrapper, emit };
 }
 
@@ -81,21 +91,27 @@ const view = (wrapper: Wrapper, next: ListViewTypes) =>
 /** The declared elements each rendered card actually drew, in DOM order. */
 const drawnIn = (root: { findAllComponents: Wrapper["findAllComponents"] }) =>
   map(
-    root.findAllComponents(RowCell),
-    cell => (cell.props("element") as RowElement).scope
+    root.findAllComponents(CellDispatcher),
+    cell => (cell.props("element") as TableCell).scope
   );
 
-const declaredScopes = (elements: RowElement[] = []) => map(elements, "scope");
+const declaredScopes = (elements: TableCell[] = []) => map(elements, "scope");
 
 /** The card fields the declaration placed in one named slot, in its own order. */
 const slotted = (slot: CardSlotTypes) =>
   declaredScopes(
-    filter(presentation.card?.elements, ["options.slot", slot]) as RowElement[]
+    filter(presentation.card?.elements, ["options.slot", slot]) as TableCell[]
   );
 
 /** The element the cards are laid out in — the grid itself, whatever it is called. */
 const gridOf = (wrapper: Wrapper) =>
   wrapper.findAllComponents(Card)[0].element.parentElement as HTMLElement;
+
+afterEach(async () => {
+  const table = viewed?.find(`[data-test-value="${ListViewTypes.TABLE}"]`);
+  if (table?.exists()) await table.trigger("click");
+  viewed = undefined;
+});
 
 // -----------------------------------------------------------------------------
 
@@ -161,7 +177,7 @@ describe("@AC3 the card draws the CARD declaration — the scenario's second one
     // The table's declaration carries no slots at all, so a card drawn from it
     // could not group into a heading and a line under it in the first place.
     expect(slotted(CardSlotTypes.TITLE)).not.toEqual(
-      declaredScopes(presentation.row?.elements)
+      declaredScopes(presentation.table?.elements)
     );
   });
 
@@ -187,7 +203,7 @@ describe("@AC3 the card draws the CARD declaration — the scenario's second one
       .findAllComponents(Card)[0]
       .findAll('[data-test-key="badge"]');
 
-    // D15: default-ness is the marker column's one job, so Status carries the
+    // D15: default-ness is the star cell's one job, so Status carries the
     // remaining flags only — a Default badge here would tell the same fact twice.
     expect(map(badges, badge => badge.text())).toEqual(["Verified"]);
   });
@@ -201,11 +217,11 @@ describe("@AC3 the card draws the CARD declaration — the scenario's second one
     expect(wrapper.text()).not.toContain(defaultRow.id);
   });
 
-  it("keeps the table view on the ROW declaration — one cell renderer, two declarations", () => {
+  it("keeps the table view on the TABLE declaration — one dispatcher, two declarations", () => {
     const { wrapper } = mountList();
 
     const cells = drawnIn(wrapper.findAll("tbody tr")[0]);
-    expect(cells).toEqual(declaredScopes(presentation.row?.elements));
+    expect(cells).toEqual(declaredScopes(presentation.table?.elements));
   });
 });
 

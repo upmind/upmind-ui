@@ -18,6 +18,12 @@
  * The controls drift back into the middle of the row, or a state (loading) draws
  * its placeholder in a different column from the one the real controls land in —
  * the layout jump C8 exists to stop.
+ *
+ * ## Retired here
+ * "the COLLECTION's own control gets the same treatment (E10)" — `G4` moved
+ * Add-new out of this surface to the page header, where `design.md` §4 draws it
+ * as a LABELLED primary button. `D5`/`E10` govern the row's icon controls, which
+ * are what remains below; the header's control is `page-header.spec.ts`'s.
  */
 
 import { mount } from "@vue/test-utils";
@@ -27,7 +33,7 @@ import {
   defaultRow,
   unverifiedRow
 } from "../../../../../../tests/support/recorded-emails";
-import clientEmails from "../../../../useClientEmails/scenario";
+import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { CONTROL_TEST_VALUE } from "../../__tests__/control-test-values";
 import { RESOLVED_HANDOFFS } from "../../__tests__/resolved-handoffs";
 import { ListSurface, ListViewTypes } from "../index";
@@ -171,13 +177,14 @@ describe("@AC3 the controls in the anchored column are icons (D5)", () => {
     expect(control.attributes("aria-label")).toBeTruthy();
   });
 
-  it("gives the COLLECTION's own control the same treatment — D5 has no exceptions (E10)", () => {
+  it("gives every control in the anchored column that same treatment", () => {
     const wrapper = mountList();
-    const add = wrapper.find(`[data-test-value="${CONTROL_TEST_VALUE.add}"]`);
+    const cell = last(wrapper.findAll("tbody tr")[1].findAll("td"))!;
 
-    expect(add.exists()).toBe(true);
-    expect(add.find("span.sr-only").exists()).toBe(true);
-    expect(add.attributes("aria-label")).toBeTruthy();
+    for (const control of cell.findAll(`button${CONTROL}`)) {
+      expect(control.find("span.sr-only").exists()).toBe(true);
+      expect(control.attributes("aria-label")).toBeTruthy();
+    }
   });
 });
 

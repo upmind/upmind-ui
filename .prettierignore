@@ -23,3 +23,7 @@ docs/published-docs/developers/changelog/
 # playwright-bdd's generated spec files (bddgen output) — machine output, not
 # source; formatting/linting it is nonsensical churn (FE-2976 review cluster 13).
 .features-gen/
+
+# The factory's TEMPLATES — placeholder files ({Module}, {actor}) that are not
+# parseable source; formatting them is nonsensical and prettier cannot read them.
+.claude/skills/factory/**/templates/

@@ -18,8 +18,9 @@
  */
 
 import { TABLE_INTENT_TYPE } from "@upmind-automation/scenario-harness";
-import { forEach, get, isNil, keys } from "lodash-es";
+import { find, forEach, get, isNil, keys, map } from "lodash-es";
 import type {
+  DeclaredSortField,
   DeclaringTableChannel,
   TableChannelCell
 } from "./useTableChannel.types";
@@ -43,6 +44,42 @@ function operatorFor(schema: unknown, column: string): string | undefined {
   return keys(
     get(schema, ["properties", "filters", "properties", column, "properties"])
   )[0];
+}
+
+/**
+ * Every field the schema declares ORDERABLE, under its own title. A Draft-07
+ * schema restricts the member either as a bare `enum` or as `oneOf` `const`
+ * entries — the same two forms `translateQuery`'s own wire gate reads, so the
+ * control can never offer a field the translator would drop — and only the
+ * second can TITLE each member, which is where an option's label comes from
+ * (`R6-28`). A field titled neither there nor on the filter column of that name
+ * is offered under its wire name rather than dropped, so an untitled column is
+ * visible instead of silently unorderable.
+ *
+ * The rule is spelt here rather than imported from the query platform: this file
+ * is loaded by node-environment specs, and a VALUE import off the headless
+ * barrel drags the whole package's module-scope browser globals in with it.
+ */
+function declaredSort(schema: unknown): DeclaredSortField[] {
+  const field = get(schema, [
+    "properties",
+    "sort",
+    "items",
+    "properties",
+    "field"
+  ]);
+
+  const titled: unknown[] = get(field, "oneOf") ?? [];
+
+  return map(
+    get(field, "enum") ?? map(titled, "const"),
+    (name: string): DeclaredSortField => ({
+      field: name,
+      i18n:
+        get(find(titled, ["const", name]), "title") ??
+        get(schema, ["properties", "filters", "properties", name, "title"])
+    })
+  );
 }
 
 /** Nested `{ col: { op: v } }` → flat `{ col: v }` for the renderer. */
@@ -83,15 +120,7 @@ export function useTableChannel(cell: TableChannelCell): DeclaringTableChannel {
   return {
     declared() {
       return {
-        sort:
-          get(schema, [
-            "properties",
-            "sort",
-            "items",
-            "properties",
-            "field",
-            "enum"
-          ]) ?? [],
+        sort: declaredSort(schema),
         filter: keys(get(schema, ["properties", "filters", "properties"]))
       };
     },

@@ -19,11 +19,15 @@
 
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { createI18n } from "vue-i18n";
+import action from "@upmind-automation/i18n/core/action-en.json";
+import text from "@upmind-automation/i18n/core/text-en.json";
+import labsEn from "../../../../../../app/assets/locales/en/labs.json";
 import {
   defaultRow,
   unverifiedRow
 } from "../../../../../../tests/support/recorded-emails";
-import clientEmails from "../../../../useClientEmails/scenario";
+import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import {
   ActionPlacementTypes,
   type ScenarioAction
@@ -40,7 +44,7 @@ import {
   FIRST_DECLARED_COLUMN,
   TABLE_COLUMNS
 } from "./table-geometry";
-import { filter, keys, map, slice } from "lodash-es";
+import { difference, filter, keys, map, reject, slice, some } from "lodash-es";
 import type { ResolvedHandoff } from "../../../scenario.types";
 import type { SurfaceActions } from "../surface.types";
 import type { ControlledTableChannel } from "@upmind-automation/scenario-harness";
@@ -55,9 +59,20 @@ const rows = [defaultRow, unverifiedRow];
 /** The row every declared action is offered on — no rule withholds one here. */
 const OPEN_ROW = 1;
 
+/**
+ * The playground's own namespace beside the shared catalogues: the Results
+ * label the count now rides on is a `labs.*` key (`H1`), and an uninstalled
+ * namespace would let this spec read a raw key as though it were copy.
+ */
+const i18n = createI18n({
+  legacy: false,
+  locale: "en",
+  messages: { en: { action, labs: labsEn, text } }
+});
+
 const declaredIn = (placement: ActionPlacementTypes) =>
   map(
-    filter(presentation.rowActions as ScenarioAction[], { placement }),
+    filter(presentation.actions.elements as ScenarioAction[], { placement }),
     "name"
   );
 
@@ -78,7 +93,8 @@ function mountList(
       presentation,
       table,
       handoffs
-    }
+    },
+    global: { plugins: [i18n] }
   });
 }
 
@@ -177,21 +193,24 @@ describe("@AC2 ListSurface — controlled-table consumed, never owned", () => {
     });
   });
 
-  it("renders its sort/pagination display from channel.read(), never from an owned state field", async () => {
+  it("renders its Results count from channel.read(), never from an owned state field", async () => {
+    // `H1` moved the tally onto the display row's Results label; what is
+    // measured is unchanged — the surface re-reads the channel rather than
+    // caching it into a ref of its own at setup time.
     const wrapper = mountList(
       fakeTable({ pagination: { page: 1, perPage: 10, total: 2 } })
     );
+    const results = () => wrapper.find('[data-test-key="display-row"]').text();
+    const showing = (total: number) =>
+      i18n.global.t("labs.results_showing", { count: rows.length, total });
 
-    expect(wrapper.find("p").text()).toBe("Page 1 of 1");
+    expect(results()).toContain(showing(2));
 
-    // A brand-new `table` prop, never anything ListSurface mutates itself —
-    // if it cached the model into its own ref at setup time, this would not
-    // change the rendered output.
     await wrapper.setProps({
-      table: fakeTable({ pagination: { page: 2, perPage: 1, total: 2 } })
+      table: fakeTable({ pagination: { page: 1, perPage: 10, total: 7 } })
     });
 
-    expect(wrapper.find("p").text()).toBe("Page 2 of 2");
+    expect(results()).toContain(showing(7));
   });
 });
 
@@ -254,7 +273,7 @@ describe("@AC3 list-actions — a declared action fires the live map member it n
   });
 });
 
-describe("@AC3 list-actions (table-backed) — the real client-emails canary path", () => {
+describe("@AC3 list-actions (table-backed) — the real client-emails page path", () => {
   it("fires actions.remove with the row id from the table row's control", async () => {
     const actions = { remove: vi.fn() };
     const wrapper = mountList(fakeTable(), actions);
@@ -356,5 +375,66 @@ describe("@AC3 the declaration is the ONLY source of columns and controls (C15)"
     expect(
       wrapper.find(`[data-test-value="${CONTROL_TEST_VALUE.remove}"]`).exists()
     ).toBe(false);
+  });
+});
+
+/**
+ * @AC5.1 @R6-5 @R6-6b a header says what its own column IS
+ *
+ * A header writes the ordering only where its column NAMES a wire field — the
+ * declaration's `sort[].scope` is that binding. The Status cell is a composite
+ * of two `meta` flags the API orders on neither of, and the bounce date names no
+ * field in the schema's `sort.field` enum either, so both draw a plain header
+ * rather than a control that would order by something else entirely. And no
+ * header wraps: "Date bounced" broke onto two lines and set the row's height.
+ */
+describe("@AC3 a header sorts only what its own column IS (R6-5 · R6-6b)", () => {
+  const declaredHeaders = (wrapper: Wrapper) =>
+    slice(wrapper.findAll("thead th"), FIRST_DECLARED_COLUMN, ACTIONS_COLUMN);
+
+  /** The declared columns a `sort` entry actually points its `scope` at. */
+  const SORTING_HEADERS = map(
+    filter(presentation.table?.elements, element =>
+      some(presentation.sort, ["scope", element.scope])
+    ),
+    element => i18n.global.t(element.i18n as string)
+  );
+
+  it("carries the ordering control on the columns that name a field, and no others", () => {
+    const wrapper = mountList(fakeTable());
+    const sorting = filter(declaredHeaders(wrapper), header =>
+      header.find('[data-test-key="button"]').exists()
+    );
+
+    expect(SORTING_HEADERS.length).toBeGreaterThan(0);
+    expect(map(sorting, header => header.text())).toEqual(SORTING_HEADERS);
+  });
+
+  it("leaves every other declared column a plain header, composite included", () => {
+    const wrapper = mountList(fakeTable());
+    const plain = reject(declaredHeaders(wrapper), header =>
+      header.find('[data-test-key="button"]').exists()
+    );
+
+    expect(map(plain, header => header.text())).toEqual(
+      difference(DECLARED_HEADERS, SORTING_HEADERS)
+    );
+  });
+
+  it("lets no header that carries words wrap onto a second line (R6-5)", () => {
+    const wrapper = mountList(fakeTable());
+    const worded = filter(wrapper.findAll("thead th"), header =>
+      Boolean(header.text())
+    );
+
+    expect(worded).toHaveLength(DECLARED_HEADERS.length);
+    expect(
+      map(
+        reject(worded, header =>
+          some(header.classes(), name => /nowrap/.test(name))
+        ),
+        header => header.text()
+      )
+    ).toEqual([]);
   });
 });

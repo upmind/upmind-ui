@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module tests/e2e/client-emails-filter-bar
- * @description ⛳ CANARY, the half no bridge call can reach (Task 14, P1-R12):
+ * @description The half no bridge call can reach (Task 14, P1-R12):
  * the filter bar the operator SEES is the `Filter` renderer built from the
  * module's own query schema — not a fallback Select, not a header keyword box —
  * typing in it narrows the rendered rows through a REAL re-query, and the
@@ -18,7 +18,7 @@
  */
 
 import { expect, test } from "@playwright/test";
-import { canaryRoute } from "./catalogs";
+import { clientEmailsRoute } from "./catalogs";
 import {
   installRecordedCorpus,
   seedRecordedClientSession
@@ -63,16 +63,16 @@ function collectionReads(traffic: RecordedTraffic): string[] {
     .map(entry => decodeURIComponent(entry));
 }
 
-async function openCanary(page: Page): Promise<RecordedTraffic> {
+async function openClientEmails(page: Page): Promise<RecordedTraffic> {
   const traffic = await installRecordedCorpus(page);
   await seedRecordedClientSession(page);
-  await page.goto(canaryRoute);
+  await page.goto(clientEmailsRoute);
   await expect(rows(page)).toHaveCount(3);
   return traffic;
 }
 
-/** The canary's own `nav.i18n`, resolved — the label its declaration chose. */
-const CANARY_TAB = "Emails";
+/** The client-emails page's own `nav.i18n`, resolved — the label its declaration chose. */
+const CLIENT_EMAILS_TAB = "Emails";
 
 const tab = (page: Page, name: string) =>
   page.locator(`[data-test-key="tab-item"][data-test-value="${name}"]`);
@@ -86,7 +86,7 @@ async function openInspector(page: Page) {
 }
 
 /** Navigates through the app's OWN router, so the page unmounts as it does live. */
-async function leaveCanary(page: Page): Promise<void> {
+async function leaveClientEmails(page: Page): Promise<void> {
   await page.evaluate(async () => {
     const nuxt = (
       window as unknown as {
@@ -100,11 +100,11 @@ async function leaveCanary(page: Page): Promise<void> {
 
 // -----------------------------------------------------------------------------
 
-test.describe("@AC7 the canary's filter bar IS the Filter renderer (Task 14)", () => {
+test.describe("@AC7 the client-emails filter bar IS the Filter renderer (Task 14)", () => {
   test("renders one control per declared filter column, from the schema alone", async ({
     page
   }) => {
-    await openCanary(page);
+    await openClientEmails(page);
 
     const bar = page.locator(FILTER_BAR);
     await expect(bar).toHaveCount(1);
@@ -122,7 +122,7 @@ test.describe("@AC7 the canary's filter bar IS the Filter renderer (Task 14)", (
   test("the two boolean columns draw the treatment their uischema names — never a switch, never a Select (P1-R3/W-D21)", async ({
     page
   }) => {
-    await openCanary(page);
+    await openClientEmails(page);
     const bar = page.locator(FILTER_BAR);
 
     await expect(
@@ -139,7 +139,7 @@ test.describe("@AC7 the canary's filter bar IS the Filter renderer (Task 14)", (
   test("both treatments boot unset — the labelled one standing on All, the label-less one on nothing", async ({
     page
   }) => {
-    await openCanary(page);
+    await openClientEmails(page);
 
     await expect(
       columnIn(page, "verified").locator(UNSET_POSITION)
@@ -157,7 +157,7 @@ test.describe("@AC7 the canary's filter bar IS the Filter renderer (Task 14)", (
   test("the search box is the email column's own control, translated, full width above the switches", async ({
     page
   }) => {
-    await openCanary(page);
+    await openClientEmails(page);
 
     const search = page.locator(FILTER_BAR).locator(SEARCH);
     await expect(search).toHaveCount(1);
@@ -175,7 +175,7 @@ test.describe("@AC7 typing in the bar narrows the rows through a real re-query",
   test("one keystroke-settled search issues ONE collection read carrying the like filter", async ({
     page
   }) => {
-    const traffic = await openCanary(page);
+    const traffic = await openClientEmails(page);
     const before = collectionReads(traffic).length;
 
     await page.locator(SEARCH).fill("mock-email-3");
@@ -191,7 +191,7 @@ test.describe("@AC7 typing in the bar narrows the rows through a real re-query",
   test("a boolean position narrows on the wire too, and clearing the search restores every row", async ({
     page
   }) => {
-    const traffic = await openCanary(page);
+    const traffic = await openClientEmails(page);
 
     await page.locator(SEARCH).fill("mock-email-3");
     await expect(rows(page)).toHaveCount(1);
@@ -214,7 +214,7 @@ test.describe("@AC7 typing in the bar narrows the rows through a real re-query",
   test("the rows the operator sees are the rows the SERVER returned — not a client-side slice", async ({
     page
   }) => {
-    const traffic = await openCanary(page);
+    const traffic = await openClientEmails(page);
 
     await page.locator(SEARCH).fill("mock-email-1");
 
@@ -232,24 +232,24 @@ test.describe("@P1-R12 the Inspector carries the page's own tab, and no Debug on
   test("carries the tab the scenario DECLARED, and offers no Debug tab at all", async ({
     page
   }) => {
-    await openCanary(page);
+    await openClientEmails(page);
 
     await openInspector(page);
 
-    await expect(tab(page, CANARY_TAB)).toHaveCount(1);
+    await expect(tab(page, CLIENT_EMAILS_TAB)).toHaveCount(1);
     await expect(tab(page, "Debug")).toHaveCount(0);
   });
 
   test("takes its tab with it when the page unmounts — the registration is page-scoped", async ({
     page
   }) => {
-    await openCanary(page);
+    await openClientEmails(page);
     await openInspector(page);
-    await expect(tab(page, CANARY_TAB)).toHaveCount(1);
+    await expect(tab(page, CLIENT_EMAILS_TAB)).toHaveCount(1);
 
-    await leaveCanary(page);
+    await leaveClientEmails(page);
 
-    await expect(tab(page, CANARY_TAB)).toHaveCount(0);
+    await expect(tab(page, CLIENT_EMAILS_TAB)).toHaveCount(0);
     // The Inspector itself survives the navigation, so the count above is a
     // deregistration rather than a panel that simply closed.
     await expect(tab(page, "Session (Scoped)")).toHaveCount(1);

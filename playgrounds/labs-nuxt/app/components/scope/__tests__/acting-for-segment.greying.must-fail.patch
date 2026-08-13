@@ -1,0 +1,71 @@
+Negative control for the greying law (T2.4 falsifiability, `AC1.4` · `F5` matrix
+disposition).
+
+Makes every `never` actor row PICKABLE. The mutation is one line: the matrix
+entry test drops its truthiness check and trusts the `"never"` string sentinel
+alone. `CLIENT_EMAILS_SCOPE_MATRIX` marks `SELF`/`STAFF`/`GUEST` as
+`null as never`, so at runtime those entries are `null` — `String(null)` is the
+truthy string `"null"`, and every unsupported actor now resolves a "context
+type".
+
+That single change carries the whole defect through the segment, because every
+downstream branch keys off `contextType`:
+
+- `actorContexts` reports `contextType: "null"` for the three unsupported
+  actors instead of `null`;
+- `ActingForSegment`'s `isUnsupported()` goes false, so the row renders as an
+  enabled `Button` with no `Tooltip` and no reason;
+- the row gains a handler, so it can be chosen — and choosing it arms a context
+  type the composable does not resolve, which is exactly the "offer it and fail"
+  AC1.4 exists to forbid.
+
+This is a plausible defect, not a strawman: it is the bug of reading a matrix's
+sentinel as a string when the matrix spells it `null as never`.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the greying cases of
+`app/components/scope/__tests__/acting-for-segment.spec.ts` — one row per actor
+in the registered matrix, the resolving actor selectable, the `never` actors
+`disabled` with the matrix's own reason on a `Tooltip.ce.vue`, and a disabled
+row cannot be chosen.
+
+  FOR THE PROVER: authored by the developer seat, which knew the line it wrote;
+  the patch is a source mutation and grades nothing. It was APPLY-CHECKED only
+  (applies cleanly, reverts cleanly, `git status` returns to its prior state) —
+  the spec it must red did not exist yet at authoring time, so there is no
+  author RED run to quote and none should be inferred. Apply it blind, confirm
+  the greying cases go red, then revert.
+
+  PROVER VERIFIED (blind) — 2026-08-12, component lane:
+  `vitest run --project component app/components/scope/__tests__/acting-for-segment.spec.ts`.
+  Applied from the repo root, RED, reverted with `git apply -R`, tree restored.
+
+  RED set — the four declared greying claims:
+    · greys every actor the declaration marks unsupported, and only those
+      (expected [] to deeply equal ['self','user','guest'])
+    · carries the reason on the greyed row itself (tooltip label undefined)
+    · cannot be talked into acting through the greyed self / user / guest row
+      (×3 — the mutant lands `/useClientEmails` and `/as/user/for/null/abc123`
+      and `/as/guest/for/null/abc123` instead of the page's own
+      `/as/client/for/client/abc123`)
+  plus the pool case's own greying precondition (`disabledActors()` empty).
+
+  One correction the prover made rather than accept a false green: as first
+  written, "cannot be chosen" only asserted the route was unmoved by the click,
+  and a greyed row's click is swallowed in BOTH worlds — the case passed under
+  the mutant. It now presses the greyed row and then applies an id, so the claim
+  is that the choice never took, which is what AC1.4 actually forbids.
+
+diff --git a/playgrounds/labs-nuxt/app/components/scope/useContextScopeSelector.ts b/playgrounds/labs-nuxt/app/components/scope/useContextScopeSelector.ts
+--- a/playgrounds/labs-nuxt/app/components/scope/useContextScopeSelector.ts
++++ b/playgrounds/labs-nuxt/app/components/scope/useContextScopeSelector.ts
+@@ -75,7 +75,7 @@
+
+ /** A matrix entry resolves when it names a context type; `null as never` does not. */
+ function resolvedType(contextType: unknown): string | null {
+-  return contextType && contextType !== "never" ? String(contextType) : null;
++  return contextType !== "never" ? String(contextType) : null;
+ }
+
+ /** The matrix the scenario behind a route declares, if it is a scenario route. */

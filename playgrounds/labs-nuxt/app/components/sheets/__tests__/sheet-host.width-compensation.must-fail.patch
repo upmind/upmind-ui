@@ -1,0 +1,56 @@
+Negative control for the page keeping its FULL WIDTH while a sheet is open
+(T3.2 · AC3.1 · P1-R5).
+
+The sheet is `:modal="false"` and overlays the canvas, so the page must not know
+it is there. The regression this pins is the one every drawer picks up sooner or
+later: somebody decides the panel is "covering the content" and pushes the page
+out of its way, which is the reflow `P1-R5` exists to forbid — and it is invisible
+to any assertion that only checks the panel rendered, or that it teleported out
+of the page's own tree, because both stay true with the page squeezed.
+
+This mutant leaves the host, the toggle, the url state and the panel exactly as
+they are. It only makes the LAYOUT compensate: the main column gains right
+padding the width of the panel while a sheet is open, and reads the host's open
+state to do it.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the T3.2 case asserting the page's own content column carries the same
+classes with a sheet open as with none — no width, no padding compensation
+anywhere above the host.
+
+  Verified 2026-08-12 (`vitest run --project component sheet-host.spec.ts`).
+  First run under this mutant: 13 passed — the control caught the spec, not the
+  layout. The two source-reading cases tokenised a BOUND attribute as one string,
+  so `:class="['pt-4', isOpen ? 'pr-96' : '']"` hid both the compensation and the
+  read of the host's open state inside it. Spec strengthened (bound expressions
+  tokenised down to their literals; the sheet-state read derived from the
+  layout's own `usePlaygroundSheet()` destructure rather than the word "sheet").
+  Re-run: 2 failed | 11 passed —
+    reserves no room for the sheet in the layout that mounts it
+        -> expected [ 'pr-96' ] to deeply equal []
+    binds no layout treatment to whether a sheet is open — nothing reflows
+        -> expected [ "['pt-4', isOpen ? 'pr-96' : '']" ] to deeply equal []
+  `git apply -R` restores 13 passed.
+
+diff --git a/playgrounds/labs-nuxt/app/layouts/default.vue b/playgrounds/labs-nuxt/app/layouts/default.vue
+--- a/playgrounds/labs-nuxt/app/layouts/default.vue
++++ b/playgrounds/labs-nuxt/app/layouts/default.vue
+@@ -6,7 +6,7 @@
+       </template>
+     </UpmHeader>
+
+-    <UpmMain class="pt-4">
++    <UpmMain :class="['pt-4', isOpen ? 'pr-96' : '']">
+       <!-- Left Sidebar -->
+       <aside
+         class="bg-surface border-surface sticky top-0 z-40 min-h-screen w-64 self-start rounded-sm shadow"
+@@ -76,7 +76,7 @@
+ const { meta: routingMeta, isReady } = useRoutingEngine();
+
+ // --- debug items
+-const { register } = usePlaygroundSheet();
++const { isOpen, register } = usePlaygroundSheet();
+
+ // --- computed
+ const _isAuthRoute = computed(() =>

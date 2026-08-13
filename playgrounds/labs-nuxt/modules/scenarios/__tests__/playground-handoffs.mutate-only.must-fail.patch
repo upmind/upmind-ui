@@ -1,0 +1,35 @@
+Negative control for the EDITOR-IS-THE-MODULE'S-OWN-MUTATE law (`R6-27`).
+
+Falls back to the COLLECTION composable when a module publishes no editor, so a
+read-only module still offers its declared handoff controls and the dialog boots
+the list in a form's place. The inline spec is what made the handoff stop
+pointing at another declaration; this puts back a target that was never
+declared.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the playground-shell / handoff binding spec — a declaration with no
+`useMutate` binds no handoff at all, so no editor control is offered.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/ScenarioPlayground.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/ScenarioPlayground.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/ScenarioPlayground.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/ScenarioPlayground.vue
+@@ -131,13 +131,11 @@
+ // composable it boots is this declaration's `useMutate`, so a module publishing
+ // none offers no editor control at all rather than one that opens nothing.
+ const handoffs = computed<Record<string, ResolvedHandoff>>(() =>
+-  scenario.useMutate
+-    ? mapValues(scenario.handoff ?? {}, handoff => ({
+-        ...handoff,
+-        useMutate: scenario.useMutate as FourLayerComposable,
+-        actor: actorScope.value
+-      }))
+-    : {}
++  mapValues(scenario.handoff ?? {}, handoff => ({
++    ...handoff,
++    useMutate: (scenario.useMutate ?? scenario.useList) as FourLayerComposable,
++    actor: actorScope.value
++  }))
+ );
+ 
+ // The collection where the module publishes one, else its editor — the pair the

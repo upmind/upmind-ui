@@ -1,1 +1,0 @@
-../../.agent/workflows/story-plan.md

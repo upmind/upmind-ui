@@ -2,10 +2,10 @@
 /**
  * @module scenarios/runtime/composables/useModulePort
  * @description THE port call site — one generic function over every scenario
- * key. A module reaches the factory by declaring a registry entry and
- * nothing else: which composable to boot, which scope to boot it at, and
- * whether it owns table state are the entry's data, derived or declared, never
- * a per-module file. There is deliberately no `use<Module>Port.ts`.
+ * key. A module reaches the factory by declaring the composable and nothing
+ * else: WHERE it boots is the url's (self with no context until a segment says
+ * otherwise), and whether it owns table state is derived from the cell itself,
+ * never a per-module file. There is deliberately no `use<Module>Port.ts`.
  *
  * It is also the ONE site holding the raw cell, so it is the only place the
  * module's own `useInternals()` is reachable — which is why the debug chain
@@ -14,6 +14,8 @@
  * fires nothing, so it is populated before the first fetch.
  */
 
+import { ScopeActorTypes } from "@upmind-automation/headless";
+import { servesActor } from "../../../../app/composables/scope";
 import { useCompositionPort } from "./useCompositionPort";
 import { useTableChannel } from "./useTableChannel";
 import {
@@ -21,13 +23,15 @@ import {
   isArray,
   isEmpty,
   isFunction,
-  isNil,
   join,
   map,
   omitBy,
   toString
 } from "lodash-es";
-import type { ScenarioBinding, ScenarioScopedCell } from "../scenario.types";
+import type {
+  FourLayerComposable,
+  ScenarioScopedCell
+} from "../scenario.types";
 import type {
   ModulePort,
   ModulePortCriteria,
@@ -117,18 +121,43 @@ function readCriteria(
 // -----------------------------------------------------------------------------
 
 /**
- * Boots one registry entry into its seam port.
+ * What a scope the module does not serve publishes — the PORT's own flag, since
+ * there is no cell to ask (`MODULE_STATE_META_FLAG.SERVED`). `getMeta` and
+ * `snapshot().meta` share this one object, which is the port's own
+ * no-divergence contract.
+ */
+const UNSERVED_META = { isServed: false };
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Boots one scoped composable into its seam port.
  *
- * @param entry The binding, from the scenario contract (`registry.ts`).
- * @param scope Overrides — the actor a feature or a route named, the context id
- * a handoff supplies, and whether the instance is a fresh one. Absent, the
- * binding's own scope is used.
+ * @param composable The builder a declaration names — its collection or its
+ * editor, whichever the caller is opening.
+ * @param scope WHERE it boots: the actor and the context the url named, and
+ * whether the instance is a fresh one. Absent, it boots as SELF with no
+ * context, which no declaration may override (`R6-30b`).
  */
 export function useModulePort(
-  entry: ScenarioBinding,
+  composable: FourLayerComposable,
   scope: ModulePortScope = {}
 ): ModulePort {
-  const scoped = entry.useList().as(scope.actor ?? entry.scope.actor);
+  const actor = scope.actor ?? ScopeActorTypes.SELF;
+
+  // An actor the module's own matrix marks `never` gets NO cell (`R7-14`): the
+  // module resolves its request target from the ACTIVE SESSION, not from the
+  // url, so a cell booted at a refused scope answers the previous actor's
+  // identity and re-serves that actor's records under a url saying otherwise.
+  if (!servesActor(composable.scopeMatrix, actor))
+    return {
+      actions: {},
+      getMeta: () => UNSERVED_META,
+      scopeMatrix: composable.scopeMatrix,
+      snapshot: () => ({ actions: [], context: {}, meta: UNSERVED_META })
+    };
+
+  const scoped = composable().as(actor);
 
   // A fresh instance addresses no record, so it takes neither `.for()` nor the
   // registry's cached cell: the two steps are alternatives, never a sequence.
@@ -136,10 +165,8 @@ export function useModulePort(
     ? isFunction(scoped.fresh)
       ? scoped.fresh()
       : scoped
-    : entry.scope.contextType &&
-        !isNil(scope.contextId) &&
-        isFunction(scoped.for)
-      ? scoped.for(entry.scope.contextType, scope.contextId)
+    : scope.context && isFunction(scoped.for)
+      ? scoped.for(scope.context.type, scope.context.id)
       : scoped;
 
   // `LiveContext` is deliberately opaque (`Record<string, unknown>`), so the
@@ -157,6 +184,10 @@ export function useModulePort(
     },
     criteria: readCriteria(cell),
     getMeta: port.getMeta,
+    // The matrix is the COMPOSABLE's own, read off the reference the
+    // declaration named — never re-declared beside it, and never a member a
+    // module has to remember to publish on its context (`R6-31`).
+    scopeMatrix: composable.scopeMatrix,
     snapshot: () => ({ ...port.snapshot(), debug: readDebug(cell) }),
     table: port.table
   };

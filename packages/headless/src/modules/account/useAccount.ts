@@ -3,6 +3,7 @@ import { createScopedComposable } from "../scope";
 import { useSessionStore } from "../session-store";
 import { useI18n } from "../system-localisation";
 import machine from "./account.machine";
+import { ACCOUNT_SCOPE_MATRIX } from "./account.types";
 import { createAccountActions } from "./useAccount.actions";
 import { createAccountContext } from "./useAccount.context";
 import { createAccountInternals } from "./useAccount.internals";
@@ -96,7 +97,7 @@ function createAccountForScope(config: ScopeConfig, scopeKey: ScopeKey) {
 export const useAccount = createScopedComposable<
   ReturnType<typeof createAccountForScope>,
   AccountScopeMatrix
->("account", createAccountForScope);
+>("account", createAccountForScope, ACCOUNT_SCOPE_MATRIX);
 
 // Type export for consumers
 export type UseAccount = ReturnType<typeof useAccount>;

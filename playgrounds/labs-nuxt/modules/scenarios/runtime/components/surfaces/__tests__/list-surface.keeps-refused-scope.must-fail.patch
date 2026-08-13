@@ -1,0 +1,31 @@
+Negative control for a presented list surrendering its table the moment its
+scope is refused (`R7-14`).
+
+Puts the refusal back behind `hasPresented`, which is the rule the error state
+earns and this one must not: a list that has drawn rows once keeps drawing them
+after the scope stops being addressable, so the rows of the identity just left
+stay on screen under a url naming another. The notice, the loading frame and the
+error verdict all behave exactly as before, so only the refusal clause is on
+trial.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the scope-change case — a surface that has already presented rows and then
+receives an unserved snapshot still renders its table and its rows, instead of
+replacing them with the not-available notice. A surface that was NEVER ready
+still shows the notice, so the control cannot go red by drawing it always.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+@@ -486,10 +486,6 @@
+ });
+ 
+ const notice = computed(() => {
+-  // A refused scope is the one state a presented list does NOT keep its table
+-  // through: the rows in hand belong to an identity this surface may no longer
+-  // address, so the notice takes their place however far the list had got.
+-  if (state.value === ModuleState.UNSERVED) return state.value;
+   if (state.value === ModuleState.READY || hasPresented.value) return undefined;
+   // A declared frame draws its OWN loading: the headers stay and skeleton rows
+   // stand in for the data, so the layout never jumps when it arrives (C8).

@@ -1,0 +1,43 @@
+Negative control for world-adopt.spec.ts (T4.3, AC2.5 — design §3.1 ruling 2 /
+§7.1, the ADOPT branch).
+
+`useModulePort` reaches the cell through the scope registry, which caches by
+scope key — so the world's port IS the cell the page is rendering. This mutant
+restores the unconditional `dispose()` at the head of `boot`, which is what the
+composable did before T4.3: booting the scope already on screen calls `destroy()`
+on the page's own cell and mints a second port over the wreckage. In the app that
+is a track tearing the rendered page down the moment it is armed.
+
+The mutant is deliberately surgical — it removes only the adopt guard, leaving
+`booted` assigned and unread. `pnpm --filter @upmind-automation/labs-nuxt test`
+transpiles rather than typechecks, so the mutated file runs; the dead write is
+the tell that the guard is the one thing that went.
+
+**This mutant is the ONLY net for the adopt branch.** Per `tasks.md` K12 the
+Playwright bridge lane never executes it: one world is minted per page load and
+each driven scenario `goto`s a fresh page, so the first `boot` always runs with
+`port === undefined` and `dispose()` is a no-op. The lane stays green whether the
+adopt rule is right or wrong.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: world-adopt.spec.ts — the adopt cases (re-booting the same key+scope
+neither fires the cell's `destroy` nor mints a second port; the live port is the
+one still answering `fire`/`expectMeta`).
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioWorld.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioWorld.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioWorld.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioWorld.ts
+@@ -61,12 +61,6 @@ export function useScenarioWorld(
+
+   return {
+     async boot(key, scope: WorldScope) {
+-      // The scope registry caches by scope key, so `port` IS the cell the page
+-      // renders: re-booting the scope already on screen ADOPTS it, because
+-      // disposing would `destroy()` the rendered surface mid-track. A different
+-      // key or scope addresses a different cell and disposes exactly as before.
+-      if (booted?.key === key && isEqual(booted.scope, scope)) return;
+-
+       dispose();
+
+       const entry = get(bindings, key);

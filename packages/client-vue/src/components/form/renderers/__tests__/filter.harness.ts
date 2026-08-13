@@ -1,6 +1,6 @@
 /**
  * @module form/renderers/__tests__/filter.harness
- * @description Mounts the REAL surface the canary mounts — client-vue's
+ * @description Mounts the REAL surface the client-emails page mounts — client-vue's
  * `UpmForm`, which is where `formRenderers` (and therefore the `Filter`
  * renderer) is bound — against the client-email module's own
  * `useQuerySchema()` / `useQueryUischema()` and the real `packages/i18n`

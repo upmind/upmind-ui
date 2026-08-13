@@ -1,0 +1,54 @@
+Negative control for an open panel being switchable FROM INSIDE ITSELF
+(T3.2 · `AC3.1` · `P1-R5`).
+
+The sheet overlays and the page keeps its full width, which is `P1-R5` and stays
+so — but the consequence is that the panel sits over the right of the page, and
+the scenario bar's own Debug │ Code │ Scenario toggle is under it. Measured on a
+1440 viewport: the panel takes the page from x≈1057, the bar's toggles sit at
+x≈1150–1360, and `document.elementFromPoint` at a toggle's centre returns a row
+inside the panel — the click is intercepted by the panel's own subtree. So with
+any sheet open the only control that could change pane cannot be reached: the
+panel has to be closed and reopened to switch, and the last of the scene rail's
+stops is under the same panel.
+
+The switcher inside the panel is the way out that costs the page no width. This
+mutant removes it and puts the panel back to header-less, changing nothing else:
+the host still renders every pane, still holds no open state of its own, still
+reads `sheet=` off the url, and every existing claim about which pane is drawn,
+which tabs the registry gives it and the page keeping its width stays green —
+which is precisely why the loss is invisible without a claim of its own.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the T3.2 case asserting the OPEN panel offers the three sheets from within
+itself — one entry per sheet inside the portalled panel, the open one marked,
+and choosing another switching the pane while the panel stays open (an entry
+that toggled would close the panel the pointer is inside). The bar's own toggle
+is a different control with a different handle (`sheet-toggle` / `sheet`); this
+one is `sheet-switcher` / `sheet-pane`, so a spec can never mistake one for the
+other, and both draw the same `SHEET_LABELS` catalogue.
+
+  Proven RED: owed by the prover's blind run (`vitest run --project component
+  sheet-host`). Recorded here rather than pre-filled — the seat that authors the
+  mutant is not the seat that grades it.
+
+diff --git a/playgrounds/labs-nuxt/app/components/sheets/SheetHost.vue b/playgrounds/labs-nuxt/app/components/sheets/SheetHost.vue
+--- a/playgrounds/labs-nuxt/app/components/sheets/SheetHost.vue
++++ b/playgrounds/labs-nuxt/app/components/sheets/SheetHost.vue
+@@ -3,15 +3,11 @@
+     v-model:open="isOpen"
+     :modal="false"
+     side="right"
++    no-header
+     :title="t(title)"
+     :class="styles.sheetHost.root"
+-    :class-header="styles.sheetHost.header"
+     @interact-outside="event => event.preventDefault()"
+   >
+-    <template #header>
+-      <ButtonGroup :items="switcher" size="sm" data-test-key="sheet-switcher" />
+-    </template>
+-
+     <div data-test-key="sheet-host" :data-test-value="sheet">
+       <Tabs
+         v-if="sheet === PlaygroundSheetTypes.DEBUG"

@@ -2,7 +2,7 @@
 /**
  * @module scenarios/runtime/registry
  * @description THE scenario index — collected, never hand-listed. Every
- * `<module>/<useComposable>/scenario.ts` beside this runtime is a scenario, and
+ * `<useComposable>/<module>.scenario.ts` beside this runtime is a scenario, and
  * `ls` over the module directory is the complete inventory: a declaration
  * cannot be written and left unregistered, and an entry cannot be registered
  * with no declaration behind it.
@@ -23,12 +23,18 @@ import type { ScenarioRegistry } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
 
-const SCENARIO_DIRECTORY = /\/([^/]+)\/scenario\.ts$/;
+const SCENARIO_DIRECTORY = /\/([^/]+)\/[^/]+\.scenario\.ts$/;
 
 const declared = import.meta.glob<{ default: ScenarioDeclaration }>(
-  "../*/scenario.ts",
+  "../*/*.scenario.ts",
   { eager: true }
 );
+
+const sources = import.meta.glob<string>("../*/*.scenario.ts", {
+  query: "?raw",
+  import: "default",
+  eager: true
+});
 
 /** Every scenario, keyed by its own declared key. */
 export const registry: Record<ScenarioKey, RegisteredScenario> = fromPairs(
@@ -53,6 +59,19 @@ export const scenarioRoutes: Record<string, RegisteredScenario> = keyBy(
 );
 
 /**
+ * Each declaration's own `ts` source, addressed by the same url segment — what
+ * the Scenario sheet draws verbatim (`AC3.4`). Read from the SAME glob the
+ * inventory above is built from, so a page can never be handed another
+ * scenario's source and a declaration cannot exist without one.
+ */
+export const scenarioSources: Record<string, string> = fromPairs(
+  map(keys(sources), path => [
+    SCENARIO_DIRECTORY.exec(path)?.[1] as string,
+    get(sources, path, "")
+  ])
+);
+
+/**
  * The harness registry stays exactly what F-1 defined — keys → boot thunks —
  * built from the same declarations, so a scenario reaches the BDD executor
  * without a second map to keep in step.
@@ -63,5 +82,11 @@ export const scenarioRoutes: Record<string, RegisteredScenario> = keyBy(
  */
 export const scenarioRegistry: ScenarioRegistry<ScenarioKey, unknown> =
   fromPairs(
-    map(scenarioKeys, key => [key, () => get(registry, [key, "useList"])!()])
+    map(scenarioKeys, key => [
+      key,
+      // The collection where the module publishes one, else its editor — the
+      // two the binding's own union guarantees at least one of.
+      () =>
+        (get(registry, [key, "useList"]) ?? get(registry, [key, "useMutate"]))()
+    ])
   );

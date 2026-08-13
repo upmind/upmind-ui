@@ -1,0 +1,20 @@
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.ts
+@@ -20,6 +20,7 @@
+  * Browser-safe by construction: no `node:fs`, no `node:path`.
+  */
+ 
++import pageOne from "@upmind-automation/headless/testing/client-email/fixtures/get-clients-id-emails-case-page-1.json";
+ import { corpusBodies, isCorpusSourceResolved } from "./corpus.source";
+ import { filter, orderBy } from "lodash-es";
+ import type {
+@@ -86,7 +87,7 @@
+  */
+ export function corpusRows(bodies: CorpusBodies): WireEmail[] {
+   return [
+-    ...envelope(bodies, "get-clients-id-emails-case-page-1").data,
++    ...(pageOne.response.body as WireEnvelope<WireEmail[]>).data,
+     ...envelope(bodies, "get-clients-id-emails-case-page-2").data
+   ];
+ }

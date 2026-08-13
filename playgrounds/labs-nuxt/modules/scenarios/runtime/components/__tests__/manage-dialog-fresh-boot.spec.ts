@@ -30,30 +30,30 @@ import {
   defaultRow,
   unverifiedRow
 } from "../../../../../tests/support/recorded-emails";
-import clientEmail from "../../../useClientEmail/scenario";
+import clientEmails from "../../../useClientEmails/client-email.scenario";
 import ManageDialog from "../ManageDialog.vue";
-import { EMAIL_EDITOR } from "./resolved-handoffs";
 import { map } from "lodash-es";
 import type {
   FourLayerComposable,
   ResolvedHandoff,
   ScenarioScopedCell
 } from "../../scenario.types";
+import type { ScopeContext } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
 type Step = { step: string; cell: ScenarioScopedCell };
 
 /**
- * The canary's REAL editor declaration with its builder wrapped: every step the
+ * The client-emails page's REAL editor declaration with its builder wrapped: every step the
  * consumer takes is recorded and then delegated, so the composable under the
  * declaration is the shipped one.
  */
 function observedEditor() {
   const steps: Step[] = [];
 
-  const useList = ((...args: never[]) => {
-    const built = (clientEmail.useList as FourLayerComposable)(...args);
+  const useMutate = ((...args: never[]) => {
+    const built = (clientEmails.useMutate as FourLayerComposable)(...args);
 
     return {
       as(actor: ScopeActorTypes) {
@@ -76,23 +76,24 @@ function observedEditor() {
     };
   }) as FourLayerComposable;
 
-  const scenario = { ...EMAIL_EDITOR, useList };
-
   return {
     steps,
     taken: () => map(steps, "step"),
-    handoff: (contextFrom?: string): ResolvedHandoff => ({
-      scenario,
-      actor: ScopeActorTypes.CLIENT,
-      contextFrom
+    handoff: (context?: ResolvedHandoff["context"]): ResolvedHandoff => ({
+      ...(context ? { context } : {}),
+      useMutate,
+      actor: ScopeActorTypes.CLIENT
     })
   };
 }
 
-const mountEditor = (handoff: ResolvedHandoff, contextId?: string) =>
+/** The handoff's own declared template — the type it boots at, and where the id comes from. */
+const EDIT = clientEmails.handoff.edit.context;
+
+const mountEditor = (handoff: ResolvedHandoff, context?: ScopeContext) =>
   mount(ManageDialog, {
     attachTo: document.body,
-    props: { handoff, contextId }
+    props: { handoff, context }
   });
 
 /**
@@ -153,17 +154,21 @@ describe("@AC3 the editor boots .for() the record the row named", () => {
   it("takes the for() step with the declared context type and the row's id", () => {
     const observed = observedEditor();
 
-    mountEditor(observed.handoff("/id"), unverifiedRow.id);
+    mountEditor(observed.handoff(EDIT), {
+      type: EDIT.type,
+      id: unverifiedRow.id
+    });
 
-    expect(observed.taken()).toEqual([
-      `for:${clientEmail.scope.contextType}:${unverifiedRow.id}`
-    ]);
+    expect(observed.taken()).toEqual([`for:${EDIT.type}:${unverifiedRow.id}`]);
   });
 
   it("opens on that record, so its save updates rather than creates", () => {
     const observed = observedEditor();
 
-    mountEditor(observed.handoff("/id"), unverifiedRow.id);
+    mountEditor(observed.handoff(EDIT), {
+      type: EDIT.type,
+      id: unverifiedRow.id
+    });
 
     const cell = observed.steps[0]?.cell as ScenarioScopedCell;
     expect(cell.useContext().id.value).toBe(unverifiedRow.id);
@@ -173,7 +178,10 @@ describe("@AC3 the editor boots .for() the record the row named", () => {
   it("never takes fresh() for a record that already exists", () => {
     const observed = observedEditor();
 
-    mountEditor(observed.handoff("/id"), unverifiedRow.id);
+    mountEditor(observed.handoff(EDIT), {
+      type: EDIT.type,
+      id: unverifiedRow.id
+    });
 
     expect(observed.taken()).not.toContain("fresh");
   });
@@ -184,7 +192,10 @@ describe("@AC3 the editor is dismissible while it is still booting", () => {
     const observed = observedEditor();
 
     const reported = await unhandledDuring(() =>
-      mountEditor(observed.handoff("/id"), unverifiedRow.id).unmount()
+      mountEditor(observed.handoff(EDIT), {
+        type: EDIT.type,
+        id: unverifiedRow.id
+      }).unmount()
     );
 
     expect(reported).toEqual([]);
@@ -194,8 +205,14 @@ describe("@AC3 the editor is dismissible while it is still booting", () => {
     const observed = observedEditor();
 
     const reported = await unhandledDuring(() => {
-      mountEditor(observed.handoff("/id"), unverifiedRow.id).unmount();
-      mountEditor(observed.handoff("/id"), defaultRow.id);
+      mountEditor(observed.handoff(EDIT), {
+        type: EDIT.type,
+        id: unverifiedRow.id
+      }).unmount();
+      mountEditor(observed.handoff(EDIT), {
+        type: EDIT.type,
+        id: defaultRow.id
+      });
     });
 
     expect(reported).toEqual([]);

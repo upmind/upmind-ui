@@ -1,0 +1,25 @@
+Negative control for the overlay's hand-off back to the page (`R6-2b` · `R6-15`).
+
+Hands the page back the moment the JOURNEY says it is authenticated, instead of
+waiting for the ACTIVE SESSION the guard reads. That is the R6 P0 verbatim: the
+store promotes the session a beat later, so the guard that sent the visitor here
+still sees a guest, re-targets this very overlay, vue-router discards that as a
+redundant navigation — and the close never lands. The overlay closes, the url
+stays on `/auth/`, and from there every add-session click is a silent no-op.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the overlay hand-off spec — resolve must not emit `close` until the active
+session reports authenticated.
+
+diff --git a/playgrounds/labs-nuxt/app/pages/overlays/auth.vue b/playgrounds/labs-nuxt/app/pages/overlays/auth.vue
+--- a/playgrounds/labs-nuxt/app/pages/overlays/auth.vue
++++ b/playgrounds/labs-nuxt/app/pages/overlays/auth.vue
+@@ -88,7 +88,6 @@
+  * for the signal the guard itself reads.
+  */
+ async function handoff(): Promise<void> {
+-  await whenAuthenticated().catch(() => undefined);
+   emit("close");
+ }
+ </script>

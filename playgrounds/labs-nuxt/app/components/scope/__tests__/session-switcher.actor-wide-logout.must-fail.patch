@@ -1,0 +1,40 @@
+Negative control for the session pool's per-session logout (parity cell P5 ·
+F5 CORRECTED · H9 · AC1.2).
+
+Inverts the cookie-branch in `logoutSession` (`===` → `!==`), the actor-wide
+class defect re-spelt against the branched implementation: pressing a
+NON-cookie-backed row now takes the actor-wide `logout(actor)` arm (the
+cookie-named session dies instead of the pressed one), and the cookie-backed
+row takes bare `remove` (the store's write gate re-overlays it — the row comes
+back). Every row still renders its own control and the pool still redraws;
+the only thing that changes is WHICH session dies. With a single session per
+actor the arms are near-indistinguishable, which is exactly why this control
+regressed unnoticed and why a suite that seeds one client can never catch it.
+
+The mutant is deliberately NOT a removal of the control: a spec that only
+asserts "a logout button exists on every row", or that seeds one session per
+actor, stays GREEN under it — that spec was never testing P5.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: session-switcher.spec.ts — the P5 case "removes only the session whose
+control was pressed" (two direct client sessions; the pressed row is the
+non-active one, so the inverted branch takes the actor-wide arm and the wrong
+session dies).
+
+Stays GREEN under it, correctly: the icon-only control's accessible-name and
+tooltip cases (untouched), and P6 exit-impersonation where the harness seeds
+no cookie (both arms resolve through the same in-memory double there).
+
+diff --git a/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts b/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts
+--- a/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts
++++ b/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts
+@@ -430,7 +430,7 @@
+    * and then removes exactly the session the cookie names.
+    */
+   function logoutSession(actor: AccessRoleTypes, sessionId: string) {
+-    if (get(getTokenFromStorage(actor), "actor_id") === sessionId)
++    if (get(getTokenFromStorage(actor), "actor_id") !== sessionId)
+       logout(actor);
+     else remove(actor, sessionId);
+   }

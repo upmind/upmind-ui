@@ -1,0 +1,45 @@
+Negative control for ONE bar in two states (`G9 unified` · `AC2.2`).
+
+Gives the armed state a root of its own carrying the bar's own handle, and
+leaves everything else — the same menu, the same transport, the same rail row,
+the same scene — so the only claim that can go red is the ruled one: the bar is
+ONE node that morphs, never a second bar mounted beside the first when a track
+arms.
+
+Re-targeted 2026-08-13 after the `R7-10`/`R7-8` restructure: the split-component
+form this control used to take patched `ScenarioMediaBar` into a `ScenarioBar`
+that no longer exists in that shape. Same claim, same red, current source.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the one-bar case — exactly one node answers to the bar's own handle,
+armed or live, and it is the same node before and after.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioBar.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioBar.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioBar.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioBar.vue
+@@ -15,7 +15,14 @@
+         @select="choose"
+       />
+
+-      <template v-if="armed">
++      <div
++        v-if="armed"
++        role="group"
++        :aria-label="t('labs.scenario_bar')"
++        data-test-key="scenario-bar"
++        :data-test-value="status"
++        :class="styles.scenarioBar.controls"
++      >
+         <Spinner v-if="isBusy" size="sm" data-test-key="scene-busy" />
+
+         <Transport
+@@ -29,7 +36,7 @@
+           @next="player.next"
+           @stop="player.stop"
+         />
+-      </template>
++      </div>
+
+       <Tooltip v-if="failure" :label="failure">
+         <Badge

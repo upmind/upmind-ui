@@ -1,13 +1,19 @@
 /**
  * @graphify-citation `graphify-out/graph.json` (2026-08-10, 6795 nodes) — no
- * `ScenarioPresentation` / `ScenarioAction` / `RowElement` / `ResolvedHandoff`
+ * `ScenarioPresentation` / `ScenarioAction` / `TableCell` / `ResolvedHandoff`
  * node exists in the tree; all four are minted once in
  * `runtime/scenario.types.ts` and consumed here rather than re-declared. No
  * list-view node exists either, so `ListViewTypes` is minted here — the toggle
- * is ephemeral view state the renderer owns (AC2), never a declaration.
+ * is url state the playground's one writer owns (AC9.1), never a declaration.
  * `LIST_SURFACE_ACTION` is deleted rather than moved: with the actions declared
  * per scenario, a renderer-side vocabulary of one module's action names has no
- * consumer left. See `graphify-out/GRAPH_REPORT.md`.
+ * consumer left. See `graphify-out/GRAPH_REPORT.md`. Re-queried 2026-08-13 over
+ * the same `graphify-out/graph.json` for a replay-LOCK shape (`lock*`): the
+ * twelve matches are all `block*` parser helpers, so nothing exists to consume
+ * — and nothing is minted either, the lock being a boolean on the props here.
+ * `RowCellProps` is DELETED rather than moved: a cell renderer is handed the
+ * registry's own `TableCellProps` (`components/cells/cells.types.ts`), and a
+ * second prop shape beside it would be the same fact told twice (`R6-36`).
  */
 // -----------------------------------------------------------------------------
 /**
@@ -22,7 +28,6 @@ import type { ModulePortCriteria } from "../../composables/useModulePort.types";
 import type { DeclaringTableChannel } from "../../composables/useTableChannel.types";
 import type {
   ResolvedHandoff,
-  RowElement,
   ScenarioPresentation
 } from "../../scenario.types";
 
@@ -55,17 +60,20 @@ export type ListSurfaceProps = SurfaceProps & {
    */
   presentation?: ScenarioPresentation;
   /**
-   * The scenario's declared handoffs, resolved by the playground. A declared
-   * control that opens one is offered only where its handoff is here — a
-   * control with nothing behind it is the inert Add button all over again (C2).
+   * The scenario's declared handoffs, bound by the playground to the editor
+   * composable that drives them. A declared control that opens one is offered
+   * only where its handoff is here — a control with nothing behind it is the
+   * inert Add button all over again (C2).
    */
   handoffs?: Record<string, ResolvedHandoff>;
-};
-
-/** One declared field of one row, drawn as the declaration says. */
-export type RowCellProps = {
-  element: RowElement;
-  row: ListRow;
+  /**
+   * A scenario is driving this surface, so it is a PLAYBACK: every control that
+   * writes — the facets and the search, the chips, ordering, the column set,
+   * the view, pagination and every row action — refuses, and says why, until
+   * Live releases it (`R6-23`). Reading the rows is untouched: a replay exists
+   * to be watched.
+   */
+  locked?: boolean;
 };
 
 /** Which of the two empty sentences a list tells. */

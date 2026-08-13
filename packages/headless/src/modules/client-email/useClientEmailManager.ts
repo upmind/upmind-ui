@@ -4,7 +4,10 @@ import { dataManagerMachine } from "../data-manager";
 import { createScopedComposable } from "../scope/scope.builder";
 import { useI18n } from "../system-localisation";
 import createClientEmailServices from "./client-email.services";
-import { ClientEmailContextTypes } from "./client-email.types";
+import {
+  CLIENT_EMAIL_SCOPE_MATRIX,
+  ClientEmailContextTypes
+} from "./client-email.types";
 import { createClientEmailManagerActions } from "./useClientEmailManager.actions";
 import { createClientEmailManagerContext } from "./useClientEmailManager.context";
 import { createClientEmailManagerInternals } from "./useClientEmailManager.internals";
@@ -148,6 +151,6 @@ function createClientEmailManagerForScope(
 export const useClientEmailManager = createScopedComposable<
   ReturnType<typeof createClientEmailManagerForScope>,
   ClientEmailScopeMatrix
->("client-email", createClientEmailManagerForScope);
+>("client-email", createClientEmailManagerForScope, CLIENT_EMAIL_SCOPE_MATRIX);
 
 export type UseClientEmailManager = ReturnType<typeof useClientEmailManager>;

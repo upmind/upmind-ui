@@ -1,0 +1,48 @@
+Negative control for the page's content column NOT exporting its own content
+width to the document (T2.5 · `AC2.4` · `P1-R5`).
+
+The column is a flex ITEM of the layout's one row — the sidebar beside it — so it
+defaults to `min-width:auto` and refuses to be laid out narrower than its own
+content. Anything inside it that cannot shrink therefore stops being an overflow
+INSIDE the page and becomes the page's own width: the sidebar is squeezed past
+its declared `w-64`, the document grows, and every viewport under the content's
+minimum gets a horizontal scrollbar. Measured at 1280 with a force preset armed,
+the scenario bar's picker naming the armed preset was enough — `scrollWidth`
+1289 / 1349 / 1379 against a 1280 client width, the badge, Add new and the
+Scenario toggle all clipped off-screen.
+
+`min-w-0` is the floor that makes the column shrink to its share and lets the
+row inside it truncate, which is what the bar's own playlist is built to do. It
+takes NO width from the page in any state, open sheet or closed, so it is not
+the `P1-R5` compensation the sibling control pins — that mutant adds width, this
+one removes the floor.
+
+This mutant is the removal alone: the column, the sidebar, the header, the sheet
+host and every treatment on them are untouched.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the T2.5 case asserting the layout's content column declares a zero
+min-width floor. It cannot be caught by anything that mounts the layout: jsdom
+computes no layout, so the squeeze, the sidebar and the document width are all
+invisible there — which is exactly why the claim is read off the layout SOURCE,
+the way the `P1-R5` compensation claim beside it already is. A browser-lane
+read-back of `document.scrollWidth` at 1280 under each force preset is the
+stronger proof and belongs to the e2e lane.
+
+  Proven RED: owed by the prover's blind run (`vitest run default-layout`).
+  Recorded here rather than pre-filled — the seat that authors the mutant is not
+  the seat that grades it.
+
+diff --git a/playgrounds/labs-nuxt/app/layouts/default.vue b/playgrounds/labs-nuxt/app/layouts/default.vue
+--- a/playgrounds/labs-nuxt/app/layouts/default.vue
++++ b/playgrounds/labs-nuxt/app/layouts/default.vue
+@@ -26,7 +26,7 @@
+            outgrew its share squeezed the sidebar and gave the DOCUMENT a
+            horizontal scrollbar instead of truncating inside the page (`AC2.4`).
+            It takes no width in any state, so it is not `P1-R5` compensation. -->
+-      <UpmRoot class="min-w-0">
++      <UpmRoot>
+         <slot />
+       </UpmRoot>
+     </UpmMain>

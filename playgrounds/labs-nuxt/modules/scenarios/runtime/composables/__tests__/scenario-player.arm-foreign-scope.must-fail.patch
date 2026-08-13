@@ -1,0 +1,40 @@
+Negative control for scenario-player.spec.ts (T4.2, AC2.5/AC2.6 — design §3.1
+ruling 2 / §7.1, the SCOPE-MISMATCH rule).
+
+`world.boot` may only ever run at the scope the page is already showing: the
+port it reaches is the page's OWN cached cell, so booting a different scope
+takes T4.3's dispose branch — `destroy()` on the rendered surface — and leaves
+the track driving an instance nobody can see. `arm` therefore compares the
+track's declared scope with the page's and, on a mismatch, takes the page to
+that scope path FIRST (a scope segment, so the page remounts per `P1-R2` and
+mounts that cell itself), arming from `track=` on the other side.
+
+This mutant removes that comparison, so a foreign-scope track arms in place and
+its first scene boots a scope the page is not showing. The client-emails page's 11th
+scenario ("Staff acting for a client read that client's collection") is exactly
+this case: it declares a staff actor with a `for` context the bare page is not
+on. Without this control that hole is unpinned — the bridge lane cannot see it
+either (`tasks.md` K12: one world per fresh page load).
+
+The mutant is deliberately surgical — `foreignScope` stays defined and unread,
+which is the tell that the rule is the one thing that went.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: scenario-player.spec.ts — the scope-mismatch claims (a track whose
+declared scope differs from the page's navigates to that scope path first and
+boots nothing before it; the surface the track moves is the rendered one).
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioPlayer.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioPlayer.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioPlayer.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioPlayer.ts
+@@ -190,9 +190,6 @@
+     // scope navigation causes.
+     url.write({ track: track.slug, scene: undefined });
+
+-    const foreign = foreignScope(track);
+-    if (foreign) return navigate(foreign);
+-
+     armed.value = track;
+     playhead.value = SCENE_UNPLAYED;
+     status.value = SCENARIO_PLAYER_STATUS.ARMED;

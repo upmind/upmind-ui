@@ -2,10 +2,10 @@ diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/module-s
 index 1111111..2222222 100644
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/module-state.ts
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/module-state.ts
-@@ -16,11 +16,11 @@
-  * @param meta `ModuleDescriptor.snapshot.meta`.
-  */
- export function resolveModuleState(meta: Record<string, boolean>): ModuleState {
+@@ -26,12 +26,12 @@
+   // on data that is not coming.
+   if (meta[MODULE_STATE_META_FLAG.SERVED] === false)
+     return ModuleState.UNSERVED;
 -  if (meta[MODULE_STATE_META_FLAG.LOADING]) return ModuleState.LOADING;
    if (
      meta[MODULE_STATE_META_FLAG.HAS_ERROR] ||
@@ -15,3 +15,4 @@ index 1111111..2222222 100644
 +  if (meta[MODULE_STATE_META_FLAG.LOADING]) return ModuleState.LOADING;
    return ModuleState.READY;
  }
+ 

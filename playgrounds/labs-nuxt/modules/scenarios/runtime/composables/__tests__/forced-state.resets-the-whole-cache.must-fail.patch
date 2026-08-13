@@ -1,0 +1,25 @@
+Negative control for the arm's re-ask being SCOPED (`AC8.4` · `R6-10`).
+
+Drops the whole query cache on every arm and disarm, not just what the handlers
+answer. The app chrome's own queries — the brand, its settings, the session — are
+booted once at init by singletons that never re-ask, so the header is left holding
+an undefined brand for the rest of the tab's life: the broken logo the live drive
+found over every forced page.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the forced-state spec — reconciling a preset resets the module's own queries
+and leaves every other domain untouched.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useForcedState.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useForcedState.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useForcedState.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useForcedState.ts
+@@ -112,7 +112,7 @@
+     // awaited for the same reason: a chain waiting on that refetch could never
+     // reconcile the preset picked after it. Scoped to what the handlers answer:
+     // the whole cache is the app's too, and the chrome does not re-ask.
+-    void queryClient.resetQueries({ queryKey: MODULE_QUERY_KEY });
++    void queryClient.resetQueries();
+   }
+ 
+   watch(

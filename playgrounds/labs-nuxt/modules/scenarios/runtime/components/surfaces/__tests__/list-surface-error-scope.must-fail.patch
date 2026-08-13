@@ -5,6 +5,10 @@ replaces the whole list with the load-error panel — the defect the operator
 drove into: one 409 takes the table, its controls and the user's place in the
 list away, with no way back short of a page reload.
 
+Re-pointed for `R7-14`: a refused scope now short-circuits above this guard and
+is deliberately left intact, so the presented-list guard stays the only thing on
+trial.
+
 Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
 
 Reds: list-surface-error-scope.spec.ts — the cases holding the presented list
@@ -13,10 +17,10 @@ on screen through an action failure.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-@@ -353,7 +353,7 @@
- });
- 
- const notice = computed(() => {
+@@ -490,7 +490,7 @@
+   // through: the rows in hand belong to an identity this surface may no longer
+   // address, so the notice takes their place however far the list had got.
+   if (state.value === ModuleState.UNSERVED) return state.value;
 -  if (state.value === ModuleState.READY || hasPresented.value) return undefined;
 +  if (state.value === ModuleState.READY) return undefined;
    // A declared frame draws its OWN loading: the headers stay and skeleton rows

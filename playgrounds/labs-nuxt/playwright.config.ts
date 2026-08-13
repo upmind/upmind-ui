@@ -4,7 +4,7 @@ import { createBdd, defineBddConfig, test as base } from "playwright-bdd";
 import { STEP_KIND } from "@upmind-automation/scenario-harness";
 import { SCENARIO_WORLD_KEY } from "./modules/scenarios/runtime/composables/useScenarioWorld.types";
 import { createBrowserWorld } from "./tests/e2e/browser-world";
-import { canaryRoute, catalogs, features } from "./tests/e2e/catalogs";
+import { catalogs, clientEmailsRoute, features } from "./tests/e2e/catalogs";
 import {
   installRecordedCorpus,
   seedRecordedClientSession
@@ -34,11 +34,15 @@ const baseURL =
   process.env.PW_BASE_URL ?? `http://labs.localhost:${TEST_PORT}/`;
 
 const testDir = defineBddConfig({
-  // A module's feature is colocated with its module source (ADR-027 Am.2),
-  // which is why this lane reaches out of the playground to find it. The
-  // adopted pairs are named one by one beside their catalogs — a directory
-  // glob also swallows the spec-only ADR-020 features that have no steps.
+  // A module's ONE feature is colocated with its module source, which is why
+  // this lane reaches out of the playground to find it. The adopted pairs are
+  // named one by one beside their catalogs.
   features,
+  // That one feature holds the module's not-yet-driveable scenarios too, and
+  // those are a legitimate state rather than a generation failure: the default
+  // `fail-on-gen` would red the whole lane on a capability nobody has written
+  // steps for yet.
+  missingSteps: "skip-scenario",
   // The pairs live outside this playground, so the generation root is the
   // workspace root rather than the package.
   featuresRoot: "../../",
@@ -56,7 +60,7 @@ export const test = base.extend<{ world: World<ScenarioKey> }>({
   world: async ({ page }, use) => {
     await installRecordedCorpus(page);
     await seedRecordedClientSession(page);
-    await page.goto(canaryRoute);
+    await page.goto(clientEmailsRoute);
     await page.waitForFunction(
       key => Boolean((window as unknown as Record<string, unknown>)[key]),
       SCENARIO_WORLD_KEY

@@ -3,7 +3,9 @@
  * `ModulePort` / `ModulePortDebug` / `ModulePortScope` node exists in the tree;
  * `CompositionPort` and `ReflectedSnapshot` in
  * `@upmind-automation/scenario-harness` are the frozen seam shapes and are
- * EXTENDED here rather than restated. See `graphify-out/GRAPH_REPORT.md`.
+ * EXTENDED here rather than restated, and the scope members are headless's own
+ * `ScopeActorTypes` / `ScopeContext` / `ActorContextMatrix`. See
+ * `graphify-out/GRAPH_REPORT.md`.
  */
 // -----------------------------------------------------------------------------
 /**
@@ -12,7 +14,11 @@
  * chain only the raw-cell holder can assemble.
  */
 
-import type { ScopeActorTypes } from "@upmind-automation/headless";
+import type {
+  ActorContextMatrix,
+  ScopeActorTypes,
+  ScopeContext
+} from "@upmind-automation/headless";
 import type {
   CompositionPort,
   ReflectedSnapshot
@@ -22,7 +28,9 @@ import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 
 /**
- * How a caller overrides the scope the binding declares.
+ * WHERE the caller boots the composable. Absent both members it boots as SELF
+ * with no context, which is where every page starts (`R6-30b`); the url's
+ * `/as/:actor` and `/for/:type/:id` segments are what move it.
  *
  * @graphify-citation `graphify-out/graph.json` (2026-08-10, 6795 nodes) — the
  * `fresh` member below relays `scope.builder.ts`'s own `.fresh()`; no
@@ -30,7 +38,12 @@ import type { ComputedRef } from "vue";
  */
 export type ModulePortScope = {
   actor?: ScopeActorTypes;
-  contextId?: string;
+  /**
+   * The record being acted FOR, whole — headless's own `ScopeContext`, whose
+   * `type` and `id` are both required, so a type without an id cannot be
+   * expressed at all (`R6-30d`).
+   */
+  context?: ScopeContext;
   /**
    * Boot a distinct instance rather than the registry's cached one — what an
    * editor opened on a record that does not exist yet needs, so two drafts (or
@@ -74,4 +87,13 @@ export type ModulePortSnapshot = ReflectedSnapshot & {
 export type ModulePort = Omit<CompositionPort, "snapshot"> & {
   snapshot(): ModulePortSnapshot;
   criteria?: ModulePortCriteria;
+  /**
+   * The COMPOSABLE's own scope matrix, read off the builder that created it —
+   * which actors it is offerable at, and under which context type. Absent for a
+   * composable registered without one, and the acting-for picker then offers
+   * nothing for that page rather than guessing (`R6-31`). Headless's own
+   * `ActorContextMatrix`, consumed rather than re-spelt — see this file's head
+   * citation and `graphify-out/GRAPH_REPORT.md`.
+   */
+  scopeMatrix?: ActorContextMatrix;
 };

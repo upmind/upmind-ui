@@ -1,0 +1,27 @@
+Negative control for the BOOT-AS-SELF law (`R6-30b`).
+
+Boots an unqualified page at CLIENT instead of SELF — the declaration-supplied
+actor the contract deleted, put back as a hardcoded default. Nothing else
+moves: a url carrying `/as/:actor` still wins, so what this withdraws is only
+the law that a page with NO actor segment is the acting user.
+
+Re-pointed for `R7-14`: the default moved off the `.as()` call and onto the
+`actor` the matrix gate is asked about first, so the control mutates the ONE
+place the boot actor is decided rather than the call site's former copy of it.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the port spec — a boot with no scope override resolves the SELF actor.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useModulePort.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useModulePort.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useModulePort.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useModulePort.ts
+@@ -143,7 +143,7 @@
+   composable: FourLayerComposable,
+   scope: ModulePortScope = {}
+ ): ModulePort {
+-  const actor = scope.actor ?? ScopeActorTypes.SELF;
++  const actor = scope.actor ?? ScopeActorTypes.CLIENT;
+ 
+   // An actor the module's own matrix marks `never` gets NO cell (`R7-14`): the
+   // module resolves its request target from the ACTIVE SESSION, not from the

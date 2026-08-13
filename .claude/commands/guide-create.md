@@ -1,1 +1,0 @@
-../../.agent/workflows/guide-create.md

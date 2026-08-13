@@ -1,0 +1,36 @@
+Negative control for the DECLARATION supplying the default visible set
+(`R6-25` · `R6-35`).
+
+Boots the table on its first declared column alone and leaves the rest for the
+user to switch on. Every other law still holds — the picker offers all of them,
+the url still carries the set, the order is still the declaration's — so what is
+on trial is only the claim that the table uischema IS the default: a page that
+lands showing one column has silently made the declaration a menu rather than a
+table.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the column-set spec — with no `columns=` in the url the header row draws
+one column instead of every declared one, so the default-set cases fail while
+the round-trip cases still pass.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+@@ -426,6 +426,7 @@
+   reject,
+   some,
+   split,
++  take,
+   toString
+ } from "lodash-es";
+ import type { DeclaredSortField } from "../../composables/useTableChannel.types";
+@@ -603,7 +604,7 @@
+ const visibleKeys = computed<string[]>(() => {
+   const declaredKeys = map(declaredColumns.value, columnKey);
+   const chosen = intersection(declaredKeys, split(url.columns.value, ","));
+-  return isEmpty(chosen) ? declaredKeys : chosen;
++  return isEmpty(chosen) ? take(declaredKeys, 1) : chosen;
+ });
+ 
+ const columnElements = computed<DeclaredCell[]>(() =>

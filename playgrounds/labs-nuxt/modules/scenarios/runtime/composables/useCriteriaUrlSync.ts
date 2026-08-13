@@ -5,17 +5,20 @@
  * browser url, so a refresh does not lose where you are. The mechanism
  * is the one already established in client-vue — VueUse `useUrlSearchParams`
  * at the page, never inside the list widget (`Catalogue.vue:121`,
- * `WidgetGrid.vue:190`) — and the surface stays dumb: the model remains
- * composable-owned and every write goes through the criteria's own merging
- * `set`, so a rehydrated url can no more clear a live sort than a header
- * filter can.
+ * `WidgetGrid.vue:190`), reached through `usePlaygroundUrlState`: one bag, one
+ * writer (`D3`/`T8`), so the criteria's params reach the url as a PATCH — the
+ * clears and the sets of one model change in a single commit, which is what
+ * lets a surface write land in the same tick without either dropping the other.
+ * The surface stays dumb: the model remains composable-owned and every write
+ * goes through the criteria's own merging `set`, so a rehydrated url can no
+ * more clear a live sort than a header filter can.
  *
  * It serialises the CRITERIA, one object in and one object out — the
  * schema-walking serialisation itself lives in `useCriteriaUrlSync.utils`.
  */
 
-import { useUrlSearchParams } from "@vueuse/core";
 import { watch } from "vue";
+import { usePlaygroundUrlState } from "../../../../app/composables/usePlaygroundUrlState";
 import {
   PAGINATION_PARAMS,
   SORT_PARAM,
@@ -26,6 +29,7 @@ import {
 } from "./useCriteriaUrlSync.utils";
 import { assign, forEach, has, isEmpty, map } from "lodash-es";
 import type { ModulePortCriteria } from "./useModulePort.types";
+import type { PlaygroundUrlPatch } from "../../../../app/composables/usePlaygroundUrlState.types";
 
 // -----------------------------------------------------------------------------
 
@@ -54,13 +58,9 @@ export function useCriteriaUrlSync(
   // stood a DOM up.
   if (!criteria || !options.enabled || typeof window === "undefined") return;
 
-  const params = useUrlSearchParams<Record<string, string>>("history", {
-    // `removeFalsyValues` is deliberately NOT set: a tri-state filter's `false`
-    // is an ACTIVE choice, and the precedent's falsy-drop would erase it.
-    removeNullishValues: true
-  });
+  const { params, write } = usePlaygroundUrlState();
 
-  const seeded = paramsToCriteria(criteria.schema, params);
+  const seeded = paramsToCriteria(criteria.schema, params.value);
   if (!isEmpty(seeded)) criteria.set(seeded);
 
   const owned = [
@@ -75,10 +75,11 @@ export function useCriteriaUrlSync(
     criteria.model,
     model => {
       const next = criteriaToParams(criteria.schema, model);
+      const patch: PlaygroundUrlPatch = assign({}, next);
       forEach(owned, param => {
-        if (!has(next, param)) delete params[param];
+        if (!has(next, param)) patch[param] = undefined;
       });
-      assign(params, next);
+      write(patch);
     },
     { deep: true, immediate: true }
   );

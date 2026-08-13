@@ -1,0 +1,25 @@
+Negative control for the replay lock reaching the OVERFLOW trigger (`R6-23`).
+
+Takes the lock off the row kebab. Every action inside the menu stays disabled,
+so nothing can actually fire — which is exactly why this leaked in the live
+playground: the trigger reads live (enabled, pointer cursor, full opacity),
+opens, and offers a menu of dead controls with nothing saying why.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the action-slots lock spec — while a scenario drives the surface EVERY
+control the component draws is refused, the overflow trigger included, and says
+why.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ActionSlots.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ActionSlots.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ActionSlots.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ActionSlots.vue
+@@ -51,8 +51,6 @@
+               icon-only
+               :label="t('action.show_more_options')"
+               :aria-label="t('action.show_more_options')"
+-              :disabled="locked"
+-              :title="locked ? t('labs.replay_locked') : undefined"
+             />
+           </template>
+         </DropdownMenu>

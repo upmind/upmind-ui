@@ -1,0 +1,27 @@
+Negative control for a table always having at least one column (`R6-25`).
+
+Lets the last visible column be taken off. The menu still works, the url is
+still written, and the table it leaves behind has a header row with nothing in
+it and rows with no cells — and the url cannot say "none" in a way that survives
+a reload, so the set silently springs back to the full declaration on the next
+visit. Only the floor is withdrawn: every other pick still behaves exactly as
+before.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the column-picker spec — with one column left the remaining entry is no
+longer refused, so the "the last column cannot be taken off" case fails while
+every multi-column case stays green.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.vue
+@@ -25,7 +25,7 @@
+         data-test-key="column"
+         :data-test-value="column.value"
+         :checked="column.isVisible"
+-        :disabled="column.isVisible && isLastVisible"
++        :disabled="false"
+         @select="onSelect"
+         @update:checked="toggle(column)"
+       >

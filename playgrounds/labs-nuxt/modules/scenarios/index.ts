@@ -9,8 +9,8 @@
  * scenario concept at all.
  *
  * This file is the REGISTRAR and nothing else. It discovers
- * `<useComposable>/scenario.ts` beside itself and pushes one route per
- * directory at the one shared component, so a scenario has no page file to
+ * `<useComposable>/<module>.scenario.ts` beside itself and pushes one route per
+ * DIRECTORY at the one shared component, so a scenario has no page file to
  * drift in and cannot be declared-but-unrouted. It deliberately imports no
  * declaration: it runs in the Node/jiti config context, where reaching a
  * composable would break `nuxt dev` before the app exists — the directory name
@@ -33,7 +33,16 @@ import {
   SCENARIO_ROUTE_META_KEY,
   SCOPE_SUFFIX_SEGMENT
 } from "./runtime/scenario.constants";
-import { countBy, filter, forEach, join, keys, map, pickBy } from "lodash-es";
+import {
+  countBy,
+  endsWith,
+  filter,
+  forEach,
+  join,
+  keys,
+  map,
+  pickBy
+} from "lodash-es";
 import type { DiscoveredScenario } from "./module.types";
 import type { NuxtPage } from "@nuxt/schema";
 
@@ -97,7 +106,7 @@ export default defineNuxtModule({
     nuxt.options.watch.push(resolve("."));
     nuxt.hook("builder:watch", (event, path) => {
       if (event === "add" || event === "unlink")
-        if (path.endsWith("/scenario.ts")) nuxt.callHook("restart");
+        if (endsWith(path, ".scenario.ts")) nuxt.callHook("restart");
     });
   }
 });

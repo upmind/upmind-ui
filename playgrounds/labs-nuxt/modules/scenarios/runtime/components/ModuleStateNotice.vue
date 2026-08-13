@@ -6,9 +6,7 @@
     :description="content.description"
     :class="styles.moduleStateNotice.root"
   >
-    <pre v-if="formattedDetail" :class="styles.moduleStateNotice.detail">{{
-      formattedDetail
-    }}</pre>
+    <p v-if="reason" :class="styles.moduleStateNotice.detail">{{ reason }}</p>
   </Alert>
 </template>
 
@@ -25,7 +23,7 @@ import { useI18n } from "vue-i18n";
 import { Alert, useStyles } from "@upmind-automation/upmind-ui";
 import { ModuleState } from "./module-state.types";
 import config from "./ModuleStateNotice.styles";
-import { isNil } from "lodash-es";
+import { get, isNil, isString } from "lodash-es";
 import type {
   ModuleStateContent,
   ModuleStateContentMap,
@@ -39,6 +37,12 @@ const { t } = useI18n();
 
 const content = computed<ModuleStateContent>(() => {
   const catalogue: ModuleStateContentMap = {
+    [ModuleState.UNSERVED]: {
+      color: "warning",
+      icon: "log-in-01",
+      title: t("labs.scope_unavailable"),
+      description: t("labs.scope_unavailable_text")
+    },
     [ModuleState.LOADING]: {
       color: "info",
       icon: "clock",
@@ -56,9 +60,19 @@ const content = computed<ModuleStateContent>(() => {
   return catalogue[props.state];
 });
 
-const formattedDetail = computed(() =>
-  isNil(props.detail) ? "" : JSON.stringify(props.detail, null, 2)
-);
+/**
+ * The SENTENCE that says why, never the envelope it arrived in (`S14`): a
+ * serialised `{ code, data, origin, status }` blob is not something a user can
+ * read, and the raw artefact already has a home — the Debug sheet. A detail
+ * arrives either as the API's own error, whose `message` IS that sentence, or
+ * as this app's own i18n key for a refusal it raised itself; `t` carries both,
+ * since it hands an already-written sentence straight back.
+ */
+const reason = computed(() => {
+  if (isNil(props.detail)) return "";
+  const message = get(props.detail, "message", props.detail);
+  return isString(message) ? t(message) : "";
+});
 
 const meta = computed(() => ({ state: props.state }));
 const styles = useStyles(["moduleStateNotice"], meta, config);

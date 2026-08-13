@@ -1,6 +1,6 @@
 Negative control for the DECLARED row-action set.
 
-Withdraws `remove` from the canary's declaration, so the control silently
+Withdraws `remove` from the client-emails page's declaration, so the control silently
 disappears from every row while the live composable still publishes the action.
 With the actions declared per scenario, the declaration IS the wiring — this
 mutant targets it rather than a renderer-side key list, which no longer exists.
@@ -9,7 +9,7 @@ Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
 
 Reds: list-surface.spec.ts — "fires actions.remove with the row id from that
 row's delete control" (and the table-backed twin), for any spec mounting the
-canary's own declaration.
+client-emails page's own declaration.
 
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/useClientEmails/client-emails.presentation.ts b/playgrounds/labs-nuxt/modules/scenarios/useClientEmails/client-emails.presentation.ts
 --- a/playgrounds/labs-nuxt/modules/scenarios/useClientEmails/client-emails.presentation.ts

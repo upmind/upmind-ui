@@ -16,10 +16,10 @@ Proven RED 2026-08-08 (`pnpm --filter @upmind-automation/labs-nuxt test -t "@AC8
       -> expected [ 'sortBy', 'retire' ] to deeply equal [ 'retire' ]
   3 failed | 3 passed
 
-diff --git a/packages/headless/src/modules/client-email/__tests__/client-email.canary.steps.ts b/packages/headless/src/modules/client-email/__tests__/client-email.canary.steps.ts
+diff --git a/packages/headless/src/modules/client-email/__tests__/client-email.steps.ts b/packages/headless/src/modules/client-email/__tests__/client-email.steps.ts
 index bcbf35bb4..32333e5fa 100644
---- a/packages/headless/src/modules/client-email/__tests__/client-email.canary.steps.ts
-+++ b/packages/headless/src/modules/client-email/__tests__/client-email.canary.steps.ts
+--- a/packages/headless/src/modules/client-email/__tests__/client-email.steps.ts
++++ b/packages/headless/src/modules/client-email/__tests__/client-email.steps.ts
 @@ -32,7 +32,6 @@ export const CLIENT_EMAILS_COVERED_ACTIONS = {
    refresh: "refresh",
    remove: "remove",

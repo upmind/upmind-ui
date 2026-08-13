@@ -1,0 +1,38 @@
+Negative control for the reshaped `createTraceabilityCheck` (the PARTIAL verdict).
+
+Withdraws the partial verdict by widening the not-yet arm from "none of the
+scenario's own steps matched" to "not all of them matched". A scenario matched
+only in PART — the dangerous case, because it reads as driveable and silently is
+not — is then graded `notYet` instead of `partial`, so `partial` is empty for
+every input and the assertion that guards it can never fail.
+
+The assertion that must go RED: the one asserting `partial` is empty over a
+feature holding a half-matched scenario.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Proven RED 2026-08-12, blind
+(`pnpm --filter @upmind-automation/scenario-harness exec vitest run src/steps/__tests__/traceability.test.ts`):
+  x FAILS a scenario matched only in part — the case that reads driveable and silently is not
+      -> expected [] to strictly equal [ 'half driveable' ]
+  x PASSES a scenario no step matches at all — a capability written down and not yet driven
+      -> expected [ 'half driveable', 'not driveable at all' ] to strictly equal [ 'not driveable at all' ]
+  2 failed | 11 passed. Reverted with `git apply -R`; suite back to 13 passed.
+
+Behaviour shift measured by the author (NOT the red proof) — over a feature with
+one half-matched and one unmatched scenario:
+  before: partial = ["half driveable"], notYet = ["not driveable at all"]
+  after:  partial = [],                 notYet = ["half driveable", "not driveable at all"]
+
+diff --git a/packages/scenario-harness/src/steps/traceability.ts b/packages/scenario-harness/src/steps/traceability.ts
+--- a/packages/scenario-harness/src/steps/traceability.ts
++++ b/packages/scenario-harness/src/steps/traceability.ts
+@@ -334,7 +334,7 @@ export function createTraceabilityCheck(
+     const matched = map(scenario.steps, isMatched);
+     const ownMatched = drop(matched, scenario.backgroundStepCount);
+ 
+-    const verdict: Verdict = !some(ownMatched)
++    const verdict: Verdict = !every(ownMatched)
+       ? VERDICT.NOT_YET
+       : every(matched)
+         ? VERDICT.DRIVEABLE

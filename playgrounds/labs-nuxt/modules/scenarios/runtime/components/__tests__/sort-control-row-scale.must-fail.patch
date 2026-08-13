@@ -1,0 +1,32 @@
+Negative control for the sort cluster's row scale (R6-1).
+
+Empties the row-scale override handed to `Select`'s own `uiConfig` channel, so
+the field picker falls back to the primitive's page-scale padding AND its
+page-scale chevron gutter while the direction control beside it and the view
+toggle next to it stay at `sm` — the oversized cluster that set the display
+row's height and threw the section out.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the sort-control scale spec — the field trigger carries the same density
+tokens as the group's own `sm` button, so the cluster stands at the height of
+the view toggle beside it.
+
+  RE-ARMED by the developer seat, 2026-08-12, when the override grew the
+  chevron gutter (`[&>i]:pl-2`) — the last page-scale token the primitive fixes
+  inside the trigger. Same mutation, same claim, rebased onto the current
+  source. Developer smoke (apply → revert, tree restored): both R6-1 cases go
+  RED, the picker reading `['px-4','py-2','text-sm']` against the toggle's
+  `['px-2','py-1','text-sm']`. The prover's blind verification stands
+  separately and is not inferred from this line.
+
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SortControl.styles.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SortControl.styles.ts
+@@ -18,6 +18,6 @@
+     // The trigger's own inset, and the gutter it holds before the chevron: both
+     // are `px-4`/`pl-4` in the primitive, which is a page control's scale and is
+     // what made the cluster set the display row's height and width (`R6-1`).
+-    field: cva("px-2 py-1 [&>i]:pl-2")
++    field: cva("")
+   }
+ };

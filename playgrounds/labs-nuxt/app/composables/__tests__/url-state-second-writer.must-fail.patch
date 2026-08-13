@@ -1,0 +1,110 @@
+Negative control for the ONE-writer law (T1.4 falsifiability).
+
+Gives `useCriteriaUrlSync` a SECOND query-string writer: its own
+`useUrlSearchParams` bag, the shape it carried before the conversion. Both bags
+rebuild the WHOLE query string from their own state, so each one's write-back
+deletes every param the other owns — last one wins. Nothing looks broken at the
+call site: the criteria params are all still written, and the surface state (or
+the filter, depending which bag commits last) simply evaporates a tick later.
+
+This is the exact defect `usePlaygroundUrlState` exists to prevent (`D3`/`T8`,
+`AC9.1`, `S11`), and the one its own docblock names: "Two `useUrlSearchParams`
+instances each rebuild the whole query string from their own state, so the
+second would delete every param the first owns on its next write." The mutant is
+planted in the consumer that was converted rather than in the writer itself — a
+regression here is a revert of one seam, not a rewrite.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: all three of the writer spec's one-writer cases — a criteria write and a
+surface write in the same tick both survive, in EITHER order, and a later
+criteria write does not clobber the surface state it does not own.
+
+Mechanism note, not an assertion hint. The clobber signature is now the MIRROR
+of the pre-fix one: the playground bag commits its merged patch on a macrotask,
+which lands AFTER the criteria bag's own write-back, so it is the criteria param
+that is erased and the six surface params that survive. Either side being empty
+is the same defect — two writers, last one wins — and the side that loses is
+only a function of which bag commits last.
+
+A second writer that clobbers through `router.replace` INSIDE the criteria
+watcher (this control's pre-fix shape) no longer falsifies anything and was NOT
+carried over: the write queue heals it. The router's `history.replaceState` lands
+in microtasks, the queue's commit is the macrotask after it, and that commit
+re-stamps the whole bag — surface params included — so the clobber is undone
+before the spec ever reads `window.location`. Proven GREEN 2026-08-12 (63 passed
+| 3 skipped, the same as an unpatched tree) before this control was re-authored.
+That is a property of the fix, not a blind spot in the harness: a co-scheduled
+second writer is genuinely harmless now, and only a writer whose write is the
+LAST word can still clobber.
+
+  Proven RED 2026-08-12 (`npx vitest run --project unit`, labs-nuxt), against
+  `app/composables/__tests__/playground-url-state.spec.ts`:
+    T1.4 the ONE writer > a criteria write and a surface write in the same tick both survive
+        -> expected { view, track, scene, sheet, tab, force } to strictly equal
+           { 'filter.verified.eq': 'false', view, track, scene, sheet, tab, force }   (:205)
+    T1.4 the ONE writer > both survive in the other order too — arm() writes force·track·scene AND resets criteria in one tick (§3.1)
+        -> expected { view, track, scene, sheet, tab, force } to strictly equal
+           { 'filter.verified.eq': 'false', view, track, scene, sheet, tab, force }   (:223)
+    T1.4 the ONE writer > a later criteria write does not clobber the surface state it does not own
+        -> expected null to be 'false'                                                (:243)
+    3 failed | 60 passed | 3 skipped
+
+  `criteria-url-sync-clear.spec.ts` stayed green under the mutant (4 passed) —
+  no collateral, so the red is the clobber and not a crash. `git apply -R`
+  restores 63 passed | 3 skipped.
+
+  FOR THE PROVER: this control was re-authored by the developer seat onto the
+  post-fix seam (B1/W2), and its evidence above is the AUTHOR's run, not a
+  verification. Apply it blind, confirm the three reds and the clear spec's
+  green, then revert.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useCriteriaUrlSync.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useCriteriaUrlSync.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useCriteriaUrlSync.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useCriteriaUrlSync.ts
+@@ -17,8 +17,8 @@
+  * schema-walking serialisation itself lives in `useCriteriaUrlSync.utils`.
+  */
+
++import { useUrlSearchParams } from "@vueuse/core";
+ import { watch } from "vue";
+-import { usePlaygroundUrlState } from "../../../../app/composables/usePlaygroundUrlState";
+ import {
+   PAGINATION_PARAMS,
+   SORT_PARAM,
+@@ -29,7 +29,6 @@
+ } from "./useCriteriaUrlSync.utils";
+ import { assign, forEach, has, isEmpty, map } from "lodash-es";
+ import type { ModulePortCriteria } from "./useModulePort.types";
+-import type { PlaygroundUrlPatch } from "../../../../app/composables/usePlaygroundUrlState.types";
+
+ // -----------------------------------------------------------------------------
+
+@@ -58,9 +57,11 @@
+   // stood a DOM up.
+   if (!criteria || !options.enabled || typeof window === "undefined") return;
+
+-  const { params, write } = usePlaygroundUrlState();
++  const params = useUrlSearchParams<Record<string, string>>("history", {
++    removeNullishValues: true
++  });
+
+-  const seeded = paramsToCriteria(criteria.schema, params.value);
++  const seeded = paramsToCriteria(criteria.schema, params);
+   if (!isEmpty(seeded)) criteria.set(seeded);
+
+   const owned = [
+@@ -75,11 +76,10 @@
+     criteria.model,
+     model => {
+       const next = criteriaToParams(criteria.schema, model);
+-      const patch: PlaygroundUrlPatch = assign({}, next);
+       forEach(owned, param => {
+-        if (!has(next, param)) patch[param] = undefined;
++        if (!has(next, param)) delete params[param];
+       });
+-      write(patch);
++      assign(params, next);
+     },
+     { deep: true, immediate: true }
+   );

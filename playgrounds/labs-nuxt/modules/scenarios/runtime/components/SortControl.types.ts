@@ -7,7 +7,10 @@
  * declaration-driven surface — their `ButtonGroup` treatment is adopted, the
  * components are not re-declared. The sort model itself is
  * `@upmind-automation/scenario-harness`'s `TableModel["sort"]`, consumed as-is.
- * See `graphify-out/GRAPH_REPORT.md`.
+ * See `graphify-out/GRAPH_REPORT.md`. Re-queried 2026-08-13 over the same
+ * `graphify-out/graph.json` for a replay-LOCK shape (`lock*`): the twelve
+ * matches are all `block*` parser helpers, so nothing exists to consume — and
+ * nothing is minted either, the refusal being the ui `Button`'s own `disabled`.
  */
 // -----------------------------------------------------------------------------
 /**
@@ -27,11 +30,18 @@ export type SortField = {
 
 export type SortControlProps = {
   /**
-   * The fields offered, in declaration order: the columns the scenario declared
-   * sortable that the module's query schema also declares. A field the schema
-   * never declared is an `order=` column the API answers with a 500.
+   * The fields offered, in declaration order: the scenario's declared ordering,
+   * narrowed to what the module's query schema declares. A field the schema
+   * never declared is an `order=` column the API answers with a 500, and a
+   * presentation composite is not a column at all (`R6-6`).
    */
   fields: SortField[];
   /** The live sort model — the SAME one the table headers read and write. */
   sort: TableModel["sort"];
+  /**
+   * Ordering is not the user's while a scenario drives the collection
+   * (`R6-23`): the control keeps its place and its live value, and refuses the
+   * write.
+   */
+  disabled?: boolean;
 };

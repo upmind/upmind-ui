@@ -1,0 +1,26 @@
+Negative control for the notice saying the SENTENCE (`S14`).
+
+Serialises whatever the module published and prints the envelope —
+`{ "code": 409, "data": [], "origin": "upmind", "status": 409, … }` — into the UI
+under the alert. `S14` asks for the API's own sentence; the raw artefact already
+has a home, the Debug sheet. It also re-raises the raw-key leak: this app's own
+refusals arrive as an i18n key, which a dump prints unresolved.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the notice spec (and the list surface's raw-key sweep) — the detail renders
+as one translated sentence, never a serialised body.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleStateNotice.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleStateNotice.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleStateNotice.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleStateNotice.vue
+@@ -64,8 +64,7 @@
+  */
+ const reason = computed(() => {
+   if (isNil(props.detail)) return "";
+-  const message = get(props.detail, "message", props.detail);
+-  return isString(message) ? t(message) : "";
++  return JSON.stringify(props.detail, null, 2);
+ });
+ 
+ const meta = computed(() => ({ state: props.state }));

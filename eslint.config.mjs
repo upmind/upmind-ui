@@ -611,13 +611,15 @@ const scenarioHarnessBoundaryPlugin = {
 //
 //   arm 1 — `no-restricted-imports` on the deep subpaths of the two packages
 //           whose public surface is bounded: headless publishes exactly ".",
-//           "./scenarios" and "./testing/*" (its `exports` map), scenario-harness
-//           exactly ".". The map alone does NOT gate the playgrounds — a
+//           "./scenarios", "./testing" and "./testing/*" (its `exports` map),
+//           scenario-harness exactly ".". The map alone does NOT gate the
+//           playgrounds — a
 //           vite/vitest alias to the package DIRECTORY resolves ahead of
 //           `exports`, so a subpath keeps resolving there no matter what the map
 //           says. This arm is the gate for that lane. "./testing/*" is published
-//           for OTHER packages' test lanes, so block 8h re-arms it there and
-//           8g keeps it banned everywhere else.
+//           for OTHER packages' test lanes — and, since the FE-2977 seam ruling,
+//           for one named app-runtime file — so block 8h re-arms it on exactly
+//           the files it lists and 8g keeps it banned everywhere else.
 //   arm 2 — the same law for relative escapes, which no specifier pattern can
 //           see: `../../packages/headless/src/...` never types a package name.
 //           Resolved to a disk path (the technique block 8c uses) and compared
@@ -640,8 +642,8 @@ const noWorkspaceSubpathImportsRule = testLane => [
   {
     patterns: [
       {
-        regex: `^@upmind-automation/headless/(?!scenarios$|package\\.json$${testLane ? "|testing/" : ""})`,
-        message: `${PACKAGE_BOUNDARY_MESSAGE} headless publishes ".", "./scenarios" and "./testing/*" (test lanes only).`
+        regex: `^@upmind-automation/headless/(?!scenarios$|package\\.json$${testLane ? "|testing$|testing/" : ""})`,
+        message: `${PACKAGE_BOUNDARY_MESSAGE} headless publishes ".", "./scenarios", "./testing" and "./testing/*" (test lanes, plus the one app-runtime seam block 8h names).`
       },
       {
         regex: "^@upmind-automation/scenario-harness/",
@@ -784,7 +786,7 @@ export default [
       // playwright-bdd's generated spec files (bddgen output, FE-2976) — machine
       // output sitting in the tree (gitignored, but not previously excluded from
       // a root-cwd lint pass), never hand-edited or reformatted.
-      ".features-gen/**"
+      "**/.features-gen/**"
     ]
   },
 
@@ -1005,19 +1007,25 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
-  // 8h. The test lane of 8g. headless publishes "./testing/*" for exactly these
-  //    files — another package's specs reaching its module kits, its replay
-  //    setup and its recorded fixtures by specifier. 8g still bans the subpath
-  //    everywhere else, so nothing in a production graph can reach it. Flat
-  //    config REPLACES `no-restricted-imports`, so this restates the whole rule
-  //    rather than adding to it; arm 2 (the relative-escape rule) is untouched
-  //    and still forbids reaching the same files by path.
+  // 8h. The named-reach lane of 8g. headless publishes "./testing/*" for exactly
+  //    these files — another package's specs reaching its module kits, its
+  //    replay setup and its recorded fixtures by specifier, plus the ONE
+  //    app-runtime seam the operator ruled in on 2026-08-12 (FE-2977 `ESC6`,
+  //    route (a)): a playground whose whole subject is the recorded scenarios
+  //    has access to them by implication of the approved concept. So the
+  //    boundary reads "app runtime reaches recorded artefacts through exactly
+  //    one named seam" rather than "never" — every other app file imports that
+  //    seam, and 8g still bans the subpath everywhere else, so no second door
+  //    can open. Flat config REPLACES `no-restricted-imports`, so this restates
+  //    the whole rule rather than adding to it; arm 2 (the relative-escape rule)
+  //    is untouched and still forbids reaching the same files by path.
   // ---------------------------------------------------------------------------
   {
     files: [
       "**/__tests__/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
       "**/*.{test,spec}.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
       "playgrounds/*/tests/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      "playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.source.ts",
       "tests/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}"
     ],
     ignores: ["packages/scenario-harness/**"],

@@ -1,0 +1,129 @@
+Negative control for playground-vocabulary.spec.ts (T1.3 falsifiability).
+
+The gate is GREEN on HEAD, which on its own proves nothing (tasks §1, the
+anti-fakery floor). This plants ONE offender of each of T1.3's six enumerated
+classes into `modules/scenarios/**` — one per file, one per class, each spelt so
+it trips its own rule and no other, so the run tells you exactly which class the
+gate cannot see:
+
+  1. raw Tailwind palette utility  ContextPanel.styles.ts
+     `bg-slate-100` in place of the token `bg-canvas` (S4/G10)
+  2. shadcn alias                  MetaPanel.styles.ts
+     `bg-card` on the panel root (S4 names it verbatim)
+  3. `#` / `[` colour literal      ModuleStateNotice.styles.ts
+     `text-[#7a7a7a]` — one offender carrying both spellings of the class
+  4. inline `style` z-index        ContextPanel.vue
+     `style="z-index: 30"` — the treatment ESC3 forbids reaching for
+  5. English `title` literal       ListEmpty.vue
+     `title="No results found"`, and `text.results_not_found` goes with it (S21)
+  6. hand-written ring constant    ListSurface.styles.ts
+     the ring vocabulary re-spelt as a local literal and merged into the failed
+     row — the duplicate ESC2 exists to keep out — planted BESIDE the lawful
+     `useInvalidRing()` call ESC2's ruling landed on this file, since the gate
+     reds the utility literal a re-spelling always writes out, never the
+     identifier
+
+Class 5 is planted in its ATTRIBUTE spelling. Its other spelling — a bare English
+text node — has no offender left in this scope: the two headings that carried one
+are `labs.*` keys now, and the quarantine list holds no entry for either.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: playground-vocabulary.spec.ts — all six classes, one case each. A run that
+reds FEWER than six does not read as a lucky mutant: it names the class the gate
+is blind to.
+
+Re-run at T2.6 (scope widened to `app/**`) and again at T6.2 (the whole
+playground). The widened gate must still red all six or it went green by
+blindness, which is the failure both those rows exist to catch.
+
+  Proven RED: owed by the prover's blind run (`pnpm --filter labs-nuxt exec
+  vitest run --project audits`). The 2026-08-12 receipt this replaces was
+  earned on a tree two of these hunks no longer applied to — `ModuleStateNotice`
+  lost the `bg-canvas` detail block and `ListSurface`'s failed-row variant moved
+  — so both were re-cut onto the current source and the whole patch owes its
+  receipt again. A run that reds FEWER than six names the class the gate is
+  blind to; `git apply -R` must restore every pass.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ContextPanel.styles.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ContextPanel.styles.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ContextPanel.styles.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ContextPanel.styles.ts
+@@ -20,7 +20,7 @@ export default {
+     ),
+ 
+     pre: cva(
+-      "bg-canvas mt-2 max-h-48 overflow-auto rounded p-2 text-xs whitespace-pre-wrap"
++      "bg-slate-100 mt-2 max-h-48 overflow-auto rounded p-2 text-xs whitespace-pre-wrap"
+     )
+   }
+ };
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ContextPanel.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ContextPanel.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ContextPanel.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ContextPanel.vue
+@@ -1,5 +1,9 @@
+ <template>
+-  <section v-if="items.length" :class="styles.contextPanel.root">
++  <section
++    v-if="items.length"
++    :class="styles.contextPanel.root"
++    style="z-index: 30"
++  >
+     <h2 :class="styles.contextPanel.title">{{ t("labs.debug_context") }}</h2>
+     <div :class="styles.contextPanel.list">
+       <Collapsible
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/MetaPanel.styles.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/MetaPanel.styles.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/MetaPanel.styles.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/MetaPanel.styles.ts
+@@ -7,7 +7,7 @@ import { cva } from "class-variance-authority";
+ 
+ export default {
+   metaPanel: {
+-    root: cva(""),
++    root: cva("bg-card"),
+ 
+     title: cva("text-display mb-2 text-sm font-bold"),
+ 
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleStateNotice.styles.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleStateNotice.styles.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleStateNotice.styles.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleStateNotice.styles.ts
+@@ -10,6 +10,6 @@ export default {
+     root: cva(""),
+ 
+     // A sentence, drawn as one: the envelope it arrived in is the Debug sheet's.
+-    detail: cva("text-accent-danger m-0 mt-1 text-sm")
++    detail: cva("text-accent-danger m-0 mt-1 text-[#7a7a7a] text-sm")
+   }
+ };
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListEmpty.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListEmpty.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListEmpty.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListEmpty.vue
+@@ -1,7 +1,7 @@
+ <template>
+   <Interstitial
+     v-if="isFiltered"
+-    :title="t('text.results_not_found')"
++    title="No results found"
+     :text="t('text.adjust_search_filters_msg')"
+   >
+     <template #avatar><Icon icon="search-lg" size="xl" /></template>
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.styles.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.styles.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.styles.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.styles.ts
+@@ -24,6 +24,8 @@ import { useInvalidRing } from "@upmind-automation/upmind-ui";
+ /** The ui invalid field's own treatment, applied to the record that carries it. */
+ const invalidRing = useInvalidRing();
+ 
++const failedRowRing = "ring-2 ring-offset-2 ring-accent-danger";
++
+ /**
+  * The row's own variant, called per row rather than resolved through
+  * `useStyles`: the marker is a property of the ROW, and `useStyles` resolves
+@@ -47,7 +49,7 @@ export const dataRow = cva("", {
+     // rule: the strip beneath it belongs to it, and a line between them would
+     // make two rows out of one record (`F4`).
+     isFailed: {
+-      true: "border-b-0",
++      true: `border-b-0 ${failedRowRing}`,
+       false: ""
+     }
+   },

@@ -1,0 +1,29 @@
+Negative control for the refused group's ring standoff being reserved on EVERY
+side (`H6` · `AC6.1` · `AC6.4`).
+
+Takes the standoff back to the horizontal axis alone. Every structural claim
+survives — the ring is still the ui vocabulary, still on the `<tbody>` that
+holds the row AND its reason, still with no fill — so the mark looks correct in
+the middle of a long list. It is the record at the BOTTOM that loses: the ui
+`Table` draws its own `overflow-auto` scroller, and with no vertical padding the
+last group's outline is clipped where it should close, which is the ring reading
+as landing on the wrong row.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the row-ring spec — the table no longer reserves the offset plus the
+outline's width on the axis the scroller clips, so the standoff case fails while
+the enclosure, vocabulary and no-fill cases stay green.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.styles.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.styles.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.styles.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.styles.ts
+@@ -174,7 +174,7 @@
+     //   border model, and the rules are all `tr`-level, so separating them
+     //   changes where the ring can draw and nothing else.
+     table: cva(
+-      "border-separate border-spacing-0 p-1 [&_tbody:not(:last-child)_tr:last-child]:border-b [&_td]:py-2"
++      "border-separate border-spacing-0 px-1 [&_tbody:not(:last-child)_tr:last-child]:border-b [&_td]:py-2"
+     ),
+ 
+     // Every declared column takes an equal share of what the two shrink-to-fit

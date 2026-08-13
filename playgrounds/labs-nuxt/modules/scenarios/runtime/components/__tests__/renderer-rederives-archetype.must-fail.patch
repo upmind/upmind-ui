@@ -8,17 +8,20 @@ Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
 
 Reds: module-renderer.spec.ts — the descriptor's archetype is what dispatches.
 
+Re-armed 2026-08-13: the patch still carried the deleted `presentation.form`
+channel (`R6-29`) in its context, and the destructure it lands on now relays the
+replay lock (`R6-23`).
+
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleRenderer.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleRenderer.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleRenderer.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleRenderer.vue
-@@ -1,22 +1,22 @@
+@@ -1,21 +1,21 @@
  <template>
    <FormFlowSurface
 -    v-if="descriptor.archetype.archetype === ARCHETYPE.FORM_FLOW"
 +    v-if="liveArchetype === ARCHETYPE.FORM_FLOW"
      :snapshot="descriptor.snapshot"
      :actions="port.actions"
-     :form="presentation?.form"
    />
    <DetailSurface
 -    v-else-if="descriptor.archetype.archetype === ARCHETYPE.DETAIL"
@@ -38,7 +41,7 @@ diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleRe
      :snapshot="descriptor.snapshot"
      :actions="port.actions"
      :table="port.table"
-@@ -35,7 +35,8 @@
+@@ -36,7 +36,8 @@
   * itself; each surface owns its own state/content rendering.
   */
  
@@ -48,9 +51,9 @@ diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleRe
  import ActionPanelSurface from "./surfaces/ActionPanelSurface.vue";
  import DetailSurface from "./surfaces/DetailSurface.vue";
  import FormFlowSurface from "./surfaces/FormFlowSurface.vue";
-@@ -45,4 +46,8 @@
+@@ -46,4 +47,8 @@
  
- const { descriptor, port, presentation, handoffs } =
+ const { descriptor, port, presentation, handoffs, locked } =
    defineProps<ModuleRendererProps>();
 +
 +const liveArchetype = computed(

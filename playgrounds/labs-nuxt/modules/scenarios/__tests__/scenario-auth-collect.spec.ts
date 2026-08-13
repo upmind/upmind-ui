@@ -40,7 +40,10 @@ import {
 } from "@upmind-automation/headless";
 import { LABS_OVERLAYS, ROUTE } from "../../../app/funnels";
 import services from "../../../app/funnels/engine/services";
-import labs from "../../../app/funnels/labs";
+import labs, {
+  authOverlayTarget,
+  isAddSessionRequest
+} from "../../../app/funnels/labs";
 import routerOptions from "../../../app/router.options";
 import { scenarioRoutes } from "../runtime/registry";
 import { registerScenarioRoutes } from "./nuxt-build-context";
@@ -68,14 +71,14 @@ let router: Router;
 const stateFor = (route: string) => get(labs.states, route);
 
 /** The re-target the rejection assigns, evaluated over the page it was taken on. */
-function targetOf(route: string) {
+function targetOf(route: string, params: Record<string, unknown> = {}) {
   const rejection = get(stateFor(route), ["invoke", "onError", 0]);
   const assign = get(rejection, ["actions", 1]);
   const assignment = get(assign, ["assignment", "targetRoute"]) as (
     context: Record<string, unknown>
   ) => Record<string, unknown>;
 
-  return assignment({ currentRoute: { name: route, params: {} } });
+  return assignment({ currentRoute: { name: route, params } });
 }
 
 beforeAll(async () => {
@@ -148,6 +151,103 @@ describe("@G6 the overlay the funnel names is MOUNTED on that page (D2)", () => 
 
       expect(map(resolved.matched, "name")).toContain(route);
       expect(get(resolved.meta, "overlay")).toBe(OverlayType.MODAL);
+    }
+  });
+});
+
+/**
+ * @AC7.2 "Add a session" and "log in to proceed" are ONE overlay entered two
+ * ways (H5 sharpened · G12(a) · P10)
+ *
+ * Add-session is offered from the GLOBAL pool, so it is taken from whatever page
+ * the developer is on and must open there — on the scope chooser, over that
+ * page — rather than navigating away to the standalone login the reroute
+ * replaced. The gate keeps the opposite behaviour: it already knows the scope
+ * the link named, so it opens on the login itself. One builder states the split;
+ * the overlay reads it back.
+ */
+describe("@AC7.2 add-session enters the SAME overlay, over the page (H5)", () => {
+  const scopeSuffix = ["as", ScopeActorTypes.CLIENT];
+
+  const pageRoute = () => ({
+    name: SCENARIO_ROUTES[0],
+    params: { scopeSuffix }
+  });
+
+  it("opens the page's own overlay, never a login route of its own", () => {
+    const target = authOverlayTarget(pageRoute(), { fresh: true });
+
+    expect(get(target, "name")).toBe(`${SCENARIO_ROUTES[0]}--${OVERLAY_ID}`);
+    expect(get(target, "name")).not.toBe(ROUTE.SESSION_LOGIN);
+    expect(router.hasRoute(get(target, "name") as string)).toBe(true);
+  });
+
+  it("asks which kind first ONLY when a session is being added", () => {
+    expect(
+      isAddSessionRequest(authOverlayTarget(pageRoute(), { fresh: true }))
+    ).toBe(true);
+    expect(isAddSessionRequest(targetOf(SCENARIO_ROUTES[0]) as never)).toBe(
+      false
+    );
+  });
+
+  it("stays the page's overlay when add-session is taken from the overlay itself", () => {
+    const onOverlay = {
+      name: `${SCENARIO_ROUTES[0]}--${OVERLAY_ID}`,
+      params: { scopeSuffix }
+    };
+
+    expect(get(authOverlayTarget(onOverlay, { fresh: true }), "name")).toBe(
+      `${SCENARIO_ROUTES[0]}--${OVERLAY_ID}`
+    );
+  });
+
+  it("keeps the scope the url named, on both entrances, so it resolves back to it", () => {
+    for (const target of [
+      authOverlayTarget(pageRoute(), { fresh: true }),
+      targetOf(SCENARIO_ROUTES[0], { scopeSuffix })
+    ]) {
+      const resolved = router.resolve(target as never);
+
+      expect(get(resolved.params, "scopeSuffix")).toEqual(scopeSuffix);
+      expect(map(resolved.matched, "name")).toContain(SCENARIO_ROUTES[0]);
+    }
+  });
+
+  /**
+   * `R6-2b` — driving live, the operator found NO path that adds any session:
+   * "so no there is no way to actually add sessions, client or staff". Each seam
+   * of the chain was proven on its own and the chain still did not run, so the
+   * claim below is the whole of it on the REAL route table: what the pool asks
+   * for RESOLVES, on every scenario page, and still reads as the add-session
+   * request the overlay branches on once it has. A marker lost in resolution is
+   * a chooser that never opens and a pool that can only shrink.
+   */
+  it("resolves the pool's ask on EVERY scenario page, marker intact (R6-2b)", () => {
+    for (const route of SCENARIO_ROUTES) {
+      const resolved = router.resolve(
+        authOverlayTarget(
+          { name: route, params: { scopeSuffix } },
+          { fresh: true }
+        ) as never
+      );
+
+      expect(resolved.name).toBe(`${route}--${OVERLAY_ID}`);
+      expect(map(resolved.matched, "name")).toContain(route);
+      expect(get(resolved.meta, "overlay")).toBe(OverlayType.MODAL);
+      expect(isAddSessionRequest(resolved)).toBe(true);
+    }
+  });
+
+  it("keeps the gate's own entrance out of the chooser, resolved the same way", () => {
+    for (const route of SCENARIO_ROUTES) {
+      const resolved = router.resolve(
+        targetOf(route, { scopeSuffix }) as never
+      );
+
+      expect(resolved.name).toBe(`${route}--${OVERLAY_ID}`);
+      expect(isAddSessionRequest(resolved)).toBe(false);
+      expect(get(resolved.query, "mode")).toBe(SESSION_FORMS.LOGIN);
     }
   });
 });

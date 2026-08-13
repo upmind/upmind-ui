@@ -211,6 +211,20 @@ export type ScopeBuilder<T, TMatrix extends ActorContextMatrix> = {
     actor: TActor
   ): ScopeBuilderResult<T, TMatrix, TActor>;
 };
+
+/**
+ * A scoped composable: the builder factory, carrying the module's OWN matrix as
+ * a value. The matrix is otherwise a type parameter only, so nothing holding the
+ * composable reference could read which actors it is offerable at without the
+ * module restating it somewhere else.
+ */
+export type ScopedComposable<
+  T,
+  TMatrix extends ActorContextMatrix
+> = (() => ScopeBuilder<T, TMatrix>) & {
+  /** Which actors this module resolves a context for, and under which type. */
+  scopeMatrix?: TMatrix;
+};
 // -----------------------------------------------------------------------------
 /**
  * Creates a scope-based composable with fluent chaining API.
@@ -218,6 +232,10 @@ export type ScopeBuilder<T, TMatrix extends ActorContextMatrix> = {
  *
  * @param name - Unique name for this composable (used in scope key)
  * @param factory - Factory function that creates the composable instance
+ * @param scopeMatrix - The module's own matrix VALUE, carried onto the returned
+ * composable so a consumer holding the reference can read which actors it is
+ * offerable at. Type-checked against `TMatrix`, so the declared type and the
+ * exported const cannot drift apart.
  * @returns A function that returns a fluent builder
  *
  * @example
@@ -264,8 +282,19 @@ export type ScopeBuilder<T, TMatrix extends ActorContextMatrix> = {
 export function createScopedComposable<
   T,
   TMatrix extends ActorContextMatrix = ActorContextMatrix
->(name: string, factory: ScopedFactory<T>): () => ScopeBuilder<T, TMatrix> {
-  return (): ScopeBuilder<T, TMatrix> => {
+>(
+  name: string,
+  factory: ScopedFactory<T>,
+  scopeMatrix?: TMatrix
+): ScopedComposable<T, TMatrix> {
+  // Typed here and assigned member-wise rather than merged with a helper: a
+  // module registers its composable at MODULE scope, where an imported binding
+  // from this file's own cyclic graph is still in its TDZ (the load-order note
+  // at the head of every consuming `use*.ts`).
+  const composable: ScopedComposable<T, TMatrix> = (): ScopeBuilder<
+    T,
+    TMatrix
+  > => {
     const config: ScopeConfig = {} as ScopeConfig;
     let instance: T | null = null;
 
@@ -323,4 +352,8 @@ export function createScopedComposable<
 
     return proxy;
   };
+
+  composable.scopeMatrix = scopeMatrix;
+
+  return composable;
 }

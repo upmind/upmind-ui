@@ -38,6 +38,7 @@
   "custom_price_applied": "Custom price applied",
   "price_manually_adjusted_msg": "The price has been manually adjusted",
   "basket_custom_price_alert": "The total price for this order has been manually adjusted.",
+  "date_added": "Date added",
   "date_bounced": "Date bounced",
   "date_sent": "Date sent",
   "default_label": "Default",

@@ -1,0 +1,42 @@
+Negative control for the acting-for matrix reaching the page (`R6-31`).
+
+Reads the scope matrix off the BOOTED CELL's context again instead of off the
+composable the declaration named. Only `useAuth` ever published that member, so
+for every other module the read is `undefined`, nothing registers, and the scope
+bar's acting-for segment silently never renders — the live defect this replaced.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the port spec — a port booted from a scoped composable publishes that
+composable's own matrix.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useModulePort.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useModulePort.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useModulePort.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useModulePort.ts
+@@ -38,7 +38,10 @@ import type {
+   ModulePortScope
+ } from "./useModulePort.types";
+ import type { TableChannelCell } from "./useTableChannel.types";
+-import type { QueryProps } from "@upmind-automation/headless";
++import type {
++  ActorContextMatrix,
++  QueryProps
++} from "@upmind-automation/headless";
+ import type { ComputedRef } from "vue";
+ 
+ // -----------------------------------------------------------------------------
+@@ -159,10 +162,10 @@ export function useModulePort(
+     },
+     criteria: readCriteria(cell),
+     getMeta: port.getMeta,
+-    // The matrix is the COMPOSABLE's own, read off the reference the
+-    // declaration named — never re-declared beside it, and never a member a
+-    // module has to remember to publish on its context (`R6-31`).
+-    scopeMatrix: composable.scopeMatrix,
++    // The matrix is the COMPOSABLE's own, read off the cell it booted.
++    scopeMatrix: get(cell.useContext(), "scopeMatrix") as
++      | ActorContextMatrix
++      | undefined,
+     snapshot: () => ({ ...port.snapshot(), debug: readDebug(cell) }),
+     table: port.table
+   };

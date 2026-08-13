@@ -23,7 +23,7 @@ import text from "@upmind-automation/i18n/core/text-en.json";
 import { Card, Skeleton } from "@upmind-automation/upmind-ui";
 import { defaultRow } from "../../../../../../tests/support/recorded-emails";
 import { renderedStrings } from "../../../../../../tests/support/rendered";
-import clientEmails from "../../../../useClientEmails/scenario";
+import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { RESOLVED_HANDOFFS } from "../../__tests__/resolved-handoffs";
 import { ListSurface, ListViewTypes } from "../index";
 import {

@@ -1,6 +1,7 @@
 /**
  * @module scope/scope-helpers
- * @description Navigation helpers for building and navigating to scope-aware URLs.
+ * @description Scope helpers — the ONE reading of a module's scope matrix, plus
+ * building and navigating to scope-aware URLs.
  *
  * IMPORTANT: `navigateToScope` and `updateScopeParam` use Vue Router's `useRoute`/`useRouter`
  * which rely on `inject()`. They MUST be obtained via `useScopeNavigation()` during component
@@ -9,8 +10,38 @@
 
 import { useRouter, useRoute } from "vue-router";
 import { ScopeActorTypes } from "@upmind-automation/headless";
-import { filter } from "lodash-es";
-import type { ScopeContext } from "@upmind-automation/headless";
+import { filter, get } from "lodash-es";
+import type {
+  ActorContextMatrix,
+  ScopeContext
+} from "@upmind-automation/headless";
+
+/**
+ * The context type a matrix cell names, or `null` where the module marked the
+ * actor `never`. This is the app's ONE reading of a scope matrix: a cell naming
+ * no type is an actor the module does not serve — the row the acting-for picker
+ * greys (`AC1.4`) and the scope the port refuses to boot (`R7-14`).
+ */
+export function resolveMatrixContext(contextType: unknown): string | null {
+  return contextType && contextType !== "never" ? String(contextType) : null;
+}
+
+/**
+ * Whether a module's own matrix serves the actor a url NAMED.
+ *
+ * `SELF` is always served: it names no actor at all — the builder resolves it to
+ * whoever is active — so refusing it would refuse the bare route every page
+ * boots on, including the logged-out one whose answer is the auth gate rather
+ * than a scope refusal. Only an `/as/:actor` segment can be refused here. A
+ * composable registered without a matrix declares no refusal.
+ */
+export function servesActor(
+  matrix: ActorContextMatrix | undefined,
+  actor: ScopeActorTypes
+): boolean {
+  if (!matrix || actor === ScopeActorTypes.SELF) return true;
+  return !!resolveMatrixContext(get(matrix, actor));
+}
 
 export type ScopePathConfig = {
   /** Page path (e.g., "useAuth", "products") */

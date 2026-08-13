@@ -1,0 +1,56 @@
+Negative control for the gate collecting a session for an actor that can
+actually sign in (`G6` · `D2` · `R6-15b`).
+
+`useAuth`'s own matrix is the authority on what an auth journey may be collected
+for: `AUTH_SCOPE_MATRIX` declares `SELF` and `GUEST` `never`, leaving CLIENT and
+STAFF. The gate used to ask for the page's own scope, which on a bare url is
+SELF — and SELF is a resolution, not an actor. The scope builder turns it into
+the ACTIVE actor (`resolveSelfActor`), which for a visitor with no session is
+GUEST; the machine's guest arm then mints a token and settles in the FINAL
+`authenticated` state. Driven live on 2026-08-13 at a bare `/useClientEmails/`,
+that is exactly what the operator's server drew: the overlay opened over the
+page the guard had just refused and rendered "Authenticated · Successfully
+authenticated as Self → Guest" with a single Log out button and no login form
+(`canLogin` is `!isAuthenticated`, so the tab set was empty). Pressing that
+button destroyed the journey, the overlay unmounted, and the url stayed on the
+`--auth` child with nothing rendered — the page skeletonised at "showing 0 of 0"
+with no login surface and no route back, recoverable only through the Sessions
+pool or a hand-typed `auth/?as=client` url.
+
+This mutant withdraws the resolution and hands back whatever the caller asked
+for, so `SELF` survives to the journey again. Nothing else moves: the target is
+still the page's own `--auth` child, still carries `mode` and `cancelUrl`, still
+keeps `scopeSuffix`, and the pool's add-session arm still names its own actor —
+which is why every claim in `scenario-auth-collect.spec.ts` stays green under it
+and the loss needs a claim of its own.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the case asserting that the gate's re-target — and the overlay page's own
+fallback for a target that names no actor — collect for an actor the auth matrix
+declares, so a page reached with no `/as/<actor>` segment opens on a login rather
+than on a signed-in guest. A staff url (`/as/user`) must still collect staff and
+a guest url must still pass the guard untouched, so the claim cannot be met by
+pinning one constant.
+
+  Proven RED: owed by the prover's blind run (`vitest run scenario-auth-collect`).
+  Recorded here rather than pre-filled — the seat that authors the mutant is not
+  the seat that grades it.
+
+Re-cut (`R7-1`): the GATE no longer names an actor when the url named none — it
+offers the arrival a choice instead — so the case about a bare url must now
+assert the chooser, and this control's claim narrows to what it always was: an
+actor handed to `useAuth` is one the matrix declares. The add-session arm and the
+overlay's own journey are where that now bites.
+
+--- a/playgrounds/labs-nuxt/app/funnels/labs.ts
++++ b/playgrounds/labs-nuxt/app/funnels/labs.ts
+@@ -68,7 +68,7 @@
+  * the client journey with no way to say otherwise.
+  */
+ export function authCollectActor(actor?: ScopeActorTypes): ScopeActorTypes {
+-  return authNamedActor(actor) ?? ScopeActorTypes.CLIENT;
++  return (actor ?? ScopeActorTypes.SELF) as ScopeActorTypes;
+ }
+ 
+ /** The page an overlay is a child of — its own route name, less the suffix. */

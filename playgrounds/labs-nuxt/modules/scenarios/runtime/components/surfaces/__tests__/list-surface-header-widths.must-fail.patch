@@ -1,31 +1,34 @@
 Negative control for the frame-reserved column widths (E7).
 
-Takes `headerCell`'s `w-full` off the declared columns that carry no sort
-control, so the share is reserved only where a control happens to sit and every
-other column is sized from whatever the current page's data measures. That is
-E7's defect — the columns resize/jump as a sort swaps the rows under them.
+Reserves the share for ONE declared column and measures every other one from
+whatever is in it, so the widths are the current page's data rather than the
+frame's reservation. That is E7's defect — the columns resize and jump as a sort
+swaps the rows under them.
 
-The drop has to be PARTIAL to be a control: `w-full` removed from all of them
-leaves the header row uniform, and uniformity across the declared columns is
-the whole of what the E7 spec can see (jsdom resolves no widths, so "equal
-share" is asserted as one shared treatment, never a measured pixel).
+The drop has to be PARTIAL to be a control: content sizing applied to all of
+them leaves the header row uniform again, and uniformity across the declared
+columns is the whole of what the E7 spec can see (jsdom resolves no widths, so
+"equal share" is asserted as one shared treatment, never a measured pixel).
+
+Re-pointed for `R7-2`: the header's width is a variant now, not one fixed class,
+because an icon column measures to its content by its RENDERER's own answer.
+Only E7's half is withdrawn here — the star column keeps its intrinsic width, so
+`R7-2`'s own case stays green and this control still tries exactly one law.
 
 Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
 
-Reds: the actions-anchor spec's E7 block — every declared column gets the same
-width treatment, so none is measured from its content.
+Reds: the actions-anchor spec's E7 block — the declared columns no longer share
+one width treatment, so they are measured from their content.
 
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-@@ -160,7 +160,9 @@
-           <TableHead
+@@ -142,7 +142,7 @@
              v-for="header in headerGroup.headers"
              :key="header.id"
--            :class="styles.listSurface.headerCell"
-+            :class="
-+              header.column.getCanSort() ? styles.listSurface.headerCell : ''
-+            "
-             @click="header.column.getToggleSortingHandler()?.($event)"
+             :class="
+-              headerCell({ isContent: includes(contentColumns, header.id) })
++              headerCell({ isContent: header.index !== 1 })
+             "
+             @click="onHeaderSort(header.column)"
            >
-             <template v-if="!header.isPlaceholder">

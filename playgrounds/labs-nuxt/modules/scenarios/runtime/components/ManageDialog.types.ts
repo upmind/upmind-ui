@@ -5,19 +5,21 @@
  *
  * @graphify-citation `graphify-out/graph.json` (2026-08-10, 6795 nodes) —
  * `ResolvedHandoff` is minted once in `runtime/scenario.types.ts` and consumed
- * here rather than re-declared.
+ * here rather than re-declared, and the record it opens on is headless's own
+ * `ScopeContext`. See `graphify-out/GRAPH_REPORT.md`.
  */
 
 import type { ResolvedHandoff } from "../scenario.types";
+import type { ScopeContext } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
 export type ManageDialogProps = {
-  /** The declared handoff, already resolved to the target it opens. */
+  /** The declared handoff, bound to the editor composable that drives it. */
   handoff: ResolvedHandoff;
   /**
-   * The record being edited, read from the row by the handoff's own
-   * `contextFrom`. Absent, the editor opens on a new record.
+   * The record being edited — whole, read off the row by the handoff's own
+   * pointer. Absent, the editor opens on a record that does not exist yet.
    */
-  contextId?: string;
+  context?: ScopeContext;
 };

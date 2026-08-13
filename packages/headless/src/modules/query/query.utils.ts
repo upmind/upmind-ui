@@ -378,8 +378,13 @@ export function handleError(
   // Preserve the API's structured error code (e.g. `web_hosting::domain_register_only`)
   // on the DetailedError. Clients that need to branch on it (e.g. domain
   // register/transfer flip) read `apiCode` — message text is locale-dependent.
+  // A plain SENTENCE, never a `*_title` key: an `Error.message` is rendered as
+  // text by every surface that shows it, and each title in the corpus is
+  // markdown SOURCE — so the key reads out its own `**` and the `_md` sibling
+  // its `<strong>`. This one also says what actually happened at any status,
+  // where a 503 title claimed an outage for all of them.
   throw new DetailedError(
-    error?.message ?? t("error.503_title_md"),
+    error?.message ?? t("error.request_process_failed"),
     status || responseCodes.Service_Unavailable,
     ErrorOrigin.Upmind,
     error?.data,
@@ -455,12 +460,34 @@ function toWireFilterValue(operator: string, value: unknown): string {
 }
 
 /**
+ * Every field a query schema declares ORDERABLE. Draft-07 spells a restricted
+ * value either as a bare `enum` or as `oneOf` `const` entries — the second is
+ * the only form that can also TITLE each member, which is how a sort control
+ * labels its options — so both are the same declaration and are read as one.
+ *
+ * @param schema - The collection's declared query schema.
+ * @returns The declared `sort.field` names, in declaration order.
+ */
+export function declaredSortFields(schema: JsonSchema): string[] {
+  const field = get(schema, [
+    "properties",
+    "sort",
+    "items",
+    "properties",
+    "field"
+  ]);
+
+  return (get(field, "enum") ??
+    map(get(field, "oneOf", []), "const")) as string[];
+}
+
+/**
  * A whole query model as the {@link QueryProps} the request layer accepts.
  *
  * Walks the schema's DECLARED `(column, operator)` pairs rather than the
  * model's keys, so it emits one key per declared filter; drops any sort field
- * the schema's enum does not declare, because an undeclared `order=` column is
- * an HTTP 500.
+ * {@link declaredSortFields} does not name, because an undeclared `order=`
+ * column is an HTTP 500.
  *
  * A filter branch's WIRE column is its own property name unless the branch
  * declares a `column` — the binding for an API whose filterable column is spelt
@@ -493,11 +520,7 @@ export function translateQuery(
     {}
   );
 
-  const sortFields = get(
-    schema,
-    ["properties", "sort", "items", "properties", "field", "enum"],
-    []
-  ) as string[];
+  const sortFields = declaredSortFields(schema);
 
   const tuples = map(
     filter(get(model, "sort", []) as QuerySortEntry[], entry =>

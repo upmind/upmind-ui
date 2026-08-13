@@ -1,0 +1,27 @@
+Negative control for the mocking glow's standoff (`R7-7`).
+
+Takes the offset override off and leaves the package's own — the SAME ring, the
+same primary family, the same armed-only condition, and still no geometry
+(`R6-18`) — so the colour claim (`H2`) and the geometry claim both still pass
+and the only thing that can go red is the ruled one: the glow stands OFF the
+page rather than hugging its content. At the component-scale offset the outline
+sits on the content's own edge and reads as a border the page grew, which is the
+frame the operator screenshotted.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the forced-canvas standoff case — the armed frame carries an outline
+offset larger than the ui highlight ring's own default.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.styles.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.styles.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.styles.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.styles.ts
+@@ -34,7 +34,7 @@
+  * package's own ring vocabulary overrides itself the same way
+  * (`invalidRingClasses`).
+  */
+-const highlightRing = useHighlightRing("outline-offset-8!");
++const highlightRing = useHighlightRing();
+
+ export default {
+   forcedCanvas: {

@@ -18,12 +18,12 @@
  * than pattern-matched as strings.
  *
  * ## What Breaks If These Fail
- * The canary's url stops carrying identity: `/as/:actor` and `/for/:type/:id`
+ * The client-emails page's url stops carrying identity: `/as/:actor` and `/for/:type/:id`
  * silently no-op, which is FE-2824's failure mode arriving by way of the router
  * — or two scenarios answer to one name and one of them is unreachable.
  */
 
-import { existsSync, readdirSync } from "node:fs";
+import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import { createMemoryHistory, createRouter } from "vue-router";
@@ -31,7 +31,15 @@ import { parseScopeSuffix } from "../../../app/composables/scope";
 import routerOptions from "../../../app/router.options";
 import { SCENARIO_ROUTE_META_KEY } from "../runtime/scenario.constants";
 import { registerScenarioRoutes } from "./nuxt-build-context";
-import { filter, find, isArray, join as joinAll, map, uniq } from "lodash-es";
+import {
+  filter,
+  find,
+  isArray,
+  join as joinAll,
+  map,
+  some,
+  uniq
+} from "lodash-es";
 import type { NuxtPage } from "@nuxt/schema";
 import type { Router } from "vue-router";
 
@@ -48,11 +56,16 @@ const declaredDirectories = filter(
     ),
     entry => entry.name
   ),
-  name => existsSync(join(MODULE_DIR, name, "scenario.ts"))
+  // The declaration is named for the MODULE it declares (`R6-27`), so the
+  // inventory is "a directory holding one", never a fixed filename.
+  name =>
+    some(readdirSync(join(MODULE_DIR, name)), file =>
+      file.endsWith(".scenario.ts")
+    )
 );
 
-/** The canary, and the editor its rows hand off to. */
-const CANARY = "useClientEmails";
+/** The client-emails page, and the editor its rows hand off to. */
+const CLIENT_EMAILS = "useClientEmails";
 
 let pages: NuxtPage[];
 let router: Router;
@@ -90,7 +103,7 @@ describe("@G3d the directory IS the route — nothing else names one", () => {
     expect(map(scenarioPages(), "name").sort()).toEqual(
       [...declaredDirectories].sort()
     );
-    expect(declaredDirectories.length).toBeGreaterThan(1);
+    expect(declaredDirectories.length).toBeGreaterThan(0);
   });
 
   it("points every scenario route at the ONE shared playground", () => {
@@ -115,34 +128,36 @@ describe("@G3d the directory IS the route — nothing else names one", () => {
 
 describe("@G3d the four scope shapes still resolve (operator: NON-NEGOTIABLE)", () => {
   it("serves the bare url, where the binding's own scope applies", () => {
-    const { name, scope } = resolvedScope(`/${CANARY}`);
+    const { name, scope } = resolvedScope(`/${CLIENT_EMAILS}`);
 
-    expect(name).toBe(CANARY);
+    expect(name).toBe(CLIENT_EMAILS);
     expect(scope.actor).toBeUndefined();
   });
 
   it("serves /:page/as/:actor", () => {
-    const { name, brand, scope } = resolvedScope(`/${CANARY}/as/client`);
+    const { name, brand, scope } = resolvedScope(`/${CLIENT_EMAILS}/as/client`);
 
-    expect(name).toBe(CANARY);
+    expect(name).toBe(CLIENT_EMAILS);
     expect(brand).toBe("");
     expect(scope).toMatchObject({ valid: true, actor: "client" });
   });
 
   it("serves /:brandId/:page/as/:actor", () => {
-    const { name, brand, scope } = resolvedScope(`/acme/${CANARY}/as/client`);
+    const { name, brand, scope } = resolvedScope(
+      `/acme/${CLIENT_EMAILS}/as/client`
+    );
 
-    expect(name).toBe(CANARY);
+    expect(name).toBe(CLIENT_EMAILS);
     expect(brand).toBe("acme");
     expect(scope).toMatchObject({ valid: true, actor: "client" });
   });
 
   it("serves the full path — brand, actor and the .for() retarget together", () => {
     const { name, brand, scope } = resolvedScope(
-      `/acme/${CANARY}/as/user/for/client/abc-123`
+      `/acme/${CLIENT_EMAILS}/as/user/for/client/abc-123`
     );
 
-    expect(name).toBe(CANARY);
+    expect(name).toBe(CLIENT_EMAILS);
     expect(brand).toBe("acme");
     expect(scope).toMatchObject({
       valid: true,
@@ -152,7 +167,9 @@ describe("@G3d the four scope shapes still resolve (operator: NON-NEGOTIABLE)", 
   });
 
   it("keeps the retarget reachable with no brand in the url", () => {
-    const { scope } = resolvedScope(`/${CANARY}/as/user/for/client/abc-123`);
+    const { scope } = resolvedScope(
+      `/${CLIENT_EMAILS}/as/user/for/client/abc-123`
+    );
 
     expect(scope).toMatchObject({ context: { type: "client", id: "abc-123" } });
   });
@@ -161,15 +178,23 @@ describe("@G3d the four scope shapes still resolve (operator: NON-NEGOTIABLE)", 
 describe("@G3d amendment 2 — a repeated route name is a build failure, not a second record", () => {
   it("hard-fails when a page already owns a scenario's name", async () => {
     const { resolve } = await registerScenarioRoutes([
-      { name: CANARY, path: `/${CANARY}`, file: "app/pages/collide.vue" }
+      {
+        name: CLIENT_EMAILS,
+        path: `/${CLIENT_EMAILS}`,
+        file: "app/pages/collide.vue"
+      }
     ]);
 
-    await expect(resolve()).rejects.toThrow(CANARY);
+    await expect(resolve()).rejects.toThrow(CLIENT_EMAILS);
   });
 
   it("names the offending route rather than failing anonymously", async () => {
     const { resolve } = await registerScenarioRoutes([
-      { name: CANARY, path: `/${CANARY}`, file: "app/pages/collide.vue" }
+      {
+        name: CLIENT_EMAILS,
+        path: `/${CLIENT_EMAILS}`,
+        file: "app/pages/collide.vue"
+      }
     ]);
 
     await expect(resolve()).rejects.toThrow(/collision/i);

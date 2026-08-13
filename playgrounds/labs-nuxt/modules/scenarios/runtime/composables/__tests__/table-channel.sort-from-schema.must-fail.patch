@@ -1,0 +1,24 @@
+Negative control for the SORT-COMES-FROM-THE-SORT-ENUM law (`R6-28`).
+
+Offers the schema's FILTER columns as the ordering vocabulary instead of its own
+`sort` enum — the two lists overlap on one field and disagree on the rest, which
+is exactly the second-source-of-truth the ruling killed. Every `order=` the
+control then writes names a column the API does not order on.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the table-channel spec — `declared().sort` is the query schema's own sort
+enum, field for field and in its order.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useTableChannel.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useTableChannel.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useTableChannel.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useTableChannel.ts
+@@ -66,7 +66,7 @@
+   const titled: unknown[] = get(field, "oneOf") ?? [];
+ 
+   return map(
+-    get(field, "enum") ?? map(titled, "const"),
++    keys(get(schema, ["properties", "filters", "properties"])),
+     (name: string): DeclaredSortField => ({
+       field: name,
+       i18n:

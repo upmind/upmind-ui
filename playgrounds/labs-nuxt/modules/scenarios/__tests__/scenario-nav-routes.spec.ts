@@ -29,7 +29,7 @@ import routerOptions from "../../../app/router.options";
 import { registry } from "../runtime/registry";
 import clientEmails, {
   CLIENT_EMAILS_SCENARIO
-} from "../useClientEmails/scenario";
+} from "../useClientEmails/client-email.scenario";
 import { registerScenarioRoutes } from "./nuxt-build-context";
 import {
   compact,
@@ -119,7 +119,7 @@ const flatten = (items: NavItem[]): NavItem[] =>
 // -----------------------------------------------------------------------------
 
 describe("@G6 every derived link resolves against the registered routes", () => {
-  it("derives a link for the canary and excludes its handoff target (R8)", () => {
+  it("derives a link for the client-emails page and excludes its handoff target (R8)", () => {
     const names = map(links, to => router.resolve(to).name);
 
     expect(names).toContain("useClientEmails");
@@ -156,30 +156,35 @@ describe("@G6 every derived link resolves against the registered routes", () => 
  * what the url opens.
  */
 describe("@G6 the sidebar entry is the composable's own NAME (D1)", () => {
-  const canary = get(registry, CLIENT_EMAILS_SCENARIO) as RegisteredScenario;
+  const registered = get(
+    registry,
+    CLIENT_EMAILS_SCENARIO
+  ) as RegisteredScenario;
 
-  it("labels the canary with the directory its url already carries", () => {
-    expect(map(flatten(navigation), "label")).toContain(canary.route);
+  it("labels the client-emails page with the directory its url already carries", () => {
+    expect(map(flatten(navigation), "label")).toContain(registered.route);
   });
 
   it("prettifies nothing — no alias stands between the menu item and the path", () => {
     const labels = map(flatten(navigation), "label");
 
-    expect(labels).not.toContain(startCase(canary.route));
+    expect(labels).not.toContain(startCase(registered.route));
     expect(labels).not.toContain(get(text, "emails"));
-    expect(labels).not.toContain(canary.key);
+    expect(labels).not.toContain(registered.key);
   });
 
+  // The link carries no actor segment because the declaration names no boot
+  // scope: a page boots as self, and only the url's own `/as/` moves it.
   it("links the very entry it labels, so the two cannot drift", () => {
-    const entry = find(flatten(navigation), { label: canary.route });
+    const entry = find(flatten(navigation), { label: registered.route });
 
-    expect(entry?.to).toBe(`/${canary.route}/as/${canary.scope.actor}`);
-    expect(router.resolve(entry!.to as string).name).toBe(canary.route);
+    expect(entry?.to).toBe(`/${registered.route}`);
+    expect(router.resolve(entry!.to as string).name).toBe(registered.route);
   });
 
   it("carries the icon the declaration chose — the one thing it still declares", () => {
-    const entry = find(flatten(navigation), { label: canary.route });
+    const entry = find(flatten(navigation), { label: registered.route });
 
-    expect(entry?.icon).toBe(clientEmails.nav!.icon);
+    expect(entry?.icon).toBe(clientEmails.presentation.icon);
   });
 });

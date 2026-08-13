@@ -1,0 +1,91 @@
+Negative control for the never-gate-the-pool law (T2.4 falsifiability, `AC1.2` ·
+`P9` · `parity.yaml` A1 `never_gates` · `ESC5`).
+
+Lets the PAGE matrix reach the GLOBAL session pool, and reaches it where the
+pool is DRAWN. Two hunks, one defect: registering the scenario's declared matrix
+also narrows `availableScopes` — the pool's own scope registry — to the actors
+that matrix resolves a context for, and `addableScopes` (which the
+`SessionSwitcher` renders its "add a session" controls from) starts honouring
+that page-level registry alongside the app-level allow-list. On the client-emails page the
+matrix resolves `CLIENT` alone, so opening a client-emails page silently removes
+the way to add a STAFF session from the pool.
+
+It reads like a tidying-up ("the page knows which actors it supports, so tell the
+switcher too") and is precisely the defect the design forbids: scope is global
+app chrome (`G9`), the greying belongs to the acting-for picker's actor rows and
+nowhere else, and the client-emails page itself ships a playable staff track while its matrix
+marks `STAFF` as `never` (`ESC5`) — so a matrix-driven pool would contradict the
+feature that is the oracle. The second hunk is the whole point of the re-author:
+the first version stopped at the registry ref, which nothing the switcher renders
+reads, so the planted defect had no observable and the control proved nothing.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the parity cases of
+`app/components/scope/__tests__/acting-for-segment.spec.ts` — the pool is
+unaffected while the actor row is greyed. The observable the developer built
+against: after the segment registers the page's matrix, the pool's own scope
+registry is unchanged AND the switcher still offers all four ways in
+(`actor-scope-add-{account,client,staff,guest}`), with a staff session still
+switchable.
+
+  FOR THE PROVER: authored by the developer seat, which knew the seam it wrote;
+  the patch is a source mutation and grades nothing. Apply it blind, confirm the
+  parity cases go red, then revert.
+
+  RE-AUTHORED by the developer seat, 2026-08-12, on the prover's own bounce
+  ("re-author the mutant so the narrowing reaches what the SessionSwitcher
+  renders — the assertion is already waiting for it"). Developer smoke
+  (apply → revert, tree restored): both parity cases go RED — the registry case
+  reads `['client']` where `['self']` is owed, and the add-scope case reads
+  `[1, 1, 0, 1]` where `[1, 1, 1, 1]` is owed. The prover's blind verification
+  stands separately and is not inferred from this line.
+
+--- a/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts
++++ b/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts
+@@ -22,6 +22,7 @@
+   findKey,
+   get,
+   has,
++  includes,
+   map,
+   sortBy,
+   toPairs
+@@ -228,7 +229,10 @@
+ 
+   const addableScopes = computed<ScopeActorTypes[]>(() => {
+     return filter(AUTH_SCOPES, scope => {
+-      return isScopeAllowed(scope as unknown as AccessRoleTypes);
++      return (
++        isScopeAllowed(scope as unknown as AccessRoleTypes) &&
++        includes(availableScopes.value, scope)
++      );
+     });
+   });
+ 
+--- a/playgrounds/labs-nuxt/app/components/scope/useContextScopeSelector.ts
++++ b/playgrounds/labs-nuxt/app/components/scope/useContextScopeSelector.ts
+@@ -15,6 +15,7 @@
+ import { useRoute } from "vue-router";
+ import { scenarioRoutes } from "../../../modules/scenarios/runtime/registry";
+ import { SCENARIO_ROUTE_META_KEY } from "../../../modules/scenarios/runtime/scenario.constants";
++import { useActorScopeSelector } from "./useActorScopeSelector";
+ import { filter, forEach, get, map, reject, take, toPairs } from "lodash-es";
+ import type { RegisteredScenario } from "../../../modules/scenarios/runtime/scenario.types";
+ import type {
+@@ -173,6 +174,7 @@
+    */
+   function registerFromRoute() {
+     const route = useRoute();
++    const pool = useActorScopeSelector();
+     const owner = Symbol("context-owner");
+ 
+     watch(
+@@ -181,6 +183,7 @@
+         if (matrix) {
+           contextOwner = owner;
+           apply(matrix);
++          pool.set(map(availableContexts.value, "actor"));
+         } else if (contextOwner === owner) {
+           reset();
+         }

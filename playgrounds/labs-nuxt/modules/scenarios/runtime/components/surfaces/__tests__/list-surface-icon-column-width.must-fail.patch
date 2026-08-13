@@ -1,0 +1,27 @@
+Negative control for an icon column measuring to its CONTENT (`R7-2`).
+
+Takes the icon renderer's own sizing answer back to the default, so a boolean
+cell claims an equal share of the row again — which is how one star ends up as
+wide as an email address and pushes the address into the middle of the table.
+
+The mutation is on the RENDERER, not on the surface, because that is where the
+ruling put the answer: nothing about the frame, the declaration or the url
+changes, and the very same table simply hands the glyph a quarter of its width.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the icon-column width case — the star column is given the fluid share
+instead of its own width, so it carries the same treatment as the text columns.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellIcon.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellIcon.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellIcon.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellIcon.vue
+@@ -40,7 +40,7 @@
+ /**
+  * One glyph is one glyph wide (`R7-2`): the column measures to it, and the text
+  * columns take what is left. A boolean given an equal share of the row is how a
+  * star ends up as wide as an email address.
+  */
+-export const sizing = CellSizingTypes.CONTENT;
++export const sizing = CellSizingTypes.FLUID;
+ </script>

@@ -68,11 +68,11 @@ export default {
   },
 
   /**
-   * Every scenario route's gate. A scenario boots its composable at the actor
-   * the url names, and an unauthenticated visitor to a client- or staff-scoped
-   * one has nothing to read — so rejecting toward SESSION is what makes the
-   * funnel collect auth over the page (`<route>--auth`) instead of leaving it
-   * on skeletons that never settle.
+   * Every scenario route's gate. A scenario boots as SELF unless the url names
+   * an actor (`R6-30b`), and an unauthenticated visitor to either has nothing to
+   * read — so rejecting toward SESSION is what makes the funnel collect auth
+   * over the page (`<route>--auth`) instead of leaving it on skeletons that
+   * never settle.
    */
   guardScenario: async ({
     currentRoute,
@@ -86,7 +86,7 @@ export default {
     const actor =
       parseScopeSuffix(
         isArray(rawSuffix) ? join(rawSuffix, "/") : (rawSuffix as string)
-      ).actor ?? scenario.scope.actor;
+      ).actor ?? ScopeActorTypes.SELF;
 
     if (actor === ScopeActorTypes.GUEST) return { type: FunnelActions.NEXT };
 

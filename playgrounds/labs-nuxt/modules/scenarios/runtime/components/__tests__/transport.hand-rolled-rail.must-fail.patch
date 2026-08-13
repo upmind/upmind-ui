@@ -1,0 +1,65 @@
+Negative control for the scene rail's real component (D9 · S5 · AC2.5).
+
+Replaces the ui `Stepper` with a hand-rolled `<ol>` of numbered buttons — the
+same numbers, the same texts, the same scrub write, and the same test key — so
+what is lost is only the thing the ruling names: the rail IS a `packages/ui`
+component, never markup imitating one. The playhead mapping, the styles and the
+model are untouched, so a spec that merely counts pills or clicks one still
+passes; what goes red is the claim that the rail is `Stepper.ce.vue` (and with
+it the stepper's own step state — `data-state`, `aria-current` — which no
+hand-rolled list carries).
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: transport.spec.ts — the scene-rail cases that assert the ui Stepper is the
+rail (its component/`role="group"` step semantics and the marked active scene).
+
+Re-armed 2026-08-13 against the keep-the-stop-in-view watcher (`R6-24`): the
+list keeps the template ref so the mutant changes the rail's COMPONENT and
+nothing else.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRail.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRail.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRail.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRail.vue
+@@ -1,15 +1,25 @@
+ <template>
+-  <Stepper
++  <ol
+     ref="rail"
+-    :steps="steps"
+-    :model-value="step"
+-    :linear="false"
+-    :ui-config="uiConfig"
+     :aria-label="t('labs.scene_rail')"
+     data-test-key="scene-rail"
+     :class="styles.sceneRail.root"
+-    @update:model-value="scrub"
+-  />
++  >
++    <li
++      v-for="(scene, index) in scenes"
++      :key="scene.line"
++      class="flex flex-1 flex-col items-center gap-1"
++    >
++      <button
++        type="button"
++        :class="styles.sceneRail.indicator"
++        @click="scrub(index + 1)"
++      >
++        {{ index + 1 }}
++      </button>
++      <span :class="styles.sceneRail.title">{{ scene.text }}</span>
++    </li>
++  </ol>
+ </template>
+ 
+ <script lang="ts" setup>
+@@ -34,7 +44,7 @@
+ 
+ import { computed, nextTick, useTemplateRef, watch } from "vue";
+ import { useI18n } from "vue-i18n";
+-import { Stepper, useStyles } from "@upmind-automation/upmind-ui";
++import { useStyles } from "@upmind-automation/upmind-ui";
+ import config from "./SceneRail.styles";
+ import { map } from "lodash-es";
+ import type { SceneRailProps } from "./SceneRail.types";

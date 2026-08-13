@@ -27,7 +27,7 @@ are this mutant's:
 
   scenario-nav-routes.spec.ts (3)
     @G6 every derived link resolves against the registered routes
-      x derives a link for the canary and excludes its handoff target (R8)
+      x derives a link for the client-emails page and excludes its handoff target (R8)
       x leaves no derived link unmatched by the router
     @G6 the sidebar entry is the composable's own NAME (D1)
       x links the very entry it labels, so the two cannot drift

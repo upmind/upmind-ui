@@ -14,7 +14,7 @@
  *   2. the LEAF written empty — `{ filters: { verified: {} } }`, which is
  *      exactly what the shipped renderer emits (`filter-clear.test.ts` asserts
  *      the leaf is `{}` after the ✕);
- *   3. the same two through `filterBy`, the verb the canary's control reaches.
+ *   3. the same two through `filterBy`, the verb the playground's control reaches.
  *
  * ## What Breaks If These Fail
  * The core merge (`assign({}, intent, next, cursor)`) is replacing the filters
@@ -161,7 +161,7 @@ describe("clearing a filter takes it off the wire and widens the rows (P1-R7)", 
     expect(filterKeysOn(settled)).toEqual([]);
   });
 
-  it("clears through filterBy — the verb the canary's control reaches", async () => {
+  it("clears through filterBy — the verb the playground's control reaches", async () => {
     const { emails, observed } = await bootFilteredCollection();
     emails.useActions().filterBy(UNVERIFIED_FILTER);
     await vi.waitFor(() =>

@@ -17,25 +17,34 @@
  * `ensure()` with an empty model and the API answers a validation error the user
  * never asked for. And a declared editor that opens on the wrong record edits
  * somebody else's address.
+ *
+ * ## Where Add is fired from
+ * `G4` moved the collection's own control out of this surface to the page
+ * header, and the list kept the editor it opens. So the add cases mount the
+ * PAIR — the header fed by the surface's own `update:collectionActions`, the way
+ * `ScenarioPlayground` wires them — and press the header's control. Pressing a
+ * control the surface no longer draws would prove nothing about either.
  */
 
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
+import { defineComponent, h, ref } from "vue";
 import {
   defaultRow,
   unverifiedRow
 } from "../../../../../../tests/support/recorded-emails";
-import clientEmails from "../../../../useClientEmails/scenario";
+import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { CONTROL_TEST_VALUE } from "../../__tests__/control-test-values";
 import {
-  EMAIL_EDITOR,
   RESOLVED_HANDOFFS,
   handoffsFor
 } from "../../__tests__/resolved-handoffs";
 import ManageDialog from "../../ManageDialog.vue";
+import PageHeader from "../../PageHeader.vue";
 import { ListSurface } from "../index";
-import { keys, values } from "lodash-es";
+import { get, keys, values } from "lodash-es";
 import type { ResolvedHandoff } from "../../../scenario.types";
+import type { ActionSlotItem } from "../../ActionSlots.types";
 import type { SurfaceActions } from "../surface.types";
 
 // -----------------------------------------------------------------------------
@@ -73,7 +82,48 @@ function mountList(
 
 type Wrapper = ReturnType<typeof mountList>;
 
-const editors = (wrapper: Wrapper) => wrapper.findAllComponents(ManageDialog);
+/** The page's identity — the declaring directory, which is what the header draws. */
+const NAME = "useClientEmails";
+
+/**
+ * The header and the list as the page composes them: the surface publishes the
+ * collection's own actions, already bound to the handoffs it owns, and the
+ * header renders them beside the title (`G4`).
+ */
+function mountPage(
+  handoffs: Record<string, ResolvedHandoff> = RESOLVED_HANDOFFS,
+  actions: SurfaceActions = LIVE_ACTIONS
+) {
+  const collectionActions = ref<ActionSlotItem[]>([]);
+
+  return mount(
+    defineComponent({
+      setup: () => () =>
+        h("div", [
+          h(PageHeader, { name: NAME, actions: collectionActions.value }),
+          h(ListSurface, {
+            snapshot: {
+              actions: keys(actions),
+              context: { data: rows },
+              meta: { isEmpty: false, isFiltered: false }
+            },
+            actions,
+            presentation,
+            handoffs,
+            "onUpdate:collectionActions": (items: ActionSlotItem[]) => {
+              collectionActions.value = items;
+            }
+          })
+        ])
+    }),
+    { attachTo: document.body }
+  );
+}
+
+type Page = ReturnType<typeof mountPage>;
+
+const editors = (wrapper: Wrapper | Page) =>
+  wrapper.findAllComponents(ManageDialog);
 
 const openRow = async (wrapper: Wrapper, row: number) => {
   await wrapper
@@ -83,56 +133,81 @@ const openRow = async (wrapper: Wrapper, row: number) => {
   await flushPromises();
 };
 
-const openAdd = async (wrapper: Wrapper) => {
-  await wrapper
-    .find(`[data-test-value="${CONTROL_TEST_VALUE.add}"]`)
-    .trigger("click");
+const headerAdd = (page: Page) =>
+  page
+    .findComponent(PageHeader)
+    .find(`[data-test-value="${CONTROL_TEST_VALUE.add}"]`);
+
+/** The surface publishes its collection actions as it mounts; let them land. */
+const settle = async (page: Page) => {
+  await flushPromises();
+  await page.vm.$nextTick();
+};
+
+const openAdd = async (page: Page) => {
+  await settle(page);
+  await headerAdd(page).trigger("click");
   await flushPromises();
 };
 
 // -----------------------------------------------------------------------------
 
-describe("@AC3 add — the editor collects what a button never could (C2)", () => {
-  it("opens the declared editor instead of firing a collection action", async () => {
+describe("@AC3 add — the editor collects what a button never could (C2 · G4)", () => {
+  it("opens the LIST's declared editor from the HEADER's control, firing no action", async () => {
     const actions = { ...LIVE_ACTIONS, ensure: vi.fn() };
-    const wrapper = mountList(RESOLVED_HANDOFFS, actions);
+    const page = mountPage(RESOLVED_HANDOFFS, actions);
 
-    await openAdd(wrapper);
+    await openAdd(page);
 
-    expect(editors(wrapper)).toHaveLength(1);
+    expect(editors(page)).toHaveLength(1);
     expect(actions.ensure).not.toHaveBeenCalled();
   });
 
   it("opens it on a record that does not exist yet — no id, so an empty model", async () => {
-    const wrapper = mountList();
+    const page = mountPage();
 
-    await openAdd(wrapper);
+    await openAdd(page);
 
-    expect(editors(wrapper)[0].props("contextId")).toBeUndefined();
+    expect(editors(page)[0].props("context")).toBeUndefined();
   });
 
   it("hands the editor the target the DECLARATION named, not a renderer default", async () => {
-    const wrapper = mountList();
+    const page = mountPage();
 
-    await openAdd(wrapper);
+    await openAdd(page);
 
-    const handoff = editors(wrapper)[0].props("handoff") as ResolvedHandoff;
-    expect(handoff.scenario.key).toBe(EMAIL_EDITOR.key);
-    expect(handoff.actor).toBe(clientEmails.scope.actor);
-    expect(handoff.contextFrom).toBeUndefined();
+    const handoff = editors(page)[0].props("handoff") as ResolvedHandoff;
+    expect(handoff.useMutate).toBe(clientEmails.useMutate);
+    expect(handoff.actor).toBe(RESOLVED_HANDOFFS.add.actor);
+    expect(handoff.context).toBeUndefined();
   });
 
-  it("is not offered at all when its target is unregistered — an inert Add never ships", () => {
-    const wrapper = mountList(handoffsFor("edit"));
+  it("is not offered at all when its target is unregistered — an inert Add never ships", async () => {
+    const page = mountPage(handoffsFor("edit"));
+    await settle(page);
 
+    expect(headerAdd(page).exists()).toBe(false);
+    expect(editors(page)).toHaveLength(0);
+  });
+
+  it("keeps the control out of the list itself — the header renders it (G4)", async () => {
+    const page = mountPage();
+    await settle(page);
+
+    expect(headerAdd(page).exists()).toBe(true);
     expect(
-      wrapper.find(`[data-test-value="${CONTROL_TEST_VALUE.add}"]`).exists()
+      page
+        .findComponent(ListSurface)
+        .find(`[data-test-value="${CONTROL_TEST_VALUE.add}"]`)
+        .exists()
     ).toBe(false);
-    expect(editors(wrapper)).toHaveLength(0);
   });
 
-  it("mounts no editor until the control is activated", () => {
-    expect(editors(mountList())).toHaveLength(0);
+  it("mounts no editor until the control is activated", async () => {
+    const page = mountPage();
+    await settle(page);
+
+    expect(editors(page)).toHaveLength(0);
   });
 });
 
@@ -151,12 +226,15 @@ describe("@AC3 edit — the row carries its own id to the editor (C1)", () => {
     }
   });
 
-  it("opens the editor on the id the handoff's own contextFrom points at", async () => {
+  it("opens the editor on the id the handoff's own context pointer names", async () => {
     const wrapper = mountList();
 
     await openRow(wrapper, 1);
 
-    expect(editors(wrapper)[0].props("contextId")).toBe(unverifiedRow.id);
+    expect(editors(wrapper)[0].props("context")).toEqual({
+      type: clientEmails.handoff.edit.context.type,
+      id: unverifiedRow.id
+    });
   });
 
   it("re-keys onto the next row rather than serving the previous record's editor", async () => {
@@ -164,9 +242,9 @@ describe("@AC3 edit — the row carries its own id to the editor (C1)", () => {
     const opened: unknown[] = [];
 
     await openRow(wrapper, 0);
-    opened.push(editors(wrapper)[0].props("contextId"));
+    opened.push(get(editors(wrapper)[0].props("context"), "id"));
     await openRow(wrapper, 1);
-    opened.push(editors(wrapper)[0].props("contextId"));
+    opened.push(get(editors(wrapper)[0].props("context"), "id"));
 
     expect(defaultRow.id).not.toBe(unverifiedRow.id);
     expect(opened).toEqual([defaultRow.id, unverifiedRow.id]);

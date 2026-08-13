@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview @AC8 coverage gate over the client-emails canary (Task 22)
+ * @fileoverview @AC8 coverage gate over the client-emails page (Task 22)
  *
  * ## Job To Be Done
  * Every non-exempt action the LIVE `useClientEmails` cell publishes has a
@@ -15,7 +15,7 @@
  * registry binding the generic `useModulePort(entry)` loop boots from.
  *
  * ## What Breaks If These Fail
- * An action ships with no scenario and the canary certifies a capability nobody
+ * An action ships with no scenario and the client-emails page certifies a capability nobody
  * drove. The falsifiability control beside this file (`coverage-gate.must-fail.patch`)
  * removes one covered action and this suite must go red naming it.
  *
@@ -28,13 +28,13 @@
 
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { coveredActionIds } from "@upmind-automation/headless/testing/client-email/canary.steps";
 import {
   installFilteredEmailsHandler,
   seedClientSession
 } from "@upmind-automation/headless/testing/client-email/int-helpers";
 import { CLIENT_EMAILS_ACTIONS_SOURCE } from "@upmind-automation/headless/testing/client-email/internal-kit";
 import { server } from "@upmind-automation/headless/testing/client-email/setup.integration";
+import { coveredActionIds } from "@upmind-automation/headless/testing/client-email/steps";
 import {
   GATE_CAUSE,
   GATE_STATUS,
@@ -42,7 +42,7 @@ import {
   runGate,
   SCOPE_ACTOR
 } from "@upmind-automation/scenario-harness";
-import { CLIENT_EMAILS_SCENARIO } from "../../../useClientEmails/scenario";
+import { CLIENT_EMAILS_SCENARIO } from "../../../useClientEmails/client-email.scenario";
 import { registry } from "../../registry";
 import { filter, find, keyBy, map, reject } from "lodash-es";
 import type { GateVerdict } from "@upmind-automation/scenario-harness";
@@ -67,7 +67,9 @@ async function liveCell(): Promise<{
   installFilteredEmailsHandler(server, clientId);
 
   const binding = registry[CLIENT_EMAILS_SCENARIO];
-  const cell = binding.useList().as(binding.scope.actor);
+  // A page boots as SELF and declares no scope of its own — the seeded session
+  // is what makes that the client.
+  const cell = binding.useList().as(SCOPE_ACTOR.SELF);
   const actions = cell.useActions() as Record<string, () => Promise<unknown>>;
   await actions.isReady();
 
@@ -104,7 +106,7 @@ async function verdicts(
 // -----------------------------------------------------------------------------
 
 describe(
-  "@AC8 coverage gate — the client-emails canary (Task 22)",
+  "@AC8 coverage gate — the client-emails page (Task 22)",
   { timeout: 60000 },
   () => {
     it("returns no red verdict for any live action", async () => {

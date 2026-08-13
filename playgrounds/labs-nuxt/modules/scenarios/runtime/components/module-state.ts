@@ -21,6 +21,11 @@ import { find, get, isNil } from "lodash-es";
  * @param meta `ModuleDescriptor.snapshot.meta`.
  */
 export function resolveModuleState(meta: Record<string, boolean>): ModuleState {
+  // Read before loading: a module the port refused was never booted, so nothing
+  // will ever move its other flags and a loading-first order would wait forever
+  // on data that is not coming.
+  if (meta[MODULE_STATE_META_FLAG.SERVED] === false)
+    return ModuleState.UNSERVED;
   if (meta[MODULE_STATE_META_FLAG.LOADING]) return ModuleState.LOADING;
   if (
     meta[MODULE_STATE_META_FLAG.HAS_ERROR] ||

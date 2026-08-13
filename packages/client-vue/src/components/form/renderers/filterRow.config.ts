@@ -10,11 +10,18 @@ import { cva } from "class-variance-authority";
  * through `useStyles`: what a control is owed is a property of the ELEMENT's own
  * declaration, and `useStyles` resolves its variants once against the
  * component's single `meta` object.
+ *
+ * The growing element takes the row's slack up to a CAP — the declaration says
+ * which control the slack belongs to, this recipe says how much of it a toolbar
+ * may hand over. Uncapped, the search runs the full width of a wide viewport
+ * and the facets read as stranded at the far end. The cap is the same one the
+ * product's own email-search toolbar draws (`EmailHistoryListing`), and it is
+ * breakpointed so a narrow row still fills and wraps exactly as before.
  */
 export const filterRowItem = cva("empty:hidden", {
   variants: {
     isGrowing: {
-      true: "min-w-48 flex-1",
+      true: "min-w-48 flex-1 lg:max-w-xl",
       false: "w-auto shrink-0"
     }
   },

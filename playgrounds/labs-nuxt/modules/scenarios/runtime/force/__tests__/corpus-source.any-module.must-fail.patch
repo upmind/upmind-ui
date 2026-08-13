@@ -1,0 +1,24 @@
+Negative control for the TRACKS-NAME-A-MODULE law (`R6-37`).
+
+Serves one module's committed playlist to every name asked for, so a declaration
+tracking a module this seam does not reach plays somebody else's scenarios
+instead of staying Live-only. The channel still looks like a module name; what
+is withdrawn is the seam actually answering for that module.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the corpus-source spec — a module the seam does not reach resolves to no
+track source at all.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.source.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.source.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.source.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.source.ts
+@@ -87,7 +87,7 @@
+ export function featureTracksFor(
+   module: string
+ ): FeatureTracksSource | undefined {
+-  if (module !== REACHED_MODULE) return undefined;
++  void module;
+ 
+   return { feature: featureText, catalog: stepCatalog };
+ }

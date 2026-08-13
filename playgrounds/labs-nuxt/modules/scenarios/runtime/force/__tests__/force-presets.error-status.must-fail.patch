@@ -1,0 +1,38 @@
+Negative control for the T3.11 preset spec (AC8.5 · S14).
+
+`error-action` serves the one recording that FAILED, at the status staging
+returned it with — a 409 carrying the API's own sentence. This mutant keeps the
+recorded body byte-for-byte and serves it at 200, which is the whole defect in
+one line: the row is handed an error payload the transport calls a success, so
+the refusal never reaches the surface that renders it and the forced error state
+reads as a working one. The READ is still served as recorded, so the list is
+still intact and the `R6-19` split is untouched.
+
+A spec that only checks the message text passes the mutant. What must go red is
+the STATUS, asserted against the recording's own `response.status` rather than a
+literal — a hardcoded `409` in the spec would be a second copy of the recording,
+and the recording is the oracle.
+
+Bodies must be injected (the spec lane may read the committed recordings
+lawfully — eslint 8h).
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the T3.11 preset spec — the action-error case (the recorded failure at its
+recorded status).
+
+Re-armed 2026-08-13 against the two named error presets (`R6-19`).
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts
+@@ -112,7 +112,8 @@
+   // Aimed at the half of the exchange the preset is named for: the other half is
+   // served exactly as recorded, which is what keeps a refused row inside a list
+   // that still has its rows.
+-  if (preset === "error-action") return isRead(method) ? served : failure;
++  if (preset === "error-action")
++    return isRead(method) ? served : { ...failure, status: 200 };
+   if (preset === "error-collection")
+     return isRead(method) ? withoutBody(failure) : served;
+ 

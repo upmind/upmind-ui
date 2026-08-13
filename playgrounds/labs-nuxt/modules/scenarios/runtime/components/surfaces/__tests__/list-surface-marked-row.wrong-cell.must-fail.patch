@@ -1,0 +1,26 @@
+Negative control for the FLAG-IS-THE-ICON-CELL law (`R6-34`).
+
+Reads the row's flag off the BADGES cell instead of the icon cell, so the row
+treatment answers to a field the star does not draw: the record whose star is
+filled and the record the surface tints are no longer the same one. This is the
+failure the deleted `marker` channel could always produce — a second declaration
+of which boolean means special — reintroduced by pointing the derivation at the
+wrong cell.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the list-surface marked-row spec — the row drawn with the filled star is
+the row carrying the marked treatment, in the table and in card view alike.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+@@ -514,7 +514,7 @@
+  */
+ function isMarked(row: ListRow): boolean {
+   return some(
+-    filter(columnElements.value, { type: "TableCellIcon" }),
++    filter(columnElements.value, { type: "TableCellBadges" }),
+     element => !!resolveScope(row, element.scope)
+   );
+ }

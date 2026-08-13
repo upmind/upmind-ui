@@ -9,8 +9,7 @@ export default {
   moduleStateNotice: {
     root: cva(""),
 
-    detail: cva(
-      "bg-canvas mt-2 max-h-48 overflow-auto rounded p-2 font-mono text-xs whitespace-pre-wrap"
-    )
+    // A sentence, drawn as one: the envelope it arrived in is the Debug sheet's.
+    detail: cva("text-accent-danger m-0 mt-1 text-sm")
   }
 };

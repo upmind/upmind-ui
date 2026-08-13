@@ -1,4 +1,5 @@
 import { cva } from "class-variance-authority";
+import { useInvalidRing } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 /**
  * @module scenarios/runtime/components/surfaces/ListSurface.styles
@@ -11,7 +12,17 @@ import { cva } from "class-variance-authority";
  * as `billing/components/AddressItem.vue` draws it): a stack at `gap-1`, the
  * title carrying its badges inline, one muted line under it, the actions in the
  * header.
+ *
+ * A refused record is marked the way a refused input is: the ui's OWN
+ * invalid-ring composable, applied rather than re-spelt, so there is one
+ * error-outline vocabulary in the product (`H10`/`AC6.3`). It is an outline, so
+ * it reserves no space — the row's height and every column's offset are what
+ * they were before the refusal (`H6`/`AC6.1`) — and there is no fill anywhere:
+ * a wash over the row surface is the treatment the ruling killed (`H8`/`AC6.2`).
  */
+
+/** The ui invalid field's own treatment, applied to the record that carries it. */
+const invalidRing = useInvalidRing();
 
 /**
  * The row's own variant, called per row rather than resolved through
@@ -30,10 +41,13 @@ export const dataRow = cva("", {
       true: "bg-accent-success-muted text-accent-success-muted-contrast",
       false: ""
     },
-    // The row keeps NO bottom rule of its own: the strip beneath it belongs to
-    // it, and a line between them would make two rows out of one record (F4).
+    // The refused row is a NORMAL row: same surface, same height, same columns,
+    // and no ring of its own — the ring belongs to the GROUP that holds the row
+    // AND the reason under it ({@link rowGroup}). All it drops is its bottom
+    // rule: the strip beneath it belongs to it, and a line between them would
+    // make two rows out of one record (`F4`).
     isFailed: {
-      true: "bg-accent-danger-muted text-accent-danger-muted-contrast border-b-0",
+      true: "border-b-0",
       false: ""
     }
   },
@@ -45,19 +59,22 @@ export const dataRow = cva("", {
 });
 
 /**
- * The star EVERY row carries, in the marker column and in the card's own lead:
- * the flagged row accented, the rest quiet, so the column reads as one choice
- * among many. `block` because the ui Icon is an inline `<i>`, which would
- * otherwise sit on the cell's text baseline instead of its middle.
+ * The refused record's own row GROUP — the `<tbody>` holding the row and the
+ * reason strip under it, which is the only element in a table that encloses
+ * both, and which Chromium DOES paint an outline around (measured, contrary to
+ * the earlier read-back that put the ring on the row and left the message
+ * outside it). The ring is the ui vocabulary VERBATIM: an offset of its own
+ * would be a second error-outline technique (`H10`/`AC6.3`), which is why
+ * `listSurface.table` reserves the standoff the offset needs instead.
  */
-export const rowMarker = cva("block", {
+export const rowGroup = cva("", {
   variants: {
-    isMarked: {
-      true: "text-accent-primary",
-      false: "text-muted"
+    isFailed: {
+      true: invalidRing,
+      false: ""
     }
   },
-  defaultVariants: { isMarked: false }
+  defaultVariants: { isFailed: false }
 });
 
 /**
@@ -78,8 +95,10 @@ export const dataCard = cva(
         true: "border-accent-success bg-accent-success-muted border",
         false: ""
       },
+      // The card holds its own strip, so the card IS the record's group: the
+      // same ring, on the element that already encloses both (H8).
       isFailed: {
-        true: "border-accent-danger bg-accent-danger-muted border",
+        true: invalidRing,
         false: ""
       }
     },
@@ -100,7 +119,7 @@ export const rowListItem = cva(
   {
     variants: {
       isFailed: {
-        true: "bg-accent-danger-muted text-accent-danger-muted-contrast",
+        true: invalidRing,
         false: ""
       }
     },
@@ -108,39 +127,79 @@ export const rowListItem = cva(
   }
 );
 
+/**
+ * What a declared column RESERVES, called per header rather than resolved
+ * through `useStyles`: the width belongs to the column, and `useStyles` resolves
+ * its variants once against the component's single `meta` object.
+ *
+ * A fluid column takes an equal share of what the content-sized ones leave, so
+ * a sort that swaps the page's rows cannot resize it: the widths are reserved by
+ * the frame, never measured off the data. A content column takes its own width
+ * and no more — `w-px` is the shrink-to-fit idiom the actions anchor already
+ * uses, which in a table resolves to the widest thing in the column rather than
+ * to a pixel (`R7-2`). A label stays on ONE line either way: a header that wraps
+ * re-measures the row it heads, which is the very thing the reserved share
+ * prevents (`R6-5`).
+ */
+export const headerCell = cva("whitespace-nowrap", {
+  variants: {
+    isContent: {
+      true: "w-px",
+      false: "w-full"
+    }
+  },
+  defaultVariants: { isContent: false }
+});
+
+/**
+ * The pagination region while a scenario drives the collection (`R6-23`). The ui
+ * `Pagination` carries no disabled channel, so the refusal is the region's own
+ * `inert` and this muting is what makes it READ as refused rather than dead;
+ * opacity reserves no space, so arming a track moves nothing.
+ */
+export const paginationRegion = cva("", {
+  variants: {
+    isLocked: {
+      true: "cursor-not-allowed opacity-60",
+      false: ""
+    }
+  },
+  defaultVariants: { isLocked: false }
+});
+
 export default {
   listSurface: {
     root: cva("space-y-4"),
 
-    toolbar: cva("flex flex-wrap items-end gap-3"),
-
-    // The bar takes the row's slack so the controls after it land on the right
-    // edge, and keeps enough width to stay usable before the row wraps.
-    toolbarFilters: cva("min-w-64 flex-1"),
-
-    toolbarControls: cva("ml-auto flex items-center gap-2"),
+    // THREE rows, in the order the eye reads them: what may narrow the
+    // collection, what is narrowing it, and what the collection amounts to
+    // (G3/G5/H1). They sit closer to each other than to the records they steer,
+    // so they read as one cluster rather than three lines of chrome. The facets'
+    // own wrapping is the filter declaration's (`filterRow.config.ts`), never a
+    // width this surface imposes on the bar (D13/H3).
+    controls: cva("space-y-2"),
 
     // The whole table's rhythm, in one place so the header, the data rows, the
     // skeleton and the empty frame are measured the same way.
     // · `py-2` is the compact row — the ui TableCell's own `p-4` is a page
     //   card's rhythm and doubles every row's height.
-    // · with a marker column the SECOND cell gives back most of its gutter, so
-    //   the star leads its row at the card lead's own `gap-2` instead of
-    //   floating a full gutter away from the title.
-    table: cva("[&_td]:py-2", {
-      variants: {
-        hasMarker: {
-          true: "[&_td:nth-child(2)]:pl-2 [&_th:nth-child(2)]:pl-2",
-          false: ""
-        }
-      },
-      defaultVariants: { hasMarker: false }
-    }),
-
-    // Every declared column takes an equal share of what the two shrink-to-fit
-    // columns leave, so a sort that swaps the page's rows cannot resize a
-    // column: the widths are reserved by the frame, never measured off the data.
-    headerCell: cva("w-full"),
+    // · a refused record is a row group of its own, and the ui body drops the
+    //   rule under its own last row — which is the table's closing edge, not
+    //   every group's. The rule is given back to every group but the last, so
+    //   splitting the body changes what marks a record, never what separates
+    //   two.
+    // · `p-1` is the refused group's ring standoff, reserved CONSTANTLY and on
+    //   EVERY side so neither the state nor the row's position changes the
+    //   table's geometry: the ui `Table` draws its own `overflow-auto` scroller,
+    //   which clips a row group's offset outline unless the group's box sits
+    //   inside the scroller by the offset plus its width — and the group that
+    //   fails is as often the LAST one as any other, whose ring would otherwise
+    //   lose its closing edge. Table padding is honoured only in the SEPARATED
+    //   border model, and the rules are all `tr`-level, so separating them
+    //   changes where the ring can draw and nothing else.
+    table: cva(
+      "border-separate border-spacing-0 p-1 [&_tbody:not(:last-child)_tr:last-child]:border-b [&_td]:py-2"
+    ),
 
     // A sortable header draws its label inside a `sm` Button; the button's own
     // inset is given back so the header's text lands on the very same edge as
@@ -149,17 +208,11 @@ export default {
 
     cellContent: cva("flex flex-wrap items-center gap-2"),
 
-    // Header-less and shrink-to-fit, so the marker sits at the row's left edge
-    // and the first data column keeps the gutter it would have had.
-    markerCell: cva("w-px pr-0"),
-
     // Shrink-to-fit, so the last column ends at the row's right edge instead of
     // taking an equal share of it and leaving the controls stranded mid-table.
     actionsCell: cva("w-px whitespace-nowrap"),
 
     skeletonCell: cva("h-4 w-full"),
-
-    skeletonMarker: cva("size-4"),
 
     skeletonActions: cva("ml-auto h-8 w-20"),
 
@@ -185,12 +238,16 @@ export default {
 
     skeletonCard: cva("h-5 w-full"),
 
-    // The failed row and the strip under it are ONE record in an error state:
-    // the strip carries the same tint and closes the pair with the row border,
-    // so the next row can never read as part of the failure (F4).
-    failureRow: cva("bg-accent-danger-muted"),
-
+    // The strip sits under the row it belongs to, inside the group's own ring:
+    // no fill of its own, and no rule between the two, so the pair reads as one
+    // record in an error state (F4/H8).
     failureCell: cva("py-0 pb-2"),
+
+    // The reason is not a record, so it takes no record's hover treatment: the
+    // ui row's own `hover:bg-accent-neutral/20` washed a translucent band across
+    // the message the moment the pointer that fired the action rested on it, and
+    // a fill is the treatment the ruling killed (`H8`/`S15`).
+    failureRow: cva("hover:bg-transparent"),
 
     rowList: cva("space-y-2"),
 

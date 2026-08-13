@@ -44,7 +44,7 @@ export function resolveScope(
 }
 
 /**
- * The value a handoff's `contextFrom` addresses on one row. A JSON Pointer
+ * The value a handoff's `context.from` addresses on one row. A JSON Pointer
  * (`/id`), NOT a uischema scope: it points into the row's data, where a scope
  * points into its schema, and `toDataPath` resolves the two differently.
  */

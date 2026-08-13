@@ -29,19 +29,25 @@ import ManageDialog from "../ManageDialog.vue";
 import { ModuleState } from "../module-state.types";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
 import { FormFlowSurface } from "../surfaces";
-import { EMAIL_EDITOR } from "./resolved-handoffs";
+import clientEmails from "../../../useClientEmails/client-email.scenario";
 import { filter, times } from "lodash-es";
-import type { ResolvedHandoff } from "../../scenario.types";
+import type {
+  FourLayerComposable,
+  ResolvedHandoff
+} from "../../scenario.types";
+import type { ScopeContext } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
+const EDIT = clientEmails.handoff.edit;
+
 const handoff: ResolvedHandoff = {
-  scenario: EMAIL_EDITOR,
-  actor: ScopeActorTypes.CLIENT,
-  contextFrom: "/id"
+  ...EDIT,
+  useMutate: clientEmails.useMutate as FourLayerComposable,
+  actor: ScopeActorTypes.CLIENT
 };
 
-const form = EMAIL_EDITOR.presentation?.form;
+const feedback = EDIT.feedback;
 
 /** A field placeholder is a LABEL and a CONTROL — the house form skeleton's shape. */
 const PLACEHOLDERS_PER_FIELD = 2;
@@ -51,10 +57,10 @@ const PLACEHOLDERS_PER_FIELD = 2;
  * Awaited because the dialog PORTALS its body: nothing is on screen until the
  * container has mounted, which is also when the user first sees the boot.
  */
-async function openEditor(contextId?: string) {
+async function openEditor(context?: ScopeContext) {
   const wrapper = mount(ManageDialog, {
     attachTo: document.body,
-    props: { handoff, contextId }
+    props: { handoff, context }
   });
   await flushPromises();
   return wrapper;
@@ -66,7 +72,7 @@ function mountSurface(meta: Record<string, boolean>) {
     props: {
       snapshot: { actions: ["input", "update"], context: {}, meta },
       actions: { input: vi.fn(), update: vi.fn() },
-      form
+      feedback
     }
   });
 }
@@ -89,7 +95,7 @@ function bootingOn(controls: number) {
         meta: { isLoading: true }
       },
       actions: { input: vi.fn(), update: vi.fn() },
-      form
+      feedback
     }
   });
 }
@@ -118,21 +124,27 @@ afterEach(() => {
 
 describe("@AC3 the editor's BOOT is the form's own shape (D12)", () => {
   it("stands placeholders where the form will be", async () => {
-    const wrapper = await openEditor(unverifiedRow.id);
+    const wrapper = await openEditor({
+      type: EDIT.context.type,
+      id: unverifiedRow.id
+    });
 
     expect(wrapper.findComponent(FormFlowSurface).exists()).toBe(true);
     expect(wrapper.findAllComponents(Skeleton).length).toBeGreaterThan(0);
   });
 
   it("shows no notice panel while it boots — not in the dialog, not anywhere", async () => {
-    const wrapper = await openEditor(unverifiedRow.id);
+    const wrapper = await openEditor({
+      type: EDIT.context.type,
+      id: unverifiedRow.id
+    });
 
     expect(wrapper.findComponent(ModuleStateNotice).exists()).toBe(false);
     expect(document.querySelectorAll('[role="alert"]')).toHaveLength(0);
   });
 
   it("says it is busy, so the wait is announced and not merely drawn", async () => {
-    await openEditor(unverifiedRow.id);
+    await openEditor({ type: EDIT.context.type, id: unverifiedRow.id });
 
     expect(document.querySelector('[role="status"]')).toBeTruthy();
   });

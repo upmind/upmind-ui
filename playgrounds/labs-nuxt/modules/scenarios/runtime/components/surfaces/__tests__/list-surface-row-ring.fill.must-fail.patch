@@ -1,0 +1,45 @@
+Negative control for the row error's NO-FILL law (H8 · AC6.2).
+
+Puts the danger wash back on the refused row and the refused card — the
+treatment the ruling killed. The ring is left exactly where it is, so what this
+plants is only the fill: the errored row's computed background stops equalling a
+normal row's, and the record is marked by a colour over its surface rather than
+by the ui's own invalid outline around it.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the row-ring spec — the errored row's background equals a normal row's,
+and the card carries the identical treatment (H8 in card view).
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.styles.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.styles.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.styles.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.styles.ts
+@@ -41,12 +41,10 @@
+       true: "bg-accent-success-muted text-accent-success-muted-contrast",
+       false: ""
+     },
+-    // The refused row is a NORMAL row: same surface, same height, same columns.
+-    // What marks it is the ring its group carries. It keeps no bottom rule of
+-    // its own, because the strip beneath it belongs to it and a line between
+-    // them would make two rows out of one record (F4).
++    // The refused row is washed in the danger tint, so the failure is a fill
++    // over the row surface rather than a ring around the record.
+     isFailed: {
+-      true: "border-b-0",
++      true: "bg-accent-danger-muted text-accent-danger-muted-contrast border-b-0",
+       false: ""
+     }
+   },
+@@ -108,10 +106,9 @@
+         true: "border-accent-success bg-accent-success-muted border",
+         false: ""
+       },
+-      // The card holds its own strip, so the card IS the record's group: the
+-      // same ring, on the element that already encloses both (H8).
++      // The card takes the same wash, so both views fill rather than outline.
+       isFailed: {
+-        true: invalidRing,
++        true: `${invalidRing} border-accent-danger bg-accent-danger-muted border`,
+         false: ""
+       }
+     },

@@ -3,6 +3,7 @@
     :schema="schema"
     :uischema="uischema"
     :model-value="model"
+    :disabled="disabled"
     :data-attrs="{ 'data-test-key': 'filters' }"
     no-actions
     @update:model-value="onUpdate"
@@ -22,6 +23,10 @@
  * leftover width. It owns no model and no state: it reads the composable's
  * live criteria and writes back through the composable's own merging
  * `setCriteria` — the model stays composable-owned.
+ *
+ * The whole bar is refused through the form's own `disabled` while a scenario
+ * drives the collection (`R6-23`): the declaration decides which controls exist,
+ * so locking them one by one here would leave the next one it adds live.
  */
 
 import { computed } from "vue";

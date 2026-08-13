@@ -1,0 +1,25 @@
+Negative control for each renderer carrying its OWN `uiTypeIs` tester (`R6-36`).
+
+Points the icon renderer's tester at another member's ui type. The component is
+untouched and still registered, so the registry still holds four entries — but
+two of them now claim `TableCellText` and none claims `TableCellIcon`, which is
+the copy-paste a fifth cell type invites. It is the tester, not the component,
+that decides what a declaration draws, and this is the only line that says so.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the cell-renderer spec — a declared `TableCellIcon` element is claimed by
+nothing and draws an empty cell, so the filled/outline glyph cases fail; the
+text cases stay green, which is what makes the mutation a plausible mistake
+rather than a switched-off feature.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellIcon.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellIcon.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellIcon.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellIcon.vue
+@@ -34,5 +34,5 @@
+ </script>
+ 
+ <script lang="ts">
+-export const tester = { rank: 1, controlType: uiTypeIs("TableCellIcon") };
++export const tester = { rank: 1, controlType: uiTypeIs("TableCellText") };
+ </script>

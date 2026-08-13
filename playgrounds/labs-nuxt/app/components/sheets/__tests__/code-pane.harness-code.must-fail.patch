@@ -1,0 +1,37 @@
+Negative control for the Code sheet never printing harness code (`R7-6`).
+
+Puts the step-runner back into the snippet. The pane keeps printing the real
+composable call — the scope, the criteria, the actions — and simply boots the
+harness world above it, which is exactly the regression `R7-6` overturns: while
+a track was armed the pane used to print what the SCENARIO executes rather than
+what a developer would write. One line is enough to re-cross that line, because
+the law is absolute: the reader is a developer copying the call into their own
+app, and `useScenarioWorld` is not something they can call.
+
+Nothing else moves — the scope builder, the filter/sort serialisation, the copy
+path and the markdown fence are untouched — so a red here is the law and not a
+crash or a formatting drift.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: code-pane.spec.ts — the case asserting the fence carries the composable's
+own call and nothing else, and any case asserting the snippet names no harness
+or step-runner symbol (`useScenarioWorld`, `world`, a Gherkin `Given`/`When`/
+`Then` line), armed or live. The scope, filter and sort cases stay GREEN under
+the mutant, by construction; if they go red too, the control has been
+over-applied.
+
+  FOR THE PROVER: authored by the developer seat, which knew the line to mutate;
+  it carries no verification run. Apply it blind, confirm the harness-code case
+  goes red and the call-shape cases stay green, then revert.
+
+--- a/playgrounds/labs-nuxt/app/components/sheets/CodePane.vue
++++ b/playgrounds/labs-nuxt/app/components/sheets/CodePane.vue
+@@ -210,6 +210,7 @@
+       `<${scriptTag} lang="ts" setup>`,
+       `import { ${join(imported.value, ", ")} } from "@upmind-automation/headless";`,
+       "",
++      "const world = useScenarioWorld();",
+       ...scoped.value,
+       "",
+       props.criteria

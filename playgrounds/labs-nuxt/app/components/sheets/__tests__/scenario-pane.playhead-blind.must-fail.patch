@@ -1,0 +1,40 @@
+Negative control for the live playhead (AC3.4 · H4 · design §3.6).
+
+Blinds the line list to the player: every step row is drawn with the mark's
+default variant, and the row the player is on carries no `aria-current` and no
+accented keyword. The list still renders, one row per parsed step with its line
+in the gutter — so what goes red is exactly the claim the line list exists FOR:
+a rendered blob and an unmarked list are the same surface, and the reason the
+pane parses instead of rendering markdown is the mark.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: scenario-pane.spec.ts — the playhead case (with a playhead set on the
+armed track, the row whose `line` matches is the marked one).
+
+FOR THE PROVER: authored by the developer seat from the source line it mutates,
+apply-checked with `git apply --check` and reverted; it has NOT been run against
+a spec, because the spec is yours and did not exist when this was written. Apply
+it blind, confirm the red, then revert.
+
+diff --git a/playgrounds/labs-nuxt/app/components/sheets/ScenarioPane.vue b/playgrounds/labs-nuxt/app/components/sheets/ScenarioPane.vue
+--- a/playgrounds/labs-nuxt/app/components/sheets/ScenarioPane.vue
++++ b/playgrounds/labs-nuxt/app/components/sheets/ScenarioPane.vue
+@@ -61,15 +61,14 @@
+             <li
+               v-for="step in track.steps"
+               :key="step.line"
+-              :class="stepRow({ isMarked: isMarked(track, step) })"
+-              :aria-current="isMarked(track, step) ? 'step' : undefined"
++              :class="stepRow()"
+               data-test-key="scenario-step"
+               :data-test-value="step.line"
+             >
+               <span :class="styles.scenarioPane.stepLine">{{ step.line }}</span>
+               <Badge
+                 :label="step.kind"
+-                :color="isMarked(track, step) ? 'primary' : 'neutral'"
++                color="neutral"
+                 variant="minimal"
+                 size="sm"
+               />

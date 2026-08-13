@@ -120,8 +120,8 @@ export function useActionInputSchemas(): Record<string, JsonSchema7> {
  *
  * `additionalProperties: false` at both filter levels makes an undeclared
  * column or operator unspellable rather than merely invalid; a field absent
- * from `sort`'s `field` enum is unsortable for the same reason (an unknown
- * `order=` column is an HTTP 500). Optional leaves are typed
+ * from `sort`'s declared `field` members is unsortable for the same reason (an
+ * unknown `order=` column is an HTTP 500). Optional leaves are typed
  * `["<type>", "null"]` because `useModelParser` coerces a plain `boolean` leaf
  * to `false`, putting a filter nobody set on the wire. Every `title` holds an
  * i18n key, never English.
@@ -199,7 +199,20 @@ export function useQuerySchema(): QuerySchema {
           additionalProperties: false,
           required: ["field", "dir"],
           properties: {
-            field: { enum: ["created_at", "email", "default"] },
+            // `oneOf` const/title, not a bare enum: the sort control's option
+            // labels are the schema's own titles (`R6-28`), and a bare enum can
+            // carry none — which is what left `created_at` and `default`
+            // rendering as wire names. The columns are the REAL ones the API
+            // orders on, the status composite never among them (`R6-6`/`R6-6b`).
+            field: {
+              oneOf: [
+                { const: "default", title: "text.default_label" },
+                { const: "email", title: "text.email_address" },
+                { const: "verified", title: "text.verified_label" },
+                { const: "bounced", title: "text.bounced_label" },
+                { const: "created_at", title: "text.date_added" }
+              ]
+            },
             dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
           }
         }

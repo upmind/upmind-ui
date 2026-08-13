@@ -19,5 +19,9 @@ export const SCENARIO_ROUTE_META_KEY = "scenario";
  */
 export const SCOPE_SUFFIX_SEGMENT = "/:scopeSuffix(.*)*";
 
-/** Which files under the module directory are scenario declarations. */
-export const SCENARIO_DECLARATION_GLOB = "*/scenario.ts";
+/**
+ * Which files under the module directory are scenario declarations: one per
+ * directory, named for the MODULE it declares (`R6-27`) — the directory stays
+ * the url segment, so the two names answer different questions.
+ */
+export const SCENARIO_DECLARATION_GLOB = "*/*.scenario.ts";

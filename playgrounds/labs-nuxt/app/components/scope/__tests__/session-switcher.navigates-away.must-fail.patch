@@ -1,0 +1,62 @@
+Negative control for the add-session reroute (parity cell P10 · AC7.2 · AC1.2 ·
+H5).
+
+Puts `addSession` back to what it did before T5.3: a navigation AWAY to the
+`useAuth` page for the picked scope, carrying the same `fresh` marker. The pool
+is untouched — the same controls, in the same order, with the same labels ("Log
+in as staff" with no staff session, "Add another staff session" with one), the
+same addable-scope derivation and the same four `actor-scope-add-*` hooks. Only
+the destination changes: the page the pool was opened over is left, instead of
+the auth overlay opening over it at the actor the control named.
+
+The mutant deliberately keeps the `fresh` marker, keeps the picked scope, and
+keeps pushing SOMETHING, so a spec that only asserts "a navigation happened",
+"the target carries `fresh`" or "the target names staff" stays GREEN under it —
+which is the point: none of those was ever testing the reroute. Only an
+assertion that names the overlay target (`<page>--auth`, the page's own params,
+the page underneath still the one the pool was opened on) can tell the two
+apart.
+
+Re-cut for `R6-15b`: the control's own scope is now carried to the overlay
+(`{ actor: scope, fresh: true }`), so both the docblock and the pushed target
+moved. The mutation is still the same one — the destination.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: session-switcher.spec.ts — the P10 case(s) asserting that adding a session
+opens the auth overlay over the current page rather than routing to `useAuth`.
+
+diff --git a/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts b/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts
+--- a/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts
++++ b/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts
+@@ -321,19 +321,22 @@ export function useActorScopeSelector() {
+   }
+
+   /**
+-   * Add a session — the auth OVERLAY over the page the pool is open on, never a
+-   * navigation away to `useAuth` (`AC7.2`).
+-   *
+-   * The control's own scope IS the choice (`R6-15b`): "Add another staff
+-   * session" opens the overlay at the staff actor and "Add another client" at
+-   * the client one, the same `/as/<actor>` pick the `useAuth` page collects a
+-   * session under. So it is carried, not asked for a second time.
++   * Navigate to auth page to add a new session for a given scope.
+    */
+   function addSession(scope: ScopeActorTypes) {
+-    router.push(authOverlayTarget(route, { actor: scope, fresh: true }));
++    const currentBrand = route.params.brandIdOrOrg as string | undefined;
++
++    router.push({
++      path: buildScopePath({
++        page: "useAuth",
++        brandId: currentBrand,
++        actor: scope
++      }),
++      query: { fresh: Date.now().toString() }
++    });
+   }
+
+   /**
+    * Set available scopes without auto-cleanup.
+    * Use when you need manual control over lifecycle.
+    */

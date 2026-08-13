@@ -1,0 +1,43 @@
+Negative control for the T3.11 handler spec (AC8.3).
+
+Forcing intercepts THIS module's endpoints and nothing else — the collection, one
+address, and the verification send — which is the whole reason the app's brand,
+settings, config and session boot still reach staging while a preset is armed.
+`MODULE_ROUTES` is the only thing that decides that, so this mutant adds one
+catch-all route to it and changes nothing else. Every request the page makes now
+matches a handler.
+
+The observable is the HANDLER LIST, not the served body: a foreign request under
+the mutant is still performed (the resolver hands it back with `passthrough()`),
+so an assertion that only reads the eventual response stays green while the
+worker has in fact taken over the whole app. What must go red is that a request
+outside the module — `brand/settings`, `config/brand/values`, `self`, the oauth
+token — is matched by no handler at all.
+
+Bodies must be injected for this control to say anything: `createForceHandlers`
+falls back to the runtime corpus, which is empty while `ESC6` is unruled, and an
+empty handler list matches nothing under mutant and original alike. Pass the
+committed recordings in (the spec lane may read them lawfully — eslint 8h).
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the T3.11 handler spec — the module-scope case (only this module's own
+endpoints are handled).
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/handlers.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/handlers.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/handlers.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/handlers.ts
+@@ -32,12 +32,13 @@ import type { HttpHandler, HttpResponseResolver, JsonBodyType } from "msw";
+ /**
+  * The module's own endpoints, most specific first. The leading wildcard leaves
+  * the origin and api prefix free, so the same list serves whichever brand host
+  * the page is booted on.
+  */
+ const MODULE_ROUTES = [
++  "*",
+   "*/clients/:clientId/emails/:emailId/send_verify",
+   "*/clients/:clientId/emails/:emailId",
+   "*/clients/:clientId/emails"
+ ];
+
+ function presetResolver(

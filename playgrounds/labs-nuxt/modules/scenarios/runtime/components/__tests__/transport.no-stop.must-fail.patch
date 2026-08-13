@@ -1,0 +1,34 @@
+Negative control for the transport's own exit (`R7-9`).
+
+Drops the stop control and leaves the rest — step back, play/pause and step
+forward all still ask the player for their own call, Live still releases the
+track — so the only claim that can go red is the ruled one: a track holding the
+surface is stopped from the media bar, not only by picking Live. Picking Live is
+a PLAYLIST gesture that happens to release the page; a user looking for a way
+out reads it as "choose something else", which is the trap the ruling closed.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the transport-controls case — the armed bar offers a stop, it emits
+`stop`, and it is never disabled.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/Transport.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/Transport.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/Transport.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/Transport.vue
+@@ -114,16 +114,5 @@
+     disabled: atEnd.value,
+     loading: !!props.busy && pressed.value === TRANSPORT_CONTROL.NEXT,
+     onSelect: () => emit("next")
+-  },
+-  // Never disabled, at either end of the track: it is the way OUT, and an exit
+-  // that greys out on the last scene traps the surface in a playback (`R7-9`).
+-  {
+-    key: TRANSPORT_CONTROL.STOP,
+-    icon: "stop-circle",
+-    label: t("labs.transport_stop"),
+-    color: "secondary",
+-    disabled: false,
+-    loading: !!props.busy && pressed.value === TRANSPORT_CONTROL.STOP,
+-    onSelect: () => emit("stop")
+   }
+ ]);

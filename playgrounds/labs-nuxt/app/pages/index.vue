@@ -3,11 +3,11 @@
     <div class="space-y-10">
       <header class="space-y-4">
         <div>
-          <h1 class="text-display text-3xl font-bold">Upmind Labs</h1>
+          <h1 class="text-display text-3xl font-bold">
+            {{ t("labs.app_name") }}
+          </h1>
           <p class="text-muted mt-2 max-w-3xl text-base">
-            Every composable this playground can drive, derived from the
-            scenario contract. A module reaching the factory as a registry entry
-            appears here and in the sidebar on its own.
+            {{ t("labs.app_description") }}
           </p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
@@ -114,6 +114,7 @@
  * modules land here without this page being touched.
  */
 
+import { useI18n } from "vue-i18n";
 import { UpmLayout } from "@upmind-automation/client-vue";
 import {
   Alert,
@@ -139,6 +140,8 @@ definePageMeta({
     hidden: true
   }
 });
+
+const { t } = useI18n();
 
 const { composables, families } = useNavigation();
 

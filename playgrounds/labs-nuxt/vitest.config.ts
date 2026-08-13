@@ -1,12 +1,12 @@
 import { fileURLToPath } from "node:url";
 import { resolve } from "path";
 import vue from "@vitejs/plugin-vue";
-import { defineConfig, mergeConfig } from "vitest/config";
+import { defaultExclude, defineConfig, mergeConfig } from "vitest/config";
 import type { Alias } from "vite";
 
 const root = fileURLToPath(new URL("./", import.meta.url));
 
-// Mirrors nuxt.config.ts's own `alias` map (":103-143") — the resolve seam
+// Mirrors nuxt.config.ts's own `alias` map (":109-153") — the resolve seam
 // a Nuxt app and its vitest projects must agree on, kept in one place here
 // because vitest never boots the Nuxt runtime itself.
 const alias: Alias[] = [
@@ -14,6 +14,11 @@ const alias: Alias[] = [
   // Nuxt's own srcDir alias, provided by the framework rather than declared in
   // `nuxt.config.ts` — pages reach their composables through it.
   { find: "~", replacement: resolve(root, "./app") },
+  { find: "@icons", replacement: resolve(root, "../../packages/icons/assets") },
+  {
+    find: "@animations",
+    replacement: resolve(root, "./app/assets/animations")
+  },
   {
     find: "@upmind-automation/types",
     replacement: resolve(root, "../../packages/types/src/index.ts")
@@ -41,9 +46,49 @@ const alias: Alias[] = [
     find: "@upmind-automation/scenario-harness",
     replacement: resolve(root, "../../packages/scenario-harness/src/index.ts")
   },
+  // A string `find` also captures every subpath under it, and the array is
+  // matched in order — so these stylesheet keys only bite while they sit ABOVE
+  // the bare package entry below (and above the component lane's `client-vue`
+  // stub, which is appended after this whole list).
+  {
+    find: "@upmind-automation/upmind-ui/styles",
+    replacement: resolve(root, "../../packages/ui/src/assets/styles/index.css")
+  },
+  {
+    find: "@upmind-automation/upmind-ui/vars",
+    replacement: resolve(root, "../../packages/ui/src/assets/styles/vars.css")
+  },
   {
     find: "@upmind-automation/upmind-ui",
     replacement: resolve(root, "../../packages/ui/src/index.ts")
+  },
+  {
+    find: "@upmind-automation/client-vue/styles",
+    replacement: resolve(
+      root,
+      "../../packages/client-vue/src/assets/styles/index.css"
+    )
+  },
+  {
+    find: "@upmind-automation/client-vue/vars",
+    replacement: resolve(
+      root,
+      "../../packages/client-vue/src/assets/styles/vars.css"
+    )
+  }
+];
+
+// The bare `@upmind-automation/client-vue` key (`nuxt.config.ts:149-152`)
+// cannot join the shared list: `mergeConfig` puts a project's own alias array
+// FIRST, so a base entry would sit ahead of the component lane's stub below and
+// silently disable it. The node lanes take it from here instead — without it
+// they resolve through the package's `exports` map to a `dist` build older than
+// `src`, the same src/dist split `nuxt.config.ts:199-202` closes for types.
+const nodeAlias: Alias[] = [
+  ...alias,
+  {
+    find: "@upmind-automation/client-vue",
+    replacement: resolve(root, "../../packages/client-vue/src/index.ts")
   }
 ];
 
@@ -52,7 +97,8 @@ const alias: Alias[] = [
 // broken relative import — FE-3002, unrelated to FE-2977). Component specs
 // exercise the factory surfaces against `tests/doubles/client-vue.stub.ts`
 // (a prop/emit-faithful `UpmForm` double) instead of pulling in the whole
-// package — never aliased for the "unit" project, which never renders JSX/SFC.
+// package — the double is never aliased for the node lanes above, which take
+// the real package and never render JSX/SFC.
 const componentAlias: Alias[] = [
   ...alias,
   {
@@ -60,6 +106,12 @@ const componentAlias: Alias[] = [
     replacement: resolve(root, "./tests/doubles/client-vue.stub.ts")
   }
 ];
+
+// The audit gates read the tree off disk rather than importing it, so they run
+// in their own node lane. Their files sit inside `modules/scenarios/__tests__`,
+// which the "module" project also matches — hence the same list is subtracted
+// there, or every audit runs twice, once in an environment it has no use for.
+const auditInclude = ["modules/scenarios/__tests__/*vocabulary*.spec.ts"];
 
 const base = defineConfig({
   plugins: [vue()],
@@ -73,12 +125,14 @@ export default defineConfig({
       mergeConfig(
         base,
         defineConfig({
+          resolve: { alias: nodeAlias },
           test: {
             name: "unit",
             environment: "node",
             include: [
               "app/composables/**/__tests__/**/*.spec.ts",
-              "modules/scenarios/runtime/composables/**/__tests__/**/*.spec.ts"
+              "modules/scenarios/runtime/composables/**/__tests__/**/*.spec.ts",
+              "modules/scenarios/runtime/force/**/__tests__/**/*.spec.ts"
             ]
           }
         })
@@ -92,7 +146,13 @@ export default defineConfig({
             environment: "jsdom",
             include: [
               "app/components/**/__tests__/**/*.spec.ts",
+              "app/layouts/**/__tests__/**/*.spec.ts",
               "app/pages/**/__tests__/**/*.spec.ts",
+              // A Nuxt plugin renders nothing, but it boots `client-vue` and
+              // the ui plugin set, so it needs this lane's stub alias and a
+              // document — not the node lane its "not a component" shape
+              // suggests.
+              "app/plugins/**/__tests__/**/*.spec.ts",
               "modules/scenarios/runtime/components/**/__tests__/**/*.spec.ts"
             ],
             setupFiles: ["tests/setup/component.setup.ts"]
@@ -106,16 +166,33 @@ export default defineConfig({
       mergeConfig(
         base,
         defineConfig({
+          resolve: { alias: nodeAlias },
           test: {
             name: "module",
             environment: "jsdom",
             include: ["modules/scenarios/__tests__/**/*.spec.ts"],
+            exclude: [...defaultExclude, ...auditInclude],
             // The registrar's own seam with the app mounts components — the
             // derived navigation resolves a scenario's declared `nav.i18n` —
             // so this lane needs the same installed catalogue the component
             // lane does, for the same reason: a missing translator is a raw
             // key on screen that still passes a shape assertion.
             setupFiles: ["tests/setup/component.setup.ts"],
+            testTimeout: 20000
+          }
+        })
+      ),
+      mergeConfig(
+        base,
+        defineConfig({
+          resolve: { alias: nodeAlias },
+          test: {
+            name: "audits",
+            environment: "node",
+            include: auditInclude,
+            // A gate that walks `app/** + modules/**` on disk is IO-bound and
+            // widens twice more (T2.6, T6.2); the default 5s is the run's only
+            // ceiling it could ever reach.
             testTimeout: 20000
           }
         })
