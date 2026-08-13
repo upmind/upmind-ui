@@ -1,0 +1,60 @@
+# client-email-history.scope-identity.must-fail.patch
+#
+# Targets: AC-19 (identity resolved from the scope, never a global flag — the
+# FE-2824 shape).
+# Authored by: developer seat (agent-seat-separation.companion.md — the seat
+# that knows the exact line it changed authors the mutant; the prover applies
+# it blind, confirms RED, then reverts — never reading src to construct it).
+#
+# Mutates: client-email-history.services.ts — reverts `resolveClientId` from
+# comparing the RESOLVED SCOPE CONTEXT
+# (`scopeContext?.type === ReceivedEmailsContextTypes.CLIENT`) to branching on
+# the reintroduced global `upmind.admin` flag, and re-adds the
+# `import upmind from "../../useUpmind";` the design (D1) deleted.
+#
+# Expected RED: with the SAME resolved scope context but `upmind.admin`
+# toggled, the resolved client id now changes (for the single read it
+# resolves to the EMAIL id instead of the session's client id) — the request
+# URL / auth identity transport AC-19 asserts moves with a global flag
+# instead of staying pinned to the resolved scope. Every read in the module
+# goes RED.
+#
+# Apply / verify / revert:
+#   git apply <this file>     # mutate
+#   pnpm test <AC-19 spec>    # must go RED
+#   git apply -R <this file>  # revert — must return to green
+#
+# Revision 2 (repair dispatch, client-email-history rework to product-catalogue
+# parity): re-context'd the first hunk against the reworked top-of-file (the
+# rework inserted a `keepPreviousData` import between `/** @internal */` and
+# the pre-existing `computed` import) and shifted the second hunk's `+` side
+# by the resulting +1 line offset. The mutated lines — the re-added
+# `useUpmind` import and `resolveClientId`'s branch on `upmind.admin` instead
+# of the resolved scope context — are unchanged from Revision 1.
+#
+--- a/packages/headless/src/modules/client-email-history/client-email-history.services.ts
++++ b/packages/headless/src/modules/client-email-history/client-email-history.services.ts
+@@ -1,5 +1,6 @@
+ /** @internal */
++import upmind from "../../useUpmind";
+ import { keepPreviousData } from "@tanstack/vue-query";
+ import { computed } from "vue";
+ import { RequestSortDirection, useQuery } from "../query";
+ import { useActiveSession } from "../session-store";
+@@ -54,12 +55,9 @@
+  * This compares the CONTEXT the scope builder resolved, never the actor, so
+  * it is not a branch on `ScopeActorTypes.SELF` (variance-law clause 4).
+  */
+ function resolveClientId(scopeContext?: ScopeContext) {
++  const { admin } = upmind;
+   const { activeUser } = useActiveSession().useContext();
+
+-  return computed(() =>
+-    scopeContext?.type === ReceivedEmailsContextTypes.CLIENT
+-      ? scopeContext.id
+-      : activeUser.value?.id
+-  );
++  return computed(() => (admin ? scopeContext?.id : activeUser.value?.id));
+ }
+
+ /**
