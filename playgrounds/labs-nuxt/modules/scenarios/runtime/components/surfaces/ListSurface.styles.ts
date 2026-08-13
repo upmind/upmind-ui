@@ -21,9 +21,6 @@ import { useInvalidRing } from "@upmind-automation/upmind-ui";
  * a wash over the row surface is the treatment the ruling killed (`H8`/`AC6.2`).
  */
 
-/** The ui invalid field's own treatment, applied to the record that carries it. */
-const invalidRing = useInvalidRing();
-
 /**
  * The row's own variant, called per row rather than resolved through
  * `useStyles`: the marker is a property of the ROW, and `useStyles` resolves
@@ -67,6 +64,9 @@ export const dataRow = cva("", {
  * would be a second error-outline technique (`H10`/`AC6.3`), which is why
  * `listSurface.table` reserves the standoff the offset needs instead.
  */
+/** The ui invalid field's own treatment, applied to the record that carries it. */
+const invalidRing = useInvalidRing();
+
 export const rowGroup = cva("", {
   variants: {
     isFailed: {
@@ -126,6 +126,21 @@ export const rowListItem = cva(
     defaultVariants: { isFailed: false }
   }
 );
+
+/**
+ * The failure strip's own exit — it fades on the toast's clock, so the two
+ * verdicts of one action leave together (operator ruling 2026-08-13). A
+ * variant rather than a Transition so the strip's timer owns the beat.
+ */
+export const failureStrip = cva("transition-opacity duration-500", {
+  variants: {
+    isLeaving: {
+      true: "opacity-0",
+      false: ""
+    }
+  },
+  defaultVariants: { isLeaving: false }
+});
 
 /**
  * What a declared column RESERVES, called per header rather than resolved
