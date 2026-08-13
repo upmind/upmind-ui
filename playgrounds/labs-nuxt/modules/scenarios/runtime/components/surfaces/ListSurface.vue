@@ -367,7 +367,7 @@
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { toDataPath } from "@jsonforms/core";
 import { getCoreRowModel, useVueTable } from "@tanstack/vue-table";
-import { computed, ref, watchEffect } from "vue";
+import { computed, onUnmounted, ref, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 import { SortDirection } from "@upmind-automation/headless";
 import {
@@ -385,6 +385,10 @@ import {
   useStyles
 } from "@upmind-automation/upmind-ui";
 import { usePlaygroundUrlState } from "../../../../../app/composables/usePlaygroundUrlState";
+import {
+  clearScenarioStage,
+  useScenarioStage
+} from "../../composables/useScenarioStage";
 import { TableIntentTypes } from "../../composables/useTableChannel";
 import { ActionPlacementTypes, CardSlotTypes } from "../../scenario.types";
 import {
@@ -428,6 +432,7 @@ import {
   join,
   last,
   map,
+  noop,
   reduce,
   reject,
   some,
@@ -905,15 +910,24 @@ function rowActionItems(row: ListRow): ActionSlotItem[] {
       // treatment: an action nobody can see working reads as an action that did
       // nothing (E12).
       loading: feedback.isPending(control),
-      onSelect: () =>
-        action.handoff
-          ? openHandoff(action, row)
-          : feedback.fire(control, () => props.actions[action.name](row.id), {
-              success: t(get(action, ["feedback", "success"], "")),
-              failure: t(get(action, ["feedback", "failure"], ""))
-            })
+      onSelect: () => pressRowAction(action, row)
     };
   });
+}
+
+/** What pressing ONE row's control does — the only path, hand or scenario. */
+function pressRowAction(action: ScenarioAction, row: ListRow): Promise<void> {
+  if (action.handoff) {
+    openHandoff(action, row);
+    return Promise.resolve();
+  }
+
+  return feedback
+    .fire(rowControl(action, row), () => props.actions[action.name](row.id), {
+      success: t(get(action, ["feedback", "success"], "")),
+      failure: t(get(action, ["feedback", "failure"], ""))
+    })
+    .then(noop);
 }
 
 /** Every control this row can fire, whether or not it is offered right now. */
@@ -982,16 +996,63 @@ const collectionActionItems = computed<ActionSlotItem[]>(() =>
       variant: action.variant,
       placement: action.placement,
       loading: feedback.isPending(action.name),
-      onSelect: () =>
-        action.handoff
-          ? openHandoff(action)
-          : feedback.fire(action.name, () => props.actions[action.name](), {
-              success: t(get(action, ["feedback", "success"], "")),
-              failure: t(get(action, ["feedback", "failure"], ""))
-            })
+      onSelect: () => pressCollectionAction(action)
     })
   )
 );
+
+/** What pressing ONE header control does — the only path, hand or scenario. */
+function pressCollectionAction(action: ScenarioAction): Promise<void> {
+  if (action.handoff) {
+    openHandoff(action);
+    return Promise.resolve();
+  }
+
+  return feedback
+    .fire(action.name, () => props.actions[action.name](), {
+      success: t(get(action, ["feedback", "success"], "")),
+      failure: t(get(action, ["feedback", "failure"], ""))
+    })
+    .then(noop);
+}
+
+// --- The stage. What this surface DRAWS is what a scenario acts on, so a step
+//     is a press rather than a reach past the screen into the composable.
+const stage = useScenarioStage();
+
+/** The row a control names, by the id the collection itself keys rows on. */
+function stagedRow(rowId: string): ListRow {
+  const row = find(rows.value, { id: rowId });
+  if (!row) throw new Error(`no row "${rowId}" is on screen to press`);
+
+  return row;
+}
+
+function stagedAction(actionName: string): ScenarioAction {
+  const action = find(declaredActions.value, { name: actionName });
+  if (!action) throw new Error(`no control is declared for "${actionName}"`);
+
+  return action;
+}
+
+stage.registerCollection({
+  press: (actionName, rowId) => {
+    const action = stagedAction(actionName);
+    return isNil(rowId)
+      ? pressCollectionAction(action)
+      : pressRowAction(action, stagedRow(rowId));
+  },
+  offers: (actionName, rowId) => {
+    const action = find(declaredActions.value, { name: actionName });
+    if (!action || !isActionAvailable(action)) return false;
+
+    return isNil(rowId)
+      ? action.placement === ActionPlacementTypes.HEADER
+      : isRuleVisible(action, stagedRow(rowId));
+  }
+});
+
+onUnmounted(() => clearScenarioStage("collection"));
 
 // The page renders them; the list keeps the editor they open, so they are
 // published already bound rather than re-derived from the declaration by

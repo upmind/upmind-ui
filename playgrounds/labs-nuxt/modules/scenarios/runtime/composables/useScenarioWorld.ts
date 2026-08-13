@@ -18,7 +18,18 @@ import {
 } from "@upmind-automation/headless";
 import { registry } from "../registry";
 import { useModulePort } from "./useModulePort";
-import { get, isEqual, isFunction, isMatch, keys, pick } from "lodash-es";
+import { useScenarioStage } from "./useScenarioStage";
+import {
+  get,
+  isEmpty,
+  isEqual,
+  isFunction,
+  isMatch,
+  isString,
+  keys,
+  omit,
+  pick
+} from "lodash-es";
 import type { ScenarioBinding, ScenarioKey } from "../scenario.types";
 import type { ModulePort } from "./useModulePort.types";
 import type { ScopeActorTypes } from "@upmind-automation/headless";
@@ -27,6 +38,17 @@ import type { World, WorldScope } from "@upmind-automation/scenario-harness";
 // -----------------------------------------------------------------------------
 
 /** Every failure here is a harness-authoring mistake, surfaced as the module error shape. */
+/** Long enough for a hand to see the editor arrive, and its fields fill. */
+const STEP_BEAT_MS = 700;
+
+/** How long a press is given to open an editor before it plainly did not. */
+const EDITOR_WAIT_MS = 400;
+
+/** A pause the user can actually watch a step happen in. */
+function beat(): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, STEP_BEAT_MS));
+}
+
 function fail(message: string): never {
   throw new DetailedError(
     `scenario world: ${message}`,
@@ -85,6 +107,42 @@ export function useScenarioWorld(
     },
 
     async fire(actionId, input) {
+      // The screen first, always. A step is a PRESS: it runs the control's own
+      // closure, so the spinner turns, the toast lands, and a handoff opens its
+      // editor over the list — the whole point of watching a replay.
+      const stage = useScenarioStage();
+      const rowId = isString(input)
+        ? input
+        : (get(input, "id") as string | undefined);
+
+      if (stage.offers(actionId, rowId)) {
+        await stage.press(actionId, rowId);
+
+        // A control that opens a form has not finished until the form is
+        // submitted — that IS the rest of the press, as a hand would make it.
+        const editor = await stage
+          .whenEditor(EDITOR_WAIT_MS)
+          .catch(() => undefined);
+        if (editor) {
+          // Held, deliberately. All of it in one tick puts the editor on screen
+          // for less than a frame, which reads as the invisible replay this
+          // seam exists to replace.
+          await beat();
+
+          const fields = omit((input ?? {}) as Record<string, unknown>, "id");
+          if (!isEmpty(fields)) {
+            editor.fill(fields);
+            await beat();
+          }
+
+          await editor.submit();
+        }
+
+        return;
+      }
+
+      // No screen at all — the Node runner, and the playability probe that boots
+      // a track without mounting it. Nothing else may take this branch.
       const action = get(requirePort().actions, actionId);
       if (!isFunction(action)) fail(`unknown action "${actionId}"`);
 

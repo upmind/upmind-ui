@@ -127,10 +127,12 @@ export const actionsUischema: ActionsUischema = {
   elements: [
     {
       type: "Action",
-      // `ensure` takes an address; a button cannot supply one. The editor the
-      // handoff opens is what collects it, and its save calls the same
-      // find-or-create service the collection's own action would have (C2).
-      name: "add",
+      // The control IS the capability: `ensure` takes an address and a button
+      // cannot supply one, so the editor this hands off to is what collects it
+      // and its save calls the same find-or-create service (C2). Named for what
+      // it does rather than for the dialog it opens, so a scenario step naming
+      // the capability presses this control the way a hand does.
+      name: "ensure",
       handoff: "add",
       i18n: "action.add_new",
       icon: "plus",

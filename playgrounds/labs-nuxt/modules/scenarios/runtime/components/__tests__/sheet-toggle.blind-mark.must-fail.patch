@@ -15,12 +15,13 @@ from the preference fallback rather than from the url.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SheetToggle.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SheetToggle.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SheetToggle.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SheetToggle.vue
-@@ -33,12 +33,14 @@
+@@ -34,12 +34,14 @@
+ import { computed } from "vue";
  import { useI18n } from "vue-i18n";
  import { ButtonGroup, ButtonGroupTypes } from "@upmind-automation/upmind-ui";
  import { usePlaygroundSheet } from "../../../../app/components/sheets/usePlaygroundSheet";
 +import { usePlaygroundUrlState } from "../../../../app/composables/usePlaygroundUrlState";
- import { PlaygroundSheetTypes } from "../../../../app/components/sheets/usePlaygroundSheet.types";
+ import { SHEET_LABELS } from "../../../../app/components/sheets/usePlaygroundSheet.types";
  import { map } from "lodash-es";
  import type { ButtonGroupItem } from "@upmind-automation/upmind-ui";
  // -----------------------------------------------------------------------------

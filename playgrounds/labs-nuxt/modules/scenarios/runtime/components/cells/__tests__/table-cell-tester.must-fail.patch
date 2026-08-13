@@ -16,10 +16,12 @@ rather than a switched-off feature.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellIcon.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellIcon.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellIcon.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellIcon.vue
-@@ -34,5 +34,5 @@
+@@ -35,7 +35,7 @@ const isFlagged = computed(
  </script>
- 
+
  <script lang="ts">
 -export const tester = { rank: 1, controlType: uiTypeIs("TableCellIcon") };
 +export const tester = { rank: 1, controlType: uiTypeIs("TableCellText") };
- </script>
+
+ /**
+  * One glyph is one glyph wide (`R7-2`): the column measures to it, and the text

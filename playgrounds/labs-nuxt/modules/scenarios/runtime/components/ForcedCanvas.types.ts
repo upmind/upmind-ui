@@ -12,7 +12,7 @@
  * @module scenarios/runtime/components/ForcedCanvas.types
  * @description The forced affordance's contract — what the frame is told, and
  * what each preset is CALLED. Both halves of the affordance read the names from
- * here (the controller offers them, the frame says which one is on), so the
+ * here (the scenario menu offers them, the frame says which one is on), so the
  * picker and the chip can never call one state two things.
  */
 

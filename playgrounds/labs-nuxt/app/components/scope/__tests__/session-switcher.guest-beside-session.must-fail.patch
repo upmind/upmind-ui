@@ -1,0 +1,44 @@
+Negative control for the guest entry answering to what the session store can
+actually do (`R7-13`).
+
+Drops the two session clauses, which is the pre-ruling shape: the pool offers
+"Continue as guest" beside a live client or staff session. Nothing throws and
+the control still pushes `/as/guest` — the url moves, the page refuses the
+scope — but the store's write gate re-resolves the active pointer over the live
+cookies and promotes that same session straight back, so the identity never
+becomes guest and the pool's own trigger keeps drawing the client. That is the
+control that renders and does nothing.
+
+Only the availability law is on trial: guest is still gated on the app's
+`allowedScopes` and still hidden once the url already names the guest scope, so
+the control cannot go red by offering guest everywhere.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the pool's guest cases — with a client (or staff) session seeded the
+guest entry must not render, and with no session at all it must render and
+carry the page to `/as/guest`.
+
+  FOR THE PROVER: authored by the developer seat, which knew the line it wrote;
+  the patch is a source mutation and grades nothing. It was APPLY-CHECKED only
+  (applies cleanly, reverts cleanly, `git status` returns to its prior state) —
+  the spec it must red did not exist at authoring time, so there is no author
+  RED run to quote and none should be inferred. Apply it blind, confirm the
+  guest cases go red, then revert.
+
+diff --git a/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts b/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts
+--- a/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts
++++ b/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts
+@@ -238,11 +238,7 @@
+   // reverts and only a logout reaches guest (`resolveActiveSession`). Offered
+   // beside a live session it is a control that cannot do what it says (`R7-13`).
+   const canUseGuestMode = computed(
+-    () =>
+-      isScopeAllowed(AccessRoleTypes.GUEST) &&
+-      !isGuest.value &&
+-      !hasClientSession.value &&
+-      !hasStaffSession.value
++    () => isScopeAllowed(AccessRoleTypes.GUEST) && !isGuest.value
+   );
+
+   // --- Computed helpers

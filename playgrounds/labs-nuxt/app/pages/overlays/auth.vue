@@ -1,9 +1,12 @@
 <template>
   <div class="flex flex-col gap-4">
-    <ButtonGroup
+    <RadioCards
       v-if="isGate"
+      name="auth-actor"
       :items="choices"
-      data-test-key="auth-actor-choice"
+      :columns="3"
+      :model-value="actor"
+      @update:model-value="choose($event as ScopeActorTypes)"
     />
 
     <AuthJourney
@@ -62,9 +65,9 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { OverlayType } from "@upmind-automation/client-vue";
 import { ScopeActorTypes, useActiveSession } from "@upmind-automation/headless";
-import { ButtonGroup, ButtonGroupTypes } from "@upmind-automation/upmind-ui";
+import { RadioCards } from "@upmind-automation/upmind-ui";
 import { get, map } from "lodash-es";
-import type { ButtonGroupItem } from "@upmind-automation/upmind-ui";
+import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 import { AuthJourney } from "~/components/auth";
 import { ACTOR_LABEL_KEYS } from "~/components/scope";
 import { useActorScope } from "~/composables/scope";
@@ -112,8 +115,14 @@ const named = computed(() =>
   authNamedActor(authRequestActor(route) ?? scope.value)
 );
 
-/** The one taken at the gate, which nothing but this arrival carries. */
-const picked = ref<ScopeActorTypes>();
+/**
+ * The one taken at the gate, which nothing but this arrival carries. It opens on
+ * CLIENT rather than on nobody: an unnamed arrival is overwhelmingly a client
+ * signing in, and a gate collecting nothing until it is pressed presents an
+ * empty box where the form belongs. The group stays above it either way, so
+ * staff and guest remain one press from the surface, not two.
+ */
+const picked = ref<ScopeActorTypes>(ScopeActorTypes.CLIENT);
 
 const actor = computed(() => named.value ?? picked.value);
 
@@ -124,24 +133,22 @@ const actor = computed(() => named.value ?? picked.value);
  */
 const isGate = computed(() => !named.value);
 
-const choices = computed<ButtonGroupItem[]>(() =>
+const choices = computed<RadioCardsItemProps[]>(() =>
   map(
     // What a visitor may arrive AS. Client and staff are `useAuth`'s own
     // journeys — the two its matrix carries a context for — and guest is the
     // scope that needs no session at all. SELF is not a choice: it resolves to
     // whoever is active, and at a gate nobody is.
     [ScopeActorTypes.CLIENT, ScopeActorTypes.STAFF, ScopeActorTypes.GUEST],
-    choice => ({
-      type: ButtonGroupTypes.Button,
-      active: choice === actor.value,
-      props: {
-        label: t(ACTOR_LABEL_KEYS[choice]),
-        dataAttrs: {
-          "data-test-key": "auth-actor",
-          "data-test-value": choice
-        }
-      },
-      handler: () => choose(choice)
+    (choice, index) => ({
+      index,
+      value: choice,
+      modelValue: actor.value,
+      label: t(ACTOR_LABEL_KEYS[choice]),
+      dataAttrs: {
+        "data-test-key": "auth-actor",
+        "data-test-value": choice
+      }
     })
   )
 );
@@ -159,6 +166,11 @@ const { whenAuthenticated } = useActiveSession().useActions();
  * to the one rendered below.
  */
 function choose(choice: ScopeActorTypes): void {
+  // The group re-emits as it mounts, and an empty emit is not a choice: taking
+  // it would clear the pick the gate opens on and leave three blank cards over
+  // the space the form belongs in.
+  if (!choice) return;
+
   if (choice === ScopeActorTypes.GUEST)
     void router.push(scopedPageTarget(route, choice));
   else picked.value = choice;

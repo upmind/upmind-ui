@@ -23,6 +23,14 @@ export default {
     // PAGE would gain the horizontal scrollbar the rail is supposed to absorb.
     item: cva("min-w-0"),
 
+    // A stop LOOKS interactive because it IS one — a seek target, not a marker
+    // (`R6-22`), and this rail is the same stops the Scenario sheet's list draws
+    // (`R6-24`), where a row already carries the pointer. Stated here because
+    // tailwind v4's preflight dropped the button cursor and the package's own
+    // stepper trigger never restated it, so the rail's steps are the one
+    // control in the bar that reads as text.
+    trigger: cva("cursor-pointer"),
+
     // The played part of the track reads primary, the rest neutral — the
     // playing treatment is the primary family throughout (H2).
     indicator: cva(

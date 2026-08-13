@@ -15,7 +15,9 @@
  * Scenario, three entries of a SINGLE `ButtonGroup`. Preview is dropped — the
  * page IS the preview — and Code is a page feature, not a tab of Debug
  * (`G14 refined`, `AC3.1`). It lives inside the scenario bar, in the space the
- * track overflow frees (`G1`).
+ * killed track chips freed (`R7-10`) — and nothing else joins it there: a forced
+ * state has nothing to do with the sheets, so it is chosen in the scenario menu
+ * beside Live (`R7-11`).
  *
  * It holds no open state of its own and it decides nothing about opening: the
  * marked entry is the sheet `usePlaygroundSheet` reports open, and a click is

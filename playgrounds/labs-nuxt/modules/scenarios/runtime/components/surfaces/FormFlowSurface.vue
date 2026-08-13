@@ -92,7 +92,7 @@
  */
 
 import { isControlElement, RuleEffect } from "@jsonforms/core";
-import { computed, ref, watchEffect } from "vue";
+import { computed, onUnmounted, ref, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 import { formRenderers, UpmForm } from "@upmind-automation/client-vue";
 import {
@@ -101,6 +101,10 @@ import {
   Skeleton,
   useStyles
 } from "@upmind-automation/upmind-ui";
+import {
+  clearScenarioStage,
+  useScenarioStage
+} from "../../composables/useScenarioStage";
 import { resolveModuleDetail, resolveModuleState } from "../module-state";
 import { ModuleState } from "../module-state.types";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
@@ -243,6 +247,18 @@ function onUpdate(value: unknown): void {
   const input = props.actions[inputAction.value];
   if (isFunction(input)) input(value);
 }
+
+// --- The stage. An open editor is the thing a scenario types into, so its own
+//     fill and submit are what a step drives — the very calls the fields and the
+//     save button make, never a second way in.
+const stage = useScenarioStage();
+
+stage.registerEditor({
+  fill: input => onUpdate({ ...(model.value ?? {}), ...input }),
+  submit: () => onResolve()
+});
+
+onUnmounted(() => clearScenarioStage("editor"));
 
 async function onResolve(): Promise<void> {
   const submit = props.actions[submitAction.value];

@@ -22,11 +22,11 @@
           :model-value="active"
           @update:model-value="pick"
         >
-          <DropdownMenuLabel>{{ t("labs.scenarios") }}</DropdownMenuLabel>
+          <DropdownMenuLabel>{{ t("labs.force_preset") }}</DropdownMenuLabel>
           <DropdownMenuRadioItem
-            v-for="entry in scenarios"
+            v-for="entry in forced"
             :key="entry.value"
-            data-test-key="track-option"
+            data-test-key="force-preset-option"
             :data-test-value="entry.handle"
             :value="entry.value"
             :disabled="entry.disabled"
@@ -36,11 +36,11 @@
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuLabel>{{ t("labs.force_preset") }}</DropdownMenuLabel>
+          <DropdownMenuLabel>{{ t("labs.scenarios") }}</DropdownMenuLabel>
           <DropdownMenuRadioItem
-            v-for="entry in forced"
+            v-for="entry in scenarios"
             :key="entry.value"
-            data-test-key="force-preset-option"
+            data-test-key="track-option"
             :data-test-value="entry.handle"
             :value="entry.value"
             :disabled="entry.disabled"

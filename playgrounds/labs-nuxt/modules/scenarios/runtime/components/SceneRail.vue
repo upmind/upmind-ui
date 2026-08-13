@@ -96,6 +96,7 @@ const styles = useStyles(["sceneRail"], {}, config);
 const uiConfig = computed(() => ({
   stepper: {
     item: [styles.value.sceneRail.item],
+    trigger: [styles.value.sceneRail.trigger],
     indicator: [styles.value.sceneRail.indicator],
     separator: [styles.value.sceneRail.separator]
   }

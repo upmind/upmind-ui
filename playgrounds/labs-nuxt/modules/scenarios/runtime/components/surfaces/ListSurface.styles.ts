@@ -226,8 +226,11 @@ export default {
     // inside it, the same law the table's first column draws.
     cardLead: cva("flex min-w-0 items-center gap-2"),
 
+    // `min-w-0` and the break are what stop a long unbroken value — an email
+    // address has no spaces to wrap at — from running out of the lead and under
+    // the row's own controls.
     cardTitle: cva(
-      "text-md m-0 flex flex-wrap items-center gap-x-2 font-medium"
+      "text-md m-0 flex min-w-0 flex-wrap items-center gap-x-2 font-medium break-all"
     ),
 
     // A declared slot whose row has nothing to put in it takes no space: its
