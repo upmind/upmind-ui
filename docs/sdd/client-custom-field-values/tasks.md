@@ -431,21 +431,22 @@ foreign-module docstrings.
 **`client-personal-details.traceability.test.ts` — exactly THREE assertions, the same shape as
 T-A11**, over the **sole** source of truth
 `packages/headless/src/modules/client-personal-details/__tests__/client-personal-details.feature`
-(**29 scenarios**). No SDD copy, no `docs/sdd/client-personal-details/` directory:
+(**29 scenarios today; AC-63 needs a 30th** — see T-B16). No SDD copy, no
+`docs/sdd/client-personal-details/` directory:
 
 1. every non-`@todo` scenario has ≥1 sibling spec naming its `AC-<n>`;
 2. every AC a test names is a scenario the feature actually tags;
-3. the hard count — the set of distinct `@AC-<n>` tags has **28** members, matching this module's AC
-   set exactly, and no member has an empty proving-file list.
+3. the hard count — the set of distinct `@AC-<n>` tags has **29** members (28 pre-gate + **AC-63**),
+   matching this module's AC set exactly, and no member has an empty proving-file list.
 
-B's feature carries **29 scenarios over 28 ACs** — one AC is covered by two scenarios, which is fine
+B's feature carries **29 scenarios over 28 pre-gate ACs** — one AC is covered by two scenarios, which is fine
 and is exactly why assertion 3 counts the **distinct tag set** rather than raw scenarios. Read no path
 outside `__tests__/`; do not reproduce `client-email.traceability.test.ts:38-40,95-103`'s
 unconditional read of the gitignored SDD path (`dropped-capabilities.md` §N1), and add no
 skip-if-absent variant — the dirs are deleted, so it could never execute.
 
 - **Files:** `packages/headless/src/modules/client-personal-details/__tests__/**`
-- **ACs:** AC-30..AC-57, AC-59..AC-62
+- **ACs:** AC-30..AC-57, AC-59..AC-62, AC-63
 - **Watch:** recorded fixtures only. The PUT-body assertions must assert **key presence and JSON
   `null`**, not just a value — `'code' in body.custom_fields === true` is what distinguishes
   "cleared" from "omitted", and omitting is the bug.
@@ -457,15 +458,15 @@ ADR-019 shape, no SDD-tree leakage.
 - **ACs:** none
 
 ### T-B16 — B's feature file *(bdd)*
-Declarative Gherkin, `@AC-<n>` tags from AC-30..AC-35, AC-40..AC-57, AC-59..AC-62. Written
-**CO-LOCATED ONLY** — one file, one source of truth. **29 scenarios over 28 ACs** (one AC carries two
-scenarios).
+Declarative Gherkin, `@AC-<n>` tags from AC-30..AC-35, AC-40..AC-57, AC-59..AC-62, AC-63. Written
+**CO-LOCATED ONLY** — one file, one source of truth. **29 scenarios over 28 pre-gate ACs** (one AC carries two
+scenarios); **AC-63 adds a 30th scenario and a 29th distinct tag**.
 
 - **Files:** `packages/headless/src/modules/client-personal-details/__tests__/client-personal-details.feature`
-- **ACs:** AC-30..AC-35, AC-40..AC-57, AC-59..AC-62 (28 ACs)
+- **ACs:** AC-30..AC-35, AC-40..AC-57, AC-59..AC-62, AC-63 (29 ACs)
 - **Watch:** no SDD copy and no `docs/sdd/client-personal-details/` directory — do not write one. The
-  distinct `@AC-<n>` tag set must have exactly 28 members (T-B14 assertion 3); the extra scenario is a
-  second case for one AC, not a 29th AC.
+  distinct `@AC-<n>` tag set must have exactly **29** members (T-B14 assertion 3) once AC-63 lands; of
+  the 30 scenarios, one pair covers a single AC twice, so scenarios ≠ tags by exactly one.
 
 ---
 
@@ -524,9 +525,9 @@ Every AC in `requirements.md` §5 is named by at least one task above.
 | Module | ACs | Covered by |
 | --- | --- | --- |
 | A | AC-1..AC-25, AC-27 — **26 ACs** | T-A1..T-A11, T-A13 |
-| B | AC-30..AC-35, AC-40..AC-57, AC-59..AC-62 — **28 ACs** | T-B1..T-B14, T-B16 |
+| B | AC-30..AC-35, AC-40..AC-57, AC-59..AC-62, AC-63 — **29 ACs** | T-B1..T-B14, T-B16 |
 
-54 ACs are defined in total — 26 for Module A, 28 for Module B. The numbering leaves two deliberate gaps between the two modules'
+55 ACs are defined in total — 26 for Module A, 29 for Module B (AC-63 added post-gate). The numbering leaves two deliberate gaps between the two modules'
 disjoint ranges (after Module A's last id, and between Module B's read-half and write-half groups)
 so a `@AC-<n>` tag is unambiguous about which module owns it. No id in either gap exists; a feature
 file or test naming one is a mistake, and each module's traceability test will say so in both

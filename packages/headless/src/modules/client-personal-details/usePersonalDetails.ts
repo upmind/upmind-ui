@@ -50,10 +50,17 @@ function createPersonalDetailsForScope(
     // --- Sub-composables (no direct props — clause 1 four-layer return)
     /** Sub-composable for read actions (readiness, refresh). */
     useActions: () =>
-      createPersonalDetailsActions(actorScope, service, query, scopeKey),
+      createPersonalDetailsActions(
+        actorScope,
+        service,
+        query,
+        scopeKey,
+        config.context
+      ),
 
     /** Sub-composable for read context (the profile, its custom fields, lookups). */
-    useContext: () => createPersonalDetailsContext(actorScope, query),
+    useContext: () =>
+      createPersonalDetailsContext(actorScope, query, config.context),
 
     /** Sub-composable for advanced debugging and internal access. */
     useInternals: () => createPersonalDetailsInternals(actorScope, query),

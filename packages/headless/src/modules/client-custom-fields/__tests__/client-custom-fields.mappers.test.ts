@@ -31,11 +31,14 @@
  *
  * ## What Breaks If These Fail
  * A definition's `hidden`/`user_only`/`editable`/`display_contexts` stay
- * unmapped (AC-4), `isReadOnly` and `isDisabled` collapse back to one flag
- * (AC-5), a value renders the literal string "undefined"/"NaN" (AC-14), a
- * read-only view shows a raw value instead of its label (AC-17), or the
- * outbound diff reverts to an array / drops a clearing `null` (AC-23/AC-24) —
- * every one of these is a receipt this bundle names by id.
+ * unmapped (AC-4), `isDisabled` drifts from the oracle rule and starts
+ * disabling a definition the client actor can actually edit (AC-5 —
+ * corrected 2026-08-13: `isDisabled` is `client_readonly`, the SAME flag as
+ * `isReadOnly`, never derived from `editable`; see the note at the AC-5
+ * `it()`s below), a value renders the literal string "undefined"/"NaN"
+ * (AC-14), a read-only view shows a raw value instead of its label (AC-17),
+ * or the outbound diff reverts to an array / drops a clearing `null`
+ * (AC-23/AC-24) — every one of these is a receipt this bundle names by id.
  */
 
 import { join } from "node:path";
@@ -145,7 +148,16 @@ describe("mapCustomField — AC-4 full-fidelity mapping, AC-5 readOnly/disabled"
     expect(mapped.typeId).toBeDefined();
   });
 
-  it("AC-5 tells isReadOnly and isDisabled apart — not editable but not read-only", () => {
+  // AC-5's original assertion here treated `editable:false` as the source of
+  // `isDisabled` (`!raw.editable`). That distinction was never oracle-backed:
+  // at pinned vue-app SHA `ea310f5a42e32b7ae1255c223b77918ef0594286`,
+  // `editable` has zero hits in `customFields.vue` / `clientCustomFieldsForm.vue`,
+  // and legacy's client-side disable expression
+  // (`customFields.vue:43-44`, `isDisabled || isProcessing || !canManage || isReadOnly(field)`)
+  // reduces, for `client x self`, to exactly `isReadOnly(field)` = `client_readonly && isClient`
+  // — `isDisabled` and `isReadOnly` are the SAME flag for this actor, never
+  // two independently-driven states. Source now sets `isDisabled: raw.client_readonly`.
+  it("AC-5 (oracle-corrected) a non-editable but NOT read-only definition is NOT disabled — editable has no oracle basis at client x self", () => {
     const wire = {
       ...recordedAge(),
       client_readonly: false,
@@ -155,20 +167,25 @@ describe("mapCustomField — AC-4 full-fidelity mapping, AC-5 readOnly/disabled"
     const mapped = mapCustomField(wire);
 
     expect(mapped.meta.isReadOnly).toBe(false);
-    expect(mapped.meta.isDisabled).toBe(true);
-    expect(mapped.meta.isReadOnly).not.toBe(mapped.meta.isDisabled);
+    expect(mapped.meta.isDisabled).toBe(false);
   });
 
-  it("AC-5 tells isReadOnly and isDisabled apart — read-only AND editable", () => {
-    const wire = {
+  it("AC-5 (oracle-corrected) isDisabled and isReadOnly are the SAME flag at client x self — both driven by client_readonly, never by editable", () => {
+    const readOnly = mapCustomField({
       ...recordedAge(),
       client_readonly: true,
       editable: true
-    } as unknown as ICustomField;
+    } as unknown as ICustomField);
+    const notReadOnly = mapCustomField({
+      ...recordedAge(),
+      client_readonly: false,
+      editable: true
+    } as unknown as ICustomField);
 
-    const mapped = mapCustomField(wire);
-
-    expect(mapped.meta.isReadOnly).toBe(true);
+    expect(readOnly.meta.isReadOnly).toBe(true);
+    expect(readOnly.meta.isDisabled).toBe(true);
+    expect(notReadOnly.meta.isReadOnly).toBe(false);
+    expect(notReadOnly.meta.isDisabled).toBe(false);
   });
 
   it("AC-4 maps the REAL recorded NUMBER definition (age) with its numeric typeId", () => {

@@ -8,7 +8,7 @@ import {
   resolveFieldByValue
 } from "../client-custom-fields";
 import { useI18n } from "../system-localisation";
-import { find, reduce } from "lodash-es";
+import { find, map, reduce } from "lodash-es";
 import type { CustomField } from "../client-custom-fields";
 import type {
   ProfileField,
@@ -56,11 +56,76 @@ export function mapProfile(raw: IClient): ProfileRecord {
  * Projects a profile record into the display list — native fields, at their
  * client-surface permission metadata (no gate applies to the client actor;
  * the parity table's would-be `D6`/`D7` gates live entirely on the dropped
- * staff row), followed by the client's custom field values. Each value
- * resolves its definition off the EMBEDDED `value.field` (AC-16) — no
- * `client-custom-fields` collection load required. A value whose definition
- * was deleted from the catalogue is skipped, matching legacy's own
- * `if (!fieldCode) return result`.
+ * staff row), followed by the brand's custom field DEFINITIONS, each
+ * left-joined against the client's own values by `field_id`. A definition
+ * with no matching value still projects — as an empty value, never a row —
+ * so a client who has never answered anything still sees every field
+ * (parity FE-2824 receipt for this module: the prior value-driven `reduce`
+ * showed zero rows for that client, `client-personal-details.mappers.ts:127`
+ * pre-fix). Any value whose `field_id` is NOT among `definitions` — the only
+ * way this can happen is `definitions` not having resolved/loaded yet, since
+ * a deleted definition would also delete its values server-side — still
+ * projects via its OWN embedded field, exactly as before this fix; skipped
+ * only when neither the value nor `definitions` can name its field, matching
+ * legacy's own `if (!fieldCode) return result`. `definitions` defaults to
+ * `[]` (this function's read is a pure projection — degrading to
+ * native-fields-only on a failed definitions load is
+ * `usePersonalDetails.context.ts`'s job, not this one's).
+ *
+ * @decision iterate `definitions` (module A's collection) for the LEFT JOIN,
+ * with a second pass over `record.customFieldValues` for whatever
+ * `definitions` doesn't (yet) cover — rather than iterating
+ * `record.customFieldValues` alone (the pre-fix shape) or `definitions` alone.
+ * what:    for each definition, `find` the matching value by `field_id`.
+ *          When one exists, resolve its OWN field via `resolveFieldByValue`
+ *          (embedded-first, AC-16) rather than reusing `definition` directly
+ *          — cheaper, and correct even before A's collection resolves. With
+ *          no matching value, the definition itself supplies the row, and
+ *          `mapCustomFieldValue(undefined, field)` already yields each
+ *          type's own "unanswered" shape (`""` for TEXT/SELECT, `undefined`
+ *          for NUMBER/DATE/IMAGE, `false` for the checkbox) — no separate
+ *          empty-value branch needed. A second pass then walks
+ *          `record.customFieldValues` for any `field_id` NOT already covered
+ *          by `definitions`, resolving each via the value's OWN embedded
+ *          field (the pre-fix behaviour, kept verbatim for this remainder)
+ *          and skipping one with neither an embedded field nor a
+ *          `definitions` match.
+ * why:     the read surface must enumerate what the BRAND defines, not what
+ *          THIS client happens to have answered — legacy's own
+ *          `customFields.vue` renders every definition its `filter[object_type]=client`
+ *          fetch returns and joins values in where present, never the
+ *          reverse (`clientCustomFieldsForm.vue`'s `custom-fields` call site
+ *          passes no `filters`, so this brand's client-facing surface is
+ *          unfiltered by the FE at all). The second pass exists because
+ *          `definitions` is caller-supplied and MAY legitimately be `[]`
+ *          (A's collection still loading, or a caller that never threads it)
+ *          — a value the client already carries, embedded field and all,
+ *          must not vanish for the SAME reason AC-16 exists: resolving it
+ *          needs no collection load at all.
+ * rejected: iterating `definitions` alone with no second pass — rejected: it
+ *          would blank every custom field row for the entire window before
+ *          `definitions` resolves, and for any caller (including this
+ *          module's own unit suite) that never threads a `definitions` list
+ *          at all, trading the original defect (all-zero for an
+ *          unanswered client) for a new one (all-zero for every client,
+ *          always, absent a definitions load).
+ *
+ * @oracle vue-app@ea310f5a42e32b7ae1255c223b77918ef0594286.
+ * `customFields.vue` (the client-facing edit/read surface both
+ * `clientCustomFieldsForm.vue`, the `/account/profile` call site, and the
+ * admin equivalent mount) applies NO client-side `hidden`/`user_only` filter
+ * at all — `filteredCustomFields` (`customFields.vue:204-215`) only narrows
+ * by the `filters` PROP, which this call site never passes
+ * (`clientCustomFieldsForm.vue:4-22`); every definition the
+ * `filter[object_type]=client&brand_id=…` fetch returns is rendered
+ * unconditionally, `hidden`/`user_only` included. `client_readonly` affects
+ * only the EDIT surface: `isReadOnly(field)` (`customFields.vue:273-275`,
+ * `field.client_readonly && this.isClient`) disables the input and suppresses
+ * the required asterisk — it never hides the row, on the read or the edit
+ * side. This mapper already carries `isHidden`/`isUserOnly`/`isReadOnly`
+ * straight through on `field.meta` (from `mapCustomField`) with no
+ * visibility gate of its own — matching the oracle exactly, so no new
+ * filtering was added here.
  *
  * @decision the language row's DISPLAY value is the resolved NAME, never the
  * raw id — deliberately different from what `ProfileModel.language` holds.
@@ -88,11 +153,32 @@ export function mapProfile(raw: IClient): ProfileRecord {
  */
 export function mapProfileFields(
   record: ProfileRecord,
-  languages: ILanguage[] = []
+  languages: ILanguage[] = [],
+  definitions: CustomField[] = []
 ): ProfileField[] {
   const { t } = useI18n();
   const languageName =
     find(languages, ["id", record.language])?.language ?? record.language;
+  const definedFieldIds = new Set(map(definitions, "id"));
+
+  const remainderFields = reduce(
+    record.customFieldValues,
+    (result, value) => {
+      if (definedFieldIds.has(value.field_id)) return result;
+      const field = resolveFieldByValue(value);
+      if (!field) return result;
+
+      result.push({
+        id: field.id,
+        code: field.code,
+        title: field.name,
+        value: mapCustomFieldValue(value.value, field),
+        meta: { ...field.meta, isCustomField: true }
+      });
+      return result;
+    },
+    [] as ProfileField[]
+  );
 
   return [
     {
@@ -123,23 +209,21 @@ export function mapProfileFields(
       value: languageName,
       meta: { ...NATIVE_FIELD_META, isRequired: true, isCustomField: false }
     },
-    ...reduce(
-      record.customFieldValues,
-      (result, value) => {
-        const field = resolveFieldByValue(value);
-        if (!field) return result;
+    ...map(definitions, definition => {
+      const value = find(record.customFieldValues, ["field_id", definition.id]);
+      const field = value
+        ? (resolveFieldByValue(value, [definition]) ?? definition)
+        : definition;
 
-        result.push({
-          id: field.id,
-          code: field.code,
-          title: field.name,
-          value: mapCustomFieldValue(value.value, field),
-          meta: { ...field.meta, isCustomField: true }
-        });
-        return result;
-      },
-      [] as ProfileField[]
-    )
+      return {
+        id: field.id,
+        code: field.code,
+        title: field.name,
+        value: mapCustomFieldValue(value?.value, field),
+        meta: { ...field.meta, isCustomField: true }
+      };
+    }),
+    ...remainderFields
   ];
 }
 

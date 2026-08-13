@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-custom-fields/client-custom-fields.mappers.ts
++++ b/packages/headless/src/modules/client-custom-fields/client-custom-fields.mappers.ts
+@@ -96,7 +96,7 @@
+     meta: {
+       isRequired: raw.required,
+       isReadOnly: raw.client_readonly,
+-      isDisabled: raw.client_readonly,
++      isDisabled: !raw.editable,
+       isHidden: raw.hidden,
+       isUserOnly: raw.user_only,
+       isEditable: raw.editable,

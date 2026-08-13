@@ -179,7 +179,9 @@ identity transport, never the response payload alone — becomes mandatory for i
 
 Ids are a single numeric series so `@AC-<n>` tags are machine-checkable by each module's
 traceability test. Ranges are disjoint per module: **A = AC-1..AC-25 + AC-27**,
-**B = AC-30..AC-57 + AC-59..AC-62**.
+**B = AC-30..AC-57 + AC-59..AC-62 + AC-63**. AC-63 was added after the run closed (a parity
+defect the operator found by hand); its id is out of sequence by design, so the gap between AC-62 and
+it is not a numbering error.
 
 ### 5.1 Module A — definitions collection
 
@@ -252,11 +254,65 @@ code.
 display_contexts:{invoice:true,order_form:false}`, the mapped `CustomField` exposes all five with
 those values; no mapped field is `undefined`.
 
-**AC-5 — `isReadOnly` and `isDisabled` no longer collapse to the same flag.** Today both read
-`client_readonly` (`client-custom-fields.types.ts:51-53`).
-*Read-back:* a definition with `client_readonly:false, editable:false` yields
-`isReadOnly === false` and `isDisabled === true`; a definition with `client_readonly:true,
-editable:true` yields `isReadOnly === true`. The two flags differ for at least one fixture row.
+**AC-5 — every `ICustomField` permission flag is mapped, and `isReadOnly` / `isDisabled` both derive from `client_readonly`.**
+
+`hidden`, `user_only` and `editable` exist on `ICustomField`
+(`packages/types/src/models/brands.ts:146-171`) and were unmapped before this run. They are now
+mapped as `isHidden`, `isUserOnly` and `isEditable` — **factual passthroughs of wire data**.
+
+**`isEditable` gates nothing.** For the `client × self` actor, both `isReadOnly` and `isDisabled`
+derive from `client_readonly` and therefore **never diverge**. Oracle, verified at vue-app SHA
+`ea310f5a42e32b7ae1255c223b77918ef0594286`:
+
+- The client-side disable expression is `customFields.vue:43-44` —
+  `:disabled="isDisabled || isProcessing || !canManage || isReadOnly(field)"`.
+- `isDisabled` there is a **parent-driven cross-panel processing lock**, dropped as staff scope
+  (`dropped-capabilities.md` D13); `isProcessing` is transient local save state; `canManage` is
+  `isClient || $userCan('update_client')` (`clientCustomFieldsForm.vue:10`, prop default `true` at
+  `customFields.vue:176`), so it is **always true** for a client on their own profile; and
+  `isReadOnly(field)` is `field.client_readonly && this.isClient`
+  (`customFields.vue:273-275`).
+- For `client × self` the whole expression therefore reduces to **`client_readonly`**.
+- **`editable` appears NOWHERE in either file** — zero hits in `customFields.vue` and
+  `clientCustomFieldsForm.vue` at that SHA. It gates nothing in the oracle.
+
+*Read-back:* for a definition with **`editable: false` and `client_readonly: false`** — the input
+that separates the oracle rule from the fabricated one — assert `isDisabled === false` **and**
+`isEditable === false`: the field stays **editable by the consumer** while `isEditable` faithfully
+reports the wire value. Then assert, across every definition in the fixture regardless of `editable`,
+that **`isDisabled === isReadOnly`** and that both equal `client_readonly`. Assert `isHidden`,
+`isUserOnly` and `isEditable` each equal their wire field. Finally assert **no consumer-visible
+behaviour branches on `isEditable`** — it is data, not a gate. Negative control:
+`fabricated-editable-gate` must flip this AC RED.
+
+> **⚠️ Amended 2026-08-13 — this AC previously specified a distinction that does not exist, and it
+> is the second instance of L4. Read this before "restoring" a divergence.**
+>
+> The earlier AC-5 was titled "`isReadOnly` and `isDisabled` no longer collapse to the same flag" and
+> its read-back **required them to differ**: "a definition with `client_readonly:false,
+> editable:false` yields `isReadOnly === false` and `isDisabled === true`… The two flags differ for at
+> least one fixture row." That divergence was **fabricated**. Note what that means: the AC's own
+> preamble — "Today both read `client_readonly`" — was describing the **correct** behaviour, and the
+> AC instructed the implementation to break it.
+>
+> **The fabrication chain: one unmeasured claim propagated through THREE artefacts before any of them
+> was checked against the oracle.** The conductor's Code-A dispatch asserted "`isReadOnly` and
+> `isDisabled` are different things" without establishing what `isDisabled` should be;
+> `isDisabled: !raw.editable` was written to satisfy that claim; **this AC was written to specify
+> it**; and a test was written to assert it. All three agreed with each other, and none agreed with
+> vue-app. **Mutual agreement between spec, code and test is not evidence when they share an author
+> upstream** — they were three restatements of one unverified sentence, not three independent checks.
+>
+> **Why no gate caught it:** the brand's two original definitions both carry `editable: true`, so
+> `!editable` and `client_readonly` produced identical results on every recorded fixture — the fifth
+> instance in this run of a fixture sitting where both implementations agree (§9, **L6**).
+>
+> **How it surfaced:** the operator added a TEXT definition with `editable: false`. `!editable` made
+> it `isDisabled`, `ClientProfile.vue:10`'s `v-if="!profileField.meta?.isDisabled"` hid the **Edit**
+> link, and the field became **unfillable**. Attribution: the originating claim was the conductor's;
+> this planner turned it into a specification without asking what witnessed it. Full record:
+> `parity.yaml` → row `A-client-self` → `post_gate_defects` **PG-2**; the fix's own reasoning is at
+> `client-custom-fields.mappers.ts:51-85`.
 
 **AC-6 — readiness is bounded and settles on error. (JTBD-critical.)** Today `isReady()` is an
 uncapped 100 ms `setInterval` that resolves only on `meta.isAvailable`, never on error, never
@@ -460,12 +516,45 @@ what proves the read is a query and not the old session projection.
 *Read-back:* a 500 on the read yields `meta.hasError === true` and a populated `error`, and
 `isReady()` resolves `false` — with no unbounded wait (see AC-40).
 
-**AC-32 — profile fields project with correct permission metadata.** Today `mapProfileFields`
-hardcodes `isReadOnly:false, isDisabled:false` for every native field
-(`client-personal-details.mappers.ts:28-29,40-41,52-53,64-65`).
-*Read-back:* for a `client_readonly:true` custom field the projected entry reports
-`isReadOnly === true`; native fields report the values the module actually derives, and at least
-one projected field differs from another in these flags.
+**AC-32 — projected fields carry real permission metadata: custom fields from `client_readonly`, natives uniformly editable.**
+
+*Read-back:* for a **`client_readonly: true`** custom field the projected entry reports
+`isReadOnly === true` **and** `isDisabled === true`; for a `client_readonly: false` custom field both
+are `false`. **All four native entries** (`firstName`, `lastName`, `publicName`, `language`) report
+`isReadOnly === false` and `isDisabled === false` **in every case** — assert this holds even in the
+same fixture as a read-only custom field, which is the real, oracle-witnessed asymmetry: custom-field
+flags vary with `client_readonly`, native flags are constant for this actor. Also assert
+`isCustomField` distinguishes the two groups and that `isRequired` on a custom field equals its
+definition's `required`.
+
+Oracle for the native constant, verified at vue-app SHA
+`ea310f5a42e32b7ae1255c223b77918ef0594286` — the four native inputs share one disable expression,
+`:disabled="isDisabled || isStaged || isProcessing || !canUpdate"`
+(`clientProfileBasicConfigurationForm.vue:53-55` firstname, `:69-71` lastname, `:86-88` public_name,
+`:102-104` language), and **for `client × self` every term in it is out of scope or transient**:
+`isDisabled` is the cross-panel processing lock (dropped, D13), `isStaged` the staged-import lock
+(dropped, D8), `canUpdate` is `$userCan("update_client")` (dropped staff gate, D7 — the client branch
+of `<guard :if-client="true" :if-admin="…">` at `:3` does not consult it), and `isProcessing` is local
+save state, not a field permission. **The oracle exposes no per-native-field permission flag**, so
+`false` is the correct projection — not a placeholder.
+
+> **Amended 2026-08-13 — same fabricated-divergence shape as AC-5, found by the sweep that AC-5's
+> correction prompted.** The earlier read-back required "native fields report the values the module
+> actually derives, and **at least one projected field differs from another in these flags**". Two
+> defects in one sentence:
+>
+> 1. **"the values the module actually derives"** takes its expectation from the implementation — §9
+>    **L3** exactly.
+> 2. **"at least one projected field differs from another"** demanded a divergence *within* the flag
+>    set with no oracle citation for it — §9 **L4**/**L6**. Worse, the AC's premise called the
+>    hardcoded `isReadOnly:false, isDisabled:false` on natives a defect (G-13). Verified against the
+>    oracle above: for `client × self` that projection is **correct**, because every gate legacy
+>    applies to a native input belongs to a dropped staff cell. The AC was pushing the implementation
+>    toward inventing a native permission flag the oracle does not have.
+>
+> The genuine content is retained and sharpened: **custom-field** entries must carry their
+> definition's real flags rather than hardcoded `false`, and the custom-vs-native asymmetry is
+> asserted — because *that* difference is witnessed.
 
 **AC-33 — the collection exposes the language ID the model holds, not the display name.** Today
 the collection emits the language NAME (`client-personal-details.mappers.ts:62`) while the model
@@ -494,6 +583,76 @@ Assert the label is **not** the raw id — a UUID must never reach the rendered 
 > on the main language field (raw UUID rendered where legacy renders the name), and the oracle is
 > explicit: the id is the option's `value`, `missingLanguageName` is what the user sees. AC-33 already
 > had this split right (id as value, name as display/title); this AC now matches it.
+
+**AC-63 — the read surface enumerates the brand's DEFINITIONS and left-joins the client's values. (Post-gate parity defect; id out of sequence because it was added after the run closed.)**
+
+Legacy is **definition-driven**, verified at vue-app SHA `ea310f5a42e32b7ae1255c223b77918ef0594286`
+(pin by SHA, not branch — §2):
+
+- The client profile page mounts `customFields.vue` — the combined read/edit surface. **Not**
+  `customFieldsView.vue`, which is invoice/order-only.
+- It fetches the brand's definitions with
+  `filter[object_type]=client&brand_id=…&limit=0&order=order` (`customFields.vue:265-267`).
+- It renders **every** definition returned: the template's loop is
+  `v-for="(field, index) in filteredCustomFields"` (`customFields.vue:10`) — over definitions, never
+  over values — joining a value in where one exists.
+- **No visibility filter is applied.** `clientCustomFieldsForm.vue:4-22` mounts `<custom-fields>`
+  passing **no `filters` prop**, and the prop's default is `null` (`customFields.vue:183-186`), so
+  `filteredCustomFields` (`:204-215`) short-circuits to the unfiltered list. **Do not add a
+  `hidden` / `user_only` filter to this surface** — the oracle does not have one, and "helpfully"
+  adding one is the failure this citation exists to prevent.
+- `client_readonly` affects the **edit** surface only: `isReadOnly(field)`
+  (`customFields.vue:273-274`) appears solely in `:disabled` bindings and in the required-asterisk
+  expression, never in a `v-if`. It **never hides a row**.
+
+*Read-back:* **for a client whose `custom_fields` is EMPTY** — the input that separates the two
+implementations — the read surface still renders **one row per brand definition**, each carrying the
+type's empty value, plus the four native rows. Concretely, with a definitions fixture of N
+definitions and a client record whose `custom_fields` is `[]`: assert `data.value` has
+`4 + N` entries; assert the N custom-field rows' codes equal the definitions' codes; assert a
+`GET custom_fields?filter[object_type]=client&brand_id=…&limit=0&order=order` **was issued** (the
+value-driven implementation issued none at all); and assert the custom-field rows appear in the
+definitions' own `order`. Then repeat with a client that *has* values and assert the same `4 + N`
+shape with the values joined in — the two cases together are the proof, because the second alone
+cannot distinguish definition-driven from value-driven rendering.
+
+Additional assertions:
+
+- **Natives unaffected:** the four native rows (`firstName`, `lastName`, `publicName`, `language`)
+  render identically in both cases, before the custom-field rows.
+- **Degrades, never blanks:** when the definitions load **fails**, the four native rows still render
+  and the failure is reachable via `useContext().error` — assert both. A definitions failure must not
+  blank the profile.
+- **Empty definition set:** zero definitions yields the four native rows and no custom-field rows
+  (the consumer renders its own empty state — legacy's `#noResults` slot,
+  `clientCustomFieldsForm.vue:15-21`, is keyed to the **definitions** list being empty, never to the
+  values being empty).
+
+**What the fix must PRESERVE — enumeration and resolution are different needs, and both exist:**
+
+- `resolveFieldByValue`'s **embedded-definition preference** (AC-16, seam A-8) still short-circuits
+  for a value that carries its own `field` — that path must not be removed in favour of the
+  definitions collection, and AC-16's "collection deliberately not loaded" read-back still holds.
+- A value whose `field_id` is **not** among the returned definitions still renders, via its embedded
+  field. Assert it: a client record carrying a value for a definition absent from the brand's current
+  catalogue produces a row for it. (Delivered as the `remainderFields` pass —
+  `client-personal-details.mappers.ts:162-165`, keyed off a `definedFieldIds` set — alongside the
+  definition-driven map at `:212-213`.)
+
+> **Why this shipped through six gates, 13 certified mutants, and a PRESENT verify.** The prior
+> implementation reduced over `record.customFieldValues` — **value-driven** — so a client with zero
+> value entries got zero rows, and the module never learned which definitions the brand has (it
+> issued no `GET /custom_fields` at all). **Every recorded fixture was captured against a staging
+> client that had entries for both of this brand's definitions**, and against that data
+> value-driven and definition-driven rendering are **byte-identical**. No assertion in the bundle
+> covered the read surface *enumerating* definitions: AC-30 covers the identity seam and that the
+> read is a query; AC-17 covers projecting a value that exists; §5.2's "seeds every definition's
+> code" is the **editor's** model seeding, not the read surface. The fork is visible only on a client
+> with an empty `custom_fields[]`, and no fixture held one.
+>
+> **The operator found it by opening a different client in the running app, in about a minute.** See
+> §9, lesson **L6** — this is the fourth instance of the same family, and the reason L6 is written as
+> a habit rather than another instance.
 
 ### 5.6 Module B — write half (the JTBD's own verb)
 
@@ -790,7 +949,7 @@ as task T-A9 in `tasks.md`.
 | Drops (paste-ready) | `docs/sdd/client-custom-field-values/dropped-capabilities.md` |
 | Verification evidence (verifier seat — **cross-reference, never duplicate**) | `docs/sdd/client-custom-field-values/evidence/` — 8 files; `07-gaps-and-limits.md` is the authority on open gaps, incl. **G3** (the G-P2 count tension) |
 | A's feature (BDD dispatch) | `packages/headless/src/modules/client-custom-fields/__tests__/client-custom-fields.feature` — **26 scenarios** |
-| B's feature (BDD dispatch) | `packages/headless/src/modules/client-personal-details/__tests__/client-personal-details.feature` — **29 scenarios** |
+| B's feature (BDD dispatch) | `packages/headless/src/modules/client-personal-details/__tests__/client-personal-details.feature` — **29 scenarios; AC-63 owes a 30th** |
 
 **The features are CO-LOCATED and are the SOLE source of truth.** There is no SDD copy: an earlier
 draft of this plan created `docs/sdd/client-custom-fields/` and `docs/sdd/client-personal-details/`
@@ -807,15 +966,16 @@ against copying `client-email.traceability.test.ts:38-40,95-103`, whose SDD-sour
 pass in CI.
 
 Scenario counts above are the feature files' totals. They are **not** required to equal the AC counts
-(§5: 26 for A, 28 for B) — one AC may be covered by more than one scenario, which is why B carries 29
+(§5: 26 for A, 29 for B once AC-63's scenario lands) — one AC may be covered by more than one scenario, which is why B carries 29
 scenarios over 28 ACs. What IS required is that the set of distinct `@AC-<n>` tags equals the module's
 AC set exactly.
 
 ## 9. Lessons for the next converter — the proof and the production path must meet
 
-Five defects in this run shared one root: **an artefact that looked like evidence but was never
+Six defects in this run shared one root: **an artefact that looked like evidence but was never
 checked against the thing it claimed.** L1–L3 are controls that never touched the path that ships;
-L4 is a figure that was never measured; L5 is a reference that was never pinned. They are recorded together because the next converter will
+L4 is a figure that was never measured; L5 is a reference that was never pinned; **L6 is the habit
+that catches the whole class, and the one to keep if only one survives.** They are recorded together because the next converter will
 meet the same family, and because each was caught by a *different* mechanism — none of them by the
 green suite.
 
@@ -852,7 +1012,7 @@ disagree.
 
 - **Caught by:** review (the F5 finding).
 
-### L4 — A confident figure from a coordinating seat is not evidence
+### L4 — A confident claim from a coordinating seat is not evidence (twice: a figure, then a distinction)
 
 The **conductor** reported "two identical profile GETs per boot". **This planner recorded it as an
 accepted cost without asking what had measured it**, and it hardened into a parity-gap entry, a
@@ -875,6 +1035,35 @@ half is the half that got asserted.**
   provenance labels; AC-54's amendment.
 - **Caught by:** the verifier — the only seat that measured.
 
+**Second instance (2026-08-13), and the worse one — a fabricated DISTINCTION, not just a wrong
+number.** The conductor's Code-A dispatch asserted "`isReadOnly` and `isDisabled` are different
+things" without establishing what `isDisabled` should be. Nothing measured it. What followed is the
+part worth internalising:
+
+1. `isDisabled: !raw.editable` was **written to satisfy the claim**;
+2. **AC-5 was written to specify it** — titled "no longer collapse to the same flag", its read-back
+   *requiring* the two flags to differ;
+3. a **test was written to assert it**.
+
+Three artefacts, mutually consistent, all green — and none of them agreed with vue-app, where
+`editable` appears **nowhere** in either client-surface file. **Mutual agreement between spec, code
+and test is not evidence when they share an author upstream.** They were three restatements of one
+unverified sentence, not three independent checks. The convergence *felt* like corroboration, which
+is exactly what made it invisible.
+
+Sharpest detail: AC-5's own preamble — "Today both read `client_readonly`" — was describing the
+**correct** behaviour, and the AC instructed the implementation to break it. A spec can be a vector
+for a defect, not merely a place one hides.
+
+- **The added rule:** an asserted **difference** needs a citation as much as an asserted value. Before
+  specifying that two flags, values or paths diverge, cite the oracle line that makes them diverge —
+  and if the two collapse for the actor in scope, **say so explicitly**, because "these are different
+  things" is otherwise the easiest claim in the world to propagate.
+- **Full record:** AC-5's amendment; `parity.yaml` → row `A-client-self` → `post_gate_defects` PG-2.
+  The sweep it prompted found one more (AC-32) — see PG-2's `sweep_second_finding`.
+- **Caught by:** the operator, adding a definition with `editable: false` and finding the field
+  unfillable.
+
 ### L5 — An oracle citation needs a SHA, not a branch name
 
 Every dispatch, `parity.yaml` and `evidence/README.md` recorded the oracle as
@@ -894,6 +1083,50 @@ reference that borrowed confidence from its form rather than from what it actual
 - **Full record:** §2's oracle-provenance note (both SHAs, both citation vintages);
   `parity.yaml` → `meta.oracle`.
 - **Caught by:** Review, noticing the recorded branch did not match the checkout in front of it.
+
+### L6 — When an assertion passes, ask which OTHER implementation would also pass it
+
+This is the habit that catches L2, L3, L5's siblings and the post-gate defect below, and it is the
+one to internalise if only one survives.
+
+**The habit.** For every assertion, name a **wrong** implementation. If that wrong implementation
+would also pass, the assertion is describing **the fixture's data**, not the requirement. Then go find
+the input that separates the two — and if no such input exists in the recorded fixtures, **the fixture
+set is the gap**, not the assertion count.
+
+**Four defects in this run were the same shape: a fixture sitting on the side of a fork where both
+implementations agree.**
+
+| Defect | The fork | Why the fixture hid it |
+| --- | --- | --- |
+| F5 — the editor's unseeded model | seeded vs unseeded | the field's value happened to be `null`, which is what an unseeded model also yields |
+| The native clear value (AC-47) | `""` vs `null` | MSW replays its stubbed **response** regardless of the request body, so the request was never actually asserted |
+| **AC-63** (the read surface) | **definition-driven vs value-driven** | **the staging client had entries for every definition, so both render identically** |
+| L1's retarget control (AC-2) | context arm vs session arm | every spec called `.as(SELF)`, where the two arms return the same id |
+
+Each had a **passing assertion that a wrong implementation would also have passed**. None was a
+missing test in the "we forgot to write one" sense — the tests existed, ran, and were green.
+
+**Recorded fixtures are necessary but NOT sufficient.** All of these had genuine recorded captures;
+two of them were re-captured during the run specifically to strengthen the evidence. A recording is
+only as discriminating as the state of the system it was recorded against. **Provenance answers "is
+this data real?"; it does not answer "does this data separate right from wrong?"** Those are different
+questions and the second one has no automated gate in this pipeline.
+
+**The AC-63 receipt, stated plainly: the operator found it by opening a different client in the
+running app — about a minute.** Six gates, 13 certified mutants, a PRESENT verify and a
+`blocker_count: 0` review all passed over a profile page that rendered **no custom fields at all** for
+any client who had never answered one. That is not a criticism of the gates; it is the measurement of
+what they cover. A gate confirms the assertions hold. **Only a human, or a fixture deliberately built
+to disagree, asks whether the assertions were the right ones.**
+
+- **The practical rule for the next converter:** for each AC, write down the input that would make a
+  plausible wrong implementation fail. If you cannot name one, you do not yet have a read-back — you
+  have a description. **Vary the DATA, not just the assertions**: an empty collection, a cleared
+  value, a second identity, a client who has answered nothing.
+- **Full record:** AC-63 and its call-out; `parity.yaml` → row `B-client-self` →
+  `post_gate_defects` (PG-1).
+- **Caught by:** the operator, by hand, in the running app — after the run had closed.
 
 ---
 

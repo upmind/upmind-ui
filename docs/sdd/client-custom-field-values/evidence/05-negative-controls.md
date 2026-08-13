@@ -132,10 +132,12 @@ coercion only to **custom fields**, and `fixtures/put-clients-id-case-native-fal
 `{"public_name": ""}`. The AC-47 assertion became `{"public_name": ""}`.
 
 The legacy half of that claim is an **oracle** claim, so it inherits the oracle provenance caveat:
-the checkout is a separate working tree whose branch moved mid-run, and it must be resolved by SHA
-(`47fdeb0c053219cff5ee9c8276c2a741c6554178` for the late-verification phase this change belongs to)
-and confirmed against the cited **symbol**, not a line number. See
-[`README.md`](./README.md#oracle-provenance--read-before-following-any-legacy-citation).
+the checkout is a separate working tree whose branch moved **twice** during this work, and it must be
+resolved by SHA — `47fdeb0c053219cff5ee9c8276c2a741c6554178` for the late-verification phase this
+particular change belongs to — and confirmed against the cited **symbol**, not a line number. The
+later post-gate SHA (`ea310f5a42e32b7ae1255c223b77918ef0594286`) does **not** move this claim: I
+verified the native-clear behaviour's neighbouring citations byte-identical across all three trees.
+See [`README.md`](./README.md#oracle-provenance--read-before-following-any-legacy-citation).
 
 I polled until the change had landed **and** the tree had been quiet, then re-baselined before
 driving, because certifying against a half-applied tree proves nothing.

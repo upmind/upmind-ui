@@ -65,42 +65,51 @@ from the original research; by the late verification rounds the checkout was act
 are exact on the tree that was checked out when they were made — but a reader who checks out the
 branch named in prose may land on a different tree.
 
-A branch name is not a pin. Both SHAs, which are:
+A branch name is not a pin. The checkout has now moved **twice** during this work, across **three**
+branches, so all three phases are pinned by SHA:
 
-| Phase | Branch | SHA | HEAD date |
+| Phase | Branch at the time | SHA | Commit date |
 | --- | --- | --- | --- |
 | Initial research citations | `feat/cancellation-logs-updates` | `62953d26fad279520534ef77cb1bb632b9d74304` | 2026-08-07 10:23:10 +0100 |
 | Late verification (AC-47 onward) | `feat/FE-3080-promotion-disqualifying-products` | `47fdeb0c053219cff5ee9c8276c2a741c6554178` | 2026-08-06 18:04:51 +0100 |
+| Post-gate parity finding (AC-63 / PG-1) | `feat/FE-3007-future-date-cancellations` | `ea310f5a42e32b7ae1255c223b77918ef0594286` | 2026-08-11 11:35:35 +0100 |
 
 Recorded authoritatively in `../requirements.md` §2 and machine-readably in `../parity.yaml` →
 `meta.oracle`. Registered as lesson **L5** in `../requirements.md` §9: *an oracle citation needs a
 SHA, not a branch name* — a reference that borrowed confidence from its form rather than from what
-it actually resolved to.
+it actually resolved to. Two branch moves in one run is L5 earning its place, not a theoretical
+concern.
 
-### I verified both SHAs myself, and two things are worth knowing
+### I verified all three SHAs myself, and the lineage is not a straight line
 
-Read-only, in the oracle checkout:
+Read-only, in the oracle checkout — the third confirmed as a real commit and the branch it sits on
+identified (the dispatch named the SHA but not the branch):
 
 ```
 $ git rev-parse --abbrev-ref HEAD
-feat/FE-3080-promotion-disqualifying-products
+feat/FE-3007-future-date-cancellations
 $ git rev-parse HEAD
-47fdeb0c053219cff5ee9c8276c2a741c6554178
-$ git cat-file -t 62953d26fa
-commit                                        # still present locally
-$ git branch --list feat/cancellation-logs-updates
-  feat/cancellation-logs-updates               # branch still exists
+ea310f5a42e32b7ae1255c223b77918ef0594286
+$ git log -1 --format='%ci %s' ea310f5a42
+2026-08-11 11:35:35 +0100 Add client revoking; Add reason and cancellation fields
 ```
 
-**1. The labels are counter-intuitive: the "late" SHA is the OLDER tree.** `47fdeb0c05` is an
-**ancestor** of `62953d26fa` (`git merge-base --is-ancestor` confirms it; the merge-base *is*
-`47fdeb0c05`), and `62953d26fa` is the current tip of `feat/cancellation-logs-updates`. So the
-FE-3080 branch was cut from a point *before* the initial-research commit, and the late verification
-ran against an earlier tree than the early research did. A reader assuming "late = newer" would be
-wrong.
+**`47fdeb0c05` is the fork point, not the newest tree.** It is the merge-base of the other two:
 
-**2. In practice the cited lines did not drift at all.** I spot-checked nine citations spanning
-every oracle file the parity table leans on, comparing the exact cited line at both SHAs:
+```
+merge-base(62953d26fa, ea310f5a42) = 47fdeb0c05
+merge-base(47fdeb0c05, ea310f5a42) = 47fdeb0c05
+47fdeb0c05 is an ancestor of 62953d26fa        # and of ea310f5a42
+62953d26fa is NOT an ancestor of ea310f5a42    # divergent siblings
+```
+
+So the three phases are **not** chronological along one branch: the late-verification SHA is the
+common ancestor, and the initial-research and post-gate SHAs are divergent siblings descending from
+it. A reader diffing "initial → post-gate" is crossing a fork, not walking forward. Anyone assuming
+the phases are ordered will be wrong.
+
+**Citation stability: 10/10 checked lines byte-identical.** Across all the SHAs I compared, every
+cited line held. The nine from the previous cycle:
 
 | Citation | Result |
 | --- | --- |
@@ -113,8 +122,18 @@ every oracle file the parity table leans on, comparing the exact cited line at b
 | `customFields.vue:384` (the `guestToken` branch) | byte-identical |
 | `auth.services.client.ts:72` (child `access_token`) | byte-identical |
 
-**9/9 identical**, so the branch move did **not** invalidate any line number this bundle cites. The
-caveat below is therefore about reproducibility hygiene, not about a known error.
+plus the citation the post-gate AC-63 finding rests on, which I validated at **all three** SHAs:
+
+| Citation | Result |
+| --- | --- |
+| `customFields.vue:10` — `<template v-for="(field, index) in filteredCustomFields">` | byte-identical at `62953d26fa`, `47fdeb0c05` **and** `ea310f5a42` |
+
+That last one is the load-bearing one for AC-63: the oracle renders by iterating **definitions**,
+and it does so stably across every tree this bundle consulted — so "legacy is definition-driven" is
+not an artefact of which branch happened to be checked out. For contrast,
+`clientCustomFieldsForm.vue:92-93` reduces over `client.custom_fields` to seed the form model by
+code — values seed, definitions render. That asymmetry is exactly what the value-driven read surface
+collapsed.
 
 ### How to follow a legacy citation safely
 
@@ -125,6 +144,7 @@ reachable without checking anything out:
 ```bash
 git -C /Users/dom/Documents/Upmind/vue-app show 62953d26fa:<path>   # initial research
 git -C /Users/dom/Documents/Upmind/vue-app show 47fdeb0c05:<path>   # late verification
+git -C /Users/dom/Documents/Upmind/vue-app show ea310f5a42:<path>   # post-gate (AC-63 / PG-1)
 ```
 
 If a line number does not match, search the file for the named symbol before concluding the

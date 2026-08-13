@@ -14,7 +14,7 @@
  *   1. every non-`@todo` scenario has >=1 sibling spec naming its `AC-<n>`;
  *   2. every AC a test names is a scenario the feature actually tags
  *      (coverage never silently falls);
- *   3. the hard count — the distinct `@AC-<n>` tag set has exactly 28
+ *   3. the hard count — the distinct `@AC-<n>` tag set has exactly 29
  *      members, matching this module's AC set, and no member has an empty
  *      proving-file list.
  *
@@ -40,7 +40,7 @@ const SELF_FILENAME = "client-personal-details.traceability.test.ts";
  * altitude or a later stage — not "no sibling spec proves this" left
  * unexplained) is counted: `false` for "needs a proving spec here",
  * `true` for the module's total AC catalogue (a `@todo` AC is still one of
- * this module's 28 ACs; it just isn't proven by THIS seat).
+ * this module's 29 ACs; it just isn't proven by THIS seat).
  */
 function featureAcTags(path: string, includeTodo: boolean): Set<string> {
   const lines = readFileSync(path, "utf-8").split("\n");
@@ -113,7 +113,7 @@ describe("client-personal-details traceability — co-located feature vs proving
     ).toEqual([]);
   });
 
-  it("the distinct @AC-<n> tag set has exactly 28 members, and every non-@todo member has a proving file", () => {
+  it("the distinct @AC-<n> tag set has exactly 29 members, and every non-@todo member has a proving file", () => {
     const tests = provingTests();
     const allTagged = [...featureAcTags(COLOCATED_FEATURE, true)].sort(
       (a, b) => Number(a.slice(3)) - Number(b.slice(3))
@@ -125,7 +125,7 @@ describe("client-personal-details traceability — co-located feature vs proving
       files: tests.get(ac) ?? []
     }));
 
-    expect(allTagged).toHaveLength(28);
+    expect(allTagged).toHaveLength(29);
     expect(
       map.filter(entry => !entry.todo && entry.files.length === 0)
     ).toEqual([]);

@@ -57,6 +57,7 @@ import {
 } from "./client-personal-details.int-helpers";
 import { usePersonalDetails } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
+import { queryClient } from "../../query/client";
 import { server } from "./setup.integration";
 import type { IClient } from "@upmind-automation/types";
 
@@ -64,6 +65,26 @@ import type { IClient } from "@upmind-automation/types";
 
 /** A constructed id, deliberately distinct from the session's real client id. */
 const OTHER_CLIENT_ID = "11111111-2222-3333-4444-555555555555";
+
+/**
+ * B's OWN record query cache entry — `["client", <id>, "record"]`, exactly
+ * (design.md G-P2). Module A's independent brand-resolution read shares the
+ * SAME wire URL (both request `?with=custom_fields,custom_fields.field`) but
+ * lands under `["client", <id>, "record", {locale}]` — one element longer,
+ * because A's own `get()` call appends a locale segment B's raw query does
+ * not. A raw request count over `/clients/` therefore counts BOTH modules'
+ * reads and breaks on construction-order changes that are not a regression
+ * (AC-54 hit the same class); scoping to B's own cache key is what actually
+ * answers "did MY read fire more than once" (AC-41's own concern).
+ */
+function bOwnRecordQueryDataUpdateCount(clientId: string): number {
+  const key = JSON.stringify(["client", clientId, "record"]);
+  const entry = queryClient
+    .getQueryCache()
+    .getAll()
+    .find(query => JSON.stringify(query.queryKey) === key);
+  return entry?.state.dataUpdateCount ?? 0;
+}
 
 /** The recorded profile envelope, re-addressed to the constructed other id. */
 function otherClientEnvelope(): {
@@ -195,7 +216,7 @@ describe("usePersonalDetails — settling on error (AC-31)", () => {
 });
 
 describe("usePersonalDetails — cold boot resolves the target late (AC-41)", () => {
-  it("AC-41 issues exactly one read, against the resolved id, once the session resolves late", async () => {
+  it("AC-41 fetches its OWN record cache entry exactly once, against the resolved id, once the session resolves late", async () => {
     // Constructs the composable while AUTHENTICATED but with no client id
     // yet resolved, then lands the id on the SAME active session — never
     // resetting the scope registry — so this exact instance has to survive
@@ -218,29 +239,36 @@ describe("usePersonalDetails — cold boot resolves the target late (AC-41)", ()
     await details.useActions().isReady();
     observed.stop();
 
-    const reads = observed.all().filter(request => request.method === "GET");
-    expect(reads).toHaveLength(1);
-    expect(reads[0].url).toContain(`/clients/${clientId}`);
+    // Scoped to B's OWN cache entry (see bOwnRecordQueryDataUpdateCount) —
+    // NOT a raw `/clients/` request count, which now also counts module A's
+    // independent, deliberately non-deduped brand-resolution read landing on
+    // the identical wire URL (design.md G-P2).
+    expect(bOwnRecordQueryDataUpdateCount(clientId)).toBe(1);
+    const addressedReads = observed
+      .all()
+      .filter(
+        request =>
+          request.method === "GET" &&
+          request.url.includes(`/clients/${clientId}`)
+      );
+    expect(addressedReads.length).toBeGreaterThan(0);
     for (const request of observed.all()) {
       expect(request.url).not.toContain("undefined");
     }
     expect(details.useContext().data.value).toBeDefined();
   });
 
-  it("AC-41 issues exactly one read when constructed AFTER the session has already resolved", async () => {
+  it("AC-41 fetches its OWN record cache entry exactly once when constructed AFTER the session has already resolved", async () => {
     const { clientId } = await seedClientSession();
     server?.use(
       http.get(`*/clients/${clientId}`, () =>
         HttpResponse.json(recorded.profile(), { status: 200 })
       )
     );
-    const observed = observeClientRequests();
 
     const details = usePersonalDetails().as(ScopeActorTypes.SELF);
     await details.useActions().isReady();
 
-    observed.stop();
-    const reads = observed.all().filter(request => request.method === "GET");
-    expect(reads).toHaveLength(1);
+    expect(bOwnRecordQueryDataUpdateCount(clientId)).toBe(1);
   });
 });

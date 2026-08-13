@@ -4,28 +4,26 @@ Read this before trusting anything in files 01–06. Every gap I know of is here
 that reflect badly on my own run. A pipeline I could not run is a **surfaced gap, never a silent
 waiver**.
 
-## G1 — SHA-binding gap: the verdict is not bound to a pushed commit
+## G1 — SHA-binding: now partly resolved, but my verification predates the commit
 
-```
-$ git rev-parse HEAD
-7edb47ddead8a26d50b02b5e5821ad9912da920e
-$ git log --oneline -1
-7edb47dde Merge tag '0.20.10' into develop
-$ git ls-tree -r HEAD | grep client-custom-fields
-  … only the PRE-EXISTING flat module files …
-$ git rev-parse --abbrev-ref --symbolic-full-name @{u}
-fatal: no upstream configured
-```
+**At the time I verified, nothing was committed.** `HEAD` was
+`7edb47ddead8a26d50b02b5e5821ad9912da920e` (`Merge tag '0.20.10' into develop`) — an upstream merge
+containing none of the work — with all of it uncommitted working tree (91 `git status` entries) and
+no upstream configured. Every observation in files 01–06 was therefore bound to *the working tree as
+inspected* on 2026-08-10 and 2026-08-11, not to any commit a reader could check out.
 
-`7edb47dde` is an **upstream merge commit that contains none of this run's work**. All of it —
-four composable decompositions, both `__tests__/` trees, both fixture sets, the playground edits —
-was uncommitted working tree (91 `git status` entries) when I inspected it. `origin/develop` is not
-even a fetched ref.
+**That is now partly resolved.** The run is committed as **`73615c302`**
+(`feat(client-custom-fields, client-personal-details): rebuild as scoped composables, restoring the
+custom-field value read/write path`, 2026-08-12), on branch `feat/client-custom-field-values` in the
+main checkout `/Users/dom/Documents/upmind-monorepo`, and it is an ancestor of the current HEAD after
+a `gitlab/develop` merge. I confirmed `verify.md` and all eight `evidence/` files are tracked in that
+commit.
 
-So `verifiedSha` cannot be satisfied as the skill intends. **Everything in this directory is bound
-to the working tree as inspected on 2026-08-10 15:28–15:54 and 2026-08-11 15:37–15:51**, not to a
-commit any reviewer can check out. **A fresh end-to-end verification is owed after commit+push**,
-and the conductor has confirmed it will be dispatched then.
+**What is still owed, and it is not a formality.** `73615c302` is **not** the tree I verified: it
+postdates my read-backs and includes fixes made after them — Review's blockers 1 and 2, the
+native-clear `null`→`""` change, F5's seeding fix, and the post-gate AC-63 fix (G12). **No evidence in
+this directory was gathered against `73615c302`.** A fresh end-to-end verification bound to a
+committed SHA is owed; its scope is listed in `../verify.md` AMENDMENT 6.
 
 ## G2 — Module A's original fixtures were destroyed by my own re-capture
 
@@ -265,13 +263,18 @@ context enums are single-member **entity** contexts (`VALUES = "custom_field_val
 string in either module are doc comments explaining its absence.
 
 **Caveat on those 17 drop bodies' citations.** They are `file:line` references into the oracle, and
-the oracle is a separate working checkout whose branch moved mid-run — so a line number alone is not
-a pin. Resolve them at `62953d26fad279520534ef77cb1bb632b9d74304` (initial research, tip of
-`feat/cancellation-logs-updates`) or `47fdeb0c053219cff5ee9c8276c2a741c6554178` (late verification,
-`feat/FE-3080-promotion-disqualifying-products`) via `git show <sha>:<path>`, and confirm each
-against the cited **symbol** rather than the line. I spot-checked nine of these citations at both
-SHAs and all nine were byte-identical, so this is hygiene rather than a known error — detail and
-method in [`README.md`](./README.md#oracle-provenance--read-before-following-any-legacy-citation).
+the oracle is a separate working checkout whose branch moved **twice** during this work, across three
+branches — so a line number alone is not a pin. Resolve them at one of:
+`62953d26fad279520534ef77cb1bb632b9d74304` (initial research, `feat/cancellation-logs-updates`),
+`47fdeb0c053219cff5ee9c8276c2a741c6554178` (late verification,
+`feat/FE-3080-promotion-disqualifying-products`), or
+`ea310f5a42e32b7ae1255c223b77918ef0594286` (post-gate AC-63 / PG-1,
+`feat/FE-3007-future-date-cancellations`) — via `git show <sha>:<path>` — and confirm each against
+the cited **symbol** rather than the line. Note the three are **not** chronological along one
+branch: `47fdeb0c05` is the merge-base, and the other two are divergent siblings. I spot-checked ten
+citations across these SHAs and all ten were byte-identical, so this is hygiene rather than a known
+error — detail and method in
+[`README.md`](./README.md#oracle-provenance--read-before-following-any-legacy-citation).
 Registered as lesson **L5** in `../requirements.md` §9.
 
 ## G11 — Staging data I mutated
@@ -279,3 +282,47 @@ Registered as lesson **L5** in `../requirements.md` §9.
 For the record, so nobody mistakes it for drift: the test client's `age` custom field was changed
 by **me**, through the app, during read-backs — `null` → `37` → `44`. Its current value is `44`.
 `public_name` was tested for survival and is unchanged at `Checkout T.`.
+
+## G12 — POST-GATE: the read surface was value-driven, and my read-back could not have caught it
+
+**Found after my verdict**, by the operator opening `/account/profile` against a **different client**:
+the page rendered **no custom fields at all**, and no `GET /custom_fields` request was issued.
+
+**Root cause.** The read surface was **value-driven** — `mapProfileFields` reduced over
+`record.customFieldValues` — so a client who had never answered a field got **zero rows**, and the
+module never learned which definitions the brand has. The oracle is **definition-driven**:
+`customFields.vue:10` is `<template v-for="(field, index) in filteredCustomFields">`, iterating
+definitions and using values only to seed the model
+(`clientCustomFieldsForm.vue:92-93` reduces over `client.custom_fields` by code). Values seed;
+definitions render. I validated that `v-for` byte-identical at all three oracle SHAs, so
+"legacy is definition-driven" is not an artefact of which branch was checked out.
+
+Tracked as **AC-63** under a new `post_gate_defects` / **PG-1** category in `../parity.yaml`, and as
+lesson **L6** in `../requirements.md` §9. Reported fixed (definition-driven left-join; natives
+degrade rather than blank; `resolveFieldByValue`'s embedded preference retained for values carrying
+their own definition). **Not re-verified by me** — a prover is writing the AC-63 spec concurrently.
+
+### Why my AC-60 read-back could not have caught it — the honest mechanics
+
+I ran against the staging client `25d96e76-3ed0-913d-d52c-417482528340`, which **had values for both
+of this brand's two definitions** (`age` and `profile_picture`). Against that data, value-driven and
+definition-driven rendering are **byte-identical**: iterating the values yields the same two rows as
+iterating the definitions. No assertion over that subject could separate the two implementations.
+
+This is the **same shape as G8/F5, one step further out.** In G8 I correctly identified that a
+null-valued `age` made an unseeded model indistinguishable from a correctly-seeded-empty one, and
+that only a **non-null value** separated them. Here the separating state is not a value at all — it
+is a **client with an empty `custom_fields[]`**. I reasoned about which *value* would discriminate,
+but not about which *subject* would.
+
+### Method correction
+
+**A run-the-app read-back must deliberately include an empty / never-populated subject, not only a
+populated one.** One well-populated subject cannot distinguish implementations that differ only in
+how they handle absence, and "the page rendered correctly" against such a subject is weaker evidence
+than it looks. Concretely, the read-back should have covered at least: a client with **all**
+definitions answered (what I did test), a client with **some** answered, and a client with **none**
+answered — plus, per G9, set/clear/revert rather than set alone.
+
+The general form, which is L6: **when an assertion passes, ask which other implementation would also
+pass it, then find the input that separates them.** Applied to subjects as well as to values.

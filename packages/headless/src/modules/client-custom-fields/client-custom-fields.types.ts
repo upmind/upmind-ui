@@ -164,13 +164,23 @@ export type CustomField = {
     isRequired: ICustomField["required"];
     /** Whether the CLIENT actor may not change this field's value. */
     isReadOnly: ICustomField["client_readonly"];
-    /** Whether the field is disabled for input — the inverse of `editable`. */
+    // graphify-out/graph.json (2026-08-10): doc-comment-only correction, no
+    // new type/enum minted — `CustomField.meta` (this object) already exists.
+    /**
+     * Whether the field is disabled for input — derived from
+     * `client_readonly`, matching legacy's `isReadOnly(field)`
+     * (`customFields.vue:273-275`) for this run's `client x self` scope. See
+     * `mapCustomField`'s own `@decision`; never derived from `editable`.
+     */
     isDisabled: boolean;
     /** Whether the field is hidden from the client-facing form. */
     isHidden: ICustomField["hidden"];
     /** Whether the field is for internal/user-only visibility. */
     isUserOnly: ICustomField["user_only"];
-    /** The raw `editable` flag `isDisabled` derives from. */
+    /**
+     * The raw `editable` wire flag — a factual passthrough only. No gate in
+     * this module derives from it (see `mapCustomField`'s own `@decision`).
+     */
     isEditable: ICustomField["editable"];
     /** Whether the field appears on the order form. */
     showOnOrderForm: ICustomField["show_on_order_form"];

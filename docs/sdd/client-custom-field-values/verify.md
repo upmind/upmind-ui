@@ -753,3 +753,118 @@ SHA; no bare branch pin survives.
 This round changed no measurement and no finding — it makes existing citations resolvable. The
 verdict remains bound to the working tree rather than a pushed commit (HEAD still `7edb47dde`), and
 post-commit re-verification remains owed.
+
+---
+
+# AMENDMENT 6 — 2026-08-13, post-gate AC-63, method correction, third oracle SHA
+
+Context has changed since AMENDMENT 5: the worktree is gone, the run is committed as **`73615c302`**
+on `feat/client-custom-field-values` in the main checkout, and that commit is an ancestor of HEAD
+after a `gitlab/develop` merge. I confirmed `verify.md` and all eight `evidence/` files are tracked
+in it. **No re-verification was performed this round** — a prover is writing the AC-63 spec
+concurrently.
+
+## The post-gate defect, and why my read-back could not have caught it
+
+The operator opened `/account/profile` against a **different client** and got **no custom fields at
+all**, with no `GET /custom_fields`. The read surface was **value-driven** (`mapProfileFields`
+reducing over `record.customFieldValues`), so a client who had never answered a field got zero rows
+and the module never learned which definitions the brand has. The oracle is **definition-driven**:
+`customFields.vue:10` is `<template v-for="(field, index) in filteredCustomFields">`. Tracked as
+**AC-63** / **PG-1**, lesson **L6**. Reported fixed.
+
+I validated the load-bearing citation myself rather than accept it: that `v-for` is **byte-identical
+at all three oracle SHAs**, so "legacy is definition-driven" is not an artefact of which branch was
+checked out. Its counterpart `clientCustomFieldsForm.vue:92-93` reduces over `client.custom_fields`
+to seed the model by code — **values seed, definitions render**, and collapsing that asymmetry is
+exactly the defect.
+
+**Why my AC-60 read-back was blind to it.** I ran against staging client
+`25d96e76-3ed0-913d-d52c-417482528340`, which **had values for both** of this brand's two definitions
+(`age`, `profile_picture`). Against that data, value-driven and definition-driven rendering are
+**byte-identical** — iterating values yields the same two rows as iterating definitions. No assertion
+over that subject could have separated the implementations. So this is not something I looked at and
+misjudged; it is something my **sample could not express**.
+
+## Method correction — recorded alongside the set/clear/revert one
+
+This is the **same shape as F5/G8, one step further out**. In F5 I correctly reasoned that a
+null-valued `age` made an unseeded model indistinguishable from a correctly-seeded-empty one, and
+that only a **non-null value** separated them. Here the separating state is not a value at all — it
+is a **subject**: a client with an empty `custom_fields[]`. **I reasoned about which value would
+discriminate, but not about which subject would.**
+
+> **A run-the-app read-back must deliberately include an empty / never-populated subject, not only a
+> populated one.** One well-populated subject cannot distinguish implementations that differ only in
+> how they handle absence, and "the page rendered correctly" against such a subject is weaker
+> evidence than it looks. The read-back should cover a client with **all** definitions answered
+> (what I tested), **some** answered, and **none** answered — and, per the earlier correction,
+> **set / clear / revert** rather than set alone.
+
+Both corrections are the same family, which is L6's general form: **when an assertion passes, ask
+which other implementation would also pass it, then find the input that separates them** — applied to
+**subjects** as well as to values. My two verdict-level misses now have one root cause between them:
+I varied the operation and the value, never the subject.
+
+Filed as **G12** in `evidence/07-gaps-and-limits.md`, beside F5 (G8) and Review's blockers (G9), so
+the three sit together as one pattern rather than three unrelated escapes.
+
+## Third oracle SHA recorded (L5 earning its place)
+
+The oracle checkout has now moved **twice** during this work, across **three** branches. All three
+phases are pinned in `evidence/README.md`, with the third's branch identified (the dispatch gave the
+SHA only):
+
+| Phase | Branch | SHA |
+| --- | --- | --- |
+| Initial research | `feat/cancellation-logs-updates` | `62953d26fad279520534ef77cb1bb632b9d74304` |
+| Late verification (AC-47 onward) | `feat/FE-3080-promotion-disqualifying-products` | `47fdeb0c053219cff5ee9c8276c2a741c6554178` |
+| Post-gate (AC-63 / PG-1) | `feat/FE-3007-future-date-cancellations` | `ea310f5a42e32b7ae1255c223b77918ef0594286` |
+
+Verified all three myself. **The three are not chronological along one branch:** `47fdeb0c05` is the
+**merge-base** of the other two, which are divergent siblings — so a reader diffing "initial →
+post-gate" crosses a fork rather than walking forward. Citation stability is now **10/10
+byte-identical** across the SHAs compared, so the caveat remains hygiene, not a known error.
+
+## Owed post-commit verification scope
+
+A fresh end-to-end pass bound to a committed SHA is owed. **No evidence in `evidence/` was gathered
+against `73615c302`** — it postdates every read-back I ran and contains Review's blockers 1 and 2,
+the native-clear `null`→`""` change, F5's seeding fix, and AC-63's fix. Scope:
+
+1. **AC-63 empty-values case** — a client with an empty `custom_fields[]` renders all brand
+   definitions (definition-driven), plus a partially-populated client. **The new item.**
+2. **Set / clear / revert** round trips, not set alone (Review blocker 1).
+3. **F5's loose thread** — whether `baseModel` is populated at runtime, distinct from `model` being
+   seeded from it; observable only at the service seam, not the DOM.
+4. **G3 request economy at the service seam**, not the network layer — counting service-function
+   entries, and asserting the `{locale}`-segment key asymmetry (`useQuery.ts:262`).
+5. **Module A readiness on a brand-read failure** (Review blocker 2), now covered by the 12th control.
+6. Whether the `.gitignore` resolution clears `client-email`'s traceability RED.
+7. **Fixture provenance** — re-capture to a scratch path *if* `generate.mjs` has gained that option;
+   otherwise replay only (G2).
+
+## verdict_still — PRESENT as recorded, but it does not deserve the confidence a reader would take from it
+
+Asked plainly whether a defect this size, found post-gate, should change the verdict: **on the tree I
+graded, yes — had I observed it, I would have returned ABSENT.** The JTBD is "read and manage a
+client's custom field values **at full parity with legacy**", and legacy is definition-driven. A
+never-populated client could see no fields and therefore answer none: for that population the read
+verb was absent and the manage verb unreachable, which is the "half-landed" clause, not a defect
+within a delivered capability. It is a closer call than F5 — where I could defend PRESENT because the
+seeding code existed and was wired, making it a runtime bug in delivered code — because here the
+**wrong axis was iterated**, so the definition-driven capability was never built at all.
+
+I am **not** retroactively flipping the label, for one reason: the verdict is a point-in-time
+judgment on a tree that no longer exists, and rewriting PRESENT→ABSENT for a state nobody can check
+out would misrepresent both the tree and the record. What I can honestly do is bound its authority,
+so I am stating it explicitly:
+
+**The PRESENT verdict in this file certifies the tree inspected on 2026-08-10/11, on a sample now
+known to be unrepresentative in two ways — one operation (set, not clear) and one subject (populated,
+not empty). It should not be read as certifying `73615c302`. The binding verdict for this story is
+the owed post-commit verification, and until that returns, this story's delivery status is best
+described as unverified-since-fix rather than PRESENT.**
+
+That is the fail-closed posture applied to my own record rather than to someone else's code, which is
+where it is least comfortable and most necessary.

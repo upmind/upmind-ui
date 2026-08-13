@@ -42,6 +42,13 @@ Feature: A client reads and manages their own personal details, including their 
     And nothing outside this module can make either of them address a different client's profile,
       whether by naming another client or by acting as staff
 
+  @AC-63 @read
+  Scenario: My profile shows a row for every one of my brand's custom fields, even ones I've never answered
+    Given my brand offers custom fields I hold no value for
+    When I read my profile
+    Then every one of those fields still appears in my profile, alongside my native fields
+    And each shows its type's own empty value rather than being left out entirely
+
   @AC-31 @read
   Scenario: I can tell when my profile failed to load, and I'm never left waiting forever
     Given loading my profile fails

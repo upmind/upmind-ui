@@ -47,7 +47,43 @@ import type { ICustomField, ICustomFieldValue } from "@upmind-automation/types";
  */
 const BACKEND_DATETIME_FORMAT = "YYYY-MM-DD HH:mm:ss";
 
-/** Maps one wire definition to the view-model, at full `ICustomField` fidelity. */
+/**
+ * @decision `isDisabled` derives from `client_readonly`, never `editable`.
+ * what:    `isDisabled: raw.client_readonly` — the CLIENT-actor disable gate
+ *          this run's `client x self` scope reduces to (see why). `editable`
+ *          is exposed only as the factual passthrough `isEditable`; nothing
+ *          derives a gate from it.
+ * why:     legacy's actual disable expression is
+ *          `customFields.vue:43-44`, `isDisabled || isProcessing ||
+ *          !canManage || isReadOnly(field)`, where the parent-driven
+ *          `isDisabled` prop is a cross-panel processing lock dropped as
+ *          staff scope (D13), `isProcessing` is local save state,
+ *          `canManage` (`isClient || $userCan('update_client')`) is always
+ *          true for a client on their own profile, and `isReadOnly(field)`
+ *          (`customFields.vue:273-275`) is `field.client_readonly &&
+ *          isClient`. For `client x self` that whole expression reduces to
+ *          `client_readonly`. `editable` appears NOWHERE in
+ *          `customFields.vue` / `clientCustomFieldsForm.vue` — grepped clean
+ *          against the pinned oracle SHA
+ *          (`ea310f5a42e32b7ae1255c223b77918ef0594286`) — and every other
+ *          `editable` hit in `vue-app/src` is unrelated (bulk-action
+ *          modals, ticket forms, `editable-price`).
+ *          A prior revision of this mapper carried `isDisabled:
+ *          !raw.editable`, invented to satisfy an earlier, unestablished
+ *          claim that `isDisabled` and `isReadOnly` "are different things".
+ *          The original code (both fields mapping to `client_readonly`) was
+ *          oracle-correct; that claim broke it. It passed every gate only
+ *          because this brand's original two definitions evidently carry
+ *          `editable: true` server-side, so `!editable` happened to equal
+ *          `false` — identical to the correct rule — until a TEXT field with
+ *          `editable: false` (and `client_readonly: false`) exposed the
+ *          divergence by hiding its Edit affordance
+ *          (`playgrounds/labs/.../ClientProfile.vue:10`,
+ *          `v-if="!profileField.meta?.isDisabled"`).
+ * rejected: `!raw.editable` — the fabricated-gate history above; reintroduced
+ *          only with new `file:line` oracle evidence that `editable` gates a
+ *          client-facing surface, which none of the above found.
+ */
 export function mapCustomField(raw: ICustomField): CustomField {
   return {
     id: raw.id,
@@ -60,7 +96,7 @@ export function mapCustomField(raw: ICustomField): CustomField {
     meta: {
       isRequired: raw.required,
       isReadOnly: raw.client_readonly,
-      isDisabled: !raw.editable,
+      isDisabled: raw.client_readonly,
       isHidden: raw.hidden,
       isUserOnly: raw.user_only,
       isEditable: raw.editable,
@@ -86,6 +122,26 @@ export function mapCustomField(raw: ICustomField): CustomField {
  * rejected: keying on `field.type` (`type_code` string) — the prior draft's
  *          approach; rejected per `CustomField.typeId`'s own `@decision` for
  *          the identical reason (unverified guesses across 6 of 8 members).
+ */
+/**
+ * @decision the per-type EMPTY-VALUE shape for an unanswered definition is
+ * `undefined` for NUMBER/DATE/IMAGE, `false` for SELECT_RADIO, and `""` for
+ * TEXT/PASSWORD/SELECT/TEXTAREA — never a per-type placeholder invented here.
+ * what:    each `case` below already yields exactly this on a nullish/`""`
+ *          input; nothing new is added — this records the shape as
+ *          deliberate so a spec can assert it (rather than only row
+ *          presence).
+ * why:     legacy never seeds `formValues.custom_fields[code]` for a field
+ *          the client has no value for
+ *          (`clientCustomFieldsForm.vue`'s `created()` hook only sets a key
+ *          from `client.custom_fields`, never a default) — so `v-model`
+ *          reads that key as JS `undefined` for every type, and the
+ *          checkbox (`SELECT_RADIO`) template coerces that same `undefined`
+ *          through truthiness, which is why the boolean case alone differs
+ *          from `undefined`.
+ * rejected: a per-type placeholder (e.g. `0` for NUMBER, `null` for IMAGE) —
+ *          no oracle evidence supports one; inventing it would fabricate a
+ *          contract no real system exhibits.
  */
 export function mapCustomFieldValue(
   value: unknown,
