@@ -47,6 +47,12 @@ import type { ScenarioDeclaration } from "../runtime/scenario.types";
 /** This scenario's key — the identity the world and the page registry name it by. */
 export const MODULES_SCENARIO = "modules";
 
+/** What the editor's save says either way — one sentence from both halves. */
+const SAVE_FEEDBACK = {
+  success: "confirm.module_saved",
+  failure: "error.module_update_failed"
+};
+
 /**
  * `useList` and `useMutate` are each optional and AT LEAST ONE is required —
  * with neither there is no playground to build, and the door refuses the run.
@@ -62,6 +68,18 @@ export default {
   key: MODULES_SCENARIO,
   useList: useModules,
   useMutate: useModuleManager,
+  // Both halves of the editor's job are the SAME editor: the record it opens on
+  // is what decides whether its save creates or updates, so the create handoff
+  // names no context at all and `edit` points at the row's own identifier. The
+  // KEY names the editor; the control that opens it is named for the capability
+  // it performs (see the presentation's actions).
+  handoff: {
+    add: { feedback: SAVE_FEEDBACK },
+    edit: {
+      context: { type: "module", from: "/id" },
+      feedback: SAVE_FEEDBACK
+    }
+  },
   tracks: "module",
   presentation: {
     icon: "icon-name",

@@ -38,6 +38,16 @@
     Then the collection holds 2 items
 
   @FE-0000 @layer-e2e
+  # A track that WRITES ends on the collection the user can see, never on the
+  # absence of an error — "reports no failure" is green while the surface shows
+  # exactly what it showed before (operator ruling 2026-08-13). Pattern:
+  #
+  #   Scenario: A client adds a module
+  #     When the client adds the module "mock-module-9"
+  #     Then the collection reports no failure
+  #     And the collection holds 4 items
+  #     And "mock-module-9" is listed
+
   Scenario: A client refreshes their module collection
     Given the modules playground is generated for the active client
     When the client refreshes the collection

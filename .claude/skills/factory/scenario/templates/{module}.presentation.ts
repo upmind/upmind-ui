@@ -104,24 +104,37 @@ export const cardUischema: CardUischema = {
  * ONE actions channel, drawn identically on a table row and on a card — naming
  * it after one surface was the mistake a single list corrects.
  *
- * Each `name` is a live member of `useModules().useActions()`, or the key of a
- * declared `handoff` for a control the composable could never be handed by a
- * bare click. Each `rule` is a real JSONForms rule evaluated against the ROW,
- * so a per-row capability the record itself carries gates the control
- * declaratively: DISABLE where the row is worth showing as refused, HIDE where
- * the control has nothing left to offer.
+ * Each `name` is THE CAPABILITY THE CONTROL PERFORMS — a live member of
+ * `useModules().useActions()` — never the dialog it happens to open. A scenario
+ * step names the capability, and the step is a PRESS: it runs this control's own
+ * closure so the editor opens, the fields fill and the save fires ON SCREEN. Name
+ * a control `add` for a composable whose action is `ensure` and no step can find
+ * it, so the replay reaches past the screen and only the data moves — the exact
+ * cosplay the stage seam exists to end (operator ruling 2026-08-13).
  *
- * The `add` control names no row — a record that does not exist yet has none to
+ * `handoff` is separate and orthogonal: it names the EDITOR this control opens
+ * when a bare click could never supply what the capability needs (an address, a
+ * whole form). The capability is still the `name`.
+ *
+ * Each `rule` is a real JSONForms rule evaluated against the ROW, so a per-row
+ * capability the record itself carries gates the control declaratively: DISABLE
+ * where the row is worth showing as refused, HIDE where the control has nothing
+ * left to offer.
+ *
+ * The create control names no row — a record that does not exist yet has none to
  * read — which is what makes it the collection's own.
  */
 export const actionsUischema: ActionsUischema = [
   {
-    name: "add",
+    // NAMED FOR THE CAPABILITY, not the dialog: whatever `useModules()`
+    // actually exposes to create a record — `ensure`, `create`, `add`. The
+    // handoff below is the editor it opens; the name is what it DOES.
+    name: "{createAction}",
     i18n: "action.add_new",
     icon: "plus",
     color: "primary",
     variant: "solid",
-    placement: ActionPlacementTypes.VISIBLE,
+    placement: ActionPlacementTypes.HEADER,
     handoff: "add"
   },
   {

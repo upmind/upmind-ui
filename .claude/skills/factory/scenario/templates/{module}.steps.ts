@@ -98,6 +98,15 @@ export const modulesSteps = defineSteps(({ Given, When, Then }) => {
     settles(() => world.expectContext({ pagination: { total } }))
   );
 
+  // A WRITING scenario ends on the COLLECTION, never on the absence of an
+  // error: "reports no failure" passes while the surface shows the same rows it
+  // showed before, which is the replay reading as cosplay. Every track that
+  // writes closes on what the user can see changed — the count, the new record
+  // listed, the flag moved (operator ruling 2026-08-13).
+  Then("{string} is listed", (world, name) =>
+    settles(() => world.expectContext({ data: [{ name }] }))
+  );
+
   Then("the collection reports no failure", world =>
     settles(() => world.expectMeta({ hasError: false }))
   );

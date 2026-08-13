@@ -29,12 +29,14 @@ Every row is read off the LANDED module, its schemas and its own `__tests__/`. E
 | D5 | `identifier` | The row's identity property; omitted where it is `id` (`scenario.types.ts`'s `DEFAULT_ROW_IDENTIFIER`) |
 | D6 | The table's element list — one element per field, each element's renderer type and its `i18n` column header | The mapped record the composable publishes (its `{module}.mappers.ts`). Renderer follows the field: a date → `TableCellDate`, a boolean group under `meta` → `TableCellBadges`, a single boolean drawn filled/outline → `TableCellIcon`, else `TableCellText`. A system id, a duplicate of another field, an always-empty field and a server-fixed deprecated const are never elements |
 | D7 | The card's element list | The same record, drawn in card slots |
-| D8 | Candidate action members | `useModules().useActions()`'s live map |
+| D8 | Candidate action members, AND the `name` each drawn control carries | `useModules().useActions()`'s live map. A control's `name` IS the capability it performs — the member the composable actually exposes — never the dialog it opens. A scenario step names the capability and the step is a PRESS, so a control named for its dialog (`add` over a composable whose action is `ensure`) is one no step can find: the replay falls back past the screen and only the data moves |
 | D9 | Candidate gate flags for those actions | The row's own `meta` booleans — the record carries its per-row capability |
-| D10 | `handoff` + its inline editor spec | Present where `useMutate` exists; `add` carries no `contextFrom` (a record that does not exist yet boots fresh), `edit` points at the row's identifier |
+| D10 | `handoff` + its inline editor spec | Present where `useMutate` exists; the create handoff carries no `contextFrom` (a record that does not exist yet boots fresh), `edit` points at the row's identifier. The handoff KEY names the editor; it never renames the control that opens it (D8) |
 | D11 | `persistCriteria` | True where the composable exposes a list-criteria surface |
 | D12 | `tracks` | The module's own name — the one string the declaration carries. Which of the module's scenarios are driveable is the step catalog's answer, never a derived field |
 | D13 | How many scenario directories the run writes | Exactly one per module — one module, one declaration |
+
+**D8's naming is a gate, not a preference.** Before filing the derivation table, check each drawn control's `name` against `useActions()`: a name that is not a live member — and is not itself the reason a handoff exists — is a control no scenario can press. Echo the create control's resolved capability by name in the report.
 
 `presentation.icon` is neither asked nor derived: the template carries the placeholder token and the author names the module's icon after the run.
 
