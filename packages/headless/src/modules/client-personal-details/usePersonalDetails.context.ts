@@ -100,9 +100,8 @@ export function createPersonalDetailsContext(
    */
   const error = computed<ResponseError | undefined>(
     () =>
-      (query.error.value
-        ? mapToHeadlessError(query.error.value)
-        : undefined) ?? definitionsError.value
+      (query.error.value ? mapToHeadlessError(query.error.value) : undefined) ??
+      definitionsError.value
   );
 
   /** The client's own raw custom field values, as read (AC-30's read verb). */

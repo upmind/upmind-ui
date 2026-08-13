@@ -138,10 +138,7 @@ export function createPersonalDetailsActions(
   async function isReady(): Promise<boolean> {
     if (!(await whenSessionSettles())) return false;
 
-    const [fetched] = await Promise.all([
-      whenFetched(),
-      isCustomFieldsReady()
-    ]);
+    const [fetched] = await Promise.all([whenFetched(), isCustomFieldsReady()]);
     return fetched;
   }
 
