@@ -2,9 +2,11 @@
 #
 # CO-LOCATION IS THE REQUIREMENT (operator ruling 2026-08-05): this file lives at
 #   packages/headless/src/modules/client-email/__tests__/client-email.feature
-# The copy in docs/sdd/client-email/ is the planner's source; the co-located copy
-# is what client-email.traceability.test.ts reads and what the @AC link is
-# enforced against, both ways.
+# and is the SOLE copy the tests know about — what client-email.traceability.test.ts
+# reads and what the @AC link is enforced against, both ways. A planning bundle
+# may hold its own copy, but no test may read one: those directories are
+# gitignored, so a test that reaches for a bundle path passes locally and fails
+# in CI.
 #
 # NON-EXECUTABLE per ADR-020 (".feature files are spec-only, not executable").
 # No runner touches it and no steps file is produced — the colocated unit and

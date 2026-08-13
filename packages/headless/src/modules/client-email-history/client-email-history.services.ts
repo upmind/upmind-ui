@@ -1,96 +1,215 @@
 /** @internal */
-import upmind from "../../useUpmind";
+import { keepPreviousData } from "@tanstack/vue-query";
+import { computed } from "vue";
 import { RequestSortDirection, useQuery } from "../query";
 import { useActiveSession } from "../session-store";
 import {
   mapEmailHistory,
   mapReceivedEmail
 } from "./client-email-history.mappers";
+import { ReceivedEmailsContextTypes } from "./client-email-history.types";
 import { useTime, NotAuthenticatedError } from "../../utils";
 import type { QueryParams } from "../query";
-import type { SentEmail } from "./client-email-history.types";
+import type { ScopeContext } from "../scope";
+import type {
+  ClientEmailHistoryServices,
+  ReceivedEmailItemQuery,
+  ReceivedEmailsListQuery,
+  SentEmail
+} from "./client-email-history.types";
+import type { ResponseError } from "../../utils";
+import type { ScopeActorTypes } from "../scope/scope.types";
 import type { QueryKey } from "@tanstack/vue-query";
-import type { IEmail, ISentEmail } from "@upmind-automation/types";
-
+import type { ISentEmail } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
-// QUERIES
+/**
+ * @module client-email-history/client-email-history.services
+ * @description The ONE services file both halves consume — the collection's
+ * `loadList` and the single read's `loadOne`. One factory on purpose: one
+ * identity seam, one cache key, one arm-resolution switch, so the two
+ * composables can never disagree about whose history is being read.
+ *
+ * Nothing here raises feedback. A failure rejects for the caller and lands in
+ * the scope's own error state, which the composables expose.
+ *
+ * WARNING: Do not import directly from another module. Resolve via
+ * `useClientReceivedEmails.ts` / `useClientReceivedEmail.ts` only
+ * (`@internal/no-cross-module-imports`).
+ */
+// -----------------------------------------------------------------------------
 
-const queryKey: QueryKey = ["client", "emailHistory"];
+/** The module's base cache key. Unchanged from the oracle. */
+export const queryKey: QueryKey = ["client", "emailHistory"];
 
-function load({ emailId }: { emailId?: SentEmail["id"] }) {
-  const { query, useUrl } = useQuery();
-  const { admin } = upmind;
+/**
+ * Derives the target client from the RESOLVED scope — the ONE seam every
+ * request-issuing function in this file shares.
+ *
+ * The collection's context names the CLIENT whose history is read; with no
+ * context it falls back to the active session's own client (the self case).
+ * The single read's context names the EMAIL, not its owner, so it falls
+ * through to the session — correct, and the same fall-through
+ * `client-email.services.ts` documents for `.for('email', id)`.
+ *
+ * This compares the CONTEXT the scope builder resolved, never the actor, so
+ * it is not a branch on `ScopeActorTypes.SELF` (variance-law clause 4).
+ */
+function resolveClientId(scopeContext?: ScopeContext) {
+  const { activeUser } = useActiveSession().useContext();
 
-  // NB:We use the latest but in time we could get a specific version.
-  // This would be the identifier that needs to be overridden/replaced by a param
-
-  return query<ISentEmail, SentEmail>({
-    queryKey: [...queryKey, emailId, admin],
-    url: useUrl(admin ? `admin/emails/${emailId}` : `emails/${emailId}`, {
-      with: "data"
-    }),
-    withAccessToken: true,
-    // --- options
-    select: mapReceivedEmail,
-    staleTime: useTime().DAY
-    // persister: localStoragePersister.persisterFn
-  });
+  return computed(() =>
+    scopeContext?.type === ReceivedEmailsContextTypes.CLIENT
+      ? scopeContext.id
+      : activeUser.value?.id
+  );
 }
 
-function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
+/**
+ * @decision
+ * what:     Both composables gate on ONE addressability predicate —
+ *           isAddressable(clientId) = isAuthenticated && !!clientId —
+ *           exposed reactively as `service.isAvailable`. The single read
+ *           gains the `guard` + `enabled` it does not have in the oracle;
+ *           the oracle's hardcoded `isAvailable: true` is removed.
+ *
+ * why:      (1) The oracle's asymmetry is not a capability. The single-read
+ *               endpoint already sends `withAccessToken: true`, so an
+ *               unauthenticated call 401s on the wire — `isAvailable: true`
+ *               advertises an availability the wire denies. Unifying
+ *               removes a lie, not a feature.
+ *           (2) One predicate is the only way the flag a consumer RENDERS
+ *               and the gate the WIRE enforces cannot drift apart (the
+ *               `client-email` receipt: `service.isAvailable` IS the
+ *               function the `enabled`/`guard` call, not a second copy of
+ *               it).
+ *           (3) Both composables serve the SAME ADR-001 cell (client x
+ *               self). Two different answers to "is this mine to read?"
+ *               inside one cell is incoherent for a consumer that renders
+ *               both surfaces from one page.
+ *           (4) It makes AC-18's whole-module negative control possible at
+ *               all: a module-wide "no request without an authenticated
+ *               client session" claim cannot be proven while one half is
+ *               ungated.
+ *
+ * rejected: Preserve the asymmetry (leave the single read ungated).
+ *           Rejected because it keeps an unguarded, token-bearing request
+ *           path whose only outcome on an unauthenticated session is a raw
+ *           401 the consumer must interpret, and because it would force
+ *           AC-18 to be scoped to half the module — a negative control with
+ *           a hole in it is the FE-2824 shape.
+ *
+ *           Also rejected: gate the single read on `isAuthenticated` alone
+ *           (without the resolved-client half). That reintroduces the drift
+ *           D2 exists to close, and reproduces the readiness hazard NFR-3
+ *           names — a session that authenticates without ever resolving a
+ *           client id would leave the query permanently disabled and a
+ *           readiness wait pending forever.
+ */
+function isAddressable(clientId?: string): boolean {
   const { isAuthenticated } = useActiveSession().useMeta();
-  const { list, useUrl } = useQuery();
-  const { admin } = upmind;
 
-  return list<IEmail[], SentEmail[]>({
-    ...(params as any),
-    queryKey: [...queryKey, admin],
-    url: useUrl(admin ? "admin/self/email_history" : "self/email_history", {
-      with: ["recipient", "recipient_type", "recipient.image"].join(","),
-      ...params.filters
+  return isAuthenticated.value && !!clientId;
+}
+
+/**
+ * COLLECTION — the reactive list query, minted once per scope.
+ *
+ * The URL stays `self/email_history` regardless of the resolved client — the
+ * endpoint is self-shaped and takes no client id, so `resolveClientId` here
+ * supplies the addressability predicate and the cache-key partition, not a
+ * path segment (design D1's documented divergence).
+ *
+ * Oracle divergence, surfaced not resolved: the oracle passes the tab/search
+ * filters into `useUrl(...)` as query-string members at construction; this
+ * rebuild passes them through `query.filter()` (the runtime channel) only.
+ */
+function loadList(
+  params: Partial<QueryParams<ISentEmail[], SentEmail[]>> = {},
+  scopeContext?: ScopeContext
+): ReceivedEmailsListQuery {
+  const { list, useUrl } = useQuery();
+  const clientId = resolveClientId(scopeContext);
+
+  return list<ISentEmail[], SentEmail[]>({
+    ...params,
+    queryKey: [...queryKey, { client: clientId }],
+    url: useUrl("self/email_history", {
+      with: ["recipient", "recipient_type", "recipient.image"].join(",")
     }),
     sort: [[RequestSortDirection.DESC, "created_at"]],
-    withSplitCount: true,
     withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (isAuthenticated.value) {
-          resolve(true);
-        } else {
+        if (!isAddressable(clientId.value)) {
           reject(new NotAuthenticatedError());
+          return;
         }
+        resolve(true);
       }),
-    // --- options
+    enabled: () => isAddressable(clientId.value),
     select: mapEmailHistory,
+    staleTime: useTime().DAY,
+    placeholderData: keepPreviousData
+  });
+}
+
+/**
+ * SINGLE READ — the reactive item query, minted once per scope. Reactive,
+ * not a one-shot promise — the oracle's `data`/`error`/`refresh` are
+ * reactive and `EmailOverview.vue` renders them.
+ */
+function loadOne(
+  emailId?: SentEmail["id"],
+  scopeContext?: ScopeContext
+): ReceivedEmailItemQuery {
+  const { query, useUrl } = useQuery();
+  const clientId = resolveClientId(scopeContext);
+
+  return query<ISentEmail, SentEmail>({
+    queryKey: [...queryKey, "email", emailId, { client: clientId }],
+    url: useUrl(`emails/${emailId}`, { with: "data" }),
+    withAccessToken: true,
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (!emailId || !isAddressable(clientId.value)) {
+          reject(new NotAuthenticatedError());
+          return;
+        }
+        resolve(true);
+      }),
+    enabled: () => !!emailId && isAddressable(clientId.value),
+    select: mapReceivedEmail,
     staleTime: useTime().DAY
   });
 }
 
 // -----------------------------------------------------------------------------
-// MUTATIONS
+// Scope-Ready Services
 
-// -----------------------------------------------------------------------------
-//  SIDE EFFECTS
+/**
+ * Services factory — the concrete actor and the context it acts upon arrive
+ * first, at construction. `useClientReceivedEmails.ts` calls it once and so
+ * does `useClientReceivedEmail.ts`, each with ITS OWN resolved scope, so the
+ * two instances share no mutable state.
+ *
+ * `_scopeActor` is unused today — with a single resolving actor (`client`)
+ * in both matrices (D6), there is no per-actor member to select. Kept in the
+ * signature so a future arm can switch on it without a call-site change.
+ */
+export const createClientEmailHistoryServices = (
+  _scopeActor: ScopeActorTypes,
+  scopeContext?: ScopeContext
+): ClientEmailHistoryServices => {
+  const clientId = resolveClientId(scopeContext);
 
-// -----------------------------------------------------------------------------
-
-export default {
-  /**
-   * The query key used for caching and identifying email-related queries.
-   * @type {QueryKey}
-   */
-  queryKey,
-
-  //--- queries
-  /**
-   * Loads the email.
-   * @returns {Promise<Email>} A promise that resolves to the email
-   */
-  load,
-
-  /**
-   * Loads the email list.
-   * @returns {Promise<Email[]>} A promise that resolves to the list of emails
-   */
-  loadList
+  return {
+    queryKey,
+    clientId,
+    isAvailable: computed(() => isAddressable(clientId.value)),
+    error: computed<ResponseError | undefined>(() => undefined),
+    loadList: params => loadList(params, scopeContext),
+    loadOne: emailId => loadOne(emailId, scopeContext)
+  };
 };
+
+export default createClientEmailHistoryServices;

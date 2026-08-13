@@ -1,13 +1,15 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview client-email traceability — every scenario has a proving test
+ * @fileoverview client-email-history traceability — every scenario has a
+ * proving test
  *
  * ## Job To Be Done
- * Parse the CO-LOCATED `client-email.feature`'s `@AC-*` scenario tags and
- * every sibling spec's `AC-<n>` title mentions, then enforce the link BOTH
- * ways: a non-`@todo` scenario with no proving test fails, and a test naming
- * an AC the feature does not tag fails. The co-located feature is the ONLY
- * source this test reads (operator ruling 2026-08-05, requirements.md §5.10).
+ * Parse the CO-LOCATED `client-email-history.feature`'s `@AC-*` scenario tags
+ * and every sibling spec's `AC-<n>` title mentions, then enforce the link
+ * BOTH ways: a non-`@todo` scenario with no proving test fails, and a test
+ * naming an AC the feature does not tag fails. Mirrors
+ * `client-email/__tests__/client-email.traceability.test.ts` — the sibling
+ * module's own equivalent.
  *
  * A test may never read a planning-bundle path: the SDD bundle directories are
  * gitignored, so any such read passes locally and fails in CI on a checkout
@@ -18,7 +20,7 @@
  *
  * ## What Breaks If These Fail
  * A capability silently loses its proof — shape present, behaviour unproven.
- * That is the exact gap the manager amputation slipped through.
+ * That is the exact gap FE-2824 slipped through.
  */
 
 import { readFileSync, readdirSync } from "node:fs";
@@ -28,7 +30,7 @@ import { describe, expect, it } from "vitest";
 // -----------------------------------------------------------------------------
 
 const TEST_DIR = import.meta.dirname;
-const COLOCATED_FEATURE = join(TEST_DIR, "client-email.feature");
+const COLOCATED_FEATURE = join(TEST_DIR, "client-email-history.feature");
 
 /** The `@AC-*` tags on every scenario in a feature file, `@todo` excluded. */
 function featureAcTags(path: string): Set<string> {
@@ -56,7 +58,7 @@ function provingTests(): Map<string, string[]> {
   const files = readdirSync(TEST_DIR).filter(
     file =>
       (file.endsWith(".test.ts") || file.endsWith(".int.test.ts")) &&
-      file !== "client-email.traceability.test.ts"
+      file !== "client-email-history.traceability.test.ts"
   );
 
   const mentions = new Map<string, string[]>();
@@ -80,7 +82,7 @@ function provingTests(): Map<string, string[]> {
 
 // -----------------------------------------------------------------------------
 
-describe("client-email traceability — co-located feature vs proving tests", () => {
+describe("client-email-history traceability — co-located feature vs proving tests", () => {
   it("every non-@todo scenario has at least one proving test", () => {
     const tests = provingTests();
     const unproven = [...featureAcTags(COLOCATED_FEATURE)].filter(
@@ -104,13 +106,13 @@ describe("client-email traceability — co-located feature vs proving tests", ()
     ).toEqual([]);
   });
 
-  it("the coverage map names a proving file for all 24 scenarios", () => {
+  it("the coverage map names a proving file for all 20 scenarios", () => {
     const tests = provingTests();
     const map = [...featureAcTags(COLOCATED_FEATURE)]
       .sort((a, b) => Number(a.slice(3)) - Number(b.slice(3)))
       .map(ac => ({ ac, files: tests.get(ac) ?? [] }));
 
-    expect(map).toHaveLength(24);
+    expect(map).toHaveLength(20);
     expect(map.filter(entry => entry.files.length === 0)).toEqual([]);
   });
 });
