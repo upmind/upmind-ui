@@ -57,7 +57,7 @@
   "free": "GRATUIT",
   "free_trial": "Essai gratuit",
   "free_trial_alert": "Cet article comprend un essai gratuit de {days} jours.",
-  "free_trial_desc": "Bonne nouvelle – vous pouvez maintenant essayer ce produit gratuitement pendant 7 jours, sans aucune obligation. Lorsque votre période d’essai prendra fin, votre forfait {term} commencera alors.",
+  "free_trial_desc": "Bonne nouvelle : vous pouvez désormais tester ce produit gratuitement grâce à une période d'essai {days}, sans aucune condition. À l'issue de cette période d'essai, votre forfait {term} prendra alors effet.",
   "free_trial_included_desc": "Ce produit comprend une période d’essai gratuite.",
   "from": "De",
   "fully_encrypted_title": "Entièrement chiffré",

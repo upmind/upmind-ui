@@ -17,7 +17,7 @@
           :dataAttrs="{ 'data-test-key': 'emailHistory' }"
         />
         <EmailHistoryListing
-          :manual-filters="filters"
+          :status="status"
           v-model:sort="params.sort"
           v-model:direction="params.direction"
           v-model:query="params.query"
@@ -37,15 +37,14 @@ import { useRouteQuery } from "@vueuse/router";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
-import { useActiveSession } from "@upmind-automation/headless";
+import { useActiveSession, SentEmailStatus } from "@upmind-automation/headless";
 import { UpmLayout } from "../layout";
 import { LAYOUT_VARIANTS } from "../layout/types";
 import { UpmSection, UpmSections } from "../section";
 import EmailHistoryListing from "./EmailHistoryListing.vue";
 import type {
   ReceivedEmailsSortableProperties,
-  RequestSortDirection,
-  SentEmailQueryModel
+  RequestSortDirection
 } from "@upmind-automation/headless";
 import type { TabItem } from "@upmind-automation/upmind-ui";
 
@@ -79,17 +78,16 @@ const params = useUrlSearchParams<{
   removeFalsyValues: true
 });
 
-const filters = computed<SentEmailQueryModel["filters"]>(() => {
+const status = computed<SentEmailStatus | undefined>(() => {
   switch (active.value) {
     case "sent":
-      return { sent: { eq: true }, bounced: { eq: false } };
+      return SentEmailStatus.SENT;
     case "bounced":
-      return { bounced: { eq: true } };
-    // A send that errored carries an `error_id`, so "not null" IS the failures.
+      return SentEmailStatus.BOUNCED;
     case "failed":
-      return { error_id: { neq: "null" } };
+      return SentEmailStatus.ERROR;
     default:
-      return {};
+      return undefined;
   }
 });
 

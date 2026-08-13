@@ -57,7 +57,7 @@
   "free": "自由的",
   "free_trial": "免費試用",
   "free_trial_alert": "此項目附有 {days} 天 0 元試用期。",
-  "free_trial_desc": "好消息—現在可享 7 天 0 元試用，無須綁約。試用期結束後， {term} 方案將開始。",
+  "free_trial_desc": "好消息——您現在可以免費試用此產品，享有{days}試用期，且無任何附加條件。試用期結束後，您的{term}方案將正式生效。",
   "free_trial_included_desc": "此產品附有 0 元試用期。",
   "from": "從",
   "fully_encrypted_title": "完全加密",

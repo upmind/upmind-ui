@@ -99,24 +99,23 @@ import {
   DEBOUNCE_DELAY,
   ReceivedEmailsSortableProperties,
   RequestSortDirection,
-  SortDirection
+  ScopeActorTypes,
+  type SentEmailStatus
 } from "@upmind-automation/headless";
-// import { ROUTE } from "../../../router/types";
 import { Pagination, Link, Input, Avatar } from "@upmind-automation/upmind-ui";
 import EmailHistorySort from "./EmailHistorySort.vue";
-import { assign, debounce, isArray, isEmpty } from "lodash-es";
+import { debounce, isArray, isEmpty } from "lodash-es";
 import type { ReceivedEmailsSortProps, ReceivedEmailsProps } from "./types";
-import type { SentEmailQueryModel } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(
   defineProps<{
-    manualFilters: SentEmailQueryModel["filters"];
+    status?: SentEmailStatus;
     routeViewName?: string;
   }>(),
   {
-    manualFilters: () => ({}),
+    status: undefined,
     routeViewName: "account-email-history-view"
   }
 );
@@ -147,22 +146,16 @@ const router = useRouter();
 const urlParams = useUrlSearchParams("history");
 const urlPage = computed(() => Math.max(Number(urlParams.page), 1));
 
+const history = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
+const { data, pagination } = history.useContext();
+const meta = history.useMeta();
 const {
   isReady: getEmailHistory,
-  data,
-  meta,
-  pagination,
-  setCriteria,
+  filters,
+  sort,
   nextPage,
   prevPage
-} = useClientReceivedEmails({
-  pagination: {
-    limit: 10,
-    offset: (urlPage.value - 1) * 10
-  }
-});
-
-await getEmailHistory();
+} = history.useActions();
 
 const lastProductCount = ref(10);
 
@@ -189,37 +182,11 @@ watch(
   },
   { immediate: true }
 );
-// The tab filters and the search box are ONE branch: a criteria write replaces
-// `filters` whole, so writing them separately would have each clear the other.
-const filters = computed<SentEmailQueryModel["filters"]>(() =>
-  assign({}, props.manualFilters, {
-    subject: { like: query.value }
-  })
-);
+watch(query, filters.query, { immediate: true });
+watch(() => props.status, filters.status, { immediate: true });
+watch(sortBy, value => sort(value, direction.value), { immediate: true });
+watch(direction, value => sort(sortBy.value, value), { immediate: true });
 
-watch(filters, value => setCriteria({ filters: value }), {
-  immediate: true,
-  deep: true
-});
-
-watch(
-  [sortBy, direction],
-  ([property, value]) =>
-    setCriteria({
-      sort: !property
-        ? []
-        : [
-            {
-              field: property,
-              dir:
-                value === RequestSortDirection.DESC
-                  ? SortDirection.DESC
-                  : SortDirection.ASC
-            }
-          ]
-    }),
-  { immediate: true }
-);
 watch(
   () => pagination.value.page,
   newPage => {
@@ -228,4 +195,19 @@ watch(
     }
   }
 );
+
+// Registered AFTER the `{ immediate: true }` watchers above, deliberately:
+// their synchronous first run applies the tab filter/sort before this awaits
+// the first fetch, so the initial request already carries them instead of
+// firing unfiltered and being followed by a second, filtered one. The reason
+// is that requirement alone — the filter must be applied before the first
+// fetch escapes.
+//
+// This is NOT a product-catalogue precedent (citation corrected 2026-08-07).
+// No product-catalogue consumer has a top-level `await` to order watchers
+// against: WidgetGrid.vue, labs Paginated.vue and labs Infinite.vue all pass
+// their filters as reactive constructor args instead. What IS mirrored from
+// useProductCatalogue.ts is the shape — filters and sort applied synchronously
+// through `{ immediate: true }` watchers with no intervening `await`.
+await getEmailHistory();
 </script>

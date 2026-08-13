@@ -1,173 +1,91 @@
-import { computed } from "vue";
-import { invalidateQueryByKey } from "../query";
-import { useActiveSession } from "../session-store";
-import service from "./client-email-history.services";
-import { isEmpty, isArray } from "lodash-es";
-import type { SentEmailQueryModel } from "./client-email-history.types";
-
+import { PAGINATION } from "../query";
+import { createScopedComposable } from "../scope";
+import createClientEmailHistoryServices from "./client-email-history.services";
+import { createClientReceivedEmailsActions } from "./useClientReceivedEmails.actions";
+import { createClientReceivedEmailsContext } from "./useClientReceivedEmails.context";
+import { createClientReceivedEmailsInternals } from "./useClientReceivedEmails.internals";
+import { createClientReceivedEmailsMeta } from "./useClientReceivedEmails.meta";
+import type { ReceivedEmailsScopeMatrix } from "./client-email-history.types";
+import type { ScopeConfig, ScopeKey } from "../scope";
+import type { ScopeActorTypes } from "../scope/scope.types";
+// -----------------------------------------------------------------------------
 /**
- * Properties by which products can be sorted.
- */
-export enum ReceivedEmailsSortableProperties {
-  DEFAULT = "created_at",
-  SUBJECT = "subject"
-}
-
-/**
- * Composable function for managing client emails.
- * It handles fetching, displaying, filtering, and performing actions on client emails,
- * leveraging an underlying service and TanStack Query for data management.
+ * @module client-email-history/useClientReceivedEmails
+ * @description Scoped, query-backed collection of a client's own received
+ * email history: one TanStack list query per concrete `(actor, context)`
+ * scope, minted once at construction so it survives component lifecycles. Its
+ * sibling is `useClientReceivedEmail` — a second scoped composable in the same
+ * module, registered under the SAME module name; the composable name and the
+ * scope key carry the differentiation.
  *
- * @param initial - The starting query model (filters · sort · pagination).
- * Untrusted; it takes the same parse → validate path as any criteria write.
- * @returns The {@link useClientReceivedEmails} API for interacting with client emails.
+ * @doctrine clause 1 (uniform four-layer default).
+ * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
+ * actor; the scope builder resolves SELF before this factory runs.
  */
-export const useClientReceivedEmails = (
-  initial?: Partial<SentEmailQueryModel>
-) => {
-  // --- state
+function createClientReceivedEmailsForScope(
+  config: ScopeConfig,
+  scopeKey: ScopeKey
+) {
+  const actorScope = config.actor as ScopeActorTypes;
 
-  const { isReady: ensureAuth } = useActiveSession().useActions();
-  const { isAuthenticated } = useActiveSession().useMeta();
+  /**
+   * ONE services instance for this scope. `config.context` goes in here and
+   * nowhere else, so every request the collection issues resolves the same
+   * target client.
+   */
+  const service = createClientEmailHistoryServices(actorScope, config.context);
 
-  const query = service.loadList(initial);
+  // Mint the list query ONCE per scope. `limit` comes from the platform
+  // constant, not an invented number: PAGINATION.limit IS the 10 the legacy
+  // consumer passed at construction.
+  const query = service.loadList({ pagination: { limit: PAGINATION.limit } });
 
-  const meta = computed(() => ({
-    isLoading: query?.isLoading.value || !query.isFetched.value,
-    hasError: !isEmpty(query.error.value),
-    isEmpty: isEmpty(query.data?.value) || query.pagination.value.total == 0,
-    isAvailable: isAuthenticated.value,
-    ...query?.meta.value
-  }));
-
-  async function isReady(): Promise<boolean> {
-    if (isAuthenticated.value)
-      return new Promise(resolve => {
-        const interval = setInterval(() => {
-          if (query.isFetched.value) {
-            clearInterval(interval);
-            resolve(true);
-          }
-        }, 100);
-      });
-    return ensureAuth()
-      .then(ok => (ok ? query.refetch().then(() => true) : false))
-      .catch(() => false);
-  }
-
-  // --- context
-
-  // --- mutations
-
-  // ---------------------------------------------------------------------------
+  /**
+   * ONE actions instance per scope, not one per `useActions()` call: the
+   * applied `filters` ref lives in that factory, so a factory minted per call
+   * would give every handle its own filter state.
+   */
+  const actions = createClientReceivedEmailsActions(
+    actorScope,
+    service,
+    query,
+    scopeKey
+  );
 
   return {
-    // --- state
+    // --- Sub-composables (no direct props — clause 1 four-layer return)
+    /** Sub-composable for collection actions (list controls, lifecycle). */
+    useActions: () => actions,
 
-    /**
-     * Resolves when the client items are ready to be used.
-     * Returns true if ready, false if an error occurred.
-     * @returns {Promise<boolean>} A promise resolving to true if ready, false if error.
-     */
-    isReady,
+    /** Sub-composable for collection context (reactive list + lookups). */
+    useContext: () =>
+      createClientReceivedEmailsContext(actorScope, service, query),
 
-    /**
-     * Meta-information about the basket state.
-     * @typedef {Object} ClientEmailMeta
-     * @property {boolean} isError - Indicates if there was an error during the query.
-     * @property {boolean} isEmpty - Indicates if the basket is empty.
-     * @property {boolean} isLoading - Indicates if the query is currently loading.
-     * @property {boolean} isAuthenticated - Indicates if the client is authenticated.
-     */
-    meta,
+    /** Sub-composable for advanced debugging and internal access. */
+    useInternals: () => createClientReceivedEmailsInternals(actorScope, query),
 
-    // --- context
-
-    /**
-     * The reactive data property containing the list of client items.
-     * This is populated by the query and updates automatically when the query state changes.
-     */
-    data: computed(() => {
-      return isArray(query.data.value) ? query.data.value : [];
-    }),
-
-    /**
-     * The current error state of the query.
-     * This will be populated if the query fails to fetch data.
-     */
-    error: query.error,
-
-    /**
-     * Indicates if pagination is available
-     * If pagination is not set, it defaults to false.
-     * Otherwise, it returns the pagination object from the query parameters.
-     * @return {boolean|RequestPagination} The pagination object if available, otherwise false.
-     */
-    pagination: query.pagination,
-
-    // --- methods
-
-    /**
-     * Refresh the query to get the latest data.
-     * This will refetch the data from the server and update the query state.
-     * @returns {void}
-     */
-    refresh: query.refetch,
-
-    /**
-     * Go to the next page of items.
-     * Increments the page number by 1 if pagination is enabled and the current offset is less than the total number of items.
-     * This will only work if the current offset is less than the total number of items.
-     * @param value The new pagination parameters to set.
-     * @return {void}
-     */
-    nextPage: query.fetchNextPage,
-
-    /**
-     * Go to the previous page of items.
-     * Decrements the page number by 1 if pagination is enabled and the current offset is greater than or equal to the limit.
-     * This will only work if the current offset is greater than or equal to the limit.
-     * @param value The new pagination parameters to set.
-     * @return {void}
-     */
-    prevPage: query.fetchPreviousPage,
-
-    /**
-     * Invalidate the query cache for client items.
-     * This will trigger a refetch of the items when the next query is made.
-     * @param {boolean} [exact=false] If true, only the exact query key will be invalidated.
-     * @return {void}
-     */
-    invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
-
-    // --- criteria
-
-    /**
-     * The collection's request state — filters · sort · pagination — as the
-     * schema-validated model. Read-only; write through {@link setCriteria}.
-     */
-    criteria: query.criteria,
-
-    /** What is filterable and sortable at all. */
-    schema: query.schema,
-
-    /** Any declared filter column carries a value. */
-    isFiltered: query.isFiltered,
-
-    /** ajv's verdict on the last REJECTED criteria write — not a fetch failure. */
-    criteriaError: query.criteriaError,
-
-    /**
-     * The ONE write verb for the request state. Merges at BRANCH level, and a
-     * write that changes the result set returns to the first page.
-     */
-    setCriteria: query.setCriteria
+    /** Sub-composable for collection meta (state flags). */
+    useMeta: () => createClientReceivedEmailsMeta(actorScope, service, query)
   };
-};
-
+}
+// -----------------------------------------------------------------------------
 /**
- * The return type of the {@link useClientReceivedEmails} composable function.
+ * Scoped composable for a client's own received email history.
+ *
+ * @example
+ * ```ts
+ * const history = useClientReceivedEmails().as('client')
+ * const { data } = history.useContext()
+ * await history.useActions().isReady()
+ * history.useActions().filters.status(SentEmailStatus.BOUNCED)
+ * ```
  */
-export type useClientReceivedEmails = ReturnType<
+export const useClientReceivedEmails = createScopedComposable<
+  ReturnType<typeof createClientReceivedEmailsForScope>,
+  ReceivedEmailsScopeMatrix
+>("client-email-history", createClientReceivedEmailsForScope);
+
+// Type export for consumers
+export type UseClientReceivedEmails = ReturnType<
   typeof useClientReceivedEmails
 >;
