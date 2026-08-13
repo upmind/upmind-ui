@@ -1,0 +1,103 @@
+# Dispatch record — FE-3077
+# Minted by /start BEFORE the first state mutation (increment/SKILL.md "Dispatch record").
+# Each seat appends its own entry to `dispatches:` at dispatch time.
+# Validate with: node <plugin>/ci/lint-workflow-compliance.mjs .claude/dispatch/FE-3077.yaml
+
+lifecycle: start
+redo: false
+
+# §3.1 t-shirt SIZE — computed ONCE here and threaded to every seat (U13).
+# Shape match: 9 source files > M's 8-file ceiling.
+# God-node escalator: packages/types/src/data/constants.ts (QUERY_PARAMS) has >=10
+# importers across headless/client-vue/cart-nuxt -> bump one size. M -> L.
+# Risk floor also trips: setCompleteRoute changes control flow callers depend on.
+size: L
+
+route: increment
+depth: plan # DEPTH != SIZE — never reaches a seat, model, test scope, or the detector
+
+# U14 — the fake-detector is never a cost knob.
+touchesTestAssertions: true
+tautologyAudit: true
+fullFanouts: 0
+escalatedToOperator: false
+
+worktree:
+  start: .claude/worktrees/FE-3077
+
+branch:
+  base: main
+  head: hotfix/0.20.12
+  changeRequest: hotfix/0.20.12 -> main (GitLab MR, git.upmind.io)
+
+gates:
+  codeVerify: null # set by the verifier seat: PRESENT | ABSENT
+  readbackEvidence: []
+  negativeControlLane: none
+  testScope: en/targeted
+  testRuntimeMinutes: null # must be <= 30
+
+dispatches:
+  - id: FE-3077-U3-developer
+    seat: developer
+    agentType: upmind-agent:code
+    # Operator ruling (2026-08-05, MEMORY.md): dev + test-writing seats run Opus
+    # ALWAYS — overrides the skill model-pin table's `sonnet` for size L.
+    model: claude-opus-5[1m]
+    tools: [Read, Edit, Write, Bash, Grep, Glob]
+    writes:
+      - packages/headless/src/modules/routing/useQueryParams.ts
+      - packages/headless/src/modules/domain/utils.ts
+      - packages/headless/src/modules/domain/index.ts
+      - packages/headless/src/modules/domain/useDac.ts
+      - packages/headless/src/modules/domain/useDomain.ts
+      - packages/client-vue/src/modules/domain/types.ts
+      - packages/client-vue/src/modules/domain/Dac.vue
+      - apps/cart-nuxt/app/pages/order/domains/index.vue
+      - apps/cart-nuxt/app/funnels/domains.ts
+      # Submodule (github.com/upmind/types) — edited in its working tree only,
+      # NOT committed and NOT pointer-bumped. See blockers below.
+      - packages/types/src/data/constants.ts
+    reads:
+      - docs/plans/FE-3077.md
+      - packages/headless/src/modules/domain/services.ts
+      - packages/headless/src/modules/domain/dac.machine.ts
+      - packages/headless/src/modules/domain/domain.machine.ts
+      - packages/headless/src/modules/domain/types.ts
+      - packages/headless/src/modules/routing/types.ts
+      - packages/headless/src/modules/routing/useRoutingEngine.ts
+      - apps/cart-nuxt/app/funnels/one-page.ts
+      - apps/cart-nuxt/app/funnels/cart.ts
+      - apps/cart-nuxt/app/funnels/engine/actions.ts
+      - apps/cart-nuxt/app/pages/order/recommendations.vue
+    payloadArtifacts:
+      steps: 1-7
+      commits:
+        - 388d0c794 # getParamList
+        - 76913d859 # normaliseTlds
+        - f2189ea63 # useDac/useDomain options.tlds
+        - 6e3533988 # DacProps.tlds + Dac.vue
+        - 3342bf4eb # domains page query read
+        - 42f4babcb # funnel FORWARDED_QUERY_PARAMS allowlist
+      gatesRun:
+        - packages/headless type-check (clean)
+        - packages/client-vue build incl. type-check (clean)
+        - cart-nuxt nuxt typecheck (clean bar pre-existing nuxt.config.ts TS1117)
+        - prettier --check on all changed files (clean)
+        - vitest run headless routing+domain (22 passed)
+      blockers:
+        - QUERY_PARAMS.TLDS lands in the packages/types SUBMODULE
+          (github.com/upmind/types, detached HEAD @ c60337c). Left uncommitted;
+          needs its own commit + push + 0.0.18 release + monorepo pointer bump
+          before CI or any other consumer can resolve the enum member.
+        - docs/plans/FE-3077.md is gitignored (.gitignore:48, "Transient
+          agent-generated docs", added f22551c99). NOT committed — force-adding
+          would contradict an explicit repo decision.
+      notCommitted:
+        - docs/plans/FE-3077.md
+        - packages/types (submodule pointer + content)
+      preExistingDefectsLeftAlone:
+        - apps/cart-nuxt/nuxt.config.ts duplicate "@upmind-automation/client-vue"
+          alias key (lines 117 + 141) -> TS1117 on every typecheck
+        - pnpm lint is broken repo-wide in headless/client-vue/cart-nuxt
+          (eslint 9 flat-config vs legacy .eslintrc.cjs)

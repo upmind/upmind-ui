@@ -6,10 +6,12 @@
  * Parse the CO-LOCATED `client-email.feature`'s `@AC-*` scenario tags and
  * every sibling spec's `AC-<n>` title mentions, then enforce the link BOTH
  * ways: a non-`@todo` scenario with no proving test fails, and a test naming
- * an AC the feature does not tag fails. The co-located feature is the one the
- * link is enforced against (operator ruling 2026-08-05, requirements.md §5.10);
- * the SDD copy is the planner's source, and this file also checks the
- * co-located copy did not lose a scenario on the way over.
+ * an AC the feature does not tag fails. The co-located feature is the ONLY
+ * source this test reads (operator ruling 2026-08-05, requirements.md §5.10).
+ *
+ * A test may never read a planning-bundle path: the SDD bundle directories are
+ * gitignored, so any such read passes locally and fails in CI on a checkout
+ * that has no bundle. Everything this test enforces lives beside it, tracked.
  *
  * Per ADR-020 the `.feature` is spec-only and non-executable — nothing runs
  * it, and there is no steps file. This test is the whole of its enforcement.
@@ -27,10 +29,6 @@ import { describe, expect, it } from "vitest";
 
 const TEST_DIR = import.meta.dirname;
 const COLOCATED_FEATURE = join(TEST_DIR, "client-email.feature");
-const SDD_FEATURE = join(
-  TEST_DIR,
-  "../../../../../../docs/sdd/client-email/client-email.feature"
-);
 
 /** The `@AC-*` tags on every scenario in a feature file, `@todo` excluded. */
 function featureAcTags(path: string): Set<string> {
@@ -83,17 +81,6 @@ function provingTests(): Map<string, string[]> {
 // -----------------------------------------------------------------------------
 
 describe("client-email traceability — co-located feature vs proving tests", () => {
-  it("the co-located feature carries every scenario the SDD source tags", () => {
-    const missing = [...featureAcTags(SDD_FEATURE)].filter(
-      ac => !featureAcTags(COLOCATED_FEATURE).has(ac)
-    );
-
-    expect(
-      missing,
-      `Scenario(s) lost in co-location: ${missing.join(", ")}`
-    ).toEqual([]);
-  });
-
   it("every non-@todo scenario has at least one proving test", () => {
     const tests = provingTests();
     const unproven = [...featureAcTags(COLOCATED_FEATURE)].filter(

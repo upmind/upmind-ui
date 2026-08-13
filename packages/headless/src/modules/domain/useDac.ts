@@ -4,9 +4,9 @@ import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { PAGINATION } from "../query";
 import { QUERY_PARAMS, useQueryParams } from "../routing";
-import { useI18n } from "../system-localisation";
 import dacMachine from "./dac.machine";
 import {
+  type DacOptions,
   type DomainContext,
   type DomainProduct,
   DomainMode
@@ -20,8 +20,6 @@ import {
 } from "../../utils";
 import { map, isArray, some, isEmpty } from "lodash-es";
 
-// --- types
-
 // -----------------------------------------------------------------------------
 
 /**
@@ -31,10 +29,10 @@ import { map, isArray, some, isEmpty } from "lodash-es";
  * @param value - Initial domain(s) to use as the model.
  * @param options - required configuration for the domain type.
  * @param options.mode - The domain operation mode (register or transfer). Defaults to register.
+ * @param options.tlds - Restricts the search to these TLDs.
  * @returns Domain management API (state, computed, and methods)
  */
-export const useDac = (options?: { mode?: DomainMode; limit?: number }) => {
-  const { t: _t } = useI18n();
+export const useDac = (options?: DacOptions) => {
   const { getParam, getParams, setParam, unsetParam } = useQueryParams();
 
   // Determine search flow from brand setting, fallback to dac-search (legacy)
@@ -46,6 +44,7 @@ export const useDac = (options?: { mode?: DomainMode; limit?: number }) => {
       useSuggestions,
       preferredCycle: getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS),
       coupons: getParams(QUERY_PARAMS.COUPONS),
+      tlds: options?.tlds,
       // `setContext` + `setBasketHelper` overwrite these on entry, but
       // `withContext` requires the full `DacContext` shape — keeping the
       // placeholders explicit avoids an `as unknown as DacContext`.

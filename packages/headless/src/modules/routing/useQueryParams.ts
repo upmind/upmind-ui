@@ -11,9 +11,12 @@ import {
   isArray,
   isEmpty,
   isFunction,
+  join,
   reduce,
   set,
+  split,
   toNumber,
+  trim,
   uniq
 } from "lodash-es";
 import type { ProductProps } from "../product";
@@ -210,6 +213,18 @@ export const useQueryParams = (route?: RouteLocation) => {
     return model;
   }
 
+  function getTlds(): string[] {
+    return reduce(
+      split(join(getParams(QUERY_PARAMS.TLDS, []), ","), ","),
+      (result: string[], entry: string) => {
+        const tld = entry.replace(/^[\s.]+|[\s.]+$/g, "").toLowerCase();
+        if (tld && !includes(result, tld)) result.push(tld);
+        return result;
+      },
+      []
+    );
+  }
+
   return {
     route: safeRoute,
     parse: useSafeParse,
@@ -224,6 +239,7 @@ export const useQueryParams = (route?: RouteLocation) => {
     productConfig: first(getProductConfigs()),
     basketProductId: getParam(QUERY_PARAMS.BASKET_PRODUCT_ID),
     categoryId: getParam(QUERY_PARAMS.CATEGORY_ID),
+    tlds: getTlds(),
     // ---
     currency: consumeParam(
       QUERY_PARAMS.CURRENCY,

@@ -1,6 +1,6 @@
 {
   "name": "@upmind-automation/icons",
-  "version": "0.0.0",
+  "version": "0.20.12",
   "description": "Shared icons for Upmind Automation projects",
   "type": "module",
   "sideEffects": false,

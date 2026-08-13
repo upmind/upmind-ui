@@ -189,7 +189,8 @@ const {
   stopDac,
   update
 } = useDomain(props.modelValue, {
-  type: props.type as DomainTypes
+  type: props.type as DomainTypes,
+  tlds: props.tlds
 });
 
 // ---------------------------------------------------------------------------
