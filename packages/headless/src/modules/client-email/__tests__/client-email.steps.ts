@@ -99,9 +99,13 @@ async function open(world: World, scope: Parameters<World["boot"]>[1]) {
 // -----------------------------------------------------------------------------
 
 export const clientEmailsSteps = defineSteps(({ Given, When, Then }) => {
+  Given("I am an authenticated client managing my own account", world =>
+    open(world, { actor: ScopeActorTypes.CLIENT })
+  );
+
   Given(
-    "the client-emails playground is generated for the active client",
-    world => open(world, { actor: ScopeActorTypes.CLIENT })
+    "every request I make is addressed to my own email collection as that client",
+    world => world.expectMeta({ isAvailable: true })
   );
 
   Given("a staff member acting for that client", world =>

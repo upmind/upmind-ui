@@ -52,7 +52,8 @@ Feature: A client manages their own email addresses
   that client.
 
   Background:
-    Given the client-emails playground is generated for the active client
+    Given I am an authenticated client managing my own account
+    And every request I make is addressed to my own email collection as that client
 
   # === THE COLLECTION ========================================================
 
