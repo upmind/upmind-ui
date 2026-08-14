@@ -364,21 +364,39 @@ AC-35 pins the export set exactly; AC-36 pins reachability.
 
 One `*.must-fail.patch` per predicate limb — a unified diff mutating **production** source that must flip a named colocated assertion RED.
 
+**This table is a record of what shipped, corrected at the final pass (2026-08-14) against the authored patch set at `2ef831df9`. It is not the plan's prediction.** Thirteen were planned; **nineteen** were authored. Six were added during implementation — four because a planned control was measured to be *coarser* than one limb (a single mutant covering two limbs cannot localise the failure, so it was split), and two because a review blocker (B1) exposed a capability with no control at all. Three planned rows named the wrong ACs; the `Must flip RED` column below is the **measured** flip, not the intended one.
+
 | Patch | Mutates | Must flip RED |
 | --- | --- | --- |
 | `client-address.auth-guard.must-fail.patch` | restores the inverted `\|\|` at the remove guard | AC-11 |
 | `client-address.default-guard.must-fail.patch` | restores the inverted `\|\|` at the setDefault guard | AC-13 |
 | `client-address.client-id-limb.must-fail.patch` | drops the `!!clientId` limb from the list guard | AC-3 |
-| `client-address.scope-identity.must-fail.patch` | makes a request re-read the session instead of the seam | AC-30, AC-2 |
-| `client-address.manager-amputation.must-fail.patch` | removes the manager's `update` path | AC-23, AC-24 |
+| `client-address.scope-identity.must-fail.patch` | deletes the `.for('client', id)` **pin**, so the seam resolves the session's client | AC-30 *(corrected — **not** AC-2; see note 1)* |
+| `client-address.session-hardwired-read.must-fail.patch` **(added)** | leaves the seam standing but hardwires the session's client into the two READ urls (`loadList`, `loadOne`) — the FE-2824 shape verbatim | AC-2 |
+| `client-address.manager-amputation.must-fail.patch` | removes the manager's `update` (PUT) limb | AC-23 *(corrected — **not** AC-24; see note 2)* |
+| `client-address.manager-create-amputation.must-fail.patch` **(added)** | amputates the `add` service, so a `.fresh()` editor never reaches `service.ensure` and never POSTs | AC-24 |
 | `client-address.default-id.must-fail.patch` | reverts `getDefaultId` to `getDefault` | AC-5 |
 | `client-address.diff-payload.must-fail.patch` | sends the full model on update | AC-23 |
-| `client-address.description-order.must-fail.patch` | drops `state` from the description join | AC-31 |
+| `client-address.description-order.must-fail.patch` | transposes `city` / `postcode` in the description join | AC-31 *(corrected — see note 3)* |
 | `client-address.lock-country.must-fail.patch` | ignores `CLIENT_ALLOW_ADDRESS_UPDATE` | AC-21 |
 | `client-address.address-type.must-fail.patch` | restores the `type: 1` hardcode in `mapIAddressData` | AC-22 |
-| `client-address.readiness-bound.must-fail.patch` | restores `timeout: Infinity` | AC-26 |
+| `client-address.readiness-bound.must-fail.patch` | restores `timeout: Infinity` on the **editor** half (`useClientAddressManager.actions.ts`) | AC-26 |
+| `client-address.collection-readiness-bound.must-fail.patch` **(added)** | removes the `setTimeout` expiry from the **collection** half's `whenListFetched`, leaving a bare `watch` | AC-4 |
 | `client-address.feedback.must-fail.patch` | drops the `onSuccess` feedback raise from `remove` **(added by R10)** | AC-40 |
 | `client-address.find-one.must-fail.patch` | delegates `findOne` straight to the shared helper | AC-7 |
+| `client-address.region-clear.must-fail.patch` **(added — blocker B2)** | removes the two clearance lines from `mapIAddressDataDiff`, so a cleared region diffs as `undefined` and `JSON.stringify` drops the key before the wire | AC-19 |
+| `client-address.saved-model-shape.must-fail.patch` **(added — blocker B1)** | restores the raw-`IAddress` resolve on the UPDATE limb, so a settled save resolves the form-open snapshot instead of the saved address | AC-23 |
+| `client-address.saved-meta.must-fail.patch` **(added — blocker B1, meta half)** | points `setMeta` at `baseModel` instead of `model`, leaving the model itself correct | AC-23 / AC-17 |
+
+**The three corrections, and what each one teaches:**
+
+1. **`scope-identity` no longer claims AC-2.** Deleting the `.for('client', id)` pin makes the scope resolve to the session's client — which is exactly what AC-2's fixture already had it resolve to, so **AC-2 stays green by design**. The pin-deletion mutant cannot discriminate a seam-read from a session-read; only a fixture where the two clients *differ* can. That is `session-hardwired-read`'s job, and it is why the module's headline claim needed a second control rather than a re-labelled first one.
+2. **`manager-amputation` no longer claims AC-24.** Measured: amputating the `update`/PUT limb left **both** AC-24 tests green, because create routes through `service.ensure` and update through the diffing `update` — two distinct limbs of the same adapter. One mutant per capability; `manager-create-amputation` carries AC-24.
+3. **`description-order` no longer drops `state`.** The `state` mutation was **unobservable**: the API returns `county`, so removing `state` from the join changed no rendered string. The authored mutant transposes `city` / `postcode` instead — a change the join actually surfaces. A mutant that flips nothing is not a control, however plausible its description.
+
+**Per `agent-seat-separation.companion.md`: the developer authors every patch** (it knows the line it changed; a code mutation neither self-certifies nor grades anything); **the prover applies it blind**, confirms the intended assertion goes RED, then reverts. A prover that reads module src to hand-author one has breached diff-blindness — route it to the developer instead. Every control runs green in the `quarantine:enforce` lane before the story reaches **Needs Review** (NFR-7).
+
+Five of these nineteen carry header claims measured against **earlier trees** and not corrected in this run, for a stated reason — see `review-notes.md` §9.2. All five err safe.
 
 **Per `agent-seat-separation.companion.md`: the developer authors every patch** (it knows the line it changed; a code mutation neither self-certifies nor grades anything); **the prover applies it blind**, confirms the intended assertion goes RED, then reverts. A prover that reads module src to hand-author one has breached diff-blindness — route it to the developer instead. Every control runs green in the `quarantine:enforce` lane before the story reaches **Needs Review** (NFR-7).
 

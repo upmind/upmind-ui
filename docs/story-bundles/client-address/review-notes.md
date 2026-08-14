@@ -2,8 +2,10 @@
 
 **The binding record for this story.** Per `agent-behavior.companion.md` §1, this file is the per-story ruling mechanism: **read FIRST on every re-run**, mirrored to Linear, and **never silently overriding an explicit NO**.
 
-**Date:** 2026-08-14 (revision 2, + operator ruling **R10** applied, + **correction pass 2.1**) · **Seat:** planner · **Branch:** `feature/client-address-scoped-conversion` @ base `bff994868`
+**Date:** 2026-08-14 (revision 2, + operator ruling **R10** applied, + **correction pass 2.1**, + **correction pass 2.2**) · **Seat:** planner · **Branch:** `feature/client-address-scoped-conversion` @ base `bff994868`
 **Bundle:** `docs/story-bundles/client-address/` — `docs/sdd` is a symlink to a path off this machine and is **never** written.
+
+> **Correction pass 2.2 (2026-08-14, post-verify, at `2ef831df9`) added §9–§12.** Sections 1–8 keep their numbers so nothing citing them breaks. **If you are converting the next sibling module, read [§9](#9-the-three-review-blockers) first** — three defects that every green gate in this repo passed. §10 records a standing record-staleness debt and the durable fix for it; §11 the control gaps handed off; §12 two CI gates the rules describe as mechanical that **do not exist in this repo**.
 
 ---
 
@@ -123,9 +125,13 @@ They break in **two** ways at once:
 
 **The follow-up must fix both.** Fixing only the signature leaves a live, type-clean, wrong-behaviour bug in two production checkout funnels.
 
-### 3.2 Ten Linear references are OWED and UNFILED
+### 3.2 Ten distinct Linear references are OWED and UNFILED — across TWELVE rows
 
-`parity.yaml` carries **ten** `Dropped-with-Linear-issue` rows — `D1`–`D8` (the staff capability, ruling R2), `C21` (the submodule funnels, ruling R3 part 2) and `U1` (the brand-config request, finding **F6**, added by correction pass 2.1 — **blocked upstream, not dropped by choice**; see §4.3). **No Linear issue reference was supplied to this run, and none has been invented.** Every row files its reference as the literal string `OWED — unfiled`.
+`parity.yaml` carries **twelve** `Dropped-with-Linear-issue` rows, owing **ten distinct issues**. **`CELL-3` and `CELL-7` are the two ADR-001 actor×context cells whose dropped capabilities ARE `D1`–`D8`** — they share those rows' references and owe nothing of their own. No capability is missing from the list below.
+
+**This distinction is operational, not pedantic.** An operator who files ten issues and stops has still left `CELL-3` and `CELL-7` reading `OWED — unfiled`, because their `dropped_ref` fields are separate strings that must each be back-filled with the D-row reference they inherit. **Filing ten issues requires twelve edits.**
+
+The ten distinct owed issues are `D1`–`D8` (the staff capability, ruling R2), `C21` (the submodule funnels, ruling R3 part 2) and `U1` (the brand-config request, finding **F6**, added by correction pass 2.1 — **blocked upstream, not dropped by choice**; see §4.3). **No Linear issue reference was supplied to this run, and none has been invented.** Every one of the twelve rows files its reference as the literal string `OWED — unfiled`.
 
 | Row | Capability owed a Linear issue |
 | --- | --- |
@@ -139,6 +145,8 @@ They break in **two** ways at once:
 | `D8` | The staff-only copy-to-clipboard affordance |
 | `C21` | The velia / hosting funnel-engine migration *(an operator follow-up commit, not necessarily a Linear story)* |
 | `U1` | `ensureBrandConfig` never refetches, so a widened brand-config key set never reaches the wire — **finding F6, §4.3. Blocked upstream, not a chosen drop.** |
+| `CELL-3` | *(no distinct issue)* — the ADR-001 `client / staff-acting-for-client` cell; its dropped capabilities are `D1`–`D8`. **Back-fill with those references; do not file a new one.** |
+| `CELL-7` | *(no distinct issue)* — the ADR-001 staff-context cell; likewise `D1`–`D8`. **Back-fill, do not file.** |
 
 **The bundle cannot be signed off with these unfiled without that being a conscious operator choice.** A `Dropped-with-Linear-issue` row whose reference never arrives degrades into a silent drop wearing paperwork.
 
@@ -288,8 +296,113 @@ The run **stops and asks the operator** — it does not decide — if any of the
 | `jtbd_contradicted_drop_count` | **0** — **including `U1`**: no in-cell behaviour of the JTBD is lost, because the config *value* reaches the form and both dependent rules are green (§4.3). The dropped item is the request-level guarantee |
 | `feature_scenario_count` | **40** — `@AC-1`…`@AC-40`, unique, no gaps. Unchanged by correction pass 2.1: AC-33 / AC-34 were **re-worded**, never removed |
 | `rows_total` | **100** — was 99; `U1` added by correction pass 2.1 |
-| `dropped_refs_owed` | **10** — `D1`–`D8`, `C21`, `U1`; every one `OWED — unfiled`, **no ID invented** |
+| `dropped_refs_owed` | **10 distinct issues across 12 rows** — `D1`–`D8`, `C21`, `U1`; plus `CELL-3` / `CELL-7`, which share `D1`–`D8`'s references and owe no issue of their own. All twelve rows read `OWED — unfiled`, so **filing ten issues takes twelve edits** (§3.2). **No ID invented** |
 | `known_red_read_backs` | **1** — AC-20's request-level half (finding `F6`, row `U1`). Legitimately red, blocked upstream, escalated in §4.3. Not to be softened or "fixed" from inside this module |
 | `consumer_migration_tasks` | **8 in-scope sites** (T-14…T-21) + **2** adapter tasks (T-22, T-24) + 1 handoff (T-27), each with its own Reality Check. *(Was 3 adapter tasks; T-23 deleted by R10.)* |
 
 The planner seat **pre-gates**; it does not emit the review verdict. This story is not moved to **Needs Review** by this seat (ADR-029).
+
+---
+
+## 9. The three review blockers
+
+**Three review rounds found three real defects. All three are fixed and verified at `2ef831df9`; the final suite is 123 tests / 122 passed / 1 failed (AC-20/F6 only, the escalated upstream halt), 19 negative controls, type-check and lint clean, verdict PRESENT.**
+
+They are recorded here because they were the run's most valuable output and otherwise live only in agent transcripts. **Every one of them was invisible to a green suite.** Each is a shape, not a typo — someone converting the next sibling module should check for the same shapes rather than trusting a green run.
+
+### 9.1 B1 — the form model reverted to its pre-edit values after a successful save *(two rounds)*
+
+**Symptom.** Edit an existing address, change a field, save. The save succeeds — right PUT, right url, right diff body, server persists, machine reaches `processed`. Then the form snaps back to the values it opened with.
+
+**Root cause — in the shared machine, fixed in the module.** The shared `dataManagerMachine` takes `processed → available` under `allowMultipleEdits` (which this manager always sets) and re-enters `available.checking.parsing`. That re-entry arrives on a **data-less `xstate.after(wait)#processed` event**, so `parse` ran `defaultsDeep(undefined, baseModel)` and re-derived the entire model from the form-open clone. `baseModel` legitimately never moves (parity L3), so the saved values were overwritten by the snapshot every time.
+
+**Fix.** `?? cloneDeep(model)` in the module's own `parse`, so a data-less re-entry parses the *current* model rather than the form-open one. **No protected core was touched** — the shared machine's behaviour is correct for its own contract; the module was relying on an event carrying data that this transition does not carry (`code-xstate.md`: the test/consumer is presumed wrong before the machine).
+
+**Why it took two rounds.** The first fix was **correct but incomplete**. It repaired the model; it did not repair the *meta*. The display strings (`title` / `description`) are derived separately, and a save could leave a correct model beside a description composed from the pre-edit address. Round two closed the meta half. **A partially-correct fix to a reversion bug looks exactly like a complete one from the model assertion alone.**
+
+**Why no gate caught it.** Every gate that measures *shape* passed: the PUT body, url and method are unchanged; the save resolves; the machine reaches `processed`; the collection refetches (invalidation is upstream of the resolve and fires either way). Even reading the saved value back **off the collection** stays green, because the collection refetches from the server, which has the new value. Only an assertion on the value the save **resolves** — and on `useContext().model` — discriminates. Both halves now carry controls: `saved-model-shape` (the model) and `saved-meta` (the derived strings), and the pair is deliberately complementary.
+
+### 9.2 B2 — clearing a region on a country change never reached the API
+
+**Symptom.** Change an address's country to one where the existing region does not belong. Client side is entirely correct: `parse` refetches the new country's regions, re-resolves `country`, clears `model.address.regionId`, the form control is right, `country_id` is on the wire, the PUT succeeds. The server keeps the **old** country's region on an address now sitting in a new country — persisted inconsistent data.
+
+**Root cause.** The diff correctly kept the key (`isEqual(previousRegionId, undefined)` is false; the field really did move) but valued it `undefined`, and `parseData`'s `JSON.stringify` drops every `undefined`-valued key before the body is sent. The cleared field simply evaporated between the model and the wire.
+
+**Fix, and the placement that matters.** The coercion to explicit `null` sits at the **mapper**, *not* at `parse`. This is the load-bearing detail: a `null` in the **model** fails the schema's `enum` validation and **wedges the machine**. The clearance must happen below the model, on the way out. Control: `region-clear`.
+
+**Generalisable shape.** *Any* "clear a field" capability in this tranche crosses a `JSON.stringify` boundary that silently deletes `undefined`. A model-level clear is not a wire-level clear, and only a **request-body** read-back can tell them apart.
+
+### 9.3 B3 — the B2 fix changed the CREATE body
+
+**Symptom.** The B2 fix was correct for UPDATE and wrong for CREATE: it sent `"region_id": null` on create, where the recorded oracle **omits the key entirely**.
+
+**Root cause.** The coercion had been placed where both paths ran through it.
+
+**Fix.** Moved into `mapIAddressDataDiff` **below the `if (!baseData) return next` early return** — the line that distinguishes create from update. Create returns before the diff logic and is now byte-identical to the oracle again.
+
+**Generalisable shape.** A fix aimed at the diff path silently rides along into the create path when it is placed above that early return. **A create/update pair needs its body asserted on both sides of the fix, against the recorded oracle** — B3 was found only because the create body's *keys* are read back, not partial-matched (`be73c0187`). A partial match would have passed a body carrying an extra `null` key.
+
+---
+
+## 10. Standing record-staleness debt — 5 of 19 control headers
+
+**Five negative-control headers carry measurements taken against earlier trees.** They are accurate about *what* they mutate and *which capability* they defend; their **numbers** are stale.
+
+| Control | Claims | Measures |
+| --- | --- | --- |
+| `manager-amputation` | 5 tests | **10** |
+| `diff-payload` | 3, "no collateral" | **5** |
+| `manager-create-amputation` | "exactly the two AC-24 tests" | **4** |
+| `find-one` | string lookups "route to the same helper either way" | the **case-insensitive** lookup does flip |
+| `session-hardwired-read` | "flips NOTHING" | flips the **AC-2** scope-vs-session read |
+
+**All five err safe.** Four **understate collateral** — the mutant is more powerful than its header claims, so no capability is left unguarded by the discrepancy. One (`session-hardwired-read`) **understates its own power**: it was authored when no discriminating fixture existed and now has one. **None conceals a missing capability, and none of the 19 controls fails to flip.**
+
+### 10.1 Why they are NOT being fixed in this run
+
+**Every `*.must-fail.patch` file lives under `packages/`.** The verifier's `verifiedSha b8549ef82` stamp covers everything under that tree. Editing one header — a pure comment change, flipping nothing — would **invalidate the stamp and restart the whole verify cycle** for a set of corrections that are all safe-side and none of which changes a verdict.
+
+**This is a deliberate deferral with a stated reason, not an oversight.** It is recorded here so the next reader finds the discrepancy already known and triaged rather than discovering it as a fresh finding. The fix belongs in the next tree that touches those files for a substantive reason.
+
+### 10.2 The durable fix, already demonstrated
+
+Three controls authored in this run — `region-clear`, `saved-meta`, `saved-model-shape` — already carry the shape that prevents this class:
+
+> **Pin the claim to the commit it was measured at, and state the RADIUS separately from the absolute counts.**
+
+`saved-model-shape` is the worked example: *"Measured blast radius, suite at `be73c0187`: 4 … Under the mutant the module suite runs 118 passed / 5 failed."* The **radius (4) is durable** — it is a property of the mutant. The **absolute counts move with the suite** and are therefore pinned to a commit rather than to "HEAD". A header written this way goes stale *visibly* (the sha no longer matches) instead of silently, and the number a reader actually needs stays true. **Adopt this shape for every new control; it costs one clause.**
+
+---
+
+## 11. Control gaps — explicit handoff list
+
+Five gaps, triaged. **None is an unguarded capability that a mutant would have caught and did not** — four are missing-mutant-only or structurally unreachable, one is a named-but-unauthored file.
+
+| Gap | Status |
+| --- | --- |
+| **AC-32** | **Missing-mutant only.** The read-back exists and asserts; no control proves it can go red. |
+| **AC-10** | **Missing-mutant only.** As above. |
+| **AC-36** | **Missing-mutant only.** As above. |
+| **AC-9** | **Half unreachable through the published surface.** `limit=0` means page 2 cannot be requested at all, so the pagination half has no reachable read-back from the module's own API. Authoring a mutant would not close it — the gap is in the surface, not the control. |
+| **create-body shape** (`create-region-key`) | **Named but UNAUTHORED.** `region-clear`'s mutant leaves the create body **byte-identical by design** (it sits below the `if (!baseData) return next` early return, §9.3), so it cannot defend the create-body shape. **B3 is therefore a real defect with a read-back but no negative control.** This is the most substantive of the five. |
+
+**The honest ranking for whoever picks these up:** `create-region-key` first — it is the only one guarding a capability that has already regressed once. The three missing-mutant gaps are ordinary debt. AC-9's half needs a surface change or an explicit "not reachable, not claimed" ruling, not a patch file.
+
+---
+
+## 12. Two CI gates named in the rules DO NOT EXIST in this repo
+
+**`ci/lint-plan-compliance.mjs` and `ci/lint-scope-purity.mjs` are both absent. There is no `ci/` directory in this repository at all.**
+
+Both are referenced as mechanical enforcement by rules this bundle is written against, and both have companion files in `.claude/rules/` supplying machine-readable bindings for them:
+
+| Gate | Cited by | Bindings supplied at |
+| --- | --- | --- |
+| `ci/lint-plan-compliance.mjs` | the parity-oracle rule — reads the tracker name for drop-disposition messages | `verify-parity-oracle.companion.md` → "Gate bindings", `issue-tracker: Linear` |
+| `ci/lint-scope-purity.mjs` | the reality-check rule — enforces the `useTestAttrs` carve-out (FE-2865) | `verify-reality-check.companion.md` → "Gate bindings", `carveout` / `homes` / `extensions` |
+
+**Both reviewer and verifier verified those rows BY HAND on this story.** The manual checks passed — this is not an unverified claim — but they are **manual**, non-reproducible, and carry no CI signal.
+
+**Why this is recorded and not fixed here.** Writing either gate is out of this story's lane (it would be `ci/` source, not bundle) and out of its scope. The point of the record is the mismatch itself: **the rules describe these as gates, so a reader reasonably assumes a machine is enforcing them.** No machine is. Until one exists, every `Dropped-with-Linear-issue` disposition and every scope-purity row in this tranche rests on a human having looked — including the twelve `OWED — unfiled` rows in §3.2, which no gate will ever flag as unfiled.
+
+**Recommendation:** treat this as an operator-facing infrastructure gap for the tranche, not a per-story item. Two conforming companion binding blocks already exist and are waiting for their consumers.
