@@ -1,0 +1,130 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/addresses?with=region,country&limit=2&offset=2&case=page-2",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a2af4bc31e6eef97-WAW",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 14 Aug 2026 10:32:30 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=eg2OnTIRxjHU0juVLvKA%2FV8kFm5SFx6PBpdD6275Wl%2BIKaqUt%2FpkKaPSb3iaavlfnklL7iW2ap7oQmZqkr2dZr2YxGR3Rnq%2F280utibz2gLKztTSlN5vbq3aYeTWfFZPMlUlc5eiQA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "98"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "d6325079-8065-d1e3-dd8b-8174e234e98d",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "user_id": "sys",
+          "default": false,
+          "type": 1,
+          "name": "13 Downside Rd",
+          "address_1": "40 Reichert Grange",
+          "address_2": "",
+          "region_id": "d085e69d-5623-719e-095b-218e940d4237",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "city": "Guildford",
+          "county": null,
+          "postcode": "GU4 8PH",
+          "created_at": "2025-06-26 12:26:18",
+          "updated_at": "2026-08-14 10:31:14",
+          "deleted_at": null,
+          "verified": 0,
+          "can_delete": false,
+          "region": {
+            "id": "d085e69d-5623-719e-095b-218e940d4237",
+            "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+            "code": "SRY",
+            "name": "Surrey",
+            "created_at": "2019-10-31 17:51:32",
+            "updated_at": "2019-10-31 17:51:32"
+          },
+          "country": {
+            "id": "320e4357-95e7-8d18-484f-31643202d986",
+            "name": "United Kingdom",
+            "code": "GB",
+            "code3": "",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2026-07-23 13:41:28",
+            "vat": "20.00",
+            "eea": 1,
+            "phone_code": "+44",
+            "post_code_regex": "/^[a-zA-Z]{1,2}[0-9][a-zA-Z0-9]? ?[0-9][a-zA-Z]{2}$/"
+          }
+        },
+        {
+          "id": "7d738248-5079-3153-79df-81e642d59e06",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "user_id": "sys",
+          "default": false,
+          "type": 1,
+          "name": "15 Dock St",
+          "address_1": "15 Dock Street Road",
+          "address_2": "",
+          "region_id": null,
+          "country_id": "78985742-6489-7012-046b-21e325d0ed36",
+          "city": "London",
+          "county": null,
+          "postcode": "E1 8JL",
+          "created_at": "2025-06-26 12:27:07",
+          "updated_at": "2026-08-14 10:31:14",
+          "deleted_at": null,
+          "verified": 0,
+          "can_delete": false,
+          "region": null,
+          "country": {
+            "id": "78985742-6489-7012-046b-21e325d0ed36",
+            "name": "United Arab Emirates",
+            "code": "AE",
+            "code3": "",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2024-08-22 00:51:24",
+            "vat": "0.00",
+            "eea": 0,
+            "phone_code": "+971",
+            "post_code_regex": ""
+          }
+        }
+      ],
+      "related": null,
+      "total": 98,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-14T10:32:30.173Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-address"
+  }
+}

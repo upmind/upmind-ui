@@ -1,0 +1,281 @@
+{
+  "_readme": [
+    "T-1 — the PRE-MIGRATION recording of every outbound clients/{id}/addresses* request the",
+    "Playwright address journeys issue. This is the ORACLE task T-25b diffs the post-migration",
+    "run against (parity.yaml row C16, AC-38). It is NOT a v3 replay fixture: it lives beside",
+    "the specs rather than in __tests__/fixtures/ because that directory is a typed v3 pool the",
+    "MSW replay server loads and tests/fixtures/lint-fixtures.mjs validates (`version: 3`",
+    "required) - a request log dropped in there would be served as a handler and fail the lint.",
+    "Captured by driving the two named specs against the UNMODIFIED tree at base bff994868 in a",
+    "detached worktree, with Playwright tracing on, and reading the request bodies out of the",
+    "trace's own resource store. Path ids are templated to {id}; bodies are verbatim."
+  ],
+  "captured_at": "2026-08-14T10:37:36Z",
+  "base_commit": "bff994868",
+  "tree_state": "unmodified base worktree (detached HEAD at bff994868); tests/Playwright/e2e/support/flows/address-setup.ts untouched",
+  "api": "https://api.staging.upmind.io",
+  "greps": [
+    "Existing Address - Billing Details at checkout",
+    "Round-trip: update address on billing page"
+  ],
+  "run_result": "2 passed, 2 failed, 1 did not run - the failures are pre-existing at base (UI waits), NOT address-request failures; every address request below was issued and answered 200",
+  "specs": [
+    {
+      "test": "standalone-billing.spec.ts > Standalone Billing Details Page > Navigation: Checkout -> Billing -> Checkout > Round-trip: update address on billing page",
+      "trace_dir": "Playwright-e2e-e2e-tests-c-d06d6-ate-address-on-billing-page-chrome",
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/clients/{id}/addresses?with=region,country&limit=0&offset=0&lang=en-US",
+          "body": null,
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/api/clients/{id}/addresses?lang=en-US",
+          "body": {
+            "name": "10 Downing Street",
+            "address_1": "10 Downing Street",
+            "address_2": "",
+            "city": "London",
+            "state": "",
+            "postcode": "SW1A 2AB",
+            "region_id": "de78642d-e539-7146-295f-21208469530d",
+            "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+            "type": 1
+          },
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/clients/{id}/addresses?with=region,country&limit=0&offset=0&lang=en-US",
+          "body": null,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/clients/{id}/addresses?with=region,country&limit=0&offset=0&lang=en-US",
+          "body": null,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/clients/{id}/addresses?with=region,country&limit=0&offset=0&lang=en-US",
+          "body": null,
+          "status": 200
+        },
+        {
+          "method": "PUT",
+          "path": "/api/clients/{id}/addresses/{id}?lang=en-US",
+          "body": {
+            "name": "10 Downing Street",
+            "address_1": "15 White Hart Lane",
+            "address_2": "",
+            "city": "Manchester",
+            "state": "",
+            "postcode": "M1 1AA",
+            "region_id": "de78642d-e539-7146-295f-21208469530d",
+            "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+            "type": 1
+          },
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/clients/{id}/addresses?with=region,country&limit=0&offset=0&lang=en-US",
+          "body": null,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/clients/{id}/addresses?with=region,country&limit=0&offset=0&lang=en-US",
+          "body": null,
+          "status": 200
+        }
+      ]
+    },
+    {
+      "test": "update-billing-details.spec.ts > Existing Address - Billing Details at checkout > Edit existing address at checkout",
+      "trace_dir": "Playwright-e2e-e2e-tests-c-7a86d-xisting-address-at-checkout-chrome",
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/clients/{id}/addresses?with=region,country&limit=0&offset=0&lang=en-US",
+          "body": null,
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/api/clients/{id}/addresses?lang=en-US",
+          "body": {
+            "name": "10 Downing Street",
+            "address_1": "10 Downing Street",
+            "address_2": "",
+            "city": "London",
+            "state": "",
+            "postcode": "SW1A 2AB",
+            "region_id": "de78642d-e539-7146-295f-21208469530d",
+            "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+            "type": 1
+          },
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/clients/{id}/addresses?with=region,country&limit=0&offset=0&lang=en-US",
+          "body": null,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/clients/{id}/addresses?with=region,country&limit=0&offset=0&lang=en-US",
+          "body": null,
+          "status": 200
+        },
+        {
+          "method": "PUT",
+          "path": "/api/clients/{id}/addresses/{id}?lang=en-US",
+          "body": {
+            "name": "10 Downing Street",
+            "address_1": "7 Heidenreich Mount",
+            "address_2": "",
+            "city": "London",
+            "state": "",
+            "postcode": "SW1A 2AB",
+            "region_id": "de78642d-e539-7146-295f-21208469530d",
+            "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+            "type": 1
+          },
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/clients/{id}/addresses?with=region,country&limit=0&offset=0&lang=en-US",
+          "body": null,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/clients/{id}/addresses?with=region,country&limit=0&offset=0&lang=en-US",
+          "body": null,
+          "status": 200
+        }
+      ]
+    },
+    {
+      "test": "update-billing-details.spec.ts > Existing Address - Billing Details at checkout > Existing Address - add new address at checkout",
+      "trace_dir": "Playwright-e2e-e2e-tests-c-97db0-add-new-address-at-checkout-chrome",
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/clients/{id}/addresses?with=region,country&limit=0&offset=0&lang=en-US",
+          "body": null,
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/api/clients/{id}/addresses?lang=en-US",
+          "body": {
+            "name": "10 Downing Street",
+            "address_1": "10 Downing Street",
+            "address_2": "",
+            "city": "London",
+            "state": "",
+            "postcode": "SW1A 2AB",
+            "region_id": "de78642d-e539-7146-295f-21208469530d",
+            "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+            "type": 1
+          },
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/clients/{id}/addresses?with=region,country&limit=0&offset=0&lang=en-US",
+          "body": null,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/clients/{id}/addresses?with=region,country&limit=0&offset=0&lang=en-US",
+          "body": null,
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/api/clients/{id}/addresses?lang=en-US",
+          "body": {
+            "name": "75 Arielle Drove",
+            "address_1": "75 Arielle Drove",
+            "address_2": "",
+            "city": "London",
+            "state": "",
+            "postcode": "SW1A 2AA",
+            "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+            "type": 1
+          },
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/clients/{id}/addresses?with=region,country&limit=0&offset=0&lang=en-US",
+          "body": null,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/clients/{id}/addresses?with=region,country&limit=0&offset=0&lang=en-US",
+          "body": null,
+          "status": 200
+        }
+      ]
+    },
+    {
+      "test": "update-billing-details.spec.ts > Existing Address - Billing Details at checkout > Existing User add new company details at checkout",
+      "trace_dir": "Playwright-e2e-e2e-tests-c-3b74a-company-details-at-checkout-chrome",
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/clients/{id}/addresses?with=region,country&limit=0&offset=0&lang=en-US",
+          "body": null,
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/api/clients/{id}/addresses?lang=en-US",
+          "body": {
+            "name": "10 Downing Street",
+            "address_1": "10 Downing Street",
+            "address_2": "",
+            "city": "London",
+            "state": "",
+            "postcode": "SW1A 2AB",
+            "region_id": "de78642d-e539-7146-295f-21208469530d",
+            "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+            "type": 1
+          },
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/clients/{id}/addresses?with=region,country&limit=0&offset=0&lang=en-US",
+          "body": null,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/api/clients/{id}/addresses?with=region,country&limit=0&offset=0&lang=en-US",
+          "body": null,
+          "status": 200
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_address_requests": 26,
+    "by_method": {
+      "GET /api/clients/{id}/addresses": 19,
+      "POST /api/clients/{id}/addresses": 5,
+      "PUT /api/clients/{id}/addresses/{id}": 2
+    }
+  }
+}
