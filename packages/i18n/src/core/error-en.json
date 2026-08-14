@@ -41,6 +41,7 @@
   "billing_validation_failed": "Billing validation failed",
   "brand_not_available": "Brand not available",
   "checkout": "Checkout error",
+  "client_address_form_timeout": "The address form timed out while loading. Please try again.",
   "client_address_not_available": "Address not available",
   "client_address_set_default_failed": "We experienced an error setting this address as default",
   "client_address_update_failed": "Failed to update address",

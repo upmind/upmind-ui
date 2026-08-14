@@ -27,6 +27,16 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * @doctrine clause 2 (fresh modules start armless) — this factory returns
  * ONLY shared members; no `useClientAddresses.actions.{actor}.ts` file exists.
  */
+
+/**
+ * The collection's readiness bound — the same ceiling the editor half uses.
+ * A list that never arrives resolves `isReady()` FALSE rather than rejecting:
+ * "not ready" is a settled answer for a collection, whereas the editor's
+ * unfillable form is an error a consumer must be able to catch (`design.md`
+ * D-10 / AC-4).
+ */
+const READINESS_TIMEOUT_MS = 15_000;
+
 export function createClientAddressesActions(
   _actorScope: ScopeActorTypes,
   service: ClientAddressServices,
@@ -74,13 +84,27 @@ export function createClientAddressesActions(
     });
   }
 
-  /** Resolves once the list query has completed its first fetch. */
+  /**
+   * Resolves once the list query has completed its first fetch, or `false` at
+   * {@link READINESS_TIMEOUT_MS} if it never does.
+   *
+   * The bound is the second half of `parity.yaml` L6 / AC-4: dropping the
+   * pre-conversion `setInterval` removed the leaked timer, but a watcher on a
+   * list that never arrives waits exactly as long as the interval did. A
+   * readiness wait that cannot end is the defect, not the timer it used.
+   */
   function whenListFetched(): Promise<boolean> {
     if (query.isFetched.value) return Promise.resolve(true);
 
     return new Promise<boolean>(resolve => {
+      const timer = setTimeout(() => {
+        stop();
+        resolve(false);
+      }, READINESS_TIMEOUT_MS);
+
       const stop = watch(query.isFetched, fetched => {
         if (!fetched) return;
+        clearTimeout(timer);
         stop();
         resolve(true);
       });
@@ -90,7 +114,8 @@ export function createClientAddressesActions(
   /**
    * Resolves once the collection is ready to read.
    * @returns true once the first fetch has settled, false if the session
-   * settles without an addressable client.
+   * settles without an addressable client or the list never arrives within
+   * {@link READINESS_TIMEOUT_MS}.
    */
   async function isReady(): Promise<boolean> {
     if (!(await whenSessionSettles())) return false;

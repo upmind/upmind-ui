@@ -27,7 +27,16 @@ import {
   NotAuthenticatedError,
   DEBOUNCE_DELAY
 } from "../../utils";
-import { find, get, isArray, isEmpty, isString, pick, some } from "lodash-es";
+import {
+  find,
+  first,
+  get,
+  isArray,
+  isEmpty,
+  isString,
+  pick,
+  some
+} from "lodash-es";
 import type { QueryParams } from "../query";
 import type { ScopeContext } from "../scope";
 import type {
@@ -42,6 +51,7 @@ import type {
 import type { ResponseError } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { QueryKey } from "@tanstack/vue-query";
+import type { ICountry } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 /**
@@ -82,15 +92,55 @@ export const queryKey: QueryKey = ["client", "addresses"];
  * the CONTEXT the scope builder resolved, never the actor, so it is not a
  * branch on `ScopeActorTypes.SELF`. The manager's context names the ADDRESS,
  * not its owner, so it falls through to the session.
+ *
+ * Called ONCE per services instance; every request function below takes the
+ * resulting ref rather than re-deriving its own. A second derivation is a
+ * second seam, which is the defect this replaces.
+ *
+ * @param pin - PINS the first resolution for the lifetime of the instance. The
+ * editor's target client is fixed the moment its scope resolves: a session that
+ * later moves to another client must not move an open form's save (AC-30). The
+ * `??=` is what makes the first NON-EMPTY resolution the pin, so a scope built
+ * before the session has settled still pins the right client rather than
+ * freezing `undefined`.
  */
-function resolveClientId(scopeContext?: ScopeContext) {
+function resolveClientId(scopeContext?: ScopeContext, pin = false) {
   const { activeUser } = useActiveSession().useContext();
+  const pinned = ref<string | undefined>(undefined);
 
-  return computed(() =>
-    scopeContext?.type === ClientAddressesContextTypes.CLIENT
-      ? scopeContext.id
-      : activeUser.value?.id
-  );
+  return computed(() => {
+    const live =
+      scopeContext?.type === ClientAddressesContextTypes.CLIENT
+        ? scopeContext.id
+        : activeUser.value?.id;
+
+    if (!pin) return live;
+
+    pinned.value ??= live;
+    return pinned.value;
+  });
+}
+
+/**
+ * Resolves the country a form should sit on, from the model's own id and
+ * falling back to the brand's.
+ *
+ * `useSystem().getCountry` is TYPED `ICountry` but resolves `undefined` whenever
+ * neither the model nor the brand names a country the fetched list actually
+ * carries. Dereferencing that lie is what wedged the create path: the `parse`
+ * service threw, and the shared machine's `available.checking.parsing` has no
+ * `onError`, so the editor sat in `parsing` forever — `update()` never settled
+ * and no `POST` was ever issued (AC-24). The last-resort fall back to the first
+ * country the API returned keeps a draft's country control populated with a
+ * REAL, selectable country instead of blank (AC-16).
+ */
+function resolveCountry(
+  countries?: ICountry[],
+  countryId?: string | null
+): ICountry | undefined {
+  const { getCountry } = useSystem();
+
+  return getCountry(countryId) ?? first(countries);
 }
 
 /**
@@ -133,10 +183,9 @@ function loadList(
   params: Partial<QueryParams<IAddress[], Address[]>> = {
     pagination: { limit: 0 }
   },
-  scopeContext?: ScopeContext
+  clientId: ClientAddressServices["clientId"]
 ): ClientAddressListQuery {
   const { list, useUrl } = useQuery();
-  const clientId = resolveClientId(scopeContext);
   const targetUrl = () =>
     useUrl(`clients/${clientId.value}/addresses`, {
       with: ["region", "country"].join()
@@ -176,13 +225,12 @@ function loadList(
  * `.for('address', id)` no longer depends on the collection being loaded.
  */
 async function loadOne(
-  id?: Address["id"],
-  scopeContext?: ScopeContext
+  id: Address["id"] | undefined,
+  clientId: ClientAddressServices["clientId"]
 ): Promise<Address | undefined> {
   if (!id) return undefined;
 
   const { get: getOne, useUrl } = useQuery();
-  const clientId = resolveClientId(scopeContext);
 
   if (!isAddressable(clientId.value)) {
     return Promise.reject(new NotAuthenticatedError());
@@ -210,10 +258,10 @@ async function loadOne(
  */
 async function loadLookups(
   { id, model, schema }: AddressContext,
-  scopeContext?: ScopeContext
+  clientId: ClientAddressServices["clientId"]
 ): Promise<Partial<AddressContext>> {
   const { t } = useI18n();
-  const { isReady, ensureCountries, fetchRegions, getCountry } = useSystem();
+  const { isReady, ensureCountries, fetchRegions } = useSystem();
   const { ensureConfig } = useBrand();
 
   // we have to do this synchronously as we need the values to be available for the model
@@ -229,10 +277,10 @@ async function loadLookups(
     )
   );
 
-  const seed = isEmpty(model) ? await loadOne(id, scopeContext) : model;
+  const seed = isEmpty(model) ? await loadOne(id, clientId) : model;
 
   const countries = await ensureCountries();
-  const country = getCountry(seed?.address?.countryId);
+  const country = resolveCountry(countries, seed?.address?.countryId);
   const regions = await fetchRegions(seed?.address?.countryId || country?.id);
 
   const config = await ensureConfig([
@@ -255,7 +303,12 @@ async function loadLookups(
     name: seed?.name,
     type: seed?.type,
     address: {
-      countryId: seed?.address?.countryId ?? country?.id,
+      // Cast, not `!`: `resolveCountry` reports honestly that a brand naming no
+      // country and an empty country list leave a draft with none to seed. The
+      // model type calls it required because the schema does; a blank draft
+      // under that (unreachable in practice) condition is invalid, not a crash.
+      countryId: (seed?.address?.countryId ??
+        country?.id) as AddressModel["address"]["countryId"],
       address1: seed?.address?.address1 ?? null,
       address2: seed?.address?.address2,
       city: seed?.address?.city ?? null,
@@ -292,10 +345,9 @@ async function loadLookups(
 /** MANAGER — create. The model is always sent whole; a create has no prior state to diff against. */
 async function add(
   data: AddressModel,
-  scopeContext?: ScopeContext
+  clientId: ClientAddressServices["clientId"]
 ): Promise<IAddress | undefined> {
   const { post, useUrl } = useQuery();
-  const clientId = resolveClientId(scopeContext);
 
   if (!isAddressable(clientId.value)) {
     return Promise.reject(new NotAuthenticatedError());
@@ -317,11 +369,10 @@ async function add(
 async function update(
   id: Address["id"],
   data: AddressModel,
-  baseData?: AddressModel,
-  scopeContext?: ScopeContext
+  baseData: AddressModel | undefined,
+  clientId: ClientAddressServices["clientId"]
 ): Promise<IAddress | undefined> {
   const { put, useUrl } = useQuery();
-  const clientId = resolveClientId(scopeContext);
 
   if (!isAddressable(clientId.value)) {
     return Promise.reject(new NotAuthenticatedError());
@@ -341,17 +392,16 @@ async function update(
  */
 async function ensure(
   model: AddressModel,
-  scopeContext: ScopeContext | undefined,
+  clientId: ClientAddressServices["clientId"],
   captureError: ClientAddressErrorCapture
 ): Promise<Address> {
   const { t } = useI18n();
-  const clientId = resolveClientId(scopeContext);
 
   if (!isAddressable(clientId.value)) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  const query = loadList(undefined, scopeContext);
+  const query = loadList(undefined, clientId);
   await query.promise.value.finally();
 
   const { findOne } = useCollection<Address>(
@@ -363,7 +413,7 @@ async function ensure(
   const found = isEmpty(mapping) ? undefined : findOne(mapping);
   if (found) return found;
 
-  return add(model, scopeContext)
+  return add(model, clientId)
     .then(raw => {
       if (isEmpty(raw)) {
         throw new DetailedError(
@@ -392,12 +442,11 @@ async function ensure(
  */
 async function remove(
   addressId: Address["id"],
-  scopeContext: ScopeContext | undefined,
+  clientId: ClientAddressServices["clientId"],
   captureError: ClientAddressErrorCapture
 ): Promise<void> {
   const { t } = useI18n();
   const { del, useUrl } = useQuery();
-  const clientId = resolveClientId(scopeContext);
 
   if (!isAddressable(clientId.value)) {
     return Promise.reject(new NotAuthenticatedError());
@@ -423,12 +472,11 @@ async function remove(
 /** COLLECTION — promote an address to the client's default. See `remove`'s note on R10 and AC-13. */
 async function setDefault(
   addressId: Address["id"],
-  scopeContext: ScopeContext | undefined,
+  clientId: ClientAddressServices["clientId"],
   captureError: ClientAddressErrorCapture
 ): Promise<void> {
   const { t } = useI18n();
   const { put, useUrl } = useQuery();
-  const clientId = resolveClientId(scopeContext);
 
   if (!isAddressable(clientId.value)) {
     return Promise.reject(new NotAuthenticatedError());
@@ -461,11 +509,11 @@ async function setDefault(
  * (`parity.yaml` L9 / AC-19).
  */
 async function parse(
-  { schema, baseModel, regions, country }: AddressContext,
+  { schema, baseModel, regions, country, countries }: AddressContext,
   { data }: AnyEventObject
 ): Promise<Partial<AddressContext>> {
   // We need to check and potentially update the region list based on the selected country (if it's changed)
-  const { fetchRegions, getCountry } = useSystem();
+  const { fetchRegions } = useSystem();
 
   // sometimes the machine can return the full context as data, so we check to see if we have a model
   // if not, then we assume the data is the model.
@@ -481,9 +529,15 @@ async function parse(
   );
 
   // first let's check we have a valid country,
-  // fallback to the default country if not set or invalid
-  country = getCountry(safeModel.address?.countryId);
-  safeModel.address.countryId = country.id;
+  // fallback to the default country if not set or invalid.
+  // The guard is load-bearing, not defensive noise: an unresolvable country
+  // used to throw here, and the shared machine's `available.checking.parsing`
+  // carries no `onError`, so the editor wedged in `parsing` for good.
+  const resolved = resolveCountry(countries, safeModel.address?.countryId);
+  if (resolved) {
+    country = resolved;
+    safeModel.address.countryId = resolved.id;
+  }
 
   // let's check if the country has changed, i.e.: the regions don't match
   // if so, then we need to fetch the regions for the new country
@@ -491,7 +545,7 @@ async function parse(
   // TODO: Regions should be mapped to camelcase, e.g country_id => countryId
   if (!some(regions, ["country_id", safeModel?.address?.countryId])) {
     regions = await fetchRegions(safeModel.address.countryId);
-    country = getCountry(safeModel.address.countryId);
+    country = resolveCountry(countries, safeModel.address.countryId) ?? country;
   }
 
   // now let's check our region list to see if we have a match
@@ -576,13 +630,19 @@ function scopedServices(
  * first, at construction. `useClientAddresses.ts` calls it once and so does
  * `useClientAddressManager.ts`, each with ITS OWN resolved scope, so the two
  * instances share no mutable state.
+ *
+ * @param options.pinClient - pins the resolved client for the instance's
+ * lifetime. The MANAGER passes it: an open editor addresses the account it was
+ * opened for, whatever the session does next (AC-30). The collection does not —
+ * a list follows its session, exactly as the merged sibling modules' do.
  */
 export const createClientAddressServices = (
   scopeActor: ScopeActorTypes,
-  scopeContext?: ScopeContext
+  scopeContext?: ScopeContext,
+  options: { pinClient?: boolean } = {}
 ): ClientAddressServices => {
   const mutationError = ref<ResponseError | undefined>(undefined);
-  const clientId = resolveClientId(scopeContext);
+  const clientId = resolveClientId(scopeContext, options.pinClient);
 
   const captureError: ClientAddressErrorCapture = error => {
     mutationError.value = mapToHeadlessError(error);
@@ -593,16 +653,16 @@ export const createClientAddressServices = (
     clientId,
     isAvailable: computed(() => isAddressable(clientId.value)),
     error: computed(() => mutationError.value),
-    loadList: params => loadList(params, scopeContext),
-    loadOne: id => loadOne(id, scopeContext),
-    add: model => add(model, scopeContext),
-    update: (id, model) => update(id, model, undefined, scopeContext),
-    ensure: model => ensure(model, scopeContext, captureError),
-    remove: id => remove(id, scopeContext, captureError),
-    setDefault: id => setDefault(id, scopeContext, captureError),
+    loadList: params => loadList(params, clientId),
+    loadOne: id => loadOne(id, clientId),
+    add: model => add(model, clientId),
+    update: (id, model) => update(id, model, undefined, clientId),
+    ensure: model => ensure(model, clientId, captureError),
+    remove: id => remove(id, clientId, captureError),
+    setDefault: id => setDefault(id, clientId, captureError),
     validate,
     refresh,
-    loadLookups: context => loadLookups(context, scopeContext),
+    loadLookups: context => loadLookups(context, clientId),
     parse,
     ...scopedServices(scopeActor, scopeContext)
   };
@@ -619,12 +679,14 @@ export const createClientAddressServices = (
  * scope, and therefore the target client, is resolved ONCE in
  * `useClientAddressManager.ts` and threaded in. `update` diffs `context.model`
  * against `context.baseModel` — the clone taken when the form opened — which
- * is what delivers the diff-only body legacy sends (`parity.yaml` L3).
+ * is what delivers the diff-only body legacy sends (`parity.yaml` L3), and
+ * addresses `service.clientId` — the instance's PINNED client — so the save
+ * goes where the form was opened rather than wherever the session has since
+ * moved (AC-30).
  * @internal
  */
 export const useClientAddressManagerServices = (
-  service: ClientAddressServices,
-  scopeContext?: ScopeContext
+  service: ClientAddressServices
 ): ClientAddressManagerMachineServices => ({
   loadLookups: service.loadLookups,
 
@@ -652,7 +714,7 @@ export const useClientAddressManagerServices = (
   /** `processing.updating` — entered when the context already carries an id. */
   update: ({ id, model, baseModel }: AddressContext) =>
     id && model
-      ? update(id, model, baseModel, scopeContext)
+      ? update(id, model, baseModel, service.clientId)
       : Promise.reject(
           new DetailedError(
             useI18n().t("error.client_address_not_available"),

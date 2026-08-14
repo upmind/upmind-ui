@@ -5,7 +5,6 @@ import { useClientAddressManagerServices } from "./client-address.services";
 import { useModelParser } from "../../utils";
 import { compact, get } from "lodash-es";
 import type { dataManagerMachine } from "../data-manager";
-import type { ScopeContext } from "../scope";
 import type {
   AddressContext,
   AddressModel,
@@ -39,8 +38,7 @@ import type { AnyEventObject } from "xstate";
  * @internal
  */
 export function createClientAddressManagerMachineConfig(
-  service: ClientAddressServices,
-  scopeContext?: ScopeContext
+  service: ClientAddressServices
 ): Parameters<typeof dataManagerMachine.withConfig>[0] {
   return {
     actions: {
@@ -85,11 +83,22 @@ export function createClientAddressManagerMachineConfig(
         uischema: (context: AddressContext) => useUischema(context)
       }),
 
+      /**
+       * `id` is adopted alongside the model, not just parsed into it. The
+       * shared machine runs this on `processing.adding.onDone`, where `data` is
+       * the record the API just CREATED — and `id` is what its own `isNew`
+       * guard reads. Without the second updater a saved draft keeps reporting
+       * itself new and a second save POSTs a duplicate (AC-24). `context.id ||`
+       * comes first so an ordinary `SET` can never rewrite the address under
+       * edit.
+       */
       setModel: assign({
         model: (
           { schema, baseModel }: AddressContext,
           { data }: AnyEventObject
-        ) => useModelParser<AddressModel>(schema, data, baseModel)
+        ) => useModelParser<AddressModel>(schema, data, baseModel),
+        id: (context: AddressContext, { data }: AnyEventObject) =>
+          context.id || (get(data, "id") as AddressContext["id"])
       }),
 
       /**
@@ -120,7 +129,7 @@ export function createClientAddressManagerMachineConfig(
      * `service` is threaded in, so every machine-invoked request inherits the
      * same resolved target client as the rest of the module.
      */
-    services: useClientAddressManagerServices(service, scopeContext)
+    services: useClientAddressManagerServices(service)
   };
 }
 

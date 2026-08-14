@@ -66,14 +66,18 @@ function createClientAddressManagerForScope(
    * `config.context` goes in here and nowhere else — every request the manager
    * issues, directly or through the machine, inherits the same resolved
    * client.
+   *
+   * `pinClient` is what makes "the account this editor was opened for" survive
+   * a session that moves underneath it: the READ and the WRITE address the same
+   * client, and neither re-reads `activeUser` at request time (AC-30).
    */
-  const service = createClientAddressServices(actorScope, config.context);
+  const service = createClientAddressServices(actorScope, config.context, {
+    pinClient: true
+  });
 
   const machineService = interpret(
     dataManagerMachine
-      .withConfig(
-        createClientAddressManagerMachineConfig(service, config.context)
-      )
+      .withConfig(createClientAddressManagerMachineConfig(service))
       .withContext({
         id: addressId,
         // Identity, seeded from the ONE seam (D-3). Never read `activeUser`

@@ -46,7 +46,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * shared polls are protected-adjacent and are NOT touched — the hazard is
  * contained at this module's boundary (`design.md` D-10 / AC-26).
  */
-const READINESS_TIMEOUT_MS = 30_000;
+const READINESS_TIMEOUT_MS = 15_000;
 
 export function createClientAddressManagerActions(
   _actorScope: ScopeActorTypes,
@@ -96,6 +96,11 @@ export function createClientAddressManagerActions(
   /**
    * Resolves once the machine reaches `available`, or rejects with a catchable
    * `DetailedError` at {@link READINESS_TIMEOUT_MS}.
+   *
+   * The expiry names the TIMEOUT rather than reusing the module's generic
+   * "not available" key: a form whose lookups never answered and a form that
+   * resolved unusable are different failures, and a consumer that cannot tell
+   * them apart cannot offer a retry (AC-26).
    */
   function whenAvailable(): Promise<boolean> {
     return waitFor(machineService, s => stateMatches(s, "available"), {
@@ -105,7 +110,7 @@ export function createClientAddressManagerActions(
       .catch(error =>
         Promise.reject(
           new DetailedError(
-            t("error.client_address_not_available"),
+            t("error.client_address_form_timeout"),
             responseCodes.Timeout,
             ErrorOrigin.Headless,
             { error, state: state.value }

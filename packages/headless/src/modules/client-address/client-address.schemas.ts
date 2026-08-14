@@ -32,7 +32,7 @@ export function useSchemaDefinitions({
   baseModel,
   countries,
   config
-}: Partial<AddressContext>): JsonSchema7["definitions"] {
+}: Partial<AddressContext> = {}): JsonSchema7["definitions"] {
   const schema = {
     address: {
       type: "object",
@@ -75,7 +75,11 @@ export function useSchemaDefinitions({
         countryId: {
           type: "string",
           title: "Country",
-          default: baseModel?.countryId,
+          // `baseModel.address.countryId`, not `baseModel.countryId` — the
+          // latter is not a field on `AddressModel`, so the default always
+          // resolved undefined and a blank draft opened with no country
+          // selected (AC-16).
+          default: baseModel?.address?.countryId,
           ...(countries?.length &&
             Array.isArray(countries) && {
               enum: map(countries, "id"),

@@ -42,10 +42,29 @@ export enum ClientAddressesContextTypes {
 
 /**
  * Scope matrix for `useClientAddresses`. `client` is the only actor that
- * resolves; `self`, `staff` and `guest` are `null as never`, which makes
- * `.as('staff')` / `.as('guest')` a COMPILE-TIME error rather than an
- * advertised-but-absent capability (operator ruling R2 — `parity.yaml` rows
- * D1-D8, N1).
+ * resolves; `self`, `staff` and `guest` are `null as never` (operator ruling R2
+ * — `parity.yaml` rows D1-D8, N1).
+ *
+ * WHAT THE TYPE SYSTEM ACTUALLY ENFORCES — corrected against a real
+ * `ts.createProgram` probe, not asserted. `ScopeBuilderResult` accepts EVERY
+ * `ScopeActorTypes` and reads the matrix row only to decide whether `.for()`
+ * exists, so a `null as never` row removes `.for(...)` and nothing else:
+ * `.as('staff')` and `.as('guest')` COMPILE, resolving to an instance with no
+ * `.for()`, and are refused at RUNTIME by the scope factory. The compile-time
+ * errors are `.as('staff' | 'guest' | 'self').for(...)`, while
+ * `.as('client').for(...)` type-checks.
+ *
+ * Delivering a compile-time error on a bare `.as('staff')` would require
+ * editing `scope.builder.ts` — protected core, forbidden by `design.md` D-2.
+ * The claim is corrected here rather than the core edited; AC-33 / AC-34 need
+ * the same correction in the bundle.
+ *
+ * @graphify-citation `graphify query "ScopeBuilderResult
+ * ScopeBuilderStaffResult ContextsForActor"` (2026-08-14) → `ScopeBuilderResult`
+ * at `scope.builder.ts:L184`, `ScopeBuilderStaffResult` at `:L140`,
+ * `ContextsForActor` at `scope.types.ts:L103` — the three nodes this correction
+ * rests on, all in community `headless/src/utils/index.ts`. No node is minted
+ * here. See `graphify-out/GRAPH_REPORT.md`.
  */
 export const CLIENT_ADDRESSES_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
