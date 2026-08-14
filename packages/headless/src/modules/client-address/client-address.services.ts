@@ -223,6 +223,24 @@ function loadList(
  * the manager holds a machine, and its `loading` state awaits this when no
  * model has already been supplied, so an editor opened by
  * `.for('address', id)` no longer depends on the collection being loaded.
+ *
+ * @decision
+ * what: the editor resolves its own row by id, accepting a request family the
+ *   oracle never issued — `GET clients/{id}/addresses/{id}` appears 5x in the
+ *   post-migration e2e trace and 0x in the pre-migration recording. Intended,
+ *   not accidental.
+ * why: the oracle read the row out of the already-loaded `clientScope` params
+ *   (`addEditClientAddressModal.vue:94-99`), so an editor could only be opened
+ *   once the collection had been fetched. `.for(ADDRESS, id)` has no such
+ *   precondition, which is the capability AC-17 / `parity.yaml` W8 specify;
+ *   the read is what pays for it. It is purely ADDITIVE — nothing the oracle
+ *   did is dropped, and `.fresh()` still issues none (AC-16). AC-38's
+ *   "exactly as before" governs the seeding flow, which uses `.fresh()`; this
+ *   is the edit path.
+ * rejected: seeding the editor from the collection's cached row to keep the
+ *   trace byte-identical — it reinstates the collection-loaded precondition
+ *   this conversion removes, and would make `.for(ADDRESS, id)` silently
+ *   resolve an empty form for any consumer that never listed first.
  */
 async function loadOne(
   id: Address["id"] | undefined,

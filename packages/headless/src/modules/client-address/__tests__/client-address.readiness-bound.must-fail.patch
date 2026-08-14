@@ -16,8 +16,9 @@ mutant proved nothing. Both are green as of the bound landing at 15s, so
 
 Note the SIBLING bound this does NOT cover: the collection half's
 `whenListFetched` (`useClientAddresses.actions.ts`) carries its own
-`READINESS_TIMEOUT_MS` for AC-4. One control, one mutation — a second control
-belongs to that file if AC-4 is to be covered the same way.
+`READINESS_TIMEOUT_MS` for AC-4. One control, one mutation — that second
+control now exists as
+`client-address.collection-readiness-bound.must-fail.patch`.
 
 diff --git a/packages/headless/src/modules/client-address/useClientAddressManager.actions.ts b/packages/headless/src/modules/client-address/useClientAddressManager.actions.ts
 index 3bb744bec..2e51a961d 100644

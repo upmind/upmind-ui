@@ -1,0 +1,58 @@
+Negative control — the COLLECTION's readiness bound (AC-4, design D-10,
+parity row L6/A8).
+
+The sibling `client-address.readiness-bound.must-fail.patch` covers the EDITOR
+half only (AC-26, `useClientAddressManager.actions.ts`), and says so in its own
+header. This is the collection half's control: without it, `whenListFetched`'s
+15s ceiling was unprotected — a change removing the bound would leave every
+test in the suite green.
+
+Removes the `setTimeout` expiry from `whenListFetched`, leaving the bare
+`watch` on `query.isFetched`. That is precisely the pre-conversion defect
+AC-4 exists to close: a readiness wait on a list that never arrives, which
+never ends.
+
+Should flip RED — __tests__/client-address.collection.int.test.ts:
+  - "AC-4 settles isReady() within a known limit against a list that never
+     arrives"                   (the race resolves "hung" at the 25s ceiling)
+
+Should stay GREEN — the SAME describe block's companion:
+  - "AC-4 leaves no scheduled interval behind while waiting on a list that
+     never arrives"
+
+That green is the point. AC-4 carries two independent guarantees — the wait is
+BOUNDED, and no timer is leaked behind it — and the timer-hygiene half was
+already green before the bound landed. A mutant that reds both would not tell
+you which guarantee broke. This one discriminates: it removes the bound while
+leaving the wait timer-free (the `watch` raises no `setInterval`), so a red
+here means the ceiling is gone and nothing else.
+
+Measured under this mutant: exactly the one test above flips RED. The suite's
+one standing failure (AC-20 / finding F6, escalated per `review-notes.md`
+§7.6) is unrelated and red with or without it.
+
+diff --git a/packages/headless/src/modules/client-address/useClientAddresses.actions.ts b/packages/headless/src/modules/client-address/useClientAddresses.actions.ts
+index aaed864c6..8a560e2ea 100644
+--- a/packages/headless/src/modules/client-address/useClientAddresses.actions.ts
++++ b/packages/headless/src/modules/client-address/useClientAddresses.actions.ts
+@@ -94,20 +94,14 @@ export function createClientAddressesActions(
+    * readiness wait that cannot end is the defect, not the timer it used.
+    */
+   function whenListFetched(): Promise<boolean> {
+     if (query.isFetched.value) return Promise.resolve(true);
+ 
+     return new Promise<boolean>(resolve => {
+-      const timer = setTimeout(() => {
+-        stop();
+-        resolve(false);
+-      }, READINESS_TIMEOUT_MS);
+-
+       const stop = watch(query.isFetched, fetched => {
+         if (!fetched) return;
+-        clearTimeout(timer);
+         stop();
+         resolve(true);
+       });
+     });
+   }
+ 

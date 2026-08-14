@@ -1,3 +1,29 @@
+Negative control — the manager's UPDATE limb (AC-23, parity row L3).
+
+Amputates the `update` service in `useClientAddressManagerServices` — the limb
+`processing.updating` invokes when the context already carries an id — so an
+edit can never reach the diffing `update`, and therefore never reaches the wire
+as a PUT.
+
+Should flip RED — __tests__/client-address.manager-save.int.test.ts:
+  - "AC-23 puts ONLY the changed field and does NOT re-send the unchanged
+     country"                   (no PUT is captured; the save rejects)
+  - "AC-23 sends nothing at all beyond the fields that actually moved"
+  - "AC-22/AC-23 puts the chosen address type on the wire when the type is what
+     changed"
+Collateral RED (both drive their read-back THROUGH an edit, so the amputated
+PUT takes them with it; neither is this control's declared subject):
+  - "AC-15 refetches the collection off the save, with no consumer-side refresh"
+  - the AC-30 pinned-client save read-back
+
+What this does NOT cover — AC-24. Create and update are two distinct limbs of
+the same services adapter: `add` routes to `service.ensure` (find-or-create ->
+POST), `update` routes to the diffing `update` (-> PUT). This mutant amputates
+the update limb only, and BOTH AC-24 tests were measured GREEN under it — the
+create path survives it untouched. AC-24's control is the sibling mutant
+`client-address.manager-create-amputation.must-fail.patch`. One mutant per
+capability, so a red localises to the limb that broke.
+
 diff --git a/packages/headless/src/modules/client-address/client-address.services.ts b/packages/headless/src/modules/client-address/client-address.services.ts
 index 1708af336..cce43346e 100644
 --- a/packages/headless/src/modules/client-address/client-address.services.ts
