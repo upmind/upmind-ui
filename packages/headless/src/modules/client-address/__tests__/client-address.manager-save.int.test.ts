@@ -65,6 +65,26 @@ function capturePosts(clientId: string): { bodies: () => unknown[] } {
   return { bodies: () => bodies };
 }
 
+/**
+ * A recorded country that is neither the lookup list's first row nor the
+ * recorded row's own country, so a POST carrying it can only have come from the
+ * model the caller filled in — never from a seeded default or a first-row
+ * fallback.
+ */
+function discriminatingCountryId(): string {
+  const rows = recorded.countries().data;
+  const excluded = new Set([rows[0]?.id, recorded.one().data.country_id]);
+  const pick = rows.find(row => !excluded.has(row.id));
+  if (!pick) {
+    throw new Error(
+      "The countries recording carries no country outside the default and the " +
+        "fallback — AC-24 cannot tell a filled-in country from a seeded one. " +
+        "Re-record with `pnpm fixtures:generate client-address`."
+    );
+  }
+  return pick.id;
+}
+
 /** Opens an editor over the recorded single-read row. */
 async function openExisting() {
   const { clientId } = await seedClientSession();
@@ -200,7 +220,7 @@ describe("I add a brand new address (AC-24)", () => {
     const { clientId } = await seedClientSession();
     installLookupHandlers(server);
     const posts = capturePosts(clientId);
-    const countryId = recorded.countries().data[0].id;
+    const countryId = discriminatingCountryId();
 
     const manager = useClientAddressManager()
       .as(ScopeActorTypes.CLIENT)
@@ -228,13 +248,15 @@ describe("I add a brand new address (AC-24)", () => {
       country_id: countryId,
       type: 3
     });
+    expect(body.country_id).not.toBe(recorded.countries().data[0].id);
+    expect(body.name).toBe("Prover Address");
   });
 
   it("AC-24 adopts the created address's id, so the editor stops being new", async () => {
     const { clientId } = await seedClientSession();
     installLookupHandlers(server);
     capturePosts(clientId);
-    const countryId = recorded.countries().data[0].id;
+    const countryId = discriminatingCountryId();
 
     const manager = useClientAddressManager()
       .as(ScopeActorTypes.CLIENT)

@@ -128,7 +128,7 @@ describe("client address manager — I start a new address from a blank form (AC
     expect(manager.useContext().id.value).toBeUndefined();
   });
 
-  it("AC-16 seeds the blank form with the brand's usual country and leaves the other address fields empty", async () => {
+  it("AC-16 seeds the blank form with a country the recorded lookup actually carries, and leaves the other address fields empty", async () => {
     await seedClientSession();
     installLookupHandlers(server);
 
