@@ -326,3 +326,18 @@ personal-details:
     - { type: symbol, id: "@upmind-automation/headless!usePersonalDetails" }
     - { type: symbol, id: "@upmind-automation/headless!usePersonalDetailsManager" }
     - { type: symbol, id: "@upmind-automation/headless!ProfileModel" }
+
+phone:
+  term: phone
+  kind: domain
+  aliases: [phone number, client phone]
+  definition: >-
+    A client's own phone number — its national number, dial code, and country
+    carried as a related set, plus default/deletable/verified status. Read,
+    added, edited, deleted, and defaulted through a scoped collection and a
+    per-number form editor. Only the client's own (self) scope is supported;
+    acting on another client's numbers is a recorded, not-yet-delivered
+    capability.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useClientPhones" }
+    - { type: symbol, id: "@upmind-automation/headless!useClientPhoneManager" }

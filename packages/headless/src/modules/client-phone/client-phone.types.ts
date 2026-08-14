@@ -1,6 +1,86 @@
-import type { DataManagerContext } from "../data-manager/data-manager.types";
-import type { IPhone, ICountry } from "@upmind-automation/types";
+/**
+ * @graphify-citation `graphify query "client phone"` (2026-08-08, BFS depth 2,
+ * 303 nodes) — `Phone` / `PhoneModel` / `PhoneContext` (community 8) and
+ * `IPhoneData` (community 21) already live in this file, so the conversion
+ * ADDS the two scope matrices and context enums here rather than minting a new
+ * types module. `ClientPhonesContextTypes` / `ClientPhoneContextTypes` have no
+ * existing graph node — confirmed absent from the traversal — so minting them
+ * is warranted, not a duplicate. See `docs/sdd/client-phone/design.md`
+ * §0 and `graphify-out/GRAPH_REPORT.md`.
+ */
+// -----------------------------------------------------------------------------
+/**
+ * @module client-phone/client-phone.types
+ * @description Types for a client's own phone numbers — the query-backed
+ * collection (`useClientPhones`) and the `dataManagerMachine`-backed per-phone
+ * form editor (`useClientPhoneManager`). Each composable owns its own context
+ * enum and scope matrix; the phone model, the services contract and the
+ * mappers are shared, which is what keeps ONE identity seam for both halves.
+ */
 
+import { AccessRoleTypes } from "@upmind-automation/types";
+import { ScopeActorTypes } from "../scope/scope.types";
+import type { ResponseError } from "../../utils";
+import type { DataManagerContext } from "../data-manager/data-manager.types";
+import type { ListQuery, QueryParams } from "../query";
+import type { QueryKey } from "@tanstack/vue-query";
+import type { ICountry, IPhone } from "@upmind-automation/types";
+import type { ComputedRef } from "vue";
+import type { AnyEventObject } from "xstate";
+
+// -----------------------------------------------------------------------------
+// SCOPE — two matrices, one per composable
+// -----------------------------------------------------------------------------
+
+/** Context types for the phone COLLECTION — whose list is being addressed. */
+export enum ClientPhonesContextTypes {
+  /** Acting on a client's phone collection. */
+  CLIENT = AccessRoleTypes.CLIENT
+}
+
+/**
+ * Scope matrix for `useClientPhones`. `client` is the only actor that resolves;
+ * `staff` and `guest` are `null as never`, which makes `.as('staff')` a
+ * compile-time error rather than an advertised-but-absent capability (operator
+ * ruling 1, 2026-08-08 — every staff capability the oracle demonstrates is
+ * recorded as a signed drop in `parity.yaml` rows S1-S7).
+ */
+export const CLIENT_PHONES_SCOPE_MATRIX = {
+  [ScopeActorTypes.SELF]: null as never,
+  [ScopeActorTypes.STAFF]: null as never,
+  [ScopeActorTypes.CLIENT]: ClientPhonesContextTypes.CLIENT,
+  [ScopeActorTypes.GUEST]: null as never
+} as const;
+
+/** Scope matrix type for `useClientPhones` (derived from the runtime const). */
+export type ClientPhonesScopeMatrix = typeof CLIENT_PHONES_SCOPE_MATRIX;
+
+/**
+ * Context types for the per-phone MANAGER — which record is being edited. The
+ * context names the ENTITY, not its owner: the owning client falls through the
+ * same `resolveClientId` seam as every other call.
+ */
+export enum ClientPhoneContextTypes {
+  /** Editing one existing phone by id. */
+  PHONE = "phone"
+}
+
+/**
+ * Scope matrix for `useClientPhoneManager`. Separate from the collection's —
+ * the two composables scope on different things and cannot share one.
+ */
+export const CLIENT_PHONE_SCOPE_MATRIX = {
+  [ScopeActorTypes.SELF]: null as never,
+  [ScopeActorTypes.STAFF]: null as never,
+  [ScopeActorTypes.CLIENT]: ClientPhoneContextTypes.PHONE,
+  [ScopeActorTypes.GUEST]: null as never
+} as const;
+
+/** Scope matrix type for `useClientPhoneManager` (derived from the runtime const). */
+export type ClientPhoneScopeMatrix = typeof CLIENT_PHONE_SCOPE_MATRIX;
+
+// -----------------------------------------------------------------------------
+// MODELS
 // -----------------------------------------------------------------------------
 
 /**
@@ -53,7 +133,7 @@ export interface PhoneModel {
   };
   /**
    * The type of the phone number.
-   * @deprecated The `type` property is deprecated in `PhoneModel` and should not be used directly here.
+   * @deprecated The `type` property is deprecated in `PhoneModel` and should not be used directly here — see `Phone.type` (read-only; row W4 / decision D-1).
    */
   // type?: number; // deprecated
 }
@@ -81,7 +161,8 @@ export interface Phone {
    */
   phone: PhoneModel["phone"];
   /**
-   * The type of phone number (e.g. 1 for "Mobile", 2 for "Home").
+   * The type of phone number (e.g. 1 for "Mobile", 2 for "Home"). READ-ONLY —
+   * `mapIPhone` never emits it on write (decision D-1, row W4).
    */
   type: IPhone["type"];
   /**
@@ -117,3 +198,91 @@ export interface PhoneContext extends DataManagerContext<PhoneModel> {
    */
   country?: ICountry;
 }
+
+// -----------------------------------------------------------------------------
+// SERVICES CONTRACT
+// -----------------------------------------------------------------------------
+
+/**
+ * The reactive list query, minted ONCE per scope in `useClientPhones.ts`.
+ * Aliased from the query platform's own `ListQuery` — never derived with
+ * `ReturnType<typeof localServiceFn>`.
+ */
+export type ClientPhoneListQuery = ListQuery<IPhone[], Phone[]>;
+
+/** Lands a failed collection mutation (`remove` / `setDefault`) in the services instance's error state. */
+export type ClientPhoneErrorCapture = (error: unknown) => void;
+
+/**
+ * The contract `createClientPhoneServices` resolves to — consumed by BOTH
+ * halves, so the collection and the manager address the same client through
+ * the same seam. Unlike the reference, `loadLookups` / `parse` / `validate`
+ * live directly on this contract rather than a separate manager-only type:
+ * their signatures already match what the shared `dataManagerMachine` invokes,
+ * so no re-shaping adapter is needed for them (only `add` / `update` need one —
+ * see {@link ClientPhoneManagerMachineServices}).
+ */
+export type ClientPhoneServices = {
+  /** The module's base cache key; a save invalidates it and the list refetches. */
+  queryKey: QueryKey;
+  /**
+   * The target client this scope resolved. The manager seeds its machine
+   * context from here rather than re-reading the session.
+   */
+  clientId: ComputedRef<string | undefined>;
+  /**
+   * The reactive form of the ONE addressability predicate every request gate in
+   * `client-phone.services` calls. The composable layers read THIS rather than
+   * re-deriving the expression — a flag the consumer renders and the gate the
+   * wire enforces cannot drift apart.
+   */
+  isAvailable: ComputedRef<boolean>;
+  /** The last failed row mutation (`remove` / `setDefault`), captured as state — never raised itself. */
+  error: ComputedRef<ResponseError | undefined>;
+  loadList: (
+    params?: Partial<QueryParams<IPhone[], Phone[]>>
+  ) => ClientPhoneListQuery;
+  /** Per-phone read; seeds the manager when no collection is loaded. */
+  loadOne: (id?: IPhone["id"]) => Promise<Phone | undefined>;
+  add: (model: PhoneModel) => Promise<IPhone | undefined>;
+  update: (id: IPhone["id"], model: PhoneModel) => Promise<IPhone | undefined>;
+  /** Find-or-create; backs both the collection action and the machine's `add`. */
+  ensure: (model: PhoneModel) => Promise<Phone>;
+  /** Also raises the oracle's own feedback (row W6 — a deliberate divergence from the reference). */
+  remove: (id: IPhone["id"]) => Promise<void>;
+  /** Also raises the oracle's own feedback (row W6 — a deliberate divergence from the reference). */
+  setDefault: (id: IPhone["id"]) => Promise<IPhone | undefined>;
+  /** `loading` — resolves the country and seeds the form's base model. */
+  loadLookups: (context: PhoneContext) => Promise<Partial<PhoneContext>>;
+  /** `available.checking.parsing` — libphonenumber-js parse, with fallbacks. */
+  parse: (
+    context: PhoneContext,
+    event: AnyEventObject
+  ) => Promise<Partial<PhoneContext>>;
+  /** `available.checking.validating` and `processing.validating`. */
+  validate: (context: Partial<PhoneContext>) => Promise<PhoneModel | undefined>;
+  /** Invalidates {@link ClientPhoneServices.queryKey} so the collection refetches. */
+  refresh: () => Promise<void>;
+};
+
+/**
+ * The XState services map handed to `dataManagerMachine.withConfig({ services })`.
+ * One key per `invoke.src` the shared machine names — an omitted key crashes on
+ * entering its state rather than failing to compile, so read
+ * `data-manager/data-manager.machine.ts` before trimming this list.
+ */
+export type ClientPhoneManagerMachineServices = {
+  /** `loading` — the context patch the form starts from. */
+  loadLookups: (context: PhoneContext) => Promise<Partial<PhoneContext>>;
+  /** `available.checking.parsing` — schema-parses the incoming model. */
+  parse: (
+    context: PhoneContext,
+    event: AnyEventObject
+  ) => Promise<Partial<PhoneContext>>;
+  /** `available.checking.validating` and `processing.validating`. */
+  validate: (context: PhoneContext) => Promise<PhoneModel | undefined>;
+  /** `processing.adding` — reached when the machine's `isNew` guard passes. */
+  add: (context: PhoneContext) => Promise<Phone>;
+  /** `processing.updating` — reached when context already carries an id. */
+  update: (context: PhoneContext) => Promise<IPhone | undefined>;
+};

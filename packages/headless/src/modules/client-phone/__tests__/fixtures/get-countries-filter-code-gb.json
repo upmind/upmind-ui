@@ -1,0 +1,63 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/countries?filter[code]=GB",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a27eb1900ab3ee43-WAW",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Sat, 08 Aug 2026 12:58:37 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=WH%2BZVO9hxXkLMkjxZp6AZE%2B7hqH3dXL8iEvyuV3sVxL9JVLgGVSGX8Ul18Gi%2BElsGbJp5QzL%2F9duDnoPd5AqfANzPgUv5xr4%2Bni2EWTDAF1%2Bngu0Wewrl6FklnGv%2BaD0ozQjfx3s2A%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "1"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "320e4357-95e7-8d18-484f-31643202d986",
+          "name": "United Kingdom",
+          "code": "GB",
+          "code3": "",
+          "created_at": "2017-10-18 14:16:22",
+          "updated_at": "2026-07-23 13:41:28",
+          "vat": "20.00",
+          "eea": 1,
+          "phone_code": "+44",
+          "post_code_regex": "/^[a-zA-Z]{1,2}[0-9][a-zA-Z0-9]? ?[0-9][a-zA-Z]{2}$/"
+        }
+      ],
+      "related": null,
+      "total": 1,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-08T12:58:37.506Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-phone"
+  }
+}

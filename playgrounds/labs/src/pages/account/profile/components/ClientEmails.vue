@@ -6,7 +6,7 @@
       v-model="defaultEmailValue"
       :force-open="true"
       :manage="{
-        useList: useEmailsListForManage,
+        useList: useEmailListForManage,
         useMutate: useEmailManagerForManage
       }"
     >
@@ -40,7 +40,7 @@ import EmailItem from "./EmailItem.vue";
 /**
  * @decision local flat-composable adapters over `useClientEmails` /
  * `useClientEmailManager`, kept in THIS file (not `client-email/`).
- * what:    `useEmailsListForManage` / `useEmailManagerForManage` call the
+ * what:    `useEmailListForManage` / `useEmailManagerForManage` call the
  *          REAL scoped composables (`.as('self')`, `.for('email', id)` /
  *          `.fresh()`) and flatten their four-layer return into the single
  *          object shape `@upmind-automation/client-vue`'s `<UpmManage>`
@@ -62,10 +62,7 @@ import EmailItem from "./EmailItem.vue";
  * rejected: changing `client-vue`'s `Manage.vue`/`List.vue`/`Form.vue` to
  *          understand the four-layer shape directly — rejected, out of
  *          this run's write lane and would ripple into every OTHER
- *          `<UpmManage>` consumer still on a flat (unconverted) composable,
- *          e.g. this same directory's `ClientPhones.vue`
- *          (`useClientPhones`/`useClientPhoneManager` are plain exported
- *          functions, not scoped composables — verified, left untouched).
+ *          `<UpmManage>` consumer still on a flat (unconverted) composable.
  *
  * @decision the manager half resolves `.as(ScopeActorTypes.CLIENT)`, not
  * `.as('self')`, despite `useClientEmailManager`'s own `@example` JSDoc
@@ -90,47 +87,58 @@ import EmailItem from "./EmailItem.vue";
 
 const { t } = useI18n();
 
-const emails = useClientEmails().as(ScopeActorTypes.SELF);
-const { isReady, remove, setDefault, verify } = emails.useActions();
-const { data, default: getDefaultEmail } = emails.useContext();
-const emailsMeta = emails.useMeta();
+const clientEmails = useClientEmails().as(ScopeActorTypes.SELF);
+const { isReady, verify } = clientEmails.useActions();
+const { default: defaultEmail } = clientEmails.useContext();
 
-/** `MinimalListComposable` (`client-vue/manage/types.ts`) over the collection. */
-function useEmailsListForManage() {
+await isReady();
+
+const defaultEmailValue = ref(defaultEmail()?.id);
+
+// `UpmManage`'s `useList` / `useMutate` props are called bare
+// (`props.manage.useList()`, `props.manage.useMutate(id, options)`), so the
+// scoped composables are wrapped here to that shape — forced by the
+// four-layer return, not a behaviour change. Both wrap the SAME registry
+// instance `clientEmails` above resolves (scoped composables are singletons
+// per scope key), so nothing here mints a second collection.
+function useEmailListForManage() {
+  const {
+    isReady: listIsReady,
+    remove,
+    setDefault
+  } = clientEmails.useActions();
+  const { data, default: defaultItem } = clientEmails.useContext();
+  const { isLoading, isEmpty } = clientEmails.useMeta();
+
   return {
-    isReady,
+    isReady: listIsReady,
     meta: computed(() => ({
-      hasError: emailsMeta.hasError.value,
-      isAvailable: emailsMeta.isAvailable.value,
-      isEmpty: emailsMeta.isEmpty.value,
-      isLoading: emailsMeta.isLoading.value
+      isLoading: isLoading.value,
+      isEmpty: isEmpty.value
     })),
     data,
-    default: getDefaultEmail,
+    default: defaultItem,
     remove,
     setDefault
   };
 }
 
-/**
- * `MinimalMutateComposable` over the per-email manager. `id` is the email
- * being edited (from `<Form>`'s `model-value`); absent, this drafts a new
- * address — mirrors `useClientEmailManager`'s own documented
- * `.for('email', id)` / `.fresh()` split.
- */
 function useEmailManagerForManage(id?: string) {
+  // `.as(ScopeActorTypes.CLIENT)` rather than `.as(SELF)`: on a matrix whose
+  // `SELF` row is `null as never`, `.as(SELF)` degrades to plain `T` and does
+  // not statically carry `.for()` / `.fresh()`. `CLIENT` is the actor that
+  // actually resolves here, so naming it directly both typechecks and states
+  // the intent — no cast, no reconstructed instance type.
+  const scoped = useClientEmailManager().as(ScopeActorTypes.CLIENT);
   const manager = id
-    ? useClientEmailManager()
-        .as(ScopeActorTypes.CLIENT)
-        .for(ClientEmailContextTypes.EMAIL, id)
-    : useClientEmailManager().as(ScopeActorTypes.CLIENT).fresh();
-
+    ? scoped.for(ClientEmailContextTypes.EMAIL, id)
+    : scoped.fresh();
   const {
+    isReady: managerIsReady,
+    update,
     clear,
     input,
-    isReady: managerIsReady,
-    stop,
-    update
+    destroy
   } = manager.useActions();
   const { model, schema, uischema, errors, validationErrors } =
     manager.useContext();
@@ -156,11 +164,11 @@ function useEmailManagerForManage(id?: string) {
     update,
     clear,
     input,
-    stop
+    // `destroy` in the `stop` slot: the kit's contract for this slot is
+    // "release this editor", and `stop()` alone leaves the registry entry
+    // behind for the life of the SPA session. `destroy()` also deregisters
+    // the scoped instance.
+    stop: destroy
   };
 }
-
-await isReady();
-
-const defaultEmailValue = ref(getDefaultEmail()?.id);
 </script>

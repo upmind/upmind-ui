@@ -1,213 +1,89 @@
-import { computed, ref } from "vue";
-import { invalidateQueryByKey } from "../query";
-import { useActiveSession } from "../session-store";
-import service from "./client-phone.services";
-import { useCollection } from "../../utils";
-import { set, isEmpty, isArray } from "lodash-es";
-import type { Phone } from "./client-phone.types";
-import type { QueryProps, RequestFilters } from "../query";
-
+// Deep path, never the `../scope` barrel: client-company eagerly imports both
+// this module and client-email, so the barrel's `export *` re-aggregation can
+// still be mid-evaluation when the OTHER sibling's top-level factory call
+// lands here first — the aggregator-barrel `export *` hazard
+// (code-quality.companion.md). `scope.builder` alone has no such cycle.
+import { createScopedComposable } from "../scope/scope.builder";
+import createClientPhoneServices from "./client-phone.services";
+import { createClientPhonesActions } from "./useClientPhones.actions";
+import { createClientPhonesContext } from "./useClientPhones.context";
+import { createClientPhonesInternals } from "./useClientPhones.internals";
+import { createClientPhonesMeta } from "./useClientPhones.meta";
+import type { ClientPhonesScopeMatrix } from "./client-phone.types";
+import type { ScopeConfig, ScopeKey } from "../scope";
+import type { ScopeActorTypes } from "../scope/scope.types";
+// -----------------------------------------------------------------------------
 /**
- * Composable function for managing client phones.
- * It handles fetching, displaying, filtering, and performing actions on client phones,
- * leveraging an underlying service and TanStack Query for data management.
+ * @module client-phone/useClientPhones
+ * @description Scoped, query-backed collection of a client's own phone
+ * numbers: one TanStack list query per concrete `(actor, context)` scope,
+ * minted once at construction so it survives component lifecycles. Its
+ * sibling is `useClientPhoneManager` — a second scoped composable in the same
+ * module, registered under the SAME module name; the composable name and the
+ * scope key carry the differentiation.
  *
- * @param initial - Optional initial query parameters for loading the phone list. Defaults to pagination limit of 0.
- * @returns The {@link UseClientPhones} API for interacting with client phones.
+ * @doctrine clause 1 (uniform four-layer default).
+ * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
+ * actor; the scope builder resolves SELF before this factory runs.
  */
-export const useClientPhones = (
-  initial: QueryProps = {
-    pagination: {
-      limit: 0
-    }
-  }
-) => {
-  // --- state
+function createClientPhonesForScope(config: ScopeConfig, scopeKey: ScopeKey) {
+  const actorScope = config.actor as ScopeActorTypes;
 
-  const { isReady: ensureAuth } = useActiveSession().useActions();
-  const { isAuthenticated } = useActiveSession().useMeta();
+  /**
+   * ONE services instance for this scope. `config.context` goes in here and
+   * nowhere else, so every request the collection issues resolves the same
+   * target client.
+   */
+  const service = createClientPhoneServices(actorScope, config.context);
 
-  const query = service.loadList(initial);
+  // Mint the list query ONCE per scope — a `service.loadList()` inside a layer
+  // factory mints a second query, with its own refs, key and effect scope.
+  const query = service.loadList({ pagination: { limit: 0 } });
 
-  const meta = computed(() => ({
-    isLoading: query?.isLoading.value || !query.isFetched.value,
-    hasError: !isEmpty(query.error.value),
-    isEmpty: isEmpty(query.data?.value) || query.pagination.value.total == 0,
-    isAvailable: isAuthenticated.value,
-    ...query?.meta.value
-  }));
-
-  const { findOne, getOne, getDefault } = useCollection<Phone>(query.data);
-
-  async function isReady(): Promise<boolean> {
-    if (isAuthenticated.value)
-      return new Promise(resolve => {
-        const interval = setInterval(() => {
-          if (query.isFetched.value) {
-            clearInterval(interval);
-            resolve(true);
-          }
-        }, 100);
-      });
-    return ensureAuth()
-      .then(ok => (ok ? query.refetch().then(() => true) : false))
-      .catch(() => false);
-  }
-
-  // --- context
-
-  // --- mutations
-
-  function remove(id: Phone["id"]) {
-    return service.remove(id).mutate();
-  }
-
-  function setDefault(id: Phone["id"]) {
-    return service.setDefault(id).mutate();
-  }
-
-  // --- filters
-
-  const filters = ref<
-    RequestFilters & {
-      query?: string;
-    }
-  >({
-    query: ""
-  });
-
-  const filterQuery = (value?: string) => {
-    set(filters.value, "query", value ?? "");
-    query.filter(filters.value);
-  };
-
-  // ---------------------------------------------------------------------------
+  /**
+   * ONE actions instance per scope, not one per `useActions()` call: the
+   * collection's applied `filters` live in that factory, so a factory minted
+   * per call gives every handle its own filter state. Mirrors the manager
+   * half.
+   */
+  const actions = createClientPhonesActions(
+    actorScope,
+    service,
+    query,
+    scopeKey
+  );
 
   return {
-    // --- state
+    // --- Sub-composables (no direct props — clause 1 four-layer return)
+    /** Sub-composable for collection actions (row mutations, lifecycle). */
+    useActions: () => actions,
 
-    /**
-     * Resolves when the client items are ready to be used.
-     * Returns true if ready, false if an error occurred.
-     * @returns {Promise<boolean>} A promise resolving to true if ready, false if error.
-     */
-    isReady,
+    /** Sub-composable for collection context (reactive list + lookups). */
+    useContext: () => createClientPhonesContext(actorScope, service, query),
 
-    /**
-     * Meta-information about the basket state.
-     * @typedef {Object} ClientPhoneMeta
-     * @property {boolean} isError - Indicates if there was an error during the query.
-     * @property {boolean} isEmpty - Indicates if the basket is empty.
-     * @property {boolean} isLoading - Indicates if the query is currently loading.
-     * @property {boolean} isAuthenticated - Indicates if the client is authenticated.
-     */
-    meta,
+    /** Sub-composable for advanced debugging and internal access. */
+    useInternals: () => createClientPhonesInternals(actorScope, query),
 
-    // --- context
-
-    /**
-     * The reactive data property containing the list of client items.
-     * This is populated by the query and updates automatically when the query state changes.
-     */
-    data: computed(() => (isArray(query.data.value) ? query.data.value : [])),
-
-    /**
-     * The current error state of the query.
-     * This will be populated if the query fails to fetch data.
-     */
-    error: query.error,
-
-    /**
-     * Indicates if pagination is available
-     * If pagination is not set, it defaults to false.
-     * Otherwise, it returns the pagination object from the query parameters.
-     * @return {boolean|RequestPagination} The pagination object if available, otherwise false.
-     */
-    pagination: query.pagination,
-
-    /**
-     * The default item for the current client.
-     * This is the phone that is set as default for the current client.
-     * @returns {Phone} The default phone if found, is otherwise undefined.
-     */
-    default: getDefault,
-
-    // --- methods
-
-    /**
-     * Get a single phone by id.
-     * @param id The id of the phone to get.
-     * @returns The phone object if found, is otherwise undefined.
-     */
-    getOne,
-
-    /**
-     * Find a single phone based on the given param. The param is matched against the title and description.
-     * @param mapping The filter to match against the phone title and description.
-     * @returns The phone object if found, is otherwise undefined.
-     */
-    findOne,
-
-    /**
-     * Remove a phone by id.
-     * @param id The id of the phone to remove.
-     * @returns A promise that resolves when the phone is removed.
-     */
-    remove,
-
-    /**
-     * Set a phone as default.
-     * @param id The id of the phone to set as default.
-     * @returns A promise that resolves when the phone is set as default.
-     */
-    setDefault,
-
-    /**
-     * Refresh the query to get the latest data.
-     * This will refetch the data from the server and update the query state.
-     * @returns {void}
-     */
-    refresh: query.refetch,
-
-    /**
-     * Go to the next page of items.
-     * Increments the page number by 1 if pagination is enabled and the current offset is less than the total number of items.
-     * This will only work if the current offset is less than the total number of items.
-     * @param value The new pagination parameters to set.
-     * @return {void}
-     */
-    nextPage: query.fetchNextPage,
-
-    /**
-     * Go to the previous page of items.
-     * Decrements the page number by 1 if pagination is enabled and the current offset is greater than or equal to the limit.
-     * This will only work if the current offset is greater than or equal to the limit.
-     * @param value The new pagination parameters to set.
-     * @return {void}
-     */
-    prevPage: query.fetchPreviousPage,
-
-    /**
-     * Invalidate the query cache for client items.
-     * This will trigger a refetch of the items when the next query is made.
-     * @param {boolean} [exact=false] If true, only the exact query key will be invalidated.
-     * @return {void}
-     */
-    invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
-
-    /**
-     * Filters for the query.
-     * These filters can be used to modify the query parameters before fetching the data.
-     * @type {RequestFilters & { query?: string }}
-     * @property query - The search query to filter the client phones by title or description.
-     */
-    filters: {
-      query: filterQuery
-    }
+    /** Sub-composable for collection meta (state flags). */
+    useMeta: () => createClientPhonesMeta(actorScope, service, query)
   };
-};
-
+}
+// -----------------------------------------------------------------------------
 /**
- * The return type of the {@link useClientPhones} composable function.
+ * Scoped composable for a client's own phone collection.
+ *
+ * @example
+ * ```ts
+ * const phones = useClientPhones().as('self')
+ * const { data, default: defaultPhone } = phones.useContext()
+ * await phones.useActions().isReady()
+ * await phones.useActions().setDefault(id)
+ * ```
  */
+export const useClientPhones = createScopedComposable<
+  ReturnType<typeof createClientPhonesForScope>,
+  ClientPhonesScopeMatrix
+>("client-phone", createClientPhonesForScope);
+
+// Type export for consumers
 export type UseClientPhones = ReturnType<typeof useClientPhones>;

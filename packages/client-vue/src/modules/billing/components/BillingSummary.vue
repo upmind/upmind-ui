@@ -138,7 +138,8 @@ import {
   useBasketBilling,
   useClientAddresses,
   useClientCompanies,
-  useClientPhones
+  useClientPhones,
+  ScopeActorTypes
 } from "@upmind-automation/headless";
 import { useStyles, useTestAttrs } from "@upmind-automation/upmind-ui";
 import { Alert, Avatar, Card, Link } from "@upmind-automation/upmind-ui";
@@ -187,14 +188,16 @@ await Promise.allSettled([
   isReady(),
   useClientAddresses().isReady(),
   useClientCompanies().isReady(),
-  useClientPhones().isReady()
+  useClientPhones().as(ScopeActorTypes.SELF).useActions().isReady()
 ]);
 
 // --- summary
 
 const { getOne: getAddress } = useClientAddresses();
 const { getOne: getCompany } = useClientCompanies();
-const { getOne: getPhone } = useClientPhones();
+const { getOne: getPhone } = useClientPhones()
+  .as(ScopeActorTypes.SELF)
+  .useContext();
 
 const selectedCompany = computed(() =>
   getCompany(model.value?.companyId ?? undefined)
