@@ -13,6 +13,11 @@
  * log — an invalid model must reject before anything leaves. AC-15's is the
  * collection refetching off the save with no consumer-side refresh.
  *
+ * A save is also read back at the EDITOR, not only on the wire: what the save
+ * resolves, and what `useContext()` still shows once the save's own refetch has
+ * landed, must be the SAVED address rather than the snapshot the form opened
+ * on. A wire-only suite cannot see a successful save reverting the form.
+ *
  * ## What Breaks If These Fail
  * A save re-sends fields the brand forbids changing and is rejected where
  * legacy succeeded; a created address is saved but the editor keeps thinking
@@ -30,9 +35,11 @@ import {
   installLookupHandlers,
   observeAllRequests,
   recorded,
+  regionCountryId,
   seedClientSession
 } from "./client-address.int-helpers";
 import { server } from "./setup.integration";
+import type { WireAddress } from "./client-address.int-helpers";
 
 // -----------------------------------------------------------------------------
 
@@ -83,6 +90,93 @@ function discriminatingCountryId(): string {
     );
   }
   return pick.id;
+}
+
+/** What a settled save resolves to its caller, read structurally. */
+type SavedValue =
+  | {
+      id?: string;
+      name?: string | null;
+      title?: string;
+      description?: string;
+      address?: { city?: string | null };
+    }
+  | undefined;
+
+/**
+ * The recorded PUT response — the row as the API really answered it AFTER the
+ * edit — checked to be tellable apart from every row the editor could be
+ * showing instead. Its city is neither the row the form opens on nor the
+ * created row, so a read-back against it cannot be satisfied by a pre-edit
+ * snapshot or by a seeded default.
+ */
+function savedAddress(): WireAddress {
+  const saved = recorded.updated().data;
+  const excluded = [recorded.one().data.city, recorded.created().data.city];
+  if (!saved.city || excluded.includes(saved.city)) {
+    throw new Error(
+      "The recorded update answers with the same city the form opens on — a " +
+        "post-save read-back cannot tell the SAVED address from the pre-edit " +
+        "snapshot. Re-record with `pnpm fixtures:generate client-address`."
+    );
+  }
+  return saved;
+}
+
+/**
+ * A per-address server that answers a read with what the last PUT saved: the
+ * recorded pre-edit row before the save, the recorded post-edit row after.
+ * Both bodies are captures; only the transition between them is staged, and it
+ * is what stops a post-save read-back passing (or failing) on a double that
+ * serves the form-open snapshot forever.
+ */
+function installSavingAddressServer(
+  clientId: string,
+  id: string
+): { bodies: () => unknown[]; readsAfterSave: () => number } {
+  const bodies: unknown[] = [];
+  let current = recorded.one();
+  let readsAfterSave = 0;
+
+  server?.use(
+    http.get(`*/clients/${clientId}/addresses/${id}`, () => {
+      if (bodies.length > 0) readsAfterSave += 1;
+      return HttpResponse.json(current, { status: 200 });
+    }),
+    http.put(`*/clients/${clientId}/addresses/${id}`, async ({ request }) => {
+      bodies.push(await request.json());
+      current = recorded.updated();
+      return HttpResponse.json(current, { status: 200 });
+    })
+  );
+
+  return { bodies: () => bodies, readsAfterSave: () => readsAfterSave };
+}
+
+/** Opens an editor over the recorded row, against a server that keeps what it saves. */
+async function openAgainstSavingServer() {
+  const { clientId } = await seedClientSession();
+  installLookupHandlers(server);
+  const row = recorded.one().data;
+  const api = installSavingAddressServer(clientId, row.id);
+  const manager = useClientAddressManager()
+    .as(ScopeActorTypes.CLIENT)
+    .for(ClientAddressContextTypes.ADDRESS, row.id);
+  await manager.useActions().isReady();
+  return { manager, api, row };
+}
+
+/**
+ * Waits for the save's OWN post-effects — the invalidate and the per-address
+ * refetch it triggers — to land. A post-save read taken before them samples the
+ * few milliseconds between the save writing the model and anything re-seeding
+ * it, and so passes on a value the editor does not keep.
+ */
+async function whenPostSaveEffectsLand(api: {
+  readsAfterSave: () => number;
+}): Promise<void> {
+  await vi.waitFor(() => expect(api.readsAfterSave()).toBeGreaterThan(0));
+  await new Promise(resolve => setTimeout(resolve, 250));
 }
 
 /** Opens an editor over the recorded single-read row. */
@@ -173,6 +267,92 @@ describe("saving an edit sends only what I changed (AC-23)", () => {
     await settle(manager.useActions().update());
 
     expect(puts.bodies()[0]).toEqual({ type: nextType });
+  });
+});
+
+describe("changing the country CLEARS the region on the wire (AC-19/AC-23)", () => {
+  it("AC-19/AC-23 puts region_id: null beside the new country_id when the region no longer belongs", async () => {
+    const { manager, clientId, row } = await openExisting();
+    const puts = capturePuts(clientId);
+    const otherCountryId = regionCountryId(recorded.regionsB());
+    expect(row.region_id).toBeTruthy();
+    expect(
+      recorded.regionsB().data.some(region => region.id === row.region_id)
+    ).toBe(false);
+
+    await type(manager, { address: { countryId: otherCountryId } });
+    const outcome = await settle(manager.useActions().update());
+
+    expect(outcome.kind).toBe("resolved");
+    const body = puts.bodies()[0] as Record<string, unknown>;
+    expect(body).toEqual({ region_id: null, country_id: otherCountryId });
+    expect(Object.keys(body)).toContain("region_id");
+    expect(body.region_id).toBeNull();
+  });
+});
+
+describe("a saved edit is what the editor then shows (AC-23/AC-17)", () => {
+  it("AC-23 resolves the SAVED address to its caller, not the form-open snapshot", async () => {
+    const { manager, api } = await openAgainstSavingServer();
+    const saved = savedAddress();
+
+    await type(manager, { address: { city: saved.city } });
+    const outcome = await settle(manager.useActions().update());
+
+    expect(outcome.kind).toBe("resolved");
+    expect(api.bodies()).toEqual([{ city: saved.city }]);
+    const value = (
+      outcome.kind === "resolved" ? outcome.value : undefined
+    ) as SavedValue;
+    expect(value?.address?.city).toBe(saved.city);
+    expect(value?.id).toBe(saved.id);
+  });
+
+  it("AC-23 resolves a description composed from the SAVED address, not the pre-edit one", async () => {
+    const { manager } = await openAgainstSavingServer();
+    const saved = savedAddress();
+
+    await type(manager, { address: { city: saved.city } });
+    const outcome = await settle(manager.useActions().update());
+
+    const value = (
+      outcome.kind === "resolved" ? outcome.value : undefined
+    ) as SavedValue;
+    expect(value?.description).toContain(saved.city);
+    expect(value?.description).not.toContain(recorded.one().data.city);
+    expect(value?.title).toBe(saved.address_1);
+  });
+
+  it("AC-23/AC-17 keeps the SAVED city on the model once the save's own refetch has landed", async () => {
+    const { manager, api } = await openAgainstSavingServer();
+    const saved = savedAddress();
+
+    await type(manager, { address: { city: saved.city } });
+    await settle(manager.useActions().update());
+    await whenPostSaveEffectsLand(api);
+
+    expect(manager.useContext().model.value.address.city).toBe(saved.city);
+    // baseModel stays the clone taken at form-open — what the diff is measured
+    // against (parity L3) — so a model that KEEPS the saved value is dirty.
+    expect(manager.useContext().baseModel.value.address.city).toBe(
+      recorded.one().data.city
+    );
+    expect(manager.useMeta().isDirty.value).toBe(true);
+  });
+
+  it("AC-23/AC-17 keeps a description composed from the SAVED address once the refetch has landed", async () => {
+    const { manager, api } = await openAgainstSavingServer();
+    const saved = savedAddress();
+
+    await type(manager, { address: { city: saved.city } });
+    await settle(manager.useActions().update());
+    await whenPostSaveEffectsLand(api);
+
+    expect(manager.useContext().description.value).toContain(saved.city);
+    expect(manager.useContext().description.value).not.toContain(
+      recorded.one().data.city
+    );
+    expect(manager.useContext().title.value).toBe(saved.name);
   });
 });
 

@@ -210,6 +210,14 @@ describe("client address manager — two editors at once do not interfere (AC-29
       .for(ClientAddressContextTypes.ADDRESS, secondary.id);
     await one.useActions().isReady();
     await other.useActions().isReady();
+    // isReady() resolves on entering `available`, which is before the parse
+    // settles — cloning here without waiting captures a half-parsed model and
+    // compares the edited editor against a baseline that was never the row.
+    await vi.waitFor(() =>
+      expect(other.useContext().model.value.address.address1).toBe(
+        secondary.address_1
+      )
+    );
     const otherBefore = structuredClone(other.useContext().model.value);
 
     await type(one, { address: { city: "Only Mine Changed" } });

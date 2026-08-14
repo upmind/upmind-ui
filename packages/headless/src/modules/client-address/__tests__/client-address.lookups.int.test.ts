@@ -164,7 +164,7 @@ describe("address form dependent fields — changing the country (AC-19)", () =>
     );
   });
 
-  it("AC-19 clears a region that does not belong to the new country", async () => {
+  it("AC-19 clears a region that does not belong to the new country, and KEEPS the key so the save can send it", async () => {
     const { clientId } = await seedClientSession();
     installLookupHandlers(server);
     const row = recorded.one().data;
@@ -183,9 +183,11 @@ describe("address form dependent fields — changing the country (AC-19)", () =>
 
     await type(manager, { address: { countryId: otherCountryId } });
 
-    expect(
-      manager.useContext().model.value.address.regionId ?? null
-    ).toBeNull();
+    const { address } = manager.useContext().model.value;
+    expect(address.regionId).toBeUndefined();
+    // The cleared VALUE is not enough: the key has to survive the parse, or the
+    // diff has nothing to send and the API keeps the old country's region.
+    expect(Object.hasOwn(address, "regionId")).toBe(true);
   });
 });
 
