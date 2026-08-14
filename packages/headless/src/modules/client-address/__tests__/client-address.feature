@@ -29,9 +29,16 @@
 #
 # Actors: a client manages their OWN postal addresses. There is exactly ONE
 # live cell — client x self — by operator ruling R2 (2026-08-14). Both scope
-# matrices set SELF / STAFF / GUEST to `null as never`, so acting as staff or
-# as a guest is a compile-time error (AC-33, AC-34), not a silently-missing
-# branch.
+# matrices set SELF / STAFF / GUEST to `null as never` (AC-33, AC-34).
+#
+# What that `null as never` actually enforces, exactly — `.as()` accepts every
+# `ScopeActorTypes` at compile time; a `null as never` matrix row removes
+# `.for(...)` for that actor and nothing else. What the type system enforces:
+# `.as('staff'|'guest'|'self').for(ADDRESS, id)` do not compile,
+# `.as('client').for(ADDRESS, id)` does, and
+# `useClientAddressManager(undefined, { clientId })` is `TS2554`. Delivering a
+# compile error on `.as('staff')` itself would require `scope.builder.ts`
+# (protected core).
 #
 # THE ORACLE DOES EXPOSE STAFF CAPABILITY. Legacy vue-app ships a distinct
 # admin endpoint family (api/admin/clients/{id}/addresses), an acting-as-client
@@ -299,15 +306,18 @@ Feature: A client manages their own postal addresses
   # What this module deliberately does not do
   # ---------------------------------------------------------------------------
 
+  # AC-33 and AC-34 are enforced at the point of asking for an ADDRESS, not at
+  # the point of naming the actor — see the exact enforcement in the header.
+
   @AC-33 @scope @drop
-  Scenario: Nobody can use this to act as staff over someone's addresses
-    When someone tries to manage addresses as a member of staff
+  Scenario: Nobody can use this to open someone's address as a member of staff
+    When someone tries to open an address to manage as a member of staff
     Then this simply is not something they can ask for
     And the staff capability the legacy portal does have is recorded as owed, not as missing by accident
 
   @AC-34 @scope @not-supported
   Scenario: A signed-out visitor has no addresses to manage
-    When a signed-out visitor tries to manage addresses
+    When a signed-out visitor tries to open an address to manage
     Then this simply is not something they can ask for
 
   @AC-35 @surface
