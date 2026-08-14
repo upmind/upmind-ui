@@ -165,11 +165,15 @@ describe("client-address module — nothing reaches inside it by another route (
 
     // Prose survives: the barrel and the actions layer BOTH document the
     // retirement, and a sibling module's negative-control patch quotes it.
+    // This spec names the symbol to search for it, which is not a use either.
     // What must not survive is a live reference.
     const live = lines.filter(line => {
       const [file, , ...rest] = line.split(":");
       const source = rest.join(":").trim();
       if (file.endsWith(".patch")) return false;
+      // This module's OWN specs name the symbol to assert its ABSENCE — the
+      // claim under test is that no CONSUMER still reaches for it.
+      if (file.includes("modules/client-address/__tests__/")) return false;
       return !/^(\*|\/\/|\/\*|#)/.test(source);
     });
 
