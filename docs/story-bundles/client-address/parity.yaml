@@ -1,0 +1,1373 @@
+# =============================================================================
+# client-address — Capability Parity Table
+#
+# Governed by rules/verify-parity-oracle.md + .claude/rules/verify-parity-oracle.companion.md.
+# One row per axis of behavioural variation the oracle exposes. Every row carries
+# exactly one disposition. A blank, a bare "n/a", or an unexplained "not needed"
+# is a silent drop wearing paperwork and is treated as a MISSING row.
+#
+# Companion to requirements.md (rulings R1-R8, AC-1..AC-40) and design.md (D-1..D-14).
+# =============================================================================
+
+story: client-address
+mode: conversion
+variant: hybrid
+branch: feature/client-address-scoped-conversion
+base: bff994868 # latest gitlab/develop; client-phone + client-company + client-email already merged
+date: 2026-08-14
+revision: 2
+seat: planner
+
+jtbd: >-
+  Let a consumer manage a client's postal addresses at full parity with legacy
+  vue-app + current headless.
+
+# -----------------------------------------------------------------------------
+# THE ORACLE — external to the author. Never the new code's own tests.
+# -----------------------------------------------------------------------------
+oracle:
+  kind: legacy-application-plus-recorded-acceptance
+  sources:
+    - name: legacy vue-app client portal
+      ref: scratchpad/repos/vue-app @ 47fdeb0c
+      surfaces:
+        - src/store/modules/data/clients/addresses.ts
+        - src/components/app/global/client/addEditClientAddressModal.vue
+        - src/components/app/global/client/billableEntitiesProvider.vue
+        - src/components/app/global/address/addEditAddressForm.vue
+        - src/components/app/global/fields/clientAddressSelect.vue
+        - src/components/app-base/UAddress.vue
+        - src/store/modules/user/index.ts
+    - name: current headless module (the thing being converted)
+      ref: packages/headless/src/modules/client-address/ @ bff994868
+    - name: recorded acceptance
+      ref: tests/Playwright/e2e/support/flows/address-setup.ts (+ order-billing-setup.ts)
+      note: >-
+        Its CURRENT outbound requests are recorded by task T-1 BEFORE any task
+        edits it. That recording is the diff target for AC-38.
+  axis_of_variation: ADR-001 actor x context (cite; do not restate)
+
+disposition_enum:
+  - Direct
+  - Renamed
+  - Absorbed-by
+  - Dropped-with-Linear-issue
+  - Not-supported-with-reason
+
+# `delivery` is an ADDITIONAL axis, not a disposition. It says how a Direct row
+# arrives; it never substitutes for a disposition, and effort is never either.
+delivery_enum:
+  - existing # already delivered by the module today, carried unchanged
+  - fixed # delivered today but wrong; this story corrects it
+  - built # oracle has it, module does not; this story builds it
+  - relocated # same capability, different owner (see Absorbed-by)
+  - not-applicable
+
+# =============================================================================
+# CELLS — the ADR-001 actor x context matrix. One row per cell, per composable.
+# undispositioned_parity_cell_count MUST be 0.
+# =============================================================================
+cells:
+  - id: CELL-1
+    composable: useClientAddresses
+    actor: CLIENT
+    context: ClientAddressesContextTypes.CLIENT
+    disposition: Direct
+    delivery: existing
+    reason: >-
+      The one live collection cell. Operator ruling R1 binds the token to
+      ScopeActorTypes.CLIENT (client-company precedent), not SELF.
+    evidence: [AC-1, AC-2, AC-3]
+
+  - id: CELL-2
+    composable: useClientAddresses
+    actor: SELF
+    context: ClientAddressesContextTypes.CLIENT
+    disposition: Not-supported-with-reason
+    delivery: not-applicable
+    reason: >-
+      SELF resolves to a concrete actor at runtime BEFORE the scope factory runs,
+      so its matrix row is `null as never` in all three merged references
+      (client-company.types.ts:58,82). Ruling R1 makes CLIENT the call-site
+      token. Encoding SELF would advertise a route that cannot carry `.for()`
+      (hazard Z3) — the advertised-but-absent defect this story closes.
+    evidence: [AC-33, AC-36]
+
+  - id: CELL-3
+    composable: useClientAddresses
+    actor: STAFF
+    context: ClientAddressesContextTypes.CLIENT
+    disposition: Dropped-with-Linear-issue
+    delivery: not-applicable
+    linear_ref: OWED — unfiled
+    reason: >-
+      The oracle plainly supports it (admin endpoint family +
+      list_client_addresses gate). Operator ruling R2 keeps scope at
+      client x self. Encoded as `[ScopeActorTypes.STAFF]: null as never` so
+      `.as('staff')` is a COMPILE-TIME error, never a silent gap.
+      Rows D1, D2, D3, D7.
+    evidence: [AC-33]
+
+  - id: CELL-4
+    composable: useClientAddresses
+    actor: GUEST
+    context: ClientAddressesContextTypes.CLIENT
+    disposition: Not-supported-with-reason
+    delivery: not-applicable
+    reason: >-
+      Neither oracle has a guest address route. Every legacy path is
+      clients/{id}/addresses under a client or admin session; headless rejects
+      NotAuthenticatedError on every write. Row N1.
+    evidence: [AC-34]
+
+  - id: CELL-5
+    composable: useClientAddressManager
+    actor: CLIENT
+    context: ClientAddressContextTypes.ADDRESS
+    disposition: Direct
+    delivery: existing
+    reason: >-
+      The one live editor cell. variant=hybrid was DERIVED from the oracle (the
+      module interprets dataManagerMachine today) — amputating it is the
+      2026-08-05 client-email failure verbatim.
+    evidence: [AC-16, AC-17, AC-24, AC-30]
+
+  - id: CELL-6
+    composable: useClientAddressManager
+    actor: SELF
+    context: ClientAddressContextTypes.ADDRESS
+    disposition: Not-supported-with-reason
+    delivery: not-applicable
+    reason: >-
+      As CELL-2, and materially worse here: the manager is per-entity and needs
+      `.for()`, which `.as(SELF)` does not statically expose. Measured proof of
+      the cost of the alternative: TabPersonal.vue:100-117 hand-rolls a
+      ScopeBuilderActorWithContexts cast for phones (SELF) that
+      TabBusiness.vue:204-207 does not need for companies (CLIENT).
+    evidence: [AC-33, AC-36]
+
+  - id: CELL-7
+    composable: useClientAddressManager
+    actor: STAFF
+    context: ClientAddressContextTypes.ADDRESS
+    disposition: Dropped-with-Linear-issue
+    delivery: not-applicable
+    linear_ref: OWED — unfiled
+    reason: >-
+      The oracle supports staff creating / updating / deleting a client's
+      addresses through the admin endpoint family, gated by three permissions.
+      Ruling R2. Rows D1, D2, D4, D5, D6, D8.
+    evidence: [AC-33]
+
+  - id: CELL-8
+    composable: useClientAddressManager
+    actor: GUEST
+    context: ClientAddressContextTypes.ADDRESS
+    disposition: Not-supported-with-reason
+    delivery: not-applicable
+    reason: As CELL-4. Row N1.
+    evidence: [AC-34]
+
+# =============================================================================
+# ARMS — derived MECHANICALLY per clause 3 of the variance law
+# (.claude/skills/scoped-composable-factory/templates/ARMS.md).
+#
+# The test: a layer earns an actor arm ONLY when at least one actor has a member
+# EXCLUSIVE to it, or OVERRIDING the shared factory. With exactly ONE live actor,
+# nothing can vary BY ACTOR, so the derivation yields nothing at every layer.
+# This is NOT "armless because the module is new" and NOT "armless because no
+# exemplar exists" — ARMS.md forbids both reasons explicitly.
+# =============================================================================
+arms:
+  services:
+    value: none
+    earning_actors: []
+    derived_from_rows: [W1, W2, W3, W4, W5, W6, W7, W8, W9, W10, W11, W12]
+    reason: >-
+      Every wire row resolves ONE client through ONE seam against ONE endpoint
+      family (clients/{id}/addresses). The second family
+      (api/admin/clients/{id}/addresses) belongs to row D1, which is DROPPED, so
+      no live actor diverges. Restoring D1 would arm this layer FIRST.
+
+  actions:
+    value: none
+    earning_actors: []
+    derived_from_rows:
+      [A8, A9, A10, A11, A12, A13, A14, A15, A16, M11, M12, M13, M18, M19]
+    reason: >-
+      One live actor; no actions member is exclusive to, or overrides, another
+      actor's. The four legacy permission gates that could gate remove /
+      setDefault are staff-only (rows D4, D5, D6) and therefore out of cell.
+
+  context:
+    value: none
+    earning_actors: []
+    derived_from_rows:
+      [A1, A3, A4, A5, A6, A7, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10]
+    reason: >-
+      The row shape and the computed values are identical for every live actor —
+      there is only one. Recorded for a future run: even if D1 were restored,
+      context would still NOT arm; the Address row shape is identical for staff
+      and client.
+
+  meta:
+    value: none
+    earning_actors: []
+    derived_from_rows: [A2, M14, M15, M16, M17]
+    reason: >-
+      Checked against ARMS.md's 2026-07-31 incident (meta wrongly derived `none`
+      because a capability flag "only gated actions"). This module has NO
+      per-actor capability flag in cell at all: legacy's can() returns true
+      unconditionally outside admin context (store/modules/user/index.ts:23-47),
+      so in client x self every address permission is always true. There is no
+      gating boolean to surface as read-state. `none` survives the check.
+
+  schemas:
+    value: none
+    earning_actors: []
+    derived_from_rows: [X1, X2, X3, X4, X5, X6, X7, X8, L4, L5]
+    reason: >-
+      One form, one field set, one set of rules for the one live actor. The
+      lockCountry rule (L4) varies by BRAND CONFIG and by new-vs-existing, not by
+      ACTOR — a config-driven rule is not an actor arm. The pair law
+      (schema + uischema move together) is honoured within the shared file.
+
+  developer_seat_obligation: >-
+    The developer seat re-derives all five independently from this table.
+    A MISMATCH HALTS THE RUN — it is not reconciled toward this file.
+
+# =============================================================================
+# ROWS
+# =============================================================================
+rows:
+  # ---------------------------------------------------------------------------
+  # W — the wire (services layer)
+  # ---------------------------------------------------------------------------
+  - id: W1
+    cell: CELL-1
+    capability: List a client's addresses
+    oracle: addresses.ts:34-45 list -> apiPath().contextual
+    current: client-address.services.ts:43-66 — GET clients/{id}/addresses?with=region,country
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-1]
+
+  - id: W2
+    cell: CELL-1
+    capability: No list request without an authenticated client
+    oracle: legacy client routes are session-guarded
+    current: client-address.services.ts:54,65 — `isAuthenticated && !!clientId` (the CORRECT sibling form)
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-3]
+
+  - id: W3
+    cell: CELL-1
+    capability: List parameters — pagination and free-text filter
+    oracle: addresses.ts:28-31 params getter; clientAddressSelect.vue:62 selector scope
+    current: useClientAddresses.ts:30 loadList(initial); filters.query at :146-147
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-8, AC-9]
+
+  - id: W4
+    cell: CELL-5
+    capability: Create an address
+    oracle: addEditClientAddressModal.vue:191 CLIENTS_ADDRESSES/create
+    current: client-address.services.ts:134-141 — POST clients/{id}/addresses
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-24]
+
+  - id: W5
+    cell: CELL-5
+    capability: Update an address
+    oracle: addEditClientAddressModal.vue:206 CLIENTS_ADDRESSES/update
+    current: client-address.services.ts:150-162 — PUT with the FULL model body
+    disposition: Direct
+    delivery: fixed
+    note: Body shape corrected to diff-only — see L3.
+    evidence: [AC-23]
+
+  - id: W6
+    cell: CELL-1
+    capability: Set an address as the default
+    oracle: UAddress.vue:22 makeDefault (gated update_client_address)
+    current: client-address.services.ts:229-233 — PUT body {default:true}
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-12]
+
+  - id: W7
+    cell: CELL-1
+    capability: Delete an address
+    oracle: billableEntitiesProvider.vue:263 confirmDelete
+    current: client-address.services.ts:196-200 — DELETE clients/{id}/addresses/{id}
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-10]
+
+  - id: W8
+    cell: CELL-5
+    capability: Read one address for the editor
+    oracle: addEditClientAddressModal.vue:94-99 clientScope/params read
+    current: client-address.services.ts loadOne
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-17]
+
+  - id: W9
+    cell: CELL-5
+    capability: Countries lookup for the form
+    oracle: UAddress.vue:104 getCountries()
+    current: client-address.services.ts:92-95 loadLookups -> ensureCountries()
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-18]
+
+  - id: W10
+    cell: CELL-5
+    capability: Regions lookup, per country
+    oracle: UAddress.vue:105 regionsStoreLoadData
+    current: client-address.services.ts loadLookups -> fetchRegions(countryId)
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-18, AC-19]
+
+  - id: W11
+    cell: CELL-5
+    capability: Brand config for the form
+    oracle: addEditClientAddressModal.vue:129-137 brand/config lookup
+    current: client-address.services.ts:92-95 — ensureConfig([REQUIRE_REGION_IN_ADDRESS]) ONLY
+    disposition: Direct
+    delivery: fixed
+    note: CLIENT_ALLOW_ADDRESS_UPDATE added to the key list — see L4.
+    evidence: [AC-20, AC-21]
+
+  - id: W12
+    cell: CELL-1
+    capability: Every request addresses the SCOPE's client
+    oracle: addresses.ts:15-21 apiPath(clientId) — the client id is a PARAMETER in legacy
+    current: ABSENT — five call sites each re-read the session independently (services.ts:43,134,150,196,229)
+    disposition: Direct
+    delivery: built
+    note: >-
+      The module's live FE-2824. useClientAddressManager.ts:44-61 accepts a
+      clientId, threads it into machine context, and IT NEVER REACHES A URL. One
+      resolveClientId seam (design.md D-3). Proof is the request URL plus the
+      auth identity transport, never a response payload.
+    pre_change: RED
+    evidence: [AC-2, AC-30]
+
+  # ---------------------------------------------------------------------------
+  # A — the collection surface
+  # ---------------------------------------------------------------------------
+  - id: A1
+    cell: CELL-1
+    capability: Read the mapped list
+    current: useClientAddresses.ts:55
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-1]
+
+  - id: A2
+    cell: CELL-1
+    capability: isLoading / isEmpty / hasError / isAvailable
+    current: useClientAddresses.ts:47
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-1, AC-3]
+
+  - id: A3
+    cell: CELL-1
+    capability: Surface a failed mutation as readable state
+    current: useClientAddresses.ts:60 error
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-14]
+
+  - id: A4
+    cell: CELL-1
+    capability: Which address is the default
+    current: "useClientAddresses.ts:75 — `default: getDefault`, returns the ROW"
+    disposition: Renamed
+    delivery: fixed
+    note: >-
+      Same capability, CHANGED RETURN SHAPE by ruling R5: `default()` returns the
+      ID (client-company/useClientCompanies.context.ts:40-41,69). Ten in-scope
+      consumer expressions read `defaultAddress()?.id` and each needs `getOne`
+      threaded through. THE HIGHEST-RISK ROW IN THE STORY — a wrong migration
+      TYPE-CHECKS, because `string | undefined` flows into `addressId` exactly as
+      `Address | undefined ?. id` did.
+    evidence: [AC-5, AC-37]
+
+  - id: A5
+    cell: CELL-1
+    capability: Fetch one known address from the list
+    current: useClientAddresses.ts:84 getOne
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-6]
+
+  - id: A6
+    cell: CELL-1
+    capability: Find an address by part of it
+    current: >-
+      useClientAddresses.ts:91 findOne — BROKEN: the shared helper's strict
+      isEqual never matches a nested partial (hazard Z1), and the JSDoc at
+      :143-145 claims a title/description match that does not exist.
+    disposition: Direct
+    delivery: fixed
+    note: >-
+      Contained locally per client-phone/useClientPhones.context.ts:49-68; the
+      SHARED helper is used by six modules and is not edited.
+    pre_change: RED
+    evidence: [AC-7]
+
+  - id: A7
+    cell: CELL-1
+    capability: Pagination state
+    current: useClientAddresses.ts:68
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-9]
+
+  - id: A8
+    cell: CELL-1
+    capability: Wait until the list is usable
+    current: >-
+      useClientAddresses.ts:42-51 — uncapped setInterval(...,100): no cap, no
+      clearInterval on the never-fetched path, no rejection path.
+    disposition: Direct
+    delivery: fixed
+    note: See L6.
+    pre_change: RED
+    evidence: [AC-4]
+
+  - id: A9
+    cell: CELL-1
+    capability: Force a re-read
+    current: useClientAddresses.ts:112 refresh
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-8]
+
+  - id: A10
+    cell: CELL-1
+    capability: Next page
+    current: useClientAddresses.ts:121
+    disposition: Direct
+    delivery: fixed
+    note: >-
+      Wrapped async so a forced call past the end SETTLES rather than throwing
+      synchronously (client-company/useClientCompanies.actions.ts:156-165).
+    evidence: [AC-9]
+
+  - id: A11
+    cell: CELL-1
+    capability: Previous page
+    current: useClientAddresses.ts:130
+    disposition: Direct
+    delivery: fixed
+    note: As A10.
+    evidence: [AC-9]
+
+  - id: A12
+    cell: CELL-1
+    capability: Invalidate the list
+    current: useClientAddresses.ts:138
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-15]
+
+  - id: A13
+    cell: CELL-1
+    capability: Free-text filter
+    current: useClientAddresses.ts:146-147 filters.query
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-8]
+
+  - id: A14
+    cell: CELL-1
+    capability: Delete a row from the collection
+    current: useClientAddresses.ts:98 remove
+    disposition: Direct
+    delivery: fixed
+    note: Guard corrected — see L1. Feedback relocated — see F1.
+    evidence: [AC-10, AC-11]
+
+  - id: A15
+    cell: CELL-1
+    capability: Set default from the collection
+    current: useClientAddresses.ts:105 setDefault
+    disposition: Direct
+    delivery: fixed
+    note: Guard corrected — see L1. Feedback relocated — see F2.
+    evidence: [AC-12, AC-13]
+
+  - id: A16
+    cell: CELL-1
+    capability: Ensure an address exists (find-or-create), used cross-module
+    oracle: billableEntitiesProvider.vue:143 seeds a billable address when absent
+    current: client-address.services.ts ensure, reached via useClientAddressServices()
+    disposition: Renamed
+    delivery: existing
+    note: >-
+      Same capability, new route by ruling R4: `useClientAddressServices` is
+      RETIRED from the barrel and callers use `.as(CLIENT).useActions().ensure`
+      (client-company precedent). Callers: unified/services.ts:136,
+      client-company.services.ts:222, unified.int.test.ts:83.
+    evidence: [AC-35]
+
+  # ---------------------------------------------------------------------------
+  # M — the editor surface
+  # ---------------------------------------------------------------------------
+  - id: M1
+    cell: CELL-5
+    capability: The form model
+    current: useClientAddressManager context.model
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-17]
+
+  - id: M2
+    cell: CELL-5
+    capability: The schema the form renders
+    current: client-address.schemas.ts:77 useSchema
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-27]
+
+  - id: M3
+    cell: CELL-5
+    capability: The uischema the form renders
+    current: client-address.schemas.ts:233 useUischema
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-27]
+
+  - id: M4
+    cell: CELL-5
+    capability: Request errors as readable state
+    current: manager context errors
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-14]
+
+  - id: M5
+    cell: CELL-5
+    capability: Per-field validation errors
+    current: manager context validationErrors
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-25]
+
+  - id: M6
+    cell: CELL-5
+    capability: Countries offered in the form
+    current: loadLookups -> context.countries
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-18]
+
+  - id: M7
+    cell: CELL-5
+    capability: Regions offered in the form
+    current: loadLookups -> context.regions
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-18, AC-19]
+
+  - id: M8
+    cell: CELL-5
+    capability: Brand config visible to the form
+    current: loadLookups -> context.config
+    disposition: Direct
+    delivery: fixed
+    note: Gains CLIENT_ALLOW_ADDRESS_UPDATE — see L4.
+    evidence: [AC-20, AC-21]
+
+  - id: M9
+    cell: CELL-5
+    capability: Which address is being edited
+    current: machine context id
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-17, AC-24]
+
+  - id: M10
+    cell: CELL-5
+    capability: A seeded blank model for a new address
+    oracle: addEditAddressForm — the new-address form defaults to the brand country
+    current: loadLookups seeds baseModel; client-address.schemas.ts:55 countryId default
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-16]
+
+  - id: M11
+    cell: CELL-5
+    capability: Type into the form
+    oracle: addEditClientAddressModal.vue:226 onResult merge
+    current: manager actions input (debounced)
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-19]
+
+  - id: M12
+    cell: CELL-5
+    capability: Save the form
+    oracle: addEditClientAddressModal.vue:191,206 create/update
+    current: manager actions update
+    disposition: Direct
+    delivery: fixed
+    note: Diff-only body — see L3.
+    evidence: [AC-23, AC-24]
+
+  - id: M13
+    cell: CELL-5
+    capability: Abandon the form
+    oracle: modal close resets form from formClone
+    current: manager actions clear
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-28]
+
+  - id: M14
+    cell: CELL-5
+    capability: isNew
+    current: manager meta
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-16]
+
+  - id: M15
+    cell: CELL-5
+    capability: isValid / isDirty
+    current: manager meta
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-25, AC-28]
+
+  - id: M16
+    cell: CELL-5
+    capability: isAvailable / isLoading / isProcessing
+    current: useClientAddressManager.ts:96-98
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-18]
+
+  - id: M17
+    cell: CELL-5
+    capability: hasErrors / isComplete
+    current: manager meta
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-14]
+
+  - id: M18
+    cell: CELL-5
+    capability: Wait until the editor is usable
+    current: "useClientAddressManager.ts:90-93 — waitFor(..., {timeout: Infinity})"
+    disposition: Direct
+    delivery: fixed
+    note: See L6.
+    pre_change: RED
+    evidence: [AC-26]
+
+  - id: M19
+    cell: CELL-5
+    capability: Tear the editor down
+    current: manager stop / destroy
+    disposition: Direct
+    delivery: existing
+    note: >-
+      Consumer obligation: Form.vue calls stop() on close and onUnmounted, so the
+      D-13 adapters map stop -> destroy. Without it every opened address leaves a
+      permanent registry entry holding a live TanStack observer
+      (TabBusiness.vue:242-246 documents exactly this for companies).
+    evidence: [AC-29, AC-39]
+
+  # ---------------------------------------------------------------------------
+  # X — the schema surface
+  # ---------------------------------------------------------------------------
+  - id: X1
+    cell: CELL-5
+    capability: Address field set (address1/2, city, postcode, regionId, countryId)
+    oracle: addEditAddressForm.vue address-form block
+    current: client-address.schemas.ts:13-67
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-27]
+
+  - id: X2
+    cell: CELL-5
+    capability: Region required when the brand demands it
+    oracle: BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS
+    current: client-address.schemas.ts:70-72
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-20]
+
+  - id: X3
+    cell: CELL-5
+    capability: Country choices come from the lookup
+    current: client-address.schemas.ts:56-63
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-18]
+
+  - id: X4
+    cell: CELL-5
+    capability: Region choices come from the lookup
+    current: client-address.schemas.ts:42-49
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-18, AC-19]
+
+  - id: X5
+    cell: CELL-5
+    capability: A saved address must be named
+    oracle: addEditAddressForm.vue:44-48 — name, rules=required, on UPDATE
+    current: client-address.schemas.ts:126-128
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-27]
+
+  - id: X6
+    cell: CELL-5
+    capability: The control tree the form renders
+    current: client-address.schemas.ts:133-231
+    disposition: Direct
+    delivery: existing
+    evidence: [AC-27]
+
+  - id: X7
+    cell: CELL-5
+    capability: Address-autocomplete control on a NEW address only
+    oracle: addEditAddressForm.vue:15-17 or_enter_address_manually divider
+    current: "client-address.schemas.ts:158 — `type: id ? \"VerticalLayout\" : \"address\"`"
+    disposition: Direct
+    delivery: existing
+    note: The browser-side Places integration itself is row N3 (consumer-owned).
+    evidence: [AC-27]
+
+  - id: X8
+    cell: CELL-5
+    capability: Address type control
+    oracle: addEditAddressForm.vue:19-37 — the 4-value b-select, UPDATE only
+    current: COMMENTED OUT at client-address.schemas.ts:110-121 (`// --- DEPRECATED`)
+    disposition: Direct
+    delivery: built
+    note: See L5. Moves as a TRIPLE — schema + uischema + mapper.
+    pre_change: RED
+    evidence: [AC-22]
+
+  # ---------------------------------------------------------------------------
+  # L — IN-CELL parity gaps this story BUILDS. Effort is not a disposition.
+  # ---------------------------------------------------------------------------
+  - id: L1
+    cell: CELL-1
+    capability: Signed out with no client id, no delete or set-default request is issued
+    oracle: legacy never reaches a client route without a client session
+    current: >-
+      INVERTED GUARD — client-address.services.ts:203 and :236 read
+      `if (isAuthenticated.value || !clientId.value) resolve(true)`. An
+      unauthenticated session with NO client id satisfies the right limb and the
+      request fires at clients/undefined/addresses/{id}. Correct siblings live at
+      :54, :137 and :153.
+    disposition: Direct
+    delivery: fixed
+    read_back_law: >-
+      MUST assert the request was NEVER ISSUED (empty capture log). Asserting
+      that a rejection surfaced DOES NOT DISCRIMINATE — today's guard resolves
+      true and the call fails downstream, so a rejection-shaped assertion passes
+      both before and after the fix.
+    pre_change: RED
+    evidence: [AC-11, AC-13]
+
+  - id: L2
+    cell: CELL-1
+    capability: An address reads the way the legacy portal writes it
+    oracle: UAddress.vue:88-98 — address_1, address_2, city, state, postcode, region.name, country.name
+    current: >-
+      client-address.mappers.ts:20-29 — address_2, street, city, postcode,
+      region.name, country.name. `street` IS NOT A FIELD ON IAddress (a dead
+      get()); address_1 and state are ABSENT.
+    disposition: Direct
+    delivery: fixed
+    note: >-
+      The parity claim is the FIELD SET AND ORDER. The join separator stays the
+      headless ", " — legacy's ",\n" is presentation of the legacy card and is
+      explicitly NOT claimed, so a later reader cannot read the difference as an
+      oversight.
+    pre_change: RED
+    evidence: [AC-31]
+
+  - id: L3
+    cell: CELL-5
+    capability: Saving an edit sends only the changed fields
+    oracle: addEditClientAddressModal.vue:220-224 — getNewValues() = omitBy(form, (v,k) => formClone[k] === v)
+    current: client-address.services.ts:157-162 — PUTs the FULL mapped model
+    disposition: Direct
+    delivery: built
+    note: >-
+      Not cosmetic: under CLIENT_ALLOW_ADDRESS_UPDATE === false a full-payload
+      PUT re-sends an unchanged country_id and can be REJECTED where legacy
+      succeeded.
+    pre_change: RED
+    evidence: [AC-23]
+
+  - id: L4
+    cell: CELL-5
+    capability: The country is locked on an address that already exists
+    oracle: >-
+      addEditClientAddressModal.vue:129-137 lockCountry — `actionType === UPDATE
+      && brand config CLIENT_ALLOW_ADDRESS_UPDATE === false`, with the comment
+      "the API rejects a country change on existing addresses, so we lock the
+      field".
+    current: >-
+      CLIENT_ALLOW_ADDRESS_UPDATE is consulted NOWHERE in headless; loadLookups
+      fetches only REQUIRE_REGION_IN_ADDRESS (client-address.services.ts:92-95).
+    disposition: Direct
+    delivery: built
+    note: >-
+      Uischema side only — the country control gains a disabled/read-only rule.
+      The schema side is deliberately unchanged, because a locked field is still
+      a required valid field. Stated so the one-sided edit is not misread as a
+      pair-law violation.
+    pre_change: RED
+    evidence: [AC-21]
+
+  - id: L5
+    cell: CELL-5
+    capability: A client labels an address home / office / holiday / company
+    oracle: addEditAddressForm.vue:19-37 — the 4-value select, shown on UPDATE
+    current: >-
+      Schema control COMMENTED OUT (client-address.schemas.ts:110-121);
+      mapIAddressData HARDCODES `type: 1` (client-address.mappers.ts:62, "We are
+      forcing type to always be 1 for simplicity"); AddressTypes /
+      ADDRESS_TYPE_KEYS are exported but UNREACHABLE.
+    disposition: Direct
+    delivery: built
+    note: >-
+      Moves as a TRIPLE or not at all: schema property + uischema control +
+      removing the mapper hardcode. Schema without control ships a
+      required-but-invisible input; control without the mapper change ships a
+      select whose value is discarded on the wire. This is also what keeps
+      AddressTypes from being the NFR-1 advertised-but-absent defect.
+    pre_change: RED
+    evidence: [AC-22, AC-36]
+
+  - id: L6
+    cell: CELL-1
+    capability: Every wait for readiness ends
+    oracle: not-a-legacy-behaviour — this is a headless-side defect
+    current: >-
+      useClientAddresses.ts:42-51 uncapped setInterval(...,100) with no cap, no
+      clearInterval on the never-fetched path and no rejection path;
+      useClientAddressManager.ts:90-93 waitFor(..., {timeout: Infinity}).
+    disposition: Direct
+    delivery: built
+    note: >-
+      Replaced with the merged bounded pattern
+      (client-company/useClientCompanies.actions.ts:92-96 — whenSessionSettles()
+      then whenListFetched()). Hazard Z2 is contained at THIS module's boundary;
+      the shared useSystem / useBrand polls are protected-adjacent and untouched.
+    pre_change: RED
+    evidence: [AC-4, AC-26]
+
+  - id: L7
+    cell: CELL-1
+    capability: How far an address's verification went is not thrown away
+    oracle: IAddress.verified is `number | null` (packages/types/src/models/addresses.ts:25)
+    current: client-address.mappers.ts:47 coerces `!!raw.verified` into a boolean meta.isVerified — LOSSY
+    disposition: Direct
+    delivery: built
+    note: >-
+      Decision taken, not deferred (design.md D-7): meta.isVerified KEEPS its
+      boolean shape (every consumer reads a flag, none reads a level) AND
+      Address.verifiedLevel: IAddress["verified"] is added alongside carrying the
+      raw value. Neither a parity loss nor a silent reshape.
+    evidence: [AC-32]
+
+  - id: L8
+    cell: CELL-1
+    capability: Search my addresses by part of one
+    oracle: clientAddressSelect.vue — legacy offers a searchable address selector
+    current: >-
+      findOne exists but CANNOT MATCH A NESTED PARTIAL (hazard Z1), and the JSDoc
+      at useClientAddresses.ts:143-145 additionally claims a title/description
+      match that does not exist.
+    disposition: Direct
+    delivery: fixed
+    note: >-
+      Contained locally; the shared useCollection helper is used by six modules
+      and is out of this run's blast radius. A source fix needs its own
+      authorisation.
+    pre_change: RED
+    evidence: [AC-7]
+
+  - id: L9
+    cell: CELL-5
+    capability: Changing country reloads regions and clears an out-of-country region
+    oracle: UAddress.vue:104-106 — getCountries then regionsStoreLoadData per country
+    current: the manager's `parse` implements it today
+    disposition: Direct
+    delivery: existing
+    note: >-
+      Survives the conversion as a NAMED, read-backable behaviour rather than an
+      implementation detail. This is the headless half of the Google Places
+      story; the browser half is row N3.
+    evidence: [AC-19]
+
+  - id: L10
+    cell: CELL-5
+    capability: The editor edits the account it was opened for
+    oracle: addresses.ts:15-21 — legacy takes the client id as a PARAMETER on every call
+    current: ABSENT — the manager's clientId parameter never reaches a URL (see W12)
+    disposition: Direct
+    delivery: built
+    note: >-
+      The module's live FE-2824, and the reason this run exists. The cosmetic
+      clientId PARAMETER is REMOVED from the signature (prior ruling PR-2): a
+      parameter that claims retargeting and does not retarget is cosplay. The
+      honest surface is no parameter, plus row D1 saying the capability is owed.
+    pre_change: RED
+    evidence: [AC-30, AC-2, AC-36]
+
+  # ---------------------------------------------------------------------------
+  # D — STAFF CAPABILITY THE ORACLE HAS AND THIS DELIVERY DOES NOT (ruling R2).
+  # Every row: Dropped-with-Linear-issue. THE REFERENCE IS OWED AND UNFILED.
+  # No ID has been invented. review-notes.md section 3 carries the filing handoff.
+  # ---------------------------------------------------------------------------
+  - id: D1
+    cells: [CELL-3, CELL-7]
+    capability: Staff read and write ANOTHER client's addresses via the admin endpoint family
+    oracle: >-
+      store/modules/data/clients/addresses.ts:14-22 — admin =
+      api/admin/clients/{id}/addresses; every list/create/update/remove action
+      uses apiPath().contextual.
+    disposition: Dropped-with-Linear-issue
+    delivery: not-applicable
+    linear_ref: OWED — unfiled
+    reason: Operator ruling R2 keeps scope at client x self. NOT an effort call.
+    restoration_owes: >-
+      A services arm (the second endpoint family) plus the A7 read-back — the
+      request-URL retarget AND the auth identity transport.
+    evidence: [AC-33]
+
+  - id: D2
+    cells: [CELL-3, CELL-7]
+    capability: Acting AS a client (impersonation) while managing their addresses
+    oracle: "addresses.ts:19-20 — `isAdminContext && !isMockClientContext() ? admin : client`"
+    disposition: Dropped-with-Linear-issue
+    delivery: not-applicable
+    linear_ref: OWED — unfiled
+    reason: Operator ruling R2. This is the FE-2824 shape verbatim.
+    restoration_owes: >-
+      Proof by acting-as HEADERS and request URL, never the response payload
+      (verify-reality-check.companion.md, the A7 clause).
+    evidence: [AC-33]
+
+  - id: D3
+    cell: CELL-3
+    capability: The list_client_addresses staff gate
+    oracle: billableEntitiesProvider.vue provider guard
+    disposition: Dropped-with-Linear-issue
+    delivery: not-applicable
+    linear_ref: OWED — unfiled
+    reason: >-
+      Operator ruling R2. In cell there is nothing to model: legacy's can()
+      returns true unconditionally outside admin context (user/index.ts:23-47).
+    restoration_owes: >-
+      An actions arm AND a meta arm, computed from ONE source (ARMS.md,
+      2026-07-31 incident).
+    evidence: [AC-33]
+
+  - id: D4
+    cell: CELL-7
+    capability: The create_client_address staff gate
+    oracle: billableEntitiesProvider.vue:96-98 — $userCan("create_client_address")
+    disposition: Dropped-with-Linear-issue
+    delivery: not-applicable
+    linear_ref: OWED — unfiled
+    reason: Operator ruling R2.
+    restoration_owes: As D3.
+    evidence: [AC-33]
+
+  - id: D5
+    cell: CELL-7
+    capability: The update_client_address staff gate
+    oracle: billableEntitiesProvider.vue:99-101; re-asserted per row at UAddress.vue:22,27
+    disposition: Dropped-with-Linear-issue
+    delivery: not-applicable
+    linear_ref: OWED — unfiled
+    reason: Operator ruling R2.
+    restoration_owes: As D3.
+    evidence: [AC-33]
+
+  - id: D6
+    cell: CELL-7
+    capability: The delete_client_address staff gate
+    oracle: billableEntitiesProvider.vue:102-104 — $userCan("delete_client_address")
+    disposition: Dropped-with-Linear-issue
+    delivery: not-applicable
+    linear_ref: OWED — unfiled
+    reason: Operator ruling R2.
+    restoration_owes: As D3.
+    evidence: [AC-33]
+
+  - id: D7
+    cell: CELL-3
+    capability: The per-client admin cache scope
+    oracle: >-
+      addresses.ts:22-27 — clientScope: id => `$client_${id}`; selectorScope:
+      id => `$client_${id}_selector`.
+    disposition: Dropped-with-Linear-issue
+    delivery: not-applicable
+    linear_ref: OWED — unfiled
+    reason: >-
+      Operator ruling R2. The scoped composable's own scope KEY is the in-cell
+      equivalent and IS delivered; what is dropped is the staff-side ability to
+      hold MANY clients' lists at once.
+    restoration_owes: A scope key carrying the target client id, resolved through the D-3 seam.
+    evidence: [AC-33]
+
+  - id: D8
+    cell: CELL-7
+    capability: Staff-only copy-the-address-to-clipboard affordance
+    oracle: UAddress.vue:13-17 — `<template v-if="isAdmin">` wrapping $copyToClipboard(computedAddress)
+    disposition: Dropped-with-Linear-issue
+    delivery: not-applicable
+    linear_ref: OWED — unfiled
+    reason: >-
+      Operator ruling R2. Recorded because it is REAL, admin-gated,
+      oracle-demonstrated capability — even though its restoration would land in
+      a consumer, since the composed string it copies IS this module's
+      `description` (row L2).
+    restoration_owes: A consumer affordance reading Address.description; no module change.
+    evidence: [AC-33]
+
+  # ---------------------------------------------------------------------------
+  # N — NOT SUPPORTED, with the evidence that PROVES the absence
+  # ---------------------------------------------------------------------------
+  - id: N1
+    cells: [CELL-4, CELL-8]
+    capability: A signed-out visitor manages addresses
+    disposition: Not-supported-with-reason
+    delivery: not-applicable
+    reason: >-
+      NEITHER oracle has a guest address route. Every legacy path is
+      clients/{id}/addresses under a client or admin session, and headless
+      rejects NotAuthenticatedError on every write. The row exists so the absence
+      is PROVEN rather than assumed.
+    evidence: [AC-34]
+
+  - id: N2
+    cell: CELL-5
+    capability: Staged-import lock / with_staged_imports
+    disposition: Not-supported-with-reason
+    delivery: not-applicable
+    reason: >-
+      IAddress carries NO staged_import field —
+      packages/types/src/models/addresses.ts:5-26, checked field by field.
+      Legacy's UAddress `isStaged` is a PROP DEFAULTING FALSE that no address
+      caller passes; it only disables dropdown items (UAddress.vue:22,27). Ruling
+      R8g forbids adding the list param and forbids planning
+      Address.meta.isStaged. Building it would be the advertised-but-absent
+      defect this story exists to CLOSE.
+    evidence: [AC-36]
+
+  - id: N3
+    cell: CELL-5
+    capability: Google Places script loading, session tokens and prediction UI
+    disposition: Not-supported-with-reason
+    delivery: not-applicable
+    reason: >-
+      Browser-bound; it belongs to the consumer, not to a headless module. The
+      schema already carries the seam (the `type: "address"` control on a new
+      address — row X7). The REGION-RESOLUTION half IS headless and IS carried,
+      at row L9.
+    evidence: [AC-19]
+
+  # ---------------------------------------------------------------------------
+  # F — feedback ownership (design.md D-14)
+  # ---------------------------------------------------------------------------
+  - id: F1
+    cell: CELL-1
+    capability: The user is told when an address was deleted (and when it failed)
+    oracle: >-
+      addresses.ts imports Buefy's ToastProgrammatic;
+      addEditClientAddressModal.vue:214-216 raises a toast on save.
+    current: client-address.services.ts:210,220 — the MODULE raises addError / addSuccess("confirm.address_removed")
+    disposition: Absorbed-by
+    absorbed_by: the consumer that renders the delete control (the four D-13 Manage adapters)
+    delivery: relocated
+    reason: >-
+      The declared primary reference did exactly this and merged it —
+      client-company/docs/CHANGELOG.md:91-93 and gotchas.md:410 ("Errors are
+      state you render — nothing here raises feedback"), discharged at
+      TabBusiness.vue:170-199. NOTHING IS DROPPED: the i18n key
+      confirm.address_removed stays in every locale and is raised from the new
+      call site. Divergence recorded — client-phone STILL raises its own
+      (client-phone.services.ts:303-350), so the tranche disagrees. This is the
+      decision most worth an operator overturn (review-notes.md section 4).
+    evidence: [AC-40]
+
+  - id: F2
+    cell: CELL-1
+    capability: The user is told when their default address changed
+    current: client-address.services.ts:244,254 — addError / addSuccess("confirm.address_set_default")
+    disposition: Absorbed-by
+    absorbed_by: the consumer that renders the set-default control (the four D-13 Manage adapters)
+    delivery: relocated
+    reason: As F1.
+    evidence: [AC-40]
+
+  # ---------------------------------------------------------------------------
+  # C — consumer fan-out (ruling R3). Measured on this base, not predicted.
+  # ---------------------------------------------------------------------------
+  - id: C1
+    site: packages/client-vue/src/modules/billing/components/BillingForm.vue:179
+    change: .as(CLIENT).useActions().isReady()
+    disposition: Direct
+    delivery: fixed
+    task: T-14
+    evidence: [AC-37]
+
+  - id: C2
+    site: packages/client-vue/src/modules/billing/components/BillingForm.vue:198-203
+    change: >-
+      Layer split for getOne / meta; the UNUSED `default: _defaultAddress`
+      binding is REMOVED, not carried.
+    disposition: Direct
+    delivery: fixed
+    task: T-14
+    evidence: [AC-36, AC-37]
+
+  - id: C3
+    site: packages/client-vue/src/modules/billing/components/BillingSummary.vue:191
+    change: .as(CLIENT).useActions().isReady()
+    disposition: Direct
+    delivery: fixed
+    task: T-15
+    evidence: [AC-37]
+
+  - id: C4
+    site: packages/client-vue/src/modules/billing/components/BillingSummary.vue:198
+    change: .as(CLIENT).useContext().getOne
+    disposition: Direct
+    delivery: fixed
+    task: T-15
+    evidence: [AC-37]
+
+  - id: C5
+    site: packages/client-vue/src/modules/billing/components/TabPersonal.vue:139-144 (+ :224, :227, :257, :269)
+    change: >-
+      Layer split + R5 x4. `:227`'s `find(addresses, ["id", val]) ??
+      defaultAddress()` must become `?? getAddress(defaultAddress())` — today it
+      returns a row-or-id union; unmigrated after R5 it returns row-or-STRING.
+    disposition: Direct
+    delivery: fixed
+    task: T-16
+    evidence: [AC-37, AC-39]
+
+  - id: C6
+    site: packages/headless/src/modules/basket-billing/unified/services.ts:48-52 (+ :97)
+    change: Layer split + R5
+    disposition: Direct
+    delivery: fixed
+    task: T-17
+    evidence: [AC-37]
+
+  - id: C7
+    site: packages/headless/src/modules/basket-billing/unified/services.ts:136
+    change: R4 — useClientAddressServices().ensure -> .as(CLIENT).useActions().ensure
+    disposition: Direct
+    delivery: fixed
+    task: T-17
+    evidence: [AC-35]
+
+  - id: C8
+    site: packages/headless/src/modules/basket-billing/unified/services.ts:311
+    change: .as(CLIENT).useActions().invalidate
+    disposition: Direct
+    delivery: fixed
+    task: T-17
+    evidence: [AC-15]
+
+  - id: C9
+    site: packages/headless/src/modules/client-company/client-company.services.ts:506-510 (+ :559, :561)
+    change: Layer split + R5 x2
+    disposition: Direct
+    delivery: fixed
+    task: T-18
+    evidence: [AC-37]
+
+  - id: C10
+    site: packages/headless/src/modules/client-company/client-company.services.ts:222
+    change: R4 — .as(CLIENT).useActions().ensure
+    disposition: Direct
+    delivery: fixed
+    task: T-18
+    evidence: [AC-35]
+
+  - id: C11
+    site: apps/cart/src/router/funnels/engine/services.ts:134-135 (+ :155)
+    change: Layer split + R5
+    disposition: Direct
+    delivery: fixed
+    task: T-19
+    evidence: [AC-37]
+
+  - id: C12
+    site: apps/cart-nuxt/app/funnels/engine/services.ts:134-135 (+ :155)
+    change: Layer split + R5
+    disposition: Direct
+    delivery: fixed
+    task: T-20
+    evidence: [AC-37]
+
+  - id: C13
+    site: playgrounds/labs/src/pages/billing/components/ClientBillingAddresses.vue:94-95 (+ :99)
+    change: Layer split + R5
+    disposition: Direct
+    delivery: fixed
+    task: T-21
+    evidence: [AC-37]
+
+  - id: C14
+    site: >-
+      TabPersonal.vue:24-25 · client-company.schemas.ts:256-257 ·
+      labs/pages/client/Addresses.vue:8-9 · labs/.../ClientBillingAddresses.vue:14-15
+    capability: The billing and labs pages list, add, edit and delete addresses through the shared Manage renderer
+    change: >-
+      Local adapter pairs (design.md D-13), matching useCompanyList /
+      useCompanyMutate (TabBusiness.vue:172-248) and usePhoneListForManage
+      (TabPersonal.vue:163-200). The adapter's `default` RE-HYDRATES to a ROW
+      (getAddress(defaultAddressId())) because Select.vue:97 reads
+      defaultItem()?.id, and it maps stop -> destroy.
+    disposition: Direct
+    delivery: built
+    task: [T-22, T-23, T-24]
+    hazard: >-
+      Z7 — MinimalListComposable is `(...args: any) => ...`
+      (manage/types.ts:15) and all four sites sit inside `as any` casts, so
+      handing the renderer an unadapted scope builder COMPILES CLEANLY and fails
+      only at runtime. A type-check proves nothing here; AC-39 is a rendered
+      read-back.
+    evidence: [AC-39]
+
+  - id: C15
+    site: packages/headless/src/modules/basket-billing/unified/__tests__/unified.int.test.ts:83
+    change: >-
+      Mocks useClientAddressServices BY NAME; breaks the instant R4 lands.
+      client-company updated the equivalent on its own branch.
+    disposition: Direct
+    delivery: fixed
+    task: T-17
+    evidence: [AC-35]
+
+  - id: C16
+    site: tests/Playwright/e2e/support/flows/address-setup.ts:42,59
+    change: >-
+      Calls window.Upmind.useClientAddressManager(undefined, { clientId }) — the
+      exact signature R4 / PR-2 removes. RECORD FIRST (T-1), MIGRATE SECOND
+      (T-25): it is recorded acceptance as well as a consumer. Dependants:
+      order-billing-setup.ts:3, flows/index.ts:1.
+    disposition: Direct
+    delivery: fixed
+    task: [T-1, T-25]
+    evidence: [AC-38]
+
+  - id: C17
+    site: eslint-suppressions.json:477-486
+    change: >-
+      11 grandfathered @typescript-eslint/no-explicit-any entries (6 on
+      client-address.services.ts, 5 on useClientAddressManager.ts). The typed
+      machine-config factory (D-9) removes the casts, so the entries are REMOVED,
+      NOT RE-LEDGERED. client-company retired 13 equivalent lines.
+    disposition: Direct
+    delivery: fixed
+    task: T-26
+    evidence: [AC-36]
+
+  - id: C18
+    site: packages/i18n/public/locales/*/confirm.json (+ error.json)
+    change: >-
+      D-14 relocates the toast. The keys confirm.address_removed and
+      confirm.address_set_default STAY IN EVERY LOCALE — they are referenced from
+      the new call site. An error.* counterpart is added only where one is
+      missing, exactly as client-company added error.client_company_delete_failed.
+      NOTHING IS DELETED FROM ANY LOCALE.
+    disposition: Direct
+    delivery: fixed
+    task: T-23
+    evidence: [AC-40]
+
+  - id: C19
+    site: >-
+      modules/index.ts:12 · system-places.types.ts:1 · unified/types.ts:1 ·
+      client-company.types.ts:30 · invoices.types.ts:4
+    change: TYPE-ONLY imports of Address / AddressModel. All stay valid under the design's barrel.
+    disposition: Not-supported-with-reason
+    delivery: not-applicable
+    reason: >-
+      untouched-by-necessity — verified at Plan; no edit is required. Recorded
+      DISTINCTLY so a later reader does not read the absence of an edit as an
+      oversight. invoices.types.ts:4 reaches the DEEP path
+      ../client-address/client-address.types; that is a pre-existing deep import
+      this story leaves alone rather than widening its blast radius.
+    task: T-13
+    evidence: [AC-35]
+
+  - id: C20
+    site: packages/headless/src/modules/basket-billing/unified/schemas.ts:2-5
+    change: Imports useSchemaDefinitions / useUischemaDefinitions from the BARREL.
+    disposition: Not-supported-with-reason
+    delivery: not-applicable
+    reason: >-
+      untouched-by-necessity — ruling R7 KEEPS them on the barrel, and this site
+      is the reason R7 exists. Dropping them would push this file onto the same
+      deep-path + eslint-disable hazard it ALREADY carries for client-phone at
+      :7-18. Verify-only.
+    task: T-13
+    evidence: [AC-35]
+
+  - id: C21
+    site: >-
+      apps/velia/src/router/funnels/engine/services.ts:135 ·
+      apps/hosting/src/router/funnels/engine/services.ts:135
+    capability: The velia and hosting funnel engines read the client's default address
+    disposition: Dropped-with-Linear-issue
+    delivery: not-applicable
+    linear_ref: OWED — unfiled (operator follow-up commit, not a Linear story)
+    reason: >-
+      OPERATOR RULING R3 PART 2 — DO NOT EDIT. Both are git submodules with their
+      own remotes (.gitmodules: velia-checkout.git, hosting.com-checkout.git).
+      Precedent: monorepo commit 39521e4a5, "point hosting/velia at their scoped
+      client-phone consumers".
+    handoff: >-
+      AFTER THIS BRANCH MERGES, BOTH FUNNEL ENGINES WILL NOT TYPE-CHECK UNTIL
+      THAT FOLLOW-UP LANDS. They break in TWO ways at once — the signature change
+      (the compiler catches it) and the R5 id-vs-row change (the compiler does
+      NOT). Stated without softening. See tasks.md T-27 and review-notes.md
+      section 3.
+    task: T-27
+    evidence: [AC-37]
+
+# =============================================================================
+# COUNTS — the gate fields
+# =============================================================================
+counts:
+  cells_total: 8
+  undispositioned_parity_cell_count: 0
+  rows_total: 99
+  undispositioned_row_count: 0
+  dropped_with_linear_issue: 9 # D1-D8 + C21
+  dropped_refs_owed: 9 # every one OWED and UNFILED; NO ID INVENTED
+  not_supported_with_reason: 5 # N1, N2, N3, C19, C20
+  absorbed_by: 2 # F1, F2
+  renamed: 2 # A4, A16
+  jtbd_contradicted_drop_count: 0
