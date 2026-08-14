@@ -28,6 +28,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { useUnifiedServices } from "../services";
 import { UnifiedType } from "../types";
+import type { AddressModel } from "../../../client-address";
 import type { PhoneModel } from "../../../client-phone";
 import type { UnifiedContext, UnifiedModel } from "../types";
 
@@ -80,7 +81,9 @@ vi.mock("../../../client-address", async importOriginal => {
   const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,
-    useClientAddressServices: () => ({ ensure: spies.ensureAddress })
+    useClientAddresses: () => ({
+      as: () => ({ useActions: () => ({ ensure: spies.ensureAddress }) })
+    })
   };
 });
 
@@ -145,5 +148,25 @@ describe("useUnifiedServices().add — once-only phone POST (FE-2711)", () => {
 
     // No company is created on the personal path.
     expect(spies.ensureCompany).not.toHaveBeenCalled();
+  });
+
+  it("PERSONAL: hands the address ensure the model DIRECTLY, not wrapped in { model }", async () => {
+    const address: AddressModel["address"] = {
+      address1: "1 Prover Street",
+      city: "Leeds",
+      postcode: "LS1 1AA",
+      countryId: "country-1"
+    };
+
+    await callAdd(UnifiedType.PERSONAL, { phone, address });
+
+    // Ruling R4 retired `useClientAddressServices().ensure({ model })`; the
+    // scoped `useActions().ensure` takes the AddressModel itself, and the two
+    // shapes are indistinguishable to the compiler at this `as any` seam.
+    expect(spies.ensureAddress).toHaveBeenCalledTimes(1);
+    expect(spies.ensureAddress).toHaveBeenCalledWith({ address });
+    expect(spies.ensureAddress).not.toHaveBeenCalledWith(
+      expect.objectContaining({ model: expect.anything() })
+    );
   });
 });
