@@ -489,19 +489,6 @@
       "count": 2
     }
   },
-  "packages/headless/src/modules/client-company/client-company.services.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 6
-    },
-    "prefer-promise-reject-errors": {
-      "count": 1
-    }
-  },
-  "packages/headless/src/modules/client-company/useClientCompanyManager.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 5
-    }
-  },
   "packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1

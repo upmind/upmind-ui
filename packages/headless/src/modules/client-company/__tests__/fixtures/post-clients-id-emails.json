@@ -1,0 +1,62 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/emails",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "email": "mock-email-2@example.com"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a27de17d8b17d241-WAW",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Sat, 08 Aug 2026 10:36:35 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=oieIlX0v0CsDL2B36ziZltBZDeS69n3makwdEFv3jni55BR4qR%2FGOWmg582DbqHSlTPV28BhyUyT3cJHdjbVCmXIe6bChf1g3GRyL7kt0dTi6wDrtjPOdyio5SO%2BNDBpmlwVbcgnRw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "email": "mock-email-2@example.com",
+        "type": 1,
+        "verified": false,
+        "default": false,
+        "user_id": "sys",
+        "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "updated_at": "2026-08-08 10:36:34",
+        "created_at": "2026-08-08 10:36:34",
+        "id": "52098d3d-e409-1793-584a-31578626e347",
+        "can_delete": true
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-08T10:36:35.247Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-company"
+  }
+}

@@ -4,11 +4,10 @@ import { useBrand } from "../../brand";
 import { useClientAddresses } from "../../client-address";
 import { useClientAddressServices } from "../../client-address";
 import { useClientCompanies } from "../../client-company";
-import { useClientCompanyServices } from "../../client-company";
 import { useClientEmails } from "../../client-email";
 import { useClientPhones } from "../../client-phone";
-import { ScopeActorTypes } from "../../scope";
 import { useClientPhoneServices } from "../../client-phone";
+import { ScopeActorTypes } from "../../scope";
 import { useSystem } from "../../system";
 import { useI18n } from "../../system-localisation";
 import { UnifiedType } from "./types";
@@ -55,11 +54,9 @@ async function loadLookups({
     data: addresses
   } = useClientAddresses();
 
-  const {
-    isReady: getCompanies,
-    default: _defaultCompany,
-    data: companies
-  } = useClientCompanies();
+  const companiesScope = useClientCompanies().as(ScopeActorTypes.CLIENT);
+  const { isReady: getCompanies } = companiesScope.useActions();
+  const { data: companies } = companiesScope.useContext();
 
   const { isReady, ensureCountries, fetchRegions, getCountry } = useSystem();
 
@@ -141,7 +138,9 @@ async function loadLookups({
 async function add(type: UnifiedType, data: UnifiedModel) {
   const { ensure: ensureAddress } = useClientAddressServices();
   const { ensure: ensurePhone } = useClientPhoneServices();
-  const { ensure: ensureCompany } = useClientCompanyServices();
+  const { ensure: ensureCompany } = useClientCompanies()
+    .as(ScopeActorTypes.CLIENT)
+    .useActions();
   const promises: Promise<any>[] = [];
 
   promises.push(
@@ -159,11 +158,9 @@ async function add(type: UnifiedType, data: UnifiedModel) {
   promises.push(
     data?.company && type == UnifiedType.BUSINESS
       ? ensureCompany({
-          model: {
-            ...data.company,
-            phoneId: data.phone?.id,
-            phone: data.phone?.phone
-          }
+          ...data.company,
+          phoneId: data.phone?.id,
+          phone: data.phone?.phone
         })
       : Promise.resolve(undefined)
   );
@@ -313,7 +310,9 @@ export const useUnifiedServices = () => {
     invalidate: async () => {
       // Also invalidate the underlying queries
       const { invalidate: invalidateAddresses } = useClientAddresses();
-      const { invalidate: invalidateCompanies } = useClientCompanies();
+      const { invalidate: invalidateCompanies } = useClientCompanies()
+        .as(ScopeActorTypes.CLIENT)
+        .useActions();
       await Promise.all([invalidateAddresses(null), invalidateCompanies(null)]);
     }
   };

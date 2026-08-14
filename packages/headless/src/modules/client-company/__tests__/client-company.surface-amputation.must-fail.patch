@@ -1,0 +1,16 @@
+--- a/packages/headless/src/modules/client-company/index.ts
++++ b/packages/headless/src/modules/client-company/index.ts
+@@ -50,13 +50,6 @@ export type {
+   CompanyContext
+ } from "./client-company.types";
+ 
+-// --- Schema-fragment surface (design.md D5 — the ONE deviation from the
+-// reference conversion's "no schema exports" law)
+-export {
+-  useSchema as useCompanySchema,
+-  useUischema as useCompanyUischema
+-} from "./client-company.schemas";
+-
+ // --- Sub-composable type exports for consumers (collection)
+ export type { UseClientCompaniesActions } from "./useClientCompanies.actions";
+ export type { UseClientCompaniesContext } from "./useClientCompanies.context";

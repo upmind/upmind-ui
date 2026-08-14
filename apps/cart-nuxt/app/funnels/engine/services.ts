@@ -19,6 +19,7 @@ import {
   useClientCompanies,
   useClientPhones,
   useConfig,
+  ScopeActorTypes,
   UIContext,
   FunnelActions,
   type FunnelTarget,
@@ -132,8 +133,10 @@ export async function applyBillingDefaults(): Promise<void> {
 
   const { default: defaultAddress, isReady: isAddressesReady } =
     useClientAddresses();
-  const { default: defaultCompany, isReady: isCompaniesReady } =
-    useClientCompanies();
+  const companiesScope = useClientCompanies().as(ScopeActorTypes.CLIENT);
+  const { default: defaultCompany, getOne: getCompany } =
+    companiesScope.useContext();
+  const { isReady: isCompaniesReady } = companiesScope.useActions();
   const { default: defaultPhone, isReady: isPhonesReady } = useClientPhones();
 
   await Promise.allSettled([
@@ -142,7 +145,8 @@ export async function applyBillingDefaults(): Promise<void> {
     isPhonesReady()
   ]);
 
-  const company = billingConfig.value?.requiresCompany && defaultCompany();
+  const company =
+    billingConfig.value?.requiresCompany && getCompany(defaultCompany());
 
   await update({
     companyId: company?.id,
