@@ -1,0 +1,17 @@
+diff --git a/packages/headless/src/modules/client-address/client-address.services.ts b/packages/headless/src/modules/client-address/client-address.services.ts
+index 76ffc73d8..8ce9dd78b 100644
+--- a/packages/headless/src/modules/client-address/client-address.services.ts
++++ b/packages/headless/src/modules/client-address/client-address.services.ts
+@@ -106,10 +106,10 @@ function resolveClientId(scopeContext?: ScopeContext) {
+  * predicate as a precondition, which is what makes AC-11 / AC-13's empty
+  * capture log reachable at all.
+  */
+-function isAddressable(clientId?: string): boolean {
++function isAddressable(_clientId?: string): boolean {
+   const { isAuthenticated } = useActiveSession().useMeta();
+ 
+-  return isAuthenticated.value && !!clientId;
++  return isAuthenticated.value;
+ }
+ 
+ /**

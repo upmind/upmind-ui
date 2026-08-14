@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/client-address/client-address.mappers.ts b/packages/headless/src/modules/client-address/client-address.mappers.ts
+index 7a9c2457a..ed7b997d2 100644
+--- a/packages/headless/src/modules/client-address/client-address.mappers.ts
++++ b/packages/headless/src/modules/client-address/client-address.mappers.ts
+@@ -81,7 +81,7 @@ export function mapIAddressData(data: AddressModel | Address): IAddress {
+     postcode: data.address.postcode ?? "",
+     region_id: data.address.regionId,
+     country_id: data.address.countryId,
+-    type: data.type
++    type: 1 // We are forcing type to always be 1 for simplicity
+   } as IAddress;
+ }
+ 

@@ -1,0 +1,12 @@
+diff --git a/packages/headless/src/modules/client-address/client-address.services.ts b/packages/headless/src/modules/client-address/client-address.services.ts
+index 76ffc73d8..ebc643d43 100644
+--- a/packages/headless/src/modules/client-address/client-address.services.ts
++++ b/packages/headless/src/modules/client-address/client-address.services.ts
+@@ -410,7 +410,6 @@ async function remove(
+   })
+     .then(data => {
+       invalidateQueryByKey(queryKey, { exact: false })(data);
+-      useFeedback().addSuccess(t("confirm.address_removed"));
+     })
+     .catch((error: unknown) => {
+       captureError(error);

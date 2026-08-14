@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/client-address/client-address.services.ts b/packages/headless/src/modules/client-address/client-address.services.ts
+index 76ffc73d8..5f7658a8d 100644
+--- a/packages/headless/src/modules/client-address/client-address.services.ts
++++ b/packages/headless/src/modules/client-address/client-address.services.ts
+@@ -330,7 +330,7 @@ async function update(
+   return put<IAddress>({
+     mutationKey: [...queryKey, id],
+     url: useUrl(`clients/${clientId.value}/addresses/${id}`),
+-    data: mapIAddressDataDiff(data, baseData),
++    data: mapIAddressData(data),
+     withAccessToken: true
+   }).then(invalidateQueryByKey(queryKey, { exact: false }));
+ }

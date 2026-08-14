@@ -1,0 +1,14 @@
+diff --git a/packages/headless/src/modules/client-address/client-address.services.ts b/packages/headless/src/modules/client-address/client-address.services.ts
+index 76ffc73d8..625508a0e 100644
+--- a/packages/headless/src/modules/client-address/client-address.services.ts
++++ b/packages/headless/src/modules/client-address/client-address.services.ts
+@@ -430,7 +430,8 @@ async function setDefault(
+   const { put, useUrl } = useQuery();
+   const clientId = resolveClientId(scopeContext);
+ 
+-  if (!isAddressable(clientId.value)) {
++  const { isAuthenticated } = useActiveSession().useMeta();
++  if (!(isAuthenticated.value || !clientId.value)) {
+     return Promise.reject(new NotAuthenticatedError());
+   }
+ 

@@ -1,0 +1,14 @@
+diff --git a/packages/headless/src/modules/client-address/client-address.schemas.ts b/packages/headless/src/modules/client-address/client-address.schemas.ts
+index cc1734262..183675f0c 100644
+--- a/packages/headless/src/modules/client-address/client-address.schemas.ts
++++ b/packages/headless/src/modules/client-address/client-address.schemas.ts
+@@ -169,8 +169,7 @@ export function useUischemaDefinitions({
+   // `parity.yaml` L4 / AC-21). Emitted only when locked: an unrecognised
+   // `condition` evaluates as fulfilled in `@jsonforms/core`, so a DISABLE rule
+   // present at all is a DISABLE rule in force.
+-  const lockCountry =
+-    !!id && get(config, BrandConfigKeys.CLIENT_ALLOW_ADDRESS_UPDATE) === false;
++  const lockCountry = false;
+ 
+   return {
+     type: "Control",

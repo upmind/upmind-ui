@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/client-address/useClientAddresses.context.ts b/packages/headless/src/modules/client-address/useClientAddresses.context.ts
+index c0e20de3d..e6272a7b3 100644
+--- a/packages/headless/src/modules/client-address/useClientAddresses.context.ts
++++ b/packages/headless/src/modules/client-address/useClientAddresses.context.ts
+@@ -107,7 +107,7 @@ export function createClientAddressesContext(
+      * or, given a string, by a case-insensitive substring of its `title` or
+      * `description`.
+      */
+-    findOne,
++    findOne: findOneByValue,
+ 
+     /** Finds a single address by id. */
+     getOne,

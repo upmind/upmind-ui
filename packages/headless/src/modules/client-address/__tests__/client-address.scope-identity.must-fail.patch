@@ -1,0 +1,21 @@
+diff --git a/packages/headless/src/modules/client-address/client-address.services.ts b/packages/headless/src/modules/client-address/client-address.services.ts
+index 76ffc73d8..186eb71d7 100644
+--- a/packages/headless/src/modules/client-address/client-address.services.ts
++++ b/packages/headless/src/modules/client-address/client-address.services.ts
+@@ -83,14 +83,10 @@ export const queryKey: QueryKey = ["client", "addresses"];
+  * branch on `ScopeActorTypes.SELF`. The manager's context names the ADDRESS,
+  * not its owner, so it falls through to the session.
+  */
+-function resolveClientId(scopeContext?: ScopeContext) {
++function resolveClientId(_scopeContext?: ScopeContext) {
+   const { activeUser } = useActiveSession().useContext();
+ 
+-  return computed(() =>
+-    scopeContext?.type === ClientAddressesContextTypes.CLIENT
+-      ? scopeContext.id
+-      : activeUser.value?.id
+-  );
++  return computed(() => activeUser.value?.id);
+ }
+ 
+ /**

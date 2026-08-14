@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/client-address/useClientAddressManager.actions.ts b/packages/headless/src/modules/client-address/useClientAddressManager.actions.ts
+index dfdf3fb6c..3ebe5eacb 100644
+--- a/packages/headless/src/modules/client-address/useClientAddressManager.actions.ts
++++ b/packages/headless/src/modules/client-address/useClientAddressManager.actions.ts
+@@ -99,7 +99,7 @@ export function createClientAddressManagerActions(
+    */
+   function whenAvailable(): Promise<boolean> {
+     return waitFor(machineService, s => stateMatches(s, "available"), {
+-      timeout: READINESS_TIMEOUT_MS
++      timeout: Infinity
+     })
+       .then(s => !stateMatches(s, "error"))
+       .catch(error =>

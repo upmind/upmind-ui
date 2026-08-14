@@ -1,0 +1,12 @@
+diff --git a/packages/headless/src/modules/client-address/client-address.mappers.ts b/packages/headless/src/modules/client-address/client-address.mappers.ts
+index 7a9c2457a..f29839fd4 100644
+--- a/packages/headless/src/modules/client-address/client-address.mappers.ts
++++ b/packages/headless/src/modules/client-address/client-address.mappers.ts
+@@ -43,7 +43,6 @@ export function mapAddress(raw: IAddress): Address {
+       get(raw, "address_1"),
+       get(raw, "address_2"),
+       get(raw, "city"),
+-      get(raw, "state"),
+       get(raw, "postcode"),
+       get(raw, "region.name"),
+       get(raw, "country.name")

@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/client-address/useClientAddresses.context.ts b/packages/headless/src/modules/client-address/useClientAddresses.context.ts
+index c0e20de3d..bc6ac1f09 100644
+--- a/packages/headless/src/modules/client-address/useClientAddresses.context.ts
++++ b/packages/headless/src/modules/client-address/useClientAddresses.context.ts
+@@ -97,7 +97,7 @@ export function createClientAddressesContext(
+     data,
+ 
+     /** This scope's default address's ID, or undefined if none (R5). */
+-    default: getDefaultId,
++    default: getDefault,
+ 
+     /** The scope's captured error — read, never raised. */
+     error,
