@@ -60,7 +60,7 @@
     "test:quarantined": "node tests/quarantine/list-quarantined.mjs",
     "quarantine:flaky": "node tests/quarantine/allure-flaky-report.mjs",
     "quarantine:enforce": "node tests/quarantine/quarantine-enforce.mjs",
-    "prepare": "husky",
+    "prepare": "husky && bash .claude/scripts/install-published-docs-hooks.sh",
     "lint-staged": "lint-staged",
     "test:e2e": "bash tests/Playwright/scripts/run-e2e.sh",
     "test:chrome": "bash tests/Playwright/scripts/run-e2e.sh chrome",
