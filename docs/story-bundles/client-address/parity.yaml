@@ -103,9 +103,21 @@ cells:
     reason: >-
       The oracle plainly supports it (admin endpoint family +
       list_client_addresses gate). Operator ruling R2 keeps scope at
-      client x self. Encoded as `[ScopeActorTypes.STAFF]: null as never` so
-      `.as('staff')` is a COMPILE-TIME error, never a silent gap.
-      Rows D1, D2, D3, D7.
+      client x self. Encoded as `[ScopeActorTypes.STAFF]: null as never`.
+      CORRECTED 2026-08-14 — revision 2 said this made `.as('staff')` a
+      COMPILE-TIME error. It does not, and the claim is WITHDRAWN (disproved by
+      a real ts.createProgram probe against ScopeBuilderResult,
+      scope.builder.ts:~184). The corrected claim, verbatim across all three
+      lanes: `.as()` accepts every `ScopeActorTypes` at compile time; a
+      `null as never` matrix row removes `.for(...)` for that actor and nothing
+      else. What the type system enforces: `.as('staff'|'guest'|'self')
+      .for(ADDRESS, id)` do not compile, `.as('client').for(ADDRESS, id)` does,
+      and `useClientAddressManager(undefined, { clientId })` is `TS2554`.
+      Delivering a compile error on `.as('staff')` itself would require
+      `scope.builder.ts` (protected core) — forbidden by D-2 / NFR-4, so the
+      CLAIM is corrected and the CODE is not. What keeps this cell from being a
+      silent gap is NOT a type error: it is the removal of `.for()` plus rows
+      D1, D2, D3, D7 below.
     evidence: [AC-33]
 
   - id: CELL-4
@@ -341,7 +353,12 @@ rows:
     current: client-address.services.ts:92-95 — ensureConfig([REQUIRE_REGION_IN_ADDRESS]) ONLY
     disposition: Direct
     delivery: fixed
-    note: CLIENT_ALLOW_ADDRESS_UPDATE added to the key list — see L4.
+    note: >-
+      CLIENT_ALLOW_ADDRESS_UPDATE added to the key list — see L4. THE VALUE
+      ARRIVES and both dependent behaviours are proven green, but the widened
+      key set NEVER REACHES THE WIRE: ensureBrandConfig does not refetch, so
+      ZERO config/brand/values requests are observed. Blocked upstream — row U1,
+      finding F6. Do not read this Direct row as "a request is issued".
     evidence: [AC-20, AC-21]
 
   - id: W12
@@ -585,7 +602,11 @@ rows:
     current: loadLookups -> context.config
     disposition: Direct
     delivery: fixed
-    note: Gains CLIENT_ALLOW_ADDRESS_UPDATE — see L4.
+    note: >-
+      Gains CLIENT_ALLOW_ADDRESS_UPDATE — see L4. This row IS delivered: the
+      `config` context member exposes BOTH keys, which is why AC-21's lockCountry
+      and AC-20's required-region halves are green. The wire-level half is not —
+      row U1, finding F6.
     evidence: [AC-20, AC-21]
 
   - id: M9
@@ -707,6 +728,10 @@ rows:
     current: client-address.schemas.ts:70-72
     disposition: Direct
     delivery: existing
+    note: >-
+      Delivered and green — the required set gains regionId from the config
+      VALUE. The separate claim that a brand-config REQUEST names the key is
+      blocked upstream: row U1, finding F6.
     evidence: [AC-20]
 
   - id: X3
@@ -935,6 +960,60 @@ rows:
       honest surface is no parameter, plus row D1 saying the capability is owed.
     pre_change: RED
     evidence: [AC-30, AC-2, AC-36]
+
+  # ---------------------------------------------------------------------------
+  # U — BLOCKED UPSTREAM. A capability the oracle has that this story CANNOT
+  # deliver from inside its own boundary — not a choice, not effort, not scope
+  # appetite. Added 2026-08-14 by the AC-20 correction pass. Escalated in
+  # review-notes.md section 4.3 with a NEEDS-ITS-OWN-STORY disposition.
+  #
+  # The disposition_enum has no "blocked-upstream" member and none has been
+  # invented. Dropped-with-Linear-issue is used because that is this table's
+  # disposition for "the oracle has it, this delivery does not, an issue is
+  # owed" — the REASON field carries the distinction from a chosen drop.
+  # ---------------------------------------------------------------------------
+  - id: U1
+    cell: CELL-5
+    capability: The brand-config request NAMES the keys this form needs
+    oracle: >-
+      addEditClientAddressModal.vue:129-137 — legacy issues a brand/config
+      lookup for the keys the address form consults.
+    current: >-
+      NO REQUEST IS ISSUED AT ALL. ensureBrandConfig
+      (packages/headless/src/modules/brand/brand.services.ts:137-142) calls
+      fetchBrandConfig(safekeys); await result.promise.value — its own JSDoc says
+      "the refetch below is what sends it", AND THERE IS NO REFETCH. The query is
+      queryKey ["brand","config"] with staleTime "static", and in
+      @tanstack/query-core@5.90.12 isStaleByTime returns false for "static" EVEN
+      WHEN state.isInvalidated (query.js:113-117), so useBrand().invalidate()
+      cannot force it either. The widened key set can never reach the wire:
+      ZERO config/brand/values requests are observed — not "a request without
+      keys".
+    disposition: Dropped-with-Linear-issue
+    delivery: not-applicable
+    linear_ref: OWED — unfiled
+    pre_change: RED
+    post_change: RED # legitimately red; the ONE red test in the module's suite
+    reason: >-
+      BLOCKED UPSTREAM, NOT DROPPED BY CHOICE. The fix is in the shared brand
+      services (a refetch, or a staleTime that "static" does not veto) — another
+      module's surface, and outside this story's boundary. The only
+      client-address-local workaround was nuking a shared persisted cache on
+      form open; the developer seat REJECTED it as a cross-boundary band-aid and
+      that judgement stands. NEEDS ITS OWN STORY.
+    not_a_capability_gap: >-
+      THE CAPABILITY THE USER FEELS IS DELIVERED. The `config` context member
+      exposes BOTH keys, so the VALUE arrives and every dependent behaviour
+      works and is proven green — AC-21 lockCountry (rows L4, M8) and AC-20's
+      required-region half (row X2). What is missing is the wire-level REQUEST,
+      i.e. the guarantee that a session whose persisted config predates a key
+      would still be answered for it. A reader must not conclude the form's
+      brand rules are missing; they are not.
+    jtbd_contradiction: >-
+      NO. No in-cell behaviour of the JTBD is lost: both brand rules the form
+      depends on are delivered and green. The dropped item is the request-level
+      guarantee, which is why this row exists rather than a softened AC.
+    evidence: [AC-20, AC-21]
 
   # ---------------------------------------------------------------------------
   # D — STAFF CAPABILITY THE ORACLE HAS AND THIS DELIVERY DOES NOT (ruling R2).
@@ -1296,6 +1375,16 @@ rows:
       exact signature R4 / PR-2 removes. RECORD FIRST (T-1), MIGRATE SECOND
       (T-25): it is recorded acceptance as well as a consumer. Dependants:
       order-billing-setup.ts:3, flows/index.ts:1.
+    recording: >-
+      packages/headless/src/modules/client-address/__tests__/client-address.e2e-oracle.pre-migration.json
+    recording_path_corrected: >-
+      2026-08-14 — T-1 planned the recording under __tests__/fixtures/. It is
+      NOT there and must not be: that directory is a TYPED v3 fixture POOL the
+      MSW replay server loads as handlers and ci/lint-fixtures.mjs validates
+      (`version: 3` required). A pre-migration REQUEST LOG is neither a handler
+      nor a v3 fixture, so it sits one level up beside the specs. The path above
+      is the real, committed one; the plan is corrected to reality, not the
+      other way round.
     disposition: Direct
     delivery: fixed
     task: [T-1, T-25]
@@ -1387,11 +1476,11 @@ rows:
 counts:
   cells_total: 8
   undispositioned_parity_cell_count: 0
-  rows_total: 99
+  rows_total: 100 # was 99; +U1 (AC-20 correction pass, 2026-08-14)
   undispositioned_row_count: 0
-  dropped_with_linear_issue: 9 # D1-D8 + C21
-  dropped_refs_owed: 9 # every one OWED and UNFILED; NO ID INVENTED
+  dropped_with_linear_issue: 10 # D1-D8 + C21 + U1
+  dropped_refs_owed: 10 # every one OWED and UNFILED; NO ID INVENTED
   not_supported_with_reason: 6 # N1, N2, N3, C18, C19, C20
   absorbed_by: 0 # was 2 (F1, F2) in revision 2 — OVERTURNED by operator ruling R10
   renamed: 2 # A4, A16
-  jtbd_contradicted_drop_count: 0
+  jtbd_contradicted_drop_count: 0 # U1 included: no in-cell behaviour is lost — see its jtbd_contradiction field

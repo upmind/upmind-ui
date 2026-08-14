@@ -2,7 +2,7 @@
 
 **The binding record for this story.** Per `agent-behavior.companion.md` §1, this file is the per-story ruling mechanism: **read FIRST on every re-run**, mirrored to Linear, and **never silently overriding an explicit NO**.
 
-**Date:** 2026-08-14 (revision 2, + operator ruling **R10** applied) · **Seat:** planner · **Branch:** `feature/client-address-scoped-conversion` @ base `bff994868`
+**Date:** 2026-08-14 (revision 2, + operator ruling **R10** applied, + **correction pass 2.1**) · **Seat:** planner · **Branch:** `feature/client-address-scoped-conversion` @ base `bff994868`
 **Bundle:** `docs/story-bundles/client-address/` — `docs/sdd` is a symlink to a path off this machine and is **never** written.
 
 ---
@@ -53,6 +53,35 @@ The operator's own brief numbers the rulings **R1–R8**. Revision 1 of this bun
 
 ---
 
+## 1.5 Correction pass 2.1 (2026-08-14, post-implementation) — what the bundle got WRONG
+
+Three corrections landed **after** implementation, tests and one repair cycle. Each was found by a seat other than the one that wrote the claim, which is the point of seat separation. **No AC was deleted to make anything green, and no code was changed to rescue a claim.**
+
+| # | Claim as written | Reality | What changed |
+| --- | --- | --- | --- |
+| **1** | `.as(STAFF)` / `.as(GUEST)` are **compile-time errors** (AC-33, AC-34) | **False.** Disproved by a real `ts.createProgram` probe run by the prover: `ScopeBuilderResult` (`scope.builder.ts:~184`) accepts every `ScopeActorTypes` and reads the matrix row only to decide whether `.for()` exists. | AC-33 / AC-34 **re-worded, not deleted** — the narrowed guarantee is real and proven green. §1.5.1 below. |
+| **2** | AC-20 asserts the brand-config **request** names its keys | **Not deliverable in this story.** Blocked upstream; the test is legitimately RED. | Escalated as finding **F6**, parity row **`U1`**. §4.3 below. |
+| **3** | T-1 files the e2e oracle under `__tests__/fixtures/` | **Wrong directory.** That is a typed v3 fixture pool. | Path corrected in row `C16` and T-1. §1.5.2 below. |
+
+### 1.5.1 The AC-33 / AC-34 overclaim — withdrawn, in these words
+
+The wording below is carried **verbatim** in `requirements.md` §4 + AC-33, `design.md` §1, `parity.yaml` `CELL-3`, `tasks.md` T-2b and `client-address.feature`, so that plan, code and tests cannot drift apart on it:
+
+> `.as()` accepts every `ScopeActorTypes` at compile time; a `null as never` matrix row removes `.for(...)` for that actor and nothing else. What the type system enforces: `.as('staff'|'guest'|'self').for(ADDRESS, id)` do not compile, `.as('client').for(ADDRESS, id)` does, and `useClientAddressManager(undefined, { clientId })` is `TS2554`. Delivering a compile error on `.as('staff')` itself would require `scope.builder.ts` (protected core).
+
+**The code was not changed to fit the claim.** `scope.builder.ts` is protected core and off-limits by **D-2 / NFR-4**; editing a shared machine to make a test's claim true is precisely what `code-xstate.md` forbids. So the **claim** is corrected.
+
+**Two consequences a reviewer should weigh deliberately:**
+
+1. **What keeps the staff cell honest is no longer a type error.** It is (a) the removal of `.for(...)`, so no staff caller can address an individual address through this module, and (b) the recorded `D1`–`D8` `Dropped-with-Linear-issue` rows. (b) was always the real safeguard; revision 2 leaned on (a) harder than the type system justified.
+2. **`@ts-expect-error` would have been inert anyway.** `packages/headless/tsconfig.json` and `tsconfig.build.json` both exclude `**/__tests__/**`, so the originally-specified discriminator would never have been type-checked — a green test proving nothing, the FE-2824 shape in the test layer. The shipped proof is an executable `ts.createProgram` probe **with a live `CLIENT` control line**, so a probe that merely fails to resolve the module cannot pass.
+
+### 1.5.2 The T-1 recording path — corrected to reality
+
+The pre-migration e2e oracle is at `packages/headless/src/modules/client-address/__tests__/client-address.e2e-oracle.pre-migration.json`, **not** under `__tests__/fixtures/` as T-1 planned. `__tests__/fixtures/` is a **typed v3 fixture pool** that the MSW replay server loads as handlers and `ci/lint-fixtures.mjs` validates (`version: 3` required); a pre-migration request log is neither a handler nor a v3 fixture and would have broken the pool. **The plan is corrected to match reality, not the reverse** — parity row `C16` and task T-1 both now name the real path.
+
+---
+
 ## 2. What revision 2 withdrew, and why
 
 ### 2.1 OR-9 (merge-conflict planning) — DELETED IN FULL
@@ -94,9 +123,9 @@ They break in **two** ways at once:
 
 **The follow-up must fix both.** Fixing only the signature leaves a live, type-clean, wrong-behaviour bug in two production checkout funnels.
 
-### 3.2 Nine Linear references are OWED and UNFILED
+### 3.2 Ten Linear references are OWED and UNFILED
 
-`parity.yaml` carries **nine** `Dropped-with-Linear-issue` rows — `D1`–`D8` (the staff capability, ruling R2) and `C21` (the submodule funnels, ruling R3 part 2). **No Linear issue reference was supplied to this run, and none has been invented.** Every row files its reference as the literal string `OWED — unfiled`.
+`parity.yaml` carries **ten** `Dropped-with-Linear-issue` rows — `D1`–`D8` (the staff capability, ruling R2), `C21` (the submodule funnels, ruling R3 part 2) and `U1` (the brand-config request, finding **F6**, added by correction pass 2.1 — **blocked upstream, not dropped by choice**; see §4.3). **No Linear issue reference was supplied to this run, and none has been invented.** Every row files its reference as the literal string `OWED — unfiled`.
 
 | Row | Capability owed a Linear issue |
 | --- | --- |
@@ -109,6 +138,7 @@ They break in **two** ways at once:
 | `D7` | The per-client admin cache scope (`$client_{id}` / `$client_{id}_selector`) |
 | `D8` | The staff-only copy-to-clipboard affordance |
 | `C21` | The velia / hosting funnel-engine migration *(an operator follow-up commit, not necessarily a Linear story)* |
+| `U1` | `ensureBrandConfig` never refetches, so a widened brand-config key set never reaches the wire — **finding F6, §4.3. Blocked upstream, not a chosen drop.** |
 
 **The bundle cannot be signed off with these unfiled without that being a conscious operator choice.** A `Dropped-with-Linear-issue` row whose reference never arrives degrades into a silent drop wearing paperwork.
 
@@ -170,6 +200,32 @@ Two merged modules say row; two say id. R5 binds this module to the id. **The in
 
 **The risk R5 carries is handled, not hand-waved:** ten in-scope expressions read `defaultAddress()?.id`, every one of them **still type-checks** after the change, and each therefore gets its own task with its own behavioural Reality Check (T-14…T-21, AC-37). `<tc>` exit 0 is explicitly rejected as sufficient proof for that AC.
 
+### 4.3 F6 — AC-20's request-level read-back is blocked upstream — **ESCALATED · NEEDS ITS OWN STORY**
+
+**Disposition: out of scope for this story. Not fixed here, not softened, not deleted. Parity row `U1` (`Dropped-with-Linear-issue`, reference `OWED — unfiled`). One test in the module's suite is legitimately RED and is to stay RED until the upstream story lands.**
+
+**What was claimed.** AC-20's read-back ended "Assert the brand-config request was issued for that key"; AC-21 carried the same clause for `CLIENT_ALLOW_ADDRESS_UPDATE`. Both wire-level halves are consolidated in one integration test (`client-address.brand-config.int.test.ts`, "AC-20 names BOTH brand-config keys on the wire"). That test is the red one.
+
+**Why it cannot pass — verified by the developer seat, not inferred:**
+
+1. `ensureBrandConfig` (`packages/headless/src/modules/brand/brand.services.ts:137–142`) is `fetchBrandConfig(safekeys); await result.promise.value`. **Its own JSDoc says "the refetch below is what sends it" — and there is no refetch.** The doc describes a mechanism the function does not have.
+2. The query is `queryKey: ["brand","config"]`, `staleTime: "static"`. In `@tanstack/query-core@5.90.12`, `isStaleByTime` returns `false` for `"static"` **even when `state.isInvalidated`** (`query.js:113–117`), so `useBrand().invalidate()` cannot force it either. There is no lever from outside.
+3. Net: **the widened key set can never reach the wire.** The read-back observes **zero** `config/brand/values` requests — not "a request that forgot the keys". A weaker assertion would not have caught this; it is the strong one that surfaced it.
+
+**What is NOT wrong — say this out loud, because the red test invites the opposite conclusion.** The `config` context member **does** expose both keys. The **value** arrives, and every behaviour that depends on it is delivered and **green**: AC-21's `lockCountry` (the country control carries `DISABLE` on an existing address and nothing on a new one under the *same* forbidding config, so the rule cannot be an always-on constant) and AC-20's `regionId`-required half. **No user-visible capability is missing.** What is missing is the request-level guarantee — that a session whose persisted config predates a key would still be answered for it. That residual exposure is upstream-owned and is exactly why this needs a story rather than a shrug.
+
+**Why it is not fixed here, and why that is not effort-avoidance.** The fix belongs in the shared `brand` services (restore the refetch, or use a `staleTime` that `"static"` does not veto) — another module's surface, outside this story's boundary (NFR-8). The one client-address-local alternative was **nuking a shared persisted cache on form open**; the developer seat rejected it as a cross-boundary band-aid — a module reaching into shared cache state to satisfy its own assertion, with blast radius over every other `brand` consumer. **That judgement stands and this seat endorses it.** Effort is never a disposition; this is a boundary, not a budget.
+
+**What the operator is being asked to decide:**
+
+| Option | Cost |
+| --- | --- |
+| **File the upstream story** *(recommended)* | One `brand`-services story: restore the refetch `ensureBrandConfig`'s own doc already describes, with a read-back asserting a `config/brand/values` request carries the widened key set. Unblocks this AC and every other module that widens brand keys. |
+| Leave it | The red test stands as the standing record of a real upstream defect. Acceptable only as a **conscious** choice — a red test with no filed issue decays into a test people learn to ignore. |
+| Weaken AC-20 to drop the clause entirely | **Not recommended.** It would delete the only evidence anyone has that this defect exists. The clause is withdrawn *from this story's deliverable* and preserved *as a parity row*, which is the difference between recording and hiding. |
+
+**No Linear ID has been invented for `U1`.** It joins `D1`–`D8` and `C21` in §3.2.
+
 ---
 
 ## 5. Observed and NOT fixed — recorded so it is not lost
@@ -217,7 +273,8 @@ The run **stops and asks the operator** — it does not decide — if any of the
 2. **The developer seat's independent arms derivation disagrees with `parity.yaml`'s `arms:` block.** A mismatch halts the run; it is **not** reconciled toward the plan file.
 3. **Genuine evidence that a headless machine is wrong.** A test disagreeing with `dataManagerMachine` presumes the **test** wrong first (`code-xstate.md`). Real machine evidence stops and asks (NFR-4).
 4. **`client-company.schemas.ts:140–141`-class surprise** — if any cross-module caller turns out to *call* `useSchemaDefinitions` / `useUischemaDefinitions` in a shape T-8a's additive `config` parameter breaks. Verified at Plan that all four callers pass object literals into a `= {}` default, so this should not fire; if it does, R7 and the signature change have collided and it is **not** resolved by editing either side.
-5. **A Linear reference is invented for any `D1`–`D8` or `C21` row.** No ID is ever guessed (§3.2).
+5. **A Linear reference is invented for any `D1`–`D8`, `C21` or `U1` row.** No ID is ever guessed (§3.2).
+6. **AC-20's request-level read-back is made green from inside this module.** Editing shared `brand` services, or nuking the shared persisted config cache on form open, is a halt — not a fix (finding `F6`, §4.3). The red stays until the upstream story lands.
 
 ---
 
@@ -226,10 +283,13 @@ The run **stops and asks the operator** — it does not decide — if any of the
 | Gate field | Value |
 | --- | --- |
 | `full_sdd_set_exists` | **true** — `requirements.md`, `design.md`, co-located `client-address.feature`, `tasks.md`, `parity.yaml`, `review-notes.md` |
-| `undispositioned_parity_cell_count` | **0** — 8 cells, all dispositioned; machine-verified |
+| `undispositioned_parity_cell_count` | **0** — 8 cells, all dispositioned; machine-verified. Unchanged by correction pass 2.1 (no cell row was added or re-dispositioned; `CELL-3`'s *reason* text was corrected, its disposition was not) |
 | `arms_block_present` | **true** — `services`/`actions`/`context`/`meta`/`schemas`, each `none`, each citing the rows that earn it |
-| `jtbd_contradicted_drop_count` | **0** |
-| `feature_scenario_count` | **40** — `@AC-1`…`@AC-40`, unique, no gaps |
+| `jtbd_contradicted_drop_count` | **0** — **including `U1`**: no in-cell behaviour of the JTBD is lost, because the config *value* reaches the form and both dependent rules are green (§4.3). The dropped item is the request-level guarantee |
+| `feature_scenario_count` | **40** — `@AC-1`…`@AC-40`, unique, no gaps. Unchanged by correction pass 2.1: AC-33 / AC-34 were **re-worded**, never removed |
+| `rows_total` | **100** — was 99; `U1` added by correction pass 2.1 |
+| `dropped_refs_owed` | **10** — `D1`–`D8`, `C21`, `U1`; every one `OWED — unfiled`, **no ID invented** |
+| `known_red_read_backs` | **1** — AC-20's request-level half (finding `F6`, row `U1`). Legitimately red, blocked upstream, escalated in §4.3. Not to be softened or "fixed" from inside this module |
 | `consumer_migration_tasks` | **8 in-scope sites** (T-14…T-21) + **2** adapter tasks (T-22, T-24) + 1 handoff (T-27), each with its own Reality Check. *(Was 3 adapter tasks; T-23 deleted by R10.)* |
 
 The planner seat **pre-gates**; it does not emit the review verdict. This story is not moved to **Needs Review** by this seat (ADR-029).

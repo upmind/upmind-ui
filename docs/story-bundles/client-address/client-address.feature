@@ -29,9 +29,26 @@
 #
 # Actors: a client manages their OWN postal addresses. There is exactly ONE
 # live cell — client x self — by operator ruling R2 (2026-08-14). Both scope
-# matrices set SELF / STAFF / GUEST to `null as never`, so acting as staff or
-# as a guest is a compile-time error (AC-33, AC-34), not a silently-missing
-# branch.
+# matrices set SELF / STAFF / GUEST to `null as never` (AC-33, AC-34).
+#
+# CORRECTED 2026-08-14 — revision 2 claimed acting as staff or as a guest was a
+# COMPILE-TIME ERROR. It is not, and the claim is withdrawn. Disproved by a real
+# `ts.createProgram` probe run by the prover seat against ScopeBuilderResult
+# (scope.builder.ts:~184). The narrowed guarantee, in the wording all three
+# lanes carry verbatim:
+#
+#   `.as()` accepts every `ScopeActorTypes` at compile time; a `null as never`
+#   matrix row removes `.for(...)` for that actor and nothing else. What the
+#   type system enforces: `.as('staff'|'guest'|'self').for(ADDRESS, id)` do not
+#   compile, `.as('client').for(ADDRESS, id)` does, and
+#   `useClientAddressManager(undefined, { clientId })` is `TS2554`. Delivering a
+#   compile error on `.as('staff')` itself would require `scope.builder.ts`
+#   (protected core).
+#
+# Editing scope.builder.ts is forbidden by design D-2 / NFR-4, so the CLAIM is
+# corrected and the CODE is not. The narrowed guarantee is real and is proven
+# green by an executable compile probe. What keeps the staff cell from being a
+# silent gap is not a type error — it is the recorded drop below.
 #
 # THE ORACLE DOES EXPOSE STAFF CAPABILITY. Legacy vue-app ships a distinct
 # admin endpoint family (api/admin/clients/{id}/addresses), an acting-as-client
@@ -302,13 +319,13 @@ Feature: A client manages their own postal addresses
   @AC-33 @scope @drop
   Scenario: Nobody can use this to act as staff over someone's addresses
     When someone tries to manage addresses as a member of staff
-    Then this simply is not something they can ask for
+    Then they cannot single out one of that person's addresses to work on
     And the staff capability the legacy portal does have is recorded as owed, not as missing by accident
 
   @AC-34 @scope @not-supported
   Scenario: A signed-out visitor has no addresses to manage
     When a signed-out visitor tries to manage addresses
-    Then this simply is not something they can ask for
+    Then they cannot single out an address to work on
 
   @AC-35 @surface
   Scenario: There is one front door to this module

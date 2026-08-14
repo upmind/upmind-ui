@@ -95,7 +95,13 @@ Under R1 the address manager's real call shape is `.as(ScopeActorTypes.CLIENT).f
 
 **Ruling.** Scope stays `client × self`. Mirror the reference exactly:
 
-- Both scope matrices carry `[ScopeActorTypes.STAFF]: null as never` (pattern `client-email/client-email.types.ts:53,77`; live equivalent `client-company/client-company.types.ts:59,83`), so `.as('staff')` is a **compile-time error** rather than an advertised-but-absent capability.
+- Both scope matrices carry `[ScopeActorTypes.STAFF]: null as never` (pattern `client-email/client-email.types.ts:53,77`; live equivalent `client-company/client-company.types.ts:59,83`).
+
+  > **CORRECTION (2026-08-14) — revision 2's "`.as('staff')` is a compile-time error" is WITHDRAWN.** It was an overclaim, disproved by a real `ts.createProgram` probe the prover seat ran against `ScopeBuilderResult` (`scope.builder.ts:~184`), which accepts every `ScopeActorTypes` and reads the matrix row only to decide whether `.for()` exists. The corrected claim, carried verbatim in `design.md` §1, `parity.yaml` `CELL-3` and `client-address.feature`:
+  >
+  > `.as()` accepts every `ScopeActorTypes` at compile time; a `null as never` matrix row removes `.for(...)` for that actor and nothing else. What the type system enforces: `.as('staff'|'guest'|'self').for(ADDRESS, id)` do not compile, `.as('client').for(ADDRESS, id)` does, and `useClientAddressManager(undefined, { clientId })` is `TS2554`. Delivering a compile error on `.as('staff')` itself would require `scope.builder.ts` (protected core).
+  >
+  > `scope.builder.ts` is protected core and off-limits by **D-2 / NFR-4**, so the **claim** is corrected and the **code** is not. The narrowed guarantee is real and is proven green by an executable probe (AC-33, AC-34). What keeps the staff cell from being the advertised-but-absent defect is therefore **not** a type error — it is the recorded `Dropped-with-Linear-issue` rows `D1`–`D8` plus the removal of `.for()`, which is what stops a staff caller reaching an individual address through this module.
 - Every dropped staff capability gets its **own** `Dropped-with-Linear-issue` parity row — pattern: `client-email` rows R27–R33. Rows `D1`–`D8`.
 - **No Linear issue reference was supplied.** Every row files the reference as **`OWED — unfiled`**, visibly. **No ID is invented.** `review-notes.md` §3 carries the operator handoff to file them.
 
@@ -305,10 +311,15 @@ Every AC names a **literal, executable behavioural read-back**. Structure is nev
 *Read-back:* seed a model with country A and a region of A; `input({ address: { countryId: B } })`; assert a regions request for **B** was issued and `model.address.regionId` is `undefined` afterwards.
 
 **AC-20 — region is required when the brand demands it.**
-*Read-back:* with `REQUIRE_REGION_IN_ADDRESS === true`, assert the context schema's `address.required` **contains** `"regionId"`; with it false, assert it does not. Assert the brand-config request was issued for that key.
+*Read-back:* with `REQUIRE_REGION_IN_ADDRESS === true`, assert the context schema's `address.required` **contains** `"regionId"`; with it false, assert it does not.
+
+> **The request-level half of this read-back is NOT deliverable inside this story — finding `F6`, escalated.** *(2026-08-14)*
+> The original clause read "assert the brand-config request was issued for that key". It cannot pass, and its test is **legitimately red**: `ensureBrandConfig` (`packages/headless/src/modules/brand/brand.services.ts:137–142`) calls `fetchBrandConfig(safekeys); await result.promise.value` — **its own JSDoc says "the refetch below is what sends it", and there is no refetch**. The query is `queryKey: ["brand","config"]`, `staleTime: "static"`, and in `@tanstack/query-core@5.90.12` `isStaleByTime` returns `false` for `"static"` **even when `state.isInvalidated`** (`query.js:113–117`), so `useBrand().invalidate()` cannot force it either. Net: the widened key set **can never reach the wire** — the read-back observes **zero** `config/brand/values` requests, not "a request without keys".
+> **The capability is NOT missing.** The `config` context member **does** expose both keys, so the value arrives and every dependent behaviour works and is proven green — AC-21's `lockCountry` and this AC's `regionId`-required half. Only the request-level assertion fails.
+> Fixing it means changing shared `brand` services, which is out of this story's scope; the only client-address-local workaround (nuking a shared persisted cache on form open) was **rejected** as a cross-boundary band-aid. **Needs its own story.** Parity row `U1`; `review-notes.md` §4.3.
 
 **AC-21 — the country field is locked on edit when the brand forbids address updates.** *(fix 8d)*
-*Read-back:* with `CLIENT_ALLOW_ADDRESS_UPDATE === false` and an **existing** address id, assert the brand-config request included `CLIENT_ALLOW_ADDRESS_UPDATE`, and that `useContext().uischema`'s country control carries the disabled/read-only rule. With no id (create), assert it does not. **Pre-change RED expected** — the key is consulted nowhere today.
+*Read-back:* with `CLIENT_ALLOW_ADDRESS_UPDATE === false` and an **existing** address id, assert `useContext().uischema`'s country control carries the disabled/read-only rule; with no id (create), assert it does not — **under the very same forbidding config**, so the rule cannot be an always-on constant. **Pre-change RED expected** — the key is consulted nowhere today. *(The clause "assert the brand-config request included `CLIENT_ALLOW_ADDRESS_UPDATE`" is **withdrawn 2026-08-14** for the same reason as AC-20's: no `config/brand/values` request is issued at all. Finding `F6`, parity row `U1`. The **key still reaches the form** — that is what this read-back proves.)*
 
 **AC-22 — a client picks an address type when editing.** *(fix 8e)*
 *Read-back:* on an existing address, assert the context schema exposes `type` with the four options (Home / Office / Holiday / Company); set `type: 3` and assert the captured `PUT` body carries `type: 3`. **Pre-change RED expected** — the control is commented out and `mapIAddressData` hardcodes `type: 1`.
@@ -345,11 +356,15 @@ Every AC names a **literal, executable behavioural read-back**. Structure is nev
 
 ### Surface
 
-**AC-33 — acting as staff is a compile-time error.**
-*Read-back:* a type-level assertion (`@ts-expect-error` on `.as(ScopeActorTypes.STAFF)`) in the surface spec; the suite fails if the error disappears.
+**AC-33 — staff cannot reach an individual address through this module.** *(re-worded 2026-08-14 — see §4 R2)*
+*Read-back:* an **executable compile probe** (`ts.createProgram` over a generated file — **not** an inert `@ts-expect-error`, which `packages/headless/tsconfig.json` and `tsconfig.build.json` both make inert by excluding `**/__tests__/**`) asserts that `useClientAddressManager().as(ScopeActorTypes.STAFF).for(ClientAddressContextTypes.ADDRESS, id)` carries a diagnostic **while the `CLIENT` control line in the same probe stays clean** — so a probe that merely fails to resolve the module can never pass. Plus a value read-back that both matrices carry `null` on `SELF` / `STAFF` / `GUEST`.
 
-**AC-34 — acting as a guest is a compile-time error.**
-*Read-back:* as AC-33, against `ScopeActorTypes.GUEST`.
+> **What is and is not enforced.** `.as()` accepts every `ScopeActorTypes` at compile time; a `null as never` matrix row removes `.for(...)` for that actor and nothing else. What the type system enforces: `.as('staff'|'guest'|'self').for(ADDRESS, id)` do not compile, `.as('client').for(ADDRESS, id)` does, and `useClientAddressManager(undefined, { clientId })` is `TS2554`. Delivering a compile error on `.as('staff')` itself would require `scope.builder.ts` (protected core).
+>
+> The AC is **not** deleted: the narrowed guarantee is a real, executable, green proof. It is the *scope* of the claim that was wrong, and the staff capability the oracle has stays recorded on rows `D1`–`D8`, not left to a type error to imply.
+
+**AC-34 — a guest cannot reach an individual address through this module.** *(re-worded 2026-08-14)*
+*Read-back:* as AC-33, against `ScopeActorTypes.GUEST` (and `SELF`, which the same probe covers). The same "what is and is not enforced" note applies verbatim.
 
 **AC-35 — the barrel is the module's only public surface.**
 *Read-back:* the surface spec enumerates the barrel's exports and asserts the set **exactly** equals the declared list (`design.md` §3) — which includes asserting `useClientAddressServices` is **absent** (R4) and that no `export *` remains. `services`, `mappers` and the machine carry the line-1 `@internal` marker, and a tree grep finds **no** cross-module import of them.

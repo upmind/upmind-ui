@@ -86,7 +86,13 @@ export const CLIENT_ADDRESS_SCOPE_MATRIX = {
 } as const;
 ```
 
-Identical in shape to `client-company.types.ts:57–62, 81–86` on this base. `.as('staff')` and `.as('guest')` are **compile-time errors** (AC-33, AC-34) — the honest encoding of an out-of-cell drop, not a silently-missing branch.
+Identical in shape to `client-company.types.ts:57–62, 81–86` on this base.
+
+> **CORRECTED 2026-08-14.** Revision 2 said `.as('staff')` and `.as('guest')` were **compile-time errors**. They are not — an overclaim, disproved by a real `ts.createProgram` probe against `ScopeBuilderResult` (`scope.builder.ts:~184`). The corrected claim, verbatim in `requirements.md` §4, `parity.yaml` `CELL-3` and `client-address.feature`:
+>
+> `.as()` accepts every `ScopeActorTypes` at compile time; a `null as never` matrix row removes `.for(...)` for that actor and nothing else. What the type system enforces: `.as('staff'|'guest'|'self').for(ADDRESS, id)` do not compile, `.as('client').for(ADDRESS, id)` does, and `useClientAddressManager(undefined, { clientId })` is `TS2554`. Delivering a compile error on `.as('staff')` itself would require `scope.builder.ts` (protected core).
+>
+> **D-2 keeps `scope.builder.ts` untouched** (NFR-4), so the claim is corrected, not the code. The honest encoding of the out-of-cell drop is therefore the `null as never` row (which removes `.for()`) **plus** the recorded `D1`–`D8` parity rows — not a type error on `.as()`. AC-33 / AC-34 are re-worded to exactly that and stay green under an executable compile probe.
 
 **Call shapes:**
 

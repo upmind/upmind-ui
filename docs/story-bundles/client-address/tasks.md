@@ -79,7 +79,9 @@ graph TD
 
 ## Task T-1: Record the Playwright address flow's current outbound requests — seat: prover
 
-- **Reality Check:** `<e2e>` with `--grep "Existing Address - Billing Details at checkout"` and `--grep "Round-trip: update address on billing page"`, run with request logging on, produces a committed capture of every outbound `clients/*/addresses*` request (method, URL, body) **from the unmodified tree**. The capture is a file under `__tests__/fixtures/` and is the diff target for AC-38. **Asserting the specs pass is not the deliverable — the recording is.**
+- **Reality Check:** `<e2e>` with `--grep "Existing Address - Billing Details at checkout"` and `--grep "Round-trip: update address on billing page"`, run with request logging on, produces a committed capture of every outbound `clients/*/addresses*` request (method, URL, body) **from the unmodified tree**. The capture is the file named below and is the diff target for AC-38. **Asserting the specs pass is not the deliverable — the recording is.**
+
+> **PATH CORRECTED 2026-08-14.** This task originally said "a file under `__tests__/fixtures/`". The recording landed — correctly — at `packages/headless/src/modules/client-address/__tests__/client-address.e2e-oracle.pre-migration.json`, **one level up**. `__tests__/fixtures/` is a **typed v3 fixture pool**: the MSW replay server loads its contents as handlers and `ci/lint-fixtures.mjs` validates them (`version: 3` required). A pre-migration request log is neither a handler nor a v3 fixture, so putting it there would have broken the pool. Parity row `C16` carries the same correction.
 - **Blocks:** every other task.
 
 ### Input State
@@ -88,11 +90,11 @@ graph TD
 
 ### Actions
 1. Run the two named specs against the unmodified tree with outbound-request capture.
-2. Commit the capture under `packages/headless/src/modules/client-address/__tests__/fixtures/`.
+2. Commit the capture as `packages/headless/src/modules/client-address/__tests__/client-address.e2e-oracle.pre-migration.json` — **beside** the specs, **not** inside `__tests__/fixtures/` (see the path correction above).
 
 ### Output State
 - [ ] A committed pre-migration request recording exists
-- [ ] `parity.yaml` row `C16` names it
+- [ ] `parity.yaml` row `C16` names it **by its real path**
 
 ---
 
@@ -115,13 +117,15 @@ graph TD
 - [ ] Both matrices exist with the exact shape of `client-company.types.ts:57–62, 81–86`
 - [ ] `<tc>` exits 0
 
-## Task T-2b: Prove staff and guest are compile-time errors — seat: prover
+## Task T-2b: Prove staff, guest and self cannot reach an individual address — seat: prover *(re-titled 2026-08-14)*
 
-- **Reality Check:** `<int> -t "scope matrix"` green, **plus** `<unit>` running `client-address.surface.test.ts` whose `@ts-expect-error` assertions on `.as(STAFF)` and `.as(GUEST)` fail the suite if the error disappears. The integration half is the non-unit proof; the type-level half is the discriminator.
+- **Reality Check:** `<int> -t "scope matrix"` green, **plus** `<unit>` running `client-address.surface.test.ts` whose **executable compile probe** (`ts.createProgram`) asserts a diagnostic on `.as(STAFF|GUEST|SELF).for(ADDRESS, id)` while the `CLIENT` control line in the same probe stays clean. The integration half is the non-unit proof; the probe is the discriminator.
 - **ACs:** AC-33, AC-34, AC-32
 
+> **CORRECTED 2026-08-14 — this task previously read "prove staff and guest are compile-time errors" and specified `@ts-expect-error`. Both were wrong.** `.as()` accepts every `ScopeActorTypes` at compile time; a `null as never` matrix row removes `.for(...)` for that actor and nothing else. What the type system enforces: `.as('staff'|'guest'|'self').for(ADDRESS, id)` do not compile, `.as('client').for(ADDRESS, id)` does, and `useClientAddressManager(undefined, { clientId })` is `TS2554`. Delivering a compile error on `.as('staff')` itself would require `scope.builder.ts` (protected core) — forbidden by D-2 / NFR-4. Separately, an `@ts-expect-error` in `__tests__/` would be **inert**: `packages/headless/tsconfig.json` and `tsconfig.build.json` both exclude `**/__tests__/**`, so nothing would ever type-check it. The executable probe is the only real proof and is what shipped.
+
 ### Actions
-1. Author `__tests__/client-address.surface.test.ts` type-level assertions.
+1. Author `__tests__/client-address.surface.test.ts` compile-probe assertions.
 2. Author the `verifiedLevel` read-back in `__tests__/client-address.mappers.test.ts` at `verified: 2` and `verified: null` (fed by T-7).
 
 ---
@@ -232,8 +236,10 @@ graph TD
 
 ## Task T-8a: Restore the `type` control (pair) and add `lockCountry` — seat: developer
 
-- **Reality Check:** `<int> -t "address form lookups"` — (a) on an **existing** address with `CLIENT_ALLOW_ADDRESS_UPDATE === false`, the brand-config request included that key **and** `useContext().uischema`'s country control carries the disabled/read-only rule; on a new address it does not. (b) The context schema exposes `type` with four options; setting `type: 3` puts `type: 3` in the captured `PUT` body.
-- **Rows:** X8, L4, L5, X2, W11 · **ACs:** AC-20, AC-21, AC-22 · **Pre-change: RED**
+- **Reality Check:** `<int> -t "address form lookups"` — (a) on an **existing** address with `CLIENT_ALLOW_ADDRESS_UPDATE === false`, `useContext().uischema`'s country control carries the disabled/read-only rule; on a **new** address under the **same** forbidding config it does not. (b) The context schema exposes `type` with four options; setting `type: 3` puts `type: 3` in the captured `PUT` body.
+- **Rows:** X8, L4, L5, X2, W11, **U1** · **ACs:** AC-20, AC-21, AC-22 · **Pre-change: RED**
+
+> **CORRECTED 2026-08-14 — the "the brand-config request included that key" clause is withdrawn (finding `F6`, row `U1`).** No `config/brand/values` request is issued at all: `ensureBrandConfig` (`brand.services.ts:137–142`) never refetches, and `staleTime: "static"` makes the cached entry un-invalidatable in `@tanstack/query-core@5.90.12` (`query.js:113–117`). Blocked upstream, **needs its own story**; the read-back that asserts it is legitimately RED and is **not** to be softened, deleted, or "fixed" by editing shared `brand` services or by cache-nuking from this module. The **value** does reach the form, which is what the (a) and (b) read-backs above prove.
 
 ### Actions
 1. `client-address.schemas.ts:110–121` — un-comment the `type` property **and** add a matching `Control` to `useUischemaDefinitions`. Schema without control ships a required-but-invisible input (D-12, the pair law).
@@ -575,8 +581,8 @@ Every AC in `requirements.md` maps to at least one task bearing a Reality-Check-
 | AC-17 | T-10b | `<int>` mapped model |
 | AC-18 | T-10b, T-8b | `<int>` lookup responses |
 | AC-19 | T-10b | `<int>` regions request for the new country |
-| AC-20 | T-8b | `<int>` required list + config request |
-| AC-21 | T-8b | `<int>` uischema rule + config key (pre-change RED) |
+| AC-20 | T-8b | `<int>` required list contains `regionId` from the config **value**. *(The "+ config request" half is **withdrawn** — finding `F6`, parity row `U1`: no `config/brand/values` request is issued at all, blocked upstream in `brand.services.ts`. Its test is legitimately RED and stays RED.)* |
+| AC-21 | T-8b | `<int>` uischema DISABLE rule on an existing address vs none on a new one, under the same forbidding config (pre-change RED). *(The "+ config key on the wire" half is withdrawn with AC-20's — `F6` / `U1`.)* |
 | AC-22 | T-8b, T-7b | `<int>` schema options + PUT body `type: 3` |
 | AC-23 | T-5b | `<int>` PUT body diff (pre-change RED) |
 | AC-24 | T-10b | `<int>` POST + id |
@@ -588,8 +594,8 @@ Every AC in `requirements.md` maps to at least one task bearing a Reality-Check-
 | AC-30 | T-3b | `<int>` URL + auth transport |
 | AC-31 | T-7b | `<int>` field set + order (pre-change RED) |
 | AC-32 | T-7b, T-2b | `<int>` two fixture values |
-| AC-33 | T-2b, T-11b | `<int>` scope resolution + `@ts-expect-error` discriminator |
-| AC-34 | T-2b | as AC-33 |
+| AC-33 | T-2b, T-11b | `<int>` scope resolution + **executable `ts.createProgram` probe** (diagnostic on `.as(STAFF).for(...)`, clean `CLIENT` control line) *(corrected — was `@ts-expect-error`, which is inert under this package's tsconfig excludes)* |
+| AC-34 | T-2b | as AC-33, against `GUEST` (and `SELF`) |
 | AC-35 | T-11b, T-13 | `<int>` barrel-only exercise + tree grep |
 | AC-36 | T-11b, T-26 | `<int>` reachability + `<lint>` |
 | AC-37 | T-14b…T-21b | `<e2e>` per site (T-20b: byte-identity to a proven twin; T-21b: structural diff — both recorded as weaker in `review-notes.md` §6) |
