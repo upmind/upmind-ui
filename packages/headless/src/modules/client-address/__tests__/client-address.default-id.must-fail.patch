@@ -1,3 +1,29 @@
+Negative control — `default()` returns the ID, not the ROW (AC-5, ruling R5,
+design D-4).
+
+Mutates the collection context's `default:` member to expose `getDefault` — the
+shared `useCollection` helper, which yields the whole mapped `Address` — in
+place of the local `getDefaultId`, which yields `row.id`. Both are already in
+scope in the same destructure, so the mutation is a one-token swap and the
+member is still present, still callable, still truthy on a loaded list. Only
+its TYPE changes, which is exactly the contract R5 fixed: ten in-tree consumer
+expressions read `defaultAddress()?.id` before the conversion and each was
+migrated to consume the id directly.
+
+Declared AC — AC-5: "`default()` yields the default address's ID". The
+read-back asserts `useContext().default() === <that row's id>` AND
+`typeof … === "string"`; asserting truthiness does not discriminate between the
+id and the row, which is precisely what this mutant exploits.
+
+Collateral RED, measured, and NOT this control's declared subject:
+  - AC-35 — the barrel's declared public surface (the member's shape is part of
+    the enumerated contract)
+  - AC-12 — the `setDefault` read-back, which feeds `default()`'s output back in
+    as an id
+
+Both are declared elsewhere. A red here that is accompanied by those two is the
+expected signature of this one mutation, not three independent regressions.
+
 diff --git a/packages/headless/src/modules/client-address/useClientAddresses.context.ts b/packages/headless/src/modules/client-address/useClientAddresses.context.ts
 index c0e20de3d..bc6ac1f09 100644
 --- a/packages/headless/src/modules/client-address/useClientAddresses.context.ts

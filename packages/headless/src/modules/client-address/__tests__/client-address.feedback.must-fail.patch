@@ -1,3 +1,25 @@
+Negative control — the SUCCESS feedback on `remove` (AC-40, ruling R10,
+design D-14, parity rows F1/F2).
+
+Deletes the `useFeedback().addSuccess(t("confirm.address_removed"))` raise from
+`remove`'s settled path. The delete still fires, the cache is still invalidated,
+the consumer's promise still resolves — the user is simply never told it
+worked. That is the exact regression R10 protects against: both oracles raise
+this feedback in the DATA layer, so a conversion that quietly relocated or lost
+it would leave eight consumers silently un-notified.
+
+Declared AC — AC-40: "removing an address, or changing my default, still tells
+me it worked" — specifically its SUCCESS-DELETE quarter: `remove(id)` on
+success lands exactly one SUCCESS entry carrying `confirm.address_removed`,
+raised by `client-address.services.ts` itself, with NO consumer subscribed.
+
+No collateral measured. AC-40's other three quarters are untouched by design
+and stay GREEN — `remove`'s forced-422 error entry
+(`error.client_address_update_failed`), and both `setDefault` halves
+(`confirm.address_set_default` / `error.client_address_set_default_failed`) —
+so a red here localises to the one raise that was removed rather than to
+"feedback broke".
+
 diff --git a/packages/headless/src/modules/client-address/client-address.services.ts b/packages/headless/src/modules/client-address/client-address.services.ts
 index 76ffc73d8..ebc643d43 100644
 --- a/packages/headless/src/modules/client-address/client-address.services.ts

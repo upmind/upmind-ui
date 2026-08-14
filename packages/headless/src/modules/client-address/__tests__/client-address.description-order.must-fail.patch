@@ -2,11 +2,15 @@ Negative control — the address description's COMPONENT ORDER (AC-31).
 
 Mutates `mapAddress`'s `description` join: transposes `city` and `postcode`.
 
-Should flip RED — __tests__/client-address.mappers.test.ts:
+Should flip RED — all THREE AC-31 read-backs in
+__tests__/client-address.mappers.test.ts:
   - "AC-31 composes description as address_1, address_2, city, state,
      postcode, region, country"  (toBe oracleDescription)
   - "AC-31 keeps every component in the oracle's order — each one after the
      last"                       (indexOf positions must come out ascending)
+  - "AC-31 omits an empty component instead of leaving a gap in the join"
+                                 (the transposition moves the surviving
+                                  components, so the compacted join differs)
 
 Why THIS mutation, and not the previous one. The prior control dropped `state`
 from the join. This API never returns `state` — it returns `county`, verified

@@ -1,3 +1,28 @@
+Negative control — the COUNTRY LOCK on an existing address (AC-21, fix 8d,
+ruling R8d, parity rows W11/L4).
+
+Forces `lockCountry` to a constant `false`, so the country control's DISABLE
+rule is never emitted and the field stays editable however the brand is
+configured. The `CLIENT_ALLOW_ADDRESS_UPDATE` key is still fetched, still
+reaches the form through `config`, and the uischema still builds — the value is
+simply never consulted, which is the pre-conversion state the story fixed.
+
+Declared AC — AC-21: "the country field is locked on edit when the brand
+forbids address updates" — with `CLIENT_ALLOW_ADDRESS_UPDATE === false` and an
+EXISTING address id, the country control carries the disabled/read-only rule;
+with no id (create), under the very same forbidding config, it does not.
+
+No collateral measured. Note which half of AC-21 can move: the CREATE half
+asserts the rule is ABSENT, and it is absent under this mutant too, so it stays
+GREEN — only the EDIT half flips. That asymmetry is the discriminator: an
+always-off lock is indistinguishable from a correct one on the create path, and
+AC-21 is written with both halves precisely so a constant cannot pass.
+
+Unrelated: AC-20's standing failure (finding F6, escalated per
+`review-notes.md` §7.6) is red with or without this mutant — no
+`config/brand/values` request is issued at all. The KEY still reaches the form,
+which is what this control's AC proves.
+
 diff --git a/packages/headless/src/modules/client-address/client-address.schemas.ts b/packages/headless/src/modules/client-address/client-address.schemas.ts
 index cc1734262..183675f0c 100644
 --- a/packages/headless/src/modules/client-address/client-address.schemas.ts

@@ -1,3 +1,24 @@
+Negative control — `remove`'s addressability PRECONDITION (AC-11, fix 8a,
+parity row L1, ruling R8a).
+
+Reverts `remove`'s precondition to the pre-conversion INVERTED guard: the call
+to the shared `isAddressable` predicate is replaced by the original
+`isAuthenticated.value || !clientId.value`, which resolves TRUE for an
+unauthenticated session with no client id and lets the DELETE go out at
+`clients/undefined/addresses/{id}`. The mutation is the exact expression this
+story removed, restored in place.
+
+Declared AC — AC-11: "remove issues NO request for an unauthenticated session
+with no client id". The read-back asserts the request-capture log is EMPTY;
+asserting that a rejection surfaced does not discriminate, because the inverted
+guard admits the call and it fails DOWNSTREAM.
+
+No collateral measured. `setDefault` is deliberately left untouched, so AC-13's
+read-backs stay GREEN under this mutant — `remove` and `setDefault` each carry
+their own precondition and each earns its own control. AC-13's is the sibling
+`client-address.default-guard.must-fail.patch`. The predicate ITSELF is covered
+separately by `client-address.client-id-limb.must-fail.patch` (AC-3).
+
 diff --git a/packages/headless/src/modules/client-address/client-address.services.ts b/packages/headless/src/modules/client-address/client-address.services.ts
 index 1708af336..35ce06ba5 100644
 --- a/packages/headless/src/modules/client-address/client-address.services.ts
