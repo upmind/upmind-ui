@@ -569,8 +569,16 @@ async function parse(
   // now let's check our region list to see if we have a match
   // if so, then we need to update the safeModel with the new region id
   // otherwise the regionId is reset to null
+  //
+  // `?? null` is the whole clearance, not a style choice: `get` yields
+  // `undefined` for a region the new country's list does not carry, and the
+  // diff payload KEEPS a changed-to-undefined key (`isEqual(old, undefined)`
+  // is false) only for `JSON.stringify` to drop it again — so a US → UK change
+  // sent `country_id` with no `region_id` and the server kept the stale US
+  // region on a UK address. An explicit `null` survives serialisation and
+  // clears it (AC-19).
   const region = find(regions, ["id", safeModel?.address?.regionId]);
-  safeModel.address.regionId = get(region, "id");
+  safeModel.address.regionId = get(region, "id") ?? null;
 
   return Promise.resolve({ model: safeModel, regions, country });
 }
@@ -729,10 +737,23 @@ export const useClientAddressManagerServices = (
           )
         ),
 
-  /** `processing.updating` — entered when the context already carries an id. */
+  /**
+   * `processing.updating` — entered when the context already carries an id.
+   *
+   * The `mapAddress` hop is what makes the two `processing` limbs SYMMETRIC.
+   * Both resolve into the shared machine's `setModel`, which re-parses the
+   * resolved value through `useModelParser(schema, data, baseModel)`; the
+   * `add:` limb above resolves a camelCase `Address` (via `service.ensure`),
+   * so without this the update limb handed `setModel` a raw snake_case
+   * `IAddress` with no `address` key at all — `defaultsDeep` then refilled
+   * `address` from the FORM-OPEN snapshot and a successful save silently
+   * reverted the model to its pre-edit values.
+   */
   update: ({ id, model, baseModel }: AddressContext) =>
     id && model
-      ? update(id, model, baseModel, service.clientId)
+      ? update(id, model, baseModel, service.clientId).then(raw =>
+          raw ? mapAddress(raw) : undefined
+        )
       : Promise.reject(
           new DetailedError(
             useI18n().t("error.client_address_not_available"),

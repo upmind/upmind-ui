@@ -356,6 +356,23 @@ export type ClientAddressManagerMachineServices = {
   validate: (context: AddressContext) => Promise<AddressModel | undefined>;
   /** `processing.adding` — reached when the machine's `isNew` guard passes. */
   add: (context: AddressContext) => Promise<Address>;
-  /** `processing.updating` — reached when context already carries an id. */
-  update: (context: AddressContext) => Promise<IAddress | undefined>;
+  /**
+   * `processing.updating` — reached when context already carries an id.
+   *
+   * Resolves the MAPPED `Address`, not the raw `IAddress` the request returns.
+   * Both `processing` limbs feed the shared machine's `setModel`, which
+   * re-parses whatever it is handed through `useModelParser(schema, data,
+   * baseModel)`; a raw snake_case body carries no `address` key, so
+   * `defaultsDeep` refilled it from the form-open snapshot and a SUCCESSFUL
+   * save reverted the model to its pre-edit values. Same shape on both limbs
+   * is the invariant, not a preference.
+   *
+   * @graphify-citation `graphify query "mapAddress"` (2026-08-14, BFS depth 2,
+   * 56 nodes) → `mapAddress()` at `client-address.mappers.ts:L15` and
+   * `ensure()` at `client-address.services.ts:L165`, both community
+   * `useModelParser` — i.e. the `add:` limb's existing mapping hop this
+   * narrowing makes the `update:` limb match. No type is minted here; `Address`
+   * already exists in that community. See `graphify-out/GRAPH_REPORT.md`.
+   */
+  update: (context: AddressContext) => Promise<Address | undefined>;
 };

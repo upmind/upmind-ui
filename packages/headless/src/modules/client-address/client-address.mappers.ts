@@ -12,6 +12,7 @@
  * invoice's EMBEDDED address with it, alongside `mapClient` and `mapCurrency`.
  * Everything else here is module-private.
  */
+import { ADDRESS_TYPE_KEYS } from "./client-address.types";
 import { get, map, isArray, isEqual, compact, omitBy } from "lodash-es";
 import type { Address, AddressModel } from "./client-address.types";
 import type { IAddress } from "@upmind-automation/types";
@@ -71,6 +72,18 @@ export function mapAddress(raw: IAddress): Address {
   };
 }
 
+/**
+ * The wire payload for a CREATE, and the full-payload fallback for an edit with
+ * no baseline to diff against.
+ *
+ * `type` carries the client's CHOICE (`parity.yaml` L5 / AC-22), which is why
+ * it is read off the model rather than hardcoded. The `?? HOME` is for the
+ * SCHEMA-LESS callers: the manager's model always carries a type because the
+ * schema supplies `default: baseModel?.type ?? HOME`, but `client-company` and
+ * `basket-billing/unified` hand-build `{ address } as AddressModel` literals
+ * with no type at all — `undefined` there is stripped by `JSON.stringify` and
+ * the wire loses a field it has always carried.
+ */
 export function mapIAddressData(data: AddressModel | Address): IAddress {
   return {
     name: data.name || data.address.address1 || "",
@@ -81,7 +94,7 @@ export function mapIAddressData(data: AddressModel | Address): IAddress {
     postcode: data.address.postcode ?? "",
     region_id: data.address.regionId,
     country_id: data.address.countryId,
-    type: data.type
+    type: data.type ?? ADDRESS_TYPE_KEYS.HOME
   } as IAddress;
 }
 

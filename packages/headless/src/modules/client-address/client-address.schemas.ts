@@ -14,12 +14,38 @@
  * are not a second route to the module's data and must never acquire one: no
  * scope, no session, no request, no reactive state (`design.md` D-6).
  *
- * This is a DOCUMENTED DEVIATION from the reference conversion's "NO SCHEMA
- * EXPORTS HERE" law — see the `@decision` block in `design.md` D-6 / ruling
- * R7. Unlike every OTHER data-layer file in this module — each of which
- * carries a line-1 `@internal` marker — this one deliberately does not: it
- * carries `@public @schema-fragment` instead, because it is the one file this
- * module intentionally publishes on the barrel.
+ * Unlike every OTHER data-layer file in this module — each of which carries a
+ * line-1 `@internal` marker — this one deliberately does not: it carries
+ * `@public @schema-fragment` instead, because it is the one file this module
+ * intentionally publishes on the barrel. That is a DOCUMENTED DEVIATION, and
+ * this is its record:
+ *
+ * @decision D-6 / ruling R7 — the schema FRAGMENTS stay on the barrel.
+ *
+ * what: this file swaps its line-1 `@internal` for `@public
+ *   @schema-fragment`, and `index.ts` exports `useSchemaDefinitions` /
+ *   `useUischemaDefinitions`. The PARSERS `useSchema` / `useUischema` stay
+ *   module-private and reach consumers only through
+ *   `useClientAddressManager().useContext().schema` / `.uischema`.
+ * why: four cross-module call sites compose the address DEFINITIONS into a
+ *   larger schema at module scope, where no `useClientAddressManager` instance
+ *   exists to read from machine context — `client-company.schemas.ts` (2
+ *   sites) and `basket-billing/unified/schemas.ts` (3 sites). The barrel's
+ *   usual "schema reaches consumers via `useContext()`" route does not fit
+ *   them. This is exactly the definitions/parser split the hybrid template
+ *   describes: definitions live in `useSchemaDefinitions()` /
+ *   `useUischemaDefinitions()` and the parsers `$ref` them.
+ * rejected: following the reference conversion's "NO SCHEMA EXPORTS HERE". It
+ *   forces both consumers onto deep-path imports with an `eslint-disable` — a
+ *   hazard already live in this tree for `client-phone`
+ *   (`basket-billing/unified/schemas.ts` carries exactly that comment and
+ *   disable). Reproducing it for a second module would be adopting a
+ *   workaround as a convention.
+ * precedent: `client-company` established and merged this shape. Schema
+ *   fragments are PURE FUNCTIONS of their arguments — no scope, no session, no
+ *   request, no reactive state — and must never acquire one. Divergence is
+ *   explicit and authorised, and is NOT a precedent for a module without such
+ *   a consumer.
  */
 import { BrandConfigKeys } from "@upmind-automation/types";
 import { AddressTypes, ADDRESS_TYPE_KEYS } from "./client-address.types";
