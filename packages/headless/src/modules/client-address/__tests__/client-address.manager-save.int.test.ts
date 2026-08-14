@@ -9,7 +9,8 @@
  * `country_id` — under `CLIENT_ALLOW_ADDRESS_UPDATE === false` a full-payload
  * PUT re-sends a country the API then rejects, which is why a "the save
  * succeeded" assertion does not discriminate (parity row L3). AC-24's is the
- * `POST` and the id the editor adopts afterwards. AC-25's is an EMPTY capture
+ * `POST` — the model that goes out, the KEYS the serialised body carries, and
+ * the id the editor adopts afterwards. AC-25's is an EMPTY capture
  * log — an invalid model must reject before anything leaves. AC-15's is the
  * collection refetching off the save with no consumer-side refresh.
  *
@@ -24,6 +25,8 @@
  * it is new; or an incomplete address reaches the API.
  */
 
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
 import { ClientAddressContextTypes, useClientAddressManager } from "..";
@@ -60,16 +63,27 @@ function capturePuts(clientId: string): {
   return { bodies: () => bodies, urls: () => urls };
 }
 
-/** Captures every POST body sent to the address collection. */
-function capturePosts(clientId: string): { bodies: () => unknown[] } {
-  const bodies: unknown[] = [];
+/**
+ * Captures every POST sent to the address collection as the RAW serialised
+ * body. `texts()` is what a key-absence read-back needs: a parsed body compared
+ * with `toMatchObject` is structurally blind to an ADDED key, so an extra
+ * `"region_id": null` on the wire passes it (review blocker B3).
+ */
+function capturePosts(clientId: string): {
+  bodies: () => unknown[];
+  texts: () => string[];
+} {
+  const texts: string[] = [];
   server?.use(
     http.post(`*/clients/${clientId}/addresses`, async ({ request }) => {
-      bodies.push(await request.json());
+      texts.push(await request.text());
       return HttpResponse.json(recorded.created(), { status: 200 });
     })
   );
-  return { bodies: () => bodies };
+  return {
+    bodies: () => texts.map(text => JSON.parse(text) as unknown),
+    texts: () => texts
+  };
 }
 
 /**
@@ -90,6 +104,111 @@ function discriminatingCountryId(): string {
     );
   }
   return pick.id;
+}
+
+/** One create body exactly as the pre-migration oracle recorded it. */
+type OracleCreate = {
+  name: string;
+  type: number;
+  address_1: string;
+  address_2: string;
+  city: string;
+  postcode: string;
+  country_id: string;
+  region_id?: string;
+};
+
+/**
+ * The oracle's own create PAIR on one country: the POST that carries a region
+ * and the POST that carries no `region_id` KEY AT ALL — plus the union of every
+ * key its creates use. The pair is the recording's own discrimination: same
+ * country, one region picked and one not, so "the user chose no region" is
+ * tellable apart from "that country has no regions to choose".
+ */
+function oracleCreates(): {
+  withRegion: OracleCreate;
+  withoutRegion: OracleCreate;
+  vocabulary: string[];
+} {
+  const recording = JSON.parse(
+    readFileSync(
+      join(import.meta.dirname, "client-address.e2e-oracle.pre-migration.json"),
+      "utf-8"
+    )
+  ) as {
+    specs: Array<{
+      requests: Array<{ method: string; body: OracleCreate | null }>;
+    }>;
+  };
+  const creates = recording.specs
+    .flatMap(spec => spec.requests)
+    .filter(request => request.method === "POST" && request.body)
+    .map(request => request.body as OracleCreate);
+
+  const withRegion = creates.find(body => body.region_id);
+  const withoutRegion = creates.find(
+    body =>
+      withRegion &&
+      body.country_id === withRegion.country_id &&
+      !Object.keys(body).includes("region_id")
+  );
+  if (!withRegion || !withoutRegion) {
+    throw new Error(
+      "The pre-migration oracle no longer records two creates on one country, " +
+        "one with a region and one without — AC-24 cannot tell an unpicked " +
+        "region apart from a country that has none. Re-capture the oracle."
+    );
+  }
+
+  return {
+    withRegion,
+    withoutRegion,
+    vocabulary: [...new Set(creates.flatMap(body => Object.keys(body)))]
+  };
+}
+
+/**
+ * The oracle's create pair, checked against the recorded lookup pool: the
+ * country really is one `/countries/{id}/regions` answers rows for, and the
+ * region the oracle picked is one of those rows. Without both, a region-less
+ * POST proves nothing about an unpicked region.
+ */
+function oracleRegionCase(): {
+  withRegion: OracleCreate;
+  withoutRegion: OracleCreate;
+} {
+  const { withRegion, withoutRegion } = oracleCreates();
+  const regions = recorded.regionsB();
+  if (
+    regionCountryId(regions) !== withRegion.country_id ||
+    !regions.data.some(region => region.id === withRegion.region_id)
+  ) {
+    throw new Error(
+      "The recorded regions capture does not answer the oracle's create " +
+        "country, so the form cannot offer a region for the draft to decline. " +
+        "Re-record with `pnpm fixtures:generate client-address`."
+    );
+  }
+  return { withRegion, withoutRegion };
+}
+
+/** Fills a fresh draft from a RECORDED create body, optionally with its region. */
+async function fillDraftFrom(
+  manager: { useActions: () => { input: (model: never) => unknown } },
+  create: OracleCreate,
+  options?: { withRegion?: boolean }
+): Promise<void> {
+  await type(manager, {
+    name: create.name,
+    type: create.type,
+    address: {
+      address1: create.address_1,
+      city: create.city,
+      postcode: create.postcode,
+      countryId: create.country_id,
+      ...(options?.withRegion ? { regionId: create.region_id } : {})
+    }
+  });
 }
 
 /** What a settled save resolves to its caller, read structurally. */
@@ -430,6 +549,60 @@ describe("I add a brand new address (AC-24)", () => {
     });
     expect(body.country_id).not.toBe(recorded.countries().data[0].id);
     expect(body.name).toBe("Prover Address");
+    expect(
+      Object.keys(body).filter(
+        key => !oracleCreates().vocabulary.includes(key)
+      ),
+      "keys the oracle's own creates never carry"
+    ).toEqual([]);
+  });
+
+  it("AC-24 leaves region_id OFF the created body when the country HAS regions and none is picked", async () => {
+    const { clientId } = await seedClientSession();
+    installLookupHandlers(server);
+    const posts = capturePosts(clientId);
+    const { withoutRegion } = oracleRegionCase();
+
+    const manager = useClientAddressManager()
+      .as(ScopeActorTypes.CLIENT)
+      .fresh();
+    await manager.useActions().isReady();
+    await fillDraftFrom(manager, withoutRegion);
+    const offered = manager.useContext().regions.value ?? [];
+    const outcome = await settle(manager.useActions().update());
+
+    expect(outcome.kind).toBe("resolved");
+    expect(withoutRegion.country_id).not.toBe(recorded.countries().data[0].id);
+    expect(offered.length).toBeGreaterThan(0);
+    expect(posts.texts()).toHaveLength(1);
+    const keys = Object.keys(
+      JSON.parse(posts.texts()[0]) as Record<string, unknown>
+    );
+    expect(keys).toContain("country_id");
+    expect(keys, `serialised POST body: ${posts.texts()[0]}`).not.toContain(
+      "region_id"
+    );
+  });
+
+  it("AC-24 still puts region_id on the created body when a region IS picked", async () => {
+    const { clientId } = await seedClientSession();
+    installLookupHandlers(server);
+    const posts = capturePosts(clientId);
+    const { withRegion } = oracleRegionCase();
+
+    const manager = useClientAddressManager()
+      .as(ScopeActorTypes.CLIENT)
+      .fresh();
+    await manager.useActions().isReady();
+    await fillDraftFrom(manager, withRegion, { withRegion: true });
+    const outcome = await settle(manager.useActions().update());
+
+    expect(outcome.kind).toBe("resolved");
+    expect(posts.texts()).toHaveLength(1);
+    const body = JSON.parse(posts.texts()[0]) as Record<string, unknown>;
+    expect(Object.keys(body)).toContain("region_id");
+    expect(body.region_id).toBe(withRegion.region_id);
+    expect(body.country_id).toBe(withRegion.country_id);
   });
 
   it("AC-24 adopts the created address's id, so the editor stops being new", async () => {
