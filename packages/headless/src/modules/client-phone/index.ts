@@ -18,7 +18,7 @@
  * Both composables support the CLIENT'S OWN scope only — `staff` and `guest`
  * are compile-time errors (`.as('staff')` fails to build), per operator
  * ruling 1 (2026-08-08). Every staff capability the legacy oracle exposes is
- * recorded as a signed drop in `docs/story-bundles/client-phone/parity.yaml`
+ * recorded as a signed drop in `docs/sdd/client-phone/parity.yaml`
  * rows S1-S7.
  */
 

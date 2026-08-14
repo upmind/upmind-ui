@@ -6,16 +6,12 @@
  * Parse the CO-LOCATED `client-phone.feature`'s `@AC-*` scenario tags and
  * every sibling spec's `AC-<n>` title mentions, then enforce the link BOTH
  * ways: a non-`@todo` scenario with no proving test fails, and a test naming
- * an AC the feature does not tag fails. The co-located feature is the one the
- * link is enforced against; the bundle copy at
- * `docs/story-bundles/client-phone/client-phone.feature` is the planner's
- * source — this file also checks the co-located copy did not lose a scenario
- * on the way over.
+ * an AC the feature does not tag fails.
  *
- * ARTEFACT-PATH REDIRECT (design.md §9): `docs/sdd` is a symlink to another
- * machine's path, dangling and unwritable here. This bundle lives at
- * `docs/story-bundles/client-phone/` — the second feature path below resolves
- * there, NOT to `docs/sdd/client-phone/`, which will not resolve.
+ * The co-located feature is the ONLY input. This suite deliberately reads no
+ * planning artefact — SDD material is not a deliverable, is not in the change
+ * request, and is absent from a fresh clone and from CI, so a test that read
+ * one would be enforcing a contract half its readers cannot see.
  *
  * Per ADR-020 the `.feature` is spec-only and non-executable — nothing runs
  * it, and there is no steps file. This test is the whole of its enforcement.
@@ -33,10 +29,6 @@ import { describe, expect, it } from "vitest";
 
 const TEST_DIR = import.meta.dirname;
 const COLOCATED_FEATURE = join(TEST_DIR, "client-phone.feature");
-const BUNDLE_FEATURE = join(
-  TEST_DIR,
-  "../../../../../../docs/story-bundles/client-phone/client-phone.feature"
-);
 
 /** The `@AC-*` tags on every scenario in a feature file, `@todo` excluded. */
 function featureAcTags(path: string): Set<string> {
@@ -89,17 +81,6 @@ function provingTests(): Map<string, string[]> {
 // -----------------------------------------------------------------------------
 
 describe("client-phone traceability — co-located feature vs proving tests", () => {
-  it("the co-located feature carries every scenario the bundle source tags", () => {
-    const missing = [...featureAcTags(BUNDLE_FEATURE)].filter(
-      ac => !featureAcTags(COLOCATED_FEATURE).has(ac)
-    );
-
-    expect(
-      missing,
-      `Scenario(s) lost in co-location: ${missing.join(", ")}`
-    ).toEqual([]);
-  });
-
   it("every non-@todo scenario has at least one proving test", () => {
     const tests = provingTests();
     const unproven = [...featureAcTags(COLOCATED_FEATURE)].filter(

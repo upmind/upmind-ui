@@ -5,7 +5,7 @@
  * ADDS the two scope matrices and context enums here rather than minting a new
  * types module. `ClientPhonesContextTypes` / `ClientPhoneContextTypes` have no
  * existing graph node — confirmed absent from the traversal — so minting them
- * is warranted, not a duplicate. See `docs/story-bundles/client-phone/design.md`
+ * is warranted, not a duplicate. See `docs/sdd/client-phone/design.md`
  * §0 and `graphify-out/GRAPH_REPORT.md`.
  */
 // -----------------------------------------------------------------------------

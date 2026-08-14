@@ -3,11 +3,10 @@
 # CO-LOCATION IS THE REQUIREMENT, mirroring the client-email precedent: this
 # file lives at
 #   packages/headless/src/modules/client-phone/__tests__/client-phone.feature
-# The copy at docs/story-bundles/client-phone/client-phone.feature (the
-# artefact-path redirect — docs/sdd is a dangling symlink in this repo, see
-# requirements.md section 7 / design.md section 9) is the planner's source;
-# the co-located copy is what client-phone.traceability.test.ts reads and
-# enforces the @AC link against, both ways.
+# This co-located copy is the single source of truth: it is what
+# client-phone.traceability.test.ts reads and enforces the @AC link against,
+# both ways. Nothing in the suite reads a planning artefact — those are not
+# deliverables and are absent from a fresh clone and from CI.
 #
 # NON-EXECUTABLE per ADR-020 (".feature files are spec-only, not executable").
 # No runner touches it and no steps file is produced — the colocated unit and
