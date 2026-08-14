@@ -35,10 +35,15 @@ suite:
     manager's own resolved value — the collection refetches from the server,
     which has Paris
 
-Measured blast radius, suite at HEAD: 4 — the 2 declared subjects above plus 2
-collateral (the `description` pair named below). Under the mutant the module
-suite runs 116 passed / 5 failed: those 4 plus the standing AC-20/F6 halt,
-which fails identically without it.
+Measured blast radius, suite at `be73c0187`: 4 — the 2 declared subjects above
+plus 2 collateral (the `description` pair named below). Under the mutant the
+module suite runs 118 passed / 5 failed: those 4 plus the standing AC-20/F6
+halt, which fails identically without it.
+
+The radius (4) is the durable number; the absolute counts move with the suite,
+which is why they are pinned to a commit here rather than to "HEAD". They were
+last stated as 116/5, measured before `be73c0187` added two tests, and were
+stale within one commit.
 
 It was ZERO when this control was written (suite at be4b04cba, 115 passed with
 only the AC-20/F6 halt red) — nothing in the suite guarded the behaviour, which

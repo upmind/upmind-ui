@@ -524,8 +524,9 @@ async function setDefault(
 
 /**
  * MANAGER — re-resolves the country from `address.countryId`, refetches regions
- * on a country change, and nulls a `regionId` not in the new list
- * (`parity.yaml` L9 / AC-19).
+ * on a country change, and clears a `regionId` not in the new list
+ * (`parity.yaml` L9 / AC-19). "Clears" is `undefined`, not `null` — the
+ * distinction is the whole of AC-19; see the inline note at the assignment.
  */
 async function parse(
   { schema, model, baseModel, regions, country, countries }: AddressContext,
@@ -555,12 +556,15 @@ async function parse(
   // The two limbs therefore answer "what fills an omitted key" differently, and
   // that is RECORDED, not reconciled (review finding W7). A partial `SET` fills
   // from `baseModel`; a data-less re-parse fills from `context.model`. The cost
-  // is that CHAINED partial calls lose the earlier one — `input({ address: {
-  // city } })` then `input({ address: { postcode } })` puts the form-open city
-  // back. A single partial call on a freshly opened editor is unaffected
-  // (`model` and `baseModel` are the same object there), and the renderer path
-  // cannot reach it at all: JSONForms always emits the whole model. Direct-API
-  // callers are the exposure. `baseModel` stays because it is the only baseline
+  // is that ANY partial `SET` following an earlier edit loses that edit — one
+  // prior edit and one partial call is enough, and the second call may be
+  // `update` as readily as `input`, since `update` re-sends its argument as the
+  // same `SET` (review finding W10). `input({ address: { city } })` then
+  // `update({ address: { postcode } })` puts the form-open city back and PUTs
+  // `postcode` alone, resolving as success. Only a partial call on an untouched
+  // editor is unaffected (`model` and `baseModel` are the same object there),
+  // and the renderer path cannot reach it at all: JSONForms always emits the
+  // whole model. Direct-API callers are the exposure. `baseModel` stays because it is the only baseline
   // with a parity claim behind it — legacy submits the whole form, so its diff
   // is always against the form-open clone (`parity.yaml` L3 / AC-23) — and
   // making the fill "live model, else snapshot" is a contract change to a

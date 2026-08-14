@@ -160,6 +160,11 @@ function createClientAddressManagerForScope(
  * const manager = useClientAddressManager().as('client').for('address', addressId)
  * const { model, schema, uischema } = manager.useContext()
  * await manager.useActions().isReady()
+ *
+ * // A PARTIAL payload refills every omitted key from the FORM-OPEN snapshot,
+ * // so this is only safe on an untouched editor. After any earlier edit it
+ * // discards that edit — silently, resolving as success. Pass the whole model
+ * // instead. See `update`'s JSDoc in `useClientAddressManager.actions.ts`.
  * await manager.useActions().update({ address: { city: 'London' } })
  *
  * // Create a new address (isolated instance, distinct scope key)

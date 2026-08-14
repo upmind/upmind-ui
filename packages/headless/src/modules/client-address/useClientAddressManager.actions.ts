@@ -154,7 +154,8 @@ export function createClientAddressManagerActions(
    *
    * A PARTIAL payload has every omitted key filled from the form-open snapshot,
    * not from the current model, so partial calls do not accumulate: send the
-   * whole model, or fold your own partial into the one this resolves.
+   * whole model, or fold your own partial into the one this resolves. This
+   * applies across `input` AND `update` alike — see `update`'s note below.
    */
   async function input(
     model: AddressModel | Record<string, unknown>
@@ -183,6 +184,18 @@ export function createClientAddressManagerActions(
    * Saves the current (or provided) model and resolves the persisted one. A
    * fresh draft creates; an address-scoped manager updates, sending only the
    * fields that changed since the form opened (`parity.yaml` L3 / AC-23).
+   *
+   * A PARTIAL `value` carries `input`'s fill rule, because it is re-sent as the
+   * same `SET` event: every key it omits is refilled from the FORM-OPEN
+   * snapshot, discarding any earlier edit to that key. It takes ONE prior edit
+   * and ONE partial call, not a chain — `input({ address: { city } })` then
+   * `update({ address: { postcode } })` puts the typed city back to its
+   * form-open value, and the PUT body carries only `postcode`. The save still
+   * resolves as SUCCESS, so the loss is silent. Pass the whole model, or fold
+   * your partial into the model `input` resolved. Behaviour is unchanged from
+   * base `bff994868`; recorded, not reconciled (review findings W7/W10) — see
+   * `parse` in `client-address.services.ts` for why the fill stays on
+   * `baseModel`.
    */
   async function update(
     value?: AddressModel | Record<string, unknown>

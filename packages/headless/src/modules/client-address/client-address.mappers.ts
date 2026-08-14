@@ -84,8 +84,8 @@ export function mapAddress(raw: IAddress): Address {
  * with no type at all — `undefined` there is stripped by `JSON.stringify` and
  * the wire loses a field it has always carried.
  *
- * `region_id` is the ONE `address` leaf deliberately left uncoerced, against
- * the `?? ""` its six siblings carry. A region-less CREATE must reach the API
+ * `region_id` is one of two `address` leaves left uncoerced, against the `?? ""`
+ * its five other siblings carry. A region-less CREATE must reach the API
  * with no `region_id` key at all: the recorded oracle's region-less POST
  * (`__tests__/client-address.e2e-oracle.pre-migration.json`, spec 3, second
  * POST) omits it — under the same `country_id` its sibling POSTs send a region
@@ -93,9 +93,9 @@ export function mapAddress(raw: IAddress): Address {
  * `undefined` is exactly what `parseData`'s `JSON.stringify` drops to reproduce
  * it. An explicit `null` is a CLEARANCE, which is only meaningful against a
  * baseline, so it is minted in `mapIAddressDataDiff` and nowhere else — a
- * create has nothing to clear. `country_id` is uncoerced for a different
- * reason: it is schema-required and never intentionally cleared, so a `null`
- * there would be an invalid payload rather than a clearance.
+ * create has nothing to clear. `country_id` is the second uncoerced leaf, for a
+ * different reason: it is schema-required and never intentionally cleared, so a
+ * `null` there would be an invalid payload rather than a clearance.
  */
 export function mapIAddressData(data: AddressModel | Address): IAddress {
   return {
