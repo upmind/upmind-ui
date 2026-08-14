@@ -171,7 +171,7 @@ Feature: A client manages their own postal addresses
   Scenario: When a change to my addresses fails, I am told, not interrupted
     Given deleting an address will fail
     When I delete that address
-    Then I am shown why it failed
+    Then I am shown why it failed, by the addresses themselves
     And nothing I was doing is thrown off course
 
   @AC-15 @collection @refresh
@@ -347,8 +347,9 @@ Feature: A client manages their own postal addresses
     And I can add, edit and delete one from that page
     And the one it treats as my default is a real address of mine
 
-  @AC-40 @consumers @feedback
-  Scenario: Deleting an address still tells me it worked
-    When I delete an address from a page that offers me that choice
+  @AC-40 @feedback
+  Scenario: Changing my addresses still tells me what happened
+    When I delete one of my addresses
     Then I am told it was deleted
-    And when it fails instead, I am told that
+    And when I make one my default, I am told that too
+    And when either fails instead, I am told why

@@ -11,6 +11,8 @@
 > 2. Revision 1's consumer list was a **prediction**. It is now **measured** against this base (§6). The predicted count was 13 in-scope sites; the measured, ruled scope is **13 invocation sites in 8 files**, with `apps/velia` and `apps/hosting` moved **out** of scope by operator ruling, plus **7 derived fan-out targets** the same edit forces (§6.2). Every delta is named.
 >
 > Ruling numbering also changes: revision 1's `OR-1…OR-8` are re-issued as **`R1…R8`**, matching the operator's own numbering. The mapping is recorded in `review-notes.md` §1.
+>
+> **Operator ruling R10 (2026-08-14) landed after the bundle's first commit and is applied here.** It **overturns** revision 2's design decision D-14: **feedback stays in the module.** Rows `F1`/`F2` revert to `Direct`/`existing`, row `C18` becomes untouched-by-necessity, **task T-23 is deleted**, and **AC-14** and **AC-40** are corrected to the module-raised behaviour. Full record at §4 R10 and `design.md` D-14. *(There is no R9 — the operator's numbering skips it; no ruling has been invented to fill the gap.)*
 
 ---
 
@@ -63,7 +65,9 @@ Every task in `tasks.md` restates this check as a post-condition. **A task that 
 
 ## 4. §rulings — binding operator rulings (tier-1)
 
-**R1…R8 (2026-08-14) are current and tier-1.** Prior-pass rulings `PR-1…PR-6` (2026-08-10) are recorded in `review-notes.md`; they stand **except** where an R ruling contradicts them, and every contradiction is named. A prior explicit NO is never silently overridden.
+**R1…R8 and R10 (2026-08-14) are current and tier-1.** Prior-pass rulings `PR-1…PR-6` (2026-08-10) are recorded in `review-notes.md`; they stand **except** where an R ruling contradicts them, and every contradiction is named. A prior explicit NO is never silently overridden.
+
+**R10 also overrides this bundle's own earlier design decision D-14.** An operator ruling outranks a planner decision; the overturn is recorded at §4 R10 with the decision it replaced left visible in `design.md` D-14, not deleted.
 
 ### R1 — the actor token is `ScopeActorTypes.CLIENT`, not `SELF`
 
@@ -216,6 +220,20 @@ Each carries a Gherkin scenario and a **wire-level** read-back. Every citation b
 
 **8g SUPERSEDES prior ruling PR-3 item #7** (`review-notes.md` §1: "staged lock + `with_staged_imports:1`"), which planned exactly what 8g forbids. Recorded, not silently applied.
 
+### R10 — feedback STAYS IN THE MODULE *(2026-08-14 — overturns revision 2's design decision D-14)*
+
+**What is ruled.** `client-address.services.ts` **keeps** its `useFeedback` import and all four raises, unchanged. Revision 2's plan to strip them and hand each consumer the obligation — following the merged `client-company` precedent — is **withdrawn in full**. No consumer acquires a feedback obligation; no i18n key moves, is added, or is deleted.
+
+**Rationale, in the operator's priority order.**
+
+1. **Parity is the JTBD.** Both oracles raise this feedback. Headless raises it today — `client-address.services.ts:210` (`onError → addError({ title: t("error.client_address_update_failed"), … })`), `:220` (`onSuccess → addSuccess(t("confirm.address_removed"))`), `:244` and `:254` for `setDefault`. Legacy raises it too, verified at Plan: `store/modules/data/clients/addresses.ts:134–186` — `confirmDelete`'s `onSuccess` is `$toast.open({ message: i18n.t("_sentence.confirm.removal") })` — and `:187–216` — `makeDefault`'s `onSuccess` is `$toast.open({ message: i18n.t("_.default_address_updated") })`, with `ToastProgrammatic` imported for exactly that. Relocating the raise is a behaviour change measured against **both** oracles, and "full parity with legacy vue-app + current headless" does not license it.
+2. **It is a silent-regression shape.** If any one of the eight consumer files failed to add toast handling, the user-visible feedback would simply disappear — **no type error, no failing test** — across eight files at once. That is the advertised-but-absent defect class inverted, and this story exists to close that class, not to open it.
+3. **`client-phone` — equally merged — still raises its own** (`client-phone.services.ts:303–350`). The tranche is split, and the parity-preserving side is also the side that costs nothing.
+
+**Deliberate divergence from the primary reference, with its rationale stated generally.** `client-company` is the declared primary reference and it moved feedback to the consumer (`docs/CHANGELOG.md:91–93`, `gotchas.md:410`, discharged at `TabBusiness.vue:170–199`). We diverge, because **a placement choice does not inherit from a reference when the reference's own placement is itself a behaviour change against the oracle.** "Primary reference" settles shape, naming and layering; it does not settle a question the oracle already answers. Where the reference and the oracle disagree, the oracle wins — that is what `verify-parity-oracle.md` means by grading against an external source rather than against the newest sibling.
+
+**Applied consequences.** Rows `F1`/`F2` revert from `Absorbed-by` to **`Direct` / `existing`** — behaviour preserved, access path unchanged. Row `C18` becomes **untouched-by-necessity**: measured at Plan, all four keys the module cites already exist in **all 28 locales**, so there is no i18n work at all. **Task T-23 is deleted** (tombstoned; numbering left stable). **AC-14 and AC-40 are corrected** to the module-raised behaviour — see §5. `design.md` **D-14** carries the full `@decision` and both knock-ons.
+
 **Decision on 8h, taken and recorded rather than deferred (`design.md` D-7).** `meta.isVerified` **keeps its boolean shape** — every in-tree consumer reads it as a flag and none reads a level — **and** `Address.verifiedLevel: IAddress["verified"]` is added alongside, carrying the raw `number | null` unchanged. Neither a parity loss nor a silent reshape: the boolean stays for the consumers that have it, the datum stops being destroyed. Row `L7`, `@AC-32`.
 
 ---
@@ -265,8 +283,9 @@ Every AC names a **literal, executable behavioural read-back**. Structure is nev
 **AC-13 — setDefault issues NO request for an unauthenticated session with no client id.** *(fix 8a)*
 *Read-back:* as AC-11, against `setDefault`. Empty capture log. **Pre-change RED expected.**
 
-**AC-14 — a failed row mutation lands as readable state, never thrown at the consumer.**
-*Read-back:* force a 422 on `remove`; assert `useContext().error.value` is populated with the mapped error **and** that the call did not reject the consumer's promise chain.
+**AC-14 — a failed row mutation is reported to the user, never thrown at the consumer.** *(corrected under R10)*
+*Read-back:* force a 422 on `remove`; assert (a) the feedback store received **exactly one** error entry whose title is `error.client_address_update_failed`, raised by the module itself (`client-address.services.ts:210`), and (b) the call **did not reject** the consumer's promise chain.
+*Correction recorded, not silently swapped:* revision 2 asserted `useContext().error.value` is populated. **Measured at Plan, that is not this module's contract** — `useClientAddresses.ts:60` exposes `query.error`, the **list** query's error, while `remove`/`setDefault` failures are reported through the feedback raise. AC-14 now asserts the real, oracle-matching behaviour rather than a contract the module does not have and R10 did not ask for.
 
 **AC-15 — a save made through the manager reaches the collection.**
 *Read-back:* save via the manager, then assert — **without** an explicit consumer-side refresh — that a refetch of the collection's list key was issued and `data.value` contains the new row.
@@ -349,8 +368,9 @@ Every AC names a **literal, executable behavioural read-back**. Structure is nev
 **AC-39 — the billing tab still lists and edits my addresses.** *(D-13)*
 *Read-back:* render `TabPersonal.vue` against a recorded fixture; assert the address `Manage` renders one item per fixture row, that `doEdit` opens the editor with that row's model, and that `doRemove` issues the `DELETE`. The adapter's `default()` returns a **row** (`getAddress(defaultAddressId())`), asserted by `typeof … === "object"`. **This AC cannot be proven by type-check**: `ManageRendererProps` bottoms out in `MinimalListComposable = (...args: any) => …` and the four value-pass call sites are cast `as any`, so handing the renderer an unadapted scope builder compiles cleanly and fails only at runtime.
 
-**AC-40 — removing an address still tells me it worked.** *(D-14)*
-*Read-back:* through the consumer, `remove(id)` on success renders the `confirm.address_removed` message and on 422 renders the error; assert the feedback store received exactly one entry of the expected kind. Assert the **module** raised none (the services file no longer imports `useFeedback`).
+**AC-40 — removing an address, or changing my default, still tells me it worked.** *(R10 / D-14)*
+*Read-back:* an integration read-back **at the module**. Over recorded fixtures: `remove(id)` on success lands exactly one **success** entry carrying `confirm.address_removed`, and on a forced 422 exactly one **error** entry carrying `error.client_address_update_failed`; `setDefault(id)` likewise lands `confirm.address_set_default` / `error.client_address_set_default_failed`. Assert the entries are raised by `client-address.services.ts` itself (`:210, :220, :244, :254`), with **no consumer subscribed** — proving the feedback survives the conversion rather than depending on a consumer remembering to add it.
+*Why at the module, not the consumer:* R10. Both oracles raise this feedback in the data layer; a consumer-side read-back would prove only that one of eight consumers was wired, and would leave the other seven able to regress silently.
 
 ---
 
@@ -380,11 +400,11 @@ Each is a real consequence of the module edit, measured on this base — not sco
 
 | Row | Site | Why the same edit forces it | Task |
 | --- | --- | --- | --- |
-| `C14` | `packages/client-vue/…/TabPersonal.vue:24–25` · `client-company/client-company.schemas.ts:256–257` · `playgrounds/labs/src/pages/client/Addresses.vue:8–9, 24–25` · `playgrounds/labs/…/ClientBillingAddresses.vue:14–15` | Four `useList: useClientAddresses, useMutate: useClientAddressManager` **value-passes**. `Manage.vue:106` calls `props.manage.useList()` **bare** and `:155`/`:161` call `.remove` / `.setDefault` on it; the renderer expects the flat `MinimalListComposable` / `MinimalMutateComposable` shape (`manage/types.ts:15–50`). Handing it a scope builder breaks at **runtime**, and every one of the four sites is cast `as any`, so **the compiler cannot see it**. Adapters, exactly as `client-company` wrote `useCompanyList`/`useCompanyMutate` (`TabBusiness.vue:172–248`) and as `client-phone` wrote `usePhoneListForManage` (`TabPersonal.vue:163–200`). | T-22, T-23, T-24 |
+| `C14` | `packages/client-vue/…/TabPersonal.vue:24–25` · `client-company/client-company.schemas.ts:256–257` · `playgrounds/labs/src/pages/client/Addresses.vue:8–9, 24–25` · `playgrounds/labs/…/ClientBillingAddresses.vue:14–15` | Four `useList: useClientAddresses, useMutate: useClientAddressManager` **value-passes**. `Manage.vue:106` calls `props.manage.useList()` **bare** and `:155`/`:161` call `.remove` / `.setDefault` on it; the renderer expects the flat `MinimalListComposable` / `MinimalMutateComposable` shape (`manage/types.ts:15–50`). Handing it a scope builder breaks at **runtime**, and every one of the four sites is cast `as any`, so **the compiler cannot see it**. Adapters, exactly as `client-company` wrote `useCompanyList`/`useCompanyMutate` (`TabBusiness.vue:172–248`) and as `client-phone` wrote `usePhoneListForManage` (`TabPersonal.vue:163–200`) — but raising **no** feedback of their own, since under **R10** the module still raises it. | T-22, T-24 |
 | `C15` | `packages/headless/src/modules/basket-billing/unified/__tests__/unified.int.test.ts:83` | Mocks `useClientAddressServices` **by name**; breaks the instant R4 lands. `client-company` updated the equivalent. | T-17 |
 | `C16` | `tests/Playwright/e2e/support/flows/address-setup.ts:42, 59` | Calls `window.Upmind.useClientAddressManager(undefined, { clientId })` — the exact signature R4/PR-2 removes. Consumed by `order-billing-setup.ts:3` and `flows/index.ts:1`. **Recorded first (T-1), migrated second (T-25).** It is recorded acceptance as well as a consumer. | T-1, T-25 |
 | `C17` | `eslint-suppressions.json:477–486` | 11 grandfathered `@typescript-eslint/no-explicit-any` entries — 6 on `client-address.services.ts`, 5 on `useClientAddressManager.ts`. The typed machine-config factory (D-9) removes the casts. `client-company` retired 13 equivalent lines. These are **removed**, not re-ledgered. | T-26 |
-| `C18` | `packages/i18n/public/locales/*/confirm.json` (`address_removed`, `address_set_default`) | D-14 moves the toast from the module to the consumer. The **keys stay** and gain a matching `error.*` pair only if one is missing; nothing is deleted from any locale. `client-company` added `error.client_company_delete_failed` for exactly this reason. | T-23 |
+| `C18` | `packages/i18n/public/locales/*/{confirm,error}.json` | **NO EDIT — R10.** Feedback stays in the module, so no key moves and none is added. Measured at Plan: all four keys the module cites already exist in **all 28 locales** — `confirm.address_removed`, `confirm.address_set_default`, `error.client_address_update_failed`, `error.client_address_set_default_failed`. Verify-only, recorded so the absence of an i18n edit is not read later as an oversight. | — (verify-only, T-13) |
 | `C19` | `packages/headless/src/modules/index.ts:12` (`export * from "./client-address"`) · `system-places/system-places.types.ts:1` · `basket-billing/unified/types.ts:1` · `client-company/client-company.types.ts:30` · `invoices/invoices.types.ts:4` | **Type-only** imports of `Address` / `AddressModel`. All stay valid under the design's barrel (§3 of `design.md`) — verified, `untouched-by-necessity`. `invoices/invoices.types.ts:4` reaches the **deep path** `../client-address/client-address.types`; that is a pre-existing deep import this story leaves alone rather than widening its blast radius. Recorded so a later reader does not read the absence of an edit as an oversight. | — (verify-only, T-13) |
 | `C20` | `packages/headless/src/modules/basket-billing/unified/schemas.ts:2–5` | Imports `useSchemaDefinitions` / `useUischemaDefinitions` from the **barrel**. **R7 keeps them there** — this site needs no edit and is the reason R7 exists. Verify-only. | — (verify-only, T-13) |
 

@@ -1,7 +1,9 @@
 # client-address — Tasks
 
-**Companion to** `requirements.md` (R1–R8, AC-1…AC-40), `design.md` (D-1…D-14), `parity.yaml` (8 cells, 99 rows, arms), `client-address.feature` (40 scenarios).
-**Date:** 2026-08-14 (revision 2) · **Seat:** planner · **Branch:** `feature/client-address-scoped-conversion` @ base `bff994868`
+**Companion to** `requirements.md` (R1–R8 + **R10**, AC-1…AC-40), `design.md` (D-1…D-14), `parity.yaml` (8 cells, 99 rows, arms), `client-address.feature` (40 scenarios).
+**Date:** 2026-08-14 (revision 2, + operator ruling **R10** applied) · **Seat:** planner · **Branch:** `feature/client-address-scoped-conversion` @ base `bff994868`
+
+> **R10 changed three things in this file.** **T-6** inverted from *remove* the module's feedback to **PIN** it; **T-23 is DELETED** (tombstoned in place, number left vacant so every downstream reference stays stable); **T-13** absorbed the i18n verify-only check. AC-14 and AC-40 are now both proven by **T-6b**, at the module.
 
 ---
 
@@ -38,7 +40,7 @@ graph TD
   T2 --> T3[T-3 identity seam]
   T3 --> T4[T-4 guard inversion]
   T3 --> T5[T-5 diff-only update + config key]
-  T3 --> T6[T-6 strip in-module feedback]
+  T3 --> T6[T-6 PIN in-module feedback]
   T2 --> T7[T-7 mappers]
   T7 --> T8[T-8 schemas: type pair + lockCountry]
   T4 --> T9[T-9 collection composable]
@@ -58,8 +60,8 @@ graph TD
   T19 --> T20[T-20 apps/cart-nuxt]
   T13 --> T21[T-21 labs ClientBillingAddresses]
   T16 --> T22[T-22 client-vue Manage adapter]
-  T22 --> T23[T-23 consumer feedback + i18n]
   T22 --> T24[T-24 headless + labs Manage adapters]
+  %% T-23 deleted by operator ruling R10 — number left vacant, see the tombstone
   T1 --> T25[T-25 Playwright flow migration]
   T11 --> T25
   T11 --> T26[T-26 retire eslint suppressions]
@@ -185,19 +187,23 @@ graph TD
 - **Reality Check:** `<int> -t "diff-only"` green over **recorded** fixtures; apply the patch blind, confirm AC-23 RED, revert.
 - **ACs:** AC-23
 
-## Task T-6a: Remove in-module feedback — seat: developer
+## Task T-6a: PIN the module's own feedback through the conversion — seat: developer
 
-- **Reality Check:** `<int> -t "remove surfaces error as state"` — a forced 422 on `remove` populates `useContext().error` and the consumer promise chain is **not** rejected, **with no feedback store subscribed**. A grep asserts `client-address.services.ts` no longer imports `useFeedback`.
-- **Rows:** F1, F2, A3, A14, A15 · **ACs:** AC-14, AC-40 (module half) · **Decision:** D-14
+> **Operator ruling R10 inverted this task.** Revision 2 had it *removing* the in-module feedback (design decision D-14). R10 overturned that: **feedback stays in the module.** The task is now a preservation task — the conversion's four-layer split must not drop the raises on the floor.
+
+- **Reality Check:** `<int> -t "address feedback"` — over recorded fixtures, `remove(id)` on success lands **exactly one** success entry carrying `confirm.address_removed`, and on a forced 422 **exactly one** error entry carrying `error.client_address_update_failed`; `setDefault(id)` likewise lands `confirm.address_set_default` / `error.client_address_set_default_failed`. Asserted **with no consumer subscribed**, and the consumer promise chain is **not** rejected.
+- **Rows:** F1, F2, A14, A15 · **ACs:** AC-14, AC-40 · **Ruling:** R10 · **Decision:** D-14 (overturned)
 
 ### Actions
-1. `client-address.services.ts` — remove the `useFeedback` import (`:4`) and the four raises at `:210, :220, :244, :254`. `remove` / `setDefault` surface success and failure as **state**.
-2. **Do not delete any i18n key** — T-23 re-raises them at the consumer.
+1. `client-address.services.ts` — **keep** the `useFeedback` import (`:4`) and all four raises (`:210, :220, :244, :254`) intact through the layer split. They move file only if the services factory moves; their behaviour does not change.
+2. **Delete no i18n key and add none.** All four are already present in **all 28 locales** (verified at Plan) — `confirm.address_removed`, `confirm.address_set_default`, `error.client_address_update_failed`, `error.client_address_set_default_failed`.
+3. **Do not** add a consumer-side raise anywhere (T-22, T-24) — the module already raises, and a second raise would double every message.
+4. Author `client-address.feedback.must-fail.patch` — drop the `onSuccess` raise from `remove`. `client-company` ships the equivalent control (`client-company.feedback.must-fail.patch`).
 
-## Task T-6b: Prove failure is readable state, not a thrown toast — seat: prover
+## Task T-6b: Prove the feedback survives the conversion — seat: prover
 
-- **Reality Check:** `<int> -t "remove surfaces error as state"` green.
-- **ACs:** AC-14
+- **Reality Check:** `<int> -t "address feedback"` green on all four paths (remove success/failure, setDefault success/failure). Apply `client-address.feedback.must-fail.patch` blind, confirm AC-40 goes RED, revert.
+- **ACs:** AC-14, AC-40
 
 ---
 
@@ -327,13 +333,14 @@ graph TD
 
 ## Task T-13: Verify the untouched-by-necessity consumers — seat: developer
 
-- **Reality Check:** `<int>` full run green **and** `<tc>` exit 0 **with zero edits** to the five type-only importers and to `unified/schemas.ts`. A grep proves `unified/schemas.ts:2–5` still reaches the **barrel**, not a deep path, and that no new `eslint-disable @internal/no-cross-module-imports` was added anywhere. (Type-check alone is not the proof — the full integration run through `unified` is.)
-- **Rows:** C19, C20
+- **Reality Check:** `<int>` full run green **and** `<tc>` exit 0 **with zero edits** to the five type-only importers, to `unified/schemas.ts`, and to any locale file. A grep proves `unified/schemas.ts:2–5` still reaches the **barrel**, not a deep path; that no new `eslint-disable @internal/no-cross-module-imports` was added anywhere; and that `git status --porcelain packages/i18n` is **empty**. (Type-check alone is not the proof — the full integration run through `unified` is.)
+- **Rows:** C18, C19, C20
 
 ### Actions
 1. Verify no edit is needed at `modules/index.ts:12`, `system-places.types.ts:1`, `unified/types.ts:1`, `client-company.types.ts:30`, `invoices.types.ts:4`.
 2. Verify `client-company.schemas.ts:134, 247` and `unified/schemas.ts:42, 68, 106` still compile against T-8a's **additive** `config` parameter.
 3. `invoices/` is **untouched-by-necessity** (R6). Its deep import of `client-address.types` is pre-existing and is **not** widened.
+4. **Row `C18` (R10).** Verify all four feedback keys resolve in **all 28 locales** — `confirm.address_removed`, `confirm.address_set_default`, `error.client_address_update_failed`, `error.client_address_set_default_failed` — and that **no locale file was touched**. Under R10 the module keeps raising its own feedback, so there is no i18n work; this step exists so the absence of an edit is verified rather than assumed.
 
 ---
 
@@ -457,23 +464,23 @@ graph TD
 3. Map `stop` → `destroy`, or every opened address leaks a registry entry holding a live TanStack observer (`TabBusiness.vue:242–246`).
 4. Point `:24–25` at the adapters.
 5. **Do not edit `packages/client-vue/src/components/manage/**`** — the shared renderer is consumed, not changed.
+6. **Add NO feedback raise (R10).** The module already raises `confirm.address_removed` / `confirm.address_set_default` and their error counterparts; a consumer-side raise on top would double every message. This is the one place the address adapters deliberately differ from `TabBusiness.vue:183–199`, whose company equivalents *do* raise because `client-company` moved feedback out of its module.
 
 ## Task T-22b: Prove the billing tab still manages addresses — seat: prover
 - **Reality Check:** both named e2e greps green, including the existing `PUT`-payload assertion. **AC-39 explicitly may not be discharged by a type-check.**
 - **ACs:** AC-39
 
-## Task T-23a: Consumer feedback obligation + i18n — seat: developer
+## ~~Task T-23: Consumer feedback obligation + i18n~~ — **DELETED by operator ruling R10**
 
-- **Reality Check:** `<e2e> --grep "Round-trip: update address on billing page"` extended to assert the success message text renders after a delete, and the error message after a forced failure. Toasts render through Sonner by title text (`Feedback.vue:66–79`), and notification banners carry `data-test-key="feedback"` (`Feedback.vue:11`) — both are locatable.
-- **Rows:** F1, F2, C18 · **ACs:** AC-40 · **Decision:** D-14
-
-### Actions
-1. In each adapter written in T-22 / T-24, wrap `remove` / `setDefault` to raise `addSuccess(t("confirm.address_removed"))` / `addSuccess(t("confirm.address_set_default"))` on success and `addError` on failure — the shape `TabBusiness.vue:183–199` already uses for companies.
-2. `packages/i18n/public/locales/*/error.json` — add an `client_address_delete_failed` counterpart **only where missing**, exactly as `client-company` added `error.client_company_delete_failed`. **Delete no key from any locale**; `confirm.address_removed` and `confirm.address_set_default` stay.
-
-## Task T-23b: Prove the message still reaches the user — seat: prover
-- **Reality Check:** the extended e2e grep green on both the success and the failure path.
-- **ACs:** AC-40
+> **Tombstone. Do not resurrect; do not renumber around it.**
+>
+> This task existed only to discharge revision 2's design decision **D-14**, which moved the module's toasts to the consumer. **R10 overturned D-14 — feedback stays in the module** (`requirements.md` §4 R10, `design.md` D-14). With the relocation withdrawn there is nothing for this task to do:
+>
+> - **No consumer-side raise.** The module already raises; a second raise would double every message. T-22 and T-24 explicitly acquire **no** feedback obligation.
+> - **No i18n work.** Measured at Plan, all four keys already exist in **all 28 locales** — `confirm.address_removed`, `confirm.address_set_default`, `error.client_address_update_failed`, `error.client_address_set_default_failed`. Row `C18` is now untouched-by-necessity, verified by **T-13**.
+> - **AC-40 moved, not dropped.** It is now proven at the module by **T-6b**, which is both a stronger read-back (it catches a regression in any of the eight consumers, not one) and a cheaper one (integration, not e2e).
+>
+> The number is left vacant so every downstream reference in `parity.yaml`, `review-notes.md` and the Task Order graph stays stable.
 
 ## Task T-24a: Headless + labs `Manage` adapters — seat: developer
 
@@ -483,6 +490,7 @@ graph TD
 ### Actions
 1. `client-company/client-company.schemas.ts:256–257` — adapters, in the file's existing `useCompanyEmailList` style (`:56–60`). **This is the only `client-company` file this story touches besides its services address call sites** (NFR-8).
 2. `playgrounds/labs/src/pages/client/Addresses.vue:8–9, 24–25` and `playgrounds/labs/.../ClientBillingAddresses.vue:14–15` — the same adapters.
+3. **Add NO feedback raise (R10)** — as T-22a action 6.
 
 ## Task T-24b: Prove the embedded address control still works — seat: prover
 - **Reality Check:** the named e2e grep green; labs verified by structural diff + type-check.
@@ -534,7 +542,7 @@ graph TD
 
 ## Task T-28: Run the negative-control lane — seat: prover
 
-- **Reality Check:** `<quarantine>` green with **all twelve** `*.must-fail.patch` controls registered (`design.md` §7). No story reaches Linear **Needs Review** without it (NFR-7).
+- **Reality Check:** `<quarantine>` green with **all thirteen** `*.must-fail.patch` controls registered (`design.md` §7). No story reaches Linear **Needs Review** without it (NFR-7).
 
 ### Actions
 1. Confirm each control was applied blind, flipped its named AC RED, and was reverted.
@@ -561,7 +569,7 @@ Every AC in `requirements.md` maps to at least one task bearing a Reality-Check-
 | AC-11 | T-4b | `<int>` **empty** capture log (pre-change RED) |
 | AC-12 | T-9b | `<int>` PUT body `{default:true}` |
 | AC-13 | T-4b | `<int>` **empty** capture log (pre-change RED) |
-| AC-14 | T-6b, T-9b | `<int>` error state, no rejection |
+| AC-14 | T-6b | `<int>` one error entry raised by the module, consumer chain not rejected *(corrected under R10)* |
 | AC-15 | T-9b, T-10b | `<int>` refetch without consumer refresh |
 | AC-16 | T-10b | `<int>` no GET + seeded model |
 | AC-17 | T-10b | `<int>` mapped model |
@@ -587,7 +595,7 @@ Every AC in `requirements.md` maps to at least one task bearing a Reality-Check-
 | AC-37 | T-14b…T-21b | `<e2e>` per site (T-20b: byte-identity to a proven twin; T-21b: structural diff — both recorded as weaker in `review-notes.md` §6) |
 | AC-38 | T-25b | `<e2e>` + request diff vs the T-1 recording |
 | AC-39 | T-22b, T-24b | `<e2e>` rendered read-back — **explicitly not a type-check** |
-| AC-40 | T-23b | `<e2e>` message text |
+| AC-40 | T-6b | `<int>` four feedback paths at the module, no consumer subscribed *(moved from T-23 by R10 — a stronger read-back: it catches a regression in any of the eight consumers, not one)* |
 
 **Gaps found: 0.** Two proofs are **weaker than the rest and are named as such rather than dressed up** — T-20b (`apps/cart-nuxt`, byte-identity to a behaviourally-proven twin) and T-21b / the labs half of T-24b (structural diff + type-check). Both are filed to `review-notes.md` §6 as an accepted limitation of the repo's harness coverage, not of this plan's rigour.
 
@@ -602,7 +610,7 @@ Every AC in `requirements.md` maps to at least one task bearing a Reality-Check-
 | T-3 identity seam | M | 30 min |
 | T-4 guards | XS | 10 min |
 | T-5 diff-only + config key | S | 20 min |
-| T-6 strip feedback | XS | 10 min |
+| T-6 pin feedback (R10) | XS | 10 min |
 | T-7 mappers | S | 20 min |
 | T-8 schemas (pair + lock) | M | 30 min |
 | T-9 collection | L | 45 min |
@@ -611,7 +619,8 @@ Every AC in `requirements.md` maps to at least one task bearing a Reality-Check-
 | T-12 feature + traceability | S | 20 min |
 | T-13 verify-only | XS | 10 min |
 | T-14…T-21 consumers (8) | S each | ~15 min each |
-| T-22…T-24 adapters (3) | M each | ~30 min each |
+| T-22, T-24 adapters (2) | M each | ~30 min each |
+| ~~T-23~~ | — | **deleted by R10** |
 | T-25 e2e flow | S | 20 min |
 | T-26 suppressions | XS | 5 min |
 | T-27 handoff (record only) | XS | 5 min |

@@ -15,7 +15,7 @@ variant: hybrid
 branch: feature/client-address-scoped-conversion
 base: bff994868 # latest gitlab/develop; client-phone + client-company + client-email already merged
 date: 2026-08-14
-revision: 2
+revision: 2 # + operator ruling R10 applied (D-14 overturned; rows F1/F2/C18)
 seat: planner
 
 jtbd: >-
@@ -1093,36 +1093,56 @@ rows:
 
   # ---------------------------------------------------------------------------
   # F — feedback ownership (design.md D-14)
+  #
+  # OPERATOR RULING R10 (2026-08-14) OVERTURNED revision 2's D-14. Feedback
+  # STAYS IN THE MODULE. Both rows were `Absorbed-by` the consumer in revision
+  # 2; they are now `Direct` / `existing` — behaviour preserved, access path
+  # unchanged. The relocation is withdrawn in full.
   # ---------------------------------------------------------------------------
   - id: F1
     cell: CELL-1
     capability: The user is told when an address was deleted (and when it failed)
     oracle: >-
-      addresses.ts imports Buefy's ToastProgrammatic;
-      addEditClientAddressModal.vue:214-216 raises a toast on save.
-    current: client-address.services.ts:210,220 — the MODULE raises addError / addSuccess("confirm.address_removed")
-    disposition: Absorbed-by
-    absorbed_by: the consumer that renders the delete control (the four D-13 Manage adapters)
-    delivery: relocated
+      store/modules/data/clients/addresses.ts:134-186 confirmDelete — onSuccess
+      raises $toast.open({ message: i18n.t("_sentence.confirm.removal") }),
+      onError dispatches api/handleValidationError. Legacy imports Buefy's
+      ToastProgrammatic for exactly this.
+    current: >-
+      client-address.services.ts:210 onError -> useFeedback().addError({ title:
+      t("error.client_address_update_failed"), ... }) and :220 onSuccess ->
+      useFeedback().addSuccess(t("confirm.address_removed")).
+    disposition: Direct
+    delivery: existing
     reason: >-
-      The declared primary reference did exactly this and merged it —
-      client-company/docs/CHANGELOG.md:91-93 and gotchas.md:410 ("Errors are
-      state you render — nothing here raises feedback"), discharged at
-      TabBusiness.vue:170-199. NOTHING IS DROPPED: the i18n key
-      confirm.address_removed stays in every locale and is raised from the new
-      call site. Divergence recorded — client-phone STILL raises its own
-      (client-phone.services.ts:303-350), so the tranche disagrees. This is the
-      decision most worth an operator overturn (review-notes.md section 4).
+      OPERATOR RULING R10 — carried in the module, UNCHANGED. Three reasons, in
+      the operator's priority order. (1) PARITY IS THE JTBD: both oracles raise
+      this feedback, so relocating it is a behaviour change measured against
+      BOTH, and "full parity" does not license it. (2) IT IS A
+      SILENT-REGRESSION SHAPE: if any of the eight consumer files failed to add
+      toast handling the user-visible feedback would simply vanish — no type
+      error, no failing test — landing across eight files at once. That is the
+      advertised-but-absent defect class inverted. (3) client-phone, EQUALLY
+      MERGED, still raises its own (client-phone.services.ts:303-350), so the
+      tranche is split and the parity-preserving side is also the side that
+      costs nothing. Deliberate divergence from the client-company primary
+      reference: a PLACEMENT choice does not inherit from a reference when the
+      reference's own placement is a behaviour change against the oracle.
     evidence: [AC-40]
 
   - id: F2
     cell: CELL-1
     capability: The user is told when their default address changed
-    current: client-address.services.ts:244,254 — addError / addSuccess("confirm.address_set_default")
-    disposition: Absorbed-by
-    absorbed_by: the consumer that renders the set-default control (the four D-13 Manage adapters)
-    delivery: relocated
-    reason: As F1.
+    oracle: >-
+      store/modules/data/clients/addresses.ts:187-216 makeDefault — onSuccess
+      raises $toast.open({ message: i18n.t("_.default_address_updated") }),
+      onError dispatches api/handleValidationError.
+    current: >-
+      client-address.services.ts:244 onError -> addError({ title:
+      t("error.client_address_set_default_failed"), ... }) and :254 onSuccess ->
+      addSuccess(t("confirm.address_set_default")).
+    disposition: Direct
+    delivery: existing
+    reason: As F1 — operator ruling R10.
     evidence: [AC-40]
 
   # ---------------------------------------------------------------------------
@@ -1250,7 +1270,7 @@ rows:
       defaultItem()?.id, and it maps stop -> destroy.
     disposition: Direct
     delivery: built
-    task: [T-22, T-23, T-24]
+    task: [T-22, T-24]
     hazard: >-
       Z7 — MinimalListComposable is `(...args: any) => ...`
       (manage/types.ts:15) and all four sites sit inside `as any` casts, so
@@ -1294,16 +1314,20 @@ rows:
     evidence: [AC-36]
 
   - id: C18
-    site: packages/i18n/public/locales/*/confirm.json (+ error.json)
-    change: >-
-      D-14 relocates the toast. The keys confirm.address_removed and
-      confirm.address_set_default STAY IN EVERY LOCALE — they are referenced from
-      the new call site. An error.* counterpart is added only where one is
-      missing, exactly as client-company added error.client_company_delete_failed.
-      NOTHING IS DELETED FROM ANY LOCALE.
-    disposition: Direct
-    delivery: fixed
-    task: T-23
+    site: packages/i18n/public/locales/*/{confirm,error}.json
+    change: NONE. Under R10 the module keeps raising its own feedback, so no key moves and no key is added.
+    disposition: Not-supported-with-reason
+    delivery: not-applicable
+    reason: >-
+      untouched-by-necessity. Revision 2's D-14 would have relocated the toast
+      and needed an error.* counterpart; operator ruling R10 overturned that, so
+      there is no i18n work at all. Measured at Plan: ALL FOUR keys the module
+      already cites exist in ALL 28 locales — confirm.address_removed,
+      confirm.address_set_default, error.client_address_update_failed,
+      error.client_address_set_default_failed. Nothing is added, nothing is
+      deleted, nothing is renamed. Verify-only, so the absence of an i18n edit is
+      not read later as an oversight.
+    task: T-13
     evidence: [AC-40]
 
   - id: C19
@@ -1367,7 +1391,7 @@ counts:
   undispositioned_row_count: 0
   dropped_with_linear_issue: 9 # D1-D8 + C21
   dropped_refs_owed: 9 # every one OWED and UNFILED; NO ID INVENTED
-  not_supported_with_reason: 5 # N1, N2, N3, C19, C20
-  absorbed_by: 2 # F1, F2
+  not_supported_with_reason: 6 # N1, N2, N3, C18, C19, C20
+  absorbed_by: 0 # was 2 (F1, F2) in revision 2 — OVERTURNED by operator ruling R10
   renamed: 2 # A4, A16
   jtbd_contradicted_drop_count: 0

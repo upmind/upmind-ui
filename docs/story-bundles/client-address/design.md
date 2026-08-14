@@ -8,6 +8,8 @@
 **Date:** 2026-08-14 (revision 2) · **Seat:** planner · **Branch:** `feature/client-address-scoped-conversion` @ base `bff994868`
 
 > **Revision 2 change:** revision 1's **§9 merge-conflict note** is **deleted in full**. `feature/client-company-scoped-conversion` is merged into this base; there is no conflict to plan for, no take-theirs resolution, and no "do not pre-empt" instruction. Every design consequence drawn from it is withdrawn. Two decisions are **added** — **D-13** (the `Manage` renderer adapters) and **D-14** (feedback ownership) — both forced by facts measured on this base that revision 1 could not see.
+>
+> **Operator ruling R10 (2026-08-14), applied:** **D-14 is OVERTURNED — feedback stays in the module.** The relocation to the consumer is withdrawn in full; rows `F1`/`F2` revert to `Direct`/`existing`, row `C18` becomes untouched-by-necessity, task **T-23 is deleted**, and **AC-14** and **AC-40** are corrected to the module-raised behaviour. See D-14 below for the full record and its two applied knock-ons.
 
 ---
 
@@ -239,13 +241,26 @@ An unauthenticated session with **no** client id satisfies the right-hand limb, 
 >
 > *The compiler cannot help here.* `MinimalListComposable = (...args: any) => …` (`manage/types.ts:15`), and all four value-pass sites sit inside objects cast `as any`. Handing the renderer an unadapted scope builder **compiles cleanly and fails at runtime**. AC-39 is therefore a rendered read-back, never a type-check.
 
-### D-14 — feedback moves to the consumer *(new at revision 2)*
+### D-14 — feedback STAYS IN THE MODULE *(revision 2's decision OVERTURNED by operator ruling R10)*
 
-> **`@decision`** — *What:* `client-address.services.ts` stops importing `useFeedback`. The four in-module toasts — `addError` + `addSuccess("confirm.address_removed")` at `:210,220` and `addError` + `addSuccess("confirm.address_set_default")` at `:244,254` — are removed from the module; `remove` / `setDefault` surface success and failure as **state** (`useContext().error`, the resolved/rejected promise), and each consumer that renders a delete or set-default control raises its own feedback.
-> *Why:* the declared primary reference did exactly this and merged it — `client-company/docs/CHANGELOG.md:91–93` ("`remove` and `setDefault` no longer raise toasts … the consumer raises its own feedback"), `gotchas.md:410` ("Errors are state you render — nothing here raises feedback"), with the consumer obligation discharged in `TabBusiness.vue:170–199`. A data module that reaches into a UI notification store couples the exercised path to a surface the module does not own, and makes `remove`'s observable behaviour untestable without stubbing the feedback store.
-> *Rejected:* (a) keeping the in-module toasts, as `client-phone/client-phone.services.ts:303–350` still does. That is the honest alternative and it preserves today's behaviour with zero consumer work — rejected only because R-level guidance names `client-company` the primary reference and this is one of the four places the two merged references disagree. **Recorded as the decision most worth an operator overturn** (`review-notes.md` §4). (b) Dropping the toasts entirely — that IS a capability loss against legacy (`addEditClientAddressModal.vue:214–216` raises a toast on update; `addresses.ts` imports Buefy's `ToastProgrammatic`), and would be a silent drop wearing paperwork.
-> *Consequence — nothing is dropped, only relocated.* Rows `F1` / `F2` are dispositioned **`Absorbed-by`** the consumer, with the consumer named per row, and AC-40 reads the message back **at the consumer**. The i18n keys `confirm.address_removed` and `confirm.address_set_default` **stay in every locale** (they are referenced from the new call site); T-23 adds an `error.*` counterpart only where one is missing, exactly as `client-company` added `error.client_company_delete_failed`.
-> *Scope bound:* only consumers that render a delete / set-default control take the obligation — the four `Manage` adapter sites (D-13). `basket-billing/unified`, the funnel engines and `BillingSummary` never call `remove` / `setDefault`, so they acquire nothing.
+> **Status: OVERTURNED.** Revision 2 decided to strip `useFeedback` from `client-address.services.ts` and hand each consumer the obligation, following the merged `client-company` precedent, and flagged it as the decision most worth an operator overturn. **Operator ruling R10 (2026-08-14) overturned it.** The relocation is withdrawn in full — not softened, not partially applied.
+
+> **`@decision`** — *What:* `client-address.services.ts` **keeps** its `useFeedback` import and all four raises, unchanged: `onError → addError({ title: t("error.client_address_update_failed"), … })` at `:210` and `onSuccess → addSuccess(t("confirm.address_removed"))` at `:220` on `remove`; `onError → addError({ title: t("error.client_address_set_default_failed"), … })` at `:244` and `onSuccess → addSuccess(t("confirm.address_set_default"))` at `:254` on `setDefault`. **No consumer acquires a feedback obligation.** No i18n key moves, is added, or is deleted.
+>
+> *Why (operator ruling R10, its three reasons in priority order):*
+> 1. **Parity is the JTBD.** Both oracles raise this feedback. Headless raises it today; legacy raises it too — `store/modules/data/clients/addresses.ts:134–186` (`confirmDelete` → `$toast.open({ message: i18n.t("_sentence.confirm.removal") })`) and `:187–216` (`makeDefault` → `$toast.open({ message: i18n.t("_.default_address_updated") })`), with `ToastProgrammatic` imported for exactly that. Moving the raise is a behaviour change measured against **both** oracles, and "full parity with legacy vue-app + current headless" does not license it.
+> 2. **It is a silent-regression shape.** If any one of the eight consumer files failed to add toast handling, the user-visible feedback would simply disappear — **no type error, no failing test** — and it would land across eight files at once. That is the advertised-but-absent defect class inverted, and this story exists to close that class, not to open it.
+> 3. **`client-phone` — equally merged — still raises its own** (`client-phone.services.ts:303–350`). The tranche is split on this, and the parity-preserving side is also the side that costs nothing.
+>
+> *Rejected:* relocating the raise to the consumer, as `client-company` did (`docs/CHANGELOG.md:91–93`, `gotchas.md:410`, discharged at `TabBusiness.vue:170–199`). The argument for it — that a data module reaching into a UI notification store couples the exercised path to a surface it does not own — is real but is outweighed by (1) and (2).
+>
+> *This is a deliberate divergence from the `client-company` primary reference, and the rationale is general:* **a placement choice does not inherit from a reference when the reference's own placement is itself a behaviour change against the oracle.** "Primary reference" settles shape, naming and layering; it does not settle a question the oracle already answers. Where the reference diverges from the oracle, the oracle wins — that is what `verify-parity-oracle.md` means by grading against an external source rather than against the newest sibling.
+>
+> *Consequence — nothing moves.* Rows `F1` / `F2` are dispositioned **`Direct` / `existing`**, not `Absorbed-by`. Row `C18` becomes **`Not-supported-with-reason` / untouched-by-necessity**: measured at Plan, all four keys the module cites already exist in **all 28 locales** (`confirm.address_removed`, `confirm.address_set_default`, `error.client_address_update_failed`, `error.client_address_set_default_failed`), so there is no i18n work at all. **Task T-23 is deleted** (tombstoned in `tasks.md`, numbering left stable). AC-40 now reads the message back **at the module**, which is a stronger and cheaper read-back than the consumer-side one it replaces.
+>
+> *Knock-on to D-13, applied:* the `Manage` adapters wrap `remove` / `setDefault` **without** adding toasts — the module already raises them, and a consumer-side raise on top would double every message. The adapters' remaining obligations are unchanged: `default` re-hydrates to a row, and `stop` maps to `destroy`.
+>
+> *Knock-on to AC-14, applied:* revision 2's AC-14 asserted the failure lands in `useContext().error`. **Measured at Plan, that is not this module's contract** — `useClientAddresses.ts:60` exposes `query.error`, the **list** query's error, while `remove` / `setDefault` failures are reported through the feedback raise at `:210` / `:244`. AC-14 is corrected to assert the real, oracle-matching behaviour rather than a contract the module does not have and R10 did not ask for.
 
 ---
 
@@ -356,6 +371,7 @@ One `*.must-fail.patch` per predicate limb — a unified diff mutating **product
 | `client-address.lock-country.must-fail.patch` | ignores `CLIENT_ALLOW_ADDRESS_UPDATE` | AC-21 |
 | `client-address.address-type.must-fail.patch` | restores the `type: 1` hardcode in `mapIAddressData` | AC-22 |
 | `client-address.readiness-bound.must-fail.patch` | restores `timeout: Infinity` | AC-26 |
+| `client-address.feedback.must-fail.patch` | drops the `onSuccess` feedback raise from `remove` **(added by R10)** | AC-40 |
 | `client-address.find-one.must-fail.patch` | delegates `findOne` straight to the shared helper | AC-7 |
 
 **Per `agent-seat-separation.companion.md`: the developer authors every patch** (it knows the line it changed; a code mutation neither self-certifies nor grades anything); **the prover applies it blind**, confirms the intended assertion goes RED, then reverts. A prover that reads module src to hand-author one has breached diff-blindness — route it to the developer instead. Every control runs green in the `quarantine:enforce` lane before the story reaches **Needs Review** (NFR-7).
@@ -366,7 +382,8 @@ One `*.must-fail.patch` per predicate limb — a unified diff mutating **product
 
 - **Unit** — `mappers.test.ts` (AC-31, AC-32), `surface.test.ts` (AC-33…AC-36), `traceability.test.ts`.
 - **Integration** (the bulk) — collection / manager / mutations / auth-guard / scope-identity / lookups / filters, over **recorded** fixtures captured with `pnpm --filter @upmind-automation/headless test:integration:record` (NFR-3; `scope-based/no-hand-rolled-int-fixture` is `error`).
-- **Component-level read-back** — AC-39 renders `TabPersonal.vue` against a recorded fixture; AC-40 asserts at the feedback store. Neither is satisfiable by a type-check (Z7).
+- **Component-level read-back** — AC-39 is a **rendered** read-back through the shared `Manage` renderer; it is not satisfiable by a type-check (Z7).
+- **AC-40 is an integration read-back at the module**, not a consumer one (D-14 under R10): a forced success and a forced 422 on `remove` / `setDefault` each land exactly one entry of the expected kind in the feedback store, raised by `client-address.services.ts` itself.
 - **E2E** — the existing specs seeded by `address-setup.ts` (AC-38); no new spec.
 
 The co-located `__tests__/client-address.feature` is the single source of truth `client-address.traceability.test.ts` reads and enforces **both ways**: a non-`@todo` scenario with no proving test fails, and a test naming an AC the feature does not tag fails. Nothing in the suite reads a planning artefact — SDD material is not a deliverable, is not in the change request, and is absent from a fresh clone and from CI.

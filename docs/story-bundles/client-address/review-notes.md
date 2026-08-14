@@ -2,7 +2,7 @@
 
 **The binding record for this story.** Per `agent-behavior.companion.md` §1, this file is the per-story ruling mechanism: **read FIRST on every re-run**, mirrored to Linear, and **never silently overriding an explicit NO**.
 
-**Date:** 2026-08-14 (revision 2) · **Seat:** planner · **Branch:** `feature/client-address-scoped-conversion` @ base `bff994868`
+**Date:** 2026-08-14 (revision 2, + operator ruling **R10** applied) · **Seat:** planner · **Branch:** `feature/client-address-scoped-conversion` @ base `bff994868`
 **Bundle:** `docs/story-bundles/client-address/` — `docs/sdd` is a symlink to a path off this machine and is **never** written.
 
 ---
@@ -34,6 +34,7 @@ The operator's own brief numbers the rulings **R1–R8**. Revision 1 of this bun
 | OR-7 | **R7** | schema-definition barrel exports stay |
 | OR-8 | **R8** | the parity fixes that land (8a–8h) |
 | OR-9 | **DELETED** | merge-conflict planning — see §2.1 |
+| *(none)* | **R10** | **feedback stays in the module** — overturns this bundle's own design decision D-14. Landed after the first commit; applied in full at the follow-up commit. See §4.1. *(There is no R9 — the operator's numbering skips it; no ruling has been invented to fill the gap.)* |
 
 ### 1.2 Prior-pass rulings (`PR-1…PR-6`, dated 2026-08-10)
 
@@ -117,19 +118,42 @@ They break in **two** ways at once:
 
 Raised one at a time, each with the alternative stated and the cost of each side named. **None is deferred on effort grounds.**
 
-### 4.1 D-14 — feedback moves from the module to the consumer *(the one most worth overturning)*
+### 4.1 D-14 — feedback ownership — **RAISED, OVERTURNED, APPLIED** ✅
 
-**What the plan decided.** `client-address.services.ts` stops importing `useFeedback`; the four in-module raises (`:210, :220, :244, :254`) are removed; each consumer that renders a delete or set-default control raises its own. Parity rows `F1`/`F2` are `Absorbed-by` the consumer, and AC-40 reads the message back **at the consumer**.
+**Raised** at revision 2 as the decision most worth overturning. **Overturned by operator ruling R10 (2026-08-14). Applied in full, in this bundle, at this commit.**
 
-**Why.** The declared primary reference did exactly this and merged it — `client-company/docs/CHANGELOG.md:91–93`, `gotchas.md:410` ("Errors are state you render — nothing here raises feedback"), discharged at `TabBusiness.vue:170–199`.
+| | |
+| --- | --- |
+| **Revision 2 decided** | Strip `useFeedback` from `client-address.services.ts`; each consumer raises its own — following the merged `client-company` precedent. Rows `F1`/`F2` = `Absorbed-by`. |
+| **R10 ruled** | **Feedback stays in the module.** The relocation is withdrawn in full — not softened, not partially applied. |
 
-**Why you might overturn it.** **The tranche disagrees with itself.** `client-phone/client-phone.services.ts:303–350` — a *merged* conversion — still raises its own toasts. `client-email` and `client-company` do not. Following `client-phone` instead would:
+**The operator's three reasons, in priority order, recorded as the binding rationale:**
 
-- preserve today's behaviour exactly, with **zero** consumer work (T-23 disappears);
-- cost nothing in parity terms — the toast reaches the user either way;
-- but leave a headless data module reaching into a UI notification store, which couples the exercised path to a surface the module does not own and makes `remove`'s observable behaviour untestable without stubbing the feedback store.
+1. **Parity is the JTBD.** Both oracles raise this feedback. Headless raises it today (`client-address.services.ts:210, :220, :244, :254`); legacy raises it too — verified at Plan, `store/modules/data/clients/addresses.ts:134–186` (`confirmDelete` → `$toast.open({ message: i18n.t("_sentence.confirm.removal") })`) and `:187–216` (`makeDefault` → `$toast.open({ message: i18n.t("_.default_address_updated") })`). Moving the raise is a behaviour change measured against **both** oracles, and "full parity" does not license it.
+2. **It is a silent-regression shape.** If any one of the eight consumer files failed to add toast handling, the user-visible feedback would simply disappear — **no type error, no failing test** — across eight files at once. That is the advertised-but-absent defect class inverted.
+3. **`client-phone` — equally merged — still raises its own** (`client-phone.services.ts:303–350`). The tranche is split, and the parity-preserving side is also the side that costs nothing.
 
-**Nothing is dropped under either choice.** The i18n keys stay in every locale in both. This is a placement decision, not a capability one — which is exactly why it is cheap to overturn and worth asking about.
+**Recorded as a deliberate divergence from the primary reference, with a general rationale.** `client-company` is the declared primary reference and it moved feedback out. We diverge, because **a placement choice does not inherit from a reference when the reference's own placement is itself a behaviour change against the oracle.** "Primary reference" settles shape, naming and layering; it does not settle a question the oracle already answers. Where reference and oracle disagree, the oracle wins — which is what `verify-parity-oracle.md` means by grading against an external source rather than against the newest sibling.
+
+**What was patched (all of it, nothing partial):**
+
+| Artefact | Change |
+| --- | --- |
+| `parity.yaml` `F1`, `F2` | `Absorbed-by` / `relocated` → **`Direct` / `existing`** — behaviour preserved, access path unchanged. Both now cite the legacy toast lines as oracle. |
+| `parity.yaml` `C18` | `Direct`/`fixed`/T-23 → **`Not-supported-with-reason` / untouched-by-necessity**, verified by T-13. All four keys already exist in **all 28 locales** (measured). |
+| `parity.yaml` `C14` | task refs `[T-22, T-23, T-24]` → `[T-22, T-24]` |
+| `parity.yaml` counts | `absorbed_by: 2 → 0`; `not_supported_with_reason: 5 → 6` |
+| `design.md` D-14 | Rewritten as the overturn record, with the three reasons and two **applied** knock-ons (D-13 adapters raise nothing; AC-14 corrected) |
+| `requirements.md` §4 | New ruling **R10** with full rationale; §5 AC-14 and AC-40 corrected; §6.2 `C18` row rewritten |
+| `client-address.feature` | AC-40 scenario re-tagged `@feedback` (was `@consumers`) and widened to cover set-default; AC-14 wording made module-side. **Count unchanged at 40.** |
+| `tasks.md` | **T-6 inverted** (remove → PIN, with a four-path read-back); **T-23 DELETED** (tombstoned, number left vacant); T-13 absorbed the i18n verify; T-22a/T-24a gained an explicit "add NO feedback raise"; vetting table AC-14/AC-40 re-pointed at T-6b; a 13th negative control added |
+
+**Two corrections R10 surfaced that are worth flagging on their own:**
+
+- **AC-14 was asserting a contract this module does not have.** Revision 2 said a failed `remove` populates `useContext().error`. Measured at Plan: `useClientAddresses.ts:60` exposes `query.error` — the **list** query's error — while `remove`/`setDefault` failures are reported through the feedback raise. That AC only "worked" because D-14 was going to *create* the state surface it asserted. With D-14 withdrawn, AC-14 is corrected to the real behaviour rather than left asserting a contract nobody builds.
+- **The i18n work was already zero.** Revision 2 planned to add an `error.*` counterpart "where missing". Measured: `error.client_address_update_failed` and `error.client_address_set_default_failed` already exist in **all 28** locales, alongside both `confirm.*` keys. Even under D-14 that task item was near-empty; under R10 it is gone entirely.
+
+**Net effect: the story got smaller and its proof got stronger.** One task deleted, one inverted, zero i18n edits, and AC-40 moved from a consumer-side e2e (which would have proven one of eight consumers wired) to a module-side integration read-back (which catches a regression in any of them).
 
 ### 4.2 R5 — the tranche is now internally inconsistent on `default()`
 
@@ -206,6 +230,6 @@ The run **stops and asks the operator** — it does not decide — if any of the
 | `arms_block_present` | **true** — `services`/`actions`/`context`/`meta`/`schemas`, each `none`, each citing the rows that earn it |
 | `jtbd_contradicted_drop_count` | **0** |
 | `feature_scenario_count` | **40** — `@AC-1`…`@AC-40`, unique, no gaps |
-| `consumer_migration_tasks` | **8 in-scope sites** (T-14…T-21) + 3 adapter tasks (T-22…T-24) + 1 handoff (T-27), each with its own Reality Check |
+| `consumer_migration_tasks` | **8 in-scope sites** (T-14…T-21) + **2** adapter tasks (T-22, T-24) + 1 handoff (T-27), each with its own Reality Check. *(Was 3 adapter tasks; T-23 deleted by R10.)* |
 
 The planner seat **pre-gates**; it does not emit the review verdict. This story is not moved to **Needs Review** by this seat (ADR-029).
