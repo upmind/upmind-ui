@@ -1,64 +1,82 @@
-Negative control — the editor's `title` / `description` are re-derived on a
-SAVE, not only on a parse (review blocker B1, meta half).
+Negative control — the display strings the editor KEEPS after a settled save
+are composed from the SAVED model, not from the form-open snapshot (review
+blocker B1, meta half).
 
-Drops `...deriveMeta(model)` from this module's `setModel`, leaving the model
-itself entirely correct. The shared `dataManagerMachine` runs `setMeta` on
-`loading.onDone` and on `available.checking.parsing.onDone` — and on NEITHER
-`processing.*.onDone`, whose action list is `["setModel", "clearAutoUpdate"]`.
-With `allowMultipleEdits` false, `processed` goes straight to `complete`, so
-nothing re-enters `parsing` and the meta is never re-derived after a save.
-Folding the derivation into `setModel` is what reaches those two limbs without
-editing `data-manager.machine.ts`, which is protected core; this mutant undoes
-exactly that fold.
+Points this module's `setMeta` at `baseModel` instead of `model`, leaving the
+model itself entirely correct. `baseModel` is the clone taken when the form
+opened and legitimately never moves (parity L3), so every derivation that reads
+it reports the pre-edit address forever.
+
+WHY THIS TARGET, AND NOT THE `setModel` FOLD IT REPLACES
+The mutant this file previously carried dropped `...deriveMeta(model)` from
+`setModel`. It was written against the tree in which a settled save left the
+machine's meta un-re-derived, and it flipped NOTHING once B1's root cause was
+closed: the shared `dataManagerMachine` takes `processed -> available` under
+`allowMultipleEdits` (which this manager always sets), re-enters
+`available.checking.parsing`, and runs `setMeta` on its `onDone`. With the
+`parse` service no longer re-deriving the model from `baseModel` on that
+data-less `xstate.after(wait)` re-entry, that `setMeta` now sees the SAVED model
+and publishes the right strings — with or without the `setModel` fold. Measured:
+whole module suite byte-identical to baseline under the old mutant. A control
+that cannot go red is not a control, so the target moved to the derivation that
+actually feeds the read-back.
+
+(The `setModel` fold is still load-bearing for the ~10ms window at `processed`
+and for any consumer running with `allowMultipleEdits` false. Nothing in this
+suite samples that window, so it is not what this control measures.)
 
 The mutant is invisible at every gate that reads the MODEL. The PUT is correct,
-the server is correct, the save resolves the saved address, and
-`useContext().model` carries the new values. Only the display strings the
-manager publishes alongside it are the pre-save ones.
+the server is correct, the save resolves the saved address, `useContext().model`
+carries the new values, and `isDirty` is still true. Only the display strings
+the manager publishes alongside them are the pre-save ones.
 
-Declared subject — the B1 meta read-back. Open an existing address, change a
-field that the meta composes (`name`, or any of address1 / address2 / city /
-state / postcode), save, and assert on `useContext()`:
-  - `title` reflects the SAVED name/address1
+Declared subject — the B1 settled meta read-back. Open an EXISTING address,
+change a field the meta composes (`name`, or any of address1 / address2 / city /
+state / postcode), save, wait for the save's own refetch to land, and assert on
+`useContext()`:
   - `description` reflects the SAVED field order
-Under the mutant both still report the form-open address.
+  - `title` reflects the SAVED name/address1
+Under the mutant both report the form-open address.
 
 What does NOT discriminate:
-  - asserting `title` / `description` after `input()` / a plain `SET` — those
-    route through `available.checking.parsing`, where the shared machine's own
-    `setMeta` still runs. The assertion MUST be taken after a completed save.
-  - asserting `useContext().model` — unchanged by the mutant
-  - asserting on the create limb only, if the create read-back never inspects
-    the meta
+  - asserting the value the save RESOLVES. That value is `context.model`, and
+    `title` / `description` ride on it from `mapAddress`, not from `deriveMeta`
+    — the resolved read-back stays green under this mutant. The assertion MUST
+    be taken off `useContext()`.
+  - asserting `title` / `description` after `input()` / a plain `SET` with no
+    save. Under the mutant those report `baseModel` too, but so would a form
+    that was merely never edited — it does not localise to the save.
+  - asserting `useContext().model` or `isDirty` — unchanged by the mutant.
 
-Measured blast radius, suite at be4b04cba: ZERO. The whole module suite stays
-GREEN under this mutant (115 passed, and the one failure is the standing
-AC-20/F6 halt, which fails identically without it).
+Measured blast radius, suite at this commit: ONE test — the declared subject
+("AC-23/AC-17 keeps a description composed from the SAVED address once the
+refetch has landed"). 2 failed / 119 passed of 121, the second failure being the
+standing AC-20/F6 halt, which fails identically without the mutant. The mutated
+tree type-checks (exit 0), so the red can only come from the read-back.
 
 This is the complement of
 `client-address.saved-model-shape.must-fail.patch`: that one reverts the model
-(and the meta with it, since the meta is derived from the model); this one
-leaves the model correct and drops only the derivation. A red in both localises
-to the model; a red here alone localises to the meta.
+(and the meta with it, since the meta is derived from the model — measured, it
+flips four tests including this one); this one leaves the model correct and
+moves only the derivation's source. A red in both localises to the model; a red
+HERE alone localises to the meta.
 
 diff --git a/packages/headless/src/modules/client-address/useClientAddressManager.machine.ts b/packages/headless/src/modules/client-address/useClientAddressManager.machine.ts
-index b4130c91d..102f6eee5 100644
+index b4130c91d..8e643d092 100644
 --- a/packages/headless/src/modules/client-address/useClientAddressManager.machine.ts
 +++ b/packages/headless/src/modules/client-address/useClientAddressManager.machine.ts
-@@ -123,14 +123,13 @@ export function createClientAddressManagerMachineConfig(
-           // updater in an object assignment the ORIGINAL context, so a
-           // `title` / `description` updater there would derive from the model
-           // this action is replacing. Deriving once from the new model is what
-           // makes the meta land on the save limbs at all.
-           return {
-             model,
--            id: id || (get(data, "id") as AddressContext["id"]),
--            ...deriveMeta(model)
-+            id: id || (get(data, "id") as AddressContext["id"])
-           };
-         }
-       ),
- 
+@@ -77,13 +77,13 @@ export function createClientAddressManagerMachineConfig(
+        * pre-conversion `actions.ts` L16-24 read `address.street`,
+        * `address.region.name` and `address.country.name` — none of which exist
+        * on `AddressModel` (it carries `regionId` / `countryId`), so all three
+        * always resolved undefined. Same defect class as the mapper's dead
+        * `street` lookup (`parity.yaml` L2), and the same field order.
+        */
+-      setMeta: assign(({ model }: AddressContext) => deriveMeta(model)),
++      setMeta: assign(({ baseModel }: AddressContext) => deriveMeta(baseModel)),
+
        /**
-        * Folds a REFRESH payload into context WITHOUT overwriting a value the
- 
+        * The schema/uischema PAIR — always assigned together. This is the ONLY
+        * place they enter the system; they travel to consumers through machine
+        * context, which is why the barrel exports the fragment builders and not
+        * these parsers (`design.md` D-6).

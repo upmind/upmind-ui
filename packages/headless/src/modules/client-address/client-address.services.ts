@@ -28,6 +28,7 @@ import {
   DEBOUNCE_DELAY
 } from "../../utils";
 import {
+  cloneDeep,
   find,
   first,
   get,
@@ -527,7 +528,7 @@ async function setDefault(
  * (`parity.yaml` L9 / AC-19).
  */
 async function parse(
-  { schema, baseModel, regions, country, countries }: AddressContext,
+  { schema, model, baseModel, regions, country, countries }: AddressContext,
   { data }: AnyEventObject
 ): Promise<Partial<AddressContext>> {
   // We need to check and potentially update the region list based on the selected country (if it's changed)
@@ -540,9 +541,19 @@ async function parse(
   // key a PARTIAL `SET` payload omits. Without it a one-field `input({ address:
   // { countryId } })` re-parses against that field alone and nulls every
   // untouched sibling — which the diff-only update (L3) would then send.
+  //
+  // Falling back to `context.model` is what stops a settled save reverting the
+  // form. The shared machine re-enters `available.checking.parsing` from
+  // `processed` on an `xstate.after(wait)` event, which carries NO data, so
+  // parsing the event alone re-derives the WHOLE model from `baseModel` — the
+  // form-open snapshot — ~10ms after the save wrote the saved one (AC-23/AC-17,
+  // review blocker B1). `CLEAR` still resets to `baseModel`, because
+  // `clearModel` empties `context.model` before this runs. `cloneDeep` because
+  // `defaultsDeep` mutates its first argument, which here is live machine
+  // context.
   const safeModel = useModelParser<AddressModel>(
     schema,
-    get(data, "model", data),
+    get(data, "model", data) ?? cloneDeep(model),
     baseModel
   );
 
