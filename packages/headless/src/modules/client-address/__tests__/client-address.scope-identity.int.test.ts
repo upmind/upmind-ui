@@ -180,15 +180,15 @@ describe("scope identity — the list I read is the account the SCOPE resolved (
 
   it("AC-2 sends the delete and the set-default to the SCOPE-CONTEXT client, not the session's own", async () => {
     const { clientId, accessToken } = await seedClientSession();
-    const { primary, secondary } = recordedRows();
-    installAddressesListHandler(server, OTHER_CLIENT_ID, [primary, secondary]);
+    const { secondary } = recordedRows();
+    const writes = captureAnyWrite();
+
+    // The write limb stands on its own: nothing here awaits the list, so a
+    // read-path defect cannot fail this spec in its setup and a write-path one
+    // cannot hide behind a red read.
     const addresses = useClientAddresses()
       .as(ScopeActorTypes.CLIENT)
       .for(ClientAddressesContextTypes.CLIENT, OTHER_CLIENT_ID);
-    await vi.waitFor(() =>
-      expect(addresses.useContext().data.value).toHaveLength(2)
-    );
-    const writes = captureAnyWrite();
 
     await addresses
       .useActions()
