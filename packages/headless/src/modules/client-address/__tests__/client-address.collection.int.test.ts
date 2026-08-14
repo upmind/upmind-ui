@@ -23,7 +23,7 @@
  * editor that waits forever on a list that never arrives (row L6).
  */
 
-import { http, HttpResponse } from "msw";
+import { http } from "msw";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { useClientAddresses } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
