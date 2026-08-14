@@ -34,7 +34,7 @@ Collect, in this order, before any lane runs — **from the invocation arguments
 4. **Variant** — `machine`, `query`, or `hybrid` (a query-backed collection composable PLUS a `dataManagerMachine`-backed per-entity manager — the client-phone / client-address shape). Selects the template set (see Code stage). **Conversions: derived, never trusted blind** — the Research stage inventories the oracle's composable shapes (query collection? dataManager-machine manager? bespoke machine?) and derives the variant from them; an explicit `variant=` argument is an operator override, and a derivation-vs-override mismatch is a **halt with both determinations shown** (same law as arms). Net-new: asked.
 5. **ADR-001 cells in scope** — the actor × context cells this module's parity table will carry (cite ADR-001; do not re-derive the matrix here).
 6. **Worktree** — where the run executes (opened by this run itself at conduction start — `upmind-agent:start` is the full-lifecycle door, not a worktree opener, and is never invoked mid-factory since it would dispatch a second orchestration of the same story; keep = `upmind-agent:pause`, clean = `upmind-agent:complete`, list = `upmind-agent:resume` — the former `/worktree` door is folded into these).
-7. **Route override** — the route is **DERIVED by the Stage-0 audit** (see "Stage 0" below), so this question is never asked; `playground=` is an operator override of that derivation, never a scope-limiter. `composable` is the one deliberate opt-out (stop after the composable lane, page deferred). `page` is an ASSERTION that the module is already M3 (full) — the audit still grades it, and `page` over an M0–M2 module is an override-vs-audit mismatch: **halt with both determinations shown**, never a page derived around the gap (the 2026-08-14 receipt is exactly that defect).
+7. **Deliverable intent** — `playground=` names what the operator wants LANDED, never what work runs; the audit alone decides the road. `page` / `both` (and omitted) = the full goal: the page, over a module the run brings to M3 first if it isn't already — an M2 module under `playground=page` simply routes the composable lane as the road to the page, no halt, no question. `composable` is the one deliberate opt-out (stop after the composable lane, page deferred). What is NEVER legal is the 2026-08-14 defect: treating `page` as licence to skip the audit and derive a page around an M0–M2 module.
 
 **The scenario lane asks nothing.** On the default route the composable does not exist at intake, so nothing about the page's surface is answerable; and the factory WRITES the page, so there is nothing to pin. Everything the page needs is derived from the landed composable, its schemas and its generated feature — the lane's own derivation contract — and the author tunes the emitted files afterwards.
 
@@ -44,7 +44,7 @@ The invocation line may answer any or all of the seven questions up front. (`arm
 
 Two canonical forms, mixable with surrounding free prose (prose that unambiguously answers a question counts — the forms are conveniences, not gates):
 
-1. **Keyed one-liner** — `key=value` pairs; key ↔ question map: `jtbd`→1, `module`→2, `mode`→3 (`conversion` | `net-new` | `upgrade`; an OVERRIDE of the Stage-0 audit derivation), `variant`→4 (`machine` | `query` | `hybrid`; for conversions this is an OVERRIDE of the Research-stage derivation, not a blind pick), `cells`→5 (comma-separated actor×context pairs; `×` or `x`), `worktree`→6 (a path, or `none` for the current branch), `playground`→7 (`both` | `composable` | `page`; an OVERRIDE of the audit-derived route — **omitted means audit-derived**, which is the default and the recommendation). Quote any value carrying spaces (as `jtbd` always will). Optional `arms=` (comma-separated earning layers, or `none`) is an operator OVERRIDE of the Plan-stage arms derivation, not an answer to a question — omit it unless deliberately overruling.
+1. **Keyed one-liner** — `key=value` pairs; key ↔ question map: `jtbd`→1, `module`→2, `mode`→3 (`conversion` | `net-new` | `upgrade`; an OVERRIDE of the Stage-0 audit derivation), `variant`→4 (`machine` | `query` | `hybrid`; for conversions this is an OVERRIDE of the Research-stage derivation, not a blind pick), `cells`→5 (comma-separated actor×context pairs; `×` or `x`), `worktree`→6 (a path, or `none` for the current branch), `playground`→7 (`both` | `composable` | `page`; deliverable INTENT, never a work-selector — `page`/`both`/omitted all mean the full goal, the audit decides the road; `composable` stops early). Quote any value carrying spaces (as `jtbd` always will). Optional `arms=` (comma-separated earning layers, or `none`) is an operator OVERRIDE of the Plan-stage arms derivation, not an answer to a question — omit it unless deliberately overruling.
 
    ```text
    /factory jtbd="let a consumer manage a client's postal addresses at full parity with legacy vue-app + current headless" module=packages/headless/src/modules/client-address-dry/ mode=conversion variant=query cells=client×self,staff×admin-context,staff×acting-as-client worktree=none playground=both arms=none
@@ -89,7 +89,7 @@ The route falls out of the module state — the playground state only tells the 
 | M2 | runs, `upgrade` — scoped to exactly the audited drift | authors or rewrites |
 | M3 | skipped — nothing to close | add-or-update |
 
-`mode=` and `playground=` arguments are operator OVERRIDES of this derivation, bound by the same law as `variant=`/`arms=`: an override-vs-audit mismatch is a **halt with both determinations shown**, never a silent pick — and never a lane run over a module the audit graded below what that lane consumes. The audit's state table and derived route join the intake echo.
+`mode=` is an operator OVERRIDE of this derivation, bound by the same law as `variant=`/`arms=`: an override-vs-audit mismatch is a **halt with both determinations shown**, never a silent pick. `playground=` is NOT an override — it is deliverable intent (intake #7): it never changes the audit's road, only where the run stops. Either way, no lane ever runs over a module the audit graded below what that lane consumes. The audit's state table and derived route join the intake echo.
 
 ### The contract is the template set — no second checklist
 
@@ -103,13 +103,12 @@ The composable lane's `templates/{machine,query,hybrid}/` already carry, as live
 
 Both lanes carry it: the **full monorepo build** must exit 0 at each lane's Code and Tests gates and still be green at Verify — everything builds or the run halts, never scoped down. Headless and the labs playground are the two named focus packages (what the factory touches): a red in either is the run's own defect and enters the repair loop. Receipt: 2026-08-14 — a criteria-less module and a raw `"created_at"` shipped through five green gates because no gate built anything.
 
-## Routes (derived — see Stage 0)
+## Routes (the audit decides the road; intent decides the stop)
 
-| Route | Runs | Lands |
+| Intent (`playground=`) | Runs | Lands |
 | --- | --- | --- |
-| audit-derived (default) | the composable lane in its audit-derived mode to its Docs gate (skipped only at M3), the ordering gate, then the scenario lane | the full-parity module and the page that proves it |
+| `page` / `both` / omitted | the composable lane in its audit-derived mode to its Docs gate (skipped only at M3), the ordering gate, then the scenario lane | the full-parity module and the page that proves it |
 | `composable` (explicit opt-out) | the composable lane only — the run stops at its Docs gate and writes no scenario directory | the module alone, page deferred |
-| `page` (operator assertion of M3) | the scenario lane only — legitimate ONLY when the audit concurs the module is M3; any lower grade is an override-vs-audit halt | the page for a module that is genuinely complete |
 
 **Every route is add-or-update.** It creates what is missing and upgrades what exists; nothing is skipped because a file is already there. Run against a module whose page exists, the scenario lane re-derives from the LANDED composable, applies the current templates and the current contract, and **rewrites the files in place** — no diff-for-approval step, no shadow output directory, no `.new` file. `git` is the diff. The composable lane holds the same law over a module that already exists: its landed layers are re-derived to the current template shape rather than left at the shape they were scaffolded at.
 
