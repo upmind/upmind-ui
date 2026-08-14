@@ -1,5 +1,18 @@
 /** @internal */
-import { get, map, isArray, compact } from "lodash-es";
+// -----------------------------------------------------------------------------
+/**
+ * @internal
+ * @module client-address/client-address.mappers
+ * @description Pure shape mappers between the API's `IAddress` and this
+ * module's `Address` / `AddressModel`. No scope, no session, no request, no
+ * reactive state.
+ *
+ * `mapAddress` is the ONE member this module publishes on its barrel
+ * (`design.md` D-5 / ruling R6) — `invoices/invoices.mappers.ts` composes an
+ * invoice's EMBEDDED address with it, alongside `mapClient` and `mapCurrency`.
+ * Everything else here is module-private.
+ */
+import { get, map, isArray, isEqual, compact, omitBy } from "lodash-es";
 import type { Address, AddressModel } from "./client-address.types";
 import type { IAddress } from "@upmind-automation/types";
 
@@ -19,10 +32,18 @@ export function mapAddress(raw: IAddress): Address {
     // ---
     title: raw.address_1 || "New Address",
     countryName: get(raw, "country.name"),
+    // The field set AND the order are the parity claim (`parity.yaml` L2,
+    // AC-31): legacy composes address_1, address_2, city, state, postcode,
+    // region.name, country.name (`UAddress.vue:88-98`). The pre-conversion
+    // join opened on `address_2`, read a `street` field that does not exist on
+    // `IAddress` at all, and dropped `state`. The separator stays the headless
+    // ", " — legacy's ",\n" is presentation of the legacy card and is
+    // explicitly not claimed.
     description: compact([
+      get(raw, "address_1"),
       get(raw, "address_2"),
-      get(raw, "street"),
       get(raw, "city"),
+      get(raw, "state"),
       get(raw, "postcode"),
       get(raw, "region.name"),
       get(raw, "country.name")
@@ -40,6 +61,7 @@ export function mapAddress(raw: IAddress): Address {
       countryId: raw.country_id
     },
     type: raw.type,
+    verifiedLevel: raw.verified,
     // ---
     meta: {
       isDefault: raw.default,
@@ -59,25 +81,33 @@ export function mapIAddressData(data: AddressModel | Address): IAddress {
     postcode: data.address.postcode ?? "",
     region_id: data.address.regionId,
     country_id: data.address.countryId,
-    type: 1 // We are forcing type to always be 1 for simplicity
+    type: data.type
   } as IAddress;
 }
 
-export function mapIAddress(data: Address): IAddress | undefined {
-  return {
-    id: data.id,
-    client_id: data.clientId,
-    name: data.name,
-    address_1: data.address.address1,
-    address_2: data.address.address2,
-    city: data.address.city,
-    country_id: data.address.countryId,
-    default: data.meta.isDefault,
-    can_delete: data.meta.canDelete,
-    postcode: data.address.postcode,
-    region_id: data.address.regionId,
-    state: data.address.state,
-    type: data.type,
-    verified: data.meta.isVerified ? 1 : 0
-  } as IAddress;
+/**
+ * The wire payload for an EDIT: only the fields that changed since the form
+ * opened. Legacy computes exactly this — `omitBy(form, (v, k) =>
+ * formClone[k] === v)` against a clone taken at open
+ * (`addEditClientAddressModal.vue:220-224`, `parity.yaml` L3 / AC-23).
+ *
+ * The diff is taken at the WIRE shape, not the model shape, because that is
+ * where legacy takes it and because `AddressModel.address` is nested — a
+ * model-level diff would send the whole `address` object the moment one of its
+ * seven fields moved. Not cosmetic: under `CLIENT_ALLOW_ADDRESS_UPDATE ===
+ * false` a full payload re-sends an unchanged `country_id` and the API rejects
+ * an edit legacy would have accepted.
+ */
+export function mapIAddressDataDiff(
+  data: AddressModel | Address,
+  baseData?: AddressModel | Address
+): Partial<IAddress> {
+  const next = mapIAddressData(data);
+  if (!baseData) return next;
+
+  const previous = mapIAddressData(baseData);
+
+  return omitBy(next, (value, key) =>
+    isEqual(previous[key as keyof IAddress], value)
+  ) as Partial<IAddress>;
 }

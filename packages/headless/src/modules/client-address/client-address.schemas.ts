@@ -1,5 +1,28 @@
-/** @internal */
+/**
+ * @public
+ * @schema-fragment
+ * @module client-address/client-address.schemas
+ * @description Schema / uischema for the address form. They move as a PAIR: a
+ * schema field with no control renders a required-but-invisible input.
+ *
+ * `useSchemaDefinitions` / `useUischemaDefinitions` are schema FRAGMENTS —
+ * pure functions of their arguments, for composing the address form into a
+ * PARENT schema (`client-company`, `basket-billing/unified`). A consumer
+ * rendering the address form ITSELF must read
+ * `useClientAddressManager().useContext().schema` / `.uischema`, which are the
+ * schemas the machine actually validates against. The two fragment functions
+ * are not a second route to the module's data and must never acquire one: no
+ * scope, no session, no request, no reactive state (`design.md` D-6).
+ *
+ * This is a DOCUMENTED DEVIATION from the reference conversion's "NO SCHEMA
+ * EXPORTS HERE" law — see the `@decision` block in `design.md` D-6 / ruling
+ * R7. Unlike every OTHER data-layer file in this module — each of which
+ * carries a line-1 `@internal` marker — this one deliberately does not: it
+ * carries `@public @schema-fragment` instead, because it is the one file this
+ * module intentionally publishes on the barrel.
+ */
 import { BrandConfigKeys } from "@upmind-automation/types";
+import { AddressTypes, ADDRESS_TYPE_KEYS } from "./client-address.types";
 import { get, map } from "lodash-es";
 import type { AddressContext } from "./client-address.types";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
@@ -105,20 +128,24 @@ export function useSchema({
         default: baseModel?.name
       },
 
-      address: { $ref: "#/definitions/address" }
+      address: { $ref: "#/definitions/address" },
 
-      // --- DEPRECATED
-      // type: {
-      //   type: "number",
-      //   title: "Address Type",
-      //   default: baseModel?.type,
-      //   oneOf: !AddressTypes?.length
-      //     ? undefined
-      //     : map(AddressTypes, item => ({
-      //         const: item.key,
-      //         title: item.value
-      //       }))
-      // }
+      // The address type a client picks when editing (`parity.yaml` L5 /
+      // AC-22). Its control is emitted by `useUischema` on an EXISTING address
+      // only, matching legacy's `v-if="formType === actionType.UPDATE"`
+      // (`addEditAddressForm.vue:19-37`); on a create the property is
+      // non-required and carries a HOME default, so nothing renders as a
+      // required-but-invisible input and the created address still goes out as
+      // type 1 — the wire value the pre-conversion mapper hardcoded.
+      type: {
+        type: "number",
+        title: "Address Type",
+        default: baseModel?.type ?? ADDRESS_TYPE_KEYS.HOME,
+        oneOf: map(AddressTypes, item => ({
+          const: item.key,
+          title: item.value
+        }))
+      }
     }
   };
 
@@ -132,9 +159,19 @@ export function useSchema({
 
 export function useUischemaDefinitions({
   id,
+  config,
   countries: _countries,
   regions: _regions
 }: Partial<AddressContext> = {}) {
+  // Legacy locks the country on an address that already exists when the brand
+  // forbids address updates — "the API rejects a country change on existing
+  // addresses, so we lock the field" (`addEditClientAddressModal.vue:129-137`,
+  // `parity.yaml` L4 / AC-21). Emitted only when locked: an unrecognised
+  // `condition` evaluates as fulfilled in `@jsonforms/core`, so a DISABLE rule
+  // present at all is a DISABLE rule in force.
+  const lockCountry =
+    !!id && get(config, BrandConfigKeys.CLIENT_ALLOW_ADDRESS_UPDATE) === false;
+
   return {
     type: "Control",
     scope: "#/properties/address",
@@ -151,7 +188,13 @@ export function useUischemaDefinitions({
             i18n: "form.country",
             options: {
               placeholder: "Select a country…"
-            }
+            },
+            ...(lockCountry && {
+              rule: {
+                effect: "DISABLE",
+                condition: { const: true }
+              }
+            })
           },
           // ---
           {
@@ -232,12 +275,34 @@ export function useUischemaDefinitions({
 
 export function useUischema({
   id,
+  config,
   countries,
   regions
 }: Partial<AddressContext> = {}): UISchemaElement {
+  const elements: unknown[] = [
+    useUischemaDefinitions({ id, config, countries, regions })
+  ];
+
+  // The `type` control's PAIR half (`parity.yaml` L5 / AC-22). It lives at the
+  // ROOT, beside the address fragment, because `type` is a root property of
+  // `AddressModel` — putting it inside `useUischemaDefinitions` would scope it
+  // to `#/properties/type` INSIDE the address object, where no such property
+  // exists, and would inject that broken control into every parent form that
+  // composes the address fragment (`client-company`, `basket-billing/unified`).
+  if (id) {
+    elements.push({
+      type: "Control",
+      scope: "#/properties/type",
+      i18n: "form.address_type",
+      options: {
+        placeholder: "Select an address type…"
+      }
+    });
+  }
+
   const schema = {
     type: "VerticalLayout",
-    elements: [useUischemaDefinitions({ id, countries, regions })]
+    elements
   };
 
   return schema as UISchemaElement;
