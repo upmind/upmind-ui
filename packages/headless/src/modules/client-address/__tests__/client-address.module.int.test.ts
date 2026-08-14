@@ -47,6 +47,29 @@ const REPO_ROOT = execFileSync("git", ["rev-parse", "--show-toplevel"], {
   encoding: "utf-8"
 }).trim();
 
+/**
+ * Pathspec for the repo-wide scans below: the four consumer roots, minus prose.
+ * A CHANGELOG has to name what it retired and a migration guide has to show the
+ * old call, so documentation quoting a symbol is not a use of it.
+ *
+ * Prose is EXCLUDED rather than code allow-listed on purpose — an extension
+ * this list never anticipated stays inside the scan, so a real consumer can
+ * never slip through by being written in an unfamiliar file type.
+ */
+const CODE_ONLY = [
+  "--",
+  "packages",
+  "apps",
+  "playgrounds",
+  "tests",
+  ":(exclude)*.md",
+  ":(exclude)*.mdx",
+  ":(exclude)*.markdown",
+  ":(exclude)*.txt",
+  ":(exclude)*.rst",
+  ":(exclude)*.adoc"
+];
+
 // -----------------------------------------------------------------------------
 
 describe("client-address module — one front door (AC-35)", () => {
@@ -125,11 +148,7 @@ describe("client-address module — nothing reaches inside it by another route (
         "-l",
         "-E",
         "client-address/client-address\\.(services|mappers)",
-        "--",
-        "packages",
-        "apps",
-        "playgrounds",
-        "tests"
+        ...CODE_ONLY
       ],
       { cwd: REPO_ROOT, encoding: "utf-8" }
     )
@@ -145,16 +164,7 @@ describe("client-address module — nothing reaches inside it by another route (
     try {
       lines = execFileSync(
         "git",
-        [
-          "grep",
-          "-n",
-          "useClientAddressServices",
-          "--",
-          "packages",
-          "apps",
-          "playgrounds",
-          "tests"
-        ],
+        ["grep", "-n", "useClientAddressServices", ...CODE_ONLY],
         { cwd: REPO_ROOT, encoding: "utf-8" }
       )
         .split("\n")
