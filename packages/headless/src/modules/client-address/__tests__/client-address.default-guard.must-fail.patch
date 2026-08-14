@@ -1,10 +1,13 @@
 diff --git a/packages/headless/src/modules/client-address/client-address.services.ts b/packages/headless/src/modules/client-address/client-address.services.ts
-index 76ffc73d8..625508a0e 100644
+index 1708af336..a6a5b2257 100644
 --- a/packages/headless/src/modules/client-address/client-address.services.ts
 +++ b/packages/headless/src/modules/client-address/client-address.services.ts
-@@ -430,7 +430,8 @@ async function setDefault(
+@@ -475,13 +475,14 @@ async function setDefault(
+   clientId: ClientAddressServices["clientId"],
+   captureError: ClientAddressErrorCapture
+ ): Promise<void> {
+   const { t } = useI18n();
    const { put, useUrl } = useQuery();
-   const clientId = resolveClientId(scopeContext);
  
 -  if (!isAddressable(clientId.value)) {
 +  const { isAuthenticated } = useActiveSession().useMeta();
@@ -12,3 +15,6 @@ index 76ffc73d8..625508a0e 100644
      return Promise.reject(new NotAuthenticatedError());
    }
  
+   return put<IAddress>({
+     mutationKey: [...queryKey, addressId, "default"],
+     url: useUrl(`clients/${clientId.value}/addresses/${addressId}`),

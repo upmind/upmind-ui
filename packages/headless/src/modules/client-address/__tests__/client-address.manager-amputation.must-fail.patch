@@ -1,17 +1,23 @@
 diff --git a/packages/headless/src/modules/client-address/client-address.services.ts b/packages/headless/src/modules/client-address/client-address.services.ts
-index 76ffc73d8..2f7927841 100644
+index 1708af336..cce43346e 100644
 --- a/packages/headless/src/modules/client-address/client-address.services.ts
 +++ b/packages/headless/src/modules/client-address/client-address.services.ts
-@@ -650,9 +650,9 @@ export const useClientAddressManagerServices = (
+@@ -709,15 +709,15 @@ export const useClientAddressManagerServices = (
+             ErrorOrigin.Headless,
+             { model }
+           )
          ),
  
    /** `processing.updating` — entered when the context already carries an id. */
 -  update: ({ id, model, baseModel }: AddressContext) =>
 -    id && model
--      ? update(id, model, baseModel, scopeContext)
+-      ? update(id, model, baseModel, service.clientId)
 +  update: ({ id, model }: AddressContext) =>
 +    false && id && model
 +      ? Promise.resolve(undefined)
        : Promise.reject(
            new DetailedError(
              useI18n().t("error.client_address_not_available"),
+             responseCodes.No_Content,
+             ErrorOrigin.Headless,
+             { id, model }

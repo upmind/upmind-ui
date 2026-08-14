@@ -1,8 +1,32 @@
+Negative control — the EDITOR's readiness bound (AC-26, design D-10, hazard Z2).
+
+Mutates `whenAvailable`'s expiry back to the pre-conversion
+`waitFor(…, { timeout: Infinity })` — the exact wait this story replaces.
+
+Should flip RED — __tests__/client-address.manager-readiness.int.test.ts:
+  - "AC-26 settles isReady() within a known limit when the lookup chain never
+     returns"                    (races a 20s ceiling; the wait never ends)
+  - "AC-26 surfaces the stall as a CATCHABLE rejection carrying a timeout
+     status"                     (nothing is ever thrown to catch)
+
+Why this is now a real control. When it was first authored the two AC-26 tests
+were ALREADY red — `READINESS_TIMEOUT_MS` was 30s against a 20s ceiling, so the
+mutant proved nothing. Both are green as of the bound landing at 15s, so
+`Infinity` is the mutation that turns a settling wait back into a hanging one.
+
+Note the SIBLING bound this does NOT cover: the collection half's
+`whenListFetched` (`useClientAddresses.actions.ts`) carries its own
+`READINESS_TIMEOUT_MS` for AC-4. One control, one mutation — a second control
+belongs to that file if AC-4 is to be covered the same way.
+
 diff --git a/packages/headless/src/modules/client-address/useClientAddressManager.actions.ts b/packages/headless/src/modules/client-address/useClientAddressManager.actions.ts
-index dfdf3fb6c..3ebe5eacb 100644
+index 3bb744bec..2e51a961d 100644
 --- a/packages/headless/src/modules/client-address/useClientAddressManager.actions.ts
 +++ b/packages/headless/src/modules/client-address/useClientAddressManager.actions.ts
-@@ -99,7 +99,7 @@ export function createClientAddressManagerActions(
+@@ -101,13 +101,13 @@ export function createClientAddressManagerActions(
+    * "not available" key: a form whose lookups never answered and a form that
+    * resolved unusable are different failures, and a consumer that cannot tell
+    * them apart cannot offer a retry (AC-26).
     */
    function whenAvailable(): Promise<boolean> {
      return waitFor(machineService, s => stateMatches(s, "available"), {
@@ -11,3 +35,6 @@ index dfdf3fb6c..3ebe5eacb 100644
      })
        .then(s => !stateMatches(s, "error"))
        .catch(error =>
+         Promise.reject(
+           new DetailedError(
+             t("error.client_address_form_timeout"),

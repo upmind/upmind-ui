@@ -1,10 +1,13 @@
 diff --git a/packages/headless/src/modules/client-address/client-address.services.ts b/packages/headless/src/modules/client-address/client-address.services.ts
-index 76ffc73d8..9ec00b5bf 100644
+index 1708af336..35ce06ba5 100644
 --- a/packages/headless/src/modules/client-address/client-address.services.ts
 +++ b/packages/headless/src/modules/client-address/client-address.services.ts
-@@ -399,7 +399,8 @@ async function remove(
+@@ -445,13 +445,14 @@ async function remove(
+   clientId: ClientAddressServices["clientId"],
+   captureError: ClientAddressErrorCapture
+ ): Promise<void> {
+   const { t } = useI18n();
    const { del, useUrl } = useQuery();
-   const clientId = resolveClientId(scopeContext);
  
 -  if (!isAddressable(clientId.value)) {
 +  const { isAuthenticated } = useActiveSession().useMeta();
@@ -12,3 +15,6 @@ index 76ffc73d8..9ec00b5bf 100644
      return Promise.reject(new NotAuthenticatedError());
    }
  
+   return del<null>({
+     mutationKey: [...queryKey, addressId, "remove"],
+     url: useUrl(`clients/${clientId.value}/addresses/${addressId}`),

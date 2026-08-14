@@ -1,21 +1,42 @@
+Negative control — the SCOPE-IDENTITY seam (AC-30), the story's headline claim.
+
+Mutates `resolveClientId`'s pin: `pinned.value ??= live` becomes
+`pinned.value = live`, so the "pinned" client re-resolves off the live session
+on every read. The seam is still THERE — same function, same call sites, same
+`.for('client', id)` branch — it just stops holding, which is precisely the
+FE-2824 shape: right structure, no capability.
+
+Should flip RED — __tests__/client-address.scope-identity.int.test.ts:
+  - "AC-30 keeps the RESOLVED client on the save URL after the session moves to
+     another client mid-flight"   (the PUT goes out to OTHER_CLIENT_ID)
+
+Should stay GREEN, and this is the point: both AC-2 tests, AND AC-30's
+per-address READ — the read fires before the session moves, so it cannot
+discriminate. Exactly one test in the suite can tell a held pin from a live
+re-read, and this control names it. Verified: 1 failed | 3 passed.
+
+With one live actor and no mid-flight move, "re-read the session" and "read the
+seam" resolve to the same id — which is exactly why the PREVIOUS control
+(deleting the `.for('client', id)` branch) flipped nothing and had to be
+re-authored. The discriminator is the mid-flight session move, so the mutation
+has to attack the PIN, not the branch.
+
 diff --git a/packages/headless/src/modules/client-address/client-address.services.ts b/packages/headless/src/modules/client-address/client-address.services.ts
-index 76ffc73d8..186eb71d7 100644
+index 1708af336..811562a1d 100644
 --- a/packages/headless/src/modules/client-address/client-address.services.ts
 +++ b/packages/headless/src/modules/client-address/client-address.services.ts
-@@ -83,14 +83,10 @@ export const queryKey: QueryKey = ["client", "addresses"];
-  * branch on `ScopeActorTypes.SELF`. The manager's context names the ADDRESS,
-  * not its owner, so it falls through to the session.
-  */
--function resolveClientId(scopeContext?: ScopeContext) {
-+function resolveClientId(_scopeContext?: ScopeContext) {
-   const { activeUser } = useActiveSession().useContext();
+@@ -113,13 +113,13 @@ function resolveClientId(scopeContext?: ScopeContext, pin = false) {
+       scopeContext?.type === ClientAddressesContextTypes.CLIENT
+         ? scopeContext.id
+         : activeUser.value?.id;
  
--  return computed(() =>
--    scopeContext?.type === ClientAddressesContextTypes.CLIENT
--      ? scopeContext.id
--      : activeUser.value?.id
--  );
-+  return computed(() => activeUser.value?.id);
+     if (!pin) return live;
+ 
+-    pinned.value ??= live;
++    pinned.value = live;
+     return pinned.value;
+   });
  }
  
  /**
+  * Resolves the country a form should sit on, from the model's own id and

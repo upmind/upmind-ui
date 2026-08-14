@@ -1,12 +1,33 @@
+Negative control — the address description's COMPONENT ORDER (AC-31).
+
+Mutates `mapAddress`'s `description` join: transposes `city` and `postcode`.
+
+Should flip RED — __tests__/client-address.mappers.test.ts:
+  - "AC-31 composes description as address_1, address_2, city, state,
+     postcode, region, country"  (toBe oracleDescription)
+  - "AC-31 keeps every component in the oracle's order — each one after the
+     last"                       (indexOf positions must come out ascending)
+
+Why THIS mutation, and not the previous one. The prior control dropped `state`
+from the join. This API never returns `state` — it returns `county`, verified
+live across all 98 recorded rows and by a `PUT {state}` that answered
+`state: null` — so no recorded row can observe that mutation and it flipped
+nothing. `city` and `postcode` are BOTH non-empty on
+`recordedRowWithFullAddress()`, so transposing them is observable on real
+recorded data.
+
 diff --git a/packages/headless/src/modules/client-address/client-address.mappers.ts b/packages/headless/src/modules/client-address/client-address.mappers.ts
-index 7a9c2457a..f29839fd4 100644
+index 7a9c2457a..da7393a4f 100644
 --- a/packages/headless/src/modules/client-address/client-address.mappers.ts
 +++ b/packages/headless/src/modules/client-address/client-address.mappers.ts
-@@ -43,7 +43,6 @@ export function mapAddress(raw: IAddress): Address {
+@@ -42,9 +42,9 @@ export function mapAddress(raw: IAddress): Address {
+     description: compact([
        get(raw, "address_1"),
        get(raw, "address_2"),
-       get(raw, "city"),
--      get(raw, "state"),
+-      get(raw, "city"),
+       get(raw, "state"),
        get(raw, "postcode"),
++      get(raw, "city"),
        get(raw, "region.name"),
        get(raw, "country.name")
+     ]).join(", "),
