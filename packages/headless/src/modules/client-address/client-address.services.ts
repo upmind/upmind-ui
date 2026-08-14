@@ -568,17 +568,12 @@ async function parse(
 
   // now let's check our region list to see if we have a match
   // if so, then we need to update the safeModel with the new region id
-  // otherwise the regionId is reset to null
-  //
-  // `?? null` is the whole clearance, not a style choice: `get` yields
-  // `undefined` for a region the new country's list does not carry, and the
-  // diff payload KEEPS a changed-to-undefined key (`isEqual(old, undefined)`
-  // is false) only for `JSON.stringify` to drop it again — so a US → UK change
-  // sent `country_id` with no `region_id` and the server kept the stale US
-  // region on a UK address. An explicit `null` survives serialisation and
-  // clears it (AC-19).
+  // otherwise the regionId is cleared. `mapIAddressData` is what turns that
+  // cleared value into an explicit `null` on the wire (AC-19) — clearing it
+  // HERE would put a `null` in the model that the schema's region `enum` then
+  // rejects, wedging the very country change this line exists to serve.
   const region = find(regions, ["id", safeModel?.address?.regionId]);
-  safeModel.address.regionId = get(region, "id") ?? null;
+  safeModel.address.regionId = get(region, "id");
 
   return Promise.resolve({ model: safeModel, regions, country });
 }

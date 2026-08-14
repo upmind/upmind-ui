@@ -83,6 +83,23 @@ export function mapAddress(raw: IAddress): Address {
  * `basket-billing/unified` hand-build `{ address } as AddressModel` literals
  * with no type at all — `undefined` there is stripped by `JSON.stringify` and
  * the wire loses a field it has always carried.
+ *
+ * `region_id` is coerced for the same reason its six `address` siblings are:
+ * NOTHING may leave this function `undefined`. `parse` clears a region that the
+ * newly selected country does not carry (AC-19) by assigning `undefined`;
+ * `mapIAddressDataDiff` then correctly KEEPS the key, because the field really
+ * did change — and `parseData`'s `JSON.stringify` drops it again on the way
+ * out, so a US → UK change PUT `country_id` with no `region_id` and the server
+ * kept the stale US region on a UK address. An explicit `null` survives
+ * serialisation and clears the column.
+ *
+ * Coercing HERE rather than at `parse` is deliberate: both sides of the diff
+ * run through this function, so an address that never had a region maps `null`
+ * on both and is correctly OMITTED, and no `null` ever enters the model — where
+ * the region control's `enum` (real region ids only) would reject it and wedge
+ * the machine in `available.invalid`. `country_id` stays uncoerced: it is
+ * schema-required and is never intentionally cleared, so a `null` there would
+ * be an invalid payload rather than a clearance.
  */
 export function mapIAddressData(data: AddressModel | Address): IAddress {
   return {
@@ -92,7 +109,7 @@ export function mapIAddressData(data: AddressModel | Address): IAddress {
     city: data.address.city ?? "",
     state: data.address.state ?? "",
     postcode: data.address.postcode ?? "",
-    region_id: data.address.regionId,
+    region_id: data.address.regionId ?? null,
     country_id: data.address.countryId,
     type: data.type ?? ADDRESS_TYPE_KEYS.HOME
   } as IAddress;
