@@ -1,0 +1,92 @@
+Negative control — a successful edit resolves the SAVED address, not the
+pre-edit one (review blocker B1).
+
+Restores the raw-`IAddress` resolve on the manager's UPDATE limb: the
+`.then(raw => raw ? mapAddress(raw) : undefined)` hop comes off, so `update`
+resolves the API's snake_case body straight from `put()` while its `add:`
+sibling keeps resolving a camelCase `Address` through `service.ensure`. This is
+the exact asymmetry that shipped.
+
+The mutant is invisible at every gate that measures shape. The PUT still goes
+out, to the right url, with the right diff body; the server still persists the
+change; the machine still reaches `processed` and the save still RESOLVES. Only
+the resolved VALUE is wrong, and it is wrong silently: the shared machine's
+`processing.updating.onDone` runs `setModel`, which re-parses through
+`useModelParser(schema, data, baseModel)`; a raw body has no `address` key, so
+`defaultsDeep(values, baseModel)` refills `address` wholesale from the
+form-open snapshot, and the schema's `address: { $ref: "#/definitions/address" }`
+carries no `properties`, so `safeValue` never recurses past the refilled value.
+`context.model` reverts to the values the form opened with.
+
+Declared subject — the B1 read-back. Open an EXISTING address, change one
+`address` field (e.g. city London -> Paris), save, and assert on the value the
+save RESOLVES and on `useContext().model`:
+  - the resolved model's `address.city` is "Paris" (the saved value)
+  - `useContext().model.address.city` is "Paris"
+Under the mutant both are "London" — the form-open snapshot.
+
+What does NOT discriminate, and is why this defect reached review with a green
+suite:
+  - asserting the PUT body / url / method — unchanged by the mutant
+  - asserting the save resolved, or that the machine reached `processed`
+  - asserting the collection refetched (AC-15) — invalidation is upstream of
+    the resolve and fires either way
+  - reading the saved city back off the COLLECTION rather than off the
+    manager's own resolved value — the collection refetches from the server,
+    which has Paris
+
+Measured blast radius, suite at be4b04cba: ZERO. The whole module suite stays
+GREEN under this mutant (115 passed, and the one failure is the standing
+AC-20/F6 halt, which fails identically without it). That measurement IS the
+reviewer's finding — nothing in the suite guarded this behaviour, which is how
+the defect reached review.
+
+Expected collateral once the B1 read-backs land, and NOT this control's
+declared subject: any assertion on `title` / `description` after a save.
+`setModel` derives the meta from the model it just parsed, so a reverted model
+reverts the meta with it. The meta's OWN control is the sibling mutant
+`client-address.saved-meta.must-fail.patch`, which leaves the model correct and
+drops only the derivation — a red there means the meta stopped being derived on
+the save limbs; a red HERE means the model itself reverted.
+
+This mutant restores BOTH halves of what shipped: the unmapped resolve on the
+services adapter AND the `Promise<IAddress | undefined>` return type that
+declared it, so the mutated tree still type-checks and a red can only come from
+the read-back.
+
+diff --git a/packages/headless/src/modules/client-address/client-address.services.ts b/packages/headless/src/modules/client-address/client-address.services.ts
+index ad46bd148..ec3d70ae6 100644
+--- a/packages/headless/src/modules/client-address/client-address.services.ts
++++ b/packages/headless/src/modules/client-address/client-address.services.ts
+@@ -743,15 +743,13 @@ export const useClientAddressManagerServices = (
+    * `IAddress` with no `address` key at all — `defaultsDeep` then refilled
+    * `address` from the FORM-OPEN snapshot and a successful save silently
+    * reverted the model to its pre-edit values.
+    */
+   update: ({ id, model, baseModel }: AddressContext) =>
+     id && model
+-      ? update(id, model, baseModel, service.clientId).then(raw =>
+-          raw ? mapAddress(raw) : undefined
+-        )
++      ? update(id, model, baseModel, service.clientId)
+       : Promise.reject(
+           new DetailedError(
+             useI18n().t("error.client_address_not_available"),
+             responseCodes.No_Content,
+             ErrorOrigin.Headless,
+             { id, model }
+diff --git a/packages/headless/src/modules/client-address/client-address.types.ts b/packages/headless/src/modules/client-address/client-address.types.ts
+index ea8d83397..83d5d23a1 100644
+--- a/packages/headless/src/modules/client-address/client-address.types.ts
++++ b/packages/headless/src/modules/client-address/client-address.types.ts
+@@ -371,8 +371,8 @@ export type ClientAddressManagerMachineServices = {
+    * 56 nodes) → `mapAddress()` at `client-address.mappers.ts:L15` and
+    * `ensure()` at `client-address.services.ts:L165`, both community
+    * `useModelParser` — i.e. the `add:` limb's existing mapping hop this
+    * narrowing makes the `update:` limb match. No type is minted here; `Address`
+    * already exists in that community. See `graphify-out/GRAPH_REPORT.md`.
+    */
+-  update: (context: AddressContext) => Promise<Address | undefined>;
++  update: (context: AddressContext) => Promise<IAddress | undefined>;
+ };
+ 

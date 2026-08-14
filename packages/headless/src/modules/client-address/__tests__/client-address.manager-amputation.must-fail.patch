@@ -25,19 +25,21 @@ create path survives it untouched. AC-24's control is the sibling mutant
 capability, so a red localises to the limb that broke.
 
 diff --git a/packages/headless/src/modules/client-address/client-address.services.ts b/packages/headless/src/modules/client-address/client-address.services.ts
-index 1708af336..cce43346e 100644
+index ad46bd148..315f2b68f 100644
 --- a/packages/headless/src/modules/client-address/client-address.services.ts
 +++ b/packages/headless/src/modules/client-address/client-address.services.ts
-@@ -709,15 +709,15 @@ export const useClientAddressManagerServices = (
-             ErrorOrigin.Headless,
-             { model }
-           )
-         ),
- 
-   /** `processing.updating` — entered when the context already carries an id. */
+@@ -741,17 +741,15 @@ export const useClientAddressManagerServices = (
+    * `add:` limb above resolves a camelCase `Address` (via `service.ensure`),
+    * so without this the update limb handed `setModel` a raw snake_case
+    * `IAddress` with no `address` key at all — `defaultsDeep` then refilled
+    * `address` from the FORM-OPEN snapshot and a successful save silently
+    * reverted the model to its pre-edit values.
+    */
 -  update: ({ id, model, baseModel }: AddressContext) =>
 -    id && model
--      ? update(id, model, baseModel, service.clientId)
+-      ? update(id, model, baseModel, service.clientId).then(raw =>
+-          raw ? mapAddress(raw) : undefined
+-        )
 +  update: ({ id, model }: AddressContext) =>
 +    false && id && model
 +      ? Promise.resolve(undefined)
@@ -47,3 +49,4 @@ index 1708af336..cce43346e 100644
              responseCodes.No_Content,
              ErrorOrigin.Headless,
              { id, model }
+ 
