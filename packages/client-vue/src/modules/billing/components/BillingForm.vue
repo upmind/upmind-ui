@@ -144,13 +144,13 @@ const { isNavigating } = useRoutingEngine();
 
 const activeTab = ref<UnifiedType>();
 
+const addressesScope = useClientAddresses().as(ScopeActorTypes.CLIENT);
 const companiesScope = useClientCompanies().as(ScopeActorTypes.CLIENT);
 const { isEmpty: isCompaniesEmpty } = companiesScope.useMeta();
 
 const meta = computed(() => {
   const phoneReady = !billingMeta.value.needsPhone || !phonesEmpty.value;
-  const addressReady =
-    !billingMeta.value.needsAddress || !addressMeta.value.isEmpty;
+  const addressReady = !billingMeta.value.needsAddress || !addressesEmpty.value;
   // Business billing needs a company to continue with, even when the brand
   // doesn't force one — otherwise Continue shows alongside the add-company form
   // and commits empty, wiping the address.
@@ -176,7 +176,7 @@ const meta = computed(() => {
 // so a refresh mid-token-validation still loads saved billing.
 await Promise.allSettled([
   isReady(),
-  useClientAddresses().isReady(),
+  addressesScope.useActions().isReady(),
   companiesScope.useActions().isReady(),
   useClientPhones().as(ScopeActorTypes.SELF).useActions().isReady()
 ]).then(() => {
@@ -196,11 +196,8 @@ await Promise.allSettled([
 
 // --- summary
 
-const {
-  getOne: getAddress,
-  meta: addressMeta,
-  default: _defaultAddress
-} = useClientAddresses();
+const { getOne: getAddress } = addressesScope.useContext();
+const { isEmpty: addressesEmpty } = addressesScope.useMeta();
 const { getOne: getCompany, default: defaultCompany } =
   companiesScope.useContext();
 const clientPhones = useClientPhones().as(ScopeActorTypes.SELF);

@@ -2,7 +2,6 @@ import parsePhoneNumber, { type CountryCode } from "libphonenumber-js";
 import { BrandConfigKeys } from "@upmind-automation/types";
 import { useBrand } from "../../brand";
 import { useClientAddresses } from "../../client-address";
-import { useClientAddressServices } from "../../client-address";
 import { useClientCompanies } from "../../client-company";
 import { useClientEmails } from "../../client-email";
 import { useClientPhones } from "../../client-phone";
@@ -45,11 +44,10 @@ async function loadLookups({
   const { isReady: getEmails } = clientEmails.useActions();
   const { default: defaultEmail, data: emails } = clientEmails.useContext();
 
-  const {
-    isReady: getAddresses,
-    default: defaultAddress,
-    data: addresses
-  } = useClientAddresses();
+  const addressesScope = useClientAddresses().as(ScopeActorTypes.CLIENT);
+  const { isReady: getAddresses } = addressesScope.useActions();
+  const { default: defaultAddressId, data: addresses } =
+    addressesScope.useContext();
 
   const companiesScope = useClientCompanies().as(ScopeActorTypes.CLIENT);
   const { isReady: getCompanies } = companiesScope.useActions();
@@ -94,7 +92,9 @@ async function loadLookups({
     company:
       type == UnifiedType.BUSINESS
         ? ({
-            addressId: defaultAddress()?.id,
+            // R5 — `default()` IS the id now; `?.id` on a string is
+            // `undefined`, and it still type-checks.
+            addressId: defaultAddressId(),
             emailId: defaultEmail()?.id,
             phoneId: defaultPhone()?.id
           } as CompanyModel)
@@ -133,7 +133,9 @@ async function loadLookups({
 // MUTATIONS
 
 async function add(type: UnifiedType, data: UnifiedModel) {
-  const { ensure: ensureAddress } = useClientAddressServices();
+  const { ensure: ensureAddress } = useClientAddresses()
+    .as(ScopeActorTypes.CLIENT)
+    .useActions();
   const { ensure: ensurePhone } = useClientPhones()
     .as(ScopeActorTypes.SELF)
     .useActions();
@@ -150,7 +152,7 @@ async function add(type: UnifiedType, data: UnifiedModel) {
 
   promises.push(
     data?.address && type == UnifiedType.PERSONAL
-      ? ensureAddress({ model: { address: data.address } })
+      ? ensureAddress({ address: data.address } as AddressModel)
       : Promise.resolve(undefined)
   );
 
@@ -308,7 +310,9 @@ export const useUnifiedServices = () => {
     validate,
     invalidate: async () => {
       // Also invalidate the underlying queries
-      const { invalidate: invalidateAddresses } = useClientAddresses();
+      const { invalidate: invalidateAddresses } = useClientAddresses()
+        .as(ScopeActorTypes.CLIENT)
+        .useActions();
       const { invalidate: invalidateCompanies } = useClientCompanies()
         .as(ScopeActorTypes.CLIENT)
         .useActions();

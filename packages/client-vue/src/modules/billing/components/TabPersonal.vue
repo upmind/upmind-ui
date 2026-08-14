@@ -21,8 +21,8 @@
         :label="t('text.address')"
         v-model="selectedAddress"
         :manage="{
-          useList: useClientAddresses,
-          useMutate: useClientAddressManager
+          useList: useAddressListForManage,
+          useMutate: useAddressManagerForManage
         }"
         :show-label="!!selectedAddress"
         :readonly="readonly"
@@ -79,6 +79,7 @@ import {
   useClientPhones,
   useClientPhoneManager,
   useBasketBilling,
+  ClientAddressContextTypes,
   ClientPhoneContextTypes,
   ScopeActorTypes
 } from "@upmind-automation/headless";
@@ -136,12 +137,15 @@ const { t } = useI18n();
 
 const { useUnifiedBillingDetail, meta: billingMeta, wait } = useBasketBilling();
 
+const clientAddresses = useClientAddresses().as(ScopeActorTypes.CLIENT);
+const { isReady: isAddressesReady } = clientAddresses.useActions();
 const {
   data: addresses,
-  meta: addressMeta,
-  default: defaultAddress,
-  isReady: isAddressesReady
-} = useClientAddresses();
+  default: defaultAddressId,
+  getOne: getAddress
+} = clientAddresses.useContext();
+const { isEmpty: addressesEmpty, isLoading: addressesLoading } =
+  clientAddresses.useMeta();
 
 const clientPhones = useClientPhones().as(ScopeActorTypes.SELF);
 const { isReady: isPhonesReady } = clientPhones.useActions();
@@ -150,8 +154,8 @@ const { isEmpty: phonesEmpty, isLoading: phonesLoading } =
   clientPhones.useMeta();
 
 const meta = computed(() => ({
-  isEmpty: addressMeta.value.isEmpty && phonesEmpty.value,
-  isLoading: addressMeta.value.isLoading || phonesLoading.value
+  isEmpty: addressesEmpty.value && phonesEmpty.value,
+  isLoading: addressesLoading.value || phonesLoading.value
 }));
 
 // The `Manage` component's `useList` / `useMutate` props are called bare
@@ -160,6 +164,69 @@ const meta = computed(() => ({
 // four-layer return, not a behaviour change. Both wrap the SAME registry
 // instance `clientPhones` above resolves (scoped composables are singletons
 // per scope key), so nothing here mints a second collection.
+function useAddressListForManage() {
+  const { isReady, remove, setDefault } = clientAddresses.useActions();
+
+  return {
+    isReady,
+    meta: computed(() => ({
+      isLoading: addressesLoading.value,
+      isEmpty: addressesEmpty.value
+    })),
+    data: addresses,
+    // The adapter RE-HYDRATES to the row: the module's own `default()` is the
+    // id under R5, while `Select.vue` reads `defaultItem()?.id` off whatever
+    // `useList()` returns. Latent today (addresses render through `List.vue`,
+    // which destructures `default` and never calls it) and live the moment any
+    // site sets `as="select"`.
+    default: () => getAddress(defaultAddressId()),
+    // NO feedback raise here (operator ruling R10): `client-address` still
+    // raises `confirm.address_removed` / `confirm.address_set_default` and
+    // their error counterparts itself, and a consumer-side raise on top would
+    // double every message. This is the one place the address adapters
+    // deliberately differ from `TabBusiness.vue`'s company pair.
+    remove,
+    setDefault
+  };
+}
+
+function useAddressManagerForManage(id?: string) {
+  const scoped = useClientAddressManager().as(ScopeActorTypes.CLIENT);
+  const manager = id
+    ? scoped.for(ClientAddressContextTypes.ADDRESS, id)
+    : scoped.fresh();
+  const { isReady, update, clear, input, destroy } = manager.useActions();
+  const { model, schema, uischema, errors, validationErrors } =
+    manager.useContext();
+  const managerMeta = manager.useMeta();
+
+  return {
+    isReady,
+    meta: computed(() => ({
+      isAvailable: managerMeta.isAvailable.value,
+      isLoading: managerMeta.isLoading.value,
+      isValid: managerMeta.isValid.value,
+      isDirty: managerMeta.isDirty.value,
+      isProcessing: managerMeta.isProcessing.value,
+      hasErrors: managerMeta.hasErrors.value,
+      isNew: managerMeta.isNew.value,
+      isComplete: managerMeta.isComplete.value
+    })),
+    model,
+    schema,
+    uischema,
+    errors,
+    validationErrors,
+    update,
+    clear,
+    input,
+    // `destroy` in the `stop` slot: `Form.vue` calls `stop()` on close and
+    // `onUnmounted`, and `stop()` alone leaves the registry entry behind for
+    // the life of the SPA session, holding a live TanStack observer.
+    stop: destroy
+  };
+}
+
 function usePhoneListForManage() {
   const { remove, setDefault } = clientPhones.useActions();
   return {
@@ -221,10 +288,18 @@ function usePhoneManagerForManage(id?: string) {
 
 const selectedAddress = computed({
   get() {
-    return modelValue.value?.addressId ?? defaultAddress()?.id ?? undefined;
+    // R5 — `default()` IS the id now. `defaultAddressId()?.id` would be
+    // `undefined` at runtime AND would still type-check, because
+    // `string | undefined` flows into `addressId` exactly as
+    // `Address | undefined ?. id` did.
+    return modelValue.value?.addressId ?? defaultAddressId() ?? undefined;
   },
   set(val?: string) {
-    const found = find(addresses.value, ["id", val]) ?? defaultAddress();
+    // `find(...)` yields the ROW, so the fallback has to be re-hydrated from
+    // the id — otherwise this returns a row-or-STRING union and `found?.id`
+    // silently drops to `undefined` for the default case.
+    const found =
+      find(addresses.value, ["id", val]) ?? getAddress(defaultAddressId());
     modelValue.value = {
       ...modelValue.value,
       companyId: undefined,
@@ -254,7 +329,7 @@ function doResolve(value: BillingModel) {
       ? (value?.phoneId ?? defaultPhone()?.id ?? undefined)
       : undefined,
     companyId: undefined,
-    addressId: value?.addressId ?? defaultAddress()?.id ?? undefined
+    addressId: value?.addressId ?? defaultAddressId() ?? undefined
   };
   showForm.value = false;
   emit("formResolve");
@@ -266,12 +341,12 @@ await Promise.all([isAddressesReady(), isPhonesReady()]).then(() => {
   // Set our initial / default values
   modelValue.value = {
     companyId: undefined,
-    addressId: modelValue.value?.addressId ?? defaultAddress()?.id,
+    addressId: modelValue.value?.addressId ?? defaultAddressId(),
     phoneId: billingMeta.value.needsPhone
       ? (modelValue.value?.phoneId ?? defaultPhone()?.id)
       : undefined
   };
 
-  showForm.value = addressMeta.value.isEmpty && phonesEmpty.value;
+  showForm.value = addressesEmpty.value && phonesEmpty.value;
 });
 </script>

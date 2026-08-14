@@ -2,10 +2,7 @@
 import { computed, ref } from "vue";
 import { BrandConfigKeys, type ICompany } from "@upmind-automation/types";
 import { useBrand } from "../brand";
-import {
-  useClientAddresses,
-  useClientAddressServices
-} from "../client-address";
+import { useClientAddresses } from "../client-address";
 import { useClientEmails } from "../client-email";
 import { useClientPhones } from "../client-phone";
 import { RequestSortDirection, invalidateQueryByKey, useQuery } from "../query";
@@ -219,7 +216,9 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
   const { ensure: ensurePhone } = useClientPhones()
     .as(ScopeActorTypes.SELF)
     .useActions();
-  const { ensure: ensureAddress } = useClientAddressServices();
+  const { ensure: ensureAddress } = useClientAddresses()
+    .as(ScopeActorTypes.CLIENT)
+    .useActions();
 
   return Promise.all([
     !data?.email && !data?.emailId
@@ -238,11 +237,11 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
             : { id: data?.phoneId }) as PhoneModel
         ),
 
-    ensureAddress({
-      model: (data?.address
+    ensureAddress(
+      (data?.address
         ? { address: data.address }
         : { id: data?.addressId }) as AddressModel
-    })
+    )
   ])
     .then(([email, phone, address]) => ({
       id: data.id,
@@ -503,11 +502,10 @@ async function loadLookups(
   const { isReady: getEmails } = clientEmails.useActions();
   const { default: defaultEmail, data: emails } = clientEmails.useContext();
 
-  const {
-    isReady: getAddresses,
-    default: defaultAddress,
-    data: addresses
-  } = useClientAddresses();
+  const addressesScope = useClientAddresses().as(ScopeActorTypes.CLIENT);
+  const { isReady: getAddresses } = addressesScope.useActions();
+  const { default: defaultAddressId, data: addresses } =
+    addressesScope.useContext();
 
   const { isReady, ensureCountries, fetchRegions, getCountry } = useSystem();
 
@@ -556,9 +554,11 @@ async function loadLookups(
     regNumber: seed?.regNumber,
     tax: seed?.tax,
     // --- one of
-    addressId: seed?.addressId ?? defaultAddress()?.id,
+    // R5 — `default()` IS the id now; `?.id` on a string is `undefined`, and
+    // it still type-checks.
+    addressId: seed?.addressId ?? defaultAddressId(),
     address:
-      !seed?.addressId && !defaultAddress()?.id
+      !seed?.addressId && !defaultAddressId()
         ? ({ countryId: country?.id } as CompanyModel["address"])
         : undefined,
     // ---

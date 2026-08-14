@@ -131,8 +131,9 @@ export async function applyBillingDefaults(): Promise<void> {
 
   if (billingMeta.value.isComplete) return;
 
-  const { default: defaultAddress, isReady: isAddressesReady } =
-    useClientAddresses();
+  const addressesScope = useClientAddresses().as(ScopeActorTypes.CLIENT);
+  const { default: defaultAddressId } = addressesScope.useContext();
+  const { isReady: isAddressesReady } = addressesScope.useActions();
   const companiesScope = useClientCompanies().as(ScopeActorTypes.CLIENT);
   const { default: defaultCompany, getOne: getCompany } =
     companiesScope.useContext();
@@ -152,7 +153,9 @@ export async function applyBillingDefaults(): Promise<void> {
 
   await update({
     companyId: company?.id,
-    addressId: company?.addressId ?? defaultAddress()?.id,
+    // R5 — `default()` IS the id now; `?.id` would silently yield `undefined`
+    // and would still type-check.
+    addressId: company?.addressId ?? defaultAddressId(),
     phoneId: billingConfig.value?.requiresPhone && defaultPhone()?.id
   }).catch(() => {});
 }

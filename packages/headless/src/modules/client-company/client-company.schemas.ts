@@ -28,6 +28,7 @@
  */
 import { computed } from "vue";
 import {
+  ClientAddressContextTypes,
   useClientAddresses,
   useClientAddressManager,
   useSchemaDefinitions as useAddressSchema,
@@ -79,6 +80,88 @@ function useCompanyEmailMutate(id?: string) {
   const manager = useClientEmailManager().as(ScopeActorTypes.CLIENT);
   const instance = id
     ? manager.for(ClientEmailContextTypes.EMAIL, id)
+    : manager.fresh();
+  const { isReady, update, clear, input, destroy } = instance.useActions();
+  const { model, schema, uischema, errors, validationErrors } =
+    instance.useContext();
+  const {
+    isAvailable,
+    isLoading,
+    isValid,
+    isDirty,
+    isProcessing,
+    hasErrors,
+    isNew,
+    isComplete
+  } = instance.useMeta();
+
+  return {
+    isReady,
+    meta: computed(() => ({
+      isAvailable: isAvailable.value,
+      isLoading: isLoading.value,
+      isValid: isValid.value,
+      isDirty: isDirty.value,
+      isProcessing: isProcessing.value,
+      hasErrors: hasErrors.value,
+      isNew: isNew.value,
+      isComplete: isComplete.value
+    })),
+    model,
+    schema,
+    uischema,
+    errors,
+    validationErrors,
+    update,
+    clear,
+    input,
+    stop: destroy
+  };
+}
+
+// -----------------------------------------------------------------------------
+// Address adapters — same shape as the email pair above, for the same reason:
+// `useClientAddresses` / `useClientAddressManager` became SCOPED composables
+// and the "Manager" uischema renderer calls them BARE. Handing the renderer an
+// unadapted scope builder compiles cleanly (the options object is cast
+// `as any`) and fails at runtime (`design.md` D-13, hazard Z7).
+//
+// Two obligations the address adapters carry that the email pair does not:
+// `default` RE-HYDRATES to the row, because the module's own `default()` is
+// now the ID (R5) while `Select.vue:97` reads `defaultItem()?.id`; and `stop`
+// maps to `destroy`, or every opened address leaves a registry entry holding a
+// live TanStack observer.
+//
+// They raise NO feedback: under operator ruling R10 `client-address` still
+// raises its own on `remove` / `setDefault`, and a consumer-side raise on top
+// would double every message. That is the one place these deliberately differ
+// from the company adapters in `TabBusiness.vue`.
+// -----------------------------------------------------------------------------
+
+function useCompanyAddressList() {
+  const addresses = useClientAddresses().as(ScopeActorTypes.CLIENT);
+  const { data, default: defaultAddressId, getOne } = addresses.useContext();
+  const { isLoading, hasError, isEmpty } = addresses.useMeta();
+  const { isReady, remove, setDefault } = addresses.useActions();
+
+  return {
+    isReady,
+    meta: computed(() => ({
+      isLoading: isLoading.value,
+      hasError: hasError.value,
+      isEmpty: isEmpty.value
+    })),
+    data,
+    default: () => getOne(defaultAddressId()),
+    remove,
+    setDefault
+  };
+}
+
+function useCompanyAddressMutate(id?: string) {
+  const manager = useClientAddressManager().as(ScopeActorTypes.CLIENT);
+  const instance = id
+    ? manager.for(ClientAddressContextTypes.ADDRESS, id)
     : manager.fresh();
   const { isReady, update, clear, input, destroy } = instance.useActions();
   const { model, schema, uischema, errors, validationErrors } =
@@ -253,8 +336,8 @@ export const useUischema = ({
       i18nKey: "form.address",
       options: {
         manage: {
-          useList: useClientAddresses,
-          useMutate: useClientAddressManager
+          useList: useCompanyAddressList,
+          useMutate: useCompanyAddressMutate
         }
       }
     } as any);
