@@ -135,11 +135,11 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import {
+  ScopeActorTypes,
   useBasketBilling,
   useClientAddresses,
   useClientCompanies,
-  useClientPhones,
-  ScopeActorTypes
+  useClientPhones
 } from "@upmind-automation/headless";
 import { useStyles, useTestAttrs } from "@upmind-automation/upmind-ui";
 import { Alert, Avatar, Card, Link } from "@upmind-automation/upmind-ui";
@@ -184,17 +184,19 @@ const { isReady, meta: billingMeta, model } = useBasketBilling();
 // The client-data isReady()s resolve once the auth check settles (checkout
 // only mounts this summary for authenticated sessions), so a refresh
 // mid-token-validation still loads saved billing.
+const companiesScope = useClientCompanies().as(ScopeActorTypes.CLIENT);
+
 await Promise.allSettled([
   isReady(),
   useClientAddresses().isReady(),
-  useClientCompanies().isReady(),
+  companiesScope.useActions().isReady(),
   useClientPhones().as(ScopeActorTypes.SELF).useActions().isReady()
 ]);
 
 // --- summary
 
 const { getOne: getAddress } = useClientAddresses();
-const { getOne: getCompany } = useClientCompanies();
+const { getOne: getCompany } = companiesScope.useContext();
 const { getOne: getPhone } = useClientPhones()
   .as(ScopeActorTypes.SELF)
   .useContext();

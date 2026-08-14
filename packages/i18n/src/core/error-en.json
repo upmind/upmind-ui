@@ -49,6 +49,7 @@
   "client_company_ensure_dependencies_failed": "Ensure company dependencies failed",
   "client_company_not_available": "Company not available",
   "client_company_set_default_failed": "We experienced an error setting this company as default",
+  "client_company_update_failed": "We experienced an error updating this company",
   "client_company_validation_failed": "Company validation failed",
   "client_email_delete_failed": "We experienced an error deleting this email",
   "client_email_history_validation_failed": "Email history validation failed",

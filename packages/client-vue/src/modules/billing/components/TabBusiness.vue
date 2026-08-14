@@ -16,8 +16,8 @@
         :label="t('text.company')"
         v-model="selectedCompany"
         :manage="{
-          useList: useClientCompanies,
-          useMutate: useClientCompanyManager
+          useList: useCompanyList,
+          useMutate: useCompanyMutate
         }"
         :show-label="!!selectedCompany"
         :readonly="readonly"
@@ -70,13 +70,15 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import {
+  ClientCompanyContextTypes,
+  ScopeActorTypes,
   useClientCompanies,
   useClientCompanyManager,
   useClientPhones,
   useClientPhoneManager,
   useBasketBilling,
   ClientPhoneContextTypes,
-  ScopeActorTypes
+  useFeedback
 } from "@upmind-automation/headless";
 import { UnifiedType } from "@upmind-automation/headless";
 import Form from "../../../components/manage/Form.vue";
@@ -132,12 +134,15 @@ const { t } = useI18n();
 
 const { useUnifiedBillingDetail, meta: billingMeta, wait } = useBasketBilling();
 
+const companiesScope = useClientCompanies().as(ScopeActorTypes.CLIENT);
 const {
   data: companies,
-  meta: companyMeta,
   default: defaultCompany,
-  isReady: isCompaniesReady
-} = useClientCompanies();
+  getOne: getCompany
+} = companiesScope.useContext();
+const { isEmpty: isCompaniesEmpty, isLoading: isCompaniesLoading } =
+  companiesScope.useMeta();
+const { isReady: isCompaniesReady } = companiesScope.useActions();
 
 const clientPhones = useClientPhones().as(ScopeActorTypes.SELF);
 const { isReady: isPhonesReady } = clientPhones.useActions();
@@ -146,16 +151,102 @@ const { isEmpty: phonesEmpty, isLoading: phonesLoading } =
   clientPhones.useMeta();
 
 const meta = computed(() => ({
-  isEmpty: companyMeta.value.isEmpty && phonesEmpty.value,
-  isLoading: companyMeta.value.isLoading || phonesLoading.value
+  isEmpty: isCompaniesEmpty.value && phonesEmpty.value,
+  isLoading: isCompaniesLoading.value || phonesLoading.value
 }));
 
-// The `Manage` component's `useList` / `useMutate` props are called bare
-// (`props.manage.useList()`, `props.manage.useMutate(id, options)`), so the
-// scoped composables are wrapped here to that shape — forced by the
-// four-layer return, not a behaviour change. Both wrap the SAME registry
-// instance `clientPhones` above resolves (scoped composables are singletons
-// per scope key), so nothing here mints a second collection.
+// --- Manage-renderer adapters. `useClientCompanies`/`useClientCompanyManager`
+// and `useClientPhones`/`useClientPhoneManager` are SCOPED composables; the
+// `Manage`/`Form` components below expect the flat `MinimalListComposable` /
+// `MinimalMutateComposable` shape (`components/manage/types.ts`), so each
+// resolves its actor and flattens the four-layer return into that shape
+// (`design.md` D9) — forced by the four-layer return, not a behaviour change.
+// Each wraps the SAME registry instance resolved above (scoped composables are
+// singletons per scope key), so nothing here mints a second collection.
+//
+// The company `remove` / `setDefault` also carry the AC-29 consumer obligation:
+// the module raises no feedback of its own, so the toasts the legacy raised on
+// delete and on set-default are rendered HERE instead (`parity.yaml` C32).
+const { addSuccess, addError } = useFeedback();
+
+function useCompanyList() {
+  const { remove, setDefault } = companiesScope.useActions();
+
+  return {
+    isReady: isCompaniesReady,
+    meta: computed(() => ({
+      isLoading: isCompaniesLoading.value,
+      isEmpty: isCompaniesEmpty.value
+    })),
+    data: companies,
+    default: defaultCompany,
+    remove: (id: string) =>
+      remove(id)
+        .then(() => addSuccess(t("confirm.company_removed")))
+        .catch(error =>
+          addError({
+            title: error?.message ?? t("error.client_company_delete_failed")
+          })
+        ),
+    setDefault: (id: string) =>
+      setDefault(id)
+        .then(() => addSuccess(t("confirm.company_set_default")))
+        .catch(error =>
+          addError({
+            title:
+              error?.message ?? t("error.client_company_set_default_failed")
+          })
+        )
+  };
+}
+
+function useCompanyMutate(id?: string) {
+  const manager = useClientCompanyManager().as(ScopeActorTypes.CLIENT);
+  const instance = id
+    ? manager.for(ClientCompanyContextTypes.COMPANY, id)
+    : manager.fresh();
+  const { isReady, update, clear, input, destroy } = instance.useActions();
+  const { model, schema, uischema, errors, validationErrors } =
+    instance.useContext();
+  const {
+    isAvailable,
+    isLoading,
+    isValid,
+    isDirty,
+    isProcessing,
+    hasErrors,
+    isNew,
+    isComplete
+  } = instance.useMeta();
+
+  return {
+    isReady,
+    meta: computed(() => ({
+      isAvailable: isAvailable.value,
+      isLoading: isLoading.value,
+      isValid: isValid.value,
+      isDirty: isDirty.value,
+      isProcessing: isProcessing.value,
+      hasErrors: hasErrors.value,
+      isNew: isNew.value,
+      isComplete: isComplete.value
+    })),
+    model,
+    schema,
+    uischema,
+    errors,
+    validationErrors,
+    update,
+    clear,
+    input,
+    // `Form.vue` calls `stop()` on close and `onUnmounted` — mapping it to
+    // `destroy()` is the AC-24 lifecycle obligation: without it, every
+    // company opened would leave a permanent registry entry holding a live
+    // TanStack observer at `staleTime: DAY`.
+    stop: destroy
+  };
+}
+
 function usePhoneListForManage() {
   const { remove, setDefault } = clientPhones.useActions();
   return {
@@ -217,10 +308,11 @@ function usePhoneManagerForManage(id?: string) {
 
 const selectedCompany = computed({
   get() {
-    return modelValue.value?.companyId ?? defaultCompany()?.id ?? undefined;
+    return modelValue.value?.companyId ?? defaultCompany() ?? undefined;
   },
   set(val?: string) {
-    const found = find(companies.value, ["id", val]) ?? defaultCompany();
+    const found =
+      find(companies.value, ["id", val]) ?? getCompany(defaultCompany());
     modelValue.value = {
       ...modelValue.value,
       companyId: found?.id ?? val,
@@ -245,7 +337,8 @@ const selectedPhone = computed({
 
 function doResolve(value: BillingModel) {
   const company =
-    find(companies.value, ["id", value?.companyId]) ?? defaultCompany();
+    find(companies.value, ["id", value?.companyId]) ??
+    getCompany(defaultCompany());
   modelValue.value = {
     phoneId: billingMeta.value.needsPhone
       ? (value?.phoneId ?? defaultPhone()?.id ?? undefined)
@@ -262,13 +355,14 @@ function doResolve(value: BillingModel) {
 await Promise.all([isCompaniesReady(), isPhonesReady()]).then(() => {
   // Set our initial / default values
   modelValue.value = {
-    companyId: modelValue.value?.companyId ?? defaultCompany()?.id,
-    addressId: modelValue.value?.addressId ?? defaultCompany()?.addressId,
+    companyId: modelValue.value?.companyId ?? defaultCompany(),
+    addressId:
+      modelValue.value?.addressId ?? getCompany(defaultCompany())?.addressId,
     phoneId: billingMeta.value.needsPhone
       ? (modelValue.value?.phoneId ?? defaultPhone()?.id)
       : undefined
   };
 
-  showForm.value = companyMeta.value.isEmpty && phonesEmpty.value;
+  showForm.value = isCompaniesEmpty.value && phonesEmpty.value;
 });
 </script>

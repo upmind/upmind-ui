@@ -1,119 +1,160 @@
+/**
+ * @graphify-citation `graphify query "client company scope matrix context
+ * types"` (2026-08-08, `graphify-out/graph.json`, 12,667 nodes; BFS depth=2
+ * from `Company`, `client-company.types.ts`, `ClientEmailScopeMatrix`,
+ * `ScopeActorTypes`, 643 nodes reached). A direct node scan for
+ * `CompaniesContextTypes`, `CompanyContextTypes`, `COMPANIES_SCOPE_MATRIX`,
+ * `COMPANY_SCOPE_MATRIX`, `ClientCompanyServices`, `ClientCompanyListQuery`
+ * and `ClientCompanyManagerMachineConfig` returned 0 hits — none of the
+ * constructs below exists anywhere in the graph today. The only pre-existing
+ * scope-matrix family is `client-email`'s (`ClientEmailScopeMatrix`,
+ * `client-email.types.ts` L83), which this design deliberately mirrors rather
+ * than duplicates: the two matrices differ in their context members (`COMPANY`
+ * vs `EMAIL`) and cannot be shared. `Company` / `CompanyModel` / `CompanyContext`
+ * already exist and are kept, not re-minted. See `graphify-out/GRAPH_REPORT.md`.
+ */
+// -----------------------------------------------------------------------------
+/**
+ * @module client-company/client-company.types
+ * @description Types for a client's own companies — the query-backed
+ * collection (`useClientCompanies`) and the `dataManagerMachine`-backed
+ * per-company form editor (`useClientCompanyManager`). Each composable owns
+ * its own context enum and scope matrix; the company model, the services
+ * contract and the mappers are shared, which is what keeps ONE identity seam
+ * for both halves.
+ */
+
+import { AccessRoleTypes } from "@upmind-automation/types";
+import { ScopeActorTypes } from "../scope/scope.types";
+import type { ResponseError } from "../../utils";
 import type { Address, AddressModel } from "../client-address";
 import type { Email } from "../client-email";
 import type { Phone, PhoneModel } from "../client-phone";
 import type { DataManagerContext } from "../data-manager/data-manager.types";
+import type { ListQuery, QueryParams } from "../query";
+import type { QueryKey } from "@tanstack/vue-query";
 import type { ICountry, ICompany, IRegion } from "@upmind-automation/types";
-
+import type { ComputedRef } from "vue";
+import type { AnyEventObject } from "xstate";
+// -----------------------------------------------------------------------------
+// SCOPE — two matrices, one per composable
 // -----------------------------------------------------------------------------
 
 /**
- * Interface representing the data model for a company, suitable for forms
- * or API payloads. It encapsulates core company details and their associated
- * address, email, and phone references.
+ * Context types for the company COLLECTION — whose list is being addressed.
+ */
+export enum ClientCompaniesContextTypes {
+  /** Acting on a client's company collection. */
+  CLIENT = AccessRoleTypes.CLIENT
+}
+
+/**
+ * Scope matrix for `useClientCompanies`. `client` is the only actor that
+ * resolves; `staff` and `guest` are `null as never`, which makes `.as('staff')`
+ * a compile-time error rather than an advertised-but-absent capability
+ * (operator ruling R1 — `parity.yaml` C38/C39).
+ */
+export const CLIENT_COMPANIES_SCOPE_MATRIX = {
+  [ScopeActorTypes.SELF]: null as never,
+  [ScopeActorTypes.STAFF]: null as never,
+  [ScopeActorTypes.CLIENT]: ClientCompaniesContextTypes.CLIENT,
+  [ScopeActorTypes.GUEST]: null as never
+} as const;
+
+/** Scope matrix type for `useClientCompanies` (derived from the runtime const). */
+export type ClientCompaniesScopeMatrix = typeof CLIENT_COMPANIES_SCOPE_MATRIX;
+
+/**
+ * Context types for the per-company MANAGER — which company is being edited.
+ * The context names the ENTITY, not its owner: the owning client falls through
+ * the same `resolveClientId` seam as every other call.
+ */
+export enum ClientCompanyContextTypes {
+  /** Editing one existing company by id. */
+  COMPANY = "company"
+}
+
+/**
+ * Scope matrix for `useClientCompanyManager`. Separate from the collection's —
+ * the two composables scope on different things and cannot share one.
+ */
+export const CLIENT_COMPANY_SCOPE_MATRIX = {
+  [ScopeActorTypes.SELF]: null as never,
+  [ScopeActorTypes.STAFF]: null as never,
+  [ScopeActorTypes.CLIENT]: ClientCompanyContextTypes.COMPANY,
+  [ScopeActorTypes.GUEST]: null as never
+} as const;
+
+/** Scope matrix type for `useClientCompanyManager` (derived from the runtime const). */
+export type ClientCompanyScopeMatrix = typeof CLIENT_COMPANY_SCOPE_MATRIX;
+
+// -----------------------------------------------------------------------------
+// MODELS
+// -----------------------------------------------------------------------------
+
+/**
+ * The form/request model for a company. Present fields are mutually exclusive
+ * pairs — an id-or-inline choice for the address, the email and the phone.
  */
 export interface CompanyModel {
-  /**
-   * Optional unique identifier for the company. Present if editing an existing company.
-   */
+  /** Present when editing an existing company. */
   id?: ICompany["id"];
-  // --- One of
-  /**
-   * Optional unique identifier of the associated address. Mutually exclusive with the ` address ` object.
-   */
+  // --- one of
+  /** The id of an existing address. Mutually exclusive with `address`. */
   addressId?: ICompany["address_id"];
-  /**
-   * Optional full address model. Mutually exclusive with `addressId`.
-   */
+  /** A full address model, for an inline create. Mutually exclusive with `addressId`. */
   address?: AddressModel["address"];
   // ---
-  /**
-   * Optional unique identifier of the associated email. Mutually exclusive with the ` email ` string.
-   */
+  /** The id of an existing email. Mutually exclusive with `email`. */
   emailId?: ICompany["email_id"];
-  /**
-   * Optional email address string. Mutually exclusive with `emailId`.
-   */
+  /** An email address string, for an inline create. Mutually exclusive with `emailId`. */
   email?: Email["email"];
   // ---
-  /**
-   * Optional phone model. Mutually exclusive with `phoneId`.
-   */
+  /** A phone model, for an inline create. Mutually exclusive with `phoneId`. */
   phone?: PhoneModel["phone"];
-  /**
-   * Optional unique identifier of the associated phone. Mutually exclusive with `phone` object.
-   */
+  /** The id of an existing phone. Mutually exclusive with `phone`. */
   phoneId?: ICompany["phone_id"];
   // ---
-  /**
-   * The name of the company.
-   */
+  /** The name of the company. */
   name?: ICompany["name"];
-  /**
-   * The registration number of the company.
-   */
+  /** The registration number of the company. */
   regNumber?: ICompany["reg_number"];
-  /**
-   * Optional tax details for the company, e.g. VAT number.
-   */
+  /** Tax details for the company. */
   tax?: {
-    /** The VAT (Value Added Tax) number of the company. */
+    /** The VAT number of the company. */
     number?: ICompany["vat_number"];
   };
   /**
-   * `true` if this is the default company for the client.
+   * `true` if this is the client's default company. Deliberately dropped by
+   * `mapICompany` — a form save can never set or unset this; `setDefault` is
+   * the only route (`parity.yaml` C14, not a defect).
    */
   default?: ICompany["default"];
 }
 
 /**
- * Interface representing a comprehensive company object, typically retrieved from the API.
- * It extends {@link CompanyModel} with additional identifiers, computed display fields,
- * detailed tax information, and meta-data about the company's status.
+ * A company as read from the API, with its display and status fields.
  */
 export interface Company {
-  //--- identifiers
-  /**
-   * The unique identifier for the company.
-   */
+  /** The unique identifier for the company. */
   id: ICompany["id"];
-  /**
-   * The unique identifier of the associated email address.
-   */
+  /** The id of the associated email address. */
   emailId: ICompany["email_id"];
-  /**
-   * The unique identifier of the associated phone number.
-   */
+  /** The id of the associated phone number. */
   phoneId: ICompany["phone_id"];
-  /**
-   * The unique identifier of the associated address.
-   */
+  /** The id of the associated address. */
   addressId: ICompany["address_id"];
-  // --- company details
-  /**
-   * A display title for the company, computed from its name.
-   * Defaults to "New Company" if the name is not available.
-   */
+  /** Display title — the company's name, or "New Company". */
   title: string;
-  /**
-   * A detailed description of the company, often including its address and other contact info.
-   */
+  /** Display description — the compacted address join. */
   description: string;
-  //--- company details
-  /**
-   * The name of the company.
-   */
+  /** The name of the company. */
   name: ICompany["name"];
-  /**
-   * `true` if this is the default company for the client.
-   */
+  /** `true` if this is the client's default company. */
   default: ICompany["default"];
-  /**
-   * The registration number of the company.
-   */
+  /** The registration number of the company. */
   regNumber: ICompany["reg_number"];
-  /**
-   * Detailed tax information for the company, e.g. VAT details.
-   */
+  /** Tax details for the company. */
   tax: {
     /** `true` if the VAT number has been successfully validated. */
     valid: ICompany["vat_validated"];
@@ -121,58 +162,142 @@ export interface Company {
     percent: ICompany["vat_percent"];
     /** The VAT number of the company. */
     number: ICompany["vat_number"];
-    /** The reason why VAT validation failed, if applicable. */
+    /** The reason VAT validation failed, if applicable. */
     reason: ICompany["vat_validation_failed_reason"];
-    /** Details about when the VAT number was last checked. */
+    /** When the VAT number was last checked. */
     checked: {
-      /** The date and time when VAT validation was last checked. */
+      /** The date/time last checked. */
       date: ICompany["vat_validation_checked_at"];
-      /** A human-readable relative time string for when it was last checked. */
+      /** A human-readable relative time string. */
       relative: string;
     };
     /** The service or method used for VAT validation. */
     with: ICompany["vat_validated_with"];
   };
-  // --- meta info
-  /**
-   * Meta-information about the company's status and abilities.
-   */
+  /** Status flags for UI rendering. */
   meta: {
     /** `true` if this is the client's default company. */
     isDefault: boolean;
-    /** `true` if the company record can be deleted. */
+    /** `true` if the API permits deleting this company. */
     canDelete: boolean;
     /** `true` if the company's details have been verified. */
     isVerified: boolean;
-    /** `true` if the company has associated tax details. */
+    /** `true` if the company has a tax number on file. */
     hasTax: boolean;
-    /** `true` if the company's tax details have undergone validation. */
+    /** `true` if tax-number validation is switched on for the brand. */
     hasTaxValidation: boolean;
-    /** `true` if the company's tax details are valid. */
+    /** `true` if the company's tax number has been validated. */
     hasValidTax: boolean;
   };
 }
 
 /**
- * Interface representing the context for company management within a client item context.
- * It extends `DataManagerContext` with specific data relevant to company operations,
- * such as associated addresses, emails, phones, and geographical lookups.
- *
- * @template TModel - The type of the company model, typically {@link CompanyModel}.
+ * The manager's machine context — the shared machine's, over this form
+ * model (see the header `@graphify-citation` — graphify-out/GRAPH_REPORT.md,
+ * 0 pre-existing nodes for this construct). Every member beyond the base
+ * `DataManagerContext` is OPTIONAL — not because they are ever genuinely
+ * absent once `loading` completes, but because the shared `dataManagerMachine`
+ * is fixed to `DataManagerContext` (`createMachine<DataManagerContext>`,
+ * `data-manager.machine.ts`), and a `withConfig(...)` action/guard/service
+ * typed against a context with REQUIRED extra fields is not assignable to
+ * one typed against the base — the exact reason the pre-conversion
+ * `withConfig` call carried three `as any` casts. Optional keeps the pin to
+ * `Parameters<typeof dataManagerMachine.withConfig>[0]` (NFR-4) real instead
+ * of re-introducing the casts it exists to remove.
  */
 export interface CompanyContext extends DataManagerContext<CompanyModel> {
-  /** An array of all {@link Address} records associated with the client. */
-  addresses: Address[];
-  /** An array of all {@link Email} records associated with the client. */
-  emails: Email[];
-  /** An array of all {@link Phone} records associated with the client. */
-  phones: Phone[];
-  /** The currently selected {@link ICountry} object in the context. */
+  /** The client's own addresses. */
+  addresses?: Address[];
+  /** The client's own emails. */
+  emails?: Email[];
+  /** The client's own phones. */
+  phones?: Phone[];
+  /** The currently selected country. */
   country?: ICountry;
-  /** An array of {@link IRegion} objects available for the selected country. */
+  /** The regions available for the selected country. */
   regions?: IRegion[];
-  /** An array of all available {@link ICountry} objects in the system. */
-  countries: ICountry[];
-  /** `true` if the context is in a minimal mode, potentially showing fewer fields or details. */
+  /** All available countries. */
+  countries?: ICountry[];
+  /** `true` when the schema/uischema should render a reduced field set. */
   minimal?: boolean;
 }
+
+/**
+ * The reactive list query, minted ONCE per scope in `useClientCompanies.ts`.
+ * Aliased from the query platform's own `ListQuery` — never derived with
+ * `ReturnType<typeof localServiceFn>` (NFR-5).
+ */
+export type ClientCompanyListQuery = ListQuery<ICompany[], Company[]>;
+
+/** Lands a failed collection mutation in the services instance's error state. */
+export type ClientCompanyErrorCapture = (error: unknown) => void;
+
+/**
+ * The contract `createClientCompanyServices` resolves to — consumed by BOTH
+ * halves, so the collection and the manager address the same client through
+ * the same seam.
+ */
+export type ClientCompanyServices = {
+  /** The module's base cache key; a save invalidates it and the list refetches. */
+  queryKey: QueryKey;
+  /**
+   * The target client this scope resolved. The manager seeds its machine
+   * context from here rather than re-reading the session.
+   */
+  clientId: ComputedRef<string | undefined>;
+  /**
+   * The reactive form of the ONE addressability predicate every request gate in
+   * `client-company.services` calls. The composable layers read THIS rather
+   * than re-deriving the expression, so the flag a consumer renders and the
+   * gate the wire enforces cannot drift apart.
+   */
+  isAvailable: ComputedRef<boolean>;
+  /** The last failed collection mutation, captured as state — never raised. */
+  error: ComputedRef<ResponseError | undefined>;
+  loadList: (
+    params?: Partial<QueryParams<ICompany[], Company[]>>
+  ) => ClientCompanyListQuery;
+  /** Per-company read; seeds the manager when no collection is loaded. */
+  loadOne: (id?: ICompany["id"]) => Promise<Company | undefined>;
+  add: (model: CompanyModel) => Promise<ICompany | undefined>;
+  update: (
+    id: ICompany["id"],
+    model: CompanyModel
+  ) => Promise<ICompany | undefined>;
+  /** Find-or-create; backs both the collection action and the machine's `add`. */
+  ensure: (model: CompanyModel) => Promise<Company>;
+  remove: (id: ICompany["id"]) => Promise<void>;
+  setDefault: (id: ICompany["id"]) => Promise<ICompany | undefined>;
+  /** Schema validation; rejects with the AJV errors as the error's `data`. */
+  validate: (model?: CompanyModel) => Promise<CompanyModel | undefined>;
+  /** Invalidates {@link ClientCompanyServices.queryKey} so the collection refetches. */
+  refresh: () => Promise<void>;
+  /** Form-editor support, consumed only through the machine config. */
+  loadLookups: (context: CompanyContext) => Promise<Partial<CompanyContext>>;
+  parse: (
+    context: CompanyContext,
+    event: AnyEventObject
+  ) => Promise<Partial<CompanyContext>>;
+};
+
+/**
+ * The XState services map handed to `dataManagerMachine.withConfig({ services })`.
+ * One key per `invoke.src` the shared machine names — an omitted key crashes on
+ * entering its state rather than failing to compile, so read
+ * `data-manager/data-manager.machine.ts` before trimming this list.
+ */
+export type ClientCompanyManagerMachineServices = {
+  /** `loading` — the context patch the form starts from. */
+  loadLookups: (context: CompanyContext) => Promise<Partial<CompanyContext>>;
+  /** `available.checking.parsing` — schema-parses the incoming model. */
+  parse: (
+    context: CompanyContext,
+    event: AnyEventObject
+  ) => Promise<Partial<CompanyContext>>;
+  /** `available.checking.validating` and `processing.validating`. */
+  validate: (context: CompanyContext) => Promise<CompanyModel | undefined>;
+  /** `processing.adding` — reached when the machine's `isNew` guard passes. */
+  add: (context: CompanyContext) => Promise<Company>;
+  /** `processing.updating` — reached when context already carries an id. */
+  update: (context: CompanyContext) => Promise<ICompany | undefined>;
+};

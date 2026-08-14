@@ -1,212 +1,87 @@
-import { computed, ref } from "vue";
-import { invalidateQueryByKey } from "../query";
-import { useActiveSession } from "../session-store";
-import service from "./client-company.services";
-import { useCollection } from "../../utils";
-import { set, isEmpty, isArray } from "lodash-es";
-import type { Company } from "./client-company.types";
-import type { QueryProps, RequestFilters } from "../query";
-
+import { createScopedComposable } from "../scope/scope.builder";
+import createClientCompanyServices from "./client-company.services";
+import { createClientCompaniesActions } from "./useClientCompanies.actions";
+import { createClientCompaniesContext } from "./useClientCompanies.context";
+import { createClientCompaniesInternals } from "./useClientCompanies.internals";
+import { createClientCompaniesMeta } from "./useClientCompanies.meta";
+import type { ClientCompaniesScopeMatrix } from "./client-company.types";
+import type { ScopeConfig, ScopeKey } from "../scope";
+import type { ScopeActorTypes } from "../scope/scope.types";
+// -----------------------------------------------------------------------------
 /**
- * Composable function to manage client companies.  Provides methods for fetching, filtering,
- * updating, and interacting with a list of client companies. Uses the `service` to interact with
- * backend data and integrates with the application's session and query management.
+ * @module client-company/useClientCompanies
+ * @description Scoped, query-backed collection of a client's own companies:
+ * one TanStack list query per concrete `(actor, context)` scope, minted once
+ * at construction so it survives component lifecycles. Its sibling is
+ * `useClientCompanyManager` — a second scoped composable in the same module,
+ * registered under the SAME module name; the composable name and the scope
+ * key carry the differentiation (`design.md` D1).
  *
- * @param initial - Optional initial query parameters for loading the company list. Defaults to pagination limit of 0.
- * @returns The {@link UseClientCompanies} API for interacting with client companies.
+ * @doctrine clause 1 (uniform four-layer default).
+ * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
+ * actor; the scope builder resolves SELF before this factory runs.
  */
-export const useClientCompanies = (
-  initial: QueryProps = {
-    pagination: {
-      limit: 0
-    }
-  }
-) => {
-  // --- state
+function createClientCompaniesForScope(
+  config: ScopeConfig,
+  scopeKey: ScopeKey
+) {
+  const actorScope = config.actor as ScopeActorTypes;
 
-  const { isReady: ensureAuth } = useActiveSession().useActions();
-  const { isAuthenticated } = useActiveSession().useMeta();
+  /**
+   * ONE services instance for this scope. `config.context` goes in here and
+   * nowhere else, so every request the collection issues resolves the same
+   * target client.
+   */
+  const service = createClientCompanyServices(actorScope, config.context);
 
-  const query = service.loadList(initial);
+  // Mint the list query ONCE per scope — a `service.loadList()` inside a layer
+  // factory mints a second query, with its own refs, key and effect scope.
+  const query = service.loadList({ pagination: { limit: 0 } });
 
-  const meta = computed(() => ({
-    isLoading: query?.isLoading.value || !query.isFetched.value,
-    hasError: !isEmpty(query.error.value),
-    isEmpty: isEmpty(query.data?.value) || query.pagination.value.total == 0,
-    isAvailable: isAuthenticated.value,
-    ...query?.meta.value
-  }));
-
-  const { findOne, getOne, getDefault } = useCollection<Company>(query.data);
-
-  async function isReady(): Promise<boolean> {
-    if (isAuthenticated.value)
-      return new Promise(resolve => {
-        const interval = setInterval(() => {
-          if (query.isFetched.value) {
-            clearInterval(interval);
-            resolve(true);
-          }
-        }, 100);
-      });
-
-    return ensureAuth()
-      .then(ok => (ok ? query.refetch().then(() => true) : false))
-      .catch(() => false);
-  }
-
-  // --- context
-
-  // --- mutations
-
-  function remove(id: Company["id"]) {
-    return service.remove(id).mutate();
-  }
-
-  function setDefault(id: Company["id"]) {
-    return service.setDefault(id).mutate();
-  }
-
-  // --- filters
-
-  const filters = ref<
-    RequestFilters & {
-      query?: string;
-    }
-  >({});
-
-  const filterQuery = (value?: string) => {
-    set(filters.value, "query", value);
-    query.filter(filters.value);
-  };
-
-  // ---------------------------------------------------------------------------
+  /**
+   * ONE actions instance per scope, not one per `useActions()` call: the
+   * collection's applied `filters` live in that factory, so a factory minted
+   * per call gives every handle its own filter state. Mirrors the manager
+   * half.
+   */
+  const actions = createClientCompaniesActions(
+    actorScope,
+    service,
+    query,
+    scopeKey
+  );
 
   return {
-    // --- state
+    // --- Sub-composables (no direct props — clause 1 four-layer return)
+    /** Sub-composable for collection actions (row mutations, lifecycle). */
+    useActions: () => actions,
 
-    /**
-     * Resolves when the client items are ready to be used.
-     * Returns true if ready, false if an error occurred.
-     * @returns {Promise<boolean>} A promise resolving to true if ready, false if error.
-     */
-    isReady,
+    /** Sub-composable for collection context (reactive list + lookups). */
+    useContext: () => createClientCompaniesContext(actorScope, service, query),
 
-    /**
-     * Meta-information about the basket state.
-     * @typedef {Object} ClientCompanylMeta
-     * @property {boolean} isError - Indicates if there was an error during the query.
-     * @property {boolean} isEmpty - Indicates if the company's list is empty.
-     * @property {boolean} isLoading - Indicates if the query is currently loading.
-     * @property {boolean} isAuthenticated - Indicates if the client is authenticated.
-     */
-    meta,
+    /** Sub-composable for advanced debugging and internal access. */
+    useInternals: () => createClientCompaniesInternals(actorScope, query),
 
-    // --- context
-
-    /**
-     * The reactive data property containing the list of client items.
-     * This is populated by the query and updates automatically when the query state changes.
-     */
-    data: computed(() => (isArray(query.data.value) ? query.data.value : [])),
-
-    /**
-     * The current error state of the query.
-     * This will be populated if the query fails to fetch data.
-     */
-    error: query.error,
-
-    /**
-     * Indicates if pagination is available
-     * If pagination is not set, it defaults to false.
-     * Otherwise, it returns the pagination object from the query parameters.
-     * @return {boolean|RequestPagination} The pagination object if available, otherwise false.
-     */
-    pagination: query.pagination,
-
-    /**
-     * The default item for the current client.
-     * This is the company that is set as default for the current client.
-     * @returns {Company} The default company if found, is otherwise undefined.
-     */
-    default: getDefault,
-
-    // --- methods
-
-    /**
-     * Get a single company by id.
-     * @param id The id of the company to get.
-     * @returns The company object if found, is otherwise undefined.
-     */
-    getOne,
-
-    /**
-     * Find a single company based on the given param. The param is matched against the title and description.
-     * @param mapping The filter to match against the company title and description.
-     * @returns The company object if found, is otherwise undefined.
-     */
-    findOne,
-
-    /**
-     * Remove a company by id.
-     * @param id The id of the company to remove.
-     * @returns A promise that resolves when the company is removed.
-     */
-    remove,
-
-    /**
-     * Set a company as default.
-     * @param id The id of the company to set as default.
-     * @returns A promise that resolves when the company is set as default.
-     */
-    setDefault,
-
-    /**
-     * Refresh the query to get the latest data.
-     * This will refetch the data from the server and update the query state.
-     * @returns {void}
-     */
-    refresh: query.refetch,
-
-    /**
-     * Go to the next page of items.
-     * Increments the page number by 1 if pagination is enabled and the current offset is less than the total number of items.
-     * This will only work if the current offset is less than the total number of items.
-     * @param value The new pagination parameters to set.
-     * @return {void}
-     */
-    nextPage: query.fetchNextPage,
-
-    /**
-     * Go to the previous page of items.
-     * Decrements the page number by 1 if pagination is enabled and the current offset is greater than or equal to the limit.
-     * This will only work if the current offset is greater than or equal to the limit.
-     * @param value The new pagination parameters to set.
-     * @return {void}
-     */
-    prevPage: query.fetchPreviousPage,
-
-    /**
-     * Invalidate the query cache for client items.
-     * This will trigger a refetch of the items when the next query is made.
-     * @param {boolean} [exact=false] If true, only the exact query key will be invalidated.
-     * @return {void}
-     */
-    invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
-
-    /**
-     * Filters for the query.
-     * These filters can be used to modify the query parameters before fetching the data.
-     * @type {RequestFilters & { query?: string }}
-     * @property query - The search query to filter the client companies by title or description.
-     */
-    filters: {
-      query: filterQuery
-    }
+    /** Sub-composable for collection meta (state flags). */
+    useMeta: () => createClientCompaniesMeta(actorScope, service, query)
   };
-};
-
+}
+// -----------------------------------------------------------------------------
 /**
- * The return type of the {@link useClientCompanies} composable function.
+ * Scoped composable for a client's own company collection.
+ *
+ * @example
+ * ```ts
+ * const companies = useClientCompanies().as('client')
+ * const { data, default: defaultCompanyId } = companies.useContext()
+ * await companies.useActions().isReady()
+ * await companies.useActions().setDefault(id)
+ * ```
  */
+export const useClientCompanies = createScopedComposable<
+  ReturnType<typeof createClientCompaniesForScope>,
+  ClientCompaniesScopeMatrix
+>("client-company", createClientCompaniesForScope);
+
+// Type export for consumers
 export type UseClientCompanies = ReturnType<typeof useClientCompanies>;

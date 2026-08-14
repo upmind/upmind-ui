@@ -45,8 +45,11 @@ const spies = vi.hoisted(() => ({
   ensureAddress: vi.fn().mockResolvedValue({ id: "ensured-address" })
 }));
 
-// Replace only the `*Services` factories on each barrel; every other export
-// (types, managers, query composables `add()` never touches) stays real.
+// Replace only the seams `add()` reaches for. `client-phone` is still the
+// unscoped `*Services` factory shape; `client-company` is the scoped
+// collection composable (`useClientCompanies().as(CLIENT).useActions().ensure`)
+// — `useClientCompanyServices` no longer exists on the barrel. Every other
+// export (types, managers, query composables `add()` never touches) stays real.
 vi.mock("../../../client-phone", async importOriginal => {
   const actual = await importOriginal<Record<string, unknown>>();
   return {
@@ -67,7 +70,9 @@ vi.mock("../../../client-company", async importOriginal => {
   const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,
-    useClientCompanyServices: () => ({ ensure: spies.ensureCompany })
+    useClientCompanies: () => ({
+      as: () => ({ useActions: () => ({ ensure: spies.ensureCompany }) })
+    })
   };
 });
 
@@ -116,15 +121,17 @@ describe("useUnifiedServices().add — once-only phone POST (FE-2711)", () => {
     expect(spies.ensurePhone).not.toHaveBeenCalled();
 
     // The phone travels exactly once, folded into the single company POST —
-    // carrying both the phone id and the phone payload.
+    // carrying both the phone id and the phone payload. The scoped `ensure`
+    // takes the CompanyModel directly (no `{ model }` wrapper — that shape
+    // belongs to the still-unscoped `client-phone` seam above).
     expect(spies.ensureCompany).toHaveBeenCalledTimes(1);
-    expect(spies.ensureCompany).toHaveBeenCalledWith({
-      model: expect.objectContaining({
+    expect(spies.ensureCompany).toHaveBeenCalledWith(
+      expect.objectContaining({
         name: "Acme Ltd",
         phoneId: phone.id,
         phone: phone.phone
       })
-    });
+    );
   });
 
   it("PERSONAL: fires the standalone phone POST exactly once and no company POST", async () => {

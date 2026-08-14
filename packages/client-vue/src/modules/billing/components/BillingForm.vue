@@ -77,14 +77,14 @@ import { useMounted } from "@vueuse/core";
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import {
+  ScopeActorTypes,
   UnifiedType,
   useActiveSession,
   useBasketBilling,
   useClientAddresses,
   useClientCompanies,
   useClientPhones,
-  useRoutingEngine,
-  ScopeActorTypes
+  useRoutingEngine
 } from "@upmind-automation/headless";
 import {
   Loading,
@@ -144,6 +144,9 @@ const { isNavigating } = useRoutingEngine();
 
 const activeTab = ref<UnifiedType>();
 
+const companiesScope = useClientCompanies().as(ScopeActorTypes.CLIENT);
+const { isEmpty: isCompaniesEmpty } = companiesScope.useMeta();
+
 const meta = computed(() => {
   const phoneReady = !billingMeta.value.needsPhone || !phonesEmpty.value;
   const addressReady =
@@ -151,7 +154,7 @@ const meta = computed(() => {
   // Business billing needs a company to continue with, even when the brand
   // doesn't force one — otherwise Continue shows alongside the add-company form
   // and commits empty, wiping the address.
-  const companyReady = !companyMeta.value.isEmpty;
+  const companyReady = !isCompaniesEmpty.value;
   const allowContinue =
     activeTab.value === UnifiedType.PERSONAL
       ? addressReady && phoneReady
@@ -174,16 +177,16 @@ const meta = computed(() => {
 await Promise.allSettled([
   isReady(),
   useClientAddresses().isReady(),
-  useClientCompanies().isReady(),
+  companiesScope.useActions().isReady(),
   useClientPhones().as(ScopeActorTypes.SELF).useActions().isReady()
 ]).then(() => {
-  const { default: defaultCompany } = useClientCompanies();
+  const { default: defaultCompany } = companiesScope.useContext();
   // set initial value from the basket billing model
   modelValue.value ??= model.value;
   if (
     config.value?.requiresCompany ||
     model.value?.companyId ||
-    (!model.value?.addressId && defaultCompany()?.id) // if we dont have an address but do have a default company, prefer business
+    (!model.value?.addressId && defaultCompany()) // if we dont have an address but do have a default company, prefer business
   ) {
     activeTab.value = UnifiedType.BUSINESS;
   } else {
@@ -198,11 +201,8 @@ const {
   meta: addressMeta,
   default: _defaultAddress
 } = useClientAddresses();
-const {
-  getOne: getCompany,
-  meta: companyMeta,
-  default: defaultCompany
-} = useClientCompanies();
+const { getOne: getCompany, default: defaultCompany } =
+  companiesScope.useContext();
 const clientPhones = useClientPhones().as(ScopeActorTypes.SELF);
 const { getOne: getPhone, default: defaultPhone } = clientPhones.useContext();
 const { isEmpty: phonesEmpty } = clientPhones.useMeta();
@@ -259,7 +259,7 @@ function buildModel(): BillingModel | undefined {
     activeTab.value === UnifiedType.BUSINESS &&
     !modelValue.value?.companyId
   ) {
-    const company = defaultCompany();
+    const company = getCompany(defaultCompany());
     return {
       ...modelValue.value,
       companyId: company?.id,
