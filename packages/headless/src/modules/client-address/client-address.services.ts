@@ -551,6 +551,20 @@ async function parse(
   // `clearModel` empties `context.model` before this runs. `cloneDeep` because
   // `defaultsDeep` mutates its first argument, which here is live machine
   // context.
+  //
+  // The two limbs therefore answer "what fills an omitted key" differently, and
+  // that is RECORDED, not reconciled (review finding W7). A partial `SET` fills
+  // from `baseModel`; a data-less re-parse fills from `context.model`. The cost
+  // is that CHAINED partial calls lose the earlier one — `input({ address: {
+  // city } })` then `input({ address: { postcode } })` puts the form-open city
+  // back. A single partial call on a freshly opened editor is unaffected
+  // (`model` and `baseModel` are the same object there), and the renderer path
+  // cannot reach it at all: JSONForms always emits the whole model. Direct-API
+  // callers are the exposure. `baseModel` stays because it is the only baseline
+  // with a parity claim behind it — legacy submits the whole form, so its diff
+  // is always against the form-open clone (`parity.yaml` L3 / AC-23) — and
+  // making the fill "live model, else snapshot" is a contract change to a
+  // partial-input API no AC covers and no oracle records.
   const safeModel = useModelParser<AddressModel>(
     schema,
     get(data, "model", data) ?? cloneDeep(model),
@@ -579,7 +593,7 @@ async function parse(
 
   // now let's check our region list to see if we have a match
   // if so, then we need to update the safeModel with the new region id
-  // otherwise the regionId is cleared. `mapIAddressData` is what turns that
+  // otherwise the regionId is cleared. `mapIAddressDataDiff` is what turns that
   // cleared value into an explicit `null` on the wire (AC-19) — clearing it
   // HERE would put a `null` in the model that the schema's region `enum` then
   // rejects, wedging the very country change this line exists to serve.

@@ -1,13 +1,12 @@
 Negative control — clearing a region on a country change reaches the API
 (AC-19, parity row L9, review blocker B2).
 
-Restores `region_id: data.address.regionId` in `mapIAddressData`, dropping the
-`?? null` coercion. `region_id` is then the ONE `address` leaf that can leave
-the mapper `undefined` — its six siblings are all coerced with `?? ""` — and
-`undefined` cannot survive the wire: `mapIAddressDataDiff` correctly KEEPS the
-key, because `isEqual(previousRegionId, undefined)` is false and the field
-really did change, and then `parseData`'s `JSON.stringify` drops every
-`undefined`-valued key before the body is sent.
+Removes the two clearance lines from `mapIAddressDataDiff`, so a region cleared
+by a country change leaves the diff as `undefined` instead of as an explicit
+`null`. The diff still correctly KEEPS the key — `isEqual(previousRegionId,
+undefined)` is false and the field really did change — but `undefined` cannot
+survive the wire: `parseData`'s `JSON.stringify` drops every `undefined`-valued
+key before the body is sent.
 
 The mutant is invisible at every gate that measures the CLIENT side. `parse`
 still refetches the new country's regions, still re-resolves `country`, and
@@ -39,33 +38,34 @@ both sides of the diff map the same empty value and `region_id` is correctly
 omitted from the payload under fix AND mutant alike — that case cannot
 discriminate.
 
-Measured blast radius, suite at be4b04cba: ZERO. The whole module suite stays
-GREEN under this mutant (115 passed, and the one failure is the standing
-AC-20/F6 halt, which fails identically without it) — including
-`client-address.lookups.int.test.ts`'s existing AC-19 read-back, which coerces
-with `?? null` and therefore cannot see the difference. That measurement IS the
-reviewer's finding.
+Measured blast radius, suite at the B3 fix (this commit): 1 — the declared
+subject alone, zero collateral. Under the mutant the module suite runs 119
+passed / 2 failed: this control's own subject
+(`client-address.manager-save.int.test.ts`, AC-19/AC-23) plus the standing
+AC-20/F6 halt, which fails identically without it.
 
-`mapIAddressData` is the create-body mapper too, but a create's `region_id` is
-null-or-absent either way and no AC-24 assertion reads it.
+The seam is `mapIAddressDataDiff` and NOT `mapIAddressData` — that placement is
+review blocker B3. `mapIAddressData` is the create-body mapper too, and a create
+has nothing to clear: the recorded oracle's region-less POST
+(`client-address.e2e-oracle.pre-migration.json`, spec 3, second POST) carries no
+`region_id` key at all, under the same `country_id` its sibling POSTs send a
+region with. Minting the `null` above the `if (!baseData) return next` early
+return therefore put a key on every region-less CREATE that legacy never sent.
+This mutant does not touch the create body — it is byte-identical under fix and
+mutant — so no AC-24 assertion can go red here; the create's own guard is a
+separate read-back on POST key ABSENCE.
 
 diff --git a/packages/headless/src/modules/client-address/client-address.mappers.ts b/packages/headless/src/modules/client-address/client-address.mappers.ts
-index 2d4442fe8..31333f8e2 100644
+index f06469409..144ad61b9 100644
 --- a/packages/headless/src/modules/client-address/client-address.mappers.ts
 +++ b/packages/headless/src/modules/client-address/client-address.mappers.ts
-@@ -106,13 +106,13 @@ export function mapIAddressData(data: AddressModel | Address): IAddress {
-     name: data.name || data.address.address1 || "",
-     address_1: data.address.address1 ?? "",
-     address_2: data.address.address2 ?? "",
-     city: data.address.city ?? "",
-     state: data.address.state ?? "",
-     postcode: data.address.postcode ?? "",
--    region_id: data.address.regionId ?? null,
-+    region_id: data.address.regionId,
-     country_id: data.address.countryId,
-     type: data.type ?? ADDRESS_TYPE_KEYS.HOME
-   } as IAddress;
- }
- 
- /**
- 
+@@ -143,9 +143,6 @@
+   // Both sides are coerced together, so an address that never had a region
+   // still compares equal and is omitted. Below the early return, never above
+   // it: a create carries no clearance, and the oracle omits the key there.
+-  next.region_id = next.region_id ?? null;
+-  previous.region_id = previous.region_id ?? null;
+-
+   return omitBy(next, (value, key) =>
+     isEqual(previous[key as keyof IAddress], value)
+   ) as Partial<IAddress>;

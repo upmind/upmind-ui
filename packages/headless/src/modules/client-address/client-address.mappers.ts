@@ -84,22 +84,18 @@ export function mapAddress(raw: IAddress): Address {
  * with no type at all — `undefined` there is stripped by `JSON.stringify` and
  * the wire loses a field it has always carried.
  *
- * `region_id` is coerced for the same reason its six `address` siblings are:
- * NOTHING may leave this function `undefined`. `parse` clears a region that the
- * newly selected country does not carry (AC-19) by assigning `undefined`;
- * `mapIAddressDataDiff` then correctly KEEPS the key, because the field really
- * did change — and `parseData`'s `JSON.stringify` drops it again on the way
- * out, so a US → UK change PUT `country_id` with no `region_id` and the server
- * kept the stale US region on a UK address. An explicit `null` survives
- * serialisation and clears the column.
- *
- * Coercing HERE rather than at `parse` is deliberate: both sides of the diff
- * run through this function, so an address that never had a region maps `null`
- * on both and is correctly OMITTED, and no `null` ever enters the model — where
- * the region control's `enum` (real region ids only) would reject it and wedge
- * the machine in `available.invalid`. `country_id` stays uncoerced: it is
- * schema-required and is never intentionally cleared, so a `null` there would
- * be an invalid payload rather than a clearance.
+ * `region_id` is the ONE `address` leaf deliberately left uncoerced, against
+ * the `?? ""` its six siblings carry. A region-less CREATE must reach the API
+ * with no `region_id` key at all: the recorded oracle's region-less POST
+ * (`__tests__/client-address.e2e-oracle.pre-migration.json`, spec 3, second
+ * POST) omits it — under the same `country_id` its sibling POSTs send a region
+ * with, so that body is "no region chosen", not "country carries no regions".
+ * `undefined` is exactly what `parseData`'s `JSON.stringify` drops to reproduce
+ * it. An explicit `null` is a CLEARANCE, which is only meaningful against a
+ * baseline, so it is minted in `mapIAddressDataDiff` and nowhere else — a
+ * create has nothing to clear. `country_id` is uncoerced for a different
+ * reason: it is schema-required and never intentionally cleared, so a `null`
+ * there would be an invalid payload rather than a clearance.
  */
 export function mapIAddressData(data: AddressModel | Address): IAddress {
   return {
@@ -109,7 +105,7 @@ export function mapIAddressData(data: AddressModel | Address): IAddress {
     city: data.address.city ?? "",
     state: data.address.state ?? "",
     postcode: data.address.postcode ?? "",
-    region_id: data.address.regionId ?? null,
+    region_id: data.address.regionId,
     country_id: data.address.countryId,
     type: data.type ?? ADDRESS_TYPE_KEYS.HOME
   } as IAddress;
@@ -127,6 +123,9 @@ export function mapIAddressData(data: AddressModel | Address): IAddress {
  * seven fields moved. Not cosmetic: under `CLIENT_ALLOW_ADDRESS_UPDATE ===
  * false` a full payload re-sends an unchanged `country_id` and the API rejects
  * an edit legacy would have accepted.
+ *
+ * A region CLEARED by a country change leaves here as an explicit `null`
+ * (AC-19); every other value leaves as `mapIAddressData` produced it.
  */
 export function mapIAddressDataDiff(
   data: AddressModel | Address,
@@ -136,6 +135,16 @@ export function mapIAddressDataDiff(
   if (!baseData) return next;
 
   const previous = mapIAddressData(baseData);
+
+  // `parse` clears a region the new country does not carry (AC-19) by assigning
+  // `undefined`, which the diff correctly KEEPS and `JSON.stringify` then drops
+  // — a US → UK change PUT `country_id` with no `region_id` and the server kept
+  // the stale US region. `null` survives serialisation and clears the column.
+  // Both sides are coerced together, so an address that never had a region
+  // still compares equal and is omitted. Below the early return, never above
+  // it: a create carries no clearance, and the oracle omits the key there.
+  next.region_id = next.region_id ?? null;
+  previous.region_id = previous.region_id ?? null;
 
   return omitBy(next, (value, key) =>
     isEqual(previous[key as keyof IAddress], value)

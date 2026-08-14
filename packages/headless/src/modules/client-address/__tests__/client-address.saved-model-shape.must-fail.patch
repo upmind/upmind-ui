@@ -35,15 +35,19 @@ suite:
     manager's own resolved value — the collection refetches from the server,
     which has Paris
 
-Measured blast radius, suite at be4b04cba: ZERO. The whole module suite stays
-GREEN under this mutant (115 passed, and the one failure is the standing
-AC-20/F6 halt, which fails identically without it). That measurement IS the
-reviewer's finding — nothing in the suite guarded this behaviour, which is how
-the defect reached review.
+Measured blast radius, suite at HEAD: 4 — the 2 declared subjects above plus 2
+collateral (the `description` pair named below). Under the mutant the module
+suite runs 116 passed / 5 failed: those 4 plus the standing AC-20/F6 halt,
+which fails identically without it.
 
-Expected collateral once the B1 read-backs land, and NOT this control's
-declared subject: any assertion on `title` / `description` after a save.
-`setModel` derives the meta from the model it just parsed, so a reverted model
+It was ZERO when this control was written (suite at be4b04cba, 115 passed with
+only the AC-20/F6 halt red) — nothing in the suite guarded the behaviour, which
+is how the defect reached review. The read-backs landed in 108a14f32 and
+22944476c; the 4 above are that guard, measured.
+
+Collateral, and NOT this control's declared subject: the two assertions on
+`title` / `description` after a save. `setModel` derives the meta from the model
+it just parsed, so a reverted model
 reverts the meta with it. The meta's OWN control is the sibling mutant
 `client-address.saved-meta.must-fail.patch`, which leaves the model correct and
 drops only the derivation — a red there means the meta stopped being derived on

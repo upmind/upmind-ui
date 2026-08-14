@@ -108,9 +108,17 @@ export function createClientAddressManagerMachineConfig(
        * comes first so an ordinary `SET` can never rewrite the address under
        * edit.
        *
-       * It carries the meta too — see `deriveMeta`. This action IS the save
-       * limbs' only module-owned hook, and the shared machine's
-       * `processing.*.onDone` runs `setModel` without `setMeta`.
+       * It carries the meta too — see `deriveMeta`. The shared machine's
+       * `processing.*.onDone` runs `setModel` without `setMeta`, so this is the
+       * only module-owned hook a save reaches SYNCHRONOUSLY, and the only one it
+       * reaches at all under `allowMultipleEdits: false` — that consumer's
+       * `processed` goes straight to `complete` and re-enters no parsing state.
+       * This module's own instances hardwire `allowMultipleEdits: true`
+       * (`useClientAddressManager.ts` L89), so there a settled save also re-enters
+       * `available.checking.parsing` ~10ms later, where `setMeta` re-derives from
+       * the SAVED model — since `parse` stopped re-deriving from the form-open
+       * snapshot (B1). The fold's contribution on THAT path is the window between
+       * the two.
        */
       setModel: assign(
         (

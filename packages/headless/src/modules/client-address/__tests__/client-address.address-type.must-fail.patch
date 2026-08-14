@@ -23,15 +23,15 @@ means the type was dropped in mapping; a red in AC-24 alone means the limb is
 gone.
 
 diff --git a/packages/headless/src/modules/client-address/client-address.mappers.ts b/packages/headless/src/modules/client-address/client-address.mappers.ts
-index 2d4442fe8..dcd3eceb5 100644
+index f06469409..bdab4b141 100644
 --- a/packages/headless/src/modules/client-address/client-address.mappers.ts
 +++ b/packages/headless/src/modules/client-address/client-address.mappers.ts
-@@ -108,13 +108,13 @@ export function mapIAddressData(data: AddressModel | Address): IAddress {
+@@ -104,13 +104,13 @@ export function mapIAddressData(data: AddressModel | Address): IAddress {
      address_2: data.address.address2 ?? "",
      city: data.address.city ?? "",
      state: data.address.state ?? "",
      postcode: data.address.postcode ?? "",
-     region_id: data.address.regionId ?? null,
+     region_id: data.address.regionId,
      country_id: data.address.countryId,
 -    type: data.type ?? ADDRESS_TYPE_KEYS.HOME
 +    type: 1 // We are forcing type to always be 1 for simplicity

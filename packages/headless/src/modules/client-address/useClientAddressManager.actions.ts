@@ -151,6 +151,10 @@ export function createClientAddressManagerActions(
   /**
    * Inputs a model and resolves the parsed/validated model. Debounced on the
    * way out — the raw function stays private so `update` can flush it.
+   *
+   * A PARTIAL payload has every omitted key filled from the form-open snapshot,
+   * not from the current model, so partial calls do not accumulate: send the
+   * whole model, or fold your own partial into the one this resolves.
    */
   async function input(
     model: AddressModel | Record<string, unknown>
