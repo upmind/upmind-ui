@@ -1,4 +1,8 @@
 import { computed } from "vue";
+import {
+  useQuerySchema,
+  useQueryUischema
+} from "./client-email-history.schemas";
 import { mapToHeadlessError, useCollection } from "../../utils";
 import { isArray } from "lodash-es";
 import type {
@@ -35,6 +39,7 @@ export function createClientReceivedEmailsContext(
 
   const error = computed<ResponseError | undefined>(
     () =>
+      query.criteriaError.value ??
       service.error.value ??
       (query.error.value ? mapToHeadlessError(query.error.value) : undefined)
   );
@@ -57,7 +62,23 @@ export function createClientReceivedEmailsContext(
     getOne,
 
     /** Reactive pagination descriptor for the list query. */
-    pagination: query.pagination
+    pagination: query.pagination,
+
+    /**
+     * This scope's ACTIVE request state — the query's own published criteria
+     * model, not a copy of it; read-only, write through
+     * `useActions().setCriteria`.
+     */
+    query: query.criteria,
+
+    /**
+     * The module's schema family, plain JSON so it survives the renderer
+     * port's `JSON` round-trip. The renderer's only door to it is
+     * `useContext()`.
+     */
+    schemas: {
+      query: { schema: useQuerySchema(), uischema: useQueryUischema() }
+    }
 
     // The arm merges in HERE, last.
     // ...actorContext

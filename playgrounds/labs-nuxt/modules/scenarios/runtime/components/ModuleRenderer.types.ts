@@ -13,8 +13,14 @@
  * @description Type definitions for ModuleRenderer — the archetype dispatcher.
  */
 
+// `ResolvedDetail` added below is minted once in `runtime/scenario.types.ts`
+// and consumed here — see its `graphify-out/graph.json` (2026-08-14) citation.
 import type { ModulePort } from "../composables/useModulePort.types";
-import type { ResolvedHandoff, ScenarioPresentation } from "../scenario.types";
+import type {
+  ResolvedDetail,
+  ResolvedHandoff,
+  ScenarioPresentation
+} from "../scenario.types";
 import type { ModuleDescriptor } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
@@ -34,6 +40,13 @@ export type ModuleRendererProps<K extends string = string> = {
   presentation?: ScenarioPresentation;
   /** The scenario's declared handoffs, already resolved to their targets — relayed. */
   handoffs?: Record<string, ResolvedHandoff>;
+  /**
+   * The scenario's read composable, resolved to its target — relayed to the
+   * List surface, which opens the read overlay with it. Absent, the overlay
+   * renders the clicked row's own data. See the `graphify-out/` citation on
+   * `ResolvedDetail` in `scenario.types.ts`.
+   */
+  detail?: ResolvedDetail;
   /**
    * A scenario is driving the page, so the surface under it is a playback
    * (`R6-23`) — relayed like everything else here. Only the List surface reads

@@ -37,9 +37,10 @@ See [usage.md](./usage.md) for the full walkthrough, including what a generated 
 
 - Table and card views over the same declared fields, toggled by the reader.
 - A column picker — every declared field is offerable, with a sensible default set.
-- Real per-cell renderers (text, date, a filled/outline icon, badges), each independently registered.
+- Real per-cell renderers (text, date, sanitized HTML, a filled/outline icon, badges), each independently registered.
 - Row actions and a header action, gated by the record's own capability flags — never a client-side guess.
 - An inline editor handoff for add/edit, seeded from the row where relevant.
+- A read-only detail overlay a row's own action can open — the row's own data, or a freshly fetched full record where the module names a single-read composable.
 - Filters and sort read straight from the composable's own query schema — no second declaration to keep in step.
 - A shareable URL for the current view, opt-in per page.
 - Only the actors a module actually supports are offered on the scope switch.
@@ -60,6 +61,10 @@ A declaration never restates a fact its composable already owns — what's filte
 ### A scenario, recorded once, drives replay everywhere
 
 A module that keeps its capability spec and step definitions at their conventional location is automatically eligible to have those scenarios played back on its own page — nothing is registered by hand.
+
+### Viewing a record is not editing it
+
+A row's own action can open a read-only overlay on that record instead of calling a live action or an editor — the same row already on screen, or, where the module names a single read, the full record fetched fresh. Either way it is read-only: editing stays the job of the existing add/edit handoff, reached from inside the overlay exactly as it is from the row.
 
 ## Documentation
 

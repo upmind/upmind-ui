@@ -29,8 +29,8 @@ export type {
 
 // --- Public model types
 export type { SentEmail, SentEmailModel } from "./client-email-history.types";
-// Re-exported so a consumer can call `actions.filters.status(SentEmailStatus.X)`
-// (design D5.1) without taking a direct dependency on `@upmind-automation/types`.
+// Re-exported so a consumer can read `SentEmail.status` (a `SentEmailStatus`)
+// without taking a direct dependency on `@upmind-automation/types`.
 export { SentEmailStatus } from "@upmind-automation/types";
 
 // --- Sub-composable type exports (collection)

@@ -14,14 +14,7 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./package.json": "./package.json",
-    "./testing": "./src/testing/index.ts",
-    "./testing/client-email/internal-kit": "./src/modules/client-email/__tests__/client-email.internal-kit.ts",
-    "./testing/client-email/int-helpers": "./src/modules/client-email/__tests__/client-email.int-helpers.ts",
-    "./testing/client-email/feature": "./src/modules/client-email/__tests__/client-email.feature",
-    "./testing/client-email/steps": "./src/modules/client-email/__tests__/client-email.steps.ts",
-    "./testing/client-email/setup.integration": "./src/modules/client-email/__tests__/setup.integration.ts",
-    "./testing/client-email/fixtures/*.json": "./src/modules/client-email/__tests__/fixtures/*.json"
+    "./testing": "./src/testing/index.ts"
   },
   "files": [
     "dist"

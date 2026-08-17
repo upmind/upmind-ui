@@ -43,3 +43,19 @@ Every field the table (or card) declares is a switchable option in the picker, w
 ## 11. Neither module code nor this app's own tooling may reference planning material under a story's own working directory
 
 A module's spec is its own `.feature` file, colocated with its tests, and nothing else. Nothing in this system reads, asserts against, or points a developer at a temporary planning artefact as if it were a second, authoritative copy of that spec — a module's tests know one truth, and it lives beside them.
+
+## 12. A record's read-only overlay excludes its own opener, never its other actions
+
+The control that opened the overlay (a `detail` action) never appears a second time inside it — showing it again would be a dead command, since the reader is already looking at what it opens. Every other action the row carries, an edit handoff among them, rides along and behaves exactly as it does from the row.
+
+## 13. A read-only overlay fetches only when both a read composable AND a resolvable row id are present
+
+Name a single-read composable with no id on the row (or a row with an id but no composable named) and the overlay quietly stays on the row's own data instead of fetching — there is no error state for "half-declared," and nothing about the overlay is ever left with nothing to show.
+
+## 14. An HTML cell draws its value as markup, not as text
+
+Declaring a field's cell type as the HTML renderer draws its value through the shared sanitizer, as real markup, never escaped. Reserve it for a field the API genuinely returns as markup (a message body, a note); declaring it for anything else reads oddly the moment the value happens to contain a stray `<` or `&`.
+
+## 15. A column's declared width share is presentation-only
+
+Reserving a fixed share of the row for one column moves no data: it has no effect on a column that already measures to its own content, and the card ignores it entirely — a card lays out the same field differently and was never going to honour a table-only share.

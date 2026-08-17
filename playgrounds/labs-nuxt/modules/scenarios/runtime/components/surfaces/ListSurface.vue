@@ -141,9 +141,7 @@
           <TableHead
             v-for="header in headerGroup.headers"
             :key="header.id"
-            :class="
-              headerCell({ isContent: includes(contentColumns, header.id) })
-            "
+            :class="headerCell({ size: headerSize(header.id) })"
             @click="onHeaderSort(header.column)"
           >
             <template v-if="!header.isPlaceholder">
@@ -320,6 +318,18 @@
       :context="manage.context"
       @close="manage = undefined"
     />
+
+    <DetailDialog
+      v-if="detailState"
+      :key="detailKey"
+      :record="detailState"
+      :detail="props.detail"
+      :context="detailContext"
+      :presentation="presentation?.detail"
+      :actions="detailActionItems"
+      :locked="locked"
+      @close="detailState = undefined"
+    />
   </div>
 </template>
 
@@ -384,6 +394,7 @@ import {
   TableRow,
   useStyles
 } from "@upmind-automation/upmind-ui";
+import { resolveReadContext } from "../../../../../app/composables/scope";
 import { usePlaygroundUrlState } from "../../../../../app/composables/usePlaygroundUrlState";
 import {
   clearScenarioStage,
@@ -399,6 +410,7 @@ import {
 } from "../../scenario.utils";
 import ActionSlots from "../ActionSlots.vue";
 import { CellDispatcher, CellSizingTypes, resolveCellSizing } from "../cells";
+import DetailDialog from "../DetailDialog.vue";
 import DisplayRow from "../DisplayRow.vue";
 import FilterBar from "../FilterBar.vue";
 import ManageDialog from "../ManageDialog.vue";
@@ -442,7 +454,8 @@ import {
 import type { DeclaredSortField } from "../../composables/useTableChannel.types";
 import type {
   ScenarioAction,
-  TableCell as DeclaredCell
+  TableCell as DeclaredCell,
+  TableColumnWidthTypes
 } from "../../scenario.types";
 import type { ActionSlotItem } from "../ActionSlots.types";
 import type { ColumnOption } from "../ColumnPicker.types";
@@ -456,6 +469,7 @@ import type {
   SortDirection as TableSortDirection,
   SortingState
 } from "@tanstack/vue-table";
+import type { ScopeContext } from "@upmind-automation/headless";
 import type { TableModel } from "@upmind-automation/scenario-harness";
 // -----------------------------------------------------------------------------
 
@@ -722,6 +736,17 @@ const contentColumns = computed<string[]>(() =>
   )
 );
 
+/**
+ * The `size` variant a column's header reserves with: `content` where its
+ * renderer measures to a glyph (`R7-2`), else the scenario's declared share, or
+ * `fluid` where it declared none.
+ */
+function headerSize(id: string): "content" | "fluid" | TableColumnWidthTypes {
+  if (includes(contentColumns.value, id)) return "content";
+  const element = find(columnElements.value, el => columnId(el) === id);
+  return element?.options?.width ?? "fluid";
+}
+
 /** The empty state spans every column the frame draws, the actions one included. */
 const columnCount = computed(
   () => columnElements.value.length + (meta.value.hasRowActions ? 1 : 0)
@@ -852,6 +877,35 @@ function openHandoff(action: ScenarioAction, row?: ListRow): void {
   };
 }
 
+// --- the read-only detail overlay a declared `detail` control opens
+const detailState = ref<ListRow | undefined>(undefined);
+
+/** One read instance per RECORD — never one carried across rows. */
+const detailKey = computed(() => rowKey(detailState.value ?? {}, 0));
+
+/**
+ * The scope the read boots at — the row's identity as a `.for(type, id)`,
+ * derived with no context block of its own (`R6-30b`): the `type` is the read
+ * composable's own scope-matrix cell for the acting actor, and the `id` is the
+ * `identifier` property read off the row. Absent a read composable, or an id on
+ * the row, there is nothing to fetch and the overlay renders the row itself.
+ */
+const detailContext = computed<ScopeContext | undefined>(() => {
+  if (!props.detail || !detailState.value) return undefined;
+
+  const id = resolvePointer(detailState.value, props.detail.identifier);
+  const type = resolveReadContext(
+    props.detail.useDetail.scopeMatrix,
+    props.detail.actor
+  );
+
+  return type && !isNil(id) ? { type, id: toString(id) } : undefined;
+});
+
+function openDetail(row: ListRow): void {
+  detailState.value = row;
+}
+
 // --- actions — every one DECLARED by the scenario, then gated on
 // `snapshot.actions` (the booted cell's own live-name list, the same gate
 // ActionPanelSurface trusts) so a declaration naming a capability the live port
@@ -868,6 +922,11 @@ const rowActions = computed<ScenarioAction[]>(() =>
 );
 
 function isActionAvailable(action: ScenarioAction): boolean {
+  // A detail control opens the read overlay on the row itself, so it is always
+  // available: the list already holds the record, and a declared read only
+  // enriches what is shown, never gates whether it can be.
+  if (action.detail) return true;
+
   // A handoff control calls no action: what it needs is the target it opens,
   // and without one it would be a button that does nothing (C2).
   if (action.handoff) return !!get(props.handoffs, action.handoff);
@@ -915,8 +974,26 @@ function rowActionItems(row: ListRow): ActionSlotItem[] {
   });
 }
 
+/**
+ * The record's OTHER actions, for the detail overlay — every row action except
+ * the one that OPENED it (a `detail` verb). Mirrors how the editor never offers
+ * Edit: you are already viewing the record, so its own view control is not drawn
+ * again; Edit and the rest ride here and hand off exactly as they do from a row.
+ */
+const detailActionItems = computed<ActionSlotItem[]>(() => {
+  const row = detailState.value;
+  if (!row) return [];
+  const opened = map(filter(rowActions.value, "detail"), "name");
+  return reject(rowActionItems(row), item => includes(opened, item.name));
+});
+
 /** What pressing ONE row's control does — the only path, hand or scenario. */
 function pressRowAction(action: ScenarioAction, row: ListRow): Promise<void> {
+  if (action.detail) {
+    openDetail(row);
+    return Promise.resolve();
+  }
+
   if (action.handoff) {
     openHandoff(action, row);
     return Promise.resolve();

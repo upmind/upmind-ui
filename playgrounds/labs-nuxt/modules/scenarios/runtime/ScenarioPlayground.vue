@@ -26,6 +26,7 @@
           :port="port"
           :presentation="scenario.presentation"
           :handoffs="handoffs"
+          :detail="detail"
           :locked="isReplaying"
           @update:collection-actions="onCollectionActions"
         />
@@ -85,11 +86,13 @@ import { useScenarioPlayer } from "./composables/useScenarioPlayer";
 import { featureTracksFor } from "./force/corpus.source";
 import { scenarioRegistry, scenarioRoutes, scenarioSources } from "./registry";
 import { SCENARIO_ROUTE_META_KEY } from "./scenario.constants";
+import { DEFAULT_ROW_IDENTIFIER } from "./scenario.types";
 import { get, mapValues } from "lodash-es";
 import type { ActionSlotItem } from "./components";
 import type {
   FourLayerComposable,
   RegisteredScenario,
+  ResolvedDetail,
   ResolvedHandoff
 } from "./scenario.types";
 import type { ScopeActorTypes } from "@upmind-automation/headless";
@@ -146,6 +149,20 @@ const handoffs = computed<Record<string, ResolvedHandoff>>(() =>
         actor: actorScope.value
       }))
     : {}
+);
+
+// The read a row opens READ-ONLY, bound like the handoff to the actor the
+// collection is driven at. A scenario declaring none leaves the overlay on the
+// row's own data (`R6-30b`); the row→`.for(type, id)` resolution stays with the
+// surface that holds the row.
+const detail = computed<ResolvedDetail | undefined>(() =>
+  scenario.useDetail
+    ? {
+        useDetail: scenario.useDetail,
+        actor: actorScope.value,
+        identifier: scenario.identifier ?? DEFAULT_ROW_IDENTIFIER
+      }
+    : undefined
 );
 
 // The collection where the module publishes one, else its editor — the pair the

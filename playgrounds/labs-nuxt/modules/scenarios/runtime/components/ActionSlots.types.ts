@@ -52,4 +52,10 @@ export type ActionSlotsProps = {
    * without saying why reads as broken rather than as intentional.
    */
   locked?: boolean;
+  /**
+   * Drawn as a footer group rather than beside a row: the cluster takes the
+   * width it is given and its controls share it, through the Button's own
+   * `block` treatment.
+   */
+  stretch?: boolean;
 };

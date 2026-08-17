@@ -128,6 +128,26 @@ export type ResolvedHandoff = ScenarioHandoff & {
   actor: ScopeActorTypes;
 };
 
+/**
+ * The scenario's read composable once the playground has bound it — the read
+ * twin of {@link ResolvedHandoff}: the single-read composable to boot, the
+ * actor the collection is driven at, and the row property the freshly-fetched
+ * record is keyed by. `.for(type, id)` derives its `type` from the composable's
+ * own scope matrix and its `id` by reading `identifier` off the clicked row, so
+ * the read carries no context block of its own (`R6-30b`). Absent, the detail
+ * overlay renders the clicked row's own data with no fetch.
+ *
+ * @graphify-citation `graphify-out/graph.json` (2026-08-14, 7457 nodes) — no
+ * `ResolvedDetail` / `useDetail` node exists in the tree; this is the read peer
+ * of the already-minted `ResolvedHandoff`, and the composable it names is the
+ * module's own exported builder, not a shape minted here.
+ */
+export type ResolvedDetail = {
+  useDetail: FourLayerComposable;
+  actor: ScopeActorTypes;
+  identifier: string;
+};
+
 // -----------------------------------------------------------------------------
 // PRESENTATION — how a row draws
 // -----------------------------------------------------------------------------
@@ -165,17 +185,59 @@ export type TableBadge = {
  * as-is rather than re-spelt (`graphify-out/graph.json`: `ControlElement` is
  * `@jsonforms/core`'s, not a shape minted here).
  */
+/**
+ * The share of the row a declared column reserves — the presentation knob for
+ * the one table that needs two FLUID columns sized unequally, so a long
+ * `subject` no longer starves a short `recipient`. It is declaration-level and
+ * presentation-only (it moves no data), the peer of the renderer's own
+ * {@link CellSizingTypes}: that answers whether a column measures to its glyph,
+ * this answers what share the fluid ones take. Absent, a column is fluid and
+ * shares the remainder equally, which is where every column without one stands.
+ *
+ * @graphify-citation `graphify-out/graph.json` (2026-08-14, 7457 nodes) — the
+ * 2026-08-13 re-query recorded on `cells.types` found no cell/column WIDTH
+ * vocabulary anywhere in the tree; this is the declaration-level peer of that
+ * renderer-level `CellSizingTypes`, minted here once beside the cell it sizes.
+ */
+export enum TableColumnWidthTypes {
+  /** A quarter of the row — a short value a fluid share would otherwise starve. */
+  QUARTER = "quarter",
+  /** A third of the row — the widest share a single column reserves. */
+  THIRD = "third",
+  /** Half the row. */
+  HALF = "half"
+}
+
 type TableCellElement = Omit<ControlElement, "type"> & {
   /** The column header / card label — an i18n key, never English. */
   i18n: string;
   options?: {
     /** Where the field sits when the row draws as a CARD; the table ignores it. */
     slot?: CardSlotTypes;
+    /**
+     * The share of the row this column reserves when it is fluid; the table
+     * reads it, the card ignores it. Absent, the column shares the remainder
+     * equally (`R7-2`).
+     */
+    width?: TableColumnWidthTypes;
   };
 };
 
 /** The value, as text. */
 export type TableCellText = TableCellElement & { type: "TableCellText" };
+
+/**
+ * The value as SANITIZED HTML — rich text (an email body, a note) drawn through
+ * the ui `Sanitized` component, never escaped as text and never rendered raw.
+ * The read twin of {@link TableCellText} for a field the API returns as markup.
+ *
+ * @graphify-citation `graphify-out/graph.json` (2026-08-14, 7457 nodes) — no
+ * `TableCellHtml` node exists in the tree; it extends the same borrowed
+ * `ControlElement` shape as its sibling `TableCellText`, and the sanitizer it
+ * draws through is `@upmind-automation/upmind-ui`'s own `Sanitized`, consumed
+ * rather than minted.
+ */
+export type TableCellHtml = TableCellElement & { type: "TableCellHtml" };
 
 /** A `useDate` descriptor (`{ date, relative }`), drawn as its relative form. */
 export type TableCellDate = TableCellElement & { type: "TableCellDate" };
@@ -203,6 +265,7 @@ export type TableCellBadges = TableCellElement & {
  */
 export type TableCell =
   | TableCellText
+  | TableCellHtml
   | TableCellDate
   | TableCellIcon
   | TableCellBadges;
@@ -221,6 +284,61 @@ export type TableUischema = Layout & {
 export type CardUischema = Layout & {
   type: "CardLayout";
   elements: TableCell[];
+};
+
+/** Which upmind-ui overlay primitive hosts the read detail. */
+export enum DetailSurfaceTypes {
+  /** A side drawer — the default. */
+  DRAWER = "drawer",
+  /** A centred modal dialog. */
+  MODAL = "modal"
+}
+
+/**
+ * Which edge a {@link DetailSurfaceTypes.DRAWER} detail slides in from — the ui
+ * `Drawer`'s own `direction`, named as a presentation knob and defaulting to
+ * {@link DetailSurfacePositionTypes.RIGHT} so a record reads as a right-hand
+ * reading pane at full height rather than a bottom sheet. Presentation-only: it
+ * moves no data and the modal host ignores it.
+ *
+ * @graphify-citation `graphify-out/graph.json` (2026-08-14, 7457 nodes) — no
+ * `DetailSurfacePositionTypes` node exists in the tree; the values mirror
+ * `vaul-vue`'s own `DrawerDirection` (minus `top`), consumed through the ui
+ * `Drawer` rather than minted here.
+ */
+export enum DetailSurfacePositionTypes {
+  /** From the right edge — the default reading pane. */
+  RIGHT = "right",
+  /** From the bottom edge — a sheet. */
+  BOTTOM = "bottom",
+  /** From the left edge. */
+  LEFT = "left"
+}
+
+/**
+ * ONE record drawn READ-ONLY — a plain sibling of {@link TableUischema} and
+ * {@link CardUischema} over the same fields, through the same declared-cell
+ * renderers, so a detail column cannot mean one thing here and another in the
+ * table. Its fields may exceed the table's: a record fetched in full carries
+ * more than a list row holds. The overlay it draws in is the surface knob,
+ * defaulting to {@link DetailSurfaceTypes.DRAWER}.
+ *
+ * @graphify-citation `graphify-out/graph.json` (2026-08-14, 7457 nodes) — no
+ * `DetailUischema` / `DetailLayout` / `DetailSurfaceTypes` node exists in the
+ * tree; this is the read sibling of the already-minted `TableUischema` /
+ * `CardUischema`, and the element and layout shapes are `@jsonforms/core`'s own
+ * `Layout`, consumed rather than re-spelt.
+ */
+export type DetailUischema = Layout & {
+  type: "DetailLayout";
+  elements: TableCell[];
+  surface?: DetailSurfaceTypes;
+  /**
+   * The edge a {@link DetailSurfaceTypes.DRAWER} detail slides in from,
+   * defaulting to {@link DetailSurfacePositionTypes.RIGHT}. Ignored by the
+   * modal host.
+   */
+  position?: DetailSurfacePositionTypes;
 };
 
 /** Where an action sits among the surface's placements. */
@@ -261,6 +379,17 @@ export type ScenarioAction = {
    * declares that handoff and the module publishes an editor to drive it.
    */
   handoff?: string;
+  /**
+   * This control OPENS the read-only detail overlay for its row instead of
+   * calling an action — the read twin of {@link ScenarioAction.handoff}. The
+   * record shown is the scenario's `useDetail` fetch keyed by the row's
+   * identity where one is declared, else the clicked row's own data.
+   *
+   * @graphify-citation `graphify-out/graph.json` (2026-08-14, 7457 nodes) — no
+   * detail-action node exists in the tree; this member extends the existing
+   * `ScenarioAction`, the read peer of its `handoff` member.
+   */
+  detail?: boolean;
   /** The control's label — an i18n key, never English. */
   i18n: string;
   icon?: string;
@@ -290,6 +419,12 @@ export type ScenarioPresentation = {
   table?: TableUischema;
   /** The same row drawn as a card. */
   card?: CardUischema;
+  /**
+   * The same record drawn READ-ONLY in the detail overlay. A plain sibling of
+   * {@link ScenarioPresentation.table}; absent, the overlay dumps the record
+   * raw. See `graphify-out/graph.json` head citation for the minted-here note.
+   */
+  detail?: DetailUischema;
   /** Every offered action, row-level and collection-level alike. */
   actions?: ActionsUischema;
 };
@@ -322,6 +457,14 @@ export type ScenarioBinding = (
   | { useList: FourLayerComposable; useMutate?: FourLayerComposable }
   | { useList?: FourLayerComposable; useMutate: FourLayerComposable }
 ) & {
+  /**
+   * The single-read composable a row opens READ-ONLY — the read twin of
+   * `useMutate`. Omitted, the detail overlay renders the clicked row's own data
+   * (the list already holds it) with no fetch; provided, the framework boots it
+   * through `useModulePort`, keyed by row identity, and renders the
+   * freshly-fetched full record. See `graphify-out/graph.json` head citation.
+   */
+  useDetail?: FourLayerComposable;
   /** The editors this scenario's controls open, keyed by the name they declare. */
   handoff?: Record<string, ScenarioHandoff>;
   /** The row property carrying a row's identity, when it is not {@link DEFAULT_ROW_IDENTIFIER}. */

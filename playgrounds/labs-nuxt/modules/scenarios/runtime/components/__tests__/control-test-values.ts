@@ -6,7 +6,7 @@
  * These are NOT the action ids. `Button.ce.vue` derives its test value from the
  * rendered LABEL when no explicit `dataAttrs` is supplied, so the i18n sweep
  * moved `add` -> `add-new`, `setDefault` -> `set-as-default` and the overflow
- * trigger -> `show-more-options`, while `edit` / `remove` / `verify`
+ * trigger -> `show-more-options`, while `edit` / `remove` / `verify` / `view`
  * coincidentally kept their names. The mapping lives here, once, so the coupling
  * is visible instead of scattered across selectors — and so the day the surfaces
  * supply explicit `dataAttrs` (the repo's stated contract,
@@ -26,6 +26,7 @@ const DECLARED_TEST_VALUE: Record<string, string> = {
   remove: "remove",
   setDefault: "set-as-default",
   verify: "verify",
+  view: "view",
   add: "add-new"
 };
 

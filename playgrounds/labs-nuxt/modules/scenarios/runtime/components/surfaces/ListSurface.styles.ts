@@ -1,5 +1,6 @@
 import { cva } from "class-variance-authority";
 import { useInvalidRing } from "@upmind-automation/upmind-ui";
+import { TableColumnWidthTypes } from "../../scenario.types";
 // -----------------------------------------------------------------------------
 /**
  * @module scenarios/runtime/components/surfaces/ListSurface.styles
@@ -152,18 +153,24 @@ export const failureStrip = cva("transition-opacity duration-500", {
  * the frame, never measured off the data. A content column takes its own width
  * and no more — `w-px` is the shrink-to-fit idiom the actions anchor already
  * uses, which in a table resolves to the widest thing in the column rather than
- * to a pixel (`R7-2`). A label stays on ONE line either way: a header that wraps
- * re-measures the row it heads, which is the very thing the reserved share
- * prevents (`R6-5`).
+ * to a pixel (`R7-2`). A declared share ({@link TableColumnWidthTypes}) reserves
+ * a fixed fraction instead, so two fluid text columns need not split the row
+ * evenly. A label stays on ONE line either way: a header that wraps re-measures
+ * the row it heads, which is the very thing the reserved share prevents (`R6-5`).
+ * One `size` variant rather than two, so the fraction and the fluid default can
+ * never both land on the column and leave tailwind to arbitrate `w-full`.
  */
 export const headerCell = cva("whitespace-nowrap", {
   variants: {
-    isContent: {
-      true: "w-px",
-      false: "w-full"
+    size: {
+      content: "w-px",
+      fluid: "w-full",
+      [TableColumnWidthTypes.QUARTER]: "w-1/4",
+      [TableColumnWidthTypes.THIRD]: "w-1/3",
+      [TableColumnWidthTypes.HALF]: "w-1/2"
     }
   },
-  defaultVariants: { isContent: false }
+  defaultVariants: { size: "fluid" }
 });
 
 /**

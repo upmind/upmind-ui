@@ -1,7 +1,8 @@
 /** @internal */
+import { PAGINATION } from "../query/query.utils";
 import { SENT_EMAIL_DEFAULT_SORT } from "./client-email-history.types";
 import type { SentEmailQuerySchema } from "./client-email-history.types";
-import type { JsonSchema7 } from "@jsonforms/core";
+import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email-history/client-email-history.schemas
@@ -88,7 +89,14 @@ export function useQuerySchema(): SentEmailQuerySchema {
           additionalProperties: false,
           required: ["field", "dir"],
           properties: {
-            field: { enum: ["created_at", "subject"] },
+            field: {
+              // `oneOf` const/title (not a bare enum) so the sort control draws
+              // a human label per option — matches the client-email sibling.
+              oneOf: [
+                { const: "created_at", title: "text.date_added" },
+                { const: "subject", title: "text.subject" }
+              ]
+            },
             dir: { enum: ["asc", "desc"] }
           }
         }
@@ -97,10 +105,52 @@ export function useQuerySchema(): SentEmailQuerySchema {
         type: "object",
         additionalProperties: false,
         properties: {
-          limit: { type: "integer", minimum: 0, default: 0 },
+          limit: { type: "integer", minimum: 0, default: PAGINATION.limit },
           offset: { type: "integer", minimum: 0 }
         }
       }
     }
   } satisfies JsonSchema7;
+}
+
+/**
+ * The module's DEFAULT filter-bar presentation — ONE uischema over the one
+ * query schema. Every element is a `Filter` scoping the COLUMN, never an
+ * operator leaf: the renderer reads the column's declared operators and picks
+ * the control. The `sort` and `pagination` branches carry no element — a branch
+ * no element draws is still validated and translated. `error_id` (the "failed"
+ * column) is declared and settable through `setCriteria`, but not drawn here:
+ * it is a string `neq`, not a boolean the tri-state controls render.
+ */
+export function useQueryUischema(): UISchemaElement {
+  return {
+    type: "HorizontalLayout",
+    options: { flow: true },
+    elements: [
+      {
+        type: "Filter",
+        scope: "#/properties/filters/properties/subject",
+        i18n: "form.subject_search",
+        options: { width: "full" }
+      },
+      {
+        type: "Filter",
+        scope: "#/properties/filters/properties/sent",
+        i18n: "form.sent_filter",
+        options: { treatment: "button-group" }
+      },
+      {
+        type: "Filter",
+        scope: "#/properties/filters/properties/bounced",
+        i18n: "form.bounced_filter",
+        options: {
+          treatment: "toggle-group",
+          states: {
+            true: "text.bounced",
+            false: "text.not_bounced_label"
+          }
+        }
+      }
+    ]
+  } as UISchemaElement;
 }

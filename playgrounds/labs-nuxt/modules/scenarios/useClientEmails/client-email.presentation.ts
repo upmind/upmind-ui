@@ -24,6 +24,7 @@ import { ActionPlacementTypes, CardSlotTypes } from "../runtime/scenario.types";
 import type {
   ActionsUischema,
   CardUischema,
+  DetailUischema,
   TableUischema
 } from "../runtime/scenario.types";
 
@@ -110,6 +111,34 @@ export const cardUischema: CardUischema = {
 };
 
 /**
+ * The SAME record drawn READ-ONLY in the detail overlay — a third declaration
+ * over the row already in hand, drawn through the same cell renderers the table
+ * uses (`R6-36`). No `useDetail` accompanies it, so this is the row-data path:
+ * the overlay shows what the list already holds, with no fetch.
+ */
+export const detailUischema: DetailUischema = {
+  type: "DetailLayout",
+  elements: [
+    {
+      type: "TableCellText",
+      scope: "#/properties/email",
+      i18n: "text.email_address"
+    },
+    {
+      type: "TableCellBadges",
+      scope: "#/properties/meta",
+      i18n: "text.status",
+      options: { badges: STATUS_BADGES }
+    },
+    {
+      type: "TableCellDate",
+      scope: "#/properties/bouncedAt",
+      i18n: "text.date_bounced"
+    }
+  ]
+};
+
+/**
  * Every action the module offers, in the order they are drawn — ONE list for
  * the row and the card alike (`R6-33`), with the collection's own control
  * distinguished by the only thing that differs: it is fired with no record, so
@@ -139,6 +168,18 @@ export const actionsUischema: ActionsUischema = {
       color: "primary",
       variant: "solid",
       placement: ActionPlacementTypes.HEADER
+    },
+    {
+      type: "Action",
+      // Opens the read-only detail overlay on the row itself — no fetch, since
+      // this scenario declares no `useDetail`. It sits beside `edit`: read the
+      // record, then hand off to the editor from the overlay's own actions.
+      name: "view",
+      detail: true,
+      i18n: "action.view",
+      icon: "eye",
+      variant: "outline",
+      placement: ActionPlacementTypes.VISIBLE
     },
     {
       type: "Action",

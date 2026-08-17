@@ -10,7 +10,7 @@
 
 import { useRouter, useRoute } from "vue-router";
 import { ScopeActorTypes } from "@upmind-automation/headless";
-import { filter, get } from "lodash-es";
+import { compact, filter, get, map, uniq, values } from "lodash-es";
 import type {
   ActorContextMatrix,
   ScopeContext
@@ -41,6 +41,26 @@ export function servesActor(
 ): boolean {
   if (!matrix || actor === ScopeActorTypes.SELF) return true;
   return !!resolveMatrixContext(get(matrix, actor));
+}
+
+/**
+ * The context type a single-record READ binds `.for()` to, for the actor a url
+ * named. `SELF` names no actor — the builder resolves it to whoever is active,
+ * which is why {@link servesActor} always serves it — so a matrix declares its
+ * type against the CONCRETE actor and never against `SELF`. Reading the `SELF`
+ * cell therefore answers "no context" for a read that plainly has one, so the
+ * type is taken from the matrix the composable really declares, which is
+ * unambiguous exactly while it serves a single actor.
+ */
+export function resolveReadContext(
+  matrix: ActorContextMatrix | undefined,
+  actor: ScopeActorTypes
+): string | null {
+  const named = resolveMatrixContext(get(matrix, actor));
+  if (named || actor !== ScopeActorTypes.SELF) return named;
+
+  const served = uniq(compact(map(values(matrix), resolveMatrixContext)));
+  return served.length === 1 ? (served[0] as string) : null;
 }
 
 export type ScopePathConfig = {

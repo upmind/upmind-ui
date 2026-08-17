@@ -1,4 +1,3 @@
-import { PAGINATION } from "../query";
 import { createScopedComposable } from "../scope";
 import createClientEmailHistoryServices from "./client-email-history.services";
 import { createClientReceivedEmailsActions } from "./useClientReceivedEmails.actions";
@@ -35,16 +34,12 @@ function createClientReceivedEmailsForScope(
    */
   const service = createClientEmailHistoryServices(actorScope, config.context);
 
-  // Mint the list query ONCE per scope. `limit` comes from the platform
-  // constant, not an invented number: PAGINATION.limit IS the 10 the legacy
-  // consumer passed at construction.
-  const query = service.loadList({ pagination: { limit: PAGINATION.limit } });
+  // Mint the list query ONCE per scope. `loadList()` takes nothing — the
+  // request state is the declared query schema, and the schema's own
+  // `pagination.limit` default governs the boot window.
+  const query = service.loadList();
 
-  /**
-   * ONE actions instance per scope, not one per `useActions()` call: the
-   * applied `filters` ref lives in that factory, so a factory minted per call
-   * would give every handle its own filter state.
-   */
+  /** ONE actions instance per scope; the layers below stay lazy. */
   const actions = createClientReceivedEmailsActions(
     actorScope,
     service,
@@ -75,9 +70,9 @@ function createClientReceivedEmailsForScope(
  * @example
  * ```ts
  * const history = useClientReceivedEmails().as('client')
- * const { data } = history.useContext()
+ * const { data, schemas } = history.useContext()
  * await history.useActions().isReady()
- * history.useActions().filters.status(SentEmailStatus.BOUNCED)
+ * history.useActions().setCriteria({ filters: { bounced: { eq: true } } })
  * ```
  */
 export const useClientReceivedEmails = createScopedComposable<

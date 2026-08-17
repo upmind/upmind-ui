@@ -22,6 +22,7 @@
     :criteria="port.criteria"
     :presentation="presentation"
     :handoffs="handoffs"
+    :detail="detail"
     :locked="locked"
   />
 </template>
@@ -44,6 +45,6 @@ import ListSurface from "./surfaces/ListSurface.vue";
 import type { ModuleRendererProps } from "./ModuleRenderer.types";
 // -----------------------------------------------------------------------------
 
-const { descriptor, port, presentation, handoffs, locked } =
+const { descriptor, port, presentation, handoffs, detail, locked } =
   defineProps<ModuleRendererProps>();
 </script>

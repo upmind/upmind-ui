@@ -22,6 +22,7 @@
             :color="action.color"
             :icon="action.icon"
             :label="action.label"
+            :block="stretch"
             :icon-only="iconOnly"
             :aria-label="action.label"
             :disabled="action.disabled"
@@ -130,6 +131,9 @@ const menuItems = computed<DropdownMenuItemProps[]>(() =>
   map(props.actions, menuItem)
 );
 
-const meta = computed(() => ({ count: props.actions.length }));
+const meta = computed(() => ({
+  count: props.actions.length,
+  stretch: !!props.stretch
+}));
 const styles = useStyles(["actionSlots"], meta, config);
 </script>

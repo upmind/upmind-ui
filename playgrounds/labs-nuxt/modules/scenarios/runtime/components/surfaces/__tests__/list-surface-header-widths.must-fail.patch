@@ -23,12 +23,11 @@ one width treatment, so they are measured from their content.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-@@ -142,7 +142,7 @@
+@@ -141,6 +141,6 @@
+           <TableHead
              v-for="header in headerGroup.headers"
              :key="header.id"
-             :class="
--              headerCell({ isContent: includes(contentColumns, header.id) })
-+              headerCell({ isContent: header.index !== 1 })
-             "
+-            :class="headerCell({ size: headerSize(header.id) })"
++            :class="headerCell({ size: header.index === 1 ? 'fluid' : 'content' })"
              @click="onHeaderSort(header.column)"
            >
