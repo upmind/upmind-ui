@@ -9,14 +9,14 @@
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  useQuerySchema,
-  useQueryUischema
-} from "@upmind-automation/headless/testing/client-email/internal-kit";
+import { internalKits } from "@upmind-automation/headless/testing";
 import form from "@upmind-automation/i18n/core/form-en.json";
 import { fieldLayoutOf, labelOf, mountFilters } from "./filter.harness";
 import { some, split } from "lodash-es";
 import type { DOMWrapper } from "@vue/test-utils";
+
+const { useQuerySchema, useQueryUischema } =
+  await internalKits["client-email"]();
 
 const ROW = "flex-row";
 const COLUMN = "flex-col";

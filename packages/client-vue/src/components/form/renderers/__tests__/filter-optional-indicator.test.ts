@@ -13,13 +13,13 @@
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  useQuerySchema,
-  useQueryUischema
-} from "@upmind-automation/headless/testing/client-email/internal-kit";
+import { internalKits } from "@upmind-automation/headless/testing";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import { mountFilters, renderedStrings } from "./filter.harness";
 import { includes } from "lodash-es";
+
+const { useQuerySchema, useQueryUischema } =
+  await internalKits["client-email"]();
 
 // -----------------------------------------------------------------------------
 

@@ -34,7 +34,7 @@ export function useQuerySchema(): SentEmailQuerySchema {
         properties: {
           subject: {
             type: "object",
-            title: "text.subject",
+            title: "Subject",
             additionalProperties: false,
             properties: {
               // The bare term — the translator adds the % wildcards.
@@ -43,35 +43,35 @@ export function useQuerySchema(): SentEmailQuerySchema {
           },
           sent: {
             type: "object",
-            title: "text.sent",
+            title: "Sent",
             additionalProperties: false,
             properties: {
               eq: {
                 type: ["boolean", "null"],
                 oneOf: [
-                  { const: true, title: "text.yes" },
-                  { const: false, title: "text.no" }
+                  { const: true, title: "Yes" },
+                  { const: false, title: "No" }
                 ]
               }
             }
           },
           bounced: {
             type: "object",
-            title: "text.bounced",
+            title: "Bounced",
             additionalProperties: false,
             properties: {
               eq: {
                 type: ["boolean", "null"],
                 oneOf: [
-                  { const: true, title: "text.yes" },
-                  { const: false, title: "text.no" }
+                  { const: true, title: "Yes" },
+                  { const: false, title: "No" }
                 ]
               }
             }
           },
           error_id: {
             type: "object",
-            title: "text.failed",
+            title: "Failed",
             additionalProperties: false,
             properties: {
               neq: { type: ["string", "null"], minLength: 1 }
@@ -93,8 +93,8 @@ export function useQuerySchema(): SentEmailQuerySchema {
               // `oneOf` const/title (not a bare enum) so the sort control draws
               // a human label per option — matches the client-email sibling.
               oneOf: [
-                { const: "created_at", title: "text.date_added" },
-                { const: "subject", title: "text.subject" }
+                { const: "created_at", title: "Date added" },
+                { const: "subject", title: "Subject" }
               ]
             },
             dir: { enum: ["asc", "desc"] }
@@ -124,8 +124,7 @@ export function useQuerySchema(): SentEmailQuerySchema {
  */
 export function useQueryUischema(): UISchemaElement {
   return {
-    type: "HorizontalLayout",
-    options: { flow: true },
+    type: "FilterBar",
     elements: [
       {
         type: "Filter",

@@ -28,8 +28,9 @@
  * channel's own flatten/lift contract.
  *
  * The recorded corpus, its replay server and the session seed are reached by
- * headless's own `./testing/client-email/*` subpath export, never by a relative
- * path into the package.
+ * headless's ONE `./testing` entry, keyed by the module that owns them — never by
+ * a per-module subpath, which the package does not publish, and never by a
+ * relative path into it.
  *
  * ## The one-page × paginate collision — RECORDED, not a passing capability
  * The recorded corpus is 3 rows and the schema declares `pagination.limit`
@@ -50,13 +51,20 @@
 import { describe, expect, it, vi } from "vitest";
 import { ScopeActorTypes, useClientEmails } from "@upmind-automation/headless";
 import {
+  integrationKits,
+  integrationSetups
+} from "@upmind-automation/headless/testing";
+import { useTableChannel } from "../useTableChannel";
+
+// -----------------------------------------------------------------------------
+
+const {
   installFilteredEmailsHandler,
   observeEmailRequests,
   recorded,
   seedClientSession
-} from "@upmind-automation/headless/testing/client-email/int-helpers";
-import { server } from "@upmind-automation/headless/testing/client-email/setup.integration";
-import { useTableChannel } from "../useTableChannel";
+} = await integrationKits["client-email"]();
+const { server } = await integrationSetups["client-email"]();
 
 // -----------------------------------------------------------------------------
 

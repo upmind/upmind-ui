@@ -2,19 +2,37 @@
  * @module tests/support/recorded-emails
  * @description The client-emails page's rows and its 409, read from the
  * capture run's own recordings under
- * `packages/headless/src/modules/client-email/__tests__/fixtures` (reached by
- * the package's own `./testing/client-email/fixtures/*` export). Nothing here
- * is authored: the addresses, the flags and the rejection sentence are the bytes
- * staging returned on 2026-08-05.
+ * `packages/headless/src/modules/client-email/__tests__/fixtures` (reached as
+ * `recordedBodies["client-email"]` on the package's ONE `./testing` entry).
+ * Nothing here is authored: the addresses, the flags and the rejection sentence
+ * are the bytes staging returned on 2026-08-05.
  *
  * Only the PROJECTION is written here — wire record to the `Email` row shape
  * `client-email.types.ts` publishes — because the mapper that performs it is
  * `@internal` to headless and unreachable from this package's test lane.
  */
 
-import one from "@upmind-automation/headless/testing/client-email/fixtures/get-clients-id-emails-id.json";
-import list from "@upmind-automation/headless/testing/client-email/fixtures/get-clients-id-emails.json";
-import rejected from "@upmind-automation/headless/testing/client-email/fixtures/put-clients-id-emails-id-case-set-default-unverified.json";
+import { recordedBodies } from "@upmind-automation/headless/testing";
+
+/** A recording as the capture run wrote it: the whole exchange, not just a body. */
+type Recording = {
+  response: {
+    body: {
+      data: unknown;
+      error: { code: number; message: string; data: unknown };
+    };
+  };
+};
+
+const bodies = recordedBodies["client-email"];
+
+// The entry keeps every body behind its own loader; the three this file projects
+// are awaited here so every consumer's import stays synchronous.
+const [one, list, rejected] = (await Promise.all([
+  bodies["get-clients-id-emails-id"](),
+  bodies["get-clients-id-emails"](),
+  bodies["put-clients-id-emails-id-case-set-default-unverified"]()
+])) as Recording[];
 
 type WireEmail = {
   id: string;
@@ -52,9 +70,7 @@ const toRow = (wire: WireEmail) => ({
 });
 
 /** The account's own address: default, verified, and the API forbids deleting it. */
-export const defaultRow = toRow(
-  (list.response.body.data as WireEmail[])[0] as WireEmail
-);
+export const defaultRow = toRow((list.response.body.data as WireEmail[])[0]);
 
 /** The address the capture run created: non-default, unverified, deletable. */
 export const unverifiedRow = toRow(one.response.body.data as WireEmail);

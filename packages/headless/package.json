@@ -14,6 +14,7 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./package.json": "./package.json",
     "./testing": "./src/testing/index.ts"
   },
   "files": [

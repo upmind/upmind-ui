@@ -22,14 +22,14 @@ import { mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { computed, defineComponent, h, nextTick, ref } from "vue";
 import { RouterView, createRouter, createWebHistory } from "vue-router";
-import {
-  useQuerySchema,
-  useQueryUischema
-} from "@upmind-automation/headless/testing/client-email/internal-kit";
+import { internalKits } from "@upmind-automation/headless/testing";
 import { each, fromPairs, map } from "lodash-es";
 import type { ModulePortCriteria } from "../../../modules/scenarios/runtime/composables/useModulePort.types";
 import type { PlaygroundUrlState } from "../usePlaygroundUrlState.types";
 import type { Router } from "vue-router";
+
+const { useQuerySchema, useQueryUischema } =
+  await internalKits["client-email"]();
 
 // -----------------------------------------------------------------------------
 

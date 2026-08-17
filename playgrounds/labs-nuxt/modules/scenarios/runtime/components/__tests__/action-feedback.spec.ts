@@ -36,11 +36,8 @@ import {
   defaultRow,
   recordedRejection,
   unverifiedRow
-} from "../../../../../tests/support/recorded-emails";
-import {
-  clearToasts,
-  mountToaster
-} from "../../../../../tests/support/toaster";
+} from "../../../testing/recorded-emails";
+import { clearToasts, mountToaster } from "../../../testing/toaster";
 import clientEmails from "../../../useClientEmails/client-email.scenario";
 import { ListSurface } from "../surfaces";
 import { useActionFeedback } from "../useActionFeedback";

@@ -1,0 +1,63 @@
+Negative control for the ONE-testing-entry boundary (`eslint.config.mjs`,
+`noWorkspaceSubpathImportsRule`), the lint half of the gate
+`testing-entry-boundary.spec.ts` measures.
+
+`packages/headless`'s `exports` map publishes exactly one test entry —
+`"./testing"` — and no `"./testing/*"`. The rule's lookahead is what makes that
+mechanical: it admits `testing$` and nothing below it, so a per-module specifier
+reds from every position, the re-armed test lane (block 8h) included. Before
+this control the lookahead also carried `|testing/`, which kept admitting a
+surface the package had stopped publishing; the boundary was true by accident,
+green because no caller happened to spell it any more.
+
+This plants ONE offender: a per-module subpath import in a `__tests__/`
+position, which is the MOST permissive lane in the repo for this specifier
+(block 8h re-arms `./testing` there). If the ban holds in 8h it holds
+everywhere, since 8g is strictly narrower.
+
+  playgrounds/labs-nuxt/modules/scenarios/__tests__/
+    testing-entry-subpath-reintroduced.ts   (new file)
+    `import ... from "@upmind-automation/headless/testing/client-email"`
+
+The hunk ADDS a file rather than mutating a consumer on purpose: every real
+consumer of the entry is mid-migration, and a context-free addition cannot rot
+against that churn. Lint config is glob-driven, so a file at this path sits in
+exactly the same lane a real spec does.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`
+(never `git checkout --`).
+
+@lint-run: the Then is the lint run's exit status, not a vitest assertion —
+same realization as `packages/scenario-harness/src/__tests__/known-bad/`.
+
+Reds: `./node_modules/.bin/eslint
+playgrounds/labs-nuxt/modules/scenarios/__tests__/testing-entry-subpath-reintroduced.ts`
+reports `no-restricted-imports` on the planted line. A run that stays GREEN
+means the lookahead admits `testing/` again and the one-entry ruling is back to
+being true by accident. `git apply -R` must return the run to green.
+
+  Proven RED: 2026-08-17, eslint 1 error —
+  `no-restricted-imports`: 'Import a workspace package by its published
+  specifier — its internals are private. headless publishes ".", "./scenarios"
+  and "./testing" — one bare test entry, no subpaths below it (test lanes, plus
+  the one app-runtime seam block 8h names).'
+  Reverted: same command, 0 problems.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/__tests__/testing-entry-subpath-reintroduced.ts b/playgrounds/labs-nuxt/modules/scenarios/__tests__/testing-entry-subpath-reintroduced.ts
+new file mode 100644
+--- /dev/null
++++ b/playgrounds/labs-nuxt/modules/scenarios/__tests__/testing-entry-subpath-reintroduced.ts
+@@ -0,0 +1,13 @@
++// -----------------------------------------------------------------------------
++/**
++ * @module scenarios/__tests__/testing-entry-subpath-reintroduced
++ * @description Negative-control mutant, never shipped. A test-lane position
++ * reaching BELOW headless's one published test entry — the shape the rule's
++ * lookahead used to admit and the package never published.
++ */
++
++import { internalKits } from "@upmind-automation/headless/testing/client-email";
++
++// -----------------------------------------------------------------------------
++
++export const reached = internalKits;

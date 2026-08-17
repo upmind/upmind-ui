@@ -37,7 +37,7 @@ import {
   defaultRow,
   recordedRejection,
   unverifiedRow
-} from "../../../../../../tests/support/recorded-emails";
+} from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import {
   CONTROL_TEST_VALUE,

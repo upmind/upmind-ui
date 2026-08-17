@@ -11,10 +11,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import { h } from "vue";
-import {
-  useQuerySchema,
-  useQueryUischema
-} from "@upmind-automation/headless/testing/client-email/internal-kit";
+import { internalKits } from "@upmind-automation/headless/testing";
 import form from "@upmind-automation/i18n/core/form-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import {
@@ -26,6 +23,9 @@ import {
 } from "./filter.harness";
 import { cloneDeep, filter, get, map, set } from "lodash-es";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
+
+const { useQuerySchema, useQueryUischema } =
+  await internalKits["client-email"]();
 
 const I18N_KEY_SHAPE = /^[a-z][a-zA-Z0-9_]*\.[a-zA-Z][a-zA-Z0-9_.]*$/;
 
@@ -192,7 +192,9 @@ describe("the translator is load-bearing", () => {
       ]);
 
     expect(labelOf(column("verified"))).toBe(titleOf("verified"));
-    expect(I18N_KEY_SHAPE.test(labelOf(column("verified")))).toBe(true);
+    // A schema `title` is plain English, so the untranslated fallback is a
+    // readable word — this goes red the day a key is put back in a title.
+    expect(I18N_KEY_SHAPE.test(labelOf(column("verified")))).toBe(false);
 
     expect(rawKeysIn(renderedStrings(wrapper)).length).toBeGreaterThan(0);
   });

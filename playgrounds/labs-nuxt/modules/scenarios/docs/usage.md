@@ -152,14 +152,22 @@ A presentation may declare a third view of the same record: read-only, opened by
 export const detailUischema: DetailUischema = {
   type: "DetailLayout",
   elements: [
-    { type: "TableCellText", scope: "#/properties/email", i18n: "text.email_address" },
+    {
+      type: "TableCellText",
+      scope: "#/properties/email",
+      i18n: "text.email_address"
+    },
     {
       type: "TableCellBadges",
       scope: "#/properties/meta",
       i18n: "text.status",
       options: { badges: STATUS_BADGES }
     },
-    { type: "TableCellDate", scope: "#/properties/bouncedAt", i18n: "text.date_bounced" }
+    {
+      type: "TableCellDate",
+      scope: "#/properties/bouncedAt",
+      i18n: "text.date_bounced"
+    }
   ]
 };
 ```

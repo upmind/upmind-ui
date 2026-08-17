@@ -16,16 +16,16 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { computed, nextTick, ref } from "vue";
-import {
-  useQuerySchema,
-  useQueryUischema
-} from "@upmind-automation/headless/testing/client-email/internal-kit";
+import { internalKits } from "@upmind-automation/headless/testing";
 import {
   criteriaToParams,
   paramsToCriteria,
   useCriteriaUrlSync
 } from "../useCriteriaUrlSync";
 import type { ModulePortCriteria } from "../useModulePort.types";
+
+const { useQuerySchema, useQueryUischema } =
+  await internalKits["client-email"]();
 
 /** The url's own spelling of the column — not the wire's `filter[col|op]`. */
 const VERIFIED_PARAM = "filter.verified.eq";

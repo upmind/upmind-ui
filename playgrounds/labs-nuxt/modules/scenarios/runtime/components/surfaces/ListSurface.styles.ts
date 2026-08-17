@@ -197,7 +197,7 @@ export default {
     // collection, what is narrowing it, and what the collection amounts to
     // (G3/G5/H1). They sit closer to each other than to the records they steer,
     // so they read as one cluster rather than three lines of chrome. The facets'
-    // own wrapping is the filter declaration's (`filterRow.config.ts`), never a
+    // own wrapping is the filter declaration's (`filterBar.config.ts`), never a
     // width this surface imposes on the bar (D13/H3).
     controls: cva("space-y-2"),
 

@@ -23,10 +23,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { computed, nextTick, ref } from "vue";
 import { createI18n } from "vue-i18n";
 import { ScopeActorTypes } from "@upmind-automation/headless";
-import {
-  useQuerySchema,
-  useQueryUischema
-} from "@upmind-automation/headless/testing/client-email/internal-kit";
+import { internalKits } from "@upmind-automation/headless/testing";
 import action from "@upmind-automation/i18n/core/action-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import { Markdown } from "@upmind-automation/upmind-ui";
@@ -35,6 +32,9 @@ import CodePane from "../CodePane.vue";
 import { every, find, includes, last, map, trim } from "lodash-es";
 import type { ModulePortCriteria } from "../../../../modules/scenarios/runtime/composables/useModulePort.types";
 import type { ScopeConfig } from "../../../composables/scope";
+
+const { useQuerySchema, useQueryUischema } =
+  await internalKits["client-email"]();
 
 // -----------------------------------------------------------------------------
 

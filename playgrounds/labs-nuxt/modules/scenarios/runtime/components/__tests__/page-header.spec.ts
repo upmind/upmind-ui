@@ -21,7 +21,7 @@ import { describe, expect, it, vi } from "vitest";
 import { createI18n } from "vue-i18n";
 import action from "@upmind-automation/i18n/core/action-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
-import { renderedStrings } from "../../../../../tests/support/rendered";
+import { renderedStrings } from "../../../testing/rendered";
 import clientEmails from "../../../useClientEmails/client-email.scenario";
 import PageHeader from "../PageHeader.vue";
 import { CONTROL_TEST_VALUE } from "./control-test-values";

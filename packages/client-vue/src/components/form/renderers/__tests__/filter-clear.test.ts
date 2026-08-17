@@ -12,14 +12,14 @@
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  useQuerySchema,
-  useQueryUischema
-} from "@upmind-automation/headless/testing/client-email/internal-kit";
+import { internalKits } from "@upmind-automation/headless/testing";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import { mountFilters, renderedStrings } from "./filter.harness";
 import { filter, get, has, trim } from "lodash-es";
 import type { DOMWrapper } from "@vue/test-utils";
+
+const { useQuerySchema, useQueryUischema } =
+  await internalKits["client-email"]();
 
 const CLEAR = '[data-test-value="all"]';
 const I18N_KEY_SHAPE = /^[a-z][a-zA-Z0-9_]*\.[a-zA-Z][a-zA-Z0-9_.]*$/;

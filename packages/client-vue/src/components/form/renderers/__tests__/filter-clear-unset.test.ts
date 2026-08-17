@@ -9,10 +9,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  useQuerySchema,
-  useQueryUischema
-} from "@upmind-automation/headless/testing/client-email/internal-kit";
+import { internalKits } from "@upmind-automation/headless/testing";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import {
   mountFilters,
@@ -21,6 +18,9 @@ import {
   positionsOf
 } from "./filter.harness";
 import { get, has, keys, values } from "lodash-es";
+
+const { useQuerySchema, useQueryUischema } =
+  await internalKits["client-email"]();
 
 const UNSET = "all";
 const YES = "yes";

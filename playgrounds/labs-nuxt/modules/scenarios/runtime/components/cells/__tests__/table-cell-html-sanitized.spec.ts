@@ -21,7 +21,7 @@ import { createI18n } from "vue-i18n";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import { Sanitized } from "@upmind-automation/upmind-ui";
 import clientEmailHistory from "../../../../useClientReceivedEmails/client-email-history.scenario";
-import { receivedEmailBody } from "../../../../../../tests/support/recorded-received-email";
+import { receivedEmailBody } from "../../../../testing/recorded-received-email";
 import { CellDispatcher } from "../index";
 import { find } from "lodash-es";
 import type { TableCell } from "../../../scenario.types";

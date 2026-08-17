@@ -139,7 +139,9 @@ history.useActions().setCriteria({
 });
 
 // Equivalent named shorthand — filterBy(intent) is setCriteria({ filters: intent })
-history.useActions().filterBy({ bounced: { eq: true }, subject: { like: "invoice" } });
+history
+  .useActions()
+  .filterBy({ bounced: { eq: true }, subject: { like: "invoice" } });
 ```
 
 ### Paging

@@ -24,7 +24,7 @@
  *
  * Bodies arrive as an ARGUMENT, exactly as the resolver's do: app runtime's are
  * the `ESC6` seam's (`runtimeCorpus()`), a spec's are its own lawful read of the
- * same committed files, and no `@upmind-automation/headless/testing/*` specifier
+ * same committed files, and no `@upmind-automation/headless/testing` specifier
  * appears here either — eslint 8g reds one outside the four test-lane globs, and
  * `lint` is a gate.
  *

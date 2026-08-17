@@ -24,7 +24,7 @@ import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ScopeActorTypes } from "@upmind-automation/headless";
 import { Alert, Skeleton } from "@upmind-automation/upmind-ui";
-import { unverifiedRow } from "../../../../../tests/support/recorded-emails";
+import { unverifiedRow } from "../../../testing/recorded-emails";
 import ManageDialog from "../ManageDialog.vue";
 import { ModuleState } from "../module-state.types";
 import ModuleStateNotice from "../ModuleStateNotice.vue";

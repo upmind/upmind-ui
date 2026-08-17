@@ -20,17 +20,15 @@
 
 import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { UpmForm } from "@upmind-automation/client-vue";
 import confirm from "@upmind-automation/i18n/core/confirm-en.json";
 import error from "@upmind-automation/i18n/core/error-en.json";
 import {
   API_MESSAGE,
   recordedRejection,
   unverifiedRow
-} from "../../../../../../tests/support/recorded-emails";
-import {
-  clearToasts,
-  mountToaster
-} from "../../../../../../tests/support/toaster";
+} from "../../../../testing/recorded-emails";
+import { clearToasts, mountToaster } from "../../../../testing/toaster";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { FormFlowSurface } from "../index";
 
@@ -74,7 +72,7 @@ function mountEditor(
 }
 
 const save = async (wrapper: ReturnType<typeof mountEditor>["wrapper"]) => {
-  await wrapper.findComponent({ name: "UpmForm" }).vm.$emit("resolve");
+  await wrapper.findComponent(UpmForm).vm.$emit("resolve");
   await flushPromises();
 };
 
@@ -153,7 +151,7 @@ describe("@AC3 a REFUSED save keeps the form on screen", () => {
 
     await save(wrapper);
 
-    const upmForm = wrapper.findComponent({ name: "UpmForm" });
+    const upmForm = wrapper.findComponent(UpmForm);
     expect(upmForm.exists()).toBe(true);
     expect(upmForm.props("modelValue")).toEqual({ email: unverifiedRow.email });
   });

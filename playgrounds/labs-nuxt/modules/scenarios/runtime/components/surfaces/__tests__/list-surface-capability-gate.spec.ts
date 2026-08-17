@@ -22,10 +22,7 @@
 
 import { mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  defaultRow,
-  unverifiedRow
-} from "../../../../../../tests/support/recorded-emails";
+import { defaultRow, unverifiedRow } from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import {
   CONTROL_TEST_VALUE,

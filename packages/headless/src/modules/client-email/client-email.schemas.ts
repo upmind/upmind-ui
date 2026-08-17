@@ -123,8 +123,8 @@ export function useActionInputSchemas(): Record<string, JsonSchema7> {
  * from `sort`'s declared `field` members is unsortable for the same reason (an
  * unknown `order=` column is an HTTP 500). Optional leaves are typed
  * `["<type>", "null"]` because `useModelParser` coerces a plain `boolean` leaf
- * to `false`, putting a filter nobody set on the wire. Every `title` holds an
- * i18n key, never English.
+ * to `false`, putting a filter nobody set on the wire. Every `title` is plain
+ * English — the uischema's `i18n` key is the override channel, never the title.
  *
  * A function, not a constant: a module whose filterable columns are only known
  * once the server answers merges them in at call time.
@@ -152,7 +152,7 @@ export function useQuerySchema(): QuerySchema {
         properties: {
           email: {
             type: "object",
-            title: "text.email_address",
+            title: "Email address",
             additionalProperties: false,
             properties: {
               // The bare term — the translator adds the % wildcards.
@@ -161,28 +161,28 @@ export function useQuerySchema(): QuerySchema {
           },
           verified: {
             type: "object",
-            title: "text.verified_label",
+            title: "Verified",
             additionalProperties: false,
             properties: {
               eq: {
                 type: ["boolean", "null"],
                 oneOf: [
-                  { const: true, title: "text.yes" },
-                  { const: false, title: "text.no" }
+                  { const: true, title: "Yes" },
+                  { const: false, title: "No" }
                 ]
               }
             }
           },
           bounced: {
             type: "object",
-            title: "text.bounced_label",
+            title: "Bounced",
             additionalProperties: false,
             properties: {
               eq: {
                 type: ["boolean", "null"],
                 oneOf: [
-                  { const: true, title: "text.yes" },
-                  { const: false, title: "text.no" }
+                  { const: true, title: "Yes" },
+                  { const: false, title: "No" }
                 ]
               }
             }
@@ -206,11 +206,11 @@ export function useQuerySchema(): QuerySchema {
             // orders on, the status composite never among them (`R6-6`/`R6-6b`).
             field: {
               oneOf: [
-                { const: "default", title: "text.default_label" },
-                { const: "email", title: "text.email_address" },
-                { const: "verified", title: "text.verified_label" },
-                { const: "bounced", title: "text.bounced_label" },
-                { const: "created_at", title: "text.date_added" }
+                { const: "default", title: "Default" },
+                { const: "email", title: "Email address" },
+                { const: "verified", title: "Verified" },
+                { const: "bounced", title: "Bounced" },
+                { const: "created_at", title: "Date added" }
               ]
             },
             dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
@@ -247,15 +247,14 @@ export function useQuerySchema(): QuerySchema {
  * a flat `text.*` key. The `sort` and `pagination` branches carry no element: a
  * branch no element draws is still validated and still translated.
  *
- * The bar is ONE row: `flow` opts the layout into the toolbar treatment
- * (client-vue's `FilterRowRenderer`, spelt as a literal because headless cannot
- * import from client-vue), where each control keeps its natural width and the
- * leftover width goes to the one element declaring `width: "full"`.
+ * The bar is ONE row and its own element type: `FilterBar` (client-vue's
+ * `FilterBarRenderer`, spelt as a literal because headless cannot import from
+ * client-vue), where each control keeps its natural width and the leftover width
+ * goes to the one element declaring `width: "full"`.
  */
 export function useQueryUischema(): UISchemaElement {
   return {
-    type: "HorizontalLayout",
-    options: { flow: true },
+    type: "FilterBar",
     elements: [
       {
         type: "Filter",

@@ -1,9 +1,9 @@
 <template>
-  <div v-if="meta.isVisible" :class="styles.filterRow.root">
+  <div v-if="meta.isVisible" :class="styles.filterBar.root">
     <div
       v-for="(element, index) in layout.uischema.elements"
       :key="`${layout.path}-${index}`"
-      :class="filterRowItem({ isGrowing: isGrowing(element) })"
+      :class="filterBarItem({ isGrowing: isGrowing(element) })"
     >
       <DispatchRenderer
         :schema="layout.schema"
@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts" setup>
-import { and, isLayout, optionIs } from "@jsonforms/core";
+import { and, isLayout, uiTypeIs } from "@jsonforms/core";
 import {
   DispatchRenderer,
   rendererProps,
@@ -26,20 +26,20 @@ import {
 } from "@jsonforms/vue";
 import { computed } from "vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config, { filterRowItem } from "./filterRow.config";
+import config, { filterBarItem } from "./filterBar.config";
 import { get } from "lodash-es";
 import type { Layout, UISchemaElement } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 /**
- * @module form/renderers/FilterRowRenderer
- * @description A layout that lays its elements out as ONE flowing row — the
- * toolbar treatment a filter bar is drawn with, opted into by the layout's own
- * `flow` option so every other form keeps the generic layout renderer.
+ * @module form/renderers/FilterBarRenderer
+ * @description The `FilterBar` layout — a filter bar is its own element type, not
+ * a generic layout wearing an option flag, so a declaration says what it IS and
+ * every other form keeps the generic layout renderer untouched.
  *
  * The generic renderer gives each element an equal share of the row
  * (`md:flex-1`), which is right for a two-column form and wrong for a bar: a
  * narrow switch stranded in half a row reads as two filters at opposite ends of
- * the page. Here each element keeps its NATURAL width and the row's slack goes
+ * the page. Here each element keeps its NATURAL width and the bar's slack goes
  * to whichever element declared `width: "full"` — the search — so the controls
  * group together and the bar wraps rather than spreads.
  */
@@ -53,17 +53,22 @@ const meta = computed(() => ({
   isDisabled: !layout.value.enabled
 }));
 
-const styles = useStyles(["filterRow"], meta, config);
+const styles = useStyles(["filterBar"], meta, config);
 
-/** The element the row's leftover width belongs to — its own declared width. */
+/** The element the bar's leftover width belongs to — its own declared width. */
 function isGrowing(element: UISchemaElement): boolean {
   return get(element, ["options", "width"]) === "full";
 }
 </script>
 
 <script lang="ts">
+/**
+ * `rank: 2` for the same reason `Group` and `Tabs` rank 2: the ui package's
+ * `LayoutRenderer` testers on bare `isLayout` at rank 1, so ANY element carrying
+ * `elements` — a distinct type included — still matches it.
+ */
 export const tester = {
   rank: 2,
-  controlType: and(isLayout, optionIs("flow", true))
+  controlType: and(isLayout, uiTypeIs("FilterBar"))
 };
 </script>

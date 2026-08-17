@@ -29,12 +29,11 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
-  installFilteredEmailsHandler,
-  seedClientSession
-} from "@upmind-automation/headless/testing/client-email/int-helpers";
-import { CLIENT_EMAILS_ACTIONS_SOURCE } from "@upmind-automation/headless/testing/client-email/internal-kit";
-import { server } from "@upmind-automation/headless/testing/client-email/setup.integration";
-import { coveredActionIds } from "@upmind-automation/headless/testing/client-email/steps";
+  integrationKits,
+  integrationSetups,
+  internalKits,
+  stepModules
+} from "@upmind-automation/headless/testing";
 import {
   GATE_CAUSE,
   GATE_STATUS,
@@ -46,6 +45,17 @@ import { CLIENT_EMAILS_SCENARIO } from "../../../useClientEmails/client-email.sc
 import { registry } from "../../registry";
 import { filter, find, keyBy, map, reject } from "lodash-es";
 import type { GateVerdict } from "@upmind-automation/scenario-harness";
+
+// -----------------------------------------------------------------------------
+
+const { installFilteredEmailsHandler, seedClientSession } =
+  await integrationKits["client-email"]();
+const { server } = await integrationSetups["client-email"]();
+const { coveredActionIds } = stepModules["client-email"];
+
+/** The module's own actions file, whose `@scenario` tags the gate parses. */
+const CLIENT_EMAILS_ACTIONS_SOURCE = (await internalKits["client-email"]())
+  .CLIENT_EMAILS_ACTIONS_SOURCE as string;
 
 // -----------------------------------------------------------------------------
 

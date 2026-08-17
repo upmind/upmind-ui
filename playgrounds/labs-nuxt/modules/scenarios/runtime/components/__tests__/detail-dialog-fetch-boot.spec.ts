@@ -25,9 +25,10 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import { nextTick } from "vue";
+import { UpmForm } from "@upmind-automation/client-vue";
 import { ScopeActorTypes } from "@upmind-automation/headless";
-import { defaultRow } from "../../../../../tests/support/recorded-emails";
-import { receivedEmailId } from "../../../../../tests/support/recorded-received-email";
+import { defaultRow } from "../../../testing/recorded-emails";
+import { receivedEmailId } from "../../../testing/recorded-received-email";
 import clientEmails from "../../../useClientEmails/client-email.scenario";
 import clientEmailHistory from "../../../useClientReceivedEmails/client-email-history.scenario";
 import { DetailSurfacePositionTypes } from "../../scenario.types";
@@ -171,7 +172,7 @@ describe("the overlay is read-only — editing is the editor's job", () => {
     await nextTick();
 
     expect(document.body.textContent).toContain(defaultRow.email);
-    expect(wrapper.findComponent({ name: "UpmForm" }).exists()).toBe(false);
+    expect(wrapper.findComponent(UpmForm).exists()).toBe(false);
     wrapper.unmount();
   });
 

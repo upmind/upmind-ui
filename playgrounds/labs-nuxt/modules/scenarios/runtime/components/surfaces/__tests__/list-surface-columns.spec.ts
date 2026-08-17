@@ -24,24 +24,21 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { computed, defineComponent, h, nextTick, ref } from "vue";
 import { createI18n } from "vue-i18n";
 import { RouterView, createRouter, createWebHistory } from "vue-router";
-import {
-  useQuerySchema,
-  useQueryUischema
-} from "@upmind-automation/headless/testing/client-email/internal-kit";
+import { internalKits } from "@upmind-automation/headless/testing";
 import action from "@upmind-automation/i18n/core/action-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import labsEn from "../../../../../../app/assets/locales/en/labs.json";
 import { usePlaygroundUrlState } from "../../../../../../app/composables/usePlaygroundUrlState";
-import {
-  defaultRow,
-  unverifiedRow
-} from "../../../../../../tests/support/recorded-emails";
+import { defaultRow, unverifiedRow } from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { RESOLVED_HANDOFFS } from "../../__tests__/resolved-handoffs";
 import { ListSurface } from "../index";
 import { DECLARED_HEADERS } from "./table-geometry";
 import { dropRight, initial, join, keys, map, split } from "lodash-es";
 import type { SurfaceActions } from "../surface.types";
+
+const { useQuerySchema, useQueryUischema } =
+  await internalKits["client-email"]();
 
 // -----------------------------------------------------------------------------
 

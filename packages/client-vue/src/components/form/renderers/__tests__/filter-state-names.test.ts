@@ -8,10 +8,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  useQuerySchema,
-  useQueryUischema
-} from "@upmind-automation/headless/testing/client-email/internal-kit";
+import { internalKits } from "@upmind-automation/headless/testing";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import {
   TOGGLE_GROUP_POSITION,
@@ -20,6 +17,9 @@ import {
   uischemaWithout
 } from "./filter.harness";
 import { map } from "lodash-es";
+
+const { useQuerySchema, useQueryUischema } =
+  await internalKits["client-email"]();
 
 describe("the label-less treatment names its own states", () => {
   it("reads each position's name from the uischema's states keys", async () => {

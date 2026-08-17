@@ -25,18 +25,12 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { computed, ref } from "vue";
 import { createI18n } from "vue-i18n";
-import {
-  useQuerySchema,
-  useQueryUischema
-} from "@upmind-automation/headless/testing/client-email/internal-kit";
+import { internalKits } from "@upmind-automation/headless/testing";
 import action from "@upmind-automation/i18n/core/action-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import { Select } from "@upmind-automation/upmind-ui";
 import labsEn from "../../../../../app/assets/locales/en/labs.json";
-import {
-  defaultRow,
-  unverifiedRow
-} from "../../../../../tests/support/recorded-emails";
+import { defaultRow, unverifiedRow } from "../../../testing/recorded-emails";
 import clientEmails from "../../../useClientEmails/client-email.scenario";
 import DisplayRow from "../DisplayRow.vue";
 import { ListSurface, ListViewTypes } from "../surfaces";
@@ -56,6 +50,9 @@ import {
 import type { ModulePortCriteria } from "../../composables/useModulePort.types";
 import type { SortField } from "../SortControl.types";
 import type { ControlledTableChannel } from "@upmind-automation/scenario-harness";
+
+const { useQuerySchema, useQueryUischema } =
+  await internalKits["client-email"]();
 
 // -----------------------------------------------------------------------------
 

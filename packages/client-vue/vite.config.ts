@@ -65,9 +65,9 @@ export default defineConfig({
         replacement: resolve(__dirname, "../../packages/i18n/src")
       },
       // Anchored: a bare string `find` also captures every subpath under it,
-      // which would rewrite `@upmind-automation/headless/testing/*` — the
-      // package's real test-kit export — to a path THROUGH `index.ts`.
-      // Exact-match only, so subpaths fall through to the package's own
+      // which would rewrite `@upmind-automation/headless/testing` — the
+      // package's one test-kit export — to a path THROUGH `index.ts`.
+      // Exact-match only, so that subpath falls through to the package's own
       // `exports` map.
       {
         find: /^@upmind-automation\/headless$/,

@@ -274,9 +274,9 @@ export function useQuerySchema(): JsonSchema7 {
  * `text.*` key. The `sort` and `pagination` branches carry no element: a branch
  * no element draws is still validated and still translated.
  *
- * The bar is ONE row: `flow` opts the layout into the toolbar treatment, where
- * each control keeps its natural width and the leftover width goes to the one
- * element declaring `width: "full"`.
+ * The bar is ONE row and its own element type: `FilterBar`, where each control
+ * keeps its natural width and the leftover width goes to the one element
+ * declaring `width: "full"`.
  *
  * @doctrine `code-ui.companion.md` (Uischema/JSONForms) — every element MUST
  * carry an `i18n` property; mandatory and non-negotiable.
@@ -284,8 +284,7 @@ export function useQuerySchema(): JsonSchema7 {
  */
 export function useQueryUischema(): UISchemaElement {
   return {
-    type: "HorizontalLayout",
-    options: { flow: true },
+    type: "FilterBar",
     elements: [
       {
         type: "Filter",

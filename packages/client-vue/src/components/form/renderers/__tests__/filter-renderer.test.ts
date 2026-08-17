@@ -13,10 +13,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  useQuerySchema,
-  useQueryUischema
-} from "@upmind-automation/headless/testing/client-email/internal-kit";
+import { internalKits } from "@upmind-automation/headless/testing";
 import error from "@upmind-automation/i18n/core/error-en.json";
 import {
   labelOf,
@@ -26,6 +23,9 @@ import {
 } from "./filter.harness";
 import { cloneDeep, filter, get, has, map, set, some } from "lodash-es";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
+
+const { useQuerySchema, useQueryUischema } =
+  await internalKits["client-email"]();
 
 type UiElement = UISchemaElement & {
   scope?: string;

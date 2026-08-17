@@ -4,10 +4,7 @@ import { ScopeActorTypes } from "@upmind-automation/headless";
 import { recordedBodies } from "@upmind-automation/headless/testing";
 import clientEmails from "../../../useClientEmails/client-email.scenario";
 import receivedEmails from "../../../useClientReceivedEmails/client-email-history.scenario";
-import {
-  defaultRow,
-  unverifiedRow
-} from "../../../../../tests/support/recorded-emails";
+import { defaultRow, unverifiedRow } from "../../../testing/recorded-emails";
 import { RESOLVED_HANDOFFS } from "./resolved-handoffs";
 import { ListSurface, DetailSurface } from "../surfaces/index";
 import { DetailDialog, ContextPanel } from "../index";

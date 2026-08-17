@@ -32,7 +32,7 @@ import { defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { ScopeActorTypes } from "@upmind-automation/headless";
 import { ButtonGroup, Link } from "@upmind-automation/upmind-ui";
-import { renderedStrings } from "../../../../tests/support/rendered";
+import { renderedStrings } from "../../../../modules/scenarios/testing/rendered";
 import { authOverlayTarget } from "../../../funnels/labs";
 import AuthOverlay from "../auth.vue";
 import { difference, filter, find, forEach, map, reject } from "lodash-es";
