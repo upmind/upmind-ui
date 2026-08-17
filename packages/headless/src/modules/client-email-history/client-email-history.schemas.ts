@@ -145,8 +145,10 @@ export function useQueryUischema(): UISchemaElement {
         options: {
           treatment: "toggle-group",
           states: {
-            true: "text.bounced",
-            false: "text.not_bounced_label"
+            // Plain-English display strings (operator ruling: a label is a human
+            // string; the element's `i18n` key is the override channel).
+            true: "Bounced",
+            false: "Not bounced"
           }
         }
       }
