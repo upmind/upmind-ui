@@ -28,7 +28,6 @@
     </template>
     <ContextPanel v-else :context="model" />
 
-    <!-- TEMP DEBUG (FE-3091): the record this surface actually received. -->
     <span :class="styles.detailSurface.label">Debug — record received</span>
     <pre
       style="
@@ -106,8 +105,6 @@ function isPopulated(element: TableCell): boolean {
   return true;
 }
 
-// TEMP DEBUG (FE-3091): what the surface really holds — keys, and the whole
-// record — so a blank field is read off the data rather than guessed at.
 const debugModel = computed(() => {
   try {
     return JSON.stringify(
