@@ -127,14 +127,14 @@ Removes this scoped instance from the registry.
 
 ### Collection context — `useContext()`
 
-| Property     | Type                                                           | Meaning                                                                                   |
-| ------------ | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `data`       | `ComputedRef<SentEmail[]>`                                     | The client's reactive list of received emails                                             |
-| `error`      | `ComputedRef<ResponseError \| undefined>`                      | The list read's captured error                                                            |
-| `findOne()`  | `(mapping, data?, searchableProps?) => SentEmail \| undefined` | Finds one email by a partial mapping or free text                                         |
-| `getOne(id)` | `(id, data?) => SentEmail \| undefined`                        | Finds one email by id                                                                     |
-| `pagination` | `ComputedRef<PaginationInfo>`                                  | `{ limit, total, page, pages, from, to }`                                                 |
-| `query`      | `ComputedRef<QueryModel>`                                      | This scope's ACTIVE request state — read-only; write through `useActions().setCriteria()` |
+| Property     | Type                                                           | Meaning                                                                                                                                          |
+| ------------ | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `data`       | `ComputedRef<SentEmail[]>`                                     | The client's reactive list of received emails                                                                                                    |
+| `error`      | `ComputedRef<ResponseError \| undefined>`                      | The list read's captured error                                                                                                                   |
+| `findOne()`  | `(mapping, data?, searchableProps?) => SentEmail \| undefined` | Finds one email by a partial mapping or free text                                                                                                |
+| `getOne(id)` | `(id, data?) => SentEmail \| undefined`                        | Finds one email by id                                                                                                                            |
+| `pagination` | `ComputedRef<PaginationInfo>`                                  | `{ limit, total, page, pages, from, to }`                                                                                                        |
+| `query`      | `ComputedRef<QueryModel>`                                      | This scope's ACTIVE request state — read-only; write through `useActions().setCriteria()`                                                        |
 | `schemas`    | `{ query: { schema, uischema, sortUischema } }`                | The query schema, the filter-bar uischema a renderer derives its controls from, and a separate uischema for the sort control's own option labels |
 
 > **🧪 For Testers:** `data` is always an array — before the first read completes, and when the read errors. `error` is **state you read**, never an event. `query` and `schemas` both travel as plain JSON — no function crosses either. `schemas.query.sortUischema` is one `Control` over the `sort` branch (`{ type: "Control", scope: "#/properties/sort", i18n: "form.sent_email_sort" }`); its `i18n` is the option-key PREFIX a sort control resolves as `<i18n>.<field>` (`form.sent_email_sort.created_at`), the same tri-state prefix mechanism the filter controls use.

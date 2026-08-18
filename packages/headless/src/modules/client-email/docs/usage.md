@@ -146,16 +146,16 @@ Removes this scoped instance from the registry.
 
 ### Collection context — `useContext()`
 
-| Property     | Type                                                       | Meaning                                                  |
-| ------------ | ---------------------------------------------------------- | -------------------------------------------------------- |
-| `data`       | `ComputedRef<Email[]>`                                     | The client's reactive list of addresses                  |
-| `default()`  | `(data?) => Email \| undefined`                            | The collection's current default address, if any         |
-| `error`      | `ComputedRef<ResponseError \| undefined>`                  | The last failed row mutation, else the list read's error |
-| `findOne()`  | `(mapping, data?, searchableProps?) => Email \| undefined` | Finds a single address by a partial mapping or free text |
-| `getOne(id)` | `(id, data?) => Email \| undefined`                        | Finds a single address by id                             |
-| `pagination` | `ComputedRef<PaginationInfo>`                              | `{ limit, total, page, pages, from, to }`                |
-| `query`      | `ComputedRef<QueryModel>`                                  | This scope's active request state — read-only            |
-| `schemas`    | `{ query: { schema, uischema, sortUischema } }`             | The query schema, filter-bar uischema, and a separate uischema for the sort control's own option labels |
+| Property     | Type                                                       | Meaning                                                                                                 |
+| ------------ | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `data`       | `ComputedRef<Email[]>`                                     | The client's reactive list of addresses                                                                 |
+| `default()`  | `(data?) => Email \| undefined`                            | The collection's current default address, if any                                                        |
+| `error`      | `ComputedRef<ResponseError \| undefined>`                  | The last failed row mutation, else the list read's error                                                |
+| `findOne()`  | `(mapping, data?, searchableProps?) => Email \| undefined` | Finds a single address by a partial mapping or free text                                                |
+| `getOne(id)` | `(id, data?) => Email \| undefined`                        | Finds a single address by id                                                                            |
+| `pagination` | `ComputedRef<PaginationInfo>`                              | `{ limit, total, page, pages, from, to }`                                                               |
+| `query`      | `ComputedRef<QueryModel>`                                  | This scope's active request state — read-only                                                           |
+| `schemas`    | `{ query: { schema, uischema, sortUischema } }`            | The query schema, filter-bar uischema, and a separate uischema for the sort control's own option labels |
 
 > **🧪 For Testers:** `data` is always an array — before the first read completes, and when the read errors. Read `useMeta().isLoading` / `hasError` rather than inferring state from an empty list. `error` is **state you read**, never an event: a failed mutation lands here and stays until the next one supersedes it. `query` is read-only — write it through `useActions().filterBy()` / `.sortBy()`, never by mutating the object it returns. Both `query` and `schemas` travel as plain JSON — no function crosses either.
 
