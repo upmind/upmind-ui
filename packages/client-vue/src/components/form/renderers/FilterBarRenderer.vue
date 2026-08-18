@@ -1,9 +1,11 @@
 <template>
-  <div v-if="meta.isVisible" :class="styles.filterBar.root">
-    <div
+  <div
+    v-if="layout.visible"
+    class="flex w-full flex-wrap items-end gap-x-6 gap-y-2"
+  >
+    <template
       v-for="(element, index) in layout.uischema.elements"
       :key="`${layout.path}-${index}`"
-      :class="filterBarItem({ isGrowing: isGrowing(element) })"
     >
       <DispatchRenderer
         :schema="layout.schema"
@@ -13,7 +15,7 @@
         :renderers="layout.renderers"
         :cells="layout.cells"
       />
-    </div>
+    </template>
   </div>
 </template>
 
@@ -24,11 +26,7 @@ import {
   rendererProps,
   useJsonFormsLayout
 } from "@jsonforms/vue";
-import { computed } from "vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import config, { filterBarItem } from "./filterBar.config";
-import { get } from "lodash-es";
-import type { Layout, UISchemaElement } from "@jsonforms/core";
+import type { Layout } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 /**
  * @module form/renderers/FilterBarRenderer
@@ -39,26 +37,13 @@ import type { Layout, UISchemaElement } from "@jsonforms/core";
  * The generic renderer gives each element an equal share of the row
  * (`md:flex-1`), which is right for a two-column form and wrong for a bar: a
  * narrow switch stranded in half a row reads as two filters at opposite ends of
- * the page. Here each element keeps its NATURAL width and the bar's slack goes
- * to whichever element declared `width: "full"` — the search — so the controls
- * group together and the bar wraps rather than spreads.
+ * the page. Here the elements sit together and the bar wraps rather than
+ * spreads; each control owns its own width.
  */
 
 const props = defineProps(rendererProps<Layout>());
 
 const { layout } = useJsonFormsLayout(props);
-
-const meta = computed(() => ({
-  isVisible: layout.value.visible,
-  isDisabled: !layout.value.enabled
-}));
-
-const styles = useStyles(["filterBar"], meta, config);
-
-/** The element the bar's leftover width belongs to — its own declared width. */
-function isGrowing(element: UISchemaElement): boolean {
-  return get(element, ["options", "width"]) === "full";
-}
 </script>
 
 <script lang="ts">

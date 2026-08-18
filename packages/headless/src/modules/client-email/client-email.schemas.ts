@@ -164,12 +164,12 @@ export function useQuerySchema(): QuerySchema {
             title: "Verified",
             additionalProperties: false,
             properties: {
+              // `null` is a MEMBER, not an absence: it is the value the unset
+              // position writes, so a tri-state's clear has to validate, and it
+              // is the enum entry whose label the control resolves.
               eq: {
                 type: ["boolean", "null"],
-                oneOf: [
-                  { const: true, title: "Yes" },
-                  { const: false, title: "No" }
-                ]
+                enum: [true, false, null]
               }
             }
           },
@@ -180,10 +180,7 @@ export function useQuerySchema(): QuerySchema {
             properties: {
               eq: {
                 type: ["boolean", "null"],
-                oneOf: [
-                  { const: true, title: "Yes" },
-                  { const: false, title: "No" }
-                ]
+                enum: [true, false, null]
               }
             }
           }
@@ -205,13 +202,7 @@ export function useQuerySchema(): QuerySchema {
             // rendering as wire names. The columns are the REAL ones the API
             // orders on, the status composite never among them (`R6-6`/`R6-6b`).
             field: {
-              oneOf: [
-                { const: "default", title: "Default" },
-                { const: "email", title: "Email address" },
-                { const: "verified", title: "Verified" },
-                { const: "bounced", title: "Bounced" },
-                { const: "created_at", title: "Date added" }
-              ]
+              enum: ["default", "email", "verified", "bounced", "created_at"]
             },
             dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
           }
@@ -235,50 +226,47 @@ export function useQuerySchema(): QuerySchema {
  * The module's DEFAULT filter-bar presentation — ONE uischema over the one
  * query schema.
  *
- * Every element is a `Filter` (client-vue's dispatching renderer) scoping the
- * COLUMN, never an operator leaf: the renderer reads the column's own declared
- * operators and picks the control. `options.treatment` names which tri-state
- * control a boolean column draws (client-vue's `FilterTreatment`, spelt as a
- * literal because headless cannot import from client-vue); `options.states`
- * names a toggle group's two positions by the position's own value.
+ * Every element is a plain `Control` scoping the operator LEAF, so the leaf's
+ * own write IS the wire shape and JSON Forms' standard Control pipeline resolves
+ * the label, the description, the errors and the enum-option labels. The control
+ * a leaf draws is chosen by the tester scorecard, which `options.format` names
+ * the same way the ui package's boolean treatments do (`switch` / `toggle` /
+ * `card`); a leaf naming none falls to the generic renderer for its type.
  *
- * Every element carries an `i18n` key — the only channel that can set a
- * control's label and placeholder, so it must resolve to an OBJECT rather than
- * a flat `text.*` key. The `sort` and `pagination` branches carry no element: a
- * branch no element draws is still validated and still translated.
+ * Every element carries an `i18n` key. It is also the enum-option key PREFIX,
+ * so a tri-state's positions resolve as `<key>.true` / `.false` / `.null`. The
+ * `sort` and `pagination` branches carry no element: a branch no element draws
+ * is still validated and still translated.
+ *
+ * A filter is optional by definition, so every element suppresses the field's
+ * optional indicator; `noLabel` marks the ones the catalogue names by their
+ * placeholder or their own positions rather than a label.
  *
  * The bar is ONE row and its own element type: `FilterBar` (client-vue's
  * `FilterBarRenderer`, spelt as a literal because headless cannot import from
- * client-vue), where each control keeps its natural width and the leftover width
- * goes to the one element declaring `width: "full"`.
+ * client-vue).
  */
 export function useQueryUischema(): UISchemaElement {
   return {
     type: "FilterBar",
     elements: [
       {
-        type: "Filter",
-        scope: "#/properties/filters/properties/email",
+        type: "Control",
+        scope: "#/properties/filters/properties/email/properties/like",
         i18n: "form.email_search",
-        options: { width: "full" }
+        options: { format: "search", noLabel: true, optionalText: "" }
       },
       {
-        type: "Filter",
-        scope: "#/properties/filters/properties/verified",
+        type: "Control",
+        scope: "#/properties/filters/properties/verified/properties/eq",
         i18n: "form.verified_filter",
-        options: { treatment: "button-group" }
+        options: { format: "button-group", noLabel: true, optionalText: "" }
       },
       {
-        type: "Filter",
-        scope: "#/properties/filters/properties/bounced",
+        type: "Control",
+        scope: "#/properties/filters/properties/bounced/properties/eq",
         i18n: "form.bounced_filter",
-        options: {
-          treatment: "toggle-group",
-          states: {
-            true: "text.bounced_label",
-            false: "text.not_bounced_label"
-          }
-        }
+        options: { format: "toggle-group", noLabel: true, optionalText: "" }
       }
     ]
   } as UISchemaElement;

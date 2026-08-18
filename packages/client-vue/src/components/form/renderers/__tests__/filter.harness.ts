@@ -1,20 +1,29 @@
 /**
  * @module form/renderers/__tests__/filter.harness
- * @description Mounts the REAL surface the client-emails page mounts — client-vue's
- * `UpmForm`, which is where `formRenderers` (and therefore the `Filter`
- * renderer) is bound — against the client-email module's own
- * `useQuerySchema()` / `useQueryUischema()` and the real `packages/i18n`
- * `src/core` catalogue.
+ * @description Mounts the REAL surface the filter renderers are bound through —
+ * client-vue's `UpmForm`, which is where `formRenderers` is registered — against
+ * the two consumer query declarations and the real `packages/i18n` `src/core`
+ * catalogue.
  *
- * Provenance: every input here is a shipped artefact read from the tree —
- * the module's declared query schema and uischema, and the i18n source of
- * truth (`src/core`, never `public/locales`, which is the Localazy download
- * target). Nothing is hand-authored.
+ * PROVENANCE. `clientEmailQuery()` / `clientEmailHistoryQuery()` are transcribed
+ * verbatim from the shipped declarations at
+ * `packages/headless/src/modules/client-email/client-email.schemas.ts` and
+ * `packages/headless/src/modules/client-email-history/client-email-history.schemas.ts`,
+ * which are `@internal` and reach no other package. They are DECLARATIONS, not
+ * recorded wire data — nothing here stands in for a captured response. The i18n
+ * catalogue is imported from the shipped source of truth (`src/core`, never
+ * `public/locales`, the Localazy download target), never copied.
+ *
+ * Drift between a transcription and its source is invisible from this package.
+ * It is pinned in the owning modules' own specs
+ * (`<module>/__tests__/query-uischema.test.ts`), which import the shipped
+ * declaration directly.
  */
 
 import { mount } from "@vue/test-utils";
 import { defineComponent, h, ref } from "vue";
 import { createI18n } from "vue-i18n";
+import { PAGINATION, SortDirection } from "@upmind-automation/headless";
 import action from "@upmind-automation/i18n/core/action-en.json";
 import error from "@upmind-automation/i18n/core/error-en.json";
 import form from "@upmind-automation/i18n/core/form-en.json";
@@ -31,7 +40,10 @@ import {
   filter,
   find,
   flatMap,
+  get,
+  kebabCase,
   map,
+  set,
   trim,
   uniq,
   unset
@@ -41,24 +53,265 @@ import type { DOMWrapper, VueWrapper } from "@vue/test-utils";
 
 export type QueryModel = Record<string, unknown>;
 
+export type QueryDeclaration = {
+  schema: JsonSchema7;
+  uischema: UISchemaElement;
+};
+
 export const messages = { en: { action, error, form, text, validation } };
+
+// -----------------------------------------------------------------------------
+// The transcribed consumer declarations — see PROVENANCE above.
+// -----------------------------------------------------------------------------
+
+/** The `client-email` collection's query schema and its filter-bar uischema. */
+export const clientEmailQuery = (): QueryDeclaration => ({
+  schema: {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      filters: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          email: {
+            type: "object",
+            title: "Email address",
+            additionalProperties: false,
+            properties: {
+              like: { type: ["string", "null"], minLength: 1 }
+            }
+          },
+          verified: {
+            type: "object",
+            title: "Verified",
+            additionalProperties: false,
+            properties: {
+              eq: { type: ["boolean", "null"], enum: [true, false, null] }
+            }
+          },
+          bounced: {
+            type: "object",
+            title: "Bounced",
+            additionalProperties: false,
+            properties: {
+              eq: { type: ["boolean", "null"], enum: [true, false, null] }
+            }
+          }
+        }
+      },
+      sort: {
+        type: "array",
+        default: [
+          { field: "default", dir: SortDirection.DESC },
+          { field: "email", dir: SortDirection.ASC }
+        ],
+        minItems: 1,
+        uniqueItems: true,
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["field", "dir"],
+          properties: {
+            field: {
+              enum: ["default", "email", "verified", "bounced", "created_at"]
+            },
+            dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
+          }
+        }
+      },
+      pagination: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          limit: { type: "integer", minimum: 0, default: PAGINATION.limit },
+          offset: { type: "integer", minimum: 0 }
+        }
+      }
+    }
+  } as JsonSchema7,
+  uischema: {
+    type: "FilterBar",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/email/properties/like",
+        i18n: "form.email_search",
+        options: { format: "search", noLabel: true, optionalText: "" }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/verified/properties/eq",
+        i18n: "form.verified_filter",
+        options: { format: "button-group", noLabel: true, optionalText: "" }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/bounced/properties/eq",
+        i18n: "form.bounced_filter",
+        options: { format: "toggle-group", noLabel: true, optionalText: "" }
+      }
+    ]
+  } as UISchemaElement
+});
+
+/** The `client-email-history` collection's query schema and filter-bar uischema. */
+export const clientEmailHistoryQuery = (): QueryDeclaration => ({
+  schema: {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      filters: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          subject: {
+            type: "object",
+            title: "Subject",
+            additionalProperties: false,
+            properties: {
+              like: { type: ["string", "null"], minLength: 1 }
+            }
+          },
+          sent: {
+            type: "object",
+            title: "Sent",
+            additionalProperties: false,
+            properties: {
+              eq: { type: ["boolean", "null"], enum: [true, false, null] }
+            }
+          },
+          bounced: {
+            type: "object",
+            title: "Bounced",
+            additionalProperties: false,
+            properties: {
+              eq: { type: ["boolean", "null"], enum: [true, false, null] }
+            }
+          },
+          error_id: {
+            type: "object",
+            title: "Failed",
+            additionalProperties: false,
+            properties: {
+              neq: { type: ["string", "null"], minLength: 1 }
+            }
+          }
+        }
+      },
+      sort: {
+        type: "array",
+        default: [{ field: "created_at", dir: SortDirection.DESC }],
+        minItems: 1,
+        uniqueItems: true,
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["field", "dir"],
+          properties: {
+            field: { enum: ["created_at", "subject"] },
+            dir: { enum: ["asc", "desc"] }
+          }
+        }
+      },
+      pagination: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          limit: { type: "integer", minimum: 0, default: PAGINATION.limit },
+          offset: { type: "integer", minimum: 0 }
+        }
+      }
+    }
+  } as JsonSchema7,
+  uischema: {
+    type: "FilterBar",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/subject/properties/like",
+        i18n: "form.subject_search",
+        options: { format: "search", noLabel: true, optionalText: "" }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/sent/properties/eq",
+        i18n: "form.sent_filter",
+        options: { format: "button-group", noLabel: true, optionalText: "" }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/bounced/properties/eq",
+        i18n: "form.bounced_filter",
+        options: { format: "toggle-group", noLabel: true, optionalText: "" }
+      }
+    ]
+  } as UISchemaElement
+});
+
+/**
+ * A two-ended date column and the element that scopes it — the `range` format's
+ * declaration. No consumer bar draws one yet, so unlike the two above this is a
+ * declaration the format's own contract defines rather than a transcription.
+ */
+export const rangeQuery = (): QueryDeclaration => ({
+  schema: {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      filters: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          created_at: {
+            type: "object",
+            title: "Created",
+            additionalProperties: false,
+            properties: {
+              gte: { type: ["string", "null"] },
+              lte: { type: ["string", "null"] }
+            }
+          }
+        }
+      }
+    }
+  } as JsonSchema7,
+  uischema: {
+    type: "FilterBar",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/created_at",
+        i18n: "form.created_at_filter",
+        options: { format: "range", noLabel: true, optionalText: "" }
+      }
+    ]
+  } as UISchemaElement
+});
+
+// -----------------------------------------------------------------------------
 
 export type FilterMount = {
   wrapper: VueWrapper;
   model: () => QueryModel;
-  column: (name: string) => DOMWrapper<Element>;
+  column: (path: string) => DOMWrapper<Element>;
   settle: () => Promise<void>;
 };
 
+/**
+ * Mounts a declaration through the renderer registry `UpmForm` binds.
+ *
+ * @param options.translate - `false` swaps `UpmForm` for the bare `upmind-ui`
+ *   `Form` carrying the same renderer set and NO `i18n` prop, so the translated
+ *   assertions stay falsifiable.
+ */
 export async function mountFilters(options: {
   schema: JsonSchema7;
   uischema: UISchemaElement;
   model?: QueryModel;
-  /**
-   * `false` swaps `UpmForm` for the bare `upmind-ui` `Form` carrying the same
-   * renderer set and NO `i18n` prop — the §13.4 blocker mount, kept reachable
-   * so the translated assertions stay falsifiable.
-   */
   translate?: boolean;
 }): Promise<FilterMount> {
   const model = ref<QueryModel>(options.model ?? {});
@@ -89,40 +342,64 @@ export async function mountFilters(options: {
   return {
     wrapper,
     model: () => model.value,
-    column: name =>
+    column: path =>
       wrapper.find(
-        `[data-test-key="form-item"][data-test-value="filters-${name}"]`
+        `[data-test-key="form-item"][data-test-value="${kebabCase(path)}"]`
       ),
     settle
   };
 }
 
 /**
- * The shipped uischema with one option dropped from the element filtering a
- * named column — located by the scope it carries, never by its position, since
- * the layout IS the uischema and moves whenever the toolbar is re-expressed.
+ * A uischema with one element's `options` replaced, the element located by the
+ * scope it carries rather than by its position.
+ *
+ * @param options - `undefined` DELETES the options bag, which is how an element
+ *   declaring no `format` is expressed.
  */
-export const uischemaWithout = (
+export const uischemaWithOptions = (
   uischema: UISchemaElement,
-  column: string,
-  option: string
+  scopeSuffix: string,
+  options?: Record<string, unknown>
 ) => {
   const next = cloneDeep(uischema) as Layout;
-  unset(
-    find(next.elements, ({ scope }: UISchemaElement & { scope?: string }) =>
-      endsWith(scope, `/${column}`)
-    ),
-    ["options", option]
+  const element = find(
+    next.elements,
+    ({ scope }: UISchemaElement & { scope?: string }) =>
+      endsWith(scope, scopeSuffix)
   );
+
+  if (options) set(element as object, "options", options);
+  else unset(element, "options");
+
   return next as UISchemaElement;
 };
 
-export const messagesOf = (column: DOMWrapper<Element>) =>
-  column
-    .findAll('[data-test-key="form-item-message"]')
-    .map(node => node.text());
+/** The element a uischema declares for a scope, by exact scope. */
+export const elementFor = (
+  uischema: UISchemaElement,
+  scope: string
+): UISchemaElement =>
+  find(
+    (uischema as Layout).elements,
+    element => get(element, "scope") === scope
+  ) as UISchemaElement;
 
-/** The two tri-state treatments, each by the test key its own control carries. */
+/**
+ * A JSON Forms i18n key resolved against the SHIPPED catalogue, the way
+ * `useFormI18n`'s translator resolves it — `undefined` for a key `packages/i18n`
+ * does not carry, so an expectation written as `catalogue("form.x.true")` cannot
+ * be satisfied by a key that was never translated.
+ */
+export const catalogue = (key: string): string | undefined =>
+  get(messages.en, key);
+
+export const messagesOf = (column: DOMWrapper<Element>) =>
+  map(column.findAll('[data-test-key="form-item-message"]'), node =>
+    node.text()
+  );
+
+/** The two tri-state controls, each by the test key its own primitive carries. */
 export const BUTTON_GROUP_POSITION = '[data-test-key="button"]';
 export const TOGGLE_GROUP_POSITION = '[data-test-key="toggle-group-item"]';
 const ANY_POSITION = `${BUTTON_GROUP_POSITION},${TOGGLE_GROUP_POSITION}`;
@@ -131,34 +408,58 @@ const ANY_POSITION = `${BUTTON_GROUP_POSITION},${TOGGLE_GROUP_POSITION}`;
 export const positionsOf = (column: DOMWrapper<Element>) =>
   map(column.findAll(ANY_POSITION), node => trim(node.text()));
 
-/** The positions the column announces as chosen — never more than one. */
-export const pressedIn = (column: DOMWrapper<Element>) =>
-  map(
-    filter(
-      column.findAll(ANY_POSITION),
-      node => node.attributes("aria-pressed") === "true"
-    ),
-    node => trim(node.text())
+const pressedPositions = (column: DOMWrapper<Element>) =>
+  filter(
+    column.findAll(ANY_POSITION),
+    node => node.attributes("aria-pressed") === "true"
   );
 
-export const positionAt = (column: DOMWrapper<Element>, value: string) =>
-  column.find(`[data-test-value="${value}"]`);
+/** The positions the column announces as chosen, by name — never more than one. */
+export const pressedIn = (column: DOMWrapper<Element>) =>
+  map(pressedPositions(column), node => trim(node.text()));
 
 /**
- * The field's own wrapper — the element `FormField` lays the label and the
- * control out in, and therefore the one carrying the layout variant.
+ * The same positions by the VALUE each stands for, so an assertion about which
+ * position is pressed survives a catalogue that has not translated its name.
  */
-export const fieldLayoutOf = (column: DOMWrapper<Element>) =>
-  column.find("div").classes();
+export const pressedValuesIn = (column: DOMWrapper<Element>) =>
+  map(pressedPositions(column), node => node.attributes("data-test-value"));
+
+/** Every value the column offers a position for, in the order drawn. */
+export const positionValuesOf = (column: DOMWrapper<Element>) =>
+  map(column.findAll(ANY_POSITION), node => node.attributes("data-test-value"));
 
 /**
- * The column's rendered label, or `""` for a column that declares none —
- * §13.2 files `form.email_search` with `label: null`, so "no label" is a
- * legitimate answer this must be able to express rather than throw on.
+ * The position carrying a value, matched in JS rather than by selector: jsdom's
+ * `[data-test-value="null"]` also matches every element carrying NO such
+ * attribute, so a selector would silently hand back the wrong node for the very
+ * position — unset — these files exist to interrogate.
+ */
+export const positionAt = (column: DOMWrapper<Element>, value: string) =>
+  find(
+    column.findAll(ANY_POSITION),
+    node => node.attributes("data-test-value") === value
+  ) ?? column.find('[data-test-key="position-not-drawn"]');
+
+/**
+ * The position a column draws under a NAME. The `Button` primitive the button
+ * group is built from derives its `data-test-value` from its own label rather
+ * than the value it stands for (the FE-2874 audit's label-derived fallback), so
+ * that group's positions are unreachable by value and are addressed by the name
+ * the catalogue gave them instead.
+ */
+export const positionNamed = (column: DOMWrapper<Element>, name?: string) =>
+  find(column.findAll(ANY_POSITION), node => trim(node.text()) === name) ??
+  column.find('[data-test-key="position-not-drawn"]');
+
+/**
+ * The column's rendered label, or `""` for a column that draws none — a
+ * label-less control is a legitimate answer this must express rather than throw
+ * on.
  */
 export const labelOf = (column: DOMWrapper<Element>) => {
-  const label = column.find("label span span");
-  return label.exists() ? label.text().trim() : "";
+  const label = column.find("label");
+  return label.exists() ? trim(label.text()) : "";
 };
 
 const USER_VISIBLE_ATTRIBUTES = ["placeholder", "aria-label", "title"];
@@ -166,8 +467,8 @@ const USER_VISIBLE_ATTRIBUTES = ["placeholder", "aria-label", "title"];
 /**
  * The element's OWN text, split per text node — `<label><span>x</span> form.foo</label>`
  * yields `["form.foo"]`. Collecting `.text()` off leaf elements instead would
- * miss that key entirely, and collecting it off every element would concatenate
- * descendants into one string no whole-value key match can see.
+ * miss that key entirely, and off every element would concatenate descendants
+ * into one string no whole-value key match can see.
  */
 const ownText = (element: Element) =>
   map(
@@ -195,3 +496,9 @@ export const renderedStrings = (root: VueWrapper | DOMWrapper<Element>) => {
     )
   ]);
 };
+
+const I18N_KEY_SHAPE = /^[a-z][a-zA-Z0-9_]*\.[a-zA-Z][a-zA-Z0-9_.]*$/;
+
+/** The rendered strings that are untranslated i18n keys rather than prose. */
+export const rawKeysIn = (strings: string[]) =>
+  filter(strings, string => I18N_KEY_SHAPE.test(string));

@@ -46,12 +46,12 @@ export function useQuerySchema(): SentEmailQuerySchema {
             title: "Sent",
             additionalProperties: false,
             properties: {
+              // `null` is a MEMBER, not an absence: it is the value the unset
+              // position writes, so a tri-state's clear has to validate, and it
+              // is the enum entry whose label the control resolves.
               eq: {
                 type: ["boolean", "null"],
-                oneOf: [
-                  { const: true, title: "Yes" },
-                  { const: false, title: "No" }
-                ]
+                enum: [true, false, null]
               }
             }
           },
@@ -62,10 +62,7 @@ export function useQuerySchema(): SentEmailQuerySchema {
             properties: {
               eq: {
                 type: ["boolean", "null"],
-                oneOf: [
-                  { const: true, title: "Yes" },
-                  { const: false, title: "No" }
-                ]
+                enum: [true, false, null]
               }
             }
           },
@@ -90,12 +87,7 @@ export function useQuerySchema(): SentEmailQuerySchema {
           required: ["field", "dir"],
           properties: {
             field: {
-              // `oneOf` const/title (not a bare enum) so the sort control draws
-              // a human label per option — matches the client-email sibling.
-              oneOf: [
-                { const: "created_at", title: "Date added" },
-                { const: "subject", title: "Subject" }
-              ]
+              enum: ["created_at", "subject"]
             },
             dir: { enum: ["asc", "desc"] }
           }
@@ -115,10 +107,13 @@ export function useQuerySchema(): SentEmailQuerySchema {
 
 /**
  * The module's DEFAULT filter-bar presentation — ONE uischema over the one
- * query schema. Every element is a `Filter` scoping the COLUMN, never an
- * operator leaf: the renderer reads the column's declared operators and picks
- * the control. The `sort` and `pagination` branches carry no element — a branch
- * no element draws is still validated and translated. `error_id` (the "failed"
+ * query schema. Every element is a plain `Control` scoping the operator LEAF, so
+ * the leaf's own write IS the wire shape and JSON Forms resolves the label, the
+ * description and the enum-option labels; `options.format` names which control
+ * the tester scorecard picks. Each element's `i18n` key is also the enum-option
+ * PREFIX, so a tri-state's positions resolve as `<key>.true` / `.false` /
+ * `.null`. The `sort` and `pagination` branches carry no element — a branch no
+ * element draws is still validated and translated. `error_id` (the "failed"
  * column) is declared and settable through `setCriteria`, but not drawn here:
  * it is a string `neq`, not a boolean the tri-state controls render.
  */
@@ -127,30 +122,22 @@ export function useQueryUischema(): UISchemaElement {
     type: "FilterBar",
     elements: [
       {
-        type: "Filter",
-        scope: "#/properties/filters/properties/subject",
+        type: "Control",
+        scope: "#/properties/filters/properties/subject/properties/like",
         i18n: "form.subject_search",
-        options: { width: "full" }
+        options: { format: "search", noLabel: true, optionalText: "" }
       },
       {
-        type: "Filter",
-        scope: "#/properties/filters/properties/sent",
+        type: "Control",
+        scope: "#/properties/filters/properties/sent/properties/eq",
         i18n: "form.sent_filter",
-        options: { treatment: "button-group" }
+        options: { format: "button-group", noLabel: true, optionalText: "" }
       },
       {
-        type: "Filter",
-        scope: "#/properties/filters/properties/bounced",
+        type: "Control",
+        scope: "#/properties/filters/properties/bounced/properties/eq",
         i18n: "form.bounced_filter",
-        options: {
-          treatment: "toggle-group",
-          states: {
-            // Plain-English display strings (operator ruling: a label is a human
-            // string; the element's `i18n` key is the override channel).
-            true: "Bounced",
-            false: "Not bounced"
-          }
-        }
+        options: { format: "toggle-group", noLabel: true, optionalText: "" }
       }
     ]
   } as UISchemaElement;

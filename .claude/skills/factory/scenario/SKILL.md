@@ -100,7 +100,7 @@ packages/headless/src/modules/<module>/__tests__/fixtures/*.json      the record
 
 A page's scenario data is reached by importing headless's ONE published test entry and reading it at the module name the declaration's `tracks` carries. That name is a read key, not a registration: a module is published the moment it keeps the layout above. This lane therefore edits no seam, adds no exports row and names no path inside another package — the declaration imports no artefact at all.
 
-**ONE `.feature` per module**, and one `{module}.steps.ts` and one `{module}.traceability.test.ts` beside it. A scenario is DRIVEABLE exactly when a step definition matches every one of its steps; one nothing matches is a capability written down and not yet driven, which is a legitimate state that simply never becomes a track. No marking distinguishes them — the catalog already does.
+**ONE `.feature` per module**, and one `{module}.steps.ts` and one `{module}.traceability.test.ts` beside it. Per ADR-020 Amendment 5 the package-colocated `.feature` IS the executed artefact: every module `.feature` gets a sibling step catalog — a feature without one is a factory gap to close (receipt: client-email-history, 2026-08-17), never a legitimate end state, and no header prose may claim executability either way (the catalog's presence and coverage are the only truth). A scenario is DRIVEABLE exactly when a step definition matches every one of its steps; one nothing matches is a capability written down and not yet driven, which is a legitimate state that simply never becomes a track. No marking distinguishes them — the catalog already does.
 
 ## Dispatch contract
 

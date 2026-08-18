@@ -1,0 +1,20 @@
+Negative control for filter-scorecard.test.ts.
+
+Renames the Verified leaf's format to one no tester claims, so the leaf falls
+out of the filter renderers' scorecard altogether and is left to the generic
+control for its type. Any assertion that reads WHICH entry claimed the element,
+and at what rank, goes red; one that only asserts some entry claimed it, or that
+counts the registry, stays green.
+
+diff --git a/packages/headless/src/modules/client-email/client-email.schemas.ts b/packages/headless/src/modules/client-email/client-email.schemas.ts
+--- a/packages/headless/src/modules/client-email/client-email.schemas.ts
++++ b/packages/headless/src/modules/client-email/client-email.schemas.ts
+@@ -257,7 +257,7 @@
+         type: "Control",
+         scope: "#/properties/filters/properties/verified/properties/eq",
+         i18n: "form.verified_filter",
+-        options: { format: "button-group" }
++        options: { format: "tri-state" }
+       },
+       {
+         type: "Control",

@@ -143,6 +143,11 @@
     "label": null,
     "placeholder": "Search email addresses..."
   },
+  "subject_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search by subjects..."
+  },
   "product_name_search": {
     "description": null,
     "label": null,
@@ -151,17 +156,34 @@
   "bounced_filter": {
     "description": null,
     "label": "Bounced",
-    "placeholder": null
+    "placeholder": null,
+    "true": "Bounced",
+    "false": "Not bounced",
+    "null": "All"
+  },
+  "sent_filter": {
+    "description": null,
+    "label": "Sent",
+    "placeholder": null,
+    "true": "Sent",
+    "false": "Not sent",
+    "null": "All"
   },
   "default_filter": {
     "description": null,
     "label": "Default",
-    "placeholder": null
+    "placeholder": null,
+    "true": "Default",
+    "false": "Not Default",
+    "null": "All"
   },
   "verified_filter": {
     "description": null,
     "label": "Verified",
-    "placeholder": null
+    "placeholder": null,
+    "true": "Verified",
+    "false": "Unverified",
+    "null": "All"
   },
   "product_trial": {
     "description": null,

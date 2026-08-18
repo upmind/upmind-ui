@@ -1,0 +1,19 @@
+Negative control for filter-wire.test.ts.
+
+Binds the Verified branch to a different WIRE column, so the control writes the
+same model and the translator emits it under a key the API does not filter on.
+Nothing about the rendered bar changes. Any assertion that reads the translated
+wire key goes red; one that reads only the model the control wrote — the shape
+this file exists NOT to assert — stays green.
+
+diff --git a/packages/headless/src/modules/client-email/client-email.schemas.ts b/packages/headless/src/modules/client-email/client-email.schemas.ts
+--- a/packages/headless/src/modules/client-email/client-email.schemas.ts
++++ b/packages/headless/src/modules/client-email/client-email.schemas.ts
+@@ -162,6 +162,7 @@
+           verified: {
+             type: "object",
+             title: "Verified",
++            column: "verified_at",
+             additionalProperties: false,
+             properties: {
+               // `null` is a MEMBER, not an absence: it is the value the unset

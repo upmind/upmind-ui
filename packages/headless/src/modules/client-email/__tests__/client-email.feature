@@ -5,11 +5,10 @@
 #   packages/headless/src/modules/client-email/__tests__/client-email.feature
 # and it is the only spec this module's tests know.
 #
-# EXECUTED — which AMENDS ADR-020's ".feature files are spec-only, not
-# executable" clause. A scenario the step catalog matches is driveable: it runs,
-# and it appears as a track. One nothing matches is a capability written down and
-# not yet driven — a legitimate state, carrying no marking of its own, because
-# the catalog already tells the two apart.
+# EXECUTED per ADR-020 Amendment 5. A scenario the step catalog matches is
+# driveable: it runs, and it appears as a track. One nothing matches is a
+# capability written down and not yet driven — a legitimate state, carrying no
+# marking of its own, because the catalog already tells the two apart.
 #
 # One scenario per capability the parity table carries, INCLUDING every manager
 # behaviour (load-one, readiness, input/validate, save-edit, save-draft,
