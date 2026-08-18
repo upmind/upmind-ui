@@ -1,20 +1,25 @@
 Negative control for filter-scorecard.test.ts.
 
-Renames the Verified leaf's format to one no tester claims, so the leaf falls
-out of the filter renderers' scorecard altogether and is left to the generic
-control for its type. Any assertion that reads WHICH entry claimed the element,
-and at what rank, goes red; one that only asserts some entry claimed it, or that
-counts the registry, stays green.
+Stops the button group's tester scoring `options.format`, so it claims EVERY
+enumerated boolean leaf instead of the ones asking for it. The scorecard's
+"exactly one renderer, and these decline" assertions go red — the toggle group's
+leaf now carries two claimants, and a leaf naming no format at all is claimed
+rather than left to the generic control. An assertion that only checked the
+button group still claims its own leaf, at rank 3, stays green.
 
-diff --git a/packages/headless/src/modules/client-email/client-email.schemas.ts b/packages/headless/src/modules/client-email/client-email.schemas.ts
---- a/packages/headless/src/modules/client-email/client-email.schemas.ts
-+++ b/packages/headless/src/modules/client-email/client-email.schemas.ts
-@@ -257,7 +257,7 @@
-         type: "Control",
-         scope: "#/properties/filters/properties/verified/properties/eq",
-         i18n: "form.verified_filter",
--        options: { format: "button-group" }
-+        options: { format: "tri-state" }
-       },
-       {
-         type: "Control",
+diff --git a/packages/client-vue/src/components/form/renderers/FilterButtonGroupRenderer.vue b/packages/client-vue/src/components/form/renderers/FilterButtonGroupRenderer.vue
+index da4dcaec9..886945dd9 100644
+--- a/packages/client-vue/src/components/form/renderers/FilterButtonGroupRenderer.vue
++++ b/packages/client-vue/src/components/form/renderers/FilterButtonGroupRenderer.vue
+@@ -65,10 +65,6 @@ const positions = computed<ButtonGroupItem[]>(() =>
+ <script lang="ts">
+ export const tester = {
+   rank: 3,
+-  controlType: and(
+-    isBooleanControl,
+-    isEnumControl,
+-    optionIs("format", "button-group")
+-  )
++  controlType: and(isBooleanControl, isEnumControl)
+ };
+ </script>

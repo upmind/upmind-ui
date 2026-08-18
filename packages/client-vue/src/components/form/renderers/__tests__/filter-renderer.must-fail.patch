@@ -1,19 +1,22 @@
 Negative control for filter-renderer.test.ts.
 
-Scopes the Verified element at the COLUMN rather than at its operator leaf — the
-declaration the bespoke `Filter` uiType used to make, and the one this change
-removed. Any assertion that reads what a Control element scopes goes red; one
-that only counts elements, or checks each carries an i18n key, stays green.
+Stops the range control merging its write onto the column's current value, so
+setting one end silently drops the other — the renderer deciding what the column
+meant, which is what scoping the column rather than a leaf costs if the write is
+not a merge. The assertion that reads the whole column after both ends are set
+goes red; one that sets a single end, or reads the declaration rather than a
+write, stays green.
 
-diff --git a/packages/headless/src/modules/client-email/client-email.schemas.ts b/packages/headless/src/modules/client-email/client-email.schemas.ts
---- a/packages/headless/src/modules/client-email/client-email.schemas.ts
-+++ b/packages/headless/src/modules/client-email/client-email.schemas.ts
-@@ -255,7 +255,7 @@
-       },
-       {
-         type: "Control",
--        scope: "#/properties/filters/properties/verified/properties/eq",
-+        scope: "#/properties/filters/properties/verified",
-         i18n: "form.verified_filter",
-         options: { format: "button-group" }
-       },
+diff --git a/packages/client-vue/src/components/form/renderers/FilterRangeRenderer.vue b/packages/client-vue/src/components/form/renderers/FilterRangeRenderer.vue
+index 41e1f4b25..2a7c9cc9a 100644
+--- a/packages/client-vue/src/components/form/renderers/FilterRangeRenderer.vue
++++ b/packages/client-vue/src/components/form/renderers/FilterRangeRenderer.vue
+@@ -103,7 +103,7 @@ function write(operator: RequestFilterOperator, value?: string | number): void {
+   // which `onInput` drops as "not dirty".
+   handleChange(
+     control.value.path,
+-    assign({}, control.value.data, { [operator]: isUnset ? null : value })
++    assign({}, { [operator]: isUnset ? null : value })
+   );
+ }
+ </script>

@@ -262,21 +262,23 @@ export function useQuerySchema(): JsonSchema7 {
  * The module's DEFAULT filter-bar presentation — ONE uischema over the one
  * query schema above.
  *
- * Every element is a `Filter` (client-vue's dispatching renderer) scoping the
- * COLUMN, never an operator leaf: the renderer reads the column's own declared
- * operators and picks the control. `options.treatment` names which tri-state
- * control a boolean column draws (client-vue's `FilterTreatment`, spelt as a
- * literal because headless cannot import from client-vue); `options.states`
- * names a toggle group's two positions by the position's own value.
+ * Every element is a plain `Control` scoping the operator LEAF, so the leaf's own
+ * write IS the wire shape and JSON Forms' standard Control pipeline resolves the
+ * label, the description, the errors and the enum-option labels. Which control a
+ * leaf draws is chosen by the TESTER SCORECARD, named by `options.format` the
+ * same way the ui package's boolean treatments are (`switch` / `toggle` /
+ * `card`); a leaf naming none falls to the generic renderer for its type.
  *
- * Every element carries an `i18n` key — the only channel that sets a control's
- * label AND its placeholder, so it must resolve to an OBJECT, never a flat
- * `text.*` key. The `sort` and `pagination` branches carry no element: a branch
- * no element draws is still validated and still translated.
+ * A filter is optional by definition, so every element carries
+ * `optionalText: ""`; `noLabel` marks the ones the catalogue names by their
+ * placeholder or their own positions rather than by a label.
  *
- * The bar is ONE row and its own element type: `FilterBar`, where each control
- * keeps its natural width and the leftover width goes to the one element
- * declaring `width: "full"`.
+ * Every element carries an `i18n` key. It is also the enum-option key PREFIX, so
+ * a tri-state's positions resolve as `<key>.true` / `.false` / `.null`. The
+ * `sort` and `pagination` branches carry no element: a branch no element draws is
+ * still validated and still translated.
+ *
+ * The bar is ONE row and its own element type: `FilterBar`.
  *
  * @doctrine `code-ui.companion.md` (Uischema/JSONForms) — every element MUST
  * carry an `i18n` property; mandatory and non-negotiable.
@@ -287,16 +289,16 @@ export function useQueryUischema(): UISchemaElement {
     type: "FilterBar",
     elements: [
       {
-        type: "Filter",
-        scope: "#/properties/filters/properties/name",
+        type: "Control",
+        scope: "#/properties/filters/properties/name/properties/like",
         i18n: "form.module_search",
-        options: { width: "full" }
+        options: { format: "search", noLabel: true, optionalText: "" }
       },
       {
-        type: "Filter",
-        scope: "#/properties/filters/properties/verified",
+        type: "Control",
+        scope: "#/properties/filters/properties/verified/properties/eq",
         i18n: "form.verified_filter",
-        options: { treatment: "button-group" }
+        options: { format: "button-group", noLabel: true, optionalText: "" }
       }
       // ... one element per filterable column the bar offers. A column the
       // schema declares and no element draws is filterable by URL and absent

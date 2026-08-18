@@ -1,20 +1,21 @@
 Negative control for filter-tristate.test.ts.
 
-Drops `null` from the Verified leaf's declared members, so the tri-state loses
-the unset position it clears through — the state the schema documents as "a
-MEMBER, not an absence". Any assertion that reads the unset position, or the
-clear it performs, goes red; one that only exercises the two set positions stays
-green.
+Makes the toggle group resolve a pick matching no drawn position to the FIRST
+option instead of the unset member — the exact misreading of radix's `undefined`
+this control was written to survive. The re-press stops clearing and turns the
+filter on instead: any assertion that reads the model after a re-press goes red,
+while one that only presses the two set positions stays green.
 
-diff --git a/packages/headless/src/modules/client-email/client-email.schemas.ts b/packages/headless/src/modules/client-email/client-email.schemas.ts
---- a/packages/headless/src/modules/client-email/client-email.schemas.ts
-+++ b/packages/headless/src/modules/client-email/client-email.schemas.ts
-@@ -169,7 +169,7 @@
-               // is the enum entry whose label the control resolves.
-               eq: {
-                 type: ["boolean", "null"],
--                enum: [true, false, null]
-+                enum: [true, false]
-               }
-             }
-           },
+diff --git a/packages/client-vue/src/components/form/renderers/FilterToggleGroupRenderer.vue b/packages/client-vue/src/components/form/renderers/FilterToggleGroupRenderer.vue
+index c677d83b9..bf0d3f270 100644
+--- a/packages/client-vue/src/components/form/renderers/FilterToggleGroupRenderer.vue
++++ b/packages/client-vue/src/components/form/renderers/FilterToggleGroupRenderer.vue
+@@ -89,7 +89,7 @@ function onPick(value?: unknown): void {
+     get(
+       find(control.value.options, option => toString(option.value) === value),
+       "value",
+-      null
++      get(control.value.options, [0, "value"])
+     )
+   );
+ }

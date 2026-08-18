@@ -1,19 +1,21 @@
 Negative control for filter-format-dispatch.test.ts.
 
-Points the Bounced leaf at the OTHER tri-state format, so the column that must
-draw a label-less toggle group draws the labelled button group instead. Any
-assertion that reads the DRAWN control from the leaf's declared format goes red;
-one that merely counts positions, or asserts "a control rendered", stays green.
+Points the toggle group's tester at the OTHER tri-state format, so no filter
+renderer claims the leaf that asks for a toggle group and the column falls to the
+generic control for its type — a raw select of `true`/`false`/`null`. Any
+assertion that reads WHICH control the declared format drew goes red; one that
+merely asserts a control rendered, or counts the bar's positions, stays green.
 
-diff --git a/packages/headless/src/modules/client-email/client-email.schemas.ts b/packages/headless/src/modules/client-email/client-email.schemas.ts
---- a/packages/headless/src/modules/client-email/client-email.schemas.ts
-+++ b/packages/headless/src/modules/client-email/client-email.schemas.ts
-@@ -263,7 +263,7 @@
-         type: "Control",
-         scope: "#/properties/filters/properties/bounced/properties/eq",
-         i18n: "form.bounced_filter",
--        options: { format: "toggle-group" }
-+        options: { format: "button-group" }
-       }
-     ]
-   } as UISchemaElement;
+diff --git a/packages/client-vue/src/components/form/renderers/FilterToggleGroupRenderer.vue b/packages/client-vue/src/components/form/renderers/FilterToggleGroupRenderer.vue
+index c677d83b9..086933e91 100644
+--- a/packages/client-vue/src/components/form/renderers/FilterToggleGroupRenderer.vue
++++ b/packages/client-vue/src/components/form/renderers/FilterToggleGroupRenderer.vue
+@@ -101,7 +101,7 @@ export const tester = {
+   controlType: and(
+     isBooleanControl,
+     isEnumControl,
+-    optionIs("format", "toggle-group")
++    optionIs("format", "button-group")
+   )
+ };
+ </script>
