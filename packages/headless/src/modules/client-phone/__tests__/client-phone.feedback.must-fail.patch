@@ -1,0 +1,13 @@
+--- a/packages/headless/src/modules/client-phone/client-phone.services.ts
++++ b/packages/headless/src/modules/client-phone/client-phone.services.ts
+@@ -292,9 +292,7 @@
+     withAccessToken: true
+   })
+     .then(invalidateQueryByKey(queryKey, { exact: false }))
+-    .then(() => {
+-      useFeedback().addSuccess(t("confirm.phone_removed"));
+-    })
++    .then(() => undefined)
+     .catch(error => {
+       captureError(error);
+       useFeedback().addError({

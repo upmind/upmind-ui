@@ -1,0 +1,44 @@
+Negative control — `setDefault`'s addressability PRECONDITION (AC-13, fix 8a,
+parity row L1, ruling R8a).
+
+Reverts `setDefault`'s precondition to the pre-conversion INVERTED guard: the
+call to the shared `isAddressable` predicate is replaced by the original
+`isAuthenticated.value || !clientId.value`, which resolves TRUE for an
+unauthenticated session with no client id and lets the PUT go out at
+`clients/undefined/addresses/{id}`.
+
+Declared AC — AC-13: "setDefault issues NO request for an unauthenticated
+session with no client id". As AC-11, against `setDefault`: the read-back
+asserts an EMPTY request-capture log, not that a rejection surfaced.
+
+No collateral measured, and specifically NOT AC-12. AC-12's happy path — one
+`PUT clients/<clientId>/addresses/<id>` with body exactly `{ default: true }`,
+then an invalidation — runs on an AUTHENTICATED session, which the inverted
+guard still admits, so it stays GREEN here. That is the point of the split: a
+red under this mutant means the unauthenticated case stopped being refused, and
+nothing else.
+
+Sibling controls: `client-address.auth-guard.must-fail.patch` does the same to
+`remove` and declares AC-11; `client-address.client-id-limb.must-fail.patch`
+attacks the shared predicate itself and declares AC-3.
+
+diff --git a/packages/headless/src/modules/client-address/client-address.services.ts b/packages/headless/src/modules/client-address/client-address.services.ts
+index 1708af336..a6a5b2257 100644
+--- a/packages/headless/src/modules/client-address/client-address.services.ts
++++ b/packages/headless/src/modules/client-address/client-address.services.ts
+@@ -475,13 +475,14 @@ async function setDefault(
+   clientId: ClientAddressServices["clientId"],
+   captureError: ClientAddressErrorCapture
+ ): Promise<void> {
+   const { t } = useI18n();
+   const { put, useUrl } = useQuery();
+ 
+-  if (!isAddressable(clientId.value)) {
++  const { isAuthenticated } = useActiveSession().useMeta();
++  if (!(isAuthenticated.value || !clientId.value)) {
+     return Promise.reject(new NotAuthenticatedError());
+   }
+ 
+   return put<IAddress>({
+     mutationKey: [...queryKey, addressId, "default"],
+     url: useUrl(`clients/${clientId.value}/addresses/${addressId}`),

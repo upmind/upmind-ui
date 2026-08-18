@@ -1,54 +1,23 @@
-import { flatMap, isArray, isString } from "lodash-es";
-import type { RouteLocationNormalizedLoaded } from "vue-router";
-
 export default {
   register: () => {},
 
+  // Note: no `profile` / `profile.edit` routes (AC-61, design.md §8). Both
+  // pages mounted the client-surface `usePersonalDetails*` composables with
+  // no client id and no scope of their own — with the scope matrix's
+  // `STAFF: null as never` (R1), that would keep rendering the STAFF actor's
+  // own session while presenting as an admin client view: the FE-2824 shape
+  // made visible. Deleted, not marked "unsupported" — a rendered
+  // not-supported notice would still be a route that resolves to something,
+  // and the parity table's staff-onbehalf drop (parity.yaml B-staff-onbehalf,
+  // dropped-capabilities.md D1/D2) is exactly this capability. The landing
+  // redirect below moves to the next surviving admin route.
   routes: [
     {
       path: "/admin/account",
       name: "admin.account",
-      redirect: { name: "admin.account.profile" },
+      redirect: { name: "admin.account.security" },
       component: () => import("./Index.vue"),
       children: [
-        {
-          path: "profile",
-          name: "admin.account.profile",
-          component: () => import("../profile/admin/Profile.vue"),
-          meta: {
-            nav: {
-              label: "Profile",
-              icon: "user-01",
-              section: "Admin",
-              order: 1
-            }
-          }
-        },
-        {
-          path: "profile/edit",
-          name: "admin.account.profile.edit",
-          component: () => import("../profile/admin/Edit.vue"),
-          props: ({ query }: RouteLocationNormalizedLoaded) => {
-            let fields: string[] = [];
-            if (isString(query?.fields)) {
-              fields = query.fields.split(",");
-            } else if (isArray(query?.fields)) {
-              fields = flatMap(query.fields, f =>
-                isString(f) ? f.split(",") : []
-              );
-            }
-            return { fields };
-          },
-          meta: {
-            nav: {
-              label: "Profile Edit",
-              icon: "edit-01",
-              section: "Admin",
-              order: 2,
-              hidden: true
-            }
-          }
-        },
         {
           path: "child-accounts",
           name: "admin.account.child-accounts",

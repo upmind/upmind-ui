@@ -1,0 +1,73 @@
+{
+  "version": 3,
+  "request": {
+    "method": "PUT",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/addresses/25d96e76-3ed0-913e-649f-417482528340?case=set-default",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "default": true
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a2af4bdfefbaef97-WAW",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 14 Aug 2026 10:32:35 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=zu%2FN19KhvIMydrzeDSVFb%2BX6bTjamKjKd%2FM7oazDoxVwKf9bi6urNwHqmK8e0aSWFrpXGikzF6NNe27%2F9es7pAYtx1iGurTJzsfLR2%2BeUtHWyjEYgQAoSvHxDjqNEZoaxpt3XJu%2BPA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "25d96e76-3ed0-913e-649f-417482528340",
+        "import_id": null,
+        "staged_import": false,
+        "external_id": null,
+        "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "user_id": "sys",
+        "default": true,
+        "type": 3,
+        "name": "client-address-fixture-1786703542909",
+        "address_1": "1 Prover Street",
+        "address_2": "Flat 2",
+        "region_id": "8d632507-9806-5d1e-82ec-8174e234e98d",
+        "country_id": "825d96e7-63ed-0913-46c4-174825283406",
+        "city": "Manchester",
+        "county": null,
+        "postcode": "GU4 8PH",
+        "created_at": "2026-08-14 10:32:33",
+        "updated_at": "2026-08-14 10:32:34",
+        "deleted_at": null,
+        "verified": 0,
+        "can_delete": true
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-14T10:32:35.084Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-address"
+  }
+}

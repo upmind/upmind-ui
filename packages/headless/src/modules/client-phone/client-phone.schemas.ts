@@ -2,6 +2,23 @@
 
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type { ICountry } from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
+/**
+ * @module client-phone/client-phone.schemas
+ * @description Schema / uischema for the per-phone form. They move as a PAIR:
+ * a schema field with no control renders a required-but-invisible input.
+ * Content unchanged from pre-conversion (row M3) — including the required
+ * `["number","nationalNumber","countryCallingCode","country"]` array and the
+ * custom AJV keyword `phone_country_code`.
+ *
+ * WARNING: Do not import directly. The manager's machine config adopts this
+ * pair (`setSchemas`) and consumers read it off
+ * `useClientPhoneManager().useContext().schema` / `.uischema` — the barrel
+ * exports neither (decision D-4), because a form rendered from a schema the
+ * machine has not adopted validates against a different contract than the one
+ * that saves. `basket-billing/unified/schemas.ts` reaches this pair by its
+ * deep internal path instead (row X2 / task T-6a).
+ */
 
 export const useSchema = ({ country }: { country?: ICountry }): JsonSchema7 => {
   const schema: JsonSchema7 = {

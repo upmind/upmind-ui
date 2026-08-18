@@ -1,0 +1,102 @@
+Negative control — the READ path's SCOPE SEAM (AC-2), the story's headline claim.
+
+Hardwires the SESSION's own client into the two READ urls — the collection's
+list request (`loadList`) and the manager's per-address read (`loadOne`) — by
+re-reading `useActiveSession().useContext().activeUser` inside each function
+instead of addressing the `clientId` ref the scope resolved.
+
+The seam is left standing. `resolveClientId` still exists, still branches on
+`.for('client', id)`, still feeds `queryKey`, `isAddressable`, `enabled`, and
+every mutation. Only the two read urls stop consulting it. That is the FE-2824
+shape stated exactly: the structure is all present, the capability is gone.
+
+This is the pre-conversion defect restored verbatim. On `main` the module's
+`loadList` read `const { clientId } = useSession()` in its own body
+(`modules/client/address/services.ts:33-34`) and every other request function
+did the same — `parity.yaml` W12/L10, the module's live FE-2824. A request that
+addresses the session's client instead of the scope's is precisely the failure
+AC-2 exists to detect.
+
+Declares AC-2 — "the collection addresses the scope's client, not the session's
+by accident": the captured request url's `{clientId}` segment must equal the
+SCOPE-resolved client id.
+
+Should flip RED — any AC-2 read-back in which the scope-resolved client and the
+session's `activeUser` are DIFFERENT ids.
+
+MEASURED, and stated plainly: against the suite at `67f8be413` this mutant
+flips NOTHING — 112 passed / 1 failed, identical to the unmutated baseline (the
+one failure is AC-20 / finding F6, escalated per `review-notes.md` §7.6, red
+with or without it). That is the finding, not a defect in the mutant. With a
+single live actor whose session client IS the scope-resolved client, "read the
+session" and "read the seam" resolve to the same id, so a url assertion passes
+either way.
+
+It is also why the EARLIER AC-2 control — which deleted the `.for('client', id)`
+branch out of `resolveClientId` altogether — flipped nothing and had to be
+withdrawn; see `client-address.scope-identity.must-fail.patch`, which attacks
+the PIN instead and therefore declares AC-30, not AC-2.
+
+The discriminator AC-2 needs is a setup in which the scope-resolved client and
+the session's `activeUser` are different ids. That belongs to the test layer and
+is authored independently of this file. Until it lands, AC-2's control is
+present and honest but not yet demonstrated red.
+
+What this deliberately does NOT touch:
+  - The addressability guard. `isAddressable(clientId.value)` keeps reading the
+    seam in both functions, so AC-3 / AC-11 / AC-13's empty-capture-log
+    read-backs stay green and a red here can never be mistaken for an auth
+    regression.
+  - `queryKey`. Still scope-keyed, so a red localises to the URL — the thing
+    AC-2 asserts — and not to cache partitioning.
+  - The WRITE path. `add` / `update` / `remove` / `setDefault` still address the
+    seam. The mutation is read-only by construction, which is what makes it
+    AC-2's control rather than a second AC-30 control.
+
+Compiles clean under the mutation (`pnpm --filter @upmind-automation/headless
+type-check`, exit 0) — a control that cannot build proves nothing.
+
+diff --git a/packages/headless/src/modules/client-address/client-address.services.ts b/packages/headless/src/modules/client-address/client-address.services.ts
+index 385d7627a..53d8ed4a9 100644
+--- a/packages/headless/src/modules/client-address/client-address.services.ts
++++ b/packages/headless/src/modules/client-address/client-address.services.ts
+@@ -183,14 +183,15 @@ function loadList(
+   params: Partial<QueryParams<IAddress[], Address[]>> = {
+     pagination: { limit: 0 }
+   },
+   clientId: ClientAddressServices["clientId"]
+ ): ClientAddressListQuery {
+   const { list, useUrl } = useQuery();
++  const { activeUser } = useActiveSession().useContext();
+   const targetUrl = () =>
+-    useUrl(`clients/${clientId.value}/addresses`, {
++    useUrl(`clients/${activeUser.value?.id}/addresses`, {
+       with: ["region", "country"].join()
+     });
+   const url = targetUrl();
+ 
+   return list<IAddress[], Address[]>({
+     ...params,
+@@ -246,20 +247,21 @@ async function loadOne(
+   id: Address["id"] | undefined,
+   clientId: ClientAddressServices["clientId"]
+ ): Promise<Address | undefined> {
+   if (!id) return undefined;
+ 
+   const { get: getOne, useUrl } = useQuery();
++  const { activeUser } = useActiveSession().useContext();
+ 
+   if (!isAddressable(clientId.value)) {
+     return Promise.reject(new NotAuthenticatedError());
+   }
+ 
+   return getOne<IAddress, Address>({
+     queryKey: [...queryKey, { client: clientId.value }, id],
+-    url: useUrl(`clients/${clientId.value}/addresses/${id}`, {
++    url: useUrl(`clients/${activeUser.value?.id}/addresses/${id}`, {
+       with: ["region", "country"].join()
+     }),
+     select: mapAddress,
+     withAccessToken: true
+   });
+ }

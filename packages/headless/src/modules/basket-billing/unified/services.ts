@@ -2,13 +2,10 @@ import parsePhoneNumber, { type CountryCode } from "libphonenumber-js";
 import { BrandConfigKeys } from "@upmind-automation/types";
 import { useBrand } from "../../brand";
 import { useClientAddresses } from "../../client-address";
-import { useClientAddressServices } from "../../client-address";
 import { useClientCompanies } from "../../client-company";
-import { useClientCompanyServices } from "../../client-company";
 import { useClientEmails } from "../../client-email";
 import { useClientPhones } from "../../client-phone";
 import { ScopeActorTypes } from "../../scope";
-import { useClientPhoneServices } from "../../client-phone";
 import { useSystem } from "../../system";
 import { useI18n } from "../../system-localisation";
 import { UnifiedType } from "./types";
@@ -39,27 +36,22 @@ async function loadLookups({
   schema,
   type
 }: UnifiedContext): Promise<UnifiedContext> {
-  const {
-    isReady: getPhones,
-    default: defaultPhone,
-    data: phones
-  } = useClientPhones();
+  const clientPhones = useClientPhones().as(ScopeActorTypes.SELF);
+  const { isReady: getPhones } = clientPhones.useActions();
+  const { default: defaultPhone, data: phones } = clientPhones.useContext();
 
   const clientEmails = useClientEmails().as(ScopeActorTypes.SELF);
   const { isReady: getEmails } = clientEmails.useActions();
   const { default: defaultEmail, data: emails } = clientEmails.useContext();
 
-  const {
-    isReady: getAddresses,
-    default: defaultAddress,
-    data: addresses
-  } = useClientAddresses();
+  const addressesScope = useClientAddresses().as(ScopeActorTypes.CLIENT);
+  const { isReady: getAddresses } = addressesScope.useActions();
+  const { default: defaultAddressId, data: addresses } =
+    addressesScope.useContext();
 
-  const {
-    isReady: getCompanies,
-    default: _defaultCompany,
-    data: companies
-  } = useClientCompanies();
+  const companiesScope = useClientCompanies().as(ScopeActorTypes.CLIENT);
+  const { isReady: getCompanies } = companiesScope.useActions();
+  const { data: companies } = companiesScope.useContext();
 
   const { isReady, ensureCountries, fetchRegions, getCountry } = useSystem();
 
@@ -100,7 +92,9 @@ async function loadLookups({
     company:
       type == UnifiedType.BUSINESS
         ? ({
-            addressId: defaultAddress()?.id,
+            // R5 — `default()` IS the id now; `?.id` on a string is
+            // `undefined`, and it still type-checks.
+            addressId: defaultAddressId(),
             emailId: defaultEmail()?.id,
             phoneId: defaultPhone()?.id
           } as CompanyModel)
@@ -139,31 +133,35 @@ async function loadLookups({
 // MUTATIONS
 
 async function add(type: UnifiedType, data: UnifiedModel) {
-  const { ensure: ensureAddress } = useClientAddressServices();
-  const { ensure: ensurePhone } = useClientPhoneServices();
-  const { ensure: ensureCompany } = useClientCompanyServices();
+  const { ensure: ensureAddress } = useClientAddresses()
+    .as(ScopeActorTypes.CLIENT)
+    .useActions();
+  const { ensure: ensurePhone } = useClientPhones()
+    .as(ScopeActorTypes.SELF)
+    .useActions();
+  const { ensure: ensureCompany } = useClientCompanies()
+    .as(ScopeActorTypes.CLIENT)
+    .useActions();
   const promises: Promise<any>[] = [];
 
   promises.push(
     data?.phone && type == UnifiedType.PERSONAL
-      ? ensurePhone({ model: data.phone })
+      ? ensurePhone(data.phone)
       : Promise.resolve(undefined)
   );
 
   promises.push(
     data?.address && type == UnifiedType.PERSONAL
-      ? ensureAddress({ model: { address: data.address } })
+      ? ensureAddress({ address: data.address } as AddressModel)
       : Promise.resolve(undefined)
   );
 
   promises.push(
     data?.company && type == UnifiedType.BUSINESS
       ? ensureCompany({
-          model: {
-            ...data.company,
-            phoneId: data.phone?.id,
-            phone: data.phone?.phone
-          }
+          ...data.company,
+          phoneId: data.phone?.id,
+          phone: data.phone?.phone
         })
       : Promise.resolve(undefined)
   );
@@ -312,8 +310,12 @@ export const useUnifiedServices = () => {
     validate,
     invalidate: async () => {
       // Also invalidate the underlying queries
-      const { invalidate: invalidateAddresses } = useClientAddresses();
-      const { invalidate: invalidateCompanies } = useClientCompanies();
+      const { invalidate: invalidateAddresses } = useClientAddresses()
+        .as(ScopeActorTypes.CLIENT)
+        .useActions();
+      const { invalidate: invalidateCompanies } = useClientCompanies()
+        .as(ScopeActorTypes.CLIENT)
+        .useActions();
       await Promise.all([invalidateAddresses(null), invalidateCompanies(null)]);
     }
   };

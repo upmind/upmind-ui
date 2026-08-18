@@ -1,0 +1,53 @@
+{
+  "version": 3,
+  "request": {
+    "method": "DELETE",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/addresses/20e43579-5e78-d184-78db-31643202d986?case=remove-rejected",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a2af4be57eb95020-WAW",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Fri, 14 Aug 2026 10:32:35 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=YAMr%2FvoW65UiCWmvKE5rpQAzjU%2FKYHR16U816W%2B9NqE619xWGVOrbAJhYM5NfDV5H1h3HpRsB11Zciq%2FjfYm67vMuHIIoJo6DsDt6UR%2BKPzBvDXe9bsfZ7Q0NpYGVcajYclN2yFurQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "ab259a08d87e4b99f53853b8e265cb850d891f67",
+        "type": 0,
+        "code": 409,
+        "message": "The email address is in use and cannot be replaced!",
+        "data": []
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-14T10:32:35.653Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-address"
+  }
+}

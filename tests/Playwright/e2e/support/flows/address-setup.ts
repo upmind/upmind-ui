@@ -23,7 +23,8 @@ declare global {
  * that is the FE-2784 root cause.
  *
  * @param page - The Playwright page (the live system lives on its `window`).
- * @param clientId - The client the address belongs to.
+ * @param clientId - The client the address belongs to. Asserted against the
+ *   session's own resolved client, never passed to the manager — see below.
  * @param model - The address model, identical to what the UI submits.
  * @returns The persisted address id (a plain string), or null.
  */
@@ -40,7 +41,8 @@ export async function addAddressViaHeadless(
     async ({ clientId, model }) => {
       if (
         !window.Upmind?.useClientAddressManager ||
-        !window.Upmind?.useActiveSession
+        !window.Upmind?.useActiveSession ||
+        !window.Upmind?.ScopeActorTypes
       ) {
         throw new Error(
           "window.Upmind not exposed — is the cart running in test mode (pnpm start:test)?"
@@ -56,18 +58,66 @@ export async function addAddressViaHeadless(
           "addAddressViaHeadless: session is not authenticated as a client"
         );
       }
-      const manager = window.Upmind.useClientAddressManager(undefined, {
-        clientId
-      });
-      const ready = await manager.isReady();
+
+      // The manager resolves its OWN target exclusively from the session — it
+      // takes no client target of any kind. `clientId` is asserted against
+      // that resolved identity rather than passed anywhere, so a test seeding
+      // for the wrong client fails loudly instead of silently seeding the
+      // wrong account.
+      const activeClientId =
+        window.Upmind.useActiveSession().useContext().activeUser.value?.id;
+      if (activeClientId !== clientId) {
+        throw new Error(
+          `addAddressViaHeadless: seeded clientId "${clientId}" does not match the active session's own client "${activeClientId}" — the manager resolves its target from the session alone and cannot be redirected.`
+        );
+      }
+
+      const manager = window.Upmind.useClientAddressManager()
+        .as(window.Upmind.ScopeActorTypes.CLIENT)
+        .fresh();
+      const { isReady, update } = manager.useActions();
+
+      const ready = await isReady();
       if (!ready) {
         throw new Error(
           "addAddressViaHeadless: address manager did not become ready"
         );
       }
-      // update() takes the fully-hydrated model and handles the SET itself.
-      const saved = await manager.update(model);
-      return saved?.id ?? null;
+      try {
+        // update() takes the fully-hydrated model and handles the SET itself.
+        const saved = await update(model);
+        return saved?.id ?? null;
+      } catch (error) {
+        // A genuine manager rejection wraps the reactive XState `state.value`
+        // graph, which Playwright cannot structured-clone ("object reference
+        // chain is too long") — that clone error would mask the real cause. So
+        // re-throw the machine's OWN settled state as a PLAIN, serializable
+        // trace. This never swallows the failure (it re-throws); it makes a
+        // real seed failure legible as the exact machine state + validation
+        // errors.
+        const meta = manager.useMeta();
+        const context = manager.useContext();
+        const trace = {
+          message: String((error as { message?: string })?.message ?? error),
+          meta: {
+            isAvailable: meta.isAvailable.value,
+            isValid: meta.isValid.value,
+            hasErrors: meta.hasErrors.value,
+            isProcessing: meta.isProcessing.value,
+            isComplete: meta.isComplete.value,
+            isNew: meta.isNew.value
+          },
+          error: context.errors?.value ?? null,
+          validationErrors: JSON.parse(
+            JSON.stringify(context.validationErrors?.value ?? [])
+          )
+        };
+        throw new Error(
+          `addAddressViaHeadless: manager drive did not reach processed — ${JSON.stringify(
+            trace
+          )}`
+        );
+      }
     },
     { clientId, model }
   );

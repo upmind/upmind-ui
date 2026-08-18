@@ -1,0 +1,42 @@
+Negative control — the ADDRESSABILITY predicate's CLIENT-ID limb (AC-3).
+
+Mutates `isAddressable` to drop its second conjunct: `isAuthenticated.value &&
+!!clientId` becomes `isAuthenticated.value`. The predicate survives, every call
+site still calls it, and it still refuses an unauthenticated session — it just
+stops caring whether there is a client to address, so a session with no client
+id is treated as addressable and requests go out at `clients/undefined/...`.
+That is `parity.yaml` L1's shape: the check is present and does not check.
+
+Declared AC — AC-3: "an unauthenticated session issues no list request at all"
+(the request-capture log is EMPTY and `useMeta().isAvailable` is `false`;
+asserting that an error surfaced does not discriminate).
+
+Collateral RED, measured, and NOT this control's declared subject — both drive
+their read-back through the same one predicate:
+  - AC-11 — `remove` issues no request for a session with no client id
+  - AC-13 — `setDefault` issues no request for a session with no client id
+
+Those two have their own dedicated controls, which attack the PRECONDITION at
+each call site rather than the predicate itself:
+`client-address.auth-guard.must-fail.patch` (AC-11) and
+`client-address.default-guard.must-fail.patch` (AC-13). One mutant per
+capability, so a red localises: a red here means the predicate lost its client
+limb; a red there means one call site stopped honouring it.
+
+diff --git a/packages/headless/src/modules/client-address/client-address.services.ts b/packages/headless/src/modules/client-address/client-address.services.ts
+index 76ffc73d8..8ce9dd78b 100644
+--- a/packages/headless/src/modules/client-address/client-address.services.ts
++++ b/packages/headless/src/modules/client-address/client-address.services.ts
+@@ -106,10 +106,10 @@ function resolveClientId(scopeContext?: ScopeContext) {
+  * predicate as a precondition, which is what makes AC-11 / AC-13's empty
+  * capture log reachable at all.
+  */
+-function isAddressable(clientId?: string): boolean {
++function isAddressable(_clientId?: string): boolean {
+   const { isAuthenticated } = useActiveSession().useMeta();
+ 
+-  return isAuthenticated.value && !!clientId;
++  return isAuthenticated.value;
+ }
+ 
+ /**

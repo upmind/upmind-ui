@@ -60,7 +60,13 @@
       "uischema",
       "upmind"
     ],
+    "window.title": "Upmind ✦ Monorepo",
+
     "workbench.colorTheme": "Catppuccin Frappé",
+    "workbench.colorCustomizations": {
+      "statusBar.background": "#FA2F62",
+      "statusBar.foreground": "#ffffff"
+    },
     "liveServer.settings.multiRootWorkspaceName": "monorepo",
     "terminal.integrated.env.osx": {
       "CLAUDE_CONFIG_DIR": "/Users/domdacosta/.claude-upmind"

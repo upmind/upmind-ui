@@ -1,0 +1,1530 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/brand/settings",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a298142c5bfcd40c-WAW",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Tue, 11 Aug 2026 14:55:00 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=QBZ7DUqMEDVNyQI7pxpm6eq%2BWHznJtfswIxxN%2FAmyDJDk0vsu%2BEYWfi6uY6Yg%2BEFuS%2BC8O7hVfkYCDxlIdUHdQRRZnGtslo3p%2FITuCHn0CWppn4Bp7OrcSb7dS0t4eKOoeZQLt2jIQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "2785d26e-9678-3d16-999f-314502e70439",
+        "code": "kn6x1dzbtcgb",
+        "name": "QA Automation Testing",
+        "style": {
+          "brand_color": "#018ffd",
+          "brand_font": {
+            "family": "ABeeZee",
+            "version": "v22"
+          },
+          "tokens": "mock-tokens"
+        },
+        "prefix": "kn6x1dzbtcgb",
+        "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+        "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+        "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+        "pricelist_id": "825d96e7-63ed-0913-d66c-417482528340",
+        "tax_type": 0,
+        "vat_exempt": 0,
+        "vat_number": "GB12345678",
+        "wipe_data": false,
+        "demo_data_import_id": null,
+        "region_id": null,
+        "meta": {
+          "cart": {
+            "@data.*.catalogueDisabled": false,
+            "@data.clickwrapDisclaimer": "By clicking '{{ action }}', you confirm that you've read and agree to our [Terms of Service](https://webcentral.au/terms-conditions), [Privacy Policy](https://webcentral.au/privacy-policy), and other applicable policies listed [here](https://webcentral.au/service-terms). You also confirm that you are placing an order with an obligation to pay.",
+            "@data.trimTrailingZeroes": false,
+            "@data.billing_details.billingDetailsDisabled": false,
+            "@context.*.template": "two-column-rtl",
+            "@context.*.productImageRatio": "18:6",
+            "@context.*.productImagesStyle": "grid",
+            "@context.basket.productTermSelector": "visible",
+            "@context.*.optionUpsells": "visible",
+            "@context.*.zeroPriceDisplay": "label",
+            "@context.*.basketFields": "visible",
+            "@context.*.productConfigFieldsSummary": "visible",
+            "@context.*.productConfigOptionsSummary": "visible"
+          }
+        },
+        "domain": "kn6x1dzbtcgb.staging.upmind.dev",
+        "has_demo_data": false,
+        "currencies": [
+          {
+            "id": "825d96e7-63ed-0913-5dc4-174825283406",
+            "name": "Algerian Dinar",
+            "prefix": "دج",
+            "suffix": "",
+            "code": "DZD",
+            "created_at": "2022-09-28 14:40:15",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "2785d26e-9678-3d16-40f3-14502e70439d",
+            "name": "Angolan Kwanza",
+            "prefix": "Kz",
+            "suffix": "",
+            "code": "AOA",
+            "created_at": "2022-09-05 16:16:23",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "320e4357-95e7-8d18-28b3-1643202d9860",
+            "name": "Argentine Peso",
+            "prefix": "$",
+            "suffix": "",
+            "code": "ARS",
+            "created_at": "2024-06-18 13:34:53",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "45952098-d3de-4091-76a3-1578626e347e",
+            "name": "Australian Dollar",
+            "prefix": "AU $",
+            "suffix": "",
+            "code": "AUD",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-07-23 13:41:01",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "78985742-6489-7012-d5f2-1e325d0ed369",
+            "name": "Azerbaijani Manat",
+            "prefix": "₼",
+            "suffix": "",
+            "code": "AZN",
+            "created_at": "2024-05-07 08:18:06",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "47d73824-8507-9315-e6b8-1e642d59e063",
+            "name": "Bangladeshi Taka",
+            "prefix": "",
+            "suffix": "৳",
+            "code": "BDT",
+            "created_at": "2022-05-25 09:25:07",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "2785d26e-9678-3d16-d0c3-14502e70439d",
+            "name": "Barbadian Dollar",
+            "prefix": "",
+            "suffix": "BBD",
+            "code": "BBD",
+            "created_at": "2024-10-08 10:12:25",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "2785d26e-9678-3d16-80a3-14502e70439d",
+            "name": "Bolivian Boliviano",
+            "prefix": "$b",
+            "suffix": "",
+            "code": "BOB",
+            "created_at": "2024-06-18 13:34:53",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+            "name": "Brazilian Real",
+            "prefix": "R$",
+            "suffix": "",
+            "code": "BRL",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-07-23 13:41:01",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "3825d96e-763e-d091-3dc4-174825283406",
+            "name": "British Pound",
+            "prefix": "£",
+            "suffix": "",
+            "code": "GBP",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2026-07-23 13:41:01",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "20403869-6e54-721d-89b5-18d9305e7d23",
+            "name": "Bulgarian Lev",
+            "prefix": "",
+            "suffix": "BGN",
+            "code": "BGN",
+            "created_at": "2023-07-03 11:31:52",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "73de7864-2de5-3971-4ef2-1208469530d0",
+            "name": "Canadian Dollar",
+            "prefix": "$",
+            "suffix": "",
+            "code": "CAD",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "47d73824-8507-9315-66a8-1e642d59e063",
+            "name": "Cape Verde Escudo",
+            "prefix": "CVE",
+            "suffix": "",
+            "code": "CVE",
+            "created_at": "2024-01-02 12:34:08",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "4d036794-24d0-e710-54c3-153698d582e8",
+            "name": "Cayman Islands Dollar",
+            "prefix": "CI$",
+            "suffix": "",
+            "code": "KYD",
+            "created_at": "2023-11-24 14:25:23",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "5d085e69-d562-3719-eef2-18e940d42370",
+            "name": "Central African Franc",
+            "prefix": "",
+            "suffix": "FCFA",
+            "code": "XAF",
+            "created_at": "2020-06-17 14:17:52",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": false,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "320e4357-95e7-8d18-08b3-1643202d9860",
+            "name": "Chilean Peso",
+            "prefix": "$",
+            "suffix": "CLP",
+            "code": "CLP",
+            "created_at": "2022-09-05 16:16:23",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": false,
+            "manual": 0
+          },
+          {
+            "id": "825d96e7-63ed-0913-edb4-174825283406",
+            "name": "Chinese Yuan",
+            "prefix": "¥",
+            "suffix": "",
+            "code": "CNY",
+            "created_at": "2024-06-18 13:34:53",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "4d036794-24d0-e710-44f3-153698d582e8",
+            "name": "Colombian Peso",
+            "prefix": "COL$",
+            "suffix": "",
+            "code": "COP",
+            "created_at": "2022-08-05 08:29:49",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "5d085e69-d562-3719-9eb2-18e940d42370",
+            "name": "Costa Rican Colon",
+            "prefix": "₡",
+            "suffix": "",
+            "code": "CRC",
+            "created_at": "2024-06-18 13:34:53",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "57898574-2648-9701-25c2-1e325d0ed369",
+            "name": "Czech Koruna",
+            "prefix": "",
+            "suffix": "Kč",
+            "code": "CZK",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+            "name": "Danish Kroner",
+            "prefix": "",
+            "suffix": "kr.",
+            "code": "DKK",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2026-07-23 13:41:01",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "4d036794-24d0-e710-e4c3-153698d582e8",
+            "name": "Dominican Peso",
+            "prefix": "RD$",
+            "suffix": "",
+            "code": "DOP",
+            "created_at": "2024-06-18 13:34:53",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "47d73824-8507-9315-96c8-1e642d59e063",
+            "name": "Egyptian Pound",
+            "prefix": "E£",
+            "suffix": "",
+            "code": "EGP",
+            "created_at": "2023-04-11 08:28:30",
+            "updated_at": "2026-07-23 13:41:01",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "4d036794-24d0-e710-74b3-153698d582e8",
+            "name": "Ethiopian Birr",
+            "prefix": "",
+            "suffix": "",
+            "code": "ETB",
+            "created_at": "2022-11-10 08:51:28",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "320e4357-95e7-8d18-78f3-1643202d9860",
+            "name": "Fijian Dollar",
+            "prefix": "FJ$",
+            "suffix": "",
+            "code": "FJD",
+            "created_at": "2022-05-30 11:27:01",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "825d96e7-63ed-0913-9dc4-174825283406",
+            "name": "Georgian Lari",
+            "prefix": "",
+            "suffix": "GEL",
+            "code": "GEL",
+            "created_at": "2025-01-29 17:06:31",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
+            "name": "Ghanaian Cedi",
+            "prefix": "GH₵",
+            "suffix": "",
+            "code": "GHS",
+            "created_at": "2022-08-05 08:29:50",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "8d632507-9806-5d1e-26f8-174e234e98d2",
+            "name": "Guatemalan Quetzal",
+            "prefix": "Q",
+            "suffix": "",
+            "code": "GTQ",
+            "created_at": "2024-06-18 13:34:53",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "47d73824-8507-9315-26c8-1e642d59e063",
+            "name": "Honduran Lempira",
+            "prefix": "L",
+            "suffix": "",
+            "code": "HNL",
+            "created_at": "2024-06-18 13:34:53",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "9320e435-795e-78d1-88a3-1643202d9860",
+            "name": "Hong Kong Dollar",
+            "prefix": "HK$",
+            "suffix": "",
+            "code": "HKD",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "2785d26e-9678-3d16-70b3-14502e70439d",
+            "name": "Hungarian Forint",
+            "prefix": "",
+            "suffix": "Ft",
+            "code": "HUF",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": false,
+            "manual": 0
+          },
+          {
+            "id": "5952098d-3de4-0917-26f3-1578626e347e",
+            "name": "Icelandic Krona",
+            "prefix": "",
+            "suffix": "Kr",
+            "code": "ISK",
+            "created_at": "2023-05-30 09:13:13",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "825d96e7-63ed-0913-ddf4-174825283406",
+            "name": "Indian Rupee",
+            "prefix": "₹",
+            "suffix": "",
+            "code": "INR",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "5952098d-3de4-0917-96f3-1578626e347e",
+            "name": "Indonesian Rupiah",
+            "prefix": "",
+            "suffix": "Rp",
+            "code": "IDR",
+            "created_at": "2022-05-25 09:25:07",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "5d085e69-d562-3719-5ea2-18e940d42370",
+            "name": "Iraqi Dinar",
+            "prefix": "",
+            "suffix": "ع.د",
+            "code": "IQD",
+            "created_at": "2025-03-18 13:40:47",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "5d085e69-d562-3719-7ec2-18e940d42370",
+            "name": "Israeli New Shekel",
+            "prefix": "₪",
+            "suffix": "",
+            "code": "ILS",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": false,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "4d036794-24d0-e710-94a3-153698d582e8",
+            "name": "Japanese Yen",
+            "prefix": "¥",
+            "suffix": "",
+            "code": "JPY",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": false,
+            "decimals": false,
+            "manual": 0
+          },
+          {
+            "id": "47d73824-8507-9315-76a8-1e642d59e063",
+            "name": "Kenyan Shilling",
+            "prefix": "KSh.",
+            "suffix": "/=",
+            "code": "KES",
+            "created_at": "2022-08-05 08:29:50",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "8d632507-9806-5d1e-36b8-174e234e98d2",
+            "name": "Malaysian Ringgit",
+            "prefix": "RM",
+            "suffix": "",
+            "code": "MYR",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "3de78642-de53-9714-6ea2-1208469530d0",
+            "name": "Maldivian Rufiyaa",
+            "prefix": "",
+            "suffix": "Rf",
+            "code": "MVR",
+            "created_at": "2022-05-25 09:25:07",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "78985742-6489-7012-e5b2-1e325d0ed369",
+            "name": "Mauritian Rupee",
+            "prefix": "Rs",
+            "suffix": "",
+            "code": "MUR",
+            "created_at": "2024-07-30 11:17:49",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "47d73824-8507-9315-36f8-1e642d59e063",
+            "name": "Mexican Peso",
+            "prefix": "Mex$",
+            "suffix": "",
+            "code": "MXN",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "4d036794-24d0-e710-24c3-153698d582e8",
+            "name": "Moroccan Dirham",
+            "prefix": "",
+            "suffix": "DH",
+            "code": "MAD",
+            "created_at": "2022-05-19 14:21:19",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "2785d26e-9678-3d16-30f3-14502e70439d",
+            "name": "Mozambican Metical",
+            "prefix": "",
+            "suffix": "MT",
+            "code": "MZN",
+            "created_at": "2023-08-10 16:00:08",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "20403869-6e54-721d-69c5-18d9305e7d23",
+            "name": "Nepalese Rupee",
+            "prefix": "",
+            "suffix": "रु",
+            "code": "NPR",
+            "created_at": "2022-05-25 09:25:07",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "825d96e7-63ed-0913-7da4-174825283406",
+            "name": "New Taiwan Dollar",
+            "prefix": "NT$",
+            "suffix": "",
+            "code": "TWD",
+            "created_at": "2022-06-16 13:03:04",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "5952098d-3de4-0917-e6c3-1578626e347e",
+            "name": "New Zealand Dollar",
+            "prefix": "NZ$",
+            "suffix": "",
+            "code": "NZD",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "5952098d-3de4-0917-66a3-1578626e347e",
+            "name": "Nicaraguan Cordoba",
+            "prefix": "C$",
+            "suffix": "",
+            "code": "NIO",
+            "created_at": "2024-06-18 13:34:53",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "2785d26e-9678-3d16-90c3-14502e70439d",
+            "name": "Nigerian Naira",
+            "prefix": "",
+            "suffix": "",
+            "code": "NGN",
+            "created_at": "2022-06-01 07:35:15",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "20403869-6e54-721d-59a5-18d9305e7d23",
+            "name": "Norwegian Krone",
+            "prefix": "",
+            "suffix": "kr",
+            "code": "NOK",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "8d632507-9806-5d1e-e6b8-174e234e98d2",
+            "name": "Nuevo Sol",
+            "prefix": "S/.",
+            "suffix": "",
+            "code": "PEN",
+            "created_at": "2024-01-02 12:34:08",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "78985742-6489-7012-85a2-1e325d0ed369",
+            "name": "Pakistani Rupee",
+            "prefix": "Rs",
+            "suffix": "",
+            "code": "PKR",
+            "created_at": "2022-09-05 16:16:23",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "3de78642-de53-9714-8eb2-1208469530d0",
+            "name": "Papua New Guinean Kina",
+            "prefix": "",
+            "suffix": "K",
+            "code": "PGK",
+            "created_at": "2024-05-07 08:18:06",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "5d085e69-d562-3719-4eb2-18e940d42370",
+            "name": "Paraguayan Guarani",
+            "prefix": "₲",
+            "suffix": "",
+            "code": "PYG",
+            "created_at": "2022-08-05 08:29:49",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": false,
+            "manual": 0
+          },
+          {
+            "id": "78985742-6489-7012-75c2-1e325d0ed369",
+            "name": "Philippine Peso",
+            "prefix": "₱",
+            "suffix": "",
+            "code": "PHP",
+            "created_at": "2023-08-01 13:52:53",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "24d03679-424d-0e71-04b3-153698d582e8",
+            "name": "Polish Zloty",
+            "prefix": "",
+            "suffix": "zł",
+            "code": "PLN",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2026-07-23 13:41:01",
+            "base": false,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "5d085e69-d562-3719-6ea2-18e940d42370",
+            "name": "Romanian Leu",
+            "prefix": "lei",
+            "suffix": "",
+            "code": "RON",
+            "created_at": "2022-10-28 10:03:31",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "3de78642-de53-9714-5eb2-1208469530d0",
+            "name": "Russian Ruble",
+            "prefix": "₽",
+            "suffix": "",
+            "code": "RUB",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": false,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "5952098d-3de4-0917-76b3-1578626e347e",
+            "name": "Rwandan Franc",
+            "prefix": "FRw",
+            "suffix": "",
+            "code": "RWF",
+            "created_at": "2022-08-05 08:29:50",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": false,
+            "manual": 0
+          },
+          {
+            "id": "320e4357-95e7-8d18-38c3-1643202d9860",
+            "name": "Saudi Riyal",
+            "prefix": "SAR",
+            "suffix": "",
+            "code": "SAR",
+            "created_at": "2024-08-05 09:02:25",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "5d085e69-d562-3719-8ec2-18e940d42370",
+            "name": "Serbian Dinar",
+            "prefix": "DIN",
+            "suffix": "",
+            "code": "RSD",
+            "created_at": "2023-11-24 14:25:23",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "78985742-6489-7012-05f2-1e325d0ed369",
+            "name": "Singapore Dollar",
+            "prefix": "S$",
+            "suffix": "",
+            "code": "SGD",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "78985742-6489-7012-25b2-1e325d0ed369",
+            "name": "South African Rand",
+            "prefix": "",
+            "suffix": "R",
+            "code": "ZAR",
+            "created_at": "2022-05-27 08:59:52",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "5952098d-3de4-0917-d6c3-1578626e347e",
+            "name": "Sri Lankan Rupee",
+            "prefix": "Rs.",
+            "suffix": "",
+            "code": "LKR",
+            "created_at": "2024-02-12 15:29:53",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "320e4357-95e7-8d18-48c3-1643202d9860",
+            "name": "Swedish Krona",
+            "prefix": "",
+            "suffix": "kr",
+            "code": "SEK",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+            "name": "Swiss Franc",
+            "prefix": "",
+            "suffix": "fr.",
+            "code": "CHF",
+            "created_at": "2020-02-12 09:02:30",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "20403869-6e54-721d-29f5-18d9305e7d23",
+            "name": "Tanzanian Shilling",
+            "prefix": "TSh.",
+            "suffix": "/=",
+            "code": "TZS",
+            "created_at": "2022-08-05 08:29:50",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "825d96e7-63ed-0913-6db4-174825283406",
+            "name": "Thai Baht",
+            "prefix": "฿",
+            "suffix": "",
+            "code": "THB",
+            "created_at": "2020-02-12 09:02:30",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "3de78642-de53-9714-9ef2-1208469530d0",
+            "name": "Trinidad and Tobago Dollar",
+            "prefix": "",
+            "suffix": "TT$",
+            "code": "TTD",
+            "created_at": "2023-07-26 12:20:44",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "825d96e7-63ed-0913-2da4-174825283406",
+            "name": "Tunisian Dinar",
+            "prefix": "",
+            "suffix": "DT",
+            "code": "TND",
+            "created_at": "2023-09-19 08:08:10",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "320e4357-95e7-8d18-d8a3-1643202d9860",
+            "name": "Turkish lira",
+            "prefix": "₺",
+            "suffix": "",
+            "code": "TRY",
+            "created_at": "2023-08-08 08:58:29",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "3de78642-de53-9714-7ec2-1208469530d0",
+            "name": "Ugandan Shilling",
+            "prefix": "USh.",
+            "suffix": "/=",
+            "code": "UGX",
+            "created_at": "2022-08-05 08:29:50",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": false,
+            "manual": 0
+          },
+          {
+            "id": "8d632507-9806-5d1e-56a8-174e234e98d2",
+            "name": "United Arab Emirates Dirham",
+            "prefix": "",
+            "suffix": "DH",
+            "code": "AED",
+            "created_at": "2022-05-25 09:25:07",
+            "updated_at": "2026-07-23 13:41:02",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "e47d7382-4850-7931-56c8-1e642d59e063",
+            "name": "US Dollar",
+            "prefix": "$",
+            "suffix": "",
+            "code": "USD",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2026-07-23 13:41:01",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "8d632507-9806-5d1e-66f8-174e234e98d2",
+            "name": "West African Franc",
+            "prefix": "",
+            "suffix": "franc",
+            "code": "XOF",
+            "created_at": "2022-12-02 13:36:34",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "20403869-6e54-721d-09a5-18d9305e7d23",
+            "name": "Zambian Kwacha",
+            "prefix": "ZK",
+            "suffix": "",
+            "code": "ZMW",
+            "created_at": "2024-04-26 14:29:32",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "20403869-6e54-721d-d9c5-18d9305e7d23",
+            "name": "Uruguayan Peso",
+            "prefix": "$U",
+            "suffix": "",
+            "code": "UYU",
+            "created_at": "2024-06-18 13:34:53",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "3de78642-de53-9714-4ea2-1208469530d0",
+            "name": "Vietnamese Dong",
+            "prefix": "₫",
+            "suffix": "",
+            "code": "VND",
+            "created_at": "2024-06-18 13:34:53",
+            "updated_at": "2026-07-23 13:41:03",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+            "name": "Euro",
+            "prefix": "",
+            "suffix": "€",
+            "code": "EUR",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2026-07-23 13:41:01",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "4d036794-24d0-e710-84f3-153698d582e8",
+            "name": "Ukrainian Hryvnia",
+            "prefix": "₴",
+            "suffix": "",
+            "code": "UAH",
+            "created_at": "2025-11-11 16:15:50",
+            "updated_at": "2026-07-23 13:41:04",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          }
+        ],
+        "oauth_clients": [
+          {
+            "id": "20403869-6e54-721d-e60a-518d9305e7d2",
+            "user_id": "sys",
+            "name": "QA Automation Testing Portal",
+            "origin": "kn6x1dzbtcgb.staging.upmind.dev",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+            "default": true,
+            "custom": false,
+            "staff_enabled": true,
+            "customer_enabled": true,
+            "provider": null,
+            "revoked": false,
+            "created_at": "2025-05-07 08:38:43",
+            "updated_at": "2025-07-04 18:05:47",
+            "origin_healthy": true
+          },
+          {
+            "id": "47d73824-8507-9315-4e7c-81e642d59e06",
+            "user_id": "sys",
+            "name": "QA Automation Testing Portal",
+            "origin": "kn6x1dzbtcgb.upmind.dev",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+            "default": false,
+            "custom": false,
+            "staff_enabled": true,
+            "customer_enabled": true,
+            "provider": null,
+            "revoked": false,
+            "created_at": "2025-05-07 08:38:43",
+            "updated_at": "2025-07-04 18:05:20",
+            "origin_healthy": true
+          },
+          {
+            "id": "5952098d-3de4-0917-892a-31578626e347",
+            "user_id": "sys",
+            "name": "QA Automation Testing Portal",
+            "origin": "kn6x1dzbtcgb.upmind.com",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+            "default": false,
+            "custom": false,
+            "staff_enabled": true,
+            "customer_enabled": true,
+            "provider": null,
+            "revoked": false,
+            "created_at": "2025-05-07 08:38:43",
+            "updated_at": "2025-05-07 08:38:43",
+            "origin_healthy": true
+          },
+          {
+            "id": "3de78642-de53-9714-e64b-21208469530d",
+            "user_id": "78985742-6489-7012-084f-21e325d0ed36",
+            "name": "QA Automation Testing Portal",
+            "origin": "qa-automation.local",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+            "default": false,
+            "custom": true,
+            "staff_enabled": true,
+            "customer_enabled": true,
+            "provider": null,
+            "revoked": false,
+            "created_at": "2025-05-07 13:56:08",
+            "updated_at": "2025-05-21 15:27:32",
+            "origin_healthy": false
+          },
+          {
+            "id": "8d632507-9806-5d1e-49da-8174e234e98d",
+            "user_id": "320e4357-95e7-8d18-42ef-31643202d986",
+            "name": "QA Automation Testing Portal",
+            "origin": "qa-automation.localhost",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+            "default": false,
+            "custom": true,
+            "staff_enabled": true,
+            "customer_enabled": true,
+            "provider": null,
+            "revoked": false,
+            "created_at": "2026-01-09 10:10:00",
+            "updated_at": "2026-01-09 10:10:00",
+            "origin_healthy": false
+          }
+        ],
+        "languages": [
+          {
+            "id": "3825d96e-763e-d091-3dc4-174825283406",
+            "language": "English",
+            "code": "en",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2017-10-18 14:16:22",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "3825d96e-763e-d091-3dc4-174825283406"
+            }
+          },
+          {
+            "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+            "language": "Danish",
+            "code": "da",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2017-10-18 14:16:22",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "85d085e6-9d56-2371-9ea2-18e940d42370"
+            }
+          },
+          {
+            "id": "24d03679-424d-0e71-04b3-153698d582e8",
+            "language": "Polish",
+            "code": "pl",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2017-10-18 14:16:22",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "24d03679-424d-0e71-04b3-153698d582e8"
+            }
+          },
+          {
+            "id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+            "language": "French",
+            "code": "fr",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2017-10-18 14:16:22",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "68d63250-7980-65d1-e6f8-174e234e98d2"
+            }
+          },
+          {
+            "id": "e47d7382-4850-7931-56c8-1e642d59e063",
+            "language": "Spanish",
+            "code": "es",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2017-10-18 14:16:22",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "e47d7382-4850-7931-56c8-1e642d59e063"
+            }
+          },
+          {
+            "id": "45952098-d3de-4091-76a3-1578626e347e",
+            "language": "Portuguese",
+            "code": "pt",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2017-10-18 14:16:22",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "45952098-d3de-4091-76a3-1578626e347e"
+            }
+          },
+          {
+            "id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+            "language": "Italian",
+            "code": "it",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2017-10-18 14:16:22",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "72040386-96e5-4721-d9b5-18d9305e7d23"
+            }
+          },
+          {
+            "id": "73de7864-2de5-3971-4ef2-1208469530d0",
+            "language": "German",
+            "code": "de",
+            "created_at": "2021-02-24 10:22:06",
+            "updated_at": "2021-02-24 10:22:06",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "73de7864-2de5-3971-4ef2-1208469530d0"
+            }
+          },
+          {
+            "id": "57898574-2648-9701-25c2-1e325d0ed369",
+            "language": "Bulgarian",
+            "code": "bg",
+            "created_at": "2021-02-24 10:22:06",
+            "updated_at": "2021-02-24 10:22:06",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "57898574-2648-9701-25c2-1e325d0ed369"
+            }
+          },
+          {
+            "id": "9320e435-795e-78d1-88a3-1643202d9860",
+            "language": "Greek",
+            "code": "el",
+            "created_at": "2022-05-31 10:50:30",
+            "updated_at": "2022-05-31 10:50:30",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "9320e435-795e-78d1-88a3-1643202d9860"
+            }
+          },
+          {
+            "id": "825d96e7-63ed-0913-ddf4-174825283406",
+            "language": "Azerbaijani",
+            "code": "az",
+            "created_at": "2022-11-04 10:54:41",
+            "updated_at": "2022-11-04 10:54:41",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "825d96e7-63ed-0913-ddf4-174825283406"
+            }
+          },
+          {
+            "id": "8d632507-9806-5d1e-36b8-174e234e98d2",
+            "language": "Dutch",
+            "code": "nl",
+            "created_at": "2022-11-04 10:54:41",
+            "updated_at": "2022-11-04 10:54:41",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "8d632507-9806-5d1e-36b8-174e234e98d2"
+            }
+          },
+          {
+            "id": "47d73824-8507-9315-36f8-1e642d59e063",
+            "language": "Indonesian",
+            "code": "id",
+            "created_at": "2022-11-04 10:54:41",
+            "updated_at": "2022-11-04 10:54:41",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "47d73824-8507-9315-36f8-1e642d59e063"
+            }
+          },
+          {
+            "id": "20403869-6e54-721d-59a5-18d9305e7d23",
+            "language": "Norwegian Bokmål",
+            "code": "nb",
+            "created_at": "2022-11-04 10:54:41",
+            "updated_at": "2022-11-04 10:54:41",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "20403869-6e54-721d-59a5-18d9305e7d23"
+            }
+          },
+          {
+            "id": "3de78642-de53-9714-5eb2-1208469530d0",
+            "language": "Turkish",
+            "code": "tr",
+            "created_at": "2022-11-04 10:54:41",
+            "updated_at": "2022-11-04 10:54:41",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "3de78642-de53-9714-5eb2-1208469530d0"
+            }
+          },
+          {
+            "id": "78985742-6489-7012-05f2-1e325d0ed369",
+            "language": "Ukrainian",
+            "code": "uk",
+            "created_at": "2022-11-04 10:54:41",
+            "updated_at": "2022-11-04 10:54:41",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "78985742-6489-7012-05f2-1e325d0ed369"
+            }
+          },
+          {
+            "id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+            "language": "Russian",
+            "code": "ru",
+            "created_at": "2022-11-04 10:54:41",
+            "updated_at": "2022-11-04 10:54:41",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "2785d26e-9678-3d16-e0a3-14502e70439d"
+            }
+          },
+          {
+            "id": "5d085e69-d562-3719-4eb2-18e940d42370",
+            "language": "English (US)",
+            "code": "en-US",
+            "created_at": "2022-11-04 11:48:45",
+            "updated_at": "2022-11-04 11:48:45",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "5d085e69-d562-3719-4eb2-18e940d42370"
+            }
+          },
+          {
+            "id": "4d036794-24d0-e710-44f3-153698d582e8",
+            "language": "French (Canada)",
+            "code": "fr-CA",
+            "created_at": "2022-11-04 11:48:45",
+            "updated_at": "2022-11-04 14:15:33",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "4d036794-24d0-e710-44f3-153698d582e8"
+            }
+          },
+          {
+            "id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
+            "language": "Chinese (Taiwan, Traditional)",
+            "code": "zh-TW",
+            "created_at": "2022-11-04 11:48:45",
+            "updated_at": "2022-11-04 11:48:45",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "8d632507-9806-5d1e-d6c8-174e234e98d2"
+            }
+          },
+          {
+            "id": "47d73824-8507-9315-76a8-1e642d59e063",
+            "language": "Spanish (Latin America)",
+            "code": "es-419",
+            "created_at": "2022-11-04 11:48:45",
+            "updated_at": "2022-11-04 14:15:33",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "47d73824-8507-9315-76a8-1e642d59e063"
+            }
+          },
+          {
+            "id": "20403869-6e54-721d-29f5-18d9305e7d23",
+            "language": "Romanian",
+            "code": "ro",
+            "created_at": "2023-07-20 15:13:15",
+            "updated_at": "2023-07-20 15:13:15",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "20403869-6e54-721d-29f5-18d9305e7d23"
+            }
+          },
+          {
+            "id": "3de78642-de53-9714-7ec2-1208469530d0",
+            "language": "Czech",
+            "code": "cs",
+            "created_at": "2023-11-09 12:38:21",
+            "updated_at": "2025-04-16 14:35:35",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "3de78642-de53-9714-7ec2-1208469530d0"
+            }
+          },
+          {
+            "id": "78985742-6489-7012-85a2-1e325d0ed369",
+            "language": "Slovak",
+            "code": "sk",
+            "created_at": "2023-11-09 12:38:21",
+            "updated_at": "2023-11-09 12:38:21",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "78985742-6489-7012-85a2-1e325d0ed369"
+            }
+          },
+          {
+            "id": "320e4357-95e7-8d18-08b3-1643202d9860",
+            "language": "Portuguese (Brazil)",
+            "code": "pt-BR",
+            "created_at": "2024-04-22 10:17:07",
+            "updated_at": "2024-04-22 10:17:07",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "320e4357-95e7-8d18-08b3-1643202d9860"
+            }
+          },
+          {
+            "id": "2785d26e-9678-3d16-40f3-14502e70439d",
+            "language": "Swedish",
+            "code": "sv",
+            "created_at": "2024-04-22 10:17:07",
+            "updated_at": "2024-04-22 10:17:07",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "2785d26e-9678-3d16-40f3-14502e70439d"
+            }
+          },
+          {
+            "id": "825d96e7-63ed-0913-5dc4-174825283406",
+            "language": "Hungarian",
+            "code": "hu",
+            "created_at": "2025-01-09 10:51:46",
+            "updated_at": "2025-01-09 10:51:46",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "825d96e7-63ed-0913-5dc4-174825283406"
+            }
+          },
+          {
+            "id": "320e4357-95e7-8d18-48c3-1643202d9860",
+            "language": "Urdu",
+            "code": "ur",
+            "created_at": "2022-11-04 10:54:41",
+            "updated_at": "2022-11-04 10:54:41",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "320e4357-95e7-8d18-48c3-1643202d9860"
+            }
+          }
+        ],
+        "image": {
+          "id": "5952098d-3de4-0917-953b-31578626e347",
+          "object_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "image_category_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "type": "image",
+          "object_type": "brand",
+          "default": true,
+          "created_at": "2025-10-24 12:58:39",
+          "updated_at": "2025-10-24 12:59:16",
+          "origin_name": "399_1_328.png",
+          "resized": true,
+          "order": 5,
+          "hash": "QzPygwFyHHDv72qM1wUIACcdTXv7rmZA",
+          "image_url": "api/images/5952098d-3de4-0917-953b-31578626e347/download",
+          "full_url": "https://api.staging.upmind.io/api/images/5952098d-3de4-0917-953b-31578626e347/download",
+          "size_category": {
+            "id": "3825d96e-763e-d091-3dc4-174825283406",
+            "name": "brand_image"
+          }
+        },
+        "icon": {
+          "id": "8d632507-9806-5d1e-500f-8174e234e98d",
+          "object_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "image_category_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "type": "icon",
+          "object_type": "brand",
+          "default": true,
+          "created_at": "2025-10-24 12:58:38",
+          "updated_at": "2025-10-24 12:59:07",
+          "origin_name": "399_1_326.png",
+          "resized": true,
+          "order": 5,
+          "hash": "0ibwcomZ2PYb5GSHAy2XlJc49T3AIufV",
+          "image_url": "api/images/8d632507-9806-5d1e-500f-8174e234e98d/download",
+          "full_url": "https://api.staging.upmind.io/api/images/8d632507-9806-5d1e-500f-8174e234e98d/download",
+          "size_category": {
+            "id": "3825d96e-763e-d091-3dc4-174825283406",
+            "name": "brand_image"
+          }
+        },
+        "favicon": {
+          "id": "47d73824-8507-9315-e54f-81e642d59e06",
+          "object_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "image_category_id": "9320e435-795e-78d1-88a3-1643202d9860",
+          "type": "image",
+          "object_type": "brand",
+          "default": true,
+          "created_at": "2025-10-24 12:58:39",
+          "updated_at": "2025-10-24 12:58:39",
+          "origin_name": "399_10_327.png",
+          "resized": true,
+          "order": 0,
+          "hash": "JknvzEuFwNunTulsm29MC7Zzh3BarabY",
+          "image_url": "api/images/47d73824-8507-9315-e54f-81e642d59e06/download",
+          "full_url": "https://api.staging.upmind.io/api/images/47d73824-8507-9315-e54f-81e642d59e06/download",
+          "size_category": {
+            "id": "9320e435-795e-78d1-88a3-1643202d9860",
+            "name": "brand_favicon"
+          }
+        },
+        "email_logo": {
+          "id": "4d036794-24d0-e710-28ec-3153698d582e",
+          "object_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "image_category_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "type": "email_logo",
+          "object_type": "brand",
+          "default": true,
+          "created_at": "2025-10-24 12:58:38",
+          "updated_at": "2025-10-24 12:58:38",
+          "origin_name": "399_1_325.png",
+          "resized": true,
+          "order": 0,
+          "hash": "dzeV2QCPYS8CYtePYRFXulABPHNDnvCx",
+          "image_url": "api/images/4d036794-24d0-e710-28ec-3153698d582e/download",
+          "full_url": "https://api.staging.upmind.io/api/images/4d036794-24d0-e710-28ec-3153698d582e/download",
+          "size_category": {
+            "id": "3825d96e-763e-d091-3dc4-174825283406",
+            "name": "brand_image"
+          }
+        }
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-11T14:55:00.821Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-personal-details"
+  }
+}

@@ -135,6 +135,7 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import {
+  ScopeActorTypes,
   useBasketBilling,
   useClientAddresses,
   useClientCompanies,
@@ -183,18 +184,23 @@ const { isReady, meta: billingMeta, model } = useBasketBilling();
 // The client-data isReady()s resolve once the auth check settles (checkout
 // only mounts this summary for authenticated sessions), so a refresh
 // mid-token-validation still loads saved billing.
+const addressesScope = useClientAddresses().as(ScopeActorTypes.CLIENT);
+const companiesScope = useClientCompanies().as(ScopeActorTypes.CLIENT);
+
 await Promise.allSettled([
   isReady(),
-  useClientAddresses().isReady(),
-  useClientCompanies().isReady(),
-  useClientPhones().isReady()
+  addressesScope.useActions().isReady(),
+  companiesScope.useActions().isReady(),
+  useClientPhones().as(ScopeActorTypes.SELF).useActions().isReady()
 ]);
 
 // --- summary
 
-const { getOne: getAddress } = useClientAddresses();
-const { getOne: getCompany } = useClientCompanies();
-const { getOne: getPhone } = useClientPhones();
+const { getOne: getAddress } = addressesScope.useContext();
+const { getOne: getCompany } = companiesScope.useContext();
+const { getOne: getPhone } = useClientPhones()
+  .as(ScopeActorTypes.SELF)
+  .useContext();
 
 const selectedCompany = computed(() =>
   getCompany(model.value?.companyId ?? undefined)

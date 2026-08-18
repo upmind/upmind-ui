@@ -59,11 +59,12 @@ docs/corpus/.reflection.json
 # exits; ignored defensively in case a run is interrupted (FE-2752 T8).
 docs/corpus/.gate-examples-tmp-*/
 
-# Transient agent-generated docs
-docs/analysis/
-docs/plans/
-docs/audit/
-docs/reviews/
-docs/decisions/
-docs/stories/
-docs/sdd/
+# Transient agent-generated docs. No trailing slash: a bare path also ignores a
+# symlink at it, which a directory-only pattern lets through.
+docs/analysis
+docs/plans
+docs/audit
+docs/reviews
+docs/decisions
+docs/stories
+docs/sdd

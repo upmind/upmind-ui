@@ -1,0 +1,9 @@
+--- a/packages/headless/src/modules/client-custom-fields/client-custom-fields.mappers.ts
++++ b/packages/headless/src/modules/client-custom-fields/client-custom-fields.mappers.ts
+@@ -144,5 +144,5 @@
+     {} as CustomFieldModel
+   );
+
+-  return isEmpty(differences) ? undefined : differences;
++  return isEmpty(differences) ? undefined : Object.values(differences);
+ }

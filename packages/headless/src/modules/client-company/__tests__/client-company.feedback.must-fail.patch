@@ -1,0 +1,19 @@
+--- a/packages/headless/src/modules/client-company/client-company.services.ts
++++ b/packages/headless/src/modules/client-company/client-company.services.ts
+@@ -2,6 +2,7 @@
+ import { computed, ref } from "vue";
+ import { BrandConfigKeys, type ICompany } from "@upmind-automation/types";
+ import { useBrand } from "../brand";
++import { useFeedback } from "../feedback";
+ import {
+   useClientAddresses,
+   useClientAddressServices
+@@ -445,6 +446,8 @@ async function remove(
+     .then(() => undefined)
+     .catch(error => {
+       captureError(error);
++      const mapped = mapToHeadlessError(error);
++      useFeedback().addError({ title: mapped.message, data: mapped.data });
+       throw error;
+     });
+ }

@@ -1,0 +1,21 @@
+--- a/packages/headless/src/modules/client-company/useClientCompanyManager.ts
++++ b/packages/headless/src/modules/client-company/useClientCompanyManager.ts
+@@ -44,7 +44,8 @@ import type { ScopeActorTypes } from "../scope/scope.types";
+  */
+ function createClientCompanyManagerForScope(
+   config: ScopeConfig,
+-  scopeKey: ScopeKey
++  scopeKey: ScopeKey,
++  { clientId }: { clientId?: string } = {}
+ ) {
+   const { t } = useI18n();
+
+@@ -78,7 +79,7 @@ function createClientCompanyManagerForScope(
+         id: companyId,
+         // Identity, seeded from the ONE seam (D4). Never read `activeUser`
+         // directly in this file.
+-        clientId: service.clientId.value,
++        clientId: clientId ?? service.clientId.value,
+         // Scoped instances are persistent editors — stay editable after a
+         // save (the machine returns to `available` instead of the `complete`
+         // final state) so a remounting form re-uses the same instance.

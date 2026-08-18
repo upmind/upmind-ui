@@ -1,0 +1,17 @@
+--- a/packages/headless/src/modules/client-custom-fields/client-custom-fields.mappers.ts
++++ b/packages/headless/src/modules/client-custom-fields/client-custom-fields.mappers.ts
+@@ -20,6 +20,7 @@
+   isNil,
+   isObject,
+   isString,
++  omitBy,
+   reduce,
+   set
+ } from "lodash-es";
+@@ -166,5 +167,5 @@
+     {} as CustomFieldModel
+   );
+
+-  return isEmpty(differences) ? undefined : differences;
++  return isEmpty(differences) ? undefined : omitBy(differences, isNil);
+ }

@@ -46,7 +46,9 @@ const _props = withDefaults(
 
 const { t } = useI18n();
 
-const { data, isReady } = usePersonalDetails();
+const profile = usePersonalDetails().as("self");
+const { data } = profile.useContext();
+const { isReady } = profile.useActions();
 
 await isReady();
 </script>

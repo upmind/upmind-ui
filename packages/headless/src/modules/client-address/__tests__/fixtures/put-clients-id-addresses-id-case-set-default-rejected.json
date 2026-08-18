@@ -1,0 +1,57 @@
+{
+  "version": 3,
+  "request": {
+    "method": "PUT",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/addresses/00000000-0000-0000-0000-000000000000?case=set-default-rejected",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "default": true
+    }
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a2af4be3b9a5ef97-WAW",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Fri, 14 Aug 2026 10:32:35 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=4Rsm68pbiMK%2FWw%2FGug%2BFG70aAQxSM%2B%2F7td1Bs6bc1VOqvLWufezFO3ZtN9acpt%2B8YG8Red75rC6r5Oev23ilDySf9TZ1ILR7XAeerKD9DPoKytf%2FIGIR3X5ZrU0SOVqg7VpALIhDGQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "c53a58de989917a4737925644e996390e721ad86",
+        "type": 0,
+        "code": 422,
+        "message": "API request invalid!",
+        "data": {
+          "address_id": ["The identifier (address id) is invalid!"]
+        }
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-14T10:32:35.306Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-address"
+  }
+}

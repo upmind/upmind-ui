@@ -1,0 +1,12 @@
+version: "3"
+
+includes:
+  cart:
+    taskfile: apps/cart/Taskfile.yml
+    dir: apps/cart
+  velia:
+    taskfile: apps/velia/Taskfile.yml
+    dir: apps/velia
+  hosting:
+    taskfile: apps/hosting/Taskfile.yml
+    dir: apps/hosting

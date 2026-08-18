@@ -1,0 +1,20 @@
+--- a/packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts
++++ b/packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts
+@@ -159,7 +159,7 @@ export function mapProfileFields(
+   const { t } = useI18n();
+   const languageName =
+     find(languages, ["id", record.language])?.language ?? record.language;
+-  const definedFieldIds = new Set(map(definitions, "id"));
++  const definedFieldIds = new Set(map([] as CustomField[], "id"));
+
+   const remainderFields = reduce(
+     record.customFieldValues,
+@@ -209,7 +209,7 @@ export function mapProfileFields(
+       value: languageName,
+       meta: { ...NATIVE_FIELD_META, isRequired: true, isCustomField: false }
+     },
+-    ...map(definitions, definition => {
++    ...map([] as CustomField[], definition => {
+       const value = find(record.customFieldValues, ["field_id", definition.id]);
+       const field = value
+         ? (resolveFieldByValue(value, [definition]) ?? definition)

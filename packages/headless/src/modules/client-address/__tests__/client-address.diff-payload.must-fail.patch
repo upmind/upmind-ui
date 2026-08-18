@@ -1,0 +1,39 @@
+Negative control — the DIFF-ONLY update body (AC-23, fix 8c, parity row L3).
+
+Mutates `update`'s body from `mapIAddressDataDiff(data, baseData)` to
+`mapIAddressData(data)`, so a save sends the WHOLE model instead of only the
+fields that moved. The PUT still goes out, to the same url, with the same
+method, and still succeeds — it just re-sends every field the user never
+touched, which is the legacy-parity claim L3 exists to hold.
+
+Declared AC — AC-23: "saving an edit sends only the changed fields". The
+read-back asserts the captured PUT body has EXACTLY the changed key(s) and does
+NOT contain `country_id`; asserting the request succeeded does not
+discriminate.
+
+Should flip RED — all three AC-23 read-backs in
+__tests__/client-address.manager-save.int.test.ts:
+  - "AC-23 puts ONLY the changed field and does NOT re-send the unchanged
+     country"
+  - "AC-23 sends nothing at all beyond the fields that actually moved"
+  - "AC-22/AC-23 puts the chosen address type on the wire when the type is what
+     changed"
+
+No collateral beyond that set. This is the complement of
+`client-address.manager-amputation.must-fail.patch`, which reds the same three
+by removing the update LIMB entirely: that one proves the PUT is reached, this
+one proves the body it carries is a diff. Two capabilities, two mutants.
+
+diff --git a/packages/headless/src/modules/client-address/client-address.services.ts b/packages/headless/src/modules/client-address/client-address.services.ts
+index 76ffc73d8..5f7658a8d 100644
+--- a/packages/headless/src/modules/client-address/client-address.services.ts
++++ b/packages/headless/src/modules/client-address/client-address.services.ts
+@@ -330,7 +330,7 @@ async function update(
+   return put<IAddress>({
+     mutationKey: [...queryKey, id],
+     url: useUrl(`clients/${clientId.value}/addresses/${id}`),
+-    data: mapIAddressDataDiff(data, baseData),
++    data: mapIAddressData(data),
+     withAccessToken: true
+   }).then(invalidateQueryByKey(queryKey, { exact: false }));
+ }

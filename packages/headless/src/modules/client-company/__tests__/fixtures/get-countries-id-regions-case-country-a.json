@@ -1,0 +1,131 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/countries/3825d96e-763e-d091-3dc4-174825283406/regions?case=country-a",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a27de1826e37d241-WAW",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Sat, 08 Aug 2026 10:36:35 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=ftIx%2BqmM%2FcY2Bh6g0V3twwZiWH4o3%2FBPpSt5jF92%2B3bfTeiVFkZbjMWVo7WXG5k96bBRTYAzL1HKgbZCzIEKYWZE5sy9%2B1EkixBnnQczq8vvCji8WM2Fi1s88IC%2BAyIRhWFQxfR8bQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "34"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "BAL",
+          "name": "Balkh",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "e47d7382-4850-7931-56c8-1e642d59e063",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "BAM",
+          "name": "Bamyan",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "BDG",
+          "name": "Badghis",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "3825d96e-763e-d091-3dc4-174825283406",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "BDS",
+          "name": "Badakhshan",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "24d03679-424d-0e71-04b3-153698d582e8",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "BGL",
+          "name": "Baghlan",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "45952098-d3de-4091-76a3-1578626e347e",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "DAY",
+          "name": "Daykundi",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "FRA",
+          "name": "Farah",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "73de7864-2de5-3971-4ef2-1208469530d0",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "FYB",
+          "name": "Faryab",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "57898574-2648-9701-25c2-1e325d0ed369",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "GHA",
+          "name": "Ghazni",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "9320e435-795e-78d1-88a3-1643202d9860",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "GHO",
+          "name": "Ghor",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        }
+      ],
+      "related": null,
+      "total": 34,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-08T10:36:35.628Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-company"
+  }
+}

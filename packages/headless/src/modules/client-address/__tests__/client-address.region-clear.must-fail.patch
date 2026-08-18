@@ -1,0 +1,71 @@
+Negative control — clearing a region on a country change reaches the API
+(AC-19, parity row L9, review blocker B2).
+
+Removes the two clearance lines from `mapIAddressDataDiff`, so a region cleared
+by a country change leaves the diff as `undefined` instead of as an explicit
+`null`. The diff still correctly KEEPS the key — `isEqual(previousRegionId,
+undefined)` is false and the field really did change — but `undefined` cannot
+survive the wire: `parseData`'s `JSON.stringify` drops every `undefined`-valued
+key before the body is sent.
+
+The mutant is invisible at every gate that measures the CLIENT side. `parse`
+still refetches the new country's regions, still re-resolves `country`, and
+still clears `model.address.regionId` — the machine context is correct, the form
+control is correct, `country_id` is on the wire, and the PUT succeeds. The only
+casualty is the one key the API needed in order to clear the column, so the
+server keeps the OLD country's region on an address that now sits in a new
+country. Persisted inconsistent data on the exact flow AC-19 claims.
+
+Declared subject — the B2 wire read-back. Open an existing address that HAS a
+region, change the country (e.g. US -> UK, where the US region is not in the UK
+list), save, and assert on the CAPTURED PUT BODY:
+  - the body has a `region_id` key, and its value is `null`
+Under the mutant the key is absent from the serialised body entirely.
+
+What does NOT discriminate:
+  - asserting `useContext().model.address.regionId` is falsy — the model IS
+    cleared under the mutant, to `undefined`. An assertion written as
+    `expect(model.address.regionId ?? null).toBe(null)` or `.toBeFalsy()` passes
+    on the broken value; that is precisely how the defect reached review with
+    `client-address.lookups.int.test.ts` green.
+  - asserting the regions list was refetched for the new country
+  - asserting `country_id` is on the PUT body — it is, under both
+  - assertions taken on a parsed object that never round-tripped through
+    `JSON.stringify`: assert on the SERIALISED body, or on key PRESENCE
+
+Choose an address that ALREADY HAS a region. On an address that never had one,
+both sides of the diff map the same empty value and `region_id` is correctly
+omitted from the payload under fix AND mutant alike — that case cannot
+discriminate.
+
+Measured blast radius, suite at the B3 fix (this commit): 1 — the declared
+subject alone, zero collateral. Under the mutant the module suite runs 119
+passed / 2 failed: this control's own subject
+(`client-address.manager-save.int.test.ts`, AC-19/AC-23) plus the standing
+AC-20/F6 halt, which fails identically without it.
+
+The seam is `mapIAddressDataDiff` and NOT `mapIAddressData` — that placement is
+review blocker B3. `mapIAddressData` is the create-body mapper too, and a create
+has nothing to clear: the recorded oracle's region-less POST
+(`client-address.e2e-oracle.pre-migration.json`, spec 3, second POST) carries no
+`region_id` key at all, under the same `country_id` its sibling POSTs send a
+region with. Minting the `null` above the `if (!baseData) return next` early
+return therefore put a key on every region-less CREATE that legacy never sent.
+This mutant does not touch the create body — it is byte-identical under fix and
+mutant — so no AC-24 assertion can go red here; the create's own guard is a
+separate read-back on POST key ABSENCE.
+
+diff --git a/packages/headless/src/modules/client-address/client-address.mappers.ts b/packages/headless/src/modules/client-address/client-address.mappers.ts
+index f06469409..144ad61b9 100644
+--- a/packages/headless/src/modules/client-address/client-address.mappers.ts
++++ b/packages/headless/src/modules/client-address/client-address.mappers.ts
+@@ -143,9 +143,6 @@
+   // Both sides are coerced together, so an address that never had a region
+   // still compares equal and is omitted. Below the early return, never above
+   // it: a create carries no clearance, and the oracle omits the key there.
+-  next.region_id = next.region_id ?? null;
+-  previous.region_id = previous.region_id ?? null;
+-
+   return omitBy(next, (value, key) =>
+     isEqual(previous[key as keyof IAddress], value)
+   ) as Partial<IAddress>;
