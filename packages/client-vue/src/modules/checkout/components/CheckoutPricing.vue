@@ -14,9 +14,7 @@
       show-products
       :show-promotions="uischema.showPromotionsOnCheckout"
       :show-button="!ui.basketSummaryDetails.isVisible"
-    >
-      <BasketPromotions v-if="uischema.showPromotionsOnCheckout" />
-    </Summary>
+    />
   </Section>
 </template>
 
@@ -25,7 +23,6 @@ import { useI18n } from "vue-i18n";
 import { useBasket, useConfig } from "@upmind-automation/headless";
 import Section from "../../../components/section/Section.vue";
 import Summary from "../../basket/components/Summary.vue";
-import BasketPromotions from "../../basket/components/Promotions.vue";
 
 // --- types
 import type { CheckoutPricingProps } from "../types";
