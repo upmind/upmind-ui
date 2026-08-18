@@ -241,8 +241,8 @@ build base:
     - set -u
     - echo "${GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
     - |
-      cd apps/cart
-      bash scripts/deploy-gcs.sh --bucket "${GCS_BUCKET}" --prefix "${GCS_PREFIX}"
+      cd ${APP_DIR}
+      bash "${CI_PROJECT_DIR}/etc/scripts/deploy-gcs.sh" --bucket "${GCS_BUCKET}" --prefix "${GCS_PREFIX}"
 
 (apps/cart) deploy gcs - staging:
   extends: .deploy gcs
@@ -258,6 +258,7 @@ build base:
     action: start
     url: https://assets.upmind-cart-staging.upmind.io/
   variables:
+    APP_DIR: apps/cart
     GCS_BUCKET: ${GCS_BUCKET_STAGING}
     GCS_PREFIX: staging
 
@@ -277,8 +278,57 @@ build base:
     action: start
     url: https://assets.upmind-cart.upmind.io/
   variables:
+    APP_DIR: apps/cart
     GCS_BUCKET: ${GCS_BUCKET_PRODUCTION}
     GCS_PREFIX: production
+
+(apps/velia) deploy gcs:
+  extends: .deploy gcs
+  needs:
+    - dependencies
+    - job: build base
+      optional: true
+    - (apps/velia) build
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY =~ /firebase/
+      allow_failure: false
+    - if: $CI_COMMIT_TAG =~ /^velia-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY =~ /firebase/
+      allow_failure: false
+    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY !~ /firebase/
+      allow_failure: true
+    - if: $CI_COMMIT_TAG =~ /^velia-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY !~ /firebase/
+      allow_failure: true
+  environment:
+    name: apps/velia/gcs/production
+    action: start
+  variables:
+    APP_DIR: apps/velia
+    GCS_BUCKET: ${GCS_BUCKET_PRODUCTION}
+    GCS_PREFIX: velia
+
+(apps/hosting) deploy gcs:
+  extends: .deploy gcs
+  needs:
+    - dependencies
+    - job: build base
+      optional: true
+    - (apps/hosting) build
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY =~ /firebase/
+      allow_failure: false
+    - if: $CI_COMMIT_TAG =~ /^hosting-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY =~ /firebase/
+      allow_failure: false
+    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY !~ /firebase/
+      allow_failure: true
+    - if: $CI_COMMIT_TAG =~ /^hosting-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY !~ /firebase/
+      allow_failure: true
+  environment:
+    name: apps/hosting/gcs/production
+    action: start
+  variables:
+    APP_DIR: apps/hosting
+    GCS_BUCKET: ${GCS_BUCKET_PRODUCTION}
+    GCS_PREFIX: hosting
 
 #-------------------------------------------------------------------------------
 # 🔥 Firebase deployments — All flavours
@@ -348,6 +398,7 @@ build base:
     - job: build base
       optional: true
     - (apps/velia) build
+    - (apps/velia) deploy gcs
   rules:
     # Allow failure when it's not the primary deploy mechanism
     - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY =~ /firebase/
@@ -375,6 +426,7 @@ build base:
     - job: build base
       optional: true
     - (apps/hosting) build
+    - (apps/hosting) deploy gcs
   rules:
     # Allow failure when it's not the primary deploy mechanism
     - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY =~ /firebase/
