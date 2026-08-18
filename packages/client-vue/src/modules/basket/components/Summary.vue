@@ -170,8 +170,9 @@
         </dd>
       </div>
 
-      <!-- trailing content (e.g. the promotions form) sits inside the summary's
-           own sections so it shares their spacing -->
+      <!-- the promotions form and any trailing content sit inside the summary's
+           own sections so they share their spacing -->
+      <BasketPromotions v-if="props.showPromotions" />
       <slot />
     </div>
 
