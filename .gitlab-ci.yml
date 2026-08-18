@@ -109,7 +109,7 @@ dependencies:
       - packages/ui
       - docs/published-docs
   script:
-    - apk --no-cache add git openssh-client
+    - apk --no-cache add git openssh-client bash
     - |
       mkdir ~/.ssh || true
 
