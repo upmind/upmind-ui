@@ -265,7 +265,7 @@
             :key="element.scope"
             :class="styles.listSurface.rowListField"
           >
-            <strong>{{ t(element.i18n) }}</strong>
+            <strong>{{ i18n.translate(element.i18n, element.i18n) }}</strong>
             <CellDispatcher :element="element" :row="row" />
           </span>
         </div>
@@ -375,10 +375,11 @@
  */
 
 import { vAutoAnimate } from "@formkit/auto-animate";
-import { toDataPath } from "@jsonforms/core";
+import { enumToEnumOptionMapper, toDataPath } from "@jsonforms/core";
 import { getCoreRowModel, useVueTable } from "@tanstack/vue-table";
 import { computed, onUnmounted, ref, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
+import { useFormI18n } from "@upmind-automation/client-vue";
 import { SortDirection } from "@upmind-automation/headless";
 import {
   Button,
@@ -485,6 +486,11 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+
+// Declaration-sourced keys resolve through the ENGINE's translator — the same
+// one the mounted filter bar uses — consumed as a plain library function. This
+// surface's own copy keys stay on `t()`.
+const i18n = useFormI18n();
 
 /** How many placeholders stand in for the rows that have not landed yet. */
 const SKELETON_ROWS = 5;
@@ -659,7 +665,7 @@ const pickerColumns = computed<ColumnOption[]>(() =>
     ? []
     : map(declaredColumns.value, element => ({
         value: columnKey(element),
-        label: t(element.i18n),
+        label: i18n.value.translate(element.i18n, element.i18n),
         isVisible: includes(visibleKeys.value, columnKey(element))
       }))
 );
@@ -680,15 +686,15 @@ const sortOptions = computed<DeclaredSortField[]>(
 
 /**
  * The toolbar control's options — the SAME list a header writes from, so
- * ordering has one source of truth in both views (`P1-R9`/`G3`). A field the
- * schema does not title reads as its own wire name, which is the untitled
- * column saying so rather than the option going missing.
+ * ordering has one source of truth in both views (`P1-R9`/`G3`). The label is
+ * the module's sort-uischema `i18n` PREFIX resolved as `<i18n>.<field>`; core's
+ * own mapper composes the key and degrades a missing one to the field's wire
+ * name, so an untranslated column says so rather than going missing.
  */
 const sortFields = computed<SortField[]>(() =>
-  map(sortOptions.value, option => ({
-    value: option.field,
-    label: option.i18n ? t(option.i18n) : option.field
-  }))
+  map(sortOptions.value, option =>
+    enumToEnumOptionMapper(option.field, i18n.value.translate, option.i18n)
+  )
 );
 
 /**
@@ -714,7 +720,7 @@ function columnId(element: DeclaredCell): string {
 const columns = computed<ColumnDef<ListRow>[]>(() =>
   map(columnElements.value, element => ({
     id: columnId(element),
-    header: t(element.i18n),
+    header: i18n.value.translate(element.i18n, element.i18n),
     accessorFn: (row: ListRow) => resolveScope(row, element.scope),
     enableSorting: !!sortField(element)
   }))
@@ -955,7 +961,7 @@ function rowActionItems(row: ListRow): ActionSlotItem[] {
     const control = rowControl(action, row);
     return {
       name: action.name,
-      label: t(action.i18n),
+      label: i18n.value.translate(action.i18n, action.i18n),
       icon: action.icon,
       color: action.color,
       variant: action.variant,
@@ -999,10 +1005,13 @@ function pressRowAction(action: ScenarioAction, row: ListRow): Promise<void> {
     return Promise.resolve();
   }
 
+  const success = get(action, ["feedback", "success"], "");
+  const failure = get(action, ["feedback", "failure"], "");
+
   return feedback
     .fire(rowControl(action, row), () => props.actions[action.name](row.id), {
-      success: t(get(action, ["feedback", "success"], "")),
-      failure: t(get(action, ["feedback", "failure"], ""))
+      success: i18n.value.translate(success, success),
+      failure: i18n.value.translate(failure, failure)
     })
     .then(noop);
 }
@@ -1067,7 +1076,7 @@ const collectionActionItems = computed<ActionSlotItem[]>(() =>
     ),
     action => ({
       name: action.name,
-      label: t(action.i18n),
+      label: i18n.value.translate(action.i18n, action.i18n),
       icon: action.icon,
       color: action.color,
       variant: action.variant,
@@ -1085,10 +1094,13 @@ function pressCollectionAction(action: ScenarioAction): Promise<void> {
     return Promise.resolve();
   }
 
+  const success = get(action, ["feedback", "success"], "");
+  const failure = get(action, ["feedback", "failure"], "");
+
   return feedback
     .fire(action.name, () => props.actions[action.name](), {
-      success: t(get(action, ["feedback", "success"], "")),
-      failure: t(get(action, ["feedback", "failure"], ""))
+      success: i18n.value.translate(success, success),
+      failure: i18n.value.translate(failure, failure)
     })
     .then(noop);
 }

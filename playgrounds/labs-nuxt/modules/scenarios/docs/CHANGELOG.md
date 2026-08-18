@@ -16,13 +16,14 @@ All notable changes to the `scenarios` module are documented here. Format follow
 - **A read-only overlay a row's own action can open**, showing the record through the same declared-cell renderers as the table/card. A module naming no read composable shows the clicked row's own data with nothing fetched; one naming a single-read composable alongside its collection gets the full record instead, fetched fresh and keyed by the row's own identity. The overlay's own action bar excludes the control that opened it while carrying every other row action — an edit handoff among them — unchanged.
 - **A sanitized-HTML cell renderer**, for a field the API returns as markup (a message body, a note) — drawn through the product's existing sanitizer, never escaped and never rendered raw.
 - **A declared width share for a table column** — a quarter, a third, or half the row — for a table that needs two fluid text columns sized unequally, instead of splitting the remainder evenly.
+- **Every declaration-sourced string on a page's runtime surfaces — column headers, card and detail labels, badge labels, sort options, and action feedback — now translates reactively, in place.** A locale switch re-labels a mounted table, card, or detail view immediately, with no remount and no loss of scroll position, selection, or focus.
 
 ### Changed
 
 - **A control can open a read-only overlay instead of calling an action or a handoff.** This is a third possibility alongside a live call and a handoff, not a replacement for either.
 
 - **The declaration contract is now genuinely minimal.** A declaration states only what nothing else already owns: which composable(s) it boots, its handoffs, its identity field, whether it persists request state, which module's scenarios it plays, and its presentation. Everything else that used to have a home in the declaration now has exactly one home, in the composable or its schemas, instead of two:
-  - Sort options are read from the composable's own query schema (its sort enum and field titles), never declared beside it.
+  - Sort options are read from the composable's own query schema (its sort enum); a sort option's own label comes from that composable's own sort uischema (an `i18n` prefix), never declared beside it.
   - The editor's form is the mutate composable's own input schema and uischema; a declaration names the composable, not its fields.
   - The offerable actors are read from the composable's own exported scope matrix; a declaration carries no copy of it.
   - A boolean's filled/outline treatment is a renderer choice on the element itself, not a separate marker channel.

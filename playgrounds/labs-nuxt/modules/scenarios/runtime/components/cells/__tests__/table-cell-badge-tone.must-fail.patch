@@ -21,4 +21,4 @@ diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/Ta
 +    variant="minimal"
      :color="badge.color"
      :icon="badge.icon"
-     :label="t(badge.i18n)"
+     :label="i18n.translate(badge.i18n, badge.i18n)"

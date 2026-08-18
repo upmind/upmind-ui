@@ -27,6 +27,7 @@ import {
   recordedRejection,
   unverifiedRow
 } from "../../../../testing/recorded-emails";
+import { rawKeys } from "../../../../testing/rendered";
 import { clearToasts, mountToaster } from "../../../../testing/toaster";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import {
@@ -196,6 +197,7 @@ describe("@AC3 action feedback — every sentence is real copy", () => {
     });
 
     await fire(wrapper, 1, "verify");
+    await settle(wrapper);
     await fire(wrapper, 1, "setDefault");
 
     const reported = await toaster.reported();
@@ -277,5 +279,20 @@ describe("@AC3 a refusal marks the RECORD it happened to (E12)", () => {
 
     expect(wrapper.findAll('[role="alert"]')).toHaveLength(0);
     expect(wrapper.findAll("li")).toHaveLength(rows.length);
+  });
+});
+
+describe("@AC4 a fired action reports in the client's own language", () => {
+  it("reads as copy, never as the key the declaration named", async () => {
+    const toaster = mountToaster();
+    const wrapper = mountList({
+      verify: vi.fn().mockResolvedValue({ status: "ok" })
+    });
+
+    await fire(wrapper, 1, "verify");
+
+    const reported = await toaster.reported();
+    expect(rawKeys(reported)).toEqual([]);
+    expect(reported).toContain(confirm.email_verification_sent);
   });
 });

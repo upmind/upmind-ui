@@ -28,8 +28,8 @@ import action from "@upmind-automation/i18n/core/action-en.json";
 import confirm from "@upmind-automation/i18n/core/confirm-en.json";
 import errorCatalogue from "@upmind-automation/i18n/core/error-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
+import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
 import { Sonner } from "@upmind-automation/upmind-ui";
-import labsEn from "../../../../../app/assets/locales/en/labs.json";
 import layoutSource from "../../../../../app/layouts/default.vue?raw";
 import {
   API_MESSAGE,

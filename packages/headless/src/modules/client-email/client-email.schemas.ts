@@ -3,15 +3,19 @@ import { SortDirection } from "../query/query.types";
 import { PAGINATION } from "../query/query.utils";
 import { DEFAULT_SORT } from "./client-email.types";
 import type { QuerySchema } from "./client-email.types";
-import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
+import type {
+  ControlElement,
+  JsonSchema7,
+  UISchemaElement
+} from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/client-email.schemas
  * @description The module's schema family: the per-email FORM pair
- * (`useSchema`/`useUischema`), the collection's QUERY schema pair
- * (`useQuerySchema`/`useQueryUischema`) and the per-action INPUT schemas
- * (`useActionInputSchemas`). Every schema is a self-contained JSON literal, so
- * any of them lifts straight into ajv or a test.
+ * (`useSchema`/`useUischema`), the collection's QUERY schema with its two
+ * presentations (`useQuerySchema`/`useQueryUischema`/`useSortUischema`) and the
+ * per-action INPUT schemas (`useActionInputSchemas`). Every schema is a
+ * self-contained JSON literal, so any of them lifts straight into ajv or a test.
  *
  * WARNING: Do not import directly from another module. The barrel exports no
  * schema — a form rendered from a schema the machine has not adopted validates
@@ -73,16 +77,11 @@ export const useUischema = (): UISchemaElement => {
 
 /**
  * Per-action INPUT schemas for the collection — the map `runGate` enumerates to
- * decide which actions are "input-taking" (ADR-027 Am.6): an action with an
- * entry takes input; one absent from the map does not, and absence is the whole
- * meaning of "not input-taking". Every entry is a real object JSON Schema so the
- * harness's `isRealJsonSchema` guard accepts it — which is why an id-only action
- * declares an object rather than a bare `{type:"string"}`. Reached only through
- * `useClientEmails().useInternals().actionSchemas`; `runGate` is its sole
- * consumer.
- *
- * `ensure` takes an `EmailModel`, so its input schema IS the per-email form
- * schema. `remove`/`setDefault`/`verify` take an id.
+ * decide which actions are "input-taking" (ADR-027 Am.6): absence from the map
+ * is the whole meaning of "not input-taking". Every entry is a real object JSON
+ * Schema so the harness's `isRealJsonSchema` guard accepts it — which is why an
+ * id-only action declares an object rather than a bare `{type:"string"}`.
+ * Reached only through `useClientEmails().useInternals().actionSchemas`.
  */
 export function useActionInputSchemas(): Record<string, JsonSchema7> {
   return {
@@ -196,11 +195,8 @@ export function useQuerySchema(): QuerySchema {
           additionalProperties: false,
           required: ["field", "dir"],
           properties: {
-            // `oneOf` const/title, not a bare enum: the sort control's option
-            // labels are the schema's own titles (`R6-28`), and a bare enum can
-            // carry none — which is what left `created_at` and `default`
-            // rendering as wire names. The columns are the REAL ones the API
-            // orders on, the status composite never among them (`R6-6`/`R6-6b`).
+            // The REAL columns the API orders on, the status composite never
+            // among them (`R6-6`/`R6-6b`).
             field: {
               enum: ["default", "email", "verified", "bounced", "created_at"]
             },
@@ -223,8 +219,7 @@ export function useQuerySchema(): QuerySchema {
 }
 
 /**
- * The module's DEFAULT filter-bar presentation — ONE uischema over the one
- * query schema.
+ * The module's DEFAULT filter-bar presentation over the one query schema.
  *
  * Every element is a plain `Control` scoping the operator LEAF, so the leaf's
  * own write IS the wire shape and JSON Forms' standard Control pipeline resolves
@@ -235,8 +230,8 @@ export function useQuerySchema(): QuerySchema {
  *
  * Every element carries an `i18n` key. It is also the enum-option key PREFIX,
  * so a tri-state's positions resolve as `<key>.true` / `.false` / `.null`. The
- * `sort` and `pagination` branches carry no element: a branch no element draws
- * is still validated and still translated.
+ * `sort` branch's presentation is its own uischema (`useSortUischema`), and
+ * `pagination` draws no element — a branch no element draws is still validated.
  *
  * A filter is optional by definition, so every element suppresses the field's
  * optional indicator; `noLabel` marks the ones the catalogue names by their
@@ -270,4 +265,21 @@ export function useQueryUischema(): UISchemaElement {
       }
     ]
   } as UISchemaElement;
+}
+
+/**
+ * The collection's ORDERING presentation — one element over the query schema's
+ * `sort` branch, the fifth unmounted uischema beside table, card, detail and
+ * actions. Its `i18n` is also the option-key PREFIX: a field resolves as
+ * `<i18n>.<field>` (`form.email_sort.created_at`), the same tri-state prefix
+ * mechanism the filter controls use. The schema stays a bare enum — wire-pure,
+ * and the prefix mapper handles bare enums natively. i18n keys never live in
+ * the schema.
+ */
+export function useSortUischema(): ControlElement {
+  return {
+    type: "Control",
+    scope: "#/properties/sort",
+    i18n: "form.email_sort"
+  };
 }

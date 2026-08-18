@@ -30,3 +30,10 @@ export const receivedEmailId = recorded.id;
 
 /** The recorded message body: real sent HTML, never a hand-written sample. */
 export const receivedEmailBody = recorded.data?.body ?? "";
+
+const page = (await recordedBodies["client-email-history"][
+  "get-self-email-history-case-default"
+]()) as { response: { body: { data: WireReceivedEmail[] } } };
+
+/** The recorded collection page — the rows the history list is drawn from. */
+export const receivedEmailRows = page.response.body.data;

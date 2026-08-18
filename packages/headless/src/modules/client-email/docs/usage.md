@@ -155,7 +155,7 @@ Removes this scoped instance from the registry.
 | `getOne(id)` | `(id, data?) => Email \| undefined`                        | Finds a single address by id                             |
 | `pagination` | `ComputedRef<PaginationInfo>`                              | `{ limit, total, page, pages, from, to }`                |
 | `query`      | `ComputedRef<QueryModel>`                                  | This scope's active request state — read-only            |
-| `schemas`    | `{ query: { schema, uischema } }`                          | The query schema + uischema to render a filter bar       |
+| `schemas`    | `{ query: { schema, uischema, sortUischema } }`             | The query schema, filter-bar uischema, and a separate uischema for the sort control's own option labels |
 
 > **🧪 For Testers:** `data` is always an array — before the first read completes, and when the read errors. Read `useMeta().isLoading` / `hasError` rather than inferring state from an empty list. `error` is **state you read**, never an event: a failed mutation lands here and stays until the next one supersedes it. `query` is read-only — write it through `useActions().filterBy()` / `.sortBy()`, never by mutating the object it returns. Both `query` and `schemas` travel as plain JSON — no function crosses either.
 
@@ -396,7 +396,7 @@ Notes for the paste:
 
 ## The collection's query schema — paste-ready
 
-The collection serves a **second** schema/uischema pair — not a form for one record, but the rules for the whole list's request state: which columns can be filtered, which operators they accept, and how the list is sorted and paged. It travels through **`useClientEmails().useContext().schemas.query`** (`.schema` / `.uischema`), never the barrel, for the same reason as the form pair above: setting the model through `useActions().filterBy()` / `.sortBy()` is what actually re-queries the server.
+The collection serves a **second** schema/uischema pair — not a form for one record, but the rules for the whole list's request state: which columns can be filtered, which operators they accept, and how the list is sorted and paged. It travels through **`useClientEmails().useContext().schemas.query`** (`.schema` / `.uischema` / `.sortUischema`), never the barrel, for the same reason as the form pair above: setting the model through `useActions().filterBy()` / `.sortBy()` is what actually re-queries the server. `.uischema` draws the filter bar; a separate `.sortUischema` carries only the sort control's own option labels — see [Sort UI schema](#sort-ui-schema) below.
 
 Paste the two blocks below into [jsonforms.io](https://jsonforms.io/examples/basic) to see the schema's shape. **jsonforms.io will not render the filter bar correctly** — the bar is a `FilterBar` layout, and each element inside it is a plain `Control` whose drawn control is picked by a tester the demo does not register; it will render nothing for these elements. Paste them there anyway to see the **schema** — required for the shape, wrong for the shape's rendering.
 
@@ -532,10 +532,22 @@ A tri-state boolean declares `null` as a real `enum` member rather than an absen
 Notes for the paste:
 
 - **No `query` property.** `GET /clients/{id}/emails` does not honour a bare search term, so the search box binds `filters.email.like` instead — pasting a `{ "query": "…" }` instance against this schema fails validation, by design.
-- **`sort` and `pagination` carry no element** — this uischema only draws the filter bar. Sort is driven by clicking a table column header; pagination by the pager. Both branches still validate and still translate to the wire.
+- **`sort` and `pagination` carry no element here** — this uischema only draws the filter bar. Pagination is driven by the pager; sort has its own uischema, below.
 - **See it fully wired** — the switches, the full-width search, the sortable columns, and the live outbound request — in the `labs-nuxt` playground: see this module's [README](./README.md#playground) for the exact command and url.
 
-> **🧪 For Testers:** The barrel exposes no `useQuerySchema` / `useQueryUischema` either. `useContext().schemas.query` is the only supported way to obtain this pair, and it is plain JSON — nothing on it is a function.
+### Sort UI schema
+
+```json
+{
+  "type": "Control",
+  "scope": "#/properties/sort",
+  "i18n": "form.email_sort"
+}
+```
+
+A single `Control` over the query schema's own `sort` branch, published separately from the filter bar's `FilterBar` above as `useContext().schemas.query.sortUischema`. The `sort` branch's `field` member stays a bare `enum` with no `title` and no `i18n` of its own; `i18n` on this element is the option-key PREFIX a sort control resolves as `<i18n>.<field>` (`form.email_sort.created_at`), the same prefix mechanism the filter controls above use.
+
+> **🧪 For Testers:** The barrel exposes no `useQuerySchema` / `useQueryUischema` / `useSortUischema` either. `useContext().schemas.query` is the only supported way to obtain this trio, and it is plain JSON — nothing on it is a function.
 
 ---
 

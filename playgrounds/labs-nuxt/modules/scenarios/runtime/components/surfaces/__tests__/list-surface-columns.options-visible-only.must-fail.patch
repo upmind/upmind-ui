@@ -17,12 +17,12 @@ switches a hidden column back on fails with it.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-@@ -620,7 +620,7 @@
+@@ -663,7 +663,7 @@
  const pickerColumns = computed<ColumnOption[]>(() =>
    isCardView.value
      ? []
 -    : map(declaredColumns.value, element => ({
 +    : map(columnElements.value, element => ({
          value: columnKey(element),
-         label: t(element.i18n),
+         label: i18n.value.translate(element.i18n, element.i18n),
          isVisible: includes(visibleKeys.value, columnKey(element))

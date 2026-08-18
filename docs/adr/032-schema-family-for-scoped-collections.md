@@ -193,6 +193,8 @@ The renderer port freezes the table's filter model as a flat record, while the f
 
 ### 10. Sort validates the frozen model; it does not propose a new one
 
+> **Amended 2026-08-18 — narrowed below.** *Sort needs no uischema element of its own* no longer holds: a bespoke sort control's option labels need a uischema `i18n` channel. See the amendment appended after *Gap resolutions*.
+
 The **`sort` branch** (decision 13; formerly a standalone sort schema) constrains the already-frozen `{ field, dir: "asc" | "desc" }[]` model: `enum` on `field`, `enum` on `dir`, `uniqueItems`, and draft-07 tuple `items` for a forced primary entry. **Sort needs no uischema element of its own** — its UI is the table's own headers, so the one query uischema may omit it entirely. Multi-key sort needs nothing added to the query layer (`query.types.ts:118-120`).
 
 ### 11. A machine governs the cell stack, and never imports the routing engine
@@ -266,6 +268,10 @@ Nine rulings from an operator walkthrough of the legacy listing layer (`vue-app/
 - **S-D16 — forced-but-overridable is `default` without `const`.** `default` alone means pre-applied and the user may change it; `const` plus a materialising `default` means locked. Two keywords, two intents, no new mechanism. Legacy's overridable-forced behaviour was a **merge-order accident**, not an intent: scoping parameters (`where` + `constFilters`) are assigned into the parameter object first and the user's active filters are assigned second, over the top (`vue-app/src/composables/listing/useListing.ts:222-259`). Shipping true `const` where a tab means "locked" is therefore a deliberate, stateable behaviour change.
 - **S-D17 — relative-date values need nothing new.** `-1_months` / `-24_hours` are strings on a string leaf, resolved server-side (legacy ships them as plain option values under an `AFTER_RELATIVE` operator, `ticketsProvider.ts:482-506`). Constrain them by `pattern` for the general grammar, an `enum` where a screen offers a fixed set, or a registered `format` if it is worth naming once and reusing. A column may legitimately accept either an ISO date or a relative token.
 - **S-D18 — actor-conditional options are a schemas ARM.** Different enum *members* per actor — not different columns — resolve through the existing actor-arm factory: a `.schemas.{actor}.ts` overriding only what that scope changes, exactly as services and actions already do (`auth.services.ts:152-162`'s `scopedServices` switch). Legacy's receipt is the same "Show" dropdown, whose option list is `$userCan("list_tickets") ? […4] : […2]` (`ticketsProvider.ts:442-476`). Per variance-law clause 3 the arm exists **only** where a scope genuinely overrides something, and per clause 4 the module factory receives an already-resolved concrete actor (`scope.builder.ts:272-277` → `resolveSelfActor`, `scope.utils.ts:54`), so there is never an `if (actor === STAFF)` branch inside a schema file.
+
+## Amendment — the sort branch gains a uischema of its own (2026-08-18)
+
+Decision 10's sentence *"Sort needs no uischema element of its own — its UI is the table's own headers, so the one query uischema may omit it entirely"* is superseded: a bespoke sort control is offered in both views, its option labels need a translation channel, and the engine's own channel for that is a uischema `i18n` key, so each module's schema family now exposes `useSortUischema()` — one `Control` over `#/properties/sort` carrying `i18n`, published on the list context beside the query schema and its filter uischema (`schemas.query.sortUischema`); the `i18n` key doubles as the option-key prefix (`<i18n>.<field>`, the same prefix mechanism decision 13's filter controls use via `@jsonforms/core`'s `enumToEnumOptionMapper`) — everything else in decision 10 stands verbatim: the `sort` branch still validates the already-frozen `{ field, dir }[]` model with `enum` on `field` and `dir` and adds nothing to the query layer, the schema itself carries no `i18n` key and no title for a sort member (the bare `enum` stays deliberate and wire-pure), and decision 2 (schema / uischema / model as three separate artefacts) is what makes a second uischema over the one query schema lawful rather than a duplicate.
 
 ---
 
@@ -368,3 +374,5 @@ Recorded here as needing amendment; amending ADR-027 is not part of this record.
 ### Implementation status
 
 **Not built.** This record fixes the shape so it can be built once; it certifies no delivered capability. The receipts above are all of existing code — the seam, the serialiser, the shipped precedents and the two blocking defects. The schema shapes, the translators and the registry contract are decided and unwritten.
+
+**Exception: decision 10's sort uischema is built.** The 2026-08-18 amendment's `useSortUischema()` mechanism ships on `client-email` (`client-email.schemas.ts`) and `client-email-history` (`client-email-history.schemas.ts`), published on each module's own list context (`sortUischema`) beside the query schema. The rest of this record's "not built" status is otherwise unchanged.

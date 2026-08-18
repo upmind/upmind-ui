@@ -1,7 +1,8 @@
 import { computed } from "vue";
 import {
   useQuerySchema,
-  useQueryUischema
+  useQueryUischema,
+  useSortUischema
 } from "./client-email-history.schemas";
 import { mapToHeadlessError, useCollection } from "../../utils";
 import { isArray } from "lodash-es";
@@ -77,7 +78,11 @@ export function createClientReceivedEmailsContext(
      * `useContext()`.
      */
     schemas: {
-      query: { schema: useQuerySchema(), uischema: useQueryUischema() }
+      query: {
+        schema: useQuerySchema(),
+        uischema: useQueryUischema(),
+        sortUischema: useSortUischema()
+      }
     }
 
     // The arm merges in HERE, last.

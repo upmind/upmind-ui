@@ -23,8 +23,8 @@ import type {
 // -----------------------------------------------------------------------------
 
 /**
- * One field the query schema declares ORDERABLE, under the title the schema
- * gives it. Both halves are the schema's: the collection's whole ordering
+ * One field the query schema declares ORDERABLE, carrying the module's sort-label
+ * channel. The vocabulary is the schema's: the collection's whole ordering
  * vocabulary is its own `sort` enum and no declaration restates it (`R6-28`).
  *
  * @graphify-citation `graphify-out/graph.json` (2026-08-12) — no sort-option
@@ -34,7 +34,12 @@ import type {
  */
 export type DeclaredSortField = {
   field: string;
-  /** The schema's own title for that field, where it declares one — an i18n key. */
+  /**
+   * The module's sort-uischema `i18n` key PREFIX — the SAME value for every
+   * field of a module, never a per-field title. The option key is
+   * `<i18n>.<field>`, composed at render time by `@jsonforms/core`'s own
+   * `enumToEnumOptionMapper`.
+   */
   i18n?: string;
 };
 
@@ -68,7 +73,11 @@ export type TableChannelCell = {
         sort?: TableModel["sort"];
       };
     };
-    schemas: { query: { schema: unknown } };
+    /**
+     * `sortUischema` is optional: a module declaring none leaves every option
+     * falling back to its wire name rather than going missing.
+     */
+    schemas: { query: { schema: unknown; sortUischema?: unknown } };
     pagination: { value: Partial<PaginationInfo> };
   };
   useActions(): {

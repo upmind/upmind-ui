@@ -13,12 +13,12 @@ enum, field for field and in its order.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useTableChannel.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useTableChannel.ts
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useTableChannel.ts
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useTableChannel.ts
-@@ -66,7 +66,7 @@
-   const titled: unknown[] = get(field, "oneOf") ?? [];
- 
+@@ -79,7 +79,7 @@
+   const i18n = get(sortUischema, "i18n") as string | undefined;
+
    return map(
 -    get(field, "enum") ?? map(titled, "const"),
 +    keys(get(schema, ["properties", "filters", "properties"])),
-     (name: string): DeclaredSortField => ({
-       field: name,
-       i18n:
+     (name: string): DeclaredSortField => ({ field: name, i18n })
+   );
+ }

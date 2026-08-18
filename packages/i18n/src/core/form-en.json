@@ -185,6 +185,17 @@
     "false": "Unverified",
     "null": "All"
   },
+  "email_sort": {
+    "default": "Default",
+    "email": "Email address",
+    "verified": "Verified",
+    "bounced": "Bounced",
+    "created_at": "Date added"
+  },
+  "sent_email_sort": {
+    "created_at": "Date sent",
+    "subject": "Subject"
+  },
   "product_trial": {
     "description": null,
     "label": null,

@@ -2,14 +2,19 @@
 import { PAGINATION } from "../query/query.utils";
 import { SENT_EMAIL_DEFAULT_SORT } from "./client-email-history.types";
 import type { SentEmailQuerySchema } from "./client-email-history.types";
-import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
+import type {
+  ControlElement,
+  JsonSchema7,
+  UISchemaElement
+} from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email-history/client-email-history.schemas
  * @description The collection's QUERY schema — its whole request state
- * (filters · sort · pagination) as ONE Draft-07 schema over one model. A
- * SELF-CONTAINED JSON literal, so it can be lifted straight into ajv or a test
- * and run standalone.
+ * (filters · sort · pagination) as ONE Draft-07 schema over one model — with its
+ * two presentations (`useQueryUischema` / `useSortUischema`). A SELF-CONTAINED
+ * JSON literal, so it can be lifted straight into ajv or a test and run
+ * standalone.
  *
  * WARNING: Do not import directly from another module — the barrel exports no
  * schema.
@@ -112,10 +117,11 @@ export function useQuerySchema(): SentEmailQuerySchema {
  * description and the enum-option labels; `options.format` names which control
  * the tester scorecard picks. Each element's `i18n` key is also the enum-option
  * PREFIX, so a tri-state's positions resolve as `<key>.true` / `.false` /
- * `.null`. The `sort` and `pagination` branches carry no element — a branch no
- * element draws is still validated and translated. `error_id` (the "failed"
- * column) is declared and settable through `setCriteria`, but not drawn here:
- * it is a string `neq`, not a boolean the tri-state controls render.
+ * `.null`. The `sort` branch's presentation is its own uischema
+ * (`useSortUischema`), and `pagination` draws no element — a branch no element
+ * draws is still validated. `error_id` (the "failed" column) is declared and
+ * settable through `setCriteria`, but not drawn here: it is a string `neq`, not
+ * a boolean the tri-state controls render.
  */
 export function useQueryUischema(): UISchemaElement {
   return {
@@ -141,4 +147,22 @@ export function useQueryUischema(): UISchemaElement {
       }
     ]
   } as UISchemaElement;
+}
+
+/**
+ * The collection's ORDERING presentation — one element over the query schema's
+ * `sort` branch, beside the filter-bar uischema. Its `i18n` is also the
+ * option-key PREFIX: a field resolves as `<i18n>.<field>`
+ * (`form.sent_email_sort.created_at`), the same tri-state prefix mechanism the
+ * filter controls use. The prefix is this module's OWN, not a shared
+ * `form.sort`: `created_at` is "Date sent" here and "Date added" for an address.
+ * The schema stays a bare enum — wire-pure, and the prefix mapper handles bare
+ * enums natively. i18n keys never live in the schema.
+ */
+export function useSortUischema(): ControlElement {
+  return {
+    type: "Control",
+    scope: "#/properties/sort",
+    i18n: "form.sent_email_sort"
+  };
 }

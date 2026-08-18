@@ -28,7 +28,7 @@ import { createI18n } from "vue-i18n";
 import { internalKits } from "@upmind-automation/headless/testing";
 import action from "@upmind-automation/i18n/core/action-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
-import labsEn from "../../../../../../app/assets/locales/en/labs.json";
+import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
 import { defaultRow, unverifiedRow } from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { CONTROL_TEST_VALUE } from "../../__tests__/control-test-values";

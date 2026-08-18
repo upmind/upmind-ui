@@ -13,24 +13,27 @@
  *   4. the chip's name is the catalogue's (`FORCE_PRESET_LABELS` → `labs.*`), so
  *      the picker and the chip can never call one state two things (`S21`).
  *
- * `ESC6` is RULED (route (a), 2026-08-12), so the controller offers its presets
- * unconditionally. The offer is read off the picker's own item list rather than
- * its rendered text: the ui `Select` keeps its options in a portal that opens on
- * interaction, so text alone would report an empty offer as a passing one.
+ * `ESC6` is RULED (route (a), 2026-08-12), so the picker offers its presets
+ * unconditionally. That picker is `ScenarioMenu`: `R7-11` moved the forced states
+ * into the bar's ONE dropdown, so claim 4's block reads them there instead of off
+ * the never-built `ForceController` (repointed under the operator ruling of
+ * 2026-08-18, re-do `W2`). They are read where the menu portals them, once it is
+ * open — a closed menu renders none, so a query alone would report an empty offer
+ * as a passing one.
  */
 
 import { mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { h } from "vue";
 import { createI18n } from "vue-i18n";
 import action from "@upmind-automation/i18n/core/action-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
-import { Badge, Select } from "@upmind-automation/upmind-ui";
-import labsEn from "../../../../../app/assets/locales/en/labs.json";
+import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
+import { Badge } from "@upmind-automation/upmind-ui";
 import { FORCE_URL_PRESETS } from "../../composables/useForcedState.types";
-import ForceController from "../ForceController.vue";
 import { FORCE_PRESET_LABELS } from "../ForcedCanvas.types";
 import ForcedCanvas from "../ForcedCanvas.vue";
+import ScenarioMenu from "../ScenarioMenu.vue";
 import {
   filter,
   flatMap,
@@ -40,10 +43,10 @@ import {
   map,
   reject,
   some,
-  split
+  split,
+  trim
 } from "lodash-es";
 import type { ForcePreset } from "../../composables/useForcedState.types";
-import type { SelectProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
@@ -96,6 +99,12 @@ const named = (preset: ForcePreset) =>
   translate("labs.forced_preset", {
     preset: translate(FORCE_PRESET_LABELS[preset])
   });
+
+// The menu portals its entries to the body, so a stale one would be read as this
+// test's offer.
+afterEach(() => {
+  document.body.innerHTML = "";
+});
 
 // -----------------------------------------------------------------------------
 
@@ -179,30 +188,47 @@ describe("T3.13 clearing it removes both (AC8.4)", () => {
 });
 
 describe("T3.13 the picker offers only what can actually be served (ESC6)", () => {
-  const offered = () =>
-    mount(ForceController, {
+  const open = async () => {
+    const wrapper = mount(ScenarioMenu, {
       attachTo: document.body,
+      props: { tracks: [] },
       global: {
         plugins: [createI18n({ legacy: false, locale: "en", messages })]
       }
-    })
-      .findComponent(Select)
-      .props("items") as SelectProps["items"];
+    });
 
-  it("offers exactly the presets a url can carry, in their own order", () => {
-    expect(map(offered(), "value")).toEqual([...FORCE_URL_PRESETS]);
+    await wrapper.find('[data-test-key="scenario-menu"]').trigger("click");
+    await new Promise(resolve => setTimeout(resolve, 20));
+  };
+
+  const offered = () => [
+    ...document.querySelectorAll<HTMLElement>(
+      '[data-test-key="force-preset-option"]'
+    )
+  ];
+
+  const handles = () => map(offered(), option => option.dataset.testValue);
+
+  const labels = () => map(offered(), option => trim(option.textContent ?? ""));
+
+  it("offers exactly the presets a url can carry, in their own order", async () => {
+    await open();
+
+    expect(handles()).toEqual([...FORCE_URL_PRESETS]);
   });
 
-  it("names each of them from the catalogue both halves read (S21)", () => {
-    expect(map(offered(), "label")).toEqual(
+  it("names each of them from the catalogue both halves read (S21)", async () => {
+    await open();
+
+    expect(labels()).toEqual(
       map(FORCE_URL_PRESETS, preset => translate(FORCE_PRESET_LABELS[preset]))
     );
   });
 
-  it("never offers replay — the player arms that one, no url carries it", () => {
-    expect(map(offered(), "value")).not.toContain("replay");
-    expect(map(offered(), "label")).not.toContain(
-      translate(FORCE_PRESET_LABELS.replay)
-    );
+  it("never offers replay — the player arms that one, no url carries it", async () => {
+    await open();
+
+    expect(handles()).not.toContain("replay");
+    expect(labels()).not.toContain(translate(FORCE_PRESET_LABELS.replay));
   });
 });

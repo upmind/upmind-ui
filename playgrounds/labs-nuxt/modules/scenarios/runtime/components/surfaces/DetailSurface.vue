@@ -14,7 +14,9 @@
         :key="element.scope"
         :class="styles.detailSurface.field"
       >
-        <span :class="styles.detailSurface.label">{{ t(element.i18n) }}</span>
+        <span :class="styles.detailSurface.label">{{
+          i18n.translate(element.i18n, element.i18n)
+        }}</span>
         <CellDispatcher
           v-if="isPopulated(element)"
           :element="element"
@@ -27,21 +29,6 @@
       </div>
     </template>
     <ContextPanel v-else :context="model" />
-
-    <span :class="styles.detailSurface.label">Debug — record received</span>
-    <pre
-      style="
-        max-height: 40vh;
-        overflow: auto;
-        font-size: 10px;
-        white-space: pre-wrap;
-        word-break: break-all;
-        background: #111;
-        color: #0f0;
-        padding: 8px;
-      "
-      >{{ debugModel }}</pre
-    >
   </div>
 </template>
 
@@ -59,7 +46,7 @@
  */
 
 import { computed } from "vue";
-import { useI18n } from "vue-i18n";
+import { useFormI18n } from "@upmind-automation/client-vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import { resolveScope } from "../../scenario.utils";
 import { CellDispatcher } from "../cells";
@@ -75,7 +62,7 @@ import type { TableCell } from "../../scenario.types";
 
 const props = defineProps<DetailSurfaceProps>();
 
-const { t } = useI18n();
+const i18n = useFormI18n();
 
 const state = computed(() => resolveModuleState(props.snapshot.meta));
 const detail = computed(() => resolveModuleDetail(props.snapshot.context));
@@ -104,18 +91,6 @@ function isPopulated(element: TableCell): boolean {
 
   return true;
 }
-
-const debugModel = computed(() => {
-  try {
-    return JSON.stringify(
-      { __keys: Object.keys(model.value), record: model.value },
-      null,
-      2
-    );
-  } catch (error) {
-    return String(error);
-  }
-});
 
 const meta = computed(() => ({ state: state.value }));
 const styles = useStyles(["detailSurface"], meta, config);

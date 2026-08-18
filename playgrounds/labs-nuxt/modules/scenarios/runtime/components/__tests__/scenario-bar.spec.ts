@@ -29,14 +29,13 @@ import { computed, nextTick, ref } from "vue";
 import { createI18n } from "vue-i18n";
 import action from "@upmind-automation/i18n/core/action-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
+import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
 import { DropdownMenu } from "@upmind-automation/upmind-ui";
-import labsEn from "../../../../../app/assets/locales/en/labs.json";
 import {
   SCENARIO_PLAYER_STATUS,
   SCENE_UNPLAYED
 } from "../../composables/useScenarioPlayer.types";
 import ScenarioBar from "../ScenarioBar.vue";
-import { TRACK_LIST_VISIBLE_LIMIT } from "../TrackList.types";
 import {
   filter,
   flatMap,
@@ -234,7 +233,14 @@ describe("T4.5 ONE bar in two states (G9 unified · AC2.2)", () => {
   });
 });
 
-describe("T4.5 eleven tracks stay reachable without crowding the bar (AC2.4 · G1)", () => {
+/**
+ * QUARANTINED (operator ruling 2026-08-18, re-do `W2`): these claims measure the
+ * capped track chips `R7-10` killed, so `TrackList.types` has no modern module to
+ * repoint to and its limit is declared absent rather than invented.
+ */
+declare const TRACK_LIST_VISIBLE_LIMIT: number;
+
+describe.skip("T4.5 eleven tracks stay reachable without crowding the bar (AC2.4 · G1)", () => {
   it("shows Live plus at most what the bar's own width admits, never all eleven", () => {
     const bar = mountBar();
 

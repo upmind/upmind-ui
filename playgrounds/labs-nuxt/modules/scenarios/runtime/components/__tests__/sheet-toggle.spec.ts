@@ -34,7 +34,7 @@ import {
 import { createI18n } from "vue-i18n";
 import action from "@upmind-automation/i18n/core/action-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
-import labsEn from "../../../../../app/assets/locales/en/labs.json";
+import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
 import { filter, fromPairs, get, includes, map, nth, size } from "lodash-es";
 
 // -----------------------------------------------------------------------------

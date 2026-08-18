@@ -6,7 +6,7 @@
     variant="muted"
     :color="badge.color"
     :icon="badge.icon"
-    :label="t(badge.i18n)"
+    :label="i18n.translate(badge.i18n, badge.i18n)"
   />
 </template>
 
@@ -21,7 +21,7 @@
 
 import { uiTypeIs } from "@jsonforms/core";
 import { computed } from "vue";
-import { useI18n } from "vue-i18n";
+import { useFormI18n } from "@upmind-automation/client-vue";
 import { Badge } from "@upmind-automation/upmind-ui";
 import { resolveScope } from "../../scenario.utils";
 import { filter, get } from "lodash-es";
@@ -31,7 +31,7 @@ import type { TableBadge, TableCellBadges } from "../../scenario.types";
 
 const props = defineProps<TableCellProps<TableCellBadges>>();
 
-const { t } = useI18n();
+const i18n = useFormI18n();
 
 const badges = computed<TableBadge[]>(() => {
   const value = resolveScope(props.row, props.element.scope);

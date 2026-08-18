@@ -59,3 +59,7 @@ Declaring a field's cell type as the HTML renderer draws its value through the s
 ## 15. A column's declared width share is presentation-only
 
 Reserving a fixed share of the row for one column moves no data: it has no effect on a column that already measures to its own content, and the card ignores it entirely — a card lays out the same field differently and was never going to honour a table-only share.
+
+## 16. A runtime surface re-labels on a locale change without remounting — do not "fix" this into a remount
+
+A table, card, or detail view reads its translator reactively, so a locale switch re-labels every declaration-sourced string in place — the rows, scroll position, selection, and focus all survive. This is a deliberate divergence from the form-editor's own `:key="locale"` remount (which exists there only because that engine bakes translated strings into `options` at mount time). Adding a similar remount key to a runtime surface would only reintroduce the state loss this design avoids.
