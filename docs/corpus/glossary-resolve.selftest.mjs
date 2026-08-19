@@ -50,6 +50,17 @@ test('"basket" resolves only to its own headless referents, never the cart ADR (
   assert.doesNotMatch(basketOut, /adr:007-headless-architecture/);
 });
 
+test("resolving a term whose referent lives in a module surfaces that module's docs/ set (pull face, operator ruling 2026-08-19)", () => {
+  const out = run(['basket']);
+  assert.match(out, /module docs \(read before changing the module\):/);
+  assert.match(out, /basket: packages\/headless\/src\/modules\/basket\/docs\/foundation\.md/);
+});
+
+test('a term whose referents are all cross-cutting (an ADR) adds no module-docs section', () => {
+  const out = run(['cart']);
+  assert.doesNotMatch(out, /module docs \(read before changing the module\)/);
+});
+
 test('an unknown term or alias exits 1 and names the miss', () => {
   const err = runExpectFailure(['not-a-real-term-xyz']);
   assert.equal(err.status, 1);

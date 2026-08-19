@@ -35,6 +35,29 @@ test('a tool call touching a glossary referent path emits a guarded additionalCo
   assert.match(parsed.hookSpecificOutput.additionalContext, /packages\/headless\/src\/modules\/basket\/useBasket\.ts/);
 });
 
+test("a tool call touching a module file surfaces that module's own docs/ set (push, path-triggered)", () => {
+  const stdin = JSON.stringify({
+    tool_name: 'Read',
+    tool_input: { file_path: 'packages/headless/src/modules/client-email-history/useClientReceivedEmail.ts' },
+  });
+  const result = invoke(stdin);
+  assert.equal(result.status, 0);
+  const ctx = JSON.parse(result.stdout).hookSpecificOutput.additionalContext;
+  assert.match(ctx, /module "client-email-history" has its own docs/);
+  assert.match(ctx, /packages\/headless\/src\/modules\/client-email-history\/docs\//);
+  assert.match(ctx, /README\.md/);
+});
+
+test('a file under a module with no docs/ folder emits no module-docs pointer (exit 0, empty stdout)', () => {
+  const stdin = JSON.stringify({
+    tool_name: 'Read',
+    tool_input: { file_path: 'packages/headless/src/modules/__nonexistent_zzz__/foo.ts' },
+  });
+  const result = invoke(stdin);
+  assert.equal(result.status, 0);
+  assert.equal(result.stdout, '');
+});
+
 test('a tool call touching nothing glossary-relevant degrades silently (exit 0, empty stdout)', () => {
   const stdin = JSON.stringify({ tool_name: 'Read', tool_input: { file_path: 'README.md' } });
   const result = invoke(stdin);

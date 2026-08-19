@@ -18,13 +18,13 @@ Architecture](../../../../../../docs/adr/001-scope-based-composables.md).
 
 ## The pieces
 
-| File | Role |
-| --- | --- |
-| [scope.builder.ts](../scope.builder.ts) | `createScopedComposable` — the fluent builder factory and all builder result types. |
-| [scope.utils.ts](../scope.utils.ts) | `generateScopeKey`, `resolveSelfActor`. |
-| [scope.registry.ts](../scope.registry.ts) | `ensure`, `remove`, `clearAll`, `size`, `getRegistry` — the singleton map + effect-scope lifecycle. |
-| [scope.devtools.ts](../scope.devtools.ts) | `setupScopeDevtools`, `refreshDevtools` — Vue DevTools inspector. |
-| [scope.types.ts](../scope.types.ts) | `ScopeActorTypes`, `ScopeConfig`, `ScopeKey`, `ActorContextMatrix`, and the conditional types that gate the builder. |
+| File                                      | Role                                                                                                                 |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| [scope.builder.ts](../scope.builder.ts)   | `createScopedComposable` — the fluent builder factory and all builder result types.                                  |
+| [scope.utils.ts](../scope.utils.ts)       | `generateScopeKey`, `resolveSelfActor`.                                                                              |
+| [scope.registry.ts](../scope.registry.ts) | `ensure`, `remove`, `clearAll`, `size`, `getRegistry` — the singleton map + effect-scope lifecycle.                  |
+| [scope.devtools.ts](../scope.devtools.ts) | `setupScopeDevtools`, `refreshDevtools` — Vue DevTools inspector.                                                    |
+| [scope.types.ts](../scope.types.ts)       | `ScopeActorTypes`, `ScopeConfig`, `ScopeKey`, `ActorContextMatrix`, and the conditional types that gate the builder. |
 
 ## Call-to-instance flow
 
@@ -61,7 +61,7 @@ sequenceDiagram
 
 The critical detail: the builder is a **`Proxy`**. Chain methods (`as` / `for` /
 `inBrand` / `fresh`) mutate the pending `config` and reset the memoised `instance` to
-`null`. *Any other* property access falls through to `finalize()`, which resolves the
+`null`. _Any other_ property access falls through to `finalize()`, which resolves the
 actor, computes the key, and calls `ensure`. So the instance is created **lazily, on
 first read**, not when you call `.as(...)`. See
 [scope.builder.ts](../scope.builder.ts) — `finalize` and the `Proxy` `get`/`has` traps.
@@ -115,7 +115,7 @@ clearAll()   → every entry.scope.stop() ; registry.clear() ; refreshDevtools()
 ```
 
 `effectScope(true)` is **detached** on purpose: watchers and computeds the factory
-creates are *not* collected when the component that triggered the first call unmounts.
+creates are _not_ collected when the component that triggered the first call unmounts.
 That is what lets one instance be shared across many components and survive remounts —
 and it is why teardown is explicit (`remove` / a module's `destroy()` action). See
 [scope.registry.ts](../scope.registry.ts).
@@ -126,11 +126,11 @@ The builder's return **type** — not its runtime code — decides which chain m
 actor is offered. [scope.types.ts](../scope.types.ts) derives, from the module's
 `ActorContextMatrix`:
 
-| Actor | Offered | Condition |
-| --- | --- | --- |
-| `staff` | `.inBrand()` always; `.for()` too | `.for()` only if matrix maps staff → a context type |
-| `client` / `guest` | `.for()` | only if matrix maps that actor → a context type |
-| `self` | neither | resolves at runtime; no compile-time context is knowable |
+| Actor              | Offered                           | Condition                                                |
+| ------------------ | --------------------------------- | -------------------------------------------------------- |
+| `staff`            | `.inBrand()` always; `.for()` too | `.for()` only if matrix maps staff → a context type      |
+| `client` / `guest` | `.for()`                          | only if matrix maps that actor → a context type          |
+| `self`             | neither                           | resolves at runtime; no compile-time context is knowable |
 
 The matrix is passed to `createScopedComposable` **twice**: as the type parameter
 `TMatrix` (which drives the table above) and as an `as const` value, which is stored on
@@ -141,13 +141,13 @@ and value cannot drift because the value is type-checked against `TMatrix`.
 
 ### Scope depends on
 
-| Dependency | Usage |
-| --- | --- |
-| `vue` | `effectScope` / `EffectScope` — the detached reactive scope per instance. |
-| `@vue/devtools-api` | `setupDevToolsPlugin` — the DevTools inspector. |
-| `lodash-es` | `map` / `keys` / `isObject` in the DevTools tree/state builders. |
-| `@upmind-automation/types` | `AccessRoleTypes` — the source of the concrete actor values. |
-| `../session-store` | `useSessionStore` — read the active actor to resolve `self`. |
+| Dependency                 | Usage                                                                     |
+| -------------------------- | ------------------------------------------------------------------------- |
+| `vue`                      | `effectScope` / `EffectScope` — the detached reactive scope per instance. |
+| `@vue/devtools-api`        | `setupDevToolsPlugin` — the DevTools inspector.                           |
+| `lodash-es`                | `map` / `keys` / `isObject` in the DevTools tree/state builders.          |
+| `@upmind-automation/types` | `AccessRoleTypes` — the source of the concrete actor values.              |
+| `../session-store`         | `useSessionStore` — read the active actor to resolve `self`.              |
 
 ### Modules that depend on scope
 
@@ -160,8 +160,8 @@ directly to derive keys for nested instances.
 
 ## Integration points
 
-| System | Integration |
-| --- | --- |
-| **Vue reactivity** | Each instance owns a detached `effectScope`; stopping it disposes the instance's effects. |
-| **Vue DevTools** | `setupScopeDevtools(app, getRegistry())` at app bootstrap registers the "Scope Registry" inspector; `refreshDevtools()` fires on every registry mutation. |
-| **Session** | `resolveSelfActor` reads `useSessionStore().useContext().activeActor` to turn `self` into a concrete actor. |
+| System             | Integration                                                                                                                                               |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Vue reactivity** | Each instance owns a detached `effectScope`; stopping it disposes the instance's effects.                                                                 |
+| **Vue DevTools**   | `setupScopeDevtools(app, getRegistry())` at app bootstrap registers the "Scope Registry" inspector; `refreshDevtools()` fires on every registry mutation. |
+| **Session**        | `resolveSelfActor` reads `useSessionStore().useContext().activeActor` to turn `self` into a concrete actor.                                               |

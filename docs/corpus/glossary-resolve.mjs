@@ -31,7 +31,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { classifyReferents, norm, parseCorpusArgs } from './glossary-lib.mjs';
+import { classifyReferents, moduleDocsFor, norm, parseCorpusArgs } from './glossary-lib.mjs';
 
 const SELF = 'glossary-resolve';
 
@@ -88,6 +88,28 @@ function renderTerm(slug, term, index) {
   lines.push('referents:');
   const { resolved, unresolved } = classifyReferents(term.referents, index);
   for (const { ref, entry } of resolved) lines.push(`  - ${ref.type} ${ref.id} -> ${entry.path}`);
+
+  // Also surface the module docs/ set for any referent that lives in a module —
+  // the pull face of the same push the inject hook does (operator ruling
+  // 2026-08-19). Derived live via the shared moduleDocsFor, deduped across
+  // referents that share a module. A term whose referents are all cross-cutting
+  // (an ADR, a non-module symbol) adds nothing here — by design.
+  const seen = new Set();
+  const docs = [];
+  for (const { entry } of resolved) {
+    const info = moduleDocsFor(entry.path, ROOT);
+    if (info && !seen.has(info.relDir)) {
+      seen.add(info.relDir);
+      docs.push(info);
+    }
+  }
+  if (docs.length) {
+    lines.push('');
+    lines.push('module docs (read before changing the module):');
+    for (const info of docs) {
+      lines.push(`  - ${info.moduleName}: ${info.files.map((f) => `${info.relDir}/${f}`).join(', ')}`);
+    }
+  }
   return { text: lines.join('\n'), unresolved };
 }
 

@@ -11,13 +11,13 @@ read from the returned instance.
 
 ```typescript
 // Actor only
-useAuth().as("self");    // actor resolved from the active session
+useAuth().as("self"); // actor resolved from the active session
 useAuth().as("guest");
 useAuth().as("client");
 useAuth().as("staff");
 
 // Actor + context (only when the module's matrix allows it)
-useAuth().as("staff").for("client", clientId);   // staff acting on a client
+useAuth().as("staff").for("client", clientId); // staff acting on a client
 useClientEmails().as("staff").for("client", id); // staff's view of a client's emails
 
 // Staff brand filter (staff only; order-independent with .for)
@@ -45,12 +45,12 @@ const { resolve } = account.useActions();
 
 ### Which methods are available?
 
-| Actor | `.for(type, id)` | `.inBrand(id)` | `.fresh()` |
-| --- | :---: | :---: | :---: |
-| `self` | — | — | ✅ |
-| `guest` | if matrix defines a guest context | — | ✅ |
-| `client` | if matrix defines a client context | — | ✅ |
-| `staff` | if matrix defines a staff context | ✅ (always) | ✅ |
+| Actor    |          `.for(type, id)`          | `.inBrand(id)` | `.fresh()` |
+| -------- | :--------------------------------: | :------------: | :--------: |
+| `self`   |                 —                  |       —        |     ✅     |
+| `guest`  | if matrix defines a guest context  |       —        |     ✅     |
+| `client` | if matrix defines a client context |       —        |     ✅     |
+| `staff`  | if matrix defines a staff context  |  ✅ (always)   |     ✅     |
 
 Availability is enforced at **compile time**. Calling `.for('ticket', id)` when the
 matrix does not map that actor to `ticket` is a type error, not a runtime failure.
@@ -96,9 +96,9 @@ function createAuthForScope(config: ScopeConfig, scopeKey: ScopeKey): UseAuth {
 }
 
 const useAuth = createScopedComposable<UseAuth, AuthScopeMatrix>(
-  "auth",             // module name — the first key segment
+  "auth", // module name — the first key segment
   createAuthForScope, // (config, key) => instance
-  AUTH_SCOPE_MATRIX   // matrix value, carried onto useAuth.scopeMatrix
+  AUTH_SCOPE_MATRIX // matrix value, carried onto useAuth.scopeMatrix
 );
 ```
 
@@ -123,7 +123,13 @@ Low-level singleton map. Most code never touches this directly — the builder c
 `ensure` for you — but managers that derive nested instances do.
 
 ```typescript
-import { ensure, remove, clearAll, size, getRegistry } from "../scope/scope.registry";
+import {
+  ensure,
+  remove,
+  clearAll,
+  size,
+  getRegistry
+} from "../scope/scope.registry";
 
 // Get-or-create the singleton for a key. Runs `factory` in a detached effect scope.
 const instance = ensure(key, () => buildThing());
@@ -141,26 +147,29 @@ size();
 getRegistry();
 ```
 
-| Function | Signature | Notes |
-| --- | --- | --- |
-| `ensure` | `<T>(key, factory) => T` | Singleton per key; builds in `effectScope(true)`. |
-| `remove` | `(key) => void` | Stops the scope, deletes the entry, refreshes DevTools. |
-| `clearAll` | `() => void` | Stops every scope; primarily for tests. |
-| `size` | `() => number` | Registry entry count. |
-| `getRegistry` | `() => Map<ScopeKey, RegistryEntry>` | For the DevTools plugin. |
+| Function      | Signature                            | Notes                                                   |
+| ------------- | ------------------------------------ | ------------------------------------------------------- |
+| `ensure`      | `<T>(key, factory) => T`             | Singleton per key; builds in `effectScope(true)`.       |
+| `remove`      | `(key) => void`                      | Stops the scope, deletes the entry, refreshes DevTools. |
+| `clearAll`    | `() => void`                         | Stops every scope; primarily for tests.                 |
+| `size`        | `() => number`                       | Registry entry count.                                   |
+| `getRegistry` | `() => Map<ScopeKey, RegistryEntry>` | For the DevTools plugin.                                |
 
 ## Key generation
 
 ```typescript
 import { generateScopeKey, resolveSelfActor } from "../scope/scope.utils";
 
-generateScopeKey("basket", { actor: "staff", context: { type: "client", id: "123" } });
+generateScopeKey("basket", {
+  actor: "staff",
+  context: { type: "client", id: "123" }
+});
 // → "basket:staff:client:123"
 
 generateScopeKey("client-email", { actor: "client", newSession: true });
 // → "client-email:client:fresh:1"  (counter increments each call)
 
-resolveSelfActor("self");   // → the active session actor, or "guest"
+resolveSelfActor("self"); // → the active session actor, or "guest"
 resolveSelfActor("client"); // → "client" (pass-through)
 ```
 

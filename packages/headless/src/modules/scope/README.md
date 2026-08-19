@@ -14,7 +14,7 @@ detached scopes. This is the mechanism defined by
 [ADR-001: Scope-Based Composable Architecture](../../../../../docs/adr/001-scope-based-composables.md).
 
 > This is infrastructure. If you are documenting or building a **domain** module
-> (basket, client, invoices…), you *consume* this module — you do not copy its shape.
+> (basket, client, invoices…), you _consume_ this module — you do not copy its shape.
 
 ## What Is This? (ELI5)
 
@@ -49,35 +49,35 @@ import { createScopedComposable } from "../scope/scope.builder";
 import { AUTH_SCOPE_MATRIX } from "./auth.types";
 
 export const useAuth = createScopedComposable<UseAuth, AuthScopeMatrix>(
-  "auth",              // module name — first segment of every scope key
-  createAuthForScope,  // (config, scopeKey) => the composable instance
-  AUTH_SCOPE_MATRIX    // the actor→context matrix, carried onto the composable
+  "auth", // module name — first segment of every scope key
+  createAuthForScope, // (config, scopeKey) => the composable instance
+  AUTH_SCOPE_MATRIX // the actor→context matrix, carried onto the composable
 );
 ```
 
 Call a scoped composable (the consumer side):
 
 ```typescript
-useAuth().as("self");                          // resolve actor from the session
-useAuth().as("client");                        // act as the logged-in client
+useAuth().as("self"); // resolve actor from the session
+useAuth().as("client"); // act as the logged-in client
 useAuth().as("staff").for("client", clientId); // staff acting on a client
-useAuth().as("staff").inBrand(brandId);        // staff scoped to one brand
-useClientEmailManager().as("self").fresh();    // a brand-new draft instance
+useAuth().as("staff").inBrand(brandId); // staff scoped to one brand
+useClientEmailManager().as("self").fresh(); // a brand-new draft instance
 ```
 
 See [Usage & API](./docs/usage.md) for the full builder surface.
 
 ## Features
 
-| Feature | Status | Notes |
-| --- | --- | --- |
-| Fluent actor-aware builder (`createScopedComposable`) | ✅ | `.as()` / `.for()` / `.inBrand()` / `.fresh()` |
-| Compile-time matrix enforcement | ✅ | matrix decides which chain methods each actor is offered |
-| Keyed singleton registry | ✅ | one instance per scope key; get-or-create via `ensure` |
-| Detached effect scopes | ✅ | factory watchers persist beyond component lifecycles |
-| `SELF` → concrete-actor resolution | ✅ | reads the active session actor |
-| `.fresh()` new-session isolation | ✅ | unique key per call; never served from cache |
-| Vue DevTools inspector | ✅ | "Scope Registry" panel via `setupScopeDevtools` |
+| Feature                                               | Status | Notes                                                    |
+| ----------------------------------------------------- | ------ | -------------------------------------------------------- |
+| Fluent actor-aware builder (`createScopedComposable`) | ✅     | `.as()` / `.for()` / `.inBrand()` / `.fresh()`           |
+| Compile-time matrix enforcement                       | ✅     | matrix decides which chain methods each actor is offered |
+| Keyed singleton registry                              | ✅     | one instance per scope key; get-or-create via `ensure`   |
+| Detached effect scopes                                | ✅     | factory watchers persist beyond component lifecycles     |
+| `SELF` → concrete-actor resolution                    | ✅     | reads the active session actor                           |
+| `.fresh()` new-session isolation                      | ✅     | unique key per call; never served from cache             |
+| Vue DevTools inspector                                | ✅     | "Scope Registry" panel via `setupScopeDevtools`          |
 
 ## Key Concepts
 
@@ -101,7 +101,7 @@ export const AUTH_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]: AuthContextTypes.CLIENT, // staff may .for('client', id)
   [ScopeActorTypes.CLIENT]: AuthContextTypes.CLIENT,
-  [ScopeActorTypes.GUEST]: null as never            // guest gets no .for()
+  [ScopeActorTypes.GUEST]: null as never // guest gets no .for()
 } as const;
 ```
 
@@ -121,13 +121,13 @@ watchers created there are not torn down when the calling component unmounts.
 
 ## Documentation
 
-| Doc | Audience | Content |
-| --- | --- | --- |
-| **This README** | Everyone | Overview, concepts, quick start |
-| [Foundation](./docs/foundation.md) | Portable / architects | Framework-neutral spec of the pattern |
-| [Usage](./docs/usage.md) | All devs | Builder API, matrix, registry, DevTools |
-| [Architecture](./docs/architecture.md) | Internal / contributors | How builder, registry, keys, resolution fit |
-| [Gotchas](./docs/gotchas.md) | All | Load-order, detached scopes, `.fresh()`, `SELF` |
+| Doc                                    | Audience                | Content                                         |
+| -------------------------------------- | ----------------------- | ----------------------------------------------- |
+| **This README**                        | Everyone                | Overview, concepts, quick start                 |
+| [Foundation](./docs/foundation.md)     | Portable / architects   | Framework-neutral spec of the pattern           |
+| [Usage](./docs/usage.md)               | All devs                | Builder API, matrix, registry, DevTools         |
+| [Architecture](./docs/architecture.md) | Internal / contributors | How builder, registry, keys, resolution fit     |
+| [Gotchas](./docs/gotchas.md)           | All                     | Load-order, detached scopes, `.fresh()`, `SELF` |
 
 ## Related
 

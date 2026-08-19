@@ -9,13 +9,13 @@
 
 Scope is the mechanism that lets one running page hold many independent instances of
 the same composable — many baskets, many clients, many editable records — while still
-guaranteeing that two requests for *the same* thing share *one* instance. It does this
+guaranteeing that two requests for _the same_ thing share _one_ instance. It does this
 with a **keyed singleton registry**: every call is reduced to a deterministic **scope
 key**, and the key indexes a global map of live instances. A first call for a key
 builds the instance; every later call for that key returns the cached one.
 
 Layered on top of the registry is a **fluent builder** that expresses two orthogonal
-facts about a call — *who* is acting (the **actor**) and *what* they act upon (the
+facts about a call — _who_ is acting (the **actor**) and _what_ they act upon (the
 **context**) — and folds them, plus an optional brand filter and an optional
 "force-new" flag, into the scope key. The builder also resolves the placeholder actor
 `self` to a concrete actor before the key is built, so a module instance is only ever
@@ -36,7 +36,7 @@ side effect of unmounting.
   `{ type: "client", id: "123" }`). A context is optional and is only meaningful for an
   actor the module's matrix permits.
 - **Matrix** — a per-module, compile-time map from each actor to the single context
-  *type* that actor may name (or "none"). The matrix is the contract that decides which
+  _type_ that actor may name (or "none"). The matrix is the contract that decides which
   builder methods each actor is offered and is carried on the composable as a value so a
   consumer can read which actors a module serves.
 - **Scope key** — the deterministic string fingerprint of a call
@@ -53,19 +53,19 @@ side effect of unmounting.
 The module exposes a small, function-shaped surface. There is no request/response
 lifecycle — every operation is synchronous and in-process.
 
-| # | Capability | Inputs | Outputs |
-| --- | --- | --- | --- |
-| 1 | **Wrap a factory as a scoped composable** | a module name, a factory `(config, key) → instance`, the actor→context matrix | a callable that returns a fluent builder |
-| 2 | **Name the acting actor** | an actor (`self` / `guest` / `client` / `staff`) | a builder narrowed to that actor's permitted next steps |
-| 3 | **Name the acted-upon context** | a context type (matrix-constrained) and an id | the finalised instance (or a builder still open to a brand filter) |
-| 4 | **Filter to a brand (staff)** | a brand id | the finalised instance (or a builder still open to a context) |
-| 5 | **Force a fresh instance / new session** | — | a finalised instance under a unique, uncacheable key |
-| 6 | **Resolve `self` to a concrete actor** | an actor that may be `self` | the current session's actor, or `guest` when none |
-| 7 | **Compute a scope key** | a module name and a resolved config | the deterministic key string |
-| 8 | **Get-or-create an instance for a key** | a key and a factory | the cached-or-new instance, built in a detached scope |
-| 9 | **Evict an instance** | a key | the entry removed and its effect scope stopped |
-| 10 | **Clear the whole registry** | — | every entry removed and every scope stopped (test/debug) |
-| 11 | **Expose the registry to DevTools** | the app handle and the registry | a "Scope Registry" inspector registered |
+| #   | Capability                                | Inputs                                                                        | Outputs                                                            |
+| --- | ----------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| 1   | **Wrap a factory as a scoped composable** | a module name, a factory `(config, key) → instance`, the actor→context matrix | a callable that returns a fluent builder                           |
+| 2   | **Name the acting actor**                 | an actor (`self` / `guest` / `client` / `staff`)                              | a builder narrowed to that actor's permitted next steps            |
+| 3   | **Name the acted-upon context**           | a context type (matrix-constrained) and an id                                 | the finalised instance (or a builder still open to a brand filter) |
+| 4   | **Filter to a brand (staff)**             | a brand id                                                                    | the finalised instance (or a builder still open to a context)      |
+| 5   | **Force a fresh instance / new session**  | —                                                                             | a finalised instance under a unique, uncacheable key               |
+| 6   | **Resolve `self` to a concrete actor**    | an actor that may be `self`                                                   | the current session's actor, or `guest` when none                  |
+| 7   | **Compute a scope key**                   | a module name and a resolved config                                           | the deterministic key string                                       |
+| 8   | **Get-or-create an instance for a key**   | a key and a factory                                                           | the cached-or-new instance, built in a detached scope              |
+| 9   | **Evict an instance**                     | a key                                                                         | the entry removed and its effect scope stopped                     |
+| 10  | **Clear the whole registry**              | —                                                                             | every entry removed and every scope stopped (test/debug)           |
+| 11  | **Expose the registry to DevTools**       | the app handle and the registry                                               | a "Scope Registry" inspector registered                            |
 
 ## Data shape
 
@@ -75,13 +75,15 @@ The mechanism is defined by a handful of value shapes, not by any wire payload.
 // Who acts, and (optionally) on what.
 type ScopeConfig = {
   actor: "self" | "guest" | "client" | "staff"; // resolved to a concrete actor pre-key
-  context?: { type: string; id: string };       // matrix-constrained
-  brandId?: string;                              // a filter, not a context
-  newSession?: boolean;                          // set by "force fresh"; spawns a new instance
+  context?: { type: string; id: string }; // matrix-constrained
+  brandId?: string; // a filter, not a context
+  newSession?: boolean; // set by "force fresh"; spawns a new instance
 };
 
 // The compile-time contract: each actor → the one context type it may name (or none).
-type ActorContextMatrix = Partial<Record<"self" | "guest" | "client" | "staff", string>>;
+type ActorContextMatrix = Partial<
+  Record<"self" | "guest" | "client" | "staff", string>
+>;
 
 // The deterministic fingerprint. Examples:
 //   "auth:client"
@@ -108,13 +110,13 @@ runtime, so no compile-time context is knowable).
 Every actor-aware composable in the headless package is built with this module. The
 fan-in is broad and grows with each new scoped module.
 
-| Dependant | How it uses scope |
-| --- | --- |
-| `auth` | Actor-aware login/registration; the canonical worked example. |
-| `account` | Actor-aware account standing. |
-| `client-address`, `client-company`, `client-phone`, `client-personal-details`, `client-custom-fields` | Per-record read/edit collections and managers; several also call the key generator directly for derived instances. |
-| `client-email`, `client-email-history` | Staff-acting-for-client email collections and drafts; heavy users of both acted-upon context and force-fresh instances. |
-| App bootstrap (playground/host) | Registers the DevTools inspector once at startup. |
+| Dependant                                                                                             | How it uses scope                                                                                                       |
+| ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `auth`                                                                                                | Actor-aware login/registration; the canonical worked example.                                                           |
+| `account`                                                                                             | Actor-aware account standing.                                                                                           |
+| `client-address`, `client-company`, `client-phone`, `client-personal-details`, `client-custom-fields` | Per-record read/edit collections and managers; several also call the key generator directly for derived instances.      |
+| `client-email`, `client-email-history`                                                                | Staff-acting-for-client email collections and drafts; heavy users of both acted-upon context and force-fresh instances. |
+| App bootstrap (playground/host)                                                                       | Registers the DevTools inspector once at startup.                                                                       |
 
 Scope depends, in turn, only on the platform's reactive-effect primitive, its DevTools
 API, a collection-utility library, the shared actor enum, and the session module (to

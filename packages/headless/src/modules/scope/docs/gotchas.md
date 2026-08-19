@@ -16,7 +16,9 @@ re-deciding who the actor is — the exact thing the architecture centralises.
 
 ```typescript
 // ❌ Wrong — a SELF branch inside a module factory or services file
-if (config.actor === ScopeActorTypes.SELF) { /* ... */ }
+if (config.actor === ScopeActorTypes.SELF) {
+  /* ... */
+}
 
 // ✅ Correct — you already have a concrete actor
 const actor = config.actor; // "guest" | "client" | "staff"
@@ -34,7 +36,7 @@ assert the factory receives `client`. Repeat with no session; assert it receives
 ## Factory watchers live in a detached scope — tear them down 🧪
 
 `ensure` runs your factory inside `effectScope(true)` — **detached**. Watchers and
-computeds you create there are *not* disposed when the component that first called the
+computeds you create there are _not_ disposed when the component that first called the
 composable unmounts. That is deliberate (it lets one instance be shared and survive
 remounts), but it means teardown is your job.
 
@@ -70,7 +72,7 @@ const b = useClientEmailManager().as("self").fresh(); // key ...:fresh:2  (a !==
 
 This exists so a **remounting** consumer cannot adopt a previous mount's fresh instance
 (which may already be authenticated / mid-edit) immediately before that mount destroys it. If
-you need to *reference the same* fresh instance across reads, capture it once and reuse
+you need to _reference the same_ fresh instance across reads, capture it once and reuse
 the reference — do not call `.fresh()` again.
 
 **Test scenario:** Call `.fresh()` twice; assert the two instances differ and both appear
@@ -132,7 +134,9 @@ the type parameter (`TMatrix`) and the third argument (the value carried onto
 per-actor `.for()` gating.
 
 ```typescript
-const MY_MATRIX = { /* ... */ } as const;                 // ✅ literal types preserved
+const MY_MATRIX = {
+  /* ... */
+} as const; // ✅ literal types preserved
 createScopedComposable<T, typeof MY_MATRIX>(name, f, MY_MATRIX); // type AND value
 ```
 
@@ -158,13 +162,13 @@ start armless.
 
 ## Edge Cases
 
-| Scenario | Expected Behaviour | Notes |
-| --- | --- | --- |
-| `.as('self')` with no session | Resolves to `guest` | `resolveSelfActor` falls back to `AccessRoleTypes.GUEST`. |
-| Same actor + context called twice | One shared instance | Same scope key → registry hit. |
-| `.as('staff').for('ticket', id)` when matrix has no `ticket` | Compile-time type error | Never reaches runtime. |
-| `.inBrand()` on a non-staff actor | Not offered (type error) | Brand filter is staff-only. |
-| `clearAll()` mid-session | All instances stopped and evicted | Test-only; will orphan any live consumers. |
+| Scenario                                                     | Expected Behaviour                | Notes                                                     |
+| ------------------------------------------------------------ | --------------------------------- | --------------------------------------------------------- |
+| `.as('self')` with no session                                | Resolves to `guest`               | `resolveSelfActor` falls back to `AccessRoleTypes.GUEST`. |
+| Same actor + context called twice                            | One shared instance               | Same scope key → registry hit.                            |
+| `.as('staff').for('ticket', id)` when matrix has no `ticket` | Compile-time type error           | Never reaches runtime.                                    |
+| `.inBrand()` on a non-staff actor                            | Not offered (type error)          | Brand filter is staff-only.                               |
+| `clearAll()` mid-session                                     | All instances stopped and evicted | Test-only; will orphan any live consumers.                |
 
 ---
 
