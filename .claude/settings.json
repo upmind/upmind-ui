@@ -26,7 +26,8 @@
       "mcp__plugin_playwright_playwright__browser_wait_for",
       "mcp__plugin_playwright_playwright__browser_take_screenshot",
       "Skill(artifact-design)",
-      "Skill(artifact-design:*)"
+      "Skill(artifact-design:*)",
+      "mcp__graphify__*"
     ]
   },
   "hooks": {
@@ -73,6 +74,11 @@
       }
     ]
   },
+  "enabledPlugins": {
+    "notion@claude-plugins-official": true,
+    "gitlab@claude-plugins-official": true,
+    "upmind-agent@upmind-agent": true
+  },
   "extraKnownMarketplaces": {
     "upmind-agent": {
       "source": {
@@ -81,10 +87,5 @@
       },
       "autoUpdate": true
     }
-  },
-  "enabledPlugins": {
-    "notion@claude-plugins-official": true,
-    "gitlab@claude-plugins-official": true,
-    "upmind-agent@upmind-agent": true
   }
 }
