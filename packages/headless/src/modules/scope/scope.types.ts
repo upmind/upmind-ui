@@ -1,3 +1,13 @@
+/**
+ * @graphify-citation `graphify query "withId single record id scope builder
+ * method"` against `graphify-out/graph.json` (2026-08-19, 20286 nodes) returns
+ * no `withId`, no `ScopeBuilderWithId`, and no single-record-id construct
+ * anywhere in the tree — the `.withId(id)` surface added below is new ground,
+ * not a duplicate of something the graph already exposes. Every other member
+ * here (`ScopeActor`, `ScopeContext`, `ScopeConfig`, `ActorContextMatrix`) is
+ * pre-existing and consumed unchanged. See `graphify-out/GRAPH_REPORT.md`.
+ */
+// -----------------------------------------------------------------------------
 import { AccessRoleTypes } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
@@ -76,6 +86,19 @@ export type ScopeConfig<TContextType extends string = string> = {
 
   /** Optional context the actor is operating upon. */
   context?: ScopeContext<TContextType>;
+
+  /**
+   * Optional id of the ONE record this instance reads. Set via the builder's
+   * `.withId()`.
+   *
+   * A leaf record is NOT a context: a context names an entity the ACTOR acts
+   * upon (`client`, `contract`, `invoice`), while this names the single record
+   * being read. Same id resolves to the same instance; a new id mints a new one.
+   *
+   * New member of the already-cited `ScopeConfig` — see this file's head
+   * `graphify-out/` citation.
+   */
+  id?: string;
 
   /** Optional brand filter (not a context). */
   brandId?: string;

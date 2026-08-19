@@ -1,6 +1,6 @@
 import { ensure } from "./scope.registry";
+import { ScopeActorTypes } from "./scope.types";
 import { generateScopeKey, resolveSelfActor } from "./scope.utils";
-import type { ScopeActorTypes } from "./scope.types";
 import type {
   ActorContextMatrix,
   ContextsForActor,
@@ -23,50 +23,69 @@ export type ScopedFactory<T, TContextType extends string = string> = (
 ) => T;
 
 /**
+ * The single-record `.withId(id)` step, offered at every builder position
+ * because the runtime proxy offers it at every position.
+ *
+ * `.for(type, id)` and `.withId(id)` are NOT interchangeable: a context names an
+ * entity the ACTOR acts upon and is constrained by the module's matrix, while an
+ * id names the ONE record this instance reads. Marking a leaf record as a
+ * synthesised context is what this step replaces — a leaf record was never an
+ * ADR-001 context type.
+ *
+ * @param id - The id of the single record being read
+ * @returns Finalized composable
+ */
+export type ScopeBuilderWithId<T> = {
+  withId: (id: string) => T;
+};
+
+/**
  * Builder after .for() has been called.
  * Can optionally chain with .inBrand() for explicit brand validation.
  */
-export type ScopeBuilderAfterFor<T> = T & {
-  /**
-   * Adds brand filter after context selection.
-   * Use this when you want explicit brand validation (BE will validate correlation).
-   *
-   * @param brandId - The brand ID to filter by
-   * @returns Finalized composable
-   */
-  inBrand: (brandId: string) => T;
+export type ScopeBuilderAfterFor<T> = T &
+  ScopeBuilderWithId<T> & {
+    /**
+     * Adds brand filter after context selection.
+     * Use this when you want explicit brand validation (BE will validate correlation).
+     *
+     * @param brandId - The brand ID to filter by
+     * @returns Finalized composable
+     */
+    inBrand: (brandId: string) => T;
 
-  /**
-   * Spawns a fresh instance that starts a new session instead of reusing an
-   * active one of this scope.
-   *
-   * @returns Finalized composable
-   */
-  fresh: () => T;
-};
+    /**
+     * Spawns a fresh instance that starts a new session instead of reusing an
+     * active one of this scope.
+     *
+     * @returns Finalized composable
+     */
+    fresh: () => T;
+  };
 
 /**
  * Builder after .inBrand() has been called for staff with contexts.
  * Can optionally chain with .for() to select a specific context.
  */
-export type ScopeBuilderAfterBrand<T, TContexts extends string> = T & {
-  /**
-   * Specifies the context entity being acted upon.
-   *
-   * @param type - The context type (constrained by matrix)
-   * @param id - The entity ID
-   * @returns Finalized composable
-   */
-  for: (type: TContexts, id: string) => T;
+export type ScopeBuilderAfterBrand<T, TContexts extends string> = T &
+  ScopeBuilderWithId<T> & {
+    /**
+     * Specifies the context entity being acted upon.
+     *
+     * @param type - The context type (constrained by matrix)
+     * @param id - The entity ID
+     * @returns Finalized composable
+     */
+    for: (type: TContexts, id: string) => T;
 
-  /**
-   * Spawns a fresh instance that starts a new session instead of reusing an
-   * active one of this scope.
-   *
-   * @returns Finalized composable
-   */
-  fresh: () => T;
-};
+    /**
+     * Spawns a fresh instance that starts a new session instead of reusing an
+     * active one of this scope.
+     *
+     * @returns Finalized composable
+     */
+    fresh: () => T;
+  };
 
 /**
  * Builder for staff when they have valid contexts in the matrix.
@@ -79,57 +98,59 @@ export type ScopeBuilderAfterBrand<T, TContexts extends string> = T & {
  * - `.as('staff').inBrand('x').for('client', '123')` - Specific client in brand
  * - `.as('staff').for('client', '123').inBrand('x')` - Same as above
  */
-export type ScopeBuilderStaffWithContexts<T, TContexts extends string> = T & {
-  /**
-   * Filters by brand.
-   * After calling, .for() remains available to select a specific context.
-   *
-   * @param brandId - The brand ID to filter by
-   * @returns Builder with .for() available
-   */
-  inBrand: (brandId: string) => ScopeBuilderAfterBrand<T, TContexts>;
+export type ScopeBuilderStaffWithContexts<T, TContexts extends string> = T &
+  ScopeBuilderWithId<T> & {
+    /**
+     * Filters by brand.
+     * After calling, .for() remains available to select a specific context.
+     *
+     * @param brandId - The brand ID to filter by
+     * @returns Builder with .for() available
+     */
+    inBrand: (brandId: string) => ScopeBuilderAfterBrand<T, TContexts>;
 
-  /**
-   * Specifies the context entity being acted upon.
-   * In org mode, BE will infer the brand from the context.
-   * After calling, .inBrand() remains available for explicit brand validation.
-   *
-   * @param type - The context type (constrained by matrix)
-   * @param id - The entity ID
-   * @returns Builder with .inBrand() available
-   */
-  for: (type: TContexts, id: string) => ScopeBuilderAfterFor<T>;
+    /**
+     * Specifies the context entity being acted upon.
+     * In org mode, BE will infer the brand from the context.
+     * After calling, .inBrand() remains available for explicit brand validation.
+     *
+     * @param type - The context type (constrained by matrix)
+     * @param id - The entity ID
+     * @returns Builder with .inBrand() available
+     */
+    for: (type: TContexts, id: string) => ScopeBuilderAfterFor<T>;
 
-  /**
-   * Spawns a fresh instance that starts a new session instead of reusing an
-   * active one of this scope.
-   *
-   * @returns Finalized composable
-   */
-  fresh: () => T;
-};
+    /**
+     * Spawns a fresh instance that starts a new session instead of reusing an
+     * active one of this scope.
+     *
+     * @returns Finalized composable
+     */
+    fresh: () => T;
+  };
 
 /**
  * Builder for staff when they have NO valid contexts in the matrix.
  * Only .inBrand() is available.
  */
-export type ScopeBuilderStaffNoContexts<T> = T & {
-  /**
-   * Filters by brand.
-   *
-   * @param brandId - The brand ID to filter by
-   * @returns Finalized composable
-   */
-  inBrand: (brandId: string) => T;
+export type ScopeBuilderStaffNoContexts<T> = T &
+  ScopeBuilderWithId<T> & {
+    /**
+     * Filters by brand.
+     *
+     * @param brandId - The brand ID to filter by
+     * @returns Finalized composable
+     */
+    inBrand: (brandId: string) => T;
 
-  /**
-   * Spawns a fresh instance that starts a new session instead of reusing an
-   * active one of this scope.
-   *
-   * @returns Finalized composable
-   */
-  fresh: () => T;
-};
+    /**
+     * Spawns a fresh instance that starts a new session instead of reusing an
+     * active one of this scope.
+     *
+     * @returns Finalized composable
+     */
+    fresh: () => T;
+  };
 
 /**
  * Result type for staff based on whether they have contexts in matrix.
@@ -155,24 +176,25 @@ export type ScopeBuilderStaffResult<T, TMatrix extends ActorContextMatrix> = [
  * - `.as('client').for('client', '456')` - Client acting on behalf of child client
  * - `.as('guest').for('lead', '789')` - Guest with lead context (if matrix allows)
  */
-export type ScopeBuilderActorWithContexts<T, TContexts extends string> = T & {
-  /**
-   * Specifies the context entity being acted upon.
-   *
-   * @param type - The context type (constrained by matrix)
-   * @param id - The entity ID
-   * @returns Finalized composable
-   */
-  for: (type: TContexts, id: string) => T;
+export type ScopeBuilderActorWithContexts<T, TContexts extends string> = T &
+  ScopeBuilderWithId<T> & {
+    /**
+     * Specifies the context entity being acted upon.
+     *
+     * @param type - The context type (constrained by matrix)
+     * @param id - The entity ID
+     * @returns Finalized composable
+     */
+    for: (type: TContexts, id: string) => T;
 
-  /**
-   * Spawns a fresh instance that starts a new session instead of reusing an
-   * active one of this scope.
-   *
-   * @returns Finalized composable
-   */
-  fresh: () => T;
-};
+    /**
+     * Spawns a fresh instance that starts a new session instead of reusing an
+     * active one of this scope.
+     *
+     * @returns Finalized composable
+     */
+    fresh: () => T;
+  };
 
 /**
  * Result type for any actor based on actor type.
@@ -180,6 +202,9 @@ export type ScopeBuilderActorWithContexts<T, TContexts extends string> = T & {
  *
  * - STAFF: Gets .inBrand() and optionally .for() (based on matrix)
  * - All others: Gets .for() only when matrix defines contexts for that actor
+ *
+ * Every branch also gets .withId() — a single-record read marks its record
+ * regardless of actor, and the matrix constrains contexts, not record ids.
  */
 export type ScopeBuilderResult<
   T,
@@ -188,8 +213,25 @@ export type ScopeBuilderResult<
 > = TActor extends ScopeActorTypes.STAFF
   ? ScopeBuilderStaffResult<T, TMatrix>
   : [ContextsForActor<TMatrix, TActor>] extends [never]
-    ? T
+    ? T & ScopeBuilderWithId<T>
     : ScopeBuilderActorWithContexts<T, ContextsForActor<TMatrix, TActor>>;
+
+/**
+ * Builder after .withId() has been called at the ROOT, before any actor is
+ * named. The instance is already readable — a missing actor resolves to SELF —
+ * and .as() stays available for a caller that names one explicitly.
+ */
+export type ScopeBuilderAfterId<T, TMatrix extends ActorContextMatrix> = T & {
+  /**
+   * Specifies the actor performing the action.
+   *
+   * @param actor - The actor type (use ScopeActorTypes enum)
+   * @returns Composable instance for that actor
+   */
+  as<TActor extends ScopeActorTypes>(
+    actor: TActor
+  ): ScopeBuilderResult<T, TMatrix, TActor>;
+};
 
 /**
  * Builder interface with fluent chaining.
@@ -198,6 +240,9 @@ export type ScopeBuilderResult<
  * - GUEST: Returns T, or T & { for } if matrix defines contexts for guest
  * - CLIENT: Returns T, or T & { for } if matrix defines contexts for client
  * - STAFF: Returns T with .inBrand(), and optionally .for() if matrix defines contexts
+ *
+ * `.as()` is optional: an unnamed actor resolves to SELF, so a single-record
+ * read may open straight onto `.withId(id)`.
  */
 export type ScopeBuilder<T, TMatrix extends ActorContextMatrix> = {
   /**
@@ -210,6 +255,15 @@ export type ScopeBuilder<T, TMatrix extends ActorContextMatrix> = {
   as<TActor extends ScopeActorTypes>(
     actor: TActor
   ): ScopeBuilderResult<T, TMatrix, TActor>;
+
+  /**
+   * Marks the ONE record this instance reads, with SELF as the actor unless a
+   * later `.as()` names another.
+   *
+   * @param id - The id of the single record being read
+   * @returns Composable instance, with .as() still available
+   */
+  withId(id: string): ScopeBuilderAfterId<T, TMatrix>;
 };
 
 /**
@@ -277,6 +331,10 @@ export type ScopedComposable<
  * useBasket().as('staff').inBrand('x').for('client', '1') // ✓ Client in specific brand
  * useBasket().as('staff').for('client', '1').inBrand('x') // ✓ Same as above
  * useBasket().as('staff').for('ticket', '123')            // ✗ Type error - not in matrix
+ *
+ * // Single-record read patterns (no matrix needed — an id is not a context):
+ * useBasket().withId('123')                               // ✓ SELF reads record 123
+ * useBasket().as('staff').withId('123')                   // ✓ Staff reads record 123
  * ```
  */
 export function createScopedComposable<
@@ -300,7 +358,12 @@ export function createScopedComposable<
 
     const finalize = (): T => {
       if (!instance) {
-        const resolvedActor = resolveSelfActor(config.actor);
+        // A caller that names no actor means SELF: the actor is who is logged
+        // in, which is what `.withId(id)` alone reads a record as. Without the
+        // fallback an unnamed actor keys the instance under `undefined`.
+        const resolvedActor = resolveSelfActor(
+          config.actor ?? ScopeActorTypes.SELF
+        );
         const resolvedConfig: ScopeConfig = { ...config, actor: resolvedActor };
         const key = generateScopeKey(name, resolvedConfig);
         instance = ensure(key, () => factory(resolvedConfig, key));
@@ -316,6 +379,11 @@ export function createScopedComposable<
       },
       for(type: string, id: string) {
         config.context = { type, id } as ScopeContext;
+        instance = null;
+        return proxy;
+      },
+      withId(id: string) {
+        config.id = id;
         instance = null;
         return proxy;
       },

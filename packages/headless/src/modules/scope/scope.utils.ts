@@ -19,6 +19,10 @@ import type { ScopeActor, ScopeConfig, ScopeKey } from "./scope.types";
  * @example
  * generateScopeKey("basket", { actor: "staff", context: { type: "client", id: "123" } })
  * // Returns: "basket:staff:client:123"
+ *
+ * @example
+ * generateScopeKey("client-email-history", { actor: "client", id: "abc" })
+ * // Returns: "client-email-history:client:id:abc"
  */
 let freshInstanceCount = 0;
 
@@ -27,6 +31,15 @@ export function generateScopeKey(name: string, config: ScopeConfig): ScopeKey {
 
   if (config.context) {
     parts.push(config.context.type, config.context.id);
+  }
+
+  // The record id is what makes a single-record read keyed PER RECORD: without
+  // it, every id served the one cached instance and the second row opened would
+  // show the first row's email. Prefixed so it can never collide with a context
+  // segment, and appended only when set, so a composable that never calls
+  // `.withId()` keeps the key it had.
+  if (config.id) {
+    parts.push(`id:${config.id}`);
   }
 
   if (config.brandId) {
