@@ -1,21 +1,22 @@
-Negative control for the `Filter` renderer's DISPATCH.
+Negative control for filter-renderer.test.ts.
 
-Points the Verified element at the generic `Control` type, so the filter bar
-draws JSONForms' default control instead of the dispatching Filter renderer.
-Any assertion that reads the tri-state's own positions goes red; one that only
-asserts the form rendered stays green.
+Stops the range control merging its write onto the column's current value, so
+setting one end silently drops the other — the renderer deciding what the column
+meant, which is what scoping the column rather than a leaf costs if the write is
+not a merge. The assertion that reads the whole column after both ends are set
+goes red; one that sets a single end, or reads the declaration rather than a
+write, stays green.
 
-Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
-
-diff --git a/packages/headless/src/modules/client-email/client-email.schemas.ts b/packages/headless/src/modules/client-email/client-email.schemas.ts
---- a/packages/headless/src/modules/client-email/client-email.schemas.ts
-+++ b/packages/headless/src/modules/client-email/client-email.schemas.ts
-@@ -251,7 +251,7 @@
-         options: { width: "full" }
-       },
-       {
--        type: "Filter",
-+        type: "Control",
-         scope: "#/properties/filters/properties/verified",
-         i18n: "form.verified_filter",
-         options: { treatment: "button-group" }
+diff --git a/packages/client-vue/src/components/form/renderers/FilterRangeRenderer.vue b/packages/client-vue/src/components/form/renderers/FilterRangeRenderer.vue
+index 41e1f4b25..2a7c9cc9a 100644
+--- a/packages/client-vue/src/components/form/renderers/FilterRangeRenderer.vue
++++ b/packages/client-vue/src/components/form/renderers/FilterRangeRenderer.vue
+@@ -103,7 +103,7 @@ function write(operator: RequestFilterOperator, value?: string | number): void {
+   // which `onInput` drops as "not dirty".
+   handleChange(
+     control.value.path,
+-    assign({}, control.value.data, { [operator]: isUnset ? null : value })
++    assign({}, { [operator]: isUnset ? null : value })
+   );
+ }
+ </script>

@@ -2,9 +2,7 @@
   "glossary": {
     "terms": {
       "account": {
-        "aliases": [
-          "client lifecycle"
-        ],
+        "aliases": ["client lifecycle"],
         "definition": "The post-auth standing arc a client moves through — unregistered, unverified, verified — scoped by actor and managed by the account composable.",
         "kind": "system",
         "referents": [
@@ -16,10 +14,7 @@
         "term": "account"
       },
       "auth": {
-        "aliases": [
-          "authentication",
-          "login"
-        ],
+        "aliases": ["authentication", "login"],
         "definition": "Unified authentication for guest, client, and staff actors — login, registration, and session establishment, handled by the auth composable.",
         "kind": "system",
         "referents": [
@@ -47,10 +42,7 @@
         "term": "basket"
       },
       "billing": {
-        "aliases": [
-          "basket billing",
-          "billing cycle"
-        ],
+        "aliases": ["basket billing", "billing cycle"],
         "definition": "The billing details attached to a basket — validating, updating, and clearing them, and observing the billing lifecycle's state transitions — managed by the basket billing composable.",
         "kind": "domain",
         "referents": [
@@ -86,9 +78,7 @@
         "term": "cart"
       },
       "client": {
-        "aliases": [
-          "client profile"
-        ],
+        "aliases": ["client profile"],
         "definition": "The authenticated customer's profile and account standing — identity, contact details, and the account-lifecycle state (unregistered, unverified, verified) layered on top of it.",
         "kind": "domain",
         "referents": [
@@ -104,9 +94,7 @@
         "term": "client"
       },
       "currency": {
-        "aliases": [
-          "display currency"
-        ],
+        "aliases": ["display currency"],
         "definition": "The currency a basket is priced and displayed in. Changing the basket currency re-prices every line item; the selection is managed by the basket currency composable.",
         "kind": "domain",
         "referents": [
@@ -117,10 +105,32 @@
         ],
         "term": "currency"
       },
-      "domain": {
-        "aliases": [
-          "domain name"
+      "custom-field": {
+        "aliases": [],
+        "definition": "A brand-configured question attached to clients — its definition (code, type, required/visibility rules) is shared across every client on the brand; only the value differs per client. Definitions and their value semantics (per-type coercion, schema/form generation, the image-upload flow for the IMAGE type) are read through the client custom fields composables; a specific client's own values live on that client's personal details.",
+        "kind": "domain",
+        "referents": [
+          {
+            "id": "@upmind-automation/headless!useClientCustomFields",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!useClientCustomFieldImage",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!CustomField",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!CustomFieldModel",
+            "type": "symbol"
+          }
         ],
+        "term": "custom field"
+      },
+      "domain": {
+        "aliases": ["domain name"],
         "definition": "A domain-name product — searched for availability, registered or transferred, and configured as part of an order. Domain search and lifecycle are handled by the domain composable.",
         "kind": "domain",
         "referents": [
@@ -136,9 +146,7 @@
         "term": "domain"
       },
       "feedback": {
-        "aliases": [
-          "notifications"
-        ],
+        "aliases": ["notifications"],
         "definition": "User-facing messages — errors, successes, warnings, and system notifications — added, dismissed, and displayed through a global feedback state machine.",
         "kind": "system",
         "referents": [
@@ -150,9 +158,7 @@
         "term": "feedback"
       },
       "invoice": {
-        "aliases": [
-          "bill"
-        ],
+        "aliases": ["bill"],
         "definition": "The billable document raised for an order — client, currency, line items, payment history, and the paid/unpaid amount summary. Invoice data is loaded and invalidated by the invoice composable.",
         "kind": "domain",
         "referents": [
@@ -168,9 +174,7 @@
         "term": "invoice"
       },
       "order": {
-        "aliases": [
-          "purchase"
-        ],
+        "aliases": ["purchase"],
         "definition": "The invoice-payment lifecycle a basket converts into at checkout — orchestrated by the order machine, which spawns the payment-detail actor and drives retry and partial-payment loops until the invoice is settled.",
         "kind": "domain",
         "referents": [
@@ -186,9 +190,7 @@
         "term": "order"
       },
       "payment": {
-        "aliases": [
-          "payment method"
-        ],
+        "aliases": ["payment method"],
         "definition": "The state, context, and actions that orchestrate a single payment attempt against a gateway — meta-information, error handling, and the pay/refresh event triggers, driven by the payment composable's state machine.",
         "kind": "domain",
         "referents": [
@@ -204,9 +206,7 @@
         "term": "payment"
       },
       "payment-gateway": {
-        "aliases": [
-          "gateway"
-        ],
+        "aliases": ["gateway"],
         "definition": "A provider integration (Stripe, PayPal, and others) that authorises and captures payment for an order. Gateways are abstracted behind a common interface so the checkout flow is provider-agnostic.",
         "kind": "domain",
         "referents": [
@@ -221,10 +221,44 @@
         ],
         "term": "payment gateway"
       },
-      "product": {
-        "aliases": [
-          "catalogue product"
+      "personal-details": {
+        "aliases": ["profile"],
+        "definition": "A client's own profile record — native fields (first name, last name, public name, interface language) plus the client's own custom field values — read and edited through a diff-only save. Distinct from the custom field definitions and value semantics it consumes, which are owned by the client custom fields composables.",
+        "kind": "domain",
+        "referents": [
+          {
+            "id": "@upmind-automation/headless!usePersonalDetails",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!usePersonalDetailsManager",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!ProfileModel",
+            "type": "symbol"
+          }
         ],
+        "term": "personal details"
+      },
+      "phone": {
+        "aliases": ["phone number", "client phone"],
+        "definition": "A client's own phone number — its national number, dial code, and country carried as a related set, plus default/deletable/verified status. Read, added, edited, deleted, and defaulted through a scoped collection and a per-number form editor. Only the client's own (self) scope is supported; acting on another client's numbers is a recorded, not-yet-delivered capability.",
+        "kind": "domain",
+        "referents": [
+          {
+            "id": "@upmind-automation/headless!useClientPhones",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!useClientPhoneManager",
+            "type": "symbol"
+          }
+        ],
+        "term": "phone"
+      },
+      "product": {
+        "aliases": ["catalogue product"],
         "definition": "A sellable item in a brand's catalogue — hosting plans, domains, add-ons — with its pricing, billing cycles, and configuration options. Products are browsed via the catalogue and added to the basket.",
         "kind": "domain",
         "referents": [
@@ -240,10 +274,7 @@
         "term": "product"
       },
       "promotion": {
-        "aliases": [
-          "coupon",
-          "discount"
-        ],
+        "aliases": ["coupon", "discount"],
         "definition": "A discount or offer applied to a basket, typically via a promo code, that adjusts line-item or order totals. Promotions are validated and applied through the basket promotions composable.",
         "kind": "domain",
         "referents": [
@@ -259,10 +290,7 @@
         "term": "promotion"
       },
       "query": {
-        "aliases": [
-          "tanstack query",
-          "query client"
-        ],
+        "aliases": ["tanstack query", "query client"],
         "definition": "The TanStack Query layer that fetches, caches, and invalidates server data behind every composable. Query keys and the shared query client are exposed through the query composable.",
         "kind": "system",
         "referents": [
@@ -278,10 +306,7 @@
         "term": "query"
       },
       "recommendations": {
-        "aliases": [
-          "product recommendations",
-          "upsell"
-        ],
+        "aliases": ["product recommendations", "upsell"],
         "definition": "Suggested products surfaced from the recommendation engine — either scoped to a specific product (for product-detail or post-add-to-basket upsell) or fetched generally — via the recommendations composables.",
         "kind": "domain",
         "referents": [
@@ -297,9 +322,7 @@
         "term": "recommendations"
       },
       "routing": {
-        "aliases": [
-          "funnel navigation"
-        ],
+        "aliases": ["funnel navigation"],
         "definition": "Route management, navigation, and flow control across the storefront — integrating internationalisation, session, and basket state to resolve routes and drive funnel progression.",
         "kind": "system",
         "referents": [
@@ -315,9 +338,7 @@
         "term": "routing"
       },
       "scope": {
-        "aliases": [
-          "scoped composable"
-        ],
+        "aliases": ["scoped composable"],
         "definition": "The keyed registry mechanism that gives each composable instance an isolated, reusable footprint so multiple baskets or products can coexist on one page without sharing state. Scope keys namespace every module's reactive state.",
         "kind": "system",
         "referents": [
@@ -329,9 +350,7 @@
         "term": "scope"
       },
       "session": {
-        "aliases": [
-          "auth session"
-        ],
+        "aliases": ["auth session"],
         "definition": "The authenticated (or guest) context a basket and its actions run within, including the current client, brand, and access tokens. Session state is coordinated by the session composable and its state machine.",
         "kind": "system",
         "referents": [
@@ -347,9 +366,7 @@
         "term": "session"
       },
       "system": {
-        "aliases": [
-          "reference data"
-        ],
+        "aliases": ["reference data"],
         "definition": "Brand-agnostic reference data (countries, currencies, statuses, billing cycles, ticket departments, and similar lookups) exposed through the system composable.",
         "kind": "system",
         "referents": [
@@ -361,9 +378,7 @@
         "term": "system"
       },
       "theming": {
-        "aliases": [
-          "theme"
-        ],
+        "aliases": ["theme"],
         "definition": "The per-brand visual configuration (colours, typography, layout tokens) that lets one headless codebase render many branded storefronts. Theme values are resolved by the theming composable.",
         "kind": "system",
         "referents": [
@@ -399,6 +414,18 @@
       "path": "packages/headless/src/modules/client/client.types.ts",
       "title": "Client"
     },
+    "@upmind-automation/headless!CustomField": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
+      "title": "CustomField"
+    },
+    "@upmind-automation/headless!CustomFieldModel": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
+      "title": "CustomFieldModel"
+    },
     "@upmind-automation/headless!DomainModel": {
       "kind": "symbol",
       "module": "domain",
@@ -428,6 +455,12 @@
       "module": "product",
       "path": "packages/headless/src/modules/product/product.types.ts",
       "title": "Product"
+    },
+    "@upmind-automation/headless!ProfileModel": {
+      "kind": "symbol",
+      "module": "client-personal-details",
+      "path": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
+      "title": "ProfileModel"
     },
     "@upmind-automation/headless!PromotionModel": {
       "kind": "symbol",
@@ -477,6 +510,30 @@
       "path": "packages/headless/src/modules/brand/useBrand.ts",
       "title": "useBrand"
     },
+    "@upmind-automation/headless!useClientCustomFieldImage": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/useClientCustomFieldImage.ts",
+      "title": "useClientCustomFieldImage"
+    },
+    "@upmind-automation/headless!useClientCustomFields": {
+      "kind": "symbol",
+      "module": "client-custom-fields",
+      "path": "packages/headless/src/modules/client-custom-fields/useClientCustomFields.ts",
+      "title": "useClientCustomFields"
+    },
+    "@upmind-automation/headless!useClientPhoneManager": {
+      "kind": "symbol",
+      "module": "client-phone",
+      "path": "packages/headless/src/modules/client-phone/useClientPhoneManager.ts",
+      "title": "useClientPhoneManager"
+    },
+    "@upmind-automation/headless!useClientPhones": {
+      "kind": "symbol",
+      "module": "client-phone",
+      "path": "packages/headless/src/modules/client-phone/useClientPhones.ts",
+      "title": "useClientPhones"
+    },
     "@upmind-automation/headless!useDomain": {
       "kind": "symbol",
       "module": "domain",
@@ -512,6 +569,18 @@
       "module": "payment-gateways",
       "path": "packages/headless/src/modules/payment-gateways/usePaymentGateway.ts",
       "title": "usePaymentGateway"
+    },
+    "@upmind-automation/headless!usePersonalDetails": {
+      "kind": "symbol",
+      "module": "client-personal-details",
+      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts",
+      "title": "usePersonalDetails"
+    },
+    "@upmind-automation/headless!usePersonalDetailsManager": {
+      "kind": "symbol",
+      "module": "client-personal-details",
+      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
+      "title": "usePersonalDetailsManager"
     },
     "@upmind-automation/headless!useProductCatalogue": {
       "kind": "symbol",

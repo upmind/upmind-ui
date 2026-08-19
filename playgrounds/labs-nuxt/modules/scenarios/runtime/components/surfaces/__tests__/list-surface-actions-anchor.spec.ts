@@ -29,10 +29,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { Card } from "@upmind-automation/upmind-ui";
-import {
-  defaultRow,
-  unverifiedRow
-} from "../../../../../../tests/support/recorded-emails";
+import { defaultRow, unverifiedRow } from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { CONTROL_TEST_VALUE } from "../../__tests__/control-test-values";
 import { RESOLVED_HANDOFFS } from "../../__tests__/resolved-handoffs";

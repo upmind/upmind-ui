@@ -27,12 +27,9 @@ import {
   defaultRow,
   recordedRejection,
   unverifiedRow
-} from "../../../../../../tests/support/recorded-emails";
-import { renderedStrings } from "../../../../../../tests/support/rendered";
-import {
-  clearToasts,
-  mountToaster
-} from "../../../../../../tests/support/toaster";
+} from "../../../../testing/recorded-emails";
+import { renderedStrings } from "../../../../testing/rendered";
+import { clearToasts, mountToaster } from "../../../../testing/toaster";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import {
   CONTROL_TEST_VALUE,

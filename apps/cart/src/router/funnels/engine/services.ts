@@ -19,6 +19,7 @@ import {
   useClientCompanies,
   useClientPhones,
   useConfig,
+  ScopeActorTypes,
   UIContext,
   FunnelActions,
   type FunnelTarget,
@@ -130,11 +131,16 @@ export async function applyBillingDefaults(): Promise<void> {
 
   if (billingMeta.value.isComplete) return;
 
-  const { default: defaultAddress, isReady: isAddressesReady } =
-    useClientAddresses();
-  const { default: defaultCompany, isReady: isCompaniesReady } =
-    useClientCompanies();
-  const { default: defaultPhone, isReady: isPhonesReady } = useClientPhones();
+  const addressesScope = useClientAddresses().as(ScopeActorTypes.CLIENT);
+  const { default: defaultAddressId } = addressesScope.useContext();
+  const { isReady: isAddressesReady } = addressesScope.useActions();
+  const companiesScope = useClientCompanies().as(ScopeActorTypes.CLIENT);
+  const { default: defaultCompany, getOne: getCompany } =
+    companiesScope.useContext();
+  const { isReady: isCompaniesReady } = companiesScope.useActions();
+  const clientPhones = useClientPhones().as(ScopeActorTypes.SELF);
+  const { isReady: isPhonesReady } = clientPhones.useActions();
+  const { default: defaultPhone } = clientPhones.useContext();
 
   await Promise.allSettled([
     isAddressesReady(),
@@ -142,11 +148,14 @@ export async function applyBillingDefaults(): Promise<void> {
     isPhonesReady()
   ]);
 
-  const company = billingConfig.value?.requiresCompany && defaultCompany();
+  const company =
+    billingConfig.value?.requiresCompany && getCompany(defaultCompany());
 
   await update({
     companyId: company?.id,
-    addressId: company?.addressId ?? defaultAddress()?.id,
+    // R5 — `default()` IS the id now; `?.id` would silently yield `undefined`
+    // and would still type-check.
+    addressId: company?.addressId ?? defaultAddressId(),
     phoneId: billingConfig.value?.requiresPhone && defaultPhone()?.id
   }).catch(() => {});
 }

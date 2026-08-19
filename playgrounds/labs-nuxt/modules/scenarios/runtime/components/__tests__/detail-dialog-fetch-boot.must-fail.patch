@@ -1,0 +1,25 @@
+Negative control for the detail FETCH path (FE-3091 design §1).
+
+Disables the `useDetail` boot in the read overlay, so even a scenario that
+declares `useDetail` never fetches: `port` stays `undefined` and the overlay
+falls back to the clicked row's own data. A field only the full record carries
+(the fetched `body`) is then absent.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the fetch-boot spec — with a `useDetail` composable and a resolvable row
+identity, the overlay must boot `useModulePort` keyed by that identity and
+render the freshly-fetched record.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/DetailDialog.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/DetailDialog.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/DetailDialog.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/DetailDialog.vue
+@@ -68,7 +68,7 @@
+ // the row resolved a scope to open it at (`R6-30c`); without both, the clicked
+ // row's own data is the record and nothing is fetched.
+ const port =
+-  props.detail && props.context
++  props.detail && props.context && false
+     ? useModulePort(props.detail.useDetail, {
+         actor: props.detail.actor,
+         context: props.context

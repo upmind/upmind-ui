@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Rebuild the cross-package knowledge graph after a commit.
+#
+# Calls refresh.sh, NOT `graphify update` — the plain graphify rebuild has no
+# cross-package resolver, so it drops every apps<->packages edge and the graph
+# silently loses its cross-package picture. --check fast-exits when no source
+# file changed. Runs detached so `git commit` returns immediately, and never
+# fails the commit. Opt a single commit out with GRAPHIFY_SKIP_HOOK=1.
+[ -n "${GRAPHIFY_SKIP_HOOK:-}" ] && exit 0
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+[ -x "$ROOT/.claude/scripts/graphify/refresh.sh" ] || exit 0
+LOG="${HOME}/.cache/graphify-rebuild.log"
+mkdir -p "$(dirname "$LOG")"
+echo "[graphify] background graph refresh (log: $LOG)"
+( bash "$ROOT/.claude/scripts/graphify/refresh.sh" --check >"$LOG" 2>&1 & ) >/dev/null 2>&1
+exit 0

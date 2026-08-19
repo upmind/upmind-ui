@@ -1,18 +1,18 @@
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useTableChannel.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useTableChannel.ts
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useTableChannel.ts
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useTableChannel.ts
-@@ -131,6 +131,8 @@
-   const context = cell.useContext();
+@@ -119,6 +119,8 @@
    const actions = cell.useActions();
    const schema = context.schemas.query.schema;
+   const sortUischema = context.schemas.query.sortUischema;
 +  const model = context.query.value;
 +  const page = context.pagination.value;
- 
+
    return {
      declared() {
-@@ -149,8 +151,6 @@
+@@ -131,8 +133,6 @@
      },
- 
+
      read(): TableModel {
 -      const model = context.query.value;
 -      const page = context.pagination.value;

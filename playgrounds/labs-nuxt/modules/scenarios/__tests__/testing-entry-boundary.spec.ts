@@ -26,7 +26,6 @@ import { filter, fromPairs, map, reject } from "lodash-es";
 const REPO_ROOT = join(import.meta.dirname, "..", "..", "..", "..", "..");
 
 const ENTRY = "@upmind-automation/headless/testing";
-const PER_MODULE = "@upmind-automation/headless/testing/client-email/steps";
 const INTO_THE_PACKAGE =
   "@upmind-automation/headless/src/modules/client-email/__tests__/client-email.steps";
 
@@ -42,7 +41,7 @@ const APP_RUNTIME = [
 ];
 
 const POSITIONS = [TEST_LANE, NAMED_APP_SEAM, ...APP_RUNTIME];
-const SPECIFIERS = [ENTRY, PER_MODULE, INTO_THE_PACKAGE];
+const SPECIFIERS = [ENTRY, INTO_THE_PACKAGE];
 
 /** The same import, spelled the way the position's own parser reads a file. */
 function importing(position: string, specifier: string): string {
@@ -107,17 +106,6 @@ describe("the lint boundary — who may reach the published test entry", () => {
     expect(complaintsAt(NAMED_APP_SEAM, ENTRY)).toStrictEqual([]);
     expect(
       reject(APP_RUNTIME, position => complaintsAt(position, ENTRY).length > 0)
-    ).toStrictEqual([]);
-  });
-
-  it("keeps the per-module rows on the same side of the boundary as the entry", () => {
-    expect(complaintsAt(TEST_LANE, PER_MODULE)).toStrictEqual([]);
-    expect(complaintsAt(NAMED_APP_SEAM, PER_MODULE)).toStrictEqual([]);
-    expect(
-      reject(
-        APP_RUNTIME,
-        position => complaintsAt(position, PER_MODULE).length > 0
-      )
     ).toStrictEqual([]);
   });
 

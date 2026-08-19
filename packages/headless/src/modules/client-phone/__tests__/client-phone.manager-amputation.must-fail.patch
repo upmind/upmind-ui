@@ -1,0 +1,13 @@
+--- a/packages/headless/src/modules/client-phone/index.ts
++++ b/packages/headless/src/modules/client-phone/index.ts
+@@ -24,10 +24,6 @@
+ 
+ // --- Composables (collection + manager)
+ export { useClientPhones, type UseClientPhones } from "./useClientPhones";
+-export {
+-  useClientPhoneManager,
+-  type UseClientPhoneManager
+-} from "./useClientPhoneManager";
+ 
+ // --- Scope matrices — one per composable, both public
+ export {

@@ -21,17 +21,17 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { computed, ref } from "vue";
 import { createI18n } from "vue-i18n";
-import {
-  useQuerySchema,
-  useQueryUischema
-} from "@upmind-automation/headless/testing/client-email/internal-kit";
+import { internalKits } from "@upmind-automation/headless/testing";
 import action from "@upmind-automation/i18n/core/action-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
+import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
 import { Badge } from "@upmind-automation/upmind-ui";
-import labsEn from "../../../../../app/assets/locales/en/labs.json";
 import RefinementsRow from "../RefinementsRow.vue";
 import { each, get, indexOf, map } from "lodash-es";
 import type { ModulePortCriteria } from "../../composables/useModulePort.types";
+
+const { useQuerySchema, useQueryUischema } =
+  await internalKits["client-email"]();
 
 // -----------------------------------------------------------------------------
 

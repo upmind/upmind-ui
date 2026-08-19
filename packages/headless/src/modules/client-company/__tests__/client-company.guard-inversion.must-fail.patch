@@ -1,0 +1,22 @@
+--- a/packages/headless/src/modules/client-company/client-company.services.ts
++++ b/packages/headless/src/modules/client-company/client-company.services.ts
+@@ -432,7 +432,8 @@ async function remove(
+   const { del, useUrl } = useQuery();
+   const clientId = resolveClientId(scopeContext);
+ 
+-  if (!isAddressable(clientId.value)) {
++  const { isAuthenticated } = useActiveSession().useMeta();
++  if (!(isAuthenticated.value || !clientId.value)) {
+     return Promise.reject(new NotAuthenticatedError());
+   }
+ 
+@@ -458,7 +459,8 @@ async function setDefault(
+   const { put, useUrl } = useQuery();
+   const clientId = resolveClientId(scopeContext);
+ 
+-  if (!isAddressable(clientId.value)) {
++  const { isAuthenticated } = useActiveSession().useMeta();
++  if (!(isAuthenticated.value || !clientId.value)) {
+     return Promise.reject(new NotAuthenticatedError());
+   }
+ 

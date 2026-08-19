@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-company/useClientCompanyManager.actions.ts
++++ b/packages/headless/src/modules/client-company/useClientCompanyManager.actions.ts
+@@ -194,7 +194,7 @@
+           // `error.client_email_update_failed`, an EMAIL key on the company
+           // module (AC-23, `parity.yaml` C29).
+           new DetailedError(
+-            t("error.client_company_update_failed"),
++            t("error.client_email_update_failed"),
+             error?.status ?? responseCodes.Timeout,
+             ErrorOrigin.Headless,
+             { error, state: state.value }

@@ -1,0 +1,44 @@
+Negative control — the chosen ADDRESS TYPE reaches the wire (AC-22, fix 8e).
+
+Restores the pre-conversion hardcode in `mapIAddressData`: `type: data.type`
+becomes `type: 1`, complete with the comment the original carried. The `type`
+control still exists on the schema, the consumer can still pick Home / Office /
+Holiday / Company, the model still records the choice — it is simply discarded
+at the mapper, one step before the body is serialised. Right shape, no
+capability.
+
+Declared AC — AC-22: "a client picks an address type when editing" — set
+`type: 3` on an existing address and assert the captured PUT body carries
+`type: 3`. Asserting the schema exposes the four options does NOT discriminate;
+under this mutant it still does.
+
+Collateral RED, measured, and NOT this control's declared subject:
+  - AC-24 — the create read-back. `mapIAddressData` is the CREATE body mapper
+    as well as the full-payload update mapper, so a hardcoded type corrupts the
+    POST body by the same edit.
+
+AC-24's own control is `client-address.manager-create-amputation.must-fail.patch`,
+which amputates the create limb instead. A red confined to the AC-22 read-back
+means the type was dropped in mapping; a red in AC-24 alone means the limb is
+gone.
+
+diff --git a/packages/headless/src/modules/client-address/client-address.mappers.ts b/packages/headless/src/modules/client-address/client-address.mappers.ts
+index f06469409..bdab4b141 100644
+--- a/packages/headless/src/modules/client-address/client-address.mappers.ts
++++ b/packages/headless/src/modules/client-address/client-address.mappers.ts
+@@ -104,13 +104,13 @@ export function mapIAddressData(data: AddressModel | Address): IAddress {
+     address_2: data.address.address2 ?? "",
+     city: data.address.city ?? "",
+     state: data.address.state ?? "",
+     postcode: data.address.postcode ?? "",
+     region_id: data.address.regionId,
+     country_id: data.address.countryId,
+-    type: data.type ?? ADDRESS_TYPE_KEYS.HOME
++    type: 1 // We are forcing type to always be 1 for simplicity
+   } as IAddress;
+ }
+ 
+ /**
+  * The wire payload for an EDIT: only the fields that changed since the form
+  * opened. Legacy computes exactly this — `omitBy(form, (v, k) =>
+ 

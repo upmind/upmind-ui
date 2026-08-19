@@ -14,7 +14,8 @@ This lane **conducts**; it never authors an artefact itself. Every stage below d
 
 - Dispatched by the `/factory` door: on the `both` route once lane 1's Docs gate is green, and on the `page` route over a module that already exists. **Never user-invoked, never self-triggered.**
 - **Intake arrives parsed from the door.** This lane asks nothing — the module does not exist at intake on the default route, and the factory WRITES the page, so there is nothing for an author to pin. A field this lane cannot derive is a **halt** naming the row and the file it looked in — never a question, never a default.
-- The door has already held the target to the scope-based precondition. This lane never re-checks it and never half-derives from a module that failed it.
+- The door has already graded the target M3 — template-conformant, build green (its Stage-0 audit and template contract, cited not restated). This lane never re-checks it and never half-derives from a module that failed it.
+- **A mid-run discovery that the module lacks a channel the page consumes is a HALT back to the door** — the module is regraded M2 and the composable lane runs first. It is NEVER derived around, repurposed around, or absorbed as a pass-and-surface decision: a surfaced decision may cover vocabulary lag, never an absent capability (2026-08-14 receipt: a repurposed `useMutate` and a missing criteria surface were both absorbed as surfaced decisions and shipped).
 
 ## Derivation contract
 
@@ -35,6 +36,9 @@ Every row is read off the LANDED module, its schemas and its own `__tests__/`. E
 | D11 | `persistCriteria` | True where the composable exposes a list-criteria surface |
 | D12 | `tracks` | The module's own name — the one string the declaration carries. Which of the module's scenarios are driveable is the step catalog's answer, never a derived field |
 | D13 | How many scenario directories the run writes | Exactly one per module — one module, one declaration |
+| D14 | The filter bar and its fields | `useContext().schemas.query` — the module's own `{ schema, uischema }` pair. ABSENT = halt to door (M2 regrade), never derived around |
+| D15 | The sort control's options | The criteria schema's own sort member (the module's sortable-properties enum). ABSENT or a raw string literal = halt to door |
+| D16 | The pager | `useContext().pagination` — the reactive descriptor. ABSENT = halt to door |
 
 **D8's naming is a gate, not a preference.** Before filing the derivation table, check each drawn control's `name` against `useActions()`: a name that is not a live member — and is not itself the reason a handoff exists — is a control no scenario can press. Echo the create control's resolved capability by name in the report.
 
@@ -68,8 +72,8 @@ Seat lanes are `agent-seat-separation`'s, cited not restated — including its c
 | --- | --- | --- | --- |
 | Derive | `upmind-agent:plan` (light route) → the filled derivation table | planner | **undecided-field count = 0** AND every derived row carries a `file:line` in the landed module |
 | Code | `upmind-agent:code` with this lane's `templates/` | developer | **diff file count > 0** AND **hand-off filed** (the declaration's public surface handed to the prover; diff withheld — ADR-029) |
-| Tests | `upmind-agent:test` — the module's step catalog and its one traceability test, plus the feature augmentation; layer routing is that factory's own | prover (contract-fed public surface only; diff and hand-off withheld) | **suite exit code = 0** per layer dispatched AND the module's one traceability test green AND **every new mutant proven RED blind** |
-| Verify | `upmind-agent:review` (verify lane) | verifier | **verdict = PRESENT** — the page boots and draws at every offered cell, measured against the module's own surface, never the declaration's self-report |
+| Tests | `upmind-agent:test` — the module's step catalog and its one traceability test, plus the feature augmentation; layer routing is that factory's own | prover (contract-fed public surface only; diff and hand-off withheld) | **suite exit code = 0** per layer dispatched AND the module's one traceability test green AND **every new mutant proven RED blind** AND the door's **build gate still exit 0** (full monorepo build) |
+| Verify | `upmind-agent:review` (verify lane) | verifier | **verdict = PRESENT** — the page boots and draws at every offered cell; its criteria chrome (filter bar, sort control, pager) renders off the module's own `schemas.query` / `pagination` channels; and every drawn control presses a live member — measured against the module's oracle surface, never the declaration's self-report. A page that draws rows but cannot filter, sort or page what the oracle offers is ABSENT |
 | Review | `upmind-agent:review` (code lane) | reviewer (pre-gate) | **🔴 blocker count = 0** |
 
 **No Docs stage, deliberately.** The declaration is its own documentation surface — the app draws each declaration's source verbatim in the Scenario sheet — and the playground keeps no per-scenario docs. The module doc set is lane 1's.
@@ -96,7 +100,7 @@ packages/headless/src/modules/<module>/__tests__/fixtures/*.json      the record
 
 A page's scenario data is reached by importing headless's ONE published test entry and reading it at the module name the declaration's `tracks` carries. That name is a read key, not a registration: a module is published the moment it keeps the layout above. This lane therefore edits no seam, adds no exports row and names no path inside another package — the declaration imports no artefact at all.
 
-**ONE `.feature` per module**, and one `{module}.steps.ts` and one `{module}.traceability.test.ts` beside it. A scenario is DRIVEABLE exactly when a step definition matches every one of its steps; one nothing matches is a capability written down and not yet driven, which is a legitimate state that simply never becomes a track. No marking distinguishes them — the catalog already does.
+**ONE `.feature` per module**, and one `{module}.steps.ts` and one `{module}.traceability.test.ts` beside it. Per ADR-020 Amendment 5 the package-colocated `.feature` IS the executed artefact: every module `.feature` gets a sibling step catalog — a feature without one is a factory gap to close (receipt: client-email-history, 2026-08-17), never a legitimate end state, and no header prose may claim executability either way (the catalog's presence and coverage are the only truth). A scenario is DRIVEABLE exactly when a step definition matches every one of its steps; one nothing matches is a capability written down and not yet driven, which is a legitimate state that simply never becomes a track. No marking distinguishes them — the catalog already does.
 
 ## Dispatch contract
 
@@ -110,6 +114,7 @@ Everything in the composable lane's "Dispatch contract" holds here unchanged and
 
 - **Any gate fails** → halt and surface the failing structured field verbatim; no silent retry.
 - **A derived row with no `file:line`** → halt with that row named. A derivation over a promised module is a guess.
+- **An absent consumed channel (any D-row, D14–D16 above all)** → halt to the DOOR, module regraded M2, composable lane first. Never a derivation around it, never a pass-and-surface absorption — surfaced decisions cover vocabulary lag only, never absent capability.
 - **Verify returns ABSENT** → the run does not advance to Review; the missing part named in the verifier's own filing routes back to the developer seat.
 - **A legitimately-red test is not a halt** — the repair loop is the composable lane's, cited: the failure routes back to a FRESH developer dispatch, up to three cycles on the same failure, then an operator escalation.
 - **Doctrine-vs-template disagreement** — the doctrine wins and the disagreement is surfaced as a finding, never silently resolved toward the template or toward the one built page it cites as a reference.

@@ -2,7 +2,7 @@
 /**
  * @module cells/__tests__/table-cell-tester.spec
  * @description `R6-36` — every cell renderer registers with its OWN `uiTypeIs`
- * tester, and the four testers partition the declared cell types: each element
+ * tester, and the testers partition the declared cell types: each element
  * type is claimed by exactly one entry, and an unregistered type by none. The
  * tester is what decides what a declaration draws, so it is the line under test
  * rather than the component behind it.
@@ -30,6 +30,7 @@ import type {
 
 const DECLARED_TYPES: TableCell["type"][] = [
   "TableCellText",
+  "TableCellHtml",
   "TableCellDate",
   "TableCellIcon",
   "TableCellBadges"
@@ -57,9 +58,9 @@ describe("R6-36 the testers partition the declared cell types", () => {
   });
 
   it("gives every declared type exactly one claimant", () => {
-    expect(map(DECLARED_TYPES, type => size(claimants(type)))).toEqual([
-      1, 1, 1, 1
-    ]);
+    expect(map(DECLARED_TYPES, type => size(claimants(type)))).toEqual(
+      map(DECLARED_TYPES, () => 1)
+    );
   });
 
   it("never lets two types resolve to the same renderer", () => {

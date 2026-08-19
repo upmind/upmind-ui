@@ -611,15 +611,17 @@ const scenarioHarnessBoundaryPlugin = {
 //
 //   arm 1 — `no-restricted-imports` on the deep subpaths of the two packages
 //           whose public surface is bounded: headless publishes exactly ".",
-//           "./scenarios", "./testing" and "./testing/*" (its `exports` map),
-//           scenario-harness exactly ".". The map alone does NOT gate the
-//           playgrounds — a
+//           "./scenarios" and "./testing" (its `exports` map), scenario-harness
+//           exactly ".". The map alone does NOT gate the playgrounds — a
 //           vite/vitest alias to the package DIRECTORY resolves ahead of
 //           `exports`, so a subpath keeps resolving there no matter what the map
-//           says. This arm is the gate for that lane. "./testing/*" is published
-//           for OTHER packages' test lanes — and, since the FE-2977 seam ruling,
-//           for one named app-runtime file — so block 8h re-arms it on exactly
-//           the files it lists and 8g keeps it banned everywhere else.
+//           says. This arm is the gate for that lane. "./testing" is the ONE
+//           entry OTHER packages' test lanes reach — and, since the FE-2977 seam
+//           ruling, one named app-runtime file — so block 8h re-arms that bare
+//           entry on exactly the files it lists and 8g keeps it banned
+//           everywhere else. Anything BELOW it is an error from every position,
+//           test lanes included: the package publishes no "./testing/*", so a
+//           per-module specifier only ever resolved through a directory alias.
 //   arm 2 — the same law for relative escapes, which no specifier pattern can
 //           see: `../../packages/headless/src/...` never types a package name.
 //           Resolved to a disk path (the technique block 8c uses) and compared
@@ -633,8 +635,8 @@ const PACKAGE_BOUNDARY_MESSAGE =
   "Import a workspace package by its published specifier — its internals are private.";
 
 /**
- * @param testLane Whether headless's `./testing/*` export — its published
- *   test-kit surface, kept off the main barrel so it never enters the
+ * @param testLane Whether headless's `./testing` export — its published
+ *   test-kit entry, kept off the main barrel so it never enters the
  *   production graph — is reachable from these files. Test lanes only.
  */
 const noWorkspaceSubpathImportsRule = testLane => [
@@ -642,8 +644,8 @@ const noWorkspaceSubpathImportsRule = testLane => [
   {
     patterns: [
       {
-        regex: `^@upmind-automation/headless/(?!scenarios$|package\\.json$${testLane ? "|testing$|testing/" : ""})`,
-        message: `${PACKAGE_BOUNDARY_MESSAGE} headless publishes ".", "./scenarios", "./testing" and "./testing/*" (test lanes, plus the one app-runtime seam block 8h names).`
+        regex: `^@upmind-automation/headless/(?!scenarios$|package\\.json$${testLane ? "|testing$" : ""})`,
+        message: `${PACKAGE_BOUNDARY_MESSAGE} headless publishes ".", "./scenarios" and "./testing" — one bare test entry, no subpaths below it (test lanes, plus the one app-runtime seam block 8h names).`
       },
       {
         regex: "^@upmind-automation/scenario-harness/",
@@ -1007,24 +1009,32 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
-  // 8h. The named-reach lane of 8g. headless publishes "./testing/*" for exactly
-  //    these files — another package's specs reaching its module kits, its
-  //    replay setup and its recorded fixtures by specifier, plus the ONE
-  //    app-runtime seam the operator ruled in on 2026-08-12 (FE-2977 `ESC6`,
-  //    route (a)): a playground whose whole subject is the recorded scenarios
-  //    has access to them by implication of the approved concept. So the
-  //    boundary reads "app runtime reaches recorded artefacts through exactly
-  //    one named seam" rather than "never" — every other app file imports that
-  //    seam, and 8g still bans the subpath everywhere else, so no second door
-  //    can open. Flat config REPLACES `no-restricted-imports`, so this restates
-  //    the whole rule rather than adding to it; arm 2 (the relative-escape rule)
-  //    is untouched and still forbids reaching the same files by path.
+  // 8h. The named-reach lane of 8g. headless's ONE "./testing" entry is
+  //    reachable from exactly these files — another package's specs reaching
+  //    its module kits, its replay setup and its recorded fixtures through it,
+  //    plus the ONE app-runtime seam the operator ruled in on 2026-08-12
+  //    (FE-2977 `ESC6`, route (a)): a playground whose whole subject is the
+  //    recorded scenarios has access to them by implication of the approved
+  //    concept. So the boundary reads "app runtime reaches recorded artefacts
+  //    through exactly one named seam" rather than "never" — every other app
+  //    file imports that seam, and 8g still bans the entry everywhere else, so
+  //    no second door can open. A per-module subpath below the entry is banned
+  //    HERE too: this lane re-arms `./testing`, never `./testing/*`, which the
+  //    package does not publish. Flat config REPLACES `no-restricted-imports`,
+  //    so this restates the whole rule rather than adding to it; arm 2 (the
+  //    relative-escape rule) is untouched and still forbids reaching the same
+  //    files by path.
   // ---------------------------------------------------------------------------
   {
     files: [
       "**/__tests__/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
       "**/*.{test,spec}.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
       "playgrounds/*/tests/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      // The scenario framework's own test kit — the shared helpers every spec
+      // above imports. Same named-reach lane as `tests/**`, just the home they
+      // moved to when the framework absorbed them; neither is a spec itself, so
+      // the two globs above never match them.
+      "playgrounds/*/modules/scenarios/testing/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
       "playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.source.ts",
       "tests/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}"
     ],

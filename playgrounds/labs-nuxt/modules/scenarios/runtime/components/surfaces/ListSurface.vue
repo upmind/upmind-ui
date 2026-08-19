@@ -141,9 +141,7 @@
           <TableHead
             v-for="header in headerGroup.headers"
             :key="header.id"
-            :class="
-              headerCell({ isContent: includes(contentColumns, header.id) })
-            "
+            :class="headerCell({ size: headerSize(header.id) })"
             @click="onHeaderSort(header.column)"
           >
             <template v-if="!header.isPlaceholder">
@@ -267,7 +265,7 @@
             :key="element.scope"
             :class="styles.listSurface.rowListField"
           >
-            <strong>{{ t(element.i18n) }}</strong>
+            <strong>{{ i18n.translate(element.i18n, element.i18n) }}</strong>
             <CellDispatcher :element="element" :row="row" />
           </span>
         </div>
@@ -320,6 +318,18 @@
       :context="manage.context"
       @close="manage = undefined"
     />
+
+    <DetailDialog
+      v-if="detailState"
+      :key="detailKey"
+      :record="detailState"
+      :detail="props.detail"
+      :context="detailContext"
+      :presentation="presentation?.detail"
+      :actions="detailActionItems"
+      :locked="locked"
+      @close="detailState = undefined"
+    />
   </div>
 </template>
 
@@ -365,10 +375,11 @@
  */
 
 import { vAutoAnimate } from "@formkit/auto-animate";
-import { toDataPath } from "@jsonforms/core";
+import { enumToEnumOptionMapper, toDataPath } from "@jsonforms/core";
 import { getCoreRowModel, useVueTable } from "@tanstack/vue-table";
 import { computed, onUnmounted, ref, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
+import { useFormI18n } from "@upmind-automation/client-vue";
 import { SortDirection } from "@upmind-automation/headless";
 import {
   Button,
@@ -384,6 +395,7 @@ import {
   TableRow,
   useStyles
 } from "@upmind-automation/upmind-ui";
+import { resolveReadContext } from "../../../../../app/composables/scope";
 import { usePlaygroundUrlState } from "../../../../../app/composables/usePlaygroundUrlState";
 import {
   clearScenarioStage,
@@ -399,6 +411,7 @@ import {
 } from "../../scenario.utils";
 import ActionSlots from "../ActionSlots.vue";
 import { CellDispatcher, CellSizingTypes, resolveCellSizing } from "../cells";
+import DetailDialog from "../DetailDialog.vue";
 import DisplayRow from "../DisplayRow.vue";
 import FilterBar from "../FilterBar.vue";
 import ManageDialog from "../ManageDialog.vue";
@@ -442,7 +455,8 @@ import {
 import type { DeclaredSortField } from "../../composables/useTableChannel.types";
 import type {
   ScenarioAction,
-  TableCell as DeclaredCell
+  TableCell as DeclaredCell,
+  TableColumnWidthTypes
 } from "../../scenario.types";
 import type { ActionSlotItem } from "../ActionSlots.types";
 import type { ColumnOption } from "../ColumnPicker.types";
@@ -456,6 +470,7 @@ import type {
   SortDirection as TableSortDirection,
   SortingState
 } from "@tanstack/vue-table";
+import type { ScopeContext } from "@upmind-automation/headless";
 import type { TableModel } from "@upmind-automation/scenario-harness";
 // -----------------------------------------------------------------------------
 
@@ -471,6 +486,11 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+
+// Declaration-sourced keys resolve through the ENGINE's translator — the same
+// one the mounted filter bar uses — consumed as a plain library function. This
+// surface's own copy keys stay on `t()`.
+const i18n = useFormI18n();
 
 /** How many placeholders stand in for the rows that have not landed yet. */
 const SKELETON_ROWS = 5;
@@ -645,7 +665,7 @@ const pickerColumns = computed<ColumnOption[]>(() =>
     ? []
     : map(declaredColumns.value, element => ({
         value: columnKey(element),
-        label: t(element.i18n),
+        label: i18n.value.translate(element.i18n, element.i18n),
         isVisible: includes(visibleKeys.value, columnKey(element))
       }))
 );
@@ -666,15 +686,15 @@ const sortOptions = computed<DeclaredSortField[]>(
 
 /**
  * The toolbar control's options — the SAME list a header writes from, so
- * ordering has one source of truth in both views (`P1-R9`/`G3`). A field the
- * schema does not title reads as its own wire name, which is the untitled
- * column saying so rather than the option going missing.
+ * ordering has one source of truth in both views (`P1-R9`/`G3`). The label is
+ * the module's sort-uischema `i18n` PREFIX resolved as `<i18n>.<field>`; core's
+ * own mapper composes the key and degrades a missing one to the field's wire
+ * name, so an untranslated column says so rather than going missing.
  */
 const sortFields = computed<SortField[]>(() =>
-  map(sortOptions.value, option => ({
-    value: option.field,
-    label: option.i18n ? t(option.i18n) : option.field
-  }))
+  map(sortOptions.value, option =>
+    enumToEnumOptionMapper(option.field, i18n.value.translate, option.i18n)
+  )
 );
 
 /**
@@ -700,7 +720,7 @@ function columnId(element: DeclaredCell): string {
 const columns = computed<ColumnDef<ListRow>[]>(() =>
   map(columnElements.value, element => ({
     id: columnId(element),
-    header: t(element.i18n),
+    header: i18n.value.translate(element.i18n, element.i18n),
     accessorFn: (row: ListRow) => resolveScope(row, element.scope),
     enableSorting: !!sortField(element)
   }))
@@ -721,6 +741,17 @@ const contentColumns = computed<string[]>(() =>
     columnId
   )
 );
+
+/**
+ * The `size` variant a column's header reserves with: `content` where its
+ * renderer measures to a glyph (`R7-2`), else the scenario's declared share, or
+ * `fluid` where it declared none.
+ */
+function headerSize(id: string): "content" | "fluid" | TableColumnWidthTypes {
+  if (includes(contentColumns.value, id)) return "content";
+  const element = find(columnElements.value, el => columnId(el) === id);
+  return element?.options?.width ?? "fluid";
+}
 
 /** The empty state spans every column the frame draws, the actions one included. */
 const columnCount = computed(
@@ -852,6 +883,35 @@ function openHandoff(action: ScenarioAction, row?: ListRow): void {
   };
 }
 
+// --- the read-only detail overlay a declared `detail` control opens
+const detailState = ref<ListRow | undefined>(undefined);
+
+/** One read instance per RECORD — never one carried across rows. */
+const detailKey = computed(() => rowKey(detailState.value ?? {}, 0));
+
+/**
+ * The scope the read boots at — the row's identity as a `.for(type, id)`,
+ * derived with no context block of its own (`R6-30b`): the `type` is the read
+ * composable's own scope-matrix cell for the acting actor, and the `id` is the
+ * `identifier` property read off the row. Absent a read composable, or an id on
+ * the row, there is nothing to fetch and the overlay renders the row itself.
+ */
+const detailContext = computed<ScopeContext | undefined>(() => {
+  if (!props.detail || !detailState.value) return undefined;
+
+  const id = resolvePointer(detailState.value, props.detail.identifier);
+  const type = resolveReadContext(
+    props.detail.useDetail.scopeMatrix,
+    props.detail.actor
+  );
+
+  return type && !isNil(id) ? { type, id: toString(id) } : undefined;
+});
+
+function openDetail(row: ListRow): void {
+  detailState.value = row;
+}
+
 // --- actions — every one DECLARED by the scenario, then gated on
 // `snapshot.actions` (the booted cell's own live-name list, the same gate
 // ActionPanelSurface trusts) so a declaration naming a capability the live port
@@ -868,6 +928,11 @@ const rowActions = computed<ScenarioAction[]>(() =>
 );
 
 function isActionAvailable(action: ScenarioAction): boolean {
+  // A detail control opens the read overlay on the row itself, so it is always
+  // available: the list already holds the record, and a declared read only
+  // enriches what is shown, never gates whether it can be.
+  if (action.detail) return true;
+
   // A handoff control calls no action: what it needs is the target it opens,
   // and without one it would be a button that does nothing (C2).
   if (action.handoff) return !!get(props.handoffs, action.handoff);
@@ -896,7 +961,7 @@ function rowActionItems(row: ListRow): ActionSlotItem[] {
     const control = rowControl(action, row);
     return {
       name: action.name,
-      label: t(action.i18n),
+      label: i18n.value.translate(action.i18n, action.i18n),
       icon: action.icon,
       color: action.color,
       variant: action.variant,
@@ -915,17 +980,38 @@ function rowActionItems(row: ListRow): ActionSlotItem[] {
   });
 }
 
+/**
+ * The record's OTHER actions, for the detail overlay — every row action except
+ * the one that OPENED it (a `detail` verb). Mirrors how the editor never offers
+ * Edit: you are already viewing the record, so its own view control is not drawn
+ * again; Edit and the rest ride here and hand off exactly as they do from a row.
+ */
+const detailActionItems = computed<ActionSlotItem[]>(() => {
+  const row = detailState.value;
+  if (!row) return [];
+  const opened = map(filter(rowActions.value, "detail"), "name");
+  return reject(rowActionItems(row), item => includes(opened, item.name));
+});
+
 /** What pressing ONE row's control does — the only path, hand or scenario. */
 function pressRowAction(action: ScenarioAction, row: ListRow): Promise<void> {
+  if (action.detail) {
+    openDetail(row);
+    return Promise.resolve();
+  }
+
   if (action.handoff) {
     openHandoff(action, row);
     return Promise.resolve();
   }
 
+  const success = get(action, ["feedback", "success"], "");
+  const failure = get(action, ["feedback", "failure"], "");
+
   return feedback
     .fire(rowControl(action, row), () => props.actions[action.name](row.id), {
-      success: t(get(action, ["feedback", "success"], "")),
-      failure: t(get(action, ["feedback", "failure"], ""))
+      success: i18n.value.translate(success, success),
+      failure: i18n.value.translate(failure, failure)
     })
     .then(noop);
 }
@@ -990,7 +1076,7 @@ const collectionActionItems = computed<ActionSlotItem[]>(() =>
     ),
     action => ({
       name: action.name,
-      label: t(action.i18n),
+      label: i18n.value.translate(action.i18n, action.i18n),
       icon: action.icon,
       color: action.color,
       variant: action.variant,
@@ -1008,10 +1094,13 @@ function pressCollectionAction(action: ScenarioAction): Promise<void> {
     return Promise.resolve();
   }
 
+  const success = get(action, ["feedback", "success"], "");
+  const failure = get(action, ["feedback", "failure"], "");
+
   return feedback
     .fire(action.name, () => props.actions[action.name](), {
-      success: t(get(action, ["feedback", "success"], "")),
-      failure: t(get(action, ["feedback", "failure"], ""))
+      success: i18n.value.translate(success, success),
+      failure: i18n.value.translate(failure, failure)
     })
     .then(noop);
 }

@@ -4,8 +4,9 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_SUBMODULE_FORCE_HTTPS: true
   # NOTE: Stop Gitlab-CI automatically fetching GitHub repos as we need extra auth.
-  # docs/published-docs (mintlify-docs) is excluded too — DISABLED in CI until devops
-  # provisions its bot PAT / deploy key (FE-2752). Re-add auth + drop the exclude then.
+  # All three github.com submodules are excluded from GitLab's auto (HTTPS) fetch and
+  # instead fetched over SSH in the `dependencies` job via per-repo deploy keys
+  # (packages/types, packages/ui, and docs/published-docs / mintlify-docs — FE-2752).
   GIT_SUBMODULE_PATHS: ":(exclude)packages/types :(exclude)packages/ui :(exclude)docs/published-docs"
   INTERNAL_NPMRC: |
     @upmind-automation:registry=https://git.upmind.io/api/v4/projects/105/packages/npm/
@@ -106,13 +107,15 @@ dependencies:
 
       - packages/types
       - packages/ui
+      - docs/published-docs
   script:
-    - apk --no-cache add git openssh-client
+    - apk --no-cache add git openssh-client bash
     - |
       mkdir ~/.ssh || true
 
       echo "${UPMIND_TYPES_DEPLOY_PRIVATE_KEY}" > ~/.ssh/id.upmind-types
       echo "${UPMIND_UI_DEPLOY_PRIVATE_KEY}" > ~/.ssh/id.upmind-ui
+      echo "${UPMIND_MINTLIFY_DOCS_DEPLOY_PRIVATE_KEY}" > ~/.ssh/id.mintlify-docs
 
       cat <<EOF > ~/.ssh/config
       Host *
@@ -127,6 +130,11 @@ dependencies:
         User git
         Hostname github.com
         Identityfile ~/.ssh/id.upmind-ui
+
+      Host github-mintlify-docs
+        User git
+        Hostname github.com
+        Identityfile ~/.ssh/id.mintlify-docs
       EOF
 
       cat <<EOF > ~/.gitconfig
@@ -135,14 +143,16 @@ dependencies:
 
       [url "github-upmind-types:upmind/types"]
         insteadOf = git@github.com:upmind/types
+
+      [url "github-mintlify-docs:upmind/mintlify-docs"]
+        insteadOf = git@github.com:upmind/mintlify-docs
       EOF
 
       chmod 700 ~/.ssh
       chmod 600 ~/.ssh/id*
 
     - git config --global --add safe.directory '*'
-    # Skip docs/published-docs (mintlify-docs) — no CI auth until the devops bot PAT lands (FE-2752).
-    - git -c submodule."docs/published-docs".update=none submodule update --init --recursive
+    - git submodule update --init --recursive
     - pnpm install
     - pnpm --filter types install
     - pnpm --filter types build

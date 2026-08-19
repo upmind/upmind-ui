@@ -20,7 +20,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import text from "@upmind-automation/i18n/core/text-en.json";
-import { defaultRow } from "../../../../../../tests/support/recorded-emails";
+import { defaultRow } from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { RESOLVED_HANDOFFS } from "../../__tests__/resolved-handoffs";
 import { ListSurface } from "../index";

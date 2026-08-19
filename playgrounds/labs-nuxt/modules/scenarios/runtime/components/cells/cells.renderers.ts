@@ -21,6 +21,7 @@ import { registerEntry } from "@upmind-automation/upmind-ui";
 import { CellSizingTypes } from "./cells.types";
 import TableCellBadges, { tester as badgesTester } from "./TableCellBadges.vue";
 import TableCellDate, { tester as dateTester } from "./TableCellDate.vue";
+import TableCellHtml, { tester as htmlTester } from "./TableCellHtml.vue";
 import TableCellIcon, {
   sizing as iconSizing,
   tester as iconTester
@@ -35,6 +36,7 @@ import type { JsonSchema, TesterContext } from "@jsonforms/core";
 
 export const tableCellRenderers: TableCellRenderer[] = [
   registerEntry(TableCellText, textTester),
+  registerEntry(TableCellHtml, htmlTester),
   registerEntry(TableCellDate, dateTester),
   { ...registerEntry(TableCellIcon, iconTester), sizing: iconSizing },
   registerEntry(TableCellBadges, badgesTester)

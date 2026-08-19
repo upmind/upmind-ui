@@ -21,3 +21,10 @@ export const cellIcon = cva("block", {
   },
   defaultVariants: { isFlagged: false }
 });
+
+/**
+ * A block of rendered markup — an email body drawn through `Sanitized`. It is a
+ * block, not the inline run a text cell is, so it wraps its own long words and
+ * keeps a comfortable reading measure.
+ */
+export const cellHtml = cva("text-sm leading-relaxed break-words");

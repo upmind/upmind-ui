@@ -28,19 +28,16 @@ import action from "@upmind-automation/i18n/core/action-en.json";
 import confirm from "@upmind-automation/i18n/core/confirm-en.json";
 import errorCatalogue from "@upmind-automation/i18n/core/error-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
+import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
 import { Sonner } from "@upmind-automation/upmind-ui";
-import labsEn from "../../../../../app/assets/locales/en/labs.json";
 import layoutSource from "../../../../../app/layouts/default.vue?raw";
 import {
   API_MESSAGE,
   defaultRow,
   recordedRejection,
   unverifiedRow
-} from "../../../../../tests/support/recorded-emails";
-import {
-  clearToasts,
-  mountToaster
-} from "../../../../../tests/support/toaster";
+} from "../../../testing/recorded-emails";
+import { clearToasts, mountToaster } from "../../../testing/toaster";
 import clientEmails from "../../../useClientEmails/client-email.scenario";
 import { ListSurface } from "../surfaces";
 import { useActionFeedback } from "../useActionFeedback";

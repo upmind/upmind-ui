@@ -4,7 +4,18 @@ import {
   useUischemaDefinitions as useAddressUischema
 } from "../../client-address";
 import { useCompanySchema, useCompanyUischema } from "../../client-company";
-import { usePhoneSchema, usePhoneUischema } from "../../client-phone";
+// @internal acknowledgement (row X2 / task T-6a, decision D-4): this file
+// composes the phone schema into a LARGER schema at module scope, where no
+// `useClientPhoneManager` instance exists to read it from machine context —
+// the barrel's usual "schema reaches consumers via useContext()" route does
+// not fit this one consumer. Reached by its deep internal path instead of
+// re-exporting the pair from the barrel, which would re-open the hazard
+// decision D-4 closed for every other consumer.
+// eslint-disable-next-line @internal/no-cross-module-imports -- see comment above (row X2 / T-6a)
+import {
+  useSchema as usePhoneSchema,
+  useUischema as usePhoneUischema
+} from "../../client-phone/client-phone.schemas";
 import { UnifiedType, type UnifiedContext } from "./types";
 import { find, get, set } from "lodash-es";
 import type { JsonSchema7, Layout, UISchemaElement } from "@jsonforms/core";

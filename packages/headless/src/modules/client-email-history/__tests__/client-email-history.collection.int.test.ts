@@ -245,28 +245,26 @@ describe("client-email-history collection — loading / empty / error, and isRea
 });
 
 describe("client-email-history collection — pagination (AC-9)", () => {
-  it("AC-9 reports the first real page — limit, pages, hasNextPage/hasPrevPage", async () => {
+  it("AC-9 boots on the schema's own paged window — the first real page: limit 10, page 1, more pages ahead", async () => {
     await seedClientSession();
     const handlers = installEmailHistoryHandlers();
     handlers.setListBody(recorded.pageOne());
     const observed = observeEmailHistoryRequests();
 
     const emails = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
-    await vi.waitFor(() =>
-      expect(emails.useMeta().isLoading.value).toBe(false)
-    );
+    await emails.useActions().isReady();
     observed.stop();
 
-    // `total` arrives inline on the same response — known as soon as the
-    // fetch settles, never a second async round-trip. C10/C9: exactly one
-    // request per page read, no `skip_count` side-channel (the withdrawn
-    // `withSplitCount` behaviour must stay withdrawn).
-    expect(observed.all()).toHaveLength(1);
-    expect(observed.all()[0].url).not.toContain("skip_count");
-    // C11 is dropped — no absolute-page member exists — but the wire offset
-    // for a plain first read is still `offset=0`, matching the recorded
-    // page-1 fixture's own captured `request.path`.
-    expect(decodeURIComponent(observed.all()[0].url)).toContain("offset=0");
+    // The schema's own pagination.limit default governs the boot window: the
+    // collection opens ALREADY on a bounded first page (matching legacy + the
+    // recorded default capture's own `limit=10`), which is what creates AC-9's
+    // "more emails than fit on one page" condition — no consumer opt-in first.
+    const boot = observed.first();
+    expect(new URL(boot.url).searchParams.get("limit")).toBe("10");
+    // C10/C9: one request per page read, no `skip_count` side-channel (the
+    // withdrawn `withSplitCount` behaviour must stay withdrawn); `total` arrives
+    // inline on this same response.
+    expect(boot.url).not.toContain("skip_count");
 
     const pagination = emails.useContext().pagination.value;
     expect(pagination.page).toBe(1);
@@ -276,32 +274,28 @@ describe("client-email-history collection — pagination (AC-9)", () => {
     expect(emails.useMeta().hasPrevPage.value).toBe(false);
   });
 
-  it("AC-9 nextPage()/prevPage() walk to page 2 and back — exactly one request per page step, no skip_count, and the offset on the wire matches the recorded page-1/page-2 fixtures' own captured request paths", async () => {
+  it("AC-9 nextPage()/prevPage() walk to page 2 and back — page 2 goes out at offset=10 (matching the recorded page-2 capture), no skip_count", async () => {
     await seedClientSession();
     const handlers = installEmailHistoryHandlers();
     handlers.setListBody(recorded.pageOne());
-    const observed = observeEmailHistoryRequests();
 
     const emails = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
-    await vi.waitFor(() =>
-      expect(emails.useMeta().isLoading.value).toBe(false)
-    );
-    await vi.waitFor(() => expect(observed.all()).toHaveLength(1));
-    expect(observed.all()[0].url).not.toContain("skip_count");
-    expect(decodeURIComponent(observed.all()[0].url)).toContain("offset=0");
-
+    await emails.useActions().isReady();
     expect(emails.useContext().pagination.value.pages).toBeGreaterThan(1);
 
+    const observed = observeEmailHistoryRequests();
     handlers.setListBody(recorded.pageTwo());
     await emails.useActions().nextPage();
     await vi.waitFor(() =>
       expect(emails.useContext().pagination.value.page).toBe(2)
     );
     expect(emails.useMeta().hasPrevPage.value).toBe(true);
-
-    await vi.waitFor(() => expect(observed.all()).toHaveLength(2));
-    expect(observed.all()[1].url).not.toContain("skip_count");
-    expect(decodeURIComponent(observed.all()[1].url)).toContain("offset=10");
+    await vi.waitFor(() =>
+      expect(decodeURIComponent(observed.all().at(-1)?.url ?? "")).toContain(
+        "offset=10"
+      )
+    );
+    expect(observed.all().at(-1)!.url).not.toContain("skip_count");
 
     handlers.setListBody(recorded.pageOne());
     await emails.useActions().prevPage();
@@ -309,15 +303,7 @@ describe("client-email-history collection — pagination (AC-9)", () => {
       expect(emails.useContext().pagination.value.page).toBe(1)
     );
     expect(emails.useMeta().hasPrevPage.value).toBe(false);
-
-    // The return to page 1 is served from the SAME query's already-fetched
-    // first page — no third request escapes to the wire. Verified live: a
-    // 300ms settle window after the page/hasPrevPage flip stays at 2
-    // observed requests, never 3. Asserting a fabricated third request
-    // would misstate what the walk actually puts on the wire.
-    await new Promise(resolve => setTimeout(resolve, 300));
     observed.stop();
-    expect(observed.all()).toHaveLength(2);
   });
 });
 

@@ -1,0 +1,36 @@
+Negative control — `findOne`'s NESTED-PARTIAL containment (AC-7, design D-11,
+hazard Z1).
+
+Mutates the collection context's `findOne:` member to expose `findOneByValue` —
+the shared `useCollection` helper — in place of the local `findOne` that wraps
+it. The wrapper is what deep-partial-matches nested plain-object values; the
+shared helper compares each mapped top-level key with a strict `isEqual`, so
+`{ address: { city } }` can never match the full mapped `address` object. The
+member stays present and still resolves string lookups identically, since the
+wrapper delegates those to the very helper this mutant substitutes.
+
+The mutation reinstates the platform hazard rather than inventing one: this is
+`useCollection`'s real behaviour, and it is why the containment is contained
+LOCALLY here (mirroring `client-phone/useClientPhones.context.ts:49-68`) with
+the SHARED helper deliberately not edited.
+
+Declared AC — AC-7: "`findOne` matches a nested partial" —
+`findOne({ address: { city: "<fixture city>" } })` returns the matching row.
+
+No collateral measured. String-mapping lookups route to the same helper either
+way, and `ensure`'s whole-object match is the degenerate full case, so nothing
+outside AC-7's read-backs observes the difference.
+
+diff --git a/packages/headless/src/modules/client-address/useClientAddresses.context.ts b/packages/headless/src/modules/client-address/useClientAddresses.context.ts
+index c0e20de3d..e6272a7b3 100644
+--- a/packages/headless/src/modules/client-address/useClientAddresses.context.ts
++++ b/packages/headless/src/modules/client-address/useClientAddresses.context.ts
+@@ -107,7 +107,7 @@ export function createClientAddressesContext(
+      * or, given a string, by a case-insensitive substring of its `title` or
+      * `description`.
+      */
+-    findOne,
++    findOne: findOneByValue,
+ 
+     /** Finds a single address by id. */
+     getOne,

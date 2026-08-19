@@ -8,11 +8,13 @@
  * construct minted below is new ground, not a duplicate of something already
  * exposed. `SentEmail` / `SentEmailModel` / `SentEmailStatus` /
  * `ReceivedEmailsSortableProperties` already exist and are consumed, never
- * re-minted. `ReceivedEmailItemQuery` is this module's own explicit contract
- * over the platform `query()` return (the platform's withdrawn `ItemQuery`
- * type no longer exists — see the operator's platform-revert directive), built
- * the same way the platform's own `ListQuery` is: from `typeof vueUseQuery`,
- * never from `ReturnType<typeof loadOne>`. See `graphify-out/GRAPH_REPORT.md`.
+ * re-minted. `ReceivedEmailItemQuery` aliases the platform's own `SimpleQuery`
+ * — the criteria-bearing single-read handle — the same way
+ * `ReceivedEmailsListQuery` aliases `ListQuery`, never from `ReturnType<typeof
+ * loadOne>`. The query-model family (`SentEmailQueryModel`,
+ * `SentEmailSortEntry`, `SentEmailQuerySchema`, `SENT_EMAIL_DEFAULT_SORT`) is
+ * new ground here, minted the same way the `client-email` sibling's cited
+ * `QueryModel` family was — no prior node. See `graphify-out/GRAPH_REPORT.md`.
  */
 // -----------------------------------------------------------------------------
 /**
@@ -26,14 +28,12 @@
  */
 
 import { AccessRoleTypes } from "@upmind-automation/types";
+import { SortDirection } from "../query/query.types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { ResponseError } from "../../utils";
-import type { ListQuery, QueryParams } from "../query";
-import type {
-  DefaultError,
-  QueryKey,
-  useQuery as vueUseQuery
-} from "@tanstack/vue-query";
+import type { ListQuery, SimpleQuery } from "../query";
+import type { JsonSchema7 } from "@jsonforms/core";
+import type { QueryKey } from "@tanstack/vue-query";
 import type { IClient, IImage, ISentEmail } from "@upmind-automation/types";
 import type { SentEmailStatus } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
@@ -107,6 +107,58 @@ export enum ReceivedEmailsSortableProperties {
 }
 
 // -----------------------------------------------------------------------------
+// QUERY MODEL
+// -----------------------------------------------------------------------------
+
+/**
+ * The whole request state as one model — `filters` (nested column → operator →
+ * value), `sort` (ordered, precedence = position) and `pagination`. This is the
+ * instance validated against `useQuerySchema()`; the query layer's translator
+ * maps it to the wire triple. No `query` member: this endpoint honours no
+ * free-text term, so the search box binds `filters.subject.like`.
+ */
+export type SentEmailQueryModel = {
+  filters?: {
+    subject?: { like?: string };
+    sent?: { eq?: boolean };
+    bounced?: { eq?: boolean };
+    error_id?: { neq?: string };
+  };
+  sort?: SentEmailSortEntry[];
+  pagination?: { limit?: number; offset?: number };
+};
+
+/**
+ * The nested filter model — the `filters` branch of {@link SentEmailQueryModel}.
+ * A projection of the already-minted model (top-of-file `graphify-out/`
+ * citation), the same way the `client-email` sibling projects `FilterModel`.
+ */
+export type SentEmailFilterModel = NonNullable<SentEmailQueryModel["filters"]>;
+
+/** One sort entry — the MODEL's ordered form; precedence is position. */
+export type SentEmailSortEntry = { field: string; dir: SortDirection };
+
+/** The ordered sort model — the `sort` branch of {@link SentEmailQueryModel}. */
+export type SentEmailSortModel = NonNullable<SentEmailQueryModel["sort"]>;
+
+/**
+ * The BOOT order — newest first (`order=-created_at` on the wire). Declared as
+ * the query schema's `sort` default, so an emptied sort refills itself on the
+ * next parse. This is the boot state only: a user sort replaces the whole
+ * model.
+ */
+export const SENT_EMAIL_DEFAULT_SORT: SentEmailSortEntry[] = [
+  { field: "created_at", dir: SortDirection.DESC }
+];
+
+/**
+ * The collection's query schema. A `JsonSchema7`: a query schema IS a real
+ * Draft-07 schema, walked at runtime by the translator/validators, so the type
+ * stays general rather than a module-specific literal.
+ */
+export type SentEmailQuerySchema = JsonSchema7;
+
+// -----------------------------------------------------------------------------
 // MODELS
 // -----------------------------------------------------------------------------
 
@@ -150,6 +202,12 @@ export interface SentEmail extends SentEmailModel {
    */
   to: ISentEmail["to"];
   /**
+   * CC recipients, shown in the read-only detail (legacy `viewEmailModal` cc
+   * field). New member of the already-cited `SentEmail` — `graphify-out/` graph
+   * query returned no separate cc construct.
+   */
+  cc: ISentEmail["cc"];
+  /**
    * The date and time when the email was sent.
    */
   dateBounced: {
@@ -167,6 +225,26 @@ export interface SentEmail extends SentEmailModel {
    * The date and time when the email was sent.
    */
   dateSent: {
+    date?: string | null;
+    relative?: string | null;
+  };
+  /**
+   * The status-appropriate display date — sent_at when sent, bounced_at when
+   * bounced, updated_at when errored, null while still sending. Parity with the
+   * legacy emailHistory table, which shows the date BY STATUS, never a bare
+   * created_at column. New MEMBERS of the already-cited `SentEmail` (top-of-file
+   * `graphify-out/` citation confirms no separate display-date type exists).
+   */
+  date: {
+    date?: string | null;
+    relative?: string | null;
+  };
+  /**
+   * The record's created/queued date (`order=-created_at`) — the field the list
+   * SORTS and FILTERS by. Not a displayed list column in the oracle
+   * (`graphify-out/` graph query: no prior `dateCreated` construct).
+   */
+  dateCreated: {
     date?: string | null;
     relative?: string | null;
   };
@@ -208,27 +286,26 @@ export interface SentEmail extends SentEmailModel {
 
 /**
  * The reactive list query, minted ONCE per scope in `useClientReceivedEmails.ts`.
- * Aliased from the query platform's own `ListQuery` — never derived with
- * `ReturnType<typeof localServiceFn>`.
+ * Aliased from the query platform's own `ListQuery`, parameterised by this
+ * module's {@link SentEmailQueryModel} — never derived with
+ * `ReturnType<typeof localServiceFn>`. The handle publishes `criteria` /
+ * `schema` / `isFiltered` / `criteriaError` / `setCriteria`, so every layer
+ * below reads THAT one source and never a shadow copy.
  */
-export type ReceivedEmailsListQuery = ListQuery<ISentEmail[], SentEmail[]>;
+export type ReceivedEmailsListQuery = ListQuery<
+  ISentEmail[],
+  SentEmail[],
+  SentEmailQueryModel
+>;
 
 /**
  * The reactive single-item query, minted ONCE per scope in
- * `useClientReceivedEmail.ts`. The platform's `ItemQuery` type was withdrawn
- * (platform-revert directive, graphify-out/ cite above), so this module
- * declares the shape as its OWN contract over `query()`'s return — built the
- * same way the platform's own `ListQuery` is, from `typeof vueUseQuery`, never
- * from `ReturnType<typeof loadOne>` (the banned local-service-fn derivation).
+ * `useClientReceivedEmail.ts`. Aliases the platform's own `SimpleQuery` — the
+ * criteria-bearing single-read handle — the same way
+ * {@link ReceivedEmailsListQuery} aliases `ListQuery`, never from
+ * `ReturnType<typeof loadOne>`.
  */
-export type ReceivedEmailItemQuery = ReturnType<
-  typeof vueUseQuery<ISentEmail, DefaultError, SentEmail>
-> & {
-  data: ComputedRef<SentEmail>;
-  sort: (values?: QueryParams["sort"]) => void;
-  filter: (values: QueryParams["filters"]) => void;
-  resetQuery: () => Promise<void>;
-};
+export type ReceivedEmailItemQuery = SimpleQuery<ISentEmail, SentEmail>;
 
 /**
  * The contract `createClientEmailHistoryServices` resolves to — consumed by
@@ -255,8 +332,11 @@ export type ClientEmailHistoryServices = {
    * module has no mutations to capture.
    */
   error: ComputedRef<ResponseError | undefined>;
-  loadList: (
-    params?: Partial<QueryParams<ISentEmail[], SentEmail[]>>
-  ) => ReceivedEmailsListQuery;
+  /**
+   * The collection's list query. Takes NOTHING: the request state is the
+   * declared query schema, handed to `list({ criteria })`, so there is no
+   * params back door a caller could contradict it through.
+   */
+  loadList: () => ReceivedEmailsListQuery;
   loadOne: (emailId?: SentEmail["id"]) => ReceivedEmailItemQuery;
 };

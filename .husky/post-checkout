@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Refresh the cross-package knowledge graph after a branch checkout ($3 == 1).
+#
+# A branch switch (or a fresh worktree) can touch arbitrary files, so rebuild.
+# See post-commit for why this is refresh.sh and not `graphify update`. --check
+# fast-exits when no source changed; runs detached so checkout returns at once
+# and never fails. Opt out with GRAPHIFY_SKIP_HOOK=1.
+if [ "$3" = "1" ] && [ -z "${GRAPHIFY_SKIP_HOOK:-}" ]; then
+  R="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+  [ -x "$R/.claude/scripts/graphify/refresh.sh" ] && \
+    ( bash "$R/.claude/scripts/graphify/refresh.sh" --check >"${HOME}/.cache/graphify-rebuild.log" 2>&1 & ) >/dev/null 2>&1
+fi
+exit 0

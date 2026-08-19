@@ -22,10 +22,7 @@
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Card } from "@upmind-automation/upmind-ui";
-import {
-  defaultRow,
-  unverifiedRow
-} from "../../../../../../tests/support/recorded-emails";
+import { defaultRow, unverifiedRow } from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { CardSlotTypes } from "../../../scenario.types";
 import { RESOLVED_HANDOFFS } from "../../__tests__/resolved-handoffs";

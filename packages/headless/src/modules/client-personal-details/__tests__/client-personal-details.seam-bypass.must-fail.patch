@@ -1,0 +1,20 @@
+--- a/packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts
++++ b/packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts
+@@ -172,7 +172,7 @@
+         id: field.id,
+         code: field.code,
+         title: field.name,
+-        value: mapCustomFieldValue(value.value, field),
++        value: String(value.value),
+         meta: { ...field.meta, isCustomField: true }
+       });
+       return result;
+@@ -219,7 +219,7 @@
+         id: field.id,
+         code: field.code,
+         title: field.name,
+-        value: mapCustomFieldValue(value?.value, field),
++        value: String(value?.value),
+         meta: { ...field.meta, isCustomField: true }
+       };
+     }),

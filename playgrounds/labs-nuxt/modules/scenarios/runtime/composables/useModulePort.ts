@@ -14,20 +14,11 @@
  * fires nothing, so it is populated before the first fetch.
  */
 
-import { ScopeActorTypes } from "@upmind-automation/headless";
+import { ScopeActorTypes, translateQuery } from "@upmind-automation/headless";
 import { servesActor } from "../../../../app/composables/scope";
 import { useCompositionPort } from "./useCompositionPort";
 import { useTableChannel } from "./useTableChannel";
-import {
-  get,
-  isArray,
-  isEmpty,
-  isFunction,
-  join,
-  map,
-  omitBy,
-  toString
-} from "lodash-es";
+import { get, isFunction } from "lodash-es";
 import type {
   FourLayerComposable,
   ScenarioScopedCell
@@ -39,7 +30,6 @@ import type {
   ModulePortScope
 } from "./useModulePort.types";
 import type { TableChannelCell } from "./useTableChannel.types";
-import type { QueryProps } from "@upmind-automation/headless";
 import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
@@ -54,49 +44,19 @@ export function ownsQueryState(cell: ScenarioScopedCell): boolean {
   return !!get(context, "query") && !!get(context, ["schemas", "query"]);
 }
 
-/**
- * The translated wire as SEARCH PARAMS — the tuple (or tuples) joined into
- * `order`, the cursor as `limit`/`offset`, and the `filter[column|operator]`
- * keys `translateQuery` already emits, with the inactive ones dropped.
- *
- * It mirrors rather than calls `useQuery`'s own serialisation: that lives inline
- * in `request()`, which writes onto a live `URL` and then FETCHES, and the debug
- * chain must be producible without firing anything. Deleting this copy means
- * exporting a pure serialiser from the query module.
- */
-function toRequestParams(props: QueryProps): Record<string, string> {
-  const sort = props.sort ?? [];
-
-  return omitBy(
-    {
-      ...props.filters,
-      order: isArray(sort[0])
-        ? join(
-            map(sort as string[][], entry => join(entry, "")),
-            ","
-          )
-        : join(sort as string[], ""),
-      limit: toString(get(props, ["pagination", "limit"])),
-      offset: toString(get(props, ["pagination", "offset"]))
-    },
-    isEmpty
-  ) as Record<string, string>;
-}
-
 /** The four artefacts shown side by side; absent for a cell that owns no criteria. */
 function readDebug(cell: ScenarioScopedCell): ModulePortDebug | undefined {
   if (!ownsQueryState(cell)) return undefined;
 
   const context = cell.useContext();
-  const translate = get(cell.useInternals?.() ?? {}, "translateQuery");
+  const schema = get(context, ["schemas", "query", "schema"]);
+  const model = get(context, ["query", "value"]);
 
   return {
-    schema: get(context, ["schemas", "query", "schema"]),
+    schema,
     uischema: get(context, ["schemas", "query", "uischema"]),
-    model: get(context, ["query", "value"]),
-    request: isFunction(translate)
-      ? toRequestParams(translate() as QueryProps)
-      : {}
+    model,
+    request: translateQuery(schema, model ?? {})
   };
 }
 

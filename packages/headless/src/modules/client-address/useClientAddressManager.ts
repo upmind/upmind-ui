@@ -1,296 +1,182 @@
-import { useActor } from "@xstate/vue";
-import { computed } from "vue";
+import { watch } from "vue";
 import { interpret } from "xstate";
-import { waitFor } from "xstate/lib/waitFor";
 import { dataManagerMachine } from "../data-manager";
-import { useActiveSession } from "../session-store";
+import { createScopedComposable } from "../scope/scope.builder";
 import { useI18n } from "../system-localisation";
-import { useClientAddressActions, useClientAddressGuards } from "./actions";
-import { useClientAddressServices } from "./client-address.services";
-import { useClientAddresses } from "./useClientAddresses";
+import createClientAddressServices from "./client-address.services";
+import { ClientAddressContextTypes } from "./client-address.types";
+import { createClientAddressManagerActions } from "./useClientAddressManager.actions";
+import { createClientAddressManagerContext } from "./useClientAddressManager.context";
+import { createClientAddressManagerInternals } from "./useClientAddressManager.internals";
+import { createClientAddressManagerMachineConfig } from "./useClientAddressManager.machine";
+import { createClientAddressManagerMeta } from "./useClientAddressManager.meta";
 import {
-  DEBOUNCE_DELAY,
-  stateValue,
-  useContext,
-  ErrorOrigin,
-  contextValue,
-  stateMatches,
-  DetailedError,
-  responseCodes,
+  createActor,
   contextMatches,
-  type ResponseError,
-  stopService
+  DetailedError,
+  ErrorOrigin,
+  responseCodes
 } from "../../utils";
-import { debounce, get, isEmpty, isEqual } from "lodash-es";
-import type { Address, AddressModel } from "./client-address.types";
-import type { DataManagerContext } from "../data-manager/data-manager.types";
-import type { IClient } from "@upmind-automation/types";
-import type { ErrorObject } from "ajv";
-
+import type { ClientAddressScopeMatrix } from "./client-address.types";
+import type { ScopeConfig, ScopeKey } from "../scope";
+import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
-
 /**
- * Provides functionalities to manage a client's address, leveraging an XState machine.
- * This composable handles address data, validation, saving, and interaction states.
- * It's designed for use in contexts like client profile management or checkout address selection.
+ * @module client-address/useClientAddressManager
+ * @description Scoped per-address form editor, backed by the shared
+ * `dataManagerMachine`. One interpreter per concrete `(actor, address)` scope:
+ * the address being edited comes from `.for('address', id)`, and a new one is
+ * minted with `.fresh()`. Registered under the same module name as
+ * `useClientAddresses`; the scope key carries the differentiation.
  *
- * @param id - The unique identifier of the address to manage. If omitted, it may imply a new address.
- * @param options - Optional configuration for the address management.
- * @param options.allowMultipleEdits - If `true`, allows multiple instances of this composable to manage different addresses concurrently.
- * @param options.clientId - The unique identifier of the client to whom this address belongs.
- * @returns The API for managing the client address.
+ * The `clientId` constructor option the pre-conversion manager advertised
+ * (`useClientAddressManager(id, { clientId })`) is REMOVED outright (prior
+ * ruling PR-2, `design.md` D-3): it was threaded into machine context and
+ * NEVER REACHED A URL, because every request-issuing function re-read the
+ * session independently — a parameter that claims retargeting and does not
+ * retarget is cosplay. The target client now resolves EXCLUSIVELY through
+ * `resolveClientId(scopeContext)`, seeded into machine context below.
+ *
+ * @doctrine clause 1 (uniform four-layer default) — identical return shape to
+ * the collection half.
+ * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
+ * actor; never branch on SELF in this file.
  */
-export const useClientAddressManager = (
-  id?: Address["id"],
-  {
-    allowMultipleEdits,
-    clientId
-  }: { allowMultipleEdits?: boolean; clientId?: IClient["id"] } = {}
-) => {
+function createClientAddressManagerForScope(
+  config: ScopeConfig,
+  scopeKey: ScopeKey
+) {
   const { t } = useI18n();
-  const { getOne } = useClientAddresses();
 
-  const service = interpret(
+  const actorScope = config.actor as ScopeActorTypes;
+
+  /**
+   * The address being edited is carried by the scope context; absent
+   * (`.fresh()`) → a new address. Reading the id from the scope rather than an
+   * argument is what makes two concurrently-open editors two distinct registry
+   * entries instead of one shared machine (AC-29).
+   */
+  const addressId =
+    config.context?.type === ClientAddressContextTypes.ADDRESS
+      ? config.context.id
+      : undefined;
+
+  /**
+   * ONE services instance for this scope, threaded into the machine config.
+   * `config.context` goes in here and nowhere else — every request the manager
+   * issues, directly or through the machine, inherits the same resolved
+   * client.
+   *
+   * `pinClient` is what makes "the account this editor was opened for" survive
+   * a session that moves underneath it: the READ and the WRITE address the same
+   * client, and neither re-reads `activeUser` at request time (AC-30).
+   */
+  const service = createClientAddressServices(actorScope, config.context, {
+    pinClient: true
+  });
+
+  const machineService = interpret(
     dataManagerMachine
-      .withConfig({
-        actions: useClientAddressActions() as any,
-        guards: useClientAddressGuards() as any,
-        services: useClientAddressServices() as any
-      })
+      .withConfig(createClientAddressManagerMachineConfig(service))
       .withContext({
-        clientId,
-        id,
-        model: getOne(id),
-        allowMultipleEdits
+        id: addressId,
+        // Identity, seeded from the ONE seam (D-3). Never read `activeUser`
+        // directly in this file.
+        clientId: service.clientId.value,
+        // Scoped instances are persistent editors — stay editable after a save
+        // (the machine returns to `available` instead of the `complete` final
+        // state) so a remounting form re-uses the same instance.
+        allowMultipleEdits: true
       }),
     {
-      id: id ?? "new-address",
+      // The scope key, not the address id: `.fresh()` mints a unique key per
+      // call, so two concurrent drafts get two distinct interpreters instead of
+      // colliding on a shared "new-address" id (AC-29).
+      id: scopeKey,
       devTools: false
     }
   );
+  machineService.start();
 
-  const { state, send } = useActor(service.start());
-
-  // --- state
-
-  // the clientId is required to bring the machine into the available state
-  const { isReady: ensureAuth } = useActiveSession().useActions();
-  const { activeUser } = useActiveSession().useContext();
-  ensureAuth()
-    .then(ok => {
-      const client = ok ? activeUser.value : undefined;
-      if (client?.id && !contextMatches(state, "clientId")) {
-        send({ type: "REFRESH", data: { clientId: client.id } });
-      }
-    })
-    .catch(() => {
-      /* guest sessions won't be authenticated — silently skip */
-    });
-
-  async function isReady(): Promise<boolean> {
-    return waitFor(service, state => stateMatches(state, "available"), {
-      timeout: Infinity
-    }).then(state => !stateMatches(state, "error"));
-  }
-
-  const meta = computed(() => ({
-    isAvailable: stateMatches(state, "available"),
-    isLoading: stateMatches(state, ["subscribing", "loading"]),
-    hasErrors: stateMatches(state, "available.error"),
-    isNew: !stateMatches(state, "model.id"),
-    isValid: stateMatches(state, "available.valid"),
-    isDirty: !isEqual(
-      contextValue<DataManagerContext["model"]>(state, "model"),
-      contextValue<DataManagerContext["baseModel"]>(state, "baseModel")
-    ),
-    isProcessing: stateMatches(state, "processing"),
-    isComplete:
-      stateValue(state, "done", false) ||
-      stateMatches(state, ["processed", "complete"])
-  }));
-
-  // --- context
-  const context = useContext<DataManagerContext>(state);
-
-  const title = useContext<string | undefined>(state, "title");
-
-  const description = useContext<string | undefined>(state, "description");
-
-  const errors = useContext<ResponseError["message"]>(state, "error.message");
-  const validationErrors = useContext<ErrorObject[]>(state, "error.data");
-
-  const model = useContext<DataManagerContext["model"]>(state, "model");
-
-  const schema = useContext<DataManagerContext["schema"]>(state, "schema");
-
-  const uischema = useContext<DataManagerContext["uischema"]>(
-    state,
-    "uischema"
-  );
-
-  // --- methods
-
-  async function input(
-    model: AddressModel | Record<string, any>
-  ): Promise<AddressModel> {
-    send({ type: "SET", data: model });
-    // then we wait until the module has been checked and is valid/invalid
-    return waitFor(service, state =>
-      stateMatches(state, ["available.valid", "available.invalid"])
-    )
-      .then(state => get(state, "context.model") as AddressModel)
-      .catch(() => {
-        return Promise.reject(
-          new DetailedError(
-            t("error.input_not_available"),
-            responseCodes.Forbidden,
-            ErrorOrigin.Headless
-          )
-        );
-      });
-  }
-
-  const debouncedInput = debounce(input, DEBOUNCE_DELAY);
-
-  async function update(
-    value?: AddressModel | Record<string, any>
-  ): Promise<AddressModel> {
-    // Commit any typed input still pending on the debounce before saving,
-    // otherwise the save reads the pre-edit model.
-    await debouncedInput.flush()?.catch(() => undefined);
-
-    // first check if our model has changed, if it has, we need to send it
-    const model = contextValue<AddressModel>(state, "model");
-
-    if (!isEmpty(value) && !isEqual(value, model)) {
-      send({ type: "SET", data: value, update: true });
-    } else {
-      send({ type: "UPDATE" });
-    }
-
-    // we have to ensure the update is processed and the state is either processed or available.error
-    return (
-      waitFor(
-        service,
-        state =>
-          stateMatches(state, [
-            "processed",
-            "available.error",
-            "available.invalid"
-          ]),
-        { timeout: 60_000 }
-      )
-        .then(state => {
-          if (stateMatches(state, ["available.error", "available.invalid"]))
-            throw state.context.error;
-          return Promise.resolve(state.context.model);
-        })
-        // .then(model => {
-        //   useClientAddressServices().refresh();
-        //   return model as AddressModel;
-        // })
-        .catch(error => {
-          return Promise.reject(
-            new DetailedError(
-              t("error.client_address_update_failed"),
-              error?.status ?? responseCodes.Timeout,
-              ErrorOrigin.Headless,
-              {
-                error,
-                state: state.value
-              }
-            )
-          );
-        })
+  const actorRef = createActor(machineService);
+  if (!actorRef) {
+    throw new DetailedError(
+      t("error.client_address_not_available"),
+      responseCodes.Service_Unavailable,
+      ErrorOrigin.Headless,
+      { scope: config }
     );
   }
 
-  function clear(): void {
-    service.send({ type: "CLEAR" });
-  }
+  /**
+   * Late top-up ONLY. The machine's `hasSubscription` guard holds it in
+   * `subscribing` until a client id exists, and at construction the session may
+   * not have resolved yet. The id is watched off `service.clientId` — the ONE
+   * identity seam, never a second session read — and `refreshContext` keeps an
+   * already-present value, so this can never clobber a resolved retarget
+   * (AC-30).
+   */
+  const stopClientIdTopUp = watch(service.clientId, resolvedClientId => {
+    if (!resolvedClientId || contextMatches(actorRef.state, "clientId")) return;
+    stopClientIdTopUp();
+    actorRef.send({ type: "REFRESH", data: { clientId: resolvedClientId } });
+  });
 
-  function stop(): void {
-    stopService(service);
-  }
-  // ---------------------------------------------------------------------------
+  /**
+   * ONE actions instance per scope, not one per `useActions()` call: `input` is
+   * debounced, so a debouncer minted per call gives two keystrokes two
+   * independent timers. The stateless layers below stay lazy.
+   */
+  const actions = createClientAddressManagerActions(
+    actorScope,
+    actorRef,
+    service,
+    scopeKey
+  );
+
   return {
-    // --- state
+    // --- Sub-composables (no direct props — clause 1 four-layer return)
+    /** Sub-composable for manager actions (form input, save, lifecycle). */
+    useActions: () => actions,
 
-    /**
-     * Resolves when the service is ready to accept input or perform actions.
-     * @returns {Promise<boolean>} Resolves true if ready, false if error.
-     */
-    isReady,
+    /** Sub-composable for manager context (model, schema, errors). */
+    useContext: () => createClientAddressManagerContext(actorScope, actorRef),
 
-    /**
-     * Meta-information about the state.
-     * @type {Object} UnifiedMeta
-     * @property {boolean} isAvailable - Indicates if the actor is available.
-     * @property {boolean} isLoading - Indicates if the actor is loading.
-     * @property {boolean} hasErrors - Indicates if there are errors.
-     * @property {boolean} isValid - Indicates if the is valid.
-     * @property {boolean} isNew - Indicates if the is new (not yet saved).
-     * @property {boolean} isProcessing - Indicates if the is processing.
-     * @property {boolean} isComplete - Indicates if the is complete.
-     */
-    meta,
+    /** Sub-composable for advanced debugging and internal access. */
+    useInternals: () =>
+      createClientAddressManagerInternals(actorScope, actorRef),
 
-    // --- context
-
-    /** The full context object. */
-    context,
-
-    /** Title of the address */
-    title,
-
-    /** Description of the address */
-    description,
-
-    /** The ID of the address */
-    id: useContext<string | undefined>(state, "id"),
-
-    /** Any error object from the context. */
-    errors,
-
-    /** Any validation errors from the context. */
-    validationErrors,
-
-    /** The current model.*/
-    model,
-
-    /** The JSON schema for the form*/
-    schema,
-
-    /** The UI schema for the form */
-    uischema,
-
-    // --- methods
-
-    /**
-     * Stops the service.
-     */
-    stop,
-
-    /** Clears the context.*/
-    clear,
-
-    /**
-     * Inputs a new model, resolving to the updated model. This is debounced to avoid excessive calls.
-     * @param {AddressModel} value - The model to input.
-     * @returns {Promise<AddressModel>} The updated model.
-     */
-    input: debouncedInput,
-
-    /**
-     * Sends the current model to the service for processing.
-     * @param {AddressModel} value The optional new model to set. uses the current model if not provided.
-     * @returns {Promise<AddressModel>} Resolves when updated model from the service, rejects on error.
-     */
-    update
+    /** Sub-composable for manager meta (state flags). */
+    useMeta: () => createClientAddressManagerMeta(actorScope, actorRef)
   };
-};
-
+}
+// -----------------------------------------------------------------------------
 /**
- * The return type of the {@link useClientAddressManager} composable function.
+ * Scoped composable for editing ONE client address.
+ *
+ * @example
+ * ```ts
+ * // Edit an existing address
+ * const manager = useClientAddressManager().as('client').for('address', addressId)
+ * const { model, schema, uischema } = manager.useContext()
+ * await manager.useActions().isReady()
+ *
+ * // A PARTIAL payload refills every omitted key from the FORM-OPEN snapshot,
+ * // so this is only safe on an untouched editor. After any earlier edit it
+ * // discards that edit — silently, resolving as success. Pass the whole model
+ * // instead. See `update`'s JSDoc in `useClientAddressManager.actions.ts`.
+ * await manager.useActions().update({ address: { city: 'London' } })
+ *
+ * // Create a new address (isolated instance, distinct scope key)
+ * const draft = useClientAddressManager().as('client').fresh()
+ * ```
  */
-export type UseClientAddress = ReturnType<typeof useClientAddressManager>;
+export const useClientAddressManager = createScopedComposable<
+  ReturnType<typeof createClientAddressManagerForScope>,
+  ClientAddressScopeMatrix
+>("client-address", createClientAddressManagerForScope);
+
+// Type export for consumers
+export type UseClientAddressManager = ReturnType<
+  typeof useClientAddressManager
+>;

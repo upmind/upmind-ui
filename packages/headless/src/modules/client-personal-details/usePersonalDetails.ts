@@ -1,92 +1,89 @@
-import { computed } from "vue";
-import { useClientCustomFields } from "../client-custom-fields";
-import { useActiveSession } from "../session-store";
-import { mapProfileFields } from "./client-personal-details.mappers";
-import { isEmpty } from "lodash-es";
-
-// --- types
-
+import { createScopedComposable } from "../scope";
+import { createClientPersonalDetailsServices } from "./client-personal-details.services";
+import { createPersonalDetailsActions } from "./usePersonalDetails.actions";
+import { createPersonalDetailsContext } from "./usePersonalDetails.context";
+import { createPersonalDetailsInternals } from "./usePersonalDetails.internals";
+import { createPersonalDetailsMeta } from "./usePersonalDetails.meta";
+import type { PersonalDetailsScopeMatrix } from "./client-personal-details.types";
+import type { ScopeConfig, ScopeKey } from "../scope";
+import type { ScopeActorTypes } from "../scope/scope.types";
+// -----------------------------------------------------------------------------
 /**
- * Composable function for managing client phones.
- * It handles fetching, displaying, filtering, and performing actions on client phones,
- * leveraging an underlying service and TanStack Query for data management.
+ * @module client-personal-details/usePersonalDetails
+ * @description Scoped, query-backed read of a client's own profile: one
+ * reactive record query per concrete `(actor, context)` scope, minted once
+ * at construction so it survives component lifecycles. Its sibling is
+ * `usePersonalDetailsManager` — a second scoped composable in the same
+ * module, sharing the SAME scope matrix (design.md §3.2) but registered
+ * under its OWN registry name (`usePersonalDetailsManager.ts`'s own
+ * `@decision` explains why a shared name would collide here, unlike
+ * `client-email`'s).
  *
- * @param initial - Optional initial query parameters for loading the phone list. Defaults to pagination limit of 0.
- * @returns The {@link UseProfileDetails} API for interacting with client phones.
+ * @doctrine clause 1 (uniform four-layer default).
+ * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
+ * actor; the scope builder resolves SELF before this factory runs.
  */
-export const usePersonalDetails = () => {
-  const { isReady: sessionReady } = useActiveSession().useActions();
-  const { isAuthenticated } = useActiveSession().useMeta();
-  const { activeUser: client } = useActiveSession().useContext();
+function createPersonalDetailsForScope(
+  config: ScopeConfig,
+  scopeKey: ScopeKey
+) {
+  const actorScope = config.actor as ScopeActorTypes;
 
-  const {
-    isReady: customFieldsIsReady,
-    data: customFields,
-    meta: customFieldsMeta
-  } = useClientCustomFields();
+  /**
+   * ONE services instance for this scope. `config.context` goes in here and
+   * nowhere else, so every request the read half issues resolves the same
+   * target client.
+   */
+  const service = createClientPersonalDetailsServices(
+    actorScope,
+    config.context
+  );
 
-  async function isReady(): Promise<boolean> {
-    if (isAuthenticated.value)
-      return new Promise(async resolve => {
-        await customFieldsIsReady();
-        resolve(true);
-      });
-    return sessionReady()
-      .then(() => customFieldsIsReady().then(() => true))
-      .catch(() => false);
-  }
-
-  const data = computed(() => {
-    if (!client.value) return [];
-    return mapProfileFields(client.value, customFields.value || []);
-  });
-
-  const meta = computed(() => ({
-    isLoading: customFieldsMeta.value.isLoading || !isAuthenticated.value,
-    hasError: customFieldsMeta.value.hasError,
-    isEmpty: isEmpty(data.value),
-    isAvailable: isAuthenticated.value && customFieldsMeta.value.isAvailable
-  }));
-
-  // --- context
-
-  // ---------------------------------------------------------------------------
+  /**
+   * The reactive profile query, minted ONCE per scope — a `service.loadProfile()`
+   * call inside a layer factory would mint a second query with its own refs,
+   * key and effect scope. Mirrors `useClientCustomFields`.
+   */
+  const query = service.loadProfile();
 
   return {
-    // --- state
+    // --- Sub-composables (no direct props — clause 1 four-layer return)
+    /** Sub-composable for read actions (readiness, refresh). */
+    useActions: () =>
+      createPersonalDetailsActions(
+        actorScope,
+        service,
+        query,
+        scopeKey,
+        config.context
+      ),
 
-    /**
-     * Resolves when the client items are ready to be used.
-     * Returns true if ready, false if an error occurred.
-     * @returns {Promise<boolean>} A promise resolving to true if ready, false if error.
-     */
-    isReady,
+    /** Sub-composable for read context (the profile, its custom fields, lookups). */
+    useContext: () =>
+      createPersonalDetailsContext(actorScope, query, config.context),
 
-    /**
-     * Meta-information about the basket state.
-     * @typedef {Object} ClientPhoneMeta
-     * @property {boolean} isError - Indicates if there was an error during the query.
-     * @property {boolean} isEmpty - Indicates if the basket is empty.
-     * @property {boolean} isLoading - Indicates if the query is currently loading.
-     * @property {boolean} isAuthenticated - Indicates if the client is authenticated.
-     */
-    meta,
+    /** Sub-composable for advanced debugging and internal access. */
+    useInternals: () => createPersonalDetailsInternals(actorScope, query),
 
-    // --- context
-
-    /**
-     * The reactive data property containing the list of client items.
-     * This is populated by the query and updates automatically when the query state changes.
-     */
-    data,
-
-    customFields
-
-    // --- methods
+    /** Sub-composable for read meta (state flags). */
+    useMeta: () => createPersonalDetailsMeta(actorScope, service, query)
   };
-};
-
+}
+// -----------------------------------------------------------------------------
 /**
- * The return type of the {@link UseProfileDetails} composable function.
+ * Scoped composable for reading a client's own profile.
+ *
+ * @example
+ * ```ts
+ * const profile = usePersonalDetails().as('client')
+ * const { data } = profile.useContext()
+ * await profile.useActions().isReady()
+ * ```
  */
-export type UseProfileDetails = ReturnType<typeof usePersonalDetails>;
+export const usePersonalDetails = createScopedComposable<
+  ReturnType<typeof createPersonalDetailsForScope>,
+  PersonalDetailsScopeMatrix
+>("client-personal-details", createPersonalDetailsForScope);
+
+// Type export for consumers
+export type UsePersonalDetails = ReturnType<typeof usePersonalDetails>;

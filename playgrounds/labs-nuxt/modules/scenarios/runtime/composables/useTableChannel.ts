@@ -18,7 +18,7 @@
  */
 
 import { TABLE_INTENT_TYPE } from "@upmind-automation/scenario-harness";
-import { find, forEach, get, isNil, keys, map } from "lodash-es";
+import { forEach, get, isNil, keys, map } from "lodash-es";
 import type {
   DeclaredSortField,
   DeclaringTableChannel,
@@ -47,20 +47,26 @@ function operatorFor(schema: unknown, column: string): string | undefined {
 }
 
 /**
- * Every field the schema declares ORDERABLE, under its own title. A Draft-07
- * schema restricts the member either as a bare `enum` or as `oneOf` `const`
- * entries — the same two forms `translateQuery`'s own wire gate reads, so the
- * control can never offer a field the translator would drop — and only the
- * second can TITLE each member, which is where an option's label comes from
- * (`R6-28`). A field titled neither there nor on the filter column of that name
- * is offered under its wire name rather than dropped, so an untitled column is
- * visible instead of silently unorderable.
+ * Every field the schema declares ORDERABLE, each carrying the module's ONE
+ * sort-label channel. A Draft-07 schema restricts the member either as a bare
+ * `enum` or as `oneOf` `const` entries — the same two forms `translateQuery`'s
+ * own wire gate reads, so the control can never offer a field the translator
+ * would drop (`R6-28`).
  *
- * The rule is spelt here rather than imported from the query platform: this file
- * is loaded by node-environment specs, and a VALUE import off the headless
- * barrel drags the whole package's module-scope browser globals in with it.
+ * The label source is the module's sort uischema `i18n`, a key PREFIX shared by
+ * every field; the option key `<i18n>.<field>` is composed at render time. No
+ * title is read: a schema `title` is plain English, never an i18n key, and a
+ * sort label must not depend on a same-named filter column existing.
+ *
+ * NO translation happens here. This file is loaded by node-environment specs,
+ * and both the translator and a VALUE import off the headless barrel drag
+ * module-scope browser globals in with them — which is also why the vocabulary
+ * rule is re-spelt here rather than imported from the query platform.
  */
-function declaredSort(schema: unknown): DeclaredSortField[] {
+function declaredSort(
+  schema: unknown,
+  sortUischema: unknown
+): DeclaredSortField[] {
   const field = get(schema, [
     "properties",
     "sort",
@@ -70,15 +76,11 @@ function declaredSort(schema: unknown): DeclaredSortField[] {
   ]);
 
   const titled: unknown[] = get(field, "oneOf") ?? [];
+  const i18n = get(sortUischema, "i18n") as string | undefined;
 
   return map(
     get(field, "enum") ?? map(titled, "const"),
-    (name: string): DeclaredSortField => ({
-      field: name,
-      i18n:
-        get(find(titled, ["const", name]), "title") ??
-        get(schema, ["properties", "filters", "properties", name, "title"])
-    })
+    (name: string): DeclaredSortField => ({ field: name, i18n })
   );
 }
 
@@ -116,11 +118,12 @@ export function useTableChannel(cell: TableChannelCell): DeclaringTableChannel {
   const context = cell.useContext();
   const actions = cell.useActions();
   const schema = context.schemas.query.schema;
+  const sortUischema = context.schemas.query.sortUischema;
 
   return {
     declared() {
       return {
-        sort: declaredSort(schema),
+        sort: declaredSort(schema, sortUischema),
         filter: keys(get(schema, ["properties", "filters", "properties"]))
       };
     },

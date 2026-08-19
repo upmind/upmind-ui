@@ -65,8 +65,13 @@ const RETIRED_CHANNELS = [
 ];
 
 const DECLARATION_MEMBERS = ["key", "presentation", "tracks"];
-const BINDING_MEMBERS = ["handoff", "identifier", "persistCriteria"];
-const PRESENTATION_MEMBERS = ["actions", "card", "icon", "table"];
+const BINDING_MEMBERS = [
+  "handoff",
+  "identifier",
+  "persistCriteria",
+  "useDetail"
+];
+const PRESENTATION_MEMBERS = ["actions", "card", "detail", "icon", "table"];
 const BOUND_COMPOSABLES = ["useList", "useMutate"];
 
 // -----------------------------------------------------------------------------

@@ -34,7 +34,7 @@ Once a route resolves to a declaration, five things happen, roughly in this orde
 
 3. **Reflection.** The booted composable is reflected into a generic descriptor: its live data, its available action names, and its declared meta flags, none of which the renderer holds any module-specific knowledge of. The renderer is handed this descriptor together with the declaration's own presentation, and draws _only_ what the presentation names, gated by _only_ what the descriptor's own flags allow for that record.
 
-4. **Criteria and URL.** Where the booted composable owns request state (it publishes a query schema), that state is wired two ways at once: the filter bar and sort control read and write it directly, through the schema the composable itself exposes; and, only where the declaration opts in, the _whole_ current request state (filters, sort, page, and which columns are visible) round-trips to the page's own URL, so a colleague opening a shared link lands on the same view. Neither wiring invents a fact the composable does not already carry — the schema's field titles, its sort enum, and its own filter shape are the only vocabulary either surface uses.
+4. **Criteria and URL.** Where the booted composable owns request state (it publishes a query schema), that state is wired two ways at once: the filter bar and sort control read and write it directly, through the schema the composable itself exposes; and, only where the declaration opts in, the _whole_ current request state (filters, sort, page, and which columns are visible) round-trips to the page's own URL, so a colleague opening a shared link lands on the same view. Neither wiring invents a fact the composable does not already carry — the schema's own field titles label a filter, the schema's own sort enum names what is orderable, and a sort option's own label comes from the composable's own **sort uischema** (an `i18n` prefix, resolved reactively through the same translator every other declaration-sourced string on this page uses), never from a schema title.
 
 5. **Replay and forcing.** Independently of all the above, the page always carries a transport (armed only when the module names one it can actually play) and a force handle (available only where the module has recorded response data behind it). Both are described in their own sections below.
 
@@ -53,20 +53,32 @@ A declaration is one file, one export, one module. It says:
 
 Everything else a page needs — what is filterable, what is sortable, what the editor's form looks like, which actors the module can be viewed as — is read directly off the composable(s) the declaration names, never restated beside them. If a fact already has a home in the composable or its schemas, the declaration does not carry a second copy of it; where it would have to, that is treated as a defect in the declaration, not a legitimate extra channel. This is the single most important rule this whole system holds to, and [ADR 033](../../../../../docs/adr/033-scenario-declaration-contract.md) records why, in more depth than a working doc needs to restate.
 
-The **table** is a list of elements, each pointing at one field of the record and naming the header/label it draws under. That one list gives four things at once: the column headers, the column order, each cell's own renderer, and the _default_ set of columns the column picker shows — the picker's full option list is every field the table (or the card) names, so a column hidden by default is still switchable back on. The **card** is the same shape, over the same or a different subset of fields, with each element optionally naming which card region (title, subtitle, body) it belongs in. The **actions** list is one list, not one per surface: the same declared action draws identically on a table row and on a card, and only its placement (visible beside the row, tucked into the overflow menu, or beside the page's own heading for a collection-level action) tells the two apart.
+The **table** is a list of elements, each pointing at one field of the record and naming the header/label it draws under. That one list gives four things at once: the column headers, the column order, each cell's own renderer, and the _default_ set of columns the column picker shows — the picker's full option list is every field the table (or the card) names, so a column hidden by default is still switchable back on. A column normally shares the row's remaining width evenly with every other such column; an element may instead reserve a fixed share of the row — a quarter, a third, or half — so two columns need not split it evenly when one is reliably shorter than the other. That share is presentation-only: it moves no data, and the card ignores it. The **card** is the same shape, over the same or a different subset of fields, with each element optionally naming which card region (title, subtitle, body) it belongs in. The **actions** list is one list, not one per surface: the same declared action draws identically on a table row and on a card, and only its placement (visible beside the row, tucked into the overflow menu, or beside the page's own heading for a collection-level action) tells the two apart. A control may also open a read-only overlay over its record instead of calling an action or a handoff — see [Detail](#detail-a-read-only-overlay-over-one-record), below.
 
 ## Cell renderers
 
-A table or card element names a renderer type, and that renderer is a real, independently registered component — not a branch inside a bigger one. Today's set:
+A table, card, or detail element names a renderer type, and that renderer is a real, independently registered component — not a branch inside a bigger one. Today's set:
 
-| Renderer | Draws                                                             |
-| -------- | ----------------------------------------------------------------- |
-| Text     | The field's value, as text                                        |
-| Date     | A date value, in its relative form                                |
-| Icon     | A boolean, as one glyph — filled where true, outlined where false |
-| Badges   | A set of named badges, one per truthy flag the element names      |
+| Renderer | Draws                                                                                      |
+| -------- | ------------------------------------------------------------------------------------------ |
+| Text     | The field's value, as text                                                                 |
+| Html     | The field's value as sanitized markup — drawn as markup, never escaped, never rendered raw |
+| Date     | A date value, in its relative form                                                         |
+| Icon     | A boolean, as one glyph — filled where true, outlined where false                          |
+| Badges   | A set of named badges, one per truthy flag the element names                               |
 
 A dispatcher component asks every registered renderer's own tester which of them claims a given element (the same tester-and-registry mechanism the rest of the form-rendering stack in this codebase already uses), and renders whichever one answers. Adding a new visual treatment is: write the component, give it a tester, add it to the registry — never edit the dispatcher, and never touch an existing renderer.
+
+## Detail: a read-only overlay over one record
+
+A row's own control can open a read-only overlay over that record instead of calling a live action or a handoff — the read twin of the editor handoff above. What it shows comes from either of two feeds:
+
+- **The row itself**, when the declaration names no read composable — the overlay is fed exactly what the list already holds, and nothing further is fetched.
+- **A freshly fetched full record**, when the declaration names a single-read composable alongside its collection — the overlay boots that composable at the row's own identity (derived from the row itself, never declared as a second context block) and shows what it returns. A record reached this way may carry fields the list row never does; a detail element is free to name any of them.
+
+Either way, the record draws through the same declared-cell renderers the table and card use — a column cannot mean one thing there and another here. The overlay's own action bar never re-offers the control that opened it: every other action the row carries, an edit handoff among them, still appears alongside the record and behaves exactly as it does from the row.
+
+The overlay's own shell is a presentation choice, not a fact about the record: a side panel by default, opening from the right edge by default, swappable to another edge or to a centred dialog. None of it changes what is shown or how it is fetched.
 
 ## The scope bar, and how a page's own scope works
 

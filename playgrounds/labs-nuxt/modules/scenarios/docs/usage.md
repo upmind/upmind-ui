@@ -70,6 +70,7 @@ Reading it field by field:
 - **`useList` / `useMutate`** — the module's own collection and manager composables, named directly. At least one is required. Naming both is what makes the collection's rows able to hand off to the editor.
 - **`persistCriteria`** — opts this page's request state (filters, sort, page, visible columns) into the URL. Leave it off for a page where a shareable link is not worth the extra URL noise.
 - **`handoff`** — one entry per editor control the presentation declares (`add`, `edit`, or any other name a presentation action references). `add` names no `context`, because a record that does not exist yet has nothing to seed an editor from; `edit` names the field on the row (`/id` here) that becomes the editor's context id. `feedback` is a pair of i18n keys said aloud when the save settles either way.
+- **`useDetail`** — optional. Names the module's own single-read composable for a row's read-only overlay to fetch the full record through, keyed by the row's own identity. Omit it, and the overlay shows the clicked row's own data instead — see [Anatomy of a detail overlay](#anatomy-of-a-detail-overlay).
 - **`tracks`** — the module's own name, matched against how that module's capability spec, step definitions, and recorded response bodies are keyed. This is a **read key**, not a registration: naming a module that keeps the conventional test-directory layout is all that is required for its recorded scenarios to reach this page. Omit it, and the page still works — it simply has nothing on its transport bar.
 - **`presentation`** — an icon, and the table/card/actions uischemas, imported from the sibling presentation file.
 
@@ -142,6 +143,70 @@ The `actions` uischema in the same file is one list shared by the table row and 
 ```
 
 The record's own `canDelete` flag — not a client-side guess — is what greys the button out.
+
+## Anatomy of a detail overlay
+
+A presentation may declare a third view of the same record: read-only, opened by a row's own action instead of a live call or a handoff. A worked example — the client-email module's page shows the clicked row's own data, with nothing fetched a second time:
+
+```ts
+export const detailUischema: DetailUischema = {
+  type: "DetailLayout",
+  elements: [
+    {
+      type: "TableCellText",
+      scope: "#/properties/email",
+      i18n: "text.email_address"
+    },
+    {
+      type: "TableCellBadges",
+      scope: "#/properties/meta",
+      i18n: "text.status",
+      options: { badges: STATUS_BADGES }
+    },
+    {
+      type: "TableCellDate",
+      scope: "#/properties/bouncedAt",
+      i18n: "text.date_bounced"
+    }
+  ]
+};
+```
+
+and, in the same `actions` list as every other control, the row action that opens it:
+
+```ts
+{
+  type: "Action",
+  name: "view",
+  detail: true,
+  i18n: "action.view",
+  icon: "eye",
+  variant: "outline",
+  placement: ActionPlacementTypes.VISIBLE
+}
+```
+
+`detail: true` in place of a `handoff` name is what tells the control to open the read-only overlay instead of calling a live action or an editor. This module names no `useDetail`, so the overlay is fed exactly what its row already carries.
+
+A module that names a single-read composable gets the fetch path instead — the client-email-history module's page:
+
+```ts
+export default {
+  key: CLIENT_EMAIL_HISTORY_SCENARIO,
+  useList: useClientReceivedEmails,
+  useDetail: useClientReceivedEmail,
+  presentation: {
+    icon: "mail-01",
+    table: tableUischema,
+    detail: detailUischema,
+    actions: actionsUischema
+  }
+} satisfies ScenarioDeclaration;
+```
+
+Here the overlay boots `useClientReceivedEmail` itself, at the row's own identity, and shows the full record that composable returns — which is why this module's `detailUischema` is free to name a field (`body`) the table's row never carries: a fetched record can carry more than a list row holds. That field draws as sanitized markup through the `TableCellHtml` renderer, described in [architecture.md](./architecture.md#cell-renderers).
+
+Everything else about the overlay is chrome the runtime supplies, not something a presentation declares field by field: it opens as a side panel by default (swappable to another edge, or to a centred dialog), and its own action bar always excludes the very control that opened it while still offering the record's other actions — an edit handoff among them — unchanged.
 
 ## Changing a page afterwards
 

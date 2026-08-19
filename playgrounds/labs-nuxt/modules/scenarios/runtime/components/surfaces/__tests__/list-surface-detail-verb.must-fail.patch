@@ -1,0 +1,27 @@
+Negative control for the "open-to-read" verb (FE-3091 design §3).
+
+Strips the `detail` branch from `pressRowAction`, so a declared `detail`
+control no longer opens the read overlay — it falls through to the handoff
+branch (no handoff) and then to a live action of the same name, which the read
+verb never was. The read overlay never opens.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the detail-verb spec — pressing a `detail`-flagged row action must open
+the read overlay (a DetailDialog), never call a live action.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+@@ -965,11 +965,6 @@
+
+ /** What pressing ONE row's control does — the only path, hand or scenario. */
+ function pressRowAction(action: ScenarioAction, row: ListRow): Promise<void> {
+-  if (action.detail) {
+-    openDetail(row);
+-    return Promise.resolve();
+-  }
+-
+   if (action.handoff) {
+     openHandoff(action, row);
+     return Promise.resolve();

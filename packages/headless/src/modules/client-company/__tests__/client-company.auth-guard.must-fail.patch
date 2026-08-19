@@ -1,0 +1,116 @@
+--- a/packages/headless/src/modules/client-company/client-company.services.ts
++++ b/packages/headless/src/modules/client-company/client-company.services.ts
+@@ -146,9 +146,6 @@ function loadList(
+     // instead of a raw 401. Must stay an `async` function — `list()` detects a
+     // guard by `isPromise`, which tests for an AsyncFunction.
+     guard: async () => {
+-      if (!isAddressable(clientId.value)) {
+-        return Promise.reject(new NotAuthenticatedError());
+-      }
+       // Fetched here, ahead of the mapper: `mapCompany`'s `hasTaxValidation`
+       // READS the brand config synchronously, and a read with nothing having
+       // FETCHED it is whatever the brand store happens to hold (in-cell gap
+@@ -179,10 +176,6 @@ async function loadOne(
+   const { get: getOne, useUrl } = useQuery();
+   const clientId = resolveClientId(scopeContext);
+ 
+-  if (!isAddressable(clientId.value)) {
+-    return Promise.reject(new NotAuthenticatedError());
+-  }
+-
+   return getOne<ICompany, Company>({
+     queryKey: [...queryKey, { client: clientId.value }, id],
+     url: useUrl(`clients/${clientId.value}/companies/${id}`, {
+@@ -335,10 +328,6 @@ async function add(
+ ): Promise<ICompany | undefined> {
+   const clientId = resolveClientId(scopeContext);
+ 
+-  if (!isAddressable(clientId.value)) {
+-    return Promise.reject(new NotAuthenticatedError());
+-  }
+-
+   return ensureDependencies(model).then(ensured =>
+     postCompany(ensured, scopeContext)
+   );
+@@ -358,10 +347,6 @@ async function update(
+ ): Promise<ICompany | undefined> {
+   const clientId = resolveClientId(scopeContext);
+ 
+-  if (!isAddressable(clientId.value)) {
+-    return Promise.reject(new NotAuthenticatedError());
+-  }
+-
+   return ensureDependencies(model).then(ensured =>
+     putCompany(id, ensured, scopeContext)
+   );
+@@ -379,10 +364,6 @@ async function ensure(
+   const { t } = useI18n();
+   const clientId = resolveClientId(scopeContext);
+ 
+-  if (!isAddressable(clientId.value)) {
+-    return Promise.reject(new NotAuthenticatedError());
+-  }
+-
+   const query = loadList(undefined, scopeContext);
+   await query.promise.value.finally();
+ 
+@@ -432,10 +413,6 @@ async function remove(
+   const { del, useUrl } = useQuery();
+   const clientId = resolveClientId(scopeContext);
+ 
+-  if (!isAddressable(clientId.value)) {
+-    return Promise.reject(new NotAuthenticatedError());
+-  }
+-
+   return del<null>({
+     mutationKey: [...queryKey, id, "remove"],
+     url: useUrl(`clients/${clientId.value}/companies/${id}`),
+@@ -458,10 +435,6 @@ async function setDefault(
+   const { put, useUrl } = useQuery();
+   const clientId = resolveClientId(scopeContext);
+ 
+-  if (!isAddressable(clientId.value)) {
+-    return Promise.reject(new NotAuthenticatedError());
+-  }
+-
+   return put<ICompany>({
+     mutationKey: [...queryKey, id, "default"],
+     url: useUrl(`clients/${clientId.value}/companies/${id}`),
+@@ -488,10 +461,6 @@ async function loadLookups(
+ ): Promise<Partial<CompanyContext>> {
+   const clientId = resolveClientId(scopeContext);
+ 
+-  if (!isAddressable(clientId.value)) {
+-    return Promise.reject(new NotAuthenticatedError());
+-  }
+-
+   const {
+     isReady: getPhones,
+     default: defaultPhone,
+--- a/packages/headless/src/modules/client-company/useClientCompanies.actions.ts
++++ b/packages/headless/src/modules/client-company/useClientCompanies.actions.ts
+@@ -102,8 +102,6 @@ export function createClientCompaniesActions(
+   async function refresh(): Promise<void> {
+     // TanStack's `refetch()` resolves with the error on the result rather than
+     // rejecting, so a forced read has to be wrapped to reject at all.
+-    if (!service.isAvailable.value) throw new NotAuthenticatedError();
+-
+     const { error } = await query.refetch();
+     if (error instanceof NotAuthenticatedError) throw error;
+   }
+--- a/packages/headless/src/modules/client-company/useClientCompanyManager.actions.ts
++++ b/packages/headless/src/modules/client-company/useClientCompanyManager.actions.ts
+@@ -100,13 +100,6 @@ export function createClientCompanyManagerActions(
+   async function update(
+     value?: CompanyModel | Record<string, unknown>
+   ): Promise<CompanyModel> {
+-    // Fails fast rather than leaving a never-authenticated session waiting on
+-    // the 60s timeout below: an unaddressable session holds the machine in
+-    // `subscribing` forever (the `hasSubscription` guard never passes), so
+-    // without this the promise would settle only on a generic TIMEOUT after a
+-    // minute instead of `NotAuthenticatedError` promptly (AC-25).
+-    if (!service.isAvailable.value) throw new NotAuthenticatedError();
+-
+     // Commit any typed input still pending on the debounce before saving,
+     // otherwise the save reads the pre-edit model.
+     await debouncedInput.flush()?.catch(() => undefined);

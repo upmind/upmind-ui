@@ -32,7 +32,17 @@ import {
 // The collection — browse, search, narrow by delivery outcome
 const history = useClientReceivedEmails().as("client");
 await history.useActions().isReady();
-const { data } = history.useContext();
+const { data, schemas } = history.useContext();
+
+// Narrow to failed sends — `setCriteria` is the one write verb
+history.useActions().setCriteria({ filters: { error_id: { neq: "null" } } });
+
+// `filterBy` / `sortBy` are the same write, named to one branch each
+history.useActions().filterBy({ sent: { eq: true } });
+history.useActions().sortBy([{ field: "subject", dir: "asc" }]);
+
+// `schemas.query` is the SAME schema a filter bar renders from
+schemas.query.schema;
 
 // The single email — open one in full, including its body
 const email = useClientReceivedEmail().as("client").for("email", emailId);
@@ -41,17 +51,21 @@ await email.useActions().isReady();
 
 ## Features
 
-| Capability                            | Surface                                                  | What it does                                               |
-| ------------------------------------- | -------------------------------------------------------- | ---------------------------------------------------------- |
-| List my email history                 | `useClientReceivedEmails().useContext().data`            | Reactive list of emails sent to me                         |
-| Sort                                  | `…useActions().sort(property?, direction?)`              | Re-orders the list; no argument restores the default order |
-| Free-text / subject filter            | `…useActions().filters.query()` / `.subject()`           | Narrows the list; the two compose rather than clobber      |
-| Narrow by delivery outcome            | `…useActions().filters.status()`                         | The four tabs — all, sent, bounced, error                  |
-| Page                                  | `…useActions().nextPage()` / `.prevPage()`               | Moves through the list one page at a time                  |
-| Know whether the list is mine to read | `…useMeta().isAvailable`                                 | Authenticated **and** a client resolved                    |
-| Refresh / invalidate                  | `…useActions().refresh()` / `.invalidate()`              | Forces or schedules a re-read                              |
-| Open one email in full                | `useClientReceivedEmail().as('client').for('email', id)` | Reads that email's complete rendered body                  |
-| Know its delivery outcome             | `…useMeta().isBounced` / `.isError` / `.isSent`          | Named flags, mirrored on the collection's own rows         |
+| Capability                            | Surface                                                    | What it does                                                         |
+| ------------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------- |
+| List my email history                 | `useClientReceivedEmails().useContext().data`              | Reactive list of emails sent to me                                   |
+| Narrow / sort / page the list         | `…useActions().setCriteria({ filters, sort, pagination })` | The one write verb — merges the given branches into the live request |
+| Sort the list (single-purpose door)   | `…useActions().sortBy(sortIntent)`                         | Named adapter over `setCriteria` — merges only the `sort` branch     |
+| Narrow the list (single-purpose door) | `…useActions().filterBy(filterIntent)`                     | Named adapter over `setCriteria` — merges only the `filters` branch  |
+| Search by subject                     | `…setCriteria({ filters: { subject: { like } } })`         | Wildcarded subject search                                            |
+| Narrow by delivery outcome            | `…setCriteria({ filters: { sent, bounced, error_id } })`   | Each outcome column narrows independently                            |
+| Render the filter bar                 | `useContext().schemas.query`                               | The schema + uischema pair a renderer derives the filter bar from    |
+| Read the live request state           | `useContext().query`                                       | The active filters/sort/pagination model — read-only                 |
+| Page                                  | `…useActions().nextPage()` / `.prevPage()`                 | Moves through the list past its default 10-email page                |
+| Know whether the list is mine to read | `…useMeta().isAvailable`                                   | Authenticated **and** a client resolved                              |
+| Refresh / invalidate                  | `…useActions().refresh()` / `.invalidate()`                | Forces or schedules a re-read                                        |
+| Open one email in full                | `useClientReceivedEmail().as('client').for('email', id)`   | Reads that email's complete rendered body                            |
+| Know its delivery outcome             | `…useMeta().isBounced` / `.isError` / `.isSent`            | Named flags, mirrored on the collection's own rows                   |
 
 ## Key Concepts
 
@@ -84,6 +98,16 @@ An email carrying both an error and a bounce reports as **errored**, never as bo
 There is no `add`, `update`, `remove`, `send`, or `resend` anywhere in this module. Every action either reads, re-reads, narrows, sorts, pages, or releases an instance.
 
 > **🧪 For Testers:** Asserting a mutation-shaped action on either composable asserts `undefined`.
+
+### One write verb, one schema — reached through three names
+
+`useActions().setCriteria(intent)` is the collection's one write path for narrowing, sorting, or paging. `intent` names the top-level branches you want to change (`filters` / `sort` / `pagination`); a branch you leave out stays exactly as it was, and a branch you DO provide replaces that whole branch, not merges into it — combine two filter columns by naming both in the SAME call.
+
+`useActions().filterBy(intent)` and `.sortBy(intent)` are named, single-branch doors onto the exact same path — `filterBy(intent)` **is** `setCriteria({ filters: intent })`, `sortBy(intent)` **is** `setCriteria({ sort: intent })`. Neither holds a copy of the request state of its own, so validation, the wire shape, and the whole-branch-replace rule are identical no matter which of the three names you write through. This is not the same thing as an earlier, withdrawn `sort()` / `filters.*()` facade that built raw wire keys directly and kept its own state — see [CHANGELOG.md](./CHANGELOG.md).
+
+`useContext().schemas.query` publishes the paired `{ schema, uischema }` that describes exactly what all three accept — the same door a filter-bar renderer reads to draw its controls, with no per-field UI code written for it. A write that fails that schema is rejected outright: the previous criteria stands, and the rejection is surfaced, never thrown.
+
+> **🧪 For Testers:** `setCriteria({ filters: { sent: { eq: true } } })` then `setCriteria({ filters: { bounced: { eq: false } } })` leaves the wire carrying only the bounced narrowing — the sent narrowing from the first call does not survive the second, because each call's `filters` branch replaces the last one wholesale. `filterBy` and `sortBy` follow the identical rule, because they forward into the same call.
 
 ### Errors are state — the module raises nothing
 

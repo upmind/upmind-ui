@@ -1,21 +1,22 @@
 /** @internal */
 import { keepPreviousData } from "@tanstack/vue-query";
 import { computed } from "vue";
-import { RequestSortDirection, useQuery } from "../query";
+import { useQuery } from "../query";
 import { useActiveSession } from "../session-store";
 import {
   mapEmailHistory,
   mapReceivedEmail
 } from "./client-email-history.mappers";
+import { useQuerySchema } from "./client-email-history.schemas";
 import { ReceivedEmailsContextTypes } from "./client-email-history.types";
 import { useTime, NotAuthenticatedError } from "../../utils";
-import type { QueryParams } from "../query";
 import type { ScopeContext } from "../scope";
 import type {
   ClientEmailHistoryServices,
   ReceivedEmailItemQuery,
   ReceivedEmailsListQuery,
-  SentEmail
+  SentEmail,
+  SentEmailQueryModel
 } from "./client-email-history.types";
 import type { ResponseError } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
@@ -119,24 +120,20 @@ function isAddressable(clientId?: string): boolean {
  * supplies the addressability predicate and the cache-key partition, not a
  * path segment (design D1's documented divergence).
  *
- * Oracle divergence, surfaced not resolved: the oracle passes the tab/search
- * filters into `useUrl(...)` as query-string members at construction; this
- * rebuild passes them through `query.filter()` (the runtime channel) only.
+ * The whole request state is the DECLARED query schema: `list()` builds the
+ * criteria from it and publishes filters/sort/pagination back on the handle,
+ * so there is no raw `sort`/`filters`/`pagination` param beside it.
  */
-function loadList(
-  params: Partial<QueryParams<ISentEmail[], SentEmail[]>> = {},
-  scopeContext?: ScopeContext
-): ReceivedEmailsListQuery {
+function loadList(scopeContext?: ScopeContext): ReceivedEmailsListQuery {
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  return list<ISentEmail[], SentEmail[]>({
-    ...params,
+  return list<ISentEmail[], SentEmail[], SentEmailQueryModel>({
+    criteria: { schema: useQuerySchema() },
     queryKey: [...queryKey, { client: clientId }],
     url: useUrl("self/email_history", {
       with: ["recipient", "recipient_type", "recipient.image"].join(",")
     }),
-    sort: [[RequestSortDirection.DESC, "created_at"]],
     withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
@@ -207,7 +204,7 @@ export const createClientEmailHistoryServices = (
     clientId,
     isAvailable: computed(() => isAddressable(clientId.value)),
     error: computed<ResponseError | undefined>(() => undefined),
-    loadList: params => loadList(params, scopeContext),
+    loadList: () => loadList(scopeContext),
     loadOne: emailId => loadOne(emailId, scopeContext)
   };
 };

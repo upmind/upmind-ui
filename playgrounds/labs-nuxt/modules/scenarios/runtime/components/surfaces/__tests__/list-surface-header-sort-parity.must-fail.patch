@@ -13,12 +13,9 @@ for the same intent.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-@@ -144,7 +144,7 @@
-             :class="
-               headerCell({ isContent: includes(contentColumns, header.id) })
-             "
+@@ -143,4 +143,4 @@
+             :key="header.id"
+             :class="headerCell({ size: headerSize(header.id) })"
 -            @click="onHeaderSort(header.column)"
 +            @click="header.column.getToggleSortingHandler()?.($event)"
            >
-             <template v-if="!header.isPlaceholder">
-               <Button

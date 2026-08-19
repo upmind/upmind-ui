@@ -20,6 +20,7 @@ import {
 import {
   actionsUischema,
   cardUischema,
+  detailUischema,
   tableUischema
 } from "./client-email.presentation";
 import type { ScenarioDeclaration } from "../runtime/scenario.types";
@@ -56,6 +57,7 @@ export default {
     icon: "mail-01",
     table: tableUischema,
     card: cardUischema,
+    detail: detailUischema,
     actions: actionsUischema
   }
 } satisfies ScenarioDeclaration;

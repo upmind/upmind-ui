@@ -1,0 +1,21 @@
+Negative control for filter-format-dispatch.test.ts.
+
+Points the toggle group's tester at the OTHER tri-state format, so no filter
+renderer claims the leaf that asks for a toggle group and the column falls to the
+generic control for its type — a raw select of `true`/`false`/`null`. Any
+assertion that reads WHICH control the declared format drew goes red; one that
+merely asserts a control rendered, or counts the bar's positions, stays green.
+
+diff --git a/packages/client-vue/src/components/form/renderers/FilterToggleGroupRenderer.vue b/packages/client-vue/src/components/form/renderers/FilterToggleGroupRenderer.vue
+index c677d83b9..086933e91 100644
+--- a/packages/client-vue/src/components/form/renderers/FilterToggleGroupRenderer.vue
++++ b/packages/client-vue/src/components/form/renderers/FilterToggleGroupRenderer.vue
+@@ -101,7 +101,7 @@ export const tester = {
+   controlType: and(
+     isBooleanControl,
+     isEnumControl,
+-    optionIs("format", "toggle-group")
++    optionIs("format", "button-group")
+   )
+ };
+ </script>

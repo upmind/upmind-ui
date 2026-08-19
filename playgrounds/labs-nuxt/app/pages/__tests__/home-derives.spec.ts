@@ -26,7 +26,7 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import * as vue from "vue";
 import { defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
-import { renderedStrings } from "../../../tests/support/rendered";
+import { renderedStrings } from "../../../modules/scenarios/testing/rendered";
 import { assign, forEach, map, size, startCase } from "lodash-es";
 import type { VueWrapper } from "@vue/test-utils";
 import type { RouteRecordRaw } from "vue-router";

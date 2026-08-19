@@ -1,0 +1,21 @@
+Negative control for filter-tristate.test.ts.
+
+Makes the toggle group resolve a pick matching no drawn position to the FIRST
+option instead of the unset member — the exact misreading of radix's `undefined`
+this control was written to survive. The re-press stops clearing and turns the
+filter on instead: any assertion that reads the model after a re-press goes red,
+while one that only presses the two set positions stays green.
+
+diff --git a/packages/client-vue/src/components/form/renderers/FilterToggleGroupRenderer.vue b/packages/client-vue/src/components/form/renderers/FilterToggleGroupRenderer.vue
+index c677d83b9..bf0d3f270 100644
+--- a/packages/client-vue/src/components/form/renderers/FilterToggleGroupRenderer.vue
++++ b/packages/client-vue/src/components/form/renderers/FilterToggleGroupRenderer.vue
+@@ -89,7 +89,7 @@ function onPick(value?: unknown): void {
+     get(
+       find(control.value.options, option => toString(option.value) === value),
+       "value",
+-      null
++      get(control.value.options, [0, "value"])
+     )
+   );
+ }

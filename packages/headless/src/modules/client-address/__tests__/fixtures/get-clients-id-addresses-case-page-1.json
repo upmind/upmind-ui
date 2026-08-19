@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "GET",
-    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/addresses?limit=2&offset=0&case=page-1",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/addresses?with=region,country&limit=2&offset=0&case=page-1",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a2901bf5bf8e881b-DUR",
+      "cf-ray": "a2af4bc14a7bef97-WAW",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Mon, 10 Aug 2026 15:42:13 GMT",
+      "date": "Fri, 14 Aug 2026 10:32:29 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=JO9WC4GkuoZFnTDVqUNH5AOia%2Bx9bxiIyPEkqzdBwyskGxk1q49C42qdl6xP7ZevtMjYuyklKxL1uDwLyU8%2FdzK8N4E3Ojof4f4nILxMlhxIjW4DC00gWcopIachGsQoR3Fk%2ByWjfA%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=0XWcP1nVFjSG%2FsbTl7p2AV0%2BY%2FOVFpzX42DpaZb%2FfCVX6tdynopHEbW1lV9jn7Pornhfv%2FsxxWUMuI8cyM2xi8zWLtlKbvseqW%2BtTpJxpb2Z%2FfTeYozEVosQGc32gs0slO%2FMM%2BGUnw%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -52,10 +52,30 @@
           "county": null,
           "postcode": "SW1A 2AB",
           "created_at": "2025-06-04 09:05:58",
-          "updated_at": "2026-08-08 10:34:22",
+          "updated_at": "2026-08-14 10:31:14",
           "deleted_at": null,
           "verified": 0,
-          "can_delete": false
+          "can_delete": false,
+          "region": {
+            "id": "8d632507-9806-5d1e-82ec-8174e234e98d",
+            "country_id": "825d96e7-63ed-0913-46c4-174825283406",
+            "code": "3",
+            "name": "Vesturland",
+            "created_at": "2019-10-31 17:51:20",
+            "updated_at": "2019-10-31 17:51:20"
+          },
+          "country": {
+            "id": "825d96e7-63ed-0913-46c4-174825283406",
+            "name": "Iceland",
+            "code": "IS",
+            "code3": "",
+            "created_at": "2017-10-18 14:16:21",
+            "updated_at": "2026-07-23 13:41:28",
+            "vat": "7.50",
+            "eea": 1,
+            "phone_code": "+354",
+            "post_code_regex": "^\\d{3}$"
+          }
         },
         {
           "id": "d0367942-4d0e-7109-44da-3153698d582e",
@@ -75,10 +95,23 @@
           "county": null,
           "postcode": "SW1A 2AD",
           "created_at": "2025-06-26 12:23:59",
-          "updated_at": "2026-08-08 10:35:19",
+          "updated_at": "2026-08-14 10:31:14",
           "deleted_at": null,
           "verified": 0,
-          "can_delete": false
+          "can_delete": false,
+          "region": null,
+          "country": {
+            "id": "78985742-6489-7012-046b-21e325d0ed36",
+            "name": "United Arab Emirates",
+            "code": "AE",
+            "code3": "",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2024-08-22 00:51:24",
+            "vat": "0.00",
+            "eea": 0,
+            "phone_code": "+971",
+            "post_code_regex": ""
+          }
         }
       ],
       "related": null,
@@ -88,7 +121,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-08-10T15:42:13.728Z",
+  "captured_at": "2026-08-14T10:32:29.868Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

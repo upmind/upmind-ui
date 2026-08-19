@@ -1,0 +1,22 @@
+Negative control for the SANITIZED-HTML body cell (FE-3091 operator
+refinement 2).
+
+Swaps the `Sanitized` render for a plain text interpolation, so a `body`
+declared as `TableCellHtml` is drawn as ESCAPED TEXT — its markup shown as
+literal tags rather than rendered as sanitized HTML. This is the exact failure
+the refinement closes: an email body is markup, never plain text.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the html-cell spec — a `TableCellHtml` field must render its value as
+sanitized markup (drawn through the ui `Sanitized` component / dompurify),
+never as escaped text and never as raw unsanitized HTML.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellHtml.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellHtml.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellHtml.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellHtml.vue
+@@ -1,3 +1,3 @@
+ <template>
+-  <Sanitized tag="div" :model-value="html" :class="cellHtml()" />
++  <div :class="cellHtml()">{{ html }}</div>
+ </template>

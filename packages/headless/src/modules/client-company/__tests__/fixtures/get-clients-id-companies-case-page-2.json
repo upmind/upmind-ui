@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "GET",
-    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/companies?limit=2&offset=2&case=page-2",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/companies?limit=2&offset=2&order=created_at&case=page-2",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a2901f9a8e18b280-DUR",
+      "cf-ray": "a27de1645c28d241-WAW",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Mon, 10 Aug 2026 15:44:43 GMT",
+      "date": "Sat, 08 Aug 2026 10:36:31 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=GjQezA6p09lKCmAP2pyGMfy3a2CBs0QdfSTNwb8ibhk7%2BRgfHgf9Tk3DfQRzvlRphYiGR2OOSWCCi7y0v2dNf1r9fV3PMjNy6k882fe21Pf1y0zUVXpp5NfFIl3fag1UHaq15jdRSg%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=3mhKu1cvBjsfy68r4kPB2TChm3cWPmVRo7fDk6UBc%2FE%2B5HaDNprrkVx9rTdhefRP2th8Vbz4FKEvUxe3NEgV9LCGHq87tH%2B5Xgh9x%2FCl8vfAZnzSqyeW%2FtuCO%2FVRbBsmqMvDZ1qJXw%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -115,7 +115,7 @@
             "international_phone": "mock-phone-1",
             "phone_country_code": "GB",
             "created_at": "2025-06-26 08:32:10",
-            "updated_at": "2026-08-10 11:52:34",
+            "updated_at": "2026-08-08 10:02:44",
             "deleted_at": null,
             "full_phone": "mock-phone-1",
             "can_delete": true
@@ -202,7 +202,7 @@
             "international_phone": "mock-phone-1",
             "phone_country_code": "GB",
             "created_at": "2025-06-26 08:32:10",
-            "updated_at": "2026-08-10 11:52:34",
+            "updated_at": "2026-08-08 10:02:44",
             "deleted_at": null,
             "full_phone": "mock-phone-1",
             "can_delete": true
@@ -216,7 +216,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-08-10T15:44:42.917Z",
+  "captured_at": "2026-08-08T10:36:30.937Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

@@ -14,6 +14,7 @@
  * chain only the raw-cell holder can assemble.
  */
 
+import type { QueryProps } from "@upmind-automation/headless";
 import type {
   ActorContextMatrix,
   ScopeActorTypes,
@@ -58,8 +59,8 @@ export type ModulePortDebug = {
   uischema: unknown;
   /** The criteria model — request STATE, not a request. */
   model: unknown;
-  /** The search params the live criteria BUILDS; nothing is fetched to produce it. */
-  request: Record<string, string>;
+  /** The wire the criteria BUILD, straight off `translateQuery`. */
+  request: QueryProps;
 };
 
 /**

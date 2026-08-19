@@ -26,10 +26,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import { ScopeActorTypes } from "@upmind-automation/headless";
-import {
-  defaultRow,
-  unverifiedRow
-} from "../../../../../tests/support/recorded-emails";
+import { defaultRow, unverifiedRow } from "../../../testing/recorded-emails";
 import clientEmails from "../../../useClientEmails/client-email.scenario";
 import ManageDialog from "../ManageDialog.vue";
 import { map } from "lodash-es";

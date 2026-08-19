@@ -21,7 +21,7 @@ import { describe, expect, it } from "vitest";
 import { createI18n } from "vue-i18n";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import { Badge, Icon } from "@upmind-automation/upmind-ui";
-import { defaultRow } from "../../../../../../tests/support/recorded-emails";
+import { defaultRow } from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { CellDispatcher } from "../index";
 import { find, map } from "lodash-es";

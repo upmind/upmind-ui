@@ -1,0 +1,87 @@
+version: "3"
+
+vars:
+  BUCKET: upmind-cart
+  BUCKET_STAGING: upmind-cart-staging
+  SCRIPTS_DIR: "{{.ROOT_DIR}}/etc/scripts"
+
+tasks:
+  deploy:production:
+    desc: Build and deploy cart to production (GCS + Firebase)
+    cmds:
+      - pnpm build
+      - task: deploy:gcs:production
+      - task: deploy:firebase:production
+
+  deploy:staging:
+    desc: Build and deploy cart to staging (GCS + Firebase)
+    cmds:
+      - pnpm build:staging
+      - task: deploy:gcs:staging
+      - task: deploy:firebase:staging
+
+  deploy:sprighost:
+    desc: Build and deploy cart to sprighost (Firebase only)
+    cmds:
+      - pnpm build:staging
+      - task: deploy:firebase:sprighost
+
+  deploy:gcs:production:
+    desc: Upload cart assets to GCS (production)
+    cmds:
+      - bash {{.SCRIPTS_DIR}}/deploy-gcs.sh --bucket {{.BUCKET}} --prefix production
+
+  deploy:gcs:production:dry-run:
+    desc: Dry-run upload cart assets to GCS (production)
+    cmds:
+      - bash {{.SCRIPTS_DIR}}/deploy-gcs.sh --bucket {{.BUCKET}} --prefix production --dry-run
+
+  deploy:gcs:staging:
+    desc: Upload cart assets to GCS (staging)
+    cmds:
+      - bash {{.SCRIPTS_DIR}}/deploy-gcs.sh --bucket {{.BUCKET_STAGING}} --prefix staging
+
+  deploy:gcs:staging:dry-run:
+    desc: Dry-run upload cart assets to GCS (staging)
+    cmds:
+      - bash {{.SCRIPTS_DIR}}/deploy-gcs.sh --bucket {{.BUCKET_STAGING}} --prefix staging --dry-run
+
+  deploy:gcs:sprighost:
+    desc: Upload cart assets to GCS (sprighost)
+    cmds:
+      - bash {{.SCRIPTS_DIR}}/deploy-gcs.sh --bucket {{.BUCKET}} --prefix sprighost
+
+  deploy:gcs:sprighost:dry-run:
+    desc: Dry-run upload cart assets to GCS (sprighost)
+    cmds:
+      - bash {{.SCRIPTS_DIR}}/deploy-gcs.sh --bucket {{.BUCKET}} --prefix sprighost --dry-run
+
+  verify:gcs:production:
+    desc: Verify cart assets exist in GCS (production)
+    cmds:
+      - bash {{.SCRIPTS_DIR}}/verify-gcs.sh --bucket {{.BUCKET}} --prefix production
+
+  verify:gcs:staging:
+    desc: Verify cart assets exist in GCS (staging)
+    cmds:
+      - bash {{.SCRIPTS_DIR}}/verify-gcs.sh --bucket {{.BUCKET_STAGING}} --prefix staging
+
+  verify:gcs:sprighost:
+    desc: Verify cart assets exist in GCS (sprighost)
+    cmds:
+      - bash {{.SCRIPTS_DIR}}/verify-gcs.sh --bucket {{.BUCKET}} --prefix sprighost
+
+  deploy:firebase:production:
+    desc: Deploy cart to Firebase (production)
+    cmds:
+      - firebase deploy --project upmind-cart --only hosting:upmind-cart
+
+  deploy:firebase:staging:
+    desc: Deploy cart to Firebase (staging)
+    cmds:
+      - firebase deploy --project upmind-cart --only hosting:upmind-cart-staging
+
+  deploy:firebase:sprighost:
+    desc: Deploy cart to Firebase (sprighost)
+    cmds:
+      - firebase deploy --only hosting:staging

@@ -24,12 +24,12 @@ const email = useClientReceivedEmail().as("client").for("email", emailId);
 
 Both composables return the same four sub-composables:
 
-| Layer     | Access            | Collection contains                   | Single read contains    |
-| --------- | ----------------- | ------------------------------------- | ----------------------- |
-| Actions   | `.useActions()`   | sort/filter/page controls + lifecycle | lifecycle only          |
-| Context   | `.useContext()`   | reactive list, lookups, error         | the mapped email, error |
-| Meta      | `.useMeta()`      | seven state flags                     | eight state flags       |
-| Internals | `.useInternals()` | the raw list query                    | the raw item query      |
+| Layer     | Access            | Collection contains                                                                           | Single read contains    |
+| --------- | ----------------- | --------------------------------------------------------------------------------------------- | ----------------------- |
+| Actions   | `.useActions()`   | `setCriteria` (narrow/sort/page), its `filterBy`/`sortBy` single-branch adapters, + lifecycle | lifecycle only          |
+| Context   | `.useContext()`   | reactive list, lookups, live criteria, filter-bar schema, error                               | the mapped email, error |
+| Meta      | `.useMeta()`      | seven state flags                                                                             | eight state flags       |
+| Internals | `.useInternals()` | the raw list query (criteria model, filter-bar schema, `isFiltered`, `criteriaError`)         | the raw item query      |
 
 > **🧪 For Testers:** Both composables support the client's own (`self`) scope only. `staff` and `guest` are compile-time errors, not runtime failures.
 
@@ -39,38 +39,53 @@ Both composables return the same four sub-composables:
 
 ### Collection actions — `useActions()`
 
-#### `sort(property?, direction?)`
+#### `setCriteria(intent)`
 
-Sorts the history. With no property, restores the default order (most recent first) — explicitly, not by clearing the sort to nothing.
+The collection's one write verb — every mutation to the live request state, direct or through `filterBy`/`sortBy` below, ends up here. There is no independent `sort()` or `filters.*()` member that keeps its own copy of the request: the withdrawn earlier facade of that shape (see [CHANGELOG.md](./CHANGELOG.md)) built raw wire keys directly and is gone for good.
 
-| Param       | Type                               | Required |
-| ----------- | ---------------------------------- | -------- |
-| `property`  | `ReceivedEmailsSortableProperties` | No       |
-| `direction` | `RequestSortDirection`             | No       |
-
-**Returns:** `void`.
-
-> **🧪 For Testers:** `sort(SUBJECT, DESC)` produces a request whose URL carries `subject`. A subsequent no-argument `sort()` produces a request carrying `created_at` — the default tuple is re-applied, never left to fall out of an absent parameter.
-
-#### `filters.query(value)` / `filters.subject(value)`
-
-Applies a free-text filter and/or a subject filter. The two compose: applying one after the other narrows by both together.
+| Param    | Type                                     | Required |
+| -------- | ---------------------------------------- | -------- |
+| `intent` | `Partial<{ filters, sort, pagination }>` | Yes      |
 
 **Returns:** `void`.
 
-> **🧪 For Testers:** `filters.query("invoice")` produces a request carrying `query=invoice`. A following `filters.subject("Welcome")` produces a request carrying BOTH `query=invoice` and `subject=Welcome`.
+`intent` names the TOP-LEVEL branches you want to change. A branch you leave out of the call is left exactly as it was; a branch you DO include **replaces that whole branch** — it does not merge into whatever the branch previously held. To combine two filter columns, name both in the SAME call.
 
-#### `filters.status(status?)`
+A write that fails the module's declared query schema (`useContext().schemas.query.schema`) is rejected outright: the previous criteria stands, and the rejection is captured, never thrown — see `useInternals().query.criteriaError`.
 
-Narrows to one delivery outcome — sent, bounced, or error — or clears the narrowing with no argument.
+> **🧪 For Testers:**
+>
+> - `setCriteria({ filters: { subject: { like: "Welcome" } } })` produces a request carrying `filter[subject|like]=%Welcome%` — wildcarded automatically, never a bare `subject=` or `query=`.
+> - `setCriteria({ filters: { sent: { eq: true } } })` produces `filter[sent|eq]=1`; `setCriteria({ filters: { bounced: { eq: false } } })` produces `filter[bounced|eq]=0` — a `false` value is sent explicitly, never dropped.
+> - `setCriteria({ filters: { error_id: { neq: "null" } } })` produces `filter[error_id|neq]=null`.
+> - Two `setCriteria({ filters: {...} })` calls in a row do NOT accumulate: the second call's `filters` object is the WHOLE filters state afterwards — a column present in the first call and absent from the second is gone from the wire.
+> - `setCriteria({ filters: {} })` clears every filter key — none survive on the next request.
+> - `setCriteria({ sort: [{ field: "subject", dir: "asc" }] })` produces `order=subject`. A field the schema does not declare (only `created_at` and `subject` are sortable) is rejected — the write never reaches the wire and the previous sort stands.
+> - `setCriteria({ pagination: { limit: 2 } })` changes the page size on the SAME live instance and re-issues the request — no fresh instance is minted.
 
-| Param    | Type                           | Required |
-| -------- | ------------------------------ | -------- |
-| `status` | `SentEmailStatus \| undefined` | No       |
+#### `filterBy(intent)`
+
+A named, single-branch door onto `setCriteria` — merges `intent` into the `filters` branch only, leaving `sort` and `pagination` exactly as they were. `filterBy(intent)` **is** `setCriteria({ filters: intent })`; nothing about validation, the wire shape, or the whole-branch-replace rule differs between the two spellings.
+
+| Param    | Type                   | Required |
+| -------- | ---------------------- | -------- |
+| `intent` | `SentEmailFilterModel` | Yes      |
 
 **Returns:** `void`.
 
-> **🧪 For Testers:** Each status produces exactly its own wire keys; switching back to no status produces a request carrying NONE of the three outcome-filter keys. The scope stays on the SAME live instance — no fresh instance is minted on a filter change.
+> **🧪 For Testers:** `filterBy({ sent: { eq: true } })` produces `filter[sent|eq]=1`; `filterBy({ bounced: { eq: false } })` produces `filter[bounced|eq]=0` — a `false` value is sent explicitly, never dropped. `filterBy({ subject: { like: "Welcome" } })` produces `filter[subject|like]=%Welcome%`. `filterBy({})` clears every filter key. A second `filterBy` call replaces the first's `filters` branch wholesale — the SAME accumulation rule `setCriteria` follows, because `filterBy` never holds a copy of its own; see gotchas.md.
+
+#### `sortBy(intent)`
+
+A named, single-branch door onto `setCriteria` — merges `intent` into the `sort` branch only, leaving `filters` and `pagination` exactly as they were. `sortBy(intent)` **is** `setCriteria({ sort: intent })`.
+
+| Param    | Type                 | Required |
+| -------- | -------------------- | -------- |
+| `intent` | `SentEmailSortModel` | Yes      |
+
+**Returns:** `void`.
+
+> **🧪 For Testers:** `sortBy([{ field: "subject", dir: "asc" }])` produces `order=subject`. A field the schema does not declare (only `created_at` and `subject` are sortable) is rejected — the write never reaches the wire and the previous sort stands. Returning to the boot order is an explicit write, the same rule `setCriteria`'s sort branch follows — see gotchas.md.
 
 #### `nextPage()` / `prevPage()`
 
@@ -112,15 +127,17 @@ Removes this scoped instance from the registry.
 
 ### Collection context — `useContext()`
 
-| Property     | Type                                                           | Meaning                                           |
-| ------------ | -------------------------------------------------------------- | ------------------------------------------------- |
-| `data`       | `ComputedRef<SentEmail[]>`                                     | The client's reactive list of received emails     |
-| `error`      | `ComputedRef<ResponseError \| undefined>`                      | The list read's captured error                    |
-| `findOne()`  | `(mapping, data?, searchableProps?) => SentEmail \| undefined` | Finds one email by a partial mapping or free text |
-| `getOne(id)` | `(id, data?) => SentEmail \| undefined`                        | Finds one email by id                             |
-| `pagination` | `ComputedRef<PaginationInfo>`                                  | `{ limit, total, page, pages, from, to }`         |
+| Property     | Type                                                           | Meaning                                                                                                                                          |
+| ------------ | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `data`       | `ComputedRef<SentEmail[]>`                                     | The client's reactive list of received emails                                                                                                    |
+| `error`      | `ComputedRef<ResponseError \| undefined>`                      | The list read's captured error                                                                                                                   |
+| `findOne()`  | `(mapping, data?, searchableProps?) => SentEmail \| undefined` | Finds one email by a partial mapping or free text                                                                                                |
+| `getOne(id)` | `(id, data?) => SentEmail \| undefined`                        | Finds one email by id                                                                                                                            |
+| `pagination` | `ComputedRef<PaginationInfo>`                                  | `{ limit, total, page, pages, from, to }`                                                                                                        |
+| `query`      | `ComputedRef<QueryModel>`                                      | This scope's ACTIVE request state — read-only; write through `useActions().setCriteria()`                                                        |
+| `schemas`    | `{ query: { schema, uischema, sortUischema } }`                | The query schema, the filter-bar uischema a renderer derives its controls from, and a separate uischema for the sort control's own option labels |
 
-> **🧪 For Testers:** `data` is always an array — before the first read completes, and when the read errors. `error` is **state you read**, never an event.
+> **🧪 For Testers:** `data` is always an array — before the first read completes, and when the read errors. `error` is **state you read**, never an event. `query` and `schemas` both travel as plain JSON — no function crosses either. `schemas.query.sortUischema` is one `Control` over the `sort` branch (`{ type: "Control", scope: "#/properties/sort", i18n: "form.sent_email_sort" }`); its `i18n` is the option-key PREFIX a sort control resolves as `<i18n>.<field>` (`form.sent_email_sort.created_at`), the same tri-state prefix mechanism the filter controls use.
 
 ### Collection meta — `useMeta()`
 
@@ -140,10 +157,10 @@ Removes this scoped instance from the registry.
 
 ### Collection internals — `useInternals()`
 
-| Property     | Meaning                                    |
-| ------------ | ------------------------------------------ |
-| `actorScope` | the resolved actor for this instance       |
-| `query`      | the raw list-query object backing the list |
+| Property     | Meaning                                                                                                                                                                                                   |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `actorScope` | the resolved actor for this instance                                                                                                                                                                      |
+| `query`      | the raw list-query object backing the list — including `query.isFiltered` (any declared filter column carries a value) and `query.criteriaError` (ajv's verdict on the last REJECTED `setCriteria` write) |
 
 For debugging and tests. Not for production consumers.
 

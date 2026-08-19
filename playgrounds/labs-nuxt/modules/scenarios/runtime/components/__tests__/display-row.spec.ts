@@ -25,37 +25,47 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { computed, ref } from "vue";
 import { createI18n } from "vue-i18n";
-import {
-  useQuerySchema,
-  useQueryUischema
-} from "@upmind-automation/headless/testing/client-email/internal-kit";
+import { internalKits } from "@upmind-automation/headless/testing";
 import action from "@upmind-automation/i18n/core/action-en.json";
+import form from "@upmind-automation/i18n/core/form-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
+import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
 import { Select } from "@upmind-automation/upmind-ui";
-import labsEn from "../../../../../app/assets/locales/en/labs.json";
 import {
-  defaultRow,
-  unverifiedRow
-} from "../../../../../tests/support/recorded-emails";
+  declaringChannel,
+  declaringCriteria,
+  declaringSchemas
+} from "../../../testing/declared-table";
+import { defaultRow, unverifiedRow } from "../../../testing/recorded-emails";
+import { receivedEmailRows } from "../../../testing/recorded-received-email";
+import { TRANSLATED } from "../../../testing/rendered";
 import clientEmails from "../../../useClientEmails/client-email.scenario";
+import receivedEmails from "../../../useClientReceivedEmails/client-email-history.scenario";
 import DisplayRow from "../DisplayRow.vue";
 import { ListSurface, ListViewTypes } from "../surfaces";
-import { FIRST_DECLARED_COLUMN } from "../surfaces/__tests__/table-geometry";
 import { RESOLVED_HANDOFFS } from "./resolved-handoffs";
 import {
   filter,
   find,
   first,
+  forEach,
   get,
   isEmpty,
   map,
+  omit,
   reject,
+  slice,
   sortBy,
   split
 } from "lodash-es";
 import type { ModulePortCriteria } from "../../composables/useModulePort.types";
+import type { DeclaringTableChannel } from "../../composables/useTableChannel.types";
 import type { SortField } from "../SortControl.types";
 import type { ControlledTableChannel } from "@upmind-automation/scenario-harness";
+import type { DOMWrapper, VueWrapper } from "@vue/test-utils";
+
+const { useQuerySchema, useQueryUischema } =
+  await internalKits["client-email"]();
 
 // -----------------------------------------------------------------------------
 
@@ -83,12 +93,47 @@ const SORT_CONTROL = '[data-test-key="sort"]';
 const LIVE_SORT = { field: "email", dir: "asc" };
 const VIEW_TOGGLE = (view: ListViewTypes) => `[data-test-value="${view}"]`;
 
-const messages = { en: { action, labs: labsEn, text } };
+const messages = { en: { action, form, labs: labsEn, text } };
 
 const translate = createI18n({ legacy: false, locale: "en", messages }).global
   .t;
 
-const i18n = () => createI18n({ legacy: false, locale: "en", messages });
+const i18n = (installed: typeof messages.en = messages.en) =>
+  createI18n({ legacy: false, locale: "en", messages: { en: installed } });
+
+/** Each module's own option-key PREFIX, read off the uischema it declares. */
+const PREFIX = get(
+  (await declaringSchemas("client-email")).sortUischema,
+  "i18n"
+) as string;
+const HISTORY_PREFIX = get(
+  (await declaringSchemas("client-email-history")).sortUischema,
+  "i18n"
+) as string;
+
+/** What the shipped catalogue answers `<prefix>.<field>` with. */
+const catalogueLabel = (prefix: string, field: string) =>
+  get(form, [...slice(split(prefix, "."), 1), field]) as string;
+
+/** The other module's own ordering vocabulary, off its own query schema. */
+const HISTORY_SORT_FIELDS = get(
+  (await declaringSchemas("client-email-history")).schema,
+  ["properties", "sort", "items", "properties", "field", "enum"]
+) as string[];
+
+/** The ordering as the SURFACE offers it — read off the control, never a fixture. */
+const offeredIn = (wrapper: VueWrapper) =>
+  (wrapper.findComponent(Select).props("items") ?? []) as SortField[];
+
+/**
+ * The header the surface offers an ordering ON. Found rather than counted: a
+ * declared column carries the control only where its own scope names a field
+ * the schema orders by, and the star column at position 0 (`R6-34`) names none.
+ */
+const orderingHeader = (wrapper: VueWrapper) =>
+  find(wrapper.findAll("th"), header =>
+    header.find('[data-test-key="button"]').exists()
+  ) as DOMWrapper<Element>;
 
 /**
  * The ordering as the SURFACE hands it over. There is no declared sort channel
@@ -129,17 +174,20 @@ function mountRow(overrides: Record<string, unknown> = {}) {
 
 // --- the surface, for the one-ordering claim --------------------------------
 
-const channelOn = (
-  emit: ControlledTableChannel["emit"],
-  sort: { field: string; dir: string }[] = []
-): ControlledTableChannel => ({
-  read: () => ({
-    filter: {},
-    sort,
-    pagination: { page: 1, perPage: 10, total: TOTAL }
-  }),
-  emit
+/**
+ * The surface's channel DECLARES: `declared()` is the real `useTableChannel`'s,
+ * over the module's own query schema and sort uischema, so the ordering the
+ * surface offers is the one the module declares rather than one this spec
+ * supplied. `read`/`emit` stay the harness-shaped double.
+ */
+const declaredChannel = await declaringChannel("client-email", {
+  sort: [LIVE_SORT],
+  total: TOTAL
 });
+
+const channelOn = (
+  emit: ControlledTableChannel["emit"]
+): DeclaringTableChannel => ({ ...declaredChannel, emit });
 
 function liveCriteria(): ModulePortCriteria {
   const model = ref<Record<string, unknown>>({});
@@ -151,7 +199,10 @@ function liveCriteria(): ModulePortCriteria {
   };
 }
 
-function mountList(emit: ControlledTableChannel["emit"]) {
+function mountList(
+  emit: ControlledTableChannel["emit"],
+  installed: typeof messages.en = messages.en
+) {
   return mount(ListSurface, {
     attachTo: document.body,
     props: {
@@ -162,9 +213,33 @@ function mountList(emit: ControlledTableChannel["emit"]) {
       },
       actions: { remove: vi.fn() },
       presentation: clientEmails.presentation,
-      table: channelOn(emit, [LIVE_SORT]),
+      table: channelOn(emit),
       criteria: liveCriteria(),
       handoffs: RESOLVED_HANDOFFS
+    },
+    global: { plugins: [i18n(installed)] }
+  });
+}
+
+const historyChannel = await declaringChannel("client-email-history", {
+  total: receivedEmailRows.length
+});
+const historyCriteria = await declaringCriteria("client-email-history");
+
+/** The OTHER module's list, whose ordering wording is its own (AC11). */
+function mountHistory() {
+  return mount(ListSurface, {
+    attachTo: document.body,
+    props: {
+      snapshot: {
+        actions: [],
+        context: { data: slice(receivedEmailRows, 0, 2) },
+        meta: { isEmpty: false, isFiltered: false }
+      },
+      actions: {},
+      presentation: receivedEmails.presentation,
+      table: historyChannel,
+      criteria: historyCriteria
     },
     global: { plugins: [i18n()] }
   });
@@ -227,6 +302,64 @@ describe("T3.7 the ordering offers REAL columns, never a composite (R6-6 · R6-6
     expect(
       filter(map(offered(), "value"), field => /status/i.test(field))
     ).toEqual([]);
+  });
+});
+
+describe("the ordering is offered in the client's own words (AC2)", () => {
+  it("is offered under a prefix the module declares, not one this spec supplies", () => {
+    expect(PREFIX).toMatch(/^form\./);
+  });
+
+  it.each(SCHEMA_SORT_FIELDS)(
+    "offers %s under the copy the catalogue answers its prefix with",
+    field => {
+      const option = find(offeredIn(mountList(vi.fn())), { value: field });
+
+      expect(option?.label).not.toBe(field);
+      expect(TRANSLATED.has(option?.label as string)).toBe(true);
+      expect(option?.label).toBe(catalogueLabel(PREFIX, field));
+    }
+  );
+
+  it("words the two that read as their own wire names today — default and created_at", () => {
+    const offered = offeredIn(mountList(vi.fn()));
+
+    forEach(["default", "created_at"], field =>
+      expect(find(offered, { value: field })?.label).toBe(
+        catalogueLabel(PREFIX, field)
+      )
+    );
+  });
+});
+
+describe("an ordering whose wording has not arrived is still offered (AC6)", () => {
+  it("offers every declared field, named by its wire name rather than left blank", () => {
+    const stripped = {
+      ...messages.en,
+      form: omit(form, slice(split(PREFIX, "."), 1))
+    };
+
+    const offered = offeredIn(mountList(vi.fn(), stripped));
+
+    expect(sortBy(map(offered, "value"))).toEqual(sortBy(SCHEMA_SORT_FIELDS));
+    expect(filter(offered, option => isEmpty(option.label))).toEqual([]);
+    expect(map(offered, "label")).toEqual(map(offered, "value"));
+  });
+});
+
+describe("the OTHER module words its ordering as its own (AC11)", () => {
+  it("offers every field of its own schema, each from the shipped catalogue", () => {
+    const offered = offeredIn(mountHistory());
+
+    expect(sortBy(map(offered, "value"))).toEqual(sortBy(HISTORY_SORT_FIELDS));
+    expect(reject(offered, option => TRANSLATED.has(option.label))).toEqual([]);
+  });
+
+  it("dates a sent email by when it was SENT, never by when an address was added", () => {
+    const dated = find(offeredIn(mountHistory()), { value: "created_at" });
+
+    expect(dated?.label).toBe(catalogueLabel(HISTORY_PREFIX, "created_at"));
+    expect(dated?.label).not.toBe(catalogueLabel(PREFIX, "created_at"));
   });
 });
 
@@ -305,7 +438,7 @@ describe("T3.7 one ordering, two ways to reach it (AC5.1 · P1-R9)", () => {
 
     const fromHeader = vi.fn();
     const header = mountList(fromHeader);
-    await header.findAll("th")[FIRST_DECLARED_COLUMN].trigger("click");
+    await orderingHeader(header).trigger("click");
 
     expect(fromToolbar).toHaveBeenCalledTimes(1);
     expect(fromHeader).toHaveBeenCalledTimes(1);

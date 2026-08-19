@@ -1,10 +1,21 @@
 import { registerEntry } from "@upmind-automation/upmind-ui";
 import AddressRenderer, { tester as addressTest } from "./AddressRenderer.vue";
 import DomainRenderer, { tester as domainTest } from "./DomainRenderer.vue";
-import FilterRenderer, { tester as filterTest } from "./FilterRenderer.vue";
-import FilterRowRenderer, {
-  tester as filterRowTest
-} from "./FilterRowRenderer.vue";
+import FilterBarRenderer, {
+  tester as filterBarTest
+} from "./FilterBarRenderer.vue";
+import FilterButtonGroupRenderer, {
+  tester as filterButtonGroupTest
+} from "./FilterButtonGroupRenderer.vue";
+import FilterRangeRenderer, {
+  tester as filterRangeTest
+} from "./FilterRangeRenderer.vue";
+import FilterSearchRenderer, {
+  tester as filterSearchTest
+} from "./FilterSearchRenderer.vue";
+import FilterToggleGroupRenderer, {
+  tester as filterToggleGroupTest
+} from "./FilterToggleGroupRenderer.vue";
 import GatewaysRenderer, {
   tester as gatewayMethodTest
 } from "./GatewaysRenderer.vue";
@@ -21,8 +32,6 @@ import TermsRenderer, { tester as termsTest } from "./TermsRenderer.vue";
 
 // -----------------------------------------------------------------------------
 
-export * from "./FilterRenderer.types";
-
 export const formRenderers = [
   registerEntry(DomainRenderer, domainTest),
   registerEntry(SLDRenderer, sldTest),
@@ -33,6 +42,9 @@ export const formRenderers = [
   registerEntry(GatewaysRenderer, gatewayMethodTest),
   registerEntry(TermsRenderer, termsTest),
   registerEntry(SubProductRenderer, subProductTest),
-  registerEntry(FilterRenderer, filterTest),
-  registerEntry(FilterRowRenderer, filterRowTest)
+  registerEntry(FilterButtonGroupRenderer, filterButtonGroupTest),
+  registerEntry(FilterToggleGroupRenderer, filterToggleGroupTest),
+  registerEntry(FilterSearchRenderer, filterSearchTest),
+  registerEntry(FilterRangeRenderer, filterRangeTest),
+  registerEntry(FilterBarRenderer, filterBarTest)
 ];

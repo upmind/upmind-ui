@@ -1,12 +1,207 @@
-/** @internal */
+/**
+ * @public
+ * @schema-fragment
+ * @module client-company/client-company.schemas
+ * @description Schema / uischema for the per-company form. They move as a
+ * PAIR: a schema field with no control renders a required-but-invisible
+ * input.
+ *
+ * `useCompanySchema` / `useCompanyUischema` are schema FRAGMENTS — pure
+ * functions of their arguments, for composing the company form into a PARENT
+ * schema (`basket-billing/unified`). A consumer rendering the company form
+ * ITSELF must read `useClientCompanyManager().useContext().schema` /
+ * `.uischema`, which are the schemas the machine actually validates against.
+ * These two are not a second route to the module's data and must never
+ * acquire one: no scope, no session, no request, no reactive state — the
+ * `useCompanyEmailList` / `useCompanyEmailMutate` adapters below hand the
+ * "email" control an UNFIRED composable reference, exactly as the existing
+ * address block already hands the "address" control `useClientAddresses` /
+ * `useClientAddressManager`; nothing is invoked, and nothing requests, until
+ * the FORM renders that field (`design.md` D5).
+ *
+ * This is a DOCUMENTED DEVIATION from the reference conversion's
+ * "NO SCHEMA EXPORTS HERE" law — see the `@decision` block in `design.md` D5.
+ * Unlike every OTHER data-layer file in this module — each of which carries a
+ * line-1 `@internal` marker — this one deliberately does not: it carries
+ * `@public @schema-fragment` instead, because it is the one file this module
+ * intentionally publishes on the barrel.
+ */
+import { computed } from "vue";
 import {
+  ClientAddressContextTypes,
   useClientAddresses,
   useClientAddressManager,
   useSchemaDefinitions as useAddressSchema,
   useUischemaDefinitions as useAddressUischema
 } from "../client-address";
+import {
+  ClientEmailContextTypes,
+  useClientEmailManager,
+  useClientEmails
+} from "../client-email";
+import { useClientPhoneManager, useClientPhones } from "../client-phone";
+import { ScopeActorTypes } from "../scope/scope.types";
 import type { CompanyContext } from "./client-company.types";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
+
+// -----------------------------------------------------------------------------
+// Email adapters — `useClientEmails` / `useClientEmailManager` are SCOPED
+// composables; the "Manager" uischema renderer (`ManageRenderer.vue`) expects
+// the flat `MinimalListComposable` / `MinimalMutateComposable` shape, so these
+// resolve `.as(SELF)` and flatten the four-layer return into that shape — the
+// same fall-through `client-company.services.ts`'s `loadLookups` already uses
+// for this cross-module call (`design.md` D2).
+// -----------------------------------------------------------------------------
+
+function useCompanyEmailList() {
+  const emails = useClientEmails().as(ScopeActorTypes.SELF);
+  const { data, default: defaultEmail } = emails.useContext();
+  const { isLoading, hasError, isEmpty } = emails.useMeta();
+  const { isReady } = emails.useActions();
+
+  return {
+    isReady,
+    meta: computed(() => ({
+      isLoading: isLoading.value,
+      hasError: hasError.value,
+      isEmpty: isEmpty.value
+    })),
+    data,
+    default: defaultEmail
+  };
+}
+
+function useCompanyEmailMutate(id?: string) {
+  // `.for()` / `.fresh()` chain only off a concrete actor whose matrix defines
+  // a context — SELF resolves to `never` in the manager's matrix, so this
+  // scopes CLIENT directly (the only actor this module ever serves under R1;
+  // identity still resolves to the session's own client either way, since the
+  // EMAIL context falls through to `activeUser`, not the actor).
+  const manager = useClientEmailManager().as(ScopeActorTypes.CLIENT);
+  const instance = id
+    ? manager.for(ClientEmailContextTypes.EMAIL, id)
+    : manager.fresh();
+  const { isReady, update, clear, input, destroy } = instance.useActions();
+  const { model, schema, uischema, errors, validationErrors } =
+    instance.useContext();
+  const {
+    isAvailable,
+    isLoading,
+    isValid,
+    isDirty,
+    isProcessing,
+    hasErrors,
+    isNew,
+    isComplete
+  } = instance.useMeta();
+
+  return {
+    isReady,
+    meta: computed(() => ({
+      isAvailable: isAvailable.value,
+      isLoading: isLoading.value,
+      isValid: isValid.value,
+      isDirty: isDirty.value,
+      isProcessing: isProcessing.value,
+      hasErrors: hasErrors.value,
+      isNew: isNew.value,
+      isComplete: isComplete.value
+    })),
+    model,
+    schema,
+    uischema,
+    errors,
+    validationErrors,
+    update,
+    clear,
+    input,
+    stop: destroy
+  };
+}
+
+// -----------------------------------------------------------------------------
+// Address adapters — same shape as the email pair above, for the same reason:
+// `useClientAddresses` / `useClientAddressManager` became SCOPED composables
+// and the "Manager" uischema renderer calls them BARE. Handing the renderer an
+// unadapted scope builder compiles cleanly (the options object is cast
+// `as any`) and fails at runtime (`design.md` D-13, hazard Z7).
+//
+// Two obligations the address adapters carry that the email pair does not:
+// `default` RE-HYDRATES to the row, because the module's own `default()` is
+// now the ID (R5) while `Select.vue:97` reads `defaultItem()?.id`; and `stop`
+// maps to `destroy`, or every opened address leaves a registry entry holding a
+// live TanStack observer.
+//
+// They raise NO feedback: under operator ruling R10 `client-address` still
+// raises its own on `remove` / `setDefault`, and a consumer-side raise on top
+// would double every message. That is the one place these deliberately differ
+// from the company adapters in `TabBusiness.vue`.
+// -----------------------------------------------------------------------------
+
+function useCompanyAddressList() {
+  const addresses = useClientAddresses().as(ScopeActorTypes.CLIENT);
+  const { data, default: defaultAddressId, getOne } = addresses.useContext();
+  const { isLoading, hasError, isEmpty } = addresses.useMeta();
+  const { isReady, remove, setDefault } = addresses.useActions();
+
+  return {
+    isReady,
+    meta: computed(() => ({
+      isLoading: isLoading.value,
+      hasError: hasError.value,
+      isEmpty: isEmpty.value
+    })),
+    data,
+    default: () => getOne(defaultAddressId()),
+    remove,
+    setDefault
+  };
+}
+
+function useCompanyAddressMutate(id?: string) {
+  const manager = useClientAddressManager().as(ScopeActorTypes.CLIENT);
+  const instance = id
+    ? manager.for(ClientAddressContextTypes.ADDRESS, id)
+    : manager.fresh();
+  const { isReady, update, clear, input, destroy } = instance.useActions();
+  const { model, schema, uischema, errors, validationErrors } =
+    instance.useContext();
+  const {
+    isAvailable,
+    isLoading,
+    isValid,
+    isDirty,
+    isProcessing,
+    hasErrors,
+    isNew,
+    isComplete
+  } = instance.useMeta();
+
+  return {
+    isReady,
+    meta: computed(() => ({
+      isAvailable: isAvailable.value,
+      isLoading: isLoading.value,
+      isValid: isValid.value,
+      isDirty: isDirty.value,
+      isProcessing: isProcessing.value,
+      hasErrors: hasErrors.value,
+      isNew: isNew.value,
+      isComplete: isComplete.value
+    })),
+    model,
+    schema,
+    uischema,
+    errors,
+    validationErrors,
+    update,
+    clear,
+    input,
+    stop: destroy
+  };
+}
+
+// -----------------------------------------------------------------------------
 
 export const useSchema = ({
   countries,
@@ -55,28 +250,28 @@ export const useSchema = ({
         title: "Address",
         default: baseModel?.addressId
       },
-      address: { $ref: "#/definitions/address" }
+      address: { $ref: "#/definitions/address" },
+      emailId: {
+        type: ["string", "null"],
+        title: "Email",
+        default: baseModel?.emailId
+      },
+      phoneId: {
+        type: ["string", "null"],
+        title: "Phone",
+        default: baseModel?.phoneId
+      }
     }
   };
 
-  // If we are we already have an address, then we will always use the addressId
-  // otherwise we will allow a full address object as we need to create one
+  // If we already have an address, we always use the addressId; otherwise we
+  // allow a full address object, as we need to create one.
   if (baseModel?.addressId) {
     schema.required!.push("addressId");
     delete schema?.properties?.address;
   } else {
     schema.required!.push("address");
   }
-
-  // TODO: same logic as address
-  // if (baseModel?.phoneId) {
-  //   delete schema?.properties?.phone;
-  // }
-
-  // TODO: same logic as address
-  // if (baseModel?.emailId) {
-  //   delete schema?.properties?.email;
-  // }
 
   return schema;
 };
@@ -87,7 +282,11 @@ export const useUischema = ({
   countries,
   regions
 }: Partial<CompanyContext>) => {
-  const uiSchema = {
+  // Explicitly typed so `.push()` below accepts any `UISchemaElement` — an
+  // inferred (untyped) declaration narrows `elements` to the shape of these
+  // first two literal entries, which is what forced the pre-conversion `as any`
+  // casts at every later push.
+  const uiSchema: { type: string; elements: UISchemaElement[] } = {
     type: "VerticalLayout",
     elements: [
       {
@@ -124,7 +323,7 @@ export const useUischema = ({
     ]
   };
 
-  // this is where we conditionally render either an existing addressId or a new address uiSchema
+  // Either an existing addressId or a new-address uiSchema.
   if (!baseModel?.addressId) {
     uiSchema.elements.push({
       type: "VerticalLayout",
@@ -137,73 +336,41 @@ export const useUischema = ({
       i18nKey: "form.address",
       options: {
         manage: {
-          useList: useClientAddresses,
-          useMutate: useClientAddressManager
+          useList: useCompanyAddressList,
+          useMutate: useCompanyAddressMutate
         }
       }
     } as any);
   }
 
-  // TODO: the allOF/anyOf schema needs to be handled in the uischema as well
+  // In-cell gap G6 — the email and phone controls, alongside the address one.
+  // A client is otherwise silently locked to their default email and phone
+  // (`parity.yaml` C25); `loadLookups` already fetches both collections and
+  // seeds `baseModel.emailId` / `.phoneId` — only the form control was missing.
   if (!minimal) {
-    // this is where we conditionally render either an existing phoneId or a new phone uiSchema
-    // if (!baseModel?.phoneId) {
-    //   uiSchema.elements.push({
-    //     type: "VerticalLayout",
-    //     elements: [
-    //       {
-    //         type: "Control",
-    //         scope: "#/properties/phone",
-    //         options: {
-    //           autoFocus: true,
-    //           autocomplete: "off",
-    //           detail: usePhoneUischema(),
-    //         },
-    //       },
-    //     ],
-    //   } as any);
-    // } else {
-    //   uiSchema.elements.push({
-    //     type: "Manager",
-    //     scope: "#/properties/phoneId",
-    //     options: {
-    //       i18nKey: "client.phone",
-    //       manage: {
-    //         useList: useClientPhones,
-    //         useMutate: useClientPhoneManager,
-    //       },
-    //     },
-    //   } as any);
-    // }
-    // // this is where we conditionally render either an existing emailId or a new email uiSchema
-    // if (!baseModel?.emailId) {
-    //   uiSchema.elements.push({
-    //     type: "VerticalLayout",
-    //     elements: [
-    //       {
-    //         type: "Control",
-    //         scope: "#/properties/email",
-    //         options: {
-    //           autoFocus: true,
-    //           autocomplete: "off",
-    //           detail: useEmailUischema(),
-    //         },
-    //       },
-    //     ],
-    //   } as any);
-    // } else {
-    //   uiSchema.elements.push({
-    //     type: "Manager",
-    //     scope: "#/properties/emailId",
-    //     options: {
-    //       i18nKey: "client.email",
-    //       manage: {
-    //         useList: useClientEmails,
-    //         useMutate: useClientEmailManager,
-    //       },
-    //     },
-    //   } as any);
-    // }
+    uiSchema.elements.push({
+      type: "Manager",
+      scope: "#/properties/emailId",
+      i18nKey: "form.email",
+      options: {
+        manage: {
+          useList: useCompanyEmailList,
+          useMutate: useCompanyEmailMutate
+        }
+      }
+    } as UISchemaElement);
+
+    uiSchema.elements.push({
+      type: "Manager",
+      scope: "#/properties/phoneId",
+      i18nKey: "form.phone",
+      options: {
+        manage: {
+          useList: useClientPhones,
+          useMutate: useClientPhoneManager
+        }
+      }
+    } as UISchemaElement);
   }
 
   return uiSchema as UISchemaElement;

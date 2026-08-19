@@ -60,9 +60,10 @@
 #
 --- a/packages/headless/src/modules/client-email-history/client-email-history.services.ts
 +++ b/packages/headless/src/modules/client-email-history/client-email-history.services.ts
-@@ -138,14 +138,6 @@
+@@ -134,15 +134,7 @@
+     url: useUrl("self/email_history", {
+       with: ["recipient", "recipient_type", "recipient.image"].join(",")
      }),
-     sort: [[RequestSortDirection.DESC, "created_at"]],
      withAccessToken: true,
 -    guard: async () =>
 -      new Promise((resolve, reject) => {

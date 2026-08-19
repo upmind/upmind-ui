@@ -30,7 +30,7 @@
  */
 
 import { computed } from "vue";
-import { useI18n } from "vue-i18n";
+import { useFormI18n } from "@upmind-automation/client-vue";
 import { SORT_DIRECTION } from "@upmind-automation/scenario-harness";
 import {
   ButtonGroup,
@@ -55,7 +55,7 @@ const props = defineProps<SortControlProps>();
 
 const emit = defineEmits<{ "update:sort": [sort: TableModel["sort"]] }>();
 
-const { t } = useI18n();
+const i18n = useFormI18n();
 
 const styles = useStyles(["sortControl"], {}, config);
 
@@ -68,6 +68,10 @@ const direction = computed(() => active.value?.dir ?? SORT_DIRECTION.ASC);
 
 const isAscending = computed(() => direction.value === SORT_DIRECTION.ASC);
 
+const directionKey = computed(() =>
+  isAscending.value ? "action.sort_ascending" : "action.sort_descending"
+);
+
 const selected = computed(() =>
   find(props.fields, { value: active.value?.field })
 );
@@ -78,9 +82,7 @@ const groupItems = computed<ButtonGroupItem[]>(() => [
     props: {
       icon: isAscending.value ? "arrow-up" : "arrow-down",
       iconOnly: true,
-      label: t(
-        isAscending.value ? "action.sort_ascending" : "action.sort_descending"
-      ),
+      label: i18n.value.translate(directionKey.value, directionKey.value),
       disabled: !active.value || !!props.disabled
     } satisfies ButtonProps,
     handler: () =>
@@ -95,7 +97,9 @@ const groupItems = computed<ButtonGroupItem[]>(() => [
       modelValue: active.value?.field,
       items: props.fields,
       disabled: props.disabled,
-      placeholder: selected.value?.label ?? t("text.sort_by"),
+      placeholder:
+        selected.value?.label ??
+        i18n.value.translate("text.sort_by", "text.sort_by"),
       // `CxOptions` is clsx's own argument list, so the override is handed over
       // as the array the ui component's defaults already are.
       uiConfig: {

@@ -22,10 +22,7 @@
 
 import { mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  defaultRow,
-  unverifiedRow
-} from "../../../../../../tests/support/recorded-emails";
+import { defaultRow, unverifiedRow } from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import {
   CONTROL_TEST_VALUE,
@@ -177,6 +174,9 @@ describe("@AC3 the gate is DECLARED — it is not the renderer's opinion", () =>
     );
 
     expect(gated).toEqual([
+      // The read overlay opens on any row: reading is never withheld, so the
+      // detail verb carries no rule — the read peer of the edit handoff below.
+      ["view", undefined],
       // The editor a row hands off to is reached on every row: whether THIS
       // address may be changed is the manager's own answer, not a list flag.
       ["edit", undefined],
@@ -187,7 +187,13 @@ describe("@AC3 the gate is DECLARED — it is not the renderer's opinion", () =>
   });
 
   it("names only live members of the composable's action map", () => {
-    const calls = filter(rowActions, action => !action.handoff);
+    // A detail verb (`view`) opens the read overlay and a handoff opens the
+    // editor — neither fires a composable action, so both are excluded exactly
+    // as one another from the live map the row's controls call.
+    const calls = filter(
+      rowActions,
+      action => !action.handoff && !action.detail
+    );
 
     expect(map(calls, "name")).toEqual(keys(ACTIONS));
   });

@@ -14,29 +14,32 @@ Every page this module draws lives at one route, in one component: nothing about
 - **Presentation** — the part of a declaration describing how a record draws: an icon, a table, a card, and a set of actions. A table and a card are the _same_ declared fields, laid out two different ways.
 - **Cell renderer** — the component that draws one declared field. A field's declared type (text, date, an icon, a set of badges) picks its renderer; a renderer is added to the system once and every declaration can then use it.
 - **Handoff** — a declared editor a row's action opens instead of calling a plain function — used whenever an action needs more input than a click can supply (adding or editing a record through a form).
+- **Detail** — a read-only overlay over one record, opened by a row's own action instead of calling a live action or a handoff. Drawn through the same cell renderers as the table/card, over either the row already in hand or — where the module names a single-read composable — a freshly fetched full record, keyed by the row's own identity.
 - **Track** — one scenario from a module's own written-down capability spec, once every one of its steps has a matching definition. A track is what shows up on the page's transport bar as something you can actually play.
 - **Force preset** — a state the page can be pinned into on demand (loading, empty, an action failing, or the whole collection failing to load), served from data that was genuinely recorded once, never invented on the spot.
 - **Scope bar** — the app-wide control cluster (brand, session, acting‑for) that decides _who_ a page is looking as and _for_ whom, independent of which page is open.
 
 ## Capabilities
 
-| #   | Capability                                                | What it needs from the composable                                                        | What the page offers                                                                                |
-| --- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| 1   | Draw a collection as a table                              | a collection composable (`useList`)                                                      | Sortable columns, a filter bar, paging, a column picker                                             |
-| 2   | Draw the same collection as cards                         | the same, plus a declared card layout                                                    | A card grid alternative to the table, toggled by the reader                                         |
-| 3   | Add, edit, or otherwise act on a record                   | a manager composable (`useMutate`), or a live action on the collection                   | Row actions and/or a collection-level action, each gated by the record's own flags                  |
-| 4   | Open a form for an action that needs more than a click    | the manager's own input schema                                                           | A dialog editor seeded from the row, or opened fresh for "add"                                      |
-| 5   | Persist the current filters/sort/page to a shareable link | the collection's own request-state surface                                               | A URL a colleague can open and land on the same view                                                |
-| 6   | Offer only the actors a module actually supports          | the composable's own exported scope matrix                                               | An acting-for picker that greys out anything the module cannot serve                                |
-| 7   | Replay a written capability as a demonstration            | a module keeping its capability spec and step definitions at their conventional location | A transport bar: play, pause, step, scrub, jump to any point, and a live/replay toggle              |
-| 8   | Force a hard-to-catch state on demand                     | recorded response bodies for the module                                                  | Loading / empty / one action failing / the whole read failing, without touching the real API        |
-| 9   | Inspect what's actually happening under a page            | nothing extra — read off the booted composable                                           | A raw-data pane, a "code that reproduces this" pane, and a Gherkin view of the scenario in progress |
+| #   | Capability                                                | What it needs from the composable                                                        | What the page offers                                                                                      |
+| --- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| 1   | Draw a collection as a table                              | a collection composable (`useList`)                                                      | Sortable columns, a filter bar, paging, a column picker                                                   |
+| 2   | Draw the same collection as cards                         | the same, plus a declared card layout                                                    | A card grid alternative to the table, toggled by the reader                                               |
+| 3   | Add, edit, or otherwise act on a record                   | a manager composable (`useMutate`), or a live action on the collection                   | Row actions and/or a collection-level action, each gated by the record's own flags                        |
+| 4   | Open a form for an action that needs more than a click    | the manager's own input schema                                                           | A dialog editor seeded from the row, or opened fresh for "add"                                            |
+| 5   | Persist the current filters/sort/page to a shareable link | the collection's own request-state surface                                               | A URL a colleague can open and land on the same view                                                      |
+| 6   | Offer only the actors a module actually supports          | the composable's own exported scope matrix                                               | An acting-for picker that greys out anything the module cannot serve                                      |
+| 7   | Replay a written capability as a demonstration            | a module keeping its capability spec and step definitions at their conventional location | A transport bar: play, pause, step, scrub, jump to any point, and a live/replay toggle                    |
+| 8   | Force a hard-to-catch state on demand                     | recorded response bodies for the module                                                  | Loading / empty / one action failing / the whole read failing, without touching the real API              |
+| 9   | Inspect what's actually happening under a page            | nothing extra — read off the booted composable                                           | A raw-data pane, a "code that reproduces this" pane, and a Gherkin view of the scenario in progress       |
+| 10  | View one record read-only, without leaving the list       | optionally, a single-read composable (`useDetail`) keyed by the row's own identity       | An overlay (a side panel by default) showing the record through the same cell renderers as the table/card |
 
 **Additional always-on behaviours:**
 
 - Every page boots as the acting session itself, with no scope narrowing, until the URL says otherwise.
 - A page with neither a collection nor an editor to show simply cannot be built — a declaration must name at least one.
 - A field nobody declared never appears anywhere — not as a column, not as a card field, not as a filter — regardless of what the underlying record actually carries.
+- A record's read-only overlay never re-offers the very control that opened it — every other action the row carries, an edit handoff among them, still does.
 
 ## How a page comes to exist
 

@@ -1,0 +1,15 @@
+--- a/packages/headless/src/modules/client-personal-details/client-personal-details.services.ts
++++ b/packages/headless/src/modules/client-personal-details/client-personal-details.services.ts
+@@ -88,11 +88,7 @@
+ function resolveClientId(scopeContext?: ScopeContext) {
+   const { activeUser } = useActiveSession().useContext();
+ 
+-  return computed(() =>
+-    scopeContext?.type === ClientPersonalDetailsContextTypes.PROFILE
+-      ? scopeContext.id
+-      : activeUser.value?.id
+-  );
++  return computed(() => activeUser.value?.id);
+ }
+ 
+ /**

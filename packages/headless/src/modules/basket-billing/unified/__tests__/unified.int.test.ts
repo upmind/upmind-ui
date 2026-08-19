@@ -28,6 +28,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { useUnifiedServices } from "../services";
 import { UnifiedType } from "../types";
+import type { AddressModel } from "../../../client-address";
 import type { PhoneModel } from "../../../client-phone";
 import type { UnifiedContext, UnifiedModel } from "../types";
 
@@ -45,13 +46,24 @@ const spies = vi.hoisted(() => ({
   ensureAddress: vi.fn().mockResolvedValue({ id: "ensured-address" })
 }));
 
-// Replace only the `*Services` factories on each barrel; every other export
-// (types, managers, query composables `add()` never touches) stays real.
+// Replace only the seams `add()` reaches for. `client-phone` is still the
+// unscoped `*Services` factory shape; `client-company` is the scoped
+// collection composable (`useClientCompanies().as(CLIENT).useActions().ensure`)
+// — `useClientCompanyServices` no longer exists on the barrel. Every other
+// export (types, managers, query composables `add()` never touches) stays real.
 vi.mock("../../../client-phone", async importOriginal => {
   const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,
-    useClientPhoneServices: () => ({ ensure: spies.ensurePhone })
+    useClientPhones: () => ({
+      as: () => ({
+        useActions: () => ({
+          ensure: spies.ensurePhone,
+          isReady: () => Promise.resolve(true)
+        }),
+        useContext: () => ({ default: () => undefined, data: { value: [] } })
+      })
+    })
   };
 });
 
@@ -59,7 +71,9 @@ vi.mock("../../../client-company", async importOriginal => {
   const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,
-    useClientCompanyServices: () => ({ ensure: spies.ensureCompany })
+    useClientCompanies: () => ({
+      as: () => ({ useActions: () => ({ ensure: spies.ensureCompany }) })
+    })
   };
 });
 
@@ -67,7 +81,9 @@ vi.mock("../../../client-address", async importOriginal => {
   const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,
-    useClientAddressServices: () => ({ ensure: spies.ensureAddress })
+    useClientAddresses: () => ({
+      as: () => ({ useActions: () => ({ ensure: spies.ensureAddress }) })
+    })
   };
 });
 
@@ -108,15 +124,17 @@ describe("useUnifiedServices().add — once-only phone POST (FE-2711)", () => {
     expect(spies.ensurePhone).not.toHaveBeenCalled();
 
     // The phone travels exactly once, folded into the single company POST —
-    // carrying both the phone id and the phone payload.
+    // carrying both the phone id and the phone payload. The scoped `ensure`
+    // takes the CompanyModel directly (no `{ model }` wrapper — that shape
+    // belongs to the still-unscoped `client-phone` seam above).
     expect(spies.ensureCompany).toHaveBeenCalledTimes(1);
-    expect(spies.ensureCompany).toHaveBeenCalledWith({
-      model: expect.objectContaining({
+    expect(spies.ensureCompany).toHaveBeenCalledWith(
+      expect.objectContaining({
         name: "Acme Ltd",
         phoneId: phone.id,
         phone: phone.phone
       })
-    });
+    );
   });
 
   it("PERSONAL: fires the standalone phone POST exactly once and no company POST", async () => {
@@ -126,9 +144,29 @@ describe("useUnifiedServices().add — once-only phone POST (FE-2711)", () => {
 
     // Personal is the ONLY path where the phone is POSTed standalone — once.
     expect(spies.ensurePhone).toHaveBeenCalledTimes(1);
-    expect(spies.ensurePhone).toHaveBeenCalledWith({ model: phone });
+    expect(spies.ensurePhone).toHaveBeenCalledWith(phone);
 
     // No company is created on the personal path.
     expect(spies.ensureCompany).not.toHaveBeenCalled();
+  });
+
+  it("PERSONAL: hands the address ensure the model DIRECTLY, not wrapped in { model }", async () => {
+    const address: AddressModel["address"] = {
+      address1: "1 Prover Street",
+      city: "Leeds",
+      postcode: "LS1 1AA",
+      countryId: "country-1"
+    };
+
+    await callAdd(UnifiedType.PERSONAL, { phone, address });
+
+    // Ruling R4 retired `useClientAddressServices().ensure({ model })`; the
+    // scoped `useActions().ensure` takes the AddressModel itself, and the two
+    // shapes are indistinguishable to the compiler at this `as any` seam.
+    expect(spies.ensureAddress).toHaveBeenCalledTimes(1);
+    expect(spies.ensureAddress).toHaveBeenCalledWith({ address });
+    expect(spies.ensureAddress).not.toHaveBeenCalledWith(
+      expect.objectContaining({ model: expect.anything() })
+    );
   });
 });

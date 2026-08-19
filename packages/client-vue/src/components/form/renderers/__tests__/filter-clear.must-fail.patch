@@ -1,0 +1,26 @@
+Negative control for filter-clear.test.ts.
+
+Mounts and unmounts the search box's clear with the term instead of keeping it
+mounted and merely hidden, so the box re-widths on the first and last keystroke.
+The assertion that the clear is present-but-out-of-sight while the leaf is unset
+goes red; every assertion about what the clear WRITES, and the name it announces,
+stays green — the semantics are untouched.
+
+diff --git a/packages/client-vue/src/components/form/renderers/FilterSearchRenderer.vue b/packages/client-vue/src/components/form/renderers/FilterSearchRenderer.vue
+index d4ad4243d..fc6be7c00 100644
+--- a/packages/client-vue/src/components/form/renderers/FilterSearchRenderer.vue
++++ b/packages/client-vue/src/components/form/renderers/FilterSearchRenderer.vue
+@@ -13,12 +13,12 @@
+       <template #append>
+         <Tooltip :label="unsetLabel">
+           <Button
++            v-if="isSet"
+             icon="x-close"
+             icon-only
+             variant="ghost"
+             color="neutral"
+             size="sm"
+-            :class="{ invisible: !isSet }"
+             :label="unsetLabel"
+             :disabled="!isSet || !control.enabled"
+             @click="write()"

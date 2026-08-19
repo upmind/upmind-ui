@@ -23,10 +23,13 @@
  * declaration.
  */
 
+// `ResolvedDetail` added below is minted once in `runtime/scenario.types.ts`
+// and consumed here — see its `graphify-out/graph.json` (2026-08-14) citation.
 import type { SurfaceProps } from "./surface.types";
 import type { ModulePortCriteria } from "../../composables/useModulePort.types";
 import type { DeclaringTableChannel } from "../../composables/useTableChannel.types";
 import type {
+  ResolvedDetail,
   ResolvedHandoff,
   ScenarioPresentation
 } from "../../scenario.types";
@@ -66,6 +69,13 @@ export type ListSurfaceProps = SurfaceProps & {
    * inert Add button all over again (C2).
    */
   handoffs?: Record<string, ResolvedHandoff>;
+  /**
+   * The scenario's bound read composable, opened by a `detail` action. Present
+   * iff the scenario declares `useDetail`; absent, a `detail` action still opens
+   * the overlay on the clicked row's own data. See the `graphify-out/` citation
+   * on `ResolvedDetail` in `scenario.types.ts`.
+   */
+  detail?: ResolvedDetail;
   /**
    * A scenario is driving this surface, so it is a PLAYBACK: every control that
    * writes — the facets and the search, the chips, ordering, the column set,

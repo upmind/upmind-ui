@@ -8,7 +8,7 @@
  * primitive the surface mounts, and a key can be *supplied* correctly and still
  * reach the user raw because no translator was installed. So the measurement is
  * the DOM the operator actually reads, over every state the client-emails page's list can be
- * in, against the shipped `packages/i18n/src/core` catalogue.
+ * in, against the shipped `packages/i18n/src` catalogue.
  *
  * Two failures are caught, not one:
  * - a raw KEY on screen (`text.foo`) — supplied but never translated;
@@ -20,6 +20,11 @@
  * row key is a hardcoded string like any other, and `id` is the exact value
  * C15 says must never reach a column.
  *
+ * The control-bearing states carry the module's OWN declared channel and
+ * criteria, so the ordering control, the column picker and the refinements row
+ * are inside the measurement rather than gated out of it — and the locked
+ * variant is the only one that draws the `title` tooltips.
+ *
  * ## What Breaks If These Fail
  * The one surface the operator opens ships English that Localazy never sees,
  * and the client-emails page reads as broken in every locale but `en`.
@@ -27,62 +32,41 @@
 
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
-import action from "@upmind-automation/i18n/core/action-en.json";
-import confirm from "@upmind-automation/i18n/core/confirm-en.json";
-import datetime from "@upmind-automation/i18n/core/datetime-en.json";
-import error from "@upmind-automation/i18n/core/error-en.json";
-import form from "@upmind-automation/i18n/core/form-en.json";
+import { nextTick } from "vue";
+import { createI18n } from "vue-i18n";
 import textCatalogue from "@upmind-automation/i18n/core/text-en.json";
-import validation from "@upmind-automation/i18n/core/validation-en.json";
 import {
-  defaultRow,
-  unverifiedRow
-} from "../../../../../../tests/support/recorded-emails";
-import { renderedStrings } from "../../../../../../tests/support/rendered";
+  declaringChannel,
+  declaringCriteria
+} from "../../../../testing/declared-table";
+import { defaultRow, unverifiedRow } from "../../../../testing/recorded-emails";
+import {
+  CATALOGUES,
+  KEY_SHAPE,
+  TRANSLATED,
+  rawKeys,
+  renderedStrings,
+  untranslated
+} from "../../../../testing/rendered";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
+import { RESOLVED_HANDOFFS } from "../../__tests__/resolved-handoffs";
 import { ListSurface } from "../index";
 import {
-  difference,
+  filter,
   flatMap,
+  forEach,
+  intersection,
   isObject,
   keys,
   map,
-  reject,
-  split,
-  trim,
-  uniq,
-  values
+  mapValues,
+  uniq
 } from "lodash-es";
+import type { ModulePortCriteria } from "../../../composables/useModulePort.types";
+import type { DeclaringTableChannel } from "../../../composables/useTableChannel.types";
+import type { I18n } from "vue-i18n";
 
 // -----------------------------------------------------------------------------
-
-const CATALOGUES = {
-  action,
-  confirm,
-  datetime,
-  error,
-  form,
-  text: textCatalogue,
-  validation
-};
-
-/** Every leaf string the catalogue can put on screen, pipe branches included. */
-function catalogueStrings(node: unknown): string[] {
-  if (typeof node === "string") return map(split(node, "|"), trim);
-  if (!isObject(node)) return [];
-  return flatMap(values(node), catalogueStrings);
-}
-
-const TRANSLATED = new Set(catalogueStrings(CATALOGUES));
-
-/** `text.foo` / `action.bar_baz` — a key that reached the DOM untranslated. */
-const KEY_SHAPE = new RegExp(`^(${keys(CATALOGUES).join("|")})\\.[a-z0-9_.]+$`);
-
-/** Digits, punctuation and separators carry no copy. */
-const CARRIES_NO_COPY = /^[\s\d.,:/|()%+-]*$/;
-
-/** The debug `<pre>` dumps the error PAYLOAD verbatim — data, not authored copy. */
-const SERIALISED_PAYLOAD = /^[{[]/;
 
 /** The capture run's own records — the rows the declared columns draw from. */
 const rows = [defaultRow, unverifiedRow];
@@ -90,28 +74,24 @@ const rows = [defaultRow, unverifiedRow];
 /** Values that came out of the RECORDING; copy is what is left over. */
 const dataDerived = uniq(flatMap(rows, row => [row.id, row.email]));
 
-/**
- * Every rendered string that is neither translated, nor data, nor punctuation —
- * a raw key excluded, since that is the OTHER failure and has its own assertion.
- */
-const untranslated = (strings: string[]) =>
-  uniq(
-    reject(
-      difference(strings, dataDerived),
-      value =>
-        TRANSLATED.has(value) ||
-        CARRIES_NO_COPY.test(value) ||
-        SERIALISED_PAYLOAD.test(value) ||
-        KEY_SHAPE.test(value)
-    )
-  );
+const declared = await declaringChannel("client-email", {
+  sort: [{ field: "email", dir: "asc" }],
+  total: rows.length
+});
+const criteria = await declaringCriteria("client-email");
 
-function mountList(overrides: {
-  data?: unknown[];
-  meta?: Record<string, unknown>;
-  contextError?: unknown;
-  withActions?: boolean;
-}) {
+function mountList(
+  overrides: {
+    data?: unknown[];
+    meta?: Record<string, unknown>;
+    contextError?: unknown;
+    withActions?: boolean;
+    table?: DeclaringTableChannel;
+    criteria?: ModulePortCriteria;
+    locked?: boolean;
+  },
+  plugins: unknown[] = []
+) {
   const actions = overrides.withActions
     ? {
         remove: vi.fn(),
@@ -133,8 +113,13 @@ function mountList(overrides: {
         meta: overrides.meta ?? { isEmpty: false, isFiltered: false }
       },
       actions,
-      presentation: clientEmails.presentation
-    }
+      presentation: clientEmails.presentation,
+      table: overrides.table,
+      criteria: overrides.criteria,
+      handoffs: overrides.table ? RESOLVED_HANDOFFS : undefined,
+      locked: overrides.locked
+    },
+    global: { plugins }
   });
 }
 
@@ -158,24 +143,91 @@ const STATES: [string, Parameters<typeof mountList>[0]][] = [
         data: [{ keyword: "enum", instancePath: "/sort/0/field" }]
       }
     }
+  ],
+  [
+    "the ordering, the picker and the refinements the module declares",
+    { withActions: true, table: declared, criteria }
+  ],
+  [
+    "the same controls, locked by a replay",
+    { withActions: true, table: declared, criteria, locked: true }
   ]
 ];
+
+/** A second locale for the SAME keys, derived from the catalogue rather than written. */
+const pseudo = (node: unknown): unknown => {
+  if (typeof node === "string") return `⟦${node}⟧`;
+  if (!isObject(node)) return node;
+  return mapValues(node as Record<string, unknown>, pseudo);
+};
+
+const PSEUDO_LOCALE = "xx";
+const PSEUDO_SHAPE = /^⟦.*⟧$/;
+
+const flippable = () =>
+  createI18n({
+    legacy: false,
+    locale: "en",
+    messages: {
+      en: CATALOGUES,
+      [PSEUDO_LOCALE]: pseudo(CATALOGUES) as typeof CATALOGUES
+    }
+  });
+
+/** Every rendered string the shipped catalogue accounts for — the labels. */
+const labelsOf = (wrapper: ReturnType<typeof mountList>) =>
+  filter(renderedStrings(wrapper), value => TRANSLATED.has(value));
+
+const rowElements = (wrapper: ReturnType<typeof mountList>) =>
+  map(wrapper.findAll("tbody tr"), row => row.element);
 
 // -----------------------------------------------------------------------------
 
 describe("the list surface renders no RAW i18n key in any state (Task 49)", () => {
   it.each(STATES)("%s", (_name, options) => {
-    const raw = renderedStrings(mountList(options)).filter(value =>
-      KEY_SHAPE.test(value)
-    );
+    const wrapper = mountList(options);
 
-    expect(raw).toEqual([]);
+    // An empty `[]` is what a state that drew NOTHING reports too, so each
+    // state states what it put on screen before it is measured.
+    expect(labelsOf(wrapper).length).toBeGreaterThan(0);
+    expect(rawKeys(renderedStrings(wrapper))).toEqual([]);
   });
 });
 
 describe("the list surface renders no HARDCODED string in any state (W-D19/FB4)", () => {
   it.each(STATES)("%s", (_name, options) => {
-    expect(untranslated(renderedStrings(mountList(options)))).toEqual([]);
+    const wrapper = mountList(options);
+
+    expect(labelsOf(wrapper).length).toBeGreaterThan(0);
+    expect(untranslated(renderedStrings(wrapper), dataDerived)).toEqual([]);
+  });
+});
+
+describe("a locale change restates the list in place (AC5)", () => {
+  it("relabels every string it drew, and keeps the very same row elements", async () => {
+    const i18n = flippable();
+    const wrapper = mountList(
+      { withActions: true, table: declared, criteria },
+      [i18n as unknown as I18n]
+    );
+
+    const before = labelsOf(wrapper);
+    const rowsBefore = rowElements(wrapper);
+    expect(before.length).toBeGreaterThan(0);
+    expect(rowsBefore).toHaveLength(rows.length);
+
+    i18n.global.locale.value = PSEUDO_LOCALE;
+    await nextTick();
+
+    const after = renderedStrings(wrapper);
+    expect(intersection(after, before)).toEqual([]);
+    expect(
+      filter(after, value => PSEUDO_SHAPE.test(value)).length
+    ).toBeGreaterThanOrEqual(before.length);
+
+    const rowsAfter = rowElements(wrapper);
+    expect(rowsAfter).toHaveLength(rowsBefore.length);
+    forEach(rowsBefore, (row, index) => expect(rowsAfter[index]).toBe(row));
   });
 });
 
@@ -186,14 +238,41 @@ describe("the sweep itself can fail", () => {
     });
 
     const strings = renderedStrings(wrapper);
-    expect(untranslated(strings)).toEqual(["Definitely Not Translated"]);
-    expect(strings.filter(value => KEY_SHAPE.test(value))).toEqual([
-      "text.some_key"
+    expect(untranslated(strings, dataDerived)).toEqual([
+      "Definitely Not Translated"
     ]);
+    expect(rawKeys(strings)).toEqual(["text.some_key"]);
+  });
+
+  it("sees a raw key from the playground's own namespace too, now that it is swept", () => {
+    const wrapper = mount({
+      template: `<div><span>labs.results</span></div>`
+    });
+
+    expect(rawKeys(renderedStrings(wrapper))).toEqual(["labs.results"]);
+    expect(KEY_SHAPE.test("labs.results")).toBe(true);
   });
 
   it("counts a real catalogue value as translated, so the bar is the catalogue and not a blanket pass", () => {
     expect(TRANSLATED.has(textCatalogue.collection_empty)).toBe(true);
     expect(untranslated([textCatalogue.collection_empty])).toEqual([]);
+  });
+
+  /**
+   * The interpolation allowance is where a sweep like this goes blind: an
+   * INTERPOLATING template matched with its placeholders widened licences every
+   * sentence of the same shape, so `"Save {value}"` would pass a hardcoded
+   * `"Save changes"` — the very failure AC1/AC3/AC13 exist to red.
+   */
+  it("sees a hardcoded string wearing an interpolating template's shape, while that template's own output still reads as copy", () => {
+    const hardcoded = "Save changes";
+    const wrapper = mount({
+      template: `<div><span>${hardcoded}</span><span>{{ $t("text.pagination_info", { page: 1, pages: 2 }) }}</span></div>`
+    });
+
+    const strings = renderedStrings(wrapper);
+
+    expect(strings).not.toContain(textCatalogue.pagination_info);
+    expect(untranslated(strings, dataDerived)).toEqual([hardcoded]);
   });
 });

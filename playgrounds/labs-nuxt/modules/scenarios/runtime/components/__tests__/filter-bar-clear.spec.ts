@@ -17,13 +17,13 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { computed, ref } from "vue";
 import { UpmForm } from "@upmind-automation/client-vue";
-import {
-  useQuerySchema,
-  useQueryUischema
-} from "@upmind-automation/headless/testing/client-email/internal-kit";
+import { internalKits } from "@upmind-automation/headless/testing";
 import FilterBar from "../FilterBar.vue";
 import { get, values } from "lodash-es";
 import type { ModulePortCriteria } from "../../composables/useModulePort.types";
+
+const { useQuerySchema, useQueryUischema } =
+  await internalKits["client-email"]();
 
 const SET_FILTER = { filters: { verified: { eq: false } } };
 const CLEARED_LEAF = { filters: { verified: {} } };

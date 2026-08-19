@@ -1,5 +1,9 @@
 import { computed } from "vue";
-import { useQuerySchema, useQueryUischema } from "./client-email.schemas";
+import {
+  useQuerySchema,
+  useQueryUischema,
+  useSortUischema
+} from "./client-email.schemas";
 import { mapToHeadlessError, useCollection } from "../../utils";
 import { isArray } from "lodash-es";
 import type {
@@ -71,7 +75,11 @@ export function createClientEmailsContext(
      * `JSON` round-trip. The renderer's only door to it is `useContext()`.
      */
     schemas: {
-      query: { schema: useQuerySchema(), uischema: useQueryUischema() }
+      query: {
+        schema: useQuerySchema(),
+        uischema: useQueryUischema(),
+        sortUischema: useSortUischema()
+      }
     }
   };
 }

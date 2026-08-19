@@ -28,8 +28,9 @@
  * channel's own flatten/lift contract.
  *
  * The recorded corpus, its replay server and the session seed are reached by
- * headless's own `./testing/client-email/*` subpath export, never by a relative
- * path into the package.
+ * headless's ONE `./testing` entry, keyed by the module that owns them — never by
+ * a per-module subpath, which the package does not publish, and never by a
+ * relative path into it.
  *
  * ## The one-page × paginate collision — RECORDED, not a passing capability
  * The recorded corpus is 3 rows and the schema declares `pagination.limit`
@@ -50,13 +51,34 @@
 import { describe, expect, it, vi } from "vitest";
 import { ScopeActorTypes, useClientEmails } from "@upmind-automation/headless";
 import {
+  integrationKits,
+  integrationSetups,
+  internalKits
+} from "@upmind-automation/headless/testing";
+import { useTableChannel } from "../useTableChannel";
+import {
+  cloneDeep,
+  forEach,
+  get,
+  keys,
+  map,
+  set,
+  uniq,
+  unset
+} from "lodash-es";
+import type { TableChannelCell } from "../useTableChannel.types";
+
+// -----------------------------------------------------------------------------
+
+const {
   installFilteredEmailsHandler,
   observeEmailRequests,
   recorded,
   seedClientSession
-} from "@upmind-automation/headless/testing/client-email/int-helpers";
-import { server } from "@upmind-automation/headless/testing/client-email/setup.integration";
-import { useTableChannel } from "../useTableChannel";
+} = await integrationKits["client-email"]();
+const { server } = await integrationSetups["client-email"]();
+const { useQuerySchema, useSortUischema } =
+  await internalKits["client-email"]();
 
 // -----------------------------------------------------------------------------
 
@@ -108,6 +130,45 @@ function paramValues(
     .map(request => new URL(request.url).searchParams.get(key))
     .filter((value): value is string => value !== null);
 }
+
+/** The wire fields the module's own query schema answers `order=` on. */
+const SCHEMA_SORT_FIELDS = get(useQuerySchema(), [
+  "properties",
+  "sort",
+  "items",
+  "properties",
+  "field",
+  "enum"
+]) as string[];
+
+/** The prefix the module DECLARES, read from its uischema and never retyped. */
+const DECLARED_PREFIX = get(useSortUischema(), "i18n") as string;
+
+const FILTER_COLUMNS = ["properties", "filters", "properties"];
+
+/**
+ * A structural cell over a caller-supplied schema and sort uischema. Only
+ * `declared()` is exercised through it — the live-model half of the channel is
+ * driven against the REAL cell above.
+ */
+function cellOver(schema: unknown, sortUischema?: unknown): TableChannelCell {
+  return {
+    useContext: () => ({
+      query: { value: {} },
+      schemas: { query: { schema, sortUischema } },
+      pagination: { value: {} }
+    }),
+    useActions: () => ({
+      filterBy: vi.fn(),
+      sortBy: vi.fn(),
+      nextPage: vi.fn(),
+      prevPage: vi.fn()
+    })
+  };
+}
+
+const declaredOver = (schema: unknown, sortUischema?: unknown) =>
+  useTableChannel(cellOver(schema, sortUischema)).declared?.();
 
 // -----------------------------------------------------------------------------
 
@@ -292,5 +353,61 @@ describe("client-email table channel — the paginate ±1 branch on a one-page w
       limit: DECLARED_LIMIT
     });
     expect(channel.read().pagination.perPage).toBe(DECLARED_LIMIT);
+  });
+});
+
+describe("client-email table channel — declared().sort carries the module's own label channel (AC7)", () => {
+  it("labels every field of the schema's sort enum with the prefix the module's uischema declares", async () => {
+    const { channel } = await bootChannel();
+
+    const declared = channel.declared?.();
+    expect(map(declared?.sort, "field")).toEqual(SCHEMA_SORT_FIELDS);
+    expect(uniq(map(declared?.sort, "i18n"))).toEqual([DECLARED_PREFIX]);
+  });
+
+  it("follows the uischema when it is re-pointed, and offers the same fields", () => {
+    const schema = useQuerySchema();
+    const repointed = declaredOver(schema, { i18n: "form.other_sort" });
+
+    expect(map(repointed?.sort, "field")).toEqual(SCHEMA_SORT_FIELDS);
+    expect(uniq(map(repointed?.sort, "i18n"))).toEqual(["form.other_sort"]);
+  });
+
+  it("offers every field with no prefix at all where a module declares no sort uischema", () => {
+    const declared = declaredOver(useQuerySchema());
+
+    expect(map(declared?.sort, "field")).toEqual(SCHEMA_SORT_FIELDS);
+    expect(uniq(map(declared?.sort, "i18n"))).toEqual([undefined]);
+  });
+});
+
+describe("client-email table channel — a sort label owes nothing to the filter columns (AC8)", () => {
+  const baseline = () => declaredOver(useQuerySchema(), useSortUischema());
+
+  it("is unchanged field-for-field and i18n-for-i18n when every filter column is retitled", () => {
+    const schema = cloneDeep(useQuerySchema()) as object;
+    forEach(keys(get(schema, FILTER_COLUMNS)), column =>
+      set(
+        schema,
+        [...FILTER_COLUMNS, column, "title"],
+        "Untranslatable Gibberish"
+      )
+    );
+
+    expect(baseline()?.sort).toHaveLength(SCHEMA_SORT_FIELDS.length);
+    expect(declaredOver(schema, useSortUischema())).toEqual(baseline());
+  });
+
+  it("is unchanged when a filter column an ordering names is removed outright", () => {
+    const schema = cloneDeep(useQuerySchema()) as object;
+    const shared = keys(get(schema, FILTER_COLUMNS)).filter(column =>
+      SCHEMA_SORT_FIELDS.includes(column)
+    );
+    unset(schema, [...FILTER_COLUMNS, ...[shared[0]]]);
+
+    expect(shared.length).toBeGreaterThan(0);
+    expect(declaredOver(schema, useSortUischema())?.sort).toEqual(
+      baseline()?.sort
+    );
   });
 });

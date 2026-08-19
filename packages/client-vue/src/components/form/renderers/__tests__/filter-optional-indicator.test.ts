@@ -1,33 +1,40 @@
 /**
  * @module form/renderers/__tests__/filter-optional-indicator
- * @description E3 — a filter is optional by definition, so no filter column
- * draws the field's "Optional" indicator. The operator saw it beside Verified
- * and read it as noise: every control in that bar is optional, so the word
- * distinguishes nothing and costs a line of chrome per column.
+ * @description A filter is optional by definition, so no filter column draws the
+ * field's "Optional" indicator. The operator saw it beside Verified and read it
+ * as noise: every control in that bar is optional, so the word distinguishes
+ * nothing and costs a line of chrome per column.
+ *
+ * The suppression is the UISCHEMA's — `optionalText: ""`, declared per element —
+ * never a rule a renderer keeps to itself. So the same element with that option
+ * lifted must draw the word again; a renderer that hardcoded the suppression
+ * would keep it hidden and turn that case RED.
  *
  * Falsifiability is built into the file rather than asserted about: the same
- * `UpmForm` mount, given a plain optional control, still draws the indicator.
- * A suppression that overshot into deleting the indicator outright would turn
- * that case RED, so a green run here cannot mean the word simply stopped
+ * `UpmForm` mount, given a plain optional control, still draws the indicator. A
+ * suppression that overshot into deleting the indicator outright would turn that
+ * case RED too, so a green run here cannot mean the word simply stopped
  * existing.
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  useQuerySchema,
-  useQueryUischema
-} from "@upmind-automation/headless/testing/client-email/internal-kit";
 import text from "@upmind-automation/i18n/core/text-en.json";
-import { mountFilters, renderedStrings } from "./filter.harness";
+import {
+  clientEmailQuery,
+  mountFilters,
+  renderedStrings,
+  uischemaWithOptions
+} from "./filter.harness";
 import { includes } from "lodash-es";
 
-// -----------------------------------------------------------------------------
+/** Every leaf the shipped query uischema draws a filter for. */
+const COLUMNS = [
+  "filters.email.like",
+  "filters.verified.eq",
+  "filters.bounced.eq"
+];
 
-/** Every column the shipped query uischema draws a filter for. */
-const COLUMNS = ["email", "verified", "bounced"];
-
-const shippedFilters = () =>
-  mountFilters({ schema: useQuerySchema(), uischema: useQueryUischema() });
+const shippedFilters = () => mountFilters(clientEmailQuery());
 
 /** One ordinary optional control through the SAME renderer set. */
 const plainControl = () =>
@@ -42,14 +49,12 @@ const plainControl = () =>
     }
   });
 
-// -----------------------------------------------------------------------------
-
-describe("no filter column draws the Optional indicator (E3)", () => {
+describe("no filter column draws the Optional indicator", () => {
   it("says it on no column of the shipped bar", async () => {
     const { column } = await shippedFilters();
 
-    for (const name of COLUMNS) {
-      expect(includes(column(name).text(), text.optional)).toBe(false);
+    for (const path of COLUMNS) {
+      expect(includes(column(path).text(), text.optional)).toBe(false);
     }
   });
 
@@ -60,7 +65,23 @@ describe("no filter column draws the Optional indicator (E3)", () => {
   });
 });
 
-describe("the indicator is still live for the fields that earn it (E3)", () => {
+describe("the suppression is the uischema's option, not the renderer's rule", () => {
+  it("draws the word again on the very same column once optionalText is lifted", async () => {
+    const { schema, uischema } = clientEmailQuery();
+    const { column } = await mountFilters({
+      schema,
+      uischema: uischemaWithOptions(uischema, "/verified/properties/eq", {
+        format: "button-group"
+      })
+    });
+
+    expect(includes(column("filters.verified.eq").text(), text.optional)).toBe(
+      true
+    );
+  });
+});
+
+describe("the indicator is still live for the fields that earn it", () => {
   it("draws it on an ordinary optional control in the very same mount", async () => {
     const { wrapper } = await plainControl();
 

@@ -1,0 +1,131 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/countries/5952098d-3de4-0917-76b3-1578626e347e/regions?case=country-b",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a27de18378dcd241-WAW",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Sat, 08 Aug 2026 10:36:35 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=97EML%2FWuFgHckj8F9EwXdUuq%2BR3Ky5MsClf5V0Xfxpub0A44gJyflM7hQPQiXAosuGJtj7YKfFqS5nDiYTBKGiQTMw5tgkamLW7IjUuiAnN8DZxZ09WUL4ECo%2BAmNnrI7GGdrPTN0w%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "13"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "5d085e69-d562-3719-82dc-218e940d4237",
+          "country_id": "5952098d-3de4-0917-76b3-1578626e347e",
+          "code": "AB",
+          "name": "Alberta",
+          "created_at": "2019-10-31 17:51:17",
+          "updated_at": "2019-10-31 17:51:17"
+        },
+        {
+          "id": "4d036794-24d0-e710-53db-3153698d582e",
+          "country_id": "5952098d-3de4-0917-76b3-1578626e347e",
+          "code": "BC",
+          "name": "British Columbia",
+          "created_at": "2019-10-31 17:51:17",
+          "updated_at": "2019-10-31 17:51:17"
+        },
+        {
+          "id": "8d632507-9806-5d1e-e78c-8174e234e98d",
+          "country_id": "5952098d-3de4-0917-76b3-1578626e347e",
+          "code": "MB",
+          "name": "Manitoba",
+          "created_at": "2019-10-31 17:51:17",
+          "updated_at": "2019-10-31 17:51:17"
+        },
+        {
+          "id": "47d73824-8507-9315-63da-81e642d59e06",
+          "country_id": "5952098d-3de4-0917-76b3-1578626e347e",
+          "code": "NB",
+          "name": "New Brunswick",
+          "created_at": "2019-10-31 17:51:17",
+          "updated_at": "2019-10-31 17:51:17"
+        },
+        {
+          "id": "5952098d-3de4-0917-deec-31578626e347",
+          "country_id": "5952098d-3de4-0917-76b3-1578626e347e",
+          "code": "NL",
+          "name": "Newfoundland and Labrador",
+          "created_at": "2019-10-31 17:51:17",
+          "updated_at": "2019-10-31 17:51:17"
+        },
+        {
+          "id": "3de78642-de53-9714-857b-21208469530d",
+          "country_id": "5952098d-3de4-0917-76b3-1578626e347e",
+          "code": "NS",
+          "name": "Nova Scotia",
+          "created_at": "2019-10-31 17:51:17",
+          "updated_at": "2019-10-31 17:51:17"
+        },
+        {
+          "id": "20403869-6e54-721d-056a-518d9305e7d2",
+          "country_id": "5952098d-3de4-0917-76b3-1578626e347e",
+          "code": "NT",
+          "name": "Northwest Territories",
+          "created_at": "2019-10-31 17:51:17",
+          "updated_at": "2019-10-31 17:51:17"
+        },
+        {
+          "id": "78985742-6489-7012-d07f-21e325d0ed36",
+          "country_id": "5952098d-3de4-0917-76b3-1578626e347e",
+          "code": "NU",
+          "name": "Nunavut",
+          "created_at": "2019-10-31 17:51:17",
+          "updated_at": "2019-10-31 17:51:17"
+        },
+        {
+          "id": "320e4357-95e7-8d18-242c-31643202d986",
+          "country_id": "5952098d-3de4-0917-76b3-1578626e347e",
+          "code": "ON",
+          "name": "Ontario",
+          "created_at": "2019-10-31 17:51:17",
+          "updated_at": "2019-10-31 17:51:17"
+        },
+        {
+          "id": "2785d26e-9678-3d16-378a-314502e70439",
+          "country_id": "5952098d-3de4-0917-76b3-1578626e347e",
+          "code": "PE",
+          "name": "Prince Edward Island",
+          "created_at": "2019-10-31 17:51:17",
+          "updated_at": "2019-10-31 17:51:17"
+        }
+      ],
+      "related": null,
+      "total": 13,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-08T10:36:35.797Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-company"
+  }
+}

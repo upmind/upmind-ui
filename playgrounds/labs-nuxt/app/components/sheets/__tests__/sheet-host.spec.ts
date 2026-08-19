@@ -38,7 +38,7 @@ import {
   vi
 } from "vitest";
 import { defineComponent, h, nextTick } from "vue";
-import labsEn from "../../../assets/locales/en/labs.json";
+import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
 import layoutSource from "../../../layouts/default.vue?raw";
 import { PlaygroundSheetTypes } from "../usePlaygroundSheet.types";
 import {

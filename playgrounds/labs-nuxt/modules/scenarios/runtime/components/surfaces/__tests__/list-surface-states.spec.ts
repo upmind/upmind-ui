@@ -19,8 +19,8 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import text from "@upmind-automation/i18n/core/text-en.json";
-import { defaultRow } from "../../../../../../tests/support/recorded-emails";
-import { renderedStrings } from "../../../../../../tests/support/rendered";
+import { defaultRow } from "../../../../testing/recorded-emails";
+import { renderedStrings } from "../../../../testing/rendered";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { ListSurface } from "../index";
 import { includes } from "lodash-es";

@@ -3,15 +3,19 @@ import { SortDirection } from "../query/query.types";
 import { PAGINATION } from "../query/query.utils";
 import { DEFAULT_SORT } from "./client-email.types";
 import type { QuerySchema } from "./client-email.types";
-import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
+import type {
+  ControlElement,
+  JsonSchema7,
+  UISchemaElement
+} from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/client-email.schemas
  * @description The module's schema family: the per-email FORM pair
- * (`useSchema`/`useUischema`), the collection's QUERY schema pair
- * (`useQuerySchema`/`useQueryUischema`) and the per-action INPUT schemas
- * (`useActionInputSchemas`). Every schema is a self-contained JSON literal, so
- * any of them lifts straight into ajv or a test.
+ * (`useSchema`/`useUischema`), the collection's QUERY schema with its two
+ * presentations (`useQuerySchema`/`useQueryUischema`/`useSortUischema`) and the
+ * per-action INPUT schemas (`useActionInputSchemas`). Every schema is a
+ * self-contained JSON literal, so any of them lifts straight into ajv or a test.
  *
  * WARNING: Do not import directly from another module. The barrel exports no
  * schema — a form rendered from a schema the machine has not adopted validates
@@ -73,16 +77,11 @@ export const useUischema = (): UISchemaElement => {
 
 /**
  * Per-action INPUT schemas for the collection — the map `runGate` enumerates to
- * decide which actions are "input-taking" (ADR-027 Am.6): an action with an
- * entry takes input; one absent from the map does not, and absence is the whole
- * meaning of "not input-taking". Every entry is a real object JSON Schema so the
- * harness's `isRealJsonSchema` guard accepts it — which is why an id-only action
- * declares an object rather than a bare `{type:"string"}`. Reached only through
- * `useClientEmails().useInternals().actionSchemas`; `runGate` is its sole
- * consumer.
- *
- * `ensure` takes an `EmailModel`, so its input schema IS the per-email form
- * schema. `remove`/`setDefault`/`verify` take an id.
+ * decide which actions are "input-taking" (ADR-027 Am.6): absence from the map
+ * is the whole meaning of "not input-taking". Every entry is a real object JSON
+ * Schema so the harness's `isRealJsonSchema` guard accepts it — which is why an
+ * id-only action declares an object rather than a bare `{type:"string"}`.
+ * Reached only through `useClientEmails().useInternals().actionSchemas`.
  */
 export function useActionInputSchemas(): Record<string, JsonSchema7> {
   return {
@@ -123,8 +122,8 @@ export function useActionInputSchemas(): Record<string, JsonSchema7> {
  * from `sort`'s declared `field` members is unsortable for the same reason (an
  * unknown `order=` column is an HTTP 500). Optional leaves are typed
  * `["<type>", "null"]` because `useModelParser` coerces a plain `boolean` leaf
- * to `false`, putting a filter nobody set on the wire. Every `title` holds an
- * i18n key, never English.
+ * to `false`, putting a filter nobody set on the wire. Every `title` is plain
+ * English — the uischema's `i18n` key is the override channel, never the title.
  *
  * A function, not a constant: a module whose filterable columns are only known
  * once the server answers merges them in at call time.
@@ -152,7 +151,7 @@ export function useQuerySchema(): QuerySchema {
         properties: {
           email: {
             type: "object",
-            title: "text.email_address",
+            title: "Email address",
             additionalProperties: false,
             properties: {
               // The bare term — the translator adds the % wildcards.
@@ -161,29 +160,26 @@ export function useQuerySchema(): QuerySchema {
           },
           verified: {
             type: "object",
-            title: "text.verified_label",
+            title: "Verified",
             additionalProperties: false,
             properties: {
+              // `null` is a MEMBER, not an absence: it is the value the unset
+              // position writes, so a tri-state's clear has to validate, and it
+              // is the enum entry whose label the control resolves.
               eq: {
                 type: ["boolean", "null"],
-                oneOf: [
-                  { const: true, title: "text.yes" },
-                  { const: false, title: "text.no" }
-                ]
+                enum: [true, false, null]
               }
             }
           },
           bounced: {
             type: "object",
-            title: "text.bounced_label",
+            title: "Bounced",
             additionalProperties: false,
             properties: {
               eq: {
                 type: ["boolean", "null"],
-                oneOf: [
-                  { const: true, title: "text.yes" },
-                  { const: false, title: "text.no" }
-                ]
+                enum: [true, false, null]
               }
             }
           }
@@ -199,19 +195,10 @@ export function useQuerySchema(): QuerySchema {
           additionalProperties: false,
           required: ["field", "dir"],
           properties: {
-            // `oneOf` const/title, not a bare enum: the sort control's option
-            // labels are the schema's own titles (`R6-28`), and a bare enum can
-            // carry none — which is what left `created_at` and `default`
-            // rendering as wire names. The columns are the REAL ones the API
-            // orders on, the status composite never among them (`R6-6`/`R6-6b`).
+            // The REAL columns the API orders on, the status composite never
+            // among them (`R6-6`/`R6-6b`).
             field: {
-              oneOf: [
-                { const: "default", title: "text.default_label" },
-                { const: "email", title: "text.email_address" },
-                { const: "verified", title: "text.verified_label" },
-                { const: "bounced", title: "text.bounced_label" },
-                { const: "created_at", title: "text.date_added" }
-              ]
+              enum: ["default", "email", "verified", "bounced", "created_at"]
             },
             dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
           }
@@ -232,55 +219,67 @@ export function useQuerySchema(): QuerySchema {
 }
 
 /**
- * The module's DEFAULT filter-bar presentation — ONE uischema over the one
- * query schema.
+ * The module's DEFAULT filter-bar presentation over the one query schema.
  *
- * Every element is a `Filter` (client-vue's dispatching renderer) scoping the
- * COLUMN, never an operator leaf: the renderer reads the column's own declared
- * operators and picks the control. `options.treatment` names which tri-state
- * control a boolean column draws (client-vue's `FilterTreatment`, spelt as a
- * literal because headless cannot import from client-vue); `options.states`
- * names a toggle group's two positions by the position's own value.
+ * Every element is a plain `Control` scoping the operator LEAF, so the leaf's
+ * own write IS the wire shape and JSON Forms' standard Control pipeline resolves
+ * the label, the description, the errors and the enum-option labels. The control
+ * a leaf draws is chosen by the tester scorecard, which `options.format` names
+ * the same way the ui package's boolean treatments do (`switch` / `toggle` /
+ * `card`); a leaf naming none falls to the generic renderer for its type.
  *
- * Every element carries an `i18n` key — the only channel that can set a
- * control's label and placeholder, so it must resolve to an OBJECT rather than
- * a flat `text.*` key. The `sort` and `pagination` branches carry no element: a
- * branch no element draws is still validated and still translated.
+ * Every element carries an `i18n` key. It is also the enum-option key PREFIX,
+ * so a tri-state's positions resolve as `<key>.true` / `.false` / `.null`. The
+ * `sort` branch's presentation is its own uischema (`useSortUischema`), and
+ * `pagination` draws no element — a branch no element draws is still validated.
  *
- * The bar is ONE row: `flow` opts the layout into the toolbar treatment
- * (client-vue's `FilterRowRenderer`, spelt as a literal because headless cannot
- * import from client-vue), where each control keeps its natural width and the
- * leftover width goes to the one element declaring `width: "full"`.
+ * A filter is optional by definition, so every element suppresses the field's
+ * optional indicator; `noLabel` marks the ones the catalogue names by their
+ * placeholder or their own positions rather than a label.
+ *
+ * The bar is ONE row and its own element type: `FilterBar` (client-vue's
+ * `FilterBarRenderer`, spelt as a literal because headless cannot import from
+ * client-vue).
  */
 export function useQueryUischema(): UISchemaElement {
   return {
-    type: "HorizontalLayout",
-    options: { flow: true },
+    type: "FilterBar",
     elements: [
       {
-        type: "Filter",
-        scope: "#/properties/filters/properties/email",
+        type: "Control",
+        scope: "#/properties/filters/properties/email/properties/like",
         i18n: "form.email_search",
-        options: { width: "full" }
+        options: { format: "search", noLabel: true, optionalText: "" }
       },
       {
-        type: "Filter",
-        scope: "#/properties/filters/properties/verified",
+        type: "Control",
+        scope: "#/properties/filters/properties/verified/properties/eq",
         i18n: "form.verified_filter",
-        options: { treatment: "button-group" }
+        options: { format: "button-group", noLabel: true, optionalText: "" }
       },
       {
-        type: "Filter",
-        scope: "#/properties/filters/properties/bounced",
+        type: "Control",
+        scope: "#/properties/filters/properties/bounced/properties/eq",
         i18n: "form.bounced_filter",
-        options: {
-          treatment: "toggle-group",
-          states: {
-            true: "text.bounced_label",
-            false: "text.not_bounced_label"
-          }
-        }
+        options: { format: "toggle-group", noLabel: true, optionalText: "" }
       }
     ]
   } as UISchemaElement;
+}
+
+/**
+ * The collection's ORDERING presentation — one element over the query schema's
+ * `sort` branch, the fifth unmounted uischema beside table, card, detail and
+ * actions. Its `i18n` is also the option-key PREFIX: a field resolves as
+ * `<i18n>.<field>` (`form.email_sort.created_at`), the same tri-state prefix
+ * mechanism the filter controls use. The schema stays a bare enum — wire-pure,
+ * and the prefix mapper handles bare enums natively. i18n keys never live in
+ * the schema.
+ */
+export function useSortUischema(): ControlElement {
+  return {
+    type: "Control",
+    scope: "#/properties/sort",
+    i18n: "form.email_sort"
+  };
 }

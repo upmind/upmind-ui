@@ -1,68 +1,39 @@
 /** @internal */
-import { CUSTOM_FIELD_DEFAULT_SORT } from "./client-custom-fields.types";
-import type { CustomFieldQuerySchema } from "./client-custom-fields.types";
-import type { JsonSchema7 } from "@jsonforms/core";
+import {
+  useFieldsModelParser,
+  useFieldsSchemaParser,
+  useFieldsUischemaParser
+} from "../../utils";
+import type {
+  CustomField,
+  CustomFieldModel
+} from "./client-custom-fields.types";
+import type { JsonSchema7, ControlElement } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 /**
  * @module client-custom-fields/client-custom-fields.schemas
- * @description The collection's QUERY schema — its whole request state
- * (filters · sort · pagination) as ONE Draft-07 schema over one model. A
- * SELF-CONTAINED JSON literal, so it can be lifted straight into ajv or a test
- * and run standalone.
+ * @description A's contract-ownership-by-RE-EXPORT seam (R4). The three
+ * shared field parsers stay at `utils/useFields.ts` — imported there by
+ * `auth/auth.schemas.register.ts` and `basket-fields/basket-fields.utils.ts`,
+ * both out of this run's scope — and this module takes ownership of the
+ * CONTRACT by re-exporting them under its own names (seam A-3/A-4/A-5).
  *
- * WARNING: Do not import directly from another module — the barrel exports no
- * schema.
+ * WARNING: Do not import directly from another module. Resolve via
+ * `useClientCustomFields.ts` / the barrel only.
  */
-// -----------------------------------------------------------------------------
 
-/**
- * Custom fields are read whole and rendered as a form, so `limit: 0` asks for
- * the unpaged read and the declared `order` sort is the display order the
- * server assigns.
- */
-export function useQuerySchema(): CustomFieldQuerySchema {
-  return {
-    $schema: "http://json-schema.org/draft-07/schema#",
-    type: "object",
-    additionalProperties: false,
-    properties: {
-      filters: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          name: {
-            type: "object",
-            additionalProperties: false,
-            properties: {
-              // The bare term — the translator adds the % wildcards.
-              like: { type: ["string", "null"], minLength: 1 }
-            }
-          }
-        }
-      },
-      sort: {
-        type: "array",
-        default: CUSTOM_FIELD_DEFAULT_SORT,
-        minItems: 1,
-        uniqueItems: true,
-        items: {
-          type: "object",
-          additionalProperties: false,
-          required: ["field", "dir"],
-          properties: {
-            field: { enum: ["order", "name"] },
-            dir: { enum: ["asc", "desc"] }
-          }
-        }
-      },
-      pagination: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          limit: { type: "integer", minimum: 0, default: 0 },
-          offset: { type: "integer", minimum: 0 }
-        }
-      }
-    }
-  } satisfies JsonSchema7;
-}
+/** Re-export of `useFieldsSchemaParser` (seam A-3). */
+export const useCustomFieldsSchema = (fields?: CustomField[]): JsonSchema7 =>
+  useFieldsSchemaParser(fields);
+
+/** Re-export of `useFieldsUischemaParser` (seam A-4). */
+export const useCustomFieldsUischema = (
+  fields?: CustomField[],
+  i18nKey?: string
+): ControlElement[] => useFieldsUischemaParser(fields, i18nKey);
+
+/** Re-export of `useFieldsModelParser` (seam A-5). */
+export const useCustomFieldsModel = (
+  fields: CustomField[],
+  values?: CustomFieldModel
+): CustomFieldModel => useFieldsModelParser(fields, values);
