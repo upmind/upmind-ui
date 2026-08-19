@@ -93,11 +93,12 @@ const UNSERVED_META = { isServed: false };
 /**
  * Boots one scoped composable into its seam port.
  *
- * @param composable The builder a declaration names — its collection or its
- * editor, whichever the caller is opening.
- * @param scope WHERE it boots: the actor and the context the url named, and
- * whether the instance is a fresh one. Absent, it boots as SELF with no
- * context, which no declaration may override (`R6-30b`).
+ * @param composable The builder a declaration names — its collection, its
+ * editor, or its single read, whichever the caller is opening.
+ * @param scope WHERE it boots: the actor and the context the url named, the
+ * record a single read fetches, and whether the instance is a fresh one. Absent,
+ * it boots as SELF with no context, which no declaration may override
+ * (`R6-30b`).
  */
 export function useModulePort(
   composable: FourLayerComposable,
@@ -119,15 +120,25 @@ export function useModulePort(
 
   const scoped = composable().as(actor);
 
+  // `.withId(id)` marks the ONE record a single read fetches. It is NOT the
+  // `.for()` step renamed: a context names an entity the ACTOR acts upon, so the
+  // two COMPOSE — staff acting for a client, reading one of that client's
+  // records — and a leaf record is never synthesised into a context (FE-3095).
+  // A fresh instance addresses no record, so it takes no id.
+  const identified =
+    !scope.fresh && scope.id && isFunction(scoped.withId)
+      ? scoped.withId(scope.id)
+      : scoped;
+
   // A fresh instance addresses no record, so it takes neither `.for()` nor the
   // registry's cached cell: the two steps are alternatives, never a sequence.
   const cell = scope.fresh
-    ? isFunction(scoped.fresh)
-      ? scoped.fresh()
-      : scoped
-    : scope.context && isFunction(scoped.for)
-      ? scoped.for(scope.context.type, scope.context.id)
-      : scoped;
+    ? isFunction(identified.fresh)
+      ? identified.fresh()
+      : identified
+    : scope.context && isFunction(identified.for)
+      ? identified.for(scope.context.type, scope.context.id)
+      : identified;
 
   // `LiveContext` is deliberately opaque (`Record<string, unknown>`), so the
   // channel's structural cell shape is asserted once, here, behind the

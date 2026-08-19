@@ -40,7 +40,7 @@
  * `DetailSurface`, fed ONE record from either feed: the clicked row's own data,
  * or — where the scenario declares `useDetail` — the full record that read
  * fetches, booted through the same write-agnostic `useModulePort` the editor
- * uses and keyed by the row's identity. There is no write path of any kind:
+ * uses and marked with the row's own id. There is no write path of any kind:
  * editing a record is a handoff to the existing editor, carried by the row's
  * own actions.
  *
@@ -141,13 +141,13 @@ const direction = computed(() =>
 );
 
 // The fetch is booted only where the scenario declares a read composable AND
-// the row resolved a scope to open it at (`R6-30c`); without both, the clicked
+// the row yielded the id to open it at (`R6-30c`); without both, the clicked
 // row's own data is the record and nothing is fetched.
 const port =
-  props.detail && props.context
+  props.detail && props.id
     ? useModulePort(props.detail.useDetail, {
         actor: props.detail.actor,
-        context: props.context
+        id: props.id
       })
     : undefined;
 

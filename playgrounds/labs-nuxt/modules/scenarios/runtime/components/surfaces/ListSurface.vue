@@ -324,7 +324,7 @@
       :key="detailKey"
       :record="detailState"
       :detail="props.detail"
-      :context="detailContext"
+      :id="detailId"
       :presentation="presentation?.detail"
       :actions="detailActionItems"
       :locked="locked"
@@ -395,7 +395,6 @@ import {
   TableRow,
   useStyles
 } from "@upmind-automation/upmind-ui";
-import { resolveReadContext } from "../../../../../app/composables/scope";
 import { usePlaygroundUrlState } from "../../../../../app/composables/usePlaygroundUrlState";
 import {
   clearScenarioStage,
@@ -470,7 +469,6 @@ import type {
   SortDirection as TableSortDirection,
   SortingState
 } from "@tanstack/vue-table";
-import type { ScopeContext } from "@upmind-automation/headless";
 import type { TableModel } from "@upmind-automation/scenario-harness";
 // -----------------------------------------------------------------------------
 
@@ -890,22 +888,18 @@ const detailState = ref<ListRow | undefined>(undefined);
 const detailKey = computed(() => rowKey(detailState.value ?? {}, 0));
 
 /**
- * The scope the read boots at — the row's identity as a `.for(type, id)`,
- * derived with no context block of its own (`R6-30b`): the `type` is the read
- * composable's own scope-matrix cell for the acting actor, and the `id` is the
- * `identifier` property read off the row. Absent a read composable, or an id on
- * the row, there is nothing to fetch and the overlay renders the row itself.
+ * The record the read fetches — the `identifier` property read off the row, and
+ * nothing else (`R6-30b`). A single-record read is marked by its id, so no scope
+ * context is synthesised for it and the read composable's matrix is not consulted
+ * (FE-3095). Absent a read composable, or an id on the row, there is nothing to
+ * fetch and the overlay renders the row itself.
  */
-const detailContext = computed<ScopeContext | undefined>(() => {
+const detailId = computed<string | undefined>(() => {
   if (!props.detail || !detailState.value) return undefined;
 
   const id = resolvePointer(detailState.value, props.detail.identifier);
-  const type = resolveReadContext(
-    props.detail.useDetail.scopeMatrix,
-    props.detail.actor
-  );
 
-  return type && !isNil(id) ? { type, id: toString(id) } : undefined;
+  return isNil(id) ? undefined : toString(id);
 });
 
 function openDetail(row: ListRow): void {

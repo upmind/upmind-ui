@@ -29,22 +29,33 @@ import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 
 /**
- * WHERE the caller boots the composable. Absent both members it boots as SELF
+ * WHERE the caller boots the composable. Absent every member it boots as SELF
  * with no context, which is where every page starts (`R6-30b`); the url's
  * `/as/:actor` and `/for/:type/:id` segments are what move it.
  *
  * @graphify-citation `graphify-out/graph.json` (2026-08-10, 6795 nodes) — the
  * `fresh` member below relays `scope.builder.ts`'s own `.fresh()`; no
- * fresh-boot node exists in the tree.
+ * fresh-boot node exists in the tree. `graphify query "withId single record id
+ * scope builder method"` (2026-08-19, 20286 nodes) returns no single-record-id
+ * node either — the `id` member relays the builder's own `.withId()`.
  */
 export type ModulePortScope = {
   actor?: ScopeActorTypes;
   /**
-   * The record being acted FOR, whole — headless's own `ScopeContext`, whose
+   * The entity being acted FOR, whole — headless's own `ScopeContext`, whose
    * `type` and `id` are both required, so a type without an id cannot be
    * expressed at all (`R6-30d`).
    */
   context?: ScopeContext;
+  /**
+   * The ONE record a single read fetches, relaying the builder's own
+   * `.withId(id)`.
+   *
+   * Not a context and never derived from one: a context names an entity the
+   * ACTOR acts upon, so a leaf record has no context type to be given, and
+   * synthesising one is what this member replaces (FE-3095).
+   */
+  id?: string;
   /**
    * Boot a distinct instance rather than the registry's cached one — what an
    * editor opened on a record that does not exist yet needs, so two drafts (or

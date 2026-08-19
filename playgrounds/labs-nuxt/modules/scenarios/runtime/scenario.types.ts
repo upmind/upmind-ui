@@ -65,6 +65,15 @@ export type ScenarioKey = string;
 export type ScenarioScopedCell = LiveCompositionCell & {
   for?(type: string, id: string): LiveCompositionCell;
   /**
+   * The ONE record a single read fetches — the builder's own `.withId(id)`, and
+   * NOT a context: a leaf record has no context type (`graphify-out/graph.json`
+   * carries no single-record-id node of its own).
+   *
+   * Returns the scoped cell, not a bare one: the builder returns ITSELF from
+   * every step, so marking the record withdraws neither `.for()` nor `.fresh()`.
+   */
+  withId?(id: string): ScenarioScopedCell;
+  /**
    * A distinct instance, never served from the scope registry's cache — what an
    * editor opened on a record that does not exist yet is booted with.
    */
@@ -132,9 +141,9 @@ export type ResolvedHandoff = ScenarioHandoff & {
  * The scenario's read composable once the playground has bound it — the read
  * twin of {@link ResolvedHandoff}: the single-read composable to boot, the
  * actor the collection is driven at, and the row property the freshly-fetched
- * record is keyed by. `.for(type, id)` derives its `type` from the composable's
- * own scope matrix and its `id` by reading `identifier` off the clicked row, so
- * the read carries no context block of its own (`R6-30b`). Absent, the detail
+ * record is keyed by. The read boots `.withId(id)` with the `identifier`
+ * property read off the clicked row, so it carries no context block of its own
+ * (`R6-30b`) and none is synthesised for it (FE-3095). Absent, the detail
  * overlay renders the clicked row's own data with no fetch.
  *
  * @graphify-citation `graphify-out/graph.json` (2026-08-14, 7457 nodes) — no
