@@ -110,12 +110,12 @@ flowchart TD
 
 ## Sub-composables
 
-| Sub-composable   | Collection                                                        | Editor                                                                                        |
-| ----------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `useActions()`   | 10 members — row mutations, list controls, lifecycle                 | 7 members — form input, save, lifecycle                                                            |
-| `useContext()`   | 6 members — reactive list, lookups, captured error                   | 14 members — model, schema pair, resolved country/region/config, id, errors, display text          |
-| `useMeta()`      | 7 flags — errors, four pagination-metadata flags, availability, empty, loading | 8 flat flags — availability, loading, dirty, valid, new, processing, complete, errors             |
-| `useInternals()` | 2 — actor scope, raw query                                            | 4 — actor scope, raw sender, raw service, raw state                                                 |
+| Sub-composable   | Collection                                                                     | Editor                                                                                    |
+| ---------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
+| `useActions()`   | 10 members — row mutations, list controls, lifecycle                           | 7 members — form input, save, lifecycle                                                   |
+| `useContext()`   | 6 members — reactive list, lookups, captured error                             | 14 members — model, schema pair, resolved country/region/config, id, errors, display text |
+| `useMeta()`      | 7 flags — errors, four pagination-metadata flags, availability, empty, loading | 8 flat flags — availability, loading, dirty, valid, new, processing, complete, errors     |
+| `useInternals()` | 2 — actor scope, raw query                                                     | 4 — actor scope, raw sender, raw service, raw state                                       |
 
 Both halves return the identical four-layer shape; only the contents differ, because one is query-backed and the other machine-backed. The editor's context carries five more members than a comparable sibling editor with no country/region dependency (`baseModel`, `config`, `country`, `countries`, `regions`) — a direct consequence of this form needing to resolve and expose those lookups.
 
@@ -123,13 +123,13 @@ Both halves return the identical four-layer shape; only the contents differ, bec
 
 One services file serves both halves. There are no per-actor service arms today — the actor switch exists with only a default branch, so the shape is the same whether or not an arm is ever earned.
 
-| Concern                    | Where it lives                                                                                                |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Target-client resolution   | one function, consumed by every request-issuing function in the file                                              |
-| Addressability predicate   | one function; its reactive form is what `isAvailable` exposes                                                      |
-| Cache key                  | one base key, shared by both halves                                                                                |
-| Wire ↔ view-model mapping   | pure mappers, no actor awareness — a create mapper, and a diff mapper that composes the create mapper against a baseline |
-| Machine services adapter   | takes the already-scoped services instance as an argument, so the machine inherits the same resolved client        |
+| Concern                   | Where it lives                                                                                                           |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Target-client resolution  | one function, consumed by every request-issuing function in the file                                                     |
+| Addressability predicate  | one function; its reactive form is what `isAvailable` exposes                                                            |
+| Cache key                 | one base key, shared by both halves                                                                                      |
+| Wire ↔ view-model mapping | pure mappers, no actor awareness — a create mapper, and a diff mapper that composes the create mapper against a baseline |
+| Machine services adapter  | takes the already-scoped services instance as an argument, so the machine inherits the same resolved client              |
 
 The module owns **no machine of its own** — it builds a typed configuration payload for the shared data-manager machine, whose actions, guards and invoked services it overrides. One guard override is load-bearing: the editor is held out of its loading state until a client id exists, which is what stops it firing an unaddressed request on a cold boot.
 
@@ -143,12 +143,12 @@ Every layer in this module — services, actions, context, meta, schemas — is 
 
 Errors are **state**, not events, on the editor half; the collection half is split (see above).
 
-| Surface                                            | Where a failure lands                                                                                                                     |
-| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Collection row mutation (`remove` / `setDefault`)   | a user-visible failure message, AND the services instance's captured error → `useContext().error`, `useMeta().hasError`                       |
-| Collection list read                                | the query's own error → the same two members                                                                                                   |
-| Editor save                                         | the machine's context error → `useContext().errors`, `useMeta().hasErrors`; the action also rejects with a detailed error for the caller       |
-| Editor field validation                             | the validation errors → `useContext().validationErrors`, `useMeta().isValid`                                                                    |
+| Surface                                           | Where a failure lands                                                                                                                    |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Collection row mutation (`remove` / `setDefault`) | a user-visible failure message, AND the services instance's captured error → `useContext().error`, `useMeta().hasError`                  |
+| Collection list read                              | the query's own error → the same two members                                                                                             |
+| Editor save                                       | the machine's context error → `useContext().errors`, `useMeta().hasErrors`; the action also rejects with a detailed error for the caller |
+| Editor field validation                           | the validation errors → `useContext().validationErrors`, `useMeta().isValid`                                                             |
 
 A consumer that wants user-visible feedback for anything other than `remove()` / `setDefault()` renders it from those members, or from the editor's `onDone()` completion signal — nothing else in this module raises one for you.
 
@@ -156,25 +156,25 @@ A consumer that wants user-visible feedback for anything other than `remove()` /
 
 ### This module reads from
 
-| Module                | Uses                                                                                                                                                     |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `session-store`       | the active client identity (the addressed client when no other context is supplied), whether the session is authenticated, and whether it has settled     |
-| `query`               | the shared request layer — list reads, single mutations, URL building, cache invalidation                                                                  |
-| `data-manager`        | the shared form-editor machine the per-address editor interprets                                                                                            |
-| `system`              | brand-agnostic reference data — the countries and regions the form resolves and validates against                                                          |
-| `brand`               | the two address-form rules (region-required, country-locked) the form fetches                                                                              |
-| `scope`               | the actor-scoping accessor and its instance registry                                                                                                        |
-| `feedback`            | the success/failure messages `remove()` / `setDefault()` raise                                                                                              |
-| `system-localisation` | translated caller-facing text on rejected reads and saves, and the two success confirmations `remove()` / `setDefault()` raise                             |
-| shared utilities      | schema validation, model parsing, collection lookups, state-read helpers, and the typed unauthenticated-access error                                        |
+| Module                | Uses                                                                                                                                                  |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `session-store`       | the active client identity (the addressed client when no other context is supplied), whether the session is authenticated, and whether it has settled |
+| `query`               | the shared request layer — list reads, single mutations, URL building, cache invalidation                                                             |
+| `data-manager`        | the shared form-editor machine the per-address editor interprets                                                                                      |
+| `system`              | brand-agnostic reference data — the countries and regions the form resolves and validates against                                                     |
+| `brand`               | the two address-form rules (region-required, country-locked) the form fetches                                                                         |
+| `scope`               | the actor-scoping accessor and its instance registry                                                                                                  |
+| `feedback`            | the success/failure messages `remove()` / `setDefault()` raise                                                                                        |
+| `system-localisation` | translated caller-facing text on rejected reads and saves, and the two success confirmations `remove()` / `setDefault()` raise                        |
+| shared utilities      | schema validation, model parsing, collection lookups, state-read helpers, and the typed unauthenticated-access error                                  |
 
 ### Modules that read from this one
 
-| Module                     | Uses                                                                                                                            |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Module                     | Uses                                                                                                                                                                              |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `client-company`           | the FULL collection and editor pair — list, default, `getOne`, `remove`, `setDefault`, and the editor's create/edit form, composed into its own company form as an address picker |
-| `basket-billing` (unified) | find-or-create by id, the client's default address, the full list, and the readiness signal while composing billing contact details |
-| `invoices`                 | the pure `mapAddress` shape mapper only — to render an address already embedded on an invoice response, with no request of its own |
+| `basket-billing` (unified) | find-or-create by id, the client's default address, the full list, and the readiness signal while composing billing contact details                                               |
+| `invoices`                 | the pure `mapAddress` shape mapper only — to render an address already embedded on an invoice response, with no request of its own                                                |
 
 The `client-company` and `basket-billing` consumers both reach the collection and manager only through `.as('client')` — followed by the mandatory four-layer destructure that shape forces. Neither re-implements the list read or the find-or-create check. `invoices` is a schema-only consumer: it imports `mapAddress` from the barrel and never touches a composable, a scope, or a request.
 
@@ -183,13 +183,13 @@ The `client-company` and `basket-billing` consumers both reach the collection an
 - **Client company composition** embeds this module's own composables directly — an address list and editor pair, adapted to the shape a shared list-and-form renderer expects — so a client can pick, create or edit an address while managing one of their companies without leaving that form.
 - **Billing-detail composition** reuses the collection's find-or-create and default-address reporting while assembling a client's billing contact details.
 - Any consumer rendering addresses directly — list, delete, set default — drives the collection; any consumer rendering an add/edit **form** drives the editor, which serves its own schema pair.
-- Two consumers elsewhere in this codebase compose the address form's *fields* into a larger schema at module scope, where no editor instance exists to read from machine context — `client-company` and `basket-billing/unified` both import `useSchemaDefinitions()` / `useUischemaDefinitions()` for exactly this. This is the one documented route to the form definition that does not go through the editor's own context, and it is a pure-function route: no scope, no session, no request.
+- Two consumers elsewhere in this codebase compose the address form's _fields_ into a larger schema at module scope, where no editor instance exists to read from machine context — `client-company` and `basket-billing/unified` both import `useSchemaDefinitions()` / `useUischemaDefinitions()` for exactly this. This is the one documented route to the form definition that does not go through the editor's own context, and it is a pure-function route: no scope, no session, no request.
 
 ## Module boundary
 
 The barrel is the module's only public surface: two composables, two scope matrices, two context enums, the address-type constants, three model types, one cross-module mapper (`mapAddress`), the two schema fragment functions, and eight sub-composable types. Curated named re-exports only — no `export *`.
 
-Everything else is internal and carries a file-level internal marker: the services, the schema **parsers** (as opposed to the fragment builders), and the machine configuration. In particular the *parsed* schema pair is **not** exported — it enters the system in the machine configuration and reaches consumers through the editor's context, because a form rendered from a definition the editor has not adopted validates against a different contract than the one that saves. The two schema **fragment** functions are the one deliberate exception to this module's own "no schema exports" default, kept narrow: they are pure functions with no scope, session, request or reactive state, published specifically because two other modules compose this form's fields into their own schemas at module scope, where no editor instance exists yet to read from.
+Everything else is internal and carries a file-level internal marker: the services, the schema **parsers** (as opposed to the fragment builders), and the machine configuration. In particular the _parsed_ schema pair is **not** exported — it enters the system in the machine configuration and reaches consumers through the editor's context, because a form rendered from a definition the editor has not adopted validates against a different contract than the one that saves. The two schema **fragment** functions are the one deliberate exception to this module's own "no schema exports" default, kept narrow: they are pure functions with no scope, session, request or reactive state, published specifically because two other modules compose this form's fields into their own schemas at module scope, where no editor instance exists yet to read from.
 
 ## What this module does not do
 

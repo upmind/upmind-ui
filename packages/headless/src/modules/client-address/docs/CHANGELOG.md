@@ -47,22 +47,22 @@ This release converts `client-address` from a pre-scope module (bare `useClientA
 
 Genuinely captured request/response pairs back every documented behaviour:
 
-| Fixture                                                              | Covers                                                     |
-| ------------------------------------------------------------------------ | -------------------------------------------------------------- |
-| `get-clients-id-addresses.json`                                      | the unpaged list read, with embedded region/country            |
-| `get-clients-id-addresses-case-page-1.json`                         | first page, `limit=2&offset=0` (services-layer paging only)    |
-| `get-clients-id-addresses-case-page-2.json`                         | second page, `limit=2&offset=2`                                 |
-| `get-clients-id-addresses-case-query-filter-query-london.json`      | the filtered list read                                          |
-| `get-clients-id-addresses-id.json`                                  | the per-address read                                            |
-| `post-clients-id-addresses.json`                                    | create (request body captured too)                              |
-| `put-clients-id-addresses-id.json`                                  | a diff-only edit                                                 |
-| `put-clients-id-addresses-id-case-set-default.json`                 | promote an address to default                                   |
-| `put-clients-id-addresses-id-case-set-default-rejected.json`        | a `422` rejection on an invalid address id                       |
-| `delete-clients-id-addresses-id.json`                               | delete                                                           |
-| `delete-clients-id-addresses-id-case-remove-rejected.json`          | a `409` rejection on a delete the platform refuses               |
-| `get-countries.json`                                                | the country reference data the editor resolves against           |
+| Fixture                                                                 | Covers                                                                                |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `get-clients-id-addresses.json`                                         | the unpaged list read, with embedded region/country                                   |
+| `get-clients-id-addresses-case-page-1.json`                             | first page, `limit=2&offset=0` (services-layer paging only)                           |
+| `get-clients-id-addresses-case-page-2.json`                             | second page, `limit=2&offset=2`                                                       |
+| `get-clients-id-addresses-case-query-filter-query-london.json`          | the filtered list read                                                                |
+| `get-clients-id-addresses-id.json`                                      | the per-address read                                                                  |
+| `post-clients-id-addresses.json`                                        | create (request body captured too)                                                    |
+| `put-clients-id-addresses-id.json`                                      | a diff-only edit                                                                      |
+| `put-clients-id-addresses-id-case-set-default.json`                     | promote an address to default                                                         |
+| `put-clients-id-addresses-id-case-set-default-rejected.json`            | a `422` rejection on an invalid address id                                            |
+| `delete-clients-id-addresses-id.json`                                   | delete                                                                                |
+| `delete-clients-id-addresses-id-case-remove-rejected.json`              | a `409` rejection on a delete the platform refuses                                    |
+| `get-countries.json`                                                    | the country reference data the editor resolves against                                |
 | `get-countries-id-regions-case-country-a.json` / `-case-country-b.json` | region lists for two different countries, exercising the country-change re-resolution |
-| `get-config-brand-values-*.json`                                    | the brand's address-form rules (region-required, country-locked) |
+| `get-config-brand-values-*.json`                                        | the brand's address-form rules (region-required, country-locked)                      |
 
 ### Notes
 
@@ -97,7 +97,9 @@ const draft = useClientAddressManager();
 
 // After
 const addresses = useClientAddresses().as("client");
-const manager = useClientAddressManager().as("client").for("address", addressId);
+const manager = useClientAddressManager()
+  .as("client")
+  .for("address", addressId);
 const draft = useClientAddressManager().as("client").fresh();
 ```
 
@@ -168,7 +170,10 @@ await useClientAddresses()
 
 ```ts
 // Before
-import { useAddressSchema, useAddressUischema } from "@upmind-automation/headless";
+import {
+  useAddressSchema,
+  useAddressUischema
+} from "@upmind-automation/headless";
 
 // After — rendering the address form standalone
 const { schema, uischema } = manager.useContext();

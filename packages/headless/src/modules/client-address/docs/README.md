@@ -12,9 +12,9 @@ Think of `client-address` as a client's own address book, but the platform manag
 
 The module ships **two composables**, because reading a list and filling in a form are different jobs:
 
-| Surface            | Composable                | Use it when                                                          |
-| ------------------- | -------------------------- | ---------------------------------------------------------------------- |
-| **The collection** | `useClientAddresses`      | You are showing the list and acting on rows — delete, set default    |
+| Surface            | Composable                | Use it when                                                           |
+| ------------------ | ------------------------- | --------------------------------------------------------------------- |
+| **The collection** | `useClientAddresses`      | You are showing the list and acting on rows — delete, set default     |
 | **The editor**     | `useClientAddressManager` | You are showing a form — add a new address, or change an existing one |
 
 Both always manage the **calling client's own** book. There is no capability here to open or edit someone else's.
@@ -53,21 +53,21 @@ The editor's save invalidates the shared cache, so an open collection picks the 
 
 ## Features
 
-| Capability                             | Surface                                                        | What it does                                                       |
-| --------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| List own addresses                     | `useClientAddresses().useContext().data`                        | Reactive list of the client's own addresses                        |
-| Read the default address's id          | `…useContext().default()`                                       | Returns the default address's **id** — look the row up with `getOne()` |
-| Read per-address status                | `…useContext().data[].meta`                                      | Default / verification level (display-only) / deletable flags       |
-| Know whether the list is yours to read | `useClientAddresses().useMeta().isAvailable`                     | Authenticated **and** a client id resolved                          |
-| Delete                                 | `useClientAddresses().useActions().remove()`                     | Removes a deletable address; confirms success or failure by message |
-| Set default                            | `…useActions().setDefault()`                                     | Promotes an address to the default; confirms success or failure     |
+| Capability                             | Surface                                                          | What it does                                                               |
+| -------------------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| List own addresses                     | `useClientAddresses().useContext().data`                         | Reactive list of the client's own addresses                                |
+| Read the default address's id          | `…useContext().default()`                                        | Returns the default address's **id** — look the row up with `getOne()`     |
+| Read per-address status                | `…useContext().data[].meta`                                      | Default / verification level (display-only) / deletable flags              |
+| Know whether the list is yours to read | `useClientAddresses().useMeta().isAvailable`                     | Authenticated **and** a client id resolved                                 |
+| Delete                                 | `useClientAddresses().useActions().remove()`                     | Removes a deletable address; confirms success or failure by message        |
+| Set default                            | `…useActions().setDefault()`                                     | Promotes an address to the default; confirms success or failure            |
 | Find or create by id                   | `…useActions().ensure()`                                         | Resolves an existing match **by id**, or creates if the model carries none |
-| Filter                                 | `…useActions().filters.query()`                                  | Narrows the list to a search term                                   |
-| Add a new address                      | `useClientAddressManager().as('client').fresh()` then `update()` | Creates through the validated form                                   |
-| Change an address                      | `…for('address', id)` then `update()`                             | Edits through the validated form; sends only the changed fields      |
-| Validate as the client types           | `…useActions().input()` + `useMeta().isValid`                   | Reports acceptance and which field is wrong                          |
-| Render the form                        | `…useContext().schema` / `.uischema`                             | The form definition, served by the editor                            |
-| Compose the address form into a parent | `useSchemaDefinitions()` / `useUischemaDefinitions()`             | Pure schema-fragment functions for embedding this form in another one |
+| Filter                                 | `…useActions().filters.query()`                                  | Narrows the list to a search term                                          |
+| Add a new address                      | `useClientAddressManager().as('client').fresh()` then `update()` | Creates through the validated form                                         |
+| Change an address                      | `…for('address', id)` then `update()`                            | Edits through the validated form; sends only the changed fields            |
+| Validate as the client types           | `…useActions().input()` + `useMeta().isValid`                    | Reports acceptance and which field is wrong                                |
+| Render the form                        | `…useContext().schema` / `.uischema`                             | The form definition, served by the editor                                  |
+| Compose the address form into a parent | `useSchemaDefinitions()` / `useUischemaDefinitions()`            | Pure schema-fragment functions for embedding this form in another one      |
 
 ## Key Concepts
 
@@ -135,11 +135,11 @@ The editor's `isDirty` flag compares the live model against its persisted baseli
 ## Documentation
 
 | Doc                                  | Audience                                                    | Content                                                                                 |
-| -------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| ------------------------------------ | ----------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | **This README**                      | Everyone                                                    | Overview, concepts, quick start                                                         |
 | [usage.md](./usage.md)               | All devs                                                    | Full API reference for both composables, plus the paste-ready form schema and UI schema |
 | [architecture.md](./architecture.md) | Internal / contributors                                     | Data flow, the shared identity seam, dependencies                                       |
-| [gotchas.md](./gotchas.md)           | All                                                         | The sharp edges — the diff-only save, `default()`, `ensure()`, region clearing, scope    |
+| [gotchas.md](./gotchas.md)           | All                                                         | The sharp edges — the diff-only save, `default()`, `ensure()`, region clearing, scope   |
 | [foundation.md](./foundation.md)     | Teams building against the Upmind back end on another stack | Framework-neutral platform spec: endpoints, payloads, failure modes                     |
 | [CHANGELOG.md](./CHANGELOG.md)       | All                                                         | Change history and porting notes                                                        |
 

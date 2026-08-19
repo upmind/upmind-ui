@@ -37,7 +37,9 @@ await manager.useActions().update({ address: { postcode: "SW1A 1AA" } });
 ```ts
 // ✅ Right — pass the whole model back, or fold your partial into what
 // input() last resolved.
-const current = await manager.useActions().input({ address: { city: "London" } });
+const current = await manager
+  .useActions()
+  .input({ address: { city: "London" } });
 await manager.useActions().update({
   ...current,
   address: { ...current.address, postcode: "SW1A 1AA" }
@@ -101,11 +103,11 @@ This is deliberate: the editor's lookup chain awaits cross-module, network-backe
 
 This module is asymmetric on user-visible feedback, and it is easy to assume the whole module is silent or that everything announces itself.
 
-| Action                                                                | Raises a message on your behalf? |
-| ------------------------------------------------------------------------ | ----------------------------------- |
-| `useClientAddresses().useActions().remove()`                          | **Yes** — success and failure       |
-| `useClientAddresses().useActions().setDefault()`                      | **Yes** — success and failure       |
-| Everything else (`ensure`, `refresh`, the whole editor's `update()`)   | No — read the state                 |
+| Action                                                               | Raises a message on your behalf? |
+| -------------------------------------------------------------------- | -------------------------------- |
+| `useClientAddresses().useActions().remove()`                         | **Yes** — success and failure    |
+| `useClientAddresses().useActions().setDefault()`                     | **Yes** — success and failure    |
+| Everything else (`ensure`, `refresh`, the whole editor's `update()`) | No — read the state              |
 
 ```ts
 // remove() and setDefault(): a message appears without you doing anything
@@ -140,7 +142,12 @@ await addresses.useActions().ensure({
 });
 
 // ✅ This resolves the EXISTING row, because the id matches one already loaded.
-await addresses.useActions().ensure({ id: existingAddressId, address: { /* … */ } });
+await addresses.useActions().ensure({
+  id: existingAddressId,
+  address: {
+    /* … */
+  }
+});
 ```
 
 A brand-new draft opened through `.fresh()` never carries an id, which is exactly why a `.fresh()` save always creates rather than ever silently resolving to an existing address.
@@ -151,10 +158,10 @@ A brand-new draft opened through `.fresh()` never carries an id, which is exactl
 
 Picking a country whose region list does not contain the currently-selected region clears the region in the model. How that clearance reaches the wire depends on which save path it takes:
 
-| Path                                         | Wire shape                                    |
-| ---------------------------------------------- | ------------------------------------------------ |
-| **Edit** of an address that previously had a region | `region_id: null` — an explicit clearance         |
-| **Create** of a brand-new address with no region chosen | No `region_id` key at all — never sent            |
+| Path                                                    | Wire shape                                |
+| ------------------------------------------------------- | ----------------------------------------- |
+| **Edit** of an address that previously had a region     | `region_id: null` — an explicit clearance |
+| **Create** of a brand-new address with no region chosen | No `region_id` key at all — never sent    |
 
 ```ts
 // Editing an address that HAD a region, then changing the country:
@@ -176,7 +183,11 @@ The `type` field (Home / Office / Holiday / Company) has a form control **only w
 // Creating a fresh address: `type` is not part of the visible form,
 // and the saved record is always Home.
 const draft = useClientAddressManager().as("client").fresh();
-await draft.useActions().update({ address: { /* … */ } }); // type: 1, always
+await draft.useActions().update({
+  address: {
+    /* … */
+  }
+}); // type: 1, always
 
 // Editing an EXISTING address: the type control appears, and a chosen
 // value is sent on the wire.
@@ -215,7 +226,7 @@ This is a known, filed-not-fixed typing gap in the shared scope builder, not spe
 
 ## 12. The brand-config request behind the country lock and region requirement may never be independently observable
 
-The editor fetches two brand settings before it becomes usable: whether a region is required for the address's country, and whether an existing address's country can be changed at all. Both are read through a shared, cross-module brand-configuration cache. On a session where some *other* part of the app has already asked for exactly these two keys, the cache serves this module's ask with no new request — and because the cache never re-validates once it has an answer for a given key set, there is no way to force a fresh request for them either.
+The editor fetches two brand settings before it becomes usable: whether a region is required for the address's country, and whether an existing address's country can be changed at all. Both are read through a shared, cross-module brand-configuration cache. On a session where some _other_ part of the app has already asked for exactly these two keys, the cache serves this module's ask with no new request — and because the cache never re-validates once it has an answer for a given key set, there is no way to force a fresh request for them either.
 
 The capability those settings gate — the country field locking on an existing address, the region requirement being enforced — works correctly either way, because it reads whatever the cache holds. What cannot always be independently demonstrated is the dedicated wire-level request for these two keys.
 
@@ -234,12 +245,21 @@ There is no bare services import for this module's data on the public surface, a
 ```ts
 // ⚠️ Gone — not deprecated, retired
 import { useClientAddressServices } from "@upmind-automation/headless";
-await useClientAddressServices().ensure({ address: { /* … */ } });
+await useClientAddressServices().ensure({
+  address: {
+    /* … */
+  }
+});
 
 // ✅ Current
-import { useClientAddresses, ScopeActorTypes } from "@upmind-automation/headless";
+import {
+  useClientAddresses,
+  ScopeActorTypes
+} from "@upmind-automation/headless";
 await useClientAddresses().as(ScopeActorTypes.CLIENT).useActions().ensure({
-  address: { /* … */ }
+  address: {
+    /* … */
+  }
 });
 ```
 
@@ -247,7 +267,7 @@ Note the shape of the argument to `ensure()` — it is the model **directly**, n
 
 ## 14. The schema fragment functions are for composing this form into another one — not for rendering it
 
-`useSchemaDefinitions()` and `useUischemaDefinitions()` are on the barrel, and it is tempting to reach for them to render the address form standalone. They exist for a narrower job: two other modules compose the address fields into a *larger* schema (a company form, a unified billing form) at module scope, before any editor instance exists to read from. A consumer rendering the address form on its own always reads `useClientAddressManager().useContext().schema` / `.uischema` instead — those are the schemas the editor's machine actually validates against, and the only ones a save is checked against.
+`useSchemaDefinitions()` and `useUischemaDefinitions()` are on the barrel, and it is tempting to reach for them to render the address form standalone. They exist for a narrower job: two other modules compose the address fields into a _larger_ schema (a company form, a unified billing form) at module scope, before any editor instance exists to read from. A consumer rendering the address form on its own always reads `useClientAddressManager().useContext().schema` / `.uischema` instead — those are the schemas the editor's machine actually validates against, and the only ones a save is checked against.
 
 ```ts
 // ⚠️ Wrong for a standalone address form — this is a bare fragment, not the

@@ -17,19 +17,19 @@ Two working surfaces sit over the same data: a **collection**, read and acted on
 
 ## Operations
 
-| #   | Capability                                        | Inputs                                                       | Outputs                                                                                    |
-| --- | -------------------------------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| 1   | **List one client's addresses**                   | (none — reads the whole collection in one request)            | Array of address records, each with its lines, status flags and a total count               |
-| 2   | **Read one address by id**                        | address id                                                     | The single address record                                                                     |
-| 3   | **Add an address**                                | address lines, city, postcode, country, optional region, name | The created address record                                                                    |
-| 4   | **Change an address**                              | address id, changed fields only                                | The updated record                                                                             |
-| 5   | **Delete an address**                             | address id                                                     | Confirmation; the record is gone from the collection                                          |
-| 6   | **Set an address as the default**                 | address id                                                     | The updated record; the previously default record is no longer default                       |
-| 7   | **Find or create an address by id**               | a candidate model, optionally carrying an `id`                 | The matching existing record if the `id` is already held, otherwise a newly created one       |
-| 8   | **Filter the collection**                         | a search term                                                  | The list narrowed to matching addresses (request-level; see note below)                       |
-| 9   | **Page through the collection**                   | page size, page direction                                      | The next or previous page of the list, at the underlying request layer (see note below)       |
-| 10  | **Resolve country, region and brand rules before the form is usable** | (none — reads platform reference data)   | The resolved country, its regions, and the brand's address-form rules, seeded into the form   |
-| 11  | **Parse typed input into the address shape, re-resolving region on a country change** | a partially-typed address                | The re-derived address, with the region list refreshed and an invalid region cleared           |
+| #   | Capability                                                                            | Inputs                                                        | Outputs                                                                                     |
+| --- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| 1   | **List one client's addresses**                                                       | (none — reads the whole collection in one request)            | Array of address records, each with its lines, status flags and a total count               |
+| 2   | **Read one address by id**                                                            | address id                                                    | The single address record                                                                   |
+| 3   | **Add an address**                                                                    | address lines, city, postcode, country, optional region, name | The created address record                                                                  |
+| 4   | **Change an address**                                                                 | address id, changed fields only                               | The updated record                                                                          |
+| 5   | **Delete an address**                                                                 | address id                                                    | Confirmation; the record is gone from the collection                                        |
+| 6   | **Set an address as the default**                                                     | address id                                                    | The updated record; the previously default record is no longer default                      |
+| 7   | **Find or create an address by id**                                                   | a candidate model, optionally carrying an `id`                | The matching existing record if the `id` is already held, otherwise a newly created one     |
+| 8   | **Filter the collection**                                                             | a search term                                                 | The list narrowed to matching addresses (request-level; see note below)                     |
+| 9   | **Page through the collection**                                                       | page size, page direction                                     | The next or previous page of the list, at the underlying request layer (see note below)     |
+| 10  | **Resolve country, region and brand rules before the form is usable**                 | (none — reads platform reference data)                        | The resolved country, its regions, and the brand's address-form rules, seeded into the form |
+| 11  | **Parse typed input into the address shape, re-resolving region on a country change** | a partially-typed address                                     | The re-derived address, with the region list refreshed and an invalid region cleared        |
 
 > Note on operation 9: the platform genuinely supports `limit` / `offset` pagination on the list endpoint (see the paged variant under "API endpoints" below), and a caller integrating directly against the HTTP surface can page normally. This module's own collection reads the entire list in a single unpaginated request and does not exercise the platform's paging at all through its public surface.
 
@@ -146,7 +146,9 @@ type AddressCreateBody = {
 // Edit (capability 4) — ONLY the fields that changed since the form opened.
 // A region cleared by a country change is the one exception: it crosses as an
 // explicit `null`, never simply omitted.
-type AddressEditBody = Partial<AddressCreateBody> & { region_id?: string | null };
+type AddressEditBody = Partial<AddressCreateBody> & {
+  region_id?: string | null;
+};
 
 // Set as default (capability 6)
 type SetDefaultBody = { default: true };
@@ -156,11 +158,11 @@ type SetDefaultBody = { default: true };
 
 ### Dependants — collections that read from this one
 
-| Consumer                          | Weight | Reads                                                                                     | Why                                                                                       |
-| ---------------------------------- | ------ | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| Client company composition        | 3      | the full collection and editor pair — list, default, `getOne`, `remove`, `setDefault`, the editor's create/edit form | choosing or creating a client's registered address while managing one of the client's own companies |
-| Billing-detail composition         | 2      | find-or-create by id, the client's default address, the full address list, the readiness signal | reusing or creating a client's own address while composing a client's billing contact details |
-| An invoice's embedded address      | 1      | the pure shape mapper only — no request, no scope, no reactive state                     | rendering an address that already arrived embedded on an invoice, without a second fetch     |
+| Consumer                      | Weight | Reads                                                                                                                | Why                                                                                                 |
+| ----------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Client company composition    | 3      | the full collection and editor pair — list, default, `getOne`, `remove`, `setDefault`, the editor's create/edit form | choosing or creating a client's registered address while managing one of the client's own companies |
+| Billing-detail composition    | 2      | find-or-create by id, the client's default address, the full address list, the readiness signal                      | reusing or creating a client's own address while composing a client's billing contact details       |
+| An invoice's embedded address | 1      | the pure shape mapper only — no request, no scope, no reactive state                                                 | rendering an address that already arrived embedded on an invoice, without a second fetch            |
 
 The HTTP transport layer and app-level navigation reference this collection as they do most others; they are not domain consumers and are excluded from the table.
 

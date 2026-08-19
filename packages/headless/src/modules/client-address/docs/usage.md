@@ -19,7 +19,9 @@ import {
 const addresses = useClientAddresses().as("client");
 
 // The editor, opened on one existing address
-const manager = useClientAddressManager().as("client").for("address", addressId);
+const manager = useClientAddressManager()
+  .as("client")
+  .for("address", addressId);
 
 // The editor, started on a brand-new address
 const draft = useClientAddressManager().as("client").fresh();
@@ -27,12 +29,12 @@ const draft = useClientAddressManager().as("client").fresh();
 
 Both composables return the same four sub-composables:
 
-| Layer     | Access             | Collection contains            | Editor contains                          |
-| --------- | ------------------- | -------------------------------- | ------------------------------------------- |
-| Actions   | `.useActions()`    | row mutations + list lifecycle   | form input, save, lifecycle                 |
-| Context   | `.useContext()`    | reactive list + lookups          | model, schema, resolved lookups, errors     |
-| Meta      | `.useMeta()`       | seven state flags                | eight state flags                           |
-| Internals | `.useInternals()`  | the raw list query                | the raw machine state and sender            |
+| Layer     | Access            | Collection contains            | Editor contains                         |
+| --------- | ----------------- | ------------------------------ | --------------------------------------- |
+| Actions   | `.useActions()`   | row mutations + list lifecycle | form input, save, lifecycle             |
+| Context   | `.useContext()`   | reactive list + lookups        | model, schema, resolved lookups, errors |
+| Meta      | `.useMeta()`      | seven state flags              | eight state flags                       |
+| Internals | `.useInternals()` | the raw list query             | the raw machine state and sender        |
 
 > **🧪 For Testers:** Both composables support the `client` scope only. `self`, `staff` and `guest` are compile-time errors, not runtime failures — there is no scope in this module today for a staff member to read or edit another client's addresses.
 
@@ -48,9 +50,9 @@ Ten members. Per-address **form** editing (`input` / `update` / field validation
 
 Finds an existing address **by id**, or creates one. This is the collection's create seam.
 
-| Param       | Type                        | Required |
-| ------------ | ---------------------------- | -------- |
-| `model.id`  | `AddressModel["id"]`        | No       |
+| Param           | Type                      | Required |
+| --------------- | ------------------------- | -------- |
+| `model.id`      | `AddressModel["id"]`      | No       |
 | `model.address` | `AddressModel["address"]` | Yes      |
 
 **Returns:** `Promise<Address>` — the existing matching record, or the newly created one.
@@ -121,14 +123,14 @@ Removes this scoped instance from the registry.
 
 ### Collection context — `useContext()`
 
-| Property     | Type                                                        | Meaning                                                    |
-| ------------ | ------------------------------------------------------------ | ------------------------------------------------------------- |
-| `data`       | `ComputedRef<Address[]>`                                     | The client's reactive list of addresses                   |
-| `default()`  | `(data?) => Address["id"] \| undefined`                     | The collection's default address's **id**, if any (not the row — see below) |
-| `error`      | `ComputedRef<ResponseError \| undefined>`                    | The last failed row mutation, else the list read's error   |
-| `findOne()`  | `(mapping, data?, searchableProps?) => Address \| undefined` | Finds a single address by a partial mapping or free text   |
-| `getOne(id)` | `(id, data?) => Address \| undefined`                        | Finds a single address by id                                |
-| `pagination` | `ComputedRef<PaginationInfo>`                                 | `{ limit, total, page, pages, from, to }`                   |
+| Property     | Type                                                         | Meaning                                                                     |
+| ------------ | ------------------------------------------------------------ | --------------------------------------------------------------------------- |
+| `data`       | `ComputedRef<Address[]>`                                     | The client's reactive list of addresses                                     |
+| `default()`  | `(data?) => Address["id"] \| undefined`                      | The collection's default address's **id**, if any (not the row — see below) |
+| `error`      | `ComputedRef<ResponseError \| undefined>`                    | The last failed row mutation, else the list read's error                    |
+| `findOne()`  | `(mapping, data?, searchableProps?) => Address \| undefined` | Finds a single address by a partial mapping or free text                    |
+| `getOne(id)` | `(id, data?) => Address \| undefined`                        | Finds a single address by id                                                |
+| `pagination` | `ComputedRef<PaginationInfo>`                                | `{ limit, total, page, pages, from, to }`                                   |
 
 > **🧪 For Testers:** `data` is always an array — before the first read completes, and when the read errors. Read `useMeta().isLoading` / `hasError` rather than inferring state from an empty list. `error` is **state you read**, never an event: a failed mutation lands here and stays until the next one supersedes it. `default()` returns the **id**, not the address — chain `getOne(default())` for the row. `findOne()` matches a **nested partial mapping** — `findOne({ address: { city } })` matches on the city alone, without needing the rest of the `address` object.
 
@@ -136,15 +138,15 @@ Removes this scoped instance from the registry.
 
 Seven flags.
 
-| Flag           | True when                                                                       |
-| --------------- | ---------------------------------------------------------------------------------- |
-| `hasError`     | a row mutation or the list read failed                                             |
-| `hasNextPage`  | the underlying query reports a further page after the current one                  |
-| `hasPages`     | pagination applies to this list at all                                             |
-| `hasPrevPage`  | the underlying query reports a page before the current one                        |
-| `isAvailable`  | the session is authenticated **and** the scope resolved a client id to address    |
-| `isEmpty`      | the resolved collection has no addresses                                          |
-| `isLoading`    | the list read is in flight or has not completed its first fetch                   |
+| Flag          | True when                                                                      |
+| ------------- | ------------------------------------------------------------------------------ |
+| `hasError`    | a row mutation or the list read failed                                         |
+| `hasNextPage` | the underlying query reports a further page after the current one              |
+| `hasPages`    | pagination applies to this list at all                                         |
+| `hasPrevPage` | the underlying query reports a page before the current one                     |
+| `isAvailable` | the session is authenticated **and** the scope resolved a client id to address |
+| `isEmpty`     | the resolved collection has no addresses                                       |
+| `isLoading`   | the list read is in flight or has not completed its first fetch                |
 
 `isAvailable` is worth reading twice. It is **both limbs**: authenticated, _and_ a client id resolved. A session that authenticates but resolves no client correctly reports `false`. It is also the _same predicate_ every request gate in this module calls — not a second copy of it — so the flag you render and the guard the wire enforces cannot drift apart.
 
@@ -152,10 +154,10 @@ Seven flags.
 
 ### Collection internals — `useInternals()`
 
-| Property     | Meaning                                     |
-| ------------ | ---------------------------------------------- |
-| `actorScope` | the resolved actor for this instance            |
-| `query`      | the raw list-query object backing the list      |
+| Property     | Meaning                                    |
+| ------------ | ------------------------------------------ |
+| `actorScope` | the resolved actor for this instance       |
+| `query`      | the raw list-query object backing the list |
 
 For debugging and tests. Not for production consumers.
 
@@ -166,7 +168,9 @@ For debugging and tests. Not for production consumers.
 A form editor over one address. Open an existing address with `.for("address", id)`; start a new one with `.fresh()`. Each call to `.fresh()` mints its own isolated instance, so two concurrent drafts never share a model.
 
 ```ts
-const manager = useClientAddressManager().as("client").for("address", addressId);
+const manager = useClientAddressManager()
+  .as("client")
+  .for("address", addressId);
 
 await manager.useActions().isReady();
 await manager.useActions().update({
@@ -192,9 +196,9 @@ Resolves when the form is available for input.
 
 Feeds a model into the form. **Debounced** — rapid calls collapse into one parse.
 
-| Param   | Type                                       | Required |
-| ------- | -------------------------------------------- | -------- |
-| `model` | `AddressModel \| Record<string, unknown>`    | Yes      |
+| Param   | Type                                      | Required |
+| ------- | ----------------------------------------- | -------- |
+| `model` | `AddressModel \| Record<string, unknown>` | Yes      |
 
 **Returns:** `Promise<AddressModel>` — the parsed model, after validation has run.
 
@@ -206,9 +210,9 @@ Feeds a model into the form. **Debounced** — rapid calls collapse into one par
 
 Saves the current model — or the one you pass — and resolves the persisted model. **This is the editor's save, and it covers both create and edit:** a `.fresh()` draft creates (via find-or-create by id); an address-scoped editor updates, sending **only the fields that changed** since the form opened.
 
-| Param   | Type                                       | Required |
-| ------- | -------------------------------------------- | -------- |
-| `value` | `AddressModel \| Record<string, unknown>`    | No       |
+| Param   | Type                                      | Required |
+| ------- | ----------------------------------------- | -------- |
+| `value` | `AddressModel \| Record<string, unknown>` | No       |
 
 **Returns:** `Promise<AddressModel>` — the persisted model.
 
@@ -250,22 +254,22 @@ Fourteen members. This is where the form's schema and UI definition surface — 
 
 Every member is read through the shared state helpers, so each is a `ComputedRef` that can be `undefined` before the editor has settled.
 
-| Property           | Type                                          | Meaning                                                        |
-| ------------------ | ----------------------------------------------- | ------------------------------------------------------------------- |
-| `baseModel`        | `ComputedRef<AddressModel \| undefined>`       | The dependency-resolved starting model the form opened on          |
+| Property           | Type                                                | Meaning                                                                  |
+| ------------------ | --------------------------------------------------- | ------------------------------------------------------------------------ |
+| `baseModel`        | `ComputedRef<AddressModel \| undefined>`            | The dependency-resolved starting model the form opened on                |
 | `config`           | `ComputedRef<Record<string, unknown> \| undefined>` | The brand config keys the form fetched (region-required, country-locked) |
-| `context`          | `ComputedRef<AddressContext \| undefined>`     | The full editor context object                                     |
-| `country`          | `ComputedRef<ICountry \| undefined>`           | The country resolved from the model's `countryId`                  |
-| `countries`        | `ComputedRef<ICountry[] \| undefined>`         | All available countries                                             |
-| `description`      | `ComputedRef<string \| undefined>`             | Display description — the address lines, joined                    |
-| `errors`           | `ComputedRef<string \| undefined>`             | The captured error message, if any — read, never raised            |
-| `id`               | `ComputedRef<string \| undefined>`             | The id of the address being edited; `undefined` for a new one       |
-| `model`            | `ComputedRef<AddressModel \| undefined>`       | The current form model                                              |
-| `regions`          | `ComputedRef<IRegion[] \| undefined>`          | The regions available for the selected country                     |
-| `schema`           | `ComputedRef<JsonSchema \| undefined>`         | The form's JSON schema                                              |
-| `title`            | `ComputedRef<string \| undefined>`             | Display title — the address's first line, or the name              |
-| `uischema`         | `ComputedRef<UISchemaElement \| undefined>`    | The form's UI definition, paired with `schema`                      |
-| `validationErrors` | `ComputedRef<ErrorObject[] \| undefined>`      | Field-level validation errors — read, never raised                  |
+| `context`          | `ComputedRef<AddressContext \| undefined>`          | The full editor context object                                           |
+| `country`          | `ComputedRef<ICountry \| undefined>`                | The country resolved from the model's `countryId`                        |
+| `countries`        | `ComputedRef<ICountry[] \| undefined>`              | All available countries                                                  |
+| `description`      | `ComputedRef<string \| undefined>`                  | Display description — the address lines, joined                          |
+| `errors`           | `ComputedRef<string \| undefined>`                  | The captured error message, if any — read, never raised                  |
+| `id`               | `ComputedRef<string \| undefined>`                  | The id of the address being edited; `undefined` for a new one            |
+| `model`            | `ComputedRef<AddressModel \| undefined>`            | The current form model                                                   |
+| `regions`          | `ComputedRef<IRegion[] \| undefined>`               | The regions available for the selected country                           |
+| `schema`           | `ComputedRef<JsonSchema \| undefined>`              | The form's JSON schema                                                   |
+| `title`            | `ComputedRef<string \| undefined>`                  | Display title — the address's first line, or the name                    |
+| `uischema`         | `ComputedRef<UISchemaElement \| undefined>`         | The form's UI definition, paired with `schema`                           |
+| `validationErrors` | `ComputedRef<ErrorObject[] \| undefined>`           | Field-level validation errors — read, never raised                       |
 
 > **🧪 For Testers:** `errors` and `validationErrors` are **state**, not events. Nothing is thrown at you and nothing is announced — a rejected save lands here and stays readable until the next operation supersedes it. `country` / `countries` / `regions` / `config` are the form's resolved dependencies, exposed for a consumer that wants to render its own country/region picker rather than relying on the editor's own `schema` / `uischema`.
 
@@ -273,27 +277,27 @@ Every member is read through the shared state helpers, so each is a `ComputedRef
 
 Eight flat flags — one computed per flag. There is no single `meta` object to unwrap; read `useMeta().isValid`, not `meta.value.isValid`.
 
-| Flag           | True when                                                          |
+| Flag           | True when                                                         |
 | -------------- | ----------------------------------------------------------------- |
-| `hasErrors`    | the editor captured an error                                       |
-| `isAvailable`  | the form is available for input                                    |
-| `isComplete`   | the address has been saved                                          |
-| `isDirty`      | the model differs from its persisted baseline                       |
-| `isLoading`    | the editor is waiting for its client id, or resolving its lookups   |
-| `isNew`        | the address is new — the editor carries no address id               |
-| `isProcessing` | a save is in flight                                                 |
-| `isValid`      | the current model passes schema validation                          |
+| `hasErrors`    | the editor captured an error                                      |
+| `isAvailable`  | the form is available for input                                   |
+| `isComplete`   | the address has been saved                                        |
+| `isDirty`      | the model differs from its persisted baseline                     |
+| `isLoading`    | the editor is waiting for its client id, or resolving its lookups |
+| `isNew`        | the address is new — the editor carries no address id             |
+| `isProcessing` | a save is in flight                                               |
+| `isValid`      | the current model passes schema validation                        |
 
 > **🧪 For Testers:** `isLoading` is `true` while the editor waits for its client id AND while it resolves country/region/brand-config lookups — all loading, not broken. `isNew` reads the editor's own address id, so a `.fresh()` draft reports `true` until its first successful save. `isDirty` can read `true` immediately after a clean save — see [gotchas.md](./gotchas.md#3-isdirty-reads-true-even-right-after-a-clean-save).
 
 ### Editor internals — `useInternals()`
 
 | Property     | Meaning                              |
-| ------------ | ---------------------------------------- |
-| `actorScope` | the resolved actor for this instance      |
-| `send`       | the raw event sender                      |
-| `service`    | the raw underlying service                 |
-| `state`      | the raw reactive state                     |
+| ------------ | ------------------------------------ |
+| `actorScope` | the resolved actor for this instance |
+| `send`       | the raw event sender                 |
+| `service`    | the raw underlying service           |
+| `state`      | the raw reactive state               |
 
 For debugging and tests. Not for production consumers.
 
@@ -301,7 +305,7 @@ For debugging and tests. Not for production consumers.
 
 ## The form definition — paste-ready
 
-The editor serves its form definition at runtime through **`useClientAddressManager().useContext().schema`** and **`.uischema`**. Separately, the barrel also exports two pure **schema fragments** — `useSchemaDefinitions()` and `useUischemaDefinitions()` — for a different module composing the address form's fields into a *parent* schema (a company form, a unified billing-details form). Those fragment functions take no scope, issue no request, and read no reactive state; they are not a second route to this module's own data, and a consumer rendering the address form itself always reads the editor's context instead.
+The editor serves its form definition at runtime through **`useClientAddressManager().useContext().schema`** and **`.uischema`**. Separately, the barrel also exports two pure **schema fragments** — `useSchemaDefinitions()` and `useUischemaDefinitions()` — for a different module composing the address form's fields into a _parent_ schema (a company form, a unified billing-details form). Those fragment functions take no scope, issue no request, and read no reactive state; they are not a second route to this module's own data, and a consumer rendering the address form itself always reads the editor's context instead.
 
 The two blocks below are the editor's own schema/uischema pair, rendered for a **brand-new address** (`id` undefined) with two example countries loaded and no regions fetched yet. Paste them into [jsonforms.io](https://jsonforms.io/examples/basic) — schema on the left, UI schema on the right — to see the rendered form.
 
@@ -326,9 +330,15 @@ The two blocks below are the editor's own schema/uischema pair, rendered for a *
         "countryId": {
           "type": "string",
           "title": "Country",
-          "enum": ["825d96e7-63ed-0913-46c4-174825283406", "another-country-id"],
+          "enum": [
+            "825d96e7-63ed-0913-46c4-174825283406",
+            "another-country-id"
+          ],
           "options": [
-            { "label": "Iceland", "value": "825d96e7-63ed-0913-46c4-174825283406" },
+            {
+              "label": "Iceland",
+              "value": "825d96e7-63ed-0913-46c4-174825283406"
+            },
             { "label": "United Kingdom", "value": "another-country-id" }
           ]
         }
@@ -482,7 +492,7 @@ Notes for the paste:
 - **`i18n: "form.address"` (and similar)** name translation keys. With no translator registered, a control falls back to the schema's `title` — so labels read their English defaults in the playground.
 - **The pair moves together.** A schema field with no matching control renders as a required-but-invisible input, which is why these two blocks are never edited apart.
 
-> **🧪 For Testers:** The barrel exposes no bare *parsed* schema-pair export for rendering the address form directly. The only supported way to obtain the form definition for **rendering** is the editor's context. `useSchemaDefinitions()` / `useUischemaDefinitions()` exist for a different job — composing the address fields into someone else's schema — not for a consumer that wants to render the address form on its own.
+> **🧪 For Testers:** The barrel exposes no bare _parsed_ schema-pair export for rendering the address form directly. The only supported way to obtain the form definition for **rendering** is the editor's context. `useSchemaDefinitions()` / `useUischemaDefinitions()` exist for a different job — composing the address fields into someone else's schema — not for a consumer that wants to render the address form on its own.
 
 ---
 
