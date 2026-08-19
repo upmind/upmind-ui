@@ -3,28 +3,36 @@
  * received emails"` against `graphify-out/graph.json` (2026-08-06) returns
  * exactly `SentEmail`, `SentEmailModel`, `SentEmailContext`, `SentEmailStatus`,
  * `ReceivedEmailsSortableProperties`, `ReceivedEmails`, `ReceivedEmailsProps`,
- * `ReceivedEmailsSortProps`. There is no `ReceivedEmailsContextTypes`, no
- * `ReceivedEmailContextTypes`, no `*_SCOPE_MATRIX` for this module — so each
- * construct minted below is new ground, not a duplicate of something already
- * exposed. `SentEmail` / `SentEmailModel` / `SentEmailStatus` /
- * `ReceivedEmailsSortableProperties` already exist and are consumed, never
- * re-minted. `ReceivedEmailItemQuery` aliases the platform's own `SimpleQuery`
- * — the criteria-bearing single-read handle — the same way
+ * `ReceivedEmailsSortProps`. `SentEmail` / `SentEmailModel` /
+ * `SentEmailStatus` / `ReceivedEmailsSortableProperties` already exist and are
+ * consumed, never re-minted. `ReceivedEmailItemQuery` aliases the platform's own
+ * `SimpleQuery` — the criteria-bearing single-read handle — the same way
  * `ReceivedEmailsListQuery` aliases `ListQuery`, never from `ReturnType<typeof
  * loadOne>`. The query-model family (`SentEmailQueryModel`,
  * `SentEmailSortEntry`, `SentEmailQuerySchema`, `SENT_EMAIL_DEFAULT_SORT`) is
  * new ground here, minted the same way the `client-email` sibling's cited
  * `QueryModel` family was — no prior node. See `graphify-out/GRAPH_REPORT.md`.
+ *
+ * The graph answering "no such construct exists" is licence to mint a NAME, not
+ * licence to mint a CONCEPT. A `ReceivedEmailContextTypes.EMAIL` was minted here
+ * on exactly that reading and has been removed (FE-3095): a scope context names
+ * an entity the actor ACTS UPON — ADR-001's set is `client`, `lead`,
+ * `contract`, `invoice`, `order`, `ticket`, all large entities — and a leaf
+ * record was never one. The single read marks its record with the builder's
+ * `.withId(id)` instead. An absent context enum is now the ANSWER for a
+ * single-record read, not a gap to fill.
  */
 // -----------------------------------------------------------------------------
 /**
  * @module client-email-history/client-email-history.types
  * @description Types for a client's own email history — the query-backed
  * collection (`useClientReceivedEmails`) and the query-backed single read
- * (`useClientReceivedEmail`). Each composable owns its own context enum and
- * scope matrix; the email model, the services contract and the mapper are
- * shared, which is what keeps ONE identity seam for both halves. The module
- * has no mutation surface (no form, no schema layer, no state machine).
+ * (`useClientReceivedEmail`). The COLLECTION owns a context enum and scope
+ * matrix, because whose history is read is a genuine actor context; the SINGLE
+ * READ owns neither, because which email is read is a record id (`.withId(id)`),
+ * not a context. The email model, the services contract and the mapper are
+ * shared, which is what keeps ONE identity seam for both halves. The module has
+ * no mutation surface (no form, no schema layer, no state machine).
  */
 
 import { AccessRoleTypes } from "@upmind-automation/types";
@@ -39,7 +47,10 @@ import type { SentEmailStatus } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
-// SCOPE — two matrices, one per composable
+// SCOPE — one matrix, for the COLLECTION only
+//
+// The single read has no matrix and no context enum: it marks its record with
+// `.withId(id)`. See this file's head `graphify-out/` citation.
 // -----------------------------------------------------------------------------
 
 /**
@@ -66,30 +77,6 @@ export const RECEIVED_EMAILS_SCOPE_MATRIX = {
 
 /** Scope matrix type for `useClientReceivedEmails` (derived from the runtime const). */
 export type ReceivedEmailsScopeMatrix = typeof RECEIVED_EMAILS_SCOPE_MATRIX;
-
-/**
- * Context types for the SINGLE read — which email is being read. The context
- * names the ENTITY, not its owner: the owning client falls through the same
- * `resolveClientId` seam as every other call.
- */
-export enum ReceivedEmailContextTypes {
-  /** Reading one existing email by id. */
-  EMAIL = "email"
-}
-
-/**
- * Scope matrix for `useClientReceivedEmail`. Separate from the collection's —
- * the two composables scope on different things and cannot share one.
- */
-export const RECEIVED_EMAIL_SCOPE_MATRIX = {
-  [ScopeActorTypes.SELF]: null as never,
-  [ScopeActorTypes.STAFF]: null as never,
-  [ScopeActorTypes.CLIENT]: ReceivedEmailContextTypes.EMAIL,
-  [ScopeActorTypes.GUEST]: null as never
-} as const;
-
-/** Scope matrix type for `useClientReceivedEmail` (derived from the runtime const). */
-export type ReceivedEmailScopeMatrix = typeof RECEIVED_EMAIL_SCOPE_MATRIX;
 
 // -----------------------------------------------------------------------------
 // SORTING

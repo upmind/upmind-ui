@@ -65,6 +65,42 @@ function createClientReceivedEmailsForScope(
 }
 // -----------------------------------------------------------------------------
 /**
+ * @decision
+ * what:     The COLLECTION keeps `RECEIVED_EMAILS_SCOPE_MATRIX` — its
+ *           `client -> ReceivedEmailsContextTypes.CLIENT` cell, and the
+ *           `null as never` cells for `staff` / `guest` / `self`. Only the
+ *           single read's matrix was deleted by FE-3095.
+ *
+ * why:      (1) The two composables scope on DIFFERENT things, which is why
+ *               only one of them was wrong. The single read's `email` cell
+ *               named a LEAF RECORD — never an ADR-001 context type — and a
+ *               record id belongs on `.withId(id)`. The collection's `client`
+ *               cell names a genuine ADR-001 context: whose history is read.
+ *           (2) The matrix's load-bearing content here is the REFUSAL, not
+ *               the cell. `staff` and `guest` are `null as never`, which makes
+ *               `.as('staff')` a compile-time error rather than an
+ *               advertised-but-absent capability — there is no
+ *               `clients/{id}/email_history` endpoint for a staff actor to be
+ *               given. Deleting the matrix would delete that refusal and
+ *               re-advertise a capability the wire does not have, which is the
+ *               FE-2824 shape this story is closing, inverted.
+ *
+ * rejected: Tighten the CLIENT cell to `null as never` too, on the grounds
+ *           that `self/email_history` takes no client id, so a
+ *           `.for('client', id)` retargets the cache key and the addressability
+ *           predicate but NOT the request url (design D1's documented
+ *           divergence). This is a real, separate mismatch — an offered
+ *           `.for()` the url does not honour — but resolving it is a call about
+ *           the COLLECTION's endpoint shape, not about the leaf-record-as-context
+ *           defect FE-3095 fixes. Changing it here would break `.as('client')`
+ *           for every current consumer inside a story that never analysed the
+ *           collection's wire. Left for the repo-wide audit FE-3095 deferred.
+ *
+ *           Also rejected: fold both composables onto ONE matrix. They scope on
+ *           different things, so one matrix could only serve both by widening to
+ *           whatever satisfies neither.
+ */
+/**
  * Scoped composable for a client's own received email history.
  *
  * @example

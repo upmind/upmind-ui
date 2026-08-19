@@ -48,9 +48,10 @@ export const queryKey: QueryKey = ["client", "emailHistory"];
  *
  * The collection's context names the CLIENT whose history is read; with no
  * context it falls back to the active session's own client (the self case).
- * The single read's context names the EMAIL, not its owner, so it falls
- * through to the session — correct, and the same fall-through
- * `client-email.services.ts` documents for `.for('email', id)`.
+ * The single read declares no context type at all — which email is read is a
+ * record id, carried by `.withId(id)` — so it takes the same fall-through and
+ * resolves the session's own client, which is correct: an email's owner is not
+ * the actor's scope.
  *
  * This compares the CONTEXT the scope builder resolved, never the actor, so
  * it is not a branch on `ScopeActorTypes.SELF` (variance-law clause 4).
