@@ -1,6 +1,6 @@
 # Module: module
 
-> **TEMPLATE — doctrine wins.** `docs-modules.md` + `docs-modules.companion.md` (ADR-019, the Contabo-workshop deliverable) are the authority; this skeleton and its named worked example are one worked example each, never a match target. A disagreement is a surfaced finding, never silently resolved toward either.
+> **TEMPLATE — doctrine wins.** `docs-modules.md` + `docs-modules.companion.md` (ADR-019) are the authority; this skeleton and its named worked example are one worked example each, never a match target. A disagreement is a surfaced finding, never silently resolved toward either.
 
 <!--
 @doctrine authored by the DOCUMENTER seat in the factory's Docs stage

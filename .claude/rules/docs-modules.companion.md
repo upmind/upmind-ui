@@ -9,7 +9,7 @@ paths:
 
 ## Deliverable & workflows
 
-- The rebuild deliverable is the **Contabo workshop** (per-module foundation doc, SDD, build-your-own guide).
+- The deliverable is a **framework-agnostic module reference set** (per-module foundation doc, SDD, build-your-own guide).
 - The audience does not know **Upmind**.
 - Workflows: `/docs` (the module docs factory — its delta mode, was `/story-docs`, defines *when*) and `/docs-review` (module/foundation lane).
 
