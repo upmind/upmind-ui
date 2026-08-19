@@ -1,173 +1,294 @@
 #!/usr/bin/env python3
 """
-graphify-postprocess.py — corrects graphify edges for the Upmind monorepo.
+resolver.py — fix the import edges graphify's AST extractor drops.
 
-graphify's AST extractor has three failures that drop cross-package edges:
-  1. TS path aliases like `@upmind-automation/headless` get collapsed to bare
-     `headless` (no such node exists -> edge dropped).
-  2. Relative imports `../system` get concatenated into the file's own
-     directory path (wrong target -> edge dropped).
-  3. Vue files: <script>/<script setup> imports aren't always parsed.
+GENERIC and zero-config: reads the repo's own tsconfig `paths` at runtime
+(so it adapts to whatever each repo declares — `@agentic-tutor/*` in one,
+`@upmind-automation/*` in another) and resolves three classes of import the
+AST extractor mangles or misses:
 
-This script:
-  - Reads graphify-out/.graphify_ast.json (raw AST output, run resolver right
-    after AST extraction and before graph build).
-  - Walks every source file under packages/* and apps/*, extracting <script>
-    blocks for .vue files and applying a strict TS import regex.
-  - Resolves each import via:
-      * @upmind-automation/X package aliases (from tsconfig.json paths)
-      * @/ aliases (package-internal)
-      * Relative paths (./foo, ../bar) with proper extension/index resolution
-  - For barrel imports (`{ useBasket } from '@upmind-automation/headless'`),
-    resolves each named binding via a symbol index built by walking exports.
-  - Replaces all `imports_from` edges with these resolved ones (keeps
-    `contains` and other edges).
-  - Drops INFERRED cross-package edges produced by the semantic extractor
-    (those were filling the gap the AST left; we now have real edges).
-  - Writes graphify-out/.graphify_ast_resolved.json.
+  1. Relative imports — especially the ESM/NodeNext convention where a `.js`
+     specifier points at a `.ts` source (`import x from "./foo.js"` → foo.ts).
+     This is the single biggest edge-dropper for modern TS backends.
+  2. TS path-alias / barrel imports — `{ Foo } from "@pkg"` collapses to a bare
+     name and the edge is dropped. We build a symbol index over each aliased
+     package's exports and resolve every named binding to its real source file.
+  3. Vue `.vue` files — graphify doesn't reliably parse `<script>` / `<script
+     setup>` blocks, so component imports vanish. We extract the script bodies
+     and, because Vue components are referenced in PascalCase but their files
+     and kebab forms differ, the symbol index registers both casings.
 
-Run from monorepo root:
-  python3 .claude/scripts/graphify/resolver.py
+Pipeline position: run AFTER AST extraction, BEFORE graph build. Reads
+graphify-out/.graphify_ast.json, writes .graphify_ast_resolved.json with the
+broken `imports_from` edges replaced by correctly-resolved ones.
+
+Run from the repo root:
+  python3 .claude/.shared/scripts/graphify/resolver.py
 """
 from __future__ import annotations
 
 import json
+import os
 import re
+import subprocess
 import sys
 from collections import defaultdict
 from pathlib import Path
 
-import subprocess as _sp
-ROOT = Path(_sp.check_output(["git", "rev-parse", "--show-toplevel"], text=True).strip())
+# ROOT is the graph's scope root. Default = git toplevel (whole repo); a
+# package-scoped build (refresh.sh --scope <dir>) exports GRAPHIFY_ROOT=<dir>
+# so every path (AST location, tsconfig discovery, edge keys) is scoped to it.
+_env_root = os.environ.get("GRAPHIFY_ROOT")
+ROOT = Path(_env_root).resolve() if _env_root else Path(
+    subprocess.check_output(["git", "rev-parse", "--show-toplevel"], text=True).strip())
 
-# -----------------------------------------------------------------------------
-# Config: tsconfig path aliases
+EXTENSIONS = [".ts", ".tsx", ".mts", ".cts", ".vue", ".js", ".jsx", ".mjs", ".cjs"]
+# ESM specifiers ending in these are rewritten to their TS source on resolve.
+JS_TO_TS = {".js": ".ts", ".mjs": ".mts", ".cjs": ".cts", ".jsx": ".tsx"}
+SKIP_NAME = (".spec.", ".test.", ".stories.", ".no-test.", ".d.ts")
 
-PACKAGE_ALIASES = {
-    "@upmind-automation/types": "packages/types/src/index.ts",
-    "@upmind-automation/i18n": "packages/i18n/src/index.ts",
-    "@upmind-automation/headless": "packages/headless/src/index.ts",
-    "@upmind-automation/upmind-ui": "packages/ui/src/index.ts",
-    "@upmind-automation/client-vue": "packages/client-vue/src/index.ts",
-    "@upmind-automation/icons": "packages/icons/src/index.ts",
-}
-
-# `@/` resolves to each package/app's source root.
-PACKAGE_AT_ROOTS = {
-    "packages/headless": "packages/headless/src",
-    "packages/ui": "packages/ui/src",
-    "packages/client-vue": "packages/client-vue/src",
-    "packages/types": "packages/types/src",
-    "packages/i18n": "packages/i18n/src",
-    "packages/icons": "packages/icons/src",
-    "apps/cart": "apps/cart/src",
-    "apps/cart-nuxt": "apps/cart-nuxt/app",
-    "apps/hosting": "apps/hosting/src",
-    "apps/velia": "apps/velia/src",
-}
-
-# Map alias -> package root (for symbol index lookup)
-ALIAS_TO_PACKAGE = {
-    "@upmind-automation/types": "packages/types",
-    "@upmind-automation/i18n": "packages/i18n",
-    "@upmind-automation/headless": "packages/headless",
-    "@upmind-automation/upmind-ui": "packages/ui",
-    "@upmind-automation/client-vue": "packages/client-vue",
-    "@upmind-automation/icons": "packages/icons",
-}
-
-EXTENSIONS = [".ts", ".tsx", ".vue", ".js", ".jsx", ".mjs"]
-
-# -----------------------------------------------------------------------------
-# Regex patterns
-
-# Strict import statement. Captures the binding clause so we know what was imported.
 IMPORT_RE = re.compile(
-    r"^\s*import\s+"
-    r"(?:type\s+)?"
-    r"(?P<bindings>"
-    r"\{[^}]*\}"
-    r"(?:\s*,\s*[A-Za-z_$][\w$]*)?"
-    r"|[A-Za-z_$][\w$]*"
-    r"(?:\s*,\s*\{[^}]*\})?"
-    r"|\*\s+as\s+[A-Za-z_$][\w$]*"
-    r")"
-    r"\s+from\s+['\"]"
-    r"(?P<path>[^'\"]+)"
-    r"['\"]",
+    r"^\s*import\s+(?:type\s+)?"
+    r"(?P<bindings>\{[^}]*\}(?:\s*,\s*[A-Za-z_$][\w$]*)?"
+    r"|[A-Za-z_$][\w$]*(?:\s*,\s*\{[^}]*\})?"
+    r"|\*\s+as\s+[A-Za-z_$][\w$]*)"
+    r"\s+from\s+['\"](?P<path>[^'\"]+)['\"]",
     re.MULTILINE,
 )
-
-# Side-effect imports: `import "./foo"`
-SIDE_IMPORT_RE = re.compile(
-    r"""^\s*import\s+['"](?P<path>[^'"]+)['"]\s*;?\s*$""",
-    re.MULTILINE,
-)
-
-# Dynamic imports: `import("...")` (not `import.meta.glob` etc.)
+SIDE_IMPORT_RE = re.compile(r"""^\s*import\s+['"](?P<path>[^'"]+)['"]\s*;?\s*$""", re.MULTILINE)
 DYNAMIC_IMPORT_RE = re.compile(r"""import\s*\(\s*['"]([^'"]+)['"]\s*\)""")
-
-# Vue <script> and <script setup> blocks
+EXPORT_FROM_RE = re.compile(
+    r"""^\s*export\s+(?:type\s+)?(?:\{[^}]*\}|\*(?:\s+as\s+[\w$]+)?)\s+from\s+['"](?P<path>[^'"]+)['"]""",
+    re.MULTILINE,
+)
+# Vue <script> and <script setup> blocks.
 SCRIPT_RE = re.compile(r"<script[^>]*>(.*?)</script>", re.DOTALL)
 
-# Export declarations - for building the symbol index
 EXPORT_DECL_RE = re.compile(
-    r"""^\s*export\s+"""
-    r"""(?:async\s+)?"""
-    r"""(?:default\s+)?"""
+    r"""^\s*export\s+(?:async\s+)?(?:default\s+)?"""
     r"""(?:function\*?|const|let|var|class|interface|type|enum|abstract\s+class)"""
     r"""\s+(?P<name>[A-Za-z_$][\w$]*)""",
     re.MULTILINE,
 )
-EXPORT_NAMED_RE = re.compile(
-    r"""^\s*export\s+\{(?P<names>[^}]+)\}""",
-    re.MULTILINE,
-)
-EXPORT_DEFAULT_RE = re.compile(
-    r"""^\s*export\s+default\s+(?:function\*?\s+)?(?P<name>[A-Za-z_$][\w$]*)""",
-    re.MULTILINE,
-)
+EXPORT_NAMED_RE = re.compile(r"""^\s*export\s+(?:type\s+)?\{(?P<names>[^}]+)\}""", re.MULTILINE)
+EXPORT_DEFAULT_RE = re.compile(r"""^\s*export\s+default\s+(?:function\*?\s+)?(?P<name>[A-Za-z_$][\w$]*)""", re.MULTILINE)
 
 
-# -----------------------------------------------------------------------------
-# Helpers
-
-def extract_script_body(text: str, suffix: str) -> str:
-    """For .vue files, return concatenated <script> bodies. For others, full text."""
-    if suffix != ".vue":
-        return text
-    blocks = SCRIPT_RE.findall(text)
-    return "\n".join(blocks) if blocks else ""
+def kebab(name: str) -> str:
+    return re.sub(r"(?<!^)(?=[A-Z])", "-", name).lower()
 
 
-def find_package(file_path: Path) -> str | None:
-    """Return the package/app root (e.g. 'packages/headless') a file belongs to."""
-    try:
-        rel = file_path.relative_to(ROOT) if file_path.is_absolute() else file_path
-    except ValueError:
-        return None
-    parts = rel.parts
-    if len(parts) >= 2:
-        candidate = f"{parts[0]}/{parts[1]}"
-        if candidate in PACKAGE_AT_ROOTS:
+# ----------------------------------------------------------------------------- config (generic)
+
+def strip_jsonc(text: str) -> str:
+    """Strip // and /* */ comments — but string-aware, so `/*` and `*/` that
+    appear *inside* path strings (e.g. "@scope/*": ["./packages/*/src"]) are
+    left untouched."""
+    out: list[str] = []
+    i, n, in_str = 0, len(text), False
+    while i < n:
+        c = text[i]
+        if in_str:
+            out.append(c)
+            if c == "\\" and i + 1 < n:
+                out.append(text[i + 1]); i += 2; continue
+            if c == '"':
+                in_str = False
+            i += 1; continue
+        if c == '"':
+            in_str = True; out.append(c); i += 1; continue
+        if c == "/" and i + 1 < n and text[i + 1] == "/":
+            while i < n and text[i] != "\n":
+                i += 1
+            continue
+        if c == "/" and i + 1 < n and text[i + 1] == "*":
+            i += 2
+            while i + 1 < n and not (text[i] == "*" and text[i + 1] == "/"):
+                i += 1
+            i += 2; continue
+        out.append(c); i += 1
+    return re.sub(r",(\s*[}\]])", r"\1", "".join(out))  # trailing commas
+
+
+def load_aliases() -> list[tuple[str, list[str]]]:
+    """Discover every tsconfig `paths` mapping in the repo. Returns a list of
+    (pattern, [target_templates]); targets are repo-root-relative."""
+    aliases: list[tuple[str, list[str]]] = []
+    seen: set[str] = set()
+    for cfg in ROOT.rglob("tsconfig*.json"):
+        if "node_modules" in cfg.parts:
+            continue
+        try:
+            data = json.loads(strip_jsonc(cfg.read_text(errors="ignore")))
+        except Exception:
+            continue
+        for pattern, targets in ((data.get("compilerOptions") or {}).get("paths") or {}).items():
+            if pattern in seen or not isinstance(targets, list):
+                continue
+            seen.add(pattern)
+            aliases.append((pattern, [t[2:] if t.startswith("./") else t for t in targets]))
+    return aliases
+
+
+def package_src_roots(aliases) -> list[Path]:
+    """Real source roots an alias points into (expanding `*` globs). Used to scope
+    the symbol-index walk to package code rather than the whole repo."""
+    roots: list[Path] = []
+    for _, targets in aliases:
+        for tmpl in targets:
+            if "*" in tmpl:
+                prefix = tmpl.split("*", 1)[0]
+                tail = tmpl.split("*", 1)[1]
+                for d in ROOT.glob(prefix + "*" + tail):
+                    if d.is_dir():
+                        roots.append(d)
+            else:
+                p = ROOT / tmpl
+                if p.is_dir():
+                    roots.append(p)
+                elif p.parent.is_dir():
+                    roots.append(p.parent)
+    # de-dupe, keep order
+    out, seen = [], set()
+    for r in roots:
+        if r not in seen:
+            seen.add(r)
+            out.append(r)
+    return out
+
+
+def _tsconfig_dirs(pkgdir: Path) -> tuple[str | None, str | None]:
+    """(rootDir, outDir) from a package's own tsconfig.json, following `extends`.
+
+    Read rather than assumed: a Nuxt app roots at `app/`, a library at `src/`,
+    and a package with `rootDir: "."` roots at itself. Guessing `src/` silently
+    drops every edge into the packages that do not use it.
+    """
+    seen: set[Path] = set()
+    cfg = pkgdir / "tsconfig.json"
+    root_dir = out_dir = None
+    while cfg.is_file() and cfg not in seen:
+        seen.add(cfg)
+        try:
+            data = json.loads(strip_jsonc(cfg.read_text(errors="ignore")))
+        except Exception:
+            break
+        co = data.get("compilerOptions") or {}
+        root_dir = root_dir or co.get("rootDir")
+        out_dir = out_dir or co.get("outDir")
+        if root_dir and out_dir:
+            break
+        ext = data.get("extends")
+        if not isinstance(ext, str):
+            break
+        cfg = (cfg.parent / ext).resolve()
+    return root_dir, out_dir
+
+
+def package_src_root(pkgdir: Path) -> Path:
+    """The directory a package's source actually lives in."""
+    root_dir, _ = _tsconfig_dirs(pkgdir)
+    if root_dir:
+        candidate = (pkgdir / root_dir).resolve()
+        if candidate.is_dir():
             return candidate
-    return None
+    for conventional in ("src", "app"):
+        if (pkgdir / conventional).is_dir():
+            return pkgdir / conventional
+    return pkgdir
+
+
+def _desugar_build_subpath(subpath: str, pkgdir: Path) -> str | None:
+    """Rewrite a subpath that points into build output back onto source.
+
+    `@scope/pkg/dist/worktree.js` is a real import in this repo. `dist/` is
+    excluded from the graph, so the edge dies unless outDir is swapped for
+    rootDir and the emitted extension is swapped for its TS source.
+    """
+    root_dir, out_dir = _tsconfig_dirs(pkgdir)
+    if not out_dir:
+        return None
+    out_rel = out_dir.lstrip("./").rstrip("/")
+    if not out_rel or not (subpath == out_rel or subpath.startswith(out_rel + "/")):
+        return None
+    tail = subpath[len(out_rel):].lstrip("/")
+    for emitted, source in JS_TO_TS.items():
+        if tail.endswith(emitted):
+            tail = tail[: -len(emitted)] + source
+            break
+    return tail or None
+
+
+def load_workspace_packages() -> list[tuple[str, Path, Path]]:
+    """Map every workspace package's package.json `name` → (name, pkg dir, src root).
+
+    Modern pnpm/npm monorepos import sibling packages by their published name
+    (`@scope/pkg`) resolved via workspace symlinks — NOT via tsconfig `paths`.
+    graphify's AST extractor drops these (bare specifier → external), so without
+    this the whole monorepo graph has zero cross-package edges. Generic: reads
+    pnpm-workspace.yaml globs (falls back to apps/*, packages/*) and each
+    package.json name — no hardcoded scope."""
+    globs: list[str] = []
+    ws = ROOT / "pnpm-workspace.yaml"
+    if ws.is_file():
+        in_pkgs = False
+        for line in ws.read_text(errors="ignore").splitlines():
+            if re.match(r"^\s*packages\s*:", line):
+                in_pkgs = True
+                continue
+            if in_pkgs:
+                m = re.match(r"""^\s*-\s*['"]?([^'"#\s]+)['"]?""", line)
+                if m:
+                    globs.append(m.group(1))
+                elif line.strip() and not line.startswith((" ", "\t")):
+                    break  # next top-level key
+    if not globs:
+        globs = ["apps/*", "packages/*"]
+
+    seen_dir: set[Path] = set()
+    out: list[tuple[str, Path, Path]] = []
+    for g in globs:
+        if g.startswith("!"):
+            continue
+        for d in ROOT.glob(g):
+            if not d.is_dir() or d in seen_dir:
+                continue
+            pj = d / "package.json"
+            if not pj.is_file():
+                continue
+            try:
+                name = json.loads(pj.read_text(errors="ignore")).get("name")
+            except Exception:
+                name = None
+            if not name:
+                continue
+            seen_dir.add(d)
+            out.append((name, d, package_src_root(d)))
+    return out
+
+
+# ----------------------------------------------------------------------------- file resolution
+
+def extract_body(path: Path, text: str) -> str:
+    if path.suffix != ".vue":
+        return text
+    return "\n".join(SCRIPT_RE.findall(text))
 
 
 def resolve_file(candidate: Path) -> Path | None:
-    """Resolve a path-without-extension to an actual file.
-
-    Tries candidate as-is, then candidate + each extension,
-    then candidate/index.{ext}.
-    """
     if candidate.is_file():
         return candidate
-    # Try candidate + extension
+    # ESM: "./foo.js" but the source is foo.ts.
+    if candidate.suffix in JS_TO_TS:
+        stem = candidate.with_suffix("")
+        for ext in (JS_TO_TS[candidate.suffix], ".ts", ".tsx", ".mts", ".cts", ".vue"):
+            p = stem.parent / (stem.name + ext)
+            if p.is_file():
+                return p
     for ext in EXTENSIONS:
-        with_ext = candidate.parent / (candidate.name + ext)
-        if with_ext.is_file():
-            return with_ext
-    # Try candidate as directory with /index.ext
+        p = candidate.parent / (candidate.name + ext)
+        if p.is_file():
+            return p
     if candidate.is_dir():
         for ext in EXTENSIONS:
             idx = candidate / f"index{ext}"
@@ -176,14 +297,11 @@ def resolve_file(candidate: Path) -> Path | None:
     return None
 
 
-def extract_binding_names(bindings: str) -> tuple[list[str], bool]:
-    """Pull all identifier names from an import binding clause.
+# ----------------------------------------------------------------------------- symbol index (barrel + Vue)
 
-    Returns (names, is_namespace_import).
-    Namespace imports `* as X` don't reveal which specific symbols are used,
-    so we can't resolve them to specific files.
-    """
-    if "*" in bindings and "as" in bindings:
+def extract_binding_names(bindings: str) -> tuple[list[str], bool]:
+    """Identifiers from an import clause. (names, is_namespace_import)."""
+    if "*" in bindings and " as " in bindings:
         return [], True
     names: list[str] = []
     brace = re.search(r"\{([^}]*)\}", bindings)
@@ -192,341 +310,291 @@ def extract_binding_names(bindings: str) -> tuple[list[str], bool]:
             item = item.strip()
             if not item:
                 continue
-            # `foo as bar` -> use `foo` (the original export name)
-            original = re.split(r"\s+as\s+", item)[0].strip()
-            original = re.sub(r"^type\s+", "", original)
+            original = re.sub(r"^type\s+", "", re.split(r"\s+as\s+", item)[0].strip())
             if original:
                 names.append(original)
-    # Default import outside the braces
-    outside = re.sub(r"\{[^}]*\}", "", bindings).strip().rstrip(",").strip()
+    outside = re.sub(r"\{[^}]*\}", "", bindings).strip().strip(",").strip()
     for tok in outside.split(","):
         tok = tok.strip()
-        if not tok or tok.startswith("*"):
-            continue
-        names.append(tok)
+        if tok and not tok.startswith("*"):
+            names.append(tok)
     return names, False
 
 
-# -----------------------------------------------------------------------------
-# Symbol index: maps {package -> {export_name -> source_file_path}}
-
-def build_symbol_index() -> dict[str, dict[str, str]]:
-    """Walk every TS/Vue source file under packages/* and apps/* and record
-    the source file for each top-level export.
-
-    Returns: {package_root: {symbol_name: source_file_relative_to_root}}
-    """
-    index: dict[str, dict[str, str]] = defaultdict(dict)
-
-    for pkg in PACKAGE_AT_ROOTS:
-        src_root = ROOT / PACKAGE_AT_ROOTS[pkg]
-        if not src_root.exists():
-            continue
-        for f in src_root.rglob("*"):
+def build_symbol_index(roots: list[Path]) -> dict[Path, dict[str, str]]:
+    """For each package src root, map every exported symbol → its source file
+    (repo-relative). Vue components are registered under both PascalCase and
+    kebab-case so either import style resolves."""
+    index: dict[Path, dict[str, str]] = defaultdict(dict)
+    for root in roots:
+        for f in root.rglob("*"):
             if not f.is_file() or f.suffix not in EXTENSIONS:
                 continue
-            if "node_modules" in f.parts or "dist" in f.parts:
-                continue
-            if any(p in f.name for p in (".spec.", ".test.", ".no-test.", ".stories.")):
+            if "node_modules" in f.parts or "dist" in f.parts or any(s in f.name for s in SKIP_NAME):
                 continue
             try:
-                text = f.read_text(errors="ignore")
+                body = extract_body(f, f.read_text(errors="ignore"))
             except Exception:
                 continue
-            body = extract_script_body(text, f.suffix)
-
             rel = str(f.relative_to(ROOT))
-
+            names: set[str] = set()
             for m in EXPORT_DECL_RE.finditer(body):
-                name = m.group("name")
-                index[pkg].setdefault(name, rel)
+                names.add(m.group("name"))
             for m in EXPORT_DEFAULT_RE.finditer(body):
-                name = m.group("name")
-                # Default export still uses its declared name as the symbol
-                index[pkg].setdefault(name, rel)
+                names.add(m.group("name"))
             for m in EXPORT_NAMED_RE.finditer(body):
                 for item in m.group("names").split(","):
                     item = item.strip()
-                    if not item:
-                        continue
-                    # `{ foo as bar }` exports `bar`; the consumer imports `bar`
-                    parts = re.split(r"\s+as\s+", item)
-                    exported_name = parts[-1].strip()
-                    exported_name = re.sub(r"^type\s+", "", exported_name)
-                    if exported_name:
-                        index[pkg].setdefault(exported_name, rel)
-
+                    if item:
+                        names.add(re.sub(r"^type\s+", "", re.split(r"\s+as\s+", item)[-1].strip()))
+            # A .vue file IS a component export under its PascalCase stem.
+            if f.suffix == ".vue" and f.stem[:1].isupper():
+                names.add(f.stem)
+            for name in names:
+                index[root].setdefault(name, rel)
+                if name[:1].isupper():  # register kebab form for Vue components
+                    index[root].setdefault(kebab(name), rel)
     return dict(index)
 
 
-# -----------------------------------------------------------------------------
-# Import resolution
+# ----------------------------------------------------------------------------- import resolution
 
-def resolve_import(
-    import_str: str,
-    source_file: Path,
-    symbol_names: list[str],
-    is_namespace_import: bool,
-    symbol_index: dict[str, dict[str, str]],
-) -> list[Path]:
-    """Resolve an import specifier to one or more concrete file paths.
-
-    For barrel imports with named bindings, attempts to resolve each binding
-    to its actual source file via the symbol index. Returns multiple paths
-    when an import pulls names from different files.
-    """
-    # Cross-package alias (exact match, e.g. `@upmind-automation/headless`)
-    if import_str in PACKAGE_ALIASES:
-        pkg = ALIAS_TO_PACKAGE.get(import_str)
-        if pkg and symbol_names and not is_namespace_import:
-            resolved = []
-            unresolved_names = []
-            for name in symbol_names:
-                src = symbol_index.get(pkg, {}).get(name)
-                if src:
-                    p = ROOT / src
-                    if p.exists():
-                        resolved.append(p)
-                else:
-                    unresolved_names.append(name)
-            if resolved:
-                # If some names couldn't be resolved, also link to the barrel
-                if unresolved_names:
-                    barrel = resolve_file(ROOT / PACKAGE_ALIASES[import_str])
-                    if barrel:
-                        resolved.append(barrel)
-                return resolved
-        # Namespace import or unresolved names -> link to the barrel
-        barrel = resolve_file(ROOT / PACKAGE_ALIASES[import_str])
-        return [barrel] if barrel else []
-
-    # Sub-path of a package alias, e.g. `@upmind-automation/types/oauth`
-    for alias, barrel_path in PACKAGE_ALIASES.items():
-        if import_str.startswith(alias + "/"):
-            sub = import_str[len(alias) + 1:]
-            base = (ROOT / barrel_path).parent
-            target = resolve_file(base / sub)
-            return [target] if target else []
-
-    # `@/` alias -> package's src/ root
-    if import_str.startswith("@/"):
-        pkg = find_package(source_file)
-        if pkg:
-            base = ROOT / PACKAGE_AT_ROOTS[pkg]
-            target = resolve_file(base / import_str[2:])
-            return [target] if target else []
-        return []
-
-    # Relative import
-    if import_str.startswith("."):
+def owning_root(path: Path, roots: list[Path]) -> Path | None:
+    for r in roots:
         try:
-            target = (source_file.parent / import_str).resolve(strict=False)
-        except Exception:
-            return []
-        resolved = resolve_file(target)
-        return [resolved] if resolved else []
+            path.relative_to(r)
+            return r
+        except ValueError:
+            continue
+    return None
 
-    # Bare module specifier (vue, xstate, lodash-es, etc.) -> external
+
+def resolve_alias(spec: str, source: Path, names: list[str], is_ns: bool,
+                  aliases, roots, index) -> list[Path]:
+    """Resolve an aliased specifier to one or more files. For barrel imports we
+    resolve each named binding via the symbol index; otherwise the barrel file."""
+    for pattern, targets in aliases:
+        captured = None
+        if "*" in pattern:
+            prefix, _, suffix = pattern.partition("*")
+            if not (spec.startswith(prefix) and spec.endswith(suffix)
+                    and len(spec) >= len(prefix) + len(suffix)):
+                continue
+            captured = spec[len(prefix): len(spec) - len(suffix) if suffix else None]
+        elif spec != pattern:
+            continue
+
+        for tmpl in targets:
+            target_str = tmpl.replace("*", captured) if captured is not None else tmpl
+            base = ROOT / target_str
+            # `@/` style — relative to the importing file's own package root.
+            if pattern.startswith("@/") and (r := owning_root(source, roots)):
+                base = r / (captured or "")
+            # Barrel: resolve each named binding to its file via the symbol index.
+            if names and not is_ns:
+                root_key = next((r for r in roots if str(base).startswith(str(r))), None) \
+                    or (base if base.is_dir() else base.parent)
+                resolved, missing = [], False
+                for nm in names:
+                    src = index.get(root_key, {}).get(nm)
+                    if src and (ROOT / src).exists():
+                        resolved.append(ROOT / src)
+                    else:
+                        missing = True
+                if resolved:
+                    if missing and (barrel := resolve_file(base)):
+                        resolved.append(barrel)
+                    return resolved
+            if (r := resolve_file(base)):
+                return [r]
     return []
 
 
-# -----------------------------------------------------------------------------
-# Edge generation
+def resolve_index(directory: Path) -> Path | None:
+    for ext in EXTENSIONS:
+        idx = directory / f"index{ext}"
+        if idx.is_file():
+            return idx
+    return None
 
-def parse_edges(
-    file_node: dict[str, str],
-    symbol_index: dict[str, dict[str, str]],
-) -> tuple[list[dict], dict[str, int]]:
-    """Walk all source files, parse imports, emit resolved edges.
 
-    Returns (edges, stats).
-    """
-    edges: list[dict] = []
-    stats = defaultdict(int)
-    cross_pkg: dict[tuple[str, str], int] = defaultdict(int)
-
-    for sf, source_nid in file_node.items():
-        path = ROOT / sf
-        if not path.exists() or not path.is_file():
+def resolve_workspace(spec, names, is_ns, ws_packages, index) -> list[Path]:
+    """Resolve a workspace-package import (`@scope/pkg` or `@scope/pkg/subpath`)
+    to real source files. Barrel imports resolve each named binding via the
+    symbol index over the package's src root; subpaths resolve directly; anything
+    unresolved falls back to the package's index (still a real cross-package edge)."""
+    for name, pkgdir, src_root in ws_packages:
+        if spec == name:
+            subpath = ""
+        elif spec.startswith(name + "/"):
+            subpath = spec[len(name) + 1:]
+        else:
             continue
-        try:
-            text = path.read_text(errors="ignore")
-        except Exception:
-            continue
-        body = extract_script_body(text, path.suffix)
-        if not body:
-            stats["files_skipped_no_script"] += 1
-            continue
-
-        src_pkg = find_package(path)
-
-        # Standard import statements (with bindings)
-        for m in IMPORT_RE.finditer(body):
-            bindings = m.group("bindings")
-            spec = m.group("path")
-            names, is_ns = extract_binding_names(bindings)
-            targets = resolve_import(spec, path, names, is_ns, symbol_index)
-
-            if not targets:
-                if spec.startswith(".") or spec.startswith("@/") or spec.startswith("@upmind-automation/"):
-                    stats["unresolved"] += 1
+        if subpath:
+            candidates = [src_root / subpath, pkgdir / subpath]
+            if (desugared := _desugar_build_subpath(subpath, pkgdir)):
+                candidates.insert(0, src_root / desugared)
+            for base in candidates:
+                if (r := resolve_file(base)):
+                    return [r]
+            return [b] if (b := resolve_index(src_root)) else []
+        if names and not is_ns:
+            resolved, missing = [], False
+            for nm in names:
+                src = index.get(src_root, {}).get(nm)
+                if src and (ROOT / src).exists():
+                    resolved.append(ROOT / src)
                 else:
-                    stats["external"] += 1
-                continue
-
-            for tp in targets:
-                try:
-                    target_rel = str(tp.relative_to(ROOT))
-                except ValueError:
-                    stats["unresolved"] += 1
-                    continue
-                target_nid = file_node.get(target_rel)
-                if not target_nid:
-                    stats["resolved_but_no_node"] += 1
-                    continue
-                if target_nid == source_nid:
-                    continue
-                edges.append({
-                    "source": source_nid,
-                    "target": target_nid,
-                    "relation": "imports_from",
-                    "confidence": "EXTRACTED",
-                    "confidence_score": 1.0,
-                    "source_file": sf,
-                    "weight": 1.0,
-                })
-                stats["resolved"] += 1
-                tgt_pkg = find_package(tp)
-                if src_pkg and tgt_pkg and src_pkg != tgt_pkg:
-                    cross_pkg[(src_pkg, tgt_pkg)] += 1
-
-        # Side-effect and dynamic imports (no bindings)
-        for pattern in (SIDE_IMPORT_RE, DYNAMIC_IMPORT_RE):
-            for m in pattern.finditer(body):
-                spec = m.group(1) if pattern is DYNAMIC_IMPORT_RE else m.group("path")
-                targets = resolve_import(spec, path, [], False, symbol_index)
-                for tp in targets:
-                    try:
-                        target_rel = str(tp.relative_to(ROOT))
-                    except ValueError:
-                        continue
-                    target_nid = file_node.get(target_rel)
-                    if not target_nid or target_nid == source_nid:
-                        continue
-                    edges.append({
-                        "source": source_nid,
-                        "target": target_nid,
-                        "relation": "imports_from",
-                        "confidence": "EXTRACTED",
-                        "confidence_score": 1.0,
-                        "source_file": sf,
-                        "weight": 1.0,
-                    })
-                    stats["resolved"] += 1
-
-    stats["cross_pkg_pairs"] = len(cross_pkg)
-    # Stash the pair counts for the report
-    stats["_cross_pkg"] = cross_pkg
-    return edges, stats
+                    missing = True
+            if resolved:
+                if missing and (b := resolve_index(src_root)):
+                    resolved.append(b)
+                return resolved
+        return [b] if (b := resolve_index(src_root)) else []
+    return []
 
 
-# -----------------------------------------------------------------------------
-# Main
+def resolve_spec(spec, source, names, is_ns, aliases, roots, index, ws_packages) -> list[Path]:
+    if spec.startswith("."):
+        try:
+            r = resolve_file((source.parent / spec).resolve(strict=False))
+            return [r] if r else []
+        except Exception:
+            return []
+    # Workspace-package import (@scope/pkg) — resolved by package.json name.
+    if (r := resolve_workspace(spec, names, is_ns, ws_packages, index)):
+        return r
+    if spec.startswith("@") or "/" in spec:
+        return resolve_alias(spec, source, names, is_ns, aliases, roots, index)
+    return []  # bare external module
+
+
+
+def build_symbol_node_index(nodes: list[dict]) -> dict[tuple[str, str], str]:
+    """(source_file, bare symbol name) -> node id, over the AST's symbol nodes.
+
+    Needed because the file->file `imports_from` edge this resolver emits is
+    invisible to a symbol query: `graphify query "who calls X()"` walks edges
+    incident on the X() SYMBOL node. Without a file->symbol edge the resolved
+    cross-package caller is in the graph and unreachable from the function.
+    Labels carry a `()` suffix for callables, so match on the bare name.
+    """
+    idx: dict[tuple[str, str], str] = {}
+    for n in nodes:
+        sf, label = n.get("source_file"), (n.get("label") or "")
+        if not sf or not label or label.endswith(tuple(EXTENSIONS)):
+            continue
+        bare = label[:-2] if label.endswith("()") else label
+        idx.setdefault((sf, bare), n["id"])
+    return idx
+
+
+# ----------------------------------------------------------------------------- main
 
 def main() -> int:
     ast_path = ROOT / "graphify-out/.graphify_ast.json"
     if not ast_path.exists():
-        print(f"ERROR: {ast_path} not found. Re-run AST extraction first.", file=sys.stderr)
+        print(f"resolver: {ast_path} not found — run AST extraction first", file=sys.stderr)
         return 1
 
-    print("Loading AST output...")
     ast = json.loads(ast_path.read_text())
-    nodes = ast["nodes"]
-    edges = ast["edges"]
+    nodes, edges = ast["nodes"], ast["edges"]
 
-    # Index file-level nodes by source_file. Prefer entries whose label ends in an extension.
     file_node: dict[str, str] = {}
     for n in nodes:
         sf = n.get("source_file")
         if not sf:
             continue
-        label = n.get("label", "")
-        is_file_label = any(label.endswith(ext) for ext in EXTENSIONS)
-        if is_file_label or sf not in file_node:
-            if sf not in file_node or is_file_label:
-                file_node[sf] = n["id"]
-    print(f"  {len(file_node)} file-level nodes indexed")
+        is_file = any((n.get("label", "") or "").endswith(e) for e in EXTENSIONS)
+        if sf not in file_node or is_file:
+            file_node[sf] = n["id"]
 
-    # Preserve non-import edges
+    aliases = load_aliases()
+    ws_packages = load_workspace_packages()
+    roots = package_src_roots(aliases)
+    # The symbol index must also cover workspace package src roots so bare
+    # `@scope/pkg` barrel imports resolve to the real exporting files.
+    index_roots = roots + [sr for _, _, sr in ws_packages if sr not in roots]
+    index = build_symbol_index(index_roots) if index_roots else {}
+
+    symbol_node = build_symbol_node_index(nodes)
     preserved = [e for e in edges if e.get("relation") != "imports_from"]
     dropped = len(edges) - len(preserved)
-    print(f"  Dropping {dropped} broken `imports_from` edges from AST")
-    print(f"  Preserving {len(preserved)} other edges (contains, references, etc.)")
 
-    print()
-    print("Building symbol index from package exports...")
-    symbol_index = build_symbol_index()
-    for pkg, syms in symbol_index.items():
-        print(f"  {pkg}: {len(syms)} exports")
+    new_edges: list[dict] = []
+    stats = defaultdict(int)
+    for sf, src_nid in file_node.items():
+        path = ROOT / sf
+        if not path.is_file():
+            continue
+        try:
+            body = extract_body(path, path.read_text(errors="ignore"))
+        except Exception:
+            continue
+        if not body:
+            continue
 
-    print()
-    print("Parsing imports across all source files...")
-    new_edges, stats = parse_edges(file_node, symbol_index)
-    print(f"  Resolved: {stats['resolved']} edges")
-    print(f"  External (skipped): {stats['external']}")
-    print(f"  Unresolved (path didn't match): {stats['unresolved']}")
-    print(f"  Resolved but target had no node: {stats['resolved_but_no_node']}")
-    print(f"  Vue files with no <script>: {stats.get('files_skipped_no_script', 0)}")
+        specs: list[tuple[str, list[str], bool]] = []
+        for m in IMPORT_RE.finditer(body):
+            nm, ns = extract_binding_names(m.group("bindings"))
+            specs.append((m.group("path"), nm, ns))
+        for m in SIDE_IMPORT_RE.finditer(body):
+            specs.append((m.group("path"), [], False))
+        for m in EXPORT_FROM_RE.finditer(body):
+            specs.append((m.group("path"), [], False))
+        for p in DYNAMIC_IMPORT_RE.findall(body):
+            specs.append((p, [], False))
 
-    print()
-    print("Top cross-package edge counts:")
-    cross_pkg = stats.get("_cross_pkg", {})
-    for (s, t), n in sorted(cross_pkg.items(), key=lambda x: -x[1])[:20]:
-        print(f"  {s:25s} -> {t:25s}  {n} edges")
-
-    # Drop INFERRED cross-package edges from semantic extraction (we have real ones now).
-    def edge_packages(e):
-        src_n = next((n for n in nodes if n["id"] == e["source"]), None)
-        tgt_n = next((n for n in nodes if n["id"] == e["target"]), None)
-        if not src_n or not tgt_n:
-            return None, None
-        src_pkg = find_package(Path(src_n.get("source_file", "")))
-        tgt_pkg = find_package(Path(tgt_n.get("source_file", "")))
-        return src_pkg, tgt_pkg
-
-    # Build node lookup for speed
-    node_lookup = {n["id"]: n for n in nodes}
-
-    inferred_dropped = 0
-    cleaned_preserved = []
-    for e in preserved:
-        if e.get("confidence") == "INFERRED":
-            src_n = node_lookup.get(e["source"])
-            tgt_n = node_lookup.get(e["target"])
-            if src_n and tgt_n:
-                src_pkg = find_package(Path(src_n.get("source_file", "")))
-                tgt_pkg = find_package(Path(tgt_n.get("source_file", "")))
-                if src_pkg and tgt_pkg and src_pkg != tgt_pkg:
-                    inferred_dropped += 1
+        for spec, names, is_ns in specs:
+            targets = resolve_spec(spec, path, names, is_ns, aliases, roots, index, ws_packages)
+            if not targets:
+                stats["unresolved" if spec.startswith((".", "@")) else "external"] += 1
+                continue
+            for tp in targets:
+                try:
+                    tgt_sf = str(tp.relative_to(ROOT))
+                except ValueError:
                     continue
-        cleaned_preserved.append(e)
-    print()
-    print(f"Dropped {inferred_dropped} INFERRED cross-package edges (now superseded by EXTRACTED)")
+                tgt_nid = file_node.get(tgt_sf)
+                if not tgt_nid or tgt_nid == src_nid:
+                    continue
+                new_edges.append({
+                    "source": src_nid, "target": tgt_nid, "relation": "imports_from",
+                    "confidence": "EXTRACTED", "confidence_score": 1.0,
+                    "source_file": sf, "weight": 1.0,
+                })
+                stats["resolved"] += 1
+                # file -> SYMBOL edges: what makes the caller reachable from the
+                # function node in a symbol query (see build_symbol_node_index).
+                for nm in names:
+                    sym_nid = symbol_node.get((tgt_sf, nm))
+                    if sym_nid and sym_nid != src_nid:
+                        new_edges.append({
+                            "source": src_nid, "target": sym_nid, "relation": "imports",
+                            "confidence": "EXTRACTED", "confidence_score": 1.0,
+                            "source_file": sf, "context": "call", "weight": 1.0,
+                        })
+                        stats["symbol"] += 1
 
-    # Write resolved AST
+    seen_e: set[tuple[str, str]] = set()
+    deduped = []
+    for e in new_edges:
+        k = (e["source"], e["target"], e["relation"])
+        if k not in seen_e:
+            seen_e.add(k)
+            deduped.append(e)
+
     final = {
-        "nodes": nodes,
-        "edges": cleaned_preserved + new_edges,
-        "hyperedges": ast.get("hyperedges", []),
-        "input_tokens": 0,
-        "output_tokens": 0,
+        "nodes": nodes, "edges": preserved + deduped,
+        "hyperedges": ast.get("hyperedges", []), "input_tokens": 0, "output_tokens": 0,
     }
-    out = ROOT / "graphify-out/.graphify_ast_resolved.json"
-    out.write_text(json.dumps(final, indent=2))
-    print()
-    print(f"Wrote {out}")
-    print(f"  {len(final['nodes'])} nodes, {len(final['edges'])} edges total")
-    print(f"  ({len(cleaned_preserved)} preserved + {len(new_edges)} newly resolved)")
+    (ROOT / "graphify-out/.graphify_ast_resolved.json").write_text(json.dumps(final, indent=2))
+
+    print(f"  Resolved: {len(deduped)} import edges ({stats['symbol']} file->symbol) "
+          f"(dropped {dropped} broken, {stats['unresolved']} unresolved, {stats['external']} external)")
+    print(f"  tsconfig aliases: {[p for p, _ in aliases] or '(none)'}; "
+          f"workspace packages: {[n for n, _, _ in ws_packages] or '(none)'}; "
+          f"symbol index: {sum(len(v) for v in index.values())} exports across {len(index_roots)} package root(s)")
     return 0
 
 
