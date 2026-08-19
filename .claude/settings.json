@@ -32,24 +32,6 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Glob|Grep",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "[ -f graphify-out/graph.json ] && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"graphify: Knowledge graph exists. Read graphify-out/GRAPH_REPORT.md for god nodes and community structure before searching raw files.\"}}' || true"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "jq -er '.tool_input.command // empty | select(test(\"(find|grep|ls|rg).*(agentific|packages|apps|src).*\\\\.(ts|types)\"))' > /dev/null 2>&1 && [ -f graphify-out/graph.json ] && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"graphify: Knowledge graph exists. Consider invoking Skill tool with skill=\\\"graphify\\\" and args=\\\"query <concept>\\\" before searching raw source files — it is usually faster and more focused than find/grep/ls/rg.\"}}' || true"
-          }
-        ]
-      },
-      {
         "matcher": "Read|Edit|Write|NotebookEdit|Grep|Glob|Bash",
         "hooks": [
           {
@@ -64,6 +46,28 @@
           {
             "type": "command",
             "command": "bash .claude/scripts/published-docs-branch-guard.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/graphify hook-guard search"
+          },
+          {
+            "type": "command",
+            "command": "node .claude/scripts/graphify/search-guard.mjs"
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/graphify hook-guard read --strict"
           }
         ]
       }
