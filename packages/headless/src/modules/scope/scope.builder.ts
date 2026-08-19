@@ -356,11 +356,42 @@ export function createScopedComposable<
     const config: ScopeConfig = {} as ScopeConfig;
     let instance: T | null = null;
 
+    /**
+     * @decision
+     * what:     A caller that never calls `.as()` resolves to SELF rather than
+     *           finalising on an undefined actor.
+     *
+     * why:      (1) ADR-001 requires `.as()` always, and that reads as a
+     *               deliberate rule only while every scope is an actor
+     *               question. A single-record read is not: `.withId(id)` names
+     *               the record, and the actor is simply whoever is logged in —
+     *               which is exactly what SELF means. Forcing `.as('self')`
+     *               there makes the caller restate the default.
+     *           (2) The alternative is not "an error" — it is
+     *               `resolveSelfActor(undefined)` returning `undefined` and the
+     *               instance keying under `name:undefined`. The absent actor
+     *               was already silently accepted; this makes it mean the one
+     *               thing it can mean.
+     *           (3) Resolution stays HERE, in the builder (variance-law clause
+     *               4). No module factory or services file gains a SELF branch.
+     *
+     * rejected: Throw on a missing actor. Rejected because it is a breaking
+     *           change to a public surface for 18 existing composables in
+     *           service of a rule ADR-001 wrote before the single-read case
+     *           existed, and because the throw would fire at first property
+     *           read — inside a lazily-finalising Proxy, i.e. far from the call
+     *           site that omitted `.as()`.
+     *
+     *           Also rejected: default to GUEST. That is what
+     *           `resolveSelfActor` falls back to when there is NO session, and
+     *           it is the right answer only then. Defaulting to it outright
+     *           would serve a logged-in client the guest scope.
+     *
+     * @operator-ruling 2026-08-19 (FE-3095) — ADR-001 amendment note owed; see
+     * `docs/adr/001-scope-based-composables.md`.
+     */
     const finalize = (): T => {
       if (!instance) {
-        // A caller that names no actor means SELF: the actor is who is logged
-        // in, which is what `.withId(id)` alone reads a record as. Without the
-        // fallback an unnamed actor keys the instance under `undefined`.
         const resolvedActor = resolveSelfActor(
           config.actor ?? ScopeActorTypes.SELF
         );
