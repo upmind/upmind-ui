@@ -14,6 +14,13 @@ dist-ssr
 coverage
 *.local
 
+# Environment files — NEVER commit real env files (they leak secrets into git
+# history). Use committed *.example templates for shared, non-secret defaults.
+.env
+.env.*
+!.env.example
+!.env.*.example
+
 /cypress/videos/
 /cypress/screenshots/
 
