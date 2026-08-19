@@ -22,7 +22,7 @@
 
 import { AccessRoleTypes } from "@upmind-automation/types";
 import { ScopeActorTypes } from "../scope/scope.types";
-import type { ListQuery, QueryParams } from "../query";
+import type { ListQuery, QueryParams, SimpleQuery } from "../query";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 /**
@@ -153,6 +153,20 @@ export type ModuleServices = {
   loadList: (
     params?: Partial<QueryParams<ModuleWireItem[], ModuleItem[]>>
   ) => ListQuery<ModuleWireItem[], ModuleItem[]>;
+  /**
+   * SINGLE-RECORD READ contract — one record by its id. The id is the scope
+   * builder's own `.withId(id)`, relayed by `useModuleItem.ts` off `config.id`;
+   * it is NOT a scope context, so no context type constrains it and no matrix
+   * cell carries it (`templates/SINGLE-READ.md`).
+   *
+   * Optional `emailId`-style parameter on purpose: an absent id is the
+   * un-addressed state, which the implementation must gate to NO request rather
+   * than fetch `.../undefined`.
+   *
+   * Delete this member for a module with no single-record read; a collection
+   * that never opens one record does not carry the contract for it.
+   */
+  loadOne: (id?: ModuleItem["id"]) => SimpleQuery<ModuleWireItem, ModuleItem>;
   /**
    * Shared domain mutation — required, because the shared factory always
    * supplies it and both the shared `login` action and the actions arm's

@@ -12,7 +12,7 @@ import { computed } from "vue";
 import { useQuery } from "../query";
 import { ScopeActorTypes } from "../scope";
 import { useActiveSession } from "../session-store";
-import { mapModuleItems } from "./module.mappers";
+import { mapModuleItem, mapModuleItems } from "./module.mappers";
 import { ModuleContextTypes } from "./module.types";
 import { useTime, NotAuthenticatedError, DEBOUNCE_DELAY } from "../../utils";
 import type { QueryParams } from "../query";
@@ -95,6 +95,51 @@ function loadList(
 }
 
 /**
+ * SINGLE-RECORD READ — one record by its id, minted once per scope by
+ * `useModuleItem.ts`. Delete this function (and its `ModuleServices` member) for
+ * a module with no single-record read.
+ *
+ * The `id` is the scope builder's `.withId(id)`, relayed off `config.id` — NOT a
+ * scope context, and never re-derived from one (`templates/SINGLE-READ.md`).
+ * `scopeContext` still arrives, because WHOSE record it is remains an actor
+ * question: a staff scope acting `.for('client', id)` addresses that client, and
+ * a self scope falls through to the session's own — the same seam `loadList`
+ * uses, so the two halves cannot disagree.
+ *
+ * An ABSENT id issues NO request: it is the un-addressed state, not a fetch of
+ * `.../undefined`. Its presence is what fires exactly one request, which is the
+ * single load-bearing assertion a single-read test makes.
+ */
+function loadOne(id?: ModuleItem["id"], scopeContext?: ScopeContext) {
+  const { isAuthenticated } = useActiveSession().useMeta();
+  const { activeUser } = useActiveSession().useContext();
+  const { query, useUrl } = useQuery();
+
+  const clientId = computed(() =>
+    scopeContext?.type === ModuleContextTypes.CLIENT
+      ? scopeContext.id
+      : activeUser.value?.id
+  );
+
+  return query<ModuleWireItem, ModuleItem>({
+    queryKey: [...queryKey, "item", id, { client: clientId.value }],
+    url: useUrl(`module-items/${id}`),
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (id && isAuthenticated.value && !!clientId.value) {
+          resolve(true);
+        } else {
+          reject(new NotAuthenticatedError());
+        }
+      }),
+    withAccessToken: true,
+    select: mapModuleItem,
+    staleTime: useTime().DAY,
+    enabled: () => !!id && isAuthenticated.value && !!clientId.value
+  });
+}
+
+/**
  * Shared domain mutation — the wire call `useModule.actions.ts`'s `login`
  * awaits, and the one the actions arm's own `login` override also drives
  * (`useModule.actions.{actor}.ts`): that override diverges in the ACTION's
@@ -151,6 +196,7 @@ export const createModuleServices = (
 ): ModuleServices => ({
   queryKey,
   loadList: params => loadList(params, scopeContext),
+  loadOne: id => loadOne(id, scopeContext),
   login,
   ...scopedServices(scopeActor, scopeContext)
 });

@@ -45,6 +45,13 @@ const items = data.value;
 | --- | --- |
 | `useModule().as('self')` | The active session's own collection |
 | `useModule().as('staff').for('client', id)` | Staff reading a client's collection |
+| `useModuleItem().withId(id)` | One record, read in full — self by default |
+| `useModuleItem().as('staff').withId(id)` | Staff reading one record |
+
+A record id is **not** a scope context: it rides on `.withId(id)`, and the single
+read declares no context enum and no scope matrix. See
+`.claude/skills/factory/composable/templates/SINGLE-READ.md` — including the
+branch where the run **stops and asks** rather than minting a context type.
 
 ## Actor Arms
 
@@ -70,6 +77,7 @@ module/
 ├── module.schemas.ts
 ├── module.schemas.{actor}.ts     # opt-in — see .claude/skills/factory/composable/templates/ARMS.md
 ├── useModule.ts
+├── useModuleItem.ts              # opt-in — single-record read, see .claude/skills/factory/composable/templates/SINGLE-READ.md
 ├── useModule.actions.ts
 ├── useModule.actions.{actor}.ts  # opt-in — see .claude/skills/factory/composable/templates/ARMS.md
 ├── useModule.context.ts
@@ -81,7 +89,9 @@ module/
 └── README.md            # this file
 ```
 
-(`.claude/skills/factory/composable/templates/ARMS.md` / `.claude/skills/factory/composable/templates/NOT-APPLICABLE.md` are this template set's own factory-authoring
+(`.claude/skills/factory/composable/templates/ARMS.md` /
+`.claude/skills/factory/composable/templates/SINGLE-READ.md` /
+`.claude/skills/factory/composable/templates/NOT-APPLICABLE.md` are this template set's own factory-authoring
 guidance — they are not copied into a built module.)
 
 No `module.machine.ts` — query-backed, no machine (see `.claude/skills/factory/composable/templates/NOT-APPLICABLE.md`).
