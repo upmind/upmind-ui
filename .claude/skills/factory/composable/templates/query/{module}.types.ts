@@ -65,6 +65,32 @@ export const MODULE_SCOPE_MATRIX = {
 export type ModuleScopeMatrix = typeof MODULE_SCOPE_MATRIX;
 
 /**
+ * The SINGLE READ's matrix — every actor refused. Delete this pair (and its
+ * `TMatrix` use in `useModuleItem.ts`) for a module with no single-record read.
+ *
+ * All-`never` is not paperwork. `createScopedComposable`'s `TMatrix` defaults to
+ * the WIDE `ActorContextMatrix`, whose every cell is `string`, so a single read
+ * that passes no type argument still type-checks `.for("anything", id)` — the
+ * hole that deleting the leaf record's context enum was meant to close. This
+ * withdraws `.for()` from all four actors and leaves `.as()` untouched.
+ *
+ * Keep it INTERNAL: it names no context a consumer can spell, so it is not
+ * re-exported from the module barrel.
+ * @doctrine `templates/SINGLE-READ.md`, "The all-`never` matrix".
+ * @precedent `client-email-history/client-email-history.types.ts`
+ * `RECEIVED_EMAIL_SCOPE_MATRIX`.
+ */
+export const MODULE_ITEM_SCOPE_MATRIX = {
+  [ScopeActorTypes.SELF]: null as never,
+  [ScopeActorTypes.STAFF]: null as never,
+  [ScopeActorTypes.CLIENT]: null as never,
+  [ScopeActorTypes.GUEST]: null as never
+} as const;
+
+/** Single-read scope matrix type (derived from the runtime const above). */
+export type ModuleItemScopeMatrix = typeof MODULE_ITEM_SCOPE_MATRIX;
+
+/**
  * One item in the module's collection — replace with the real view-model.
  * No machine-context type exists in the query variant — the query itself IS
  * the state (`code-composables.md` Part B "State Machine vs TanStack Query").

@@ -22,10 +22,16 @@
  *
  * THE SINGLE-READ RULE — the one thing this template exists to carry:
  * the record id arrives on `config.id`, set by the builder's `.withId(id)`. It
- * is NOT a scope context, so this composable declares NO context enum, NO
- * `*_SCOPE_MATRIX`, and passes NO `TMatrix` type argument below. If the intake
- * pushed you toward minting one, read `templates/SINGLE-READ.md` first — an
- * absent legacy context is the answer, never a slot to fill.
+ * is NOT a scope context, so this composable declares NO context enum. If the
+ * intake pushed you toward minting one, read `templates/SINGLE-READ.md` first —
+ * an absent legacy context is the answer, never a slot to fill.
+ *
+ * It DOES declare a matrix, and it DOES pass its type as `TMatrix` below.
+ * `createScopedComposable`'s `TMatrix` defaults to the WIDE
+ * `ActorContextMatrix`, whose every actor cell is `string`, so omitting the type
+ * argument leaves `.for("anything", id)` type-checking and re-opens the exact
+ * hole deleting the context enum was meant to close. The matrix is all-`never`:
+ * see `templates/SINGLE-READ.md`, "The all-`never` matrix".
  */
 
 import { createScopedComposable } from "../scope";
@@ -35,6 +41,7 @@ import { createModuleItemContext } from "./useModuleItem.context";
 import { createModuleItemInternals } from "./useModuleItem.internals";
 import { createModuleItemMeta } from "./useModuleItem.meta";
 import { ScopeActorTypes } from "../scope";
+import type { ModuleItemScopeMatrix } from "./module.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
 // -----------------------------------------------------------------------------
 /**
@@ -48,7 +55,8 @@ import type { ScopeConfig, ScopeKey } from "../scope";
  * name; the composable name and the scope key carry the differentiation, and
  * both halves resolve their target through the module's ONE services factory.
  *
- * The record read is a RECORD ID (`.withId(id)`), never a scope context — see
+ * The record read is a RECORD ID (`.withId(id)`), never a scope context, so the
+ * matrix this passes as `TMatrix` refuses every actor's `.for()` — see
  * `templates/SINGLE-READ.md`.
  *
  * @doctrine clause 1 (uniform four-layer default) — same return shape as the
@@ -102,8 +110,11 @@ function createModuleItemForScope(config: ScopeConfig, scopeKey: ScopeKey) {
  * await item.useActions().isReady()
  * ```
  */
+// TWO type arguments, and no third RUNTIME argument. Dropping the second falls
+// back to the wide `ActorContextMatrix` default and re-opens `.for()`.
 export const useModuleItem = createScopedComposable<
-  ReturnType<typeof createModuleItemForScope>
+  ReturnType<typeof createModuleItemForScope>,
+  ModuleItemScopeMatrix
 >("module", createModuleItemForScope);
 
 // Type export for consumers
