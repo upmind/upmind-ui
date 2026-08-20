@@ -68,6 +68,86 @@ export const syntheticRow2: SyntheticRow = {
 export const syntheticRows: SyntheticRow[] = [syntheticRow, syntheticRow2];
 
 // -----------------------------------------------------------------------------
+// Email-shaped rows — replacement for recorded-emails.ts
+// These match the Email row shape specs expect, without importing client-email.
+
+/** Email-shaped row for framework tests. */
+export type SyntheticEmailRow = {
+  id: string;
+  email: string;
+  title: string;
+  bouncedAt?: { date: string; relative: string };
+  createdAt: { date: string; relative: string };
+  meta: {
+    isDefault: boolean;
+    canDelete: boolean;
+    isVerified: boolean;
+    isBounced: boolean;
+  };
+};
+
+/** A default, verified email row — equivalent to recorded defaultRow. */
+export const defaultRow: SyntheticEmailRow = {
+  id: "syn-email-001",
+  email: "default@synthetic.test",
+  title: "default@synthetic.test",
+  createdAt: { date: "2026-01-01T00:00:00Z", relative: "2026-01-01" },
+  meta: {
+    isDefault: true,
+    canDelete: false,
+    isVerified: true,
+    isBounced: false
+  }
+};
+
+/** An unverified email row — equivalent to recorded unverifiedRow. */
+export const unverifiedRow: SyntheticEmailRow = {
+  id: "syn-email-002",
+  email: "unverified@synthetic.test",
+  title: "unverified@synthetic.test",
+  createdAt: { date: "2026-01-02T00:00:00Z", relative: "2026-01-02" },
+  meta: {
+    isDefault: false,
+    canDelete: true,
+    isVerified: false,
+    isBounced: false
+  }
+};
+
+/** The same row after verification — equivalent to recorded verifiedRow. */
+export const verifiedRow: SyntheticEmailRow = {
+  ...unverifiedRow,
+  meta: { ...unverifiedRow.meta, isVerified: true }
+};
+
+/** A bounced email row for bounce-related tests. */
+export const bouncedRow: SyntheticEmailRow = {
+  id: "syn-email-003",
+  email: "bounced@synthetic.test",
+  title: "bounced@synthetic.test",
+  bouncedAt: { date: "2026-01-03T00:00:00Z", relative: "2026-01-03" },
+  createdAt: { date: "2026-01-01T00:00:00Z", relative: "2026-01-01" },
+  meta: {
+    isDefault: false,
+    canDelete: true,
+    isVerified: false,
+    isBounced: true
+  }
+};
+
+/** Synthetic API error message for rejection tests. */
+export const API_MESSAGE = "Cannot set unverified email as default";
+
+/** Synthetic rejection error for error-handling tests. */
+export function recordedRejection(): Error {
+  return Object.assign(new Error(API_MESSAGE), {
+    code: 409,
+    data: null,
+    origin: "upmind"
+  });
+}
+
+// -----------------------------------------------------------------------------
 // Synthetic composable — minimal shape that satisfies FourLayerComposable
 
 const syntheticActions: LiveActions = {
