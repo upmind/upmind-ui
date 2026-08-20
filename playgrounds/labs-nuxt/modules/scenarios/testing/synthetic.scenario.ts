@@ -18,6 +18,7 @@ import type {
   LiveMeta
 } from "../runtime/composables/useCompositionPort.types";
 import type {
+  DeclaredHandoff,
   FourLayerComposable,
   ScenarioDeclaration,
   ScenarioScopedCell,
@@ -128,6 +129,11 @@ export const syntheticTableUischema: TableUischema = {
   type: "TableLayout",
   elements: [
     {
+      type: "TableCellIcon",
+      scope: "#/properties/meta/properties/isActive",
+      options: { width: "auto" }
+    },
+    {
       type: "TableCellText",
       scope: "#/properties/title",
       options: { width: "2fr" }
@@ -135,6 +141,11 @@ export const syntheticTableUischema: TableUischema = {
     {
       type: "TableCellBadge",
       scope: "#/properties/status",
+      options: { width: "1fr" }
+    },
+    {
+      type: "TableCellText",
+      scope: "#/properties/createdAt/properties/relative",
       options: { width: "1fr" }
     }
   ]
@@ -162,7 +173,46 @@ export const syntheticActionsUischema: ActionsUischema = {
     {
       type: "ScenarioAction",
       scope: "#",
+      name: "edit",
       options: { verb: "edit", i18n: "action.edit", placement: "row" }
+    },
+    {
+      type: "ScenarioAction",
+      scope: "#",
+      name: "remove",
+      options: { verb: "remove", i18n: "action.remove", placement: "row" }
+    },
+    {
+      type: "ScenarioAction",
+      scope: "#",
+      name: "setDefault",
+      options: {
+        verb: "setDefault",
+        i18n: "action.setDefault",
+        placement: "row"
+      }
+    },
+    {
+      type: "ScenarioAction",
+      scope: "#",
+      name: "verify",
+      options: { verb: "verify", i18n: "action.verify", placement: "row" }
+    },
+    {
+      type: "ScenarioAction",
+      scope: "#",
+      name: "view",
+      options: { verb: "view", i18n: "action.view", placement: "row" }
+    },
+    {
+      type: "ScenarioAction",
+      scope: "#",
+      name: "ensure",
+      options: {
+        verb: "ensure",
+        i18n: "action.ensure",
+        placement: "collection"
+      }
     }
   ]
 };
@@ -220,12 +270,34 @@ export const syntheticStepCatalog: StepCatalog = defineSteps(steps => {
 });
 
 // -----------------------------------------------------------------------------
+// Synthetic handoffs for framework tests
+
+export const syntheticHandoffs: Record<string, DeclaredHandoff> = {
+  add: {
+    key: "add",
+    label: "Add New",
+    i18n: "handoff.add"
+  },
+  edit: {
+    key: "edit",
+    label: "Edit",
+    i18n: "handoff.edit"
+  },
+  view: {
+    key: "view",
+    label: "View Details",
+    i18n: "handoff.view"
+  }
+};
+
+// -----------------------------------------------------------------------------
 // The declaration itself
 
 export const syntheticScenario: ScenarioDeclaration = {
   key: SYNTHETIC_KEY,
   useList: useSyntheticList,
   useMutate: useSyntheticMutate,
+  handoff: syntheticHandoffs,
   presentation: {
     icon: "box",
     table: syntheticTableUischema,
