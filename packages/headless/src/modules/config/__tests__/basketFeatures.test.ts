@@ -24,6 +24,9 @@
 
 import { describe, it, expect, vi } from "vitest";
 import { ref } from "vue";
+import { initializeMeta, createUIMetaProxy } from "../config.utils";
+import { UIContext } from "../schema";
+import type { RawMeta } from "../types";
 
 // `config/utils` reaches the session machine through the localisation barrel,
 // which calls `useCookies` at module load. Only `resolveDataValue` uses `t`, and
@@ -31,10 +34,6 @@ import { ref } from "vue";
 vi.mock("../../system/localisation", () => ({
   useI18n: () => ({ t: (key: string) => key })
 }));
-
-import { initializeMeta, createUIMetaProxy } from "../config.utils";
-import { UIContext } from "../schema";
-import type { RawMeta } from "../types";
 
 // -----------------------------------------------------------------------------
 

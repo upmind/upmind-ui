@@ -2,10 +2,10 @@
 import { useI18n } from "../system-localisation";
 import { useFunnelMachine } from "./funnel.machine";
 import { createEndpointNodes } from "./overlays";
+import { extendFunnel } from "./routing.utils";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import { get } from "lodash-es";
 import type { FunnelProps, RoutingEngineContext } from "./routing.types";
-import { extendFunnel } from "./routing.utils";
 
 // -----------------------------------------------------------------------------
 

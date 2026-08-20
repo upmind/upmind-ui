@@ -9,10 +9,10 @@ import {
   useClientCustomFields
 } from "../client-custom-fields";
 import { remove as removeFromRegistry } from "../scope";
+import { ScopeActorTypes } from "../scope/scope.types";
 import { useActiveSession } from "../session-store";
 import { ClientPersonalDetailsContextTypes } from "./client-personal-details.types";
 import { NotAuthenticatedError } from "../../utils";
-import { ScopeActorTypes } from "../scope/scope.types";
 import type {
   ClientPersonalDetailsRecordQuery,
   ClientPersonalDetailsServices

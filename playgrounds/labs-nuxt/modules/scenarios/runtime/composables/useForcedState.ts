@@ -24,7 +24,7 @@
 import { computed, effectScope, nextTick, ref, watch } from "vue";
 import { queryClient } from "@upmind-automation/headless";
 import { usePlaygroundUrlState } from "../../../../app/composables/usePlaygroundUrlState";
-import { isCorpusSourceResolved } from "../force/corpus.source";
+import { availableModules } from "../force/corpus.source";
 import { MODULE_QUERY_KEY } from "../force/routes";
 import { FORCE_URL_PRESETS } from "./useForcedState.types";
 import { noop, some } from "lodash-es";
@@ -54,7 +54,7 @@ function create(): UseForcedState {
     // READ as armed either: the page is Live, and a chip over live rows naming
     // a preset nobody is serving is the lie `S14` forbids — inventing a body to
     // make it true is the one `S13` does.
-    if (!isCorpusSourceResolved) return undefined;
+    if (availableModules.length === 0) return undefined;
 
     return (
       transient.value ??
@@ -172,7 +172,7 @@ function create(): UseForcedState {
 
   return {
     preset,
-    isAvailable: isCorpusSourceResolved,
+    isAvailable: availableModules.length > 0,
     arm,
     disarm,
     whenReady

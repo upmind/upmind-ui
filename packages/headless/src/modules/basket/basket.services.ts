@@ -165,7 +165,7 @@ async function convert(
   const data: Record<string, any> = paymentDetail ?? {};
 
   // add referral cookie if available, NB DO NOT DECODE
-  const referralCookie = getCookie("upm_aff", v => v);
+  const referralCookie = getCookie("upm_aff", (v: string) => v);
   if (referralCookie) data.referral_cookie = referralCookie;
 
   // add tracking if available

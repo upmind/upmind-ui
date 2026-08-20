@@ -87,6 +87,7 @@ export const scenarioRegistry: ScenarioRegistry<ScenarioKey, unknown> =
       // The collection where the module publishes one, else its editor — the
       // two the binding's own union guarantees at least one of.
       () =>
-        (get(registry, [key, "useList"]) ?? get(registry, [key, "useMutate"]))()
+        (get(registry, [key, "useList"]) ??
+          get(registry, [key, "useMutate"]))!()
     ])
   );
