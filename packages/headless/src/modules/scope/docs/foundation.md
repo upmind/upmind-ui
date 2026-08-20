@@ -35,6 +35,11 @@ side effect of unmounting.
 - **Context** — the entity an actor acts upon, a `{ type, id }` pair (e.g.
   `{ type: "client", id: "123" }`). A context is optional and is only meaningful for an
   actor the module's matrix permits.
+- **Record id** — the identifier of the ONE record a single-record read opens. It is
+  distinct from a context: a context names an entity the actor acts _upon_, while a
+  record id names the record being read _itself_, and carries no matrix constraint —
+  every actor may set it, including the placeholder `self`. Setting it before naming
+  any actor is valid; the actor then resolves to `self` rather than requiring one.
 - **Matrix** — a per-module, compile-time map from each actor to the single context
   _type_ that actor may name (or "none"). The matrix is the contract that decides which
   builder methods each actor is offered and is carried on the composable as a value so a
@@ -53,19 +58,20 @@ side effect of unmounting.
 The module exposes a small, function-shaped surface. There is no request/response
 lifecycle — every operation is synchronous and in-process.
 
-| #   | Capability                                | Inputs                                                                        | Outputs                                                            |
-| --- | ----------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| 1   | **Wrap a factory as a scoped composable** | a module name, a factory `(config, key) → instance`, the actor→context matrix | a callable that returns a fluent builder                           |
-| 2   | **Name the acting actor**                 | an actor (`self` / `guest` / `client` / `staff`)                              | a builder narrowed to that actor's permitted next steps            |
-| 3   | **Name the acted-upon context**           | a context type (matrix-constrained) and an id                                 | the finalised instance (or a builder still open to a brand filter) |
-| 4   | **Filter to a brand (staff)**             | a brand id                                                                    | the finalised instance (or a builder still open to a context)      |
-| 5   | **Force a fresh instance / new session**  | —                                                                             | a finalised instance under a unique, uncacheable key               |
-| 6   | **Resolve `self` to a concrete actor**    | an actor that may be `self`                                                   | the current session's actor, or `guest` when none                  |
-| 7   | **Compute a scope key**                   | a module name and a resolved config                                           | the deterministic key string                                       |
-| 8   | **Get-or-create an instance for a key**   | a key and a factory                                                           | the cached-or-new instance, built in a detached scope              |
-| 9   | **Evict an instance**                     | a key                                                                         | the entry removed and its effect scope stopped                     |
-| 10  | **Clear the whole registry**              | —                                                                             | every entry removed and every scope stopped (test/debug)           |
-| 11  | **Expose the registry to DevTools**       | the app handle and the registry                                               | a "Scope Registry" inspector registered                            |
+| #   | Capability                                | Inputs                                                                        | Outputs                                                                                 |
+| --- | ----------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| 1   | **Wrap a factory as a scoped composable** | a module name, a factory `(config, key) → instance`, the actor→context matrix | a callable that returns a fluent builder                                                |
+| 2   | **Name the acting actor**                 | an actor (`self` / `guest` / `client` / `staff`)                              | a builder narrowed to that actor's permitted next steps                                 |
+| 3   | **Name the acted-upon context**           | a context type (matrix-constrained) and an id                                 | the finalised instance (or a builder still open to a brand filter)                      |
+| 4   | **Name the single record being read**     | a record id                                                                   | a builder keyed to that record, still open to naming an actor, a brand filter, or fresh |
+| 5   | **Filter to a brand (staff)**             | a brand id                                                                    | the finalised instance (or a builder still open to a context)                           |
+| 6   | **Force a fresh instance / new session**  | —                                                                             | a finalised instance under a unique, uncacheable key                                    |
+| 7   | **Resolve `self` to a concrete actor**    | an actor that may be `self`                                                   | the current session's actor, or `guest` when none                                       |
+| 8   | **Compute a scope key**                   | a module name and a resolved config                                           | the deterministic key string                                                            |
+| 9   | **Get-or-create an instance for a key**   | a key and a factory                                                           | the cached-or-new instance, built in a detached scope                                   |
+| 10  | **Evict an instance**                     | a key                                                                         | the entry removed and its effect scope stopped                                          |
+| 11  | **Clear the whole registry**              | —                                                                             | every entry removed and every scope stopped (test/debug)                                |
+| 12  | **Expose the registry to DevTools**       | the app handle and the registry                                               | a "Scope Registry" inspector registered                                                 |
 
 ## Data shape
 
@@ -76,6 +82,7 @@ The mechanism is defined by a handful of value shapes, not by any wire payload.
 type ScopeConfig = {
   actor: "self" | "guest" | "client" | "staff"; // resolved to a concrete actor pre-key
   context?: { type: string; id: string }; // matrix-constrained
+  id?: string; // the ONE record being read; no matrix constraint, any actor may set it
   brandId?: string; // a filter, not a context
   newSession?: boolean; // set by "force fresh"; spawns a new instance
 };
@@ -89,6 +96,7 @@ type ActorContextMatrix = Partial<
 //   "auth:client"
 //   "auth:staff:client:123"
 //   "auth:staff:client:123:brand:abc"
+//   "client-email-history:self:id:42"   ← set via "name the single record" (id: '42')
 //   "client-email:self:email:42:fresh:7"
 type ScopeKey = string;
 

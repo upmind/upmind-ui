@@ -6,7 +6,7 @@ All notable changes to the `client-email` module are documented here. Format fol
 
 ### Added
 
-- **`useClientEmailManager`** — a second composable in this module: the per-email form editor, backed by the shared data-manager machine. Open an existing address with `.as('self').withId(id)`, or start a new one with `.as('self').fresh()`. Each `.fresh()` call mints an isolated instance, so two concurrent drafts never share a model.
+- **`useClientEmailManager`** — a second composable in this module: the per-email form editor, backed by the shared data-manager machine. Open an existing address with `.as('self').for('email', id)`, or start a new one with `.as('self').fresh()`. Each `.fresh()` call mints an isolated instance, so two concurrent drafts never share a model.
   - 7 actions — `clear`, `destroy`, `input`, `isReady`, `onDone`, `stop`, `update`.
   - 9 context members — `context`, `description`, `errors`, `id`, `model`, `schema`, `title`, `uischema`, `validationErrors`.
   - 8 flat meta flags — `hasErrors`, `isAvailable`, `isComplete`, `isDirty`, `isLoading`, `isNew`, `isProcessing`, `isValid`.

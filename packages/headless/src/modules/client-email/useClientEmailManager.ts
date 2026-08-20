@@ -40,10 +40,11 @@ function createClientEmailManagerForScope(
   const actorScope = config.actor as ScopeActorTypes;
 
   /**
-   * The email being edited is carried by the scope context; absent
-   * (`.fresh()`) → a new address. Reading the id from the scope rather than an
-   * argument is what makes two concurrently-open editors two distinct registry
-   * entries instead of one shared machine.
+   * The email being edited comes from `.withId(id)`; absent (`.fresh()`) → a
+   * new address. Reading the id from the scope key rather than an argument is
+   * what makes two concurrently-open editors two distinct registry entries
+   * instead of one shared machine.
+   * @todo FE-3111 — wire `config.id` instead of `config.context?.id`
    */
   const emailId =
     config.context?.type === ClientEmailContextTypes.EMAIL
@@ -139,7 +140,7 @@ function createClientEmailManagerForScope(
  * @example
  * ```ts
  * // Edit an existing address
- * const manager = useClientEmailManager().as('self').for('email', emailId)
+ * const manager = useClientEmailManager().as('self').withId(emailId)
  * const { model, schema, uischema } = manager.useContext()
  * await manager.useActions().isReady()
  * await manager.useActions().update({ email: 'new@example.com' })

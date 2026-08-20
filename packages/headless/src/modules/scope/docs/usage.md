@@ -27,7 +27,11 @@ useAuth().as("staff").for("client", clientId).inBrand(brandId); // same instance
 
 // Force a brand-new instance + new session
 useClientEmailManager().as("self").fresh();
-useClientEmailManager().as("self").for("email", emailId); // edit existing
+
+// Single-record read — mark the ONE record by id, not by a synthesised context.
+// Available with no .as() at all; the actor defaults to self.
+useClientReceivedEmail().withId(emailId);
+useClientReceivedEmail().as("staff").withId(emailId); // an explicit actor still works
 ```
 
 The chain returns the composable instance. Read its sub-composables as usual:
@@ -45,15 +49,17 @@ const { resolve } = account.useActions();
 
 ### Which methods are available?
 
-| Actor    |          `.for(type, id)`          | `.inBrand(id)` | `.fresh()` |
-| -------- | :--------------------------------: | :------------: | :--------: |
-| `self`   |                 —                  |       —        |     ✅     |
-| `guest`  | if matrix defines a guest context  |       —        |     ✅     |
-| `client` | if matrix defines a client context |       —        |     ✅     |
-| `staff`  | if matrix defines a staff context  |  ✅ (always)   |     ✅     |
+| Actor    |          `.for(type, id)`          | `.inBrand(id)` | `.fresh()` | `.withId(id)` |
+| -------- | :--------------------------------: | :------------: | :--------: | :-----------: |
+| `self`   |                 —                  |       —        |     ✅     |      ✅       |
+| `guest`  | if matrix defines a guest context  |       —        |     ✅     |      ✅       |
+| `client` | if matrix defines a client context |       —        |     ✅     |      ✅       |
+| `staff`  | if matrix defines a staff context  |  ✅ (always)   |     ✅     |      ✅       |
 
 Availability is enforced at **compile time**. Calling `.for('ticket', id)` when the
 matrix does not map that actor to `ticket` is a type error, not a runtime failure.
+`.withId(id)` carries no matrix constraint — every actor gets it, and it is offered
+before `.as()` too: a caller that never names an actor resolves to `self`.
 
 ## Authoring a scoped composable
 
@@ -110,6 +116,9 @@ const useAuth = createScopedComposable<UseAuth, AuthScopeMatrix>(
   see `code-composables.companion.md` (the FE-2824 receipt).
 - Watchers you create run in a detached scope; expose a `destroy()` that calls
   `remove(scopeKey)` for non-singleton instances.
+- For a single-record read, the record id arrives as `config.id` (set via the
+  caller's `.withId(id)`) — read it directly. Do not mint a context type to carry a
+  leaf record; a context names an entity the actor acts upon, not the record itself.
 
 ### Reading which actors a module serves
 
@@ -168,6 +177,9 @@ generateScopeKey("basket", {
 
 generateScopeKey("client-email", { actor: "client", newSession: true });
 // → "client-email:client:fresh:1"  (counter increments each call)
+
+generateScopeKey("client-email-history", { actor: "self", id: "42" });
+// → "client-email-history:self:id:42"  (set via the builder's .withId('42'))
 
 resolveSelfActor("self"); // → the active session actor, or "guest"
 resolveSelfActor("client"); // → "client" (pass-through)

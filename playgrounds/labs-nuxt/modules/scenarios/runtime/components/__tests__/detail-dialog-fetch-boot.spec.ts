@@ -173,8 +173,8 @@ describe("with useDetail bound, the overlay fetches the full record", () => {
   });
 
   it("synthesises no scope context for the record — the id is the whole target", () => {
-    // FE-3095: `.withId(id)` was the shape this replaces. The overlay may
-    // reach for `.withId` and nothing else on the read's boot path.
+    // FE-3095: `.for('email', id)` was the shape this replaces. The overlay
+    // now reaches for `.withId(id)` and nothing else on the read's boot path.
     const observed = observedDetail();
 
     mountOverlay({

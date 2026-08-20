@@ -60,11 +60,16 @@ sequenceDiagram
 ```
 
 The critical detail: the builder is a **`Proxy`**. Chain methods (`as` / `for` /
-`inBrand` / `fresh`) mutate the pending `config` and reset the memoised `instance` to
-`null`. _Any other_ property access falls through to `finalize()`, which resolves the
-actor, computes the key, and calls `ensure`. So the instance is created **lazily, on
-first read**, not when you call `.as(...)`. See
+`withId` / `inBrand` / `fresh`) mutate the pending `config` and reset the memoised
+`instance` to `null`. _Any other_ property access falls through to `finalize()`, which
+resolves the actor, computes the key, and calls `ensure`. So the instance is created
+**lazily, on first read**, not when you call `.as(...)`. See
 [scope.builder.ts](../scope.builder.ts) — `finalize` and the `Proxy` `get`/`has` traps.
+
+`.withId(id)` is offered at every chain position, including the root — a caller that
+never calls `.as()` at all still reaches `finalize()`, which then resolves the actor
+to `self` rather than requiring one. This is the one deliberate exception to the
+module's general "always name an actor" convention, scoped to the single-record case.
 
 ## Actor resolution (`self` → concrete)
 
@@ -91,9 +96,16 @@ rule enforces it.
 name                                    → "auth"
 + actor                                 → "auth:client"
 + context.type ":" context.id (if any)  → "auth:staff:client:123"
++ "id:" recordId (if set via .withId()) → "client-email-history:self:id:42"
 + "brand:" brandId (if any)             → "auth:staff:client:123:brand:abc"
 + "fresh:" <monotonic counter> (if set) → "client-email:self:email:42:fresh:7"
 ```
+
+The `id:` segment is prefixed so it can never collide with a `context.type` segment,
+and it is appended only when `.withId()` was called — a composable that never calls it
+keeps the key shape it always had. It marks a single-record read PER RECORD: the same
+id always resolves to the same cached instance, and a different id mints a new one —
+the opposite guarantee from `.fresh()`, which is deliberately never cacheable.
 
 The fresh counter is a module-level `let` that increments on every fresh call, so a
 `.fresh()` key is unique per invocation and can never be served from cache. See

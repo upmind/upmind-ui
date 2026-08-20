@@ -30,7 +30,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  call["useClientEmailManager().as('self').withId(id)"] --> resolve["scope builder resolves the actor"]
+  call["useClientEmailManager().as('self').for('email', id)"] --> resolve["scope builder resolves the actor"]
   resolve --> services["createClientEmailServices(actor, context) — its OWN instance for this scope"]
   services --> config["build the machine config from that instance"]
   config --> interpret["interpret the shared dataManagerMachine, keyed by the SCOPE KEY"]
