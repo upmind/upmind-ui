@@ -20,7 +20,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { isCorpusSourceResolved } from "../../force/corpus.source";
+import { isModuleResolved } from "../../force/corpus.source";
 import type { ForcePreset, UseForcedState } from "../useForcedState.types";
 
 // -----------------------------------------------------------------------------
@@ -104,7 +104,7 @@ describe("T3.12 the seam decides whether forcing is offered at all (ESC6)", () =
   it("reports itself available exactly when the recorded corpus can reach it", async () => {
     const forced = await boot();
 
-    expect(forced.isAvailable).toBe(isCorpusSourceResolved);
+    expect(forced.isAvailable).toBe(isModuleResolved("client-email"));
   });
 
   it("offers forcing at all — ESC6 ruled, so the corpus reaches the page", async () => {

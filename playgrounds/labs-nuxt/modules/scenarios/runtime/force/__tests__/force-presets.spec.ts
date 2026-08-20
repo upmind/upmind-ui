@@ -27,7 +27,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { corpusBodies } from "../corpus.source";
+import { runtimeCorpus } from "../corpus";
 import { PENDING, presetAnswer } from "../presets";
 import {
   difference,
@@ -79,7 +79,7 @@ const RECORDED_IDS = uniq(
   )
 );
 
-const bodies: CorpusBodies = corpusBodies();
+const bodies: CorpusBodies = runtimeCorpus()!;
 
 const BASE = "https://api.upmind.io/api/clients/CLIENT_ID/emails";
 
