@@ -187,6 +187,26 @@ const modal2 = useBasket().as('staff').for('client', id).withKey('modal-2')
 
 > **Note:** This is a future consideration. Non-singletons will always require an explicit key.
 
+#### Amendment (2026-08-19): shipped as `.withId(id)`, self is the default actor
+
+The sketch above shipped under a different name, and its role narrowed along the way:
+
+- **`.withId(id)` marks the ONE record a single-record read opens** — offered at every
+  builder position, before `.as()` or after it. It folds `id:<value>` into the scope key,
+  so the SAME id resolves to the SAME cached instance: two callers reading record `'123'`
+  share one instance, they are not each given an isolated one. Isolated, uncacheable state
+  per call — the concern this section was written for — is what `.fresh()` already
+  provides (see Singleton Behavior above). `.withId(id)` is a different concern: keying an
+  instance by WHICH RECORD it reads, not by call site.
+- **A caller that never names an actor resolves to `self`.** This is a deliberate default
+  for the single-record case, not a relaxation of the general "Always Require `.as()`"
+  rule above — see the `@decision` on `finalize` in
+  `packages/headless/src/modules/scope/scope.builder.ts` for the reasoning; cited here
+  rather than restated.
+
+First shipped consumer: `useClientReceivedEmail().withId(id)` in the
+`client-email-history` module.
+
 ---
 
 ## Concrete Examples

@@ -175,7 +175,7 @@ onUnmounted(() => {
 });
 ```
 
-> **🧪 For Testers:** After `destroy()`, the next `.as('client')` (or `.for('email', id)`) mints a fresh instance rather than reusing the released one.
+> **🧪 For Testers:** After `destroy()`, the next `.as('client')` (or `.withId(id)`) mints a fresh instance rather than reusing the released one.
 
 ## 12. Known limitations in what the recorded fixtures could capture
 

@@ -80,12 +80,46 @@ in the registry under distinct keys.
 
 ---
 
+## `.withId(id)` keys the instance per RECORD — it is the opposite of `.fresh()` 🧪
+
+`.withId(id)` marks the ONE record a single-record read opens. `generateScopeKey` folds it
+into the key as `id:<value>`, so — unlike `.fresh()` — the SAME id always resolves to the
+SAME cached instance.
+
+```typescript
+// Same id, same instance — one cached read of record '42'
+const a = useSingleRecord().withId("42");
+const b = useSingleRecord().withId("42");
+// a === b
+
+// Different id, different instance
+const c = useSingleRecord().withId("43");
+// c !== a
+
+// .fresh() still means "never cacheable" — that guarantee is unrelated to .withId()
+const d = useSingleRecord().as("self").fresh();
+const e = useSingleRecord().as("self").fresh();
+// d !== e, even for the same actor
+```
+
+`.withId()` is offered at every builder position — before `.as()`, or after it — and a
+caller that never calls `.as()` resolves to `self`, not to an error. This is a deliberate
+deviation from this module's general "always require `.as()`" convention, scoped to the
+single-record case; see ADR-001 §8's amendment note and the `@decision` on `finalize` in
+`scope.builder.ts`.
+
+**Test scenario:** Call `.withId(id)` twice with the same id; assert one shared instance.
+Call it with two different ids; assert two distinct instances, each keyed under its own
+`id:<value>` segment.
+
+---
+
 ## The instance is created lazily, on first property read 🧪
 
-The builder is a `Proxy`. `.as()` / `.for()` / `.inBrand()` / `.fresh()` only mutate a
-pending config and reset the memoised instance to `null`. **Any other** property access
-triggers `finalize()` — which resolves the actor, computes the key, and builds/looks-up
-the instance.
+The builder is a `Proxy`. `.as()` / `.for()` / `.inBrand()` / `.fresh()` / `.withId()` only
+mutate a pending config and reset the memoised instance to `null`. **Any other** property
+access triggers `finalize()` — which resolves the actor, computes the key, and
+builds/looks-up the instance.
 
 ```typescript
 // ❌ Wrong — reads before the chain is complete; finalises on the partial config
@@ -95,6 +129,10 @@ b.for("client", id); // too late: reading b.something above would already have f
 // ✅ Correct — complete the chain in one expression, THEN read
 const auth = useAuth().as("staff").for("client", id);
 const { model } = auth.useContext(); // first read finalises here
+
+// ✅ .withId() defers finalisation the same way, at any builder position
+const single = useSingleRecord().withId(recordId); // no .as() — resolves to self later
+const { data } = single.useContext(); // first read finalises here
 ```
 
 **Test scenario:** Spy on the factory; assert it is not called until the first instance

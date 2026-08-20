@@ -19,7 +19,7 @@ The module ships **two composables**, because browsing a list and reading one em
 
 Both always read the **calling client's own** history. There is nothing here to compose, send, resend, or delete an email — this module only reads what has already been sent — and there is no capability here to open a different client's history.
 
-> **🧪 For Testers:** Both composables support the client's own (`self`) scope only. `staff` and `guest` are compile-time errors — the underlying platform endpoints have no client-targeted form for a staff member to be given in the first place.
+> **🧪 For Testers:** Both composables support the client's own (`self`) scope only. Naming a context with `.for()` is a compile-time error on the single email for every actor, and on the collection for staff and guest — there is no staff scope on this module, because the underlying platform endpoints have no staff-targeted form to give it.
 
 ## Quick Start
 
@@ -44,8 +44,8 @@ history.useActions().sortBy([{ field: "subject", dir: "asc" }]);
 // `schemas.query` is the SAME schema a filter bar renders from
 schemas.query.schema;
 
-// The single email — open one in full, including its body
-const email = useClientReceivedEmail().as("client").for("email", emailId);
+// The single email — open one in full, including its body; self is the default actor
+const email = useClientReceivedEmail().withId(emailId);
 await email.useActions().isReady();
 ```
 
@@ -64,7 +64,7 @@ await email.useActions().isReady();
 | Page                                  | `…useActions().nextPage()` / `.prevPage()`                 | Moves through the list past its default 10-email page                |
 | Know whether the list is mine to read | `…useMeta().isAvailable`                                   | Authenticated **and** a client resolved                              |
 | Refresh / invalidate                  | `…useActions().refresh()` / `.invalidate()`                | Forces or schedules a re-read                                        |
-| Open one email in full                | `useClientReceivedEmail().as('client').for('email', id)`   | Reads that email's complete rendered body                            |
+| Open one email in full                | `useClientReceivedEmail().withId(id)`                      | Reads that email's complete rendered body                            |
 | Know its delivery outcome             | `…useMeta().isBounced` / `.isError` / `.isSent`            | Named flags, mirrored on the collection's own rows                   |
 
 ## Key Concepts

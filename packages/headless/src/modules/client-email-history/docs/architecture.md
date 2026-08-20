@@ -5,7 +5,7 @@
 The module ships **two** scoped composables over **one** shared data layer:
 
 - **`useClientReceivedEmails`** — the collection. Query-backed, no state machine. One list query is minted per resolved scope, at construction, so it survives component lifecycles.
-- **`useClientReceivedEmail`** — the single read. Query-backed, one item query per resolved scope, keyed by the email id named in the scope context rather than a constructor argument.
+- **`useClientReceivedEmail`** — the single read. Query-backed, one item query per resolved scope, keyed by the email id named through the builder's `.withId(id)` rather than a constructor argument.
 
 Both are registered under the same module name; the composable name and the scope key carry the differentiation. Both build their services instance from **one factory** (`createClientEmailHistoryServices`), so the two halves share one identity seam, one cache key, and one addressability predicate.
 
@@ -34,9 +34,9 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  call["useClientReceivedEmail().as('client').for('email', id)"] --> resolve["scope builder resolves the concrete actor"]
+  call["useClientReceivedEmail().withId(id)"] --> resolve["scope builder resolves the concrete actor — self by default"]
   resolve --> services["createClientEmailHistoryServices(actor, context) — its OWN instance for this scope"]
-  services --> emailid["the email id comes from the scope context, never a constructor argument"]
+  services --> emailid["the email id comes from the builder's own .withId(id), never a constructor argument"]
   emailid --> mint["mint the item query ONCE for this scope"]
   mint --> ready["return the four sub-composable factories"]
 ```

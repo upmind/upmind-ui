@@ -18,8 +18,8 @@ import {
 // The collection — the calling client's own history
 const history = useClientReceivedEmails().as("client");
 
-// The single read — one email, opened by id
-const email = useClientReceivedEmail().as("client").for("email", emailId);
+// The single read — one email, opened by id; the actor defaults to self
+const email = useClientReceivedEmail().withId(emailId);
 ```
 
 Both composables return the same four sub-composables:
@@ -31,7 +31,7 @@ Both composables return the same four sub-composables:
 | Meta      | `.useMeta()`      | seven state flags                                                                             | eight state flags       |
 | Internals | `.useInternals()` | the raw list query (criteria model, filter-bar schema, `isFiltered`, `criteriaError`)         | the raw item query      |
 
-> **🧪 For Testers:** Both composables support the client's own (`self`) scope only. `staff` and `guest` are compile-time errors, not runtime failures.
+> **🧪 For Testers:** Both composables read the calling client's own history only. Naming a context with `.for()` is a compile-time error on the single email for every actor, and on the collection for staff and guest — there is no staff scope on this module.
 
 ---
 
@@ -168,10 +168,11 @@ For debugging and tests. Not for production consumers.
 
 ## The single email — `useClientReceivedEmail`
 
-Opens one email by id and reads it in full, including its body.
+Opens one email by id and reads it in full, including its body. The actor defaults to
+self, so `.as()` is optional.
 
 ```ts
-const email = useClientReceivedEmail().as("client").for("email", emailId);
+const email = useClientReceivedEmail().withId(emailId);
 
 await email.useActions().isReady();
 const { data } = email.useContext();
@@ -207,7 +208,7 @@ Removes this scoped instance from the registry.
 
 **Returns:** `void`.
 
-> **🧪 For Testers:** After `destroy()`, a fresh `.for('email', id)` mints a new instance rather than reusing the released one.
+> **🧪 For Testers:** After `destroy()`, a fresh `.withId(id)` mints a new instance rather than reusing the released one.
 
 ### Single-read context — `useContext()`
 
@@ -268,8 +269,6 @@ import {
   useClientReceivedEmail,
   RECEIVED_EMAILS_SCOPE_MATRIX,
   ReceivedEmailsContextTypes,
-  RECEIVED_EMAIL_SCOPE_MATRIX,
-  ReceivedEmailContextTypes,
   ReceivedEmailsSortableProperties,
   SentEmailStatus,
   type UseClientReceivedEmails,
@@ -283,7 +282,6 @@ import {
   type UseClientReceivedEmailMeta,
   type UseClientReceivedEmailInternals,
   type ReceivedEmailsScopeMatrix,
-  type ReceivedEmailScopeMatrix,
   type SentEmail,
   type SentEmailModel
 } from "@upmind-automation/headless";

@@ -6,7 +6,8 @@ All notable changes to the `client-email-history` module are documented here. Fo
 
 ### Added
 
-- **`useClientReceivedEmails`** and **`useClientReceivedEmail`** rebuilt as scoped composables — `.as('client')` resolves the calling client's own history; `staff` and `guest` are compile-time errors on both scope matrices, because the underlying endpoints have no client-targeted or staff-targeted form to give them.
+- **`useClientReceivedEmails`** and **`useClientReceivedEmail`** rebuilt as scoped composables — `.as('client')` resolves the calling client's own history; naming a context with `.for()` is a compile-time error for staff and guest on both scope matrices, because the underlying endpoints have no client-targeted or staff-targeted form to give them.
+- **`useClientReceivedEmail().withId(id)`** marks the single record to read — a record id was never an actor context, so the single read carries no `.for()` at all. The actor defaults to self, so `.as()` is optional.
 - **`useActions().setCriteria(intent)`** on the collection — the one write verb for narrowing, sorting and paging, validated against the module's own declared query schema. Merges the given `filters` / `sort` / `pagination` branches into the live request state; branches left out are untouched, a branch that IS given replaces that whole branch.
 - **`useActions().filterBy(intent)` / `.sortBy(intent)`** on the collection — named, single-branch adapters over `setCriteria`, matching the sibling `client-email` module's shape: `filterBy(intent)` is exactly `setCriteria({ filters: intent })`, `sortBy(intent)` is exactly `setCriteria({ sort: intent })`. Neither keeps a copy of the request state, so both carry the same validation, wire shape, and whole-branch-replace behaviour as writing through `setCriteria` directly. This is a different thing from the earlier, withdrawn `sort()` / `filters.*()` facade below — that one built raw wire keys and its own state directly; these two forward straight into the one schema-validated write path.
 - **`useContext().schemas.query`** (`{ schema, uischema, sortUischema }`) on the collection — the filter-bar renderer's door: what is filterable/sortable, published as plain JSON so a renderer can derive its controls with no per-field UI code.
@@ -66,7 +67,7 @@ The `case=subject-like` / `case=sent-eq` / `case=bounced-eq` / `case=error-neq` 
 
 ### Notes
 
-- Both composables act on the calling client's own history only. `staff` and `guest` are compile-time errors in both scope matrices.
+- Both composables act on the calling client's own history only. Naming a context with `.for()` is a compile-time error for staff and guest in both scope matrices — there is no staff scope on this module.
 - `.for('client', otherId)` is type-reachable on the collection but does not retarget the outbound request — see [gotchas.md](./gotchas.md#1-forclient-otherid-is-type-reachable-on-the-collection--and-does-nothing-youd-expect). This is a deliberately accepted, documented limitation, not a defect awaiting a fix.
 - Delivery-outcome precedence (error over bounced over sent over still-sending) and the empty-body handling on the single read are both carried over unchanged from the prior implementation.
 
@@ -92,7 +93,7 @@ const email = useClientReceivedEmail({ emailId });
 
 // After
 const history = useClientReceivedEmails().as("client");
-const email = useClientReceivedEmail().as("client").for("email", emailId);
+const email = useClientReceivedEmail().withId(emailId); // self actor by default
 ```
 
 ### Reading state flags
