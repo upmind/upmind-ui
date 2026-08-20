@@ -26,6 +26,7 @@ import { computed, defineComponent, h, ref } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
 import { AccessRoleTypes } from "@upmind-automation/types";
+import { ROUTE } from "../../../funnels/types";
 import { find, forEach, get, keys, map, omit, pickBy, some } from "lodash-es";
 import type { SessionEntry } from "@upmind-automation/headless";
 import type { VueWrapper } from "@vue/test-utils";
@@ -300,7 +301,9 @@ export async function clientEmailsRouter(path: string): Promise<Router> {
   const router = createRouter({
     history: createWebHistory(),
     routes: [
-      { path: "/", name: "index", component: { template: "<div />" } },
+      // The landing route's name is the app's own: `app/pages/index.vue` names
+      // it `home`, which is what `ROUTE.HOME` the funnels target resolves to.
+      { path: "/", name: ROUTE.HOME, component: { template: "<div />" } },
       {
         path: `/${CLIENT_EMAILS_ROUTE}/:scopeSuffix(.*)*`,
         name: CLIENT_EMAILS_ROUTE,

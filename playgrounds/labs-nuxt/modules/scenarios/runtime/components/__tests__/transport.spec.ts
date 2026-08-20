@@ -52,6 +52,22 @@ const LAST_SCENE = SCENE_COUNT - 1;
 
 const PLAYING_COLOURS = ["primary", "secondary"];
 
+/**
+ * The controls an idle transport draws, in order. `STOP` is the media bar's own
+ * exit (`R7-9`, `Transport.types.ts`) — `PAUSE` takes `PLAY`'s slot while a
+ * track runs, so four are drawn either way.
+ */
+const IDLE_CONTROLS = [
+  TRANSPORT_CONTROL.PREV,
+  TRANSPORT_CONTROL.PLAY,
+  TRANSPORT_CONTROL.NEXT,
+  TRANSPORT_CONTROL.STOP
+] as const;
+
+const CONTROL_COUNT = size(IDLE_CONTROLS);
+
+const NEXT_SLOT = 2;
+
 const messages = { en: { action, labs: labsEn, text } };
 
 const i18n = () => createI18n({ legacy: false, locale: "en", messages });
@@ -93,8 +109,8 @@ describe("T4.6 the transport is icon-only and still named (D5 · E10)", () => {
   it("draws each control as a real ui button, never hand-rolled markup", () => {
     const wrapper = mountTransport();
 
-    expect(size(controls(wrapper))).toBe(3);
-    expect(size(wrapper.findAllComponents(Button))).toBe(3);
+    expect(size(controls(wrapper))).toBe(CONTROL_COUNT);
+    expect(size(wrapper.findAllComponents(Button))).toBe(CONTROL_COUNT);
   });
 
   it("gives every control an accessible name and no visible word", () => {
@@ -117,7 +133,8 @@ describe("T4.6 the transport is icon-only and still named (D5 · E10)", () => {
     ).toStrictEqual([
       get(labsEn, "transport_step_back"),
       get(labsEn, "transport_play"),
-      get(labsEn, "transport_step_forward")
+      get(labsEn, "transport_step_forward"),
+      get(labsEn, "transport_stop")
     ]);
     expect(includes(wrapper.html(), "labs.")).toBe(false);
   });
@@ -139,24 +156,16 @@ describe("T4.6 the transport is icon-only and still named (D5 · E10)", () => {
 });
 
 describe("T4.6 each control asks for the call it is named after (AC2.5)", () => {
-  it("reads step-back · play · step-forward, in that order", () => {
+  it("reads step-back · play · step-forward · stop, in that order", () => {
     const wrapper = mountTransport();
 
     expect(
       map(controls(wrapper), button => button.attributes("data-test-value"))
-    ).toStrictEqual([
-      TRANSPORT_CONTROL.PREV,
-      TRANSPORT_CONTROL.PLAY,
-      TRANSPORT_CONTROL.NEXT
-    ]);
+    ).toStrictEqual([...IDLE_CONTROLS]);
   });
 
   it("emits exactly its own call when a control is pressed", async () => {
-    for (const key of [
-      TRANSPORT_CONTROL.PREV,
-      TRANSPORT_CONTROL.PLAY,
-      TRANSPORT_CONTROL.NEXT
-    ]) {
+    for (const key of IDLE_CONTROLS) {
       const wrapper = mountTransport();
 
       await control(wrapper, key).trigger("click");
@@ -189,20 +198,25 @@ describe("T4.6 each control asks for the call it is named after (AC2.5)", () => 
   it("has nothing to step forward to at the last scene", () => {
     const wrapper = mountTransport({ playhead: LAST_SCENE });
 
-    expect(nth(wrapper.findAllComponents(Button), 2)?.props("disabled")).toBe(
-      true
-    );
+    expect(
+      nth(wrapper.findAllComponents(Button), NEXT_SLOT)?.props("disabled")
+    ).toBe(true);
   });
 
   it("puts the pending state on the control that was pressed (E12 · S14)", async () => {
-    const wrapper = mountTransport();
-    await control(wrapper, TRANSPORT_CONTROL.NEXT).trigger("click");
+    for (const key of IDLE_CONTROLS) {
+      const wrapper = mountTransport();
+      await control(wrapper, key).trigger("click");
 
-    await wrapper.setProps({ busy: true });
+      await wrapper.setProps({ busy: true });
 
-    expect(
-      map(wrapper.findAllComponents(Button), button => button.props("loading"))
-    ).toStrictEqual([false, false, true]);
+      expect(
+        map(wrapper.findAllComponents(Button), button =>
+          button.props("loading")
+        )
+      ).toStrictEqual(map(IDLE_CONTROLS, name => name === key));
+      wrapper.unmount();
+    }
   });
 
   it("treats the running track as primary or secondary, never as a warning (AC2.8 · H2)", () => {

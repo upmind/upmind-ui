@@ -23,6 +23,7 @@ import { createI18n } from "vue-i18n";
 import action from "@upmind-automation/i18n/core/action-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
+import { declaringChannel } from "../../../../testing/declared-table";
 import { defaultRow, unverifiedRow } from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import {
@@ -41,7 +42,20 @@ import {
   FIRST_DECLARED_COLUMN,
   TABLE_COLUMNS
 } from "./table-geometry";
-import { difference, filter, keys, map, reject, slice, some } from "lodash-es";
+import {
+  difference,
+  filter,
+  find,
+  includes,
+  keys,
+  last,
+  map,
+  reject,
+  slice,
+  some,
+  split
+} from "lodash-es";
+import type { DeclaringTableChannel } from "../../../composables/useTableChannel.types";
 import type { ResolvedHandoff } from "../../../scenario.types";
 import type { SurfaceActions } from "../surface.types";
 import type { ControlledTableChannel } from "@upmind-automation/scenario-harness";
@@ -49,6 +63,29 @@ import type { ControlledTableChannel } from "@upmind-automation/scenario-harness
 // -----------------------------------------------------------------------------
 
 const { presentation } = clientEmails;
+
+/**
+ * The ordering vocabulary is the query schema's own `sort` enum, reached through
+ * the channel's `declared()` — no declaration restates it (`R6-28`,
+ * `useTableChannel.types.ts`), so `presentation` carries no `sort` member to
+ * read.
+ */
+const DECLARED_SORT_FIELDS = map(
+  (await declaringChannel("client-email")).declared?.().sort,
+  "field"
+);
+
+/** The wire field a declared column names — its own scope's last segment. */
+const wireField = (scope: string) => last(split(scope, "/"));
+
+/**
+ * The declared columns whose scope names a field the schema will answer `order=`
+ * on. Status is a composite of two `meta` flags the API orders on neither of,
+ * and the bounce date names no enum member either (`R6-6b`).
+ */
+const ORDERING_COLUMNS = filter(presentation.table.elements, element =>
+  includes(DECLARED_SORT_FIELDS, wireField(element.scope as string))
+);
 
 /** Row 0: the account's own default address. Row 1: the one the run created. */
 const rows = [defaultRow, unverifiedRow];
@@ -74,7 +111,7 @@ const declaredIn = (placement: ActionPlacementTypes) =>
   );
 
 function mountList(
-  table?: ControlledTableChannel,
+  table?: DeclaringTableChannel,
   actions: SurfaceActions = {},
   handoffs?: Record<string, ResolvedHandoff>
 ) {
@@ -111,6 +148,12 @@ function fakeTable(
 }
 
 type Wrapper = ReturnType<typeof mountList>;
+
+/** The header the surface offers an ordering ON — found, never counted. */
+const orderingHeader = (wrapper: Wrapper) =>
+  find(wrapper.findAll("th"), header =>
+    header.find('[data-test-key="button"]').exists()
+  )!;
 
 const control = (
   wrapper: Wrapper,
@@ -159,14 +202,18 @@ afterEach(() => {
 describe("@AC2 ListSurface — controlled-table consumed, never owned", () => {
   it("emits a sort intent naming the DECLARED column, not a row key", async () => {
     const emit = vi.fn();
-    const wrapper = mountList(fakeTable({}, emit));
+    const wrapper = mountList(
+      await declaringChannel("client-email", { emit, total: rows.length })
+    );
 
-    await wrapper.findAll("th")[FIRST_DECLARED_COLUMN].trigger("click");
+    await orderingHeader(wrapper).trigger("click");
 
     expect(emit).toHaveBeenCalledTimes(1);
     const intent = emit.mock.calls[0][0];
     expect(intent.type).toBe("sort");
-    expect(intent.sort[0].field).toBe("email");
+    expect(intent.sort[0].field).toBe(
+      wireField(ORDERING_COLUMNS[0].scope as string)
+    );
   });
 
   it("renders NO filter input in the table header — the FilterBar is the ONE filter surface (P1-R15)", () => {
@@ -378,27 +425,25 @@ describe("@AC3 the declaration is the ONLY source of columns and controls (C15)"
 /**
  * @AC5.1 @R6-5 @R6-6b a header says what its own column IS
  *
- * A header writes the ordering only where its column NAMES a wire field — the
- * declaration's `sort[].scope` is that binding. The Status cell is a composite
- * of two `meta` flags the API orders on neither of, and the bounce date names no
- * field in the schema's `sort.field` enum either, so both draw a plain header
- * rather than a control that would order by something else entirely. And no
- * header wraps: "Date bounced" broke onto two lines and set the row's height.
+ * A header writes the ordering only where its column NAMES a wire field the
+ * query schema declares orderable — the channel's `declared().sort` is that
+ * vocabulary, and no declaration restates it (`R6-28`). The Status cell is a
+ * composite of two `meta` flags the API orders on neither of, and the bounce
+ * date names no field in the schema's `sort.field` enum either, so both draw a
+ * plain header rather than a control that would order by something else
+ * entirely. And no header wraps: "Date bounced" broke onto two lines and set
+ * the row's height.
  */
 describe("@AC3 a header sorts only what its own column IS (R6-5 · R6-6b)", () => {
   const declaredHeaders = (wrapper: Wrapper) =>
     slice(wrapper.findAll("thead th"), FIRST_DECLARED_COLUMN, ACTIONS_COLUMN);
 
-  /** The declared columns a `sort` entry actually points its `scope` at. */
-  const SORTING_HEADERS = map(
-    filter(presentation.table?.elements, element =>
-      some(presentation.sort, ["scope", element.scope])
-    ),
-    element => i18n.global.t(element.i18n as string)
+  const SORTING_HEADERS = map(ORDERING_COLUMNS, element =>
+    i18n.global.t(element.i18n as string)
   );
 
-  it("carries the ordering control on the columns that name a field, and no others", () => {
-    const wrapper = mountList(fakeTable());
+  it("carries the ordering control on the columns that name a field, and no others", async () => {
+    const wrapper = mountList(await declaringChannel("client-email"));
     const sorting = filter(declaredHeaders(wrapper), header =>
       header.find('[data-test-key="button"]').exists()
     );
@@ -407,8 +452,8 @@ describe("@AC3 a header sorts only what its own column IS (R6-5 · R6-6b)", () =
     expect(map(sorting, header => header.text())).toEqual(SORTING_HEADERS);
   });
 
-  it("leaves every other declared column a plain header, composite included", () => {
-    const wrapper = mountList(fakeTable());
+  it("leaves every other declared column a plain header, composite included", async () => {
+    const wrapper = mountList(await declaringChannel("client-email"));
     const plain = reject(declaredHeaders(wrapper), header =>
       header.find('[data-test-key="button"]').exists()
     );

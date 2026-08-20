@@ -4,10 +4,13 @@
  * @description T3.9 — what steers the list, after the rulings that replaced
  * `D4` (`G3` · `G4` · `G5` · `H1`; `tasks.md` §2 — the supersession, not a
  * regression). `D4`'s ONE row is dead: the facets, the refinements they produced
- * and the display row are THREE rows of one cluster, and the collection's own
- * action is not among them at all. Four claims:
- *   1. the surface draws exactly those three, in that order, inside one cluster
- *      that is neither the surface root nor a wrapper around the table (`G5`);
+ * and the display row are the cluster that steers the list, and the
+ * collection's own action is not among them at all. Four claims:
+ *   1. the surface draws all three, inside one cluster that is neither the
+ *      surface root nor a wrapper around the table. `R6-16` supersedes `G5`'s
+ *      standalone refinements row — the chips ride INLINE on the display row,
+ *      after Results — so no document order between them is claimed here
+ *      (`evidence/r6-live/claim-09-r6-16-display-row.round-1.md`);
  *   2. Add-new has LEFT the surface — the list still owns the handoff, the page
  *      header renders the control (`G4`);
  *   3. the ordering control sits on the display row in BOTH views, and writes
@@ -29,6 +32,7 @@ import { internalKits } from "@upmind-automation/headless/testing";
 import action from "@upmind-automation/i18n/core/action-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
+import { declaringChannel } from "../../../../testing/declared-table";
 import { defaultRow, unverifiedRow } from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { CONTROL_TEST_VALUE } from "../../__tests__/control-test-values";
@@ -37,10 +41,13 @@ import DisplayRow from "../../DisplayRow.vue";
 import FilterBar from "../../FilterBar.vue";
 import RefinementsRow from "../../RefinementsRow.vue";
 import { ListSurface, ListViewTypes } from "../index";
-import { FIRST_DECLARED_COLUMN } from "./table-geometry";
-import { every, map } from "lodash-es";
+import { every, find, map } from "lodash-es";
 import type { ModulePortCriteria } from "../../../composables/useModulePort.types";
-import type { ControlledTableChannel } from "@upmind-automation/scenario-harness";
+import type { DeclaringTableChannel } from "../../../composables/useTableChannel.types";
+import type {
+  ControlledTableChannel,
+  TableModel
+} from "@upmind-automation/scenario-harness";
 
 const { useQuerySchema, useQueryUischema } =
   await internalKits["client-email"]();
@@ -67,17 +74,21 @@ const messages = { en: { action, labs: labsEn, text } };
 
 const i18n = () => createI18n({ legacy: false, locale: "en", messages });
 
+/**
+ * The channel the surface reads, DECLARING its ordering vocabulary: that
+ * vocabulary is the module's own query-schema `sort` enum and no declaration
+ * restates it (`R6-28`), so a channel that cannot declare offers no ordering
+ * anywhere.
+ */
 const channelOn = (
   emit: ControlledTableChannel["emit"] = vi.fn(),
-  sort: { field: string; dir: string }[] = [LIVE_SORT]
-): ControlledTableChannel => ({
-  read: () => ({
-    filter: {},
+  sort: TableModel["sort"] = [LIVE_SORT]
+) =>
+  declaringChannel("client-email", {
+    emit,
     sort,
-    pagination: { page: 1, perPage: 10, total: rows.length + 1 }
-  }),
-  emit
-});
+    total: rows.length + 1
+  });
 
 function liveCriteria(model: Record<string, unknown>): ModulePortCriteria {
   const live = ref(model);
@@ -90,10 +101,10 @@ function liveCriteria(model: Record<string, unknown>): ModulePortCriteria {
   };
 }
 
-function mountList(
+async function mountList(
   options: {
     criteria?: Record<string, unknown> | false;
-    table?: ControlledTableChannel;
+    table?: DeclaringTableChannel;
   } = {}
 ) {
   return mount(ListSurface, {
@@ -106,7 +117,7 @@ function mountList(
       },
       actions: { remove: vi.fn() },
       presentation,
-      table: options.table ?? channelOn(),
+      table: options.table ?? (await channelOn()),
       criteria:
         options.criteria === false
           ? undefined
@@ -117,7 +128,7 @@ function mountList(
   });
 }
 
-type Wrapper = ReturnType<typeof mountList>;
+type Wrapper = Awaited<ReturnType<typeof mountList>>;
 
 /** The nearest element holding both — the cluster they are drawn in. */
 function sharedAncestor(one: Element, two: Element): HTMLElement {
@@ -152,26 +163,32 @@ const inCardView = async (wrapper: Wrapper, read: () => void) => {
 const follows = (one: Element, two: Element) =>
   Boolean(one.compareDocumentPosition(two) & Node.DOCUMENT_POSITION_FOLLOWING);
 
+/** The header the surface offers an ordering ON — found, never counted. */
+const orderingHeader = (wrapper: Wrapper) =>
+  find(wrapper.findAll("th"), header =>
+    header.find('[data-test-key="button"]').exists()
+  )!;
+
 // -----------------------------------------------------------------------------
 
-describe("T3.9 the facets, the refinements and the display row are THREE rows (G5)", () => {
-  it("draws all three, each as its own component", () => {
-    const wrapper = mountList();
+describe("T3.9 the facets, the refinements and the display row are ONE cluster (R6-16)", () => {
+  it("draws all three, each as its own component", async () => {
+    const wrapper = await mountList();
 
     expect(wrapper.findComponent(FilterBar).exists()).toBe(true);
     expect(wrapper.findComponent(RefinementsRow).exists()).toBe(true);
     expect(wrapper.findComponent(DisplayRow).exists()).toBe(true);
   });
 
-  it("orders them facets → what they narrowed → what it amounts to", () => {
-    const [facets, refinements, display] = rowsOf(mountList());
+  it("puts the facets ahead of everything they narrowed", async () => {
+    const [facets, refinements, display] = rowsOf(await mountList());
 
+    expect(follows(facets!, display!)).toBe(true);
     expect(follows(facets!, refinements!)).toBe(true);
-    expect(follows(refinements!, display!)).toBe(true);
   });
 
-  it("keeps them in ONE cluster that is not merely the surface root", () => {
-    const wrapper = mountList();
+  it("keeps them in ONE cluster that is not merely the surface root", async () => {
+    const wrapper = await mountList();
     const [facets, , display] = rowsOf(wrapper);
     const cluster = sharedAncestor(facets!, display!);
 
@@ -180,8 +197,8 @@ describe("T3.9 the facets, the refinements and the display row are THREE rows (G
     expect(every(rowsOf(wrapper), row => cluster.contains(row))).toBe(true);
   });
 
-  it("holds none of the table it steers, and precedes it", () => {
-    const wrapper = mountList();
+  it("holds none of the table it steers, and precedes it", async () => {
+    const wrapper = await mountList();
     const [facets, , display] = rowsOf(wrapper);
     const cluster = sharedAncestor(facets!, display!);
 
@@ -189,8 +206,8 @@ describe("T3.9 the facets, the refinements and the display row are THREE rows (G
     expect(follows(cluster, wrapper.find("table").element)).toBe(true);
   });
 
-  it("offers no facets and no refinements where the module publishes no criteria", () => {
-    const wrapper = mountList({ criteria: false });
+  it("offers no facets and no refinements where the module publishes no criteria", async () => {
+    const wrapper = await mountList({ criteria: false });
 
     expect(wrapper.findComponent(FilterBar).exists()).toBe(false);
     expect(wrapper.find('[data-test-key="refinement"]').exists()).toBe(false);
@@ -199,22 +216,22 @@ describe("T3.9 the facets, the refinements and the display row are THREE rows (G
 });
 
 describe("T3.9 the collection's own action has LEFT the surface (G4)", () => {
-  it("draws no Add control anywhere in the list", () => {
-    const wrapper = mountList();
+  it("draws no Add control anywhere in the list", async () => {
+    const wrapper = await mountList();
 
     expect(wrapper.find(ADD).exists()).toBe(false);
   });
 
   it("draws none in card view either", async () => {
-    const wrapper = mountList();
+    const wrapper = await mountList();
 
     await inCardView(wrapper, () =>
       expect(wrapper.find(ADD).exists()).toBe(false)
     );
   });
 
-  it("still resolves the handoff the collection's action opens — the list kept the editor", () => {
-    const wrapper = mountList();
+  it("still resolves the handoff the collection's action opens — the list kept the editor", async () => {
+    const wrapper = await mountList();
 
     expect(wrapper.find(ADD).exists()).toBe(false);
     expect(wrapper.findComponent(DisplayRow).exists()).toBe(true);
@@ -222,15 +239,15 @@ describe("T3.9 the collection's own action has LEFT the surface (G4)", () => {
 });
 
 describe("T3.9 ordering sits on the display row, in both views (G3 · E9)", () => {
-  it("offers it in table view, where the headers already are", () => {
-    const wrapper = mountList();
+  it("offers it in table view, where the headers already are", async () => {
+    const wrapper = await mountList();
     const display = wrapper.findComponent(DisplayRow);
 
     expect(display.find(SORT_CONTROL).exists()).toBe(true);
   });
 
   it("offers it in card view, where there are no headers to click", async () => {
-    const wrapper = mountList();
+    const wrapper = await mountList();
 
     await inCardView(wrapper, () =>
       expect(
@@ -241,14 +258,14 @@ describe("T3.9 ordering sits on the display row, in both views (G3 · E9)", () =
 
   it("writes the same intent as the column header it shares its channel with", async () => {
     const fromToolbar = vi.fn();
-    const toolbar = mountList({ table: channelOn(fromToolbar) });
+    const toolbar = await mountList({ table: await channelOn(fromToolbar) });
     await toolbar
       .find(`${SORT_CONTROL} [data-test-key="button"]`)
       .trigger("click");
 
     const fromHeader = vi.fn();
-    const header = mountList({ table: channelOn(fromHeader) });
-    await header.findAll("th")[FIRST_DECLARED_COLUMN]!.trigger("click");
+    const header = await mountList({ table: await channelOn(fromHeader) });
+    await orderingHeader(header).trigger("click");
 
     expect(fromToolbar).toHaveBeenCalledTimes(1);
     expect(fromToolbar.mock.calls[0]![0]).toEqual(fromHeader.mock.calls[0]![0]);
@@ -256,8 +273,8 @@ describe("T3.9 ordering sits on the display row, in both views (G3 · E9)", () =
 });
 
 describe("T3.9 the count is on Results, and nowhere else (H1)", () => {
-  it("reads the drawn rows against the collection's total, on the display row", () => {
-    const wrapper = mountList();
+  it("reads the drawn rows against the collection's total, on the display row", async () => {
+    const wrapper = await mountList();
 
     expect(wrapper.findComponent(DisplayRow).text()).toContain(
       i18n().global.t("labs.results_showing", {
@@ -267,8 +284,8 @@ describe("T3.9 the count is on Results, and nowhere else (H1)", () => {
     );
   });
 
-  it("leaves the refinements row carrying chips and Clear all alone", () => {
-    const wrapper = mountList();
+  it("leaves the refinements row carrying chips and Clear all alone", async () => {
+    const wrapper = await mountList();
     const refinements = wrapper.findComponent(RefinementsRow);
 
     expect(
