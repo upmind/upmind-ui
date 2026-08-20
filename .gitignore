@@ -18,6 +18,7 @@ tsconfig.tsbuildinfo
 .claude/settings.local.json
 .claude/tasks/
 .claude/worktrees/
+.claude/dispatch/
 
 
 # Playwright
