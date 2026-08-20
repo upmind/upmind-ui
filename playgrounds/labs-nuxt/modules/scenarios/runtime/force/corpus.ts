@@ -20,13 +20,35 @@
  * Browser-safe by construction: no `node:fs`, no `node:path`.
  */
 
-import { corpusBodies, isCorpusSourceResolved } from "./corpus.source";
+import {
+  getCorpusBodies,
+  isModuleResolved,
+  loadCorpusBodies
+} from "./corpus.source";
 import { filter, get, last, map, orderBy, reject, split } from "lodash-es";
-import type {
-  CorpusBodies,
-  CorpusFixtureName,
-  RecordedFixture
-} from "./corpus.source.types";
+import type { RecordedFixture } from "./corpus.source.types";
+
+// -----------------------------------------------------------------------------
+// Module-specific types for the corpus resolver
+
+/** The module this corpus resolver serves. */
+const SERVED_MODULE = "client-email";
+
+/** Fixture names for the served module — kept here, not in corpus.source.ts. */
+export type CorpusFixtureName =
+  | "delete-clients-id-emails-id"
+  | "get-clients-id-emails-case-page-1"
+  | "get-clients-id-emails-case-page-2"
+  | "get-clients-id-emails-id"
+  | "get-clients-id-emails"
+  | "patch-clients-id-emails-id-send-verify"
+  | "post-clients-id-emails"
+  | "put-clients-id-emails-id-case-set-default-unverified"
+  | "put-clients-id-emails-id-case-set-default"
+  | "put-clients-id-emails-id";
+
+/** Every recorded body this resolver serves, keyed by fixture name. */
+export type CorpusBodies = Readonly<Record<CorpusFixtureName, RecordedFixture>>;
 
 // -----------------------------------------------------------------------------
 
@@ -90,6 +112,12 @@ const envelope = (
 
 // -----------------------------------------------------------------------------
 
+// Pre-load the served module's bodies at module initialization time so
+// runtimeCorpus() can return them synchronously.
+if (isModuleResolved(SERVED_MODULE)) {
+  await loadCorpusBodies(SERVED_MODULE);
+}
+
 /**
  * The recorded bodies as APP RUNTIME may reach them, or `undefined` while `ESC6`
  * is unruled — the seam throws rather than improvise a body, so the guard is
@@ -97,7 +125,8 @@ const envelope = (
  * page in the meantime, which is the default it boots into anyway (`S12`).
  */
 export function runtimeCorpus(): CorpusBodies | undefined {
-  return isCorpusSourceResolved ? corpusBodies() : undefined;
+  if (!isModuleResolved(SERVED_MODULE)) return undefined;
+  return getCorpusBodies(SERVED_MODULE) as CorpusBodies | undefined;
 }
 
 /**

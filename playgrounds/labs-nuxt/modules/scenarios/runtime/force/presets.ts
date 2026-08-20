@@ -35,8 +35,7 @@
 
 import { resolveCorpusRequest } from "./corpus";
 import { isArray, toUpper } from "lodash-es";
-import type { CorpusResponse } from "./corpus";
-import type { CorpusBodies, CorpusFixtureName } from "./corpus.source.types";
+import type { CorpusBodies, CorpusFixtureName, CorpusResponse } from "./corpus";
 import type { ForcePreset } from "../composables/useForcedState.types";
 
 // -----------------------------------------------------------------------------

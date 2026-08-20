@@ -24,8 +24,7 @@ import { createCorpusSession, runtimeCorpus } from "./corpus";
 import { PENDING, presetAnswer } from "./presets";
 import { MODULE_ROUTES } from "./routes";
 import { isUndefined, map } from "lodash-es";
-import type { CorpusSession } from "./corpus";
-import type { CorpusBodies } from "./corpus.source.types";
+import type { CorpusBodies, CorpusSession } from "./corpus";
 import type { ForcePreset } from "../composables/useForcedState.types";
 import type { HttpHandler, HttpResponseResolver, JsonBodyType } from "msw";
 
