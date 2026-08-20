@@ -17,8 +17,8 @@
  * `.withId(id)`. It is NOT a synthesised `{ type: 'email', id }` scope
  * context — a leaf record was never an ADR-001 context type — so the overlay
  * takes an `id` prop and no `context` prop, and the observer below records
- * `.withId` at BOTH builder positions rather than presuming which one the
- * overlay reaches for.
+ * `.withId`, `.for` and `.fresh` alike, at every builder position, rather than
+ * presuming which one the overlay reaches for.
  *
  * ## What Breaks If These Fail
  * Either the overlay refetches a record the list already holds (a request per
@@ -69,24 +69,31 @@ window.matchMedia =
 type Step = { step: string; cell: ScenarioScopedCell };
 
 /**
- * The history page's REAL read composable with its builder wrapped: every step
- * the overlay takes is recorded and then delegated, so the composable under the
- * declaration is the shipped one. `.withId` is wrapped at the root AND after
- * `.as()`, so the recorded step is whichever position the overlay actually
- * reaches for.
+ * The history page's REAL read composable with its builder wrapped: EVERY
+ * targeting step the overlay takes is recorded and then delegated, so the
+ * composable under the declaration is the shipped one. All three are wrapped at
+ * the root AND after `.as()`, and each wraps what it returns, so a step is
+ * recorded wherever in the chain the overlay reaches for it — an observer that
+ * saw only `.withId` could never report a `.for()` the overlay did take.
  */
 function observedDetail() {
   const steps: Step[] = [];
 
-  const observe = (cell: ScenarioScopedCell): ScenarioScopedCell =>
-    ({
+  const observe = (cell: ScenarioScopedCell): ScenarioScopedCell => {
+    const record = (step: string, next: unknown) => {
+      const scoped = next as ScenarioScopedCell;
+      steps.push({ step, cell: scoped });
+      return observe(scoped);
+    };
+
+    return {
       ...cell,
-      withId: (id: string) => {
-        const scoped = cell.withId?.(id) as ScenarioScopedCell;
-        steps.push({ step: `withId:${id}`, cell: scoped });
-        return scoped;
-      }
-    }) as ScenarioScopedCell;
+      withId: (id: string) => record(`withId:${id}`, cell.withId?.(id)),
+      for: (type: string, id: string) =>
+        record(`for:${type}:${id}`, cell.for?.(type, id)),
+      fresh: () => record("fresh", cell.fresh?.())
+    } as ScenarioScopedCell;
+  };
 
   const useDetail = ((...args: never[]) => {
     const built = (clientEmailHistory.useDetail as FourLayerComposable)(

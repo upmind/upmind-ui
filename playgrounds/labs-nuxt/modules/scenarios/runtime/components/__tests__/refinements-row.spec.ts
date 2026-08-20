@@ -23,6 +23,7 @@ import { computed, ref } from "vue";
 import { createI18n } from "vue-i18n";
 import { internalKits } from "@upmind-automation/headless/testing";
 import action from "@upmind-automation/i18n/core/action-en.json";
+import form from "@upmind-automation/i18n/core/form-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
 import { Badge } from "@upmind-automation/upmind-ui";
@@ -42,7 +43,7 @@ const NARROWED = {
   filters: { verified: { eq: false }, email: { like: SEARCH_TERM } }
 };
 
-const messages = { en: { action, labs: labsEn, text } };
+const messages = { en: { action, form, labs: labsEn, text } };
 
 const translate = createI18n({ legacy: false, locale: "en", messages }).global
   .t;
@@ -50,6 +51,15 @@ const translate = createI18n({ legacy: false, locale: "en", messages }).global
 /** The catalogue's own chip sentence, so no label is spelled twice. */
 const chipLabel = (label: string, value: string) =>
   translate("labs.refinement", { label, value });
+
+/**
+ * A leaf's value as ITS OWN element declares it — the uischema control over
+ * `filters/verified/eq` names `form.verified_filter`, whose catalogue carries a
+ * label per enum member. The generic `text.yes`/`text.no` pair is bound to no
+ * control, so a boolean chip reading "No" was never the declared wording.
+ */
+const declaredValue = (prefix: string, value: string) =>
+  translate(`form.${prefix}.${value}`);
 
 function criteriaOn(model: Record<string, unknown>): ModulePortCriteria {
   const live = ref(model);
@@ -103,12 +113,15 @@ describe("T3.6 one chip per active refinement (G5 · AC4.4)", () => {
     expect(chipIds(wrapper)).toEqual(["email.like", "verified.eq"]);
   });
 
-  it("names each chip from the column's own declared title and its live value", () => {
+  it("names each chip from the column's own declared title and declared value", () => {
     const { wrapper } = mountRow();
 
     expect(map(chips(wrapper), chip => chip.text())).toEqual([
       chipLabel(translate("text.email_address"), SEARCH_TERM),
-      chipLabel(translate("text.verified_label"), translate("text.no"))
+      chipLabel(
+        translate("text.verified_label"),
+        declaredValue("verified_filter", "false")
+      )
     ]);
   });
 
