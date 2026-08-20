@@ -163,7 +163,26 @@ const syntheticContext: LiveContext = {
   isError: { value: false }
 };
 
+/** Loading state context for skeleton tests — isLoading stays true. */
+const syntheticLoadingContext: LiveContext = {
+  data: { value: null },
+  error: { value: null },
+  isLoading: { value: true },
+  isError: { value: false }
+};
+
 const syntheticMeta: LiveMeta = {
+  isServed: true,
+  isLoading: false,
+  canCreate: true,
+  canUpdate: true,
+  canDelete: true
+};
+
+/** Loading meta — isLoading true so FormFlowSurface renders skeletons. */
+const syntheticLoadingMeta: LiveMeta = {
+  isServed: true,
+  isLoading: true,
   canCreate: true,
   canUpdate: true,
   canDelete: true
@@ -175,6 +194,13 @@ const syntheticCell: LiveCompositionCell = {
   useMeta: () => syntheticMeta
 };
 
+/** Loading cell for skeleton tests — useContext and useMeta return loading state. */
+const syntheticLoadingCell: LiveCompositionCell = {
+  useActions: () => syntheticActions,
+  useContext: () => syntheticLoadingContext,
+  useMeta: () => syntheticLoadingMeta
+};
+
 const syntheticScopedCell: ScenarioScopedCell = {
   ...syntheticCell,
   for: () => syntheticCell,
@@ -182,6 +208,16 @@ const syntheticScopedCell: ScenarioScopedCell = {
     return this;
   },
   fresh: () => syntheticCell
+};
+
+/** Loading scoped cell for skeleton tests. */
+const syntheticLoadingScopedCell: ScenarioScopedCell = {
+  ...syntheticLoadingCell,
+  for: () => syntheticLoadingCell,
+  withId: function () {
+    return this;
+  },
+  fresh: () => syntheticLoadingCell
 };
 
 /**
@@ -198,6 +234,14 @@ export const useSyntheticList: FourLayerComposable = Object.assign(
 export const useSyntheticMutate: FourLayerComposable = Object.assign(
   () => ({
     as: (_actor: ScopeActorTypes) => syntheticScopedCell
+  }),
+  { scopeMatrix: { client: {}, staff: { client: {} } } }
+);
+
+/** Loading composable for skeleton tests — stays in loading state. */
+export const useSyntheticMutateLoading: FourLayerComposable = Object.assign(
+  () => ({
+    as: (_actor: ScopeActorTypes) => syntheticLoadingScopedCell
   }),
   { scopeMatrix: { client: {}, staff: { client: {} } } }
 );
@@ -352,21 +396,21 @@ export const syntheticStepCatalog: StepCatalog = defineSteps(steps => {
 // -----------------------------------------------------------------------------
 // Synthetic handoffs for framework tests
 
+const SYNTHETIC_FEEDBACK = {
+  success: "confirm.saved",
+  failure: "error.save_failed"
+};
+
 export const syntheticHandoffs: Record<string, DeclaredHandoff> = {
   add: {
-    key: "add",
-    label: "Add New",
-    i18n: "handoff.add"
+    feedback: SYNTHETIC_FEEDBACK
   },
   edit: {
-    key: "edit",
-    label: "Edit",
-    i18n: "handoff.edit"
+    context: { type: "synthetic", from: "/id" },
+    feedback: SYNTHETIC_FEEDBACK
   },
   view: {
-    key: "view",
-    label: "View Details",
-    i18n: "handoff.view"
+    context: { type: "synthetic", from: "/id" }
   }
 };
 
