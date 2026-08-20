@@ -1,1 +1,15 @@
 pnpm run lint-staged
+
+# --- graphify: stage an already-rebuilt graph -------------------------------
+# post-commit rebuilds AFTER the snapshot, so its output can never be in the
+# commit that triggered it and the tree looks dirty forever. This stages that
+# previous rebuild into THIS commit. It never rebuilds, so it adds no wait —
+# the graph inside commit N reflects code as of commit N-1, and the tree ends
+# clean. GRAPHIFY_SKIP_HOOK=1 opts out.
+if [ -z "${GRAPHIFY_SKIP_HOOK:-}" ]; then
+  for f in graphify-out/graph.json graphify-out/GRAPH_REPORT.md graphify-out/graph-modules.json; do
+    [ -f "$f" ] || continue
+    git ls-files --error-unmatch "$f" >/dev/null 2>&1 || continue   # only if tracked
+    git diff --quiet -- "$f" || git add -f "$f"
+  done
+fi

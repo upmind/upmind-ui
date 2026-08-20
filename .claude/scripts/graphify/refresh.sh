@@ -325,4 +325,7 @@ else
 fi
 
 # --- Per-package pass (monorepo run only) ---
-$SCOPED || refresh_packages
+# Per-package graphs are gitignored and duplicate the root graph, so they are
+# dead weight in a git hook. Opt in with GRAPHIFY_PACKAGES=1 when you actually
+# want package-scoped graphs.
+if ! $SCOPED && [ "${GRAPHIFY_PACKAGES:-0}" = "1" ]; then refresh_packages; fi
