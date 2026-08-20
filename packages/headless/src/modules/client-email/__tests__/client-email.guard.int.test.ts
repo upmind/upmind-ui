@@ -78,7 +78,7 @@ describe("client-email with no authenticated client session (AC-10)", () => {
     useClientEmails().as(ScopeActorTypes.SELF);
     useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", recorded.one().data.id);
+      .withId(recorded.one().data.id);
     // Give an (incorrectly) enabled query time to fire before asserting absence.
     await new Promise(resolve => setTimeout(resolve, 400));
     observed.stop();

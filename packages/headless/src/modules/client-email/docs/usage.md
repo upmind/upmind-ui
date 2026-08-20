@@ -19,7 +19,7 @@ import {
 const emails = useClientEmails().as("self");
 
 // The editor, opened on one existing address
-const manager = useClientEmailManager().as("self").for("email", emailId);
+const manager = useClientEmailManager().withId(emailId);
 
 // The editor, started on a brand-new address
 const draft = useClientEmailManager().as("self").fresh();
@@ -190,10 +190,10 @@ For debugging and tests. Not for production consumers.
 
 ## The per-email editor — `useClientEmailManager`
 
-A form editor over one address. Open an existing address with `.for("email", id)`; start a new one with `.fresh()`. Each call to `.fresh()` mints its own isolated instance, so two concurrent drafts never share a model.
+A form editor over one address. Open an existing address with `.withId(id)`; start a new one with `.fresh()`. Each call to `.fresh()` mints its own isolated instance, so two concurrent drafts never share a model.
 
 ```ts
-const manager = useClientEmailManager().as("self").for("email", emailId);
+const manager = useClientEmailManager().withId(emailId);
 
 await manager.useActions().isReady();
 await manager.useActions().update({ email: "new@example.com" });

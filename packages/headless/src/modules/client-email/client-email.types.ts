@@ -65,22 +65,26 @@ export const CLIENT_EMAILS_SCOPE_MATRIX = {
 export type ClientEmailsScopeMatrix = typeof CLIENT_EMAILS_SCOPE_MATRIX;
 
 /**
- * Context types for the per-email MANAGER — which email is being edited. The
- * context names the ENTITY, not its owner: the owning client falls through the
- * same `resolveClientId` seam as every other call.
+ * Context types for the per-email MANAGER.
+ * @deprecated FE-3111 — single-record reads use `.withId(id)`, not `.for('email', id)`.
+ * Retained for backward compatibility with existing call sites during migration.
+ * See graphify-out/GRAPH_REPORT.md for module relationships.
  */
 export enum ClientEmailContextTypes {
   EMAIL = "email"
 }
 
 /**
- * Scope matrix for `useClientEmailManager`. Separate from the collection's —
- * the two composables scope on different things and cannot share one.
+ * Scope matrix for `useClientEmailManager`. Every actor is `null as never`, so
+ * `.for(type, id)` is a compile-time error for all four. A leaf record is
+ * marked with `.withId(id)` and is never a scope context (FE-3111, per FE-3095
+ * pattern). Separate from the collection's — the two composables scope on
+ * different things and cannot share one.
  */
 export const CLIENT_EMAIL_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]: null as never,
-  [ScopeActorTypes.CLIENT]: ClientEmailContextTypes.EMAIL,
+  [ScopeActorTypes.CLIENT]: null as never,
   [ScopeActorTypes.GUEST]: null as never
 } as const;
 

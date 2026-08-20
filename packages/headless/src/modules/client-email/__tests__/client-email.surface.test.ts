@@ -83,10 +83,8 @@ describe("client-email public surface (AC-24)", () => {
     expect(CLIENT_EMAILS_SCOPE_MATRIX[ScopeActorTypes.GUEST]).toBeNull();
   });
 
-  it("AC-24 keeps the manager matrix's only live cell on CLIENT → EMAIL — self, staff and guest are dropped", () => {
-    expect(CLIENT_EMAIL_SCOPE_MATRIX[ScopeActorTypes.CLIENT]).toBe(
-      ClientEmailContextTypes.EMAIL
-    );
+  it("AC-24 keeps the manager matrix all-null — .withId(id) replaces .for('email', id) (FE-3111)", () => {
+    expect(CLIENT_EMAIL_SCOPE_MATRIX[ScopeActorTypes.CLIENT]).toBeNull();
     expect(CLIENT_EMAIL_SCOPE_MATRIX[ScopeActorTypes.SELF]).toBeNull();
     expect(CLIENT_EMAIL_SCOPE_MATRIX[ScopeActorTypes.STAFF]).toBeNull();
     expect(CLIENT_EMAIL_SCOPE_MATRIX[ScopeActorTypes.GUEST]).toBeNull();

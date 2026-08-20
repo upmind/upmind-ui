@@ -68,7 +68,7 @@ describe("client-email editor — opening an address (AC-11, AC-12)", () => {
 
     const manager = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", target.id);
+      .withId(target.id);
     await manager.useActions().isReady();
 
     expect(manager.useContext().id.value).toBe(target.id);
@@ -92,7 +92,7 @@ describe("client-email editor — opening an address (AC-11, AC-12)", () => {
 
     const manager = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", target.id);
+      .withId(target.id);
 
     await expect(manager.useActions().isReady()).resolves.toBe(true);
     expect(manager.useMeta().isAvailable.value).toBe(true);
@@ -107,7 +107,7 @@ describe("client-email editor — opening an address (AC-11, AC-12)", () => {
     const observed = observeEmailRequests();
     const manager = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", target.id);
+      .withId(target.id);
     await new Promise(resolve => setTimeout(resolve, 250));
     observed.stop();
 
@@ -218,7 +218,7 @@ describe("client-email editor — saving (AC-14, AC-15, AC-20)", () => {
 
     const manager = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", target.id);
+      .withId(target.id);
     await manager.useActions().isReady();
 
     const saved = await manager.useActions().update({ email: NEW_ADDRESS });
@@ -248,7 +248,7 @@ describe("client-email editor — saving (AC-14, AC-15, AC-20)", () => {
 
     const manager = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", target.id);
+      .withId(target.id);
     await manager.useActions().isReady();
 
     manager.useActions().input({ email: NEW_ADDRESS });
@@ -362,7 +362,7 @@ describe("client-email editor — saving (AC-14, AC-15, AC-20)", () => {
 
     const manager = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", secondary.id);
+      .withId(secondary.id);
     await manager.useActions().isReady();
     await manager.useActions().update({ email: updated.email });
 
@@ -459,7 +459,7 @@ describe("client-email editor — state while I work (AC-19)", () => {
 
     const editing = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", target.id);
+      .withId(target.id);
     await editing.useActions().isReady();
     expect(editing.useMeta().isNew.value).toBe(false);
   });
@@ -525,7 +525,7 @@ describe("client-email editor — lifecycle (AC-21)", () => {
 
     const manager = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", target.id);
+      .withId(target.id);
     await manager.useActions().isReady();
     const firstService = manager.useInternals().service;
     const keyCount = clientEmailScopeKeys().length;
@@ -538,7 +538,7 @@ describe("client-email editor — lifecycle (AC-21)", () => {
 
     const reopened = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", target.id);
+      .withId(target.id);
     expect(reopened.useInternals().service).not.toBe(firstService);
   });
 });

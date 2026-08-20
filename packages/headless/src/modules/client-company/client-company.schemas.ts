@@ -34,11 +34,7 @@ import {
   useSchemaDefinitions as useAddressSchema,
   useUischemaDefinitions as useAddressUischema
 } from "../client-address";
-import {
-  ClientEmailContextTypes,
-  useClientEmailManager,
-  useClientEmails
-} from "../client-email";
+import { useClientEmailManager, useClientEmails } from "../client-email";
 import { useClientPhoneManager, useClientPhones } from "../client-phone";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { CompanyContext } from "./client-company.types";
@@ -72,15 +68,12 @@ function useCompanyEmailList() {
 }
 
 function useCompanyEmailMutate(id?: string) {
-  // `.for()` / `.fresh()` chain only off a concrete actor whose matrix defines
-  // a context — SELF resolves to `never` in the manager's matrix, so this
-  // scopes CLIENT directly (the only actor this module ever serves under R1;
-  // identity still resolves to the session's own client either way, since the
-  // EMAIL context falls through to `activeUser`, not the actor).
-  const manager = useClientEmailManager().as(ScopeActorTypes.CLIENT);
+  // FE-3111: `.withId(id)` replaces `.for('email', id)`. The scope matrix is
+  // now all-null, so `.for()` is a compile-time error. `.withId()` places the
+  // record id into `config.id`; actor defaults to SELF → CLIENT.
   const instance = id
-    ? manager.for(ClientEmailContextTypes.EMAIL, id)
-    : manager.fresh();
+    ? useClientEmailManager().withId(id)
+    : useClientEmailManager().fresh();
   const { isReady, update, clear, input, destroy } = instance.useActions();
   const { model, schema, uischema, errors, validationErrors } =
     instance.useContext();

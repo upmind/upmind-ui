@@ -6,7 +6,7 @@ All notable changes to the `client-email` module are documented here. Format fol
 
 ### Added
 
-- **`useClientEmailManager`** — a second composable in this module: the per-email form editor, backed by the shared data-manager machine. Open an existing address with `.as('self').for('email', id)`, or start a new one with `.as('self').fresh()`. Each `.fresh()` call mints an isolated instance, so two concurrent drafts never share a model.
+- **`useClientEmailManager`** — a second composable in this module: the per-email form editor, backed by the shared data-manager machine. Open an existing address with `.withId(id)`, or start a new one with `.as('self').fresh()`. Each `.fresh()` call mints an isolated instance, so two concurrent drafts never share a model.
   - 7 actions — `clear`, `destroy`, `input`, `isReady`, `onDone`, `stop`, `update`.
   - 9 context members — `context`, `description`, `errors`, `id`, `model`, `schema`, `title`, `uischema`, `validationErrors`.
   - 8 flat meta flags — `hasErrors`, `isAvailable`, `isComplete`, `isDirty`, `isLoading`, `isNew`, `isProcessing`, `isValid`.
@@ -23,6 +23,7 @@ All notable changes to the `client-email` module are documented here. Format fol
 
 ### Changed
 
+- **FE-3111: `.withId(id)` replaces `.for('email', id)` for opening an existing address.** The scope matrix now blocks `.for()` at compile time — use `.withId(id)` to mark which address is being edited. This aligns with the ADR-001 amendment: single-record reads take the id as an init parameter.
 - **The editor's `useMeta()` returns flat computeds, not a single `meta` object.** Read `useMeta().isValid`; the `meta.value.isValid` form is gone. See the migration guide below.
 - **`UseClientEmail` is now `UseClientEmailManager`**, alongside `UseClientEmailManagerActions` / `…Context` / `…Meta` / `…Internals`.
 - **The collection's create seam is `ensure()` (find-or-create).** Per-address `add`, `update` and field validation are the editor's, because they need the dirty/valid state the editor owns. The collection's twelve actions are `destroy`, `ensure`, `filterBy`, `invalidate`, `isReady`, `nextPage`, `prevPage`, `refresh`, `remove`, `setDefault`, `sortBy`, `verify`.

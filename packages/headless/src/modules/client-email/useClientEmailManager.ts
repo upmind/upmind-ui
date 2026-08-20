@@ -4,10 +4,7 @@ import { dataManagerMachine } from "../data-manager";
 import { createScopedComposable } from "../scope/scope.builder";
 import { useI18n } from "../system-localisation";
 import createClientEmailServices from "./client-email.services";
-import {
-  CLIENT_EMAIL_SCOPE_MATRIX,
-  ClientEmailContextTypes
-} from "./client-email.types";
+import { CLIENT_EMAIL_SCOPE_MATRIX } from "./client-email.types";
 import { createClientEmailManagerActions } from "./useClientEmailManager.actions";
 import { createClientEmailManagerContext } from "./useClientEmailManager.context";
 import { createClientEmailManagerInternals } from "./useClientEmailManager.internals";
@@ -44,12 +41,7 @@ function createClientEmailManagerForScope(
    * new address. Reading the id from the scope key rather than an argument is
    * what makes two concurrently-open editors two distinct registry entries
    * instead of one shared machine.
-   * @todo FE-3111 — wire `config.id` instead of `config.context?.id`
    */
-  const emailId =
-    config.context?.type === ClientEmailContextTypes.EMAIL
-      ? config.context.id
-      : undefined;
 
   /**
    * ONE services instance for this scope, threaded into the machine config.
@@ -62,7 +54,7 @@ function createClientEmailManagerForScope(
     dataManagerMachine
       .withConfig(createClientEmailManagerMachineConfig(service))
       .withContext({
-        id: emailId,
+        id: config.id,
         // Identity, seeded from the ONE seam. Never read `activeUser` directly
         // in this file.
         clientId: service.clientId.value,
@@ -140,13 +132,13 @@ function createClientEmailManagerForScope(
  * @example
  * ```ts
  * // Edit an existing address
- * const manager = useClientEmailManager().as('self').withId(emailId)
+ * const manager = useClientEmailManager().withId(emailId)
  * const { model, schema, uischema } = manager.useContext()
  * await manager.useActions().isReady()
  * await manager.useActions().update({ email: 'new@example.com' })
  *
  * // Create a new address (isolated instance, distinct scope key)
- * const draft = useClientEmailManager().as('self').fresh()
+ * const draft = useClientEmailManager().fresh()
  * ```
  */
 export const useClientEmailManager = createScopedComposable<

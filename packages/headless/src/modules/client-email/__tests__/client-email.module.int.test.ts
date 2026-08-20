@@ -156,7 +156,7 @@ describe("client-email — problems are reported, never announced (AC-22)", () =
 
     const manager = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", target.id);
+      .withId(target.id);
     await manager.useActions().isReady();
 
     await expect(
@@ -300,7 +300,7 @@ describe("client-email — the addresses I act on are the ones my scope named (A
 
     const manager = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", secondary.id);
+      .withId(secondary.id);
     await manager.useActions().isReady();
     await manager.useActions().update({ email: created.email });
 
