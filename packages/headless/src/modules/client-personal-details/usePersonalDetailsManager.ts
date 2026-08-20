@@ -35,7 +35,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  *          context.id][:brand][:fresh]` (`scope.utils.ts`) — NOTHING else
  *          differentiates two composables sharing one name. `client-email`
  *          gets away with sharing a name only because its manager is NEVER
- *          called bare: every call site supplies either `.for('email', id)`
+ *          called bare: every call site supplies either `.withId(id)`
  *          (an existing address) or `.fresh()` (a new draft), both of which
  *          add a segment the collection's own `.as('client')` (no `.for()`)
  *          never has. This module's shared single-member `PROFILE` context

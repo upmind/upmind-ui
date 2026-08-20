@@ -181,9 +181,9 @@ A form rendered from a definition the editor has not adopted validates against a
 
 > **🧪 For Testers:** The module's runtime exports are exactly: both composables, both scope matrices, both context enums, and the email categories. Anything else asserted on the barrel asserts `undefined`.
 
-## 13. `.fresh()` and `.for('email', id)` mint different instances — and `destroy()` differs per half
+## 13. `.fresh()` and `.withId(id)` mint different instances — and `destroy()` differs per half
 
-Each `.fresh()` call mints an editor with its own scope key, so two concurrent drafts never share a model. An editor opened `.for('email', id)` is keyed to that address.
+Each `.fresh()` call mints an editor with its own scope key, so two concurrent drafts never share a model. An editor opened `.withId(id)` is keyed to that address.
 
 The two halves also clean up differently:
 

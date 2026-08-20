@@ -11,7 +11,7 @@
  * composables (AC-14); loading / empty / error and a readiness wait that
  * settles (AC-15); refresh and destroy/release (AC-17).
  *
- * FE-3095 replaced the synthesised `.for('email', id)` context with the
+ * FE-3095 replaced the synthesised `.withId(id)` context with the
  * builder's own `.withId(id)`, and made the actor default to the session's
  * own. Three claims land here, each on the WIRE rather than the payload: the
  * id `.withId()` names is the id fetched; a read that names NO id fires

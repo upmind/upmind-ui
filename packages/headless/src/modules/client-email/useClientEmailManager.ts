@@ -27,7 +27,7 @@ import type { ScopeActorTypes, ScopeConfig, ScopeKey } from "../scope";
  * @module client-email/useClientEmailManager
  * @description Scoped per-email form editor, backed by the shared
  * `dataManagerMachine`. One interpreter per concrete `(actor, email)` scope:
- * the address being edited comes from `.for('email', id)`, and a new one is
+ * the address being edited comes from `.withId(id)`, and a new one is
  * minted with `.fresh()`. Registered under the same module name as
  * `useClientEmails`; the scope key carries the differentiation.
  */
