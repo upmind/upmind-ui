@@ -50,22 +50,6 @@ import type {
 
 // -----------------------------------------------------------------------------
 
-// vaul-vue's drawer host probes `display-mode` on mount; jsdom ships no
-// matchMedia, so the bare mount throws before any assertion runs.
-window.matchMedia =
-  window.matchMedia ||
-  ((query: string) =>
-    ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: () => {},
-      removeListener: () => {},
-      addEventListener: () => {},
-      removeEventListener: () => {},
-      dispatchEvent: () => false
-    }) as unknown as MediaQueryList);
-
 type Step = { step: string; cell: ScenarioScopedCell };
 
 /**
