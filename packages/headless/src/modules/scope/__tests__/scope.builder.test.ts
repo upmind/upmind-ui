@@ -147,6 +147,109 @@ describe("createScopedComposable", () => {
     });
   });
 
+  describe("the single record (.withId, FE-3095)", () => {
+    it("feeds the factory config.id and the id-bearing scope key", () => {
+      const { use, captured } = makeComposable();
+
+      use().withId("email-1").useInternals();
+
+      expect(captured.config?.id).toBe("email-1");
+      expect(captured.config?.context).toBeUndefined();
+      expect(captured.key).toBe(`basket:${ScopeActorTypes.GUEST}:id:email-1`);
+    });
+
+    it("defaults the actor to the current session's own when .as() is never called", () => {
+      sessionState.activeActor = ScopeActorTypes.CLIENT;
+      const { use, captured } = makeComposable();
+
+      use().withId("email-1").useInternals();
+
+      expect(captured.config?.actor).toBe(ScopeActorTypes.CLIENT);
+      expect(captured.key).toBe(`basket:${ScopeActorTypes.CLIENT}:id:email-1`);
+    });
+
+    it("reaches the same instance whichever order .as() and .withId() are chained in", () => {
+      const { use, factory } = makeComposable();
+
+      const asThenId = use().as(ScopeActorTypes.CLIENT).withId("email-1");
+      const idThenAs = use().withId("email-1").as(ScopeActorTypes.CLIENT);
+
+      asThenId.useActions().inc();
+
+      expect(idThenAs.useMeta().count).toBe(1);
+      expect(factory).toHaveBeenCalledTimes(1);
+    });
+
+    it("isolates instances across different record ids", () => {
+      // Same actor, different record: two instances. Sharing one would serve the
+      // second email the first email's body.
+      const { use, factory } = makeComposable();
+
+      const first = use().withId("email-1");
+      const second = use().withId("email-2");
+
+      first.useActions().inc();
+
+      expect(second.useMeta().count).toBe(0);
+      expect(factory).toHaveBeenCalledTimes(2);
+    });
+
+    it("separates a record-scoped instance from the same actor's unscoped one", () => {
+      const { use, factory } = makeComposable();
+
+      const unscoped = use().as(ScopeActorTypes.CLIENT);
+      const record = use().as(ScopeActorTypes.CLIENT).withId("email-1");
+
+      unscoped.useActions().inc();
+
+      expect(record.useMeta().count).toBe(0);
+      expect(factory).toHaveBeenCalledTimes(2);
+    });
+
+    it("leaves config.id and the key absent for a chain that names no record", () => {
+      const { use, captured } = makeComposable();
+
+      use().as(ScopeActorTypes.STAFF).for("client", "123").useInternals();
+
+      expect(captured.config?.id).toBeUndefined();
+      expect(captured.key).toBe(`basket:${ScopeActorTypes.STAFF}:client:123`);
+    });
+
+    it("offers .withId() after a context, keeping the context", () => {
+      // A record id and a context coexist: the context names the entity the
+      // ACTOR acts upon, the id the ONE record read. Adding `.inBrand()` to this
+      // chain does not type-check — `ScopeBuilderAfterFor.inBrand` returns a
+      // bare `T`, so a context + brand + id chain is unreachable. See the
+      // handoff finding, not worked around here.
+      const { use, captured } = makeComposable();
+
+      use()
+        .as(ScopeActorTypes.STAFF)
+        .for("client", "123")
+        .withId("email-1")
+        .useInternals();
+
+      expect(captured.config?.context).toEqual({ type: "client", id: "123" });
+      expect(captured.config?.id).toBe("email-1");
+      expect(captured.key).toBe(
+        `basket:${ScopeActorTypes.STAFF}:client:123:id:email-1`
+      );
+    });
+
+    it("offers .withId() after a brand, keeping the brand", () => {
+      const { use, captured } = makeComposable();
+
+      use()
+        .as(ScopeActorTypes.STAFF)
+        .inBrand("brand-x")
+        .withId("email-1")
+        .useInternals();
+
+      expect(captured.config?.brandId).toBe("brand-x");
+      expect(captured.config?.id).toBe("email-1");
+    });
+  });
+
   describe("singleton behaviour (ADR-001 §8)", () => {
     it("shares one instance across identical scopes", () => {
       const { use, factory } = makeComposable();

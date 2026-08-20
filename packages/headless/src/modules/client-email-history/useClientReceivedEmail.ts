@@ -4,6 +4,7 @@ import { createClientReceivedEmailActions } from "./useClientReceivedEmail.actio
 import { createClientReceivedEmailContext } from "./useClientReceivedEmail.context";
 import { createClientReceivedEmailInternals } from "./useClientReceivedEmail.internals";
 import { createClientReceivedEmailMeta } from "./useClientReceivedEmail.meta";
+import type { ReceivedEmailScopeMatrix } from "./client-email-history.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
@@ -80,7 +81,8 @@ function createClientReceivedEmailForScope(
  * ```
  */
 export const useClientReceivedEmail = createScopedComposable<
-  ReturnType<typeof createClientReceivedEmailForScope>
+  ReturnType<typeof createClientReceivedEmailForScope>,
+  ReceivedEmailScopeMatrix
 >("client-email-history", createClientReceivedEmailForScope);
 
 // Type export for consumers

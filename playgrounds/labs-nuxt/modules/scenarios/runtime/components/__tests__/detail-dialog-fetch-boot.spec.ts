@@ -5,13 +5,20 @@
  *
  * ## Job To Be Done
  * A scenario that binds `useDetail` (client-email-history) opens a row on the
- * FRESHLY-FETCHED full record — the single-read composable booted `.for()` the
- * row's own identity — so a field the list never carries (the email body) is
- * there to read. A scenario without it, or a row with no id to key by, stays on
- * the clicked row's own data and makes no second request. What is measured here
- * is which path the overlay takes: the REAL `useDetail` builder, wrapped to
- * observe, never replaced — the same seam `manage-dialog-fresh-boot` observes
- * for the editor.
+ * FRESHLY-FETCHED full record — the single-read composable booted `.withId()`
+ * the row's own identity — so a field the list never carries (the email body)
+ * is there to read. A scenario without it, or a row with no id to key by,
+ * stays on the clicked row's own data and makes no second request. What is
+ * measured here is which path the overlay takes: the REAL `useDetail` builder,
+ * wrapped to observe, never replaced — the same seam
+ * `manage-dialog-fresh-boot` observes for the editor.
+ *
+ * FE-3095: the target is the row's own record ID, handed to the builder's
+ * `.withId(id)`. It is NOT a synthesised `{ type: 'email', id }` scope
+ * context — a leaf record was never an ADR-001 context type — so the overlay
+ * takes an `id` prop and no `context` prop, and the observer below records
+ * `.withId` at BOTH builder positions rather than presuming which one the
+ * overlay reaches for.
  *
  * ## What Breaks If These Fail
  * Either the overlay refetches a record the list already holds (a request per
@@ -40,39 +47,58 @@ import type {
   ResolvedDetail,
   ScenarioScopedCell
 } from "../../scenario.types";
-import type { ScopeContext } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
+
+// vaul-vue's drawer host probes `display-mode` on mount; jsdom ships no
+// matchMedia, so the bare mount throws before any assertion runs.
+window.matchMedia =
+  window.matchMedia ||
+  ((query: string) =>
+    ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false
+    }) as unknown as MediaQueryList);
 
 type Step = { step: string; cell: ScenarioScopedCell };
 
 /**
  * The history page's REAL read composable with its builder wrapped: every step
  * the overlay takes is recorded and then delegated, so the composable under the
- * declaration is the shipped one.
+ * declaration is the shipped one. `.withId` is wrapped at the root AND after
+ * `.as()`, so the recorded step is whichever position the overlay actually
+ * reaches for.
  */
 function observedDetail() {
   const steps: Step[] = [];
 
+  const observe = (cell: ScenarioScopedCell): ScenarioScopedCell =>
+    ({
+      ...cell,
+      withId: (id: string) => {
+        const scoped = cell.withId?.(id) as ScenarioScopedCell;
+        steps.push({ step: `withId:${id}`, cell: scoped });
+        return scoped;
+      }
+    }) as ScenarioScopedCell;
+
   const useDetail = ((...args: never[]) => {
     const built = (clientEmailHistory.useDetail as FourLayerComposable)(
       ...args
-    );
-
-    return {
-      as(actor: ScopeActorTypes) {
-        const cell = built.as(actor);
-
-        return {
-          ...cell,
-          for: (type: string, id: string) => {
-            const scoped = cell.for?.(type, id) as ScenarioScopedCell;
-            steps.push({ step: `for:${type}:${id}`, cell: scoped });
-            return scoped;
-          }
-        };
-      }
+    ) as ScenarioScopedCell & {
+      as(actor: ScopeActorTypes): ScenarioScopedCell;
     };
+
+    return observe({
+      ...built,
+      as: (actor: ScopeActorTypes) => observe(built.as(actor))
+    } as unknown as ScenarioScopedCell);
   }) as FourLayerComposable;
 
   return {
@@ -89,12 +115,10 @@ function observedDetail() {
 const HISTORY_DETAIL = clientEmailHistory.presentation.detail as DetailUischema;
 const EMAIL_DETAIL = clientEmails.presentation.detail as DetailUischema;
 
-const RECEIVED_CONTEXT: ScopeContext = { type: "email", id: receivedEmailId };
-
 const mountOverlay = (props: {
   record: Record<string, unknown>;
   detail?: ResolvedDetail;
-  context?: ScopeContext;
+  id?: string;
   presentation?: DetailUischema;
 }) =>
   mount(DetailDialog, {
@@ -115,17 +139,17 @@ async function openedText(props: Parameters<typeof mountOverlay>[0]) {
 // -----------------------------------------------------------------------------
 
 describe("with useDetail bound, the overlay fetches the full record", () => {
-  it("boots the read composable .for() the row's own identity", () => {
+  it("boots the read composable .withId() the row's own identity", () => {
     const observed = observedDetail();
 
     mountOverlay({
       record: { id: receivedEmailId },
       detail: observed.resolved(),
-      context: RECEIVED_CONTEXT,
+      id: receivedEmailId,
       presentation: HISTORY_DETAIL
     });
 
-    expect(observed.taken()).toEqual([`for:email:${receivedEmailId}`]);
+    expect(observed.taken()).toEqual([`withId:${receivedEmailId}`]);
   });
 
   it("keys the fetch by the row the user opened, never a fixed record", () => {
@@ -134,11 +158,28 @@ describe("with useDetail bound, the overlay fetches the full record", () => {
     mountOverlay({
       record: { id: "another-row-id" },
       detail: observed.resolved(),
-      context: { type: "email", id: "another-row-id" },
+      id: "another-row-id",
       presentation: HISTORY_DETAIL
     });
 
-    expect(observed.taken()).toEqual(["for:email:another-row-id"]);
+    expect(observed.taken()).toEqual(["withId:another-row-id"]);
+  });
+
+  it("synthesises no scope context for the record — the id is the whole target", () => {
+    // FE-3095: `.for('email', id)` was the shape this replaces. The overlay may
+    // reach for `.withId` and nothing else on the read's boot path.
+    const observed = observedDetail();
+
+    mountOverlay({
+      record: { id: receivedEmailId },
+      detail: observed.resolved(),
+      id: receivedEmailId,
+      presentation: HISTORY_DETAIL
+    });
+
+    expect(filter(observed.taken(), step => step.startsWith("for:"))).toEqual(
+      []
+    );
   });
 });
 

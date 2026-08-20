@@ -78,6 +78,30 @@ export const RECEIVED_EMAILS_SCOPE_MATRIX = {
 /** Scope matrix type for `useClientReceivedEmails` (derived from the runtime const). */
 export type ReceivedEmailsScopeMatrix = typeof RECEIVED_EMAILS_SCOPE_MATRIX;
 
+/**
+ * Scope matrix for `useClientReceivedEmail` — the SINGLE read. Every actor is
+ * `null as never`, the same construction `RECEIVED_EMAILS_SCOPE_MATRIX` above
+ * uses for the actors it refuses, so `.for(type, id)` is a compile-time error
+ * for all four. A leaf record is marked with `.withId(id)` and is never a scope
+ * context (FE-3095); the wide `ActorContextMatrix` default widened every
+ * context to `string`, which let `.for("email", id)` keep type-checking once
+ * the `EMAIL` context type was deleted.
+ *
+ * Declared but never passed as the third `createScopedComposable` argument, so
+ * no matrix reaches the runtime for this read — the same way the sibling
+ * collection declares its own. Not re-exported from the module barrel.
+ * See `graphify-out/GRAPH_REPORT.md`.
+ */
+export const RECEIVED_EMAIL_SCOPE_MATRIX = {
+  [ScopeActorTypes.SELF]: null as never,
+  [ScopeActorTypes.STAFF]: null as never,
+  [ScopeActorTypes.CLIENT]: null as never,
+  [ScopeActorTypes.GUEST]: null as never
+} as const;
+
+/** Scope matrix type for `useClientReceivedEmail` (derived from the runtime const). */
+export type ReceivedEmailScopeMatrix = typeof RECEIVED_EMAIL_SCOPE_MATRIX;
+
 // -----------------------------------------------------------------------------
 // SORTING
 // -----------------------------------------------------------------------------

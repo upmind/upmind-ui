@@ -128,3 +128,93 @@ describe("generateScopeKey", () => {
     expect(first).not.toBe(second);
   });
 });
+
+// -----------------------------------------------------------------------------
+
+describe("generateScopeKey — the single-record id (.withId, FE-3095)", () => {
+  it("folds the record id into the key under its own id: prefix", () => {
+    expect(
+      generateScopeKey("client-email-history", {
+        actor: ScopeActorTypes.CLIENT,
+        id: "email-1"
+      })
+    ).toBe(`client-email-history:${ScopeActorTypes.CLIENT}:id:email-1`);
+  });
+
+  it("keys two different record ids to two different scopes", () => {
+    // The story's single load-bearing correctness point: an id absent from the
+    // key means every record shares ONE cached instance, so opening a second
+    // email would be served the first one's body.
+    const first = generateScopeKey("client-email-history", {
+      actor: ScopeActorTypes.CLIENT,
+      id: "email-1"
+    });
+    const second = generateScopeKey("client-email-history", {
+      actor: ScopeActorTypes.CLIENT,
+      id: "email-2"
+    });
+
+    expect(first).not.toBe(second);
+  });
+
+  it("keys the same record id to the same scope", () => {
+    expect(
+      generateScopeKey("client-email-history", {
+        actor: ScopeActorTypes.CLIENT,
+        id: "email-1"
+      })
+    ).toBe(
+      generateScopeKey("client-email-history", {
+        actor: ScopeActorTypes.CLIENT,
+        id: "email-1"
+      })
+    );
+  });
+
+  it("separates a record-scoped read from the same actor's unscoped read", () => {
+    const unscoped = generateScopeKey("client-email-history", {
+      actor: ScopeActorTypes.CLIENT
+    });
+    const record = generateScopeKey("client-email-history", {
+      actor: ScopeActorTypes.CLIENT,
+      id: "email-1"
+    });
+
+    expect(unscoped).not.toBe(record);
+  });
+
+  it("leaves the key byte-identical for a scope that names no record id", () => {
+    // Backward compatibility for the other scoped composables: `id` is additive,
+    // so a composable that never calls .withId() must key exactly as before.
+    expect(generateScopeKey("basket", { actor: ScopeActorTypes.STAFF })).toBe(
+      `basket:${ScopeActorTypes.STAFF}`
+    );
+    expect(
+      generateScopeKey("basket", {
+        actor: ScopeActorTypes.STAFF,
+        context: { type: "client", id: "123" }
+      })
+    ).toBe(`basket:${ScopeActorTypes.STAFF}:client:123`);
+    expect(
+      generateScopeKey("invoices", {
+        actor: ScopeActorTypes.STAFF,
+        brandId: "brand-abc"
+      })
+    ).toBe(`invoices:${ScopeActorTypes.STAFF}:brand:brand-abc`);
+  });
+
+  it("orders the record id between the context and the brand, displacing neither", () => {
+    // A context names the entity the ACTOR acts upon; an id names the ONE record
+    // read. Both may be present, and neither may swallow the other.
+    expect(
+      generateScopeKey("client-email-history", {
+        actor: ScopeActorTypes.STAFF,
+        context: { type: "client", id: "9" },
+        id: "email-1",
+        brandId: "brand-abc"
+      })
+    ).toBe(
+      `client-email-history:${ScopeActorTypes.STAFF}:client:9:id:email-1:brand:brand-abc`
+    );
+  });
+});
