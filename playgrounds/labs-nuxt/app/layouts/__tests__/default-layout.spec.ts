@@ -10,23 +10,16 @@
  *      identity, acting-for and the impersonation cue the deleted
  *      `ImpersonationBar` left behind — sits inside that one bar.
  *
- * The four `Upm*` chrome components are auto-imported globals in the app, so
- * they are registered here from the component lane's client-vue double, which
- * only NAMES each slot boundary — which slot the layout hands the bar to is the
- * layout's own answer, never this file's. Everything the layout imports itself
- * is real, the session pool included.
+ * The `Upm*` chrome comes from `client-vue.stub`, which only NAMES each slot
+ * boundary — which slot the layout hands the bar to is the layout's own answer,
+ * never this file's. Everything else the layout imports is real, the session
+ * pool included.
  */
 
 import { mount } from "@vue/test-utils";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import * as vue from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
-import {
-  UpmHeader,
-  UpmMain,
-  UpmPage,
-  UpmRoot
-} from "@upmind-automation/client-vue";
 import { AccessRoleTypes } from "@upmind-automation/types";
 import { filter, find, flatMap, forEach, size } from "lodash-es";
 import type { VueWrapper } from "@vue/test-utils";
@@ -37,6 +30,13 @@ vi.mock("@upmind-automation/headless", async importOriginal => {
     await import("../../components/scope/__tests__/harness");
   return headlessDouble(real);
 });
+
+// The layout IMPORTS its chrome from the barrel, so a `global.components`
+// registration never reaches it — the double has to arrive as the module.
+vi.mock("@upmind-automation/client-vue", async importOriginal => ({
+  ...((await importOriginal()) as object),
+  ...(await import("./client-vue.stub"))
+}));
 
 // Nuxt auto-imports all of these; a bare vitest module graph has to hand the
 // layout the same set, from the packages the app itself takes them from.
@@ -101,7 +101,7 @@ beforeAll(async () => {
     attachTo: document.body,
     global: {
       plugins: [router],
-      components: { NuxtLink: RouterLink, UpmHeader, UpmMain, UpmPage, UpmRoot }
+      components: { NuxtLink: RouterLink }
     }
   });
   await flush();
@@ -113,6 +113,29 @@ afterAll(() => {
 });
 
 // -----------------------------------------------------------------------------
+
+describe("T2.5 the header double tells its two slots apart", () => {
+  it("puts branding content in the branding boundary and nowhere else", async () => {
+    const { UpmHeader } = await import("./client-vue.stub");
+    const probe = mount(UpmHeader, {
+      slots: { branding: '<i data-test-key="probe-brand" />' }
+    });
+    const slotOf = (name: string) =>
+      find(
+        probe.findAll("[data-test-key='chrome-header-slot']"),
+        slot => slot.attributes("data-test-value") === name
+      )!;
+
+    expect(
+      slotOf("branding").find("[data-test-key='probe-brand']").exists()
+    ).toBe(true);
+    expect(
+      slotOf("actions").find("[data-test-key='probe-brand']").exists()
+    ).toBe(false);
+
+    probe.unmount();
+  });
+});
 
 describe("T2.5 the scope bar lives in the chrome header (G9 · AC1.1)", () => {
   it("draws exactly one, inside the header's own actions cluster", () => {

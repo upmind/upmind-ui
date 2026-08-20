@@ -330,26 +330,22 @@ describe("@AC1.1 @AC9.3 applying and clearing move the page's own scope", () => 
     expect(bench.router.currentRoute.value.path).toBe(ACTING);
   });
 
-  it("offers to stop only while it is acting for someone", async () => {
-    bench = await benchOn(ActingForSegment, BASE);
-    await openPanel("acting-for");
+  // The `acting-for-clear` case that stood here is OBSOLETE. It hunted a
+  // dedicated stop control offered only while a context was set — the "announcing
+  // an absence" the segment's own ruling rejects: acting for nobody IS acting as
+  // self (`R6-3`), self is the scope bar's resting state (`R6-3b`), and inside
+  // the panel the self row IS the way back out of a context (`R6-12`,
+  // `ActingForSegment.vue:129-135`). The way out is therefore always on offer,
+  // never conditional, and the case below reads it off that row.
 
-    expect(node("acting-for-clear")).toBeNull();
-
-    bench.wrapper.unmount();
-    resetDom();
+  it("puts the page back at its own scope when the self row is picked (R6-12)", async () => {
     bench = await benchOn(ActingForSegment, ACTING);
     await openPanel("acting-for");
+    const self = actorRow("self");
 
-    expect(node("acting-for-clear")).not.toBeNull();
-  });
+    await press(self.closest("[role='menuitem']") ?? self);
 
-  it("puts the page back at its own scope when acting-for is cleared", async () => {
-    bench = await benchOn(ActingForSegment, ACTING);
-    await openPanel("acting-for");
-
-    await press(node("acting-for-clear")?.closest("[role='menuitem']") ?? null);
-
+    expect(self).toBeDefined();
     expect(bench.router.currentRoute.value.path).toBe(BASE);
   });
 });

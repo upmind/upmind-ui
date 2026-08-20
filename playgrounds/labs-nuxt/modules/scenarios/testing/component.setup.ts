@@ -19,6 +19,13 @@ HTMLCanvasElement.prototype.getContext = (() => ({
   fillRect: () => {}
 })) as unknown as typeof HTMLCanvasElement.prototype.getContext;
 
+// jsdom implements no layout, so it ships no `scrollIntoView` at all — a
+// surface that keeps its active row visible calls a method that does not exist
+// and the render throws. A no-op is the whole of what a lane computing no
+// layout can honestly assert about scrolling; the visible-row claim belongs to
+// the browser lane.
+Element.prototype.scrollIntoView = () => {};
+
 /**
  * The factory surfaces call `useI18n()` in `setup`, which throws without an
  * installed plugin — so every component mount in this project gets one, built

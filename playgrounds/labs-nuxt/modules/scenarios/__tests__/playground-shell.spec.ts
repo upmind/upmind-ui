@@ -177,8 +177,10 @@ describe("T4.8 the page is header, bar, then the canvas it drives (AC2.1)", () =
   });
 
   it("draws them in that order", () => {
+    // The canvas is the glow AROUND the page (`AC8.4`), so it opens before the
+    // header it wraps — the order claim reads against the surface itself.
     expect(follows(nodeFor("page-header"), nodeFor("scenario-bar"))).toBe(true);
-    expect(follows(nodeFor("scenario-bar"), nodeFor("forced-canvas"))).toBe(
+    expect(follows(nodeFor("scenario-bar"), page.find("table").element)).toBe(
       true
     );
   });
@@ -267,10 +269,13 @@ describe("T4.8 the page offers all three sheet providers (AC3.1 · AC3.2)", () =
 });
 
 describe("T4.8 Live is the default track (S12 · AC2.3 · G1)", () => {
-  it("boots selected on Live, with the tracked MODULE's own scenarios beside it — never a declared pin list", () => {
+  it("boots selected on Live, with the tracked MODULE's own scenarios behind the overflow — never a declared pin list", () => {
     expect(nodeFor("scenario-bar").dataset.testValue).toBe("live");
     expect(isString(clientEmails.tracks)).toBe(true);
-    expect(size(nodesFor("track"))).toBeGreaterThan(1);
+    expect(map(nodesFor("track"), node => node.dataset.testValue)).toEqual([
+      "live"
+    ]);
+    expect(nodeFor("scenario-menu").dataset.testValue).toBe("11");
   });
 
   it("offers no transport and no scene rail while it is Live", () => {

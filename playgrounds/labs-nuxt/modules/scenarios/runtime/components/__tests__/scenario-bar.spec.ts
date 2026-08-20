@@ -158,6 +158,38 @@ const overflowItems = ({ wrapper }: Bar) =>
     map(menu.props("items"), item => item.label)
   );
 
+/** One frame of the overflow's own open transition. */
+const MENU_MS = 60;
+
+/** The overflow's own trigger, which names how many tracks sit behind it. */
+const overflow = ({ wrapper }: Bar) =>
+  wrapper.find('[data-test-key="scenario-menu"]');
+
+/** Every track the overflow offers, by slug — it is teleported out of the bar. */
+const offeredTracks = (): string[] =>
+  map(
+    Array.from(
+      document.querySelectorAll<HTMLElement>('[data-test-key="track-option"]')
+    ),
+    option => String(option.dataset.testValue)
+  );
+
+/**
+ * Choosing a track. `R7-10` retired the capped track chips, so Live is the only
+ * entry ON the bar and every track is reached by opening the overflow beside it.
+ */
+async function chooseTrack(bar: Bar, name: string): Promise<void> {
+  await overflow(bar).trigger("click");
+  await new Promise(resolve => setTimeout(resolve, MENU_MS));
+
+  document
+    .querySelector<HTMLElement>(
+      `[data-test-key="track-option"][data-test-value="${kebabCase(name)}"]`
+    )
+    ?.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  await nextTick();
+}
+
 afterEach(() => {
   document.body.innerHTML = "";
   vi.clearAllMocks();
@@ -182,7 +214,7 @@ describe("T4.5 Live is the default, and carries no transport (AC2.3 · S12)", ()
   it("asks the player to arm the track that was chosen", async () => {
     const bar = mountBar();
 
-    await entries(bar)[1].trigger("click");
+    await chooseTrack(bar, TRACK_NAMES[0]!);
 
     expect(bar.player.arm).toHaveBeenCalledTimes(1);
     expect(bar.player.arm).toHaveBeenCalledWith(
@@ -196,7 +228,7 @@ describe("T4.5 ONE bar in two states (G9 unified · AC2.2)", () => {
     const bar = mountBar();
     const idle = barNodes()[0];
 
-    await entries(bar)[1].trigger("click");
+    await chooseTrack(bar, TRACK_NAMES[0]!);
     await bar.player.play();
     await nextTick();
 
@@ -209,7 +241,7 @@ describe("T4.5 ONE bar in two states (G9 unified · AC2.2)", () => {
   it("returns to its idle track list in the same place when the track stops", async () => {
     const bar = mountBar();
     const idle = barNodes()[0];
-    await entries(bar)[1].trigger("click");
+    await chooseTrack(bar, TRACK_NAMES[0]!);
     await bar.player.play();
     await nextTick();
 
@@ -219,17 +251,47 @@ describe("T4.5 ONE bar in two states (G9 unified · AC2.2)", () => {
     expect(size(barNodes())).toBe(1);
     expect(barNodes()[0]).toBe(idle);
     expect(size(transport(bar))).toBe(0);
-    expect(size(entries(bar))).toBeGreaterThan(1);
+    // Idle is Live on the bar with the whole playlist behind the overflow
+    // (`R7-10`) — the chips it used to carry are gone, not the tracks.
+    expect(
+      map(entries(bar), entry => entry.attributes("data-test-value"))
+    ).toStrictEqual(["live"]);
+    expect(overflow(bar).attributes("data-test-value")).toBe(
+      String(size(TRACKS))
+    );
   });
 
   it("names the track it is playing", async () => {
     const bar = mountBar();
 
-    await entries(bar)[1].trigger("click");
+    await chooseTrack(bar, TRACK_NAMES[0]!);
     await bar.player.play();
     await nextTick();
 
     expect(bar.wrapper.text()).toContain(TRACK_NAMES[0]);
+  });
+});
+
+describe("T4.5 every track stays reachable behind ONE overflow (AC2.4 · G1 · R7-10)", () => {
+  it("keeps Live alone on the bar and offers every track behind the overflow", async () => {
+    const bar = mountBar();
+
+    await overflow(bar).trigger("click");
+    await new Promise(resolve => setTimeout(resolve, MENU_MS));
+
+    expect(
+      map(entries(bar), entry => entry.attributes("data-test-value"))
+    ).toStrictEqual(["live"]);
+    expect(offeredTracks()).toStrictEqual(map(TRACKS, "slug"));
+  });
+
+  it("offers no track behind it for a page whose playlist is empty", async () => {
+    const bar = mountBar({ tracks: [] });
+
+    expect(
+      overflow(bar).exists() && overflow(bar).attributes("data-test-value")
+    ).not.toBe(String(size(TRACKS)));
+    expect(offeredTracks()).toStrictEqual([]);
   });
 });
 

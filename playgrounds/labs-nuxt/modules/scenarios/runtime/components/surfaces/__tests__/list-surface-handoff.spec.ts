@@ -133,7 +133,7 @@ const openRow = async (wrapper: Wrapper, row: number) => {
 const headerAdd = (page: Page) =>
   page
     .findComponent(PageHeader)
-    .find(`[data-test-value="${CONTROL_TEST_VALUE.add}"]`);
+    .find(`[data-test-value="${CONTROL_TEST_VALUE.ensure}"]`);
 
 /** The surface publishes its collection actions as it mounts; let them land. */
 const settle = async (page: Page) => {
@@ -195,7 +195,7 @@ describe("@AC3 add — the editor collects what a button never could (C2 · G4)"
     expect(
       page
         .findComponent(ListSurface)
-        .find(`[data-test-value="${CONTROL_TEST_VALUE.add}"]`)
+        .find(`[data-test-value="${CONTROL_TEST_VALUE.ensure}"]`)
         .exists()
     ).toBe(false);
   });

@@ -47,6 +47,11 @@ const INLINE_Z_INDEX = /:?style\s*=\s*["'][^"']*z-?[Ii]ndex/g;
 const ENGLISH_ATTRIBUTE =
   /(?<![:\w-])(?:title|aria-label|placeholder)\s*=\s*"[^"]*[A-Za-z]{2}[^"]*"/g;
 
+// A character entity is punctuation, not copy — `S21` governs rendered
+// STRINGS, and `&mdash;` reads the same in every locale. Its NAME is letters,
+// so without masking it the class-5 scan lands the entity as English.
+const CHARACTER_ENTITY = /&(?:#\d+|#x[0-9a-fA-F]+|[A-Za-z][A-Za-z0-9]*);/g;
+
 // Utility LITERALS only. An identifier alternative (`[Rr]ingClasses`) also
 // matched the package's own exported names, which is the lawful consumption
 // ESC2 asks for — so the gate red on the fix. Re-spelling the vocabulary always
@@ -185,7 +190,8 @@ function templateTextNodes(): Offence[] {
         text
           .slice(opens, closes)
           .replace(/<!--[\s\S]*?-->/g, blank)
-          .replace(/\{\{[\s\S]*?\}\}/g, blank) +
+          .replace(/\{\{[\s\S]*?\}\}/g, blank)
+          .replace(CHARACTER_ENTITY, blank) +
         blank(text.slice(closes));
 
       return map(
@@ -271,6 +277,15 @@ describe("T1.3 i18n vocabulary — every rendered string is a key (S21 · AC10.4
       );
 
     expect(reject(englishStrings(), quarantined)).toStrictEqual([]);
+  });
+
+  it("class 5 masks a character entity without going blind to copy beside it", () => {
+    const masked = (source: string): string =>
+      source.replace(CHARACTER_ENTITY, match => match.replace(/[^\n]/g, " "));
+
+    expect(squash(masked("&mdash;"))).toBe("");
+    expect(squash(masked("&#8212; &#x2014; &nbsp;"))).toBe("");
+    expect(squash(masked("No value &mdash; yet"))).toBe("No value yet");
   });
 
   it("the HEAD quarantine list carries no stale entry", () => {

@@ -23,9 +23,9 @@ import action from "@upmind-automation/i18n/core/action-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import { renderedStrings } from "../../../testing/rendered";
 import clientEmails from "../../../useClientEmails/client-email.scenario";
+import { ActionPlacementTypes } from "../../scenario.types";
 import PageHeader from "../PageHeader.vue";
 import { CONTROL_TEST_VALUE } from "./control-test-values";
-import { ActionPlacementTypes } from "../../scenario.types";
 import { filter, first, get, includes, map, startCase } from "lodash-es";
 import type { ActionSlotItem } from "../ActionSlots.types";
 
@@ -75,7 +75,7 @@ const mountHeader = (actions?: ActionSlotItem[]) =>
     }
   });
 
-const ADD = `[data-test-value="${CONTROL_TEST_VALUE.add}"]`;
+const ADD = `[data-test-value="${CONTROL_TEST_VALUE.ensure}"]`;
 
 // -----------------------------------------------------------------------------
 

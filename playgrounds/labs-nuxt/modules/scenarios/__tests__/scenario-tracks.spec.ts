@@ -24,7 +24,7 @@
  * `scenario-tracks.runtime-owns-playlist.must-fail.patch`.
  */
 
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { useFeatureTracks } from "../runtime/composables/useFeatureTracks";
@@ -32,28 +32,55 @@ import { featureTracksFor } from "../runtime/force/corpus.source";
 import { CLIENT_EMAIL_TRACK_COUNT } from "../runtime/force/corpus.source.types";
 import { registry, scenarioKeys } from "../runtime/registry";
 import clientEmails from "../useClientEmails/client-email.scenario";
-import { every, filter, flatMap, get, isString, keys, map } from "lodash-es";
+import {
+  every,
+  filter,
+  flatMap,
+  get,
+  isString,
+  keyBy,
+  keys,
+  map,
+  values
+} from "lodash-es";
 import type { ScenarioDeclaration } from "../runtime/scenario.types";
 
 // -----------------------------------------------------------------------------
 
 const MODULE_DIR = join(__dirname, "..");
 
+const DECLARATION_SUFFIX = ".scenario.ts";
+
 /** Every scenario's own file — the declarations the registry globs. */
-const declarationFiles = filter(
-  map(
-    filter(readdirSync(MODULE_DIR, { withFileTypes: true }), entry =>
-      entry.isDirectory()
-    ),
-    entry => join(MODULE_DIR, entry.name, "scenario.ts")
+const declarationFiles = flatMap(
+  filter(readdirSync(MODULE_DIR, { withFileTypes: true }), entry =>
+    entry.isDirectory()
   ),
-  existsSync
+  entry =>
+    map(
+      filter(readdirSync(join(MODULE_DIR, entry.name)), file =>
+        file.endsWith(DECLARATION_SUFFIX)
+      ),
+      file => join(MODULE_DIR, entry.name, file)
+    )
 );
 
-/** The declarations themselves, reached the way the app reaches them. */
-const declarations: Record<string, ScenarioDeclaration> = {
-  [clientEmails.key]: clientEmails
-};
+/**
+ * The declarations themselves, reached the way the app reaches them — off the
+ * same glob `registry.ts` is built from, never hand-listed, so a scenario added
+ * beside this runtime is covered here the moment it exists (`G3`).
+ */
+const declarations: Record<string, ScenarioDeclaration> = keyBy(
+  map(
+    values(
+      import.meta.glob<{ default: ScenarioDeclaration }>("../*/*.scenario.ts", {
+        eager: true
+      })
+    ),
+    "default"
+  ),
+  "key"
+);
 
 const A_MODULE_THE_SEAM_DOES_NOT_REACH = "not-a-module-anyone-recorded";
 
@@ -74,6 +101,10 @@ describe("T4.4 the tracks channel is a module NAME (R6-37)", () => {
 });
 
 describe("T4.4 a declaration imports no artefact (ESC6 · R6-37)", () => {
+  it("found a file for every registered scenario — an empty sweep proves nothing", () => {
+    expect(declarationFiles).toHaveLength(scenarioKeys.length);
+  });
+
   it("names no headless test-kit specifier in any declaration", () => {
     const offences = flatMap(declarationFiles, file =>
       map(

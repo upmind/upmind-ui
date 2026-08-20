@@ -79,6 +79,14 @@ const BOOT_CRITERIA = { filters: {} };
 
 const FILTERED_CRITERIA = { filters: { verified: { eq: false } } };
 
+const POLL_MS = 10;
+
+/** Wide enough to cover one scene's beat, short enough to fail a stall. */
+const UNTIL_BUDGET_MS = 4000;
+
+/** Two full plays of a four-scene track, each scene holding its own beat. */
+const TWO_PLAYS_MS = 20000;
+
 /** Every observable, in the one order they happened. */
 let log: string[];
 
@@ -201,10 +209,16 @@ function playerWorld(): World & { boots: WorldScope[] } {
 
 type Gate = { open: () => void; whenOpen: Promise<void> };
 
-/** Lets the run reach a known point before the test acts on it. */
+/**
+ * Lets the run reach a known point before the test acts on it. The wait is
+ * WALL-CLOCK: a played scene holds the screen for a real beat
+ * (`useScenarioPlayer.ts:81-83`), so a microtask budget expires between scene 0
+ * and scene 1 and every `pause` then lands a scene early.
+ */
 const until = async (ready: () => boolean): Promise<void> => {
-  for (let attempt = 0; attempt < 50 && !ready(); attempt += 1) {
-    await new Promise(resolve => setTimeout(resolve, 0));
+  const deadline = Date.now() + UNTIL_BUDGET_MS;
+  while (!ready() && Date.now() < deadline) {
+    await new Promise(resolve => setTimeout(resolve, POLL_MS));
   }
 };
 
@@ -599,20 +613,24 @@ describe("T4.2 stop returns the page to Live (AC2.3 · §3.1 ruling 3)", () => {
 });
 
 describe("T4.2 replay is deterministic and never touches the service (AC2.6)", () => {
-  it("renders exactly the same rows the second time it is played", async () => {
-    const track = buildTrack("Filtering narrows the collection");
-    const player = build([track]);
+  it(
+    "renders exactly the same rows the second time it is played",
+    async () => {
+      const track = buildTrack("Filtering narrows the collection");
+      const player = build([track]);
 
-    await player.arm(track);
-    await player.play();
-    const first = rowsOf();
+      await player.arm(track);
+      await player.play();
+      const first = rowsOf();
 
-    await player.arm(track);
-    await player.play();
+      await player.arm(track);
+      await player.play();
 
-    expect(rowsOf()).toStrictEqual(first);
-    expect(size(first)).toBe(size(RECORDED_ROWS) + 1);
-  });
+      expect(rowsOf()).toStrictEqual(first);
+      expect(size(first)).toBe(size(RECORDED_ROWS) + 1);
+    },
+    TWO_PLAYS_MS
+  );
 
   it("lets ZERO request for the module's endpoints leave the app while a track plays", async () => {
     const track = buildTrack("Filtering narrows the collection");

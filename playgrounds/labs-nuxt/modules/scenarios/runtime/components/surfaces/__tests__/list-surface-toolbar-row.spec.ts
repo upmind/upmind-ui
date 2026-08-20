@@ -68,7 +68,7 @@ const LIVE_SORT = { field: "email", dir: "asc" };
 
 const SORT_CONTROL = '[data-test-key="sort"]';
 
-const ADD = `[data-test-value="${CONTROL_TEST_VALUE.add}"]`;
+const ADD = `[data-test-value="${CONTROL_TEST_VALUE.ensure}"]`;
 
 const messages = { en: { action, labs: labsEn, text } };
 

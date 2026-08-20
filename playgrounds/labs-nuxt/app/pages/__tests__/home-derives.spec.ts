@@ -27,7 +27,15 @@ import * as vue from "vue";
 import { defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { renderedStrings } from "../../../modules/scenarios/testing/rendered";
-import { assign, forEach, map, size, startCase } from "lodash-es";
+import {
+  assign,
+  filter,
+  forEach,
+  includes,
+  map,
+  size,
+  startCase
+} from "lodash-es";
 import type { VueWrapper } from "@vue/test-utils";
 import type { RouteRecordRaw } from "vue-router";
 
@@ -37,7 +45,6 @@ forEach(vue, (value, key) => vi.stubGlobal(key, value));
 vi.stubGlobal("definePageMeta", () => undefined);
 
 const SPROCKET = "sprocket_widgets";
-const SPROCKET_EDITOR = "sprocket_widget";
 const GIZMO = "basket_gizmos";
 const COG = "basket_cogs";
 const UNDECLARED = "client_emails";
@@ -49,7 +56,6 @@ const UNDECLARED = "client_emails";
  */
 const ROUTE: Record<string, string> = {
   [SPROCKET]: "useSprocketWidgets",
-  [SPROCKET_EDITOR]: "useSprocketWidget",
   [GIZMO]: "useBasketGizmos",
   [COG]: "useBasketCogs"
 };
@@ -150,7 +156,7 @@ beforeEach(() => {
 // -----------------------------------------------------------------------------
 
 describe("@AC the landing page lists what the registry declares (G6 · C17)", () => {
-  it("links every declared scenario at the scope its own declaration names", async () => {
+  it("links every declared scenario at its BARE route, whatever actor it declares (AC9.2)", async () => {
     assign(declared.registry, {
       [SPROCKET]: scenario(SPROCKET, "staff"),
       [GIZMO]: scenario(GIZMO, "guest"),
@@ -161,11 +167,14 @@ describe("@AC the landing page lists what the registry declares (G6 · C17)", ()
 
     expect(hrefs(wrapper)).toEqual(
       expect.arrayContaining([
-        `/${ROUTE[SPROCKET]}/as/staff`,
-        `/${ROUTE[GIZMO]}/as/guest`,
-        `/${ROUTE[COG]}/as/client`
+        `/${ROUTE[SPROCKET]}`,
+        `/${ROUTE[GIZMO]}`,
+        `/${ROUTE[COG]}`
       ])
     );
+    expect(
+      filter(hrefs(wrapper), href => includes(href, "/as/"))
+    ).toStrictEqual([]);
     expect(wrapper.text()).toContain(ROUTE[SPROCKET]);
     expect(wrapper.text()).toContain(ROUTE[GIZMO]);
     // The rejected alias: a card titled anything but the composable it opens.
@@ -208,10 +217,10 @@ describe("@AC nothing on the landing page is hand-listed (G6 · C17)", () => {
     assign(declared.registry, { [GIZMO]: scenario(GIZMO, "guest") });
     const second = await home();
 
-    expect(hrefs(first)).toContain(`/${ROUTE[SPROCKET]}/as/staff`);
-    expect(hrefs(first)).not.toContain(`/${ROUTE[GIZMO]}/as/guest`);
-    expect(hrefs(second)).toContain(`/${ROUTE[GIZMO]}/as/guest`);
-    expect(hrefs(second)).not.toContain(`/${ROUTE[SPROCKET]}/as/staff`);
+    expect(hrefs(first)).toContain(`/${ROUTE[SPROCKET]}`);
+    expect(hrefs(first)).not.toContain(`/${ROUTE[GIZMO]}`);
+    expect(hrefs(second)).toContain(`/${ROUTE[GIZMO]}`);
+    expect(hrefs(second)).not.toContain(`/${ROUTE[SPROCKET]}`);
     expect(renderedStrings(second)).toContain("1 composables");
   });
 
@@ -226,47 +235,10 @@ describe("@AC nothing on the landing page is hand-listed (G6 · C17)", () => {
   });
 });
 
-/**
- * @AC The landing page cards one entry per family, not one per registry key
- * (P1-R8)
- *
- * The home page cards showed the collection AND the manager it hands off to
- * under the same family. Both surfaces read the one navigation derivation, so
- * the exclusion is measured here as well as in the sidebar — the shop window is
- * where a duplicate is most visible at 60 modules.
- */
-describe("@AC a handoff target is not carded on the landing page (P1-R8)", () => {
-  it("links the collection, never the editor it hands off to", async () => {
-    assign(declared.registry, {
-      [SPROCKET]: scenario(SPROCKET, "staff", {
-        handoff: { edit: { target: SPROCKET_EDITOR, contextType: "client" } }
-      }),
-      [SPROCKET_EDITOR]: scenario(SPROCKET_EDITOR, "staff"),
-      [GIZMO]: scenario(GIZMO, "guest")
-    });
-
-    const wrapper = await home();
-
-    expect(hrefs(wrapper)).toEqual(
-      expect.arrayContaining([
-        `/${ROUTE[SPROCKET]}/as/staff`,
-        `/${ROUTE[GIZMO]}/as/guest`
-      ])
-    );
-    expect(hrefs(wrapper)).not.toContain(`/${ROUTE[SPROCKET_EDITOR]}/as/staff`);
-  });
-
-  it("counts destinations, not registry keys", async () => {
-    assign(declared.registry, {
-      [SPROCKET]: scenario(SPROCKET, "staff", {
-        handoff: { edit: { target: SPROCKET_EDITOR, contextType: "client" } }
-      }),
-      [SPROCKET_EDITOR]: scenario(SPROCKET_EDITOR, "staff")
-    });
-
-    const strings = renderedStrings(await home());
-
-    expect(strings).toContain("1 composables");
-    expect(strings).toContain("1 families");
-  });
-});
+// The `P1-R8` describe that stood here — "a handoff target is not carded on the
+// landing page" — is OBSOLETE. It measured a handoff naming a SECOND registry
+// key (`{ target, contextType }`) that the derivation had to exclude. Under
+// `R6-27` a handoff is declared INLINE and its type carries no `target` at all
+// (`modules/scenarios/runtime/scenario.types.ts:107-128`: "a handoff names no
+// second declaration and an editor needs no directory of its own"), so no
+// second key exists to double-card and nothing is left to measure.

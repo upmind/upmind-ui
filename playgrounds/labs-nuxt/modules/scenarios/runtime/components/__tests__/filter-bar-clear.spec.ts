@@ -19,7 +19,7 @@ import { computed, ref } from "vue";
 import { UpmForm } from "@upmind-automation/client-vue";
 import { internalKits } from "@upmind-automation/headless/testing";
 import FilterBar from "../FilterBar.vue";
-import { get, values } from "lodash-es";
+import { get, size, values } from "lodash-es";
 import type { ModulePortCriteria } from "../../composables/useModulePort.types";
 
 const { useQuerySchema, useQueryUischema } =
@@ -84,7 +84,13 @@ describe("PROBE — the filter bar's clear forward (P1-R7)", () => {
     form().vm.$emit("update:modelValue", CLEARED_LEAF);
     model.value = { filters: {} };
     await Promise.resolve();
+    const seeded = form().props("modelValue") as Record<string, unknown>;
 
-    expect(form().props("modelValue")).toEqual({ filters: {} });
+    // The form is handed a SCHEMA-VALID model, so the sort floor rides along —
+    // the query schema rejects an empty sort array (`AC10`,
+    // `docs/sdd/scenario-uischema-i18n/requirements.md:106`). The clear is
+    // therefore read off the filters branch, not off the whole model.
+    expect(get(seeded, "filters")).toEqual({});
+    expect(size(get(seeded, "sort"))).toBeGreaterThan(0);
   });
 });

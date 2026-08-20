@@ -27,14 +27,25 @@ const DECLARED_TEST_VALUE: Record<string, string> = {
   setDefault: "set-as-default",
   verify: "verify",
   view: "view",
-  add: "add-new"
+  // The collection's own control is declared `ensure`, named for the capability
+  // rather than for the dialog it opens (`client-email.presentation.ts:159-165`);
+  // `add` is its HANDOFF key, never an action name.
+  ensure: "add-new"
 };
 
 export const CONTROL_TEST_VALUE: Record<string, string> = fromPairs(
-  map(clientEmails.presentation.actions.elements, action => [
-    action.name,
-    DECLARED_TEST_VALUE[action.name] as string
-  ])
+  map(clientEmails.presentation.actions.elements, action => {
+    const value = DECLARED_TEST_VALUE[action.name];
+    // An unmapped name yielded `[data-test-value="undefined"]`, which matches
+    // nothing — so every "the control is NOT here" case passed vacuously while
+    // every "it IS here" case failed for the wrong reason.
+    if (!value)
+      throw new Error(
+        `control-test-values: declared action "${action.name}" carries no test value`
+      );
+
+    return [action.name, value];
+  })
 );
 
 /** The overflow trigger `ActionSlots` renders, same derivation. */

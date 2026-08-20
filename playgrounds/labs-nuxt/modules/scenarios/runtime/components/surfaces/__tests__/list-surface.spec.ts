@@ -297,7 +297,7 @@ describe("@AC3 list-actions — a declared action fires the live map member it n
     const wrapper = mountList(undefined, actions);
 
     expect(
-      wrapper.find(`[data-test-value="${CONTROL_TEST_VALUE.add}"]`).exists()
+      wrapper.find(`[data-test-value="${CONTROL_TEST_VALUE.ensure}"]`).exists()
     ).toBe(false);
     expect(actions.ensure).not.toHaveBeenCalled();
   });
@@ -355,7 +355,7 @@ describe("@AC3 list-actions (table-backed) — the real client-emails page path"
 
     expect(wrapper.find("table").exists()).toBe(true);
     expect(
-      wrapper.find(`[data-test-value="${CONTROL_TEST_VALUE.add}"]`).exists()
+      wrapper.find(`[data-test-value="${CONTROL_TEST_VALUE.ensure}"]`).exists()
     ).toBe(false);
   });
 });
