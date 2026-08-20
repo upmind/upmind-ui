@@ -63,8 +63,10 @@
  * the chips can never disagree (`P1-R9`).
  */
 
+import { enumToEnumOptionMapper, toDataPath } from "@jsonforms/core";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { useFormI18n } from "@upmind-automation/client-vue";
 import { Badge, Button, useStyles } from "@upmind-automation/upmind-ui";
 import { declaredPairs } from "../composables/useCriteriaUrlSync.utils";
 import config from "./RefinementsRow.styles";
@@ -86,6 +88,8 @@ const props = defineProps<RefinementsRowProps>();
 
 const { t } = useI18n();
 
+const i18n = useFormI18n();
+
 /** The column's own declared sub-schema — where its title and its leaves live. */
 function column(name: string): unknown {
   return get(props.criteria.schema, [
@@ -96,18 +100,30 @@ function column(name: string): unknown {
   ]);
 }
 
+/** The leaf's own filter-bar element — where its `i18n` key PREFIX lives. */
+function element(name: string, operator: string): unknown {
+  return find(
+    get(props.criteria.uischema, "elements", []),
+    candidate =>
+      toDataPath(get(candidate, "scope", "")) === `filters.${name}.${operator}`
+  );
+}
+
 /**
- * What the chip says the leaf is set to — the DECLARED option's own title where
- * the schema names one, and the term itself where it does not: a free-text
- * value is the user's own words, so there is nothing to translate.
+ * What the chip says the leaf is set to. A leaf declaring a SET resolves through
+ * its element's `i18n` prefix as `<i18n>.<value>` — core's own mapper, the one
+ * the sort options are named by — so a tri-state's `false` reads as its declared
+ * position and never as a raw boolean. The prefix is the ONLY source: i18n keys
+ * never live in the schema (`client-email.schemas.ts`). A leaf declaring no set
+ * is free text — the user's own words, so there is nothing to translate.
  */
 function valueLabel(name: string, operator: string, value: unknown): string {
-  const declared = find(
-    get(column(name), ["properties", operator, "oneOf"], []),
-    option => get(option, "const") === value
-  );
-  const title = get(declared, "title");
-  return isString(title) ? t(title) : toString(value);
+  const declared = get(column(name), ["properties", operator, "enum"]);
+  const prefix = get(element(name, operator), "i18n");
+
+  if (isEmpty(declared) || !isString(prefix)) return toString(value);
+
+  return enumToEnumOptionMapper(value, i18n.value.translate, prefix).label;
 }
 
 /**
