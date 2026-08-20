@@ -240,8 +240,8 @@ export function useScenarioPlayer(
     handled = track.slug;
 
     // Written first: the link is what carries the track across the remount a
-    // scope navigation causes. The track is ALL the url carries — the playhead
-    // is playback state, and a pasted link arms at the start, like a video.
+    // scope navigation causes. The scene is cleared with it — an arm puts the
+    // playhead back to unplayed, so a stale `scene=` would outlive its track.
     url.write({ track: track.slug, scene: undefined });
 
     const foreign = foreignScope(track);
@@ -255,19 +255,30 @@ export function useScenarioPlayer(
     resetCriteria();
   }
 
+  /**
+   * Moves the playhead and mirrors it into the url in one step, so a scrub can
+   * never leave the two disagreeing (`AC9.1` — the url carries track AND
+   * scene). `SCENE_UNPLAYED` is an absence rather than a position, so it clears
+   * the parameter: written straight through it would serialise a literal `-1`.
+   */
+  function movePlayhead(index: number): void {
+    playhead.value = index;
+    url.scene.value = index === SCENE_UNPLAYED ? undefined : index;
+  }
+
   async function runScene(index: number): Promise<void> {
     const scene = get(armed.value?.scenes, index);
     if (!scene) return;
 
     await scene.run(world);
 
-    playhead.value = index;
+    movePlayhead(index);
     if (status.value !== SCENARIO_PLAYER_STATUS.PLAYING)
       status.value = SCENARIO_PLAYER_STATUS.PAUSED;
   }
 
   async function replayTo(index: number): Promise<void> {
-    playhead.value = SCENE_UNPLAYED;
+    movePlayhead(SCENE_UNPLAYED);
     resetCriteria();
     // Re-armed, not merely re-run: the scenes about to fire again are the ones
     // that already moved the replay's collection, so it goes back to the
