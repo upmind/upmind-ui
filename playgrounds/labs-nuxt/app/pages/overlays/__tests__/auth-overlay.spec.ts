@@ -1,28 +1,29 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview @AC7.1 @AC7.2 @AC7.3 @AC7.4 the auth overlay carries the WHOLE
- * journey plus its scope chooser (H5 sharpened · H9 · C4 · D2 · G12).
+ * @fileoverview @AC7.1 @AC7.4 @R7-1 the auth overlay carries the WHOLE journey
+ * plus the actor chooser its arrival needs (H5 sharpened · H9 · C4 · D2 · G12).
  *
  * ## Job To Be Done
- * Two different asks arrive at the same overlay. "Log in to proceed" already
- * knows which session it wants — the link the visitor followed named the scope —
- * so it opens on the login itself. "Add a session" does not know, so it asks
- * which kind FIRST and collects nothing until it is answered. One overlay, one
- * journey, two entrances: the split is read off the route the funnel builds,
- * never off a second component or a second copy of a form.
+ * Two different asks arrive at the same overlay. A page that already names its
+ * actor — `/useClientEmails/as/client` — knows which session it wants, so the
+ * overlay opens on that actor's journey directly. The bare page names none, and
+ * `R7-1` rules that arrival must be offered the choice rather than locked to the
+ * actor the page happens to declare. One overlay, one journey, two entrances:
+ * the split is read off the route the funnel builds, never off a second
+ * component or a second copy of a form.
  *
  * ## What is NOT claimed here
- * That `UpmAuth` logs anyone in — its forms, validation and per-mode states are
- * client-vue's own contract, doubled here at its published `SessionProps`
- * surface. What is proven is that the overlay DELEGATES every mode to it rather
- * than standing up an email+password card of its own, and that it does so
- * exactly once per mode.
+ * That `AuthJourney` logs anyone in — its tabs, forms and per-mode states are
+ * `app/components/auth`'s own contract. What is proven is that the overlay
+ * DELEGATES to it rather than standing up an email+password card of its own,
+ * that it does so exactly once, and that it hands over the actor and the `fresh`
+ * flag the route carries.
  *
  * ## What Breaks If These Fail
- * The chooser appears in front of a visitor who already said where they were
- * going; add-session drops them into a login for the wrong kind of session; or
- * the journey forks into two copies of the same form and the swap link stops
- * being the one way across.
+ * A logged-out visitor lands on the bare page and cannot proceed as anything but
+ * the page's declared actor (`R7-1`); add-session silently reuses the live
+ * session instead of collecting a second one; the journey forks into two copies
+ * of the same form; or the modal traps the visitor with no way out.
  */
 
 import { flushPromises, mount } from "@vue/test-utils";
@@ -30,70 +31,35 @@ import { describe, expect, it, vi } from "vitest";
 import * as vue from "vue";
 import { defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
-import { ScopeActorTypes } from "@upmind-automation/headless";
-import { ButtonGroup, Link } from "@upmind-automation/upmind-ui";
+import { AuthFlowTypes, ScopeActorTypes } from "@upmind-automation/headless";
+import { RadioCards } from "@upmind-automation/upmind-ui";
 import { renderedStrings } from "../../../../modules/scenarios/testing/rendered";
+import { AuthJourney } from "../../../components/auth";
 import { authOverlayTarget } from "../../../funnels/labs";
 import AuthOverlay from "../auth.vue";
-import { difference, filter, find, forEach, map, reject } from "lodash-es";
-import type { ButtonGroupItem } from "@upmind-automation/upmind-ui";
+import { difference, forEach, map } from "lodash-es";
+import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 import type { VueWrapper } from "@vue/test-utils";
 
 // -----------------------------------------------------------------------------
 
 /** Nuxt's auto-imports are globals to a bare vitest module graph. */
 forEach(vue, (value, key) => vi.stubGlobal(key, value));
-vi.stubGlobal("definePageMeta", () => undefined);
-
-/** The mocked barrel is read at import time, so the double is reached by getter. */
-const doubles = vi.hoisted(() => ({ auth: undefined as unknown as object }));
-
-// The component lane's `client-vue` double is the form renderer only, while the
-// real barrel also re-exports the whole of `headless` — which the funnel this
-// spec drives takes its `assign` from.
-vi.mock("@upmind-automation/client-vue", async importOriginal => ({
-  ...(await import("@upmind-automation/headless")),
-  ...((await importOriginal()) as object),
-  SESSION_FORMS: {
-    LOGIN: "login",
-    REGISTER: "register",
-    RECOVER: "recover",
-    RESET: "reset",
-    PROFILE: "profile",
-    GUEST: "guest",
-    VERIFY: "verify",
-    UNKNOWN: "unknown"
-  },
-  get UpmAuth() {
-    return doubles.auth;
-  }
-}));
 
 /**
- * `UpmAuth` at its published `SessionProps` surface: the overlay is measured on
- * the mode it hands over, and the real journey renders inputs of its own that
- * would be indistinguishable from the hand-rolled card H5 rejects.
+ * `definePageMeta` is the overlay's ONLY statement of its own chrome — the modal
+ * and its escape hatch are declared there, not rendered by this page, so the
+ * stub records the call instead of discarding it.
  */
-const UpmAuth = defineComponent({
-  name: "UpmAuth",
-  props: {
-    modelValue: { type: String, default: undefined },
-    cancelRoute: { type: [String, Object], default: undefined }
-  },
-  emits: ["update:modelValue"],
-  render: () => h("div")
+const pageMeta: Record<string, unknown>[] = [];
+vi.stubGlobal("definePageMeta", (value: Record<string, unknown>) => {
+  pageMeta.push(value);
 });
-
-doubles.auth = UpmAuth;
 
 const PAGE = "useClientEmails";
 const OVERLAY = `${PAGE}--auth`;
 
-const MODE = { LOGIN: "login", REGISTER: "register", RECOVER: "recover" };
-
 const blank = defineComponent({ render: () => h("div") });
-
-const scopeSuffix = ["as", ScopeActorTypes.CLIENT];
 
 /** The page the visitor asked for, carrying its own auth child — D2's shape. */
 const routes = [
@@ -111,156 +77,180 @@ async function overlayOn(target: Record<string, unknown>) {
   await router.push(target as never);
   await router.isReady();
 
+  pageMeta.length = 0;
+
   const wrapper = mount(AuthOverlay as never, {
     global: { plugins: [router] }
   });
+
+  /**
+   * The actor the journey was handed at its FIRST paint, before anything the
+   * overlay resolves asynchronously has settled — a journey that boots on a
+   * default and corrects itself has already collected against the wrong scope.
+   */
+  const bootActor = journey(wrapper as VueWrapper)?.props("actor");
+
   await flushPromises();
 
-  return wrapper;
+  return { wrapper, router, bootActor };
 }
 
 /**
  * The overlay under the route the FUNNEL builds — the one place the
- * add-session ≠ log-in-to-proceed split is stated, so both entrances here are
- * the app's own rather than a query this spec invented.
+ * add-session ≠ log-in-to-proceed split is stated, so every entrance here is
+ * the app's own rather than a query this spec invented. `scopeSuffix: []` is the
+ * bare page `R7-1` arrives on; a populated one is a page that named its actor.
  */
-const overlayAt = (options: { fresh?: boolean } = {}) =>
+const overlayAt = (scopeSuffix: string[], options: { fresh?: boolean } = {}) =>
   overlayOn(
     authOverlayTarget({ name: PAGE, params: { scopeSuffix } }, options) as never
   );
 
-const choosers = (wrapper: VueWrapper) =>
-  wrapper.findAllComponents(ButtonGroup);
+const namedBy = (actor: ScopeActorTypes) => ["as", actor];
+
+const journeys = (wrapper: VueWrapper) =>
+  wrapper.findAllComponents(AuthJourney);
+
+const journey = (wrapper: VueWrapper) => journeys(wrapper)[0];
+
+const choosers = (wrapper: VueWrapper) => wrapper.findAllComponents(RadioCards);
 
 const chooserItems = (wrapper: VueWrapper) =>
-  (choosers(wrapper)[0]?.props("items") ?? []) as ButtonGroupItem[];
+  (choosers(wrapper)[0]?.props("items") ?? []) as RadioCardsItemProps[];
 
-const labelled = (items: ButtonGroupItem[]) =>
-  map(items, item => String((item.props as { label?: string }).label ?? ""));
+/** The three modes the ONE journey groups, read off the rendered tabs. */
+const modes = (wrapper: VueWrapper) =>
+  map(wrapper.findAll('[data-test-key="tab-item"]'), tab =>
+    tab.attributes("data-test-value")
+  );
 
-const journeys = (wrapper: VueWrapper) => wrapper.findAllComponents(UpmAuth);
+/** Every form control the OVERLAY contributes over and above the journey's own. */
+const controlsOutsideTheJourney = (wrapper: VueWrapper) =>
+  difference(
+    map(wrapper.findAll("input, textarea, select"), node => node.element),
+    map(
+      journey(wrapper)?.findAll("input, textarea, select") ?? [],
+      node => node.element
+    )
+  );
 
-const mode = (wrapper: VueWrapper) => journeys(wrapper)[0]?.props("modelValue");
-
-/** Whatever it is worded as in the mode it is read in, there is one of them. */
-const swapLinks = (wrapper: VueWrapper) => wrapper.findAllComponents(Link);
-
-async function swap(wrapper: VueWrapper) {
-  await swapLinks(wrapper)[0]?.trigger("click");
+async function pick(wrapper: VueWrapper, actor: ScopeActorTypes) {
+  await wrapper
+    .find(`[data-test-value="${actor}"] [role="radio"]`)
+    .trigger("click");
   await flushPromises();
   return wrapper;
 }
-
-async function pick(wrapper: VueWrapper, scope: RegExp) {
-  await find(wrapper.findAll("button"), node =>
-    scope.test(node.text())
-  )?.trigger("click");
-  await flushPromises();
-  return wrapper;
-}
-
-const named = (items: ButtonGroupItem[], scope: RegExp) =>
-  filter(labelled(items), label => scope.test(label));
 
 // -----------------------------------------------------------------------------
 
-describe("@AC7.4 the overlay IS the whole UpmAuth journey (H5 sharpened)", () => {
-  it("collects the login through client-vue's own journey, never a card of its own", async () => {
-    const wrapper = await overlayAt();
+describe("@AC7.4 the overlay IS the whole AuthJourney (H5 sharpened)", () => {
+  it("collects the login through the playground's ONE journey, never a card of its own", async () => {
+    const { wrapper } = await overlayAt(namedBy(ScopeActorTypes.CLIENT));
 
     expect(journeys(wrapper)).toHaveLength(1);
-    expect(mode(wrapper)).toBe(MODE.LOGIN);
-    expect(wrapper.findAll("input")).toHaveLength(0);
+    expect(controlsOutsideTheJourney(wrapper)).toEqual([]);
   });
 
-  it("swaps login ⇄ register through the ONE link, with no second copy of either form", async () => {
-    const login = await overlayAt();
-    expect(swapLinks(login)).toHaveLength(1);
+  it("carries login, register and recover as that one journey's three modes", async () => {
+    const { wrapper } = await overlayAt(namedBy(ScopeActorTypes.CLIENT));
 
-    const register = await swap(login);
-
-    expect(mode(register)).toBe(MODE.REGISTER);
-    expect(journeys(register)).toHaveLength(1);
-    expect(swapLinks(register)).toHaveLength(1);
-    expect(register.findAll("input")).toHaveLength(0);
-
-    expect(mode(await swap(register))).toBe(MODE.LOGIN);
-  });
-
-  it("carries recovering an account in the same overlay, over the same page", async () => {
-    const wrapper = await overlayOn({
-      name: OVERLAY,
-      params: { scopeSuffix },
-      query: { mode: MODE.RECOVER }
-    });
-
-    expect(mode(wrapper)).toBe(MODE.RECOVER);
+    expect(modes(wrapper)).toEqual([
+      AuthFlowTypes.LOGIN,
+      AuthFlowTypes.REGISTER,
+      AuthFlowTypes.RECOVER
+    ]);
     expect(journeys(wrapper)).toHaveLength(1);
-    expect(wrapper.findAll("input")).toHaveLength(0);
   });
 });
 
-describe("@AC7.1 @AC7.2 the gate and add-session are different journeys (H5 sharpened)", () => {
-  it("shows the login DIRECTLY, with no chooser, when the page asked for the session", async () => {
-    const wrapper = await overlayAt();
+describe("@AC7.1 a page that NAMES its actor opens that actor's journey directly", () => {
+  it("hands the route's own actor over, with no chooser in front of it", async () => {
+    const { wrapper } = await overlayAt(namedBy(ScopeActorTypes.STAFF));
 
     expect(choosers(wrapper)).toHaveLength(0);
-    expect(journeys(wrapper)).toHaveLength(1);
-    expect(mode(wrapper)).toBe(MODE.LOGIN);
+    expect(journey(wrapper)?.props("actor")).toBe(ScopeActorTypes.STAFF);
   });
 
-  it("asks which kind FIRST when a session is being added, collecting nothing until it is answered", async () => {
-    const wrapper = await overlayAt({ fresh: true });
+  it("hands it over on the FIRST paint, never a default it corrects later", async () => {
+    const { bootActor, wrapper } = await overlayAt(
+      namedBy(ScopeActorTypes.STAFF)
+    );
 
-    expect(choosers(wrapper)).toHaveLength(1);
-    expect(journeys(wrapper)).toHaveLength(0);
+    expect(bootActor).toBe(ScopeActorTypes.STAFF);
+    expect(journey(wrapper)?.props("actor")).toBe(bootActor);
   });
 
-  it("follows the pick with THAT kind's login, in the same overlay", async () => {
-    const wrapper = await pick(await overlayAt({ fresh: true }), /staff/i);
+  it("hands `fresh` over, so add-session collects BESIDE the live session", async () => {
+    const gate = await overlayAt(namedBy(ScopeActorTypes.CLIENT));
+    const added = await overlayAt(namedBy(ScopeActorTypes.CLIENT), {
+      fresh: true
+    });
 
-    expect(journeys(wrapper)).toHaveLength(1);
-    expect(mode(wrapper)).toBe(MODE.LOGIN);
-    expect(
-      map(filter(chooserItems(wrapper), "active"), item =>
-        String((item.props as { label?: string }).label)
-      )
-    ).toEqual(named(chooserItems(wrapper), /staff/i));
+    expect(journey(gate.wrapper)?.props("fresh")).toBe(false);
+    expect(journey(added.wrapper)?.props("fresh")).toBe(true);
   });
 });
 
-describe("@AC7.3 the chooser is three PLAIN buttons (H9)", () => {
-  it("offers client, staff and impersonate as one button group", async () => {
-    const items = chooserItems(await overlayAt({ fresh: true }));
+describe("@R7-1 the bare page's arrival is OFFERED the actor, never locked to one", () => {
+  it("offers client, staff and guest as the one chooser", async () => {
+    const { wrapper } = await overlayAt([]);
 
-    expect(items).toHaveLength(3);
-    expect(map(items, "type")).toEqual(["button", "button", "button"]);
-
-    // Matched most-specific first: the impersonate position names a client too.
-    const impersonate = named(items, /impersonat/i);
-    const rest = reject(labelled(items), label => /impersonat/i.test(label));
-
-    expect(impersonate).toHaveLength(1);
-    expect(filter(rest, label => /client/i.test(label))).toHaveLength(1);
-    expect(filter(rest, label => /staff/i.test(label))).toHaveLength(1);
-  });
-
-  it("sits with no explanatory sentence of any kind", async () => {
-    const wrapper = await overlayAt({ fresh: true });
-
-    expect(wrapper.findAll("p")).toHaveLength(0);
-    expect(
-      difference(renderedStrings(wrapper), labelled(chooserItems(wrapper)))
-    ).toEqual([]);
-  });
-
-  it("carries its own chooser into register, still as the one group", async () => {
-    const wrapper = await swap(
-      await pick(await overlayAt({ fresh: true }), /staff/i)
-    );
-
-    expect(mode(wrapper)).toBe(MODE.REGISTER);
     expect(choosers(wrapper)).toHaveLength(1);
-    expect(chooserItems(wrapper)).toHaveLength(3);
+    expect(map(chooserItems(wrapper), "value")).toEqual([
+      ScopeActorTypes.CLIENT,
+      ScopeActorTypes.STAFF,
+      ScopeActorTypes.GUEST
+    ]);
+  });
+
+  it("picking staff retargets THAT journey, in the same overlay", async () => {
+    const { wrapper, router } = await overlayAt([]);
+    const arrivedAt = router.currentRoute.value.fullPath;
+
+    expect(journey(wrapper)?.props("actor")).toBe(ScopeActorTypes.CLIENT);
+
+    await pick(wrapper, ScopeActorTypes.STAFF);
+
+    expect(journey(wrapper)?.props("actor")).toBe(ScopeActorTypes.STAFF);
+    expect(journeys(wrapper)).toHaveLength(1);
+    expect(router.currentRoute.value.fullPath).toBe(arrivedAt);
+  });
+
+  it("sits as three plain cards, with no explanatory sentence of any kind", async () => {
+    const { wrapper } = await overlayAt([]);
+    const chooser = choosers(wrapper)[0] as VueWrapper;
+
+    expect(chooser.findAll("p")).toHaveLength(0);
+    // `renderedStrings` also sweeps `aria-label`, and each radio's accessible
+    // name is its raw actor value — the only strings here beyond the labels.
+    expect(
+      difference(renderedStrings(chooser), [
+        ...map(chooserItems(wrapper), "label"),
+        ...map(chooserItems(wrapper), "value")
+      ])
+    ).toEqual([]);
+    expect(
+      map(chooserItems(wrapper), item => [
+        item.description,
+        item.secondaryLabel,
+        item.secondaryDescription,
+        item.badge,
+        item.action
+      ])
+    ).toEqual([
+      [undefined, undefined, undefined, undefined, undefined],
+      [undefined, undefined, undefined, undefined, undefined],
+      [undefined, undefined, undefined, undefined, undefined]
+    ]);
+  });
+});
+
+describe("@D2 @C4 the overlay declares its own chrome", () => {
+  it("is a modal the visitor can always leave", async () => {
+    await overlayAt(namedBy(ScopeActorTypes.CLIENT));
+
+    expect(pageMeta).toHaveLength(1);
+    expect(pageMeta[0]).toMatchObject({ overlay: "modal", dismissable: true });
   });
 });
