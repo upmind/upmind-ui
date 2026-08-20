@@ -27,12 +27,16 @@
  * @module client-email-history/client-email-history.types
  * @description Types for a client's own email history — the query-backed
  * collection (`useClientReceivedEmails`) and the query-backed single read
- * (`useClientReceivedEmail`). The COLLECTION owns a context enum and scope
- * matrix, because whose history is read is a genuine actor context; the SINGLE
- * READ owns neither, because which email is read is a record id (`.withId(id)`),
- * not a context. The email model, the services contract and the mapper are
+ * (`useClientReceivedEmail`). The COLLECTION owns a context ENUM and a matrix
+ * that resolves one cell, because whose history is read is a genuine actor
+ * context. The SINGLE READ owns NO context enum — which email is read is a
+ * record id (`.withId(id)`), not a context — but it still owns a matrix, an
+ * ALL-`never` one, because that is the only construct that makes `.for()`
+ * unspellable. The email model, the services contract and the mapper are
  * shared, which is what keeps ONE identity seam for both halves. The module has
  * no mutation surface (no form, no schema layer, no state machine).
+ *
+ * No new construct here — see this file's head `graphify-out/` citation.
  */
 
 import { AccessRoleTypes } from "@upmind-automation/types";
@@ -47,10 +51,12 @@ import type { SentEmailStatus } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
-// SCOPE — one matrix, for the COLLECTION only
+// SCOPE — two matrices, one context enum
 //
-// The single read has no matrix and no context enum: it marks its record with
-// `.withId(id)`. See this file's head `graphify-out/` citation.
+// The collection's matrix resolves a cell. The single read's matrix refuses
+// EVERY cell: it has no context enum, because it marks its record with
+// `.withId(id)`, and an all-`never` matrix is what keeps `.for()` unspellable
+// while the enum is gone. See this file's head `graphify-out/` citation.
 // -----------------------------------------------------------------------------
 
 /**
@@ -62,11 +68,25 @@ export enum ReceivedEmailsContextTypes {
 }
 
 /**
- * Scope matrix for `useClientReceivedEmails`. `client` is the only actor that
- * resolves; `staff` and `guest` are `null as never`, which makes
- * `.as('staff')` a compile-time error rather than an advertised-but-absent
- * capability (there is no `clients/{id}/email_history` endpoint in the oracle
- * for a staff actor to be given).
+ * Scope matrix for `useClientReceivedEmails`. `client` is the only actor with a
+ * context; `staff`, `guest` and `self` are `null as never`.
+ *
+ * A cell governs `.for()` ONLY. A `null as never` cell withdraws `.for()` for
+ * that actor — it does NOT make `.as(actor)` a compile error, because
+ * `as<TActor extends ScopeActorTypes>` carries no matrix constraint. So this
+ * matrix says: staff may name itself, and may not RETARGET this read at another
+ * client.
+ *
+ * That refusal is deliberate. The oracle DOES support a staff read of a
+ * client's history (`list_client_email_history` over
+ * `GET api/admin/clients/{id}/email_history`); this module implements one
+ * self-shaped endpoint and no actor branch, and FE-3095 deliberately did not
+ * add the staff path — an operator-ruled drop, carried as the
+ * `Dropped-with-Linear-issue` parity row in `useClientReceivedEmails.ts`'s own
+ * `@decision`. The cell states what the shipped code does, never what the wire
+ * can do.
+ *
+ * No new construct here — see this file's head `graphify-out/` citation.
  */
 export const RECEIVED_EMAILS_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
@@ -87,10 +107,12 @@ export type ReceivedEmailsScopeMatrix = typeof RECEIVED_EMAILS_SCOPE_MATRIX;
  * context to `string`, which let `.for("email", id)` keep type-checking once
  * the `EMAIL` context type was deleted.
  *
- * Declared but never passed as the third `createScopedComposable` argument, so
- * no matrix reaches the runtime for this read — the same way the sibling
- * collection declares its own. Not re-exported from the module barrel.
- * See `graphify-out/GRAPH_REPORT.md`.
+ * Its TYPE is passed as `createScopedComposable`'s `TMatrix`; the VALUE is not
+ * passed as the third (runtime) argument, so no matrix reaches the registry for
+ * this read — the same way the sibling collection declares its own. Dropping the
+ * type argument is what re-opens `.for()`, so it is not optional paperwork.
+ * Not re-exported from the module barrel: it names no context a consumer can
+ * spell. See `graphify-out/GRAPH_REPORT.md`.
  */
 export const RECEIVED_EMAIL_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,

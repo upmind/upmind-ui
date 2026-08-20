@@ -18,8 +18,11 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * composable name and the scope key carry the differentiation.
  *
  * The email being read is a RECORD ID (`.withId(id)`), never a scope context:
- * the composable declares no matrix, because there is no actor-context cell to
- * declare (FE-3095).
+ * there is no actor-context cell to declare, so the matrix this passes as its
+ * `TMatrix` refuses every actor. That is not paperwork — the default
+ * `ActorContextMatrix` widens every context to `string`, so omitting the type
+ * argument would leave `.for("email", id)` type-checking after the `EMAIL`
+ * context type was deleted, which is the hole FE-3095 exists to close.
  *
  * @doctrine clause 1 (uniform four-layer default).
  * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete

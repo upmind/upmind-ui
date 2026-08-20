@@ -14,8 +14,9 @@ export type { UseClientReceivedEmails } from "./useClientReceivedEmails";
 export { useClientReceivedEmail } from "./useClientReceivedEmail";
 export type { UseClientReceivedEmail } from "./useClientReceivedEmail";
 
-// --- Scope matrix — the COLLECTION's only. The single read declares none: it
-// marks its record with the builder's `.withId(id)`, not with a context.
+// --- Scope matrix — the COLLECTION's only. The single read's matrix refuses
+// every actor, so it names no context a consumer could spell and stays internal;
+// it marks its record with the builder's `.withId(id)`, not with a context.
 export {
   RECEIVED_EMAILS_SCOPE_MATRIX,
   ReceivedEmailsContextTypes,
