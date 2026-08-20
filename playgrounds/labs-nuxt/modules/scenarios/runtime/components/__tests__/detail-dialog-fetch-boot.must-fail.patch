@@ -14,12 +14,12 @@ render the freshly-fetched record.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/DetailDialog.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/DetailDialog.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/DetailDialog.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/DetailDialog.vue
-@@ -68,7 +68,7 @@
- // the row resolved a scope to open it at (`R6-30c`); without both, the clicked
+@@ -143,7 +143,7 @@
+ // the row yielded the id to open it at (`R6-30c`); without both, the clicked
  // row's own data is the record and nothing is fetched.
  const port =
--  props.detail && props.context
-+  props.detail && props.context && false
+-  props.detail && props.id
++  props.detail && props.id && false
      ? useModulePort(props.detail.useDetail, {
          actor: props.detail.actor,
-         context: props.context
+         id: props.id

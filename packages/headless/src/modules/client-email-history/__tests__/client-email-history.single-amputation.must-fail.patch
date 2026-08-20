@@ -27,6 +27,6 @@
  export type { UseClientReceivedEmails } from "./useClientReceivedEmails";
 -export { useClientReceivedEmail } from "./useClientReceivedEmail";
 -export type { UseClientReceivedEmail } from "./useClientReceivedEmail";
-
- // --- Scope matrices — one per composable, both public
- export {
+ 
+ // --- Scope matrix — the COLLECTION's only. The single read's matrix refuses
+ // every actor, so it names no context a consumer could spell and stays internal;

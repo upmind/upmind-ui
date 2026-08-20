@@ -103,10 +103,13 @@ function createClientReceivedEmailsForScope(
  *               shipped-surface gap.
  *
  *               PARITY DISPOSITION (`verify-parity-oracle.companion.md`):
- *               `Staff × CLIENT — list` is `Dropped-with-Linear-issue` — a
- *               DELIBERATE, operator-ruled drop, not an oversight and not an
- *               absent endpoint. Linear issue: `TODO-OPERATOR` (file the
- *               staff-read follow-up; replace this token with its reference).
+ *               `Staff × CLIENT` is `NOT-SUPPORTED` — out of scope for this
+ *               module by operator ruling, 2026-08-20: "there is no STAFF
+ *               scope, we are not enabling it". This is a scope boundary, NOT
+ *               a deferred gap, so it carries no Linear issue and no follow-up
+ *               is owed. An operator directive outranks the tracked-issue
+ *               convention (`agent-behavior.md` §1, tier 1). Do not re-open
+ *               this as a drop, and do not file an issue for it.
  *
  * rejected: Tighten the CLIENT cell to `null as never` too, on the grounds
  *           that `self/email_history` takes no client id, so a
