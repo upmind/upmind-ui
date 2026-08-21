@@ -3,11 +3,12 @@
     <div class="flex flex-row flex-nowrap items-center gap-x-3">
       <Input
         :id="`${formFieldProps.id}-from`"
-        :type="inputType"
+        :type="gteInputType"
         :disabled="!control.enabled"
         :model-value="
           toDisplayValue(
-            get(control.data, RequestFilterOperator.GREATER_THAN_OR_EQUAL)
+            get(control.data, RequestFilterOperator.GREATER_THAN_OR_EQUAL),
+            gteInputType
           )
         "
         @update:modelValue="
@@ -17,11 +18,12 @@
       <span aria-hidden="true">&ndash;</span>
       <Input
         :id="`${formFieldProps.id}-to`"
-        :type="inputType"
+        :type="lteInputType"
         :disabled="!control.enabled"
         :model-value="
           toDisplayValue(
-            get(control.data, RequestFilterOperator.LESS_THAN_OR_EQUAL)
+            get(control.data, RequestFilterOperator.LESS_THAN_OR_EQUAL),
+            lteInputType
           )
         "
         @update:modelValue="
@@ -70,15 +72,9 @@ const { control, formFieldProps, handleChange } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
 
-/**
- * Derive the input type from the schema leaf: `number` for numeric bounds,
- * `datetime-local` for date-time format, otherwise `text`.
- */
-const inputType = computed(() => {
-  const leafSchema = get(control.value.schema, [
-    "properties",
-    RequestFilterOperator.GREATER_THAN_OR_EQUAL
-  ]);
+/** Derive input type for a specific operator from its schema leaf. */
+function getInputType(operator: RequestFilterOperator): string {
+  const leafSchema = get(control.value.schema, ["properties", operator]);
   const leafType = castArray(get(leafSchema, "type"));
   const leafFormat = get(leafSchema, "format");
 
@@ -92,17 +88,27 @@ const inputType = computed(() => {
     return "date";
   }
   return "text";
-});
+}
+
+const gteInputType = computed(() =>
+  getInputType(RequestFilterOperator.GREATER_THAN_OR_EQUAL)
+);
+const lteInputType = computed(() =>
+  getInputType(RequestFilterOperator.LESS_THAN_OR_EQUAL)
+);
 
 /** Convert ISO 8601 string to input-compatible format for display. */
-function toDisplayValue(isoValue: string | null | undefined): string {
+function toDisplayValue(
+  isoValue: string | null | undefined,
+  inputType: string
+): string {
   if (!isoValue) return "";
-  if (inputType.value === "datetime-local") {
+  if (inputType === "datetime-local") {
     const date = new Date(isoValue);
     if (isNaN(date.getTime())) return isoValue;
     return date.toISOString().slice(0, 16);
   }
-  if (inputType.value === "date") {
+  if (inputType === "date") {
     const date = new Date(isoValue);
     if (isNaN(date.getTime())) return isoValue;
     return date.toISOString().slice(0, 10);
@@ -119,12 +125,13 @@ function toDisplayValue(isoValue: string | null | undefined): string {
  */
 function write(operator: RequestFilterOperator, value?: string | number): void {
   const isUnset = isNil(value) || value === "";
+  const inputType = getInputType(operator);
 
   let finalValue: string | number | null = null;
   if (!isUnset && typeof value === "string") {
-    if (inputType.value === "datetime-local") {
+    if (inputType === "datetime-local") {
       finalValue = new Date(value).toISOString();
-    } else if (inputType.value === "date") {
+    } else if (inputType === "date") {
       finalValue = `${value}T00:00:00Z`;
     } else {
       finalValue = value;
