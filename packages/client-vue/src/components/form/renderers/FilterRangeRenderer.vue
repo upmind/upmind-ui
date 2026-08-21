@@ -1,37 +1,42 @@
 <template>
   <FormField v-bind="formFieldProps" :optional-text="''">
-    <div class="flex flex-row flex-nowrap items-center gap-x-3">
-      <Input
-        width="full"
-        :id="`${formFieldProps.id}-from`"
-        :type="gteInputType"
-        :disabled="!control.enabled"
-        :model-value="
-          toDisplayValue(
-            get(control.data, RequestFilterOperator.GREATER_THAN_OR_EQUAL),
-            gteInputType
-          )
-        "
-        @update:modelValue="
-          write(RequestFilterOperator.GREATER_THAN_OR_EQUAL, $event)
-        "
-      />
-      <span aria-hidden="true">&ndash;</span>
-      <Input
-        width="full"
-        :id="`${formFieldProps.id}-to`"
-        :type="lteInputType"
-        :disabled="!control.enabled"
-        :model-value="
-          toDisplayValue(
-            get(control.data, RequestFilterOperator.LESS_THAN_OR_EQUAL),
-            lteInputType
-          )
-        "
-        @update:modelValue="
-          write(RequestFilterOperator.LESS_THAN_OR_EQUAL, $event)
-        "
-      />
+    <!--
+      The slot root takes FormField's fallthrough attrs, and its injected `class`
+      REPLACES any class declared here on re-render — so the layout lives one
+      level in, on an element the field never writes to.
+    -->
+    <div>
+      <div class="flex flex-row flex-nowrap items-center gap-x-3">
+        <Input
+          :id="`${formFieldProps.id}-from`"
+          :type="gteInputType"
+          :disabled="!control.enabled"
+          :model-value="
+            toDisplayValue(
+              get(control.data, RequestFilterOperator.GREATER_THAN_OR_EQUAL),
+              gteInputType
+            )
+          "
+          @update:modelValue="
+            write(RequestFilterOperator.GREATER_THAN_OR_EQUAL, $event)
+          "
+        />
+        <span aria-hidden="true">&ndash;</span>
+        <Input
+          :id="`${formFieldProps.id}-to`"
+          :type="lteInputType"
+          :disabled="!control.enabled"
+          :model-value="
+            toDisplayValue(
+              get(control.data, RequestFilterOperator.LESS_THAN_OR_EQUAL),
+              lteInputType
+            )
+          "
+          @update:modelValue="
+            write(RequestFilterOperator.LESS_THAN_OR_EQUAL, $event)
+          "
+        />
+      </div>
     </div>
   </FormField>
 </template>
