@@ -36,6 +36,7 @@ import {
 } from "./client-email.int-helpers";
 import { server } from "./setup.integration";
 import { DEBOUNCE_DELAY } from "../../../utils";
+import { find } from "lodash-es";
 import type { ObservedRequest } from "./client-email.int-helpers";
 
 // -----------------------------------------------------------------------------
@@ -67,7 +68,7 @@ describe("client-email editor — opening an address (AC-11, AC-12)", () => {
 
     const manager = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", target.id);
+      .withId(target.id);
     await manager.useActions().isReady();
 
     expect(manager.useContext().id.value).toBe(target.id);
@@ -91,7 +92,7 @@ describe("client-email editor — opening an address (AC-11, AC-12)", () => {
 
     const manager = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", target.id);
+      .withId(target.id);
 
     await expect(manager.useActions().isReady()).resolves.toBe(true);
     expect(manager.useMeta().isAvailable.value).toBe(true);
@@ -106,7 +107,7 @@ describe("client-email editor — opening an address (AC-11, AC-12)", () => {
     const observed = observeEmailRequests();
     const manager = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", target.id);
+      .withId(target.id);
     await new Promise(resolve => setTimeout(resolve, 250));
     observed.stop();
 
@@ -217,7 +218,7 @@ describe("client-email editor — saving (AC-14, AC-15, AC-20)", () => {
 
     const manager = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", target.id);
+      .withId(target.id);
     await manager.useActions().isReady();
 
     const saved = await manager.useActions().update({ email: NEW_ADDRESS });
@@ -247,7 +248,7 @@ describe("client-email editor — saving (AC-14, AC-15, AC-20)", () => {
 
     const manager = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", target.id);
+      .withId(target.id);
     await manager.useActions().isReady();
 
     manager.useActions().input({ email: NEW_ADDRESS });
@@ -305,6 +306,39 @@ describe("client-email editor — saving (AC-14, AC-15, AC-20)", () => {
     expect(posted).toBe(false);
   });
 
+  it("AC-20 shows a brand-new address in my open list the moment the editor creates it", async () => {
+    const { clientId } = await seedClientSession();
+    const { primary } = recordedRows();
+    const list = installEmailsListHandler(server, clientId, [primary]);
+    const created = recorded.created().data;
+
+    const emails = useClientEmails().as(ScopeActorTypes.SELF);
+    await vi.waitFor(() =>
+      expect(emails.useContext().data.value).toHaveLength(1)
+    );
+
+    server?.use(
+      http.post(`*/clients/${clientId}/emails`, () => {
+        list.setRows([primary, created]);
+        return HttpResponse.json(recorded.created(), { status: 200 });
+      })
+    );
+
+    // `isNew` routes creates down a different post-effect from the update
+    // below, so the list refresh has to be proven on both.
+    const editor = useClientEmailManager().as(ScopeActorTypes.SELF).fresh();
+    await editor.useActions().isReady();
+    expect(editor.useMeta().isNew.value).toBe(true);
+
+    await editor.useActions().update({ email: created.email });
+
+    await vi.waitFor(() => {
+      expect(
+        find(emails.useContext().data.value, { id: created.id })?.email
+      ).toBe(created.email);
+    });
+  });
+
   it("AC-20 shows the saved value in my open list after I save in the editor", async () => {
     const { clientId } = await seedClientSession();
     const { primary, secondary } = recordedRows();
@@ -328,7 +362,7 @@ describe("client-email editor — saving (AC-14, AC-15, AC-20)", () => {
 
     const manager = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", secondary.id);
+      .withId(secondary.id);
     await manager.useActions().isReady();
     await manager.useActions().update({ email: updated.email });
 
@@ -425,7 +459,7 @@ describe("client-email editor — state while I work (AC-19)", () => {
 
     const editing = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", target.id);
+      .withId(target.id);
     await editing.useActions().isReady();
     expect(editing.useMeta().isNew.value).toBe(false);
   });
@@ -491,7 +525,7 @@ describe("client-email editor — lifecycle (AC-21)", () => {
 
     const manager = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", target.id);
+      .withId(target.id);
     await manager.useActions().isReady();
     const firstService = manager.useInternals().service;
     const keyCount = clientEmailScopeKeys().length;
@@ -504,7 +538,7 @@ describe("client-email editor — lifecycle (AC-21)", () => {
 
     const reopened = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", target.id);
+      .withId(target.id);
     expect(reopened.useInternals().service).not.toBe(firstService);
   });
 });

@@ -41,7 +41,8 @@ vi.mock("../../utils", () => ({
 
 // Mock tanstack's useQuery to refetch on changes to any of these reactive keys
 // when present on the final queryKey segment: 'locale', 'currencyCode', 'limit', 'pageIndex'.
-vi.mock("@tanstack/vue-query", async () => {
+vi.mock("@tanstack/vue-query", async importActual => {
+  const actual = await importActual<typeof import("@tanstack/vue-query")>();
   const localeModule: any = await import("../../system-localisation/useLocale");
 
   const useQuery = vi.fn((options?: any) => {
@@ -71,7 +72,7 @@ vi.mock("@tanstack/vue-query", async () => {
   const QueryClient = vi.fn(() => ({ resetQueries: vi.fn() }));
   const useInfiniteQuery = vi.fn();
 
-  return { useQuery, useInfiniteQuery, useMutation, QueryClient };
+  return { ...actual, useQuery, useInfiniteQuery, useMutation, QueryClient };
 });
 
 // Avoid initializing Upmind singleton during tests and provide minimal index exports used by brand/services

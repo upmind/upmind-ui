@@ -1,0 +1,44 @@
+Negative control for the cell being drawn by the renderer its `type` NAMES
+(`R6-36`).
+
+Stops the registry asking its testers and answers every declared cell with the
+first registered entry instead. This is the pre-ruling shape wearing the new
+clothes: the element list still names `TableCellDate` / `TableCellIcon` /
+`TableCellBadges`, the registry still holds four entries with four testers, and
+every cell nonetheless comes out as text — which is what a surface resolving by
+position rather than by tester does. Nothing is disabled and nothing throws, so
+only the dispatch law is on trial.
+
+Re-pointed for `R7-2`: the resolution moved out of `CellDispatcher` into
+`cells.renderers`, where the frame reads it too, so the control mutates the ONE
+resolution rather than the dispatcher's former copy of it.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the cell-renderer spec — a `TableCellIcon` element no longer draws its
+glyph, a `TableCellBadges` element draws no badges, and a `TableCellDate`
+element stops speaking its relative form, so every per-type case fails while the
+text case still passes.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/cells.renderers.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/cells.renderers.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/cells.renderers.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/cells.renderers.ts
+@@ -55,14 +55,8 @@
+ export function resolveTableCell(
+   element: TableCell
+ ): TableCellRenderer | undefined {
+-  const claimed = maxBy(
+-    map(tableCellRenderers, entry => ({
+-      entry,
+-      rank: entry.tester(element, NO_SCHEMA, NO_CONTEXT)
+-    })),
+-    "rank"
+-  );
+-
+-  return claimed && claimed.rank > NOT_APPLICABLE ? claimed.entry : undefined;
++  void [maxBy, map, NOT_APPLICABLE, NO_SCHEMA, NO_CONTEXT, element];
++
++  return tableCellRenderers[0];
+ }
+
+ /** How wide the column this element draws in is — its renderer's own answer. */

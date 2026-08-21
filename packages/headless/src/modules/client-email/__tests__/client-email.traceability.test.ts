@@ -1,116 +1,142 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview client-email traceability — every scenario has a proving test
+ * @module client-email/__tests__/client-email.traceability
+ * @description The module's ONE traceability test, carrying both jobs the
+ * module owes its ONE `.feature`: the AC link (a tagged scenario has a proving
+ * spec, and a spec claims no AC the feature never tagged), and the spec-to-
+ * catalog gate (an orphan definition, a half-matched scenario, a duplicated
+ * phrasing, an uncompilable pattern and an over-reported covered action all
+ * fail; a scenario nothing matches passes, because a capability written down
+ * and not yet driven is a legitimate state).
  *
- * ## Job To Be Done
- * Parse the CO-LOCATED `client-email.feature`'s `@AC-*` scenario tags and
- * every sibling spec's `AC-<n>` title mentions, then enforce the link BOTH
- * ways: a non-`@todo` scenario with no proving test fails, and a test naming
- * an AC the feature does not tag fails. The co-located feature is the ONLY
- * source this test reads (operator ruling 2026-08-05, requirements.md §5.10).
+ * Generic by construction — it reads the WHOLE feature and the WHOLE catalog,
+ * so no scenario count, no per-scenario list and no AC list is written down
+ * here. The driveable-of-total count lives in the test NAME, which is what puts
+ * a scenario or a definition appended tomorrow inside this verdict the moment
+ * it lands.
  *
- * A test may never read a planning-bundle path: the SDD bundle directories are
- * gitignored, so any such read passes locally and fails in CI on a checkout
- * that has no bundle. Everything this test enforces lives beside it, tracked.
- *
- * Per ADR-020 the `.feature` is spec-only and non-executable — nothing runs
- * it, and there is no steps file. This test is the whole of its enforcement.
+ * The co-located `client-email.feature` is the only truth this file knows.
  *
  * ## What Breaks If These Fail
- * A capability silently loses its proof — shape present, behaviour unproven.
- * That is the exact gap the manager amputation slipped through.
+ * A capability silently loses its proof — shape present, behaviour unproven —
+ * or the spec and the catalog that drives it drift apart and the playlist plays
+ * scenarios nobody implemented.
+ *
+ * Negative controls: `client-email.traceability.must-fail.patch`.
  */
 
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import {
+  createTraceabilityCheck,
+  featureAcTags
+} from "@upmind-automation/scenario-harness";
+import { stepCatalogs } from "../../../testing";
+import { clientEmailsSteps, coveredActionIds } from "./client-email.steps";
+import {
+  difference,
+  filter,
+  flatMap,
+  includes,
+  map,
+  reject,
+  uniq
+} from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
 const TEST_DIR = import.meta.dirname;
-const COLOCATED_FEATURE = join(TEST_DIR, "client-email.feature");
+const SELF = "client-email.traceability.test.ts";
 
-/** The `@AC-*` tags on every scenario in a feature file, `@todo` excluded. */
-function featureAcTags(path: string): Set<string> {
-  const lines = readFileSync(path, "utf-8").split("\n");
-  const tagged = new Set<string>();
+const featureText = readFileSync(
+  join(TEST_DIR, "client-email.feature"),
+  "utf-8"
+);
+const catalogSource = readFileSync(
+  join(TEST_DIR, "client-email.steps.ts"),
+  "utf-8"
+);
 
-  for (let index = 0; index < lines.length; index++) {
-    const match = lines[index].match(/@AC-(\d+)/);
-    if (!match) continue;
+const {
+  scenarios,
+  driveable,
+  partial,
+  orphanStepDefs,
+  duplicatedPatterns,
+  malformedStepDefs
+} = createTraceabilityCheck(featureText, clientEmailsSteps, stepCatalogs);
 
-    let cursor = index;
-    let isTodo = false;
-    while (cursor < lines.length && !/^\s*Scenario/.test(lines[cursor])) {
-      if (/@todo/.test(lines[cursor])) isTodo = true;
-      cursor++;
-    }
-    if (!isTodo) tagged.add(`AC-${match[1]}`);
-  }
-
-  return tagged;
-}
-
-/** AC ids named by a sibling spec's `describe`/`it` titles → the files naming them. */
-function provingTests(): Map<string, string[]> {
-  const files = readdirSync(TEST_DIR).filter(
-    file =>
-      (file.endsWith(".test.ts") || file.endsWith(".int.test.ts")) &&
-      file !== "client-email.traceability.test.ts"
+/**
+ * The `AC-<n>` ids a sibling spec claims in a `describe`/`it` title. Stays
+ * file-local: it reads the test directory, and `node:fs` may never enter the
+ * harness's own barrel, which is production source every consumer executes.
+ */
+function acsNamedBySiblingSpecs(directory: string): string[] {
+  const specs = filter(
+    readdirSync(directory),
+    file => file.endsWith(".test.ts") && file !== SELF
   );
 
-  const mentions = new Map<string, string[]>();
-  for (const file of files) {
-    const content = readFileSync(join(TEST_DIR, file), "utf-8");
-    // An AC named on the enclosing `describe` is as valid a claim as one
-    // repeated on every `it` title.
-    for (const title of content.matchAll(
-      /(?:describe|it)\(\s*["'`]([^"'`]*)["'`]/g
-    )) {
-      for (const ac of title[1].matchAll(/AC-(\d+)/g)) {
-        const key = `AC-${ac[1]}`;
-        const seen = mentions.get(key) ?? [];
-        if (!seen.includes(file)) seen.push(file);
-        mentions.set(key, seen);
-      }
-    }
-  }
-  return mentions;
+  return uniq(
+    flatMap(specs, file => {
+      const titles = readFileSync(join(directory, file), "utf-8").matchAll(
+        /(?:describe|it)\(\s*["'`]([^"'`]*)["'`]/g
+      );
+
+      return flatMap([...titles], title =>
+        map([...title[1].matchAll(/AC-(\d+)/g)], ac => `AC-${ac[1]}`)
+      );
+    })
+  );
 }
 
 // -----------------------------------------------------------------------------
 
-describe("client-email traceability — co-located feature vs proving tests", () => {
-  it("every non-@todo scenario has at least one proving test", () => {
-    const tests = provingTests();
-    const unproven = [...featureAcTags(COLOCATED_FEATURE)].filter(
-      ac => !tests.has(ac)
-    );
+describe("client-email traceability — the module's one feature, both jobs", () => {
+  it("links every tagged scenario to a proving spec, and back", () => {
+    const tagged = featureAcTags(featureText);
+    const named = acsNamedBySiblingSpecs(TEST_DIR);
 
+    expect(tagged.length).toBeGreaterThan(0);
     expect(
-      unproven,
-      `Unproven scenarios (no test names this AC): ${unproven.join(", ")}`
-    ).toEqual([]);
+      difference(tagged, named),
+      "scenario(s) the feature tags that no sibling spec names — shape present, behaviour unproven"
+    ).toStrictEqual([]);
+    expect(
+      difference(named, tagged),
+      "spec(s) naming an AC the feature does not tag — the feature gains the scenario, coverage never falls"
+    ).toStrictEqual([]);
   });
 
-  it("every AC a test names is a scenario the feature actually tags", () => {
-    const tagged = featureAcTags(COLOCATED_FEATURE);
-    const orphaned = [...provingTests().keys()].filter(ac => !tagged.has(ac));
-
+  it(`drives ${driveable.length} of ${scenarios.length} scenarios`, () => {
     expect(
-      orphaned,
-      "Test(s) name an AC the feature does not tag (the feature gains the " +
-        `scenario — coverage never falls): ${orphaned.join(", ")}`
-    ).toEqual([]);
+      map(partial, "name"),
+      "scenario(s) matched only in part — they read as driveable and silently are not"
+    ).toStrictEqual([]);
+    expect(
+      map(orphanStepDefs, "pattern"),
+      "step definition(s) no scenario uses"
+    ).toStrictEqual([]);
+    expect(
+      duplicatedPatterns,
+      "phrasing(s) another module's catalog also claims"
+    ).toStrictEqual([]);
+    expect(
+      map(malformedStepDefs, "pattern"),
+      "step pattern(s) that do not compile as a cucumber expression"
+    ).toStrictEqual([]);
+    expect(driveable.length).toBeGreaterThan(0);
   });
 
-  it("the coverage map names a proving file for all 24 scenarios", () => {
-    const tests = provingTests();
-    const map = [...featureAcTags(COLOCATED_FEATURE)]
-      .sort((a, b) => Number(a.slice(3)) - Number(b.slice(3)))
-      .map(ac => ({ ac, files: tests.get(ac) ?? [] }));
-
-    expect(map).toHaveLength(24);
-    expect(map.filter(entry => entry.files.length === 0)).toEqual([]);
+  // A handler is a closure, so the only way a catalog admits which ids it fires
+  // is its own source.
+  it("fires every action it declares as covered", () => {
+    expect(
+      reject(coveredActionIds, id =>
+        includes(catalogSource, `fire(CLIENT_EMAILS_COVERED_ACTIONS.${id}`)
+      ),
+      "declared covered but fired by no step"
+    ).toStrictEqual([]);
   });
 });

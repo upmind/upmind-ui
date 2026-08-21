@@ -30,7 +30,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  call["useClientEmailManager().as('self').for('email', id)"] --> resolve["scope builder resolves the actor"]
+  call["useClientEmailManager().withId(id)"] --> resolve["scope builder resolves the actor"]
   resolve --> services["createClientEmailServices(actor, context) — its OWN instance for this scope"]
   services --> config["build the machine config from that instance"]
   config --> interpret["interpret the shared dataManagerMachine, keyed by the SCOPE KEY"]
@@ -64,6 +64,23 @@ The guard is the **same predicate** the collection's `isAvailable` flag exposes 
 
 Editing an address appends a reset of the record's verified flag to the outgoing body. That is unconditional: the intent is stated by the caller (this is an existing record), not inferred from whether the address value actually changed.
 
+### Filtering and sorting re-query the server
+
+```mermaid
+flowchart TD
+  call["filterBy(intent) / sortBy(intent)"] --> merge["Merge into the ONE query intent — the branch not written is untouched"]
+  merge --> compact["Compact: strip cleared/empty leaves"]
+  compact --> parse["Parse against the query schema — inject const/default, drop undeclared keys"]
+  parse --> model["Derived, read-only query model — useContext().query"]
+  model --> validate{"Valid against<br/>the schema?"}
+  validate -- no --> surface["Surface the ajv errors on useContext().error"]
+  validate -- yes --> translate["Translate the model to filter[col|op] / order / limit+offset"]
+  surface --> translate
+  translate --> request["Re-issue the list request; filterBy also resets to page 1"]
+```
+
+There is **one** query model per scope, not one per filter and a separate one for sort — setting either through `filterBy` / `sortBy` re-derives the whole model. A validation failure is captured as state on `useContext().error` and never silently reverts the model to its last-good value; the request still uses whatever the model resolves to. An undeclared column or operator never reaches the model at all — the schema is walked to build it, not the caller's input.
+
 ### How a save in the editor reaches the collection
 
 Both halves resolve the same base cache key. The editor never reaches into the collection's query instance — that instance belongs to a different scope key and may not exist in the consumer at all. Instead a settled save invalidates the shared key through the editor's own services instance, and any live collection re-reads.
@@ -77,12 +94,12 @@ flowchart TD
 
 ## Sub-composables
 
-| Sub-composable   | Collection                                                  | Editor                                                                                |
-| ---------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `useActions()`   | 11 members — row mutations, list controls, lifecycle        | 7 members — form input, save, lifecycle                                               |
-| `useContext()`   | 6 members — reactive list, lookups, captured error          | 9 members — model, schema pair, id, errors, display text                              |
-| `useMeta()`      | 4 flags — `hasError`, `isAvailable`, `isEmpty`, `isLoading` | 8 flat flags — availability, loading, dirty, valid, new, processing, complete, errors |
-| `useInternals()` | 2 — actor scope, raw query                                  | 4 — actor scope, raw sender, raw service, raw state                                   |
+| Sub-composable   | Collection                                                                | Editor                                                                                |
+| ---------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `useActions()`   | 12 members — row mutations, filter/sort, list controls, lifecycle         | 7 members — form input, save, lifecycle                                               |
+| `useContext()`   | 8 members — reactive list, lookups, captured error, query state, schemas  | 9 members — model, schema pair, id, errors, display text                              |
+| `useMeta()`      | 5 flags — `hasError`, `isAvailable`, `isEmpty`, `isFiltered`, `isLoading` | 8 flat flags — availability, loading, dirty, valid, new, processing, complete, errors |
+| `useInternals()` | 3 — actor scope, raw query, per-action input-schema map                   | 4 — actor scope, raw sender, raw service, raw state                                   |
 
 Both halves return the identical four-layer shape; only the contents differ, because one is query-backed and the other machine-backed.
 
@@ -90,13 +107,14 @@ Both halves return the identical four-layer shape; only the contents differ, bec
 
 One services file serves both halves. There are no per-actor service arms today — the actor switch exists with only a default branch, so the shape is the same whether or not an arm is ever earned.
 
-| Concern                   | Where it lives                                                                                              |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Target-client resolution  | one function, consumed by all eight request functions                                                       |
-| Addressability predicate  | one function; its reactive form is what `isAvailable` exposes                                               |
-| Cache key                 | one base key, shared by both halves                                                                         |
-| Wire ↔ view-model mapping | pure mappers, no actor awareness                                                                            |
-| Machine services adapter  | takes the already-scoped services instance as an argument, so the machine inherits the same resolved client |
+| Concern                   | Where it lives                                                                                                                                                                                                                                                                              |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Target-client resolution  | one function, consumed by all eight request functions                                                                                                                                                                                                                                       |
+| Addressability predicate  | one function; its reactive form is what `isAvailable` exposes                                                                                                                                                                                                                               |
+| Cache key                 | one base key, shared by both halves                                                                                                                                                                                                                                                         |
+| Wire ↔ view-model mapping | pure mappers, no actor awareness                                                                                                                                                                                                                                                            |
+| Machine services adapter  | takes the already-scoped services instance as an argument, so the machine inherits the same resolved client                                                                                                                                                                                 |
+| Request-state translation | one function, invoked whenever the declared model changes — turns it into `filter[col\|op]=` / `order=` / `limit=`&`offset=`. It now lives in the shared query layer's criteria seam, not this module's services file; `filterBy` / `sortBy` write intent only and never translate directly |
 
 The module owns **no machine of its own** — it builds a typed configuration payload for the shared `dataManagerMachine`, whose actions, guards and invoked services it overrides. One guard override is load-bearing: the editor is held out of its loading state until a client id exists, which is what stops it firing an unaddressed request on a cold boot.
 
@@ -104,14 +122,15 @@ The module owns **no machine of its own** — it builds a typed configuration pa
 
 Errors are **state**, not events. Nothing in this module raises a toast or notification.
 
-| Surface                 | Where a failure lands                                                                                                                    |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| Collection row mutation | the services instance's captured error → `useContext().error`, `useMeta().hasError`                                                      |
-| Collection list read    | the query's own error → the same two members                                                                                             |
-| Editor save             | the machine's context error → `useContext().errors`, `useMeta().hasErrors`; the action also rejects with a detailed error for the caller |
-| Editor field validation | the validation errors → `useContext().validationErrors`, `useMeta().isValid`                                                             |
+| Surface                           | Where a failure lands                                                                                                                    |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Collection filter/sort validation | the derived query model's ajv failure → `useContext().error`, checked BEFORE the two rows below                                          |
+| Collection row mutation           | the services instance's captured error → `useContext().error`, `useMeta().hasError`                                                      |
+| Collection list read              | the query's own error → the same two members                                                                                             |
+| Editor save                       | the machine's context error → `useContext().errors`, `useMeta().hasErrors`; the action also rejects with a detailed error for the caller |
+| Editor field validation           | the validation errors → `useContext().validationErrors`, `useMeta().isValid`                                                             |
 
-A consumer that wants user-visible feedback renders it from those members, or from the editor's `onDone()` completion signal.
+A consumer that wants user-visible feedback renders it from those members, or from the editor's `onDone()` completion signal. On the collection, `error` checks the query-validation failure first — see [gotchas.md](./gotchas.md) for the consequence.
 
 ## Dependencies
 

@@ -1,0 +1,25 @@
+diff --git a/packages/headless/src/modules/query/useQuery.ts b/packages/headless/src/modules/query/useQuery.ts
+--- a/packages/headless/src/modules/query/useQuery.ts
++++ b/packages/headless/src/modules/query/useQuery.ts
+@@ -402,8 +402,8 @@ export const useQuery = () => {
+ 
+     const sort = computed(() => criteria.props.value.sort);
+     const filters = computed(() => criteria.props.value.filters);
+-    const limit = computed(
+-      () => criteria.props.value.pagination?.limit ?? PAGINATION.limit
++    const limit = ref(
++      criteria.props.value.pagination?.limit ?? PAGINATION.limit
+     );
+     const offset = computed(
+       () => criteria.props.value.pagination?.offset ?? PAGINATION.offset
+@@ -690,8 +690,8 @@ export const useQuery = () => {
+ 
+     const sort = computed(() => criteria.props.value.sort);
+     const filters = computed(() => criteria.props.value.filters);
+-    const limit = computed(
+-      () => criteria.props.value.pagination?.limit ?? PAGINATION.limit
++    const limit = ref(
++      criteria.props.value.pagination?.limit ?? PAGINATION.limit
+     );
+ 
+     // The declared window's `offset` is where the list STARTS — the FIRST page

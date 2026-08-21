@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/query/query.utils.ts
++++ b/packages/headless/src/modules/query/query.utils.ts
+@@ -556,7 +556,7 @@
+  * An unpaged list (`limit: 0`) is always exactly one page.
+  */
+ export function resolvePageTotal(total: number, limit: number): number {
+-  return !limit ? 1 : Math.max(Math.ceil(total / limit), 1);
++  return Math.max(Math.ceil(total / limit), 1);
+ }
+ 
+ /**

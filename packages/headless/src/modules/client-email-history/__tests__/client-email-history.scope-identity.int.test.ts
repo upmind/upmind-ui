@@ -17,9 +17,11 @@
  * 2. BEHAVIOURAL — with the flag toggled true (the same public
  *    `upmind.admin = true` switch `Upmind.init({ admin: true })` sets), the
  *    single read's resolved identity must stay the SESSION's own client id,
- *    never drift to the scope context's OWN id (the email id) — the exact
- *    failure the patch's comment names ("for the single read it resolves to
- *    the EMAIL id instead of the session's client id").
+ *    never drift to the record the scope named with `.withId(id)` (the email
+ *    id) — the exact failure the patch's comment names ("for the single read
+ *    it resolves to the EMAIL id instead of the session's client id"). The
+ *    record id and the identity are two different things, and FE-3095 moving
+ *    the id off `config.context` onto `config.id` does not merge them.
  *
  * Per `verify-reality-check.companion.md`'s A7 clause, (2) reads the actual
  * TanStack query cache key the composable minted — never the response payload
@@ -27,7 +29,7 @@
  */
 
 import { describe, expect, it, vi } from "vitest";
-import { ReceivedEmailContextTypes, useClientReceivedEmail } from "..";
+import { useClientReceivedEmail } from "..";
 import upmind from "../../../useUpmind";
 import { queryClient } from "../../query/client";
 import { ScopeActorTypes } from "../../scope/scope.types";
@@ -57,7 +59,7 @@ describe("client-email-history — identity resolved from the scope, never a glo
     try {
       const single = useClientReceivedEmail()
         .as(ScopeActorTypes.CLIENT)
-        .for(ReceivedEmailContextTypes.EMAIL, fixture.data.id);
+        .withId(fixture.data.id);
       await vi.waitFor(() =>
         expect(single.useMeta().isLoading.value).toBe(false)
       );

@@ -96,7 +96,6 @@ export function createClientEmailManagerMachineConfig(
   };
 }
 
-// Type export for consumers
 export type ClientEmailManagerMachineConfig = ReturnType<
   typeof createClientEmailManagerMachineConfig
 >;

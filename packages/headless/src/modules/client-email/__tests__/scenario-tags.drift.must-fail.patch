@@ -1,0 +1,15 @@
+diff --git a/packages/headless/src/modules/client-email/useClientEmails.actions.ts b/packages/headless/src/modules/client-email/useClientEmails.actions.ts
+--- a/packages/headless/src/modules/client-email/useClientEmails.actions.ts
++++ b/packages/headless/src/modules/client-email/useClientEmails.actions.ts
+@@ -173,10 +173,11 @@ export function createClientEmailsActions(
+     prevPage: query.fetchPreviousPage,
+ 
+     /**
+      * @scenario-include
+      */
++    // --- paging
+     refresh,
+ 
+     /**
+      * @scenario-include
+      */

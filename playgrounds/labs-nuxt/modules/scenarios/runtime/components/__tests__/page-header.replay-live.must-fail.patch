@@ -1,0 +1,35 @@
+Negative control for the page action under a replay (`R6-23`).
+
+Takes the lock off Add new: the collection's own control stays pressable while a
+track drives the page, and its tooltip stops naming why it would not fire. The
+control keeps its place, its label, its colour and its handoff, and every OTHER
+state it has — a declaration's own `disabled`, an action in flight — is
+untouched, so the only claim that can go red is the ruled one: a replay is a
+PLAYBACK, so the page's own action is held to what the script fires until Live
+hands it back, and the refusal SAYS so rather than reading as a dead button.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: page-header.spec.ts — the `R6-23` case (with `locked`, the collection
+action is disabled and carries the lock reason).
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/PageHeader.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/PageHeader.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/PageHeader.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/PageHeader.vue
+@@ -8,14 +8,14 @@
+       v-for="action in actions"
+       :key="action.name"
+       :label="t('labs.replay_locked')"
+-      :active="!!locked"
++      :active="false"
+     >
+       <Button
+         :color="action.color ?? 'primary'"
+         :variant="action.variant ?? 'solid'"
+         :icon="action.icon"
+         :label="action.label"
+-        :disabled="action.disabled || locked"
++        :disabled="action.disabled"
+         :loading="action.loading"
+         @click="action.onSelect"
+       />

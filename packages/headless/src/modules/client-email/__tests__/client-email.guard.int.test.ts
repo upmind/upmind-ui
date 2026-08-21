@@ -16,6 +16,15 @@
  * The auth-guard `*.must-fail.patch` removes the guard; the "no request" and
  * "rejects" assertions here are what must then fire.
  *
+ * Both scope shapes are driven: `.as(self)` with no context, whose target id
+ * comes from the session and so is absent on the guest floor, AND
+ * `.for(client, id)` — the FE-2824 retarget the parity table signs — whose
+ * target id comes from the CALLER and is therefore present whatever the session
+ * is. The second shape is the one the guard has to hold on its own; a suite
+ * that drives only the first cannot tell an authentication gate from an
+ * "is there an id" gate, because on that path the two are the same question.
+ * The playground reaches it at `/scenarios/client-emails/as/client/for/client/<id>`.
+ *
  * ## What Breaks If These Fail
  * An unauthenticated caller reaches a client's email collection at all — the
  * one thing legacy's `<guard :if-client>` never allowed.
@@ -25,10 +34,12 @@ import { describe, expect, it } from "vitest";
 import { useClientEmailManager, useClientEmails } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import { useSessionStore } from "../../session-store";
+import { ClientEmailsContextTypes } from "../client-email.types";
 import {
   installBackgroundStubs,
   observeEmailRequests,
-  recorded
+  recorded,
+  resetClientEmailScopes
 } from "./client-email.int-helpers";
 import { NotAuthenticatedError } from "../../../utils";
 
@@ -67,7 +78,7 @@ describe("client-email with no authenticated client session (AC-10)", () => {
     useClientEmails().as(ScopeActorTypes.SELF);
     useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", recorded.one().data.id);
+      .withId(recorded.one().data.id);
     // Give an (incorrectly) enabled query time to fire before asserting absence.
     await new Promise(resolve => setTimeout(resolve, 400));
     observed.stop();
@@ -123,6 +134,42 @@ describe("client-email with no authenticated client session (AC-10)", () => {
     ]);
 
     expect(settled).toBe(false);
+  });
+
+  it("AC-10 rejects a FORCED read on a caller-supplied client id, and reaches that client's resource not at all", async () => {
+    await bootUnauthenticated();
+    resetClientEmailScopes();
+    // The id a caller can name without a session: the owning client of a
+    // recorded row, read off the capture rather than invented.
+    const targetClientId = recorded.one().data.client_id;
+    const observed = observeEmailRequests();
+
+    const emails = useClientEmails()
+      .as(ScopeActorTypes.CLIENT)
+      .for(ClientEmailsContextTypes.CLIENT, targetClientId);
+
+    // Forced, not passive: an idle collection makes no request whatever the
+    // guard does, so absence alone measures laziness rather than the gate.
+    const settled = await settlement(emails.useActions().refresh());
+    observed.stop();
+
+    expect(settled).toBeInstanceOf(NotAuthenticatedError);
+    expect(observed.matching(`/clients/${targetClientId}/emails`)).toEqual([]);
+  });
+
+  it("AC-3 reports a caller-retargeted collection unavailable while the session never authenticates", async () => {
+    await bootUnauthenticated();
+    resetClientEmailScopes();
+    const targetClientId = recorded.one().data.client_id;
+
+    const meta = useClientEmails()
+      .as(ScopeActorTypes.CLIENT)
+      .for(ClientEmailsContextTypes.CLIENT, targetClientId)
+      .useMeta();
+
+    await new Promise(resolve => setTimeout(resolve, 400));
+
+    expect(meta.isAvailable.value).toBe(false);
   });
 
   it("AC-3 reports the collection unavailable while the session never authenticates, and still reports it loading", async () => {

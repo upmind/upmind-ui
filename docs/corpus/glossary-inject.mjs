@@ -42,7 +42,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { classifyReferents, escapeRegExp, norm, parseCorpusArgs } from './glossary-lib.mjs';
+import { classifyReferents, escapeRegExp, moduleDocsFor, norm, parseCorpusArgs } from './glossary-lib.mjs';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url)); // <root>/docs/corpus
 const DEFAULT_GLOSSARY_PATH = join(SCRIPT_DIR, 'glossary.json'); // slim projection of corpus.json (FE-3003 W5)
@@ -50,6 +50,7 @@ const SESSION_STATE_DIR = join(tmpdir(), 'upmind-glossary-inject-sessions');
 
 const MAX_TERMS_PER_INJECT = 3;
 const MAX_DEFINITION_CHARS = 160;
+const MAX_DOC_FILES = 8;
 const MAX_STDIN_BYTES = 1_048_576; // 1 MB, measured in BYTES; big enough that a real Write/Edit payload still parses (its file_path must inject), small enough to skip a runaway payload without ever parsing it
 // A session id becomes part of a filesystem path; restrict it to a safe charset
 // so an untrusted payload can never traverse out of the session-state dir.
@@ -106,6 +107,22 @@ function loadCorpus(corpusPath) {
 function touchedFilePath(toolName, toolInput) {
   if (!FILE_TOOLS.has(toolName)) return '';
   return String(toolInput?.file_path ?? toolInput?.notebook_path ?? '').replace(/\\/g, '/');
+}
+
+// Path-triggered module-docs pointer: when a tool touches a file inside a module
+// that carries its own `docs/` set, surface that set so the agent reads it
+// BEFORE designing changes to the module (the recurring miss behind scope /
+// `.as('self')`-vs-`.for('client', id)` confusion). Derivation lives in
+// glossary-lib.moduleDocsFor (shared with the pull face so the two can't drift);
+// this wrapper only formats the one-line pointer. Gated behind the same
+// corpus-present contract as the term digest (see main).
+function moduleDocsPointer(filePath) {
+  const info = moduleDocsFor(filePath, process.cwd());
+  if (!info) return null;
+  const shown = info.files.slice(0, MAX_DOC_FILES);
+  const more = info.files.length > shown.length ? `, +${info.files.length - shown.length} more` : '';
+  const text = `module "${info.moduleName}" has its own docs — read before designing changes to it: ${shown.join(', ')}${more} (in ${info.relDir}/)`;
+  return { key: `mod:${info.relDir}`, text };
 }
 
 // Bash/Grep/Glob text signal only (never FILE_TOOLS — plan panel P2-1: a file
@@ -187,15 +204,29 @@ function main() {
   const index = corpus?.index;
   if (!terms || !index) process.exit(0);
 
-  const candidates = matchTerms(terms, index, payload.tool_name, payload.tool_input);
   const alreadyInjected = loadInjectedSlugs(sessionId);
-  const slugs = candidates.filter((slug) => !alreadyInjected.has(slug)).slice(0, MAX_TERMS_PER_INJECT);
-  if (!slugs.length) process.exit(0);
 
-  const lines = slugs.map((slug) => digestLine(slug, terms[slug], index));
-  const additionalContext = `glossary: ${lines.join(' | ')}`;
+  // Push 1 — the touched module's own docs, keyed off the file path (once per
+  // module per session). Independent of any term match: an agent opening a
+  // module file is pointed at that module's docs even when no term fires.
+  const docs = moduleDocsPointer(touchedFilePath(payload.tool_name, payload.tool_input));
+  const emitDocs = docs && !alreadyInjected.has(docs.key);
+
+  // Push 2 — the bounded glossary term digest (once per term per session).
+  const candidates = matchTerms(terms, index, payload.tool_name, payload.tool_input);
+  const slugs = candidates.filter((slug) => !alreadyInjected.has(slug)).slice(0, MAX_TERMS_PER_INJECT);
+
+  if (!emitDocs && !slugs.length) process.exit(0);
+
+  const parts = [];
+  if (emitDocs) parts.push(docs.text);
+  if (slugs.length) parts.push(`glossary: ${slugs.map((slug) => digestLine(slug, terms[slug], index)).join(' | ')}`);
+  const additionalContext = parts.join('\n');
   console.log(JSON.stringify({ hookSpecificOutput: { hookEventName: 'PreToolUse', additionalContext } }));
-  saveInjectedSlugs(sessionId, new Set([...alreadyInjected, ...slugs]));
+
+  const injected = new Set([...alreadyInjected, ...slugs]);
+  if (emitDocs) injected.add(docs.key);
+  saveInjectedSlugs(sessionId, injected);
   process.exit(0);
 }
 

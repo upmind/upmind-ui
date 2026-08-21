@@ -36,7 +36,6 @@ import { useRoute, useRouter } from "vue-router";
 import { UpmLayout } from "@upmind-automation/client-vue";
 import {
   useClientReceivedEmail,
-  ReceivedEmailContextTypes,
   ScopeActorTypes
 } from "@upmind-automation/headless";
 import { Button, Card } from "@upmind-automation/upmind-ui";
@@ -50,7 +49,7 @@ const emailId = computed(() => route.params.emailId as string);
 
 const email = useClientReceivedEmail()
   .as(ScopeActorTypes.CLIENT)
-  .for(ReceivedEmailContextTypes.EMAIL, emailId.value);
+  .withId(emailId.value);
 const { data } = email.useContext();
 // Destructured so each flag auto-unwraps as its own top-level template
 // binding — `useMeta()` returns a plain object of individual `ComputedRef`s.

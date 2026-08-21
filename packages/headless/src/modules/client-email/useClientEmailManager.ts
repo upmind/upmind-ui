@@ -1,10 +1,10 @@
 import { watch } from "vue";
 import { interpret } from "xstate";
 import { dataManagerMachine } from "../data-manager";
-import { createScopedComposable } from "../scope";
+import { createScopedComposable } from "../scope/scope.builder";
 import { useI18n } from "../system-localisation";
 import createClientEmailServices from "./client-email.services";
-import { ClientEmailContextTypes } from "./client-email.types";
+import { CLIENT_EMAIL_SCOPE_MATRIX } from "./client-email.types";
 import { createClientEmailManagerActions } from "./useClientEmailManager.actions";
 import { createClientEmailManagerContext } from "./useClientEmailManager.context";
 import { createClientEmailManagerInternals } from "./useClientEmailManager.internals";
@@ -18,21 +18,15 @@ import {
   responseCodes
 } from "../../utils";
 import type { ClientEmailScopeMatrix } from "./client-email.types";
-import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ScopeActorTypes, ScopeConfig, ScopeKey } from "../scope";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmailManager
  * @description Scoped per-email form editor, backed by the shared
  * `dataManagerMachine`. One interpreter per concrete `(actor, email)` scope:
- * the address being edited comes from `.for('email', id)`, and a new one is
+ * the address being edited comes from `.withId(id)`, and a new one is
  * minted with `.fresh()`. Registered under the same module name as
  * `useClientEmails`; the scope key carries the differentiation.
- *
- * @doctrine clause 1 (uniform four-layer default) — identical return shape to
- * the collection half.
- * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
- * actor; never branch on SELF in this file.
  */
 function createClientEmailManagerForScope(
   config: ScopeConfig,
@@ -43,15 +37,11 @@ function createClientEmailManagerForScope(
   const actorScope = config.actor as ScopeActorTypes;
 
   /**
-   * The email being edited is carried by the scope context; absent
-   * (`.fresh()`) → a new address. Reading the id from the scope rather than an
-   * argument is what makes two concurrently-open editors two distinct registry
-   * entries instead of one shared machine.
+   * The email being edited comes from `.withId(id)`; absent (`.fresh()`) → a
+   * new address. Reading the id from the scope key rather than an argument is
+   * what makes two concurrently-open editors two distinct registry entries
+   * instead of one shared machine.
    */
-  const emailId =
-    config.context?.type === ClientEmailContextTypes.EMAIL
-      ? config.context.id
-      : undefined;
 
   /**
    * ONE services instance for this scope, threaded into the machine config.
@@ -64,7 +54,7 @@ function createClientEmailManagerForScope(
     dataManagerMachine
       .withConfig(createClientEmailManagerMachineConfig(service))
       .withContext({
-        id: emailId,
+        id: config.id,
         // Identity, seeded from the ONE seam. Never read `activeUser` directly
         // in this file.
         clientId: service.clientId.value,
@@ -122,7 +112,6 @@ function createClientEmailManagerForScope(
   );
 
   return {
-    // --- Sub-composables (no direct props — clause 1 four-layer return)
     /** Sub-composable for manager actions (form input, save, lifecycle). */
     useActions: () => actions,
 
@@ -143,19 +132,18 @@ function createClientEmailManagerForScope(
  * @example
  * ```ts
  * // Edit an existing address
- * const manager = useClientEmailManager().as('self').for('email', emailId)
+ * const manager = useClientEmailManager().withId(emailId)
  * const { model, schema, uischema } = manager.useContext()
  * await manager.useActions().isReady()
  * await manager.useActions().update({ email: 'new@example.com' })
  *
  * // Create a new address (isolated instance, distinct scope key)
- * const draft = useClientEmailManager().as('self').fresh()
+ * const draft = useClientEmailManager().fresh()
  * ```
  */
 export const useClientEmailManager = createScopedComposable<
   ReturnType<typeof createClientEmailManagerForScope>,
   ClientEmailScopeMatrix
->("client-email", createClientEmailManagerForScope);
+>("client-email", createClientEmailManagerForScope, CLIENT_EMAIL_SCOPE_MATRIX);
 
-// Type export for consumers
 export type UseClientEmailManager = ReturnType<typeof useClientEmailManager>;

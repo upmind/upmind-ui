@@ -172,7 +172,7 @@ Feature: A client manages the companies on their own account
   @AC-15 @manager
   Scenario: Start a new company
     When I start adding a company
-    Then I am given an empty form to fill in, marked as new
+    Then I am given an empty form to complete, marked as new
     And if I start a second one at the same time, the two do not interfere with
       each other
 
@@ -186,7 +186,7 @@ Feature: A client manages the companies on their own account
 
   @AC-17 @manager
   Scenario: Choosing a country re-offers the right regions
-    Given I am filling in a company address
+    Given I am completing a company address
     When I change the country
     Then I am offered the regions of the country I chose
     And a region I had picked that does not belong to the new country is cleared
@@ -194,11 +194,11 @@ Feature: A client manages the companies on their own account
 
   @AC-18 @manager
   Scenario: The form tells me what is wrong before it saves
-    Given I am filling in a company form
+    Given I am completing a company form
     When I leave the company name empty
     Then I am told the name is required
     And trying to save sends nothing to the server
-    And filling the name in tells me the form is now valid
+    And providing the name tells me the form is now valid
     And where I have picked an existing address, the form asks me for that choice
       rather than for a whole new address, and the reverse when I have not
 

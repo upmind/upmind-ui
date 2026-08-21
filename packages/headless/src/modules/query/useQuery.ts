@@ -1,10 +1,11 @@
 import {
+  keepPreviousData,
   useMutation,
   useQuery as vueUseQuery,
   useInfiniteQuery as vueUseInfiniteQuery
 } from "@tanstack/vue-query";
-import { ref, unref, computed } from "vue";
-import { effectScope, getCurrentScope, type ComputedRef } from "vue";
+import { ref, computed, watch } from "vue";
+import { effectScope, getCurrentScope } from "vue";
 import { isArray, isFunction } from "xstate/lib/utils";
 import { Methods } from "@upmind-automation/types";
 import { useBasket, useBasketCurrency } from "../basket";
@@ -17,8 +18,12 @@ import {
   parseData,
   PAGINATION,
   cleanQueryKey,
-  canRetryAuthorization
+  canRetryAuthorization,
+  resolvePageTotal,
+  toPaginationInfo,
+  withPageWindow
 } from "./query.utils";
+import { useQueryCriteria } from "./useQueryCriteria";
 import {
   useUrl,
   isPromise,
@@ -27,6 +32,8 @@ import {
   responseCodes
 } from "../../utils";
 import {
+  assign,
+  flatMap,
   forEach,
   get,
   has,
@@ -37,6 +44,7 @@ import {
   isString,
   map,
   set,
+  size,
   toNumber,
   unset
 } from "lodash-es";
@@ -47,8 +55,10 @@ import type {
   MutationParams,
   InfiniteQueryPage,
   ReactiveQueryKeys,
-  PaginationInfo,
+  CriteriaInput,
   ListQuery,
+  SimpleQuery,
+  InfiniteListQuery,
   MutationResult
 } from "./query.types";
 import type { DefaultError, MutationKey, QueryKey } from "@tanstack/vue-query";
@@ -229,9 +239,14 @@ export const useQuery = () => {
    * @param withBasket Whether to automagically add the basket ID to the request based on the `useBasket` composable.
    * @param withoutLocale Whether to exclude the locale from the request.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param criteria The collection's declared query schema (and optional starting model). Sort and filters are the criteria's alone — spelling either raw beside it is a compile error. NO PAGE WINDOW: a plain GET has no cursor, so a declared `pagination` branch is honoured in the model and dropped at the wire. A collection that declares none of the branches declares no criteria and simply has nothing to write.
    * @param options Additional options to pass to TanStack query.
    */
-  function query<TQueryFnData = unknown, TData = TQueryFnData>({
+  function query<
+    TQueryFnData = unknown,
+    TData = TQueryFnData,
+    TModel extends Record<string, unknown> = Record<string, unknown>
+  >({
     url,
     init,
     guard,
@@ -241,20 +256,27 @@ export const useQuery = () => {
     withBasket,
     withoutLocale,
     withAccessToken,
+    criteria: declaration,
     ...options
-  }: Omit<QueryParams<TQueryFnData, TData>, "pagination">) {
+  }: Omit<QueryParams<TQueryFnData, TData>, "pagination"> &
+    CriteriaInput<TModel>): SimpleQuery<TQueryFnData, TData, TModel> {
     // ensure we have a scope, in case we call this outside of a setup function
     // Check if current scope is active - stopped scopes cause scope.run() to return undefined
     const currentScope = getCurrentScope();
     const scope = currentScope?.active ? currentScope : effectScope(true);
 
-    // --- state
-
-    const filters = ref<QueryParams["filters"]>({
-      ...(options?.filters ?? {})
+    // Constructed here, never handed in — the same law `list()` holds to. No
+    // page window is merged under the declaration: this entry point owns no
+    // cursor, so the wire below carries no `pagination` at all.
+    const criteria = useQueryCriteria<TModel>({
+      schema: {},
+      ...declaration
     });
 
-    const sort = ref(options?.sort);
+    // --- state
+
+    const sort = computed(() => criteria.props.value.sort);
+    const filters = computed(() => criteria.props.value.filters);
 
     // --- query
     const reactiveKeys: ReactiveQueryKeys = { sort, filters };
@@ -309,21 +331,16 @@ export const useQuery = () => {
     return {
       ...response,
       data: computed((): TData => response?.data?.value ?? ([] as TData)),
-      sort: (values?: QueryParams["sort"]) => {
-        sort.value = unref(values);
-      },
-      filter: (values: QueryParams["filters"]) => {
-        filters.value = unref(values);
-      },
-      resetQuery: () => {
-        return queryClient.resetQueries({ queryKey });
-      }
-    } as ReturnType<typeof vueUseQuery<TQueryFnData, DefaultError, TData>> & {
-      data: ComputedRef<TData>;
-      sort: (values?: QueryParams["sort"]) => void;
-      filter: (values: QueryParams["filters"]) => void;
-      resetQuery: () => Promise<void>;
-    };
+      resetQuery: () => queryClient.resetQueries({ queryKey }),
+
+      // --- criteria
+
+      criteria: criteria.model,
+      schema: criteria.schema,
+      isFiltered: criteria.isFiltered,
+      criteriaError: criteria.error,
+      setCriteria: criteria.set
+    } as SimpleQuery<TQueryFnData, TData, TModel>;
   }
 
   /**
@@ -340,9 +357,14 @@ export const useQuery = () => {
    * @param withBasket Whether to automagically add the basket ID to the request based on the `useBasket` composable.
    * @param withoutLocale Whether to exclude the locale from the request.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param criteria The collection's declared query schema (and optional starting model). Sort, filters and pagination are the criteria's alone — spelling any of them raw beside it is a compile error. PAGING WRITES THROUGH IT: `fetchNextPage`/`fetchPreviousPage`/`resetQuery` move `pagination.offset` in the model, which is the cursor the wire carries. A collection with none of the three declares no criteria and simply has nothing to write.
    * @param options Additional options to pass to TanStack query.
    */
-  function list<TQueryFnData = unknown, TData = TQueryFnData>({
+  function list<
+    TQueryFnData = unknown,
+    TData = TQueryFnData,
+    TModel extends Record<string, unknown> = Record<string, unknown>
+  >({
     url,
     init,
     guard,
@@ -353,8 +375,13 @@ export const useQuery = () => {
     withoutLocale,
     withAccessToken,
     withSplitCount,
+    criteria: declaration,
     ...options
-  }: QueryParams<TQueryFnData, TData>) {
+  }: QueryParams<TQueryFnData, TData> & CriteriaInput<TModel>): ListQuery<
+    TQueryFnData,
+    TData,
+    TModel
+  > {
     // ensure we have a scope, in case we call this outside of a setup function
     // Check if current scope is active - stopped scopes cause scope.run() to return undefined
     const currentScope = getCurrentScope();
@@ -363,25 +390,51 @@ export const useQuery = () => {
     const { currencyCode } = useBasketCurrency();
     const { basketId } = useBasket();
 
+    // Constructed here, never handed in: a module declares a schema and passes
+    // it, so it cannot wire the pipeline wrongly. Undeclared still yields a
+    // criteria — the pager owns a page window whatever the module declared.
+    const criteria = useQueryCriteria<TModel>(withPageWindow(declaration));
+
     // --- state
-    const limit = options?.pagination?.limit ?? PAGINATION.limit;
-    const offset = options?.pagination?.offset ?? PAGINATION.offset;
+    // Every branch DERIVES from the criteria; nothing is mirrored into a second
+    // ref, so there is nothing to drift. Reactive, not captured at mint: a live
+    // page-size change re-keys the query and reaches the wire.
+
+    const sort = computed(() => criteria.props.value.sort);
+    const filters = computed(() => criteria.props.value.filters);
+    const limit = computed(
+      () => criteria.props.value.pagination?.limit ?? PAGINATION.limit
+    );
+    const offset = computed(
+      () => criteria.props.value.pagination?.offset ?? PAGINATION.offset
+    );
     const total = ref(0);
-    const sort = ref(options?.sort);
-    const pageIndex = ref(!offset ? 1 : Math.ceil(offset / limit) + 1);
-    const filters = ref<QueryParams["filters"]>({
-      ...(options?.filters ?? {})
+
+    /**
+     * The page the cursor lands on, and the ONE verb that moves it: the setter
+     * writes `pagination.offset` back through the criteria, so `fetchNextPage`,
+     * `fetchPreviousPage` and `resetQuery` move the MODEL rather than a second,
+     * private page state the published model could then disagree with.
+     */
+    const pageIndex = computed<number>({
+      get: () =>
+        !limit.value ? 1 : Math.floor(offset.value / limit.value) + 1,
+      set: page =>
+        criteria.set({
+          pagination: assign({}, criteria.props.value.pagination, {
+            offset: Math.max(page - 1, 0) * limit.value
+          })
+        } as unknown as Partial<TModel>)
     });
+
     // --- query
-    const reactiveKeys: ReactiveQueryKeys = { sort, filters };
+    // NB the limit/offset keys attach UNCONDITIONALLY: a `if (limit)` guard
+    // is evaluated once on the initial value, so a `limit: 0` list would never
+    // carry them and a later 0 → 10 would not re-key the query.
+    const reactiveKeys: ReactiveQueryKeys = { sort, filters, limit, offset };
     if (!withoutLocale && locale.value) reactiveKeys.locale = locale;
-    if (limit) reactiveKeys.limit = limit;
-    if (limit) reactiveKeys.pageIndex = pageIndex;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
     if (withBasket) reactiveKeys.basketId = basketId;
-
-    // This s used to persist paginatin and filter/sort on first load, so that if the user refreshes the page, we don't reset the pagination and filters to the default values. We only want to reset them if the user changes the sort or filter values.
-    const isInitialCall = ref(true);
 
     const response = scope.run(() =>
       vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>(
@@ -401,8 +454,8 @@ export const useQuery = () => {
                 sort: sort.value,
                 filters: filters.value,
                 pagination: {
-                  limit,
-                  offset: (pageIndex.value - 1) * limit
+                  limit: limit.value,
+                  offset: offset.value
                 },
                 withCurrency,
                 withBasket,
@@ -418,16 +471,17 @@ export const useQuery = () => {
                 request<TQueryFnData>(params)
                   // NB: we need to ensure that if we are given an offset that is greater than the total number of pages, we adjust it accordingly
                   .then(response => {
-                    const offset = (pageIndex.value - 1) * limit;
-                    if (response.total && offset >= response.total) {
+                    if (response.total && offset.value >= response.total) {
                       // modify the params and re-request with the new offset
                       // Calculate the correct offset for the last page so it doesn't exceed the total
                       const safeOffset = Math.max(
                         0,
-                        response.total - (response.total % limit || limit)
+                        response.total -
+                          (response.total % limit.value || limit.value)
                       );
                       params.pagination.offset = safeOffset;
-                      pageIndex.value = Math.ceil(safeOffset / limit) + 1;
+                      pageIndex.value =
+                        Math.floor(safeOffset / limit.value) + 1;
                       return request<TQueryFnData>(params);
                     }
                     return response;
@@ -443,34 +497,42 @@ export const useQuery = () => {
                     }
                     return response;
                   })
-                  .finally(() => {
-                    isInitialCall.value = false;
-                  })
               );
             });
           },
 
+          placeholderData: keepPreviousData,
           ...(options as any)
         },
         queryClient
       )
     );
 
+    // The split total reads the SAME source the list does, and keeps reading
+    // it: captured once at mint, a `setCriteria({ filters })` would leave the
+    // count describing the previous result set.
     if (withSplitCount)
-      countRequest({
-        queryKey,
-        url,
-        sort: sort.value,
-        filters: filters.value,
-        withCurrency,
-        withoutLocale,
-        init: {
-          ...init
+      watch(
+        [sort, filters],
+        (next, previous) => {
+          if (isEqual(next, previous)) return;
+          countRequest({
+            queryKey,
+            url,
+            sort: sort.value,
+            filters: filters.value,
+            withCurrency,
+            withoutLocale,
+            init: {
+              ...init
+            },
+            withAccessToken
+          }).then(count => {
+            total.value = count as number;
+          });
         },
-        withAccessToken
-      }).then(count => {
-        total.value = count as number;
-      });
+        { immediate: true }
+      );
 
     // -------------------------------------------------------------------------
 
@@ -495,21 +557,9 @@ export const useQuery = () => {
        * @property {number} from - The starting item index for the current page.
        * @property {number} to - The ending item index for the current page.
        */
-      pagination: computed((): PaginationInfo => {
+      pagination: computed(() => {
         total.value = response?.data?.value?.total ?? total.value;
-        const pageTotal = !limit
-          ? 1
-          : Math.max(Math.ceil(total.value / limit), 1);
-        return {
-          limit,
-          total: total.value,
-          page: pageIndex.value,
-          pages: pageTotal,
-          from: !total.value ? 0 : limit * (pageIndex.value - 1) + 1,
-          to: !limit
-            ? total.value
-            : Math.min(limit * pageIndex.value, total.value)
-        } as PaginationInfo;
+        return toPaginationInfo(total.value, limit.value, pageIndex.value);
       }),
 
       /**
@@ -521,13 +571,11 @@ export const useQuery = () => {
        */
       meta: computed(() => {
         total.value = response?.data?.value?.total ?? total.value;
-        const pageTotal = !limit
-          ? 1
-          : Math.max(Math.ceil(total.value / limit), 1);
+        const pages = resolvePageTotal(total.value, limit.value);
         return {
-          hasNextPage: pageIndex.value < pageTotal,
+          hasNextPage: pageIndex.value < pages,
           hasPrevPage: pageIndex.value > 1,
-          hasPages: pageTotal > 1
+          hasPages: pages > 1
         };
       }),
 
@@ -542,25 +590,13 @@ export const useQuery = () => {
       fetchPreviousPage: (): void => {
         const { t } = useI18n();
         total.value = response?.data?.value?.total ?? total.value;
-        const pageTotal = !limit
-          ? 1
-          : Math.max(Math.ceil(total.value / limit), 1);
 
         if (!response?.isPlaceholderData.value && pageIndex.value <= 1) {
           throw new DetailedError(
             t("text.page_previous_not_available"),
             responseCodes.No_Content,
             ErrorOrigin.Headless,
-            {
-              limit,
-              page: pageIndex.value,
-              from: !total.value ? 0 : limit * (pageIndex.value - 1) + 1,
-              total: total.value,
-              pages: pageTotal,
-              to: !limit
-                ? total
-                : Math.min(limit * pageIndex.value, total.value)
-            }
+            toPaginationInfo(total.value, limit.value, pageIndex.value)
           );
         }
         pageIndex.value = Math.max(pageIndex.value - 1, 1);
@@ -577,61 +613,34 @@ export const useQuery = () => {
         const { t } = useI18n();
 
         total.value = response?.data?.value?.total ?? 0;
-        const pageTotal = !limit
-          ? 1
-          : Math.max(Math.ceil(total.value / limit), 1);
-        if (
-          !response?.isPlaceholderData.value &&
-          pageIndex.value >= pageTotal
-        ) {
+        const pages = resolvePageTotal(total.value, limit.value);
+
+        if (!response?.isPlaceholderData.value && pageIndex.value >= pages) {
           throw new DetailedError(
             t("text.page_next_not_available"),
             responseCodes.No_Content,
             ErrorOrigin.Headless,
-            {
-              limit,
-              page: pageIndex.value,
-              from: !total.value ? 0 : limit * (pageIndex.value - 1) + 1,
-              total: total.value,
-              pages: pageTotal,
-              to: !limit
-                ? total.value
-                : Math.min(limit * pageIndex.value, total.value)
-            }
+            toPaginationInfo(total.value, limit.value, pageIndex.value)
           );
         }
         if (!response?.isPlaceholderData.value) {
-          pageIndex.value = Math.min(pageIndex.value + 1, pageTotal);
-        }
-      },
-
-      sort: (values?: QueryParams["sort"]) => {
-        const prev = unref(sort);
-        const next = unref(values);
-        if (isEqual(prev, next)) return;
-        sort.value = next;
-        if (!isInitialCall.value) {
-          pageIndex.value = 1;
-          queryClient.resetQueries({ queryKey });
-        }
-      },
-
-      filter: (values: QueryParams["filters"]) => {
-        const prev = unref(filters);
-        const next = unref(values);
-        if (isEqual(prev, next)) return;
-        filters.value = next;
-        if (!isInitialCall.value) {
-          pageIndex.value = 1;
-          queryClient.resetQueries({ queryKey });
+          pageIndex.value = Math.min(pageIndex.value + 1, pages);
         }
       },
 
       resetQuery: () => {
         pageIndex.value = 1;
         return queryClient.resetQueries({ queryKey });
-      }
-    } as ListQuery<TQueryFnData, TData>;
+      },
+
+      // --- criteria
+
+      criteria: criteria.model,
+      schema: criteria.schema,
+      isFiltered: criteria.isFiltered,
+      criteriaError: criteria.error,
+      setCriteria: criteria.set
+    } as ListQuery<TQueryFnData, TData, TModel>;
   }
 
   /**
@@ -645,9 +654,14 @@ export const useQuery = () => {
    * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
    * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param criteria The collection's declared query schema (and optional starting model). Sort, filters and pagination are the criteria's alone — spelling any of them raw beside it is a compile error. The criteria's `pagination` reaches this entry point as the page size and the FIRST page param; every page after it is the infinite query's own accumulating cursor, so a criteria write that changes the result set restarts the accumulation from that first page.
    * @param options Additional options to pass to TanStack query.
    */
-  function listInfinite<TQueryFnData = unknown, TData = TQueryFnData>({
+  function listInfinite<
+    TQueryFnData = unknown,
+    TData = TQueryFnData,
+    TModel extends Record<string, unknown> = Record<string, unknown>
+  >({
     url,
     init,
     guard,
@@ -658,8 +672,10 @@ export const useQuery = () => {
     withoutLocale,
     withAccessToken,
     withSplitCount,
+    criteria: declaration,
     ...options
-  }: QueryParams<TQueryFnData, TData>) {
+  }: QueryParams<TQueryFnData, TData> &
+    CriteriaInput<TModel>): InfiniteListQuery<TQueryFnData, TData, TModel> {
     // ensure we have a scope, in case we call this outside of a setup function
     // Check if current scope is active - stopped scopes cause scope.run() to return undefined
     const currentScope = getCurrentScope();
@@ -668,25 +684,34 @@ export const useQuery = () => {
     const { currencyCode } = useBasketCurrency();
     const { basketId } = useBasket();
 
-    // --- state
-    const limit = options?.pagination?.limit ?? PAGINATION.limit;
-    const sort = ref(options?.sort);
-    const total = ref(0);
-    const pageTotal = computed(() => {
-      if (!limit) return 1; // Can only be 1 page if limit=0
-      return Math.max(Math.ceil(total.value / limit), 1);
-    });
-    const filters = ref<QueryParams["filters"]>({
-      ...(options?.filters ?? {})
-    });
+    const criteria = useQueryCriteria<TModel>(withPageWindow(declaration));
 
-    // This s used to persist paginatin and filter/sort on first load, so that if the user refreshes the page, we don't reset the pagination and filters to the default values. We only want to reset them if the user changes the sort or filter values.
-    const isInitialCall = ref(true);
+    // --- state
+
+    const sort = computed(() => criteria.props.value.sort);
+    const filters = computed(() => criteria.props.value.filters);
+    const limit = computed(
+      () => criteria.props.value.pagination?.limit ?? PAGINATION.limit
+    );
+
+    // The declared window's `offset` is where the list STARTS — the FIRST page
+    // param, not a live cursor. Every page after it is the infinite query's own
+    // accumulating `pageParam`, so nothing is ever written back here.
+    const initialOffset = computed(
+      () => criteria.props.value.pagination?.offset ?? PAGINATION.offset
+    );
+    const total = ref(0);
+    const pageTotal = computed(() =>
+      resolvePageTotal(total.value, limit.value)
+    );
 
     // --- query
-    const reactiveKeys: ReactiveQueryKeys = { sort, filters };
+    // NB the limit key attaches UNCONDITIONALLY: a `if (limit)` guard is
+    // evaluated once on the initial value, so a `limit: 0` list would never
+    // carry it and a later 0 → 10 would not re-key the query.
+    // A branch change invalidates nothing here either — see `applyBranch`.
+    const reactiveKeys: ReactiveQueryKeys = { sort, filters, limit };
     if (!withoutLocale && locale.value) reactiveKeys.locale = locale;
-    if (limit) reactiveKeys.limit = limit;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
     if (withBasket) reactiveKeys.basketId = basketId;
 
@@ -694,7 +719,8 @@ export const useQuery = () => {
       vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>(
         {
           queryKey: [...queryKey, reactiveKeys],
-          queryFn: async ({ pageParam = 0, signal }) => {
+          initialPageParam: initialOffset,
+          queryFn: async ({ pageParam, signal }) => {
             const offset = toNumber(pageParam);
             const hasGuard = isPromise(guard);
             const safeguard: Promise<void | boolean> = hasGuard
@@ -707,7 +733,7 @@ export const useQuery = () => {
                 url,
                 sort: sort.value,
                 filters: filters.value,
-                pagination: { limit, offset },
+                pagination: { limit: limit.value, offset },
                 withCurrency,
                 withBasket,
                 withoutLocale,
@@ -716,25 +742,21 @@ export const useQuery = () => {
                   signal // Pass the new signal to the request to allow cancellation
                 },
                 withAccessToken
-              })
-                .then(response => {
-                  total.value = response.total || 0; // Set the total items count
+              }).then(response => {
+                total.value = response.total || 0; // Set the total items count
 
-                  const data = isFunction(select)
-                    ? select(response.data!)
-                    : response.data;
+                const data = isFunction(select)
+                  ? select(response.data!)
+                  : response.data;
 
-                  return {
-                    nextOffset:
-                      !limit || offset + limit >= total.value
-                        ? undefined
-                        : offset + limit,
-                    pageData: data
-                  };
-                })
-                .finally(() => {
-                  isInitialCall.value = false;
-                });
+                return {
+                  nextOffset:
+                    !limit.value || offset + limit.value >= total.value
+                      ? undefined
+                      : offset + limit.value,
+                  pageData: data
+                };
+              });
             });
           },
           getNextPageParam: (lastPage: InfiniteQueryPage<TQueryFnData>) =>
@@ -748,23 +770,42 @@ export const useQuery = () => {
     // -------------------------------------------------------------------------
 
     if (withSplitCount)
-      countRequest({
-        queryKey,
-        url,
-        sort: sort.value,
-        filters: filters.value,
-        withCurrency,
-        withoutLocale,
-        init: {
-          ...init
+      watch(
+        [sort, filters],
+        (next, previous) => {
+          if (isEqual(next, previous)) return;
+          countRequest({
+            queryKey,
+            url,
+            sort: sort.value,
+            filters: filters.value,
+            withCurrency,
+            withoutLocale,
+            init: {
+              ...init
+            },
+            withAccessToken
+          }).then(count => {
+            total.value = count as number;
+          });
         },
-        withAccessToken
-      }).then(count => {
-        total.value = count as number;
-      });
+        { immediate: true }
+      );
+
+    // Pages accumulate; consumers read rows — flattened so this arm publishes
+    // the same flat `data` as `list()`.
+    const rows = computed(
+      (): TData =>
+        flatMap(
+          get(response?.data?.value, "pages", []) as InfiniteQueryPage<TData>[],
+          "pageData"
+        ) as TData
+    );
 
     return {
       ...response,
+
+      data: rows,
 
       // ---state
 
@@ -778,19 +819,13 @@ export const useQuery = () => {
        * @property {number} from - The starting item index for the current page.
        * @property {number} to - The ending item index for the current page.
        */
-      pagination: computed((): PaginationInfo => {
-        // We use the length of the final, selected data array.
-        // The `as any[]` is a safe type assertion here because we know
-        // our `select` function returns an array.
-        const itemsFetched = (response?.data.value as any[])?.length ?? 0;
-
-        // Calculate pages fetched based on items and limit
-        const pagesFetched = limit > 0 ? Math.ceil(itemsFetched / limit) : 1;
+      pagination: computed(() => {
+        const itemsFetched = size(rows.value as unknown[]);
 
         return {
-          limit,
+          limit: limit.value,
           total: total.value,
-          page: pagesFetched,
+          page: limit.value > 0 ? Math.ceil(itemsFetched / limit.value) : 1,
           pages: pageTotal.value,
           from: 1, // For "load more", we always show from item 1
           to: itemsFetched // The last item is simply the total number fetched
@@ -810,30 +845,16 @@ export const useQuery = () => {
         hasPages: pageTotal.value > 1
       })),
 
-      sort: (values?: QueryParams["sort"]) => {
-        sort.value = unref(values);
-        if (!isInitialCall.value) queryClient.resetQueries({ queryKey }); // Reset to first page
-      },
+      resetQuery: () => queryClient.resetQueries({ queryKey }),
 
-      filter: (values: QueryParams["filters"]) => {
-        filters.value = unref(values);
-        if (!isInitialCall.value) queryClient.resetQueries({ queryKey }); // Reset to first page
-      },
+      // --- criteria
 
-      resetQuery: () => queryClient.resetQueries({ queryKey })
-    } as ReturnType<
-      typeof vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>
-    > & {
-      pagination: ComputedRef<PaginationInfo>;
-      meta: ComputedRef<{
-        hasNextPage: boolean;
-        hasPrevPage: boolean;
-        hasPages: boolean;
-      }>;
-      sort: (values?: QueryParams["sort"]) => void;
-      filter: (values: QueryParams["filters"]) => void;
-      resetQuery: () => Promise<void>;
-    };
+      criteria: criteria.model,
+      schema: criteria.schema,
+      isFiltered: criteria.isFiltered,
+      criteriaError: criteria.error,
+      setCriteria: criteria.set
+    } as InfiniteListQuery<TQueryFnData, TData, TModel>;
   }
 
   /**

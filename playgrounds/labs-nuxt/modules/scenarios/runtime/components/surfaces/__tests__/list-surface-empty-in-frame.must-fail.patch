@@ -1,0 +1,26 @@
+Negative control for the empty state living INSIDE the table (C9).
+
+Withdraws the table whenever the list is empty, so the empty message renders in
+place of the frame and the headers disappear — "no results found" replacing the
+table instead of feeling in it.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the empty-state specs — the headers stay and the message renders in the
+table body.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+@@ -141,7 +141,10 @@
+ 
+     <!-- The table is the FRAME: its headers stay through every state, and each
+          state is drawn inside its body rather than in place of it (C8/C9). -->
+-    <Table v-else-if="meta.hasTable" :class="styles.listSurface.table">
++    <Table
++      v-else-if="meta.hasTable && !meta.isEmpty"
++      :class="styles.listSurface.table"
++    >
+       <TableHeader>
+         <TableRow
+           v-for="headerGroup in vueTable.getHeaderGroups()"

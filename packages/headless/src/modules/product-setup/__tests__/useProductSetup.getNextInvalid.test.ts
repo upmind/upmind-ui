@@ -32,8 +32,9 @@
  * and asserts the exclusion directly.
  */
 
-import { ref } from "vue";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ref } from "vue";
+import { useProductSetup } from "../useProductSetup";
 
 // -----------------------------------------------------------------------------
 // Boundary mocks (ADR-021 §unit tests mock their own boundaries). getNextInvalid
@@ -81,8 +82,6 @@ vi.mock("../../utils", () => ({
   isDeepEmpty: () => false,
   useModelParser: vi.fn(() => ({}))
 }));
-
-import { useProductSetup } from "../useProductSetup";
 
 // -----------------------------------------------------------------------------
 

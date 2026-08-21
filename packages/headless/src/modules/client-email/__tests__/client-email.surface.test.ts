@@ -20,10 +20,8 @@
  * `*.must-fail.patch` removes that export block and must land here, red.
  *
  * `ScopeActorTypes` is imported by its deep path — exactly as
- * `client-email.types.ts` imports it — never through the scope barrel, whose
- * static import from this package faults `createScopedComposable` on load
- * order (the aggregator-barrel `export *` hazard in
- * `code-quality.companion.md`).
+ * `client-email.types.ts` imports it — never through the scope barrel
+ * (the aggregator-barrel `export *` hazard in `code-quality.companion.md`).
  *
  * ## What Breaks If These Fail
  * A consumer loses a whole surface (the FE-2824 archetype one altitude up) or
@@ -85,10 +83,8 @@ describe("client-email public surface (AC-24)", () => {
     expect(CLIENT_EMAILS_SCOPE_MATRIX[ScopeActorTypes.GUEST]).toBeNull();
   });
 
-  it("AC-24 keeps the manager matrix's only live cell on CLIENT → EMAIL — self, staff and guest are dropped", () => {
-    expect(CLIENT_EMAIL_SCOPE_MATRIX[ScopeActorTypes.CLIENT]).toBe(
-      ClientEmailContextTypes.EMAIL
-    );
+  it("AC-24 keeps the manager matrix all-null — .withId(id) replaces .for('email', id) (FE-3111)", () => {
+    expect(CLIENT_EMAIL_SCOPE_MATRIX[ScopeActorTypes.CLIENT]).toBeNull();
     expect(CLIENT_EMAIL_SCOPE_MATRIX[ScopeActorTypes.SELF]).toBeNull();
     expect(CLIENT_EMAIL_SCOPE_MATRIX[ScopeActorTypes.STAFF]).toBeNull();
     expect(CLIENT_EMAIL_SCOPE_MATRIX[ScopeActorTypes.GUEST]).toBeNull();

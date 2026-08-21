@@ -39,17 +39,17 @@ export function useSessionStoreContext() {
   // storeTick triggers reactivity; sessionStore.state is the authoritative source.
   // See session-store.store.ts for why we use this pattern instead of a shallowRef.
   const activeActor = computed((): AccessRoleTypes => {
-    storeTick.value;
+    void storeTick.value;
     return sessionStore.state.activeActor;
   });
 
   const activeSessionId = computed((): string | undefined => {
-    storeTick.value;
+    void storeTick.value;
     return sessionStore.state.activeSessionId;
   });
 
   const guestSession = computed((): IToken | undefined => {
-    storeTick.value;
+    void storeTick.value;
     return isScopeAllowed(AccessRoleTypes.GUEST)
       ? sessionStore.state.guestSession
       : undefined;
@@ -58,14 +58,14 @@ export function useSessionStoreContext() {
   // Scope-filtered session accessors.
   // Only exposes sessions for allowed actor types in this app instance.
   const clientSessions = computed((): Record<string, SessionEntry> => {
-    storeTick.value;
+    void storeTick.value;
     return isScopeAllowed(AccessRoleTypes.CLIENT)
       ? sessionStore.state.clientSessions
       : {};
   });
 
   const staffSessions = computed((): Record<string, SessionEntry> => {
-    storeTick.value;
+    void storeTick.value;
     return isScopeAllowed(AccessRoleTypes.STAFF)
       ? sessionStore.state.staffSessions
       : {};
@@ -79,7 +79,7 @@ export function useSessionStoreContext() {
   );
 
   const impersonatedSessions = computed((): Impersonations => {
-    storeTick.value;
+    void storeTick.value;
     return sessionStore.state.impersonatedSessions;
   });
 

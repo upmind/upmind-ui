@@ -1,18 +1,15 @@
-import { nextTick, ref, watch } from "vue";
-import { SentEmailStatus } from "@upmind-automation/types";
-import { invalidateQueryByKey, RequestSortDirection } from "../query";
+import { nextTick, watch } from "vue";
+import { invalidateQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { useActiveSession } from "../session-store";
-import { ReceivedEmailsSortableProperties } from "./client-email-history.types";
 import { NotAuthenticatedError } from "../../utils";
-import { assign, isEmpty } from "lodash-es";
 import type {
   ClientEmailHistoryServices,
-  ReceivedEmailsListQuery
+  ReceivedEmailsListQuery,
+  SentEmailFilterModel,
+  SentEmailSortModel
 } from "./client-email-history.types";
-import type { RequestFilters } from "../query";
 import type { ScopeActorTypes } from "../scope/scope.types";
-import type { ISentEmail } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email-history/useClientReceivedEmails.actions
@@ -124,80 +121,26 @@ export function createClientReceivedEmailsActions(
     if (error instanceof NotAuthenticatedError) throw error;
   }
 
-  // --- sort
-
   /**
-   * Sorts the history by the given property and direction. With no property,
-   * clears back to the module's default order — `query.sort()` with no
-   * argument clears the sort ref to `undefined`, which drops the `order`
-   * param from the wire entirely, so the default tuple is re-applied
-   * explicitly rather than relied on as a fallback.
+   * Applies a filter INTENT — the `filters` branch of the one query model, so
+   * `sort` and `pagination` are untouched by construction. A thin typed adapter
+   * over {@link setCriteria}, so the platform table channel's `filterBy` resolves
+   * to a real member; the free-text search binds `filters.subject.like`.
    */
-  function sort(
-    property?: ReceivedEmailsSortableProperties,
-    direction?: RequestSortDirection
-  ): void {
-    if (!property || isEmpty(property)) {
-      query.sort([
-        RequestSortDirection.DESC,
-        ReceivedEmailsSortableProperties.DEFAULT
-      ]);
-    } else {
-      query.sort([direction ?? RequestSortDirection.ASC, property]);
-    }
-  }
-
-  // --- filters — one applied ref backs all three, so they compose rather
-  // than clobber.
-  const filters = ref<RequestFilters & { query?: string; subject?: string }>(
-    {}
-  );
-
-  /** Applies a free-text filter and re-issues the list request. */
-  function filterQuery(value?: string): void {
-    filters.value = { ...filters.value, query: value };
-    query.filter(filters.value);
-  }
-
-  /** Applies a subject filter and re-issues the list request. */
-  function filterSubject(value?: ISentEmail["subject"]): void {
-    filters.value = { ...filters.value, subject: value };
-    query.filter(filters.value);
+  function filterBy(intent: SentEmailFilterModel): void {
+    query.setCriteria({ filters: intent });
   }
 
   /**
-   * Narrows the history to one delivery outcome, or clears the narrowing —
-   * the four tabs (Research R2), re-expressed as a runtime action because
-   * `createScopedComposable` hands the factory no consumer-parameter
-   * channel. The wire keys/values are carried over verbatim from
-   * `EmailHistory.vue` — `"true"` / `"false"` / `"null"` are strings there.
+   * Applies a sort INTENT — the `sort` branch of the one query model, so
+   * `filters` and `pagination` are untouched. A thin typed adapter over
+   * {@link setCriteria}, so the platform table channel's `sortBy` resolves to a
+   * real member. A `[]` intent is compacted away and the parse refills the
+   * schema's `default` order, so clearing the sort lands as the default rather
+   * than an absent order.
    */
-  function filterStatus(status?: SentEmailStatus): void {
-    // The three tab keys move as a SET, and stay PRESENT (never omitted)
-    // with an explicit `undefined` when not applicable — AC-8's bug was
-    // omitting a no-longer-applicable key from the filters object entirely.
-    // `request()` only `.set()`s or `.delete()`s the keys it iterates on a
-    // given call, over the CURRENT filters object's own keys, against a
-    // single URL instance reused across every request for this query's
-    // lifetime; a key missing from the object is never visited, so it never
-    // gets `.delete()`d off that reused URL and lingers on the wire.
-    const next: RequestFilters & { query?: string; subject?: string } = {
-      ...filters.value,
-      "filter[sent]": undefined,
-      "filter[bounced]": undefined,
-      "filter[error_id|neq]": undefined
-    };
-
-    if (status === SentEmailStatus.SENT) {
-      assign(next, { "filter[sent]": "true", "filter[bounced]": "false" });
-    } else if (status === SentEmailStatus.BOUNCED) {
-      assign(next, { "filter[bounced]": "true" });
-    } else if (status === SentEmailStatus.ERROR) {
-      assign(next, { "filter[error_id|neq]": "null" });
-    }
-
-    filters.value = next;
-    query.filter(filters.value);
+  function sortBy(intent: SentEmailSortModel): void {
+    query.setCriteria({ sort: intent });
   }
 
   /**
@@ -223,12 +166,8 @@ export function createClientReceivedEmailsActions(
     /** Destroys this scoped instance — removes it from the registry. */
     destroy,
 
-    /** Filters for the list query. */
-    filters: {
-      query: filterQuery,
-      subject: filterSubject,
-      status: filterStatus
-    },
+    /** Applies a filter intent to the list — merges the `filters` branch. */
+    filterBy,
 
     /** Marks the shared cache key stale so the next read refetches. */
     invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
@@ -245,8 +184,16 @@ export function createClientReceivedEmailsActions(
     /** Refetches the list from the server; rejects if it cannot address one. */
     refresh,
 
-    /** Sorts the history by the given property and direction. */
-    sort
+    /**
+     * Applies a criteria INTENT — merges the given `filters` / `sort` /
+     * `pagination` branches into the ONE query model; branches left out are
+     * untouched. The single write verb: the schema governs what is spellable,
+     * so a legacy `filter[col]` key or a raw sort tuple is unreachable here.
+     */
+    setCriteria: query.setCriteria,
+
+    /** Applies a sort intent to the list — merges the `sort` branch. */
+    sortBy
 
     // The arm merges in HERE, last — a spread overwrites, which is what lets
     // it override a shared member; anything it omits falls through.

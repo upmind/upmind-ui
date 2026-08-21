@@ -25,6 +25,12 @@ export default defineNuxtConfig({
   sourcemap: { client: "hidden" },
   spaLoadingTemplate: true,
 
+  // Build artifacts must never enter the dev watcher: chokidar 4 holds one fd
+  // per watched file on macOS, and a populated .output/ (10k+ files) pushes the
+  // process past the OS spawn ceiling — every esbuild/fork child then dies with
+  // EBADF (same failure class the typeCheck-in-dev comment above dodges).
+  ignore: ["**/.output/**", "**/test-results/**"],
+
   /**
    * ---------------------------------------------------------------------------
    * MODULES
@@ -112,9 +118,13 @@ export default defineNuxtConfig({
       "../../packages/types/src/index.ts"
     ),
     "@upmind-automation/i18n": resolve(__dirname, "../../packages/i18n/src"),
-    "@upmind-automation/headless": resolve(
+    // `@upmind-automation/headless` is deliberately absent: a bare string key
+    // in this Record<string, string> also captures every subpath under it,
+    // rewriting the package's `testing/*` exports through `index.ts`. It is
+    // anchored on the `vite` and `typescript` blocks below instead.
+    "@upmind-automation/scenario-harness": resolve(
       __dirname,
-      "../../packages/headless/src/index.ts"
+      "../../packages/scenario-harness/src/index.ts"
     ),
     "@upmind-automation/upmind-ui/styles": resolve(
       __dirname,
@@ -151,8 +161,26 @@ export default defineNuxtConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    server: {
+      // The QA host the e2e creds are scoped to. Vite allows only localhost
+      // and *.localhost by default, so a dev-server restart silently 403s the
+      // very origin the recorded corpus and credentials were captured against.
+      allowedHosts: ["qa-automation.local"]
+    },
     resolve: {
-      dedupe: ["vue-router"]
+      dedupe: ["vue-router"],
+      // Vite's array form takes a RegExp `find`, which Nuxt's `alias` map
+      // cannot express — exact-match only, so subpaths fall through to the
+      // package's own `exports` map (mirrors `vitest.config.ts`).
+      alias: [
+        {
+          find: /^@upmind-automation\/headless$/,
+          replacement: resolve(
+            __dirname,
+            "../../packages/headless/src/index.ts"
+          )
+        }
+      ]
     },
     optimizeDeps: {
       include: ["lodash-es"]
@@ -173,10 +201,32 @@ export default defineNuxtConfig({
       compilerOptions: {
         noUncheckedIndexedAccess: false,
         skipLibCheck: true,
-        types: ["google.maps"]
+        types: ["google.maps"],
+        // Nuxt derives tsconfig `paths` from `alias` too, so the anchor above
+        // covers Vite only — without this, types would resolve through
+        // node_modules to `dist` while the runtime resolves to src. Exact key
+        // (no `/*`), so subpaths still fall to the package's `exports` map.
+        paths: {
+          "@upmind-automation/headless": [
+            resolve(__dirname, "../../packages/headless/src/index.ts")
+          ]
+        }
       },
-      include: ["app/**/*"],
-      exclude: ["node_modules", "dist", ".output", "**/*.spec.*"]
+      include: ["app/**/*", "modules/**/*"],
+      // Nuxt writes these verbatim into `.nuxt/tsconfig.*.json`, and TS
+      // resolves a relative pattern against the config's OWN directory — so a
+      // bare `**/*.spec.*` matches nothing outside `.nuxt/` and every spec
+      // stayed in the app's type program, resolving test-lane-only aliases it
+      // has no business knowing. `../` is what makes the exclusion the sibling
+      // packages already declare (`tsconfig.build.json`) actually bite.
+      exclude: [
+        "node_modules",
+        "dist",
+        ".output",
+        "../**/*.spec.*",
+        "../**/*.test.*",
+        "../**/__tests__/**"
+      ]
     }
   },
 

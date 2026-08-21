@@ -1,0 +1,30 @@
+Negative control for the count's departure from the refinements row (H1 · G5 ·
+AC4.4).
+
+Puts the count back. The row regains a meta count after its actions — the exact
+pre-H1 arrangement (`G5` ordered the actions ahead of the count; `H1` then took
+the count out of this row altogether and gave it to the display row's Results
+label). Nothing else moves: the chips, Clear all, the removal write and the
+clear write are untouched, so what goes red is the one claim under test — this
+row carries NO count.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: refinements-row.spec.ts — the no-count case, however it is measured: the
+row renders no `data-test-key="refinements-count"` element, no `labs.results_*`
+count label, and no tally of its own chips.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/RefinementsRow.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/RefinementsRow.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/RefinementsRow.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/RefinementsRow.vue
+@@ -32,6 +32,10 @@
+       :data-attrs="{ 'data-test-key': 'clear-all' }"
+       @click="clearAll"
+     />
++
++    <span data-test-key="refinements-count">
++      {{ t("labs.results_shown", { count: refinements.length }) }}
++    </span>
+   </div>
+ </template>
+ 

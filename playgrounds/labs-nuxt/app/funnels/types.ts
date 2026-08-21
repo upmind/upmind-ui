@@ -52,6 +52,12 @@ export enum ROUTE {
    */
   SESSION_TRANSFER = "session-transfer",
 
+  /**
+   * The auth OVERLAY — the modal a guarded route opens over itself to collect a
+   * session in place, injected onto every eligible parent as `<parent>--auth`.
+   */
+  OVERLAY_AUTH = "overlay-auth",
+
   // --- SYSTEM ROUTES ---------------------------------------------------------
   /**
    * The route for handling not found pages.

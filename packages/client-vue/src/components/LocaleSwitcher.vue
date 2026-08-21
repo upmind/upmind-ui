@@ -23,7 +23,7 @@ import { computed } from "vue";
 import { useLocale } from "@upmind-automation/headless";
 import { Combobox } from "@upmind-automation/upmind-ui";
 import { map, last, split, includes, get, isEmpty } from "lodash-es";
-import type { ILanguage } from "../../../types/src";
+import type { ILanguage } from "@upmind-automation/types";
 import type { ComboboxItemProps } from "@upmind-automation/upmind-ui";
 import type { HTMLAttributes } from "vue";
 // -----------------------------------------------------------------------------

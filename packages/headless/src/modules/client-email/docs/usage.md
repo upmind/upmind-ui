@@ -19,7 +19,7 @@ import {
 const emails = useClientEmails().as("self");
 
 // The editor, opened on one existing address
-const manager = useClientEmailManager().as("self").for("email", emailId);
+const manager = useClientEmailManager().withId(emailId);
 
 // The editor, started on a brand-new address
 const draft = useClientEmailManager().as("self").fresh();
@@ -42,7 +42,7 @@ Both composables return the same four sub-composables:
 
 ### Collection actions — `useActions()`
 
-Eleven members. Per-address **form** editing (`add` / `update` / field validation) is deliberately not here — that lives on the editor, which owns the dirty/valid state those need.
+Twelve members. Per-address **form** editing (`add` / `update` / field validation) is deliberately not here — that lives on the editor, which owns the dirty/valid state those need.
 
 #### `ensure(model)`
 
@@ -110,13 +110,31 @@ Moves the collection to the next or previous page.
 
 **Returns:** `void`.
 
-> **🧪 For Testers:** The collection is unpaged by default — the whole list arrives in one response, and both calls are no-ops with no other page to move to. They only do anything when a page size was requested.
+> **🧪 For Testers:** The collection boots on a default page of 10 addresses (`limit=10&offset=0`), not the whole list in one response. For a collection of ten addresses or fewer both calls are still no-ops — there is no other page to move to. They start doing something once the collection holds more than the default page.
 
-#### `filters.query(value)`
+#### `filterBy(intent)`
 
-Applies a free-text filter and re-issues the list request.
+Applies a filter and re-issues the list request, resetting to page 1. `intent` is the `filters` branch of the collection's query model — the same shape published at `useContext().query.value.filters` and described by `useContext().schemas.query.schema`.
+
+| Param    | Type          | Required |
+| -------- | ------------- | -------- |
+| `intent` | `FilterModel` | Yes      |
 
 **Returns:** `void`.
+
+> **🧪 For Testers:** `filterBy({ email: { like: "nathan" } })` narrows the wire request to `filter[email|like]=%nathan%`; `filterBy({ verified: { eq: false } })` puts `filter[verified|eq]=0` on it. An empty `intent` (`{}`) clears every filter — no stale `filter[…]` param survives on the next request. The free-text search box binds `email.like`: `GET /clients/{id}/emails` does not honour a bare `query=`/`q=`/`search=` term, so those never appear on the wire regardless of what is typed.
+
+#### `sortBy(intent)`
+
+Applies a sort order and re-issues the list request. `intent` is the `sort` branch of the same query model — an ordered array, first entry wins.
+
+| Param    | Type        | Required |
+| -------- | ----------- | -------- |
+| `intent` | `SortModel` | Yes      |
+
+**Returns:** `void`.
+
+> **🧪 For Testers:** `sortBy([{ field: "email", dir: "asc" }])` puts `order=email` on the wire; `dir: "desc"` puts `order=-email`. Sorting by a field the module does not declare (only `created_at`, `email` and `default` are sortable) never reaches the wire at all. Clearing the sort (`sortBy([])`) does not remove the `order=` param — it re-applies the collection's own default order (`-created_at`).
 
 #### `destroy()` — releasing the collection
 
@@ -128,27 +146,32 @@ Removes this scoped instance from the registry.
 
 ### Collection context — `useContext()`
 
-| Property     | Type                                                       | Meaning                                                  |
-| ------------ | ---------------------------------------------------------- | -------------------------------------------------------- |
-| `data`       | `ComputedRef<Email[]>`                                     | The client's reactive list of addresses                  |
-| `default()`  | `(data?) => Email \| undefined`                            | The collection's current default address, if any         |
-| `error`      | `ComputedRef<ResponseError \| undefined>`                  | The last failed row mutation, else the list read's error |
-| `findOne()`  | `(mapping, data?, searchableProps?) => Email \| undefined` | Finds a single address by a partial mapping or free text |
-| `getOne(id)` | `(id, data?) => Email \| undefined`                        | Finds a single address by id                             |
-| `pagination` | `ComputedRef<PaginationInfo>`                              | `{ limit, total, page, pages, from, to }`                |
+| Property     | Type                                                       | Meaning                                                                                                 |
+| ------------ | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `data`       | `ComputedRef<Email[]>`                                     | The client's reactive list of addresses                                                                 |
+| `default()`  | `(data?) => Email \| undefined`                            | The collection's current default address, if any                                                        |
+| `error`      | `ComputedRef<ResponseError \| undefined>`                  | The last failed row mutation, else the list read's error                                                |
+| `findOne()`  | `(mapping, data?, searchableProps?) => Email \| undefined` | Finds a single address by a partial mapping or free text                                                |
+| `getOne(id)` | `(id, data?) => Email \| undefined`                        | Finds a single address by id                                                                            |
+| `pagination` | `ComputedRef<PaginationInfo>`                              | `{ limit, total, page, pages, from, to }`                                                               |
+| `query`      | `ComputedRef<QueryModel>`                                  | This scope's active request state — read-only                                                           |
+| `schemas`    | `{ query: { schema, uischema, sortUischema } }`            | The query schema, filter-bar uischema, and a separate uischema for the sort control's own option labels |
 
-> **🧪 For Testers:** `data` is always an array — before the first read completes, and when the read errors. Read `useMeta().isLoading` / `hasError` rather than inferring state from an empty list. `error` is **state you read**, never an event: a failed mutation lands here and stays until the next one supersedes it.
+> **🧪 For Testers:** `data` is always an array — before the first read completes, and when the read errors. Read `useMeta().isLoading` / `hasError` rather than inferring state from an empty list. `error` is **state you read**, never an event: a failed mutation lands here and stays until the next one supersedes it. `query` is read-only — write it through `useActions().filterBy()` / `.sortBy()`, never by mutating the object it returns. Both `query` and `schemas` travel as plain JSON — no function crosses either.
 
 ### Collection meta — `useMeta()`
 
-Four flags.
+Five flags.
 
 | Flag          | True when                                                                      |
 | ------------- | ------------------------------------------------------------------------------ |
 | `hasError`    | a row mutation or the list read failed                                         |
 | `isAvailable` | the session is authenticated **and** the scope resolved a client id to address |
 | `isEmpty`     | the resolved collection has no addresses                                       |
+| `isFiltered`  | any declared filter column carries a value                                     |
 | `isLoading`   | the list read is in flight or has not completed its first fetch                |
+
+`isFiltered` reads straight off the collection's own query criteria, so a list that is empty _because_ a filter narrowed it to nothing reports differently from a collection with no addresses at all.
 
 `isAvailable` is worth reading twice. It is **both limbs**: authenticated, _and_ a client id resolved. A session that authenticates but resolves no client correctly reports `false`. It is also the _same predicate_ every request gate in this module calls — not a second copy of it — so the flag you render and the guard the wire enforces cannot drift apart. It is reactive: it flips to `false` in the same tick the session goes away.
 
@@ -167,10 +190,10 @@ For debugging and tests. Not for production consumers.
 
 ## The per-email editor — `useClientEmailManager`
 
-A form editor over one address. Open an existing address with `.for("email", id)`; start a new one with `.fresh()`. Each call to `.fresh()` mints its own isolated instance, so two concurrent drafts never share a model.
+A form editor over one address. Open an existing address with `.withId(id)`; start a new one with `.fresh()`. Each call to `.fresh()` mints its own isolated instance, so two concurrent drafts never share a model.
 
 ```ts
-const manager = useClientEmailManager().as("self").for("email", emailId);
+const manager = useClientEmailManager().withId(emailId);
 
 await manager.useActions().isReady();
 await manager.useActions().update({ email: "new@example.com" });
@@ -309,7 +332,6 @@ The two blocks below are that same pair rendered as plain JSON. Paste them into 
     "id": {
       "type": ["string", "null"],
       "title": "ID",
-      "description": "The auto-generated ID of this email.",
       "readOnly": true
     },
     "email": {
@@ -345,8 +367,7 @@ The two blocks below are that same pair rendered as plain JSON. Paste them into 
       "i18n": "form.email",
       "options": {
         "autoFocus": true,
-        "autocomplete": "email",
-        "placeholder": "name@email.com"
+        "autocomplete": "email"
       }
     }
   ]
@@ -370,6 +391,163 @@ Notes for the paste:
 - **The pair moves together.** A schema field with no matching control renders as a required-but-invisible input, which is why these two blocks are never edited apart.
 
 > **🧪 For Testers:** The barrel exposes no `useSchema` / `useUischema`. The only supported way to obtain the form definition is the editor's context — a consumer reaching for a bare export is reaching for something the module does not offer.
+
+---
+
+## The collection's query schema — paste-ready
+
+The collection serves a **second** schema/uischema pair — not a form for one record, but the rules for the whole list's request state: which columns can be filtered, which operators they accept, and how the list is sorted and paged. It travels through **`useClientEmails().useContext().schemas.query`** (`.schema` / `.uischema` / `.sortUischema`), never the barrel, for the same reason as the form pair above: setting the model through `useActions().filterBy()` / `.sortBy()` is what actually re-queries the server. `.uischema` draws the filter bar; a separate `.sortUischema` carries only the sort control's own option labels — see [Sort UI schema](#sort-ui-schema) below.
+
+Paste the two blocks below into [jsonforms.io](https://jsonforms.io/examples/basic) to see the schema's shape. **jsonforms.io will not render the filter bar correctly** — the bar is a `FilterBar` layout, and each element inside it is a plain `Control` whose drawn control is picked by a tester the demo does not register; it will render nothing for these elements. Paste them there anyway to see the **schema** — required for the shape, wrong for the shape's rendering.
+
+### Query schema
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Client email query",
+  "description": "How the email list is filtered, sorted and paged.",
+  "additionalProperties": false,
+  "properties": {
+    "filters": {
+      "type": "object",
+      "title": "Client email filters",
+      "additionalProperties": false,
+      "properties": {
+        "email": {
+          "type": "object",
+          "title": "Email address",
+          "additionalProperties": false,
+          "properties": {
+            "like": { "type": ["string", "null"], "minLength": 1 }
+          }
+        },
+        "verified": {
+          "type": "object",
+          "title": "Verified",
+          "additionalProperties": false,
+          "properties": {
+            "eq": {
+              "type": ["boolean", "null"],
+              "enum": [true, false, null]
+            }
+          }
+        },
+        "bounced": {
+          "type": "object",
+          "title": "Bounced",
+          "additionalProperties": false,
+          "properties": {
+            "eq": {
+              "type": ["boolean", "null"],
+              "enum": [true, false, null]
+            }
+          }
+        }
+      }
+    },
+    "sort": {
+      "type": "array",
+      "title": "Client email sort",
+      "description": "The order the list is in. The first entry wins.",
+      "default": [
+        { "field": "default", "dir": "desc" },
+        { "field": "email", "dir": "asc" }
+      ],
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["field", "dir"],
+        "properties": {
+          "field": {
+            "enum": ["default", "email", "verified", "bounced", "created_at"]
+          },
+          "dir": { "enum": ["asc", "desc"] }
+        }
+      }
+    },
+    "pagination": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "limit": { "type": "integer", "minimum": 0, "default": 10 },
+        "offset": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}
+```
+
+**Two things this schema now says on purpose, worth reading twice:**
+
+- **`filters.email.like` accepts `null`.** An optional filter's "cleared" state is `null` (or absent), never `""` — `""` still fails the leaf's own `minLength: 1`. This is what lets a search box be cleared without the form going invalid; see [gotchas.md](./gotchas.md#17-clearing-the-search-box-is-a-valid-empty-state-not-an-error).
+- **`title` values are plain English, never i18n keys.** A schema title is the last-resort fallback, so it has to read as words on its own. Translation is the uischema's job: each element's `i18n` key is the override channel, and it is also the enum-option key PREFIX — the tri-state's three positions resolve as `<key>.true` / `.false` / `.null` through JSON Forms' own translate path.
+- **`pagination.limit` declares a `default` of `10`.** This is the collection's own declared page size (see [gotchas.md](./gotchas.md#8-the-collections-default-page-is-10-rows-not-the-whole-list)) — a module that wanted the whole collection back in one page would omit the `default` (`limit: 0` stays a legal value; this module stops declaring it).
+
+### Query UI schema
+
+```json
+{
+  "type": "FilterBar",
+  "elements": [
+    {
+      "type": "Control",
+      "scope": "#/properties/filters/properties/email/properties/like",
+      "i18n": "form.email_search",
+      "options": { "format": "search", "noLabel": true, "optionalText": "" }
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/filters/properties/verified/properties/eq",
+      "i18n": "form.verified_filter",
+      "options": {
+        "format": "button-group",
+        "noLabel": true,
+        "optionalText": ""
+      }
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/filters/properties/bounced/properties/eq",
+      "i18n": "form.bounced_filter",
+      "options": {
+        "format": "toggle-group",
+        "noLabel": true,
+        "optionalText": ""
+      }
+    }
+  ]
+}
+```
+
+Every element is a plain `Control` scoping one operator **leaf** (`.../properties/verified/properties/eq`), so the leaf's own write IS the wire shape. Which control it draws is chosen by JSON Forms' standard tester scorecard, named by `options.format` — `search`, `button-group`, `toggle-group`, `range` — the same way the ui package's boolean treatments are named. A leaf naming no format falls to the generic renderer for its type.
+
+Those renderers live in `@upmind-automation/client-vue` and are registered on every `Form` this package ships — not something this module builds or owns. Because they are ordinary Controls, the labels, descriptions, errors and enum-option labels all resolve through JSON Forms' own i18n pipeline; nothing here hand-rolls translation.
+
+A tri-state boolean declares `null` as a real `enum` member rather than an absence: it is the value the unset position writes, so a clear validates, and it is the enum entry whose label the control resolves (`<i18n>.null`).
+
+Notes for the paste:
+
+- **No `query` property.** `GET /clients/{id}/emails` does not honour a bare search term, so the search box binds `filters.email.like` instead — pasting a `{ "query": "…" }` instance against this schema fails validation, by design.
+- **`sort` and `pagination` carry no element here** — this uischema only draws the filter bar. Pagination is driven by the pager; sort has its own uischema, below.
+- **See it fully wired** — the switches, the full-width search, the sortable columns, and the live outbound request — in the `labs-nuxt` playground: see this module's [README](./README.md#playground) for the exact command and url.
+
+### Sort UI schema
+
+```json
+{
+  "type": "Control",
+  "scope": "#/properties/sort",
+  "i18n": "form.email_sort"
+}
+```
+
+A single `Control` over the query schema's own `sort` branch, published separately from the filter bar's `FilterBar` above as `useContext().schemas.query.sortUischema`. The `sort` branch's `field` member stays a bare `enum` with no `title` and no `i18n` of its own; `i18n` on this element is the option-key PREFIX a sort control resolves as `<i18n>.<field>` (`form.email_sort.created_at`), the same prefix mechanism the filter controls above use.
+
+> **🧪 For Testers:** The barrel exposes no `useQuerySchema` / `useQueryUischema` / `useSortUischema` either. `useContext().schemas.query` is the only supported way to obtain this trio, and it is plain JSON — nothing on it is a function.
 
 ---
 

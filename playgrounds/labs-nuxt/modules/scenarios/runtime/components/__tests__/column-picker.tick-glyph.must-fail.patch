@@ -1,0 +1,60 @@
+Negative control for the picker being a CHECKBOX list (`R7-3`).
+
+Takes the package's checkable menu item off the picker and hand-rolls the entry
+it used to compose: a plain menu item with a tick drawn beside the label, so an
+entry that is on carries a glyph, an entry that is off carries nothing at all,
+and there is no box to aim at. The menu reads as a list of words rather than a
+list of controls, which is what the operator was shown.
+
+Every BEHAVIOUR survives — the same entries in the same order, the same emitted
+set, the same last-column floor, the same refusal to open while a track is armed
+— which is the point: the defect is what the entry IS, not what it does. The one
+law withdrawn is the item's own checkable semantics, so `aria-checked` is the
+only thing that stops answering.
+
+The mutation is on the CONSUMER because that is the only side this lane owns:
+`packages/ui` is import-only (`R7-15`), and the library's checkable item is
+already approved. A picker that composes it correctly is the whole of what is
+provable here.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the column-picker spec's two ticked-set cases — the entries no longer say
+which columns the table is drawing, while every behaviour case stays green.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.vue
+@@ -19,18 +19,17 @@
+       <!-- `select` is prevented so the menu stays open: picking a column set is
+            several choices, and a menu that closes on each one makes the user
+            re-open it per column. -->
+-      <DropdownMenuCheckboxItem
++      <DropdownMenuItem
+         v-for="column in columns"
+         :key="column.value"
+         data-test-key="column"
+         :data-test-value="column.value"
+-        :checked="column.isVisible"
+         :disabled="column.isVisible && isLastVisible"
+-        @select="onSelect"
+-        @update:checked="toggle(column)"
++        @select="onSelect($event); toggle(column)"
+       >
++        <span>{{ column.isVisible ? "✓" : "" }}</span>
+         {{ column.label }}
+-      </DropdownMenuCheckboxItem>
++      </DropdownMenuItem>
+     </DropdownMenuContent>
+   </DropdownMenuRoot>
+ </template>
+@@ -55,8 +54,8 @@ import { computed, ref } from "vue";
+ import { useI18n } from "vue-i18n";
+ import {
+   Button,
+-  DropdownMenuCheckboxItem,
+   DropdownMenuContent,
++  DropdownMenuItem,
+   DropdownMenuLabel,
+   DropdownMenuRoot,
+   DropdownMenuTrigger,

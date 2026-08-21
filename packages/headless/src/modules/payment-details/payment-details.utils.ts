@@ -13,10 +13,10 @@ import { gatewayMachine } from "../payment-gateways";
 import braintreeConfig from "../payment-gateways/braintree";
 import dlocalConfig from "../payment-gateways/dlocal";
 import mercadoPagoConfig from "../payment-gateways/mercadoPago";
+import nickyConfig from "../payment-gateways/nicky";
 import openPayConfig from "../payment-gateways/openPay";
 import razorpayConfig from "../payment-gateways/razorpay";
 import stripeConfig from "../payment-gateways/stripe";
-import nickyConfig from "../payment-gateways/nicky";
 import { useSessionStorage } from "../../utils";
 import {
   filter,
@@ -36,11 +36,11 @@ import type {
 } from "./payment-details.types";
 import type { BraintreeContext } from "../payment-gateways/braintree/types";
 import type { MercadoPagoContext } from "../payment-gateways/mercadoPago/types";
+import type { NickyContext } from "../payment-gateways/nicky/types";
 import type { OpenPayContext } from "../payment-gateways/openPay/types";
 import type { GatewayParams } from "../payment-gateways/payment-gateways.types";
 import type { RazorpayContext } from "../payment-gateways/razorpay/types";
 import type { StripeContext } from "../payment-gateways/stripe/types";
-import type { NickyContext } from "../payment-gateways/nicky/types";
 
 // -----------------------------------------------------------------------------
 

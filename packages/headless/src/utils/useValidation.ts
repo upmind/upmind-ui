@@ -417,9 +417,11 @@ export const useModelParser = <
   values?: Partial<TModel>,
   baseModel?: Partial<TBaseModel>,
   {
-    allowExtraProps
+    allowExtraProps,
+    preserveContainers = true
   }: {
     allowExtraProps?: boolean;
+    preserveContainers?: boolean;
   } = { allowExtraProps: true }
 ): TModel => {
   // values = omitBy(values, isEmpty) as Partial<TModel>;
@@ -481,13 +483,13 @@ export const useModelParser = <
     {} as Record<string, any>
   );
   if (!allowExtraProps)
-    return compactDeep(model, { preserveContainers: true }) as TModel;
+    return compactDeep(model, { preserveContainers }) as TModel;
 
   const parsed = (
     !allowExtraProps ? model : defaultsDeep(model, values)
   ) as TModel;
 
-  return compactDeep(parsed, { preserveContainers: true }) as TModel;
+  return compactDeep(parsed, { preserveContainers }) as TModel;
 };
 
 // -----------------------------------------------------------------------------

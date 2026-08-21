@@ -1,0 +1,10 @@
+--- a/packages/headless/src/modules/client-email/client-email.services.ts
++++ b/packages/headless/src/modules/client-email/client-email.services.ts
+@@ -127,6 +127,7 @@ function loadList(scopeContext?: ScopeContext): ClientEmailListQuery {
+ 
+   return list<IEmail[], Email[], QueryModel>({
+     criteria: { schema: useQuerySchema() },
++    pagination: listParams.pagination ?? pagination,
+     queryKey: [...queryKey, { client: clientId }],
+     url,
+     // `enabled:` only stops the query starting; this rejects a forced

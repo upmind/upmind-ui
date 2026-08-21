@@ -27,15 +27,15 @@ The platform sets these fields as it attempts delivery; a caller only ever reads
 
 ## Operations
 
-| #   | Capability                                | Inputs                                                                                            | Outputs                                       |
-| --- | ----------------------------------------- | ------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| 1   | List my email history                     | optional sort, optional free-text/subject filter, optional delivery-outcome filter, optional page | array of email summaries, plus a total count  |
-| 2   | Read one email in full                    | email id                                                                                          | the single email, including its rendered body |
-| 3   | Sort the collection                       | a sortable property + direction, or neither for the default                                       | re-issues the list read with the new order    |
-| 4   | Free-text / subject filter the collection | search text                                                                                       | re-issues the list read, narrowed             |
-| 5   | Narrow the collection by delivery outcome | one of sent / bounced / error, or none                                                            | re-issues the list read, narrowed             |
-| 6   | Page through the collection               | next / previous / a specific page number                                                          | re-issues the list read at that page          |
-| 7   | Refresh either surface                    | —                                                                                                 | a further read from the server                |
+| #   | Capability                                | Inputs                                                                                       | Outputs                                              |
+| --- | ----------------------------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| 1   | List my email history                     | optional sort, optional subject-text filter, optional delivery-outcome filter, optional page | array of email summaries, plus a total count         |
+| 2   | Read one email in full                    | email id                                                                                     | the single email, including its rendered body        |
+| 3   | Sort the collection                       | a sortable property + direction, or neither for the default                                  | re-issues the list read with the new order           |
+| 4   | Search the collection by subject text     | search text                                                                                  | re-issues the list read, narrowed to subject matches |
+| 5   | Narrow the collection by delivery outcome | one of sent / bounced / error, or none                                                       | re-issues the list read, narrowed                    |
+| 6   | Page through the collection               | next / previous / a specific page number                                                     | re-issues the list read at that page                 |
+| 7   | Refresh either surface                    | —                                                                                            | a further read from the server                       |
 
 **Additional always-on behaviours:**
 
@@ -117,7 +117,7 @@ None today. This is the sole surface for a client's own sent-email history in th
 
 ### GET /self/email_history
 
-Role: lists the caller's own sent-email history. Always resolves to the authenticated caller — there is no client-identifying parameter on this endpoint at all. Accepts `limit` / `offset` for paging, `order` for sorting (a leading `-` means descending), `query` / `subject` for free-text and subject filtering, and `filter[sent]` / `filter[bounced]` / `filter[error_id|neq]` for narrowing by delivery outcome.
+Role: lists the caller's own sent-email history. Always resolves to the authenticated caller — there is no client-identifying parameter on this endpoint at all. Accepts `limit` / `offset` for paging, `order` for sorting (a leading `-` means descending), and a `filter[column]` / `filter[column|operator]` parameter family for narrowing: `filter[sent]` / `filter[sent|eq]` and `filter[bounced]` / `filter[bounced|eq]` for the delivery-outcome booleans, `filter[error_id|neq]=null` for narrowing to errored (`filter[error_id]=null` narrows to NOT errored), and `filter[subject|like]` for a wildcarded subject search. A bare `query=` / `subject=` parameter (no `filter[…]` wrapper) is **not** honoured by this endpoint — see the "Filtered variants" note below.
 
 ```bash
 curl "$API/self/email_history?with=recipient,recipient_type,recipient.image&order=-created_at&limit=10" \
@@ -168,7 +168,9 @@ Fixture: `__tests__/fixtures/get-self-email-history-case-default.json`
 
 **Sorted variant** — `order=-subject` sorts descending by subject instead of the default `order=-created_at`. Fixture: `get-self-email-history-case-subject-sort.json`
 
-**Filtered variants** — `query=invoice&subject=Invoice` composes a free-text and a subject filter on the SAME request (they narrow together, not one replacing the other); `filter[sent]=true&filter[bounced]=false` narrows to delivered; `filter[bounced]=true` narrows to bounced; `filter[error_id|neq]=null` narrows to errored (read literally: "where the error id is not null"). Each of these narrowed responses carries its OWN `total`, matching the narrowed row count, on the same response. Fixtures: `get-self-email-history-query-invoice.json`, `get-self-email-history-query-invoice-subject-invoice.json`, `get-self-email-history-filter-sent-true.json`, `get-self-email-history-filter-bounced-true.json`, `get-self-email-history-filter-error-id-neq-null.json`
+**Filtered variants** — `filter[sent|eq]=1` (or the equivalent bare `filter[sent]=true`) narrows to delivered; `filter[bounced|eq]=1` (or `filter[bounced]=true`) narrows to bounced; `filter[error_id|neq]=null` narrows to errored (read literally: "where the error id is not null"); `filter[error_id]=null` narrows to NOT errored; `filter[subject|like]=%welcome%` narrows by a wildcarded subject search. Each of these narrowed responses carries its OWN `total`, matching the narrowed row count, on the same response. Fixtures: `get-self-email-history-case-sent-eq-filter-sent-eq-1.json` / `get-self-email-history-filter-sent-true.json`, `get-self-email-history-case-bounced-eq-filter-bounced-eq-1.json` / `get-self-email-history-filter-bounced-true.json`, `get-self-email-history-case-error-neq-filter-error-id-neq-null.json` / `get-self-email-history-filter-error-id-neq-null.json`, `get-self-email-history-filter-error-id-null.json`, `get-self-email-history-case-subject-like-filter-subject-like-welcom.json`
+
+**A bare `query=` / `subject=` parameter is accepted but applies NO narrowing.** A real capture against `query=invoice` (and against `query=invoice&subject=Invoice` together) returns `200` with the identical unfiltered `total` (`2861`) a plain default-list request returns — the endpoint silently ignores both parameters rather than erroring or narrowing by them. A caller wanting a subject search has to use `filter[subject|like]` instead. Fixtures (evidence of the no-op, not a working filter): `get-self-email-history-query-invoice.json`, `get-self-email-history-query-invoice-subject-invoice.json`
 
 ### GET /emails/{emailId}?with=data
 
@@ -263,8 +265,8 @@ Constraints the caller has to plan around: the body is not part of the list resp
 - **Neither endpoint has a client-identifying parameter.** `/self/email_history` and `/emails/{id}` both resolve to whichever account the bearer token authenticates as. Supplying a client id anywhere in the call does not retarget either endpoint — both continue to return the authenticated caller's own history, silently, rather than erroring or actually retargeting.
 - **The total row count travels on the SAME response as the rows.** There is no separate count request against this endpoint — `total` is a field on the one list response, alongside `data`.
 - **Omitting the sort parameter is not the same as restoring the default.** The platform's documented default ordering holds only while an explicit order value is present on the request; a request with no `order` parameter at all does not fall back to that default.
-- **Narrowing to one delivery outcome sets more than one filter key at once.** "Sent, not bounced" is expressed as `filter[sent]=true` together with `filter[bounced]=false` — a request carrying only the first key describes a different, wider narrowing than intended.
-- **Free-text and subject filters are independent parameters that combine.** A request carrying both `query` and `subject` narrows by both at once; neither overrides the other.
+- **Each delivery-outcome column narrows independently — there is no required pairing.** `filter[sent|eq]=1` alone narrows correctly to the sent rows, with no need to also send `filter[bounced|eq]=0` alongside it; `sent`, `bounced` and `error_id` are three separate columns a caller combines only when it actually wants to.
+- **A bare `query=` / `subject=` parameter is a silent no-op, not a working filter.** Real captures against both, alone and together, return the identical unfiltered `total` a plain default-list request returns. The endpoint's only working free-text search is the generic `filter[subject|like]=value` form — the same `filter[column|operator]` family every other narrowing column uses.
 - **Delivery-outcome precedence is strict, not "whichever field is checked."** A record carrying both an error id and a bounced flag reports as errored — the error id takes precedence over every other outcome field on the same record.
 - **Timestamps are space-separated, not ISO-8601.** `"2026-08-06 10:00:17"` parses inconsistently across languages and runtimes compared with the `T`-separated form.
 - **A recipient with no picture on file returns a `null` image value, not an absent field.** A consumer expecting the "no picture" case to read as `undefined` will not find it that way.

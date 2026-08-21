@@ -1,0 +1,171 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/currencies",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a29042181baba148-DUR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 10 Aug 2026 16:08:15 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=jIReLPgrAU2cej87SqJT4uIMVHnAmEgbbgNFWIRgvC4Vum8C1tBZ1TyLLQ74Hnfri5S0u6PNxfrTymp6%2FooD3JV41uv%2FvCjnkR6xi7RUU%2Bzdt7Pd9MqFpo8mV5BZ28Jt%2Fxa3BMTO0w%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "81"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "825d96e7-63ed-0913-5dc4-174825283406",
+          "name": "Algerian Dinar",
+          "prefix": "دج",
+          "suffix": "",
+          "code": "DZD",
+          "created_at": "2022-09-28 14:40:15",
+          "updated_at": "2026-07-23 13:41:03",
+          "base": true,
+          "decimals": true,
+          "manual": 0
+        },
+        {
+          "id": "2785d26e-9678-3d16-40f3-14502e70439d",
+          "name": "Angolan Kwanza",
+          "prefix": "Kz",
+          "suffix": "",
+          "code": "AOA",
+          "created_at": "2022-09-05 16:16:23",
+          "updated_at": "2026-07-23 13:41:03",
+          "base": true,
+          "decimals": true,
+          "manual": 0
+        },
+        {
+          "id": "320e4357-95e7-8d18-28b3-1643202d9860",
+          "name": "Argentine Peso",
+          "prefix": "$",
+          "suffix": "",
+          "code": "ARS",
+          "created_at": "2024-06-18 13:34:53",
+          "updated_at": "2026-07-23 13:41:03",
+          "base": true,
+          "decimals": true,
+          "manual": 0
+        },
+        {
+          "id": "45952098-d3de-4091-76a3-1578626e347e",
+          "name": "Australian Dollar",
+          "prefix": "AU $",
+          "suffix": "",
+          "code": "AUD",
+          "created_at": "2020-02-12 09:02:29",
+          "updated_at": "2026-07-23 13:41:01",
+          "base": true,
+          "decimals": true,
+          "manual": 0
+        },
+        {
+          "id": "78985742-6489-7012-d5f2-1e325d0ed369",
+          "name": "Azerbaijani Manat",
+          "prefix": "₼",
+          "suffix": "",
+          "code": "AZN",
+          "created_at": "2024-05-07 08:18:06",
+          "updated_at": "2026-07-23 13:41:03",
+          "base": true,
+          "decimals": true,
+          "manual": 0
+        },
+        {
+          "id": "47d73824-8507-9315-e6b8-1e642d59e063",
+          "name": "Bangladeshi Taka",
+          "prefix": "",
+          "suffix": "৳",
+          "code": "BDT",
+          "created_at": "2022-05-25 09:25:07",
+          "updated_at": "2026-07-23 13:41:02",
+          "base": true,
+          "decimals": true,
+          "manual": 0
+        },
+        {
+          "id": "2785d26e-9678-3d16-d0c3-14502e70439d",
+          "name": "Barbadian Dollar",
+          "prefix": "",
+          "suffix": "BBD",
+          "code": "BBD",
+          "created_at": "2024-10-08 10:12:25",
+          "updated_at": "2026-07-23 13:41:03",
+          "base": true,
+          "decimals": true,
+          "manual": 0
+        },
+        {
+          "id": "2785d26e-9678-3d16-80a3-14502e70439d",
+          "name": "Bolivian Boliviano",
+          "prefix": "$b",
+          "suffix": "",
+          "code": "BOB",
+          "created_at": "2024-06-18 13:34:53",
+          "updated_at": "2026-07-23 13:41:03",
+          "base": true,
+          "decimals": true,
+          "manual": 0
+        },
+        {
+          "id": "8d632507-9806-5d1e-06c8-174e234e98d2",
+          "name": "Botswana Pula",
+          "prefix": "P",
+          "suffix": "",
+          "code": "BWP",
+          "created_at": "2026-02-05 12:08:08",
+          "updated_at": "2026-07-23 13:41:04",
+          "base": true,
+          "decimals": true,
+          "manual": 0
+        },
+        {
+          "id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+          "name": "Brazilian Real",
+          "prefix": "R$",
+          "suffix": "",
+          "code": "BRL",
+          "created_at": "2020-02-12 09:02:29",
+          "updated_at": "2026-07-23 13:41:01",
+          "base": true,
+          "decimals": true,
+          "manual": 0
+        }
+      ],
+      "related": null,
+      "total": 81,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-10T16:08:15.648Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "product-categories"
+  }
+}

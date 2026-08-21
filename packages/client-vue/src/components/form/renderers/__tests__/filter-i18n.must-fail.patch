@@ -1,0 +1,22 @@
+Negative control for filter-i18n.test.ts.
+
+Names the toggle group's positions from the leaf's own enum members instead of the
+label JSON Forms' enum-option i18n resolved for them, so the bar draws the
+schema's `true` / `false` where the catalogue's prose belongs. Any assertion that
+reads a rendered member name — on the surface or as the accessible name — goes
+red; the file's own fall-back case, which expects those raw member names when no
+translator is supplied, stays green.
+
+diff --git a/packages/client-vue/src/components/form/renderers/FilterToggleGroupRenderer.vue b/packages/client-vue/src/components/form/renderers/FilterToggleGroupRenderer.vue
+index c677d83b9..24b544ffc 100644
+--- a/packages/client-vue/src/components/form/renderers/FilterToggleGroupRenderer.vue
++++ b/packages/client-vue/src/components/form/renderers/FilterToggleGroupRenderer.vue
+@@ -66,7 +66,7 @@ const { control, formFieldProps, handleChange } = useUpmindUIRenderer(
+ const positions = computed<ToggleGroupItem[]>(() =>
+   map(
+     reject(control.value.options, option => isNil(option.value)),
+-    option => ({ value: toString(option.value), label: option.label })
++    option => ({ value: toString(option.value), label: toString(option.value) })
+   )
+ );
+ 

@@ -22,7 +22,7 @@ await draft.useActions().isReady();
 await draft.useActions().update({ email: "me@example.com" });
 ```
 
-The collection's eleven actions are `destroy`, `ensure`, `filters.query`, `invalidate`, `isReady`, `nextPage`, `prevPage`, `refresh`, `remove`, `setDefault`, `verify`. Nothing else.
+The collection's twelve actions are `destroy`, `ensure`, `filterBy`, `invalidate`, `isReady`, `nextPage`, `prevPage`, `refresh`, `remove`, `setDefault`, `sortBy`, `verify`. Nothing else.
 
 > **🧪 For Testers:** Asserting `add` on the collection asserts `undefined`. The create request is issued by `ensure()` or by an editor save — both go through the same find-or-create path, so neither can produce a duplicate the other would not.
 
@@ -33,7 +33,7 @@ Fixture: `__tests__/fixtures/post-clients-id-emails.json`.
 An editor save on an existing address always sends `{ email, verified: 0 }`. This happens on **every** save, not only when the submitted address differs from the stored one.
 
 ```ts
-const manager = useClientEmailManager().as("self").for("email", id);
+const manager = useClientEmailManager().withId(id);
 
 // ⚠️ Wrong: saving as a generic "form closed" action
 await manager.useActions().update(); // unverifies the address even if nothing changed
@@ -106,13 +106,13 @@ Fixture: `__tests__/fixtures/post-clients-id-emails.json`.
 
 > **🧪 For Testers:** `ensure({ email })` against an already-loaded collection containing that address resolves the existing record with **no** create request fired; against an absent address it creates. Its answer is exactly as fresh as the last list read.
 
-## 8. The collection loads unpaged by default
+## 8. The collection's default page is 10 rows, not the whole list
 
-The list read defaults to a single request returning the entire collection. Paging and filtering exist, but with the default configuration `nextPage()` / `prevPage()` have no other page to move to.
+The list read boots on the collection's declared page size — `limit=10&offset=0` — rather than returning the entire collection in one unbounded response. For a collection of ten addresses or fewer this is invisible: everything still arrives on the first read, and `nextPage()` / `prevPage()` still have no other page to move to. A collection larger than that now needs paging to see the rest, which previously required nothing at all.
 
-> **🧪 For Testers:** Do not assume a large collection needs `nextPage()` calls to see every address — the default read already returns everything. Paging behaviour is only observable when a page size was requested.
+> **🧪 For Testers:** Asserting the first request's `limit` param now asserts `"10"`, not `"0"`. A fixture with ten rows or fewer will not exercise paging by itself — seed more than that to see `nextPage()` actually reach the wire.
 
-Fixtures: `__tests__/fixtures/get-clients-id-emails.json` (unpaged), `get-clients-id-emails-case-page-1.json` / `-page-2.json` (paged).
+Fixtures: `__tests__/fixtures/get-clients-id-emails.json` (the default page, under ten rows), `get-clients-id-emails-case-page-1.json` / `-page-2.json` (an explicitly requested smaller page, walked in full).
 
 ## 9. `isAvailable` is two limbs, not one — and it is the request gate itself
 
@@ -173,7 +173,7 @@ import { useSchema } from "@upmind-automation/headless"; // not exported
 // ✅ Right
 const { schema, uischema } = useClientEmailManager()
   .as("self")
-  .for("email", id)
+  .withId(id)
   .useContext();
 ```
 
@@ -181,9 +181,9 @@ A form rendered from a definition the editor has not adopted validates against a
 
 > **🧪 For Testers:** The module's runtime exports are exactly: both composables, both scope matrices, both context enums, and the email categories. Anything else asserted on the barrel asserts `undefined`.
 
-## 13. `.fresh()` and `.for('email', id)` mint different instances — and `destroy()` differs per half
+## 13. `.fresh()` and `.withId(id)` mint different instances — and `destroy()` differs per half
 
-Each `.fresh()` call mints an editor with its own scope key, so two concurrent drafts never share a model. An editor opened `.for('email', id)` is keyed to that address.
+Each `.fresh()` call mints an editor with its own scope key, so two concurrent drafts never share a model. An editor opened `.withId(id)` is keyed to that address.
 
 The two halves also clean up differently:
 
@@ -225,3 +225,31 @@ else if (isEmpty.value) showEmptyState();
 ```
 
 > **🧪 For Testers:** Pair `isReady()` with `hasError` before treating an empty list as an empty collection. `isReady()` resolves `false` only when the session settles without an addressable client.
+
+## 16. An unrecognised filter or sort column is silently dropped, a known column with a bad value is REJECTED WHOLE, not partially applied
+
+`filterBy()` and `sortBy()` only accept the columns and operators `useContext().schemas.query.schema` declares (`email`, `verified`, `bounced`, `default` for filters; `created_at`, `email`, `default` for sort). An **unknown** key is quietly left out of the candidate before it is ever checked — it never reaches `useContext().error` and it never reaches the wire; it behaves as if it had never been passed.
+
+```ts
+// ⚠️ Wrong: expecting an unrecognised column to surface a validation error
+await filterBy({ title: { like: "x" } }); // silently has no effect at all
+
+// ✅ Right: only filter/sort on what the schema declares
+await filterBy({ email: { like: "x" } });
+```
+
+A **declared** column carrying an invalid value is a different case, and it is stricter than it looks: the whole write is refused, not just the bad part. The candidate is validated **before** it is committed, and a failing candidate never reaches the live model at all — `useContext().query` (what you render) keeps its last valid state, **no new request is fired**, and the only trace of the attempt is `useContext().error`, which carries ajv's verdict (the failing keyword and the exact path inside the model that failed).
+
+```ts
+await filterBy({ verified: { eq: false } }); // applies, re-queries
+await filterBy({ verified: { eq: "nope" } } as never); // REFUSED — model unchanged, zero requests, error set
+// useContext().query.value.filters is still { verified: { eq: false } }
+```
+
+> **🧪 For Testers:** `filterBy({ title: { like: "x" } })` (unknown column) leaves the request exactly as it was before the call — no `filter[title|…]` param, no error, and any _other_ filter in the same call still applies. `filterBy({ verified: { eq: "nope" } })` (known column, bad value) also leaves the request and the rendered rows exactly as they were — **but** `useContext().error` is now set with the ajv failure, and `useMeta().hasError` stays `false` (a refused write is a verdict on the write, not a broken collection — the rows on screen are still correct for the criteria that IS applied). Assert the wire params and the model together, not a rejected promise — nothing here ever rejects.
+
+## 17. Clearing the search box is a valid empty state, not an error
+
+The search box binds `filters.email.like`, which accepts `null` as well as a non-empty string (`minLength: 1` applies only when the value is a string). Clearing the box writes `null` (or omits the key entirely) rather than an empty string, so the model stays valid and no request narrows to nothing — this is a deliberate schema shape (`["string", "null"]`), not an accident of what happened to be typed.
+
+> **🧪 For Testers:** Clearing the rendered search control leaves `useContext().error` undefined and the list back to its unfiltered rows. The one way to still hit a validation failure here is to write the leaf directly as an empty string — `filterBy({ email: { like: "" } })` — which item 16's "known column, bad value" rule applies to: the write is refused whole, the previous filter (if any) stays live, and `useContext().error` reports the `minLength` failure. A consumer driving the module through its own rendered controls never produces that state; only a caller writing `""` by hand does.

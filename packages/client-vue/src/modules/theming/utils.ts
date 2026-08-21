@@ -5,7 +5,7 @@ import {
   type ThemeTokens
 } from "@upmind-automation/headless";
 import { forEach, has, isEmpty, uniq, compact, isString, map } from "lodash-es";
-import type { IImage } from "../../../../types/src";
+import type { IImage } from "@upmind-automation/types";
 
 // import { IBrandMetaToken } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------

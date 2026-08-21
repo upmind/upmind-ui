@@ -1,109 +1,133 @@
 <template>
-  <div class="p-8">
-    <div class="mb-12">
-      <h1 class="text-display text-4xl font-bold">Welcome to Upmind Labs</h1>
-      <p class="text-muted mt-4 text-lg">
-        A playground for testing Upmind components, APIs, and utilities. Explore
-        the sidebar to navigate to different experiments.
-      </p>
-    </div>
+  <UpmLayout>
+    <div class="space-y-10">
+      <header class="space-y-4">
+        <div>
+          <h1 class="text-display text-3xl font-bold">
+            {{ t("labs.app_name") }}
+          </h1>
+          <p class="text-muted mt-2 max-w-3xl text-base">
+            {{ t("labs.app_description") }}
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <Badge
+            variant="minimal"
+            icon="code-browser"
+            :label="`${composables.length} composables`"
+          />
+          <Badge
+            variant="minimal"
+            icon="layers-three-01"
+            :label="`${families.length} families`"
+          />
+          <Badge
+            variant="minimal"
+            icon="beaker-01"
+            :label="`${scenarioCount} scenario-covered`"
+          />
+        </div>
+      </header>
 
-    <!-- Quick Stats -->
-    <div class="mb-12 grid grid-cols-3 gap-6">
-      <div class="bg-surface border-surface card-radius border p-6">
-        <div class="flex items-center gap-3">
-          <div
-            class="bg-accent-info-muted text-accent-info flex h-10 w-10 items-center justify-center rounded-lg"
-          >
-            <Icon icon="beaker-01" size="sm" />
-          </div>
-          <div>
-            <p class="text-display text-2xl font-bold">
-              {{ labsCount }}
-            </p>
-            <p class="text-muted text-sm">Lab Experiments</p>
-          </div>
-        </div>
-      </div>
-      <div class="bg-surface border-surface card-radius border p-6">
-        <div class="flex items-center gap-3">
-          <div
-            class="bg-accent-success-muted text-accent-success flex h-10 w-10 items-center justify-center rounded-lg"
-          >
-            <Icon icon="user-01" size="sm" />
-          </div>
-          <div>
-            <p class="text-display text-2xl font-bold">
-              {{ composablesCount }}
-            </p>
-            <p class="text-muted text-sm">Composable Pages</p>
-          </div>
-        </div>
-      </div>
-      <div class="bg-surface border-surface card-radius border p-6">
-        <div class="flex items-center gap-3">
-          <div
-            class="bg-accent-promo-muted text-accent-promo flex h-10 w-10 items-center justify-center rounded-lg"
-          >
-            <Icon icon="shield-01" size="sm" />
-          </div>
-          <div>
-            <p class="text-display text-2xl font-bold">
-              {{ totalCount }}
-            </p>
-            <p class="text-muted text-sm">Total Pages</p>
-          </div>
-        </div>
-      </div>
-    </div>
+      <Card size="sm" class="space-y-4">
+        <h2 class="text-display text-2xl font-semibold">Getting Started</h2>
+        <List :items="gettingStarted" />
+      </Card>
 
-    <!-- Quick Links -->
-    <div class="mb-12">
-      <h2 class="text-display mb-6 text-2xl font-semibold">Quick Links</h2>
-      <div class="grid grid-cols-2 gap-4">
-        <NuxtLink
-          v-for="link in quickLinks"
-          :key="link.route"
-          :to="{ name: link.route }"
-          class="bg-surface border-surface hover:border-accent-primary card-radius group flex items-center gap-4 border p-4 transition-all hover:shadow-md"
+      <section class="space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <h2 class="text-display text-2xl font-semibold">Composables</h2>
+          <Input
+            v-model="query"
+            class="w-full sm:w-72"
+            icon="search-md"
+            placeholder="Filter composables"
+          />
+        </div>
+
+        <Alert
+          v-if="!visibleFamilies.length"
+          variant="minimal"
+          color="info"
+          icon="search-md"
+          title="Nothing matches"
+          description="No composable matches that filter. Clear it to see them all."
+        />
+
+        <div
+          v-for="family in visibleFamilies"
+          :key="family.name"
+          class="space-y-3"
         >
-          <div
-            class="bg-canvas text-muted group-hover:bg-accent-primary-muted group-hover:text-accent-primary flex h-12 w-12 items-center justify-center rounded-lg transition-colors"
-          >
-            <Icon :icon="link.icon" size="md" />
+          <div class="flex items-center gap-2">
+            <Icon :icon="family.icon" size="xs" class="text-muted" />
+            <h3 class="text-display font-medium">{{ family.label }}</h3>
+            <Badge
+              size="sm"
+              variant="minimal"
+              :label="String(family.entries.length)"
+            />
           </div>
-          <div>
-            <h3 class="text-display font-medium">
-              {{ link.label }}
-            </h3>
-            <p class="text-muted text-sm">
-              {{ link.description }}
-            </p>
-          </div>
-        </NuxtLink>
-      </div>
-    </div>
 
-    <!-- Getting Started -->
-    <div class="bg-accent-primary-muted border-surface card-radius border p-8">
-      <h2 class="text-display mb-4 text-2xl font-semibold">Getting Started</h2>
-      <p class="mb-6 text-base">
-        Use the sidebar navigation to explore different components and
-        experiments. Each section contains interactive demos and examples.
-      </p>
-      <div class="flex gap-4">
-        <Button color="primary" @click="handleNavigate('useAuth')">
-          <Icon icon="lock-01" size="xs" class="mr-2" />
-          Try Auth
-        </Button>
-      </div>
+          <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <NuxtLink
+              v-for="entry in family.entries"
+              :key="entry.key"
+              :to="entry.to ?? { name: entry.route! }"
+              class="bg-surface border-surface hover:border-accent-primary card-radius group flex items-start gap-4 border p-4 transition-all hover:shadow-md"
+            >
+              <div
+                class="bg-canvas text-muted group-hover:bg-accent-primary-muted group-hover:text-accent-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors"
+              >
+                <Icon :icon="entry.icon" size="sm" />
+              </div>
+              <div class="min-w-0 space-y-2">
+                <h4 class="text-display truncate font-medium">
+                  {{ entry.label }}
+                </h4>
+                <div v-if="entry.tags.length" class="flex flex-wrap gap-1">
+                  <Badge
+                    v-for="tag in entry.tags"
+                    :key="tag"
+                    size="sm"
+                    variant="minimal"
+                    color="neutral"
+                    :label="tag"
+                  />
+                </div>
+              </div>
+            </NuxtLink>
+          </div>
+        </div>
+      </section>
     </div>
-  </div>
+  </UpmLayout>
 </template>
 
 <script lang="ts" setup>
-import { Button, Icon } from "@upmind-automation/upmind-ui";
-import { useNavigation, type NavItem } from "~/composables/useNavigation";
+// -----------------------------------------------------------------------------
+/**
+ * @module pages/index
+ * @description The landing surface, derived end to end from the same
+ * navigation composable the sidebar reads (C17): the counts, the family
+ * grouping and every link come from the scenario contract, so the mass run's
+ * modules land here without this page being touched.
+ */
+
+import { useI18n } from "vue-i18n";
+import { UpmLayout } from "@upmind-automation/client-vue";
+import {
+  Alert,
+  Badge,
+  Card,
+  Icon,
+  Input,
+  List
+} from "@upmind-automation/upmind-ui";
+import { filter, includes, isEmpty, reduce, toLower, trim } from "lodash-es";
+import type { LabFamily } from "~/composables/useNavigation.types";
+import { useNavigation } from "~/composables/useNavigation";
+
 // -----------------------------------------------------------------------------
 
 definePageMeta({
@@ -117,53 +141,34 @@ definePageMeta({
   }
 });
 
-const router = useRouter();
-const { navigation } = useNavigation();
+const { t } = useI18n();
 
-// Count routes in each section
-const countRoutes = (items: NavItem[]): number => {
-  return items.reduce((acc, item) => {
-    if (item.route) acc++;
-    if (item.children) acc += countRoutes(item.children);
-    return acc;
-  }, 0);
-};
+const { composables, families } = useNavigation();
 
-const labsCount = computed(() => {
-  return navigation.value
-    .filter((n: NavItem) => n.label !== "Composables")
-    .reduce((acc: number, item: NavItem) => {
-      if (item.route) acc++;
-      if (item.children) acc += countRoutes(item.children);
-      return acc;
-    }, 0);
-});
+const query = ref("");
 
-const composablesCount = computed(() => {
-  const composables = navigation.value.find(
-    (n: NavItem) => n.label === "Composables"
+const scenarioCount = computed(() => filter(composables.value, "to").length);
+
+const visibleFamilies = computed((): LabFamily[] => {
+  const needle = toLower(trim(query.value));
+  if (!needle) return families.value;
+
+  return reduce(
+    families.value,
+    (visible: LabFamily[], family) => {
+      const entries = filter(family.entries, entry =>
+        includes(toLower(`${entry.label} ${entry.key}`), needle)
+      );
+      if (!isEmpty(entries)) visible.push({ ...family, entries });
+      return visible;
+    },
+    []
   );
-  return countRoutes(composables?.children || []);
 });
 
-const totalCount = computed(() => {
-  return navigation.value.reduce((acc: number, item: NavItem) => {
-    if (item.route) acc++;
-    if (item.children) acc += countRoutes(item.children);
-    return acc;
-  }, 0);
-});
-
-const quickLinks = [
-  {
-    label: "useAuth Playground",
-    description: "Test login, register, recover, and 2FA flows",
-    route: "useAuth",
-    icon: "lock-01"
-  }
+const gettingStarted = [
+  "Every composable opens at the scope its scenario declares — retarget it from the header, or in the url: /:scenario/as/:actor/for/:type/:id",
+  "The Inspector, top right, holds the raw schema, uischema, model and built wire beside the rendered surface.",
+  "Nothing here is hand-listed: declaring a scenario in the registry adds it to this page and to the sidebar."
 ];
-
-const handleNavigate = (routeName: string) => {
-  router.push({ name: routeName });
-};
 </script>

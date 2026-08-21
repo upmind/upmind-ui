@@ -1,0 +1,46 @@
+Negative control for the killed track chips (`R7-10`).
+
+Puts the first two scenarios back on the bar as their own capped, truncating
+chips — the menu is untouched, every scenario is still reachable inside it, and
+Live still reads live — so the only claim that can go red is the ruled one: the
+bar carries Live and ONE menu, and a scenario's name is never rendered as a
+fragment beside them. A chip capped at `max-w-40` shows "A client sees their …",
+which is the illegible bar the operator screenshotted.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the scenario-bar entry case — the bar draws exactly one `track` entry, and
+it is Live.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioMenu.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioMenu.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioMenu.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioMenu.vue
+@@ -99,7 +99,7 @@
+ import { FORCE_PRESET_LABELS } from "./ForcedCanvas.types";
+ import config from "./ScenarioMenu.styles";
+ import { SCENARIO_CHOICE, TRACK_LIVE } from "./ScenarioMenu.types";
+-import { find, map, size } from "lodash-es";
++import { find, map, size, take } from "lodash-es";
+ import type {
+   ScenarioMenuEmits,
+   ScenarioMenuProps
+@@ -142,7 +142,18 @@
+       dataAttrs: { "data-test-key": "track", "data-test-value": TRACK_LIVE }
+     },
+     handler: () => emit("select", { kind: SCENARIO_CHOICE.LIVE })
+-  }
++  },
++  ...map(take(props.tracks, 2), track => ({
++    type: ButtonGroupTypes.Button,
++    active: track.slug === props.armed?.slug,
++    props: {
++      truncate: true,
++      class: "max-w-40",
++      label: track.name,
++      dataAttrs: { "data-test-key": "track", "data-test-value": track.slug }
++    },
++    handler: () => emit("select", { kind: SCENARIO_CHOICE.TRACK, track })
++  }))
+ ]);
+
+ const scenarios = computed(() =>

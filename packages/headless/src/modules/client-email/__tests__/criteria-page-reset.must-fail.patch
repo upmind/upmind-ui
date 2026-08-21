@@ -1,0 +1,15 @@
+diff --git a/packages/headless/src/modules/query/useQueryCriteria.ts b/packages/headless/src/modules/query/useQueryCriteria.ts
+index 370deda0d..67c655b41 100644
+--- a/packages/headless/src/modules/query/useQueryCriteria.ts
++++ b/packages/headless/src/modules/query/useQueryCriteria.ts
+@@ -241,9 +241,7 @@ export function useQueryCriteria<
+       !has(model.value, "pagination")
+         ? {}
+         : {
+-            pagination: assign({}, get(intent.value, "pagination"), {
+-              offset: 0
+-            })
++            pagination: assign({}, get(intent.value, "pagination"))
+           };
+     commit(assign({}, intent.value, next, cursor) as Partial<TModel>);
+   }

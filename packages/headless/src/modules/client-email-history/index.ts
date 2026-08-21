@@ -14,23 +14,20 @@ export type { UseClientReceivedEmails } from "./useClientReceivedEmails";
 export { useClientReceivedEmail } from "./useClientReceivedEmail";
 export type { UseClientReceivedEmail } from "./useClientReceivedEmail";
 
-// --- Scope matrices — one per composable, both public
+// --- Scope matrix — the COLLECTION's only. The single read's matrix refuses
+// every actor, so it names no context a consumer could spell and stays internal;
+// it marks its record with the builder's `.withId(id)`, not with a context.
 export {
   RECEIVED_EMAILS_SCOPE_MATRIX,
   ReceivedEmailsContextTypes,
-  RECEIVED_EMAIL_SCOPE_MATRIX,
-  ReceivedEmailContextTypes,
   ReceivedEmailsSortableProperties
 } from "./client-email-history.types";
-export type {
-  ReceivedEmailsScopeMatrix,
-  ReceivedEmailScopeMatrix
-} from "./client-email-history.types";
+export type { ReceivedEmailsScopeMatrix } from "./client-email-history.types";
 
 // --- Public model types
 export type { SentEmail, SentEmailModel } from "./client-email-history.types";
-// Re-exported so a consumer can call `actions.filters.status(SentEmailStatus.X)`
-// (design D5.1) without taking a direct dependency on `@upmind-automation/types`.
+// Re-exported so a consumer can read `SentEmail.status` (a `SentEmailStatus`)
+// without taking a direct dependency on `@upmind-automation/types`.
 export { SentEmailStatus } from "@upmind-automation/types";
 
 // --- Sub-composable type exports (collection)

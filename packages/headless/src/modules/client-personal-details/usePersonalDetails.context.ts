@@ -8,16 +8,16 @@ import {
   ClientCustomFieldsContextTypes,
   useClientCustomFields
 } from "../client-custom-fields";
+import { ScopeActorTypes } from "../scope/scope.types";
 import { mapProfileFields } from "./client-personal-details.mappers";
 import { ClientPersonalDetailsContextTypes } from "./client-personal-details.types";
 import { mapToHeadlessError, useCollection } from "../../utils";
-import { ScopeActorTypes } from "../scope/scope.types";
 import type {
   ClientPersonalDetailsRecordQuery,
   ProfileField
 } from "./client-personal-details.types";
-import type { ScopeContext } from "../scope";
 import type { ResponseError } from "../../utils";
+import type { ScopeContext } from "../scope";
 // -----------------------------------------------------------------------------
 /**
  * @module client-personal-details/usePersonalDetails.context

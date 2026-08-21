@@ -19,19 +19,20 @@ Two working surfaces sit over the same data: a **collection**, read and acted on
 
 ## Operations
 
-| #   | Capability                               | Inputs                                            | Outputs                                                                                                        |
-| --- | ---------------------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| 1   | **List one client's email addresses**    | optional page size + offset, optional search term | Array of address records, each carrying its status flags, plus a total count                                   |
-| 2   | **Read one email address by id**         | address id                                        | The single address record                                                                                      |
-| 3   | **Add an email address**                 | address                                           | The created address record                                                                                     |
-| 4   | **Change an email address**              | address id, new address value                     | The updated record; the record's verification flag is reset                                                    |
-| 5   | **Delete an email address**              | address id                                        | Confirmation; the record is gone from the collection                                                           |
-| 6   | **Set an email address as the default**  | address id                                        | The updated record; the previously default record is no longer default. Rejected when the target is unverified |
-| 7   | **Request a fresh verification message** | address id                                        | Confirmation that a message was requested                                                                      |
-| 8   | **Check an address before sending it**   | candidate address                                 | Accepted, or which field is wrong and why. No call leaves the client                                           |
-| 9   | **Find or create an address**            | candidate address                                 | The matching existing record, or a newly created one                                                           |
-| 10  | **Filter the collection**                | a search term                                     | The list narrowed to matching addresses                                                                        |
-| 11  | **Page through the collection**          | page size, page direction                         | The next or previous page of the list                                                                          |
+| #   | Capability                               | Inputs                                                                                     | Outputs                                                                                                        |
+| --- | ---------------------------------------- | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| 1   | **List one client's email addresses**    | optional page size + offset                                                                | Array of address records, each carrying its status flags, plus a total count                                   |
+| 2   | **Read one email address by id**         | address id                                                                                 | The single address record                                                                                      |
+| 3   | **Add an email address**                 | address                                                                                    | The created address record                                                                                     |
+| 4   | **Change an email address**              | address id, new address value                                                              | The updated record; the record's verification flag is reset                                                    |
+| 5   | **Delete an email address**              | address id                                                                                 | Confirmation; the record is gone from the collection                                                           |
+| 6   | **Set an email address as the default**  | address id                                                                                 | The updated record; the previously default record is no longer default. Rejected when the target is unverified |
+| 7   | **Request a fresh verification message** | address id                                                                                 | Confirmation that a message was requested                                                                      |
+| 8   | **Check an address before sending it**   | candidate address                                                                          | Accepted, or which field is wrong and why. No call leaves the client                                           |
+| 9   | **Find or create an address**            | candidate address                                                                          | The matching existing record, or a newly created one                                                           |
+| 10  | **Filter the collection**                | one column predicate — an email substring, or an exact verified / bounced / default status | The list narrowed to matching addresses. A bare free-text search term is NOT honoured — see note below         |
+| 11  | **Sort the collection**                  | a sortable field (`created_at`, `email`, `default`) and a direction                        | The list re-ordered                                                                                            |
+| 12  | **Page through the collection**          | page size, page direction                                                                  | The next or previous page of the list                                                                          |
 
 **Additional always-on behaviours:**
 
@@ -129,7 +130,7 @@ The HTTP transport layer and app-level navigation reference this collection as t
 
 ### GET /clients/{clientId}/emails
 
-Role: lists one client's email addresses. Called whenever the collection is opened or re-read. Accepts `limit` and `offset` query parameters; with no page size the whole collection returns in a single response.
+Role: lists one client's email addresses. Called whenever the collection is opened or re-read. Accepts `limit` and `offset` query parameters (with no page size the whole collection returns in a single response), `filter[<column>|<operator>]` parameters for narrowing (`filter[email|like]=%text%`, `filter[verified|eq]=1`/`0`, `filter[bounced|eq]=1`/`0`, `filter[default|eq]=1`/`0`), and `order=` for sorting (`order=created_at` ascending, `order=-created_at` descending, comma-separated for multiple keys — e.g. `order=-default,created_at`). A bare free-text search term (`q=`, `query=` or `search=`) is **not honoured** — it returns the unfiltered collection, so a search box must bind a `filter[…|like]` parameter on a specific column instead.
 
 ```bash
 curl "$API/clients/25d96e76-3ed0-913d-d52c-417482528340/emails" \
@@ -178,7 +179,7 @@ Fixture: `__tests__/fixtures/get-clients-id-emails.json`
 
 Fixtures: `__tests__/fixtures/get-clients-id-emails-case-page-1.json`, `__tests__/fixtures/get-clients-id-emails-case-page-2.json`
 
-Two notes on reading these captures together: the record counts differ between the unpaged and paged samples because the captures were recorded across a sequence that created and deleted addresses, not because the two reads disagree. And filtering is expressed as further query parameters on this same endpoint — only the paging parameters appear in the captures, so the filter parameter's own name and grammar are not evidenced here.
+Two notes on reading these captures together: the record counts differ between the unpaged and paged samples because the captures were recorded across a sequence that created and deleted addresses, not because the two reads disagree. And filtering/sorting are further query parameters on this same endpoint — only the paging parameters appear in these particular capture files, but the `filter[column|operator]` / `order=` grammar itself is evidenced independently: it is the same grammar already live on other endpoints (e.g. `filter[provision_blueprint.category.code|neq]` on the product catalogue), and this collection's own client library asserts the literal outbound params it produces against a recorded corpus and shows them taking effect in a live rendering (see [README.md](./README.md#playground)).
 
 ### GET /clients/{clientId}/emails/{emailId}
 
@@ -514,3 +515,5 @@ Constraints the caller has to plan around: the verified precondition is enforced
 - **Find-or-create only matches against what the list read returned.** The check waits for that read to finish rather than issuing a dedicated lookup, so its answer is exactly as fresh as the list.
 - **No request reaches the network without a resolved client.** An integration exercised at an unauthenticated moment, or during the window before the session resolves which client it belongs to, sees an immediate local rejection rather than a request that goes out and fails.
 - **The count arrives twice.** List reads carry the total in both the response envelope and an `x-total-count` header; the two agreed in every capture, but a caller has to pick one and stay with it.
+- **A bare free-text search parameter is a live no-op, not a partial match.** `q=`, `query=` and `search=` all return the collection unfiltered — nothing about the request fails, so a caller relying on any of them ships a search box that silently does nothing. Filter on a specific column (`filter[email|like]=%text%`) instead.
+- **An unrecognised `filter[…]` column or `order=` field is a `500`, not an empty result.** Every filterable column and sortable field this collection accepts is listed under Operations above; asking for one outside that list is a server error to plan around, not a degrade to a wider or unfiltered result.

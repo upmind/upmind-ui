@@ -34,11 +34,7 @@ import {
   useSchemaDefinitions as useAddressSchema,
   useUischemaDefinitions as useAddressUischema
 } from "../client-address";
-import {
-  ClientEmailContextTypes,
-  useClientEmailManager,
-  useClientEmails
-} from "../client-email";
+import { useClientEmailManager, useClientEmails } from "../client-email";
 import { useClientPhoneManager, useClientPhones } from "../client-phone";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { CompanyContext } from "./client-company.types";
@@ -72,15 +68,12 @@ function useCompanyEmailList() {
 }
 
 function useCompanyEmailMutate(id?: string) {
-  // `.for()` / `.fresh()` chain only off a concrete actor whose matrix defines
-  // a context — SELF resolves to `never` in the manager's matrix, so this
-  // scopes CLIENT directly (the only actor this module ever serves under R1;
-  // identity still resolves to the session's own client either way, since the
-  // EMAIL context falls through to `activeUser`, not the actor).
-  const manager = useClientEmailManager().as(ScopeActorTypes.CLIENT);
+  // FE-3111: `.withId(id)` replaces `.for('email', id)`. The scope matrix is
+  // now all-null, so `.for()` is a compile-time error. `.withId()` places the
+  // record id into `config.id`; actor defaults to SELF → CLIENT.
   const instance = id
-    ? manager.for(ClientEmailContextTypes.EMAIL, id)
-    : manager.fresh();
+    ? useClientEmailManager().withId(id)
+    : useClientEmailManager().fresh();
   const { isReady, update, clear, input, destroy } = instance.useActions();
   const { model, schema, uischema, errors, validationErrors } =
     instance.useContext();
@@ -375,3 +368,47 @@ export const useUischema = ({
 
   return uiSchema as UISchemaElement;
 };
+
+// -----------------------------------------------------------------------------
+
+/**
+ * The collection's QUERY schema — its whole request state (filters · sort ·
+ * pagination) as ONE Draft-07 schema over one model. A SELF-CONTAINED JSON
+ * literal, so it can be lifted straight into ajv or a test and run standalone.
+ *
+ * Companies are read whole for the billing surfaces that pick one, so
+ * `limit: 0` asks for the unpaged read and no sort is declared. The one
+ * declared filter is the free-text search, bound to the `name` column.
+ */
+export function useQuerySchema(): JsonSchema7 {
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      filters: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          name: {
+            type: "object",
+            title: "text.company",
+            additionalProperties: false,
+            properties: {
+              // The bare term — the translator adds the % wildcards.
+              like: { type: ["string", "null"], minLength: 1 }
+            }
+          }
+        }
+      },
+      pagination: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          limit: { type: "integer", minimum: 0, default: 0 },
+          offset: { type: "integer", minimum: 0 }
+        }
+      }
+    }
+  } satisfies JsonSchema7;
+}

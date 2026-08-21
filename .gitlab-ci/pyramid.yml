@@ -36,6 +36,14 @@
 # project); as more packages grow a unit project they join automatically with no
 # CI change. The HTTP layer is fully stubbed in unit tests, so this job needs no
 # staging network and no submodules beyond what `dependencies` already provides.
+#
+# `packages/scenario-harness`'s own `test:unit` chain additionally runs
+# `scripts/verify-negative-controls.mjs` (FE-2976 review cluster 7): it applies
+# each `src/__tests__/known-bad/*.must-fail.patch`, asserts the package lint
+# goes RED naming the patch's own banned specifier, reverts, and asserts GREEN —
+# so this job is also where the no-vue boundary's negative controls get proven,
+# not just asserted in README prose. A patch that no longer applies against
+# HEAD fails this job loudly (the staleness alarm) rather than silently.
 #------------------------------------------------------------------------------
 unit:test:
   extends: .pnpm
@@ -77,3 +85,26 @@ integration:test:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   script:
     - pnpm test:integration
+
+#------------------------------------------------------------------------------
+# BDD exemplar (FE-2976) — every PR push, blocks merge.
+#
+# `pnpm run test:bdd` generates the playwright-bdd step registrations from
+# `packages/scenario-harness/src/__fixtures__/*.feature` (`bddgen`), then runs
+# them through `playwright test` against the in-process `NodeWorld` — no
+# browser, no webServer, no submodules beyond what `dependencies` already
+# provides. Raised as a gap in FE-2976's MR review: without this job the
+# exemplar lane can silently rot.
+#------------------------------------------------------------------------------
+bdd:test:
+  extends: .pnpm
+  stage: test
+  interruptible: true
+  needs:
+    - dependencies
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - pnpm run test:bdd

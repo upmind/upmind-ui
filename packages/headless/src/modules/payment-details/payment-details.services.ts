@@ -13,7 +13,7 @@ import {
   InvoiceStatus
 } from "@upmind-automation/types";
 import { useBrand } from "../brand";
-import { RequestSortDirection, useQuery } from "../query";
+import { RequestSortDirection, SortDirection, useQuery } from "../query";
 import { invalidateQueryByKey } from "../query/query.utils";
 import { useQueryParams } from "../routing";
 import { useActiveSession } from "../session-store";
@@ -83,10 +83,36 @@ export function loadList() {
       active: true,
       with: ["gateway", "client"].join()
     }),
-    sort: [
-      [RequestSortDirection.DESC, "default"],
-      [RequestSortDirection.ASC, "id"]
-    ],
+    // Default card first, then oldest — DECLARED, not spelt raw: `sort` is the
+    // criteria's alone. A field the enum does not declare is dropped before the
+    // wire, so the schema is what makes `order=-default,id` legal.
+    criteria: {
+      schema: {
+        $schema: "http://json-schema.org/draft-07/schema#",
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          sort: {
+            type: "array",
+            default: [
+              { field: "default", dir: SortDirection.DESC },
+              { field: "id", dir: SortDirection.ASC }
+            ],
+            minItems: 1,
+            uniqueItems: true,
+            items: {
+              type: "object",
+              additionalProperties: false,
+              required: ["field", "dir"],
+              properties: {
+                field: { enum: ["default", "id"] },
+                dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
+              }
+            }
+          }
+        }
+      }
+    },
     withAccessToken: true,
     // --- options
     select: mapPaymentDetails,

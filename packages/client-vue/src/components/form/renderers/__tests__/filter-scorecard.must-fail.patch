@@ -1,0 +1,25 @@
+Negative control for filter-scorecard.test.ts.
+
+Stops the button group's tester scoring `options.format`, so it claims EVERY
+enumerated boolean leaf instead of the ones asking for it. The scorecard's
+"exactly one renderer, and these decline" assertions go red — the toggle group's
+leaf now carries two claimants, and a leaf naming no format at all is claimed
+rather than left to the generic control. An assertion that only checked the
+button group still claims its own leaf, at rank 3, stays green.
+
+diff --git a/packages/client-vue/src/components/form/renderers/FilterButtonGroupRenderer.vue b/packages/client-vue/src/components/form/renderers/FilterButtonGroupRenderer.vue
+index da4dcaec9..886945dd9 100644
+--- a/packages/client-vue/src/components/form/renderers/FilterButtonGroupRenderer.vue
++++ b/packages/client-vue/src/components/form/renderers/FilterButtonGroupRenderer.vue
+@@ -65,10 +65,6 @@ const positions = computed<ButtonGroupItem[]>(() =>
+ <script lang="ts">
+ export const tester = {
+   rank: 3,
+-  controlType: and(
+-    isBooleanControl,
+-    isEnumControl,
+-    optionIs("format", "button-group")
+-  )
++  controlType: and(isBooleanControl, isEnumControl)
+ };
+ </script>

@@ -1,0 +1,56 @@
+Negative control for the transport returning the criteria to BOOT STATE — on
+`stop`, on `arm`, and on every backward `seek` (T4.2 · AC2.6 · §3.1 ruling 1).
+
+The port's `set` merges at BRANCH level: `set({ filters })` replaces the whole
+`filters` branch and leaves `sort` and `pagination` standing, and a payload that
+does not NAME a branch leaves that branch exactly as it was. An unfiltered boot
+model carries no `filters` branch at all — `useQueryCriteria`'s model is the
+parsed intent with empty containers compacted away — so handing the boot state
+back on its own can never unwind a filter a scene applied. It merges into it.
+
+This mutant is that omission, and nothing else: the reset still fires at every
+site it fires at today, still clones, still writes through the port's own `set`.
+It simply stops naming the branches the boot state does not carry.
+
+What it looks like when it is live, and what no shape assertion catches: Stop
+returns the BAR to Live and clears `track=`/`scene=` while the page stays
+filtered to a state the user never chose (`filter.verified.eq=false` surviving in
+the url, "showing 0 of 0" on screen); and a backward seek rewinds the playhead,
+the marked step and the Code pane while the SURFACE keeps the rows the forward
+pass narrowed it to. Every transport-state assertion stays green throughout —
+the playhead, the status, the url and the arm order are all correct. Only the
+criteria are wrong.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the T4.2 cases asserting the criteria are back at boot state — but ONLY
+against a boot model of the shape the composable actually publishes. A fixture
+whose boot state already NAMES every branch a scene writes (`{ filters: {} }`)
+passes under this mutant and under the fix alike, because naming the branch is
+the whole of what is missing: the merge replaces it either way. The proving case
+must therefore boot from a model that does NOT carry the branch the scene adds
+— boot `{ sort, pagination }`, scene `set({ filters: … })` — and assert on
+`criteria.model.value` after `stop()` and after a backward `seek()`.
+
+  Proven RED: owed by the prover's blind run (`vitest run --project unit
+  scenario-player`). Recorded here rather than pre-filled, because the assertion
+  this control exists to catch is the one the fix is being proven by, and the
+  seat that authors the mutant is not the seat that grades it.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioPlayer.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioPlayer.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioPlayer.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioPlayer.ts
+@@ -201,12 +201,7 @@ export function useScenarioPlayer(
+   function resetCriteria(): void {
+     if (!source.criteria || !boot) return;
+ 
+-    const cleared: Record<string, unknown> = mapValues(
+-      omit(source.criteria.model.value, keys(boot)),
+-      () => undefined
+-    );
+-
+-    source.criteria.set(assign(cleared, cloneDeep(boot)));
++    source.criteria.set(cloneDeep(boot));
+   }
+ 
+   /**

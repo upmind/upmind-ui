@@ -50,12 +50,14 @@ The editor's save invalidates the shared cache, so an open collection picks the 
 | List own addresses                     | `useClientEmails().useContext().data`                        | Reactive list of the client's own addresses                  |
 | Read per-address status                | `…useContext().data[].meta`                                  | Default / verified / bounced / deletable flags               |
 | Know whether the list is yours to read | `useClientEmails().useMeta().isAvailable`                    | Authenticated **and** a client id resolved                   |
+| Know whether the list is filtered      | `useClientEmails().useMeta().isFiltered`                     | True while any declared filter column carries a value        |
 | Delete                                 | `useClientEmails().useActions().remove()`                    | Removes a deletable address                                  |
 | Set default                            | `…useActions().setDefault()`                                 | Promotes a **verified** address to the default               |
 | Request verification                   | `…useActions().verify()`                                     | Asks the platform to (re-)send a verification message        |
 | Find or create                         | `…useActions().ensure()`                                     | Resolves an existing match, or creates the address if absent |
-| Filter                                 | `…useActions().filters.query()`                              | Narrows the list to a search term                            |
-| Page                                   | `…useActions().nextPage()` / `.prevPage()`                   | Moves through the list when a page size was asked for        |
+| Filter                                 | `…useActions().filterBy()`                                   | Narrows by email text or verified/bounced/default status     |
+| Sort                                   | `…useActions().sortBy()`                                     | Reorders by a declared column, re-querying the server        |
+| Page                                   | `…useActions().nextPage()` / `.prevPage()`                   | Moves through the list past its default 10-address page      |
 | Add a new address                      | `useClientEmailManager().as('self').fresh()` then `update()` | Creates through the validated form                           |
 | Change an address                      | `…for('email', id)` then `update()`                          | Edits through the validated form; resets the verified flag   |
 | Validate as the client types           | `…useActions().input()` + `useMeta().isValid`                | Reports acceptance and which field is wrong                  |
@@ -130,4 +132,22 @@ Each `.fresh()` call mints its own editor instance with its own model. Two new-a
 
 ## Playground
 
-None yet. Drive the collection and the editor through wherever a client manages their own contact email addresses.
+The collection's filter bar, sortable columns and pager render live — real requests, no mocked layer — in the `labs-nuxt` playground:
+
+```bash
+pnpm --filter @upmind-automation/labs-nuxt dev
+```
+
+Open:
+
+```text
+http://labs.localhost:3000/scenarios/client_emails/as/client
+```
+
+That renders the signed-in client's own collection: a full-width search box and three status switches above a sortable, pageable table — every control drawn from `useContext().schemas.query` alone, with no per-field UI code written for it. The panel on the right (open by default) shows, side by side and with zero requests fired to produce it, the query schema, its UI schema, the current parsed model, and the exact request parameters that model builds — so a filter, a sort, or a page click can be checked against the schema-to-wire mapping before it reaches the network.
+
+The collection boots on its declared page size of **10** rows; filtering, sorting and the current page all survive a browser reload.
+
+The per-address form editor has no playground yet.
+
+See [labs-nuxt's own README](../../../../../../playgrounds/labs-nuxt/README.md) for how the playground itself works — the scenario-key pattern, the dumb rendering pipeline, and the full test-driving commands.

@@ -11,6 +11,11 @@
  * `isAddressable() [client-email.services.ts L87]`; no shared predicate type or
  * utility exists to consume, so `ClientEmailServices.isAvailable` below exposes
  * that one function reactively rather than minting a parallel construct.
+ *
+ * `graphify query "query criteria input raw schema criteria"` (2026-08-10) —
+ * `WithCriteria` has no node in `graphify-out/graph.json` and no longer exists:
+ * with the raw arm deleted, `ListQuery` IS the criteria-bearing handle, so
+ * `ClientEmailListQuery` names it directly. See `graphify-out/GRAPH_REPORT.md`.
  */
 // -----------------------------------------------------------------------------
 /**
@@ -22,24 +27,26 @@
  * mappers are shared, which is what keeps ONE identity seam for both halves.
  */
 
+// `SortDirection` and `ScopeActorTypes` are read at MODULE scope below, so both
+// come from their declaring file: `../query` and `../scope` reach this module
+// mid-barrel, where the value would still be `undefined`.
 import { AccessRoleTypes } from "@upmind-automation/types";
+import { SortDirection } from "../query/query.types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { ResponseError } from "../../utils";
 import type { DataManagerContext } from "../data-manager/data-manager.types";
-import type { ListQuery, QueryParams } from "../query";
+import type { ListQuery } from "../query";
+import type { JsonSchema7 } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IEmail } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
-// SCOPE — two matrices, one per composable
+// SCOPE
 // -----------------------------------------------------------------------------
 
-/**
- * Context types for the email COLLECTION — whose list is being addressed.
- */
+/** Context types for the email COLLECTION — whose list is being addressed. */
 export enum ClientEmailsContextTypes {
-  /** Acting on a client's email collection. */
   CLIENT = AccessRoleTypes.CLIENT
 }
 
@@ -55,31 +62,32 @@ export const CLIENT_EMAILS_SCOPE_MATRIX = {
   [ScopeActorTypes.GUEST]: null as never
 } as const;
 
-/** Scope matrix type for `useClientEmails` (derived from the runtime const). */
 export type ClientEmailsScopeMatrix = typeof CLIENT_EMAILS_SCOPE_MATRIX;
 
 /**
- * Context types for the per-email MANAGER — which email is being edited. The
- * context names the ENTITY, not its owner: the owning client falls through the
- * same `resolveClientId` seam as every other call.
+ * Context types for the per-email MANAGER.
+ * @deprecated FE-3111 — single-record reads use `.withId(id)`, not `.for('email', id)`.
+ * Retained for backward compatibility with existing call sites during migration.
+ * See graphify-out/GRAPH_REPORT.md for module relationships.
  */
 export enum ClientEmailContextTypes {
-  /** Editing one existing email by id. */
   EMAIL = "email"
 }
 
 /**
- * Scope matrix for `useClientEmailManager`. Separate from the collection's —
- * the two composables scope on different things and cannot share one.
+ * Scope matrix for `useClientEmailManager`. Every actor is `null as never`, so
+ * `.for(type, id)` is a compile-time error for all four. A leaf record is
+ * marked with `.withId(id)` and is never a scope context (FE-3111, per FE-3095
+ * pattern). Separate from the collection's — the two composables scope on
+ * different things and cannot share one.
  */
 export const CLIENT_EMAIL_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]: null as never,
-  [ScopeActorTypes.CLIENT]: ClientEmailContextTypes.EMAIL,
+  [ScopeActorTypes.CLIENT]: null as never,
   [ScopeActorTypes.GUEST]: null as never
 } as const;
 
-/** Scope matrix type for `useClientEmailManager` (derived from the runtime const). */
 export type ClientEmailScopeMatrix = typeof CLIENT_EMAIL_SCOPE_MATRIX;
 
 // -----------------------------------------------------------------------------
@@ -91,37 +99,91 @@ export const EmailTypes = [{ key: 1, value: "Account" }];
 
 /** The form/request model for an email address. */
 export type EmailModel = {
-  /** Present when editing an existing email. */
   id?: IEmail["id"];
-  /** The email address, or `null` when unset. */
   email: IEmail["email"] | null;
 };
 
 /** An email address as read from the API, with its display and status fields. */
 export type Email = EmailModel & {
-  /** Display title — the address itself. */
   title: string;
-  /** Display description. */
   description: string;
-  /** The API's email category; see {@link EmailTypes}. */
   type: IEmail["type"];
-  /** When the address last bounced, formatted and relative. */
   bouncedAt?: {
     date?: string | null;
     relative?: string | null;
   };
-  /** Status flags for UI rendering. */
   meta: {
-    /** `true` if this is the client's default address. */
     isDefault: boolean;
-    /** `true` if the API permits deleting this address. */
     canDelete: boolean;
-    /** `true` if the address has been verified. */
     isVerified: boolean;
-    /** `true` if mail to this address has bounced. */
     isBounced: boolean;
   };
 };
+
+// -----------------------------------------------------------------------------
+// QUERY MODEL
+// -----------------------------------------------------------------------------
+//
+// @graphify-citation `graphify query "client email query filter sort model"`
+// (2026-08-06) — no `QueryModel` / `FilterModel` / `SortModel` / `QuerySchema`
+// node in `graphify-out/graph.json`; the query platform's `QueryProps` /
+// `RequestFilters` describe the WIRE shape, this describes the schema-validated
+// MODEL. No live duplicate to consume, so minting here is warranted.
+
+/**
+ * The whole request state as one model — `filters` (nested column → operator →
+ * value), `sort` (ordered, precedence = position) and `pagination`. This is the
+ * instance validated against `useQuerySchema()`; the translator maps it to the
+ * `QueryProps` the query layer already accepts. No `query` member: this
+ * endpoint does not honour a search term, so the search box binds
+ * `filters.email.like`.
+ */
+export type QueryModel = {
+  filters?: {
+    email?: { like?: string };
+    verified?: { eq?: boolean };
+    bounced?: { eq?: boolean };
+    default?: { eq?: boolean };
+  };
+  sort?: SortEntry[];
+  pagination?: { limit?: number; offset?: number };
+};
+
+/** The nested filter model — the `filters` branch of {@link QueryModel}. */
+export type FilterModel = NonNullable<QueryModel["filters"]>;
+
+/**
+ * One sort entry. Declared here rather than imported from the harness's
+ * `TableModel["sort"]` — `packages/headless` has no
+ * `@upmind-automation/scenario-harness` dependency and adding that edge would
+ * invert the dependency direction. The compile-time bridge is the playground's
+ * channel builder, whose `satisfies TableModel["sort"]` reds on drift.
+ */
+export type SortEntry = { field: string; dir: SortDirection };
+
+/** The ordered sort model — the `sort` branch of {@link QueryModel}. */
+export type SortModel = NonNullable<QueryModel["sort"]>;
+
+/**
+ * The order the list starts in — the client's DEFAULT address first, then the
+ * rest alphabetically (`order=-default,email` on the wire). Declared as the
+ * query schema's `sort` default, so an emptied sort refills itself on the next
+ * parse. This is the BOOT state only: a user sort replaces the whole model, so
+ * the default address stops leading the moment they choose their own order —
+ * it is never a pinned row.
+ */
+export const DEFAULT_SORT: SortModel = [
+  { field: "default", dir: SortDirection.DESC },
+  { field: "email", dir: SortDirection.ASC }
+];
+
+/**
+ * The collection's query schema. A `JsonSchema7`: a query schema IS a real
+ * Draft-07 schema, and the translator/validators walk it at runtime, so the
+ * type stays general rather than a module-specific literal (see the `@decision`
+ * adjacent to `useQuerySchema` for why `as const` is not used).
+ */
+export type QuerySchema = JsonSchema7;
 
 /** The manager's machine context — the shared machine's, over this form model. */
 export type EmailContext = DataManagerContext<EmailModel>;
@@ -130,8 +192,13 @@ export type EmailContext = DataManagerContext<EmailModel>;
  * The reactive list query, minted ONCE per scope in `useClientEmails.ts`.
  * Aliased from the query platform's own `ListQuery` — never derived with
  * `ReturnType<typeof localServiceFn>`.
+ *
+ * The handle publishes `criteria` / `schema` / `isFiltered` / `criteriaError` /
+ * `setCriteria` and no write-only setters, so every layer below reads THAT one
+ * source and never a shadow copy (`graphify-out/` citation at the head of this
+ * file).
  */
-export type ClientEmailListQuery = ListQuery<IEmail[], Email[]>;
+export type ClientEmailListQuery = ListQuery<IEmail[], Email[], QueryModel>;
 
 /** Lands a failed collection mutation in the services instance's error state. */
 export type ClientEmailErrorCapture = (error: unknown) => void;
@@ -158,9 +225,12 @@ export type ClientEmailServices = {
   isAvailable: ComputedRef<boolean>;
   /** The last failed collection mutation, captured as state — never raised. */
   error: ComputedRef<ResponseError | undefined>;
-  loadList: (
-    params?: Partial<QueryParams<IEmail[], Email[]>>
-  ) => ClientEmailListQuery;
+  /**
+   * The collection's list query. Takes NOTHING: the request state is the
+   * declared query schema, handed to `list({ criteria })`, so there is no
+   * params back door a caller could contradict it through.
+   */
+  loadList: () => ClientEmailListQuery;
   /** Per-email read; seeds the manager when no collection is loaded. */
   loadOne: (id?: IEmail["id"]) => Promise<Email | undefined>;
   add: (model: EmailModel) => Promise<IEmail | undefined>;

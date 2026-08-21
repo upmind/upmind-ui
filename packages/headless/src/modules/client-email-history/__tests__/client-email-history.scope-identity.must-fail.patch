@@ -32,6 +32,14 @@
 # `useUpmind` import and `resolveClientId`'s branch on `upmind.admin` instead
 # of the resolved scope context — are unchanged from Revision 1.
 #
+# Revision 3 (query-criteria closure): the closure dropped the unused
+# `RequestSortDirection` import, so the first hunk's context line
+# `import { RequestSortDirection, useQuery } from "../query";` no longer
+# matched (rejected at services.ts:1). Re-context'd it to the current
+# `import { useQuery } from "../query";`. The mutated lines — the re-added
+# `useUpmind` import and `resolveClientId`'s branch on `upmind.admin` — are
+# unchanged from Revision 1.
+#
 --- a/packages/headless/src/modules/client-email-history/client-email-history.services.ts
 +++ b/packages/headless/src/modules/client-email-history/client-email-history.services.ts
 @@ -1,5 +1,6 @@
@@ -39,7 +47,7 @@
 +import upmind from "../../useUpmind";
  import { keepPreviousData } from "@tanstack/vue-query";
  import { computed } from "vue";
- import { RequestSortDirection, useQuery } from "../query";
+ import { useQuery } from "../query";
  import { useActiveSession } from "../session-store";
 @@ -54,12 +55,9 @@
   * This compares the CONTEXT the scope builder resolved, never the actor, so

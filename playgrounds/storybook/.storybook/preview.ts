@@ -2,6 +2,7 @@ import "../stories/assets/main.css";
 import { useArgs } from "@storybook/preview-api";
 import { setup } from "@storybook/vue3";
 import { createI18n } from "vue-i18n";
+import { registerIcons, useThemeIcons } from "@upmind-automation/upmind-ui";
 import upmindUI from "../plugins/upmind-ui";
 import themes from "../stories/assets/themes";
 import OverviewTemplate from "./OverviewTemplate.mdx";
@@ -9,6 +10,17 @@ import { withUpmindUITheme } from "./withUpmindUITheme.decorator";
 import { reduce, last, merge } from "lodash-es";
 import type { Preview } from "@storybook/vue3";
 // -----------------------------------------------------------------------------
+
+// Register the shared icons package with the Icon loader in Storybook's own
+// vite context (@icons → packages/icons/assets), so pack SVGs resolve here as
+// they do in the app. Must be a literal import.meta.glob (vite compile-time).
+registerIcons(
+  import.meta.glob("@icons/**/*.svg", {
+    query: "?raw",
+    eager: false,
+    import: "default"
+  })
+);
 
 setup(app => {
   function getGlobalMessages() {
@@ -40,6 +52,10 @@ setup(app => {
   app.use(i18n);
 
   app.use(upmindUI);
+
+  // Storybook never sets an active icon theme, so pack icons (check, edit-05, …)
+  // resolve to nothing. The app sets this; mirror it here.
+  useThemeIcons().setIconTheme("Line");
 });
 
 const preview: Preview = {

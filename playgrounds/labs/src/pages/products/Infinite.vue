@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref } from "vue";
+import { ref } from "vue";
 import { UpmLayout } from "@upmind-automation/client-vue";
 import {
   type ProductSortableProperties,
@@ -90,36 +90,25 @@ const props = withDefaults(
   { skeletonCount: 4, limit: 6 }
 );
 
+const searchQuery = ref("");
+const search = ref<string>();
+
+// The composable owns the criteria: category, search term and sort go in as
+// reactive sources and it writes the model, so this page holds no request state.
 const {
   data: products,
   meta,
-  sort,
-  filters,
   nextPage
-} = useProductCatalogue({ pagination: { limit: props.limit }, infinite: true });
-
-const searchQuery = ref("");
+} = useProductCatalogue({
+  categoryId: () => props.categoryId,
+  search,
+  sortBy: () => props.sort.property,
+  direction: () => props.sort.direction,
+  pagination: { limit: props.limit },
+  infinite: true
+});
 
 const debouncedFilterQuery = debounce(() => {
-  filters.query(searchQuery.value);
+  search.value = searchQuery.value;
 }, 500);
-
-watch(
-  () => props.categoryId,
-  categoryId => {
-    filters.productCategory(categoryId);
-  },
-  { immediate: true }
-);
-
-watch(
-  () => props.sort,
-  (newSort: {
-    property: ProductSortableProperties;
-    direction: RequestSortDirection;
-  }) => {
-    sort(newSort.property, newSort.direction);
-  },
-  { immediate: true }
-);
 </script>

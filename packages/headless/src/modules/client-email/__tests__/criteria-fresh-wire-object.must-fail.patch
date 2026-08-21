@@ -1,0 +1,21 @@
+diff --git a/packages/headless/src/modules/query/query.utils.ts b/packages/headless/src/modules/query/query.utils.ts
+--- a/packages/headless/src/modules/query/query.utils.ts
++++ b/packages/headless/src/modules/query/query.utils.ts
+@@ -457,6 +457,8 @@ function toWireFilterValue(operator: string, value: unknown): string {
+   return String(value);
+ }
+ 
++const wireFilters: RequestFilters = {};
++
+ /**
+  * Every field a query schema declares ORDERABLE. Draft-07 spells a restricted
+  * value either as a bare `enum` or as `oneOf` `const` entries — the second is
+@@ -515,7 +517,7 @@ export function translateQuery(
+         result
+       );
+     },
+-    {}
++    wireFilters
+   );
+ 
+   const sortFields = declaredSortFields(schema);

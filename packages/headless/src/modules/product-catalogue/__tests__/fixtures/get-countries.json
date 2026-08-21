@@ -1,0 +1,171 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/countries",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a2903c0a4c3c6cb8-DUR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 10 Aug 2026 16:04:07 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=aRHqD9PYQKr0Je063WTrN8WmtIlfr0LOi0xIsmq3kRVkItALg3LgCrlP9c34LEM%2BNVjndISKPqjLX9xyikTl9Wu%2FD0N9gB4sd2hkDfK4XBfiHdNRtlznKaUk01sKX6Aik08rkCQr2w%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "248"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "3825d96e-763e-d091-3dc4-174825283406",
+          "name": "Afghanistan",
+          "code": "AF",
+          "code3": "",
+          "created_at": "2017-10-18 14:16:21",
+          "updated_at": "2024-08-22 00:51:23",
+          "vat": "0.00",
+          "eea": 0,
+          "phone_code": "+93",
+          "post_code_regex": "^\\d{4}$"
+        },
+        {
+          "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+          "name": "Aland Islands",
+          "code": "AX",
+          "code3": "",
+          "created_at": "2017-10-18 14:16:21",
+          "updated_at": "2024-08-22 00:51:23",
+          "vat": "0.00",
+          "eea": 0,
+          "phone_code": "+358",
+          "post_code_regex": "^\\d{5}$"
+        },
+        {
+          "id": "24d03679-424d-0e71-04b3-153698d582e8",
+          "name": "Albania",
+          "code": "AL",
+          "code3": "",
+          "created_at": "2017-10-18 14:16:21",
+          "updated_at": "2024-08-22 00:51:23",
+          "vat": "0.00",
+          "eea": 0,
+          "phone_code": "+355",
+          "post_code_regex": "^\\d{4}$"
+        },
+        {
+          "id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+          "name": "Algeria",
+          "code": "DZ",
+          "code3": "",
+          "created_at": "2017-10-18 14:16:21",
+          "updated_at": "2024-08-22 00:51:23",
+          "vat": "0.00",
+          "eea": 0,
+          "phone_code": "+213",
+          "post_code_regex": "^\\d{5}$"
+        },
+        {
+          "id": "e47d7382-4850-7931-56c8-1e642d59e063",
+          "name": "American Samoa",
+          "code": "AS",
+          "code3": "",
+          "created_at": "2017-10-18 14:16:21",
+          "updated_at": "2024-08-22 00:51:23",
+          "vat": "0.00",
+          "eea": 0,
+          "phone_code": "+685",
+          "post_code_regex": "^\\d{5}(-{1}\\d{4,6})$"
+        },
+        {
+          "id": "45952098-d3de-4091-76a3-1578626e347e",
+          "name": "Andorra",
+          "code": "AD",
+          "code3": "",
+          "created_at": "2017-10-18 14:16:21",
+          "updated_at": "2024-08-22 00:51:23",
+          "vat": "0.00",
+          "eea": 0,
+          "phone_code": "+376",
+          "post_code_regex": "^[Aa][Dd]\\d{3}$"
+        },
+        {
+          "id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+          "name": "Angola",
+          "code": "AO",
+          "code3": "",
+          "created_at": "2017-10-18 14:16:21",
+          "updated_at": "2024-08-22 00:51:23",
+          "vat": "0.00",
+          "eea": 0,
+          "phone_code": "+244",
+          "post_code_regex": ""
+        },
+        {
+          "id": "73de7864-2de5-3971-4ef2-1208469530d0",
+          "name": "Anguilla",
+          "code": "AI",
+          "code3": "",
+          "created_at": "2017-10-18 14:16:21",
+          "updated_at": "2024-08-22 00:51:23",
+          "vat": "0.00",
+          "eea": 0,
+          "phone_code": "+1264",
+          "post_code_regex": "^[Aa][I][-][2][6][4][0]$"
+        },
+        {
+          "id": "57898574-2648-9701-25c2-1e325d0ed369",
+          "name": "Antarctica",
+          "code": "AQ",
+          "code3": "",
+          "created_at": "2017-10-18 14:16:21",
+          "updated_at": "2019-10-24 08:25:11",
+          "vat": "0.00",
+          "eea": 0,
+          "phone_code": "+672",
+          "post_code_regex": null
+        },
+        {
+          "id": "9320e435-795e-78d1-88a3-1643202d9860",
+          "name": "Antigua And Barbuda",
+          "code": "AG",
+          "code3": "",
+          "created_at": "2017-10-18 14:16:21",
+          "updated_at": "2024-08-22 00:51:23",
+          "vat": "0.00",
+          "eea": 0,
+          "phone_code": "+1268",
+          "post_code_regex": ""
+        }
+      ],
+      "related": null,
+      "total": 248,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-10T16:04:07.785Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "product-catalogue"
+  }
+}

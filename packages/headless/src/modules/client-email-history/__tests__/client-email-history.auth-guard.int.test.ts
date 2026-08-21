@@ -27,11 +27,7 @@
  */
 
 import { describe, expect, it, vi } from "vitest";
-import {
-  ReceivedEmailContextTypes,
-  useClientReceivedEmail,
-  useClientReceivedEmails
-} from "..";
+import { useClientReceivedEmail, useClientReceivedEmails } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   bootUnauthenticated,
@@ -55,7 +51,7 @@ describe("client-email-history with no authenticated client session (AC-18)", ()
     useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
     useClientReceivedEmail()
       .as(ScopeActorTypes.CLIENT)
-      .for(ReceivedEmailContextTypes.EMAIL, recorded.one().data.id);
+      .withId(recorded.one().data.id);
     // Give an (incorrectly) enabled query time to fire before asserting absence.
     await new Promise(resolve => setTimeout(resolve, 400));
     observed.stop();
@@ -85,7 +81,7 @@ describe("client-email-history with no authenticated client session (AC-18)", ()
 
     const single = useClientReceivedEmail()
       .as(ScopeActorTypes.CLIENT)
-      .for(ReceivedEmailContextTypes.EMAIL, recorded.one().data.id);
+      .withId(recorded.one().data.id);
     await expect(single.useActions().refresh()).rejects.toBeInstanceOf(
       NotAuthenticatedError
     );
@@ -135,7 +131,7 @@ describe("client-email-history single read — addressability while unauthentica
 
     const single = useClientReceivedEmail()
       .as(ScopeActorTypes.CLIENT)
-      .for(ReceivedEmailContextTypes.EMAIL, recorded.one().data.id);
+      .withId(recorded.one().data.id);
 
     expect(single.useMeta().isAvailable.value).toBe(false);
     await new Promise(resolve => setTimeout(resolve, 400));
@@ -152,7 +148,7 @@ describe("client-email-history single read — addressability while unauthentica
 
     const single = useClientReceivedEmail()
       .as(ScopeActorTypes.CLIENT)
-      .for(ReceivedEmailContextTypes.EMAIL, recorded.one().data.id);
+      .withId(recorded.one().data.id);
 
     expect(single.useMeta().isAvailable.value).toBe(false);
     await new Promise(resolve => setTimeout(resolve, 200));
@@ -188,7 +184,7 @@ describe("client-email-history single read — addressability while unauthentica
 
     const single = useClientReceivedEmail()
       .as(ScopeActorTypes.CLIENT)
-      .for(ReceivedEmailContextTypes.EMAIL, recorded.one().data.id);
+      .withId(recorded.one().data.id);
 
     const settled = await Promise.race([
       single.useActions().isReady(),

@@ -39,7 +39,7 @@ await useClientReceivedEmails().as("client").useActions().resend(id); // undefin
 const { data } = useClientReceivedEmails().as("client").useContext();
 ```
 
-> **🧪 For Testers:** Asserting a mutation-shaped member on either composable's actions asserts `undefined`. There is no schema layer and no state machine anywhere in this module.
+> **🧪 For Testers:** Asserting a mutation-shaped member on either composable's actions asserts `undefined`. The collection's one schema (`useContext().schemas.query`) is a READ query schema — what `setCriteria` accepts — never a form/mutation schema, and there is no state machine anywhere in this module.
 
 ## 3. Delivery-outcome precedence is strict — error beats bounced, always
 
@@ -51,32 +51,51 @@ A record carrying BOTH an error id and a bounced flag reports as **errored**, ne
 
 > **🧪 For Testers:** No real captured row carries both an error id and a bounced flag at once — the staging account's whole history has zero bounced rows to sample. The precedence logic itself is carried over unchanged from the prior implementation; the ordering above is a code-path guarantee, not something asserted against a live example of the combined case. Treat that specific combination as a known gap in what could be captured, not in what the code does.
 
-## 4. The three outcome-filter keys move as a SET
+## 4. Each outcome column narrows independently — and a `filters` write replaces the WHOLE branch
 
-Narrowing to "sent" sends `filter[sent]=true` **and** `filter[bounced]=false` in the same request — never `filter[sent]=true` alone. Clearing the narrowing back to "all" means the request carries **none** of the three outcome keys, not the three keys with empty values.
+Narrowing to "sent" sends only `filter[sent|eq]=1` — never paired with `filter[bounced|eq]` the way an earlier build of this module once coupled them. `sent`, `bounced` and `error_id` are three independent schema columns; combine them by naming every column you want active in the SAME `setCriteria` call.
 
-```ts
-const { filters } = history.useActions();
-
-filters.status(SentEmailStatus.SENT); // filter[sent]=true & filter[bounced]=false
-filters.status(SentEmailStatus.BOUNCED); // filter[bounced]=true
-filters.status(SentEmailStatus.ERROR); // filter[error_id|neq]=null
-filters.status(); // none of the three keys on the wire
-```
-
-**Why this matters:** the request layer only deletes a key it visits on the CURRENT call; a key silently dropped from the filters object rather than explicitly cleared lingers on the wire from a previous call, because the URL instance backing a query is reused for its whole lifetime.
-
-> **🧪 For Testers:** Assert the ABSENCE of all three keys when narrowing back to "all," not merely the absence of the one you last set.
-
-## 5. `sort()` with no argument re-applies the default explicitly — it is not a "clear"
-
-Calling the underlying request layer's own sort-clear would drop the `order` parameter from the wire entirely, rather than falling back to a sensible default. This module's `sort()` catches that: no-argument calls re-apply the documented default order (most recent first) explicitly.
+The `filters` branch itself is a full replace, not an accumulating merge: a later `setCriteria({ filters: {...} })` call replaces whatever `filters` object the previous call set — a column left out of the new call is gone, not carried over from the old one.
 
 ```ts
-history.useActions().sort(); // order=-created_at on the wire — not an absent parameter
+const { setCriteria } = history.useActions();
+
+setCriteria({ filters: { sent: { eq: true } } }); // filter[sent|eq]=1
+setCriteria({ filters: { bounced: { eq: false } } }); // filter[bounced|eq]=0 — `sent` is GONE, not carried over
+
+// To combine two columns, name both in ONE call:
+setCriteria({
+  filters: { subject: { like: "Welcome" }, error_id: { neq: "null" } }
+}); // filter[subject|like]=%Welcome% AND filter[error_id|neq]=null, together
+
+setCriteria({ filters: {} }); // clears every filter key — none survive on the wire
 ```
 
-> **🧪 For Testers:** A no-argument `sort()` call still produces a request carrying `order=-created_at`. Do not assert an absent `order` parameter as the no-argument behaviour.
+**Why this matters:** a caller that writes one filter column per `setCriteria` call, expecting the module to remember the previous one, sees only the MOST RECENT column on the wire — the earlier narrowing is silently dropped, not stacked.
+
+> **🧪 For Testers:** Assert the exact SET of `filter[…]` keys after each `setCriteria` call, not just the presence of the one you just wrote — a stale key surviving from a previous call, and an expected key missing because it was not repeated, are both real regressions this shape can hide.
+
+**`filterBy(intent)` is the identical call, narrowed to the `filters` branch.** `useActions().filterBy(intent)` is exactly `setCriteria({ filters: intent })` — it replaces the whole `filters` object the same way, and the same accumulation trap applies: `filterBy({ sent: { eq: true } })` followed by `filterBy({ bounced: { eq: false } })` leaves only `bounced` on the wire.
+
+## 5. There is no auto-reset — returning to the default sort is an explicit write
+
+An earlier build of this module's `sort()` re-applied the default order on a no-argument call. The shipped surface has no such convenience: `setCriteria` only touches the branches you give it, so a call that never mentions `sort` leaves whatever sort is currently active — it does not fall back to anything.
+
+The collection's declared default (`created_at`, descending) governs the BOOT order only. To explicitly return to it later, read it off the published schema rather than hand-typing it, and write it back:
+
+```ts
+const { schemas } = history.useContext();
+
+history.useActions().setCriteria({
+  sort: schemas.query.schema.properties.sort.default
+});
+```
+
+Writing a sort field the schema does not declare (only `created_at` and `subject` exist) is rejected outright — the write never reaches the wire and the previous sort stands.
+
+> **🧪 For Testers:** A `setCriteria({ sort: [...] })` call naming an undeclared field produces NO change to the outbound `order=` parameter — assert the PREVIOUS sort survives, not that the call throws or that the wire goes empty.
+
+**`sortBy(intent)` is the identical call, narrowed to the `sort` branch.** `useActions().sortBy(intent)` is exactly `setCriteria({ sort: intent })` — the same explicit-write rule applies: `sortBy` never re-applies the default on its own, so returning to it means writing `schemas.query.schema.properties.sort.default` back through `sortBy`, the same as through `setCriteria`.
 
 ## 6. The collection's total settles on the SAME response as the rows
 
@@ -156,7 +175,7 @@ onUnmounted(() => {
 });
 ```
 
-> **🧪 For Testers:** After `destroy()`, the next `.as('client')` (or `.for('email', id)`) mints a fresh instance rather than reusing the released one.
+> **🧪 For Testers:** After `destroy()`, the next `.as('client')` (or `.withId(id)`) mints a fresh instance rather than reusing the released one.
 
 ## 12. Known limitations in what the recorded fixtures could capture
 
@@ -166,3 +185,18 @@ Two edge cases in this module's behaviour are real code paths, but neither has a
 - **A single email whose full body comes back empty.** Every sampled row, across every subject category present, carried a populated body.
 
 Both are gaps in what could be **captured**, not in what the code does — the delivery-outcome precedence logic and the empty-body handling are both carried over unchanged from the prior implementation this module replaced. A future consumer with access to a staging account that has a row of either shape can close the gap by re-running the fixture capture; hand-authoring either row instead is deliberately avoided, because a fabricated fixture presented as recorded would certify a contract no real system has actually exhibited.
+
+## 13. The collection's default page is 10 rows, not the whole list
+
+The list boots already on a bounded first page — the schema's own `pagination.limit` default (`10`) — not the caller's whole history in one response. The very FIRST request the collection ever issues already carries `limit=10`.
+
+```ts
+const history = useClientReceivedEmails().as("client");
+await history.useActions().isReady();
+
+history.useContext().pagination.value.limit; // 10, even on a fresh boot
+```
+
+**Why this matters:** a consumer that assumed the collection loads its whole history up front and paginates client-side is wrong from the very first request. `useActions().nextPage()` / `.prevPage()` walk the server-paged window one page at a time; `setCriteria({ pagination: { limit } })` changes the window size for the SAME live instance, re-issuing the request rather than minting a new one.
+
+> **🧪 For Testers:** Assert `limit=10` on the FIRST observed request, not just a later one — a regression that drops the schema's declared page-size default would otherwise only surface once a consumer's history exceeds one page.

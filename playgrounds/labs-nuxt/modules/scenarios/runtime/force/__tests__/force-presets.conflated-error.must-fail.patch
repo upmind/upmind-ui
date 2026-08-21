@@ -1,0 +1,28 @@
+Negative control for the TWO named error presets (`R6-19`).
+
+Conflates them again: `error-action` stops aiming at the write and fails the
+READ instead, exactly as the single `error` preset did — so picking "row action
+refused" empties the collection, the rows the operator was looking at vanish,
+and the state on screen is the OTHER preset's. `error-collection` and the
+recorded refusal itself are untouched, so what goes red is only the ruled
+distinction: the two are different states of the surface, and the action error
+leaves the list loaded with its rows and refuses one row's write with the API's
+own sentence.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the T3.11 preset spec — the action-error case (a GET is served as
+recorded, so the collection still answers with its rows).
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts
+@@ -112,7 +112,7 @@
+   // Aimed at the half of the exchange the preset is named for: the other half is
+   // served exactly as recorded, which is what keeps a refused row inside a list
+   // that still has its rows.
+-  if (preset === "error-action") return isRead(method) ? served : failure;
++  if (preset === "error-action") return withoutBody(failure);
+   if (preset === "error-collection")
+     return isRead(method) ? withoutBody(failure) : served;
+ 

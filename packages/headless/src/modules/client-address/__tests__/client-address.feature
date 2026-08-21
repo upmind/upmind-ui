@@ -135,8 +135,8 @@ Feature: A client manages their own postal addresses
 
   @AC-8 @collection @filter
   Scenario: I can narrow my addresses by typing
-    When I type part of an address into the search
-    Then I am shown only the addresses that match what I typed
+    When I search with part of an address
+    Then I am shown only the addresses matching my search
 
   @AC-9 @collection @pagination
   Scenario: I can page through a long list of addresses
@@ -200,7 +200,7 @@ Feature: A client manages their own postal addresses
   @AC-17 @editor @edit
   Scenario: I open one of my addresses to change it
     When I open one of my addresses to edit
-    Then the form is filled in with that address as it stands
+    Then the form shows that address as it stands
 
   @AC-18 @editor @lookups
   Scenario: The form waits until it can offer me real countries and regions
@@ -218,7 +218,7 @@ Feature: A client manages their own postal addresses
   @AC-20 @editor @validation
   Scenario: Where this brand requires a region, I must give one
     Given this brand requires a region on every address
-    When I fill in the address form
+    When I complete the address form
     Then a region is required of me
     And where the brand does not require one, it is optional
 
@@ -244,9 +244,9 @@ Feature: A client manages their own postal addresses
 
   @AC-24 @editor @create
   Scenario: I add a brand new address
-    When I fill in a new address and save it
+    When I provide a new address and save it
     Then the address is added to my account
-    And it is the one I filled in
+    And it is the one I provided
 
   @AC-25 @editor @validation
   Scenario: An incomplete address is not saved

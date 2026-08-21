@@ -14,7 +14,13 @@
     }
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/__tests__/**",
+    "**/*.spec.*",
+    "**/*.test.*"
+  ],
   "references": [
     { "path": "../types/tsconfig.build.json" },
     { "path": "../headless/tsconfig.build.json" },

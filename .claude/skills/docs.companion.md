@@ -18,10 +18,9 @@ Read every one that exists under `packages/headless/src/modules/<name>/`:
 - Mappers: `mappers.ts` (if present).
 - State machine: `<name>.machine.ts` (if present).
 
-## Workshop input docs (base Required-reads 2 & 3)
+## Doc-shape authority (base Required-reads 2 & 3)
 
-- Locked documentation decisions: `docs/workshop/contabo.md`.
-- Section-template / doc-shape definition: `docs/workshop/contabo-doc-shape-proposal.md` (also linked from the rule).
+- Locked documentation decisions + section-template / doc-shape definition: **ADR-019 (Module Documentation Shape)** (`docs/adr/019-module-doc-shape.md`), with the living rule in `docs-modules.companion.md`.
 
 ## Config-key filter (base Producer-step 2)
 

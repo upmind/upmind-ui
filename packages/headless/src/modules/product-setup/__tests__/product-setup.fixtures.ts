@@ -32,8 +32,8 @@
  */
 
 import { join } from "node:path";
-import { describe, it, expect } from "vitest";
 import { chromium } from "@playwright/test";
+import { describe, it, expect } from "vitest";
 import { attachRecorder } from "@upmind-automation/test-fixtures/playwright-recorder";
 
 // -----------------------------------------------------------------------------
@@ -280,7 +280,6 @@ describe("product-setup fixtures generator (headless Playwright)", () => {
         }
       );
 
-      // eslint-disable-next-line no-console
       console.log(
         "[product-setup.fixtures] flow:",
         JSON.stringify(result, null, 2)
@@ -521,7 +520,6 @@ describe("product-setup fixtures generator (headless Playwright)", () => {
         }
       );
 
-      // eslint-disable-next-line no-console
       console.log(
         "[product-setup.fixtures] configured flow:",
         JSON.stringify({ ...result, domainBService }, null, 2)

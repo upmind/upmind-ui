@@ -1,0 +1,1 @@
+../../.agent/agents/pseudo-nathan.md

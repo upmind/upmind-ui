@@ -19,10 +19,10 @@ import {
   some,
   upperFirst
 } from "lodash-es";
+import type { FunnelProps, Funnels } from "./routing.types";
 import type { UIRouteOptions } from "../brand/brand.types";
 import type { RouteLocation, RouteRecordRaw } from "vue-router";
 import type { ActorRef } from "xstate";
-import type { FunnelProps, Funnels } from "./routing.types";
 
 // -----------------------------------------------------------------------------
 

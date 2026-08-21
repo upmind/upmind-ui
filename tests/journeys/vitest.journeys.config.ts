@@ -64,6 +64,11 @@ const alias = {
   ),
   "@upmind-automation/i18n": fileURLToPath(
     new URL("../../packages/i18n/src/index.ts", import.meta.url)
+  ),
+  // The scenario-harness package is source-consumed, no-build (FE-2976) —
+  // same shape as the other workspace barrels above.
+  "@upmind-automation/scenario-harness": fileURLToPath(
+    new URL("../../packages/scenario-harness/src/index.ts", import.meta.url)
   )
 };
 

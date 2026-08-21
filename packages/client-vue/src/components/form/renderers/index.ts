@@ -1,26 +1,34 @@
 import { registerEntry } from "@upmind-automation/upmind-ui";
-
-// -----------------------------------------------------------------------------
-import DomainRenderer from "./DomainRenderer.vue";
-import SLDRenderer from "./SLDRenderer.vue";
-import AddressRenderer from "./AddressRenderer.vue";
-import ImageRenderer from "./ImageRenderer.vue";
-import ManageRenderer from "./ManageRenderer.vue";
-import PaymentDetailsRenderer from "./PaymentDetailsRenderer.vue";
-import GatewaysRenderer from "./GatewaysRenderer.vue";
-import TermsRenderer from "./TermsRenderer.vue";
-import SubProductRenderer from "./SubProductRenderer.vue";
-
-// -----------------------------------------------------------------------------
-import { tester as domainTest } from "./DomainRenderer.vue";
-import { tester as sldTest } from "./SLDRenderer.vue";
-import { tester as addressTest } from "./AddressRenderer.vue";
-import { tester as imageTest } from "./ImageRenderer.vue";
-import { tester as manageTest } from "./ManageRenderer.vue";
-import { tester as paymentMethodTest } from "./PaymentDetailsRenderer.vue";
-import { tester as gatewayMethodTest } from "./GatewaysRenderer.vue";
-import { tester as termsTest } from "./TermsRenderer.vue";
-import { tester as subProductTest } from "./SubProductRenderer.vue";
+import AddressRenderer, { tester as addressTest } from "./AddressRenderer.vue";
+import DomainRenderer, { tester as domainTest } from "./DomainRenderer.vue";
+import FilterBarRenderer, {
+  tester as filterBarTest
+} from "./FilterBarRenderer.vue";
+import FilterButtonGroupRenderer, {
+  tester as filterButtonGroupTest
+} from "./FilterButtonGroupRenderer.vue";
+import FilterRangeRenderer, {
+  tester as filterRangeTest
+} from "./FilterRangeRenderer.vue";
+import FilterSearchRenderer, {
+  tester as filterSearchTest
+} from "./FilterSearchRenderer.vue";
+import FilterToggleGroupRenderer, {
+  tester as filterToggleGroupTest
+} from "./FilterToggleGroupRenderer.vue";
+import GatewaysRenderer, {
+  tester as gatewayMethodTest
+} from "./GatewaysRenderer.vue";
+import ImageRenderer, { tester as imageTest } from "./ImageRenderer.vue";
+import ManageRenderer, { tester as manageTest } from "./ManageRenderer.vue";
+import PaymentDetailsRenderer, {
+  tester as paymentMethodTest
+} from "./PaymentDetailsRenderer.vue";
+import SLDRenderer, { tester as sldTest } from "./SLDRenderer.vue";
+import SubProductRenderer, {
+  tester as subProductTest
+} from "./SubProductRenderer.vue";
+import TermsRenderer, { tester as termsTest } from "./TermsRenderer.vue";
 
 // -----------------------------------------------------------------------------
 
@@ -33,5 +41,10 @@ export const formRenderers = [
   registerEntry(PaymentDetailsRenderer, paymentMethodTest),
   registerEntry(GatewaysRenderer, gatewayMethodTest),
   registerEntry(TermsRenderer, termsTest),
-  registerEntry(SubProductRenderer, subProductTest)
+  registerEntry(SubProductRenderer, subProductTest),
+  registerEntry(FilterButtonGroupRenderer, filterButtonGroupTest),
+  registerEntry(FilterToggleGroupRenderer, filterToggleGroupTest),
+  registerEntry(FilterSearchRenderer, filterSearchTest),
+  registerEntry(FilterRangeRenderer, filterRangeTest),
+  registerEntry(FilterBarRenderer, filterBarTest)
 ];

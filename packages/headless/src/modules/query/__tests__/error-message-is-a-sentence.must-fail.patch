@@ -1,0 +1,32 @@
+Negative control for a query failure's MESSAGE being a plain sentence (`S14`).
+
+Puts a `*_title` key back on `DetailedError.message`. Every title in the error
+corpus is markdown SOURCE — `503_title` carries its own `**`, and its `_md`
+sibling is that same string through the markdown modifier — while an
+`Error.message` is rendered as TEXT by every surface that shows it. So the
+markup reads out literally on screen, which is what the forced
+collection-error preset drew: `Service **temporarily** unavailable`.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the error-handling spec — a failure with no API sentence falls back to a
+sentence carrying no markup.
+
+diff --git a/packages/headless/src/modules/query/query.utils.ts b/packages/headless/src/modules/query/query.utils.ts
+--- a/packages/headless/src/modules/query/query.utils.ts
++++ b/packages/headless/src/modules/query/query.utils.ts
+@@ -378,13 +378,8 @@ export function handleError(
+   // Preserve the API's structured error code (e.g. `web_hosting::domain_register_only`)
+   // on the DetailedError. Clients that need to branch on it (e.g. domain
+   // register/transfer flip) read `apiCode` — message text is locale-dependent.
+-  // A plain SENTENCE, never a `*_title` key: an `Error.message` is rendered as
+-  // text by every surface that shows it, and each title in the corpus is
+-  // markdown SOURCE — so the key reads out its own `**` and the `_md` sibling
+-  // its `<strong>`. This one also says what actually happened at any status,
+-  // where a 503 title claimed an outage for all of them.
+   throw new DetailedError(
+-    error?.message ?? t("error.request_process_failed"),
++    error?.message ?? t("error.503_title"),
+     status || responseCodes.Service_Unavailable,
+     ErrorOrigin.Upmind,
+     error?.data,

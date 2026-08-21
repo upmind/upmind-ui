@@ -24,7 +24,7 @@ import { useBasketCurrency } from "@upmind-automation/headless";
 import { Combobox } from "@upmind-automation/upmind-ui";
 import rawCurrencies from "./currencies";
 import { get, map } from "lodash-es";
-import type { ICurrency } from "../../../../../types/src";
+import type { ICurrency } from "@upmind-automation/types";
 import type { ComboboxItemProps } from "@upmind-automation/upmind-ui";
 import type { HTMLAttributes } from "vue";
 

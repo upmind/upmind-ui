@@ -16,18 +16,6 @@ import { useSystem } from "../system";
 import { useI18n } from "../system-localisation";
 import { DomainMode } from "./domain.types";
 import {
-  cloneDeep,
-  compact,
-  filter,
-  first,
-  isEmpty,
-  keyBy,
-  map,
-  omitBy,
-  reject,
-  sortBy
-} from "lodash-es";
-import {
   applyDacTransferOverride,
   buildFallbackPricing,
   getDacTransferLabel,
@@ -42,6 +30,18 @@ import {
   parseSuggestions
 } from "./domain.utils";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
+import {
+  cloneDeep,
+  compact,
+  filter,
+  first,
+  isEmpty,
+  keyBy,
+  map,
+  omitBy,
+  reject,
+  sortBy
+} from "lodash-es";
 import type { DomainModel, DomainProduct } from "./domain.types";
 import type {
   DacContext,

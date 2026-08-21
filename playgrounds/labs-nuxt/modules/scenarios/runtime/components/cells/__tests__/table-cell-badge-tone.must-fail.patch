@@ -1,0 +1,24 @@
+Negative control for the TONAL status badge (`D8`). Re-armed against the cell
+RENDERER that now draws it — the row-cell switch this replaces is gone (`R6-36`).
+
+Swaps the ui Badge's soft/tonal treatment for the outlined one — the plain badge
+the operator rejected, which reads as more table rather than as status. Colour,
+size and label are untouched, so only the treatment is on trial.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the badge-tone spec — a declared badge draws exactly what the ui Badge's
+tonal treatment draws, and none of them the outlined one.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellBadges.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellBadges.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellBadges.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellBadges.vue
+@@ -3,7 +3,7 @@
+     v-for="badge in badges"
+     :key="badge.flag"
+     size="sm"
+-    variant="muted"
++    variant="minimal"
+     :color="badge.color"
+     :icon="badge.icon"
+     :label="i18n.translate(badge.i18n, badge.i18n)"

@@ -2,7 +2,7 @@
 import { Store } from "@tanstack/vue-store";
 import {
   useQuery,
-  RequestSortDirection,
+  SortDirection,
   localStoragePersister,
   storePersister
 } from "../query";
@@ -57,7 +57,33 @@ function fetchCountries() {
   const { query, useUrl } = useQuery();
 
   return query<ICountry[]>({
-    sort: [RequestSortDirection.ASC, "name"],
+    // The alphabetical order is DECLARED, not spelt raw: `sort` is the
+    // criteria's alone. A field the enum does not declare is dropped before
+    // the wire, so the schema is what makes `order=name` legal.
+    criteria: {
+      schema: {
+        $schema: "http://json-schema.org/draft-07/schema#",
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          sort: {
+            type: "array",
+            default: [{ field: "name", dir: SortDirection.ASC }],
+            minItems: 1,
+            uniqueItems: true,
+            items: {
+              type: "object",
+              additionalProperties: false,
+              required: ["field", "dir"],
+              properties: {
+                field: { enum: ["name"] },
+                dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
+              }
+            }
+          }
+        }
+      }
+    },
     url: useUrl("countries", { limit: 0 }),
     queryKey: ["system", "countries"],
     // --- options

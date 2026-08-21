@@ -1,7 +1,5 @@
 import { ref } from "vue";
 import { Tooltip, Button } from "@upmind-automation/upmind-ui";
-import { TOOLTIP_COLORS } from "@upmind-automation/upmind-ui";
-import { first } from "lodash-es";
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 const meta: Meta<typeof Tooltip> = {
@@ -15,13 +13,6 @@ const meta: Meta<typeof Tooltip> = {
       options: ["top", "right", "bottom", "left"],
       description: "The direction in which the tooltip should appear"
     },
-    color: {
-      options: TOOLTIP_COLORS,
-      control: {
-        type: "select",
-        labels: TOOLTIP_COLORS
-      }
-    },
     delayDuration: {
       control: "number",
       description: "The delay in ms for the tooltip to open"
@@ -34,7 +25,6 @@ const meta: Meta<typeof Tooltip> = {
   args: {
     label: "This is a tooltip",
     side: "right",
-    color: first(TOOLTIP_COLORS),
     delayDuration: 300,
     sideOffset: 7
   },
@@ -80,7 +70,7 @@ export const OpenClose: Story = {
     template: `
       <div class="p-8">
         <Tooltip v-bind="args" :open="open">
-          <Button :label="open ? 'Close' : 'Open'" @click="open = !open" :color="args.color" />
+          <Button :label="open ? 'Close' : 'Open'" @click="open = !open" />
         </Tooltip>
       </div>
     `
@@ -142,42 +132,6 @@ export const SlotContent: Story = {
             </div>
           </template>
         </Tooltip>
-      </div>
-    `
-  })
-};
-
-export const Colors: Story = {
-  parameters: {
-    controls: { exclude: ["color", "side", "delayDuration"] }
-  },
-  render: args => ({
-    components: { Tooltip },
-    setup() {
-      const colors = TOOLTIP_COLORS;
-      return {
-        args,
-        colors
-      };
-    },
-    template: `
-      <div class="flex flex-wrap mx-16">
-        <div
-          v-for="color in colors"
-          :key="color.value"
-          class="w-1/3 my-20 flex justify-center"
-        >
-          <Tooltip
-            v-bind="args"
-            side="bottom"
-            :color="color"
-            :open="true"
-          >
-            <div class="flex flex-col items-center">
-              <div class="text-sm font-bold mt-2">{{ color }}</div>
-            </div>
-          </Tooltip>
-        </div>
       </div>
     `
   })

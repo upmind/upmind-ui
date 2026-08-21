@@ -29,7 +29,6 @@ import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { UpmSection, UpmManage } from "@upmind-automation/client-vue";
 import {
-  ClientEmailContextTypes,
   ScopeActorTypes,
   useClientEmails,
   useClientEmailManager
@@ -124,15 +123,12 @@ function useEmailListForManage() {
 }
 
 function useEmailManagerForManage(id?: string) {
-  // `.as(ScopeActorTypes.CLIENT)` rather than `.as(SELF)`: on a matrix whose
-  // `SELF` row is `null as never`, `.as(SELF)` degrades to plain `T` and does
-  // not statically carry `.for()` / `.fresh()`. `CLIENT` is the actor that
-  // actually resolves here, so naming it directly both typechecks and states
-  // the intent — no cast, no reconstructed instance type.
-  const scoped = useClientEmailManager().as(ScopeActorTypes.CLIENT);
+  // FE-3111: `.withId(id)` replaces `.for('email', id)`. The scope matrix is
+  // now all-null, so `.for()` is a compile-time error. `.withId()` places the
+  // record id into `config.id`; actor defaults to SELF → CLIENT for this page.
   const manager = id
-    ? scoped.for(ClientEmailContextTypes.EMAIL, id)
-    : scoped.fresh();
+    ? useClientEmailManager().withId(id)
+    : useClientEmailManager().fresh();
   const {
     isReady: managerIsReady,
     update,

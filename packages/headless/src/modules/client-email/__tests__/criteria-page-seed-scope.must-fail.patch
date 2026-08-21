@@ -1,0 +1,15 @@
+diff --git a/packages/headless/src/modules/query/useQueryCriteria.ts b/packages/headless/src/modules/query/useQueryCriteria.ts
+index 370deda0d..b238a52e5 100644
+--- a/packages/headless/src/modules/query/useQueryCriteria.ts
++++ b/packages/headless/src/modules/query/useQueryCriteria.ts
+@@ -236,9 +236,7 @@ export function useQueryCriteria<
+    */
+   function set(next: Partial<TModel>): void {
+     const cursor =
+-      isEmpty(next) ||
+-      has(next, "pagination") ||
+-      !has(model.value, "pagination")
++      isEmpty(next) || !has(model.value, "pagination")
+         ? {}
+         : {
+             pagination: assign({}, get(intent.value, "pagination"), {

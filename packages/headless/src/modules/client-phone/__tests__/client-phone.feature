@@ -240,7 +240,7 @@ Feature: A client manages their own phone numbers
   @AC-17 @manager
   Scenario: Two fresh drafts do not interfere with each other
     Given I have started two new phone numbers at the same time
-    When I type into the first
+    When I enter text into the first
     Then the second is left completely untouched
 
   @AC-18 @manager
@@ -259,7 +259,7 @@ Feature: A client manages their own phone numbers
   @AC-20 @manager
   Scenario Outline: Typing a phone number parses it against my resolved country
     Given the editor has resolved my country to "<context country>"
-    When I type "<input>" into the editor
+    When I enter "<input>" into the editor
     Then the parsed number reads "<parsed number>"
     And the parsed country calling code reads "<parsed code>"
 
@@ -271,14 +271,14 @@ Feature: A client manages their own phone numbers
   @AC-20 @manager
   Scenario: Typing into the editor is debounced, not fired on every keystroke
     Given I am typing a phone number into the editor
-    When I type several characters in quick succession
+    When I enter several characters in quick succession
     Then only the settled result of my typing is parsed
     And saving right after typing uses what I actually typed, never a stale value
 
   @AC-21 @manager
   Scenario: Invalid input is reported as field-level state, not thrown at me
     Given I have opened the editor
-    When I type a phone number that cannot be parsed
+    When I enter a phone number that cannot be parsed
     Then the editor tells me my input is invalid
     And it tells me which part of the phone number is wrong
     And nothing is sent to the server while it is invalid
@@ -304,7 +304,7 @@ Feature: A client manages their own phone numbers
 
   @AC-25 @manager
   Scenario: See the editor's own progress while I work
-    When I open the editor and type into it
+    When I open the editor and enter text into it
     Then I can see whether it is loading, ready, changed, valid, saving, or finished
     And whether the phone number I am editing is a brand-new one
 

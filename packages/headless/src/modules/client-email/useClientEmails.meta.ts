@@ -4,14 +4,11 @@ import type {
   ClientEmailListQuery,
   ClientEmailServices
 } from "./client-email.types";
-import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ScopeActorTypes } from "../scope";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmails.meta
  * @description Collection meta — computed state flags, one computed per flag.
- * @doctrine clause 2 — shared-only (armless). No capability read-state exists
- * in this module, so `meta` legitimately stays shared-only rather than needing
- * a per-actor capability arm.
  */
 export function createClientEmailsMeta(
   _actorScope: ScopeActorTypes,
@@ -28,9 +25,6 @@ export function createClientEmailsMeta(
     () => query.isLoading.value || !query.isFetched.value
   );
 
-  // --- actor-specific meta: none earned yet (clause 2). When a scope earns
-  // one, add `useClientEmails.meta.{actor}.ts` and spread it LAST.
-
   return {
     /** True if a row mutation or the list query failed. */
     hasError,
@@ -45,13 +39,17 @@ export function createClientEmailsMeta(
     /** True if this scope has no addresses. */
     isEmpty: isEmptyList,
 
+    /**
+     * True while any declared filter column carries a value. Handed straight
+     * through from the query's published criteria — so an empty list that is
+     * empty BECAUSE it is filtered can say so, instead of both emptinesses
+     * reading the same.
+     */
+    isFiltered: query.isFiltered,
+
     /** True while the list is loading or has not completed its first fetch. */
     isLoading
-
-    // The arm merges in HERE, last.
-    // ...actorMeta
   };
 }
 
-// Type export for consumers
 export type UseClientEmailsMeta = ReturnType<typeof createClientEmailsMeta>;

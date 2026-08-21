@@ -1,0 +1,82 @@
+# Dispatch record — FE-3095
+# Minted by /start BEFORE the first state mutation (increment/SKILL.md "Dispatch record").
+# Each seat appends its own entry to `dispatches:` at dispatch time.
+# Validate with: node <plugin>/ci/lint-workflow-compliance.mjs .claude/dispatch/FE-3095.yaml
+
+lifecycle: start
+redo: false
+
+# §3.1 t-shirt SIZE — computed ONCE here and threaded to every seat (U13).
+# Shape match: docs/plans/FE-3095.md names 13 MODIFY targets + 1 DELETE across four
+#   areas (scope builder, client-email-history module, labs-nuxt playground, factory
+#   templates) -> beyond M's 8-file ceiling -> L.
+# God-node escalator: packages/headless/src/modules/scope/scope.builder.ts +
+#   scope.types.ts + scope.utils.ts back every scoped composable in the repo
+#   (>= 10 importers) -> bump one size; already at the L ceiling.
+# Risk floor (M minimum) also trips on all three judged questions: the change edits
+#   protected core (packages/headless/**), changes a public contract (the
+#   ScopeBuilder type gains withId), and changes control flow callers depend on
+#   (generateScopeKey folds a new field into the cache key).
+size: L
+
+route: increment
+depth: plan # DEPTH != SIZE — never reaches a seat, model, test scope, or the detector
+
+# U14 — the fake-detector is never a cost knob.
+touchesTestAssertions: true
+tautologyAudit: true
+fullFanouts: 0
+escalatedToOperator: false
+
+# --in-place operator override: no worktree, no new branch (increment D2/D14 skipped).
+# The worktree IS the repo root, on the branch already checked out.
+worktree:
+  start: /Users/domdacosta/Dev/Upmind/monorepo
+
+# U9 — protected-core sign-off, granted by the operator in session 2026-08-19.
+# Scope: packages/headless/src/modules/scope/** (builder, types, utils) and
+# packages/headless/src/modules/client-email-history/** — exactly the targets
+# docs/plans/FE-3095.md names. Threaded onto the developer dispatch as
+# operatorSignoff. permissions.deny carries zero rules, so this token is the
+# only thing standing between the seat and core (agent-behavior.companion.md §5).
+operatorSignoff: FE-3095-core-2026-08-19
+
+branch:
+  head: feature/FE-2977 # in-place — the branch already checked out, in sync with origin
+  base: none # operator ruling 2026-08-19: no push, no CR
+  # Ship files the local commit range as the review target instead of opening a
+  # change request. Reviewer + verifier bind to this range, NOT to
+  # feature/FE-2977..develop (1178 files — the epic, not this story).
+  reviewTarget: 87e6ab935f30de65dc053da11c40791c691490a1..HEAD
+  changeRequest: none # operator folds the work into FE-2977's own MR by hand
+
+gates:
+  codeVerify: null # set by the verifier seat: PRESENT | ABSENT
+  readbackEvidence: []
+  negativeControlLane: none
+  testScope: en/targeted
+  testRuntimeMinutes: null # must be <= 30
+
+# The operator gates that had to clear before dispatch — both CLEARED 2026-08-19.
+operatorGates:
+  - gate: protected-core sign-off (U9) for the packages/headless/** edits
+    plan: docs/plans/FE-3095.md Implementation Step 1
+    ruling: GRANTED, full plan scope (token above)
+  - gate: ship target under --in-place
+    why: the plan targets an MR into feature/FE-2977, but --in-place removes the
+      child branch, so head == the plan's MR target
+    ruling: no push, no CR — Ship files the local commit range as the review target
+
+# Runner deviation, operator-directed (precedence tier 1 over skill text).
+# dispatch/increment.workflow.mjs has no shipless mode: Ship always pushes and
+# opens a CR, and Review/Verify bind to "the pushed diff" / "the pushed branch
+# HEAD". The operator ruled no push, no CR, so three stage prompts are varied to
+# bind to the LOCAL commit range instead:
+#   Ship   — commit + return the range and HEAD; no push, no CR
+#   Review — read the local range, not the pushed diff
+#   Verify — bind to local HEAD, not the pushed branch HEAD
+# Plan / Develop / Prove / Green / Document are byte-identical to the shipped
+# script. No seat identity, agentType, model pin, or gate order was touched.
+runnerDeviation: ship-review-verify-bind-to-local-range-no-push-no-CR
+
+dispatches: []

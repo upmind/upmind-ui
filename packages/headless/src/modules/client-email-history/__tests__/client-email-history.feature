@@ -6,10 +6,10 @@
 # but no test may read one: those directories are gitignored, so a test that
 # reaches for a bundle path passes locally and fails in CI.
 #
-# NON-EXECUTABLE per ADR-020 (".feature files are spec-only, not executable").
-# No runner touches it and no steps file is produced — the colocated unit and
-# integration specs are the tests that run, each anchored to a scenario by its
-# @AC tag.
+# EXECUTED per ADR-020 Amendment 5: the sibling step catalog is what decides,
+# scenario by scenario, which of these are driveable — the colocated unit and
+# integration specs remain the proving tests, each anchored to a scenario by
+# its @AC tag.
 #
 # One scenario per capability the parity table carries, across BOTH composables:
 # the collection (useClientReceivedEmails) and the single received email

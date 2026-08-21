@@ -1,0 +1,71 @@
+Negative control for the locked surface under a replay (`R6-23`).
+
+Takes the lock off every control the ruling names — the facets and the search,
+ordering and the column set and the view, the header's own sort, pagination and
+every row action — while LEAVING the region's `data-test-value="locked"` in
+place. So the surface still SAYS it is locked and is fully interactive
+underneath, which is exactly the failure the ruling is about: a replay is a
+playback, and a hand that filters or fires a row action mid-track fights the
+script and desyncs the playhead from the url. Nothing else moves: the rows, the
+count, the chips' text, the declaration's own per-row rules and every other
+state are untouched, so a spec keying on the marker alone still passes and only
+a spec that checks the controls actually REFUSE goes red.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the list-surface `R6-23` case — with `locked`, the filter bar, the display
+controls, the sortable headers, the pagination region and every row action are
+refused, and the reason is named.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+@@ -17,7 +17,7 @@
+          action is NOT among them: it belongs to the page, above this surface
+          (G4). -->
+     <div v-if="meta.hasControls" :class="styles.listSurface.controls">
+-      <FilterBar v-if="criteria" :criteria="criteria" :disabled="locked" />
++      <FilterBar v-if="criteria" :criteria="criteria" />
+       <!-- Ordering, the column set and the view choice sit with the data they
+            change, in BOTH views — the same criteria, written through the same
+            emit as a column header, never a second source of truth (G3/E9). -->
+@@ -30,7 +30,6 @@
+         :columns="pickerColumns"
+         :view="view"
+         :has-card-view="meta.hasCardView"
+-        :locked="locked"
+         @update:sort="emitSort"
+         @update:columns="onColumns"
+         @update:view="onView"
+@@ -288,10 +287,7 @@
+          title (`R6-23`). Geometry is untouched either way. -->
+     <div
+       v-if="meta.hasTable && !meta.isEmpty && !meta.isLoading"
+-      :class="paginationRegion({ isLocked: !!locked })"
+-      :aria-disabled="locked || undefined"
+-      :inert="locked || undefined"
+-      :title="locked ? t('labs.replay_locked') : undefined"
++      :class="paginationRegion({ isLocked: false })"
+       data-test-key="pagination-region"
+       :data-test-value="locked ? 'locked' : undefined"
+     >
+@@ -708,9 +704,7 @@
+  * toolbar's Select and its direction button respectively.
+  */
+ function onHeaderSort(column: Column<ListRow>): void {
+-  // The header cell is the hit area, so the disabled Button inside it cannot be
+-  // what refuses the write while a scenario drives the collection (`R6-23`).
+-  if (props.locked || !column.getCanSort()) return;
++  if (!column.getCanSort()) return;
+ 
+   const primary = first(tableModel.value.sort);
+   const flipped =
+@@ -855,7 +849,7 @@
+       // itself carries, never a client-side guess about what the API allows.
+       // A scenario driving the surface refuses every one of them (`R6-23`): a
+       // hand firing a row action mid-replay writes what the script did not.
+-      disabled: props.locked || !isRuleEnabled(action, row),
++      disabled: !isRuleEnabled(action, row),
+       // In flight says so on the control that was clicked, in the Button's own
+       // treatment: an action nobody can see working reads as an action that did
+       // nothing (E12).

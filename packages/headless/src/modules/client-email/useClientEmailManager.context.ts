@@ -1,7 +1,7 @@
 import { useContext } from "../../utils";
 import type { EmailContext, EmailModel } from "./client-email.types";
 import type { ResponseError, UseActor } from "../../utils";
-import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ScopeActorTypes } from "../scope";
 import type { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
 /**
@@ -18,17 +18,12 @@ import type { ErrorObject } from "ajv";
  *
  * ERRORS ARE STATE, NOT EVENTS. `errors` and `validationErrors` are the
  * machine's captured failure, exposed for the consumer to render.
- *
- * @doctrine clause 2 — shared-only (armless).
  */
 export function createClientEmailManagerContext(
   _actorScope: ScopeActorTypes,
   actor: UseActor
 ) {
   const { state } = actor;
-
-  // --- actor-specific context: none earned yet (clause 2). When a scope earns
-  // one, add `useClientEmailManager.context.{actor}.ts` and spread it LAST.
 
   return {
     /** The full data-manager context object. */
@@ -57,13 +52,9 @@ export function createClientEmailManagerContext(
 
     /** Field-level validation errors (AJV `ErrorObject[]`) — read, never raised. */
     validationErrors: useContext<ErrorObject[]>(state, "error.data")
-
-    // The arm merges in HERE, last.
-    // ...actorContext
   };
 }
 
-// Type export for consumers
 export type UseClientEmailManagerContext = ReturnType<
   typeof createClientEmailManagerContext
 >;

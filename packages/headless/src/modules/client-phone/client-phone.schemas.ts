@@ -1,4 +1,5 @@
 /** @internal */
+
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type { ICountry } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
@@ -111,3 +112,51 @@ export const useUischema = () => {
 
   return schema as UISchemaElement;
 };
+
+// -----------------------------------------------------------------------------
+
+/**
+ * The collection's QUERY schema — its whole request state (filters · sort ·
+ * pagination) as ONE Draft-07 schema over one model. A SELF-CONTAINED JSON
+ * literal, so it can be lifted straight into ajv or a test and run standalone.
+ *
+ * Phones are read whole for the billing surfaces that pick one, so `limit: 0`
+ * asks for the unpaged read and no sort is declared. The one declared filter is
+ * the free-text search, bound to the `phone` wire column: staging answers
+ * `filter[number|like]` with an HTTP 500 and `filter[phone|like]` with a
+ * narrowed 200, both recorded in `__tests__/fixtures`.
+ */
+export function useQuerySchema(): JsonSchema7 {
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      filters: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          number: {
+            type: "object",
+            title: "text.phone",
+            // @ts-expect-error: 'column' is the branch's wire-column binding
+            column: "phone",
+            additionalProperties: false,
+            properties: {
+              // The bare term — the translator adds the % wildcards.
+              like: { type: ["string", "null"], minLength: 1 }
+            }
+          }
+        }
+      },
+      pagination: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          limit: { type: "integer", minimum: 0, default: 0 },
+          offset: { type: "integer", minimum: 0 }
+        }
+      }
+    }
+  } satisfies JsonSchema7;
+}

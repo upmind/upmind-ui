@@ -24,6 +24,11 @@
 import { describe, it, expect, vi } from "vitest";
 
 // -----------------------------------------------------------------------------
+
+import { extendFunnel } from "../routing.utils";
+import type { FunnelProps, Funnels } from "../routing.types";
+
+// -----------------------------------------------------------------------------
 // Mocks — hoisted. `utils.ts` pulls in i18n and brand at module load; neither is
 // exercised by extendFunnel beyond the error message lookup. The cookie and
 // Sentry stubs only exist to keep the transitive session/util barrels loadable.
@@ -68,11 +73,6 @@ vi.mock("../../brand", () => ({
     isReady: vi.fn()
   })
 }));
-
-// -----------------------------------------------------------------------------
-
-import { extendFunnel } from "../routing.utils";
-import type { FunnelProps, Funnels } from "../routing.types";
 
 // -----------------------------------------------------------------------------
 // Fixtures — shaped like the real cart / one-page funnels.

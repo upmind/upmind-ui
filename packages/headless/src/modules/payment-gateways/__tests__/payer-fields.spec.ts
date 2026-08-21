@@ -16,15 +16,15 @@
 
 import { describe, expect, it } from "vitest";
 import {
-  getPayerEmail,
-  payerNeedsEmail,
-  payerNeedsPhone
-} from "../payment-gateways.utils";
-import {
   useSchema as dlocalSchema,
   useUischema as dlocalUischema
 } from "../dlocal/schemas";
 import { useSchema as nickySchema } from "../nicky/schemas";
+import {
+  getPayerEmail,
+  payerNeedsEmail,
+  payerNeedsPhone
+} from "../payment-gateways.utils";
 import type { GatewayContext } from "../payment-gateways.types";
 
 // --- helpers

@@ -3,7 +3,7 @@ import { contextValue, stateMatches, stateValue } from "../../utils";
 import { isEmpty, isEqual } from "lodash-es";
 import type { EmailContext } from "./client-email.types";
 import type { UseActor } from "../../utils";
-import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ScopeActorTypes } from "../scope";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmailManager.meta
@@ -12,8 +12,6 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  *
  * A consumer porting off the pre-scope manager reads `useMeta().isValid` where
  * it used to read `meta.value.isValid`: the single `meta` object is gone.
- *
- * @doctrine clause 2 — shared-only (armless).
  */
 export function createClientEmailManagerMeta(
   _actorScope: ScopeActorTypes,
@@ -69,40 +67,18 @@ export function createClientEmailManagerMeta(
       stateMatches(state, ["processed", "complete"])
   );
 
-  // --- actor-specific meta: none earned yet (clause 2). When a scope earns
-  // one, add `useClientEmailManager.meta.{actor}.ts` and spread it LAST.
-
   return {
-    /** True if the machine captured an error. */
     hasErrors,
-
-    /** True once the form is available for input. */
     isAvailable,
-
-    /** True once the address has been saved. */
     isComplete,
-
-    /** True if the model differs from its persisted baseline. */
     isDirty,
-
-    /** True while subscribing or loading. */
     isLoading,
-
-    /** True if the address is new (never saved). */
     isNew,
-
-    /** True while a save is being processed. */
     isProcessing,
-
-    /** True if the current model passes schema validation. */
     isValid
-
-    // The arm merges in HERE, last.
-    // ...actorMeta
   };
 }
 
-// Type export for consumers
 export type UseClientEmailManagerMeta = ReturnType<
   typeof createClientEmailManagerMeta
 >;

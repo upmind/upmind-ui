@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/query/useQueryCriteria.ts
++++ b/packages/headless/src/modules/query/useQueryCriteria.ts
+@@ -161,7 +161,7 @@ export function useQueryCriteria<
+   function parse(values?: Partial<TModel>): TModel {
+     return useModelParser<TModel>(
+       schema,
+-      compactDeep(values, { preserveContainers: false }),
++      values,
+       {},
+       { allowExtraProps: false, preserveContainers: false }
+     );

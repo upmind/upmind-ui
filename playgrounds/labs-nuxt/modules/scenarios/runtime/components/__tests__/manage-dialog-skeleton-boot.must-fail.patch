@@ -1,0 +1,24 @@
+Negative control for the editor's skeleton BOOT (D12).
+
+Lets LOADING resolve to a notice again, so the modal opens on the blue loading
+panel and swaps its whole body for the form once the record lands — the jump the
+list already fixed and the modal had not. The error branch is untouched, so a
+boot failure still speaks: only the loading state changes hands.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the manage-dialog skeleton specs — the boot draws form-shaped placeholders
+and no notice panel.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/FormFlowSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/FormFlowSurface.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/FormFlowSurface.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/FormFlowSurface.vue
+@@ -115,7 +115,7 @@
+ );
+ 
+ const notice = computed(() =>
+-  hasPresented.value || state.value === ModuleState.READY || isLoading.value
++  hasPresented.value || state.value === ModuleState.READY
+     ? undefined
+     : state.value
+ );

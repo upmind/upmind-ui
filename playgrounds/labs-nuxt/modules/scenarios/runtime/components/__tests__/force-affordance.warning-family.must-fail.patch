@@ -1,0 +1,41 @@
+Negative control for the forced affordance's colour family (`H2`).
+
+Repaints both halves — the frame's ring and the chip — in the warning family and
+changes nothing else: same outline technique, same standoff, same geometry
+(`R6-18`), same armed-only condition. So the only claim that can go red is the
+ruled one: a forced page is a mode the developer CHOSE, dressed in the primary
+family, never in the family a page reports trouble in.
+
+Re-targeted 2026-08-13 after the `R7-7`/`R7-5` changes moved both hunks' context
+(the ring gained its standoff, the chip gained a header row). Same claim, same
+red, current source.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the chosen-mode colour case — every class the affordance draws itself with
+resolves to primary or secondary, and none to warning, danger or success.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.styles.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.styles.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.styles.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.styles.ts
+@@ -41,7 +41,7 @@
+     root: cva("flex flex-col gap-3 transition-all duration-200", {
+       variants: {
+         isForced: {
+-          true: `card-radius ${highlightRing}`,
++          true: "card-radius outline-2 outline-offset-8 outline-[var(--color-warning-default)]",
+           false: ""
+         }
+       },
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.vue
+@@ -6,7 +6,7 @@
+   >
+     <div v-if="preset" :class="styles.forcedCanvas.header">
+       <Badge
+-        color="primary"
++        color="warning"
+         variant="solid"
+         size="sm"
+         :label="label"

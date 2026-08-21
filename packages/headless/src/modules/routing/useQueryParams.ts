@@ -16,7 +16,6 @@ import {
   set,
   split,
   toNumber,
-  trim,
   uniq
 } from "lodash-es";
 import type { ProductProps } from "../product";

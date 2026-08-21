@@ -109,7 +109,7 @@ export function createClientReceivedEmailActions(
 
   /**
    * Destroys this scoped instance — removes it from the registry so the next
-   * `.for('email', id)` mints a fresh read.
+   * `.withId(id)` mints a fresh read.
    */
   function destroy(): void {
     removeFromRegistry(scopeKey);

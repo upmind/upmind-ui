@@ -1,0 +1,23 @@
+Negative control for the detail action bar EXCLUDING its opener (FE-3091
+operator refinement 1).
+
+Restores the whole row-action set to the read overlay, so the `detail`/view
+verb that OPENED the overlay is offered again inside it — the very thing the
+refinement removed, mirroring how the editor never re-offers Edit.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the detail-action-bar spec — opening a record on its `view` (`detail`)
+control must leave that control OUT of the overlay's own action bar while every
+OTHER row action (Edit, etc.) still rides there.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+@@ -983,5 +983,5 @@
+   const row = detailState.value;
+   if (!row) return [];
+   const opened = map(filter(rowActions.value, "detail"), "name");
+-  return reject(rowActionItems(row), item => includes(opened, item.name));
++  return rowActionItems(row);
+ });

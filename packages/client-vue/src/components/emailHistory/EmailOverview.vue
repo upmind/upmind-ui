@@ -42,7 +42,6 @@ import { onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   useClientReceivedEmail,
-  ReceivedEmailContextTypes,
   ScopeActorTypes
 } from "@upmind-automation/headless";
 import { UpmSection } from "../section";
@@ -57,7 +56,7 @@ const { t } = useI18n();
 
 const email = useClientReceivedEmail()
   .as(ScopeActorTypes.CLIENT)
-  .for(ReceivedEmailContextTypes.EMAIL, props.emailId);
+  .withId(props.emailId);
 const { data: emailData } = email.useContext();
 const { destroy, isReady } = email.useActions();
 

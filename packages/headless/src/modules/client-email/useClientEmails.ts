@@ -1,12 +1,16 @@
-import { createScopedComposable } from "../scope";
+// `../scope`'s own graph reaches this module before its barrel finishes
+// (scope.utils → session-store → … → client-company.services → client-email),
+// so a value read off that barrel at module scope is `undefined` here. The
+// declaring file is safe: `createScopedComposable` is a hoisted declaration.
+import { createScopedComposable } from "../scope/scope.builder";
 import createClientEmailServices from "./client-email.services";
+import { CLIENT_EMAILS_SCOPE_MATRIX } from "./client-email.types";
 import { createClientEmailsActions } from "./useClientEmails.actions";
 import { createClientEmailsContext } from "./useClientEmails.context";
 import { createClientEmailsInternals } from "./useClientEmails.internals";
 import { createClientEmailsMeta } from "./useClientEmails.meta";
 import type { ClientEmailsScopeMatrix } from "./client-email.types";
-import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ScopeActorTypes, ScopeConfig, ScopeKey } from "../scope";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmails
@@ -16,10 +20,6 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * `useClientEmailManager` — a second scoped composable in the same module,
  * registered under the SAME module name; the composable name and the scope key
  * carry the differentiation.
- *
- * @doctrine clause 1 (uniform four-layer default).
- * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
- * actor; the scope builder resolves SELF before this factory runs.
  */
 function createClientEmailsForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const actorScope = config.actor as ScopeActorTypes;
@@ -31,18 +31,11 @@ function createClientEmailsForScope(config: ScopeConfig, scopeKey: ScopeKey) {
    */
   const service = createClientEmailServices(actorScope, config.context);
 
-  // Mint the list query ONCE per scope — a `service.loadList()` inside a layer
-  // factory mints a second query, with its own refs, key and effect scope.
-  const query = service.loadList({ pagination: { limit: 0 } });
+  // Minted ONCE per scope — a `service.loadList()` inside a layer factory
+  // mints a second query, with its own refs, key and effect scope.
+  const query = service.loadList();
 
-  /**
-   * ONE actions instance per scope, not one per `useActions()` call: the
-   * collection's applied `filters` live in that factory, so a factory minted
-   * per call gives every handle its own filter state — one handle's
-   * `filters.query()` would be invisible to the next, and a second handle's
-   * first filter would silently drop the first handle's. The stateless layers
-   * below stay lazy. Mirrors the manager half.
-   */
+  /** ONE actions instance per scope; the layers below stay lazy. */
   const actions = createClientEmailsActions(
     actorScope,
     service,
@@ -51,7 +44,6 @@ function createClientEmailsForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   );
 
   return {
-    // --- Sub-composables (no direct props — clause 1 four-layer return)
     /** Sub-composable for collection actions (row mutations, lifecycle). */
     useActions: () => actions,
 
@@ -80,7 +72,6 @@ function createClientEmailsForScope(config: ScopeConfig, scopeKey: ScopeKey) {
 export const useClientEmails = createScopedComposable<
   ReturnType<typeof createClientEmailsForScope>,
   ClientEmailsScopeMatrix
->("client-email", createClientEmailsForScope);
+>("client-email", createClientEmailsForScope, CLIENT_EMAILS_SCOPE_MATRIX);
 
-// Type export for consumers
 export type UseClientEmails = ReturnType<typeof useClientEmails>;

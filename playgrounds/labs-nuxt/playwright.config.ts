@@ -1,0 +1,125 @@
+/// <reference types="node" />
+import { defineConfig, devices } from "@playwright/test";
+import { createBdd, defineBddConfig, test as base } from "playwright-bdd";
+import { STEP_KIND } from "@upmind-automation/scenario-harness";
+import { SCENARIO_WORLD_KEY } from "./modules/scenarios/runtime/composables/useScenarioWorld.types";
+import { createBrowserWorld } from "./tests/e2e/browser-world";
+import { catalogs, clientEmailsRoute, features } from "./tests/e2e/catalogs";
+import {
+  installRecordedCorpus,
+  seedRecordedClientSession
+} from "./tests/e2e/recorded-corpus";
+import type { ScenarioKey } from "./modules/scenarios/runtime/scenario.types";
+import type {
+  StepCatalog,
+  StepKind,
+  World
+} from "@upmind-automation/scenario-harness";
+
+// -----------------------------------------------------------------------------
+/**
+ * The labs-nuxt BDD lane. Separate from the root `playwright.config.ts` (the
+ * cart e2e suite) and from `playwright.bdd.config.ts` (the harness's own
+ * in-process fixture lane): this one boots the playground in a browser and
+ * drives the SAME `.feature` the in-page world runs.
+ *
+ * The port is DEDICATED and `reuseExistingServer` is off on purpose — a
+ * reused ordinary dev server on the default port publishes no world, so every
+ * bridge call would time out with nothing to say why.
+ */
+// -----------------------------------------------------------------------------
+
+const TEST_PORT = 4100;
+const baseURL =
+  process.env.PW_BASE_URL ?? `http://labs.localhost:${TEST_PORT}/`;
+
+const testDir = defineBddConfig({
+  // A module's ONE feature is colocated with its module source, which is why
+  // this lane reaches out of the playground to find it. The adopted pairs are
+  // named one by one beside their catalogs.
+  features,
+  // That one feature holds the module's not-yet-driveable scenarios too, and
+  // those are a legitimate state rather than a generation failure: the default
+  // `fail-on-gen` would red the whole lane on a capability nobody has written
+  // steps for yet.
+  missingSteps: "skip-scenario",
+  // The pairs live outside this playground, so the generation root is the
+  // workspace root rather than the package.
+  featuresRoot: "../../",
+  // The registrations below live in this file, so it doubles as its own
+  // "steps" module for playwright-bdd's generation pass.
+  steps: "playwright.config.ts",
+  outputDir: ".features-gen",
+  // Every catalog handler forwards a rest-args tuple, so `Function.length` is
+  // always 0 — the documented case for disabling the arity check (the root
+  // BDD lane disables it for the same reason).
+  arityCheck: false
+});
+
+export const test = base.extend<{ world: World<ScenarioKey> }>({
+  world: async ({ page }, use) => {
+    await installRecordedCorpus(page);
+    await seedRecordedClientSession(page);
+    await page.goto(clientEmailsRoute);
+    await page.waitForFunction(
+      key => Boolean((window as unknown as Record<string, unknown>)[key]),
+      SCENARIO_WORLD_KEY
+    );
+
+    const world = createBrowserWorld(page);
+
+    await use(world);
+    await world.dispose();
+  }
+});
+
+const bdd = createBdd(test, { worldFixture: "world" });
+
+function registrarFor(kind: StepKind) {
+  if (kind === STEP_KIND.GIVEN) return bdd.Given;
+  if (kind === STEP_KIND.WHEN) return bdd.When;
+
+  return bdd.Then;
+}
+
+/** Re-registers an engine-free catalog against playwright-bdd over the `world` fixture. */
+function registerCatalog(catalog: StepCatalog): void {
+  for (const step of catalog.steps) {
+    registrarFor(step.kind)(step.pattern, function (this: World, ...args) {
+      return step.handler(this, ...args);
+    });
+  }
+}
+
+catalogs.forEach(registerCatalog);
+
+export default defineConfig({
+  timeout: 60000,
+  expect: { timeout: 30000 },
+  reporter: "list",
+  use: {
+    baseURL,
+    testIdAttribute: "data-test-key",
+    screenshot: "only-on-failure",
+    trace: "on-first-retry",
+    reducedMotion: "reduce"
+  },
+  webServer: {
+    command: `pnpm exec nuxt dev --host labs.localhost --port ${TEST_PORT} --dotenv .env.development`,
+    url: baseURL,
+    // The world is published in dev only, so a server this config did not
+    // start is not a server this lane can drive.
+    reuseExistingServer: false,
+    timeout: 120000
+  },
+  // Two lanes, one browser: the generated `.feature` pair, and the read-backs
+  // the `World` seam cannot express (page, wire, reload).
+  projects: [
+    { name: "bdd", testDir, use: { ...devices["Desktop Chrome"] } },
+    {
+      name: "lane",
+      testDir: "./tests/e2e",
+      use: { ...devices["Desktop Chrome"] }
+    }
+  ]
+});

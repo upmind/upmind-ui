@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/query/useQueryCriteria.ts b/packages/headless/src/modules/query/useQueryCriteria.ts
+index 370deda0d..24fa2d104 100644
+--- a/packages/headless/src/modules/query/useQueryCriteria.ts
++++ b/packages/headless/src/modules/query/useQueryCriteria.ts
+@@ -245,7 +245,7 @@ export function useQueryCriteria<
+               offset: 0
+             })
+           };
+-    commit(assign({}, intent.value, next, cursor) as Partial<TModel>);
++    commit(assign({}, next, cursor) as Partial<TModel>);
+   }
+ 
+   return { model, schema, props, error, isFiltered, set };

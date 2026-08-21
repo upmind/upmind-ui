@@ -37,37 +37,37 @@ export function useSessionStoreMeta() {
   // See session-store.store.ts for why we use this pattern instead of a shallowRef.
 
   const isAvailable = computed(() => {
-    storeTick.value;
+    void storeTick.value;
     return !!sessionStore.state.initialised;
   });
 
   const isLoading = computed(() => {
-    storeTick.value;
+    void storeTick.value;
     return !!sessionStore.state.loading;
   });
 
   const hasClientSession = computed(() => {
-    storeTick.value;
+    void storeTick.value;
     return size(keys(sessionStore.state.clientSessions)) > 0;
   });
 
   const hasGuestSession = computed(() => {
-    storeTick.value;
+    void storeTick.value;
     return !!sessionStore.state.guestSession;
   });
 
   const hasStaffSession = computed(() => {
-    storeTick.value;
+    void storeTick.value;
     return !isEmpty(sessionStore.state.staffSessions);
   });
 
   const hasImpersonatedSessions = computed(() => {
-    storeTick.value;
+    void storeTick.value;
     return !isEmpty(sessionStore.state.impersonatedSessions);
   });
 
   const hasMultipleSessions = computed(() => {
-    storeTick.value;
+    void storeTick.value;
     const clientCount = size(keys(sessionStore.state.clientSessions));
     const staffCount = size(keys(sessionStore.state.staffSessions));
     return clientCount + staffCount > 1;

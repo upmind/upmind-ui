@@ -77,6 +77,24 @@ describe("Query API Fixtures Generator", () => {
     await generator.get("/api/countries/zz");
   });
 
+  it("captures GET /api/countries?limit=2 pages 1 and 2 (the pager's real walk)", async () => {
+    // `limit`/`offset` are excluded from a fixture's identity, so two reads of
+    // the same collection at different offsets would overwrite each other; the
+    // `case=` marker is an identity param and keeps both real answers.
+    const pageOne = await generator.get(
+      "/api/countries?limit=2&offset=0&case=page-1"
+    );
+    const pageTwo = await generator.get(
+      "/api/countries?limit=2&offset=2&case=page-2"
+    );
+    if (pageOne.status !== 200 || pageTwo.status !== 200) {
+      throw new Error(
+        `Paged capture returned ${pageOne.status}/${pageTwo.status} — refusing ` +
+          "to ship a fixture that does not represent a real page."
+      );
+    }
+  });
+
   it("captures POST /oauth/access_token with bad credentials (401)", async () => {
     await generator.post(
       "/oauth/access_token",

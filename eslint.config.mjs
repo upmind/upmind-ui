@@ -63,7 +63,7 @@
  * ESLint with `--prune-suppressions` in a later FE-2842 step, never here.
  */
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import js from "@eslint/js";
 import eslintPluginTypescript from "@typescript-eslint/eslint-plugin";
@@ -470,6 +470,280 @@ const sharedVueRules = {
   "import/order": importOrderRule
 };
 
+// -----------------------------------------------------------------------------
+// No-vue lint boundary — packages/scenario-harness is
+// framework-agnostic by design. This IS the explicit decision to reintroduce
+// `no-restricted-imports`: FE-2820 §3 removed the legacy version for
+// COARSENESS (a suffix-glob over all headless modules), not principle — this
+// block is package-scoped, so that coarseness doesn't apply. Banned: the vue
+// family plus the vue-tainted workspace packages (a headless import taints
+// transitively even when "vue" never appears in the specifier). The base
+// `no-restricted-imports` rule also flags `import type`, which is intentional
+// here — even type-only coupling to a vue-tainted package defeats the point.
+// -----------------------------------------------------------------------------
+const NO_VUE_BOUNDARY_MESSAGE =
+  "packages/scenario-harness is framework-agnostic — vue and vue-tainted packages banned, incl. import type.";
+
+const bannedScenarioHarnessSpecifiers = [
+  "vue",
+  "vue-router",
+  "vue-i18n",
+  "vue-demi",
+  "pinia",
+  "@xstate/vue",
+  "@upmind-automation/headless",
+  "@upmind-automation/client-vue",
+  "@upmind-automation/upmind-ui",
+  "@upmind-automation/i18n"
+];
+
+const noRestrictedVueImportsRule = [
+  "error",
+  {
+    paths: bannedScenarioHarnessSpecifiers.map(name => ({
+      name,
+      message: NO_VUE_BOUNDARY_MESSAGE
+    })),
+    patterns: [
+      // Bare-package deep subpaths (vue's own + the vue-composition-utils
+      // family): glob groups suffice here because none of these names
+      // collide with an unrelated prefix.
+      {
+        group: ["vue/*", "@vue/*", "@vueuse/*"],
+        message: NO_VUE_BOUNDARY_MESSAGE
+      },
+      // Workspace-package deep subpaths — `paths` above only matches the
+      // bare specifier exactly, so `@upmind-automation/headless/src/...`
+      // (or any other file inside a vue-tainted workspace package) needs
+      // its own check. `regex` (not `group`) because the glob matcher
+      // wouldn't otherwise anchor "must start with this exact package name
+      // plus a slash" without also catching unrelated `@upmind-automation/*`
+      // packages (e.g. `@upmind-automation/types`, which is NOT banned).
+      {
+        regex: "^@upmind-automation/(headless|client-vue|upmind-ui|i18n)/",
+        message: NO_VUE_BOUNDARY_MESSAGE
+      }
+    ]
+  }
+];
+
+// Two shapes `no-restricted-imports` structurally cannot see, verified against
+// the installed rule source (node_modules/eslint/lib/rules/no-restricted-imports.js):
+// it registers only an `ImportDeclaration` visitor, never `ImportExpression`, so a
+// dynamic `await import("vue")` is invisible to it; and its `paths`/`patterns`
+// match on the raw specifier TEXT, so a relative escape (`../../headless/src/index`)
+// that never types a banned name is invisible too. Both need the import resolved —
+// dynamic imports need the *specifier value itself checked against the same banned
+// list, and relative escapes need the specifier resolved to a concrete disk path
+// (the same technique block 8c's `no-barrel-imports` uses, so it is depth-agnostic)
+// and rejected if that path falls outside packages/scenario-harness entirely.
+const SCENARIO_HARNESS_ROOT = resolve(
+  import.meta.dirname,
+  "packages/scenario-harness"
+);
+
+// Mirrors noRestrictedVueImportsRule's own ban list (exact + subpath + vueuse),
+// as a single regex so the custom rule below and the base rule stay in lockstep.
+const bannedScenarioHarnessSpecifierPattern = new RegExp(
+  "^(?:vue|vue-router|vue-i18n|vue-demi|pinia|@xstate/vue)(?:/.*)?$" +
+    "|^@vue/" +
+    "|^@vueuse/" +
+    "|^@upmind-automation/(?:headless|client-vue|upmind-ui|i18n)(?:/.*)?$"
+);
+
+const scenarioHarnessBoundaryPlugin = {
+  rules: {
+    "no-vue-boundary-escape": {
+      meta: {
+        type: "problem",
+        docs: {
+          description:
+            "Disallow dynamic import() of a banned framework specifier and any relative import that resolves outside packages/scenario-harness."
+        },
+        schema: []
+      },
+      create(context) {
+        function check(node, sourceNode) {
+          const specifier = sourceNode?.value;
+          if (typeof specifier !== "string") return;
+
+          if (bannedScenarioHarnessSpecifierPattern.test(specifier)) {
+            context.report({ node, message: NO_VUE_BOUNDARY_MESSAGE });
+            return;
+          }
+
+          if (!specifier.startsWith(".")) return;
+
+          const importerFile = context.filename ?? context.getFilename();
+          const target = resolveRelativeTarget(importerFile, specifier);
+
+          if (target && !target.startsWith(`${SCENARIO_HARNESS_ROOT}/`)) {
+            context.report({
+              node,
+              message: `${NO_VUE_BOUNDARY_MESSAGE} (relative import resolves outside packages/scenario-harness: "${specifier}")`
+            });
+          }
+        }
+
+        return {
+          ImportDeclaration(node) {
+            check(node, node.source);
+          },
+          ExportNamedDeclaration(node) {
+            check(node, node.source);
+          },
+          ExportAllDeclaration(node) {
+            check(node, node.source);
+          },
+          ImportExpression(node) {
+            check(node, node.source);
+          }
+        };
+      }
+    }
+  }
+};
+
+// -----------------------------------------------------------------------------
+// Workspace package boundary (FE-2977 ruling). A workspace package is
+// reached by its published specifier; its file layout is private. Two arms,
+// because a path escape and a subpath specifier are different shapes:
+//
+//   arm 1 — `no-restricted-imports` on the deep subpaths of the two packages
+//           whose public surface is bounded: headless publishes exactly ".",
+//           "./scenarios" and "./testing" (its `exports` map), scenario-harness
+//           exactly ".". The map alone does NOT gate the playgrounds — a
+//           vite/vitest alias to the package DIRECTORY resolves ahead of
+//           `exports`, so a subpath keeps resolving there no matter what the map
+//           says. This arm is the gate for that lane. "./testing" is the ONE
+//           entry OTHER packages' test lanes reach — and, since the FE-2977 seam
+//           ruling, one named app-runtime file — so block 8h re-arms that bare
+//           entry on exactly the files it lists and 8g keeps it banned
+//           everywhere else. Anything BELOW it is an error from every position,
+//           test lanes included: the package publishes no "./testing/*", so a
+//           per-module specifier only ever resolved through a directory alias.
+//   arm 2 — the same law for relative escapes, which no specifier pattern can
+//           see: `../../packages/headless/src/...` never types a package name.
+//           Resolved to a disk path (the technique block 8c uses) and compared
+//           by owning package, so it is depth-agnostic and lets a package's own
+//           deep relative imports through.
+//
+// Alias maps are exempt by construction: an alias is what MAKES a specifier
+// resolve, and neither arm looks at one.
+// -----------------------------------------------------------------------------
+const PACKAGE_BOUNDARY_MESSAGE =
+  "Import a workspace package by its published specifier — its internals are private.";
+
+/**
+ * @param testLane Whether headless's `./testing` export — its published
+ *   test-kit entry, kept off the main barrel so it never enters the
+ *   production graph — is reachable from these files. Test lanes only.
+ */
+const noWorkspaceSubpathImportsRule = testLane => [
+  "error",
+  {
+    patterns: [
+      {
+        regex: `^@upmind-automation/headless/(?!scenarios$|package\\.json$${testLane ? "|testing$" : ""})`,
+        message: `${PACKAGE_BOUNDARY_MESSAGE} headless publishes ".", "./scenarios" and "./testing" — one bare test entry, no subpaths below it (test lanes, plus the one app-runtime seam block 8h names).`
+      },
+      {
+        regex: "^@upmind-automation/scenario-harness/",
+        message: `${PACKAGE_BOUNDARY_MESSAGE} scenario-harness publishes "." only.`
+      }
+    ]
+  }
+];
+
+const packageRootCache = new Map();
+
+/** The workspace package that owns a file: its nearest ancestor with a package.json. */
+function packageRootOf(absPath) {
+  const cached = packageRootCache.get(absPath);
+
+  if (cached !== undefined) return cached;
+
+  let dir =
+    existsSync(absPath) && statSync(absPath).isDirectory()
+      ? absPath
+      : dirname(absPath);
+
+  while (dir.startsWith(import.meta.dirname) && dir !== import.meta.dirname) {
+    if (existsSync(resolve(dir, "package.json"))) break;
+
+    dir = dirname(dir);
+  }
+
+  packageRootCache.set(absPath, dir);
+
+  return dir;
+}
+
+const workspaceBoundaryPlugin = {
+  rules: {
+    "no-cross-package-path-imports": {
+      meta: {
+        type: "problem",
+        docs: {
+          description:
+            "Disallow a relative import that resolves into a different workspace package."
+        },
+        schema: []
+      },
+      create(context) {
+        function check(node, sourceNode) {
+          const specifier = sourceNode?.value;
+
+          if (typeof specifier !== "string" || !specifier.startsWith(".")) {
+            return;
+          }
+
+          const importerFile = context.filename ?? context.getFilename();
+          const base = resolve(dirname(importerFile), specifier);
+          // resolveRelativeTarget only answers for source files; a recorded
+          // JSON fixture is reached by its exact path, so try that first.
+          const target = existsSync(base)
+            ? base
+            : resolveRelativeTarget(importerFile, specifier);
+
+          if (!target) return;
+
+          const owner = packageRootOf(target);
+
+          // Repo-level shared code (tests/Playwright's support library) belongs
+          // to no package, so reaching it crosses no package boundary.
+          if (
+            owner === import.meta.dirname ||
+            owner === packageRootOf(importerFile)
+          ) {
+            return;
+          }
+
+          context.report({
+            node,
+            message: `${PACKAGE_BOUNDARY_MESSAGE} ("${specifier}" resolves into ${owner.slice(import.meta.dirname.length + 1)})`
+          });
+        }
+
+        return {
+          ImportDeclaration(node) {
+            check(node, node.source);
+          },
+          ExportNamedDeclaration(node) {
+            check(node, node.source);
+          },
+          ExportAllDeclaration(node) {
+            check(node, node.source);
+          },
+          ImportExpression(node) {
+            check(node, node.source);
+          }
+        };
+      }
+    }
+  }
+};
+
 export default [
   // ---------------------------------------------------------------------------
   // 1. Global ignores
@@ -510,7 +784,11 @@ export default [
       // Frozen audit evidence — per-package .eslintrc.cjs baseline captures, @next-legacy
       // eslint.config.mjs snapshot, proposed config copy, and classify.mjs. Not live code;
       // linting/fixing them would mutate the baseline (FE-2820 cycle-1 triage).
-      "**/.artifacts/**"
+      "**/.artifacts/**",
+      // playwright-bdd's generated spec files (bddgen output, FE-2976) — machine
+      // output sitting in the tree (gitignored, but not previously excluded from
+      // a root-cwd lint pass), never hand-edited or reformatted.
+      "**/.features-gen/**"
     ]
   },
 
@@ -547,7 +825,8 @@ export default [
       ".claude/scripts/**/*.{ts,tsx,mts,cts,js,cjs,mjs}",
       "**/*.config.{ts,mts,cts,js,cjs,mjs}",
       "tests/fixtures/**/*.{mjs,js,ts}",
-      "packages/eslint-plugin-scope-based/**/*.{js,mjs}"
+      "packages/eslint-plugin-scope-based/**/*.{js,mjs}",
+      "packages/*/scripts/**/*.{ts,mts,cts,js,cjs,mjs}"
     ],
     languageOptions: {
       globals: { ...globals.node }
@@ -682,6 +961,86 @@ export default [
     },
     rules: {
       "scope-based/no-hand-rolled-int-fixture": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 8f. No-vue lint boundary — packages/scenario-harness only. See the const
+  //    definitions above for the full rationale. Widened past .ts/.tsx/.mts/.cts
+  //    to .js/.jsx/.mjs/.cjs/.vue so a future tooling file (vitest.config.mjs,
+  //    a .vue playground fixture) in this package cannot import vue unguarded.
+  // ---------------------------------------------------------------------------
+  {
+    files: [
+      "packages/scenario-harness/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}"
+    ],
+    plugins: {
+      "@scenario-harness": scenarioHarnessBoundaryPlugin
+    },
+    rules: {
+      "no-restricted-imports": noRestrictedVueImportsRule,
+      "@scenario-harness/no-vue-boundary-escape": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 8g. Workspace package boundary — see the const definitions above. Scoped to
+  //    the workspace members `pnpm -r lint` actually lints; repo-root tooling
+  //    configs are outside every package and outside that target set, so they
+  //    are not covered here. packages/scenario-harness is excluded because 8f
+  //    owns `no-restricted-imports` for it (flat config replaces, not merges)
+  //    with a strictly wider ban, and its escape rule covers relative paths.
+  // ---------------------------------------------------------------------------
+  {
+    files: [
+      "apps/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      "packages/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      "playgrounds/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      "tests/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}"
+    ],
+    ignores: ["packages/scenario-harness/**"],
+    plugins: {
+      "@workspace": workspaceBoundaryPlugin
+    },
+    rules: {
+      "no-restricted-imports": noWorkspaceSubpathImportsRule(false),
+      "@workspace/no-cross-package-path-imports": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 8h. The named-reach lane of 8g. headless's ONE "./testing" entry is
+  //    reachable from exactly these files — another package's specs reaching
+  //    its module kits, its replay setup and its recorded fixtures through it,
+  //    plus the ONE app-runtime seam the operator ruled in on 2026-08-12
+  //    (FE-2977 `ESC6`, route (a)): a playground whose whole subject is the
+  //    recorded scenarios has access to them by implication of the approved
+  //    concept. So the boundary reads "app runtime reaches recorded artefacts
+  //    through exactly one named seam" rather than "never" — every other app
+  //    file imports that seam, and 8g still bans the entry everywhere else, so
+  //    no second door can open. A per-module subpath below the entry is banned
+  //    HERE too: this lane re-arms `./testing`, never `./testing/*`, which the
+  //    package does not publish. Flat config REPLACES `no-restricted-imports`,
+  //    so this restates the whole rule rather than adding to it; arm 2 (the
+  //    relative-escape rule) is untouched and still forbids reaching the same
+  //    files by path.
+  // ---------------------------------------------------------------------------
+  {
+    files: [
+      "**/__tests__/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      "**/*.{test,spec}.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
+      "playgrounds/*/tests/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      // The scenario framework's own test kit — the shared helpers every spec
+      // above imports. Same named-reach lane as `tests/**`, just the home they
+      // moved to when the framework absorbed them; neither is a spec itself, so
+      // the two globs above never match them.
+      "playgrounds/*/modules/scenarios/testing/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      "playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.source.ts",
+      "tests/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}"
+    ],
+    ignores: ["packages/scenario-harness/**"],
+    rules: {
+      "no-restricted-imports": noWorkspaceSubpathImportsRule(true)
     }
   },
 

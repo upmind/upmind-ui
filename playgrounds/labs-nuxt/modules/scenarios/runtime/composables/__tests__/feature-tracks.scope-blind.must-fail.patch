@@ -1,0 +1,35 @@
+Negative control for feature-tracks.spec.ts (T4.1, AC2.5 — the input to design
+§3.1 ruling 2).
+
+A track's DECLARED SCOPE is what the player compares against the page's current
+scope before it arms, and a mismatch is what sends the page to that scope FIRST
+(design §3.1 ruling 2 / §7.1). The client-emails page's 11th scenario is the only one that
+declares a different scope, and it declares it the one way a Gherkin scenario
+can: its arrangement boots at it. So the one mechanism carrying that fact is the
+scope probe replaying the LEADING GIVEN scenes against a recording world.
+
+This mutant reads the wrong arrangement: it probes the leading `When` scenes,
+of which every driven scenario has none in front, so nothing boots against the
+probe and every track comes back with no declared scope at all. Nothing throws,
+the playlist still parses into 11 playable tracks, and the staff track now looks
+like an in-place one — which is precisely the invisible failure §7.1 names, since
+a player with no mismatch to see would arm a foreign scope on the page's own
+cell.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: feature-tracks.spec.ts — the declared-scope case (the staff track carries
+the scope its arrangement boots at, the client tracks carry theirs).
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useFeatureTracks.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useFeatureTracks.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useFeatureTracks.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useFeatureTracks.ts
+@@ -89,7 +89,7 @@ function declaredScope(scenes: readonly TrackScene[]): WorldScope | undefined {
+     dispose: async () => {}
+   };
+ 
+-  forEach(takeWhile(scenes, ["kind", STEP_KIND.GIVEN]), scene => {
++  forEach(takeWhile(scenes, ["kind", STEP_KIND.WHEN]), scene => {
+     // A boot-first handler calls `world.boot` before it awaits anything, so the
+     // probe holds the scope by the time `run` hands its promise back — which is
+     // what lets the bar and the player read `scope` synchronously. The promise

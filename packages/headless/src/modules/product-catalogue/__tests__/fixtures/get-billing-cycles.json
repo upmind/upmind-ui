@@ -1,0 +1,111 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/billing_cycles",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a2903c07f8e66cb8-DUR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 10 Aug 2026 16:04:07 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=cEVdsajZj0A%2BccO4trcGUJ%2B8%2BwEkwY98LccicYJtYH05b3fyfIOye12rZVio9KOOkRIf5EufrKQdXw7XtU83PKMC%2BSqhvfVKn8ykdNe4lGwLNbb1%2Bvb6bTK71pmgWaC8eUWcJio9aw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "14"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "3825d96e-763e-d091-3dc4-174825283406",
+          "name": "One Time",
+          "recurring": 0,
+          "months": 0
+        },
+        {
+          "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+          "name": "Monthly",
+          "recurring": 1,
+          "months": 1
+        },
+        {
+          "id": "24d03679-424d-0e71-04b3-153698d582e8",
+          "name": "Quarterly",
+          "recurring": 1,
+          "months": 3
+        },
+        {
+          "id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+          "name": "Semiannually",
+          "recurring": 1,
+          "months": 6
+        },
+        {
+          "id": "e47d7382-4850-7931-56c8-1e642d59e063",
+          "name": "Annually",
+          "recurring": 1,
+          "months": 12
+        },
+        {
+          "id": "45952098-d3de-4091-76a3-1578626e347e",
+          "name": "Biennially",
+          "recurring": 1,
+          "months": 24
+        },
+        {
+          "id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+          "name": "Triennially",
+          "recurring": 1,
+          "months": 36
+        },
+        {
+          "id": "73de7864-2de5-3971-4ef2-1208469530d0",
+          "name": "Every 4 Years",
+          "recurring": 1,
+          "months": 48
+        },
+        {
+          "id": "57898574-2648-9701-25c2-1e325d0ed369",
+          "name": "Every 5 Years",
+          "recurring": 1,
+          "months": 60
+        },
+        {
+          "id": "9320e435-795e-78d1-88a3-1643202d9860",
+          "name": "Every 6 Years",
+          "recurring": 1,
+          "months": 72
+        }
+      ],
+      "related": null,
+      "total": 14,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-10T16:04:07.331Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "product-catalogue"
+  }
+}

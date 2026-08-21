@@ -1,0 +1,34 @@
+Negative control for the replay treatment's colour family (`H2` · `AC2.8`).
+
+Repaints the rail's played half — indicator and connector — in the warning
+family and changes nothing else: the same stops, the same done · current ·
+pending states, the same seek. So the only claim that can go red is the ruled
+one: a playing scenario is the primary family, and warning stays reserved for
+actual warnings.
+
+Re-targeted 2026-08-13 after `R7-8` gave the rail its own row and dropped the
+bar-scale overrides the old hunk's context carried. Same claim, same red,
+current source.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the replay-treatment case — the rail carries nothing from the warning
+family in either of its played states.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRail.styles.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRail.styles.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRail.styles.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRail.styles.ts
+@@ -26,11 +26,11 @@
+     // The played part of the track reads primary, the rest neutral — the
+     // playing treatment is the primary family throughout (H2).
+     indicator: cva(
+-      "group-data-[state=active]:bg-accent-primary group-data-[state=active]:text-accent-primary-contrast group-data-[state=completed]:bg-accent-primary group-data-[state=completed]:text-accent-primary-contrast"
++      "group-data-[state=active]:bg-accent-warning group-data-[state=active]:text-accent-warning-contrast group-data-[state=completed]:bg-accent-warning group-data-[state=completed]:text-accent-warning-contrast"
+     ),
+
+     separator: cva(
+-      "group-data-[state=completed]:bg-accent-primary group-data-[state=active]:first:bg-accent-primary"
++      "group-data-[state=completed]:bg-accent-warning group-data-[state=active]:first:bg-accent-warning"
+     )
+   }
+ };

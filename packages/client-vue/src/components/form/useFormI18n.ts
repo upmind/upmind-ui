@@ -3,20 +3,31 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useValidationTranslator } from "@upmind-automation/headless";
 import { isEmpty, isFunction, trimStart } from "lodash-es";
-import type { JsonFormsI18nState } from "@jsonforms/core";
+import type { FormI18n } from "./useFormI18n.types";
 
 export * from "./renderers";
+export type { FormI18n } from "./useFormI18n.types";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * The engine's own translator, as a plain library function. Read
+ * `i18n.value.translate` INSIDE a computed or a render expression: destructuring
+ * it at setup top level captures the locale that was live at setup, so a locale
+ * switch silently stops re-labelling.
+ */
 export const useFormI18n = () => {
   const { t, tm, locale } = useI18n();
 
-  return computed<JsonFormsI18nState>((): JsonFormsI18nState => {
+  return computed<FormI18n>((): FormI18n => {
     // Create a translator using vue-i18n's t function and the current locale
 
     const createTranslator =
       (_locale: string) => (key: string, defaultMessage: string, data: any) => {
+        // No key names no message: `tm("")` answers with the WHOLE locale object,
+        // which would ship as the translation.
+        if (isEmpty(key)) return defaultMessage;
+
         // Handle any validation errors using the shared headless translator
         if (key.startsWith("validation.")) {
           const validationKey = trimStart(key, "validation.");
@@ -52,6 +63,6 @@ export const useFormI18n = () => {
       translate: createTranslator(safeLocale),
       translateError: (error, translate, schema) =>
         translate(`validation.${error.keyword}`, error.message, schema)
-    } as JsonFormsI18nState;
+    } as FormI18n;
   });
 };

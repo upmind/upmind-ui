@@ -1,0 +1,24 @@
+Negative control for playback having a PACE (`AC2.5` · `R6-13`).
+
+Runs the scenes back to back with no beat between them — the tight `while` the
+live drive caught: 0 to 5 in under 60 ms, so no scene is ever seen, the PLAYING
+state lasts less than one frame and Pause is unreachable by a human. A player
+that finishes before the pointer lifts is not observable playback.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the player spec — `play` holds each scene for the dwell it was given, and
+a `pause` issued during that hold leaves the playhead where it stopped.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioPlayer.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioPlayer.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioPlayer.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioPlayer.ts
+@@ -267,7 +267,7 @@
+           playhead.value >= last
+         )
+           break;
+-        await new Promise<void>(resolve => setTimeout(resolve, dwell));
++        await Promise.resolve();
+       }
+     } finally {
+       if (status.value === SCENARIO_PLAYER_STATUS.PLAYING)

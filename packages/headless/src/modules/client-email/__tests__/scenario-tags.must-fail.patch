@@ -1,0 +1,17 @@
+diff --git a/packages/headless/src/modules/client-email/useClientEmails.actions.ts b/packages/headless/src/modules/client-email/useClientEmails.actions.ts
+--- a/packages/headless/src/modules/client-email/useClientEmails.actions.ts
++++ b/packages/headless/src/modules/client-email/useClientEmails.actions.ts
+@@ -175,13 +175,10 @@ export function createClientEmailsActions(
+     /**
+      * @scenario-include
+      */
+     refresh,
+ 
+-    /**
+-     * @scenario-include
+-     */
+     remove: service.remove,
+ 
+     /**
+      * @scenario-include
+      */

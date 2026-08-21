@@ -21,6 +21,7 @@ declare interface CookieOptions {
 }
 
 declare type Encoder<T> = (value: T) => string;
+declare type Decoder<T> = (value: string) => T;
 
 // --------------------------------------------------------
 
@@ -41,9 +42,9 @@ function handleCookieStoreChange(event: CookieChangeEvent): void {
 }
 
 if (typeof window !== "undefined" && "cookieStore" in window) {
-  (window as any).cookieStore.addEventListener(
+  (window.cookieStore as EventTarget).addEventListener(
     "change",
-    handleCookieStoreChange
+    handleCookieStoreChange as EventListener
   );
 }
 
@@ -75,18 +76,21 @@ export function useCookies() {
   }
 
   // NB by default we always use JSON parse/strigify and base64 encoding to encode/decode the cookie value
-  const defaultEncoder = (value: any) =>
+  const defaultEncoder = (value: unknown) =>
     useUpmind.debug ? JSON.stringify(value) : btoa(JSON.stringify(value));
   const defaultDecoder = (value: string) =>
-    JSON.parse(isBase64Encoded(value) ? atob(value) : value);
+    JSON.parse(isBase64Encoded(value) ? atob(value) : value) as unknown;
 
   return {
     get: (
       key: string,
-      encoder: Encoder<any> = defaultDecoder
-    ): string | Record<string, any> | null => {
+      decoder: Decoder<unknown> = defaultDecoder
+    ): string | Record<string, unknown> | null => {
       try {
-        return getCookie(key, encoder);
+        return getCookie(key, decoder) as
+          | string
+          | Record<string, unknown>
+          | null;
       } catch (_e) {
         // TEMPORARY: we need to log this error, as it may be useful for debugging in sentry
         // console.error(" Error converting basket", error);
@@ -95,15 +99,15 @@ export function useCookies() {
     },
     set: (
       key: string,
-      value: any,
+      value: unknown,
       options?: CookieOptions,
-      encoder: Encoder<any> = defaultEncoder
+      encoder: Encoder<unknown> = defaultEncoder
     ) => setCookie(key, value, encoder, options),
     setTopLevel: (
       key: string,
-      value: any,
+      value: unknown,
       options?: CookieOptions,
-      encoder: Encoder<any> = defaultEncoder
+      encoder: Encoder<unknown> = defaultEncoder
     ) => {
       options ??= {};
 

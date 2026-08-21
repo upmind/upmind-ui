@@ -1,7 +1,11 @@
 import { computed, toValue, watch, type MaybeRefOrGetter } from "vue";
 import { useBasket } from "../basket";
 import { useProductCategories } from "../product-categories";
-import { invalidateQueryByKey, RequestSortDirection } from "../query";
+import {
+  invalidateQueryByKey,
+  RequestSortDirection,
+  SortDirection
+} from "../query";
 import service from "./product-catalogue.services";
 import {
   get,
@@ -13,27 +17,23 @@ import {
   isArray
 } from "lodash-es";
 import type { Product } from "../product";
-import type { QueryProps, RequestFilters } from "../query";
-
-/**
- * Properties by which products can be sorted.
- */
-export enum ProductSortableProperties {
-  DEFAULT = "order",
-  NAME = "name",
-  PRICE = "price"
-}
+import type {
+  ProductSortableProperties,
+  ProductQueryModel
+} from "./product-catalogue.types";
 
 // -----------------------------------------------------------------------------
 
 /**
  * A composable function that manages the product catalogue.
  * It provides methods to filter, sort, and retrieve products from the catalogue.
- * @param {QueryProps} initial - Initial query parameters for the product catalogue.
+ * @param initial - The starting query model, plus the reactive sources this
+ * composable derives it from. Untrusted; the model takes the same parse →
+ * validate path as any criteria write.
  * @returns The {@link UseProductCatalogue} composable methods and state for the product catalogue.
  */
 export const useProductCatalogue = (
-  initial?: QueryProps & {
+  initial?: Partial<ProductQueryModel> & {
     infinite?: boolean;
     includeDescendants?: boolean;
     categoryId?: MaybeRefOrGetter<string | undefined>;
@@ -113,29 +113,40 @@ export const useProductCatalogue = (
     );
   }
 
-  // --- filters
+  // --- criteria
 
   // The category id expanded to its subtree (re-derived when the async tree
-  // loads) as the comma-separated IN filter the backend needs, plus free text.
-  const queryFilters = computed<RequestFilters>(() => ({
-    "filter[products_category_id]": getCategoryIds(
-      toValue(categoryId),
-      includeDescendants
-    ).join(","),
-    query: toValue(search) || ""
+  // loads), plus the free-text term. ONE source, so what the wire carries is
+  // what the published model says.
+  const filters = computed<ProductQueryModel["filters"]>(() => ({
+    products_category_id: {
+      eq: getCategoryIds(toValue(categoryId), includeDescendants)
+    },
+    name: { like: toValue(search) || undefined }
   }));
 
-  const querySort = computed<QueryProps["sort"]>(() => {
-    const property = toValue(sortBy);
-    if (!property) return undefined;
-    return [toValue(direction) ?? RequestSortDirection.ASC, property];
+  const sort = computed<ProductQueryModel["sort"]>(() => {
+    const field = toValue(sortBy);
+    if (!field) return [];
+    return [
+      {
+        field,
+        dir:
+          toValue(direction) === RequestSortDirection.DESC
+            ? SortDirection.DESC
+            : SortDirection.ASC
+      }
+    ];
   });
 
-  // Apply the derived params. Separate watchers so a filter change doesn't churn
-  // the sort key, and vice versa. The page reset on a genuine filter/sort change
-  // is owned by the query layer (useQuery), not wired here.
-  watch(queryFilters, value => query.filter(value), { immediate: true });
-  watch(querySort, value => query.sort(value), { immediate: true });
+  // Separate watchers so a filter change doesn't churn the sort branch, and
+  // vice versa. The page reset on a genuine change is the criteria's own law.
+  watch(filters, value => query.setCriteria({ filters: value }), {
+    immediate: true
+  });
+  watch(sort, value => query.setCriteria({ sort: value }), {
+    immediate: true
+  });
 
   // ---------------------------------------------------------------------------
 
@@ -230,7 +241,30 @@ export const useProductCatalogue = (
      * @param {boolean} [exact=false] If true, only the exact query key will be invalidated.
      * @return {void}
      */
-    invalidate: invalidateQueryByKey(service.queryKey, { exact: false })
+    invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
+
+    // --- criteria
+
+    /**
+     * The collection's request state — filters · sort · pagination — as the
+     * schema-validated model. Read-only; write through {@link setCriteria}.
+     */
+    criteria: query.criteria,
+
+    /** What is filterable and sortable at all. */
+    schema: query.schema,
+
+    /** Any declared filter column carries a value. */
+    isFiltered: query.isFiltered,
+
+    /** ajv's verdict on the last REJECTED criteria write — not a fetch failure. */
+    criteriaError: query.criteriaError,
+
+    /**
+     * The ONE write verb for the request state. Merges at BRANCH level, and a
+     * write that changes the result set returns to the first page.
+     */
+    setCriteria: query.setCriteria
   };
 };
 

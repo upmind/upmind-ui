@@ -25,8 +25,12 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# The .feature specs live alongside this linter, grouped by flow.
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+# The .feature specs live alongside this linter, grouped by flow, plus any
+# package-colocated features under packages/*/src/** (e.g. __tests__/,
+# __fixtures__/).
 FEATURES_DIR="${SCRIPT_DIR}"
+PACKAGES_DIR="${REPO_ROOT}/packages"
 STYLE_GUIDE="tests/features/10-feature-style.md"
 
 # --- Banned-pattern rules ----------------------------------------------------
@@ -61,7 +65,11 @@ if [ "$#" -gt 0 ]; then
     esac
   done
 else
-  while IFS= read -r f; do files+=("$f"); done < <(find "${FEATURES_DIR}" -type f -name '*.feature' | sort)
+  while IFS= read -r f; do files+=("$f"); done < <(
+    { find "${FEATURES_DIR}" -type f -name '*.feature'
+      find "${PACKAGES_DIR}" -type f -path '*/src/*' -name '*.feature' -not -path '*/node_modules/*'
+    } | sort -u
+  )
 fi
 
 if [ "${#files[@]}" -eq 0 ]; then

@@ -1,0 +1,12 @@
+diff --git a/packages/headless/src/modules/query/query.utils.ts b/packages/headless/src/modules/query/query.utils.ts
+--- a/packages/headless/src/modules/query/query.utils.ts
++++ b/packages/headless/src/modules/query/query.utils.ts
+@@ -448,7 +448,7 @@ function toWireFilterValue(operator: string, value: unknown): string {
+       operator
+     )
+   )
+-    return `%${value}%`;
++    return `${value}`;
+   if (isBoolean(value)) return value ? "1" : "0";
+   if (isArray(value)) return join(value, ",");
+   return String(value);

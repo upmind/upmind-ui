@@ -156,7 +156,7 @@ describe("client-email — problems are reported, never announced (AC-22)", () =
 
     const manager = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", target.id);
+      .withId(target.id);
     await manager.useActions().isReady();
 
     await expect(
@@ -300,7 +300,7 @@ describe("client-email — the addresses I act on are the ones my scope named (A
 
     const manager = useClientEmailManager()
       .as(ScopeActorTypes.SELF)
-      .for("email", secondary.id);
+      .withId(secondary.id);
     await manager.useActions().isReady();
     await manager.useActions().update({ email: created.email });
 
@@ -324,9 +324,15 @@ describe("client-email — the addresses I act on are the ones my scope named (A
     }
   });
 
-  it("AC-23 resolves the target client in one seam — no other module file reads the session's active user", () => {
-    expect(moduleFilesReferencing("activeUser")).toEqual([
+  it("AC-23 resolves the target client through the SHARED scope seam — no module file reads the session's active user at all (Task 57)", async () => {
+    // The shared seam lives on session-store (P1-R11); the module keeps zero copies.
+    expect(moduleFilesReferencing("activeUser")).toEqual([]);
+    expect(moduleFilesReferencing("function resolveClientId")).toEqual([]);
+    expect(moduleFilesReferencing("resolveClientId")).toEqual([
       "client-email.services.ts"
     ]);
+
+    const sessionStore = await import("../../session-store");
+    expect(typeof sessionStore.resolveClientId).toBe("function");
   });
 });

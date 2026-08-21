@@ -16,7 +16,7 @@ import type { IAccount, IClient } from "@upmind-automation/types";
 export function mapInitials(client: IClient, chars: number = 1): string {
   if (!client) return "";
   return slice(client?.public_name?.split(" "), 0, chars)
-    ?.map((word: any) => first(word))
+    ?.map((word: string) => first(word))
     ?.join("");
 }
 

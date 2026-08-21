@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/product-catalogue/useProductCatalogue.ts
++++ b/packages/headless/src/modules/product-catalogue/useProductCatalogue.ts
+@@ -120,7 +120,7 @@
+   // what the published model says.
+   const filters = computed<ProductQueryModel["filters"]>(() => ({
+     products_category_id: {
+-      eq: getCategoryIds(toValue(categoryId), includeDescendants)
++      eq: undefined
+     },
+     name: { like: toValue(search) || undefined }
+   }));

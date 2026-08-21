@@ -1,0 +1,28 @@
+Negative control for the picker offering ONE ENTRY PER CONTROL the table
+declares (`R6-35`), not per column it happens to be drawing.
+
+Builds the options from the DRAWN columns rather than the declared ones. It
+reads as a one-word simplification and is a one-way door: a column the user
+takes off leaves the menu with it, so nothing can ever put it back and the only
+recovery is editing the url by hand. Hiding still works, the url still carries
+the set, the default set is still the declaration's — only the option list is on
+trial.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the column-set spec — after a column is hidden the picker no longer offers
+it, so the "every declared column stays offerable" case fails and the case that
+switches a hidden column back on fails with it.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+@@ -663,7 +663,7 @@
+ const pickerColumns = computed<ColumnOption[]>(() =>
+   isCardView.value
+     ? []
+-    : map(declaredColumns.value, element => ({
++    : map(columnElements.value, element => ({
+         value: columnKey(element),
+         label: i18n.value.translate(element.i18n, element.i18n),
+         isVisible: includes(visibleKeys.value, columnKey(element))

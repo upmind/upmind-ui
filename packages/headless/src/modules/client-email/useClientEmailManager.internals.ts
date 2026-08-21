@@ -1,11 +1,10 @@
 import type { UseActor } from "../../utils";
-import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ScopeActorTypes } from "../scope";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmailManager.internals
  * @description Manager internals (debugging). The machine half exposes
  * `send`/`state`/`service`; the collection half exposes the raw `query`.
- * @doctrine clause 1 (uniform four-layer default) — machine-variant form.
  */
 export function createClientEmailManagerInternals(
   actorScope: ScopeActorTypes,
@@ -23,7 +22,6 @@ export function createClientEmailManagerInternals(
   };
 }
 
-// Type export for consumers
 export type UseClientEmailManagerInternals = ReturnType<
   typeof createClientEmailManagerInternals
 >;

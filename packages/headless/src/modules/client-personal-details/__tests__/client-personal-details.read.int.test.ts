@@ -56,8 +56,8 @@ import {
   seedClientSession
 } from "./client-personal-details.int-helpers";
 import { usePersonalDetails } from "..";
-import { ScopeActorTypes } from "../../scope/scope.types";
 import { queryClient } from "../../query/client";
+import { ScopeActorTypes } from "../../scope/scope.types";
 import { server } from "./setup.integration";
 import type { IClient } from "@upmind-automation/types";
 

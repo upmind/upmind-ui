@@ -1,0 +1,48 @@
+Negative control for what the page header is NOT (G3 · G4 · AC5.2).
+
+Puts a display setting back in the header: the view toggle rides in beside the
+title, so the cluster G4 broke apart re-forms one line higher up — the data
+action and the "how the same rows are drawn" control sharing a row again. The
+title, the collection actions and the handoff they open are untouched, so what
+goes red is the one claim under test: the header holds the page's own action
+and nothing that only changes the display.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: page-header.spec.ts — the AC5.2 case (the header renders no ordering or
+view control; those sit on the data surface).
+
+Re-armed 2026-08-13 against the replay lock (`R6-23`), which put the actions
+behind their own tooltip and moved the import line the second hunk lands on.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/PageHeader.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/PageHeader.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/PageHeader.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/PageHeader.vue
+@@ -1,6 +1,13 @@
+ <template>
+   <header data-test-key="page-header" :class="styles.pageHeader.root">
+     <h1 :class="styles.pageHeader.title">{{ name }}</h1>
++
++    <ToggleGroup
++      type="single"
++      size="sm"
++      model-value="table"
++      :items="[{ value: 'table', label: 'Table', icon: 'table' }]"
++    />
+ 
+     <!-- The tooltip's own trigger is the wrapper, so the reason is still
+          reachable over a control the pointer can no longer press (`R6-23`). -->
+@@ -51,7 +58,12 @@
+ 
+ import { computed } from "vue";
+ import { useI18n } from "vue-i18n";
+-import { Button, Tooltip, useStyles } from "@upmind-automation/upmind-ui";
++import {
++  Button,
++  ToggleGroup,
++  Tooltip,
++  useStyles
++} from "@upmind-automation/upmind-ui";
+ import config from "./PageHeader.styles";
+ import { isEmpty } from "lodash-es";
+ import type { PageHeaderProps } from "./PageHeader.types";

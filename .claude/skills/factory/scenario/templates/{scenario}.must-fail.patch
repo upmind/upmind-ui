@@ -1,0 +1,41 @@
+TEMPLATE FILE — doctrine wins over this skeleton. Authority:
+`verify-negative-controls` and `agent-seat-separation`'s "Must-fail
+negative-control patches — who authors them": the DEVELOPER authors this file
+(it knows the line it mutated), the PROVER applies it blind, confirms the named
+assertion goes RED, then reverts with `git apply -R` — never `git checkout --`,
+which would discard unrelated working-tree changes with it.
+
+Reference: `playgrounds/labs-nuxt/modules/scenarios/__tests__/` — the built
+negative controls, read while authoring, never a match target.
+
+Every angle-bracket token below is a placeholder. A patch shipped with one
+unreplaced is not a negative control; a patch whose "Proven RED" receipt was
+never actually run is a forged one.
+
+-------------------------------------------------------------------------------
+
+Negative control for modules-declaration.spec.ts (the binding claim).
+
+Withdraws BOTH composable channels from the declaration, leaving a page with
+nothing to boot. `useList` is required by today's contract and `useMutate` is
+optional, so "at least one" has no type expression and nothing but this
+assertion stands between a declaration naming neither and a page that renders
+an empty surface with no error. The `names at least one of useList / useMutate`
+assertion must therefore go RED.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Proven RED <YYYY-MM-DD> (`pnpm --filter <workspace> test <spec path>`):
+  x the declaration draws only what it declares > names at least one of useList / useMutate
+      -> AssertionError: expected false to be true
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/useModules/module.scenario.ts b/playgrounds/labs-nuxt/modules/scenarios/useModules/module.scenario.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/useModules/module.scenario.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/useModules/module.scenario.ts
+@@ -<start>,<count> +<start>,<count> @@
+ export default {
+   key: MODULES_SCENARIO,
+-  useList: useModules,
+-  useMutate: useModuleManager,
+   tracks: "module",
+   presentation: {

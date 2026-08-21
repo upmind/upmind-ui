@@ -1,0 +1,31 @@
+Negative control for the picker opening on a real SURFACE (`R7-3`).
+
+Has the picker state a background of its OWN. The class it passes reaches the ui
+menu panel through `cn`, so tailwind-merge drops the panel's `bg-control-surface`
+in favour of the consumer's `bg-transparent` and the menu paints no fill at all —
+while keeping its portal, its ring, its radius, its position and every one of its
+behaviours. The table rows and the status badges under it read straight through
+the open menu, which is exactly what the operator was shown.
+
+This is the CONSUMER's half of the defect, and the only half this lane owns:
+`packages/ui` is import-only (`R7-15`) and its panel is already approved, so what
+is left to prove is that the picker composes that panel instead of dressing it.
+The failure mode is real and cheap — one utility in a styles file silently
+withdraws the surface every other menu in the product has.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the column-picker spec's panel case — the opened menu no longer carries the
+theme's own surface, so it is not the same object as every other menu.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.styles.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.styles.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.styles.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.styles.ts
+@@ -13,6 +13,6 @@ export default {
+     // else is stated here: the surface, the elevation and the radius are the ui
+     // menu panel's own, which is what makes this menu and every other one in
+     // the product the same object (`R7-3`).
+-    content: cva("max-h-96 w-56 overflow-y-auto")
++    content: cva("max-h-96 w-56 overflow-y-auto bg-transparent")
+   }
+ };

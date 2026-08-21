@@ -1,4 +1,9 @@
 import { computed } from "vue";
+import {
+  useQuerySchema,
+  useQueryUischema,
+  useSortUischema
+} from "./client-email.schemas";
 import { mapToHeadlessError, useCollection } from "../../utils";
 import { isArray } from "lodash-es";
 import type {
@@ -7,7 +12,7 @@ import type {
   Email
 } from "./client-email.types";
 import type { ResponseError } from "../../utils";
-import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ScopeActorTypes } from "../scope";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmails.context
@@ -15,11 +20,9 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * Query-backed: data is mapped in `client-email.services.ts` via `select`,
  * never here.
  *
- * ERRORS ARE STATE, NOT EVENTS. `error` is the scope's captured failure —
- * the last rejected row mutation, else the list query's own — exposed for the
- * consumer to render. This layer never raises it.
- *
- * @doctrine clause 2 — shared-only (armless).
+ * ERRORS ARE STATE, NOT EVENTS. `error` is the scope's captured failure — an
+ * invalid query model, else the last rejected row mutation, else the list
+ * query's own — exposed for the consumer to render. This layer never raises it.
  */
 export function createClientEmailsContext(
   _actorScope: ScopeActorTypes,
@@ -36,12 +39,10 @@ export function createClientEmailsContext(
 
   const error = computed<ResponseError | undefined>(
     () =>
+      query.criteriaError.value ??
       service.error.value ??
       (query.error.value ? mapToHeadlessError(query.error.value) : undefined)
   );
-
-  // --- actor-specific context: none earned yet (clause 2). When a scope earns
-  // one, add `useClientEmails.context.{actor}.ts` and spread it LAST.
 
   return {
     /** The reactive list of this scope's addresses (always an array). */
@@ -60,14 +61,29 @@ export function createClientEmailsContext(
     getOne,
 
     /** Reactive pagination descriptor for the list query. */
-    pagination: query.pagination
+    pagination: query.pagination,
 
-    // The arm merges in HERE, last.
-    // ...actorContext
+    /**
+     * This scope's ACTIVE request state — `{ filters, sort, pagination }`, the
+     * query's own published criteria rather than a copy of it; read-only, write
+     * through `useActions().filterBy` / `.sortBy`.
+     */
+    query: query.criteria,
+
+    /**
+     * The module's schema family, plain JSON so it survives the renderer port's
+     * `JSON` round-trip. The renderer's only door to it is `useContext()`.
+     */
+    schemas: {
+      query: {
+        schema: useQuerySchema(),
+        uischema: useQueryUischema(),
+        sortUischema: useSortUischema()
+      }
+    }
   };
 }
 
-// Type export for consumers
 export type UseClientEmailsContext = ReturnType<
   typeof createClientEmailsContext
 >;

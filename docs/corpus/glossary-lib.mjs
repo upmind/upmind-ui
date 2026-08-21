@@ -4,7 +4,8 @@
 //
 // Plain node ESM, no runtime deps (matching the docs/corpus/*.mjs siblings).
 
-import { resolve } from 'node:path';
+import { existsSync, readdirSync } from 'node:fs';
+import { basename, relative, resolve } from 'node:path';
 
 export const norm = (s) => String(s ?? '').trim().toLowerCase();
 
@@ -23,6 +24,35 @@ export function classifyReferents(referents, index) {
     else unresolved.push(ref.id);
   }
   return { resolved, unresolved };
+}
+
+// Derive a module's own `docs/` set from a file path that lives inside a
+// `.../modules/<name>/` directory (operator ruling 2026-08-19 — the recurring
+// miss behind scope / `.as('self')`-vs-`.for('client', id)` confusion). Shared
+// by both discovery faces: the push hook (glossary-inject) keys it off the
+// touched file path, the pull CLI (glossary-resolve) keys it off each referent
+// path. Read LIVE from the folder — never a hand-listed path, so it cannot
+// drift. Returns null when the path is not inside a module, the module has no
+// `docs/` dir, or that dir holds no `.md` files. Never throws.
+//   baseDir — the root a relative filePath resolves against (the hook passes its
+//   cwd; the resolver passes the repo root). An absolute filePath ignores it.
+export function moduleDocsFor(filePath, baseDir) {
+  if (!filePath) return null;
+  const norm = String(filePath).replace(/\\/g, '/');
+  const m = norm.match(/^(.*\/modules\/[^/]+)\//);
+  if (!m) return null;
+  const base = baseDir ?? process.cwd();
+  const docsDir = resolve(base, m[1], 'docs');
+  let files;
+  try {
+    if (!existsSync(docsDir)) return null;
+    files = readdirSync(docsDir).filter((f) => f.endsWith('.md')).sort();
+  } catch {
+    return null;
+  }
+  if (!files.length) return null;
+  const relDir = relative(base, docsDir).replace(/\\/g, '/') || docsDir;
+  return { moduleName: basename(m[1]), relDir, files };
 }
 
 // Shared CLI parse for both faces: pulls `--corpus <file>` (resolved against

@@ -1,0 +1,39 @@
+Negative control for the T3.11 preset spec (AC8.5 · S13).
+
+`empty` is the recorded collection with its ROWS removed — the envelope staging
+returned, minus its data — never a body written to look like one. This mutant
+keeps the empty array and the zero total, and swaps the recorded envelope it is
+spread onto for a hand-authored literal. The surface renders identically: an
+empty list is an empty list.
+
+What must go red is provenance, not the row count: the recording carries
+`related`, `error`, `messages` and `meta` beside `status`, `data` and `total`,
+and under the mutant those are gone because the body no longer came from a
+recording at all. An assertion that only counts rows, or only reads
+`body.data.length`, passes the mutant and proves nothing — the FE-2824 shape that
+the data-provenance receipt exists to catch. Compare the served body against the
+committed recording's own envelope with its rows emptied.
+
+Bodies must be injected (the spec lane may read the committed recordings
+lawfully — eslint 8h).
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the T3.11 preset spec — the empty case (the answer is the recording
+emptied, every other recorded field intact).
+
+Re-armed 2026-08-13: the hunk's leading context is the docblock the two named
+error presets rewrote (`R6-19`).
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts
+@@ -67,7 +67,7 @@
+   const body = response.body as { data?: unknown };
+ 
+   return isArray(body?.data)
+-    ? { ...response, body: { ...body, data: [], total: 0 } }
++    ? { ...response, body: { status: "ok", data: [], total: 0 } }
+     : response;
+ }
+ 
