@@ -78,6 +78,15 @@ export function useQuerySchema(): SentEmailQuerySchema {
             properties: {
               neq: { type: ["string", "null"], minLength: 1 }
             }
+          },
+          created_at: {
+            type: "object",
+            title: "Date",
+            additionalProperties: false,
+            properties: {
+              gte: { type: ["string", "null"], format: "date-time" },
+              lte: { type: ["string", "null"], format: "date-time" }
+            }
           }
         }
       },
@@ -128,11 +137,23 @@ export function useQueryUischema(): UISchemaElement {
     type: "FilterBar",
     elements: [
       {
-        type: "Control",
-        scope: "#/properties/filters/properties/subject/properties/like",
-        i18n: "form.subject_search",
-        options: { format: "search", noLabel: true, optionalText: "" }
+        type: "HorizontalLayout",
+        elements: [
+          {
+            type: "Control",
+            scope: "#/properties/filters/properties/subject/properties/like",
+            i18n: "form.subject_search",
+            options: { format: "search", noLabel: true, optionalText: "" }
+          },
+          {
+            type: "Control",
+            scope: "#/properties/filters/properties/created_at",
+            i18n: "form.created_at_range",
+            options: { format: "range", noLabel: true, optionalText: "" }
+          }
+        ]
       },
+
       {
         type: "Control",
         scope: "#/properties/filters/properties/sent/properties/eq",

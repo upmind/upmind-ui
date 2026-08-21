@@ -1,29 +1,42 @@
 <template>
   <FormField v-bind="formFieldProps" :optional-text="''">
-    <div class="flex flex-row flex-nowrap items-center gap-x-3">
-      <Input
-        :id="`${formFieldProps.id}-from`"
-        :type="inputType"
-        :disabled="!control.enabled"
-        :model-value="
-          get(control.data, RequestFilterOperator.GREATER_THAN_OR_EQUAL)
-        "
-        @update:modelValue="
-          write(RequestFilterOperator.GREATER_THAN_OR_EQUAL, $event)
-        "
-      />
-      <span aria-hidden="true">&ndash;</span>
-      <Input
-        :id="`${formFieldProps.id}-to`"
-        :type="inputType"
-        :disabled="!control.enabled"
-        :model-value="
-          get(control.data, RequestFilterOperator.LESS_THAN_OR_EQUAL)
-        "
-        @update:modelValue="
-          write(RequestFilterOperator.LESS_THAN_OR_EQUAL, $event)
-        "
-      />
+    <!--
+      The slot root takes FormField's fallthrough attrs, and its injected `class`
+      REPLACES any class declared here on re-render — so the layout lives one
+      level in, on an element the field never writes to.
+    -->
+    <div>
+      <div class="flex flex-row flex-nowrap items-center gap-x-3">
+        <Input
+          :id="`${formFieldProps.id}-from`"
+          :type="gteInputType"
+          :disabled="!control.enabled"
+          :model-value="
+            toDisplayValue(
+              get(control.data, RequestFilterOperator.GREATER_THAN_OR_EQUAL),
+              gteInputType
+            )
+          "
+          @update:modelValue="
+            write(RequestFilterOperator.GREATER_THAN_OR_EQUAL, $event)
+          "
+        />
+        <span aria-hidden="true">&ndash;</span>
+        <Input
+          :id="`${formFieldProps.id}-to`"
+          :type="lteInputType"
+          :disabled="!control.enabled"
+          :model-value="
+            toDisplayValue(
+              get(control.data, RequestFilterOperator.LESS_THAN_OR_EQUAL),
+              lteInputType
+            )
+          "
+          @update:modelValue="
+            write(RequestFilterOperator.LESS_THAN_OR_EQUAL, $event)
+          "
+        />
+      </div>
     </div>
   </FormField>
 </template>
@@ -66,26 +79,49 @@ const { control, formFieldProps, handleChange } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
 
-/**
- * `number` rather than `text` when the column's own bounds are numeric, so the
- * input casts what it emits to the leaf's declared type.
- */
-const inputType = computed(() =>
-  isEmpty(
-    intersection(
-      castArray(
-        get(control.value.schema, [
-          "properties",
-          RequestFilterOperator.GREATER_THAN_OR_EQUAL,
-          "type"
-        ])
-      ),
-      ["number", "integer"]
-    )
-  )
-    ? "text"
-    : "number"
+/** Derive input type for a specific operator from its schema leaf. */
+function getInputType(operator: RequestFilterOperator): string {
+  const leafSchema = get(control.value.schema, ["properties", operator]);
+  const leafType = castArray(get(leafSchema, "type"));
+  const leafFormat = get(leafSchema, "format");
+
+  if (!isEmpty(intersection(leafType, ["number", "integer"]))) {
+    return "number";
+  }
+  if (leafFormat === "date-time") {
+    return "datetime-local";
+  }
+  if (leafFormat === "date") {
+    return "date";
+  }
+  return "text";
+}
+
+const gteInputType = computed(() =>
+  getInputType(RequestFilterOperator.GREATER_THAN_OR_EQUAL)
 );
+const lteInputType = computed(() =>
+  getInputType(RequestFilterOperator.LESS_THAN_OR_EQUAL)
+);
+
+/** Convert ISO 8601 string to input-compatible format for display. */
+function toDisplayValue(
+  isoValue: string | null | undefined,
+  inputType: string
+): string {
+  if (!isoValue) return "";
+  if (inputType === "datetime-local") {
+    const date = new Date(isoValue);
+    if (isNaN(date.getTime())) return isoValue;
+    return date.toISOString().slice(0, 16);
+  }
+  if (inputType === "date") {
+    const date = new Date(isoValue);
+    if (isNaN(date.getTime())) return isoValue;
+    return date.toISOString().slice(0, 10);
+  }
+  return isoValue;
+}
 
 // --- methods
 
@@ -95,15 +131,25 @@ const inputType = computed(() =>
  * unset member.
  */
 function write(operator: RequestFilterOperator, value?: string | number): void {
-  // An emptied box carries no text; `isEmpty` cannot say so here, since it calls
-  // every number empty and `0` is a legitimate bound.
   const isUnset = isNil(value) || value === "";
+  const inputType = getInputType(operator);
 
-  // `handleChange`, not the renderer's `onInput`: a cleared end writes `null`,
-  // which `onInput` drops as "not dirty".
+  let finalValue: string | number | null = null;
+  if (!isUnset && typeof value === "string") {
+    if (inputType === "datetime-local") {
+      finalValue = new Date(value).toISOString();
+    } else if (inputType === "date") {
+      finalValue = `${value}T00:00:00Z`;
+    } else {
+      finalValue = value;
+    }
+  } else if (!isUnset) {
+    finalValue = value as number;
+  }
+
   handleChange(
     control.value.path,
-    assign({}, control.value.data, { [operator]: isUnset ? null : value })
+    assign({}, control.value.data, { [operator]: finalValue })
   );
 }
 </script>
