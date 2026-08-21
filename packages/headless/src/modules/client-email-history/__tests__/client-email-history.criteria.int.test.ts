@@ -229,6 +229,27 @@ describe("client-email-history criteria — narrow to what happened to each emai
     observed.stop();
   });
 
+  it("FE-3101 sends the date range as filter[created_at|gte] and filter[created_at|lte]", async () => {
+    const emails = await bootCollection();
+    const observed = observeEmailHistoryRequests();
+
+    emails.useActions().setCriteria({
+      filters: {
+        created_at: { gte: "2026-01-01T00:00:00Z", lte: "2026-12-31T23:59:59Z" }
+      }
+    });
+
+    await vi.waitFor(() =>
+      expect(latestParams(observed).get("filter[created_at|gte]")).toBe(
+        "2026-01-01T00:00:00Z"
+      )
+    );
+    expect(latestParams(observed).get("filter[created_at|lte]")).toBe(
+      "2026-12-31T23:59:59Z"
+    );
+    observed.stop();
+  });
+
   it("AC-8 switches selection on the SAME live instance and re-reads straight away, leaving no part of the previous selection behind", async () => {
     const emails = await bootCollection();
     const keysBefore = clientEmailHistoryScopeKeys();
@@ -318,10 +339,30 @@ describe("client-email-history criteria — the published surface a consumer der
 
     const schemas = emails.useContext().schemas.query;
     expect(schemas.uischema).toBeDefined();
+    // FE-3101: uischema declares created_at with format: "range" for FilterRangeRenderer
+    const elements =
+      (schemas.uischema as { elements?: unknown[] }).elements ?? [];
+    const createdAtControl = elements.find(
+      (el: unknown) =>
+        typeof el === "object" &&
+        el !== null &&
+        "scope" in el &&
+        String((el as { scope: string }).scope).includes("created_at")
+    );
+    expect(createdAtControl).toBeDefined();
+    expect(
+      (createdAtControl as { options?: { format?: string } }).options?.format
+    ).toBe("range");
     expect(schemas.schema).toMatchObject({
       properties: {
         filters: {
-          properties: { subject: {}, sent: {}, bounced: {}, error_id: {} }
+          properties: {
+            subject: {},
+            sent: {},
+            bounced: {},
+            error_id: {},
+            created_at: { properties: { gte: {}, lte: {} } }
+          }
         },
         sort: {}
       }
