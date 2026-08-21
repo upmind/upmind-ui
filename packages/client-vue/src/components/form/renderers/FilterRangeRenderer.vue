@@ -87,18 +87,29 @@ const inputType = computed(() => {
   if (!isEmpty(intersection(leafType, ["number", "integer"]))) {
     return "number";
   }
-  if (leafFormat === "date-time" || leafFormat === "date") {
+  if (leafFormat === "date-time") {
     return "datetime-local";
+  }
+  if (leafFormat === "date") {
+    return "date";
   }
   return "text";
 });
 
-/** Convert ISO 8601 string to datetime-local format for display. */
+/** Convert ISO 8601 string to input-compatible format for display. */
 function toDisplayValue(isoValue: string | null | undefined): string {
-  if (!isoValue || inputType.value !== "datetime-local") return isoValue ?? "";
-  const date = new Date(isoValue);
-  if (isNaN(date.getTime())) return isoValue;
-  return date.toISOString().slice(0, 16);
+  if (!isoValue) return "";
+  if (inputType.value === "datetime-local") {
+    const date = new Date(isoValue);
+    if (isNaN(date.getTime())) return isoValue;
+    return date.toISOString().slice(0, 16);
+  }
+  if (inputType.value === "date") {
+    const date = new Date(isoValue);
+    if (isNaN(date.getTime())) return isoValue;
+    return date.toISOString().slice(0, 10);
+  }
+  return isoValue;
 }
 
 // --- methods
@@ -112,13 +123,16 @@ function write(operator: RequestFilterOperator, value?: string | number): void {
   const isUnset = isNil(value) || value === "";
 
   let finalValue: string | number | null = null;
-  if (!isUnset) {
-    // datetime-local emits "2026-08-01T13:17" — convert to ISO 8601 with Z
-    if (inputType.value === "datetime-local" && typeof value === "string") {
+  if (!isUnset && typeof value === "string") {
+    if (inputType.value === "datetime-local") {
       finalValue = new Date(value).toISOString();
+    } else if (inputType.value === "date") {
+      finalValue = `${value}T00:00:00Z`;
     } else {
-      finalValue = value as string | number;
+      finalValue = value;
     }
+  } else if (!isUnset) {
+    finalValue = value as number;
   }
 
   handleChange(
