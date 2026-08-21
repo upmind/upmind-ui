@@ -156,6 +156,8 @@ export type SentEmailQueryModel = {
     sent?: { eq?: boolean };
     bounced?: { eq?: boolean };
     error_id?: { neq?: string };
+    /** @see graphify-out/ FE-3101 — extends existing filters, not a new type */
+    created_at?: { gte?: string; lte?: string };
   };
   sort?: SentEmailSortEntry[];
   pagination?: { limit?: number; offset?: number };
