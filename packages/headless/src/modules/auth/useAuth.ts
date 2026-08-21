@@ -18,7 +18,6 @@ import {
 import type { AuthContext, AuthScopeMatrix } from "./auth.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { ScopeConfig, ScopeKey } from "../scope/scope.types";
-import type { IToken } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module auth/useAuth

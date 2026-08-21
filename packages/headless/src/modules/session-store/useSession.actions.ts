@@ -35,7 +35,6 @@ function readActiveUser(state: SessionState): SessionUser | undefined {
 export function createSessionActions(_sessionId?: string) {
   const store = useSessionStore();
   const storeActions = store.useActions();
-  const storeMeta = store.useMeta();
   const { t } = useI18n();
 
   return {

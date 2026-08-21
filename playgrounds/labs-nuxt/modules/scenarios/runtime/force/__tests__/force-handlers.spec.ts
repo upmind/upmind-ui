@@ -20,7 +20,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { corpusBodies } from "../corpus.source";
+import { runtimeCorpus } from "../corpus";
 import { createForceHandlers } from "../handlers";
 import { filter, map, size, some } from "lodash-es";
 import type { ForcePreset } from "../../composables/useForcedState.types";
@@ -28,7 +28,7 @@ import type { HttpHandler } from "msw";
 
 // -----------------------------------------------------------------------------
 
-const bodies = corpusBodies();
+const bodies = runtimeCorpus()!;
 
 const PRESETS: ForcePreset[] = [
   "empty",

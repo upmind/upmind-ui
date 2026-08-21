@@ -271,13 +271,13 @@ export function isCookieSyncActive(): boolean {
  * AUTHENTICATED if authenticated. Never fires UNAUTHENTICATED on initial.
  */
 export const authSubscription = (
-  callback: any,
-  onReceive: any
+  callback: (event: { type: string }) => void,
+  onReceive: (handler: (event: unknown) => void) => void
 ): (() => void) => {
   let lastToken: string | null = null;
   let wasAuthenticated = false;
 
-  onReceive((_event: any) => {
+  onReceive((_event: unknown) => {
     // no-op — parent machine doesn't send events to this actor
   });
 

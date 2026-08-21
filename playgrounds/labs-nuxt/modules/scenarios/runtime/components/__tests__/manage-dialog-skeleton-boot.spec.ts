@@ -24,12 +24,15 @@ import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ScopeActorTypes } from "@upmind-automation/headless";
 import { Alert, Skeleton } from "@upmind-automation/upmind-ui";
-import { unverifiedRow } from "../../../testing/recorded-emails";
+import {
+  syntheticScenario,
+  unverifiedRow,
+  useSyntheticMutateLoading
+} from "../../../testing/synthetic.scenario";
 import ManageDialog from "../ManageDialog.vue";
 import { ModuleState } from "../module-state.types";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
 import { FormFlowSurface } from "../surfaces";
-import clientEmails from "../../../useClientEmails/client-email.scenario";
 import { filter, times } from "lodash-es";
 import type {
   FourLayerComposable,
@@ -39,11 +42,11 @@ import type { ScopeContext } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
-const EDIT = clientEmails.handoff.edit;
+const EDIT = syntheticScenario.handoff.edit;
 
 const handoff: ResolvedHandoff = {
   ...EDIT,
-  useMutate: clientEmails.useMutate as FourLayerComposable,
+  useMutate: useSyntheticMutateLoading as FourLayerComposable,
   actor: ScopeActorTypes.CLIENT
 };
 

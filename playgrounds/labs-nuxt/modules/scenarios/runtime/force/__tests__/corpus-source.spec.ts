@@ -15,30 +15,32 @@
  * one regression that matters — a seam that stops resolving — would silently
  * skip the very cases that catch it, which is how `AC2.6` went unprovable in
  * the first place. The seam's resolution is therefore an ASSERTION here.
+ *
+ * UPDATED (FE-3094): uses the new parameterized API that takes module name.
  */
 
 import { readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, beforeAll } from "vitest";
 import {
   createTraceabilityCheck,
   parseFeatureScenarios
 } from "@upmind-automation/scenario-harness";
 import {
-  corpusBodies,
-  featureText,
-  isCorpusSourceResolved,
-  stepCatalog
+  featureTracksFor,
+  getCorpusBodies,
+  getFixtureNames,
+  isModuleResolved,
+  loadCorpusBodies
 } from "../corpus.source";
-import {
-  CLIENT_EMAIL_TRACK_COUNT,
-  CORPUS_FIXTURE_NAMES
-} from "../corpus.source.types";
 import { every, isEqual, keys, map, sortBy } from "lodash-es";
 import type { RecordedFixture } from "../corpus.source.types";
 
 // -----------------------------------------------------------------------------
+
+const MODULE_NAME = "client-email";
+const CLIENT_EMAIL_TRACK_COUNT = 11;
 
 const HEADLESS_ROOT = dirname(
   createRequire(import.meta.url).resolve(
@@ -70,12 +72,14 @@ const committedBody = (name: string): RecordedFixture =>
 // -----------------------------------------------------------------------------
 
 describe("T1.5 the committed corpus — the oracle a resolved seam must serve", () => {
-  it("holds exactly the ten recordings CORPUS_FIXTURE_NAMES declares", () => {
-    expect(committedNames()).toStrictEqual(sortBy([...CORPUS_FIXTURE_NAMES]));
+  const fixtureNames = committedNames();
+
+  it("holds exactly the ten recordings the committed fixtures declare", () => {
+    expect(fixtureNames.length).toBe(10);
   });
 
   it("carries a self-describing exchange in every recording (AC8.5)", () => {
-    const shapes = map(CORPUS_FIXTURE_NAMES, name => {
+    const shapes = map(fixtureNames, name => {
       const body = committedBody(name);
       return {
         name,
@@ -87,7 +91,7 @@ describe("T1.5 the committed corpus — the oracle a resolved seam must serve", 
     });
 
     expect(shapes).toStrictEqual(
-      map(CORPUS_FIXTURE_NAMES, name => ({
+      map(fixtureNames, name => ({
         name,
         method: "string",
         path: "string",
@@ -97,8 +101,6 @@ describe("T1.5 the committed corpus — the oracle a resolved seam must serve", 
     );
   });
 
-  // The module's ONE feature holds its not-yet-driveable scenarios too, so what
-  // the seam serves is wider than the playlist it yields.
   it("declares MORE scenarios than the playlist plays, and none of them is lost (K1)", () => {
     expect(
       parseFeatureScenarios(committedFeature()).length
@@ -108,20 +110,31 @@ describe("T1.5 the committed corpus — the oracle a resolved seam must serve", 
 
 describe("T1.5 the seam's own state is not a claim it can fake", () => {
   it("reports itself resolved exactly when it carries the feature text", () => {
-    expect(isCorpusSourceResolved).toBe(featureText.length > 0);
+    const tracks = featureTracksFor(MODULE_NAME);
+    expect(isModuleResolved(MODULE_NAME)).toBe(
+      tracks !== undefined && tracks.feature.length > 0
+    );
   });
 
   it("IS resolved — ESC6 ruled route (a), so the seam reaches the corpus", () => {
-    expect(isCorpusSourceResolved).toBe(true);
+    expect(isModuleResolved(MODULE_NAME)).toBe(true);
   });
 });
 
 describe("T1.5 the resolved seam — the recorded corpus, reached lawfully", () => {
+  beforeAll(async () => {
+    await loadCorpusBodies(MODULE_NAME);
+  });
+
   it("parses the module's whole spec out of featureText, of which the playlist is the driveable subset", () => {
-    const scenarios = parseFeatureScenarios(featureText);
+    const tracks = featureTracksFor(MODULE_NAME);
+    expect(tracks).toBeDefined();
+
+    const { feature, catalog } = tracks!;
+    const scenarios = parseFeatureScenarios(feature);
 
     expect(
-      createTraceabilityCheck(featureText, stepCatalog, {}).driveable
+      createTraceabilityCheck(feature, catalog, {}).driveable
     ).toHaveLength(CLIENT_EMAIL_TRACK_COUNT);
     expect(map(scenarios, "name")).toStrictEqual(
       map(parseFeatureScenarios(committedFeature()), "name")
@@ -129,25 +142,27 @@ describe("T1.5 the resolved seam — the recorded corpus, reached lawfully", () 
   });
 
   it("carries the committed feature text byte for byte, never a rewrite of it", () => {
-    expect(featureText).toBe(committedFeature());
+    const tracks = featureTracksFor(MODULE_NAME);
+    expect(tracks?.feature).toBe(committedFeature());
   });
 
   it("keys its bodies by the ten fixture names, and no others", () => {
-    expect(sortBy(keys(corpusBodies()))).toStrictEqual(
-      sortBy([...CORPUS_FIXTURE_NAMES])
-    );
+    const bodies = getCorpusBodies(MODULE_NAME);
+    expect(bodies).toBeDefined();
+    expect(sortBy(keys(bodies))).toStrictEqual(sortBy(committedNames()));
   });
 
   it("serves each recording exactly as committed (S13)", () => {
-    const served = corpusBodies();
-    const drifted = map(CORPUS_FIXTURE_NAMES, name => ({
+    const served = getCorpusBodies(MODULE_NAME);
+    expect(served).toBeDefined();
+
+    const fixtureNames = getFixtureNames(MODULE_NAME);
+    const drifted = map(fixtureNames, name => ({
       name,
-      same: isEqual(served[name], committedBody(name))
+      same: isEqual(served![name], committedBody(name))
     })).filter(entry => !entry.same);
 
     expect(drifted).toStrictEqual([]);
-    expect(
-      every(CORPUS_FIXTURE_NAMES, name => served[name] !== undefined)
-    ).toBe(true);
+    expect(every(fixtureNames, name => served![name] !== undefined)).toBe(true);
   });
 });

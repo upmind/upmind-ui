@@ -1,5 +1,4 @@
-import { TAG_KIND } from "../tags/tags.types";
-import { GATE_CAUSE, GATE_STATUS } from "./gate.types";
+import { GATE_CAUSE, GATE_STATUS, TAG_KIND } from "./gate.types";
 import type { GateInput, GateReport, GateVerdict } from "./gate.types";
 
 /**

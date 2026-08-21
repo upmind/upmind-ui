@@ -168,7 +168,7 @@ async function register(
   if (recaptchaToken) data.recaptcha_token = recaptchaToken;
 
   // add referral cookie if available, NB DO NOT DECODE
-  const referralCookie = getCookie("upm_aff", v => v);
+  const referralCookie = getCookie("upm_aff", (v: string) => v);
   if (referralCookie) data.referral_cookie = referralCookie;
 
   // Add tracking if available
@@ -213,7 +213,7 @@ async function registerAsGuest(
   const registerData: RegisterAsGuestPayload = {};
   if (currency.value) registerData.currency_id = currency.value.id;
 
-  const referralCookie = getCookie("upm_aff", v => v);
+  const referralCookie = getCookie("upm_aff", (v: string) => v);
   if (referralCookie) registerData.referral_cookie = referralCookie as string;
 
   await getTracking()

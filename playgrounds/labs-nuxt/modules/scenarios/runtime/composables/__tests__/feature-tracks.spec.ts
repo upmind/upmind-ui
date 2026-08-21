@@ -43,8 +43,12 @@ import {
   createTraceabilityCheck,
   defineSteps
 } from "@upmind-automation/scenario-harness";
-import { featureText, stepCatalog } from "../../force/corpus.source";
-import { CLIENT_EMAIL_TRACK_COUNT } from "../../force/corpus.source.types";
+import { featureTracksFor } from "../../force/corpus.source";
+
+const CLIENT_EMAIL_TRACK_COUNT = 11;
+const tracks = featureTracksFor("client-email");
+const featureText = tracks?.feature ?? "";
+const stepCatalog = tracks?.catalog ?? {};
 import { useFeatureTracks } from "../useFeatureTracks";
 import {
   countBy,

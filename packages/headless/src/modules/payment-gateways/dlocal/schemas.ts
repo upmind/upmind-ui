@@ -1,8 +1,7 @@
-// --- external
-
-// --- internal
-
-// --- utils
+import {
+  DOCUMENT_REGEX_RULES,
+  getDocumentName
+} from "@upmind-automation/types";
 import {
   useSchema as useDefaultSchema,
   useUischema as useDefaultUischema
@@ -12,15 +11,9 @@ import {
   payerNeedsEmail,
   payerNeedsPhone
 } from "../payment-gateways.utils";
-
-// --- types
-import type { GatewayContext } from "../payment-gateways.types";
 import { CURRENCY_TO_COUNTRY } from "./types";
+import type { GatewayContext } from "../payment-gateways.types";
 import type { JsonSchema, Layout } from "@jsonforms/core";
-import {
-  DOCUMENT_REGEX_RULES,
-  getDocumentName
-} from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 // The dLocal "redirect" gateway (D_LOCAL) is renderless (no Smart Fields SDK).

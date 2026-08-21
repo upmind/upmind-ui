@@ -50,8 +50,15 @@ import type {
 
 // -----------------------------------------------------------------------------
 
-// vaul-vue's drawer host probes `display-mode` on mount; jsdom ships no
-// matchMedia, so the bare mount throws before any assertion runs.
+/**
+ * @decision
+ * what: matchMedia polyfill for jsdom
+ * why: vaul-vue drawer probes display-mode on mount; jsdom has no matchMedia.
+ *      The test checks fetch behavior, not drawer rendering. Moving to e2e
+ *      would lose the granular builder-call observation this spec provides.
+ * rejected: (1) skip test — loses fetch-path coverage; (2) e2e only — loses
+ *           builder-call granularity; (3) remove drawer — breaks real UI.
+ */
 window.matchMedia =
   window.matchMedia ||
   ((query: string) =>

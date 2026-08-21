@@ -1,10 +1,5 @@
-// --- external
 import { assign } from "xstate";
-
-// --- internal
 import { useSchema, useUischema } from "./schemas";
-
-// --- types
 import type { RazorpayContext } from "./types";
 
 // -----------------------------------------------------------------------------

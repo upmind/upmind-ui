@@ -1,6 +1,27 @@
-import type { PlaygroundTag } from "../tags/tags.types";
 import type { ScopeActor } from "../world/scope-actor";
 import type { JsonSchema } from "@jsonforms/core";
+
+/**
+ * Tag kind for coverage gate verdicts.
+ * Relocated from deleted tags/tags.types.ts per FE-3094 Task T8.
+ * @see graphify-out/ community 300 (scenario-harness tags subsystem)
+ */
+export const TAG_KIND = {
+  INCLUDE: "include",
+  EXCLUDE: "exclude"
+} as const;
+
+export type TagKind = (typeof TAG_KIND)[keyof typeof TAG_KIND];
+
+/**
+ * A parsed playground tag for coverage gating.
+ * Relocated from deleted tags/tags.types.ts per FE-3094 Task T8.
+ * @see graphify-out/ community 300 (scenario-harness tags subsystem)
+ */
+export type PlaygroundTag = {
+  kind: TagKind;
+  reason?: string;
+};
 
 /**
  * Everything `runGate` needs for one scope-matrix cell: the live

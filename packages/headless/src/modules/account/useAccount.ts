@@ -17,7 +17,6 @@ import {
 import type { AccountScopeMatrix, ClientContext } from "./account.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { ScopeConfig, ScopeKey } from "../scope/scope.types";
-import type { IToken } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module account/useAccount
