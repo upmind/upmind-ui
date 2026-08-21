@@ -6,7 +6,9 @@
         :type="inputType"
         :disabled="!control.enabled"
         :model-value="
-          get(control.data, RequestFilterOperator.GREATER_THAN_OR_EQUAL)
+          toDisplayValue(
+            get(control.data, RequestFilterOperator.GREATER_THAN_OR_EQUAL)
+          )
         "
         @update:modelValue="
           write(RequestFilterOperator.GREATER_THAN_OR_EQUAL, $event)
@@ -18,7 +20,9 @@
         :type="inputType"
         :disabled="!control.enabled"
         :model-value="
-          get(control.data, RequestFilterOperator.LESS_THAN_OR_EQUAL)
+          toDisplayValue(
+            get(control.data, RequestFilterOperator.LESS_THAN_OR_EQUAL)
+          )
         "
         @update:modelValue="
           write(RequestFilterOperator.LESS_THAN_OR_EQUAL, $event)
@@ -87,6 +91,14 @@ const inputType = computed(() => {
   return "text";
 });
 
+/** Convert ISO 8601 string to datetime-local format for display. */
+function toDisplayValue(isoValue: string | null | undefined): string {
+  if (!isoValue || inputType.value !== "datetime-local") return isoValue ?? "";
+  const date = new Date(isoValue);
+  if (isNaN(date.getTime())) return isoValue;
+  return date.toISOString().slice(0, 16);
+}
+
 // --- methods
 
 /**
@@ -95,15 +107,21 @@ const inputType = computed(() => {
  * unset member.
  */
 function write(operator: RequestFilterOperator, value?: string | number): void {
-  // An emptied box carries no text; `isEmpty` cannot say so here, since it calls
-  // every number empty and `0` is a legitimate bound.
   const isUnset = isNil(value) || value === "";
 
-  // `handleChange`, not the renderer's `onInput`: a cleared end writes `null`,
-  // which `onInput` drops as "not dirty".
+  let finalValue: string | number | null = null;
+  if (!isUnset) {
+    // datetime-local emits "2026-08-01T13:17" — convert to ISO 8601 with Z
+    if (inputType.value === "datetime-local" && typeof value === "string") {
+      finalValue = new Date(value).toISOString();
+    } else {
+      finalValue = value as string | number;
+    }
+  }
+
   handleChange(
     control.value.path,
-    assign({}, control.value.data, { [operator]: isUnset ? null : value })
+    assign({}, control.value.data, { [operator]: finalValue })
   );
 }
 </script>
