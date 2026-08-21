@@ -1,8 +1,7 @@
 <template>
   <FormField v-bind="formFieldProps" :optional-text="''">
-    <div class="flex flex-row flex-nowrap items-center gap-x-2">
+    <div class="flex flex-row flex-nowrap items-center gap-x-3">
       <Input
-        class="min-w-0 flex-1"
         :id="`${formFieldProps.id}-from`"
         :type="inputType"
         :disabled="!control.enabled"
@@ -15,9 +14,8 @@
           write(RequestFilterOperator.GREATER_THAN_OR_EQUAL, $event)
         "
       />
-      <span class="text-secondary shrink-0" aria-hidden="true">&ndash;</span>
+      <span aria-hidden="true">&ndash;</span>
       <Input
-        class="min-w-0 flex-1"
         :id="`${formFieldProps.id}-to`"
         :type="inputType"
         :disabled="!control.enabled"
