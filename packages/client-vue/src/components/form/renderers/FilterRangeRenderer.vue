@@ -2,6 +2,7 @@
   <FormField v-bind="formFieldProps" :optional-text="''">
     <div class="flex flex-row flex-nowrap items-center gap-x-3">
       <Input
+        width="full"
         :id="`${formFieldProps.id}-from`"
         :type="gteInputType"
         :disabled="!control.enabled"
@@ -17,6 +18,7 @@
       />
       <span aria-hidden="true">&ndash;</span>
       <Input
+        width="full"
         :id="`${formFieldProps.id}-to`"
         :type="lteInputType"
         :disabled="!control.enabled"
