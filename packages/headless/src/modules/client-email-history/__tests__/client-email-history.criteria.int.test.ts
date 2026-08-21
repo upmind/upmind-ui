@@ -28,6 +28,7 @@
  * shadow-copy the P1-R9 ruling deleted.
  */
 
+import { castArray, get, includes, isObject, reduce } from "lodash-es";
 import { describe, expect, it, vi } from "vitest";
 import { useClientReceivedEmails } from "..";
 import { SortDirection } from "../../query";
@@ -339,16 +340,21 @@ describe("client-email-history criteria — the published surface a consumer der
 
     const schemas = emails.useContext().schemas.query;
     expect(schemas.uischema).toBeDefined();
-    // FE-3101: uischema declares created_at with format: "range" for FilterRangeRenderer
-    const elements =
-      (schemas.uischema as { elements?: unknown[] }).elements ?? [];
-    const createdAtControl = elements.find(
-      (el: unknown) =>
-        typeof el === "object" &&
-        el !== null &&
-        "scope" in el &&
-        String((el as { scope: string }).scope).includes("created_at")
-    );
+    // FE-3101: uischema declares created_at with format: "range" for
+    // FilterRangeRenderer. Layouts nest, so the search walks the whole tree —
+    // the declaration is what matters, not which layout happens to hold it.
+    const findByScope = (node: unknown, needle: string): unknown =>
+      !isObject(node)
+        ? undefined
+        : includes(get(node, "scope"), needle)
+          ? node
+          : reduce(
+              castArray(get(node, "elements", [])),
+              (found: unknown, child) => found ?? findByScope(child, needle),
+              undefined
+            );
+
+    const createdAtControl = findByScope(schemas.uischema, "created_at");
     expect(createdAtControl).toBeDefined();
     expect(
       (createdAtControl as { options?: { format?: string } }).options?.format
