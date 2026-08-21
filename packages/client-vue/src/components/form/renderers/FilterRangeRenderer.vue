@@ -67,25 +67,25 @@ const { control, formFieldProps, handleChange } = useUpmindUIRenderer(
 );
 
 /**
- * `number` rather than `text` when the column's own bounds are numeric, so the
- * input casts what it emits to the leaf's declared type.
+ * Derive the input type from the schema leaf: `number` for numeric bounds,
+ * `datetime-local` for date-time format, otherwise `text`.
  */
-const inputType = computed(() =>
-  isEmpty(
-    intersection(
-      castArray(
-        get(control.value.schema, [
-          "properties",
-          RequestFilterOperator.GREATER_THAN_OR_EQUAL,
-          "type"
-        ])
-      ),
-      ["number", "integer"]
-    )
-  )
-    ? "text"
-    : "number"
-);
+const inputType = computed(() => {
+  const leafSchema = get(control.value.schema, [
+    "properties",
+    RequestFilterOperator.GREATER_THAN_OR_EQUAL
+  ]);
+  const leafType = castArray(get(leafSchema, "type"));
+  const leafFormat = get(leafSchema, "format");
+
+  if (!isEmpty(intersection(leafType, ["number", "integer"]))) {
+    return "number";
+  }
+  if (leafFormat === "date-time" || leafFormat === "date") {
+    return "datetime-local";
+  }
+  return "text";
+});
 
 // --- methods
 
