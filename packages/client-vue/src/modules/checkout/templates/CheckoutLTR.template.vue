@@ -23,7 +23,7 @@ import { useHeader } from "../../../components/header/useHeader";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useSection } from "../../../components/section/useSection";
 import Layout from "../../../components/layout/Layout.vue";
-import { isMobile } from "@upmind-automation/upmind-ui";
+import { isMobile } from "../../../composables/isMobile";
 import { HEADER_BACKGROUND } from "../../../components/header/types";
 import {
   FOOTER_LAYOUT,

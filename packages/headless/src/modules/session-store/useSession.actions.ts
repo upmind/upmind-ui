@@ -66,6 +66,7 @@ export function createSessionActions(_sessionId?: string) {
       // re-evaluate outside an effect scope.
       return new Promise<SessionUser>((resolve, reject) => {
         let unsubscribe = (): void => {};
+        // eslint-disable-next-line prefer-const -- timer must be let: done() closure references it before assignment
         let timer: ReturnType<typeof setTimeout>;
         const done = (): void => {
           unsubscribe();

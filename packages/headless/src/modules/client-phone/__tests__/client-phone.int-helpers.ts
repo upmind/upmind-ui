@@ -86,6 +86,22 @@ export const recorded = {
     getFixtureBody<Envelope<WirePhone[]>>("get-clients-id-phones-case-page-2", {
       recordingsDir
     }),
+  /** `GET clients/{id}/phones?order=-created_at` — the real descending read. */
+  sortDesc: () =>
+    getFixtureBody<Envelope<WirePhone[]>>(
+      "get-clients-id-phones-case-sort-desc",
+      {
+        recordingsDir
+      }
+    ),
+  /** `GET clients/{id}/phones?order=created_at` — the real ascending read. */
+  sortAsc: () =>
+    getFixtureBody<Envelope<WirePhone[]>>(
+      "get-clients-id-phones-case-sort-asc",
+      {
+        recordingsDir
+      }
+    ),
   /** `POST clients/{id}/phones` — the created record. */
   created: () =>
     getFixtureBody<Envelope<WirePhone>>("post-clients-id-phones", {
@@ -493,6 +509,78 @@ export function installPagedPhonesHandler(
   );
 
   return { offsets: () => offsets };
+}
+
+/**
+ * The needle both recorded free-text captures searched for
+ * (`get-clients-id-phones-case-*-like-filter-*-like-111.json`) — `111`.
+ */
+export function recordedNeedle(): string {
+  return "111";
+}
+
+/**
+ * Serves the two RECORDED sort orders, chosen by the request's own `order`
+ * key — a real descending and a real ascending read of the same account, so
+ * a consumer-driven re-sort is proven against rows the API actually
+ * reordered, never a client-side re-sort of one fixture.
+ */
+export function installSortedPhonesHandler(
+  mswServer: SetupServer | undefined,
+  clientId: string
+): void {
+  const desc = recorded.sortDesc();
+  const asc = recorded.sortAsc();
+  const list = recorded.list();
+
+  mswServer?.use(
+    http.get(`*/clients/${clientId}/phones`, ({ request }) => {
+      const order = new URL(request.url).searchParams.get("order");
+      if (order === "-created_at")
+        return HttpResponse.json(desc, { status: 200 });
+      if (order === "created_at")
+        return HttpResponse.json(asc, { status: 200 });
+      return HttpResponse.json(list, { status: 200 });
+    })
+  );
+}
+
+/**
+ * Serves the module's declared boot window by default (the full RECORDED
+ * list), and branches on the two RECORDED free-text captures: `filter[number|
+ * like]` answers the real 500 (`…-case-number-like-…json`), `filter[phone|
+ * like]` answers the real narrowed 200 (`…-case-phone-like-…json`). Neither
+ * branch is staged here — both are what staging returned when the migration's
+ * two candidate wire columns were each tried against the same needle.
+ */
+export function installPhonesHandler(
+  mswServer: SetupServer | undefined,
+  clientId: string
+): void {
+  const list = recorded.list();
+  const rejectedByNumber = getFixture(
+    "get-clients-id-phones-case-number-like-filter-number-like-111",
+    { recordingsDir }
+  );
+  const narrowedByPhone = getFixtureBody<Envelope<WirePhone[]>>(
+    "get-clients-id-phones-case-phone-like-filter-phone-like-111",
+    { recordingsDir }
+  );
+
+  mswServer?.use(
+    http.get(`*/clients/${clientId}/phones`, ({ request }) => {
+      const params = new URL(request.url).searchParams;
+      if (params.has("filter[number|like]")) {
+        return HttpResponse.json(rejectedByNumber.response.body as object, {
+          status: rejectedByNumber.response.status
+        });
+      }
+      if (params.has("filter[phone|like]")) {
+        return HttpResponse.json(narrowedByPhone, { status: 200 });
+      }
+      return HttpResponse.json(list, { status: 200 });
+    })
+  );
 }
 
 // -----------------------------------------------------------------------------

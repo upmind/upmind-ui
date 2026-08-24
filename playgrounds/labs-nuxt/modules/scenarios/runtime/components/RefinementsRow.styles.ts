@@ -9,20 +9,15 @@ import { cva } from "class-variance-authority";
  * point of drawing it as chips.
  */
 
-export default {
-  refinementsRow: {
-    // The locked row is MUTED, never resized (`R6-23`): a chip's × is an `Icon`
-    // with a click handler and the ui Badge exposes no disabled channel, so the
-    // whole row is made `inert` — withdrawing the × instead would narrow every
-    // chip the moment a track armed.
-    root: cva("flex flex-wrap items-center gap-2", {
-      variants: {
-        isLocked: {
-          true: "cursor-not-allowed opacity-60",
-          false: ""
-        }
-      },
-      defaultVariants: { isLocked: false }
-    })
-  }
+export const refinementsRow = {
+  root: cva("flex flex-wrap items-center gap-2", {
+    variants: {
+      isLocked: {
+        true: "cursor-not-allowed opacity-60",
+        false: ""
+      }
+    },
+    defaultVariants: { isLocked: false }
+  }),
+  tags: cva("flex flex-wrap items-center gap-2")
 };

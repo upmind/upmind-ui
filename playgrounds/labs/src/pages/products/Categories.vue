@@ -12,7 +12,7 @@
         v-if="!!searchQuery"
         class="m-0 flex max-h-full flex-col overflow-auto p-0"
       >
-        <Loading :active="meta.isLoading" class-active="w-full">
+        <Loading label="Loading" :active="meta.isLoading" class-active="w-full">
           <CategoryItem
             v-for="category in filteredCategories"
             v-model="modelValue"
@@ -23,7 +23,7 @@
       </ul>
 
       <ul v-else class="m-0 flex max-h-full flex-col overflow-auto p-0">
-        <Loading :active="meta.isLoading" class-active="w-full">
+        <Loading label="Loading" :active="meta.isLoading" class-active="w-full">
           <CategoryItem :category="all" v-model="modelValue" />
           <CategoryItem
             v-for="category in categories"
@@ -45,7 +45,7 @@ import {
   useProductCategories,
   type ProductCategory
 } from "@upmind-automation/headless";
-import { Loading } from "@upmind-automation/upmind-ui";
+import { Loading } from "@upmind/ui";
 import CategoryItem from "./CategoryItem.vue";
 import { debounce } from "lodash-es";
 

@@ -166,6 +166,16 @@ const interpolates = (value: string, dataDerived: string[]) =>
  */
 const VENDOR_DEFAULTS = new Set(["Previous Page", "Next Page"]);
 
+/**
+ * Icon fallback tokens from `@upmind-automation/client-vue` Icon component:
+ * when an icon name isn't registered, the component renders `{name} icon` as
+ * aria-hidden decorative fallback text. These are never user-facing in
+ * production (icons ARE registered there), so they are exempted from the
+ * hardcoded-string sweep. Pattern: lowercase-kebab-case optionally followed
+ * by a digit suffix, then ` icon`.
+ */
+const ICON_FALLBACK_SHAPE = /^[a-z][a-z0-9-]* icon$/;
+
 export const rawKeys = (strings: string[]) =>
   filter(strings, value => KEY_SHAPE.test(value));
 
@@ -181,6 +191,7 @@ export const untranslated = (strings: string[], dataDerived: string[] = []) =>
       value =>
         TRANSLATED.has(value) ||
         VENDOR_DEFAULTS.has(value) ||
+        ICON_FALLBACK_SHAPE.test(value) ||
         interpolates(value, dataDerived) ||
         CARRIES_NO_COPY.test(value) ||
         SERIALISED_PAYLOAD.test(value) ||

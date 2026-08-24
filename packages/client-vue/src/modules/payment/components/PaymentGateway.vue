@@ -1,25 +1,15 @@
 <template>
-  <RadioCards
-    v-model="selectedPaymentMethod"
-    required
-    :items="[
-      {
-        id: 'selected-gateway',
-        value: 'selected-gateway',
-        index: 0,
-        modelValue: selectedPaymentMethod,
-        label: gateway?.name,
-        action: props.singleGateway
-          ? undefined
-          : {
-              label: t('action.change'),
-              handler: clearGateway
-            }
-      }
-    ]"
-  />
+  <OptionTileGroup v-model="selectedPaymentMethod" mode="single" required>
+    <OptionTile value="selected-gateway" :label="gateway?.name">
+      <template v-if="!props.singleGateway" #trailing>
+        <Link size="sm" color="muted" @click="clearGateway">
+          {{ t("action.change") }}
+        </Link>
+      </template>
+    </OptionTile>
+  </OptionTileGroup>
 
-  <div ref="form" :class="styles.payment.gateway.form">
+  <div ref="form" :class="gatewayFormVariants({ hasErrors: meta.hasErrors })">
     <!-- Instructions -->
     <Markdown
       v-if="instructions"
@@ -53,13 +43,13 @@
     <!-- Errors and Feedback -->
     <Alert
       v-if="error || (errors && meta.hasErrors)"
-      color="danger"
-      variant="minimal"
-      icon="alert-triangle"
+      variant="danger"
+      appearance="outline"
       :title="t('text.payment_failed')"
       :dataAttrs="{ 'data-test-key': 'order-payment-failed-message' }"
     >
-      <ol class="text-sm-tight mt-2 list-none text-left">
+      <template #icon><Icon icon="alert-triangle" /></template>
+      <ol class="mt-2 list-none text-left text-sm">
         <li class="my-0 py-0">
           {{ error ?? errors }}
         </li>
@@ -69,13 +59,14 @@
     <!-- Unsupported Message -->
     <Alert
       v-if="meta.isNotSupported || meta.isUnavailable"
-      icon="info-circle"
-      variant="minimal"
+      appearance="outline"
       :title="t('error.payment_gateway_not_supported_title')"
       :description="errors ?? t('error.payment_gateway_not_supported_msg')"
-      class="text-error!"
+      class="text-danger!"
       :dataAttrs="{ 'data-test-key': 'payment-gateway-unavailable-message' }"
-    />
+    >
+      <template #icon><Icon icon="info-circle" /></template>
+    </Alert>
   </div>
 </template>
 
@@ -96,10 +87,11 @@ import {
   responseCodes,
   usePaymentGateway
 } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import { Alert, Markdown, RadioCards } from "@upmind-automation/upmind-ui";
+import { Markdown, OptionTileGroup, OptionTile, Link } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
 import Form from "../../../components/form/Form.vue";
-import config from "../payment.config";
+import { Icon } from "../../../components/icon";
+import { gatewayFormVariants } from "../variants";
 import type { PaymentGatewayProps } from "../types";
 import type { UsePaymentDetail } from "@upmind-automation/headless";
 
@@ -135,12 +127,6 @@ const {
 const container = useTemplateRef("container");
 
 const selectedPaymentMethod = ref("selected-gateway");
-
-const styles = useStyles(
-  ["payment", "payment.footer", "payment.gateway"],
-  meta,
-  config
-);
 
 const _action = computed(() => {
   // if (meta.value.payLater) return t("action.place_order_pay_later");

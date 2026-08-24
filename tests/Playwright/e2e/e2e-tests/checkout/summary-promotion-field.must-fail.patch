@@ -1,0 +1,54 @@
+# summary-promotion-field.must-fail.patch
+#
+# Targets: tests/Playwright/e2e/e2e-tests/checkout/summary-promotion-field.spec.ts
+# — "The promotion-code field the checkout supplies appears inside the itemised
+# summary" (C19, C20).
+# Authored by: developer seat (agent-seat-separation.companion.md — the seat that
+# knows the exact line it changed authors the mutant; the prover applies it
+# blind, confirms RED, then reverts — never reading src to construct it).
+#
+# Mutates ONE line: removes the itemised region's own <BasketPromotions> from
+# Summary.vue. This is the line that actually delivers the capability — the
+# summary renders the promotions form itself, gated on `showPromotions`, which
+# CheckoutPricing.vue passes as `uischema.showPromotionsOnCheckout`. Dropping it
+# renders nothing and throws nothing, which is exactly why this needs a test.
+#
+# NOTE: an earlier revision of this control removed the trailing `<slot />`
+# instead, on the premise that CheckoutPricing.vue passed its own
+# <BasketPromotions> as slot content. That stopped being true when the promotions
+# render moved inside Summary.vue — CheckoutPricing.vue's <Summary /> is now
+# self-closing and passes no slot content, so the old mutant could not fail:
+# the assertion was satisfied by the summary's own copy either way.
+#
+# Expected RED: 1 of 3.
+#   - "…appears inside the itemised summary": the promotions-form count inside
+#     the breakdown falls 1 → 0, and so does the whole-step count.
+#
+# VERIFIED 2026-08-19 (chrome, this spec only):
+#   baseline        3 passed          exit 0
+#   mutant applied  1 failed 2 passed exit 1
+#     → expect(getByTestId('basket-summary-breakdown')
+#              .getByTestId('promotions-form')).toHaveCount(1)
+#       Expected: 1  Received: 0   (spec:107)
+#   reverted        tree byte-identical to the green baseline
+# Still GREEN, correctly — neither renders the itemised branch:
+#   - "…still offered once when the checkout summary shows plain totals" renders
+#     the plain-totals branch's own copy, which this patch leaves intact.
+#   - "No promotion-code field is offered at checkout when the brand withholds
+#     it" asserts zero fields, which a dropped render also satisfies.
+#
+# Apply / verify / revert:
+#   git apply <this file>                          # mutate
+#   pnpm exec playwright test tests/Playwright/e2e/e2e-tests/checkout/summary-promotion-field.spec.ts
+#   git apply -R <this file>                       # revert — must return to green
+#
+--- a/packages/client-vue/src/modules/basket/components/Summary.vue
++++ b/packages/client-vue/src/modules/basket/components/Summary.vue
+@@ -187,7 +187,6 @@
+
+       <!-- the promotions form and any trailing content sit inside the summary's
+            own sections so they share their spacing -->
+-      <BasketPromotions v-if="props.showPromotions" />
+       <slot />
+     </div>
+

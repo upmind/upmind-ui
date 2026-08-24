@@ -1,6 +1,6 @@
 import { cva } from "class-variance-authority";
-import { useInvalidRing } from "@upmind-automation/upmind-ui";
 import { TableColumnWidthTypes } from "../../scenario.types";
+import { invalidRingClasses } from "../../scenario.styles";
 // -----------------------------------------------------------------------------
 /**
  * @module scenarios/runtime/components/surfaces/ListSurface.styles
@@ -65,13 +65,10 @@ export const dataRow = cva("", {
  * would be a second error-outline technique (`H10`/`AC6.3`), which is why
  * `listSurface.table` reserves the standoff the offset needs instead.
  */
-/** The ui invalid field's own treatment, applied to the record that carries it. */
-const invalidRing = useInvalidRing();
-
 export const rowGroup = cva("", {
   variants: {
     isFailed: {
-      true: invalidRing,
+      true: invalidRingClasses,
       false: ""
     }
   },
@@ -99,7 +96,7 @@ export const dataCard = cva(
       // The card holds its own strip, so the card IS the record's group: the
       // same ring, on the element that already encloses both (H8).
       isFailed: {
-        true: invalidRing,
+        true: invalidRingClasses,
         false: ""
       }
     },
@@ -120,7 +117,7 @@ export const rowListItem = cva(
   {
     variants: {
       isFailed: {
-        true: invalidRing,
+        true: invalidRingClasses,
         false: ""
       }
     },
@@ -189,98 +186,96 @@ export const paginationRegion = cva("", {
   defaultVariants: { isLocked: false }
 });
 
-export default {
-  listSurface: {
-    root: cva("space-y-4"),
+export const listSurface = {
+  root: cva("space-y-4"),
 
-    // THREE rows, in the order the eye reads them: what may narrow the
-    // collection, what is narrowing it, and what the collection amounts to
-    // (G3/G5/H1). They sit closer to each other than to the records they steer,
-    // so they read as one cluster rather than three lines of chrome. The facets'
-    // own wrapping is the filter declaration's (`filterBar.config.ts`), never a
-    // width this surface imposes on the bar (D13/H3).
-    controls: cva("space-y-2"),
+  // THREE rows, in the order the eye reads them: what may narrow the
+  // collection, what is narrowing it, and what the collection amounts to
+  // (G3/G5/H1). They sit closer to each other than to the records they steer,
+  // so they read as one cluster rather than three lines of chrome. The facets'
+  // own wrapping is the filter declaration's (`filterBar.config.ts`), never a
+  // width this surface imposes on the bar (D13/H3).
+  controls: cva("space-y-2"),
 
-    // The whole table's rhythm, in one place so the header, the data rows, the
-    // skeleton and the empty frame are measured the same way.
-    // · `py-2` is the compact row — the ui TableCell's own `p-4` is a page
-    //   card's rhythm and doubles every row's height.
-    // · a refused record is a row group of its own, and the ui body drops the
-    //   rule under its own last row — which is the table's closing edge, not
-    //   every group's. The rule is given back to every group but the last, so
-    //   splitting the body changes what marks a record, never what separates
-    //   two.
-    // · `p-1` is the refused group's ring standoff, reserved CONSTANTLY and on
-    //   EVERY side so neither the state nor the row's position changes the
-    //   table's geometry: the ui `Table` draws its own `overflow-auto` scroller,
-    //   which clips a row group's offset outline unless the group's box sits
-    //   inside the scroller by the offset plus its width — and the group that
-    //   fails is as often the LAST one as any other, whose ring would otherwise
-    //   lose its closing edge. Table padding is honoured only in the SEPARATED
-    //   border model, and the rules are all `tr`-level, so separating them
-    //   changes where the ring can draw and nothing else.
-    table: cva(
-      "border-separate border-spacing-0 p-1 [&_tbody:not(:last-child)_tr:last-child]:border-b [&_td]:py-2"
-    ),
+  // The whole table's rhythm, in one place so the header, the data rows, the
+  // skeleton and the empty frame are measured the same way.
+  // · `py-2` is the compact row — the ui TableCell's own `p-4` is a page
+  //   card's rhythm and doubles every row's height.
+  // · a refused record is a row group of its own, and the ui body drops the
+  //   rule under its own last row — which is the table's closing edge, not
+  //   every group's. The rule is given back to every group but the last, so
+  //   splitting the body changes what marks a record, never what separates
+  //   two.
+  // · `p-1` is the refused group's ring standoff, reserved CONSTANTLY and on
+  //   EVERY side so neither the state nor the row's position changes the
+  //   table's geometry: the ui `Table` draws its own `overflow-auto` scroller,
+  //   which clips a row group's offset outline unless the group's box sits
+  //   inside the scroller by the offset plus its width — and the group that
+  //   fails is as often the LAST one as any other, whose ring would otherwise
+  //   lose its closing edge. Table padding is honoured only in the SEPARATED
+  //   border model, and the rules are all `tr`-level, so separating them
+  //   changes where the ring can draw and nothing else.
+  table: cva(
+    "border-separate border-spacing-0 p-1 [&_tbody:not(:last-child)_tr:last-child]:border-b [&_td]:py-2"
+  ),
 
-    // A sortable header draws its label inside a `sm` Button; the button's own
-    // inset is given back so the header's text lands on the very same edge as
-    // the cell beneath it and as the headers that carry no control.
-    sortControl: cva("text-muted -ml-2.5"),
+  // A sortable header draws its label inside a `sm` Button; the button's own
+  // inset is given back so the header's text lands on the very same edge as
+  // the cell beneath it and as the headers that carry no control.
+  sortControl: cva("text-muted -ml-2.5"),
 
-    cellContent: cva("flex flex-wrap items-center gap-2"),
+  cellContent: cva("flex flex-wrap items-center gap-2"),
 
-    // Shrink-to-fit, so the last column ends at the row's right edge instead of
-    // taking an equal share of it and leaving the controls stranded mid-table.
-    actionsCell: cva("w-px whitespace-nowrap"),
+  // Shrink-to-fit, so the last column ends at the row's right edge instead of
+  // taking an equal share of it and leaving the controls stranded mid-table.
+  actionsCell: cva("w-px whitespace-nowrap"),
 
-    skeletonCell: cva("h-4 w-full"),
+  skeletonCell: cva("h-4 w-full"),
 
-    skeletonActions: cva("ml-auto h-8 w-20"),
+  skeletonActions: cva("ml-auto h-8 w-20"),
 
-    // Small records read three across on a desktop and collapse from there,
-    // never one card per row.
-    cardGrid: cva("grid w-full gap-3 sm:grid-cols-2 lg:grid-cols-3"),
+  // Small records read three across on a desktop and collapse from there,
+  // never one card per row.
+  cardGrid: cva("grid w-full gap-3 sm:grid-cols-2 lg:grid-cols-3"),
 
-    cardHeader: cva("flex w-full items-start justify-between gap-2"),
+  cardHeader: cva("flex w-full items-start justify-between gap-2"),
 
-    // The card's own marker column: the star leads the title instead of sitting
-    // inside it, the same law the table's first column draws.
-    cardLead: cva("flex min-w-0 items-center gap-2"),
+  // The card's own marker column: the star leads the title instead of sitting
+  // inside it, the same law the table's first column draws.
+  cardLead: cva("flex min-w-0 items-center gap-2"),
 
-    // `min-w-0` and the break are what stop a long unbroken value — an email
-    // address has no spaces to wrap at — from running out of the lead and under
-    // the row's own controls.
-    cardTitle: cva(
-      "text-md m-0 flex min-w-0 flex-wrap items-center gap-x-2 font-medium break-all"
-    ),
+  // `min-w-0` and the break are what stop a long unbroken value — an email
+  // address has no spaces to wrap at — from running out of the lead and under
+  // the row's own controls.
+  cardTitle: cva(
+    "text-md m-0 flex min-w-0 flex-wrap items-center gap-x-2 font-medium break-all"
+  ),
 
-    // A declared slot whose row has nothing to put in it takes no space: its
-    // line height would otherwise read as a gap the card never asked for.
-    cardSubtitle: cva("text-muted m-0 text-sm empty:hidden"),
+  // A declared slot whose row has nothing to put in it takes no space: its
+  // line height would otherwise read as a gap the card never asked for.
+  cardSubtitle: cva("text-muted m-0 text-sm empty:hidden"),
 
-    cardBody: cva("flex flex-wrap items-center gap-2 empty:hidden"),
+  cardBody: cva("flex flex-wrap items-center gap-2 empty:hidden"),
 
-    skeletonCard: cva("h-5 w-full"),
+  skeletonCard: cva("h-5 w-full"),
 
-    // The strip sits under the row it belongs to, inside the group's own ring:
-    // no fill of its own, and no rule between the two, so the pair reads as one
-    // record in an error state (F4/H8).
-    failureCell: cva("py-0 pb-2"),
+  // The strip sits under the row it belongs to, inside the group's own ring:
+  // no fill of its own, and no rule between the two, so the pair reads as one
+  // record in an error state (F4/H8).
+  failureCell: cva("py-0 pb-2"),
 
-    // The reason is not a record, so it takes no record's hover treatment: the
-    // ui row's own `hover:bg-accent-neutral/20` washed a translucent band across
-    // the message the moment the pointer that fired the action rested on it, and
-    // a fill is the treatment the ruling killed (`H8`/`S15`).
-    failureRow: cva("hover:bg-transparent"),
+  // The reason is not a record, so it takes no record's hover treatment: the
+  // ui row's own `hover:bg-accent-neutral/20` washed a translucent band across
+  // the message the moment the pointer that fired the action rested on it, and
+  // a fill is the treatment the ruling killed (`H8`/`S15`).
+  failureRow: cva("hover:bg-transparent"),
 
-    rowList: cva("space-y-2"),
+  rowList: cva("space-y-2"),
 
-    rowListFields: cva("flex flex-wrap items-center gap-3 text-sm"),
+  rowListFields: cva("flex flex-wrap items-center gap-3 text-sm"),
 
-    // A full-width line of its own, under the row it belongs to.
-    rowListFailure: cva("w-full"),
+  // A full-width line of its own, under the row it belongs to.
+  rowListFailure: cva("w-full"),
 
-    rowListField: cva("text-muted flex items-center gap-2")
-  }
+  rowListField: cva("text-muted flex items-center gap-2")
 };

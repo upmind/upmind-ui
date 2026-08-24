@@ -406,6 +406,30 @@ describe("Client-Phone API Fixtures Generator", () => {
     }
   });
 
+  // Re-recorded with `limit=0` (prover fix, 2026-08-23): the ORIGINAL
+  // capture omitted the schema's own pagination default, so the exercised
+  // wire shape (`?order=...`) did not match what a real `sortBy()` call
+  // sends against the PROD boot state (`?order=...&limit=0`, per the
+  // branch-level-merge law — a sort write does not touch the standing
+  // pagination branch). Re-captured against the same staging session.
+  it("captures GET /api/clients/{id}/phones?order=-created_at&limit=0 and order=created_at&limit=0 (sort — AC-36/AC-38)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const desc = await generator.get(
+      `/api/clients/${clientId}/phones?order=-created_at&limit=0&case=sort-desc`
+    );
+    const asc = await generator.get(
+      `/api/clients/${clientId}/phones?order=created_at&limit=0&case=sort-asc`
+    );
+    generator.clearBearerToken();
+
+    if (desc.status !== 200 || asc.status !== 200) {
+      throw new Error(
+        `Sort capture returned ${desc.status}/${asc.status} — refusing to ` +
+          "ship a fixture that does not represent a real sorted read."
+      );
+    }
+  });
+
   it("captures GET /api/countries (loadLookups)", async () => {
     generator.setBearerToken(clientToken.access_token);
     await generator.get("/api/countries");

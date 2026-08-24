@@ -1,24 +1,26 @@
 <template>
   <div
-    :class="styles.products.main.root"
+    :class="productsMainRootVariants()"
     role="main"
     aria-label="Product listing"
     v-bind="widgetGridTestAttrs"
     ref="container"
   >
     <!-- Search and controls -->
-    <div :class="styles.products.main.controls">
+    <div :class="productsMainControlsVariants()">
       <Input
+        size="lg"
         id="product-search"
         :model-value="query"
-        :class="[styles.products.main.searchInput, 'flex-1']"
+        :class="[productsMainSearchInputVariants(), 'flex-1']"
         :placeholder="t('form.product_name_search.placeholder')"
-        :auto-focus="false"
         aria-label="Search products"
+        data-test-key="input-product-search"
         @update:model-value="doQuery"
-        icon="search-md"
         class="max-w-full lg:max-w-xl"
-      />
+      >
+        <template #leading><Icon icon="search-md" /></template>
+      </Input>
 
       <div class="w-full shrink-0 md:w-auto">
         <ProductSort v-model:property="sortBy" v-model:direction="direction" />
@@ -28,10 +30,14 @@
     <!-- Products grid -->
     <section
       v-if="!meta.isEmpty || meta.isLoading"
-      :class="styles.products.main.grid.root"
+      :class="productsMainGridRootVariants()"
     >
       <div
-        :class="styles.products.main.grid.container"
+        :class="
+          productsMainGridContainerVariants({
+            layout: ui.productListLayout.value
+          })
+        "
         v-bind="productsGridTestAttrs"
       >
         <!-- TODO: OR `loading` and `disabled` with the global `isNavigating`
@@ -60,36 +66,41 @@
 
       <Pagination
         v-if="meta.hasPages"
-        v-bind="pagination"
-        :meta="meta"
-        @next="doNextPage"
-        @prev="doPrevPage"
-        :pagination-info="
-          t('text.pagination_info', {
-            page: '{page}',
-            pages: '{pages}'
-          })
-        "
-      />
+        :total="pagination.total"
+        :items-per-page="pagination.limit"
+        :page="pagination.page"
+        @update:page="onPageChange"
+      >
+        <template #info>
+          <span class="text-muted text-sm">
+            {{
+              t("text.pagination_info", {
+                page: pagination.page,
+                pages: pagination.pages
+              })
+            }}
+          </span>
+        </template>
+      </Pagination>
     </section>
 
     <!-- Empty state -->
     <section
       v-else
-      :class="styles.products.main.emptyState.root"
+      :class="productsMainEmptyStateRootVariants()"
       role="status"
       aria-live="polite"
     >
       <Icon
         icon="search-md"
-        size="md"
-        :class="styles.products.main.emptyState.icon"
+        size="xl"
+        :class="productsMainEmptyStateIconVariants()"
       />
       <div>
-        <h3 :class="styles.products.main.emptyState.title">
+        <h3 :class="productsMainEmptyStateTitleVariants()">
           {{ t("text.products_not_found") }}
         </h3>
-        <p :class="styles.products.main.emptyState.description">
+        <p :class="productsMainEmptyStateDescriptionVariants()">
           {{ t("text.adjust_search_filters_msg") }}
         </p>
       </div>
@@ -113,18 +124,25 @@ import {
   type UseProductCategories
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-import {
-  Input,
-  Icon,
-  Pagination,
-  useStyles,
-  useTestAttrs
-} from "@upmind-automation/upmind-ui";
+import { useTestAttrs } from "@upmind/ui";
+import { Input } from "@upmind/ui";
+import { Pagination } from "@upmind/ui";
+import { Icon } from "../../../components/icon";
 import {
   ProductCard,
   ProductCardSkeleton
 } from "../../product/components/card";
-import config from "../catalogue.config";
+import {
+  productsMainRootVariants,
+  productsMainControlsVariants,
+  productsMainSearchInputVariants,
+  productsMainGridRootVariants,
+  productsMainGridContainerVariants,
+  productsMainEmptyStateRootVariants,
+  productsMainEmptyStateIconVariants,
+  productsMainEmptyStateTitleVariants,
+  productsMainEmptyStateDescriptionVariants
+} from "../variants";
 import ProductSort from "./components/ProductSort.vue";
 import { debounce, isArray, isEmpty, merge, some } from "lodash-es";
 import type { ProductSortProps, ProductsProps } from "./types";
@@ -208,21 +226,6 @@ const productsGridTestAttrs = useTestAttrs({ key: "products-grid" });
 
 const lastProductCount = ref(limit.value);
 
-const stylesMeta = computed(() => ({
-  layout: ui.productListLayout.value
-}));
-
-const styles = useStyles(
-  [
-    "products",
-    "products.main",
-    "products.main.grid",
-    "products.main.emptyState"
-  ],
-  stylesMeta,
-  config
-);
-
 // --- methods
 
 const doQuery = debounce((value: string | number | undefined) => {
@@ -237,6 +240,13 @@ function doNextPage() {
 function doPrevPage() {
   prevPage();
   container.value?.scrollIntoView({ behavior: "smooth" });
+}
+
+// New headless Pagination emits a target page; only Prev/Next are rendered, so
+// the delta is ±1 — map it onto the composable's next/prev navigation.
+function onPageChange(newPage: number) {
+  if (newPage > pagination.value.page) doNextPage();
+  else if (newPage < pagination.value.page) doPrevPage();
 }
 
 const preservePromotions = computed(() =>

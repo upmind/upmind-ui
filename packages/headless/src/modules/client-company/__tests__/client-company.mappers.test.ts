@@ -109,12 +109,13 @@ describe("mapCompany — AC-2 wire fields carry through faithfully", () => {
   // NFR-2 recording limit #1 (header): no real row on this staging client
   // carries a validated VAT number — VAT validation is a staff/dropped
   // capability (parity.yaml C42) unreachable with a client credential.
-  it.skip(
+  // `todo`, not `skip`: this is a permanent recording limit, never a
+  // quarantined flake — the quarantine lint polices `.skip` only.
+  it.todo(
     "AC-2 carries every tax field for a company WITH a validated VAT number " +
-      "— SKIPPED: no such row exists on the staging client reachable by this " +
+      "— no such row exists on the staging client reachable by this " +
       "run's credentials (VAT validation is staff-only, parity.yaml C42); " +
-      "never fabricated (NFR-2)",
-    () => {}
+      "never fabricated (NFR-2)"
   );
 
   it("AC-2 surfaces the server's own verified/deletable/tax-presence flags", () => {

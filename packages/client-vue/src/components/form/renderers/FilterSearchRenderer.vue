@@ -34,13 +34,9 @@ import { and, isStringControl, optionIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import {
-  Button,
-  FormField,
-  Search,
-  Tooltip,
-  useUpmindUIRenderer
-} from "@upmind-automation/upmind-ui";
+import { Button, Search, Tooltip } from "@upmind/ui";
+import FormField from "../engine/FormField.vue";
+import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import { isEmpty } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";

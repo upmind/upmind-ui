@@ -331,8 +331,8 @@ export function useProductConfigUischema(
             }),
             badge: {
               label: t("text.free_trial"),
-              color: "promo",
-              variant: "minimal"
+              variant: "promo",
+              appearance: "outline"
             },
             dataAttrs: {
               "data-test-key": "checkbox-item",
@@ -467,8 +467,8 @@ export function useInvalidProductConfigUischema(
             }),
             badge: {
               label: t("text.free_trial"),
-              color: "promo",
-              variant: "minimal"
+              variant: "promo",
+              appearance: "outline"
             },
             dataAttrs: {
               "data-test-key": "checkbox-item",

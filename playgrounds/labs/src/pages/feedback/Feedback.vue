@@ -125,8 +125,7 @@
               </Button>
               <Button
                 @click="dismiss(notificationItem.id)"
-                variant="solid"
-                color="danger"
+                variant="danger"
                 size="sm"
               >
                 Dismiss (Main Service)
@@ -199,12 +198,7 @@
               >
                 Dismiss (Local Actor)
               </Button>
-              <Button
-                @click="dismiss(toastItem.id)"
-                variant="solid"
-                color="danger"
-                size="sm"
-              >
+              <Button @click="dismiss(toastItem.id)" variant="danger" size="sm">
                 Dismiss (Main Service)
               </Button>
             </div>
@@ -277,8 +271,7 @@
               </Button>
               <Button
                 @click="dismiss(systemItem.id)"
-                variant="solid"
-                color="danger"
+                variant="danger"
                 size="sm"
               >
                 Dismiss (Main Service)
@@ -299,13 +292,7 @@ import {
   messageDisplays,
   UpmLayout
 } from "@upmind-automation/client-vue";
-import {
-  Card,
-  Label,
-  Input,
-  Button,
-  Badge
-} from "@upmind-automation/upmind-ui";
+import { Card, Label, Input, Button, Badge } from "@upmind/ui";
 
 // Destructure the reactive state and methods from the composable
 const {
@@ -381,7 +368,7 @@ function getMessageTypeBadgeVariant(
   messageType: messageTypes
 ): "danger" | "success" | "info" | "neutral" {
   switch (messageType) {
-    case messageTypes.ERROR:
+    case messageTypes.DANGER:
       return "danger";
     case messageTypes.SUCCESS:
       return "success";

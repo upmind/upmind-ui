@@ -1,159 +1,236 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview `list()`'s pager writes THROUGH the criteria
+ * @fileoverview `nextPage()`/`prevPage()` write THROUGH the criteria (AC-9)
  *
  * ## Job To Be Done
- * With the raw arm deleted there is no private page cursor left: `nextPage` /
- * `prevPage` are writes into the criteria's own `pagination.offset`, so the
- * model and the wire can never disagree about which page is showing. This walks
- * the REAL `useClientAddresses({ pagination: { limit } })` over MSW-replayed
- * staging recordings: each step moves the outbound `offset` by the caller's own
- * limit, the published `criteria` moves with it, `pagination`/`meta` report the
- * same page the wire asked for, and a direct `setCriteria` on the window moves
- * the pager exactly as a Next click does.
+ * Replaces the deleted `pager-writes-through-criteria.int.test.ts`, rewritten
+ * against the scoped `.as(actor)` / `useActions()` / `useContext()` surface
+ * this module now exposes, in place of the old flat `addresses.nextPage()` /
+ * `addresses.criteria` API the deleted file called.
  *
- * ## What Breaks If These Fail
- * A pager that does not write through leaves the criteria pointing at page 1
- * while the wire is on page 3 — the next filter write resets to an offset the
- * user never chose, and a url rehydrated from the criteria opens the wrong page.
+ * ## DISCLOSED FINDING — the happy-path half needed a genuinely paged
+ * collection, opened through `setCriteria` (see below)
+ * The deleted spec's assertion (`nextPage()` moves the outbound `offset` AND
+ * `useContext().query` tracks it) needs a collection that is genuinely
+ * PAGED — `pagination.limit > 0` at the point `nextPage()` is called. Probed
+ * empirically (never by reading src, per §3.9):
  *
- * ## Why this proof lives beside client-address
- * The law is `useQuery.ts`'s, and its negative control ships beside this file
- * (`pager-writes-through-criteria.must-fail.patch`, applied from the repo
- * root). A bare `useQuery().list()` outside a module never issues its first
- * fetch in this harness, so the only place the walk can be driven end to end
- * today is through a migrated module — this one, whose recorded corpus is a
- * real `limit=2` walk.
+ *   1. `useClientAddresses({ pagination: { limit: 2 } })` — boot request is
+ *      byte-identical to the zero-arg call (`limit=0`); the argument has no
+ *      observable effect, on pagination OR on filters (a `filters.name.like`
+ *      probe on the same argument never reaches the wire either).
+ *   2. `.as(ScopeActorTypes.CLIENT, { pagination: { limit: 2 } })` — same
+ *      null effect.
+ *   3. `nextPage(2)` — the function ignores an argument entirely.
+ *   4. Serving the boot request with an explicit `total: 98` (98 rows behind
+ *      a 2-row page) still reports `pagination.value.pages === 1`: `limit=0`
+ *      is unconditionally treated as exactly one page, matching the platform
+ *      comment `client-address.collection.int.test.ts` already cites
+ *      ("Can only be 1 page if limit=0").
+ *
+ * ## What this file DOES prove
+ * Two halves. First, the boot-default (unpaged) half directly below: a
+ * rejected `nextPage()`/`prevPage()` leaves the published `useContext().query`
+ * untouched — the model and the wire cannot disagree about the page showing,
+ * because neither one moves. (Previously untested; `collection.int.test.ts`'s
+ * AC-9 block proves the rejection settles cleanly but not that `query` is left
+ * alone by it.) Second, the genuinely paged half further below, opened
+ * through `setCriteria` — see its own docblock for what that proves.
  */
 
 import { describe, expect, it, vi } from "vitest";
 import { useClientAddresses } from "..";
+import { ScopeActorTypes } from "../../scope/scope.types";
 import {
-  observeRequests,
+  installAddressesListHandler,
+  installPagedAddressesHandler,
+  observeAddressRequests,
+  recordedRows,
   seedClientSession
-} from "../../../__tests__/criteria-int-kit";
-import { corpus, installAddressesHandler } from "./client-address.int-helpers";
+} from "./client-address.int-helpers";
 import { server } from "./setup.integration";
+import { some } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-/** The caller's own page size — the recorded corpus is a real `limit=2` walk. */
-const PAGE_SIZE = 2;
+/**
+ * The RESOLVED scoped instance `.as(CLIENT)` actually returns — not
+ * `ReturnType<typeof useClientAddresses>`, which is the un-resolved
+ * `ScopeBuilder` one level up the chain and carries neither `useActions` nor
+ * `useContext`.
+ */
+type ClientAddressesInstance = ReturnType<
+  ReturnType<typeof useClientAddresses>["as"]
+>;
 
-async function bootPagedCollection(): Promise<
-  ReturnType<typeof useClientAddresses>
-> {
-  const { clientId } = await seedClientSession(server);
-  installAddressesHandler(server, clientId);
-  const addresses = useClientAddresses({
-    pagination: { limit: PAGE_SIZE, offset: 0 }
-  });
-  await addresses.isReady();
+async function bootCollection(): Promise<ClientAddressesInstance> {
+  const { clientId } = await seedClientSession();
+  const { primary, secondary } = recordedRows();
+  installAddressesListHandler(server, clientId, [primary, secondary]);
+  const addresses = useClientAddresses().as(ScopeActorTypes.CLIENT);
+  await addresses.useActions().isReady();
   return addresses;
 }
 
 // -----------------------------------------------------------------------------
 
-describe("client-address pager — every step is a criteria write", () => {
-  it("boots on offset 0 at the caller's own page size", async () => {
-    const { clientId } = await seedClientSession(server);
-    installAddressesHandler(server, clientId);
-    const observed = observeRequests(server, "/addresses");
+describe("client-address pager — the guarded path leaves the published query untouched (AC-9)", () => {
+  it("AC-9 a rejected nextPage() does not move useContext().query off its booted state", async () => {
+    const addresses = await bootCollection();
+    const before = addresses.useContext().query.value;
 
-    const addresses = useClientAddresses({
-      pagination: { limit: PAGE_SIZE, offset: 0 }
-    });
-    await addresses.isReady();
-    observed.stop();
+    await addresses
+      .useActions()
+      .nextPage()
+      .catch(() => undefined);
 
-    const params = new URL(observed.first().url).searchParams;
-    expect(params.get("limit")).toBe(String(PAGE_SIZE));
-    expect(params.get("offset")).toBe("0");
-    expect(addresses.criteria.value.pagination).toMatchObject({
-      limit: PAGE_SIZE,
-      offset: 0
-    });
-    expect(addresses.pagination.value.page).toBe(1);
+    expect(addresses.useContext().query.value).toEqual(before);
   });
 
-  it("moves the outbound offset AND the published criteria on nextPage()", async () => {
-    const addresses = await bootPagedCollection();
-    const observed = observeRequests(server, "/addresses");
+  it("AC-9 a rejected prevPage() does not move useContext().query off its booted state", async () => {
+    const addresses = await bootCollection();
+    const before = addresses.useContext().query.value;
 
-    addresses.nextPage();
+    await addresses
+      .useActions()
+      .prevPage()
+      .catch(() => undefined);
+
+    expect(addresses.useContext().query.value).toEqual(before);
+  });
+});
+
+// -----------------------------------------------------------------------------
+/**
+ * The happy-path half the header above disclosed as missing. `setCriteria`
+ * is now published on `useActions()` — the generic criteria door
+ * (`useClientAddresses.actions.ts`'s `setCriteria: query.setCriteria`,
+ * mirroring `client-email-history`'s precedent, not `client-email`'s, which
+ * has no page-window door at all). This proves a caller can reach a genuinely
+ * paged collection through it and that `nextPage()`/`prevPage()` then move a
+ * real outbound `offset`, against the recorded `?limit=2` page-1/page-2
+ * capture (`fixtures/get-clients-id-addresses-case-page-*.json`,
+ * `total: 98`) — never a fixture built for this test.
+ *
+ * Negative control: `pager-setCriteria-door.must-fail.patch` reduces
+ * `setCriteria` to a forwarding no-op (`query.setCriteria({})`) and must flip
+ * the first assertion below RED, since a caller's `{ pagination: { limit } }`
+ * intent then never reaches the model at all.
+ */
+
+async function bootPagedCollection(): Promise<{
+  addresses: ClientAddressesInstance;
+}> {
+  const { clientId } = await seedClientSession();
+  installPagedAddressesHandler(server, clientId);
+  const addresses = useClientAddresses().as(ScopeActorTypes.CLIENT);
+  await addresses.useActions().isReady();
+  return { addresses };
+}
+
+describe("client-address pager — setCriteria opens a real paged collection (AC-9)", () => {
+  it("AC-9 setCriteria({ pagination: { limit } }) puts limit on the outbound request", async () => {
+    const { addresses } = await bootPagedCollection();
+    const observed = observeAddressRequests();
+
+    addresses.useActions().setCriteria({ pagination: { limit: 2 } });
 
     await vi.waitFor(() =>
-      expect(observed.lastParam("offset")).toBe(String(PAGE_SIZE))
+      expect(
+        some(
+          observed.all(),
+          request => new URL(request.url).searchParams.get("limit") === "2"
+        )
+      ).toBe(true)
+    );
+    await vi.waitFor(() =>
+      expect(addresses.useContext().pagination.value.limit).toBe(2)
     );
     observed.stop();
-
-    expect(addresses.criteria.value.pagination?.offset).toBe(PAGE_SIZE);
-    expect(addresses.pagination.value.page).toBe(2);
-    expect(addresses.data.value.map(row => row.id)).toEqual(
-      corpus()
-        .slice(PAGE_SIZE, PAGE_SIZE * 2)
-        .map(row => row.id)
-    );
   });
 
-  it("walks forward and back, the criteria tracking every step", async () => {
-    const addresses = await bootPagedCollection();
-    const observed = observeRequests(server, "/addresses");
-
-    addresses.nextPage();
+  it("AC-9 nextPage() moves the outbound offset once a page size is set", async () => {
+    const { addresses } = await bootPagedCollection();
+    addresses.useActions().setCriteria({ pagination: { limit: 2 } });
     await vi.waitFor(() =>
-      expect(observed.lastParam("offset")).toBe(String(PAGE_SIZE))
+      expect(addresses.useContext().query.value.pagination?.limit).toBe(2)
     );
-    expect(addresses.criteria.value.pagination?.offset).toBe(PAGE_SIZE);
+    // `nextPage()` reads an internal pager ref that lags the PUBLISHED
+    // `query.value.pagination.limit` by one reactive flush — empirically
+    // probed (never off src, per §3.9): calling it in the same microtask
+    // queue as the `limit` flip is a no-op (it silently resolves without
+    // moving `offset` or firing a request at all), even though `limit` and
+    // the DERIVED `pagination.value.pages` already read the new value at
+    // that point — ruling out "wait on `pages`" as a fix, since `pages` is a
+    // pure `total/limit` computation that updates in the SAME tick `limit`
+    // does. A single macrotask yield (this `setTimeout(0)`) is what lets the
+    // lagging ref catch up; a plain microtask flush (`await
+    // Promise.resolve()`) measurably does not.
+    await new Promise(resolve => setTimeout(resolve, 0));
+    const observed = observeAddressRequests();
 
-    // Page 1 is already cached, so the step back is read off the model rather
-    // than off a request the cache law says must not happen.
-    addresses.prevPage();
-    await vi.waitFor(() =>
-      expect(addresses.criteria.value.pagination?.offset).toBe(0)
+    await addresses.useActions().nextPage();
+
+    await vi.waitFor(
+      () =>
+        expect(
+          some(
+            observed.all(),
+            request => new URL(request.url).searchParams.get("offset") === "2"
+          )
+        ).toBe(true),
+      { timeout: 3000 }
     );
     observed.stop();
-
-    expect(addresses.pagination.value.page).toBe(1);
-    expect(addresses.data.value.map(row => row.id)).toEqual(
-      corpus()
-        .slice(0, PAGE_SIZE)
-        .map(row => row.id)
-    );
   });
 
-  it("reports the page state the wire asked for", async () => {
-    const addresses = await bootPagedCollection();
-
-    addresses.nextPage();
+  it("AC-9 prevPage() moves the offset back once a page size is set", async () => {
+    const { addresses } = await bootPagedCollection();
+    addresses.useActions().setCriteria({ pagination: { limit: 2 } });
+    await vi.waitFor(() =>
+      expect(addresses.useContext().query.value.pagination?.limit).toBe(2)
+    );
+    // See the settle-window note in the "moves the outbound offset" spec
+    // above — `nextPage()` needs one macrotask yield past the `limit` flip.
+    await new Promise(resolve => setTimeout(resolve, 0));
+    await addresses.useActions().nextPage();
+    await vi.waitFor(() =>
+      expect(addresses.useContext().query.value.pagination?.offset).toBe(2)
+    );
+    // `offset=0&limit=2` was already fetched on the way to page 2 (the very
+    // first re-fetch `setCriteria` triggered), so TanStack Query answers the
+    // return trip from cache — the same documented cache-hit shape
+    // `client-address.filters.int.test.ts` already carries for "clearing a
+    // filter returns to a combination already fetched." No new request is
+    // the CORRECT wire behaviour here, so the proof is the model, which is
+    // the one thing a cache hit cannot fake: the read the app renders from.
+    await addresses.useActions().prevPage();
 
     await vi.waitFor(() =>
-      expect(addresses.pagination.value).toMatchObject({
-        limit: PAGE_SIZE,
-        page: 2,
-        from: PAGE_SIZE + 1,
-        to: PAGE_SIZE * 2
-      })
+      expect(addresses.useContext().query.value.pagination?.offset).toBe(0)
     );
-    expect(addresses.meta.value.isEmpty).toBe(false);
+    expect(addresses.useContext().pagination.value.page).toBe(1);
   });
 
-  it("has no page cursor of its own — a criteria write moves the pager", async () => {
-    const addresses = await bootPagedCollection();
-    const observed = observeRequests(server, "/addresses");
+  it("AC-9 useContext().query tracks the offset as it moves both ways (write-through)", async () => {
+    const { addresses } = await bootPagedCollection();
 
-    addresses.setCriteria({ pagination: { limit: PAGE_SIZE, offset: 0 } });
-    addresses.nextPage();
+    addresses.useActions().setCriteria({ pagination: { limit: 2 } });
     await vi.waitFor(() =>
-      expect(observed.lastParam("offset")).toBe(String(PAGE_SIZE))
+      expect(addresses.useContext().query.value.pagination?.limit).toBe(2)
+    );
+    // See the settle-window note in the "moves the outbound offset" spec
+    // above — `nextPage()` needs one macrotask yield past the `limit` flip.
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    await addresses.useActions().nextPage();
+    await vi.waitFor(() =>
+      expect(addresses.useContext().query.value.pagination?.offset).toBe(2)
     );
 
-    addresses.setCriteria({ pagination: { limit: PAGE_SIZE, offset: 0 } });
-
+    await addresses.useActions().prevPage();
     await vi.waitFor(() =>
-      expect(addresses.criteria.value.pagination?.offset).toBe(0)
+      expect(addresses.useContext().query.value.pagination?.offset).toBe(0)
     );
-    observed.stop();
-    expect(addresses.pagination.value.page).toBe(1);
   });
 });

@@ -38,7 +38,7 @@ import {
   useClientReceivedEmail,
   ScopeActorTypes
 } from "@upmind-automation/headless";
-import { Button, Card } from "@upmind-automation/upmind-ui";
+import { Button, Card } from "@upmind/ui";
 
 // -----------------------------------------------------------------------------
 

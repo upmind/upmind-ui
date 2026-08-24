@@ -25,7 +25,6 @@ import { useI18n } from "vue-i18n";
 import { ScopeActorTypes, useAccount } from "@upmind-automation/headless";
 import Form from "../../../components/form/Form.vue";
 import Section from "../../../components/section/Section.vue";
-
 // --- types
 import type { GuestEmailProps } from "../types";
 

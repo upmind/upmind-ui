@@ -1,7 +1,17 @@
 <template>
   <component
     :is="props.as"
-    :class="cn(styles.ribbon, props.class)"
+    :class="
+      cn(
+        ribbonVariants({
+          background: props.background,
+          border: props.border,
+          sticky: props.sticky,
+          height: props.height
+        }),
+        props.class
+      )
+    "
     v-bind="$attrs"
   >
     <slot />
@@ -9,15 +19,14 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
-import { cn, useStyles } from "@upmind-automation/upmind-ui";
-import config from "./ribbon.config";
+import { cn } from "@upmind/ui";
 import {
   RIBBON_BACKGROUND,
   RIBBON_BORDER,
   RIBBON_STICKY,
   RIBBON_HEIGHT
 } from "./types";
+import { ribbonVariants } from "./variants";
 import type { RibbonProps } from "./types";
 
 const props = withDefaults(defineProps<RibbonProps>(), {
@@ -27,13 +36,4 @@ const props = withDefaults(defineProps<RibbonProps>(), {
   sticky: RIBBON_STICKY.NONE,
   height: RIBBON_HEIGHT.AUTO
 });
-
-const meta = computed(() => ({
-  background: props.background,
-  border: props.border,
-  sticky: props.sticky,
-  height: props.height
-}));
-
-const styles = useStyles(["ribbon"], meta, config);
 </script>

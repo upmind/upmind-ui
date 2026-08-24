@@ -6,7 +6,7 @@
   -->
   <ContextMenu :items="menuItems" size="sm">
     <template #trigger>
-      <div :class="styles.actionSlots.root">
+      <div :class="actionSlots.root({ stretch: stretch })">
         <!-- always-visible: the actions the scenario placed here, drawn as it
              declared them. Beside a row the icon carries the control and the
              declared label becomes its tooltip and its accessible name. -->
@@ -16,15 +16,13 @@
           :label="locked ? t('labs.replay_locked') : action.label"
           :active="!!iconOnly || !!locked"
         >
-          <Button
+          <ButtonItems
             size="sm"
             :variant="action.variant ?? 'outline'"
-            :color="action.color"
             :icon="action.icon"
             :label="action.label"
             :block="stretch"
             :icon-only="iconOnly"
-            :aria-label="action.label"
             :disabled="action.disabled"
             :loading="action.loading"
             @click="action.onSelect"
@@ -45,16 +43,20 @@
                region does — a trigger that still opens a menu of dead controls
                is the lock leaking (`R6-23`). -->
           <template #trigger>
-            <Button
+            <ButtonItems
               size="sm"
               variant="outline"
               icon="dots-vertical"
               icon-only
               :label="t('action.show_more_options')"
-              :aria-label="t('action.show_more_options')"
               :disabled="locked"
               :title="locked ? t('labs.replay_locked') : undefined"
             />
+          </template>
+          <template #item="{ item }">
+            <span :data-test-value="item.dataAttrs?.['data-test-value']">
+              {{ item.label }}
+            </span>
           </template>
         </DropdownMenu>
       </div>
@@ -81,18 +83,13 @@
 
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import {
-  Button,
-  ContextMenu,
-  DropdownMenu,
-  Tooltip,
-  useStyles
-} from "@upmind-automation/upmind-ui";
+import { ContextMenu, DropdownMenu, Tooltip } from "@upmind/ui";
+import ButtonItems from "./ButtonItems.vue";
 import { ActionPlacementTypes } from "../scenario.types";
-import config from "./ActionSlots.styles";
-import { filter, map, reject } from "lodash-es";
+import { actionSlots } from "./ActionSlots.styles";
+import { filter, kebabCase, map, reject } from "lodash-es";
 import type { ActionSlotItem, ActionSlotsProps } from "./ActionSlots.types";
-import type { DropdownMenuItemProps } from "@upmind-automation/upmind-ui";
+import type { MenuItem } from "@upmind/ui";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<ActionSlotsProps>();
@@ -108,32 +105,26 @@ const visibleActions = computed(() =>
  * menu item has no spinner of its own, so an action in flight holds its entry
  * closed rather than inviting a second click the seam would drop.
  */
-function menuItem(action: ActionSlotItem): DropdownMenuItemProps {
+function menuItem(action: ActionSlotItem): MenuItem {
   return {
     label: action.label,
     value: action.name,
-    icon: action.icon,
     disabled: action.disabled || action.loading,
-    handler: action.onSelect
+    dataAttrs: { "data-test-value": kebabCase(action.label) },
+    onSelect: action.onSelect
   };
 }
 
 // Anything not placed beside the row falls here — including an action whose
 // declaration named no placement at all.
-const overflowItems = computed<DropdownMenuItemProps[]>(() =>
+const overflowItems = computed<MenuItem[]>(() =>
   map(
     reject(props.actions, { placement: ActionPlacementTypes.VISIBLE }),
     menuItem
   )
 );
 
-const menuItems = computed<DropdownMenuItemProps[]>(() =>
-  map(props.actions, menuItem)
-);
+const menuItems = computed<MenuItem[]>(() => map(props.actions, menuItem));
 
-const meta = computed(() => ({
-  count: props.actions.length,
-  stretch: !!props.stretch
-}));
-const styles = useStyles(["actionSlots"], meta, config);
+const stretch = computed(() => !!props.stretch);
 </script>

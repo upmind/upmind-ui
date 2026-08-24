@@ -27,7 +27,7 @@ import InsetLayout from "../../../components/layout/layouts/Inset.layout.vue";
 import { useSection } from "../../../components/section/useSection";
 
 // --- utils
-import { isMobile } from "@upmind-automation/upmind-ui";
+import { isMobile } from "../../../composables/isMobile";
 
 defineOptions({
   inheritAttrs: false

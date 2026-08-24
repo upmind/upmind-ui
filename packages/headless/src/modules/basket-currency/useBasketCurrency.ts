@@ -17,7 +17,7 @@ import {
 } from "../../utils";
 import { get, isNil } from "lodash-es";
 import type { CurrencyContext, CurrencyModel } from "./basket-currency.types";
-import type { ActorRef } from "xstate";
+import type { AnyActorRef } from "xstate";
 
 // Ceiling for waiting on the currency actor to spawn and settle. Normal boots
 // resolve near-instantly; this only bounds the pathological case where the
@@ -52,7 +52,7 @@ export const useBasketCurrency = () => {
         // basket settled into an error/unavailable state, `spawnActors` never
         // runs and the actor never appears — reject rather than poll forever
         // (and leak the interval).
-        return new Promise<ActorRef<any>>((resolve, reject) => {
+        return new Promise<AnyActorRef>((resolve, reject) => {
           const deadline = Date.now() + READY_TIMEOUT;
           const interval = setInterval(() => {
             if (!isNil(actor.value?.service)) {
@@ -73,7 +73,7 @@ export const useBasketCurrency = () => {
       })
       .then(service => {
         return waitFor(
-          service as ActorRef<any>,
+          service,
           state => {
             return !stateMatches(state, ["subscribing", "loading", "checking"]);
           },

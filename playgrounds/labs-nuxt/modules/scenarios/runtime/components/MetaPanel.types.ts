@@ -20,8 +20,15 @@ export enum MetaBadgeColor {
   DANGER = "danger"
 }
 
-export enum MetaBadgeVariant {
-  MINIMAL = "minimal",
+/**
+ * @graphify-citation `graphify query "badge appearance variant muted solid enum"`
+ * (2026-08-24) — `graphify-out/graph.json` NODE Appearances at
+ * `design-system/packages/ui/src/components/badge/Badge.stories.ts` confirms the
+ * new lib's Badge uses `appearance` prop with values `muted`, `solid`, `outline`.
+ * Renaming `MetaBadgeVariant` → `MetaBadgeAppearance` to match the new API.
+ */
+export enum MetaBadgeAppearance {
+  MUTED = "muted",
   SOLID = "solid"
 }
 
@@ -29,7 +36,7 @@ export type MetaPanelItem = {
   key: string;
   value: boolean;
   color: MetaBadgeColor;
-  variant: MetaBadgeVariant;
+  appearance: MetaBadgeAppearance;
 };
 
 export type MetaPanelProps = {

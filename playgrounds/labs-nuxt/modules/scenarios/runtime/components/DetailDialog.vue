@@ -24,7 +24,7 @@
     <!-- The way back to the list rides in the SAME group as the record's own
          actions: the host's `#close` slot wraps whatever it is given in its own
          close Button, so a control passed there draws inside a second one. -->
-    <template #actions>
+    <template #footer>
       <ActionSlots :actions="footerActions" :locked="locked" stretch />
     </template>
   </component>
@@ -52,7 +52,7 @@
 
 import { computed, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { Dialog, Drawer, Sheet } from "@upmind-automation/upmind-ui";
+import { Dialog, Drawer, Sheet } from "@upmind/ui";
 import { useModulePort } from "../composables/useModulePort";
 import {
   ActionPlacementTypes,

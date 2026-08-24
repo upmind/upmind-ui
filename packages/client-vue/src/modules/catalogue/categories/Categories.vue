@@ -1,5 +1,5 @@
 <template>
-  <div :class="styles.categories.root" v-auto-animate>
+  <div :class="categoriesRootVariants()" v-auto-animate>
     <CategoriesHeader
       v-bind="{ ...props, ...currentCategory }"
       :description="props.description"
@@ -15,7 +15,7 @@
 
     <nav
       v-if="!isFaceted && (hasCategories || meta.isLoading)"
-      :class="styles.categories.grid"
+      :class="categoriesGridVariants({ layout: ui.categoryListLayout.value })"
       role="region"
       aria-label="Product categories"
     >
@@ -23,11 +23,11 @@
         <div
           v-for="n in 6"
           :key="`skeleton-${n}`"
-          class="bg-core-surface before:border-surface relative z-10 flex flex-col gap-4 p-8 before:absolute before:-inset-px before:-z-10 before:border before:border-solid before:content-['']"
+          class="bg-surface before:border-stroke relative z-10 flex flex-col gap-4 p-8 before:absolute before:-inset-px before:-z-10 before:border before:border-solid before:content-['']"
         >
           <div class="text-muted flex items-center justify-between gap-2">
             <Skeleton class="h-7 w-32" />
-            <Icon icon="arrow-right" size="2xs" />
+            <Icon icon="arrow-right" size="sm" />
           </div>
           <div class="flex flex-col gap-2">
             <Skeleton class="h-4 w-3/4" />
@@ -58,9 +58,9 @@ import {
   type UseProductCategories
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-import { useStyles, Skeleton } from "@upmind-automation/upmind-ui";
-import { Icon } from "@upmind-automation/upmind-ui";
-import config from "../catalogue.config";
+import { Skeleton } from "@upmind/ui";
+import { Icon } from "../../../components/icon";
+import { categoriesRootVariants, categoriesGridVariants } from "../variants";
 import CategoriesHeader from "./CategoriesHeader.vue";
 import CategoryItem from "./CategoryItem.vue";
 import { isEmpty } from "lodash-es";
@@ -91,10 +91,4 @@ const hasCategories = computed(() => {
 });
 
 const { ui, data } = useConfig().with({ category: currentCategory });
-
-const styles = useStyles(
-  ["categories"],
-  computed(() => ({ layout: ui.categoryListLayout.value })),
-  config
-);
 </script>

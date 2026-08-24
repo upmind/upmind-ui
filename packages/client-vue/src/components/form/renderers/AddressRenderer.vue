@@ -12,7 +12,7 @@
         :placeholder="t('form.address.placeholder')"
         :results="predictions"
         :additional-option="t('action.enter_address_manually')"
-        :data-attrs="{ 'data-test-key': 'address-search-option' }"
+        option-test-key="address-search-option"
         class="mb-6"
         @select="selectAddress"
         @update:search="getSuggestions"
@@ -21,12 +21,12 @@
       <footer>
         <Link
           class="mt-2"
-          :label="t('action.enter_address_manually')"
           size="sm"
           color="muted"
-          :dataAttrs="{ 'data-test-key': 'link-enter-address-manually' }"
+          :data-attrs="{ 'data-test-key': 'link-enter-address-manually' }"
           @click="setShowAddressFields(true)"
-        />
+          >{{ t("action.enter_address_manually") }}</Link
+        >
       </footer>
     </template>
 
@@ -53,12 +53,14 @@ import {
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { usePlaces } from "@upmind-automation/headless";
-import { FormField, Search, Link } from "@upmind-automation/upmind-ui";
-import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
+import { Search } from "@upmind/ui";
+import { Link } from "@upmind/ui";
+import FormField from "../engine/FormField.vue";
+import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import { get } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
 import type { Place } from "@upmind-automation/headless";
-import type { SearchItem } from "@upmind-automation/upmind-ui";
+import type { SearchItem } from "@upmind/ui";
 // --- external
 
 // -----------------------------------------------------------------------------

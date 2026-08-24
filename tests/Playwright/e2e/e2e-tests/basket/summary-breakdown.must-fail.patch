@@ -1,0 +1,39 @@
+# summary-breakdown.must-fail.patch
+#
+# Targets: tests/Playwright/e2e/e2e-tests/basket/summary-breakdown.spec.ts — the
+# brand setting choosing between the two presentations (C1, C16, C17), which
+# every other Scenario in that spec stands on.
+# Authored by: developer seat (agent-seat-separation.companion.md — the seat that
+# knows the exact line it changed authors the mutant; the prover applies it
+# blind, confirms RED, then reverts — never reading src to construct it).
+#
+# Mutates ONE line: inverts the breakdown `v-if` in Summary.vue. The itemised
+# region and the plain-totals region are the two arms of one v-if/v-else, so
+# inverting the condition swaps them — the brand asks for details and is served
+# plain totals, and the reverse. `data-test-key="basket-summary-breakdown"` sits
+# INSIDE the mutated v-if, so the handle the spec selects by goes with it.
+#
+# Expected RED: 5 of 5.
+#   - the four itemised-presentation tests: `summary.breakdown` never becomes
+#     visible, so each fails at its first breakdown assertion.
+#   - "shows plain totals only when the brand hides configuration details": the
+#     totals list is not rendered AND `summary.breakdown` has count 1, not 0.
+# Collateral, expected: checkout/summary-promotion-field.spec.ts reads the same
+# v-if and flips too. Judge this control on the colocated spec.
+#
+# Apply / verify / revert:
+#   git apply <this file>                          # mutate
+#   pnpm exec playwright test tests/Playwright/e2e/e2e-tests/basket/summary-breakdown.spec.ts
+#   git apply -R <this file>                       # revert — must return to green
+#
+--- a/packages/client-vue/src/modules/basket/components/Summary.vue
++++ b/packages/client-vue/src/modules/basket/components/Summary.vue
+@@ -4,7 +4,7 @@
+          priced from the saved server basket. Taxes read as calculating while a
+          refresh is in flight — the basket carries none until it returns. -->
+     <div
+-      v-if="props.showBreakdown"
++      v-if="!props.showBreakdown"
+       :class="summarySectionsVariants()"
+       data-test-key="basket-summary-breakdown"
+     >

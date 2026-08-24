@@ -1,47 +1,46 @@
 <template>
-  <div v-if="meta.hasAlerts" :class="styles.basketAlerts.root" v-auto-animate>
+  <div v-if="meta.hasAlerts" :class="basketAlertsRootVariants()" v-auto-animate>
     <!-- Errors -->
     <Alert
       v-if="meta.hasBasketErrors && !meta.isLoading"
-      color="danger"
-      variant="muted"
-      icon="alert-triangle"
+      variant="danger"
       :title="errors!.message"
-    />
+    >
+      <template #icon><Icon icon="alert-triangle" /></template>
+    </Alert>
 
     <Alert
       v-if="meta.count && !meta.isLoading"
-      color="danger"
-      variant="muted"
-      icon="alert-triangle"
+      variant="danger"
       :title="t('cart.basket_requires_attention_msg', { count: meta.count })"
       :description="t('cart.basket_review_msg')"
     >
-      <ol :class="styles.basketAlerts.list" v-auto-animate>
+      <template #icon><Icon icon="alert-triangle" /></template>
+      <ol :class="basketAlertsListVariants()" v-auto-animate>
         <!-- Additional details -->
-        <li v-if="meta.hasBasketFields" :class="styles.basketAlerts.item">
+        <li v-if="meta.hasBasketFields" :class="basketAlertsItemVariants()">
           <i18n-t keypath="cart.basket_fields_review_msg" tag="span">
             <template #review>
               <Link
                 size="inherit"
                 color="inherit"
                 v-bind="safeBasketFieldsRoute"
-                :label="t('action.review')"
-              />
+                >{{ t("action.review") }}</Link
+              >
             </template>
           </i18n-t>
         </li>
 
         <!-- Billing details -->
-        <li v-if="meta.hasBasketBilling" :class="styles.basketAlerts.item">
+        <li v-if="meta.hasBasketBilling" :class="basketAlertsItemVariants()">
           <i18n-t keypath="cart.basket_billing_review_msg" tag="span">
             <template #review>
               <Link
                 size="inherit"
                 color="inherit"
                 v-bind="safeBasketBillingRoute"
-                :label="t('action.review')"
-              />
+                >{{ t("action.review") }}</Link
+              >
             </template>
           </i18n-t>
         </li>
@@ -54,9 +53,7 @@
     <!-- Warnings -->
     <Alert
       v-if="basketMeta.hasWarningNotes && !basketMeta.isLoading"
-      color="warning"
-      variant="muted"
-      icon="alert-triangle"
+      variant="warning"
       :title="t('cart.warning_notes_title', warningNotes.length)"
       :action="{
         label: t('action.dismiss_all'),
@@ -65,12 +62,13 @@
       :dataAttrs="{ 'data-test-key': 'basket-warnings' }"
       @click="dismissAllWarnings"
     >
+      <template #icon><Icon icon="alert-triangle" /></template>
       <template #description>
-        <ul :class="styles.basketAlerts.list" v-auto-animate>
+        <ul :class="basketAlertsListVariants()" v-auto-animate>
           <li
             v-for="note in warningNotes"
             :key="note.id"
-            :class="styles.basketAlerts.item"
+            :class="basketAlertsItemVariants()"
           >
             {{ note.message }}
           </li>
@@ -89,8 +87,14 @@ import {
   useBasketBilling,
   useBasketFields
 } from "@upmind-automation/headless";
-import { Alert, Link, useStyles } from "@upmind-automation/upmind-ui";
-import config from "./basket-alerts.config";
+import { Link } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
+import { Icon } from "../../../components/icon";
+import {
+  basketAlertsRootVariants,
+  basketAlertsListVariants,
+  basketAlertsItemVariants
+} from "./basket-alerts.variants";
 import { sum } from "lodash-es";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
@@ -112,7 +116,6 @@ const props = withDefaults(
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
-const styles = useStyles(["basketAlerts"], {}, config);
 const {
   meta: basketMeta,
   warningNotes,

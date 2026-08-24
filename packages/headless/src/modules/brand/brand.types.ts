@@ -1,4 +1,16 @@
+/**
+ * @graphify-citation `graphify query "QueryModel QuerySchema brand config keys
+ * filter criteria declared schema"` (2026-08-23, `graphify-out/graph.json`,
+ * BFS depth=2, 865 nodes reached) — every `QueryModel` / `QuerySchema` node in
+ * the graph is MODULE-LOCAL (`client-company.types.ts` L265; a `client-vue`
+ * renderer test harness), and `modules/query/query.types.ts` publishes no
+ * shared pair to consume. Minting this module's own below therefore follows
+ * the established per-module precedent rather than duplicating a shared type.
+ * See `graphify-out/GRAPH_REPORT.md`.
+ */
 import type { UIMeta } from "../product/product.types";
+import type { JsonSchema7 } from "@jsonforms/core";
+import type { BrandConfigKeys } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -142,3 +154,29 @@ export type BrandMeta = {
   variant?: string; // the preferred variant/token id to be used
   theme?: string; // the preferred data-theme id to be used
 };
+
+// --- query model
+// Minted under the file-header @graphify-citation above: no shared
+// QueryModel/QuerySchema exists in `graphify-out/graph.json` to consume.
+
+/**
+ * The brand-config read's whole request state as one model — currently the
+ * single `keys` filter branch. This is the instance validated against
+ * `useQuerySchema()`; the translator maps it to the `QueryProps` the query
+ * layer already accepts, joining the array into `filter[keys|eq]=a,b,c`.
+ *
+ * The list is APPEND-ONLY across the app's lifetime, so every write is the
+ * full accumulated superset rather than a delta.
+ */
+export type QueryModel = {
+  filters?: {
+    keys?: { eq?: BrandConfigKeys[] };
+  };
+};
+
+/**
+ * The declared query schema's type. The query layer accepts any Draft-07
+ * schema, and the translator/validators walk it at runtime, so the type stays
+ * general rather than a module-specific literal.
+ */
+export type QuerySchema = JsonSchema7;

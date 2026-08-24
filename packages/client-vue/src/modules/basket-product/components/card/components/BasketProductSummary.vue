@@ -1,11 +1,11 @@
 <template>
-  <div :class="styles.product.option.details">
-    <h5 :class="styles.product.summary.category.text">
+  <div :class="productOptionDetailsVariants()">
+    <h5 :class="productSummaryCategoryTextVariants()">
       {{ summary.category }}
     </h5>
 
-    <div :class="styles.product.option.title">
-      <strong :class="styles.product.summary.title.text">
+    <div :class="productOptionTitleVariants()">
+      <strong :class="productSummaryTitleTextVariants()">
         {{ summary.title }}
       </strong>
 
@@ -17,12 +17,20 @@
       />
     </div>
 
-    <p v-if="!summary.meta?.free" :class="styles.product.option.description">
+    <p
+      v-if="!summary.meta?.free"
+      :class="
+        productOptionDescriptionVariants({
+          selected: meta.selected,
+          quantifiable: meta.quantifiable
+        })
+      "
+    >
       <slot />
       <!-- e.g. "Usually $14.99" (struck through) -->
       <span
         v-if="summary.meta?.discounted"
-        :class="styles.product.option.discounted"
+        :class="productOptionDiscountedVariants()"
       >
         {{
           t("term.renews_usually_msg", { price: summary.price.regularPrice })
@@ -35,8 +43,15 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { useStyles, isMobile } from "@upmind-automation/upmind-ui";
-import config from "../basketProduct.config";
+import { isMobile } from "../../../../../composables/isMobile";
+import {
+  productOptionDetailsVariants,
+  productOptionTitleVariants,
+  productOptionDescriptionVariants,
+  productOptionDiscountedVariants,
+  productSummaryCategoryTextVariants,
+  productSummaryTitleTextVariants
+} from "../basketProduct.variants";
 import Promotion from "./Promotion.vue";
 import type { BasketProductSummaryProps } from "../types";
 // -----------------------------------------------------------------------------
@@ -49,10 +64,4 @@ const meta = computed(() => ({
   selected: !!props.summary.toggle?.selected,
   quantifiable: !!props.summary.meta?.quantifiable
 }));
-
-const styles = useStyles(
-  ["product.summary.category", "product.summary.title", "product.option"],
-  meta,
-  config
-);
 </script>

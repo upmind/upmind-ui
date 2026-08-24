@@ -197,8 +197,8 @@ describe("product-setup fixtures generator (headless Playwright)", () => {
             body: new URLSearchParams({ grant_type: "guest" }).toString()
           }).then(json);
           token =
-            (tokenRes.body as any)?.access_token ??
-            (tokenRes.body as any)?.data?.access_token ??
+            (tokenRes.body as Record<string, unknown>)?.access_token ??
+            (tokenRes.body as Record<string, unknown>)?.data?.access_token ??
             "";
 
           // --- 2) brand / config / boot lookups --------------------------------
@@ -223,9 +223,12 @@ describe("product-setup fixtures generator (headless Playwright)", () => {
               { product_id: DOMAIN_ORG, quantity: 1, billing_cycle_months: 12 }
             ]
           });
-          const basket = (created.body as any)?.data;
+          const basket = (created.body as Record<string, unknown>)?.data;
           const basketId = basket?.id;
-          const products = (basket?.products ?? []) as any[];
+          const products = (basket?.products ?? []) as Record<
+            string,
+            unknown
+          >[];
 
           // --- 4) the invalid-basket traffic the machines replay ---------------
           const current = await get(
@@ -253,7 +256,7 @@ describe("product-setup fixtures generator (headless Playwright)", () => {
 
           return {
             tokenStatus: tokenRes.status,
-            actor: (tokenRes.body as any)?.actor_type,
+            actor: (tokenRes.body as Record<string, unknown>)?.actor_type,
             createStatus: created.status,
             basketId,
             productCount: products.length,
@@ -263,8 +266,9 @@ describe("product-setup fixtures generator (headless Playwright)", () => {
               service: p.service_identifier
             })),
             currentStatus: current.status,
-            currentProductCount: ((current.body as any)?.data?.products ?? [])
-              .length,
+            currentProductCount: (
+              (current.body as Record<string, unknown>)?.data?.products ?? []
+            ).length,
             checkStatus: check.status
           };
         },
@@ -319,7 +323,7 @@ describe("product-setup fixtures generator (headless Playwright)", () => {
       Referer: `${ORIGIN}/`,
       ...(bearer ? { Authorization: `Bearer ${bearer}` } : {})
     });
-    const jsonOf = async (res: Response): Promise<any> => {
+    const jsonOf = async (res: Response): Promise<unknown> => {
       const text = await res.text();
       try {
         return JSON.parse(text);
@@ -355,7 +359,7 @@ describe("product-setup fixtures generator (headless Playwright)", () => {
       })
     }).then(jsonOf);
     const basketId: string = created?.data?.id;
-    const seated: any[] = created?.data?.products ?? [];
+    const seated: Record<string, unknown>[] = created?.data?.products ?? [];
     const domainABp = seated.find(p => p.product_id === DOMAIN_AU);
     const domainBBp = seated.find(p => p.product_id === DOMAIN_ORG);
     const hostingBp = seated.find(p => p.product_id === STARTER_HOSTING);
@@ -396,7 +400,9 @@ describe("product-setup fixtures generator (headless Playwright)", () => {
     ).then(jsonOf);
     const domainBService: string | undefined = (
       afterSld?.data?.products ?? []
-    ).find((p: any) => p.product_id === DOMAIN_ORG)?.service_identifier;
+    ).find(
+      (p: Record<string, unknown>) => p.product_id === DOMAIN_ORG
+    )?.service_identifier;
     expect(
       domainBService,
       "DOMAIN_ORG derived a non-null service_identifier from its sld"
@@ -499,13 +505,13 @@ describe("product-setup fixtures generator (headless Playwright)", () => {
           return {
             currentStatus: current.status,
             checkStatus: check.status,
-            products: ((current.body as any)?.data?.products ?? []).map(
-              (p: any) => ({
-                id: p.id,
-                productId: p.product_id,
-                service: p.service_identifier
-              })
-            )
+            products: (
+              (current.body as Record<string, unknown>)?.data?.products ?? []
+            ).map((p: Record<string, unknown>) => ({
+              id: p.id,
+              productId: p.product_id,
+              service: p.service_identifier
+            }))
           };
         },
         {

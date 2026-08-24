@@ -18,10 +18,12 @@
 
 import {
   ActionPlacementTypes,
+  CardSlotTypes,
   TableColumnWidthTypes
 } from "../runtime/scenario.types";
 import type {
   ActionsUischema,
+  CardUischema,
   DetailUischema,
   TableUischema
 } from "../runtime/scenario.types";
@@ -64,6 +66,41 @@ export const tableUischema: TableUischema = {
       scope: "#/properties/meta",
       i18n: "text.status",
       options: { badges: STATUS_BADGES }
+    }
+  ]
+};
+
+/**
+ * The SAME record, drawn as a card — a second declaration, never a second
+ * component. The subject rides the TITLE slot, recipient/status on SUBTITLE,
+ * date on BODY.
+ */
+export const cardUischema: CardUischema = {
+  type: "CardLayout",
+  elements: [
+    {
+      type: "TableCellText",
+      scope: "#/properties/subject",
+      i18n: "text.subject",
+      options: { slot: CardSlotTypes.TITLE }
+    },
+    {
+      type: "TableCellText",
+      scope: "#/properties/recipient/properties/name",
+      i18n: "text.recipient",
+      options: { slot: CardSlotTypes.TITLE }
+    },
+    {
+      type: "TableCellBadges",
+      scope: "#/properties/meta",
+      i18n: "text.status",
+      options: { badges: STATUS_BADGES, slot: CardSlotTypes.TITLE }
+    },
+    {
+      type: "TableCellDate",
+      scope: "#/properties/date",
+      i18n: "text.date_sent",
+      options: { slot: CardSlotTypes.SUBTITLE }
     }
   ]
 };

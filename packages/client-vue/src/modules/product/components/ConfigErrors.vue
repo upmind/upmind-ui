@@ -2,27 +2,20 @@
   <Alert
     class="w-full"
     v-if="props.visible"
-    color="danger"
-    variant="minimal"
-    icon="alert-triangle"
+    variant="danger"
+    appearance="outline"
     :title="t('error.product_not_valid', { errorCount })"
     :description="t('text.check_required_fields_desc')"
     :data-attrs="{ 'data-test-key': 'product-incomplete-alert' }"
   >
-    <ol
-      v-if="errorCount"
-      class="text-sm-tight w-full list-disc p-6 py-2 text-left"
-    >
+    <template #icon><Icon icon="alert-triangle" /></template>
+    <ol v-if="errorCount" class="w-full list-disc p-6 py-2 text-left text-sm">
       <li
         v-for="error in props.errors"
         :key="toControlId(error)"
         class="text-sm marker:text-inherit"
       >
-        <Link
-          size="inherit"
-          :href="`#${toControlId(error)}`"
-          :label="t('action.review')"
-        >
+        <Link size="inherit" :href="`#${toControlId(error)}`">
           <span>{{ error?.message }}</span>
         </Link>
       </li>
@@ -35,7 +28,10 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Alert, Link, toSafeControlId } from "@upmind-automation/upmind-ui";
+import { Link } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
+import { toSafeControlId } from "../../../components/form";
+import { Icon } from "../../../components/icon";
 import { compact, join, size, split, take, trimStart } from "lodash-es";
 import type { ErrorObject } from "@upmind-automation/headless";
 

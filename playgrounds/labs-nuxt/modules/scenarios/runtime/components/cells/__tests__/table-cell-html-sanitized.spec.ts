@@ -19,7 +19,7 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import { createI18n } from "vue-i18n";
 import text from "@upmind-automation/i18n/core/text-en.json";
-import { Sanitized } from "@upmind-automation/upmind-ui";
+import { Sanitized } from "@upmind/ui";
 import clientEmailHistory from "../../../../useClientReceivedEmails/client-email-history.scenario";
 import { receivedEmailBody } from "../../../../testing/recorded-received-email";
 import { CellDispatcher } from "../index";
@@ -54,7 +54,7 @@ describe("the email body draws as sanitized HTML", () => {
     const sanitized = drawBody().findComponent(Sanitized);
 
     expect(sanitized.exists()).toBe(true);
-    expect(sanitized.props("modelValue")).toBe(receivedEmailBody);
+    expect(sanitized.props("html")).toBe(receivedEmailBody);
   });
 
   it("draws the markup as real elements, not escaped text", () => {

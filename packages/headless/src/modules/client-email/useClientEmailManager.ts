@@ -4,7 +4,10 @@ import { dataManagerMachine } from "../data-manager";
 import { createScopedComposable } from "../scope/scope.builder";
 import { useI18n } from "../system-localisation";
 import createClientEmailServices from "./client-email.services";
-import { CLIENT_EMAIL_SCOPE_MATRIX } from "./client-email.types";
+import {
+  CLIENT_EMAIL_SCOPE_MATRIX,
+  ClientEmailContextTypes
+} from "./client-email.types";
 import { createClientEmailManagerActions } from "./useClientEmailManager.actions";
 import { createClientEmailManagerContext } from "./useClientEmailManager.context";
 import { createClientEmailManagerInternals } from "./useClientEmailManager.internals";
@@ -37,11 +40,15 @@ function createClientEmailManagerForScope(
   const actorScope = config.actor as ScopeActorTypes;
 
   /**
-   * The email being edited comes from `.withId(id)`; absent (`.fresh()`) → a
-   * new address. Reading the id from the scope key rather than an argument is
-   * what makes two concurrently-open editors two distinct registry entries
-   * instead of one shared machine.
+   * The email being edited is carried by the scope context; absent
+   * (`.fresh()`) → a new email. Reading the id from the scope rather than an
+   * argument is what makes two concurrently-open editors two distinct registry
+   * entries instead of one shared machine.
    */
+  const emailId =
+    config.context?.type === ClientEmailContextTypes.EMAIL
+      ? config.context.id
+      : config.id;
 
   /**
    * ONE services instance for this scope, threaded into the machine config.
@@ -54,7 +61,7 @@ function createClientEmailManagerForScope(
     dataManagerMachine
       .withConfig(createClientEmailManagerMachineConfig(service))
       .withContext({
-        id: config.id,
+        id: emailId,
         // Identity, seeded from the ONE seam. Never read `activeUser` directly
         // in this file.
         clientId: service.clientId.value,

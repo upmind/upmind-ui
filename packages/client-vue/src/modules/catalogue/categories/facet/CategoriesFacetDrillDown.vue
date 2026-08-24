@@ -1,40 +1,52 @@
 <template>
-  <section :class="styles.products.facet.drillDown.items">
+  <section :class="productsFacetDrillDownItemsVariants()">
     <Button
       v-for="(category, index) in items"
       :key="`category-${index}`"
-      v-bind="category"
+      as-child
       variant="ghost"
       size="lg"
       :class="
         cn([
-          styles.products.facet.drillDown.action,
+          productsFacetDrillDownActionVariants(),
           category.current && 'bg-control-active-muted'
         ])
       "
-      @click="category.handler"
-      :label="category.label"
-      icon-append="chevron-right"
-    />
+    >
+      <RouterLink :to="category.to" @click="category.handler">
+        {{ category.label }}
+        <Icon icon="chevron-right" />
+      </RouterLink>
+    </Button>
   </section>
 
   <Button
     v-if="parentCategory"
-    v-bind="parentCategory"
+    as-child
     variant="outline"
     size="lg"
-    :class="styles.products.facet.drillDown.back"
-    icon="arrow-left"
+    :class="productsFacetDrillDownBackVariants()"
   >
+    <RouterLink :to="parentCategory.to">
+      <Icon icon="arrow-left" />
+      {{ parentCategory.label }}
+    </RouterLink>
   </Button>
 </template>
 
 <script setup lang="ts">
 import { computed, inject } from "vue";
 import { useI18n } from "vue-i18n";
+import { RouterLink } from "vue-router";
 import { QUERY_PARAMS } from "@upmind-automation/headless";
-import { Button, cn, useStyles } from "@upmind-automation/upmind-ui";
-import config from "../../catalogue.config";
+import { cn } from "@upmind/ui";
+import { Button } from "@upmind/ui";
+import { Icon } from "../../../../components/icon";
+import {
+  productsFacetDrillDownItemsVariants,
+  productsFacetDrillDownActionVariants,
+  productsFacetDrillDownBackVariants
+} from "../../variants";
 import { map } from "lodash-es";
 import type { CategoriesProps } from "../types";
 import type { CategoriesFacetProps } from "../types";
@@ -53,8 +65,6 @@ const useProductCategories = inject<UseProductCategories>(
 );
 
 const { t } = useI18n();
-
-const styles = useStyles(["products.facet.drillDown"], {}, config);
 
 // -----------------------------------------------------------------------------
 

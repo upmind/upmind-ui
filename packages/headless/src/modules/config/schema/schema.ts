@@ -25,7 +25,7 @@ import type {
   Benefit,
   ProductBundleConfig,
   ProductRecommendConfig,
-  Badge,
+  BadgeInput,
   LabelContent
 } from "./types";
 
@@ -195,7 +195,7 @@ export interface DataSchema {
   catalogueDisabled?: boolean;
 
   /** Optional category badge. Eg. 'Popular' or { label: 'Popular', icon: 'star' } */
-  categoryBadge?: Badge;
+  categoryBadge?: BadgeInput;
 
   /** Optional clickwrap disclaimer shown below 'Place order' button */
   clickwrapDisclaimer?: string;
@@ -204,7 +204,7 @@ export interface DataSchema {
   displayFontLink?: string;
 
   /** Optional product option badge. Eg. 'Recommended' or { label: 'Recommended', icon: 'check' } */
-  optionBadge?: Badge;
+  optionBadge?: BadgeInput;
 
   /** Array of option benefits to show within configure step / basket upsells */
   optionBenefits?: Benefit[];
@@ -220,7 +220,7 @@ export interface DataSchema {
   productAutoUpdate?: boolean;
 
   /** Optional product badge. Eg. 'Hot Right Now' or { label: 'Hot Right Now', icon: 'fire' } */
-  productBadge?: Badge;
+  productBadge?: BadgeInput;
 
   /** Array of product benefits to show within catalogue listing */
   productBenefits?: Benefit[];
@@ -265,7 +265,7 @@ export interface DataSchema {
   productUnavailableReason?: string | LabelContent;
 
   /** Optional store badge, shown on primary (no category) catalogue screen */
-  storeBadge?: Badge;
+  storeBadge?: BadgeInput;
 
   /** Optional store heading, shown on primary (no category) catalogue screen */
   storeHeading?: string;

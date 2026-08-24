@@ -2,30 +2,30 @@
   <div
     role="group"
     :aria-label="t('labs.scope_bar')"
-    :class="styles.scopeBar.root"
+    class="border-surface bg-surface flex items-center gap-1 rounded-md border p-1"
     data-test-key="scope-bar"
   >
-    <div data-segment :class="styles.scopeBar.segment">
+    <div data-segment class="flex min-w-0 items-center empty:hidden">
       <BrandSegment />
     </div>
 
     <Separator
       orientation="vertical"
       decorative
-      :class="styles.scopeBar.separator"
+      class="hidden h-5 [[data-segment]:not(:empty)~&:has(+[data-segment]:not(:empty))]:block"
     />
 
-    <div data-segment :class="styles.scopeBar.segment">
+    <div data-segment class="flex min-w-0 items-center empty:hidden">
       <SessionSwitcher />
     </div>
 
     <Separator
       orientation="vertical"
       decorative
-      :class="styles.scopeBar.separator"
+      class="hidden h-5 [[data-segment]:not(:empty)~&:has(+[data-segment]:not(:empty))]:block"
     />
 
-    <div data-segment :class="styles.scopeBar.segment">
+    <div data-segment class="flex min-w-0 items-center empty:hidden">
       <ActingForSegment />
     </div>
   </div>
@@ -47,14 +47,11 @@
  */
 
 import { useI18n } from "vue-i18n";
-import { Separator, useStyles } from "@upmind-automation/upmind-ui";
+import { Separator } from "@upmind/ui";
 import ActingForSegment from "./ActingForSegment.vue";
 import BrandSegment from "./BrandSegment.vue";
-import config from "./ScopeBar.styles";
 import SessionSwitcher from "./SessionSwitcher.vue";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-
-const styles = useStyles(["scopeBar"], {}, config);
 </script>

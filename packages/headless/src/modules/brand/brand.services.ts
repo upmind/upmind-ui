@@ -8,7 +8,9 @@ import {
 } from "@upmind-automation/types";
 import { localStoragePersister, useQuery } from "../query";
 import { mapBrandConfig, mapBrandSettings } from "./brand.mappers";
+import { useQuerySchema } from "./brand.schemas";
 import { castArray, pick, uniq } from "lodash-es";
+import type { QueryModel } from "./brand.types";
 
 // --- types
 
@@ -87,13 +89,13 @@ function fetchBrandSettings() {
  * Fetches brand configuration values for the given keys.
  *
  * Keys are append-only — they accumulate in `brandConfigKeysStore` across calls
- * and are never removed. This means every subsequent call fetches a superset of
- * all previously requested keys.
+ * and are never removed, so every call requests a superset of all previously
+ * requested keys.
  *
- * Because keys only grow, a single stable queryKey (`["brand", "config"]`) is
- * used, and the query returns cached data (`staleTime: "static"`) without hitting
- * the API. Newly added keys are fetched by {@link ensureBrandConfig}, which owns
- * the refetch so the caller can await the response that answers for them.
+ * The key list rides the CRITERIA, reaching the wire as `filter[keys|eq]=a,b,c`
+ * (`translateQuery` joins the array). Each distinct key-set is its own queryKey,
+ * so a widened set is a fresh cache entry rather than one entry silently reused
+ * for a different question.
  *
  * @param keys - Brand config keys to add to the requested set. Defaults to the core set.
  */
@@ -102,14 +104,17 @@ function fetchBrandConfig(keys: BrandConfigKeys[] = defaultBrandConfigKeys) {
 
   brandConfigKeysStore.setState(uniq([...brandConfigKeysStore.state, ...keys]));
 
-  return query<Record<BrandConfigKeys, unknown>>({
+  return query<
+    Record<BrandConfigKeys, unknown>,
+    Record<BrandConfigKeys, unknown>,
+    QueryModel
+  >({
     url: useUrl("config/brand/values"),
-    // A function filter is evaluated by `request` at REQUEST time, not when the
-    // query is created — so the fetch always carries the current key set while
-    // the queryKey stays stable. Setting `keys` on the url here would freeze it
-    // at whatever the set was when this query was first registered.
-    filters: { keys: () => brandConfigKeysStore.state.join() },
     queryKey: ["brand", "config"],
+    criteria: {
+      schema: useQuerySchema(),
+      model: { filters: { keys: { eq: brandConfigKeysStore.state } } }
+    },
     select: data => mapBrandConfig(data, brandConfigKeysStore.state),
     staleTime: "static",
     withoutLocale: true,
@@ -119,18 +124,6 @@ function fetchBrandConfig(keys: BrandConfigKeys[] = defaultBrandConfigKeys) {
 
 /**
  * Ensures `keys` are answered by the brand config, and resolves once they are.
- *
- * Adds the keys to the requested set. A key that was already requested is already
- * in the cached config, so it resolves without a request; a genuinely new key
- * needs the one refetch that re-requests the widened set — the cached response
- * predates it and can never contain it.
- *
- * The queryKey stays stable, so this stays a SINGLE cache (and persisted) entry
- * that grows — `fetchBrandConfig` re-registers it with a url carrying the widened
- * set, and the refetch below is what sends it.
- *
- * A key the API does not return is back-filled as `null` by {@link mapBrandConfig},
- * so "answered" means present, not truthy.
  *
  * @param keys - Brand config keys to ensure are fetched.
  */

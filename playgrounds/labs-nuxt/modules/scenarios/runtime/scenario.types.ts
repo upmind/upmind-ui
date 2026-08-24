@@ -8,7 +8,7 @@
  * `client-email.schemas.ts` already declares its query pair with, a scope is
  * headless's own `ScopeContext` and a matrix headless's own
  * `ActorContextMatrix` (`R6-30d`), the badge / button variants are
- * `@upmind-automation/upmind-ui`'s CVA props, and `tracks` is the MODULE NAME
+ * `@upmind/ui`'s props, and `tracks` is the MODULE NAME
  * its own committed test artefacts are keyed by rather than a second playlist
  * shape. See `graphify-out/GRAPH_REPORT.md`.
  */
@@ -39,7 +39,8 @@ import type {
   ScopeActorTypes,
   ScopeContext
 } from "@upmind-automation/headless";
-import type { BadgeProps, ButtonProps } from "@upmind-automation/upmind-ui";
+// graphify-out/: types consumed as variants; ButtonProps/BadgeProps not exported, use Variants
+import type { BadgeVariants, ButtonVariants } from "@upmind/ui";
 
 // -----------------------------------------------------------------------------
 
@@ -123,6 +124,13 @@ export type ScenarioHandoff = {
    * it boots `.fresh()` with an empty model.
    */
   context?: { type: ScopeContext["type"]; from: string };
+  /**
+   * Narrows the editor to ONE field — the field code read off the ROW at
+   * `from`. When present, the editor draws only the control whose scope
+   * matches this field; when absent, the full form renders. Save stays
+   * diff-only either way, so only the edited field is sent.
+   */
+  fieldScope?: { from: string };
   /** What the surface SAYS when the editor's save settles — i18n keys. */
   feedback?: { success: string; failure: string };
 };
@@ -131,6 +139,9 @@ export type ScenarioHandoff = {
  * A declared handoff once the playground has bound it: the editor composable to
  * boot, at the actor the collection itself is driven at. A surface never reads
  * the registry — it opens what it was handed.
+ *
+ * @graphify-citation `graphify-out/graph.json` (2026-08-10, 6795 nodes) — no
+ * handoff node exists; the scope it resolves to is headless's `ScopeContext`.
  */
 export type ResolvedHandoff = ScenarioHandoff & {
   useMutate: FourLayerComposable;
@@ -168,13 +179,16 @@ export enum CardSlotTypes {
   BODY = "body"
 }
 
-/** One badge in a {@link TableCellBadges} cell, keyed by a flag on the scoped value. */
+/**
+ * One badge in a {@link TableCellBadges} cell, keyed by a flag on the scoped value.
+ * @graphify-citation graphify-out/: BadgeVariants consumed from @upmind/ui (BadgeProps not exported)
+ */
 export type TableBadge = {
   /** The flag's own property name on the scoped object — e.g. `isVerified` on the row's `meta`. */
   flag: string;
   /** The badge label — an i18n key, never English. */
   i18n: string;
-  color?: BadgeProps["color"];
+  color?: BadgeVariants["variant"];
   icon?: string;
 };
 
@@ -243,8 +257,8 @@ export type TableCellText = TableCellElement & { type: "TableCellText" };
  * @graphify-citation `graphify-out/graph.json` (2026-08-14, 7457 nodes) — no
  * `TableCellHtml` node exists in the tree; it extends the same borrowed
  * `ControlElement` shape as its sibling `TableCellText`, and the sanitizer it
- * draws through is `@upmind-automation/upmind-ui`'s own `Sanitized`, consumed
- * rather than minted.
+ * draws through is `@upmind/ui`'s own `Sanitized`, consumed rather than minted.
+ * See `graphify-out/GRAPH_REPORT.md`.
  */
 export type TableCellHtml = TableCellElement & { type: "TableCellHtml" };
 
@@ -369,6 +383,8 @@ export enum ActionPlacementTypes {
  * the control, `HIDE` removes it), so a per-row capability the record itself
  * carries — `meta.canDelete`, `meta.isVerified`, `meta.isDefault` — gates the
  * control declaratively instead of being hand-coded into a renderer (C11).
+ *
+ * @graphify-citation graphify-out/: ButtonVariants consumed from @upmind/ui (ButtonProps not exported)
  */
 export type ScenarioAction = {
   type: "Action";
@@ -402,8 +418,8 @@ export type ScenarioAction = {
   /** The control's label — an i18n key, never English. */
   i18n: string;
   icon?: string;
-  color?: ButtonProps["color"];
-  variant?: ButtonProps["variant"];
+  color?: ButtonVariants["variant"];
+  variant?: ButtonVariants["variant"];
   placement: ActionPlacementTypes;
   /** What the surface SAYS when the action settles — i18n keys. */
   feedback?: { success: string; failure: string };

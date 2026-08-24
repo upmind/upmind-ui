@@ -4,8 +4,8 @@
  * @description T3.6 — the row that says what is narrowing the collection right
  * now (`G5` · `AC4.4` · `H1`). Four claims:
  *   1. one REMOVABLE chip per active leaf, named from the column's own declared
- *      title and its live value — the ui `Badge`'s own `close`, never a bespoke
- *      × drawn beside it (`D9`/`P1-R14`);
+ *      title and its live value — the ui `TagsInput`'s own remove control
+ *      (accessible name from `removeLabel`), never a bespoke × (`D9`/`P1-R14`);
  *   2. removing one chip stops only that leaf narrowing, and leaves the others;
  *   3. Clear all empties every active leaf at once, and sits with the actions;
  *   4. the row carries NO count — the count joined the display row's Results
@@ -26,7 +26,7 @@ import action from "@upmind-automation/i18n/core/action-en.json";
 import form from "@upmind-automation/i18n/core/form-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
-import { Badge } from "@upmind-automation/upmind-ui";
+import { TagsInput } from "@upmind/ui";
 import RefinementsRow from "../RefinementsRow.vue";
 import { each, get, indexOf, map } from "lodash-es";
 import type { ModulePortCriteria } from "../../composables/useModulePort.types";
@@ -97,10 +97,14 @@ const chips = (wrapper: Row) => wrapper.findAll('[data-test-key="refinement"]');
 const chipIds = (wrapper: Row) =>
   map(chips(wrapper), chip => chip.attributes("data-test-value"));
 
-const badges = (wrapper: Row) => wrapper.findAllComponents(Badge);
+const tagsInput = (wrapper: Row) => wrapper.findComponent(TagsInput);
 
-const chipFor = (wrapper: Row, id: string) =>
-  badges(wrapper)[indexOf(chipIds(wrapper), id)];
+const deleteButtonFor = (wrapper: Row, id: string) => {
+  const removeLabel = tagsInput(wrapper).props("removeLabel") as string;
+  return wrapper.find(
+    `[data-test-value="${id}"] button[aria-label="${removeLabel}"]`
+  );
+};
 
 const CLEAR_ALL = '[data-test-key="clear-all"]';
 
@@ -132,31 +136,33 @@ describe("T3.6 one chip per active refinement (G5 · AC4.4)", () => {
     expect(wrapper.find(CLEAR_ALL).exists()).toBe(false);
   });
 
-  it("draws each chip as the ui Badge's own removable form, never a bespoke ×", () => {
+  it("draws each chip as the ui TagsInput's own removable form, never a bespoke ×", () => {
     const { wrapper } = mountRow();
+    const input = tagsInput(wrapper);
+    const removeLabel = input.props("removeLabel") as string;
 
-    expect(map(badges(wrapper), chip => chip.props("close"))).toEqual([
-      true,
-      true
-    ]);
+    expect(removeLabel).toBeTruthy();
+    expect(wrapper.findAll(`button[aria-label="${removeLabel}"]`)).toHaveLength(
+      2
+    );
   });
 });
 
 describe("T3.6 removing a refinement lifts only that one (AC4.4)", () => {
-  it("clears the leaf the chip names", () => {
+  it("clears the leaf the chip names", async () => {
     const { wrapper, criteria } = mountRow();
 
-    chipFor(wrapper, "verified.eq").vm.$emit("close");
+    await deleteButtonFor(wrapper, "verified.eq").trigger("click");
 
     expect(criteria.set).toHaveBeenCalledTimes(1);
     const written = vi.mocked(criteria.set).mock.calls[0][0];
     expect(get(written, "filters.verified.eq", null)).toBeNull();
   });
 
-  it("leaves every other leaf narrowing", () => {
+  it("leaves every other leaf narrowing", async () => {
     const { wrapper, criteria } = mountRow();
 
-    chipFor(wrapper, "verified.eq").vm.$emit("close");
+    await deleteButtonFor(wrapper, "verified.eq").trigger("click");
 
     const written = vi.mocked(criteria.set).mock.calls[0][0];
     expect(get(written, "filters.email.like", SEARCH_TERM)).toBe(SEARCH_TERM);

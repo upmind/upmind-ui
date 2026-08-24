@@ -7,11 +7,8 @@ export { default as UpmProductRecommendations } from "./Recommendations.vue";
 
 // --- Export Components
 export { default as UpmProductConfig } from "./components/Config.vue";
-export { default as UpmTermsConfigSelect } from "./components/terms/TermsConfigSelect.vue";
-export { default as UpmTermCard } from "./components/terms/TermCard.vue";
+export { default as UpmTermsSelect } from "./components/terms/TermsSelect.vue";
 export { default as UpmConfigSkeleton } from "./components/ConfigSkeleton.vue";
-export { default as UpmSubproductCard } from "./components/subproduct/SubproductCard.vue";
-export { default as UpmSubproductCardPricing } from "./components/subproduct/SubproductCardPricing.vue";
 
 // --- Export Types
 export { PRODUCT_TEMPLATE } from "./types";

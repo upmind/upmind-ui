@@ -143,6 +143,21 @@
     "label": null,
     "placeholder": "Search email addresses..."
   },
+  "company_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search companies..."
+  },
+  "address_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search addresses..."
+  },
+  "phone_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search phone numbers..."
+  },
   "subject_search": {
     "description": null,
     "label": null,
@@ -192,9 +207,51 @@
     "bounced": "Bounced",
     "created_at": "Date added"
   },
+  "company_sort": {
+    "name": "Company name",
+    "created_at": "Date added"
+  },
+  "address_sort": {
+    "name": "Address name",
+    "created_at": "Date added"
+  },
+  "phone_sort": {
+    "created_at": "Date added"
+  },
   "sent_email_sort": {
     "created_at": "Date sent",
     "subject": "Subject"
+  },
+  "type_filter": {
+    "description": null,
+    "label": "Field type",
+    "placeholder": "All types",
+    "1": "Text",
+    "2": "Password",
+    "3": "Select",
+    "4": "Radio",
+    "5": "Textarea",
+    "6": "Date",
+    "7": "Number",
+    "8": "Image",
+    "null": "All"
+  },
+  "required_filter": {
+    "description": null,
+    "label": "Required",
+    "placeholder": null,
+    "true": "Required",
+    "false": "Optional",
+    "null": "All"
+  },
+  "custom_field_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search by field name..."
+  },
+  "custom_field_sort": {
+    "order": "Display order",
+    "name": "Field name"
   },
   "product_trial": {
     "description": null,

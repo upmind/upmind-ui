@@ -144,7 +144,7 @@ export const useFeedback = () => {
     if (!message) return; // bail if no message
 
     return add({
-      type: messageTypes.ERROR,
+      type: messageTypes.DANGER,
       copy: isString(message) ? message : message?.copy,
       ...(!isString(message) && {
         hash: message.hash,

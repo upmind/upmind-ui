@@ -3,7 +3,6 @@ import * as Sentry from "@sentry/vue";
 import { createApp } from "vue";
 import UpmindClient from "@upmind-automation/client-vue";
 import { AccessRoleTypes } from "@upmind-automation/types";
-import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
 import App from "./App.vue";
 import i18n from "./i18n";
 import router from "./router";
@@ -101,10 +100,6 @@ Sentry.init({
 
 app.use(router);
 app.use(i18n);
-
-forEach(uiPlugins, ({ plugin, options }) => {
-  app.use(plugin, options);
-});
 
 forEach(UpmindClient.plugins, ({ plugin, options }) => {
   app.use(plugin, options);

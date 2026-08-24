@@ -1,5 +1,5 @@
 <template>
-  <Form
+  <FormHost
     :key="locale"
     v-bind="forwarded"
     :i18n="i18n"
@@ -17,13 +17,14 @@
     <template #actions="{ meta, doResolve, doReject }">
       <slot name="actions" v-bind="{ meta, doResolve, doReject }"></slot>
     </template>
-  </Form>
+  </FormHost>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { useValidation } from "@upmind-automation/headless";
-import { Form, useForwardPropsEmits } from "@upmind-automation/upmind-ui";
+import { useForwardPropsEmits } from "@upmind/ui";
+import FormHost from "./engine/FormHost.vue";
 import { formRenderers } from "./renderers";
 import { useFormI18n } from ".";
 import type {
@@ -31,7 +32,7 @@ import type {
   FormAdditionalProps,
   FormFooterProps,
   FormActionsProps
-} from "@upmind-automation/upmind-ui";
+} from "./engine/types";
 // -----------------------------------------------------------------------------
 const props = defineProps<Omit<FormProps, "ajv">>();
 

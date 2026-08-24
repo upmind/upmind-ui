@@ -1,13 +1,22 @@
 <template>
-  <fieldset v-if="items.length > 1">
-    <SelectCards v-model="modelValue" :items="items">
-      <template #item="slotProps">
-        <TermCard v-bind="slotProps.item" layout="inline" :summary="false" />
+  <fieldset v-if="prices && prices.length > 1">
+    <Select
+      :model-value="modelValue"
+      :items="priceOptions"
+      size="lg"
+      class="w-full"
+      @update:model-value="onSelect"
+    >
+      <template #value>
+        <span v-if="selectedLabel">{{ selectedLabel }}</span>
+        <span v-else class="text-muted">{{
+          t("form.select_option.placeholder")
+        }}</span>
       </template>
-      <template #dropdown-item="slotProps">
-        <TermCard v-bind="slotProps.item" layout="inline" :summary="false" />
+      <template #item="{ option }">
+        <TermRow v-bind="option.price" />
       </template>
-    </SelectCards>
+    </Select>
   </fieldset>
 </template>
 
@@ -16,14 +25,9 @@ import { useVModel } from "@vueuse/core";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { parseBillingCycle } from "@upmind-automation/headless";
-import {
-  SelectCards,
-  type SelectCardsItemProps
-} from "@upmind-automation/upmind-ui";
-import TermCard from "../terms/TermCard.vue";
-import { toString, map } from "lodash-es";
+import { Select } from "@upmind/ui";
+import TermRow from "../terms/TermRow.vue";
 import type { ProductTerm } from "./types";
-import type { BadgeProps } from "@upmind-automation/upmind-ui";
 
 const props = defineProps<ProductTerm>();
 
@@ -31,28 +35,22 @@ const modelValue = useVModel(props, "modelValue");
 
 const { t } = useI18n();
 
-const items = computed(() => {
-  if (!props.prices) return [];
+const priceOptions = computed(() =>
+  (props.prices ?? []).map(price => ({
+    value: String(price.cycle),
+    price
+  }))
+);
 
-  return map(props.prices, (price, index) => {
-    const item = {
-      label: parseBillingCycle(price.cycle!).numeric,
-      value: toString(price.cycle),
-      item: price,
-      index
-    } as SelectCardsItemProps;
-
-    if (!props.hideBadge && price.price?.savingAmount > 0) {
-      item.badge = {
-        label: t("text.amount_save", {
-          amount: price.price.savingPercent
-        }),
-        color: "promo",
-        variant: "minimal"
-      } as BadgeProps;
-    }
-
-    return item;
-  });
+const selectedLabel = computed(() => {
+  const selected = props.prices?.find(
+    price => String(price.cycle) === modelValue.value
+  );
+  if (!selected) return "";
+  return parseBillingCycle(selected.cycle!).numeric;
 });
+
+function onSelect(value: unknown) {
+  modelValue.value = String(value ?? "");
+}
 </script>

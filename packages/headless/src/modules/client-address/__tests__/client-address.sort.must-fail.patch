@@ -1,0 +1,50 @@
+Negative control — the SORT-INTENT door (AC-42, D3).
+
+Reduces `useActions().sortBy(intent)` to `query.setCriteria({})` — a pure
+no-op that drops the caller's sort intent instead of forwarding it to the
+criteria model. The door is still there — `sortBy` still exists, still takes
+an `intent` argument, every consumer still calls it the same way — it just
+stops doing anything with what it is given. That is the FE-2824 shape: the
+structure is all present, the capability is gone.
+
+Should flip RED:
+  __tests__/client-address.sort.int.test.ts (AC-42):
+    - "AC-42 sortBy ascending name asks the wire for order=name"
+    - "AC-42 sortBy descending name asks the wire for order=-name"
+    - "AC-42 sortBy created_at asks the wire for order=created_at"
+    - "AC-42 cannot spell a sort column the schema does not declare — ajv
+       rejects the write, the model stays put" — REVISED (this revision):
+       the original cut of this test only asserted wire silence, which an
+       undeclared field satisfies under the REAL `sortBy` too, so it could
+       not discriminate this mutation (the earlier text below said as much).
+       The rewritten version instead asserts `useContext().error` becomes
+       defined (ajv's rejection of the undeclared field) — and a neutered
+       `sortBy` never calls ajv at all, so `error` never resolves and this
+       assertion NOW also flips under this mutant.
+  __tests__/client-address.criteria-surface.int.test.ts (AC-43):
+    - "AC-43 tracks a sortBy write"
+
+Should stay GREEN: every other test in the module — none of the other 144
+depend on `sortBy` forwarding its intent.
+
+MEASURED (prover, applied blind, per agent-seat-separation.md's must-fail-
+patch seam — the developer authors the mutant, the prover verifies it red and
+reverts): `git apply --check` clean against the current tree. Baseline (this
+module's full suite, unmutated): 3 failed | 150 passed (153) — the 3
+pre-existing `client-address.brand-config.int.test.ts` AC-20/AC-21 failures,
+root-caused to `brand.services.ts:112-114`, unrelated. Applied: 8 failed | 145
+passed (153) — exactly the 5 tests named above flip (3+1+1), nothing else
+moves. Reverted after measurement (`git apply -R`), 2026-08-23 (re-measured;
+the module total moved 152 -> 153 with the new AC-41 `hasError` proof).
+
+--- a/packages/headless/src/modules/client-address/useClientAddresses.actions.ts
++++ b/packages/headless/src/modules/client-address/useClientAddresses.actions.ts
+@@ -169,7 +169,7 @@
+    * `sortBy`.
+    */
+   function sortBy(intent: SortModel): void {
+-    query.setCriteria({ sort: intent });
++    query.setCriteria({});
+   }
+
+   /**

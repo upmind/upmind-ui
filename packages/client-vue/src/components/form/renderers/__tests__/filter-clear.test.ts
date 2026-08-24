@@ -28,7 +28,7 @@ import { get, includes, trim } from "lodash-es";
 import type { DOMWrapper } from "@vue/test-utils";
 
 const SEARCH = "filters.email.like";
-const CLEAR = '[data-test-value="all"]';
+const CLEAR = '[data-test-key="button"]';
 
 const shipped = () => mountFilters(clientEmailQuery());
 
@@ -36,6 +36,7 @@ const shipped = () => mountFilters(clientEmailQuery());
 const accessibleName = (control: DOMWrapper<Element>): string =>
   trim(
     control.attributes("aria-label") ??
+      control.attributes("label") ??
       control.attributes("title") ??
       control.text()
   );

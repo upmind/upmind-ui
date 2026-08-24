@@ -34,8 +34,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useSlots, computed, useTemplateRef } from "vue";
-import { isEmptySlot } from "@upmind-automation/upmind-ui";
+import { computed, useTemplateRef } from "vue";
+import { useSlots } from "@upmind/ui";
+import { isEmptySlot } from "../../../utils/isEmptySlot";
 import {
   COLUMN_WIDTH,
   COLUMN_FLOW,

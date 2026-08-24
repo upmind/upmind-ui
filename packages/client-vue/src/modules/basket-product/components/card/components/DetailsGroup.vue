@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useTestAttrs } from "@upmind-automation/upmind-ui";
+import { useTestAttrs } from "@upmind/ui";
 import DetailsItem from "./DetailsItem.vue";
 import type { DetailsGroupProps } from "./types";
 

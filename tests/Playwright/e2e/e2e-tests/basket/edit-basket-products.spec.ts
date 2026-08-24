@@ -34,7 +34,7 @@ test.describe("Edit hosting product in basket", () => {
     productId = seeded.basketProductId as string;
   });
   // QUARANTINE(FE-2874): London subproduct id unavailable in fixtures — needs
-  // the real radio-card-${opt.id} + Location detail name. Re-enable when
+  // the real option-tile-${opt.id} + Location detail name. Re-enable when
   // constants/products.ts carries them.
   test.skip("Edit product options", async ({ page }) => {
     await page.goto(`order/basket/edit/${productId}`);

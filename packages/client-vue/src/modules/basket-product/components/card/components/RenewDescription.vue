@@ -3,7 +3,7 @@
   <p
     v-if="!isNil(props.cycle)"
     v-bind="renewalTermTestAttrs(props.cycle)"
-    :class="styles.product.summary.renew.renews"
+    :class="productSummaryRenewRenewsVariants()"
   >
     {{
       t("term.renews_msg", {
@@ -16,7 +16,7 @@
   <!-- Discounted term — e.g. "Usually $14.99." -->
   <p
     v-if="props.discounted && !props.oneoff && !props.freeTrial"
-    :class="styles.product.summary.renew.usually"
+    :class="productSummaryRenewUsuallyVariants()"
   >
     {{ t("term.renews_usually_msg", { price: props.regularPrice }) }}.
   </p>
@@ -25,7 +25,7 @@
   <p
     v-else-if="props.freeTrial && !props.oneoff && props.renewalPrice"
     v-bind="trialRenewalPriceTestAttrs(props.renewalPrice)"
-    :class="styles.product.summary.renew.usually"
+    :class="productSummaryRenewUsuallyVariants()"
   >
     {{ t("term.renews_usually_msg", { price: props.renewalPrice }) }}.
   </p>
@@ -34,8 +34,11 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { parseBillingCycle } from "@upmind-automation/headless";
-import { useStyles, useTestAttrs } from "@upmind-automation/upmind-ui";
-import config from "../basketProduct.config";
+import { useTestAttrs } from "@upmind/ui";
+import {
+  productSummaryRenewRenewsVariants,
+  productSummaryRenewUsuallyVariants
+} from "../basketProduct.variants";
 import { isNil } from "lodash-es";
 import type { RenewDescriptionProps } from "./types";
 
@@ -44,14 +47,9 @@ import type { RenewDescriptionProps } from "./types";
 const { t } = useI18n();
 
 const props = defineProps<RenewDescriptionProps>();
-
-const styles = useStyles(["product.summary.renew"], {}, config);
-
 // NB: value is stringified because useTestAttrs discards non-string values
-//     (lodash isEmpty is always true for numbers); the DOM output is unchanged.
-const renewalTermTestAttrs = (cycle: number) =>
+const renewalTermTestAttrs = (cycle?: number) =>
   useTestAttrs({ key: "renewal-term-label", value: String(cycle) });
-
-const trialRenewalPriceTestAttrs = (price: string) =>
+const trialRenewalPriceTestAttrs = (price?: string) =>
   useTestAttrs({ key: "trial-renewal-price", value: price });
 </script>

@@ -3,7 +3,14 @@ export const useImageUrl = (
   size?: string
 ): string | undefined => {
   if (!url) return undefined;
-  const imageUrl = new URL(url);
+  // Brand-config image urls can be relative or otherwise unparseable — pass
+  // them through untouched rather than letting new URL() throw mid-render.
+  let imageUrl;
+  try {
+    imageUrl = new URL(url);
+  } catch {
+    return url;
+  }
   if (size) imageUrl.searchParams.set("size", size);
   return imageUrl.toString();
 };

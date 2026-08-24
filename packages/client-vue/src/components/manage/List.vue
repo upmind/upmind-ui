@@ -1,81 +1,87 @@
 <template>
-  <RadioCardsCollapsible
+  <div
     v-if="!meta.isLoading && !meta.isEmpty"
-    v-model:open="open"
-    v-model="modelValue"
-    :name="`${modelValue}-radio-cards`"
-    :items="parsedValues"
     :class="props.class"
-    :list="false"
-    :minimal="props.minimal"
-    :force-open="props.forceOpen"
-    required
+    :data-test-key="`${modelValue}-radio-cards`"
   >
-    <template #item="{ item }">
-      <slot
-        name="item"
-        v-bind="{
-          item: getItem(item.id!),
-          readonly: readonly || (!open && parsedValues.length > 1),
-          doEdit,
-          doRemove,
-          setDefault
-        }"
+    <OptionTileGroup
+      :name="`${modelValue}-radio-cards`"
+      :model-value="modelValue"
+      mode="single"
+      :data-attrs="{ 'data-test-key': 'option-tile-group' }"
+      required
+      @update:model-value="onSelect"
+    >
+      <OptionTile
+        v-for="item in displayedValues"
+        :key="item.value"
+        :value="item.value"
       >
-        <Item
-          v-bind="getItem(item.id!)"
-          :readonly="props.readonly || (!open && parsedValues.length > 1)"
-          @edit="doEdit"
-          @remove="doRemove"
-          @setDefault="setDefault"
-        />
-      </slot>
-    </template>
+        <template #label>
+          <slot
+            name="item"
+            v-bind="{
+              item: getItem(item.id),
+              readonly: readonly || (!open && parsedValues.length > 1),
+              doEdit,
+              doRemove,
+              setDefault
+            }"
+          >
+            <Item
+              v-bind="getItem(item.id)"
+              :readonly="props.readonly || (!open && parsedValues.length > 1)"
+              @edit="doEdit"
+              @remove="doRemove"
+              @setDefault="setDefault"
+            />
+          </slot>
+        </template>
+      </OptionTile>
+    </OptionTileGroup>
 
-    <template #actions>
-      <slot name="actions" v-bind="{ open, meta, doAdd }">
-        <footer class="mt-1 flex space-x-2">
-          <Link
-            v-if="!open && parsedValues.length > 1"
-            :dataAttrs="{ 'data-test-key': 'link-change' }"
-            :label="t('action.change')"
-            size="sm"
-            color="muted"
-            @click="open = true"
-          />
+    <slot v-if="!minimal" name="actions" v-bind="{ open, meta, doAdd }">
+      <footer class="mt-1 flex space-x-2">
+        <Link
+          v-if="!open && parsedValues.length > 1"
+          data-test-key="link-change"
+          size="sm"
+          color="muted"
+          @click="open = true"
+          >{{ t("action.change") }}</Link
+        >
 
-          <Link
-            v-else-if="!readonly"
-            :dataAttrs="{ 'data-test-key': 'link-add-new' }"
-            :label="t('action.add_new')"
-            size="sm"
-            color="muted"
-            @click="doAdd"
-          />
+        <Link
+          v-else-if="!readonly"
+          :data-attrs="{ 'data-test-key': 'link-add-new' }"
+          size="sm"
+          color="muted"
+          @click="doAdd"
+          >{{ t("action.add_new") }}</Link
+        >
 
-          <!-- TODO: Decide on the designs for the list close -->
-          <Link
-            v-if="open"
-            class="sr-only"
-            :label="t('action.close')"
-            size="sm"
-            color="muted"
-            @click="open = false"
-          />
-        </footer>
-      </slot>
-    </template>
-  </RadioCardsCollapsible>
+        <!-- TODO: Decide on the designs for the list close -->
+        <Link
+          v-if="open"
+          class="sr-only"
+          size="sm"
+          color="muted"
+          @click="open = false"
+          >{{ t("action.close") }}</Link
+        >
+      </footer>
+    </slot>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed, type HtmlHTMLAttributes } from "vue";
 import { useI18n } from "vue-i18n";
-import { RadioCardsCollapsible, Link } from "@upmind-automation/upmind-ui";
+import { OptionTileGroup, OptionTile } from "@upmind/ui";
+import { Link } from "@upmind/ui";
 import Item from "./Item.vue";
 import { find, map } from "lodash-es";
 import type { ManageRendererProps } from "./types";
-import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
@@ -109,19 +115,35 @@ const modelValue = defineModel<string>("modelValue", {});
 // -----------------------------------------------------------------------------
 const open = defineModel<boolean>("open", {});
 
-const parsedValues = computed(() => {
-  return map(data?.value ?? [], (item: any, index: number) => {
-    return {
-      id: item.id,
-      value: item.id,
-      label: item.title,
-      item: item,
-      index: index
-    };
-  }) as RadioCardsItemProps[];
+const parsedValues = computed(() =>
+  map(data?.value ?? [], (item: any, index: number) => ({
+    id: item.id,
+    value: item.id,
+    label: item.title,
+    item: item,
+    index: index
+  }))
+);
+
+// Collapsed (closed, not minimal/forced) shows only the current selection;
+// expanding via the actions footer reveals every card.
+const isExpanded = computed(
+  () => !!open.value || !!props.minimal || !!props.forceOpen
+);
+const displayedValues = computed(() => {
+  if (isExpanded.value) return parsedValues.value;
+  const selected = parsedValues.value.find(v => v.value === modelValue.value);
+  return selected ? [selected] : parsedValues.value;
 });
 
 // --- methods
+function onSelect(value: unknown) {
+  modelValue.value = String(value);
+  // Picking an option closes the list, as the retired collapsible did — the
+  // "Change" action only returns once the list is closed again.
+  if (!props.forceOpen && !props.minimal) open.value = false;
+}
+
 function getItem(id: string) {
   return find(data.value, ["id", id]);
 }

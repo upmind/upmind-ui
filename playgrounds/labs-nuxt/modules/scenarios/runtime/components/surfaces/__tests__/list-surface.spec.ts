@@ -40,6 +40,8 @@ import {
   ACTIONS_COLUMN,
   DECLARED_HEADERS,
   FIRST_DECLARED_COLUMN,
+  getRow,
+  getRows,
   TABLE_COLUMNS
 } from "./table-geometry";
 import {
@@ -155,26 +157,13 @@ const orderingHeader = (wrapper: Wrapper) =>
     header.find('[data-test-key="button"]').exists()
   )!;
 
-const control = (
-  wrapper: Wrapper,
-  selector: string,
-  row: number,
-  name: string
-) =>
-  wrapper
-    .findAll(selector)
-    [row].find(`[data-test-value="${CONTROL_TEST_VALUE[name]}"]`);
+const control = (wrapper: Wrapper, row: number, name: string) =>
+  getRow(wrapper, row).find(`[data-test-value="${CONTROL_TEST_VALUE[name]}"]`);
 
 /** Opens the row's overflow and returns the menu item the declaration put there. */
-async function openOverflow(
-  wrapper: Wrapper,
-  selector: string,
-  row: number,
-  name: string
-) {
-  await wrapper
-    .findAll(selector)
-    [row].find(`[data-test-value="${OVERFLOW_TRIGGER_TEST_VALUE}"]`)
+async function openOverflow(wrapper: Wrapper, row: number, name: string) {
+  await getRow(wrapper, row)
+    .find(`[data-test-value="${OVERFLOW_TRIGGER_TEST_VALUE}"]`)
     .trigger("click");
   await new Promise(resolve => setTimeout(resolve, 0));
   return document.querySelector<HTMLElement>(
@@ -182,13 +171,8 @@ async function openOverflow(
   );
 }
 
-async function fireOverflow(
-  wrapper: Wrapper,
-  selector: string,
-  row: number,
-  name: string
-) {
-  const item = await openOverflow(wrapper, selector, row, name);
+async function fireOverflow(wrapper: Wrapper, row: number, name: string) {
+  const item = await openOverflow(wrapper, row, name);
   item?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   await wrapper.vm.$nextTick();
 }
@@ -263,7 +247,7 @@ describe("@AC3 list-actions — a declared action fires the live map member it n
     const actions = { remove: vi.fn() };
     const wrapper = mountList(undefined, actions);
 
-    await control(wrapper, "li", OPEN_ROW, "remove").trigger("click");
+    await control(wrapper, OPEN_ROW, "remove").trigger("click");
 
     expect(actions.remove).toHaveBeenCalledTimes(1);
     expect(actions.remove).toHaveBeenCalledWith(rows[OPEN_ROW].id);
@@ -273,7 +257,7 @@ describe("@AC3 list-actions — a declared action fires the live map member it n
     const actions = { setDefault: vi.fn() };
     const wrapper = mountList(undefined, actions);
 
-    await fireOverflow(wrapper, "li", OPEN_ROW, "setDefault");
+    await fireOverflow(wrapper, OPEN_ROW, "setDefault");
 
     expect(actions.setDefault).toHaveBeenCalledTimes(1);
     expect(actions.setDefault).toHaveBeenCalledWith(rows[OPEN_ROW].id);
@@ -283,7 +267,7 @@ describe("@AC3 list-actions — a declared action fires the live map member it n
     const actions = { verify: vi.fn() };
     const wrapper = mountList(undefined, actions);
 
-    await fireOverflow(wrapper, "li", OPEN_ROW, "verify");
+    await fireOverflow(wrapper, OPEN_ROW, "verify");
 
     expect(actions.verify).toHaveBeenCalledTimes(1);
     expect(actions.verify).toHaveBeenCalledWith(rows[OPEN_ROW].id);
@@ -302,7 +286,25 @@ describe("@AC3 list-actions — a declared action fires the live map member it n
     expect(actions.ensure).not.toHaveBeenCalled();
   });
 
-  it("degrades to a read-only row list — never blank — when no table channel is present", () => {
+  it("degrades to a read-only row list — never blank — when declaration has NO table columns", () => {
+    const wrapper = mount(ListSurface, {
+      attachTo: document.body,
+      props: {
+        snapshot: {
+          actions: ["remove"],
+          context: { data: rows },
+          meta: { isEmpty: false, isFiltered: false }
+        },
+        actions: { remove: vi.fn() },
+        presentation: { actions: presentation.actions }
+      }
+    });
+
+    expect(wrapper.find("table").exists()).toBe(false);
+    expect(wrapper.findAll("li")).toHaveLength(rows.length);
+  });
+
+  it("draws a table when declaration has columns, even without a table channel", () => {
     const wrapper = mountList(undefined, {
       remove: vi.fn(),
       setDefault: vi.fn(),
@@ -310,10 +312,8 @@ describe("@AC3 list-actions — a declared action fires the live map member it n
       ensure: vi.fn()
     });
 
-    expect(wrapper.find("table").exists()).toBe(false);
-    expect(wrapper.findAll("li")).toHaveLength(rows.length);
-    expect(wrapper.text()).toContain(defaultRow.email);
-    expect(wrapper.text()).toContain(unverifiedRow.email);
+    expect(wrapper.find("table").exists()).toBe(true);
+    expect(getRows(wrapper)).toHaveLength(rows.length);
   });
 });
 
@@ -323,7 +323,7 @@ describe("@AC3 list-actions (table-backed) — the real client-emails page path"
     const wrapper = mountList(fakeTable(), actions);
 
     expect(wrapper.find("table").exists()).toBe(true);
-    await control(wrapper, "tbody tr", OPEN_ROW, "remove").trigger("click");
+    await control(wrapper, OPEN_ROW, "remove").trigger("click");
 
     expect(actions.remove).toHaveBeenCalledTimes(1);
     expect(actions.remove).toHaveBeenCalledWith(rows[OPEN_ROW].id);
@@ -333,7 +333,7 @@ describe("@AC3 list-actions (table-backed) — the real client-emails page path"
     const actions = { setDefault: vi.fn() };
     const wrapper = mountList(fakeTable(), actions);
 
-    await fireOverflow(wrapper, "tbody tr", OPEN_ROW, "setDefault");
+    await fireOverflow(wrapper, OPEN_ROW, "setDefault");
 
     expect(actions.setDefault).toHaveBeenCalledTimes(1);
     expect(actions.setDefault).toHaveBeenCalledWith(rows[OPEN_ROW].id);
@@ -343,7 +343,7 @@ describe("@AC3 list-actions (table-backed) — the real client-emails page path"
     const actions = { verify: vi.fn() };
     const wrapper = mountList(fakeTable(), actions);
 
-    await fireOverflow(wrapper, "tbody tr", OPEN_ROW, "verify");
+    await fireOverflow(wrapper, OPEN_ROW, "verify");
 
     expect(actions.verify).toHaveBeenCalledTimes(1);
     expect(actions.verify).toHaveBeenCalledWith(rows[OPEN_ROW].id);
@@ -386,14 +386,14 @@ describe("@AC3 the declaration is the ONLY source of columns and controls (C15)"
     const overflowed = declaredIn(ActionPlacementTypes.OVERFLOW);
 
     for (const name of declaredIn(ActionPlacementTypes.VISIBLE)) {
-      expect(control(wrapper, "li", OPEN_ROW, name).exists()).toBe(true);
+      expect(control(wrapper, OPEN_ROW, name).exists()).toBe(true);
     }
     for (const name of overflowed) {
-      expect(control(wrapper, "li", OPEN_ROW, name).exists()).toBe(false);
+      expect(control(wrapper, OPEN_ROW, name).exists()).toBe(false);
     }
 
     // One open, every item — re-clicking the trigger per action would close it.
-    await openOverflow(wrapper, "li", OPEN_ROW, overflowed[0]);
+    await openOverflow(wrapper, OPEN_ROW, overflowed[0]);
     for (const name of overflowed) {
       expect(
         document.querySelector(

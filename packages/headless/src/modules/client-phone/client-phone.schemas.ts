@@ -1,6 +1,13 @@
 /** @internal */
 
-import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
+import { SortDirection } from "../query/query.types";
+import { DEFAULT_SORT } from "./client-phone.types";
+import type { QuerySchema } from "./client-phone.types";
+import type {
+  ControlElement,
+  JsonSchema7,
+  UISchemaElement
+} from "@jsonforms/core";
 import type { ICountry } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
@@ -121,12 +128,16 @@ export const useUischema = () => {
  * literal, so it can be lifted straight into ajv or a test and run standalone.
  *
  * Phones are read whole for the billing surfaces that pick one, so `limit: 0`
- * asks for the unpaged read and no sort is declared. The one declared filter is
- * the free-text search, bound to the `phone` wire column: staging answers
- * `filter[number|like]` with an HTTP 500 and `filter[phone|like]` with a
- * narrowed 200, both recorded in `__tests__/fixtures`.
+ * stays the pagination default (preserve-invariant, `client-address.schemas.ts:393`
+ * sibling precedent). The one declared filter is the free-text search, bound
+ * to the `phone` wire column: staging answers `filter[number|like]` with an
+ * HTTP 500 and `filter[phone|like]` with a narrowed 200, both recorded in
+ * `__tests__/fixtures`. The `sort` branch declares exactly `created_at` — the
+ * only column either legacy consumer orders on (`clientPhonesList.vue:68-71`
+ * ASC boot; `clientPhoneSelect.vue:171` `-created_at`); an unknown `order=`
+ * column is an HTTP 500, so declaring beyond the oracle is an unsafe guess.
  */
-export function useQuerySchema(): JsonSchema7 {
+export function useQuerySchema(): QuerySchema {
   return {
     $schema: "http://json-schema.org/draft-07/schema#",
     type: "object",
@@ -146,6 +157,37 @@ export function useQuerySchema(): JsonSchema7 {
               // The bare term — the translator adds the % wildcards.
               like: { type: ["string", "null"], minLength: 1 }
             }
+          },
+          default: {
+            type: "object",
+            title: "Default",
+            additionalProperties: false,
+            properties: {
+              eq: {
+                type: ["boolean", "null"],
+                enum: [true, false, null]
+              }
+            }
+          }
+        }
+      },
+      sort: {
+        type: "array",
+        default: DEFAULT_SORT,
+        minItems: 1,
+        // `uniqueItems` alone de-dupes ENTRIES, not FIELDS: two `created_at`
+        // rows with opposite `dir` are two distinct entries, so ajv passed
+        // both through to the wire (`order=created_at,-created_at`) even
+        // though the declared `field` enum names exactly one legal column.
+        maxItems: 1,
+        uniqueItems: true,
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["field", "dir"],
+          properties: {
+            field: { enum: ["created_at"] },
+            dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
           }
         }
       },
@@ -154,9 +196,46 @@ export function useQuerySchema(): JsonSchema7 {
         additionalProperties: false,
         properties: {
           limit: { type: "integer", minimum: 0, default: 0 },
-          offset: { type: "integer", minimum: 0 }
+          offset: { type: "integer", minimum: 0, default: 0 }
         }
       }
     }
   } satisfies JsonSchema7;
+}
+
+/**
+ * The module's DEFAULT filter-bar presentation over the one query schema —
+ * ONE plain `Control` scoping the free-text search leaf, so the leaf's own
+ * write IS the wire shape. Mirrors `client-email.schemas.ts:244-268`.
+ */
+export function useQueryUischema(): UISchemaElement {
+  return {
+    type: "FilterBar",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/number/properties/like",
+        i18n: "form.phone_search",
+        options: { format: "search", noLabel: true, optionalText: "" }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/default/properties/eq",
+        i18n: "form.default_filter",
+        options: { format: "button-group", noLabel: true, optionalText: "" }
+      }
+    ]
+  } as UISchemaElement;
+}
+
+/**
+ * The collection's ORDERING presentation — one element over the query
+ * schema's `sort` branch. Mirrors `client-email.schemas.ts:279-285`.
+ */
+export function useSortUischema(): ControlElement {
+  return {
+    type: "Control",
+    scope: "#/properties/sort",
+    i18n: "form.phone_sort"
+  };
 }

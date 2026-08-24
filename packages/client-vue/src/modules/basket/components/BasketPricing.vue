@@ -4,7 +4,7 @@
     :label="t('cart.basket_section')"
     value="basket-summary"
     icon="shopping-bag-02"
-    :class="styles.basket.aside"
+    :class="basketAsideVariants({ variant: props.layout })"
   >
     <!-- itemized per-product breakdown when the brand asks for it (priced from
          the saved server basket), otherwise a plain totals summary -->
@@ -27,9 +27,8 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { useConfig } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
 import Section from "../../../components/section/Section.vue";
-import config from "../basket.config";
+import { basketAsideVariants } from "../basket.variants";
 import { BASKET_TEMPLATE } from "../types";
 import BasketCheckout from "./BasketCheckout.vue";
 import Summary from "./Summary.vue";
@@ -59,8 +58,6 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const { ui } = useConfig();
-
-const styles = useStyles(["basket.aside"], { variant: props.layout }, config);
 
 function doResolve() {
   emit("resolve");

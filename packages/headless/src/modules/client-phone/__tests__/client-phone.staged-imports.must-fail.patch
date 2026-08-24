@@ -1,0 +1,12 @@
+--- a/packages/headless/src/modules/client-phone/client-phone.services.ts
++++ b/packages/headless/src/modules/client-phone/client-phone.services.ts
+@@ -143,8 +143,7 @@
+ function loadList(scopeContext?: ScopeContext): ClientPhoneListQuery {
+   const { list, useUrl } = useQuery();
+   const clientId = resolveClientId(scopeContext);
+-  const targetUrl = () =>
+-    useUrl(`clients/${clientId.value}/phones`, { with_staged_imports: 1 });
++  const targetUrl = () => useUrl(`clients/${clientId.value}/phones`);
+   const url = targetUrl();
+
+   return list<IPhone[], Phone[], QueryModel>({

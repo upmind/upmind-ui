@@ -202,25 +202,39 @@ export function createClientPhoneManagerActions(
   // LAST.
 
   return {
-    /** Clears the current form context. */
+    /**
+     * @scenario-include
+     */
     clear,
 
-    /** Destroys this scoped instance — stops the machine and deregisters it. */
+    /**
+     * @scenario-include
+     */
     destroy,
 
-    /** Inputs a model (debounced), resolving the parsed/validated model. */
+    /**
+     * @scenario-include
+     */
     input: debouncedInput,
 
-    /** Resolves true when the manager is ready, false on error. */
+    /**
+     * @scenario-include
+     */
     isReady,
 
-    /** Resolves true once a save has completed. */
+    /**
+     * @scenario-include
+     */
     onDone,
 
-    /** Stops the underlying machine. */
+    /**
+     * @scenario-include
+     */
     stop,
 
-    /** Saves the current (or provided) model, resolving the persisted model. */
+    /**
+     * @scenario-include
+     */
     update
 
     // The arm merges in HERE, last.

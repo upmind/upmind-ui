@@ -1,7 +1,9 @@
 <template>
+  <!-- `as`, not `as-child`: Button suppresses asChild while loading, which would
+       drop the root back to <button> and nest this anchor inside it. -->
   <Button
-    v-if="meta.showBasket"
-    as="router-link"
+    v-if="props.basketRoute && headerMeta.showBasket"
+    :as="RouterLink"
     :to="props.basketRoute"
     :loading="
       !basketMeta.isAvailable &&
@@ -10,8 +12,8 @@
     "
     variant="ghost"
     size="lg"
-    icon="shopping-bag-02"
   >
+    <Icon icon="shopping-bag-02" />
     <Transition name="label-slide">
       <i18n-t
         v-if="count > 0"
@@ -25,7 +27,7 @@
           <Transition name="count-slide" mode="out-in">
             <span
               :key="count"
-              v-bind="countTestAttrs"
+              data-test-key="basket-action-count"
               class="inline-block"
               :class="count < 10 ? 'min-w-2.5' : 'min-w-5'"
             >
@@ -38,11 +40,11 @@
   </Button>
 </template>
 <script lang="ts" setup>
-import { computed } from "vue";
-import { useActiveSession, useBasket } from "@upmind-automation/headless";
-import { Button, useTestAttrs } from "@upmind-automation/upmind-ui";
+import { RouterLink } from "vue-router";
+import { useBasket, useActiveSession } from "@upmind-automation/headless";
+import { Button } from "@upmind/ui";
 import { useHeader } from "../../../components/header/useHeader";
-
+import { Icon } from "../../../components/icon";
 // --- types
 import type { BasketActionProps } from "./types";
 
@@ -53,13 +55,8 @@ const props = defineProps<BasketActionProps>();
 const { isAuthenticated } = useActiveSession().useMeta();
 
 const { count, meta: basketMeta } = useBasket();
+// the chrome decides whether a basket shortcut belongs in the header
 const { meta: headerMeta } = useHeader();
-
-const meta = computed(() => ({
-  // the chrome decides whether a basket shortcut belongs in the header
-  showBasket: !!props.basketRoute && headerMeta.value.showBasket
-}));
-const countTestAttrs = useTestAttrs({ key: "basket-action-count" });
 </script>
 
 <style scoped>

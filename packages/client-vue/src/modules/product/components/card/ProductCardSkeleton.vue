@@ -1,17 +1,30 @@
 <template>
-  <div :class="styles.product.root">
-    <div :class="styles.product.content">
-      <Skeleton v-if="!stylesMeta.hideImage" class="rounded-lg">
+  <div :class="cardRootVariants({ variant: stylesMeta.variant })">
+    <div :class="cardContentVariants({ variant: stylesMeta.variant })">
+      <div v-if="!stylesMeta.hideImage" class="relative">
+        <!-- invisible Image sizes the box (preserves its ratio); Skeleton fills it -->
         <Image
+          :expand-label="t('text.expand_image')"
+          :nav-label="t('text.image_navigation')"
+          :preview-close-label="t('action.close')"
           :ratio="stylesMeta.imageRatio as ImageProps['ratio']"
-          :class="styles.product.image.root"
+          :class="cardImageRootVariants({ variant: stylesMeta.variant })"
+          class="opacity-0"
         />
-      </Skeleton>
+        <Skeleton class="absolute inset-0 rounded-lg" />
+      </div>
 
-      <section :class="styles.product.details">
-        <header :class="styles.product.header.root">
-          <section :class="styles.product.header.info.root">
-            <div :class="styles.product.header.info.container">
+      <section
+        :class="
+          cardDetailsVariants({
+            variant: stylesMeta.variant,
+            hideTerms: stylesMeta.hideTerms
+          })
+        "
+      >
+        <header :class="cardHeaderRootVariants()">
+          <section :class="cardHeaderInfoRootVariants()">
+            <div :class="cardHeaderInfoContainerVariants()">
               <div class="flex flex-col gap-1">
                 <Skeleton :class="`h-8 ${randomWidth('w-3/4')}`" />
 
@@ -28,10 +41,10 @@
 
           <section
             v-if="!stylesMeta.hidePrice"
-            :class="styles.product.header.price.root"
+            :class="cardHeaderPriceRootVariants()"
             class="gap-2"
           >
-            <p :class="styles.product.header.price.currentPrice.root">
+            <p :class="cardHeaderPriceCurrentPriceRootVariants()">
               <Skeleton :class="`h-9 ${randomWidth('w-28')}`" />
               <Skeleton :class="`ml-1 h-6 ${randomWidth('w-24')}`" />
             </p>
@@ -42,8 +55,8 @@
           <Skeleton v-if="!stylesMeta.hideTerms" class="h-11 w-full" />
         </header>
 
-        <footer :class="styles.product.footer">
-          <Skeleton class="button-radius h-11 w-full" />
+        <footer :class="cardFooterVariants()">
+          <Skeleton class="rounded-button h-11 w-full" />
         </footer>
       </section>
     </div>
@@ -52,13 +65,27 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useConfig } from "@upmind-automation/headless";
-import { Skeleton, Image, useStyles } from "@upmind-automation/upmind-ui";
-import config from "./card.config";
+import { Image } from "@upmind/ui";
+import { Skeleton } from "@upmind/ui";
+import {
+  cardRootVariants,
+  cardContentVariants,
+  cardImageRootVariants,
+  cardDetailsVariants,
+  cardHeaderRootVariants,
+  cardHeaderInfoRootVariants,
+  cardHeaderInfoContainerVariants,
+  cardHeaderPriceRootVariants,
+  cardHeaderPriceCurrentPriceRootVariants,
+  cardFooterVariants
+} from "./variants";
 import type { ProductCardSkeletonProps } from "./types";
-import type { ImageProps } from "@upmind-automation/upmind-ui";
+import type { ImageProps } from "@upmind/ui";
 
-const _props = defineProps<ProductCardSkeletonProps>();
+const { t } = useI18n();
+defineProps<ProductCardSkeletonProps>();
 
 const { ui } = useConfig();
 
@@ -99,16 +126,4 @@ const randomWidth = (baseWidth: string): string => {
   if (!alternatives) return baseWidth;
   return alternatives[Math.floor(Math.random() * alternatives.length)];
 };
-
-const styles = useStyles(
-  [
-    "product",
-    "product.header",
-    "product.header.info",
-    "product.header.price",
-    "product.header.price.currentPrice"
-  ],
-  stylesMeta,
-  config
-);
 </script>

@@ -23,7 +23,7 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ScopeActorTypes } from "@upmind-automation/headless";
-import { Alert, Skeleton } from "@upmind-automation/upmind-ui";
+import { Alert, Skeleton } from "@upmind/ui";
 import {
   syntheticScenario,
   unverifiedRow,

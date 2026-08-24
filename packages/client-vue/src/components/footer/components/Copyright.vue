@@ -1,5 +1,5 @@
 <template>
-  <p :class="styles.footer.copyright">
+  <p :class="footerCopyrightVariants()">
     {{
       t("text.copyright", {
         year: new Date().getFullYear(),
@@ -12,10 +12,7 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { useBrand } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../footer.config";
-
-const styles = useStyles(["footer.copyright"], {}, config);
+import { footerCopyrightVariants } from "../variants";
 
 const { t } = useI18n();
 const { name } = useBrand();

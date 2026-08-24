@@ -23,13 +23,16 @@
     "dist"
   ],
   "engines": {
-    "node": "^20.19.0 || >=22.12.0"
+    "node": ">=22.18"
   },
   "scripts": {
     "reset": "rm -rf {node_modules,dist,*.tsbuildinfo}",
     "build": "pnpm type-check && pnpm build-only",
     "build-only": "vite build",
+    "test:unit": "vitest run",
     "type-check": "vue-tsc -p tsconfig.build.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "node ../../.claude/scripts/lint/eslint-workspace.mjs",
@@ -42,7 +45,8 @@
     "@jsonforms/vue": "^3.6.0",
     "@upmind-automation/headless": "workspace:*",
     "@upmind-automation/types": "workspace:*",
-    "@upmind-automation/upmind-ui": "workspace:*",
+    "@upmind/tokens": "workspace:*",
+    "@upmind/ui": "workspace:*",
     "@vueuse/components": "^13.6.0",
     "@vueuse/core": "^13.6.0",
     "@vueuse/router": "^13.6.0",
@@ -50,7 +54,9 @@
     "filepond": "^4.32.8",
     "filepond-plugin-file-validate-type": "^1.2.9",
     "filepond-plugin-image-preview": "^4.6.12",
+    "libphonenumber-js": "^1.12.10",
     "lodash-es": "^4.17.21",
+    "lucide-vue-next": "catalog:",
     "randexp": "^0.5.3",
     "tailwind-merge": "^3.3.1",
     "vue-filepond": "^7.0.4",
@@ -71,6 +77,7 @@
     "@vue/eslint-config-typescript": "^14.6.0",
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.7.0",
+    "ajv": "^8.17.1",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.33.0",
     "eslint-plugin-vue": "~10.4.0",
@@ -88,7 +95,7 @@
     "vue-tsc": "^3.0.5"
   },
   "peerDependencies": {
-    "tailwindcss": "^4.1.11",
+    "tailwindcss": "^4.3.0",
     "vue": "^3.0.0",
     "vue-i18n": "^11.1.1",
     "vue-router": "^4.5.0"

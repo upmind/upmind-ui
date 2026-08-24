@@ -28,7 +28,6 @@
  * shadow-copy the P1-R9 ruling deleted.
  */
 
-import { castArray, get, includes, isObject, reduce } from "lodash-es";
 import { describe, expect, it, vi } from "vitest";
 import { useClientReceivedEmails } from "..";
 import { SortDirection } from "../../query";
@@ -40,6 +39,7 @@ import {
   observeEmailHistoryRequests,
   seedClientSession
 } from "./client-email-history.int-helpers";
+import { castArray, get, includes, isObject, reduce } from "lodash-es";
 import "./setup.integration";
 
 // -----------------------------------------------------------------------------

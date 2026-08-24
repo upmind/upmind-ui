@@ -4,11 +4,23 @@ import {
   type Theme,
   type ThemeTokens
 } from "@upmind-automation/headless";
-import { forEach, has, isEmpty, uniq, compact, isString, map } from "lodash-es";
+import { defineTheme, themeToCss } from "@upmind/tokens";
+import {
+  forEach,
+  has,
+  isEmpty,
+  uniq,
+  compact,
+  isString,
+  map,
+  find
+} from "lodash-es";
 import type { IImage } from "@upmind-automation/types";
 
 // import { IBrandMetaToken } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
+
+const injectedTokens = new Set<string>();
 
 function ensureStylesheet(id: string) {
   let styleEl = document.getElementById(id) as HTMLStyleElement;
@@ -28,9 +40,7 @@ function setCssRules(
   tokens: Record<string, string>,
   reset: boolean = false
 ) {
-  const cssVars = Object.entries(tokens)
-    .map(([k, v]) => `${k}: ${v};`)
-    .join("\n");
+  const cssVars = map(tokens, (v, k) => `${k}: ${v};`).join("\n");
 
   // Remove previous rules if any
   if (el.sheet && reset) {
@@ -60,14 +70,70 @@ export function setTokens(theme: Theme) {
   // - This creates a CSS cascade where dark theme variables override base theme
   // - Without this, theme variables would be scoped only to the themed element
   if (isString(themeCSS) && themeCSS.includes("[data-theme=")) {
+    // Dark block first: the engine emits `[data-theme].dark, ...` selector lists;
+    // hoist them to the root the same way so html-level consumers flip too (the
+    // light rewrite below would otherwise outrank them from :root in dark mode).
+    themeCSS = themeCSS.replace(
+      /\[data-theme="([^"]+)"\]\.dark[^{]*{/g,
+      ':root.dark:has([data-theme="$1"]) {'
+    );
     themeCSS = themeCSS.replace(
       /\[data-theme="([^"]+)"\]\s*{/g,
       ':root:has([data-theme="$1"]) {'
     );
   }
 
+  // Appending is order-sensitive: the derived brand palette goes in first and
+  // the BE's explicit tokens after, so they win. Re-appending an already-injected
+  // block (a remount, HMR) would put it last and invert that, so inject once.
+  if (injectedTokens.has(themeCSS)) return;
+  injectedTokens.add(themeCSS);
+
   const stylesheet = ensureStylesheet("upmind-design-tokens");
   stylesheet.textContent += "\n" + themeCSS;
+}
+
+/**
+ * Derive a full brand theme from a single brand hex (FE-2888 Phase 5). The OKLCH
+ * engine generates the whole light+dark, WCAG-nudged palette from the one anchor
+ * and emits it as a `[data-theme="<id>"]` block — so a brand that ships only a
+ * `brand_color` no longer needs a stored token string; it's produced at runtime
+ * and layered over the base via the cascade (`setTokens` injects it like any
+ * theme). Returns a `Theme` for the registry.
+ */
+const HEX_COLOR = /^#?([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+
+export function deriveBrandTheme(opts: {
+  id: string;
+  name: string;
+  primary: string;
+  font?: string;
+}): Theme | undefined {
+  // A malformed BE hex would ride NaN through the OKLCH engine into every token.
+  const hasValidBrandHex = HEX_COLOR.test(opts.primary);
+  if (!hasValidBrandHex) {
+    console.warn(
+      `[theming] invalid brand_color "${opts.primary}" — keeping the base theme`
+    );
+    return undefined;
+  }
+
+  const resolved = defineTheme({
+    name: opts.id,
+    label: opts.name,
+    // The engine decouples `control` (form-control accent) from `primary`, so a
+    // primary-only brand leaves checkboxes/radios/switches/inputs on the base
+    // neutral. The cart drives form controls from the brand too, so anchor
+    // `control` on the same hex (FE-2888 — brand colour on every component).
+    colors: { primary: opts.primary, control: opts.primary },
+    fonts: opts.font ? { display: opts.font } : undefined
+  });
+
+  return {
+    id: opts.id,
+    name: opts.name,
+    tokens: themeToCss(resolved, { scope: "data" })
+  };
 }
 
 export function setDocumentTitle(brandName?: string) {
@@ -162,7 +228,8 @@ export async function setDisplayFontLink(url: string): Promise<string | null> {
   const sheet = style.sheet;
   if (!sheet) return null;
 
-  const fontFaceRule = Array.from(sheet.cssRules).find(
+  const fontFaceRule = find(
+    sheet.cssRules,
     rule => rule instanceof CSSFontFaceRule
   ) as CSSFontFaceRule | undefined;
 

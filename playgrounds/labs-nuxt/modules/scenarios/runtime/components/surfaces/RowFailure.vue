@@ -1,21 +1,17 @@
 <template>
   <Alert
-    color="danger"
-    variant="muted"
-    size="sm"
-    icon="alert-triangle"
+    variant="danger"
+    appearance="muted"
     :title="message"
     :class="failureStrip({ isLeaving })"
   >
     <template #action>
-      <Button
+      <ButtonItems
         size="sm"
         variant="ghost"
-        color="danger"
         icon="x-close"
         icon-only
         :label="t('action.dismiss')"
-        :aria-label="t('action.dismiss')"
         @click="emit('dismiss')"
       />
     </template>
@@ -42,7 +38,8 @@
 
 import { onMounted, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { Alert, Button } from "@upmind-automation/upmind-ui";
+import { Alert } from "@upmind/ui";
+import ButtonItems from "../ButtonItems.vue";
 import { failureStrip } from "./ListSurface.styles";
 import type { RowFailureProps } from "./ListSurface.types";
 // -----------------------------------------------------------------------------

@@ -1,0 +1,11 @@
+--- a/playgrounds/labs-nuxt/modules/scenarios/usePersonalDetails/client-personal-details.scenario.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/usePersonalDetails/client-personal-details.scenario.ts
+@@ -54,7 +54,7 @@
+     edit: { feedback: SAVE_FEEDBACK }
+   },
+   // The MODULE whose committed `.feature` and step catalog this page plays.
+-  tracks: "client-personal-details",
++  tracks: "client-personal-details-mutated",
+   presentation: {
+     icon: "user-01",
+     table: tableUischema,

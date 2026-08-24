@@ -1,22 +1,22 @@
 <template>
-  <div :class="styles.displayRow.root" data-test-key="display-row">
-    <div :class="styles.displayRow.lead">
-      <p :class="styles.displayRow.results">
-        <span :class="styles.displayRow.resultsLabel">
+  <div :class="displayRow.root()" data-test-key="display-row">
+    <div :class="displayRow.lead()">
+      <p :class="displayRow.results()">
+        <span :class="displayRow.resultsLabel()">
           {{ t("labs.results") }}
         </span>
         <Separator
           orientation="vertical"
           decorative
-          :class="styles.displayRow.divider"
+          :class="displayRow.divider()"
         />
-        <span :class="styles.displayRow.count">{{ countLabel }}</span>
+        <span :class="displayRow.count()">{{ countLabel }}</span>
       </p>
 
       <RefinementsRow v-if="criteria" :criteria="criteria" :locked="locked" />
     </div>
 
-    <div :class="styles.displayRow.controls">
+    <div :class="displayRow.controls()">
       <!-- The ordering control is drawn in BOTH views (G3/E9): the data surface
            owns its ordering, so it is offered where the data is, whether or not
            there happen to be headers to click.
@@ -57,10 +57,19 @@
           type="single"
           size="sm"
           :model-value="view"
-          :items="viewItems"
           :disabled="locked"
           @update:model-value="onView"
-        />
+        >
+          <ToggleGroupItem
+            v-for="item in viewItems"
+            :key="item.value"
+            :value="item.value"
+            data-test-key="toggle-group-item"
+            :data-test-value="item.value"
+          >
+            {{ item.label }}
+          </ToggleGroupItem>
+        </ToggleGroup>
       </Tooltip>
     </div>
   </div>
@@ -94,21 +103,15 @@
 
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import {
-  Separator,
-  ToggleGroup,
-  Tooltip,
-  useStyles
-} from "@upmind-automation/upmind-ui";
+import { Separator, ToggleGroup, ToggleGroupItem, Tooltip } from "@upmind/ui";
 import ColumnPicker from "./ColumnPicker.vue";
-import config from "./DisplayRow.styles";
+import { displayRow } from "./DisplayRow.styles";
 import RefinementsRow from "./RefinementsRow.vue";
 import SortControl from "./SortControl.vue";
 import { ListViewTypes } from "./surfaces/ListSurface.types";
 import { isEmpty, isNil } from "lodash-es";
-import type { DisplayRowProps } from "./DisplayRow.types";
+import type { DisplayRowProps, ToggleGroupOption } from "./DisplayRow.types";
 import type { TableModel } from "@upmind-automation/scenario-harness";
-import type { ToggleGroupItem } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<DisplayRowProps>();
@@ -131,23 +134,13 @@ const countLabel = computed(() =>
     : t("labs.results_showing", { count: props.count, total: props.total })
 );
 
-const viewItems = computed<ToggleGroupItem[]>(() => [
-  { value: ListViewTypes.TABLE, label: t("text.table_view"), icon: "table" },
-  { value: ListViewTypes.CARD, label: t("text.card_view"), icon: "grid-01" }
+const viewItems = computed<ToggleGroupOption[]>(() => [
+  { value: ListViewTypes.TABLE, label: t("text.table_view") },
+  { value: ListViewTypes.CARD, label: t("text.card_view") }
 ]);
 
-// Un-clicking the active segment leaves the view where it is: a list is always
-// drawn as something.
 function onView(next: unknown): void {
   if (next === ListViewTypes.TABLE || next === ListViewTypes.CARD)
     emit("update:view", next);
 }
-
-const meta = computed(() => ({
-  hasSort: hasSort.value,
-  hasColumns: hasColumns.value,
-  hasCardView: !!props.hasCardView
-}));
-
-const styles = useStyles(["displayRow"], meta, config);
 </script>

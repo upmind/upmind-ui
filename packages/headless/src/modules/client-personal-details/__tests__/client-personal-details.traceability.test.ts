@@ -5,11 +5,12 @@
  * ## Job To Be Done
  * Enforce the AC <-> proving-spec link over the CO-LOCATED
  * `client-personal-details.feature` — the SOLE source of truth (`docs/sdd/`
- * is gitignored and no per-module SDD copy exists; `tasks.md` T-0 / T-B14 and
- * `dropped-capabilities.md` §N1 record why the reference module's own
- * traceability test, which reads an SDD-tree copy unconditionally, is red in
- * CI today). This file reads NO path outside `__tests__/` — exactly three
- * assertions, matching T-A11's shape:
+ * is gitignored and no per-module SDD copy exists; `tasks.md` T-0 / T-B14
+ * and this module's own committed `docs/dropped-capabilities.md`
+ * (disposition `Dropped-with-Linear-issue`, FE-2298) record why the
+ * reference module's own traceability test, which reads an SDD-tree copy
+ * unconditionally, is red in CI today). This file reads NO path outside
+ * `__tests__/` — exactly three assertions, matching T-A11's shape:
  *
  *   1. every non-`@todo` scenario has >=1 sibling spec naming its `AC-<n>`;
  *   2. every AC a test names is a scenario the feature actually tags

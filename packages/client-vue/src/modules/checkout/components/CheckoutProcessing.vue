@@ -1,13 +1,13 @@
 <template>
   <Interstitial
+    :close-label="t('action.close')"
     :open="!meta.isPaying && !meta.needsApproval"
     modal
-    size="2xl"
     :animatedIcon="{
       icon: processingIcon,
       primaryColor: 'primary',
       secondaryColor: 'secondary',
-      size: '4xl'
+      size: 'xl'
     }"
     :title="processingTitle"
     :text="processingText"
@@ -23,7 +23,7 @@ import {
   useBasket,
   useBasketPaymentDetails
 } from "@upmind-automation/headless";
-import { Interstitial } from "@upmind-automation/upmind-ui";
+import { Interstitial } from "@upmind/ui";
 import PaymentProcessing from "../../payment/components/PaymentProcessing.vue";
 
 // -----------------------------------------------------------------------------

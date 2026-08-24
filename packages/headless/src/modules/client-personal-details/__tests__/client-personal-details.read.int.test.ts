@@ -46,7 +46,9 @@ import { describe, expect, it } from "vitest";
 // precedent: import the helpers (which import `session-store`) before the
 // module under test. Sorting this block alphabetically regresses the whole
 // suite (module A's prover lost a cycle to exactly this).
-// eslint-disable-next-line import/order
+import { usePersonalDetails } from "..";
+import { queryClient } from "../../query/client";
+import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   assertClientIdentityTransport,
   observeClientRequests,
@@ -55,9 +57,6 @@ import {
   seedAuthenticatedSessionWithoutClientId,
   seedClientSession
 } from "./client-personal-details.int-helpers";
-import { usePersonalDetails } from "..";
-import { queryClient } from "../../query/client";
-import { ScopeActorTypes } from "../../scope/scope.types";
 import { server } from "./setup.integration";
 import type { IClient } from "@upmind-automation/types";
 

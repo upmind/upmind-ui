@@ -70,7 +70,7 @@ export class Checkout {
       .getByTestId("section")
       .and(page.locator(`[data-test-value="billing-details"]`));
     this.billingCards = this.page.getByTestId("billing");
-    this.addressCard = this.page.getByTestId("radio-card-group");
+    this.addressCard = this.page.getByTestId("option-tile-group");
     this.addNewAddress = this.page.getByTestId("link-add-address");
     this.addNewCompany = this.page.getByTestId("link-add-company");
     this.addNewPhone = this.page.getByTestId("link-add-number");
@@ -333,8 +333,8 @@ export class Checkout {
 
   /**
    * Selects a payment gateway by its zero-based position in the gateway radio
-   * group — a LOCALE-SAFE alternative to `selectPaymentMethod`, which locates by
-   * `radio-card-${kebabCase(label)}` and therefore resolves only in English
+   * group — a LOCALE-SAFE alternative to selecting by a translated,
+   * label-derived testid, which would resolve only in English
    * (the FE-2840 trap). The gateway list is rendered by `GatewaysRenderer.vue`,
    * whose `RadioCardItem` gives each option a `Label[for="gateway_id-{index}"]`
    * and a `RadioGroupItem[id="gateway_id-{index}"]` (the group `name` is the
@@ -361,8 +361,8 @@ export class Checkout {
    * pushed onto the end of the gateway list in `GatewaysRenderer.vue` with
    * `value = PaymentType.PAY_LATER` ("pay-later"); its `RadioGroupItem` carries
    * the stable, locale-independent attribute `value="pay-later"`, unlike the
-   * translated `t('form.payment_method_type.pay-later')` label that drives the
-   * `radio-card-*` testid. We click the enclosing `Label` so the whole card's
+   * translated `t('form.payment_method_type.pay-later')` label that a
+   * label-derived testid would key off. We click the enclosing `Label` so the whole card's
    * `@click` handler fires (Radix `RadioGroupItem` is a `button[role=radio]`
    * that swallows clicks when already focused). Scoped inside `paymentDetails`.
    */
@@ -431,7 +431,7 @@ export class Checkout {
    * Selects the first stored payment method (saved card) in a LOCALE-SAFE way.
    * The stored-method radios are rendered by `PaymentDetailsRenderer.vue` inside
    * the `form-item-payment-details-id` FormField; each card is keyed off a
-   * dynamic `payment_details_id` (`radio-card-{uuid}`), so there is no stable,
+   * dynamic `payment_details_id` (`option-tile-{uuid}`), so there is no stable,
    * hard-codeable per-card testid and no locale-stable label to target. The
    * fixture user has exactly one saved card, so target the first `RadioCardItem`
    * — whose root is a `<Label>` that drives the Radix radio — under the

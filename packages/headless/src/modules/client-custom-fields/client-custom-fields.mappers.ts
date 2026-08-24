@@ -350,6 +350,9 @@ export function rewriteImageErrorKey(
 
   const messages = [
     ...extractImageMessages(get(mapped.origin, "data")),
+    ...extractImageMessages(get(mapped.origin, "error.data")),
+    ...extractImageMessages(get(mapped, "origin.data")),
+    ...extractImageMessages(get(mapped, "data")),
     ...extractImageMessages(mapped.data)
   ];
   if (isEmpty(messages)) return error;

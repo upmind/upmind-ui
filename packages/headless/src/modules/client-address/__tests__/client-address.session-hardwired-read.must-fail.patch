@@ -24,13 +24,34 @@ SCOPE-resolved client id.
 Should flip RED — any AC-2 read-back in which the scope-resolved client and the
 session's `activeUser` are DIFFERENT ids.
 
-MEASURED, and stated plainly: against the suite at `67f8be413` this mutant
-flips NOTHING — 112 passed / 1 failed, identical to the unmutated baseline (the
-one failure is AC-20 / finding F6, escalated per `review-notes.md` §7.6, red
-with or without it). That is the finding, not a defect in the mutant. With a
-single live actor whose session client IS the scope-resolved client, "read the
-session" and "read the seam" resolve to the same id, so a url assertion passes
-either way.
+REBASE NOTE (this revision): the prior cut of this patch carried a context
+block against a `loadList(params: Partial<QueryParams<...>> = { pagination: {
+limit: 0 } }, clientId)` signature that no longer exists — `loadList` moved to
+a zero-arg-default, single-parameter `loadList(clientId)` (the query schema's
+own `pagination.limit` default now supplies the `limit: 0`, per the criteria
+seam this story adds), and `git apply --check` failed against current
+`client-address.services.ts` as a result. This revision re-cuts BOTH hunks
+against the current zero-arg `loadList` and the unchanged `loadOne`. The
+MUTATION ITSELF is unchanged — same two lines swapped from `clientId.value` to
+`activeUser.value?.id`, same seam left standing, same AC-2 declared. Verified
+`git apply --check` clean against
+`packages/headless/src/modules/client-address/client-address.services.ts` at
+`b8549ef82923cf8ffaa8713bd5076598b66082e9`, and the mutated file compiles clean
+under `vue-tsc -p tsconfig.build.json --noEmit` (the two errors that survive —
+`brand.services.ts:111` and `client-company.schemas.ts:82` — are pre-existing
+and outside this file; see `client-address.brand-config.int.test.ts`'s
+pre-existing 3 failures, root-caused to `brand.services.ts:112-114`).
+
+MEASURED (prior revision), and stated plainly: against the suite at
+`67f8be413` this mutant flips NOTHING — 112 passed / 1 failed, identical to the
+unmutated baseline (the one failure is AC-20 / finding F6, escalated per
+`review-notes.md` §7.6, red with or without it). That is the finding, not a
+defect in the mutant. With a single live actor whose session client IS the
+scope-resolved client, "read the session" and "read the seam" resolve to the
+same id, so a url assertion passes either way. Re-measurement against the
+re-cut patch is the prover's, applied blind, per `agent-seat-separation.md` and
+its companion's must-fail-patch seam (developer authors the mutant, prover
+verifies it red and reverts — never reading src to construct it).
 
 It is also why the EARLIER AC-2 control — which deleted the `.for('client', id)`
 branch out of `resolveClientId` altogether — flipped nothing and had to be
@@ -38,9 +59,24 @@ withdrawn; see `client-address.scope-identity.must-fail.patch`, which attacks
 the PIN instead and therefore declares AC-30, not AC-2.
 
 The discriminator AC-2 needs is a setup in which the scope-resolved client and
-the session's `activeUser` are different ids. That belongs to the test layer and
-is authored independently of this file. Until it lands, AC-2's control is
-present and honest but not yet demonstrated red.
+the session's `activeUser` are different ids. `client-address.scope-identity.
+int.test.ts:154` ("AC-2 reads the SCOPE-CONTEXT client's list while the
+session's own activeUser is a different client") is exactly that setup, and
+carries it independently of this file.
+
+MEASURED (prover, applied blind, per agent-seat-separation.md's must-fail-
+patch seam — the developer authors the mutant, the prover verifies it red and
+reverts): `git apply --check` clean against the current tree. Baseline (this
+module's full suite, unmutated): 3 failed | 150 passed (153) — the 3
+pre-existing `client-address.brand-config.int.test.ts` AC-20/AC-21 failures,
+root-caused to `brand.services.ts:112-114`, unrelated. Applied: 4 failed | 149
+passed (153) — exactly the one AC-2 test named above flips (its `useUrl`
+assertion resolves against `OTHER_CLIENT_ID`, which the mutation no longer
+addresses), nothing else moves. This supersedes the "not yet demonstrated
+red" line an earlier revision left here — that was true only in the absence
+of the two-different-client setup, which now exists. Reverted after
+measurement (`git apply -R`), 2026-08-23 (re-measured; the module total moved
+152 -> 153 with the new AC-41 `hasError` proof).
 
 What this deliberately does NOT touch:
   - The addressability guard. `isAddressable(clientId.value)` keeps reading the
@@ -54,16 +90,14 @@ What this deliberately does NOT touch:
     AC-2's control rather than a second AC-30 control.
 
 Compiles clean under the mutation (`pnpm --filter @upmind-automation/headless
-type-check`, exit 0) — a control that cannot build proves nothing.
+type-check`, exit 0 for this file — see REBASE NOTE) — a control that cannot
+build proves nothing.
 
 diff --git a/packages/headless/src/modules/client-address/client-address.services.ts b/packages/headless/src/modules/client-address/client-address.services.ts
-index 385d7627a..53d8ed4a9 100644
+index 385d7627a..000000000 100644
 --- a/packages/headless/src/modules/client-address/client-address.services.ts
 +++ b/packages/headless/src/modules/client-address/client-address.services.ts
-@@ -183,14 +183,15 @@ function loadList(
-   params: Partial<QueryParams<IAddress[], Address[]>> = {
-     pagination: { limit: 0 }
-   },
+@@ -190,8 +190,9 @@ function loadList(
    clientId: ClientAddressServices["clientId"]
  ): ClientAddressListQuery {
    const { list, useUrl } = useQuery();
@@ -74,13 +108,7 @@ index 385d7627a..53d8ed4a9 100644
        with: ["region", "country"].join()
      });
    const url = targetUrl();
- 
-   return list<IAddress[], Address[]>({
-     ...params,
-@@ -246,20 +247,21 @@ async function loadOne(
-   id: Address["id"] | undefined,
-   clientId: ClientAddressServices["clientId"]
- ): Promise<Address | undefined> {
+@@ -253,6 +254,7 @@ async function loadOne(
    if (!id) return undefined;
  
    const { get: getOne, useUrl } = useQuery();
@@ -88,7 +116,7 @@ index 385d7627a..53d8ed4a9 100644
  
    if (!isAddressable(clientId.value)) {
      return Promise.reject(new NotAuthenticatedError());
-   }
+@@ -260,7 +262,7 @@ async function loadOne(
  
    return getOne<IAddress, Address>({
      queryKey: [...queryKey, { client: clientId.value }, id],
@@ -97,6 +125,3 @@ index 385d7627a..53d8ed4a9 100644
        with: ["region", "country"].join()
      }),
      select: mapAddress,
-     withAccessToken: true
-   });
- }

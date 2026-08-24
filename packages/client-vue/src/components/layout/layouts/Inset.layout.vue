@@ -13,12 +13,12 @@
         <Column
           :background="COLUMN_BACKGROUND.CANVAS"
           :width="centered ? COLUMN_WIDTH.AUTO : COLUMN_WIDTH.FULL"
-          :class="styles.inset.backColumn"
+          :class="insetBackColumnVariants()"
         >
           <Content
             :flow="CONTENT_FLOW.VERTICAL"
             :justify="CONTENT_JUSTIFY.END"
-            :class="styles.inset.backContent"
+            :class="insetBackContentVariants()"
           >
             <!-- Two-column: Back sits in this full-width row. Centered: it moves
                  into the content column below so it aligns to the card's left
@@ -43,7 +43,7 @@
         <Column
           :background="COLUMN_BACKGROUND.CANVAS"
           :width="centered ? COLUMN_WIDTH.AUTO : COLUMN_WIDTH.FULL"
-          :class="styles.inset.headerColumn"
+          :class="insetHeaderColumnVariants()"
         >
           <Content :gap="CONTENT_GAP.SM" :flow="CONTENT_FLOW.VERTICAL">
             <slot name="header" />
@@ -67,12 +67,12 @@
         <Column
           :background="COLUMN_BACKGROUND.CANVAS"
           :width="COLUMN_WIDTH.FULL"
-          :class="styles.inset.contentColumn"
+          :class="insetContentColumnVariants({ centered })"
         >
           <Content
             :gap="CONTENT_GAP.SM"
             :flow="CONTENT_FLOW.VERTICAL"
-            :class="styles.inset.content"
+            :class="insetContentVariants({ centered })"
           >
             <slot v-if="centered" name="back" />
             <slot name="content" />
@@ -84,7 +84,7 @@
         <Column
           v-if="meta.showAside"
           :background="COLUMN_BACKGROUND.CANVAS"
-          :class="styles.inset.aside"
+          :class="insetAsideVariants()"
         >
           <Content
             as="aside"
@@ -103,34 +103,20 @@
 <script lang="ts" setup>
 // --- external
 import { computed, onMounted } from "vue";
-
 // --- internal
 import { useConfig } from "@upmind-automation/headless";
-import { useHeader } from "../../header/useHeader";
-import { useFooter } from "../../footer/useFooter";
-import config from "../layout.config";
-
 // --- components
-import Root from "../components/root/Root.vue";
-import Ribbon from "../components/ribbon/Ribbon.vue";
-import Container from "../components/container/Container.vue";
-import Column from "../components/column/Column.vue";
-import Content from "../components/content/Content.vue";
-
 // --- utils
-import { isMobile, useStyles } from "@upmind-automation/upmind-ui";
-
+import { isMobile } from "../../../composables/isMobile";
 // --- types
-import type { InsetProps } from "../types";
-import { HEADER_BACKGROUND } from "../../header/types";
 import { FOOTER_LAYOUT, FOOTER_BACKGROUND } from "../../footer/types";
-import {
-  RIBBON_BACKGROUND,
-  RIBBON_BORDER,
-  RIBBON_HEIGHT
-} from "../components/ribbon";
-import { CONTAINER_FLOW, CONTAINER_JUSTIFY } from "../components/container";
+import { useFooter } from "../../footer/useFooter";
+import { HEADER_BACKGROUND } from "../../header/types";
+import { useHeader } from "../../header/useHeader";
 import { COLUMN_BACKGROUND, COLUMN_WIDTH } from "../components/column";
+import Column from "../components/column/Column.vue";
+import { CONTAINER_FLOW, CONTAINER_JUSTIFY } from "../components/container";
+import Container from "../components/container/Container.vue";
 import {
   CONTENT_GAP,
   CONTENT_FLOW,
@@ -138,6 +124,23 @@ import {
   CONTENT_STICKY,
   CONTENT_JUSTIFY
 } from "../components/content";
+import Content from "../components/content/Content.vue";
+import {
+  RIBBON_BACKGROUND,
+  RIBBON_BORDER,
+  RIBBON_HEIGHT
+} from "../components/ribbon";
+import Ribbon from "../components/ribbon/Ribbon.vue";
+import Root from "../components/root/Root.vue";
+import {
+  insetAsideVariants,
+  insetBackColumnVariants,
+  insetBackContentVariants,
+  insetContentColumnVariants,
+  insetContentVariants,
+  insetHeaderColumnVariants
+} from "../variants";
+import type { InsetProps } from "../types";
 
 // -----------------------------------------------------------------------------
 
@@ -153,8 +156,6 @@ defineOptions({
 const meta = computed(() => ({
   showAside: props.aside && !props.centered && !isMobile.value
 }));
-
-const styles = useStyles(["inset"], props, config);
 
 const { ui } = useConfig();
 

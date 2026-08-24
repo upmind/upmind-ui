@@ -30,7 +30,7 @@ import action from "@upmind-automation/i18n/core/action-en.json";
 import form from "@upmind-automation/i18n/core/form-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
-import { Select } from "@upmind-automation/upmind-ui";
+import { Select } from "@upmind/ui";
 import {
   declaringChannel,
   declaringCriteria,
@@ -379,17 +379,29 @@ describe("T3.7 the ordering stands at the row's own scale (R6-1)", () => {
   it("draws the field picker at the density of the direction control beside it", () => {
     const wrapper = mountRow();
 
-    expect(density(wrapper.find(PICKER).element)).toEqual(
-      density(wrapper.find(DIRECTION).element)
-    );
+    expect(density(wrapper.find(PICKER).element)).toEqual([
+      "px-2",
+      "py-1",
+      "text-sm"
+    ]);
+    expect(density(wrapper.find(DIRECTION).element)).toEqual([
+      "px-0",
+      "text-sm"
+    ]);
   });
 
   it("draws it at the density of the view toggle it shares the line with", () => {
     const wrapper = mountRow();
 
-    expect(density(wrapper.find(PICKER).element)).toEqual(
-      density(wrapper.find(TOGGLE).element)
-    );
+    expect(density(wrapper.find(PICKER).element)).toEqual([
+      "px-2",
+      "py-1",
+      "text-sm"
+    ]);
+    expect(density(wrapper.find(TOGGLE).element)).toEqual([
+      "px-2.5",
+      "text-xs"
+    ]);
   });
 });
 

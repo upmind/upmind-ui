@@ -1,14 +1,14 @@
-import { ref, watch } from "vue";
+import { watch } from "vue";
 import { invalidateQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope/scope.registry";
 import { useActiveSession } from "../session-store";
 import { NotAuthenticatedError } from "../../utils";
-import { set } from "lodash-es";
 import type {
   ClientCompanyListQuery,
-  ClientCompanyServices
+  ClientCompanyServices,
+  FilterModel,
+  SortModel
 } from "./client-company.types";
-import type { RequestFilters } from "../query";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
@@ -108,13 +108,21 @@ export function createClientCompaniesActions(
     if (error instanceof NotAuthenticatedError) throw error;
   }
 
-  // --- filters
-  const filters = ref<RequestFilters & { query?: string }>({});
+  /**
+   * Applies a filter INTENT — the `filters` branch of the one query model, so
+   * `sort` and `pagination` are untouched by construction. The free-text
+   * search binds `filters.name.like`.
+   */
+  function filterBy(intent: FilterModel): void {
+    query.setCriteria({ filters: intent });
+  }
 
-  /** Applies a free-text filter and re-issues the list request. */
-  function filterQuery(value?: string): void {
-    set(filters.value, "query", value);
-    query.filter(filters.value);
+  /**
+   * Applies a sort INTENT — the `sort` branch of the one query model, so
+   * `filters` and `pagination` are untouched.
+   */
+  function sortBy(intent: SortModel): void {
+    query.setCriteria({ sort: intent });
   }
 
   /**
@@ -142,10 +150,8 @@ export function createClientCompaniesActions(
     /** Finds a company by id, creating it only if absent. */
     ensure: service.ensure,
 
-    /** Filters for the list query. */
-    filters: {
-      query: filterQuery
-    },
+    /** Applies a filter intent — the `filters` branch of the query model. */
+    filterBy,
 
     /** Marks the shared cache key stale so the next read refetches. */
     invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
@@ -172,8 +178,42 @@ export function createClientCompaniesActions(
     /** Deletes a deletable company. */
     remove: service.remove,
 
+    /**
+     * Applies a criteria INTENT — merges the given `filters` / `sort` /
+     * `pagination` branches into the ONE query model; branches left out are
+     * untouched. See `@decision setCriteria-mirrors-client-email-history-precedent`
+     * below. This is the door that sets the page size:
+     * `setCriteria({ pagination: { limit } })`.
+     */
+    /**
+     * @decision setCriteria-mirrors-client-email-history-precedent
+     * what: publishes `setCriteria: query.setCriteria` — the platform's
+     *   generic, schema-governed write verb, merging any of `filters` / `sort`
+     *   / `pagination` into the ONE query model. This is the door a consumer
+     *   calls to set the page size: `setCriteria({ pagination: { limit } })`,
+     *   then drives `nextPage()` / `prevPage()`.
+     * why: this module declares `pagination.limit` with `default: 0` (one
+     *   unpaged read, deliberate — `billableEntitiesProvider.vue:191-203` and
+     *   `clientCompanySelect.vue:110-114` read the whole collection) and
+     *   publishes `nextPage`/`prevPage`, but with no public door to set a
+     *   page size the pager was inert (the same shape as the
+     *   client-custom-fields gap: AC-33's mandatory `limit:0` structurally
+     *   blocks paging). `client-email-history` publishes this same generic
+     *   door for the identical problem, and `client-address`
+     *   (`useClientAddresses.actions.ts`) already mirrors it — this is that
+     *   same repair applied here.
+     * rejected: a bespoke `setPageSize(limit, offset)` action — no oracle
+     *   authorises inventing a shape when the platform already exposes a
+     *   generic one (`query.setCriteria`) that sibling modules already
+     *   publish verbatim.
+     */
+    setCriteria: query.setCriteria,
+
     /** Promotes a company to the client's default. */
-    setDefault: service.setDefault
+    setDefault: service.setDefault,
+
+    /** Applies a sort intent — the `sort` branch of the query model. */
+    sortBy
 
     // The arm merges in HERE, last — a spread overwrites, which is what lets
     // it override a shared member; anything it omits falls through.

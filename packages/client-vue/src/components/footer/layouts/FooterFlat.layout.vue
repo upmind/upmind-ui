@@ -2,21 +2,23 @@
   <Ribbon
     as="footer"
     :background="meta.background"
-    :class="styles.footer.flat.root"
+    :class="footerFlatRootVariants({ position: meta.position })"
   >
     <Container
       flow="horizontal"
       :justify="meta.hasContent || meta.reverse ? 'between' : 'end'"
       items="end"
-      :class="styles.footer.flat.container"
+      :class="footerFlatContainerVariants()"
     >
       <Column
         :background="leftBackground"
-        :class="styles.footer.flat.left.column"
+        :class="footerFlatLeftColumnVariants({ background: meta.background })"
         :justify="meta.justifyLeft"
       >
         <Content
-          :class="styles.footer.flat.left.content"
+          :class="
+            footerFlatLeftContentVariants({ background: meta.background })
+          "
           :items="meta.items"
           justify="between"
           flow="horizontal"
@@ -37,11 +39,13 @@
 
       <Column
         :background="rightBackground"
-        :class="styles.footer.flat.right.column"
+        :class="footerFlatRightColumnVariants({ background: meta.background })"
         flow="horizontal"
       >
         <Content
-          :class="styles.footer.flat.right.content"
+          :class="
+            footerFlatRightContentVariants({ background: meta.background })
+          "
           :items="meta.items"
           :justify="meta.justifyRight"
           flow="horizontal"
@@ -65,14 +69,20 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
 import Column from "../../layout/components/column/Column.vue";
 import Container from "../../layout/components/container/Container.vue";
 import Content from "../../layout/components/content/Content.vue";
 import Ribbon from "../../layout/components/ribbon/Ribbon.vue";
-import config from "../footer.config";
 import { FOOTER_BACKGROUND } from "../types";
 import { useFooter } from "../useFooter";
+import {
+  footerFlatRootVariants,
+  footerFlatContainerVariants,
+  footerFlatLeftColumnVariants,
+  footerFlatLeftContentVariants,
+  footerFlatRightColumnVariants,
+  footerFlatRightContentVariants
+} from "../variants";
 
 // --- components
 
@@ -81,19 +91,6 @@ import { useFooter } from "../useFooter";
 // --- types
 
 const { meta } = useFooter();
-
-const stylesMeta = computed(() => ({
-  position: meta.value.position,
-  background: meta.value.background,
-  items: meta.value.items
-}));
-
-const styles = useStyles(
-  ["footer.flat", "footer.flat.left", "footer.flat.right"],
-  stylesMeta,
-  config,
-  {}
-);
 
 const leftBackground = computed(() => {
   return meta.value.background === FOOTER_BACKGROUND.LTR ? "surface" : "none";

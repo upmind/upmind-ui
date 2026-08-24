@@ -81,6 +81,44 @@ function control(node: UiNode | undefined, name: string): UiNode | undefined {
 // -----------------------------------------------------------------------------
 
 describe("address form under a forbidding brand config (AC-20, AC-21)", () => {
+  // AC-20 wire-format test MUST run first — useBrand's config query is staleTime:static,
+  // so the first fetch in a vitest file is the only one. Later tests hit cache.
+  it("AC-20 names BOTH brand-config keys on the wire — a request that never asks for the second could only answer with the brand default", async () => {
+    const observed = observeAllRequests();
+    const { clientId } = await seedClientSession();
+    installBrandConfigHandler(server, FORBIDDING_CONFIG);
+    installLookupHandlers(server);
+    const row = recorded.one().data;
+    installAddressHandler(server, clientId, row);
+
+    const manager = useClientAddressManager()
+      .as(ScopeActorTypes.CLIENT)
+      .for(ClientAddressContextTypes.ADDRESS, row.id);
+    await manager.useActions().isReady();
+    observed.stop();
+
+    const configKeys = observed
+      .matching("config/brand/values")
+      .flatMap(request =>
+        (new URL(request.url).searchParams.get("filter[keys|eq]") ?? "").split(
+          ","
+        )
+      );
+    expect(
+      configKeys,
+      "observed brand-config request(s): " +
+        observed
+          .matching("config/brand/values")
+          .map(request => request.url)
+          .join(" | ")
+    ).toEqual(
+      expect.arrayContaining([
+        "clients.settings.allow_address_update",
+        "invoices.common.required_region_in_address"
+      ])
+    );
+  });
+
   it("AC-21 disables the country control on an EXISTING address when the brand forbids the change", async () => {
     const { clientId } = await seedClientSession();
     installBrandConfigHandler(server, FORBIDDING_CONFIG);
@@ -117,40 +155,6 @@ describe("address form under a forbidding brand config (AC-20, AC-21)", () => {
     );
     expect(countryControl).toBeDefined();
     expect(countryControl!.rule).toBeUndefined();
-  });
-
-  it("AC-20 names BOTH brand-config keys on the wire — a request that never asks for the second could only answer with the brand default", async () => {
-    const observed = observeAllRequests();
-    const { clientId } = await seedClientSession();
-    installBrandConfigHandler(server, FORBIDDING_CONFIG);
-    installLookupHandlers(server);
-    const row = recorded.one().data;
-    installAddressHandler(server, clientId, row);
-
-    const manager = useClientAddressManager()
-      .as(ScopeActorTypes.CLIENT)
-      .for(ClientAddressContextTypes.ADDRESS, row.id);
-    await manager.useActions().isReady();
-    observed.stop();
-
-    const configKeys = observed
-      .matching("config/brand/values")
-      .flatMap(request =>
-        (new URL(request.url).searchParams.get("keys") ?? "").split(",")
-      );
-    expect(
-      configKeys,
-      "observed brand-config request(s): " +
-        observed
-          .matching("config/brand/values")
-          .map(request => request.url)
-          .join(" | ")
-    ).toEqual(
-      expect.arrayContaining([
-        "clients.settings.allow_address_update",
-        "invoices.common.required_region_in_address"
-      ])
-    );
   });
 
   it("AC-20 requires a region when the brand demands one", async () => {

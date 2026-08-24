@@ -24,10 +24,11 @@ const testDir = defineBddConfig({
     // single module's own feature (living beside its `.steps.ts`, mirroring
     // headless's module layout) — added so a landed FE-2968 pair is
     // executed (or errors as unmatched) rather than silently never run.
-    // Deliberately scoped to `src/modules/**`, not a blanket `src/**`: this
-    // package's own `src/__tests__/*.feature` files are spec-only (realized
-    // as unit tests, no `.steps.ts` beside them) and would fail bddgen.
-    "packages/*/src/modules/**/*.feature"
+    // Scoped to scenario-harness ONLY: headless module features are the
+    // PLAYGROUND's playlist (ADR-020 Amendment 5) — their catalogs run in
+    // the labs replay world, and their not-yet-driveable scenarios are a
+    // legitimate state this node lane must not fail as missing steps.
+    "packages/scenario-harness/src/modules/**/*.feature"
   ],
   // The step registrations below live in this same file, so it doubles as
   // its own "steps" module for playwright-bdd's generation pass.

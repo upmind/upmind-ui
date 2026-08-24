@@ -40,25 +40,9 @@ export default defineConfig(({ mode }) => {
           __dirname,
           "../../packages/headless/src/index.ts"
         ),
-        "@upmind-automation/upmind-ui/styles": resolve(
-          __dirname,
-          "../../packages/ui/src/assets/styles/index.css"
-        ),
-        "@upmind-automation/upmind-ui/vars": resolve(
-          __dirname,
-          "../../packages/ui/src/assets/styles/vars.css"
-        ),
-        "@upmind-automation/upmind-ui": resolve(
-          __dirname,
-          "../../packages/ui/src/index.ts"
-        ),
         "@upmind-automation/client-vue/styles": resolve(
           __dirname,
           "../../packages/client-vue/src/assets/styles/index.css"
-        ),
-        "@upmind-automation/client-vue/vars": resolve(
-          __dirname,
-          "../../packages/client-vue/src/assets/styles/vars.css"
         ),
         "@upmind-automation/client-vue": resolve(
           __dirname,

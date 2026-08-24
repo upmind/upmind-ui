@@ -68,7 +68,7 @@ import {
 import AddressItem from "./AddressItem.vue";
 import CompanyItem from "./CompanyItem.vue";
 import { sortBy } from "lodash-es";
-import type { TabItem } from "@upmind-automation/upmind-ui";
+import type { SectionItem } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------
 
@@ -103,7 +103,7 @@ await Promise.all([isAddressesReady(), isCompaniesReady()]);
 const defaultAddressValue = ref(defaultAddressId());
 const defaultCompanyValue = ref(defaultCompany());
 
-const sections = computed<TabItem[]>(() => {
+const sections = computed<SectionItem[]>(() => {
   const tabs = [
     {
       label: t("text.companies"),

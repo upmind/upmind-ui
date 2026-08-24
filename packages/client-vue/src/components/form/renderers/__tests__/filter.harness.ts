@@ -29,7 +29,7 @@ import error from "@upmind-automation/i18n/core/error-en.json";
 import form from "@upmind-automation/i18n/core/form-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import validation from "@upmind-automation/i18n/core/validation-en.json";
-import { Form } from "@upmind-automation/upmind-ui";
+import FormHost from "../../engine/FormHost.vue";
 import { UpmForm } from "../../index";
 import { useFormI18n } from "../../useFormI18n";
 import { formRenderers } from "../index";
@@ -304,9 +304,9 @@ export type FilterMount = {
 /**
  * Mounts a declaration through the renderer registry `UpmForm` binds.
  *
- * @param options.translate - `false` swaps `UpmForm` for the bare `upmind-ui`
- *   `Form` carrying the same renderer set and NO `i18n` prop, so the translated
- *   assertions stay falsifiable.
+ * @param options.translate - `false` swaps `UpmForm` for the bare engine
+ *   `FormHost` carrying the same renderer set and NO `i18n` prop, so the
+ *   translated assertions stay falsifiable.
  */
 export async function mountFilters(options: {
   schema: JsonSchema7;
@@ -330,7 +330,7 @@ export async function mountFilters(options: {
       };
       return () =>
         options.translate === false
-          ? h(Form, { ...shared, additionalRenderers: formRenderers })
+          ? h(FormHost, { ...shared, additionalRenderers: formRenderers })
           : h(UpmForm, { ...shared, i18n: translator.value });
     }
   });
@@ -399,10 +399,13 @@ export const messagesOf = (column: DOMWrapper<Element>) =>
     node.text()
   );
 
-/** The two tri-state controls, each by the test key its own primitive carries. */
-export const BUTTON_GROUP_POSITION = '[data-test-key="button"]';
+/**
+ * Both tri-state controls (button-group and toggle-group formats) now render
+ * the same primitive: segmented toggle items with enum-keyed test values.
+ */
+export const BUTTON_GROUP_POSITION = '[data-test-key="toggle-group-item"]';
 export const TOGGLE_GROUP_POSITION = '[data-test-key="toggle-group-item"]';
-const ANY_POSITION = `${BUTTON_GROUP_POSITION},${TOGGLE_GROUP_POSITION}`;
+const ANY_POSITION = TOGGLE_GROUP_POSITION;
 
 /** Every position the column offers, in order, as a user reads them. */
 export const positionsOf = (column: DOMWrapper<Element>) =>

@@ -5,12 +5,10 @@ import { cva } from "class-variance-authority";
  * @description CVA configuration for MetaPanel.
  */
 
-export default {
-  metaPanel: {
-    root: cva(""),
+export const metaPanel = {
+  root: cva(""),
 
-    title: cva("text-display mb-2 text-sm font-bold"),
+  title: cva("text-display mb-2 text-sm font-bold"),
 
-    list: cva("flex flex-wrap gap-2")
-  }
+  list: cva("flex flex-wrap gap-2")
 };

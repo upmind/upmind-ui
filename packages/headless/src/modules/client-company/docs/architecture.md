@@ -124,12 +124,12 @@ collection re-reads.
 
 ## Sub-composables
 
-| Sub-composable   | Collection                                                                                            | Editor                                                                                              |
-| ---------------- | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `useActions()`   | 10 members — row mutations, list controls, lifecycle                                                  | 7 members — form input, save, lifecycle                                                             |
-| `useContext()`   | 6 members — reactive list, lookups, captured error                                                    | 16 members — model, schema pair, look-ups (addresses/emails/phones/countries/regions), display text |
-| `useMeta()`      | 7 flags — `hasError`, `hasNextPage`, `hasPages`, `hasPrevPage`, `isAvailable`, `isEmpty`, `isLoading` | 8 flat flags — availability, loading, dirty, valid, new, processing, complete, errors               |
-| `useInternals()` | 2 — actor scope, raw query                                                                            | 4 — actor scope, raw sender, raw service, raw state                                                 |
+| Sub-composable   | Collection                                                                                                          | Editor                                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `useActions()`   | 12 members — row mutations, criteria writes (`filterBy`/`sortBy`/`setCriteria`), list controls, lifecycle           | 7 members — form input, save, lifecycle                                                             |
+| `useContext()`   | 8 members — reactive list, the active query criteria, the query schema family, lookups, captured error              | 16 members — model, schema pair, look-ups (addresses/emails/phones/countries/regions), display text |
+| `useMeta()`      | 8 flags — `hasError`, `hasNextPage`, `hasPages`, `hasPrevPage`, `isAvailable`, `isEmpty`, `isFiltered`, `isLoading` | 8 flat flags — availability, loading, dirty, valid, new, processing, complete, errors               |
+| `useInternals()` | 2 — actor scope, raw query                                                                                          | 4 — actor scope, raw sender, raw service, raw state                                                 |
 
 Both halves return the identical four-layer shape; only the contents differ,
 because one is query-backed and the other machine-backed.

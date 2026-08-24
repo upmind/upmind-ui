@@ -1,4 +1,4 @@
-import type { currentVariants, exVariants } from "./pricing.config";
+import type { currentVariants, exVariants } from "./variants";
 import type { ProductSummaryDetailWithPrice } from "@upmind-automation/headless";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 

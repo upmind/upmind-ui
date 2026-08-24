@@ -84,7 +84,7 @@ export class Basket {
     // the suite's existing section locators. The card only renders under the
     // one-page flow, so its presence doubles as the flow marker.
     this.yourOrderCard = page.getByTestId("section-your-order");
-    this.quantityInput = this.basketProduct.getByTestId("quantity-input");
+    this.quantityInput = this.basketProduct.getByTestId("number-field-input");
     this.quantityIncrement = this.basketProduct.getByTestId(
       "number-field-increment"
     );

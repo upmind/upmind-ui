@@ -1,6 +1,6 @@
 <template>
-  <Root :class="styles.split.root">
-    <article :class="styles.split.container">
+  <Root :class="splitRootVariants()">
+    <article :class="splitContainerVariants()">
       <section>
         <slot name="controls" />
         <slot name="navigation" />
@@ -14,24 +14,23 @@
       <slot name="default" />
 
       <!-- Footer -->
-      <footer :class="styles.split.footer" />
+      <footer :class="splitFooterVariants()" />
     </article>
 
     <!-- Filler aside -->
-    <div :class="styles.split.aside" />
+    <div :class="splitAsideVariants()" />
   </Root>
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
 import Root from "../components/root/Root.vue";
-import config from "../layout.config";
+import {
+  splitRootVariants,
+  splitContainerVariants,
+  splitFooterVariants,
+  splitAsideVariants
+} from "../variants";
 import type { VariantProps } from "../types";
 
 defineProps<VariantProps>();
-
-const meta = computed(() => ({}));
-
-const styles = useStyles(["split", "split.content"], meta, config);
 </script>

@@ -10,23 +10,21 @@ import { cva } from "class-variance-authority";
  * canvas.
  */
 
-export default {
-  displayRow: {
-    root: cva("flex flex-wrap items-center gap-3"),
+export const displayRow = {
+  root: cva("flex flex-wrap items-center gap-3"),
 
-    lead: cva("flex min-w-0 flex-wrap items-center gap-3"),
+  lead: cva("flex min-w-0 flex-wrap items-center gap-3"),
 
-    results: cva("text-muted m-0 flex items-center gap-2 text-sm"),
+  results: cva("text-muted m-0 flex items-center gap-2 text-sm"),
 
-    resultsLabel: cva("text-display font-medium"),
+  resultsLabel: cva("text-display font-medium"),
 
-    // The ui Separator is `h-full` when vertical, which in a wrapping flex row
-    // resolves to the tallest control's height; the count reads as a line, so
-    // the rule is held to the text's own.
-    divider: cva("h-4"),
+  // The ui Separator is `h-full` when vertical, which in a wrapping flex row
+  // resolves to the tallest control's height; the count reads as a line, so
+  // the rule is held to the text's own.
+  divider: cva("h-4"),
 
-    count: cva(""),
+  count: cva(""),
 
-    controls: cva("ml-auto flex items-center gap-2")
-  }
+  controls: cva("ml-auto flex items-center gap-2")
 };

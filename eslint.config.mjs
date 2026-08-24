@@ -1072,6 +1072,15 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
+  // 11a. The new ui library deliberately exports shadcn-style component names
+  //     (Dialog, Select, …); registering them in SFCs and tests is the API.
+  // ---------------------------------------------------------------------------
+  {
+    files: ["design-system/packages/ui/**"],
+    rules: { "vue/no-reserved-component-names": "off" }
+  },
+
+  // ---------------------------------------------------------------------------
   // 11. Prettier compatibility — MUST be last. Disables every stylistic rule so
   //    prettier is the sole formatter (330 rule names switched off).
   // ---------------------------------------------------------------------------

@@ -1,11 +1,17 @@
 import { createScopedComposable } from "../scope";
 import { createClientCustomFieldImageServices } from "./client-custom-fields.services";
+import { CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX } from "./client-custom-fields.types";
 import { createClientCustomFieldImageActions } from "./useClientCustomFieldImage.actions";
 import { createClientCustomFieldImageContext } from "./useClientCustomFieldImage.context";
 import { createClientCustomFieldImageInternals } from "./useClientCustomFieldImage.internals";
 import { createClientCustomFieldImageMeta } from "./useClientCustomFieldImage.meta";
 import type { ClientCustomFieldImageScopeMatrix } from "./client-custom-fields.types";
-import type { ScopeBuilder, ScopeConfig, ScopeKey } from "../scope";
+import type {
+  ScopeBuilder,
+  ScopeConfig,
+  ScopeKey,
+  ScopedComposable
+} from "../scope";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
@@ -96,10 +102,39 @@ export function useClientCustomFieldImage(): ScopeBuilder<
     registeredUseClientCustomFieldImage = createScopedComposable<
       ReturnType<typeof createClientCustomFieldImageForScope>,
       ClientCustomFieldImageScopeMatrix
-    >("client-custom-fields", createClientCustomFieldImageForScope);
+    >(
+      "client-custom-fields",
+      createClientCustomFieldImageForScope,
+      CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX
+    );
   }
   return registeredUseClientCustomFieldImage();
 }
+
+/**
+ * @decision publish `scopeMatrix` on the EXPORTED wrapper, not only on the
+ * deferred inner registration.
+ * what: assigns `.scopeMatrix` onto `useClientCustomFieldImage` itself,
+ *   reading the already-imported `CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX`
+ *   constant — no `createScopedComposable` call, so none of the
+ *   import-cycle risk the deferral above exists to avoid.
+ * why: same defect as the sibling `useClientCustomFields.ts` (full
+ *   rationale there, not repeated) — `createScopedComposable` attaches
+ *   `.scopeMatrix` to the composable IT returns, but that is the deferred
+ *   `registeredUseClientCustomFieldImage`, never the exported symbol
+ *   consumers hold, so `useModulePort.ts`'s `servesActor(composable.scopeMatrix,
+ *   actor)` — which runs BEFORE ever invoking the composable — always read
+ *   `undefined` (AC-37).
+ * rejected: setting `.scopeMatrix` inside the `if (!registered...)` branch —
+ *   still `undefined` until the first call, and `useModulePort` reads it
+ *   before any call happens.
+ */
+(
+  useClientCustomFieldImage as ScopedComposable<
+    ReturnType<typeof createClientCustomFieldImageForScope>,
+    ClientCustomFieldImageScopeMatrix
+  >
+).scopeMatrix = CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX;
 
 // Type export for consumers
 export type UseClientCustomFieldImage = ReturnType<

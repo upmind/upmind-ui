@@ -1,10 +1,16 @@
 <template>
   <div
     v-if="ui.productImagesStyle.isGrid && isArray(mappedImage)"
-    :class="cn(styles.header.image.grid, props.class)"
+    :class="
+      cn(headerImageGridVariants({ direction: props.direction }), props.class)
+    "
   >
     <ImageGrid
       v-if="isArray(mappedImage)"
+      :thumbnails-label="t('text.thumbnails')"
+      :expand-label="t('text.expand_image')"
+      :nav-label="t('text.image_navigation')"
+      :preview-close-label="t('action.close')"
       :image="mappedImage"
       fit="cover"
       :ratio="ui.productImageRatio.value"
@@ -12,25 +18,34 @@
     />
   </div>
   <Image
+    :expand-label="t('text.expand_image')"
+    :nav-label="t('text.image_navigation')"
+    :preview-close-label="t('action.close')"
     v-else
     :image="mappedImage"
     fit="cover"
     :ratio="ui.productImageRatio.value"
     :mode="ui.productImagesStyle.isGrid ? 'auto' : ui.productImagesStyle.value"
-    :class="cn(styles.header.image.product, props.class)"
+    :class="cn(headerImageProductVariants(), props.class)"
     :fallback="props.fallback"
   />
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useConfig, useImageUrl } from "@upmind-automation/headless";
-import { Image, ImageGrid, useStyles, cn } from "@upmind-automation/upmind-ui";
-import config from "./product-hero.config";
+import { cn } from "@upmind/ui";
+import { Image, ImageGrid } from "@upmind/ui";
+import {
+  headerImageGridVariants,
+  headerImageProductVariants
+} from "./variants";
 import { isArray, isEmpty } from "lodash-es";
 import type { ProductImageProps } from "./types";
-import type { ImageItem } from "@upmind-automation/upmind-ui";
+import type { ImageItem } from "@upmind/ui";
 
+const { t } = useI18n();
 const props = withDefaults(defineProps<ProductImageProps>(), {
   previewSize: "original"
 });
@@ -38,12 +53,6 @@ const props = withDefaults(defineProps<ProductImageProps>(), {
 const { ui } = useConfig().with({
   product: () => props
 });
-
-const stylesMeta = computed(() => ({
-  direction: props.direction
-}));
-
-const styles = useStyles(["header", "header.image"], stylesMeta, config);
 
 const images = computed(() => {
   return props.productDetails?.images?.map(image => ({

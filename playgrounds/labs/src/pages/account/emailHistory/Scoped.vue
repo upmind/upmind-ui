@@ -75,7 +75,7 @@
         >
       </div>
 
-      <Loading :active="isLoading" class-active="w-full">
+      <Loading label="Loading" :active="isLoading" class-active="w-full">
         <p v-if="hasError" class="text-red-600">
           meta.hasError — the list query failed.
         </p>
@@ -153,7 +153,7 @@ import {
   ScopeActorTypes,
   SentEmailStatus
 } from "@upmind-automation/headless";
-import { Button, Loading, Card } from "@upmind-automation/upmind-ui";
+import { Button, Loading, Card } from "@upmind/ui";
 import { debounce, keys } from "lodash-es";
 import type { SentEmail } from "@upmind-automation/headless";
 

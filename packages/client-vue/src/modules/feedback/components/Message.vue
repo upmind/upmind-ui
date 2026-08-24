@@ -1,23 +1,19 @@
 <template>
   <Alert
-    v-bind="message"
-    :model-value="meta.isActive || (scheduled && meta.isScheduled)"
-    :icon="message.value.icon"
+    v-if="meta.isActive || (scheduled && meta.isScheduled)"
     :title="message.value.title"
     :description="message.value.copy"
-    :data="message.value.data"
-    :color="message.value.type"
-    :anchor="safeAnchor"
-    :variant="variant"
+    :variant="message.value.type"
     :data-attrs="{ 'data-test-key': 'message', ...props.dataAttrs }"
-    @reject="dismiss"
-  />
+  >
+    <template #icon><Icon :icon="message.value.icon" /></template>
+  </Alert>
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
 import { useMessage } from "@upmind-automation/headless";
-import { Alert } from "@upmind-automation/upmind-ui";
+import { Alert } from "@upmind/ui";
+import { Icon } from "../../../components/icon";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(
@@ -25,7 +21,8 @@ const props = withDefaults(
     item: object; // xstate actor
     scheduled?: boolean;
     anchor?: string;
-    variant?: string;
+    /** Message layout, not the Alert visual variant. */
+    variant?: "inline" | "stacked";
     block?: boolean;
     dataAttrs?: Record<`data-${string}`, string | number | boolean>;
   }>(),
@@ -34,9 +31,5 @@ const props = withDefaults(
   }
 );
 
-const { message, meta, dismiss } = useMessage(props.item);
-
-const safeAnchor = computed(() => {
-  return props.anchor || message.value?.anchor;
-});
+const { message, meta } = useMessage(props.item);
 </script>

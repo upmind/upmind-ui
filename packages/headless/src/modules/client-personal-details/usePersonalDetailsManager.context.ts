@@ -1,4 +1,9 @@
-import { useContext } from "../../utils";
+import {
+  fieldsFromValidationErrors,
+  pickUischemaControls,
+  useContext
+} from "../../utils";
+import { concat, uniq } from "lodash-es";
 import type {
   ProfileContext,
   ProfileModel
@@ -6,6 +11,7 @@ import type {
 import type { ResponseError, UseActor } from "../../utils";
 import type { CustomField } from "../client-custom-fields";
 import type { ScopeActorTypes } from "../scope/scope.types";
+import type { UISchemaElement } from "@jsonforms/core";
 import type { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
 /**
@@ -23,6 +29,17 @@ import type { ErrorObject } from "ajv";
  *
  * @doctrine clause 2 — shared-only (armless).
  */
+/** Options for `uischemaFor`. */
+export type UischemaForOptions = {
+  /**
+   * When true (the default), validation errors outside the requested fields
+   * are included — pulling invalid fields into the view is what lets a save
+   * proceed when full-schema validation refuses a save while a required field
+   * outside the view is empty.
+   */
+  includeInvalid?: boolean;
+};
+
 export function createPersonalDetailsManagerContext(
   _actorScope: ScopeActorTypes,
   actor: UseActor
@@ -30,6 +47,40 @@ export function createPersonalDetailsManagerContext(
   const { state } = actor;
 
   // --- actor-specific context: none earned yet (clause 2).
+
+  const uischemaRef = useContext<ProfileContext["uischema"]>(state, "uischema");
+  const validationErrorsRef = useContext<ErrorObject[]>(state, "error.data");
+
+  /**
+   * Returns a uischema narrowed to the given fields. Reads the CURRENT whole
+   * uischema and validation errors off machine state and composes them.
+   *
+   * When `includeInvalid` is true (the default), fields with validation errors
+   * are merged in — full-schema validation refuses a save while a required
+   * field outside the view is empty, so pulling invalid fields in is what
+   * lets the save proceed.
+   *
+   * @param fields The field tokens to include (e.g. `['firstName']` or
+   * `['customFields.age']`).
+   * @param options Optional settings.
+   */
+  function uischemaFor(
+    fields: string[],
+    options: UischemaForOptions = {}
+  ): UISchemaElement | undefined {
+    const { includeInvalid = true } = options;
+    const base = uischemaRef.value as UISchemaElement | undefined;
+
+    let effectiveFields = fields;
+    if (includeInvalid) {
+      const invalidFields = fieldsFromValidationErrors(
+        validationErrorsRef.value
+      );
+      effectiveFields = uniq(concat(fields, invalidFields));
+    }
+
+    return pickUischemaControls(base, effectiveFields);
+  }
 
   return {
     /** The full data-manager context object. */
@@ -60,7 +111,13 @@ export function createPersonalDetailsManagerContext(
     uischema: useContext<ProfileContext["uischema"]>(state, "uischema"),
 
     /** Field-level validation errors (AJV `ErrorObject[]`) — read, never raised. */
-    validationErrors: useContext<ErrorObject[]>(state, "error.data")
+    validationErrors: validationErrorsRef,
+
+    /**
+     * Returns a uischema narrowed to the given fields. Composes the current
+     * whole uischema with validation errors (when `includeInvalid` is true).
+     */
+    uischemaFor
 
     // The arm merges in HERE, last.
     // ...actorContext

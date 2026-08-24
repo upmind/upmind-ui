@@ -36,7 +36,7 @@ function createClientCompaniesForScope(
 
   // Mint the list query ONCE per scope — a `service.loadList()` inside a layer
   // factory mints a second query, with its own refs, key and effect scope.
-  const query = service.loadList({ pagination: { limit: 0 } });
+  const query = service.loadList();
 
   /**
    * ONE actions instance per scope, not one per `useActions()` call: the

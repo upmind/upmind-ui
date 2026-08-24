@@ -14,7 +14,8 @@
 </template>
 
 <script lang="ts" setup>
-import { Button, Icon } from "@upmind-automation/upmind-ui";
+import { Icon } from "@upmind-automation/client-vue";
+import { Button } from "@upmind/ui";
 
 // -----------------------------------------------------------------------------
 

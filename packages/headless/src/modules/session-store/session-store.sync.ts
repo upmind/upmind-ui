@@ -157,23 +157,51 @@ const SESSION_COOKIE_NAMES = [
   "upm_admin_session"
 ];
 
-let cookieListenerUnsubscribe: (() => void) | null = null;
+/**
+ * Global key for cookie-sync state. Uses Symbol.for so the same symbol is
+ * reachable across module resets (vi.resetModules in tests). Without this,
+ * each fresh module realm would start its own poll interval, leaking timers
+ * that blow hook timeouts on slow CI runners.
+ */
+const COOKIE_SYNC_KEY = Symbol.for("upmind:cookie-sync");
+
+interface CookieSyncState {
+  pollInterval: ReturnType<typeof setInterval> | null;
+  removeChangeListener: (() => void) | undefined;
+  lastGuestToken: string | undefined;
+  lastClientToken: string | undefined;
+  lastStaffToken: string | undefined;
+}
+
+function getGlobalSyncState(): CookieSyncState {
+  const g = globalThis as unknown as Record<symbol, CookieSyncState>;
+  if (!g[COOKIE_SYNC_KEY]) {
+    g[COOKIE_SYNC_KEY] = {
+      pollInterval: null,
+      removeChangeListener: undefined,
+      lastGuestToken: undefined,
+      lastClientToken: undefined,
+      lastStaffToken: undefined
+    };
+  }
+  return g[COOKIE_SYNC_KEY];
+}
 
 function isSessionCookie(name: string): boolean {
   return some(SESSION_COOKIE_NAMES, prefix => includes(name, prefix));
 }
 
 export function initCookieSync(): () => void {
-  if (cookieListenerUnsubscribe) {
-    return cookieListenerUnsubscribe;
-  }
+  // Stop any existing sync first — handles orphaned intervals from module
+  // resets in tests, and is idempotent in production (single init).
+  stopCookieSync();
 
+  const sync = getGlobalSyncState();
   const { addChangeListener, isChangeListenerSupported } = useCookies();
 
   // CookieStore change events (Chromium) are a fast path only: they fire for
   // programmatic writes/removals but NOT for manual devtools cookie edits, so
   // the poll below always runs as the real external-edit detector.
-  let removeChangeListener: (() => void) | undefined;
   if (isChangeListenerSupported()) {
     const handleCookieChange: CookieChangeCallback = event => {
       const sessionChanged =
@@ -185,24 +213,20 @@ export function initCookieSync(): () => void {
       }
     };
 
-    removeChangeListener = addChangeListener(handleCookieChange);
+    sync.removeChangeListener = addChangeListener(handleCookieChange);
   }
 
   // Poll cookies every 2s — the only mechanism that catches manual/devtools
   // edits, and the sole detector on browsers without CookieStore API
   // (Firefox, Safari). Compares cookie access_tokens against store state.
-  let lastGuestToken: string | undefined;
-  let lastClientToken: string | undefined;
-  let lastStaffToken: string | undefined;
-
   function snapshotCookies(): void {
-    lastGuestToken =
+    sync.lastGuestToken =
       (getTokenFromStorage(AccessRoleTypes.GUEST) as IToken | null)
         ?.access_token ?? undefined;
-    lastClientToken =
+    sync.lastClientToken =
       (getTokenFromStorage(AccessRoleTypes.CLIENT) as IToken | null)
         ?.access_token ?? undefined;
-    lastStaffToken =
+    sync.lastStaffToken =
       (getTokenFromStorage(AccessRoleTypes.STAFF) as IToken | null)
         ?.access_token ?? undefined;
   }
@@ -210,7 +234,7 @@ export function initCookieSync(): () => void {
   // Capture initial snapshot
   snapshotCookies();
 
-  const pollInterval = setInterval(() => {
+  sync.pollInterval = setInterval(() => {
     const guest =
       (getTokenFromStorage(AccessRoleTypes.GUEST) as IToken | null)
         ?.access_token ?? undefined;
@@ -222,33 +246,33 @@ export function initCookieSync(): () => void {
         ?.access_token ?? undefined;
 
     if (
-      guest !== lastGuestToken ||
-      client !== lastClientToken ||
-      staff !== lastStaffToken
+      guest !== sync.lastGuestToken ||
+      client !== sync.lastClientToken ||
+      staff !== sync.lastStaffToken
     ) {
-      lastGuestToken = guest;
-      lastClientToken = client;
-      lastStaffToken = staff;
+      sync.lastGuestToken = guest;
+      sync.lastClientToken = client;
+      sync.lastStaffToken = staff;
       hydrateFromStorage();
     }
   }, 2000);
 
-  cookieListenerUnsubscribe = () => {
-    removeChangeListener?.();
-    clearInterval(pollInterval);
+  const unsubscribe = (): void => {
+    stopCookieSync();
   };
-  return cookieListenerUnsubscribe;
+  return unsubscribe;
 }
 
 export function stopCookieSync(): void {
-  if (cookieListenerUnsubscribe) {
-    cookieListenerUnsubscribe();
-    cookieListenerUnsubscribe = null;
-  }
+  const sync = getGlobalSyncState();
+  sync.removeChangeListener?.();
+  if (sync.pollInterval) clearInterval(sync.pollInterval);
+  sync.pollInterval = null;
+  sync.removeChangeListener = undefined;
 }
 
 export function isCookieSyncActive(): boolean {
-  return cookieListenerUnsubscribe !== null;
+  return getGlobalSyncState().pollInterval !== null;
 }
 
 /**

@@ -100,7 +100,7 @@ import {
   useProductSetup
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-import { useTestAttrs } from "@upmind-automation/upmind-ui";
+import { useTestAttrs } from "@upmind/ui";
 import Form from "../../../components/form/Form.vue";
 import Section from "../../../components/section/Section.vue";
 import BasketAlerts from "../../basket/components/BasketAlerts.vue";

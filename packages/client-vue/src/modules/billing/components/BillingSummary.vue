@@ -14,83 +14,83 @@
       }
     ]"
   >
-    <!-- flat inside the Section card (no nested card) when the Section is the
-         card; otherwise the details keep their own enclosing card -->
+    <!-- Flat inside the Section card (no nested card) when the Section is the
+         card; otherwise the details keep their own enclosing card. -->
     <component
-      :is="card ? 'div' : Card"
-      size="sm"
-      :class="styles.billing.card.root"
+      :is="card ? 'div' : CardRoot"
+      :class="cardRootVariants({ card })"
     >
       <Alert
         v-if="billingMeta.isAvailable && !billingMeta.isComplete"
         :dataAttrs="{ 'data-test-key': 'billing-requirements-alert' }"
         :title="t('billing.details_required_msg')"
-        icon="alert-octagon"
-        color="danger"
-        variant="muted"
-        size="sm"
-      />
-      <dl v-bind="summaryTestAttrs" :class="styles.billing.summary.root">
+        variant="danger"
+      >
+        <template #icon><Icon icon="alert-octagon" /></template>
+      </Alert>
+      <dl
+        data-test-key="billing-details-summary"
+        :class="summaryRootVariants()"
+      >
         <div
           v-if="selectedCompany || billingMeta.needsCompany"
-          :class="styles.billing.summary.row"
+          :class="summaryRowVariants()"
         >
-          <dt
-            :class="styles.billing.summary.label"
-            :data-danger="!selectedCompany"
-          >
+          <dt :class="summaryLabelVariants()" :data-danger="!selectedCompany">
             {{ t("text.company") }}:
           </dt>
           <dd
             v-if="selectedCompany"
-            v-bind="companyTestAttrs(selectedCompany.name)"
-            :class="styles.billing.summary.value"
+            :class="summaryValueVariants()"
+            data-test-key="billing-summary-company"
+            :data-test-value="selectedCompany.name"
           >
             {{ selectedCompany.name }}
           </dd>
           <dd v-else>
             <Link
-              :dataAttrs="{ 'data-test-key': 'link-add-company' }"
-              :label="t('action.add_company')"
+              :data-attrs="{ 'data-test-key': 'link-add-company' }"
               size="sm"
               color="danger"
               @click="onEdit"
-            />
+              >{{ t("action.add_company") }}</Link
+            >
           </dd>
         </div>
 
         <div
           v-if="selectedPhone?.phone || billingMeta.needsPhone"
-          :class="styles.billing.summary.row"
+          :class="summaryRowVariants()"
         >
           <dt
-            :class="styles.billing.summary.label"
+            :class="summaryLabelVariants()"
             :data-danger="!selectedPhone?.phone"
           >
             {{ t("text.phone") }}:
           </dt>
-          <dd v-if="selectedPhone?.phone" :class="styles.billing.summary.value">
-            <Avatar
-              :icon="lowerCase(selectedPhone.phone.country ?? '')"
-              :class="styles.billing.summary.avatar"
-            />
+          <dd v-if="selectedPhone?.phone" :class="summaryValueVariants()">
+            <Avatar :class="summaryAvatarVariants()">
+              <template #fallback>
+                <Icon :icon="lowerCase(selectedPhone.phone.country ?? '')" />
+              </template>
+            </Avatar>
             <span> (+{{ selectedPhone.phone.countryCallingCode }}) </span>
             <span>{{ selectedPhone.phone.nationalNumber }}</span>
           </dd>
           <dd v-else>
             <Link
-              :dataAttrs="{ 'data-test-key': 'link-add-number' }"
-              :label="t('action.add_number')"
+              :data-attrs="{ 'data-test-key': 'link-add-number' }"
               size="sm"
               color="danger"
               @click="onEdit"
-            />
+              >{{ t("action.add_number") }}</Link
+            >
           </dd>
         </div>
 
-        <div :class="styles.billing.summary.row">
+        <div :class="summaryRowVariants()">
           <dt
-            :class="styles.billing.summary.label"
+            :class="summaryLabelVariants()"
             :data-danger="billingMeta.needsAddress && !selectedAddress"
           >
             {{ t("text.address") }}:
@@ -118,12 +118,12 @@
           </dd>
           <dd v-else>
             <Link
-              :dataAttrs="{ 'data-test-key': 'link-add-address' }"
-              :label="t('action.add_address')"
+              :data-attrs="{ 'data-test-key': 'link-add-address' }"
               size="sm"
-              :color="billingMeta.needsAddress ? 'danger' : 'primary'"
+              :color="billingMeta.needsAddress ? 'danger' : 'default'"
               @click="onEdit"
-            />
+              >{{ t("action.add_address") }}</Link
+            >
           </dd>
         </div>
       </dl>
@@ -141,15 +141,25 @@ import {
   useClientCompanies,
   useClientPhones
 } from "@upmind-automation/headless";
-import { useStyles, useTestAttrs } from "@upmind-automation/upmind-ui";
-import { Alert, Avatar, Card, Link } from "@upmind-automation/upmind-ui";
+import { useTestAttrs } from "@upmind/ui";
+import { Link } from "@upmind/ui";
+import { CardRoot, Avatar } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
+import { Icon } from "../../../components/icon";
 import Section from "../../../components/section/Section.vue";
-import config from "../billing.config";
+import {
+  cardRootVariants,
+  summaryRootVariants,
+  summaryRowVariants,
+  summaryLabelVariants,
+  summaryValueVariants,
+  summaryAvatarVariants
+} from "../variants";
 import { lowerCase } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<{
+defineProps<{
   card?: boolean;
 }>();
 
@@ -160,22 +170,6 @@ const emit = defineEmits<{
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-
-const styles = useStyles(
-  ["billing.card", "billing.summary"],
-  computed(() => ({ card: props.card })),
-  config
-);
-
-// --- test attrs
-
-const summaryTestAttrs = useTestAttrs({ key: "billing-details-summary" });
-
-const companyTestAttrs = (value?: string) =>
-  useTestAttrs({ key: "billing-summary-company", value });
-
-const addressTestAttrs = (value?: string) =>
-  useTestAttrs({ key: "billing-summary-address", value });
 
 const { isReady, meta: billingMeta, model } = useBasketBilling();
 
@@ -213,4 +207,7 @@ const selectedAddress = computed(() =>
 );
 
 const onEdit = () => emit("edit");
+
+const addressTestAttrs = (value?: string) =>
+  useTestAttrs({ key: "billing-summary-address", value });
 </script>

@@ -23,6 +23,10 @@ export type NavMeta = {
   parent?: string; // Parent route name for nesting
 };
 
+/**
+ * @graphify-citation `graphify-out/graph.json` (2026-08-24) — NavItem gains
+ * count for north-star nav badge display.
+ */
 export type NavItem = {
   label: string;
   icon?: string;
@@ -32,6 +36,8 @@ export type NavItem = {
   to?: string;
   dynamic?: boolean;
   children?: NavItem[];
+  /** Scenario count for nav badge display (north-star .cellcount). */
+  count?: number;
 };
 
 export type NavSection = {

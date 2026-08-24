@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "PUT",
-    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/addresses/25d96e76-3ed0-913e-649f-417482528340",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/addresses/d6325079-8065-d1e2-d78c-8174e234e98d",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
@@ -19,14 +19,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a2af4bdc2eafef97-WAW",
+      "cf-ray": "a2fa26a9de4094ad-LIS",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Fri, 14 Aug 2026 10:32:34 GMT",
+      "date": "Sun, 23 Aug 2026 12:34:22 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=jtUcl9tvuhLUvEFzHzVs2yZ7KGq2agNUqUAWEygfVW5KbkiB7h6XLWja5G9onQP6SjILwUawcXoqK46FjjfD%2FKB8xEdhd8t13hzcuJ0AUiE%2Fp%2F50U4bkCrkzEP7dCSx%2B5q1KmyvdOQ%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=5DoFBNVVDYLy7HymLx%2FHYU%2FPoa9YqmqJDrkBdQNTyr%2BqoGTM9dMZR%2FAISts%2BkzwE%2BEnRUC63IztFivLvMgkPZcX4Pq0JfwuO43LEUpKsBRF9M20fSsST8gs7Fc0tNfqSQI5cicTrMg%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -35,7 +35,7 @@
     "body": {
       "status": "ok",
       "data": {
-        "id": "25d96e76-3ed0-913e-649f-417482528340",
+        "id": "d6325079-8065-d1e2-d78c-8174e234e98d",
         "import_id": null,
         "staged_import": false,
         "external_id": null,
@@ -43,7 +43,7 @@
         "user_id": "sys",
         "default": false,
         "type": 3,
-        "name": "client-address-fixture-1786703542909",
+        "name": "client-address-fixture-1787488449081",
         "address_1": "1 Prover Street",
         "address_2": "Flat 2",
         "region_id": "8d632507-9806-5d1e-82ec-8174e234e98d",
@@ -51,8 +51,8 @@
         "city": "Manchester",
         "county": null,
         "postcode": "GU4 8PH",
-        "created_at": "2026-08-14 10:32:33",
-        "updated_at": "2026-08-14 10:32:34",
+        "created_at": "2026-08-23 12:34:21",
+        "updated_at": "2026-08-23 12:34:22",
         "deleted_at": null,
         "verified": 0,
         "can_delete": true
@@ -64,7 +64,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-08-14T10:32:34.470Z",
+  "captured_at": "2026-08-23T12:34:22.772Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

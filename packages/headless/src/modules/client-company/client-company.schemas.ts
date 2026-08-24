@@ -36,9 +36,16 @@ import {
 } from "../client-address";
 import { useClientEmailManager, useClientEmails } from "../client-email";
 import { useClientPhoneManager, useClientPhones } from "../client-phone";
+import { SortDirection } from "../query/query.types";
 import { ScopeActorTypes } from "../scope/scope.types";
-import type { CompanyContext } from "./client-company.types";
-import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
+import { DEFAULT_SORT } from "./client-company.types";
+import type { CompanyContext, QuerySchema } from "./client-company.types";
+import type {
+  ControlElement,
+  JsonSchema7,
+  Layout,
+  UISchemaElement
+} from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
 // Email adapters — `useClientEmails` / `useClientEmailManager` are SCOPED
@@ -377,10 +384,14 @@ export const useUischema = ({
  * literal, so it can be lifted straight into ajv or a test and run standalone.
  *
  * Companies are read whole for the billing surfaces that pick one, so
- * `limit: 0` asks for the unpaged read and no sort is declared. The one
- * declared filter is the free-text search, bound to the `name` column.
+ * `pagination.limit` keeps `default: 0` (the unpaged read) — both legacy
+ * consumers ask for it (`billableEntitiesProvider.vue:191-203`,
+ * `clientCompanySelect.vue:110-114`) — while `setCriteria({ pagination })`
+ * still reaches the window. `sort.default` is `created_at` ASC, the exact wire
+ * the pre-conversion raw literal produced. The one declared filter is the
+ * free-text search, bound to the `name` column.
  */
-export function useQuerySchema(): JsonSchema7 {
+export function useQuerySchema(): QuerySchema {
   return {
     $schema: "http://json-schema.org/draft-07/schema#",
     type: "object",
@@ -398,6 +409,46 @@ export function useQuerySchema(): JsonSchema7 {
               // The bare term — the translator adds the % wildcards.
               like: { type: ["string", "null"], minLength: 1 }
             }
+          },
+          verified: {
+            type: "object",
+            title: "Verified",
+            additionalProperties: false,
+            properties: {
+              // `null` is a MEMBER, not an absence: it is the value the unset
+              // position writes, so a tri-state's clear has to validate, and it
+              // is the enum entry whose label the control resolves.
+              eq: {
+                type: ["boolean", "null"],
+                enum: [true, false, null]
+              }
+            }
+          },
+          default: {
+            type: "object",
+            title: "Default",
+            additionalProperties: false,
+            properties: {
+              eq: {
+                type: ["boolean", "null"],
+                enum: [true, false, null]
+              }
+            }
+          }
+        }
+      },
+      sort: {
+        type: "array",
+        default: DEFAULT_SORT,
+        minItems: 1,
+        uniqueItems: true,
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["field", "dir"],
+          properties: {
+            field: { enum: ["name", "created_at"] },
+            dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
           }
         }
       },
@@ -406,9 +457,55 @@ export function useQuerySchema(): JsonSchema7 {
         additionalProperties: false,
         properties: {
           limit: { type: "integer", minimum: 0, default: 0 },
-          offset: { type: "integer", minimum: 0 }
+          offset: { type: "integer", minimum: 0, default: 0 }
         }
       }
     }
   } satisfies JsonSchema7;
+}
+
+/**
+ * The module's DEFAULT filter-bar presentation over the one query schema — a
+ * single `Control` over the `name` search leaf. `FilterBar` is the same
+ * literal element type `client-email.schemas.ts` uses (client-vue's
+ * `FilterBarRenderer`, spelt as a literal because headless cannot import from
+ * client-vue).
+ */
+export function useQueryUischema(): Layout {
+  return {
+    type: "FilterBar",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/name/properties/like",
+        i18n: "form.company_search",
+        options: { format: "search", noLabel: true, optionalText: "" }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/verified/properties/eq",
+        i18n: "form.verified_filter",
+        options: { format: "button-group", noLabel: true, optionalText: "" }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/default/properties/eq",
+        i18n: "form.default_filter",
+        options: { format: "button-group", noLabel: true, optionalText: "" }
+      }
+    ]
+  };
+}
+
+/**
+ * The collection's ORDERING presentation — one element over the query
+ * schema's `sort` branch. Its `i18n` is also the option-key PREFIX: a field
+ * resolves as `<i18n>.<field>` (`form.company_sort.created_at`).
+ */
+export function useSortUischema(): ControlElement {
+  return {
+    type: "Control",
+    scope: "#/properties/sort",
+    i18n: "form.company_sort"
+  };
 }

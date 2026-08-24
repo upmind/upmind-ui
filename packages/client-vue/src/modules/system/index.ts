@@ -11,3 +11,4 @@ export { useAssetRecovery } from "./useAssetRecovery";
 
 // --- Export Types
 export type { UseAssetRecovery } from "./useAssetRecovery";
+export type { LoadingProps, RouteViewProps } from "./types";

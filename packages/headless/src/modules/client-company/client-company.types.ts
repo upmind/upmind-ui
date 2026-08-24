@@ -12,6 +12,16 @@
  * than duplicates: the two matrices differ in their context members (`COMPANY`
  * vs `EMAIL`) and cannot be shared. `Company` / `CompanyModel` / `CompanyContext`
  * already exist and are kept, not re-minted. See `graphify-out/GRAPH_REPORT.md`.
+ *
+ * @graphify-citation `graphify query "client company query model filter sort
+ * schema"` (2026-08-22, `graphify-out/graph.json`, 643 nodes; BFS depth=2 from
+ * `Company`, `query()`, `model`, `schema`) — no `QueryModel` / `FilterModel` /
+ * `SortModel` / `SortEntry` / `QuerySchema` / `DEFAULT_SORT` node for
+ * `client-company` anywhere in the graph; the only pre-existing family is
+ * `client-email`'s own (`client-email.types.ts` L141-186), which scopes on a
+ * different filter/sort vocabulary (`email`/`verified`/`bounced` vs `name`)
+ * and cannot be shared. No live duplicate to consume, so minting here is
+ * warranted. See `graphify-out/GRAPH_REPORT.md`.
  */
 // -----------------------------------------------------------------------------
 /**
@@ -24,14 +34,19 @@
  * for both halves.
  */
 
+// `SortDirection` is read at MODULE scope below (`DEFAULT_SORT`), so it comes
+// from its declaring file: `../query` reaches this module mid-barrel, where
+// the value would still be `undefined` (see graphify-out/ citation above).
 import { AccessRoleTypes } from "@upmind-automation/types";
+import { SortDirection } from "../query/query.types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { ResponseError } from "../../utils";
 import type { Address, AddressModel } from "../client-address";
 import type { Email } from "../client-email";
 import type { Phone, PhoneModel } from "../client-phone";
 import type { DataManagerContext } from "../data-manager/data-manager.types";
-import type { ListQuery, QueryParams } from "../query";
+import type { ListQuery } from "../query";
+import type { JsonSchema7 } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { ICountry, ICompany, IRegion } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
@@ -191,6 +206,64 @@ export interface Company {
   };
 }
 
+// -----------------------------------------------------------------------------
+// QUERY MODEL (see graphify-out/ citation at the head of this file)
+// -----------------------------------------------------------------------------
+
+/**
+ * The whole request state as one model — `filters` (nested column → operator →
+ * value), `sort` (ordered, precedence = position) and `pagination`. This is the
+ * instance validated against `useQuerySchema()`; the translator maps it to the
+ * `QueryProps` the query layer already accepts.
+ */
+export type QueryModel = {
+  filters?: {
+    name?: { like?: string };
+  };
+  sort?: SortEntry[];
+  // `offset` alone is unspellable: an offset with no known page size cannot
+  // be resolved against a `limit: 0` (unpaged) collection without producing
+  // a NaN page index (`useQuery.ts`'s pager math). `limit` alone stays legal
+  // — it is the module's documented page-size door
+  // (`useClientCompanies.actions.ts`'s `setCriteria({ pagination: { limit } })`),
+  // mirroring `client-address.types.ts` (see graphify-out/ citation at the
+  // head of this file).
+  pagination?:
+    | { limit?: number; offset?: never }
+    | { limit: number; offset?: number };
+};
+
+/** The nested filter model — the `filters` branch of {@link QueryModel}. */
+export type FilterModel = NonNullable<QueryModel["filters"]>;
+
+// Narrowed to the schema's own enum (see graphify-out/ citation at the head
+// of this file) — `useQuerySchema()`'s `sort.items.properties.field.enum` is
+// `["name", "created_at"]`; a bare `string` let an unschematised `field`
+// compile and reach ajv only to be silently discarded on write.
+/** One sort entry. Precedence is position — the first entry sorts first. */
+export type SortEntry = { field: "name" | "created_at"; dir: SortDirection };
+
+/** The ordered sort model — the `sort` branch of {@link QueryModel}. */
+export type SortModel = NonNullable<QueryModel["sort"]>;
+
+/**
+ * The order the list starts in — `created_at` ascending, the exact wire the
+ * pre-conversion raw `sort` literal produced (`billableEntitiesProvider.vue`
+ * L71-79 client-side order; `requirements.md`'s oracle table). Declared as the
+ * query schema's `sort` default, so an emptied sort refills itself on the next
+ * parse.
+ */
+export const DEFAULT_SORT: SortModel = [
+  { field: "created_at", dir: SortDirection.ASC }
+];
+
+/**
+ * The collection's query schema. A `JsonSchema7`: a query schema IS a real
+ * Draft-07 schema, and the translator/validators walk it at runtime, so the
+ * type stays general rather than a module-specific literal.
+ */
+export type QuerySchema = JsonSchema7;
+
 /**
  * The manager's machine context — the shared machine's, over this form
  * model (see the header `@graphify-citation` — graphify-out/GRAPH_REPORT.md,
@@ -226,8 +299,18 @@ export interface CompanyContext extends DataManagerContext<CompanyModel> {
  * The reactive list query, minted ONCE per scope in `useClientCompanies.ts`.
  * Aliased from the query platform's own `ListQuery` — never derived with
  * `ReturnType<typeof localServiceFn>` (NFR-5).
+ *
+ * The handle publishes `criteria` / `schema` / `isFiltered` / `criteriaError` /
+ * `setCriteria` and no write-only setters, so every layer below reads THAT one
+ * source and never a shadow copy (see graphify-out/ citation at the head of
+ * this file).
  */
-export type ClientCompanyListQuery = ListQuery<ICompany[], Company[]>;
+// (see graphify-out/ citation at the head of this file)
+export type ClientCompanyListQuery = ListQuery<
+  ICompany[],
+  Company[],
+  QueryModel
+>;
 
 /** Lands a failed collection mutation in the services instance's error state. */
 export type ClientCompanyErrorCapture = (error: unknown) => void;
@@ -254,9 +337,13 @@ export type ClientCompanyServices = {
   isAvailable: ComputedRef<boolean>;
   /** The last failed collection mutation, captured as state — never raised. */
   error: ComputedRef<ResponseError | undefined>;
-  loadList: (
-    params?: Partial<QueryParams<ICompany[], Company[]>>
-  ) => ClientCompanyListQuery;
+  /**
+   * The collection's list query. Takes NOTHING: the request state is the
+   * declared query schema, handed to `list({ criteria })`, so there is no
+   * params back door a caller could contradict it through (see graphify-out/
+   * citation at the head of this file).
+   */
+  loadList: () => ClientCompanyListQuery;
   /** Per-company read; seeds the manager when no collection is loaded. */
   loadOne: (id?: ICompany["id"]) => Promise<Company | undefined>;
   add: (model: CompanyModel) => Promise<ICompany | undefined>;

@@ -2,8 +2,7 @@
   <Dialog
     :open="true"
     :title="title"
-    size="3xl"
-    no-footer
+    :close-label="t('action.close')"
     :data-attrs="{ 'data-test-key': 'manage-dialog' }"
     @update:open="onOpen"
   >
@@ -13,6 +12,7 @@
       :snapshot="port.snapshot()"
       :actions="port.actions"
       :feedback="handoff.feedback"
+      :uischema="overrideUischema"
       @resolved="emit('close')"
       @rejected="emit('close')"
     />
@@ -40,11 +40,12 @@
 
 import { computed, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { Dialog } from "@upmind-automation/upmind-ui";
+import { Dialog } from "@upmind/ui";
 import { useModulePort } from "../composables/useModulePort";
 import FormFlowSurface from "./surfaces/FormFlowSurface.vue";
 import { get, isFunction, isNil, noop } from "lodash-es";
 import type { ManageDialogProps } from "./ManageDialog.types";
+import type { UISchemaElement } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<ManageDialogProps>();
@@ -58,16 +59,37 @@ const { t } = useI18n();
 
 const isNew = computed(() => isNil(props.context));
 
+// The TITLE's question is not the boot's: a field-scoped open edits an
+// EXISTING record even when no row context is named (the single-entity
+// editor), so it titles as an update while the boot stays context-driven.
+const titlesAsNew = computed(() => isNew.value && isNil(props.fieldScope));
+
 // The shared vocabulary's own add-or-update pair, chosen the way `Manage.vue`
 // chooses it — by whether a record is being edited at all.
 const title = computed(() =>
-  t("action.add_new_or_update", isNew.value ? 1 : 0)
+  t("action.add_new_or_update", titlesAsNew.value ? 1 : 0)
 );
 
 const port = useModulePort(props.handoff.useMutate, {
   actor: props.handoff.actor,
   context: props.context,
   fresh: isNew.value
+});
+
+// Derive the override uischema from the cell's context when fieldScope is set.
+// The cell's `useContext().uischemaFor()` pulls invalid fields into the view
+// so a save can proceed when full-schema validation requires fields outside
+// the narrowed view.
+const overrideUischema = computed<UISchemaElement | undefined>(() => {
+  if (isNil(props.fieldScope)) return undefined;
+
+  const ctx = port.useContext?.();
+  const uischemaFor = get(ctx, "uischemaFor") as
+    | ((fields: string[]) => UISchemaElement | undefined)
+    | undefined;
+
+  if (!isFunction(uischemaFor)) return undefined;
+  return uischemaFor([props.fieldScope]);
 });
 
 function onOpen(open: boolean): void {

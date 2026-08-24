@@ -12,13 +12,13 @@
 
 <script setup lang="ts">
 import { computed, useSlots } from "vue";
-import { useForwardPropsEmits } from "@upmind-automation/upmind-ui";
+import { useForwardPropsEmits } from "@upmind/ui";
 import Sections from "./Sections.vue";
 import type { SectionItem } from "./types";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(
-  defineProps<Omit<SectionItem, "active" | "value"> & { value?: string }>(),
+  defineProps<Omit<SectionItem, "value"> & { value?: string }>(),
   {
     value: "section"
   }

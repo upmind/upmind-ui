@@ -9,7 +9,6 @@ import UpmindClient, {
   SHELL
 } from "@upmind-automation/client-vue";
 import { AccessRoleTypes } from "@upmind-automation/types";
-import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
 import { forEach } from "lodash-es";
 import type { I18n } from "vue-i18n";
 import type { Router } from "vue-router";
@@ -65,11 +64,8 @@ export default defineNuxtPlugin(async nuxtApp => {
     })
   });
 
-  // 2. Register Plugins
-  forEach(uiPlugins, ({ plugin, options }) => {
-    nuxtApp.vueApp.use(plugin, options);
-  });
-
+  // 2. Register Plugins. The old lib's lottie bootstrap is gone — the new
+  // AnimatedIcon self-defines <lord-icon> lazily on first mount.
   forEach(UpmindClient.plugins, ({ plugin, options }) => {
     nuxtApp.vueApp.use(plugin, options);
   });

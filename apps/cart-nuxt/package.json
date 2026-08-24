@@ -20,12 +20,13 @@
   "license": "UNLICENSED",
   "type": "module",
   "engines": {
-    "node": "^20.19.0 || >=22.12.0"
+    "node": ">=22.18"
   },
   "scripts": {
     "reset": "rm -rf node_modules dist .nuxt .output node_modules/.cache node_modules/.vite *.tsbuildinfo",
     "start": "pnpm dev",
     "start:test": "vite --mode test --dotenv .env.test",
+    "predev": "pnpm --filter @upmind/tokens build",
     "dev": "nuxt dev --host collabstudio.localhost --dotenv .env.development",
     "generate": "pnpm generate",
     "generate:staging": "nuxt generate --mode staging --dotenv .env.staging",
@@ -53,7 +54,6 @@
     "@upmind-automation/client-vue": "workspace:*",
     "@upmind-automation/i18n": "workspace:*",
     "@upmind-automation/types": "workspace:*",
-    "@upmind-automation/upmind-ui": "workspace:*",
     "@vueuse/components": "^13.6.0",
     "@vueuse/core": "^13.6.0",
     "@vueuse/nuxt": "^13.6.0",
@@ -61,7 +61,7 @@
     "lodash-es": "^4.17.21",
     "nuxt": "^4.2.2",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss": "^4.1.11",
+    "tailwindcss": "^4.3.0",
     "tailwindcss-animate": "^1.0.7",
     "vue": "^3.5.18",
     "vue-i18n": "^11.1.11",

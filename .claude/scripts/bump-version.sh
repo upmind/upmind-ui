@@ -15,11 +15,11 @@ cd "$(git rev-parse --show-toplevel)"
 
 pnpm -r --include-workspace-root \
   --filter='!@upmind-automation/types' \
-  --filter='!@upmind-automation/upmind-ui' \
+  --filter='!@upmind/ui' --filter='!@upmind/tokens' \
   exec npm pkg set "version=$VERSION"
 
 echo
 git --no-pager diff --stat -- '*package.json'
 echo
-echo "exempt: @upmind-automation/types, @upmind-automation/upmind-ui"
+echo "exempt: @upmind-automation/types, @upmind/ui, @upmind/tokens"
 echo "submodules apps/hosting + apps/velia commit in their own repos"

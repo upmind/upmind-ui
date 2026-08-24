@@ -8,7 +8,6 @@
       "@upmind-automation/i18n": ["../../packages/i18n/src/index.ts"],
       "@upmind-automation/headless": ["../../packages/headless/src/index.ts"],
       "@upmind-automation/icons": ["../../packages/icons/src/index.ts"],
-      "@upmind-automation/upmind-ui": ["../../packages/ui/src/index.ts"],
       "@upmind-automation/client-vue": [
         "../../packages/client-vue/src/index.ts"
       ],
@@ -21,7 +20,6 @@
     "../../packages/i18n/src/**/*",
     "../../packages/headless/src/**/*",
     "../../packages/icons/src/**/*",
-    "../../packages/ui/src/**/*",
     "../../packages/client-vue/src/**/*"
   ],
   "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"]

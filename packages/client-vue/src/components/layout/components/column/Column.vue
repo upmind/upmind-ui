@@ -1,14 +1,15 @@
 <template>
-  <component :is="props.as" :class="cn(styles.column, props.class)">
+  <component :is="props.as" :class="columnClass">
     <slot />
   </component>
 </template>
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { cn, useStyles, isMobile } from "@upmind-automation/upmind-ui";
+import { cn } from "@upmind/ui";
+import { isMobile } from "../../../../composables/isMobile";
 import { useSection } from "../../../section/useSection";
-import config from "./column.config";
+import { columnVariants } from "./variants";
 import type { ColumnProps } from "./types";
 
 const props = withDefaults(defineProps<ColumnProps>(), {
@@ -26,17 +27,21 @@ const props = withDefaults(defineProps<ColumnProps>(), {
 
 const { card } = useSection();
 
-const meta = computed(() => ({
-  flow: props.flow,
-  gap: (isMobile.value || !card.value) && props.gap,
-  background: props.background,
-  justify: props.justify,
-  items: props.items,
-  padding: props.padding,
-  width: props.width,
-  hide: props.hide,
-  show: props.show
-}));
-
-const styles = useStyles(["column"], meta, config);
+// gap collapses inside a card on desktop (preserve the old meta rule).
+const columnClass = computed(() =>
+  cn(
+    columnVariants({
+      flow: props.flow,
+      gap: (isMobile.value || !card.value) && props.gap,
+      background: props.background,
+      justify: props.justify,
+      items: props.items,
+      padding: props.padding,
+      width: props.width,
+      hide: props.hide,
+      show: props.show
+    }),
+    props.class
+  )
+);
 </script>

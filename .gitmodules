@@ -4,9 +4,6 @@
 [submodule "packages/types"]
 	path = packages/types
 	url = git@github.com:upmind/types.git
-[submodule "packages/ui"]
-	path = packages/ui
-	url = git@github.com:upmind/upmind-ui.git
 [submodule "apps/hosting"]
 	path = apps/hosting
 	url = git@git.upmind.io:upmind/groups/frontend-team/hosting.com-checkout.git
@@ -14,3 +11,7 @@
 	path = docs/published-docs
 	url = git@github.com:upmind/mintlify-docs.git
 	branch = develop
+[submodule "design-system"]
+	path = design-system
+	url = git@git.upmind.io:upmind/upmind-ui.git
+	branch = ui-migration

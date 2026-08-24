@@ -24,10 +24,10 @@ import { useJsonFormsControl } from "@jsonforms/vue";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useConfig } from "@upmind-automation/headless";
-import { FormField } from "@upmind-automation/upmind-ui";
-import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
-import TermsConfigRadio from "../../../modules/product/components/terms/TermsConfigRadio.vue";
-import TermsConfigSelect from "../../../modules/product/components/terms/TermsConfigSelect.vue";
+import TermsRadio from "../../../modules/product/components/terms/TermsRadio.vue";
+import TermsSelect from "../../../modules/product/components/terms/TermsSelect.vue";
+import FormField from "../engine/FormField.vue";
+import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { TermDetails } from "@upmind-automation/headless";
@@ -43,9 +43,7 @@ const { control, appliedOptions, formFieldProps, onInput } =
 const configMeta = useConfig()!;
 
 const getTermsComponent = computed(() => {
-  return configMeta.ui.termSelector.isSelect
-    ? TermsConfigSelect
-    : TermsConfigRadio;
+  return configMeta.ui.termSelector.isSelect ? TermsSelect : TermsRadio;
 });
 
 const termItems = computed<TermDetails[]>(

@@ -3,36 +3,45 @@
     <!-- breakdown: one block per product, a line per configuration detail,
          priced from the saved server basket. Taxes read as calculating while a
          refresh is in flight — the basket carries none until it returns. -->
-    <div v-if="props.showBreakdown" :class="styles.summary.sections">
-      <div :class="styles.summary.products">
+    <div
+      v-if="props.showBreakdown"
+      :class="summarySectionsVariants()"
+      data-test-key="basket-summary-breakdown"
+    >
+      <div :class="summaryProductsVariants()">
         <div
           v-for="product in productSummaries"
           :key="product.id"
-          :class="styles.summary.product.root"
+          :class="summaryProductRootVariants()"
+          data-test-key="summary-product"
+          :data-test-value="product.id"
         >
           <!-- header: title (+ ×N multiplier when buying more than one) and the
                all-units line total -->
-          <div :class="styles.summary.product.header">
-            <span :class="styles.summary.product.title">
+          <div :class="summaryProductHeaderVariants()">
+            <span :class="summaryProductTitleVariants()">
               <Link
                 v-if="product.route"
                 :to="product.route"
                 color="inherit"
                 size="inherit"
-                :label="product.title"
-              />
+                >{{ product.title }}</Link
+              >
               <template v-else>{{ product.title }}</template>
               <span
                 v-if="product.meta.isMultiple"
-                :class="styles.summary.product.multiplier"
+                :class="summaryProductMultiplierVariants()"
               >
                 ×{{ product.quantity }}
               </span>
             </span>
-            <span :class="styles.summary.product.total">
+            <span
+              :class="summaryProductTotalVariants()"
+              data-test-key="summary-product-total"
+            >
               <Skeleton
                 v-if="meta.isPricesCalculating"
-                :class="styles.summary.skeleton"
+                :class="summarySkeletonVariants()"
               />
               <template v-else>{{ product.total }}</template>
             </span>
@@ -41,17 +50,17 @@
           <!-- per-unit price sits under the title when buying more than one -->
           <p
             v-if="product.meta.isMultiple"
-            :class="styles.summary.product.subtitle"
+            :class="summaryProductSubtitleVariants()"
           >
             {{ t("text.per_unit", { price: product.unitPrice }) }}
           </p>
 
           <!-- configuration lines, enclosed. the "each unit includes" label and
                unit-price footer show only when buying more than one -->
-          <div :class="styles.summary.product.box">
+          <div :class="summaryProductBoxVariants({ card })">
             <p
               v-if="product.meta.isMultiple"
-              :class="styles.summary.product.boxLabel"
+              :class="summaryProductBoxLabelVariants()"
             >
               {{ t("text.each_unit_includes") }}
             </p>
@@ -59,10 +68,12 @@
             <div
               v-for="(line, index) in product.lines"
               :key="`${product.id}-${index}`"
-              :class="styles.summary.line.root"
+              :class="summaryLineRootVariants()"
+              data-test-key="summary-line"
+              :data-test-value="line.kind"
             >
               <span>
-                <span :class="styles.summary.line.label"
+                <span :class="summaryLineLabelVariants()"
                   >{{ line.label }}:</span
                 >
                 {{ line.value }}
@@ -71,16 +82,19 @@
                      re-multiply -->
                 <span
                   v-if="(line.quantity ?? 0) > 1"
-                  :class="styles.summary.line.quantity"
+                  :class="summaryLineQuantityVariants()"
                 >
                   ×{{ line.quantity
                   }}<template v-if="line.each">&nbsp;{{ line.each }}</template>
                 </span>
               </span>
-              <span :class="styles.summary.line.price">
+              <span
+                :class="summaryLinePriceVariants()"
+                data-test-key="summary-line-price"
+              >
                 <Skeleton
                   v-if="meta.isPricesCalculating"
-                  :class="styles.summary.skeleton"
+                  :class="summarySkeletonVariants()"
                 />
                 <template v-else-if="line.price">{{ line.price }}</template>
                 <template v-else>–</template>
@@ -89,13 +103,14 @@
 
             <div
               v-if="product.meta.isMultiple"
-              :class="styles.summary.product.unitPrice"
+              :class="summaryProductUnitPriceVariants()"
+              data-test-key="summary-product-unit-price"
             >
               <span>{{ t("text.unit_price") }}</span>
-              <span :class="styles.summary.line.price">
+              <span :class="summaryLinePriceVariants()">
                 <Skeleton
                   v-if="meta.isPricesCalculating"
-                  :class="styles.summary.skeleton"
+                  :class="summarySkeletonVariants()"
                 />
                 <template v-else>{{ product.unitPrice }}</template>
               </span>
@@ -104,26 +119,26 @@
         </div>
       </div>
 
-      <dl :class="styles.summary.adjustments">
-        <div v-if="discount" :class="styles.summary.line.root">
-          <dt :class="styles.summary.line.label">
+      <dl :class="summaryAdjustmentsVariants()">
+        <div v-if="discount" :class="summaryLineRootVariants()">
+          <dt :class="summaryLineLabelVariants()">
             {{ t("text.discount", products?.length || 0) }}
           </dt>
-          <dd :class="styles.summary.line.price">
+          <dd :class="summaryLinePriceVariants()">
             <Skeleton
               v-if="meta.isPricesCalculating"
-              :class="styles.summary.skeleton"
+              :class="summarySkeletonVariants()"
             />
             <template v-else>{{ discount }}</template>
           </dd>
         </div>
 
-        <div v-if="subtotal" :class="styles.summary.line.root">
-          <dt :class="styles.summary.line.label">{{ t("text.subtotal") }}</dt>
-          <dd :class="styles.summary.line.price">
+        <div v-if="subtotal" :class="summaryLineRootVariants()">
+          <dt :class="summaryLineLabelVariants()">{{ t("text.subtotal") }}</dt>
+          <dd :class="summaryLinePriceVariants()">
             <Skeleton
               v-if="meta.isPricesCalculating"
-              :class="styles.summary.skeleton"
+              :class="summarySkeletonVariants()"
             />
             <template v-else>{{ subtotal }}</template>
           </dd>
@@ -133,13 +148,13 @@
           <div
             v-for="(tax, index) in taxes"
             :key="`tax-${index}`"
-            :class="styles.summary.line.root"
+            :class="summaryLineRootVariants()"
           >
-            <dt :class="styles.summary.line.label">{{ tax.title }}</dt>
-            <dd :class="styles.summary.line.price">
+            <dt :class="summaryLineLabelVariants()">{{ tax.title }}</dt>
+            <dd :class="summaryLinePriceVariants()">
               <Skeleton
                 v-if="meta.isPricesCalculating"
-                :class="styles.summary.skeleton"
+                :class="summarySkeletonVariants()"
               />
               <template v-else>{{ tax.amount }}</template>
             </dd>
@@ -147,10 +162,10 @@
         </template>
         <div
           v-else-if="meta.isPricesUpdating"
-          :class="styles.summary.line.root"
+          :class="summaryLineRootVariants()"
         >
-          <dt :class="styles.summary.line.label">{{ t("text.taxes") }}:</dt>
-          <dd :class="styles.summary.line.muted">
+          <dt :class="summaryLineLabelVariants()">{{ t("text.taxes") }}:</dt>
+          <dd :class="summaryLineMutedVariants()">
             {{ t("text.taxes_calculating") }}
           </dd>
         </div>
@@ -158,13 +173,13 @@
 
       <div
         v-if="props.showTotal"
-        :class="cn(styles.summary.item.root, styles.summary.total)"
+        :class="cn(summaryItemRootVariants(), summaryTotalVariants())"
       >
-        <dt :class="styles.summary.item.term">{{ t("text.total") }}</dt>
-        <dd :class="styles.summary.item.description">
+        <dt :class="summaryItemTermVariants()">{{ t("text.total") }}</dt>
+        <dd :class="summaryItemDescriptionVariants()">
           <Skeleton
             v-if="meta.isPricesCalculating || !total"
-            :class="styles.summary.item.skeleton"
+            :class="summaryItemSkeletonVariants()"
           />
           <template v-else>{{ total }}</template>
         </dd>
@@ -177,27 +192,47 @@
     </div>
 
     <!-- plain totals -->
-    <div v-else :class="styles.summary.root">
-      <DescriptionList v-if="!isEmpty(productItems)" :items="productItems">
-        <template #description="{ item }">
+    <div v-else :class="summaryRootVariants()">
+      <DescriptionListRoot
+        v-if="!isEmpty(productItems)"
+        align="between"
+        class="gap-y-2"
+        data-test-key="description-list"
+      >
+        <DescriptionItem
+          v-for="(item, index) in productItems"
+          :key="index"
+          :term="item.term"
+          v-bind="item.dataAttrs"
+        >
           <Skeleton
             v-if="meta.isPricesCalculating"
-            :class="styles.summary.skeleton"
+            :class="summarySkeletonVariants()"
           />
           <template v-else>{{ item.description }}</template>
-        </template>
-      </DescriptionList>
+        </DescriptionItem>
+      </DescriptionListRoot>
 
-      <DescriptionList v-if="!isEmpty(subtotalItems)" :items="subtotalItems">
-        <template #description="{ item }">
+      <DescriptionListRoot
+        v-if="!isEmpty(subtotalItems)"
+        align="between"
+        class="gap-y-2"
+        data-test-key="description-list"
+      >
+        <DescriptionItem
+          v-for="(item, index) in subtotalItems"
+          :key="index"
+          :term="item.term"
+          v-bind="item.dataAttrs"
+        >
           <Skeleton
             v-if="meta.isPricesCalculating"
-            :class="styles.summary.skeleton"
+            :class="summarySkeletonVariants()"
           />
           <template v-else>{{ item.description }}</template>
-        </template>
-        <BasketTotal class="mt-2" v-if="props.showTotal" />
-      </DescriptionList>
+        </DescriptionItem>
+        <BasketTotal class="col-span-2 mt-2" v-if="props.showTotal" />
+      </DescriptionListRoot>
 
       <BasketPromotions v-if="props.showPromotions" />
     </div>
@@ -222,16 +257,41 @@ import {
   useMoney
 } from "@upmind-automation/headless";
 import {
-  DescriptionList,
+  cn,
+  DescriptionListRoot,
+  DescriptionItem,
   Link,
-  Skeleton,
-  type DescriptionItem
-} from "@upmind-automation/upmind-ui";
-import { cn, useStyles } from "@upmind-automation/upmind-ui";
+  Skeleton
+} from "@upmind/ui";
 import { useSection } from "../../../components/section/useSection";
 import BasketTotal from "./BasketTotal.vue";
 import BasketPromotions from "./Promotions.vue";
-import config from "./summary.config";
+import {
+  summaryAdjustmentsVariants,
+  summaryItemDescriptionVariants,
+  summaryItemRootVariants,
+  summaryItemSkeletonVariants,
+  summaryItemTermVariants,
+  summaryLineLabelVariants,
+  summaryLineMutedVariants,
+  summaryLinePriceVariants,
+  summaryLineQuantityVariants,
+  summaryLineRootVariants,
+  summaryProductBoxLabelVariants,
+  summaryProductBoxVariants,
+  summaryProductHeaderVariants,
+  summaryProductMultiplierVariants,
+  summaryProductRootVariants,
+  summaryProductSubtitleVariants,
+  summaryProductTitleVariants,
+  summaryProductTotalVariants,
+  summaryProductUnitPriceVariants,
+  summaryProductsVariants,
+  summaryRootVariants,
+  summarySectionsVariants,
+  summarySkeletonVariants,
+  summaryTotalVariants
+} from "./summary.variants";
 import SummarySkeleton from "./SummarySkeleton.vue";
 import {
   concat,
@@ -249,6 +309,14 @@ import type { Product } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
+// New DescriptionList is compositional; the old lib's DescriptionItem type (now
+// a component name) no longer applies — describe the row data locally.
+interface SummaryItem {
+  term?: string;
+  description: string;
+  dataAttrs?: Record<string, string>;
+}
+
 const props = withDefaults(defineProps<SummaryProps>(), {
   showBreakdown: false,
   showProducts: false,
@@ -263,19 +331,11 @@ const { ui, data } = useConfig();
 const { formatPrice } = useMoney();
 const { card } = useSection();
 
-const styles = useStyles(
-  ["summary", "summary.item", "summary.line", "summary.product"],
-  computed(() => ({ card: card.value })),
-  config
-);
-
-// --- plain totals
-
-const productItems = computed((): DescriptionItem[] => {
-  let items = [] as DescriptionItem[];
+const productItems = computed((): SummaryItem[] => {
+  let items = [] as SummaryItem[];
 
   if (!isEmpty(summary.value?.products) && props.showProducts) {
-    const productItems: DescriptionItem[] =
+    const productItems: SummaryItem[] =
       map(summary.value!.products, (product: any) => {
         const { data } = useConfig({
           product
@@ -301,7 +361,7 @@ const productItems = computed((): DescriptionItem[] => {
 });
 
 const subtotalItems = computed(() => {
-  const items = [] as DescriptionItem[];
+  const items = [] as SummaryItem[];
 
   if (!isEmpty(summary.value?.discount)) {
     items.push({
@@ -383,6 +443,7 @@ function lineEach(detail: Product["details"][number]): string | undefined {
 function summaryLine(detail: Product["details"][number]) {
   if (detail.name === "term") {
     return {
+      kind: detail.name,
       label: t("text.billing_cycle"),
       value: parseBillingCycle(detail.cycle ?? 0).adverbial,
       quantity: undefined,
@@ -391,6 +452,7 @@ function summaryLine(detail: Product["details"][number]) {
     };
   }
   return {
+    kind: detail.name,
     label: detail.category ?? "",
     value: detail.title ?? "",
     // per-unit count: the product line renders its own multiplier, so a total

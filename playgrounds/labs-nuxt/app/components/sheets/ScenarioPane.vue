@@ -1,20 +1,16 @@
 <template>
-  <div :class="styles.scenarioPane.root" data-test-key="scenario-pane">
-    <!-- ARMED: the playing scenario ALONE — its own stops, nothing else
-         (`R6-20`). The whole declaration is a thousand-pixel file, and a pane
-         that opened on it while a track was playing buried the one thing being
-         watched. -->
+  <div class="flex flex-col gap-6" data-test-key="scenario-pane">
     <section
       v-if="isArmed"
-      :class="styles.scenarioPane.section"
+      class="flex flex-col gap-2"
       data-test-key="scenario-track"
       :data-test-value="trackName"
     >
-      <header :class="styles.scenarioPane.trackHeader">
-        <h2 :class="styles.scenarioPane.title">{{ trackName }}</h2>
+      <header class="flex flex-wrap items-center gap-2">
+        <h2 class="text-display m-0 text-sm font-bold">{{ trackName }}</h2>
         <Badge
           color="primary"
-          variant="muted"
+          appearance="muted"
           size="sm"
           :label="t('labs.scenario_track_armed')"
         />
@@ -22,7 +18,7 @@
           v-if="trackScopePath"
           :label="t('labs.scenario_track_scope', { scope: trackScopePath })"
           color="neutral"
-          variant="minimal"
+          appearance="muted"
           size="sm"
           :data-attrs="{
             'data-test-key': 'scenario-track-scope',
@@ -31,11 +27,7 @@
         />
       </header>
 
-      <!-- Every stop is reachable by hand, without playing through: a step IS a
-           seek target, and the rail and this list are two views of the same
-           stops (`R6-22`/`R6-24`). A real button, so the list is keyboard
-           operable for free. -->
-      <ol :class="styles.scenarioPane.steps">
+      <ol class="m-0 flex list-none flex-col p-0 text-sm">
         <li v-for="(scene, index) in scenes" :key="scene.line">
           <button
             :ref="element => keepInView(element, index)"
@@ -50,24 +42,19 @@
             <Icon
               :icon="STEP_STATE_ICONS[stepState(index)]"
               size="nano"
-              :class="styles.scenarioPane.stepIcon"
+              class="block shrink-0"
             />
-            <span :class="styles.scenarioPane.stepKind">{{ scene.kind }}</span>
-            <span :class="styles.scenarioPane.stepText">{{ scene.text }}</span>
+            <span class="text-muted w-12 shrink-0 text-xs font-semibold">
+              {{ scene.kind }}
+            </span>
+            <span class="min-w-0 text-left">{{ scene.text }}</span>
           </button>
         </li>
       </ol>
     </section>
 
-    <!-- LIVE: the page's whole declaration and every scenario behind it. The
-         declaration is disclosed rather than dumped — the playlist is what the
-         pane is opened for, and a fence taller than the panel pushes it out of
-         sight (`R6-21`). -->
     <template v-else>
-      <section
-        :class="styles.scenarioPane.section"
-        data-test-key="scenario-declaration"
-      >
+      <section class="flex flex-col gap-2" data-test-key="scenario-declaration">
         <Collapsible>
           <CollapsibleTrigger as-child>
             <Button
@@ -76,53 +63,50 @@
               size="sm"
               icon-append="chevron-down"
               :label="t('labs.scenario_declaration')"
-              :class="styles.scenarioPane.disclosure"
+              class="text-muted hover:text-display -ml-2.5 cursor-pointer text-xs font-semibold tracking-wider uppercase"
               :data-attrs="{ 'data-test-key': 'scenario-declaration-toggle' }"
             />
           </CollapsibleTrigger>
           <CollapsibleContent>
             <Markdown
               :model-value="declarationFence"
-              :class="styles.scenarioPane.fence"
+              :class="[fenceBlock(), 'max-h-64 overflow-y-auto text-xs']"
             />
           </CollapsibleContent>
         </Collapsible>
       </section>
 
-      <section
-        :class="styles.scenarioPane.section"
-        data-test-key="scenario-feature"
-      >
-        <h2 :class="styles.scenarioPane.title">
+      <section class="flex flex-col gap-2" data-test-key="scenario-feature">
+        <h2 class="text-display m-0 text-sm font-bold">
           {{ t("labs.scenario_feature") }}
         </h2>
 
         <p
           v-if="isEmpty(tracks)"
-          :class="styles.scenarioPane.empty"
+          class="text-muted m-0 text-sm"
           data-test-key="scenario-feature-empty"
         >
           {{ t("labs.scenario_feature_pending") }}
         </p>
 
-        <div v-else :class="styles.scenarioPane.playlist">
+        <div v-else class="flex flex-col gap-4">
           <article
             v-for="track in tracks"
             :key="track.line"
-            :class="styles.scenarioPane.track"
+            class="flex flex-col gap-1"
             data-test-key="scenario-track"
             :data-test-value="track.name"
           >
-            <header :class="styles.scenarioPane.trackHeader">
+            <header class="flex flex-wrap items-center gap-2">
               <Badge
                 :label="track.name"
                 color="neutral"
-                variant="muted"
+                appearance="muted"
                 size="sm"
               />
             </header>
 
-            <ol :class="styles.scenarioPane.steps">
+            <ol class="m-0 flex list-none flex-col p-0 text-sm">
               <li
                 v-for="step in track.steps"
                 :key="step.line"
@@ -130,12 +114,10 @@
                 data-test-key="scenario-step"
                 :data-test-value="step.line"
               >
-                <span :class="styles.scenarioPane.stepKind">
+                <span class="text-muted w-12 shrink-0 text-xs font-semibold">
                   {{ step.kind }}
                 </span>
-                <span :class="styles.scenarioPane.stepText">
-                  {{ step.text }}
-                </span>
+                <span class="min-w-0 text-left">{{ step.text }}</span>
               </li>
             </ol>
           </article>
@@ -186,12 +168,12 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-  Icon,
-  Markdown,
-  useStyles
-} from "@upmind-automation/upmind-ui";
+  Markdown
+} from "@upmind/ui";
+import { Icon } from "@upmind-automation/client-vue";
 import { buildScopePath } from "../../composables/scope";
-import config, { stepRow } from "./ScenarioPane.styles";
+import { fenceBlock } from "./sheets.styles";
+import { stepRow } from "./ScenarioPane.styles";
 import {
   STEP_STATE,
   STEP_STATE_ICONS,
@@ -255,6 +237,4 @@ watch(
     rows.get(index)?.scrollIntoView({ block: "nearest" });
   }
 );
-
-const styles = useStyles(["scenarioPane"], {}, config);
 </script>

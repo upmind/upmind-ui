@@ -26,7 +26,7 @@ import type {
 
 // -----------------------------------------------------------------------------
 
-const _props = withDefaults(
+withDefaults(
   defineProps<{
     product: Product;
     meta: UseProductConfigMeta;

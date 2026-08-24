@@ -1,42 +1,44 @@
 <template>
-  <footer key="actions" :class="styles.payment.footer.root">
-    <div :class="styles.payment.footer.actions">
+  <footer key="actions" :class="footerRootVariants()">
+    <div :class="footerActionsVariants()">
       <Button
-        :class="styles.payment.action"
-        :label="action"
+        class="self-center"
         :disabled="meta.isDisabled"
         :loading="meta.isProcessing"
-        icon-append="arrow-right"
         size="lg"
         block
         :data-attrs="{ 'data-test-key': 'button-complete-checkout' }"
         @click.prevent="onResolve"
-      />
+      >
+        {{ action }}
+        <Icon icon="arrow-right" />
+      </Button>
     </div>
 
     <Markdown
       v-if="clickwrap"
       tag="p"
-      :class="styles.payment.clickwrap"
+      :class="clickwrapVariants()"
       :model-value="clickwrap"
       :keys="{ action }"
     />
 
-    <TermsAndConditions
-      v-else
-      :class="styles.payment.footer.terms"
-      :label="action"
-    />
+    <TermsAndConditions v-else :class="footerTermsVariants()" :label="action" />
   </footer>
 </template>
 
 <script lang="ts" setup>
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import { Button, Markdown } from "@upmind-automation/upmind-ui";
+import { Button, Markdown } from "@upmind/ui";
+import { Icon } from "../../../components/icon";
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";
-import config from "../payment.config";
+import {
+  footerRootVariants,
+  footerActionsVariants,
+  footerTermsVariants,
+  clickwrapVariants
+} from "../variants";
 import type { PaymentActionsProps } from "../types";
 
 const emit = defineEmits<{
@@ -62,11 +64,6 @@ const action = computed(() => {
     return t("action.place_order");
   return t("action.place_order_and_pay");
 });
-const styles = useStyles(
-  ["payment", "payment.stored", "payment.footer"],
-  meta,
-  config
-);
 
 function onResolve() {
   emit("resolve");

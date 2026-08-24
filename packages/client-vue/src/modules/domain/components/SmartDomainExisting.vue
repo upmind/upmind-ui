@@ -32,8 +32,8 @@
   />
 
   <!-- Register info section (domain is available for registration) -->
-  <div v-if="registerable || registering" :class="styles.field.transfer.root">
-    <p :class="styles.field.transfer.text">
+  <div v-if="registerable || registering" :class="fieldTransferRootVariants()">
+    <p :class="fieldTransferTextVariants()">
       {{
         t(
           meta.isFreeRegistration
@@ -50,18 +50,19 @@
     <Button
       variant="outline"
       size="lg"
-      icon="shopping-cart-01"
-      :label="t('domain.existing.add_registration')"
       :disabled="disabled || registering"
       :loading="registering"
       :block="isMobile"
       :data-attrs="{ 'data-test-key': 'domain-add-registration-button' }"
       @click="emit('addRegistration')"
-    />
+    >
+      <Icon icon="shopping-cart-01" />
+      {{ t("domain.existing.add_registration") }}
+    </Button>
   </div>
 
   <!-- DNS info (no transfer or registration available) -->
-  <p v-if="dnsOnly" :class="styles.field.transfer.text">
+  <p v-if="dnsOnly" :class="fieldTransferTextVariants()">
     {{ t("domain.existing.dns_info") }}
   </p>
 
@@ -81,10 +82,10 @@
   -->
   <div
     v-if="checked || transferred || transferring || removing"
-    :class="styles.field.transfer.root"
+    :class="fieldTransferRootVariants()"
   >
     <p
-      :class="styles.field.transfer.text"
+      :class="fieldTransferTextVariants()"
       v-bind="transferPricingTestAttrs(transferOptionIsFree ? 'free' : 'paid')"
     >
       {{
@@ -105,26 +106,28 @@
       v-if="!transferred && !removing"
       variant="outline"
       size="lg"
-      icon="plus-circle"
-      :label="t('domain.existing.add_transfer')"
       :disabled="disabled || transferring"
       :loading="transferring"
       :block="isMobile"
       :data-attrs="{ 'data-test-key': 'domain-add-transfer-button' }"
       @click="emit('addTransfer')"
-    />
+    >
+      <Icon icon="plus-circle" />
+      {{ t("domain.existing.add_transfer") }}
+    </Button>
 
     <Button
       v-if="transferred || removing"
-      variant="solid"
+      variant="primary"
       size="lg"
-      icon="check-circle-broken"
-      :label="t('domain.existing.transfer_added')"
       :disabled="disabled || removing"
       :loading="removing"
       :block="isMobile"
       @click="emit('removeTransfer')"
-    />
+    >
+      <Icon icon="check-circle-broken" />
+      {{ t("domain.existing.transfer_added") }}
+    </Button>
   </div>
 </template>
 
@@ -137,20 +140,20 @@ import {
   useConfig,
   useMoney
 } from "@upmind-automation/headless";
+import { useTestAttrs } from "@upmind/ui";
+import { Search } from "@upmind/ui";
+import { Link } from "@upmind/ui";
+import { Button } from "@upmind/ui";
+import { FormMessage } from "../../../components/form";
+import { Icon } from "../../../components/icon";
+import { isMobile } from "../../../composables/isMobile";
 import {
-  Search,
-  Button,
-  Icon,
-  Link,
-  FormMessage,
-  useStyles,
-  useTestAttrs,
-  isMobile
-} from "@upmind-automation/upmind-ui";
-import config from "../smartDomainField.config";
+  fieldTransferRootVariants,
+  fieldTransferTextVariants
+} from "../smartDomainField.variants";
 import { map, debounce } from "lodash-es";
 import type { SmartDomainExistingProps } from "../types";
-import type { SearchItem } from "@upmind-automation/upmind-ui";
+import type { SearchItem } from "@upmind/ui";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<SmartDomainExistingProps>();
@@ -165,7 +168,6 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const { ui } = useConfig();
 const { isFree } = useMoney();
-const styles = useStyles(["field.transfer"], {}, config);
 
 const transferPricingTestAttrs = (value: string) =>
   useTestAttrs({ key: "domain-transfer-pricing-info", value });

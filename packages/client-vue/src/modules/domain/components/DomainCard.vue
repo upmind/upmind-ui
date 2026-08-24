@@ -1,18 +1,21 @@
 <template>
-  <article :class="styles.card.root" :data-exact-match="meta.isExactMatch">
-    <header :class="styles.card.header.root">
+  <article
+    :class="cardRootVariants({ isExactMatch: meta.isExactMatch })"
+    :data-exact-match="meta.isExactMatch"
+  >
+    <header :class="cardHeaderRootVariants()">
       <!-- TODO: Add favourite action -->
 
-      <div :class="styles.card.header.details.root">
-        <section :class="styles.card.header.details.status.root">
+      <div :class="cardHeaderDetailsRootVariants()">
+        <section :class="cardHeaderDetailsStatusRootVariants()">
           <Skeleton
             v-if="meta.isPriceLoading"
-            :class="styles.card.skeleton.status"
-            v-bind="statusLoadingTestAttrs"
+            :class="cardSkeletonStatusVariants()"
+            data-test-key="dac-card-status-loading"
           />
           <small
             v-else
-            :class="styles.card.header.details.status.label"
+            :class="cardHeaderDetailsStatusLabelVariants()"
             role="status"
             aria-label="Domain availability status"
           >
@@ -21,43 +24,50 @@
 
           <Badge
             v-if="meta.isExactMatch && isMobile"
-            variant="minimal"
-            color="neutral"
+            appearance="outline"
+            variant="neutral"
             size="sm"
-            :label="t('text.exact_match')"
-          />
+          >
+            {{ t("text.exact_match") }}
+          </Badge>
         </section>
 
-        <section :class="styles.card.header.details.title.root">
+        <section :class="cardHeaderDetailsTitleRootVariants()">
           <h3
-            :class="styles.card.header.details.title.fld"
-            v-bind="domainNameTestAttrs(props.domain)"
+            :class="
+              cardHeaderDetailsTitleFldVariants({
+                isExactMatch: meta.isExactMatch
+              })
+            "
+            data-test-key="domain-card-name"
+            :data-test-value="props.domain"
           >
-            <span :class="styles.card.header.details.title.sld">
+            <span :class="cardHeaderDetailsTitleSldVariants()">
               {{ props.sld }}
             </span>
-            <span :class="styles.card.header.details.title.tld">
+            <span :class="cardHeaderDetailsTitleTldVariants()">
               {{ props.tld }}
             </span>
           </h3>
 
           <Badge
             v-if="meta.isExactMatch && !isMobile"
-            variant="minimal"
-            color="neutral"
+            appearance="outline"
+            variant="neutral"
             size="md"
-            :label="t('text.exact_match')"
-          />
+          >
+            {{ t("text.exact_match") }}
+          </Badge>
         </section>
 
         <section
-          :class="styles.card.header.details.pricing"
+          :class="cardHeaderDetailsPricingVariants()"
           aria-label="Pricing information"
         >
           <Skeleton
             v-if="meta.isPriceLoading"
-            :class="styles.card.skeleton.description"
-            v-bind="descriptionLoadingTestAttrs"
+            :class="cardSkeletonDescriptionVariants()"
+            data-test-key="dac-card-description-loading"
           />
           <DomainDescription
             v-else
@@ -69,12 +79,12 @@
       </div>
     </header>
 
-    <footer :class="styles.card.footer.root">
+    <footer :class="cardFooterRootVariants()">
       <template v-if="meta.isPriceLoading">
-        <section :class="styles.card.footer.price.root">
+        <section :class="cardFooterPriceRootVariants()">
           <Skeleton
-            :class="styles.card.skeleton.price"
-            v-bind="priceLoadingTestAttrs"
+            :class="cardSkeletonPriceVariants()"
+            data-test-key="dac-card-price-loading"
           />
         </section>
       </template>
@@ -85,19 +95,18 @@
         <div v-if="!isMobile">
           <Badge
             v-if="props.price.savingPercent"
-            variant="muted"
-            color="promo"
+            appearance="muted"
+            variant="promo"
             :size="meta.isExactMatch ? 'md' : 'sm'"
-            :label="
-              t('action.save_value', { value: props.price.savingPercent })
-            "
-          />
+          >
+            {{ t("action.save_value", { value: props.price.savingPercent }) }}
+          </Badge>
         </div>
 
-        <section :class="styles.card.footer.price.root">
+        <section :class="cardFooterPriceRootVariants()">
           <CurrentPrice
             is="h3"
-            :class="styles.card.footer.price.amount"
+            :class="cardFooterPriceAmountVariants()"
             :current-price="props.price.currentPrice"
             :dataAttrs="{
               'data-test-key': 'domain-card-price',
@@ -105,19 +114,18 @@
             }"
           />
 
-          <small v-if="!props.free" :class="styles.card.footer.price.term"
+          <small v-if="!props.free" :class="cardFooterPriceTermVariants()"
             >/ {{ parseBillingCycle(props.cycle!).suffix }}</small
           >
 
           <div class="ml-auto" v-if="isMobile && props.price.savingPercent">
             <Badge
-              variant="muted"
-              color="promo"
+              appearance="muted"
+              variant="promo"
               :size="meta.isExactMatch ? 'md' : 'sm'"
-              :label="
-                t('action.save_value', { value: props.price.savingPercent })
-              "
-            />
+            >
+              {{ t("action.save_value", { value: props.price.savingPercent }) }}
+            </Badge>
           </div>
         </section>
       </template>
@@ -125,20 +133,18 @@
         <div v-if="!isMobile">
           <Badge
             v-if="props.price.savingPercent"
-            variant="muted"
-            color="promo"
+            appearance="muted"
+            variant="promo"
             :size="meta.isExactMatch ? 'md' : 'sm'"
-            :label="
-              t('action.save_value', { value: props.price.savingPercent })
-            "
-          />
+          >
+            {{ t("action.save_value", { value: props.price.savingPercent }) }}
+          </Badge>
         </div>
 
         <p
-          class="text-muted text-sm-tight mt-1 md:mt-0 md:text-right"
-          v-bind="
-            transferPricingTestAttrs(meta.isTransferFree ? 'free' : 'paid')
-          "
+          class="text-muted mt-1 text-sm md:mt-0 md:text-right"
+          data-test-key="domain-transfer-pricing-info"
+          :data-test-value="meta.isTransferFree ? 'free' : 'paid'"
         >
           {{ $t("domain.transfer_owner_question")
           }}<br class="hidden md:block" />
@@ -164,54 +170,48 @@
 
         <div class="ml-auto" v-if="isMobile && props.price.savingPercent">
           <Badge
-            variant="muted"
-            color="promo"
+            appearance="muted"
+            variant="promo"
             :size="meta.isExactMatch ? 'md' : 'sm'"
-            :label="
-              t('action.save_value', { value: props.price.savingPercent })
-            "
-          />
+          >
+            {{ t("action.save_value", { value: props.price.savingPercent }) }}
+          </Badge>
         </div>
       </template>
 
       <Skeleton
         v-if="meta.isPriceLoading"
         :class="[
-          styles.card.footer.button.root,
-          styles.card.skeleton.priceButton
+          cardFooterButtonRootVariants(),
+          cardSkeletonPriceButtonVariants()
         ]"
         v-bind="buttonLoadingTestAttrs"
       />
 
-      <Tooltip
-        v-else
-        :active="!meta.isExactMatch && !isMobile"
-        :label="getTooltip"
-      >
+      <Tooltip v-else :active="!meta.isExactMatch && !isMobile">
         <Button
           :loading="meta.isProcessing"
-          :icon="getIcon"
-          :class="styles.card.footer.button.root"
+          :class="cardFooterButtonRootVariants()"
           size="lg"
-          :variant="meta.isAdded ? 'solid' : 'outline'"
-          :color="meta.isAdded ? 'secondary' : 'primary'"
+          :variant="meta.isAdded ? 'secondary' : 'outline'"
           :disabled="meta.isProcessing || meta.isDisabled"
           @click="
             meta.isAdded ? onRemove(props.domain) : onUpdate(props.domain)
           "
-          :data-attrs="{
-            'data-test-key': 'domain-card-cta',
-            'data-test-value': ctaState
-          }"
-          :label="getLabel"
-          :ui-config="
-            {
-              button: {
-                label: styles.card.footer.button.label
-              }
-            } as any
-          "
-        />
+          :data-attrs="{ 'data-test-key': 'domain-card-cta' }"
+          :data-test-value="ctaState"
+        >
+          <Icon v-if="getIcon" :icon="getIcon" />
+          <span
+            :class="
+              cardFooterButtonLabelVariants({
+                isExactMatch: meta.isExactMatch
+              })
+            "
+            >{{ getLabel }}</span
+          >
+        </Button>
+        <template #content>{{ getTooltip }}</template>
       </Tooltip>
     </footer>
   </article>
@@ -221,17 +221,35 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { parseBillingCycle } from "@upmind-automation/headless";
-import {
-  useStyles,
-  useTestAttrs,
-  isMobile,
-  Badge,
-  Button,
-  Skeleton,
-  Tooltip
-} from "@upmind-automation/upmind-ui";
+import { useTestAttrs } from "@upmind/ui";
+import { Button } from "@upmind/ui";
+import { Skeleton } from "@upmind/ui";
+import { Badge, Tooltip } from "@upmind/ui";
+import { Icon } from "../../../components/icon";
+import { isMobile } from "../../../composables/isMobile";
 import CurrentPrice from "../../product/components/pricing/CurrentPrice.vue";
-import config from "../domain.config";
+import {
+  cardRootVariants,
+  cardHeaderRootVariants,
+  cardHeaderDetailsRootVariants,
+  cardHeaderDetailsStatusRootVariants,
+  cardHeaderDetailsStatusLabelVariants,
+  cardHeaderDetailsTitleRootVariants,
+  cardHeaderDetailsTitleFldVariants,
+  cardHeaderDetailsTitleSldVariants,
+  cardHeaderDetailsTitleTldVariants,
+  cardHeaderDetailsPricingVariants,
+  cardFooterRootVariants,
+  cardFooterPriceRootVariants,
+  cardFooterPriceAmountVariants,
+  cardFooterPriceTermVariants,
+  cardFooterButtonRootVariants,
+  cardFooterButtonLabelVariants,
+  cardSkeletonStatusVariants,
+  cardSkeletonDescriptionVariants,
+  cardSkeletonPriceVariants,
+  cardSkeletonPriceButtonVariants
+} from "../variants";
 import DomainDescription from "./DomainDescription.vue";
 import type { DomainCardProps } from "../types";
 
@@ -267,34 +285,6 @@ const meta = computed(() => ({
   // vs "transfer today" copy below.
   isTransferFree: !!props.transferOptionIsFree
 }));
-
-const styles = useStyles(
-  [
-    "card",
-    "card.header",
-    "card.header.details",
-    "card.header.details.status",
-    "card.header.details.title",
-    "card.footer",
-    "card.footer.price",
-    "card.footer.button",
-    "card.skeleton"
-  ],
-  meta,
-  config
-);
-
-// --- test attrs — routed through useTestAttrs so they are stripped in PROD
-const statusLoadingTestAttrs = useTestAttrs({ key: "dac-card-status-loading" });
-const descriptionLoadingTestAttrs = useTestAttrs({
-  key: "dac-card-description-loading"
-});
-const priceLoadingTestAttrs = useTestAttrs({ key: "dac-card-price-loading" });
-const buttonLoadingTestAttrs = useTestAttrs({ key: "dac-card-button-loading" });
-const domainNameTestAttrs = (value: string) =>
-  useTestAttrs({ key: "domain-card-name", value });
-const transferPricingTestAttrs = (value: string) =>
-  useTestAttrs({ key: "domain-transfer-pricing-info", value });
 
 const getStatus = computed(() => {
   if (meta.value.isUnavailable) {
@@ -383,4 +373,6 @@ function onRemove(value: string): void {
   if (meta.value.isDisabled || meta.value.isProcessing) return;
   emit("remove", value);
 }
+
+const buttonLoadingTestAttrs = useTestAttrs({ key: "dac-card-button-loading" });
 </script>

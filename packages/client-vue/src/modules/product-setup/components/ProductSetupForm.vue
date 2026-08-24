@@ -3,17 +3,18 @@
        checkout's inline setup section. Rendered as the <form> itself (id
        "setup-form"); each host places its own Continue button in its layout and
        submits natively via form="setup-form". No loading overlay — hosts own that. -->
-  <div :class="styles.productSetup.form.root">
+  <div :class="formRootVariants()">
     <slot name="errors">
       <Alert
         v-if="externalErrors?.message || setupMeta?.hasError"
-        :class="styles.productSetup.form.full"
-        color="danger"
-        variant="minimal"
-        icon="alert-triangle"
+        :class="formFullVariants()"
+        variant="danger"
+        appearance="outline"
         :title="t('error.product_setup', total)"
         :description="externalErrors?.message || setupError?.message"
-      />
+      >
+        <template #icon><Icon icon="alert-triangle" /></template>
+      </Alert>
     </slot>
 
     <!-- Gate on hasSchema, not isLoading: a basket-processing tick (e.g.
@@ -52,7 +53,6 @@
 // --- external
 import { computed, provide } from "vue";
 import { useI18n } from "vue-i18n";
-
 // --- internal
 import {
   DetailedError,
@@ -63,16 +63,12 @@ import {
   useProductConfig,
   useProductSetup
 } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
-
 // --- components
-import { Alert } from "@upmind-automation/upmind-ui";
+import { Alert } from "@upmind/ui";
 import Form from "../../../components/form/Form.vue";
+import { Icon } from "../../../components/icon";
+import { formFullVariants, formRootVariants } from "../variants";
 import ApplyToOthers from "./ApplyToOthers.vue";
-
-// --- config
-import config from "../product-setup.config";
-
 // --- types
 import type { ProductSetupFormProps } from "../types";
 
@@ -86,7 +82,6 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
-const styles = useStyles(["productSetup.form"], {}, config);
 
 const {
   apply,

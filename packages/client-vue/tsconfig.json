@@ -12,7 +12,8 @@
       "@upmind-automation/i18n/*": ["../i18n/src/*"],
       "@upmind-automation/headless": ["../headless/src/index.ts"],
       "@upmind-automation/icons": ["../icons/src/index.ts"],
-      "@upmind-automation/upmind-ui": ["../ui/src/index.ts"],
+      "@upmind/ui": ["../../design-system/packages/ui/src/index.ts"],
+      "@upmind/tokens": ["../../design-system/packages/tokens/src/index.ts"],
       "@/*": ["./src/*"]
     }
   },
@@ -22,7 +23,19 @@
     "../i18n/src/**/*",
     "../headless/src/**/*",
     "../icons/src/**/*",
-    "../ui/src/**/*"
+    "../ui/src/**/*",
+    "../../design-system/packages/ui/src/**/*",
+    "../../design-system/packages/tokens/src/**/*"
   ],
-  "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.spec.*",
+    "**/*.test.*",
+    "**/*.stories.*",
+    "../../design-system/packages/ui/src/**/*.stories.*",
+    "../../design-system/packages/ui/src/**/*.test.*",
+    "../../design-system/packages/ui/src/**/tests/**",
+    "../headless/src/**/__tests__/**"
+  ]
 }

@@ -1,17 +1,26 @@
 <template>
   <Ribbon as="footer" background="surface" border="top" v-bind="testAttrs">
-    <Container :class="styles.footer.stacked.root">
-      <Column :class="styles.footer.stacked.column">
-        <Content gap="none" items="end" :class="styles.footer.stacked.content">
+    <Container :class="footerStackedRootVariants()">
+      <Column
+        :class="footerStackedColumnVariants({ isMinimal: meta.isMinimal })"
+      >
+        <Content gap="none" items="end" :class="footerStackedContentVariants()">
           <section
             v-if="!meta.isMinimal"
-            :class="styles.footer.stacked.top"
+            :class="footerStackedTopVariants()"
             aria-label="Language and currency preferences"
           >
             <slot name="footer-actions" />
           </section>
 
-          <section :class="styles.footer.stacked.bottom">
+          <section
+            :class="
+              footerStackedBottomVariants({
+                isMinimal: meta.isMinimal,
+                showPoweredBy: meta.showPoweredBy
+              })
+            "
+          >
             <slot name="footer-content" />
             <slot name="footer-copyright" />
           </section>
@@ -23,13 +32,19 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { useStyles, useTestAttrs } from "@upmind-automation/upmind-ui";
+import { useTestAttrs } from "@upmind/ui";
 import Column from "../../layout/components/column/Column.vue";
 import Container from "../../layout/components/container/Container.vue";
 import Content from "../../layout/components/content/Content.vue";
 import Ribbon from "../../layout/components/ribbon/Ribbon.vue";
-import config from "../footer.config";
 import { useFooter } from "../useFooter";
+import {
+  footerStackedRootVariants,
+  footerStackedColumnVariants,
+  footerStackedContentVariants,
+  footerStackedTopVariants,
+  footerStackedBottomVariants
+} from "../variants";
 
 // --- components
 
@@ -51,6 +66,4 @@ const meta = computed(() => ({
   isMinimal: props.localeCount <= 1 && props.currencyCount <= 1,
   showPoweredBy: footerMeta.value.showPoweredBy
 }));
-
-const styles = useStyles(["footer.stacked"], meta, config, {});
 </script>

@@ -1,18 +1,15 @@
 <template>
-  <Link
-    v-if="isSupported"
-    @click="handleShare"
-    :icon="copied ? 'check' : 'share-07'"
-    :label="copied ? t('confirm.copied') : t('action.share')"
-    :size="size"
-    class="font-medium"
-  />
+  <Link v-if="isSupported" @click="handleShare" :size="size" class="font-medium"
+    ><Icon :icon="copied ? 'check' : 'share-07'" />
+    {{ copied ? t("confirm.copied") : t("action.share") }}</Link
+  >
 </template>
 
 <script lang="ts" setup>
 import { useClipboard } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
-import { Link } from "@upmind-automation/upmind-ui";
+import { Link } from "@upmind/ui";
+import { Icon } from "../icon";
 import type { ShareProps } from "./types";
 
 const { t } = useI18n();

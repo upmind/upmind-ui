@@ -5,7 +5,7 @@ import type {
   TermDetails,
   Product
 } from "@upmind-automation/headless";
-import type { BadgeProps } from "@upmind-automation/upmind-ui";
+import type { BadgeVariants } from "@upmind/ui";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
@@ -22,7 +22,7 @@ export interface DetailsItemProps extends ProductSummaryDetail {
 
 export interface PromotionProps extends PromotionDetails {
   disabled?: boolean;
-  size?: BadgeProps["size"];
+  size?: BadgeVariants["size"];
 }
 
 export interface QuantityFieldProps {

@@ -5,8 +5,14 @@
  * ADDS the two scope matrices and context enums here rather than minting a new
  * types module. `ClientPhonesContextTypes` / `ClientPhoneContextTypes` have no
  * existing graph node — confirmed absent from the traversal — so minting them
- * is warranted, not a duplicate. See `docs/sdd/client-phone/design.md`
+ * is warranted, not a duplicate. See `./docs/architecture.md`
  * §0 and `graphify-out/GRAPH_REPORT.md`.
+ *
+ * `graphify query "client-phone query model QueryModel FilterModel SortModel"`
+ * (2026-08-22) — the only `QueryModel`/`FilterModel`/`SortModel` nodes in
+ * `graphify-out/graph.json` belong to `client-email.types.ts:153,165`, a
+ * different module; no node for this module exists, so minting the QUERY
+ * MODEL section below is warranted, not a duplicate.
  */
 // -----------------------------------------------------------------------------
 /**
@@ -18,11 +24,16 @@
  * mappers are shared, which is what keeps ONE identity seam for both halves.
  */
 
+// `SortDirection` is read at MODULE scope below (DEFAULT_SORT), so it comes
+// from its declaring file — see the QUERY MODEL section's graphify-out/
+// citation for why this section mints rather than re-derives.
 import { AccessRoleTypes } from "@upmind-automation/types";
+import { SortDirection } from "../query/query.types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { ResponseError } from "../../utils";
 import type { DataManagerContext } from "../data-manager/data-manager.types";
-import type { ListQuery, QueryParams } from "../query";
+import type { ListQuery } from "../query";
+import type { JsonSchema7 } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { ICountry, IPhone } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
@@ -43,7 +54,8 @@ export enum ClientPhonesContextTypes {
  * `staff` and `guest` are `null as never`, which makes `.as('staff')` a
  * compile-time error rather than an advertised-but-absent capability (operator
  * ruling 1, 2026-08-08 — every staff capability the oracle demonstrates is
- * recorded as a signed drop in `parity.yaml` rows S1-S7).
+ * recorded as a signed drop in this bundle's `parity.yaml`, cells B and C —
+ * see also `graphify-out/GRAPH_REPORT.md`).
  */
 export const CLIENT_PHONES_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
@@ -200,15 +212,79 @@ export interface PhoneContext extends DataManagerContext<PhoneModel> {
 }
 
 // -----------------------------------------------------------------------------
+// QUERY MODEL — see the graphify-out/ citation at the head of this file
+// -----------------------------------------------------------------------------
+
+/**
+ * The whole request state as one model — `filters` (nested column → operator
+ * → value), `sort` (ordered, precedence = position) and `pagination`. This is
+ * the instance validated against `useQuerySchema()`; the translator maps it
+ * to the `QueryProps` the query layer already accepts.
+ */
+export type QueryModel = {
+  filters?: {
+    number?: { like?: string };
+  };
+  sort?: SortEntry[];
+  pagination?: { limit?: number; offset?: number };
+};
+
+/** The nested filter model — the `filters` branch of {@link QueryModel}. */
+export type FilterModel = NonNullable<QueryModel["filters"]>;
+
+/**
+ * One sort entry. Declared here rather than imported from the harness's
+ * `TableModel["sort"]` — `packages/headless` has no
+ * `@upmind-automation/scenario-harness` dependency and adding that edge would
+ * invert the dependency direction.
+ *
+ * `field` is a literal union of the query schema's own declared `sort.items`
+ * enum (`client-phone.schemas.ts`'s `useQuerySchema()` — currently
+ * `created_at` only), mirroring `client-address.types.ts:288`'s narrowing: an
+ * undeclared field is a compile error here rather than a silently
+ * ajv-discarded write.
+ *
+ * @graphify-citation `graphify query "SortEntry literal union field
+ * created_at client-address client-phone"` (2026-08-22, BFS depth 2, 34
+ * nodes) — the only `SortEntry` node in `graphify-out/graph.json` is
+ * `client-address.types.ts:L288`'s distinct literal union; this module's own
+ * `SortEntry` (this file) is narrowed IN PLACE from a bare `string`, not
+ * newly minted. See `graphify-out/GRAPH_REPORT.md`.
+ */
+export type SortEntry = { field: "created_at"; dir: SortDirection };
+
+/** The ordered sort model — the `sort` branch of {@link QueryModel}. */
+export type SortModel = NonNullable<QueryModel["sort"]>;
+
+/**
+ * The order the list starts in — `created_at` ascending, the boot order
+ * `clientPhonesList.vue:68-71` demonstrates. Declared as the query schema's
+ * `sort` default, so an emptied sort refills itself on the next parse.
+ */
+export const DEFAULT_SORT: SortModel = [
+  { field: "created_at", dir: SortDirection.ASC }
+];
+
+/**
+ * The collection's query schema. A `JsonSchema7`: a query schema IS a real
+ * Draft-07 schema, and the translator/validators walk it at runtime, so the
+ * type stays general rather than a module-specific literal.
+ */
+export type QuerySchema = JsonSchema7;
+
+// -----------------------------------------------------------------------------
 // SERVICES CONTRACT
 // -----------------------------------------------------------------------------
 
 /**
  * The reactive list query, minted ONCE per scope in `useClientPhones.ts`.
  * Aliased from the query platform's own `ListQuery` — never derived with
- * `ReturnType<typeof localServiceFn>`.
+ * `ReturnType<typeof localServiceFn>`. The handle publishes `criteria` /
+ * `schema` / `isFiltered` / `criteriaError` / `setCriteria` and no write-only
+ * setters, so every layer below reads THAT one source and never a shadow copy
+ * (see `graphify-out/` citation at the head of this file).
  */
-export type ClientPhoneListQuery = ListQuery<IPhone[], Phone[]>;
+export type ClientPhoneListQuery = ListQuery<IPhone[], Phone[], QueryModel>;
 
 /** Lands a failed collection mutation (`remove` / `setDefault`) in the services instance's error state. */
 export type ClientPhoneErrorCapture = (error: unknown) => void;
@@ -239,9 +315,13 @@ export type ClientPhoneServices = {
   isAvailable: ComputedRef<boolean>;
   /** The last failed row mutation (`remove` / `setDefault`), captured as state — never raised itself. */
   error: ComputedRef<ResponseError | undefined>;
-  loadList: (
-    params?: Partial<QueryParams<IPhone[], Phone[]>>
-  ) => ClientPhoneListQuery;
+  /**
+   * The collection's list query. Takes NOTHING: the request state is the
+   * declared query schema, handed to `list({ criteria })`, so there is no
+   * params back door a caller could contradict it through (see
+   * `graphify-out/` citation at the head of this file).
+   */
+  loadList: () => ClientPhoneListQuery;
   /** Per-phone read; seeds the manager when no collection is loaded. */
   loadOne: (id?: IPhone["id"]) => Promise<Phone | undefined>;
   add: (model: PhoneModel) => Promise<IPhone | undefined>;

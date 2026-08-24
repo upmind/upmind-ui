@@ -1,24 +1,22 @@
 <template>
   <div
-    :class="styles.forcedCanvas.root"
+    :class="forcedCanvas.root({ isForced })"
     data-test-key="forced-canvas"
     :data-test-value="preset"
   >
-    <div v-if="preset" :class="styles.forcedCanvas.header">
+    <div v-if="preset" :class="forcedCanvas.header()">
       <Badge
-        color="primary"
-        variant="solid"
+        variant="primary"
+        appearance="solid"
         size="sm"
-        :label="label"
-        :data-attrs="{
-          'data-test-key': 'forced-preset',
-          'data-test-value': preset
-        }"
-      />
+        data-test-key="forced-preset"
+      >
+        {{ label }}
+      </Badge>
 
       <p
         v-if="hint"
-        :class="styles.forcedCanvas.hint"
+        :class="forcedCanvas.hint()"
         data-test-key="forced-pending"
         :data-test-value="preset"
       >
@@ -57,8 +55,8 @@
 
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Badge, useStyles } from "@upmind-automation/upmind-ui";
-import config from "./ForcedCanvas.styles";
+import { Badge } from "@upmind/ui";
+import { forcedCanvas } from "./ForcedCanvas.styles";
 import { FORCE_PRESET_HINTS, FORCE_PRESET_LABELS } from "./ForcedCanvas.types";
 import { get } from "lodash-es";
 import type { ForcedCanvasProps } from "./ForcedCanvas.types";
@@ -79,6 +77,5 @@ const hint = computed(() => {
   return key ? t(key) : "";
 });
 
-const meta = computed(() => ({ isForced: !!props.preset }));
-const styles = useStyles(["forcedCanvas"], meta, config);
+const isForced = computed(() => !!props.preset);
 </script>

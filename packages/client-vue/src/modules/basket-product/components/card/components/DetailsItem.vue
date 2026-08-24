@@ -21,7 +21,7 @@
     <dd v-if="hasPricing" class="flex items-center gap-x-1">
       <template v-if="props.name !== 'term'">
         <span v-if="showPlusIcon">
-          <Icon icon="plus" size="3xs" />
+          <Icon icon="plus" size="2xs" />
         </span>
       </template>
 
@@ -44,7 +44,7 @@ import {
   useMoney,
   useConfig
 } from "@upmind-automation/headless";
-import { Icon } from "@upmind-automation/upmind-ui";
+import { Icon } from "../../../../../components/icon";
 import { isEmpty } from "lodash-es";
 import { has } from "lodash-es";
 import type { DetailsItemProps } from "./types";

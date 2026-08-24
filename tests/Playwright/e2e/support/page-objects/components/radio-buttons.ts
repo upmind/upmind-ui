@@ -8,20 +8,18 @@ export class RadioButtons {
   constructor(page: Page) {
     this.page = page;
     this.radioGroup = page.getByRole("radiogroup");
-    this.radioOption = page.getByTestId("radio-card-item");
+    this.radioOption = page.getByRole("radio");
   }
 
   /**
-   * Locate a radio card by its stable value — the `RadioCards` primitive tags
-   * every card with the STATIC key `radio-card-item` and carries the stable
-   * datum (term `cycle`, subproduct `opt.id`) in `data-test-value`.
+   * Locate an option tile by its STABLE cascade key — `OptionTile` emits
+   * `option-tile-${id || value}` via its `testId` prop, keyed off stable data
+   * (term `cycle`, subproduct `opt.id`), NOT the translated label.
    *
    * @param key - Stable value, e.g. `12` (a term cycle) or a subproduct id.
    */
   getRadioButton(key: string | number) {
-    return this.page
-      .getByTestId("radio-card-item")
-      .and(this.page.locator(`[data-test-value="${key}"]`));
+    return this.page.getByTestId(`option-tile-${key}`);
   }
 
   async selectRadioOption(key: string | number) {

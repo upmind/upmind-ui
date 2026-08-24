@@ -1,27 +1,34 @@
 <template>
   <FormField v-bind="formFieldProps" label="">
-    <RadioCards
+    <OptionTileGroup
       :name="control.path"
-      v-bind="appliedOptions"
       :model-value="control.data"
-      :items="displayItems"
+      mode="single"
+      :layout="layout"
+      :min-tile-width="minTileWidth"
+      :disabled="appliedOptions.disabled"
       @update:model-value="onInput"
-      :columns="appliedOptions.width ?? 2"
     >
-      <template v-if="allowShowMore" #additional-item="{ size }">
-        <div :class="[styles.form.radioCollapsible.root, size]">
-          <Link
-            variant="outline"
-            color="muted"
-            size="sm"
-            :label="t('action.show_more_options')"
-            :dataAttrs="{ 'data-test-key': 'show-more-payment-options' }"
-            @click="isExpanded = true"
-            icon="plus"
-          />
-        </div>
-      </template>
-    </RadioCards>
+      <OptionTile
+        v-for="gateway in displayItems"
+        :key="gateway.value"
+        :value="gateway.value"
+        :label="gateway.label"
+        :description="gateway.secondaryLabel"
+        v-bind="gateway.dataAttrs"
+      />
+    </OptionTileGroup>
+
+    <Link
+      v-if="allowShowMore"
+      color="muted"
+      size="sm"
+      :data-attrs="{ 'data-test-key': 'show-more-payment-options' }"
+      class="mt-1 inline-flex items-center justify-start gap-1 px-3"
+      @click="isExpanded = true"
+    >
+      <Icon icon="plus" /> {{ t("action.show_more_options") }}
+    </Link>
   </FormField>
 </template>
 
@@ -31,18 +38,33 @@ import { useJsonFormsEnumControl } from "@jsonforms/vue";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useConfig } from "@upmind-automation/headless";
+import { Link, OptionTileGroup, OptionTile } from "@upmind/ui";
 import { PaymentType } from "@upmind-automation/types";
-import { useUpmindUIRenderer, Link } from "@upmind-automation/upmind-ui";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import { FormField, RadioCards } from "@upmind-automation/upmind-ui";
-import config from "../form.config";
-import { map, take } from "lodash-es";
+import { Icon } from "../../icon";
+import FormField from "../engine/FormField.vue";
+import { useUpmindUIRenderer } from "../engine/renderers/utils";
+import { map, take, get } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 // --- external
 
 // -----------------------------------------------------------------------------
+// The schema's `options` carry a `text` secondary label alongside JSONForms'
+// own EnumOption fields — ours, so declare it rather than assert it.
+interface GatewaySchemaOption {
+  value: string;
+  label: string;
+  text?: string;
+  provider?: string;
+}
+
+interface GatewayTile {
+  value: string;
+  label: string;
+  secondaryLabel?: string;
+  dataAttrs?: Record<string, string>;
+}
+
 const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, formFieldProps, appliedOptions, onInput } =
@@ -54,55 +76,57 @@ const { t } = useI18n();
 
 const isExpanded = ref(false);
 
-const items = computed(() => {
-  const { options, schema, data, rootSchema } = control.value;
+// Old RadioCards used a fixed column count; the new grid auto-fits by min tile
+// width. >1 column → a corner-marked grid, single column → a leading-marked stack.
+const columns = computed(() => appliedOptions.value?.width ?? 2);
+const isGrid = computed(() => columns.value > 1);
+const layout = computed(() => {
+  if (isGrid.value) return "grid";
+  return "stack";
+});
+const minTileWidth = computed(() => {
+  if (columns.value >= 3) return "12rem";
+  return "16rem";
+});
 
-  const gateways = map(
-    // We have an additional prop that we add to the schema called options, like oneOf but more efficient
-    (schema as any)?.options ?? options,
-    (option, index): RadioCardsItemProps => {
-      // Stable, locale-independent test target keyed on the gateway provider
-      // code (surfaced from headless) — NOT the dynamic index or translated
-      // label. Pay Later adds its own below.
-      const provider = (option as { provider?: string }).provider;
-      return {
-        item: option,
-        value: option.value,
-        label: option.label,
-        secondaryLabel: option?.text,
-        index,
-        modelValue: data,
-        dataAttrs: provider
-          ? { "data-test-key": "gateway", "data-test-value": provider }
-          : undefined
-      };
-    }
-  );
+const items = computed<GatewayTile[]>(() => {
+  const { options, schema, rootSchema } = control.value;
+
+  // We have an additional prop that we add to the schema called options, like
+  // oneOf but more efficient.
+  const schemaOptions: GatewaySchemaOption[] =
+    get(schema, "options") ?? options;
+
+  const gateways = map(schemaOptions, (option): GatewayTile => {
+    // Stable, locale-independent test target keyed on the gateway provider
+    // code (surfaced from headless) — NOT the dynamic index or translated
+    // label. Pay Later adds its own below.
+    const provider = get(option, "provider");
+    const tile: GatewayTile = {
+      value: option.value,
+      label: option.label,
+      secondaryLabel: option?.text,
+      dataAttrs: provider
+        ? { "data-test-key": "gateway", "data-test-value": provider }
+        : undefined
+    };
+    return tile;
+  });
 
   // Syntactic Sugar...Add a "special" option to force pay-later.
   if (rootSchema?.definitions?.type?.enum?.includes(PaymentType.PAY_LATER)) {
     gateways.push({
-      item: {
-        label: t("form.payment_method_type.pay-later"),
-        value: PaymentType.PAY_LATER
-      },
       value: PaymentType.PAY_LATER,
       label: t("form.payment_method_type.pay-later"),
-      index: gateways.length,
-      modelValue: data,
       dataAttrs: {
         "data-test-key": "gateway",
         "data-test-value": PaymentType.PAY_LATER
       }
     });
-  } else {
-    // console.debug("No Pay Later option available");
   }
 
   return gateways;
 });
-
-const styles = useStyles("form.radioCollapsible", {}, config);
 
 const collapseAt = computed(() => {
   return ui.paymentGatewaysCap.asNumber || 5;

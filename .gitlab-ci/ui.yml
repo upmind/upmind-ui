@@ -1,0 +1,67 @@
+# Unit-test gate for the vendored UI-library packages (FE-2884/FE-2885).
+# Matches the (headless) test pattern. tokens/ui registry builds run in the
+# shared `dependencies` job; this job runs the co-located Vitest suites.
+
+(ui) test:
+  extends: .pnpm
+  stage: test
+  interruptible: true
+  needs:
+    - dependencies
+  rules:
+    - if: $SKIP_TESTS_UI == 'true'
+      when: never
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+    - if: $CI_FORCE_UI == "true"
+  script:
+    # verify-must-fail.ts resolves the repo root through git, which the Alpine
+    # node image does not ship — the `dependencies` job adds it the same way.
+    - apk --no-cache add git
+    # A pnpm filter matching nothing prints a notice and exits 0, so a package
+    # rename would turn this gate green-and-empty. Assert each one resolves.
+    - |
+      for name in @upmind/tokens @upmind/ui; do
+        pnpm ls --filter "$name" --depth -1 --json | grep -q '"name"' \
+          || { echo "(ui) test: no workspace package matched $name"; exit 1; }
+      done
+    # The DS's `mcp` package is deliberately outside this workspace
+    # (pnpm-workspace.yaml includes only ui + tokens), so it has no test lane.
+    - pnpm --filter @upmind/tokens test
+    - pnpm --filter @upmind/ui test
+
+# SB10 story smoke + addon-a11y axe checks, enforced at the `test: 'error'`
+# severity set in .storybook/preview.ts.
+#
+# SCAFFOLDED, NOT YET ENFORCING: `allow_failure: true` mirrors lint:eslint —
+# the run reports on every MR but does not block, because the vendored library
+# ships known axe violations that each migration phase burns down as it takes
+# its components. Flip to false once that backlog clears.
+(ui) a11y:
+  extends: .pnpm
+  image: mcr.microsoft.com/playwright:v1.61.1-noble
+  stage: test
+  interruptible: true
+  allow_failure: true
+  needs:
+    - dependencies
+  rules:
+    - if: $SKIP_TESTS_UI == 'true'
+      when: never
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+    - if: $CI_FORCE_UI == "true"
+  before_script:
+    - corepack enable
+    - corepack prepare pnpm@latest --activate
+    # The dependencies job installs on Alpine (musl); this image is Ubuntu
+    # (glibc), so the artifact's native binaries are the wrong ones. `--force`
+    # alone short-circuits on an already-complete tree, so drop it first.
+    - rm -rf node_modules
+    - pnpm install --frozen-lockfile
+    # The image's baked-in browsers track ITS playwright, not the one the
+    # lockfile resolves — fetch the build that matches what we just installed.
+    - pnpm --filter @upmind-automation/storybook-next exec playwright install chromium
+  script:
+    # The stories resolve @upmind/tokens/css; without the built dist
+    # every spec fails to load rather than reporting violations.
+    - pnpm --filter @upmind/tokens build
+    - pnpm --filter @upmind-automation/storybook-next test:a11y

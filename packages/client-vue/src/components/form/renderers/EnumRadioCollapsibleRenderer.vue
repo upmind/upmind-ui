@@ -1,28 +1,32 @@
 <template>
   <FormField v-bind="formFieldProps">
-    <RadioCards
+    <OptionTileGroup
       :name="control.path"
       :model-value="control.data"
-      :items="displayedItems"
-      v-bind="appliedOptions"
+      mode="single"
+      :data-attrs="{ 'data-test-key': 'option-tile-group' }"
+      :disabled="appliedOptions.disabled"
       @update:model-value="onInput"
     >
-      <template
-        v-if="items.length >= collapseAt && !isExpanded"
-        #additional-item="{ size }"
-      >
-        <div :class="[styles.form.radioCollapsible.root, size]">
-          <Link
-            variant="outline"
-            color="muted"
-            size="sm"
-            :label="t('action.show_more_options')"
-            @click="isExpanded = true"
-            icon="plus"
-          />
-        </div>
-      </template>
-    </RadioCards>
+      <OptionTile
+        v-for="item in displayedItems"
+        :key="item.value"
+        :value="item.value"
+        :data-attrs="{ 'data-test-key': `option-tile-${item.value}` }"
+        :label="item.label"
+        :description="item.secondaryLabel"
+      />
+    </OptionTileGroup>
+
+    <Link
+      v-if="items.length >= collapseAt && !isExpanded"
+      color="muted"
+      size="sm"
+      class="mt-1 inline-flex items-center justify-start gap-1 px-3"
+      @click="isExpanded = true"
+    >
+      <Icon icon="plus" /> {{ t("action.show_more_options") }}
+    </Link>
   </FormField>
 </template>
 
@@ -31,17 +35,22 @@ import { isEnumControl, and, optionIs, hasOption } from "@jsonforms/core";
 import { useJsonFormsEnumControl } from "@jsonforms/vue";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import { FormField, RadioCards, Link } from "@upmind-automation/upmind-ui";
-import config from "../form.config";
-import { map } from "lodash-es";
-import type { ControlElement, EnumOption, JsonSchema } from "@jsonforms/core";
+import { Link, OptionTileGroup, OptionTile } from "@upmind/ui";
+import { Icon } from "../../icon";
+import FormField from "../engine/FormField.vue";
+import { useUpmindUIRenderer } from "../engine/renderers/utils";
+import { map, get } from "lodash-es";
+import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 // --- external
 
 // -----------------------------------------------------------------------------
+interface EnumTile {
+  value: string;
+  label: string;
+  secondaryLabel?: string;
+}
+
 const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, formFieldProps, appliedOptions, onInput } =
@@ -50,29 +59,18 @@ const { control, formFieldProps, appliedOptions, onInput } =
 const { t } = useI18n();
 const isExpanded = ref(false);
 
-const items = computed(() => {
-  const { options, schema, data } = control.value as {
-    options: (EnumOption & { text?: string })[];
-    schema: JsonSchema & { options?: (EnumOption & { text?: string })[] };
-    data: any;
-  };
+const items = computed<EnumTile[]>(() => {
+  const { options, schema } = control.value;
 
   return map(
-    schema.options ?? options,
-    (option, index): RadioCardsItemProps => {
-      return {
-        item: option,
-        value: option.value,
-        label: option.label,
-        secondaryLabel: option?.text,
-        index,
-        modelValue: data
-      };
-    }
+    get(schema, "options") ?? options,
+    (option): EnumTile => ({
+      value: option.value,
+      label: option.label,
+      secondaryLabel: get(option, "text")
+    })
   );
 });
-
-const styles = useStyles("form.radioCollapsible", {}, config);
 
 const collapseAt = computed(() => {
   return appliedOptions.value?.collapse || 4;

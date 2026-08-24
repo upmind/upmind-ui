@@ -1,5 +1,5 @@
 <template>
-  <UpmPage :class="styles.page">
+  <UpmPage>
     <UpmHeader :storefront-route="storefrontRoute">
       <template #actions>
         <UpmBasketAction :basket-route="{ name: ROUTE.BASKET }" />
@@ -50,8 +50,7 @@ import {
   useOverlayRoute,
   useRoutingEngine
 } from "@upmind-automation/client-vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import { includes, get } from "lodash-es";
+import { includes } from "lodash-es";
 import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
 import { ROUTE } from "~/funnels/types";
 
@@ -102,16 +101,6 @@ watch(
 );
 
 // --- computed
-
-// add any page specific styles here based on route or other state
-const styles = useStyles<{ page: string }>(
-  ["page"],
-  computed(() => {
-    return {
-      route: get(route, "name", get(route, "path", ""))
-    };
-  })
-);
 
 const { isOpen: isOverlayOpen, overlayId } = useOverlayRoute();
 

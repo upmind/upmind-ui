@@ -5,7 +5,6 @@ import {
   ImageObjectTypes
 } from "@upmind-automation/types";
 import { useQuery, invalidateQueryByKey } from "../query";
-import { RequestSortDirection } from "../query";
 import { useActiveSession } from "../session-store";
 import { useI18n } from "../system-localisation";
 import { useUpload } from "../system-upload";
@@ -13,10 +12,14 @@ import {
   mapCustomField,
   rewriteImageErrorKey
 } from "./client-custom-fields.mappers";
-import { useCustomFieldsSchema } from "./client-custom-fields.schemas";
+import {
+  useCustomFieldsSchema,
+  useQuerySchema
+} from "./client-custom-fields.schemas";
 import {
   ClientCustomFieldContextTypes,
-  ClientCustomFieldsContextTypes
+  ClientCustomFieldsContextTypes,
+  CUSTOM_FIELD_DEFAULT_SORT
 } from "./client-custom-fields.types";
 import {
   useTime,
@@ -29,15 +32,15 @@ import {
   NotAuthenticatedError,
   DEBOUNCE_DELAY
 } from "../../utils";
-import { isArray, isEmpty, map, sortBy } from "lodash-es";
-import type { QueryParams } from "../query";
+import { isArray, isEmpty, isEqual, map, sortBy } from "lodash-es";
 import type { ScopeContext } from "../scope";
 import type {
   ClientCustomFieldsListQuery,
   ClientCustomFieldsServices,
   ClientCustomFieldImageServices,
   CustomField,
-  CustomFieldModel
+  CustomFieldModel,
+  QueryModel
 } from "./client-custom-fields.types";
 import type { ResponseError } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
@@ -241,16 +244,14 @@ function loadClientBrandId(scopeContext?: ScopeContext) {
  * re-derives the options into a DIFFERENT cache entry (AC-1, AC-2). `enabled`
  * and `guard` hold the unaddressable-or-brand-unresolved entry shut.
  */
-function loadList(
-  params: Partial<QueryParams<ICustomField[], CustomField[]>> = {
-    pagination: { limit: 0 }
-  },
-  scopeContext?: ScopeContext
-): ClientCustomFieldsListQuery {
+function loadList(scopeContext?: ScopeContext): ClientCustomFieldsListQuery {
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
   const brand = loadClientBrandId(scopeContext);
 
+  // URL SCOPING, not criteria: these two say WHICH catalogue is being read.
+  // They are not filters a consumer may change, so they never enter the query
+  // model — parity Q5 / AC-32.
   const targetUrl = () =>
     useUrl("custom_fields", {
       "filter[object_type]": CustomFieldsMajorTypes.CLIENT,
@@ -258,11 +259,20 @@ function loadList(
     });
   const url = targetUrl();
 
-  return list<ICustomField[], CustomField[]>({
-    ...params,
+  // Self-referencing `const`: `select` (below) reads `query.criteria` — the
+  // SAME criteria model `list()` returns — to tell a consumer's declared sort
+  // apart from the schema's own default. Safe because `select` only ever
+  // runs inside `queryFn`, strictly after this initializer finishes and
+  // `query` is bound — `list()`'s own `vueUseQuery` never invokes `queryFn`
+  // synchronously. Reads the ONE criteria path; does not add one.
+  const query: ClientCustomFieldsListQuery = list<
+    ICustomField[],
+    CustomField[],
+    QueryModel
+  >({
+    criteria: { schema: useQuerySchema() },
     queryKey: [...queryKey, { client: clientId, brand: brand.brandId }],
     url,
-    sort: [[RequestSortDirection.ASC, "order"]],
     // `enabled:` only stops the query starting; this rejects a forced
     // `refetch()` on a dead, unaddressable, or brand-unresolved scope with
     // the typed error instead of a raw request. Must stay an `async`
@@ -285,12 +295,20 @@ function loadList(
         resolve(true);
       }),
     withAccessToken: true,
-    // Legacy sorts client-side (`customFieldsView.vue:89-91`,
-    // `orderBy(['order','asc'])`) — the request's own `order=order` param
-    // (below) is legacy's, not a guarantee of server ordering, so the
-    // exposed collection is sorted here rather than trusting wire order
-    // (AC-3).
-    select: data => sortBy(map(data ?? [], mapCustomField), "order"),
+    // AC-3's own scenario holds even against a scrambled wire response, so
+    // the DEFAULT view is still sorted client-side rather than trusted from
+    // the wire — legacy's own second, unconditional reorder
+    // (`customFieldsView.vue:89-91`, `orderBy(['order','asc'])`). A
+    // consumer's OWN declared sort (AC-30) must win instead: once the live
+    // criteria departs from the schema's `CUSTOM_FIELD_DEFAULT_SORT`, this
+    // stops re-ordering and the requested `order=` response stands as
+    // returned.
+    select: data => {
+      const mapped = map(data ?? [], mapCustomField);
+      return isEqual(query.criteria.value.sort, CUSTOM_FIELD_DEFAULT_SORT)
+        ? sortBy(mapped, "order")
+        : mapped;
+    },
     staleTime: useTime().DAY,
     retryDelay: DEBOUNCE_DELAY,
     // `enabled` gates on the brand read having SETTLED, never on it having
@@ -303,6 +321,8 @@ function loadList(
     // failure, which is what left `isReady()` unbounded.
     enabled: () => isAddressable(clientId.value) && brand.isSettled.value
   });
+
+  return query;
 }
 
 /** Resolves a single definition by id from the (awaited) collection. */
@@ -312,7 +332,7 @@ async function resolveFieldById(
 ): Promise<CustomField | undefined> {
   if (!id) return undefined;
 
-  const query = loadList(undefined, scopeContext);
+  const query = loadList(scopeContext);
   await query.promise.value.finally();
 
   const { getOne } = useCollection<CustomField>(
@@ -374,7 +394,7 @@ async function flushImages(
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  const query = loadList(undefined, scopeContext);
+  const query = loadList(scopeContext);
   await query.promise.value.finally();
 
   const { findOne } = useCollection<CustomField>(
@@ -463,7 +483,7 @@ export const createClientCustomFieldsServices = (
     clientId,
     isAvailable: computed(() => isAddressable(clientId.value)),
     error: computed(() => mutationError.value),
-    loadList: params => loadList(params, scopeContext),
+    loadList: () => loadList(scopeContext),
     resolveFieldById: id => resolveFieldById(id, scopeContext),
     uploadFieldImage,
     flushImages: model => flushImages(model, scopeContext),

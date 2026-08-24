@@ -5,10 +5,8 @@ import { cva } from "class-variance-authority";
  * @description CVA configuration for ActionPanelSurface.
  */
 
-export default {
-  actionPanelSurface: {
-    root: cva("space-y-4"),
+export const actionPanelSurface = {
+  root: cva("space-y-4"),
 
-    form: cva("max-w-xl")
-  }
+  form: cva("max-w-xl")
 };

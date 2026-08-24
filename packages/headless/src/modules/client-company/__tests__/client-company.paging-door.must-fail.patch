@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-company/useClientCompanies.actions.ts
++++ b/packages/headless/src/modules/client-company/useClientCompanies.actions.ts
+@@ -208,7 +208,7 @@
+      * above. This is the door that sets the page size:
+      * `setCriteria({ pagination: { limit } })`.
+      */
+-    setCriteria: query.setCriteria,
++    setCriteria: () => {},
+
+     /** Promotes a company to the client's default. */
+     setDefault: service.setDefault,

@@ -1,5 +1,5 @@
 <template>
-  <Sanitized tag="div" :model-value="html" :class="cellHtml()" />
+  <Sanitized as="div" :html="html" :class="cellHtml()" />
 </template>
 
 <script lang="ts" setup>
@@ -15,7 +15,7 @@
 
 import { uiTypeIs } from "@jsonforms/core";
 import { computed } from "vue";
-import { Sanitized } from "@upmind-automation/upmind-ui";
+import { Sanitized } from "@upmind/ui";
 import { resolveScope } from "../../scenario.utils";
 import { cellHtml } from "./cells.styles";
 import { isNil, toString } from "lodash-es";

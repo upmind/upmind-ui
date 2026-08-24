@@ -1,0 +1,74 @@
+<template>
+  <Tabs
+    v-if="tabItems.length > 1"
+    :tabs="tabItems"
+    :model-value="String(activeTabIndex)"
+    @update:model-value="switchTab"
+  />
+
+  <div
+    v-for="(tab, index) in tabElements"
+    :key="index"
+    v-show="index === activeTabIndex"
+  >
+    <DispatchRenderer
+      v-for="(element, elementIndex) in tab.elements"
+      :key="elementIndex"
+      :schema="layout.schema"
+      :uischema="element"
+      :path="layout.path"
+      :renderers="layout.renderers"
+      :cells="layout.cells"
+      :enabled="layout.enabled"
+    />
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { isLayout, uiTypeIs, and } from "@jsonforms/core";
+import { useJsonFormsLayout, DispatchRenderer } from "@jsonforms/vue";
+import { computed, ref } from "vue";
+import { Tabs } from "@upmind/ui";
+import { useUpmindUILayoutRenderer } from "../utils";
+import { get } from "lodash-es";
+import type { Layout, UISchemaElement } from "@jsonforms/core";
+import type { RendererProps } from "@jsonforms/vue";
+// -----------------------------------------------------------------------------
+interface TabElement {
+  label: string;
+  elements: UISchemaElement[];
+}
+
+const props = defineProps<RendererProps<Layout>>();
+
+const { layout } = useUpmindUILayoutRenderer(useJsonFormsLayout(props));
+
+const activeTabIndex = ref(0);
+
+const tabElements = computed((): TabElement[] => {
+  return layout.value.uischema.elements.map((element: UISchemaElement) => {
+    return {
+      label: get(element, "label") ?? "",
+      elements: [element]
+    } as TabElement;
+  });
+});
+
+const tabItems = computed(() => {
+  return tabElements.value.map((tab: TabElement, index: number) => ({
+    value: String(index),
+    label: tab.label
+  }));
+});
+
+const switchTab = (value: string | number) => {
+  activeTabIndex.value = Number(value);
+};
+</script>
+
+<script lang="ts">
+export const tester = {
+  rank: 2,
+  controlType: and(isLayout, uiTypeIs("Tabs"))
+};
+</script>

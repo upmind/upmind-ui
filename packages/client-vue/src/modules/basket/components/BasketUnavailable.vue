@@ -1,21 +1,25 @@
 <template>
   <div class="flex grow items-center justify-center">
     <Interstitial
-      v-bind="props"
+      :close-label="t('action.close')"
+      :open="props.open"
       :modal="meta.useModal"
       :title="t('error.basket_unavailable_md')"
       :text="t('error.basket_unavailable_text')"
-      :actions="[
-        {
-          variant: 'solid',
-          color: 'primary',
-          icon: 'arrow-left',
-          label: t('action.return_to_shop'),
-          size: 'lg',
-          handler: handleReturn
-        }
-      ]"
-    />
+      :animated-icon="{ icon: 'basket-empty', size: 'xl' }"
+    >
+      <template #actions>
+        <Button
+          v-bind="useTestAttrs({ key: 'interstitial-action', value: 0 })"
+          variant="primary"
+          size="lg"
+          @click="handleReturn"
+        >
+          <Icon icon="arrow-left" />
+          {{ t("action.return_to_shop") }}
+        </Button>
+      </template>
+    </Interstitial>
   </div>
 </template>
 
@@ -24,21 +28,20 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import { useBasket, useRoutingEngine } from "@upmind-automation/headless";
-import { Interstitial } from "@upmind-automation/upmind-ui";
-import type { InterstitialProps } from "@upmind-automation/upmind-ui";
+import { Interstitial, Button, useTestAttrs } from "@upmind/ui";
+import { Icon } from "../../../components/icon";
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(defineProps<InterstitialProps>(), {
-  open: true,
-  modal: true,
-  animatedIcon: () => ({
-    icon: "basket-empty",
-    trigger: "loop",
-    primaryColor: "base-foreground",
-    secondaryColor: "tertiary",
-    size: "4xl"
-  })
-});
+const props = withDefaults(
+  defineProps<{
+    open?: boolean;
+    modal?: boolean;
+  }>(),
+  {
+    open: true,
+    modal: true
+  }
+);
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 const { reset } = useBasket();

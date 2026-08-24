@@ -1,17 +1,24 @@
 <template>
   <component
     :is="props.is"
-    :class="styles.pricing.current"
+    :class="
+      cn(
+        currentVariants({
+          useMonthlyFromPrice: priceMeta.useMonthlyFromPrice
+        }),
+        props.uiConfig?.pricing?.current
+      )
+    "
     v-bind="currentPriceTestAttrs(formattedPrice)"
   >
     <template v-if="props.loading">
-      <Skeleton :class="styles.pricing.currentSkeleton" />
+      <Skeleton :class="currentSkeletonVariants()" />
     </template>
     <template v-else>
       <slot name="prefix" />{{ formattedPrice }}<slot name="suffix" />
       <small
         v-if="priceMeta.useMonthlyFromPrice && !priceMeta.isFree"
-        :class="styles.pricing.term"
+        :class="termVariants()"
         >{{ t("text.product_cycle_per_month") }}</small
       >
     </template>
@@ -22,12 +29,13 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useMoney, useConfig } from "@upmind-automation/headless";
+import { cn } from "@upmind/ui";
+import { Skeleton, useTestAttrs } from "@upmind/ui";
 import {
-  useStyles,
-  useTestAttrs,
-  Skeleton
-} from "@upmind-automation/upmind-ui";
-import config from "./pricing.config";
+  currentVariants,
+  termVariants,
+  currentSkeletonVariants
+} from "./variants";
 import type { CurrentPriceProps } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -61,9 +69,7 @@ const formattedPrice = computed(() =>
 const currentPriceTestAttrs = (value?: string | null) =>
   useTestAttrs({
     key: "current-price",
-    value,
+    value: value ?? undefined,
     dataAttrs: props.dataAttrs
   });
-
-const styles = useStyles(["pricing"], priceMeta, config, props.uiConfig ?? {});
 </script>

@@ -1,51 +1,70 @@
 <template>
-  <UpmPage>
-    <UpmHeader :storefront-route="{ to: { name: ROUTE.HOME } }">
-      <template #actions>
+  <TooltipProvider>
+    <PortalShell
+      nav="sidebar"
+      frame="full"
+      :nav-label="t('labs.navigation')"
+      :open-nav-label="t('labs.open_navigation')"
+      :close-nav-label="t('labs.close_navigation')"
+      :skip-label="t('labs.skip_to_content')"
+    >
+      <template #logo="{ collapsed }">
+        <NuxtLink
+          :to="{ name: ROUTE.HOME }"
+          class="rounded-button focus-visible:outline-ring/40 flex min-w-0 items-center gap-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
+          data-test-key="labs-logo"
+        >
+          <img
+            :src="logoBlack"
+            alt=""
+            aria-hidden="true"
+            class="size-6 shrink-0 dark:hidden"
+          />
+          <img
+            :src="logoWhite"
+            alt=""
+            aria-hidden="true"
+            class="hidden size-6 shrink-0 dark:block"
+          />
+          <span
+            :class="
+              collapsed
+                ? 'sr-only'
+                : 'type-display text-display truncate text-base'
+            "
+          >
+            {{ t("labs.title") }}
+          </span>
+        </NuxtLink>
+      </template>
+
+      <template #nav="{ collapsed }">
+        <ul class="flex flex-col gap-1">
+          <li v-for="(item, index) in navigation" :key="index">
+            <NavSection :item="item" :depth="0" :collapsed="collapsed" />
+          </li>
+        </ul>
+      </template>
+
+      <template #header-actions>
         <ScopeBar />
       </template>
-    </UpmHeader>
 
-    <UpmMain class="pt-4">
-      <!-- Left Sidebar -->
-      <aside
-        class="bg-surface border-surface sticky top-0 z-40 min-h-screen w-64 self-start rounded-sm shadow"
-      >
-        <!-- Navigation -->
-        <nav class="h-[calc(100vh-4rem)] overflow-y-auto p-4">
-          <ul class="space-y-1">
-            <li v-for="(item, index) in navigation" :key="index">
-              <NavSection :item="item" :depth="0" />
-            </li>
-          </ul>
-        </nav>
-      </aside>
+      <slot />
 
-      <!-- Main content area. `min-w-0` stops the column EXPORTING its content
-           width: a flex item defaults to `min-width:auto`, so a row that
-           outgrew its share squeezed the sidebar and gave the DOCUMENT a
-           horizontal scrollbar instead of truncating inside the page (`AC2.4`).
-           It takes no width in any state, so it is not `P1-R5` compensation. -->
-      <UpmRoot class="min-w-0">
-        <slot />
-      </UpmRoot>
-    </UpmMain>
+      <template #footer>
+        <p class="text-muted text-xs">
+          {{ t("labs.footer") }}
+        </p>
+      </template>
+    </PortalShell>
 
-    <!-- Overlay routes — the auth a guarded scenario collects in place -->
     <UpmOverlayController />
-  </UpmPage>
+  </TooltipProvider>
 
-  <!-- The ONE sheet over the page — Debug │ Code │ Scenario, opened by the
-       toggle in the page's own scenario bar (`G1`) and never by the chrome.
-       Mounted here, once: it overlays the canvas, so nothing above it
-       compensates with padding and the page keeps its full width (`P1-R5`). -->
   <SheetHost />
 
-  <!-- Where every action outcome is reported (`useActionFeedback`). Top-centre
-       because the bottom corner is where the operator missed it entirely (E13):
-       the outcome lands in the path of the eye that just clicked, over the
-       surface it happened on. -->
-  <Sonner
+  <Toaster
     position="top-center"
     close-button
     rich-colors
@@ -58,22 +77,20 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import {
-  UpmPage,
-  UpmHeader,
-  UpmMain,
   UpmOverlayController,
-  UpmRoot,
   useRoutingEngine,
   useActiveSession,
   useSessionStore
 } from "@upmind-automation/client-vue";
-import { Sonner } from "@upmind-automation/upmind-ui";
+import { PortalShell, Toaster, TooltipProvider } from "@upmind/ui";
 import { includes } from "lodash-es";
 import NavSection from "~/components/NavSection.vue";
 import { ScopeBar } from "~/components/scope";
 import { SheetHost, usePlaygroundSheet } from "~/components/sheets";
 import { useNavigation } from "~/composables/useNavigation";
 import { ROUTE } from "~/funnels";
+import logoBlack from "~/assets/logo-black.svg";
+import logoWhite from "~/assets/logo-white.svg";
 // -----------------------------------------------------------------------------
 const { navigation } = useNavigation();
 const { t } = useI18n();

@@ -37,6 +37,13 @@ import { describe, expect, it, vi } from "vitest";
 // Import order is load-bearing — see the same note in
 // `client-custom-fields.collection.int.test.ts`.
 import {
+  ClientCustomFieldContextTypes,
+  useClientCustomFieldImage,
+  useClientCustomFields
+} from "..";
+import { ScopeActorTypes } from "../../scope/scope.types";
+import {
+  installDefinitionsHandler,
   observeRequests,
   recorded,
   recordedDefinitions,
@@ -44,14 +51,6 @@ import {
   seedClientSession
 } from "./client-custom-fields.int-helpers";
 import { server } from "./setup.integration";
-// eslint-disable-next-line import/order
-import {
-  ClientCustomFieldContextTypes,
-  useClientCustomFieldImage,
-  useClientCustomFields
-} from "..";
-// eslint-disable-next-line import/order
-import { ScopeActorTypes } from "../../scope/scope.types";
 
 // -----------------------------------------------------------------------------
 
@@ -111,7 +110,8 @@ describe("client-custom-fields image editor — AC-18 progress, AC-20 download/p
 describe("client-custom-fields image editor — AC-19 the error-key rewrite", () => {
   it("AC-19 rewrites a rejected upload's error onto custom_fields.<code>, not the bare `image` key", async () => {
     await seedClientSession();
-    const { imageFieldId } = recordedIds();
+    const { imageFieldId, brandId } = recordedIds();
+    installDefinitionsHandler(server, brandId, recordedDefinitions());
     const imageField = recordedDefinitions().find(
       field => field.id === imageFieldId
     );
@@ -153,7 +153,10 @@ describe("client-custom-fields image editor — AC-19 the error-key rewrite", ()
       image.useActions().upload(fakeFile("not-an-image.txt"))
     ).rejects.toBeTruthy();
 
-    await vi.waitFor(() => expect(image.useMeta().hasError.value).toBe(true));
+    // Wait for errors to be populated, not just hasError — captureError is async
+    await vi.waitFor(() =>
+      expect(image.useContext().errors.value).toBeDefined()
+    );
 
     const errors = image.useContext().errors.value as Record<string, unknown>;
     // AC-19's own contract names the CODE (`custom_fields.<code>`), not the
@@ -168,8 +171,8 @@ describe("client-custom-fields image editor — AC-19 the error-key rewrite", ()
 describe("client-custom-fields collection — AC-21/AC-22 flushImages()", () => {
   it("AC-21 flushImages() resolves only after the dirty image's upload settles, with the REAL hash in the model", async () => {
     await seedClientSession();
-    const { ageFieldId } = recordedIds();
-    void ageFieldId;
+    const { brandId } = recordedIds();
+    installDefinitionsHandler(server, brandId, recordedDefinitions());
     const uploaded = recorded.imageUpload().data;
     const observed = observeRequests("/image");
 
@@ -186,6 +189,8 @@ describe("client-custom-fields collection — AC-21/AC-22 flushImages()", () => 
 
   it("AC-22 with one dirty image and one untouched, exactly one POST is issued", async () => {
     await seedClientSession();
+    const { brandId } = recordedIds();
+    installDefinitionsHandler(server, brandId, recordedDefinitions());
     const observed = observeRequests("/image");
 
     const fields = useClientCustomFields().as(ScopeActorTypes.SELF);

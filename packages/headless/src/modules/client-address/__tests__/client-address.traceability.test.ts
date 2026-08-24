@@ -138,7 +138,7 @@ function provenAcs(): Set<string> {
 describe("client-address traceability — co-located feature vs proving tests", () => {
   it("the co-located feature is present and tags every scenario in the module's own tree", () => {
     expect(existsSync(COLOCATED_FEATURE)).toBe(true);
-    expect(featureAcTags(COLOCATED_FEATURE).size).toBe(40);
+    expect(featureAcTags(COLOCATED_FEATURE).size).toBe(44);
   });
 
   it("every non-@todo scenario has at least one proving test", () => {
@@ -192,7 +192,7 @@ describe("client-address traceability — co-located feature vs proving tests", 
         e2e: (CONSUMER_PROOFS[ac] ?? []).map(proof => proof.title)
       }));
 
-    expect(map).toHaveLength(40);
+    expect(map).toHaveLength(44);
     expect(
       map.filter(entry => entry.files.length === 0 && entry.e2e.length === 0)
     ).toEqual([]);

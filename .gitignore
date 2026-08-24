@@ -8,6 +8,7 @@ dist
 *.log
 .DS_Store
 *storybook.log
+storybook-static/
 **/.firebase/**
 .tsbuildinfo
 bin/pnpm
@@ -81,6 +82,7 @@ docs/corpus/.gate-examples-tmp-*/
 
 # Transient agent-generated docs. No trailing slash: a bare path also ignores a
 # symlink at it, which a directory-only pattern lets through.
+.docs
 docs/analysis
 docs/plans
 docs/audit

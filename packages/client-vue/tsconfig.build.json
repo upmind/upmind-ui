@@ -10,6 +10,8 @@
     "declarationDir": "dist",
     "tsBuildInfoFile": "dist/tsconfig.build.tsbuildinfo",
     "paths": {
+      "@upmind/ui": ["../../design-system/packages/ui/src/index.ts"],
+      "@upmind/tokens": ["../../design-system/packages/tokens/src/index.ts"],
       "@/*": ["./src/*"]
     }
   },
@@ -24,6 +26,7 @@
   "references": [
     { "path": "../types/tsconfig.build.json" },
     { "path": "../headless/tsconfig.build.json" },
-    { "path": "../ui/tsconfig.build.json" }
+    { "path": "../../design-system/packages/ui/tsconfig.build.json" },
+    { "path": "../../design-system/packages/tokens/tsconfig.build.json" }
   ]
 }

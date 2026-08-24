@@ -342,9 +342,8 @@ describe("client-phone collection — list controls (AC-10, AC-11, AC-12)", () =
     const paged = installPagedPhonesHandler(server, clientId);
 
     const observed = observePhoneRequests();
-    const query = createClientPhoneServices(ScopeActorTypes.CLIENT).loadList({
-      pagination: { limit: 2 }
-    });
+    const query = createClientPhoneServices(ScopeActorTypes.CLIENT).loadList();
+    query.setCriteria({ pagination: { limit: 2 } });
 
     await vi.waitFor(() => expect(query.data.value).toHaveLength(2));
 
@@ -366,7 +365,7 @@ describe("client-phone collection — list controls (AC-10, AC-11, AC-12)", () =
     expect(paged.offsets()).toEqual(["0", "2"]);
   });
 
-  it("AC-12 filters.query() re-issues the list request carrying the filter term, without re-firing the unfiltered read", async () => {
+  it("AC-12 filterBy() re-issues the list request carrying the filter term, without re-firing the unfiltered read", async () => {
     const { clientId } = await seedClientSession();
     const { primary } = recordedRows();
     installPhonesListHandler(server, clientId, [primary]);
@@ -375,7 +374,7 @@ describe("client-phone collection — list controls (AC-10, AC-11, AC-12)", () =
     await phones.useActions().isReady();
 
     const observed = observePhoneRequests();
-    phones.useActions().filters.query("7911");
+    phones.useActions().filterBy({ number: { like: "7911" } });
 
     await vi.waitFor(() => {
       expect(observed.all().some(request => request.url.includes("7911"))).toBe(

@@ -28,6 +28,7 @@ import { RESOLVED_HANDOFFS } from "../../__tests__/resolved-handoffs";
 import DetailDialog from "../../DetailDialog.vue";
 import ManageDialog from "../../ManageDialog.vue";
 import { ListSurface } from "../index";
+import { getRow } from "./table-geometry";
 import { find, keys, map } from "lodash-es";
 import type { ActionSlotItem } from "../../ActionSlots.types";
 import type { SurfaceActions } from "../surface.types";
@@ -63,10 +64,7 @@ function mountList() {
 type Wrapper = ReturnType<typeof mountList>;
 
 const openView = async (wrapper: Wrapper, row: number) => {
-  await wrapper
-    .findAll("li")
-    [row].find('[data-test-value="view"]')
-    .trigger("click");
+  await getRow(wrapper, row).find('[data-test-value="view"]').trigger("click");
   await flushPromises();
 };
 

@@ -28,13 +28,13 @@
 <script lang="ts" setup>
 // --- components
 import InsetLayout from "../../../components/layout/layouts/Inset.layout.vue";
-import { Card } from "@upmind-automation/upmind-ui";
+import { Card } from "@upmind/ui";
 
 // --- internal
 import { useSection } from "../../../components/section/useSection";
 
 // --- utils
-import { isMobile } from "@upmind-automation/upmind-ui";
+import { isMobile } from "../../../composables/isMobile";
 
 defineOptions({
   inheritAttrs: false

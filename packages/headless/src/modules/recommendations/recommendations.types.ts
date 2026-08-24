@@ -1,7 +1,7 @@
 import type { ResponseError } from "../../utils";
 import type { BasketProduct } from "../basket-product";
 import type { ConditionalValue } from "../config/config.types";
-import type { Badge } from "../config/schema";
+import type { Badge, BadgeInput } from "../config/schema";
 import type {
   ProductModel,
   ProductProps,
@@ -221,7 +221,7 @@ export interface RelatedProduct extends IRelatedObject {
   /**
    * An optional badge to display with the related product.
    */
-  badge?: Badge;
+  badge?: BadgeInput;
   /**
    * An array of benefits associated with the related product.
    */

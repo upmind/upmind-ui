@@ -1,15 +1,15 @@
 <template>
-  <section :class="styles.products.facet.root">
+  <section :class="productsFacetRootVariants()">
     <Input
       v-model="query"
-      :class="styles.products.facet.search.input"
+      :class="productsFacetSearchInputVariants()"
       :placeholder="t('form.category_search.placeholder')"
-      :auto-focus="false"
-      icon="search-md"
       size="lg"
-    />
+    >
+      <template #leading><Icon icon="search-md" /></template>
+    </Input>
 
-    <nav :class="styles.products.facet.list.root">
+    <nav :class="productsFacetListRootVariants()">
       <CategoriesFacetDrillDown
         v-model="modelValue"
         :query="query"
@@ -25,8 +25,13 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { Input, useStyles } from "@upmind-automation/upmind-ui";
-import config from "../../catalogue.config";
+import { Input } from "@upmind/ui";
+import { Icon } from "../../../../components/icon";
+import {
+  productsFacetRootVariants,
+  productsFacetSearchInputVariants,
+  productsFacetListRootVariants
+} from "../../variants";
 import CategoriesFacetDrillDown from "./CategoriesFacetDrillDown.vue";
 import type { CategoriesProps } from "../types";
 
@@ -39,15 +44,4 @@ const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 const { t } = useI18n();
 
 const query = ref("");
-
-const styles = useStyles(
-  [
-    "products",
-    "products.facet",
-    "products.facet.list",
-    "products.facet.search"
-  ],
-  {},
-  config
-);
 </script>

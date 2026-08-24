@@ -8,7 +8,7 @@
         <Back
           :label="meta.isInset ? t('action.back') : t('action.back_to_basket')"
           :icon="meta.isInset ? 'arrow-narrow-left' : undefined"
-          :size="meta.isInset ? 'md' : 'lg'"
+          size="md"
           :color="meta.isInset ? 'muted' : 'default'"
           @click.prevent="doReject"
         />
@@ -27,12 +27,12 @@
           <template #subtitle>
             <!-- A guest client is upgrading, not choosing login vs register —
                  show the save-your-details prompt, not the log-in link. -->
-            <span v-if="isGuestClient" :class="styles.session.subtitle">{{
+            <span v-if="isGuestClient" :class="sessionSubtitleVariants()">{{
               t("auth.guest_register_description")
             }}</span>
 
             <template v-else>
-              <span :class="styles.session.subtitle"
+              <span :class="sessionSubtitleVariants()"
                 >{{ t("auth.register_description") }}&nbsp;</span
               >
 
@@ -40,10 +40,10 @@
                 :to="props.loginRoute"
                 size="inherit"
                 color="inherit"
-                :label="t('action.log_in_here')"
-                :dataAttrs="{ 'data-test-key': 'checkout-login-link' }"
-                :class="styles.session.subtitle"
-              />
+                :data-attrs="{ 'data-test-key': 'checkout-login-link' }"
+                class="font-normal"
+                >{{ t("action.log_in_here") }}</Link
+              >
             </template>
           </template>
         </Hero>
@@ -64,17 +64,14 @@
             meta.isInset ? t('action.create_account') : t('action.register')
           "
           icon="user-03"
-          :class="styles.session.formWidth"
+          :class="sessionFormWidthVariants({ inset: meta.isInset })"
           v-show="!isAuthenticated || isGuestClient"
           :active="templateMeta.hasActiveSection"
         >
           <template v-if="meta.isInset && !isGuestClient" #actions>
-            <Link
-              :label="t('action.login')"
-              color="muted"
-              size="sm"
-              @click.prevent="doUpdate('login')"
-            />
+            <Link color="muted" size="sm" @click.prevent="doUpdate('login')">{{
+              t("action.login")
+            }}</Link>
           </template>
 
           <Markdown
@@ -84,40 +81,33 @@
           />
 
           <Alert
-            v-if="
-              !isAuthenticated &&
-              canRegisterAsGuest &&
-              !basketMeta.isLoading &&
-              !basketMeta.hasRecurringProducts
-            "
+            v-if="meta.offersGuestCheckout"
+            variant="neutral"
             :title="t('auth.guest_checkout_qn')"
-            icon="clock-fast-forward"
-            variant="muted"
-            size="sm"
-            :class="styles.session.guestCheckout"
+            :class="guestCheckoutVariants({ template })"
           >
+            <template #icon><Icon icon="clock-fast-forward" /></template>
             <template #action>
               <Link
                 size="sm"
                 @click="registerAsGuest"
                 color="inherit"
-                :label="t('auth.guest_checkout_action')"
                 :disabled="isRegisteringAsGuest"
-                :dataAttrs="{ 'data-test-key': 'guest-checkout-cta' }"
+                :data-attrs="{ 'data-test-key': 'guest-checkout-cta' }"
               >
-                <template #append>
-                  <Spinner
-                    v-if="isRegisteringAsGuest"
-                    size="badge"
-                    class="m-1.5"
-                  />
-                  <Icon
-                    v-else
-                    icon="arrow-right"
-                    size="2xs"
-                    class="p-1.5 [&>svg]:size-3"
-                  />
-                </template>
+                {{ t("auth.guest_checkout_action") }}
+                <Spinner
+                  :label="t('text.loading')"
+                  v-if="isRegisteringAsGuest"
+                  size="xs"
+                  class="m-1.5"
+                />
+                <Icon
+                  v-else
+                  icon="arrow-right"
+                  size="sm"
+                  class="p-1.5 [&>svg]:size-3"
+                />
               </Link>
             </template>
           </Alert>
@@ -125,13 +115,13 @@
           <Account
             v-if="isGuestClient"
             v-show="!isLoading && !basketMeta.isLoading"
-            class="rounded-box w-full max-w-5xl items-start"
+            class="rounded-card w-full max-w-5xl items-start"
             @resolve="doResolve"
           />
 
           <Auth
             v-show="!isLoading && !basketMeta.isLoading"
-            class="rounded-box w-full max-w-5xl items-start"
+            class="rounded-card w-full max-w-5xl items-start"
             no-tabs
             no-header
             model-value="register"
@@ -170,7 +160,7 @@
           >
             <template #[`privacyPolicy`]>
               <Link
-                class="has-text-grey-light"
+                class="text-muted"
                 href="https://policies.google.com/privacy"
                 target="_blank"
                 size="inherit"
@@ -180,7 +170,7 @@
             </template>
             <template #[`termsOfService`]>
               <Link
-                class="has-text-grey-light"
+                class="text-muted"
                 href="https://policies.google.com/terms"
                 target="_blank"
                 size="inherit"
@@ -211,7 +201,7 @@
     >
       <Markdown
         tag="div"
-        :class="templateMeta.isSplit ? '' : styles.session.markdown"
+        :class="templateMeta.isSplit ? '' : markdownVariants()"
         :model-value="registerTemplate.body"
       />
     </template>
@@ -228,32 +218,28 @@ import {
   useBrand
 } from "@upmind-automation/headless";
 import {
-  useActiveSession,
-  useAuth,
   useBasket,
   useRoutingEngine,
+  useActiveSession,
+  useAuth,
   ScopeActorTypes,
   UIContext,
   ClientTemplateSlotCodes
 } from "@upmind-automation/headless";
-import { useThemes, useStyles } from "@upmind-automation/upmind-ui";
-import {
-  Link,
-  Markdown,
-  Skeleton,
-  Icon,
-  Alert,
-  Spinner
-} from "@upmind-automation/upmind-ui";
+import { Spinner } from "@upmind/ui";
+import { Link, Markdown } from "@upmind/ui";
+import { Skeleton } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
 import Hero from "../../components/hero/Hero.vue";
+import { Icon } from "../../components/icon";
 import Back from "../../components/navigation/Back.vue";
 import Section from "../../components/section/Section.vue";
 import Summary from "../basket/components/Summary.vue";
 import Loading from "../system/Loading.vue";
+import { useThemes } from "../theming";
 import Account from "./components/Account.vue";
 import Auth from "./components/Auth.vue";
-import sessionConfig from "./session.config";
-import { useSessionTemplates } from "./session.utils";
+import { offersGuestCheckout, useSessionTemplates } from "./session.utils";
 import SessionCanvasCardTemplate from "./templates/SessionCanvasCard.template.vue";
 import SessionEnclosedTemplate from "./templates/SessionEnclosed.template.vue";
 import SessionInsetTemplate from "./templates/SessionInset.template.vue";
@@ -266,6 +252,12 @@ import {
   type SessionRoutes,
   SESSION_TEMPLATE
 } from "./types";
+import {
+  guestCheckoutVariants,
+  markdownVariants,
+  sessionFormWidthVariants,
+  sessionSubtitleVariants
+} from "./variants";
 import { get } from "lodash-es";
 
 const supportedTemplates = {
@@ -301,18 +293,9 @@ function registerAsGuest() {
   if ("registerAsGuest" in authActions)
     return authActions?.registerAsGuest().then(() => doResolve());
 }
-
 const { meta: basketMeta } = useBasket();
 const { navigateNext, navigateBack, navigate } = useRoutingEngine();
 const { brandId } = useBrand();
-
-const styles = useStyles(
-  ["session", "session.guestCheckout", "session.formWidth"],
-  computed(() => ({
-    template: template.value
-  })),
-  sessionConfig
-);
 
 const { ui } = useConfig({
   context: UIContext.AUTH,
@@ -338,7 +321,13 @@ const template = computed(() =>
 );
 
 const meta = computed(() => ({
-  isInset: template.value === SESSION_TEMPLATE.INSET
+  isInset: template.value === SESSION_TEMPLATE.INSET,
+  offersGuestCheckout: offersGuestCheckout({
+    isAuthenticated: isAuthenticated.value,
+    canRegisterAsGuest: canRegisterAsGuest.value,
+    isBasketLoading: basketMeta.value.isLoading,
+    hasRecurringProducts: basketMeta.value.hasRecurringProducts
+  })
 }));
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));

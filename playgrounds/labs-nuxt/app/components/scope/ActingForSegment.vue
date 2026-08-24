@@ -2,15 +2,17 @@
   <DropdownMenu
     v-if="hasRows"
     :items="items"
-    :title="t('labs.acting_for')"
-    width="lg"
+    :label="t('labs.acting_for')"
+    class="w-64"
   >
     <template #trigger>
       <Button
         :label="triggerLabel"
         :ring="false"
         :icon="triggerIcon"
-        :class="styles.actingFor.trigger"
+        :class="
+          isActing ? 'bg-control-selected text-control-selected' : 'text-muted'
+        "
         icon-append="chevron-down"
         size="sm"
         variant="ghost"
@@ -20,12 +22,11 @@
 
     <template #item="{ item }">
       <Tooltip
-        v-if="isUnsupported(item.value)"
+        v-if="isUnsupported(String(item.value))"
         :label="t('labs.acting_for_unsupported', { actor: item.label })"
       >
         <Button
           :label="item.label"
-          :icon="item.icon"
           :data-attrs="item.dataAttrs"
           :ring="false"
           align="left"
@@ -39,10 +40,9 @@
       <Button
         v-else
         :label="item.label"
-        :icon="item.icon"
         :data-attrs="item.dataAttrs"
-        :aria-current="isCurrent(item.value) ? 'true' : undefined"
-        :class="actorRow({ isCurrent: isCurrent(item.value) })"
+        :aria-current="isCurrent(String(item.value)) ? 'true' : undefined"
+        :class="actorRow({ isCurrent: isCurrent(String(item.value)) })"
         :ring="false"
         align="left"
         block
@@ -50,22 +50,25 @@
         variant="ghost"
       >
         <template #append>
-          <span :class="styles.actingFor.trailing">
-            <span v-if="contextFor(item.value)" :class="styles.actingFor.tag">
-              {{ contextFor(item.value) }}
+          <span class="ml-auto flex shrink-0 items-center gap-2">
+            <span
+              v-if="contextFor(String(item.value))"
+              class="text-muted text-xs leading-none text-nowrap"
+            >
+              {{ contextFor(String(item.value)) }}
             </span>
             <Icon
-              v-if="isCurrent(item.value)"
+              v-if="isCurrent(String(item.value))"
               icon="check"
               size="nano"
-              :class="styles.actingFor.mark"
+              class="text-accent-success"
             />
           </span>
         </template>
       </Button>
     </template>
 
-    <div :class="styles.actingFor.idField">
+    <div class="border-control-default border-t p-2">
       <Input
         v-model="idInput"
         :disabled="!contextType"
@@ -96,13 +99,9 @@
     :items="clients"
     :model-value="currentContext?.id"
     :placeholder="t('labs.acting_for_search')"
-    :search-placeholder="t('labs.acting_for_search_placeholder')"
-    :empty-message="t('labs.acting_for_search_empty')"
+    :empty-label="t('labs.acting_for_search_empty')"
     :data-attrs="{ 'data-test-key': 'acting-for-search' }"
-    search
-    size="md"
-    width="sm"
-    @update:model-value="applyContext"
+    @update:model-value="value => applyContext(String(value))"
   />
 </template>
 
@@ -139,30 +138,20 @@ import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { ScopeActorTypes, useSessionStore } from "@upmind-automation/headless";
-import {
-  Button,
-  Combobox,
-  DropdownMenu,
-  Icon,
-  Input,
-  Tooltip,
-  useStyles
-} from "@upmind-automation/upmind-ui";
+import { Button, Combobox, DropdownMenu, Input, Tooltip } from "@upmind/ui";
+import { Icon } from "@upmind-automation/client-vue";
 import {
   buildScopePath,
   useActorScope,
   useContextScope
 } from "../../composables/scope";
 import { usePlaygroundUrlState } from "../../composables/usePlaygroundUrlState";
-import config, { actorRow } from "./ActingForSegment.styles";
+import { actorRow } from "./ActingForSegment.styles";
 import { useContextScopeSelector } from "./useContextScopeSelector";
 import { filter, find, first, get, has, isEmpty, map, reject } from "lodash-es";
 import type { ActorContextRow } from "./useContextScopeSelector";
 import type { SessionEntry } from "@upmind-automation/headless";
-import type {
-  ComboboxItemProps,
-  DropdownMenuItemProps
-} from "@upmind-automation/upmind-ui";
+import type { ComboboxOption, MenuItem } from "@upmind/ui";
 
 // -----------------------------------------------------------------------------
 
@@ -192,11 +181,7 @@ const store = useSessionStore();
 const { clientSessions } = store.useContext();
 const { isAvailable } = store.useMeta();
 
-const styles = useStyles(
-  ["actingFor"],
-  computed(() => ({ isActing: !!currentContext.value })),
-  config
-);
+const isActing = computed(() => !!currentContext.value);
 
 const idInput = ref("");
 const armed = ref<ScopeActorTypes>();
@@ -244,16 +229,15 @@ const triggerIcon = computed(() =>
  * of a context IS that self row rather than a second control saying the same
  * thing (`R6-12`).
  */
-const items = computed<DropdownMenuItemProps[]>(() =>
+const items = computed<MenuItem[]>(() =>
   map(actorContexts.value, row => ({
     value: row.actor,
     label: t(ACTOR_LABELS[row.actor]),
-    icon: ACTOR_ICONS[row.actor],
     dataAttrs: {
       "data-test-key": "acting-for-actor",
       "data-test-value": row.actor
     },
-    handler: handlerFor(row)
+    onSelect: handlerFor(row)
   }))
 );
 
@@ -263,20 +247,13 @@ const pool = computed<Record<string, SessionEntry>>(() =>
 );
 
 /** The clients the app already knows: the session pool's own, then the recent. */
-const clients = computed<ComboboxItemProps[]>(() => [
-  ...map(pool.value, (entry, id) =>
-    clientItem(id, sessionLabel(entry, id), "labs.acting_for_source_session")
-  ),
+const clients = computed<ComboboxOption[]>(() => [
+  ...map(pool.value, (entry, id) => clientItem(id, sessionLabel(entry, id))),
   ...map(
     reject(filter(recentContexts.value, ["type", contextType.value]), entry =>
       has(pool.value, entry.id)
     ),
-    entry =>
-      clientItem(
-        entry.id,
-        entry.label ?? entry.id,
-        "labs.acting_for_source_recent"
-      )
+    entry => clientItem(entry.id, entry.label ?? entry.id)
   )
 ]);
 
@@ -327,16 +304,10 @@ function sessionLabel(entry: SessionEntry, id: string): string {
   );
 }
 
-function clientItem(
-  id: string,
-  label: string,
-  source: string
-): ComboboxItemProps {
+function clientItem(id: string, label: string): ComboboxOption {
   return {
     value: id,
     label,
-    selectedLabel: label,
-    tag: t(source),
     dataAttrs: { "data-test-key": "acting-for-client", "data-test-value": id }
   };
 }

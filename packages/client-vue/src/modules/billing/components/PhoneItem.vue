@@ -1,18 +1,23 @@
 <template>
   <div class="flex items-center space-x-2">
     <span
-      class="border-control-default text-md-tight flex items-center justify-center space-x-2"
+      class="border-control flex items-center justify-center space-x-2 text-base"
     >
-      <Avatar :icon="lowerCase(props.phone?.country ?? '')" size="xs" />
+      <Avatar size="xs">
+        <template #fallback>
+          <Icon :icon="lowerCase(props.phone?.country ?? '')" />
+        </template>
+      </Avatar>
 
       <span class="text-muted">+{{ props.phone?.countryCallingCode }}</span>
     </span>
-    <p class="text-md">{{ props.phone?.nationalNumber }}</p>
+    <p class="text-base">{{ props.phone?.nationalNumber }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Avatar } from "@upmind-automation/upmind-ui";
+import { Avatar } from "@upmind/ui";
+import { Icon } from "../../../components/icon";
 import { lowerCase } from "lodash-es";
 import type { Phone } from "@upmind-automation/headless";
 

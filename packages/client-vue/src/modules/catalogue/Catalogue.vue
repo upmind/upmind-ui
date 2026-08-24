@@ -24,8 +24,8 @@
     </template>
 
     <template #content>
-      <div :class="styles.products.root" v-auto-animate>
-        <aside :class="styles.products.facets.root" v-if="isFaceted">
+      <div :class="productsRootVariants()" v-auto-animate>
+        <aside :class="productsFacetsRootVariants()" v-if="isFaceted">
           <CategoriesFacet
             v-model="categoryId"
             :sort="params.sort"
@@ -69,18 +69,17 @@ import {
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
 import { PRODUCT_LIST_STYLE, LIST_STYLE } from "@upmind-automation/headless";
-import { useThemes } from "@upmind-automation/upmind-ui";
-import { useStyles } from "@upmind-automation/upmind-ui";
 import { useFooter } from "../../components/footer/useFooter";
 import { useHeader } from "../../components/header/useHeader";
 import Layout from "../../components/layout/Layout.vue";
 import { useLayout } from "../../components/layout/useLayout";
-import config from "./catalogue.config";
+import { useThemes } from "../theming";
 import Breadcrumbs from "./categories/Breadcrumbs.vue";
 import Categories from "./categories/Categories.vue";
 import CategoriesFacet from "./categories/facet/CategoriesFacet.vue";
 import WidgetDAC from "./products/WidgetDAC.vue";
 import WidgetGrid from "./products/WidgetGrid.vue";
+import { productsRootVariants, productsFacetsRootVariants } from "./variants";
 import { last } from "lodash-es";
 import type { LAYOUT_VARIANTS } from "../../components/layout";
 import type {
@@ -166,8 +165,6 @@ const widget = computed(() => {
   }
   return WidgetGrid;
 });
-
-const styles = useStyles(["products", "products.facets"], {}, config);
 
 const isFaceted = computed(() => {
   return ui.categoryList.value === LIST_STYLE.GRID_FACET;

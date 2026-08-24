@@ -1,6 +1,6 @@
 <template>
-  <header data-test-key="page-header" :class="styles.pageHeader.root">
-    <h1 :class="styles.pageHeader.title">{{ name }}</h1>
+  <header data-test-key="page-header" :class="pageHeader.root()">
+    <h1 :class="pageHeader.title()">{{ name }}</h1>
 
     <!-- The tooltip's own trigger is the wrapper, so the reason is still
          reachable over a control the pointer can no longer press (`R6-23`). -->
@@ -10,9 +10,8 @@
       :label="t('labs.replay_locked')"
       :active="!!locked"
     >
-      <Button
-        :color="action.color ?? 'primary'"
-        :variant="action.variant ?? 'solid'"
+      <ButtonItems
+        :variant="action.variant ?? 'primary'"
         :icon="action.icon"
         :label="action.label"
         :disabled="action.disabled || locked"
@@ -51,8 +50,9 @@
 
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Button, Tooltip, useStyles } from "@upmind-automation/upmind-ui";
-import config from "./PageHeader.styles";
+import { Tooltip } from "@upmind/ui";
+import ButtonItems from "./ButtonItems.vue";
+import { pageHeader } from "./PageHeader.styles";
 import { isEmpty } from "lodash-es";
 import type { PageHeaderProps } from "./PageHeader.types";
 // -----------------------------------------------------------------------------
@@ -61,6 +61,5 @@ const props = defineProps<PageHeaderProps>();
 
 const { t } = useI18n();
 
-const meta = computed(() => ({ hasActions: !isEmpty(props.actions) }));
-const styles = useStyles(["pageHeader"], meta, config);
+const hasActions = computed(() => !isEmpty(props.actions));
 </script>

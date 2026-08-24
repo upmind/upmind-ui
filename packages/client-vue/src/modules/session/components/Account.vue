@@ -17,17 +17,18 @@
       }"
       @reject="doReject"
     >
-      <div class="auth" :class="cn(styles.session.auth.root, props.class)">
+      <div class="auth" :class="cn(authRootVariants(), props.class)">
         <Alert
           v-if="hasErrors"
-          color="danger"
-          icon="alert-triangle"
+          variant="danger"
           :title="alertTitle"
           :description="errors"
           :data-attrs="{
             'data-test-value': 'account'
           }"
-        />
+        >
+          <template #icon><Icon icon="alert-triangle" /></template>
+        </Alert>
 
         <Form
           :disabled="!showGuestUpgradeForm && !showVerifyEmailForm"
@@ -42,7 +43,7 @@
           @resolve="doResolve"
           :autosave="showVerifyEmailForm"
           @update:model-value="set"
-          :class="styles.session.auth.form"
+          :class="authFormVariants({ showVerifyEmail: showVerifyEmailForm })"
           :actions="formActions"
           :dataAttrs="{
             'data-test-key': 'session-form',
@@ -60,18 +61,18 @@
 
       <template v-if="showVerifyEmailForm">
         <Transition
-          :enter-active-class="styles.session.transitions.fade.enter.active"
-          :enter-from-class="styles.session.transitions.fade.enter.from"
-          :enter-to-class="styles.session.transitions.fade.enter.to"
-          :leave-active-class="styles.session.transitions.fade.leave.active"
-          :leave-from-class="styles.session.transitions.fade.leave.from"
-          :leave-to-class="styles.session.transitions.fade.leave.to"
+          :enter-active-class="transitionsFadeEnterActiveVariants()"
+          :enter-from-class="transitionsFadeEnterFromVariants()"
+          :enter-to-class="transitionsFadeEnterToVariants()"
+          :leave-active-class="transitionsFadeLeaveActiveVariants()"
+          :leave-from-class="transitionsFadeLeaveFromVariants()"
+          :leave-to-class="transitionsFadeLeaveToVariants()"
           mode="out-in"
         >
-          <div :key="resendState" :class="styles.session.auth.resend">
+          <div :key="resendState" :class="authResendVariants()">
             <template v-if="canResend">
               <span
-                :class="styles.session.auth.resendPrompt"
+                :class="authResendPromptVariants()"
                 v-bind="resendPromptTestAttrs"
               >
                 {{ t("auth.didnt_receive_code") }}
@@ -79,22 +80,22 @@
 
               <Link
                 size="sm"
-                :label="t('action.resend_code')"
-                :dataAttrs="{ 'data-test-key': 'resend-code-link' }"
+                :data-attrs="{ 'data-test-key': 'resend-code-link' }"
                 @click.prevent="resend"
-              />
+                >{{ t("action.resend_code") }}</Link
+              >
             </template>
 
             <span
               v-else-if="isResending"
-              :class="styles.session.auth.resendSending"
+              :class="authResendSendingVariants()"
               v-bind="resendSendingTestAttrs"
             >
               {{ t("auth.verify_email_send") }}
             </span>
             <span
               v-else-if="resendComplete"
-              :class="styles.session.auth.resendSent"
+              :class="authResendSentVariants()"
               v-bind="resendSentTestAttrs"
             >
               {{ t("auth.verify_email_sent") }}
@@ -109,32 +110,42 @@
 <script lang="ts" setup>
 import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { useActiveSession } from "@upmind-automation/headless";
 import {
   ScopeActorTypes,
   useAccount,
-  useActiveSession,
+  useRoutingEngine,
   type VerifyEmailModel,
   type CompleteRegistrationModel
 } from "@upmind-automation/headless";
-import {
-  useStyles,
-  useTestAttrs,
-  cn,
-  Interstitial,
-  Slot,
-  type FormActionProps
-} from "@upmind-automation/upmind-ui";
-import { Alert, Link } from "@upmind-automation/upmind-ui";
+import { Slot } from "@upmind/ui";
+import { cn, Interstitial, Link, useTestAttrs } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
 import Form from "../../../components/form/Form.vue";
+import { Icon } from "../../../components/icon";
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";
-import config from "../session.config";
 import { SESSION_FORMS } from "../types";
+import {
+  authRootVariants,
+  authFormVariants,
+  authResendVariants,
+  authResendPromptVariants,
+  authResendSendingVariants,
+  authResendSentVariants,
+  transitionsFadeEnterActiveVariants,
+  transitionsFadeEnterFromVariants,
+  transitionsFadeEnterToVariants,
+  transitionsFadeLeaveActiveVariants,
+  transitionsFadeLeaveFromVariants,
+  transitionsFadeLeaveToVariants
+} from "../variants";
+import type { FormActionProps } from "../../../components/form";
 import type { SessionProps } from "../types";
 // -----------------------------------------------------------------------------
 
 const emit = defineEmits(["resolve", "reject"]);
 const props = withDefaults(defineProps<Omit<SessionProps, "modelValue">>(), {
-  variant: "solid"
+  variant: "primary"
 });
 
 const modelValue = defineModel<SessionProps["modelValue"]>("modelValue", {
@@ -142,6 +153,7 @@ const modelValue = defineModel<SessionProps["modelValue"]>("modelValue", {
 });
 
 const { t } = useI18n();
+const { navigate } = useRoutingEngine();
 
 // --- Account for verify-email / guest-upgrade / resend (state-driven forms)
 const account = useAccount().as(ScopeActorTypes.CLIENT);
@@ -162,25 +174,6 @@ const { errors, model, schema, uischema, validationErrors } =
   account.useContext();
 
 const { cancel, register, resend, set, verify } = account.useActions();
-
-// --- test attrs
-
-const resendPromptTestAttrs = useTestAttrs({ key: "resend-prompt" });
-const resendSendingTestAttrs = useTestAttrs({ key: "resend-sending" });
-const resendSentTestAttrs = useTestAttrs({ key: "resend-sent" });
-
-// --- Surface bindings routed to the active form's owning composable
-const styles = useStyles(
-  [
-    "session.auth",
-    "session.transitions.fade.enter",
-    "session.transitions.fade.leave"
-  ],
-  computed(() => ({
-    showVerifyEmail: showVerifyEmailForm.value
-  })),
-  config
-);
 
 const currentForm = computed<SESSION_FORMS>(() => {
   // An unverified client owes email verification (sourced from the client
@@ -315,6 +308,10 @@ function doResolve(model: unknown) {
 function doReject() {
   cancel();
   emit("reject");
+  // Form engine ignores an action's `to`, so navigate to the cancelRoute
+  // ourselves (the verify-email overlay sets it to the basket).
+  const target = props.cancelRoute?.name?.toString();
+  if (target) navigate(target);
 }
 
 onMounted(() => {
@@ -328,6 +325,10 @@ watch(canShowForms, (canShow, couldShow) => {
 watch(modelValue, newValue => {
   toggleForm(newValue);
 });
+
+const resendPromptTestAttrs = useTestAttrs({ key: "resend-prompt" });
+const resendSendingTestAttrs = useTestAttrs({ key: "resend-sending" });
+const resendSentTestAttrs = useTestAttrs({ key: "resend-sent" });
 </script>
 
 <style>

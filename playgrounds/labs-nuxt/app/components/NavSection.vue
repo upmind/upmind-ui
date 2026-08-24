@@ -1,6 +1,6 @@
 <template>
-  <div v-if="hasChildren">
-    <!-- Parent item with children -->
+  <div v-if="hasChildren && !collapsed">
+    <!-- Parent item with children (expanded sidebar) -->
     <Button
       variant="ghost"
       color="neutral"
@@ -16,10 +16,38 @@
     />
     <ul v-if="isOpen" class="mt-1 space-y-1">
       <li v-for="(child, idx) in item.children" :key="idx">
-        <NavSection :item="child" :depth="depth + 1" />
+        <NavSection :item="child" :depth="depth + 1" :collapsed="collapsed" />
       </li>
     </ul>
   </div>
+
+  <!-- Collapsed rail: icon-only with tooltip -->
+  <TooltipRoot v-else-if="collapsed && depth === 0">
+    <TooltipTrigger as-child>
+      <Button
+        v-if="item.to || item.route"
+        variant="ghost"
+        color="neutral"
+        size="sm"
+        icon-only
+        :icon="item.icon ?? 'circle'"
+        :to="item.to ?? { name: item.route! }"
+        :class="isActive ? 'bg-accent-primary-muted text-accent-primary' : ''"
+        :aria-label="item.label"
+        :aria-current="isActive ? 'page' : undefined"
+      />
+      <Button
+        v-else-if="hasChildren"
+        variant="ghost"
+        color="neutral"
+        size="sm"
+        icon-only
+        :icon="item.icon ?? 'folder'"
+        :aria-label="item.label"
+      />
+    </TooltipTrigger>
+    <TooltipContent side="right">{{ item.label }}</TooltipContent>
+  </TooltipRoot>
 
   <!-- Dynamic route - non-navigable label -->
   <Button
@@ -55,17 +83,25 @@
 <script lang="ts" setup>
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { Button } from "@upmind-automation/upmind-ui";
+import {
+  Button,
+  TooltipRoot,
+  TooltipTrigger,
+  TooltipContent
+} from "@upmind/ui";
 import { some, startsWith } from "lodash-es";
 import type { NavItem } from "../composables/useNavigation.types";
 // -----------------------------------------------------------------------------
+
 const props = withDefaults(
   defineProps<{
     item: NavItem;
     depth?: number;
+    collapsed?: boolean;
   }>(),
   {
-    depth: 0
+    depth: 0,
+    collapsed: false
   }
 );
 

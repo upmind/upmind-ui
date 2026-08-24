@@ -4,10 +4,10 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_SUBMODULE_FORCE_HTTPS: true
   # NOTE: Stop Gitlab-CI automatically fetching GitHub repos as we need extra auth.
-  # All three github.com submodules are excluded from GitLab's auto (HTTPS) fetch and
+  # Both github.com submodules are excluded from GitLab's auto (HTTPS) fetch and
   # instead fetched over SSH in the `dependencies` job via per-repo deploy keys
-  # (packages/types, packages/ui, and docs/published-docs / mintlify-docs — FE-2752).
-  GIT_SUBMODULE_PATHS: ":(exclude)packages/types :(exclude)packages/ui :(exclude)docs/published-docs"
+  # (packages/types and docs/published-docs / mintlify-docs — FE-2752).
+  GIT_SUBMODULE_PATHS: ":(exclude)packages/types :(exclude)docs/published-docs"
   INTERNAL_NPMRC: |
     @upmind-automation:registry=https://git.upmind.io/api/v4/projects/105/packages/npm/
     //git.upmind.io/api/v4/projects/105/packages/npm/:_authToken=${CI_JOB_TOKEN}
@@ -26,6 +26,9 @@ stages:
 .pnpm:
   image: ${NODE_IMAGE}
   before_script:
+    # The root `prepare` script (husky + published-docs hook install) needs
+    # bash and git; the alpine node image ships neither.
+    - apk add --no-cache bash git
     - corepack enable
     - corepack prepare pnpm@latest --activate
     - pnpm --version
@@ -33,6 +36,7 @@ stages:
 include:
   - local: .gitlab-ci/cart.yml
   - local: .gitlab-ci/headless.yml
+  - local: .gitlab-ci/ui.yml
   - local: .gitlab-ci/pyramid.yml
   - local: .gitlab-ci/features.yml
   - local: .gitlab-ci/lint.yml
@@ -43,7 +47,7 @@ include:
     rules:
       - changes:
           paths:
-            - ./playgrounds/storybook/**
+            - ./playgrounds/storybook-next/**
 
       - if: $CI_FORCE_STORYBOOK == "true"
 
@@ -76,7 +80,7 @@ dependencies:
           - pnpm-lock.yaml
       paths:
         - node_modules
-        - playgrounds/storybook/node_modules
+        - playgrounds/storybook-next/node_modules
         - apps/cart/node_modules
         - apps/cart-nuxt/node_modules
         - apps/velia/node_modules
@@ -95,7 +99,7 @@ dependencies:
     expire_in: "1 day"
     paths:
       - node_modules
-      - playgrounds/storybook/node_modules
+      - playgrounds/storybook-next/node_modules
       - apps/cart/node_modules
       - apps/cart-nuxt/node_modules
       - apps/velia/node_modules
@@ -106,7 +110,6 @@ dependencies:
       - docs/node_modules
 
       - packages/types
-      - packages/ui
       - docs/published-docs
   script:
     - apk --no-cache add git openssh-client bash
@@ -114,7 +117,6 @@ dependencies:
       mkdir ~/.ssh || true
 
       echo "${UPMIND_TYPES_DEPLOY_PRIVATE_KEY}" > ~/.ssh/id.upmind-types
-      echo "${UPMIND_UI_DEPLOY_PRIVATE_KEY}" > ~/.ssh/id.upmind-ui
       echo "${UPMIND_MINTLIFY_DOCS_DEPLOY_PRIVATE_KEY}" > ~/.ssh/id.mintlify-docs
 
       cat <<EOF > ~/.ssh/config
@@ -126,11 +128,6 @@ dependencies:
         Hostname github.com
         Identityfile ~/.ssh/id.upmind-types
 
-      Host github-upmind-ui
-        User git
-        Hostname github.com
-        Identityfile ~/.ssh/id.upmind-ui
-
       Host github-mintlify-docs
         User git
         Hostname github.com
@@ -138,9 +135,6 @@ dependencies:
       EOF
 
       cat <<EOF > ~/.gitconfig
-      [url "github-upmind-ui:upmind/upmind-ui"]
-        insteadOf = git@github.com:upmind/upmind-ui
-
       [url "github-upmind-types:upmind/types"]
         insteadOf = git@github.com:upmind/types
 
@@ -156,6 +150,9 @@ dependencies:
     - pnpm install
     - pnpm --filter types install
     - pnpm --filter types build
+    # FE-2884: build the vendored UI-library packages (Node 24.4 ≥ 22.18 satisfies the tokens TS build)
+    - pnpm --filter @upmind/tokens build
+    - pnpm --filter @upmind/ui build:registry
 
 .check version:
   stage: build

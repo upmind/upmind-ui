@@ -4,7 +4,6 @@ import UpmindClient, {
   useTheme
 } from "@upmind-automation/client-vue";
 import { AccessRoleTypes } from "@upmind-automation/types";
-import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
 import { forEach } from "lodash-es";
 import type { I18n } from "vue-i18n";
 import type { Router } from "vue-router";
@@ -67,10 +66,6 @@ export default defineNuxtPlugin(async nuxtApp => {
   });
 
   // 2. Register Plugins
-  forEach(uiPlugins, ({ plugin, options }) => {
-    nuxtApp.vueApp.use(plugin, options);
-  });
-
   forEach(UpmindClient.plugins, ({ plugin, options }) => {
     nuxtApp.vueApp.use(plugin, options);
   });

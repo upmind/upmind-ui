@@ -1,4 +1,5 @@
 import type { Page } from "@playwright/test";
+import type { SubproductModel } from "@upmind-automation/headless";
 import { waitForUpmindBridge } from "./headless-bridge";
 
 const POLL_TIMEOUT = 15000;
@@ -18,6 +19,10 @@ export type HeadlessProductSeed = {
   billingCycleMonths?: number;
   /** Provision field values (e.g. domain `sld`). */
   provisionFields?: Record<string, unknown>;
+  /** Selected option subproducts, keyed category id → value id. */
+  options?: SubproductModel;
+  /** Selected attribute subproducts, keyed category id → value id. */
+  attributes?: SubproductModel;
   /** Promotion codes to apply to this product. */
   coupons?: string[];
   /** Whether to start a free trial. */
@@ -68,6 +73,8 @@ export async function addProductViaHeadless(
         quantity: seed.quantity ?? 1,
         term: seed.billingCycleMonths,
         provisionFields: seed.provisionFields,
+        options: seed.options,
+        attributes: seed.attributes,
         coupons: seed.coupons,
         startTrial: seed.startTrial
       };

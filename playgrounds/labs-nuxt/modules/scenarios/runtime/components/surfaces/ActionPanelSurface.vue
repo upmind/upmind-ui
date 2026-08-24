@@ -4,11 +4,11 @@
     :state="state"
     :detail="detail"
   />
-  <div v-else :class="styles.actionPanelSurface.root">
+  <div v-else :class="actionPanelSurface.root()">
     <ActionSlots :actions="slotItems" />
     <UpmForm
       v-if="schema"
-      :class="styles.actionPanelSurface.form"
+      :class="actionPanelSurface.form()"
       :schema="schema"
       :uischema="uischema"
       :model-value="model"
@@ -32,17 +32,16 @@
 
 import { computed } from "vue";
 import { formRenderers, UpmForm } from "@upmind-automation/client-vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { actionPanelSurface } from "./ActionPanelSurface.styles";
 import { ActionPlacementTypes } from "../../scenario.types";
 import ActionSlots from "../ActionSlots.vue";
 import { resolveModuleDetail, resolveModuleState } from "../module-state";
 import { ModuleState } from "../module-state.types";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
-import config from "./ActionPanelSurface.styles";
 import { isFunction, map, startCase } from "lodash-es";
 import type { ActionSlotItem } from "../ActionSlots.types";
 import type { ActionPanelSurfaceProps } from "./ActionPanelSurface.types";
-import type { FormProps } from "@upmind-automation/upmind-ui";
+import type { FormProps } from "@upmind-automation/client-vue";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<ActionPanelSurfaceProps>();
@@ -80,7 +79,4 @@ const slotItems = computed<ActionSlotItem[]>(() =>
     }
   }))
 );
-
-const meta = computed(() => ({ state: state.value }));
-const styles = useStyles(["actionPanelSurface"], meta, config);
 </script>

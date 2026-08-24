@@ -39,6 +39,7 @@ import {
 import ManageDialog from "../../ManageDialog.vue";
 import PageHeader from "../../PageHeader.vue";
 import { ListSurface } from "../index";
+import { getRow } from "./table-geometry";
 import { get, keys, values } from "lodash-es";
 import type { ResolvedHandoff } from "../../../scenario.types";
 import type { ActionSlotItem } from "../../ActionSlots.types";
@@ -123,9 +124,8 @@ const editors = (wrapper: Wrapper | Page) =>
   wrapper.findAllComponents(ManageDialog);
 
 const openRow = async (wrapper: Wrapper, row: number) => {
-  await wrapper
-    .findAll("li")
-    [row].find(`[data-test-value="${CONTROL_TEST_VALUE.edit}"]`)
+  await getRow(wrapper, row)
+    .find(`[data-test-value="${CONTROL_TEST_VALUE.edit}"]`)
     .trigger("click");
   await flushPromises();
 };
@@ -215,9 +215,8 @@ describe("@AC3 edit — the row carries its own id to the editor (C1)", () => {
     expect(keys(LIVE_ACTIONS)).not.toContain("edit");
     for (const row of [0, 1]) {
       expect(
-        wrapper
-          .findAll("li")
-          [row].find(`[data-test-value="${CONTROL_TEST_VALUE.edit}"]`)
+        getRow(wrapper, row)
+          .find(`[data-test-value="${CONTROL_TEST_VALUE.edit}"]`)
           .exists()
       ).toBe(true);
     }
@@ -277,8 +276,7 @@ describe("@AC3 edit — the row carries its own id to the editor (C1)", () => {
     const wrapper = mountList(handoffsFor("add"));
 
     expect(
-      wrapper
-        .findAll("li")[1]
+      getRow(wrapper, 1)
         .find(`[data-test-value="${CONTROL_TEST_VALUE.edit}"]`)
         .exists()
     ).toBe(false);

@@ -371,12 +371,12 @@ curl -s "$API/brand/settings?lang=en" \
 
 > Sample trimmed for readability — full asset and currency/language entries omitted but preserved in the captured fixture.
 
-### `GET /config/brand/values?keys=…`
+### `GET /config/brand/values?filter[keys|eq]=…`
 
-Sparse keyed configuration for one brand. The `keys` query parameter is a comma-separated list. The response contains only the requested keys (and any unknown keys come back missing, not `null`).
+Sparse keyed configuration for one brand. The key list travels as a **filter criterion**, not a bare query parameter — the wire form is the bracketed `filter[<column>|<operator>]` pair, with the requested keys comma-joined into one value. The response contains only the requested keys (and any unknown keys come back missing, not `null`).
 
 ```bash
-curl -s "$API/config/brand/values?keys=ui.basket.default_currency,invoices.common.default_payment_period,invoices.common.display_price_type,invoices.common.require_address_for_orders,billing.gateway.force_card_storage,security.ui.allow_vault,analytics.gtm.container_id" \
+curl -s "$API/config/brand/values?filter[keys|eq]=ui.basket.default_currency,invoices.common.default_payment_period,invoices.common.display_price_type,invoices.common.require_address_for_orders,billing.gateway.force_card_storage,security.ui.allow_vault,analytics.gtm.container_id" \
   -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
 

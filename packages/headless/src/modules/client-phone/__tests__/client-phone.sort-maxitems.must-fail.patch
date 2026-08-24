@@ -1,0 +1,10 @@
+--- a/packages/headless/src/modules/client-phone/client-phone.schemas.ts
++++ b/packages/headless/src/modules/client-phone/client-phone.schemas.ts
+@@ -168,7 +168,6 @@
+         // rows with opposite `dir` are two distinct entries, so ajv passed
+         // both through to the wire (`order=created_at,-created_at`) even
+         // though the declared `field` enum names exactly one legal column.
+-        maxItems: 1,
+         uniqueItems: true,
+         items: {
+           type: "object",

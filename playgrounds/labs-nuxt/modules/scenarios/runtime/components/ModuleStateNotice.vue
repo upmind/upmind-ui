@@ -1,12 +1,11 @@
 <template>
   <Alert
-    :color="content.color"
-    :icon="content.icon"
+    :variant="content.variant"
     :title="content.title"
     :description="content.description"
-    :class="styles.moduleStateNotice.root"
+    :class="moduleStateNotice.root"
   >
-    <p v-if="reason" :class="styles.moduleStateNotice.detail">{{ reason }}</p>
+    <p v-if="reason" :class="moduleStateNotice.detail">{{ reason }}</p>
   </Alert>
 </template>
 
@@ -20,9 +19,11 @@
 
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Alert, useStyles } from "@upmind-automation/upmind-ui";
+import { Alert } from "@upmind/ui";
 import { ModuleState } from "./module-state.types";
-import config from "./ModuleStateNotice.styles";
+import moduleStateNoticeStyles from "./ModuleStateNotice.styles";
+
+const moduleStateNotice = moduleStateNoticeStyles.moduleStateNotice;
 import { get, isNil, isString } from "lodash-es";
 import type {
   ModuleStateContent,
@@ -38,20 +39,17 @@ const { t } = useI18n();
 const content = computed<ModuleStateContent>(() => {
   const catalogue: ModuleStateContentMap = {
     [ModuleState.UNSERVED]: {
-      color: "warning",
-      icon: "log-in-01",
+      variant: "warning",
       title: t("labs.scope_unavailable"),
       description: t("labs.scope_unavailable_text")
     },
     [ModuleState.LOADING]: {
-      color: "info",
-      icon: "clock",
+      variant: "info",
       title: t("text.loading"),
       description: t("text.moment_short_desc")
     },
     [ModuleState.ERROR]: {
-      color: "danger",
-      icon: "alert-triangle",
+      variant: "danger",
       title: t("error.something_went_wrong"),
       description: t("error.something_went_wrong_text")
     }
@@ -73,7 +71,4 @@ const reason = computed(() => {
   const message = get(props.detail, "message", props.detail);
   return isString(message) ? t(message) : "";
 });
-
-const meta = computed(() => ({ state: props.state }));
-const styles = useStyles(["moduleStateNotice"], meta, config);
 </script>

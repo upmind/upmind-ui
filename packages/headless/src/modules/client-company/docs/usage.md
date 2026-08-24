@@ -53,7 +53,7 @@ Both composables return the same four sub-composables:
 
 ### Collection actions — `useActions()`
 
-Ten members. Per-company **form** editing (`create` / `update` / field
+Twelve members. Per-company **form** editing (`create` / `update` / field
 validation) is deliberately not here — that lives on the editor, which owns
 the dirty/valid state those need.
 
@@ -138,23 +138,70 @@ so it can be chained onto another promise.
 
 **Returns:** `Promise<void>` — always settles, never throws synchronously.
 
-> **🧪 For Testers:** The collection mounts its list query with an explicit
-> "no page size" setting, and both calls have no other page to move to under
-> that setting — every call to `useClientCompanies()` gets the same
-> configuration, so there is no consumer-facing way to make these two do
-> anything today. See [gotchas.md](./gotchas.md) for the detail and why this
-> is not a new gap introduced by this module.
+> **🧪 For Testers:** The collection's query schema declares `pagination.limit`
+> with `default: 0` — an unpaged, whole-collection read, matching both legacy
+> consumers. Under that default, the query platform treats the request as
+> exactly one page, so both calls settle with nowhere to move to.
+> `setCriteria()` (below) is the door that opens a non-zero page size; once one
+> is set, `nextPage()` / `prevPage()` walk real pages and `useMeta().hasNextPage`
+> / `.hasPrevPage` track it. See [gotchas.md](./gotchas.md) for the detail.
 
-#### `filters.query(value)`
+#### `setCriteria(criteria)`
 
-Applies a free-text filter and re-issues the list request.
+Merges a criteria intent into the ONE query model backing the list — any of
+`filters` / `sort` / `pagination` supplied; branches left out are untouched.
+This is the platform's generic criteria door, and the one that sets the page
+size.
+
+| Param      | Type                                     | Required |
+| ---------- | ---------------------------------------- | -------- |
+| `criteria` | `Partial<{ filters, sort, pagination }>` | Yes      |
 
 **Returns:** `void`.
 
-> **🧪 For Testers:** Calling with a value produces a request whose decoded
-> URL carries `query=<value>`; calling with `undefined` (clearing the filter)
-> produces a request carrying no `query` key at all, not a lingering empty
-> one.
+> **🧪 For Testers:** `setCriteria({ pagination: { limit: 2 } })` puts
+> `limit=2&offset=0` on the wire and returns a real recorded page; `nextPage()`
+> then walks to `offset=2` and returns genuinely different rows, and
+> `prevPage()` walks back. Composing `setCriteria` with `filterBy` / `sortBy`
+> produces one request carrying all three, never one branch clobbering
+> another.
+
+#### `filterBy(intent)`
+
+Applies a filter INTENT and re-issues the list request against the server —
+this narrows the real collection, not a client-side slice of the rows already
+loaded. Replaces the module's previous `filters.query(value)`, which is gone
+(see [CHANGELOG.md](./CHANGELOG.md)).
+
+| Param    | Type                                  | Required |
+| -------- | ------------------------------------- | -------- |
+| `intent` | `FilterModel` — `{ name?: { like } }` | Yes      |
+
+**Returns:** `void`.
+
+> **🧪 For Testers:** `filterBy({ name: { like: "acme" } })` reaches the wire as
+> `filter[name|like]=%acme%`. `useMeta().isFiltered` flips `true` while the
+> value is set, and `useContext().query.filters` reflects it. `filterBy({})`
+> clears the filter — no stale `filter[…]` param survives on the next request.
+
+#### `sortBy(intent)`
+
+Applies a sort INTENT and re-issues the list request in the given order.
+
+| Param    | Type                                                     | Required |
+| -------- | -------------------------------------------------------- | -------- |
+| `intent` | `SortModel` — `{ field: "name" \| "created_at", dir }[]` | Yes      |
+
+**Returns:** `void`.
+
+> **🧪 For Testers:** `sortBy([{ field: "created_at", dir: "desc" }])` puts
+> `order=-created_at` on the wire; `dir: "asc"` drops the `-`. Only `name` and
+> `created_at` are declared sortable — `default` is deliberately not one of
+> them, because no legacy consumer of this collection orders by it and an
+> unrecognised `order=` column is rejected by the server with a `500`, which
+> surfaces on `useContext().error`. `sortBy([])` re-applies the collection's own
+> default order (`created_at` ascending) rather than leaving the list
+> unordered.
 
 #### `destroy()` — releasing the collection
 
@@ -170,14 +217,16 @@ Removes this scoped instance from the registry.
 
 ### Collection context — `useContext()`
 
-| Property     | Type                                                         | Meaning                                                             |
-| ------------ | ------------------------------------------------------------ | ------------------------------------------------------------------- |
-| `data`       | `ComputedRef<Company[]>`                                     | The client's reactive list of companies                             |
-| `default()`  | `() => string \| undefined`                                  | **The client's default company's id** — not the row (see below)     |
-| `error`      | `ComputedRef<ResponseError \| undefined>`                    | The last failed row mutation, else the list read's error            |
-| `findOne()`  | `(mapping, data?, searchableProps?) => Company \| undefined` | Finds a single company by a partial mapping, or by `name` substring |
-| `getOne(id)` | `(id, data?) => Company \| undefined`                        | Finds a single company by id                                        |
-| `pagination` | `ComputedRef<PaginationInfo>`                                | `{ limit, total, page, pages, from, to }`                           |
+| Property     | Type                                                         | Meaning                                                                                                  |
+| ------------ | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `data`       | `ComputedRef<Company[]>`                                     | The client's reactive list of companies                                                                  |
+| `default()`  | `() => string \| undefined`                                  | **The client's default company's id** — not the row (see below)                                          |
+| `error`      | `ComputedRef<ResponseError \| undefined>`                    | The last failed row mutation, else the list read's error                                                 |
+| `findOne()`  | `(mapping, data?, searchableProps?) => Company \| undefined` | Finds a single company by a partial mapping, or by `name` substring                                      |
+| `getOne(id)` | `(id, data?) => Company \| undefined`                        | Finds a single company by id                                                                             |
+| `pagination` | `ComputedRef<PaginationInfo>`                                | `{ limit, total, page, pages, from, to }`                                                                |
+| `query`      | `ComputedRef<{ filters, sort, pagination }>`                 | This scope's ACTIVE request state — read-only; write through `filterBy()` / `sortBy()` / `setCriteria()` |
+| `schemas`    | `{ query: { schema, uischema, sortUischema } }`              | The module's query schema family — plain JSON, see [below](#the-collections-query-schema)                |
 
 > **🧪 For Testers:** `default()` resolves the default company's **id**. To
 > render the row, pair it with `getOne`:
@@ -194,7 +243,7 @@ Removes this scoped instance from the registry.
 
 ### Collection meta — `useMeta()`
 
-Seven flags.
+Eight flags.
 
 | Flag          | True when                                                                      |
 | ------------- | ------------------------------------------------------------------------------ |
@@ -204,7 +253,13 @@ Seven flags.
 | `hasPrevPage` | the query has a page before the current one (see the paging note above)        |
 | `isAvailable` | the session is authenticated **and** the scope resolved a client id to address |
 | `isEmpty`     | the resolved collection has no companies                                       |
+| `isFiltered`  | the declared `filters.name` column carries a value                             |
 | `isLoading`   | the list read is in flight or has not completed its first fetch                |
+
+`isFiltered` reads straight off the collection's own query criteria, so a list
+that is empty _because_ a filter narrowed it to nothing reports differently
+from a collection with no companies at all. Sorting or paging alone never sets
+it — only an active filter value does.
 
 `isAvailable` is worth reading twice. It is **both limbs**: authenticated,
 _and_ a client id resolved. It is also the _same predicate_ every request gate
@@ -225,6 +280,35 @@ the guard the wire enforces cannot drift apart. It is reactive: it flips to
 | `query`      | the raw list-query object backing the list |
 
 For debugging and tests. Not for production consumers.
+
+### The collection's query schema
+
+`useClientCompanies().useContext().schemas.query` publishes the collection's
+whole request state as one paste-ready trio — `{ schema, uischema, sortUischema }`
+— plain JSON, nothing on it is a function. It is the same schema every
+`filterBy()` / `sortBy()` / `setCriteria()` write validates against, so it is
+the contract to read, not to hand-write against knowledge of the wire shape.
+
+```ts
+const { schema, uischema, sortUischema } = useClientCompanies()
+  .as("client")
+  .useContext().schemas.query;
+```
+
+- **`schema`** declares one filter leaf (`filters.name.like`, a free-text
+  search of at least one character), the `sort` branch (`field` restricted to
+  `"name"` or `"created_at"`; `dir` to `"asc"` / `"desc"`; defaulting to
+  `created_at` ascending), and the `pagination` branch (`limit` / `offset`,
+  both defaulting to `0`).
+- **`uischema`** is a `FilterBar` layout with one `Control` over the free-text
+  search leaf.
+- **`sortUischema`** is a single `Control` over the `sort` branch, carrying
+  only the sort control's own option-label prefix — the `sort` branch's own
+  schema stays a bare `enum` with no `title`.
+
+> **🧪 For Testers:** The barrel exports no `useQuerySchema` / `useQueryUischema`
+> / `useSortUischema` for this collection. `useContext().schemas.query` is the
+> only supported way to obtain this trio.
 
 ---
 

@@ -66,25 +66,38 @@ export type ClientEmailsScopeMatrix = typeof CLIENT_EMAILS_SCOPE_MATRIX;
 
 /**
  * Context types for the per-email MANAGER.
- * @deprecated FE-3111 — single-record reads use `.withId(id)`, not `.for('email', id)`.
- * Retained for backward compatibility with existing call sites during migration.
- * See graphify-out/GRAPH_REPORT.md for module relationships.
+ * @deprecated FE-3111 — single-record reads use `.withId(id)`, not
+ * `.for('email', id)`. Kept alive as `CLIENT_EMAIL_SCOPE_MATRIX`'s CLIENT
+ * value below — not a dead alias: the scope builder only grants `.fresh()`
+ * on an actor whose matrix row carries a real context
+ * (`ScopeBuilderActorWithContexts` vs. the armless `T & ScopeBuilderWithId<T>`
+ * branch in `scope/scope.builder.ts`), so an all-`never` row would leave
+ * `useClientEmailManager().fresh()` uncallable. See
+ * graphify-out/GRAPH_REPORT.md for module relationships.
  */
 export enum ClientEmailContextTypes {
   EMAIL = "email"
 }
 
 /**
- * Scope matrix for `useClientEmailManager`. Every actor is `null as never`, so
- * `.for(type, id)` is a compile-time error for all four. A leaf record is
- * marked with `.withId(id)` and is never a scope context (FE-3111, per FE-3095
- * pattern). Separate from the collection's — the two composables scope on
- * different things and cannot share one.
+ * Scope matrix for `useClientEmailManager`. `client` carries a real context
+ * (`ClientEmailContextTypes.EMAIL`), matching its siblings' per-record MANAGER
+ * matrices (`client-address`, `client-company`, `client-custom-fields`,
+ * `client-phone`, `personal-details` all give CLIENT a context); `self`,
+ * `staff` and `guest` stay `null as never`. Separate from the collection's —
+ * the two composables scope on different things and cannot share one.
+ *
+ * The context is type-level plumbing, not a call-site instruction: FE-3111's
+ * `.withId(id)` remains how a single record is read. `resolveClientId`
+ * (`session-store.utils.ts`) only honours a context whose `type` equals
+ * `AccessRoleTypes.CLIENT` — `"email"` never does — so restoring this row
+ * changes nothing about which client a request addresses; it only restores
+ * `.fresh()` to CLIENT, which the all-`never` row had silently dropped.
  */
 export const CLIENT_EMAIL_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]: null as never,
-  [ScopeActorTypes.CLIENT]: null as never,
+  [ScopeActorTypes.CLIENT]: ClientEmailContextTypes.EMAIL,
   [ScopeActorTypes.GUEST]: null as never
 } as const;
 

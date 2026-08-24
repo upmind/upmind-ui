@@ -4,7 +4,7 @@
  * `ActionPlacementTypes` node exists anywhere; the placement enum is minted
  * once in `runtime/scenario.types.ts` and consumed here rather than
  * re-declared, and the colour/variant props are
- * `@upmind-automation/upmind-ui`'s own `ButtonProps`. See
+ * `@upmind/ui`'s own `ButtonVariants` (ButtonProps not exported). See
  * `graphify-out/GRAPH_REPORT.md`. Re-queried 2026-08-13 over the same
  * `graphify-out/graph.json` for a replay-LOCK shape (`lock*`): the twelve
  * matches are all `block*` parser helpers, so nothing exists to consume — and
@@ -18,7 +18,8 @@
  */
 
 import type { ActionPlacementTypes } from "../scenario.types";
-import type { ButtonProps } from "@upmind-automation/upmind-ui";
+// graphify-out/: ButtonVariants consumed from @upmind/ui (ButtonProps not exported)
+import type { ButtonVariants } from "@upmind/ui";
 
 // -----------------------------------------------------------------------------
 
@@ -27,8 +28,8 @@ export type ActionSlotItem = {
   name: string;
   label: string;
   icon?: string;
-  color?: ButtonProps["color"];
-  variant?: ButtonProps["variant"];
+  color?: ButtonVariants["variant"];
+  variant?: ButtonVariants["variant"];
   /** Where the scenario placed it. Absent, it falls to the overflow. */
   placement?: ActionPlacementTypes;
   disabled?: boolean;

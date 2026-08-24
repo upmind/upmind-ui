@@ -1,50 +1,58 @@
 <template>
-  <div class="flex grow items-center justify-center">
+  <div
+    class="flex grow items-center justify-center"
+    data-test-key="basket-empty-message"
+  >
     <Interstitial
-      v-bind="props"
+      :close-label="t('action.close')"
+      :open="props.open"
       :modal="meta.useModal"
-      :dataAttrs="{ 'data-test-key': 'basket-empty-message' }"
       :title="t('cart.empty_md')"
       :text="t('cart.empty_msg')"
-      :actions="[
-        {
-          ...props.storefrontRoute,
-          variant: 'solid',
-          color: 'primary',
-          iconAppend: 'arrow-right',
-          label: t('action.continue_shopping'),
-          size: 'lg'
-        }
-      ]"
-    />
+      :animated-icon="{ icon: 'basket-empty', size: 'xl' }"
+    >
+      <template #actions>
+        <Button
+          v-bind="useTestAttrs({ key: 'interstitial-action', value: 0 })"
+          as-child
+          variant="primary"
+          size="lg"
+        >
+          <RouterLink
+            v-if="props.storefrontRoute.to"
+            :to="props.storefrontRoute.to"
+          >
+            {{ t("action.continue_shopping") }}
+            <Icon icon="arrow-right" />
+          </RouterLink>
+          <a v-else :href="props.storefrontRoute.href">
+            {{ t("action.continue_shopping") }}
+            <Icon icon="arrow-right" />
+          </a>
+        </Button>
+      </template>
+    </Interstitial>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRoute } from "vue-router";
-import { Interstitial } from "@upmind-automation/upmind-ui";
+import { RouterLink, useRoute } from "vue-router";
+import { Interstitial, Button, useTestAttrs } from "@upmind/ui";
+import { Icon } from "../../components/icon";
 import type { StorefrontRoute } from "../../types";
-import type { InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(
-  defineProps<
-    InterstitialProps & {
-      storefrontRoute: StorefrontRoute;
-    }
-  >(),
+  defineProps<{
+    open?: boolean;
+    modal?: boolean;
+    storefrontRoute: StorefrontRoute;
+  }>(),
   {
     open: true,
-    modal: true,
-    animatedIcon: () => ({
-      icon: "basket-empty",
-      trigger: "loop",
-      primaryColor: "base-foreground",
-      secondaryColor: "tertiary",
-      size: "4xl"
-    })
+    modal: true
   }
 );
 // -----------------------------------------------------------------------------

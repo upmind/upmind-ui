@@ -22,37 +22,35 @@
         v-else-if="meta.isUrl"
         :href="data!.url"
         target="_blank"
-        :label="t(action)"
         color="inherit"
         size="inherit"
-      />
+        >{{ t(action) }}</Link
+      >
 
       <Link
         v-else
         @click="toggleOpen"
-        :dataAttrs="{ 'data-test-key': 'terms-link' }"
-        :label="t(action)"
+        :data-attrs="{ 'data-test-key': 'terms-link' }"
         color="inherit"
         size="inherit"
-      />
+        >{{ t(action) }}</Link
+      >
     </template>
   </i18n-t>
 
   <Drawer
     v-model:open="open"
-    dismissible
-    size="lg"
-    fit="cover"
-    class-footer="flex-row items-center justify-between gap-x-4"
+    :dismissible="true"
     :title="t(action)"
+    :ui="{ footer: 'flex-row items-center justify-between gap-x-4' }"
   >
     <Markdown
       :model-value="data?.content"
       class="prose w-full text-left text-base"
     />
 
-    <template #close>
-      <Link @click="toggleOpen" :label="t(close)" />
+    <template #footer>
+      <Link @click="toggleOpen">{{ t(close) }}</Link>
     </template>
   </Drawer>
 </template>
@@ -60,12 +58,9 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { useTermsAndConditions, useBrand } from "@upmind-automation/headless";
-import {
-  Drawer,
-  Markdown,
-  Link,
-  useTestAttrs
-} from "@upmind-automation/upmind-ui";
+import { useTestAttrs } from "@upmind/ui";
+import { Drawer } from "@upmind/ui";
+import { Link, Markdown } from "@upmind/ui";
 import type { TermsAndConditionsProps } from "./types";
 
 // -----------------------------------------------------------------------------

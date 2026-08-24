@@ -106,8 +106,10 @@ test.describe("Footer - Language and Currency controls", () => {
       timeout: 15000
     });
     await waitForSessionCookie(page.context());
-    await expect(page.getByTestId("locale-selector")).not.toBeVisible();
-    await expect(page.getByTestId("currency-selector")).not.toBeVisible();
+    await expect(page.getByTestId("language-selector-value")).not.toBeVisible();
+    await expect(
+      page.getByTestId("currency-selector-trigger")
+    ).not.toBeVisible();
   });
   test("Single currency, multiple languages", async ({ page }) => {
     interceptLanguageAndCurrency(page, multipleLanguages, singleCurrency);
@@ -116,8 +118,10 @@ test.describe("Footer - Language and Currency controls", () => {
       timeout: 15000
     });
     await waitForSessionCookie(page.context());
-    await expect(page.getByTestId("locale-selector")).toBeVisible();
-    await expect(page.getByTestId("currency-selector")).not.toBeVisible();
+    await expect(page.getByTestId("language-selector-value")).toBeVisible();
+    await expect(
+      page.getByTestId("currency-selector-trigger")
+    ).not.toBeVisible();
   });
   test("Multiple currency, single language", async ({ page }) => {
     interceptLanguageAndCurrency(page, singleLanguage, multipleCurrencies);
@@ -126,8 +130,8 @@ test.describe("Footer - Language and Currency controls", () => {
       timeout: 15000
     });
     await waitForSessionCookie(page.context());
-    await expect(page.getByTestId("locale-selector")).not.toBeVisible();
-    await expect(page.getByTestId("currency-selector")).toBeVisible();
+    await expect(page.getByTestId("language-selector-value")).not.toBeVisible();
+    await expect(page.getByTestId("currency-selector-trigger")).toBeVisible();
   });
   test("Multiple currency, multiple languages", async ({ page }) => {
     interceptLanguageAndCurrency(page, multipleLanguages, multipleCurrencies);
@@ -136,7 +140,7 @@ test.describe("Footer - Language and Currency controls", () => {
       timeout: 15000
     });
     await waitForSessionCookie(page.context());
-    await expect(page.getByTestId("locale-selector")).toBeVisible();
-    await expect(page.getByTestId("currency-selector")).toBeVisible();
+    await expect(page.getByTestId("language-selector-value")).toBeVisible();
+    await expect(page.getByTestId("currency-selector-trigger")).toBeVisible();
   });
 });

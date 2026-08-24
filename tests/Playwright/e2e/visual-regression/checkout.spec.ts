@@ -206,7 +206,7 @@ for (const { language, locale, username, password } of localeLogins) {
 
       // Select the Stripe card gateway by its provider-code testid — stable
       // across locales AND gateway order (index 0 is not guaranteed to be
-      // Stripe; the label-derived radio-card-* testid is per-locale).
+      // Stripe; a label-derived testid would be per-locale).
       await checkout.selectGatewayByType(gateways.STRIPE);
       await expect(checkout.paymentDetails).toBeVisible({ timeout: 30000 });
 

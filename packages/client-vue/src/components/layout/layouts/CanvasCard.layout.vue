@@ -1,9 +1,13 @@
 <template>
-  <Root :class="styles.canvasCard.root">
-    <div :class="styles.canvasCard.container">
-      <Card as="article" :class="styles.canvasCard.card" size="lg">
+  <Root :class="canvasCardRootVariants()">
+    <div :class="canvasCardContainerVariants()">
+      <CardRoot
+        as="article"
+        :class="canvasCardCardVariants()"
+        class="p-8 lg:p-18"
+      >
         <!-- Content Header -->
-        <section :class="styles.canvasCard.contentHeader">
+        <section :class="canvasCardContentHeaderVariants()">
           <slot name="controls" />
           <slot name="navigation" />
           <slot name="actions" />
@@ -13,26 +17,26 @@
         </section>
 
         <!-- Content -->
-        <section :class="styles.canvasCard.content">
+        <section :class="canvasCardContentVariants()">
           <slot name="content" />
           <slot name="default" />
         </section>
-      </Card>
+      </CardRoot>
     </div>
   </Root>
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import { Card } from "@upmind-automation/upmind-ui";
+import { CardRoot } from "@upmind/ui";
 import Root from "../components/root/Root.vue";
-import config from "../layout.config";
+import {
+  canvasCardRootVariants,
+  canvasCardContainerVariants,
+  canvasCardCardVariants,
+  canvasCardContentHeaderVariants,
+  canvasCardContentVariants
+} from "../variants";
 import type { VariantProps } from "../types";
 
 defineProps<VariantProps>();
-
-const meta = computed(() => ({}));
-
-const styles = useStyles(["canvasCard"], meta, config);
 </script>

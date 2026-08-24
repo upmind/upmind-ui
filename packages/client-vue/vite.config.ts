@@ -24,7 +24,10 @@ export default defineConfig({
         "vue-router",
         "vue-i18n",
         "@upmind-automation/headless",
-        "@upmind-automation/upmind-ui",
+        // Externalised like headless: bundling it inlines the DS ui and freezes
+        // import.meta.env.MODE at THIS build, so useTestAttrs can never emit and
+        // every Symbol() injection key is duplicated for consumers of the dist.
+        "@upmind/ui",
         "@vueuse/core",
         "@vueuse/components",
         "@vueuse/router",
@@ -74,16 +77,18 @@ export default defineConfig({
         replacement: resolve(__dirname, "../headless/src/index.ts")
       },
       {
-        find: "@upmind-automation/upmind-ui/styles",
-        replacement: resolve(__dirname, "../ui/src/assets/styles/index.css")
+        find: "@upmind/ui/styles",
+        replacement: resolve(
+          __dirname,
+          "../../design-system/packages/ui/src/styles/index.css"
+        )
       },
       {
-        find: "@upmind-automation/upmind-ui/vars",
-        replacement: resolve(__dirname, "../ui/src/assets/styles/vars.css")
-      },
-      {
-        find: "@upmind-automation/upmind-ui",
-        replacement: resolve(__dirname, "../ui/src/index.ts")
+        find: "@upmind/ui",
+        replacement: resolve(
+          __dirname,
+          "../../design-system/packages/ui/src/index.ts"
+        )
       }
     ]
   }

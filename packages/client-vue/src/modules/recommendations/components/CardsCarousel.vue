@@ -1,5 +1,5 @@
 <template>
-  <Carousel
+  <CarouselRoot
     v-resize-observer="setActive"
     :key="`recommendations-active-${active}`"
     @init-api="setApi"
@@ -11,9 +11,9 @@
       watchDrag: active
     }"
   >
-    <div v-if="active" :class="styles.recommendation.carousel.navigation">
-      <CarouselPrevious class="static!" />
-      <CarouselNext class="static!" />
+    <div v-if="active" :class="carouselNavigationVariants()">
+      <CarouselPrevious :label="t('text.previous_slide')" class="static!" />
+      <CarouselNext :label="t('text.next_slide')" class="static!" />
     </div>
 
     <CarouselContent
@@ -23,7 +23,7 @@
       <CarouselItem
         v-for="recommendation in items"
         :key="recommendation.id"
-        :class="styles.recommendation.carousel.item"
+        :class="carouselItemVariants()"
       >
         <ProductCardSkeleton v-if="recommendation.meta?.loading" hide-terms />
 
@@ -43,39 +43,38 @@
         />
       </CarouselItem>
     </CarouselContent>
-  </Carousel>
+  </CarouselRoot>
 </template>
 
 <script lang="ts" setup>
 import { vResizeObserver } from "@vueuse/components";
-import { nextTick, ref, watch, computed } from "vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { ref, watch, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import {
-  Carousel,
+  CarouselRoot,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious
-} from "@upmind-automation/upmind-ui";
+} from "@upmind/ui";
 import {
   ProductCard,
   ProductCardSkeleton
 } from "../../product/components/card";
-import config from "../recommendations.config";
+import { carouselNavigationVariants, carouselItemVariants } from "../variants";
 import { forEach, some } from "lodash-es";
 import type { RecommendationsProps } from "./types";
 import type { Product } from "@upmind-automation/headless";
-import type { CarouselApi } from "@upmind-automation/upmind-ui";
+import type { CarouselApi } from "@upmind/ui";
 // -----------------------------------------------------------------------------
 
+const { t } = useI18n();
 const props = withDefaults(defineProps<RecommendationsProps>(), {});
 
 const emit = defineEmits<{
   (e: "resolve", id: string): void;
   (e: "fetch", id: string): void;
 }>();
-
-const styles = useStyles(["recommendation.carousel"], {}, config);
 
 // ---
 
@@ -107,15 +106,16 @@ function setActive() {
     (carouselApi.value?.containerNode()?.scrollWidth ?? 0) >
     (carouselApi.value?.containerNode()?.clientWidth ?? 0);
 }
-// Now add a watcher that lets the parent know any/all carousel items that are visible/active
-// This will be used to trigger fetching the next batch of recommendations
-const stop = watch(carouselApi, api => {
+// Bind the visible-slides fetch trigger on EVERY (re)mounted embla api — not
+// once. The carousel re-inits (its `:key` changes) whenever `active` flips, e.g.
+// when the item set grows enough to overflow or the viewport resizes across that
+// point. Watching once bound the listener to the first api only, so after a
+// re-init the new api had no `slidesInView` handler and cards scrolled into view
+// stayed on their loading skeleton (the fetch that clears meta.loading never
+// fired). Embla clears the old instance's listeners on destroy, so re-binding
+// each time is safe. Do NOT restore the watch-once wiring.
+watch(carouselApi, api => {
   if (!api) return;
-
-  // Watch only once or use watchOnce() in @vueuse/core
-  nextTick(() => stop());
-
-  // --- now set up our carousel api listeners
   setActive();
   api.on("slidesInView", fetchVisibleRecommendations);
 });

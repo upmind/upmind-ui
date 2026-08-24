@@ -26,7 +26,7 @@ import type { ClientContext, GuestEmailModel } from "./account.types";
 import type { RegisterModel } from "../auth";
 import type { AnyEventObject } from "xstate";
 
-const { removeTopLevel: removeCookie } = useCookies();
+const { removeTopLevel: _removeCookie } = useCookies();
 // -----------------------------------------------------------------------------
 /**
  * @module account/account.machine
@@ -387,14 +387,13 @@ export default createMachine(
         // Seed the register form's `username` from the guest client's saved
         // email (the BE keeps it in `username`); the parse service shapes the
         // rest against the schema.
-        model: ({ model, client }: ClientContext) =>
-          ({
-            ...(model as RegisterModel),
-            username:
-              (model as RegisterModel)?.username ??
-              client?.email ??
-              client?.username
-          }) as any
+        model: ({ model, client }: ClientContext): RegisterModel => ({
+          ...(model as RegisterModel),
+          username:
+            (model as RegisterModel)?.username ??
+            client?.email ??
+            client?.username
+        })
       }),
       setEmailSchemas: assign({
         formType: () => ClientFormType.EMAIL,

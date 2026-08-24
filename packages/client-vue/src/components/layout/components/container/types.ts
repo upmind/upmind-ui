@@ -1,8 +1,8 @@
 import {
   parseVariants,
   type VariantValues
-} from "@upmind-automation/upmind-ui";
-import { variants } from "./container.config";
+} from "../../../../utils/parseVariants";
+import { variants } from "./variants";
 
 export const CONTAINER_FLOW = parseVariants(variants.flow);
 export const CONTAINER_ITEMS = parseVariants(variants.items);

@@ -74,12 +74,10 @@ import {
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { UIContext } from "@upmind-automation/headless";
-import {
-  useThemes,
-  useTestAttrs,
-  Markdown
-} from "@upmind-automation/upmind-ui";
+import { useTestAttrs } from "@upmind/ui";
+import { Markdown } from "@upmind/ui";
 import Back from "../../components/navigation/Back.vue";
+import { useThemes } from "../theming";
 import CheckoutContent from "./components/CheckoutContent.vue";
 import CheckoutErrors from "./components/CheckoutErrors.vue";
 import CheckoutHero from "./components/CheckoutHero.vue";

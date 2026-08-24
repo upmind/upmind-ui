@@ -350,7 +350,7 @@ export class ProductConfig {
       .and(page.locator('[data-test-value="try-before-you-buy"]'));
     this.trialBadge = this.trialCheckbox.getByTestId("badge");
     this.trialDescription = this.trialCheckbox.getByTestId(
-      "secondary-item-description"
+      "option-tile-description"
     );
   }
 
@@ -573,12 +573,13 @@ export class ProductConfig {
   }
 
   /* Trial Helper Methods */
+  // reka stamps checked/unchecked, where ToggleGroupItem stamped on/off.
   async expectTrialSelected() {
-    await expect(this.trialCheckbox).toHaveAttribute("data-state", "on");
+    await expect(this.trialCheckbox).toHaveAttribute("data-state", "checked");
   }
 
   async expectTrialNotSelected() {
-    await expect(this.trialCheckbox).toHaveAttribute("data-state", "off");
+    await expect(this.trialCheckbox).toHaveAttribute("data-state", "unchecked");
   }
 
   async toggleTrial() {

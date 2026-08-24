@@ -4,13 +4,7 @@
     id="basket-fields"
     :label="t('text.additional_details')"
     icon="file-attachment-01"
-    :class="styles.basket.customFields.root"
-    :ui-config="{
-      section: {
-        root: styles.basket.items.root,
-        content: styles.basket.items.content
-      } as any
-    }"
+    :class="basketCustomFieldsRootVariants()"
   >
     <Form
       :additional-errors="fieldsErrors?.data"
@@ -28,14 +22,12 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import { useBasketFields } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
 import Form from "../../../components/form/Form.vue";
 import Section from "../../../components/section/Section.vue";
-import config from "../basket.config";
+import { basketCustomFieldsRootVariants } from "../basket.variants";
 
 // --- types
 
@@ -53,14 +45,4 @@ const {
   clear: fieldsClear,
   update: fieldsUpdate
 } = useBasketFields();
-
-const layout = computed(() => {
-  return route?.meta?.template;
-});
-
-const styles = useStyles(
-  ["basket.expand", "basket.items", "basket.customFields", "basket.aside"],
-  { variant: layout.value },
-  config
-);
 </script>

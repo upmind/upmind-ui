@@ -1,6 +1,6 @@
 <template>
-  <div :class="styles.recommendation.footer.root">
-    <p v-if="count" :class="styles.recommendation.footer.label">
+  <div :class="footerRootVariants()">
+    <p v-if="count" :class="footerLabelVariants()">
       {{
         basketMeta.isFree
           ? t("cart.basket_summary_desc_free", { count })
@@ -20,13 +20,14 @@
 
     <Button
       @click="$emit('skip')"
-      :label="t('action.skip')"
-      color="primary"
+      variant="primary"
       size="lg"
-      :class="styles.recommendation.footer.button"
-      iconAppend="arrow-right"
+      :class="footerButtonVariants()"
       :loading="isNavigating"
-    />
+    >
+      {{ t("action.skip") }}
+      <Icon icon="arrow-right" />
+    </Button>
   </div>
 </template>
 
@@ -38,8 +39,13 @@ import {
   useMoney,
   useRoutingEngine
 } from "@upmind-automation/headless";
-import { Button, useStyles } from "@upmind-automation/upmind-ui";
-import config from "../recommendations.config";
+import { Button } from "@upmind/ui";
+import { Icon } from "../../../components/icon";
+import {
+  footerRootVariants,
+  footerLabelVariants,
+  footerButtonVariants
+} from "../variants";
 
 // --- components
 // -----------------------------------------------------------------------------
@@ -53,6 +59,4 @@ const { count, summary, meta: basketMeta } = useBasket();
 const { formatPrice } = useMoney();
 const { ui, data } = useConfig();
 const { isNavigating } = useRoutingEngine();
-
-const styles = useStyles(["recommendation.footer"], {}, config);
 </script>

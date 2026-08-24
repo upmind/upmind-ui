@@ -7,8 +7,8 @@
         {{ title }}
         <Badge
           v-if="meta?.isDefault"
-          variant="solid"
-          color="neutral"
+          appearance="solid"
+          variant="neutral"
           size="sm"
           :label="t('text.default_label')"
         />
@@ -79,7 +79,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Badge, Icon, Tooltip, Link } from "@upmind-automation/upmind-ui";
+import { Icon } from "@upmind-automation/client-vue";
+import { Badge, Tooltip, Link } from "@upmind/ui";
 import type { Company } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------

@@ -1,10 +1,5 @@
 <template>
-  <DropdownMenu
-    align="start"
-    size="sm"
-    :items="items"
-    :title="t('labs.brand_menu')"
-  >
+  <DropdownMenu align="start" :items="items" :label="t('labs.brand_menu')">
     <template #trigger>
       <Button
         size="sm"
@@ -42,7 +37,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { useBrand } from "@upmind-automation/headless";
-import { Button, DropdownMenu } from "@upmind-automation/upmind-ui";
+import { Button, DropdownMenu } from "@upmind/ui";
 import {
   buildScopePath,
   useBrandScope,
@@ -50,7 +45,7 @@ import {
 } from "../../composables/scope";
 import { usePlaygroundUrlState } from "../../composables/usePlaygroundUrlState";
 import { filter, find, map, some } from "lodash-es";
-import type { DropdownMenuItemProps } from "@upmind-automation/upmind-ui";
+import type { MenuItem } from "@upmind/ui";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
@@ -117,12 +112,11 @@ async function select(value: string): Promise<void> {
   );
 }
 
-const items = computed<DropdownMenuItemProps[]>(() =>
+const items = computed<MenuItem[]>(() =>
   map(choices.value, choice => ({
     label: choice.label,
     value: choice.value,
-    icon: choice.value === activeBrand.value ? "check" : choice.icon,
-    handler: () => select(choice.value),
+    onSelect: () => select(choice.value),
     dataAttrs: {
       "data-test-key": "brand-segment-item",
       "data-test-value": choice.value

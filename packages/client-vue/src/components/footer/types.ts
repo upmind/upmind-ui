@@ -1,10 +1,7 @@
-import {
-  parseVariants,
-  type VariantValues
-} from "@upmind-automation/upmind-ui";
+import { parseVariants, type VariantValues } from "../../utils/parseVariants";
 import { COLUMN_ITEMS, COLUMN_JUSTIFY } from "../layout/components/column";
 import { RIBBON_BACKGROUND } from "../layout/components/ribbon";
-import { variants } from "./footer.config";
+import { variants } from "./variants";
 
 export const FOOTER_POSITION = parseVariants(variants.position);
 export const FOOTER_BACKGROUND = RIBBON_BACKGROUND;

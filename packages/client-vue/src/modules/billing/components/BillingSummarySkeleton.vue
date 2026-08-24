@@ -9,36 +9,39 @@
     :border="false"
   >
     <template #actions>
-      <Skeleton :class="styles.billing.summary.skeleton.action" />
+      <Skeleton :class="summarySkeletonActionVariants()" />
     </template>
 
-    <component :is="card ? 'div' : Card" :class="styles.billing.card.root">
-      <dl :class="styles.billing.summary.root">
-        <div :class="styles.billing.summary.row">
-          <dt :class="styles.billing.summary.label">
-            <Skeleton :class="styles.billing.summary.skeleton.companyLabel" />
+    <component
+      :is="card ? 'div' : CardRoot"
+      :class="cardRootVariants({ card })"
+    >
+      <dl :class="summaryRootVariants()">
+        <div :class="summaryRowVariants()">
+          <dt :class="summaryLabelVariants()">
+            <Skeleton :class="summarySkeletonCompanyLabelVariants()" />
           </dt>
-          <dd :class="styles.billing.summary.value">
-            <Skeleton :class="styles.billing.summary.skeleton.companyValue" />
+          <dd :class="summaryValueVariants()">
+            <Skeleton :class="summarySkeletonCompanyValueVariants()" />
           </dd>
         </div>
 
-        <div :class="styles.billing.summary.row">
-          <dt :class="styles.billing.summary.label">
-            <Skeleton :class="styles.billing.summary.skeleton.phoneLabel" />
+        <div :class="summaryRowVariants()">
+          <dt :class="summaryLabelVariants()">
+            <Skeleton :class="summarySkeletonPhoneLabelVariants()" />
           </dt>
-          <dd :class="styles.billing.summary.value">
-            <Skeleton :class="styles.billing.summary.skeleton.phoneValue" />
+          <dd :class="summaryValueVariants()">
+            <Skeleton :class="summarySkeletonPhoneValueVariants()" />
           </dd>
         </div>
 
-        <div :class="styles.billing.summary.row">
-          <dt :class="styles.billing.summary.label">
-            <Skeleton :class="styles.billing.summary.skeleton.addressLabel" />
+        <div :class="summaryRowVariants()">
+          <dt :class="summaryLabelVariants()">
+            <Skeleton :class="summarySkeletonAddressLabelVariants()" />
           </dt>
-          <dd :class="styles.billing.summary.skeleton.address">
-            <Skeleton :class="styles.billing.summary.skeleton.addressLine" />
-            <Skeleton :class="styles.billing.summary.skeleton.addressCity" />
+          <dd :class="summarySkeletonAddressVariants()">
+            <Skeleton :class="summarySkeletonAddressLineVariants()" />
+            <Skeleton :class="summarySkeletonAddressCityVariants()" />
           </dd>
         </div>
       </dl>
@@ -48,30 +51,34 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-
 // --- internal
-import { useStyles } from "@upmind-automation/upmind-ui";
-
 // --- components
-import { Card, Skeleton } from "@upmind-automation/upmind-ui";
+import { CardRoot, Skeleton } from "@upmind/ui";
 import Section from "../../../components/section/Section.vue";
-
+import {
+  cardRootVariants,
+  summaryLabelVariants,
+  summaryRootVariants,
+  summaryRowVariants,
+  summarySkeletonActionVariants,
+  summarySkeletonAddressCityVariants,
+  summarySkeletonAddressLabelVariants,
+  summarySkeletonAddressLineVariants,
+  summarySkeletonAddressVariants,
+  summarySkeletonCompanyLabelVariants,
+  summarySkeletonCompanyValueVariants,
+  summarySkeletonPhoneLabelVariants,
+  summarySkeletonPhoneValueVariants,
+  summaryValueVariants
+} from "../variants";
 // --- config
-import config from "../billing.config";
-
 // --- types
 import type { BillingSummarySkeletonProps } from "../types";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<BillingSummarySkeletonProps>();
+defineProps<BillingSummarySkeletonProps>();
 
 const { t } = useI18n();
-const styles = useStyles(
-  ["billing.card", "billing.summary", "billing.summary.skeleton"],
-  computed(() => ({ card: props.card })),
-  config
-);
 </script>

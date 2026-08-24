@@ -5,7 +5,9 @@
  * WIRE shape; this describes the schema-validated MODEL. No duplicate to
  * consume, so minting here is warranted.
  */
-import type { Badge } from "../config/schema";
+// Reuses the config schema's badge shape (graphify-out/GRAPH_REPORT.md — no
+// category-local badge type exists); the bare-label form is permitted here too.
+import type { BadgeInput } from "../config/schema";
 import type { JsonSchema7 } from "@jsonforms/core";
 import type { IProductCategory } from "@upmind-automation/types";
 
@@ -14,7 +16,7 @@ export type ProductCategory = {
   title: IProductCategory["name"]; // translated name for display purposes
   name: IProductCategory["name"]; // untranslated name for reporting purposes
   description?: IProductCategory["description"];
-  badge?: Badge;
+  badge?: BadgeInput;
   excerpt?: IProductCategory["short_description"];
   count?: IProductCategory["products_count"];
   countDeep?: IProductCategory["products_count"]; // includes sum of subcategories' products_count

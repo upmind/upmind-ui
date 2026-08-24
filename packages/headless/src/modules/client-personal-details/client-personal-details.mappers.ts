@@ -171,6 +171,7 @@ export function mapProfileFields(
       result.push({
         id: field.id,
         code: field.code,
+        fieldPath: `customFields.${field.code}`,
         title: field.name,
         value: mapCustomFieldValue(value.value, field),
         meta: { ...field.meta, isCustomField: true }
@@ -184,6 +185,7 @@ export function mapProfileFields(
     {
       id: "firstName",
       code: "firstName",
+      fieldPath: "firstName",
       title: t("form.firstname.label"),
       value: record.firstName,
       meta: { ...NATIVE_FIELD_META, isCustomField: false }
@@ -191,6 +193,7 @@ export function mapProfileFields(
     {
       id: "lastName",
       code: "lastName",
+      fieldPath: "lastName",
       title: t("form.lastname.label"),
       value: record.lastName,
       meta: { ...NATIVE_FIELD_META, isCustomField: false }
@@ -198,6 +201,7 @@ export function mapProfileFields(
     {
       id: "publicName",
       code: "publicName",
+      fieldPath: "publicName",
       title: t("form.publicName.label"),
       value: record.publicName,
       meta: { ...NATIVE_FIELD_META, isCustomField: false }
@@ -205,6 +209,7 @@ export function mapProfileFields(
     {
       id: "language",
       code: "language",
+      fieldPath: "language",
       title: t("form.language.label"),
       value: languageName,
       meta: { ...NATIVE_FIELD_META, isRequired: true, isCustomField: false }
@@ -218,6 +223,7 @@ export function mapProfileFields(
       return {
         id: field.id,
         code: field.code,
+        fieldPath: `customFields.${field.code}`,
         title: field.name,
         value: mapCustomFieldValue(value?.value, field),
         meta: { ...field.meta, isCustomField: true }

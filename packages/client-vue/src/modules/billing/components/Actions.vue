@@ -1,28 +1,29 @@
 <template>
   <footer class="flex flex-col gap-2 md:flex-row md:justify-start">
     <Button
-      :label="t('action.save_details')"
-      color="primary"
+      variant="primary"
       size="lg"
       :disabled="props.disabled || props.loading"
       :loading="props.processing"
       @click="emits('save')"
-    />
+    >
+      {{ t("action.save_details") }}
+    </Button>
     <Button
-      :label="t('text.cancel')"
-      color="primary"
       variant="ghost"
       size="lg"
       :disabled="props.loading"
       :loading="props.processing"
       @click="emits('cancel')"
-    />
+    >
+      {{ t("text.cancel") }}
+    </Button>
   </footer>
 </template>
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { Button } from "@upmind-automation/upmind-ui";
+import { Button } from "@upmind/ui";
 
 // -----------------------------------------------------------------------------
 

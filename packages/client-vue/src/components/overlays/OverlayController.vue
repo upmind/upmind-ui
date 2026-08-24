@@ -3,16 +3,15 @@
        route is the active destination itself (e.g. visiting /overlays/verify-email
        directly), the main RouteView already renders it — rendering it here too
        would mount it twice. -->
-  <component
+  <OverlayContainer
     v-if="isLayered"
-    :is="overlayContainer"
+    :type="overlayType"
     v-bind="safeProps"
     :open="open"
-    @close="handleDismiss"
     @update:open="handleDismiss"
   >
     <component :is="overlayComponent" @close="handleClose" />
-  </component>
+  </OverlayContainer>
 </template>
 
 <script lang="ts" setup>
@@ -27,18 +26,16 @@
 
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { OverlayType } from "@upmind-automation/headless";
-import { Drawer, Dialog, Slot } from "@upmind-automation/upmind-ui";
+import OverlayContainer from "./OverlayContainer.vue";
 import { useOverlayRoute } from "./useOverlayRoute";
-import { defaults, find, some } from "lodash-es";
-import type { DrawerProps } from "@upmind-automation/upmind-ui";
-import type { DialogProps } from "@upmind-automation/upmind-ui";
+import { defaults, find, pick, some } from "lodash-es";
+import type { OverlayContainerProps } from "./OverlayContainer.vue";
 
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(defineProps<DrawerProps | DialogProps>(), {
-  modal: undefined,
-  noFooter: true
+// type is derived from the route (overlayType), not passed in
+const props = withDefaults(defineProps<Omit<OverlayContainerProps, "type">>(), {
+  modal: undefined
 });
 
 const route = useRoute();
@@ -58,42 +55,31 @@ const isLayered = computed(() =>
   some(route.matched, r => !r.meta?.overlay && !!r.components?.default)
 );
 
-/** Resolve container (Dialog or Drawer) from overlay type */
-const overlayContainer = computed(() => {
-  switch (overlayType.value) {
-    case OverlayType.MODAL:
-      return Dialog;
-
-    case OverlayType.DRAWER:
-      return Drawer;
-
-    default:
-    case OverlayType.CUSTOM:
-      return Slot;
-  }
-});
-
 /** Resolve content component from matched overlay route */
 const overlayComponent = computed(
   () => overlayRoute.value?.components?.default
 );
 
-/** Props with sensible defaults based on overlay type, merged with route meta */
-const safeProps = computed(() => {
-  const metaProps = overlayRoute.value?.meta ?? {};
+// Route meta carries the host router's own page keys alongside the overlay's,
+// so only the container's props are forwarded. `type` is bound explicitly from
+// overlayType and is left out here to avoid a double-bind.
+const CONTAINER_PROP_KEYS = [
+  "open",
+  "modal",
+  "title",
+  "description",
+  "size",
+  "dismissable",
+  "noHeader",
+  "class",
+  "classContent",
+  "classHeader"
+] as const satisfies readonly (keyof OverlayContainerProps)[];
 
-  switch (overlayType.value) {
-    case OverlayType.MODAL:
-      return defaults({}, metaProps, props) as DialogProps;
-
-    case OverlayType.DRAWER:
-      return defaults({}, metaProps, props) as DrawerProps;
-
-    default:
-    case OverlayType.CUSTOM:
-      return props;
-  }
-});
+/** Route meta (title/size…) merged over the controller's own props. */
+const safeProps = computed(() =>
+  pick(defaults({}, overlayRoute.value?.meta ?? {}, props), CONTAINER_PROP_KEYS)
+);
 
 /** Local open state — synced with route, but can be closed independently */
 const open = ref(props.open ?? false);

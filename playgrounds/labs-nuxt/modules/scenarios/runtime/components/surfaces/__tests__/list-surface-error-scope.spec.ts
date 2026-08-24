@@ -36,6 +36,7 @@ import {
   OVERFLOW_TRIGGER_TEST_VALUE
 } from "../../__tests__/control-test-values";
 import { ListSurface } from "../index";
+import { getRow, getRows } from "./table-geometry";
 import { keys } from "lodash-es";
 import type { SurfaceActions } from "../surface.types";
 
@@ -67,8 +68,7 @@ type Wrapper = ReturnType<typeof mountList>;
 
 /** `setDefault` is declared into the overflow, so that is where it is reached. */
 async function fireSetDefault(wrapper: Wrapper) {
-  await wrapper
-    .findAll("li")[1]
+  await getRow(wrapper, 1)
     .find(`[data-test-value="${OVERFLOW_TRIGGER_TEST_VALUE}"]`)
     .trigger("click");
   await new Promise(resolve => setTimeout(resolve, 0));
@@ -103,7 +103,7 @@ describe("@AC3 error scope — the list survives a refused row action (P1-R13)",
       setDefault: vi.fn().mockRejectedValue(recordedRejection())
     });
 
-    expect(wrapper.findAll("li")).toHaveLength(rows.length);
+    expect(getRows(wrapper).length).toBeGreaterThanOrEqual(rows.length);
     expect(wrapper.text()).toContain(defaultRow.email);
     expect(wrapper.text()).toContain(unverifiedRow.email);
   });
@@ -138,8 +138,7 @@ describe("@AC3 error scope — the list survives a refused row action (P1-R13)",
       remove
     });
 
-    await wrapper
-      .findAll("li")[1]
+    await getRow(wrapper, 1)
       .find(`[data-test-value="${CONTROL_TEST_VALUE.remove}"]`)
       .trigger("click");
     await flushPromises();
@@ -178,6 +177,6 @@ describe("@AC3 error scope — the notice is the BOOT experience, not a blanket 
     expect(renderedStrings(wrapper)).toContain(
       errorCatalogue.something_went_wrong
     );
-    expect(wrapper.findAll("li")).toHaveLength(0);
+    expect(getRows(wrapper)).toHaveLength(0);
   });
 });

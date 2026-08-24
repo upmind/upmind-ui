@@ -35,7 +35,11 @@ export const useProductRecommendations = (pid: ProductModel["productId"]) => {
 
   const productRecommendations = computed(
     (): RecommendationsEngineContext["recommendations"] => {
-      const related = contextValue(state, "raw.related", []);
+      const related = contextValue<{ id: string; product_id: string }[]>(
+        state,
+        "raw.related",
+        []
+      );
       return reduce(
         recommendations.value,
         (

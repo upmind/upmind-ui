@@ -1,17 +1,12 @@
 <template>
-  <DropdownMenu
-    v-if="isAvailable"
-    :items="[]"
-    width="2xl"
-    :ui-config="{ dropdownMenu: { group: ['p-0'] } }"
-  >
+  <DropdownMenu v-if="isAvailable" :items="[]" class="w-80">
     <template #trigger>
       <Button
         variant="ghost"
         size="sm"
         icon-append="chevron-down"
         :aria-label="t('labs.session_pool')"
-        :class="styles.sessionSwitcher.trigger"
+        class="cursor-pointer"
         :data-attrs="{ 'data-test-key': 'session-switcher' }"
       >
         <Avatar
@@ -31,10 +26,10 @@
           <Badge
             icon="eye"
             size="sm"
-            variant="muted"
+            appearance="muted"
             color="warning"
             :label="t('labs.session_impersonating')"
-            :class="styles.sessionSwitcher.impersonationCue"
+            class="ml-1"
             :data-attrs="{ 'data-test-key': 'session-impersonation-cue' }"
           />
         </Tooltip>
@@ -42,49 +37,48 @@
     </template>
 
     <template v-for="group in groups" :key="group.label">
-      <DropdownMenuLabel :class="styles.sessionSwitcher.groupLabel">
+      <DropdownMenuLabel
+        class="text-muted border-surface border-b text-xs tracking-wider uppercase"
+      >
         {{ t(group.label) }}
       </DropdownMenuLabel>
 
-      <DropdownMenuGroup :class="styles.sessionSwitcher.group">
+      <DropdownMenuGroup class="flex flex-col p-1">
         <template v-for="node in group.nodes" :key="node.id">
           <DropdownMenuItem
             :class="sessionItem({ isActive: node.isActive })"
             :aria-current="node.isActive ? 'true' : undefined"
             @select="switchSession(node.actor, node.id)"
           >
-            <span :class="styles.sessionSwitcher.identity">
+            <span class="flex min-w-0 items-center gap-2">
               <Avatar
                 size="sm"
                 color="secondary"
                 :src="node.avatar?.src"
                 :caption="node.avatar?.caption"
               />
-              <span :class="styles.sessionSwitcher.labels">
-                <span :class="styles.sessionSwitcher.label">
+              <span class="flex min-w-0 flex-col">
+                <span class="truncate text-sm font-medium">
                   {{ node.label }}
                 </span>
-                <span
-                  v-if="node.sublabel"
-                  :class="styles.sessionSwitcher.sublabel"
-                >
+                <span v-if="node.sublabel" class="text-muted truncate text-xs">
                   {{ t(node.sublabel) }}
                 </span>
               </span>
             </span>
 
-            <span :class="styles.sessionSwitcher.trailing">
+            <span class="ml-auto flex shrink-0 items-center gap-1">
               <Icon
                 v-if="node.isActive"
                 icon="check"
                 size="nano"
-                :class="styles.sessionSwitcher.activeMark"
+                class="text-accent-success"
               />
               <Badge
                 v-if="node.expiresAt"
                 icon="clock"
                 size="sm"
-                variant="muted"
+                appearance="muted"
                 :color="expiryColor(node.expiresAt)"
                 :label="useRelativeTime(node.expiresAt)"
               />
@@ -103,17 +97,14 @@
             </span>
           </DropdownMenuItem>
 
-          <!-- The impersonation nest. Its trigger is deliberately NOT a menu
-               item: opening and closing a staff session's clients is not a
-               choice of session, so the pool stays open through it. -->
           <Collapsible
             v-if="nestOf(node).length"
             :open="isExpanded(node)"
-            :class="styles.sessionSwitcher.nest"
+            class="border-surface ml-4 border-l pl-1"
             @update:open="open => expanded.set(node.id, open)"
           >
             <CollapsibleTrigger
-              :class="styles.sessionSwitcher.nestTrigger"
+              class="text-muted hover:bg-button-ghost-hover flex w-full cursor-pointer items-center gap-1.5 rounded-xs px-2 py-1 text-xs"
               @click.stop
             >
               <Icon
@@ -124,10 +115,10 @@
               <span>{{ t("labs.session_impersonating") }}</span>
               <Badge
                 size="sm"
-                variant="muted"
+                appearance="muted"
                 color="warning"
                 :label="String(nestOf(node).length)"
-                :class="styles.sessionSwitcher.nestCount"
+                class="mr-2 ml-auto"
               />
             </CollapsibleTrigger>
 
@@ -139,38 +130,38 @@
                 :aria-current="client.isActive ? 'true' : undefined"
                 @select="switchSession(client.actor, client.id)"
               >
-                <span :class="styles.sessionSwitcher.identity">
+                <span class="flex min-w-0 items-center gap-2">
                   <Avatar
                     size="sm"
                     color="secondary"
                     :src="client.avatar?.src"
                     :caption="client.avatar?.caption"
                   />
-                  <span :class="styles.sessionSwitcher.labels">
-                    <span :class="styles.sessionSwitcher.label">
+                  <span class="flex min-w-0 flex-col">
+                    <span class="truncate text-sm font-medium">
                       {{ client.label }}
                     </span>
                     <span
                       v-if="client.sublabel"
-                      :class="styles.sessionSwitcher.sublabel"
+                      class="text-muted truncate text-xs"
                     >
                       {{ t(client.sublabel) }}
                     </span>
                   </span>
                 </span>
 
-                <span :class="styles.sessionSwitcher.trailing">
+                <span class="ml-auto flex shrink-0 items-center gap-1">
                   <Icon
                     v-if="client.isActive"
                     icon="check"
                     size="nano"
-                    :class="styles.sessionSwitcher.activeMark"
+                    class="text-accent-success"
                   />
                   <Badge
                     v-if="client.expiresAt"
                     icon="clock"
                     size="sm"
-                    variant="muted"
+                    appearance="muted"
                     :color="expiryColor(client.expiresAt)"
                     :label="useRelativeTime(client.expiresAt)"
                   />
@@ -196,11 +187,11 @@
 
     <div
       v-if="hasActions"
-      :class="styles.sessionSwitcher.actions"
+      class="bg-canvas border-surface flex flex-col gap-1 border-t p-2"
       data-test-key="actor-scope-add-account"
     >
       <template v-if="addableScopes.length">
-        <DropdownMenuLabel :class="styles.sessionSwitcher.actionsLabel">
+        <DropdownMenuLabel class="text-muted text-xs tracking-wider uppercase">
           {{ t("labs.session_add_account") }}
         </DropdownMenuLabel>
         <Button
@@ -278,11 +269,10 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  Icon,
-  Tooltip,
-  useStyles
-} from "@upmind-automation/upmind-ui";
-import config, { nestChevron, sessionItem } from "./SessionSwitcher.styles";
+  Tooltip
+} from "@upmind/ui";
+import { Icon } from "@upmind-automation/client-vue";
+import { nestChevron, sessionItem } from "./SessionSwitcher.styles";
 import { useActorScopeSelector } from "./useActorScopeSelector";
 import { find, isEmpty, reject, some } from "lodash-es";
 import type { SessionItem, StaffSessionNode } from "./useActorScopeSelector";
@@ -358,6 +348,4 @@ function expiryColor(
   if (remaining < FIVE_MINUTES_MS) return "warning";
   return "neutral";
 }
-
-const styles = useStyles(["sessionSwitcher"], {}, config);
 </script>

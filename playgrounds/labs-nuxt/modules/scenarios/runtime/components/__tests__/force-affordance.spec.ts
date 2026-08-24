@@ -29,7 +29,7 @@ import { createI18n } from "vue-i18n";
 import action from "@upmind-automation/i18n/core/action-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
-import { Badge } from "@upmind-automation/upmind-ui";
+import { Badge } from "@upmind/ui";
 import { FORCE_URL_PRESETS } from "../../composables/useForcedState.types";
 import { FORCE_PRESET_LABELS } from "../ForcedCanvas.types";
 import ForcedCanvas from "../ForcedCanvas.vue";

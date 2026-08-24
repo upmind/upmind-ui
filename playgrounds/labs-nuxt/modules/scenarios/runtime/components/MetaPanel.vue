@@ -1,13 +1,14 @@
 <template>
-  <section v-if="items.length" :class="styles.metaPanel.root">
-    <h2 :class="styles.metaPanel.title">{{ t("labs.debug_meta") }}</h2>
-    <div :class="styles.metaPanel.list">
+  <section v-if="items.length" :class="metaPanel.root()">
+    <h2 :class="metaPanel.title()">{{ t("labs.debug_meta") }}</h2>
+    <div :class="metaPanel.list()">
       <Badge
         v-for="item in items"
         :key="item.key"
         size="sm"
-        :variant="item.variant"
-        :color="item.color"
+        :variant="item.color"
+        :appearance="item.appearance"
+        data-test-key="badge"
       >
         {{ startCase(item.key) }}
       </Badge>
@@ -28,9 +29,9 @@
 
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Badge, useStyles } from "@upmind-automation/upmind-ui";
-import config from "./MetaPanel.styles";
-import { MetaBadgeColor, MetaBadgeVariant } from "./MetaPanel.types";
+import { Badge } from "@upmind/ui";
+import { metaPanel } from "./MetaPanel.styles";
+import { MetaBadgeAppearance, MetaBadgeColor } from "./MetaPanel.types";
 import { entries, includes, map, sortBy, startCase } from "lodash-es";
 import type { MetaPanelItem, MetaPanelProps } from "./MetaPanel.types";
 // -----------------------------------------------------------------------------
@@ -77,15 +78,12 @@ const items = computed<MetaPanelItem[]>(() => {
       key,
       value,
       color,
-      variant:
+      appearance:
         color === MetaBadgeColor.NEUTRAL
-          ? MetaBadgeVariant.MINIMAL
-          : MetaBadgeVariant.SOLID
+          ? MetaBadgeAppearance.MUTED
+          : MetaBadgeAppearance.SOLID
     };
   });
   return sortBy(built, [item => colorPriority(item.color), "key"]);
 });
-
-const meta = computed(() => ({ count: items.value.length }));
-const styles = useStyles(["metaPanel"], meta, config);
 </script>

@@ -88,12 +88,12 @@
       <template #custom-price>
         <Alert
           v-if="meta.hasCustomPrice"
-          variant="muted"
-          color="warning"
-          icon="switch-horizontal-01"
+          variant="warning"
           :title="t('text.custom_price_applied')"
           :description="t('text.basket_custom_price_alert')"
-        />
+        >
+          <template #icon><Icon icon="switch-horizontal-01" /></template>
+        </Alert>
       </template>
     </component>
   </Transitions>
@@ -116,10 +116,12 @@ import {
   UIContext,
   ClientTemplateSlotCodes
 } from "@upmind-automation/headless";
-import { useTestAttrs, useThemes } from "@upmind-automation/upmind-ui";
-import { Alert, Markdown } from "@upmind-automation/upmind-ui";
+import { useTestAttrs } from "@upmind/ui";
+import { Markdown } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
 import Back from "../../components/navigation/Back.vue";
+import { useThemes } from "../theming";
 import BasketAlerts from "./components/BasketAlerts.vue";
 import BasketCheckout from "./components/BasketCheckout.vue";
 import BasketHero from "./components/BasketHero.vue";

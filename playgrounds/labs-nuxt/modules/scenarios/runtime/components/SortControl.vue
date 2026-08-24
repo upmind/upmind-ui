@@ -1,5 +1,33 @@
 <template>
-  <ButtonGroup :items="groupItems" size="sm" data-test-key="sort" />
+  <div class="flex items-center gap-0.5" data-test-key="sort">
+    <ButtonItems
+      size="sm"
+      variant="outline"
+      :icon="isAscending ? 'arrow-up' : 'arrow-down'"
+      icon-only
+      :label="i18n.translate(directionKey, directionKey)"
+      :disabled="!active || !!props.disabled"
+      @click="
+        write(
+          active?.field,
+          isAscending ? SORT_DIRECTION.DESC : SORT_DIRECTION.ASC
+        )
+      "
+    />
+    <Select
+      size="sm"
+      :model-value="active?.field"
+      :items="props.fields"
+      :disabled="props.disabled"
+      :placeholder="
+        selected?.label ?? i18n.translate('text.sort_by', 'text.sort_by')
+      "
+      :class="sortControl.field()"
+      @update:model-value="
+        field => write(field ? String(field) : undefined, direction)
+      "
+    />
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -32,23 +60,15 @@
 import { computed } from "vue";
 import { useFormI18n } from "@upmind-automation/client-vue";
 import { SORT_DIRECTION } from "@upmind-automation/scenario-harness";
-import {
-  ButtonGroup,
-  ButtonGroupTypes,
-  useStyles
-} from "@upmind-automation/upmind-ui";
-import config from "./SortControl.styles";
+import { Select } from "@upmind/ui";
+import ButtonItems from "./ButtonItems.vue";
+import { sortControl } from "./SortControl.styles";
 import { find, first } from "lodash-es";
 import type { SortControlProps } from "./SortControl.types";
 import type {
   SortDirection,
   TableModel
 } from "@upmind-automation/scenario-harness";
-import type {
-  ButtonGroupItem,
-  ButtonProps,
-  SelectProps
-} from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<SortControlProps>();
@@ -56,8 +76,6 @@ const props = defineProps<SortControlProps>();
 const emit = defineEmits<{ "update:sort": [sort: TableModel["sort"]] }>();
 
 const i18n = useFormI18n();
-
-const styles = useStyles(["sortControl"], {}, config);
 
 // The PRIMARY key is what the control steers: a multi-key boot order (the
 // module's own declared default) shows its leading field, and the user's pick
@@ -75,40 +93,6 @@ const directionKey = computed(() =>
 const selected = computed(() =>
   find(props.fields, { value: active.value?.field })
 );
-
-const groupItems = computed<ButtonGroupItem[]>(() => [
-  {
-    type: ButtonGroupTypes.Button,
-    props: {
-      icon: isAscending.value ? "arrow-up" : "arrow-down",
-      iconOnly: true,
-      label: i18n.value.translate(directionKey.value, directionKey.value),
-      disabled: !active.value || !!props.disabled
-    } satisfies ButtonProps,
-    handler: () =>
-      write(
-        active.value?.field,
-        isAscending.value ? SORT_DIRECTION.DESC : SORT_DIRECTION.ASC
-      )
-  },
-  {
-    type: ButtonGroupTypes.Select,
-    props: {
-      modelValue: active.value?.field,
-      items: props.fields,
-      disabled: props.disabled,
-      placeholder:
-        selected.value?.label ??
-        i18n.value.translate("text.sort_by", "text.sort_by"),
-      // `CxOptions` is clsx's own argument list, so the override is handed over
-      // as the array the ui component's defaults already are.
-      uiConfig: {
-        select: { root: [styles.value.sortControl.field], value: [], item: [] }
-      }
-    } satisfies SelectProps,
-    handler: (field: string) => write(field, direction.value)
-  }
-]);
 
 /** Every pick writes the WHOLE model: one field, one direction. */
 function write(field: string | undefined, dir: SortDirection): void {

@@ -22,9 +22,7 @@
  */
 
 import { describe, it, expect, vi } from "vitest";
-
 // -----------------------------------------------------------------------------
-
 import { extendFunnel } from "../routing.utils";
 import type { FunnelProps, Funnels } from "../routing.types";
 
@@ -128,7 +126,7 @@ const funnels = { cart, "one-page": onePage } as unknown as Funnels;
 
 /** `states` is typed as an XState StateNodesConfig; index it as a plain bag. */
 const nodes = (funnel?: FunnelProps) =>
-  (funnel?.states ?? {}) as unknown as Record<string, any>;
+  (funnel?.states ?? {}) as unknown as Record<string, unknown>;
 
 // -----------------------------------------------------------------------------
 
@@ -180,7 +178,7 @@ describe("extendFunnel", () => {
 
   describe("the bad — an overridden state must replace WHOLESALE", () => {
     const result = extendFunnel(funnels, onePage) as FunnelProps;
-    const checkout = nodes(result).checkout as Record<string, any>;
+    const checkout = nodes(result).checkout as Record<string, unknown>;
 
     it("drops a transition the base declared and the child did not", () => {
       expect(checkout.on).toBeUndefined();

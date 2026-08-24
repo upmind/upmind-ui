@@ -6,11 +6,13 @@
     :currencyCount="size(currencies)"
   >
     <template #footer-actions v-if="meta.hasActions">
-      <UpmLocale
-        v-bind="localeTestAttrs"
-        v-show="meta.showLocale && localeMeta.isAvailable"
-      />
-      <UpmCurrency v-bind="currencyTestAttrs" v-show="meta.showCurrency" />
+      <ColorModeToggle />
+      <!-- No test key here: each switcher is a Combobox that overwrites
+           fallthrough attrs on its own input, so a key set from outside never
+           reaches the DOM. They carry their own — language-selector-value and
+           currency-selector-trigger. -->
+      <UpmLocale v-if="meta.showLocale && localeMeta.isAvailable" />
+      <UpmCurrency v-if="meta.showCurrency" />
     </template>
 
     <template #footer-content v-if="meta.hasContent && meta.showPoweredBy">
@@ -35,9 +37,10 @@ import {
   useClientTemplate,
   ClientTemplateSlotCodes
 } from "@upmind-automation/headless";
-import { Markdown, useTestAttrs } from "@upmind-automation/upmind-ui";
+import { Markdown } from "@upmind/ui";
 import UpmLocale from "../../components/LocaleSwitcher.vue";
 import UpmCurrency from "../../modules/basket/components/CurrencySwitcher.vue";
+import ColorModeToggle from "./ColorModeToggle.vue";
 import Content from "./components/Content.vue";
 import Copyright from "./components/Copyright.vue";
 import { useFooter } from "./useFooter";
@@ -46,9 +49,6 @@ import { size } from "lodash-es";
 // --- components
 
 // -----------------------------------------------------------------------------
-
-const localeTestAttrs = useTestAttrs({ key: "locale-selector" });
-const currencyTestAttrs = useTestAttrs({ key: "currency-selector" });
 
 const { meta, layout } = useFooter();
 const { meta: localeMeta, supportedLanguages } = useLocale();

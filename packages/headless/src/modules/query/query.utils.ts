@@ -311,7 +311,7 @@ const mapFeedback = (
     [responseCodes.Gateway_Timeout]: undefined,
     // ---
     [responseCodes.Too_Many_Requests]: {
-      type: messageTypes.ERROR,
+      type: messageTypes.DANGER,
       title: t("error.429_title_md"),
       copy: t("error.429_text"),
       data: {
@@ -321,7 +321,7 @@ const mapFeedback = (
       display: messageDisplays.INTERSTITIAL
     },
     [responseCodes.Internal_Server_Error]: {
-      type: messageTypes.ERROR,
+      type: messageTypes.DANGER,
       title: t("error.500_title_md"),
       copy: t("error.500_text"),
       data: {
@@ -331,7 +331,7 @@ const mapFeedback = (
       display: messageDisplays.TOAST
     },
     [responseCodes.Service_Unavailable]: {
-      type: messageTypes.ERROR,
+      type: messageTypes.DANGER,
       title: t("error.503_title_md"),
       copy: t("error.503_text"),
       data: {
@@ -343,7 +343,7 @@ const mapFeedback = (
       maxAge: 0
     },
     [responseCodes.Network_Error]: {
-      type: messageTypes.ERROR,
+      type: messageTypes.DANGER,
       title: t("error.network_title_md"),
       copy: t("error.network_text"),
       data: {
@@ -484,10 +484,13 @@ export function declaredSortFields(schema: JsonSchema): string[] {
 /**
  * A whole query model as the {@link QueryProps} the request layer accepts.
  *
- * Walks the schema's DECLARED `(column, operator)` pairs rather than the
- * model's keys, so it emits one key per declared filter; drops any sort field
+ * Walks the schema's DECLARED filter branches rather than the model's keys, so
+ * it emits one key per declared filter; drops any sort field
  * {@link declaredSortFields} does not name, because an undeclared `order=`
  * column is an HTTP 500.
+ *
+ * A branch with operators emits `filter[column|op]`; one without emits
+ * `filter[column]` (the API defaults it to eq).
  *
  * A filter branch's WIRE column is its own property name unless the branch
  * declares a `column` — the binding for an API whose filterable column is spelt
@@ -505,8 +508,18 @@ export function translateQuery(
     get(schema, ["properties", "filters", "properties"], {}),
     (result: RequestFilters, branchSchema, property) => {
       const column = get(branchSchema, "column", property) as string;
+      const operators = get(branchSchema, "properties", {});
+
+      if (isEmpty(operators)) {
+        result[`filter[${column}]`] = toWireFilterValue(
+          RequestFilterOperator.EQUAL,
+          get(model, ["filters", property])
+        );
+        return result;
+      }
+
       return reduce(
-        get(branchSchema, "properties", {}),
+        operators,
         (acc: RequestFilters, _operatorSchema, operator) => {
           acc[`filter[${column}|${operator}]`] = toWireFilterValue(
             operator,

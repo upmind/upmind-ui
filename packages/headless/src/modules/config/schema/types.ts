@@ -189,13 +189,36 @@ export const PRODUCT_SETUP_MODE = {
 export type ProductSetupMode =
   (typeof PRODUCT_SETUP_MODE)[keyof typeof PRODUCT_SETUP_MODE];
 
-export interface BadgeObject {
-  label: string;
+export const BADGE_VARIANT = {
+  PRIMARY: "primary",
+  SECONDARY: "secondary",
+  NEUTRAL: "neutral",
+  PROMO: "promo",
+  DANGER: "danger",
+  WARNING: "warning",
+  SUCCESS: "success",
+  INFO: "info"
+} as const;
+export type BadgeVariant = (typeof BADGE_VARIANT)[keyof typeof BADGE_VARIANT];
+
+export const BADGE_APPEARANCE = {
+  MUTED: "muted",
+  SOLID: "solid",
+  OUTLINE: "outline"
+} as const;
+export type BadgeAppearance =
+  (typeof BADGE_APPEARANCE)[keyof typeof BADGE_APPEARANCE];
+
+export interface Badge {
+  label?: string;
   icon?: string;
-  color?: string;
-  variant?: string;
+  /** Colour intent. An unlisted value reaches no compound variant and renders unstyled. */
+  variant?: BadgeVariant;
+  /** Fill style. Defaults to `outline` at the consumer, matching the pre-migration chip. */
+  appearance?: BadgeAppearance;
 }
-export type Badge = string | BadgeObject;
+/** A badge may be configured as a bare label or as the full object. */
+export type BadgeInput = string | Badge;
 
 /** Minimal labelled-content shape: a label, optionally annotated with an icon. */
 export interface LabelContent {
@@ -319,7 +342,7 @@ export interface ProductRecommendConfig {
   /** Optional image URL override for the recommendation */
   image_url?: string;
   /** Optional badge to display with the recommendation */
-  badge?: Badge;
+  badge?: BadgeInput;
   /** Optional benefits to display with the recommendation */
   benefits?: Benefit[];
   /** Product configuration to apply when adding the recommendation to basket */

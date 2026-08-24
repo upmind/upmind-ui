@@ -1,0 +1,10 @@
+--- a/docs/corpus/glossary.yaml
++++ b/docs/corpus/glossary.yaml
+@@ -315,7 +315,6 @@
+ personal-details:
+   term: personal details
+   kind: domain
+-  aliases: [profile]
+   definition: >-
+     A client's own profile record — native fields (first name, last name,
+     public name, interface language) plus the client's own custom field

@@ -37,10 +37,10 @@ diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces
          @update:sort="emitSort"
          @update:columns="onColumns"
          @update:view="onView"
-@@ -288,10 +287,7 @@
+@@ -291,10 +290,7 @@
           title (`R6-23`). Geometry is untouched either way. -->
      <div
-       v-if="meta.hasTable && !meta.isEmpty && !meta.isLoading"
+       v-if="meta.hasPagination && !meta.isEmpty && !meta.isLoading"
 -      :class="paginationRegion({ isLocked: !!locked })"
 -      :aria-disabled="locked || undefined"
 -      :inert="locked || undefined"

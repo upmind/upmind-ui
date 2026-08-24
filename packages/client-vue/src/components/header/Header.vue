@@ -3,23 +3,28 @@
     as="header"
     :background="getBackground"
     :border="meta.border"
-    :class="styles.header.root"
+    :class="
+      headerRootVariants({
+        position: meta.position,
+        visible: shouldShow
+      })
+    "
     v-show="meta.isVisible"
   >
     <Container
       flow="horizontal"
       justify="between"
-      :class="styles.header.container"
+      :class="headerContainerVariants()"
     >
       <Column
         :background="isMobile ? COLUMN_BACKGROUND.NONE : leftBackground"
-        :class="styles.header.left.column"
+        :class="headerLeftColumnVariants({ background: meta.background })"
         :padding="meta.padding"
       >
         <Content
           :justify="meta.justifyLeft"
           :items="meta.items"
-          :class="styles.header.left.content"
+          :class="headerLeftContentVariants({ background: meta.background })"
           flow="horizontal"
         >
           <slot name="branding" v-if="meta.hasContent">
@@ -30,11 +35,11 @@
 
       <Column
         :background="isMobile ? COLUMN_BACKGROUND.NONE : rightBackground"
-        :class="styles.header.right.column"
+        :class="headerRightColumnVariants({ background: meta.background })"
         :padding="meta.padding"
       >
         <Content
-          :class="styles.header.right.content"
+          :class="headerRightContentVariants({ background: meta.background })"
           :justify="meta.justifyRight"
           :items="meta.items"
           flow="horizontal"
@@ -49,7 +54,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { useStyles, isMobile } from "@upmind-automation/upmind-ui";
+import { isMobile } from "../../composables/isMobile";
 import { useRouteTransition } from "../../modules/system/useRouteTransition";
 import { COLUMN_BACKGROUND } from "../layout/components/column";
 import Column from "../layout/components/column/Column.vue";
@@ -57,31 +62,26 @@ import Container from "../layout/components/container/Container.vue";
 import Content from "../layout/components/content/Content.vue";
 import { RIBBON_BACKGROUND } from "../layout/components/ribbon";
 import Ribbon from "../layout/components/ribbon/Ribbon.vue";
-import config from "./header.config";
 import HeaderBrand from "./HeaderBrand.vue";
 import { HEADER_BACKGROUND } from "./types";
 import { useHeader } from "./useHeader";
+import {
+  headerRootVariants,
+  headerContainerVariants,
+  headerLeftColumnVariants,
+  headerLeftContentVariants,
+  headerRightColumnVariants,
+  headerRightContentVariants
+} from "./variants";
 import type { StorefrontRoute } from "../../types";
 
 // -----------------------------------------------------------------------------
 const { meta } = useHeader();
 
-const stylesMeta = computed(() => ({
-  background: meta.value.background,
-  position: meta.value.position,
-  visible: shouldShow.value
-}));
-
 const props = defineProps<{
   logo?: string;
   storefrontRoute?: StorefrontRoute;
 }>();
-
-const styles = useStyles(
-  ["header", "header.left", "header.right"],
-  stylesMeta,
-  config
-);
 
 const shouldShow = ref(true);
 

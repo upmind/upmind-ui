@@ -12,7 +12,7 @@
         class="w-full rounded-md border border-gray-300 p-2"
       />
 
-      <Loading :active="meta.isLoading" class-active="w-full">
+      <Loading label="Loading" :active="meta.isLoading" class-active="w-full">
         <div
           class="grid w-full grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] gap-6"
         >
@@ -66,7 +66,7 @@ import {
   type RequestSortDirection,
   useProductCatalogue
 } from "@upmind-automation/headless";
-import { Button, Loading, Card } from "@upmind-automation/upmind-ui";
+import { Button, Loading, Card } from "@upmind/ui";
 import { debounce } from "lodash-es";
 import type {
   IProductCategory,

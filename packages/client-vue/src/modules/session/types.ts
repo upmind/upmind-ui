@@ -1,15 +1,24 @@
-import type { AVATAR_SHAPES } from "@upmind-automation/upmind-ui";
-import type {
-  ButtonProps,
-  DialogProps,
-  AvatarProps
-} from "@upmind-automation/upmind-ui";
+import type { ButtonVariants } from "@upmind/ui";
 import type { CxOptions } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 // -----------------------------------------------------------------------------
-export type ActionProps = ButtonProps & {
+
+/** Avatar config for the session-expired modal (icon + legacy size/shape). */
+type AvatarConfig = {
+  icon?: string;
+  size?: string;
+  shape?: string;
+};
+export type ActionProps = {
+  label?: string;
+  icon?: string;
+  /** Maps onto the Button variant. */
+  color?: ButtonVariants["variant"];
+  size?: ButtonVariants["size"];
   type?: HTMLButtonElement["type"];
+  disabled?: boolean;
+  loading?: boolean;
   handler?: ((...args: unknown[]) => unknown) | string;
   auto?: boolean;
   visible?: boolean;
@@ -34,7 +43,7 @@ export type SessionProps = {
   // --- variants
   blockTabs?: boolean;
   stretchTabs?: boolean;
-  variant?: ButtonProps["variant"];
+  variant?: ButtonVariants["variant"];
   // ---
   uiConfig?: { alert: CxOptions };
   class?: HTMLAttributes["class"];
@@ -44,14 +53,14 @@ export type SessionProps = {
 export type SessionExpiredProps = {
   // ---
   modal?: boolean;
-  open?: DialogProps["open"];
+  open?: boolean;
   // ---
-  title?: DialogProps["title"];
-  text?: DialogProps["description"];
-  avatar?: Partial<AvatarProps>;
+  title?: string;
+  text?: string;
+  avatar?: AvatarConfig;
   action?: ActionProps;
   // ---
-  size?: DialogProps["size"];
+  size?: string;
 };
 
 export type SessionRoutes = {
@@ -61,7 +70,7 @@ export type SessionRoutes = {
 };
 
 export type AuthActionProps = SessionRoutes & {
-  shape?: AVATAR_SHAPES;
+  shape?: string;
 };
 
 export enum SESSION_TEMPLATE {

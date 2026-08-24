@@ -8,8 +8,8 @@
         {{ title }}
         <Badge
           v-if="meta?.isDefault"
-          variant="solid"
-          color="neutral"
+          appearance="solid"
+          variant="neutral"
           size="sm"
           :label="t('text.default_label')"
         />
@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { Badge, Link } from "@upmind-automation/upmind-ui";
+import { Badge, Link } from "@upmind/ui";
 import type { Phone } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------

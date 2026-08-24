@@ -9,7 +9,8 @@
  * (`useAuth`'s flow machine, and the shared `dataManagerMachine` every manager
  * runs on), lifted into an enum rather than repeated as string literals in the
  * surface. The feedback pair is `ScenarioHandoff`'s own, consumed rather than
- * re-declared. See `graphify-out/GRAPH_REPORT.md`.
+ * re-declared. The `fieldScope` member (2026-08-24) narrows the uischema to one
+ * control. See `graphify-out/GRAPH_REPORT.md`.
  */
 
 import type { SurfaceProps } from "./surface.types";
@@ -34,6 +35,12 @@ export enum FormFlowActionTypes {
   UPDATE = "update"
 }
 
+/**
+ * @graphify-citation `graphify-out/graph.json` (2026-08-24) —
+ * `FormFlowSurfaceProps` at L37; `fieldScope` extends it for row-level field
+ * editing, narrowing the uischema to one control. `uischema` override added
+ * for caller-derived narrowing (FE-3103 T3a).
+ */
 export type FormFlowSurfaceProps = SurfaceProps & {
   /**
    * What the surface SAYS when the save settles — the handoff that opened this
@@ -41,4 +48,20 @@ export type FormFlowSurfaceProps = SurfaceProps & {
    * sentence on a refusal.
    */
   feedback?: ScenarioHandoff["feedback"];
+  /**
+   * @deprecated Use the `uischema` override prop instead — caller derives via
+   * `useContext().uischemaFor([fieldScope])`.
+   *
+   * Narrows the editor to ONE field — the resolved field code. The editor draws
+   * only the control whose scope matches this field; absent, the full form
+   * renders. Native fields match directly (e.g. `firstName`); custom fields
+   * match via `customFields.<code>`.
+   */
+  fieldScope?: string;
+  /**
+   * Override uischema — wins over the snapshot's when provided. The caller
+   * derives this from the cell's `useContext().uischemaFor()` so validation
+   * errors can pull additional fields into the view.
+   */
+  uischema?: import("@jsonforms/core").UISchemaElement;
 };

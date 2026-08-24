@@ -38,7 +38,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 // mid-evaluation at `client-email/useClientEmails.ts:80`. Sorting this
 // block alphabetically regresses the whole suite (module A's prover lost a
 // cycle to exactly this).
-// eslint-disable-next-line import/order
+import { usePersonalDetails, usePersonalDetailsManager } from "..";
+import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   installCustomFieldDefinitionsHandler,
   installProfileGetHandler,
@@ -47,8 +48,6 @@ import {
   resetClientPersonalDetailsScopes,
   seedClientSession
 } from "./client-personal-details.int-helpers";
-import { usePersonalDetails, usePersonalDetailsManager } from "..";
-import { ScopeActorTypes } from "../../scope/scope.types";
 import { server } from "./setup.integration";
 
 // -----------------------------------------------------------------------------

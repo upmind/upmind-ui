@@ -6,7 +6,9 @@ import { NotAuthenticatedError } from "../../utils";
 import type {
   ClientCustomFieldsListQuery,
   ClientCustomFieldsServices,
-  CustomField
+  CustomField,
+  FilterModel,
+  SortModel
 } from "./client-custom-fields.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { Ref } from "vue";
@@ -24,7 +26,7 @@ export function createClientCustomFieldsActions(
   service: ClientCustomFieldsServices,
   query: ClientCustomFieldsListQuery,
   scopeKey: string,
-  clientSideFilter: Ref<Partial<CustomField>>
+  narrowing: Ref<Partial<CustomField> | Partial<CustomField>[]>
 ) {
   const { isAvailable: isSessionInitialised, isLoading: isSessionSettling } =
     useActiveSession().useMeta();
@@ -125,18 +127,73 @@ export function createClientCustomFieldsActions(
     if (error instanceof NotAuthenticatedError) throw error;
   }
 
-  // --- client-side filtering (AC-8)
+  /** Applies a server-side filter — reaches the wire as `filter[name|like]`. */
+  function filterBy(intent: FilterModel): void {
+    query.setCriteria({ filters: intent });
+  }
+
+  /** Re-orders the collection — reaches the wire as `order=`. */
+  function sortBy(intent: SortModel): void {
+    query.setCriteria({ sort: intent });
+  }
+
+  // --- client-side narrowing (AC-8)
   //
   // Deliberately NOT `query.filter()`: that mutates the query's own key and
-  // re-fetches from the server. Legacy filters the ALREADY-LOADED list
-  // in-memory (`customFields.vue:205-215`) and issues no request; this
+  // re-fetches from the server. Legacy narrows the ALREADY-LOADED list
+  // in-memory (`customFields.vue:204-215`) and issues no request; this
   // mirrors that by writing to a plain ref the context layer reads, never
   // touching `query`.
 
-  /** Applies (or clears, with no argument) a client-side partial-match filter. */
-  function filterBy(mapping: Partial<CustomField> = {}): void {
-    clientSideFilter.value = mapping;
+  /**
+   * @decision widen `narrowBy` to accept `Partial<CustomField> | Partial<CustomField>[]`.
+   * what:    the parameter widens from a single mapping to a single mapping OR
+   *          an array of mappings. An array narrows to rows matching EVERY
+   *          object in it (ANDed across the array; ANDed within each object
+   *          by exact-equality-over-arbitrary-props, unchanged). A single
+   *          mapping keeps its existing behaviour verbatim.
+   * why:     legacy's `filters` prop is an ARRAY, not one mapping
+   *          (`customFields.vue:183-186`), iterated with every object
+   *          required to match (`:204-215`) — `_.map(this.filters, filter =>
+   *          …)`. The headless surface was narrower than the oracle exhibits
+   *          (parity row Q16 / ruling R3), and the JTBD names "full parity
+   *          with legacy". The widening is additive and backward-compatible:
+   *          the sole call site (`client-custom-fields.collection.int.test.ts:309`)
+   *          passes one mapping and is unaffected. Closes the operator
+   *          question in `docs/sdd/client-custom-fields-upgrade/review-notes.md`
+   *          (conductor ruling) rather than leaving it open.
+   * rejected: leaving the pre-existing single-mapping arity and filing the gap
+   *          as `Dropped-with-Linear-issue` — rejected because the widening
+   *          costs nothing (no production consumer to break) and closing a
+   *          free gap beats tracking it.
+   */
+  function narrowBy(
+    mapping: Partial<CustomField> | Partial<CustomField>[] = {}
+  ): void {
+    narrowing.value = mapping;
   }
+
+  /**
+   * @decision setCriteria-mirrors-client-address-precedent
+   * what: publishes `setCriteria: query.setCriteria` — the platform's
+   *   generic, schema-governed write verb, merging any of `filters` / `sort`
+   *   / `pagination` into the ONE query model. This is the door a consumer
+   *   calls to set the page size: `setCriteria({ pagination: { limit } })`,
+   *   then drives `nextPage()` / `prevPage()`.
+   * why: this module declares `pagination.limit` with `default: 0` (one
+   *   unpaged read, deliberate — see `client-custom-fields.schemas.ts`'s
+   *   own comment) and publishes `nextPage`/`prevPage`, but with no public
+   *   door to set a page size the pager was inert — the exact gap this
+   *   module's own prover named directly: "AC-34 paging structurally
+   *   blocked by AC-33's mandatory `limit:0`". `client-email-history`
+   *   publishes this same generic door for the identical problem, and
+   *   `client-address` (`useClientAddresses.actions.ts`) already mirrors
+   *   it — this is that same repair applied here.
+   * rejected: a bespoke `setPageSize(limit, offset)` action — no oracle
+   *   authorises inventing a shape when the platform already exposes a
+   *   generic one (`query.setCriteria`) that sibling modules already
+   *   publish verbatim.
+   */
 
   /**
    * Destroys this scoped instance — removes it from the registry so the
@@ -154,10 +211,8 @@ export function createClientCustomFieldsActions(
     /** Destroys this scoped instance — removes it from the registry. */
     destroy,
 
-    /** Client-side property filter over the already-loaded list (AC-8). */
-    filters: {
-      by: filterBy
-    },
+    /** Applies a server-side filter — the `filters` branch of the query model. */
+    filterBy,
 
     /**
      * Resolves with every dirty (pending-upload) IMAGE value in `model`
@@ -171,6 +226,9 @@ export function createClientCustomFieldsActions(
     /** Resolves true when the collection is ready to read. */
     isReady,
 
+    /** Client-side property narrowing over the already-loaded list (AC-8). */
+    narrowBy,
+
     /** Fetches the next page of definitions. */
     nextPage: query.fetchNextPage,
 
@@ -178,7 +236,19 @@ export function createClientCustomFieldsActions(
     prevPage: query.fetchPreviousPage,
 
     /** Refetches the list from the server; rejects if it cannot address one. */
-    refresh
+    refresh,
+
+    /**
+     * Applies a criteria INTENT — merges the given `filters` / `sort` /
+     * `pagination` branches into the ONE query model; branches left out are
+     * untouched. See `@decision setCriteria-mirrors-client-address-precedent`
+     * above. This is the door that sets the page size:
+     * `setCriteria({ pagination: { limit } })`.
+     */
+    setCriteria: query.setCriteria,
+
+    /** Re-orders the collection — the `sort` branch of the query model. */
+    sortBy
 
     // The arm merges in HERE, last.
     // ...actorActions

@@ -1,9 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { OBJECT_SCHEMA_TYPE } from "../../archetype/archetype.types";
-import { TAG_KIND } from "../gate.types";
 import { SCOPE_ACTOR } from "../../world/scope-actor";
 import { runGate } from "../coverage-gate";
-import { GATE_CAUSE, GATE_STATUS } from "../gate.types";
+import { GATE_CAUSE, GATE_STATUS, TAG_KIND } from "../gate.types";
 import type { GateInput, GateVerdict } from "../gate.types";
 import type { JsonSchema } from "@jsonforms/core";
 

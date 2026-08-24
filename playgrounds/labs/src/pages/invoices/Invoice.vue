@@ -20,10 +20,10 @@
 
     <Button
       variant="subtle"
-      label="Back to Invoices"
       class="mt-4"
       @click.prevent="$router.push({ name: 'invoices' })"
     >
+      Back to Invoices
     </Button>
   </UpmLayout>
 </template>
@@ -32,7 +32,7 @@
 import { useRoute } from "vue-router";
 import { UpmLayout } from "@upmind-automation/client-vue";
 import { useOrder } from "@upmind-automation/headless";
-import { Button, Alert } from "@upmind-automation/upmind-ui";
+import { Button, Alert } from "@upmind/ui";
 
 const route = useRoute();
 const invoiceId = route.query.id as string;

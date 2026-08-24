@@ -1,18 +1,18 @@
 <template>
   <Interstitial
+    :close-label="t('action.close')"
     open
     modal
-    size="2xl"
     :animatedIcon="{
       icon: 'tapping-card',
       primaryColor: 'primary',
       secondaryColor: 'secondary',
-      size: '4xl'
+      size: 'xl'
     }"
     :title="processingTitle"
     :text="processingText"
   >
-    <template #avatar v-if="meta.isRenderingChallenge">
+    <template #icon v-if="meta.isRenderingChallenge">
       <!-- hide the avatar on rendering challenge -->
       <span class="sr-only">{{ processingTitle }}</span>
     </template>
@@ -34,7 +34,7 @@ import {
   ErrorOrigin,
   responseCodes
 } from "@upmind-automation/headless";
-import { Interstitial } from "@upmind-automation/upmind-ui";
+import { Interstitial } from "@upmind/ui";
 import type { UseOrder } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------

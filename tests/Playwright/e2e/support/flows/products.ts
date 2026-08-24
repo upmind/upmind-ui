@@ -25,20 +25,13 @@ import type {
 type RawSubproduct = IProductOption | IProductAttribute;
 
 /**
- * The two card primitives a required option category can render through, and
- * the `data-state` value each uses to mark an option as selected.
- *
- * - `radio-card-item` (upmind-ui `RadioCards`): single-select. The selected
- *   option's `<Label>` carries `data-state="checked"`.
- * - `checkbox-item` (upmind-ui `CheckboxCards`): multi-select. The pressed
- *   radix `ToggleGroupItem` carries `data-state="on"`.
- *
- * Both primitives tag every option with `data-test-value="<option id>"`, and
- * option/attribute ids are globally unique, so a single option is addressable
- * by id alone — no need to scope to its group.
+ * Single- and multi-select option categories both render through `OptionTile`,
+ * which keys each tile `option-tile-${id}` off the stable datum and marks the
+ * selected one `data-state="checked"` in either mode. Option/attribute ids are
+ * globally unique, so a tile is addressable by id alone — no group scoping.
  */
-const RADIO = { key: "radio-card-item", selected: "checked" } as const;
-const CHECKBOX = { key: "checkbox-item", selected: "on" } as const;
+const OPTION_TILE_SELECTED = "checked";
+const optionTileKey = (optionId: string) => `option-tile-${optionId}`;
 
 /**
  * How long to wait for a required option's card to render before treating the
@@ -109,20 +102,7 @@ export async function applySchemaDefaults(
     const target = ordered.find(value => !!value.pivot?.default) ?? ordered[0];
     if (!target) continue;
 
-    // Which primitive renders this category mirrors client-vue
-    // `SubproductCards.mapComponent`: single-select (RadioCards) when the
-    // category is not `multiple`, OR is `required` with a single value;
-    // otherwise multi-select (CheckboxCards).
-    const hasMultipleValues = ordered.length > 1;
-    const isSingleSelect =
-      !category.multiple || (category.required && !hasMultipleValues);
-
-    await ensureOptionSelected(
-      page,
-      isSingleSelect ? RADIO : CHECKBOX,
-      target.id,
-      category
-    );
+    await ensureOptionSelected(page, target.id, category);
   }
 }
 
@@ -139,15 +119,10 @@ export async function applySchemaDefaults(
  */
 async function ensureOptionSelected(
   page: Page,
-  primitive: typeof RADIO | typeof CHECKBOX,
   optionId: string,
   category: IProductCategory
 ): Promise<void> {
-  const item = page
-    .locator(
-      `[data-test-key="${primitive.key}"][data-test-value="${optionId}"]`
-    )
-    .first();
+  const item = page.getByTestId(optionTileKey(optionId)).first();
 
   try {
     await item.waitFor({ state: "visible", timeout: OPTION_CARD_TIMEOUT });
@@ -160,7 +135,7 @@ async function ensureOptionSelected(
     // is diagnosable rather than invisible.
     console.warn(
       `[applySchemaDefaults] required category "${category.name}" ` +
-        `(${category.id}) rendered no ${primitive.key} for option ` +
+        `(${category.id}) rendered no ${optionTileKey(optionId)} for option ` +
         `${optionId} within ${OPTION_CARD_TIMEOUT}ms — skipping (likely a ` +
         `native <select> or collapsed group that needs hand-coding).`
     );
@@ -171,7 +146,7 @@ async function ensureOptionSelected(
   // is a wasted interaction that can race the model update — so only click when
   // the option is not already in its selected state.
   const alreadySelected =
-    (await item.getAttribute("data-state")) === primitive.selected;
+    (await item.getAttribute("data-state")) === OPTION_TILE_SELECTED;
   if (alreadySelected) return;
 
   await item.click();

@@ -1,6 +1,7 @@
 import { ref } from "vue";
 import { createScopedComposable } from "../scope";
 import { createClientCustomFieldsServices } from "./client-custom-fields.services";
+import { CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX } from "./client-custom-fields.types";
 import { createClientCustomFieldsActions } from "./useClientCustomFields.actions";
 import { createClientCustomFieldsContext } from "./useClientCustomFields.context";
 import { createClientCustomFieldsInternals } from "./useClientCustomFields.internals";
@@ -9,7 +10,12 @@ import type {
   ClientCustomFieldsScopeMatrix,
   CustomField
 } from "./client-custom-fields.types";
-import type { ScopeBuilder, ScopeConfig, ScopeKey } from "../scope";
+import type {
+  ScopeBuilder,
+  ScopeConfig,
+  ScopeKey,
+  ScopedComposable
+} from "../scope";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
@@ -55,15 +61,16 @@ function createClientCustomFieldsForScope(
   // Mint the list query ONCE per scope — a `service.loadList()` inside a
   // layer factory mints a second query, with its own refs, key and effect
   // scope.
-  const query = service.loadList({ pagination: { limit: 0 } });
+  const query = service.loadList();
 
   /**
-   * The client-SIDE filter mapping (AC-8) — never touches the query's own
+   * The client-SIDE narrowing mapping (AC-8) — never touches the query's own
    * `filters`/key, so applying it issues no new request. Minted once here so
-   * the actions layer's SETTER and the context layer's FILTERED `data` share
-   * the one ref.
+   * the actions layer's SETTER and the context layer's narrowed `data` share
+   * the one ref. Widened to accept an array per ruling R3 (see the
+   * `@decision` on `narrowBy`, `useClientCustomFields.actions.ts`).
    */
-  const clientSideFilter = ref<Partial<CustomField>>({});
+  const narrowing = ref<Partial<CustomField> | Partial<CustomField>[]>({});
 
   /**
    * ONE actions instance per scope, not one per `useActions()` call: the
@@ -75,7 +82,7 @@ function createClientCustomFieldsForScope(
     service,
     query,
     scopeKey,
-    clientSideFilter
+    narrowing
   );
 
   return {
@@ -85,12 +92,7 @@ function createClientCustomFieldsForScope(
 
     /** Sub-composable for collection context (reactive list + lookups). */
     useContext: () =>
-      createClientCustomFieldsContext(
-        actorScope,
-        service,
-        query,
-        clientSideFilter
-      ),
+      createClientCustomFieldsContext(actorScope, service, query, narrowing),
 
     /** Sub-composable for advanced debugging and internal access. */
     useInternals: () => createClientCustomFieldsInternals(actorScope, query),
@@ -161,10 +163,42 @@ export function useClientCustomFields(): ScopeBuilder<
     registeredUseClientCustomFields = createScopedComposable<
       ReturnType<typeof createClientCustomFieldsForScope>,
       ClientCustomFieldsScopeMatrix
-    >("client-custom-fields", createClientCustomFieldsForScope);
+    >(
+      "client-custom-fields",
+      createClientCustomFieldsForScope,
+      CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX
+    );
   }
   return registeredUseClientCustomFields();
 }
+
+/**
+ * @decision publish `scopeMatrix` on the EXPORTED wrapper, not only on the
+ * deferred inner registration.
+ * what: assigns `.scopeMatrix` onto `useClientCustomFields` itself, reading
+ *   the already-imported `CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX` constant — no
+ *   `createScopedComposable` call, so none of the import-cycle risk the
+ *   deferral above exists to avoid.
+ * why: `createScopedComposable` attaches `.scopeMatrix` to the composable IT
+ *   returns (`scope.builder.ts` — `composable.scopeMatrix = scopeMatrix`),
+ *   but that composable is the deferred `registeredUseClientCustomFields`,
+ *   never the exported symbol consumers hold. `useModulePort.ts` reads
+ *   `composable.scopeMatrix` off the EXPORTED reference a page declaration
+ *   names, BEFORE ever invoking it (`servesActor(composable.scopeMatrix,
+ *   actor)` runs ahead of `composable()`), so without this line the
+ *   property is `undefined` there — and `servesActor` (`scope-utils.ts`)
+ *   treats an absent matrix as "no refusal", so the playground offers every
+ *   actor regardless of the matrix's `never` pins (AC-37).
+ * rejected: setting `.scopeMatrix` inside the `if (!registered...)` branch,
+ *   copied off `registeredUseClientCustomFields` — still `undefined` until
+ *   the first call, and `useModulePort` reads it before any call happens.
+ */
+(
+  useClientCustomFields as ScopedComposable<
+    ReturnType<typeof createClientCustomFieldsForScope>,
+    ClientCustomFieldsScopeMatrix
+  >
+).scopeMatrix = CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX;
 
 // Type export for consumers
 export type UseClientCustomFields = ReturnType<typeof useClientCustomFields>;

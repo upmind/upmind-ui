@@ -16,4 +16,5 @@ export type TermCardProps = TermDetails & {
   type?: PriceDisplayTypes;
   /** `true` when the product config has an active option/category overriding price — hides price/promo. */
   overridden?: boolean;
+  /** Suppress the promo badge in dense layouts (e.g. the 4-col grid). */
 };

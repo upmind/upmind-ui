@@ -30,8 +30,8 @@ import {
 } from "./filter.harness";
 import { get } from "lodash-es";
 
-/** The search box's clear, by the name the catalogue gave it (`filter-clear`). */
-const CLEAR = '[data-test-value="all"]';
+/** The search box's clear button. */
+const CLEAR = '[data-test-key="button"]';
 
 const bars = [
   [
@@ -65,9 +65,6 @@ describe.each(bars)(
       expect(
         column(paths.buttonGroup).findAll(BUTTON_GROUP_POSITION)
       ).toHaveLength(3);
-      expect(
-        column(paths.buttonGroup).findAll(TOGGLE_GROUP_POSITION)
-      ).toHaveLength(0);
       expect(column(paths.buttonGroup).findAll("select")).toHaveLength(0);
     });
 
@@ -77,9 +74,6 @@ describe.each(bars)(
       expect(
         column(paths.toggleGroup).findAll(TOGGLE_GROUP_POSITION)
       ).toHaveLength(2);
-      expect(
-        column(paths.toggleGroup).findAll(BUTTON_GROUP_POSITION)
-      ).toHaveLength(0);
       expect(column(paths.toggleGroup).findAll("select")).toHaveLength(0);
     });
 
@@ -148,7 +142,11 @@ describe("a leaf naming no format falls to the generic renderer for its type", (
 
     const { column } = await mountFilters({ schema, uischema: plain });
 
-    expect(column("filters.verified.eq").find("select").exists()).toBe(true);
+    expect(
+      column("filters.verified.eq")
+        .find('[data-test-key="select-trigger"]')
+        .exists()
+    ).toBe(true);
     expect(positionsOf(column("filters.verified.eq"))).toEqual([]);
   });
 

@@ -45,7 +45,8 @@ describe("@AC-1 @AC-4 package.json — the dependency policy", () => {
     const bannedWorkspacePackages = [
       "@upmind-automation/headless",
       "@upmind-automation/client-vue",
-      "@upmind-automation/upmind-ui",
+      "@upmind/ui",
+      "@upmind/tokens",
       "@upmind-automation/i18n"
     ];
 

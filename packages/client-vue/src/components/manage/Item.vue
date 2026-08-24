@@ -1,27 +1,28 @@
 <template>
   <div class="flex w-full flex-col gap-1">
     <header class="flex w-full items-start justify-between">
-      <h3 class="text-md m-0 flex items-center gap-x-2 font-medium">
+      <h3 class="m-0 flex items-center gap-x-2 text-base font-medium">
         {{ title }}
         <Badge
           v-if="meta?.isDefault"
-          variant="minimal"
-          color="neutral"
+          appearance="outline"
+          variant="neutral"
           size="sm"
-          :label="t('text.default_label')"
-        />
+        >
+          {{ t("text.default_label") }}
+        </Badge>
       </h3>
 
       <Link
         v-if="!props.readonly"
-        :label="t('action.edit')"
-        :dataAttrs="{ 'data-test-key': 'link-edit' }"
+        :data-attrs="{ 'data-test-key': 'link-edit' }"
         size="sm"
         color="muted"
         tabindex="-1"
         @mousedown.stop.prevent
         @click.stop.prevent="doEdit"
-      />
+        >{{ t("action.edit") }}</Link
+      >
     </header>
 
     <p class="text-muted m-0 text-sm" v-if="description">
@@ -32,7 +33,8 @@
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { Link, Badge } from "@upmind-automation/upmind-ui";
+import { Link } from "@upmind/ui";
+import { Badge } from "@upmind/ui";
 
 // --- types
 

@@ -1,11 +1,10 @@
 <template>
   <Drawer
     v-if="pendingProduct"
-    fit="cover"
-    open
+    :open="true"
+    :dismissible="false"
     :title="t('action.configure_your_product')"
     :description="t('text.product_info_needed_msg')"
-    :dismissible="false"
   >
     <ProductConfig
       v-if="pendingProduct && productMeta?.isAvailable"
@@ -19,20 +18,17 @@
       @reject="doReject"
     />
 
-    <template #close>
-      <Link @click="doReject" :label="t('action.cancel')" size="lg" />
-    </template>
-
-    <template #actions>
+    <template #footer>
+      <Link @click="doReject" size="md">{{ t("action.cancel") }}</Link>
       <Button
         :loading="productMeta.isProcessing"
-        :disabled="productMeta.isProcessing"
         @click="doResolve"
-        :label="t('action.add_to_basket')"
-        prependIcon="plus-circle"
-        color="primary"
+        variant="primary"
         size="lg"
-      />
+      >
+        <Icon icon="plus-circle" />
+        {{ t("action.add_to_basket") }}
+      </Button>
     </template>
   </Drawer>
 </template>
@@ -50,8 +46,10 @@ import {
   responseCodes,
   ErrorOrigin
 } from "@upmind-automation/headless";
-import { Link } from "@upmind-automation/upmind-ui";
-import { Button, Drawer } from "@upmind-automation/upmind-ui";
+import { Link } from "@upmind/ui";
+import { Drawer } from "@upmind/ui";
+import { Button } from "@upmind/ui";
+import { Icon } from "../../../components/icon";
 import ProductConfig from "../../product/components/Config.vue";
 import type { RecommendationConfigurationProps } from "./types";
 // -----------------------------------------------------------------------------

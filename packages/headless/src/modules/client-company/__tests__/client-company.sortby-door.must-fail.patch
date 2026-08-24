@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-company/useClientCompanies.actions.ts
++++ b/packages/headless/src/modules/client-company/useClientCompanies.actions.ts
+@@ -214,7 +214,7 @@
+     setDefault: service.setDefault,
+
+     /** Applies a sort intent — the `sort` branch of the query model. */
+-    sortBy
++    sortBy: () => {}
+
+     // The arm merges in HERE, last — a spread overwrites, which is what lets
+     // it override a shared member; anything it omits falls through.

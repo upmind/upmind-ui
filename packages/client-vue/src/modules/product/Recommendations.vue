@@ -12,21 +12,20 @@
 
       <template #cards>
         <Interstitial
+          :close-label="t('action.close')"
           v-if="!meta.hasRecommendations"
           open
           modal
           :title="t('cart.recommendations_unavailable_title_md')"
           :text="t('cart.recommendations_unavailable_text')"
-          :actions="[
-            {
-              handler: navigateNext,
-              variant: 'solid',
-              color: 'primary',
-              iconAppend: 'arrow-right',
-              label: t('action.continue_label')
-            }
-          ]"
+          :animated-icon="{ icon: 'basket', size: 'xl' }"
         >
+          <template #actions>
+            <Button variant="primary" size="lg" @click="navigateNext">
+              {{ t("action.continue_label") }}
+              <Icon icon="arrow-right" />
+            </Button>
+          </template>
         </Interstitial>
 
         <template v-else>
@@ -67,15 +66,16 @@ import {
   UIContext
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
-import { useThemes } from "@upmind-automation/upmind-ui";
-import { Interstitial } from "@upmind-automation/upmind-ui";
+import { Interstitial, Button } from "@upmind/ui";
 import Hero from "../../components/hero/Hero.vue";
+import { Icon } from "../../components/icon";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
 import CardsCarousel from "../recommendations/components/CardsCarousel.vue";
 import Configure from "../recommendations/components/Configure.vue";
 import Footer from "../recommendations/components/Footer.vue";
 import RecommendationsFullTemplate from "../recommendations/templates/RecommendationsFull.template.vue";
 import { RECOMMENDATIONS_TEMPLATE } from "../recommendations/types";
+import { useThemes } from "../theming";
 import { get } from "lodash-es";
 import type { RecommendationsPageProps } from "../recommendations/types";
 

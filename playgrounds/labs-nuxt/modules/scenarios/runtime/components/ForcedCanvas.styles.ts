@@ -1,5 +1,5 @@
 import { cva } from "class-variance-authority";
-import { useHighlightRing } from "@upmind-automation/upmind-ui";
+import { highlightRingClasses } from "../scenario.styles";
 // -----------------------------------------------------------------------------
 /**
  * @module scenarios/runtime/components/ForcedCanvas.styles
@@ -20,39 +20,18 @@ import { useHighlightRing } from "@upmind-automation/upmind-ui";
  * members.
  */
 
-/**
- * The ui highlight ring's own treatment, standing further off the page than a
- * component-scale surface needs it to (`R7-7`).
- *
- * The OFFSET is the one thing a page-sized frame has to say for itself: at the
- * package's own four the outline hugs the content it rings, which reads as a
- * border on the page rather than a glow around it — and an offset is the only
- * knob that buys that distance without costing the page a pixel of geometry
- * (`R6-18` holds). It is marked important because `useHighlightRing` composes
- * by concatenation rather than merge — both offsets reach the class list, and
- * which one wins would otherwise be a question about stylesheet order. The
- * package's own ring vocabulary overrides itself the same way
- * (`invalidRingClasses`).
- */
-const highlightRing = useHighlightRing("outline-offset-8!");
+export const forcedCanvas = {
+  root: cva("flex flex-col gap-3 transition-all duration-200", {
+    variants: {
+      isForced: {
+        true: `rounded-card ${highlightRingClasses}`,
+        false: ""
+      }
+    },
+    defaultVariants: { isForced: false }
+  }),
 
-export default {
-  forcedCanvas: {
-    root: cva("flex flex-col gap-3 transition-all duration-200", {
-      variants: {
-        isForced: {
-          true: `card-radius ${highlightRing}`,
-          false: ""
-        }
-      },
-      defaultVariants: { isForced: false }
-    }),
+  header: cva("flex items-center gap-2 self-end"),
 
-    // On the frame's own top edge, opposite the controls that start every other
-    // row of the page — the chip answers "what am I looking at", so it reads
-    // with the frame rather than joining the queue of things to click.
-    header: cva("flex items-center gap-2 self-end"),
-
-    hint: cva("text-muted text-xs")
-  }
+  hint: cva("text-muted text-xs")
 };

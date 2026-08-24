@@ -20,7 +20,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import text from "@upmind-automation/i18n/core/text-en.json";
-import { Card, Skeleton } from "@upmind-automation/upmind-ui";
+import { Card, Skeleton } from "@upmind/ui";
 import { defaultRow } from "../../../../testing/recorded-emails";
 import { renderedStrings } from "../../../../testing/rendered";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";

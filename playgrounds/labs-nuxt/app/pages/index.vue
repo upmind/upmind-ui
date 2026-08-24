@@ -12,17 +12,17 @@
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <Badge
-            variant="minimal"
+            appearance="muted"
             icon="code-browser"
             :label="`${composables.length} composables`"
           />
           <Badge
-            variant="minimal"
+            appearance="muted"
             icon="layers-three-01"
             :label="`${families.length} families`"
           />
           <Badge
-            variant="minimal"
+            appearance="muted"
             icon="beaker-01"
             :label="`${scenarioCount} scenario-covered`"
           />
@@ -47,7 +47,7 @@
 
         <Alert
           v-if="!visibleFamilies.length"
-          variant="minimal"
+          appearance="muted"
           color="info"
           icon="search-md"
           title="Nothing matches"
@@ -64,7 +64,7 @@
             <h3 class="text-display font-medium">{{ family.label }}</h3>
             <Badge
               size="sm"
-              variant="minimal"
+              appearance="muted"
               :label="String(family.entries.length)"
             />
           </div>
@@ -90,7 +90,7 @@
                     v-for="tag in entry.tags"
                     :key="tag"
                     size="sm"
-                    variant="minimal"
+                    appearance="muted"
                     color="neutral"
                     :label="tag"
                   />
@@ -115,15 +115,8 @@
  */
 
 import { useI18n } from "vue-i18n";
-import { UpmLayout } from "@upmind-automation/client-vue";
-import {
-  Alert,
-  Badge,
-  Card,
-  Icon,
-  Input,
-  List
-} from "@upmind-automation/upmind-ui";
+import { UpmLayout, Icon } from "@upmind-automation/client-vue";
+import { Alert, Badge, Card, Input, List } from "@upmind/ui";
 import { filter, includes, isEmpty, reduce, toLower, trim } from "lodash-es";
 import type { LabFamily } from "~/composables/useNavigation.types";
 import { useNavigation } from "~/composables/useNavigation";
@@ -170,5 +163,5 @@ const gettingStarted = [
   "Every composable opens at the scope its scenario declares — retarget it from the header, or in the url: /:scenario/as/:actor/for/:type/:id",
   "The Inspector, top right, holds the raw schema, uischema, model and built wire beside the rendered surface.",
   "Nothing here is hand-listed: declaring a scenario in the registry adds it to this page and to the sidebar."
-];
+].map((title, index) => ({ value: index, title }));
 </script>

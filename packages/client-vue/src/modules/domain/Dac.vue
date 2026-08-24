@@ -53,7 +53,7 @@
     </template>
 
     <template #hint v-if="!isMobile && showActions">
-      <p class="text-md text-muted">
+      <p class="text-muted text-base">
         <template v-if="!count">
           {{ t("text.cant_decide_right_qn") }}
         </template>
@@ -66,20 +66,20 @@
     <template #resolve>
       <Button
         v-if="showActions"
-        :label="
-          meta.isEmpty && !meta.hasAdded
-            ? t('domain.domain_not_required_label')
-            : t('action.continue_label')
-        "
         :loading="processingBasket"
-        variant="solid"
-        color="primary"
+        variant="primary"
         size="lg"
-        icon-append="arrow-right"
         :disabled="meta.isProcessing || processingBasket"
         :block="isMobile || (isMobile && template === DOMAIN_TEMPLATE.WIDGET)"
         @click="doResolve"
-      />
+      >
+        {{
+          meta.isEmpty && !meta.hasAdded
+            ? t("domain.domain_not_required_label")
+            : t("action.continue_label")
+        }}
+        <Icon icon="arrow-right" />
+      </Button>
     </template>
   </component>
 </template>
@@ -94,8 +94,9 @@ import {
   useQuery
 } from "@upmind-automation/headless";
 import { DEBOUNCE_DELAY } from "@upmind-automation/headless";
-import { isMobile } from "@upmind-automation/upmind-ui";
-import { Button } from "@upmind-automation/upmind-ui";
+import { Button } from "@upmind/ui";
+import { Icon } from "../../components/icon";
+import { isMobile } from "../../composables/isMobile";
 import DomainCards from "./components/DomainCards.vue";
 import DomainHero from "./components/DomainHero.vue";
 import DomainSearch from "./components/DomainSearch.vue";

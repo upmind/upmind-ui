@@ -1,44 +1,42 @@
 <template>
   <FormField v-bind="formFieldProps">
-    <RadioCards
+    <OptionTileGroup
       :name="control.path"
-      v-bind="appliedOptions"
       :model-value="control.data"
-      :items="items"
+      mode="single"
+      :data-attrs="{ 'data-test-key': 'option-tile-group' }"
+      :disabled="appliedOptions.disabled"
       @update:model-value="onInput"
     >
-      <template #item="{ item }">
-        <div :class="styles.form.payment.root">
-          <header :class="styles.form.payment.header.root">
-            <h5 :class="styles.form.payment.header.label">{{ item?.label }}</h5>
-
-            <Badge
-              v-if="item?.isDefault"
-              v-bind="item.badge"
-              :label="t('text.default_label')"
-              color="neutral"
-              variant="minimal"
-              size="sm"
-            />
-          </header>
-          <footer
-            v-if="item?.text || item?.appendIcon"
-            :class="styles.form.payment.footer.root"
+      <OptionTile
+        v-for="item in items"
+        :key="item.value"
+        :value="item.value"
+        :data-attrs="{ 'data-test-key': `option-tile-${item.value}` }"
+      >
+        <template #label>
+          {{ item.label }}
+          <Badge
+            v-if="item.isDefault"
+            variant="neutral"
+            appearance="outline"
+            size="sm"
           >
-            <small
-              v-if="item?.text"
-              :class="styles.form.payment.footer.label"
-              >{{ item?.text }}</small
-            >
-            <Icon
-              v-if="item?.appendIcon"
-              :icon="item?.appendIcon?.name"
-              :class="styles.form.payment.footer.icon"
-            />
-          </footer>
-        </div>
-      </template>
-    </RadioCards>
+            {{ t("text.default_label") }}
+          </Badge>
+        </template>
+        <template v-if="item.text || item.appendIcon" #trailing>
+          <small v-if="item.text" class="text-faint text-sm">{{
+            item.text
+          }}</small>
+          <Icon
+            v-if="item.appendIcon"
+            :icon="item.appendIcon.name"
+            class="h-5 w-8"
+          />
+        </template>
+      </OptionTile>
+    </OptionTileGroup>
   </FormField>
 </template>
 
@@ -47,22 +45,24 @@ import { isEnumControl, and, scopeEndIs } from "@jsonforms/core";
 import { useJsonFormsEnumControl } from "@jsonforms/vue";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import {
-  FormField,
-  RadioCards,
-  Icon,
-  Badge
-} from "@upmind-automation/upmind-ui";
-import config from "../form.config";
-import { map } from "lodash-es";
-import type { ControlElement, EnumOption, JsonSchema } from "@jsonforms/core";
+import { Badge, OptionTileGroup, OptionTile } from "@upmind/ui";
+import { Icon } from "../../icon";
+import FormField from "../engine/FormField.vue";
+import { useUpmindUIRenderer } from "../engine/renderers/utils";
+import { map, get } from "lodash-es";
+import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 // --- external
 
 // -----------------------------------------------------------------------------
+interface PaymentTile {
+  value: string;
+  label: string;
+  text?: string;
+  isDefault?: boolean;
+  appendIcon?: { name: string };
+}
+
 const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, appliedOptions, onInput, formFieldProps } =
@@ -70,31 +70,18 @@ const { control, appliedOptions, onInput, formFieldProps } =
 
 const { t } = useI18n();
 
-const styles = useStyles(
-  ["form.payment", "form.payment.header", "form.payment.footer"],
-  {},
-  config
-);
-
-const items = computed(() => {
-  const { options, schema, data } = control.value as {
-    options: (EnumOption & { text?: string })[];
-    schema: JsonSchema & { options?: (EnumOption & { text?: string })[] };
-    data: any;
-  };
+const items = computed<PaymentTile[]>(() => {
+  const { options, schema } = control.value;
 
   return map(
-    schema.options ?? options,
-    (option, index): RadioCardsItemProps => {
-      return {
-        item: option,
-        value: option.value,
-        label: option.label,
-        secondaryLabel: option?.text,
-        index,
-        modelValue: data
-      };
-    }
+    get(schema, "options") ?? options,
+    (option): PaymentTile => ({
+      value: option.value,
+      label: option.label,
+      text: get(option, "text"),
+      isDefault: get(option, "isDefault"),
+      appendIcon: get(option, "appendIcon")
+    })
   );
 });
 </script>
@@ -104,7 +91,7 @@ export const tester = {
   rank: 4,
   controlType: and(
     isEnumControl,
-    scopeEndIs("payment_details_id") // Matches if the scope ends with 'gateway_id'
+    scopeEndIs("payment_details_id") // Matches if the scope ends with 'payment_details_id'
   )
 };
 </script>

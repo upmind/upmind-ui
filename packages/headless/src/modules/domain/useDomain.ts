@@ -144,9 +144,12 @@ export const useDomain = (
         stateMatches(state, ["dac"]) &&
         some(available.value, "meta.processing"),
 
+      // Cover dac.loading (the brief between-request sub-state) as well as
+      // dac.searching — like isSearchingMore below — so the flag doesn't dip
+      // between the multi-phase search's requests and flicker the loader off/on.
       isSearching:
         stateMatches(state, ["dac"]) &&
-        stateMatches(dac, "searching") &&
+        stateMatches(dac, ["loading", "searching"]) &&
         (query.value?.length ?? 0) > 2,
 
       // True for the *entire* Load more cycle — covers both the brief
@@ -173,7 +176,7 @@ export const useDomain = (
 
       isEmpty: isEmpty(selected.value) && isEmpty(added.value),
       hasAvailable: !isEmpty(available.value),
-      showChoices: contextValue(state, "choices", [])!.length > 1,
+      showChoices: contextValue<string[]>(state, "choices", [])!.length > 1,
       showDac: stateMatches(state, ["dac"]),
       showSearchResults:
         stateMatches(state, "dac") &&
