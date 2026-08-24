@@ -4,9 +4,9 @@
     :aria-label="t('labs.scenario_bar')"
     data-test-key="scenario-bar"
     :data-test-value="status"
-    :class="styles.scenarioBar.root"
+    :class="scenarioBar.root()"
   >
-    <div :class="styles.scenarioBar.controls">
+    <div :class="scenarioBar.controls()">
       <ScenarioMenu
         :tracks="tracks"
         :armed="armed"
@@ -16,7 +16,12 @@
       />
 
       <template v-if="armed">
-        <Spinner v-if="isBusy" size="sm" data-test-key="scene-busy" />
+        <Spinner
+          v-if="isBusy"
+          size="sm"
+          :label="t('text.loading')"
+          :data-attrs="{ 'data-test-key': 'scene-busy' }"
+        />
 
         <Transport
           :playing="isPlaying"
@@ -34,23 +39,23 @@
       <Tooltip v-if="failure" :label="failure">
         <Badge
           size="sm"
-          color="danger"
-          variant="muted"
-          icon="alert-triangle"
-          :label="t('labs.scene_failed', { reason: failure })"
-          :class="styles.scenarioBar.failure"
-          :data-attrs="{ 'data-test-key': 'scene-failure' }"
-        />
+          variant="danger"
+          appearance="muted"
+          :class="scenarioBar.failure()"
+          :data-test-key="'scene-failure'"
+        >
+          {{ t("labs.scene_failed", { reason: failure }) }}
+        </Badge>
       </Tooltip>
 
-      <div :class="styles.scenarioBar.tail">
+      <div :class="scenarioBar.tail()">
         <SheetToggle />
       </div>
     </div>
 
-    <div v-if="armed" :class="styles.scenarioBar.rail">
+    <div v-if="armed" :class="scenarioBar.rail()">
       <p
-        :class="styles.scenarioBar.trackName"
+        :class="scenarioBar.trackName()"
         data-test-key="track-name"
         :data-test-value="armed.slug"
       >
@@ -112,15 +117,10 @@
 
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import {
-  Badge,
-  Spinner,
-  Tooltip,
-  useStyles
-} from "@upmind-automation/upmind-ui";
+import { Badge, Spinner, Tooltip } from "@upmind/ui";
 import { useForcedState } from "../composables/useForcedState";
 import { SCENARIO_PLAYER_STATUS } from "../composables/useScenarioPlayer.types";
-import config from "./ScenarioBar.styles";
+import { scenarioBar } from "./ScenarioBar.styles";
 import { SCENARIO_CHOICE } from "./ScenarioMenu.types";
 import ScenarioMenu from "./ScenarioMenu.vue";
 import SceneRail from "./SceneRail.vue";
@@ -173,6 +173,4 @@ async function choose(choice: ScenarioChoice): Promise<void> {
   if (choice.kind === SCENARIO_CHOICE.FORCE) await arm(choice.preset);
   else if (!playing) await disarm();
 }
-
-const styles = useStyles(["scenarioBar"], {}, config);
 </script>

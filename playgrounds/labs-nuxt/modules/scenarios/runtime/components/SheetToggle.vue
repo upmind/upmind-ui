@@ -1,10 +1,22 @@
 <template>
-  <ButtonGroup
+  <ToggleGroup
     v-if="hasSections"
-    :items="entries"
+    type="single"
+    :model-value="sheet"
     size="sm"
     data-test-key="sheet-toggle"
-  />
+    @update:model-value="v => v && toggle(v)"
+  >
+    <ToggleGroupItem
+      v-for="(label, value) in SHEET_LABELS"
+      :key="value"
+      :value="value"
+      :data-test-key="'sheet'"
+      :data-test-value="value"
+    >
+      {{ t(label) }}
+    </ToggleGroupItem>
+  </ToggleGroup>
 </template>
 
 <script lang="ts" setup>
@@ -31,31 +43,13 @@
  * toggle at all (design §3.6, `P1-R4`).
  */
 
-import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { ButtonGroup, ButtonGroupTypes } from "@upmind-automation/upmind-ui";
+import { ToggleGroup, ToggleGroupItem } from "@upmind/ui";
 import { usePlaygroundSheet } from "../../../../app/components/sheets/usePlaygroundSheet";
 import { SHEET_LABELS } from "../../../../app/components/sheets/usePlaygroundSheet.types";
-import { map } from "lodash-es";
-import type { ButtonGroupItem } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const { sheet, hasSections, toggle } = usePlaygroundSheet();
 
 const { t } = useI18n();
-
-const entries = computed<ButtonGroupItem[]>(() =>
-  map(SHEET_LABELS, (label, value) => ({
-    type: ButtonGroupTypes.Button,
-    active: sheet.value === value,
-    props: {
-      label: t(label),
-      // The value is stated, not inherited: `Button`'s own fallback derives
-      // `data-test-value` from the rendered label, which is translated — a
-      // locale change would silently rename every entry's handle.
-      dataAttrs: { "data-test-key": "sheet", "data-test-value": value }
-    },
-    handler: () => toggle(value)
-  }))
-);
 </script>

@@ -19,7 +19,7 @@
 
 import { uiTypeIs } from "@jsonforms/core";
 import { computed } from "vue";
-import { Icon } from "@upmind-automation/upmind-ui";
+import { Icon } from "@upmind-automation/client-vue";
 import { resolveScope } from "../../scenario.utils";
 import { cellIcon } from "./cells.styles";
 import { CellSizingTypes } from "./cells.types";

@@ -1,17 +1,13 @@
 <template>
   <FormField v-bind="fieldProps">
     <Input
+      size="lg"
       v-bind="appliedOptions"
+      :suffix="description"
       :model-value="control.data"
-      :class="[{ 'py-0 pr-0': description }, appliedOptions?.class]"
-      @update:modelValue="onInput"
-    >
-      <template #append>
-        <footer v-if="description" :class="styles.form.sld.description">
-          {{ description }}
-        </footer>
-      </template>
-    </Input>
+      :class="appliedOptions?.class"
+      @update:model-value="onInput"
+    />
   </FormField>
 </template>
 
@@ -19,10 +15,9 @@
 import { isStringControl, formatIs, and } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { computed } from "vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import { FormField, Input } from "@upmind-automation/upmind-ui";
-import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
-import config from "../form.config";
+import { Input } from "@upmind/ui";
+import FormField from "../engine/FormField.vue";
+import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import { omit } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
@@ -41,8 +36,6 @@ const fieldProps = computed(() => {
 const description = computed(() => {
   return formFieldProps.value.description;
 });
-
-const styles = useStyles(["form.sld.description"], {}, config);
 </script>
 
 <script lang="ts">

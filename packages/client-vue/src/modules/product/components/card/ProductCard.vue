@@ -1,55 +1,98 @@
 <template>
-  <li :class="styles.product.root" v-bind="rootTestAttrs()">
-    <div :class="styles.product.content">
-      <div v-if="!configMeta.hideImage" :class="styles.product.image.container">
+  <li
+    :class="cardRootVariants({ variant: configMeta.variant })"
+    v-bind="
+      useTestAttrs({
+        key: 'product-card',
+        value: props.id,
+        dataAttrs: props.dataAttrs
+      })
+    "
+  >
+    <div :class="cardContentVariants({ variant: configMeta.variant })">
+      <div
+        v-if="!configMeta.hideImage"
+        :class="
+          cardImageContainerVariants({
+            variant: configMeta.variant,
+            isImageEmpty: configMeta.isImageEmpty
+          })
+        "
+      >
         <Link
           v-if="navigate && !isUnavailable"
           :to="navigateRoute"
           :disabled="loading || disabled"
           @click="doResolve"
           :tabindex="images.length === 1 ? '0' : '-1'"
-          :class="styles.product.image.link"
+          :class="cardImageLinkVariants()"
         >
           <Image
+            :expand-label="t('text.expand_image')"
+            :nav-label="t('text.image_navigation')"
+            :preview-close-label="t('action.close')"
             :mode="mode"
             :image="mappedImage"
             :ratio="configMeta.imageRatio"
-            :class="styles.product.image.root"
+            :class="
+              cardImageRootVariants({
+                variant: configMeta.variant,
+                isLoading: configMeta.isLoading
+              })
+            "
             :fallback="productMeta.ui.productImageFallback.isVisible"
           />
         </Link>
         <Image
+          :expand-label="t('text.expand_image')"
+          :nav-label="t('text.image_navigation')"
+          :preview-close-label="t('action.close')"
           v-else
           :mode="mode"
           :image="mappedImage"
           :ratio="ratio || configMeta.imageRatio"
-          :class="styles.product.image.root"
+          :class="
+            cardImageRootVariants({
+              variant: configMeta.variant,
+              isLoading: configMeta.isLoading
+            })
+          "
           :fallback="productMeta.ui.productImageFallback.isVisible"
         />
 
         <Badge
           v-if="unavailableReason"
-          :class="styles.product.image.badge"
-          :label="unavailableReason.label"
-          :icon="unavailableReason.icon"
-          variant="muted"
-          color="neutral"
-        />
+          :class="cardImageBadgeVariants()"
+          appearance="muted"
+          variant="neutral"
+        >
+          <Icon
+            v-if="unavailableReason.icon"
+            :icon="unavailableReason.icon"
+            size="xs"
+          />
+          {{ unavailableReason.label }}
+        </Badge>
         <Badge
-          v-else-if="!isUnavailable && productMeta.data.productBadge"
-          :class="styles.product.image.badge"
-          v-bind="
-            isString(productMeta.data.productBadge)
-              ? { label: productMeta.data.productBadge }
-              : productMeta.data.productBadge
-          "
-          variant="minimal"
-          color="neutral"
-        />
+          v-else-if="!isUnavailable && productBadge"
+          :class="cardImageBadgeVariants()"
+          appearance="outline"
+          variant="neutral"
+        >
+          <Icon v-if="productBadge.icon" :icon="productBadge.icon" size="xs" />
+          {{ productBadge.label }}
+        </Badge>
       </div>
 
-      <section :class="styles.product.details">
-        <header :class="styles.product.header.root">
+      <section
+        :class="
+          cardDetailsVariants({
+            variant: configMeta.variant,
+            hideTerms: configMeta.hideTerms
+          })
+        "
+      >
+        <header :class="cardHeaderRootVariants()">
           <ProductInfo
             v-bind="props"
             :selected-term="selectedTerm"
@@ -81,31 +124,34 @@
           <ProductTerm
             v-if="!configMeta.hideTerms"
             :prices="props.pricing"
-            :hide-badge="configMeta.hideTermBadge"
             v-model="selectedTerm"
           />
         </header>
 
-        <footer :class="styles.product.footer">
-          <Tooltip
-            :active="inBasket && !justAdded"
-            :label="t('confirm.in_basket_msg')"
-          >
+        <footer :class="cardFooterVariants()">
+          <Tooltip :active="inBasket && !justAdded">
             <Button
-              v-bind="action"
               :loading="loading || clicked"
-              variant="solid"
-              :color="color"
+              :variant="color ?? 'primary'"
               size="lg"
               block
               :disabled="loading || disabled || justAdded || isUnavailable"
+              :data-attrs="{ 'data-test-key': 'product-card-cta' }"
               :aria-pressed="inBasket || justAdded"
-              :dataAttrs="{
-                'data-test-key': 'product-card-cta',
-                'data-test-value': inBasket || justAdded ? 'added' : 'add'
-              }"
+              :data-test-value="inBasket || justAdded ? 'added' : 'add'"
+              :as-child="!!action.to"
               @click="doResolve"
-            />
+            >
+              <RouterLink v-if="action.to" :to="action.to">
+                <Icon v-if="action.icon" :icon="action.icon" />
+                {{ action.label }}
+              </RouterLink>
+              <template v-else>
+                <Icon v-if="action.icon" :icon="action.icon" />
+                {{ action.label }}
+              </template>
+            </Button>
+            <template #content>{{ t("confirm.in_basket_msg") }}</template>
           </Tooltip>
         </footer>
       </section>
@@ -116,30 +162,38 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { RouterLink } from "vue-router";
 import {
   IMAGES_STYLE,
   QUERY_PARAMS,
-  GRID_LAYOUT,
   useImageUrl
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-import {
-  Button,
-  Image,
-  Link,
-  Tooltip,
-  useStyles,
-  useTestAttrs,
-  Badge
-} from "@upmind-automation/upmind-ui";
-import config from "./card.config";
+import { Badge } from "@upmind/ui";
+import { useTestAttrs } from "@upmind/ui";
+import { Image } from "@upmind/ui";
+import { Link } from "@upmind/ui";
+import { Button } from "@upmind/ui";
+import { Tooltip } from "@upmind/ui";
+import { Icon } from "../../../../components/icon";
 import ProductBenefits from "./ProductBenefits.vue";
 import ProductInfo from "./ProductInfo.vue";
 import ProductPrice from "./ProductPrice.vue";
 import ProductTerm from "./ProductTerm.vue";
+import {
+  cardRootVariants,
+  cardContentVariants,
+  cardImageContainerVariants,
+  cardImageLinkVariants,
+  cardImageRootVariants,
+  cardImageBadgeVariants,
+  cardDetailsVariants,
+  cardHeaderRootVariants,
+  cardFooterVariants
+} from "./variants";
 import { delay, isEmpty, merge, toString, isString } from "lodash-es";
 import type { ProductCardProps } from "./types";
-import type { ImageItem, ImageMode } from "@upmind-automation/upmind-ui";
+import type { ImageItem, ImageMode } from "@upmind/ui";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<ProductCardProps>(), {
@@ -159,6 +213,12 @@ const emit = defineEmits<{
 const productMeta = useConfig().with({
   product: () => props
 });
+
+const productBadge = computed(() =>
+  isString(productMeta.data.productBadge)
+    ? { label: productMeta.data.productBadge }
+    : productMeta.data.productBadge
+);
 
 const { t } = useI18n();
 
@@ -289,34 +349,9 @@ const configMeta = computed(() => ({
   hideTerms: productMeta.ui.productTermSelector.isHidden,
   hideTermSummary: productMeta.ui.termSelectorSummary.isHidden,
   hideAnchorPrice: productMeta.ui.productAnchorPrice.isHidden,
-  hideTermBadge:
-    productMeta.ui.productListLayout.value === GRID_LAYOUT.FOUR_COL,
   isLoading: props.loading,
   isImageEmpty: isImageEmpty.value
 }));
-
-const styles = useStyles(
-  [
-    "product",
-    "product.image",
-    "product.header",
-    "product.header.info",
-    "product.header.price"
-  ],
-  configMeta,
-  config
-);
-
-// --- test attrs — routed through useTestAttrs so they are stripped in PROD.
-// Template-called so `props.dataAttrs`/`props.id` stay reactive; the bag keeps
-// the override precedence: dataAttrs["data-test-key"/"data-test-value"] win
-// over the "product-card"/id fallbacks.
-const rootTestAttrs = () =>
-  useTestAttrs({
-    key: "product-card",
-    value: props.id,
-    dataAttrs: props.dataAttrs
-  });
 
 const isUnavailable = computed(() => !!productMeta.data.productUnavailable);
 
@@ -350,8 +385,13 @@ const actionContent = computed(() => {
 });
 
 const action = computed(() => {
-  if (!props.navigate || isUnavailable.value) return actionContent.value;
-  return merge({}, actionContent.value, { to: actionRoute.value });
+  const result: {
+    label: string;
+    icon?: string;
+    to?: typeof actionRoute.value;
+  } = { ...actionContent.value };
+  if (props.navigate && !isUnavailable.value) result.to = actionRoute.value;
+  return result;
 });
 
 function doResolve() {

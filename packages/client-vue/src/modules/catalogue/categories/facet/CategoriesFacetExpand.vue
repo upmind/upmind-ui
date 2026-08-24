@@ -2,27 +2,32 @@
   <Button
     v-for="(category, index) in items"
     :key="`category-${index}`"
-    :to="category.to"
+    as-child
     variant="ghost"
     size="lg"
     :class="
       cn([
-        styles.products.facet.expand.button,
+        productsFacetExpandButtonVariants(),
         category.current && 'bg-control-active-muted'
       ])
     "
-    @click="category.handler"
-    :label="category.label"
     block
-    icon-append="chevron-down"
-  />
+  >
+    <RouterLink :to="category.to" @click="category.handler">
+      {{ category.label }}
+      <Icon icon="chevron-down" />
+    </RouterLink>
+  </Button>
 </template>
 
 <script setup lang="ts">
 import { computed, inject } from "vue";
+import { RouterLink } from "vue-router";
 import { QUERY_PARAMS } from "@upmind-automation/headless";
-import { Button, cn, useStyles } from "@upmind-automation/upmind-ui";
-import config from "../../catalogue.config";
+import { cn } from "@upmind/ui";
+import { Button } from "@upmind/ui";
+import { Icon } from "../../../../components/icon";
+import { productsFacetExpandButtonVariants } from "../../variants";
 import { map } from "lodash-es";
 import type { CategoriesProps } from "../types";
 import type { CategoriesFacetProps } from "../types";
@@ -39,8 +44,6 @@ const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 const useProductCategories = inject<UseProductCategories>(
   "useProductCategories"
 );
-
-const styles = useStyles(["products.facet.drillDown"], {}, config);
 
 // -----------------------------------------------------------------------------
 

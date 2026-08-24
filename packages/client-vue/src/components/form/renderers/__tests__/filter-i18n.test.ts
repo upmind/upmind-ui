@@ -33,7 +33,7 @@ import {
   renderedStrings,
   uischemaWithOptions
 } from "./filter.harness";
-import { compact, flatMap, filter, get, map } from "lodash-es";
+import { compact, flatMap, filter, get, map, trim } from "lodash-es";
 import type { QueryDeclaration } from "./filter.harness";
 import type { JsonSchema7, Layout, UISchemaElement } from "@jsonforms/core";
 
@@ -136,7 +136,7 @@ describe("tri-state option labels resolve on <i18n>.<member>", () => {
 
     expect(
       map(column(TOGGLE_GROUP).findAll(TOGGLE_GROUP_POSITION), node =>
-        node.attributes("aria-label")
+        trim(node.text())
       )
     ).toEqual([
       catalogue("form.bounced_filter.true"),

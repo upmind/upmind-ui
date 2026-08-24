@@ -1,53 +1,49 @@
 <template>
   <div
-    :class="styles.debugPane.root"
+    class="space-y-1"
     data-test-key="debug-pane"
     :data-test-value="section.name"
   >
-    <section
-      v-if="section.scope"
-      :class="styles.debugPane.section"
-      data-test-key="debug-scope"
-    >
-      <header :class="styles.debugPane.header">
-        <h2 :class="styles.debugPane.title">{{ t("labs.debug_scope") }}</h2>
+    <section v-if="section.scope" data-test-key="debug-scope">
+      <header class="border-surface relative mb-3 border-b pt-3 pb-1">
+        <h2 class="text-display text-sm font-bold">
+          {{ t("labs.debug_scope") }}
+        </h2>
       </header>
 
-      <div :class="styles.debugPane.badges">
+      <div class="flex flex-wrap gap-2">
         <Badge
-          variant="solid"
+          appearance="solid"
           size="sm"
           color="primary"
           :label="t(ACTOR_LABEL_KEYS[section.scope.actor])"
         />
       </div>
 
-      <Collapsible :class="styles.debugPane.collapsible">
+      <Collapsible class="mt-3">
         <CollapsibleTrigger as-child>
           <Button
             variant="ghost"
             color="neutral"
             size="sm"
             :label="t('labs.debug_matrix')"
-            :class="styles.debugPane.trigger"
+            class="text-muted hover:text-display cursor-pointer text-xs font-semibold tracking-wider uppercase transition-colors"
           />
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div :class="styles.debugPane.matrix">
+          <div class="mt-2 space-y-1">
             <div
               v-for="(contexts, actor) in section.scope.matrix"
               :key="actor"
-              :class="styles.debugPane.matrixRow"
+              class="flex items-center gap-2 text-xs"
               data-test-key="debug-matrix-row"
               :data-test-value="actor"
             >
-              <span :class="styles.debugPane.matrixActor">
+              <span class="text-muted min-w-16 font-medium">
                 {{ t(ACTOR_LABEL_KEYS[actor]) }}
               </span>
-              <span :class="styles.debugPane.matrixArrow">→</span>
-              <span :class="styles.debugPane.matrixContexts">
-                {{ matrixContexts(contexts) }}
-              </span>
+              <span class="text-faint">→</span>
+              <span>{{ matrixContexts(contexts) }}</span>
             </div>
           </div>
         </CollapsibleContent>
@@ -56,18 +52,19 @@
 
     <section
       v-if="stateSegments.length || errorCount"
-      :class="styles.debugPane.section"
       data-test-key="debug-state"
     >
-      <header :class="styles.debugPane.header">
-        <h2 :class="styles.debugPane.title">{{ t("labs.debug_state") }}</h2>
+      <header class="border-surface relative mb-3 border-b pt-3 pb-1">
+        <h2 class="text-display text-sm font-bold">
+          {{ t("labs.debug_state") }}
+        </h2>
       </header>
 
-      <div :class="styles.debugPane.badges">
+      <div class="flex flex-wrap gap-2">
         <Badge
           v-for="(segment, index) in stateSegments"
           :key="index"
-          variant="solid"
+          appearance="solid"
           color="promo"
           size="sm"
           :label="segment"
@@ -75,20 +72,23 @@
 
         <Collapsible
           v-if="errorCount"
-          :class="styles.debugPane.collapsible"
+          class="mt-3"
           data-test-key="debug-errors"
         >
           <CollapsibleTrigger as-child>
             <Badge
-              variant="solid"
+              appearance="solid"
               size="sm"
               color="danger"
-              :class="styles.debugPane.errors"
+              class="cursor-pointer"
               :label="t('labs.debug_errors', errorCount)"
             />
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <pre :class="styles.debugPane.errorPre">{{ errorDetail }}</pre>
+            <pre
+              class="bg-accent-danger-muted text-accent-danger mt-2 max-h-48 w-full overflow-auto rounded-lg p-3 font-mono text-xs leading-relaxed wrap-break-word whitespace-pre-wrap"
+              >{{ errorDetail }}</pre
+            >
           </CollapsibleContent>
         </Collapsible>
       </div>
@@ -126,13 +126,11 @@ import {
   Button,
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger,
-  useStyles
-} from "@upmind-automation/upmind-ui";
+  CollapsibleTrigger
+} from "@upmind/ui";
 import ContextPanel from "../../../modules/scenarios/runtime/components/ContextPanel.vue";
 import MetaPanel from "../../../modules/scenarios/runtime/components/MetaPanel.vue";
 import { ACTOR_LABEL_KEYS } from "../scope/useActorScopeSelector";
-import config from "./sheets.styles";
 import {
   entries,
   flatMap,
@@ -227,6 +225,4 @@ function matrixContexts(contexts: unknown): string {
 
   return startCase(String(contexts));
 }
-
-const styles = useStyles(["debugPane"], {}, config);
 </script>

@@ -1,8 +1,8 @@
 import {
   parseVariants,
   type VariantValues
-} from "@upmind-automation/upmind-ui";
-import { variants } from "./ribbon.config";
+} from "../../../../utils/parseVariants";
+import { variants } from "./variants";
 
 export const RIBBON_STICKY = parseVariants(variants.sticky);
 export const RIBBON_BACKGROUND = parseVariants(variants.background);

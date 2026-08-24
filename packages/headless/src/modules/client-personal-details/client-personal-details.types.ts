@@ -36,8 +36,10 @@ import type { AnyEventObject } from "xstate";
 /**
  * Context type for BOTH halves — WHICH profile is being read/edited. The
  * context names the ENTITY (the profile), not its owner: there is no
- * `client` context type here, so `.for('client', id)` does not exist
- * (parity.yaml B-client-onbehalf, NOT-SUPPORTED).
+ * `client` context type here, so `.for('client', id)` does not exist —
+ * see `docs/dropped-capabilities.md` for the staff-acting-for-a-client
+ * retarget this drops, and its tracked disposition. (`graphify-out/graph.json`
+ * — comment-only citation retarget, no new node; FE-3103 T4.)
  */
 export enum ClientPersonalDetailsContextTypes {
   /** A client's own profile. Single-member — a client has exactly one. */
@@ -146,6 +148,13 @@ export type ProfileContext = DataManagerContext<ProfileModel>;
 export type ProfileField = {
   id: string;
   code: string;
+  /**
+   * The exact token `useActions().filterFields()` accepts for this row —
+   * the module's own narrowing grammar (`firstName`, `customFields.<code>`),
+   * published so a consumer never re-derives it. See graphify-out/ for the
+   * consumer map.
+   */
+  fieldPath: string;
   title: string;
   value: unknown;
   meta: CustomField["meta"] & {

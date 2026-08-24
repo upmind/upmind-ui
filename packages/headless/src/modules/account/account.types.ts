@@ -10,11 +10,13 @@
 import { AccessRoleTypes } from "@upmind-automation/types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { ResponseError } from "../../utils";
+import type { RegisterModel } from "../auth";
 import type { Client } from "../client";
+import type { CustomField } from "../client-custom-fields";
 import type { IPhoneData } from "../client-phone";
 import type { ScopeContext } from "../scope/scope.types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-import type { ActorRef } from "xstate";
+import type { AnyActorRef } from "xstate";
 // -----------------------------------------------------------------------------
 /**
  * Context types for account module.
@@ -58,7 +60,7 @@ export interface ClientContext {
   /** Brand filter for multi-brand environments. */
   brandId?: string;
   // ---
-  authHelper?: ActorRef<any>;
+  authHelper?: AnyActorRef;
   /**
    * The active session's user, seeded at construction. Typed as the auth
    * `Client` view-model (a superset of `SessionUser`) because the machine reads
@@ -69,9 +71,13 @@ export interface ClientContext {
   error?: ResponseError;
   // --- form state. One shared form surface (register / email / verify); the
   // active form's schema/model live here and `formType` says which it is.
-  customFields?: any[];
+  customFields?: CustomField[];
   formType?: ClientFormType;
-  model?: CompleteRegistrationModel | GuestEmailModel | VerifyEmailModel;
+  model?:
+    | CompleteRegistrationModel
+    | GuestEmailModel
+    | RegisterModel
+    | VerifyEmailModel;
   schema?: JsonSchema;
   uischema?: UISchemaElement;
 }

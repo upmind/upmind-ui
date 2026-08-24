@@ -1,4 +1,9 @@
 import { computed, toRaw, unref, type MaybeRef } from "vue";
+import {
+  useQuerySchema,
+  useQueryUischema,
+  useSortUischema
+} from "./client-phone.schemas";
 import { mapToHeadlessError, useCollection } from "../../utils";
 import {
   every,
@@ -75,6 +80,7 @@ export function createClientPhonesContext(
 
   const error = computed<ResponseError | undefined>(
     () =>
+      query.criteriaError.value ??
       service.error.value ??
       (query.error.value ? mapToHeadlessError(query.error.value) : undefined)
   );
@@ -99,7 +105,27 @@ export function createClientPhonesContext(
     getOne,
 
     /** Reactive pagination descriptor for the list query. */
-    pagination: query.pagination
+    pagination: query.pagination,
+
+    /**
+     * This scope's ACTIVE request state — `{ filters, sort, pagination }`,
+     * the query's own published criteria rather than a copy of it;
+     * read-only, write through `useActions().filterBy` / `.sortBy`.
+     */
+    query: query.criteria,
+
+    /**
+     * The module's schema family, plain JSON so it survives the renderer
+     * port's `JSON` round-trip. The renderer's only door to it is
+     * `useContext()`.
+     */
+    schemas: {
+      query: {
+        schema: useQuerySchema(),
+        uischema: useQueryUischema(),
+        sortUischema: useSortUischema()
+      }
+    }
 
     // The arm merges in HERE, last.
   };

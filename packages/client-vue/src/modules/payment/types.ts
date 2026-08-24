@@ -8,7 +8,7 @@ import type {
   AccountCredit,
   PaymentDetailsContext
 } from "@upmind-automation/headless";
-import type { ButtonProps } from "@upmind-automation/upmind-ui";
+import type { ButtonVariants } from "@upmind/ui";
 import type { HtmlHTMLAttributes } from "vue";
 
 // --- internal
@@ -28,8 +28,7 @@ export type PaymentDetailsProps = {
 };
 
 export type PaymentGatewayProps = {
-  variant?: ButtonProps["variant"];
-  color?: ButtonProps["color"];
+  variant?: ButtonVariants["variant"];
   processing?: boolean;
   modelValue?: PaymentDetailsContext["model"]["gateway_id"];
   error?: string;
@@ -37,8 +36,7 @@ export type PaymentGatewayProps = {
 };
 
 export type PaymentGatewaysProps = {
-  variant?: ButtonProps["variant"];
-  color?: ButtonProps["color"];
+  variant?: ButtonVariants["variant"];
   processing?: boolean;
   modelValue?: PaymentDetailsContext["model"]["payment_details_id"];
   schema: PaymentDetailsContext["schema"];

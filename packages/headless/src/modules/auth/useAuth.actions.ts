@@ -18,7 +18,7 @@ import type {
   TwoFAModel
 } from "./auth.types";
 import type { UseActor } from "../../utils";
-import type { State } from "xstate";
+import type { AnyState } from "xstate";
 // -----------------------------------------------------------------------------
 /**
  * @module auth/useAuth.actions
@@ -156,7 +156,7 @@ export function createAuthActions(
     let primed = false;
     const subscription = (
       service as unknown as {
-        subscribe: (cb: (snapshot: State<any>) => void) => {
+        subscribe: (cb: (snapshot: AnyState) => void) => {
           unsubscribe: () => void;
         };
       }

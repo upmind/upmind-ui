@@ -20,7 +20,7 @@
 
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { Card, Skeleton } from "@upmind-automation/upmind-ui";
+import { Card, Skeleton } from "@upmind/ui";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { RESOLVED_HANDOFFS } from "../../__tests__/resolved-handoffs";
 import { ListSurface, ListViewTypes } from "../index";

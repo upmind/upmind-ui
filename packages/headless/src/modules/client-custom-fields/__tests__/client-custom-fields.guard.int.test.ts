@@ -26,15 +26,13 @@ import { describe, expect, it } from "vitest";
 // unmocked) must load before this module's own barrel ("..") touches
 // `../scope` fresh, so it stays ahead here despite `import/order`'s
 // parent-before-sibling default.
+import { useClientCustomFields } from "..";
+import { ScopeActorTypes } from "../../scope/scope.types";
 import { useSessionStore } from "../../session-store";
 import {
   installBackgroundStubs,
   observeRequests
 } from "./client-custom-fields.int-helpers";
-// eslint-disable-next-line import/order
-import { useClientCustomFields } from "..";
-// eslint-disable-next-line import/order
-import { ScopeActorTypes } from "../../scope/scope.types";
 import { NotAuthenticatedError } from "../../../utils";
 
 // -----------------------------------------------------------------------------

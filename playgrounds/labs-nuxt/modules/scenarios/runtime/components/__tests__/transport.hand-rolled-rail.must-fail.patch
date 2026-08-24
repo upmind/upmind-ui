@@ -29,12 +29,13 @@ diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRai
 -    :steps="steps"
 -    :model-value="step"
 -    :linear="false"
--    :ui-config="uiConfig"
+-    :ui="uiConfig"
      :aria-label="t('labs.scene_rail')"
      data-test-key="scene-rail"
-     :class="styles.sceneRail.root"
+-    :class="sceneRail.root()"
 -    @update:model-value="scrub"
 -  />
++    :class="sceneRail.root()"
 +  >
 +    <li
 +      v-for="(scene, index) in scenes"
@@ -43,23 +44,23 @@ diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRai
 +    >
 +      <button
 +        type="button"
-+        :class="styles.sceneRail.indicator"
++        :class="sceneRail.indicator()"
 +        @click="scrub(index + 1)"
 +      >
 +        {{ index + 1 }}
 +      </button>
-+      <span :class="styles.sceneRail.title">{{ scene.text }}</span>
++      <span :class="sceneRail.title()">{{ scene.text }}</span>
 +    </li>
 +  </ol>
  </template>
- 
+
  <script lang="ts" setup>
-@@ -34,7 +44,7 @@
- 
+@@ -38,7 +48,7 @@
+
  import { computed, nextTick, useTemplateRef, watch } from "vue";
  import { useI18n } from "vue-i18n";
--import { Stepper, useStyles } from "@upmind-automation/upmind-ui";
-+import { useStyles } from "@upmind-automation/upmind-ui";
- import config from "./SceneRail.styles";
+-import { Stepper } from "@upmind/ui";
++// Stepper removed by mutant
+ import { sceneRail } from "./SceneRail.styles";
  import { map } from "lodash-es";
  import type { SceneRailProps } from "./SceneRail.types";

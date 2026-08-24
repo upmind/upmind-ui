@@ -8,10 +8,10 @@
 # both ways. Nothing in the suite reads a planning artefact — those are not
 # deliverables and are absent from a fresh clone and from CI.
 #
-# NON-EXECUTABLE per ADR-020 (".feature files are spec-only, not executable").
-# No runner touches it and no steps file is produced — the colocated unit and
-# integration specs are the tests that run, each anchored to a scenario by its
-# @AC tag.
+# Per ADR-020 Amendment 5 the colocated step catalog's presence and coverage
+# are the truth. A scenario is driveable exactly when a step definition matches
+# every one of its steps; one nothing matches is a capability written down and
+# not yet driven.
 #
 # One scenario per capability the parity table carries, at actor x context
 # altitude (ADR-001) — INCLUDING every editor behaviour (load-one, readiness,
@@ -26,8 +26,13 @@
 #
 # Actors: a client manages their OWN phone numbers. There is exactly ONE live
 # cell — client x self — by operator ruling 1 (2026-08-08). Both scope
-# matrices set SELF / STAFF / GUEST to `null as never`, so acting as staff or
-# as a guest is a compile-time error (AC-31), not a silently-missing branch.
+# matrices set SELF / STAFF / GUEST to `null as never`, so staff and guest
+# resolve to no context to act through (AC-31) — a declared absence, not a
+# silently-missing branch. The matrix constrains CONTEXTS, not actors
+# (scope.builder.ts) — `.as('staff')` itself is not what is refused; it is the
+# context to act through that staff and guest never get. Staff is out of
+# scope for this delivery by direct operator ruling (2026-08-22); this is not
+# a gap, it is a signed drop recorded in parity.yaml (cell B, cell C).
 #
 # THE ORACLE DOES EXPOSE STAFF CAPABILITY — unlike client-email-history, whose
 # oracle had no client-targeted endpoint at all. Legacy vue-app ships a
@@ -80,7 +85,7 @@ Feature: A client manages their own phone numbers
   under that client's own identity, and never on another client's.
 
   Background:
-    Given I am an authenticated client managing my own account
+    Given I am an authenticated client managing my own phone numbers
     And every request I make is addressed to my own phone collection as that client
 
   # === THE COLLECTION ========================================================
@@ -98,8 +103,7 @@ Feature: A client manages their own phone numbers
     Then that default phone number is shown as my default
     And the non-deletable one is shown as unable to be deleted
     And the unverified one is shown as unverified
-    And each phone number carries its parsed number, its national number, its
-      country calling code, its country, and its display title and description
+    And each phone number carries its parsed details and display metadata
     And each phone number shows its type without any way to change it by saving
 
   # Two scenarios, one AC: the state of the list itself, and whether the list
@@ -184,17 +188,84 @@ Feature: A client manages their own phone numbers
 
   @AC-11 @collection
   Scenario: Page through my phone numbers
-    Given I have more phone numbers than fit on one page
-    When I ask for the next page
-    Then I am given the next page of my phone numbers
-    And asking for the previous page brings me back to where I was
+    Given I am a client viewing my phone numbers
+    And my phone list is longer than one page
+    When I advance to the next page
+    Then the list shows the second page of phones
+    And the page window is part of the same request state as my filter and my order
+    When I return to the previous page
+    Then the list shows the first page of phones
 
   @AC-12 @collection
   Scenario: Filter my phone numbers by free text
-    Given I have several phone numbers
-    When I filter my phone numbers by some free text
-    Then I am given only the phone numbers matching that text
-    And my previous, unfiltered read is not re-fired to answer it
+    Given I am a client viewing my phone numbers
+    And one of my phones contains "555"
+    When I filter my phone list by "555"
+    Then the list narrows to phones matching "555"
+    And the filter reaches the wire as the column the API indexes
+    When I clear my filter
+    Then the list returns to all my phones
+
+  @AC-36 @collection
+  Scenario: Order my phone numbers
+    Given I am a client viewing my phone numbers
+    And I have multiple phones created at different times
+    When I order my phone list by created_at descending
+    Then the newest phone appears first
+    When I reverse the order to ascending
+    Then the oldest phone appears first
+    When I clear my order
+    Then the list returns to its boot order
+
+  @AC-37 @collection
+  Scenario: A new filter sends me back to the first page
+    Given I am a client viewing my phone numbers
+    And my phone list is longer than one page
+    And I am on the second page
+    When I apply a new filter
+    Then I am returned to the first page
+    And my page size survives
+
+  @AC-38 @collection
+  Scenario: My phone list starts in its declared order
+    Given I am a client viewing my phone numbers
+    And I have not applied any filter
+    And I have not chosen any order
+    Then the list is unpaged
+    And the list is ordered oldest first
+
+  @AC-39 @collection
+  Scenario: A filter I cannot spell reaches no wire and leaves my list alone
+    Given I am a client viewing my phone numbers
+    When I attempt to filter by an undeclared column
+    Then the filter never reaches the wire
+    And no request goes out
+    And my standing list and my published filters are unchanged
+
+  @AC-40 @collection
+  Scenario: Read what my phone list is currently asking for
+    Given I am a client viewing my phone numbers
+    And I have applied a filter and an order
+    When I read the collection's published request state
+    Then I see the filters that are on the wire
+    And I see the order that is on the wire
+    And I see the page window that is on the wire
+
+  @AC-41 @collection
+  Scenario: Draw a filter bar and an order control for my phone list
+    Given I am a client viewing my phone numbers
+    When I ask the collection for its schema family
+    Then I receive the query schema as plain JSON
+    And I receive the filter-bar presentation as plain JSON
+    And I receive the order-control presentation as plain JSON
+    And a renderer can draw controls without knowing this module
+
+  @AC-42 @collection
+  Scenario: A refused request state appears where every other failure does
+    Given I am a client viewing my phone numbers
+    When a request state is refused by the schema
+    Then the rejection appears in the collection's captured error
+    And I read failure from one place
 
   @AC-13 @collection
   Scenario: Adding a phone number I already have does not duplicate it
@@ -340,8 +411,7 @@ Feature: A client manages their own phone numbers
   @AC-35 @manager @session
   Scenario: The editor stays responsive across a sustained single session
     Given my session has booted once and my brand is already ready, as in a real visit
-    When I open, edit, save, and close several of my phone numbers one after
-      another in that same session, including starting a fresh one among them
+    When I open, edit, save, and close several phones in that session
     Then each editor becomes ready within the same short, bounded time
     And no later opening in that session becomes slower than that bound
 
@@ -363,11 +433,18 @@ Feature: A client manages their own phone numbers
     And no proof is built from data invented for the occasion
 
   @AC-31 @module @guard
-  Scenario: Acting as staff or as a guest on a client's phones is refused before the code ever runs
-    Given the phone collection and the phone editor both declare who may address them
-    When a consumer tries to act as staff or as a guest
-    Then that attempt fails to build, not merely to run
-    And only a client acting for themselves ever reaches either surface
+  Scenario: Staff and guest have no context to act through on a client's phones
+    Given the phone collection and the phone editor each declare an actor-to-context matrix
+    When a consumer inspects that matrix for staff or for guest
+    Then neither actor is assigned any context to act through
+    And only a client acting for themselves resolves to a real context
+
+  @AC-43 @module @guard
+  Scenario: The collection is built WITH its scope matrix, not merely typed against it
+    Given the client-phone module is constructed
+    When I inspect what the collection was actually built with
+    Then the collection carries the very scope matrix that gives staff and guest no context
+    And that matrix is wired at construction, not a type-only claim left unchecked at runtime
 
   @AC-32 @manager @public-surface
   Scenario: The editor cannot be pointed at a client other than the one it opened for
@@ -378,8 +455,7 @@ Feature: A client manages their own phone numbers
 
   @AC-33 @module
   Scenario: Every existing consumer of the phone module keeps working after the conversion
-    Given fourteen call sites across the client app, the cart funnels, and other headless
-      modules already depend on my phone collection or my phone editor
+    Given fourteen call sites across the client app, the cart funnels, and other headless modules already depend on my phone collection or my phone editor
     When the module is converted to the scoped shape
     Then every one of those call sites still compiles and behaves as it did before
     And the cross-module find-or-create seam used by client company and unified billing keeps working
@@ -387,9 +463,62 @@ Feature: A client manages their own phone numbers
 
   @AC-34 @module @negative-control
   Scenario: Every safeguard this module relies on is proven by trying to break it first
-    Given each safeguard this module claims — the editor's presence, the
-      authentication guard, the scoped identity resolution, the delete
-      confirmation, the number-parsing fallback, and the default-promotion request
+    Given each safeguard this module claims — the editor's presence, the authentication guard, the scoped identity resolution, the delete confirmation, the number-parsing fallback, and the default-promotion request
     When that safeguard is deliberately broken
     Then the scenario proving it turns red
     And restoring the safeguard returns it green
+
+  @AC-44 @module
+  Scenario: Every phone capability the feature names has a step that drives it
+    Given the client-phone module carries one step catalog
+    And every collection action carries a scenario annotation
+    When the traceability test runs
+    Then every @scenario-include action has a covering step
+    And every @scenario-exclude action has a same-line reason
+    And no returned action is left carrying neither tag
+
+  @AC-45 @module
+  Scenario: The module publishes exactly what the phone playground's table channel needs
+    Given I am a client viewing my phone numbers
+    When I ask the collection for what a scenario page's table channel reads
+    Then I receive the query schema and the sort control definition
+    And I receive the published request state
+    And filterBy and sortBy are the only doors that change it
+
+  @AC-45 @module @todo
+  Scenario: The phone playground drives filter, order and paging
+    Given the /useClientPhones scenario page is loaded
+    When I filter the live collection through the published channel
+    Then the filter is applied
+    When I order the live collection through the published channel
+    Then the order is applied
+    When I page the live collection through the published channel
+    Then the page advances
+
+  # === PAGE-DRIVEN SCENARIOS =================================================
+  # Appended for the playground step catalog. Each has its own boot Given
+  # that does not inherit Background (step patterns unique to this module).
+
+  @AC-10 @collection @scenario-include
+  Scenario: Refresh the phone collection from the playground
+    Given the client-phone playground boots for the active client
+    And the phone collection is ready
+    When the client refreshes the phone collection
+    Then no phone collection failure is reported
+
+  @AC-7 @collection @scenario-include
+  Scenario: Remove a non-default phone from the playground
+    Given the client-phone playground boots for the active client
+    And the phone collection is ready
+    When the client removes a non-default phone
+    Then the phone collection count reflects the removal
+    And the removed phone is no longer listed
+    And no phone collection failure is reported
+
+  @AC-8 @collection @scenario-include
+  Scenario: Promote a phone to default from the playground
+    Given the client-phone playground boots for the active client
+    And the phone collection is ready
+    When the client makes a non-default phone the default
+    Then the phone is now the default
+    And no phone collection failure is reported

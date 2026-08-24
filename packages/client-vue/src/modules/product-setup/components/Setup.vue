@@ -8,7 +8,11 @@
           :basket-product="basketProduct"
           :product-meta="productMeta"
         >
-          <Loading :active="setupMeta.isLoading" class="min-h-44">
+          <Loading
+            :label="t('text.loading')"
+            :active="setupMeta.isLoading"
+            class="min-h-44"
+          >
             <!-- Gate on hasSchema, NOT isLoading: a basket-processing tick
               (e.g. registering a domain in the SmartDomainField drawer) flips
               isLoading true and would unmount the form mid-flow, tearing down
@@ -40,15 +44,14 @@
             :description="t('cart.product_setup_desc')"
             :badge="{
               label: t('text.fully_encrypted_title'),
-              icon: 'lock-04'
+              icon: 'lock-04',
+              variant: 'neutral',
+              appearance: 'outline'
             }"
             :dataAttrs="{ 'data-test-key': 'product-setup-hero-title' }"
             :action="{
               label: t('action.back_to_basket'),
               icon: 'flip-backward',
-              color: 'primary',
-              variant: 'subtle',
-              size: 'lg',
               disabled: isNavigating,
               dataAttrs: { 'data-test-key': 'button-back-to-basket' }
             }"
@@ -84,7 +87,6 @@
             v-if="!setupMeta?.isLoading"
             type="submit"
             form="setup-form"
-            :label="t('action.continue_label')"
             :loading="setupMeta?.isProcessing || isNavigating"
             :disabled="
               productMeta?.isLoading ||
@@ -92,10 +94,12 @@
               productMeta?.isUnavailable ||
               setupMeta?.isProcessing
             "
-            color="primary"
+            variant="primary"
             size="lg"
             class="w-full"
-          />
+          >
+            {{ t("action.continue_label") }}
+          </Button>
         </slot>
       </template>
     </component>
@@ -120,7 +124,8 @@ import {
   type Product,
   type UseProductConfigMeta
 } from "@upmind-automation/headless";
-import { Button, Loading, useTestAttrs } from "@upmind-automation/upmind-ui";
+import { useTestAttrs } from "@upmind/ui";
+import { Button, Loading } from "@upmind/ui";
 import Hero from "../../../components/hero/Hero.vue";
 import Transitions from "../../../components/layout/components/transition/Transition.vue";
 import Section from "../../../components/section/Section.vue";

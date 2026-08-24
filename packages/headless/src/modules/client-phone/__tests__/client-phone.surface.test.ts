@@ -28,7 +28,9 @@
  * advertised-but-absent `clientId` option (row R1) survives the conversion.
  */
 
-import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import * as clientPhone from "..";
@@ -57,6 +59,42 @@ const EXPECTED_RUNTIME_EXPORTS = [
 const barrelSource = (): string =>
   readFileSync(join(import.meta.dirname, "..", "index.ts"), "utf-8");
 
+const MODULE_DIR = join(import.meta.dirname, "..");
+
+/**
+ * Type-check `lines` as a real program against this module's real barrel and
+ * return the 1-based line numbers that carry a diagnostic. `tsconfig.json`
+ * and `tsconfig.build.json` both exclude `**\/__tests__/**`, so a bare
+ * `@ts-expect-error` written in this file is never checked by anything —
+ * this runs the real TypeScript compiler over a throwaway file instead.
+ * Ported from `client-address.surface.test.ts`'s identical helper.
+ */
+function compileProbe(lines: string[]): number[] {
+  const dir = mkdtempSync(join(tmpdir(), "client-phone-probe-"));
+  const file = join(dir, "probe.ts");
+  writeFileSync(file, `${lines.join("\n")}\n`);
+
+  const script = `
+    const ts = require(${JSON.stringify(require.resolve("typescript"))});
+    const file = ${JSON.stringify(file)};
+    const program = ts.createProgram([file], {
+      noEmit: true, strict: true, skipLibCheck: true,
+      target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext,
+      moduleResolution: ts.ModuleResolutionKind.Bundler,
+      jsx: ts.JsxEmit.Preserve, types: []
+    });
+    const lines = ts.getPreEmitDiagnostics(program)
+      .filter(d => d.file && d.file.fileName === file && typeof d.start === "number")
+      .map(d => d.file.getLineAndCharacterOfPosition(d.start).line + 1);
+    console.log(JSON.stringify([...new Set(lines)]));
+  `;
+
+  const stdout = execFileSync(process.execPath, ["-e", script], {
+    encoding: "utf-8"
+  });
+  return JSON.parse(stdout.trim().split("\n").at(-1) as string) as number[];
+}
+
 // -----------------------------------------------------------------------------
 
 describe("client-phone public surface (AC-16, AC-29)", () => {
@@ -72,7 +110,7 @@ describe("client-phone public surface (AC-16, AC-29)", () => {
     expect(ClientPhoneContextTypes.PHONE).toBe("phone");
   });
 
-  it("AC-31 keeps the collection matrix's only live cell on CLIENT — self, staff and guest are compile-time errors", () => {
+  it("AC-31 keeps the collection matrix's only live cell on CLIENT — self, staff and guest resolve to no context", () => {
     expect(CLIENT_PHONES_SCOPE_MATRIX[ScopeActorTypes.CLIENT]).toBe(
       ClientPhonesContextTypes.CLIENT
     );
@@ -81,7 +119,7 @@ describe("client-phone public surface (AC-16, AC-29)", () => {
     expect(CLIENT_PHONES_SCOPE_MATRIX[ScopeActorTypes.GUEST]).toBeNull();
   });
 
-  it("AC-31 keeps the manager matrix's only live cell on CLIENT → PHONE — self, staff and guest are compile-time errors", () => {
+  it("AC-31 keeps the manager matrix's only live cell on CLIENT → PHONE — self, staff and guest resolve to no context", () => {
     expect(CLIENT_PHONE_SCOPE_MATRIX[ScopeActorTypes.CLIENT]).toBe(
       ClientPhoneContextTypes.PHONE
     );
@@ -104,6 +142,10 @@ describe("client-phone public surface (AC-16, AC-29)", () => {
     expect(useClientPhoneManager).toHaveLength(0);
   });
 
+  it("AC-43 is constructed WITH its scope matrix — not a type-only claim (AC-31 covers the runtime denial; this covers the wiring)", () => {
+    expect(useClientPhones.scopeMatrix).toBe(CLIENT_PHONES_SCOPE_MATRIX);
+  });
+
   it("AC-29 exports exactly the curated value surface — nothing internal leaks", () => {
     expect(Object.keys(clientPhone).sort()).toEqual(EXPECTED_RUNTIME_EXPORTS);
   });
@@ -111,4 +153,55 @@ describe("client-phone public surface (AC-16, AC-29)", () => {
   it("AC-29 curates its re-exports by name — the barrel carries no export *", () => {
     expect(barrelSource()).not.toMatch(/^\s*export\s+\*/m);
   });
+});
+
+describe("client-phone published request state and schema family (AC-40, AC-41, AC-45)", () => {
+  it("AC-40 publishes the query handle's own live criteria as `query`", () => {
+    const phones = useClientPhones();
+    const query = phones.useContext().query;
+
+    expect(query).toBeDefined();
+    expect(query.value).toHaveProperty("pagination");
+    expect(query.value).toHaveProperty("sort");
+    // Same ref on repeated reads — never a snapshot copy taken once and held.
+    expect(phones.useContext().query).toBe(query);
+  });
+
+  it("AC-41 publishes the query schema family as plain, JSON-serialisable objects", () => {
+    const phones = useClientPhones();
+    const family = phones.useContext().schemas.query;
+
+    expect(() => JSON.stringify(family.schema)).not.toThrow();
+    expect(() => JSON.stringify(family.uischema)).not.toThrow();
+    expect(() => JSON.stringify(family.sortUischema)).not.toThrow();
+    expect(family.sortUischema).toMatchObject({
+      type: "Control",
+      scope: "#/properties/sort"
+    });
+  });
+
+  it("AC-45 exposes exactly what the playground's table channel reads — schemas.query.{schema,sortUischema}, query, filterBy, sortBy", () => {
+    const phones = useClientPhones();
+    const context = phones.useContext();
+    const actions = phones.useActions();
+
+    expect(context.schemas.query.schema).toBeDefined();
+    expect(context.schemas.query.sortUischema).toBeDefined();
+    expect(context.query).toBeDefined();
+    expect(typeof actions.filterBy).toBe("function");
+    expect(typeof actions.sortBy).toBe("function");
+  });
+});
+
+describe("client-phone — SortEntry.field is narrowed to the declared sort enum (AC-36, type-safety)", () => {
+  it("keeps a declared field clean and reds an undeclared one at compile time", () => {
+    const diagnostics = compileProbe([
+      `import { SortEntry } from ${JSON.stringify(join(MODULE_DIR, "client-phone.types"))};`,
+      `import { SortDirection } from ${JSON.stringify(join(MODULE_DIR, "../query/query.types"))};`,
+      `const ok: SortEntry = { field: "created_at", dir: SortDirection.ASC };`,
+      `const bad: SortEntry = { field: "name", dir: SortDirection.ASC };`
+    ]);
+
+    expect(diagnostics).toEqual([4]);
+  }, 60000);
 });

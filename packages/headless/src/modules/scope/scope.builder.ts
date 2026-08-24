@@ -264,6 +264,14 @@ export type ScopeBuilder<T, TMatrix extends ActorContextMatrix> = {
    * @returns Composable instance, with .as() still available
    */
   withId(id: string): ScopeBuilderAfterId<T, TMatrix>;
+
+  /**
+   * Spawns a fresh instance that starts a new session instead of reusing an
+   * active one of this scope.
+   *
+   * @returns Finalized composable
+   */
+  fresh: () => T;
 };
 
 /**
@@ -402,7 +410,13 @@ export function createScopedComposable<
       return instance;
     };
 
-    const builderMethods: Record<string, Function> = {
+    const builderMethods: {
+      [key: string]:
+        | ((actor: ScopeActor) => ScopeBuilder<T, TMatrix>)
+        | ((type: string, id: string) => ScopeBuilder<T, TMatrix>)
+        | ((id: string) => ScopeBuilder<T, TMatrix>)
+        | (() => ScopeBuilder<T, TMatrix>);
+    } = {
       as(actor: ScopeActor) {
         config.actor = actor;
         instance = null;

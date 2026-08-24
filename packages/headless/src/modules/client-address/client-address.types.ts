@@ -22,7 +22,8 @@ import { AccessRoleTypes } from "@upmind-automation/types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { ResponseError } from "../../utils";
 import type { DataManagerContext } from "../data-manager/data-manager.types";
-import type { ListQuery, QueryParams } from "../query";
+import type { ListQuery } from "../query";
+import type { SortDirection } from "../query/query.types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { ICountry, IRegion, IAddress } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
@@ -272,6 +273,54 @@ export interface AddressContext extends DataManagerContext<AddressModel> {
 }
 
 // -----------------------------------------------------------------------------
+// QUERY MODEL
+// -----------------------------------------------------------------------------
+
+/**
+ * @graphify-citation `graphify query "SortModel SortEntry client-address
+ * sort"` (2026-08-22, BFS depth 2, 386 nodes) — the only `SortModel` /
+ * `SortEntry` nodes in `graphify-out/graph.json` belong to the distinct
+ * `client-email` family (`client-email.types.ts:165` / `:162`); no
+ * client-address node exists to consume, so minting them here is warranted.
+ * See `graphify-out/GRAPH_REPORT.md`.
+ */
+/** One sort entry — the `sort` branch's element type. */
+export type SortEntry = { field: "name" | "created_at"; dir: SortDirection };
+
+/**
+ * The collection's whole request state as one model — `filters` (the
+ * `name.like` search), `sort` (ordered, precedence = position) and
+ * `pagination`. This is the instance validated against `useQuerySchema()`;
+ * the translator maps it to the `QueryProps` the query layer already accepts.
+ *
+ * @graphify-citation `graphify query "pagination limit offset dependent
+ * required conditional type query model"` (2026-08-22, BFS depth 2, 385
+ * nodes) — no existing type expresses "offset requires limit"; the
+ * platform's own pagination shapes (`query.utils.ts`'s `PAGINATION`,
+ * `useQueryCriteria`) leave both branches independently optional, which is
+ * the gap `pagination`'s union below closes. See `graphify-out/GRAPH_REPORT.md`.
+ */
+export type QueryModel = {
+  filters?: { name?: { like?: string | null } };
+  sort?: SortEntry[];
+  // `offset` alone is unspellable: an offset with no known page size cannot
+  // be resolved against a `limit: 0` (unpaged) collection without producing
+  // a NaN page index (`useQuery.ts`'s pager math). `limit` alone stays legal
+  // — it is the module's documented page-size door
+  // (`useClientAddresses.actions.ts`'s `setCriteria({ pagination: { limit } })`).
+  pagination?:
+    | { limit?: number; offset?: never }
+    | { limit: number; offset?: number };
+};
+
+/**
+ * The ordered sort model — the `sort` branch of {@link QueryModel} and
+ * `useClientAddresses().useActions().sortBy`'s intent parameter, mirroring
+ * `client-email.types.ts`'s `SortModel`.
+ */
+export type SortModel = NonNullable<QueryModel["sort"]>;
+
+// -----------------------------------------------------------------------------
 // SERVICES CONTRACT
 // -----------------------------------------------------------------------------
 
@@ -280,7 +329,11 @@ export interface AddressContext extends DataManagerContext<AddressModel> {
  * Aliased from the query platform's own `ListQuery` — never derived with
  * `ReturnType<typeof localServiceFn>`.
  */
-export type ClientAddressListQuery = ListQuery<IAddress[], Address[]>;
+export type ClientAddressListQuery = ListQuery<
+  IAddress[],
+  Address[],
+  QueryModel
+>;
 
 /** Lands a failed collection mutation in the services instance's error state. */
 export type ClientAddressErrorCapture = (error: unknown) => void;
@@ -307,9 +360,12 @@ export type ClientAddressServices = {
   isAvailable: ComputedRef<boolean>;
   /** The last failed collection mutation, captured as state — never raised. */
   error: ComputedRef<ResponseError | undefined>;
-  loadList: (
-    params?: Partial<QueryParams<IAddress[], Address[]>>
-  ) => ClientAddressListQuery;
+  /**
+   * The collection's list query. Takes NOTHING: the request state is the
+   * declared query schema, handed to `list({ criteria })`, so there is no
+   * params back door a caller could contradict it through.
+   */
+  loadList: () => ClientAddressListQuery;
   /** Per-address read; seeds the manager when no collection is loaded. */
   loadOne: (id?: IAddress["id"]) => Promise<Address | undefined>;
   add: (model: AddressModel) => Promise<IAddress | undefined>;

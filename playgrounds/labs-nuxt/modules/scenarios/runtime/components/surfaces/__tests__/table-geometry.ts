@@ -11,6 +11,7 @@
 
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { map } from "lodash-es";
+import type { VueWrapper } from "@vue/test-utils";
 
 // -----------------------------------------------------------------------------
 
@@ -34,3 +35,27 @@ export const DECLARED_HEADERS = [
   "Status",
   "Date bounced"
 ];
+
+/**
+ * Row selector that adapts to the surface's rendering mode: `tbody tr` when a
+ * table is drawn (declaration carries columns), `li` when it degrades to a list
+ * (no columns). Use this rather than hard-coding `li` — the contract change
+ * means hasTable no longer requires query-state ownership.
+ */
+export const ROW_SELECTOR = "tbody tr, li";
+
+/**
+ * Returns all row elements from a ListSurface wrapper, regardless of whether
+ * the surface draws a table or a list.
+ */
+export function getRows(wrapper: VueWrapper<unknown>) {
+  const table = wrapper.find("table");
+  return table.exists() ? wrapper.findAll("tbody tr") : wrapper.findAll("li");
+}
+
+/**
+ * Returns the row element at the given index.
+ */
+export function getRow(wrapper: VueWrapper<unknown>, index: number) {
+  return getRows(wrapper)[index];
+}

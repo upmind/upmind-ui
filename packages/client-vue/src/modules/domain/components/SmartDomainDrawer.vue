@@ -40,34 +40,37 @@
 
     <template #cancel>
       <Button
-        :label="t('action.cancel')"
         variant="subtle"
         size="lg"
         :block="isMobile"
         :disabled="props.processing || props.loading"
         @click="emit('reset')"
-      />
+      >
+        {{ t("action.cancel") }}
+      </Button>
     </template>
 
     <template #resolve>
       <Button
-        :label="t('action.continue_label')"
-        variant="solid"
-        color="primary"
+        variant="primary"
         size="lg"
-        icon-append="arrow-right"
         :loading="props.loading || props.disabled"
         :disabled="props.processing || props.empty"
         :block="isMobile"
         @click="emit('resolve')"
-      />
+      >
+        {{ t("action.continue_label") }}
+        <Icon icon="arrow-right" />
+      </Button>
     </template>
   </DomainDrawer>
 </template>
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { Button, isMobile } from "@upmind-automation/upmind-ui";
+import { Button } from "@upmind/ui";
+import { Icon } from "../../../components/icon";
+import { isMobile } from "../../../composables/isMobile";
 import DomainDrawer from "../templates/DomainDrawer.template.vue";
 import { DOMAIN_TEMPLATE } from "../types";
 import DomainCards from "./DomainCards.vue";

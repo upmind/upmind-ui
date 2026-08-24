@@ -19,41 +19,36 @@ import {
   compact
 } from "lodash-es";
 import type { ComputedRef, MaybeRef, Ref } from "vue";
-import type { ActorRef, AnyEventObject, InterpreterFrom, State } from "xstate";
+import type {
+  AnyActorRef,
+  AnyEventObject,
+  AnyInterpreter,
+  AnyState
+} from "xstate";
 
-type MachineLike =
-  | MaybeRef<any>
-  | MaybeRef<UseActor>
-  | MaybeRef<ActorRef<any>>
-  | MaybeRef<undefined>;
+/**
+ * A value resolvable to an actor or machine state via safeState().
+ * Accepts raw actors, UseActor wrappers, or Vue refs containing them.
+ * Uses Ref<unknown> because safeState does runtime type checking.
+ */
+type MachineLike = AnyActorRef | UseActor | Ref<unknown> | undefined;
 
-type StateLike =
-  | MaybeRef<State<any>>
-  | MaybeRef<VueState>
-  | MaybeRef<undefined>;
+/**
+ * A value resolvable to a state object via safeState().
+ * Accepts raw states, actors, UseActor wrappers, or Vue refs containing them.
+ * Uses Ref<unknown> because safeState does runtime type checking.
+ */
+type StateLike = AnyState | AnyActorRef | UseActor | Ref<unknown> | undefined;
 
 export type UseActor = {
   id: string | number | symbol;
-  state: Ref<State<any>>;
-  send: any;
-  service: ActorRef<any>;
+  state: Ref<AnyState>;
+  send: (event: AnyEventObject | string) => void;
+  service: AnyActorRef;
 };
-
-type VueState = State<
-  any,
-  AnyEventObject,
-  any,
-  {
-    value: any;
-    context: any;
-  },
-  any
->;
 // -----------------------------------------------------------------------------
 
-export function stopService(
-  machine: InterpreterFrom<any> | ActorRef<any, any>
-): boolean {
+export function stopService(machine: AnyInterpreter | AnyActorRef): boolean {
   //   if (!machine) return;
 
   // Only access 'status' if machine is an Interpreter
@@ -70,7 +65,7 @@ export function stopService(
 }
 
 export function isStoppedService(
-  machine: InterpreterFrom<any> | ActorRef<any, any>
+  machine: AnyInterpreter | AnyActorRef
 ): boolean {
   //   if (!machine) return;
 
@@ -89,19 +84,29 @@ export function isStoppedService(
 
 const safeState = (
   stateLike: StateLike | MachineLike
-): State<any> | undefined => {
-  let state: any = unref(stateLike);
+): AnyState | undefined => {
+  let state: unknown = unref(stateLike);
   state = get(state, "state", state);
-  state = unref(state);
+  state = unref(state as MaybeRef<unknown>);
 
   // an actor has the getSnapshot method to return the state object
-  if (state && "getSnapshot" in state && isFunction(state.getSnapshot)) {
-    return state.getSnapshot();
+  if (
+    state &&
+    typeof state === "object" &&
+    "getSnapshot" in state &&
+    isFunction((state as AnyActorRef).getSnapshot)
+  ) {
+    return (state as AnyActorRef).getSnapshot();
   }
 
   // state has the matches method, so we know its a state object
-  if (state && "matches" in state && isFunction(state.matches)) {
-    return state as State<any>;
+  if (
+    state &&
+    typeof state === "object" &&
+    "matches" in state &&
+    isFunction((state as AnyState).matches)
+  ) {
+    return state as AnyState;
   }
 
   // if its not a state or an actor, we return undefined
@@ -140,7 +145,7 @@ export const stateMatches = (
 export const contextMatches = (
   stateLike: StateLike | MachineLike,
   props: string | string[],
-  value?: any
+  value?: unknown
 ): boolean => {
   const context = stateValue(stateLike, "context");
 
@@ -166,9 +171,9 @@ export const machineMatches = (
   machine: MachineLike,
   states: string | string[]
 ): boolean => {
-  machine = unref(machine);
+  const unwrapped = unref(machine);
 
-  if (!machine || isEmpty(states)) return false;
+  if (!unwrapped || isEmpty(states)) return false;
 
   states = isArray(states) ? states : [states];
 
@@ -184,11 +189,11 @@ export const machineMatches = (
 export const stateValue = <T = unknown>(
   stateLike: StateLike | MachineLike,
   props?: string | number | (string | number)[],
-  fallback?: T | undefined
+  fallback?: T | Record<string, never> | boolean | number | string | null
 ): T | undefined => {
   const state = safeState(stateLike);
 
-  if (isEmpty(props) || isNil(state)) return fallback;
+  if (isEmpty(props) || isNil(state)) return fallback as T | undefined;
 
   if (isArray(props)) return pick(state, props) as T;
 
@@ -200,11 +205,11 @@ export const stateValue = <T = unknown>(
 export const contextValue = <T = unknown>(
   stateLike: StateLike | MachineLike,
   props?: string | number | (string | number)[],
-  fallback?: T | undefined
+  fallback?: T | Record<string, never> | boolean | number | string | null
 ): T | undefined => {
   const context = stateValue<T>(stateLike, "context");
 
-  if (isNil(context)) return fallback;
+  if (isNil(context)) return fallback as T | undefined;
 
   if (isEmpty(props)) return context as T;
 
@@ -212,14 +217,14 @@ export const contextValue = <T = unknown>(
 
   if (isFunction(props)) return props(context) as T;
 
-  return get(context, props as PropertyPath, fallback);
+  return get(context, props as PropertyPath, fallback) as T;
 };
 
 export const childService = (
   stateLike: StateLike,
   prop?: string | number,
-  fallback?: ActorRef<any> | undefined
-): ActorRef<any> | undefined => {
+  fallback?: AnyActorRef | undefined
+): AnyActorRef | undefined => {
   const state = safeState(stateLike);
 
   if (!state || isNil(prop)) return fallback;
@@ -235,7 +240,7 @@ export const childActor = (
   stateLike: StateLike,
   prop?: string | number
 ): UseActor | undefined => {
-  const service = stateValue<ActorRef<any>>(stateLike, `children.${prop}`);
+  const service = stateValue<AnyActorRef>(stateLike, `children.${prop}`);
 
   if (isNil(service)) return undefined;
 
@@ -248,7 +253,7 @@ export const contextActor = (
 ): UseActor | undefined => {
   if (isEmpty(prop)) return undefined;
 
-  const context = contextValue<ActorRef<any>>(stateLike, prop);
+  const context = contextValue<AnyActorRef>(stateLike, prop);
 
   if (isNil(context)) return undefined;
 
@@ -258,18 +263,18 @@ export const contextActor = (
 export const contextService = (
   stateLike: StateLike,
   prop?: string | number,
-  fallback?: ActorRef<any> | undefined
-): ActorRef<any> | undefined => {
+  fallback?: AnyActorRef | undefined
+): AnyActorRef | undefined => {
   if (isEmpty(prop)) return fallback;
 
-  const service = contextValue<ActorRef<any>>(stateLike, prop);
+  const service = contextValue<AnyActorRef>(stateLike, prop);
 
   if (isNil(service)) return fallback;
 
   return service;
 };
 
-export const createActor = (service: ActorRef<any>): UseActor | undefined => {
+export const createActor = (service: AnyActorRef): UseActor | undefined => {
   service = unref(service);
   if (!service || !service.id || !isFunction(service?.getSnapshot))
     return undefined;
@@ -287,19 +292,19 @@ export const createActor = (service: ActorRef<any>): UseActor | undefined => {
 export const useState = <T = unknown>(
   stateLike: StateLike | MachineLike,
   prop?: string | string[],
-  fallback?: any
+  fallback?: T | Record<string, never> | boolean | number | string | null
 ): ComputedRef<T | undefined> =>
   computed(() => stateValue<T>(stateLike, prop, fallback));
 
 export const useContext = <T = unknown>(
   stateLike: StateLike | MachineLike,
   prop?: string | string[],
-  fallback?: any
+  fallback?: T | Record<string, never> | boolean | number | string | null
 ): ComputedRef<T | undefined> =>
   computed(() => contextValue<T>(stateLike, prop, fallback));
 
 export const useActor = (
-  service: ActorRef<any>
+  service: AnyActorRef
 ): ComputedRef<UseActor | undefined> => computed(() => createActor(service));
 
 export const useChildActor = (
@@ -317,15 +322,15 @@ export const useContextActor = (
 export const useContextService = <_T = unknown>(
   stateLike: StateLike,
   prop?: string | number,
-  fallback?: any
-): ComputedRef<ActorRef<any> | undefined> =>
+  fallback?: AnyActorRef
+): ComputedRef<AnyActorRef | undefined> =>
   computed(() => contextService(stateLike, prop, fallback));
 
 export const useChildService = (
   stateLike: StateLike,
   prop?: string | number,
-  fallback?: any
-): ComputedRef<ActorRef<any> | undefined> =>
+  fallback?: AnyActorRef
+): ComputedRef<AnyActorRef | undefined> =>
   computed(() => childService(stateLike, prop, fallback));
 
 /**
@@ -350,7 +355,7 @@ export const useStateMatches = (
  * @param timeout - Timeout in milliseconds (default: 60_000)
  */
 export async function waitForProcessing(
-  service: ActorRef<any>,
+  service: AnyActorRef,
   successStates: string | string[],
   errorStates?: string | string[],
   timeout: number = 60_000

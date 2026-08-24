@@ -108,4 +108,9 @@ export type ModulePort = Omit<CompositionPort, "snapshot"> & {
    * citation and `graphify-out/GRAPH_REPORT.md`.
    */
   scopeMatrix?: ActorContextMatrix;
+  /**
+   * The cell's own `useContext()` sub-composable, relayed for callers that need
+   * reactive context methods (e.g. `uischemaFor`). Absent for an unserved scope.
+   */
+  useContext?: () => Record<string, unknown>;
 };

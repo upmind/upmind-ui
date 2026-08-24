@@ -35,7 +35,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { Link } from "@upmind-automation/upmind-ui";
+import { Link } from "@upmind/ui";
 
 const { t } = useI18n();
 </script>

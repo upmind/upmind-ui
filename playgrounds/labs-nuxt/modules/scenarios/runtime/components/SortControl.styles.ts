@@ -13,11 +13,9 @@ import { cva } from "class-variance-authority";
  * group and the view toggle beside it already stand.
  */
 
-export default {
-  sortControl: {
-    // The trigger's own inset, and the gutter it holds before the chevron: both
-    // are `px-4`/`pl-4` in the primitive, which is a page control's scale and is
-    // what made the cluster set the display row's height and width (`R6-1`).
-    field: cva("px-2 py-1 [&>i]:pl-2")
-  }
+export const sortControl = {
+  // The trigger's own inset, and the gutter it holds before the chevron: both
+  // are `px-4`/`pl-4` in the primitive, which is a page control's scale and is
+  // what made the cluster set the display row's height and width (`R6-1`).
+  field: cva("px-2 py-1 [&>i]:pl-2")
 };

@@ -5,6 +5,7 @@
   >
     <Interstitial
       v-bind="props"
+      :close-label="props.closeLabel ?? t('action.close')"
       :modal="meta.useModal"
       :title="t('text.loading_title_md')"
       :text="t('text.almost_there_msg')"
@@ -16,23 +17,21 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
-import { Interstitial } from "@upmind-automation/upmind-ui";
+import { Interstitial } from "@upmind/ui";
 import { useFooter } from "../../components/footer/useFooter";
 import { useHeader } from "../../components/header/useHeader";
 import { useLayout } from "../../components/layout/useLayout";
-import type { InterstitialProps } from "@upmind-automation/upmind-ui";
+import type { LoadingProps } from "./types";
 
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(defineProps<InterstitialProps>(), {
+const props = withDefaults(defineProps<LoadingProps>(), {
   open: true,
   modal: false,
   animatedIcon: () => ({
     icon: "loading",
     delay: 250,
-    primaryColor: "base-foreground",
-    secondaryColor: "secondary",
-    size: "4xl"
+    size: "xl"
   })
 });
 

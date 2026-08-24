@@ -1,38 +1,49 @@
 <template>
-  <component
-    :is="button ? Button : Link"
-    :label="safeLabel"
-    :icon="icon"
+  <Button
+    v-if="button"
+    as-child
+    variant="subtle"
+    :size="size"
+    class="self-start"
+  >
+    <RouterLink v-if="to" :to="to">
+      <Icon v-if="icon" :icon="icon" />
+      {{ safeLabel }}
+    </RouterLink>
+    <a v-else :href="href">
+      <Icon v-if="icon" :icon="icon" />
+      {{ safeLabel }}
+    </a>
+  </Button>
+  <Link
+    v-else
     :to="to"
     :href="href"
     :size="size"
-    v-bind="styleProps"
+    :color="color"
     class="self-start"
-  />
+  >
+    <Icon v-if="icon" :icon="icon" />
+    {{ safeLabel }}
+  </Link>
 </template>
 
 <script lang="ts" setup>
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Link, Button } from "@upmind-automation/upmind-ui";
-import type {
-  RouteLocationAsRelativeGeneric,
-  RouteLocationAsPathGeneric
-} from "vue-router";
+import { RouterLink } from "vue-router";
+import { Link } from "@upmind/ui";
+import { Button } from "@upmind/ui";
+import { Icon } from "../icon";
 import type { BackProps } from "./types";
 
 const { t } = useI18n();
 
+// The retired lib's Link collapsed md and lg both onto 16px; here that is md.
 const props = withDefaults(defineProps<BackProps>(), {
-  size: "lg",
+  size: "md",
   color: "muted"
 });
 
 const safeLabel = computed(() => props.label || t("action.back_to_basket"));
-
-// Button styles via variant; Link via color — bind only the one in play.
-const styleProps = computed(() => {
-  if (props.button) return { variant: "subtle" };
-  return { color: props.color };
-});
 </script>

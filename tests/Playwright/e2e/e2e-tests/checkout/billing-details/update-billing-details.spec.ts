@@ -136,7 +136,7 @@ newUser.describe("Existing Address - Billing Details at checkout", () => {
       );
       const billingUpdate = waitForBillingUpdate(page);
       await checkout.clickSaveDetails();
-      // The address radio-card group carries no data-test-value (it is the
+      // The address option-tile group carries no data-test-value (it is the
       // selection card, not the billing summary), so the saved street stays
       // presence-only here; the behaviour check is that the API address id
       // changed below.
@@ -239,18 +239,25 @@ newUser.describe("Existing Address - Billing Details at checkout", () => {
           /\/clients\/[^/]+\/addresses\/[^/?]+/.test(r.url())
       );
       await checkout.clickSaveDetails();
-      expect(JSON.stringify((await addressRequest).postDataJSON())).toContain(
-        newAddress
-      );
-      // Saving an edited address returns to the address-selection list INSIDE
-      // the same dialog-window (radio cards + Continue), so the whole dialog
-      // stays open BY DESIGN — assert the edit FORM closed instead of the whole
-      // dialog (the analogous sibling company-edit fix, commit 5e745f0dc).
+      const addressReq = await addressRequest;
+      expect(JSON.stringify(addressReq.postDataJSON())).toContain(newAddress);
+      // Saving returns to the address-selection list INSIDE the same dialog, so
+      // the dialog stays open by design — assert the edit FORM closed. Asserting
+      // the dialog itself passes for an absent dialog and misses a regression
+      // where saving dumps the user out of the flow.
       await expect(page.getByTestId("form-manage")).toBeHidden();
-      // The address radio card carries no data-test-value (presence-only); the
+      // The address option tile carries no data-test-value (presence-only); the
       // edited street is carried in billing-summary-address's data-test-value.
-      await expect(page.getByTestId("radio-card-item").first()).toBeVisible();
-      await page.getByTestId("button-continue").click();
+      await expect(
+        checkout.addressCard.getByRole("radio").first()
+      ).toBeVisible();
+      // Three CTAs carry this key — the mobile/inline one per tab and the
+      // desktop teleport — and the inactive ones stay in the DOM. Only one is
+      // ever on screen, so address that one.
+      await page
+        .getByTestId("button-continue")
+        .filter({ visible: true })
+        .click();
       await expect(checkout.billingSummaryAddress).toBeVisible();
       await expect(checkout.billingSummaryAddress).toHaveAttribute(
         "data-test-value",
@@ -319,20 +326,23 @@ newUser.describe("Existing Address - Billing Details at checkout", () => {
           /\/clients\/[^/]+\/companies\/[^/?]+/.test(r.url())
       );
       await checkout.clickSaveDetails("companies");
-      expect(JSON.stringify((await companyRequest).postDataJSON())).toContain(
+      const editedCompanyReq = await companyRequest;
+      expect(JSON.stringify(editedCompanyReq.postDataJSON())).toContain(
         newCompany
       );
-      // Saving an edited company returns to the business-details selection list
-      // INSIDE the same dialog-window (radio cards + Continue), so the whole
-      // dialog stays open BY DESIGN — only ADD collapses straight back to the
-      // billing summary; EDIT (company AND address alike) requires an explicit
-      // Continue click to commit and collapse. Assert the edit FORM closed
-      // instead of the whole dialog (mirrors the sibling address-edit flow).
+      // As with the address above: saving returns to the selection list inside
+      // the same dialog, so assert the edit FORM closed, not the dialog.
       await expect(page.getByTestId("form-manage")).toBeHidden();
-      // The company radio card carries no data-test-value (presence-only); the
+      // The company option tile carries no data-test-value (presence-only); the
       // edited name is carried in billing-summary-company's data-test-value.
-      await expect(page.getByTestId("radio-card-item").first()).toBeVisible();
-      await page.getByTestId("button-continue").click();
+      await expect(
+        page.getByTestId("option-tile-group").getByRole("radio").first()
+      ).toBeVisible();
+      // As above: only the on-screen CTA of the three carrying this key.
+      await page
+        .getByTestId("button-continue")
+        .filter({ visible: true })
+        .click();
       await expect(checkout.billingSummaryCompany).toBeVisible({
         timeout: 15000
       });

@@ -1,15 +1,20 @@
 <template>
-  <FormField
-    v-bind="formFieldProps"
-    :ui-config="{
-      form: {
-        field: 'flex-row flex-wrap items-center gap-3',
-        label: 'w-auto shrink-0',
-        control: 'w-auto'
-      }
-    }"
-  >
-    <ButtonGroup :items="positions" :disabled="!control.enabled" size="sm" />
+  <FormField v-bind="formFieldProps">
+    <ToggleGroup
+      type="single"
+      :model-value="selected"
+      :disabled="!control.enabled"
+      size="sm"
+      @update:model-value="onPick"
+    >
+      <ToggleGroupItem
+        v-for="option in control.options"
+        :key="toKey(option.value)"
+        :value="toKey(option.value)"
+      >
+        {{ option.label }}
+      </ToggleGroupItem>
+    </ToggleGroup>
   </FormField>
 </template>
 
@@ -21,17 +26,13 @@ import {
   optionIs
 } from "@jsonforms/core";
 import { useJsonFormsEnumControl } from "@jsonforms/vue";
+import { ToggleGroup, ToggleGroupItem } from "@upmind/ui";
 import { computed } from "vue";
-import {
-  ButtonGroup,
-  ButtonGroupTypes,
-  FormField,
-  useUpmindUIRenderer
-} from "@upmind-automation/upmind-ui";
-import { isEqual, map } from "lodash-es";
+import FormField from "../engine/FormField.vue";
+import { useUpmindUIRenderer } from "../engine/renderers/utils";
+import { find, isNil } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { ButtonGroupItem } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 /**
  * @module form/renderers/FilterButtonGroupRenderer
@@ -48,18 +49,30 @@ const { control, formFieldProps, handleChange } = useUpmindUIRenderer(
   useJsonFormsEnumControl(props)
 );
 
-const positions = computed<ButtonGroupItem[]>(() =>
-  map(control.value.options, option => ({
-    type: ButtonGroupTypes.Button,
-    // A leaf its module has never written carries no value at all, which is the
-    // same unset the `null` member names.
-    active: isEqual(control.value.data ?? null, option.value),
-    props: { label: option.label },
-    // `handleChange`, not the renderer's `onInput`: the unset position writes
-    // `null`, which `onInput` drops as "not dirty".
-    handler: () => handleChange(control.value.path, option.value)
-  }))
-);
+/** Radix keys by string; `null` becomes the literal `"null"`. */
+function toKey(value: unknown): string {
+  return isNil(value) ? "null" : String(value);
+}
+
+/**
+ * The CURRENT selection as a key. A leaf its module has never written carries
+ * no value at all, which is the same unset the `null` member names.
+ */
+const selected = computed(() => toKey(control.value.data ?? null));
+
+// --- methods
+
+/**
+ * `handleChange`, not the renderer's `onInput`: the unset position writes
+ * `null`, which `onInput` drops as "not dirty".
+ */
+function onPick(key: unknown): void {
+  // Radix emits AcceptableValue | AcceptableValue[]; single-select never
+  // yields the array arm, and keys are minted by `toKey`, so String() is safe.
+  const picked = String(key);
+  const option = find(control.value.options, o => toKey(o.value) === picked);
+  handleChange(control.value.path, option?.value ?? null);
+}
 </script>
 
 <script lang="ts">

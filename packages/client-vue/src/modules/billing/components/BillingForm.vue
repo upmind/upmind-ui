@@ -1,16 +1,8 @@
 <template>
-  <Loading
-    :active="meta.showOverlay"
-    :ui-config="{
-      loading: {
-        root: [styles.billing.loading.root],
-        spinner: [styles.billing.loading.spinner]
-      }
-    }"
-  >
+  <Loading :label="t('text.loading')" :active="meta.showOverlay">
     <Sections
       id="basket-billing"
-      :class="styles.billing.form.sections"
+      :class="formSectionsVariants()"
       v-model="activeTab"
       :sections="tabs"
       :card="card || undefined"
@@ -26,14 +18,15 @@
         <Button
           v-if="(isMobile || inline) && meta.showContinue"
           :data-attrs="{ 'data-test-key': 'button-continue' }"
-          :label="t('action.continue_label')"
-          icon-append="arrow-right"
-          color="primary"
+          variant="primary"
           size="lg"
           block
           :loading="billingMeta.isProcessing || isNavigating"
           @click="doContinue"
-        />
+        >
+          {{ t("action.continue_label") }}
+          <Icon icon="arrow-right" />
+        </Button>
       </template>
 
       <template v-slot:[`section-business`]>
@@ -45,14 +38,16 @@
         />
         <Button
           v-if="(isMobile || inline) && meta.showContinue"
-          :label="t('action.continue_label')"
-          icon-append="arrow-right"
-          color="primary"
+          :data-attrs="{ 'data-test-key': 'button-continue' }"
+          variant="primary"
           size="lg"
           block
           :loading="billingMeta.isProcessing || isNavigating"
           @click="doContinue"
-        />
+        >
+          {{ t("action.continue_label") }}
+          <Icon icon="arrow-right" />
+        </Button>
       </template>
     </Sections>
   </Loading>
@@ -60,15 +55,16 @@
   <Teleport v-if="isMounted && !inline && !isMobile" to="#billing-actions">
     <Button
       v-if="meta.showContinue"
-      :label="t('action.continue_label')"
-      icon-append="arrow-right"
-      color="primary"
+      :data-attrs="{ 'data-test-key': 'button-continue' }"
+      variant="primary"
       size="lg"
       block
       :loading="billingMeta.isProcessing || isNavigating"
       @click="doContinue"
-      :data-attrs="{ 'data-test-key': 'button-continue' }"
-    />
+    >
+      {{ t("action.continue_label") }}
+      <Icon icon="arrow-right" />
+    </Button>
   </Teleport>
 </template>
 
@@ -86,19 +82,16 @@ import {
   useClientPhones,
   useRoutingEngine
 } from "@upmind-automation/headless";
-import {
-  Loading,
-  Button,
-  isMobile,
-  useStyles
-} from "@upmind-automation/upmind-ui";
+import { Button, Loading } from "@upmind/ui";
+import { Icon } from "../../../components/icon";
 import Sections from "../../../components/section/Sections.vue";
-import billingConfig from "../billing.config";
+import { isMobile } from "../../../composables/isMobile";
+import { formSectionsVariants } from "../variants";
 import TabBusiness from "./TabBusiness.vue";
 import TabPersonal from "./TabPersonal.vue";
+import type { SectionItem } from "../../../components/section";
 import type { BillingFormProps } from "../types";
 import type { BillingModel } from "@upmind-automation/headless";
-import type { TabItem } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
@@ -116,13 +109,6 @@ const emit = defineEmits<{
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-
-const stylesMeta = computed(() => ({ card: props.card }));
-const styles = useStyles(
-  ["billing.form", "billing.loading"],
-  stylesMeta,
-  billingConfig
-);
 
 // Teleport cannot use `defer` inside async setup (Suspense + KeepAlive conflict),
 // so we gate it on isMounted to ensure the DOM target exists before teleporting.
@@ -216,8 +202,8 @@ const _selectedPhone = computed(() =>
 
 // --- tabs
 
-const tabs = computed((): TabItem[] => {
-  const tabItems: TabItem[] = [];
+const tabs = computed((): SectionItem[] => {
+  const tabItems: SectionItem[] = [];
 
   if (!client.value?.id) return tabItems;
 

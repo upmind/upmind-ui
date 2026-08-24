@@ -8,16 +8,27 @@
     "declaration": false,
     "declarationMap": false,
     "paths": {
+      "@upmind/ui": ["../../design-system/packages/ui/src/index.ts"],
       "@/*": ["./src/*"]
     }
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"],
   "references": [
-    { "path": "../../packages/types" },
-    { "path": "../../packages/i18n" },
-    { "path": "../../packages/headless" },
-    { "path": "../../packages/ui" },
-    { "path": "../../packages/client-vue" }
+    {
+      "path": "../../packages/types/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/i18n/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/headless/tsconfig.build.json"
+    },
+    {
+      "path": "../../design-system/packages/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/client-vue/tsconfig.build.json"
+    }
   ]
 }

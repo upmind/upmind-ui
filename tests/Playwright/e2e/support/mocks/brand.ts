@@ -44,6 +44,14 @@ interface ConfigOverrides {
    * holds across BOTH flows.
    */
   checkoutFlow?: "one_page" | "stepped";
+  /**
+   * Withholds the promotion-code field from the checkout step. Maps to brand
+   * config key `ui.checkout.hide_promotions_field` — INVERTED, so `false` is the
+   * branch where the field IS offered. A settings mock (P4-safe): both branches
+   * have to be set rather than read, because a summary spec must not assert
+   * whichever way the brand happens to be configured.
+   */
+  hidePromotionsAtCheckout?: boolean;
 }
 
 /**
@@ -106,7 +114,7 @@ export async function interceptConfigValues(
   overrides: ConfigOverrides
 ) {
   await page.route(
-    "**/api/config/brand/values?**",
+    "**/api/config/brand/values**",
     async (route: Route, request: Request) => {
       // Replay the request's own auth and strip cache-validation headers, so
       // cached (TanStack) reloads return a full 200 body instead of a 304 with
@@ -160,6 +168,10 @@ export async function interceptConfigValues(
       }
       if (overrides.checkoutFlow !== undefined) {
         json.data["ui.checkout.checkout_flow"] = overrides.checkoutFlow;
+      }
+      if (overrides.hidePromotionsAtCheckout !== undefined) {
+        json.data["ui.checkout.hide_promotions_field"] =
+          overrides.hidePromotionsAtCheckout;
       }
       const updatedResponseBody = {
         ...json

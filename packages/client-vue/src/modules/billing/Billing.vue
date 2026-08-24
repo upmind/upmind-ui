@@ -7,14 +7,13 @@
           :description="t('billing.your_details_msg')"
           :badge="{
             label: t('text.fully_encrypted_title'),
-            icon: 'lock-04'
+            icon: 'lock-04',
+            variant: 'neutral',
+            appearance: 'outline'
           }"
           :action="{
             label: t('action.back_to_basket'),
             icon: 'flip-backward',
-            color: 'primary',
-            variant: 'subtle',
-            size: 'lg',
             disabled: isNavigating,
             dataAttrs: { 'data-test-key': 'link-back-to-basket' }
           }"
@@ -92,22 +91,20 @@ import {
   validateTemplate
 } from "@upmind-automation/headless";
 import { UIContext } from "@upmind-automation/headless";
-import {
-  useThemes,
-  Markdown,
-  useTestAttrs
-} from "@upmind-automation/upmind-ui";
+import { useTestAttrs } from "@upmind/ui";
+import { Markdown } from "@upmind/ui";
 import Hero from "../../components/hero/Hero.vue";
 import Back from "../../components/navigation/Back.vue";
+import { useThemes } from "../theming";
 import BillingForm from "./components/BillingForm.vue";
 import BillingEnclosedTemplate from "./templates/BillingEnclosed.template.vue";
 import BillingFullTemplate from "./templates/BillingFull.template.vue";
+import BillingInsetTemplate from "./templates/BillingInset.template.vue";
 import BillingLTRTemplate from "./templates/BillingLTR.template.vue";
 import BillingRTLTemplate from "./templates/BillingRTL.template.vue";
 import { BILLING_TEMPLATE } from "./types";
 import { get, includes } from "lodash-es";
 import type { BillingProps } from "./types";
-import BillingInsetTemplate from "./templates/BillingInset.template.vue";
 
 const supportedTemplates = {
   [BILLING_TEMPLATE.FULL]: BillingFullTemplate,

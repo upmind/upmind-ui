@@ -5,7 +5,7 @@
  * `useFeatureTracks`' own `FeatureTrack` (T4.1) and a forced state IS
  * `useForcedState`'s own `ForceUrlPreset`, both passed through whole rather than
  * re-shaped into a menu-item type; the entries themselves are
- * `@upmind-automation/upmind-ui`'s `ButtonGroupItem` / `DropdownMenuItemProps`.
+ * `@upmind/ui`'s `MenuItem`.
  * See `graphify-out/GRAPH_REPORT.md`.
  */
 // -----------------------------------------------------------------------------

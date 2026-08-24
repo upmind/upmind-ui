@@ -84,7 +84,7 @@
     </UpmSection>
 
     <!-- JSON Data Dialog -->
-    <Dialog :open="isDialogOpen" title="Raw Address Data">
+    <Dialog :open="isDialogOpen" title="Raw Address Data" close-label="Close">
       <div class="max-h-[60vh] overflow-auto">
         <pre
           class="bg-primary text-primary-foreground overflow-auto rounded p-4 text-xs"
@@ -102,8 +102,8 @@
 import { ref, onMounted, watch } from "vue";
 import { UpmSection, UpmLayout } from "@upmind-automation/client-vue";
 import { usePlaces } from "@upmind-automation/headless";
-import { Input, Button, Dialog } from "@upmind-automation/upmind-ui";
-import { Card } from "@upmind-automation/upmind-ui";
+import { Input, Button, Dialog } from "@upmind/ui";
+import { Card } from "@upmind/ui";
 import { debounce } from "lodash-es";
 
 // State

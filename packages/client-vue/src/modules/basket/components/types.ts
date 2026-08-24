@@ -1,12 +1,20 @@
+import type { IconProps } from "../../../components/icon";
+import type { ButtonVariants } from "@upmind/ui";
+import type { AnimatedIconVariants } from "@upmind/ui";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
-import type {
-  AvatarProps,
-  DialogProps,
-  ButtonProps,
-  IconProps,
-  AnimatedIconProps
-} from "@upmind-automation/upmind-ui";
-import type { BadgeProps } from "@upmind-automation/upmind-ui";
+
+// Mirrors @upmind/ui AnimatedIcon's public props (the lib doesn't
+// export them as a type). Config shape for a basket modal's animated icon.
+type AnimatedIconProps = {
+  icon: string;
+  intent?: string;
+  trigger?: string;
+  delay?: number;
+  size?: AnimatedIconVariants["size"];
+  primaryColor?: string;
+  secondaryColor?: string;
+  label?: string;
+};
 
 // ---
 export type ActionProps = {
@@ -16,33 +24,28 @@ export type ActionProps = {
   prependIcon?: IconProps["icon"];
   appendIcon?: IconProps["icon"];
   visible?: boolean;
-} & ButtonProps;
+} & ButtonVariants;
+
+/** Avatar config for a basket modal (icon + legacy size/shape). */
+type AvatarConfig = {
+  icon?: string;
+  size?: string;
+  shape?: string;
+};
 
 export interface BasketModalProps {
   modal?: boolean;
-  open?: DialogProps["open"];
+  open?: boolean;
   // ---
-  title?: DialogProps["title"];
+  title?: string;
   titleI18n?: { key: string; plural?: number };
-  text?: DialogProps["description"];
-  avatar?: Partial<AvatarProps>;
+  text?: string;
+  avatar?: AvatarConfig;
   animatedIcon?: AnimatedIconProps;
   action?: ActionProps;
   to?: string;
   // ---
-  size?: DialogProps["size"];
-}
-
-export interface PromotionBadgeProps {
-  id?: string;
-  amount?: number;
-  amountFormatted?: string;
-  mixed?: boolean;
-  // ---
-  label?: string;
-  size?: BadgeProps["size"];
-  variant?: BadgeProps["variant"];
-  color?: BadgeProps["color"];
+  size?: string;
 }
 
 export interface BasketActionProps {

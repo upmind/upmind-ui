@@ -1,18 +1,18 @@
 <template>
   <ul
     v-if="configMeta.hasBenefits"
-    :class="styles.product.header.benefits.root"
+    :class="cardHeaderBenefitsRootVariants()"
     v-bind="benefitsTestAttrs"
   >
     <li
       v-for="(benefit, index) in normalizedBenefits"
       :key="benefit.label"
-      :class="styles.product.header.benefits.item"
+      :class="cardHeaderBenefitsItemVariants()"
     >
       <Icon
         :icon="benefit.icon?.icon || benefit.icon || 'check-circle'"
-        size="nano"
-        :class="styles.product.header.benefits.icon"
+        size="xs"
+        :class="cardHeaderBenefitsIconVariants()"
       />
       {{ benefit.label }}
     </li>
@@ -21,9 +21,13 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useStyles, useTestAttrs } from "@upmind-automation/upmind-ui";
-import { Icon } from "@upmind-automation/upmind-ui";
-import config from "./card.config";
+import { useTestAttrs } from "@upmind/ui";
+import { Icon } from "../../../../components/icon";
+import {
+  cardHeaderBenefitsRootVariants,
+  cardHeaderBenefitsItemVariants,
+  cardHeaderBenefitsIconVariants
+} from "./variants";
 import { isEmpty, isString, map } from "lodash-es";
 import type { ProductBenefits } from "./types";
 
@@ -40,8 +44,5 @@ const normalizedBenefits = computed(() =>
 const configMeta = computed(() => ({
   hasBenefits: !isEmpty(props.benefits)
 }));
-
 const benefitsTestAttrs = useTestAttrs({ key: "product-benefits" });
-
-const styles = useStyles(["product.header.benefits"], configMeta, config);
 </script>

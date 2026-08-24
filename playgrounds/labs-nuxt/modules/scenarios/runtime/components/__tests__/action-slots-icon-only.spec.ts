@@ -22,7 +22,7 @@
 
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { Tooltip } from "@upmind-automation/upmind-ui";
+import { Tooltip } from "@upmind/ui";
 import { ActionPlacementTypes } from "../../scenario.types";
 import { ActionSlots } from "../index";
 import { OVERFLOW_TRIGGER_TEST_VALUE } from "./control-test-values";

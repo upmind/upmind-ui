@@ -20,6 +20,7 @@ import {
 } from "@upmind-automation/headless";
 import {
   actionsUischema,
+  cardUischema,
   detailUischema,
   tableUischema
 } from "./client-email-history.presentation";
@@ -35,9 +36,12 @@ export default {
   useList: useClientReceivedEmails,
   useDetail: useClientReceivedEmail,
   persistCriteria: true,
+  // The MODULE whose committed `.feature` and step catalog this page plays.
+  tracks: "client-email-history",
   presentation: {
     icon: "mail-01",
     table: tableUischema,
+    card: cardUischema,
     detail: detailUischema,
     actions: actionsUischema
   }

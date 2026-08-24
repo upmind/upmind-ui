@@ -32,7 +32,7 @@
         <BillingSummarySkeleton v-if="billingModel?.addressId" :card="card" />
         <Section v-else :label="t('text.billing_details')" icon="building-07">
           <ManageSkeleton>
-            <Skeleton :class="styles.checkout.billing.skeletonDetail" />
+            <Skeleton :class="billingSkeletonDetailVariants()" />
           </ManageSkeleton>
         </Section>
       </template>
@@ -44,7 +44,6 @@
 // --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-
 // --- internal
 import {
   UIContext,
@@ -53,17 +52,15 @@ import {
   useConfig,
   useRoutingEngine
 } from "@upmind-automation/headless";
-import stylesConfig from "../checkout.config";
-
 // --- components
+import { Skeleton } from "@upmind/ui";
+import ManageSkeleton from "../../../components/manage/Skeleton.vue";
 import Section from "../../../components/section/Section.vue";
 import { useSection } from "../../../components/section/useSection";
 import BillingForm from "../../billing/components/BillingForm.vue";
 import BillingSummary from "../../billing/components/BillingSummary.vue";
 import BillingSummarySkeleton from "../../billing/components/BillingSummarySkeleton.vue";
-import ManageSkeleton from "../../../components/manage/Skeleton.vue";
-import { Skeleton, useStyles } from "@upmind-automation/upmind-ui";
-
+import { billingSkeletonDetailVariants } from "../variants";
 // --- types
 import type { CheckoutBillingProps } from "../types";
 
@@ -72,8 +69,6 @@ import type { CheckoutBillingProps } from "../types";
 const props = defineProps<CheckoutBillingProps>();
 
 const editing = defineModel<boolean>("editing", { default: false });
-
-const styles = useStyles(["checkout.billing"], props, stylesConfig);
 
 const { t } = useI18n();
 const { meta: basketMeta } = useBasket();

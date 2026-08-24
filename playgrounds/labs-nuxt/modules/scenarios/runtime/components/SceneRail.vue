@@ -1,13 +1,13 @@
 <template>
   <Stepper
     ref="rail"
-    :steps="steps"
+    :items="steps"
     :model-value="step"
     :linear="false"
-    :ui-config="uiConfig"
+    :ui="uiConfig"
     :aria-label="t('labs.scene_rail')"
     data-test-key="scene-rail"
-    :class="styles.sceneRail.root"
+    :class="sceneRail.root()"
     @update:model-value="scrub"
   />
 </template>
@@ -38,11 +38,11 @@
 
 import { computed, nextTick, useTemplateRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { Stepper, useStyles } from "@upmind-automation/upmind-ui";
-import config from "./SceneRail.styles";
+import { Stepper } from "@upmind/ui";
+import { sceneRail } from "./SceneRail.styles";
 import { map } from "lodash-es";
 import type { SceneRailProps } from "./SceneRail.types";
-import type { StepperStepProps } from "@upmind-automation/upmind-ui";
+import type { StepperStep } from "@upmind/ui";
 import type { ComponentPublicInstance } from "vue";
 // -----------------------------------------------------------------------------
 
@@ -53,7 +53,7 @@ const playhead = defineModel<number>({ required: true });
 
 const { t } = useI18n();
 
-const steps = computed<StepperStepProps[]>(() =>
+const steps = computed<StepperStep[]>(() =>
   map(props.scenes, (scene, index) => ({ step: index + 1, title: scene.text }))
 );
 
@@ -89,16 +89,10 @@ watch(step, async () => {
   stop?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
 });
 
-const styles = useStyles(["sceneRail"], {}, config);
-
-// `CxOptions` is clsx's own argument list, so each override is handed over as
-// the array the ui component's defaults already are.
 const uiConfig = computed(() => ({
-  stepper: {
-    item: [styles.value.sceneRail.item],
-    trigger: [styles.value.sceneRail.trigger],
-    indicator: [styles.value.sceneRail.indicator],
-    separator: [styles.value.sceneRail.separator]
-  }
+  item: sceneRail.item(),
+  trigger: sceneRail.trigger(),
+  indicator: sceneRail.indicator(),
+  separator: sceneRail.separator()
 }));
 </script>

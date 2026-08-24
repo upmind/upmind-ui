@@ -1,48 +1,53 @@
 <template>
   <div class="flex grow items-center justify-center">
     <Interstitial
-      v-bind="props"
+      :close-label="t('action.close')"
+      :open="props.open"
+      :modal="props.modal"
       :title="t('auth.logged_out_md')"
       :text="t('text.continue_shopping_desc')"
-      :actions="[
-        {
-          ...props.storefrontRoute,
-          variant: 'solid',
-          color: 'primary',
-          iconAppend: 'arrow-right',
-          label: t('action.continue_shopping')
-        }
-      ]"
-    />
+      :animated-icon="{ icon: 'keys', size: 'xl' }"
+    >
+      <template #actions>
+        <Button
+          v-bind="useTestAttrs({ key: 'interstitial-action', value: 0 })"
+          as-child
+          variant="primary"
+          size="lg"
+        >
+          <RouterLink
+            v-if="props.storefrontRoute.to"
+            :to="props.storefrontRoute.to"
+          >
+            {{ t("action.continue_shopping") }}
+          </RouterLink>
+          <a v-else :href="props.storefrontRoute.href">
+            {{ t("action.continue_shopping") }}
+          </a>
+        </Button>
+      </template>
+    </Interstitial>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { onMounted } from "vue";
 import { useI18n } from "vue-i18n";
+import { RouterLink } from "vue-router";
 import { useActiveSession } from "@upmind-automation/headless";
-import { Interstitial } from "@upmind-automation/upmind-ui";
+import { Interstitial, Button, useTestAttrs } from "@upmind/ui";
 import type { StorefrontRoute } from "../../types";
-import type { InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(
-  defineProps<
-    InterstitialProps & {
-      storefrontRoute: StorefrontRoute;
-    }
-  >(),
+  defineProps<{
+    open?: boolean;
+    modal?: boolean;
+    storefrontRoute: StorefrontRoute;
+  }>(),
   {
     modal: true,
-    open: true,
-
-    animatedIcon: () => ({
-      icon: "keys",
-      trigger: "loop",
-      primaryColor: "base-foreground",
-      secondaryColor: "tertiary",
-      size: "4xl"
-    })
+    open: true
   }
 );
 // -----------------------------------------------------------------------------

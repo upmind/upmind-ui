@@ -108,14 +108,14 @@ describe("client-email query schema — §4a ajv proof (Task 35)", () => {
     expect(keywords).toContain("type");
   });
 
-  it("rejects a violated const on a tri-state filter with const", async () => {
+  it("rejects an invalid value on a tri-state filter with enum", async () => {
     const { ajv, schema } = await bootQueryValidator();
     const validate = ajv.compile(schema);
 
     const keywords = keywordsFor(validate, {
       filters: { verified: { eq: 1 } }
     });
-    expect(keywords).toContain("const");
+    expect(keywords).toContain("enum");
   });
 
   it("rejects an empty search term with minLength", async () => {

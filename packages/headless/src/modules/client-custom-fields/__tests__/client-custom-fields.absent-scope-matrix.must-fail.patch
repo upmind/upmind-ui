@@ -1,0 +1,67 @@
+# client-custom-fields.absent-scope-matrix.must-fail.patch
+#
+# Targets: AC-37 (the scope matrix is readable as a VALUE at run time —
+# `useClientCustomFields.scopeMatrix` deep-equals
+# `CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX`) —
+# client-custom-fields.surface.test.ts:185-189, the
+# "AC-37 useClientCustomFields.scopeMatrix is wired and deep-equals the
+# declared collection matrix" case.
+#
+# Authored by: developer seat (agent-seat-separation.companion.md — the seat
+# that knows the exact line it changed authors the mutant; the prover applies
+# it blind, confirms RED, then reverts — never reading src to construct it).
+#
+# REBASED (2026-08-22, developer seat, factory run) — the prior hunk dropped
+# the third `createScopedComposable` argument at the lazy-registration call
+# (`useClientCustomFields.ts:163-171`). That argument's own
+# `composable.scopeMatrix = scopeMatrix` assignment (`scope.builder.ts:455`)
+# lands on the INNER deferred registration function
+# (`registeredUseClientCustomFields`), never on the EXPORTED
+# `useClientCustomFields` symbol AC-37 actually reads (no call —
+# `useClientCustomFields.scopeMatrix` off the function itself). This
+# module's own `@decision` block (`useClientCustomFields.ts:175-195`)
+# documents why a SEPARATE explicit assignment exists for exactly that
+# reason. Traced against AC-37's now-live spec, the old hunk is INERT:
+# dropping the call's third argument leaves that separate assignment
+# untouched, so `useClientCustomFields.scopeMatrix` still deep-equals the
+# real matrix and the AC-37 assertion stays GREEN — a dead control. This
+# rebase moves the mutation onto the line that actually wires the EXPORTED
+# symbol, preserving the same capability under test ("the module publishes
+# its own scope matrix as a value") — the exact advertised-but-absent
+# capability AC-37 exists to catch, and the same downstream defect
+# `scope-utils.ts:42` (playground `servesActor`, out of this suite's reach
+# per the AC-37 docblock) is guarded against: an absent matrix makes
+# `servesActor` return `true` for every actor instead of refusing one.
+#
+# Mutates: useClientCustomFields.ts — deletes the explicit
+# `(useClientCustomFields as ScopedComposable<...>).scopeMatrix =
+# CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX;` statement. The `@decision` doc block
+# immediately above it is left standing — the code no longer does what its
+# own doc block says it does, which is the point of the mutation.
+#
+# Expected RED: `useClientCustomFields.scopeMatrix` reads `undefined`
+# instead of deep-equal to `CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX` —
+# client-custom-fields.surface.test.ts's AC-37
+# "useClientCustomFields.scopeMatrix is wired and deep-equals the declared
+# collection matrix" assertion goes RED.
+#
+# Apply / verify / revert:
+#   git apply <this file>     # mutate
+#   pnpm test client-custom-fields.surface.test.ts    # must go RED
+#   git apply -R <this file>  # revert — must return to green
+#
+--- a/packages/headless/src/modules/client-custom-fields/useClientCustomFields.ts
++++ b/packages/headless/src/modules/client-custom-fields/useClientCustomFields.ts
+@@ -193,12 +193,6 @@
+  *   copied off `registeredUseClientCustomFields` — still `undefined` until
+  *   the first call, and `useModulePort` reads it before any call happens.
+  */
+-(
+-  useClientCustomFields as ScopedComposable<
+-    ReturnType<typeof createClientCustomFieldsForScope>,
+-    ClientCustomFieldsScopeMatrix
+-  >
+-).scopeMatrix = CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX;
+ 
+ // Type export for consumers
+ export type UseClientCustomFields = ReturnType<typeof useClientCustomFields>;

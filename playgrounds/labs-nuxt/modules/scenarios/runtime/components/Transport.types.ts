@@ -3,7 +3,7 @@
  * `Transport` / `TransportProps` / `TransportControl` node exists anywhere in
  * the tree, and `packages/ui` ships no media-transport component to consume, so
  * this contract is minted. What it does NOT mint: the control's presentation is
- * `@upmind-automation/upmind-ui`'s own `ButtonProps` icon/variant channels, and
+ * `@upmind/ui`'s own `ButtonVariants` (ButtonProps not exported), and
  * `playhead` / `sceneCount` are reads of the player's own numbers
  * (`useScenarioPlayer`, T4.2) rather than a second model of a track. See
  * `graphify-out/GRAPH_REPORT.md`.
@@ -16,7 +16,8 @@
  * still have something to do.
  */
 
-import type { ButtonProps } from "@upmind-automation/upmind-ui";
+// graphify-out/: ButtonVariants consumed from @upmind/ui (ButtonProps not exported)
+import type { ButtonVariants } from "@upmind/ui";
 
 // -----------------------------------------------------------------------------
 
@@ -72,7 +73,7 @@ export type TransportControlItem = {
   key: TransportControl;
   icon: string;
   label: string;
-  color: ButtonProps["color"];
+  color: ButtonVariants["variant"];
   disabled: boolean;
   loading: boolean;
   onSelect: () => void;

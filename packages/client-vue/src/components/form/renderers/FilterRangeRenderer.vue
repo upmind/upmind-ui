@@ -9,6 +9,7 @@
       <div class="flex flex-row flex-nowrap items-center gap-x-3">
         <Input
           :id="`${formFieldProps.id}-from`"
+          :data-attrs="{ 'data-test-value': `${formFieldProps.id}-from` }"
           :type="gteInputType"
           :disabled="!control.enabled"
           :model-value="
@@ -24,6 +25,7 @@
         <span aria-hidden="true">&ndash;</span>
         <Input
           :id="`${formFieldProps.id}-to`"
+          :data-attrs="{ 'data-test-value': `${formFieldProps.id}-to` }"
           :type="lteInputType"
           :disabled="!control.enabled"
           :model-value="
@@ -46,11 +48,9 @@ import { and, isObjectControl, optionIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { computed } from "vue";
 import { RequestFilterOperator } from "@upmind-automation/headless";
-import {
-  FormField,
-  Input,
-  useUpmindUIRenderer
-} from "@upmind-automation/upmind-ui";
+import { Input } from "@upmind/ui";
+import FormField from "../engine/FormField.vue";
+import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import {
   assign,
   castArray,

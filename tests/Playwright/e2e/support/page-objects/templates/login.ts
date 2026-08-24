@@ -29,7 +29,7 @@ export class Login {
     // The submit type is locale-independent and re-scopes correctly into the
     // popover login flow below.
     this.loginButton = page.locator('button[type="submit"]');
-    this.twoFactorInput = page.getByTestId("input-otp-slot");
+    this.twoFactorInput = page.getByTestId("pin-input-slot");
     this.popoverTrigger = page.getByTestId("login-popover-trigger");
     this.popoverContent = page.getByTestId("popover-content");
     this.alert = page

@@ -48,10 +48,15 @@
  *   a consumer.
  */
 import { BrandConfigKeys } from "@upmind-automation/types";
+import { SortDirection } from "../query/query.types";
 import { AddressTypes, ADDRESS_TYPE_KEYS } from "./client-address.types";
 import { get, map } from "lodash-es";
 import type { AddressContext } from "./client-address.types";
-import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
+import type {
+  ControlElement,
+  JsonSchema7,
+  UISchemaElement
+} from "@jsonforms/core";
 
 export function useSchemaDefinitions({
   regions,
@@ -346,9 +351,14 @@ export function useUischema({
  * literal, so it can be lifted straight into ajv or a test and run standalone.
  *
  * Addresses are read whole for the billing surfaces that pick one, so
- * `limit: 0` asks for the unpaged read and no sort is declared. The one
- * declared filter is the free-text search, bound to the `name` column the API
- * indexes.
+ * `limit: 0` asks for the unpaged read by default. The one declared filter is
+ * the free-text search, bound to the `name` column the API indexes. Sort,
+ * search and paging are additive capability here, not restored parity —
+ * every legacy list GET in `__tests__/client-address.e2e-oracle.pre-migration.json`
+ * (19 captured requests) sent no `order=` at all, so there is no legacy
+ * sortable set to match. The two declared sort columns (`name`, `created_at`)
+ * are this module's own choice: both are indexed, and `name` is already the
+ * search column above.
  */
 export function useQuerySchema(): JsonSchema7 {
   return {
@@ -367,6 +377,54 @@ export function useQuerySchema(): JsonSchema7 {
               // The bare term — the translator adds the % wildcards.
               like: { type: ["string", "null"], minLength: 1 }
             }
+          },
+          verified: {
+            type: "object",
+            title: "Verified",
+            additionalProperties: false,
+            properties: {
+              // `null` is a MEMBER, not an absence: it is the value the unset
+              // position writes, so a tri-state's clear has to validate, and it
+              // is the enum entry whose label the control resolves.
+              eq: {
+                type: ["boolean", "null"],
+                enum: [true, false, null]
+              }
+            }
+          },
+          default: {
+            type: "object",
+            title: "Default",
+            additionalProperties: false,
+            properties: {
+              eq: {
+                type: ["boolean", "null"],
+                enum: [true, false, null]
+              }
+            }
+          }
+        }
+      },
+      sort: {
+        type: "array",
+        // No `minItems` paired with a `default` here (contrast
+        // `client-email.schemas.ts`'s `sort`): a `default` was deliberately
+        // dropped on review — no recorded fixture shows the endpoint
+        // accepting an `order` column on the boot read (see
+        // `client-address.criteria-defaults.int.test.ts`) — and `minItems: 1`
+        // with NO default is the tension that leaves: an absent `sort` is
+        // valid, but a JSONForms control that materialises the missing array
+        // as `[]` grades that same boot state invalid against `minItems: 1`.
+        // Omitted rather than re-paired with a default; an explicit `sort: []`
+        // and an absent `sort` now mean the same thing — no ordering applied.
+        uniqueItems: true,
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["field", "dir"],
+          properties: {
+            field: { enum: ["name", "created_at"] },
+            dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
           }
         }
       },
@@ -375,9 +433,54 @@ export function useQuerySchema(): JsonSchema7 {
         additionalProperties: false,
         properties: {
           limit: { type: "integer", minimum: 0, default: 0 },
-          offset: { type: "integer", minimum: 0 }
+          offset: { type: "integer", minimum: 0, default: 0 }
         }
       }
     }
   } satisfies JsonSchema7;
+}
+
+/**
+ * The module's filter-bar presentation over the query schema. One Control
+ * scoping the `name.like` filter — the address search, and the only filter
+ * legacy exposes (`design.md` D1).
+ */
+export function useQueryUischema(): UISchemaElement {
+  return {
+    type: "FilterBar",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/name/properties/like",
+        i18n: "form.address_search",
+        options: { format: "search", noLabel: true, optionalText: "" }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/verified/properties/eq",
+        i18n: "form.verified_filter",
+        options: { format: "button-group", noLabel: true, optionalText: "" }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/default/properties/eq",
+        i18n: "form.default_filter",
+        options: { format: "button-group", noLabel: true, optionalText: "" }
+      }
+    ]
+  } as UISchemaElement;
+}
+
+/**
+ * The collection's ORDERING presentation — one element over the query
+ * schema's `sort` branch, mirroring `client-email.schemas.ts`'s
+ * `useSortUischema`. Its `i18n` is also the option-key prefix: a field
+ * resolves as `<i18n>.<field>` (`form.address_sort.created_at`).
+ */
+export function useSortUischema(): ControlElement {
+  return {
+    type: "Control",
+    scope: "#/properties/sort",
+    i18n: "form.address_sort"
+  };
 }

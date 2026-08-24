@@ -1,60 +1,85 @@
 <template>
   <div class="flex grow items-center justify-center">
+    <!-- dataAttrs, not fallthrough: in modal mode the root is a renderless
+         DialogRoot, which drops a fallthrough attribute entirely. -->
     <Interstitial
-      v-bind="props"
-      :animatedIcon="animatedIcon"
-      :actions="actions"
+      :close-label="t('action.close')"
+      :open="props.open"
+      :modal="props.modal"
+      :animated-icon="animatedIcon"
       :title="title"
       :text="text"
-      :dataAttrs="{ 'data-test-key': 'error' }"
-    />
+      :data-attrs="{ 'data-test-key': 'error' }"
+    >
+      <template #actions>
+        <Button
+          v-for="(item, index) in actions"
+          :key="index"
+          v-bind="useTestAttrs({ key: 'interstitial-action', value: index })"
+          variant="primary"
+          size="lg"
+          @click="runAction(item)"
+        >
+          <Icon v-if="item.icon" :icon="item.icon" />
+          {{ item.label }}
+        </Button>
+      </template>
+    </Interstitial>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed, onBeforeMount } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 import { responseCodes, type Message } from "@upmind-automation/headless";
 import {
   Interstitial,
+  Button,
   loadAnimation,
-  loadIcon,
-  type InterstitialActionProps
-} from "@upmind-automation/upmind-ui";
+  useTestAttrs,
+  type InterstitialAnimatedIcon
+} from "@upmind/ui";
+import { Icon } from "../../components/icon";
 import { first, isNil } from "lodash-es";
 import type { StorefrontRoute } from "../../types";
-import type { InterstitialProps } from "@upmind-automation/upmind-ui";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
+
+/** A user action rendered as a Button in the error interstitial. */
+type ErrorAction = {
+  handler?: ((...args: unknown[]) => unknown) | string;
+  icon?: string;
+  label?: string;
+  to?: RouteLocationAsRelativeGeneric;
+  href?: string;
+};
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
+const router = useRouter();
 
-// Pre-load asset/chunk unavailable animations and icons so they're cached and
-// available even when asset URLs become stale after a deploy.
+// Pre-cache the error animations so they stay available even when asset URLs
+// go stale after a deploy (this is the page shown when things fail). Action
+// icons are lucide components bundled in JS, so they need no preload.
 onBeforeMount(() => {
+  loadAnimation("error");
+  loadAnimation("unavailable");
   loadAnimation("refresh");
-  loadIcon("refresh-cw-01");
 });
 
 const props = withDefaults(
-  defineProps<
-    {
-      title?: Message["title"];
-      copy?: Message["copy"];
-      actions?: Message["actions"];
-      status?: Message["data"]["status"];
-      storefrontRoute?: StorefrontRoute;
-    } & InterstitialProps
-  >(),
+  defineProps<{
+    title?: Message["title"];
+    copy?: Message["copy"];
+    actions?: Message["actions"];
+    status?: Message["data"]["status"];
+    storefrontRoute?: StorefrontRoute;
+    open?: boolean;
+    modal?: boolean;
+  }>(),
   {
     open: true,
-    modal: true,
-    animatedIcon: () => ({
-      icon: "error",
-      trigger: "loop",
-      primaryColor: "base-foreground",
-      secondaryColor: "tertiary",
-      size: "4xl"
-    })
+    modal: true
   }
 );
 
@@ -114,7 +139,6 @@ const icon = computed(() => {
       return "refresh-cw-01";
     case responseCodes.No_Content:
       return first(props?.actions)?.icon ?? "arrow-left";
-
     case responseCodes.Unauthorized:
       return "arrow-left";
     case responseCodes.Forbidden:
@@ -138,7 +162,6 @@ const action = computed(() => {
       return t("action.reload_page");
     case responseCodes.No_Content:
       return first(props?.actions)?.label ?? t("action.back_to_shop");
-
     case responseCodes.Unauthorized:
       return t("action.back_to_shop");
     case responseCodes.Forbidden:
@@ -156,44 +179,36 @@ const action = computed(() => {
   }
 });
 
-const animatedIcon = computed(() => ({
+const animatedIcon = computed<InterstitialAnimatedIcon>(() => ({
   icon:
     props.status === 1000
       ? "refresh"
       : (props.status ?? 0) >= 500
         ? "unavailable"
         : "error",
-  trigger: props.animatedIcon.trigger,
-  primaryColor: props.animatedIcon.primaryColor,
-  secondaryColor: props.animatedIcon.secondaryColor,
-  size: props.animatedIcon.size
+  size: "xl"
 }));
 
-const actions = computed((): InterstitialActionProps[] => {
-  let defaultAction: InterstitialActionProps;
+const actions = computed((): ErrorAction[] => {
+  let defaultAction: ErrorAction;
 
   switch (props.status) {
-    // for chunk/asset errors, reload to fetch fresh assets
+    // chunk/asset + service/server errors: reload to fetch fresh assets
     case 1000:
-    // for service errors, we want to reload the page as its likely a temporary issue
     case responseCodes.Service_Unavailable:
     case responseCodes.Internal_Server_Error:
       defaultAction = {
         handler: () => window.location.reload(),
-        variant: "solid",
-        color: "primary",
         icon: icon.value,
         label: action.value
       };
       break;
 
-    // for all other errors, we want to redirect back to the storefront
+    // everything else: back to the storefront
     default:
       defaultAction = {
         ...props.storefrontRoute,
         handler: () => emit("dismiss"),
-        variant: "solid",
-        color: "primary",
         icon: icon.value,
         label: action.value
       };
@@ -202,4 +217,12 @@ const actions = computed((): InterstitialActionProps[] => {
 
   return isNil(props.actions) ? [defaultAction] : props.actions;
 });
+
+// Run an action's handler then follow its route — mirrors the old Interstitial,
+// which bound to/href on the Button (nav) plus a click handler (dismiss/reload).
+function runAction(item: ErrorAction) {
+  if (typeof item.handler === "function") item.handler();
+  if (item.to) router.push(item.to);
+  else if (item.href) window.location.href = item.href;
+}
 </script>

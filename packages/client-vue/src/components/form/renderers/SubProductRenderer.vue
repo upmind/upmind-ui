@@ -1,6 +1,6 @@
 <template>
   <FormField v-if="subproductData" v-bind="fieldProps">
-    <SubproductCards
+    <SubproductSelector
       :subproduct="subproductData"
       :meta="configMeta"
       :model-value="keys(control.data)"
@@ -19,9 +19,9 @@ import { useJsonFormsControl } from "@jsonforms/vue";
 import { computed, inject } from "vue";
 import { useI18n } from "vue-i18n";
 import { useConfig } from "@upmind-automation/headless";
-import { FormField } from "@upmind-automation/upmind-ui";
-import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
-import SubproductCards from "../../../modules/product/components/subproduct/SubproductCards.vue";
+import SubproductSelector from "../../../modules/product/components/subproduct/SubproductSelector.vue";
+import FormField from "../engine/FormField.vue";
+import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import {
   cloneDeep,
   compact,
@@ -109,12 +109,12 @@ const quantities = computed<Record<string, number>>(() => {
 // --- methods
 
 /**
- * Handle selection change from SubproductCards.
+ * Handle selection change from SubproductSelector.
  * Mimics setOptions/setAttributes from useProductConfig:
  * - Options: preserve quantity from previous selection
  * - Attributes: only productId (no quantity)
  */
-function handleSelection(values: string | string[]) {
+function handleSelection(values: string | string[] | undefined) {
   const previousData = control.value.data ?? {};
   const safeValues = compact(isArray(values) ? values : [values]);
   const updated: Record<string, any> = {};
@@ -141,7 +141,7 @@ function handleSelection(values: string | string[]) {
 }
 
 /**
- * Handle quantity change from SubproductCards.
+ * Handle quantity change from SubproductSelector.
  * Mimics updateOptionQuantity from useProductConfig.
  */
 function handleQuantity(valueId: string, qty: number) {

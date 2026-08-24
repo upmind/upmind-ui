@@ -33,9 +33,8 @@
 import { useI18n } from "vue-i18n";
 import { useBasket, useConfig } from "@upmind-automation/headless";
 import { useMoney } from "@upmind-automation/headless";
-import { Skeleton } from "@upmind-automation/upmind-ui";
+import { Skeleton } from "@upmind/ui";
 import Hero from "../../../components/hero/Hero.vue";
-
 // --- types
 import type { BasketHeroProps } from "./types";
 

@@ -14,13 +14,29 @@ sharing one identity seam and one services factory.
 
 - **`useClientCompanies`** — the collection, as a scoped composable:
   `.as('client')` resolves the calling client's own companies.
-  - 10 actions — `destroy`, `ensure`, `filters.query`, `invalidate`, `isReady`,
-    `nextPage`, `prevPage`, `refresh`, `remove`, `setDefault`.
-  - 6 context members — `data`, `default`, `error`, `findOne`, `getOne`,
-    `pagination`.
-  - 7 flat meta flags — `hasError`, `hasNextPage`, `hasPages`, `hasPrevPage`,
-    `isAvailable`, `isEmpty`, `isLoading`.
+  - 12 actions — `destroy`, `ensure`, `filterBy`, `invalidate`, `isReady`,
+    `nextPage`, `prevPage`, `refresh`, `remove`, `setCriteria`, `setDefault`,
+    `sortBy`.
+  - 8 context members — `data`, `default`, `error`, `findOne`, `getOne`,
+    `pagination`, `query`, `schemas`.
+  - 8 flat meta flags — `hasError`, `hasNextPage`, `hasPages`, `hasPrevPage`,
+    `isAvailable`, `isEmpty`, `isFiltered`, `isLoading`.
   - 2 internals — `actorScope`, `query`.
+- **Schema-driven filtering, sorting and paging.**
+  `useContext().schemas.query` publishes one JSON Schema + UI schema
+  describing the collection's whole request state: the one declared filter
+  (`name` substring search), the sortable columns (`name`, `created_at` —
+  `default` is deliberately not one of them, because no legacy consumer of
+  this list orders by it and an unrecognised `order=` column is rejected by
+  the server), and the pagination window. `useContext().query` is the live,
+  read-only criteria; write it through `useActions().filterBy()` / `.sortBy()`
+  / `.setCriteria()`. All three re-query the server — none slices the
+  already-loaded rows client-side. `setCriteria({ pagination: { limit } })` is
+  also the door that opens paging past the collection's `limit: 0` default;
+  see [gotchas.md](./gotchas.md#2-nextpage--prevpage-need-a-page-size-before-they-have-anywhere-to-go).
+- **`useClientCompanies().useMeta().isFiltered`** — true while the declared
+  `filters.name` column carries a value; sorting or paging alone never sets
+  it.
 - **`useClientCompanyManager`** — the per-company editor, as a scoped
   composable: `.as('client').for('company', id)` opens an existing company;
   `.as('client').fresh()` starts a new one, with its own isolated instance per
@@ -76,8 +92,19 @@ sharing one identity seam and one services factory.
 - **Documentation refreshed against the shipped surface** — README, usage,
   architecture, gotchas and foundation now describe both composables, the
   real recorded fixtures, and the real failure modes.
+- **The services layer's internal `loadList` now takes no params.** It
+  previously accepted a caller-supplied params override (defaulting to
+  `{ pagination: { limit: 0 } }`); it now derives its whole request state from
+  the declared query schema instead (`list({ criteria: { schema:
+useQuerySchema() } } )`). This is a services-layer detail, not part of the
+  public API — the services module is not exported — recorded here because it
+  is the mechanism behind the criteria channel above.
 
 ### Removed
+
+- **`filters.query(value)`** — replaced by `filterBy()` (see the migration
+  guide below). The old call shape is now a compile error, not a silent
+  no-op.
 
 - **The client-targeting option on the per-company editor.** A previous
   version of this composable accepted a client id as a constructor option
@@ -183,6 +210,58 @@ const { default: defaultId, getOne } = companies.useContext();
 const defaultCompany = getOne(defaultId());
 const name = defaultCompany?.name;
 ```
+
+### Filtering the collection
+
+**Breaking change:** `filters.query(value)` is gone. Nothing that previously
+worked stops working — no call site in this codebase used it.
+
+```ts
+// Before — the deleted member
+await companies.useActions().filters.query("acme");
+
+// After — a real substring filter that re-queries the server
+await companies.useActions().filterBy({ name: { like: "acme" } });
+
+// Clear the filter
+await companies.useActions().filterBy({});
+```
+
+The declared column and operator are on `useContext().schemas.query.schema` —
+see [usage.md](./usage.md#the-collections-query-schema).
+
+### Sorting the collection
+
+**New:** there was no sort action before this change.
+
+```ts
+await companies.useActions().sortBy([{ field: "created_at", dir: "desc" }]);
+
+// Clearing the sort re-applies the collection's own default order
+// (created_at ascending), rather than leaving the list unordered
+await companies.useActions().sortBy([]);
+```
+
+Only `name` and `created_at` are declared sortable — see
+[gotchas.md](./gotchas.md).
+
+### Paging the collection
+
+**New:** there was no public door to a non-zero page size before this change.
+
+```ts
+// Before — the collection always read the whole list unpaged; no
+// consumer-facing way to change it
+
+// After — open a page size, then walk it
+await companies.useActions().setCriteria({ pagination: { limit: 10 } });
+await companies.useActions().nextPage();
+await companies.useActions().prevPage();
+```
+
+`pagination.limit` still defaults to `0` (the whole-collection read both
+legacy consumers ask for) — `setCriteria` is what changes that. See
+[gotchas.md](./gotchas.md#2-nextpage--prevpage-need-a-page-size-before-they-have-anywhere-to-go).
 
 ### Removing a client id from the editor
 

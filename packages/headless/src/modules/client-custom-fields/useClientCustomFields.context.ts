@@ -1,7 +1,12 @@
 import { computed } from "vue";
 import { resolveFieldByValue } from "./client-custom-fields.mappers";
+import {
+  useQuerySchema,
+  useQueryUischema,
+  useSortUischema
+} from "./client-custom-fields.schemas";
 import { mapToHeadlessError, useCollection } from "../../utils";
-import { isArray, isEmpty, filter as filterBy } from "lodash-es";
+import { isArray, isEmpty, isMatch, filter as filterBy } from "lodash-es";
 import type {
   ClientCustomFieldsListQuery,
   ClientCustomFieldsServices,
@@ -28,7 +33,7 @@ export function createClientCustomFieldsContext(
   _actorScope: ScopeActorTypes,
   service: ClientCustomFieldsServices,
   query: ClientCustomFieldsListQuery,
-  clientSideFilter: Ref<Partial<CustomField>>
+  narrowing: Ref<Partial<CustomField> | Partial<CustomField>[]>
 ) {
   const { findOne, getOne } = useCollection<CustomField>(query.data);
 
@@ -39,15 +44,20 @@ export function createClientCustomFieldsContext(
   );
 
   /**
-   * The client-SIDE filtered view (AC-8) — a partial-match predicate over
-   * the ALREADY-LOADED list, never a new request. Legacy's own
-   * `filteredCustomFields` (`customFields.vue:205-215`).
+   * The client-SIDE narrowed view (AC-8) — a partial-match predicate (or, per
+   * ruling R3, an ARRAY of them, every one of which must match — legacy's own
+   * `_.map(this.filters, filter => …)`, `customFields.vue:204-215`) over the
+   * ALREADY-LOADED list, never a new request.
    */
-  const data = computed(() =>
-    isEmpty(clientSideFilter.value)
-      ? loaded.value
-      : filterBy(loaded.value, clientSideFilter.value)
-  );
+  const data = computed(() => {
+    if (isEmpty(narrowing.value)) return loaded.value;
+    const filters = isArray(narrowing.value)
+      ? narrowing.value
+      : [narrowing.value];
+    return filterBy(loaded.value, item =>
+      filters.every(filter => isMatch(item, filter))
+    );
+  });
 
   const error = computed<ResponseError | undefined>(
     () =>
@@ -84,8 +94,24 @@ export function createClientCustomFieldsContext(
     /** Reactive pagination descriptor for the list query. */
     pagination: query.pagination,
 
+    /** The live criteria model — filters · sort · pagination, one source. */
+    query: query.criteria,
+
     /** Resolves a value's definition, preferring the embedded one (A-8). */
-    resolveFieldByValue: resolveField
+    resolveFieldByValue: resolveField,
+
+    /**
+     * The module's schema family, plain JSON so it survives the renderer
+     * port's `JSON` round-trip. The renderer's only door to it is
+     * `useContext()`.
+     */
+    schemas: {
+      query: {
+        schema: useQuerySchema(),
+        uischema: useQueryUischema(),
+        sortUischema: useSortUischema()
+      }
+    }
 
     // The arm merges in HERE, last.
     // ...actorContext

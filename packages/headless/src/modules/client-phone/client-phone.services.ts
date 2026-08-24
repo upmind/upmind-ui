@@ -7,6 +7,7 @@ import { useActiveSession } from "../session-store";
 import { useSystem } from "../system";
 import { useI18n } from "../system-localisation";
 import { mapIPhone, mapPhone, mapPhones } from "./client-phone.mappers";
+import { useQuerySchema } from "./client-phone.schemas";
 import { ClientPhonesContextTypes } from "./client-phone.types";
 import {
   useTime,
@@ -28,7 +29,6 @@ import {
   omitBy,
   defaultsDeep
 } from "lodash-es";
-import type { QueryParams } from "../query";
 import type { ScopeContext } from "../scope";
 import type {
   ClientPhoneErrorCapture,
@@ -37,7 +37,8 @@ import type {
   ClientPhoneServices,
   Phone,
   PhoneContext,
-  PhoneModel
+  PhoneModel,
+  QueryModel
 } from "./client-phone.types";
 import type { ResponseError } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
@@ -129,20 +130,25 @@ function isAddressable(clientId?: string): boolean {
  * a poisoned one. The URL is re-pointed in the `guard` — the last hook before
  * `list()` builds the request — so this is what targets the id resolved at
  * FIRE time.
+ *
+ * Adds `with_staged_imports: 1` (legacy `phones.ts:44`, in-cell gap) through
+ * the platform's existing `useUrl` channel — URL scoping, not criteria, so it
+ * never enters the query schema (`client-company.services.ts:130` sibling
+ * precedent for the identical construct).
+ *
+ * The whole request state is the DECLARED query schema: `list()` builds the
+ * criteria from it and publishes filters/sort/pagination back on the handle.
+ * Takes no params — there is no back door beside the schema.
  */
-function loadList(
-  params: Partial<QueryParams<IPhone[], Phone[]>> = {
-    pagination: { limit: 0 }
-  },
-  scopeContext?: ScopeContext
-): ClientPhoneListQuery {
+function loadList(scopeContext?: ScopeContext): ClientPhoneListQuery {
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
-  const targetUrl = () => useUrl(`clients/${clientId.value}/phones`);
+  const targetUrl = () =>
+    useUrl(`clients/${clientId.value}/phones`, { with_staged_imports: 1 });
   const url = targetUrl();
 
-  return list<IPhone[], Phone[]>({
-    ...params,
+  return list<IPhone[], Phone[], QueryModel>({
+    criteria: { schema: useQuerySchema() },
     queryKey: [...queryKey, { client: clientId }],
     url,
     // Must stay an `async` function — `list()` detects a guard by `isPromise`,
@@ -248,7 +254,7 @@ async function ensure(
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  const query = loadList(undefined, scopeContext);
+  const query = loadList(scopeContext);
   await query.promise.value.finally();
 
   const { findOne } = useCollection<Phone>(
@@ -590,7 +596,7 @@ export const createClientPhoneServices = (
     clientId,
     isAvailable: computed(() => isAddressable(clientId.value)),
     error: computed(() => mutationError.value),
-    loadList: params => loadList(params, scopeContext),
+    loadList: () => loadList(scopeContext),
     loadOne: id => loadOne(id, scopeContext),
     add: model => add(model, scopeContext),
     update: (id, model) => update(id, model, scopeContext),

@@ -85,7 +85,10 @@
   "sort_by_price": "Sort by price",
   "sort_by_subject": "Sort by subject",
   "sort_descending": "Sort descending",
+  "sort_emails": "Sort emails",
+  "sort_products": "Sort products",
   "skip": "Skip",
+  "toggle_appearance": "Toggle light and dark mode",
   "verify": "Verify",
   "view": "View",
   "view_email": "View Email"

@@ -1,29 +1,30 @@
 <template>
   <div ref="form">
-    <CheckboxCards
-      v-model="checked"
-      :items="[
-        {
-          id: 'account-credit',
-          value: 'account-credit',
-          dataAttrs: { 'data-test-key': 'account-credit' },
-          label: t('cart.account_credit_use', {
-            amount: safeAmountFormatted
-          }),
-          secondaryDescription: t('cart.account_credit_use_msg', {
+    <OptionTileGroup v-model="checked" mode="multiple">
+      <OptionTile
+        value="account-credit"
+        data-test-key="account-credit"
+        :label="t('cart.account_credit_use', { amount: safeAmountFormatted })"
+        :description="
+          t('cart.account_credit_use_msg', {
             ownedAmount: props.accountCredit.owned.amount,
             creditAmount: props.accountCredit.credit.amount,
             n: +!!props.accountCredit.credit.value
-          }),
-          action: {
-            label: t('text.adjust'),
-            handler: openForm,
-            disabled: props.processing,
-            visible: !!props.modelValue
-          }
-        }
-      ]"
-    />
+          })
+        "
+      >
+        <template v-if="!!props.modelValue" #trailing>
+          <Link
+            size="sm"
+            color="muted"
+            :disabled="props.processing"
+            @click="openForm"
+          >
+            {{ t("text.adjust") }}
+          </Link>
+        </template>
+      </OptionTile>
+    </OptionTileGroup>
 
     <FormModal
       v-model:open="open"
@@ -50,7 +51,7 @@
 <script lang="ts" setup>
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { CheckboxCards } from "@upmind-automation/upmind-ui";
+import { OptionTileGroup, OptionTile, Link } from "@upmind/ui";
 import FormModal from "../../../components/form/FormModal.vue";
 import type { AccountCreditProps } from "../types";
 

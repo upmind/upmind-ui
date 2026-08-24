@@ -44,13 +44,17 @@ export enum messageDisplays {
  * Enumeration defining the different types of messages based on their severity or purpose.
  * This is used for styling and categorisation of alerts.
  *
+ * Values are the design system's colour intents, because consumers bind them
+ * straight to a component's `variant`; an unlisted value renders unstyled.
+ * The sole severity enum in the graph (graphify-out/GRAPH_REPORT.md).
+ *
  * @enum {string}
  */
 export enum messageTypes {
   /**
    * An error message, indicating a critical issue or failure.
    */
-  ERROR = "error",
+  DANGER = "danger",
   /**
    * An informational message, providing general updates or context.
    */

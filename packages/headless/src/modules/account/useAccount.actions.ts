@@ -128,6 +128,9 @@ export function createAccountActions(
     /** Resends the verification email (cooldown-gated). */
     resend,
 
+    /** Routes to the correct action based on current state. */
+    resolve,
+
     /** Sets the active account form model. */
     set,
 

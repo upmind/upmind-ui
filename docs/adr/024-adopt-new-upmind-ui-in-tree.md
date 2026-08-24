@@ -1,7 +1,7 @@
 # ADR 024: Adopt the new `@upmind/ui` (reka-ui + Tailwind 4 + token engine) as the in-tree UI library
 
 **Date:** June 17, 2026
-**Status:** Accepted
+**Status:** Accepted — amended August 19, 2026 (consumption mechanism; see Amendment below)
 **Authors:** Dom da Costa
 
 ---
@@ -56,6 +56,20 @@ Adopt the new library as **first-class in-tree packages under `packages/`, repla
 
 - The consumption model is unchanged (source-first via Vite aliases); only the alias targets retarget to the in-tree packages, and the kept specifier `@upmind-automation/upmind-ui` does not move.
 - Whether a tenant can force/lock a dark/light mode (vs the user toggle always winning) is a minor open item.
+
+---
+
+## Amendment (August 19, 2026) — the library's home moves back to the design-system repo; the monorepo consumes it as a submodule
+
+**Scope:** supersedes the *consumption mechanism* of the Decision ("first-class in-tree packages", "the standalone repo is retired", "no upstream-sync process"). Every other decision in this ADR — names for consumers, styling model, theming, forms, component remaps, docs, migration gate (§1–§8) — stands unchanged.
+
+**What changes.** `git.upmind.io/upmind/upmind-ui` (the upmind-design-system monorepo) is the library's single physical home. This monorepo consumes it as the `design-system/` git submodule (currently `branch = ui-migration`), and only `design-system/packages/ui` and `design-system/packages/tokens` join the pnpm workspace — the DS's `mcp` and its apps stay out. This is the same pattern billing-core already uses to consume the DS, so all consumers converge on one mechanism. The in-tree `packages/ui-next`, `packages/tokens`, and `packages/mcp` are deleted.
+
+**Why the original objections no longer hold.** The Decision rejected a submodule because the packages' `catalog:`/`workspace:*` specifiers could not resolve across a submodule boundary. That was true before FE-2884; the reconciled catalog it introduced is exactly what makes the submodule work now — the DS packages' `catalog:` references resolve against this root's catalog (proven: green install, typecheck, and builds on the cutover branch). CI needs no special lane: `GIT_SUBMODULE_STRATEGY: recursive` fetches the submodule and `pnpm -r build` builds its packages like any workspace member.
+
+**Why reverse at all.** The in-tree fork and the DS repo diverged by 247 commits in two months, reconciled only by a hand-run swap-back (August 19, 2026). Two physical copies of a live library re-diverge by default; one physical copy ends that failure class structurally.
+
+**Consumer naming.** The Decision's no-rename rule is retired with the same change: monorepo-owned consumers import `@upmind/ui` and `@upmind/tokens` directly (mechanical rename of every import, path alias, CI filter and script in this branch). The only compatibility shim is a pair of root pnpm `overrides` rewriting the old `@upmind-automation/{upmind-ui,tokens}` names for the checkout submodules (apps/velia, apps/hosting), whose repos still declare them; those two lines drop when each app's own mirror pass renames its imports.
 
 ---
 

@@ -226,3 +226,74 @@ Feature: A client reads their brand's custom field definitions and manages their
     When something outside the module tries to reach its internal machinery directly, act as staff or as a guest, or act on behalf of a different client
     Then none of those are offered by the module — the internal machinery is not reachable, and no affordance exists to become another actor or to name another client
     And the client acting on their own value set continues to work exactly as before
+
+  @AC-28 @definitions @criteria
+  Scenario: What the client asks the catalogue for is exactly what the client declared
+    Given the client has declared how they want the catalogue read
+    When the catalogue is read
+    Then the request carries only the ordering, narrowing and page the client declared
+    And nothing outside that declaration can be smuggled into the request
+
+  @AC-29 @definitions @criteria
+  Scenario: The catalogue arrives in its own display order by default
+    Given the client has asked for nothing in particular
+    When the catalogue is read for the first time
+    Then it is ordered by the brand's own display order, ascending
+    And the client can see that this is the ordering in force
+
+  @AC-30 @definitions @criteria
+  Scenario: The client re-orders the catalogue by a column the catalogue offers
+    Given the catalogue has been read
+    When the client asks for it ordered by field name, descending
+    Then the catalogue is re-read in that order
+    And no ordering the catalogue does not offer can be asked for at all
+
+  @AC-31 @definitions @criteria
+  Scenario: The client searches the catalogue at the source
+    Given the catalogue has been read
+    When the client searches for fields whose name contains a term
+    Then only the matching fields are fetched, rather than the whole catalogue being fetched and then narrowed
+    And when the client clears the search, the next read carries no search at all
+
+  @AC-32 @definitions @criteria
+  Scenario: Which catalogue is being read is not something the client can change
+    Given the client reads their own brand's client-field catalogue
+    When any read is made
+    Then it is always addressed to that brand and that catalogue
+    And the client's own narrowing choices contain no way to address a different one
+
+  @AC-33 @definitions @criteria
+  Scenario: The client receives the whole catalogue unless they ask to page it
+    Given the client has not asked for a page
+    When the catalogue is read
+    Then every field in the catalogue arrives, not a first page of ten
+    And any other part of the product that reads this catalogue receives all of it too
+
+  @AC-34 @definitions @criteria
+  Scenario: The client walks the catalogue a page at a time
+    Given the client has asked for the catalogue a page at a time
+    When the client asks for the next page
+    Then the following page of fields is fetched and shown
+    And asking for the previous page returns to the page before it
+
+  @AC-35 @definitions @criteria @cache
+  Scenario: Asking twice for the same thing costs one read
+    Given the client has already read the catalogue a particular way
+    When the client returns to exactly that ordering, search and page
+    Then the catalogue is shown again without a further read being made
+
+  @AC-36 @definitions @criteria @public-surface
+  Scenario: The client can see, and drive, how the catalogue is being read
+    Given the catalogue is in use
+    When the client inspects how it is being read
+    Then the ordering, the search and the page in force are all readable
+    And the choices offered for search and ordering are exactly the ones the catalogue supports
+    And the only way to change any of them is to state a new intent, never to reach past it
+
+  @AC-37 @module @scope @playground
+  Scenario: Only the actors and targets this module actually serves are offered
+    Given the module serves a client acting on their own brand's catalogue, and no one else
+    When something asks which actors and targets the module offers
+    Then a client acting on their own catalogue is offered
+    And staff, guest and self are not offered — at run time, not only when the code is compiled
+    And a page driving this module can offer the client's own catalogue as a target to act on

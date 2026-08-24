@@ -1,13 +1,24 @@
 <template>
   <div class="flex flex-col gap-4">
-    <RadioCards
+    <OptionTileGroup
       v-if="isGate"
       name="auth-actor"
-      :items="choices"
-      :columns="3"
       :model-value="actor"
+      class="grid grid-cols-3 gap-3"
       @update:model-value="choose($event as ScopeActorTypes)"
-    />
+    >
+      <OptionTile
+        v-for="choice in choices"
+        :key="choice.value"
+        :value="choice.value"
+        :label="choice.label"
+        :data-attrs="choice.dataAttrs"
+      >
+        <template #indicator>
+          <OptionTileIndicator />
+        </template>
+      </OptionTile>
+    </OptionTileGroup>
 
     <AuthJourney
       v-if="actor"
@@ -65,9 +76,8 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { OverlayType } from "@upmind-automation/client-vue";
 import { ScopeActorTypes, useActiveSession } from "@upmind-automation/headless";
-import { RadioCards } from "@upmind-automation/upmind-ui";
+import { OptionTile, OptionTileGroup, OptionTileIndicator } from "@upmind/ui";
 import { get, map } from "lodash-es";
-import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 import { AuthJourney } from "~/components/auth";
 import { ACTOR_LABEL_KEYS } from "~/components/scope";
 import { useActorScope } from "~/composables/scope";
@@ -133,17 +143,11 @@ const actor = computed(() => named.value ?? picked.value);
  */
 const isGate = computed(() => !named.value);
 
-const choices = computed<RadioCardsItemProps[]>(() =>
+const choices = computed(() =>
   map(
-    // What a visitor may arrive AS. Client and staff are `useAuth`'s own
-    // journeys — the two its matrix carries a context for — and guest is the
-    // scope that needs no session at all. SELF is not a choice: it resolves to
-    // whoever is active, and at a gate nobody is.
     [ScopeActorTypes.CLIENT, ScopeActorTypes.STAFF, ScopeActorTypes.GUEST],
-    (choice, index) => ({
-      index,
+    choice => ({
       value: choice,
-      modelValue: actor.value,
       label: t(ACTOR_LABEL_KEYS[choice]),
       dataAttrs: {
         "data-test-key": "auth-actor",

@@ -9,10 +9,10 @@
 # deliverables and are absent from a fresh clone and from CI. This bundle copy
 # is the plan of that file, not a second oracle.
 #
-# NON-EXECUTABLE per ADR-020 (".feature files are spec-only, not executable").
-# No runner touches it and no steps file is produced — the colocated unit and
-# integration specs are the tests that run, each anchored to a scenario by its
-# @AC tag.
+# Per ADR-020 Amendment 5 this file IS the played artefact: the sibling
+# client-address.steps.ts catalog decides — scenario by scenario — which
+# entries are driveable on the playground. The colocated unit and integration
+# specs remain the proofs, each anchored to a scenario by its @AC tag.
 #
 # One scenario per capability the parity table carries, at actor x context
 # altitude (ADR-001) — INCLUDING every editor behaviour. This module ships
@@ -84,7 +84,7 @@ Feature: A client manages their own postal addresses
   So that my orders, invoices and billing details go to the right place
 
   Background:
-    Given I am signed in as a client
+    Given I am signed in as a client managing my addresses
     And my account has saved postal addresses
 
 
@@ -363,3 +363,58 @@ Feature: A client manages their own postal addresses
     Then I am told it was deleted
     And when I make one my default, I am told that too
     And when either fails instead, I am told why
+
+
+  # ---------------------------------------------------------------------------
+  # The collection — filter-bar and sort infrastructure (FE-3103 gap closure)
+  # ---------------------------------------------------------------------------
+
+  @AC-41 @collection @filter @schema
+  Scenario: A filter bar can be built over my address search without hand-authoring one
+    When something wants to render a filter control for searching my addresses
+    Then it is offered a ready-made filter-bar description
+    And that description points at the same search my addresses are narrowed by
+
+  @AC-42 @collection @sort
+  Scenario: My addresses can be sorted by name or by when they were added
+    When something asks how my addresses may be sorted
+    Then it is told sorting by name or by date added are the choices on offer
+
+  @AC-43 @collection @criteria
+  Scenario: The starting view of my addresses comes from what is declared as sortable and searchable, not a fixed rule
+    When I open my saved addresses
+    Then the window I see comes from the declared paging rules
+    And nothing about that starting view is a fixed value hidden in code
+
+  @AC-44 @collection @schema
+  Scenario: The filter-bar description and the search rules it is built from travel together
+    When something wants to bind a filter bar to my address search
+    Then it can read both the search rules and the filter-bar description from the one place
+    And it does not need to reach past the module for either
+
+  # ---------------------------------------------------------------------------
+  # Page-driven scenarios (appended by the factory scenario lane)
+  # ---------------------------------------------------------------------------
+
+  @FE-3103 @playground
+  Scenario: The addresses playground lists my saved addresses
+    Given I am an authenticated client on the addresses page
+    Then no failure is reported
+
+  @FE-3103 @playground
+  Scenario: The playground refreshes my address collection
+    Given I am an authenticated client on the addresses page
+    When I refresh the address collection
+    Then no failure is reported
+
+  @FE-3103 @playground
+  Scenario: The playground removes a non-default address
+    Given I am an authenticated client on the addresses page
+    When I remove a non-default address
+    Then the collection shows the address I removed is gone
+
+  @FE-3103 @playground
+  Scenario: The playground makes a non-default address the default
+    Given I am an authenticated client on the addresses page
+    When I make the non-default address my default
+    Then the newly defaulted address is now the default

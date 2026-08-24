@@ -15,12 +15,13 @@
             <Button
               variant="subtle"
               size="lg"
-              :label="t(action)"
               :loading="actionProcessing"
               @click.stop="doAction"
-              :icon="!orderMeta.isAuthenticated ? 'arrow-left' : ''"
-              :icon-append="orderMeta.isAuthenticated ? 'arrow-right' : ''"
-            />
+            >
+              <Icon v-if="!orderMeta.isAuthenticated" icon="arrow-left" />
+              {{ t(action) }}
+              <Icon v-if="orderMeta.isAuthenticated" icon="arrow-right" />
+            </Button>
           </div>
         </template>
       </Hero>
@@ -30,10 +31,12 @@
       <Alert
         v-if="primaryAlert"
         v-show="!orderMeta.isProcessing"
-        v-bind="primaryAlert"
-        variant="minimal"
+        v-bind="omit(primaryAlert, ['icon'])"
+        appearance="outline"
         @click="primaryAlert?.onClick"
-      />
+      >
+        <template #icon><Icon :icon="primaryAlert.icon" /></template>
+      </Alert>
       <PaymentDetails
         v-if="!orderMeta.isLocked"
         v-show="!orderMeta.isProcessing"
@@ -44,10 +47,12 @@
         <template #prepend>
           <Alert
             v-if="secondaryAlert"
-            v-bind="secondaryAlert"
-            variant="minimal"
+            v-bind="omit(secondaryAlert, ['icon'])"
+            appearance="outline"
             @click="secondaryAlert?.onClick"
-          />
+          >
+            <template #icon><Icon :icon="secondaryAlert.icon" /></template>
+          </Alert>
         </template>
       </PaymentDetails>
     </template>
@@ -59,63 +64,74 @@
         :label="t('text.order_summary')"
         icon="shopping-bag-02"
       >
-        <DescriptionList
+        <DescriptionListRoot
           v-if="!orderMeta.isLoading && orderItems.length"
-          :items="orderItems"
+          align="between"
+          class="gap-y-2"
+          data-test-key="description-list"
         >
+          <DescriptionItem
+            v-for="(item, index) in orderItems"
+            :key="index"
+            :term="item.term"
+            v-bind="item.dataAttrs"
+          >
+            {{ item.description }}
+          </DescriptionItem>
           <div
             v-if="orderData?.summary?.total"
-            :class="detailsStyles.details.total.root"
+            class="col-span-2"
+            :class="detailsTotalRootVariants()"
           >
-            <dt :class="detailsStyles.details.total.label">
+            <dt :class="detailsTotalLabelVariants()">
               {{ t("text.order_total") }}
             </dt>
-            <dd :class="detailsStyles.details.total.value">
+            <dd :class="detailsTotalValueVariants()">
               {{ orderData.summary.total }}
             </dd>
           </div>
-        </DescriptionList>
+        </DescriptionListRoot>
 
         <!-- Skeleton loader -->
         <template v-else>
-          <div :class="detailsStyles.details.skeleton.root">
-            <div :class="detailsStyles.details.skeleton.row">
+          <div :class="detailsSkeletonRootVariants()">
+            <div :class="detailsSkeletonRowVariants()">
               <Skeleton
-                :class="detailsStyles.details.skeleton.item"
+                :class="detailsSkeletonItemVariants()"
                 data-width="sm"
               />
               <Skeleton
-                :class="detailsStyles.details.skeleton.item"
+                :class="detailsSkeletonItemVariants()"
                 data-width="lg"
               />
             </div>
-            <div :class="detailsStyles.details.skeleton.row">
+            <div :class="detailsSkeletonRowVariants()">
               <Skeleton
-                :class="detailsStyles.details.skeleton.item"
+                :class="detailsSkeletonItemVariants()"
                 data-width="md"
               />
               <Skeleton
-                :class="detailsStyles.details.skeleton.item"
+                :class="detailsSkeletonItemVariants()"
                 data-width="xl"
               />
             </div>
-            <div :class="detailsStyles.details.skeleton.row">
+            <div :class="detailsSkeletonRowVariants()">
               <Skeleton
-                :class="detailsStyles.details.skeleton.item"
+                :class="detailsSkeletonItemVariants()"
                 data-width="lg"
               />
               <Skeleton
-                :class="detailsStyles.details.skeleton.item"
+                :class="detailsSkeletonItemVariants()"
                 data-width="md"
               />
             </div>
-            <div :class="detailsStyles.details.skeleton.totalRow">
+            <div :class="detailsSkeletonTotalRowVariants()">
               <Skeleton
-                :class="detailsStyles.details.skeleton.item"
+                :class="detailsSkeletonItemVariants()"
                 data-width="2xl"
               />
               <Skeleton
-                :class="detailsStyles.details.skeleton.item"
+                :class="detailsSkeletonItemVariants()"
                 data-width="3xl"
               />
             </div>
@@ -130,12 +146,13 @@
           <Button
             v-if="action && orderMeta.isComplete"
             size="lg"
-            :label="t(action)"
             :loading="actionProcessing"
             @click.stop="doAction"
-            :icon="!orderMeta.isAuthenticated ? 'arrow-left' : ''"
-            :icon-append="orderMeta.isAuthenticated ? 'arrow-right' : ''"
-          />
+          >
+            <Icon v-if="!orderMeta.isAuthenticated" icon="arrow-left" />
+            {{ t(action) }}
+            <Icon v-if="orderMeta.isAuthenticated" icon="arrow-right" />
+          </Button>
         </template>
       </OrderProducts>
     </template>
@@ -156,11 +173,12 @@
           v-if="!showGuestUpgrade"
           :title="t('auth.guest_register_title')"
           :description="t('auth.guest_register_description')"
-          icon="user-plus-01"
-          color="neutral"
+          variant="neutral"
           :action="{ label: t('action.register') }"
           @click="showGuestUpgrade = true"
-        />
+        >
+          <template #icon><Icon icon="user-plus-01" /></template>
+        </Alert>
         <Auth
           v-else
           no-tabs
@@ -187,36 +205,45 @@ import {
   validateTemplate,
   QUERY_PARAMS,
   ScopeActorTypes,
-  UIContext
+  UIContext,
+  type Badge
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-import {
-  useThemes,
-  Alert,
-  Button,
-  DescriptionList,
-  Skeleton,
-  useStyles,
-  type AlertProps,
-  type DescriptionItem,
-  type BadgeProps
-} from "@upmind-automation/upmind-ui";
+import { Button } from "@upmind/ui";
+import { DescriptionListRoot, DescriptionItem, Skeleton } from "@upmind/ui";
+import { Alert, type AlertProps } from "@upmind/ui";
 import { useAnnouncement } from "../../components/announcement/useAnnouncement";
 import Hero from "../../components/hero/Hero.vue";
+import { Icon } from "../../components/icon";
 import Section from "../../components/section/Section.vue";
 import PaymentDetails from "../payment/components/PaymentDetails.vue";
 import PaymentProcessing from "../payment/components/PaymentProcessing.vue";
 import Auth from "../session/components/Auth.vue";
+import { useThemes } from "../theming";
 import OrderProducts from "./components/OrderProducts.vue";
-import config from "./order.config";
 import OrderEnclosedTemplate from "./templates/OrderEnclosed.template.vue";
 import OrderFullTemplate from "./templates/OrderFull.template.vue";
 import OrderInsetTemplate from "./templates/OrderInset.template.vue";
 import OrderLTRTemplate from "./templates/OrderLTR.template.vue";
 import OrderRTLTemplate from "./templates/OrderRTL.template.vue";
 import { ORDER_TEMPLATE } from "./types";
-import { capitalize, first, get } from "lodash-es";
+import {
+  detailsTotalRootVariants,
+  detailsTotalLabelVariants,
+  detailsTotalValueVariants,
+  detailsSkeletonRootVariants,
+  detailsSkeletonRowVariants,
+  detailsSkeletonTotalRowVariants,
+  detailsSkeletonItemVariants
+} from "./variants";
+import { capitalize, first, get, omit } from "lodash-es";
 import type { OrderProps } from "./types";
+
+interface OrderItem {
+  term?: string;
+  description: string;
+  dataAttrs?: Record<string, string>;
+}
 
 //  --- templates
 
@@ -305,29 +332,34 @@ const template = computed(() =>
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));
 
-const badge = computed(() => {
+const badge = computed<Badge>(() => {
   if (orderMeta.value.isComplete)
     return {
       label: t("text.confirmed"),
       icon: "check-circle",
-      color: "success" as BadgeProps["color"]
+      variant: "success",
+      appearance: "outline"
     };
 
   return {
     label: t("text.pending"),
-    icon: "clock"
+    icon: "clock",
+    variant: "neutral",
+    appearance: "outline"
   };
 });
 
+// `icon` rides alongside the DS Alert props — it renders through the #icon slot
+// rather than a prop, so the template omits it when binding.
 const primaryAlert = computed<
-  (AlertProps & { onClick?: () => void }) | undefined
+  (AlertProps & { icon: string; onClick?: () => void }) | undefined
 >(() => {
   if (orderMeta.value.isLocked)
     return {
       title: t("invoice.order_locked"),
       description: t("invoice.order_locked_msg"),
       icon: "lock-03",
-      color: "neutral",
+      variant: "neutral",
       dataAttrs: {
         "data-test-key": "confirmation-payment-alert",
         "data-test-value": "locked"
@@ -338,7 +370,7 @@ const primaryAlert = computed<
       title: t("invoice.payment_retry"),
       description: errors.value?.message || t("invoice.payment_retry_msg"),
       icon: "alert-octagon",
-      color: "danger",
+      variant: "danger",
       action: {
         label: t("invoice.payment_retry_action")
       },
@@ -360,7 +392,7 @@ const primaryAlert = computed<
             amount: orderData.value?.summary.unpaidAmountFormatted
           }),
       icon: "calendar",
-      color: "warning",
+      variant: "warning",
       dataAttrs: {
         "data-test-key": "confirmation-payment-alert",
         "data-test-value": "due"
@@ -371,14 +403,14 @@ const primaryAlert = computed<
 });
 
 const secondaryAlert = computed<
-  (AlertProps & { onClick?: () => void }) | undefined
+  (AlertProps & { icon: string; onClick?: () => void }) | undefined
 >(() => {
   if (orderMeta.value.isPending)
     return {
       title: t("invoice.order_pending"),
       description: t("invoice.order_pending_msg"),
       icon: "clock",
-      color: "warning",
+      variant: "warning",
       action: {
         label: t("action.refresh"),
         disabled: orderMeta.value.isLoading
@@ -396,7 +428,7 @@ const secondaryAlert = computed<
         remaining_amount: orderData.value?.summary.unpaidAmountFormatted
       }),
       icon: "alert-octagon",
-      color: "warning",
+      variant: "warning",
       dataAttrs: {
         "data-test-key": "confirmation-payment-secondary-alert",
         "data-test-value": "outstanding"
@@ -440,16 +472,10 @@ const text = computed(() => {
   return t("invoice.order_placed_msg");
 });
 
-const detailsStyles = useStyles(
-  ["details.total", "details.skeleton"],
-  {},
-  config
-);
-
-const orderItems = computed((): DescriptionItem[] => {
+const orderItems = computed((): OrderItem[] => {
   if (!orderData.value) return [];
 
-  const items: DescriptionItem[] = [];
+  const items: OrderItem[] = [];
 
   if (orderData.value.number) {
     items.push({

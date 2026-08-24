@@ -4,11 +4,11 @@
       <Button
         size="sm"
         variant="subtle"
-        :label="invoice.id"
         @click.prevent="
           router.push({ name: 'invoice', query: { id: invoice.id } })
         "
       >
+        {{ invoice.id }}
       </Button>
     </div>
 
@@ -24,7 +24,7 @@ import {
   LAYOUT_VARIANTS,
   useActiveSession
 } from "@upmind-automation/client-vue";
-import { Button } from "@upmind-automation/upmind-ui";
+import { Button } from "@upmind/ui";
 
 // -----------------------------------------------------------------------------
 

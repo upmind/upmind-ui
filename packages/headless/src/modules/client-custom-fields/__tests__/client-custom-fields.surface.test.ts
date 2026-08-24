@@ -137,3 +137,42 @@ describe("client-custom-fields public surface (AC-27)", () => {
     }
   );
 });
+
+describe("AC-37 — the runtime scope matrix reaches createScopedComposable on both composables", () => {
+  it("useClientCustomFields carries CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX on the exported function, before any call", async () => {
+    const { useClientCustomFields } = await import("../useClientCustomFields");
+    const { CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX } =
+      await import("../client-custom-fields.types");
+
+    expect(
+      (useClientCustomFields as unknown as { scopeMatrix: unknown }).scopeMatrix
+    ).toEqual(CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX);
+  });
+
+  it("useClientCustomFieldImage carries CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX on the exported function, before any call", async () => {
+    const { useClientCustomFieldImage } =
+      await import("../useClientCustomFieldImage");
+    const { CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX } =
+      await import("../client-custom-fields.types");
+
+    expect(
+      (useClientCustomFieldImage as unknown as { scopeMatrix: unknown })
+        .scopeMatrix
+    ).toEqual(CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX);
+  });
+});
+
+describe("AC-28 — the request carries only what the client declared", () => {
+  it("client-custom-fields.services.ts declares the query schema and drops the dead params/sort literal", () => {
+    const source = readFileSync(
+      join(MODULE_DIR, "client-custom-fields.services.ts"),
+      "utf-8"
+    );
+
+    expect(source).toMatch(
+      /criteria:\s*\{\s*schema:\s*useQuerySchema\(\)\s*\}/
+    );
+    expect(source).not.toMatch(/\.\.\.params/);
+    expect(source).not.toMatch(/RequestSortDirection\.ASC,\s*"order"/);
+  });
+});

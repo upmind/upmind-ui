@@ -1,0 +1,55 @@
+<template>
+  <FormField v-bind="formFieldProps">
+    <Textarea
+      :max="safeMax"
+      :min="safeMin"
+      :model-value="control.data"
+      @update:modelValue="onInput"
+    />
+  </FormField>
+</template>
+
+<script lang="ts" setup>
+import { isStringControl, isMultiLineControl, and } from "@jsonforms/core";
+import { useJsonFormsControl } from "@jsonforms/vue";
+import { computed } from "vue";
+import { Textarea } from "@upmind/ui";
+import FormField from "../../FormField.vue";
+import { useUpmindUIRenderer } from "../utils";
+import { isNil } from "lodash-es";
+import type { ControlElement } from "@jsonforms/core";
+import type { RendererProps } from "@jsonforms/vue";
+import type { ComputedRef } from "vue";
+// -----------------------------------------------------------------------------
+const props = defineProps<RendererProps<ControlElement>>();
+
+const { control, appliedOptions, onInput, formFieldProps } =
+  useUpmindUIRenderer(useJsonFormsControl(props));
+
+const safeMin: ComputedRef<number | undefined> = computed(() => {
+  const applied = appliedOptions.value?.min;
+  if (!isNil(applied)) return applied;
+
+  const minimum = control.value?.schema?.minimum;
+  if (!isNil(minimum)) return minimum;
+
+  return undefined;
+});
+
+const safeMax: ComputedRef<number | undefined> = computed(() => {
+  const applied = appliedOptions.value?.max;
+  if (!isNil(applied)) return applied;
+
+  const maximum = control.value?.schema?.maximum;
+  if (!isNil(maximum)) return maximum;
+
+  return undefined;
+});
+</script>
+
+<script lang="ts">
+export const tester = {
+  rank: 2,
+  controlType: and(isStringControl, isMultiLineControl)
+};
+</script>

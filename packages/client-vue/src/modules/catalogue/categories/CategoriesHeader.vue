@@ -8,7 +8,7 @@
     "
     :title="title"
     :description="description"
-    :badge="props.badge as HeroProps['badge']"
+    :badge="props.badge"
     size="3xl"
     v-auto-animate
   >
@@ -23,11 +23,10 @@
 
 <script setup lang="ts">
 import { vAutoAnimate } from "@formkit/auto-animate";
-import { useSlots } from "vue";
-import { isEmptySlot } from "@upmind-automation/upmind-ui";
+import { useSlots } from "@upmind/ui";
 import Hero from "../../../components/hero/Hero.vue";
+import { isEmptySlot } from "../../../utils/isEmptySlot";
 import type { CategoriesItemProps } from "./types";
-import type { HeroProps } from "../../../components/hero/types";
 
 // -----------------------------------------------------------------------------
 

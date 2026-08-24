@@ -50,16 +50,15 @@ const alias: Alias[] = [
   // matched in order — so these stylesheet keys only bite while they sit ABOVE
   // the bare package entry below.
   {
-    find: "@upmind-automation/upmind-ui/styles",
-    replacement: resolve(root, "../../packages/ui/src/assets/styles/index.css")
+    find: "@upmind/ui/styles",
+    replacement: resolve(
+      root,
+      "../../design-system/packages/ui/src/styles/index.css"
+    )
   },
   {
-    find: "@upmind-automation/upmind-ui/vars",
-    replacement: resolve(root, "../../packages/ui/src/assets/styles/vars.css")
-  },
-  {
-    find: "@upmind-automation/upmind-ui",
-    replacement: resolve(root, "../../packages/ui/src/index.ts")
+    find: "@upmind/ui",
+    replacement: resolve(root, "../../design-system/packages/ui/src/index.ts")
   },
   {
     find: "@upmind-automation/client-vue/styles",

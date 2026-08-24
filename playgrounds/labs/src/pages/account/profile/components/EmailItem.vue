@@ -8,15 +8,15 @@
         {{ title }}
         <Badge
           v-if="meta?.isDefault"
-          variant="solid"
-          color="neutral"
+          appearance="solid"
+          variant="neutral"
           size="sm"
           :label="t('text.default_label')"
         />
         <Badge
           v-if="!meta?.isVerified"
-          variant="solid"
-          color="danger"
+          appearance="solid"
+          variant="danger"
           size="sm"
           :label="t('text.unverified_label')"
         />
@@ -29,8 +29,8 @@
           class="control-radius max-w-72 text-center text-xs"
         >
           <Badge
-            variant="solid"
-            color="warning"
+            appearance="solid"
+            variant="warning"
             size="sm"
             :label="t('text.bounced_label')"
           />
@@ -88,7 +88,7 @@
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { Badge, Link, Tooltip } from "@upmind-automation/upmind-ui";
+import { Badge, Link, Tooltip } from "@upmind/ui";
 import type { Email } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------

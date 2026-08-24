@@ -1,5 +1,5 @@
 <template>
-  <article :class="styles.product.option.root">
+  <article :class="productOptionRootVariants()">
     <BasketProductSummary :summary="summary">
       <!-- e.g. "Renews every month." or "One-time payment." -->
       {{
@@ -15,7 +15,7 @@
       :monthly-from-current-price="summary.price.monthlyFromCurrentPrice ?? ''"
       :free="summary.meta?.free ?? false"
       :ui-config="{
-        pricing: { current: [styles.product.pricing.current] }
+        pricing: { current: [productPricingCurrentVariants()] }
       }"
     />
   </article>
@@ -24,9 +24,11 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { parseBillingCycle } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
 import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";
-import config from "./basketProduct.config";
+import {
+  productOptionRootVariants,
+  productPricingCurrentVariants
+} from "./basketProduct.variants";
 import BasketProductSummary from "./components/BasketProductSummary.vue";
 import type { BasketProductSubItemProps } from "./types";
 // -----------------------------------------------------------------------------
@@ -34,6 +36,4 @@ import type { BasketProductSubItemProps } from "./types";
 defineProps<BasketProductSubItemProps>();
 
 const { t } = useI18n();
-
-const styles = useStyles(["product.option", "product.pricing"], {}, config);
 </script>

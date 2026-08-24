@@ -8,7 +8,7 @@
         <Back
           :label="meta.isInset ? t('action.back') : t('action.back_to_basket')"
           :icon="meta.isInset ? 'arrow-narrow-left' : undefined"
-          :size="meta.isInset ? 'md' : 'lg'"
+          size="md"
           :color="meta.isInset ? 'muted' : 'default'"
           @click.prevent="doReject"
         />
@@ -25,9 +25,9 @@
                   :to="props.registerRoute"
                   size="inherit"
                   color="inherit"
-                  :label="t('auth.login_description_action')"
                   class="font-normal"
-                />
+                  >{{ t("auth.login_description_action") }}</Link
+                >
               </template>
             </i18n-t>
           </template>
@@ -46,16 +46,16 @@
           value="log-in"
           icon="user-03"
           v-show="!isAuthenticated"
-          :class="styles.session.formWidth"
+          :class="sessionFormWidthVariants({ inset: meta.isInset })"
           :active="templateMeta.hasActiveSection"
         >
           <template v-if="meta.isInset" #actions>
             <Link
-              :label="t('action.create_account')"
               color="muted"
               size="sm"
               @click.prevent="doUpdate('register')"
-            />
+              >{{ t("action.create_account") }}</Link
+            >
           </template>
 
           <Markdown
@@ -64,7 +64,7 @@
             :model-value="loginTemplate.body"
           />
           <Auth
-            class="rounded-box w-full max-w-5xl items-start"
+            class="rounded-card w-full max-w-5xl items-start"
             no-tabs
             no-header
             model-value="login"
@@ -93,7 +93,7 @@
     >
       <Markdown
         tag="section"
-        :class="templateMeta.isSplit ? '' : styles.session.markdown"
+        :class="templateMeta.isSplit ? '' : markdownVariants()"
         :model-value="loginTemplate.body"
       />
     </template>
@@ -110,21 +110,20 @@ import {
   useBrand
 } from "@upmind-automation/headless";
 import {
-  useActiveSession,
   useBasket,
   useRoutingEngine,
+  useActiveSession,
   UIContext,
   ClientTemplateSlotCodes
 } from "@upmind-automation/headless";
-import { useThemes, useStyles } from "@upmind-automation/upmind-ui";
-import { Link, Markdown } from "@upmind-automation/upmind-ui";
+import { Link, Markdown } from "@upmind/ui";
 import Hero from "../../components/hero/Hero.vue";
 import Back from "../../components/navigation/Back.vue";
 import Section from "../../components/section/Section.vue";
 import Summary from "../basket/components/Summary.vue";
 import Loading from "../system/Loading.vue";
+import { useThemes } from "../theming";
 import Auth from "./components/Auth.vue";
-import sessionConfig from "./session.config";
 import { useSessionTemplates } from "./session.utils";
 import SessionCanvasCardTemplate from "./templates/SessionCanvasCard.template.vue";
 import SessionEnclosedTemplate from "./templates/SessionEnclosed.template.vue";
@@ -138,6 +137,7 @@ import {
   type SessionRoutes,
   SESSION_TEMPLATE
 } from "./types";
+import { markdownVariants, sessionFormWidthVariants } from "./variants";
 import { get } from "lodash-es";
 
 const supportedTemplates = {
@@ -166,14 +166,6 @@ const { isAuthenticated } = useActiveSession().useMeta();
 const { isReady } = useActiveSession().useActions();
 const { meta: basketMeta } = useBasket();
 const { navigateNext, navigateBack, navigate } = useRoutingEngine();
-
-const styles = useStyles(
-  ["session", "session.formWidth"],
-  computed(() => ({
-    template: template.value
-  })),
-  sessionConfig
-);
 
 const { ui } = useConfig({
   context: UIContext.AUTH,

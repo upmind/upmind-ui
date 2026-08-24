@@ -1,10 +1,10 @@
 import { sha1 } from "object-hash";
 import { ProductTypes } from "@upmind-automation/types";
+import { UIContext, type Benefit } from "../config";
 import {
   evaluateRules,
   buildConditionState
 } from "../config/config.conditions";
-import { UIContext, type Badge, type Benefit } from "../config/schema";
 import { useConfig } from "../config/useConfig";
 import {
   parseProductDetails,
@@ -324,9 +324,7 @@ export function parseRecommendation(
         ? [{ url: raw.image_url, alt: productDetails?.title }]
         : productDetails?.images,
       // --- additional ui data
-      badge: isString(raw?.badge)
-        ? ({ label: raw?.badge } as Badge)
-        : raw?.badge,
+      badge: isString(raw?.badge) ? { label: raw.badge } : raw?.badge,
       benefits: map(raw?.benefits, benefit =>
         isString(benefit) ? ({ label: benefit } as Benefit) : benefit
       )

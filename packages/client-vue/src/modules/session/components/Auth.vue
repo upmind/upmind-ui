@@ -16,17 +16,18 @@
       }"
       @reject="doReject"
     >
-      <div class="auth" :class="cn(styles.session.auth.root, props.class)">
+      <div class="auth" :class="cn(authRootVariants(), props.class)">
         <Alert
           v-if="hasErrors"
-          color="danger"
-          icon="alert-triangle"
+          variant="danger"
           :title="alertTitle"
           :description="errors"
           :data-attrs="{
             'data-test-value': 'auth'
           }"
-        />
+        >
+          <template #icon><Icon icon="alert-triangle" /></template>
+        </Alert>
 
         <Form
           :disabled="isAuthenticated"
@@ -42,7 +43,7 @@
           @resolve="doResolve"
           :autosave="show2fa"
           @update:model-value="set"
-          :class="styles.session.auth.form"
+          :class="authFormVariants({ show2fa })"
           :actions="formActions"
           :dataAttrs="{
             'data-test-key': 'session-form',
@@ -58,20 +59,15 @@
         </Form>
       </div>
 
-      <div
-        v-if="showLoginForm && !show2fa"
-        :class="styles.session.auth.actions"
-      >
+      <div v-if="showLoginForm && !show2fa" :class="authActionsVariants()">
         <slot name="toggle">
           <Link
             @click="toggleForm('recover')"
             color="muted"
-            :label="t('auth.forgot_password_qn')"
-            size="lg"
-            :dataAttrs="{
-              'data-test-key': 'forgot-password-link'
-            }"
-          />
+            size="sm"
+            :data-attrs="{ 'data-test-key': 'forgot-password-link' }"
+            >{{ t("auth.forgot_password_qn") }}</Link
+          >
         </slot>
       </div>
     </component>
@@ -86,27 +82,29 @@ import {
   ScopeActorTypes,
   useActiveSession,
   useAuth,
+  useRoutingEngine,
   type AuthModel
 } from "@upmind-automation/headless";
-import {
-  useStyles,
-  cn,
-  Interstitial,
-  Slot,
-  type FormActionProps
-} from "@upmind-automation/upmind-ui";
-import { Alert, Link } from "@upmind-automation/upmind-ui";
+import { Slot } from "@upmind/ui";
+import { cn, Interstitial, Link } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
 import Form from "../../../components/form/Form.vue";
+import { Icon } from "../../../components/icon";
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";
-import config from "../session.config";
 import { SESSION_FORMS } from "../types";
+import {
+  authRootVariants,
+  authFormVariants,
+  authActionsVariants
+} from "../variants";
 import { find, get, map } from "lodash-es";
+import type { FormActionProps } from "../../../components/form";
 import type { SessionProps } from "../types";
 // -----------------------------------------------------------------------------
 
 const emit = defineEmits(["resolve", "reject"]);
 const props = withDefaults(defineProps<Omit<SessionProps, "modelValue">>(), {
-  variant: "solid"
+  variant: "primary"
 });
 
 const modelValue = defineModel<SessionProps["modelValue"]>("modelValue", {
@@ -114,6 +112,7 @@ const modelValue = defineModel<SessionProps["modelValue"]>("modelValue", {
 });
 
 const { t } = useI18n();
+const { navigate } = useRoutingEngine();
 
 // --- Session for identity (authenticated flag drives form gating/disable)
 const session = useActiveSession();
@@ -133,18 +132,6 @@ const {
 } = auth.useMeta();
 const { errors, model, schema, uischema, validationErrors } = auth.useContext();
 const { reject, resolve, set, start } = auth.useActions();
-
-const styles = useStyles(
-  [
-    "session.auth",
-    "session.transitions.fade.enter",
-    "session.transitions.fade.leave"
-  ],
-  computed(() => ({
-    show2fa: show2fa.value
-  })),
-  config
-);
 
 const currentForm = computed<SESSION_FORMS>(() => {
   if (showLoginForm.value) return SESSION_FORMS.LOGIN;
@@ -308,7 +295,13 @@ function doResolve(model: unknown) {
 }
 
 function doReject() {
-  reject().then(() => emit("reject"));
+  reject().then(() => {
+    emit("reject");
+    // Form engine ignores an action's `to`, so navigate to the cancelRoute
+    // ourselves (the checkout overlay sets it to the basket).
+    const target = props.cancelRoute?.name?.toString();
+    if (target) navigate(target);
+  });
 }
 
 onMounted(() => {

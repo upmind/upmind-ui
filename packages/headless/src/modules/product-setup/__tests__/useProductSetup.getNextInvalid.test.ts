@@ -33,8 +33,9 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ref } from "vue";
+import { ref, type Ref } from "vue";
 import { useProductSetup } from "../useProductSetup";
+import type { BasketProduct } from "../../basket-product/basket-product.types";
 
 // -----------------------------------------------------------------------------
 // Boundary mocks (ADR-021 §unit tests mock their own boundaries). getNextInvalid
@@ -46,7 +47,7 @@ const h = vi.hoisted(() => ({
   // A real Vue ref is assigned per test in beforeEach (below) so the composable's
   // `watch(basketProducts, ...)` gets a valid source; the mock hands it back at
   // useBasket() call time.
-  basketProducts: null as any
+  basketProducts: null as Ref<BasketProduct[]> | null
 }));
 
 vi.mock("../../basket", () => ({
@@ -93,19 +94,19 @@ const productA = {
   id: "263",
   configuration: { productId: "260" },
   errors: [{ instancePath: "/provisionFields/sld" }]
-} as any;
+} as unknown as BasketProduct;
 
 const productB = {
   id: "265",
   configuration: { productId: "261" },
   errors: [{ instancePath: "/provisionFields/sld" }]
-} as any;
+} as unknown as BasketProduct;
 
 // An xstate actor for product A: getNextInvalid reads its base product id from
 // `state.context.model.productId` (260) — the id it must exclude from results.
 const actorForA = {
   state: { context: { model: { productId: "260" } } }
-} as any;
+} as unknown as BasketProduct;
 
 describe("useProductSetup.getNextInvalid — actor exclusion (FE-2796)", () => {
   beforeEach(() => {

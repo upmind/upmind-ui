@@ -28,8 +28,10 @@ import {
   map,
   reduce,
   replace,
+  size,
   sortBy,
   startCase,
+  sumBy,
   toLower,
   words
 } from "lodash-es";
@@ -138,11 +140,21 @@ function buildNavigationTree(sources: NavSource[]): Map<string, NavItem[]> {
     const bucketKey = nav.parent ?? nav.section ?? "Other";
     const items = bucket.get(bucketKey) ?? [];
 
-    items.push({ label: nav.label, icon: nav.icon, route, to, dynamic: false });
+    // Count scenarios for this item (registry-derived items have a `to` path)
+    const count = to ? 1 : undefined;
+
+    items.push({
+      label: nav.label,
+      icon: nav.icon,
+      route,
+      to,
+      dynamic: false,
+      count
+    });
     bucket.set(bucketKey, items);
   }
 
-  // Attach children to parent items
+  // Attach children to parent items and sum counts
   for (const [parentName, children] of childMap) {
     for (const [, items] of sectionMap) {
       for (const item of items) {

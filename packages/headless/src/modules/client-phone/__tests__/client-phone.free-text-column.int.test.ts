@@ -31,13 +31,11 @@
 
 import { describe, expect, it, vi } from "vitest";
 import { useClientPhones } from "..";
-import {
-  observeRequests,
-  seedClientSession
-} from "../../../__tests__/criteria-int-kit";
+import { observeRequests } from "../../../__tests__/criteria-int-kit";
 import {
   installPhonesHandler,
-  recordedNeedle
+  recordedNeedle,
+  seedClientSession
 } from "./client-phone.int-helpers";
 import { server } from "./setup.integration";
 
@@ -48,15 +46,15 @@ const RETRIES_SPENT_MS = 2000;
 
 describe("client-phone — a free-text search narrows the list", () => {
   it("leaves the collection readable and still holding rows", async () => {
-    const { clientId } = await seedClientSession(server);
+    const { clientId } = await seedClientSession();
     installPhonesHandler(server, clientId);
     const phones = useClientPhones();
-    await phones.isReady();
+    await phones.useActions().isReady();
 
     const needle = recordedNeedle();
     const observed = observeRequests(server, "/phones");
 
-    phones.setCriteria({ filters: { number: { like: needle } } } as never);
+    phones.useActions().filterBy({ number: { like: needle } });
 
     await vi.waitFor(() =>
       expect(observed.filterKeys().length).toBeGreaterThan(0)
@@ -66,7 +64,7 @@ describe("client-phone — a free-text search narrows the list", () => {
     await new Promise(resolve => setTimeout(resolve, RETRIES_SPENT_MS));
     observed.stop();
 
-    expect(phones.meta.value.hasError).toBe(false);
-    expect(phones.data.value.length).toBeGreaterThan(0);
+    expect(phones.useMeta().hasError.value).toBe(false);
+    expect(phones.useContext().data.value.length).toBeGreaterThan(0);
   });
 });

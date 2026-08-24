@@ -1,5 +1,8 @@
 <template>
-  <div :class="styles.payment.gateway">
+  <!-- NB: parity with the retired useStyles output — `styles.payment.gateway`
+       resolved to the no-op literal "root form" (the gateway cva object was
+       never path-requested here), so no gateway styling is applied. -->
+  <div class="root form">
     <Form
       v-model="model"
       :processing="meta.isProcessing"
@@ -12,9 +15,7 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
 import Form from "../../../components/form/Form.vue";
-import config from "../payment.config";
 import type { PaymentGatewaysProps } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -34,10 +35,4 @@ const meta = computed(() => {
     isProcessing: props.processing
   };
 });
-
-const styles = useStyles(
-  ["payment", "payment.accordion", "payment.accordion.trigger"],
-  meta,
-  config
-);
 </script>

@@ -22,9 +22,7 @@ async function selectCurrency(page: Page, code: string) {
   // Open the currency Combobox and pick the option by its stable
   // `currency-option-{code}` testid (currency code, locale-independent), then
   // confirm the selection via the value span's `data-test-value` code.
-  await footer.currencySelector
-    .getByTestId("currency-selector-trigger")
-    .click();
+  await footer.currencySelector.click();
   const option = page
     .getByTestId("currency-option")
     .and(page.locator(`[data-test-value="${code}"]`));
@@ -125,9 +123,7 @@ test.describe("Basket provision checks", () => {
       uploadThroughput: (50 * 1024) / 8
     });
     const skeleton = basket.subtotalSummary.locator(".animate-pulse").first();
-    await footer.currencySelector
-      .getByTestId("currency-selector-trigger")
-      .click();
+    await footer.currencySelector.click();
     await page
       .getByTestId("currency-option")
       .and(page.locator(`[data-test-value="USD"]`))

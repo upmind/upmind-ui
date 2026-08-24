@@ -31,7 +31,7 @@
 import { useI18n } from "vue-i18n";
 import { UpmSection } from "@upmind-automation/client-vue";
 import { usePersonalDetails } from "@upmind-automation/headless";
-import { Link } from "@upmind-automation/upmind-ui";
+import { Link } from "@upmind/ui";
 
 // -----------------------------------------------------------------------------
 

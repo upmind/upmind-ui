@@ -1,19 +1,22 @@
 <template>
   <Suspense>
     <Loading
+      :label="t('text.loading')"
       :active="!meta.isAvailable || !meta.hasSettings"
       class-active="h-full min-h-screen w-full text-base bg-canvas"
       id="vue-app"
       :transparent="false"
     >
       <Page v-if="meta.isAvailable && meta.hasSettings">
-        <Banner
+        <AnnouncementBar
           v-if="announcementVisible"
-          :text="announcement?.text"
-          :color="announcement?.type"
-          :icon="announcement?.icon"
-          @action="announcement?.onAction?.() ?? dismissAnnouncement()"
-        />
+          :label="t('text.announcement')"
+          :dismiss-label="t('action.dismiss')"
+          :variant="announcement?.type ?? 'danger'"
+          @dismiss="announcement?.onAction?.() ?? dismissAnnouncement()"
+        >
+          {{ announcement?.text }}
+        </AnnouncementBar>
 
         <slot name="header">
           <Header :logo="props.logo" :storefront-route="props.storefrontRoute">
@@ -70,15 +73,14 @@ export default {
 
 <script setup lang="ts">
 import { computed, nextTick, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
 import useUpmind, {
   UpmindStatus,
   useRoutingEngine
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-import { useThemes } from "@upmind-automation/upmind-ui";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import { Banner, Loading } from "@upmind-automation/upmind-ui";
+import { AnnouncementBar } from "@upmind/ui";
+import { Loading } from "@upmind/ui";
 import { useAnnouncement } from "./components/announcement/useAnnouncement";
 import Footer from "./components/footer/Footer.vue";
 import Header from "./components/header/Header.vue";
@@ -88,16 +90,16 @@ import Page from "./components/page/Page.vue";
 import Feedback from "./modules/feedback/Feedback.vue";
 import AsyncLoading from "./modules/system/Loading.vue";
 import UpmRouteView from "./modules/system/RouteView.vue";
-import { useTheme } from "./modules/theming";
-import { get } from "lodash-es";
+import { useTheme, useThemes } from "./modules/theming";
+import type { LoadingProps } from "./modules/system/types";
 import type { StorefrontRoute } from "./types";
-import type { InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
+const { t } = useI18n();
 const props = defineProps<{
   theme?: string;
   logo?: string;
-  loadingProps?: InterstitialProps;
+  loadingProps?: LoadingProps;
   storefrontRoute?: StorefrontRoute;
 }>();
 
@@ -110,7 +112,6 @@ const {
   dismiss: dismissAnnouncement
 } = useAnnouncement();
 const themeReady = ref(false);
-const route = useRoute();
 
 /**
  * Meta information about the Upmind app state
@@ -125,18 +126,6 @@ const meta = computed(() => ({
 }));
 
 const { ui } = useConfig();
-
-// add any page specific styles here based on route or other state
-const _styles = useStyles(
-  ["page"],
-  computed(() => {
-    return {
-      route: get(route, "name", get(route, "path", "")),
-      loading: !meta.value.isLoading,
-      available: meta.value.isAvailable
-    };
-  })
-);
 
 /**
  * Scroll to any anchor in the URL once the App is loaded and all awaits are complete

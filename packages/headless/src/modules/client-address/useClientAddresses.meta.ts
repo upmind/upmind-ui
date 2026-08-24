@@ -23,7 +23,12 @@ export function createClientAddressesMeta(
   service: ClientAddressServices,
   query: ClientAddressListQuery
 ) {
-  const hasError = computed(() => !!service.error.value || !!query.error.value);
+  const hasError = computed(
+    () =>
+      !!service.error.value ||
+      !!query.error.value ||
+      !!query.criteriaError.value
+  );
 
   const isEmptyList = computed(
     () => isEmpty(query.data?.value) || query.pagination.value.total == 0
@@ -57,6 +62,14 @@ export function createClientAddressesMeta(
 
     /** True if this scope has no addresses. */
     isEmpty: isEmptyList,
+
+    /**
+     * True while any declared filter column carries a value. Handed straight
+     * through from the query's published criteria — so an empty list that is
+     * empty BECAUSE it is filtered can say so, instead of both emptinesses
+     * reading the same.
+     */
+    isFiltered: query.isFiltered,
 
     /** True while the list is loading or has not completed its first fetch. */
     isLoading

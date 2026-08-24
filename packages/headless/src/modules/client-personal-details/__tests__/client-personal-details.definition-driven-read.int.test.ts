@@ -63,15 +63,14 @@ import { describe, expect, it } from "vitest";
 // See client-personal-details.read.int.test.ts's own note: the real
 // session-store must resolve before this module's barrel is imported, or the
 // transitive walk through ../scope crashes createScopedComposable mid-eval.
-// eslint-disable-next-line import/order
+import { usePersonalDetails } from "..";
+import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   installCustomFieldDefinitionsHandler,
   recorded,
   seedClientSession,
   type Envelope
 } from "./client-personal-details.int-helpers";
-import { usePersonalDetails } from "..";
-import { ScopeActorTypes } from "../../scope/scope.types";
 import { server } from "./setup.integration";
 import type { IClient } from "@upmind-automation/types";
 

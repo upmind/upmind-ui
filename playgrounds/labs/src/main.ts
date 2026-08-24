@@ -1,7 +1,6 @@
 import "./main.css";
 import { createApp } from "vue";
 import UpmindClient from "@upmind-automation/client-vue";
-import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
 import App from "./App.vue";
 import { registerFunnels } from "./funnels";
 import i18n from "./i18n";
@@ -54,10 +53,6 @@ UpmindClient.init({
 
 app.use(router);
 app.use(i18n);
-
-forEach(uiPlugins, ({ plugin, options }) => {
-  app.use(plugin, options);
-});
 
 forEach(UpmindClient.plugins, ({ plugin, options }) => {
   app.use(plugin, options);

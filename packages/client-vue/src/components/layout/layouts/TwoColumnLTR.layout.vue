@@ -104,9 +104,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, useSlots } from "vue";
-import { isMobile } from "@upmind-automation/upmind-ui";
-import { isEmptySlot } from "@upmind-automation/upmind-ui";
+import { computed } from "vue";
+import { useSlots } from "@upmind/ui";
+import { isMobile } from "../../../composables/isMobile";
+import { isEmptySlot } from "../../../utils/isEmptySlot";
 import {
   COLUMN_BACKGROUND,
   COLUMN_WIDTH,

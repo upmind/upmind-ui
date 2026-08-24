@@ -17,8 +17,8 @@
   <Suspense v-else @resolve="emits('resolve')">
     <!-- outer div isolates the items+tax pair from the parent's own flex gap;
          the inner one carries the per-mode item rhythm (cards vs dashed rows) -->
-    <div :class="styles.product.list">
-      <div :class="styles.product.items">
+    <div :class="productRootListVariants()">
+      <div :class="productRootItemsVariants({ card: !sectionCard })">
         <template v-for="product in products" :key="product.id">
           <BasketProduct
             v-bind="{ ...product, ...basketProductTestAttrs }"
@@ -39,7 +39,7 @@
         </template>
       </div>
 
-      <p v-if="meta.hasProducts" :class="styles.product.tax">
+      <p v-if="meta.hasProducts" :class="productRootTaxVariants()">
         {{
           includesTax
             ? t("text.prices_shown_include_taxes")
@@ -57,18 +57,24 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useBasketProducts, useBrand } from "@upmind-automation/headless";
-import { useStyles, useTestAttrs } from "@upmind-automation/upmind-ui";
+import { useTestAttrs } from "@upmind/ui";
 import { useSection } from "../../../../components/section/useSection";
-import config from "./basketProduct.config";
+import {
+  productRootTaxVariants,
+  productRootListVariants,
+  productRootItemsVariants
+} from "./basketProduct.variants";
 import BasketProduct from "./BasketProduct.vue";
 import BasketProductSkeletons from "./BasketProductSkeletons.vue";
 import { every, reduce, set } from "lodash-es";
 import type { BasketProductCardsProps } from "./types";
 
 // --- types
+
+const { card: sectionCard } = useSection();
 
 const props = withDefaults(defineProps<BasketProductCardsProps>(), {
   open: false
@@ -79,17 +85,6 @@ const emits = defineEmits(["update:open", "resolve"]);
 const { t } = useI18n();
 const { meta, products, updateQuantity, remove } = useBasketProducts();
 const { includesTax } = useBrand();
-
-const { card: sectionCard } = useSection();
-
-const styles = useStyles(
-  ["product.tax", "product.items", "product.list"],
-  computed(() => ({ card: !sectionCard.value })),
-  config
-);
-
-// --- test attrs
-
 const basketProductTestAttrs = useTestAttrs({ key: "basket-product" });
 
 const open = ref<Record<string, boolean>>(forceOpen(props.open));

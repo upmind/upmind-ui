@@ -2,6 +2,8 @@ import { test, expect } from "@playwright/test";
 import { URLs } from "../../support/constants/urls";
 import { products } from "../../support/constants/products";
 import { seedGuestBasket } from "../../support/flows/guest-checkout";
+import { addProductViaHeadless } from "../../support/flows/basket-setup";
+import { registerClientViaHeadless } from "../../support/flows/auth-setup";
 import {
   captureBrandSettings,
   interceptConfigValues
@@ -262,5 +264,69 @@ test.describe("Guest checkout", () => {
     // is gone: the upgrade form unmounts because `isGuestClient` flips to false
     // (a failed registration would keep the form, showing an inline error).
     await expect(guest.upgradeForm).toHaveCount(0, { timeout: 30000 });
+  });
+
+  /**
+   * FE-2943 — the two register-step criteria the recorded coverage above does
+   * NOT reach. The brand branches (offered when allowed / hidden when
+   * disallowed) are already discharged by the first two tests in this file and
+   * are deliberately not repeated here.
+   */
+  test.describe("FE-2943", () => {
+    // Scenario: Guest checkout is not offered to a visitor who is already
+    // signed in — C21. `canRegisterAsGuest` is the brand toggle ALONE: it
+    // carries no authentication term, so the same brand setting as the offered
+    // case (the first test in this file) must still yield no offer once the
+    // visitor holds a session. Only the session differs between the two.
+    test("Guest checkout is not offered to a visitor who is already signed in", async ({
+      page
+    }) => {
+      const guest = new GuestCheckout(page);
+
+      // Given the brand allows guest checkout — mocked ON, as the CTA-visibility
+      // tests above do: nothing here calls the server-enforced register/guest.
+      await interceptConfigValues(page, { guestCheckoutEnabled: true });
+
+      // And I am signed in as a registered customer
+      await page.goto(URLs.baseUrl);
+      await registerClientViaHeadless(page);
+
+      // And my basket contains a one-off product
+      await addProductViaHeadless(page, {
+        productId: products.HAT.id,
+        billingCycleMonths: products.HAT.billingCycle
+      });
+
+      // When I reach the register step
+      await page.goto(URLs.register);
+      // control-flow guard — the app booted and rendered a surface for the
+      // signed-in visitor, so the CTA's absence below is a decision rather than
+      // a blank page. NOTE: the route takes an authenticated visitor onward
+      // instead of showing them the register form, so this criterion is read as
+      // the OUTCOME it states ("never offered, whatever the brand allows"); the
+      // surface's own authentication term is not reachable from e2e here.
+      await expect(page.locator("[data-test-key]").first()).toBeVisible({
+        timeout: 15000
+      });
+
+      // ...and the APP itself sees a signed-in client, not an anonymous guest
+      // (`seedGuestBasket` asserts the actor is `guest` for a visitor with no
+      // session). Without this the assertion below could be read as a session
+      // that never took.
+      await expect
+        .poll(
+          () =>
+            page.evaluate(async () => {
+              const session = window.Upmind!.useActiveSession();
+              await session.useActions().isReady();
+              return session.useContext().actor.value;
+            }),
+          { timeout: 20000 }
+        )
+        .toBe("client");
+
+      // Then no guest checkout option is offered
+      await expect(guest.cta).toHaveCount(0);
+    });
   });
 });

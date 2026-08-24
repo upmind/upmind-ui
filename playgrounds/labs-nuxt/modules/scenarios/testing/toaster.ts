@@ -7,11 +7,11 @@
 
 import { flushPromises, mount } from "@vue/test-utils";
 import { nextTick } from "vue";
-import { Sonner, toast } from "@upmind-automation/upmind-ui";
+import { Toaster, toast } from "@upmind/ui";
 import { renderedStrings } from "./rendered";
 
 export function mountToaster() {
-  const toaster = mount(Sonner, { attachTo: document.body });
+  const toaster = mount(Toaster, { attachTo: document.body });
 
   // The outlet's own `aria-label` announces the region, not an outcome — read
   // the toast list rather than the landmark that wraps it.

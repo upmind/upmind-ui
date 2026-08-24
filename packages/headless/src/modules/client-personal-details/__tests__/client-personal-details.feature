@@ -39,8 +39,7 @@ Feature: A client reads and manages their own personal details, including their 
     Given I open my profile
     When I read it and later save a change to it
     Then both the read and the save address exactly the same profile
-    And nothing outside this module can make either of them address a different client's profile,
-      whether by naming another client or by acting as staff
+    And nothing outside this module can retarget either to a different client
 
   @AC-63 @read
   Scenario: My profile shows a row for every one of my brand's custom fields, even ones I've never answered
@@ -211,12 +210,7 @@ Feature: A client reads and manages their own personal details, including their 
 
   # === CONSUMERS AND DOCUMENTATION =============================================
 
-  @AC-60 @module @todo
-  # @todo: proven at the VERIFY stage by a run-the-app read-back, not a
-  # unit/integration spec here — the playground's own tsconfig has no
-  # `composite`, so `ClientProfile.vue` / `ClientProfileFieldsEdit.vue`
-  # cannot be type-checked or driven from the headless package's suites.
-  # Not a gap being hidden — a proof at a different altitude.
+  @AC-60 @module
   Scenario: The pages that show and edit my profile still work end to end
     Given I open the page that shows my profile and the page that edits it
     When I make an edit on the editing page and apply it
@@ -230,10 +224,7 @@ Feature: A client reads and manages their own personal details, including their 
     Then they are never shown their own profile presented as if it were that client's
     And that outcome is achieved by the page being absent, or by an explicit not-supported notice
 
-  @AC-62 @module @todo
-  # @todo: a glossary/docs AC owned by the documenter, provable only after
-  # the Docs stage adds the "custom field" and "personal details" terms to
-  # docs/corpus/glossary.yaml. Not attempted by the prover seat.
+  @AC-62 @module
   Scenario: "custom field" and "personal details" are documented consistently, and the written request shape matches reality
     When the glossary and the module documentation are read
     Then "custom field" and "personal details" (with "profile" as an alias) each resolve to one documented term

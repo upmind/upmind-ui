@@ -1,8 +1,8 @@
 import {
   parseVariants,
   type VariantValues
-} from "@upmind-automation/upmind-ui";
-import { variants } from "./product-hero.config";
+} from "../../../../utils/parseVariants";
+import { variants } from "./variants";
 import type { Product } from "@upmind-automation/headless";
 import type { UseMetaResult } from "@upmind-automation/headless";
 import type { HTMLAttributes } from "vue";

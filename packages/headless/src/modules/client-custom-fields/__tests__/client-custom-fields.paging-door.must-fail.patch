@@ -1,0 +1,39 @@
+# client-custom-fields.paging-door.must-fail.patch
+#
+# Targets: AC-34 (the paging door — `useActions().setCriteria` is the
+# platform's generic criteria door that lets a consumer set a page size
+# despite AC-33's mandatory `pagination.limit.default: 0`).
+# Authored by: developer seat (agent-seat-separation.companion.md — the seat
+# that knows the exact line it changed authors the mutant; the prover applies
+# it blind, confirms RED, then reverts — never reading src to construct it).
+#
+# Mutates: useClientCustomFields.actions.ts — replaces the published
+# `setCriteria: query.setCriteria,` member with a no-op stub
+# (`setCriteria: () => {}`). The call still exists on the returned actions
+# object (`typeof actions.setCriteria === "function"` still passes), but it
+# no longer reaches `query.setCriteria`, so it writes nowhere — the FE-2824
+# shape (declared, not delivered) reproduced for this one door.
+#
+# Expected RED: `client-custom-fields.paging-door.int.test.ts`'s assertion
+# that `setCriteria({ pagination: { limit: 5 } })` moves
+# `useContext().query.value.pagination.limit` to `5` and the outbound
+# request's `limit` param off the declared `0`. The stub swallows the call,
+# so both stay at the schema default no matter what a consumer passes.
+#
+# Apply / verify / revert:
+#   git apply <this file>                                    # mutate
+#   pnpm --filter @upmind-automation/headless test -- \
+#     src/modules/client-custom-fields/__tests__/client-custom-fields.paging-door.int.test.ts
+#   git apply -R <this file>                                  # revert — must return to green
+#
+--- a/packages/headless/src/modules/client-custom-fields/useClientCustomFields.actions.ts
++++ b/packages/headless/src/modules/client-custom-fields/useClientCustomFields.actions.ts
+@@ -245,7 +245,7 @@
+      * above. This is the door that sets the page size:
+      * `setCriteria({ pagination: { limit } })`.
+      */
+-    setCriteria: query.setCriteria,
++    setCriteria: () => {},
+
+     /** Re-orders the collection — the `sort` branch of the query model. */
+     sortBy

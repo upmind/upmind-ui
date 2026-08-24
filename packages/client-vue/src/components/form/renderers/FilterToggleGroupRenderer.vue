@@ -1,21 +1,20 @@
 <template>
-  <FormField
-    v-bind="formFieldProps"
-    :ui-config="{
-      form: {
-        field: 'flex-row flex-wrap items-center gap-3',
-        label: 'w-auto shrink-0',
-        control: 'w-auto'
-      }
-    }"
-  >
+  <FormField v-bind="formFieldProps">
     <ToggleGroup
-      :items="positions"
+      type="single"
       :model-value="selected"
       :disabled="!control.enabled"
       size="sm"
       @update:model-value="onPick"
-    />
+    >
+      <ToggleGroupItem
+        v-for="option in positions"
+        :key="option.value"
+        :value="option.value"
+      >
+        {{ option.label }}
+      </ToggleGroupItem>
+    </ToggleGroup>
   </FormField>
 </template>
 
@@ -28,15 +27,12 @@ import {
 } from "@jsonforms/core";
 import { useJsonFormsEnumControl } from "@jsonforms/vue";
 import { computed } from "vue";
-import {
-  FormField,
-  ToggleGroup,
-  useUpmindUIRenderer
-} from "@upmind-automation/upmind-ui";
+import { ToggleGroup, ToggleGroupItem } from "@upmind/ui";
+import FormField from "../engine/FormField.vue";
+import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import { find, get, isNil, map, reject, toString } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { ToggleGroupItem } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 /**
  * @module form/renderers/FilterToggleGroupRenderer
@@ -63,7 +59,7 @@ const { control, formFieldProps, handleChange } = useUpmindUIRenderer(
 );
 
 /** The DRAWN positions — the unset member is un-pressing, never a button. */
-const positions = computed<ToggleGroupItem[]>(() =>
+const positions = computed(() =>
   map(
     reject(control.value.options, option => isNil(option.value)),
     option => ({ value: toString(option.value), label: option.label })

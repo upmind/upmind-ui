@@ -5,7 +5,7 @@
  * (`packages/scenario-harness`, `steps.types.ts`), which is what a parsed
  * feature already hands out and what `useFeatureTracks` (T4.1) binds a `run`
  * onto — so a track's scenes pass straight through with no second shape. The
- * rail's own drawing is `@upmind-automation/upmind-ui`'s `Stepper`. See
+ * rail's own drawing is `@upmind/ui`'s `Stepper`. See
  * `graphify-out/GRAPH_REPORT.md`.
  */
 // -----------------------------------------------------------------------------

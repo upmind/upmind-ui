@@ -36,6 +36,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 // `import/order`'s parent-before-sibling default would undo this, so it is
 // disabled for the two lines it would otherwise reorder ahead.
 import {
+  ClientCustomFieldsContextTypes,
+  resolveFieldByValue,
+  useClientCustomFields
+} from "..";
+import { ScopeActorTypes } from "../../scope/scope.types";
+import {
   assertRetargetIdentityTransport,
   installDefinitionsHandler,
   observeRequests,
@@ -46,14 +52,6 @@ import {
   seedClientSession
 } from "./client-custom-fields.int-helpers";
 import { server } from "./setup.integration";
-// eslint-disable-next-line import/order
-import {
-  ClientCustomFieldsContextTypes,
-  resolveFieldByValue,
-  useClientCustomFields
-} from "..";
-// eslint-disable-next-line import/order
-import { ScopeActorTypes } from "../../scope/scope.types";
 import type { ICustomFieldValue } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -303,10 +301,10 @@ describe("client-custom-fields collection — AC-7 scoped invalidation, AC-8 cli
     await fields.useActions().isReady();
     const before = handler.reads();
 
-    // `filters.by` is declared `void` (a SETTER, not a return-the-filtered-
+    // `narrowBy` is declared `void` (a SETTER, not a return-the-filtered-
     // list accessor) — the exposed filtered list is read back through
     // `useContext().data`, per AC-8's own read-back.
-    fields.useActions().filters.by({ code: "age" });
+    fields.useActions().narrowBy({ code: "age" });
 
     expect(fields.useContext().data.value).toHaveLength(1);
     expect(fields.useContext().data.value[0].code).toBe("age");

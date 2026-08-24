@@ -228,7 +228,9 @@ test.describe("Recommendations", () => {
           await seedBasketProduct(page, products.STARTER_HOSTING);
           await page.goto(URLs.rec5);
           await productConfig.addToBasket.click();
-          await expect(page.getByTestId("basket-product").first()).toBeVisible();
+          await expect(
+            page.getByTestId("basket-product").first()
+          ).toBeVisible();
           await expect(page.getByTestId("carousel-card")).toHaveCount(0);
         });
 
@@ -238,7 +240,9 @@ test.describe("Recommendations", () => {
           await seedBasketProduct(page, products.FREE_HOSTING);
           await page.goto(URLs.rec6);
           await productConfig.addToBasket.click();
-          await expect(page.getByTestId("basket-product").first()).toBeVisible();
+          await expect(
+            page.getByTestId("basket-product").first()
+          ).toBeVisible();
           await expect(page.getByTestId("carousel-card")).toHaveCount(0);
         });
 
@@ -261,7 +265,9 @@ test.describe("Recommendations", () => {
           ]);
           await seedBasketProduct(page, products.FREE_HOSTING);
           await visitRecommendationsPage(page);
-          await expect(page.getByTestId("basket-product").first()).toBeVisible();
+          await expect(
+            page.getByTestId("basket-product").first()
+          ).toBeVisible();
           await expect(page.getByTestId("carousel-card")).toHaveCount(0);
         });
 
@@ -292,7 +298,9 @@ test.describe("Recommendations", () => {
           ]);
           await seedBasketProduct(page, products.STARTER_HOSTING);
           await visitRecommendationsPage(page);
-          await expect(page.getByTestId("basket-product").first()).toBeVisible();
+          await expect(
+            page.getByTestId("basket-product").first()
+          ).toBeVisible();
           await expect(page.getByTestId("carousel-card")).toHaveCount(0);
         });
       });

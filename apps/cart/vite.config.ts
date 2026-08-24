@@ -52,25 +52,29 @@ export default defineConfig(({ mode, command }) => {
           __dirname,
           "../../packages/headless/src/index.ts"
         ),
-        "@upmind-automation/upmind-ui/styles": resolve(
+        "@upmind/ui/styles": resolve(
           __dirname,
-          "../../packages/ui/src/assets/styles/index.css"
+          "../../design-system/packages/ui/src/styles/index.css"
         ),
-        "@upmind-automation/upmind-ui/vars": resolve(
+        "@upmind/ui": resolve(
           __dirname,
-          "../../packages/ui/src/assets/styles/vars.css"
+          "../../design-system/packages/ui/src/index.ts"
         ),
-        "@upmind-automation/upmind-ui": resolve(
+        "@upmind/tokens/css/tailwind.css": resolve(
           __dirname,
-          "../../packages/ui/src/index.ts"
+          "../../design-system/packages/tokens/dist/tailwind.css"
+        ),
+        "@upmind/tokens/css": resolve(
+          __dirname,
+          "../../design-system/packages/tokens/dist/index.css"
+        ),
+        "@upmind/tokens": resolve(
+          __dirname,
+          "../../design-system/packages/tokens/src/index.ts"
         ),
         "@upmind-automation/client-vue/styles": resolve(
           __dirname,
           "../../packages/client-vue/src/assets/styles/index.css"
-        ),
-        "@upmind-automation/client-vue/vars": resolve(
-          __dirname,
-          "../../packages/client-vue/src/assets/styles/vars.css"
         ),
         "@upmind-automation/client-vue": resolve(
           __dirname,

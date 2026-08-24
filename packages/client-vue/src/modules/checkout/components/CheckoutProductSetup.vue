@@ -16,7 +16,7 @@
          Mobile's narrow header can't fit both, so the name becomes the section
          title itself (as the standalone product-setup does) and the slot drops. -->
     <template v-if="productName && !isMobile" #actions>
-      <span :class="styles.checkout.setup.productName">{{ productName }}</span>
+      <span :class="setupProductNameVariants()">{{ productName }}</span>
     </template>
 
     <div v-auto-animate>
@@ -39,42 +39,40 @@
         v-if="!props.disabled && !setupMeta.isLoading"
         type="submit"
         form="setup-form"
-        :label="t('action.continue_label')"
         :loading="setupMeta.isProcessing"
-        color="primary"
+        variant="primary"
         size="lg"
-        :class="styles.checkout.setup.continue"
-      />
+        :class="setupContinueVariants()"
+      >
+        {{ t("action.continue_label") }}
+      </Button>
     </div>
   </Section>
 </template>
 
 <script lang="ts" setup>
 // --- external
+import { vAutoAnimate } from "@formkit/auto-animate";
 import { computed, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { vAutoAnimate } from "@formkit/auto-animate";
-
 // --- internal
 import { useProductSetup } from "@upmind-automation/headless";
-import config from "../checkout.config";
-import type { CheckoutProductSetupProps } from "../types";
-
 // --- components
-import { Button, useStyles, isMobile } from "@upmind-automation/upmind-ui";
+import { Button } from "@upmind/ui";
 import Section from "../../../components/section/Section.vue";
+import { isMobile } from "../../../composables/isMobile";
 import ProductSetupForm from "../../product-setup/components/ProductSetupForm.vue";
+import { setupContinueVariants, setupProductNameVariants } from "../variants";
 import CheckoutSetupSkeleton from "./CheckoutSetupSkeleton.vue";
-
 // --- utils
 import { isNil, some } from "lodash-es";
+import type { CheckoutProductSetupProps } from "../types";
 
 // -----------------------------------------------------------------------------
 
 const props = defineProps<CheckoutProductSetupProps>();
 
 const { t } = useI18n();
-const styles = useStyles(["checkout.setup"], {}, config);
 
 const {
   getNextRequiringSetup,

@@ -5,14 +5,16 @@
     size="lg"
     :disabled="props.disabled"
     :loading="props.loading"
-    :label="t('action.proceed_to_checkout')"
-    icon-append="arrow-right"
-    :dataAttrs="{ 'data-test-key': 'basket-checkout-button' }"
-  />
+    :data-attrs="{ 'data-test-key': 'basket-checkout-button' }"
+  >
+    {{ t("action.proceed_to_checkout") }}
+    <Icon icon="arrow-right" />
+  </Button>
 </template>
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { Button } from "@upmind-automation/upmind-ui";
+import { Button } from "@upmind/ui";
+import { Icon } from "../../../components/icon";
 import type { BasketCheckoutProps } from "./types";
 
 // --- types

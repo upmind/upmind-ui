@@ -1,0 +1,52 @@
+# client-custom-fields.declared-limit.must-fail.patch
+#
+# Targets: AC-33 (the collection's declared unpaged default — `limit: 0` —
+# reaches the wire on the first request; legacy parity, `customFields.vue:261-272`) —
+# client-custom-fields.criteria-defaults.int.test.ts:89-101, the
+# "AC-33 asks for the whole catalogue by default — limit=0 on the first
+# request" case.
+#
+# Authored by: developer seat (agent-seat-separation.companion.md — the seat
+# that knows the exact line it changed authors the mutant; the prover applies
+# it blind, confirms RED, then reverts — never reading src to construct it).
+#
+# REBASED (2026-08-22, developer seat, factory run) — the prior hunk's
+# context line read `offset: { type: "integer", minimum: 0 }`. This run
+# landed a `pagination.offset` default (`client-custom-fields.schemas.ts:113`
+# now reads `offset: { type: "integer", minimum: 0, default: 0 }`), so that
+# unchanged context line no longer matches the tree and `git apply` refuses
+# the hunk. This rebase updates ONLY the context line to the new offset
+# declaration; the mutated line is unchanged and still targets `limit`
+# alone — a sibling control already covers the offset default, so this
+# control stays scoped to `limit` to keep the two distinct.
+#
+# Mutates: client-custom-fields.schemas.ts — `useQuerySchema()`'s
+# `pagination.limit.default` from `0` to `10`, the exact value
+# `withPageWindow`'s own `PAGINATION.limit` (`query.utils.ts:71`) would
+# supply if this module declared no default at all (`design.md`, "the
+# mechanism this design relies on").
+#
+# Expected RED: the declared default no longer beats `withPageWindow`'s own
+# `PAGINATION.limit` merge distinctly — `useQuerySchema()`'s own
+# `pagination.limit.default` reads `10`, so a fresh boot's first request
+# carries `limit=10`. AC-33's read-back
+# (`observed.first().url.searchParams.get("limit") === "0"`, i.e.
+# `params.get("limit")` deep-equal to `DECLARED_LIMIT` in
+# client-custom-fields.criteria-defaults.int.test.ts) goes RED.
+#
+# Apply / verify / revert:
+#   git apply <this file>     # mutate
+#   pnpm test client-custom-fields.criteria-defaults.int.test.ts    # must go RED
+#   git apply -R <this file>  # revert — must return to green
+#
+--- a/packages/headless/src/modules/client-custom-fields/client-custom-fields.schemas.ts
++++ b/packages/headless/src/modules/client-custom-fields/client-custom-fields.schemas.ts
+@@ -109,7 +109,7 @@
+         // `minimum: 0`, not 1: `limit: 0` stays legal — this module's own
+         // unpaged default (legacy parity, see the docblock above).
+         properties: {
+-          limit: { type: "integer", minimum: 0, default: 0 },
++          limit: { type: "integer", minimum: 0, default: 10 },
+           offset: { type: "integer", minimum: 0, default: 0 }
+         }
+       }

@@ -1,5 +1,5 @@
 <template>
-  <div :class="styles.basketProduct.actions" v-if="product?.productDetails">
+  <div :class="basketProductActionsVariants()" v-if="product?.productDetails">
     <NumberField
       v-if="product?.productDetails?.quantifiable"
       :min="product.productDetails.min"
@@ -18,34 +18,35 @@
     <Button
       block
       type="submit"
-      color="primary"
-      :dataAttrs="{ 'data-test-key': 'button-confirm' }"
+      variant="primary"
+      :data-attrs="{ 'data-test-key': 'button-confirm' }"
       :loading="meta.isProcessing || isNavigating"
       :disabled="meta.isLoading || meta.isUnavailable"
-      :label="t('action.confirm')"
       size="lg"
       @click="doResolve"
-      icon-append="arrow-right"
-    />
+    >
+      {{ t("action.confirm") }}
+      <Icon icon="arrow-right" />
+    </Button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   useRoutingEngine,
   type Product,
   type UseProductConfigMeta
 } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import { Button, NumberField } from "@upmind-automation/upmind-ui";
-import config from "../basket-product.config";
+import { NumberField } from "@upmind/ui";
+import { Button } from "@upmind/ui";
+import { Icon } from "../../../components/icon";
+import { basketProductActionsVariants } from "../basket-product.variants";
 
 // --- types
 // -----------------------------------------------------------------------------
 
-const props = defineProps<{
+defineProps<{
   product: Product;
   meta: UseProductConfigMeta;
   template?: string;
@@ -55,12 +56,6 @@ const emits = defineEmits(["resolve", "update:quantity"]);
 
 const { t } = useI18n();
 const { isNavigating } = useRoutingEngine();
-
-const layout = computed(() => {
-  return props?.template;
-});
-
-const styles = useStyles(["basketProduct"], { layout }, config);
 
 // ---
 function updateQuantity(value: number | undefined) {

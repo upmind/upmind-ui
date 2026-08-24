@@ -6,6 +6,7 @@
  */
 
 export { default as ActionSlots } from "./ActionSlots.vue";
+export { default as ButtonItems } from "./ButtonItems.vue";
 export { default as ColumnPicker } from "./ColumnPicker.vue";
 export { default as ContextPanel } from "./ContextPanel.vue";
 export { default as DetailDialog } from "./DetailDialog.vue";

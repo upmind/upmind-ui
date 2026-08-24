@@ -3,21 +3,20 @@
     role="group"
     :aria-label="t('labs.transport')"
     data-test-key="transport"
-    :class="styles.transport.root"
+    :class="transport.root()"
   >
     <Tooltip
       v-for="control in controls"
       :key="control.key"
       :label="control.label"
+      active
     >
-      <Button
+      <ButtonItems
         icon-only
         size="sm"
-        variant="solid"
-        :color="control.color"
+        :variant="control.color"
         :icon="control.icon"
         :label="control.label"
-        :aria-label="control.label"
         :disabled="control.disabled"
         :loading="control.loading"
         :data-attrs="{
@@ -53,8 +52,9 @@
 
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { Button, Tooltip, useStyles } from "@upmind-automation/upmind-ui";
-import config from "./Transport.styles";
+import { Tooltip } from "@upmind/ui";
+import ButtonItems from "./ButtonItems.vue";
+import { transport } from "./Transport.styles";
 import { TRANSPORT_CONTROL } from "./Transport.types";
 import type {
   TransportControl,
@@ -132,6 +132,4 @@ function select(control: TransportControlItem): void {
   pressed.value = control.key;
   control.onSelect();
 }
-
-const styles = useStyles(["transport"], {}, config);
 </script>

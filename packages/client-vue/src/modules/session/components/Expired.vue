@@ -1,51 +1,104 @@
 <template>
-  <component
-    v-if="(modal && isOpen) || !modal"
-    :is="modal ? Dialog : 'div'"
-    :description="text"
-    :open="isOpen"
-    :size="size"
-    :title="title"
-    fit="cover"
-    no-close
-    no-header
-    no-footer
-    :dismissible="false"
-  >
-    <template #header>
-      <div />
-    </template>
+  <!-- Modal: a blocking dialog the user can't dismiss (session expired → must act) -->
+  <DialogRoot v-if="modal" :open="isOpen">
+    <DialogContent
+      :close-label="t('action.close')"
+      class="items-center gap-6 py-16 text-center"
+      hide-close
+      @escape-key-down.prevent
+      @pointer-down-outside.prevent
+      @interact-outside.prevent
+    >
+      <Avatar
+        size="lg"
+        class="size-20 p-2"
+        :ui="{ fallback: 'bg-primary text-primary-contrast' }"
+      >
+        <template #fallback>
+          <Icon :icon="avatar.icon ?? 'basket'" />
+        </template>
+      </Avatar>
 
-    <section :class="styles.session.expired.root">
-      <Avatar v-bind="avatar" />
+      <DialogTitle class="m-0 text-center text-3xl font-light text-inherit">
+        {{ title }}
+      </DialogTitle>
 
-      <h3 :class="styles.session.expired.title">{{ title }}</h3>
+      <DialogDescription
+        class="text-muted m-0 text-center text-sm leading-5 tracking-tight"
+      >
+        {{ text }}
+      </DialogDescription>
 
-      <p :class="styles.session.expired.text">{{ text }}</p>
-
-      <footer>
+      <footer v-if="hasAction">
         <Button
-          v-if="hasAction"
-          v-bind="action"
-          @click.stop="doAction"
+          :variant="action.color ?? 'primary'"
+          :disabled="action.disabled"
           :loading="processing"
           size="lg"
-        />
+          @click.stop="doAction"
+        >
+          <Icon v-if="action.icon" :icon="action.icon" />
+          {{ action.label }}
+        </Button>
       </footer>
-    </section>
-  </component>
+    </DialogContent>
+  </DialogRoot>
+
+  <!-- Inline: rendered bare when not used as a modal -->
+  <section
+    v-else
+    class="relative flex w-full flex-col flex-wrap items-center justify-center gap-6 py-16"
+  >
+    <Avatar
+      size="lg"
+      class="size-20 p-2"
+      :ui="{ fallback: 'bg-primary text-primary-contrast' }"
+    >
+      <template #fallback>
+        <Icon :icon="avatar.icon ?? 'basket'" />
+      </template>
+    </Avatar>
+
+    <h3 class="m-0 text-center text-3xl font-light text-inherit">
+      {{ title }}
+    </h3>
+
+    <p class="text-muted m-0 text-center text-sm leading-5 tracking-tight">
+      {{ text }}
+    </p>
+
+    <footer v-if="hasAction">
+      <Button
+        :variant="action.color ?? 'primary'"
+        :disabled="action.disabled"
+        :loading="processing"
+        size="lg"
+        @click.stop="doAction"
+      >
+        <Icon v-if="action.icon" :icon="action.icon" />
+        {{ action.label }}
+      </Button>
+    </footer>
+  </section>
 </template>
 
 <script lang="ts" setup>
 import { ref, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useActiveSession } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import { Avatar, Dialog, Button } from "@upmind-automation/upmind-ui";
-import config from "../session.config";
+import {
+  DialogContent,
+  DialogDescription,
+  DialogRoot,
+  DialogTitle
+} from "@upmind/ui";
+import { Avatar, Button } from "@upmind/ui";
+import { Icon } from "../../../components/icon";
 import { isEmpty, isFunction } from "lodash-es";
 import type { SessionExpiredProps } from "../types";
 // -----------------------------------------------------------------------------
 
+const { t } = useI18n();
 const props = withDefaults(defineProps<SessionExpiredProps>(), {
   modal: true,
   size: "2xl",
@@ -65,8 +118,6 @@ const props = withDefaults(defineProps<SessionExpiredProps>(), {
 });
 
 const { isExpired } = useActiveSession().useMeta();
-
-const styles = useStyles(["session.expired"], {}, config);
 
 const processing = ref(false);
 const isOpen = computed(() => isExpired.value && !props.action?.auto);

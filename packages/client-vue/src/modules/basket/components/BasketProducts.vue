@@ -5,12 +5,6 @@
     :icon="meta.icon"
     :border="false"
     :actions="meta.actions"
-    :ui-config="{
-      section: {
-        root: styles.basket.items.root,
-        content: styles.basket.items.content
-      } as any
-    }"
   >
     <slot name="products" :open="open">
       <ProductCards
@@ -36,15 +30,10 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRoute, type RouteLocationAsRelativeGeneric } from "vue-router";
 import { useBasketProducts } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import ConfigSkeleton from "../../product/components/ConfigSkeleton.vue";
 import Section from "../../../components/section/Section.vue";
 import ProductCards from "../../basket-product/components/card/BasketProductCards.vue";
-import config from "../basket.config";
 import BasketFieldsSection from "./BasketFieldsSection.vue";
-
 // --- types
 import type { BasketProductsProps } from "./types";
 
@@ -58,7 +47,6 @@ const emits = defineEmits(["resolve"]);
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const route = useRoute();
 
 const open = defineModel<boolean>("open", { default: false });
 
@@ -89,14 +77,4 @@ const meta = computed(() => {
     actions
   };
 });
-
-const layout = computed(() => {
-  return route?.meta?.template;
-});
-
-const styles = useStyles(
-  ["basket.expand", "basket.items", "basket.customFields", "basket.aside"],
-  { variant: layout.value },
-  config
-);
 </script>

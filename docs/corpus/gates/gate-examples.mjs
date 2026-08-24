@@ -114,12 +114,12 @@ function die(msg) {
 // reinvented, design §4 ethos).
 // ---------------------------------------------------------------------------
 const WORKSPACE_PACKAGES = [
-  { name: '@upmind-automation/types', dir: 'types' },
-  { name: '@upmind-automation/i18n', dir: 'i18n' },
-  { name: '@upmind-automation/headless', dir: 'headless' },
-  { name: '@upmind-automation/icons', dir: 'icons' },
-  { name: '@upmind-automation/upmind-ui', dir: 'ui' },
-  { name: '@upmind-automation/client-vue', dir: 'client-vue' },
+  { name: '@upmind-automation/types', dir: 'packages/types' },
+  { name: '@upmind-automation/i18n', dir: 'packages/i18n' },
+  { name: '@upmind-automation/headless', dir: 'packages/headless' },
+  { name: '@upmind-automation/icons', dir: 'packages/icons' },
+  { name: '@upmind/ui', dir: 'design-system/packages/ui' },
+  { name: '@upmind-automation/client-vue', dir: 'packages/client-vue' },
 ];
 
 // Every real package's own committed tsconfig(.build).json + the app-level
@@ -144,7 +144,7 @@ function collectAmbientTypes() {
   for (const t of readAmbientTypes(join(WORKSPACE_ROOT, 'tsconfig/vue-app.json'))) seen.add(t);
   for (const { dir } of WORKSPACE_PACKAGES) {
     for (const file of ['tsconfig.build.json', 'tsconfig.json']) {
-      for (const t of readAmbientTypes(join(WORKSPACE_ROOT, 'packages', dir, file))) seen.add(t);
+      for (const t of readAmbientTypes(join(WORKSPACE_ROOT, dir, file))) seen.add(t);
     }
   }
   return [...seen].sort();
@@ -302,7 +302,7 @@ function runTypeCheck() {
 
     const paths = {};
     for (const { name, dir } of WORKSPACE_PACKAGES)
-      paths[name] = [join(WORKSPACE_ROOT, 'packages', dir, 'src', 'index.ts')];
+      paths[name] = [join(WORKSPACE_ROOT, dir, 'src', 'index.ts')];
 
     // typeRoots: every workspace package's own node_modules/@types (pnpm's
     // isolated linking scopes each package's ambient devDependency types to its
@@ -312,7 +312,7 @@ function runTypeCheck() {
     // there, not under an `@types` directory — dropping this entry silently
     // breaks that resolution (verified empirically; do not remove).
     const typeRoots = [join(WORKSPACE_ROOT, 'node_modules', '@types'), join(WORKSPACE_ROOT, 'node_modules')];
-    for (const { dir } of WORKSPACE_PACKAGES) typeRoots.push(join(WORKSPACE_ROOT, 'packages', dir, 'node_modules', '@types'));
+    for (const { dir } of WORKSPACE_PACKAGES) typeRoots.push(join(WORKSPACE_ROOT, dir, 'node_modules', '@types'));
 
     const tsconfig = {
       extends: join(WORKSPACE_ROOT, 'tsconfig', 'vue-app.json'),

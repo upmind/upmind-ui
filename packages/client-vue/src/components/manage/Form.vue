@@ -1,10 +1,10 @@
 <template>
   <component
     v-if="modal || (!modal && open)"
-    :is="modal ? Dialog : 'section'"
+    :is="modal ? OverlayContainer : 'section'"
+    :type="modal ? 'modal' : undefined"
     v-model:open="open"
     size="3xl"
-    no-footer
     :title="t('action.add_new_or_update', !props.modelValue ? 1 : 0)"
   >
     <Skeleton
@@ -20,10 +20,11 @@
         :description="errors"
         :message="errors"
         :title="t('error.adding_or_updating', !props.modelValue ? 1 : 0)"
-        color="danger"
-        icon="alert-triangle"
+        variant="danger"
         class="mb-4"
-      />
+      >
+        <template #icon><Icon icon="alert-triangle" /></template>
+      </Alert>
 
       <UpmForm
         :dataAttrs="{ 'data-test-key': 'form-manage' }"
@@ -61,8 +62,11 @@
 <script setup lang="ts">
 import { onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { Alert, Dialog, useTestAttrs } from "@upmind-automation/upmind-ui";
+import { useTestAttrs } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
+import { Icon } from "../../components/icon";
 import UpmForm from "../form/Form.vue";
+import OverlayContainer from "../overlays/OverlayContainer.vue";
 import Actions from "./Actions.vue";
 import Skeleton from "./Skeleton.vue";
 import type { ManageRendererProps } from "./types";

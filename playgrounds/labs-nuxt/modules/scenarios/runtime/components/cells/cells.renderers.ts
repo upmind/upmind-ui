@@ -17,7 +17,7 @@
  */
 
 import { NOT_APPLICABLE } from "@jsonforms/core";
-import { registerEntry } from "@upmind-automation/upmind-ui";
+import { registerEntry } from "@upmind-automation/client-vue";
 import { CellSizingTypes } from "./cells.types";
 import TableCellBadges, { tester as badgesTester } from "./TableCellBadges.vue";
 import TableCellDate, { tester as dateTester } from "./TableCellDate.vue";

@@ -12,7 +12,7 @@
 
 e2e:allure:
   stage: test
-  image: mcr.microsoft.com/playwright:v1.54.2-noble
+  image: mcr.microsoft.com/playwright:v1.61.1-noble
   needs: [dependencies]
   interruptible: true
   rules:
@@ -150,7 +150,7 @@ e2e:allure:publish:
 #------------------------------------------------------------------------------
 e2e:full:
   stage: test
-  image: mcr.microsoft.com/playwright:v1.54.2-noble
+  image: mcr.microsoft.com/playwright:v1.61.1-noble
   needs: [dependencies]
   interruptible: true
   rules:

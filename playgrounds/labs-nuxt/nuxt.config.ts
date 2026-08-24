@@ -126,17 +126,13 @@ export default defineNuxtConfig({
       __dirname,
       "../../packages/scenario-harness/src/index.ts"
     ),
-    "@upmind-automation/upmind-ui/styles": resolve(
+    "@upmind/ui/styles": resolve(
       __dirname,
-      "../../packages/ui/src/assets/styles/index.css"
+      "../../design-system/packages/ui/src/styles/index.css"
     ),
-    "@upmind-automation/upmind-ui/vars": resolve(
+    "@upmind/ui": resolve(
       __dirname,
-      "../../packages/ui/src/assets/styles/vars.css"
-    ),
-    "@upmind-automation/upmind-ui": resolve(
-      __dirname,
-      "../../packages/ui/src/index.ts"
+      "../../design-system/packages/ui/src/index.ts"
     ),
     "@upmind-automation/client-vue/styles": resolve(
       __dirname,
@@ -201,6 +197,10 @@ export default defineNuxtConfig({
       compilerOptions: {
         noUncheckedIndexedAccess: false,
         skipLibCheck: true,
+        // The workspace packages are consumed as source and import with
+        // explicit .ts specifiers (the design-system lib's own barrel does);
+        // Nuxt generates its own tsconfig and does not inherit the baseline.
+        allowImportingTsExtensions: true,
         types: ["google.maps"],
         // Nuxt derives tsconfig `paths` from `alias` too, so the anchor above
         // covers Vite only — without this, types would resolve through
@@ -247,6 +247,10 @@ export default defineNuxtConfig({
           name: "description",
           content: "A playground showcasing the Upmind platform"
         }
+      ],
+      link: [
+        { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
+        { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }
       ]
     }
   },

@@ -135,8 +135,8 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { RouterLink, useRouter } from "vue-router";
-import { UpmLayout } from "@upmind-automation/client-vue";
-import { Button, Icon } from "@upmind-automation/upmind-ui";
+import { Icon, UpmLayout } from "@upmind-automation/client-vue";
+import { Button } from "@upmind/ui";
 import { useNavigation, type NavItem } from "../composables/useNavigation";
 
 // -----------------------------------------------------------------------------

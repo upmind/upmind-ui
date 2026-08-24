@@ -1,0 +1,350 @@
+<template>
+  <component
+    :is="as"
+    v-bind="props.dataAttrs"
+    :class="cn(formRootVariants(), props.class)"
+    :disabled="meta.isProcessing"
+    ref="form"
+    @submit.prevent="doSubmit"
+  >
+    <div :class="formWrapperVariants()">
+      <JsonForms
+        ref="jsonform"
+        :additionalErrors="additionalErrors"
+        :ajv="props.ajv as any"
+        :class="
+          formContentVariants({
+            disabled: meta.isDisabled,
+            processing: meta.isProcessing,
+            loading: meta.isLoading
+          })
+        "
+        :data="model"
+        :enabled="!meta.isDisabled"
+        :i18n="i18n"
+        :readonly="readonly"
+        :renderers="renderers"
+        :schema="schema"
+        :uischema="uischema"
+        :validationMode="mode"
+        @change="onChange"
+      />
+
+      <slot name="additional" v-bind="{ meta }"></slot>
+    </div>
+
+    <slot name="footer" v-bind="{ meta }"></slot>
+
+    <!-- actions -->
+    <div
+      v-if="actions && !noActions"
+      :class="
+        formActionsVariants({
+          disabled: meta.isDisabled,
+          processing: meta.isProcessing,
+          loading: meta.isLoading
+        })
+      "
+    >
+      <slot name="actions" v-bind="{ meta, doReject, doResolve: doSubmit }">
+        <Button
+          v-for="(action, key) in actions"
+          :key="key"
+          :variant="action.variant"
+          :size="action.size"
+          :block="action.block"
+          :type="action.type"
+          :loading="action.loading"
+          :disabled="action.disabled"
+          v-bind="action.dataAttrs"
+          @click="doAction(action, $event)"
+        >
+          <Icon v-if="action.icon" :icon="action.icon" />
+          {{ action.label }}
+        </Button>
+      </slot>
+    </div>
+  </component>
+</template>
+
+<script lang="ts" setup>
+import { JsonForms } from "@jsonforms/vue";
+import { useVModel } from "@vueuse/core";
+import { ref, watch, computed, onMounted, useTemplateRef } from "vue";
+import { isDeepEmpty } from "@upmind-automation/headless";
+import { Button, cn } from "@upmind/ui";
+import { Icon } from "../../icon";
+import { upmindUIRenderers } from "./renderers";
+import {
+  formRootVariants,
+  formWrapperVariants,
+  formContentVariants,
+  formActionsVariants
+} from "./variants";
+import { iterateSchema } from "./renderers/utils";
+import {
+  isEmpty,
+  isEqual,
+  isFunction,
+  isString,
+  mapValues,
+  merge,
+  get
+} from "lodash-es";
+import type {
+  FormProps,
+  FormActionProps,
+  FormActionsProps,
+  FormAdditionalProps,
+  FormFooterProps
+} from "./types";
+import type {
+  ValidationMode,
+  UISchemaElement,
+  JsonSchema
+} from "@jsonforms/core";
+import type { JsonFormsChangeEvent } from "@jsonforms/vue";
+import type { ErrorObject } from "ajv";
+// -----------------------------------------------------------------------------
+const props = withDefaults(defineProps<FormProps>(), {
+  as: "form",
+  // ---
+  modelValue: () => ({}),
+  additionalRenderers: () => [],
+  additionalErrors: () => [],
+  class: ""
+});
+
+const emits = defineEmits<{
+  reject: [];
+  resolve: [Record<string, unknown>];
+  "update:modelValue": [Record<string, unknown>];
+  "update:uischema": [JsonSchema];
+  "update:touched": [boolean];
+  valid: [boolean];
+  click: [{ model: Record<string, unknown>; meta: Record<string, unknown> }];
+  action: [
+    {
+      name: string;
+      model: Record<string, unknown>;
+      meta: Record<string, unknown>;
+    }
+  ];
+}>();
+
+const _slots = defineSlots<{
+  footer: FormFooterProps;
+  actions: FormActionsProps;
+  additional: FormAdditionalProps;
+}>();
+
+defineExpose({
+  submit: doSubmit,
+  reset: doReject
+});
+// --- state
+// ajv is injected by the client-vue Form.vue wrapper (headless useValidation)
+const form = useTemplateRef("form");
+const jsonform = useTemplateRef("jsonform");
+
+const baseModel = props.modelValue;
+const model = useVModel(props, "modelValue", emits, {
+  passive: true,
+  defaultValue: {}
+});
+const uischema = useVModel(props, "uischema", emits, {
+  passive: true
+});
+const errors = ref<ErrorObject[]>([]);
+const touched = useVModel(props, "touched", emits, {
+  passive: true,
+  defaultValue: !isEmpty(props.additionalErrors)
+});
+// ---
+
+const meta = computed(() => {
+  return {
+    canTranslate: !isEmpty(props.i18n),
+    isLoading: props.loading,
+    isProcessing: props.processing,
+    isPristine: isDeepEmpty(model.value),
+    isDirty: baseModel !== model.value,
+    isTouched: touched.value,
+    isValid: isEmpty(errors.value),
+    isDisabled: props.disabled || props.processing
+  };
+});
+
+const renderers = Object.freeze([
+  ...upmindUIRenderers,
+  ...props.additionalRenderers
+]);
+// --- computed
+const actions = computed<Record<string, FormActionProps>>(() => {
+  const defaultActions = {
+    submit: {
+      type: "submit",
+      label: "Save",
+      disabled: meta.value.isProcessing,
+      loading: meta.value.isProcessing,
+      handler: () => doSubmit()
+    } as FormActionProps,
+    reset: {
+      label: "Cancel",
+      variant: "ghost",
+      disabled: meta.value.isProcessing,
+      handler: () => doReject()
+    } as FormActionProps
+  };
+
+  let actions = props.actions || defaultActions;
+
+  return mapValues(actions, (action: FormActionProps) => {
+    return {
+      ...action,
+      loading:
+        action.needsValid && (meta.value.isProcessing || meta.value.isLoading),
+      disabled:
+        meta.value.isProcessing ||
+        action?.disabled ||
+        (action.needsValid && !meta.value.isValid)
+    };
+  }) as Record<string, FormActionProps>;
+});
+
+const mode = computed<ValidationMode>(() => {
+  // only show errors if we have interacted with the form
+  return meta.value.isTouched ? "ValidateAndShow" : "ValidateAndHide";
+});
+// --- methods
+function onChange({ data, errors: newErrors }: JsonFormsChangeEvent) {
+  errors.value = newErrors ?? [];
+  data ??= {};
+  model.value ??= {};
+
+  const isValid = isEmpty(errors.value);
+  emits("valid", isValid);
+
+  // finally check if the data has actually changed and emit the update event
+  // this json parse/stringify is a hack to do a deep compare and ignore functions/reactivity
+  const rawData = JSON.parse(JSON.stringify(data));
+  const rawModel = JSON.parse(JSON.stringify(model.value));
+
+  if (!isEqual(rawData, rawModel)) {
+    // touched.value = true;
+    model.value = data;
+    emits("update:modelValue", model.value);
+
+    // submit the form if it is valid and autosave is enabled
+    if (isValid && props.autosave) doSubmit();
+  }
+}
+
+function doAction(item: FormActionProps, $event: Event) {
+  touched.value = true;
+  $event.preventDefault(); // prevent default form actions as we are handling it ourselves
+
+  if (meta.value.isProcessing) {
+    return;
+  }
+
+  if (isFunction(item.handler)) {
+    item.handler({ model: model.value, meta: meta.value });
+    return;
+  }
+
+  if (isString(item.handler)) {
+    emits("action", {
+      name: item.handler,
+      model: model.value,
+      meta: meta.value
+    });
+    return;
+  }
+
+  // fallback for submit/reset
+  if (item.type === "submit") {
+    doSubmit();
+    return;
+  } else if (item.type === "reset") {
+    doReject();
+    return;
+  }
+
+  emits("click", { model: model.value, meta: meta.value });
+}
+
+function doSubmit() {
+  if (
+    // meta.value.isPristine ||
+    // !meta.value.isDirty ||
+    // !meta.value.isValid ||
+    meta.value.isProcessing
+  )
+    return; // safety check
+
+  touched.value = true;
+  emits("resolve", model.value);
+}
+
+function doReject() {
+  model.value = {};
+  emits("update:modelValue", model.value);
+  emits("reject");
+}
+
+function updateUischema(uischema: FormProps["uischema"]) {
+  if (!uischema) return;
+  iterateSchema(uischema, (child: FormProps["uischema"]) => {
+    if (!child) return; //safety check
+    child.options ??= {}; //safety check
+
+    // map the form size :- this is the only way to ensure that all children elements have the same size as the form
+    // child.options.size ??= props.size; // only set if not already set
+
+    // map additional i18n, json forms just does title & description
+    if (child?.i18n && isFunction(props?.i18n?.translate)) {
+      const value = props.i18n.translate(
+        child.i18n,
+        child?.options?.title,
+        model.value
+      );
+      merge(child.options, value);
+      if (props.optionalText) child.options.optionalText ??= props.optionalText;
+      if (props.requiredText) child.options.requiredText ??= props.requiredText;
+    }
+
+    // TODO: map additional form props that need to be inherited by all children
+    // eg: form size, show.hide required or optional indicators, etc
+    if (props.optionalText) child.options.optionalText ??= props.optionalText;
+    if (props.requiredText) child.options.requiredText ??= props.requiredText;
+  });
+}
+
+function syncUischema() {
+  // sync the uischema to the forms current uischema so that we ALWAYS have a uischema,
+  // this is important for us to be able to manipulate the form
+  const currentUischema: UISchemaElement = get(
+    jsonform.value,
+    "uischemaToUse"
+  ) as UISchemaElement;
+
+  if (!currentUischema) return;
+
+  uischema.value ??= currentUischema;
+}
+
+onMounted(() => {
+  syncUischema();
+  updateUischema(uischema.value);
+});
+// --- effects
+watch(
+  () => props,
+  ({ uischema, additionalErrors: _additionalErrors, touched: _touched }) => {
+    syncUischema();
+    updateUischema(uischema);
+  },
+  { deep: true }
+);
+</script>

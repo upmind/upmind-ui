@@ -30,7 +30,7 @@ import { createI18n } from "vue-i18n";
 import action from "@upmind-automation/i18n/core/action-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
-import { DropdownMenu } from "@upmind-automation/upmind-ui";
+import { DropdownMenu } from "@upmind/ui";
 import {
   SCENARIO_PLAYER_STATUS,
   SCENE_UNPLAYED

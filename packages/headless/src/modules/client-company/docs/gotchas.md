@@ -65,43 +65,56 @@ a named client's companies, that capability exists on the platform but not
 through this module; raise it with whoever owns this module's roadmap rather
 than assuming it will appear as a hidden option.
 
-## 2. `nextPage()` / `prevPage()` are on the surface, but cannot do anything today
+## 2. `nextPage()` / `prevPage()` need a page size before they have anywhere to go
 
-The collection mints its list query with an explicit "no page size" setting
-at construction, for every scope, unconditionally. With that setting, the
-query platform treats the request as returning exactly one page — there is no
-consumer-facing way to request a smaller page size instead, so `nextPage()`
-and `prevPage()` always find there is no other page to move to.
+The collection's query schema declares `pagination.limit` with `default: 0` —
+an unpaged, whole-collection read, for every scope, unconditionally — because
+both legacy consumers ask for exactly that
+(`billableEntitiesProvider.vue:191-203`, `clientCompanySelect.vue:110-114`).
+Under that default the query platform treats the request as returning exactly
+one page, so `nextPage()` and `prevPage()` find there is no other page to move
+to.
 
 ```ts
 const companies = useClientCompanies().as("client");
 const { hasNextPage } = companies.useMeta();
 
 await companies.useActions().isReady();
-console.log(hasNextPage.value); // false, always — see above
+console.log(hasNextPage.value); // false — the default is one unpaged page
 
-await companies.useActions().nextPage(); // settles; there is nowhere to go
+await companies.useActions().nextPage(); // settles; nowhere to go yet
 ```
 
-This is **not a regression introduced by this conversion** — the same
+**`setCriteria({ pagination: { limit } })` is the door that opens paging.**
+It is the platform's generic criteria door, publishing `query.setCriteria`
+directly — the same door `client-address` and `client-email-history` publish
+for the identical gap. Once a non-zero `limit` is set, `nextPage()` /
+`prevPage()` walk real pages and `hasNextPage` / `hasPrevPage` / `hasPages`
+track a real paged window:
+
+```ts
+await companies.useActions().setCriteria({ pagination: { limit: 2 } });
+console.log(hasNextPage.value); // reflects the real second page, once loaded
+
+await companies.useActions().nextPage(); // moves to offset=2, different rows
+await companies.useActions().prevPage(); // back to offset=0
+```
+
+This default is **not a regression introduced by this conversion** — the same
 "no page size" default was already the effective behaviour on both the legacy
-application and the pre-conversion headless module, both of which mount their
-list read the same way. It is documented here because it is easy to assume
-`hasNextPage` / `hasPrevPage` / `hasPages` are lying when they read `false` —
-they are not; they honestly describe the single page that exists under the
-collection's fixed configuration.
+application and the pre-conversion headless module. What changed is that there
+is now a consumer-facing door past it.
 
 > **🧪 For Testers:** Do not write a test that expects `nextPage()` to change
-> the visible rows through `useClientCompanies()` as constructed today — there
-> is no configuration path from a consumer to a non-zero page size. `pagination`
-> and the three `has*Page` flags are internally consistent with what the
-> platform returned; they are not consistent with an assumption that a large
-> collection is paged by default.
+> the visible rows through `useClientCompanies()`'s DEFAULT configuration —
+> `pagination.limit` starts at `0` on purpose. Do assert that
+> `setCriteria({ pagination: { limit } })` changes that: the wire carries
+> `limit=<N>&offset=0` immediately after, and a subsequent `nextPage()` moves
+> the `offset` on by `limit` and returns different recorded rows.
 
 Fixtures: `__tests__/fixtures/get-clients-id-companies-case-page-1.json`,
-`-page-2.json` demonstrate the platform's paging response shape when a page
-size _is_ requested directly against the endpoint — useful for understanding
-what the platform supports, not what this composable currently exposes.
+`-page-2.json` are the real recorded pages `setCriteria` + `nextPage()` /
+`prevPage()` walk once a page size is set.
 
 ## 3. `default()` returns an id, not a row
 

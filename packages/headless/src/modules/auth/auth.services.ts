@@ -80,6 +80,7 @@ export async function checkSession(
         session = first(values(clientSessions.value))?.token;
         break;
       case ScopeActorTypes.GUEST:
+      // eslint-disable-next-line scope-based/no-self-branch, no-fallthrough -- documented exception: getSession resolves SELF to any authenticated session (code-composables.companion.md clause 4); intentional fallthrough for GUEST/SELF/default
       case ScopeActorTypes.SELF:
       default:
         // Check for ANY authenticated session (staff first, then client)

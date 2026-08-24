@@ -1,5 +1,5 @@
 <template>
-  <div :class="styles.payment.stored.root">
+  <div :class="storedRootVariants()">
     <Form
       v-model="model"
       :processing="meta.isProcessing"
@@ -12,10 +12,10 @@
 
     <Alert
       v-if="meta.hasErrors"
-      color="warning"
-      icon="alert-triangle"
+      variant="warning"
       :title="t('text.payment_failed')"
     >
+      <template #icon><Icon icon="alert-triangle" /></template>
       <div class="mt-2 text-sm">
         <li class="my-0 py-0">
           {{ props.errors }}
@@ -28,10 +28,10 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import { Alert } from "@upmind-automation/upmind-ui";
+import { Alert } from "@upmind/ui";
 import Form from "../../../components/form/Form.vue";
-import config from "../payment.config";
+import { Icon } from "../../../components/icon";
+import { storedRootVariants } from "../variants";
 import type { StoredPaymentMethodProps } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -54,6 +54,4 @@ const meta = computed(() => {
     hasErrors: !!props.errors
   };
 });
-
-const styles = useStyles(["payment", "payment.stored"], meta, config);
 </script>

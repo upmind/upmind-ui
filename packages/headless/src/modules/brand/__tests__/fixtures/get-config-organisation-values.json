@@ -1,0 +1,61 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/config/organisation/values",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a2fa483fd9da8e38-LIS",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Sun, 23 Aug 2026 12:57:18 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=28D2EYxXGA4sbaSwkSyi6A8RCFoG76eMZAJ2CAAWTjgtlcchKE0JRZd3kTqm6e1lYC5P6HW6e%2FZBjUN75jqj%2FThm%2FZXnjj%2B05f2y454FCTYBJpHp3oUJV4vZ7HskJQ%2BVMo43nwy80A%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "package.enabled_features.multi_brand": true,
+        "package.enabled_features.product_provisioning": true,
+        "package.enabled_features.remove_upmind_branding": false,
+        "package.enabled_features.bulk_notifications": true,
+        "package.enabled_features.unlimited_payment_gateways": true,
+        "package.enabled_features.webhooks": true,
+        "package.enabled_features.unlimited_provisioning_configurations": true,
+        "package.enabled_features.create_user_api_tokens": true,
+        "package.enabled_features.multi_language": true,
+        "package.enabled_features.multi_currency": true,
+        "package.enabled_features.affiliate_platform": true
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-23T12:57:18.116Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "brand"
+  }
+}

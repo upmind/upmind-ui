@@ -1,6 +1,6 @@
 <template>
   <ModuleStateNotice v-if="notice" :state="notice" :detail="detail" />
-  <div v-else :class="styles.listSurface.root">
+  <div v-else :class="listSurface.root()">
     <!-- A rejected criteria write leaves the list VALID and showing its last
          good rows, so its verdict belongs beside the table, never in place of
          it: swapping the surface out would unmount the very controls that
@@ -16,7 +16,7 @@
          and Clear all (R6-16) — beside how it is drawn. The collection's own
          action is NOT among them: it belongs to the page, above this surface
          (G4). -->
-    <div v-if="meta.hasControls" :class="styles.listSurface.controls">
+    <div v-if="meta.hasControls" :class="listSurface.controls()">
       <FilterBar v-if="criteria" :criteria="criteria" :disabled="locked" />
       <!-- Ordering, the column set and the view choice sit with the data they
            change, in BOTH views — the same criteria, written through the same
@@ -41,7 +41,7 @@
       <div
         v-if="meta.isLoading || !meta.isEmpty"
         v-auto-animate
-        :class="styles.listSurface.cardGrid"
+        :class="listSurface.cardGrid()"
       >
         <!-- The placeholder is the CARD's own shape, field for field, so the
              layout that lands is the layout the user was waiting for (C8). -->
@@ -54,7 +54,7 @@
             <Skeleton
               v-for="element in cardElements"
               :key="element.scope"
-              :class="styles.listSurface.skeletonCard"
+              :class="listSurface.skeletonCard()"
             />
           </Card>
         </template>
@@ -71,9 +71,9 @@
               })
             "
           >
-            <header :class="styles.listSurface.cardHeader">
-              <div :class="styles.listSurface.cardLead">
-                <h3 :class="styles.listSurface.cardTitle">
+            <header :class="listSurface.cardHeader()">
+              <div :class="listSurface.cardLead()">
+                <h3 :class="listSurface.cardTitle()">
                   <CellDispatcher
                     v-for="element in cardSlot(CardSlotTypes.TITLE)"
                     :key="element.scope"
@@ -93,14 +93,14 @@
             <p
               v-for="element in cardSlot(CardSlotTypes.SUBTITLE)"
               :key="element.scope"
-              :class="styles.listSurface.cardSubtitle"
+              :class="listSurface.cardSubtitle()"
             >
               <CellDispatcher :element="element" :row="row" />
             </p>
 
             <div
               v-if="cardSlot(CardSlotTypes.BODY).length"
-              :class="styles.listSurface.cardBody"
+              :class="listSurface.cardBody()"
             >
               <CellDispatcher
                 v-for="element in cardSlot(CardSlotTypes.BODY)"
@@ -128,7 +128,7 @@
 
     <!-- The table is the FRAME: its headers stay through every state, and each
          state is drawn inside its body rather than in place of it (C8/C9). -->
-    <Table v-else-if="meta.hasTable" :class="styles.listSurface.table">
+    <Table v-else-if="meta.hasTable" :class="listSurface.table()">
       <TableHeader>
         <TableRow
           v-for="headerGroup in vueTable.getHeaderGroups()"
@@ -145,14 +145,12 @@
             @click="onHeaderSort(header.column)"
           >
             <template v-if="!header.isPlaceholder">
-              <Button
+              <ButtonItems
                 v-if="header.column.getCanSort()"
                 size="sm"
                 variant="ghost"
-                color="neutral"
-                :class="styles.listSurface.sortControl"
+                :class="listSurface.sortControl()"
                 :label="toString(header.column.columnDef.header)"
-                :icon-append="sortIcon(header.column.getIsSorted())"
                 :disabled="locked"
               />
               <span v-else>{{ header.column.columnDef.header }}</span>
@@ -160,7 +158,7 @@
           </TableHead>
           <TableHead
             v-if="meta.hasRowActions"
-            :class="styles.listSurface.actionsCell"
+            :class="listSurface.actionsCell()"
           />
         </TableRow>
       </TableHeader>
@@ -168,13 +166,13 @@
         <template v-if="meta.isLoading">
           <TableRow v-for="placeholder in SKELETON_ROWS" :key="placeholder">
             <TableCell v-for="element in columnElements" :key="element.scope">
-              <Skeleton :class="styles.listSurface.skeletonCell" />
+              <Skeleton :class="listSurface.skeletonCell()" />
             </TableCell>
             <TableCell
               v-if="meta.hasRowActions"
-              :class="styles.listSurface.actionsCell"
+              :class="listSurface.actionsCell()"
             >
-              <Skeleton :class="styles.listSurface.skeletonActions" />
+              <Skeleton :class="listSurface.skeletonActions()" />
             </TableCell>
           </TableRow>
         </template>
@@ -209,13 +207,13 @@
               "
             >
               <TableCell v-for="element in columnElements" :key="element.scope">
-                <div :class="styles.listSurface.cellContent">
+                <div :class="listSurface.cellContent()">
                   <CellDispatcher :element="element" :row="row.original" />
                 </div>
               </TableCell>
               <TableCell
                 v-if="meta.hasRowActions"
-                :class="styles.listSurface.actionsCell"
+                :class="listSurface.actionsCell()"
               >
                 <ActionSlots
                   icon-only
@@ -229,11 +227,11 @@
                  ring, so the two read as one record in an error state (E12/F4). -->
             <TableRow
               v-if="rowFailure(row.original)"
-              :class="styles.listSurface.failureRow"
+              :class="listSurface.failureRow()"
             >
               <TableCell
                 :colspan="columnCount"
-                :class="styles.listSurface.failureCell"
+                :class="listSurface.failureCell()"
               >
                 <RowFailure
                   :message="rowFailure(row.original) || ''"
@@ -252,18 +250,18 @@
          read-only — never blank. The DECLARATION drives it exactly as it drives
          the table, so the same columns are shown, under the same labels, and a
          property nobody declared is as absent here as it is there (C15). -->
-    <ul v-else :class="styles.listSurface.rowList">
+    <ul v-else :class="listSurface.rowList()">
       <li
         v-for="(row, index) in rows"
         :key="rowKey(row, index)"
         :aria-invalid="rowFailure(row) ? 'true' : undefined"
         :class="rowListItem({ isFailed: !!rowFailure(row) })"
       >
-        <div :class="styles.listSurface.rowListFields">
+        <div :class="listSurface.rowListFields()">
           <span
             v-for="element in columnElements"
             :key="element.scope"
-            :class="styles.listSurface.rowListField"
+            :class="listSurface.rowListField()"
           >
             <strong>{{ i18n.translate(element.i18n, element.i18n) }}</strong>
             <CellDispatcher :element="element" :row="row" />
@@ -278,7 +276,7 @@
         <RowFailure
           v-if="rowFailure(row)"
           :message="rowFailure(row) || ''"
-          :class="styles.listSurface.rowListFailure"
+          :class="listSurface.rowListFailure()"
           @dismiss="dismissRow(row)"
         />
       </li>
@@ -290,7 +288,7 @@
          order's reach, the muting says so, and the reason is the element's own
          title (`R6-23`). Geometry is untouched either way. -->
     <div
-      v-if="meta.hasTable && !meta.isEmpty && !meta.isLoading"
+      v-if="meta.hasPagination && !meta.isEmpty && !meta.isLoading"
       :class="paginationRegion({ isLocked: !!locked })"
       :aria-disabled="locked || undefined"
       :inert="locked || undefined"
@@ -301,14 +299,13 @@
       <Pagination
         :total="pagination.total ?? 0"
         :page="pagination.page"
-        :pages="pageCount"
-        :limit="pagination.perPage"
-        :pagination-info="
-          t('text.pagination_info', { page: '{page}', pages: '{pages}' })
-        "
-        @next="onPaginate(pagination.page + 1)"
-        @prev="onPaginate(pagination.page - 1)"
-      />
+        :items-per-page="pagination.perPage"
+        @update:page="onPaginate"
+      >
+        <template #info="{ page, pages }">
+          {{ t("text.pagination_info", { page, pages }) }}
+        </template>
+      </Pagination>
     </div>
 
     <ManageDialog
@@ -316,6 +313,7 @@
       :key="manageKey"
       :handoff="manage.handoff"
       :context="manage.context"
+      :field-scope="manage.fieldScope"
       @close="manage = undefined"
     />
 
@@ -382,7 +380,6 @@ import { useI18n } from "vue-i18n";
 import { useFormI18n } from "@upmind-automation/client-vue";
 import { SortDirection } from "@upmind-automation/headless";
 import {
-  Button,
   Card,
   Pagination,
   Skeleton,
@@ -392,9 +389,9 @@ import {
   TableEmpty,
   TableHead,
   TableHeader,
-  TableRow,
-  useStyles
-} from "@upmind-automation/upmind-ui";
+  TableRow
+} from "@upmind/ui";
+import ButtonItems from "../ButtonItems.vue";
 import { usePlaygroundUrlState } from "../../../../../app/composables/usePlaygroundUrlState";
 import {
   clearScenarioStage,
@@ -419,10 +416,11 @@ import { ModuleState } from "../module-state.types";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
 import { useActionFeedback } from "../useActionFeedback";
 import ListEmpty from "./ListEmpty.vue";
-import config, {
+import {
   dataCard,
   dataRow,
   headerCell,
+  listSurface,
   paginationRegion,
   rowGroup,
   rowListItem
@@ -601,9 +599,7 @@ function isMarked(row: ListRow): boolean {
 // A table needs BOTH the controlled channel and a declared column set: with
 // key-sniffing gone, a scenario that declares no table has none to draw and
 // degrades to the read-only list rather than rendering empty headers.
-const hasTable = computed(
-  () => !!props.table && !isEmpty(declaredColumns.value)
-);
+const hasTable = computed(() => !isEmpty(declaredColumns.value));
 
 const hasCardView = computed(
   () => hasTable.value && !isEmpty(cardElements.value)
@@ -870,6 +866,13 @@ function openHandoff(action: ScenarioAction, row?: ListRow): void {
       ? resolvePointer(row, handoff.context.from)
       : undefined;
 
+  // The declared handoff carries a `fieldScope.from` pointer; resolve it to the
+  // row's own field code, so the editor can narrow its uischema to that field.
+  const fieldScope =
+    handoff.fieldScope && row
+      ? toString(resolvePointer(row, handoff.fieldScope.from))
+      : undefined;
+
   manage.value = {
     handoff,
     // A context is only ever COMPLETE (`R6-30c`): no id off the row means a
@@ -877,7 +880,8 @@ function openHandoff(action: ScenarioAction, row?: ListRow): void {
     context:
       handoff.context && !isNil(id)
         ? { type: handoff.context.type, id: toString(id) }
-        : undefined
+        : undefined,
+    fieldScope: fieldScope || undefined
   };
 }
 
@@ -1166,8 +1170,7 @@ const meta = computed(() => ({
   hasRowActions: !isEmpty(filter(rowActions.value, isActionAvailable)),
   // Nothing to steer with and nothing to say about the collection is no cluster
   // at all — never an empty line of chrome above the records.
-  hasControls: !!props.criteria || hasTable.value
+  hasControls: !!props.criteria || hasTable.value,
+  hasPagination: !!props.table
 }));
-
-const styles = useStyles(["listSurface"], meta, config);
 </script>

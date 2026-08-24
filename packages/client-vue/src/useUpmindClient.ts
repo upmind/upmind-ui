@@ -1,16 +1,11 @@
 import useUpmind, { type UpmindProps } from "@upmind-automation/headless";
-import {
-  registerIcons,
-  registerAnimations,
-  type IconImportMap,
-  type AnimationImportMap
-} from "@upmind-automation/upmind-ui";
-import themes from "./assets/themes";
-import { isEmpty, keyBy, merge, values } from "lodash-es";
+import { registerAnimations, type AnimationImportMap } from "@upmind/ui";
+import { registerIcons, type IconImportMap } from "./components/icon";
+import { isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------
-// NB we expose UpmindClient instead of just useUpmind as we want to inject our defined themes
-// This allows for greater flexibility and customization when using the Upmind client
+// NB we expose UpmindClient instead of just useUpmind so the icon import map a
+// host passes is registered with the client-vue resolver before init.
 
 class UpmindClient {
   constructor() {}
@@ -26,14 +21,17 @@ class UpmindClient {
       animations?: AnimationImportMap;
     }
   ): Promise<void> {
-    // merge our client themes with any provided themes
-    props.themes = values(
-      merge({}, keyBy(themes, "id"), keyBy(props.themes, "id"))
-    );
+    // Icons resolve via the client-vue resolver (new <Icon>, flags/providers).
+    if (!isEmpty(props.icons)) {
+      registerIcons(props.icons);
+    }
 
-    // Register icons and animations if provided
-    if (!isEmpty(props.icons)) registerIcons(props.icons);
-    if (!isEmpty(props.animations)) registerAnimations(props.animations);
+    // AnimatedIcon self-registers the <lord-icon> element, but its animation
+    // registry is seeded only from the DS's bundled set — a host's own Lottie
+    // JSON is unresolvable unless registered here.
+    if (!isEmpty(props.animations)) {
+      registerAnimations(props.animations);
+    }
 
     return useUpmind.init(props);
   }

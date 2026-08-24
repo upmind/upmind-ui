@@ -257,7 +257,7 @@ describe("T1.3 colour vocabulary — token values only (S4 · G10 · AC10.2)", (
       map([...source.matchAll(HAND_WRITTEN_RING)], match => match[0]);
 
     expect(
-      matches('import { useInvalidRing } from "@upmind-automation/upmind-ui";')
+      matches('import { useInvalidRing } from "@upmind/ui";')
     ).toStrictEqual([]);
     expect(
       matches("const rowRing = useInvalidRing(styles.row);")

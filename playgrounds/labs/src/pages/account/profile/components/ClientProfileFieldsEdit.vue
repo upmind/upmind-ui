@@ -35,8 +35,8 @@ import {
   ScopeActorTypes,
   usePersonalDetailsManager
 } from "@upmind-automation/headless";
-import { Alert } from "@upmind-automation/upmind-ui";
-import type { FormActionProps } from "@upmind-automation/upmind-ui";
+import { Alert } from "@upmind/ui";
+import type { FormActionProps } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------
 
@@ -92,7 +92,7 @@ const actions = computed((): Record<string, FormActionProps> => {
       type: "submit",
       label: t("action.apply"),
       size: "lg",
-      color: "primary",
+      variant: "primary",
       needsValid: true
     },
     cancel: {

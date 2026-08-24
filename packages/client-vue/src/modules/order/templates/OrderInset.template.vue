@@ -33,7 +33,7 @@ import { useSection } from "../../../components/section/useSection";
 import InsetLayout from "../../../components/layout/layouts/Inset.layout.vue";
 
 // --- utils
-import { isMobile } from "@upmind-automation/upmind-ui";
+import { isMobile } from "../../../composables/isMobile";
 
 // -----------------------------------------------------------------------------
 

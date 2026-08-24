@@ -1,13 +1,12 @@
 <template>
-  <Root :class="styles.surfaceBox.root">
-    <div :class="styles.surfaceBox.container">
+  <Root :class="surfaceBoxRootVariants()">
+    <div :class="surfaceBoxContainerVariants()">
       <component
-        :is="card ? 'article' : Card"
-        :class="styles.surfaceBox.card"
-        size="lg"
+        :is="card ? 'article' : CardRoot"
+        :class="[surfaceBoxCardVariants(), { 'p-8 lg:p-18': !card }]"
       >
         <!-- Content Header -->
-        <section :class="styles.surfaceBox.contentHeader">
+        <section :class="surfaceBoxContentHeaderVariants()">
           <slot name="controls" />
           <slot name="navigation" />
           <slot name="actions" />
@@ -19,7 +18,7 @@
         <!-- Content -->
         <component
           :is="card ? 'div' : 'section'"
-          :class="styles.surfaceBox.content"
+          :class="surfaceBoxContentVariants()"
         >
           <slot name="content" />
           <slot name="default" />
@@ -30,12 +29,16 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import { Card } from "@upmind-automation/upmind-ui";
+import { CardRoot } from "@upmind/ui";
 import { useSection } from "../../section/useSection";
 import Root from "../components/root/Root.vue";
-import config from "../layout.config";
+import {
+  surfaceBoxRootVariants,
+  surfaceBoxContainerVariants,
+  surfaceBoxCardVariants,
+  surfaceBoxContentHeaderVariants,
+  surfaceBoxContentVariants
+} from "../variants";
 import type { VariantProps } from "../types";
 
 // --- components
@@ -43,8 +46,4 @@ import type { VariantProps } from "../types";
 defineProps<VariantProps>();
 
 const { card } = useSection();
-
-const meta = computed(() => ({}));
-
-const styles = useStyles(["surfaceBox"], meta, config);
 </script>

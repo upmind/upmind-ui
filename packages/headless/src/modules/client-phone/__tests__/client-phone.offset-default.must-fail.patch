@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-phone/client-phone.schemas.ts
++++ b/packages/headless/src/modules/client-phone/client-phone.schemas.ts
+@@ -180,7 +180,7 @@
+         additionalProperties: false,
+         properties: {
+           limit: { type: "integer", minimum: 0, default: 0 },
+-          offset: { type: "integer", minimum: 0, default: 0 }
++          offset: { type: "integer", minimum: 0 }
+         }
+       }
+     }

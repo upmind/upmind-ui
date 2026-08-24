@@ -1,13 +1,13 @@
 <template>
   <FormField v-bind="formFieldProps">
-    <Loading :active="meta.isLoading">
+    <Loading :label="t('text.loading')" :active="meta.isLoading">
       <FilePond
         v-bind="appliedOptions"
         :allow-multiple="false"
         :accepted-file-types="fileTypes"
         :max-files="1"
         :label-idle="labelText"
-        :class="styles.form.image"
+        class="text-muted rounded-field mb-4 border border-(--border-control) transition-all duration-300"
         max-file-size="5MB"
         stylePanelAspectRatio="0.2"
         stylePanelLayout="integrated"
@@ -25,16 +25,17 @@ import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import { onBeforeUnmount, computed } from "vue";
 import vueFilePond from "vue-filepond";
+import { useI18n } from "vue-i18n";
 import { useUpload } from "@upmind-automation/headless";
-import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import { FormField, Loading } from "@upmind-automation/upmind-ui";
-import config from "../form.config";
+import { Loading } from "@upmind/ui";
+import FormField from "../engine/FormField.vue";
+import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import "filepond/dist/filepond.min.css";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css";
 
+const { t } = useI18n();
 const FilePond = vueFilePond(
   FilePondPluginFileValidateType,
   FilePondPluginImagePreview
@@ -51,8 +52,6 @@ const {
 } = useUpmindUIRenderer(useJsonFormsControl(props));
 
 const { add, remove, stop, meta } = useUpload(appliedOptions.value.field);
-
-const styles = useStyles(["form.image"], {}, config);
 
 onBeforeUnmount(() => stop());
 
@@ -83,13 +82,13 @@ export const tester = {
 
 <style>
 .filepond--image-preview-wrapper {
-  border-radius: var(--control-radius) !important;
+  border-radius: var(--radius-slot-control) !important;
   border: 0;
 }
 
 .filepond--root {
   background-color: var(--color-control-surface) !important;
-  border-radius: var(--control-radius) !important;
+  border-radius: var(--radius-slot-control) !important;
 }
 
 .filepond--image-preview {

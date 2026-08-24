@@ -1,0 +1,27 @@
+Negative control for client-address-declaration.spec.ts (the binding claim).
+
+Withdraws BOTH composable channels from the declaration, leaving a page with
+nothing to boot. `useList` is required by today's contract and `useMutate` is
+optional, so "at least one" has no type expression and nothing but this
+assertion stands between a declaration naming neither and a page that renders
+an empty surface with no error. The `names at least one of useList / useMutate`
+assertion must therefore go RED.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Proven RED <YYYY-MM-DD> (`pnpm --filter @upmind-automation/labs-nuxt test <spec path>`):
+  x the declaration draws only what it declares > names at least one of useList / useMutate
+      -> AssertionError: expected false to be true
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/useClientAddresses/client-address.scenario.ts b/playgrounds/labs-nuxt/modules/scenarios/useClientAddresses/client-address.scenario.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/useClientAddresses/client-address.scenario.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/useClientAddresses/client-address.scenario.ts
+@@ -37,8 +37,6 @@ const SAVE_FEEDBACK = {
+
+ export default {
+   key: CLIENT_ADDRESSES_SCENARIO,
+-  useList: useClientAddresses,
+-  useMutate: useClientAddressManager,
+   persistCriteria: true,
+   // Both halves of the editor's job are the SAME editor: the record it opens on
+   // is what decides whether its save creates or updates, so `add` names no

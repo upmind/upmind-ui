@@ -1,6 +1,6 @@
 <template>
-  <div class="feedback" :class="styles.feedback.root">
-    <aside :class="styles.feedback.banners" v-auto-animate>
+  <div class="feedback" :class="rootVariants()">
+    <aside :class="bannersVariants()" v-auto-animate>
       <Message
         v-for="(notification, index) in notifications"
         :key="`error-notification-${index}`"
@@ -12,7 +12,8 @@
       />
     </aside>
 
-    <Sonner
+    <Toaster
+      data-test-key="sonner-toast"
       position="bottom-right"
       close-button
       rich-colors
@@ -39,12 +40,10 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { watch, ref } from "vue";
 import { useMessage, useFeedback } from "@upmind-automation/headless";
 import { messageTypes } from "@upmind-automation/headless";
-import { useStyles, toast } from "@upmind-automation/upmind-ui";
-import { Sonner } from "@upmind-automation/upmind-ui";
-import { TOAST_VARIANTS } from "@upmind-automation/upmind-ui";
+import { Toaster, toast } from "@upmind/ui";
 import Error from "../system/Error.vue";
 import Message from "./components/Message.vue";
-import config from "./feedback.config";
+import { rootVariants, bannersVariants } from "./variants";
 import { get, some, forEach } from "lodash-es";
 import type { StorefrontRoute } from "../../types";
 
@@ -53,7 +52,6 @@ const props = defineProps<{
   scheduled?: boolean;
   storefrontRoute?: StorefrontRoute;
 }>();
-const styles = useStyles(["feedback"], props, config);
 
 const { notifications, toasts, dismiss, system } = useFeedback();
 const activeToasts = ref<(string | number)[]>([]);
@@ -86,18 +84,19 @@ watch(toasts, toasts => {
   });
 });
 
+// vue-sonner data-type values the new Toaster styles on; neutral = no type.
 function getToastType(type: messageTypes) {
   switch (type) {
-    case messageTypes.ERROR:
-      return TOAST_VARIANTS.DANGER;
+    case messageTypes.DANGER:
+      return "error";
     case messageTypes.INFO:
-      return TOAST_VARIANTS.INFO;
+      return "info";
     case messageTypes.SUCCESS:
-      return TOAST_VARIANTS.SUCCESS;
+      return "success";
     case messageTypes.WARNING:
-      return TOAST_VARIANTS.WARNING;
+      return "warning";
     default:
-      return TOAST_VARIANTS.NEUTRAL;
+      return undefined;
   }
 }
 </script>

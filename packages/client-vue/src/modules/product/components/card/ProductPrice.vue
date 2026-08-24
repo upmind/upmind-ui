@@ -1,12 +1,12 @@
 <template>
   <section
-    :class="styles.product.header.price.root"
-    v-bind="priceDisplayTestAttrs"
+    :class="cardHeaderPriceRootVariants()"
+    data-test-key="product-card-price-display"
   >
     <template v-if="!hidePrice">
       <header
         v-if="meta?.discounted"
-        :class="styles.product.header.price.regularPrice"
+        :class="cardHeaderPriceRegularPriceVariants()"
       >
         <del>
           {{
@@ -20,13 +20,11 @@
         </del>
 
         <Badge
-          variant="minimal"
-          color="promo"
+          appearance="outline"
+          variant="promo"
           size="sm"
-          :dataAttrs="{
-            'data-test-key': 'promo-badge',
-            'data-test-value': price?.savingPercent ?? ''
-          }"
+          data-test-key="promo-badge"
+          :data-test-value="price?.savingPercent ?? ''"
         >
           {{
             t("action.save_value", {
@@ -38,7 +36,7 @@
 
       <header
         v-else-if="meta?.custom"
-        :class="styles.product.header.price.regularPrice"
+        :class="cardHeaderPriceRegularPriceVariants()"
       >
         <del>
           {{
@@ -51,17 +49,20 @@
           }}
         </del>
 
-        <Tooltip :label="t('text.price_manually_adjusted_msg')">
-          <Badge variant="minimal" color="warning" size="sm">
+        <Tooltip>
+          <Badge appearance="outline" variant="warning" size="sm">
             {{ t("text.custom_price") }}
           </Badge>
+          <template #content>{{
+            t("text.price_manually_adjusted_msg")
+          }}</template>
         </Tooltip>
       </header>
 
-      <p :class="styles.product.header.price.currentPrice.root">
+      <p :class="cardHeaderPriceCurrentPriceRootVariants()">
         <strong
-          :class="styles.product.header.price.currentPrice.amount"
-          v-bind="priceTestAttrs"
+          :class="cardHeaderPriceCurrentPriceAmountVariants()"
+          data-test-key="product-card-price"
           >{{
             formatPrice(currentPrice, {
               zeroPriceDisplayIsLabel: ui.zeroPriceDisplay.isLabel,
@@ -71,7 +72,7 @@
         >
 
         <small
-          :class="styles.product.header.price.currentPrice.term"
+          :class="cardHeaderPriceCurrentPriceTermVariants()"
           v-if="has(props, 'cycle') && props.cycle! > 0"
           v-bind="priceCycleTestAttrs"
           >/
@@ -91,8 +92,8 @@
         meta.useMonthlyFromPrice &&
         has(props, 'cycle')
       "
-      :class="styles.product.header.price.total"
-      v-bind="footerTestAttrs"
+      :class="cardHeaderPriceTotalVariants()"
+      data-test-key="product-card-footer"
     >
       {{
         t("term.summary_msg", {
@@ -112,13 +113,16 @@ import {
   useMoney,
   useConfig
 } from "@upmind-automation/headless";
+import { useTestAttrs } from "@upmind/ui";
+import { Badge, Tooltip } from "@upmind/ui";
 import {
-  useStyles,
-  useTestAttrs,
-  Badge,
-  Tooltip
-} from "@upmind-automation/upmind-ui";
-import config from "./card.config";
+  cardHeaderPriceRootVariants,
+  cardHeaderPriceRegularPriceVariants,
+  cardHeaderPriceCurrentPriceRootVariants,
+  cardHeaderPriceCurrentPriceAmountVariants,
+  cardHeaderPriceCurrentPriceTermVariants,
+  cardHeaderPriceTotalVariants
+} from "./variants";
 import { has } from "lodash-es";
 import type { ProductPriceProps } from "./types";
 
@@ -133,27 +137,6 @@ const { t } = useI18n();
 const { ui, data } = useConfig();
 const { formatPrice } = useMoney();
 
-const priceDisplayTestAttrs = useTestAttrs({
-  key: "product-card-price-display"
-});
-const priceTestAttrs = useTestAttrs({ key: "product-card-price" });
-const priceCycleTestAttrs = useTestAttrs({ key: "product-card-price-cycle" });
-const footerTestAttrs = useTestAttrs({ key: "product-card-footer" });
-
-const configMeta = computed(() => ({
-  //
-}));
-
-const styles = useStyles(
-  [
-    "product.header",
-    "product.header.price",
-    "product.header.price.currentPrice"
-  ],
-  configMeta,
-  config
-);
-
 const _regularPrice = computed(() => {
   if (props.meta?.useMonthlyFromPrice)
     return props.price?.monthlyFromRegularPrice;
@@ -167,4 +150,6 @@ const currentPrice = computed(() => {
 
   return props.price?.currentPrice;
 });
+
+const priceCycleTestAttrs = useTestAttrs({ key: "product-card-price-cycle" });
 </script>

@@ -29,6 +29,7 @@ import {
   OVERFLOW_TRIGGER_TEST_VALUE
 } from "../../__tests__/control-test-values";
 import { ListSurface } from "../index";
+import { getRow } from "./table-geometry";
 import { ActionPlacementTypes } from "../../../scenario.types";
 import { filter, keys, map, reject } from "lodash-es";
 import type { ScenarioAction } from "../../../scenario.types";
@@ -67,14 +68,12 @@ const mountList = () =>
 type Wrapper = ReturnType<typeof mountList>;
 
 const control = (wrapper: Wrapper, row: number, name: string) =>
-  wrapper
-    .findAll("li")
-    [row].find(`[data-test-value="${CONTROL_TEST_VALUE[name]}"]`);
+  getRow(wrapper, row).find(`[data-test-value="${CONTROL_TEST_VALUE[name]}"]`);
 
 const overflowTrigger = (wrapper: Wrapper, row: number) =>
-  wrapper
-    .findAll("li")
-    [row].find(`[data-test-value="${OVERFLOW_TRIGGER_TEST_VALUE}"]`);
+  getRow(wrapper, row).find(
+    `[data-test-value="${OVERFLOW_TRIGGER_TEST_VALUE}"]`
+  );
 
 /** Opens a row's overflow, then reports which declared actions it holds. */
 async function overflowItems(wrapper: Wrapper, row: number) {

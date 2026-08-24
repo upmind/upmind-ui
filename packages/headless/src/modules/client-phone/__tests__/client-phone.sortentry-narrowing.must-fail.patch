@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-phone/client-phone.types.ts
++++ b/packages/headless/src/modules/client-phone/client-phone.types.ts
+@@ -251,7 +251,7 @@
+  * `SortEntry` (this file) is narrowed IN PLACE from a bare `string`, not
+  * newly minted. See `graphify-out/GRAPH_REPORT.md`.
+  */
+-export type SortEntry = { field: "created_at"; dir: SortDirection };
++export type SortEntry = { field: string; dir: SortDirection };
+
+ /** The ordered sort model — the `sort` branch of {@link QueryModel}. */
+ export type SortModel = NonNullable<QueryModel["sort"]>;

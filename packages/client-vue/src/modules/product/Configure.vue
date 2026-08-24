@@ -17,11 +17,29 @@
         >
           <template #prepend>
             <Breadcrumb
-              v-if="productMeta?.isAvailable"
+              :more-label="t('text.more')"
+              v-if="productMeta?.isAvailable && breadcrumbItems.length"
               :items="breadcrumbItems"
-              :variant="configMeta.ui.breadcrumbs.value"
-              size="lg"
-            />
+              separator="/"
+            >
+              <template #item="{ crumb }">
+                <Link
+                  v-if="(!crumb.to && !crumb.href) || crumb.current"
+                  class="hover:text-muted! text-faint cursor-default no-underline hover:opacity-100!"
+                  size="md"
+                  tabindex="-1"
+                  ><Icon :icon="crumb.icon" /> {{ crumb.label }}</Link
+                >
+                <Link
+                  v-else
+                  :to="crumb.to"
+                  :href="crumb.href"
+                  :size="crumb.icon ? 'sm' : 'md'"
+                  color="muted"
+                  ><Icon :icon="crumb.icon" /> {{ crumb.label }}</Link
+                >
+              </template>
+            </Breadcrumb>
           </template>
         </ProductHero>
         <ProductHeroSkeleton v-else />
@@ -86,7 +104,7 @@
       <Section
         :label="t('text.configuration_summary')"
         icon="shopping-bag-02"
-        :class="styles.product.summary"
+        :class="productSummaryVariants()"
       >
         <slot
           name="pricing"
@@ -184,11 +202,11 @@
       <Alert
         class="w-full"
         v-if="externalErrors?.message"
-        color="danger"
-        variant="muted"
-        icon="alert-triangle"
+        variant="danger"
         :title="externalErrors?.message"
-      />
+      >
+        <template #icon><Icon icon="alert-triangle" /></template>
+      </Alert>
       <ConfigErrors
         :visible="productMeta?.showErrors"
         :errors="validationErrors"
@@ -226,14 +244,16 @@ import {
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { BreadcrumbVariant } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import { useThemes } from "@upmind-automation/upmind-ui";
-import { Breadcrumb, Markdown, Alert } from "@upmind-automation/upmind-ui";
-import { isMobile } from "@upmind-automation/upmind-ui";
-import { useTestAttrs } from "@upmind-automation/upmind-ui";
+import { useTestAttrs } from "@upmind/ui";
+import { Link, Markdown } from "@upmind/ui";
+import { Breadcrumb } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
+import { Icon } from "../../components/icon";
 import Section from "../../components/section/Section.vue";
+import { isMobile } from "../../composables/isMobile";
 import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
 import { PRODUCT_HERO_DIRECTION } from "../product/components/hero/types";
+import { useThemes } from "../theming";
 import ProductConfig from "./components/Config.vue";
 import ConfigErrors from "./components/ConfigErrors.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
@@ -245,15 +265,15 @@ import PricingSkeleton from "./components/pricing-list/PricingSkeleton.vue";
 import PricingTotal from "./components/pricing-list/PricingTotal.vue";
 import ProductActions from "./components/ProductActions.vue";
 import ProductNotFound from "./NotFound.vue";
-import config from "./product.config";
 import ProductEnclosedTemplate from "./templates/ProductEnclosed.template.vue";
 import ProductFullTemplate from "./templates/ProductFull.template.vue";
+import ProductInsetTemplate from "./templates/ProductInset.template.vue";
 import ProductLTRTemplate from "./templates/ProductLTR.template.vue";
 import ProductRTLTemplate from "./templates/ProductRTL.template.vue";
 import { PRODUCT_TEMPLATE } from "./types";
+import { productSummaryVariants } from "./variants";
 import { get, includes, take, isEmpty } from "lodash-es";
 import type { ConfigureProps } from "./types";
-import ProductInsetTemplate from "./templates/ProductInset.template.vue";
 
 const supportedTemplates = {
   [PRODUCT_TEMPLATE.FULL]: ProductFullTemplate,
@@ -347,10 +367,6 @@ const stylesMeta = computed(() => {
   };
 });
 
-const styles = useStyles("product", stylesMeta, config);
-
-const markdownTestAttrs = useTestAttrs({ key: "slots:summary-append" });
-
 const { items: breadcrumbItems } = useBreadcrumbs({
   categories: () => {
     const breadcrumb = product.value?.productDetails?.breadcrumb ?? [];
@@ -425,4 +441,6 @@ watch(
 );
 
 defineExpose({ product: () => product.value?.productDetails });
+
+const markdownTestAttrs = useTestAttrs({ key: "slots:summary-append" });
 </script>

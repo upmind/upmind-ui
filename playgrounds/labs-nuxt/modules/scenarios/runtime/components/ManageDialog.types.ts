@@ -6,7 +6,8 @@
  * @graphify-citation `graphify-out/graph.json` (2026-08-10, 6795 nodes) —
  * `ResolvedHandoff` is minted once in `runtime/scenario.types.ts` and consumed
  * here rather than re-declared, and the record it opens on is headless's own
- * `ScopeContext`. See `graphify-out/GRAPH_REPORT.md`.
+ * `ScopeContext`. The `fieldScope` member (2026-08-24) narrows the editor to
+ * one field. See `graphify-out/GRAPH_REPORT.md`.
  */
 
 import type { ResolvedHandoff } from "../scenario.types";
@@ -22,4 +23,10 @@ export type ManageDialogProps = {
    * pointer. Absent, the editor opens on a record that does not exist yet.
    */
   context?: ScopeContext;
+  /**
+   * Narrows the editor to ONE field — the field code resolved from the row.
+   * The editor draws only the control whose scope matches this field; absent,
+   * the full form renders.
+   */
+  fieldScope?: string;
 };

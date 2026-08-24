@@ -1,6 +1,6 @@
 --- a/packages/headless/src/modules/client-company/client-company.services.ts
 +++ b/packages/headless/src/modules/client-company/client-company.services.ts
-@@ -146,9 +146,6 @@ function loadList(
+@@ -140,9 +140,6 @@
      // instead of a raw 401. Must stay an `async` function — `list()` detects a
      // guard by `isPromise`, which tests for an AsyncFunction.
      guard: async () => {
@@ -10,7 +10,7 @@
        // Fetched here, ahead of the mapper: `mapCompany`'s `hasTaxValidation`
        // READS the brand config synchronously, and a read with nothing having
        // FETCHED it is whatever the brand store happens to hold (in-cell gap
-@@ -179,10 +176,6 @@ async function loadOne(
+@@ -173,10 +170,6 @@
    const { get: getOne, useUrl } = useQuery();
    const clientId = resolveClientId(scopeContext);
  
@@ -21,7 +21,7 @@
    return getOne<ICompany, Company>({
      queryKey: [...queryKey, { client: clientId.value }, id],
      url: useUrl(`clients/${clientId.value}/companies/${id}`, {
-@@ -335,10 +328,6 @@ async function add(
+@@ -333,10 +326,6 @@
  ): Promise<ICompany | undefined> {
    const clientId = resolveClientId(scopeContext);
  
@@ -32,7 +32,7 @@
    return ensureDependencies(model).then(ensured =>
      postCompany(ensured, scopeContext)
    );
-@@ -358,10 +347,6 @@ async function update(
+@@ -356,10 +345,6 @@
  ): Promise<ICompany | undefined> {
    const clientId = resolveClientId(scopeContext);
  
@@ -43,7 +43,7 @@
    return ensureDependencies(model).then(ensured =>
      putCompany(id, ensured, scopeContext)
    );
-@@ -379,10 +364,6 @@ async function ensure(
+@@ -377,10 +362,6 @@
    const { t } = useI18n();
    const clientId = resolveClientId(scopeContext);
  
@@ -51,10 +51,10 @@
 -    return Promise.reject(new NotAuthenticatedError());
 -  }
 -
-   const query = loadList(undefined, scopeContext);
+   const query = loadList(scopeContext);
    await query.promise.value.finally();
  
-@@ -432,10 +413,6 @@ async function remove(
+@@ -430,10 +411,6 @@
    const { del, useUrl } = useQuery();
    const clientId = resolveClientId(scopeContext);
  
@@ -65,7 +65,7 @@
    return del<null>({
      mutationKey: [...queryKey, id, "remove"],
      url: useUrl(`clients/${clientId.value}/companies/${id}`),
-@@ -458,10 +435,6 @@ async function setDefault(
+@@ -456,10 +433,6 @@
    const { put, useUrl } = useQuery();
    const clientId = resolveClientId(scopeContext);
  
@@ -76,7 +76,7 @@
    return put<ICompany>({
      mutationKey: [...queryKey, id, "default"],
      url: useUrl(`clients/${clientId.value}/companies/${id}`),
-@@ -488,10 +461,6 @@ async function loadLookups(
+@@ -486,10 +459,6 @@
  ): Promise<Partial<CompanyContext>> {
    const clientId = resolveClientId(scopeContext);
  
@@ -84,12 +84,12 @@
 -    return Promise.reject(new NotAuthenticatedError());
 -  }
 -
-   const {
-     isReady: getPhones,
-     default: defaultPhone,
+   const clientPhones = useClientPhones().as(ScopeActorTypes.SELF);
+   const { isReady: getPhones } = clientPhones.useActions();
+   const { default: defaultPhone, data: phones } = clientPhones.useContext();
 --- a/packages/headless/src/modules/client-company/useClientCompanies.actions.ts
 +++ b/packages/headless/src/modules/client-company/useClientCompanies.actions.ts
-@@ -102,8 +102,6 @@ export function createClientCompaniesActions(
+@@ -102,8 +102,6 @@
    async function refresh(): Promise<void> {
      // TanStack's `refetch()` resolves with the error on the result rather than
      // rejecting, so a forced read has to be wrapped to reject at all.
@@ -100,7 +100,7 @@
    }
 --- a/packages/headless/src/modules/client-company/useClientCompanyManager.actions.ts
 +++ b/packages/headless/src/modules/client-company/useClientCompanyManager.actions.ts
-@@ -100,13 +100,6 @@ export function createClientCompanyManagerActions(
+@@ -150,13 +150,6 @@
    async function update(
      value?: CompanyModel | Record<string, unknown>
    ): Promise<CompanyModel> {

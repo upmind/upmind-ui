@@ -1,14 +1,13 @@
-import { ref, watch } from "vue";
+import { watch } from "vue";
 import { invalidateQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope/scope.registry";
 import { useActiveSession } from "../session-store";
 import { NotAuthenticatedError } from "../../utils";
-import { set } from "lodash-es";
 import type {
   ClientAddressListQuery,
-  ClientAddressServices
+  ClientAddressServices,
+  SortModel
 } from "./client-address.types";
-import type { RequestFilters } from "../query";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
@@ -137,13 +136,63 @@ export function createClientAddressesActions(
   }
 
   // --- filters
-  const filters = ref<RequestFilters & { query?: string }>({});
-
-  /** Applies a free-text filter and re-issues the list request. */
+  /**
+   * Applies a free-text filter and re-issues the list request. Writes through
+   * the collection's declared query CRITERIA — `filters.name.like` — rather
+   * than a raw, undeclared filter object; the pre-M3 `query.filter(...)` call
+   * this replaces named a method `ListQuery` never declared (dead since the
+   * M2 → M3 upgrade wired `loadList()` through the criteria/schema channel;
+   * see `client-address.services.ts`'s `loadList`).
+   */
   function filterQuery(value?: string): void {
-    set(filters.value, "query", value);
-    query.filter(filters.value);
+    query.setCriteria({ filters: { name: { like: value ?? null } } });
   }
+
+  /**
+   * @decision nested-filters-seam
+   * what: `filters: { query: filterQuery }` stays NESTED rather than
+   *   flattening to a bare `filterBy(intent)` matching `client-email`'s shape.
+   * why: this is the module's ONE declared filter column (`name.like`), a raw
+   *   string rather than a `FilterModel` intent object — `client-email`'s flat
+   *   `filterBy(intent: FilterModel)` shape exists to dispatch AMONG several
+   *   declared filter columns, a problem this module does not have.
+   * rejected: a flat `filterBy(intent: FilterModel)` mirroring `client-email`
+   *   exactly — would wrap the one raw string in an intent-object shape built
+   *   to disambiguate among several filter columns, adopting `client-email`'s
+   *   multi-filter shape onto a module with only one.
+   */
+
+  /**
+   * Applies a sort INTENT — the `sort` branch of the one query model, so
+   * `filters` and `pagination` are untouched. Mirrors `client-email`'s
+   * `sortBy`.
+   */
+  function sortBy(intent: SortModel): void {
+    query.setCriteria({ sort: intent });
+  }
+
+  /**
+   * @decision setCriteria-mirrors-client-email-history
+   * what: publishes `setCriteria: query.setCriteria` — the platform's
+   *   generic, schema-governed write verb, merging any of `filters` / `sort`
+   *   / `pagination` into the ONE query model — alongside the module's
+   *   existing typed `filters.query` / `sortBy` adapters. This is the door a
+   *   consumer calls to set the page size: `setCriteria({ pagination: {
+   *   limit } })`.
+   * why: `client-email` — the named oracle for this module's query layer —
+   *   publishes NO page-window door at all: `nextPage`/`prevPage` move the
+   *   query's OWN `pagination.offset`, but nothing sets `pagination.limit`,
+   *   so with the schema's declared default staying `0` (deliberate — the
+   *   billing surfaces and ten importers read the whole collection), the
+   *   pager has no reachable path. `client-email-history` — same family,
+   *   same declared `limit: 0`, same pager — is the real precedent: it
+   *   already publishes this exact generic `setCriteria` door for the
+   *   identical problem (`useClientReceivedEmailsActions.ts`).
+   * rejected: a bespoke `setPageSize(limit, offset)` action — no oracle
+   *   authorises inventing a shape when the platform already exposes a
+   *   generic one (`query.setCriteria`) that a sibling module in this exact
+   *   family already publishes verbatim.
+   */
 
   /**
    * Destroys this scoped instance — removes it from the registry so the next
@@ -204,8 +253,22 @@ export function createClientAddressesActions(
      */
     remove: service.remove,
 
+    /**
+     * Applies a criteria INTENT — merges the given `filters` / `sort` /
+     * `pagination` branches into the ONE query model; branches left out are
+     * untouched. The single generic write verb (see `@decision
+     * setCriteria-mirrors-client-email-history` above): the schema governs
+     * what is spellable, so a raw pagination literal is unreachable here.
+     * This is the door that sets the page size:
+     * `setCriteria({ pagination: { limit } })`.
+     */
+    setCriteria: query.setCriteria,
+
     /** Promotes an address to the client's default. Same feedback contract as `remove`. */
-    setDefault: service.setDefault
+    setDefault: service.setDefault,
+
+    /** Applies a sort intent — the `sort` branch of the one query model. */
+    sortBy
 
     // The arm merges in HERE, last — a spread overwrites, which is what lets
     // it override a shared member; anything it omits falls through.

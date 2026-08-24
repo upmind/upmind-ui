@@ -16,6 +16,11 @@ export {
   getBasketAddressIdViaHeadless
 } from "./basket-setup";
 export type { HeadlessProductSeed } from "./basket-setup";
+export { readSummaryData, readSummaryProduct } from "./basket-summary-data";
+export type {
+  SummaryDetailData,
+  SummaryProductData
+} from "./basket-summary-data";
 export { registerClientViaHeadless, loginViaHeadless } from "./auth-setup";
 export type {
   HeadlessRegisterOptions,

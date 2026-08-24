@@ -4,12 +4,29 @@
     :modal="false"
     side="right"
     :title="t(title)"
-    :class="styles.sheetHost.root"
-    :class-header="styles.sheetHost.header"
-    @interact-outside="event => event.preventDefault()"
+    :close-label="t('action.close')"
+    class="flex flex-col gap-0 overflow-hidden p-0"
+    :ui="{ header: 'border-surface shrink-0 border-b p-3' }"
+    @interact-outside="(event: Event) => event.preventDefault()"
   >
-    <template #header>
-      <ButtonGroup :items="switcher" size="sm" data-test-key="sheet-switcher" />
+    <template #title>
+      <ToggleGroup
+        type="single"
+        :model-value="sheet"
+        size="sm"
+        data-test-key="sheet-switcher"
+        @update:model-value="v => v && open(v as PlaygroundSheetTypes)"
+      >
+        <ToggleGroupItem
+          v-for="(label, value) in SHEET_LABELS"
+          :key="value"
+          :value="value"
+          :data-test-key="'sheet-pane'"
+          :data-test-value="value"
+        >
+          {{ t(label) }}
+        </ToggleGroupItem>
+      </ToggleGroup>
     </template>
 
     <div data-test-key="sheet-host" :data-test-value="sheet">
@@ -17,20 +34,20 @@
         v-if="sheet === PlaygroundSheetTypes.DEBUG"
         v-model="tab"
         :tabs="tabs"
-        :class="styles.sheetHost.tabs"
+        class="bg-canvas h-full flex-1 overflow-hidden p-4"
       >
         <template
           v-for="section in sections"
           :key="section.name"
           #[`content.${section.name}`]
         >
-          <div :class="styles.sheetHost.pane">
+          <div class="max-h-[calc(100vh-8rem)] overflow-y-auto">
             <DebugPane :section="section" />
           </div>
         </template>
       </Tabs>
 
-      <div v-else :class="[styles.sheetHost.pane, styles.sheetHost.body]">
+      <div v-else class="max-h-[calc(100vh-8rem)] overflow-y-auto p-4">
         <CodePane
           v-if="sheet === PlaygroundSheetTypes.CODE && code"
           v-bind="code"
@@ -39,7 +56,7 @@
           v-else-if="sheet === PlaygroundSheetTypes.SCENARIO && scenario"
           v-bind="scenario"
         />
-        <p v-else :class="styles.sheetHost.empty" data-test-key="sheet-empty">
+        <p v-else class="text-muted p-4 text-xs" data-test-key="sheet-empty">
           {{ t("labs.sheet_empty") }}
         </p>
       </div>
@@ -80,21 +97,14 @@
 
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import {
-  ButtonGroup,
-  ButtonGroupTypes,
-  Sheet,
-  Tabs,
-  useStyles
-} from "@upmind-automation/upmind-ui";
+import { Button, Sheet, Tabs, ToggleGroup, ToggleGroupItem } from "@upmind/ui";
 import CodePane from "./CodePane.vue";
 import DebugPane from "./DebugPane.vue";
 import ScenarioPane from "./ScenarioPane.vue";
-import config from "./sheets.styles";
 import { usePlaygroundSheet } from "./usePlaygroundSheet";
 import { PlaygroundSheetTypes, SHEET_LABELS } from "./usePlaygroundSheet.types";
 import { map } from "lodash-es";
-import type { ButtonGroupItem, TabItem } from "@upmind-automation/upmind-ui";
+import type { TabItem } from "@upmind/ui";
 // -----------------------------------------------------------------------------
 
 const { isOpen, open, panes, sections, sheet, tab } = usePlaygroundSheet();
@@ -105,23 +115,6 @@ const title = computed(
   () => SHEET_LABELS[sheet.value ?? PlaygroundSheetTypes.DEBUG]
 );
 
-// `open`, never `toggle`: the panel is already open, so the entry that is
-// already marked would close the very panel the pointer is inside.
-const switcher = computed<ButtonGroupItem[]>(() =>
-  map(SHEET_LABELS, (label, value) => ({
-    type: ButtonGroupTypes.Button,
-    active: sheet.value === value,
-    props: {
-      label: t(label),
-      dataAttrs: {
-        "data-test-key": "sheet-pane",
-        "data-test-value": value
-      }
-    },
-    handler: () => open(value as PlaygroundSheetTypes)
-  }))
-);
-
 const code = computed(() => panes.value[PlaygroundSheetTypes.CODE]);
 
 const scenario = computed(() => panes.value[PlaygroundSheetTypes.SCENARIO]);
@@ -129,6 +122,4 @@ const scenario = computed(() => panes.value[PlaygroundSheetTypes.SCENARIO]);
 const tabs = computed<TabItem[]>(() =>
   map(sections.value, section => ({ value: section.name, label: section.name }))
 );
-
-const styles = useStyles(["sheetHost"], {}, config);
 </script>

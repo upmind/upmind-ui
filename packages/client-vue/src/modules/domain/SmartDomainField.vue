@@ -8,127 +8,111 @@
   />
 
   <!-- Edit mode -->
-  <div v-else :class="styles.field.root">
+  <div v-else :class="fieldRootVariants()">
     <RadioGroup
       :model-value="type"
       :disabled="props.disabled"
+      :items="radioChoices"
+      :class="[fieldContainerVariants(), fieldContentVariants()]"
+      :data-disabled="props.disabled || undefined"
+      :aria-invalid="showError || undefined"
+      :ui="{
+        option: fieldOptionVariants(),
+        control: fieldIndicatorVariants(),
+        label: fieldLabelVariants(),
+        expanded: fieldExpandedVariants({ hasInfo: domainMeta.hasInfo })
+      }"
       @update:model-value="onChoose"
     >
-      <div
-        :class="styles.field.container"
-        :data-disabled="props.disabled || undefined"
-        :aria-invalid="showError || undefined"
-      >
-        <div :class="styles.field.content">
-          <template v-for="choice in sortedChoices" :key="choice.value">
-            <!-- Radio option row -->
-            <div
-              :class="styles.field.option"
-              @click="!props.disabled && onChoose(choice.value)"
+      <template #expanded>
+        <!-- Register -->
+        <template v-if="type === DomainTypes.register">
+          <FormControl
+            v-if="!open"
+            form-item-id="domain-register-search"
+            :auto-focus="meta.shouldAutoFocus"
+          >
+            <Input
+              size="lg"
+              :model-value="queryValue"
+              :placeholder="t('domain.search')"
+              :disabled="props.disabled"
+              @update:model-value="onRegisterInput"
+              @focus="openDrawer"
             >
-              <div :class="styles.field.indicator">
-                <RadioGroupItem :id="choice.value" :value="choice.value" />
-              </div>
-              <label :for="choice.value" :class="styles.field.label">
-                {{ rt(tm(`domain.choices.${choice.value}`).label) }}
-              </label>
-            </div>
+              <template #trailing><Icon icon="arrow-right" /></template>
+            </Input>
+          </FormControl>
+          <FormMessage
+            v-if="showError"
+            form-message-id="domain-register-error"
+            name="domain"
+            :errors="props.errors!"
+            show-all-errors
+          />
+        </template>
 
-            <!-- Sub-content: Register -->
-            <div
-              v-if="choice.value === type && type === DomainTypes.register"
-              :class="styles.field.expanded"
-            >
-              <FormControl
-                v-if="!open"
-                form-item-id="domain-register-search"
-                :auto-focus="meta.shouldAutoFocus"
-              >
-                <Input
-                  :model-value="queryValue"
-                  :placeholder="t('domain.search')"
-                  :disabled="props.disabled"
-                  icon-append="arrow-right"
-                  @update:model-value="onRegisterInput"
-                  @focus="openDrawer"
-                />
-              </FormControl>
-              <FormMessage
-                v-if="showError"
-                form-message-id="domain-register-error"
-                name="domain"
-                :errors="props.errors!"
-                show-all-errors
-              />
-            </div>
+        <!-- Existing -->
+        <template v-if="type === DomainTypes.existing">
+          <SmartDomainExisting
+            :model-value="model ?? null"
+            :owned="owned"
+            :filtered-owned="filteredOwned"
+            :is-domain-like="isDomainLike"
+            :disabled="props.disabled"
+            :validating="domainMeta.isExistingValidating"
+            :checked="domainMeta.isExistingChecked"
+            :registerable="domainMeta.isExistingRegisterable"
+            :registering="domainMeta.isExistingPendingRegistration"
+            :transferred="domainMeta.isExistingTransferred"
+            :transferring="domainMeta.isExistingPendingTransfer"
+            :removing="domainMeta.isExistingRemoving"
+            :unavailable="domainMeta.isExistingUnavailable"
+            :dns-only="
+              domainMeta.isExistingValid ||
+              domainMeta.isExistingError ||
+              domainMeta.isExistingOwned
+            "
+            :transfer-price="pricing?.price ?? ''"
+            :renewal-price="pricing?.regularPrice ?? ''"
+            :transfer-option-price="pricing?.transferOptionPrice"
+            :transfer-option-is-free="pricing?.transferOptionIsFree"
+            :register-price="pricing?.price ?? ''"
+            :cycle="pricing?.cycle"
+            @update:model-value="onExistingUpdate"
+            @add-transfer="addTransfer"
+            @remove-transfer="removeTransfer"
+            @add-registration="addRegistration"
+          />
+          <FormMessage
+            v-if="showError"
+            form-message-id="domain-existing-error"
+            name="domain"
+            :errors="props.errors!"
+            show-all-errors
+          />
+        </template>
 
-            <!-- Sub-content: Existing -->
-            <div
-              v-if="choice.value === type && type === DomainTypes.existing"
-              :class="styles.field.expanded"
-            >
-              <SmartDomainExisting
-                :model-value="model ?? null"
-                :owned="owned"
-                :filtered-owned="filteredOwned"
-                :is-domain-like="isDomainLike"
-                :disabled="props.disabled"
-                :validating="domainMeta.isExistingValidating"
-                :checked="domainMeta.isExistingChecked"
-                :registerable="domainMeta.isExistingRegisterable"
-                :registering="domainMeta.isExistingPendingRegistration"
-                :transferred="domainMeta.isExistingTransferred"
-                :transferring="domainMeta.isExistingPendingTransfer"
-                :removing="domainMeta.isExistingRemoving"
-                :unavailable="domainMeta.isExistingUnavailable"
-                :dns-only="
-                  domainMeta.isExistingValid ||
-                  domainMeta.isExistingError ||
-                  domainMeta.isExistingOwned
-                "
-                :transfer-price="pricing?.price ?? ''"
-                :renewal-price="pricing?.regularPrice ?? ''"
-                :transfer-option-price="pricing?.transferOptionPrice"
-                :transfer-option-is-free="pricing?.transferOptionIsFree"
-                :register-price="pricing?.price ?? ''"
-                :cycle="pricing?.cycle"
-                @update:model-value="onExistingUpdate"
-                @add-transfer="addTransfer"
-                @remove-transfer="removeTransfer"
-                @add-registration="addRegistration"
-              />
-              <FormMessage
-                v-if="showError"
-                form-message-id="domain-existing-error"
-                name="domain"
-                :errors="props.errors!"
-                show-all-errors
-              />
-            </div>
-
-            <!-- Sub-content: Basket -->
-            <div
-              v-if="choice.value === type && type === DomainTypes.basket"
-              :class="styles.field.expanded"
-            >
-              <Select
-                :model-value="model"
-                :items="basketItems"
-                :disabled="props.disabled"
-                :placeholder="t('domain.basket_placeholder')"
-                @update:model-value="onBasketSelect"
-              />
-              <FormMessage
-                v-if="showError"
-                form-message-id="domain-basket-error"
-                name="domain"
-                :errors="props.errors!"
-                show-all-errors
-              />
-            </div>
-          </template>
-        </div>
-      </div>
+        <!-- Basket -->
+        <template v-if="type === DomainTypes.basket">
+          <Select
+            :model-value="model ?? undefined"
+            :items="basketItems"
+            :placeholder="t('domain.basket_placeholder')"
+            :disabled="props.disabled"
+            size="lg"
+            class="w-full"
+            @update:model-value="onBasketSelect"
+          />
+          <FormMessage
+            v-if="showError"
+            form-message-id="domain-basket-error"
+            name="domain"
+            :errors="props.errors!"
+            show-all-errors
+          />
+        </template>
+      </template>
     </RadioGroup>
 
     <!-- Register drawer -->
@@ -167,25 +151,26 @@ import {
   DEBOUNCE_DELAY,
   type DomainChoice
 } from "@upmind-automation/headless";
-import {
-  RadioGroup,
-  RadioGroupItem,
-  Input,
-  Select,
-  FormControl,
-  FormMessage,
-  useStyles
-} from "@upmind-automation/upmind-ui";
+import { Input, RadioGroup, Select } from "@upmind/ui";
+import { FormControl, FormMessage } from "../../components/form";
+import { Icon } from "../../components/icon";
 import SmartDomainDrawer from "./components/SmartDomainDrawer.vue";
 import SmartDomainExisting from "./components/SmartDomainExisting.vue";
 import SmartDomainSummary from "./components/SmartDomainSummary.vue";
-import config from "./smartDomainField.config";
+import {
+  fieldRootVariants,
+  fieldContainerVariants,
+  fieldContentVariants,
+  fieldOptionVariants,
+  fieldIndicatorVariants,
+  fieldLabelVariants,
+  fieldExpandedVariants
+} from "./smartDomainField.variants";
 import {
   SMART_DOMAIN_CHOICES_ORDER,
   type SmartDomainFieldProps
 } from "./types";
 import { debounce, map, sortBy, indexOf } from "lodash-es";
-import type { SelectItemProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
@@ -200,16 +185,6 @@ const emit = defineEmits<{
 }>();
 
 const { t, tm, rt } = useI18n();
-
-const stylesMeta = computed(() => ({
-  hasInfo: domainMeta.value.hasInfo
-}));
-
-const styles = useStyles(
-  ["field", "field.summary", "field.transfer"],
-  stylesMeta,
-  config
-);
 
 const {
   isReady,
@@ -276,17 +251,22 @@ const sortedChoices = computed(() =>
   )
 );
 
+const radioChoices = computed(() =>
+  map(sortedChoices.value, choice => ({
+    value: choice.value,
+    label: rt(tm(`domain.choices.${choice.value}`).label)
+  }))
+);
+
 // Show the field error only once touched. The form marks the field touched
 // (validationMode → ValidateAndShow) when there's an outstanding error or the
 // user submits — so a pristine required field stays quiet until then.
 const showError = computed(() => !!props.touched && meta.value.hasErrors);
 
 // --- Basket items for Select
-const basketItems = computed((): SelectItemProps[] =>
-  map(basket.value, (item, index) => ({
-    index,
-    item,
-    value: item.domain?.toString(),
+const basketItems = computed((): { value: string; label: string }[] =>
+  map(basket.value, item => ({
+    value: item.domain?.toString() ?? "",
     label: item.domain?.toString() ?? ""
   }))
 );
@@ -307,17 +287,13 @@ watch(queryValue, value => {
 });
 
 // --- Methods
-function onChoose(value: string | DomainTypes) {
+function onChoose(value: unknown) {
   editing.value = true;
-  choose(value);
+  choose(String(value));
 }
 
 function onRegisterInput(value: string | number | undefined) {
   queryValue.value = value?.toString() ?? "";
-}
-
-function openDrawer() {
-  open.value = true;
 }
 
 function onExistingUpdate(value: string) {
@@ -328,10 +304,14 @@ function onExistingUpdate(value: string) {
   }
 }
 
-function onBasketSelect(value: string) {
+function onBasketSelect(value: unknown) {
   if (value) {
-    select(value);
+    select(String(value));
   }
+}
+
+function openDrawer() {
+  open.value = true;
 }
 
 function doResolve() {

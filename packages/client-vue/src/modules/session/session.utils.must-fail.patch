@@ -1,0 +1,42 @@
+# session.utils.must-fail.patch
+#
+# Targets: session.utils.spec.ts — the authentication term of the guest-checkout
+# gate, the clause a merge on this rung dropped.
+# Authored by: developer seat (agent-seat-separation.companion.md — the seat that
+# knows the exact line it changed authors the mutant; the prover applies it
+# blind, confirms RED, then reverts — never reading src to construct it).
+#
+# Mutates ONE line: drops `isAnonymous` from the gate's single return.
+# `canRegisterAsGuest` is the brand toggle ALONE and carries no authentication
+# term, so without this clause a visitor who already holds a session is offered
+# guest checkout.
+#
+# Expected RED: 2 of 6.
+#   - "withholds the offer from a visitor who already holds a session"
+#   - "withholds the offer from an authenticated visitor even when the brand
+#     allows it"
+# Still GREEN, correctly — the other four each pin a different term.
+#
+# Why the gate lives here rather than in the template: e2e cannot reach this
+# condition. The router takes an authenticated visitor onward instead of
+# rendering the register step, so the offer is absent because the surface is
+# absent. The Playwright control this replaces mutated the same clause in its
+# old inline form and stayed GREEN — proving the coverage, not the code, was
+# the problem.
+#
+# Apply / verify / revert:
+#   git apply <this file>                          # mutate
+#   pnpm --filter @upmind-automation/client-vue test:unit
+#   git apply -R <this file>                       # revert — must return to green
+#
+--- a/packages/client-vue/src/modules/session/session.utils.ts
++++ b/packages/client-vue/src/modules/session/session.utils.ts
+@@ -23,7 +23,7 @@ export function offersGuestCheckout(terms: {
+   const basketSettled = !terms.isBasketLoading;
+   const isOneOffBasket = !terms.hasRecurringProducts;
+
+-  return isAnonymous && brandAllows && basketSettled && isOneOffBasket;
++  return brandAllows && basketSettled && isOneOffBasket;
+ }
+
+ export function useSessionTemplates(template: Ref<SESSION_TEMPLATE>) {

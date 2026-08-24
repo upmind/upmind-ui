@@ -1,5 +1,28 @@
 <template>
-  <ButtonGroup :items="groupItems" variant="outline" class="w-full" />
+  <div
+    class="inline-flex w-full"
+    role="group"
+    :aria-label="t('action.sort_products')"
+  >
+    <Button
+      variant="control"
+      size="lg"
+      :disabled="isEmpty(property)"
+      class="shadow-field hover:bg-surface hover:text-muted rounded-r-none"
+      @click="toggleDirection"
+    >
+      <Icon :icon="directionIcon" />
+    </Button>
+
+    <Select
+      :model-value="property"
+      :items="items"
+      :placeholder="currentSort?.label"
+      size="lg"
+      class="w-full rounded-l-none border-l-0"
+      @update:model-value="onSort"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -9,13 +32,8 @@ import {
   ProductSortableProperties,
   RequestSortDirection
 } from "@upmind-automation/headless";
-import {
-  ButtonGroup,
-  ButtonGroupTypes,
-  type ButtonGroupItem,
-  type ButtonProps,
-  type SelectProps
-} from "@upmind-automation/upmind-ui";
+import { Button, Select } from "@upmind/ui";
+import { Icon } from "../../../../components/icon";
 import { find, isEmpty } from "lodash-es";
 import type { ProductSortProps } from "../types";
 
@@ -46,39 +64,26 @@ const items = computed(() => [
   }
 ]);
 
-const groupItems = computed((): ButtonGroupItem[] => [
-  {
-    type: ButtonGroupTypes.Button,
-    props: {
-      icon:
-        direction.value == RequestSortDirection.ASC ? "arrow-down" : "arrow-up",
-      disabled: isEmpty(property.value)
-    } satisfies ButtonProps,
-    handler: toggleDirection
-  },
-  {
-    type: ButtonGroupTypes.Select,
-    class: "w-full",
-    props: {
-      modelValue: property.value,
-      items: items.value,
-      placeholder: currentSort.value?.label,
-      width: "full"
-    } satisfies SelectProps,
-    handler: (value: string) => {
-      property.value = value as ProductSortableProperties;
-    }
-  }
-]);
+const currentSort = computed(() =>
+  find(items.value, { value: property.value })
+);
 
-const currentSort = computed(() => {
-  return find(items.value, { value: property.value });
+const directionIcon = computed(() => {
+  if (direction.value === RequestSortDirection.ASC) return "arrow-down";
+  return "arrow-up";
 });
 
+// Narrow the Select's wide emit back onto the typed property model.
+function onSort(value: unknown) {
+  const match = items.value.find(item => item.value === value);
+  if (match) property.value = match.value;
+}
+
 function toggleDirection() {
-  direction.value =
-    direction.value == RequestSortDirection.ASC
-      ? RequestSortDirection.DESC
-      : RequestSortDirection.ASC;
+  if (direction.value === RequestSortDirection.ASC) {
+    direction.value = RequestSortDirection.DESC;
+  } else {
+    direction.value = RequestSortDirection.ASC;
+  }
 }
 </script>

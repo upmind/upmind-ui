@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts" setup>
-import { NumberField } from "@upmind-automation/upmind-ui";
+import { NumberField } from "@upmind/ui";
 import type { QuantityFieldProps } from "./types";
 
 defineProps<QuantityFieldProps>();

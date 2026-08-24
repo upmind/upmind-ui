@@ -1,9 +1,9 @@
+import type { IconProps } from "../../../components/icon";
 import type {
   Recommendation,
   Benefit,
   ProductProps
 } from "@upmind-automation/headless";
-import type { IconProps } from "@upmind-automation/upmind-ui";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 export type RecommendationsProps = {

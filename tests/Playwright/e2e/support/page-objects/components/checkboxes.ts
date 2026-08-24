@@ -9,7 +9,7 @@ export class Checkboxes {
 
   constructor(page: Page) {
     this.page = page;
-    this.checkboxGroup = page.getByTestId("checkbox-group");
+    this.checkboxGroup = page.getByTestId("option-tile-group");
     this.checkboxOption = page.getByTestId("checkbox-item");
     this.checkboxQtyIncrease = page.getByTestId("checkbox-qty-increase");
     this.checkboxQtyDecrease = page.getByTestId("checkbox-qty-decrease");

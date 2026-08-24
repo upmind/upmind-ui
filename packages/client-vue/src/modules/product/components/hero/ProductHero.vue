@@ -1,19 +1,20 @@
 <template>
-  <section :class="styles.header.root">
-    <div :class="styles.header.details" ref="detailsRef">
+  <section :class="headerRootVariants({ direction: props.direction })">
+    <div
+      :class="headerDetailsVariants({ hasImage: stylesMeta.hasImage })"
+      ref="detailsRef"
+    >
       <Hero
         :title="meta.data.productName || props.productDetails.title"
+        :title-class="headerHeroTitleVariants({ direction: props.direction })"
+        :description-class="
+          headerHeroDescriptionVariants({ direction: props.direction })
+        "
         :badge="
           meta.ui.productBadge.isVisible && meta.data.productBadge
-            ? (meta.data.productBadge as HeroProps['badge'])
+            ? meta.data.productBadge
             : undefined
         "
-        :ui-config="{
-          hero: {
-            title: [styles.header.heroTitle],
-            description: [styles.header.heroDescription]
-          }
-        }"
       >
         <template #prepend>
           <slot name="prepend" />
@@ -26,7 +27,7 @@
               props.productDetails?.displayPrice
             "
             v-bind="props.productDetails.displayPrice"
-            :class="styles.header.price"
+            :class="headerPriceVariants({ direction: props.direction })"
           />
         </template>
 
@@ -50,11 +51,11 @@
 
     <aside
       v-if="stylesMeta.hasImage"
-      :class="styles.header.aside"
+      :class="headerAsideVariants({ direction: props.direction })"
       :style="{ '--details-h': `${height}px` }"
     >
       <ProductImage
-        :class="styles.header.image.root"
+        :class="headerImageRootVariants()"
         :product-details="props.productDetails"
         :direction="props.direction"
         :fallback="meta.ui.productImageFallback.isVisible"
@@ -66,15 +67,21 @@
 <script setup lang="ts">
 import { useElementSize } from "@vueuse/core";
 import { computed, ref } from "vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
 import Hero from "../../../../components/hero/Hero.vue";
 import ProductDescription from "../card/ProductDescription.vue";
 import DisplayPrice from "../terms/DisplayPrice.vue";
-import config from "./product-hero.config";
 import ProductImage from "./ProductImage.vue";
+import {
+  headerRootVariants,
+  headerDetailsVariants,
+  headerPriceVariants,
+  headerAsideVariants,
+  headerImageRootVariants,
+  headerHeroTitleVariants,
+  headerHeroDescriptionVariants
+} from "./variants";
 import { toNumber } from "lodash-es";
 import type { ProductHeaderProps } from "./types";
-import type { HeroProps } from "../../../../components/hero/types";
 
 const props = withDefaults(defineProps<ProductHeaderProps>(), {
   direction: "horizontal",
@@ -87,8 +94,6 @@ const stylesMeta = computed(() => ({
     !!(props.productDetails?.imgUrl || props.productDetails?.images?.length) &&
     props.image
 }));
-
-const styles = useStyles(["header", "header.image"], stylesMeta, config);
 
 const detailsRef = ref<HTMLElement | null>(null);
 const { height } = useElementSize(detailsRef);

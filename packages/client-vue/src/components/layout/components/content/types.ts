@@ -1,8 +1,8 @@
 import {
   parseVariants,
   type VariantValues
-} from "@upmind-automation/upmind-ui";
-import { variants } from "./content.config";
+} from "../../../../utils/parseVariants";
+import { variants } from "./variants";
 import type { COLUMN_ITEMS } from "../column/types";
 
 export const CONTENT_GAP = parseVariants(variants.gap);

@@ -26,6 +26,7 @@ import {
   payerNeedsPhone
 } from "../payment-gateways.utils";
 import type { GatewayContext } from "../payment-gateways.types";
+import type { JsonSchema, Layout, UISchemaElement } from "@jsonforms/core";
 
 // --- helpers
 
@@ -38,11 +39,11 @@ function ctx(client: unknown, currency = "ARS"): GatewayContext {
   } as unknown as GatewayContext;
 }
 
-const pma = (schema: any) => schema.properties.payment_method_addition;
-const fieldKeys = (schema: any): string[] | null =>
+const pma = (schema: JsonSchema) => schema.properties.payment_method_addition;
+const fieldKeys = (schema: JsonSchema): string[] | null =>
   pma(schema) ? Object.keys(pma(schema).properties).sort() : null;
-const scopes = (uischema: any): string[] =>
-  uischema.elements.map((e: any) => e.scope).filter(Boolean);
+const scopes = (uischema: Layout): string[] =>
+  uischema.elements.map((e: UISchemaElement) => e.scope).filter(Boolean);
 
 const guest = { is_guest: true };
 const clientFull = {

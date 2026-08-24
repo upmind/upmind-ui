@@ -1,8 +1,11 @@
 <template>
-  <div :class="styles.section.wrapper">
+  <!-- Inset carries the card box here, so the header renders inside it. -->
+  <div :class="wrapperVariants({ isInset: meta.isInset })">
+    <!-- Disabled keeps the content mounted (payment iframes must survive), so
+         hide it rather than unmount it. -->
     <div
       v-if="!active"
-      v-show="!props.disabled"
+      v-show="!meta.isDisabled"
       :class="props.class"
       v-bind="sectionTestAttrs(first(sections)?.value ?? 'default')"
     >
@@ -11,36 +14,76 @@
 
     <Tabs
       v-else
-      :tabs="sections"
       v-model="modelValue"
-      :border="meta.hasBorder"
+      :default-value="first(sections)?.value"
+      :tabs="tabItems"
+      variant="underline"
       align="between"
-      :overflow="sections.length > 1 ? 'hidden' : 'visible'"
-      v-bind="sectionTestAttrs(first(sections)?.value ?? 'default')"
-      :ui-config="{
-        tabs: {
-          root: [styles.section.tabs.root],
-          list: [styles.section.tabs.list],
-          trigger: [styles.section.tabs.trigger],
-          indicator: [styles.section.tabs.indicator],
-          icon: [styles.section.tabs.icon]
-        }
+      overflow="clip"
+      :border="false"
+      :ui="{
+        header: headerVariants({
+          hasBorder: meta.hasBorder,
+          isInset: meta.isInset,
+          isDisabled: meta.isDisabled
+        }),
+        heading: sectionHeadingVariants({
+          isInset: meta.isInset,
+          isDisabled: meta.isDisabled
+        }),
+        content: cn(!meta.hasBorder && 'mt-0')
       }"
+      :data-attrs="sectionTestAttrs(first(sections)?.value ?? 'default')"
     >
-      <template #prepend>
-        <slot name="prepend" />
+      <template
+        v-for="section in sections"
+        :key="`tab-${section.value}`"
+        #[`tab.${section.value}`]
+      >
+        <Icon v-if="section.icon" :icon="section.icon" />
+        {{ section.label }}
+      </template>
+
+      <template v-if="slots.prepend" #prepend><slot name="prepend" /></template>
+
+      <template v-if="hasActions" #append>
+        <div class="flex items-center gap-2">
+          <slot name="actions">
+            <Link
+              v-for="(action, key) in currentSectionProps?.actions"
+              v-show="isNil(action.visible) || action.visible"
+              :key="key"
+              :to="action.to"
+              :href="action.href"
+              :type="action.type"
+              v-bind="action.dataAttrs"
+              color="muted"
+              size="sm"
+              @click="doAction(action, $event)"
+            >
+              <Icon v-if="action.icon" :icon="action.icon" />
+              {{ action.label }}
+            </Link>
+          </slot>
+        </div>
       </template>
 
       <template
         v-for="section in sections"
-        :key="section.value"
+        :key="`content-${section.value}`"
         #[`content.${section.value}`]
       >
-        <!-- Disabled keeps the content mounted (payment iframes must survive),
-             so hide it rather than unmount it. -->
         <div
-          v-show="!props.disabled"
-          :class="cn(styles.section.content, props.class)"
+          v-show="!meta.isDisabled"
+          :class="
+            cn(
+              sectionContentVariants({
+                hasCard: meta.hasCard,
+                isInset: meta.isInset
+              }),
+              props.class
+            )
+          "
         >
           <slot
             v-if="slots[`section-${section.value}`]"
@@ -49,38 +92,32 @@
           <slot v-else name="default" />
         </div>
       </template>
-
-      <template v-if="hasActions" #append>
-        <!-- actions -->
-        <slot name="actions">
-          <Link
-            v-for="(action, key) in currentSectionProps?.actions"
-            v-show="isNil(action.visible) || action.visible"
-            :key="key"
-            v-bind="action"
-            color="muted"
-            size="sm"
-            @click="doAction(action, $event)"
-          />
-        </slot>
-      </template>
     </Tabs>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, useSlots } from "vue";
-import {
-  Tabs,
-  useStyles,
-  useTestAttrs,
-  Link,
-  cn
-} from "@upmind-automation/upmind-ui";
-import config from "./section.config";
+import { computed } from "vue";
+import { Link, Tabs, cn, useSlots, useTestAttrs } from "@upmind/ui";
+import { Icon } from "../icon";
 import { useSection } from "./useSection";
-import { find, first, isFunction, isString, isNil, isEmpty } from "lodash-es";
+import {
+  headerVariants,
+  sectionContentVariants,
+  sectionHeadingVariants,
+  wrapperVariants
+} from "./variants";
+import {
+  find,
+  first,
+  isFunction,
+  isString,
+  isNil,
+  isEmpty,
+  kebabCase
+} from "lodash-es";
 import type { SectionActionProps, SectionsProps } from "./types";
+import type { TabItem } from "@upmind/ui";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<SectionsProps>(), {
@@ -127,11 +164,18 @@ const meta = computed(() => {
   return { hasCard, hasBorder, isInset, isDisabled: props.disabled };
 });
 
-const styles = useStyles(
-  ["section", "section.title", "section.tabs"],
-  meta,
-  config,
-  props.uiConfig ?? {}
+// The tab-{label} keys are the e2e contract; a section's own dataAttrs win.
+// A lone section degrades to a heading and keeps these hooks (Tabs routes them).
+const tabItems = computed<TabItem[]>(() =>
+  props.sections.map(section => ({
+    value: section.value,
+    label: section.label,
+    eager: section.eager,
+    dataAttrs: {
+      "data-test-key": `tab-${kebabCase(section.label)}`,
+      ...section.dataAttrs
+    }
+  }))
 );
 
 /* dataAttrs lets consumers (e.g. BillingForm's 'billing' key) override the

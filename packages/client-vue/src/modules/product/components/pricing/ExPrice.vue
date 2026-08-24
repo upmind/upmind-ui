@@ -1,10 +1,10 @@
 <template>
   <del
     v-if="priceMeta.isDiscounted || priceMeta.isCustom"
-    :class="styles.pricing.ex"
+    :class="cn(exVariants(), props.uiConfig?.pricing?.ex)"
     v-bind="exPriceTestAttrs(formattedPrice)"
   >
-    <Skeleton v-if="props.loading" :class="styles.pricing.exSkeleton" />
+    <Skeleton v-if="props.loading" :class="exSkeletonVariants()" />
     <template v-else> <slot name="prefix" />{{ formattedPrice }} </template>
   </del>
 </template>
@@ -13,12 +13,9 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useMoney, useConfig } from "@upmind-automation/headless";
-import {
-  useStyles,
-  useTestAttrs,
-  Skeleton
-} from "@upmind-automation/upmind-ui";
-import config from "./pricing.config";
+import { cn } from "@upmind/ui";
+import { Skeleton, useTestAttrs } from "@upmind/ui";
+import { exVariants, exSkeletonVariants } from "./variants";
 import type { ExPriceProps } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -48,7 +45,9 @@ const formattedPrice = computed(() =>
 );
 
 const exPriceTestAttrs = (value?: string | null) =>
-  useTestAttrs({ key: "ex-price", value, dataAttrs: props.dataAttrs });
-
-const styles = useStyles(["pricing"], priceMeta, config, props.uiConfig ?? {});
+  useTestAttrs({
+    key: "ex-price",
+    value: value ?? undefined,
+    dataAttrs: props.dataAttrs
+  });
 </script>

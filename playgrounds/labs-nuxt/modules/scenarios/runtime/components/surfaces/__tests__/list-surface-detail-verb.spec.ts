@@ -27,6 +27,7 @@ import { RESOLVED_HANDOFFS } from "../../__tests__/resolved-handoffs";
 import DetailDialog from "../../DetailDialog.vue";
 import ManageDialog from "../../ManageDialog.vue";
 import { ListSurface } from "../index";
+import { getRow } from "./table-geometry";
 import { keys } from "lodash-es";
 import type { ResolvedHandoff } from "../../../scenario.types";
 import type { SurfaceActions } from "../surface.types";
@@ -67,10 +68,7 @@ const overlays = (wrapper: Wrapper) => wrapper.findAllComponents(DetailDialog);
 const editors = (wrapper: Wrapper) => wrapper.findAllComponents(ManageDialog);
 
 const openView = async (wrapper: Wrapper, row: number) => {
-  await wrapper
-    .findAll("li")
-    [row].find('[data-test-value="view"]')
-    .trigger("click");
+  await getRow(wrapper, row).find('[data-test-value="view"]').trigger("click");
   await flushPromises();
 };
 
@@ -82,7 +80,7 @@ describe("the detail verb opens the read overlay", () => {
 
     for (const row of [0, 1]) {
       expect(
-        wrapper.findAll("li")[row].find('[data-test-value="view"]').exists()
+        getRow(wrapper, row).find('[data-test-value="view"]').exists()
       ).toBe(true);
     }
   });

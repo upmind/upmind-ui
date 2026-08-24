@@ -1,0 +1,24 @@
+--- a/packages/i18n/src/core/form-en.json
++++ b/packages/i18n/src/core/form-en.json
+@@ -153,11 +153,6 @@
+     "label": null,
+     "placeholder": "Search addresses..."
+   },
+-  "phone_search": {
+-    "description": null,
+-    "label": null,
+-    "placeholder": "Search phone numbers..."
+-  },
+   "subject_search": {
+     "description": null,
+     "label": null,
+@@ -215,9 +210,6 @@
+     "name": "Address name",
+     "created_at": "Date added"
+   },
+-  "phone_sort": {
+-    "created_at": "Date added"
+-  },
+   "sent_email_sort": {
+     "created_at": "Date sent",
+     "subject": "Subject"

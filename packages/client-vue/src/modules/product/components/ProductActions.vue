@@ -1,5 +1,5 @@
 <template>
-  <div :class="styles.product.actions" v-if="product?.productDetails">
+  <div :class="productActionsVariants()" v-if="product?.productDetails">
     <NumberField
       v-if="product?.productDetails?.quantifiable"
       :min="product.productDetails.min"
@@ -18,15 +18,16 @@
     <Button
       block
       type="submit"
-      color="primary"
+      variant="primary"
       :loading="meta.isProcessing || isNavigating"
       :disabled="meta.isLoading || meta.isUnavailable || isUnavailable"
-      :label="action.label"
-      :icon="action.icon"
-      :dataAttrs="{ 'data-test-key': 'button-add-to-basket' }"
+      :data-attrs="{ 'data-test-key': 'button-add-to-basket' }"
       size="lg"
       @click="doResolve"
-    />
+    >
+      <Icon v-if="action.icon" :icon="action.icon" />
+      {{ action.label }}
+    </Button>
   </div>
 </template>
 
@@ -39,9 +40,10 @@ import {
   type Product,
   type UseProductConfigMeta
 } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import { Button, NumberField } from "@upmind-automation/upmind-ui";
-import stylesConfig from "../product.config";
+import { NumberField } from "@upmind/ui";
+import { Button } from "@upmind/ui";
+import { Icon } from "../../../components/icon";
+import { productActionsVariants } from "../variants";
 import { isString } from "lodash-es";
 
 // --- types
@@ -58,10 +60,6 @@ const emits = defineEmits(["resolve", "update:quantity"]);
 const { t } = useI18n();
 const { isNavigating } = useRoutingEngine();
 
-const layout = computed(() => {
-  return props?.template;
-});
-
 const config = useConfig().with({
   product: () => props.product
 });
@@ -76,8 +74,6 @@ const action = computed(() => {
   }
   return { label: t("action.add_to_basket"), icon: "shopping-bag-02" };
 });
-
-const styles = useStyles(["product"], { layout }, stylesConfig);
 
 // ---
 function updateQuantity(value: number | undefined) {

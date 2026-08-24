@@ -1,43 +1,27 @@
 <template>
   <div
     v-if="hasTerms && terms"
-    :class="styles.product.summary.footer.terms.root"
-    v-bind="rootTestAttrs"
+    class="w-full"
+    data-test-key="basket-product-term-selector"
   >
-    <SelectCards
-      v-model="selectedTerm"
-      :items="parsedTerms"
+    <Select
+      :model-value="selectedTerm"
+      :items="termOptions"
       :disabled="disabled || processing"
-      :placeholder="t('form.select_option.placeholder')"
-      size="sm"
-      :ui-config="{
-        select: {
-          trigger: [styles.product.summary.footer.terms.trigger],
-          content: [styles.product.summary.footer.terms.content]
-        }
-      }"
+      size="md"
+      class="w-full"
+      @update:model-value="onSelect"
     >
-      <template #item="slotProps">
-        {{ slotProps.label }}
-
-        <CurrentPrice
-          v-if="slotProps.item.meta?.useMonthlyFromPrice"
-          :current-price="slotProps.item.price.currentPrice"
-          :monthly-from-current-price="
-            slotProps.item.price.monthlyFromCurrentPrice
-          "
-          :free="slotProps.item.meta?.free"
-          use-monthly-from-price
-          :ui-config="{
-            pricing: { current: [styles.product.summary.footer.terms.price] }
-          }"
-        />
+      <template #value>
+        <span v-if="selectedLabel">{{ selectedLabel }}</span>
+        <span v-else class="text-muted">{{
+          t("form.select_option.placeholder")
+        }}</span>
       </template>
-
-      <template #dropdown-item="slotProps">
-        <TermCard v-bind="slotProps.item" layout="inline" :summary="false" />
+      <template #item="{ option }">
+        <TermRow v-bind="option.term" :type="PriceDisplayTypes.CYCLE" />
       </template>
-    </SelectCards>
+    </Select>
   </div>
 </template>
 
@@ -48,18 +32,11 @@ import {
   parseBillingCycle,
   PriceDisplayTypes
 } from "@upmind-automation/headless";
-import {
-  SelectCards,
-  useStyles,
-  useTestAttrs
-} from "@upmind-automation/upmind-ui";
-import TermCard from "../../../../product/components/terms/TermCard.vue";
-import CurrentPrice from "../../../../product/components/pricing/CurrentPrice.vue";
-import styleConfig from "../basketProduct.config";
-import { map, toNumber } from "lodash-es";
+import { Select } from "@upmind/ui";
+import TermRow from "../../../../product/components/terms/TermRow.vue";
+import { toNumber } from "lodash-es";
 import type { TermSelectorProps } from "./types";
-import type { TermDetails } from "@upmind-automation/headless";
-import type { SelectCardsItemProps } from "@upmind-automation/upmind-ui";
+
 // -----------------------------------------------------------------------------
 
 const props = defineProps<TermSelectorProps>();
@@ -68,28 +45,29 @@ const emits = defineEmits(["update:modelValue"]);
 
 const { t } = useI18n();
 
-const styles = useStyles(["product.summary.footer.terms"], {}, styleConfig);
-
-const rootTestAttrs = useTestAttrs({ key: "basket-product-term-selector" });
-
 const hasTerms = computed(() => (props.terms?.length ?? 0) > 1);
 
-const selectedTerm = computed({
-  get: () => props.modelValue?.toString(),
-  set: (value: string | undefined) => {
-    if (props.disabled || !value) return;
-    emits("update:modelValue", toNumber(value));
-  }
-});
+const selectedTerm = computed(() => props.modelValue?.toString());
 
-const parsedTerms = computed<SelectCardsItemProps[]>(() =>
-  map(props.terms, (term: TermDetails, index: number) => ({
+const termOptions = computed(() =>
+  (props.terms ?? []).map(term => ({
     value: term.cycle?.toString() ?? "",
-    label: t("text.term_duration", {
-      duration: parseBillingCycle(term.cycle ?? 0).numeric
-    }),
-    item: term,
-    index
+    term
   }))
 );
+
+const selectedLabel = computed(() => {
+  const selected = props.terms?.find(
+    term => term.cycle?.toString() === props.modelValue?.toString()
+  );
+  if (!selected) return "";
+  return t("text.term_duration", {
+    duration: parseBillingCycle(selected.cycle ?? 0).numeric
+  });
+});
+
+function onSelect(value: unknown) {
+  if (props.disabled || !value) return;
+  emits("update:modelValue", toNumber(value));
+}
 </script>

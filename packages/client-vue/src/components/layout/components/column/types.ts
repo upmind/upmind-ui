@@ -1,8 +1,8 @@
 import {
   parseVariants,
   type VariantValues
-} from "@upmind-automation/upmind-ui";
-import { variants } from "./column.config";
+} from "../../../../utils/parseVariants";
+import { variants } from "./variants";
 
 export const COLUMN_FLOW = parseVariants(variants.flow);
 export const COLUMN_BACKGROUND = parseVariants(variants.background);

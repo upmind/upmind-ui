@@ -85,8 +85,7 @@ Feature: A client reads their own email history
     Given I am signed in as a client
     When I look at my email history
     Then it tells me the history is available to me
-    And before I am signed in it tells me the history is not available, while still
-      telling me it is loading
+    And before I am signed in it tells me the history is not available, while still telling me it is loading
     And the moment my session goes away it tells me the history is no longer available
     And I never have to inspect the session myself to learn any of this
 
@@ -107,8 +106,7 @@ Feature: A client reads their own email history
   Scenario Outline: Narrow my history to what happened to each email
     When I narrow my history to "<selection>"
     Then only the "<selection>" emails are returned
-    And switching to another selection re-reads my history straight away, without
-      me having to open it again
+    And switching to another selection re-reads my history straight away, without me having to open it again
     And no part of the previous selection is left behind
 
     Examples:
@@ -156,8 +154,7 @@ Feature: A client reads their own email history
   @AC-14 @single-email
   Scenario: See that email's details and whether it reached me
     When I open one of my emails
-    Then it shows the same subject, recipients, dates and delivery outcome the
-      history list showed for it
+    Then it shows the same subject, recipients, dates and delivery outcome the history list showed for it
     And whether it was sent, bounced or failed is stated the same way in both places
 
   @AC-15 @single-email
@@ -165,8 +162,7 @@ Feature: A client reads their own email history
     When I open one of my emails
     Then I can see whether it is loading, empty, or errored
     And I can wait for it to be ready before reading it
-    And that wait always finishes — including when I turn out not to be signed in,
-      where it finishes by telling me it is not ready
+    And that wait always finishes — including when I turn out not to be signed in, where it finishes by telling me it is not ready
 
   @AC-16 @single-email @guard
   Scenario: Know whether that email is mine to read at all
@@ -181,8 +177,7 @@ Feature: A client reads their own email history
     Given I have opened one of my emails
     When I refresh it
     Then it is re-read from the server
-    And when I destroy it, it is released, and opening that email again gives me a
-      fresh one
+    And when I destroy it, it is released, and opening that email again gives me a fresh one
 
   # === WHOLE-MODULE GUARANTEES ==============================================
 
@@ -200,8 +195,7 @@ Feature: A client reads their own email history
     When that resolution is broken so it instead reads from a global setting
     Then every read in this module turns red
     And restoring the resolution returns them green
-    And the proof shows which address was called and under whose identity it was
-      called, never only what came back
+    And the proof shows which address was called and under whose identity it was called, never only what came back
 
   @AC-20 @module @public-surface @negative-control
   Scenario: The module offers both surfaces and every consumer keeps compiling

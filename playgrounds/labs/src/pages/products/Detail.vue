@@ -7,7 +7,7 @@
 <script lang="ts" setup>
 import { useRouter } from "vue-router";
 import { UpmLayout } from "@upmind-automation/client-vue";
-import { Button } from "@upmind-automation/upmind-ui";
+import { Button } from "@upmind/ui";
 
 const router = useRouter();
 

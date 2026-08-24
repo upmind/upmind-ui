@@ -78,22 +78,20 @@
 
     <template #cancel>
       <Button
-        :label="t('action.cancel')"
         variant="subtle"
         size="lg"
         :block="isMobile"
         :disabled="meta.isProcessing || meta.isLoading"
         @click="doReset"
-      />
+      >
+        {{ t("action.cancel") }}
+      </Button>
     </template>
 
     <template #resolve>
       <Button
-        :label="t('action.continue_label')"
-        variant="solid"
-        color="primary"
+        variant="primary"
         size="lg"
-        icon-append="arrow-right"
         :disabled="
           meta.isProcessing ||
           meta.isEmpty ||
@@ -102,7 +100,10 @@
         "
         :block="isMobile || (isMobile && template === DOMAIN_TEMPLATE.WIDGET)"
         @click="doResolve"
-      />
+      >
+        {{ t("action.continue_label") }}
+        <Icon icon="arrow-right" />
+      </Button>
     </template>
   </component>
 </template>
@@ -112,8 +113,9 @@ import { computed, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDomain } from "@upmind-automation/headless";
 import { DEBOUNCE_DELAY } from "@upmind-automation/headless";
-import { isMobile } from "@upmind-automation/upmind-ui";
-import { Button } from "@upmind-automation/upmind-ui";
+import { Button } from "@upmind/ui";
+import { Icon } from "../../components/icon";
+import { isMobile } from "../../composables/isMobile";
 import DomainCards from "./components/DomainCards.vue";
 import DomainHero from "./components/DomainHero.vue";
 import DomainSearch from "./components/DomainSearch.vue";

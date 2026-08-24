@@ -1,5 +1,5 @@
 <template>
-  <div :class="styles.authJourney.root">
+  <div class="flex flex-col gap-4">
     <Tabs v-if="!isAuthenticated" v-model="activeTab" :tabs="authTabs">
       <template #[`content.login`]>
         <Alert
@@ -8,12 +8,12 @@
           icon="alert-triangle"
           :title="alertTitle"
           :description="errors"
-          :class="styles.authJourney.alert"
+          class="max-w-xl"
         />
 
         <UpmForm
           v-if="showLoginForm"
-          :class="styles.authJourney.form"
+          class="max-w-xl pt-6"
           :schema="schema"
           :uischema="uischema"
           :model-value="model"
@@ -42,12 +42,12 @@
           icon="alert-triangle"
           :title="alertTitle"
           :description="errors"
-          :class="styles.authJourney.alert"
+          class="max-w-xl"
         />
 
         <UpmForm
           v-if="showRegisterForm"
-          :class="styles.authJourney.form"
+          class="max-w-xl pt-6"
           :schema="schema"
           :uischema="uischema"
           :model-value="model"
@@ -76,12 +76,12 @@
           icon="alert-triangle"
           :title="alertTitle"
           :description="errors"
-          :class="styles.authJourney.alert"
+          class="max-w-xl"
         />
 
         <UpmForm
           v-if="showRecoverPasswordForm"
-          :class="styles.authJourney.form"
+          class="max-w-xl pt-6"
           :schema="schema"
           :uischema="uischema"
           :model-value="model"
@@ -106,24 +106,24 @@
 
     <Alert
       v-if="isAuthenticated"
-      variant="minimal"
+      appearance="muted"
       color="success"
       icon="check-circle"
       :title="t('labs.auth_authenticated')"
       :data-attrs="{ 'data-test-key': 'auth-authenticated' }"
     >
       <template #default>
-        <p :class="styles.authJourney.identity">
+        <p class="flex items-center gap-2">
           {{ t("labs.auth_authenticated_as") }}
           <Badge
             v-if="isSelf"
             size="sm"
-            variant="minimal"
+            appearance="muted"
             append-icon="chevron-right"
           >
             {{ t(ACTOR_LABEL_KEYS[ScopeActorTypes.SELF]) }}
           </Badge>
-          <Badge v-if="sessionActorLabel" size="sm" variant="minimal">
+          <Badge v-if="sessionActorLabel" size="sm" appearance="muted">
             {{ t(sessionActorLabel) }}
           </Badge>
         </p>
@@ -173,19 +173,12 @@ import {
   useActiveSession,
   useAuth
 } from "@upmind-automation/headless";
-import {
-  Alert,
-  Badge,
-  Button,
-  Tabs,
-  useStyles
-} from "@upmind-automation/upmind-ui";
+import { Alert, Badge, Button, Tabs } from "@upmind/ui";
 import { ACTOR_LABEL_KEYS } from "../scope";
 import { usePlaygroundSheet } from "../sheets";
-import config from "./AuthJourney.styles";
 import { get } from "lodash-es";
 import type { AuthJourneyProps } from "./AuthJourney.types";
-import type { TabItem } from "@upmind-automation/upmind-ui";
+import type { TabItem } from "@upmind/ui";
 
 // -----------------------------------------------------------------------------
 
@@ -261,22 +254,19 @@ const authTabs = computed<TabItem[]>(() => {
   if (canLogin.value) {
     tabs.push({
       label: t("labs.auth_tab_login"),
-      value: "login",
-      icon: "log-in-01"
+      value: "login"
     });
   }
   if (canRegister.value) {
     tabs.push({
       label: t("labs.auth_tab_register"),
-      value: "register",
-      icon: "user-plus-01"
+      value: "register"
     });
   }
   if (canRecover.value) {
     tabs.push({
       label: t("labs.auth_tab_recover"),
-      value: "recover",
-      icon: "key-01"
+      value: "recover"
     });
   }
 
@@ -298,9 +288,11 @@ const activeTab = computed({
 });
 
 const alertTitle = computed(() => {
-  if (showRegisterForm.value) return t("form.register.error") as string;
-  if (showRecoverPasswordForm.value) return t("form.recover.error") as string;
-  if (showLoginForm.value) return t("form.login.error") as string;
+  if (showRegisterForm.value)
+    return t("error.session_register_failed") as string;
+  if (showRecoverPasswordForm.value)
+    return t("error.session_recover_failed") as string;
+  if (showLoginForm.value) return t("error.session_login_failed") as string;
   return "";
 });
 
@@ -361,6 +353,4 @@ onMounted(async () => {
 onUnmounted(() => {
   destroy();
 });
-
-const styles = useStyles(["authJourney"], {}, config);
 </script>

@@ -63,4 +63,24 @@ describe("admin playground surface — AC-61", () => {
     expect(source).not.toMatch(/name:\s*["']admin\.account\.profile\.edit["']/);
     expect(source).not.toMatch(/profile\/admin\/(Profile|Edit)\.vue/);
   });
+
+  it("AC-61 the new Nuxt scenario introduces no staff cell", () => {
+    const scenarioFile = join(
+      import.meta.dirname,
+      "../../../../../../playgrounds/labs-nuxt/modules/scenarios/usePersonalDetails/client-personal-details.scenario.ts"
+    );
+    expect(existsSync(scenarioFile), `${scenarioFile} should exist`).toBe(true);
+    const scenarioSource = readFileSync(scenarioFile, "utf-8");
+
+    expect(scenarioSource).not.toMatch(/ScopeActorTypes\.STAFF/);
+    expect(scenarioSource).not.toMatch(/\/for\/client\/:id/);
+
+    const typesFile = join(
+      import.meta.dirname,
+      "../client-personal-details.types.ts"
+    );
+    const typesSource = readFileSync(typesFile, "utf-8");
+
+    expect(typesSource).toMatch(/\[ScopeActorTypes\.STAFF\]:\s*null as never/);
+  });
 });

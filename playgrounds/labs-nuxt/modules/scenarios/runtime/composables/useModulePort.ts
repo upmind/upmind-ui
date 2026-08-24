@@ -160,6 +160,9 @@ export function useModulePort(
     // module has to remember to publish on its context (`R6-31`).
     scopeMatrix: composable.scopeMatrix,
     snapshot: () => ({ ...port.snapshot(), debug: readDebug(cell) }),
-    table: port.table
+    table: port.table,
+    // Relay the cell's own useContext for callers that need reactive context
+    // methods (e.g. uischemaFor for field-scoped views).
+    useContext: cell.useContext as () => Record<string, unknown>
   };
 }

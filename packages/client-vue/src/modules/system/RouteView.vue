@@ -40,14 +40,12 @@ import { SHELL } from "../../components/shell/types";
 import { useShell } from "../../components/shell/useShell";
 import Loading from "./Loading.vue";
 import { useRouteTransition } from "./useRouteTransition";
-import type { InterstitialProps } from "@upmind-automation/upmind-ui";
+import type { RouteViewProps } from "./types";
 import type { RouteLocation } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<{
-  loadingProps?: InterstitialProps;
-}>();
+const props = defineProps<RouteViewProps>();
 const emit = defineEmits<{
   (e: "resolve", el: Element): void;
 }>();

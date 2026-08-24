@@ -1,0 +1,46 @@
+{
+  "name": "@upmind-automation/storybook-next",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "test:a11y": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@fontsource-variable/bricolage-grotesque": "^5.2.10",
+    "@fontsource-variable/inter": "^5.2.8",
+    "@fontsource-variable/jetbrains-mono": "^5.2.8",
+    "@fontsource-variable/outfit": "^5.2.5",
+    "@fontsource-variable/rethink-sans": "^5.2.8",
+    "@fontsource-variable/sora": "^5.2.8",
+    "@fontsource-variable/space-grotesk": "^5.2.10",
+    "@fontsource/gilda-display": "^5.2.8",
+    "@fontsource/instrument-serif": "^5.2.8",
+    "@upmind/tokens": "workspace:*",
+    "@upmind/ui": "workspace:*",
+    "lucide-vue-next": "catalog:",
+    "reka-ui": "catalog:",
+    "vue": "catalog:"
+  },
+  "devDependencies": {
+    "@storybook/addon-a11y": "^10.4.4",
+    "@storybook/addon-docs": "^10.4.4",
+    "@storybook/addon-themes": "^10.4.4",
+    "@storybook/addon-vitest": "^10.4.4",
+    "@storybook/vue3-vite": "^10.4.4",
+    "@tailwindcss/vite": "catalog:",
+    "@types/react": "^19.0.0",
+    "@vitejs/plugin-vue": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
+    "playwright": "catalog:",
+    "react": "^19.0.0",
+    "storybook": "^10.4.4",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

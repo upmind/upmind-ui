@@ -1,24 +1,28 @@
 <template>
-  <header :class="styles.hero.root">
+  <header :class="heroRootVariants({ size: props.size })">
     <Badge
-      v-if="badge"
-      class="shrink-0"
-      variant="minimal"
-      color="neutral"
-      v-bind="isString(badge) ? { label: badge } : badge"
-    />
+      v-if="heroBadge"
+      :appearance="heroBadge.appearance ?? BADGE_APPEARANCE.OUTLINE"
+      :variant="heroBadge.variant ?? BADGE_VARIANT.NEUTRAL"
+    >
+      <Icon v-if="heroBadge.icon" :icon="heroBadge.icon" size="xs" />
+      {{ heroBadge.label }}
+    </Badge>
     <hgroup>
       <slot name="prepend" />
-      <h1 :class="styles.hero.title" v-bind="titleTestAttrs()">
+      <h1
+        :class="cn(heroTitleVariants(), props.titleClass)"
+        v-bind="titleTestAttrs()"
+      >
         <slot name="title">
-          <Sanitized v-if="props.title" :modelValue="props.title" />
+          <Sanitized v-if="props.title" :html="props.title" />
         </slot>
       </h1>
 
       <component
         v-if="props.subtitle || $slots.subtitle"
         :is="$slots.subtitle ? 'div' : 'p'"
-        :class="styles.hero.subtitle"
+        :class="heroSubtitleVariants()"
       >
         <slot name="subtitle">
           {{ props.subtitle }}
@@ -28,7 +32,7 @@
       <component
         v-if="!meta.hasSubtitle && meta.hasDescription"
         :is="$slots.description ? 'div' : 'p'"
-        :class="styles.hero.description"
+        :class="cn(heroDescriptionVariants(), props.descriptionClass)"
       >
         <slot name="description">
           {{ props.description }}
@@ -39,7 +43,7 @@
     <component
       v-if="meta.hasSubtitle && meta.hasDescription"
       :is="$slots.description ? 'div' : 'p'"
-      :class="styles.hero.description"
+      :class="cn(heroDescriptionVariants(), props.descriptionClass)"
     >
       <slot name="description">
         {{ props.description }}
@@ -48,11 +52,16 @@
 
     <div v-if="props.action">
       <Button
-        v-bind="props.action"
         variant="subtle"
         size="lg"
+        :disabled="props.action.disabled"
+        :loading="props.action.loading"
+        v-bind="props.action.dataAttrs"
         @click="emit('action')"
-      />
+      >
+        <Icon v-if="props.action.icon" :icon="props.action.icon" />
+        {{ props.action.label }}
+      </Button>
     </div>
 
     <slot name="append" />
@@ -63,18 +72,17 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { Badge, Button } from "@upmind-automation/upmind-ui";
+import { BADGE_APPEARANCE, BADGE_VARIANT } from "@upmind-automation/headless";
+import { useTestAttrs } from "@upmind/ui";
+import { Button, Sanitized, Badge, cn } from "@upmind/ui";
+import { Icon } from "../icon";
 import {
-  useStyles,
-  useTestAttrs,
-  Sanitized
-} from "@upmind-automation/upmind-ui";
-
-// --- utils
-import config from "./hero.config";
+  heroRootVariants,
+  heroTitleVariants,
+  heroSubtitleVariants,
+  heroDescriptionVariants
+} from "./variants";
 import { isString } from "lodash-es";
-
-// --- types
 import type { HeroProps } from "./types";
 
 const props = defineProps<HeroProps>();
@@ -87,12 +95,12 @@ const emit = defineEmits<{
 const titleTestAttrs = () =>
   useTestAttrs({ key: "hero-title", dataAttrs: props.dataAttrs });
 
+const heroBadge = computed(() =>
+  isString(props.badge) ? { label: props.badge } : props.badge
+);
+
 const meta = computed(() => ({
   hasSubtitle: !!props.subtitle || !!slots.subtitle,
-  hasDescription:
-    !props.loading && (!!props.description || !!slots.description),
-  size: props.size
+  hasDescription: !props.loading && (!!props.description || !!slots.description)
 }));
-
-const styles = useStyles(["hero"], meta, config, props.uiConfig ?? {});
 </script>

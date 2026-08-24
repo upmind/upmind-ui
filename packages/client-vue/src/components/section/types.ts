@@ -1,9 +1,4 @@
-import type {
-  InterstitialProps,
-  TabItem,
-  LinkProps
-} from "@upmind-automation/upmind-ui";
-import type { CxOptions } from "class-variance-authority";
+import type { DataAttrs, InterstitialProps, LinkVariants } from "@upmind/ui";
 import type { HTMLAttributes } from "vue";
 
 export type I18nText = {
@@ -15,15 +10,25 @@ export type InterstitialExtendedProps = InterstitialProps & {
   i18nTitle?: I18nText;
 };
 
-export type SectionActionProps = LinkProps & {
+export type SectionActionProps = LinkVariants & {
+  to?: string | object;
+  href?: string;
+  label?: string;
+  icon?: string;
   handler?: ((...args: unknown[]) => unknown) | string;
   type?: HTMLButtonElement["type"];
   visible?: boolean;
+  /** data-* attributes (e.g. test ids) forwarded to the action element. */
+  dataAttrs?: DataAttrs;
 };
 
-export interface SectionItem extends TabItem {
+export interface SectionItem {
+  label: string;
+  value: string;
+  icon?: string;
+  eager?: boolean;
+  dataAttrs?: DataAttrs;
   actions?: SectionActionProps[];
-  active?: boolean;
 }
 
 export type SectionsProps = {
@@ -36,15 +41,7 @@ export type SectionsProps = {
   class?: HTMLAttributes["class"];
   sections: SectionItem[];
   modelValue?: string;
-  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
-  uiConfig?: {
-    section: {
-      root: CxOptions;
-      header: CxOptions;
-      title: CxOptions;
-      content: CxOptions;
-    };
-  };
+  dataAttrs?: DataAttrs;
 };
 
 export type UseSectionProps = {

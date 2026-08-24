@@ -1,9 +1,9 @@
 <template>
-  <div :class="cn(styles.product.config.root)">
-    <div :class="styles.product.config.content">
-      <div :class="styles.product.config.wrapper">
+  <div :class="productConfigRootVariants()">
+    <div :class="productConfigContentVariants()">
+      <div :class="productConfigWrapperVariants()">
         <!-- heading -->
-        <header :class="styles.product.config.heading">
+        <header :class="productConfigHeadingVariants()">
           <div class="w-full">
             <div class="flex flex-col gap-2">
               <Skeleton class="h-6 w-32" />
@@ -39,13 +39,15 @@
 </template>
 
 <script lang="ts" setup>
-import { useStyles, cn } from "@upmind-automation/upmind-ui";
-import { Skeleton } from "@upmind-automation/upmind-ui";
-import config from "../product.config";
+import { Skeleton } from "@upmind/ui";
+import {
+  productConfigRootVariants,
+  productConfigContentVariants,
+  productConfigWrapperVariants,
+  productConfigHeadingVariants
+} from "../variants";
 
 // --- components
 
 // --- types
-
-const styles = useStyles(["product.config"], {}, config);
 </script>

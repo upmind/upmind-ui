@@ -1,0 +1,71 @@
+Negative control — the setCriteria door (AC-9).
+
+Wraps the published `setCriteria: query.setCriteria` in a forwarding
+function that ignores its argument and calls `query.setCriteria({})`
+instead. The door is still published on `useActions()`, still typed to take
+a `Parameters<typeof query.setCriteria>[0]` intent — it just never lets that
+intent reach the model. Same FE-2824 shape: structure present, capability
+gone.
+
+Should flip RED — `setCriteria` is the SHARED generic write door, so this
+reaches every test that calls it directly (not just the pager tests it was
+originally cut for):
+  __tests__/pager-writes-through-criteria.int.test.ts, describe("client-
+  address pager — setCriteria opens a real paged collection (AC-9)"):
+    - "AC-9 setCriteria({ pagination: { limit } }) puts limit on the
+       outbound request"
+    - "AC-9 nextPage() moves the outbound offset once a page size is set"
+    - "AC-9 prevPage() moves the offset back once a page size is set"
+    - "AC-9 useContext().query tracks the offset as it moves both ways
+       (write-through)"
+  __tests__/client-address.criteria-surface.int.test.ts:
+    - "AC-41 cannot spell a filter column the schema does not declare — the
+       declared column beside it still lands, the undeclared one never
+       reaches the wire" (strengthened this revision to require the
+       DECLARED column of a mixed write actually land — a no-op setCriteria
+       stayed GREEN under the old wire-silence-only assertion, since the
+       undeclared column reaching nowhere is indistinguishable from
+       everything reaching nowhere)
+    - "AC-41 surfaces ajv's verdict on useContext().error when a declared
+       column is written the wrong type" (writes via `setCriteria`)
+    - "issues exactly one request per DISTINCT criteria combination" (the
+       cache law — writes via `setCriteria`)
+  __tests__/client-address.filters.int.test.ts:
+    - "AC-8 clearing the search removes the filter key entirely — no stale
+       filter[name|like] survives on the next request" (forces the
+       post-clear request via `setCriteria({ pagination: { limit: 2 } })`)
+  __tests__/client-address.criteria-surface.int.test.ts (added this
+  revision):
+    - "AC-41 hasError is false on boot, true once an out-of-range criteria
+       write is rejected, false again once corrected" (writes via
+       `setCriteria({ pagination: { limit: -1 } })`; a no-op setCriteria
+       never reaches ajv, so `hasError` never becomes true and the test
+       times out)
+
+Should stay GREEN — the pager file's earlier describe block ("the guarded
+path leaves the published query untouched") and every AC-8/AC-42 test that
+writes through `filters.query` / `sortBy` rather than `setCriteria` directly.
+
+MEASURED (prover, applied blind, per agent-seat-separation.md's must-fail-
+patch seam — the developer authors the mutant, the prover verifies it red
+and reverts): `git apply --check` clean against the current tree. Baseline
+(this module's full suite, unmutated): 3 failed | 150 passed (153) — the 3
+pre-existing `client-address.brand-config.int.test.ts` AC-20/AC-21 failures,
+root-caused to `brand.services.ts:112-114`, unrelated. Applied: 12 failed |
+141 passed (153) — exactly the 9 tests named above flip (the AC-41
+undeclared-column leg post-strengthening, and the new `hasError` proof, both
+newly among them), nothing else moves. Reverted after measurement
+(`git apply -R`), 2026-08-23.
+
+--- a/packages/headless/src/modules/client-address/useClientAddresses.actions.ts
++++ b/packages/headless/src/modules/client-address/useClientAddresses.actions.ts
+@@ -263,7 +263,8 @@
+      * This is the door that sets the page size:
+      * `setCriteria({ pagination: { limit } })`.
+      */
+-    setCriteria: query.setCriteria,
++    setCriteria: (_next: Parameters<typeof query.setCriteria>[0]) =>
++      query.setCriteria({}),
+
+     /** Promotes an address to the client's default. Same feedback contract as `remove`. */
+     setDefault: service.setDefault,

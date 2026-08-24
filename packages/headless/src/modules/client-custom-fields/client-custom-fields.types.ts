@@ -23,11 +23,14 @@
  * matrix; the definition model, the services contract and the mappers are
  * shared, which is what keeps ONE identity seam for both halves.
  */
+import { SortDirection } from "../query/query.types";
 import { ScopeActorTypes } from "../scope/scope.types";
 // graphify-out/graph.json (2026-08-10): `useUpload`'s return type is consumed
 // below (`ClientCustomFieldImageServices.uploader`), never re-minted.
 import type { ResponseError } from "../../utils";
-import type { ListQuery, QueryParams } from "../query";
+import type { ListQuery } from "../query";
+import type { ScopeContext } from "../scope";
+import type { useQuerySchema } from "./client-custom-fields.schemas";
 import type { useUpload } from "../system-upload";
 import type { QueryKey } from "@tanstack/vue-query";
 import type {
@@ -217,6 +220,46 @@ export type CustomFieldImageContext = {
   field_is_default: boolean;
 };
 
+// -----------------------------------------------------------------------------
+// QUERY MODEL
+// -----------------------------------------------------------------------------
+//
+// @graphify-citation `graphify query "QueryModel FilterModel SortModel
+// SortEntry CUSTOM_FIELD_DEFAULT_SORT"` (2026-08-22) — `graphify-out/graph.json`
+// shows the only matches as `client-email.types.ts`'s own per-module
+// `QueryModel`/`FilterModel`/`SortModel`/`SortEntry`; none exist in THIS
+// module's `client-custom-fields.types.ts`. Each module mints its own
+// query-model family (the established, repeated pattern), so this is not a
+// duplicate to consume.
+
+/** One declared ordering instruction. */
+export type SortEntry = { field: "order" | "name"; dir: SortDirection };
+
+/** What `sortBy` accepts — the schema's `sort` branch. */
+export type SortModel = SortEntry[];
+
+/** What `filterBy` accepts — the schema's `filters` branch. */
+export type FilterModel = { name?: { like?: string | null } };
+
+/** The collection's whole request state, as one model. */
+export type QueryModel = {
+  filters?: FilterModel;
+  sort?: SortModel;
+  pagination?: { limit?: number; offset?: number };
+};
+
+/** The declared type of `useQuerySchema()`'s return. */
+export type QuerySchema = ReturnType<typeof useQuerySchema>;
+
+/**
+ * The catalogue's natural sequence — the API's own display-order column,
+ * ascending. This const IS the schema's `sort.default`; the two must not
+ * drift, so the schema references this rather than repeating the literal.
+ */
+export const CUSTOM_FIELD_DEFAULT_SORT: SortModel = [
+  { field: "order", dir: SortDirection.ASC }
+];
+
 /**
  * The reactive list query, minted ONCE per scope in `useClientCustomFields.ts`.
  * Aliased from the query platform's own `ListQuery` — never derived with
@@ -224,7 +267,8 @@ export type CustomFieldImageContext = {
  */
 export type ClientCustomFieldsListQuery = ListQuery<
   ICustomField[],
-  CustomField[]
+  CustomField[],
+  QueryModel
 >;
 
 /** Lands a failed collection mutation in the services instance's error state. */
@@ -247,9 +291,9 @@ export type ClientCustomFieldsServices = {
   isAvailable: ComputedRef<boolean>;
   /** The last failed mutation, captured as state — never raised. */
   error: ComputedRef<ResponseError | undefined>;
-  loadList: (
-    params?: Partial<QueryParams<ICustomField[], CustomField[]>>
-  ) => ClientCustomFieldsListQuery;
+  // graphify-out/graph.json (2026-08-22): narrowed per the query-model citation
+  // above — the dead raw `params` arm is now unspellable, not merely unused.
+  loadList: (scopeContext?: ScopeContext) => ClientCustomFieldsListQuery;
   /** Resolves a single definition by id from the (awaited) collection. */
   resolveFieldById: (
     id?: CustomField["id"]

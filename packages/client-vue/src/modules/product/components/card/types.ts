@@ -1,4 +1,4 @@
-import type { rootVariant } from "./card.config";
+import type { cardRootVariants } from "./variants";
 import type {
   Product,
   Benefit,
@@ -9,12 +9,13 @@ import type {
   TermDetails,
   UseMetaResult
 } from "@upmind-automation/headless";
-import type { ButtonProps, ImageProps } from "@upmind-automation/upmind-ui";
+import type { ButtonVariants } from "@upmind/ui";
+import type { ImageProps } from "@upmind/ui";
 import type { VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
-export type RootVariants = VariantProps<typeof rootVariant>;
+export type RootVariants = VariantProps<typeof cardRootVariants>;
 
 export interface ProductCardProps extends Omit<Product, "price" | "pricing"> {
   configureRoute: RouteLocationAsRelativeGeneric;
@@ -55,7 +56,7 @@ export interface ProductCardProps extends Omit<Product, "price" | "pricing"> {
   hideTermSummary?: boolean;
   preservePromotion?: boolean;
   navigate?: boolean;
-  color?: ButtonProps["color"];
+  color?: ButtonVariants["variant"];
   ratio?: ImageProps["ratio"];
 }
 
@@ -87,7 +88,6 @@ export interface ProductPrice extends TermDetails {
 export interface ProductTerm {
   modelValue?: string;
   prices?: ProductSummaryDetailWithPrice[];
-  hideBadge?: boolean;
 }
 
 export interface ProductCardSkeletonProps {

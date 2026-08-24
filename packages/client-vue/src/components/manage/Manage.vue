@@ -11,7 +11,7 @@
       v-model="modelValue"
       :readonly="readonly"
       :class="props.class"
-      class="text-md"
+      class="text-base"
       :minimal="props.minimal"
       :force-open="props.forceOpen"
       @add="doAdd"
@@ -60,7 +60,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { isFunction } from "xstate/lib/utils";
-import { FormLabel } from "@upmind-automation/upmind-ui";
+import { FormLabel } from "../form";
 import Form from "./Form.vue";
 import List from "./List.vue";
 import Select from "./Select.vue";

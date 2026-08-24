@@ -1,6 +1,8 @@
 import type { ResponseError } from "../../utils";
 import type { BasketProduct } from "../basket-product";
-import type { Badge } from "../config/schema";
+// Reuses the config schema's badge shape (graphify-out/GRAPH_REPORT.md — no
+// product-local badge type exists); the bare-label form is permitted here too.
+import type { BadgeInput } from "../config/schema";
 import type { Recommendation } from "../recommendations";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type { PromotionDisplayTypes } from "@upmind-automation/types";
@@ -259,8 +261,8 @@ export type ProductDetails = {
   serviceIdentifier?: string;
   /** The brand associated with the product. */
   brand: string;
-  /** An optional {@link Badge} to display with the product. */
-  badge?: Badge;
+  /** An optional {@link BadgeInput} to display with the product (graphify-out/). */
+  badge?: BadgeInput;
   /** The ID of the primary category the product belongs to. */
   categoryId: string;
   /** The name of the primary category the product belongs to. */

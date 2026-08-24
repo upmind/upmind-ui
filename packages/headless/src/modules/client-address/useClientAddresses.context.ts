@@ -1,4 +1,9 @@
 import { computed, toRaw, unref } from "vue";
+import {
+  useQuerySchema,
+  useQueryUischema,
+  useSortUischema
+} from "./client-address.schemas";
 import { mapToHeadlessError, useCollection } from "../../utils";
 import {
   every,
@@ -30,6 +35,15 @@ import type { MaybeRef } from "vue";
  *
  * @doctrine clause 2 — shared-only (armless).
  */
+
+// `useQuerySchema` / `useQueryUischema` / `useSortUischema` take no
+// arguments and hold no reactive state, so their output is fixed for the
+// module's lifetime — minted once here rather than per `useContext()` call,
+// so a JSONForms FilterBar bound to `schemas.query.schema` keeps one stable
+// identity across renders instead of resetting on every re-render.
+const QUERY_SCHEMA = useQuerySchema();
+const QUERY_UISCHEMA = useQueryUischema();
+const SORT_UISCHEMA = useSortUischema();
 export function createClientAddressesContext(
   _actorScope: ScopeActorTypes,
   service: ClientAddressServices,
@@ -85,6 +99,7 @@ export function createClientAddressesContext(
 
   const error = computed<ResponseError | undefined>(
     () =>
+      query.criteriaError.value ??
       service.error.value ??
       (query.error.value ? mapToHeadlessError(query.error.value) : undefined)
   );
@@ -113,7 +128,28 @@ export function createClientAddressesContext(
     getOne,
 
     /** Reactive pagination descriptor for the list query. */
-    pagination: query.pagination
+    pagination: query.pagination,
+
+    /**
+     * This scope's ACTIVE request state — `{ filters, sort, pagination }`,
+     * the query's own published criteria rather than a copy of it;
+     * read-only, write through `useActions().filters.query` / `.sortBy` /
+     * `.setCriteria`.
+     */
+    query: query.criteria,
+
+    /**
+     * The module's schema family, plain JSON so it survives the renderer
+     * port's `JSON` round-trip. The renderer's only door to it is
+     * `useContext()`.
+     */
+    schemas: {
+      query: {
+        schema: QUERY_SCHEMA,
+        uischema: QUERY_UISCHEMA,
+        sortUischema: SORT_UISCHEMA
+      }
+    }
 
     // The arm merges in HERE, last.
     // ...actorContext

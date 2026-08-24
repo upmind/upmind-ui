@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col gap-2">
-    <span v-if="props.total > 1" class="text-muted-foreground text-sm">
+    <span v-if="props.total > 1" class="text-muted text-sm">
       {{ t("cart.product_setup_count", { count: props.total }) }}
     </span>
     <h2 class="text-xl font-semibold">

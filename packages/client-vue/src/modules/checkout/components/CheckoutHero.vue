@@ -12,7 +12,9 @@
       showBadge
         ? {
             label: t('text.fully_encrypted_title'),
-            icon: 'lock-04'
+            icon: 'lock-04',
+            variant: 'neutral',
+            appearance: 'outline'
           }
         : undefined
     "

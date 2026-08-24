@@ -2,22 +2,50 @@ import { ref, computed } from "vue";
 import { useBrand, useTheming } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
 import { UIContext } from "@upmind-automation/headless";
-import { useThemes, useThemeIcons } from "@upmind-automation/upmind-ui";
+import { setIconVariant } from "../../components/icon";
+import { COLOR_MODE } from "./types";
+import { useColorMode } from "./useColorMode";
 import {
   setDocumentFavicon,
   setDisplayFontLink,
   setFontVariables,
   loadGoogleFonts,
   setDocumentTitle,
-  setTokens
+  setTokens,
+  deriveBrandTheme
 } from "./utils";
-import { isEmpty, keys, isEqual, find, forEach, capitalize } from "lodash-es";
+import {
+  isEmpty,
+  isEqual,
+  find,
+  first,
+  forEach,
+  capitalize,
+  map
+} from "lodash-es";
 import type { Theme } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 // --- global context
 
+const DEFAULT_THEME = "default";
 const theme = ref<Theme | undefined>(undefined);
+const availableThemes = ref<Theme[]>([]);
+let defaultTheme = DEFAULT_THEME;
+
+function applyTheme(value: Theme["id"]) {
+  const id = value === DEFAULT_THEME ? defaultTheme : value;
+
+  theme.value =
+    (find(availableThemes.value, ["id", id]) as Theme | undefined) ??
+    first(availableThemes.value);
+
+  if (typeof document !== "undefined" && document.body) {
+    document.body.dataset.theme = theme.value?.id ?? id;
+  }
+}
+
+export const useThemes = () => ({ set: applyTheme });
 
 // -----------------------------------------------------------------------------
 
@@ -37,20 +65,22 @@ export const useTheme = (initial?: string) => {
     isReady: isBrandReady
   } = useBrand();
 
-  const { themes, meta: themingMeta } = useTheming();
-  const { set: setUiTheme, add: addUiTheme } = useThemes(themes.value, initial);
-
-  const { setIconTheme } = useThemeIcons();
+  const { themes } = useTheming();
   const { data, ui } = useConfig({ context: UIContext.ALL });
 
   // --- state
 
   async function isReady(): Promise<boolean> {
     return new Promise(resolve => {
+      let attempts = 0;
       const interval = setInterval(() => {
-        if (brandMeta.value.isAvailable && !isEmpty(themes.value)) {
+        attempts += 1;
+        if (brandMeta.value.isAvailable) {
           clearInterval(interval);
           resolve(true);
+        } else if (attempts >= 50) {
+          clearInterval(interval);
+          resolve(false);
         }
       }, 100);
     });
@@ -60,7 +90,7 @@ export const useTheme = (initial?: string) => {
 
   const meta = computed(() => ({
     isAvailable: brandMeta.value.isAvailable,
-    hasSettings: brandMeta.value.isAvailable && themingMeta.value.hasThemes,
+    hasSettings: brandMeta.value.isAvailable,
     hasTheme: !isEmpty(theme.value)
   }));
 
@@ -68,13 +98,8 @@ export const useTheme = (initial?: string) => {
   const set = (value: Theme["id"]) => {
     if (isEqual(theme.value?.id, value)) return;
 
-    theme.value = find(themes.value, ["id", value]) as Theme | undefined;
+    applyTheme(value);
 
-    if (!theme.value) {
-      theme.value = find(themes.value, ["id"]) as Theme | undefined;
-    }
-
-    // Apply the theme to the document and UI lib
     if (data.displayFontLink) {
       setDisplayFontLink(data.displayFontLink).then(displayFont => {
         if (displayFont) {
@@ -89,34 +114,39 @@ export const useTheme = (initial?: string) => {
       }
     }
 
-    setIconTheme(capitalize(ui.iconVariant.value));
-    setUiTheme(theme.value?.id ?? "default");
+    setIconVariant(capitalize(ui.iconVariant.value));
     setDocumentTitle(name.value);
     setDocumentFavicon(favicon.value ?? undefined);
   };
 
   // --- Side Effects
   isBrandReady().then(() => {
-    // honour the initial theme
-    // if no initial theme provided, honour the preferred variant from the UI meta
-    // if no variants are available, we honour the browser mode and use the default `upmind` variant
+    const brandId = ui.theme.value || DEFAULT_THEME;
+    const brandColor = styles.value?.brand_color;
+    const brandTheme = brandColor
+      ? deriveBrandTheme({
+          id: brandId,
+          name: name.value || "Brand",
+          primary: brandColor,
+          font: styles.value?.brand_font?.family
+        })
+      : undefined;
 
-    const defaultTheme = "default";
-    // TODO: once we have configured the DARK thee correctly
-    //  window.matchMedia("(prefers-color-scheme: dark)")
-    //   .matches
-    //   ? "upmind-dark"
-    //   : "upmind";
+    // Explicit API tokens must override the palette derived from brand_color.
+    if (brandTheme) setTokens(brandTheme);
+    forEach(themes.value, setTokens);
 
-    const activeTheme = initial ?? uiTheme.value?.variant ?? defaultTheme;
+    availableThemes.value = [...(themes.value ?? [])];
+    if (brandTheme && !find(availableThemes.value, ["id", brandTheme.id])) {
+      availableThemes.value.push(brandTheme);
+    }
 
-    // ensure ALL our themes are added to the document
-    forEach(themes.value, theme => {
-      addUiTheme(theme, false);
-      setTokens(theme);
-    });
+    defaultTheme = initial ?? brandId;
+    useColorMode().setBrandPreferred(
+      uiTheme.value?.variant === COLOR_MODE.DARK ? COLOR_MODE.DARK : undefined
+    );
 
-    set(activeTheme);
+    set(defaultTheme);
   });
 
   // ---------------------------------------------------------------------------
@@ -133,11 +163,11 @@ export const useTheme = (initial?: string) => {
     /** The computed theme theme for the selected theme activeTheme. */
     theme: computed((): Theme | undefined => theme.value),
 
-    themes: computed((): Theme[] => themes.value ?? []),
+    themes: computed((): Theme[] => availableThemes.value),
 
-    selected: computed(() => theme.value?.id || "default"),
+    selected: computed(() => theme.value?.id || DEFAULT_THEME),
 
-    available: computed(() => keys(themes.value)),
+    available: computed(() => map(availableThemes.value, "id")),
 
     // --- state
     /** The current theme key (readonly). */
@@ -147,3 +177,5 @@ export const useTheme = (initial?: string) => {
     set
   };
 };
+
+export type UseTheme = ReturnType<typeof useTheme>;

@@ -11,13 +11,13 @@ modules/{module-name}/
 ├── index.ts                        # Public exports (required)
 ├── types.ts                        # Type definitions (required)
 ├── {Module}.vue                    # Main view component(s) (PascalCase)
-├── {module}.config.ts              # CVA styles configuration (if needed)
+├── variants.ts                     # cva class variants (if needed)
 ├── {module}.utils.ts               # Utility functions (if needed)
 ├── components/                     # Internal components (folder)
 │   ├── {ModulePart}.vue           # Component files (PascalCase)
 │   └── {subfolder}/               # Sub-feature folders (optional)
 │       ├── {Component}.vue
-│       ├── {component}.config.ts  # Sub-component CVA config
+│       ├── variants.ts            # Sub-component cva variants
 │       └── types.ts               # Sub-component types
 ├── templates/                      # Layout templates (folder)
 │   ├── {Module}Full.template.vue
@@ -130,7 +130,7 @@ export interface {Module}FormProps {
 | Component files | PascalCase.vue | `BillingForm.vue`, `DomainCard.vue` |
 | Template files | PascalCase.template.vue | `BillingFull.template.vue` |
 | Layout files | PascalCase.layout.vue | `DomainWidget.layout.vue` |
-| Config files | kebab-case.config.ts | `billing.config.ts` |
+| Variants files | variants.ts (always) | `variants.ts` |
 | Utils files | kebab-case.utils.ts | `session.utils.ts` |
 | Types file | types.ts (always) | `types.ts` |
 | Index file | index.ts (always) | `index.ts` |
@@ -139,24 +139,28 @@ export interface {Module}FormProps {
 
 ---
 
-## Config Files (CVA Styles)
+## Class Variants (`variants.ts`)
+
+> ⚠️ **`*.config.ts` styling is gone.** The `useStyles` / `uiConfig` / `*.config.ts`
+> override layer has been removed from client-vue (ADR 024 §D-3). Do not
+> reintroduce it. **Style with token-driven Tailwind utilities** directly in the
+> template (`bg-surface`, `text-body`, `rounded-slot`) + `cn()` for conditional
+> classes — see `.claude/rules/code-ui.companion.md`.
+>
+> **Class placement (operator ruling, 10 Aug 2026):** a class string lives in a template (on the element, or as a `class`/`:ui` value at a call site) or in a UI-library `variants.ts` — never in a script const, record, or computed. Inline `cn()` conditionals carry at most two named toggles; a one-of-N look is a variant — compute the variant *name* in script and let the library component own the classes.
+
+A class string that can't sit on the element — one reused across siblings, or
+carrying real variants — goes in the module's `variants.ts` as a named `cva`
+export, imported and called at the point of use.
 
 ```typescript
 import { cva } from "class-variance-authority";
 
-// -----------------------------------------------------------------------------
-
-export default {
-  {module}: {
-    {section}: {
-      root: cva("base-classes"),
-      {element}: cva("element-classes")
-    }
-  }
-};
+export const summaryRowVariants = cva("flex items-center justify-between");
+export const summaryTotalVariants = cva("text-display font-medium");
 ```
 
-**Structure:** `{module}.{section}.{element}` hierarchy
+**Naming:** `{element}Variants`, flat exports — no nested default-export object.
 
 ---
 
@@ -177,18 +181,18 @@ Standard templates each module should support:
 
 ## Component Subfolders
 
-For complex components, create subfolders with their own config/types:
+For complex components, create subfolders with their own variants/types:
 
 ```text
 components/
 ├── card/
 │   ├── ProductCard.vue
 │   ├── ProductCardSkeleton.vue
-│   ├── card.config.ts
+│   ├── variants.ts
 │   └── types.ts
 ├── pricing/
 │   ├── Pricing.vue
-│   ├── pricing.config.ts
+│   ├── variants.ts
 │   └── types.ts
 ```
 
@@ -215,6 +219,6 @@ export * from "./domain";
 - [ ] Main view(s) in module root as PascalCase.vue
 - [ ] `components/` folder for internal components
 - [ ] `templates/` folder with at least Full, Enclosed, LTR, RTL variants
-- [ ] `{module}.config.ts` for CVA styles (if needed)
+- [ ] `variants.ts` for cva class variants (if needed)
 - [ ] Module added to root `modules/index.ts` exports
 - [ ] Types imported from `@upmind-automation/headless` where applicable

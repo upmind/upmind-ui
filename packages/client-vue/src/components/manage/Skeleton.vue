@@ -18,12 +18,12 @@
 </template>
 
 <script setup lang="ts">
-import { Skeleton } from "@upmind-automation/upmind-ui";
+import { Skeleton } from "@upmind/ui";
 import Actions from "./Actions.vue";
 
 // -----------------------------------------------------------------------------
 
-const _props = defineProps<{
+defineProps<{
   modal?: boolean;
   noActions?: boolean;
 }>();

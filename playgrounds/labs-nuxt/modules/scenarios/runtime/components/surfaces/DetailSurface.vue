@@ -4,7 +4,7 @@
     :state="state"
     :detail="detail"
   />
-  <div v-else :class="styles.detailSurface.root">
+  <div v-else :class="detailSurface.root()">
     <!-- The scenario's declared fields, drawn read-only through the same cell
          renderers the table uses (`R6-36`). The record is the row: a
          declaration draws it here exactly as it draws it in a column. -->
@@ -12,9 +12,9 @@
       <div
         v-for="element in elements"
         :key="element.scope"
-        :class="styles.detailSurface.field"
+        :class="detailSurface.field()"
       >
-        <span :class="styles.detailSurface.label">{{
+        <span :class="detailSurface.label()">{{
           i18n.translate(element.i18n, element.i18n)
         }}</span>
         <CellDispatcher
@@ -25,7 +25,7 @@
         <!-- A read view answers for every field it declares: a value the record
              does not carry reads as absent rather than as a label with nothing
              under it, which is indistinguishable from a broken binding. -->
-        <span v-else :class="styles.detailSurface.empty">&mdash;</span>
+        <span v-else :class="detailSurface.empty()">&mdash;</span>
       </div>
     </template>
     <ContextPanel v-else :context="model" />
@@ -47,14 +47,13 @@
 
 import { computed } from "vue";
 import { useFormI18n } from "@upmind-automation/client-vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { detailSurface } from "./DetailSurface.styles";
 import { resolveScope } from "../../scenario.utils";
 import { CellDispatcher } from "../cells";
 import ContextPanel from "../ContextPanel.vue";
 import { resolveModuleDetail, resolveModuleState } from "../module-state";
 import { ModuleState } from "../module-state.types";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
-import config from "./DetailSurface.styles";
 import { isNil, isPlainObject, some, values } from "lodash-es";
 import type { DetailSurfaceProps } from "./DetailSurface.types";
 import type { TableCell } from "../../scenario.types";
@@ -91,7 +90,4 @@ function isPopulated(element: TableCell): boolean {
 
   return true;
 }
-
-const meta = computed(() => ({ state: state.value }));
-const styles = useStyles(["detailSurface"], meta, config);
 </script>

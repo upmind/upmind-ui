@@ -178,8 +178,17 @@ export const recorded = {
         "price_tax.tax.enable_automatic_vat_validation": boolean;
         "invoices.common.required_region_in_address": boolean;
       }>
-    >("get-config-brand-values", { recordingsDir })
+    >("get-config-brand-values", { recordingsDir }),
+  /** `GET clients/{id}/companies?filter[name|like]=%Heg%&limit=2` — the REAL narrowed read (AC-7/AC-34). */
+  nameFilterHeg: () =>
+    getFixtureBody<Envelope<WireCompany[]>>(
+      "get-clients-id-companies-case-name-like-filter-name-like-heg",
+      { recordingsDir }
+    )
 };
+
+/** The recorded needle {@link recorded.nameFilterHeg} narrows on — proven against the real corpus (AC-7/AC-34). */
+export const RECORDED_NAME_NEEDLE = "Heg";
 
 /**
  * The two REAL rows most suites build a multi-row collection from: the
@@ -421,6 +430,8 @@ export function observeCompanyRequests(): {
   all: () => ObservedRequest[];
   first: () => ObservedRequest;
   matching: (fragment: string) => ObservedRequest[];
+  /** The named search param off the MOST RECENT observed request, or `null`. */
+  lastParam: (key: string) => string | null;
   stop: () => void;
 } {
   const seen: ObservedRequest[] = [];
@@ -439,6 +450,10 @@ export function observeCompanyRequests(): {
     first: () => seen[0],
     matching: (fragment: string) =>
       seen.filter(entry => entry.url.includes(fragment)),
+    lastParam: (key: string) => {
+      const latest = seen.at(-1);
+      return latest ? new URL(latest.url).searchParams.get(key) : null;
+    },
     stop: () => server?.events.removeListener("request:start", listener)
   };
 }
@@ -539,6 +554,30 @@ export function installPagedCompaniesHandler(
   );
 
   return { offsets: () => offsets };
+}
+
+/**
+ * Serves the RECORDED unfiltered list by default, and the RECORDED narrowed
+ * `filter[name|like]=%Heg%` capture the moment a request's own params carry
+ * that exact key — a genuine server-side re-query, not a client-side slice,
+ * so a no-op `filterBy` implementation cannot pass (AC-7/AC-34).
+ */
+export function installCompaniesSearchHandler(
+  mswServer: SetupServer | undefined,
+  clientId: string
+): void {
+  const unfiltered = recorded.list();
+  const narrowed = recorded.nameFilterHeg();
+
+  mswServer?.use(
+    http.get(`*/clients/${clientId}/companies`, ({ request }) => {
+      const filtered =
+        new URL(request.url).searchParams.get("filter[name|like]") !== null;
+      return HttpResponse.json(filtered ? narrowed : unfiltered, {
+        status: 200
+      });
+    })
+  );
 }
 
 /**

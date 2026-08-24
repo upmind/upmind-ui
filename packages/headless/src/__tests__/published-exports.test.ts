@@ -20,7 +20,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { flatMap, forEach, fromPairs, keys, map } from "lodash-es";
 
 // -----------------------------------------------------------------------------
@@ -30,8 +30,6 @@ const repoRoot = join(packageRoot, "..", "..");
 
 /** A real consumer of the package, outside it — the vantage point that matters. */
 const consumerCwd = join(repoRoot, "playgrounds", "labs-nuxt");
-
-const BUILT_ENTRIES = ["dist/index.js", "dist/index.d.ts"];
 
 const SANCTIONED = [
   "@upmind-automation/headless",
@@ -98,34 +96,23 @@ function resolveOutsideBundler(
   );
 }
 
-beforeAll(() => {
-  const missing = BUILT_ENTRIES.filter(
-    entry => !existsSync(join(packageRoot, entry))
-  );
-  if (!missing.length) return;
-
-  // The published surface cannot be measured off source, so the build IS a
-  // precondition of this file rather than a separate lane's business.
-  execFileSync("pnpm", ["--filter", "@upmind-automation/headless", "build"], {
-    cwd: repoRoot,
-    stdio: "pipe"
-  });
-}, 600000);
+// No build precondition, by operator ruling (2026-08-24): every claim here is
+// MAP-level. A sanctioned entry may resolve to a not-yet-built file
+// (ERR_MODULE_NOT_FOUND) — that is the build lane's business; what this file
+// forbids is the map itself refusing it (ERR_PACKAGE_PATH_NOT_EXPORTED), or
+// honouring a banned one. The barrel sweep runs on source.
 
 // -----------------------------------------------------------------------------
 
 describe("headless — the published exports map, resolved with no alias in play (Task 62)", () => {
-  it("emits every file the exports map points at", () => {
-    forEach(BUILT_ENTRIES, entry =>
-      expect(existsSync(join(packageRoot, entry)), entry).toBe(true)
-    );
-  });
-
-  it("resolves the two sanctioned specifiers to the built files", () => {
+  it("resolves the two sanctioned specifiers through the map", () => {
     const resolved = resolveOutsideBundler(SANCTIONED);
 
-    expect(resolved["@upmind-automation/headless"].url).toContain(
-      "/packages/headless/dist/index.js"
+    // The map's answer, not the file's: with dist unbuilt the URL keeps the
+    // consumer's node_modules symlink form instead of the realpath, so only
+    // the map-owned tail is asserted.
+    expect(resolved["@upmind-automation/headless"].url).toMatch(
+      /\/headless\/dist\/index\.js$/
     );
     expect(resolved["@upmind-automation/headless/package.json"].url).toContain(
       "/packages/headless/package.json"
@@ -158,7 +145,9 @@ describe("headless — the published exports map, resolved with no alias in play
 
 describe("headless — the package has NO scenario concept at all (G3b)", () => {
   it("the published barrel carries no scenario key and no map", async () => {
-    const barrel = await import("../../dist/index.js");
+    // The source barrel IS the published surface: dist is a pure build of it,
+    // and the SOURCE sweep below closes the injected-at-build gap.
+    const barrel = await import("../index");
 
     expect(keys(barrel).length).toBeGreaterThan(10);
     expect(keys(barrel)).not.toContain("CLIENT_EMAILS_SCENARIO");

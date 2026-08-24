@@ -1,98 +1,99 @@
 <template>
-  <div :class="styles.domain.root">
+  <div :class="domainRootVariants()">
     <!-- loader -->
-    <SkeletonList v-if="meta.isLoading" :rows="3" />
+    <div v-if="meta.isLoading" class="flex flex-col gap-2">
+      <Skeleton v-for="i in 3" :key="i" class="h-12 w-full" />
+    </div>
 
     <template v-else>
       <!-- type -->
-      <RadioGroup v-model="type">
-        <Accordion type="multiple" collapsible :class="styles.domain.form.root">
-          <AccordionItem
-            v-for="item in mappedChoices"
-            :key="item.value"
-            :value="item.value"
-            :class="styles.domain.form.item"
-            :disabled="isSelected(item.value)"
-            :open="isSelected(item.value)"
+      <RadioGroup
+        :model-value="type"
+        :items="mappedChoices"
+        :class="domainFormRootVariants(formMeta)"
+        :ui="{
+          item: domainFormItemVariants(formMeta),
+          option: [
+            domainFormTriggerRootVariants(),
+            domainFormTriggerLabelVariants()
+          ],
+          control: domainFormTriggerRadioVariants(),
+          expanded: domainFormContentRootVariants()
+        }"
+        @update:model-value="onSelect"
+      >
+        <template #expanded>
+          <!-- register -->
+          <FormControl
+            v-if="meta.showDac && type === 'register'"
+            :invalid="false"
+            :formItemId="`dac-${type}`"
+            key="dac-register"
+            :auto-focus="shouldAutoFocus"
           >
-            <AccordionTrigger
-              :class="styles.domain.form.trigger.root"
-              @click="onSelect(item.value)"
+            <Input
+              size="lg"
+              v-model="query"
+              :placeholder="t('form.domain_search.placeholder')"
+              autocomplete="url"
+              :disabled="disabled"
             >
-              <label :class="styles.domain.form.trigger.label">
-                <span :class="styles.domain.form.trigger.radio">
-                  <RadioGroupItem
-                    :id="item.value"
-                    :value="item.value"
-                    :checked="isSelected(item.value)"
-                    tabindex="-1"
-                    disabled
-                    class="relative cursor-pointer! opacity-100!"
-                /></span>
-                {{ item.label }}
-              </label>
-              <template #icon><span /></template>
-            </AccordionTrigger>
+              <template v-if="!meta.showSelected" #leading>
+                <Icon icon="search" />
+              </template>
+            </Input>
+          </FormControl>
 
-            <AccordionContent
-              :key="`content-${item.value}-${type}`"
-              :class="styles.domain.form.content.root"
-              :content-class="styles.domain.form.content.container"
+          <!-- existing -->
+          <FormControl
+            v-else-if="meta.showExisting"
+            :formItemId="`dac-${type}`"
+            key="dac-existing"
+            :auto-focus="shouldAutoFocus"
+          >
+            <Input
+              size="lg"
+              v-model="modelValue"
+              autocomplete="url"
+              :placeholder="t('form.domain.placeholder')"
+              :list="ownedDomains.length ? 'dac-owned-domains' : undefined"
+              :disabled="disabled"
+            />
+            <datalist v-if="ownedDomains.length" id="dac-owned-domains">
+              <option
+                v-for="owned in ownedDomains"
+                :key="owned.domain"
+                :value="owned.domain"
+              />
+            </datalist>
+          </FormControl>
+
+          <!-- basket -->
+          <FormControl
+            v-else-if="meta.showBasket"
+            key="basket"
+            :auto-focus="shouldAutoFocus"
+            :formItemId="`dac-${type}`"
+          >
+            <Select
+              :model-value="selected"
+              :items="basketDomains"
+              :disabled="disabled || meta.isSearching || meta.isProcessing"
+              size="lg"
+              class="w-full"
+              @update:model-value="onSelectBasket"
             >
-              <!-- register -->
-              <FormControl
-                v-if="meta.showDac && type === 'register'"
-                :invalid="false"
-                :formItemId="`dac-${type}`"
-                key="dac-register"
-                :auto-focus="shouldAutoFocus"
-              >
-                <Input
-                  v-model="query"
-                  :prependIcon="meta.showSelected ? null : 'search'"
-                  :placeholder="t('form.domain_search.placeholder')"
-                  autocomplete="url"
-                  :disabled="disabled"
-                />
-              </FormControl>
-
-              <!-- existing -->
-              <FormControl
-                v-else-if="meta.showExisting"
-                :formItemId="`dac-${type}`"
-                key="dac-existing"
-                :auto-focus="shouldAutoFocus"
-              >
-                <Input
-                  v-model="modelValue"
-                  autocomplete="url"
-                  :placeholder="t('form.domain.placeholder')"
-                  width="full"
-                  :list="ownedDomains"
-                  class="bg-base-background"
-                  :disabled="disabled"
-                />
-              </FormControl>
-
-              <!-- basket -->
-              <FormControl
-                v-else-if="meta.showBasket"
-                key="basket"
-                :auto-focus="shouldAutoFocus"
-                :formItemId="`dac-${type}`"
-              >
-                <Select
-                  v-model="selected"
-                  :items="basketDomains"
-                  :loading="meta.isSearching"
-                  :processing="meta.isProcessing"
-                  :disabled="disabled"
-                  required
-                />
-              </FormControl>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+              <template #value>
+                <span v-if="selectedBasketLabel">{{
+                  selectedBasketLabel
+                }}</span>
+                <span v-else class="text-muted">{{
+                  t("form.select_option.placeholder")
+                }}</span>
+              </template>
+            </Select>
+          </FormControl>
+        </template>
       </RadioGroup>
     </template>
   </div>
@@ -101,24 +102,20 @@
 <script lang="ts" setup>
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { RadioGroup, Skeleton, Select, Input } from "@upmind/ui";
+import { FormControl } from "../../../components/form";
+import { Icon } from "../../../components/icon";
 import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-  SkeletonList,
-  Select,
-  Input,
-  FormControl,
-  RadioGroup,
-  RadioGroupItem
-} from "@upmind-automation/upmind-ui";
-import config from "../domain.config";
+  domainRootVariants,
+  domainFormRootVariants,
+  domainFormItemVariants,
+  domainFormTriggerRootVariants,
+  domainFormTriggerLabelVariants,
+  domainFormTriggerRadioVariants,
+  domainFormContentRootVariants
+} from "../variants";
 import { map } from "lodash-es";
 import type { UseDomain } from "@upmind-automation/headless";
-import type { DomainTypes } from "@upmind-automation/headless";
-import type { SelectItemProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
@@ -155,15 +152,9 @@ const type = defineModel<UseDomain["type"]["value"]>("type");
 
 const { t, tm, rt } = useI18n();
 
-const stylesMeta = computed(() => ({
+const formMeta = computed(() => ({
   isDisabled: props.disabled || props.processing
 }));
-
-const styles = useStyles(
-  ["domain", "domain.form", "domain.form.trigger", "domain.form.content"],
-  stylesMeta,
-  config
-);
 
 const meta = computed(() => ({
   isLoading: props.loading ?? false,
@@ -192,38 +183,37 @@ const mappedChoices = computed(() => {
   });
 });
 
-function isSelected(value: string) {
-  return value == props.type;
-}
-
 const shouldAutoFocus = ref(false);
 
-function onSelect(value: DomainTypes) {
-  if (value !== props.type) {
+function onSelect(value: unknown) {
+  const match = props.choices?.find(choice => choice.value === value);
+  if (!match) return;
+  if (match.value !== props.type) {
     shouldAutoFocus.value = true;
   }
-  type.value = value;
+  type.value = match.value;
 }
 
-const ownedDomains = computed(() => {
-  if (!props.owned?.length) return [];
-  return [
-    {
-      as: "separator",
-      persist: true,
-      domain: t("domain.owned_domains_title")
-    },
-    ...props.owned
-  ];
+const ownedDomains = computed(() => props.owned ?? []);
+
+const basketDomains = computed(() =>
+  map(props.basket, (item, index) => ({
+    index,
+    item,
+    value: item.domain?.toString() ?? "",
+    label: item.domain
+  }))
+);
+
+const selectedBasketLabel = computed(() => {
+  const match = basketDomains.value.find(
+    domain => domain.value === selected.value?.toString()
+  );
+  return match?.label ?? "";
 });
 
-const basketDomains = computed((): SelectItemProps[] => {
-  return map(props.basket, (item, index) => ({
-    index,
-    item: item,
-    modelValue: selected.value,
-    value: item.domain?.toString(),
-    label: item.domain
-  }));
-});
+function onSelectBasket(value: unknown) {
+  if (props.disabled || !value) return;
+  selected.value = String(value);
+}
 </script>

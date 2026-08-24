@@ -33,7 +33,7 @@ Dependency flow: `types → headless → client-vue → ui → apps`, with `i18n
 |---|---|---|
 | `<core-package>` | headless | `@upmind-automation/headless` |
 | `<framework-package>` | client-vue | `@upmind-automation/client-vue` |
-| `<ui-package>` | ui | `@upmind-automation/upmind-ui` |
+| `<ui-package>` | ui | `@upmind/ui` |
 | `<types-package>` | types | `@upmind-automation/types` |
 | `<i18n-package>` | i18n | `@upmind-automation/i18n` |
 | `<app>` | cart | `@upmind-automation/cart` |

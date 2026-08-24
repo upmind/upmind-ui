@@ -3,8 +3,8 @@
     <!-- Error alert (only after submission) -->
     <Alert
       v-if="submitted && meta.hasErrors"
-      color="danger"
-      variant="minimal"
+      variant="danger"
+      appearance="outline"
       icon="alert-triangle"
       title="Something went wrong"
       :description="
@@ -25,12 +25,13 @@
       v-if="meta.isComplete"
       title="Payment method added"
       text="Your payment method has been stored successfully."
+      close-label="Close"
       :animated-icon="{
         icon: 'card',
         trigger: 'loop',
         primaryColor: 'base-foreground',
         secondaryColor: 'tertiary',
-        size: '4xl'
+        size: 'xl'
       }"
       :actions="[{ label: 'Add another', handler: () => router.go(0) }]"
     />
@@ -79,7 +80,7 @@ import {
   UpmPaymentDetails,
   UpmSection
 } from "@upmind-automation/client-vue";
-import { Alert, Interstitial } from "@upmind-automation/upmind-ui";
+import { Alert, Interstitial } from "@upmind/ui";
 import type { UsePaymentDetailAdd } from "@upmind-automation/client-vue";
 import type { ICurrency } from "@upmind-automation/types";
 

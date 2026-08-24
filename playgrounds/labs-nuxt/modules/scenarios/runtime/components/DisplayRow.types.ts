@@ -30,6 +30,16 @@ import type { TableModel } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Local type for the view toggle items — replaces the old lib's
+ * `ToggleGroupItem` which is no longer exported as a type. See
+ * `graphify-out/GRAPH_REPORT.md` and the existing file citation above.
+ */
+export type ToggleGroupOption = {
+  value: ListViewTypes;
+  label: string;
+};
+
 export type DisplayRowProps = {
   /**
    * The cell's request state, so the row can carry its active refinements

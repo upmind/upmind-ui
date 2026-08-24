@@ -12,8 +12,8 @@ export class Footer {
 
   constructor(page: Page) {
     this.page = page;
-    this.languageSelector = page.getByTestId("locale-selector");
-    this.currencySelector = page.getByTestId("currency-selector");
+    this.languageSelector = page.getByTestId("language-selector-trigger");
+    this.currencySelector = page.getByTestId("currency-selector-trigger");
     this.currencyValue = page.getByTestId("currency-selector-value");
     this.languageValue = page.getByTestId("language-selector-value");
   }

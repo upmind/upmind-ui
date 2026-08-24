@@ -1,71 +1,75 @@
 <template>
-  <SelectCards
+  <div
     v-if="!meta.isLoading && !meta.isEmpty"
-    v-model:open="open"
-    v-model="modelValue"
-    :items="parsedValues"
     :class="props.class"
-    :minimal="props.minimal"
-    :list="false"
-    required
+    data-test-key="select-cards"
   >
-    <template #item="{ item }">
-      <slot
-        name="item"
-        v-bind="{
-          item: getItem(item.id!),
-          readonly,
-          doEdit,
-          doRemove,
-          setDefault
-        }"
+    <OptionTileGroup
+      :model-value="modelValue"
+      mode="single"
+      :data-attrs="{ 'data-test-key': 'select-option-tile-group' }"
+      required
+      @update:model-value="onSelect"
+    >
+      <OptionTile
+        v-for="item in displayedValues"
+        :key="item.value"
+        :value="item.value"
       >
-        <Item
-          v-bind="getItem(item.id!)"
-          :readonly="props.readonly"
-          @edit="doEdit"
-          @remove="doRemove"
-        />
-      </slot>
-    </template>
+        <template #label>
+          <slot
+            name="item"
+            v-bind="{
+              item: getItem(item.id),
+              readonly,
+              doEdit,
+              doRemove,
+              setDefault
+            }"
+          >
+            <Item
+              v-bind="getItem(item.id)"
+              :readonly="props.readonly"
+              @edit="doEdit"
+              @remove="doRemove"
+            />
+          </slot>
+        </template>
+      </OptionTile>
+    </OptionTileGroup>
 
-    <template #dropdown-item="{ item }">
-      <slot
-        name="item"
-        v-bind="{
-          item: getItem(item.id!),
-          readonly,
-          doEdit,
-          doRemove,
-          setDefault
-        }"
+    <footer v-if="!minimal" class="mt-1 flex space-x-2">
+      <Link
+        v-if="!open && parsedValues.length > 1"
+        :data-attrs="{ 'data-test-key': 'select-link-change' }"
+        size="sm"
+        color="muted"
+        @click="open = true"
+        >{{ t("action.change") }}</Link
       >
-        <Item v-bind="getItem(item.id!)" />
-      </slot>
-    </template>
 
-    <template v-if="!readonly" #additional-item>
-      <slot name="additional-item">
-        <span
+      <slot v-else-if="!readonly" name="additional-item">
+        <Link
+          :data-attrs="{ 'data-test-key': 'select-link-add-new' }"
+          size="sm"
+          color="muted"
           @click="doAdd"
-          class="text-md flex w-full items-center space-x-2 py-0.5 font-normal"
+          >{{ t("action.add_new") }}</Link
         >
-          {{ t("action.add_new") }}
-        </span>
       </slot>
-    </template>
-  </SelectCards>
+    </footer>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { useVModel } from "@vueuse/core";
 import { computed, type HtmlHTMLAttributes } from "vue";
 import { useI18n } from "vue-i18n";
-import { SelectCards } from "@upmind-automation/upmind-ui";
+import { OptionTileGroup, OptionTile } from "@upmind/ui";
+import { Link } from "@upmind/ui";
 import Item from "./Item.vue";
 import { find, map } from "lodash-es";
 import type { ManageRendererProps } from "./types";
-import type { SelectCardsItemProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
@@ -103,19 +107,32 @@ const open = useVModel(props, "open", emits, {
   defaultValue: false
 });
 
-const parsedValues = computed(() => {
-  return map(data.value ?? [], (item: any, index: number) => {
-    return {
-      id: item.id,
-      value: item.id,
-      label: item.title,
-      item: item,
-      index: index
-    };
-  }) as SelectCardsItemProps[];
+const parsedValues = computed(() =>
+  map(data.value ?? [], (item: any, index: number) => ({
+    id: item.id,
+    value: item.id,
+    label: item.title,
+    item: item,
+    index: index
+  }))
+);
+
+// Collapsed (closed, not minimal) shows only the current selection; the change
+// action reveals every card.
+const displayedValues = computed(() => {
+  if (open.value || props.minimal) return parsedValues.value;
+  const selected = parsedValues.value.find(v => v.value === modelValue.value);
+  return selected ? [selected] : parsedValues.value;
 });
 
 // --- methods
+function onSelect(value: unknown) {
+  modelValue.value = String(value);
+  // Picking an option closes the list, as the retired collapsible did — the
+  // "Change" action only returns once the list is closed again.
+  open.value = false;
+}
+
 function getItem(id: string) {
   return find(data.value, ["id", id]);
 }

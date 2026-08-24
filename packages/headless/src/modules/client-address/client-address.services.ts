@@ -13,7 +13,7 @@ import {
   mapIAddressData,
   mapIAddressDataDiff
 } from "./client-address.mappers";
-import { useSchema } from "./client-address.schemas";
+import { useSchema, useQuerySchema } from "./client-address.schemas";
 import { ClientAddressesContextTypes } from "./client-address.types";
 import {
   useTime,
@@ -38,7 +38,6 @@ import {
   pick,
   some
 } from "lodash-es";
-import type { QueryParams } from "../query";
 import type { ScopeContext } from "../scope";
 import type {
   Address,
@@ -47,7 +46,8 @@ import type {
   ClientAddressErrorCapture,
   ClientAddressListQuery,
   ClientAddressManagerMachineServices,
-  ClientAddressServices
+  ClientAddressServices,
+  QueryModel
 } from "./client-address.types";
 import type { ResponseError } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
@@ -179,11 +179,14 @@ function toFeedbackError(error: unknown, fallbackTitle: string) {
 // -----------------------------------------------------------------------------
 // QUERIES
 
-/** COLLECTION — the reactive list query, minted once per scope. */
+/**
+ * COLLECTION — the reactive list query, minted once per scope.
+ *
+ * The whole request state is the DECLARED query schema: `list()` builds the
+ * criteria from it and publishes filters/sort/pagination back on the handle,
+ * mirroring the `client-email` M3 pattern — there is no raw params back door.
+ */
 function loadList(
-  params: Partial<QueryParams<IAddress[], Address[]>> = {
-    pagination: { limit: 0 }
-  },
   clientId: ClientAddressServices["clientId"]
 ): ClientAddressListQuery {
   const { list, useUrl } = useQuery();
@@ -193,8 +196,8 @@ function loadList(
     });
   const url = targetUrl();
 
-  return list<IAddress[], Address[]>({
-    ...params,
+  return list<IAddress[], Address[], QueryModel>({
+    criteria: { schema: useQuerySchema() },
     queryKey: [...queryKey, { client: clientId }],
     url,
     // `enabled:` only stops the query starting; this rejects a forced
@@ -420,7 +423,7 @@ async function ensure(
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  const query = loadList(undefined, clientId);
+  const query = loadList(clientId);
   await query.promise.value.finally();
 
   const { findOne } = useCollection<Address>(
@@ -703,7 +706,7 @@ export const createClientAddressServices = (
     clientId,
     isAvailable: computed(() => isAddressable(clientId.value)),
     error: computed(() => mutationError.value),
-    loadList: params => loadList(params, clientId),
+    loadList: () => loadList(clientId),
     loadOne: id => loadOne(id, clientId),
     add: model => add(model, clientId),
     update: (id, model) => update(id, model, undefined, clientId),

@@ -29,7 +29,7 @@ import { createI18n } from "vue-i18n";
 import action from "@upmind-automation/i18n/core/action-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
-import { Button, Stepper, Tooltip } from "@upmind-automation/upmind-ui";
+import { Button, Stepper, Tooltip } from "@upmind/ui";
 import SceneRail from "../SceneRail.vue";
 import { TRANSPORT_CONTROL } from "../Transport.types";
 import Transport from "../Transport.vue";
@@ -50,7 +50,7 @@ const SCENE_COUNT = size(SCENES);
 
 const LAST_SCENE = SCENE_COUNT - 1;
 
-const PLAYING_COLOURS = ["primary", "secondary"];
+const PLAYING_VARIANTS = ["primary", "secondary"];
 
 /**
  * The controls an idle transport draws, in order. `STOP` is the media bar's own
@@ -222,10 +222,15 @@ describe("T4.6 each control asks for the call it is named after (AC2.5)", () => 
   it("treats the running track as primary or secondary, never as a warning (AC2.8 · H2)", () => {
     const wrapper = mountTransport({ playing: true });
 
-    expect(includes(wrapper.html(), "warning")).toBe(false);
+    expect(
+      every(
+        wrapper.findAllComponents(Button),
+        button => button.props("variant") !== "warning"
+      )
+    ).toBe(true);
     expect(
       every(wrapper.findAllComponents(Button), button =>
-        includes(PLAYING_COLOURS, button.props("color"))
+        includes(PLAYING_VARIANTS, button.props("variant"))
       )
     ).toBe(true);
   });
@@ -291,7 +296,7 @@ describe("T4.6 the scene rail IS the ui Stepper (AC2.5)", () => {
   it("gives it one step per scene", () => {
     const { wrapper } = railHost();
 
-    expect(size(wrapper.findComponent(Stepper).props("steps"))).toBe(
+    expect(size(wrapper.findComponent(Stepper).props("items"))).toBe(
       SCENE_COUNT
     );
   });
@@ -299,7 +304,7 @@ describe("T4.6 the scene rail IS the ui Stepper (AC2.5)", () => {
   it("draws nothing to scrub for a track with no scenes", () => {
     const { wrapper } = railHost([]);
 
-    expect(size(wrapper.findComponent(Stepper).props("steps") ?? [])).toBe(0);
+    expect(size(wrapper.findComponent(Stepper).props("items") ?? [])).toBe(0);
   });
 });
 

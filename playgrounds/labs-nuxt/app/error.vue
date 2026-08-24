@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Button } from "@upmind-automation/upmind-ui";
+import { Button } from "@upmind/ui";
 
 defineProps<{
   error: { statusCode?: number; message?: string };

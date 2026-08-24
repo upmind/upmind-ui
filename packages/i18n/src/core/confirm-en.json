@@ -1,7 +1,10 @@
 {
   "address_removed": "Address removed successfully",
+  "address_saved": "Address saved successfully",
   "address_set_default": "Address successfully set as default",
+  "addresses_refreshed": "Addresses refreshed successfully",
   "company_removed": "Company removed successfully",
+  "company_saved": "Company saved successfully",
   "company_set_default": "Company successfully set as default",
   "copied": "Copied",
   "domain_in_basket_msg": "This domain is already in your basket.",
@@ -15,6 +18,9 @@
   "in_basket_msg": "Already in your basket — click to add another",
   "in_use": "In use",
   "phone_removed": "Phone removed successfully",
+  "phone_saved": "Phone saved successfully",
   "phone_set_default": "Phone successfully set as default",
+  "phones_refreshed": "Phones refreshed successfully",
+  "profile_saved": "Profile saved successfully",
   "reset_instructions_sent_msg": "Thanks – reset instructions have been sent to your email"
 }

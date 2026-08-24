@@ -53,15 +53,14 @@ import { describe, expect, it } from "vitest";
 // mid-evaluation at `client-email/useClientEmails.ts:80`. Sorting this
 // block alphabetically regresses the whole suite (module A's prover lost a
 // cycle to exactly this).
-// eslint-disable-next-line import/order
+import { usePersonalDetailsManager } from "..";
+import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   installBrandSettingsHandler,
   installProfileGetHandler,
   recorded,
   seedClientSession
 } from "./client-personal-details.int-helpers";
-import { usePersonalDetailsManager } from "..";
-import { ScopeActorTypes } from "../../scope/scope.types";
 import { server } from "./setup.integration";
 
 // -----------------------------------------------------------------------------
@@ -74,6 +73,22 @@ function languageEnum(schema: unknown): unknown[] {
     schema as { properties?: Record<string, { enum?: unknown[] }> }
   )?.properties;
   return properties?.language?.enum ?? [];
+}
+
+/** The rendered option descriptor for one language id (AC-35's `disabled` flag lives here, not on `.enum`). */
+function languageOption(
+  schema: unknown,
+  value: string
+): { label?: unknown; value?: unknown; disabled?: boolean } | undefined {
+  const properties = (
+    schema as {
+      properties?: Record<
+        string,
+        { options?: { label?: unknown; value?: unknown; disabled?: boolean }[] }
+      >;
+    }
+  )?.properties;
+  return properties?.language?.options?.find(option => option.value === value);
 }
 
 // -----------------------------------------------------------------------------
@@ -143,6 +158,14 @@ describe("usePersonalDetailsManager — a language the brand no longer offers st
     // it vanish from the choice list entirely.
     const enumIds = languageEnum(manager.useContext().schema.value);
     expect(enumIds).toContain(LANGUAGE_ID_ABSENT_FROM_BRAND);
+
+    // Selectable-but-disabled: the option survives (asserted above) but is
+    // marked non-selectable, mirroring the oracle's :disabled="true" option.
+    const orphanedOption = languageOption(
+      manager.useContext().schema.value,
+      LANGUAGE_ID_ABSENT_FROM_BRAND
+    );
+    expect(orphanedOption?.disabled).toBe(true);
 
     manager.useActions().destroy();
   });

@@ -21,7 +21,7 @@
 
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { Card } from "@upmind-automation/upmind-ui";
+import { Badge, Card } from "@upmind/ui";
 import { defaultRow, unverifiedRow } from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { CardSlotTypes } from "../../../scenario.types";
@@ -188,7 +188,7 @@ describe("@AC3 the card draws the CARD declaration — the scenario's second one
     expect(drawnIn(heading).length).toBeGreaterThan(1);
     expect(heading.text()).toContain(defaultRow.email);
     expect(
-      map(heading.findAll('[data-test-key="badge"]'), badge => badge.text())
+      map(heading.findAllComponents(Badge), badge => badge.text())
     ).toEqual(["Verified"]);
   });
 
@@ -196,9 +196,7 @@ describe("@AC3 the card draws the CARD declaration — the scenario's second one
     const { wrapper } = mountList();
     await view(wrapper, ListViewTypes.CARD);
 
-    const badges = wrapper
-      .findAllComponents(Card)[0]
-      .findAll('[data-test-key="badge"]');
+    const badges = wrapper.findAllComponents(Card)[0].findAllComponents(Badge);
 
     // D15: default-ness is the star cell's one job, so Status carries the
     // remaining flags only — a Default badge here would tell the same fact twice.

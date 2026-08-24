@@ -18,11 +18,29 @@
           >
             <template #prepend>
               <Breadcrumb
-                v-if="productMeta?.isAvailable"
+                :more-label="t('text.more')"
+                v-if="productMeta?.isAvailable && breadcrumbItems.length"
                 :items="breadcrumbItems"
-                :variant="breadcrumbVariant"
-                size="lg"
-              />
+                separator="/"
+              >
+                <template #item="{ crumb }">
+                  <Link
+                    v-if="(!crumb.to && !crumb.href) || crumb.current"
+                    class="hover:text-muted! text-faint cursor-default no-underline hover:opacity-100!"
+                    size="md"
+                    tabindex="-1"
+                    ><Icon :icon="crumb.icon" /> {{ crumb.label }}</Link
+                  >
+                  <Link
+                    v-else
+                    :to="crumb.to"
+                    :href="crumb.href"
+                    :size="crumb.icon ? 'sm' : 'md'"
+                    color="muted"
+                    ><Icon :icon="crumb.icon" /> {{ crumb.label }}</Link
+                  >
+                </template>
+              </Breadcrumb>
             </template>
           </ProductHero>
           <ProductHeroSkeleton v-else />
@@ -185,19 +203,20 @@
         <Alert
           class="w-full"
           v-if="productMeta?.isLocked"
-          color="neutral"
-          variant="minimal"
-          icon="lock-01"
+          variant="neutral"
+          appearance="outline"
           :title="t('error.basket_product_readonly')"
-        />
+        >
+          <template #icon><Icon icon="lock-01" /></template>
+        </Alert>
         <Alert
           class="w-full"
           v-if="externalErrors?.message"
-          color="danger"
-          variant="muted"
-          icon="alert-triangle"
+          variant="danger"
           :title="externalErrors?.message"
-        />
+        >
+          <template #icon><Icon icon="alert-triangle" /></template>
+        </Alert>
         <ConfigErrors
           :visible="productMeta?.showErrors"
           :errors="validationErrors"
@@ -235,14 +254,14 @@ import {
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { BreadcrumbVariant, UIContext } from "@upmind-automation/headless";
-import { Breadcrumb, Markdown, Alert } from "@upmind-automation/upmind-ui";
-import {
-  isMobile,
-  useTestAttrs,
-  useThemes
-} from "@upmind-automation/upmind-ui";
+import { useTestAttrs } from "@upmind/ui";
+import { Link, Markdown } from "@upmind/ui";
+import { Breadcrumb } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
+import { Icon } from "../../components/icon";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
 import Section from "../../components/section/Section.vue";
+import { isMobile } from "../../composables/isMobile";
 import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
 import ProductConfig from "../product/components/Config.vue";
 import ConfigErrors from "../product/components/ConfigErrors.vue";
@@ -255,15 +274,16 @@ import Pricing from "../product/components/pricing-list/Pricing.vue";
 import PricingSkeleton from "../product/components/pricing-list/PricingSkeleton.vue";
 import PricingTotal from "../product/components/pricing-list/PricingTotal.vue";
 import ProductNotFound from "../product/NotFound.vue";
+import { useThemes } from "../theming";
 import BasketActions from "./components/BasketActions.vue";
 import BasketProductEnclosedTemplate from "./templates/BasketProductEnclosed.template.vue";
 import BasketProductFullTemplate from "./templates/BasketProductFull.template.vue";
+import BasketProductInsetTemplate from "./templates/BasketProductInset.template.vue";
 import BasketProductLTRTemplate from "./templates/BasketProductLTR.template.vue";
 import BasketProductRTLTemplate from "./templates/BasketProductRTL.template.vue";
 import { BASKET_PRODUCT_TEMPLATE } from "./types";
 import { get, includes, take, isEmpty } from "lodash-es";
 import type { BasketProductEditProps } from "./types";
-import BasketProductInsetTemplate from "./templates/BasketProductInset.template.vue";
 
 const supportedTemplates = {
   [BASKET_PRODUCT_TEMPLATE.FULL]: BasketProductFullTemplate,
@@ -362,7 +382,7 @@ const stylesMeta = computed(() => {
   };
 });
 
-const { items: breadcrumbItems, variant: breadcrumbVariant } = useBreadcrumbs({
+const { items: breadcrumbItems } = useBreadcrumbs({
   categories: () => {
     const breadcrumb = product.value?.productDetails?.breadcrumb ?? [];
     return stylesMeta.value?.breadcrumbs === BreadcrumbVariant.PARENT

@@ -1,9 +1,11 @@
 <template>
-  <div :class="styles.payment.gateway">
+  <!-- NB: parity with the retired useStyles output — `styles.payment.gateway`
+       resolved to the no-op literal "root form" (the gateway cva object was
+       never path-requested here), so no gateway styling is applied. -->
+  <div class="root form">
     <Alert
-      variant="minimal"
-      color="warning"
-      icon="alert-triangle"
+      appearance="outline"
+      variant="warning"
       :title="
         t('error.payment_gateways_not_available_title', {
           currency: currencyCode,
@@ -11,32 +13,34 @@
         })
       "
       :description="t('error.payment_gateways_not_available_msg')"
-    />
+    >
+      <template #icon><Icon icon="alert-triangle" /></template>
+    </Alert>
 
     <!-- Actions and Terms -->
-    <footer key="actions" :class="styles.payment.footer.root">
-      <div :class="styles.payment.footer.actions">
+    <footer key="actions" :class="footerRootVariants()">
+      <div :class="footerActionsVariants()">
         <Button
-          :disabled="processing"
           :loading="processing"
           size="lg"
           @click.prevent="handleCheckout"
-          :label="t('action.place_order')"
-          :class="styles.payment.action"
-        />
+          :class="actionVariants()"
+        >
+          {{ t("action.place_order") }}
+        </Button>
       </div>
 
       <Markdown
         v-if="clickwrap"
         tag="p"
-        :class="styles.payment.clickwrap"
+        :class="clickwrapVariants()"
         :model-value="clickwrap"
         :keys="{ action: t('action.place_order') }"
       />
 
       <TermsAndConditions
         v-else
-        :class="styles.payment.footer.terms"
+        :class="footerTermsVariants()"
         :label="t('action.place_order')"
       />
     </footer>
@@ -45,21 +49,26 @@
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import { Alert, Markdown, Button } from "@upmind-automation/upmind-ui";
+import { Button, Markdown } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
+import { Icon } from "../../../components/icon";
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";
-import config from "../payment.config";
+import {
+  footerRootVariants,
+  footerActionsVariants,
+  footerTermsVariants,
+  actionVariants,
+  clickwrapVariants
+} from "../variants";
 import type { PaymentGatewaysUnavailableProps } from "../types";
 
 // -----------------------------------------------------------------------------
-const _props = defineProps<PaymentGatewaysUnavailableProps>();
+defineProps<PaymentGatewaysUnavailableProps>();
 const emit = defineEmits<{
   (e: "resolve"): void;
 }>();
 
 const { t } = useI18n();
-
-const styles = useStyles(["payment", "payment.footer"], {}, config);
 
 const handleCheckout = () => {
   emit("resolve");

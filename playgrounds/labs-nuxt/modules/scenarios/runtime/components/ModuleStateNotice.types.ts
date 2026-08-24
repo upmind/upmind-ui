@@ -10,7 +10,8 @@
  */
 
 import type { ModuleState } from "./module-state.types";
-import type { AlertProps } from "@upmind-automation/upmind-ui";
+// graphify-out/: AlertProps consumed with new shape (variant replaces color; icon dropped)
+import type { AlertProps } from "@upmind/ui";
 
 // -----------------------------------------------------------------------------
 
@@ -22,7 +23,7 @@ export type ModuleStateNoticeProps = {
 
 export type ModuleStateContent = Pick<
   AlertProps,
-  "color" | "icon" | "title" | "description"
+  "variant" | "title" | "description"
 >;
 
 export type ModuleStateContentMap = Record<

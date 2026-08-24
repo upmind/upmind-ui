@@ -1,14 +1,14 @@
 <template>
   <component
     :is="props.as"
-    :class="cn(styles.product.config.root, props.class)"
+    :class="cn(productConfigRootVariants(), props.class)"
     @submit.prevent
     @reset.prevent
   >
     <!-- content -->
-    <div :class="styles.product.config.content" v-if="product?.productDetails">
+    <div :class="productConfigContentVariants()" v-if="product?.productDetails">
       <!-- fields -->
-      <div :class="cn(styles.product.config.fields)">
+      <div :class="productConfigFieldsVariants(stylesMeta)">
         <Form
           :dataAttrs="{ 'data-test-key': 'product-config-form' }"
           :loading="meta.isLoading"
@@ -31,26 +31,26 @@
 
     <!-- footer -->
     <footer
-      :class="styles.product.config.footer"
+      :class="productConfigFooterVariants()"
       v-if="!meta.isLoading && !props.noFooter"
     >
       <slot name="footer">
         <Link
           type="reset"
           tabindex="1"
-          :label="t('action.cancel')"
           :disabled="meta.isProcessing || required"
-          size="lg"
+          size="md"
           color="muted"
           @click="doReject"
-        />
+          >{{ t("action.cancel") }}</Link
+        >
 
         <span
-          :class="styles.product.config.itemtotal"
+          :class="productConfigItemtotalVariants(stylesMeta)"
           v-if="product?.price?.regularAmount"
         >
           <span>{{ t("text.total") }}</span>
-          <strong :class="styles.product.config.bold">
+          <strong :class="productConfigBoldVariants(stylesMeta)">
             {{ product?.price?.regularPrice }}
           </strong>
         </span>
@@ -58,32 +58,42 @@
         <Button
           type="submit"
           tabindex="0"
-          :label="t('action.add_to_basket')"
           :loading="meta.isProcessing"
           :disabled="meta.isLoading"
-          color="primary"
+          variant="primary"
           size="lg"
           @click="doResolve"
-        />
+        >
+          {{ t("action.add_to_basket") }}
+        </Button>
       </slot>
     </footer>
   </component>
 </template>
 
 <script lang="ts" setup>
+import { isLayout } from "@jsonforms/core";
 import { computed, inject, onUpdated, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { assign, isEmpty, isEqual, omit, pick, reject } from "lodash-es";
-import { isLayout } from "@jsonforms/core";
 import {
   type UseProductConfig,
   DetailedError,
   responseCodes,
   ErrorOrigin
 } from "@upmind-automation/headless";
-import { useStyles, Link, Button, cn } from "@upmind-automation/upmind-ui";
+import { cn } from "@upmind/ui";
+import { Link } from "@upmind/ui";
+import { Button } from "@upmind/ui";
 import Form from "../../../components/form/Form.vue";
-import config from "../product.config";
+import {
+  productConfigRootVariants,
+  productConfigContentVariants,
+  productConfigFieldsVariants,
+  productConfigFooterVariants,
+  productConfigItemtotalVariants,
+  productConfigBoldVariants
+} from "../variants";
+import { assign, isEmpty, isEqual, omit, pick, reject } from "lodash-es";
 import type { ConfigProps } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -164,12 +174,6 @@ const stylesMeta = computed(() => {
     spacing: ui.optionGroupSpacing.value
   };
 });
-
-const styles = useStyles(
-  ["product.config", "product.config.form", "product.config.list"],
-  stylesMeta,
-  config
-);
 
 // ---
 function doReject() {

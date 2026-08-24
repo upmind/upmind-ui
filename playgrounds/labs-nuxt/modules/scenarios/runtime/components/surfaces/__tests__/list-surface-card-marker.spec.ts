@@ -21,7 +21,8 @@
 
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { Card, Icon } from "@upmind-automation/upmind-ui";
+import { Card } from "@upmind/ui";
+import { Icon } from "@upmind-automation/client-vue";
 import { defaultRow, unverifiedRow } from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { RESOLVED_HANDOFFS } from "../../__tests__/resolved-handoffs";

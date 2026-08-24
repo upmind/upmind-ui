@@ -4,7 +4,7 @@ import { Page, Locator } from "@playwright/test";
  * Locators for the email-verification interstitial (FE-1329).
  *
  * The verify form reuses the shared `Auth` component, so the code input and the
- * error alert share the 2fa/login testids (`input-otp-slot`, `auth-alert`), and
+ * error alert share the 2fa/login testids (`pin-input-slot`, `auth-alert`), and
  * an invalid code surfaces as a field-level message (`form-item-message-code`),
  * mirroring 2fa's `form-item-message-token`. The resend control + its status copy
  * carry their own testids (`resend-code-link` / `resend-sent`).
@@ -22,7 +22,7 @@ export class VerifyEmail {
   constructor(page: Page) {
     this.page = page;
     this.title = page.getByTestId("verify-email-heading");
-    this.otpInput = page.getByTestId("input-otp-slot");
+    this.otpInput = page.getByTestId("pin-input-slot");
     this.alert = page
       .getByTestId("alert")
       .and(page.locator('[data-test-value="account"]'));

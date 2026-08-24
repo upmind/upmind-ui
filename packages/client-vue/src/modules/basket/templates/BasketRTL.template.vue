@@ -37,7 +37,7 @@ import { useConfig } from "@upmind-automation/headless";
 import { useHeader } from "../../../components/header/useHeader";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useSection } from "../../../components/section/useSection";
-import { isMobile } from "@upmind-automation/upmind-ui";
+import { isMobile } from "../../../composables/isMobile";
 import Layout from "../../../components/layout/Layout.vue";
 import { HEADER_BACKGROUND } from "../../../components/header/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";

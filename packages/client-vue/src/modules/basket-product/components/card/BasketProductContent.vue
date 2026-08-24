@@ -1,36 +1,36 @@
 <template>
-  <article :class="styles.product.summary.article" v-auto-animate>
-    <header :class="styles.product.summary.header.root">
-      <Link
-        v-if="props.image && productDetails.imgUrl"
-        v-bind="props.editRoute"
-      >
+  <article :class="productSummaryArticleVariants()" v-auto-animate>
+    <header :class="productSummaryHeaderRootVariants()">
+      <Link v-if="props.image && productDetails.imgUrl" :to="props.editRoute">
         <Image
+          :expand-label="t('text.expand_image')"
+          :nav-label="t('text.image_navigation')"
+          :preview-close-label="t('action.close')"
           :image="productDetails.imgUrl"
           :alt="summary.title"
-          :class="styles.product.summary.image"
+          :class="productSummaryImageVariants()"
           :ratio="ui.productImageRatio.value"
         />
       </Link>
 
-      <div :class="styles.product.summary.header.content">
-        <div :class="styles.product.summary.header.top">
-          <div :class="styles.product.summary.category.root">
-            <strong :class="styles.product.summary.category.text">
+      <div :class="productSummaryHeaderContentVariants()">
+        <div :class="productSummaryHeaderTopVariants()">
+          <div :class="productSummaryCategoryRootVariants()">
+            <strong :class="productSummaryCategoryTextVariants()">
               {{ summary.category }}
             </strong>
 
             <Link
               v-if="isMobile && !isEmpty(filteredDetails)"
-              :dataAttrs="{ 'data-test-key': 'button-product-information' }"
+              :data-attrs="{ 'data-test-key': 'button-product-information' }"
               @click="open = !open"
               color="muted"
               aria-label="Product information"
             >
               <Icon
                 icon="info-circle"
-                size="xs"
-                :class="styles.product.summary.icon"
+                size="md"
+                :class="productSummaryIconVariants()"
               />
             </Link>
           </div>
@@ -48,42 +48,43 @@
             :discounted="summary.meta.discounted ?? false"
             :custom="summary.meta.custom"
             :loading="props.pricesUpdating"
-            :ui-config="{ pricing: { ex: [styles.product.pricing.ex] } }"
+            :ui-config="{ pricing: { ex: [productPricingExVariants()] } }"
           />
         </div>
 
-        <hgroup :class="styles.product.summary.title.root">
-          <div :class="styles.product.summary.title.group">
+        <hgroup :class="productSummaryTitleRootVariants()">
+          <div :class="productSummaryTitleGroupVariants()">
             <Link
-              v-bind="productDetails.readonly ? null : props.editRoute"
+              :to="titleRoute"
               offset="2"
-              :class="styles.product.summary.title.link"
+              :class="productSummaryTitleLinkVariants()"
             >
               <strong
-                v-bind="productNameTestAttrs(id)"
-                :class="styles.product.summary.title.text"
+                data-test-key="basket-product-name"
+                :data-test-value="id"
+                :class="productSummaryTitleTextVariants()"
               >
                 {{ data.productName || summary.title }}
               </strong>
             </Link>
 
             <template v-if="!isMobile">
-              <Tooltip
-                v-if="!isEmpty(filteredDetails)"
-                :label="t('action.show_details')"
-              >
+              <Tooltip v-if="!isEmpty(filteredDetails)">
                 <Link
-                  :dataAttrs="{ 'data-test-key': 'button-product-information' }"
+                  :data-attrs="{
+                    'data-test-key': 'button-product-information'
+                  }"
                   @click="open = !open"
                   color="muted"
                   aria-label="Product information"
                 >
                   <Icon
                     icon="info-circle"
-                    size="xs"
-                    :class="styles.product.summary.icon"
+                    size="md"
+                    :class="productSummaryIconVariants()"
                   />
                 </Link>
+                <template #content>{{ t("action.show_details") }}</template>
               </Tooltip>
 
               <template v-if="!summary.meta?.freeTrial">
@@ -94,16 +95,13 @@
                   :disabled="warning"
                 />
 
-                <Tooltip
-                  v-if="summary.meta?.custom"
-                  :label="t('text.price_manually_adjusted_msg')"
-                >
-                  <Badge
-                    :label="t('text.custom_price')"
-                    size="sm"
-                    variant="muted"
-                    color="warning"
-                  />
+                <Tooltip v-if="summary.meta?.custom">
+                  <Badge size="sm" appearance="muted" variant="warning">
+                    {{ t("text.custom_price") }}
+                  </Badge>
+                  <template #content>{{
+                    t("text.price_manually_adjusted_msg")
+                  }}</template>
                 </Tooltip>
               </template>
             </template>
@@ -111,8 +109,8 @@
 
           <strong
             v-if="summary.meta?.freeTrial"
-            v-bind="trialPriceLabelTestAttrs"
-            :class="styles.product.pricing.current"
+            data-test-key="trial-price-label"
+            :class="productPricingCurrentVariants()"
           >
             {{ t("text.free_trial") }}
           </strong>
@@ -126,7 +124,7 @@
             :free="summary.meta.free ?? false"
             :loading="props.pricesUpdating"
             :ui-config="{
-              pricing: { current: [styles.product.pricing.current] }
+              pricing: { current: [productPricingCurrentVariants()] }
             }"
           />
         </hgroup>
@@ -150,10 +148,10 @@
       :title="
         t('text.free_trial_alert', { days: productDetails.trialDuration })
       "
-      icon="clock-stopwatch"
-      size="sm"
-      color="promo"
-    />
+      variant="promo"
+    >
+      <template #icon><Icon icon="clock-stopwatch" /></template>
+    </Alert>
 
     <!-- configurable cards show the config inline, so the "add missing
          data" alert — which links out to the configure page — is redundant. -->
@@ -164,12 +162,12 @@
       :edit-route="props.editRoute"
     />
 
-    <footer :class="styles.product.summary.footer.root">
+    <footer :class="productSummaryFooterRootVariants()">
       <div
-        :class="styles.product.summary.footer.terms.root"
-        v-bind="billingTermSectionTestAttrs"
+        :class="productSummaryFooterTermsRootVariants()"
+        data-test-key="billing-term-section"
       >
-        <div :class="styles.product.summary.footer.terms.controls">
+        <div :class="productSummaryFooterTermsControlsVariants()">
           <BasketQuantityField
             v-if="productDetails.quantifiable && !productDetails.readonly"
             v-bind="productDetails"
@@ -181,16 +179,16 @@
 
           <Button
             v-else-if="!productDetails.readonly"
-            icon="trash-02"
             variant="control"
-            color="neutral"
             size="md"
             icon-only
-            :class="styles.product.summary.footer.remove"
+            :class="productSummaryFooterRemoveVariants()"
             :aria-label="t('action.remove')"
             :disabled="processing"
             @click="doRemove"
-          />
+          >
+            <Icon icon="trash-02" />
+          </Button>
 
           <BasketProductTermSelector
             v-if="meta.showTermSelector && props.terms"
@@ -220,20 +218,36 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useConfig, type ProductModel } from "@upmind-automation/headless";
-import {
-  Badge,
-  Button,
-  Link,
-  Icon,
-  Tooltip,
-  Image,
-  Alert
-} from "@upmind-automation/upmind-ui";
-import { useStyles, useTestAttrs } from "@upmind-automation/upmind-ui";
-import { isMobile } from "@upmind-automation/upmind-ui";
+import { Badge } from "@upmind/ui";
+import { Image } from "@upmind/ui";
+import { Link } from "@upmind/ui";
+import { Button } from "@upmind/ui";
+import { Tooltip } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
+import { Icon } from "../../../../components/icon";
+import { isMobile } from "../../../../composables/isMobile";
 import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";
 import ExPrice from "../../../product/components/pricing/ExPrice.vue";
-import styleConfig from "./basketProduct.config";
+import {
+  productSummaryArticleVariants,
+  productSummaryHeaderRootVariants,
+  productSummaryHeaderContentVariants,
+  productSummaryHeaderTopVariants,
+  productSummaryCategoryRootVariants,
+  productSummaryCategoryTextVariants,
+  productSummaryIconVariants,
+  productSummaryImageVariants,
+  productSummaryTitleRootVariants,
+  productSummaryTitleGroupVariants,
+  productSummaryTitleLinkVariants,
+  productSummaryTitleTextVariants,
+  productSummaryFooterRootVariants,
+  productSummaryFooterTermsRootVariants,
+  productSummaryFooterTermsControlsVariants,
+  productSummaryFooterRemoveVariants,
+  productPricingCurrentVariants,
+  productPricingExVariants
+} from "./basketProduct.variants";
 import BasketProductConfigurationDetails from "./BasketProductConfigurationDetails.vue";
 import BasketProductTermSelector from "./components/BasketProductTermSelector.vue";
 import BasketQuantityField from "./components/BasketQuantityField.vue";
@@ -250,29 +264,6 @@ const { t } = useI18n();
 const props = defineProps<BasketProductContentProps>();
 
 const emits = defineEmits(["remove", "update:open"]);
-
-const styles = useStyles(
-  [
-    "product.summary",
-    "product.summary.header",
-    "product.summary.category",
-    "product.summary.title",
-    "product.summary.footer",
-    "product.summary.footer.terms",
-    "product.pricing"
-  ],
-  props,
-  styleConfig
-);
-
-const trialPriceLabelTestAttrs = useTestAttrs({ key: "trial-price-label" });
-
-const billingTermSectionTestAttrs = useTestAttrs({
-  key: "billing-term-section"
-});
-
-const productNameTestAttrs = (value: string) =>
-  useTestAttrs({ key: "basket-product-name", value });
 
 const open = defineModel<boolean>("open");
 const quantity = defineModel<ProductModel["quantity"]>("quantity");
@@ -294,6 +285,12 @@ const meta = computed(() => {
   return {
     showTermSelector: !!canSelectTerm && hasTerms && !isOneoff && !isReadonly
   };
+});
+
+// a readonly product's title is text, not a route into configuration
+const titleRoute = computed(() => {
+  if (props.productDetails.readonly) return undefined;
+  return props.editRoute;
 });
 
 const filteredDetails = computed(() => {

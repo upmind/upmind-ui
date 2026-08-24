@@ -2,18 +2,19 @@
   <section class="flex w-full flex-col gap-3 text-left" v-auto-animate>
     <header>
       <Link
-        :label="t('action.add_promotion')"
         size="sm"
         color="muted"
         :disabled="meta.isProcessing"
         @click="toggle = !toggle"
         :checked="toggle"
-        :dataAttrs="{ 'data-test-key': 'link-add-a-voucher-code' }"
-      />
+        :data-attrs="{ 'data-test-key': 'link-add-a-voucher-code' }"
+        >{{ t("action.add_promotion") }}</Link
+      >
     </header>
 
     <Form
       v-show="toggle"
+      class="grid grid-cols-[1fr_auto] items-start gap-2"
       :additional-errors="validationErrors"
       :loading="meta.isLoading"
       :model-value="model"
@@ -24,8 +25,7 @@
       @resolve="doAdd"
       @update:modelValue="input"
       :actions="actions"
-      :ui-config="formConfig"
-      :dataAttrs="{ 'data-test-key': 'promotions-form' }"
+      data-test-key="promotions-form"
     />
 
     <footer
@@ -41,30 +41,29 @@
       <Tooltip
         v-for="promotion in promotions"
         :key="promotion.code"
-        :label="tooltipLabel(promotion)"
         :open="!!open[promotion.id]"
-        :ui-config="{ trigger: ['rounded-pill'] }"
+        @update:open="value => toggleTooltip(promotion.id, value)"
       >
         <Badge
-          variant="solid"
-          color="promo"
+          appearance="solid"
+          variant="promo"
           size="md"
-          :label="promotion.code"
+          class="cursor-pointer gap-1 rounded-full"
           @click="toggleTooltip(promotion.id)"
           @mouseenter="toggleTooltip(promotion.id, true)"
           @mouseleave="toggleTooltip(promotion.id, false)"
         >
-          <template #prepend>
-            <Link
-              :disabled="meta.isProcessing"
-              :loading="!!processing[promotion.id]"
-              @click.prevent="doRemove(promotion.id)"
-              color="inherit"
-            >
-              <Icon icon="x-close" size="nano" />
-            </Link>
-          </template>
+          <Link
+            :disabled="meta.isProcessing"
+            :loading="!!processing[promotion.id]"
+            @click.prevent="doRemove(promotion.id)"
+            color="inherit"
+          >
+            <Icon icon="x-close" size="xs" />
+          </Link>
+          {{ promotion.code }}
         </Badge>
+        <template #content>{{ tooltipLabel(promotion) }}</template>
       </Tooltip>
     </footer>
   </section>
@@ -78,17 +77,13 @@ import {
   useBasketPromotions,
   type PromotionDetails
 } from "@upmind-automation/headless";
-import {
-  Icon,
-  Badge,
-  Tooltip,
-  Link,
-  useTestAttrs
-} from "@upmind-automation/upmind-ui";
+import { useTestAttrs } from "@upmind/ui";
+import { Link } from "@upmind/ui";
+import { Badge, Tooltip } from "@upmind/ui";
 import Form from "../../../components/form/Form.vue";
-import config from "../basket.config";
+import { Icon } from "../../../components/icon";
 import { set } from "lodash-es";
-import type { FormActionProps, FormProps } from "@upmind-automation/upmind-ui";
+import type { FormActionProps } from "../../../components/form";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
@@ -110,10 +105,6 @@ const {
 const toggle = ref(false);
 const processing = ref<Record<string, boolean>>({});
 const open = ref<Record<string, boolean>>({});
-
-const formConfig = config.basket.promotions as unknown as FormProps["uiConfig"];
-
-const footerTestAttrs = useTestAttrs({ key: "summary-footer" });
 
 function doAdd() {
   add()
@@ -156,4 +147,6 @@ const tooltipLabel = computed(() => (promotion: PromotionDetails) => {
   }
   return promotion.name;
 });
+
+const footerTestAttrs = useTestAttrs({ key: "summary-footer" });
 </script>

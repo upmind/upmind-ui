@@ -5,7 +5,7 @@ import { useBrand } from "../brand";
 import { useClientAddresses } from "../client-address";
 import { useClientEmails } from "../client-email";
 import { useClientPhones } from "../client-phone";
-import { RequestSortDirection, invalidateQueryByKey, useQuery } from "../query";
+import { invalidateQueryByKey, useQuery } from "../query";
 import { ScopeActorTypes } from "../scope/scope.types";
 import { useActiveSession } from "../session-store";
 import { useSystem } from "../system";
@@ -15,7 +15,7 @@ import {
   mapCompany,
   mapICompany
 } from "./client-company.mappers";
-import { useSchema } from "./client-company.schemas";
+import { useQuerySchema, useSchema } from "./client-company.schemas";
 import { ClientCompaniesContextTypes } from "./client-company.types";
 import {
   useTime,
@@ -33,7 +33,6 @@ import { find, get, isArray, isEmpty, isEqual, pick, some } from "lodash-es";
 import type { AddressModel } from "../client-address";
 import type { EmailModel } from "../client-email";
 import type { PhoneModel } from "../client-phone";
-import type { QueryParams } from "../query";
 import type { ScopeContext } from "../scope";
 import type {
   ClientCompanyErrorCapture,
@@ -42,7 +41,8 @@ import type {
   ClientCompanyServices,
   Company,
   CompanyContext,
-  CompanyModel
+  CompanyModel,
+  QueryModel
 } from "./client-company.types";
 import type { ResponseError } from "../../utils";
 import type { QueryKey } from "@tanstack/vue-query";
@@ -112,18 +112,15 @@ function isAddressable(clientId?: string): boolean {
 /**
  * COLLECTION — the reactive list query, minted once per scope.
  *
- * Adds two params the oracle has and the pre-conversion headless lacked:
- * `with_staged_imports: 1` (legacy `companies.ts` L44-49, in-cell gap G1) and
- * an ascending `created_at` order (legacy `billableEntitiesProvider.vue`
- * L71-79, in-cell gap G2) — both through the platform's existing `useUrl` /
- * `sort` channel, no platform change (NFR-5).
+ * Adds `with_staged_imports: 1` (legacy `companies.ts` L44-49, in-cell gap
+ * G1) through the platform's existing `useUrl` channel, no platform change
+ * (NFR-5). The `created_at` ASC order (legacy `billableEntitiesProvider.vue`
+ * L71-79, in-cell gap G2) is the query schema's own `sort.default`
+ * (`client-company.schemas.ts`) — the whole request state is the DECLARED
+ * query schema: `list()` builds the criteria from it and publishes
+ * filters/sort/pagination back on the handle.
  */
-function loadList(
-  params: Partial<QueryParams<ICompany[], Company[]>> = {
-    pagination: { limit: 0 }
-  },
-  scopeContext?: ScopeContext
-): ClientCompanyListQuery {
+function loadList(scopeContext?: ScopeContext): ClientCompanyListQuery {
   const { list, useUrl } = useQuery();
   const { ensureConfig } = useBrand();
   const clientId = resolveClientId(scopeContext);
@@ -134,9 +131,8 @@ function loadList(
     });
   const url = targetUrl();
 
-  return list<ICompany[], Company[]>({
-    sort: [RequestSortDirection.ASC, "created_at"],
-    ...params,
+  return list<ICompany[], Company[], QueryModel>({
+    criteria: { schema: useQuerySchema() },
     queryKey: [...queryKey, { client: clientId }],
     url,
     // `enabled:` only stops the query starting; this rejects a forced
@@ -385,7 +381,7 @@ async function ensure(
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  const query = loadList(undefined, scopeContext);
+  const query = loadList(scopeContext);
   await query.promise.value.finally();
 
   const { findOne } = useCollection<Company>(
@@ -737,7 +733,7 @@ export const createClientCompanyServices = (
     clientId,
     isAvailable: computed(() => isAddressable(clientId.value)),
     error: computed(() => mutationError.value),
-    loadList: params => loadList(params, scopeContext),
+    loadList: () => loadList(scopeContext),
     loadOne: id => loadOne(id, scopeContext),
     add: model => add(model, scopeContext),
     update: (id, model) => update(id, model, scopeContext),

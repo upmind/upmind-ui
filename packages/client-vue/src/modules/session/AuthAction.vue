@@ -8,35 +8,38 @@
     <Button
       size="lg"
       variant="outline"
-      :label="t('action.login')"
-      icon="user-circle"
-      :dataAttrs="{ 'data-test-key': 'login-popover-trigger' }"
-      :ui-config="{
-        button: {
-          label: ['hidden md:inline']
-        } as any
-      }"
-    />
+      :data-attrs="{ 'data-test-key': 'login-popover-trigger' }"
+    >
+      <Icon icon="user-circle" />
+      <span class="hidden md:inline">{{ t("action.login") }}</span>
+    </Button>
   </SessionLoginPopover>
 
   <SessionDetailsDropdown v-else-if="client" @register="goToRegister">
     <Avatar
-      v-bind="client.avatar"
-      :icon="isGuestClient ? 'user-01' : undefined"
-      :shape="shape"
-      size="lg"
+      size="md"
       class="cursor-pointer"
-      :dataAttrs="{ 'data-test-key': 'auth-avatar' }"
-      focusable
-    />
+      :data-attrs="{ 'data-test-key': 'auth-avatar' }"
+      tabindex="0"
+      :src="avatarSrc"
+      :alt="client.avatar?.caption"
+    >
+      <template #fallback>
+        <Icon v-if="isGuestClient" icon="user-01" />
+        <template v-else>{{ client.avatar?.caption }}</template>
+      </template>
+    </Avatar>
   </SessionDetailsDropdown>
 </template>
 
 <script lang="ts" setup>
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { useActiveSession, QUERY_PARAMS } from "@upmind-automation/headless";
-import { Button, Avatar } from "@upmind-automation/upmind-ui";
+import { Button } from "@upmind/ui";
+import { Avatar } from "@upmind/ui";
+import { Icon } from "../../components/icon";
 import SessionDetailsDropdown from "../../modules/session/components/DetailsDropdown.vue";
 import SessionLoginPopover from "../../modules/session/components/LoginPopover.vue";
 import type { AuthActionProps } from "./types";
@@ -48,6 +51,12 @@ const { t } = useI18n();
 const session = useActiveSession();
 const { isAuthenticated, isGuestClient } = session.useMeta();
 const { activeUser: client } = session.useContext();
+
+const avatarSrc = computed(() => {
+  if (isGuestClient.value) return undefined;
+  if (client.value?.avatar?.forceCaption) return undefined;
+  return client.value?.avatar?.src;
+});
 const router = useRouter();
 const route = useRoute();
 

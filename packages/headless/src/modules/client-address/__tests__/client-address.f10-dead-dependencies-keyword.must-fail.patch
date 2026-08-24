@@ -1,0 +1,52 @@
+Negative control — the dead `dependencies` keyword removal (review finding F10).
+
+`client-address.schemas.ts` — `useQuerySchema()`'s `pagination` branch had a
+`dependencies: { offset: ["limit"] }` keyword deleted. Under ajv with
+`{ useDefaults: true }`, `limit`'s own `default: 0` is applied BEFORE
+`dependencies` is evaluated, so a bare `{ offset }` write is silently
+backfilled and never trips the keyword, on every path — the keyword was
+already inert before deletion.
+
+This is NOT a behavioural fix — `useQuerySchema()`'s validation OUTCOME is
+identical with or without the keyword (that is precisely the defect: it was
+already dead). What changed is structural: the schema no longer carries a
+dead, falsely-justified keyword.
+
+What the mutant does: re-inserts `dependencies: { offset: ["limit"] }` into
+the `pagination` branch.
+
+Should flip RED — __tests__/client-address.query-schema.int.test.ts,
+describe("client-address — the pagination branch carries no dead ajv
+keyword"):
+  - "declares no dependencies keyword on pagination — useDefaults resolves
+     limit's own default before dependencies could ever fire"
+
+This mutant does NOT flip any ajv-validation-outcome test — none exists,
+because the keyword never affected validation outcomes even before deletion.
+It is only observable STRUCTURALLY, which is what the test above asserts.
+
+Should stay GREEN — every other test in the same file: none of them inspect
+the `pagination` branch's own key set.
+
+MEASURED (prover, applied blind, per agent-seat-separation.md's must-fail-
+patch seam — the developer authors the mutant, the prover verifies it red and
+reverts): `git apply --check` clean against the current tree. Baseline,
+`client-address.query-schema.int.test.ts` is 8 passed (8). Applied, the file
+goes to 1 failed | 7 passed (8) — exactly the named structural test flips
+(`expected { ... } to not have property "dependencies"`, received
+`{ "offset": ["limit"] }`), every other test in the file (AC-41/AC-42/AC-44,
+including the identity test) stays green. Reverted after measurement
+(`git apply -R`), 2026-08-23.
+
+diff --git a/packages/headless/src/modules/client-address/client-address.schemas.ts b/packages/headless/src/modules/client-address/client-address.schemas.ts
+index 28e5e3557..2222222 100644
+--- a/packages/headless/src/modules/client-address/client-address.schemas.ts
++++ b/packages/headless/src/modules/client-address/client-address.schemas.ts
+@@ -396,6 +396,7 @@ export function useQuerySchema(): JsonSchema7 {
+       pagination: {
+         type: "object",
+         additionalProperties: false,
++        dependencies: { offset: ["limit"] },
+         properties: {
+           limit: { type: "integer", minimum: 0, default: 0 },
+           offset: { type: "integer", minimum: 0, default: 0 }

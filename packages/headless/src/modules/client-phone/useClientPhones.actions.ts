@@ -1,16 +1,16 @@
-import { ref, watch } from "vue";
+import { watch } from "vue";
 import { invalidateQueryByKey } from "../query";
 // Deep path, never the `../scope` barrel — see useClientPhones.ts for the
 // aggregator-barrel `export *` hazard this sidesteps.
 import { remove as removeFromRegistry } from "../scope/scope.registry";
 import { useActiveSession } from "../session-store";
 import { NotAuthenticatedError } from "../../utils";
-import { set } from "lodash-es";
 import type {
   ClientPhoneListQuery,
-  ClientPhoneServices
+  ClientPhoneServices,
+  FilterModel,
+  SortModel
 } from "./client-phone.types";
-import type { RequestFilters } from "../query";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
@@ -111,14 +111,46 @@ export function createClientPhonesActions(
     if (error instanceof NotAuthenticatedError) throw error;
   }
 
-  // --- filters
-  const filters = ref<RequestFilters & { query?: string }>({});
-
-  /** Applies a free-text filter and re-issues the list request. */
-  function filterQuery(value?: string): void {
-    set(filters.value, "query", value);
-    query.filter(filters.value);
+  /**
+   * Applies a filter INTENT — the `filters` branch of the one query model, so
+   * `sort` and `pagination` are untouched by construction. The free-text
+   * search binds `filters.number.like`.
+   */
+  function filterBy(intent: FilterModel): void {
+    query.setCriteria({ filters: intent });
   }
+
+  /**
+   * Applies a sort INTENT — the `sort` branch of the one query model, so
+   * `filters` and `pagination` are untouched. A `[]` intent is compacted away
+   * and the parse refills the schema's `default` order, so clearing the sort
+   * lands as the default rather than an absent order.
+   */
+  function sortBy(intent: SortModel): void {
+    query.setCriteria({ sort: intent });
+  }
+
+  /**
+   * @decision setCriteria-mirrors-client-address-precedent
+   * what: publishes `setCriteria: query.setCriteria` — the platform's
+   *   generic, schema-governed write verb, merging any of `filters` / `sort`
+   *   / `pagination` into the ONE query model. This is the door a consumer
+   *   calls to set the page size: `setCriteria({ pagination: { limit } })`,
+   *   then drives `nextPage()` / `prevPage()`.
+   * why: this module declares `pagination.limit` with `default: 0` (one
+   *   unpaged read, deliberate — ~10 legacy importers read the whole
+   *   collection) and publishes `nextPage`/`prevPage`, but with no public
+   *   door to set a page size the pager was inert (the same shape as the
+   *   client-custom-fields gap: AC-33's mandatory `limit:0` structurally
+   *   blocks paging). `client-email-history` publishes this same generic
+   *   door for the identical problem, and `client-address`
+   *   (`useClientAddresses.actions.ts`) already mirrors it — this is that
+   *   same repair applied here.
+   * rejected: a bespoke `setPageSize(limit, offset)` action — no oracle
+   *   authorises inventing a shape when the platform already exposes a
+   *   generic one (`query.setCriteria`) that sibling modules already
+   *   publish verbatim.
+   */
 
   /**
    * Destroys this scoped instance — removes it from the registry so the next
@@ -133,37 +165,70 @@ export function createClientPhonesActions(
   // `useClientPhones.actions.{actor}.ts` and spread it LAST so it wins.
 
   return {
-    /** Destroys this scoped instance — removes it from the registry. */
+    /**
+     * @scenario-include
+     */
     destroy,
 
-    /** Finds a phone by id or value, creating it only if absent. */
+    /**
+     * @scenario-include
+     */
     ensure: service.ensure,
 
-    /** Filters for the list query. */
-    filters: {
-      query: filterQuery
-    },
+    /**
+     * @scenario-include
+     */
+    filterBy,
 
-    /** Marks the shared cache key stale so the next read refetches. */
+    /**
+     * @scenario-exclude internal cache-key invalidation, not a user-facing capability
+     */
     invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
 
-    /** Resolves true when the collection is ready to read. */
+    /**
+     * @scenario-include
+     */
     isReady,
 
-    /** Fetches the next page of phone numbers. */
+    /**
+     * @scenario-include
+     */
     nextPage: query.fetchNextPage,
 
-    /** Fetches the previous page of phone numbers. */
+    /**
+     * @scenario-include
+     */
     prevPage: query.fetchPreviousPage,
 
-    /** Refetches the list from the server; rejects if it cannot address one. */
+    /**
+     * @scenario-include
+     */
     refresh,
 
-    /** Deletes a deletable phone. Also raises feedback (row W6). */
+    /**
+     * @scenario-include
+     */
     remove: service.remove,
 
-    /** Promotes a phone to the client's default. Also raises feedback (row W6). */
-    setDefault: service.setDefault
+    /**
+     * Applies a criteria INTENT — merges the given `filters` / `sort` /
+     * `pagination` branches into the ONE query model; branches left out are
+     * untouched. See `@decision setCriteria-mirrors-client-address-precedent`
+     * above. This is the door that sets the page size:
+     * `setCriteria({ pagination: { limit } })`.
+     * @scenario-include
+     */
+    setCriteria: query.setCriteria,
+
+    /**
+     * @scenario-include
+     */
+    setDefault: service.setDefault,
+
+    /**
+     * @scenario-include
+     */
+    sortBy
 
     // The arm merges in HERE, last — a spread overwrites, which is what lets
     // it override a shared member; anything it omits falls through.

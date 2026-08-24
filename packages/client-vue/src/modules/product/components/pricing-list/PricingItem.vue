@@ -1,31 +1,27 @@
 <template>
-  <li :class="styles.summary.list.item.root">
-    <h5 :class="styles.summary.list.item.category">
+  <li :class="summaryListItemRootVariants()">
+    <h5 :class="summaryListItemCategoryVariants()">
       {{ category }}
       <template v-if="quantity && quantity > 1">
         {{ `x&nbsp;${quantity}` }}
       </template>
     </h5>
 
-    <p :class="styles.summary.list.item.title" v-bind="titleTestAttrs">
+    <p :class="summaryListItemTitleVariants()" v-bind="titleTestAttrs">
       {{ title ?? "&ndash;" }}
     </p>
   </li>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useStyles, useTestAttrs } from "@upmind-automation/upmind-ui";
-import config from "./pricing.config";
+import { useTestAttrs } from "@upmind/ui";
+import {
+  summaryListItemRootVariants,
+  summaryListItemCategoryVariants,
+  summaryListItemTitleVariants
+} from "./variants";
 import type { PricingItemProps } from "./types";
 
-const props = defineProps<PricingItemProps>();
-
-const meta = computed(() => ({
-  hasIcon: !!props.icon
-}));
-
-const styles = useStyles("summary.list.item", meta, config);
-
+defineProps<PricingItemProps>();
 const titleTestAttrs = useTestAttrs({ key: "summary-value" });
 </script>

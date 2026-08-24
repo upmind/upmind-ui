@@ -5,22 +5,20 @@ import { cva } from "class-variance-authority";
  * @description CVA configuration for ContextPanel.
  */
 
-export default {
-  contextPanel: {
-    root: cva(""),
+export const contextPanel = {
+  root: cva(""),
 
-    title: cva("text-display mb-2 text-sm font-bold"),
+  title: cva("text-display mb-2 text-sm font-bold"),
 
-    list: cva("space-y-1"),
+  list: cva("space-y-1"),
 
-    collapsible: cva(""),
+  collapsible: cva(""),
 
-    trigger: cva(
-      "text-muted hover:text-display cursor-pointer text-xs font-semibold tracking-wider uppercase transition-colors"
-    ),
+  trigger: cva(
+    "text-muted hover:text-display cursor-pointer text-xs font-semibold tracking-wider uppercase transition-colors"
+  ),
 
-    pre: cva(
-      "bg-canvas mt-2 max-h-48 overflow-auto rounded p-2 text-xs whitespace-pre-wrap"
-    )
-  }
+  pre: cva(
+    "bg-canvas mt-2 max-h-48 overflow-auto rounded p-2 text-xs whitespace-pre-wrap"
+  )
 };

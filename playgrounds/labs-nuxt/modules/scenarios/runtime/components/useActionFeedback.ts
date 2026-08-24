@@ -19,7 +19,7 @@
  */
 
 import { ref } from "vue";
-import { toast, TOAST_VARIANTS } from "@upmind-automation/upmind-ui";
+import { toast } from "@upmind/ui";
 import {
   assign,
   delay,
@@ -68,7 +68,7 @@ export function useActionFeedback(): UseActionFeedback {
 
     try {
       await invoke();
-      if (copy) report(copy.success, TOAST_VARIANTS.SUCCESS);
+      if (copy) report(copy.success, "success");
       succeeded.value.push(key);
       delay(() => pull(succeeded.value, key), SUCCESS_CUE_MS);
       return true;
@@ -83,7 +83,7 @@ export function useActionFeedback(): UseActionFeedback {
         [key]: reported.value ?? copy?.failure ?? ""
       });
 
-      if (copy) report(copy.failure, TOAST_VARIANTS.DANGER, reported.value);
+      if (copy) report(copy.failure, "error", reported.value);
       return false;
     } finally {
       pull(pending.value, key);

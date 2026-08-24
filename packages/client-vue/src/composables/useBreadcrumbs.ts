@@ -3,8 +3,11 @@ import { useI18n } from "vue-i18n";
 import { BreadcrumbVariant, QUERY_PARAMS } from "@upmind-automation/headless";
 import { has } from "lodash-es";
 import type { StorefrontRoute } from "../types";
-import type { BreadcrumbVariant as UIBreadcrumbVariant } from "@upmind-automation/upmind-ui";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
+
+// The new UI lib's Breadcrumb is compositional and exposes no variant type, so
+// the old "visible | condensed | parent | hidden" vocabulary lives here now.
+type UIBreadcrumbVariant = "visible" | "condensed" | "parent" | "hidden";
 
 export interface BreadcrumbCategory {
   id: string;
@@ -102,8 +105,21 @@ export const useBreadcrumbs = (options: UseBreadcrumbItemsOptions) => {
     return items;
   });
 
+  // Variant filtering used to live in the old consolidated <Breadcrumb> widget;
+  // the new lib is compositional, so apply it here and hand consumers the
+  // display-ready list (a `{ ellipsis: true }` marker renders as BreadcrumbEllipsis).
+  const displayItems = computed(() => {
+    const list = items.value;
+    if (!list.length || uiVariant.value === "hidden") return [];
+    if (uiVariant.value === "parent") return [list[list.length - 1]];
+    if (uiVariant.value === "condensed" && list.length > 2) {
+      return [list[0], { label: "...", ellipsis: true }, list[list.length - 1]];
+    }
+    return list;
+  });
+
   return {
-    items,
+    items: displayItems,
     variant: uiVariant
   };
 };

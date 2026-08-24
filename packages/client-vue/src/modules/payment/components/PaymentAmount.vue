@@ -1,11 +1,11 @@
 <template>
   <Link
-    :label="t('cart.change_amount')"
     color="muted"
     size="sm"
     @click="openForm"
-    :dataAttrs="{ 'data-test-key': 'change-amount' }"
-  />
+    :data-attrs="{ 'data-test-key': 'change-amount' }"
+    >{{ t("cart.change_amount") }}</Link
+  >
 
   <FormModal
     v-model:open="open"
@@ -29,7 +29,7 @@
 <script lang="ts" setup>
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { Link } from "@upmind-automation/upmind-ui";
+import { Link } from "@upmind/ui";
 import FormModal from "../../../components/form/FormModal.vue";
 import type { PaymentAmountProps } from "../types";
 

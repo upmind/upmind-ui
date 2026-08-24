@@ -1,0 +1,64 @@
+/* App layout widths — re-homed from the retired old lib's utilities/size.css.
+   The apps no longer import the old-lib stylesheet (FE-2941 teardown), so these
+   custom @utilities live here, where the apps still pull client-vue's styles. */
+@theme {
+  --max-w-app: 1424px;
+  --max-w-app-content: 776px;
+  --max-w-app-aside: 448px;
+  --max-w-app-aside-lg: 512px;
+}
+
+@utility max-w-app {
+  max-width: var(--max-w-app);
+}
+
+@utility max-w-app-content {
+  max-width: var(--max-w-app-content);
+}
+
+@utility max-w-app-aside {
+  max-width: var(--max-w-app-aside);
+}
+
+@utility max-w-app-aside-lg {
+  max-width: var(--max-w-app-aside-lg);
+}
+
+@utility min-w-app-aside {
+  min-width: var(--max-w-app-aside);
+}
+
+@utility min-w-app-aside-lg {
+  min-width: var(--max-w-app-aside-lg);
+}
+
+@utility w-app-content {
+  max-width: var(--max-w-app-content);
+}
+
+@utility w-app-aside {
+  max-width: var(--max-w-app-aside);
+}
+
+@utility basis-app-content {
+  flex-basis: var(--max-w-app-content);
+}
+
+@utility basis-app-aside {
+  flex-basis: var(--max-w-app-aside);
+}
+
+/* 2-col layout split background — re-homed from the old lib's
+   utilities/background.css (dropped in the teardown); token names updated to
+   the new --surface/--canvas. The 2-col ribbon uses these at lg. */
+@utility canvas-gradient {
+  background:
+    linear-gradient(to right, var(--surface) 50%, transparent 50%),
+    linear-gradient(to bottom right, var(--canvas) 0%, var(--canvas) 100%);
+}
+
+@utility canvas-gradient-rtl {
+  background:
+    linear-gradient(to left, var(--surface) 50%, transparent 50%),
+    linear-gradient(to bottom left, var(--canvas) 0%, var(--canvas) 100%);
+}

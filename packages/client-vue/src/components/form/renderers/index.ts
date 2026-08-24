@@ -1,34 +1,33 @@
-import { registerEntry } from "@upmind-automation/upmind-ui";
-import AddressRenderer, { tester as addressTest } from "./AddressRenderer.vue";
-import DomainRenderer, { tester as domainTest } from "./DomainRenderer.vue";
-import FilterBarRenderer, {
-  tester as filterBarTest
-} from "./FilterBarRenderer.vue";
-import FilterButtonGroupRenderer, {
-  tester as filterButtonGroupTest
-} from "./FilterButtonGroupRenderer.vue";
-import FilterRangeRenderer, {
-  tester as filterRangeTest
-} from "./FilterRangeRenderer.vue";
-import FilterSearchRenderer, {
-  tester as filterSearchTest
-} from "./FilterSearchRenderer.vue";
-import FilterToggleGroupRenderer, {
-  tester as filterToggleGroupTest
-} from "./FilterToggleGroupRenderer.vue";
-import GatewaysRenderer, {
-  tester as gatewayMethodTest
-} from "./GatewaysRenderer.vue";
-import ImageRenderer, { tester as imageTest } from "./ImageRenderer.vue";
-import ManageRenderer, { tester as manageTest } from "./ManageRenderer.vue";
-import PaymentDetailsRenderer, {
-  tester as paymentMethodTest
-} from "./PaymentDetailsRenderer.vue";
-import SLDRenderer, { tester as sldTest } from "./SLDRenderer.vue";
-import SubProductRenderer, {
-  tester as subProductTest
-} from "./SubProductRenderer.vue";
-import TermsRenderer, { tester as termsTest } from "./TermsRenderer.vue";
+import AddressRenderer from "./AddressRenderer.vue";
+import { tester as addressTest } from "./AddressRenderer.vue";
+import DomainRenderer from "./DomainRenderer.vue";
+import { tester as domainTest } from "./DomainRenderer.vue";
+import FilterBarRenderer from "./FilterBarRenderer.vue";
+import { tester as filterBarTest } from "./FilterBarRenderer.vue";
+import FilterButtonGroupRenderer from "./FilterButtonGroupRenderer.vue";
+import { tester as filterButtonGroupTest } from "./FilterButtonGroupRenderer.vue";
+import FilterRangeRenderer from "./FilterRangeRenderer.vue";
+import { tester as filterRangeTest } from "./FilterRangeRenderer.vue";
+import FilterSearchRenderer from "./FilterSearchRenderer.vue";
+import { tester as filterSearchTest } from "./FilterSearchRenderer.vue";
+import FilterToggleGroupRenderer from "./FilterToggleGroupRenderer.vue";
+import { tester as filterToggleGroupTest } from "./FilterToggleGroupRenderer.vue";
+import GatewaysRenderer from "./GatewaysRenderer.vue";
+import { tester as gatewayMethodTest } from "./GatewaysRenderer.vue";
+import ImageRenderer from "./ImageRenderer.vue";
+import { tester as imageTest } from "./ImageRenderer.vue";
+import ManageRenderer from "./ManageRenderer.vue";
+import { tester as manageTest } from "./ManageRenderer.vue";
+import PaymentDetailsRenderer from "./PaymentDetailsRenderer.vue";
+import { tester as paymentMethodTest } from "./PaymentDetailsRenderer.vue";
+import SLDRenderer from "./SLDRenderer.vue";
+import { tester as sldTest } from "./SLDRenderer.vue";
+import SubProductRenderer from "./SubProductRenderer.vue";
+import { tester as subProductTest } from "./SubProductRenderer.vue";
+import TermsRenderer from "./TermsRenderer.vue";
+// -----------------------------------------------------------------------------
+import { tester as termsTest } from "./TermsRenderer.vue";
+import { registerEntry } from "../engine/renderers/utils";
 
 // -----------------------------------------------------------------------------
 

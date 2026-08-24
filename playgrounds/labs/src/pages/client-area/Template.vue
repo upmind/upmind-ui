@@ -17,7 +17,7 @@
 import { useRoute } from "vue-router";
 import { UpmLayout } from "@upmind-automation/client-vue";
 import { useClientTemplate } from "@upmind-automation/headless";
-import { Markdown } from "@upmind-automation/upmind-ui";
+import { Markdown } from "@upmind/ui";
 import type { ClientTemplateSlotCodes } from "@upmind-automation/types";
 
 const route = useRoute();

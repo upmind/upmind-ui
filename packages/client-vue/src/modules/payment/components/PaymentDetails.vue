@@ -22,7 +22,11 @@
       />
     </template>
 
-    <Loading :active="meta.isLoading" :class="styles.payment.root">
+    <Loading
+      :label="t('text.loading')"
+      :active="meta.isLoading"
+      :class="rootVariants()"
+    >
       <slot name="prepend" />
 
       <!-- Free -->
@@ -65,13 +69,14 @@
         <!-- Payment Error (shown when no gateway is active to display it) -->
         <Alert
           v-if="paymentError && !meta.hasSelectedGateway"
-          color="danger"
-          variant="minimal"
-          icon="alert-triangle"
+          variant="danger"
+          appearance="outline"
           :title="t('text.payment_failed')"
           :description="paymentError"
           :dataAttrs="{ 'data-test-key': 'payment-error-alert' }"
-        />
+        >
+          <template #icon><Icon icon="alert-triangle" /></template>
+        </Alert>
 
         <!-- Selected Payment Gateway -->
         <PaymentGateway
@@ -130,9 +135,11 @@ import {
   responseCodes,
   type UsePaymentDetail
 } from "@upmind-automation/headless";
-import { Alert, Loading, useStyles } from "@upmind-automation/upmind-ui";
+import { Loading } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
+import { Icon } from "../../../components/icon";
 import Section from "../../../components/section/Section.vue";
-import config from "../payment.config";
+import { rootVariants } from "../variants";
 import AccountCredit from "./AccountCredit.vue";
 import PayLater from "./PayLater.vue";
 import PaymentActions from "./PaymentActions.vue";
@@ -156,8 +163,6 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
-
-const styles = useStyles(["payment"], {}, config);
 
 const paymentDetail = inject<UsePaymentDetail>("usePaymentDetail");
 

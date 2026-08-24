@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-company/useClientCompanies.actions.ts
++++ b/packages/headless/src/modules/client-company/useClientCompanies.actions.ts
+@@ -173,7 +173,7 @@
+     ensure: service.ensure,
+
+     /** Applies a filter intent — the `filters` branch of the query model. */
+-    filterBy,
++    filterBy: () => {},
+
+     /** Marks the shared cache key stale so the next read refetches. */
+     invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),

@@ -7,26 +7,46 @@
  * and every sibling spec's `AC-<n>` title mentions, then enforce the link
  * BOTH ways — a non-`@todo` scenario with no proving test fails, and a test
  * naming an AC the feature does not tag fails — plus the hard count: the
- * distinct `@AC-<n>` tag set has exactly 26 members.
+ * distinct `@AC-<n>` tag set has exactly 36 members.
  *
- * EXACTLY THREE assertions, per T-A11. This file reads NO path outside
- * `__tests__/` — there is no SDD copy and no `docs/sdd/client-custom-fields/`
- * directory (T-0, T-A13); `client-email.traceability.test.ts:38-40,95-103`'s
- * unconditional read of the gitignored SDD path is NOT reproduced here (it is
- * why that reference module's own traceability test is red in CI today).
+ * ALSO grades step catalog driveability: a scenario whose steps ALL match the
+ * catalog is driveable; one whose steps match only in PART fails (the dangerous
+ * case — it reads as driveable and silently is not); an orphan step definition
+ * fails (dead code, or a scenario renamed underneath it).
  *
- * Per ADR-020 the `.feature` is spec-only and non-executable — nothing runs
- * it, and there is no steps file. This test is the whole of its enforcement.
+ * This file reads NO path outside `__tests__/` — there is no SDD copy and no
+ * `docs/sdd/client-custom-fields/` directory (T-0, T-A13).
  */
 
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { createTraceabilityCheck } from "@upmind-automation/scenario-harness";
+import { stepCatalogs } from "../../../testing";
+import clientCustomFieldsSteps, {
+  coveredActionIds
+} from "./client-custom-fields.steps";
+import { filter, includes, map, reject } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
 const TEST_DIR = import.meta.dirname;
 const COLOCATED_FEATURE = join(TEST_DIR, "client-custom-fields.feature");
+
+const featureText = readFileSync(COLOCATED_FEATURE, "utf-8");
+const catalogSource = readFileSync(
+  join(TEST_DIR, "client-custom-fields.steps.ts"),
+  "utf-8"
+);
+
+const {
+  scenarios,
+  driveable,
+  partial,
+  orphanStepDefs,
+  duplicatedPatterns,
+  malformedStepDefs
+} = createTraceabilityCheck(featureText, clientCustomFieldsSteps, stepCatalogs);
 
 /** The `@AC-*` tags on every scenario in the feature file, `@todo` excluded. */
 function featureAcTags(path: string): Set<string> {
@@ -100,13 +120,41 @@ describe("client-custom-fields traceability — co-located feature vs proving te
     ).toEqual([]);
   });
 
-  it("the distinct @AC-<n> tag set has exactly 26 members, and every one names a proving file", () => {
+  it("the distinct @AC-<n> tag set has exactly 36 members, and every one names a proving file", () => {
     const tests = provingTests();
-    const map = [...featureAcTags(COLOCATED_FEATURE)]
-      .sort((a, b) => Number(a.slice(3)) - Number(b.slice(3)))
-      .map(ac => ({ ac, files: tests.get(ac) ?? [] }));
+    const acEntries = map(
+      [...featureAcTags(COLOCATED_FEATURE)].sort(
+        (a, b) => Number(a.slice(3)) - Number(b.slice(3))
+      ),
+      ac => ({ ac, files: tests.get(ac) ?? [] })
+    );
 
-    expect(map).toHaveLength(26);
-    expect(map.filter(entry => entry.files.length === 0)).toEqual([]);
+    expect(acEntries).toHaveLength(36);
+    expect(filter(acEntries, entry => entry.files.length === 0)).toEqual([]);
+  });
+
+  it(`drives ${driveable.length} of ${scenarios.length} scenarios`, () => {
+    expect(map(partial, "name"), "Half-matched scenarios").toEqual([]);
+    expect(
+      map(orphanStepDefs, "pattern"),
+      "Step definitions nothing calls"
+    ).toEqual([]);
+    expect(
+      map(malformedStepDefs, "pattern"),
+      "Patterns that do not compile"
+    ).toEqual([]);
+    expect(
+      duplicatedPatterns,
+      "Patterns another catalog already claims"
+    ).toEqual([]);
+    expect(
+      reject(coveredActionIds, id =>
+        includes(
+          catalogSource,
+          `fire(CLIENT_CUSTOM_FIELDS_COVERED_ACTIONS.${id}`
+        )
+      ),
+      "Declared covered but fired by no step"
+    ).toEqual([]);
   });
 });

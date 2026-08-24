@@ -26,7 +26,11 @@ import type {
 } from "@upmind-automation/scenario-harness";
 
 /** The modules whose `@internal` schema family this playground drives. */
-export type DeclaringModule = "client-email" | "client-email-history";
+export type DeclaringModule =
+  | "client-address"
+  | "client-email"
+  | "client-email-history"
+  | "client-phone";
 
 export type DeclaredTableOptions = {
   emit?: ControlledTableChannel["emit"];

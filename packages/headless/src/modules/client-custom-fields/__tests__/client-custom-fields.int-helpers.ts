@@ -15,6 +15,7 @@ import { join } from "node:path";
 import { http, HttpResponse } from "msw";
 import { expect, vi } from "vitest";
 import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
+import { narrowByLike, windowOf } from "../../../__tests__/criteria-int-kit";
 import { queryClient } from "../../query/client";
 import { getRegistry, remove } from "../../scope/scope.registry";
 import {
@@ -414,4 +415,49 @@ export function installDefinitionsHandler(
   );
 
   return { reads: () => reads, lastUrl: () => lastUrl };
+}
+
+/**
+ * The criteria-aware sibling of {@link installDefinitionsHandler}: that
+ * handler ignores every param but `brand_id`, so it cannot back a filter,
+ * sort or page assertion. This one narrows the RECORDED two-row corpus by
+ * the request's own `filter[name|like]` and windows it by `limit`/`offset`,
+ * mirroring `product-catalogue.int-helpers.ts`'s `installProductsHandler`
+ * (`narrowByLike` / `windowOf`, `../../../__tests__/criteria-int-kit`) —
+ * this module's own recorded rows, the platform's established technique.
+ */
+export function installCriteriaAwareDefinitionsHandler(
+  mswServer: SetupServer | undefined,
+  brandId: string
+): { reads: () => number } {
+  const envelope = recorded.definitions();
+  const corpus = recordedDefinitions();
+  let reads = 0;
+
+  mswServer?.use(
+    http.get("*/custom_fields", ({ request }) => {
+      reads += 1;
+      const params = new URL(request.url).searchParams;
+      if (params.get("brand_id") !== brandId) {
+        return HttpResponse.json(
+          { ...envelope, data: [], total: 0 },
+          { status: 200 }
+        );
+      }
+      const narrowed = narrowByLike(corpus, params, "name", row => row.name);
+      return HttpResponse.json(
+        {
+          ...envelope,
+          data: windowOf(narrowed, params),
+          total: narrowed.length
+        },
+        // `x-total-count` — the pager's page-count math reads this header,
+        // not the body's `total` field (see the recorded page-1/page-2
+        // fixtures, which both carry it alongside an identical body.total).
+        { status: 200, headers: { "x-total-count": String(narrowed.length) } }
+      );
+    })
+  );
+
+  return { reads: () => reads };
 }

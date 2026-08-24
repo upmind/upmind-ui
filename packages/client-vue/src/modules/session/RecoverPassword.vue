@@ -7,7 +7,7 @@
         <Back
           :label="meta.isInset ? t('action.back') : t('action.back_to_login')"
           :icon="meta.isInset ? 'arrow-narrow-left' : 'arrow-left'"
-          :size="meta.isInset ? 'md' : 'lg'"
+          size="md"
           :color="meta.isInset ? 'muted' : 'default'"
           @click.prevent="doReject"
         />
@@ -28,9 +28,9 @@
                   :to="props.loginRoute"
                   size="inherit"
                   color="inherit"
-                  :label="t('action.log_in_here')"
                   class="font-normal"
-                />
+                  >{{ t("action.log_in_here") }}</Link
+                >
               </template>
             </i18n-t>
           </template>
@@ -48,10 +48,10 @@
           :label="t('action.recover_password')"
           icon="user-03"
           v-show="!isAuthenticated"
-          :class="styles.session.formWidth"
+          :class="sessionFormWidthVariants({ inset: meta.isInset })"
         >
           <Auth
-            class="rounded-box w-full max-w-5xl items-start"
+            class="rounded-card w-full max-w-5xl items-start"
             no-tabs
             no-header
             model-value="recover"
@@ -81,18 +81,18 @@ import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import {
-  useActiveSession,
   useBasket,
   useRoutingEngine,
+  useActiveSession,
   UIContext
 } from "@upmind-automation/headless";
-import { useThemes, useStyles, Link } from "@upmind-automation/upmind-ui";
+import { Link } from "@upmind/ui";
 import Hero from "../../components/hero/Hero.vue";
 import Back from "../../components/navigation/Back.vue";
 import Section from "../../components/section/Section.vue";
 import Summary from "../basket/components/Summary.vue";
+import { useThemes } from "../theming";
 import Auth from "./components/Auth.vue";
-import sessionConfig from "./session.config";
 import SessionCanvasCardTemplate from "./templates/SessionCanvasCard.template.vue";
 import SessionEnclosedTemplate from "./templates/SessionEnclosed.template.vue";
 import SessionInsetTemplate from "./templates/SessionInset.template.vue";
@@ -105,6 +105,7 @@ import {
   type SessionRoutes,
   SESSION_TEMPLATE
 } from "./types";
+import { sessionFormWidthVariants } from "./variants";
 import { get } from "lodash-es";
 
 const supportedTemplates = {
@@ -138,14 +139,6 @@ const { ui } = useConfig({
   context: UIContext.AUTH,
   provide: true
 });
-
-const styles = useStyles(
-  ["session", "session.formWidth"],
-  computed(() => ({
-    template: template.value
-  })),
-  sessionConfig
-);
 
 await isReady();
 

@@ -1,16 +1,22 @@
 <template>
-  <Loading :active="meta.isOverlayActive">
-    <div :class="styles.product.list">
+  <Loading :label="t('text.loading')" :active="meta.isOverlayActive">
+    <div :class="productRootListVariants()">
       <!-- Product: summary + optional inline configuration. Presents as its
            own Card, or flat inside a parent card (e.g. "Your Order"). The id
            prefix is the scroll anchor Basket.vue looks up for summary links. -->
       <component
         :is="props.card ? Card : 'div'"
         :id="`basket-product-${props.id}`"
-        :class="styles.product.container"
+        :class="
+          productRootContainerVariants({
+            card: props.card,
+            isDisabled: meta.isDisabled
+          })
+        "
+        :ui="meta.cardUi"
       >
         <!-- Basket product summary -->
-        <div :class="styles.product.summaries">
+        <div :class="productRootSummariesVariants({ card: props.card })">
           <template
             v-for="(summary, index) in visiblePricing"
             :key="`${props.id}-${index}`"
@@ -54,7 +60,7 @@
         <Config
           v-if="configMeta && meta.hasConfiguration"
           :meta="configMeta"
-          :class="styles.product.config"
+          :class="productRootConfigVariants({ card: props.card })"
           hide-terms
           :touched="meta.showConfigErrors"
           no-footer
@@ -69,7 +75,7 @@
         <div
           v-for="{ upsell, option, benefits } in filteredUpsells"
           :key="`${props.id}-upsell-${upsell.id}`"
-          :class="styles.product.option.upsell"
+          :class="productOptionUpsellVariants({ card: props.card })"
         >
           <BasketProductUpsell
             v-bind="basketProductUpsellTestAttrs"
@@ -94,16 +100,22 @@
 <script lang="ts" setup>
 import { useVModel } from "@vueuse/core";
 import { computed, onUnmounted, provide } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   useBasket,
   useConfig,
   UIContext,
   useBasketProductInline
 } from "@upmind-automation/headless";
-import { useStyles, useTestAttrs } from "@upmind-automation/upmind-ui";
-import { Card, Loading } from "@upmind-automation/upmind-ui";
-import Config from "../../../product/components/Config.vue";
-import stylesConfig from "./basketProduct.config";
+import { Card, Loading, useTestAttrs } from "@upmind/ui";
+import {
+  productRootCardContentVariants,
+  productRootListVariants,
+  productRootContainerVariants,
+  productRootSummariesVariants,
+  productRootConfigVariants,
+  productOptionUpsellVariants
+} from "./basketProduct.variants";
 import BasketProductContent from "./BasketProductContent.vue";
 import BasketProductSubItem from "./BasketProductSubItem.vue";
 import BasketProductUpsell from "./BasketProductUpsell.vue";
@@ -124,6 +136,8 @@ const props = withDefaults(defineProps<Product & BasketProductProps>(), {
   open: false,
   card: true
 });
+
+const { t } = useI18n();
 
 const emits = defineEmits(["update:open", "remove"]);
 
@@ -217,9 +231,14 @@ const meta = computed(() => {
   const isOverlayActive =
     isLoading || props.processing || (!isConfigurable && isProcessing);
 
+  // Undefined so the non-card <div> branch gets no ui attribute.
+  let cardUi;
+  if (props.card) cardUi = { content: productRootCardContentVariants() };
+
   return {
     // flat products inherit their parent card's inset; own-card keeps its own
     card: props.card,
+    cardUi,
     isConfigurable,
     isDisabled: props.disabled,
     isLoading,
@@ -251,28 +270,12 @@ const meta = computed(() => {
   };
 });
 
-const styles = useStyles(
-  [
-    "product.list",
-    "product.container",
-    "product.summaries",
-    "product.config",
-    "product.option.upsell"
-  ],
-  meta,
-  stylesConfig
-);
-
-const editRoute = computed(() => {
-  return {
-    to: {
-      ...props.editRoute,
-      params: {
-        bpid: props.id
-      }
-    }
-  } as RouteLocationAsRelativeGeneric;
-});
+const editRoute = computed<RouteLocationAsRelativeGeneric>(() => ({
+  ...props.editRoute,
+  params: {
+    bpid: props.id
+  }
+}));
 
 const pricingProductIds = computed(() => compact(map(props.pricing, "id")));
 

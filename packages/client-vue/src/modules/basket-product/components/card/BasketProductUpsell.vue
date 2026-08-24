@@ -1,5 +1,5 @@
 <template>
-  <article :class="styles.product.option.root">
+  <article :class="productOptionRootVariants()">
     <BasketProductSummary :summary="summary">
       <!-- e.g. "+$9.99 every month." or "+$9.99 one-time." -->
       +{{
@@ -16,34 +16,34 @@
 
     <Button
       v-if="!summary.toggle.selected"
-      :dataAttrs="{ 'data-test-key': 'button-add-option' }"
-      :label="t('action.add_option')"
-      icon="plus"
+      :data-attrs="{ 'data-test-key': 'button-add-option' }"
       variant="outline"
-      color="neutral"
       size="md"
-      :class="styles.product.option.action"
+      :class="productOptionActionVariants()"
       :disabled="processing"
       @click="$emit('toggle', true)"
-    />
+    >
+      <Icon icon="plus" />
+      {{ t("action.add_option") }}
+    </Button>
 
     <Button
       v-else-if="!summary.meta?.quantifiable"
-      :dataAttrs="{ 'data-test-key': 'button-added' }"
-      :label="t('action.added_to_basket')"
-      icon="check-circle-broken"
-      variant="solid"
-      color="secondary"
+      :data-attrs="{ 'data-test-key': 'button-added' }"
+      variant="secondary"
       size="md"
-      :class="styles.product.option.action"
+      :class="productOptionActionVariants()"
       :disabled="processing"
       @click="$emit('toggle', false)"
-    />
+    >
+      <Icon icon="check-circle-broken" />
+      {{ t("action.added_to_basket") }}
+    </Button>
 
     <BasketQuantityField
       v-else
       :id="`option-qty-${summary.toggle.categoryId}-${summary.toggle.valueId}`"
-      :class="styles.product.option.action"
+      :class="productOptionActionVariants()"
       quantifiable
       :quantity="summary.quantity"
       :min="summary.min"
@@ -59,9 +59,12 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { parseBillingCycle } from "@upmind-automation/headless";
-import { Button } from "@upmind-automation/upmind-ui";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./basketProduct.config";
+import { Button } from "@upmind/ui";
+import { Icon } from "../../../../components/icon";
+import {
+  productOptionRootVariants,
+  productOptionActionVariants
+} from "./basketProduct.variants";
 import BasketProductSummary from "./components/BasketProductSummary.vue";
 import BasketQuantityField from "./components/BasketQuantityField.vue";
 import type { BasketProductUpsellProps } from "./types";
@@ -72,6 +75,4 @@ defineProps<BasketProductUpsellProps>();
 defineEmits(["update:quantity", "toggle"]);
 
 const { t } = useI18n();
-
-const styles = useStyles(["product.option"], {}, config);
 </script>

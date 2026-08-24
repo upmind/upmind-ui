@@ -8,25 +8,25 @@
     v-else-if="isLoading"
     role="status"
     :aria-label="t('text.loading')"
-    :class="styles.formFlowSurface.skeleton"
+    :class="formFlowSurface.skeleton()"
   >
-    <div :class="styles.formFlowSurface.skeletonFields">
+    <div :class="formFlowSurface.skeletonFields()">
       <div
         v-for="field in skeletonFields"
         :key="field"
-        :class="styles.formFlowSurface.skeletonField"
+        :class="formFlowSurface.skeletonField()"
       >
-        <Skeleton :class="styles.formFlowSurface.skeletonLabel" />
-        <Skeleton :class="styles.formFlowSurface.skeletonControl" />
+        <Skeleton :class="formFlowSurface.skeletonLabel()" />
+        <Skeleton :class="formFlowSurface.skeletonControl()" />
       </div>
     </div>
     <!-- One placeholder per action the bar itself will draw — the same map the
          real `UpmForm` renders from, never a count guessed beside it. -->
-    <div :class="styles.formFlowSurface.skeletonActions">
+    <div :class="formFlowSurface.skeletonActions()">
       <Skeleton
         v-for="key in keys(actions)"
         :key="key"
-        :class="styles.formFlowSurface.skeletonAction"
+        :class="formFlowSurface.skeletonAction()"
       />
     </div>
   </section>
@@ -37,22 +37,18 @@
          screen the toast lands in. -->
     <Alert
       v-if="saveFailure"
-      color="danger"
-      variant="muted"
-      size="sm"
-      icon="alert-triangle"
+      variant="danger"
+      appearance="muted"
       :title="saveFailure"
-      :class="styles.formFlowSurface.failure"
+      :class="formFlowSurface.failure()"
     >
       <template #action>
-        <Button
+        <ButtonItems
           size="sm"
           variant="ghost"
-          color="danger"
           icon="x-close"
           icon-only
           :label="t('action.dismiss')"
-          :aria-label="t('action.dismiss')"
           @click="feedback.dismiss(SUBMIT_CONTROL)"
         />
       </template>
@@ -95,12 +91,8 @@ import { isControlElement, RuleEffect } from "@jsonforms/core";
 import { computed, onUnmounted, ref, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 import { formRenderers, UpmForm } from "@upmind-automation/client-vue";
-import {
-  Alert,
-  Button,
-  Skeleton,
-  useStyles
-} from "@upmind-automation/upmind-ui";
+import { Alert, Skeleton } from "@upmind/ui";
+import ButtonItems from "../ButtonItems.vue";
 import {
   clearScenarioStage,
   useScenarioStage
@@ -109,12 +101,12 @@ import { resolveModuleDetail, resolveModuleState } from "../module-state";
 import { ModuleState } from "../module-state.types";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
 import { useActionFeedback } from "../useActionFeedback";
-import config from "./FormFlowSurface.styles";
+import { formFlowSurface } from "./FormFlowSurface.styles";
 import { FormFlowActionTypes } from "./FormFlowSurface.types";
 import { find, get, isFunction, isNil, keys, sumBy } from "lodash-es";
 import type { FormFlowSurfaceProps } from "./FormFlowSurface.types";
 import type { UISchemaElement } from "@jsonforms/core";
-import type { FormProps } from "@upmind-automation/upmind-ui";
+import type { FormProps } from "@upmind-automation/client-vue";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<FormFlowSurfaceProps>();
@@ -158,8 +150,14 @@ const notice = computed(() =>
 const schema = computed(
   () => props.snapshot.context.schema as FormProps["schema"]
 );
+
+// The override prop wins when provided — the caller derives it from the cell's
+// `useContext().uischemaFor()` so validation errors can pull additional fields
+// into the view. Falls back to the snapshot's own uischema.
 const uischema = computed(
-  () => props.snapshot.context.uischema as FormProps["uischema"]
+  () =>
+    props.uischema ??
+    (props.snapshot.context.uischema as UISchemaElement | undefined)
 );
 const model = computed(
   () => props.snapshot.context.model as Record<string, unknown> | undefined
@@ -272,10 +270,4 @@ async function onResolve(): Promise<void> {
 
   if (settled) emit("resolved");
 }
-
-const meta = computed(() => ({
-  state: state.value,
-  isLoading: isLoading.value
-}));
-const styles = useStyles(["formFlowSurface"], meta, config);
 </script>

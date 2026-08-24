@@ -9,7 +9,7 @@ Pricing values, for reference:
 */
 
 // `radioCycle` is the term's stable billing-cycle in months (Monthly = 1,
-// Annually = 12, Biennially = 24) — the locale-safe `radio-card-${cycle}`
+// Annually = 12, Biennially = 24) — the locale-safe `option-tile-${cycle}`
 // cascade key, NOT the translated term label.
 export const DefaultPaymentTerms = [
   {

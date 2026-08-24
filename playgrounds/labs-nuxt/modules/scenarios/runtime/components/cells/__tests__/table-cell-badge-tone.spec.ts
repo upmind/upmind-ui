@@ -20,21 +20,19 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import { createI18n } from "vue-i18n";
 import text from "@upmind-automation/i18n/core/text-en.json";
-import { Badge } from "@upmind-automation/upmind-ui";
+import { Badge } from "@upmind/ui";
 import { defaultRow } from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { CellDispatcher } from "../index";
 import { find, isEmpty, map } from "lodash-es";
 import type { TableCellBadges } from "../../../scenario.types";
-import type { BadgeProps } from "@upmind-automation/upmind-ui";
+import type { BadgeProps } from "@upmind/ui";
 import type { VueWrapper } from "@vue/test-utils";
 
 // -----------------------------------------------------------------------------
 
-/** The ui Badge's own name for the soft/tonal treatment. */
+/** The ui Badge's own name for the soft/tonal treatment (now `appearance`). */
 const TONAL = "muted";
-
-const BADGE_TEST_KEY = "badge";
 
 const messages = { en: { text } };
 
@@ -48,19 +46,18 @@ const rendered = () =>
     global: { plugins: [createI18n({ legacy: false, locale: "en", messages })] }
   }).findAllComponents(Badge);
 
-/** A ui Badge is a fragment (its stylesheet comment leads), so classes live on its root element. */
-const classesOf = (badge: VueWrapper) =>
-  badge.find(`[data-test-key="${BADGE_TEST_KEY}"]`).classes();
+/** Badge classes live on the component's root element. */
+const classesOf = (badge: VueWrapper) => badge.classes();
 
-const reference = (badge: VueWrapper, variant: BadgeProps["variant"]) =>
+const reference = (badge: VueWrapper, appearance: BadgeProps["appearance"]) =>
   classesOf(
     mount(Badge, {
       props: {
-        variant,
-        color: badge.props("color") as BadgeProps["color"],
-        size: badge.props("size") as BadgeProps["size"],
-        label: "reference"
-      }
+        appearance,
+        variant: badge.props("variant") as BadgeProps["variant"],
+        size: badge.props("size") as BadgeProps["size"]
+      },
+      slots: { default: "reference" }
     })
   );
 
@@ -84,11 +81,11 @@ describe("D8 a declared status badge is the TONAL ui Badge", () => {
     }
   });
 
-  it("keeps each badge's DECLARED colour — the tone is the variant, not a repaint", () => {
+  it("keeps each badge's DECLARED colour — the tone is the appearance, not a repaint", () => {
     const declared = map(statusElement.options.badges, "color");
 
     for (const badge of rendered())
-      expect(declared).toContain(badge.props("color"));
+      expect(declared).toContain(badge.props("variant"));
   });
 
   it("says what the declaration says, translated", () => {

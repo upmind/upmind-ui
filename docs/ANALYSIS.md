@@ -42,7 +42,7 @@ graph TB
         i18n["@upmind-automation/i18n<br/>Internationalization"]
         headless["@upmind-automation/headless<br/>Business Logic + XState"]
         clientVue["@upmind-automation/client-vue<br/>Vue Composables"]
-        ui["@upmind-automation/upmind-ui<br/>Component Library"]
+        ui["@upmind/ui<br/>Component Library"]
     end
     
     subgraph "🚀 Apps"
@@ -186,7 +186,7 @@ Vue-specific layer that wraps headless with **14 parallel modules**:
 
 Key pattern: `UpmindClient` class wraps `useUpmind` to inject custom themes and expose a consistent API.
 
-### Package: @upmind-automation/upmind-ui
+### Package: @upmind/ui
 
 Component library with **50+ components** built on Radix-Vue:
 

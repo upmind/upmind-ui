@@ -14,5 +14,5 @@
 
 <script setup lang="ts">
 import { UpmSection, UpmLayout } from "@upmind-automation/client-vue";
-import { Card } from "@upmind-automation/upmind-ui";
+import { Card } from "@upmind/ui";
 </script>

@@ -24,7 +24,7 @@ Root plus all 14 workspace members (`docs`, `packages/*`, `playgrounds/*`, `apps
 
 ## Exempt
 
-`@upmind-automation/types` (0.0.x) and `@upmind-automation/upmind-ui` (0.0.x) track their own versions — never pull them onto the release train.
+`@upmind-automation/types` (0.0.x) and `@upmind/ui` (0.0.x) track their own versions — never pull them onto the release train.
 
 ## Do not use `npm version` / `pnpm version`
 

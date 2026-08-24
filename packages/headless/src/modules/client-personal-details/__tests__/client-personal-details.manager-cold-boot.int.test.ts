@@ -36,16 +36,15 @@ import { describe, expect, it, vi } from "vitest";
 // mid-evaluation at `client-email/useClientEmails.ts:80`. Sorting this
 // block alphabetically regresses the whole suite (module A's prover lost a
 // cycle to exactly this).
-// eslint-disable-next-line import/order
+import { usePersonalDetailsManager } from "..";
+import { queryClient } from "../../query/client";
+import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   observeClientRequests,
   recorded,
   resolveClientIdOnActiveSession,
   seedAuthenticatedSessionWithoutClientId
 } from "./client-personal-details.int-helpers";
-import { usePersonalDetailsManager } from "..";
-import { queryClient } from "../../query/client";
-import { ScopeActorTypes } from "../../scope/scope.types";
 import { server } from "./setup.integration";
 
 // -----------------------------------------------------------------------------

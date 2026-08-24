@@ -3,6 +3,7 @@
     v-if="isFiltered"
     :title="t('text.results_not_found')"
     :text="t('text.adjust_search_filters_msg')"
+    :close-label="t('action.close')"
   >
     <template #avatar><Icon icon="search-lg" size="xl" /></template>
   </Interstitial>
@@ -10,6 +11,7 @@
     v-else
     :title="t('text.collection_empty')"
     :text="t('text.collection_empty_msg')"
+    :close-label="t('action.close')"
   >
     <template #avatar><Icon icon="inbox-01" size="xl" /></template>
   </Interstitial>
@@ -28,7 +30,8 @@
  */
 
 import { useI18n } from "vue-i18n";
-import { Icon, Interstitial } from "@upmind-automation/upmind-ui";
+import { Interstitial } from "@upmind/ui";
+import { Icon } from "@upmind-automation/client-vue";
 import type { ListEmptyProps } from "./ListSurface.types";
 // -----------------------------------------------------------------------------
 

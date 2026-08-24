@@ -118,25 +118,17 @@ export default defineNuxtConfig({
       __dirname,
       "../../packages/headless/src/index.ts"
     ),
-    "@upmind-automation/upmind-ui/styles": resolve(
+    "@upmind/ui/styles": resolve(
       __dirname,
-      "../../packages/ui/src/assets/styles/index.css"
+      "../../design-system/packages/ui/src/styles/index.css"
     ),
-    "@upmind-automation/upmind-ui/vars": resolve(
+    "@upmind/ui": resolve(
       __dirname,
-      "../../packages/ui/src/assets/styles/vars.css"
-    ),
-    "@upmind-automation/upmind-ui": resolve(
-      __dirname,
-      "../../packages/ui/src/index.ts"
+      "../../design-system/packages/ui/src/index.ts"
     ),
     "@upmind-automation/client-vue/styles": resolve(
       __dirname,
       "../../packages/client-vue/src/assets/styles/index.css"
-    ),
-    "@upmind-automation/client-vue/vars": resolve(
-      __dirname,
-      "../../packages/client-vue/src/assets/styles/vars.css"
     ),
     "@upmind-automation/client-vue": resolve(
       __dirname,
@@ -174,7 +166,9 @@ export default defineNuxtConfig({
     tsConfig: {
       compilerOptions: {
         noUncheckedIndexedAccess: false,
-        skipLibCheck: true
+        skipLibCheck: true,
+        // the upmind-ui alias resolves to source, whose imports carry .ts extensions
+        allowImportingTsExtensions: true
       },
       include: ["app/**/*"],
       exclude: ["node_modules", "dist", ".output", "**/*.spec.*"]

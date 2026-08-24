@@ -1,19 +1,19 @@
 <template>
   <ul
     v-if="!isEmpty(benefits)"
-    :class="styles.product.option.benefits.list"
+    :class="productOptionBenefitsListVariants()"
     v-bind="benefitsTestAttrs"
   >
     <li
       v-for="benefit in normalizedBenefits"
       :key="benefit.label"
-      :class="styles.product.option.benefits.item"
+      :class="productOptionBenefitsItemVariants()"
     >
-      <div :class="styles.product.option.benefits.header">
+      <div :class="productOptionBenefitsHeaderVariants()">
         <Icon
           :icon="benefit.icon || 'check-circle-broken'"
-          size="nano"
-          :class="styles.product.option.benefits.icon"
+          size="xs"
+          :class="productOptionBenefitsIconVariants()"
         />
       </div>
       {{ benefit.label }}
@@ -23,8 +23,14 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { Icon, useStyles, useTestAttrs } from "@upmind-automation/upmind-ui";
-import config from "../basketProduct.config";
+import { useTestAttrs } from "@upmind/ui";
+import { Icon } from "../../../../../components/icon";
+import {
+  productOptionBenefitsListVariants,
+  productOptionBenefitsItemVariants,
+  productOptionBenefitsHeaderVariants,
+  productOptionBenefitsIconVariants
+} from "../basketProduct.variants";
 import { isEmpty, isString, map } from "lodash-es";
 import type { Benefit } from "@upmind-automation/headless";
 
@@ -39,8 +45,5 @@ const normalizedBenefits = computed(() =>
     isString(benefit) ? { label: benefit } : benefit
   )
 );
-
-const styles = useStyles(["product.option.benefits"], props, config);
-
 const benefitsTestAttrs = useTestAttrs({ key: "product-benefits" });
 </script>

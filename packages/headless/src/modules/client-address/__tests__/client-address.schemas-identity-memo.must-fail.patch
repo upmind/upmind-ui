@@ -1,0 +1,50 @@
+Negative control — schemas.query memoisation (AC-44).
+
+`useClientAddresses.context.ts:44-46, 148-150` — `useQuerySchema()` /
+`useQueryUischema()` / `useSortUischema()` are pure, argument-free functions
+with no reactive state, so their output is minted ONCE as module-level
+constants (`QUERY_SCHEMA` / `QUERY_UISCHEMA` / `SORT_UISCHEMA`) and reused on
+every `useContext()` call, instead of being re-invoked (and re-allocated) per
+call.
+
+What the mutant does: reverts the three `schemas.query.*` properties to call
+`useQuerySchema()` / `useQueryUischema()` / `useSortUischema()` fresh inline
+again, bypassing the module constants (which stay declared but unused). Each
+`useContext()` call now returns a NEW object identity for
+`schemas.query.schema` / `.uischema` / `.sortUischema`.
+
+Should flip RED — __tests__/client-address.query-schema.int.test.ts,
+describe("client-address — schemas.query travels as one channel (AC-44,
+D4)"):
+  - "AC-44 returns the SAME schema/uischema object identity across two
+     useContext() calls, not a fresh allocation per call"
+
+Should stay GREEN — every other test in the same file: none of them compare
+object identity across two `useContext()` calls, only shape.
+
+MEASURED (prover, applied blind, per agent-seat-separation.md's must-fail-
+patch seam — the developer authors the mutant, the prover verifies it red and
+reverts): `git apply --check` clean against the current tree. Applied,
+`client-address.query-schema.int.test.ts` alone goes from 8 passed to
+7 passed | 1 failed — exactly the named identity test flips
+(`expect(second.schema).toBe(first.schema)` fails with "serializes to the
+same string" — a deep-equal, non-identical pair, confirming re-allocation
+rather than a shape regression), every other test in the file stays green.
+Reverted after measurement (`git apply -R`), 2026-08-22.
+
+diff --git a/packages/headless/src/modules/client-address/useClientAddresses.context.ts b/packages/headless/src/modules/client-address/useClientAddresses.context.ts
+index d2df9e297..3333333 100644
+--- a/packages/headless/src/modules/client-address/useClientAddresses.context.ts
++++ b/packages/headless/src/modules/client-address/useClientAddresses.context.ts
+@@ -145,8 +145,8 @@ export function createClientAddressesContext(
+      */
+     schemas: {
+       query: {
+-        schema: QUERY_SCHEMA,
+-        uischema: QUERY_UISCHEMA,
+-        sortUischema: SORT_UISCHEMA
++        schema: useQuerySchema(),
++        uischema: useQueryUischema(),
++        sortUischema: useSortUischema()
+       }
+     }

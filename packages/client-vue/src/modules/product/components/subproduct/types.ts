@@ -1,23 +1,15 @@
-import type {
-  SubproductValue,
-  UseMetaResult,
-  ProductSummaryMeta
-} from "@upmind-automation/headless";
-import type { ImgHTMLAttributes } from "vue";
+import type { SubproductValue } from "@upmind-automation/headless";
 
-export type SubproductCardProps = Omit<SubproductValue, "meta" | "brand"> & {
-  processing?: boolean;
-  minimal?: boolean;
-  meta: UseMetaResult;
-  term?: number;
-  productMeta?: ProductSummaryMeta;
+// -----------------------------------------------------------------------------
+
+/**
+ * One subproduct option resolved for rendering: the raw value plus the
+ * per-option config the mapper reads (group, image, description mode).
+ */
+export type SubproductOption = SubproductValue & {
+  groupLabel?: string;
+  groupIcon?: string;
   image?: string;
-  dropdown?: boolean;
+  descriptionIsInline?: boolean;
+  descriptionIsTooltip?: boolean;
 };
-
-export interface SubproductCardImage {
-  src?: ImgHTMLAttributes["src"];
-  alt?: ImgHTMLAttributes["alt"];
-  minimal?: boolean;
-  dropdown?: boolean;
-}

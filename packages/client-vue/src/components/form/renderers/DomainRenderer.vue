@@ -19,9 +19,9 @@
 import { uiTypeIs, and, optionIs, or, schemaMatches } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { useI18n } from "vue-i18n";
-import { FormField } from "@upmind-automation/upmind-ui";
-import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
 import SmartDomainField from "../../../modules/domain/SmartDomainField.vue";
+import FormField from "../engine/FormField.vue";
+import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import { includes, trim } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";

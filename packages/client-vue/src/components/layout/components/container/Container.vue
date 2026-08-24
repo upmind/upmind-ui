@@ -1,13 +1,24 @@
 <template>
-  <div :class="cn(styles.container, props.class)">
+  <div
+    :class="
+      cn(
+        containerVariants({
+          flow: props.flow,
+          items: props.items,
+          justify: props.justify,
+          reverse: props.reverse
+        }),
+        props.class
+      )
+    "
+  >
     <slot />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
-import { cn, useStyles } from "@upmind-automation/upmind-ui";
-import config from "./container.config";
+import { cn } from "@upmind/ui";
+import { containerVariants } from "./variants";
 import type { ContainerProps } from "./types";
 
 const props = withDefaults(defineProps<ContainerProps>(), {
@@ -16,13 +27,4 @@ const props = withDefaults(defineProps<ContainerProps>(), {
   justify: "none",
   reverse: false
 });
-
-const meta = computed(() => ({
-  flow: props.flow,
-  items: props.items,
-  justify: props.justify,
-  reverse: props.reverse
-}));
-
-const styles = useStyles(["container"], meta, config);
 </script>

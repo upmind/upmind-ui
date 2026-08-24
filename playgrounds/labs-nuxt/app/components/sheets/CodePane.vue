@@ -1,7 +1,7 @@
 <template>
-  <section :class="styles.codePane.root" data-test-key="code-pane">
-    <div :class="styles.codePane.toolbar">
-      <h2 :class="styles.codePane.title">{{ heading }}</h2>
+  <section class="relative flex flex-col gap-2" data-test-key="code-pane">
+    <div class="flex items-center justify-between gap-2">
+      <h2 class="text-display m-0 text-sm font-bold">{{ heading }}</h2>
 
       <Tooltip :label="copyLabel">
         <Button
@@ -18,7 +18,13 @@
       </Tooltip>
     </div>
 
-    <Markdown :model-value="fence" :class="styles.codePane.snippet" />
+    <Markdown
+      :model-value="fence"
+      :class="[
+        fenceBlock(),
+        'prose-pre:whitespace-pre-wrap prose-code:break-words overflow-x-hidden text-xs'
+      ]"
+    />
   </section>
 </template>
 
@@ -59,13 +65,8 @@ import { useClipboard } from "@vueuse/core";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { ScopeActorTypes, SortDirection } from "@upmind-automation/headless";
-import {
-  Button,
-  Markdown,
-  Tooltip,
-  useStyles
-} from "@upmind-automation/upmind-ui";
-import config from "./CodePane.styles";
+import { Button, Markdown, Tooltip } from "@upmind/ui";
+import { fenceBlock } from "./sheets.styles";
 import {
   camelCase,
   compact,
@@ -228,6 +229,4 @@ const snippet = computed(() =>
 const heading = computed(() => t("labs.sheet_code"));
 
 const fence = computed(() => `\`\`\`vue\n${snippet.value}\n\`\`\``);
-
-const styles = useStyles(["codePane"], {}, config);
 </script>

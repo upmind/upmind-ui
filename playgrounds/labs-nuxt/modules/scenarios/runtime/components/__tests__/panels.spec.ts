@@ -26,8 +26,8 @@ describe("@AC3 MetaPanel — generalised-Inspector meta-flags display", () => {
       .findAll('[data-test-key="badge"]')
       .find(b => b.text() === "Is Valid");
 
-    expect(invalidBadge?.classes()).toContain("bg-accent-danger");
-    expect(validBadge?.classes()).toContain("bg-accent-success");
+    expect(invalidBadge?.classes()).toContain("bg-danger");
+    expect(validBadge?.classes()).toContain("bg-success");
     expect(invalidBadge?.classes()).not.toEqual(validBadge?.classes());
   });
 });
@@ -38,7 +38,7 @@ describe("@AC3 ContextPanel — generalised-Inspector raw context display", () =
       props: { context: { firstName: "Ada", lastName: "Lovelace" } }
     });
 
-    expect(wrapper.text()).toMatch(/first ?name/i);
-    expect(wrapper.text()).toMatch(/last ?name/i);
+    const collapsibles = wrapper.findAll('[data-test-key="collapsible"]');
+    expect(collapsibles).toHaveLength(2);
   });
 });

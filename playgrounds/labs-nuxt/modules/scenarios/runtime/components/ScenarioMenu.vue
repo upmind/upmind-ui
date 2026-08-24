@@ -1,10 +1,25 @@
 <template>
-  <div :class="styles.scenarioMenu.root">
-    <ButtonGroup size="sm" :items="live" />
+  <div :class="scenarioMenu.root()">
+    <ToggleGroup
+      type="single"
+      :model-value="isLive ? TRACK_LIVE : undefined"
+      size="sm"
+      @update:model-value="
+        v => v === TRACK_LIVE && emit('select', { kind: SCENARIO_CHOICE.LIVE })
+      "
+    >
+      <ToggleGroupItem
+        :value="TRACK_LIVE"
+        :data-test-key="'track'"
+        :data-test-value="TRACK_LIVE"
+      >
+        {{ t("labs.track_live") }}
+      </ToggleGroupItem>
+    </ToggleGroup>
 
     <DropdownMenuRoot v-model:open="isOpen">
       <DropdownMenuTrigger as-child>
-        <Button
+        <ButtonItems
           size="sm"
           variant="outline"
           icon-append="chevron-down"
@@ -17,7 +32,7 @@
         />
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start" :class="styles.scenarioMenu.panel">
+      <DropdownMenuContent align="start" :class="scenarioMenu.panel()">
         <DropdownMenuRadioGroup
           :model-value="active"
           @update:model-value="pick"
@@ -83,9 +98,6 @@
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import {
-  Button,
-  ButtonGroup,
-  ButtonGroupTypes,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
@@ -93,11 +105,13 @@ import {
   DropdownMenuRoot,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  useStyles
-} from "@upmind-automation/upmind-ui";
+  ToggleGroup,
+  ToggleGroupItem
+} from "@upmind/ui";
+import ButtonItems from "./ButtonItems.vue";
 import { FORCE_URL_PRESETS } from "../composables/useForcedState.types";
 import { FORCE_PRESET_LABELS } from "./ForcedCanvas.types";
-import config from "./ScenarioMenu.styles";
+import { scenarioMenu } from "./ScenarioMenu.styles";
 import { SCENARIO_CHOICE, TRACK_LIVE } from "./ScenarioMenu.types";
 import { find, map, size } from "lodash-es";
 import type {
@@ -105,7 +119,6 @@ import type {
   ScenarioMenuProps
 } from "./ScenarioMenu.types";
 import type { ForceUrlPreset } from "../composables/useForcedState.types";
-import type { ButtonGroupItem } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<ScenarioMenuProps>();
@@ -130,20 +143,6 @@ const active = computed(() => {
 
   return preset ? forceValue(preset) : "";
 });
-
-const live = computed<ButtonGroupItem[]>(() => [
-  {
-    type: ButtonGroupTypes.Button,
-    active: isLive.value,
-    props: {
-      label: t("labs.track_live"),
-      // Stated, not inherited: `Button` derives its own handle from the rendered
-      // label, which is translated — a locale change would rename the entry.
-      dataAttrs: { "data-test-key": "track", "data-test-value": TRACK_LIVE }
-    },
-    handler: () => emit("select", { kind: SCENARIO_CHOICE.LIVE })
-  }
-]);
 
 const scenarios = computed(() =>
   map(props.tracks, track => ({
@@ -173,6 +172,4 @@ function pick(value: unknown): void {
   const preset = find(FORCE_URL_PRESETS, entry => forceValue(entry) === value);
   if (preset) emit("select", { kind: SCENARIO_CHOICE.FORCE, preset });
 }
-
-const styles = useStyles(["scenarioMenu"], {}, config);
 </script>

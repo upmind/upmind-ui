@@ -29,7 +29,7 @@ import confirm from "@upmind-automation/i18n/core/confirm-en.json";
 import errorCatalogue from "@upmind-automation/i18n/core/error-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
-import { Sonner } from "@upmind-automation/upmind-ui";
+import { Toaster } from "@upmind/ui";
 import layoutSource from "../../../../../app/layouts/default.vue?raw";
 import {
   API_MESSAGE,
@@ -59,7 +59,7 @@ const COPY = {
 const KEY = "verify:d7382485-0793-15e5-770b-81e642d59e06";
 
 /** The outlet's own vocabulary for where it sits — the ui component's, not ours. */
-type ToasterPosition = InstanceType<typeof Sonner>["$props"]["position"];
+type ToasterPosition = InstanceType<typeof Toaster>["$props"]["position"];
 
 const ROWS = [defaultRow, unverifiedRow];
 
@@ -137,7 +137,7 @@ async function fire(surface: Surface, row: number, name: string) {
  * meets rather than a placement this spec chose for it.
  */
 function layoutToasterPosition(): ToasterPosition {
-  const mounted = /<[A-Za-z]*Sonner\b[^>]*>/.exec(layoutSource);
+  const mounted = /<[A-Za-z]*Toaster\b[^>]*>/.exec(layoutSource);
   const position = /\bposition="([^"]+)"/.exec(mounted?.[0] ?? "")?.[1] ?? "";
 
   return position as ToasterPosition;
@@ -365,7 +365,7 @@ describe("@AC6.6 T3.14 the control that was clicked says it is working (E12)", (
 describe("@AC6.6 T3.14 the outcome lands where the eye already is (E13 final)", () => {
   it("mounts the outlet TOP-CENTRE, never in a corner", () => {
     const position = layoutToasterPosition();
-    const outlet = mount(Sonner, {
+    const outlet = mount(Toaster, {
       attachTo: document.body,
       props: { position }
     });
@@ -377,7 +377,7 @@ describe("@AC6.6 T3.14 the outcome lands where the eye already is (E13 final)", 
   });
 
   it("reports a resolved action into that outlet, from the recomposed surface", async () => {
-    const outlet = mount(Sonner, {
+    const outlet = mount(Toaster, {
       attachTo: document.body,
       props: { position: layoutToasterPosition() }
     });
@@ -395,7 +395,7 @@ describe("@AC6.6 T3.14 the outcome lands where the eye already is (E13 final)", 
   });
 
   it("carries the API's OWN sentence, verbatim, when the record refuses", async () => {
-    const outlet = mount(Sonner, {
+    const outlet = mount(Toaster, {
       attachTo: document.body,
       props: { position: layoutToasterPosition() }
     });

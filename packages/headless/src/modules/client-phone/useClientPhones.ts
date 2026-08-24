@@ -5,6 +5,7 @@
 // (code-quality.companion.md). `scope.builder` alone has no such cycle.
 import { createScopedComposable } from "../scope/scope.builder";
 import createClientPhoneServices from "./client-phone.services";
+import { CLIENT_PHONES_SCOPE_MATRIX } from "./client-phone.types";
 import { createClientPhonesActions } from "./useClientPhones.actions";
 import { createClientPhonesContext } from "./useClientPhones.context";
 import { createClientPhonesInternals } from "./useClientPhones.internals";
@@ -38,12 +39,13 @@ function createClientPhonesForScope(config: ScopeConfig, scopeKey: ScopeKey) {
 
   // Mint the list query ONCE per scope — a `service.loadList()` inside a layer
   // factory mints a second query, with its own refs, key and effect scope.
-  const query = service.loadList({ pagination: { limit: 0 } });
+  const query = service.loadList();
 
   /**
    * ONE actions instance per scope, not one per `useActions()` call: the
-   * collection's applied `filters` live in that factory, so a factory minted
-   * per call gives every handle its own filter state. Mirrors the manager
+   * request state a `filterBy`/`sortBy` call writes lives on the query
+   * handle's own criteria, so a factory minted per call would give every
+   * handle its own closure over the same shared query. Mirrors the manager
    * half.
    */
   const actions = createClientPhonesActions(
@@ -83,7 +85,7 @@ function createClientPhonesForScope(config: ScopeConfig, scopeKey: ScopeKey) {
 export const useClientPhones = createScopedComposable<
   ReturnType<typeof createClientPhonesForScope>,
   ClientPhonesScopeMatrix
->("client-phone", createClientPhonesForScope);
+>("client-phone", createClientPhonesForScope, CLIENT_PHONES_SCOPE_MATRIX);
 
 // Type export for consumers
 export type UseClientPhones = ReturnType<typeof useClientPhones>;

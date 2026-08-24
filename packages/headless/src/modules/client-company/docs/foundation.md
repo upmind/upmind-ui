@@ -54,7 +54,8 @@ collection; see [gotchas.md](./gotchas.md).
 | 7   | **Find or create a company**                | a candidate company (matched by id)                        | The matching existing record, or a newly created one                        |
 | 8   | **Resolve a company's address/email/phone** | an existing id, or an inline value to create               | The resolved id, substituted into the company payload                       |
 | 9   | **Filter the collection**                   | a search term                                              | The list narrowed to matching companies                                     |
-| 10  | **Page through the collection**             | page size, page direction                                  | The next or previous page of the list                                       |
+| 10  | **Sort the collection**                     | a sortable field, a direction                              | The list re-ordered by that field                                           |
+| 11  | **Page through the collection**             | page size, page direction                                  | The next or previous page of the list                                       |
 
 **Additional always-on behaviours:**
 
@@ -197,9 +198,11 @@ table.
 
 Role: lists one client's companies. Called whenever the collection is opened or
 re-read. Accepts `limit` and `offset` for paging, `with` to request nested
-sibling records, `with_staged_imports` to include companies mid-import, and
-`order` for sort direction on a field (`created_at` ascending / `-created_at`
-descending observed).
+sibling records, `with_staged_imports` to include companies mid-import,
+`filter[name|like]` for a substring match on the company name (observed as
+`filter[name|like]=%<term>%`), and `order` for sort direction on a field
+(`created_at` ascending / `-created_at` descending observed; `name` also
+sortable — an unrecognised `order` field is rejected with a `500`).
 
 ```bash
 curl "$API/clients/25d96e76-3ed0-913d-d52c-417482528340/companies?with=address,address.country,address.region&with_staged_imports=1&order=created_at" \
@@ -643,6 +646,14 @@ the default flag; promoting one demotes the other in the same call.
   is whatever the server happens to return and is not guaranteed stable across
   reads; a caller needing a stable order supplies `order=created_at` (or the
   descending form) explicitly.
+- **An unrecognised `order` field is a `500`, not an empty or unsorted
+  result.** `created_at` and `name` are the two fields observed accepted;
+  asking for a field outside that set is a server error to plan around, not a
+  degrade to an unsorted response.
+- **Free-text narrowing is a real, server-honoured capability on the `name`
+  column** (`filter[name|like]=%<term>%`), not a client-side slice — a caller
+  narrowing a large collection sends this rather than filtering the already-
+  fetched page.
 - **Paging is a real, server-honoured capability** (`limit` / `offset`, with
   `total` and `x-total-count` reported), but nothing about the platform
   requires a caller to use it — a request with no `limit` returns the whole
