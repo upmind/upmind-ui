@@ -26,13 +26,13 @@ import {
 } from "../../../../testing/declared-table";
 import { defaultRow, unverifiedRow } from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
-import { ListSurface } from "../index";
-import { getRow, getRows } from "./table-geometry";
 import {
   CONTROL_TEST_VALUE,
   OVERFLOW_TRIGGER_TEST_VALUE
 } from "../../__tests__/control-test-values";
-import { filter, find, keys, map } from "lodash-es";
+import { ListSurface } from "../index";
+import { getRow } from "./table-geometry";
+import { filter, find, keys } from "lodash-es";
 import type { DeclaringTableChannel } from "../../../composables/useTableChannel.types";
 import type { SurfaceActions } from "../surface.types";
 

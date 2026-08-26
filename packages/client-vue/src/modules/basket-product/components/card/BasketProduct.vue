@@ -98,6 +98,7 @@
 </template>
 
 <script lang="ts" setup>
+import { Card, Loading, useTestAttrs } from "@upmind/ui";
 import { useVModel } from "@vueuse/core";
 import { computed, onUnmounted, provide } from "vue";
 import { useI18n } from "vue-i18n";
@@ -107,7 +108,6 @@ import {
   UIContext,
   useBasketProductInline
 } from "@upmind-automation/headless";
-import { Card, Loading, useTestAttrs } from "@upmind/ui";
 import {
   productRootCardContentVariants,
   productRootListVariants,

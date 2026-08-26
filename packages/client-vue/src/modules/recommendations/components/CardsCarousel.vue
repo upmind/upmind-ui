@@ -47,9 +47,6 @@
 </template>
 
 <script lang="ts" setup>
-import { vResizeObserver } from "@vueuse/components";
-import { ref, watch, computed } from "vue";
-import { useI18n } from "vue-i18n";
 import {
   CarouselRoot,
   CarouselContent,
@@ -57,6 +54,9 @@ import {
   CarouselNext,
   CarouselPrevious
 } from "@upmind/ui";
+import { vResizeObserver } from "@vueuse/components";
+import { ref, watch, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   ProductCard,
   ProductCardSkeleton
@@ -64,8 +64,8 @@ import {
 import { carouselNavigationVariants, carouselItemVariants } from "../variants";
 import { forEach, some } from "lodash-es";
 import type { RecommendationsProps } from "./types";
-import type { Product } from "@upmind-automation/headless";
 import type { CarouselApi } from "@upmind/ui";
+import type { Product } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();

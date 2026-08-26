@@ -142,8 +142,7 @@ export const actionsUischema: ActionsUischema = {
       handoff: "edit",
       i18n: "action.edit",
       icon: "edit-01",
-      color: "primary",
-      variant: "solid",
+      variant: "primary",
       placement: ActionPlacementTypes.HEADER
     },
     {

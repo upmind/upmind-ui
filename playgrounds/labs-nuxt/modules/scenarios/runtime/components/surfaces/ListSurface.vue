@@ -11,13 +11,14 @@
       :detail="verdict"
     />
 
-    <!-- The two rows the list is steered from: the facets, then what the
-         collection amounts to — its count, the chips naming what narrowed it
-         and Clear all (R6-16) — beside how it is drawn. The collection's own
-         action is NOT among them: it belongs to the page, above this surface
-         (G4). -->
+    <!-- The filter block (R5): facets on one row, chips + Clear all on the
+         next. The display row (R6) sits outside it — sort, view toggle, and
+         the result count in its sublabel (H1). The collection's own action
+         belongs to the page, above this surface (G4). -->
     <div v-if="meta.hasControls" :class="listSurface.controls()">
-      <FilterBar v-if="criteria" :criteria="criteria" :disabled="locked" />
+      <div v-if="criteria" :class="listSurface.filterBlock()">
+        <FilterBar :criteria="criteria" :disabled="locked" />
+      </div>
       <!-- Ordering, the column set and the view choice sit with the data they
            change, in BOTH views — the same criteria, written through the same
            emit as a column header, never a second source of truth (G3/E9). -->
@@ -115,6 +116,8 @@
             <RowFailure
               v-if="rowFailure(row)"
               :message="rowFailure(row) || ''"
+              :can-retry="canRetryRow(row)"
+              @retry="retryRow(row)"
               @dismiss="dismissRow(row)"
             />
           </Card>
@@ -145,14 +148,16 @@
             @click="onHeaderSort(header.column)"
           >
             <template v-if="!header.isPlaceholder">
-              <ButtonItems
+              <Button
                 v-if="header.column.getCanSort()"
                 size="sm"
                 variant="ghost"
                 :class="listSurface.sortControl()"
-                :label="toString(header.column.columnDef.header)"
                 :disabled="locked"
-              />
+                :data-attrs="{ 'data-test-value': header.column.id }"
+              >
+                {{ toString(header.column.columnDef.header) }}
+              </Button>
               <span v-else>{{ header.column.columnDef.header }}</span>
             </template>
           </TableHead>
@@ -235,6 +240,8 @@
               >
                 <RowFailure
                   :message="rowFailure(row.original) || ''"
+                  :can-retry="canRetryRow(row.original)"
+                  @retry="retryRow(row.original)"
                   @dismiss="dismissRow(row.original)"
                 />
               </TableCell>
@@ -276,7 +283,9 @@
         <RowFailure
           v-if="rowFailure(row)"
           :message="rowFailure(row) || ''"
+          :can-retry="canRetryRow(row)"
           :class="listSurface.rowListFailure()"
+          @retry="retryRow(row)"
           @dismiss="dismissRow(row)"
         />
       </li>
@@ -375,11 +384,8 @@
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { enumToEnumOptionMapper, toDataPath } from "@jsonforms/core";
 import { getCoreRowModel, useVueTable } from "@tanstack/vue-table";
-import { computed, onUnmounted, ref, watchEffect } from "vue";
-import { useI18n } from "vue-i18n";
-import { useFormI18n } from "@upmind-automation/client-vue";
-import { SortDirection } from "@upmind-automation/headless";
 import {
+  Button,
   Card,
   Pagination,
   Skeleton,
@@ -391,7 +397,10 @@ import {
   TableHeader,
   TableRow
 } from "@upmind/ui";
-import ButtonItems from "../ButtonItems.vue";
+import { computed, onUnmounted, ref, watchEffect } from "vue";
+import { useI18n } from "vue-i18n";
+import { useFormI18n } from "@upmind-automation/client-vue";
+import { SortDirection } from "@upmind-automation/headless";
 import { usePlaygroundUrlState } from "../../../../../app/composables/usePlaygroundUrlState";
 import {
   clearScenarioStage,
@@ -460,13 +469,7 @@ import type { ColumnOption } from "../ColumnPicker.types";
 import type { ManageDialogProps } from "../ManageDialog.types";
 import type { SortField } from "../SortControl.types";
 import type { ListRow, ListSurfaceProps } from "./ListSurface.types";
-import type {
-  Column,
-  ColumnDef,
-  Row,
-  SortDirection as TableSortDirection,
-  SortingState
-} from "@tanstack/vue-table";
+import type { Column, ColumnDef, Row, SortingState } from "@tanstack/vue-table";
 import type { TableModel } from "@upmind-automation/scenario-harness";
 // -----------------------------------------------------------------------------
 
@@ -816,12 +819,6 @@ const vueTable = useVueTable({
   }
 });
 
-function sortIcon(direction: false | TableSortDirection): string {
-  if (direction === SortDirection.ASC) return "chevron-up";
-  if (direction === SortDirection.DESC) return "chevron-down";
-  return "chevron-selector-vertical";
-}
-
 const pagination = computed(() => tableModel.value.pagination);
 
 // The total is the COLLECTION's own claim, so a read that failed has none to
@@ -830,16 +827,6 @@ const pagination = computed(() => tableModel.value.pagination);
 const reportedTotal = computed(() =>
   isLoadFailed.value ? undefined : pagination.value.total
 );
-
-const pageCount = computed(() => {
-  const total = pagination.value.total;
-  if (isNil(total)) return pagination.value.page;
-  // An unpaged window is ONE page, not Infinity: `limit: 0` is legal against
-  // the schema's deliberate `minimum: 0`, so it reaches here as `perPage: 0`.
-  // Same guard `useQuery`'s own `pageTotal` applies.
-  if (!pagination.value.perPage) return 1;
-  return Math.max(1, Math.ceil(total / pagination.value.perPage));
-});
 
 function onPaginate(page: number): void {
   props.table?.emit({
@@ -961,7 +948,6 @@ function rowActionItems(row: ListRow): ActionSlotItem[] {
       name: action.name,
       label: i18n.value.translate(action.i18n, action.i18n),
       icon: action.icon,
-      color: action.color,
       variant: action.variant,
       placement: action.placement,
       // The precondition is the ROW's own — a rule over the meta the record
@@ -1041,6 +1027,34 @@ function dismissRow(row: ListRow): void {
 }
 
 /**
+ * The action a Retry would re-fire, or nothing. Retry IS the row action, so it
+ * answers to the same two guards the row menu does (`R6-23`): a scenario
+ * driving the surface refuses it, and so does the action's own row rule.
+ */
+function retryAction(row: ListRow): ScenarioAction | undefined {
+  if (props.locked) return undefined;
+  const failedControl = find(rowControls(row), control =>
+    isString(feedback.failure(control))
+  );
+  if (!failedControl) return undefined;
+  const [actionName] = split(failedControl, ":");
+  const action = find(declaredActions.value, { name: actionName });
+  if (!action || !isRuleEnabled(action, row)) return undefined;
+  return action;
+}
+
+/** Whether this row's refusal can be answered by firing the action again. */
+function canRetryRow(row: ListRow): boolean {
+  return !isNil(retryAction(row));
+}
+
+/** Re-fire the action that failed on this row. */
+function retryRow(row: ListRow): void {
+  const action = retryAction(row);
+  if (action) pressRowAction(action, row);
+}
+
+/**
  * The records as the table BODY draws them. A refused record is a group of its
  * own so one ring can enclose its row and the strip under it (F4/G7) — `tbody`
  * is the only element a table lets the pair share. Every other record stays in
@@ -1076,7 +1090,6 @@ const collectionActionItems = computed<ActionSlotItem[]>(() =>
       name: action.name,
       label: i18n.value.translate(action.i18n, action.i18n),
       icon: action.icon,
-      color: action.color,
       variant: action.variant,
       placement: action.placement,
       loading: feedback.isPending(action.name),

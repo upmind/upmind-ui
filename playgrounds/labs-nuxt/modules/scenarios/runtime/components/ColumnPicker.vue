@@ -1,16 +1,21 @@
 <template>
   <DropdownMenuRoot v-model:open="isOpen">
     <DropdownMenuTrigger as-child>
-      <ButtonItems
+      <Button
         size="sm"
         variant="outline"
-        icon="columns-03"
         icon-only
-        :label="t('labs.columns')"
         :aria-expanded="isOpen"
         :disabled="disabled"
-        :data-attrs="{ 'data-test-key': 'columns' }"
-      />
+        :aria-label="t('labs.columns')"
+        :data-attrs="{
+          'data-test-key': 'columns',
+          'data-test-value': 'columns'
+        }"
+      >
+        <Icon icon="columns-03" size="nano" aria-hidden="true" />
+        <span class="sr-only">{{ t("labs.columns") }}</span>
+      </Button>
     </DropdownMenuTrigger>
 
     <DropdownMenuContent align="end" :class="columnPicker.content()">
@@ -49,16 +54,17 @@
  * that is distinguishable from "unset".
  */
 
-import { computed, ref } from "vue";
-import { useI18n } from "vue-i18n";
 import {
+  Button,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuRoot,
   DropdownMenuTrigger
 } from "@upmind/ui";
-import ButtonItems from "./ButtonItems.vue";
+import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { Icon } from "@upmind-automation/client-vue";
 import { columnPicker } from "./ColumnPicker.styles";
 import { filter, map, size } from "lodash-es";
 import type { ColumnOption, ColumnPickerProps } from "./ColumnPicker.types";

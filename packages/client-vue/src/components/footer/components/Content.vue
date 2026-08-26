@@ -34,8 +34,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useI18n } from "vue-i18n";
 import { Link } from "@upmind/ui";
+import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 </script>

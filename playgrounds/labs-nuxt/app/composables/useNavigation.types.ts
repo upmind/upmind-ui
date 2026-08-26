@@ -12,6 +12,8 @@
  * declarative inputs (a route's `meta.nav` and the scenario contract) are read as.
  */
 
+import type { Component } from "vue";
+
 // -----------------------------------------------------------------------------
 
 export type NavMeta = {
@@ -29,7 +31,7 @@ export type NavMeta = {
  */
 export type NavItem = {
   label: string;
-  icon?: string;
+  icon?: Component;
   /** A named route record. */
   route?: string;
   /** A path, for an item the registry declares rather than a route record. */
@@ -42,7 +44,7 @@ export type NavItem = {
 
 export type NavSection = {
   label: string;
-  icon?: string;
+  icon?: Component;
   order: number;
   children: NavItem[];
 };
@@ -51,7 +53,7 @@ export type NavSection = {
 export type LabEntry = {
   key: string;
   label: string;
-  icon: string;
+  icon: Component;
   family: string;
   route?: string;
   to?: string;
@@ -62,7 +64,7 @@ export type LabEntry = {
 export type LabFamily = {
   name: string;
   label: string;
-  icon: string;
+  icon: Component;
   entries: LabEntry[];
 };
 

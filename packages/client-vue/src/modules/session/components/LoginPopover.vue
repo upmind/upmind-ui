@@ -27,6 +27,7 @@
 </template>
 
 <script lang="ts" setup>
+import { Popover } from "@upmind/ui";
 import { computed } from "vue";
 import {
   AuthFlowTypes,
@@ -35,7 +36,6 @@ import {
   useAuth,
   useRoutingEngine
 } from "@upmind-automation/headless";
-import { Popover } from "@upmind/ui";
 import { contentVariants } from "../variants";
 import Auth from "./Auth.vue";
 import type { SessionProps, SessionRoutes } from "../types";

@@ -58,8 +58,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, useTemplateRef } from "vue";
 import { useSlots } from "@upmind/ui";
+import { ref, useTemplateRef } from "vue";
 import { isEmptySlot } from "../../../utils/isEmptySlot";
 import { COLUMN_WIDTH } from "../components/column";
 import Column from "../components/column/Column.vue";

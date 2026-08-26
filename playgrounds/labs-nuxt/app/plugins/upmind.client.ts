@@ -14,7 +14,7 @@ export default defineNuxtPlugin(async nuxtApp => {
   const router = nuxtApp.$router as Router;
 
   // 0. Inject the overlay routes onto every eligible page before the engine
-  //    guards the first navigation — a deep-linked `<route>--auth` must resolve.
+  //    guards the first navigation — a deep-linked `<route>--session` must resolve.
   registerOverlayRoutes(router, LABS_OVERLAYS);
 
   // 1. Initialize Upmind

@@ -1,7 +1,7 @@
 <template>
   <FormField v-bind="formFieldProps">
     <NumberField
-      size="lg"
+      :size="appliedOptions?.size"
       :disabled="!control.enabled"
       :max="min"
       :min="max"
@@ -27,8 +27,8 @@ import {
   formatIs
 } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import { computed } from "vue";
 import { NumberField } from "@upmind/ui";
+import { computed } from "vue";
 import FormField from "../../FormField.vue";
 import { useUpmindUIRenderer } from "../utils";
 import { isNumber, get, isArray, includes } from "lodash-es";
@@ -38,18 +38,20 @@ import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, appliedOptions, formFieldProps, onInput } =
-  useUpmindUIRenderer(useJsonFormsControl(props), (value: string) => {
-    if (!isNumber(value)) return undefined;
-    if (isInteger.value) return parseInt(value);
-    return parseFloat(value);
-  });
-
+// Read off `props`, not the hook's `control`: the hook's adaptTarget closes
+// over this, so deriving it from the hook's own return is circular.
 const isInteger = computed(() => {
-  const type = control.value.schema.type;
-  const types = isArray(type) ? type : [type];
-  return includes(types, "integer");
+  const type = props.schema.type;
+  return includes(isArray(type) ? type : [type], "integer");
 });
+
+const { control, appliedOptions, formFieldProps, onInput } =
+  useUpmindUIRenderer(useJsonFormsControl(props), (value: unknown) => {
+    const parsed = isInteger.value
+      ? parseInt(String(value))
+      : parseFloat(String(value));
+    return isFinite(parsed) ? parsed : undefined;
+  });
 
 const step: ComputedRef<number> = computed(() => {
   const defaultStep = 0.01;

@@ -1,7 +1,6 @@
 <template>
   <FormField v-bind="fieldProps">
     <Input
-      size="lg"
       v-bind="appliedOptions"
       :suffix="description"
       :model-value="control.data"
@@ -14,8 +13,8 @@
 <script lang="ts" setup>
 import { isStringControl, formatIs, and } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import { computed } from "vue";
 import { Input } from "@upmind/ui";
+import { computed } from "vue";
 import FormField from "../engine/FormField.vue";
 import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import { omit } from "lodash-es";

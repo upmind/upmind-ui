@@ -15,13 +15,13 @@
  * Negative control: `table-cell-html-sanitized.must-fail.patch`.
  */
 
+import { Sanitized } from "@upmind/ui";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import { createI18n } from "vue-i18n";
 import text from "@upmind-automation/i18n/core/text-en.json";
-import { Sanitized } from "@upmind/ui";
-import clientEmailHistory from "../../../../useClientReceivedEmails/client-email-history.scenario";
 import { receivedEmailBody } from "../../../../testing/recorded-received-email";
+import clientEmailHistory from "../../../../useClientReceivedEmails/client-email-history.scenario";
 import { CellDispatcher } from "../index";
 import { find } from "lodash-es";
 import type { TableCell } from "../../../scenario.types";

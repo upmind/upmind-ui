@@ -98,4 +98,17 @@ export type ListEmptyProps = {
  */
 export type RowFailureProps = {
   message: string;
+  /**
+   * Whether re-firing the refused action is allowed RIGHT NOW — the same two
+   * guards every other row control carries (`R6-23`): a scenario driving the
+   * surface, and the action's own row rule. Retry is a real mutation, so a
+   * replay-locked surface refuses it exactly as it refuses the row menu.
+   *
+   * Re-queried `graphify-out/graph.json` (2026-08-26) for a retry-guard shape:
+   * the only match is headless's `canRetryAuthorization()`
+   * (`modules/query/query.utils.ts`), a 3DS authorization predicate with no
+   * bearing on a row action — so nothing exists to consume, and nothing is
+   * minted either, the refusal being a boolean on the props already here.
+   */
+  canRetry?: boolean;
 };

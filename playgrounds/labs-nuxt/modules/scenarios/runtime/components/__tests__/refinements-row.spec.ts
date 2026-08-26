@@ -4,8 +4,10 @@
  * @description T3.6 — the row that says what is narrowing the collection right
  * now (`G5` · `AC4.4` · `H1`). Four claims:
  *   1. one REMOVABLE chip per active leaf, named from the column's own declared
- *      title and its live value — the ui `TagsInput`'s own remove control
- *      (accessible name from `removeLabel`), never a bespoke × (`D9`/`P1-R14`);
+ *      title and its live value — and the chip IS the remove control, whose
+ *      accessible name says WHICH refinement it drops (operator ruling, which
+ *      supersedes the `TagsInput` route of `D9`/`P1-R14`: a read-only chip list
+ *      must never render as a bordered, focusable form field — `R5`/`G5`);
  *   2. removing one chip stops only that leaf narrowing, and leaves the others;
  *   3. Clear all empties every active leaf at once, and sits with the actions;
  *   4. the row carries NO count — the count joined the display row's Results
@@ -17,6 +19,7 @@
  * report a narrowing without offering to lift it.
  */
 
+import { TagsInput } from "@upmind/ui";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { computed, ref } from "vue";
@@ -26,9 +29,8 @@ import action from "@upmind-automation/i18n/core/action-en.json";
 import form from "@upmind-automation/i18n/core/form-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
-import { TagsInput } from "@upmind/ui";
 import RefinementsRow from "../RefinementsRow.vue";
-import { each, get, indexOf, map } from "lodash-es";
+import { each, get, map, reject, size, uniq } from "lodash-es";
 import type { ModulePortCriteria } from "../../composables/useModulePort.types";
 
 const { useQuerySchema, useQueryUischema } =
@@ -86,25 +88,14 @@ function mountRow(model: Record<string, unknown> = NARROWED) {
 
 type Row = ReturnType<typeof mountRow>["wrapper"];
 
-/**
- * The chips as the DOM carries them. `Badge.ce.vue` opens with a comment node,
- * so its component wrapper is a fragment whose `element` is that comment — the
- * hooks are read off the rendered node and the component is used only for the
- * contract the DOM cannot show (its `close` prop, its `close` event).
- */
+/** The chips as the DOM carries them — each one its own remove control. */
 const chips = (wrapper: Row) => wrapper.findAll('[data-test-key="refinement"]');
 
 const chipIds = (wrapper: Row) =>
   map(chips(wrapper), chip => chip.attributes("data-test-value"));
 
-const tagsInput = (wrapper: Row) => wrapper.findComponent(TagsInput);
-
-const deleteButtonFor = (wrapper: Row, id: string) => {
-  const removeLabel = tagsInput(wrapper).props("removeLabel") as string;
-  return wrapper.find(
-    `[data-test-value="${id}"] button[aria-label="${removeLabel}"]`
-  );
-};
+const removeControlFor = (wrapper: Row, id: string) =>
+  wrapper.find(`[data-test-key="refinement"][data-test-value="${id}"]`);
 
 const CLEAR_ALL = '[data-test-key="clear-all"]';
 
@@ -136,14 +127,30 @@ describe("T3.6 one chip per active refinement (G5 · AC4.4)", () => {
     expect(wrapper.find(CLEAR_ALL).exists()).toBe(false);
   });
 
-  it("draws each chip as the ui TagsInput's own removable form, never a bespoke ×", () => {
+  it("makes the chip itself the remove control, never a form field around the list", () => {
     const { wrapper } = mountRow();
-    const input = tagsInput(wrapper);
-    const removeLabel = input.props("removeLabel") as string;
 
-    expect(removeLabel).toBeTruthy();
-    expect(wrapper.findAll(`button[aria-label="${removeLabel}"]`)).toHaveLength(
-      2
+    expect(map(chips(wrapper), chip => chip.element.tagName)).toEqual([
+      "BUTTON",
+      "BUTTON"
+    ]);
+    // A read-only chip list is not a form field: no `TagsInput`, and nothing
+    // in the row a caret can land in (`R5`).
+    expect(wrapper.findComponent(TagsInput).exists()).toBe(false);
+    expect(wrapper.findAll("input")).toHaveLength(0);
+  });
+
+  it("announces WHICH refinement each chip drops, never one shared word", () => {
+    const { wrapper } = mountRow();
+
+    const names = map(chips(wrapper), chip => chip.attributes("aria-label"));
+
+    expect(reject(names, Boolean)).toEqual([]);
+    expect(uniq(names)).toHaveLength(size(names));
+    // The name carries the chip's own sentence, so the two never announce the
+    // same thing while naming different leaves.
+    each(chips(wrapper), chip =>
+      expect(chip.attributes("aria-label")).toContain(chip.text())
     );
   });
 });
@@ -152,7 +159,7 @@ describe("T3.6 removing a refinement lifts only that one (AC4.4)", () => {
   it("clears the leaf the chip names", async () => {
     const { wrapper, criteria } = mountRow();
 
-    await deleteButtonFor(wrapper, "verified.eq").trigger("click");
+    await removeControlFor(wrapper, "verified.eq").trigger("click");
 
     expect(criteria.set).toHaveBeenCalledTimes(1);
     const written = vi.mocked(criteria.set).mock.calls[0][0];
@@ -162,7 +169,7 @@ describe("T3.6 removing a refinement lifts only that one (AC4.4)", () => {
   it("leaves every other leaf narrowing", async () => {
     const { wrapper, criteria } = mountRow();
 
-    await deleteButtonFor(wrapper, "verified.eq").trigger("click");
+    await removeControlFor(wrapper, "verified.eq").trigger("click");
 
     const written = vi.mocked(criteria.set).mock.calls[0][0];
     expect(get(written, "filters.email.like", SEARCH_TERM)).toBe(SEARCH_TERM);

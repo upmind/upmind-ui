@@ -4,10 +4,14 @@ import { cva, type VariantProps } from "class-variance-authority";
 // useStyles (FE-2941 / Phase-6 pattern: named cva exports bound via cn at the
 // call-site). The old `input`/`loading` config entries were vestigial and dropped.
 
-/** Size axis — no size-specific classes yet (placeholder; matches the old lib). */
+/**
+ * Size axis — no size-specific classes yet (placeholder; matches the old lib).
+ * Held to the control family's own scale: the host stamps this value onto every
+ * child's options, so a size the controls cannot render leaves them height-less.
+ */
 export const formVariants = cva("", {
   variants: {
-    size: { sm: "", md: "", lg: "", xl: "" }
+    size: { sm: "", md: "", lg: "" }
   }
 });
 export type FormVariants = VariantProps<typeof formVariants>;

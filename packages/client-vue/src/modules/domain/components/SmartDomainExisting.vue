@@ -132,6 +132,10 @@
 </template>
 
 <script setup lang="ts">
+import { useTestAttrs } from "@upmind/ui";
+import { Search } from "@upmind/ui";
+import { Link } from "@upmind/ui";
+import { Button } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import {
@@ -140,10 +144,6 @@ import {
   useConfig,
   useMoney
 } from "@upmind-automation/headless";
-import { useTestAttrs } from "@upmind/ui";
-import { Search } from "@upmind/ui";
-import { Link } from "@upmind/ui";
-import { Button } from "@upmind/ui";
 import { FormMessage } from "../../../components/form";
 import { Icon } from "../../../components/icon";
 import { isMobile } from "../../../composables/isMobile";

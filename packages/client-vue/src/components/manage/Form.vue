@@ -60,10 +60,10 @@
 </template>
 
 <script setup lang="ts">
-import { onUnmounted } from "vue";
-import { useI18n } from "vue-i18n";
 import { useTestAttrs } from "@upmind/ui";
 import { Alert } from "@upmind/ui";
+import { onUnmounted } from "vue";
+import { useI18n } from "vue-i18n";
 import { Icon } from "../../components/icon";
 import UpmForm from "../form/Form.vue";
 import OverlayContainer from "../overlays/OverlayContainer.vue";

@@ -26,9 +26,9 @@
 </template>
 
 <script lang="ts" setup>
+import { Alert } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Alert } from "@upmind/ui";
 import Form from "../../../components/form/Form.vue";
 import { Icon } from "../../../components/icon";
 import { storedRootVariants } from "../variants";

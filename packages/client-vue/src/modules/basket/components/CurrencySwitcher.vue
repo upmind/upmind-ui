@@ -28,10 +28,10 @@
 </template>
 
 <script lang="ts" setup>
+import { Combobox } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useBasketCurrency } from "@upmind-automation/headless";
-import { Combobox } from "@upmind/ui";
 import { Icon } from "../../../components/icon";
 import rawCurrencies from "./currencies";
 import { get, map } from "lodash-es";

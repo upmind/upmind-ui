@@ -1,127 +1,121 @@
 <template>
   <div class="flex flex-col gap-4">
-    <Tabs v-if="!isAuthenticated" v-model="activeTab" :tabs="authTabs">
-      <template #[`content.login`]>
+    <template v-if="!isAuthenticated">
+      <Alert
+        v-if="hasErrors && hasForm"
+        variant="danger"
+        :title="alertTitle"
+        :description="errors"
+        class="max-w-xl"
+      >
+        <template #icon><Icon icon="alert-triangle" /></template>
+      </Alert>
+
+      <UpmForm
+        v-if="hasForm"
+        class="max-w-xl"
+        :schema="schema"
+        :uischema="uischema"
+        :model-value="model"
+        :additional-renderers="formRenderers"
+        @update:model-value="set($event)"
+        @resolve="resolve(model)"
+      >
+        <template #actions="{ doResolve }">
+          <div class="flex flex-col gap-3">
+            <Button
+              block
+              variant="primary"
+              :loading="isProcessing"
+              :disabled="isLoading"
+              :data-attrs="{ 'data-test-key': 'auth-submit' }"
+              @click="doResolve"
+            >
+              {{ t(submitLabel) }}
+            </Button>
+
+            <div
+              v-if="switches.length"
+              class="flex items-center justify-center gap-4"
+            >
+              <Button
+                v-for="entry in switches"
+                :key="entry.flow"
+                variant="link"
+                size="sm"
+                :data-attrs="{
+                  'data-test-key': 'auth-flow-switch',
+                  'data-test-value': entry.flow
+                }"
+                @click="start(entry.flow)"
+              >
+                {{ t(entry.label) }}
+              </Button>
+            </div>
+
+            <!-- 2FA hides every switch link, so the machine's own CANCEL would
+                 otherwise have no control at all: the challenge is a dead end
+                 for anyone who cannot answer it. -->
+            <div v-if="is2faRequired" class="flex items-center justify-center">
+              <Button
+                variant="link"
+                size="sm"
+                :data-attrs="{ 'data-test-key': 'auth-cancel' }"
+                @click="reject()"
+              >
+                {{ t("action.back_to_login") }}
+              </Button>
+            </div>
+          </div>
+        </template>
+      </UpmForm>
+
+      <!-- `idle` and `error` are REACHABLE unauthenticated states with no form
+           of their own — the panel would otherwise be empty, with nothing to
+           press. The restart links are the same ones the form footer carries. -->
+      <div v-if="!hasForm" class="flex flex-col gap-3">
         <Alert
-          v-if="hasErrors && showLoginForm"
-          color="danger"
-          icon="alert-triangle"
+          v-if="hasErrors"
+          variant="danger"
           :title="alertTitle"
           :description="errors"
           class="max-w-xl"
-        />
-
-        <UpmForm
-          v-if="showLoginForm"
-          class="max-w-xl pt-6"
-          :schema="schema"
-          :uischema="uischema"
-          :model-value="model"
-          :additional-renderers="formRenderers"
-          @update:model-value="set($event)"
-          @resolve="resolve(model)"
         >
-          <template #actions="{ doResolve }">
-            <Button
-              class="w-full"
-              color="primary"
-              :loading="isProcessing"
-              :disabled="isLoading"
-              :label="t(loginLabel)"
-              :data-attrs="{ 'data-test-key': 'auth-submit' }"
-              @click="doResolve"
-            />
-          </template>
-        </UpmForm>
-      </template>
+          <template #icon><Icon icon="alert-triangle" /></template>
+        </Alert>
 
-      <template #[`content.register`]>
-        <Alert
-          v-if="hasErrors && showRegisterForm"
-          color="danger"
-          icon="alert-triangle"
-          :title="alertTitle"
-          :description="errors"
-          class="max-w-xl"
-        />
-
-        <UpmForm
-          v-if="showRegisterForm"
-          class="max-w-xl pt-6"
-          :schema="schema"
-          :uischema="uischema"
-          :model-value="model"
-          :additional-renderers="formRenderers"
-          @update:model-value="set($event)"
-          @resolve="resolve(model)"
-        >
-          <template #actions="{ doResolve }">
-            <Button
-              class="w-full"
-              color="primary"
-              :loading="isProcessing"
-              :disabled="isLoading"
-              :label="t('labs.auth_submit_register')"
-              :data-attrs="{ 'data-test-key': 'auth-submit' }"
-              @click="doResolve"
-            />
-          </template>
-        </UpmForm>
-      </template>
-
-      <template #[`content.recover`]>
-        <Alert
-          v-if="hasErrors && showRecoverPasswordForm"
-          color="danger"
-          icon="alert-triangle"
-          :title="alertTitle"
-          :description="errors"
-          class="max-w-xl"
-        />
-
-        <UpmForm
-          v-if="showRecoverPasswordForm"
-          class="max-w-xl pt-6"
-          :schema="schema"
-          :uischema="uischema"
-          :model-value="model"
-          :additional-renderers="formRenderers"
-          @update:model-value="set($event)"
-          @resolve="resolve(model)"
-        >
-          <template #actions="{ doResolve }">
-            <Button
-              class="w-full"
-              color="primary"
-              :loading="isProcessing"
-              :disabled="isLoading"
-              :label="t('labs.auth_submit_recover')"
-              :data-attrs="{ 'data-test-key': 'auth-submit' }"
-              @click="doResolve"
-            />
-          </template>
-        </UpmForm>
-      </template>
-    </Tabs>
+        <div class="flex items-center justify-center gap-4">
+          <Button
+            v-for="entry in restarts"
+            :key="entry.flow"
+            variant="link"
+            size="sm"
+            :data-attrs="{
+              'data-test-key': 'auth-flow-restart',
+              'data-test-value': entry.flow
+            }"
+            @click="start(entry.flow)"
+          >
+            {{ t(entry.label) }}
+          </Button>
+        </div>
+      </div>
+    </template>
 
     <Alert
       v-if="isAuthenticated"
       appearance="muted"
-      color="success"
-      icon="check-circle"
+      variant="success"
       :title="t('labs.auth_authenticated')"
       :data-attrs="{ 'data-test-key': 'auth-authenticated' }"
     >
+      <template #icon><Icon icon="check-circle" /></template>
       <template #default>
         <p class="flex items-center gap-2">
           {{ t("labs.auth_authenticated_as") }}
-          <Badge
-            v-if="isSelf"
-            size="sm"
-            appearance="muted"
-            append-icon="chevron-right"
-          >
+          <Badge v-if="isSelf" size="sm" appearance="muted">
             {{ t(ACTOR_LABEL_KEYS[ScopeActorTypes.SELF]) }}
+            <Icon icon="chevron-right" />
           </Badge>
           <Badge v-if="sessionActorLabel" size="sm" appearance="muted">
             {{ t(sessionActorLabel) }}
@@ -132,10 +126,11 @@
         <Button
           variant="outline"
           size="sm"
-          :label="t('action.logout')"
           :data-attrs="{ 'data-test-key': 'auth-logout' }"
           @click="handleLogout()"
-        />
+        >
+          {{ t("action.logout") }}
+        </Button>
       </template>
     </Alert>
   </div>
@@ -145,17 +140,24 @@
 // -----------------------------------------------------------------------------
 /**
  * @module components/auth/AuthJourney
- * @description THE auth surface of this playground — the Login/Register/Recover
- * tab set the `useAuth` page has always rendered, lifted out of it so the auth
- * OVERLAY renders the very same thing (`R6-15`/`R6-15b`).
+ * @description THE auth surface of this playground — one form at a time, with
+ * link-style switching between the flows the scope actually offers
+ * (`R6-15`/`R6-15b`). The machine owns which flow is live; the links just send
+ * it to another one, so a flow an actor cannot take (staff register/recover)
+ * simply never offers its link.
+ *
+ * Every reachable unauthenticated state draws SOMETHING pressable. `idle` and
+ * `error` carry no form, so the links stand on their own as restarts rather
+ * than riding the form footer; the 2FA challenge hides every switch, so it
+ * carries the machine's own `CANCEL` back to sign-in. A panel with no control
+ * is a state the user cannot leave.
  *
  * The overlay used to stand up a second wiring of its own around `UpmAuth`, and
  * that wiring could not do what this one already did: pick the actor, or spawn a
  * session beside a live one. Both are `useAuth`'s own builder channels — `.as()`
  * and `.fresh()` — which a component reaching for the shared instance cannot
  * ask for. So the journey moved here whole and the overlay renders it, rather
- * than the overlay re-implementing it: the staff arm comes free with the actor
- * prop, and the add-session arm free with `fresh`.
+ * than the overlay re-implementing it.
  *
  * Everything the surface needs is the scope it is given — the page reads that
  * scope off its url, the overlay off the target the funnel or the session pool
@@ -164,21 +166,20 @@
  * the overlay closes over the page it was collected for.
  */
 
+import { Alert, Badge, Button } from "@upmind/ui";
 import { computed, onMounted, onUnmounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { formRenderers, UpmForm } from "@upmind-automation/client-vue";
+import { formRenderers, Icon, UpmForm } from "@upmind-automation/client-vue";
 import {
   AuthFlowTypes,
   ScopeActorTypes,
   useActiveSession,
   useAuth
 } from "@upmind-automation/headless";
-import { Alert, Badge, Button, Tabs } from "@upmind/ui";
 import { ACTOR_LABEL_KEYS } from "../scope";
 import { usePlaygroundSheet } from "../sheets";
-import { get } from "lodash-es";
+import { get, reject as rejectWhere } from "lodash-es";
 import type { AuthJourneyProps } from "./AuthJourney.types";
-import type { TabItem } from "@upmind/ui";
 
 // -----------------------------------------------------------------------------
 
@@ -206,7 +207,7 @@ const auth = props.fresh
         .as(props.actor as ScopeActorTypes.CLIENT | ScopeActorTypes.STAFF)
         .for(props.context.type, props.context.id);
 
-const { destroy, isReady, resolve, set, start } = auth.useActions();
+const { destroy, isReady, reject, resolve, set, start } = auth.useActions();
 const {
   canLogin,
   canRecover,
@@ -244,56 +245,77 @@ const sessionActorLabel = computed(() =>
   get(ACTOR_LABEL_KEYS, String(sessionActor.value), "")
 );
 
-const loginLabel = computed(() =>
-  is2faRequired.value ? "labs.auth_submit_2fa" : "labs.auth_submit_login"
+const hasForm = computed(
+  () =>
+    showLoginForm.value ||
+    showRegisterForm.value ||
+    showRecoverPasswordForm.value
 );
 
-const authTabs = computed<TabItem[]>(() => {
-  const tabs: TabItem[] = [];
-
-  if (canLogin.value) {
-    tabs.push({
-      label: t("labs.auth_tab_login"),
-      value: "login"
-    });
-  }
-  if (canRegister.value) {
-    tabs.push({
-      label: t("labs.auth_tab_register"),
-      value: "register"
-    });
-  }
-  if (canRecover.value) {
-    tabs.push({
-      label: t("labs.auth_tab_recover"),
-      value: "recover"
-    });
-  }
-
-  return tabs;
+const submitLabel = computed(() => {
+  if (showRegisterForm.value) return "labs.auth_submit_register";
+  if (showRecoverPasswordForm.value) return "labs.auth_submit_recover";
+  return is2faRequired.value
+    ? "labs.auth_submit_2fa"
+    : "labs.auth_submit_login";
 });
 
-const activeTab = computed({
-  get: () => {
-    if (showLoginForm.value) return "login";
-    if (showRegisterForm.value) return "register";
-    if (showRecoverPasswordForm.value) return "recover";
-    return authTabs.value[0]?.value ?? "login";
-  },
-  set: (value: string) => {
-    if (value === "login") start(AuthFlowTypes.LOGIN);
-    else if (value === "register") start(AuthFlowTypes.REGISTER);
-    else if (value === "recover") start(AuthFlowTypes.RECOVER);
-  }
+// The staff actions arm only starts login, so its links never appear —
+// `canRegister`/`canRecover` alone do not gate the actor (headless gap).
+const isStaff = computed(() => scopeActor.value === ScopeActorTypes.STAFF);
+
+/** Every flow this scope can take, in the order the surface offers them. */
+const offered = computed(() => {
+  const entries: { flow: AuthFlowTypes; label: string }[] = [];
+
+  if (canLogin.value)
+    entries.push({
+      flow: AuthFlowTypes.LOGIN,
+      label: "labs.auth_login_instead"
+    });
+  if (canRegister.value && !isStaff.value)
+    entries.push({
+      flow: AuthFlowTypes.REGISTER,
+      label: "labs.auth_register_instead"
+    });
+  if (canRecover.value && !isStaff.value)
+    entries.push({
+      flow: AuthFlowTypes.RECOVER,
+      label: "labs.auth_recover_instead"
+    });
+
+  return entries;
 });
+
+/** Which flow the surface is drawing right now, if any. */
+const liveFlow = computed(() => {
+  if (showRegisterForm.value) return AuthFlowTypes.REGISTER;
+  if (showRecoverPasswordForm.value) return AuthFlowTypes.RECOVER;
+  if (showLoginForm.value) return AuthFlowTypes.LOGIN;
+  return undefined;
+});
+
+/** Every reachable flow that is not the live one gets its switch link. */
+const switches = computed(() => {
+  if (is2faRequired.value || isProcessing.value) return [];
+  return rejectWhere(offered.value, { flow: liveFlow.value });
+});
+
+/**
+ * The way OUT of a state with no form. `idle` and `error` are both reachable
+ * unauthenticated, and neither draws one — so every offered flow is a restart,
+ * not a switch, and there is nothing live to leave out.
+ */
+const restarts = computed(() => (isProcessing.value ? [] : offered.value));
 
 const alertTitle = computed(() => {
   if (showRegisterForm.value)
     return t("error.session_register_failed") as string;
   if (showRecoverPasswordForm.value)
     return t("error.session_recover_failed") as string;
-  if (showLoginForm.value) return t("error.session_login_failed") as string;
-  return "";
+  // Login is the fallback, not a fourth branch: the formless `error` state has
+  // no showX flag left to read, and an untitled Alert draws a bare box.
+  return t("error.session_login_failed") as string;
 });
 
 function handleLogout() {

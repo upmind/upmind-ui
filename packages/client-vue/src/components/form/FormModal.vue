@@ -59,8 +59,6 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
-import { useI18n } from "vue-i18n";
 import { useForwardPropsEmits } from "@upmind/ui";
 import {
   DialogContent,
@@ -71,6 +69,8 @@ import {
   DialogTitle
 } from "@upmind/ui";
 import { Link, Button } from "@upmind/ui";
+import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 import Form from "./Form.vue";
 import type { FormFooterProps, FormActionsProps } from "./engine/types";
 import type { FormModalProps } from "./types";

@@ -1,7 +1,7 @@
 <template>
   <FormField v-bind="formFieldProps">
     <InputPassword
-      size="lg"
+      :size="appliedOptions?.size"
       :model-value="control.data"
       :placeholder="appliedOptions?.placeholder"
       :autocomplete="appliedOptions?.autocomplete"
@@ -13,9 +13,18 @@
       :required="appliedOptions?.required"
       :disabled="appliedOptions?.disabled"
       :generator="isNewPassword"
-      :generate-label="appliedOptions?.generate"
-      :show-label="appliedOptions?.show"
-      :hide-label="appliedOptions?.hide"
+      :generate-label="
+        appliedOptions?.generate ??
+        translate('action.generate_password', 'Generate a strong password')
+      "
+      :show-label="
+        appliedOptions?.show ??
+        translate('action.show_password', 'Show password')
+      "
+      :hide-label="
+        appliedOptions?.hide ??
+        translate('action.hide_password', 'Hide password')
+      "
       @update:modelValue="onInput"
       @generate="onGenerate"
     />
@@ -35,8 +44,8 @@
 <script lang="ts" setup>
 import { isStringControl, and, or, optionIs, formatIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import { computed } from "vue";
 import { InputPassword, PasswordStrength } from "@upmind/ui";
+import { computed } from "vue";
 import FormField from "../../FormField.vue";
 import {
   FALLBACK_REQUIREMENT_COUNT,
@@ -51,7 +60,7 @@ import type { RendererProps } from "@jsonforms/vue";
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, appliedOptions, formFieldProps, onInput } =
+const { control, appliedOptions, formFieldProps, onInput, translate } =
   useUpmindUIRenderer(useJsonFormsControl(props));
 
 const isNewPassword = computed(

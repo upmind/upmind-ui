@@ -14,8 +14,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useI18n } from "vue-i18n";
 import { OptionTileGroup, OptionTile, Link } from "@upmind/ui";
+import { useI18n } from "vue-i18n";
 
 // -----------------------------------------------------------------------------
 const emit = defineEmits(["resolve", "reject", "cancel"]);

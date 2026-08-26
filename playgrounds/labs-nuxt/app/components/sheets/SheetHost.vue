@@ -3,63 +3,57 @@
     v-model:open="isOpen"
     :modal="false"
     side="right"
-    :title="t(title)"
     :close-label="t('action.close')"
-    class="flex flex-col gap-0 overflow-hidden p-0"
-    :ui="{ header: 'border-surface shrink-0 border-b p-3' }"
+    class="flex max-w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl"
+    :ui="{
+      header: 'border-surface shrink-0 border-b p-3',
+      body: 'flex-1 overflow-y-auto p-4'
+    }"
     @interact-outside="(event: Event) => event.preventDefault()"
   >
     <template #title>
-      <ToggleGroup
-        type="single"
-        :model-value="sheet"
-        size="sm"
-        data-test-key="sheet-switcher"
-        @update:model-value="v => v && open(v as PlaygroundSheetTypes)"
-      >
-        <ToggleGroupItem
-          v-for="(label, value) in SHEET_LABELS"
-          :key="value"
-          :value="value"
-          :data-test-key="'sheet-pane'"
-          :data-test-value="value"
-        >
-          {{ t(label) }}
-        </ToggleGroupItem>
-      </ToggleGroup>
+      <!-- `data-attrs`, not fallthrough: Tabs spreads its OWN useTestAttrs
+           last, so a fallthrough key renders as `tabs` (`CC11`). -->
+      <Tabs
+        v-model="sheet"
+        :tabs="sheetTabs"
+        variant="segmented"
+        align="between"
+        class="w-full"
+        :ui="{ content: 'hidden' }"
+        :data-attrs="{ 'data-test-key': 'sheet-switcher' }"
+      />
     </template>
 
     <div data-test-key="sheet-host" :data-test-value="sheet">
-      <Tabs
-        v-if="sheet === PlaygroundSheetTypes.DEBUG"
-        v-model="tab"
-        :tabs="tabs"
-        class="bg-canvas h-full flex-1 overflow-hidden p-4"
-      >
-        <template
-          v-for="section in sections"
-          :key="section.name"
-          #[`content.${section.name}`]
-        >
-          <div class="max-h-[calc(100vh-8rem)] overflow-y-auto">
+      <template v-if="sheet === PlaygroundSheetTypes.DEBUG">
+        <Tabs v-if="tabs.length > 0" v-model="tab" :tabs="tabs">
+          <template
+            v-for="section in sections"
+            :key="section.name"
+            #[`content.${section.name}`]
+          >
             <DebugPane :section="section" />
-          </div>
-        </template>
-      </Tabs>
-
-      <div v-else class="max-h-[calc(100vh-8rem)] overflow-y-auto p-4">
-        <CodePane
-          v-if="sheet === PlaygroundSheetTypes.CODE && code"
-          v-bind="code"
-        />
-        <ScenarioPane
-          v-else-if="sheet === PlaygroundSheetTypes.SCENARIO && scenario"
-          v-bind="scenario"
-        />
-        <p v-else class="text-muted p-4 text-xs" data-test-key="sheet-empty">
+          </template>
+        </Tabs>
+        <p v-else class="text-muted text-xs" data-test-key="sheet-empty">
           {{ t("labs.sheet_empty") }}
         </p>
-      </div>
+      </template>
+
+      <template v-else-if="sheet === PlaygroundSheetTypes.CODE">
+        <CodePane v-if="code" v-bind="code" />
+        <p v-else class="text-muted text-xs" data-test-key="sheet-empty">
+          {{ t("labs.sheet_empty") }}
+        </p>
+      </template>
+
+      <template v-else-if="sheet === PlaygroundSheetTypes.SCENARIO">
+        <ScenarioPane v-if="scenario" v-bind="scenario" />
+        <p v-else class="text-muted text-xs" data-test-key="sheet-empty">
+          {{ t("labs.sheet_empty") }}
+        </p>
+      </template>
     </div>
   </Sheet>
 </template>
@@ -95,31 +89,43 @@
  * drives the same composable.
  */
 
+import { Sheet, Tabs } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Button, Sheet, Tabs, ToggleGroup, ToggleGroupItem } from "@upmind/ui";
 import CodePane from "./CodePane.vue";
 import DebugPane from "./DebugPane.vue";
 import ScenarioPane from "./ScenarioPane.vue";
 import { usePlaygroundSheet } from "./usePlaygroundSheet";
 import { PlaygroundSheetTypes, SHEET_LABELS } from "./usePlaygroundSheet.types";
-import { map } from "lodash-es";
+import { map, values } from "lodash-es";
 import type { TabItem } from "@upmind/ui";
 // -----------------------------------------------------------------------------
 
-const { isOpen, open, panes, sections, sheet, tab } = usePlaygroundSheet();
+const { isOpen, panes, sections, sheet, tab } = usePlaygroundSheet();
 
 const { t } = useI18n();
-
-const title = computed(
-  () => SHEET_LABELS[sheet.value ?? PlaygroundSheetTypes.DEBUG]
-);
 
 const code = computed(() => panes.value[PlaygroundSheetTypes.CODE]);
 
 const scenario = computed(() => panes.value[PlaygroundSheetTypes.SCENARIO]);
 
+// A locator for one pane's tab needs that tab, not the rail's own key.
+const sheetTabs = computed<TabItem[]>(() =>
+  map(values(PlaygroundSheetTypes), value => ({
+    value,
+    label: t(SHEET_LABELS[value]),
+    dataAttrs: { "data-test-key": "sheet-tab", "data-test-value": value }
+  }))
+);
+
 const tabs = computed<TabItem[]>(() =>
-  map(sections.value, section => ({ value: section.name, label: section.name }))
+  map(sections.value, section => ({
+    value: section.name,
+    label: section.name,
+    dataAttrs: {
+      "data-test-key": "debug-tab",
+      "data-test-value": section.name
+    }
+  }))
 );
 </script>

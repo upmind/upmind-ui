@@ -6,7 +6,10 @@ import { cva } from "class-variance-authority";
  */
 
 export const scenarioMenu = {
-  root: cva("flex shrink-0 flex-nowrap items-center gap-1"),
+  root: cva("flex shrink-0 flex-nowrap items-center gap-2"),
+
+  // Wide enough for a scenario's whole sentence on the trigger itself.
+  trigger: cva("w-72 max-w-full"),
 
   // Wide enough for a scenario's whole sentence, and capped in height with its
   // own scroll: eleven scenarios plus the forced states are taller than the

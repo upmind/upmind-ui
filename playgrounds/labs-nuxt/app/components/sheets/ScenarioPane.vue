@@ -2,32 +2,30 @@
   <div class="flex flex-col gap-6" data-test-key="scenario-pane">
     <section
       v-if="isArmed"
-      class="flex flex-col gap-2"
+      class="flex flex-col gap-3"
       data-test-key="scenario-track"
       :data-test-value="trackName"
     >
       <header class="flex flex-wrap items-center gap-2">
-        <h2 class="text-display m-0 text-sm font-bold">{{ trackName }}</h2>
-        <Badge
-          color="primary"
-          appearance="muted"
-          size="sm"
-          :label="t('labs.scenario_track_armed')"
-        />
+        <h2 class="text-display m-0 font-mono text-sm font-semibold">
+          {{ trackName }}
+        </h2>
+        <Badge variant="primary" appearance="muted" size="sm">
+          {{ t("labs.scenario_track_armed") }}
+        </Badge>
         <Badge
           v-if="trackScopePath"
-          :label="t('labs.scenario_track_scope', { scope: trackScopePath })"
-          color="neutral"
+          variant="neutral"
           appearance="muted"
           size="sm"
-          :data-attrs="{
-            'data-test-key': 'scenario-track-scope',
-            'data-test-value': trackScopePath
-          }"
-        />
+          data-test-key="scenario-track-scope"
+          :data-test-value="trackScopePath"
+        >
+          {{ trackScopePath }}
+        </Badge>
       </header>
 
-      <ol class="m-0 flex list-none flex-col p-0 text-sm">
+      <ol class="m-0 flex list-none flex-col p-0">
         <li v-for="(scene, index) in scenes" :key="scene.line">
           <button
             :ref="element => keepInView(element, index)"
@@ -39,15 +37,22 @@
             :data-test-value="scene.line"
             @click="seek?.(index)"
           >
-            <Icon
-              :icon="STEP_STATE_ICONS[stepState(index)]"
-              size="nano"
-              class="block shrink-0"
-            />
-            <span class="text-muted w-12 shrink-0 text-xs font-semibold">
+            <span class="text-faint w-8 shrink-0 text-right font-mono text-xs">
+              {{ scene.line }}
+            </span>
+            <span
+              class="text-muted w-14 shrink-0 text-xs font-semibold uppercase"
+            >
               {{ scene.kind }}
             </span>
-            <span class="min-w-0 text-left">{{ scene.text }}</span>
+            <span class="min-w-0 flex-1 text-left text-sm">{{
+              scene.text
+            }}</span>
+            <Icon
+              :icon="STEP_STATE_ICONS[stepState(index)]"
+              size="xs"
+              :class="stepIcon({ state: stepState(index) })"
+            />
           </button>
         </li>
       </ol>
@@ -59,24 +64,27 @@
           <CollapsibleTrigger as-child>
             <Button
               variant="ghost"
-              color="neutral"
               size="sm"
-              icon-append="chevron-down"
-              :label="t('labs.scenario_declaration')"
               class="text-muted hover:text-display -ml-2.5 cursor-pointer text-xs font-semibold tracking-wider uppercase"
               :data-attrs="{ 'data-test-key': 'scenario-declaration-toggle' }"
-            />
+            >
+              {{ t("labs.scenario_declaration") }}
+              <Icon icon="chevron-down" size="xs" />
+            </Button>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <Markdown
-              :model-value="declarationFence"
-              :class="[fenceBlock(), 'max-h-64 overflow-y-auto text-xs']"
+            <CodeBlock
+              :code="declaration"
+              lang="ts"
+              :title="t('labs.scenario_declaration')"
+              :line-numbers="false"
+              class="max-h-64"
             />
           </CollapsibleContent>
         </Collapsible>
       </section>
 
-      <section class="flex flex-col gap-2" data-test-key="scenario-feature">
+      <section class="flex flex-col gap-3" data-test-key="scenario-feature">
         <h2 class="text-display m-0 text-sm font-bold">
           {{ t("labs.scenario_feature") }}
         </h2>
@@ -93,20 +101,17 @@
           <article
             v-for="track in tracks"
             :key="track.line"
-            class="flex flex-col gap-1"
+            class="flex flex-col gap-2"
             data-test-key="scenario-track"
             :data-test-value="track.name"
           >
             <header class="flex flex-wrap items-center gap-2">
-              <Badge
-                :label="track.name"
-                color="neutral"
-                appearance="muted"
-                size="sm"
-              />
+              <Badge variant="neutral" appearance="muted" size="sm">
+                {{ track.name }}
+              </Badge>
             </header>
 
-            <ol class="m-0 flex list-none flex-col p-0 text-sm">
+            <ol class="m-0 flex list-none flex-col p-0">
               <li
                 v-for="step in track.steps"
                 :key="step.line"
@@ -114,10 +119,19 @@
                 data-test-key="scenario-step"
                 :data-test-value="step.line"
               >
-                <span class="text-muted w-12 shrink-0 text-xs font-semibold">
+                <span
+                  class="text-faint w-8 shrink-0 text-right font-mono text-xs"
+                >
+                  {{ step.line }}
+                </span>
+                <span
+                  class="text-muted w-14 shrink-0 text-xs font-semibold uppercase"
+                >
                   {{ step.kind }}
                 </span>
-                <span class="min-w-0 text-left">{{ step.text }}</span>
+                <span class="min-w-0 flex-1 text-left text-sm">{{
+                  step.text
+                }}</span>
               </li>
             </ol>
           </article>
@@ -159,21 +173,19 @@
  * question it is (design §7.5, `ESC5`).
  */
 
-import { computed, watch } from "vue";
-import { useI18n } from "vue-i18n";
-import { parseFeatureScenarios } from "@upmind-automation/scenario-harness";
 import {
   Badge,
   Button,
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger,
-  Markdown
+  CollapsibleTrigger
 } from "@upmind/ui";
+import { computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { Icon } from "@upmind-automation/client-vue";
+import { parseFeatureScenarios } from "@upmind-automation/scenario-harness";
 import { buildScopePath } from "../../composables/scope";
-import { fenceBlock } from "./sheets.styles";
-import { stepRow } from "./ScenarioPane.styles";
+import { stepRow, stepIcon } from "./ScenarioPane.styles";
 import {
   STEP_STATE,
   STEP_STATE_ICONS,
@@ -183,7 +195,7 @@ import { isEmpty, isNil } from "lodash-es";
 import type { ScenarioPaneProps, StepState } from "./ScenarioPane.types";
 import type { FeatureScenario } from "@upmind-automation/scenario-harness";
 import type { ComponentPublicInstance } from "vue";
-// -----------------------------------------------------------------------------
+import CodeBlock from "~/components/code/CodeBlock.vue";
 
 const props = defineProps<ScenarioPaneProps>();
 
@@ -191,10 +203,6 @@ const { t } = useI18n();
 
 const isArmed = computed(
   () => !isEmpty(props.trackName) && !isNil(props.scenes)
-);
-
-const declarationFence = computed(
-  () => `\`\`\`ts\n${props.declaration}\n\`\`\``
 );
 
 const tracks = computed<FeatureScenario[]>(() =>

@@ -56,11 +56,11 @@
 </template>
 
 <script lang="ts" setup>
-import { useI18n } from "vue-i18n";
-import { useTermsAndConditions, useBrand } from "@upmind-automation/headless";
 import { useTestAttrs } from "@upmind/ui";
 import { Drawer } from "@upmind/ui";
 import { Link, Markdown } from "@upmind/ui";
+import { useI18n } from "vue-i18n";
+import { useTermsAndConditions, useBrand } from "@upmind-automation/headless";
 import type { TermsAndConditionsProps } from "./types";
 
 // -----------------------------------------------------------------------------

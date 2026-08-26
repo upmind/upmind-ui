@@ -1,30 +1,25 @@
 <template>
   <div :class="displayRow.root()" data-test-key="display-row">
-    <div :class="displayRow.lead()">
-      <p :class="displayRow.results()">
-        <span :class="displayRow.resultsLabel()">
-          {{ t("labs.results") }}
-        </span>
-        <Separator
-          orientation="vertical"
-          decorative
-          :class="displayRow.divider()"
-        />
-        <span :class="displayRow.count()">{{ countLabel }}</span>
-      </p>
+    <Text
+      as="span"
+      variant="faint"
+      size="xs"
+      class="inline-flex items-center gap-2 tracking-wider whitespace-nowrap uppercase"
+    >
+      {{ t("labs.results") }}
+      <Separator
+        orientation="vertical"
+        decorative
+        :class="displayRow.divider()"
+      />
+      {{ countLabel }}
+    </Text>
 
-      <RefinementsRow v-if="criteria" :criteria="criteria" :locked="locked" />
-    </div>
+    <!-- Operator ruling: the refinements read on the RESULTS line — the count
+         and what narrowed it belong to the same sentence. -->
+    <RefinementsRow v-if="criteria" :criteria="criteria" :locked="locked" />
 
     <div :class="displayRow.controls()">
-      <!-- The ordering control is drawn in BOTH views (G3/E9): the data surface
-           owns its ordering, so it is offered where the data is, whether or not
-           there happen to be headers to click.
-
-           Each control carries its OWN tooltip rather than the cluster carrying
-           one: the tooltip's trigger is a shrink-to-fit span, so wrapping the
-           cluster would take its `ml-auto` off the flow and unpin the controls
-           from the row's right edge (`R6-23`). -->
       <Tooltip
         v-if="hasSort"
         :label="t('labs.replay_locked')"
@@ -79,31 +74,20 @@
 // -----------------------------------------------------------------------------
 /**
  * @module scenarios/runtime/components/DisplayRow
- * @description What the collection amounts to, what narrowed it to that, and
- * how it is drawn — the Results count and the active-refinement chips on the
- * left, the ordering, the column set and the view choice on the right, all on
- * the data surface's own ONE line (`G3` · `H1` · `R6-16` · `R6-25`). The chips
- * ride here rather than in a row of their own above: what was asked for and
- * what came back read as one statement.
- *
- * It owns no state. The count is read, the sort model and the column set come
- * in and go back out whole, the chips write through the criteria's own merging
- * `set`, and the view is the caller's — so the column headers, these controls
- * and the url can never disagree about the criteria (`P1-R9`).
- *
- * The count is the surface's OWN two numbers: how many rows it is drawing, and
- * the collection's `pagination.total`. Nothing is aggregated and nothing is
- * counted per facet — we hold only the current page, so any other number would
- * be a lie (`S16`/`G13`).
- *
- * Every control here is LOCKED while a scenario drives the collection (`R6-23`)
- * and says why on hover; the count stays live, because a report of what is on
- * screen is exactly what a replay wants read.
+ * @description Results label, sort, column set, view toggle — exactly R6
+ * (`G3`, `H1`). Column visibility (`R6-25`) is steered here and nowhere else:
+ * the table draws what the url names, so dropping the picker strands the set.
  */
 
+import {
+  Separator,
+  Text,
+  ToggleGroup,
+  ToggleGroupItem,
+  Tooltip
+} from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Separator, ToggleGroup, ToggleGroupItem, Tooltip } from "@upmind/ui";
 import ColumnPicker from "./ColumnPicker.vue";
 import { displayRow } from "./DisplayRow.styles";
 import RefinementsRow from "./RefinementsRow.vue";
@@ -117,8 +101,8 @@ import type { TableModel } from "@upmind-automation/scenario-harness";
 const props = defineProps<DisplayRowProps>();
 
 const emit = defineEmits<{
-  "update:sort": [sort: TableModel["sort"]];
   "update:columns": [columns: string[]];
+  "update:sort": [sort: TableModel["sort"]];
   "update:view": [view: ListViewTypes];
 }>();
 

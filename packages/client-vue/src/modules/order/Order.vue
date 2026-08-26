@@ -194,6 +194,9 @@
 </template>
 
 <script lang="ts" setup>
+import { Button } from "@upmind/ui";
+import { DescriptionListRoot, DescriptionItem, Skeleton } from "@upmind/ui";
+import { Alert, type AlertProps } from "@upmind/ui";
 import { computed, onUnmounted, provide, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
@@ -209,9 +212,6 @@ import {
   type Badge
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-import { Button } from "@upmind/ui";
-import { DescriptionListRoot, DescriptionItem, Skeleton } from "@upmind/ui";
-import { Alert, type AlertProps } from "@upmind/ui";
 import { useAnnouncement } from "../../components/announcement/useAnnouncement";
 import Hero from "../../components/hero/Hero.vue";
 import { Icon } from "../../components/icon";

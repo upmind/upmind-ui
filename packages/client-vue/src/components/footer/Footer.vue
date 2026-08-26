@@ -30,6 +30,7 @@
 </template>
 
 <script lang="ts" setup>
+import { Markdown } from "@upmind/ui";
 import {
   useBrand,
   useLocale,
@@ -37,7 +38,6 @@ import {
   useClientTemplate,
   ClientTemplateSlotCodes
 } from "@upmind-automation/headless";
-import { Markdown } from "@upmind/ui";
 import UpmLocale from "../../components/LocaleSwitcher.vue";
 import UpmCurrency from "../../modules/basket/components/CurrencySwitcher.vue";
 import ColorModeToggle from "./ColorModeToggle.vue";

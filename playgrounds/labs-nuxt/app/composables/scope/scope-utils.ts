@@ -3,9 +3,14 @@
  * @description Scope helpers — the ONE reading of a module's scope matrix, plus
  * building and navigating to scope-aware URLs.
  *
- * IMPORTANT: `navigateToScope` and `updateScopeParam` use Vue Router's `useRoute`/`useRouter`
- * which rely on `inject()`. They MUST be obtained via `useScopeNavigation()` during component
- * setup — calling them as standalone functions from event handlers will fail.
+ * IMPORTANT: `updateScopeParam` uses Vue Router's `useRoute`/`useRouter`, which
+ * rely on `inject()`. It MUST be obtained via `useScopeNavigation()` during
+ * component setup — calling it as a standalone function from an event handler
+ * will fail.
+ *
+ * `buildPathPreservingBrand` and `navigateToScope` are DELETED, not moved: both
+ * had zero callers, and each call site that needs a brand-preserving path
+ * already reads the segment itself and hands it to `buildScopePath`.
  */
 
 import { useRouter, useRoute } from "vue-router";
@@ -125,7 +130,7 @@ export function buildScopePath(config: ScopePathConfig): string {
  * @returns Navigation helper functions
  *
  * @example
- * const { navigateToScope, updateScopeParam } = useScopeNavigation();
+ * const { updateScopeParam } = useScopeNavigation();
  *
  * async function handleClick() {
  *   await updateScopeParam("context", { type: "client", id: "123" });
@@ -134,18 +139,6 @@ export function buildScopePath(config: ScopePathConfig): string {
 export function useScopeNavigation() {
   const route = useRoute();
   const router = useRouter();
-
-  /**
-   * Navigate to a new scope configuration.
-   * Uses Vue Router to push new route with scope segments.
-   *
-   * @param config - Scope path configuration
-   * @returns Promise that resolves when navigation completes
-   */
-  function navigateToScope(config: ScopePathConfig): Promise<void> {
-    const path = buildScopePath(config);
-    return router.push(path).then(() => undefined);
-  }
 
   /**
    * Update a single scope parameter while preserving others.
@@ -194,5 +187,5 @@ export function useScopeNavigation() {
     return router.push(newPath).then(() => undefined);
   }
 
-  return { navigateToScope, updateScopeParam };
+  return { updateScopeParam };
 }

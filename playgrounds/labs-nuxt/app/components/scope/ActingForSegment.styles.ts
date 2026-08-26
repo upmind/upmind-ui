@@ -49,7 +49,7 @@ export default {
     // Drawn as the ui Combobox draws its own item tags: quiet trailing text.
     tag: cva("text-muted text-xs leading-none text-nowrap"),
 
-    mark: cva("text-accent-success"),
+    mark: cva("text-success"),
 
     // The id fallback closes the panel, under the rows it is the last resort for.
     idField: cva("border-control-default border-t p-2")

@@ -61,7 +61,7 @@ export default {
     // shrinks, this one does not.
     trailing: cva("ml-auto flex shrink-0 items-center gap-1"),
 
-    activeMark: cva("text-accent-success"),
+    activeMark: cva("text-success"),
 
     // The nest reads as belonging to the staff row above it — indented, and
     // hung off one rule rather than boxed.

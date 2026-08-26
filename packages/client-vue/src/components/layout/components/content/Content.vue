@@ -5,9 +5,9 @@
 </template>
 
 <script lang="ts" setup>
+import { cn } from "@upmind/ui";
 import { useElementSize, useWindowSize } from "@vueuse/core";
 import { computed, useTemplateRef } from "vue";
-import { cn } from "@upmind/ui";
 import { contentVariants } from "./variants";
 import type { ContentProps } from "./types";
 

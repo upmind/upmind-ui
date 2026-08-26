@@ -71,6 +71,8 @@
 </template>
 
 <script lang="ts" setup>
+import { Markdown, OptionTileGroup, OptionTile, Link } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
 import {
   inject,
   onMounted,
@@ -87,8 +89,6 @@ import {
   responseCodes,
   usePaymentGateway
 } from "@upmind-automation/headless";
-import { Markdown, OptionTileGroup, OptionTile, Link } from "@upmind/ui";
-import { Alert } from "@upmind/ui";
 import Form from "../../../components/form/Form.vue";
 import { Icon } from "../../../components/icon";
 import { gatewayFormVariants } from "../variants";

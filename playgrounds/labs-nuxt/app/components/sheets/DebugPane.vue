@@ -1,97 +1,73 @@
 <template>
   <div
-    class="space-y-1"
+    class="space-y-4"
     data-test-key="debug-pane"
     :data-test-value="section.name"
   >
-    <section v-if="section.scope" data-test-key="debug-scope">
-      <header class="border-surface relative mb-3 border-b pt-3 pb-1">
-        <h2 class="text-display text-sm font-bold">
-          {{ t("labs.debug_scope") }}
-        </h2>
-      </header>
-
-      <div class="flex flex-wrap gap-2">
-        <Badge
-          appearance="solid"
-          size="sm"
-          color="primary"
-          :label="t(ACTOR_LABEL_KEYS[section.scope.actor])"
-        />
-      </div>
-
-      <Collapsible class="mt-3">
-        <CollapsibleTrigger as-child>
-          <Button
-            variant="ghost"
-            color="neutral"
-            size="sm"
-            :label="t('labs.debug_matrix')"
-            class="text-muted hover:text-display cursor-pointer text-xs font-semibold tracking-wider uppercase transition-colors"
-          />
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <div class="mt-2 space-y-1">
-            <div
-              v-for="(contexts, actor) in section.scope.matrix"
-              :key="actor"
-              class="flex items-center gap-2 text-xs"
-              data-test-key="debug-matrix-row"
-              :data-test-value="actor"
-            >
-              <span class="text-muted min-w-16 font-medium">
-                {{ t(ACTOR_LABEL_KEYS[actor]) }}
-              </span>
-              <span class="text-faint">→</span>
-              <span>{{ matrixContexts(contexts) }}</span>
-            </div>
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-    </section>
-
     <section
       v-if="stateSegments.length || errorCount"
+      class="flex flex-col gap-3"
       data-test-key="debug-state"
     >
-      <header class="border-surface relative mb-3 border-b pt-3 pb-1">
-        <h2 class="text-display text-sm font-bold">
-          {{ t("labs.debug_state") }}
-        </h2>
-      </header>
+      <Heading :level="2" class="text-sm">{{ t("labs.debug_state") }}</Heading>
 
       <div class="flex flex-wrap gap-2">
         <Badge
           v-for="(segment, index) in stateSegments"
           :key="index"
-          appearance="solid"
-          color="promo"
+          appearance="muted"
+          variant="promo"
           size="sm"
-          :label="segment"
-        />
-
-        <Collapsible
-          v-if="errorCount"
-          class="mt-3"
-          data-test-key="debug-errors"
         >
-          <CollapsibleTrigger as-child>
-            <Badge
-              appearance="solid"
-              size="sm"
-              color="danger"
-              class="cursor-pointer"
-              :label="t('labs.debug_errors', errorCount)"
-            />
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <pre
-              class="bg-accent-danger-muted text-accent-danger mt-2 max-h-48 w-full overflow-auto rounded-lg p-3 font-mono text-xs leading-relaxed wrap-break-word whitespace-pre-wrap"
-              >{{ errorDetail }}</pre
-            >
-          </CollapsibleContent>
-        </Collapsible>
+          {{ segment }}
+        </Badge>
       </div>
+
+      <Collapsible v-if="errorCount" data-test-key="debug-errors">
+        <template #trigger>
+          <Button variant="danger" size="xs">
+            <Icon icon="alert-circle" size="xs" />
+            {{ t("labs.debug_errors", errorCount) }}
+          </Button>
+        </template>
+
+        <CodeBlock
+          class="mt-2"
+          :code="errorDetail"
+          lang="json"
+          :line-numbers="false"
+        />
+      </Collapsible>
+    </section>
+
+    <section
+      v-if="section.scope"
+      class="flex flex-col gap-3"
+      data-test-key="debug-scope"
+    >
+      <Heading :level="2" class="text-sm">{{ t("labs.debug_scope") }}</Heading>
+
+      <div class="flex flex-wrap gap-2">
+        <Badge appearance="muted" size="sm" variant="primary">
+          {{ t(ACTOR_LABEL_KEYS[section.scope.actor]) }}
+        </Badge>
+      </div>
+
+      <Collapsible>
+        <template #trigger>
+          <Button variant="ghost" size="xs">
+            {{ t("labs.debug_matrix") }}
+            <Icon icon="chevron-down" size="nano" />
+          </Button>
+        </template>
+
+        <DescriptionList
+          class="mt-2"
+          size="sm"
+          :items="matrixRows"
+          :data-attrs="{ 'data-test-key': 'debug-matrix' }"
+        />
+      </Collapsible>
     </section>
 
     <MetaPanel v-if="!isEmpty(metaFlags)" :meta="metaFlags" />
@@ -119,15 +95,16 @@
  * matrix and the state path.
  */
 
-import { computed, unref } from "vue";
-import { useI18n } from "vue-i18n";
 import {
   Badge,
   Button,
   Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger
+  DescriptionList,
+  Heading
 } from "@upmind/ui";
+import { computed, unref } from "vue";
+import { useI18n } from "vue-i18n";
+import { Icon } from "@upmind-automation/client-vue";
 import ContextPanel from "../../../modules/scenarios/runtime/components/ContextPanel.vue";
 import MetaPanel from "../../../modules/scenarios/runtime/components/MetaPanel.vue";
 import { ACTOR_LABEL_KEYS } from "../scope/useActorScopeSelector";
@@ -138,9 +115,11 @@ import {
   isEmpty,
   isNil,
   isObject,
+  isPlainObject,
   isString,
   join,
   map,
+  mapValues,
   reduce,
   size,
   split,
@@ -148,7 +127,12 @@ import {
 } from "lodash-es";
 import type { DebugPaneProps } from "./DebugPane.types";
 import type { ContextItem } from "./usePlaygroundSheet.types";
+import type { DescriptionListOption } from "@upmind/ui";
+import { CodeBlock } from "~/components/code";
 // -----------------------------------------------------------------------------
+
+/** What a credential reads as once the pane has taken it out. */
+const REDACTED = "[redacted]";
 
 const props = defineProps<DebugPaneProps>();
 
@@ -199,9 +183,30 @@ const metaFlags = computed<Record<string, boolean>>(() =>
 );
 
 /**
+ * Anything whose NAME says it is a bearer credential. The session sections dump
+ * whole session records, live and pooled, so the secret is nested arbitrarily
+ * deep — the debug pane shows that a token is present, never what it is.
+ */
+const SECRET_KEY = /(token|secret|password|api[-_]?key)/i;
+
+/** Every credential replaced by a marker, at any depth, structure untouched. */
+function redact(value: unknown): unknown {
+  if (isArray(value)) return map(value, redact);
+  if (!isPlainObject(value)) return value;
+
+  return mapValues(value as Record<string, unknown>, (nested, key) =>
+    SECRET_KEY.test(key) && !isNil(nested) ? REDACTED : redact(nested)
+  );
+}
+
+/**
  * `ContextPanel`'s contract is a plain record, so an entry that named its own
  * emptiness rule is resolved to its value here — and dropped while that value
  * is empty, which is what `hideIfEmpty` asks for.
+ *
+ * Credentials are redacted on the way through: a debug pane is a reading
+ * surface, and a session's `access_token` rendered raw is a live bearer token
+ * on screen for anyone over the operator's shoulder.
  */
 const contextValues = computed<Record<string, unknown>>(() =>
   reduce(
@@ -212,7 +217,8 @@ const contextValues = computed<Record<string, unknown>>(() =>
       const value = isItem ? item.value : entry;
       const isHidden =
         isItem && item.hideIfEmpty && (isNil(value) || value === "");
-      if (!isHidden) values[key] = value;
+      if (!isHidden)
+        values[key] = SECRET_KEY.test(key) ? REDACTED : redact(value);
       return values;
     },
     {} as Record<string, unknown>
@@ -225,4 +231,13 @@ function matrixContexts(contexts: unknown): string {
 
   return startCase(String(contexts));
 }
+
+/** The matrix as rows: actor → the contexts it resolves. */
+const matrixRows = computed<DescriptionListOption[]>(() =>
+  map(entries(props.section.scope?.matrix ?? {}), ([actor, contexts]) => ({
+    term: t(ACTOR_LABEL_KEYS[actor as keyof typeof ACTOR_LABEL_KEYS]),
+    description: matrixContexts(contexts),
+    dataAttrs: { "data-test-key": "debug-matrix-row", "data-test-value": actor }
+  }))
+);
 </script>

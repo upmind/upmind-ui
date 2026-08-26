@@ -7,7 +7,7 @@
       <p class="text-muted mb-8">
         {{ error?.message || "An unexpected error occurred" }}
       </p>
-      <Button color="primary" @click="handleError"> Go Home </Button>
+      <Button variant="primary" @click="handleError"> Go Home </Button>
     </div>
   </div>
 </template>

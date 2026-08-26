@@ -1,8 +1,15 @@
 <template>
   <FormField v-bind="formFieldProps">
+    <!-- Bound by name, not spread: the options bag also carries the CONTROL
+         options (placeholder, size, …), and Manage declares none of them. -->
     <Manage
-      v-bind="appliedOptions"
+      :manage="appliedOptions.manage as ManageRendererProps"
       :model-value="control.data"
+      :readonly="appliedOptions.readonly"
+      :as="manageAs"
+      :label="appliedOptions.label"
+      :class="manageClass"
+      :touched="formFieldProps.touched"
       @update:model-value="onInput"
     />
   </FormField>
@@ -11,6 +18,7 @@
 <script setup lang="ts">
 import { and, uiTypeIs } from "@jsonforms/core";
 import { useJsonFormsControlWithDetail } from "@jsonforms/vue";
+import { computed } from "vue";
 import Manage from "../../manage/Manage.vue";
 import FormField from "../engine/FormField.vue";
 import { useUpmindUIRenderer } from "../engine/renderers/utils";
@@ -26,6 +34,14 @@ const props =
 
 const { control, appliedOptions, onInput, formFieldProps } =
   useUpmindUIRenderer(useJsonFormsControlWithDetail(props));
+
+/** A `|` inside a template binding parses as a Vue filter, so it lives here. */
+const manageClass = computed(() => appliedOptions.value?.class as string);
+
+/** Manage offers exactly two shapes; anything else is its own default. */
+const manageAs = computed(() =>
+  appliedOptions.value?.as === "select" ? "select" : "list"
+);
 
 // -----------------------------------------------------------------------------
 </script>

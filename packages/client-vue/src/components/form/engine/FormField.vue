@@ -99,8 +99,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, useSlots } from "vue";
 import { Tooltip, cn, useTestAttrs } from "@upmind/ui";
+import { ref, computed, useSlots } from "vue";
 import { Icon } from "../../icon";
 import FormControl from "./FormControl.vue";
 import FormDescription from "./FormDescription.vue";

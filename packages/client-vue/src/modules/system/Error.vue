@@ -29,10 +29,6 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onBeforeMount } from "vue";
-import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
-import { responseCodes, type Message } from "@upmind-automation/headless";
 import {
   Interstitial,
   Button,
@@ -40,6 +36,10 @@ import {
   useTestAttrs,
   type InterstitialAnimatedIcon
 } from "@upmind/ui";
+import { computed, onBeforeMount } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+import { responseCodes, type Message } from "@upmind-automation/headless";
 import { Icon } from "../../components/icon";
 import { first, isNil } from "lodash-es";
 import type { StorefrontRoute } from "../../types";

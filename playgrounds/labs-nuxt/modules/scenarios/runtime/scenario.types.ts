@@ -34,13 +34,13 @@
 
 import type { LiveCompositionCell } from "./composables/useCompositionPort.types";
 import type { ControlElement, Layout, Rule } from "@jsonforms/core";
+import type { BadgeVariants, ButtonVariants } from "@upmind/ui";
 import type {
   ActorContextMatrix,
   ScopeActorTypes,
   ScopeContext
 } from "@upmind-automation/headless";
 // graphify-out/: types consumed as variants; ButtonProps/BadgeProps not exported, use Variants
-import type { BadgeVariants, ButtonVariants } from "@upmind/ui";
 
 // -----------------------------------------------------------------------------
 
@@ -418,7 +418,19 @@ export type ScenarioAction = {
   /** The control's label — an i18n key, never English. */
   i18n: string;
   icon?: string;
-  color?: ButtonVariants["variant"];
+  /**
+   * The Button treatment — `danger` for a destructive control. There is no
+   * second `color` channel beside it: one existed, nothing bound it, and every
+   * destructive action that declared it rendered neutral.
+   *
+   * @graphify-citation `graphify-out/graph.json` (2026-08-26) — queried
+   * `ScenarioAction` · `ButtonVariants`: the treatment vocabulary is
+   * `@upmind/ui`'s own `ButtonVariants`
+   * (`design-system/packages/ui/src/components/button/variants.ts`), consumed
+   * here rather than re-declared. Nothing is minted; `color` is DELETED, its
+   * only reader having been the two `ListSurface` mappings that fed a prop
+   * `ActionSlots.vue` never bound.
+   */
   variant?: ButtonVariants["variant"];
   placement: ActionPlacementTypes;
   /** What the surface SAYS when the action settles — i18n keys. */

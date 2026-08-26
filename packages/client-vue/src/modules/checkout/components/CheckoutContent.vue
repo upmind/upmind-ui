@@ -91,6 +91,7 @@
 </template>
 
 <script lang="ts" setup>
+import { useTestAttrs } from "@upmind/ui";
 import { computed, provide, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import {
@@ -100,7 +101,6 @@ import {
   useProductSetup
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-import { useTestAttrs } from "@upmind/ui";
 import Form from "../../../components/form/Form.vue";
 import Section from "../../../components/section/Section.vue";
 import BasketAlerts from "../../basket/components/BasketAlerts.vue";

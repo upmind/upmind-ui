@@ -31,7 +31,5 @@ export const forcedCanvas = {
     defaultVariants: { isForced: false }
   }),
 
-  header: cva("flex items-center gap-2 self-end"),
-
-  hint: cva("text-muted text-xs")
+  header: cva("flex items-center gap-2 self-end")
 };

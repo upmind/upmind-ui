@@ -22,6 +22,7 @@
  * as a passing one.
  */
 
+import { Badge } from "@upmind/ui";
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it } from "vitest";
 import { h } from "vue";
@@ -29,7 +30,6 @@ import { createI18n } from "vue-i18n";
 import action from "@upmind-automation/i18n/core/action-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
-import { Badge } from "@upmind/ui";
 import { FORCE_URL_PRESETS } from "../../composables/useForcedState.types";
 import { FORCE_PRESET_LABELS } from "../ForcedCanvas.types";
 import ForcedCanvas from "../ForcedCanvas.vue";
@@ -188,6 +188,13 @@ describe("T3.13 clearing it removes both (AC8.4)", () => {
 });
 
 describe("T3.13 the picker offers only what can actually be served (ESC6)", () => {
+  /**
+   * The menu is the ui `Select`, which reka opens from the KEYBOARD; a
+   * synthetic click reaches the handler through neither, because both hang off
+   * pointer events jsdom does not construct. The panel is witnessed open before
+   * any claim is read off it — a menu that never opened offers the same `[]` as
+   * one with nothing to offer, and claim 3 below is a `not.toContain`.
+   */
   const open = async () => {
     const wrapper = mount(ScenarioMenu, {
       attachTo: document.body,
@@ -197,8 +204,14 @@ describe("T3.13 the picker offers only what can actually be served (ESC6)", () =
       }
     });
 
-    await wrapper.find('[data-test-key="scenario-menu"]').trigger("click");
-    await new Promise(resolve => setTimeout(resolve, 20));
+    wrapper
+      .find('[data-test-key="scenario-menu"]')
+      .element.dispatchEvent(
+        new window.KeyboardEvent("keydown", { key: "Enter", bubbles: true })
+      );
+    await new Promise(resolve => setTimeout(resolve, 60));
+
+    expect(document.querySelector('[role="listbox"]')).not.toBeNull();
   };
 
   const offered = () => [

@@ -20,9 +20,10 @@
  * icons ship unnamed — an unlabelled button, which is worse than the wall.
  */
 
+import { Tooltip } from "@upmind/ui";
+import { Icon } from "@upmind-automation/client-vue";
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { Tooltip } from "@upmind/ui";
 import { ActionPlacementTypes } from "../../scenario.types";
 import { ActionSlots } from "../index";
 import { OVERFLOW_TRIGGER_TEST_VALUE } from "./control-test-values";
@@ -52,6 +53,12 @@ type Wrapper = ReturnType<typeof mountSlots>;
 
 const control = (wrapper: Wrapper) =>
   wrapper.find(`[data-test-value="${kebabCase(beside.label)}"]`);
+
+/** The glyph inside the control — what is left to read the row by. */
+const iconIn = (wrapper: Wrapper) =>
+  find(wrapper.findAllComponents(Icon), icon =>
+    control(wrapper).element.contains(icon.element)
+  );
 
 /** The tooltip this control is wrapped in, found by the label it carries. */
 const tooltipFor = (wrapper: Wrapper, label: string) =>
@@ -96,9 +103,7 @@ describe("@AC3 a row control draws as its icon and keeps its name (D5)", () => {
   it("draws the declared icon, so something is left to read the control by", () => {
     const wrapper = mountSlots(true);
 
-    expect(wrapper.findComponent({ name: "ButtonItems" }).props("icon")).toBe(
-      beside.icon
-    );
+    expect(iconIn(wrapper)?.props("icon")).toBe(beside.icon);
   });
 });
 

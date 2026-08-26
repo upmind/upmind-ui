@@ -47,9 +47,9 @@
 </template>
 
 <script lang="ts" setup>
+import { Link, Button, useTestAttrs } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Link, Button, useTestAttrs } from "@upmind/ui";
 import { FormControl } from "../../../components/form";
 import { Icon } from "../../../components/icon";
 import { isMobile } from "../../../composables/isMobile";

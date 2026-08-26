@@ -1,11 +1,11 @@
+import { CART_OVERLAYS } from "../router.options";
 import cart from "./cart";
-import stepped from "./stepped";
-import onePage from "./one-page";
 import domains from "./domains";
 import { getDefaultFunnel } from "./getDefaultFunnel";
+import onePage from "./one-page";
+import stepped from "./stepped";
 import { FUNNEL } from "./types";
 import { watchers } from "./watchers";
-import { CART_OVERLAYS } from "../router.options";
 
 // -----------------------------------------------------------------------------
 

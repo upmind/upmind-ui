@@ -25,13 +25,13 @@ import {
   rendererProps,
   useJsonFormsLayout
 } from "@jsonforms/vue";
-import { useI18n } from "vue-i18n";
 import {
   DialogRoot,
   DialogContent,
   DialogHeader,
   DialogTitle
 } from "@upmind/ui";
+import { useI18n } from "vue-i18n";
 import type { Layout } from "@jsonforms/core";
 // -------------------------------------------------------------------
 

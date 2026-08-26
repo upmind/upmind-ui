@@ -8,7 +8,7 @@
       :model-value="control.data"
       :required="formFieldProps.required"
       :disabled="formFieldProps.disabled"
-      :errors="formFieldProps.errors"
+      :errors="castArray(formFieldProps.errors ?? [])"
       :touched="formFieldProps.touched"
       @update:modelValue="onDomainInput"
     />
@@ -22,7 +22,7 @@ import { useI18n } from "vue-i18n";
 import SmartDomainField from "../../../modules/domain/SmartDomainField.vue";
 import FormField from "../engine/FormField.vue";
 import { useUpmindUIRenderer } from "../engine/renderers/utils";
-import { includes, trim } from "lodash-es";
+import { castArray, includes, trim } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // --- external
@@ -34,7 +34,7 @@ const { t } = useI18n();
 
 const { control, formFieldProps, onInput, handleChange } = useUpmindUIRenderer(
   useJsonFormsControl(props),
-  (value: string) => trim(value)
+  (value: unknown) => trim(String(value))
 );
 
 const onDomainInput = (value: string | null, isTouched = true) => {

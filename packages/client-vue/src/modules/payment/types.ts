@@ -4,11 +4,11 @@
  * @description Type definitions for payment module components.
  */
 
+import type { ButtonVariants } from "@upmind/ui";
 import type {
   AccountCredit,
   PaymentDetailsContext
 } from "@upmind-automation/headless";
-import type { ButtonVariants } from "@upmind/ui";
 import type { HtmlHTMLAttributes } from "vue";
 
 // --- internal

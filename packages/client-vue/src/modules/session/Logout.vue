@@ -31,11 +31,11 @@
 </template>
 
 <script lang="ts" setup>
+import { Interstitial, Button, useTestAttrs } from "@upmind/ui";
 import { onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { RouterLink } from "vue-router";
 import { useActiveSession } from "@upmind-automation/headless";
-import { Interstitial, Button, useTestAttrs } from "@upmind/ui";
 import type { StorefrontRoute } from "../../types";
 // -----------------------------------------------------------------------------
 

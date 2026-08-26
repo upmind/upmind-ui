@@ -36,10 +36,10 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from "vue-i18n";
 import { useTestAttrs } from "@upmind/ui";
 import { Link } from "@upmind/ui";
 import { Badge } from "@upmind/ui";
+import { useI18n } from "vue-i18n";
 import type { Address } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------

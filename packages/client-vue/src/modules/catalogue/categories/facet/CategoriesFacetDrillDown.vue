@@ -35,12 +35,12 @@
 </template>
 
 <script setup lang="ts">
+import { cn } from "@upmind/ui";
+import { Button } from "@upmind/ui";
 import { computed, inject } from "vue";
 import { useI18n } from "vue-i18n";
 import { RouterLink } from "vue-router";
 import { QUERY_PARAMS } from "@upmind-automation/headless";
-import { cn } from "@upmind/ui";
-import { Button } from "@upmind/ui";
 import { Icon } from "../../../../components/icon";
 import {
   productsFacetDrillDownItemsVariants,

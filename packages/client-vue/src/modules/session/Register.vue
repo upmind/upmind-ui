@@ -209,6 +209,10 @@
 </template>
 
 <script lang="ts" setup>
+import { Spinner } from "@upmind/ui";
+import { Link, Markdown } from "@upmind/ui";
+import { Skeleton } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import {
@@ -226,10 +230,6 @@ import {
   UIContext,
   ClientTemplateSlotCodes
 } from "@upmind-automation/headless";
-import { Spinner } from "@upmind/ui";
-import { Link, Markdown } from "@upmind/ui";
-import { Skeleton } from "@upmind/ui";
-import { Alert } from "@upmind/ui";
 import Hero from "../../components/hero/Hero.vue";
 import { Icon } from "../../components/icon";
 import Back from "../../components/navigation/Back.vue";

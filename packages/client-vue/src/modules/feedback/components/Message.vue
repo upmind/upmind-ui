@@ -11,8 +11,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useMessage } from "@upmind-automation/headless";
 import { Alert } from "@upmind/ui";
+import { useMessage } from "@upmind-automation/headless";
 import { Icon } from "../../../components/icon";
 
 // -----------------------------------------------------------------------------

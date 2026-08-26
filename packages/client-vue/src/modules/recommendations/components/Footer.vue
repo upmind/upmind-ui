@@ -32,6 +32,7 @@
 </template>
 
 <script lang="ts" setup>
+import { Button } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
 import {
   useBasket,
@@ -39,7 +40,6 @@ import {
   useMoney,
   useRoutingEngine
 } from "@upmind-automation/headless";
-import { Button } from "@upmind/ui";
 import { Icon } from "../../../components/icon";
 import {
   footerRootVariants,

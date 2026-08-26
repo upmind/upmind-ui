@@ -100,6 +100,9 @@
 </template>
 
 <script lang="ts" setup>
+import { useTestAttrs } from "@upmind/ui";
+import { Markdown } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import {
@@ -116,9 +119,6 @@ import {
   UIContext,
   ClientTemplateSlotCodes
 } from "@upmind-automation/headless";
-import { useTestAttrs } from "@upmind/ui";
-import { Markdown } from "@upmind/ui";
-import { Alert } from "@upmind/ui";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
 import Back from "../../components/navigation/Back.vue";
 import { useThemes } from "../theming";

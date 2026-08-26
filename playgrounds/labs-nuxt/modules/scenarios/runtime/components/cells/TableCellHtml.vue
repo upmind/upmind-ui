@@ -14,8 +14,8 @@
  */
 
 import { uiTypeIs } from "@jsonforms/core";
-import { computed } from "vue";
 import { Sanitized } from "@upmind/ui";
+import { computed } from "vue";
 import { resolveScope } from "../../scenario.utils";
 import { cellHtml } from "./cells.styles";
 import { isNil, toString } from "lodash-es";

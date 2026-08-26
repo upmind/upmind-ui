@@ -66,9 +66,9 @@
 </template>
 
 <script lang="ts" setup>
+import { useSlots } from "@upmind/ui";
 import { useElementSize } from "@vueuse/core";
 import { ref, computed } from "vue";
-import { useSlots } from "@upmind/ui";
 import { isMobile } from "../../../composables/isMobile";
 import { isEmptySlot } from "../../../utils/isEmptySlot";
 import { COLUMN_BACKGROUND, COLUMN_WIDTH } from "../components/column";

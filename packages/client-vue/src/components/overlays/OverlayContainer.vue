@@ -47,9 +47,6 @@
  * content in the default slot. Replaces the old monolithic Dialog/Drawer that
  * took these as props — the chrome lives here, the body is the slot.
  */
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
-import { OverlayType } from "@upmind-automation/headless";
 import {
   DialogRoot,
   DialogContent,
@@ -58,6 +55,9 @@ import {
   DialogDescription,
   Drawer
 } from "@upmind/ui";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+import { OverlayType } from "@upmind-automation/headless";
 import type { HTMLAttributes } from "vue";
 
 // -----------------------------------------------------------------------------

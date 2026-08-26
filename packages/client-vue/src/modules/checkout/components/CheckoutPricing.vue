@@ -23,8 +23,6 @@ import { useI18n } from "vue-i18n";
 import { useBasket, useConfig } from "@upmind-automation/headless";
 import Section from "../../../components/section/Section.vue";
 import Summary from "../../basket/components/Summary.vue";
-
-// --- types
 import type { CheckoutPricingProps } from "../types";
 
 const props = defineProps<CheckoutPricingProps>();

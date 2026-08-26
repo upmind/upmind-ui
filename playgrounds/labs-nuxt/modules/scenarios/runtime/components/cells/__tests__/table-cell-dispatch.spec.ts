@@ -16,12 +16,12 @@
  * `table-cell-tester.must-fail.patch`.
  */
 
+import { Badge } from "@upmind/ui";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import { createI18n } from "vue-i18n";
-import text from "@upmind-automation/i18n/core/text-en.json";
-import { Badge } from "@upmind/ui";
 import { Icon } from "@upmind-automation/client-vue";
+import text from "@upmind-automation/i18n/core/text-en.json";
 import { defaultRow } from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { CellDispatcher } from "../index";

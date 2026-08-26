@@ -19,9 +19,9 @@
 <script lang="ts" setup>
 import { schemaMatches, uiTypeIs, and } from "@jsonforms/core";
 import { useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
+import { Combobox } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { Combobox } from "@upmind/ui";
 import FormField from "../../FormField.vue";
 import { useUpmindUIRenderer } from "../utils";
 import { has, find } from "lodash-es";

@@ -97,8 +97,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 import { Link, Tabs, cn, useSlots, useTestAttrs } from "@upmind/ui";
+import { computed } from "vue";
 import { Icon } from "../icon";
 import { useSection } from "./useSection";
 import {

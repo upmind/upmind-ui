@@ -218,13 +218,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
-import { parseBillingCycle } from "@upmind-automation/headless";
 import { useTestAttrs } from "@upmind/ui";
 import { Button } from "@upmind/ui";
 import { Skeleton } from "@upmind/ui";
 import { Badge, Tooltip } from "@upmind/ui";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+import { parseBillingCycle } from "@upmind-automation/headless";
 import { Icon } from "../../../components/icon";
 import { isMobile } from "../../../composables/isMobile";
 import CurrentPrice from "../../product/components/pricing/CurrentPrice.vue";

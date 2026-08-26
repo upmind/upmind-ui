@@ -34,11 +34,12 @@
 <script lang="ts" setup>
 import { isBooleanControl, and, optionIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import { computed } from "vue";
 import { OptionTileGroup, OptionTile, Badge } from "@upmind/ui";
+import { computed } from "vue";
 import FormField from "../../FormField.vue";
 import { useUpmindUIRenderer } from "../utils";
 import { isEmpty } from "lodash-es";
+import type { FormControlOptionItem } from "../../types";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // -----------------------------------------------------------------------------
@@ -57,7 +58,7 @@ const isChecked = computed(
 
 const cardValue = computed(() => (isChecked.value ? [CHECKED_VALUE] : []));
 
-const defaultItems = computed(() => [
+const defaultItems = computed<FormControlOptionItem[]>(() => [
   {
     value: CHECKED_VALUE,
     label: control.value.label

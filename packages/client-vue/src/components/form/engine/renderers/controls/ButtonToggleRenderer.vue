@@ -18,7 +18,7 @@
           class="flex w-full flex-row flex-nowrap items-center justify-between"
         >
           <Toggle
-            size="lg"
+            :size="appliedOptions?.size"
             :id="control.id"
             :disabled="!control.enabled"
             :model-value="control.data"
@@ -72,10 +72,11 @@ import type { RendererProps } from "@jsonforms/vue";
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, formFieldProps, onInput } = useUpmindUIRenderer(
-  useJsonFormsControl(props),
-  value => !!value // Ensure bool value is set to the opposite value rather than null
-);
+const { control, appliedOptions, formFieldProps, onInput } =
+  useUpmindUIRenderer(
+    useJsonFormsControl(props),
+    value => !!value // Ensure bool value is set to the opposite value rather than null
+  );
 </script>
 
 <script lang="ts">

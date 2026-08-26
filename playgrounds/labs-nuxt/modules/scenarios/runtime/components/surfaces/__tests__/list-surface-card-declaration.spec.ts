@@ -19,9 +19,9 @@
  * you look at rows costs a round trip.
  */
 
+import { Badge, Card } from "@upmind/ui";
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { Badge, Card } from "@upmind/ui";
 import { defaultRow, unverifiedRow } from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { CardSlotTypes } from "../../../scenario.types";

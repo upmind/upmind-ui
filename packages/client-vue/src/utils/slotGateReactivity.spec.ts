@@ -11,10 +11,10 @@
  *   That one needs the DS ui's reactive `useSlots`.
  */
 
+import { useSlots as useReactiveSlots } from "@upmind/ui";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import { computed, defineComponent, h, useSlots } from "vue";
-import { useSlots as useReactiveSlots } from "@upmind/ui";
 import { isEmptySlot } from "./isEmptySlot";
 
 // -----------------------------------------------------------------------------

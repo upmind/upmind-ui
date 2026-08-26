@@ -51,10 +51,10 @@
 
 <script lang="ts" setup>
 // --- external
+import { CardRoot, Skeleton } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
 // --- internal
 // --- components
-import { CardRoot, Skeleton } from "@upmind/ui";
 import Section from "../../../components/section/Section.vue";
 import {
   cardRootVariants,

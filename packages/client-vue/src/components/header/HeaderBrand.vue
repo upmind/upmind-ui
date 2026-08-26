@@ -20,9 +20,9 @@
 </template>
 
 <script lang="ts" setup>
+import { Link } from "@upmind/ui";
 import { computed } from "vue";
 import { useBrand } from "@upmind-automation/headless";
-import { Link } from "@upmind/ui";
 import {
   headerLinkVariants,
   headerPictureVariants,

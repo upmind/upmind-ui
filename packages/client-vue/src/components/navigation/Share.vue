@@ -6,9 +6,9 @@
 </template>
 
 <script lang="ts" setup>
+import { Link } from "@upmind/ui";
 import { useClipboard } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
-import { Link } from "@upmind/ui";
 import { Icon } from "../icon";
 import type { ShareProps } from "./types";
 

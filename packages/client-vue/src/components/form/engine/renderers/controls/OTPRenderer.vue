@@ -14,8 +14,8 @@
 <script lang="ts" setup>
 import { and, uiTypeIs, optionIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import { computed } from "vue";
 import { PinInput } from "@upmind/ui";
+import { computed } from "vue";
 import FormField from "../../FormField.vue";
 import { useUpmindUIRenderer } from "../utils";
 import { isNil } from "lodash-es";

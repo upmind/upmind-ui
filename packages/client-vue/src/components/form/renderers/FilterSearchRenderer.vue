@@ -1,40 +1,46 @@
 <template>
   <FormField v-bind="formFieldProps">
-    <Search
+    <Input
       :id="formFieldProps.id"
-      :results="null"
+      type="text"
       :placeholder="appliedOptions?.placeholder"
       :disabled="!control.enabled"
+      :size="appliedOptions?.size"
       :model-value="control.data ?? ''"
       @update:modelValue="write"
     >
+      <template v-if="appliedOptions?.icon" #leading>
+        <Icon :icon="appliedOptions.icon" size="xs" />
+      </template>
+
       <!-- Kept mounted and merely hidden while unset: mounting it on first
            keystroke re-widths the whole control mid-type. -->
-      <template #append>
+      <template #trailing>
         <Tooltip :label="unsetLabel">
           <Button
-            icon="x-close"
             icon-only
-            variant="ghost"
-            color="neutral"
+            variant="link"
             size="sm"
             :class="{ invisible: !isSet }"
-            :label="unsetLabel"
+            :aria-label="unsetLabel"
             :disabled="!isSet || !control.enabled"
             @click="write()"
-          />
+          >
+            <Icon icon="x-close" size="xs" />
+          </Button>
         </Tooltip>
       </template>
-    </Search>
+    </Input>
   </FormField>
 </template>
 
 <script lang="ts" setup>
 import { and, isStringControl, optionIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
+import { Button, Input, Tooltip } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Button, Search, Tooltip } from "@upmind/ui";
+import { Icon } from "../../icon";
 import FormField from "../engine/FormField.vue";
 import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import { isEmpty } from "lodash-es";

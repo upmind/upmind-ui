@@ -26,8 +26,8 @@ import {
   optionIs
 } from "@jsonforms/core";
 import { useJsonFormsEnumControl } from "@jsonforms/vue";
-import { computed } from "vue";
 import { ToggleGroup, ToggleGroupItem } from "@upmind/ui";
+import { computed } from "vue";
 import FormField from "../engine/FormField.vue";
 import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import { find, get, isNil, map, reject, toString } from "lodash-es";

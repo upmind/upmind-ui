@@ -5,9 +5,9 @@
  * reads it rather than off a spy on whatever function raised it.
  */
 
+import { Toaster, toast } from "@upmind/ui";
 import { flushPromises, mount } from "@vue/test-utils";
 import { nextTick } from "vue";
-import { Toaster, toast } from "@upmind/ui";
 import { renderedStrings } from "./rendered";
 
 export function mountToaster() {

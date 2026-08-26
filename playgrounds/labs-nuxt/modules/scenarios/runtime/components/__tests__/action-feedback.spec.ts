@@ -21,6 +21,7 @@
  * never leaves its pending state cannot be retried.
  */
 
+import { Toaster } from "@upmind/ui";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, afterEach, vi } from "vitest";
 import { createI18n } from "vue-i18n";
@@ -29,7 +30,6 @@ import confirm from "@upmind-automation/i18n/core/confirm-en.json";
 import errorCatalogue from "@upmind-automation/i18n/core/error-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
-import { Toaster } from "@upmind/ui";
 import layoutSource from "../../../../../app/layouts/default.vue?raw";
 import {
   API_MESSAGE,

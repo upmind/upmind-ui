@@ -29,8 +29,8 @@
  * sentences drift apart.
  */
 
-import { useI18n } from "vue-i18n";
 import { Interstitial } from "@upmind/ui";
+import { useI18n } from "vue-i18n";
 import { Icon } from "@upmind-automation/client-vue";
 import type { ListEmptyProps } from "./ListSurface.types";
 // -----------------------------------------------------------------------------

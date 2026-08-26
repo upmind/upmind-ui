@@ -11,8 +11,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, useSlots } from "vue";
 import { useForwardPropsEmits } from "@upmind/ui";
+import { computed, useSlots } from "vue";
 import Sections from "./Sections.vue";
 import type { SectionItem } from "./types";
 

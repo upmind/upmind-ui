@@ -249,7 +249,12 @@ export function useQueryUischema(): UISchemaElement {
         type: "Control",
         scope: "#/properties/filters/properties/email/properties/like",
         i18n: "form.email_search",
-        options: { format: "search", noLabel: true, optionalText: "" }
+        options: {
+          format: "search",
+          icon: "search-md",
+          noLabel: true,
+          optionalText: ""
+        }
       },
       {
         type: "Control",

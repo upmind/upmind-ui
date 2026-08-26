@@ -21,6 +21,7 @@
  * two write paths can only be proven to be one where both exist.
  */
 
+import { Select } from "@upmind/ui";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { computed, ref } from "vue";
@@ -30,7 +31,6 @@ import action from "@upmind-automation/i18n/core/action-en.json";
 import form from "@upmind-automation/i18n/core/form-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
-import { Select } from "@upmind/ui";
 import {
   declaringChannel,
   declaringCriteria,

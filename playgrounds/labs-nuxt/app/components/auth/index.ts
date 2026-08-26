@@ -7,4 +7,5 @@
  */
 
 export { default as AuthJourney } from "./AuthJourney.vue";
+export { AUTH_GATE_IMPERSONATE } from "./AuthJourney.types";
 export type * from "./AuthJourney.types";

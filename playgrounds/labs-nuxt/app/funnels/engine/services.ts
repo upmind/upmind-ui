@@ -8,7 +8,7 @@ import {
 import { ScopeActorTypes } from "@upmind-automation/headless";
 import { ROUTE } from "..";
 import { scenarioRoutes } from "../../../modules/scenarios/runtime/registry";
-import { get, isArray, join, toString } from "lodash-es";
+import { endsWith, get, isArray, join, startsWith, toString } from "lodash-es";
 import {
   parseScopeSuffix,
   stripScopeSuffix
@@ -71,7 +71,7 @@ export default {
    * Every scenario route's gate. A scenario boots as SELF unless the url names
    * an actor (`R6-30b`), and an unauthenticated visitor to either has nothing to
    * read — so rejecting toward SESSION is what makes the funnel collect auth
-   * over the page (`<route>--auth`) instead of leaving it on skeletons that
+   * over the page (`<route>--session`) instead of leaving it on skeletons that
    * never settle.
    */
   guardScenario: async ({
@@ -129,13 +129,21 @@ export default {
       return Promise.reject();
     }
 
-    const returnUrlRaw =
-      targetRoute?.query?.returnUrl?.toString() || "/account";
-    const isLoginPath =
-      returnUrlRaw.includes("/login") || returnUrlRaw.includes("/auth");
-    const finalReturnUrl = isLoginPath ? "/account" : returnUrlRaw;
+    // Default to home, not "/account" which would set brandIdOrOrg="account"
+    const returnUrlRaw = targetRoute?.query?.returnUrl?.toString() || "/";
 
-    const resolvedRoute = router.resolve(finalReturnUrl);
+    // Matched by resolved route NAME, never by a path substring. The overlay
+    // suffix was renamed `--auth` → `--session`, so `includes("/auth")` stopped
+    // matching the very surface it exists to refuse — and a path test would
+    // have caught any brand slug that happened to read `/login` too.
+    const resolved = router.resolve(returnUrlRaw);
+    const resolvedName = toString(resolved.name);
+    const isSessionRoute =
+      startsWith(resolvedName, ROUTE.SESSION) ||
+      endsWith(resolvedName, `--${ROUTE.SESSION}`);
+
+    const finalReturnUrl = isSessionRoute ? "/" : returnUrlRaw;
+    const resolvedRoute = isSessionRoute ? router.resolve("/") : resolved;
 
     return {
       type: FunnelActions.REDIRECT,

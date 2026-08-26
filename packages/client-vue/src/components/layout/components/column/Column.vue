@@ -5,8 +5,8 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
 import { cn } from "@upmind/ui";
+import { computed } from "vue";
 import { isMobile } from "../../../../composables/isMobile";
 import { useSection } from "../../../section/useSection";
 import { columnVariants } from "./variants";

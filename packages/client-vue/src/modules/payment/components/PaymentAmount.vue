@@ -27,9 +27,9 @@
 </template>
 
 <script lang="ts" setup>
+import { Link } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { Link } from "@upmind/ui";
 import FormModal from "../../../components/form/FormModal.vue";
 import type { PaymentAmountProps } from "../types";
 

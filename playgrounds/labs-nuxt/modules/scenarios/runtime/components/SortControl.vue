@@ -1,28 +1,35 @@
 <template>
   <div class="flex items-center gap-0.5" data-test-key="sort">
-    <ButtonItems
+    <Button
       size="sm"
       variant="outline"
-      :icon="isAscending ? 'arrow-up' : 'arrow-down'"
       icon-only
-      :label="i18n.translate(directionKey, directionKey)"
       :disabled="!active || !!props.disabled"
+      :aria-label="i18n.translate(directionKey, directionKey)"
+      :data-attrs="{
+        'data-test-value': isAscending ? 'sort-ascending' : 'sort-descending'
+      }"
       @click="
         write(
           active?.field,
           isAscending ? SORT_DIRECTION.DESC : SORT_DIRECTION.ASC
         )
       "
-    />
+    >
+      <Icon
+        :icon="isAscending ? 'arrow-up' : 'arrow-down'"
+        size="nano"
+        aria-hidden="true"
+      />
+    </Button>
     <Select
       size="sm"
       :model-value="active?.field"
       :items="props.fields"
       :disabled="props.disabled"
-      :placeholder="
-        selected?.label ?? i18n.translate('text.sort_by', 'text.sort_by')
-      "
+      :placeholder="sortLabel"
       :class="sortControl.field()"
+      :data-attrs="{ 'data-test-key': 'sort-field' }"
       @update:model-value="
         field => write(field ? String(field) : undefined, direction)
       "
@@ -43,25 +50,30 @@
  * (`P1-R9`).
  *
  * Drawn the way the house draws a sort control (`client-vue`'s `ProductSort` /
- * `EmailHistorySort`): ONE `ButtonGroup` carrying the direction toggle and the
- * field `Select`. Both of those are bound to their own module's hardcoded
+ * `EmailHistorySort`): ONE group carrying the direction toggle and the field
+ * `Select`. Both of those are bound to their own module's hardcoded
  * sortable-property enum, so the treatment is adopted and the fields stay the
  * caller's declaration. It is drawn at the row's scale — one tight group at the
  * density of the view toggle beside it, never a control that sets the row's
  * height (`R6-1`).
+ *
+ * The direction toggle is the ONLY way to reverse ordering in card view, where
+ * there are no headers to click — deleting it strands the booted default there.
  *
  * The direction vocabulary is the harness's `SORT_DIRECTION`, not headless's
  * same-named enum: everything this control reads and writes is the channel's
  * `TableModel`, whose `dir` is structural by design so it stays assignable
  * across the seam. Headless's is NOMINAL — mixing the two here would only be
  * reconcilable with a cast.
+ *
+ * The group root owns `data-test-key="sort"`; the `Select`'s own `useTestAttrs`
+ * spreads last, so a fallthrough key on it renders as `select-trigger`.
  */
 
+import { Button, Select } from "@upmind/ui";
 import { computed } from "vue";
-import { useFormI18n } from "@upmind-automation/client-vue";
+import { Icon, useFormI18n } from "@upmind-automation/client-vue";
 import { SORT_DIRECTION } from "@upmind-automation/scenario-harness";
-import { Select } from "@upmind/ui";
-import ButtonItems from "./ButtonItems.vue";
 import { sortControl } from "./SortControl.styles";
 import { find, first } from "lodash-es";
 import type { SortControlProps } from "./SortControl.types";
@@ -92,6 +104,10 @@ const directionKey = computed(() =>
 
 const selected = computed(() =>
   find(props.fields, { value: active.value?.field })
+);
+
+const sortLabel = computed(
+  () => selected.value?.label ?? i18n.value.translate("text.sort_by", "Sort by")
 );
 
 /** Every pick writes the WHOLE model: one field, one direction. */

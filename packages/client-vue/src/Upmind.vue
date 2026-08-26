@@ -72,6 +72,8 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { AnnouncementBar } from "@upmind/ui";
+import { Loading } from "@upmind/ui";
 import { computed, nextTick, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import useUpmind, {
@@ -79,8 +81,6 @@ import useUpmind, {
   useRoutingEngine
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-import { AnnouncementBar } from "@upmind/ui";
-import { Loading } from "@upmind/ui";
 import { useAnnouncement } from "./components/announcement/useAnnouncement";
 import Footer from "./components/footer/Footer.vue";
 import Header from "./components/header/Header.vue";

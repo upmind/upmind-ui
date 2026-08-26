@@ -1,15 +1,20 @@
 <template>
   <section v-if="items.length" :class="metaPanel.root()">
-    <h2 :class="metaPanel.title()">{{ t("labs.debug_meta") }}</h2>
+    <Heading :level="2" class="text-sm">{{ t("labs.debug_meta") }}</Heading>
+
     <div :class="metaPanel.list()">
+      <!-- ON reads as a filled chip with a tick, OFF as a hollow one: the flags
+           a dev scans for are the ones that are true. -->
       <Badge
         v-for="item in items"
         :key="item.key"
         size="sm"
-        :variant="item.color"
-        :appearance="item.appearance"
+        :variant="item.value ? 'primary' : 'neutral'"
+        :appearance="item.value ? 'muted' : 'outline'"
         data-test-key="badge"
+        :data-test-value="item.value ? 'on' : 'off'"
       >
+        <Icon v-if="item.value" icon="check" size="nano" aria-hidden="true" />
         {{ startCase(item.key) }}
       </Badge>
     </div>
@@ -17,73 +22,27 @@
 </template>
 
 <script lang="ts" setup>
-// -----------------------------------------------------------------------------
 /**
  * @module scenarios/runtime/components/MetaPanel
- * @description Generalises the Inspector's Meta section (`inspector/Inspector.vue`)
- * over a plain `snapshot.meta` — every scoped composable's meta flags, shown as
- * colour-coded badges. Purely presentational — no business logic, no runtime
- * heuristics beyond the existing Inspector flag-name colouring convention it
- * generalises.
+ * @description A module's meta flags, ON first, as a scannable chip row.
  */
 
+import { Badge, Heading } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Badge } from "@upmind/ui";
+import { Icon } from "@upmind-automation/client-vue";
 import { metaPanel } from "./MetaPanel.styles";
-import { MetaBadgeAppearance, MetaBadgeColor } from "./MetaPanel.types";
-import { entries, includes, map, sortBy, startCase } from "lodash-es";
+import { entries, map, sortBy, startCase } from "lodash-es";
 import type { MetaPanelItem, MetaPanelProps } from "./MetaPanel.types";
-// -----------------------------------------------------------------------------
 
 const props = defineProps<MetaPanelProps>();
 
 const { t } = useI18n();
 
-function badgeColor(key: string, value: boolean): MetaBadgeColor {
-  const lowerKey = key.toLowerCase();
-  const isErrorFlag =
-    includes(lowerKey, "error") || includes(lowerKey, "invalid");
-  const isSuccessFlag =
-    includes(lowerKey, "authenticated") ||
-    (includes(lowerKey, "valid") && !includes(lowerKey, "invalid")) ||
-    includes(lowerKey, "success");
-
-  if (value) {
-    if (isErrorFlag) return MetaBadgeColor.DANGER;
-    if (isSuccessFlag) return MetaBadgeColor.SUCCESS;
-    return MetaBadgeColor.INFO;
-  }
-  if (isSuccessFlag) return MetaBadgeColor.DANGER;
-  return MetaBadgeColor.NEUTRAL;
-}
-
-function colorPriority(color: MetaBadgeColor): number {
-  switch (color) {
-    case MetaBadgeColor.DANGER:
-      return 0;
-    case MetaBadgeColor.SUCCESS:
-      return 1;
-    case MetaBadgeColor.INFO:
-      return 2;
-    default:
-      return 3;
-  }
-}
-
-const items = computed<MetaPanelItem[]>(() => {
-  const built = map(entries(props.meta), ([key, value]) => {
-    const color = badgeColor(key, value);
-    return {
-      key,
-      value,
-      color,
-      appearance:
-        color === MetaBadgeColor.NEUTRAL
-          ? MetaBadgeAppearance.MUTED
-          : MetaBadgeAppearance.SOLID
-    };
-  });
-  return sortBy(built, [item => colorPriority(item.color), "key"]);
-});
+const items = computed<MetaPanelItem[]>(() =>
+  sortBy(
+    map(entries(props.meta), ([key, value]) => ({ key, value })),
+    [item => (item.value ? 0 : 1), "key"]
+  )
+);
 </script>

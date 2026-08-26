@@ -69,8 +69,8 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
 import { useSlots } from "@upmind/ui";
+import { computed } from "vue";
 import { isEmptySlot } from "../../../utils/isEmptySlot";
 import { COLUMN_FLOW } from "../components/column";
 import Column from "../components/column/Column.vue";

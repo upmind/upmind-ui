@@ -17,8 +17,8 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from "vue-i18n";
 import { ClampText, Markdown } from "@upmind/ui";
+import { useI18n } from "vue-i18n";
 import type { ProductDescriptionProps } from "./types";
 
 const props = withDefaults(defineProps<ProductDescriptionProps>(), {

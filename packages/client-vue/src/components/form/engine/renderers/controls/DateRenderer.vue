@@ -1,7 +1,7 @@
 <template>
   <FormField v-bind="formFieldProps">
     <Input
-      size="lg"
+      :size="appliedOptions?.size"
       :data-attrs="controlDataAttrs"
       v-bind="appliedOptions"
       :model-value="control.data"

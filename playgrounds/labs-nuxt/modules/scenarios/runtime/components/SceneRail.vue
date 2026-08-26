@@ -9,7 +9,16 @@
     data-test-key="scene-rail"
     :class="sceneRail.root()"
     @update:model-value="scrub"
-  />
+  >
+    <!-- The stop's `title` is a HOVER affordance: it reaches no keyboard and no
+         screen reader, so a rail of numbered dots announced nothing but its
+         numbers. The sentence rides an sr-only label instead — the dots-only
+         drawing (operator ruling) is untouched, since `sr-only` takes the
+         label out of flow. -->
+    <template #step="{ step: stop }">
+      <span class="sr-only">{{ sceneText(stop.step) }}</span>
+    </template>
+  </Stepper>
 </template>
 
 <script lang="ts" setup>
@@ -36,11 +45,11 @@
  * leave the playhead out of sight.
  */
 
+import { Stepper } from "@upmind/ui";
 import { computed, nextTick, useTemplateRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { Stepper } from "@upmind/ui";
 import { sceneRail } from "./SceneRail.styles";
-import { map } from "lodash-es";
+import { get, map } from "lodash-es";
 import type { SceneRailProps } from "./SceneRail.types";
 import type { StepperStep } from "@upmind/ui";
 import type { ComponentPublicInstance } from "vue";
@@ -53,14 +62,25 @@ const playhead = defineModel<number>({ required: true });
 
 const { t } = useI18n();
 
+// No titles: six Gherkin sentences on one horizontal row collide into mush.
+// R4 draws the playhead as dots and names the current scene ONCE, in the bar's
+// position label; the Scenario sheet is where the stops are read in full.
 const steps = computed<StepperStep[]>(() =>
-  map(props.scenes, (scene, index) => ({ step: index + 1, title: scene.text }))
+  map(props.scenes, (scene, index) => ({
+    step: index + 1,
+    dataAttrs: { title: scene.text }
+  }))
 );
 
 // The stepper counts its steps from 1; the playhead counts scenes from 0 and
 // sits at -1 while the track is armed but unplayed — which lands on step 0, a
 // value no item holds, so nothing is marked until the first scene runs.
 const step = computed(() => playhead.value + 1);
+
+/** One stop's Gherkin sentence, by the 1-based step the Stepper hands back. */
+function sceneText(stop: number): string {
+  return get(props.scenes, [stop - 1, "text"], "");
+}
 
 // `linear` is off in the template on purpose: stepping backwards is a replay
 // from scene 0 (design §3.1 ruling 1), so every scene is reachable in one pick,

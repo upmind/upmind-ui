@@ -26,13 +26,13 @@
 </template>
 
 <script setup lang="ts">
+import { Button, Select } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   ProductSortableProperties,
   RequestSortDirection
 } from "@upmind-automation/headless";
-import { Button, Select } from "@upmind/ui";
 import { Icon } from "../../../../components/icon";
 import { find, isEmpty } from "lodash-es";
 import type { ProductSortProps } from "../types";

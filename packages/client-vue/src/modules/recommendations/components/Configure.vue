@@ -34,6 +34,9 @@
 </template>
 
 <script lang="ts" setup>
+import { Link } from "@upmind/ui";
+import { Drawer } from "@upmind/ui";
+import { Button } from "@upmind/ui";
 import { provide } from "vue";
 import { useI18n } from "vue-i18n";
 import {
@@ -46,9 +49,6 @@ import {
   responseCodes,
   ErrorOrigin
 } from "@upmind-automation/headless";
-import { Link } from "@upmind/ui";
-import { Drawer } from "@upmind/ui";
-import { Button } from "@upmind/ui";
 import { Icon } from "../../../components/icon";
 import ProductConfig from "../../product/components/Config.vue";
 import type { RecommendationConfigurationProps } from "./types";

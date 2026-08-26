@@ -22,8 +22,8 @@
 <script lang="ts" setup>
 import { isOneOfEnumControl, and, optionIs } from "@jsonforms/core";
 import { useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
-import { computed } from "vue";
 import { OptionTileGroup, OptionTile } from "@upmind/ui";
+import { computed } from "vue";
 import FormField from "../../FormField.vue";
 import { useUpmindUIRenderer } from "../utils";
 import { map, get } from "lodash-es";

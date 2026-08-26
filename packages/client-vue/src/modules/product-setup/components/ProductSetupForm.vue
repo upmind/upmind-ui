@@ -51,6 +51,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { Alert } from "@upmind/ui";
 import { computed, provide } from "vue";
 import { useI18n } from "vue-i18n";
 // --- internal
@@ -64,7 +65,6 @@ import {
   useProductSetup
 } from "@upmind-automation/headless";
 // --- components
-import { Alert } from "@upmind/ui";
 import Form from "../../../components/form/Form.vue";
 import { Icon } from "../../../components/icon";
 import { formFullVariants, formRootVariants } from "../variants";

@@ -31,8 +31,8 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
 import { useTestAttrs } from "@upmind/ui";
+import { computed } from "vue";
 import Column from "../../layout/components/column/Column.vue";
 import Container from "../../layout/components/container/Container.vue";
 import Content from "../../layout/components/content/Content.vue";

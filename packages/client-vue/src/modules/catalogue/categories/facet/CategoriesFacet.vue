@@ -23,9 +23,9 @@
 </template>
 
 <script setup lang="ts">
+import { Input } from "@upmind/ui";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { Input } from "@upmind/ui";
 import { Icon } from "../../../../components/icon";
 import {
   productsFacetRootVariants,

@@ -116,11 +116,11 @@
 
 <script lang="ts" setup>
 import { vAutoAnimate } from "@formkit/auto-animate";
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
 import { AnimatedIcon } from "@upmind/ui";
 import { Interstitial } from "@upmind/ui";
 import { Button } from "@upmind/ui";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { DOMAIN_TEMPLATE } from "../types";
 import {
   domainListingsRootVariants,

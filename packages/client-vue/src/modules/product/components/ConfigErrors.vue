@@ -26,10 +26,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
 import { Link } from "@upmind/ui";
 import { Alert } from "@upmind/ui";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { toSafeControlId } from "../../../components/form";
 import { Icon } from "../../../components/icon";
 import { compact, join, size, split, take, trimStart } from "lodash-es";

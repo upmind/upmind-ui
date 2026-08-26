@@ -10,9 +10,9 @@
 </template>
 
 <script lang="ts" setup>
+import { Alert } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
 import { useBasket } from "@upmind-automation/headless";
-import { Alert } from "@upmind/ui";
 import { Icon } from "../../../components/icon";
 
 const { t } = useI18n();

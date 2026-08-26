@@ -19,5 +19,5 @@ export const refinementsRow = {
     },
     defaultVariants: { isLocked: false }
   }),
-  tags: cva("flex flex-wrap items-center gap-2")
+  chip: cva("inline-flex items-center gap-1")
 };

@@ -6,7 +6,11 @@
     :data-test-value="status"
     :class="scenarioBar.root()"
   >
-    <div :class="scenarioBar.controls()">
+    <div :class="scenarioBar.controls({ playing: isPlaying })">
+      <Text variant="muted" size="xs" class="font-bold tracking-wide uppercase">
+        {{ t("labs.scenarios") }}
+      </Text>
+
       <ScenarioMenu
         :tracks="tracks"
         :armed="armed"
@@ -24,6 +28,7 @@
         />
 
         <Transport
+          class="mx-auto"
           :playing="isPlaying"
           :playhead="playhead"
           :scene-count="armed.scenes.length"
@@ -34,6 +39,16 @@
           @next="player.next"
           @stop="player.stop"
         />
+
+        <Badge
+          v-if="isPlaying"
+          appearance="outline"
+          variant="primary"
+          size="sm"
+          data-test-key="replay-chip"
+        >
+          {{ t("labs.replay_chip") }}
+        </Badge>
       </template>
 
       <Tooltip v-if="failure" :label="failure">
@@ -54,12 +69,20 @@
     </div>
 
     <div v-if="armed" :class="scenarioBar.rail()">
+      <!-- The position line stands where the track name did: the rail already
+           names the scenario, and the bar is instrument, not prose. -->
       <p
         :class="scenarioBar.trackName()"
-        data-test-key="track-name"
+        data-test-key="scene-position"
         :data-test-value="armed.slug"
       >
-        {{ armed.name }}
+        {{
+          t("labs.scene_position", {
+            current: playhead + 1,
+            total: armed.scenes.length,
+            line: armed.scenes[playhead]?.text ?? armed.name
+          })
+        }}
       </p>
 
       <SceneRail v-model="playhead" :scenes="armed.scenes" />
@@ -85,10 +108,14 @@
  * truncated fragments, which is a progress bar nobody can follow. The rail row
  * exists only while a track is armed, so Live is one row and one row only.
  *
- * The armed track is NAMED at the head of that row rather than on the bar. With
- * the chips gone (`R7-10`) the bar has nowhere to say a whole sentence, and the
- * row that reads as the page's progress is exactly where the scenario that
- * progress belongs to should be written — whole, never ellipsised.
+ * At the head of that row stands the POSITION LINE — *scene n of m*, carrying
+ * the stop's own Gherkin sentence — not the track name it replaced. With the
+ * chips gone (`R7-10`) the bar has nowhere to say a whole sentence, and the row
+ * that reads as the page's progress is exactly where the scene that progress is
+ * AT should be written: whole, never ellipsised. The track's own name is in the
+ * menu that armed it and in the Scenario sheet; repeating it here said what the
+ * user already knew and left *where am I* unanswered. The line falls back to
+ * the track name only before the first scene runs, when there is no stop yet.
  *
  * On Live it offers no transport at all (`S12`, `AC2.3`). That is not a disabled
  * instrument: there is nothing to play, so the controls do not exist.
@@ -115,9 +142,9 @@
  * block: an arm can fail before a track is ever held.
  */
 
+import { Badge, Spinner, Text, Tooltip } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Badge, Spinner, Tooltip } from "@upmind/ui";
 import { useForcedState } from "../composables/useForcedState";
 import { SCENARIO_PLAYER_STATUS } from "../composables/useScenarioPlayer.types";
 import { scenarioBar } from "./ScenarioBar.styles";

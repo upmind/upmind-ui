@@ -14,10 +14,10 @@
 </template>
 
 <script lang="ts" setup>
+import { Interstitial } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
-import { Interstitial } from "@upmind/ui";
 import { useFooter } from "../../components/footer/useFooter";
 import { useHeader } from "../../components/header/useHeader";
 import { useLayout } from "../../components/layout/useLayout";

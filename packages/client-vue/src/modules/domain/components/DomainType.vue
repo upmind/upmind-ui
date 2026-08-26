@@ -100,9 +100,9 @@
 </template>
 
 <script lang="ts" setup>
+import { RadioGroup, Skeleton, Select, Input } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { RadioGroup, Skeleton, Select, Input } from "@upmind/ui";
 import { FormControl } from "../../../components/form";
 import { Icon } from "../../../components/icon";
 import {

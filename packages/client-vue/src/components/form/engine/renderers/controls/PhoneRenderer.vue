@@ -1,7 +1,7 @@
 <template>
   <FormField v-bind="formFieldProps" no-errors>
     <Input
-      size="lg"
+      :size="appliedOptions?.size"
       class="flex"
       :auto-focus="appliedOptions?.autoFocus"
       :mask="phoneMask"
@@ -74,6 +74,7 @@ import {
   formatIs
 } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
+import { Combobox, Input } from "@upmind/ui";
 import {
   getExampleNumber,
   validatePhoneNumberLength,
@@ -83,7 +84,6 @@ import examples from "libphonenumber-js/mobile/examples";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useSystem } from "@upmind-automation/headless";
-import { Combobox, Input } from "@upmind/ui";
 import { Icon } from "../../../../icon";
 import FormField from "../../FormField.vue";
 import FormMessage from "../../FormMessage.vue";

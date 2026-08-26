@@ -21,13 +21,13 @@
 <script setup lang="ts">
 import { and, or, uiTypeIs, optionIs, formatIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
+import { Loading } from "@upmind/ui";
 import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import { onBeforeUnmount, computed } from "vue";
 import vueFilePond from "vue-filepond";
 import { useI18n } from "vue-i18n";
 import { useUpload } from "@upmind-automation/headless";
-import { Loading } from "@upmind/ui";
 import FormField from "../engine/FormField.vue";
 import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import type { ControlElement } from "@jsonforms/core";

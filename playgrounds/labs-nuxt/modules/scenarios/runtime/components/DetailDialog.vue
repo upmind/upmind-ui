@@ -50,9 +50,9 @@
  * the last record.
  */
 
+import { Dialog, Drawer, Sheet } from "@upmind/ui";
 import { computed, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { Dialog, Drawer, Sheet } from "@upmind/ui";
 import { useModulePort } from "../composables/useModulePort";
 import {
   ActionPlacementTypes,

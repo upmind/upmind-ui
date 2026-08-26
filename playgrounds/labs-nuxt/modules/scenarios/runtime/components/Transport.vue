@@ -11,20 +11,28 @@
       :label="control.label"
       active
     >
-      <ButtonItems
+      <Button
         icon-only
         size="sm"
         :variant="control.color"
-        :icon="control.icon"
-        :label="control.label"
         :disabled="control.disabled"
         :loading="control.loading"
+        :aria-label="control.label"
         :data-attrs="{
           'data-test-key': 'transport-control',
           'data-test-value': control.key
         }"
         @click="select(control)"
-      />
+      >
+        <Icon :icon="control.icon" size="nano" aria-hidden="true" />
+        <span class="sr-only">{{ control.label }}</span>
+        <!-- The spinner is the only signal a pressed control is working, and it
+             is a visual one — the same announcement `ActionSlots` and
+             `PageHeader` carry (`E12`/`S14`). -->
+        <span v-if="control.loading" role="status" class="sr-only">
+          {{ t("text.loading") }}
+        </span>
+      </Button>
     </Tooltip>
   </div>
 </template>
@@ -50,10 +58,10 @@
  * surface is never warning-yellow (`H2`, `AC2.8`).
  */
 
+import { Button, Tooltip } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { Tooltip } from "@upmind/ui";
-import ButtonItems from "./ButtonItems.vue";
+import { Icon } from "@upmind-automation/client-vue";
 import { transport } from "./Transport.styles";
 import { TRANSPORT_CONTROL } from "./Transport.types";
 import type {

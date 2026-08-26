@@ -21,7 +21,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import declaration from "../useClientAddresses/client-address.scenario";
-import { every, filter, flatMap, includes, map, some, values } from "lodash-es";
+import { every, filter, flatMap, includes, map } from "lodash-es";
 import type { ScenarioAction, TableCell } from "../runtime/scenario.types";
 
 // -----------------------------------------------------------------------------

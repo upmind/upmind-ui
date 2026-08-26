@@ -26,13 +26,13 @@
 </template>
 
 <script lang="ts" setup>
+import { Select } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   parseBillingCycle,
   PriceDisplayTypes
 } from "@upmind-automation/headless";
-import { Select } from "@upmind/ui";
 import TermRow from "../../../../product/components/terms/TermRow.vue";
 import { toNumber } from "lodash-es";
 import type { TermSelectorProps } from "./types";

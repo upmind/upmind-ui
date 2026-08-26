@@ -33,12 +33,12 @@
 </template>
 
 <script lang="ts" setup>
+import { Button } from "@upmind/ui";
+import { Avatar } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { useActiveSession, QUERY_PARAMS } from "@upmind-automation/headless";
-import { Button } from "@upmind/ui";
-import { Avatar } from "@upmind/ui";
 import { Icon } from "../../components/icon";
 import SessionDetailsDropdown from "../../modules/session/components/DetailsDropdown.vue";
 import SessionLoginPopover from "../../modules/session/components/LoginPopover.vue";

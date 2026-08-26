@@ -13,11 +13,12 @@
  */
 
 import { computed } from "vue";
-import { useRouter, type RouteRecordNormalized } from "vue-router";
+import { useRoute, useRouter, type RouteRecordNormalized } from "vue-router";
 import {
   registry,
   scenarioKeys
 } from "../../modules/scenarios/runtime/registry";
+import { FALLBACK_ICON, navIcon } from "./useNavigation.icons";
 import {
   compact,
   filter,
@@ -28,10 +29,8 @@ import {
   map,
   reduce,
   replace,
-  size,
   sortBy,
   startCase,
-  sumBy,
   toLower,
   words
 } from "lodash-es";
@@ -43,29 +42,30 @@ import type {
   NavSection,
   NavSource
 } from "./useNavigation.types";
+import type { Component } from "vue";
 
 // -----------------------------------------------------------------------------
 
 // Section config - defines section order and icons
-const SECTION_CONFIG: Record<string, { icon: string; order: number }> = {
-  Composables: { icon: "code-browser", order: 1 },
-  Labs: { icon: "beaker-01", order: 2 },
-  "Client Management": { icon: "users-01", order: 3 },
-  Products: { icon: "shopping-bag-02", order: 4 },
-  Invoices: { icon: "receipt", order: 5 },
-  Session: { icon: "lock-01", order: 6 },
-  Portal: { icon: "user-01", order: 7 },
-  Admin: { icon: "shield-01", order: 8 }
+const SECTION_CONFIG: Record<string, { icon: Component; order: number }> = {
+  Composables: { icon: navIcon("code-browser"), order: 1 },
+  Labs: { icon: navIcon("beaker-01"), order: 2 },
+  "Client Management": { icon: navIcon("users-01"), order: 3 },
+  Products: { icon: navIcon("shopping-bag-02"), order: 4 },
+  Invoices: { icon: navIcon("receipt"), order: 5 },
+  Session: { icon: navIcon("lock-01"), order: 6 },
+  Portal: { icon: navIcon("user-01"), order: 7 },
+  Admin: { icon: navIcon("shield-01"), order: 8 }
 };
 
 /** A family with no icon of its own still lists — it falls back. */
-const FAMILY_CONFIG: Record<string, string> = {
-  auth: "lock-01",
-  basket: "shopping-cart-01",
-  client: "users-01",
-  invoices: "receipt",
-  orders: "shopping-bag-02",
-  products: "package"
+const FAMILY_CONFIG: Record<string, Component> = {
+  auth: navIcon("lock-01"),
+  basket: navIcon("shopping-cart-01"),
+  client: navIcon("users-01"),
+  invoices: navIcon("receipt"),
+  orders: navIcon("shopping-bag-02"),
+  products: navIcon("package")
 };
 
 /** Which declared binding fields a developer is shown, and as what. */
@@ -76,12 +76,23 @@ const BINDING_TAGS: Record<string, string> = {
 };
 
 const COMPOSABLES_SECTION = "Composables";
-const SCENARIO_ICON = "code-browser";
-const FALLBACK_FAMILY_ICON = "layers-three-01";
 
 // --- Helper Functions
 function familyOf(identifier: string): string {
   return toLower(first(words(replace(identifier, /^use/, ""))) ?? identifier);
+}
+
+/**
+ * One url PATH SEGMENT and nothing else. `route.params` arrives DECODED, so a
+ * `%2F` in the brand segment becomes a real `/` on the way into an href — and
+ * `//evil.example/x` is a protocol-relative offsite link, sitting in the
+ * chrome of every page. A brand id is a uuid or an org slug; anything that
+ * could re-open the path is not one, and the link falls back to the bare route.
+ */
+const BRAND_SEGMENT = /^[\w-]+$/;
+
+function brandSegment(brandId?: string): string | undefined {
+  return brandId && BRAND_SEGMENT.test(brandId) ? brandId : undefined;
 }
 
 /**
@@ -92,7 +103,9 @@ function familyOf(identifier: string): string {
  * the directory the url already carries (D1) — so the menu item, the page title
  * and the path can never disagree; only the icon is declarable.
  */
-function scenarioEntries(): LabEntry[] {
+function scenarioEntries(brandId?: string): LabEntry[] {
+  const brand = brandSegment(brandId);
+
   return map(scenarioKeys, key => {
     // The url segment is the scenario's own DIRECTORY, which is also its route
     // name — so the sidebar link and the registered route cannot drift.
@@ -101,13 +114,17 @@ function scenarioEntries(): LabEntry[] {
     return {
       key,
       label: route,
-      icon: get(registry, [key, "presentation", "icon"], SCENARIO_ICON),
+      icon: navIcon(
+        get(registry, [key, "presentation", "icon"]) as string | undefined
+      ),
       // The FAMILY stays the directory's: a declared label is a human name for
       // one entry, never the grouping every entry in the family answers to.
       family: familyOf(route),
-      // Bare — every page boots as self, and only a url segment moves it off
-      // that (`R6-30b`), so the menu link states no scope at all.
-      to: `/${route}`,
+      // Bare of SCOPE — every page boots as self, and only a url segment moves
+      // it off that (`R6-30b`). The BRAND is not scope: it is where the app is,
+      // so a menu link that dropped it walked the user out of the brand they
+      // picked, which is why the brand never survived navigation.
+      to: brand ? `/${brand}/${route}` : `/${route}`,
       tags: compact(
         map(keys(get(registry, key)), field => get(BINDING_TAGS, field))
       )
@@ -128,7 +145,21 @@ function routeSources(routes: RouteRecordNormalized[]): NavSource[] {
   );
 }
 
-function buildNavigationTree(sources: NavSource[]): Map<string, NavItem[]> {
+type NavSourceInput = {
+  nav: {
+    label: string;
+    icon?: string | Component;
+    section?: string;
+    order?: number;
+    parent?: string;
+  };
+  route?: string;
+  to?: string;
+};
+
+function buildNavigationTree(
+  sources: NavSourceInput[]
+): Map<string, NavItem[]> {
   const sectionMap = new Map<string, NavItem[]>();
   const childMap = new Map<string, NavItem[]>(); // parent route name -> children
 
@@ -140,16 +171,15 @@ function buildNavigationTree(sources: NavSource[]): Map<string, NavItem[]> {
     const bucketKey = nav.parent ?? nav.section ?? "Other";
     const items = bucket.get(bucketKey) ?? [];
 
-    // Count scenarios for this item (registry-derived items have a `to` path)
-    const count = to ? 1 : undefined;
+    // Convert string icon names to Components; pass through existing Components
+    const icon = typeof nav.icon === "string" ? navIcon(nav.icon) : nav.icon;
 
     items.push({
       label: nav.label,
-      icon: nav.icon,
+      icon,
       route,
       to,
-      dynamic: false,
-      count
+      dynamic: false
     });
     bucket.set(bucketKey, items);
   }
@@ -171,10 +201,16 @@ function buildNavigationTree(sources: NavSource[]): Map<string, NavItem[]> {
 // --- Composable
 export function useNavigation() {
   const router = useRouter();
+  const route = useRoute();
+
+  /** Where the app IS. Reading it here keeps every link on the live brand. */
+  const brandId = computed(
+    () => route.params.brandIdOrOrg as string | undefined
+  );
 
   const routes = computed((): NavSource[] => routeSources(router.getRoutes()));
 
-  const scenarios = computed((): LabEntry[] => scenarioEntries());
+  const scenarios = computed((): LabEntry[] => scenarioEntries(brandId.value));
 
   const navigation = computed((): NavItem[] => {
     const sectionMap = buildNavigationTree([
@@ -195,7 +231,7 @@ export function useNavigation() {
 
     for (const [sectionName, items] of sectionMap) {
       const config = SECTION_CONFIG[sectionName] || {
-        icon: "folder",
+        icon: navIcon("folder"),
         order: 99
       };
 
@@ -237,7 +273,7 @@ export function useNavigation() {
           source => ({
             key: source.route as string,
             label: source.nav.label,
-            icon: source.nav.icon ?? SCENARIO_ICON,
+            icon: navIcon(source.nav.icon),
             family: familyOf(source.nav.label),
             route: source.route,
             tags: [] as string[]
@@ -254,7 +290,7 @@ export function useNavigation() {
       map(groupBy(composables.value, "family"), (entries, name) => ({
         name,
         label: startCase(name),
-        icon: get(FAMILY_CONFIG, name, FALLBACK_FAMILY_ICON),
+        icon: get(FAMILY_CONFIG, name, FALLBACK_ICON),
         entries
       })),
       "label"

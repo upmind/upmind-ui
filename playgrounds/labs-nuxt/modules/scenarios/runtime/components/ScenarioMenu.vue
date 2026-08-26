@@ -10,61 +10,29 @@
     >
       <ToggleGroupItem
         :value="TRACK_LIVE"
-        :data-test-key="'track'"
-        :data-test-value="TRACK_LIVE"
+        :data-attrs="{
+          'data-test-key': 'track',
+          'data-test-value': TRACK_LIVE
+        }"
       >
         {{ t("labs.track_live") }}
       </ToggleGroupItem>
     </ToggleGroup>
 
-    <DropdownMenuRoot v-model:open="isOpen">
-      <DropdownMenuTrigger as-child>
-        <ButtonItems
-          size="sm"
-          variant="outline"
-          icon-append="chevron-down"
-          :label="t('labs.scenario_count', { count: size(tracks) })"
-          :aria-expanded="isOpen"
-          :data-attrs="{
-            'data-test-key': 'scenario-menu',
-            'data-test-value': size(tracks)
-          }"
-        />
-      </DropdownMenuTrigger>
-
-      <DropdownMenuContent align="start" :class="scenarioMenu.panel()">
-        <DropdownMenuRadioGroup
-          :model-value="active"
-          @update:model-value="pick"
-        >
-          <DropdownMenuLabel>{{ t("labs.force_preset") }}</DropdownMenuLabel>
-          <DropdownMenuRadioItem
-            v-for="entry in forced"
-            :key="entry.value"
-            data-test-key="force-preset-option"
-            :data-test-value="entry.handle"
-            :value="entry.value"
-            :disabled="entry.disabled"
-          >
-            {{ entry.label }}
-          </DropdownMenuRadioItem>
-
-          <DropdownMenuSeparator />
-
-          <DropdownMenuLabel>{{ t("labs.scenarios") }}</DropdownMenuLabel>
-          <DropdownMenuRadioItem
-            v-for="entry in scenarios"
-            :key="entry.value"
-            data-test-key="track-option"
-            :data-test-value="entry.handle"
-            :value="entry.value"
-            :disabled="entry.disabled"
-          >
-            {{ entry.label }}
-          </DropdownMenuRadioItem>
-        </DropdownMenuRadioGroup>
-      </DropdownMenuContent>
-    </DropdownMenuRoot>
+    <Select
+      size="sm"
+      :model-value="active"
+      :items="items"
+      :placeholder="t('labs.scenario_count', { count: size(tracks) })"
+      :aria-label="t('labs.scenarios')"
+      :class="scenarioMenu.trigger()"
+      :ui="{ content: scenarioMenu.panel() }"
+      :data-attrs="{
+        'data-test-key': 'scenario-menu',
+        'data-test-value': size(tracks)
+      }"
+      @update:model-value="pick"
+    />
   </div>
 </template>
 
@@ -83,7 +51,7 @@
  * state it did not reach by itself — so the one menu is where a page's non-live
  * state is chosen, and the sheet toggle beside it stays about the sheets.
  *
- * Both groups are ONE `DropdownMenuRadioGroup` because at most one non-live
+ * Both groups are ONE `Select` because at most one non-live
  * state can ever be on: the armed track and the armed preset are alternatives,
  * and a radio group is what says so with the theme's own indicator rather than a
  * tick glyph bolted onto a list of words. Live is the group's absent value, and
@@ -95,20 +63,9 @@
  * the worker, so it is the bar that decides what arming one costs the other.
  */
 
-import { computed, ref } from "vue";
+import { Select, ToggleGroup, ToggleGroupItem } from "@upmind/ui";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import {
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuRoot,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  ToggleGroup,
-  ToggleGroupItem
-} from "@upmind/ui";
-import ButtonItems from "./ButtonItems.vue";
 import { FORCE_URL_PRESETS } from "../composables/useForcedState.types";
 import { FORCE_PRESET_LABELS } from "./ForcedCanvas.types";
 import { scenarioMenu } from "./ScenarioMenu.styles";
@@ -119,6 +76,7 @@ import type {
   ScenarioMenuProps
 } from "./ScenarioMenu.types";
 import type { ForceUrlPreset } from "../composables/useForcedState.types";
+import type { SelectOptionGroup } from "@upmind/ui";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<ScenarioMenuProps>();
@@ -126,42 +84,50 @@ const emit = defineEmits<ScenarioMenuEmits>();
 
 const { t } = useI18n();
 
-const isOpen = ref(false);
-
 // Namespaced because the two groups share one selection: a slug and a preset are
-// both free-form words, and one radio group cannot hold two entries answering to
+// both free-form words, and one select cannot hold two options answering to
 // the same value.
 const trackValue = (slug: string): string => `track:${slug}`;
 const forceValue = (preset: ForceUrlPreset): string => `force:${preset}`;
 
 const isLive = computed(() => !props.armed && !props.preset);
 
+// Live is the ABSENT value, so the trigger falls back to its placeholder (the count).
 const active = computed(() => {
   if (props.armed) return trackValue(props.armed.slug);
 
   const preset = find(FORCE_URL_PRESETS, entry => entry === props.preset);
 
-  return preset ? forceValue(preset) : "";
+  return preset ? forceValue(preset) : undefined;
 });
 
-const scenarios = computed(() =>
-  map(props.tracks, track => ({
-    value: trackValue(track.slug),
-    handle: track.slug,
-    label: track.name,
-    // A track the catalog cannot run whole is offered but refused, never hidden.
-    disabled: !!props.disabled || !track.isPlayable
-  }))
-);
-
-const forced = computed(() =>
-  map([...FORCE_URL_PRESETS], preset => ({
-    value: forceValue(preset),
-    handle: preset,
-    label: t(FORCE_PRESET_LABELS[preset]),
-    disabled: !!props.disabled
-  }))
-);
+const items = computed<SelectOptionGroup[]>(() => [
+  {
+    label: t("labs.force_preset"),
+    options: map([...FORCE_URL_PRESETS], preset => ({
+      value: forceValue(preset),
+      label: t(FORCE_PRESET_LABELS[preset]),
+      disabled: !!props.disabled,
+      dataAttrs: {
+        "data-test-key": "force-preset-option",
+        "data-test-value": preset
+      }
+    }))
+  },
+  {
+    label: t("labs.scenarios"),
+    options: map(props.tracks, track => ({
+      value: trackValue(track.slug),
+      label: track.name,
+      // A track the catalog cannot run whole is offered but refused, never hidden.
+      disabled: !!props.disabled || !track.isPlayable,
+      dataAttrs: {
+        "data-test-key": "track-option",
+        "data-test-value": track.slug
+      }
+    }))
+  }
+]);
 
 function pick(value: unknown): void {
   if (value === active.value) return;

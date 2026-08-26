@@ -32,9 +32,9 @@
 </template>
 
 <script lang="ts" setup>
+import { useTestAttrs } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
 import { parseBillingCycle } from "@upmind-automation/headless";
-import { useTestAttrs } from "@upmind/ui";
 import {
   productSummaryRenewRenewsVariants,
   productSummaryRenewUsuallyVariants

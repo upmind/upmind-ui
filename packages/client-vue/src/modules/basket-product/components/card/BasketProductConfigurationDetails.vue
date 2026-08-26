@@ -17,9 +17,9 @@
 </template>
 
 <script lang="ts" setup>
+import { Link } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Link } from "@upmind/ui";
 import DetailsGroup from "./components/DetailsGroup.vue";
 import { groupBy, first } from "lodash-es";
 import type { BasketProductConfigDetailsProps } from "./types";

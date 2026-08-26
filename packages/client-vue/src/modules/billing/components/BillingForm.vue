@@ -69,6 +69,7 @@
 </template>
 
 <script lang="ts" setup>
+import { Button, Loading } from "@upmind/ui";
 import { useMounted } from "@vueuse/core";
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
@@ -82,7 +83,6 @@ import {
   useClientPhones,
   useRoutingEngine
 } from "@upmind-automation/headless";
-import { Button, Loading } from "@upmind/ui";
 import { Icon } from "../../../components/icon";
 import Sections from "../../../components/section/Sections.vue";
 import { isMobile } from "../../../composables/isMobile";

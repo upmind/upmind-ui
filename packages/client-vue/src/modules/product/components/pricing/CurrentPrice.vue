@@ -26,11 +26,11 @@
 </template>
 
 <script setup lang="ts">
+import { cn } from "@upmind/ui";
+import { Skeleton, useTestAttrs } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useMoney, useConfig } from "@upmind-automation/headless";
-import { cn } from "@upmind/ui";
-import { Skeleton, useTestAttrs } from "@upmind/ui";
 import {
   currentVariants,
   termVariants,

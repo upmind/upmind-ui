@@ -4,18 +4,25 @@
       <Button
         variant="ghost"
         size="sm"
-        icon-append="chevron-down"
         :aria-label="t('labs.session_pool')"
         class="cursor-pointer"
         :data-attrs="{ 'data-test-key': 'session-switcher' }"
       >
         <Avatar
           size="sm"
-          color="secondary"
           :src="activeSession?.avatar?.src"
-          :caption="activeSession?.avatar?.caption"
-          :icon="activeSession ? undefined : getScopeIcon(actorScope)"
-        />
+          :alt="activeSession?.avatar?.caption"
+          :force-caption="activeSession?.avatar?.forceCaption"
+        >
+          <template #fallback>
+            <Icon
+              v-if="!activeSession"
+              :icon="getScopeIcon(actorScope)"
+              size="xs"
+            />
+            <template v-else>{{ activeSession?.avatar?.caption }}</template>
+          </template>
+        </Avatar>
 
         <Tooltip
           v-if="isImpersonated"
@@ -24,15 +31,18 @@
           "
         >
           <Badge
-            icon="eye"
             size="sm"
             appearance="muted"
-            color="warning"
-            :label="t('labs.session_impersonating')"
+            variant="warning"
             class="ml-1"
-            :data-attrs="{ 'data-test-key': 'session-impersonation-cue' }"
-          />
+            data-test-key="session-impersonation-cue"
+          >
+            <Icon icon="eye" size="xs" />
+            {{ t("labs.session_impersonating") }}
+          </Badge>
         </Tooltip>
+
+        <Icon icon="chevron-down" size="xs" />
       </Button>
     </template>
 
@@ -53,10 +63,12 @@
             <span class="flex min-w-0 items-center gap-2">
               <Avatar
                 size="sm"
-                color="secondary"
                 :src="node.avatar?.src"
-                :caption="node.avatar?.caption"
-              />
+                :alt="node.avatar?.caption"
+                :force-caption="node.avatar?.forceCaption"
+              >
+                <template #fallback>{{ node.avatar?.caption }}</template>
+              </Avatar>
               <span class="flex min-w-0 flex-col">
                 <span class="truncate text-sm font-medium">
                   {{ node.label }}
@@ -72,27 +84,29 @@
                 v-if="node.isActive"
                 icon="check"
                 size="nano"
-                class="text-accent-success"
+                class="text-success"
               />
               <Badge
                 v-if="node.expiresAt"
-                icon="clock"
                 size="sm"
                 appearance="muted"
-                :color="expiryColor(node.expiresAt)"
-                :label="useRelativeTime(node.expiresAt)"
-              />
+                :variant="expiryColor(node.expiresAt)"
+                data-test-key="session-expiry"
+              >
+                <Icon icon="clock" size="xs" />
+                {{ useRelativeTime(node.expiresAt) }}
+              </Badge>
               <Tooltip :label="t('action.logout')">
                 <Button
                   size="sm"
-                  color="danger"
                   variant="ghost"
-                  icon="log-out-01"
                   icon-only
-                  :label="t('action.logout')"
+                  class="text-danger"
                   :aria-label="t('action.logout')"
                   @click.stop="logoutSession(node.actor, node.id)"
-                />
+                >
+                  <Icon icon="log-out-01" size="xs" />
+                </Button>
               </Tooltip>
             </span>
           </DropdownMenuItem>
@@ -103,83 +117,91 @@
             class="border-surface ml-4 border-l pl-1"
             @update:open="open => expanded.set(node.id, open)"
           >
-            <CollapsibleTrigger
-              class="text-muted hover:bg-button-ghost-hover flex w-full cursor-pointer items-center gap-1.5 rounded-xs px-2 py-1 text-xs"
-              @click.stop
-            >
-              <Icon
-                icon="chevron-right"
-                size="nano"
-                :class="nestChevron({ isOpen: isExpanded(node) })"
-              />
-              <span>{{ t("labs.session_impersonating") }}</span>
-              <Badge
-                size="sm"
-                appearance="muted"
-                color="warning"
-                :label="String(nestOf(node).length)"
-                class="mr-2 ml-auto"
-              />
-            </CollapsibleTrigger>
-
-            <CollapsibleContent>
-              <DropdownMenuItem
-                v-for="client in nestOf(node)"
-                :key="client.id"
-                :class="sessionItem({ isActive: client.isActive })"
-                :aria-current="client.isActive ? 'true' : undefined"
-                @select="switchSession(client.actor, client.id)"
+            <template #trigger>
+              <Button
+                variant="ghost"
+                size="xs"
+                block
+                class="text-muted justify-start rounded-xs"
+                @click.stop
               >
-                <span class="flex min-w-0 items-center gap-2">
-                  <Avatar
-                    size="sm"
-                    color="secondary"
-                    :src="client.avatar?.src"
-                    :caption="client.avatar?.caption"
-                  />
-                  <span class="flex min-w-0 flex-col">
-                    <span class="truncate text-sm font-medium">
-                      {{ client.label }}
-                    </span>
-                    <span
-                      v-if="client.sublabel"
-                      class="text-muted truncate text-xs"
-                    >
-                      {{ t(client.sublabel) }}
-                    </span>
+                <Icon
+                  icon="chevron-right"
+                  size="nano"
+                  :class="nestChevron({ isOpen: isExpanded(node) })"
+                />
+                <span>{{ t("labs.session_impersonating") }}</span>
+                <Badge
+                  size="sm"
+                  appearance="muted"
+                  variant="warning"
+                  class="mr-2 ml-auto"
+                  data-test-key="session-nest-count"
+                >
+                  {{ nestOf(node).length }}
+                </Badge>
+              </Button>
+            </template>
+
+            <DropdownMenuItem
+              v-for="client in nestOf(node)"
+              :key="client.id"
+              :class="sessionItem({ isActive: client.isActive })"
+              :aria-current="client.isActive ? 'true' : undefined"
+              @select="switchSession(client.actor, client.id)"
+            >
+              <span class="flex min-w-0 items-center gap-2">
+                <Avatar
+                  size="sm"
+                  :src="client.avatar?.src"
+                  :alt="client.avatar?.caption"
+                  :force-caption="client.avatar?.forceCaption"
+                >
+                  <template #fallback>{{ client.avatar?.caption }}</template>
+                </Avatar>
+                <span class="flex min-w-0 flex-col">
+                  <span class="truncate text-sm font-medium">
+                    {{ client.label }}
+                  </span>
+                  <span
+                    v-if="client.sublabel"
+                    class="text-muted truncate text-xs"
+                  >
+                    {{ t(client.sublabel) }}
                   </span>
                 </span>
+              </span>
 
-                <span class="ml-auto flex shrink-0 items-center gap-1">
-                  <Icon
-                    v-if="client.isActive"
-                    icon="check"
-                    size="nano"
-                    class="text-accent-success"
-                  />
-                  <Badge
-                    v-if="client.expiresAt"
-                    icon="clock"
+              <span class="ml-auto flex shrink-0 items-center gap-1">
+                <Icon
+                  v-if="client.isActive"
+                  icon="check"
+                  size="nano"
+                  class="text-success"
+                />
+                <Badge
+                  v-if="client.expiresAt"
+                  size="sm"
+                  appearance="muted"
+                  :variant="expiryColor(client.expiresAt)"
+                >
+                  <Icon icon="clock" size="xs" />
+                  {{ useRelativeTime(client.expiresAt) }}
+                </Badge>
+                <Tooltip :label="t('labs.session_exit_impersonation')">
+                  <Button
                     size="sm"
-                    appearance="muted"
-                    :color="expiryColor(client.expiresAt)"
-                    :label="useRelativeTime(client.expiresAt)"
-                  />
-                  <Tooltip :label="t('labs.session_exit_impersonation')">
-                    <Button
-                      size="sm"
-                      color="danger"
-                      variant="ghost"
-                      icon="log-out-01"
-                      icon-only
-                      :label="t('labs.session_exit_impersonation')"
-                      :aria-label="t('labs.session_exit_impersonation')"
-                      @click.stop="logoutSession(client.actor, client.id)"
-                    />
-                  </Tooltip>
-                </span>
-              </DropdownMenuItem>
-            </CollapsibleContent>
+                    variant="ghost"
+                    icon-only
+                    class="text-danger"
+                    :aria-label="t('labs.session_exit_impersonation')"
+                    @click.stop="logoutSession(client.actor, client.id)"
+                  >
+                    <Icon icon="log-out-01" size="xs" />
+                  </Button>
+                </Tooltip>
+              </span>
+            </DropdownMenuItem>
           </Collapsible>
         </template>
       </DropdownMenuGroup>
@@ -199,28 +221,31 @@
           :key="scope"
           variant="ghost"
           size="sm"
-          align="left"
           block
-          :ring="false"
-          :icon="scope === ScopeActorTypes.CLIENT ? 'log-in-01' : 'log-in-02'"
-          :label="t(getAddSessionLabel(scope))"
+          class="justify-start"
           :data-attrs="{ 'data-test-key': getAddSessionTestKey(scope) }"
           @click="addSession(scope)"
-        />
+        >
+          <Icon
+            :icon="scope === ScopeActorTypes.CLIENT ? 'log-in-01' : 'log-in-02'"
+            size="xs"
+          />
+          {{ t(getAddSessionLabel(scope)) }}
+        </Button>
       </template>
 
       <Button
         v-if="canUseGuestMode"
         variant="ghost"
         size="sm"
-        align="left"
         block
-        icon="user-circle"
-        :ring="false"
-        :label="t('labs.session_guest')"
+        class="justify-start"
         :data-attrs="{ 'data-test-key': 'actor-scope-add-guest' }"
         @click="switchScope(ScopeActorTypes.GUEST)"
-      />
+      >
+        <Icon icon="user-circle" size="xs" />
+        {{ t("labs.session_guest") }}
+      </Button>
     </div>
   </DropdownMenu>
 </template>
@@ -251,27 +276,25 @@
  * would offer a pool that does not exist.
  */
 
-import { computed, reactive } from "vue";
-import { useI18n } from "vue-i18n";
-import {
-  ScopeActorTypes,
-  useRelativeTime,
-  useSessionStore
-} from "@upmind-automation/headless";
 import {
   Avatar,
   Badge,
   Button,
   Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
   DropdownMenu,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   Tooltip
 } from "@upmind/ui";
+import { computed, reactive } from "vue";
+import { useI18n } from "vue-i18n";
 import { Icon } from "@upmind-automation/client-vue";
+import {
+  ScopeActorTypes,
+  useRelativeTime,
+  useSessionStore
+} from "@upmind-automation/headless";
 import { nestChevron, sessionItem } from "./SessionSwitcher.styles";
 import { useActorScopeSelector } from "./useActorScopeSelector";
 import { find, isEmpty, reject, some } from "lodash-es";

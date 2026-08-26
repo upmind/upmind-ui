@@ -1,7 +1,7 @@
 <template>
   <FormField v-bind="formFieldProps">
     <Input
-      size="lg"
+      :size="appliedOptions?.size"
       :data-attrs="controlDataAttrs"
       type="email"
       :placeholder="appliedOptions?.placeholder"
@@ -20,8 +20,8 @@
 <script lang="ts" setup>
 import { and, or, isStringControl, formatIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import { computed } from "vue";
 import { Input } from "@upmind/ui";
+import { computed } from "vue";
 import { Icon } from "../../../../icon";
 import FormField from "../../FormField.vue";
 import { useUpmindUIRenderer } from "../utils";

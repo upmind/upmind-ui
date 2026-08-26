@@ -9,43 +9,95 @@
       :skip-label="t('labs.skip_to_content')"
     >
       <template #logo="{ collapsed }">
+        <!-- Home CARRIES the brand: `home` is `/:brandIdOrOrg?`, so a bare
+             named push drops the param and leaves the brand behind. -->
         <NuxtLink
-          :to="{ name: ROUTE.HOME }"
+          :to="{ name: ROUTE.HOME, params: brandParams }"
           class="rounded-button focus-visible:outline-ring/40 flex min-w-0 items-center gap-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
           data-test-key="labs-logo"
         >
+          <!-- The asset is a WORDMARK (viewBox 0 0 197 48), not a square mark.
+               `size-6` set width AND height to 24px and squashed a 4:1 logo
+               into a box; the height is fixed and the width follows it. -->
           <img
             :src="logoBlack"
-            alt=""
-            aria-hidden="true"
-            class="size-6 shrink-0 dark:hidden"
+            :alt="t('labs.title')"
+            class="h-6 w-auto shrink-0 dark:hidden"
           />
           <img
             :src="logoWhite"
-            alt=""
-            aria-hidden="true"
-            class="hidden size-6 shrink-0 dark:block"
+            :alt="t('labs.title')"
+            class="hidden h-6 w-auto shrink-0 dark:block"
           />
-          <span
-            :class="
-              collapsed
-                ? 'sr-only'
-                : 'type-display text-display truncate text-base'
-            "
+          <Text
+            as="span"
+            size="sm"
+            :class="[collapsed ? 'sr-only' : 'truncate', 'font-semibold']"
           >
             {{ t("labs.title") }}
-          </span>
+          </Text>
         </NuxtLink>
       </template>
 
+      <!-- The rail is the library's own `SidebarNav`: it renders the list, owns
+           the active coat, `aria-current` and the collapsed sr-only + tooltip
+           treatment. R2: sections are static labelled groups, not accordions. -->
       <template #nav="{ collapsed }">
-        <ul class="flex flex-col gap-1">
-          <li v-for="(item, index) in navigation" :key="index">
-            <NavSection :item="item" :depth="0" :collapsed="collapsed" />
-          </li>
-        </ul>
+        <SidebarNav v-if="collapsed" collapsed>
+          <SidebarNavLink
+            v-for="link in flatLinks"
+            :key="link.label"
+            :as="NuxtLink"
+            :to="link.to"
+            :active="link.active"
+            :icon="link.icon"
+          >
+            {{ link.label }}
+          </SidebarNavLink>
+        </SidebarNav>
+
+        <template v-else>
+          <!-- Top-level destinations (no section header) -->
+          <SidebarNav v-if="looseLinks.length">
+            <SidebarNavLink
+              v-for="link in looseLinks"
+              :key="link.label"
+              :as="NuxtLink"
+              :to="link.to"
+              :active="link.active"
+              :icon="link.icon"
+            >
+              {{ link.label }}
+            </SidebarNavLink>
+          </SidebarNav>
+
+          <!-- Static labelled sections per R2 -->
+          <template v-for="section in navSections" :key="section.value">
+            <Text
+              as="div"
+              variant="muted"
+              size="xs"
+              class="mt-4 px-2 pb-1 tracking-wider uppercase"
+            >
+              {{ section.title }}
+            </Text>
+            <SidebarNav>
+              <SidebarNavLink
+                v-for="link in section.links"
+                :key="link.label"
+                :as="NuxtLink"
+                :to="link.to"
+                :active="link.active"
+                :icon="link.icon"
+              >
+                {{ link.label }}
+              </SidebarNavLink>
+            </SidebarNav>
+          </template>
+        </template>
       </template>
 
+      <!-- Operator ruling: scope rides the header, beside the collapse control. -->
       <template #header-actions>
         <ScopeBar />
       </template>
@@ -75,6 +127,14 @@
 </template>
 
 <script lang="ts" setup>
+import {
+  PortalShell,
+  SidebarNav,
+  SidebarNavLink,
+  Text,
+  Toaster,
+  TooltipProvider
+} from "@upmind/ui";
 import { useI18n } from "vue-i18n";
 import {
   UpmOverlayController,
@@ -82,21 +142,92 @@ import {
   useActiveSession,
   useSessionStore
 } from "@upmind-automation/client-vue";
-import { PortalShell, Toaster, TooltipProvider } from "@upmind/ui";
-import { includes } from "lodash-es";
-import NavSection from "~/components/NavSection.vue";
+import { filter, flatMap, includes, map, startsWith } from "lodash-es";
+import type { Component } from "vue";
+import type { RouteLocationRaw } from "vue-router";
+import type { NavItem } from "~/composables/useNavigation.types";
+import { NuxtLink } from "#components";
+import logoBlack from "~/assets/logo-black.svg";
+import logoWhite from "~/assets/logo-white.svg";
 import { ScopeBar } from "~/components/scope";
 import { SheetHost, usePlaygroundSheet } from "~/components/sheets";
 import { useNavigation } from "~/composables/useNavigation";
 import { ROUTE } from "~/funnels";
-import logoBlack from "~/assets/logo-black.svg";
-import logoWhite from "~/assets/logo-white.svg";
 // -----------------------------------------------------------------------------
+
+/** One destination as the rail draws it. */
+type RailLink = {
+  to: string | RouteLocationRaw;
+  label: string;
+  icon?: Component;
+  active: boolean;
+};
+
+/** One labelled nav section and the destinations under it. */
+type RailSection = {
+  value: string;
+  title: string;
+  icon?: Component;
+  links: RailLink[];
+};
+
 const { navigation } = useNavigation();
 const { t } = useI18n();
 const route = useRoute();
+
+/** Only the brand travels. `scopeSuffix` belongs to the page that named it. */
+const brandParams = computed(() =>
+  route.params.brandIdOrOrg ? { brandIdOrOrg: route.params.brandIdOrOrg } : {}
+);
 const router = useRouter();
 const { meta: routingMeta, isReady } = useRoutingEngine();
+
+/**
+ * A registry-derived item owns a PATH and its scope suffix extends it
+ * (`/as/:actor/for/:type/:id`); a route-declared one owns a named record.
+ */
+function isActive(item: NavItem): boolean {
+  return item.to
+    ? startsWith(route.path, item.to)
+    : !!item.route && route.name === item.route;
+}
+
+function toLink(item: NavItem): RailLink {
+  return {
+    // A named target CARRIES the brand: every page is `/:brandIdOrOrg?/…`, so a
+    // bare name drops the param and walks the user out of the brand they picked.
+    to: item.to ?? { name: item.route!, params: brandParams.value },
+    label: item.label,
+    icon: item.icon,
+    active: isActive(item)
+  };
+}
+
+const isDestination = (item: NavItem): boolean => !!(item.to || item.route);
+
+/** Labelled sections — a top-level item that carries children. */
+const navSections = computed<RailSection[]>(() =>
+  map(
+    filter(navigation.value, item => !!item.children?.length),
+    item => ({
+      value: item.label,
+      title: item.label,
+      icon: item.icon,
+      links: map(filter(item.children, isDestination), toLink)
+    })
+  )
+);
+
+/** Top-level items that are destinations in their own right. */
+const looseLinks = computed<RailLink[]>(() =>
+  map(filter(navigation.value, isDestination), toLink)
+);
+
+/** Collapsed, there is nothing to disclose — every destination in one rail. */
+const flatLinks = computed<RailLink[]>(() => [
+  ...looseLinks.value,
+  ...flatMap(navSections.value, section => section.links)
+]);
 
 // --- debug items
 const { register } = usePlaygroundSheet();

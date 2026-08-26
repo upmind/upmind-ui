@@ -24,8 +24,8 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
 import { cn, useTestAttrs } from "@upmind/ui";
+import { computed } from "vue";
 import { tableRowRootVariants, tableRowCellVariants } from "../variants";
 import type { TableRow } from "../types";
 

@@ -52,13 +52,13 @@
 
 <script setup lang="ts">
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { Skeleton } from "@upmind/ui";
 import { computed, inject, provide } from "vue";
 import {
   useProductCategories,
   type UseProductCategories
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-import { Skeleton } from "@upmind/ui";
 import { Icon } from "../../../components/icon";
 import { categoriesRootVariants, categoriesGridVariants } from "../variants";
 import CategoriesHeader from "./CategoriesHeader.vue";

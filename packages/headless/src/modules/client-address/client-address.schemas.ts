@@ -453,7 +453,12 @@ export function useQueryUischema(): UISchemaElement {
         type: "Control",
         scope: "#/properties/filters/properties/name/properties/like",
         i18n: "form.address_search",
-        options: { format: "search", noLabel: true, optionalText: "" }
+        options: {
+          format: "search",
+          icon: "search-md",
+          noLabel: true,
+          optionalText: ""
+        }
       },
       {
         type: "Control",

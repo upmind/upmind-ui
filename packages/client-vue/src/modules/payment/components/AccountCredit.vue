@@ -49,9 +49,9 @@
 </template>
 
 <script lang="ts" setup>
+import { OptionTileGroup, OptionTile, Link } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { OptionTileGroup, OptionTile, Link } from "@upmind/ui";
 import FormModal from "../../../components/form/FormModal.vue";
 import type { AccountCreditProps } from "../types";
 
