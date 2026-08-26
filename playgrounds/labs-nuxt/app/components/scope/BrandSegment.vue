@@ -1,5 +1,17 @@
 <template>
+  <!-- Single brand: static display, no dropdown -->
+  <div
+    v-if="isSingleBrand"
+    class="text-muted flex items-center gap-1 px-2 py-1 text-sm"
+    :data-attrs="{ 'data-test-key': 'brand-segment' }"
+  >
+    <Icon v-if="active?.icon" :icon="active.icon" size="xs" />
+    {{ active?.label }}
+  </div>
+
+  <!-- Multiple brands: dropdown selector -->
   <DropdownMenu
+    v-else
     align="start"
     :items="items"
     :label="t('labs.brand_menu')"
@@ -60,14 +72,15 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { Icon } from "@upmind-automation/client-vue";
-import { useBrand } from "@upmind-automation/headless";
+import { useBrand, useActiveSession } from "@upmind-automation/headless";
+import { AccessRoleTypes } from "@upmind-automation/types";
 import {
   buildScopePath,
   useBrandScope,
   useScopeConfig
 } from "../../composables/scope";
 import { usePlaygroundUrlState } from "../../composables/usePlaygroundUrlState";
-import { filter, find, map, some } from "lodash-es";
+import { filter, find, forEach, map, some } from "lodash-es";
 import type { MenuItem } from "@upmind/ui";
 // -----------------------------------------------------------------------------
 
@@ -83,6 +96,17 @@ const {
   name: hostBrandName,
   styles: hostBrandStyles
 } = useBrand();
+
+// Staff session brands (FE-2973)
+const activeSession = useActiveSession();
+const { actor: sessionActor, activeUser: sessionUser } =
+  activeSession.useContext();
+const isStaffSession = computed(
+  () => sessionActor.value === AccessRoleTypes.STAFF
+);
+const staffBrands = computed(() =>
+  isStaffSession.value ? sessionUser.value?.brands : undefined
+);
 
 const activeBrand = computed(() =>
   brandScope.value.mode === "brand" ? brandScope.value.brandId : "org"
@@ -108,34 +132,63 @@ function swatch(color?: string): string | undefined {
 }
 
 const choices = computed<BrandChoice[]>(() => {
-  const known: BrandChoice[] = [
-    { value: "org", label: t("labs.brand_org"), icon: "globe-01" }
-  ];
+  const brands: BrandChoice[] = [];
 
   if (hostBrandId.value)
-    known.push({
+    brands.push({
       value: hostBrandId.value,
       label: hostBrandName.value || hostBrandId.value,
       icon: "building-02",
       color: swatch(hostBrandStyles.value?.brand_color)
     });
 
+  // Staff session brands (FE-2973): add all brands the staff user can access
+  const sessionBrands = staffBrands.value;
+  if (sessionBrands) {
+    forEach(sessionBrands, brand => {
+      if (!some(brands, ["value", brand.id])) {
+        brands.push({
+          value: brand.id,
+          label: brand.name || brand.id,
+          icon: "building-02",
+          color: swatch(brand.style?.brand_color)
+        });
+      }
+    });
+  }
+
   // A pasted link can name a brand this host does not resolve. It is the scope
   // the page IS at, so it is offered rather than left unrepresented — a menu
   // that cannot show the active brand has nothing to mark.
-  if (!some(known, ["value", activeBrand.value]))
-    known.push({
+  if (
+    activeBrand.value !== "org" &&
+    !some(brands, ["value", activeBrand.value])
+  )
+    brands.push({
       value: activeBrand.value,
       label: activeBrand.value,
       icon: "building-02"
     });
 
-  return known;
+  // Only show "Organisation-wide" if multiple brands exist
+  if (brands.length > 1) {
+    return [
+      { value: "org", label: t("labs.brand_org"), icon: "globe-01" },
+      ...brands
+    ];
+  }
+
+  return brands;
 });
 
-const active = computed(() =>
-  find(choices.value, ["value", activeBrand.value])
-);
+const isSingleBrand = computed(() => choices.value.length === 1);
+
+const active = computed(() => {
+  const match = find(choices.value, ["value", activeBrand.value]);
+  // If "org" but only 1 brand exists, show that brand
+  if (!match && isSingleBrand.value) return choices.value[0];
+  return match;
+});
 
 const page = computed(() => {
   const segments = filter(route.path.split("/"), Boolean);

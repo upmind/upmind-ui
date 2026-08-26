@@ -246,6 +246,104 @@
         <Icon icon="user-circle" size="xs" />
         {{ t("labs.session_guest") }}
       </Button>
+
+      <!-- Impersonation (FE-2973 Task 5) -->
+      <Collapsible v-if="hasStaffAccess" v-model:open="impersonateOpen">
+        <template #trigger>
+          <Button
+            variant="ghost"
+            size="sm"
+            block
+            class="justify-start"
+            :data-attrs="{ 'data-test-key': 'impersonate-trigger' }"
+          >
+            <Icon icon="eye" size="xs" />
+            {{ t("labs.session_impersonate") }}
+            <Icon
+              :icon="impersonateOpen ? 'chevron-up' : 'chevron-down'"
+              size="xs"
+              class="ml-auto"
+            />
+          </Button>
+        </template>
+
+        <div class="mt-2 flex flex-col gap-2">
+          <!-- Type toggle -->
+          <div class="flex gap-1">
+            <Button
+              :variant="impersonateType === 'client' ? 'secondary' : 'ghost'"
+              size="xs"
+              class="flex-1"
+              :data-attrs="{ 'data-test-key': 'impersonate-type-client' }"
+              @click="switchImpersonateType('client')"
+            >
+              <Icon icon="user-01" size="xs" />
+              {{ t("labs.actor_client") }}
+            </Button>
+            <Button
+              :variant="impersonateType === 'staff' ? 'secondary' : 'ghost'"
+              size="xs"
+              class="flex-1"
+              :data-attrs="{ 'data-test-key': 'impersonate-type-staff' }"
+              @click="switchImpersonateType('staff')"
+            >
+              <Icon icon="building-07" size="xs" />
+              {{ t("labs.actor_staff") }}
+            </Button>
+          </div>
+
+          <!-- Single search input -->
+          <Input
+            :model-value="impersonateQuery"
+            :placeholder="impersonatePlaceholder"
+            size="sm"
+            :data-attrs="{ 'data-test-key': 'impersonate-search' }"
+            @update:model-value="onImpersonateSearch"
+            @keydown.stop
+          >
+            <template #leading>
+              <Icon
+                :icon="impersonateType === 'client' ? 'user-01' : 'building-07'"
+                size="xs"
+                class="text-muted"
+              />
+            </template>
+            <template v-if="isSearching" #trailing>
+              <Icon
+                icon="loader-circle"
+                size="xs"
+                class="text-muted animate-spin"
+              />
+            </template>
+          </Input>
+
+          <!-- Results -->
+          <div
+            v-if="impersonateResults.length"
+            class="max-h-32 overflow-y-auto"
+          >
+            <Button
+              v-for="result in impersonateResults"
+              :key="result.id"
+              variant="ghost"
+              size="xs"
+              block
+              class="justify-start"
+              :data-attrs="{
+                'data-test-key': 'impersonate-result',
+                'data-test-value': result.id
+              }"
+              @click="doImpersonate(result.id)"
+            >
+              <Icon
+                :icon="impersonateType === 'client' ? 'user-01' : 'building-07'"
+                size="xs"
+              />
+              {{ result.label }}
+            </Button>
+          </div>
+        </div>
+      </Collapsible>
     </div>
   </DropdownMenu>
 </template>
@@ -285,20 +383,28 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  Input,
   Tooltip
 } from "@upmind/ui";
-import { computed, reactive } from "vue";
+import { computed, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { Icon } from "@upmind-automation/client-vue";
 import {
   ScopeActorTypes,
+  useQuery,
   useRelativeTime,
   useSessionStore
 } from "@upmind-automation/headless";
+import { AccessRoleTypes } from "@upmind-automation/types";
 import { nestChevron, sessionItem } from "./SessionSwitcher.styles";
 import { useActorScopeSelector } from "./useActorScopeSelector";
-import { find, isEmpty, reject, some } from "lodash-es";
+import { debounce, find, isEmpty, map, reject, some } from "lodash-es";
 import type { SessionItem, StaffSessionNode } from "./useActorScopeSelector";
+import type { IClient, IUser } from "@upmind-automation/types";
+import {
+  impersonateClient as impersonateClientService,
+  impersonateUser as impersonateUserService
+} from "~/services/impersonation";
 // -----------------------------------------------------------------------------
 
 /** A session as the pool draws it: staff carry a nest, direct clients do not. */
@@ -330,6 +436,109 @@ const {
   switchScope,
   switchSession
 } = useActorScopeSelector();
+
+// --- Impersonation search (FE-2973 Task 5)
+const { get: queryGet, useUrl } = useQuery();
+const { add: addSessionToStore } = store.useActions();
+
+const impersonateOpen = ref(false);
+const impersonateType = ref<"client" | "staff">("client");
+const impersonateQuery = ref("");
+const impersonateResults = ref<Array<{ id: string; label: string }>>([]);
+const isSearching = ref(false);
+
+const impersonatePlaceholder = computed(() =>
+  impersonateType.value === "client"
+    ? t("labs.session_impersonate_client")
+    : t("labs.session_impersonate_staff")
+);
+
+function switchImpersonateType(type: "client" | "staff") {
+  impersonateType.value = type;
+  impersonateQuery.value = "";
+  impersonateResults.value = [];
+}
+
+const debouncedSearch = debounce(
+  async (query: string, type: "client" | "staff") => {
+    if (!query || query.length < 2) {
+      impersonateResults.value = [];
+      isSearching.value = false;
+      return;
+    }
+    isSearching.value = true;
+    try {
+      if (type === "client") {
+        const response = await queryGet<{ data: IClient[] }>({
+          queryKey: ["impersonate-client-search", query],
+          url: useUrl("admin/clients", { query, limit: 12 }),
+          staleTime: 30000
+        });
+        impersonateResults.value = map(response.data, client => ({
+          id: client.id,
+          label: client.fullname || client.email || client.id
+        }));
+      } else {
+        const response = await queryGet<{ data: IUser[] }>({
+          queryKey: ["impersonate-staff-search", query],
+          url: useUrl("admin/users", { query, limit: 12 }),
+          staleTime: 30000
+        });
+        impersonateResults.value = map(response.data, user => ({
+          id: user.id,
+          label: user.fullname || user.email || user.id
+        }));
+      }
+    } catch {
+      impersonateResults.value = [];
+    } finally {
+      isSearching.value = false;
+    }
+  },
+  300
+);
+
+function onImpersonateSearch(query: string) {
+  impersonateQuery.value = query;
+  debouncedSearch(query, impersonateType.value);
+}
+
+async function doImpersonate(id: string) {
+  if (impersonateType.value === "client") {
+    await impersonateClient(id);
+  } else {
+    await impersonateStaff(id);
+  }
+  impersonateQuery.value = "";
+  impersonateResults.value = [];
+  impersonateOpen.value = false;
+}
+
+async function impersonateClient(clientId: string): Promise<void> {
+  try {
+    const token = await impersonateClientService(clientId);
+    await addSessionToStore(token);
+    clientSearchQuery.value = "";
+    clientSearchResults.value = [];
+  } catch (e) {
+    console.error("[SessionSwitcher] Failed to impersonate client:", e);
+  }
+}
+
+async function impersonateStaff(userId: string): Promise<void> {
+  try {
+    const token = await impersonateUserService(userId);
+    await addSessionToStore(token);
+    staffSearchQuery.value = "";
+    staffSearchResults.value = [];
+  } catch (e) {
+    console.error("[SessionSwitcher] Failed to impersonate staff:", e);
+  }
+}
+
+const hasStaffAccess = computed(
+  () => store.useContext().activeActor.value === AccessRoleTypes.STAFF
+);
 
 /** Nests the user has opened or closed by hand; the rest answer to what is active. */
 const expanded = reactive(new Map<string, boolean>());

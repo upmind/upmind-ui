@@ -21,9 +21,9 @@
  */
 
 import { Tooltip } from "@upmind/ui";
-import { Icon } from "@upmind-automation/client-vue";
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { Icon } from "@upmind-automation/client-vue";
 import { ActionPlacementTypes } from "../../scenario.types";
 import { ActionSlots } from "../index";
 import { OVERFLOW_TRIGGER_TEST_VALUE } from "./control-test-values";

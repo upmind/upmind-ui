@@ -14,16 +14,22 @@ import {
   useSessionStore
 } from "@upmind-automation/headless";
 import { AccessRoleTypes } from "@upmind-automation/types";
-import { useActorScope, buildScopePath } from "../../composables/scope";
+import {
+  useActorScope,
+  useBrandScope,
+  buildScopePath
+} from "../../composables/scope";
 import { usePlaygroundUrlState } from "../../composables/usePlaygroundUrlState";
 import {
   capitalize,
   filter,
+  find,
   findKey,
   get,
   has,
   map,
   size,
+  some,
   sortBy,
   toPairs
 } from "lodash-es";
@@ -105,6 +111,12 @@ export function useActorScopeSelector() {
   // scope push rebuilding the query would drop it (design §7.3).
   const { preserveQuery } = usePlaygroundUrlState();
 
+  // Brand scope from URL (FE-2973)
+  const brandScope = useBrandScope();
+  const currentBrandId = computed(() =>
+    brandScope.value.mode === "brand" ? brandScope.value.brandId : undefined
+  );
+
   // Session store for activating sessions on scope switch
   const store = useSessionStore();
   const { activate, getExpiresAt, logout, remove } = store.useActions();
@@ -117,6 +129,27 @@ export function useActorScopeSelector() {
     staffSessions
   } = store.useContext();
   const { hasClientSession, hasStaffSession, isScopeAllowed } = store.useMeta();
+
+  /**
+   * Check if a session is valid for the current brand (FE-2973).
+   * - No brand filter (org mode): all sessions valid
+   * - Client/Guest: valid iff session.user.brandId === currentBrand
+   * - Staff: valid iff currentBrand is in session.user.brands
+   */
+  function isSessionValidForBrand(
+    entry: (typeof allSessions.value)[string]
+  ): boolean {
+    const brand = currentBrandId.value;
+    if (!brand) return true;
+
+    const user = entry.user;
+    if (!user) return true;
+
+    if (entry.scope === AccessRoleTypes.STAFF) {
+      return some(user.brands, b => b.id === brand);
+    }
+    return user.brandId === brand;
+  }
 
   // --- Helper to activate session store for a given scope
   function activateSessionForScope(scope: ScopeActorTypes) {
@@ -147,6 +180,30 @@ export function useActorScopeSelector() {
   watch(actorScope, newActor => {
     globalActorScope.value = newActor;
     activateSessionForScope(newActor);
+  });
+
+  // --- Watch brand changes: fall back if active session becomes invalid (FE-2973)
+  watch(currentBrandId, () => {
+    const currentId = activeSessionId.value;
+    if (!currentId) return;
+
+    const currentEntry = allSessions.value[currentId];
+    if (!currentEntry) return;
+
+    if (isSessionValidForBrand(currentEntry)) return;
+
+    // Active session is invalid for this brand — find a valid one to fall back to
+    const validEntry = find(
+      allSessions.value,
+      (entry, id) => id !== currentId && isSessionValidForBrand(entry)
+    );
+
+    if (validEntry) {
+      activate(validEntry.scope, validEntry.token.actor_id ?? undefined);
+    } else {
+      // No valid session — fall back to guest
+      activate(AccessRoleTypes.GUEST);
+    }
   });
 
   // --- Helper to build a SessionItem from a session entry
@@ -186,43 +243,61 @@ export function useActorScopeSelector() {
   }
 
   // --- Flat list of all session items (kept for backward compat)
+  // Filtered by brand validity (FE-2973)
   const sessionItems = computed<SessionItem[]>(() => {
-    return map(allSessions.value, (entry, id) => buildSessionItem(id, entry));
+    return filter(
+      map(allSessions.value, (entry, id) => buildSessionItem(id, entry)),
+      item => {
+        const entry = allSessions.value[item.id];
+        return entry ? isSessionValidForBrand(entry) : false;
+      }
+    );
   });
 
   // --- Staff sessions with nested impersonated clients
+  // Filtered by brand validity (FE-2973)
   const staffSessionNodes = computed<StaffSessionNode[]>(() => {
     const impersonations = impersonatedSessions.value;
 
-    return map(staffSessions.value, (entry, staffId) => {
+    const nodes: StaffSessionNode[] = [];
+    for (const [staffId, entry] of toPairs(staffSessions.value)) {
+      if (!isSessionValidForBrand(entry)) continue;
+
       const item = buildSessionItem(staffId, entry);
 
       // Find client sessions whose impersonator is this staff session
+      // Also filter impersonated clients by brand validity
       const children: SessionItem[] = [];
       for (const [clientId, parentId] of toPairs(impersonations)) {
         if (parentId === staffId) {
           const clientEntry = clientSessions.value[clientId];
-          if (clientEntry) {
+          if (clientEntry && isSessionValidForBrand(clientEntry)) {
             children.push(buildSessionItem(clientId, clientEntry));
           }
         }
       }
 
       // Sort active impersonated clients to the top
-      return {
+      nodes.push({
         ...item,
         impersonatedClients: sortBy(children, c => (c.isActive ? 0 : 1))
-      };
-    });
+      });
+    }
+    return nodes;
   });
 
   // --- Client sessions NOT impersonated by any staff session
+  // Filtered by brand validity (FE-2973)
   const directClientItems = computed<SessionItem[]>(() => {
     const impersonations = impersonatedSessions.value;
 
     return filter(
       map(clientSessions.value, (entry, id) => buildSessionItem(id, entry)),
-      item => !has(impersonations, item.id)
+      item => {
+        if (has(impersonations, item.id)) return false;
+        const entry = clientSessions.value[item.id];
+        return entry ? isSessionValidForBrand(entry) : false;
+      }
     );
   });
 
@@ -449,9 +524,33 @@ export function useActorScopeSelector() {
    * and then removes exactly the session the cookie names.
    */
   function logoutSession(actor: AccessRoleTypes, sessionId: string) {
+    const brand = currentBrandId.value;
+
     if (get(getTokenFromStorage(actor), "actor_id") === sessionId)
       logout(actor);
     else remove(actor, sessionId);
+
+    // After logout, check if any remaining session can access the current brand
+    // If not, navigate to org-wide (FE-2973)
+    if (brand) {
+      const hasValidSession = some(allSessions.value, entry =>
+        isSessionValidForBrand(entry)
+      );
+      if (!hasValidSession) {
+        const segments = filter(route.path.split("/"), Boolean);
+        const page = segments[1] ?? segments[0] ?? "";
+
+        router.push(
+          preserveQuery(
+            buildScopePath({
+              page,
+              brandId: undefined,
+              actor: ScopeActorTypes.GUEST
+            })
+          )
+        );
+      }
+    }
   }
 
   return {
@@ -472,6 +571,9 @@ export function useActorScopeSelector() {
 
     /** Whether guest mode can be shown in the actions area. */
     canUseGuestMode,
+
+    /** Current brand ID from URL (undefined = org mode, FE-2973). */
+    currentBrandId,
 
     /** Client sessions not impersonated by any staff session. */
     directClientItems,

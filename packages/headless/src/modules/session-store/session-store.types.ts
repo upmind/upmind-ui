@@ -1,12 +1,13 @@
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { DetailedError } from "../../utils";
 import type { Account } from "../client";
-import type { IClient, ISelf, IToken } from "@upmind-automation/types";
+import type { IBrand, IClient, ISelf, IToken } from "@upmind-automation/types";
 import type { AccessRoleTypes } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module session-store/types
  * @description Session store type definitions.
+ * @see graphify-out/ for IBrand, ISelf type provenance (FE-2973 brand plumbing)
  */
 
 /**
@@ -138,6 +139,17 @@ export type SessionUser = {
    * in the store (cache-safe), not only on the cached /self fetch.
    */
   analytics?: ISelf["analytics"];
+  /**
+   * Brand ID this session belongs to (FE-2973, graphify-out/ IBrand).
+   * - Client/Guest: from ISelf.brand_id (the client's home brand)
+   * - Staff: undefined (staff can access multiple brands)
+   */
+  brandId?: IBrand["id"];
+  /**
+   * Brands accessible to this session (staff only).
+   * Populated from /admin/self?with=brands for staff sessions.
+   */
+  brands?: IBrand[];
 };
 
 /**

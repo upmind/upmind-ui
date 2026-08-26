@@ -20,6 +20,7 @@
           :actor="actorScope"
           :context="contextScope"
           :fresh="isFreshRequest"
+          :brand-id="brandId"
           @logout="router.replace({ name: 'useAuth-logged-out' })"
         />
       </div>
@@ -30,6 +31,7 @@
 <script lang="ts" setup>
 // --- internal
 import { Page } from "@upmind/ui";
+import { computed } from "vue";
 import { AUTH_SCOPE_MATRIX } from "@upmind-automation/headless";
 import { keys } from "lodash-es";
 import type {
@@ -42,7 +44,11 @@ import {
   useActorScopeSelector,
   useContextScopeSelector
 } from "~/components/scope";
-import { useActorScope, useContextScope } from "~/composables/scope";
+import {
+  useActorScope,
+  useBrandScope,
+  useContextScope
+} from "~/composables/scope";
 import { isAddSessionRequest } from "~/funnels/labs";
 
 // ------------------------------------------------------------------------------
@@ -66,6 +72,10 @@ const route = useRoute();
 // --- Scope from URL
 const actorScope = useActorScope();
 const contextScope = useContextScope<AuthContextTypes>();
+const brandScope = useBrandScope();
+const brandId = computed(() =>
+  brandScope.value.mode === "brand" ? brandScope.value.brandId : undefined
+);
 
 // --- Add-session request: spawn a fresh instance showing the login form even
 //     when a session of this scope is already active (never for guest).

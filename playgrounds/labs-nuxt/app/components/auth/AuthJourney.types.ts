@@ -53,4 +53,12 @@ export type AuthJourneyProps = {
    * which is a journey that renders nothing.
    */
   fresh?: boolean;
+
+  /**
+   * Brand ID from URL for brand-scoped staff sessions (FE-2973).
+   * Staff: applies .inBrand(brandId) on the auth composable.
+   * Client/Guest: ignored (type-gated — client/guest builders don't expose it).
+   * @see graphify-out/ for brand plumbing provenance
+   */
+  brandId?: string;
 };
