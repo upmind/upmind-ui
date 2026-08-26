@@ -9,7 +9,7 @@ import {
   toString
 } from "lodash-es";
 import type { SessionUser, Token } from "./session-store.types";
-import type { IClient, ISelf, IUser } from "@upmind-automation/types";
+import type { IBrand, IClient, ISelf, IUser } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @internal
@@ -49,9 +49,13 @@ export function mapToken(data: string | Token): Token | undefined {
 /**
  * Map /self API response to SessionUser format.
  * Extracts user data from ISelf.actor field for session store.
+ * Brand fields: brand_id from ISelf, brands from `with=brands` relation (staff).
  */
 export function mapSessionUser(
-  self: Pick<ISelf, "actor"> & Partial<Pick<ISelf, "analytics" | "accounts">>
+  self: Pick<ISelf, "actor"> &
+    Partial<Pick<ISelf, "analytics" | "accounts" | "brand_id">> & {
+      brands?: IBrand[];
+    }
 ): SessionUser {
   const actor: IUser = self.actor;
   const client = actor as unknown as IClient;
@@ -83,6 +87,8 @@ export function mapSessionUser(
       : undefined,
     primaryEmailId: defaultEmail?.id,
     publicName: actor.public_name,
-    username: actor.username
+    username: actor.username,
+    brandId: self.brand_id,
+    brands: self.brands
   };
 }

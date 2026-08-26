@@ -197,15 +197,48 @@ const { t } = useI18n();
 // The scope is FIXED for an instance's lifetime: `useAuth()` resolves a keyed
 // instance at call time, so a changed actor is a different composable, not a
 // reactive read. Hosts key this component on the scope they pass.
-const auth = props.fresh
-  ? useAuth()
-      .as(props.actor as ScopeActorTypes.CLIENT | ScopeActorTypes.STAFF)
-      .fresh()
-  : !props.context
-    ? useAuth().as(props.actor)
-    : useAuth()
-        .as(props.actor as ScopeActorTypes.CLIENT | ScopeActorTypes.STAFF)
-        .for(props.context.type, props.context.id);
+//
+// Staff actors apply .inBrand(brandId) when a brand is set from the URL (FE-2973).
+// Client/Guest builders don't expose .inBrand() — type-gated by design.
+const isStaffActor =
+  props.actor === ScopeActorTypes.STAFF ||
+  (props.actor === ScopeActorTypes.SELF && props.brandId);
+
+const auth = (() => {
+  const base = useAuth();
+
+  if (props.fresh) {
+    const builder = base.as(
+      props.actor as ScopeActorTypes.CLIENT | ScopeActorTypes.STAFF
+    );
+    if (isStaffActor && props.brandId) {
+      return (builder as ReturnType<typeof base.as<ScopeActorTypes.STAFF>>)
+        .inBrand(props.brandId)
+        .fresh();
+    }
+    return builder.fresh();
+  }
+
+  if (!props.context) {
+    const builder = base.as(props.actor);
+    if (props.actor === ScopeActorTypes.STAFF && props.brandId) {
+      return (
+        builder as ReturnType<typeof base.as<ScopeActorTypes.STAFF>>
+      ).inBrand(props.brandId);
+    }
+    return builder;
+  }
+
+  const builder = base.as(
+    props.actor as ScopeActorTypes.CLIENT | ScopeActorTypes.STAFF
+  );
+  if (props.actor === ScopeActorTypes.STAFF && props.brandId) {
+    return (builder as ReturnType<typeof base.as<ScopeActorTypes.STAFF>>)
+      .inBrand(props.brandId)
+      .for(props.context.type, props.context.id);
+  }
+  return builder.for(props.context.type, props.context.id);
+})();
 
 const { destroy, isReady, reject, resolve, set, start } = auth.useActions();
 const {

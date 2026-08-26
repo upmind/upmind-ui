@@ -107,6 +107,7 @@ export default defineConfig({
             environment: "node",
             include: [
               "app/composables/**/__tests__/**/*.spec.ts",
+              "app/services/**/__tests__/**/*.spec.ts",
               "modules/scenarios/runtime/composables/**/__tests__/**/*.spec.ts",
               "modules/scenarios/runtime/force/**/__tests__/**/*.spec.ts"
             ]

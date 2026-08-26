@@ -1,0 +1,11 @@
+--- a/playgrounds/labs-nuxt/app/services/impersonation.ts
++++ b/playgrounds/labs-nuxt/app/services/impersonation.ts
+@@ -117,7 +117,7 @@ export async function impersonateClient(clientId: string): Promise<IToken> {
+
+   return {
+     access_token: response.access_token,
+-    actor_type: AccessRoleTypes.CLIENT,
++    actor_type: AccessRoleTypes.STAFF,
+     actor_id: clientId,
+     expires_in: 0,
+     refresh_expires_in: 0,
