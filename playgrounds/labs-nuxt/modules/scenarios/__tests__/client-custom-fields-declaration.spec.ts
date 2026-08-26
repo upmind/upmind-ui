@@ -20,18 +20,9 @@
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  difference,
-  filter,
-  get,
-  has,
-  keys,
-  map,
-  reject,
-  startsWith
-} from "lodash-es";
 import { registry } from "../runtime/registry";
 import clientCustomFields from "../useClientCustomFields/client-custom-fields.scenario";
+import { difference, get, has, keys, map, reject, startsWith } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 

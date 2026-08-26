@@ -33,9 +33,9 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from "vue-i18n";
 import { useTestAttrs } from "@upmind/ui";
 import { Checkbox, Skeleton } from "@upmind/ui";
+import { useI18n } from "vue-i18n";
 import type { BasketProduct } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------

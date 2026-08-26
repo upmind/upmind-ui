@@ -142,6 +142,7 @@
 </template>
 
 <script setup lang="ts">
+import { Input, RadioGroup, Select } from "@upmind/ui";
 import { computed, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import {
@@ -151,7 +152,6 @@ import {
   DEBOUNCE_DELAY,
   type DomainChoice
 } from "@upmind-automation/headless";
-import { Input, RadioGroup, Select } from "@upmind/ui";
 import { FormControl, FormMessage } from "../../components/form";
 import { Icon } from "../../components/icon";
 import SmartDomainDrawer from "./components/SmartDomainDrawer.vue";

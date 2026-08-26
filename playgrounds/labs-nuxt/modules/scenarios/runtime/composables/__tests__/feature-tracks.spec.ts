@@ -44,11 +44,6 @@ import {
   defineSteps
 } from "@upmind-automation/scenario-harness";
 import { featureTracksFor } from "../../force/corpus.source";
-
-const CLIENT_EMAIL_TRACK_COUNT = 11;
-const tracks = featureTracksFor("client-email");
-const featureText = tracks?.feature ?? "";
-const stepCatalog = tracks?.catalog ?? {};
 import { useFeatureTracks } from "../useFeatureTracks";
 import {
   countBy,
@@ -69,6 +64,11 @@ import type {
   World,
   WorldScope
 } from "@upmind-automation/scenario-harness";
+
+const CLIENT_EMAIL_TRACK_COUNT = 11;
+const tracks = featureTracksFor("client-email");
+const featureText = tracks?.feature ?? "";
+const stepCatalog = tracks?.catalog ?? {};
 
 // -----------------------------------------------------------------------------
 

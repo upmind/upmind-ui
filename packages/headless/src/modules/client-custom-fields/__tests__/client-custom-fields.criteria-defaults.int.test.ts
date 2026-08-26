@@ -301,7 +301,12 @@ describe("client-custom-fields — the criteria surface is published on the four
           type: "Control",
           scope: "#/properties/filters/properties/name/properties/like",
           i18n: "form.custom_field_search",
-          options: { format: "search", noLabel: true, optionalText: "" }
+          options: {
+            format: "search",
+            icon: "search-md",
+            noLabel: true,
+            optionalText: ""
+          }
         },
         {
           type: "Control",

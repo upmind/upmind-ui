@@ -25,7 +25,7 @@
         :readonly="readonly"
         :renderers="renderers"
         :schema="schema"
-        :uischema="uischema"
+        :uischema="draft ?? uischema"
         :validationMode="mode"
         @change="onChange"
       />
@@ -69,10 +69,10 @@
 
 <script lang="ts" setup>
 import { JsonForms } from "@jsonforms/vue";
+import { Button, cn } from "@upmind/ui";
 import { useVModel } from "@vueuse/core";
 import { ref, watch, computed, onMounted, useTemplateRef } from "vue";
 import { isDeepEmpty } from "@upmind-automation/headless";
-import { Button, cn } from "@upmind/ui";
 import { Icon } from "../../icon";
 import { upmindUIRenderers } from "./renderers";
 import {
@@ -83,6 +83,7 @@ import {
 } from "./variants";
 import { iterateSchema } from "./renderers/utils";
 import {
+  cloneDeep,
   isEmpty,
   isEqual,
   isFunction,
@@ -108,6 +109,7 @@ import type { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<FormProps>(), {
   as: "form",
+  size: "lg",
   // ---
   modelValue: () => ({}),
   additionalRenderers: () => [],
@@ -155,6 +157,10 @@ const model = useVModel(props, "modelValue", emits, {
 const uischema = useVModel(props, "uischema", emits, {
   passive: true
 });
+/** The host's OWN stamped copy — what json-forms renders (see stampUischema). */
+const draft = ref<FormProps["uischema"]>();
+let draftSource: FormProps["uischema"] | undefined;
+let draftSize: FormProps["size"] | undefined;
 const errors = ref<ErrorObject[]>([]);
 const touched = useVModel(props, "touched", emits, {
   passive: true,
@@ -300,7 +306,7 @@ function updateUischema(uischema: FormProps["uischema"]) {
     child.options ??= {}; //safety check
 
     // map the form size :- this is the only way to ensure that all children elements have the same size as the form
-    // child.options.size ??= props.size; // only set if not already set
+    child.options.size ??= props.size; // only set if not already set
 
     // map additional i18n, json forms just does title & description
     if (child?.i18n && isFunction(props?.i18n?.translate)) {
@@ -334,16 +340,40 @@ function syncUischema() {
   uischema.value ??= currentUischema;
 }
 
+/**
+ * Stamp the host's own DRAFT, never the caller's object. `useVModel` passive
+ * hands `uischema.value` back by reference, so stamping in place writes the
+ * form's size and translated copy into a uischema the caller keeps — and a
+ * machine-cached one (auth) carries that stamp into every later mount, where
+ * `??=` then refuses to correct it.
+ *
+ * The draft is re-cut only when its SOURCE changes, or when the size it was cut
+ * under does: `updateUischema` interpolates the model into translated copy, so
+ * it must re-run on every model change, and a fresh object each time would
+ * remount the whole control tree on every keystroke.
+ */
+function stampUischema(source?: FormProps["uischema"]): void {
+  if (!source) return;
+
+  if (source !== draftSource || props.size !== draftSize) {
+    draftSource = source;
+    draftSize = props.size;
+    draft.value = cloneDeep(source);
+  }
+
+  updateUischema(draft.value);
+}
+
 onMounted(() => {
   syncUischema();
-  updateUischema(uischema.value);
+  stampUischema(uischema.value);
 });
 // --- effects
 watch(
   () => props,
-  ({ uischema, additionalErrors: _additionalErrors, touched: _touched }) => {
+  ({ uischema: incoming, additionalErrors: _errors, touched: _touched }) => {
     syncUischema();
-    updateUischema(uischema);
+    stampUischema(incoming ?? uischema.value);
   },
   { deep: true }
 );

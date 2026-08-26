@@ -73,6 +73,9 @@
 
 <script lang="ts" setup>
 import { isLayout } from "@jsonforms/core";
+import { cn } from "@upmind/ui";
+import { Link } from "@upmind/ui";
+import { Button } from "@upmind/ui";
 import { computed, inject, onUpdated, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import {
@@ -81,9 +84,6 @@ import {
   responseCodes,
   ErrorOrigin
 } from "@upmind-automation/headless";
-import { cn } from "@upmind/ui";
-import { Link } from "@upmind/ui";
-import { Button } from "@upmind/ui";
 import Form from "../../../components/form/Form.vue";
 import {
   productConfigRootVariants,

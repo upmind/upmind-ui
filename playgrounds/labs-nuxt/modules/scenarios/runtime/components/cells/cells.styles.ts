@@ -15,7 +15,7 @@ import { cva } from "class-variance-authority";
 export const cellIcon = cva("block", {
   variants: {
     isFlagged: {
-      true: "text-accent-primary",
+      true: "text-primary",
       false: "text-muted"
     }
   },

@@ -3,21 +3,21 @@
     v-if="hasRows"
     :items="items"
     :label="t('labs.acting_for')"
-    class="w-64"
+    class="border-promo shadow-overlay w-72 rounded-xl"
   >
     <template #trigger>
       <Button
-        :label="triggerLabel"
-        :ring="false"
-        :icon="triggerIcon"
         :class="
           isActing ? 'bg-control-selected text-control-selected' : 'text-muted'
         "
-        icon-append="chevron-down"
         size="sm"
         variant="ghost"
         :data-attrs="{ 'data-test-key': 'acting-for' }"
-      />
+      >
+        <Icon :icon="triggerIcon" size="xs" />
+        {{ triggerLabel }}
+        <Icon icon="chevron-down" size="xs" />
+      </Button>
     </template>
 
     <template #item="{ item }">
@@ -26,83 +26,127 @@
         :label="t('labs.acting_for_unsupported', { actor: item.label })"
       >
         <Button
-          :label="item.label"
           :data-attrs="item.dataAttrs"
-          :ring="false"
-          align="left"
+          class="justify-start"
           block
           disabled
           size="sm"
           variant="ghost"
-        />
+        >
+          {{ item.label }}
+        </Button>
       </Tooltip>
 
       <Button
         v-else
-        :label="item.label"
         :data-attrs="item.dataAttrs"
         :aria-current="isCurrent(String(item.value)) ? 'true' : undefined"
-        :class="actorRow({ isCurrent: isCurrent(String(item.value)) })"
-        :ring="false"
-        align="left"
+        :class="[
+          actorRow({ isCurrent: isCurrent(String(item.value)) }),
+          'justify-start'
+        ]"
         block
         size="sm"
         variant="ghost"
       >
-        <template #append>
-          <span class="ml-auto flex shrink-0 items-center gap-2">
-            <span
-              v-if="contextFor(String(item.value))"
-              class="text-muted text-xs leading-none text-nowrap"
-            >
-              {{ contextFor(String(item.value)) }}
-            </span>
-            <Icon
-              v-if="isCurrent(String(item.value))"
-              icon="check"
-              size="nano"
-              class="text-accent-success"
-            />
+        {{ item.label }}
+
+        <span class="ml-auto flex shrink-0 items-center gap-2">
+          <span
+            v-if="contextFor(String(item.value))"
+            class="text-muted text-xs leading-none text-nowrap"
+          >
+            {{ contextFor(String(item.value)) }}
           </span>
-        </template>
+          <Icon
+            v-if="isCurrent(String(item.value))"
+            icon="check"
+            size="nano"
+            class="text-success"
+          />
+        </span>
       </Button>
     </template>
 
     <div class="border-control-default border-t p-2">
       <Input
-        v-model="idInput"
+        v-model="searchQuery"
         :disabled="!contextType"
-        :placeholder="t('labs.acting_for_id_placeholder')"
-        @keydown.stop
-        @keyup.enter="applyId"
+        :placeholder="t('labs.acting_for_search')"
+        :data-attrs="{ 'data-test-key': 'acting-for-search' }"
+        @keydown="onFieldKeydown"
       >
-        <template #append>
-          <Tooltip :label="t('labs.acting_for_id_apply')">
-            <Button
-              :disabled="!idInput"
-              :ring="false"
-              icon="check"
-              icon-only
-              size="sm"
-              variant="ghost"
-              :data-attrs="{ 'data-test-key': 'acting-for-id-apply' }"
-              @click="applyId"
-            />
-          </Tooltip>
+        <template #leading>
+          <Icon icon="search-sm" size="xs" class="text-muted" />
         </template>
       </Input>
+
+      <!-- Hand-assembled, so the roles are stated: the rows are a single-select
+           LIST, and without them a reader hears four unrelated buttons and is
+           never told which client is being acted for. -->
+      <div
+        v-if="contextType"
+        role="listbox"
+        :aria-label="t('labs.acting_for_search')"
+        class="mt-2 max-h-48 overflow-y-auto"
+      >
+        <Button
+          v-for="client in filteredClients"
+          :key="String(client.value)"
+          role="option"
+          :data-attrs="client.dataAttrs"
+          :aria-selected="currentContext?.id === client.value"
+          :class="[
+            actorRow({ isCurrent: currentContext?.id === client.value }),
+            'justify-start'
+          ]"
+          block
+          size="sm"
+          variant="ghost"
+          @click="selectClient(client)"
+        >
+          {{ client.label }}
+          <Icon
+            v-if="currentContext?.id === client.value"
+            icon="check"
+            size="nano"
+            class="text-success ml-auto"
+          />
+        </Button>
+
+        <p
+          v-if="!filteredClients.length && searchQuery"
+          class="text-muted p-2 text-center text-sm"
+        >
+          {{ t("labs.acting_for_search_empty") }}
+        </p>
+      </div>
+
+      <div v-if="contextType" class="border-control-default mt-2 border-t pt-2">
+        <Input
+          v-model="idInput"
+          :placeholder="t('labs.acting_for_id_placeholder')"
+          @keydown="onFieldKeydown"
+          @keyup.enter="applyId"
+        >
+          <template #trailing>
+            <Tooltip :label="t('labs.acting_for_id_apply')">
+              <Button
+                :disabled="!idInput"
+                icon-only
+                size="sm"
+                variant="ghost"
+                :data-attrs="{ 'data-test-key': 'acting-for-id-apply' }"
+                @click="applyId"
+              >
+                <Icon icon="check" size="xs" />
+              </Button>
+            </Tooltip>
+          </template>
+        </Input>
+      </div>
     </div>
   </DropdownMenu>
-
-  <Combobox
-    v-if="hasRows && !!contextType"
-    :items="clients"
-    :model-value="currentContext?.id"
-    :placeholder="t('labs.acting_for_search')"
-    :empty-label="t('labs.acting_for_search_empty')"
-    :data-attrs="{ 'data-test-key': 'acting-for-search' }"
-    @update:model-value="value => applyContext(String(value))"
-  />
 </template>
 
 <script lang="ts" setup>
@@ -134,12 +178,12 @@
  * and picking it is the way back out of a context.
  */
 
+import { Button, DropdownMenu, Input, Tooltip } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
-import { ScopeActorTypes, useSessionStore } from "@upmind-automation/headless";
-import { Button, Combobox, DropdownMenu, Input, Tooltip } from "@upmind/ui";
 import { Icon } from "@upmind-automation/client-vue";
+import { ScopeActorTypes, useSessionStore } from "@upmind-automation/headless";
 import {
   buildScopePath,
   useActorScope,
@@ -148,10 +192,21 @@ import {
 import { usePlaygroundUrlState } from "../../composables/usePlaygroundUrlState";
 import { actorRow } from "./ActingForSegment.styles";
 import { useContextScopeSelector } from "./useContextScopeSelector";
-import { filter, find, first, get, has, isEmpty, map, reject } from "lodash-es";
+import {
+  filter,
+  find,
+  first,
+  get,
+  has,
+  includes,
+  isEmpty,
+  map,
+  reject,
+  toLower
+} from "lodash-es";
 import type { ActorContextRow } from "./useContextScopeSelector";
-import type { SessionEntry } from "@upmind-automation/headless";
 import type { ComboboxOption, MenuItem } from "@upmind/ui";
+import type { SessionEntry } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -184,6 +239,7 @@ const { isAvailable } = store.useMeta();
 const isActing = computed(() => !!currentContext.value);
 
 const idInput = ref("");
+const searchQuery = ref("");
 const armed = ref<ScopeActorTypes>();
 
 // --- Computed
@@ -253,9 +309,28 @@ const clients = computed<ComboboxOption[]>(() => [
     reject(filter(recentContexts.value, ["type", contextType.value]), entry =>
       has(pool.value, entry.id)
     ),
-    entry => clientItem(entry.id, entry.label ?? entry.id)
+    entry => {
+      // Prefer pool label if available, else use stored label
+      const poolEntry = get(pool.value, entry.id);
+      const label = poolEntry
+        ? sessionLabel(poolEntry, entry.id)
+        : (entry.label ?? entry.id);
+      return clientItem(entry.id, label);
+    }
   )
 ]);
+
+/** Clients filtered by search query. */
+const filteredClients = computed<ComboboxOption[]>(() => {
+  if (!searchQuery.value) return clients.value;
+  const query = toLower(searchQuery.value);
+  return filter(
+    clients.value,
+    client =>
+      toLower(client.label ?? "").includes(query) ||
+      toLower(String(client.value)).includes(query)
+  );
+});
 
 // --- Methods
 
@@ -264,12 +339,20 @@ function rowFor(value: string) {
 }
 
 /** Self returns to the bare scope; a resolving actor arms its context type. */
-function handlerFor(row: ActorContextRow): (() => unknown) | undefined {
-  if (row.actor === ScopeActorTypes.SELF) return clear;
+function handlerFor(
+  row: ActorContextRow
+): ((event: Event) => void) | undefined {
+  if (row.actor === ScopeActorTypes.SELF) {
+    return () => {
+      clear();
+    };
+  }
   if (!row.contextType) return undefined;
 
-  return () => {
+  return (event: Event) => {
+    event.preventDefault(); // Keep menu open for context selection
     armed.value = row.actor;
+    searchQuery.value = "";
   };
 }
 
@@ -314,30 +397,71 @@ function clientItem(id: string, label: string): ComboboxOption {
 
 /** What a context is CALLED, where anything the app knows says so. */
 function labelFor(id: string): string {
+  // 1. Session pool is most authoritative
   const entry = get(pool.value, id);
   if (entry) return sessionLabel(entry, id);
 
-  return find(recentContexts.value, ["id", id])?.label ?? id;
+  // 2. Check clients list (may have label from pool or recentContexts)
+  const clientEntry = find(clients.value, ["value", id]);
+  if (clientEntry?.label && clientEntry.label !== id) return clientEntry.label;
+
+  // 3. Check recentContexts (use label only if different from ID)
+  const recent = find(recentContexts.value, ["id", id]);
+  if (recent?.label && recent.label !== id) return recent.label;
+
+  return id;
+}
+
+/** Keys the MENU owns, which a field inside it must not swallow. */
+const MENU_KEYS = ["Escape", "Tab"];
+
+/**
+ * Typing in a field inside a `DropdownMenu` drives the menu's own typeahead and
+ * moves focus off the field mid-word, so the keystroke is stopped here. Only
+ * these keys are stopped: a blanket `@keydown.stop` also swallowed Escape, and
+ * the panel could then not be closed from either field at all.
+ */
+function onFieldKeydown(event: KeyboardEvent): void {
+  if (includes(MENU_KEYS, event.key)) return;
+  event.stopPropagation();
+}
+
+/** Select a client from the list, using its known label. */
+function selectClient(client: ComboboxOption): void {
+  const id = String(client.value);
+  const label =
+    client.label && client.label !== id ? client.label : labelFor(id);
+  void applyContextWithLabel(id, label);
 }
 
 /** Land the scope path this context resolves to; the composable re-boots on it. */
-async function applyContext(id: string) {
+function applyContext(id: string): void {
+  void applyContextWithLabel(id, labelFor(id));
+}
+
+async function applyContextWithLabel(id: string, label: string): Promise<void> {
   const type = contextType.value;
   const actor = target.value?.actor;
   if (!type || !actor || isEmpty(id)) return;
 
-  remember({ type, id, label: labelFor(id) });
+  remember({ type, id, label });
+  searchQuery.value = "";
 
-  await router.push(
-    preserveQuery(
-      buildScopePath({
-        page: page.value,
-        brandId: brandId.value,
-        actor,
-        context: { type, id }
-      })
+  // A guard can redirect or abort this push, and vue-router REJECTS on both —
+  // an unhandled rejection for a navigation the app itself chose to redirect.
+  // The scope is already remembered, so the landing is the router's to decide.
+  await router
+    .push(
+      preserveQuery(
+        buildScopePath({
+          page: page.value,
+          brandId: brandId.value,
+          actor,
+          context: { type, id }
+        })
+      )
     )
-  );
+    .catch(() => undefined);
 }
 
 async function applyId() {

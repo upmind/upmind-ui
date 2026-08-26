@@ -13,15 +13,6 @@
       >
         {{ label }}
       </Badge>
-
-      <p
-        v-if="hint"
-        :class="forcedCanvas.hint()"
-        data-test-key="forced-pending"
-        :data-test-value="preset"
-      >
-        {{ hint }}
-      </p>
     </div>
 
     <slot />
@@ -53,12 +44,11 @@
  * state appear.
  */
 
+import { Badge } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Badge } from "@upmind/ui";
 import { forcedCanvas } from "./ForcedCanvas.styles";
-import { FORCE_PRESET_HINTS, FORCE_PRESET_LABELS } from "./ForcedCanvas.types";
-import { get } from "lodash-es";
+import { FORCE_PRESET_LABELS } from "./ForcedCanvas.types";
 import type { ForcedCanvasProps } from "./ForcedCanvas.types";
 // -----------------------------------------------------------------------------
 
@@ -71,11 +61,6 @@ const label = computed(() =>
     ? t("labs.forced_preset", { preset: t(FORCE_PRESET_LABELS[props.preset]) })
     : ""
 );
-
-const hint = computed(() => {
-  const key = props.preset && get(FORCE_PRESET_HINTS, props.preset);
-  return key ? t(key) : "";
-});
 
 const isForced = computed(() => !!props.preset);
 </script>

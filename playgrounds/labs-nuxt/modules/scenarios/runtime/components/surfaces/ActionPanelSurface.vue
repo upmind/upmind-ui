@@ -32,12 +32,12 @@
 
 import { computed } from "vue";
 import { formRenderers, UpmForm } from "@upmind-automation/client-vue";
-import { actionPanelSurface } from "./ActionPanelSurface.styles";
 import { ActionPlacementTypes } from "../../scenario.types";
 import ActionSlots from "../ActionSlots.vue";
 import { resolveModuleDetail, resolveModuleState } from "../module-state";
 import { ModuleState } from "../module-state.types";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
+import { actionPanelSurface } from "./ActionPanelSurface.styles";
 import { isFunction, map, startCase } from "lodash-es";
 import type { ActionSlotItem } from "../ActionSlots.types";
 import type { ActionPanelSurfaceProps } from "./ActionPanelSurface.types";

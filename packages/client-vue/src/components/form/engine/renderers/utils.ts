@@ -5,7 +5,6 @@ import {
   getErrorAt,
   getFirstPrimitiveProp,
   getSubErrorsAt,
-  isLayout,
   rankWith,
   Resolve
 } from "@jsonforms/core";
@@ -14,24 +13,59 @@ import {
   cloneDeep,
   defaults,
   isEmpty,
+  get,
+  includes,
   isEqual,
   isFunction,
   isNil,
+  isNull,
   kebabCase,
   map,
   merge,
+  omit,
   reduce,
   set
 } from "lodash-es";
-import type { FormControlProps } from "../types";
+import type {
+  ControlSize,
+  FormControlOptions,
+  FormControlProps
+} from "../types";
 import type {
   Tester,
+  JsonFormsUISchemaRegistryEntry,
   JsonFormsSubStates,
   CombinatorSubSchemaRenderInfo,
   IterateCallback,
+  StatePropsOfArrayControl,
+  StatePropsOfControl,
+  StatePropsOfLabel,
+  StatePropsOfLayout,
   UISchemaElement
 } from "@jsonforms/core";
 import type { ErrorObject } from "ajv";
+// -----------------------------------------------------------------------------
+
+/**
+ * The control family's own scale — `Input` / `Select` / `Textarea` all carry
+ * exactly these, and `FormProps["size"]` is now held to the same three, so the
+ * host can no longer stamp a size the controls cannot render. This coercion
+ * remains the guard for uischema-authored sizes, which are untyped.
+ *
+ * `lg` is the house default, matching `FormHost`'s own. Every control renderer
+ * resolves its size here, so a combinator/`oneOf` sub-schema and a hostless
+ * mount — neither of which the host ever stamps — land on the same scale as a
+ * hosted field rather than silently dropping to the primitive's `md`.
+ */
+const CONTROL_SIZES: ControlSize[] = ["sm", "md", "lg"];
+
+const DEFAULT_CONTROL_SIZE: ControlSize = "lg";
+
+export function toControlSize(size?: unknown): ControlSize {
+  return includes(CONTROL_SIZES, size as ControlSize)
+    ? (size as ControlSize)
+    : DEFAULT_CONTROL_SIZE;
+}
 // -----------------------------------------------------------------------------
 
 /**
@@ -49,11 +83,33 @@ export function toSafeControlId(scope: string): string {
   return kebabCase(scope);
 }
 
+/**
+ * What `useJsonFormsControl` actually hands a renderer. JSONForms' own
+ * `StatePropsOfControl` omits two fields its mappers put on the object:
+ * `initial` (the value the form booted with, which is how dirty is decided) and
+ * `uischemas` (the registry `findUISchema` needs to resolve a detail schema).
+ * Both are read below, so both are named here rather than asserted away at each
+ * call site.
+ */
+type EngineControlState = StatePropsOfControl & {
+  initial?: unknown;
+  uischemas?: JsonFormsUISchemaRegistryEntry[];
+};
+
+type EngineArrayControlState = StatePropsOfArrayControl & {
+  initial?: unknown;
+  uischemas?: JsonFormsUISchemaRegistryEntry[];
+};
+
 export const useUpmindUIRenderer = <
-  I extends { control: any; handleChange: Function }
+  I extends {
+    control: { value: EngineControlState };
+    handleChange: (path: string, value: unknown) => void;
+  }
 >(
   input: I,
-  adaptTarget: (target: any) => any = v => v?.value || v || null
+  adaptTarget: (target: unknown) => unknown = v =>
+    (v as { value?: unknown })?.value || v || null
 ) => {
   const jsonforms = inject<JsonFormsSubStates>("jsonforms");
   if (!jsonforms) throw new Error("jsonforms not found");
@@ -114,7 +170,7 @@ export const useUpmindUIRenderer = <
                 title:
                   input.control.value.label ?? input.control.value.schema.title,
                 i18n: input.control.value.uischema?.i18n || undefined // NB pass any i18n key in case we need to use the specific key for error messages
-              }
+              } as unknown as UISchemaElement
             )
           : undefined;
 
@@ -131,13 +187,19 @@ export const useUpmindUIRenderer = <
     jsonforms?.core?.validationMode == "ValidateAndShow"
   );
 
-  const appliedOptions = computed((): Partial<FormControlProps> | any => {
-    return merge(
-      {},
-      cloneDeep(input.control.value.config),
-      cloneDeep(input.control.value.uischema.options)
-    );
-  });
+  const appliedOptions = computed(
+    (): Partial<FormControlProps> &
+      FormControlOptions &
+      Record<string, unknown> => {
+      const options = merge(
+        {},
+        cloneDeep(input.control.value.config),
+        cloneDeep(input.control.value.uischema.options)
+      );
+
+      return { ...options, size: toControlSize(options.size) };
+    }
+  );
 
   // let's get our errors as full error objects
   watch(input.control, _control => {
@@ -146,14 +208,47 @@ export const useUpmindUIRenderer = <
     errors.value = getErrors();
   });
 
-  const onInput = (value: any, isTouched: boolean = true) => {
+  const onInput = (value: unknown, isTouched: boolean = true) => {
     if (isNil(value)) return; // NB values that are not set cannot be dirty
     input.handleChange(input.control.value.path, adaptTarget(value));
     touched.value = isTouched;
   };
 
-  const formFieldProps = computed(() => {
-    const props = defaults(appliedOptions.value, {
+  /**
+   * Take the value OFF the model. `onInput` nil-drops by design (a value that
+   * was never set cannot be dirty), so a clear affordance routed through it is
+   * dead on arrival — this is the door that answers one.
+   */
+  const onClear = () => {
+    input.handleChange(input.control.value.path, undefined);
+    touched.value = true;
+  };
+
+  /**
+   * The host's own translator, for copy the RENDERER owns rather than the
+   * schema — a control's affordance has no uischema element to carry an `i18n`
+   * key of its own, and an untranslated default would ship English from inside
+   * the library.
+   */
+  const translate = (key: string, fallback: string): string =>
+    isFunction(jsonforms.i18n?.translate)
+      ? ((jsonforms.i18n.translate(key, fallback, {}) as string) ?? fallback)
+      : fallback;
+
+  // Declared as what FormField CONSUMES. The bag it is built from is open
+  // (uischema options are author-authored), and an index signature of `unknown`
+  // makes every `v-bind` of it a type error at the call site while binding
+  // perfectly well at runtime — so the chrome contract is stated here, once.
+  const formFieldProps = computed((): FormControlProps => {
+    // `defaults` only fills what is UNDEFINED, and a catalogue entry files the
+    // copy it does not carry as an explicit `null` — so a null label would win
+    // over the one JSON Forms derived and the field would render nameless.
+    // Suppression is the `noLabel` option's job; absent copy is just absent.
+    const offered = isNull(appliedOptions.value.label)
+      ? omit(appliedOptions.value, ["label"])
+      : appliedOptions.value;
+
+    const props = defaults(offered, {
       label: input.control.value.label,
       description: input.control.value.description,
       required: input.control.value.required,
@@ -177,7 +272,9 @@ export const useUpmindUIRenderer = <
 
     set(props, "touched", touched.value);
 
-    return props;
+    // The bag also carries the CONTROL options (placeholder, mask, …), which
+    // FormField ignores and the renderer reads separately off appliedOptions.
+    return props as FormControlProps;
   });
 
   // The suite addresses a control by its own key AND the control's id, on the
@@ -194,11 +291,19 @@ export const useUpmindUIRenderer = <
     appliedOptions,
     formFieldProps,
     controlDataAttrs,
-    onInput
+    onInput,
+    onClear,
+    translate,
+    // Exposed for the renderers that write through `handleChange` rather than
+    // `onInput` — they still owe the touched flag their own control's errors
+    // are gated on.
+    touched
   };
 };
 
-export const useUpmindUILayoutRenderer = <I extends { layout: any }>(
+export const useUpmindUILayoutRenderer = <
+  I extends { layout: { value: StatePropsOfLayout } }
+>(
   input: I
 ) => {
   const appliedOptions = computed(() =>
@@ -214,7 +319,9 @@ export const useUpmindUILayoutRenderer = <I extends { layout: any }>(
   };
 };
 
-export const useUpmindUILabelRenderer = <I extends { label: any }>(
+export const useUpmindUILabelRenderer = <
+  I extends { label: { value: StatePropsOfLabel } }
+>(
   input: I
 ) => {
   const appliedOptions = computed(() =>
@@ -231,7 +338,11 @@ export const useUpmindUILabelRenderer = <I extends { label: any }>(
 };
 
 export const useUpmindUIArrayRenderer = <
-  I extends { control: any; addItem?: Function; removeItem?: Function }
+  I extends {
+    control: { value: EngineArrayControlState };
+    addItem?: (path: string, value: unknown) => () => void;
+    removeItem?: (path: string, index: number) => () => void;
+  }
 >(
   input: I
 ) => {
@@ -243,7 +354,11 @@ export const useUpmindUIArrayRenderer = <
     )
   );
 
-  const formFieldProps = computed(() => {
+  // Declared as what FormField CONSUMES. The bag it is built from is open
+  // (uischema options are author-authored), and an index signature of `unknown`
+  // makes every `v-bind` of it a type error at the call site while binding
+  // perfectly well at runtime — so the chrome contract is stated here, once.
+  const formFieldProps = computed((): FormControlProps => {
     const props = defaults(appliedOptions.value, {
       label: input.control.value.label,
       description: input.control.value.description,
@@ -262,7 +377,7 @@ export const useUpmindUIArrayRenderer = <
 
   const childUiSchema = computed(() =>
     findUISchema(
-      input.control.value.uischemas,
+      input.control.value.uischemas ?? [],
       input.control.value.schema,
       input.control.value.uischema.scope,
       input.control.value.path,
@@ -289,7 +404,7 @@ export const useUpmindUIArrayRenderer = <
     return `${labelValue}`;
   };
 
-  const onInput = (checked: boolean, value: any) => {
+  const onInput = (checked: boolean, value: unknown) => {
     if (checked) {
       if (isFunction(input?.addItem)) {
         input.addItem(input.control.value.path, value);
@@ -298,7 +413,7 @@ export const useUpmindUIArrayRenderer = <
       }
     } else {
       if (isFunction(input?.removeItem)) {
-        input?.removeItem(input.control.value.path, value);
+        input?.removeItem(input.control.value.path, Number(value));
       } else {
         //
       }
@@ -319,7 +434,7 @@ export const useUpmindUIArrayRenderer = <
  * Creates indexed render information for oneOf schemas
  */
 export const createIndexedOneOfRenderInfos = (
-  control: any
+  control: EngineControlState
 ): (CombinatorSubSchemaRenderInfo & {
   index: number;
 })[] => {
@@ -331,7 +446,7 @@ export const createIndexedOneOfRenderInfos = (
     "oneOf",
     control.uischema,
     control.path,
-    control.uischemas
+    control.uischemas ?? []
   );
 
   return reduce(
@@ -352,7 +467,7 @@ export const createIndexedOneOfRenderInfos = (
 // -----------------------------------------------------------------------------
 
 export function registerEntry(
-  renderer: any,
+  renderer: unknown,
   { rank, controlType }: { rank: number; controlType: Tester }
 ) {
   const entry = {
@@ -363,9 +478,19 @@ export function registerEntry(
 }
 
 /**
- * Iterates over the UISchema elements and applies a callback function.
- * A more comprehensive implementation than in JsonForms core, as it also
- * iterates over detail elements and not just layout elements.
+ * Walk a uischema and apply a callback to every LEAF it reaches.
+ *
+ * JSONForms core exports no such walker, so there is nothing here to be "more
+ * comprehensive" than — what this owns is two rules core's own layout handling
+ * does not give us: a node is a layout because it carries `elements`, not
+ * because it holds one of the three names core knows (our own `FilterBar` would
+ * otherwise be applied whole and its children never reached), and a control's
+ * `options.detail` sub-tree is walked as well, so a nested form's own controls
+ * are stamped like any other.
+ *
+ * A node carrying `elements` is recursed into and NOT itself applied: a layout
+ * has no control options to carry.
+ *
  * @param uischema The UISchema element to iterate over.
  * @param toApply The callback function to apply to each element.
  * @returns void
@@ -376,8 +501,12 @@ export const iterateSchema = (
 ): void => {
   if (isEmpty(uischema)) return;
 
-  if (isLayout(uischema)) {
-    uischema.elements.forEach(child => iterateSchema(child, toApply));
+  // Any node carrying `elements` is a layout here, not just the three JSONForms
+  // names — our own (`FilterBar`) would otherwise swallow its children whole.
+  const elements = get(uischema, "elements") as UISchemaElement[] | undefined;
+
+  if (!isEmpty(elements)) {
+    elements!.forEach(child => iterateSchema(child, toApply));
     return;
   }
 

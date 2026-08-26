@@ -27,11 +27,11 @@
 </template>
 
 <script setup lang="ts">
+import { Link } from "@upmind/ui";
+import { Breadcrumb } from "@upmind/ui";
 import { inject } from "vue";
 import { useI18n } from "vue-i18n";
 import { useConfig } from "@upmind-automation/headless";
-import { Link } from "@upmind/ui";
-import { Breadcrumb } from "@upmind/ui";
 import { Icon } from "../../../components/icon";
 import { useBreadcrumbs } from "../../../composables/useBreadcrumbs";
 import type { CategoriesProps } from "./types";

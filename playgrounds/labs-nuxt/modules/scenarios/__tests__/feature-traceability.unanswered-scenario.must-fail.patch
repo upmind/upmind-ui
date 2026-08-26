@@ -1,0 +1,44 @@
+Negative control for the BDD anchor gate.
+
+The gate's job is to catch a capability that is DECLARED and never proved — a
+`.feature` scenario nobody anchors a spec to. That gap is invisible by
+construction: the feature file reads complete, the suite is green, and the only
+thing missing is the link between them.
+
+The mutant declares one more capability on the session-switcher feature and
+anchors no spec to it. Nothing else changes: the existing scenarios keep their
+specs, so a suite that graded only "are the specs green" grades this a pass.
+
+The mutant adds rather than deletes on purpose. Deleting an `@anchor` from a
+spec would mutate a TEST, which is the prover's lane and proves nothing about
+production; a feature file is the capability declaration itself, so adding to it
+is a source mutation the gate must answer for.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Expected RED (module lane):
+  feature-traceability.spec.ts  "leaves no declared capability without a spec
+                                  naming it"
+                                -> ["…/session-switcher.feature @T-4"]
+
+The sibling assertion ("leaves no spec anchor pointing at a capability its
+feature never declared") stays GREEN — it walks the other direction, and no
+spec gained an anchor. Both directions have to exist, and only one of them can
+see this mutant.
+
+diff --git a/playgrounds/labs-nuxt/app/components/scope/__tests__/session-switcher.feature b/playgrounds/labs-nuxt/app/components/scope/__tests__/session-switcher.feature
+--- a/playgrounds/labs-nuxt/app/components/scope/__tests__/session-switcher.feature
++++ b/playgrounds/labs-nuxt/app/components/scope/__tests__/session-switcher.feature
+@@ -30,6 +30,12 @@
+     Then the nest count badge displays the session depth
+     And the badge content is rendered as slot children
+
++  @T-4 @developer
++  Scenario: Session rows report their own scope
++    Given a staff session is impersonating a client
++    When the session switcher renders
++    Then each row names the scope it would switch to
++
+   @contract @developer
+   Scenario: Data-test selectors remain valid
+     When the session switcher renders

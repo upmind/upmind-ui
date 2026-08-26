@@ -1,4 +1,6 @@
 import type { cardRootVariants } from "./variants";
+import type { ButtonVariants } from "@upmind/ui";
+import type { ImageProps } from "@upmind/ui";
 import type {
   Product,
   Benefit,
@@ -9,8 +11,6 @@ import type {
   TermDetails,
   UseMetaResult
 } from "@upmind-automation/headless";
-import type { ButtonVariants } from "@upmind/ui";
-import type { ImageProps } from "@upmind/ui";
 import type { VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";

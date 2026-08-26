@@ -21,11 +21,11 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { isModuleResolved } from "../../force/corpus.source";
+import type { ForcePreset, UseForcedState } from "../useForcedState.types";
 
 // Every test re-imports the module graph (boot() → vi.resetModules), so under
 // a loaded worker pool the transform alone can exceed the 5s default.
 vi.setConfig({ testTimeout: 30000 });
-import type { ForcePreset, UseForcedState } from "../useForcedState.types";
 
 // -----------------------------------------------------------------------------
 

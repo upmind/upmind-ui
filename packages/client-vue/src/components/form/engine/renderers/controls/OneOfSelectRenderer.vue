@@ -4,7 +4,7 @@
       :model-value="control.data"
       :items="control.options"
       :placeholder="appliedOptions?.placeholder"
-      size="lg"
+      :size="appliedOptions?.size"
       class="w-full"
       @update:model-value="onInput"
     />

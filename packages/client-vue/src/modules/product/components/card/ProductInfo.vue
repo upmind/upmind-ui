@@ -97,12 +97,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
-import { QUERY_PARAMS } from "@upmind-automation/headless";
 import { Badge } from "@upmind/ui";
 import { Link } from "@upmind/ui";
 import { Tooltip } from "@upmind/ui";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+import { QUERY_PARAMS } from "@upmind-automation/headless";
 import { Icon } from "../../../../components/icon";
 import DisplayPrice from "../terms/DisplayPrice.vue";
 import ProductDescription from "./ProductDescription.vue";

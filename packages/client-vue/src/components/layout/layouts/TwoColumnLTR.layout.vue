@@ -104,8 +104,8 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
 import { useSlots } from "@upmind/ui";
+import { computed } from "vue";
 import { isMobile } from "../../../composables/isMobile";
 import { isEmptySlot } from "../../../utils/isEmptySlot";
 import {

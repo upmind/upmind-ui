@@ -5,6 +5,7 @@
     :model-value="model"
     :disabled="disabled"
     :data-attrs="{ 'data-test-key': 'filters' }"
+    size="sm"
     no-actions
     @update:model-value="onUpdate"
   />

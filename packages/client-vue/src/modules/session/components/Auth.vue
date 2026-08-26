@@ -75,6 +75,9 @@
 </template>
 
 <script lang="ts" setup>
+import { Slot } from "@upmind/ui";
+import { cn, Interstitial, Link } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
 import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import {
@@ -85,9 +88,6 @@ import {
   useRoutingEngine,
   type AuthModel
 } from "@upmind-automation/headless";
-import { Slot } from "@upmind/ui";
-import { cn, Interstitial, Link } from "@upmind/ui";
-import { Alert } from "@upmind/ui";
 import Form from "../../../components/form/Form.vue";
 import { Icon } from "../../../components/icon";
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";

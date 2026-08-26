@@ -26,11 +26,11 @@
 </template>
 
 <script setup lang="ts">
+import { DescriptionListRoot, DescriptionItem } from "@upmind/ui";
+import { Skeleton } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { parseBillingCycle } from "@upmind-automation/headless";
-import { DescriptionListRoot, DescriptionItem } from "@upmind/ui";
-import { Skeleton } from "@upmind/ui";
 import PricingTotal from "./PricingTotal.vue";
 import {
   summarySkeletonRootVariants,

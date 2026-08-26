@@ -75,10 +75,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, type HtmlHTMLAttributes } from "vue";
-import { useI18n } from "vue-i18n";
 import { OptionTileGroup, OptionTile } from "@upmind/ui";
 import { Link } from "@upmind/ui";
+import { computed, type HtmlHTMLAttributes } from "vue";
+import { useI18n } from "vue-i18n";
 import Item from "./Item.vue";
 import { find, map } from "lodash-es";
 import type { ManageRendererProps } from "./types";

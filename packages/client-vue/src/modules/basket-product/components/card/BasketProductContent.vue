@@ -215,15 +215,15 @@
 
 <script lang="ts" setup>
 import { vAutoAnimate } from "@formkit/auto-animate";
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
-import { useConfig, type ProductModel } from "@upmind-automation/headless";
 import { Badge } from "@upmind/ui";
 import { Image } from "@upmind/ui";
 import { Link } from "@upmind/ui";
 import { Button } from "@upmind/ui";
 import { Tooltip } from "@upmind/ui";
 import { Alert } from "@upmind/ui";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+import { useConfig, type ProductModel } from "@upmind-automation/headless";
 import { Icon } from "../../../../components/icon";
 import { isMobile } from "../../../../composables/isMobile";
 import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";

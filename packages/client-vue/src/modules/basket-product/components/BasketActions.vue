@@ -32,14 +32,14 @@
 </template>
 
 <script setup lang="ts">
+import { NumberField } from "@upmind/ui";
+import { Button } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
 import {
   useRoutingEngine,
   type Product,
   type UseProductConfigMeta
 } from "@upmind-automation/headless";
-import { NumberField } from "@upmind/ui";
-import { Button } from "@upmind/ui";
 import { Icon } from "../../../components/icon";
 import { basketProductActionsVariants } from "../basket-product.variants";
 

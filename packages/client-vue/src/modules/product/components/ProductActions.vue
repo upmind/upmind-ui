@@ -32,6 +32,8 @@
 </template>
 
 <script setup lang="ts">
+import { NumberField } from "@upmind/ui";
+import { Button } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import {
@@ -40,8 +42,6 @@ import {
   type Product,
   type UseProductConfigMeta
 } from "@upmind-automation/headless";
-import { NumberField } from "@upmind/ui";
-import { Button } from "@upmind/ui";
 import { Icon } from "../../../components/icon";
 import { productActionsVariants } from "../variants";
 import { isString } from "lodash-es";

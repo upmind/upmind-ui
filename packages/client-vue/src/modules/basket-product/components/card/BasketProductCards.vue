@@ -57,10 +57,10 @@
 </template>
 
 <script lang="ts" setup>
+import { useTestAttrs } from "@upmind/ui";
 import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useBasketProducts, useBrand } from "@upmind-automation/headless";
-import { useTestAttrs } from "@upmind/ui";
 import { useSection } from "../../../../components/section/useSection";
 import {
   productRootTaxVariants,

@@ -21,8 +21,8 @@
 </template>
 
 <script lang="ts" setup>
-import { toValue, computed } from "vue";
 import { cn } from "@upmind/ui";
+import { toValue, computed } from "vue";
 import { isArray, first } from "lodash-es";
 import type { HTMLAttributes } from "vue";
 

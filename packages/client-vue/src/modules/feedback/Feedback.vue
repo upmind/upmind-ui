@@ -37,10 +37,10 @@
 
 <script lang="ts" setup>
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { Toaster, toast } from "@upmind/ui";
 import { watch, ref } from "vue";
 import { useMessage, useFeedback } from "@upmind-automation/headless";
 import { messageTypes } from "@upmind-automation/headless";
-import { Toaster, toast } from "@upmind/ui";
 import Error from "../system/Error.vue";
 import Message from "./components/Message.vue";
 import { rootVariants, bannersVariants } from "./variants";

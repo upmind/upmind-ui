@@ -10,8 +10,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useI18n } from "vue-i18n";
 import { Badge } from "@upmind/ui";
+import { useI18n } from "vue-i18n";
 import type { PromotionProps } from "./types";
 
 withDefaults(defineProps<PromotionProps>(), {

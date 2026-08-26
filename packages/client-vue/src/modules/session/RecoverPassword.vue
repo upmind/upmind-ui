@@ -77,6 +77,7 @@
 </template>
 
 <script lang="ts" setup>
+import { Link } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
@@ -86,7 +87,6 @@ import {
   useActiveSession,
   UIContext
 } from "@upmind-automation/headless";
-import { Link } from "@upmind/ui";
 import Hero from "../../components/hero/Hero.vue";
 import Back from "../../components/navigation/Back.vue";
 import Section from "../../components/section/Section.vue";

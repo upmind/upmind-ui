@@ -160,21 +160,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
-import { useI18n } from "vue-i18n";
-import { RouterLink } from "vue-router";
-import {
-  IMAGES_STYLE,
-  QUERY_PARAMS,
-  useImageUrl
-} from "@upmind-automation/headless";
-import { useConfig } from "@upmind-automation/headless";
 import { Badge } from "@upmind/ui";
 import { useTestAttrs } from "@upmind/ui";
 import { Image } from "@upmind/ui";
 import { Link } from "@upmind/ui";
 import { Button } from "@upmind/ui";
 import { Tooltip } from "@upmind/ui";
+import { computed, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import { RouterLink } from "vue-router";
+import { useConfig } from "@upmind-automation/headless";
+import {
+  IMAGES_STYLE,
+  QUERY_PARAMS,
+  useImageUrl
+} from "@upmind-automation/headless";
 import { Icon } from "../../../../components/icon";
 import ProductBenefits from "./ProductBenefits.vue";
 import ProductInfo from "./ProductInfo.vue";

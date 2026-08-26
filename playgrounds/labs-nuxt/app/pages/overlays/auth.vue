@@ -1,24 +1,21 @@
 <template>
   <div class="flex flex-col gap-4">
-    <OptionTileGroup
+    <ToggleGroup
       v-if="isGate"
-      name="auth-actor"
-      :model-value="actor"
-      class="grid grid-cols-3 gap-3"
-      @update:model-value="choose($event as ScopeActorTypes)"
+      type="single"
+      :model-value="choice"
+      class="grid w-full grid-cols-3"
+      @update:model-value="choose($event as AuthGateChoice)"
     >
-      <OptionTile
-        v-for="choice in choices"
-        :key="choice.value"
-        :value="choice.value"
-        :label="choice.label"
-        :data-attrs="choice.dataAttrs"
+      <ToggleGroupItem
+        v-for="entry in choices"
+        :key="entry.value"
+        :value="entry.value"
+        :data-attrs="entry.dataAttrs"
       >
-        <template #indicator>
-          <OptionTileIndicator />
-        </template>
-      </OptionTile>
-    </OptionTileGroup>
+        {{ entry.label }}
+      </ToggleGroupItem>
+    </ToggleGroup>
 
     <AuthJourney
       v-if="actor"
@@ -28,6 +25,23 @@
       @logout="emit('close')"
       @resolve="handoff()"
     />
+
+    <!-- Guest signs into nothing, so it is a SCOPE change and not a journey —
+         it leaves the overlay for the page beneath, re-scoped. R9's chooser is
+         the three journeys; this is the fourth way in, and it is a route-out. -->
+    <Button
+      v-if="isGate"
+      variant="link"
+      size="sm"
+      class="self-center"
+      :data-attrs="{
+        'data-test-key': 'auth-actor',
+        'data-test-value': ScopeActorTypes.GUEST
+      }"
+      @click="continueAsGuest()"
+    >
+      {{ t("labs.session_guest") }}
+    </Button>
   </div>
 </template>
 
@@ -39,7 +53,7 @@
  * opens over itself, rather than sitting on skeletons that never settle (`D2`).
  *
  * It is the cart's `AuthOverlay` in this playground: the route carries the
- * overlay meta, `registerOverlayRoutes` injects it as `<parent>--auth` onto
+ * overlay meta, `registerOverlayRoutes` injects it as `<parent>--session` onto
  * every eligible page, and the shared `OverlayController` renders it in the
  * modal container over whatever page is underneath. On success it emits close,
  * and the controller navigates back to the parent route — where the composable
@@ -66,19 +80,24 @@
  * The GATE also CHOOSES that actor (`R7-1`). Add-session is taken from a control
  * that already says which kind, so it arrives named; an arrival at a guarded
  * page names one only when the url does. Nothing named is nobody chosen — so the
- * gate offers the three ways in and collects nothing until one is taken, rather
- * than locking a guest or a staff visitor into the client journey the page
- * happens to declare.
+ * gate offers the three journeys (`R9`: Client │ Staff │ Impersonate) and
+ * collects nothing until one is taken, rather than locking a staff visitor into
+ * the client journey the page happens to declare.
+ *
+ * Guest sits BESIDE the group, not in it: it collects no session at all, so it
+ * is a scope change on the page underneath rather than a fourth journey — which
+ * is why R9's chooser names three and the way in numbers four.
  */
 
+import { Button, ToggleGroup, ToggleGroupItem } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { OverlayType } from "@upmind-automation/client-vue";
 import { ScopeActorTypes, useActiveSession } from "@upmind-automation/headless";
-import { OptionTile, OptionTileGroup, OptionTileIndicator } from "@upmind/ui";
-import { get, map } from "lodash-es";
-import { AuthJourney } from "~/components/auth";
+import { get } from "lodash-es";
+import type { AuthGateChoice } from "~/components/auth";
+import { AuthJourney, AUTH_GATE_IMPERSONATE } from "~/components/auth";
 import { ACTOR_LABEL_KEYS } from "~/components/scope";
 import { useActorScope } from "~/composables/scope";
 import {
@@ -131,8 +150,17 @@ const named = computed(() =>
  * signing in, and a gate collecting nothing until it is pressed presents an
  * empty box where the form belongs. The group stays above it either way, so
  * staff and guest remain one press from the surface, not two.
+ *
+ * It holds the CHOICE, never the actor it resolves to: Impersonate and Staff
+ * run the same journey, so a group bound to the actor draws Staff pressed when
+ * Impersonate was taken, and Impersonate can never read as chosen at all.
  */
-const picked = ref<ScopeActorTypes>(ScopeActorTypes.CLIENT);
+const choice = ref<AuthGateChoice>(ScopeActorTypes.CLIENT);
+
+/** Impersonate IS the staff journey; the client is picked after staff login. */
+const picked = computed<ScopeActorTypes>(() =>
+  choice.value === AUTH_GATE_IMPERSONATE ? ScopeActorTypes.STAFF : choice.value
+);
 
 const actor = computed(() => named.value ?? picked.value);
 
@@ -143,19 +171,32 @@ const actor = computed(() => named.value ?? picked.value);
  */
 const isGate = computed(() => !named.value);
 
-const choices = computed(() =>
-  map(
-    [ScopeActorTypes.CLIENT, ScopeActorTypes.STAFF, ScopeActorTypes.GUEST],
-    choice => ({
-      value: choice,
-      label: t(ACTOR_LABEL_KEYS[choice]),
-      dataAttrs: {
-        "data-test-key": "auth-actor",
-        "data-test-value": choice
-      }
-    })
-  )
-);
+const choices = computed(() => [
+  {
+    value: ScopeActorTypes.CLIENT,
+    label: t(ACTOR_LABEL_KEYS[ScopeActorTypes.CLIENT]),
+    dataAttrs: {
+      "data-test-key": "auth-actor",
+      "data-test-value": ScopeActorTypes.CLIENT
+    }
+  },
+  {
+    value: ScopeActorTypes.STAFF,
+    label: t(ACTOR_LABEL_KEYS[ScopeActorTypes.STAFF]),
+    dataAttrs: {
+      "data-test-key": "auth-actor",
+      "data-test-value": ScopeActorTypes.STAFF
+    }
+  },
+  {
+    value: AUTH_GATE_IMPERSONATE,
+    label: t("labs.auth_scope_impersonate"),
+    dataAttrs: {
+      "data-test-key": "auth-actor",
+      "data-test-value": AUTH_GATE_IMPERSONATE
+    }
+  }
+]);
 
 const journey = computed(
   () => `${actor.value}:${get(route.query, ADD_SESSION_PARAM, "")}`
@@ -164,20 +205,26 @@ const journey = computed(
 const { whenAuthenticated } = useActiveSession().useActions();
 
 /**
+ * Handle the scope choice. Client and Staff start their respective auth
+ * journeys. Impersonate starts the Staff journey; the client to impersonate is
+ * selected from SessionSwitcher after staff login.
+ */
+function choose(next: AuthGateChoice): void {
+  // The group re-emits as it mounts, and an empty emit is not a choice: taking
+  // it would clear the pick the gate opens on and leave three blank tiles over
+  // the space the form belongs in.
+  if (!next) return;
+
+  choice.value = next;
+}
+
+/**
  * Guest is a SCOPE, not a session — there is nothing for `useAuth` to collect
  * and `guardScenario` admits a url that names it — so it leaves the overlay for
- * the page beneath, re-scoped. Client and staff are journeys, and the actor goes
- * to the one rendered below.
+ * the page beneath, re-scoped (`R7-1`).
  */
-function choose(choice: ScopeActorTypes): void {
-  // The group re-emits as it mounts, and an empty emit is not a choice: taking
-  // it would clear the pick the gate opens on and leave three blank cards over
-  // the space the form belongs in.
-  if (!choice) return;
-
-  if (choice === ScopeActorTypes.GUEST)
-    void router.push(scopedPageTarget(route, choice));
-  else picked.value = choice;
+function continueAsGuest(): void {
+  void router.push(scopedPageTarget(route, ScopeActorTypes.GUEST));
 }
 
 /**

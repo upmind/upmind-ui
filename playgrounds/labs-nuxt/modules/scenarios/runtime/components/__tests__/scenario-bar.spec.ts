@@ -23,6 +23,7 @@
  * Negative control: `scenario-bar.second-bar.must-fail.patch`.
  */
 
+import { DropdownMenu } from "@upmind/ui";
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { computed, nextTick, ref } from "vue";
@@ -30,7 +31,6 @@ import { createI18n } from "vue-i18n";
 import action from "@upmind-automation/i18n/core/action-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
-import { DropdownMenu } from "@upmind/ui";
 import {
   SCENARIO_PLAYER_STATUS,
   SCENE_UNPLAYED
@@ -165,6 +165,13 @@ const MENU_MS = 60;
 const overflow = ({ wrapper }: Bar) =>
   wrapper.find('[data-test-key="scenario-menu"]');
 
+/**
+ * The overflow's panel, where it is portalled. A CLOSED menu renders no entry
+ * at all, so every claim about what it offers has to witness the panel first —
+ * otherwise a menu that never opened reports an empty offer as a passing one.
+ */
+const panel = () => document.querySelector('[role="listbox"]');
+
 /** Every track the overflow offers, by slug — it is teleported out of the bar. */
 const offeredTracks = (): string[] =>
   map(
@@ -174,19 +181,34 @@ const offeredTracks = (): string[] =>
     option => String(option.dataset.testValue)
   );
 
+const enter = (element: Element | null | undefined) =>
+  element?.dispatchEvent(
+    new window.KeyboardEvent("keydown", { key: "Enter", bubbles: true })
+  );
+
+/**
+ * The overflow is the ui `Select`. reka opens it and commits a choice from the
+ * KEYBOARD; a synthetic click reaches neither, because both hang off pointer
+ * events jsdom does not construct.
+ */
+async function openOverflow(bar: Bar): Promise<void> {
+  enter(overflow(bar).element);
+  await new Promise(resolve => setTimeout(resolve, MENU_MS));
+}
+
 /**
  * Choosing a track. `R7-10` retired the capped track chips, so Live is the only
  * entry ON the bar and every track is reached by opening the overflow beside it.
  */
 async function chooseTrack(bar: Bar, name: string): Promise<void> {
-  await overflow(bar).trigger("click");
-  await new Promise(resolve => setTimeout(resolve, MENU_MS));
+  await openOverflow(bar);
 
-  document
-    .querySelector<HTMLElement>(
+  enter(
+    document.querySelector<HTMLElement>(
       `[data-test-key="track-option"][data-test-value="${kebabCase(name)}"]`
     )
-    ?.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  );
+  await new Promise(resolve => setTimeout(resolve, MENU_MS));
   await nextTick();
 }
 
@@ -276,8 +298,7 @@ describe("T4.5 every track stays reachable behind ONE overflow (AC2.4 · G1 · R
   it("keeps Live alone on the bar and offers every track behind the overflow", async () => {
     const bar = mountBar();
 
-    await overflow(bar).trigger("click");
-    await new Promise(resolve => setTimeout(resolve, MENU_MS));
+    await openOverflow(bar);
 
     expect(
       map(entries(bar), entry => entry.attributes("data-test-value"))
@@ -288,6 +309,11 @@ describe("T4.5 every track stays reachable behind ONE overflow (AC2.4 · G1 · R
   it("offers no track behind it for a page whose playlist is empty", async () => {
     const bar = mountBar({ tracks: [] });
 
+    await openOverflow(bar);
+
+    // The panel is witnessed OPEN first: an empty offer read off a menu that
+    // never opened is the same `[]` as an empty playlist's.
+    expect(panel()).not.toBeNull();
     expect(
       overflow(bar).exists() && overflow(bar).attributes("data-test-value")
     ).not.toBe(String(size(TRACKS)));

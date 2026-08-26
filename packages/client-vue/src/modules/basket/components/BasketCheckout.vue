@@ -12,8 +12,8 @@
   </Button>
 </template>
 <script lang="ts" setup>
-import { useI18n } from "vue-i18n";
 import { Button } from "@upmind/ui";
+import { useI18n } from "vue-i18n";
 import { Icon } from "../../../components/icon";
 import type { BasketCheckoutProps } from "./types";
 

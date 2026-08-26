@@ -48,9 +48,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useI18n } from "vue-i18n";
 import { Button, Markdown } from "@upmind/ui";
 import { Alert } from "@upmind/ui";
+import { useI18n } from "vue-i18n";
 import { Icon } from "../../../components/icon";
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";
 import {

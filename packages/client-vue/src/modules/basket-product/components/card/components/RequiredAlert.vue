@@ -17,8 +17,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useI18n } from "vue-i18n";
 import { Alert } from "@upmind/ui";
+import { useI18n } from "vue-i18n";
 import { Icon } from "../../../../../components/icon";
 import { isMobile } from "../../../../../composables/isMobile";
 import type { RequiredAlertProps } from "./types";

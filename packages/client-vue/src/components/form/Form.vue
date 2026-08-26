@@ -21,9 +21,9 @@
 </template>
 
 <script lang="ts" setup>
+import { useForwardPropsEmits } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
 import { useValidation } from "@upmind-automation/headless";
-import { useForwardPropsEmits } from "@upmind/ui";
 import FormHost from "./engine/FormHost.vue";
 import { formRenderers } from "./renderers";
 import { useFormI18n } from ".";

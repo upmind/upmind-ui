@@ -187,8 +187,7 @@ export const actionsUischema: ActionsUischema = {
       handoff: "add",
       i18n: "action.add_new",
       icon: "plus",
-      color: "primary",
-      variant: "solid",
+      variant: "primary",
       placement: ActionPlacementTypes.HEADER
     },
     {
@@ -220,8 +219,7 @@ export const actionsUischema: ActionsUischema = {
       name: "remove",
       i18n: "action.remove",
       icon: "trash-01",
-      color: "danger",
-      variant: "outline",
+
       placement: ActionPlacementTypes.VISIBLE,
       feedback: {
         success: "confirm.company_removed",

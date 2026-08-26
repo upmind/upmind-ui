@@ -9,6 +9,7 @@
       <div class="flex flex-row flex-nowrap items-center gap-x-3">
         <Input
           :id="`${formFieldProps.id}-from`"
+          :size="appliedOptions?.size"
           :data-attrs="{ 'data-test-value': `${formFieldProps.id}-from` }"
           :type="gteInputType"
           :disabled="!control.enabled"
@@ -25,6 +26,7 @@
         <span aria-hidden="true">&ndash;</span>
         <Input
           :id="`${formFieldProps.id}-to`"
+          :size="appliedOptions?.size"
           :data-attrs="{ 'data-test-value': `${formFieldProps.id}-to` }"
           :type="lteInputType"
           :disabled="!control.enabled"
@@ -46,9 +48,9 @@
 <script lang="ts" setup>
 import { and, isObjectControl, optionIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
+import { Input } from "@upmind/ui";
 import { computed } from "vue";
 import { RequestFilterOperator } from "@upmind-automation/headless";
-import { Input } from "@upmind/ui";
 import FormField from "../engine/FormField.vue";
 import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import {
@@ -75,9 +77,8 @@ import type { RendererProps } from "@jsonforms/vue";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, formFieldProps, handleChange } = useUpmindUIRenderer(
-  useJsonFormsControl(props)
-);
+const { control, appliedOptions, formFieldProps, handleChange } =
+  useUpmindUIRenderer(useJsonFormsControl(props));
 
 /** Derive input type for a specific operator from its schema leaf. */
 function getInputType(operator: RequestFilterOperator): string {

@@ -132,6 +132,10 @@
 </template>
 
 <script lang="ts" setup>
+import { useTestAttrs } from "@upmind/ui";
+import { Link } from "@upmind/ui";
+import { CardRoot, Avatar } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import {
@@ -141,10 +145,6 @@ import {
   useClientCompanies,
   useClientPhones
 } from "@upmind-automation/headless";
-import { useTestAttrs } from "@upmind/ui";
-import { Link } from "@upmind/ui";
-import { CardRoot, Avatar } from "@upmind/ui";
-import { Alert } from "@upmind/ui";
 import { Icon } from "../../../components/icon";
 import Section from "../../../components/section/Section.vue";
 import {

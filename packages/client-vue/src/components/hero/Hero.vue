@@ -71,10 +71,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { BADGE_APPEARANCE, BADGE_VARIANT } from "@upmind-automation/headless";
 import { useTestAttrs } from "@upmind/ui";
 import { Button, Sanitized, Badge, cn } from "@upmind/ui";
+import { computed } from "vue";
+import { BADGE_APPEARANCE, BADGE_VARIANT } from "@upmind-automation/headless";
 import { Icon } from "../icon";
 import {
   heroRootVariants,

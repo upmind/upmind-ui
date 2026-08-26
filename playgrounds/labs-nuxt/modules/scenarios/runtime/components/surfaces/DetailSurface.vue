@@ -47,13 +47,13 @@
 
 import { computed } from "vue";
 import { useFormI18n } from "@upmind-automation/client-vue";
-import { detailSurface } from "./DetailSurface.styles";
 import { resolveScope } from "../../scenario.utils";
 import { CellDispatcher } from "../cells";
 import ContextPanel from "../ContextPanel.vue";
 import { resolveModuleDetail, resolveModuleState } from "../module-state";
 import { ModuleState } from "../module-state.types";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
+import { detailSurface } from "./DetailSurface.styles";
 import { isNil, isPlainObject, some, values } from "lodash-es";
 import type { DetailSurfaceProps } from "./DetailSurface.types";
 import type { TableCell } from "../../scenario.types";

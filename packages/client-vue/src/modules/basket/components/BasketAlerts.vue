@@ -80,6 +80,8 @@
 
 <script lang="ts" setup>
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { Link } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import {
@@ -87,8 +89,6 @@ import {
   useBasketBilling,
   useBasketFields
 } from "@upmind-automation/headless";
-import { Link } from "@upmind/ui";
-import { Alert } from "@upmind/ui";
 import { Icon } from "../../../components/icon";
 import {
   basketAlertsRootVariants,

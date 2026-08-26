@@ -24,8 +24,8 @@ import {
   schemaSubPathMatches
 } from "@jsonforms/core";
 import { useJsonFormsMultiEnumControl } from "@jsonforms/vue";
-import { computed } from "vue";
 import { OptionTileGroup, OptionTile } from "@upmind/ui";
+import { computed } from "vue";
 import FormField from "../../FormField.vue";
 import { useUpmindUIRenderer } from "../utils";
 import type { ControlElement, JsonSchema } from "@jsonforms/core";

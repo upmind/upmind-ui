@@ -32,11 +32,11 @@
 </template>
 
 <script setup lang="ts">
+import { cn } from "@upmind/ui";
+import { Image, ImageGrid } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useConfig, useImageUrl } from "@upmind-automation/headless";
-import { cn } from "@upmind/ui";
-import { Image, ImageGrid } from "@upmind/ui";
 import {
   headerImageGridVariants,
   headerImageProductVariants

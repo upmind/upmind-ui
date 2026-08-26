@@ -1,6 +1,8 @@
 <template>
-  <header data-test-key="page-header" :class="pageHeader.root()">
-    <h1 :class="pageHeader.title()">{{ name }}</h1>
+  <header data-test-key="page-header" class="flex flex-wrap items-center gap-3">
+    <Heading :level="1" class="mr-auto font-mono text-lg font-semibold">
+      {{ name }}
+    </Heading>
 
     <!-- The tooltip's own trigger is the wrapper, so the reason is still
          reachable over a control the pointer can no longer press (`R6-23`). -->
@@ -10,56 +12,37 @@
       :label="t('labs.replay_locked')"
       :active="!!locked"
     >
-      <ButtonItems
+      <Button
         :variant="action.variant ?? 'primary'"
-        :icon="action.icon"
-        :label="action.label"
+        size="sm"
         :disabled="action.disabled || locked"
         :loading="action.loading"
+        :data-attrs="{ 'data-test-value': kebabCase(action.label) }"
         @click="action.onSelect"
-      />
+      >
+        <Icon
+          v-if="action.icon"
+          :icon="action.icon"
+          size="nano"
+          aria-hidden="true"
+        />
+        {{ action.label }}
+        <span v-if="action.loading" role="status" class="sr-only">{{
+          t("text.loading")
+        }}</span>
+      </Button>
     </Tooltip>
   </header>
 </template>
 
 <script lang="ts" setup>
-// -----------------------------------------------------------------------------
-/**
- * @module scenarios/runtime/components/PageHeader
- * @description The page's own header — its identity and the actions that act
- * on the collection as a whole, drawn above the surface that lists it.
- *
- * The title is the COMPOSABLE's name (D1). A scenario declares no label on
- * purpose: the directory, the url segment, the route name, the menu item and
- * this title are all one string, so a prettified alias could never leave the
- * page disagreeing with the path it is on.
- *
- * It renders the collection's actions, it does not own them: the list surface
- * still owns the handoff each one opens and hands them in already bound, so
- * "Add new" leaves the display cluster without leaving the declaration that
- * placed it (G4). Here it is the PAGE's own primary action rather than one of
- * several beside a row, so it carries its label and the solid primary
- * treatment — the declaration overriding either. Nothing that only changes how
- * the rows are DISPLAYED belongs here: the ordering and view controls sit with
- * the data they change (G3).
- *
- * While a scenario drives the page the control is LOCKED rather than withdrawn
- * (`R6-23`): a replay is a playback, so Add new would fight the script — and a
- * control that vanished on arm would move the header's own row.
- */
-
-import { computed } from "vue";
+import { Button, Heading, Tooltip } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
-import { Tooltip } from "@upmind/ui";
-import ButtonItems from "./ButtonItems.vue";
-import { pageHeader } from "./PageHeader.styles";
-import { isEmpty } from "lodash-es";
+import { Icon } from "@upmind-automation/client-vue";
+import { kebabCase } from "lodash-es";
 import type { PageHeaderProps } from "./PageHeader.types";
-// -----------------------------------------------------------------------------
 
-const props = defineProps<PageHeaderProps>();
+defineProps<PageHeaderProps>();
 
 const { t } = useI18n();
-
-const hasActions = computed(() => !isEmpty(props.actions));
 </script>

@@ -42,14 +42,14 @@
 </template>
 
 <script setup lang="ts">
+import { Badge } from "@upmind/ui";
+import { Tooltip } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   parseBillingCycle,
   PriceDisplayTypes
 } from "@upmind-automation/headless";
-import { Badge } from "@upmind/ui";
-import { Tooltip } from "@upmind/ui";
 import Promotion from "../../../basket-product/components/card/components/Promotion.vue";
 import PayToday from "../pricing/PayToday.vue";
 import Pricing from "../pricing/Pricing.vue";

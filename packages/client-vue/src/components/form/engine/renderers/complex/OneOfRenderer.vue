@@ -28,15 +28,16 @@ import {
   and
 } from "@jsonforms/core";
 import { useJsonFormsOneOfControl, DispatchRenderer } from "@jsonforms/vue";
-import { computed, ref } from "vue";
 import { Tabs } from "@upmind/ui";
+import { computed, ref } from "vue";
 import FormField from "../../FormField.vue";
 import { useUpmindUIRenderer } from "../utils";
 import { createIndexedOneOfRenderInfos } from "../utils";
 import { forEach } from "lodash-es";
 import type {
   ControlElement,
-  CombinatorSubSchemaRenderInfo
+  CombinatorSubSchemaRenderInfo,
+  JsonSchema
 } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // -----------------------------------------------------------------------------
@@ -59,7 +60,7 @@ const formData = computed(
 
 const oneOfItems = computed(() => {
   return (
-    control.value.schema?.oneOf?.map((item: any, index: number) => ({
+    control.value.schema?.oneOf?.map((item: JsonSchema, index: number) => ({
       value: String(index),
       label: String(item.title)
     })) || []
@@ -73,18 +74,19 @@ const toggleTab = (value: string | number) => {
 
 const setDefaults = () => {
   if (!defaultsSet.value) {
-    const applyDefaults = (
-      control.value.schema?.oneOf?.[selectedIndex.value] as any
-    )?.applyDefaults;
+    const schema = control.value.schema?.oneOf?.[selectedIndex.value] as
+      | (JsonSchema & { applyDefaults?: string[] })
+      | undefined;
+    const applyDefaults = schema?.applyDefaults;
 
     const defaults = createDefaultValue(
       formData.value[selectedIndex.value].schema,
       control.value.rootSchema
-    );
+    ) as Record<string, unknown>;
 
     if (applyDefaults) {
-      forEach(applyDefaults, (key: any) => {
-        defaults[key] = control.value.data[key];
+      forEach(applyDefaults, (key: string) => {
+        defaults[key] = (control.value.data as Record<string, unknown>)[key];
       });
     }
 

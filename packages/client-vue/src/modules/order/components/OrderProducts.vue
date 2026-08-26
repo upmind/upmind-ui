@@ -98,11 +98,11 @@
 </template>
 
 <script lang="ts" setup>
+import { useTestAttrs } from "@upmind/ui";
+import { Link } from "@upmind/ui";
 import { computed, inject, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { parseBillingCycle } from "@upmind-automation/headless";
-import { useTestAttrs } from "@upmind/ui";
-import { Link } from "@upmind/ui";
 import { Icon } from "../../../components/icon";
 import Section from "../../../components/section/Section.vue";
 import { useSection } from "../../../components/section/useSection";

@@ -109,6 +109,9 @@
 </template>
 
 <script setup lang="ts">
+import { useTestAttrs } from "@upmind/ui";
+import { Input } from "@upmind/ui";
+import { Pagination } from "@upmind/ui";
 import { useUrlSearchParams } from "@vueuse/core";
 import { watch, ref, computed, useTemplateRef, inject } from "vue";
 import { useI18n } from "vue-i18n";
@@ -124,9 +127,6 @@ import {
   type UseProductCategories
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-import { useTestAttrs } from "@upmind/ui";
-import { Input } from "@upmind/ui";
-import { Pagination } from "@upmind/ui";
 import { Icon } from "../../../components/icon";
 import {
   ProductCard,

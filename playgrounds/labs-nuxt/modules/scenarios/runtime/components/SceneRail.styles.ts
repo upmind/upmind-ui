@@ -20,7 +20,7 @@ export const sceneRail = {
   // A flex item defaults to `min-width:auto` and refuses to go below its
   // content, so one long Gherkin sentence would set the row's width and the
   // PAGE would gain the horizontal scrollbar the rail is supposed to absorb.
-  item: cva("min-w-0"),
+  item: cva("min-w-0 flex-1"),
 
   // A stop LOOKS interactive because it IS one — a seek target, not a marker
   // (`R6-22`), and this rail is the same stops the Scenario sheet's list draws
@@ -33,10 +33,10 @@ export const sceneRail = {
   // The played part of the track reads primary, the rest neutral — the
   // playing treatment is the primary family throughout (H2).
   indicator: cva(
-    "group-data-[state=active]:bg-accent-primary group-data-[state=active]:text-accent-primary-contrast group-data-[state=completed]:bg-accent-primary group-data-[state=completed]:text-accent-primary-contrast"
+    "group-data-[state=active]:bg-primary group-data-[state=active]:text-primary-contrast group-data-[state=completed]:bg-primary group-data-[state=completed]:text-primary-contrast"
   ),
 
   separator: cva(
-    "group-data-[state=completed]:bg-accent-primary group-data-[state=active]:first:bg-accent-primary"
+    "group-data-[state=completed]:bg-primary group-data-[state=active]:first:bg-primary"
   )
 };

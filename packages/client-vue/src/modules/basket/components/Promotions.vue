@@ -71,15 +71,15 @@
 
 <script lang="ts" setup>
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { useTestAttrs } from "@upmind/ui";
+import { Link } from "@upmind/ui";
+import { Badge, Tooltip } from "@upmind/ui";
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   useBasketPromotions,
   type PromotionDetails
 } from "@upmind-automation/headless";
-import { useTestAttrs } from "@upmind/ui";
-import { Link } from "@upmind/ui";
-import { Badge, Tooltip } from "@upmind/ui";
 import Form from "../../../components/form/Form.vue";
 import { Icon } from "../../../components/icon";
 import { set } from "lodash-es";

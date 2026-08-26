@@ -43,8 +43,8 @@
  * toggle at all (design §3.6, `P1-R4`).
  */
 
-import { useI18n } from "vue-i18n";
 import { ToggleGroup, ToggleGroupItem } from "@upmind/ui";
+import { useI18n } from "vue-i18n";
 import { usePlaygroundSheet } from "../../../../app/components/sheets/usePlaygroundSheet";
 import { SHEET_LABELS } from "../../../../app/components/sheets/usePlaygroundSheet.types";
 // -----------------------------------------------------------------------------

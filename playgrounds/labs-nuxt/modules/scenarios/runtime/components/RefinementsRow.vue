@@ -10,30 +10,49 @@
     data-test-key="refinements-row"
     :data-test-value="locked ? 'locked' : undefined"
   >
-    <!-- The ui TagsInput's OWN close affordance (D9/P1-R14): a chip is a tag that
-         can be taken off via the component's own remove control, never markup
-         drawn beside it. -->
-    <TagsInput
-      :model-value="refinementIds"
-      :remove-label="t('action.remove')"
-      :class="refinementsRow.tags()"
-      @update:model-value="onTagsChange"
-    >
-      <template #tag="{ value }">
-        <span data-test-key="refinement" :data-test-value="value">
-          {{ refinementLabel(value) }}
-          <TagsInputItemDelete :label="t('action.remove')" />
-        </span>
-      </template>
-    </TagsInput>
+    <!-- The chip IS the remove control, so the Badge lends its coat to a Button
+         rather than parking a second control beside it: the states are the
+         Button's own. This SUPERSEDES `D9`/`P1-R14` — the Badge's own
+         `removeLabel` route — by operator ruling: `removeLabel` draws a second
+         control inside the chip, and the chip is the control.
 
-    <ButtonItems
+         The accessible name NAMES the refinement. A bare `action.remove`
+         aria-label overrides the visible content, so every chip in the row
+         announced the same word and none of them said what it would drop. -->
+    <Badge
+      v-for="refinement in refinements"
+      :key="refinement.id"
+      as-child
+      variant="promo"
       size="sm"
-      variant="ghost"
-      :label="t('labs.clear_all')"
-      :data-attrs="{ 'data-test-key': 'clear-all' }"
+    >
+      <Button
+        variant="ghost"
+        size="xs"
+        :class="refinementsRow.chip()"
+        :aria-label="t('action.remove_value', { value: refinement.label })"
+        :data-attrs="{
+          'data-test-key': 'refinement',
+          'data-test-value': refinement.id
+        }"
+        @click="remove(refinement)"
+      >
+        {{ refinement.label }}
+        <Icon icon="x-close" size="nano" aria-hidden="true" />
+      </Button>
+    </Badge>
+
+    <Link
+      color="inherit"
+      size="sm"
+      :data-attrs="{
+        'data-test-key': 'clear-all',
+        'data-test-value': 'clear-all'
+      }"
       @click="clearAll"
-    />
+    >
+      {{ t("labs.clear_all") }}
+    </Link>
   </div>
 </template>
 
@@ -62,22 +81,19 @@
  */
 
 import { enumToEnumOptionMapper, toDataPath } from "@jsonforms/core";
+import { Badge, Button, Link } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { Icon } from "@upmind-automation/client-vue";
 import { useFormI18n } from "@upmind-automation/client-vue";
-import { TagsInput, TagsInputItemDelete } from "@upmind/ui";
-import ButtonItems from "./ButtonItems.vue";
 import { declaredPairs } from "../composables/useCriteriaUrlSync.utils";
 import { refinementsRow } from "./RefinementsRow.styles";
 import {
-  filter,
   find,
   get,
-  includes,
   isEmpty,
   isNil,
   isString,
-  map,
   reduce,
   reject,
   set,
@@ -162,13 +178,6 @@ const refinements = computed<Refinement[]>(() =>
   )
 );
 
-const refinementIds = computed(() => map(refinements.value, "id"));
-
-function refinementLabel(id: string): string {
-  const refinement = find(refinements.value, { id });
-  return refinement?.label ?? id;
-}
-
 // `set` merges at BRANCH level — it replaces `filters` whole — so taking one
 // chip off means writing every OTHER active leaf back, never a delete against
 // the live model.
@@ -183,13 +192,6 @@ function remove(dropped: Refinement): void {
       {}
     )
   });
-}
-
-function onTagsChange(values: unknown[]): void {
-  const newIds = map(values, String);
-  const removedIds = filter(refinementIds.value, id => !includes(newIds, id));
-  const removedRefinement = find(refinements.value, { id: removedIds[0] });
-  if (removedRefinement) remove(removedRefinement);
 }
 
 function clearAll(): void {

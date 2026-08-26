@@ -42,6 +42,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { Skeleton } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 // --- internal
@@ -53,7 +54,6 @@ import {
   useRoutingEngine
 } from "@upmind-automation/headless";
 // --- components
-import { Skeleton } from "@upmind/ui";
 import ManageSkeleton from "../../../components/manage/Skeleton.vue";
 import Section from "../../../components/section/Section.vue";
 import { useSection } from "../../../components/section/useSection";

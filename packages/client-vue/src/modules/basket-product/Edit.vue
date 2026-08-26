@@ -239,6 +239,10 @@
 </template>
 
 <script lang="ts" setup>
+import { useTestAttrs } from "@upmind/ui";
+import { Link, Markdown } from "@upmind/ui";
+import { Breadcrumb } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
 import { useClipboard } from "@vueuse/core";
 import { computed, provide, watch } from "vue";
 import { useI18n } from "vue-i18n";
@@ -254,10 +258,6 @@ import {
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { BreadcrumbVariant, UIContext } from "@upmind-automation/headless";
-import { useTestAttrs } from "@upmind/ui";
-import { Link, Markdown } from "@upmind/ui";
-import { Breadcrumb } from "@upmind/ui";
-import { Alert } from "@upmind/ui";
 import { Icon } from "../../components/icon";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
 import Section from "../../components/section/Section.vue";

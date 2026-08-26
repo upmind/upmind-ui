@@ -127,6 +127,8 @@
 </template>
 
 <script lang="ts" setup>
+import { Loading } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
 import { computed, inject } from "vue";
 import { useI18n } from "vue-i18n";
 import {
@@ -135,8 +137,6 @@ import {
   responseCodes,
   type UsePaymentDetail
 } from "@upmind-automation/headless";
-import { Loading } from "@upmind/ui";
-import { Alert } from "@upmind/ui";
 import { Icon } from "../../../components/icon";
 import Section from "../../../components/section/Section.vue";
 import { rootVariants } from "../variants";

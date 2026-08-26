@@ -107,6 +107,8 @@
 </template>
 
 <script lang="ts" setup>
+import { useTestAttrs } from "@upmind/ui";
+import { Button, Loading } from "@upmind/ui";
 import { computed, provide } from "vue";
 import { useI18n } from "vue-i18n";
 import {
@@ -124,8 +126,6 @@ import {
   type Product,
   type UseProductConfigMeta
 } from "@upmind-automation/headless";
-import { useTestAttrs } from "@upmind/ui";
-import { Button, Loading } from "@upmind/ui";
 import Hero from "../../../components/hero/Hero.vue";
 import Transitions from "../../../components/layout/components/transition/Transition.vue";
 import Section from "../../../components/section/Section.vue";

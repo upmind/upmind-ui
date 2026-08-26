@@ -9,7 +9,6 @@ import {
   useQueryParams,
   useRoutingEngine
 } from "@upmind-automation/client-vue";
-
 import { first } from "lodash-es";
 
 // -----------------------------------------------------------------------------

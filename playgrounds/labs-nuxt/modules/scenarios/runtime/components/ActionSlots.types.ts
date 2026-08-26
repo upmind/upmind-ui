@@ -28,7 +28,16 @@ export type ActionSlotItem = {
   name: string;
   label: string;
   icon?: string;
-  color?: ButtonVariants["variant"];
+  /**
+   * The Button treatment. ONE channel: a `color` twin sat here unbound, so
+   * every destructive action that declared it rendered neutral. Deleted rather
+   * than wired — `variant` already carries `danger`, and two names for one
+   * treatment is how the next declaration picks the dead one.
+   *
+   * @graphify-citation `graphify-out/graph.json` (2026-08-26) — re-queried
+   * `ScenarioAction` · `ButtonVariants`: still `@upmind/ui`'s own, consumed and
+   * not re-declared. Nothing minted here.
+   */
   variant?: ButtonVariants["variant"];
   /** Where the scenario placed it. Absent, it falls to the overflow. */
   placement?: ActionPlacementTypes;

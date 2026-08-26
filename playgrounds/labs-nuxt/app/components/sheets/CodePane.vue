@@ -1,30 +1,6 @@
 <template>
   <section class="relative flex flex-col gap-2" data-test-key="code-pane">
-    <div class="flex items-center justify-between gap-2">
-      <h2 class="text-display m-0 text-sm font-bold">{{ heading }}</h2>
-
-      <Tooltip :label="copyLabel">
-        <Button
-          icon-only
-          size="sm"
-          variant="ghost"
-          color="neutral"
-          :icon="copied ? 'check' : 'copy-01'"
-          :label="copyLabel"
-          :aria-label="copyLabel"
-          :data-attrs="{ 'data-test-key': 'code-copy' }"
-          @click="copy(snippet)"
-        />
-      </Tooltip>
-    </div>
-
-    <Markdown
-      :model-value="fence"
-      :class="[
-        fenceBlock(),
-        'prose-pre:whitespace-pre-wrap prose-code:break-words overflow-x-hidden text-xs'
-      ]"
-    />
+    <CodeBlock :code="snippet" lang="vue" :title="props.name" />
   </section>
 </template>
 
@@ -56,17 +32,16 @@
  * reader would have typed, so the snippet obeys the same law as the code around
  * it.
  *
- * The block is drawn by the real `Markdown.ce.vue` (`P1-R14`) and copied
- * through VueUse's own clipboard, so what lands on the clipboard is exactly
- * what is on screen.
+ * The block is `CodeBlock`, which owns the fence, the shiki highlighting and
+ * the copy control alike — so what lands on the clipboard is exactly what is on
+ * screen, and the pane holds no drawing of its own. (This replaces the earlier
+ * `Markdown` + `fenceBlock` route of `P1-R14`; the styles file that carried it
+ * is deleted with it.)
  */
 
-import { useClipboard } from "@vueuse/core";
 import { computed } from "vue";
-import { useI18n } from "vue-i18n";
 import { ScopeActorTypes, SortDirection } from "@upmind-automation/headless";
-import { Button, Markdown, Tooltip } from "@upmind/ui";
-import { fenceBlock } from "./sheets.styles";
+import { CodeBlock } from "../code";
 import {
   camelCase,
   compact,
@@ -85,20 +60,8 @@ import {
 } from "lodash-es";
 import type { CodePaneProps } from "./CodePane.types";
 import type { QuerySortEntry } from "@upmind-automation/headless";
-// -----------------------------------------------------------------------------
 
 const props = defineProps<CodePaneProps>();
-
-const { t } = useI18n();
-
-// `legacy: true` keeps the control honest where the async Clipboard API is not
-// there to reach (an insecure origin, an older browser) — the house pattern,
-// `client-vue`'s `Share.vue`.
-const { copy, copied } = useClipboard({ legacy: true });
-
-const copyLabel = computed(() =>
-  copied.value ? t("confirm.copied") : t("labs.code_copy")
-);
 
 // --- The live state the call carries
 
@@ -225,8 +188,4 @@ const snippet = computed(() =>
     "\n"
   )
 );
-
-const heading = computed(() => t("labs.sheet_code"));
-
-const fence = computed(() => `\`\`\`vue\n${snippet.value}\n\`\`\``);
 </script>

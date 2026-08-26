@@ -48,8 +48,8 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watchEffect } from "vue";
 import { cn } from "@upmind/ui";
+import { computed, ref, watchEffect } from "vue";
 import { FALLBACK_ICON, resolveLucideIcon } from "./icon-map";
 import { hasIcon, iconVariant, loadIcon } from "./iconLoader";
 import { isString } from "lodash-es";

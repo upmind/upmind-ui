@@ -106,6 +106,8 @@
 </template>
 
 <script setup lang="ts">
+import { useTestAttrs } from "@upmind/ui";
+import { Badge, Tooltip } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import {
@@ -113,8 +115,6 @@ import {
   useMoney,
   useConfig
 } from "@upmind-automation/headless";
-import { useTestAttrs } from "@upmind/ui";
-import { Badge, Tooltip } from "@upmind/ui";
 import {
   cardHeaderPriceRootVariants,
   cardHeaderPriceRegularPriceVariants,

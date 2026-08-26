@@ -29,11 +29,11 @@
 </template>
 
 <script lang="ts" setup>
+import { Link } from "@upmind/ui";
+import { Button } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { RouterLink } from "vue-router";
-import { Link } from "@upmind/ui";
-import { Button } from "@upmind/ui";
 import { Icon } from "../icon";
 import type { BackProps } from "./types";
 

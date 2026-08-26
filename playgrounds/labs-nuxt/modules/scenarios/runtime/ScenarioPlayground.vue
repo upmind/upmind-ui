@@ -1,10 +1,10 @@
 <template>
-  <UpmLayout>
+  <Page width="full">
     <!-- The mocking glow is the WHOLE page's, not a box around the table
          (`R6-18`): what is faked is the page, and the outline it is drawn with
          reserves no space, so nothing below moves when a preset arms. -->
     <ForcedCanvas :preset="preset">
-      <div class="space-y-6">
+      <div class="flex flex-col gap-4">
         <!-- A replay is not interactive (`R6-23`): with a track armed the page's
              own controls are the SCRIPT's, so both halves that own one are told
              so, and picking Live releases them in the same tick. -->
@@ -21,18 +21,20 @@
              emits, so the listener rides its attribute fallthrough onto the
              archetype surface it renders — which is what keeps the dispatcher
              free of any one surface's channels. -->
-        <ModuleRenderer
-          :descriptor="descriptor"
-          :port="port"
-          :presentation="scenario.presentation"
-          :handoffs="handoffs"
-          :detail="detail"
-          :locked="isReplaying"
-          @update:collection-actions="onCollectionActions"
-        />
+        <Card size="sm">
+          <ModuleRenderer
+            :descriptor="descriptor"
+            :port="port"
+            :presentation="scenario.presentation"
+            :handoffs="handoffs"
+            :detail="detail"
+            :locked="isReplaying"
+            @update:collection-actions="onCollectionActions"
+          />
+        </Card>
       </div>
     </ForcedCanvas>
-  </UpmLayout>
+  </Page>
 </template>
 
 <script lang="ts" setup>
@@ -72,7 +74,7 @@
  * playground holds no knowledge of which page is under it.
  */
 
-import { UpmLayout } from "@upmind-automation/client-vue";
+import { Card, Page } from "@upmind/ui";
 import { createHarness } from "@upmind-automation/scenario-harness";
 import { ModuleRenderer } from "./components";
 import ForcedCanvas from "./components/ForcedCanvas.vue";

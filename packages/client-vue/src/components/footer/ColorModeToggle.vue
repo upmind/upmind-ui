@@ -22,9 +22,9 @@
  * Flips `useColorMode` — defaults to the brand/OS preference (followed live) and
  * the user's choice persists as an override. Shows the glyph it switches to.
  */
+import { Button } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Button } from "@upmind/ui";
 import { useColorMode } from "../../modules/theming";
 import { Icon } from "../icon";
 

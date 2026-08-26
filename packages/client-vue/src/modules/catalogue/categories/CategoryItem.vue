@@ -67,6 +67,9 @@
 </template>
 
 <script setup lang="ts">
+import { Link } from "@upmind/ui";
+import { Button } from "@upmind/ui";
+import { Badge } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { RouterLink } from "vue-router";
@@ -74,9 +77,6 @@ import {
   type ProductCategory,
   QUERY_PARAMS
 } from "@upmind-automation/headless";
-import { Link } from "@upmind/ui";
-import { Button } from "@upmind/ui";
-import { Badge } from "@upmind/ui";
 import { Icon } from "../../../components/icon";
 import {
   categoriesItemRootVariants,

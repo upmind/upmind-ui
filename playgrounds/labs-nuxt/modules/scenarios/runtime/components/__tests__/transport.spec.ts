@@ -22,6 +22,7 @@
  * rail while the page it is scrubbing stays where it was.
  */
 
+import { Button, Stepper, Tooltip } from "@upmind/ui";
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, nextTick, ref } from "vue";
@@ -29,7 +30,6 @@ import { createI18n } from "vue-i18n";
 import action from "@upmind-automation/i18n/core/action-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
-import { Button, Stepper, Tooltip } from "@upmind/ui";
 import SceneRail from "../SceneRail.vue";
 import { TRANSPORT_CONTROL } from "../Transport.types";
 import Transport from "../Transport.vue";

@@ -15,6 +15,14 @@
  * reconciling watcher and the registration both outlive whichever component
  * asked first.
  *
+ * A preset is PAGE-scoped, and only half of that scoping is the url's.
+ * `force=` is dropped by the url bag's OWN reconcile, because the page just
+ * opened does not spell it. `transient` is the preset the url cannot carry, so
+ * that pass has no param to find missing — no url reconcile, however timely,
+ * ever clears it. So the handle takes the bag's trick for itself: it remembers
+ * the pathname it last answered on, and a consumer calling in on a different
+ * one drops the transient preset before it can force a module nobody armed.
+ *
  * Arming changes what the tab's NEXT request is answered with, which leaves
  * every answer it already holds a lie about a page that now says it is forced.
  * So a reconcile that lands ends by invalidating the cache: the preset is only
@@ -37,14 +45,23 @@ import type {
 
 // -----------------------------------------------------------------------------
 
-let state: UseForcedState | undefined;
+type ForcedStateHandle = {
+  state: UseForcedState;
+  reset: () => void;
+};
+
+let handle: ForcedStateHandle | undefined;
+
+/** The pathname the handle last answered on — the page `reset` scopes to. */
+let page: string | undefined;
 
 function isUrlPreset(value: unknown): value is ForceUrlPreset {
   return some(FORCE_URL_PRESETS, preset => preset === value);
 }
 
-function create(): UseForcedState {
+function create(): ForcedStateHandle {
   const url = usePlaygroundUrlState();
+  if (typeof window !== "undefined") page = window.location.pathname;
 
   // The preset the url cannot carry, so it cannot be read back off one either.
   const transient = ref<ForcePreset | undefined>();
@@ -170,12 +187,39 @@ function create(): UseForcedState {
     await whenReady();
   }
 
+  /**
+   * The page wins on a page change. The handle outlives any one page — there is
+   * one worker per tab — so a `replay` armed on the page just left would
+   * otherwise still be answering THIS page's requests, forcing a module nobody
+   * armed. It is the half no url pass can reach: `transient` is the preset the
+   * url cannot carry, so the bag's reconcile has no param to find missing.
+   *
+   * The url half is deliberately left alone. `force=` on the page just opened
+   * is a pasted link arming it (`AC8.2`), so clearing it here would disarm the
+   * very preset the url was sent to carry; the bag's own reconcile is what
+   * drops a `force=` the new query does NOT spell. A same-path call is never
+   * touched, so a preset armed on this page survives every later consumer.
+   *
+   * Releasing the worker is left to the watcher above, the one place a change
+   * of transport is serialised — a release from here could not be chained.
+   */
+  function reset(): void {
+    if (typeof window === "undefined" || window.location.pathname === page)
+      return;
+    page = window.location.pathname;
+
+    transient.value = undefined;
+  }
+
   return {
-    preset,
-    isAvailable: availableModules.length > 0,
-    arm,
-    disarm,
-    whenReady
+    reset,
+    state: {
+      preset,
+      isAvailable: availableModules.length > 0,
+      arm,
+      disarm,
+      whenReady
+    }
   };
 }
 
@@ -184,7 +228,8 @@ export function useForcedState(): UseForcedState {
   // Detached, like the url writer it reads: a watcher first created inside a
   // component would stop reconciling the moment that component unmounted, and
   // the tab would keep serving the preset it was last armed with.
-  if (!state) state = effectScope(true).run(create);
+  if (!handle) handle = effectScope(true).run(create)!;
+  else handle.reset();
 
-  return state!;
+  return handle.state;
 }

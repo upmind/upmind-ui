@@ -19,9 +19,9 @@
  * explains it.
  */
 
+import { Card } from "@upmind/ui";
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { Card } from "@upmind/ui";
 import { Icon } from "@upmind-automation/client-vue";
 import { defaultRow, unverifiedRow } from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";

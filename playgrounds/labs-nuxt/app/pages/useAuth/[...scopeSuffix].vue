@@ -1,5 +1,5 @@
 <template>
-  <UpmLayout>
+  <Page>
     <div class="flex min-h-screen">
       <!-- Main Content Area -->
       <div class="flex-1 space-y-8">
@@ -24,12 +24,12 @@
         />
       </div>
     </div>
-  </UpmLayout>
+  </Page>
 </template>
 
 <script lang="ts" setup>
 // --- internal
-import { UpmLayout } from "@upmind-automation/client-vue";
+import { Page } from "@upmind/ui";
 import { AUTH_SCOPE_MATRIX } from "@upmind-automation/headless";
 import { keys } from "lodash-es";
 import type {

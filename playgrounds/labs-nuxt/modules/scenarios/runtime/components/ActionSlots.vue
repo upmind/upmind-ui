@@ -4,7 +4,7 @@
     actions — never the sole path to any of them (always-visible + overflow
     already cover 100%).
   -->
-  <ContextMenu :items="menuItems" size="sm">
+  <ContextMenu :items="menuItems">
     <template #trigger>
       <div :class="actionSlots.root({ stretch: stretch })">
         <!-- always-visible: the actions the scenario placed here, drawn as it
@@ -16,26 +16,33 @@
           :label="locked ? t('labs.replay_locked') : action.label"
           :active="!!iconOnly || !!locked"
         >
-          <ButtonItems
+          <Button
             size="sm"
             :variant="action.variant ?? 'outline'"
-            :icon="action.icon"
-            :label="action.label"
             :block="stretch"
             :icon-only="iconOnly"
             :disabled="action.disabled"
             :loading="action.loading"
+            :aria-label="iconOnly ? action.label : undefined"
+            :data-attrs="{ 'data-test-value': kebabCase(action.label) }"
             @click="action.onSelect"
-          />
+          >
+            <Icon
+              v-if="action.icon"
+              :icon="action.icon"
+              size="nano"
+              aria-hidden="true"
+            />
+            <span v-if="iconOnly" class="sr-only">{{ action.label }}</span>
+            <template v-else>{{ action.label }}</template>
+            <span v-if="action.loading" role="status" class="sr-only">{{
+              t("text.loading")
+            }}</span>
+          </Button>
         </Tooltip>
 
         <!-- overflow: everything the scenario did NOT place beside the row -->
-        <DropdownMenu
-          v-if="overflowItems.length"
-          :items="overflowItems"
-          size="sm"
-          width="md"
-        >
+        <DropdownMenu v-if="overflowItems.length" :items="overflowItems">
           <!-- No tooltip here: the ui DropdownMenu binds its trigger to the
                FIRST element of this slot, and a Tooltip in between would take
                that binding and leave the menu unopenable. So the trigger says
@@ -43,15 +50,18 @@
                region does — a trigger that still opens a menu of dead controls
                is the lock leaking (`R6-23`). -->
           <template #trigger>
-            <ButtonItems
+            <Button
               size="sm"
               variant="outline"
-              icon="dots-vertical"
               icon-only
-              :label="t('action.show_more_options')"
               :disabled="locked"
               :title="locked ? t('labs.replay_locked') : undefined"
-            />
+              :aria-label="t('action.show_more_options')"
+              :data-attrs="{ 'data-test-value': 'show-more-options' }"
+            >
+              <Icon icon="dots-vertical" size="nano" aria-hidden="true" />
+              <span class="sr-only">{{ t("action.show_more_options") }}</span>
+            </Button>
           </template>
           <template #item="{ item }">
             <span :data-test-value="item.dataAttrs?.['data-test-value']">
@@ -81,10 +91,10 @@
  * will not fire — a refusal nobody can explain reads as a broken button.
  */
 
+import { Button, ContextMenu, DropdownMenu, Tooltip } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { ContextMenu, DropdownMenu, Tooltip } from "@upmind/ui";
-import ButtonItems from "./ButtonItems.vue";
+import { Icon } from "@upmind-automation/client-vue";
 import { ActionPlacementTypes } from "../scenario.types";
 import { actionSlots } from "./ActionSlots.styles";
 import { filter, kebabCase, map, reject } from "lodash-es";

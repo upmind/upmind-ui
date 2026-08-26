@@ -1,6 +1,6 @@
 import { cva } from "class-variance-authority";
-import { TableColumnWidthTypes } from "../../scenario.types";
 import { invalidRingClasses } from "../../scenario.styles";
+import { TableColumnWidthTypes } from "../../scenario.types";
 // -----------------------------------------------------------------------------
 /**
  * @module scenarios/runtime/components/surfaces/ListSurface.styles
@@ -30,13 +30,13 @@ import { invalidRingClasses } from "../../scenario.styles";
 export const dataRow = cva("", {
   variants: {
     isMarked: {
-      true: "bg-accent-primary-muted text-accent-primary-muted-contrast",
+      true: "bg-primary-muted text-primary-muted-contrast",
       false: ""
     },
     // An outcome outranks the marker — declared after it, so the tint that
     // answers what the user just did is the one tailwind-merge keeps.
     isSucceeded: {
-      true: "bg-accent-success-muted text-accent-success-muted-contrast",
+      true: "bg-success-muted text-success-muted-contrast",
       false: ""
     },
     // The refused row is a NORMAL row: same surface, same height, same columns,
@@ -86,11 +86,11 @@ export const dataCard = cva(
   {
     variants: {
       isMarked: {
-        true: "border-accent-primary border",
+        true: "border-primary border",
         false: ""
       },
       isSucceeded: {
-        true: "border-accent-success bg-accent-success-muted border",
+        true: "border-success bg-success-muted border",
         false: ""
       },
       // The card holds its own strip, so the card IS the record's group: the
@@ -187,15 +187,17 @@ export const paginationRegion = cva("", {
 });
 
 export const listSurface = {
-  root: cva("space-y-4"),
+  root: cva(""),
 
-  // THREE rows, in the order the eye reads them: what may narrow the
-  // collection, what is narrowing it, and what the collection amounts to
-  // (G3/G5/H1). They sit closer to each other than to the records they steer,
-  // so they read as one cluster rather than three lines of chrome. The facets'
-  // own wrapping is the filter declaration's (`filterBar.config.ts`), never a
-  // width this surface imposes on the bar (D13/H3).
-  controls: cva("space-y-2"),
+  // TWO regions: the filter block (facets + refinements) and the display row.
+  // The filter block carries the spec's own border/padding/margin (R5); the
+  // display row sits outside it (R6).
+  controls: cva("space-y-2.5"),
+
+  // The filter block: facets on one line, refinement chips on the next, Clear
+  // all with the chips (G5/H1). The bottom border marks where steering ends
+  // and what the collection amounts to begins.
+  filterBlock: cva("border-line flex flex-col gap-2 border-b pb-3"),
 
   // The whole table's rhythm, in one place so the header, the data rows, the
   // skeleton and the empty frame are measured the same way.

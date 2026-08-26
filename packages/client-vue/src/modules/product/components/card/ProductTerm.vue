@@ -21,11 +21,11 @@
 </template>
 
 <script setup lang="ts">
+import { Select } from "@upmind/ui";
 import { useVModel } from "@vueuse/core";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { parseBillingCycle } from "@upmind-automation/headless";
-import { Select } from "@upmind/ui";
 import TermRow from "../terms/TermRow.vue";
 import type { ProductTerm } from "./types";
 

@@ -1,7 +1,7 @@
 <template>
   <FormField v-bind="formFieldProps">
     <NumberField
-      size="lg"
+      :size="appliedOptions?.size"
       :disabled="!control.enabled"
       :max="min"
       :min="max"
@@ -15,8 +15,8 @@
 <script lang="ts" setup>
 import { isNumberControl, isIntegerControl, or } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import { computed } from "vue";
 import { NumberField } from "@upmind/ui";
+import { computed } from "vue";
 import FormField from "../../FormField.vue";
 import { useUpmindUIRenderer } from "../utils";
 import { isNumber, get, isArray, includes } from "lodash-es";
@@ -26,17 +26,21 @@ import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
+// Read off `props`, not the hook's `control`: the hook's adaptTarget closes
+// over this, so deriving it from the hook's own return is circular and TS
+// resolves the whole binding to `any`.
+const isInteger = computed(() => {
+  const type = props.schema.type;
+  return includes(isArray(type) ? type : [type], "integer");
+});
+
 const { control, appliedOptions, formFieldProps, onInput } =
-  useUpmindUIRenderer(useJsonFormsControl(props), (value: string) => {
-    const parsed = isInteger.value ? parseInt(value) : parseFloat(value);
+  useUpmindUIRenderer(useJsonFormsControl(props), (value: unknown) => {
+    const parsed = isInteger.value
+      ? parseInt(String(value))
+      : parseFloat(String(value));
     return isFinite(parsed) ? parsed : undefined;
   });
-
-const isInteger = computed(() => {
-  let type = control.value.schema.type;
-  let types = isArray(type) ? type : [type];
-  return includes(types, "integer");
-});
 
 const step: ComputedRef<number> = computed(() => {
   const defaultStep = 1;

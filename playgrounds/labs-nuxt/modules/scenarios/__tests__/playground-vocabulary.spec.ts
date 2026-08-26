@@ -8,9 +8,10 @@
  * hand-written ring constant.
  *
  * Rulings: `S4` (token colours only), `S21` (every rendered string is an i18n
- * key), `AC1.5`, `AC10.2`, `AC10.4`, `G10`, `ESC2` (the ring vocabulary is
- * APPLIED through the package's own composable, never re-spelt), `ESC3`
- * (stacking is the primitive's portal, never a number).
+ * key), `AC1.5`, `AC10.2`, `AC10.4`, `G10`, `ESC2` (the ring vocabulary is the
+ * design system's own, never the retired library's — narrowed 2026-08-24, see
+ * `HAND_WRITTEN_RING`), `ESC3` (stacking is the primitive's portal, never a
+ * number).
  *
  * Falsifiability is `vocabulary-blind.must-fail.patch`, which plants one
  * offender of each class; `SCANNED_ROOTS` is what T6.2 (the whole playground)
@@ -56,7 +57,17 @@ const CHARACTER_ENTITY = /&(?:#\d+|#x[0-9a-fA-F]+|[A-Za-z][A-Za-z0-9]*);/g;
 // matched the package's own exported names, which is the lawful consumption
 // ESC2 asks for — so the gate red on the fix. Re-spelling the vocabulary always
 // writes the literal out, which is what this catches.
-const HAND_WRITTEN_RING = /\bring-\d\b|\bring-offset|\boutline-\d\b/g;
+//
+// `outline-\d` was a third branch here until 2026-08-24. It encoded the OLD ui
+// library's ring composable, which the new `@upmind/ui` never shipped: the new
+// library carries its focus coat in each component's own `variants.ts`
+// (`button/variants.ts`), and a consumer assembling a focusable element the
+// library owns no component for — a shell's `#logo` link — writes the coat at
+// the call site. That is the library's documented consumer idiom, identical in
+// `apps/portal`, `PortalShell.stories.ts` and `admin-shell/registry.ts`, so
+// flagging it made the gate red on the correct code. `ring-*` stays: that IS
+// the old library's spelling, and it is wrong in the new vocabulary.
+const HAND_WRITTEN_RING = /\bring-\d\b|\bring-offset/g;
 
 /**
  * The S21 offenders standing on HEAD inside the widened scope, recorded
@@ -95,18 +106,6 @@ const KNOWN_HEAD_STRINGS = [
   {
     file: "app/pages/auth/transfer.vue",
     text: "Session Transfer",
-    owner: "T6.2"
-  },
-  { file: "app/pages/index.vue", text: "Composables", owner: "T6.2" },
-  { file: "app/pages/index.vue", text: "Getting Started", owner: "T6.2" },
-  {
-    file: "app/pages/index.vue",
-    text: 'placeholder="Filter composables"',
-    owner: "T6.2"
-  },
-  {
-    file: "app/pages/index.vue",
-    text: 'title="Nothing matches"',
     owner: "T6.2"
   },
   {
@@ -252,16 +251,19 @@ describe("T1.3 colour vocabulary — token values only (S4 · G10 · AC10.2)", (
     expect(offences(HAND_WRITTEN_RING)).toStrictEqual([]);
   });
 
-  it("class 6 tells the lawful ESC2 composable from a re-spelling", () => {
+  it("class 6 tells the library's own focus coat from a re-spelling", () => {
     const matches = (source: string): string[] =>
       map([...source.matchAll(HAND_WRITTEN_RING)], match => match[0]);
 
+    // The new library's coat, verbatim from `button/variants.ts` and from the
+    // three `#logo` slot examples the library documents. Lawful.
     expect(
-      matches('import { useInvalidRing } from "@upmind/ui";')
+      matches(
+        'class="outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring/40"'
+      )
     ).toStrictEqual([]);
-    expect(
-      matches("const rowRing = useInvalidRing(styles.row);")
-    ).toStrictEqual([]);
+
+    // The OLD library's `ring-*` spelling. Still an offence.
     expect(
       matches('const rowRing = "ring-2 ring-offset-2 ring-danger";')
     ).toStrictEqual(["ring-2", "ring-offset"]);

@@ -24,13 +24,13 @@ import { mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { defaultRow, unverifiedRow } from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
+import { ActionPlacementTypes } from "../../../scenario.types";
 import {
   CONTROL_TEST_VALUE,
   OVERFLOW_TRIGGER_TEST_VALUE
 } from "../../__tests__/control-test-values";
 import { ListSurface } from "../index";
 import { getRow } from "./table-geometry";
-import { ActionPlacementTypes } from "../../../scenario.types";
 import { filter, keys, map, reject } from "lodash-es";
 import type { ScenarioAction } from "../../../scenario.types";
 import type { SurfaceActions } from "../surface.types";

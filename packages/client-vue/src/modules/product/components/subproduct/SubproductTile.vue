@@ -92,11 +92,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
 import { Badge } from "@upmind/ui";
 import { OptionTile } from "@upmind/ui";
 import { Markdown, NumberField, Tooltip } from "@upmind/ui";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { Icon } from "../../../../components/icon";
 import Promotion from "../../../basket-product/components/card/components/Promotion.vue";
 import SubproductPrice from "./SubproductPrice.vue";

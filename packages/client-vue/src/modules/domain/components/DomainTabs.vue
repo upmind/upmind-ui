@@ -14,8 +14,8 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from "vue-i18n";
 import { Tabs } from "@upmind/ui";
+import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 </script>

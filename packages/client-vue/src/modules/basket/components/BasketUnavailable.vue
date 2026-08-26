@@ -24,11 +24,11 @@
 </template>
 
 <script lang="ts" setup>
+import { Interstitial, Button, useTestAttrs } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import { useBasket, useRoutingEngine } from "@upmind-automation/headless";
-import { Interstitial, Button, useTestAttrs } from "@upmind/ui";
 import { Icon } from "../../../components/icon";
 // -----------------------------------------------------------------------------
 

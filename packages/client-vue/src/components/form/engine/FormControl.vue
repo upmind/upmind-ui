@@ -15,9 +15,9 @@
 </template>
 
 <script lang="ts" setup>
+import { Slot } from "@upmind/ui";
 import { useIntersectionObserver } from "@vueuse/core";
 import { ref, computed, watch } from "vue";
-import { Slot } from "@upmind/ui";
 import { first, isFunction } from "lodash-es";
 import type { ComponentPublicInstance } from "vue";
 // -----------------------------------------------------------------------------

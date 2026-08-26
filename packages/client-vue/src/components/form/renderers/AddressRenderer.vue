@@ -8,6 +8,7 @@
     <template v-if="!open">
       <Search
         id="search"
+        :size="appliedOptions?.size"
         :autoFocus="formFieldProps?.autoFocus"
         :placeholder="t('form.address.placeholder')"
         :results="predictions"
@@ -50,17 +51,17 @@ import {
   rendererProps,
   useJsonFormsControlWithDetail
 } from "@jsonforms/vue";
+import { Search } from "@upmind/ui";
+import { Link } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { usePlaces } from "@upmind-automation/headless";
-import { Search } from "@upmind/ui";
-import { Link } from "@upmind/ui";
 import FormField from "../engine/FormField.vue";
 import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import { get } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
-import type { Place } from "@upmind-automation/headless";
 import type { SearchItem } from "@upmind/ui";
+import type { Place } from "@upmind-automation/headless";
 // --- external
 
 // -----------------------------------------------------------------------------

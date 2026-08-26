@@ -43,14 +43,17 @@
       :class="formFlowSurface.failure()"
     >
       <template #action>
-        <ButtonItems
+        <Button
           size="sm"
           variant="ghost"
-          icon="x-close"
           icon-only
-          :label="t('action.dismiss')"
+          :aria-label="t('action.dismiss')"
+          :data-attrs="{ 'data-test-value': 'dismiss' }"
           @click="feedback.dismiss(SUBMIT_CONTROL)"
-        />
+        >
+          <Icon icon="x-close" size="nano" aria-hidden="true" />
+          <span class="sr-only">{{ t("action.dismiss") }}</span>
+        </Button>
       </template>
     </Alert>
 
@@ -88,11 +91,10 @@
  */
 
 import { isControlElement, RuleEffect } from "@jsonforms/core";
+import { Alert, Button, Skeleton } from "@upmind/ui";
 import { computed, onUnmounted, ref, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
-import { formRenderers, UpmForm } from "@upmind-automation/client-vue";
-import { Alert, Skeleton } from "@upmind/ui";
-import ButtonItems from "../ButtonItems.vue";
+import { formRenderers, Icon, UpmForm } from "@upmind-automation/client-vue";
 import {
   clearScenarioStage,
   useScenarioStage

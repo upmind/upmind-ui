@@ -54,7 +54,7 @@ export enum ROUTE {
 
   /**
    * The auth OVERLAY — the modal a guarded route opens over itself to collect a
-   * session in place, injected onto every eligible parent as `<parent>--auth`.
+   * session in place, injected onto every eligible parent as `<parent>--session`.
    */
   OVERLAY_AUTH = "overlay-auth",
 

@@ -1,10 +1,10 @@
+import { defineTheme, themeToCss } from "@upmind/tokens";
 import WebFontLoader from "webfontloader";
 import {
   useImageUrl,
   type Theme,
   type ThemeTokens
 } from "@upmind-automation/headless";
-import { defineTheme, themeToCss } from "@upmind/tokens";
 import {
   forEach,
   has,

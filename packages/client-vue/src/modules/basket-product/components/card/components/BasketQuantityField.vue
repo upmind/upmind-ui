@@ -36,9 +36,9 @@
  * for a trash/remove action when the quantity equals the minimum value.
  */
 
+import { NumberField } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { NumberField } from "@upmind/ui";
 import { Icon } from "../../../../../components/icon";
 import { isNil } from "lodash-es";
 import type { QuantityFieldProps } from "./types";

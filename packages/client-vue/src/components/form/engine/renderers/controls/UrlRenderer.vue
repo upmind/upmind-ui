@@ -1,7 +1,7 @@
 <template>
   <FormField v-bind="formFieldProps">
     <Input
-      size="lg"
+      :size="appliedOptions?.size"
       :data-attrs="controlDataAttrs"
       :disabled="!control.enabled"
       :model-value="control.data"
@@ -22,7 +22,7 @@ import type { RendererProps } from "@jsonforms/vue";
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, onInput, formFieldProps, controlDataAttrs } =
+const { control, onInput, appliedOptions, formFieldProps, controlDataAttrs } =
   useUpmindUIRenderer(useJsonFormsControl(props));
 </script>
 

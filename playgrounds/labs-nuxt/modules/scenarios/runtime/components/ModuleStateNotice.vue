@@ -17,19 +17,19 @@
  * renders in place of its normal content.
  */
 
+import { Alert } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Alert } from "@upmind/ui";
 import { ModuleState } from "./module-state.types";
 import moduleStateNoticeStyles from "./ModuleStateNotice.styles";
-
-const moduleStateNotice = moduleStateNoticeStyles.moduleStateNotice;
 import { get, isNil, isString } from "lodash-es";
 import type {
   ModuleStateContent,
   ModuleStateContentMap,
   ModuleStateNoticeProps
 } from "./ModuleStateNotice.types";
+
+const moduleStateNotice = moduleStateNoticeStyles.moduleStateNotice;
 // -----------------------------------------------------------------------------
 
 const props = defineProps<ModuleStateNoticeProps>();

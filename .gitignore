@@ -19,10 +19,14 @@ tsconfig.tsbuildinfo
 .claude/settings.local.json
 .claude/tasks/
 .claude/worktrees/
+.claude/scratch/
 .claude/dispatch/
 
 
 # Playwright
+# The MCP browser writes snapshots, console logs and screenshots here, relative
+# to whatever directory it was launched in — which is the repo root.
+.playwright-mcp/
 tests/Playwright/e2e/test-output/
 tests/Playwright/e2e/reports/
 test-results/

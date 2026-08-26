@@ -22,6 +22,10 @@ import type { ScopeConfig } from "../../composables/scope";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * @graphify-citation `graphify-out/graph.json` (2026-08-25) — copy is now handled
+ * by CodeBlock; hideCopy and snippet props removed per docs/sdd/FE-3125/sheets-dx.md.
+ */
 export type CodePaneProps = {
   /**
    * The composable the page boots, which IS its directory, its url segment and

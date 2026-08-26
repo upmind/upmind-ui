@@ -34,9 +34,9 @@
 </template>
 
 <script lang="ts" setup>
+import { OptionTileGroup } from "@upmind/ui";
 import { computed } from "vue";
 import { TERM_SELECTOR, type TermSelector } from "@upmind-automation/headless";
-import { OptionTileGroup } from "@upmind/ui";
 import { FormField } from "../../../../components/form";
 import TermTile from "./TermTile.vue";
 import { isNil, toNumber } from "lodash-es";

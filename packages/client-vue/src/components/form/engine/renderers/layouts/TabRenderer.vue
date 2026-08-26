@@ -27,8 +27,8 @@
 <script lang="ts" setup>
 import { isLayout, uiTypeIs, and } from "@jsonforms/core";
 import { useJsonFormsLayout, DispatchRenderer } from "@jsonforms/vue";
-import { computed, ref } from "vue";
 import { Tabs } from "@upmind/ui";
+import { computed, ref } from "vue";
 import { useUpmindUILayoutRenderer } from "../utils";
 import { get } from "lodash-es";
 import type { Layout, UISchemaElement } from "@jsonforms/core";

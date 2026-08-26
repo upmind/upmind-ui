@@ -65,9 +65,9 @@
 </template>
 
 <script setup lang="ts">
+import { Tooltip } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Tooltip } from "@upmind/ui";
 import { Icon } from "../../../../components/icon";
 import CurrentPrice from "../pricing/CurrentPrice.vue";
 import ExPrice from "../pricing/ExPrice.vue";

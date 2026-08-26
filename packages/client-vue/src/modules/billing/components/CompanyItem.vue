@@ -57,11 +57,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
 import { Badge } from "@upmind/ui";
 import { Link } from "@upmind/ui";
 import { Tooltip } from "@upmind/ui";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { Icon } from "../../../components/icon";
 import type { Company } from "@upmind-automation/headless";
 

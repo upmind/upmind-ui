@@ -22,8 +22,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 import { useTestAttrs } from "@upmind/ui";
+import { computed } from "vue";
 import { Icon } from "../../../../../components/icon";
 import {
   productOptionBenefitsListVariants,

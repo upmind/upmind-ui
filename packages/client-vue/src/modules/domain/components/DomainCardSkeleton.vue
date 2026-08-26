@@ -48,9 +48,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 import { Skeleton } from "@upmind/ui";
 import { cn } from "@upmind/ui";
+import { computed } from "vue";
 import {
   cardRootVariants,
   cardHeaderRootVariants,

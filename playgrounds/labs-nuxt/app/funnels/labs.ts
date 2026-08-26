@@ -21,8 +21,11 @@ import { parseScopeSuffix } from "~/composables/scope/scope-mapper";
 
 // -----------------------------------------------------------------------------
 
-/** The overlay suffix `registerOverlayRoutes` injects the auth modal under. */
-const AUTH_OVERLAY_ID = "auth";
+/**
+ * The overlay suffix `registerOverlayRoutes` injects the auth modal under — the
+ * key of `LABS_OVERLAYS`, which is where the reason it is not `auth` is written.
+ */
+const AUTH_OVERLAY_ID = "session";
 
 /**
  * The actor a session is collected for when the entry names none — the one the
@@ -77,7 +80,7 @@ function overlayParent(route?: Pick<RouteLocation, "name">) {
 }
 
 /**
- * The auth overlay's location over a page — the `<route>--auth` name the overlay
+ * The auth overlay's location over a page — the `<route>--session` name the overlay
  * registry injects, carrying that page's own params so the scope the url named
  * survives the round trip.
  *
@@ -111,7 +114,7 @@ export function authOverlayTarget(
 ) {
   // Strip an overlay suffix as `resolveToParent` does: add-session is offered
   // from the GLOBAL pool, so it can be taken on the overlay itself, and
-  // `<page>--auth--auth` is a route nobody registers and a push that throws.
+  // `<page>--session--session` is a route nobody registers and a push that throws.
   const parent = overlayParent(route);
 
   const named = actor ?? routeActor(route?.params);
@@ -185,7 +188,7 @@ export function authRequestActor(route?: Pick<RouteLocation, "query">) {
  * without a hand-listed state. `guardScenario` rejects toward SESSION when the
  * scope the url names needs a session the visitor does not have; the auth modal
  * is then collected IN PLACE by re-targeting the route to `authOverlayTarget`'s
- * `--auth` child, which resolves through the generated `endpoint:auth` node and
+ * `--session` child, which resolves through the generated `endpoint:auth` node and
  * renders over the page.
  */
 const scenarioStates = mapValues(scenarioRoutes, () => ({

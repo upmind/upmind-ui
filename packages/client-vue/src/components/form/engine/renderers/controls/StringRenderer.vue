@@ -1,7 +1,7 @@
 <template>
   <FormField v-bind="formFieldProps">
     <Input
-      size="lg"
+      :size="appliedOptions?.size"
       :data-attrs="controlDataAttrs"
       :type="appliedOptions?.type"
       :max="safeMax"
@@ -14,15 +14,32 @@
       :mask="appliedOptions?.mask"
       :model-value="control.data"
       @update:modelValue="onInput"
-    />
+    >
+      <template v-if="appliedOptions?.icon" #leading>
+        <Icon :icon="appliedOptions.icon" size="xs" />
+      </template>
+
+      <template v-if="canClear" #trailing>
+        <Button
+          icon-only
+          variant="ghost"
+          :size="appliedOptions?.size"
+          :aria-label="clearLabel"
+          @click="onClear()"
+        >
+          <Icon icon="x-close" size="xs" />
+        </Button>
+      </template>
+    </Input>
   </FormField>
 </template>
 
 <script lang="ts" setup>
 import { isStringControl } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
+import { Button, Input } from "@upmind/ui";
 import { computed } from "vue";
-import { Input } from "@upmind/ui";
+import { Icon } from "../../../../icon";
 import FormField from "../../FormField.vue";
 import { useUpmindUIRenderer } from "../utils";
 import { isNil } from "lodash-es";
@@ -45,8 +62,26 @@ import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, appliedOptions, onInput, formFieldProps, controlDataAttrs } =
-  useUpmindUIRenderer(useJsonFormsControl(props));
+const {
+  control,
+  appliedOptions,
+  onInput,
+  onClear,
+  translate,
+  formFieldProps,
+  controlDataAttrs
+} = useUpmindUIRenderer(useJsonFormsControl(props));
+
+const canClear = computed(
+  () => !!appliedOptions.value?.clearable && !isNil(control.value?.data)
+);
+
+/** The clear button carries no visible label, so it owes an accessible one. */
+const clearLabel = computed(
+  () =>
+    (appliedOptions.value?.clearLabel as string | undefined) ??
+    translate("action.clear", "Clear")
+);
 
 const safeMin: ComputedRef<number | undefined> = computed(() => {
   const applied = appliedOptions.value?.minLength;

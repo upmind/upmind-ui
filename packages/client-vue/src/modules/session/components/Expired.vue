@@ -83,9 +83,6 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch } from "vue";
-import { useI18n } from "vue-i18n";
-import { useActiveSession } from "@upmind-automation/headless";
 import {
   DialogContent,
   DialogDescription,
@@ -93,6 +90,9 @@ import {
   DialogTitle
 } from "@upmind/ui";
 import { Avatar, Button } from "@upmind/ui";
+import { ref, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import { useActiveSession } from "@upmind-automation/headless";
 import { Icon } from "../../../components/icon";
 import { isEmpty, isFunction } from "lodash-es";
 import type { SessionExpiredProps } from "../types";

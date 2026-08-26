@@ -40,9 +40,9 @@
 </template>
 
 <script lang="ts" setup>
+import { Select } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Select } from "@upmind/ui";
 import { FormField } from "../../../../components/form";
 import TermRow from "./TermRow.vue";
 import { isArray, isNil, toNumber } from "lodash-es";

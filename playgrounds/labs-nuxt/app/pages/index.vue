@@ -1,107 +1,100 @@
 <template>
-  <UpmLayout>
-    <div class="space-y-10">
-      <header class="space-y-4">
-        <div>
-          <h1 class="text-display text-3xl font-bold">
-            {{ t("labs.app_name") }}
-          </h1>
-          <p class="text-muted mt-2 max-w-3xl text-base">
-            {{ t("labs.app_description") }}
-          </p>
-        </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <Badge
-            appearance="muted"
-            icon="code-browser"
-            :label="`${composables.length} composables`"
-          />
-          <Badge
-            appearance="muted"
-            icon="layers-three-01"
-            :label="`${families.length} families`"
-          />
-          <Badge
-            appearance="muted"
-            icon="beaker-01"
-            :label="`${scenarioCount} scenario-covered`"
-          />
-        </div>
-      </header>
+  <Page width="full">
+    <Page width="wide">
+      <PageHeader>
+        <PageTitle>{{ t("labs.app_name") }}</PageTitle>
+        <PageDescription>{{ t("labs.app_description") }}</PageDescription>
+      </PageHeader>
 
-      <Card size="sm" class="space-y-4">
-        <h2 class="text-display text-2xl font-semibold">Getting Started</h2>
-        <List :items="gettingStarted" />
-      </Card>
+      <PageBody>
+        <StatGroup :stats="metrics" :columns="3" />
 
-      <section class="space-y-6">
-        <div class="flex flex-wrap items-center justify-between gap-4">
-          <h2 class="text-display text-2xl font-semibold">Composables</h2>
-          <Input
-            v-model="query"
-            class="w-full sm:w-72"
-            icon="search-md"
-            placeholder="Filter composables"
-          />
-        </div>
+        <Card size="sm" :title="t('labs.home_getting_started')">
+          <List :items="gettingStarted" />
+        </Card>
 
-        <Alert
-          v-if="!visibleFamilies.length"
-          appearance="muted"
-          color="info"
-          icon="search-md"
-          title="Nothing matches"
-          description="No composable matches that filter. Clear it to see them all."
-        />
-
-        <div
-          v-for="family in visibleFamilies"
-          :key="family.name"
-          class="space-y-3"
-        >
-          <div class="flex items-center gap-2">
-            <Icon :icon="family.icon" size="xs" class="text-muted" />
-            <h3 class="text-display font-medium">{{ family.label }}</h3>
-            <Badge
-              size="sm"
-              appearance="muted"
-              :label="String(family.entries.length)"
-            />
-          </div>
-
-          <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            <NuxtLink
-              v-for="entry in family.entries"
-              :key="entry.key"
-              :to="entry.to ?? { name: entry.route! }"
-              class="bg-surface border-surface hover:border-accent-primary card-radius group flex items-start gap-4 border p-4 transition-all hover:shadow-md"
+        <PageSection>
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <Heading :level="2" size="md">
+              {{ t("labs.home_composables") }}
+            </Heading>
+            <Input
+              v-model="query"
+              class="w-full sm:w-72"
+              :placeholder="t('labs.home_filter_composables')"
             >
-              <div
-                class="bg-canvas text-muted group-hover:bg-accent-primary-muted group-hover:text-accent-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors"
-              >
-                <Icon :icon="entry.icon" size="sm" />
-              </div>
-              <div class="min-w-0 space-y-2">
-                <h4 class="text-display truncate font-medium">
-                  {{ entry.label }}
-                </h4>
-                <div v-if="entry.tags.length" class="flex flex-wrap gap-1">
-                  <Badge
-                    v-for="tag in entry.tags"
-                    :key="tag"
-                    size="sm"
-                    appearance="muted"
-                    color="neutral"
-                    :label="tag"
-                  />
-                </div>
-              </div>
-            </NuxtLink>
+              <template #leading>
+                <Icon icon="search-md" size="xs" />
+              </template>
+            </Input>
           </div>
-        </div>
-      </section>
-    </div>
-  </UpmLayout>
+
+          <EmptyState
+            v-if="!visibleFamilies.length"
+            :title="t('labs.home_nothing_matches')"
+            :description="t('labs.home_nothing_matches_description')"
+          >
+            <template #icon>
+              <Icon icon="search-md" />
+            </template>
+          </EmptyState>
+
+          <div
+            v-for="family in visibleFamilies"
+            :key="family.name"
+            class="space-y-3"
+          >
+            <div class="flex items-center gap-2">
+              <component :is="family.icon" class="text-muted size-4" />
+              <Heading :level="3" size="xs">{{ family.label }}</Heading>
+              <Badge size="sm" appearance="muted">
+                {{ family.entries.length }}
+              </Badge>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <Card
+                v-for="entry in family.entries"
+                :key="entry.key"
+                size="sm"
+                class="group"
+              >
+                <NuxtLink
+                  :to="entry.to ?? { name: entry.route!, params: brandParams }"
+                  class="flex items-start gap-4"
+                >
+                  <IconTile
+                    size="md"
+                    class="group-hover:bg-primary-muted group-hover:text-primary-muted-contrast transition-colors"
+                  >
+                    <component :is="entry.icon" class="size-4" />
+                  </IconTile>
+                  <div class="min-w-0 flex-1">
+                    <Heading :level="4" size="xs">
+                      {{ entry.label }}
+                    </Heading>
+                    <div
+                      v-if="entry.tags.length"
+                      class="mt-2 flex flex-wrap gap-1"
+                    >
+                      <Badge
+                        v-for="tag in entry.tags"
+                        :key="tag"
+                        size="sm"
+                        appearance="muted"
+                      >
+                        {{ tag }}
+                      </Badge>
+                    </div>
+                  </div>
+                </NuxtLink>
+              </Card>
+            </div>
+          </div>
+        </PageSection>
+      </PageBody>
+    </Page>
+  </Page>
 </template>
 
 <script lang="ts" setup>
@@ -112,12 +105,34 @@
  * navigation composable the sidebar reads (C17): the counts, the family
  * grouping and every link come from the scenario contract, so the mass run's
  * modules land here without this page being touched.
+ *
+ * Every surface is a library component: `Page` carries the width measure and
+ * the header wayfinding, `StatGroup` the three derived metrics, `IconTile` the
+ * entry glyph box, `EmptyState` the zero-results branch, and `Heading` the
+ * display type. `entry.icon` / `family.icon` hold a lucide COMPONENT (see
+ * `useNavigation.icons`), so they render through `<component :is>`.
  */
 
+import {
+  Badge,
+  Card,
+  EmptyState,
+  Heading,
+  IconTile,
+  Input,
+  List,
+  Page,
+  PageBody,
+  PageDescription,
+  PageHeader,
+  PageSection,
+  PageTitle,
+  StatGroup
+} from "@upmind/ui";
 import { useI18n } from "vue-i18n";
-import { UpmLayout, Icon } from "@upmind-automation/client-vue";
-import { Alert, Badge, Card, Input, List } from "@upmind/ui";
+import { Icon } from "@upmind-automation/client-vue";
 import { filter, includes, isEmpty, reduce, toLower, trim } from "lodash-es";
+import type { StatItem } from "@upmind/ui";
 import type { LabFamily } from "~/composables/useNavigation.types";
 import { useNavigation } from "~/composables/useNavigation";
 
@@ -136,11 +151,32 @@ definePageMeta({
 
 const { t } = useI18n();
 
+const route = useRoute();
+
+/**
+ * Only the brand travels — the same law `layouts/default.vue`'s `toLink` holds.
+ * Every page is `/:brandIdOrOrg?/…`, so a bare name drops the param and walks
+ * the user out of the brand they picked; the composable cards fell through to
+ * exactly that.
+ */
+const brandParams = computed(() =>
+  route.params.brandIdOrOrg ? { brandIdOrOrg: route.params.brandIdOrOrg } : {}
+);
+
 const { composables, families } = useNavigation();
 
 const query = ref("");
 
 const scenarioCount = computed(() => filter(composables.value, "to").length);
+
+const metrics = computed((): StatItem[] => [
+  { label: t("labs.home_metric_composables"), value: composables.value.length },
+  { label: t("labs.home_metric_families"), value: families.value.length },
+  {
+    label: t("labs.home_metric_scenario_covered"),
+    value: scenarioCount.value
+  }
+]);
 
 const visibleFamilies = computed((): LabFamily[] => {
   const needle = toLower(trim(query.value));

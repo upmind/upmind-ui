@@ -53,12 +53,12 @@
 <script lang="ts" setup>
 // --- external
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { Button } from "@upmind/ui";
 import { computed, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 // --- internal
 import { useProductSetup } from "@upmind-automation/headless";
 // --- components
-import { Button } from "@upmind/ui";
 import Section from "../../../components/section/Section.vue";
 import { isMobile } from "../../../composables/isMobile";
 import ProductSetupForm from "../../product-setup/components/ProductSetupForm.vue";

@@ -10,7 +10,7 @@ type ParsedVariants<T> = {
  * @example
  * parseVariants({ success: {}, danger: {} }) // { SUCCESS: "success", DANGER: "danger" }
  */
-export function parseVariants<T extends Record<string, any>>(
+export function parseVariants<T extends Record<string, unknown>>(
   config: T
 ): ParsedVariants<T> {
   const variantKeys = keys(config);

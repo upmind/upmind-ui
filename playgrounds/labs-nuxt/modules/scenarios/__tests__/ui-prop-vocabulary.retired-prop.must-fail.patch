@@ -1,0 +1,38 @@
+Negative control for the AC-8 prop-vocabulary gate.
+
+The gate exists because the retired `@upmind/ui` prop API fails SILENTLY: a
+`label` on a Badge is not an error, it is an unknown attribute, so it falls
+through to the DOM and the badge renders empty. Every count-based assertion
+still passes — the element is there, it just says nothing. That is the exact
+shape of the defect this story was opened for.
+
+The mutant re-speaks the retired API at one real call site: the impersonation
+cue in `SessionSwitcher.vue`, the badge whose emptiness started the audit. It
+does not remove the slot children beside it, so the badge still LOOKS right in
+the DOM — only the gate can tell. A mutant that blanked the badge would be
+caught by the render specs too, and would prove nothing about this gate.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Expected RED (component + module lanes):
+  ui-prop-vocabulary.spec.ts  "names every call site still speaking the retired
+                                API"
+                              -> ["app/components/scope/SessionSwitcher.vue
+                                   Badge.label"]
+
+Everything else stays GREEN, including this file's own discrimination cases
+("tells an offending call site from a clean one") — they run on synthetic
+sources and never read the tree. That asymmetry is the point: only the sweep
+over the real tree can see this mutant.
+
+diff --git a/playgrounds/labs-nuxt/app/components/scope/SessionSwitcher.vue b/playgrounds/labs-nuxt/app/components/scope/SessionSwitcher.vue
+--- a/playgrounds/labs-nuxt/app/components/scope/SessionSwitcher.vue
++++ b/playgrounds/labs-nuxt/app/components/scope/SessionSwitcher.vue
+@@ -35,6 +35,7 @@
+             appearance="muted"
+             variant="warning"
+             class="ml-1"
++            label="Impersonating"
+             data-test-key="session-impersonation-cue"
+           >
+             <Icon icon="eye" size="xs" />

@@ -1,21 +1,28 @@
 <template>
-  <Alert
-    variant="danger"
-    appearance="muted"
-    :title="message"
+  <div
+    role="alert"
     :class="failureStrip({ isLeaving })"
+    class="text-danger flex items-center gap-3 text-sm"
   >
-    <template #action>
-      <ButtonItems
-        size="sm"
-        variant="ghost"
-        icon="x-close"
-        icon-only
-        :label="t('action.dismiss')"
-        @click="emit('dismiss')"
-      />
-    </template>
-  </Alert>
+    <span>{{ message }}</span>
+    <Link
+      color="danger"
+      size="sm"
+      :disabled="!canRetry"
+      :data-attrs="{ 'data-test-value': 'retry' }"
+      @click="canRetry && emit('retry')"
+    >
+      {{ t("action.retry") }}
+    </Link>
+    <Link
+      color="danger"
+      size="sm"
+      :data-attrs="{ 'data-test-value': 'dismiss' }"
+      @click="emit('dismiss')"
+    >
+      {{ t("action.dismiss") }}
+    </Link>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -34,12 +41,14 @@
  * (operator ruling 2026-08-13). Dismiss remains for the user who has read it
  * sooner. One component because the table, the card grid and the read-only
  * list all owe the same sentence, and a second copy is how they drift.
+ *
+ * `role="alert"` because the strip's only other signal is colour — a refusal
+ * nobody is told about is a refusal only sighted users receive.
  */
 
+import { Link } from "@upmind/ui";
 import { onMounted, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { Alert } from "@upmind/ui";
-import ButtonItems from "../ButtonItems.vue";
 import { failureStrip } from "./ListSurface.styles";
 import type { RowFailureProps } from "./ListSurface.types";
 // -----------------------------------------------------------------------------
@@ -53,6 +62,8 @@ const FADE_MS = 500;
 defineProps<RowFailureProps>();
 
 const emit = defineEmits<{
+  /** The user wants to try the action again. */
+  retry: [];
   /** The user has read it — the row returns to rest. */
   dismiss: [];
 }>();

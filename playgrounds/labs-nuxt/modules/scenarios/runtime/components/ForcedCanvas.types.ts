@@ -33,22 +33,6 @@ export const FORCE_PRESET_LABELS: Record<ForcePreset, string> = {
   replay: "labs.force_preset_replay"
 };
 
-/**
- * The presets that CANNOT show themselves the moment they are armed, and what
- * the frame says instead (`R7-5`).
- *
- * Every other preset answers the collection READ, so the page re-asks through
- * the new transport and the state is on screen at once. `error-action` answers a
- * WRITE: nothing is written until a hand fires a row action, so the surface is
- * honestly unchanged until one is. The frame therefore says so out loud rather
- * than leaving an armed preset looking like a control that did nothing — a page
- * that fired the write ITSELF to make the state appear would be inventing an
- * action nobody asked for, against whichever row it guessed.
- */
-export const FORCE_PRESET_HINTS: Partial<Record<ForcePreset, string>> = {
-  "error-action": "labs.force_preset_error_action_pending"
-};
-
 export type ForcedCanvasProps = {
   /**
    * The preset actually armed — `useForcedState`'s own `preset`, handed in

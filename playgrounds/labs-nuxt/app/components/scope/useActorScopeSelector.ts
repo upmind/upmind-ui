@@ -23,6 +23,7 @@ import {
   get,
   has,
   map,
+  size,
   sortBy,
   toPairs
 } from "lodash-es";
@@ -46,6 +47,7 @@ export type SessionItem = {
   avatar?: {
     caption: string;
     src?: string;
+    forceCaption?: boolean;
   };
 };
 
@@ -163,10 +165,13 @@ export function useActorScopeSelector() {
         .toUpperCase()
         .substring(0, 2) || "G";
 
-    // The store's own avatar already captions itself with the user's initials
-    // (`mapSessionUser`), so a session with no profile captions itself the same
-    // way rather than dropping a whole name into a 32px circle.
-    const avatar = entry.user?.avatar ?? { caption: initials };
+    const stored = entry.user?.avatar;
+
+    const avatar = {
+      caption: stored?.caption ?? initials,
+      src: stored?.src,
+      forceCaption: stored?.forceCaption
+    };
 
     return {
       id,
@@ -296,7 +301,6 @@ export function useActorScopeSelector() {
     )
       ? (actor as unknown as ScopeActorTypes)
       : ScopeActorTypes.SELF;
-    globalActorScope.value = scopeType;
 
     // Update scope in URL path while preserving current route and brand
     const currentBrand = route.params.brandIdOrOrg as string | undefined;
@@ -308,16 +312,28 @@ export function useActorScopeSelector() {
     // If no brand param, page is first segment; otherwise second segment
     const page = currentBrand ? pathParts[1] || "" : pathParts[0] || "";
 
-    router.push(
-      preserveQuery(
-        buildScopePath({
-          page,
-          brandId: currentBrand,
-          actor: scopeType,
-          context: currentContext
-        })
-      )
+    const target = preserveQuery(
+      buildScopePath({
+        page,
+        brandId: currentBrand,
+        actor: scopeType,
+        context: currentContext
+      })
     );
+
+    // The scope suffix rides a PAGE, and the homepage is not one: it has no page
+    // segment and no `scopeSuffix` param, so a scoped home path resolves to
+    // nothing and the push lands on 404. The store pointer is already moved by
+    // then, which is the part a switch actually means — so an unroutable target
+    // is a no-op navigation, not a failed switch.
+    //
+    // `globalActorScope` is NOT written here: it mirrors the url's own scope
+    // segment (`initFromRoute` + the `actorScope` watch), so setting it beside
+    // an abandoned navigation makes the mirror name an actor the url does not.
+    // The watch sets it when the navigation lands, and only then.
+    if (!size(router.resolve(target).matched)) return;
+
+    router.push(target);
   }
 
   /**

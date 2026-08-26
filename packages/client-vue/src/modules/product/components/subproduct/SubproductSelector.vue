@@ -107,10 +107,10 @@
 </template>
 
 <script lang="ts" setup>
+import { OptionTileGroup, OptionTileNested, Select } from "@upmind/ui";
 import { computed, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import { OPTION_SELECTOR } from "@upmind-automation/headless";
-import { OptionTileGroup, OptionTileNested, Select } from "@upmind/ui";
 import SubproductPrice from "./SubproductPrice.vue";
 import SubproductTile from "./SubproductTile.vue";
 import { map, some, groupBy, first, find, get, isArray } from "lodash-es";

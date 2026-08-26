@@ -38,9 +38,9 @@
  * unmount rather than merely stopped.
  */
 
+import { Dialog } from "@upmind/ui";
 import { computed, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { Dialog } from "@upmind/ui";
 import { useModulePort } from "../composables/useModulePort";
 import FormFlowSurface from "./surfaces/FormFlowSurface.vue";
 import { get, isFunction, isNil, noop } from "lodash-es";

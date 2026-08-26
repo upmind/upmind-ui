@@ -248,6 +248,13 @@
 </template>
 
 <script lang="ts" setup>
+import {
+  cn,
+  DescriptionListRoot,
+  DescriptionItem,
+  Link,
+  Skeleton
+} from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import {
@@ -256,13 +263,6 @@ import {
   useConfig,
   useMoney
 } from "@upmind-automation/headless";
-import {
-  cn,
-  DescriptionListRoot,
-  DescriptionItem,
-  Link,
-  Skeleton
-} from "@upmind/ui";
 import { useSection } from "../../../components/section/useSection";
 import BasketTotal from "./BasketTotal.vue";
 import BasketPromotions from "./Promotions.vue";

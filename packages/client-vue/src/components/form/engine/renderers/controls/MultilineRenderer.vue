@@ -12,8 +12,8 @@
 <script lang="ts" setup>
 import { isStringControl, isMultiLineControl, and } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import { computed } from "vue";
 import { Textarea } from "@upmind/ui";
+import { computed } from "vue";
 import FormField from "../../FormField.vue";
 import { useUpmindUIRenderer } from "../utils";
 import { isNil } from "lodash-es";

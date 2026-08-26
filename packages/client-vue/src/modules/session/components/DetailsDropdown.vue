@@ -26,10 +26,10 @@
 </template>
 
 <script setup lang="ts">
+import { DropdownMenu } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useActiveSession } from "@upmind-automation/headless";
-import { DropdownMenu } from "@upmind/ui";
 import { Icon } from "../../../components/icon";
 import type { MenuItem } from "@upmind/ui";
 
