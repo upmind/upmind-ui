@@ -593,11 +593,8 @@ importers:
       '@upmind-automation/types':
         specifier: workspace:*
         version: link:../../packages/types
-      '@upmind/tokens':
-        specifier: workspace:*
-        version: link:../../design-system/packages/tokens
-      '@upmind/ui':
-        specifier: workspace:*
+      '@upmind-automation/upmind-ui':
+        specifier: workspace:@upmind/ui@*
         version: link:../../design-system/packages/ui
       '@vueuse/components':
         specifier: ^13.6.0
@@ -753,11 +750,8 @@ importers:
       '@upmind-automation/types':
         specifier: workspace:*
         version: link:../../packages/types
-      '@upmind/tokens':
-        specifier: workspace:*
-        version: link:../../design-system/packages/tokens
-      '@upmind/ui':
-        specifier: workspace:*
+      '@upmind-automation/upmind-ui':
+        specifier: workspace:@upmind/ui@*
         version: link:../../design-system/packages/ui
       '@vueuse/components':
         specifier: ^13.6.0
