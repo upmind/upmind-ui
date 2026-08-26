@@ -4,9 +4,6 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_SUBMODULE_FORCE_HTTPS: true
   # NOTE: Stop Gitlab-CI automatically fetching GitHub repos as we need extra auth.
-  # Both github.com submodules are excluded from GitLab's auto (HTTPS) fetch and
-  # instead fetched over SSH in the `dependencies` job via per-repo deploy keys
-  # (packages/types and docs/published-docs / mintlify-docs — FE-2752).
   GIT_SUBMODULE_PATHS: ":(exclude)packages/types :(exclude)docs/published-docs"
   INTERNAL_NPMRC: |
     @upmind-automation:registry=https://git.upmind.io/api/v4/projects/105/packages/npm/
@@ -107,16 +104,16 @@ dependencies:
       - apps/hosting/node_modules
       - packages/headless/node_modules
       - packages/client-vue/node_modules
-      - docs/node_modules
-
       - packages/types
-      - docs/published-docs
+      - packages/ui
+      - docs/node_modules
   script:
     - apk --no-cache add git openssh-client bash
     - |
       mkdir ~/.ssh || true
 
       echo "${UPMIND_TYPES_DEPLOY_PRIVATE_KEY}" > ~/.ssh/id.upmind-types
+      echo "${UPMIND_UI_DEPLOY_PRIVATE_KEY}" > ~/.ssh/id.upmind-ui
       echo "${UPMIND_MINTLIFY_DOCS_DEPLOY_PRIVATE_KEY}" > ~/.ssh/id.mintlify-docs
 
       cat <<EOF > ~/.ssh/config
