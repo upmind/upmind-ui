@@ -1,6 +1,10 @@
 /**
  * @fileoverview Impersonation Services Tests
- * @feature impersonation.feature @AC-R5.1a @AC-R5.1b @AC-R5.2a @AC-R5.2b
+ * @anchor impersonation.feature
+ * @anchor AC-R5.1a
+ * @anchor AC-R5.1b
+ * @anchor AC-R5.2a
+ * @anchor AC-R5.2b
  *
  * ## Job To Be Done
  * Staff users can search for clients/users and impersonate them via admin API.

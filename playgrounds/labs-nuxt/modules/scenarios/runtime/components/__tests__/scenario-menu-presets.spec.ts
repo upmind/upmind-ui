@@ -1,11 +1,15 @@
 // -----------------------------------------------------------------------------
 /**
  * @module scenarios/runtime/components/__tests__/scenario-menu-presets.spec
- * @description FE-3113 — the two scenarios of
- * `force-presets-by-capability.feature`. The menu RENDERS what it is handed and
- * derives nothing: a read-only module's presets arrive without `error-action`,
- * so the entry is simply absent rather than offered-and-disabled, which is the
+ * @description FE-3113 — the menu RENDERS what it is handed and derives
+ * nothing: a read-only module's presets arrive without `error-action`, so the
+ * entry is simply absent rather than offered-and-disabled, which is the
  * dead-alive control `S14` forbids.
+ *
+ * What a module may be forced into is declared by that module's own
+ * `<module>.feature` in `packages/headless` and measured by `capabilities.ts`.
+ * A labs-side feature restating it would be a second copy of the same contract,
+ * so this file anchors to none.
  *
  * The presets are read where the menu portals them, once it is open — a closed
  * menu renders none, so a query against a shut panel would report an empty offer
@@ -13,12 +17,8 @@
  *
  * ## What Breaks If These Fail
  * A read-only module offers `error-action`, the developer arms it, and nothing
- * happens — its feature declares no rejected mutation to serve it from. Or the
- * menu starts deriving its own list, and the picker and the spec drift apart.
- *
- * Negative control: `scenario-menu-presets.renders-vocabulary.must-fail.patch`.
- *
- * @anchor force-presets-by-capability.feature
+ * happens — no rejected mutation is on record to serve it from. Or the menu
+ * starts deriving its own list, and the picker and the offer drift apart.
  */
 
 import { mount } from "@vue/test-utils";
@@ -36,10 +36,10 @@ import type { ForceUrlPreset } from "../../composables/useForcedState.types";
 
 const messages = { en: { action, labs: labsEn, text } };
 
-/** A module whose feature declares a refused READ only (`client-email-history`). */
+/** A module whose recordings answer the reads and no write. */
 const READ_ONLY: ForceUrlPreset[] = ["empty", "loading", "error-collection"];
 
-/** A module whose feature declares a rejected MUTATION (`client-email`). */
+/** A module whose recordings carry a refused write too. */
 const WITH_MUTATIONS: ForceUrlPreset[] = [...FORCE_URL_PRESETS];
 
 const open = async (presets: readonly ForceUrlPreset[]) => {
@@ -86,7 +86,7 @@ describe("Read-only module shows only read presets", () => {
     expect(handles()).toEqual(READ_ONLY);
   });
 
-  it("does not offer error-action — its feature declares no rejected write", async () => {
+  it("does not offer error-action — no refused write is on record", async () => {
     await open(READ_ONLY);
 
     expect(handles()).not.toContain("error-action");
@@ -120,7 +120,7 @@ describe("Module with mutations shows all presets", () => {
     expect(handles()).toEqual(WITH_MUTATIONS);
   });
 
-  it("offers error-action, the preset a declared rejected mutation earns", async () => {
+  it("offers error-action, the preset a recorded refused write earns", async () => {
     await open(WITH_MUTATIONS);
 
     expect(handles()).toContain("error-action");

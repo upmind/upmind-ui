@@ -6,10 +6,9 @@
  * files: `corpusCapabilities` reports EVIDENCE — what staging actually returned
  * — never a list anybody keeps.
  *
- * This file does NOT grade what force OFFERS. The `.feature` decides that
- * (operator ruling, 2026-08-27) and `force-declared-presets.spec` proves it.
- * Here a false capability is a CAPTURE GAP against a declared state, which is
- * what makes it reportable rather than a button quietly withdrawn.
+ * This file does NOT grade what force OFFERS — `force-answerable-presets.spec`
+ * proves that, and the gap report beside it. Here a false capability is what
+ * makes a missing recording reportable rather than a button quietly withdrawn.
  *
  * The expectation is derived independently, straight off `request.method` and
  * `response.status`, so this file agrees with `capabilities.ts` only where both
@@ -22,9 +21,6 @@
  * into nothing — the dead-alive control `S14` forbids. Claimed false with a
  * recording present means a real capture is written off as debt, and the module
  * loses a state it can actually serve.
- *
- * Negative controls: `force-capabilities.name-list.must-fail.patch`,
- * `force-capabilities.claimed-unanswerable.must-fail.patch`.
  */
 
 import { readFileSync, readdirSync } from "node:fs";

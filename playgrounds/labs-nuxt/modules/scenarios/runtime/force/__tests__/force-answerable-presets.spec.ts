@@ -1,39 +1,51 @@
 // -----------------------------------------------------------------------------
 /**
- * @module scenarios/runtime/force/__tests__/force-declared-presets.spec
- * @description FE-3113 `AC2`/`AC5` — the module's committed `.feature` is the
- * source of truth for which presets force offers (operator ruling, 2026-08-27).
- * It declares the scenarios; the recordings are evidence serving them. A preset
- * the feature declares but the corpus cannot answer is a CAPTURE GAP, named
- * loudly, never a silently absent button.
- *
- * The expectation is read off the committed `.feature` files themselves, not off
- * a list kept here and not off the derivation under test, so this file agrees
- * with `capabilities.ts` only where both agree with the spec.
+ * @module scenarios/runtime/force/__tests__/force-answerable-presets.spec
+ * @description FE-3113 `AC2`/`AC5` — what force OFFERS, and what it OWES.
  *
  * ## Job To Be Done
- * Pin the direction of authority. Design §"The source of truth" inverted an
- * earlier draft in which recordings decided the offer; this suite is what stops
- * that inversion silently reverting.
+ * The offer is a structural measurement of committed evidence (operator ruling,
+ * 2026-08-27, revised): a preset is offered when the module's own recordings can
+ * ANSWER it. The build before this one hunted English phrases in the `.feature`
+ * instead, so three modules whose states all answered correctly derived zero
+ * presets and got no force affordance at all. Prose matching is guessing.
+ *
+ * The `.feature` still governs what a module DOES: a state it declares that the
+ * corpus cannot answer is a CAPTURE GAP, named loudly by `captureGaps`, never a
+ * silently absent button.
+ *
+ * Both oracles are read off committed files here — the recordings straight off
+ * disk, the declarations straight off the `.feature` — so this file agrees with
+ * `capabilities.ts` only where both agree with the evidence.
  *
  * ## What Breaks If These Fail
- * The corpus becomes authoritative again. A capture that never happened silently
- * removes a button, and the module's spec is overruled by whatever happens to be
- * on disk. A developer then reads an absent `error-collection` as "this module
- * does not do that", when the feature plainly declares it does and only the
- * evidence is missing.
- *
- * Negative controls: `force-declared-presets.corpus-authoritative.must-fail.patch`,
- * `force-declared-presets.silent-gap.must-fail.patch`.
+ * Either the picker starves — a module whose every state answers offers nothing,
+ * which is the regression this story exists to end — or it over-offers, and a
+ * developer arms a state that has no recording to serve it and watches nothing
+ * happen. And with the gap report broken, a missing capture reads as "this
+ * module does not do that" rather than "nobody recorded it yet".
  */
 
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { FORCE_URL_PRESETS } from "../../composables/useForcedState.types";
-import { captureGaps, declaredPresets } from "../capabilities";
-import { filter, fromPairs, map } from "lodash-es";
+import { answerablePresets, captureGaps } from "../capabilities";
+import {
+  filter,
+  fromPairs,
+  get,
+  groupBy,
+  intersection,
+  isArray,
+  isEmpty,
+  map,
+  some,
+  toUpper,
+  values
+} from "lodash-es";
+import type { ForceUrlPreset } from "../../composables/useForcedState.types";
 import type { RecordedFixture } from "../corpus.source.types";
 
 // -----------------------------------------------------------------------------
@@ -66,173 +78,245 @@ const corpusOf = (module: string): Record<string, RecordedFixture> =>
     map(jsonFiles(fixturesDir(module)), file => [
       file.replace(/\.json$/, ""),
       JSON.parse(
-        readFileSync(join(fixturesDir(module), file), "utf-8")
+        readFileSync(resolve(fixturesDir(module), file), "utf-8")
       ) as RecordedFixture
     ])
   );
 
-const FEATURED_MODULES = filter(
-  map(readdirSync(MODULES_DIR, { withFileTypes: true }), entry => entry.name),
-  module => existsSync(featurePath(module))
-);
+const isRead = (fixture: RecordedFixture) =>
+  toUpper(get(fixture, ["request", "method"], "")) === "GET";
+
+const isRefused = (fixture: RecordedFixture) =>
+  get(fixture, ["response", "status"], 0) >= 400;
+
+const hasRows = (fixture: RecordedFixture) =>
+  isArray(get(fixture, ["response", "body", "data"]));
 
 /**
- * What the SPEC says, read straight off its own prose — the oracle the
- * derivation is graded against. Design's table: a feature declaring "loading,
- * empty, or errored" earns the three read states; one naming a rejected
- * MUTATION additionally earns `error-action`; one naming a refused READ alone
- * does not.
+ * The offer this suite grades against, measured straight off the recordings per
+ * design §"The offer": `loading` = any recording; `empty` = a successful GET
+ * carrying a `data` array; `error-collection` = any recorded refusal;
+ * `error-action` = a refused NON-GET.
  */
-const spec = (feature: string) => {
-  if (!/loading,\s*empty,\s*or\s*errored/i.test(feature)) return [];
+const measured = (fixtures: RecordedFixture[]): ForceUrlPreset[] =>
+  filter(FORCE_URL_PRESETS, preset => {
+    if (preset === "loading") return !isEmpty(fixtures);
+    if (preset === "empty")
+      return some(fixtures, f => isRead(f) && !isRefused(f) && hasRows(f));
+    if (preset === "error-action")
+      return some(fixtures, f => !isRead(f) && isRefused(f));
+    return some(fixtures, isRefused);
+  });
 
-  const declaresMutation = /forced\s+read\s+or\s+mutation/i.test(feature);
+/** Every module that keeps recordings — discovery is the layout, not a list. */
+const RECORDED = map(
+  filter(
+    map(readdirSync(MODULES_DIR, { withFileTypes: true }), entry => entry.name),
+    module => !isEmpty(jsonFiles(fixturesDir(module)))
+  ),
+  module => {
+    const bodies = corpusOf(module);
+    const fixtures = values(bodies);
 
-  return filter(FORCE_URL_PRESETS, preset =>
-    preset === "error-action" ? declaresMutation : true
-  );
+    return {
+      module,
+      bodies,
+      fixtures,
+      feature: existsSync(featurePath(module))
+        ? readFileSync(featurePath(module), "utf-8")
+        : "",
+      expected: measured(fixtures),
+      offered: answerablePresets(bodies)
+    };
+  }
+);
+
+const named = (module: string) => {
+  const entry = RECORDED.find(candidate => candidate.module === module);
+  if (!entry) throw new Error(`${module} keeps no recordings to grade`);
+  return entry;
 };
 
-const FEATURED = map(FEATURED_MODULES, module => {
-  const feature = readFileSync(featurePath(module), "utf-8");
-
-  return {
-    module,
-    feature,
-    bodies: corpusOf(module),
-    expected: spec(feature),
-    declared: declaredPresets(feature)
-  };
-});
-
-const named = (module: string) =>
-  FEATURED.find(entry => entry.module === module);
+const gapsOf = (entry: (typeof RECORDED)[number]) => [
+  ...captureGaps(entry.feature, entry.bodies)
+];
 
 // -----------------------------------------------------------------------------
 
-describe("AC2 the oracle is real — this suite grades against committed features", () => {
-  it("found committed features for more than one module", () => {
-    expect(FEATURED_MODULES.length).toBeGreaterThan(1);
-  });
+describe("AC2 the corpus is real — this suite grades against committed evidence", () => {
+  it("found recordings for more than one module, each self-describing", () => {
+    expect(RECORDED.length).toBeGreaterThan(1);
 
-  it("read a non-empty feature for every module under test", () => {
-    for (const { module, feature } of FEATURED) {
-      expect(feature.length, `${module}'s feature is empty`).toBeGreaterThan(0);
+    for (const { module, fixtures } of RECORDED) {
+      expect(fixtures.length, `${module} loaded nothing`).toBeGreaterThan(0);
+
+      for (const fixture of fixtures) {
+        expect(
+          get(fixture, ["request", "method"]),
+          `${module} recording has no request.method`
+        ).toBeTypeOf("string");
+        expect(
+          get(fixture, ["response", "status"]),
+          `${module} recording has no response.status`
+        ).toBeTypeOf("number");
+      }
     }
   });
 
-  it("carries both modules the ruling names", () => {
-    expect(named("client-email")).toBeDefined();
-    expect(named("client-email-history")).toBeDefined();
+  it("read a non-empty feature for both modules the ruling names", () => {
+    expect(named("client-email").feature.length).toBeGreaterThan(0);
+    expect(named("client-email-history").feature.length).toBeGreaterThan(0);
   });
 });
 
-describe("AC2 presets are read from the .feature, not from the recordings", () => {
-  it("offers exactly what each module's own feature declares", () => {
-    for (const { module, expected, declared } of FEATURED) {
+describe("AC2 the offer is measured from recordings, never read out of prose", () => {
+  it("offers exactly what each module's own recordings can answer", () => {
+    for (const { module, offered, expected } of RECORDED) {
       expect(
-        [...declared],
-        `${module} offers a set its feature does not declare`
+        [...offered],
+        `${module} offers a set its recordings do not evidence`
       ).toEqual(expected);
     }
   });
 
-  it("client-email-history declares a refused READ, so it gets no error-action", () => {
-    const entry = named("client-email-history")!;
-
-    expect([...entry.declared]).toEqual([
-      "empty",
-      "loading",
-      "error-collection"
-    ]);
+  it("leaves no module with recordings offering nothing at all", () => {
+    for (const { module, offered } of RECORDED) {
+      expect(
+        [...offered],
+        `${module} keeps recordings and offers no state to force`
+      ).not.toEqual([]);
+    }
   });
 
-  it("client-email declares a rejected MUTATION, so it gets all four", () => {
-    const entry = named("client-email")!;
+  it("offers the same set to every module holding the same evidence, whatever its feature says", () => {
+    const byEvidence = groupBy(RECORDED, entry => entry.expected.join(","));
 
-    expect([...entry.declared]).toEqual([...FORCE_URL_PRESETS]);
+    for (const group of values(byEvidence)) {
+      const sets = map(group, entry => [...entry.offered].join(","));
+
+      expect(
+        new Set(sets).size,
+        `${map(group, "module").join(" and ")} hold the same evidence and were offered different sets`
+      ).toBe(1);
+    }
+
+    // Falsifiable only while two modules actually share an evidence tuple —
+    // otherwise every group is a singleton and the claim asserts nothing.
+    expect(some(values(byEvidence), group => group.length > 1)).toBe(true);
   });
 
-  it("keeps error-collection for a module whose corpus holds no failure", () => {
-    const entry = named("client-email-history")!;
-    const failing = filter(
-      Object.values(entry.bodies),
-      fixture => fixture.response.status >= 400
-    );
-
-    // The premise of the ruling: 15 recordings, not one a refusal. The preset
-    // survives anyway, because the feature declares the errored state.
-    expect(failing).toEqual([]);
-    expect([...entry.declared]).toContain("error-collection");
+  it("client-email answers all four, so it offers all four", () => {
+    expect([...named("client-email").offered]).toEqual([...FORCE_URL_PRESETS]);
   });
 
-  it("declares nothing for a feature stating no forced states at all", () => {
-    expect([...declaredPresets("Feature: nothing forced here")]).toEqual([]);
+  it("client-personal-details records no collection read, so empty is unrepresentable", () => {
+    const entry = named("client-personal-details");
+
+    expect(filter(entry.fixtures, f => isRead(f) && hasRows(f))).toEqual([]);
+    expect([...entry.offered]).not.toContain("empty");
+    expect([...entry.offered]).toContain("loading");
   });
 
-  it("declares nothing for an empty feature", () => {
-    expect([...declaredPresets("")]).toEqual([]);
+  it("restores the modules prose-matching starved — each offers what it can answer", () => {
+    for (const module of [
+      "client-address",
+      "client-custom-fields",
+      "client-personal-details"
+    ]) {
+      const entry = named(module);
+
+      expect(
+        [...entry.offered],
+        `${module} answers its states and still offers nothing`
+      ).toEqual(entry.expected);
+      expect([...entry.offered].length).toBeGreaterThan(0);
+    }
   });
 
   it("filters the master vocabulary rather than re-spelling it", () => {
-    for (const { module, declared } of FEATURED) {
-      for (const preset of declared) {
+    for (const { module, offered } of RECORDED) {
+      expect(
+        [...offered],
+        `${module} re-ordered or renamed the vocabulary`
+      ).toEqual(filter(FORCE_URL_PRESETS, preset => offered.includes(preset)));
+    }
+  });
+
+  it("offers nothing at all for a corpus that holds nothing (S12)", () => {
+    expect([...answerablePresets({})]).toEqual([]);
+  });
+});
+
+describe("AC5 a declared state the corpus cannot answer is NAMED, never dropped", () => {
+  it("never reports a gap for something the corpus can already answer", () => {
+    for (const entry of RECORDED) {
+      expect(
+        intersection(gapsOf(entry), [...entry.offered]),
+        `${entry.module} reported a gap for a state it already answers`
+      ).toEqual([]);
+    }
+  });
+
+  it("never reports a gap outside the master vocabulary", () => {
+    for (const entry of RECORDED) {
+      for (const gap of gapsOf(entry)) {
         expect(
           FORCE_URL_PRESETS,
-          `${module} declared ${preset}, which is not in the vocabulary`
-        ).toContain(preset);
+          `${entry.module} reported ${gap}, which is not a forcible state`
+        ).toContain(gap);
       }
     }
   });
 
-  it("differentiates the modules — not every feature declares the same set", () => {
-    const sets = map(FEATURED, entry => [...entry.declared].join(","));
+  it("reports client-email-history's refused read — declared, recorded by nobody", () => {
+    const entry = named("client-email-history");
 
-    expect(new Set(sets).size).toBeGreaterThan(1);
-  });
-});
-
-describe("AC5 a declared preset the corpus cannot answer is named, never dropped", () => {
-  it("reports client-email-history's errored state as a capture gap", () => {
-    const entry = named("client-email-history")!;
-
+    expect(entry.feature).toContain("any forced read is refused");
     expect(
-      [...captureGaps(entry.declared, entry.bodies)],
+      filter(entry.fixtures, isRefused),
+      "the capture landed — this claim's premise is stale, not its subject"
+    ).toEqual([]);
+    expect([...entry.offered]).not.toContain("error-collection");
+    expect(
+      gapsOf(entry),
       "the errored state its feature declares is unevidenced and unreported"
     ).toContain("error-collection");
   });
 
-  it("still OFFERS the preset it reports a gap for", () => {
-    const entry = named("client-email-history")!;
-
-    for (const gap of captureGaps(entry.declared, entry.bodies)) {
-      expect(
-        [...entry.declared],
-        `${gap} was dropped rather than reported`
-      ).toContain(gap);
-    }
-  });
-
   it("reports no gap for client-email, whose corpus answers what it declares", () => {
-    const entry = named("client-email")!;
-
-    expect([...captureGaps(entry.declared, entry.bodies)]).toEqual([]);
+    expect(gapsOf(named("client-email"))).toEqual([]);
   });
 
-  it("reports every declared preset as a gap when the corpus is empty", () => {
-    const entry = named("client-email")!;
+  it("owes a capture only for a state the feature actually DECLARES", () => {
+    const entry = named("brand");
 
-    expect([...captureGaps(entry.declared, {})]).toEqual([...entry.declared]);
+    expect(
+      entry.feature,
+      "brand's feature now words a failure — pick another module with none"
+    ).not.toMatch(/refus|reject|error|fail|not-authenticated/i);
+    expect(
+      gapsOf(entry),
+      "brand is billed for an errored state its feature never declares"
+    ).toEqual([]);
   });
 
-  it("reports a gap only for presets that were declared", () => {
-    for (const { module, declared, bodies } of FEATURED) {
-      for (const gap of captureGaps(declared, bodies)) {
-        expect(
-          [...declared],
-          `${module} reported a gap for ${gap}, which it never declared`
-        ).toContain(gap);
-      }
-    }
+  it("tells a feature that declares a refusal from one that does not", () => {
+    const entry = named("client-email-history");
+
+    expect(
+      gapsOf(entry),
+      "the premise is stale — this module no longer owes the capture"
+    ).toContain("error-collection");
+    expect(
+      [...captureGaps("Feature: nothing forced here", entry.bodies)],
+      "the gap report reads whether a feature EXISTS, not what it declares"
+    ).toEqual([]);
+  });
+
+  it("owes nothing where there is no force affordance at all (S12)", () => {
+    const entry = named("client-email");
+
+    expect([...captureGaps(entry.feature, {})]).toEqual([]);
+    expect([...captureGaps("", entry.bodies)]).toEqual([]);
   });
 });

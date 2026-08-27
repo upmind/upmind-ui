@@ -1,112 +1,86 @@
 // -----------------------------------------------------------------------------
 /**
  * @module scenarios/runtime/force/__tests__/force-presets-all-modules.spec
- * @description FE-3113 `AC1` · `AC3` · `AC4` — force is MULTI-MODULE, and every
- * preset a module's `.feature` DECLARES either answers over that module's own
- * recordings or is named as a capture gap. The old system was pinned to
- * `client-email`, so "it works" was only ever measured on the one corpus that
- * happened to answer all four presets.
+ * @description FE-3113 `AC1` · `AC3` · `AC4` — the executed matrix. Every module
+ * that publishes recordings × every preset in the vocabulary is ONE named test,
+ * and both answers are graded: a cell the module offers must serve a recorded
+ * answer, and a cell it does not offer must be UNANSWERABLE — never a status
+ * this repo invented.
  *
- * The offer is read off the module's committed `.feature` (operator ruling,
- * 2026-08-27), never off the recordings — a corpus that cannot answer a declared
- * state owes a capture, and never gets to withdraw the state.
+ * ## Job To Be Done
+ * The earlier build put every claim behind `if (offered.includes(preset))`, so a
+ * module offering nothing passed by asserting nothing. This file removes that
+ * escape: a cell that cannot be proved FAILS, and no `continue` guards a claim.
  *
- * Every module publishing recordings is swept, discovered by the layout rather
- * than named here: a module that starts keeping recordings is proven by this
- * file without an entry being added anywhere. Each claim is read off the served
- * answer against the recording it was served FROM, so nothing is authored and
- * nothing is asserted about a body this repo wrote.
+ * Discovery is the layout — the modules come off `recordedBodies`, so one that
+ * starts keeping recordings is swept without an entry added here. Every claim is
+ * read off the served answer against the recording it was served FROM, so
+ * nothing is authored and nothing is asserted about a body this repo wrote.
+ *
+ * Routes are graded by the same law the design gives them: a module arms the
+ * recorded paths belonging to the SUBJECT its own `.feature` declares. So the
+ * recordings supply the paths and the feature decides which are the module's
+ * own — asserted here by handing one module's recordings another's feature and
+ * requiring a different answer, which no recordings-only derivation can give.
  *
  * ## What Breaks If These Fail
- * A developer arms a preset the picker offered and the page does not change —
- * the state under test never happens, and a bug that only shows in the empty or
- * failed state ships unseen. Or force silently keeps answering `client-email`
- * on a page that is not it, so the preview is another module's data.
- *
- * Negative controls: `force-presets-all-modules.other-module.must-fail.patch`,
- * `force-presets-all-modules.unanswerable-offer.must-fail.patch`.
+ * A developer arms a preset the picker offered and the page does not change, so
+ * a bug that only shows in the empty or failed state ships unseen. Or a module
+ * with no refusal on record serves a fabricated 500 — a state the API never
+ * produced, previewed as if it had. On the route side, an under-reaching arm
+ * sends a forced page to STAGING and an over-reaching one intercepts app chrome,
+ * where `loading` hangs it for the tab's life.
  */
 
 import { describe, expect, it } from "vitest";
 import { recordedBodies } from "@upmind-automation/headless/fixtures";
 import {
-  captureGaps,
-  corpusCapabilities,
-  declaredPresets
-} from "../capabilities";
-import {
-  armCorpusModule,
-  resolveCorpusRequest,
-  runtimeCorpus
-} from "../corpus";
-import { featureTextFor } from "../corpus.source";
+  FORCE_URL_PRESETS,
+  type ForceUrlPreset
+} from "../../composables/useForcedState.types";
+import { answerablePresets } from "../capabilities";
+import { armCorpusModule, runtimeCorpus, runtimeFeature } from "../corpus";
+import { createForceHandlers } from "../handlers";
 import { PENDING, presetAnswer } from "../presets";
 import { moduleRoutes } from "../routes";
 import {
   filter,
+  flatMap,
   get,
   isArray,
   isEmpty,
   keys,
   map,
+  reject,
   some,
   sortBy,
-  toUpper
+  toUpper,
+  uniq
 } from "lodash-es";
-import type { ForceUrlPreset } from "../../composables/useForcedState.types";
 import type { CorpusBodies, RecordedFixture } from "../corpus.source.types";
+import type { HttpHandler } from "msw";
 
 // -----------------------------------------------------------------------------
 
 const ORIGIN = "https://api.upmind.io";
 
-// Discovery is the layout — every module that publishes recordings is armed,
-// so a module that starts keeping them is swept without an entry added here.
-await Promise.all(map(keys(recordedBodies), module => armCorpusModule(module)));
+const isRead = (fixture: RecordedFixture) =>
+  toUpper(get(fixture, ["request", "method"], "")) === "GET";
 
-type Loaded = {
-  module: string;
-  bodies: CorpusBodies;
-  fixtures: RecordedFixture[];
-  offered: readonly ForceUrlPreset[];
-  gaps: readonly ForceUrlPreset[];
-  answerable: readonly ForceUrlPreset[];
-  failure?: RecordedFixture;
-};
+const isRefused = (fixture: RecordedFixture) =>
+  get(fixture, ["response", "status"], 0) >= 400;
 
-/**
- * What a module OFFERS is what its own `.feature` declares — the corpus is
- * evidence serving that, never the authority over it (operator ruling,
- * 2026-08-27). A declared preset the recordings cannot answer is a capture gap,
- * so `answerable` is what this suite may hold to a served answer; `gaps` are
- * held to being NAMED instead.
- */
-const LOADED: Loaded[] = filter(
-  map(keys(recordedBodies), module => {
-    const bodies = runtimeCorpus(module);
-    if (!bodies) return undefined;
+const hasRows = (fixture: RecordedFixture) =>
+  isArray(get(fixture, ["response", "body", "data"]));
 
-    const caps = corpusCapabilities(bodies);
-    const offered = declaredPresets(featureTextFor(module));
-    const gaps = captureGaps(offered, bodies);
+const pathOf = (fixture: RecordedFixture) =>
+  get(fixture, ["request", "path"], "");
 
-    return {
-      module,
-      bodies,
-      fixtures: Object.values(bodies),
-      offered,
-      gaps,
-      answerable: filter(offered, preset => !gaps.includes(preset)),
-      failure: caps.failure
-    };
-  }),
-  (entry): entry is Loaded => Boolean(entry) && !isEmpty(entry!.fixtures)
-);
-
-const isRead = (method: string) => toUpper(method) === "GET";
+const methodOf = (fixture: RecordedFixture) =>
+  get(fixture, ["request", "method"], "GET");
 
 const urlOf = (fixture: RecordedFixture) =>
-  new URL(`${ORIGIN}${get(fixture, ["request", "path"], "")}`);
+  new URL(`${ORIGIN}${pathOf(fixture)}`);
 
 const rowsIn = (response: unknown) => {
   const data = get(response, ["body", "data"]);
@@ -128,42 +102,82 @@ const pathShape = (path: string) =>
     .join("/");
 
 /**
+ * What EVIDENCE a module's own recordings hold for one preset, measured off
+ * `request.method` and `response.status` alone. This is the oracle both branches
+ * of a cell are graded against — an assertion reading the offer back off the
+ * derivation would pass on any derivation at all.
+ */
+const EVIDENCE: Record<
+  ForceUrlPreset,
+  (fixtures: RecordedFixture[]) => boolean
+> = {
+  empty: fixtures =>
+    some(fixtures, f => isRead(f) && !isRefused(f) && hasRows(f)),
+  loading: fixtures => !isEmpty(fixtures),
+  "error-action": fixtures => some(fixtures, f => !isRead(f) && isRefused(f)),
+  "error-collection": fixtures => some(fixtures, isRefused)
+};
+
+type Loaded = {
+  module: string;
+  bodies: CorpusBodies;
+  feature: string;
+  fixtures: RecordedFixture[];
+  offered: readonly ForceUrlPreset[];
+};
+
+const LOADED: Loaded[] = [];
+
+/** A module the fixtures export publishes that force loaded nothing for. */
+const UNLOADED: { module: string; feature: string }[] = [];
+
+// Serial: the loader caches per module and arming moves one shared pointer, so a
+// parallel sweep would race the corpus it is about to read back.
+for (const module of keys(recordedBodies)) {
+  await armCorpusModule(module);
+
+  const bodies = runtimeCorpus(module);
+  const feature = runtimeFeature(module);
+
+  if (!bodies || isEmpty(bodies)) {
+    UNLOADED.push({ module, feature });
+    continue;
+  }
+
+  LOADED.push({
+    module,
+    bodies,
+    feature,
+    fixtures: Object.values(bodies),
+    offered: answerablePresets(bodies)
+  });
+}
+
+/**
  * A recorded successful collection read at the endpoint the capture run drove
- * HARDEST — the shape the most recordings share, ties to the shallower path.
- * A module captured at several read endpoints has one collection; picking any
- * other would grade `empty` against rows the resolver never serves.
+ * HARDEST — the shape the most recordings share, ties to the shallower path, and
+ * the WIDEST capture of it. The resolver applies the request's own criteria, so
+ * grading `empty` against a narrowed capture would compare an emptied answer to
+ * an already-empty one.
  */
 const collectionReadOf = (entry: Loaded) => {
   const reads = filter(
     entry.fixtures,
-    fixture =>
-      isRead(get(fixture, ["request", "method"], "")) &&
-      get(fixture, ["response", "status"], 0) < 400 &&
-      isArray(get(fixture, ["response", "body", "data"]))
+    f => isRead(f) && !isRefused(f) && hasRows(f)
   );
 
-  const shapes = map(reads, fixture =>
-    pathShape(get(fixture, ["request", "path"], ""))
-  );
+  const shapes = map(reads, f => pathShape(pathOf(f)));
 
   const winner = sortBy(
     shapes,
-    shape => -filter(shapes, entry => entry === shape).length,
+    shape => -filter(shapes, other => other === shape).length,
     shape => shape.split("/").length
   )[0];
 
-  const atCollection = filter(
-    reads,
-    fixture => pathShape(get(fixture, ["request", "path"], "")) === winner
-  );
+  const atCollection = filter(reads, f => pathShape(pathOf(f)) === winner);
 
-  // The WIDEST capture of that endpoint. The resolver applies the request's own
-  // criteria, so a recording captured under a narrowing filter serves the rows
-  // that filter left — grading `empty` against a zero-row capture would compare
-  // an emptied answer to an already-empty one. `limit` does not narrow the same
-  // way (every paged capture carries one), so rank by rows rather than exclude.
-  const unfiltered = filter(atCollection, fixture => {
-    const [, search = ""] = get(fixture, ["request", "path"], "").split("?");
+  const unfiltered = filter(atCollection, f => {
+    const [, search = ""] = pathOf(f).split("?");
     const params = new URLSearchParams(search);
 
     return (
@@ -174,25 +188,248 @@ const collectionReadOf = (entry: Loaded) => {
 
   return sortBy(
     isEmpty(unfiltered) ? atCollection : unfiltered,
-    fixture =>
-      -(get(fixture, ["response", "body", "data"], []) as unknown[]).length
+    f => -(get(f, ["response", "body", "data"], []) as unknown[]).length
   )[0];
 };
 
-/** A recorded write — the request `error-action` must refuse. */
-const writeOf = (entry: Loaded) =>
-  entry.fixtures.find(
-    fixture => !isRead(get(fixture, ["request", "method"], ""))
-  );
+const writeOf = (entry: Loaded) => entry.fixtures.find(f => !isRead(f));
+
+const refusalsOf = (entry: Loaded) => filter(entry.fixtures, isRefused);
+
+const failureOf = (entry: Loaded) =>
+  entry.fixtures.find(f => !isRead(f) && isRefused(f)) ?? refusalsOf(entry)[0];
 
 const answer = (entry: Loaded, preset: string, fixture: RecordedFixture) =>
   presetAnswer(
     preset as never,
     entry.bodies,
-    get(fixture, ["request", "method"], "GET"),
+    methodOf(fixture),
     urlOf(fixture),
-    entry.failure
+    failureOf(entry)
   );
+
+const matches = async (
+  handlers: HttpHandler[],
+  url: string,
+  method: string
+) => {
+  const verdicts = await Promise.all(
+    map(handlers, handler =>
+      handler.test({ request: new Request(url, { method }) } as never)
+    )
+  );
+
+  return some(verdicts);
+};
+
+const named = (module: string) => {
+  const entry = LOADED.find(candidate => candidate.module === module);
+  if (!entry) throw new Error(`${module} loaded no corpus to grade`);
+  return entry;
+};
+
+const routesOf = (entry: Loaded) => moduleRoutes(entry.feature, entry.bodies);
+
+const handlersOf = (entry: Loaded) =>
+  createForceHandlers("replay", entry.bodies, entry.feature);
+
+const shapeOfRoute = (route: string) =>
+  route.replace(/^\*\//, "").replace(/:id\d+/g, ":id");
+
+/** The recordings the module's declared subject claims — what MUST intercept. */
+const armedFixtures = (entry: Loaded) => {
+  const armed = new Set(map(routesOf(entry), shapeOfRoute));
+  return filter(entry.fixtures, f => armed.has(pathShape(pathOf(f))));
+};
+
+/**
+ * The recordings the subject does NOT claim — chrome a capture run happened to
+ * drive through. Arming these is the defect that hangs `/api/countries` for the
+ * tab's life, so they must stay live.
+ */
+const unarmedFixtures = (entry: Loaded) => {
+  const armed = new Set(map(routesOf(entry), shapeOfRoute));
+  return reject(entry.fixtures, f => armed.has(pathShape(pathOf(f))));
+};
+
+/**
+ * Every path some OTHER module recorded whose shape this one never recorded —
+ * the over-reach probe. A shape both modules recorded is each one's own to
+ * answer, so it is foreign to neither.
+ */
+const foreignPathsFor = (entry: Loaded) => {
+  const own = new Set(map(entry.fixtures, f => pathShape(pathOf(f))));
+
+  return uniq(
+    reject(
+      flatMap(
+        reject(LOADED, other => other.module === entry.module),
+        other => map(other.fixtures, pathOf)
+      ),
+      path => own.has(pathShape(path))
+    )
+  );
+};
+
+// -----------------------------------------------------------------------------
+
+function proveAnswered(entry: Loaded, preset: ForceUrlPreset) {
+  const write = writeOf(entry);
+  const collection = collectionReadOf(entry);
+
+  if (preset === "loading") {
+    expect(
+      answer(entry, "loading", collection ?? entry.fixtures[0]),
+      `${entry.module} answered its read under loading`
+    ).toBe(PENDING);
+
+    if (write) {
+      expect(
+        answer(entry, "loading", write),
+        `${entry.module} answered its write under loading`
+      ).toBe(PENDING);
+    }
+
+    return;
+  }
+
+  if (preset === "empty") {
+    expect(
+      collection,
+      `${entry.module} offers empty with no recorded collection read to empty`
+    ).toBeDefined();
+
+    const served = answer(entry, "replay", collection!);
+    const emptied = answer(entry, "empty", collection!);
+
+    expect(
+      rowsIn(served)?.length,
+      `${entry.module} has no rows to remove — an already-empty baseline proves nothing`
+    ).toBeGreaterThan(0);
+    expect(rowsIn(emptied), `${entry.module} did not empty its rows`).toEqual(
+      []
+    );
+    expect(get(emptied, "status")).toEqual(get(served, "status"));
+
+    // Provenance, not the row count: `empty` is the RECORDING with its rows
+    // removed, so every other field of the recorded envelope survives. A body
+    // rebuilt as a literal renders identically and counts the same zero rows.
+    expect(
+      keys(get(emptied, "body")).sort(),
+      `${entry.module} served an authored envelope under empty, not its recording emptied`
+    ).toEqual(keys(get(served, "body")).sort());
+
+    for (const field of keys(get(served, "body"))) {
+      if (field === "data" || field === "total") continue;
+
+      expect(
+        get(emptied, ["body", field]),
+        `${entry.module} lost recorded envelope field ${field} under empty`
+      ).toEqual(get(served, ["body", field]));
+    }
+
+    return;
+  }
+
+  if (preset === "error-collection") {
+    const read = collection ?? entry.fixtures[0];
+    const failed = answer(entry, "error-collection", read);
+
+    expect(
+      get(failed, "status"),
+      `${entry.module} did not fail its read under error-collection`
+    ).toBeGreaterThanOrEqual(400);
+    expect(
+      map(refusalsOf(entry), f => get(f, ["response", "status"])),
+      `${entry.module} failed its read at a status no recording of its own carries`
+    ).toContain(get(failed, "status"));
+    expect(
+      get(failed, "body"),
+      `${entry.module} lent a recorded sentence to a read that never said it`
+    ).toBeUndefined();
+
+    if (write) {
+      expect(
+        answer(entry, "error-collection", write),
+        `${entry.module} took its write down with the failed read`
+      ).toEqual(answer(entry, "replay", write));
+    }
+
+    return;
+  }
+
+  expect(
+    filter(entry.fixtures, f => !isRead(f) && isRefused(f)),
+    `${entry.module} offers error-action with no failing write on record`
+  ).not.toEqual([]);
+
+  const refused = answer(entry, "error-action", write!);
+
+  expect(
+    get(refused, "status"),
+    `${entry.module} did not refuse its write under error-action`
+  ).toBeGreaterThanOrEqual(400);
+  expect(
+    map(refusalsOf(entry), "response"),
+    `${entry.module} refused its write with a response no recording of its own carries`
+  ).toContainEqual(refused);
+
+  expect(
+    collection,
+    `${entry.module} offers error-action with no collection read to hold up beside the refused write`
+  ).toBeDefined();
+
+  expect(
+    answer(entry, "error-action", collection!),
+    `${entry.module} lost its collection under error-action`
+  ).toEqual(answer(entry, "replay", collection!));
+  expect(
+    rowsIn(answer(entry, "error-action", collection!))?.length,
+    `${entry.module} emptied its list under error-action`
+  ).toBeGreaterThan(0);
+}
+
+function proveUnanswerable(entry: Loaded, preset: ForceUrlPreset) {
+  if (preset === "loading") {
+    expect(
+      entry.fixtures,
+      `${entry.module} withholds loading while holding recordings — a withheld answer needs no body`
+    ).toEqual([]);
+
+    return;
+  }
+
+  if (preset === "empty") {
+    expect(
+      collectionReadOf(entry),
+      `${entry.module} withholds empty while holding a collection it could empty`
+    ).toBeUndefined();
+
+    for (const fixture of entry.fixtures) {
+      expect(
+        answer(entry, "empty", fixture),
+        `${entry.module} changes ${pathOf(fixture)} under an empty it does not offer`
+      ).toEqual(answer(entry, "replay", fixture));
+    }
+
+    return;
+  }
+
+  const targets =
+    preset === "error-action" ? reject(entry.fixtures, isRead) : entry.fixtures;
+
+  expect(
+    filter(targets, isRefused),
+    `${entry.module} withholds ${preset} while holding a refusal that answers it`
+  ).toEqual([]);
+
+  for (const fixture of targets) {
+    expect(
+      get(answer(entry, preset, fixture), "status", 0),
+      `${entry.module} fabricated a refusal under ${preset} that no recording of its own backs`
+    ).toBeLessThan(400);
+  }
+}
 
 // -----------------------------------------------------------------------------
 
@@ -203,248 +440,220 @@ describe("AC1 force reaches every module that publishes recordings", () => {
     expect(map(LOADED, "module")).toContain("client-email-history");
   });
 
-  it("serves each module from its OWN recordings, never another's", () => {
-    for (const entry of LOADED) {
-      const read = collectionReadOf(entry);
-      if (!read) continue;
+  it("accounts for every module the fixtures export publishes — swept, or S12", () => {
+    expect(
+      [...map(LOADED, "module"), ...map(UNLOADED, "module")].sort()
+    ).toEqual(keys(recordedBodies).sort());
+  });
 
-      const served = resolveCorpusRequest(entry.bodies, "GET", urlOf(read));
-
+  it("drops a module only for the reason S12 names — it declares no subject", () => {
+    for (const { module, feature } of UNLOADED) {
       expect(
-        served,
-        `${entry.module} could not serve its own recorded read`
-      ).toBeDefined();
-      expect(get(served, "status")).toBe(get(read, ["response", "status"]));
+        feature,
+        `${module} publishes recordings and declares a subject, and force loaded nothing for it`
+      ).toBe("");
     }
   });
 
-  it("derives each module's intercept routes from its own recorded paths", () => {
+  it("every swept module carries self-describing recordings, so the matrix can grade", () => {
     for (const entry of LOADED) {
-      const routes = moduleRoutes(entry.bodies);
-
-      expect(routes, `${entry.module} derived no routes`).not.toHaveLength(0);
-
-      // A route is derived, not invented, when some recording's own pathname
-      // reduces to it: id segments parameterised, the origin left wildcarded.
-      const shapeOf = (path: string) =>
-        `*/${path
-          .split("?")[0]
-          .split("/")
-          .filter(Boolean)
-          .map((segment, index) =>
-            /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mock-uuid-\d+)$/i.test(
-              segment
-            )
-              ? `:id${index}`
-              : segment
-          )
-          .join("/")}`;
-
-      for (const route of routes) {
-        expect(
-          some(
-            entry.fixtures,
-            fixture => shapeOf(get(fixture, ["request", "path"], "")) === route
-          ),
-          `${entry.module} derived route ${route} from no recording of its own`
-        ).toBe(true);
-      }
-    }
-  });
-});
-
-describe("AC3 every preset a module OFFERS actually answers", () => {
-  it("withholds the answer under loading, for every module that offers it", () => {
-    for (const entry of LOADED) {
-      if (!entry.answerable.includes("loading")) continue;
-
-      const fixture = collectionReadOf(entry) ?? entry.fixtures[0];
-
       expect(
-        answer(entry, "loading", fixture),
-        `${entry.module} answered under loading`
-      ).toBe(PENDING);
-    }
-  });
-
-  it("narrows the collection to zero rows under empty, for every offering module", () => {
-    for (const entry of LOADED) {
-      if (!entry.answerable.includes("empty")) continue;
-
-      const read = collectionReadOf(entry)!;
-      const served = answer(entry, "replay", read);
-      const emptied = answer(entry, "empty", read);
-
-      expect(
-        rowsIn(served)?.length,
-        `${entry.module} has no rows to remove`
+        entry.fixtures.length,
+        `${entry.module} loaded nothing`
       ).toBeGreaterThan(0);
-      expect(rowsIn(emptied), `${entry.module} did not empty its rows`).toEqual(
-        []
-      );
-      expect(get(emptied, "status")).toEqual(get(served, "status"));
 
-      // Provenance, not the row count: `empty` is the RECORDING with its rows
-      // removed, so every other field of the recorded envelope survives. A body
-      // rebuilt as a literal renders identically and counts the same zero rows,
-      // which is the FE-2824 shape a row-count assertion passes blind.
-      expect(
-        keys(get(emptied, "body")).sort(),
-        `${entry.module} served an authored envelope under empty, not its recording emptied`
-      ).toEqual(keys(get(served, "body")).sort());
-
-      for (const field of keys(get(served, "body"))) {
-        if (field === "data" || field === "total") continue;
-
+      for (const fixture of entry.fixtures) {
         expect(
-          get(emptied, ["body", field]),
-          `${entry.module} lost recorded envelope field ${field} under empty`
-        ).toEqual(get(served, ["body", field]));
+          get(fixture, ["request", "method"]),
+          `${entry.module} recording has no request.method`
+        ).toBeTypeOf("string");
+        expect(
+          get(fixture, ["response", "status"]),
+          `${entry.module} recording has no response.status`
+        ).toBeTypeOf("number");
       }
     }
   });
 
-  it("fails the READ under error-collection, for every offering module", () => {
-    for (const entry of LOADED) {
-      if (!entry.answerable.includes("error-collection")) continue;
-
-      const read = collectionReadOf(entry) ?? entry.fixtures[0];
-      const failed = answer(entry, "error-collection", read);
-      const served = answer(entry, "replay", read);
-
-      expect(
-        get(failed, "status"),
-        `${entry.module} did not fail its read under error-collection`
-      ).toBeGreaterThanOrEqual(400);
-      expect(get(failed, "status")).not.toBe(get(served, "status"));
-    }
-  });
-
-  it("fails the WRITE under error-action, for every offering module", () => {
-    for (const entry of LOADED) {
-      if (!entry.answerable.includes("error-action")) continue;
-
-      const write = writeOf(entry)!;
-      const refused = answer(entry, "error-action", write);
-
-      expect(
-        get(refused, "status"),
-        `${entry.module} did not refuse its write under error-action`
-      ).toBeGreaterThanOrEqual(400);
-      expect(refused).toEqual(entry.failure!.response);
-    }
-  });
-
-  it("leaves the OTHER half as recorded — a forced error takes no rows with it", () => {
-    for (const entry of LOADED) {
-      if (!entry.answerable.includes("error-action")) continue;
-
-      const read = collectionReadOf(entry);
-      if (!read) continue;
-
-      expect(
-        answer(entry, "error-action", read),
-        `${entry.module} lost its collection under error-action`
-      ).toEqual(answer(entry, "replay", read));
-    }
+  it("differentiates the modules — the offer is not one list served to all", () => {
+    expect(
+      new Set(map(LOADED, entry => entry.offered.join(","))).size
+    ).toBeGreaterThan(1);
   });
 });
 
-describe("AC1 a replayed recording answers what staging answered", () => {
-  it("serves every recorded collection read at its OWN url, as recorded", () => {
-    for (const entry of LOADED) {
-      const reads = filter(
-        entry.fixtures,
-        fixture =>
-          isRead(get(fixture, ["request", "method"], "")) &&
-          get(fixture, ["response", "status"], 0) < 400 &&
-          isArray(get(fixture, ["response", "body", "data"]))
-      );
+describe.each(LOADED)("AC3 · AC4 $module", (entry: Loaded) => {
+  it.each([...FORCE_URL_PRESETS])(
+    "× %s — answers from its own recordings when offered, invents nothing when not",
+    preset => {
+      const offered = entry.offered.includes(preset);
 
-      for (const read of reads) {
-        const recorded = get(read, ["response", "body", "data"]) as unknown[];
-        const served = resolveCorpusRequest(entry.bodies, "GET", urlOf(read));
+      expect(
+        offered,
+        `${entry.module} offers ${preset} against recordings that cannot answer it`
+      ).toBe(EVIDENCE[preset](entry.fixtures));
 
-        expect(
-          rowsIn(served)?.length,
-          `${entry.module} replayed ${get(read, ["request", "path"])} as ${
-            rowsIn(served)?.length
-          } rows where staging recorded ${recorded.length}`
-        ).toBe(recorded.length);
-      }
+      if (offered) proveAnswered(entry, preset);
+      else proveUnanswerable(entry, preset);
     }
+  );
+
+  it("replays every recorded collection read at its OWN url, as recorded", () => {
+    const reads = filter(
+      entry.fixtures,
+      f => isRead(f) && !isRefused(f) && hasRows(f)
+    );
+
+    expect(
+      entry.fixtures.length,
+      `${entry.module} has nothing to replay`
+    ).toBeGreaterThan(0);
+
+    for (const read of reads) {
+      const recorded = get(read, ["response", "body", "data"]) as unknown[];
+
+      expect(
+        rowsIn(answer(entry, "replay", read))?.length,
+        `${entry.module} replayed ${pathOf(read)} at a row count staging never recorded`
+      ).toBe(recorded.length);
+    }
+  });
+
+  it("derives a route from its own feature — a module with recordings arms something", () => {
+    expect(
+      routesOf(entry),
+      `${entry.module} declares a subject and arms nothing for it`
+    ).not.toHaveLength(0);
+    expect(handlersOf(entry)).toHaveLength(routesOf(entry).length);
+  });
+
+  it("answers every recording under a route it armed, query string carried", async () => {
+    const handlers = handlersOf(entry);
+
+    expect(armedFixtures(entry), `${entry.module} armed no recording`).not.toBe(
+      []
+    );
+
+    for (const fixture of armedFixtures(entry)) {
+      expect(
+        pathOf(fixture),
+        `${entry.module} armed a path this probe stripped to nothing`
+      ).not.toBe("");
+      expect(
+        await matches(
+          handlers,
+          `${ORIGIN}${pathOf(fixture)}`,
+          methodOf(fixture)
+        ),
+        `${entry.module} armed ${pathShape(pathOf(fixture))} yet answers none of its recorded urls — a query string disqualified the path`
+      ).toBe(true);
+    }
+  });
+
+  it("leaves the chrome it merely TOUCHED unarmed — nothing outside its subject", async () => {
+    const handlers = handlersOf(entry);
+
+    for (const fixture of unarmedFixtures(entry)) {
+      expect(
+        await matches(
+          handlers,
+          `${ORIGIN}${pathOf(fixture)}`,
+          methodOf(fixture)
+        ),
+        `${entry.module} intercepts ${pathOf(fixture)}, which its subject never claimed`
+      ).toBe(false);
+    }
+  });
+
+  it("arms nothing outside its own recordings", async () => {
+    const handlers = handlersOf(entry);
+    const foreign = foreignPathsFor(entry);
+
+    expect(
+      foreign.length,
+      `${entry.module} had no foreign path to probe — the exclusivity claim would be vacuous`
+    ).toBeGreaterThan(0);
+
+    for (const path of foreign) {
+      expect(
+        await matches(handlers, `${ORIGIN}${path}`, "GET"),
+        `${entry.module} arms ${path}, which no recording of its own names`
+      ).toBe(false);
+    }
+  });
+
+  it("derives every route it arms from a recording of its own", () => {
+    for (const route of routesOf(entry)) {
+      expect(
+        some(entry.fixtures, f => pathShape(pathOf(f)) === shapeOfRoute(route)),
+        `${entry.module} derived route ${route} from no recording of its own`
+      ).toBe(true);
+    }
+  });
+
+  it("takes its subject from the FEATURE — the same recordings under another read differently", () => {
+    const other = LOADED.find(candidate => candidate.module !== entry.module);
+
+    expect(
+      other,
+      "one module loaded — the claim needs a second feature"
+    ).toBeDefined();
+    expect(
+      moduleRoutes("", entry.bodies),
+      `${entry.module} arms its recordings with no declared subject to arm them for`
+    ).toEqual([]);
+    expect(
+      moduleRoutes(other!.feature, entry.bodies),
+      `${entry.module} arms the same set under ${other!.module}'s subject — the recordings decide, not the feature`
+    ).not.toEqual(routesOf(entry));
   });
 });
 
-describe("AC4 every declared preset is answered, or named as a capture gap", () => {
-  it("accounts for every declared preset — answerable or reported, never lost", () => {
-    for (const entry of LOADED) {
+describe("AC1 · AC3 the subject is narrower than the capture run", () => {
+  it("refuses at least one path it recorded — an over-reaching arm hangs app chrome", () => {
+    const refusing = filter(LOADED, entry => !isEmpty(unarmedFixtures(entry)));
+
+    expect(
+      map(refusing, "module"),
+      "every module arms every path it ever touched — chrome included"
+    ).not.toEqual([]);
+  });
+
+  it("client-phone does not arm the country lookup a dropdown needed", async () => {
+    const entry = named("client-phone");
+    const chrome = filter(entry.fixtures, f => /\/countries\b/.test(pathOf(f)));
+
+    expect(
+      chrome,
+      "client-phone no longer records the country lookup — pick another chrome path"
+    ).not.toEqual([]);
+
+    for (const fixture of chrome) {
       expect(
-        sortBy([...entry.answerable, ...entry.gaps]),
-        `${entry.module} lost a declared preset — neither answered nor reported`
-      ).toEqual(sortBy([...entry.offered]));
-
-      for (const gap of entry.gaps) {
-        expect(
-          entry.offered,
-          `${entry.module} reported a gap for ${gap}, which it never declared`
-        ).toContain(gap);
-      }
+        await matches(handlersOf(entry), `${ORIGIN}${pathOf(fixture)}`, "GET"),
+        `client-phone arms ${pathOf(fixture)}, and forcing loading hangs the chrome for the tab's life`
+      ).toBe(false);
     }
   });
 
-  it("answers every preset every module offers — none is dead", () => {
-    for (const entry of LOADED) {
-      for (const preset of entry.answerable) {
-        const fixture =
-          preset === "error-action"
-            ? writeOf(entry)
-            : (collectionReadOf(entry) ?? entry.fixtures[0]);
+  it("client-email-history arms its detail read — a query string is not a disqualifier", async () => {
+    const entry = named("client-email-history");
+    const detail = filter(entry.fixtures, f => pathOf(f).includes("?with="));
 
-        expect(
-          fixture,
-          `${entry.module} offers ${preset} with no recording to serve it`
-        ).toBeDefined();
+    expect(
+      detail,
+      "client-email-history records no read carrying a query string"
+    ).not.toEqual([]);
 
-        expect(
-          answer(entry, preset, fixture!),
-          `${entry.module} offers ${preset} but answers nothing`
-        ).toBeDefined();
-      }
-    }
-  });
-
-  it("changes the answer for every preset that is not replay", () => {
-    for (const entry of LOADED) {
-      const read = collectionReadOf(entry);
-      if (!read) continue;
-
-      const served = answer(entry, "replay", read);
-
-      for (const preset of entry.answerable) {
-        if (preset === "error-action") continue;
-
-        expect(
-          answer(entry, preset, read),
-          `${entry.module}'s ${preset} is indistinguishable from replay`
-        ).not.toEqual(served);
-      }
-    }
-  });
-
-  it("offers nothing at all for a path the module does not own", () => {
-    for (const entry of LOADED) {
-      const foreign = new URL(`${ORIGIN}/api/not-a-path-this-module-recorded`);
-
-      for (const preset of entry.answerable) {
-        expect(
-          answer(entry, preset, {
-            request: { method: "GET", path: foreign.pathname },
-            response: { status: 200, body: undefined }
-          }),
-          `${entry.module} answered for a path it never recorded`
-        ).toBeUndefined();
-      }
+    for (const fixture of detail) {
+      expect(
+        await matches(
+          handlersOf(entry),
+          `${ORIGIN}${pathOf(fixture)}`,
+          methodOf(fixture)
+        ),
+        `client-email-history reaches STAGING for ${pathOf(fixture)} under a forced chip`
+      ).toBe(true);
     }
   });
 });

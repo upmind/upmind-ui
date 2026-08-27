@@ -25,6 +25,7 @@ import {
   filter,
   find,
   flatMap,
+  includes,
   isEmpty,
   map,
   reject,
@@ -65,15 +66,20 @@ const under = (keep: (entry: string) => boolean): string[] =>
 
 /** Every capability id a feature's scenarios declare. */
 export function idsDeclaredIn(source: string): string[] {
+  const tagged = map(
+    [...source.matchAll(/^[ \t]*(@[^\n]+)\n[ \t]*Scenario:/gm)],
+    match => map([...String(match[1]).matchAll(/@([\w.-]+)/g)], tag => tag[1])
+  );
+
+  // `@todo` marks a capability that CANNOT be proved yet — blocked on unbuilt
+  // work. The whole scenario drops, ids included: demanding a spec for one
+  // would force a test that cannot pass, or an anchor that lies. Dropping the
+  // `todo` TAG (which NOT_AN_ID does) keeps the id beside it, which honours
+  // nothing — the decision belongs to the scenario, not the tag.
+  const provable = reject(tagged, tags => includes(tags, "todo"));
+
   return uniq(
-    reject(
-      flatMap(
-        [...source.matchAll(/^[ \t]*(@[^\n]+)\n[ \t]*Scenario:/gm)],
-        match =>
-          map([...String(match[1]).matchAll(/@([\w.-]+)/g)], tag => tag[1])
-      ),
-      tag => NOT_AN_ID.test(String(tag))
-    )
+    reject(flatMap(provable), tag => NOT_AN_ID.test(String(tag)))
   ) as string[];
 }
 

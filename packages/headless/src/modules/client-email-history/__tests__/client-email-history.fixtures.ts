@@ -13,8 +13,10 @@
  * ## Why this is not a normal test
  * It makes REAL `fetch` calls against `VITE_API_URL` and needs staging
  * credentials — excluded from `*.test.ts` / `*.int.test.ts` by the
- * `*.fixtures.ts` suffix. No assertions beyond "the capture completed and
- * returned a usable body"; `save()` in `afterAll` writes every capture once.
+ * `*.fixtures.ts` suffix. No assertions beyond "the capture recorded what the
+ * case exists to record"; `save()` in `afterAll` writes every capture once —
+ * which is why a case that did NOT record its subject must drop its own
+ * buffered capture before it throws (`dropCapture` below).
  *
  * ## The real wire shape (query-platform revert, 2026-08-07)
  * `useQuery().request()` never sends `sort=` — it maps a composable's `sort`
@@ -40,6 +42,17 @@
  * `client-email-history.services.ts`'s `// MUTATIONS` section is empty). Every
  * capture below reads whatever the staging client's REAL, pre-existing history
  * contains — nothing here is seeded or shaped.
+ *
+ * ## The errored read is CAPTURED, never authored
+ * AC-4 and AC-15 declare the errored state, and AC-18 names the exact condition
+ * under which it occurs: "any forced read is refused as not-authenticated".
+ * That refusal is a REAL server decision, not a shaped one — `self/email_history`
+ * resolves the caller purely from the bearer, so an unusable bearer leaves no
+ * `self` to read and the API refuses at the OAuth layer, before routing.
+ * `?case=refused` below records whatever staging actually answers. If staging
+ * answers < 400 the case drops its own capture and fails the run: a success
+ * filed under a refusal's name is fabricated evidence, not a fixture. Nothing
+ * here hand-writes a status or an error body.
  *
  * ## Capture-limitation disclosure (required by NFR-2 / the 2026-08-05 receipt)
  * The staging client (`API_CREDENTIALS.client`) has a real history of ~2860
@@ -72,6 +85,8 @@
  * `get-self-email-history?case=page-1` / `case=page-2` (real 2-page walk,
  * AC-9) · `get-self-email-history?filter[bounced]=true` (real EMPTY result,
  * genuine `total:0` inline — AC-4/AC-8) ·
+ * `get-self-email-history?case=refused` (the REAL not-authenticated refusal —
+ * AC-4/AC-18, the recorded refusal both errored states replay) ·
  * `get-self-email-history?filter[error_id|neq]=null` (ERROR rows, AC-3) ·
  * `get-self-email-history?filter[sent]=true` (the one real SENT row, AC-3) ·
  * `get-self-email-history?filter[error_id]=null` (the SENDING + SENT rows,
@@ -129,6 +144,19 @@ async function mintToken(
   const body = await response.json().catch(() => null);
   const token = (body?.access_token ? body : body?.data) as IToken | undefined;
   return token?.access_token ? token : undefined;
+}
+
+/**
+ * Drop a buffered capture whose recorded path carries the given `case` tag.
+ * `save()` in `afterAll` writes the whole buffer whatever each case did, so a
+ * case that did not record its subject must remove its own capture before it
+ * throws — otherwise a run that failed still ships the file it failed over.
+ */
+function dropCapture(generator: Generator, caseTag: string): void {
+  const captures = generator.getCapturedFixtures();
+  for (const [key, { fixture }] of captures) {
+    if (fixture.request.path.includes(`case=${caseTag}`)) captures.delete(key);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -217,6 +245,24 @@ describe("Client-Email-History API Fixtures Generator", () => {
         `Expected the REAL bounced-filter total to be 0 for this staging ` +
           `client (documented capture-limitation basis) but got ${total} — ` +
           "the disclosed gap above needs re-checking, not silent replacement."
+      );
+    }
+  });
+
+  it("captures GET self/email_history ?case=refused — the REAL not-authenticated refusal (AC-4/AC-18)", async () => {
+    generator.setBearerToken("fixturegen-invalid-token");
+    const { status } = await generator.get(
+      `/api/self/email_history?${WITH_PARAM}&order=-created_at&limit=10&case=refused`
+    );
+    generator.clearBearerToken();
+    if (status < 400) {
+      dropCapture(generator, "refused");
+      throw new Error(
+        `An unusable bearer read of self/email_history returned ${status}, ` +
+          "which is not a refusal — AC-4's errored state has no recorded " +
+          "refusal to replay, and this capture was DROPPED rather than " +
+          "shipped under a refusal's name. Re-check what staging does with " +
+          "an unusable bearer; never author the refusal by hand."
       );
     }
   });

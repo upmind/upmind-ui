@@ -16,7 +16,6 @@
  * beside an abandoned navigation, so the two cases differ in the url alone.
  *
  * @anchor session-switcher.feature
- * @anchor A7
  */
 
 import { config } from "@vue/test-utils";
