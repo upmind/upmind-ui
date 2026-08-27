@@ -12125,8 +12125,8 @@
     }
   },
   "meta": {
-    "built_at": "2026-08-24T14:18:24.319Z",
-    "corpus_version": "1+c51d23aaeed2",
+    "built_at": "2026-08-27T11:50:39.297Z",
+    "corpus_version": "1+cc5b22808559",
     "counts": {
       "adrs": 34,
       "changelogSymbols": 0,
@@ -12139,7 +12139,7 @@
       "symbols": 701
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "29e629eeac006976f2c570c46f5e9b2cce64ef75"
+    "source_commit": "481a816818db6c476bf1c2d486590760fc42d9ef"
   },
   "relations": {
     "edges": [
@@ -59289,7 +59289,7 @@
       }
     ],
     "prunedCount": 1644,
-    "sourcedAt": "2026-08-24"
+    "sourcedAt": "2026-08-27"
   },
   "symbols": {
     "@upmind-automation/headless!ACCOUNT_SCOPE_MATRIX": {
@@ -59520,7 +59520,7 @@
       "name": "AuthEventType",
       "signature": "Symbol AuthEventType",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 247,
+      "sourceLine": 259,
       "tsdoc": null
     },
     "@upmind-automation/headless!AuthEvents": {
@@ -59531,7 +59531,7 @@
       "name": "AuthEvents",
       "signature": "AuthEvents: object",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 239,
+      "sourceLine": 251,
       "tsdoc": "Interactive auth action that minted a token. Passed through `add()` /\n`persistTokenToStorage` to drive the login/sign_up dataLayer event and the\nsubsequent-login `/self` cache-bust."
     },
     "@upmind-automation/headless!AuthFlowTypes": {
@@ -61258,7 +61258,7 @@
       "name": "Impersonations",
       "signature": "Symbol Impersonations",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 39,
+      "sourceLine": 40,
       "tsdoc": "Impersonation state for tracking parent session.\nThis is used to restore the \"parent\" session after impersonation.\nThe key being the impersonated actor ID and the value being the impersonator ( initiating actor) ID."
     },
     "@upmind-automation/headless!InfiniteListQuery": {
@@ -61357,7 +61357,7 @@
       "name": "LoadedSessionUsers",
       "signature": "Symbol LoadedSessionUsers",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 160,
+      "sourceLine": 172,
       "tsdoc": "Result of loading `/self` for every session during boot resolution.\n`users` holds the profiles that loaded; `invalidSessionIds` names the\nsessions whose token returned `401` (dead token) and must be dropped so boot\nfalls through to the guest floor. A non-401 failure is a soft degrade and\nappears in neither list."
     },
     "@upmind-automation/headless!Locale": {
@@ -61907,7 +61907,7 @@
       "name": "PersistedSessionState",
       "signature": "Symbol PersistedSessionState",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 213,
+      "sourceLine": 225,
       "tsdoc": "Shape persisted to sessionStorage.\nContains all session data needed to fully restore the store on page reload.\nExcludes transient flags (`initialised`, `loading`) which reset on each load."
     },
     "@upmind-automation/headless!PersonalDetailsScopeMatrix": {
@@ -62886,7 +62886,7 @@
       "name": "SESSION_SCOPE_MATRIX",
       "signature": "SESSION_SCOPE_MATRIX: object",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 16,
+      "sourceLine": 17,
       "tsdoc": "Scope matrix for useActiveSession composable.\nSession scope is simple - no context needed for any actor."
     },
     "@upmind-automation/headless!ScalarOperator": {
@@ -63139,7 +63139,7 @@
       "name": "SessionEntry",
       "signature": "Symbol SessionEntry",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 147,
+      "sourceLine": 159,
       "tsdoc": "A session entry pairs a token with optional user profile data.\nUsed in clientSessions and staffSessions records."
     },
     "@upmind-automation/headless!SessionEventType": {
@@ -63150,7 +63150,7 @@
       "name": "SessionEventType",
       "signature": "Symbol SessionEventType",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 231,
+      "sourceLine": 243,
       "tsdoc": null
     },
     "@upmind-automation/headless!SessionEvents": {
@@ -63161,7 +63161,7 @@
       "name": "SessionEvents",
       "signature": "SessionEvents: object",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 222,
+      "sourceLine": 234,
       "tsdoc": "Shared session event names used by both the authSubscription helper\n(XState callback actor) and BroadcastChannel cross-tab sync."
     },
     "@upmind-automation/headless!SessionScopeMatrix": {
@@ -63172,7 +63172,7 @@
       "name": "SessionScopeMatrix",
       "signature": "Symbol SessionScopeMatrix",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 23,
+      "sourceLine": 24,
       "tsdoc": null
     },
     "@upmind-automation/headless!SessionState": {
@@ -63183,7 +63183,7 @@
       "name": "SessionState",
       "signature": "Symbol SessionState",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 168,
+      "sourceLine": 180,
       "tsdoc": "Store state for managing multiple actor sessions."
     },
     "@upmind-automation/headless!SessionStoreConfig": {
@@ -63194,7 +63194,7 @@
       "name": "SessionStoreConfig",
       "signature": "Symbol SessionStoreConfig",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 29,
+      "sourceLine": 30,
       "tsdoc": "Configuration for the session store.\nControls which actor scopes can be activated in this app instance."
     },
     "@upmind-automation/headless!SessionSyncMessage": {
@@ -63205,7 +63205,7 @@
       "name": "SessionSyncMessage",
       "signature": "Symbol SessionSyncMessage",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 252,
+      "sourceLine": 264,
       "tsdoc": "Message format for BroadcastChannel session sync."
     },
     "@upmind-automation/headless!SessionTransfer": {
@@ -63227,7 +63227,7 @@
       "name": "SessionUser",
       "signature": "Symbol SessionUser",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 93,
+      "sourceLine": 94,
       "tsdoc": "Minimal user info for display in session switcher/dropdown.\nPopulated from auth loadUser response."
     },
     "@upmind-automation/headless!SettingValue": {
@@ -63414,7 +63414,7 @@
       "name": "Token",
       "signature": "Symbol Token",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 45,
+      "sourceLine": 46,
       "tsdoc": "Interface representing an authentication token and its associated metadata.\nThis token is typically used for API authorisation."
     },
     "@upmind-automation/headless!TransferContext": {
@@ -65722,10 +65722,10 @@
       "lessons": [],
       "module": "session-store",
       "name": "mapSessionUser",
-      "signature": "mapSessionUser(self: Pick<ISelf, \"actor\"> & Partial<Pick<ISelf, \"accounts\" | \"analytics\">>): SessionUser",
+      "signature": "mapSessionUser(self: Pick<ISelf, \"actor\"> & Partial<Pick<ISelf, \"brand_id\" | \"accounts\" | \"analytics\">> & object): SessionUser",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.mappers.ts",
-      "sourceLine": 53,
-      "tsdoc": "Map /self API response to SessionUser format.\nExtracts user data from ISelf.actor field for session store."
+      "sourceLine": 54,
+      "tsdoc": "Map /self API response to SessionUser format.\nExtracts user data from ISelf.actor field for session store.\nBrand fields: brand_id from ISelf, brands from `with=brands` relation (staff)."
     },
     "@upmind-automation/headless!matchesCondition": {
       "id": "@upmind-automation/headless!matchesCondition",
