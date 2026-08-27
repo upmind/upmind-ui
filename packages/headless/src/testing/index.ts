@@ -1,11 +1,17 @@
 // -----------------------------------------------------------------------------
 /**
  * @module testing
- * @description The package's ONE test-artefact entry — every module's own
- * `.feature`, step catalog, `@internal` kit and recorded bodies, collected from
+ * @description The package's ONE test-HARNESS entry — every module's own
+ * `.feature`, step catalog, `@internal` kit and replay lifecycle, collected from
  * INSIDE the package and keyed by the module that owns them. Kept off the main
  * barrel, so nothing it collects can reach a production graph through `.`, and
  * the only specifier: the package publishes no per-module subpath beside it.
+ *
+ * The recorded bodies moved to `./fixtures` (FE-3113) and are re-exported here
+ * unchanged. That entry carries recordings and nothing else, which is what lets
+ * app runtime reach a recording from any file while the harness — the half that
+ * boots modules and registers runner lifecycles — stays behind this one's named
+ * seam.
  *
  * Workspace-only by construction — `package.json`'s `files` ships `dist` alone,
  * so these `src` paths serve this repo's own lanes and never an installed
@@ -33,7 +39,6 @@ import type { StepCatalog } from "@upmind-automation/scenario-harness";
 // -----------------------------------------------------------------------------
 
 const MODULE = /\/modules\/([^/]+)\/__tests__\//;
-const FIXTURE = /\/modules\/([^/]+)\/__tests__\/fixtures\/(.+)\.json$/;
 
 /**
  * Keys one artefact per module. THROWS when a module's `__tests__/` holds two of
@@ -197,22 +202,11 @@ export const integrationSetups: Record<
 );
 
 /**
- * Each module's recorded bodies, keyed module -> fixture name -> loader. Two
- * levels because a module holds MANY fixtures, and LAZY because eager would
- * parse the whole ~1.6MB corpus into every consumer's graph on every page,
- * whether or not a replay ever installs one.
+ * Each module's recorded bodies, keyed module -> fixture name -> loader.
+ *
+ * Re-exported from `./fixtures` rather than globbed here (FE-3113): the
+ * recordings are the one artefact app runtime may reach from any file, so they
+ * are published on their own entry and this one carries them along so its
+ * existing consumers are unchanged.
  */
-export const recordedBodies: Record<
-  string,
-  Record<string, () => Promise<unknown>>
-> = reduce(
-  import.meta.glob<unknown>("../modules/*/__tests__/fixtures/*.json", {
-    import: "default"
-  }),
-  (bodies, load, path) => {
-    const [, moduleName, name] = FIXTURE.exec(path) ?? [];
-
-    return moduleName ? set(bodies, [moduleName, name], load) : bodies;
-  },
-  {} as Record<string, Record<string, () => Promise<unknown>>>
-);
+export { recordedBodies } from "../fixtures";

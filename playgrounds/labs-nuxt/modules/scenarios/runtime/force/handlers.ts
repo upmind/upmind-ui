@@ -20,11 +20,13 @@
  */
 
 import { HttpResponse, delay, http, passthrough } from "msw";
+import { corpusCapabilities } from "./capabilities";
 import { createCorpusSession, runtimeCorpus } from "./corpus";
 import { PENDING, presetAnswer } from "./presets";
-import { MODULE_ROUTES } from "./routes";
+import { moduleRoutes } from "./routes";
 import { isUndefined, map } from "lodash-es";
 import type { CorpusBodies, CorpusSession } from "./corpus";
+import type { RecordedFixture } from "./corpus.source.types";
 import type { ForcePreset } from "../composables/useForcedState.types";
 import type { HttpHandler, HttpResponseResolver, JsonBodyType } from "msw";
 
@@ -35,11 +37,18 @@ const REFUSED_FROM = 400;
 
 function presetResolver(
   preset: ForcePreset,
-  session: CorpusSession
+  session: CorpusSession,
+  failure: RecordedFixture | undefined
 ): HttpResponseResolver {
   return async ({ request }) => {
     const url = new URL(request.url);
-    const answer = presetAnswer(preset, session.bodies(), request.method, url);
+    const answer = presetAnswer(
+      preset,
+      session.bodies(),
+      request.method,
+      url,
+      failure
+    );
 
     // Never settles, so the request stays in flight and the surface holds the
     // loading state it renders while one is — msw's own recipe for a request
@@ -90,9 +99,13 @@ export function createForceHandlers(
 ): HttpHandler[] {
   if (!bodies) return [];
 
+  // The module's OWN endpoints and its OWN refusal, both measured off the
+  // recordings it was handed rather than named here (FE-3113).
+  const { failure } = corpusCapabilities(bodies);
+
   // One session per LIST: re-arming is how a replay goes back to the recording,
   // so the mutations a track played never outlive the arm that played them.
-  const resolve = presetResolver(preset, createCorpusSession(bodies));
+  const resolve = presetResolver(preset, createCorpusSession(bodies), failure);
 
-  return map(MODULE_ROUTES, route => http.all(route, resolve));
+  return map(moduleRoutes(bodies), route => http.all(route, resolve));
 }

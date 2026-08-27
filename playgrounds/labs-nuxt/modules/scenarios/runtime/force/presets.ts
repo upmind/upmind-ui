@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module scenarios/runtime/force/presets
- * @description The answers a forced page can give, over the ONE corpus:
+ * @description The answers a forced page can give, over ONE module's corpus:
  * `empty` is the recorded collection with its rows removed, `error-action` and
  * `error-collection` are the recording that FAILED aimed at the write and at the
  * read respectively, `loading` is no answer at all, and `replay` is the answer
@@ -11,13 +11,18 @@
  * `AC8.5`).
  *
  * The two failures are named apart because they are different states (`R6-19`).
- * One recording failed and it is a WRITE, so `error-action` is the faithful half
- * — the read is served as recorded, the row's write gets the recorded refusal
- * and the list stays intact. `error-collection` fails the read at that same
- * recorded status and serves NO body, because the sentence on record answers a
- * set-default and a read that borrowed it would say the very thing the ruling
- * called a conflation. A recorded failing collection read would replace this;
- * the corpus holds none.
+ * Where the module's refusal is a WRITE, `error-action` is the faithful half —
+ * the read is served as recorded, the row's write gets the recorded refusal and
+ * the list stays intact. `error-collection` fails the read at that same recorded
+ * status and serves NO body, because a sentence recorded against a write would,
+ * lent to a read, say the very thing the ruling called a conflation.
+ *
+ * UN-PINNED (FE-3113): which recording failed is the MODULE's own business, so
+ * it arrives as an argument beside the bodies rather than as a fixture name
+ * spelt here. That constant was the single line pinning the whole force system
+ * to `client-email`. A module with no refusal on record answers neither error
+ * state — `capabilities.ts` never offers one, and this file serves the request
+ * as recorded rather than inventing a status to refuse it with.
  *
  * A request the corpus does not own is answered by nobody — the caller passes it
  * through, which is what keeps forcing to this module's own endpoints (`AC8.3`).
@@ -35,17 +40,11 @@
 
 import { resolveCorpusRequest } from "./corpus";
 import { isArray, toUpper } from "lodash-es";
-import type { CorpusBodies, CorpusFixtureName, CorpusResponse } from "./corpus";
+import type { CorpusBodies, CorpusResponse } from "./corpus";
+import type { RecordedFixture } from "./corpus.source.types";
 import type { ForcePreset } from "../composables/useForcedState.types";
 
 // -----------------------------------------------------------------------------
-
-/**
- * The one recording that failed: staging's own 409 refusing to make an
- * unverified address the default, carrying the API's own sentence (`S14`).
- */
-const RECORDED_FAILURE: CorpusFixtureName =
-  "put-clients-id-emails-id-case-set-default-unverified";
 
 /** The answer `loading` gives: none, and none is coming. */
 export const PENDING = "pending" as const;
@@ -99,14 +98,20 @@ export function presetAnswer(
   preset: ForcePreset,
   bodies: CorpusBodies,
   method: string,
-  url: URL
+  url: URL,
+  recordedFailure?: RecordedFixture
 ): PresetAnswer {
   const served = resolveCorpusRequest(bodies, method, url);
 
   if (!served) return undefined;
   if (preset === "loading") return PENDING;
 
-  const failure = bodies[RECORDED_FAILURE].response;
+  // A module with no refusal on record can answer neither error state, so the
+  // request is served as recorded rather than at a status this file invented
+  // (`S13`). `availablePresets` never OFFERS one here, so this is the floor
+  // under a url that names a preset the corpus cannot honour.
+  const failure = recordedFailure?.response;
+  if (!failure) return preset === "empty" ? withoutRows(served) : served;
 
   // Aimed at the half of the exchange the preset is named for: the other half is
   // served exactly as recorded, which is what keeps a refused row inside a list
