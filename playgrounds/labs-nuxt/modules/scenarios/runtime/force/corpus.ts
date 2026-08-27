@@ -29,6 +29,7 @@
  */
 
 import {
+  featureTextFor,
   getCorpusBodies,
   isModuleResolved,
   loadCorpusBodies
@@ -214,6 +215,23 @@ export function runtimeCorpus(
   if (!module || !isModuleResolved(module)) return undefined;
 
   return getCorpusBodies(module) as CorpusBodies | undefined;
+}
+
+/**
+ * The armed module's committed `.feature` — the declaration that decides which
+ * of its recorded paths are its own SUBJECT and which are chrome its capture run
+ * happened to touch (`moduleRoutes`). It travels beside {@link runtimeCorpus}
+ * because both answer for the module this page armed, and a corpus read against
+ * another module's declaration would arm the wrong endpoints.
+ *
+ * A module no page has armed declares nothing, so nothing is armed (`S12`).
+ *
+ * @param module Which module's feature, defaulting to the armed one.
+ */
+export function runtimeFeature(
+  module: string | undefined = armedModule
+): string {
+  return module ? featureTextFor(module) : "";
 }
 
 /**

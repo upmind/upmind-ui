@@ -2,10 +2,10 @@
 /**
  * @module scenarios/runtime/force/handlers
  * @description The msw handler list a forced page is armed with — the endpoints
- * this module's own recordings name, and nothing else (`AC8.3`). A request no
- * recording was captured at matches no handler here, and one that matches a
- * handler but no recording is passed through, so either way it reaches staging
- * untouched under `start({ onUnhandledRequest: "bypass" })`.
+ * of the subject this module's own `.feature` declares, and nothing else
+ * (`AC8.3`). A request outside that subject matches no handler here, and one
+ * that matches a handler but no recording is passed through, so either way it
+ * reaches staging untouched under `start({ onUnhandledRequest: "bypass" })`.
  *
  * `msw` is named HERE rather than in the composable that arms it, because this
  * module is reached only through that composable's dynamic import: a bare load
@@ -21,7 +21,7 @@
 
 import { HttpResponse, delay, http, passthrough } from "msw";
 import { corpusCapabilities } from "./capabilities";
-import { createCorpusSession, runtimeCorpus } from "./corpus";
+import { createCorpusSession, runtimeCorpus, runtimeFeature } from "./corpus";
 import { PENDING, presetAnswer } from "./presets";
 import { moduleRoutes } from "./routes";
 import { isUndefined, map } from "lodash-es";
@@ -85,9 +85,12 @@ function presetResolver(
 // -----------------------------------------------------------------------------
 
 /**
- * The handlers a preset is armed with. `bodies` defaults to the runtime corpus —
- * the `ESC6` seam's, once it has one — and is injectable so the same list is
- * provable against the committed recordings before that ruling lands.
+ * The handlers a preset is armed with. `bodies` and `feature` default to the
+ * armed module's — the `ESC6` seam's, once it has one — and are injectable so
+ * the same list is provable against the committed artefacts before that ruling
+ * lands. They are one module's PAIR: the recordings supply the paths, the
+ * feature decides which of them that module owns, so passing one without the
+ * other arms a corpus against another module's declaration.
  *
  * With no corpus there is nothing recorded to answer with, so the list is empty
  * and every request reaches the real service: forcing degrades to Live rather
@@ -95,17 +98,18 @@ function presetResolver(
  */
 export function createForceHandlers(
   preset: ForcePreset,
-  bodies: CorpusBodies | undefined = runtimeCorpus()
+  bodies: CorpusBodies | undefined = runtimeCorpus(),
+  feature: string = runtimeFeature()
 ): HttpHandler[] {
   if (!bodies) return [];
 
-  // The module's OWN endpoints and its OWN refusal, both measured off the
-  // recordings it was handed rather than named here (FE-3113).
+  // The module's OWN refusal, measured off the recordings it was handed rather
+  // than named here (FE-3113).
   const { failure } = corpusCapabilities(bodies);
 
   // One session per LIST: re-arming is how a replay goes back to the recording,
   // so the mutations a track played never outlive the arm that played them.
   const resolve = presetResolver(preset, createCorpusSession(bodies), failure);
 
-  return map(moduleRoutes(bodies), route => http.all(route, resolve));
+  return map(moduleRoutes(feature, bodies), route => http.all(route, resolve));
 }
