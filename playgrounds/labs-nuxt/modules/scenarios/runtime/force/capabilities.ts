@@ -15,6 +15,12 @@
  * `request.method` and `response.status`, so a preset is offered when the corpus
  * can ANSWER it — no wording, no fixture names, no per-module branch.
  *
+ * The deletion is of the OFFER's prose gate, not of the `.feature`. What a
+ * module DOES is still declared there, and {@link captureGaps} still reads it —
+ * structurally, off the scenario TAGS. The offer must never shrink on a wording
+ * miss, and a capture debt is only owed where the surface was declared in the
+ * first place.
+ *
  * `FORCE_URL_PRESETS` stays the master vocabulary. Every function here FILTERS
  * it and none re-spells it, so a preset added to the vocabulary is one this file
  * must be taught to measure rather than one it silently drops.
@@ -22,12 +28,18 @@
 
 import { FORCE_URL_PRESETS } from "../composables/useForcedState.types";
 import {
+  compact,
   filter,
   find,
+  flatMap,
+  intersection,
   isArray,
   isEmpty,
   get,
+  map,
   some,
+  split,
+  toLower,
   toUpper,
   trim,
   values
@@ -40,6 +52,35 @@ import type { ForceUrlPreset } from "../composables/useForcedState.types";
 
 /** At or above it the server refused; below it the exchange succeeded. */
 const REFUSED_FROM = 400;
+
+/** A Gherkin tag line: `@tag` tokens and nothing else. */
+const TAG_LINE = /^@[\w:.-]+(\s+@[\w:.-]+)*$/;
+
+/**
+ * The Gherkin tags a scenario carries when its subject is a request coming back
+ * REFUSED — `@guard` for the refusal an unauthenticated caller gets, `@errors`
+ * for the refusal a change gets.
+ *
+ * A refusal is the only thing {@link captureGaps} can report — `empty` and
+ * `loading` are hostable exactly when they are answerable — so this vocabulary
+ * decides the whole report. Reading the TAGS rather than the prose is the point:
+ * the prose gate this replaces matched the word "error" wherever it fell, and
+ * every module wording a failure anywhere in 200 lines of English was billed for
+ * a capture it never declared. A tag is the declaration itself, and a tag this
+ * list does not know under-reports a debt rather than inventing one.
+ */
+const REFUSAL_TAGS = ["guard", "errors"];
+
+/** Every tag the feature's own tag lines carry, `@` and case dropped. */
+function declaredTags(feature: string): string[] {
+  const lines = filter(map(split(feature, "\n"), trim), line =>
+    TAG_LINE.test(line)
+  );
+
+  return map(compact(flatMap(lines, line => split(line, /\s+/))), tag =>
+    toLower(tag).slice(1)
+  );
+}
 
 function isRead(fixture: RecordedFixture): boolean {
   return toUpper(fixture.request.method) === "GET";
@@ -142,12 +183,13 @@ function hostablePresets(
  * named loudly so a capture that never happened reads as missing EVIDENCE
  * rather than as absent capability (`AC5`).
  *
- * The `.feature` gates it: a module with no committed feature is not a
- * documented surface, so it declares nothing and owes nothing. One with a
- * feature owes a refusal for each half of the exchange it records — a module
- * that READS and holds no refusal owes an `error-collection` capture; one that
- * WRITES and holds no failing write owes an `error-action` capture. That debt is
- * filled in the module's own `.fixtures.ts`, never borrowed from another's.
+ * What the `.feature` DECLARES gates it, never merely that one exists: a module
+ * tagging no scenario as a refusal never claimed that surface, so it owes no
+ * capture for it. One that declares a refusal owes it for each half of the
+ * exchange it records — a module that READS and holds no refusal owes an
+ * `error-collection` capture; one that WRITES and holds no failing write owes an
+ * `error-action` capture. That debt is filled in the module's own
+ * `.fixtures.ts`, never borrowed from another's.
  *
  * @param feature The module's committed `.feature` text.
  * @param bodies That module's own recordings, keyed by fixture name.
@@ -156,7 +198,7 @@ export function captureGaps(
   feature: string,
   bodies: Record<string, RecordedFixture>
 ): readonly ForceUrlPreset[] {
-  if (isEmpty(trim(feature))) return [];
+  if (isEmpty(intersection(declaredTags(feature), REFUSAL_TAGS))) return [];
 
   const answerable = answerablePresets(bodies);
 
