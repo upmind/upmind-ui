@@ -51,6 +51,11 @@
  * state it did not reach by itself — so the one menu is where a page's non-live
  * state is chosen, and the sheet toggle beside it stays about the sheets.
  *
+ * WHICH forced states is not this component's to know (FE-3113). The presets are
+ * handed in, derived from the page's own recordings, and a group with nothing in
+ * it is not rendered at all: a read-only module's corpus cannot refuse a write,
+ * so `error-action` is absent rather than present-and-dead (`S14`).
+ *
  * Both groups are ONE `Select` because at most one non-live
  * state can ever be on: the armed track and the armed preset are alternatives,
  * and a radio group is what says so with the theme's own indicator rather than a
@@ -66,11 +71,10 @@
 import { Select, ToggleGroup, ToggleGroupItem } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { FORCE_URL_PRESETS } from "../composables/useForcedState.types";
 import { FORCE_PRESET_LABELS } from "./ForcedCanvas.types";
 import { scenarioMenu } from "./ScenarioMenu.styles";
 import { SCENARIO_CHOICE, TRACK_LIVE } from "./ScenarioMenu.types";
-import { find, map, size } from "lodash-es";
+import { filter, find, map, size } from "lodash-es";
 import type {
   ScenarioMenuEmits,
   ScenarioMenuProps
@@ -96,38 +100,43 @@ const isLive = computed(() => !props.armed && !props.preset);
 const active = computed(() => {
   if (props.armed) return trackValue(props.armed.slug);
 
-  const preset = find(FORCE_URL_PRESETS, entry => entry === props.preset);
+  const preset = find(props.presets, entry => entry === props.preset);
 
   return preset ? forceValue(preset) : undefined;
 });
 
-const items = computed<SelectOptionGroup[]>(() => [
-  {
-    label: t("labs.force_preset"),
-    options: map([...FORCE_URL_PRESETS], preset => ({
-      value: forceValue(preset),
-      label: t(FORCE_PRESET_LABELS[preset]),
-      disabled: !!props.disabled,
-      dataAttrs: {
-        "data-test-key": "force-preset-option",
-        "data-test-value": preset
+const items = computed<SelectOptionGroup[]>(() =>
+  filter(
+    [
+      {
+        label: t("labs.force_preset"),
+        options: map(props.presets, preset => ({
+          value: forceValue(preset),
+          label: t(FORCE_PRESET_LABELS[preset]),
+          disabled: !!props.disabled,
+          dataAttrs: {
+            "data-test-key": "force-preset-option",
+            "data-test-value": preset
+          }
+        }))
+      },
+      {
+        label: t("labs.scenarios"),
+        options: map(props.tracks, track => ({
+          value: trackValue(track.slug),
+          label: track.name,
+          // A track the catalog cannot run whole is offered but refused, never hidden.
+          disabled: !!props.disabled || !track.isPlayable,
+          dataAttrs: {
+            "data-test-key": "track-option",
+            "data-test-value": track.slug
+          }
+        }))
       }
-    }))
-  },
-  {
-    label: t("labs.scenarios"),
-    options: map(props.tracks, track => ({
-      value: trackValue(track.slug),
-      label: track.name,
-      // A track the catalog cannot run whole is offered but refused, never hidden.
-      disabled: !!props.disabled || !track.isPlayable,
-      dataAttrs: {
-        "data-test-key": "track-option",
-        "data-test-value": track.slug
-      }
-    }))
-  }
-]);
+    ],
+    group => size(group.options) > 0
+  )
+);
 
 function pick(value: unknown): void {
   if (value === active.value) return;
@@ -135,7 +144,7 @@ function pick(value: unknown): void {
   const track = find(props.tracks, entry => trackValue(entry.slug) === value);
   if (track) return emit("select", { kind: SCENARIO_CHOICE.TRACK, track });
 
-  const preset = find(FORCE_URL_PRESETS, entry => forceValue(entry) === value);
+  const preset = find(props.presets, entry => forceValue(entry) === value);
   if (preset) emit("select", { kind: SCENARIO_CHOICE.FORCE, preset });
 }
 </script>

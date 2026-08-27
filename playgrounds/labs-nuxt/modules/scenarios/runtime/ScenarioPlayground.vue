@@ -14,7 +14,7 @@
           :locked="isReplaying"
         />
 
-        <ScenarioBar :player="player" :tracks="tracks" />
+        <ScenarioBar :player="player" :tracks="tracks" :presets="presets" />
 
         <!-- The collection's own actions reach the header through the surface
              that owns the editor they open (G4). `ModuleRenderer` declares no
@@ -85,12 +85,15 @@ import { useFeatureTracks } from "./composables/useFeatureTracks";
 import { useForcedState } from "./composables/useForcedState";
 import { useModulePort } from "./composables/useModulePort";
 import { useScenarioPlayer } from "./composables/useScenarioPlayer";
+import { availablePresets, corpusCapabilities } from "./force/capabilities";
+import { armCorpusModule, runtimeCorpus } from "./force/corpus";
 import { featureTracksFor } from "./force/corpus.source";
 import { scenarioRegistry, scenarioRoutes, scenarioSources } from "./registry";
 import { SCENARIO_ROUTE_META_KEY } from "./scenario.constants";
 import { DEFAULT_ROW_IDENTIFIER } from "./scenario.types";
 import { get, mapValues } from "lodash-es";
 import type { ActionSlotItem } from "./components";
+import type { ForceUrlPreset } from "./composables/useForcedState.types";
 import type {
   FourLayerComposable,
   RegisteredScenario,
@@ -203,6 +206,24 @@ const trackSource = scenario.tracks
   : undefined;
 
 const tracks = trackSource ? useFeatureTracks(trackSource).tracks : [];
+
+// The forced states THIS module's recordings can answer (FE-3113). Arming is
+// what loads them — the seam's loaders are lazy — so the presets are computed
+// after the corpus lands rather than off an empty read. A module the seam does
+// not reach offers none, which leaves the page Live (`S12`).
+const presets = ref<ForceUrlPreset[]>([]);
+
+if (scenario.tracks) {
+  const module = scenario.tracks;
+
+  void armCorpusModule(module).then(armed => {
+    const bodies = armed ? runtimeCorpus(module) : undefined;
+
+    presets.value = bodies
+      ? [...availablePresets(corpusCapabilities(bodies))]
+      : [];
+  });
+}
 
 const player = useScenarioPlayer({ tracks, criteria: port.criteria });
 
