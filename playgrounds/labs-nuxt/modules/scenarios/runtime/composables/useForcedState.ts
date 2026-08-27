@@ -55,6 +55,8 @@ type ForcedStateHandle = {
   reset: () => void;
   /** Points the handle's cache drop at the module the page has just booted. */
   serves: (invalidate: ForceInvalidate | undefined) => void;
+  /** The corpus arm every later reconcile waits behind (FE-3113). */
+  arms: (whenArmed: Promise<unknown>) => void;
 };
 
 let handle: ForcedStateHandle | undefined;
@@ -95,6 +97,11 @@ function create(): ForcedStateHandle {
   // playground has one to give.
   let invalidate: ForceInvalidate | undefined;
 
+  // The page's corpus arm, for the same reason and from the same one caller.
+  // The seam's loaders are lazy, so until this lands there are no recordings to
+  // build handlers from.
+  let armed: Promise<unknown> | undefined;
+
   // What the tab is actually being answered with. The immediate watch below
   // fires with Live, which is what a booting tab already is, so nothing is
   // re-read on load — only a genuine change of transport invalidates.
@@ -118,6 +125,13 @@ function create(): ForcedStateHandle {
 
     if (!next) await release();
     else {
+      // BEFORE the handlers are built, never beside them: a pasted `force=`
+      // link arms on boot (`AC8.2`) in the same tick the page starts loading
+      // its corpus, and the handler list is read from recordings that are not
+      // there yet. Winning that race registers a worker with an EMPTY list —
+      // the page then reports armed while every request reaches staging.
+      await armed;
+
       const { createForceHandlers } = await import("../force/handlers");
       const handlers = createForceHandlers(next);
 
@@ -170,6 +184,8 @@ function create(): ForcedStateHandle {
    */
   async function restart(): Promise<void> {
     if (!worker || !served) return;
+
+    await armed;
 
     const { createForceHandlers } = await import("../force/handlers");
     worker.resetHandlers(...createForceHandlers(served));
@@ -233,7 +249,17 @@ function create(): ForcedStateHandle {
     invalidate = next;
   }
 
+  /**
+   * Holds every later reconcile behind the caller's corpus arm. Registered
+   * synchronously by the page, so it is in place before the immediate watcher's
+   * first reconcile leaves the microtask queue.
+   */
+  function arms(whenArmed: Promise<unknown>): void {
+    armed = whenArmed;
+  }
+
   return {
+    arms,
     reset,
     serves,
     state: {
@@ -254,8 +280,14 @@ function create(): ForcedStateHandle {
  * consumer that boots a module — the page. The bar and the player read the same
  * handle without one, and passing none leaves whatever the page registered
  * standing rather than clearing it (FE-3113).
+ * @param whenArmed That same caller's corpus arm. Arming may not report success
+ * before its handlers are installed, and there are none to install until this
+ * resolves.
  */
-export function useForcedState(invalidate?: ForceInvalidate): UseForcedState {
+export function useForcedState(
+  invalidate?: ForceInvalidate,
+  whenArmed?: Promise<unknown>
+): UseForcedState {
   // Detached, like the url writer it reads: a watcher first created inside a
   // component would stop reconciling the moment that component unmounted, and
   // the tab would keep serving the preset it was last armed with.
@@ -263,6 +295,7 @@ export function useForcedState(invalidate?: ForceInvalidate): UseForcedState {
   else handle.reset();
 
   if (invalidate) handle.serves(invalidate);
+  if (whenArmed) handle.arms(whenArmed);
 
   return handle.state;
 }

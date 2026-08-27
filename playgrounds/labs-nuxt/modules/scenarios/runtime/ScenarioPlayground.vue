@@ -85,7 +85,7 @@ import { useFeatureTracks } from "./composables/useFeatureTracks";
 import { useForcedState } from "./composables/useForcedState";
 import { useModulePort } from "./composables/useModulePort";
 import { useScenarioPlayer } from "./composables/useScenarioPlayer";
-import { captureGaps, declaredPresets } from "./force/capabilities";
+import { answerablePresets, captureGaps } from "./force/capabilities";
 import { armCorpusModule, runtimeCorpus } from "./force/corpus";
 import { featureTextFor, featureTracksFor } from "./force/corpus.source";
 import { scenarioRegistry, scenarioRoutes, scenarioSources } from "./registry";
@@ -204,42 +204,38 @@ if (port.scopeMatrix) registerContexts(port.scopeMatrix);
 // `tracks` names the MODULE (`R6-37`); the seam hands back that module's own
 // committed playlist and the catalog that plays it, and a module it does not
 // reach leaves the page Live-only (`S12`).
-const trackSource = scenario.tracks
-  ? featureTracksFor(scenario.tracks)
-  : undefined;
+const trackedModule = scenario.tracks;
+
+const trackSource = trackedModule ? featureTracksFor(trackedModule) : undefined;
 
 const tracks = trackSource ? useFeatureTracks(trackSource).tracks : [];
 
-// The forced states THIS module's `.feature` declares (FE-3113). The spec is
-// the source of truth (operator ruling, 2026-08-27), so the presets are read
-// synchronously off the committed feature and never wait on the corpus — a
-// capture that has not happened must not remove a button. A module the seam
-// does not reach declares none, which leaves the page Live (`S12`).
-const presets = ref<ForceUrlPreset[]>(
-  scenario.tracks ? [...declaredPresets(featureTextFor(scenario.tracks))] : []
-);
+// The forced states THIS module's own recordings can answer (FE-3113), so a
+// state with no evidence behind it is never offered and never served from
+// something authored (`S13`). Empty until the corpus lands, which leaves the
+// page Live in the meantime — the state it boots into anyway (`S12`).
+const presets = ref<ForceUrlPreset[]>([]);
 
-// Arming is what loads the recordings — the seam's loaders are lazy — so the
-// evidence check runs after the corpus lands. A declared preset the corpus
-// cannot answer is NAMED, never dropped (`AC5`).
-if (scenario.tracks) {
-  const module = scenario.tracks;
+// Arming is what loads the recordings — the seam's loaders are lazy — so both
+// the offer and the evidence check run after the corpus lands. It is also the
+// barrier the forced-state handle holds its first reconcile behind: a pasted
+// `force=` link arms in this same tick, and one that won the race would
+// register a worker with no handlers at all.
+const whenArmed = trackedModule
+  ? armCorpusModule(trackedModule).then(armed => {
+      const bodies = armed ? runtimeCorpus(trackedModule) : undefined;
+      if (!bodies) return;
 
-  void armCorpusModule(module).then(armed => {
-    const bodies = armed ? runtimeCorpus(module) : undefined;
-    if (!bodies) return;
+      presets.value = [...answerablePresets(bodies)];
 
-    const gaps = captureGaps(presets.value, bodies);
+      const gaps = captureGaps(featureTextFor(trackedModule), bodies);
 
-    if (!isEmpty(gaps)) {
-      console.warn(
-        `[force] ${module} declares ${gaps.join(", ")} but its recordings cannot answer ${
-          gaps.length > 1 ? "them" : "it"
-        } — capture gap, not a missing capability.`
-      );
-    }
-  });
-}
+      if (!isEmpty(gaps))
+        console.warn(
+          `[force] ${trackedModule} has no recorded refusal to serve ${gaps.join(", ")} from — a capture gap, not a missing capability.`
+        );
+    })
+  : undefined;
 
 const player = useScenarioPlayer({ tracks, criteria: port.criteria });
 
@@ -259,7 +255,8 @@ const isReplaying = computed(() => !!player.track.value);
 // path spells. A module publishing none leaves the arm swapping the transport
 // alone — the page then keeps the answers it holds until it next asks.
 const { preset } = useForcedState(
-  get(port.actions, "invalidate") as ForceInvalidate | undefined
+  get(port.actions, "invalidate") as ForceInvalidate | undefined,
+  whenArmed
 );
 
 // --- The page's three sheet providers, all page-scoped
