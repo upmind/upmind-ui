@@ -1,11 +1,11 @@
 // -----------------------------------------------------------------------------
 /**
  * @module scenarios/runtime/force/handlers
- * @description The msw handler list a forced page is armed with — this module's
- * OWN endpoints and nothing else (`AC8.3`): the collection, one address, and the
- * verification send. Everything else the app does — brand, settings, config, the
- * session boot — matches no handler here, which is what leaves it free to reach
- * staging untouched under `start({ onUnhandledRequest: "bypass" })`.
+ * @description The msw handler list a forced page is armed with — the endpoints
+ * this module's own recordings name, and nothing else (`AC8.3`). A request no
+ * recording was captured at matches no handler here, and one that matches a
+ * handler but no recording is passed through, so either way it reaches staging
+ * untouched under `start({ onUnhandledRequest: "bypass" })`.
  *
  * `msw` is named HERE rather than in the composable that arms it, because this
  * module is reached only through that composable's dynamic import: a bare load
