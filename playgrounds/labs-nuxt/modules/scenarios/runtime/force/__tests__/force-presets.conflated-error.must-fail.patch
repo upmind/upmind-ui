@@ -17,12 +17,13 @@ recorded, so the collection still answers with its rows).
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts
-@@ -112,7 +112,7 @@
-   // Aimed at the half of the exchange the preset is named for: the other half is
-   // served exactly as recorded, which is what keeps a refused row inside a list
-   // that still has its rows.
--  if (preset === "error-action") return isRead(method) ? served : failure;
-+  if (preset === "error-action") return withoutBody(failure);
-   if (preset === "error-collection")
-     return isRead(method) ? withoutBody(failure) : served;
+@@ -128,8 +128,7 @@
+   // body (`R6-19`), so it needs a status and nothing else; the module's own
+   // refusal supplies one where the corpus holds it, and `REFUSED` where it does
+   // not. No body is authored on either path (`S13`).
+-  if (preset === "error-action")
+-    return isRead(method) ? served : (failure ?? served);
++  if (preset === "error-action") return withoutBody(failure ?? REFUSED);
  
+   if (preset === "error-collection")
+     return isRead(method) ? withoutBody(failure ?? REFUSED) : served;

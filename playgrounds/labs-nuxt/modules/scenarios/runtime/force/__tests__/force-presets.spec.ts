@@ -27,7 +27,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { runtimeCorpus } from "../corpus";
+import { armCorpusModule, runtimeCorpus } from "../corpus";
 import { PENDING, presetAnswer } from "../presets";
 import {
   difference,
@@ -42,13 +42,15 @@ import type { CorpusBodies, RecordedFixture } from "../corpus.source.types";
 
 // -----------------------------------------------------------------------------
 
+const MODULE = "client-email";
+
 const FIXTURES_DIR = join(
   dirname(
     createRequire(import.meta.url).resolve(
       "@upmind-automation/headless/package.json"
     )
   ),
-  "src/modules/client-email/__tests__/fixtures"
+  `src/modules/${MODULE}/__tests__/fixtures`
 );
 
 const committed = (name: string): RecordedFixture =>
@@ -79,16 +81,30 @@ const RECORDED_IDS = uniq(
   )
 );
 
-const bodies: CorpusBodies = runtimeCorpus()!;
+await armCorpusModule(MODULE);
 
-const BASE = "https://api.upmind.io/api/clients/CLIENT_ID/emails";
+const bodies: CorpusBodies = runtimeCorpus(MODULE)!;
+
+const RECORDED_PATH = get(
+  committed("get-clients-id-emails"),
+  ["request", "path"],
+  ""
+);
+
+const BASE = `https://api.upmind.io${RECORDED_PATH}`;
 
 const read = (search = "") => ["GET", new URL(`${BASE}${search}`)] as const;
 const write = () =>
   ["PUT", new URL(`${BASE}/20e43579-5e78-d184-430c-31643202d986`)] as const;
 
 const answer = (preset: string, [method, url]: readonly [string, URL]) =>
-  presetAnswer(preset as never, bodies, method, url);
+  presetAnswer(
+    preset as never,
+    bodies,
+    method,
+    url,
+    committed("put-clients-id-emails-id-case-set-default-unverified")
+  );
 
 const rowsIn = (response: unknown) => {
   const data = get(response, ["body", "data"]);
@@ -106,7 +122,7 @@ describe("AC8.5 every preset answers over the RECORDED corpus", () => {
   });
 
   it("answers nothing at all for a path this module does not own (AC8.3)", () => {
-    const foreign = new URL("https://api.upmind.io/api/clients/CLIENT_ID");
+    const foreign = new URL(BASE.replace(/\/emails$/, ""));
 
     for (const preset of [
       "empty",

@@ -20,7 +20,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { runtimeCorpus } from "../corpus";
+import { armCorpusModule, runtimeCorpus } from "../corpus";
 import { createForceHandlers } from "../handlers";
 import { filter, map, size, some } from "lodash-es";
 import type { ForcePreset } from "../../composables/useForcedState.types";
@@ -28,7 +28,11 @@ import type { HttpHandler } from "msw";
 
 // -----------------------------------------------------------------------------
 
-const bodies = runtimeCorpus()!;
+const MODULE = "client-email";
+
+await armCorpusModule(MODULE);
+
+const bodies = runtimeCorpus(MODULE)!;
 
 const PRESETS: ForcePreset[] = [
   "empty",
