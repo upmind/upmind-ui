@@ -85,15 +85,18 @@ import { useFeatureTracks } from "./composables/useFeatureTracks";
 import { useForcedState } from "./composables/useForcedState";
 import { useModulePort } from "./composables/useModulePort";
 import { useScenarioPlayer } from "./composables/useScenarioPlayer";
-import { availablePresets, corpusCapabilities } from "./force/capabilities";
+import { captureGaps, declaredPresets } from "./force/capabilities";
 import { armCorpusModule, runtimeCorpus } from "./force/corpus";
-import { featureTracksFor } from "./force/corpus.source";
+import { featureTextFor, featureTracksFor } from "./force/corpus.source";
 import { scenarioRegistry, scenarioRoutes, scenarioSources } from "./registry";
 import { SCENARIO_ROUTE_META_KEY } from "./scenario.constants";
 import { DEFAULT_ROW_IDENTIFIER } from "./scenario.types";
-import { get, mapValues } from "lodash-es";
+import { get, isEmpty, mapValues } from "lodash-es";
 import type { ActionSlotItem } from "./components";
-import type { ForceUrlPreset } from "./composables/useForcedState.types";
+import type {
+  ForceInvalidate,
+  ForceUrlPreset
+} from "./composables/useForcedState.types";
 import type {
   FourLayerComposable,
   RegisteredScenario,
@@ -207,21 +210,34 @@ const trackSource = scenario.tracks
 
 const tracks = trackSource ? useFeatureTracks(trackSource).tracks : [];
 
-// The forced states THIS module's recordings can answer (FE-3113). Arming is
-// what loads them — the seam's loaders are lazy — so the presets are computed
-// after the corpus lands rather than off an empty read. A module the seam does
-// not reach offers none, which leaves the page Live (`S12`).
-const presets = ref<ForceUrlPreset[]>([]);
+// The forced states THIS module's `.feature` declares (FE-3113). The spec is
+// the source of truth (operator ruling, 2026-08-27), so the presets are read
+// synchronously off the committed feature and never wait on the corpus — a
+// capture that has not happened must not remove a button. A module the seam
+// does not reach declares none, which leaves the page Live (`S12`).
+const presets = ref<ForceUrlPreset[]>(
+  scenario.tracks ? [...declaredPresets(featureTextFor(scenario.tracks))] : []
+);
 
+// Arming is what loads the recordings — the seam's loaders are lazy — so the
+// evidence check runs after the corpus lands. A declared preset the corpus
+// cannot answer is NAMED, never dropped (`AC5`).
 if (scenario.tracks) {
   const module = scenario.tracks;
 
   void armCorpusModule(module).then(armed => {
     const bodies = armed ? runtimeCorpus(module) : undefined;
+    if (!bodies) return;
 
-    presets.value = bodies
-      ? [...availablePresets(corpusCapabilities(bodies))]
-      : [];
+    const gaps = captureGaps(presets.value, bodies);
+
+    if (!isEmpty(gaps)) {
+      console.warn(
+        `[force] ${module} declares ${gaps.join(", ")} but its recordings cannot answer ${
+          gaps.length > 1 ? "them" : "it"
+        } — capture gap, not a missing capability.`
+      );
+    }
   });
 }
 
@@ -236,7 +252,15 @@ const isReplaying = computed(() => !!player.track.value);
 // The frame reads the worker's own preset rather than the player's status: a
 // pasted `force=` link arms with no track at all, and only the handle knows
 // what is actually being served (`AC8.4`).
-const { preset } = useForcedState();
+//
+// The cache drop the arm ends on is the booted module's OWN, handed in because
+// forcing may learn no query key (FE-3113): `invalidate` is already bound to
+// the domain this module caches under, which neither the url nor a recorded
+// path spells. A module publishing none leaves the arm swapping the transport
+// alone — the page then keeps the answers it holds until it next asks.
+const { preset } = useForcedState(
+  get(port.actions, "invalidate") as ForceInvalidate | undefined
+);
 
 // --- The page's three sheet providers, all page-scoped
 const { register, registerPane } = usePlaygroundSheet();

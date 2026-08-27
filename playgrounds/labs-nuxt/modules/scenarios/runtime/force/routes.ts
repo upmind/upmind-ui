@@ -92,26 +92,3 @@ export function moduleRoutes(
     route => -route.split("/").length
   );
 }
-
-/**
- * The query-cache domain a forced page must drop and re-ask. Arming changes what
- * the handlers reply with, so the answers the tab already holds are a lie about
- * a page that now says it is forced (`AC8.4` · `R6-10`).
- *
- * The scope is load-bearing, not tidiness: the app chrome's own queries (brand,
- * its settings, the session) are booted ONCE at init by long-lived singletons
- * that never re-ask, so dropping them leaves the header holding an undefined
- * brand for the rest of the tab's life — a broken logo over every forced page.
- *
- * NOT derived from the recordings, and deliberately so. A headless module keys
- * its queries by DOMAIN (`["client", "emailHistory"]`), which its own
- * `*.services.ts` publishes; the endpoint it reads is `/api/self/email_history`.
- * The two do not spell each other, so a key derived off a recorded path would
- * name a domain nothing is cached under and the re-ask would silently do
- * nothing — the arm would look right and serve stale answers.
- *
- * Pinned to `client-email` until that seam is ruled (FE-3113 open question):
- * a module has no published `queryKey` on any surface app runtime may lawfully
- * reach, so this is the one thing the force system still cannot derive.
- */
-export const MODULE_QUERY_KEY = ["client", "emails"];

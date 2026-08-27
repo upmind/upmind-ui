@@ -59,6 +59,32 @@ export type ForceWorker = {
   resetHandlers(...handlers: unknown[]): void;
 };
 
+/**
+ * @graphify-citation `graphify-out/graph.json` (2026-08-27, re-queried for
+ * FE-3113 T9) — no cache-invalidate callback contract exists in the tree to
+ * consume. The only invalidate node is `invalidateQueryByKey()`
+ * (`packages/headless/src/modules/query/query.utils.ts` L97), a CURRIED factory
+ * whose APPLIED result is what every module publishes as its `invalidate`
+ * action; that applied shape carries no exported name, and `query.utils.ts` is
+ * a headless internal app runtime may not reach. The nearest neighbour,
+ * `CookieChangeCallback` (`utils/useCookies.ts` L11), is an unrelated cookie
+ * subscriber. So this NAMES the applied result rather than minting a rival
+ * mechanism. See `graphify-out/GRAPH_REPORT.md`.
+ */
+/**
+ * The booted module's OWN cache drop, handed IN (FE-3113). A module keys its
+ * queries by DOMAIN — `client-email-history` reads `/api/self/email_history`
+ * but caches under `["client","emailHistory"]` — so the key spells neither the
+ * url nor a recorded path, and `queryKey` is not barrel-exported. The module's
+ * published `invalidate` action already IS that key, bound.
+ *
+ * Handed in rather than reached because the handle is a detached singleton —
+ * one worker per tab, outliving whichever component armed first. Absent, an arm
+ * still swaps the transport; the page simply keeps the answers it already
+ * holds.
+ */
+export type ForceInvalidate = () => unknown;
+
 export type UseForcedState = {
   /**
    * The preset actually armed — absent on Live, the state the page boots into
