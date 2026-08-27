@@ -59,9 +59,16 @@ function isCollectionRead(fixture: RecordedFixture): boolean {
 /**
  * What `bodies` can answer. The failure carried back is the module's OWN
  * refusal, preferred as a WRITE because that is the half `error-action` is
- * named for; a module whose only refusal is a read still gets `error-collection`
- * off it, and a module with no refusal at all gets neither error state rather
- * than a status this file made up.
+ * named for.
+ *
+ * The two error states have DIFFERENT predicates, which is the correction this
+ * story turns on. `error-action` needs a recorded failing WRITE — refusing a
+ * write means speaking the refusal's sentence, and no sentence is authored to
+ * fake one. `error-collection` needs only a READ to aim at: it withholds the
+ * body by construction (`R6-19`), so failing a read subtracts a body rather
+ * than inventing one, and a reads-only corpus answers it honestly. That is why
+ * `client-email-history` — 15 reads, no refusal on record — is offered three
+ * presets rather than two.
  *
  * @param bodies One module's recordings, keyed by fixture name.
  */
@@ -77,7 +84,7 @@ export function corpusCapabilities(
   return {
     canEmpty: !!find(fixtures, isCollectionRead),
     canLoading: !isEmpty(fixtures),
-    canErrorCollection: !!failure,
+    canErrorCollection: !!find(fixtures, isRead),
     canErrorAction: !!failedWrite,
     failure
   };

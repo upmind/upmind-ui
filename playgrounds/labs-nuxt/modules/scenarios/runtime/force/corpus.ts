@@ -37,8 +37,10 @@ import {
   filter,
   find,
   first,
+  get,
   isArray,
   isEqual,
+  isNumber,
   keys,
   last,
   map,
@@ -47,8 +49,11 @@ import {
   size,
   sortBy,
   split,
+  startsWith,
+  take,
   toLower,
   toUpper,
+  uniqBy,
   values
 } from "lodash-es";
 import type { RecordedFixture } from "./corpus.source.types";
@@ -116,6 +121,9 @@ const FILTER_KEY = /^filter\[([^\]|]+)(?:\|([^\]]+))?\]$/;
 /** The truthy spelling a recorded boolean filter uses on the wire. */
 const TRUE_VALUES = ["1", "true"];
 
+/** Query keys that name what a read is ABOUT rather than which rows it wants. */
+const CRITERIA_IGNORED = ["case", "with", "keys"];
+
 /**
  * The path's SHAPE: every id segment collapsed to a placeholder, so a request
  * addressed to one record finds the recording captured against another.
@@ -130,14 +138,26 @@ function fixtureShape(fixture: RecordedFixture): string {
   return shapeOf(first(split(fixture.request.path, "?")) ?? "");
 }
 
+/**
+ * The concrete collection a recording was captured at — its path with the query
+ * dropped and every id KEPT. Where {@link fixtureShape} deliberately forgets the
+ * ids so a request finds a recording taken against another record, this
+ * deliberately remembers them: two captures of the same endpoint under
+ * different parents (`/countries/A/regions` and `/countries/B/regions`) hold
+ * different rows, and pooling them together would answer either out of both.
+ */
+function collectionOf(fixture: RecordedFixture | undefined): string {
+  return first(split(fixture?.request.path ?? "", "?")) ?? "";
+}
+
 function methodOf(fixture: RecordedFixture): string {
   return toUpper(fixture.request.method);
 }
 
 function envelopeOf(
-  fixture: RecordedFixture
+  fixture: RecordedFixture | undefined
 ): WireEnvelope<WireRecord[]> | undefined {
-  const body = fixture.response.body as WireEnvelope<unknown> | undefined;
+  const body = fixture?.response.body as WireEnvelope<unknown> | undefined;
 
   return isArray(body?.data) ? (body as WireEnvelope<WireRecord[]>) : undefined;
 }
@@ -216,30 +236,76 @@ function matching(
 }
 
 /**
- * The module's whole recorded collection: every paged capture of its collection
- * endpoint, concatenated in recorded-offset order. Both halves are verbatim
- * recordings; the concatenation is the one a module's own integration kit
- * builds.
+ * The whole recorded collection at ONE resource: every capture of it, in
+ * recorded-offset order, unioned and de-duplicated by row id.
  *
- * Pages are matched by endpoint, so a module captured at one page has one page
- * and a module captured at three has three — nothing is authored to pad either.
+ * The union is the point. No single capture is the collection — a run takes a
+ * page here, a filtered slice there, a sorted view somewhere else, and each one
+ * is a partial VIEW of the same set. `client-company` records two companies
+ * matching `%Heg%` while holding one of them in its paged capture and the other
+ * only in its staged-imports capture, so any single recording answers that
+ * filter with half the rows staging returned. Every row is still verbatim; the
+ * union adds none and authors none, it just stops discarding the ones another
+ * capture saw.
+ *
+ * @param bodies One module's recordings.
+ * @param at The recording whose collection to draw rows from, defaulting to the
+ *   module's own collection — the endpoint its capture run drove hardest. Rows
+ *   are pooled per RESOURCE, not per endpoint shape: `client-address` reads
+ *   regions under two different countries, and those share a shape while
+ *   holding different rows, so answering one out of the other's rows would be
+ *   the same defect as answering it out of the addresses.
  */
-export function corpusRows(bodies: CorpusBodies): WireRecord[] {
+export function corpusRows(
+  bodies: CorpusBodies,
+  at?: RecordedFixture
+): WireRecord[] {
   const reads = filter(values(bodies), isCollectionRead);
-  const deepest = collectionShape(reads);
+  const resource = at
+    ? collectionOf(at)
+    : collectionOf(
+        find(reads, fixture => fixtureShape(fixture) === collectionShape(reads))
+      );
 
-  const pages = sortBy(
-    filter(reads, fixture => fixtureShape(fixture) === deepest),
+  const captures = sortBy(
+    filter(reads, fixture => collectionOf(fixture) === resource),
     offsetOf
   );
 
-  // Distinct pages only: a module captured at several criteria over the SAME
-  // endpoint holds many recordings of it, and concatenating all of them would
-  // serve the same row several times over. A page is one the run took at its own
-  // offset; the rest are the same rows under a filter.
-  const paged = filter(pages, fixture => hasOffset(fixture));
+  return uniqBy(concatRows(captures), row => get(row, "id", row));
+}
 
-  return concatRows(size(paged) ? paged : pages.slice(0, 1));
+/**
+ * How many rows the recording's own criteria matched, as its envelope states —
+ * the `total` beside the page it carried. This is the authority on the SIZE of
+ * a result the pool cannot overrule: `client-email` recorded its bare read at
+ * `total: 1` while its paged captures hold three, so answering the bare read out
+ * of the pooled three would report a collection staging never had.
+ */
+function recordedTotal(
+  fixture: RecordedFixture | undefined
+): number | undefined {
+  const total = envelopeOf(fixture)?.total;
+
+  return isNumber(total) ? total : undefined;
+}
+
+/**
+ * The page size a recording was served at, when its own envelope says it was
+ * paged — rows carried against a LARGER `total`. That inequality is the API
+ * stating its default page out loud, so a request naming no limit is answered
+ * at the size staging answered it. A recording holding its whole set says
+ * nothing about paging and yields none.
+ */
+function recordedPage(
+  fixture: RecordedFixture | undefined
+): number | undefined {
+  const envelope = envelopeOf(fixture);
+  const total = recordedTotal(fixture);
+
+  if (!envelope || !isNumber(total)) return undefined;
+
+  return size(envelope.data) < total ? size(envelope.data) : undefined;
 }
 
 function hasOffset(fixture: RecordedFixture): boolean {
@@ -282,12 +348,16 @@ function collectionShape(reads: RecordedFixture[]): string | undefined {
  * Applies the request's own criteria to the recorded corpus. Every branch reads
  * the OPERATOR off the request — `filter[col|op]` states its own column, so the
  * module's columns are never named here.
+ *
+ * @param at The recording whose collection answers this request. See
+ *   {@link corpusRows}.
  */
 export function servedRows(
   bodies: CorpusBodies,
-  params: URLSearchParams
+  params: URLSearchParams,
+  at?: RecordedFixture
 ): WireRecord[] {
-  let rows = corpusRows(bodies);
+  let rows = corpusRows(bodies, at);
 
   for (const [key, value] of params.entries()) {
     const [, column, operator = "eq"] = FILTER_KEY.exec(key) ?? [];
@@ -306,8 +376,26 @@ export function servedRows(
     );
   }
 
+  // The matched recording's `total` is the authority on how many rows its own
+  // criteria match, and the pool cannot overrule it: a capture that says its
+  // whole collection is one row answers with one, however many the module's
+  // other captures of that endpoint saw.
+  const total = recordedTotal(at);
+  if (isNumber(total) && total < size(rows)) rows = take(rows, total);
+
   const offset = Number(params.get("offset") ?? 0);
-  const limit = Number(params.get("limit") ?? size(rows));
+
+  // `limit=0` is the API's UNLIMITED, not a request for no rows — the recordings
+  // say so out loud: every `limit=0` capture came back with the whole
+  // collection. Reading it as a zero-length page serves an empty list for the
+  // widest read a module has on record.
+  //
+  // A request naming no limit at all gets the page size its own RECORDING was
+  // served at: an envelope carrying 10 rows against a `total` of 79 states the
+  // API's default page out loud, and serving the pooled 20 instead would answer
+  // with a page staging never returned.
+  const requested = Number(params.get("limit") ?? 0);
+  const limit = requested > 0 ? requested : (recordedPage(at) ?? size(rows));
 
   return rows.slice(offset, offset + limit);
 }
@@ -374,7 +462,11 @@ export function resolveCorpusRequest(
   const envelope = envelopeOf(recorded);
   if (!envelope) return recorded.response;
 
-  const rows = servedRows(bodies, searchParams);
+  // The rows come from the collection the MATCHED recording was captured at,
+  // not from the module's busiest one. A module reading several collections
+  // holds a distinct set per resource, and drawing from the wrong one answers a
+  // read of countries with a list of addresses.
+  const rows = servedRows(bodies, searchParams, recorded);
 
   return {
     status: recorded.response.status,
@@ -386,6 +478,12 @@ export function resolveCorpusRequest(
  * Which of the endpoint's recordings answers this request. A `case=` label is
  * the capture run's own name for a variant, so a request carrying one is
  * answered by the recording captured under it.
+ *
+ * Failing a label, the recording whose own criteria MATCH the request's wins —
+ * a request naming no limit is answered by a capture that named none either,
+ * rather than by whichever paged slice happens to sort first. That envelope is
+ * what states the page size and the status, so picking a narrower capture
+ * answers a full read at a page staging never returned.
  *
  * Everything else takes the endpoint's first SUCCESSFUL capture. A corpus may
  * hold a recorded refusal at the very endpoint it also reads successfully
@@ -410,10 +508,34 @@ function pickRecording(
     if (labelled) return labelled;
   }
 
+  const served = filter(candidates, fixture => fixture.response.status < 400);
+  const asked = criteriaOf(params);
+
   return (
-    find(candidates, fixture => fixture.response.status < 400) ??
+    find(served, fixture => {
+      const [, search = ""] = split(fixture.request.path, "?");
+
+      return criteriaOf(new URLSearchParams(search)) === asked;
+    }) ??
+    first(served) ??
     first(candidates)
   );
+}
+
+/**
+ * The criteria a request states, as one comparable sentence: the paging and
+ * filtering keys in a fixed order, with the capture run's own `case` label and
+ * the relation `with`/`keys` hints dropped. Those name what a recording is
+ * ABOUT, not which rows it asked for, so two captures differing only there are
+ * answering the same question.
+ */
+function criteriaOf(params: URLSearchParams): string {
+  const stated = filter(
+    [...params.entries()],
+    ([key]) => !CRITERIA_IGNORED.includes(key) && !startsWith(key, "with_")
+  );
+
+  return sortBy(map(stated, ([key, value]) => `${key}=${value}`)).join("&");
 }
 
 // -----------------------------------------------------------------------------

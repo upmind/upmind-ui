@@ -20,9 +20,9 @@
  * UN-PINNED (FE-3113): which recording failed is the MODULE's own business, so
  * it arrives as an argument beside the bodies rather than as a fixture name
  * spelt here. That constant was the single line pinning the whole force system
- * to `client-email`. A module with no refusal on record answers neither error
- * state — `capabilities.ts` never offers one, and this file serves the request
- * as recorded rather than inventing a status to refuse it with.
+ * to `client-email`. A module with no failing WRITE on record answers no
+ * `error-action` — `capabilities.ts` never offers one, and this file serves the
+ * request as recorded rather than inventing a sentence to refuse it with.
  *
  * A request the corpus does not own is answered by nobody — the caller passes it
  * through, which is what keeps forcing to this module's own endpoints (`AC8.3`).
@@ -48,6 +48,15 @@ import type { ForcePreset } from "../composables/useForcedState.types";
 
 /** The answer `loading` gives: none, and none is coming. */
 export const PENDING = "pending" as const;
+
+/**
+ * The refusal a failed READ falls back to when the module's corpus holds none of
+ * its own — a status and no body. This authors no BODY, which is what `S13`
+ * bans; a read fails by having its recording withheld, and withholding needs a
+ * status to withhold under. `error-action` has no equivalent, because refusing a
+ * write means speaking a sentence, and that one must be on record.
+ */
+const REFUSED: CorpusResponse = { status: 500, body: undefined };
 
 /**
  * What a preset answers one request with — a recorded response, `PENDING`, or
@@ -106,19 +115,24 @@ export function presetAnswer(
   if (!served) return undefined;
   if (preset === "loading") return PENDING;
 
-  // A module with no refusal on record can answer neither error state, so the
-  // request is served as recorded rather than at a status this file invented
-  // (`S13`). `availablePresets` never OFFERS one here, so this is the floor
-  // under a url that names a preset the corpus cannot honour.
   const failure = recordedFailure?.response;
-  if (!failure) return preset === "empty" ? withoutRows(served) : served;
 
   // Aimed at the half of the exchange the preset is named for: the other half is
   // served exactly as recorded, which is what keeps a refused row inside a list
   // that still has its rows.
-  if (preset === "error-action") return isRead(method) ? served : failure;
+  //
+  // A write is refused by SPEAKING the recorded refusal, sentence and all, so a
+  // module with no refusal on record cannot answer `error-action` — it is served
+  // as recorded rather than at a sentence this file made up, and
+  // `availablePresets` never offers it. A read is failed by WITHHOLDING the
+  // body (`R6-19`), so it needs a status and nothing else; the module's own
+  // refusal supplies one where the corpus holds it, and `REFUSED` where it does
+  // not. No body is authored on either path (`S13`).
+  if (preset === "error-action")
+    return isRead(method) ? served : (failure ?? served);
+
   if (preset === "error-collection")
-    return isRead(method) ? withoutBody(failure) : served;
+    return isRead(method) ? withoutBody(failure ?? REFUSED) : served;
 
   return preset === "empty" ? withoutRows(served) : served;
 }
