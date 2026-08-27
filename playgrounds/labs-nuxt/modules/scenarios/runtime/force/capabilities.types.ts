@@ -22,13 +22,18 @@ import type { RecordedFixture } from "./corpus.source.types";
 
 /**
  * What EVIDENCE a module's recordings hold. Every field is a measurement of the
- * corpus — a `request.method` and a `response.status` — never a statement of
- * what the module OFFERS: the `.feature` declares that (operator ruling,
- * 2026-08-27). A field false here is a CAPTURE GAP against a declared preset,
- * reported loudly, never a button silently withdrawn.
+ * corpus — a `request.method` and a `response.status` — and it is what the
+ * module OFFERS: a preset is offered when the corpus can ANSWER it (operator
+ * ruling, 2026-08-27, revised). Reading the offer out of the `.feature`'s prose
+ * instead is what left three modules with no affordance at all while their
+ * states answered correctly.
+ *
+ * A false field is not always a debt. `canEmpty` false means the surface holds
+ * no collection; only an unrecorded REFUSAL is a capture gap, which
+ * `captureGaps` reports.
  *
  * Shape unchanged from the contract already in `graphify-out/graph.json`
- * (community 446); only the meaning of `canErrorCollection` is corrected.
+ * (community 446).
  */
 export type CorpusCapabilities = {
   /** A successful collection read is recorded, so there are rows to remove. */
