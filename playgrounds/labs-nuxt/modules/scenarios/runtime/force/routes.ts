@@ -8,12 +8,12 @@
  * the derivation sits here, in a leaf carrying nothing msw-shaped.
  *
  * It used to guess at URL SHAPE in both directions, and was wrong in both. A
- * read carrying no `filter[…]`/`order`/`limit`/`offset`/`query`/`case=` was
- * dismissed as a boot call, which dropped `client-email-history`'s detail
- * endpoint (`GET /api/emails/{id}?with=data`) — so a booted detail surface
- * reached STAGING under a forced chip, and because that module's `invalidate` is
- * prefix-matched, arming actively refetched an open dialog to the live API.
- * Every non-GET was armed unconditionally, which reached past the module too.
+ * read carrying none of a fixed set of criteria keys was dismissed as a boot
+ * call, which dropped a recorded detail endpoint whose query named a RELATION
+ * rather than a filter — so a booted detail surface reached STAGING under a
+ * forced chip, and where a module's `invalidate` is prefix-matched, arming
+ * actively refetched an open dialog to the live API. Every non-GET was armed
+ * unconditionally, which reached past the module the other way.
  *
  * A recording is evidence that this module talks to that endpoint. So a query
  * string never disqualifies a recorded path, and a path no recording carries is
