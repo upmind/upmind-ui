@@ -102,13 +102,6 @@ async function update(
   { paymentDetail, orderId }: PaymentContext,
   _event: AnyEventObject
 ) {
-  // TODO: HANDLE WALLET PAYMENTS
-  // if (paymentDetail?.amount) data.amount = paymentDetail?.amount;
-  // if (paymentDetail?.walletAmount) {
-  //   data.wallet_amount = paymentDetail?.walletAmount;
-  //   if (!paymentMethodType) data.amount = data.wallet_amount;
-  // }
-
   const { post, useUrl } = useQuery();
 
   return post({
