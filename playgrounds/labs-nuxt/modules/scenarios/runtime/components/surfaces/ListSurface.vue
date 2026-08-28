@@ -9,6 +9,7 @@
       v-if="verdict"
       :state="ModuleState.ERROR"
       :detail="verdict"
+      :class="listSurface.notice()"
     />
 
     <!-- The filter block (R5): facets on one row, chips + Clear all on the

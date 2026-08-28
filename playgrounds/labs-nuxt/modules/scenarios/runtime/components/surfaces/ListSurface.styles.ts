@@ -189,6 +189,12 @@ export const paginationRegion = cva("", {
 export const listSurface = {
   root: cva(""),
 
+  // The verdict that stands BESIDE the list needs the standoff a verdict drawn
+  // in PLACE of it never did — the same measure the filter block clears what
+  // follows it by, so the alert reads as its own region rather than as the
+  // table header's first line.
+  notice: cva("mb-3"),
+
   // TWO regions: the filter block (facets + refinements) and the display row.
   // The filter block carries the spec's own border/padding/margin (R5); the
   // display row sits outside it (R6).
