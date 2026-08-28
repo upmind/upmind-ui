@@ -44,14 +44,12 @@
  * retry and post-confirmation legs. The assertions below are written to that
  * contract.
  *
- * ## What the recorded REDIRECT does NOT yet prove
- * `post-payments-case-taken-up-paypal-express` is a real 200 with a real
- * `approval_url`. Replaying it, the machine posts the charge but does not reach
- * `challenging` and never fills `context.approval` — it sits in `processing`, so
- * `update`'s `onDone` appears not to fire. That is NOT asserted as a defect here:
- * it is undiagnosed, and it is filed on FE-3130 for diagnosis rather than pinned
- * as a finding. This test asserts only what is measured — the recorded provider
- * response, and that the charge goes out without being read as a failure.
+ * ## The offsite challenge, proven on a real provider response
+ * `post-payments-case-taken-up-paypal-express` is a real 200 carrying a real
+ * PayPal sandbox `approval_url`. Replaying it drives the whole challenge leg: the
+ * charge goes out, the REDIRECT lands in `payment`, the approval is handed to the
+ * client with its query string moved into form fields, and the hand-off form is
+ * actually submitted. Nothing here is a shape this file invented.
  *
  * ## The replay trap that produced a false finding, and the guard against it
  * An earlier revision of this file reported that a 404 order still gets charged.
@@ -339,11 +337,22 @@ describe("payment integration — the refusals staging really returns", () => {
     // this file invented.
     expect(approval.status).toBe("REDIRECT");
     expect(approval.url).toMatch(/^https:\/\/www\.sandbox\.paypal\.com\//);
-    expect(approval.method).toBe("GET");
 
-    // The charge goes out, and the provider's approval is not read as a failure.
     expect(outbound).toContain("POST /api/payments");
     expect(payment.meta.value.hasFailed).toBe(false);
+    expect(payment.payment.value?.transaction_status).toBe("REDIRECT");
+
+    // What the client is handed: the provider's own destination, with the query
+    // string moved into form fields so the hand-off survives a POST.
+    const recorded = new URL(approval.url ?? "");
+
+    expect(payment.context.value?.approval?.url).toBe(
+      `${recorded.origin}${recorded.pathname}`
+    );
+    expect(payment.context.value?.approval?.fields).toEqual(
+      Object.fromEntries(recorded.searchParams.entries())
+    );
+    expect(submit).toHaveBeenCalled();
 
     submit.mockRestore();
   });

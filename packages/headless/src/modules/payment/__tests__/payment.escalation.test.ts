@@ -4,8 +4,9 @@
  * (unit, AC-9)
  *
  * ## Job To Be Done
- * The machine hands a terminal error up with `escalate`, which is `sendParent`
- * underneath and therefore only has a target when another machine invoked it.
+ * The machine hands things up to a parent in TWO places — a terminal error via
+ * `escalate`, and a taken-up payment via `providePayment`'s `sendParent`. Both
+ * only have a target when another machine invoked this one.
  * `order.machine` (`orderManager`) and `basket.machine` (`basketManager`) invoke
  * it and rely on that hand-up; `usePayment` interprets it as a ROOT, where the
  * hand-up throws and freezes the machine mid-transition. `PaymentContext.parentId`
@@ -15,8 +16,10 @@
  * A guard is only worth having if BOTH of its answers are proven, so this file
  * is the negative control for it: unset `parentId` reaches `error` cleanly, and
  * a `parentId` set with no real parent above does NOT — which is exactly the
- * freeze the guard exists to prevent. If the guard is ever removed, the first
- * test goes red.
+ * freeze the guard exists to prevent. If either guard is removed, a test here or
+ * the offsite-challenge test in `payment.int.test.ts` goes red — the success leg
+ * froze in `processing` for exactly this reason until `providePayment` was
+ * guarded too.
  *
  * ## What Breaks If These Fail
  * Either a root caller freezes in `loading` and never learns the payment failed

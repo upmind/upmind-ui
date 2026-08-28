@@ -248,10 +248,15 @@ export default createMachine(
         approval: ({ payment }: PaymentContext) => mapApproval(payment)
       }),
 
-      providePayment: sendParent(({ payment }) => ({
-        type: "PAYMENT",
-        data: payment
-      })),
+      providePayment: choose([
+        {
+          cond: ({ parentId }: PaymentContext) => Boolean(parentId),
+          actions: sendParent(({ payment }: PaymentContext) => ({
+            type: "PAYMENT",
+            data: payment
+          }))
+        }
+      ]),
 
       // When a user goes offsite to process their payment
       pushOffsite: ({ payment }: PaymentContext, _event: AnyEventObject) => {
