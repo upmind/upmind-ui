@@ -1057,12 +1057,11 @@ watch(
 
 /**
  * The record an armed `error-action` is refusing — the collection's own first
- * actionable row. A forced state IS the state: it renders on arming and asks
- * for nothing to be pressed, so the refusal is drawn with no request fired
- * while the armed intercept still refuses one the user does fire.
+ * actionable row, marked with no request fired while the armed intercept still
+ * refuses one the user does fire.
  *
  * A scenario declaring no row control the module can act on has nothing to be
- * refused ON, and draws nothing — the preset is offered off the module's own
+ * refused ON and draws nothing: the preset is offered off the module's own
  * recordings, never off what a page exposes.
  */
 const refusedRow = computed<ListRow | undefined>(() =>

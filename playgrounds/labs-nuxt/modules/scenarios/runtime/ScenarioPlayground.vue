@@ -218,10 +218,8 @@ const tracks = trackSource ? useFeatureTracks(trackSource).tracks : [];
 // page Live in the meantime — the state it boots into anyway (`S12`).
 const presets = ref<ForceUrlPreset[]>([]);
 
-// The sentence this module's own recorded refusal gives a WRITE, read off the
-// same recording the intercept answers a real one with. It is the copy the
-// surface draws a row refused with the moment `error-action` is armed: a forced
-// state IS the state and asks for no interaction (operator ruling, 2026-08-28).
+// Read off the same recording the intercept answers a real write with, so the
+// row drawn refused and the request that would be refused say one thing.
 const refusal = ref<string | undefined>();
 
 // Arming is what loads the recordings — the seam's loaders are lazy — so both
@@ -270,9 +268,7 @@ const { preset, isSettling } = useForcedState(
   whenArmed
 );
 
-// Only under the preset it belongs to: `error-action` is the one state whose
-// whole subject is a refused write, and a row marked under any other would be
-// a failure nobody armed.
+// Gated on the preset: a row marked under any other is a failure nobody armed.
 const forcedRefusal = computed(() =>
   preset.value === "error-action" ? refusal.value : undefined
 );

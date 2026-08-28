@@ -102,20 +102,17 @@ function isRead(method: string): boolean {
  * The sentence an armed `error-action` marks a row with, or none where the
  * module recorded no refused write.
  *
- * A forced state IS the state, forced: it renders on arming and requires no
- * interaction whatsoever (operator ruling, 2026-08-28). `error-action` was the
- * one preset that waited for a row control to be pressed, so an operator armed
- * it and saw nothing. The surface needs the refusal as COPY to draw a row in
- * its refused state, where every other preset only needs an answer to a request.
+ * COPY, where every other preset needs only an answer to a request: this one
+ * renders with nothing fired, so the row needs the words.
  *
- * Both halves come off the SAME recording — this reads its sentence, the
- * resolver below serves its status to a real write — so the row on screen and
- * the request the operator may still fire say the identical thing, and neither
- * is authored (`S13`). Which recording is `capabilities.ts`'s measurement, not
- * a second search: `refusedWrite` is the failing WRITE `canErrorAction` is
+ * Both halves come off the SAME recording — this reads its sentence,
+ * {@link presetAnswer} serves its status to a real write — so neither is
+ * authored (`S13`) and the two cannot disagree. Which recording is
+ * `capabilities.ts`'s measurement: the failing WRITE `canErrorAction` is
  * offered on, never a read's refusal lent to a change.
  *
  * @param bodies One module's recordings.
+ * @returns The recorded sentence, or none where no write refusal is on record.
  */
 export function presetRefusal(bodies: CorpusBodies): string | undefined {
   const { response } = corpusCapabilities(bodies).refusedWrite ?? {};
