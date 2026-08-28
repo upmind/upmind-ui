@@ -118,6 +118,7 @@
               v-if="rowFailure(row)"
               :message="rowFailure(row) || ''"
               :can-retry="canRetryRow(row)"
+              :persist="isForcedRefusal(row)"
               @retry="retryRow(row)"
               @dismiss="dismissRow(row)"
             />
@@ -242,6 +243,7 @@
                 <RowFailure
                   :message="rowFailure(row.original) || ''"
                   :can-retry="canRetryRow(row.original)"
+                  :persist="isForcedRefusal(row.original)"
                   @retry="retryRow(row.original)"
                   @dismiss="dismissRow(row.original)"
                 />
@@ -285,6 +287,7 @@
           v-if="rowFailure(row)"
           :message="rowFailure(row) || ''"
           :can-retry="canRetryRow(row)"
+          :persist="isForcedRefusal(row)"
           :class="listSurface.rowListFailure()"
           @retry="retryRow(row)"
           @dismiss="dismissRow(row)"
@@ -380,6 +383,13 @@
  * and the pagination arrows have no such channel, so their REGION is made
  * `inert` and muted instead. Reading is never locked — the rows, the count and
  * the chips are what a replay is watched through.
+ *
+ * A page FORCED into `error-action` draws a refusal with nothing fired: the
+ * preset hands in the module's own recorded sentence and the collection's first
+ * actionable row carries it, because a forced state IS the state and requires
+ * no interaction (operator ruling, 2026-08-28). The table, its controls and
+ * every other record stay exactly as the read returned them — the whole-surface
+ * error state belongs to a failed READ alone (`R6-19`).
  */
 
 import { vAutoAnimate } from "@formkit/auto-animate";
@@ -398,7 +408,7 @@ import {
   TableHeader,
   TableRow
 } from "@upmind/ui";
-import { computed, onUnmounted, ref, watchEffect } from "vue";
+import { computed, onUnmounted, ref, watch, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 import { useFormI18n } from "@upmind-automation/client-vue";
 import { SortDirection } from "@upmind-automation/headless";
@@ -1011,15 +1021,70 @@ function rowControls(row: ListRow): string[] {
 }
 
 /**
- * What this row's last refused action said — the API's own sentence where it
- * gave one. Held until the user dismisses it or fires the action again, so a
- * refusal is answered on the record it happened to rather than only in a toast
- * that has already gone.
+ * What this row's last FIRED action said — the API's own sentence where it gave
+ * one. Held until the user dismisses it or fires the action again, so a refusal
+ * is answered on the record it happened to rather than only in a toast that has
+ * already gone.
  */
-function rowFailure(row: ListRow): string | undefined {
+function firedFailure(row: ListRow): string | undefined {
   const failure = find(map(rowControls(row), feedback.failure), isString);
   if (isNil(failure)) return undefined;
   return failure || t("error.something_went_wrong");
+}
+
+/**
+ * The row's first control that CALLS one of the module's actions — never one
+ * that opens an overlay or an editor, since those refuse nothing. It is what
+ * makes a record actionable, and so what a refusal can be drawn on.
+ */
+function writeAction(row: ListRow): ScenarioAction | undefined {
+  return find(
+    availableActions(row),
+    action => !action.detail && !action.handoff && isRuleEnabled(action, row)
+  );
+}
+
+// The forced refusal is a state of the PAGE, so it is dismissed like one —
+// cleared until the preset is armed again, rather than per fired control.
+const isRefusalDismissed = ref(false);
+
+watch(
+  () => props.forcedRefusal,
+  () => {
+    isRefusalDismissed.value = false;
+  }
+);
+
+/**
+ * The record an armed `error-action` is refusing — the collection's own first
+ * actionable row. A forced state IS the state: it renders on arming and asks
+ * for nothing to be pressed, so the refusal is drawn with no request fired
+ * while the armed intercept still refuses one the user does fire.
+ *
+ * A scenario declaring no row control the module can act on has nothing to be
+ * refused ON, and draws nothing — the preset is offered off the module's own
+ * recordings, never off what a page exposes.
+ */
+const refusedRow = computed<ListRow | undefined>(() =>
+  props.forcedRefusal && !isRefusalDismissed.value
+    ? find(rows.value, row => !!writeAction(row))
+    : undefined
+);
+
+/** Whether this row's verdict is the FORCED state rather than a fired action's. */
+function isForcedRefusal(row: ListRow): boolean {
+  return row === refusedRow.value && isNil(firedFailure(row));
+}
+
+/**
+ * The verdict drawn under this row — what its last fired action said, else the
+ * refusal the armed preset is holding the page in.
+ */
+function rowFailure(row: ListRow): string | undefined {
+  return (
+    firedFailure(row) ??
+    (isForcedRefusal(row) ? props.forcedRefusal : undefined)
+  );
 }
 
 /** True while one of this row's actions is still worth pointing at (E13). */
@@ -1028,6 +1093,7 @@ function isSucceeded(row: ListRow): boolean {
 }
 
 function dismissRow(row: ListRow): void {
+  if (isForcedRefusal(row)) isRefusalDismissed.value = true;
   forEach(rowControls(row), feedback.dismiss);
 }
 
@@ -1041,7 +1107,11 @@ function retryAction(row: ListRow): ScenarioAction | undefined {
   const failedControl = find(rowControls(row), control =>
     isString(feedback.failure(control))
   );
-  if (!failedControl) return undefined;
+  // A FORCED refusal was fired by nobody, so no control carries it back: what
+  // Retry re-fires is the row's own actionable control, which the armed
+  // intercept then refuses from the very recording the strip is quoting.
+  if (!failedControl)
+    return isForcedRefusal(row) ? writeAction(row) : undefined;
   const [actionName] = split(failedControl, ":");
   const action = find(declaredActions.value, { name: actionName });
   if (!action || !isRuleEnabled(action, row)) return undefined;

@@ -29,6 +29,7 @@
             :handoffs="handoffs"
             :detail="detail"
             :locked="isLocked"
+            :forced-refusal="forcedRefusal"
             @update:collection-actions="onCollectionActions"
           />
         </Card>
@@ -88,6 +89,7 @@ import { useScenarioPlayer } from "./composables/useScenarioPlayer";
 import { answerablePresets, captureGaps } from "./force/capabilities";
 import { armCorpusModule, runtimeCorpus } from "./force/corpus";
 import { featureTextFor, featureTracksFor } from "./force/corpus.source";
+import { presetRefusal } from "./force/presets";
 import { scenarioRegistry, scenarioRoutes, scenarioSources } from "./registry";
 import { SCENARIO_ROUTE_META_KEY } from "./scenario.constants";
 import { DEFAULT_ROW_IDENTIFIER } from "./scenario.types";
@@ -216,6 +218,12 @@ const tracks = trackSource ? useFeatureTracks(trackSource).tracks : [];
 // page Live in the meantime — the state it boots into anyway (`S12`).
 const presets = ref<ForceUrlPreset[]>([]);
 
+// The sentence this module's own recorded refusal gives a WRITE, read off the
+// same recording the intercept answers a real one with. It is the copy the
+// surface draws a row refused with the moment `error-action` is armed: a forced
+// state IS the state and asks for no interaction (operator ruling, 2026-08-28).
+const refusal = ref<string | undefined>();
+
 // Arming is what loads the recordings — the seam's loaders are lazy — so both
 // the offer and the evidence check run after the corpus lands. It is also the
 // barrier the forced-state handle holds its first reconcile behind: a pasted
@@ -227,6 +235,7 @@ const whenArmed = trackedModule
       if (!bodies) return;
 
       presets.value = [...answerablePresets(bodies)];
+      refusal.value = presetRefusal(bodies);
 
       const gaps = captureGaps(featureTextFor(trackedModule), bodies);
 
@@ -259,6 +268,13 @@ const isReplaying = computed(() => !!player.track.value);
 const { preset, isSettling } = useForcedState(
   get(port.actions, "reset") as ForceReset | undefined,
   whenArmed
+);
+
+// Only under the preset it belongs to: `error-action` is the one state whose
+// whole subject is a refused write, and a row marked under any other would be
+// a failure nobody armed.
+const forcedRefusal = computed(() =>
+  preset.value === "error-action" ? refusal.value : undefined
 );
 
 // A page mid-arm is no more the operator's to drive than one mid-replay, and

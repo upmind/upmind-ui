@@ -131,7 +131,8 @@ export function corpusCapabilities(
     canLoading: !isEmpty(fixtures),
     canErrorCollection: !!failure,
     canErrorAction: !!failedWrite,
-    failure
+    failure,
+    refusedWrite: failedWrite
   };
 }
 

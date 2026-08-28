@@ -62,4 +62,22 @@ export type CorpusCapabilities = {
    * `canErrorCollection` false too.
    */
   failure?: RecordedFixture;
+  /**
+   * The failing WRITE itself, unmixed with a read's refusal — what
+   * `canErrorAction` is measured on, and the recording whose SENTENCE an armed
+   * `error-action` marks a row with. Separate from {@link failure} because that
+   * one falls back to a read's refusal, and a sentence the API said about a
+   * change does not become something it said about a read.
+   *
+   * @graphify-citation `graphify query "is there an existing contract or field
+   * carrying a recorded write refusal fixture or a refusal sentence for a forced
+   * row"` (2026-08-28, FE-3113 O) — the only matches are the test lane's own
+   * `refusalSentences()` (`components/__tests__/forced-surface.harness.ts` L167)
+   * and `refusalsOf()` (`force/__tests__/force-presets-all-modules.spec.ts`
+   * L224), neither of which app runtime may consume. Nothing is minted: this is
+   * a field on the contract already in `graphify-out/graph.json` (community
+   * 446), carrying the `RecordedFixture` (L30) the rest of the file carries.
+   * See `graphify-out/GRAPH_REPORT.md`.
+   */
+  refusedWrite?: RecordedFixture;
 };

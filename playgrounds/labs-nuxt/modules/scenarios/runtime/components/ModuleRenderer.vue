@@ -24,6 +24,7 @@
     :handoffs="handoffs"
     :detail="detail"
     :locked="locked"
+    :forced-refusal="forcedRefusal"
   />
 </template>
 
@@ -45,6 +46,13 @@ import ListSurface from "./surfaces/ListSurface.vue";
 import type { ModuleRendererProps } from "./ModuleRenderer.types";
 // -----------------------------------------------------------------------------
 
-const { descriptor, port, presentation, handoffs, detail, locked } =
-  defineProps<ModuleRendererProps>();
+const {
+  descriptor,
+  port,
+  presentation,
+  handoffs,
+  detail,
+  locked,
+  forcedRefusal
+} = defineProps<ModuleRendererProps>();
 </script>

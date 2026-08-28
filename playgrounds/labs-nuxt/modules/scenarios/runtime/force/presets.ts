@@ -17,6 +17,11 @@
  * status and serves NO body, because a sentence recorded against a write would,
  * lent to a read, say the very thing the ruling called a conflation.
  *
+ * A forced state is also the state on ARMING, requiring no interaction at all
+ * (operator ruling, 2026-08-28): {@link presetRefusal} hands the surface that
+ * same recording's SENTENCE, so a row draws refused with nothing fired, while
+ * {@link presetAnswer} still refuses a write the operator does fire.
+ *
  * UN-PINNED (FE-3113): which recording failed is the MODULE's own business, so
  * it arrives as an argument beside the bodies rather than as a fixture name
  * spelt here. That constant was the single line pinning the whole force system
@@ -44,8 +49,9 @@
  * one into an msw response.
  */
 
+import { corpusCapabilities } from "./capabilities";
 import { resolveCorpusRefusal, resolveCorpusRequest } from "./corpus";
-import { isArray, isObject, toUpper } from "lodash-es";
+import { get, isArray, isObject, isString, toUpper } from "lodash-es";
 import type { CorpusBodies, CorpusResponse } from "./corpus";
 import type { RecordedFixture } from "./corpus.source.types";
 import type { ForcePreset } from "../composables/useForcedState.types";
@@ -90,6 +96,35 @@ function withoutBody(response: CorpusResponse): CorpusResponse {
 /** A read, as opposed to one of the module's writes. */
 function isRead(method: string): boolean {
   return toUpper(method) === "GET";
+}
+
+/**
+ * The sentence an armed `error-action` marks a row with, or none where the
+ * module recorded no refused write.
+ *
+ * A forced state IS the state, forced: it renders on arming and requires no
+ * interaction whatsoever (operator ruling, 2026-08-28). `error-action` was the
+ * one preset that waited for a row control to be pressed, so an operator armed
+ * it and saw nothing. The surface needs the refusal as COPY to draw a row in
+ * its refused state, where every other preset only needs an answer to a request.
+ *
+ * Both halves come off the SAME recording — this reads its sentence, the
+ * resolver below serves its status to a real write — so the row on screen and
+ * the request the operator may still fire say the identical thing, and neither
+ * is authored (`S13`). Which recording is `capabilities.ts`'s measurement, not
+ * a second search: `refusedWrite` is the failing WRITE `canErrorAction` is
+ * offered on, never a read's refusal lent to a change.
+ *
+ * @param bodies One module's recordings.
+ */
+export function presetRefusal(bodies: CorpusBodies): string | undefined {
+  const { response } = corpusCapabilities(bodies).refusedWrite ?? {};
+
+  const message =
+    get(response, ["body", "error", "message"]) ??
+    get(response, ["body", "message"]);
+
+  return isString(message) ? message : undefined;
 }
 
 // -----------------------------------------------------------------------------
