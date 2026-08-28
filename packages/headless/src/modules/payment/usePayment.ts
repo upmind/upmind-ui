@@ -3,7 +3,7 @@ import { computed } from "vue";
 import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import paymentMachine from "./payment.machine";
-import { contextValue, stateMatches, useContext } from "../../utils";
+import { stateMatches, useContext } from "../../utils";
 import type { PaymentArgs, PaymentContext } from "./payment.types";
 
 // --- types
@@ -53,11 +53,11 @@ export const usePayment = (initial: PaymentArgs) => {
 
   // --- context
 
-  const context = useContext<PaymentContext>(state, "context");
+  const context = useContext<PaymentContext>(state);
 
   const errors = useContext<PaymentContext["error"]>(state, "error");
 
-  const payment = contextValue<PaymentContext["payment"]>(context, "payment");
+  const payment = useContext<PaymentContext["payment"]>(state, "payment");
 
   // --- methods
 

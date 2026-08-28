@@ -1,0 +1,62 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/payments?case=taken-up-paypal_express",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "invoice_id": "52098d3d-e409-1748-650c-31578626e347",
+      "gateway_id": "47d73824-8507-9315-e95b-81e642d59e06"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a323d0a83e1111e6-LIS",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 28 Aug 2026 13:55:43 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=zETrYL1gPSqfSamM4s2xc20j2xTx59oyxR8Eh5gJROJENMnuBzhuMeGr3n7or40xFk07JLTWkuE%2B2VtElhivlc5Aafsayn7cixcNntyTVSWLZEp6AFWEk39kHvmz58xHDmV%2FoYdoIw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-upmind-snail": "true"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "transaction_status": "REDIRECT",
+        "transaction_type": 3,
+        "approval_url": {
+          "url": "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&useraction=commit&token=EC-29P77502XB277874M",
+          "method": "GET",
+          "fields": null
+        },
+        "transaction_id": "EC-29P77502XB277874M"
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-28T13:55:43.437Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "payment"
+  }
+}

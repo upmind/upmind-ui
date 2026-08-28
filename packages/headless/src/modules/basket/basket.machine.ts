@@ -402,7 +402,8 @@ export default createMachine(
           data: ({ invoice, paymentDetail }: BasketContext) => {
             return {
               orderId: invoice?.id,
-              paymentDetail: paymentDetail
+              paymentDetail: paymentDetail,
+              parentId: "basketManager"
             } as PaymentArgs;
           },
           onDone: {

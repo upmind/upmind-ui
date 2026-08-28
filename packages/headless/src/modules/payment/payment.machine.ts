@@ -12,7 +12,7 @@ import type { PaymentContext } from "./payment.types";
 import type { GatewayProviderCodes } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
 
-const { escalate } = actions;
+const { choose, escalate } = actions;
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -272,9 +272,14 @@ export default createMachine(
 
       clearError: assign({ error: undefined }),
 
-      escalateError: escalate(
-        ({ error }: PaymentContext, _event: AnyEventObject) => error
-      )
+      escalateError: choose([
+        {
+          cond: ({ parentId }: PaymentContext) => Boolean(parentId),
+          actions: escalate(
+            ({ error }: PaymentContext, _event: AnyEventObject) => error
+          )
+        }
+      ])
     },
 
     guards: {

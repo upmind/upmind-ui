@@ -99,7 +99,8 @@ export default createMachine(
               data: ({ invoice, paymentDetail }: OrderContext) => {
                 return {
                   orderId: invoice?.id,
-                  paymentDetail
+                  paymentDetail,
+                  parentId: "orderManager"
                 } as PaymentArgs;
               },
               onDone: {
