@@ -125,8 +125,16 @@ const FILTER_KEY = /^filter\[([^\]|]+)(?:\|([^\]]+))?\]$/;
 /** The truthy spelling a recorded boolean filter uses on the wire. */
 const TRUE_VALUES = ["1", "true"];
 
-/** Query keys that name what a read is ABOUT rather than which rows it wants. */
-const CRITERIA_IGNORED = ["case", "with", "keys"];
+/**
+ * Query keys that name what a read is ABOUT rather than which rows it wants.
+ * `lang` picks the language a row is rendered IN, never which rows come back,
+ * so a live read asking for one is answering the same question as a capture run
+ * that never spelt it.
+ */
+const CRITERIA_IGNORED = ["case", "with", "keys", "lang"];
+
+/** The offset a read asking for none already gets — see {@link servedRows}. */
+const FIRST_PAGE = "0";
 
 /**
  * The path's SHAPE: every id segment collapsed to a placeholder, so a request
@@ -589,11 +597,21 @@ function pickRecording(
  * the relation `with`/`keys` hints dropped. Those name what a recording is
  * ABOUT, not which rows it asked for, so two captures differing only there are
  * answering the same question.
+ *
+ * `offset=0` is dropped for the same reason it is never written down: it is the
+ * first page, which is what {@link servedRows} serves a read naming no offset at
+ * all. Spelling the default out loud is not a different question, and grading it
+ * as one sent every unfiltered live read past its own capture to
+ * {@link pickRecording}'s fallback — whichever recording sorted first, which for
+ * one module is a zero-row filter capture, so its page drew nothing on Live.
  */
 function criteriaOf(params: URLSearchParams): string {
   const stated = filter(
     [...params.entries()],
-    ([key]) => !CRITERIA_IGNORED.includes(key) && !startsWith(key, "with_")
+    ([key, value]) =>
+      !CRITERIA_IGNORED.includes(key) &&
+      !startsWith(key, "with_") &&
+      !(key === "offset" && value === FIRST_PAGE)
   );
 
   return sortBy(map(stated, ([key, value]) => `${key}=${value}`)).join("&");
