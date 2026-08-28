@@ -136,7 +136,7 @@ export const invalidateQueryByKey =
  */
 export const resetQueryByKey =
   (queryKey: QueryKey) =>
-  <T = any>(data?: T): Promise<T | undefined> => {
+  <T = unknown>(data?: T): Promise<T | undefined> => {
     const { queryClient } = useQuery();
     return queryClient
       .resetQueries({ queryKey })
