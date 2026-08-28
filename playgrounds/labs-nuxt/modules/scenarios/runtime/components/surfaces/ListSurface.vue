@@ -1056,17 +1056,20 @@ watch(
 );
 
 /**
- * The record an armed `error-action` is refusing — the collection's own first
- * actionable row, marked with no request fired while the armed intercept still
- * refuses one the user does fire.
+ * The record an armed `error-action` is refusing — the collection's own FIRST
+ * row, marked with no request fired while the armed intercept still refuses one
+ * the user does fire.
  *
- * A scenario declaring no row control the module can act on has nothing to be
- * refused ON and draws nothing: the preset is offered off the module's own
- * recordings, never off what a page exposes.
+ * The row's control set does not decide it (operator ruling, 2026-08-28): a
+ * refusal is a state of the RECORD, not of a button. Gating on an actionable
+ * control drew nothing at all on a collection whose rows expose only a read-only
+ * detail overlay, while the module's own corpus answered the preset perfectly
+ * well — the offer is measured off the recordings, so the surface may not
+ * silently withhold what they can answer.
  */
 const refusedRow = computed<ListRow | undefined>(() =>
   props.forcedRefusal && !isRefusalDismissed.value
-    ? find(rows.value, row => !!writeAction(row))
+    ? first(rows.value)
     : undefined
 );
 

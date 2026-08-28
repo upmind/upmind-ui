@@ -88,15 +88,25 @@ export type ListSurfaceProps = SurfaceProps & {
    * The module's own recorded refusal sentence, while the page is FORCED into
    * `error-action`. A forced state is the state, forced: it renders on arming
    * and asks for no interaction (operator ruling, 2026-08-28), so the surface
-   * draws its first actionable row already refused with this sentence rather
-   * than waiting for a control to be pressed. The collection stays intact —
-   * a refused write is row-scoped, and the whole-surface error state belongs to
-   * a failed READ alone (`R6-19`).
+   * draws its FIRST row already refused with this sentence rather than waiting
+   * for a control to be pressed. The collection stays intact — a refused write
+   * is row-scoped, and the whole-surface error state belongs to a failed READ
+   * alone (`R6-19`).
    *
-   * Absent on Live and under every other preset. A scenario declaring no row
-   * control the module can act on has no row to refuse on either, so nothing is
-   * drawn — the offer is measured off the recordings, never off what a page
-   * exposes.
+   * Which row does not depend on which controls that row happens to expose: a
+   * refusal is a state of the RECORD, and a collection whose rows offer only a
+   * read-only detail overlay drew nothing at all while its corpus answered the
+   * preset perfectly well (operator ruling, 2026-08-28 · Q). The offer is
+   * measured off the recordings, never off what a page exposes.
+   *
+   * @graphify-citation `graphify query "is there an existing contract naming
+   * which row a forced refusal is drawn on"` (2026-08-29, FE-3113 Q) — the only
+   * nodes are this prop itself (`ScenarioPlayground.vue` L272) and the test
+   * lane's `forced-surface.harness.ts`, which app runtime may not consume.
+   * Nothing is minted: the ruling narrows which row the EXISTING string is drawn
+   * on. See `graphify-out/GRAPH_REPORT.md`.
+   *
+   * Absent on Live and under every other preset.
    *
    * @graphify-citation `graphify query "is there an existing contract or field
    * carrying a recorded write refusal fixture or a refusal sentence for a forced
