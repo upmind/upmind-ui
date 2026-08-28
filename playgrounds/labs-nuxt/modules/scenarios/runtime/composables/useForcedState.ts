@@ -23,6 +23,14 @@
  * the pathname it last answered on, and a consumer calling in on a different
  * one drops the transient preset before it can force a module nobody armed.
  *
+ * Page scoping is not enough on its own, because a scope navigation carries the
+ * whole query across on purpose (`preserveQuery`) and a preset then rode onto
+ * whatever the sidebar opened next — including modules that never offered it. So
+ * the deeper scope is the MODULE: {@link ForcedStateHandle.serves} takes the one
+ * the page has booted, and a page booting a different one returns the tab to
+ * Live first (FE-3113 R). Same module, different scope segments, keeps the
+ * preset; a pasted link on a cold load keeps it too.
+ *
  * Arming changes what the tab's NEXT request is answered with, which leaves
  * every answer it already holds a lie about a page that now says it is forced.
  * So a reconcile that lands ends by CLEARING the cache: the preset is only
@@ -53,6 +61,7 @@ import { FORCE_URL_PRESETS } from "./useForcedState.types";
 import { noop, some } from "lodash-es";
 import type {
   ForceReset,
+  ForcedStateSource,
   ForcePreset,
   ForceUrlPreset,
   ForceWorker,
@@ -64,10 +73,8 @@ import type {
 type ForcedStateHandle = {
   state: UseForcedState;
   reset: () => void;
-  /** Points the handle's cache clear at the module the page has just booted. */
-  serves: (clearCache: ForceReset | undefined) => void;
-  /** The corpus arm every later reconcile waits behind (FE-3113). */
-  arms: (whenArmed: Promise<unknown>) => void;
+  /** Registers the module a page has just booted, and what forcing needs of it. */
+  serves: (source: ForcedStateSource) => void;
 };
 
 let handle: ForcedStateHandle | undefined;
@@ -117,6 +124,10 @@ function create(): ForcedStateHandle {
   // The seam's loaders are lazy, so until this lands there are no recordings to
   // build handlers from.
   let armed: Promise<unknown> | undefined;
+
+  // The module the handle is currently answering FOR — what a preset is a fact
+  // about, and so what it may not outlive.
+  let servedModule: string | undefined;
 
   // What the tab is actually being answered with. The immediate watch below
   // fires with Live, which is what a booting tab already is, so nothing is
@@ -295,25 +306,42 @@ function create(): ForcedStateHandle {
   }
 
   /**
-   * Points the cache clear at the module the caller has just booted. The handle
-   * is per TAB and a page hosts one module, so the latest registration wins —
-   * a page navigated away from must not keep claiming it.
+   * Registers the module the caller has just booted, and both of the things
+   * forcing needs of it — the cache clear the arm ends on, and the corpus arm
+   * every later reconcile waits behind. The latter is registered synchronously
+   * by the page, so it is in place before the immediate watcher's first
+   * reconcile leaves the microtask queue.
+   *
+   * LEAVING A MODULE DISARMS (FE-3113 R). A preset is a fact about one module's
+   * recorded corpus: carried onto another it means nothing, and onto one that
+   * never offered it there is nothing that can honestly answer it. So a
+   * registration naming a module this handle was not already serving returns the
+   * tab to Live — the url half included, which no pathname pass can reach once a
+   * navigation carries the query across.
+   *
+   * The FIRST registration is never a departure: a cold load on a pasted
+   * `force=` link boots its module here, and reading that as leaving one would
+   * disarm the very link the url was sent to carry (`AC8.2`).
+   *
+   * A new module's registration REPLACES the last one's whole, absences
+   * included. A cache clear is bound to the key its own module publishes it
+   * under, so keeping the page just left's would clear a cache this page does
+   * not own.
    */
-  function serves(next: ForceReset | undefined): void {
-    clearCache = next;
-  }
+  function serves(source: ForcedStateSource): void {
+    const isMoved = !!source.module && source.module !== servedModule;
 
-  /**
-   * Holds every later reconcile behind the caller's corpus arm. Registered
-   * synchronously by the page, so it is in place before the immediate watcher's
-   * first reconcile leaves the microtask queue.
-   */
-  function arms(whenArmed: Promise<unknown>): void {
-    armed = whenArmed;
+    if (isMoved && servedModule) {
+      transient.value = undefined;
+      url.force.value = undefined;
+    }
+
+    if (source.module) servedModule = source.module;
+    if (isMoved || source.reset) clearCache = source.reset;
+    if (isMoved || source.whenArmed) armed = source.whenArmed;
   }
 
   return {
-    arms,
     reset,
     serves,
     state: {
@@ -331,26 +359,18 @@ function create(): ForcedStateHandle {
  * The one forced-state handle. Every consumer shares its worker; nobody starts
  * a second.
  *
- * @param clearCache The caller's OWN booted module's `reset`, for the one
- * consumer that boots a module — the page. The bar and the player read the same
- * handle without one, and passing none leaves whatever the page registered
- * standing rather than clearing it (FE-3113).
- * @param whenArmed That same caller's corpus arm. Arming may not report success
- * before its handlers are installed, and there are none to install until this
- * resolves.
+ * @param source The caller's OWN booted module, for the one consumer that boots
+ * one — the page. The bar and the player read the same handle without a source,
+ * which leaves whatever the page registered standing rather than clearing it.
  */
-export function useForcedState(
-  clearCache?: ForceReset,
-  whenArmed?: Promise<unknown>
-): UseForcedState {
+export function useForcedState(source?: ForcedStateSource): UseForcedState {
   // Detached, like the url writer it reads: a watcher first created inside a
   // component would stop reconciling the moment that component unmounted, and
   // the tab would keep serving the preset it was last armed with.
   if (!handle) handle = effectScope(true).run(create)!;
   else handle.reset();
 
-  if (clearCache) handle.serves(clearCache);
-  if (whenArmed) handle.arms(whenArmed);
+  if (source) handle.serves(source);
 
   return handle.state;
 }

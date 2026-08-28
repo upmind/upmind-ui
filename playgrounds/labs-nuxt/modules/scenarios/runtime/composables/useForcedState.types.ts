@@ -91,6 +91,39 @@ export type ForceWorker = {
  */
 export type ForceReset = () => unknown;
 
+/**
+ * @graphify-citation `graphify query "existing contract for registering a booted
+ * module with a detached singleton composable"` (2026-08-29, FE-3113 R) — the
+ * only neighbours are the labs test lane's own `pageRegistering()` harness
+ * (`app/components/scope/__tests__/harness.ts` L347) and unrelated import nodes;
+ * no registration contract exists to consume. This GROUPS the two arguments the
+ * handle already took, plus the module they are both a fact about, rather than
+ * minting a rival mechanism. See `graphify-out/GRAPH_REPORT.md`.
+ */
+/**
+ * What the PAGE registers about the module it has just booted — the facts
+ * forcing needs and cannot reach for itself, handed over together because they
+ * are one module's: the arm loads that module's recordings, the reset clears
+ * that module's cache, and a preset is a fact about that module's corpus alone.
+ *
+ * The module's NAME is what makes leaving one disarm (FE-3113 R): a preset
+ * cannot mean anything on a different corpus, and on one that never offered it
+ * there is nothing that can honestly answer it. A page registering a module the
+ * handle was not already serving returns the tab to Live before it arms
+ * anything of its own.
+ */
+export type ForcedStateSource = {
+  /** The module whose recordings the page's presets are measured off. */
+  module?: string;
+  /** That module's own published cache clear. */
+  reset?: ForceReset;
+  /**
+   * That module's corpus arm. Arming may not report success before its handlers
+   * are installed, and there are none to install until this resolves.
+   */
+  whenArmed?: Promise<unknown>;
+};
+
 export type UseForcedState = {
   /**
    * The preset actually armed — absent on Live, the state the page boots into

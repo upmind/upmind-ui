@@ -84,6 +84,7 @@ import ScenarioBar from "./components/ScenarioBar.vue";
 import { useCriteriaUrlSync } from "./composables/useCriteriaUrlSync";
 import { useFeatureTracks } from "./composables/useFeatureTracks";
 import { useForcedState } from "./composables/useForcedState";
+import { FORCE_URL_PRESETS } from "./composables/useForcedState.types";
 import { useModulePort } from "./composables/useModulePort";
 import { useScenarioPlayer } from "./composables/useScenarioPlayer";
 import { answerablePresets, captureGaps } from "./force/capabilities";
@@ -93,7 +94,7 @@ import { presetRefusal } from "./force/presets";
 import { scenarioRegistry, scenarioRoutes, scenarioSources } from "./registry";
 import { SCENARIO_ROUTE_META_KEY } from "./scenario.constants";
 import { DEFAULT_ROW_IDENTIFIER } from "./scenario.types";
-import { get, isEmpty, mapValues } from "lodash-es";
+import { get, includes, isEmpty, mapValues } from "lodash-es";
 import type { ActionSlotItem } from "./components";
 import type {
   ForceReset,
@@ -218,6 +219,11 @@ const tracks = trackSource ? useFeatureTracks(trackSource).tracks : [];
 // page Live in the meantime — the state it boots into anyway (`S12`).
 const presets = ref<ForceUrlPreset[]>([]);
 
+// Whether that offer has been MADE yet. Empty means "not measured" until this
+// turns, and disarming on a list nobody has filled in would drop a pasted link
+// before its own corpus had a chance to answer it.
+const isOffered = ref(false);
+
 // Read off the same recording the intercept answers a real write with, so the
 // row drawn refused and the request that would be refused say one thing.
 const refusal = ref<string | undefined>();
@@ -234,6 +240,7 @@ const whenArmed = trackedModule
 
       presets.value = [...answerablePresets(bodies)];
       refusal.value = presetRefusal(bodies);
+      isOffered.value = true;
 
       const gaps = captureGaps(featureTextFor(trackedModule), bodies);
 
@@ -263,10 +270,26 @@ const isReplaying = computed(() => !!player.track.value);
 // `loading` redrew the data it already had and a forced failure drew its error
 // above rows the read never returned. A module publishing none leaves the arm
 // swapping the transport alone.
-const { preset, isSettling } = useForcedState(
-  get(port.actions, "reset") as ForceReset | undefined,
+//
+// The module's NAME rides with them so leaving it disarms (FE-3113 R): the two
+// are one module's, and so is the preset.
+const { disarm, preset, isSettling } = useForcedState({
+  module: trackedModule,
+  reset: get(port.actions, "reset") as ForceReset | undefined,
   whenArmed
-);
+});
+
+// A preset is a fact about THIS module's own corpus (FE-3113 R). One reached by
+// a pasted url — or by a sidebar navigation that carried the query across —
+// names a state this module never offered and nothing here can honestly answer,
+// so the page lands Live rather than armed on nothing. `replay` is exempt: the
+// player arms it and the url cannot carry it, so the offered list never holds
+// it.
+watch([preset, presets, isOffered], ([armed, offered, measured]) => {
+  if (!measured || !armed) return;
+  if (!includes(FORCE_URL_PRESETS, armed)) return;
+  if (!includes(offered, armed)) void disarm();
+});
 
 // Gated on the preset: a row marked under any other is a failure nobody armed.
 const forcedRefusal = computed(() =>
