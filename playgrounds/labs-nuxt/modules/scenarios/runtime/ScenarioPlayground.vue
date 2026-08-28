@@ -11,7 +11,7 @@
         <PageHeader
           :name="scenario.route"
           :actions="collectionActions"
-          :locked="isReplaying"
+          :locked="isLocked"
         />
 
         <ScenarioBar :player="player" :tracks="tracks" :presets="presets" />
@@ -28,7 +28,7 @@
             :presentation="scenario.presentation"
             :handoffs="handoffs"
             :detail="detail"
-            :locked="isReplaying"
+            :locked="isLocked"
             @update:collection-actions="onCollectionActions"
           />
         </Card>
@@ -256,10 +256,17 @@ const isReplaying = computed(() => !!player.track.value);
 // `loading` redrew the data it already had and a forced failure drew its error
 // above rows the read never returned. A module publishing none leaves the arm
 // swapping the transport alone.
-const { preset } = useForcedState(
+const { preset, isSettling } = useForcedState(
   get(port.actions, "reset") as ForceReset | undefined,
   whenArmed
 );
+
+// A page mid-arm is no more the operator's to drive than one mid-replay, and
+// for the same reason (`R6-23`): the transport it would answer through is not
+// the one on screen. Arming loads the corpus, registers a worker and only then
+// drops the cache, so a row action fired before that lands acts on rows the arm
+// is about to take away and draws a refusal the clear wipes behind it.
+const isLocked = computed(() => isReplaying.value || isSettling.value);
 
 // --- The page's three sheet providers, all page-scoped
 const { register, registerPane } = usePlaygroundSheet();

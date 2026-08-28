@@ -38,6 +38,17 @@
  * KEEPING the rows, so `loading` never left `isLoading` false and a failed read
  * drew its error above the stale rows it never returned. Only removing the
  * entry puts the surface back in the state the preset names.
+ *
+ * That clear is not instant, and `isSettling` is what the page holds its own
+ * controls behind while it runs (FE-3113 M). An arm loads the corpus, registers
+ * a worker and only THEN drops the cache — seconds during which the surface is
+ * still drawing the rows the arm is about to take away. A row action fired into
+ * that window is answered by the armed transport, and the refusal it draws is
+ * then wiped by the clear landing on top of it, which is the one thing the
+ * recorded refusal's own contract forbids: `error-action` serves the read as
+ * recorded so the collection stays intact. Held, an action can only be fired
+ * once the arm has settled, and the re-read that arm starts leaves no rows to
+ * fire one at until it lands — so a refusal is never in flight beside a clear.
  */
 
 import { computed, effectScope, nextTick, ref, watch } from "vue";
@@ -96,6 +107,11 @@ function create(): ForcedStateHandle {
   let worker: ForceWorker | undefined;
   let registration: ServiceWorkerRegistration | undefined;
   let pending: Promise<void> = Promise.resolve();
+
+  // A COUNT, not a flag: a preset picked while an earlier arm is still settling
+  // queues behind it, and the first of the two to finish must not report the
+  // page settled while the second is still swapping its transport.
+  const unsettled = ref(0);
 
   // The booted module's own cache clear. Absent until a page registers one —
   // the bar and the player share this handle but boot no module, so only the
@@ -164,13 +180,31 @@ function create(): ForcedStateHandle {
     void clearCache?.();
   }
 
+  /**
+   * Runs one transport step, and reports the page unsettled for its whole run.
+   * @param step The swap to run.
+   * @param holds Whether this step changes the transport at all — a reconcile
+   * that finds the worker already serving `next` swaps nothing, so a bare Live
+   * load must not read as a page mid-arm.
+   */
+  function queue(step: () => Promise<void>, holds = true): void {
+    if (holds) unsettled.value += 1;
+
+    // Chained, never raced: two arms in one tick would each find no worker and
+    // register a second, and only one of the two would ever be unregistered. A
+    // failed arm is swallowed so it cannot poison the next.
+    pending = pending
+      .catch(noop)
+      .then(step)
+      .finally(() => {
+        if (holds) unsettled.value -= 1;
+      });
+  }
+
   watch(
     preset,
     next => {
-      // Chained, never raced: two arms in one tick would each find no worker
-      // and register a second, and only one of the two would ever be
-      // unregistered. A failed arm is swallowed so it cannot poison the next.
-      pending = pending.catch(noop).then(() => reconcile(next));
+      queue(() => reconcile(next), next !== served);
     },
     { immediate: true }
   );
@@ -209,7 +243,7 @@ function create(): ForcedStateHandle {
     url.force.value = isUrlPreset(next) ? next : undefined;
     transient.value = isUrlPreset(next) ? undefined : next;
 
-    if (rearmed) pending = pending.catch(noop).then(restart);
+    if (rearmed) queue(restart);
 
     await whenReady();
   }
@@ -270,6 +304,7 @@ function create(): ForcedStateHandle {
     state: {
       preset,
       isAvailable: availableModules.length > 0,
+      isSettling: computed(() => unsettled.value > 0),
       arm,
       disarm,
       whenReady

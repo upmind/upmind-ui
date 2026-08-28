@@ -104,6 +104,23 @@ export type UseForcedState = {
    */
   isAvailable: boolean;
   /**
+   * @graphify-citation `graphify query "is there an existing in-flight or
+   * settling or pending boolean flag on a composable state contract"`
+   * (2026-08-28, `graphify-out/graph.json`) — the only neighbour is
+   * `inFlight` (`packages/headless/src/utils/useCalculate.ts` L71), a local
+   * `let` inside one debounced calculator with no exported contract, and
+   * `PENDING` (`force/presets.ts` L56) is a served ANSWER rather than a
+   * transport state. Nothing to consume, so this member is minted on the
+   * existing handle rather than as a rival type. See
+   * `graphify-out/GRAPH_REPORT.md`.
+   *
+   * Whether the tab's transport is mid-change — a preset armed, re-armed or
+   * disarmed, up to and including the cache clear that swap ends on. The page
+   * holds its own controls behind it: an arm is not instant, and an action
+   * fired before one settles draws a refusal the clear then wipes (FE-3113 M).
+   */
+  isSettling: ComputedRef<boolean>;
+  /**
    * Arms `preset`, writing it to the url when the url can carry it — always
    * from the RECORDING, so re-arming a preset already armed returns the corpus
    * to it rather than continuing on the collection the last pass moved.
