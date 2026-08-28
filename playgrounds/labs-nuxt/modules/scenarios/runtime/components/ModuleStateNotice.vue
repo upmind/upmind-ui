@@ -2,11 +2,9 @@
   <Alert
     :variant="content.variant"
     :title="content.title"
-    :description="content.description"
+    :description="message"
     :class="moduleStateNotice.root"
-  >
-    <p v-if="reason" :class="moduleStateNotice.detail">{{ reason }}</p>
-  </Alert>
+  />
 </template>
 
 <script lang="ts" setup>
@@ -68,7 +66,15 @@ const content = computed<ModuleStateContent>(() => {
  */
 const reason = computed(() => {
   if (isNil(props.detail)) return "";
-  const message = get(props.detail, "message", props.detail);
-  return isString(message) ? t(message) : "";
+  const sentence = get(props.detail, "message", props.detail);
+  return isString(sentence) ? t(sentence) : "";
 });
+
+/**
+ * ONE message under the title, never a stack of them. The catalogue's line is
+ * the fallback for a failure that gave no reason; where the module published
+ * one, that sentence IS the message and the generic line would only say the
+ * same thing less accurately beside it (operator ruling, 2026-08-28).
+ */
+const message = computed(() => reason.value || content.value.description);
 </script>
