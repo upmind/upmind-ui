@@ -94,7 +94,7 @@ import { DEFAULT_ROW_IDENTIFIER } from "./scenario.types";
 import { get, isEmpty, mapValues } from "lodash-es";
 import type { ActionSlotItem } from "./components";
 import type {
-  ForceInvalidate,
+  ForceReset,
   ForceUrlPreset
 } from "./composables/useForcedState.types";
 import type {
@@ -249,13 +249,15 @@ const isReplaying = computed(() => !!player.track.value);
 // pasted `force=` link arms with no track at all, and only the handle knows
 // what is actually being served (`AC8.4`).
 //
-// The cache drop the arm ends on is the booted module's OWN, handed in because
-// forcing may learn no query key (FE-3113): `invalidate` is already bound to
-// the domain this module caches under, which neither the url nor a recorded
-// path spells. A module publishing none leaves the arm swapping the transport
-// alone — the page then keeps the answers it holds until it next asks.
+// The cache clear the arm ends on is the booted module's OWN, handed in because
+// forcing may learn no query key (FE-3113): `reset` is already bound to the
+// domain this module caches under, which neither the url nor a recorded path
+// spells. `reset` and not `invalidate` — the latter keeps the rows, so a forced
+// `loading` redrew the data it already had and a forced failure drew its error
+// above rows the read never returned. A module publishing none leaves the arm
+// swapping the transport alone.
 const { preset } = useForcedState(
-  get(port.actions, "invalidate") as ForceInvalidate | undefined,
+  get(port.actions, "reset") as ForceReset | undefined,
   whenArmed
 );
 

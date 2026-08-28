@@ -25,14 +25,19 @@
  *
  * Arming changes what the tab's NEXT request is answered with, which leaves
  * every answer it already holds a lie about a page that now says it is forced.
- * So a reconcile that lands ends by dropping the cache: the preset is only
+ * So a reconcile that lands ends by CLEARING the cache: the preset is only
  * visible because the page asks again through it (`AC8.4`, `R6-10`).
  *
  * WHICH cache is the booted module's own answer, never this file's (FE-3113).
- * A module keys its queries by domain and publishes an `invalidate` action
- * already bound to that key, so the page hands its own in and forcing learns no
- * key at all — the last concrete module reference in `runtime/` goes with the
- * constant it fed.
+ * A module keys its queries by domain and publishes a `reset` action already
+ * bound to that key, so the page hands its own in and forcing learns no key at
+ * all — the last concrete module reference in `runtime/` goes with the constant
+ * it fed.
+ *
+ * `reset` and not the module's `invalidate`: invalidating refetches while
+ * KEEPING the rows, so `loading` never left `isLoading` false and a failed read
+ * drew its error above the stale rows it never returned. Only removing the
+ * entry puts the surface back in the state the preset names.
  */
 
 import { computed, effectScope, nextTick, ref, watch } from "vue";
@@ -41,7 +46,7 @@ import { availableModules } from "../force/corpus.source";
 import { FORCE_URL_PRESETS } from "./useForcedState.types";
 import { noop, some } from "lodash-es";
 import type {
-  ForceInvalidate,
+  ForceReset,
   ForcePreset,
   ForceUrlPreset,
   ForceWorker,
@@ -53,8 +58,8 @@ import type {
 type ForcedStateHandle = {
   state: UseForcedState;
   reset: () => void;
-  /** Points the handle's cache drop at the module the page has just booted. */
-  serves: (invalidate: ForceInvalidate | undefined) => void;
+  /** Points the handle's cache clear at the module the page has just booted. */
+  serves: (clearCache: ForceReset | undefined) => void;
   /** The corpus arm every later reconcile waits behind (FE-3113). */
   arms: (whenArmed: Promise<unknown>) => void;
 };
@@ -92,10 +97,10 @@ function create(): ForcedStateHandle {
   let registration: ServiceWorkerRegistration | undefined;
   let pending: Promise<void> = Promise.resolve();
 
-  // The booted module's own cache drop. Absent until a page registers one — the
-  // bar and the player share this handle but boot no module, so only the
+  // The booted module's own cache clear. Absent until a page registers one —
+  // the bar and the player share this handle but boot no module, so only the
   // playground has one to give.
-  let invalidate: ForceInvalidate | undefined;
+  let clearCache: ForceReset | undefined;
 
   // The page's corpus arm, for the same reason and from the same one caller.
   // The seam's loaders are lazy, so until this lands there are no recordings to
@@ -149,14 +154,14 @@ function create(): ForcedStateHandle {
 
     served = next;
 
-    // LAST, and only once the transport above is in place: a drop that ran
+    // LAST, and only once the transport above is in place: a clear that ran
     // first would refetch through the handlers it is racing and refill the
     // cache from the live API, leaving the arm looking right over stale rows.
     // Not awaited — a chain waiting on that refetch could never reconcile the
     // preset picked after it. Scoped to the booted module by construction: the
     // whole cache is the app chrome's too, and the chrome's singletons boot
     // once and never re-ask.
-    void invalidate?.();
+    void clearCache?.();
   }
 
   watch(
@@ -190,9 +195,9 @@ function create(): ForcedStateHandle {
     const { createForceHandlers } = await import("../force/handlers");
     worker.resetHandlers(...createForceHandlers(served));
 
-    // After the swap, for the same reason `reconcile` drops after it: the
+    // After the swap, for the same reason `reconcile` clears after it: the
     // answers this tab holds are the collection the last pass moved to.
-    void invalidate?.();
+    void clearCache?.();
   }
 
   async function arm(next: ForcePreset): Promise<void> {
@@ -241,12 +246,12 @@ function create(): ForcedStateHandle {
   }
 
   /**
-   * Points the cache drop at the module the caller has just booted. The handle
+   * Points the cache clear at the module the caller has just booted. The handle
    * is per TAB and a page hosts one module, so the latest registration wins —
-   * a page navigated away from must not keep claiming the drop.
+   * a page navigated away from must not keep claiming it.
    */
-  function serves(next: ForceInvalidate | undefined): void {
-    invalidate = next;
+  function serves(next: ForceReset | undefined): void {
+    clearCache = next;
   }
 
   /**
@@ -276,7 +281,7 @@ function create(): ForcedStateHandle {
  * The one forced-state handle. Every consumer shares its worker; nobody starts
  * a second.
  *
- * @param invalidate The caller's OWN booted module's cache drop, for the one
+ * @param clearCache The caller's OWN booted module's `reset`, for the one
  * consumer that boots a module — the page. The bar and the player read the same
  * handle without one, and passing none leaves whatever the page registered
  * standing rather than clearing it (FE-3113).
@@ -285,7 +290,7 @@ function create(): ForcedStateHandle {
  * resolves.
  */
 export function useForcedState(
-  invalidate?: ForceInvalidate,
+  clearCache?: ForceReset,
   whenArmed?: Promise<unknown>
 ): UseForcedState {
   // Detached, like the url writer it reads: a watcher first created inside a
@@ -294,7 +299,7 @@ export function useForcedState(
   if (!handle) handle = effectScope(true).run(create)!;
   else handle.reset();
 
-  if (invalidate) handle.serves(invalidate);
+  if (clearCache) handle.serves(clearCache);
   if (whenArmed) handle.arms(whenArmed);
 
   return handle.state;

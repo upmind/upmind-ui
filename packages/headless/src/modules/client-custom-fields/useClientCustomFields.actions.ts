@@ -1,5 +1,5 @@
 import { watch } from "vue";
-import { invalidateQueryByKey } from "../query";
+import { invalidateQueryByKey, resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { useActiveSession } from "../session-store";
 import { NotAuthenticatedError } from "../../utils";
@@ -237,6 +237,9 @@ export function createClientCustomFieldsActions(
 
     /** Refetches the list from the server; rejects if it cannot address one. */
     refresh,
+
+    /** Drops the shared cache key's rows so the next read starts from loading. */
+    reset: resetQueryByKey(service.queryKey, { exact: false }),
 
     /**
      * Applies a criteria INTENT — merges the given `filters` / `sort` /

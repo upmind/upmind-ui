@@ -49,7 +49,11 @@ import type {
   RequestPagination
 } from "./query.types";
 import type { JsonSchema } from "@jsonforms/core";
-import type { InvalidateQueryFilters, QueryKey } from "@tanstack/vue-query";
+import type {
+  InvalidateQueryFilters,
+  QueryFilters,
+  QueryKey
+} from "@tanstack/vue-query";
 import type { AnyUpdater } from "@tanstack/vue-store";
 import type { Store } from "@tanstack/vue-store";
 
@@ -117,6 +121,28 @@ export const invalidateQueryByKey =
       .catch(() => {
         return undefined;
       });
+  };
+
+/**
+ * Reset a query by its key — the cached data is REMOVED, not merely marked
+ * stale, so an active observer returns to its pending state while it refetches.
+ *
+ * Where {@link invalidateQueryByKey} leaves the rows in place and only flips
+ * `isFetching`, this is what a caller reaches for when the surface must go back
+ * to LOADING: the answers already held are discarded rather than redrawn.
+ *
+ * @param queryKey The key of the query to reset
+ * @param filters Optional filters to apply when resetting the query
+ * @returns A function that takes the data and returns it after the reset
+ */
+export const resetQueryByKey =
+  (queryKey: QueryKey, filters?: QueryFilters) =>
+  <T = any>(data?: T): Promise<T | undefined> => {
+    const { queryClient } = useQuery();
+    return queryClient
+      .resetQueries({ queryKey, ...filters })
+      .then(() => data)
+      .catch(() => undefined);
   };
 
 /**
