@@ -49,11 +49,7 @@ import type {
   RequestPagination
 } from "./query.types";
 import type { JsonSchema } from "@jsonforms/core";
-import type {
-  InvalidateQueryFilters,
-  QueryFilters,
-  QueryKey
-} from "@tanstack/vue-query";
+import type { InvalidateQueryFilters, QueryKey } from "@tanstack/vue-query";
 import type { AnyUpdater } from "@tanstack/vue-store";
 import type { Store } from "@tanstack/vue-store";
 
@@ -124,23 +120,26 @@ export const invalidateQueryByKey =
   };
 
 /**
- * Reset a query by its key — the cached data is REMOVED, not merely marked
- * stale, so an active observer returns to its pending state while it refetches.
+ * Reset every query UNDER a key — the cached data is REMOVED, not merely marked
+ * stale, so an active observer goes back to pending while it refetches.
  *
- * Where {@link invalidateQueryByKey} leaves the rows in place and only flips
- * `isFetching`, this is what a caller reaches for when the surface must go back
- * to LOADING: the answers already held are discarded rather than redrawn.
+ * Where {@link invalidateQueryByKey} leaves the data in place and only flips
+ * `isFetching`, this is what a caller reaches for when the surface must return
+ * to its LOADING state: the answers already held are discarded, not redrawn.
  *
- * @param queryKey The key of the query to reset
- * @param filters Optional filters to apply when resetting the query
+ * The prefix is the point, and it is why this is not the per-query `resetQuery`
+ * a query handle already publishes: that one clears the ONE key the observer is
+ * attached to, leaving every other criteria variant the module has cached.
+ *
+ * @param queryKey The key prefix whose queries to reset
  * @returns A function that takes the data and returns it after the reset
  */
 export const resetQueryByKey =
-  (queryKey: QueryKey, filters?: QueryFilters) =>
+  (queryKey: QueryKey) =>
   <T = any>(data?: T): Promise<T | undefined> => {
     const { queryClient } = useQuery();
     return queryClient
-      .resetQueries({ queryKey, ...filters })
+      .resetQueries({ queryKey })
       .then(() => data)
       .catch(() => undefined);
   };

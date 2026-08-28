@@ -185,7 +185,7 @@ export function createClientReceivedEmailsActions(
     refresh,
 
     /** Drops the shared cache key's rows so the next read starts from loading. */
-    reset: resetQueryByKey(service.queryKey, { exact: false }),
+    reset: resetQueryByKey(service.queryKey),
 
     /**
      * Applies a criteria INTENT — merges the given `filters` / `sort` /

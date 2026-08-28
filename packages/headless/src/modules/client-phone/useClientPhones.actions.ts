@@ -213,7 +213,7 @@ export function createClientPhonesActions(
     /**
      * @scenario-exclude internal cache-key reset, not a user-facing capability
      */
-    reset: resetQueryByKey(service.queryKey, { exact: false }),
+    reset: resetQueryByKey(service.queryKey),
 
     /**
      * Applies a criteria INTENT — merges the given `filters` / `sort` /

@@ -185,7 +185,7 @@ export function createClientEmailsActions(
     /**
      * @scenario-exclude internal cache-key reset, not a user-facing capability
      */
-    reset: resetQueryByKey(service.queryKey, { exact: false }),
+    reset: resetQueryByKey(service.queryKey),
 
     /**
      * @scenario-include

@@ -173,7 +173,7 @@ export function createPersonalDetailsActions(
      * Keyed on the module's own base prefix, which is what also clears the
      * joined definitions this profile renders beside its natives.
      */
-    reset: resetQueryByKey(service.queryKey, { exact: false })
+    reset: resetQueryByKey(service.queryKey)
 
     // The arm merges in HERE, last.
     // ...actorActions

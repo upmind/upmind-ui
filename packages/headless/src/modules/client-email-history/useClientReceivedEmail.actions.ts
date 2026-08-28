@@ -134,7 +134,7 @@ export function createClientReceivedEmailActions(
     refresh,
 
     /** Drops the shared cache key's data so the next read starts from loading. */
-    reset: resetQueryByKey(service.queryKey, { exact: false })
+    reset: resetQueryByKey(service.queryKey)
 
     // The arm merges in HERE, last.
     // ...actorActions
