@@ -117,6 +117,9 @@ let armedModule: string | undefined;
 const IDENTIFIER =
   /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mock-uuid-\d+)$/i;
 
+/** At or above it the server refused; below it the exchange succeeded. */
+const REFUSED_FROM = 400;
+
 const FILTER_KEY = /^filter\[([^\]|]+)(?:\|([^\]]+))?\]$/;
 
 /** The truthy spelling a recorded boolean filter uses on the wire. */
@@ -490,6 +493,52 @@ export function resolveCorpusRequest(
     status: recorded.response.status,
     body: { ...envelope, data: rows, total: size(rows) }
   };
+}
+
+/**
+ * The module's own recorded refusal for THIS request, or none.
+ *
+ * A refusal is bound to the record the capture run happened to address —
+ * `.../addresses/20e43579-…` came back 409 — while the rows on screen carry
+ * whichever ids the collection recording holds. Requiring the id to match made
+ * a forced refusal reachable only for the one row nobody is looking at, so the
+ * acted-on write found no recording, passed through, and quietly succeeded
+ * against the real API under a forced chip. The id is the one thing NOT matched
+ * on here.
+ *
+ * A write is only ever refused from a recorded WRITE refusal and a read from a
+ * recorded read's: a sentence the API said about a change does not become
+ * something it said about a read by being served to one, and a module holding
+ * no failing write of its own is offered no `error-action` in the first place.
+ *
+ * @param bodies One module's recordings.
+ * @param method The request's own method — a write finds a write's refusal.
+ * @param url The request's own url; its ids are deliberately ignored.
+ */
+export function resolveCorpusRefusal(
+  bodies: CorpusBodies,
+  method: string,
+  url: URL
+): RecordedFixture | undefined {
+  const wanted = toUpper(method);
+  const shape = shapeOf(url.pathname);
+
+  const refusals = filter(
+    values(bodies),
+    fixture =>
+      fixture.response.status >= REFUSED_FROM &&
+      (methodOf(fixture) === "GET") === (wanted === "GET")
+  );
+
+  return (
+    find(
+      refusals,
+      fixture => methodOf(fixture) === wanted && fixtureShape(fixture) === shape
+    ) ??
+    find(refusals, fixture => methodOf(fixture) === wanted) ??
+    find(refusals, fixture => fixtureShape(fixture) === shape) ??
+    first(refusals)
+  );
 }
 
 /**
