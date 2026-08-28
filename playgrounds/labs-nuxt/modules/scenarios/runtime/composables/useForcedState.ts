@@ -39,16 +39,11 @@
  * drew its error above the stale rows it never returned. Only removing the
  * entry puts the surface back in the state the preset names.
  *
- * That clear is not instant, and `isSettling` is what the page holds its own
- * controls behind while it runs (FE-3113 M). An arm loads the corpus, registers
- * a worker and only THEN drops the cache — seconds during which the surface is
- * still drawing the rows the arm is about to take away. A row action fired into
- * that window is answered by the armed transport, and the refusal it draws is
- * then wiped by the clear landing on top of it, which is the one thing the
- * recorded refusal's own contract forbids: `error-action` serves the read as
- * recorded so the collection stays intact. Held, an action can only be fired
- * once the arm has settled, and the re-read that arm starts leaves no rows to
- * fire one at until it lands — so a refusal is never in flight beside a clear.
+ * That swap is not instant, and `isSettling` is the whole window the page holds
+ * its own controls behind (FE-3113 M): the corpus load, the worker registration,
+ * and the clear that ends it. Until it closes the rows on screen are the
+ * transport the arm is replacing, so a row action fired at one is refused
+ * against a record the clear is in the middle of taking away.
  */
 
 import { computed, effectScope, nextTick, ref, watch } from "vue";
@@ -173,11 +168,31 @@ function create(): ForcedStateHandle {
     // LAST, and only once the transport above is in place: a clear that ran
     // first would refetch through the handlers it is racing and refill the
     // cache from the live API, leaving the arm looking right over stale rows.
-    // Not awaited — a chain waiting on that refetch could never reconcile the
-    // preset picked after it. Scoped to the booted module by construction: the
-    // whole cache is the app chrome's too, and the chrome's singletons boot
-    // once and never re-ask.
-    void clearCache?.();
+    clear();
+  }
+
+  /**
+   * Drops the answers the swap just contradicted, and holds the page unsettled
+   * until the re-read that clear starts has landed.
+   *
+   * Off the `pending` chain deliberately: a queued reconcile waiting on that
+   * refetch could never answer the preset picked after it. `unsettled` is not
+   * that chain, so the page's own controls wait where the next reconcile must
+   * not — the window a row action must not be fired into runs from the arm to
+   * the moment the rows on screen are the armed transport's own.
+   *
+   * Scoped to the booted module by construction: the whole cache is the app
+   * chrome's too, and the chrome's singletons boot once and never re-ask.
+   */
+  function clear(): void {
+    if (!clearCache) return;
+
+    unsettled.value += 1;
+    void Promise.resolve(clearCache())
+      .catch(noop)
+      .finally(() => {
+        unsettled.value -= 1;
+      });
   }
 
   /**
@@ -231,7 +246,7 @@ function create(): ForcedStateHandle {
 
     // After the swap, for the same reason `reconcile` clears after it: the
     // answers this tab holds are the collection the last pass moved to.
-    void clearCache?.();
+    clear();
   }
 
   async function arm(next: ForcePreset): Promise<void> {

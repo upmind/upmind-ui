@@ -262,10 +262,8 @@ const { preset, isSettling } = useForcedState(
 );
 
 // A page mid-arm is no more the operator's to drive than one mid-replay, and
-// for the same reason (`R6-23`): the transport it would answer through is not
-// the one on screen. Arming loads the corpus, registers a worker and only then
-// drops the cache, so a row action fired before that lands acts on rows the arm
-// is about to take away and draws a refusal the clear wipes behind it.
+// for the same reason (`R6-23`): the transport a write would answer through is
+// not yet the one the rows on screen came from.
 const isLocked = computed(() => isReplaying.value || isSettling.value);
 
 // --- The page's three sheet providers, all page-scoped
