@@ -71,10 +71,11 @@
 import { Select, ToggleGroup, ToggleGroupItem } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { FORCE_URL_PRESETS } from "../composables/useForcedState.types";
 import { FORCE_PRESET_LABELS } from "./ForcedCanvas.types";
 import { scenarioMenu } from "./ScenarioMenu.styles";
 import { SCENARIO_CHOICE, TRACK_LIVE } from "./ScenarioMenu.types";
-import { filter, find, map, size } from "lodash-es";
+import { compact, filter, find, map, size, union } from "lodash-es";
 import type {
   ScenarioMenuEmits,
   ScenarioMenuProps
@@ -96,13 +97,27 @@ const forceValue = (preset: ForceUrlPreset): string => `force:${preset}`;
 
 const isLive = computed(() => !props.armed && !props.preset);
 
+// What is ARMED is a fact about the page, never a menu option to be validated
+// against the offered list: that list is derived from the corpus and resolves
+// asynchronously, so a page armed from a pasted url reports its placeholder
+// until the corpus lands unless the armed preset is read straight off the prop.
+const armedPreset = computed(() =>
+  find(FORCE_URL_PRESETS, entry => entry === props.preset)
+);
+
+// The armed preset rides in the group so the trigger can NAME it — the select
+// takes its label from the mounted option, so a value with no option shows the
+// placeholder. The offered list still governs what may be CHOSEN: an armed
+// preset the corpus has not offered is already active, so picking it is a no-op.
+const offered = computed(() =>
+  union(props.presets, compact([armedPreset.value]))
+);
+
 // Live is the ABSENT value, so the trigger falls back to its placeholder (the count).
 const active = computed(() => {
   if (props.armed) return trackValue(props.armed.slug);
 
-  const preset = find(props.presets, entry => entry === props.preset);
-
-  return preset ? forceValue(preset) : undefined;
+  return armedPreset.value ? forceValue(armedPreset.value) : undefined;
 });
 
 const items = computed<SelectOptionGroup[]>(() =>
@@ -110,7 +125,7 @@ const items = computed<SelectOptionGroup[]>(() =>
     [
       {
         label: t("labs.force_preset"),
-        options: map(props.presets, preset => ({
+        options: map(offered.value, preset => ({
           value: forceValue(preset),
           label: t(FORCE_PRESET_LABELS[preset]),
           disabled: !!props.disabled,
