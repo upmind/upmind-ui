@@ -498,7 +498,11 @@ const SKELETON_ROWS = 5;
 const state = computed(() => resolveModuleState(props.snapshot.meta));
 const detail = computed(() => resolveModuleDetail(props.snapshot.context));
 
-const feedback = useActionFeedback();
+// The module's own captured verdict is handed IN, because a row action the API
+// refuses reaches this surface no other way: the shared service reports the
+// refusal through its own feedback channel and RESOLVES, so the promise the row
+// fired comes back fulfilled and says nothing went wrong.
+const feedback = useActionFeedback(() => detail.value);
 
 // The notice stands in for the list only BEFORE the module first presents it. A
 // row action that the API refuses lands in the very same `hasError` channel a
