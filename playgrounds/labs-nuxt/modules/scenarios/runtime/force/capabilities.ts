@@ -219,15 +219,21 @@ export function answerablePresets(
  * The states this module's SURFACE has, whether or not the evidence to force
  * them exists.
  *
+ * The `.feature` IS the declaration: a module holding none has declared no
+ * surface, so it hosts nothing and owes nothing (`S12`) — the same reading that
+ * leaves such a module arming no route. Billing one for a capture it never
+ * claimed is a false debt, the mirror of the fabricated refusal this story
+ * deleted.
+ *
  * `empty` is one of them: EVERY read has an absent answer, a collection's being
  * zero rows and a single record's being the record not there (operator ruling,
  * 2026-08-28 · S1). A module whose reads all carry a record and which has never
  * captured that absence owes the capture, exactly as an undeclared refusal is
  * owed — the crash it used to draw came from authoring the missing body instead.
  *
- * The two refusals are gated on the `.feature`'s own DECLARATION: a module
- * tagging no scenario as a refusal never claimed that surface, so it owes no
- * capture for it. Reading the TAGS rather than the prose is the point — the
+ * The two refusals are gated once more, on the `.feature`'s own scenario TAGS: a
+ * module tagging no scenario as a refusal never claimed that surface, so it owes
+ * no capture for it. Reading the TAGS rather than the prose is the point — the
  * prose gate this replaces billed every module wording a failure anywhere in 200
  * lines of English.
  *
@@ -237,6 +243,8 @@ function hostablePresets(
   feature: string,
   bodies: Record<string, RecordedFixture>
 ): readonly ForceUrlPreset[] {
+  if (isEmpty(trim(feature))) return [];
+
   const fixtures = values(bodies);
 
   const declaresRefusal = !isEmpty(
