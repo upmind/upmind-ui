@@ -127,5 +127,9 @@ export function presetAnswer(
   if (preset === "error-collection")
     return isRead(method) && failure ? withoutBody(failure) : served;
 
-  return preset === "empty" ? withoutRecords(served) : served;
+  // A write is left exactly as recorded: `empty` is a state of the READ, and a
+  // one-record surface's member read is still a read. Emptying an
+  // acknowledgement would take the saved record away from the very save that
+  // just returned it.
+  return preset === "empty" && isRead(method) ? withoutRecords(served) : served;
 }
