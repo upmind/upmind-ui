@@ -71,10 +71,8 @@ const reason = computed(() => {
 });
 
 /**
- * ONE message under the title, never a stack of them. The catalogue's line is
- * the fallback for a failure that gave no reason; where the module published
- * one, that sentence IS the message and the generic line would only say the
- * same thing less accurately beside it (operator ruling, 2026-08-28).
+ * ONE message under the title, never a stack of them: the module's own reason
+ * where it gave one, the catalogue's line where it did not.
  */
 const message = computed(() => reason.value || content.value.description);
 </script>

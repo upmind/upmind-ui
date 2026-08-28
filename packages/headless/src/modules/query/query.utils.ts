@@ -120,16 +120,13 @@ export const invalidateQueryByKey =
   };
 
 /**
- * Reset every query UNDER a key — the cached data is REMOVED, not merely marked
- * stale, so an active observer goes back to pending while it refetches.
+ * Reset every query UNDER a key — the cached data is REMOVED, so an active
+ * observer goes back to pending while it refetches.
  *
- * Where {@link invalidateQueryByKey} leaves the data in place and only flips
- * `isFetching`, this is what a caller reaches for when the surface must return
- * to its LOADING state: the answers already held are discarded, not redrawn.
- *
- * The prefix is the point, and it is why this is not the per-query `resetQuery`
- * a query handle already publishes: that one clears the ONE key the observer is
- * attached to, leaving every other criteria variant the module has cached.
+ * Pick this over {@link invalidateQueryByKey}, which keeps the data and only
+ * flips `isFetching`, when the surface must return to its LOADING state; and
+ * over a query handle's own `resetQuery`, which clears only the one key its
+ * observer is attached to rather than the module's whole domain.
  *
  * @param queryKey The key prefix whose queries to reset
  * @returns A function that takes the data and returns it after the reset

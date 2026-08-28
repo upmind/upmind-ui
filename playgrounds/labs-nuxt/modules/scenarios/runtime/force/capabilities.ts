@@ -92,14 +92,8 @@ function isRefusal(fixture: RecordedFixture): boolean {
 
 /**
  * A read that came back carrying something — the recordings `empty` can
- * subtract from.
- *
- * Rows are not the only thing a surface can be empty OF. A module whose surface
- * is one RECORD has an empty state too — the record absent — and measuring only
- * collections left the profile module offering `loading` alone while every one
- * of its states answered (operator ruling, 2026-08-28). `isObject` covers both
- * and excludes the `data: null` a recording carries when it held nothing to
- * take away in the first place.
+ * subtract from: a collection's rows, or a single record. Rows are not the only
+ * thing a surface can be empty OF (operator ruling, 2026-08-28).
  */
 function isEmptiableRead(fixture: RecordedFixture): boolean {
   return (

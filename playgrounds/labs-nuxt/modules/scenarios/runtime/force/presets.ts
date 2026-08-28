@@ -29,10 +29,9 @@
  *
  * A request the corpus does not own is answered by nobody — the caller passes it
  * through, which is what keeps forcing to this module's own endpoints (`AC8.3`).
- * The refused WRITE is the one exception, and it is the point of the preset: the
- * armed routes have already scoped the request to this module's own subject, and
- * a state that only refuses the single row the capture run addressed is not a
- * state at all (FE-3113 K2). The refusal served is still the module's own.
+ * The refused WRITE is the one exception: `error-action` is a STATE, not a
+ * replay of one recorded exchange, and the armed routes have already scoped the
+ * request to this module's own subject (FE-3113 K2).
  *
  * Bodies arrive as an ARGUMENT, exactly as the resolver's do: app runtime's are
  * the `ESC6` seam's (`runtimeCorpus()`), a spec's are its own lawful read of the
@@ -63,14 +62,10 @@ export const PENDING = "pending" as const;
 export type PresetAnswer = CorpusResponse | typeof PENDING | undefined;
 
 /**
- * The same recorded envelope with what it CARRIED taken away — the empty state
- * as the recording itself would have carried it, rather than a body written to
- * look like one.
- *
- * A collection loses its rows; a MEMBER loses its record, because a one-record
- * surface is empty when the record is absent and `empty` is not exclusively "a
- * list with zero rows" (operator ruling, 2026-08-28). An acknowledgement
- * carrying no data at all has nothing to take away and is served as recorded.
+ * The same recorded envelope with what it CARRIED taken away — a collection
+ * loses its rows, a member loses its record, an acknowledgement carrying no data
+ * is served as recorded. The empty state as the recording itself would have
+ * carried it, rather than a body written to look like one.
  */
 function withoutRecords(response: CorpusResponse): CorpusResponse {
   const body = response.body as { data?: unknown };
@@ -116,28 +111,17 @@ export function presetAnswer(
 ): PresetAnswer {
   const served = resolveCorpusRequest(bodies, method, url);
 
-  // The half `error-action` is NAMED for, and the one branch that answers a
-  // request the corpus captured no exchange of. A preset is a STATE, not a
-  // replay of one recorded exchange: the recorded refusal is bound to the row
-  // the capture run addressed, the rows on screen are other rows, so requiring
-  // this write to resolve first left every acted-on row passing through to the
-  // real API under a forced chip. The refusal is still the module's OWN, and
-  // `resolveCorpusRefusal` matches it by method and resource shape.
+  // ABOVE the `!served` guard deliberately: the acted-on row carries an id no
+  // capture run addressed, so a write that had to resolve first was answered by
+  // nobody and reached the real API under a forced chip.
   if (preset === "error-action" && !isRead(method))
     return resolveCorpusRefusal(bodies, method, url)?.response ?? served;
 
   if (!served) return undefined;
   if (preset === "loading") return PENDING;
 
-  // The other half of a named failure is served exactly as recorded, which is
-  // what keeps a refused row inside a list that still has its rows.
   if (preset === "error-action") return served;
 
-  // A read refuses at the module's own recorded STATUS with its sentence
-  // withheld (`R6-19`), so a module holding no refusal answers neither failure
-  // — the request is served as recorded rather than at a status this file made
-  // up, and `answerablePresets` never offers the preset in the first place
-  // (`S13`).
   const failure = recordedFailure?.response;
 
   if (preset === "error-collection")
