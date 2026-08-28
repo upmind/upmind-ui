@@ -19,8 +19,14 @@
  * never said about the thing that failed.
  *
  * Negative controls: `force-presets.conflated-error.must-fail.patch`,
- * `force-presets.error-status.must-fail.patch`,
  * `force-presets.invented-empty.must-fail.patch`.
+ *
+ * RETIRED (FE-3113, operator ruling 2026-08-28) —
+ * `force-presets.error-status.must-fail.patch` mutated the `REFUSED` constant, a
+ * status literal nobody recorded. This story deleted `REFUSED`, and a preset with
+ * no recording behind it is no longer offered, so no path through this file can
+ * invent a status. The defect is structurally unrepresentable; the control could
+ * no longer be applied, and one that cannot be applied guards nothing.
  */
 
 import { readFileSync, readdirSync } from "node:fs";

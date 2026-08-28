@@ -1,0 +1,33 @@
+Negative control for the FE-3113 arm-barrier spec (`AC3`).
+
+`armCorpusModule` is the barrier: when it reports true, the module it names must
+already be the corpus a handler list is built from. This mutant keeps the load —
+the recordings still arrive, a beat later — and only moves the report ahead of
+it, which is exactly the un-awaited `void armCorpusModule(...)` shape the story
+found on the page. Nothing looks withdrawn: the module resolves, the promise
+resolves true, and a moment afterwards the corpus is there.
+
+What must go red is the ORDER, not the outcome. An assertion that re-reads the
+corpus after another tick, or that only checks the boolean, passes the mutant and
+proves nothing — the page reports armed, the worker registers zero handlers, and
+every request goes past it to STAGING under a chip that says replaying. Read the
+shared pointer SYNCHRONOUSLY after the await resolves.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the arm-barrier spec — armed means installed, for every module force can
+reach.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.ts
+@@ -195,8 +195,8 @@ function offsetOf(fixture: RecordedFixture): number {
+ export async function armCorpusModule(module: string): Promise<boolean> {
+   if (!isModuleResolved(module)) return false;
+ 
+-  await loadCorpusBodies(module);
+   armedModule = module;
++  void loadCorpusBodies(module);
+ 
+   return true;
+ }

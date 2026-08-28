@@ -55,17 +55,27 @@
  * here hand-writes a status or an error body.
  *
  * ## Capture-limitation disclosure (required by NFR-2 / the 2026-08-05 receipt)
- * The staging client (`API_CREDENTIALS.client`) has a real history of ~2860
- * emails at capture time: the overwhelming majority carry an `error_id`, a
- * handful are `sent`, and a handful are `SENDING` (neither sent, bounced, nor
- * errored) — confirmed via `filter[bounced]=true` returning `total: 0` for
- * this account's ENTIRE history, not a page sample. Two AC-3 cases are
- * therefore **NOT captured here, on purpose, rather than hand-authored**:
+ * The staging client (`API_CREDENTIALS.client`) has a real history of ~2885
+ * emails at capture time, and the overwhelming majority carry an `error_id`.
+ * Two whole-history filters — not page samples — measure what it does NOT
+ * hold: `filter[bounced]=true` returns `total: 0`, and `filter[error_id]=null`
+ * returns `total: 1`, that single row already `sent: true`. Three AC-3 cases
+ * are therefore **NOT captured here, on purpose, rather than hand-authored**:
  *
  *   1. A BOUNCED row (`bounced: true`) — none exists anywhere in this
  *      account's history.
  *   2. The bounced+error precedence row (`bounced: true` AND `error_id` set)
  *      — depends on (1).
+ *   3. A SENDING row (neither `sent`, `bounced` nor errored) — an earlier
+ *      capture held a handful; this account's in-flight emails have since
+ *      sent, and the whole-history `filter[error_id]=null` read above is the
+ *      recorded proof that none remains.
+ *
+ * All three are pure-mapper branches, proven at the unit layer from a REAL
+ * recorded row with exactly ONE field toggled and the toggle named in the test
+ * — `client-email-history.mappers.test.ts`. None is replayed through the wire,
+ * because replaying one would mean inventing the body `no-hand-rolled-int-fixture`
+ * exists to catch.
  *
  * A separate staff credential check (`API_CREDENTIALS.staff`) to source a
  * bounced row from a different real account failed with a real 401 (staging
@@ -89,8 +99,9 @@
  * AC-4/AC-18, the recorded refusal both errored states replay) ·
  * `get-self-email-history?filter[error_id|neq]=null` (ERROR rows, AC-3) ·
  * `get-self-email-history?filter[sent]=true` (the one real SENT row, AC-3) ·
- * `get-self-email-history?filter[error_id]=null` (the SENDING + SENT rows,
- * AC-3) · `get-self-email-history?case=subject-sort` (real subject sort,
+ * `get-self-email-history?filter[error_id]=null` (every error-free row this
+ * account holds, and the recorded proof none is still in flight — AC-3) ·
+ * `get-self-email-history?case=subject-sort` (real subject sort,
  * AC-6) · `get-self-email-history?query=invoice` (AC-7) ·
  * `get-self-email-history?query=invoice&subject=Invoice` (AC-7) ·
  * `get-emails-id` (single read, real populated body, AC-13).
@@ -147,15 +158,17 @@ async function mintToken(
 }
 
 /**
- * Drop a buffered capture whose recorded path carries the given `case` tag.
+ * Drop every buffered capture whose recorded path carries the given fragment.
  * `save()` in `afterAll` writes the whole buffer whatever each case did, so a
  * case that did not record its subject must remove its own capture before it
  * throws — otherwise a run that failed still ships the file it failed over.
+ * The fragment is the path itself, so a case with no `case=` label of its own
+ * identifies its capture the same way one with a label does.
  */
-function dropCapture(generator: Generator, caseTag: string): void {
+function dropCapture(generator: Generator, fragment: string): void {
   const captures = generator.getCapturedFixtures();
   for (const [key, { fixture }] of captures) {
-    if (fixture.request.path.includes(`case=${caseTag}`)) captures.delete(key);
+    if (fixture.request.path.includes(fragment)) captures.delete(key);
   }
 }
 
@@ -256,7 +269,7 @@ describe("Client-Email-History API Fixtures Generator", () => {
     );
     generator.clearBearerToken();
     if (status < 400) {
-      dropCapture(generator, "refused");
+      dropCapture(generator, "case=refused");
       throw new Error(
         `An unusable bearer read of self/email_history returned ${status}, ` +
           "which is not a refusal — AC-4's errored state has no recorded " +
@@ -291,14 +304,40 @@ describe("Client-Email-History API Fixtures Generator", () => {
     sentEmailId = rows[0]?.id;
   });
 
-  it("captures GET self/email_history filter[error_id]=null — REAL sending rows (AC-3)", async () => {
+  it("captures GET self/email_history filter[error_id]=null — every REAL error-free row, and the proof none is in flight (AC-3)", async () => {
     generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.get(
+    const { status, body } = await generator.get(
       `/api/self/email_history?${WITH_PARAM}&filter[error_id]=null&limit=10`
     );
     generator.clearBearerToken();
     if (status !== 200) {
-      throw new Error(`Sending-status capture returned ${status}.`);
+      dropCapture(generator, "filter[error_id]=null");
+      throw new Error(
+        `Error-free capture returned ${status}, which is not a readable ` +
+          "collection — DROPPED rather than shipped under one's name."
+      );
+    }
+    const rows =
+      (body as { data?: Array<{ sent?: boolean; bounced?: boolean }> })?.data ??
+      [];
+    if (!rows.length) {
+      dropCapture(generator, "filter[error_id]=null");
+      throw new Error(
+        "The error-free capture recorded no rows at all, so it evidences " +
+          "neither the SENT row AC-3 replays nor the absence of a SENDING " +
+          "one — its subject is missing, and the capture was DROPPED rather " +
+          "than shipped as an AC-3 fixture."
+      );
+    }
+    const inFlight = rows.filter(row => !row.sent && !row.bounced);
+    if (inFlight.length) {
+      throw new Error(
+        `Expected ZERO in-flight rows for this staging client (the ` +
+          `documented capture-limitation basis) but got ${inFlight.length} — ` +
+          "SENDING is capturable from the wire again, so the disclosure and " +
+          "the unit-layer toggle that stands in for it need re-checking, not " +
+          "silent replacement."
+      );
     }
   });
 

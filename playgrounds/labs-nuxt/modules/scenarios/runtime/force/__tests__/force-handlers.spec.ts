@@ -16,23 +16,38 @@
  * page, for the rest of the tab's life, because the singletons that booted it
  * never re-ask.
  *
+ * The foreign set is MEASURED off the committed corpus — every path another
+ * module's capture run recorded that this one never did — rather than the four
+ * chrome urls it used to guess. Whether a module's subject is narrower than its
+ * own capture run is `force-presets-all-modules.spec.ts`'s claim, per module;
+ * this file grades the handler list one module builds.
+ *
  * Negative controls: `force-handlers.module-scope.must-fail.patch`.
  */
 
 import { describe, expect, it } from "vitest";
+import { recordedBodies } from "@upmind-automation/headless/fixtures";
 import { armCorpusModule, runtimeCorpus } from "../corpus";
 import { createForceHandlers } from "../handlers";
-import { filter, map, size, some } from "lodash-es";
+import {
+  filter,
+  flatMap,
+  get,
+  keys,
+  map,
+  omit,
+  reject,
+  size,
+  some,
+  uniq,
+  values
+} from "lodash-es";
 import type { ForcePreset } from "../../composables/useForcedState.types";
 import type { HttpHandler } from "msw";
 
 // -----------------------------------------------------------------------------
 
 const MODULE = "client-email";
-
-await armCorpusModule(MODULE);
-
-const bodies = runtimeCorpus(MODULE)!;
 
 const PRESETS: ForcePreset[] = [
   "empty",
@@ -42,7 +57,39 @@ const PRESETS: ForcePreset[] = [
   "replay"
 ];
 
-const ORIGIN = "https://api.upmind.io/api";
+const ROOT = "https://api.upmind.io";
+
+const ORIGIN = `${ROOT}/api`;
+
+const pathShape = (path: string) =>
+  path
+    .split("?")[0]
+    .split("/")
+    .filter(Boolean)
+    .map(segment =>
+      /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mock-uuid-\d+)$/i.test(
+        segment
+      )
+        ? ":id"
+        : segment
+    )
+    .join("/");
+
+// Serial: the loader caches per module and arming moves one shared pointer, so
+// this sweep runs module by module and re-arms the subject module last.
+const RECORDED: Record<string, string[]> = {};
+
+for (const module of keys(recordedBodies)) {
+  await armCorpusModule(module);
+
+  RECORDED[module] = map(values(runtimeCorpus(module) ?? {}), fixture =>
+    get(fixture, ["request", "path"], "")
+  );
+}
+
+await armCorpusModule(MODULE);
+
+const bodies = runtimeCorpus(MODULE)!;
 
 /** The module's own endpoints — what forcing exists to answer. */
 const OWN = [
@@ -52,12 +99,31 @@ const OWN = [
 ];
 
 /** The chrome's own boot calls — booted once by singletons that never re-ask. */
-const FOREIGN = [
+const CHROME = [
   `${ORIGIN}/brand/settings`,
   `${ORIGIN}/config/brand/values`,
   `${ORIGIN}/clients/self`,
   `${ORIGIN}/oauth/access_token`
 ];
+
+const OWN_SHAPES = new Set(map(RECORDED[MODULE], pathShape));
+
+/**
+ * The chrome above plus every endpoint another module's capture run actually
+ * recorded and this one never did. Four hand-written urls only probe what the
+ * author thought to guess; the corpus names the real ones a widened handler list
+ * would swallow.
+ */
+const FOREIGN = uniq([
+  ...CHROME,
+  ...map(
+    reject(
+      uniq(flatMap(omit(RECORDED, MODULE), paths => paths)),
+      path => !path || OWN_SHAPES.has(pathShape(path))
+    ),
+    path => `${ROOT}${path}`
+  )
+]);
 
 async function matches(
   handlers: HttpHandler[],
@@ -108,6 +174,13 @@ describe("AC8.3 arming answers THIS module's endpoints", () => {
 });
 
 describe("AC8.3 and NOTHING else — the app's chrome still reaches staging", () => {
+  it("probes the endpoints a capture run really drove, not four guessed urls", () => {
+    expect(
+      size(FOREIGN),
+      "no module outside client-email recorded a path of its own — this claim reaches no further than its own guesses"
+    ).toBeGreaterThan(size(CHROME));
+  });
+
   it("matches no request outside the module, on any preset", async () => {
     for (const preset of PRESETS) {
       const handlers = createForceHandlers(preset, bodies);

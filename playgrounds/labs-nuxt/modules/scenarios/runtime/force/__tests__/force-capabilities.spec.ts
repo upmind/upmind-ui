@@ -21,6 +21,8 @@
  * into nothing — the dead-alive control `S14` forbids. Claimed false with a
  * recording present means a real capture is written off as debt, and the module
  * loses a state it can actually serve.
+ *
+ * Negative controls: `force-capabilities.refusal-assumed.must-fail.patch`.
  */
 
 import { readFileSync, readdirSync } from "node:fs";
@@ -213,12 +215,13 @@ describe("AC5 the modules the ticket named, measured rather than assumed", () =>
       "caps"
     );
 
-  it("client-email-history records no refusal, so its errored state is a gap", () => {
+  it("client-email-history records a refusal but no write, so it serves the failed READ alone", () => {
     const caps = capsFor("client-email-history");
 
     expect(caps).toBeDefined();
     expect(caps!.canEmpty).toBe(true);
     expect(caps!.canLoading).toBe(true);
+    expect(caps!.canErrorCollection).toBe(true);
     expect(caps!.canErrorAction).toBe(false);
   });
 

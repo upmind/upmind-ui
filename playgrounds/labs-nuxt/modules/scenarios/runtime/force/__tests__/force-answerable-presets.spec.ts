@@ -24,6 +24,8 @@
  * developer arms a state that has no recording to serve it and watches nothing
  * happen. And with the gap report broken, a missing capture reads as "this
  * module does not do that" rather than "nobody recorded it yet".
+ *
+ * Negative controls: `force-answerable-presets.prose-gate.must-fail.patch`.
  */
 
 import { existsSync, readFileSync, readdirSync } from "node:fs";
@@ -37,10 +39,12 @@ import {
   fromPairs,
   get,
   groupBy,
+  includes,
   intersection,
   isArray,
   isEmpty,
   map,
+  omitBy,
   some,
   toUpper,
   values
@@ -140,6 +144,26 @@ const named = (module: string) => {
 const gapsOf = (entry: (typeof RECORDED)[number]) => [
   ...captureGaps(entry.feature, entry.bodies)
 ];
+
+/**
+ * Whether a feature DECLARES a refusal, read off the scenario tag that carries
+ * it. The prose this story deleted is not re-hunted here: a tag is structure.
+ */
+const declaresRefusal = (feature: string) => includes(feature, "@guard");
+
+const hasWrite = (fixtures: RecordedFixture[]) =>
+  some(fixtures, fixture => !isRead(fixture));
+
+/**
+ * A module's own recordings with its refusals dropped — the corpus exactly as it
+ * stood before the capture that closed its gap. Nothing is authored: every
+ * surviving entry is a committed recording.
+ */
+const beforeItsCapture = (bodies: Record<string, RecordedFixture>) =>
+  omitBy(bodies, isRefused);
+
+const inVocabulary = (presets: ForceUrlPreset[]) =>
+  filter(FORCE_URL_PRESETS, preset => includes(presets, preset));
 
 // -----------------------------------------------------------------------------
 
@@ -268,49 +292,80 @@ describe("AC5 a declared state the corpus cannot answer is NAMED, never dropped"
     }
   });
 
-  it("reports client-email-history's refused read — declared, recorded by nobody", () => {
+  it("closes client-email-history's gap at the source — its declared refusal is on record", () => {
     const entry = named("client-email-history");
 
-    expect(entry.feature).toContain("any forced read is refused");
+    expect(declaresRefusal(entry.feature)).toBe(true);
     expect(
       filter(entry.fixtures, isRefused),
-      "the capture landed — this claim's premise is stale, not its subject"
-    ).toEqual([]);
-    expect([...entry.offered]).not.toContain("error-collection");
-    expect(
-      gapsOf(entry),
-      "the errored state its feature declares is unevidenced and unreported"
-    ).toContain("error-collection");
+      "the refusal its feature declares has no recording — the capture is owed, not closed"
+    ).not.toEqual([]);
+    expect([...entry.offered]).toContain("error-collection");
+    expect(gapsOf(entry)).toEqual([]);
   });
 
   it("reports no gap for client-email, whose corpus answers what it declares", () => {
     expect(gapsOf(named("client-email"))).toEqual([]);
   });
 
-  it("owes a capture only for a state the feature actually DECLARES", () => {
-    const entry = named("brand");
-
-    expect(
-      entry.feature,
-      "brand's feature now words a failure — pick another module with none"
-    ).not.toMatch(/refus|reject|error|fail|not-authenticated/i);
-    expect(
-      gapsOf(entry),
-      "brand is billed for an errored state its feature never declares"
-    ).toEqual([]);
+  it("owes no capture anywhere in the tree today", () => {
+    for (const entry of RECORDED) {
+      expect(
+        gapsOf(entry),
+        `${entry.module} declares a state no recording of its own answers — run its capture`
+      ).toEqual([]);
+    }
   });
 
-  it("tells a feature that declares a refusal from one that does not", () => {
-    const entry = named("client-email-history");
+  it("names the gap the moment a declared refusal has nothing recorded behind it", () => {
+    const declaring = filter(RECORDED, entry => declaresRefusal(entry.feature));
 
     expect(
-      gapsOf(entry),
-      "the premise is stale — this module no longer owes the capture"
-    ).toContain("error-collection");
+      map(declaring, "module"),
+      "no feature in the tree declares a refusal — this claim has no subject"
+    ).not.toEqual([]);
+
+    for (const entry of declaring) {
+      const unrecorded = beforeItsCapture(entry.bodies);
+
+      expect(
+        filter(values(unrecorded), isRefused),
+        `${entry.module} kept a refusal the strip should have dropped`
+      ).toEqual([]);
+      expect(
+        [...answerablePresets(unrecorded)],
+        `${entry.module} offers a refusal it has no recording to serve`
+      ).not.toContain("error-collection");
+      expect(
+        [...captureGaps(entry.feature, unrecorded)],
+        `${entry.module} drops the refusal its feature declares silently, as a missing button`
+      ).toEqual(
+        inVocabulary(
+          hasWrite(values(unrecorded))
+            ? ["error-action", "error-collection"]
+            : ["error-collection"]
+        )
+      );
+    }
+  });
+
+  it("bills only a feature that DECLARES the refusal, never one that merely exists", () => {
+    const silent = filter(
+      RECORDED,
+      entry => !isEmpty(entry.feature) && !declaresRefusal(entry.feature)
+    );
+
     expect(
-      [...captureGaps("Feature: nothing forced here", entry.bodies)],
-      "the gap report reads whether a feature EXISTS, not what it declares"
-    ).toEqual([]);
+      map(silent, "module"),
+      "every feature in the tree declares a refusal — this claim has no subject"
+    ).not.toEqual([]);
+
+    for (const entry of silent) {
+      expect(
+        [...captureGaps(entry.feature, beforeItsCapture(entry.bodies))],
+        `${entry.module} is billed for an errored state its feature never declares`
+      ).toEqual([]);
+    }
   });
 
   it("owes nothing where there is no force affordance at all (S12)", () => {

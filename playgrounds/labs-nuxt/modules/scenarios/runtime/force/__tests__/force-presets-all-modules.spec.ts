@@ -30,6 +30,9 @@
  * produced, previewed as if it had. On the route side, an under-reaching arm
  * sends a forced page to STAGING and an over-reaching one intercepts app chrome,
  * where `loading` hangs it for the tab's life.
+ *
+ * Negative controls:
+ * `force-presets-all-modules.arms-the-capture-run.must-fail.patch`.
  */
 
 import { describe, expect, it } from "vitest";

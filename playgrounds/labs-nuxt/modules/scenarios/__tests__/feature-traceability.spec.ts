@@ -4,8 +4,9 @@
  * @description The anchor enforcement `code-test-bdd` §7 assigns to the prover:
  * the both-ways link between every playground `.feature` and the specs beside
  * it. It fails when a scenario carries a capability id no spec names (a
- * coverage hole), and when a spec names an id its feature never declared (an
- * untethered or stale anchor).
+ * coverage hole), when a spec names an id its feature never declared (a stale
+ * anchor), and when a spec anchors a feature while claiming none of its ids —
+ * an anchor that points at a file rather than at a capability.
  *
  * Neither direction is visible without it. A feature is not executable, so a
  * scenario nobody proved reads exactly like one somebody did; and an
@@ -15,6 +16,9 @@
  * The vocabulary below is what a tag can be OTHER than an id — the story tag,
  * the actor, the layer, and `@todo` for a declared-but-unprovable capability.
  * Everything else on a `Scenario:` is a capability id and must be answered.
+ *
+ * Negative controls: `feature-traceability.unanswered-scenario.must-fail.patch`,
+ * `feature-traceability.untethered-anchor.must-fail.patch`.
  */
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
@@ -183,6 +187,19 @@ describe("BDD anchors — every scenario is answered, every anchor lands", () =>
     );
 
     expect(sortBy(stale)).toEqual([]);
+  });
+
+  it("leaves no spec anchoring a feature while claiming none of its capabilities", () => {
+    const untethered = flatMap(
+      filter(FEATURES, feature => !isEmpty(feature.ids)),
+      feature =>
+        map(
+          filter(answering(feature), spec => isEmpty(spec.ids)),
+          spec => `${spec.file} @anchor ${basename(feature.file)}`
+        )
+    );
+
+    expect(sortBy(untethered)).toEqual([]);
   });
 
   it("leaves no feature with nothing answering it", () => {
