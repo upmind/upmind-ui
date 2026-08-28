@@ -28,15 +28,27 @@ import type { RecordedFixture } from "./corpus.source.types";
  * instead is what left three modules with no affordance at all while their
  * states answered correctly.
  *
- * A false field is not always a debt. `canEmpty` false means the surface holds
- * no collection; only an unrecorded REFUSAL is a capture gap, which
- * `captureGaps` reports.
+ * A false field is not always a debt. `canEmpty` false means the surface has
+ * nothing recorded to take away at all; only an unrecorded REFUSAL is a capture
+ * gap, which `captureGaps` reports.
+ *
+ * @graphify-citation `graphify query "CorpusCapabilities canEmpty empty state
+ * single record"` (2026-08-28, FE-3113 K4) — the widened `canEmpty` meaning
+ * mints no type: this contract and its four booleans are already in
+ * `graphify-out/graph.json` (community 446), and the tree carries no rival
+ * empty-state contract to consume. See `graphify-out/GRAPH_REPORT.md`.
  *
  * Shape unchanged from the contract already in `graphify-out/graph.json`
  * (community 446).
  */
 export type CorpusCapabilities = {
-  /** A successful collection read is recorded, so there are rows to remove. */
+  /**
+   * A successful read carrying something to SUBTRACT is recorded — a
+   * collection's rows, or a single record. Empty is not exclusively "a list
+   * with zero rows": a one-record surface has an empty state too, and it is
+   * that record withheld (operator ruling, 2026-08-28; no new type — see the
+   * `graphify-out/` citation above).
+   */
   canEmpty: boolean;
   /** Any recording exists at all — a withheld answer needs no body. */
   canLoading: boolean;

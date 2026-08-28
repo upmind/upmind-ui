@@ -33,8 +33,8 @@ import {
   find,
   flatMap,
   intersection,
-  isArray,
   isEmpty,
+  isObject,
   get,
   map,
   some,
@@ -90,12 +90,22 @@ function isRefusal(fixture: RecordedFixture): boolean {
   return fixture.response.status >= REFUSED_FROM;
 }
 
-/** A read that came back with rows — the only recording `empty` can subtract from. */
-function isCollectionRead(fixture: RecordedFixture): boolean {
+/**
+ * A read that came back carrying something — the recordings `empty` can
+ * subtract from.
+ *
+ * Rows are not the only thing a surface can be empty OF. A module whose surface
+ * is one RECORD has an empty state too — the record absent — and measuring only
+ * collections left the profile module offering `loading` alone while every one
+ * of its states answered (operator ruling, 2026-08-28). `isObject` covers both
+ * and excludes the `data: null` a recording carries when it held nothing to
+ * take away in the first place.
+ */
+function isEmptiableRead(fixture: RecordedFixture): boolean {
   return (
     isRead(fixture) &&
     !isRefusal(fixture) &&
-    isArray(get(fixture.response, ["body", "data"]))
+    isObject(get(fixture.response, ["body", "data"]))
   );
 }
 
@@ -123,7 +133,7 @@ export function corpusCapabilities(
   const failure = failedWrite ?? refusals[0];
 
   return {
-    canEmpty: !!find(fixtures, isCollectionRead),
+    canEmpty: !!find(fixtures, isEmptiableRead),
     canLoading: !isEmpty(fixtures),
     canErrorCollection: !!failure,
     canErrorAction: !!failedWrite,
@@ -158,9 +168,9 @@ export function answerablePresets(
  * them exists.
  *
  * A refusal is the only thing a corpus can OWE. The other two are structural: a
- * module with no collection read has no rows to remove, so `empty` there is a
- * state the surface lacks rather than a capture nobody took, and `loading` needs
- * no evidence beyond a recording existing.
+ * module whose reads carry nothing to take away has no `empty` to reach, so it
+ * is a state the surface lacks rather than a capture nobody took, and `loading`
+ * needs no evidence beyond a recording existing.
  */
 function hostablePresets(
   bodies: Record<string, RecordedFixture>
