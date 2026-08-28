@@ -2,8 +2,9 @@
 /**
  * @module scenarios/runtime/force/presets
  * @description The answers a forced page can give, over ONE module's corpus:
- * `empty` is the recorded read with what it carried taken away — a collection's
- * rows, or a single record — `error-action` and `error-collection` are the
+ * `empty` is the recorded collection with its rows taken away, or — where the
+ * read is of one RECORD — the module's own recorded read for a record that is
+ * not there, `error-action` and `error-collection` are the
  * recording that FAILED aimed at the write and at the read respectively,
  * `loading` is no answer at all, and `replay` is the answer the resolver already
  * picks. Same corpus, a different answer: the only thing a preset may change
@@ -50,8 +51,12 @@
  */
 
 import { corpusCapabilities } from "./capabilities";
-import { resolveCorpusRefusal, resolveCorpusRequest } from "./corpus";
-import { get, isArray, isObject, isString, toUpper } from "lodash-es";
+import {
+  resolveCorpusAbsence,
+  resolveCorpusRefusal,
+  resolveCorpusRequest
+} from "./corpus";
+import { get, isArray, isString, toUpper } from "lodash-es";
 import type { CorpusBodies, CorpusResponse } from "./corpus";
 import type { RecordedFixture } from "./corpus.source.types";
 import type { ForcePreset } from "../composables/useForcedState.types";
@@ -68,19 +73,22 @@ export const PENDING = "pending" as const;
 export type PresetAnswer = CorpusResponse | typeof PENDING | undefined;
 
 /**
- * The same recorded envelope with what it CARRIED taken away — a collection
- * loses its rows, a member loses its record, an acknowledgement carrying no data
- * is served as recorded. The empty state as the recording itself would have
- * carried it, rather than a body written to look like one.
+ * The same recorded envelope with its ROWS taken away — the empty collection as
+ * the recording itself would have carried it, rather than a body written to look
+ * like one.
+ *
+ * Only a collection empties this way. A member has no rows to subtract, and an
+ * envelope with its record removed is a shape no capture returned: the authored
+ * one drew a mapper CRASH on every single-record surface, so the answer there is
+ * the module's own recorded absent-record read instead (operator ruling,
+ * 2026-08-28 · S1).
  */
-function withoutRecords(response: CorpusResponse): CorpusResponse {
+function withoutRows(response: CorpusResponse): CorpusResponse {
   const body = response.body as { data?: unknown };
 
-  if (!isObject(body?.data)) return response;
+  if (!isArray(body?.data)) return response;
 
-  return isArray(body.data)
-    ? { ...response, body: { ...body, data: [], total: 0 } }
-    : { ...response, body: { ...body, data: null } };
+  return { ...response, body: { ...body, data: [], total: 0 } };
 }
 
 /**
@@ -163,5 +171,16 @@ export function presetAnswer(
   // one-record surface's member read is still a read. Emptying an
   // acknowledgement would take the saved record away from the very save that
   // just returned it.
-  return preset === "empty" && isRead(method) ? withoutRecords(served) : served;
+  //
+  // A collection empties by SUBTRACTION from its own envelope; a member cannot,
+  // so it is answered by the module's own recorded read for a record that is not
+  // there. Holding no such capture, the read is served exactly as recorded and
+  // the absence is reported as a capture gap — never papered over with a body
+  // nothing sent (`S13`).
+  if (preset === "empty" && isRead(method))
+    return isArray(get(served, ["body", "data"]))
+      ? withoutRows(served)
+      : (resolveCorpusAbsence(bodies, url) ?? served);
+
+  return served;
 }

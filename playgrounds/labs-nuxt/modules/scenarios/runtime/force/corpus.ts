@@ -28,6 +28,7 @@
  * Browser-safe by construction: no `node:fs`, no `node:path`.
  */
 
+import { isAbsentRecordRead, isServableRefusal } from "./capabilities";
 import {
   featureTextFor,
   getCorpusBodies,
@@ -178,7 +179,7 @@ function envelopeOf(
 function isCollectionRead(fixture: RecordedFixture): boolean {
   return (
     methodOf(fixture) === "GET" &&
-    fixture.response.status < 400 &&
+    fixture.response.status < REFUSED_FROM &&
     !!envelopeOf(fixture)
   );
 }
@@ -510,7 +511,9 @@ export function resolveCorpusRequest(
  *
  * A write only ever takes a recorded WRITE refusal and a read a read's: a
  * sentence the API said about a change does not become something it said about
- * a read by being served to one.
+ * a read by being served to one. An auth refusal is taken by neither — forcing
+ * one signs the operator out of the page they armed (FE-3113 P), so
+ * `isServableRefusal` measures it out here exactly as it does in the offer.
  *
  * @param bodies One module's recordings.
  * @param method The request's own method.
@@ -528,7 +531,7 @@ export function resolveCorpusRefusal(
   const refusals = filter(
     values(bodies),
     fixture =>
-      fixture.response.status >= REFUSED_FROM &&
+      isServableRefusal(fixture) &&
       (methodOf(fixture) === "GET") === (wanted === "GET")
   );
 
@@ -541,6 +544,34 @@ export function resolveCorpusRefusal(
     find(refusals, fixture => fixtureShape(fixture) === shape) ??
     first(refusals)
   );
+}
+
+/**
+ * The module's own recorded read for a record that is NOT THERE — what `empty`
+ * answers a single-record surface with. A collection empties by subtraction; a
+ * member cannot, because an envelope with its record taken out is a shape no
+ * capture returned, so this is a different RECORDING rather than a different
+ * body (operator ruling, 2026-08-28 · S1).
+ *
+ * Matched by resource shape first, so a module holding several member reads
+ * answers the one the request actually addressed.
+ *
+ * @param bodies One module's recordings.
+ * @param url The request's own url; its ids are ignored.
+ * @returns The absent-record recording, or none where the corpus holds no such
+ * capture — which is the gap `captureGaps` reports.
+ */
+export function resolveCorpusAbsence(
+  bodies: CorpusBodies,
+  url: URL
+): CorpusResponse | undefined {
+  const shape = shapeOf(url.pathname);
+  const absences = filter(values(bodies), isAbsentRecordRead);
+
+  return (
+    find(absences, fixture => fixtureShape(fixture) === shape) ??
+    first(absences)
+  )?.response;
 }
 
 /**
@@ -577,7 +608,10 @@ function pickRecording(
     if (labelled) return labelled;
   }
 
-  const served = filter(candidates, fixture => fixture.response.status < 400);
+  const served = filter(
+    candidates,
+    fixture => fixture.response.status < REFUSED_FROM
+  );
   const asked = criteriaOf(params);
 
   return (

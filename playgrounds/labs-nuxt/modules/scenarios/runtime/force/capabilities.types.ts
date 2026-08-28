@@ -43,22 +43,31 @@ import type { RecordedFixture } from "./corpus.source.types";
  */
 export type CorpusCapabilities = {
   /**
-   * A successful read carrying something to SUBTRACT is recorded — a
-   * collection's rows, or a single record. Empty is not exclusively "a list
-   * with zero rows": a one-record surface has an empty state too, and it is
-   * that record withheld (operator ruling, 2026-08-28; no new type — see the
-   * `graphify-out/` citation above).
+   * The corpus can answer an absent read — a recorded collection whose ROWS come
+   * out of its own envelope, or the module's own recorded read for a record that
+   * is NOT THERE. Empty is not exclusively "a list with zero rows": a one-record
+   * surface has an empty state too (operator ruling, 2026-08-28; no new type —
+   * see the `graphify-out/` citation above).
+   *
+   * A member read carrying a record is NOT evidence: subtracting the record from
+   * it produces a shape no API ever sends, which is authoring a body, and the
+   * module's own mapper threw on the one that was written (S1). That absence is
+   * a capture gap, reported by `captureGaps`.
    */
   canEmpty: boolean;
   /** Any recording exists at all — a withheld answer needs no body. */
   canLoading: boolean;
-  /** A REFUSAL is recorded, so a failed read is served from a real response. */
+  /**
+   * A SERVABLE refusal is recorded, so a failed read is served from a real
+   * response. An auth refusal does not count: the app cannot tell a forced one
+   * from an expired token and signs the operator out (FE-3113 P).
+   */
   canErrorCollection: boolean;
   /** A FAILING WRITE is recorded. Nothing is authored to fake one. */
   canErrorAction: boolean;
   /**
    * The module's own failing recording, the one both error presets are served
-   * from. Absent when the corpus holds no failure — which is what makes
+   * from. Absent when the corpus holds no servable failure — which is what makes
    * `canErrorCollection` false too.
    */
   failure?: RecordedFixture;
