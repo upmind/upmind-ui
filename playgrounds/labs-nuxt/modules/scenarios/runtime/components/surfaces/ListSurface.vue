@@ -505,7 +505,21 @@ const i18n = useFormI18n();
 /** How many placeholders stand in for the rows that have not landed yet. */
 const SKELETON_ROWS = 5;
 
-const state = computed(() => resolveModuleState(props.snapshot.meta));
+/**
+ * The states this surface DRAWS rather than stands a notice in place of. An
+ * absence is one of them: the record is not there, which is this list's own
+ * empty state, told in the frame's own words beside its headers and controls —
+ * never a failure notice over the top of them.
+ */
+const DRAWN_STATES = [ModuleState.READY, ModuleState.ABSENT] as const;
+
+function isDrawn(state: ModuleState): state is (typeof DRAWN_STATES)[number] {
+  return includes(DRAWN_STATES, state);
+}
+
+const state = computed(() =>
+  resolveModuleState(props.snapshot.meta, props.snapshot.context)
+);
 const detail = computed(() => resolveModuleDetail(props.snapshot.context));
 
 // The module's own captured verdict is handed IN, because a row action the API
@@ -521,7 +535,7 @@ const feedback = useActionFeedback(() => detail.value);
 // the list away over one refused row, with nothing left to recover with.
 const hasPresented = ref(false);
 watchEffect(() => {
-  if (state.value === ModuleState.READY) hasPresented.value = true;
+  if (isDrawn(state.value)) hasPresented.value = true;
 });
 
 const notice = computed(() => {
@@ -529,7 +543,7 @@ const notice = computed(() => {
   // through: the rows in hand belong to an identity this surface may no longer
   // address, so the notice takes their place however far the list had got.
   if (state.value === ModuleState.UNSERVED) return state.value;
-  if (state.value === ModuleState.READY || hasPresented.value) return undefined;
+  if (isDrawn(state.value) || hasPresented.value) return undefined;
   // A declared frame draws its OWN loading: the headers stay and skeleton rows
   // stand in for the data, so the layout never jumps when it arrives (C8).
   if (state.value === ModuleState.LOADING && hasTable.value) return undefined;
@@ -551,8 +565,14 @@ const isLoadFailed = computed(
   () => state.value === ModuleState.ERROR && !isNil(verdict.value)
 );
 
-const rows = computed<ListRow[]>(
-  () => (props.snapshot.context.data as ListRow[] | undefined) ?? []
+// A module that degrades rather than blanks still publishes its field rows when
+// the record behind them is gone (`usePersonalDetails.context.ts`). Those rows
+// describe a record that is not there, so an absence carries none of them — and
+// every count, page and group downstream follows from this one read.
+const rows = computed<ListRow[]>(() =>
+  state.value === ModuleState.ABSENT
+    ? []
+    : ((props.snapshot.context.data as ListRow[] | undefined) ?? [])
 );
 
 /** A row's own identity, with its position as the fallback for a row without one. */

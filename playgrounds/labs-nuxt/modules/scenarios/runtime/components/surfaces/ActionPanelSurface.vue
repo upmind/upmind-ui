@@ -46,7 +46,9 @@ import type { FormProps } from "@upmind-automation/client-vue";
 
 const props = defineProps<ActionPanelSurfaceProps>();
 
-const state = computed(() => resolveModuleState(props.snapshot.meta));
+const state = computed(() =>
+  resolveModuleState(props.snapshot.meta, props.snapshot.context)
+);
 const detail = computed(() => resolveModuleDetail(props.snapshot.context));
 
 const schema = computed(

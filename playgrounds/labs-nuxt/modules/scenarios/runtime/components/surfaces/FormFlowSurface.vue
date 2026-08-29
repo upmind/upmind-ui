@@ -131,7 +131,9 @@ const SUBMIT_CONTROL = "submit";
 // published its uischema yet is still form-shaped rather than empty.
 const MIN_SKELETON_FIELDS = 1;
 
-const state = computed(() => resolveModuleState(props.snapshot.meta));
+const state = computed(() =>
+  resolveModuleState(props.snapshot.meta, props.snapshot.context)
+);
 const detail = computed(() => resolveModuleDetail(props.snapshot.context));
 
 const hasPresented = ref(false);

@@ -46,6 +46,13 @@ const content = computed<ModuleStateContent>(() => {
       title: t("text.loading"),
       description: t("text.moment_short_desc")
     },
+    // Not `danger`: the read landed and the record is not there, which is the
+    // single-record twin of a collection's zero rows and never a failure.
+    [ModuleState.ABSENT]: {
+      variant: "info",
+      title: t("text.collection_empty"),
+      description: t("labs.record_absent_text")
+    },
     [ModuleState.ERROR]: {
       variant: "danger",
       title: t("error.something_went_wrong"),

@@ -68,6 +68,7 @@
   "home_nothing_matches_description": "No composable matches that filter. Clear it to see them all.",
   "navigation": "Primary",
   "open_navigation": "Open navigation",
+  "record_absent_text": "There is no record here for the identity the url names.",
   "refinement": "{label}: {value}",
   "refinements": "Refinements",
   "replay_chip": "Replay",
