@@ -1,4 +1,5 @@
 import { experimental_createQueryPersister } from "@tanstack/query-persist-client-core";
+import { CancelledError } from "@tanstack/vue-query";
 import { isString } from "xstate/lib/utils";
 import {
   type Message,
@@ -421,7 +422,7 @@ export function handleError(
  * `doFetch` rejects aborts with bare `undefined` (see
  * `query/services.ts:75`), so a `.code === responseCodes.Aborted` check
  * never fires for the common abort path — `undefined?.code` is undefined.
- * This helper covers four shapes that can reach a downstream
+ * This helper covers five shapes that can reach a downstream
  * `.catch(error)` handler (or `doFetch`'s own pre-classification):
  *   1. `undefined` — `doFetch`'s `Promise.reject()` with no value. Note:
  *      `null` is intentionally NOT treated as an abort; callers that
@@ -433,10 +434,18 @@ export function handleError(
  *      caller that explicitly rejects with the canonical aborted code.
  *   4. `{ status: responseCodes.Aborted }` — fetch-response-shape used
  *      inside `doFetch`'s own catch to classify before re-rejecting.
+ *   5. TanStack's own `CancelledError` — what {@link resetQueryByKey}
+ *      raises in every imperative `fetchQuery` still in flight under the
+ *      key it clears. It matches none of the four shapes above: it carries
+ *      no `code` and no `status`, and its `name` is `"Error"` because the
+ *      class sets only `message`. Missing it is how a cache clear a
+ *      consumer asked for reached a module's error channel as a rendered
+ *      failure the server never sent.
  */
 export function isAbortError(error: unknown): boolean {
   if (error === undefined) return true;
   if (error === null) return false;
+  if (error instanceof CancelledError) return true;
   const e = error as { name?: unknown; code?: unknown; status?: unknown };
   return (
     e.name === "AbortError" ||
