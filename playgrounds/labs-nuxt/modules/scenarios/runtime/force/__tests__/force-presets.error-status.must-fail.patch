@@ -1,0 +1,45 @@
+Negative control for the T3.11 preset spec (AC8.5 · S14).
+
+RE-AUTHORED FE-3113 (operator ruling 2026-08-28, correcting the RETIRE). The
+retire named Task B's deleted `REFUSED` fallback; this mutant never touched it.
+It overrides the status on the SUCCESS path, and that path is still live — K2
+moved it above the `!served` guard and swapped the pinned lookup for
+`resolveCorpusRefusal`, but it still returns the module's recorded failure.
+
+`error-action` serves the one recording that FAILED, at the status staging
+returned it with — a 409 carrying the API's own sentence. This mutant keeps the
+recorded body byte-for-byte and serves it at 200, which is the whole defect in
+one line: the row is handed an error payload the transport calls a success, so
+the refusal never reaches the surface that renders it and the forced error state
+reads as a working one. The READ is still served as recorded, so the list is
+still intact and the `R6-19` split is untouched.
+
+A spec that only checks the message text passes the mutant. What must go red is
+the STATUS, asserted against the recording's own `response.status` rather than a
+literal — a hardcoded `409` in the spec would be a second copy of the recording,
+and the recording is the oracle.
+
+Bodies must be injected (the spec lane may read the committed recordings
+lawfully — eslint 8h).
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the T3.11 preset spec — the action-error case (the recorded failure at its
+recorded status).
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts
+@@ -114,8 +114,10 @@ export function presetAnswer(
+   // ABOVE the `!served` guard deliberately: the acted-on row carries an id no
+   // capture run addressed, so a write that had to resolve first was answered by
+   // nobody and reached the real API under a forced chip.
+-  if (preset === "error-action" && !isRead(method))
+-    return resolveCorpusRefusal(bodies, method, url)?.response ?? served;
++  if (preset === "error-action" && !isRead(method)) {
++    const refusal = resolveCorpusRefusal(bodies, method, url)?.response;
++    return refusal ? { ...refusal, status: 200 } : served;
++  }
+ 
+   if (!served) return undefined;
+   if (preset === "loading") return PENDING;

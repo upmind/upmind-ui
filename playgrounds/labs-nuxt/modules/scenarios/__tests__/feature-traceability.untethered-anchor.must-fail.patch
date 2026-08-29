@@ -31,10 +31,10 @@ diff --git a/playgrounds/labs-nuxt/app/components/scope/__tests__/switch-session
   * The url's own scope mirror (`globalActorScope`) is deliberately NOT written
   * beside an abandoned navigation, so the two cases differ in the url alone.
   *
-- * `A7` is not one of `session-switcher.feature`'s declared scenarios, so this
-- * file anchors to none: a feature anchor claiming no capability id reads like
-- * traceability while answering nothing.
+- * `A7` is a story id, not a capability this playground's `session-switcher.feature`
+- * declares — that feature is answered scenario-for-scenario by
+- * `session-switcher-badge.spec.ts` beside it. So this file anchors to none.
 + * @anchor session-switcher.feature
   */
-
+ 
  import { config } from "@vue/test-utils";

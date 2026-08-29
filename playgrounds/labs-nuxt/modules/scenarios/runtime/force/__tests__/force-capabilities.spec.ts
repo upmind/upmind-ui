@@ -90,18 +90,54 @@ const hasRows = (fixture: RecordedFixture) =>
   isArray(get(fixture, ["response", "body", "data"]));
 
 /**
+ * A recorded read of a record that is not there — the `404` staging answers for
+ * an id it does not hold. A single-record surface has an empty state too, and
+ * this recording is the only honest answer for it.
+ */
+const isAbsentRecord = (fixture: RecordedFixture) =>
+  isRead(fixture) && get(fixture, ["response", "status"], 0) === 404;
+
+/**
+ * A not-authenticated refusal. The app cannot tell a forced `401` from a real
+ * expired session, so serving one tears the session down — a forced state is a
+ * picture of a state and may never have that consequence. It stays on record
+ * for the guard scenario its feature declares; it just never answers a preset.
+ */
+const isAuthRefusal = (fixture: RecordedFixture) =>
+  get(fixture, ["response", "status"], 0) === 401;
+
+/**
+ * A refusal a forced error state may replay. An absent record is excluded: a
+ * record that is not there did not fail to load (operator ruling, `tasks.md`
+ * §Y2), and counting it would draw one picture under both `empty` and
+ * `error-collection` — the conflation this story exists to end.
+ */
+const isServableRefusal = (fixture: RecordedFixture) =>
+  isRefused(fixture) && !isAuthRefusal(fixture) && !isAbsentRecord(fixture);
+
+const canEmptyOf = (fixtures: RecordedFixture[]) =>
+  some(
+    fixtures,
+    f => (isRead(f) && !isRefused(f) && hasRows(f)) || isAbsentRecord(f)
+  );
+
+/**
  * What EVIDENCE the recordings themselves hold, computed from the quartet
  * alone. This is the oracle the derivation is graded against.
+ *
+ * `canEmpty` is answerable two ways because "nothing here" reads differently on
+ * a list and on a record: rows a collection read can withhold, or a recorded
+ * absent-record read. Neither is authored.
  *
  * `canErrorCollection` is a RECORDED REFUSAL, per `capabilities.types` — a
  * corpus of nothing but 200s cannot serve a failed read, and saying so is what
  * makes the gap reportable. Nothing is authored to fake one.
  */
 const measured = (fixtures: RecordedFixture[]) => ({
-  canEmpty: some(fixtures, f => isRead(f) && !isRefused(f) && hasRows(f)),
+  canEmpty: canEmptyOf(fixtures),
   canLoading: !isEmpty(fixtures),
-  canErrorAction: some(fixtures, f => isRefused(f) && !isRead(f)),
-  canErrorCollection: some(fixtures, isRefused)
+  canErrorAction: some(fixtures, f => !isRead(f) && isServableRefusal(f)),
+  canErrorCollection: some(fixtures, isServableRefusal)
 });
 
 const CORPORA = map(RECORDED_MODULES, module => {
@@ -161,7 +197,7 @@ describe("AC5 a capability is TRUE only when a recording backs it", () => {
       if (!caps.canErrorAction) continue;
 
       expect(
-        some(fixtures, f => isRefused(f) && !isRead(f)),
+        some(fixtures, f => !isRead(f) && isServableRefusal(f)),
         `${module} claims canErrorAction with no failing write on record`
       ).toBe(true);
     }
@@ -172,19 +208,110 @@ describe("AC5 a capability is TRUE only when a recording backs it", () => {
       if (!caps.canErrorCollection) continue;
 
       expect(
-        some(fixtures, isRefused),
+        some(fixtures, isServableRefusal),
         `${module} claims canErrorCollection with no refusal on record`
       ).toBe(true);
     }
   });
 
-  it("never claims canEmpty without a recorded successful collection read", () => {
+  it("never reads a record that is not there as a record that failed to load", () => {
+    const absentOnly = filter(
+      CORPORA,
+      entry =>
+        some(entry.fixtures, isAbsentRecord) &&
+        !some(entry.fixtures, isServableRefusal)
+    );
+
+    expect(
+      map(absentOnly, "module"),
+      "no module keeps an absent-record read as its only 4xx — the ruling is unexercised"
+    ).not.toEqual([]);
+
+    for (const { module, caps } of absentOnly) {
+      expect(
+        caps.canErrorCollection,
+        `${module} reads its absent record as a failed load — empty and error-collection would draw one picture`
+      ).toBe(false);
+      expect(
+        caps.canEmpty,
+        `${module} holds the recorded answer for a missing record and still cannot serve empty`
+      ).toBe(true);
+      expect(caps.failure).toBeUndefined();
+    }
+  });
+
+  it("never carries a not-authenticated refusal as the failure it serves", () => {
+    const holdsAuthRefusal = filter(CORPORA, entry =>
+      some(entry.fixtures, isAuthRefusal)
+    );
+
+    expect(
+      map(holdsAuthRefusal, "module"),
+      "no module records a 401 — the sign-out guard is unexercised"
+    ).not.toEqual([]);
+
+    for (const { module, caps } of holdsAuthRefusal) {
+      if (!caps.failure) continue;
+
+      expect(
+        isAuthRefusal(caps.failure),
+        `${module} would answer a forced error with its 401 and sign the operator out`
+      ).toBe(false);
+    }
+  });
+
+  it("cannot serve error-action when its only failing write is a 401", () => {
+    const authWriteOnly = filter(
+      CORPORA,
+      entry =>
+        some(entry.fixtures, f => !isRead(f) && isAuthRefusal(f)) &&
+        !some(
+          entry.fixtures,
+          f => !isRead(f) && isRefused(f) && !isAuthRefusal(f)
+        )
+    );
+
+    expect(
+      map(authWriteOnly, "module"),
+      "no module records a 401 as its only failing write — this branch is unexercised"
+    ).not.toEqual([]);
+
+    for (const { module, caps } of authWriteOnly) {
+      expect(
+        caps.canErrorAction,
+        `${module} offers error-action off a 401 write — arming it signs the operator out`
+      ).toBe(false);
+    }
+  });
+
+  it("never claims canEmpty without rows to withhold or an absent record on file", () => {
     for (const { module, fixtures, caps } of CORPORA) {
       if (!caps.canEmpty) continue;
 
       expect(
-        some(fixtures, f => isRead(f) && !isRefused(f) && hasRows(f)),
-        `${module} claims canEmpty with no rows on record to remove`
+        canEmptyOf(fixtures),
+        `${module} claims canEmpty with neither rows to remove nor a recorded absent record`
+      ).toBe(true);
+    }
+  });
+
+  it("reads a single-record module's empty off its recorded absent record", () => {
+    const singles = filter(
+      CORPORA,
+      entry =>
+        !some(entry.fixtures, f => isRead(f) && !isRefused(f) && hasRows(f)) &&
+        entry.caps.canEmpty
+    );
+
+    expect(
+      map(singles, "module"),
+      "no module reaches canEmpty without a collection — the absent-record branch is unexercised"
+    ).not.toEqual([]);
+
+    for (const { module, fixtures } of singles) {
+      expect(
+        some(fixtures, isAbsentRecord),
+        `${module} claims canEmpty with no collection AND no recorded absent record`
       ).toBe(true);
     }
   });
@@ -204,6 +331,14 @@ describe("AC5 a capability is TRUE only when a recording backs it", () => {
         `${module} carried a failure that is not one of its recordings`
       ).toContainEqual(caps.failure);
       expect(isRefused(caps.failure!)).toBe(true);
+      expect(
+        isAuthRefusal(caps.failure!),
+        `${module} carries a 401 as its failure — arming it signs the operator out`
+      ).toBe(false);
+      expect(
+        isAbsentRecord(caps.failure!),
+        `${module} carries its absent record as the failure it serves`
+      ).toBe(false);
     }
   });
 });

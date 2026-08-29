@@ -15,7 +15,9 @@
  * The url's own scope mirror (`globalActorScope`) is deliberately NOT written
  * beside an abandoned navigation, so the two cases differ in the url alone.
  *
- * @anchor session-switcher.feature
+ * `A7` is a story id, not a capability this playground's `session-switcher.feature`
+ * declares — that feature is answered scenario-for-scenario by
+ * `session-switcher-badge.spec.ts` beside it. So this file anchors to none.
  */
 
 import { config } from "@vue/test-utils";

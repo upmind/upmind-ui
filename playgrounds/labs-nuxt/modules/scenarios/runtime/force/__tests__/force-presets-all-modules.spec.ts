@@ -76,6 +76,32 @@ const isRefused = (fixture: RecordedFixture) =>
 const hasRows = (fixture: RecordedFixture) =>
   isArray(get(fixture, ["response", "body", "data"]));
 
+/**
+ * A recorded read of a record that is not there — the `404` staging answers for
+ * an id it does not hold. It is what a single-record surface's empty state is
+ * made of; a list's is made of rows withheld.
+ */
+const isAbsentRecord = (fixture: RecordedFixture) =>
+  isRead(fixture) && get(fixture, ["response", "status"], 0) === 404;
+
+/**
+ * A not-authenticated refusal. The app cannot tell a forced `401` from a real
+ * expired session, so serving one tears the session down — a forced state is a
+ * picture of a state and may never have that consequence. It stays on record
+ * for the guard scenario its feature declares; it just never answers a preset.
+ */
+const isAuthRefusal = (fixture: RecordedFixture) =>
+  get(fixture, ["response", "status"], 0) === 401;
+
+/**
+ * A refusal a forced error state may replay. An absent record is excluded: a
+ * record that is not there did not fail to load (operator ruling, `tasks.md`
+ * §Y2), and counting it would draw one picture under both `empty` and
+ * `error-collection` — the conflation this story exists to end.
+ */
+const isServableRefusal = (fixture: RecordedFixture) =>
+  isRefused(fixture) && !isAuthRefusal(fixture) && !isAbsentRecord(fixture);
+
 const pathOf = (fixture: RecordedFixture) =>
   get(fixture, ["request", "path"], "");
 
@@ -115,10 +141,14 @@ const EVIDENCE: Record<
   (fixtures: RecordedFixture[]) => boolean
 > = {
   empty: fixtures =>
-    some(fixtures, f => isRead(f) && !isRefused(f) && hasRows(f)),
+    some(
+      fixtures,
+      f => (isRead(f) && !isRefused(f) && hasRows(f)) || isAbsentRecord(f)
+    ),
   loading: fixtures => !isEmpty(fixtures),
-  "error-action": fixtures => some(fixtures, f => !isRead(f) && isRefused(f)),
-  "error-collection": fixtures => some(fixtures, isRefused)
+  "error-action": fixtures =>
+    some(fixtures, f => !isRead(f) && isServableRefusal(f)),
+  "error-collection": fixtures => some(fixtures, isServableRefusal)
 };
 
 type Loaded = {
@@ -195,12 +225,32 @@ const collectionReadOf = (entry: Loaded) => {
   )[0];
 };
 
+/** The module's recorded answer for a record that is not there. */
+const absentReadOf = (entry: Loaded) => entry.fixtures.find(isAbsentRecord);
+
+/**
+ * The successful read of the SAME resource the absent recording asked for — the
+ * request an armed single-record surface makes, whose answer `empty` replaces.
+ */
+const memberReadOf = (entry: Loaded) => {
+  const absent = absentReadOf(entry);
+  if (!absent) return undefined;
+
+  const shape = pathShape(pathOf(absent));
+
+  return entry.fixtures.find(
+    f => isRead(f) && !isRefused(f) && pathShape(pathOf(f)) === shape
+  );
+};
+
 const writeOf = (entry: Loaded) => entry.fixtures.find(f => !isRead(f));
 
-const refusalsOf = (entry: Loaded) => filter(entry.fixtures, isRefused);
+/** The refusals a forced state may actually serve — a 401 is not one of them. */
+const refusalsOf = (entry: Loaded) => filter(entry.fixtures, isServableRefusal);
 
 const failureOf = (entry: Loaded) =>
-  entry.fixtures.find(f => !isRead(f) && isRefused(f)) ?? refusalsOf(entry)[0];
+  entry.fixtures.find(f => !isRead(f) && isServableRefusal(f)) ??
+  refusalsOf(entry)[0];
 
 const answer = (entry: Loaded, preset: string, fixture: RecordedFixture) =>
   presetAnswer(
@@ -297,10 +347,36 @@ function proveAnswered(entry: Loaded, preset: ForceUrlPreset) {
   }
 
   if (preset === "empty") {
-    expect(
-      collection,
-      `${entry.module} offers empty with no recorded collection read to empty`
-    ).toBeDefined();
+    if (!collection) {
+      const absent = absentReadOf(entry);
+      const member = memberReadOf(entry);
+
+      expect(
+        absent,
+        `${entry.module} offers empty with neither a collection to empty nor an absent record on file`
+      ).toBeDefined();
+      expect(
+        member,
+        `${entry.module} recorded an absent record at a resource it never read successfully`
+      ).toBeDefined();
+
+      const emptied = answer(entry, "empty", member!);
+
+      expect(
+        get(emptied, "status"),
+        `${entry.module} answered empty at a status its absent-record recording never carried`
+      ).toEqual(get(absent, ["response", "status"]));
+      expect(
+        get(emptied, "body"),
+        `${entry.module} authored a body for empty instead of serving its absent-record recording`
+      ).toEqual(get(absent, ["response", "body"]));
+      expect(
+        get(answer(entry, "replay", member!), ["body", "data"]),
+        `${entry.module} had no record to withhold — an already-absent baseline proves nothing`
+      ).not.toEqual(get(absent, ["response", "body", "data"]));
+
+      return;
+    }
 
     const served = answer(entry, "replay", collection!);
     const emptied = answer(entry, "empty", collection!);
@@ -362,7 +438,7 @@ function proveAnswered(entry: Loaded, preset: ForceUrlPreset) {
   }
 
   expect(
-    filter(entry.fixtures, f => !isRead(f) && isRefused(f)),
+    filter(entry.fixtures, f => !isRead(f) && isServableRefusal(f)),
     `${entry.module} offers error-action with no failing write on record`
   ).not.toEqual([]);
 
@@ -407,6 +483,10 @@ function proveUnanswerable(entry: Loaded, preset: ForceUrlPreset) {
       collectionReadOf(entry),
       `${entry.module} withholds empty while holding a collection it could empty`
     ).toBeUndefined();
+    expect(
+      absentReadOf(entry),
+      `${entry.module} withholds empty while holding the absent record that answers it`
+    ).toBeUndefined();
 
     for (const fixture of entry.fixtures) {
       expect(
@@ -422,15 +502,15 @@ function proveUnanswerable(entry: Loaded, preset: ForceUrlPreset) {
     preset === "error-action" ? reject(entry.fixtures, isRead) : entry.fixtures;
 
   expect(
-    filter(targets, isRefused),
+    filter(targets, isServableRefusal),
     `${entry.module} withholds ${preset} while holding a refusal that answers it`
   ).toEqual([]);
 
   for (const fixture of targets) {
     expect(
-      get(answer(entry, preset, fixture), "status", 0),
-      `${entry.module} fabricated a refusal under ${preset} that no recording of its own backs`
-    ).toBeLessThan(400);
+      answer(entry, preset, fixture),
+      `${entry.module} changes ${pathOf(fixture)} under a ${preset} it does not offer`
+    ).toEqual(answer(entry, "replay", fixture));
   }
 }
 

@@ -54,6 +54,16 @@
  * filed under a refusal's name is fabricated evidence, not a fixture. Nothing
  * here hand-writes a status or an error body.
  *
+ * ## An auth refusal is not a failed read (FE-3113 §S2/§T2)
+ * AC-18's 401 above answers ONE state — "refreshing without a signed-in client
+ * is refused". AC-4's errored collection is a DIFFERENT state, and replaying the
+ * 401 for it signs the reader out, because the app's auth layer cannot tell a
+ * replayed 401 from an expired session. So this module records a second, non-auth
+ * read failure: `?case=unreadable` reads the same subject endpoint with a VALID
+ * bearer and a column the API cannot order by. The case drops its own capture and
+ * fails the run when the answer is < 400 or is itself an auth refusal, so the two
+ * states can never collapse back onto one recording.
+ *
  * ## Capture-limitation disclosure (required by NFR-2 / the 2026-08-05 receipt)
  * The staging client (`API_CREDENTIALS.client`) has a real history of ~2885
  * emails at capture time, and the overwhelming majority carry an `error_id`.
@@ -96,7 +106,9 @@
  * AC-9) · `get-self-email-history?filter[bounced]=true` (real EMPTY result,
  * genuine `total:0` inline — AC-4/AC-8) ·
  * `get-self-email-history?case=refused` (the REAL not-authenticated refusal —
- * AC-4/AC-18, the recorded refusal both errored states replay) ·
+ * AC-18's guard, and that state alone) ·
+ * `get-self-email-history?case=unreadable` (the REAL non-auth read failure —
+ * AC-4's errored collection) ·
  * `get-self-email-history?filter[error_id|neq]=null` (ERROR rows, AC-3) ·
  * `get-self-email-history?filter[sent]=true` (the one real SENT row, AC-3) ·
  * `get-self-email-history?filter[error_id]=null` (every error-free row this
@@ -276,6 +288,25 @@ describe("Client-Email-History API Fixtures Generator", () => {
           "refusal to replay, and this capture was DROPPED rather than " +
           "shipped under a refusal's name. Re-check what staging does with " +
           "an unusable bearer; never author the refusal by hand."
+      );
+    }
+  });
+
+  it("captures GET self/email_history ?case=unreadable — the REAL non-auth read failure (AC-4)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.get(
+      `/api/self/email_history?${WITH_PARAM}&order=-fixturegen_no_such_column&limit=10&case=unreadable`
+    );
+    generator.clearBearerToken();
+    if (status < 400 || status === 401 || status === 403) {
+      dropCapture(generator, "case=unreadable");
+      throw new Error(
+        `A signed-in read of self/email_history ordered by a column the API ` +
+          `does not have returned ${status} — that is not a non-auth read ` +
+          "failure, so AC-4's errored collection has nothing of its own to " +
+          "replay and this capture was DROPPED rather than shipped under one's " +
+          "name. Re-check what staging rejects for a signed-in caller; never " +
+          "reuse AC-18's 401, which signs the reader out."
       );
     }
   });

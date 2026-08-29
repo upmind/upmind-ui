@@ -14,6 +14,14 @@
  * corpus cannot answer is a CAPTURE GAP, named loudly by `captureGaps`, never a
  * silently absent button.
  *
+ * Two refinements the browser matrix forced onto that measurement, and this file
+ * grades both. The not-authenticated refusal answers no error state: the app
+ * cannot tell a served 401 from an expired session, so arming over one ends at
+ * the signed-out screen rather than the state it was armed for. And a
+ * single-record surface has an EMPTY of its own — the recorded answer for a
+ * record that is not there — captured like every other state, never authored as
+ * a hollowed body.
+ *
  * Both oracles are read off committed files here — the recordings straight off
  * disk, the declarations straight off the `.feature` — so this file agrees with
  * `capabilities.ts` only where both agree with the evidence.
@@ -26,6 +34,12 @@
  * module does not do that" rather than "nobody recorded it yet".
  *
  * Negative controls: `force-answerable-presets.prose-gate.must-fail.patch`.
+ *
+ * Negative control OWED, developer lane (a mutant needs the source line): an
+ * `answerablePresets` that counts the not-authenticated refusal as an error
+ * state's evidence must red `never answers a forced error with the refusal that
+ * ends at the signed-out screen`. Filed as
+ * `force-answerable-presets.auth-refusal-counted.must-fail.patch`.
  */
 
 import { existsSync, readFileSync, readdirSync } from "node:fs";
@@ -35,6 +49,7 @@ import { describe, expect, it } from "vitest";
 import { FORCE_URL_PRESETS } from "../../composables/useForcedState.types";
 import { answerablePresets, captureGaps } from "../capabilities";
 import {
+  every,
   filter,
   fromPairs,
   get,
@@ -45,6 +60,7 @@ import {
   isEmpty,
   map,
   omitBy,
+  pickBy,
   some,
   toUpper,
   values
@@ -97,19 +113,46 @@ const hasRows = (fixture: RecordedFixture) =>
   isArray(get(fixture, ["response", "body", "data"]));
 
 /**
+ * The not-authenticated refusal — the one refusal a forced state may never
+ * replay. The app's auth layer cannot tell a served 401 from an expired session,
+ * so arming a preset over one ends at the signed-out screen instead of the state
+ * it was armed for. A 403 is a different answer: the caller IS authenticated and
+ * simply may not read that, which the app survives, so it stays serveable.
+ */
+const isAuthRefusal = (fixture: RecordedFixture) =>
+  get(fixture, ["response", "status"], 0) === 401;
+
+/** A read whose record is not there — a single-record surface's own empty. */
+const isAbsentRecord = (fixture: RecordedFixture) =>
+  isRead(fixture) && get(fixture, ["response", "status"], 0) === 404;
+
+/**
+ * A refusal a forced error state may replay. An absent record is excluded: a
+ * record that is not there did not fail to load (operator ruling, `tasks.md`
+ * §Y2), and counting it would draw one picture under both `empty` and
+ * `error-collection` — the conflation this story exists to end.
+ */
+const isServableRefusal = (fixture: RecordedFixture) =>
+  isRefused(fixture) && !isAuthRefusal(fixture) && !isAbsentRecord(fixture);
+
+/**
  * The offer this suite grades against, measured straight off the recordings per
  * design §"The offer": `loading` = any recording; `empty` = a successful GET
- * carrying a `data` array; `error-collection` = any recorded refusal;
- * `error-action` = a refused NON-GET.
+ * carrying a `data` array, or the recorded answer for a record that is not
+ * there; `error-collection` = a servable recorded refusal; `error-action` = a
+ * servable refused NON-GET.
  */
 const measured = (fixtures: RecordedFixture[]): ForceUrlPreset[] =>
   filter(FORCE_URL_PRESETS, preset => {
     if (preset === "loading") return !isEmpty(fixtures);
     if (preset === "empty")
-      return some(fixtures, f => isRead(f) && !isRefused(f) && hasRows(f));
+      return some(
+        fixtures,
+        f => isAbsentRecord(f) || (isRead(f) && !isRefused(f) && hasRows(f))
+      );
     if (preset === "error-action")
-      return some(fixtures, f => !isRead(f) && isRefused(f));
-    return some(fixtures, isRefused);
+      return some(fixtures, f => !isRead(f) && isServableRefusal(f));
+    return some(fixtures, isServableRefusal);
   });
 
 /** Every module that keeps recordings — discovery is the layout, not a list. */
@@ -233,12 +276,38 @@ describe("AC2 the offer is measured from recordings, never read out of prose", (
     expect([...named("client-email").offered]).toEqual([...FORCE_URL_PRESETS]);
   });
 
-  it("client-personal-details records no collection read, so empty is unrepresentable", () => {
+  it("client-personal-details holds no collection, so its empty is the record that is not there", () => {
     const entry = named("client-personal-details");
 
     expect(filter(entry.fixtures, f => isRead(f) && hasRows(f))).toEqual([]);
-    expect([...entry.offered]).not.toContain("empty");
+    expect(
+      filter(entry.fixtures, isAbsentRecord),
+      "the no-such-record read is not on file — a single-record empty has nothing to serve"
+    ).not.toEqual([]);
+    expect([...entry.offered]).toContain("empty");
     expect([...entry.offered]).toContain("loading");
+  });
+
+  it("never offers a failed read off a record that is merely not there", () => {
+    const absentOnly = filter(
+      RECORDED,
+      entry =>
+        some(entry.fixtures, isAbsentRecord) &&
+        !some(entry.fixtures, isServableRefusal)
+    );
+
+    expect(
+      map(absentOnly, "module"),
+      "no module keeps an absent-record read as its only 4xx — the ruling is unexercised"
+    ).not.toEqual([]);
+
+    for (const entry of absentOnly) {
+      expect(
+        [...entry.offered],
+        `${entry.module} offers error-collection off its absent record — empty and the failed read would draw one picture`
+      ).not.toContain("error-collection");
+      expect([...entry.offered]).toContain("empty");
+    }
   });
 
   it("restores the modules prose-matching starved — each offers what it can answer", () => {
@@ -268,6 +337,37 @@ describe("AC2 the offer is measured from recordings, never read out of prose", (
 
   it("offers nothing at all for a corpus that holds nothing (S12)", () => {
     expect([...answerablePresets({})]).toEqual([]);
+  });
+
+  it("never answers a forced error with the refusal that ends at the signed-out screen", () => {
+    const carriers = filter(
+      RECORDED,
+      entry => !isEmpty(pickBy(entry.bodies, isAuthRefusal))
+    );
+
+    expect(
+      map(carriers, "module"),
+      "no module in the tree records a not-authenticated refusal — this claim has no subject"
+    ).not.toEqual([]);
+
+    for (const entry of carriers) {
+      expect(
+        [...answerablePresets(pickBy(entry.bodies, isAuthRefusal))],
+        `${entry.module} answers a forced error with the 401 the app reads as an expired session`
+      ).toEqual(["loading"]);
+    }
+
+    const authOnly = filter(RECORDED, entry => {
+      const refusals = filter(entry.fixtures, isRefused);
+      return !isEmpty(refusals) && every(refusals, isAuthRefusal);
+    });
+
+    for (const entry of authOnly) {
+      expect(
+        [...entry.offered],
+        `${entry.module} keeps only a not-authenticated refusal and still offers an error state`
+      ).not.toContain("error-collection");
+    }
   });
 });
 
@@ -362,7 +462,10 @@ describe("AC5 a declared state the corpus cannot answer is NAMED, never dropped"
 
     for (const entry of silent) {
       expect(
-        [...captureGaps(entry.feature, beforeItsCapture(entry.bodies))],
+        intersection(
+          [...captureGaps(entry.feature, beforeItsCapture(entry.bodies))],
+          ["error-action", "error-collection"]
+        ),
         `${entry.module} is billed for an errored state its feature never declares`
       ).toEqual([]);
     }
