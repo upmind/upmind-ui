@@ -49,9 +49,10 @@
  *
  * That swap is not instant, and `isSettling` is the whole window the page holds
  * its own controls behind (FE-3113 M): the corpus load, the worker registration,
- * and the clear that ends it. Until it closes the rows on screen are the
- * transport the arm is replacing, so a row action fired at one is refused
- * against a record the clear is in the middle of taking away.
+ * the module's own read settling, and the clear that ends it. Until it closes
+ * the rows on screen are the transport the arm is replacing, so a row action
+ * fired at one is refused against a record the clear is in the middle of taking
+ * away.
  */
 
 import { computed, effectScope, nextTick, ref, watch } from "vue";
@@ -120,6 +121,9 @@ function create(): ForcedStateHandle {
   // playground has one to give.
   let clearCache: ForceReset | undefined;
 
+  // That module's own readiness, which the clear waits behind.
+  let whenSettled: (() => Promise<unknown>) | undefined;
+
   // The page's corpus arm, for the same reason and from the same one caller.
   // The seam's loaders are lazy, so until this lands there are no recordings to
   // build handlers from.
@@ -150,6 +154,8 @@ function create(): ForcedStateHandle {
   async function reconcile(next: ForcePreset | undefined): Promise<void> {
     if (typeof window === "undefined" || next === served) return;
 
+    const replaced = served;
+
     if (!next) await release();
     else {
       // BEFORE the handlers are built, never beside them: a pasted `force=`
@@ -179,7 +185,7 @@ function create(): ForcedStateHandle {
     // LAST, and only once the transport above is in place: a clear that ran
     // first would refetch through the handlers it is racing and refill the
     // cache from the live API, leaving the arm looking right over stale rows.
-    clear();
+    clear(replaced);
   }
 
   /**
@@ -194,12 +200,34 @@ function create(): ForcedStateHandle {
    *
    * Scoped to the booted module by construction: the whole cache is the app
    * chrome's too, and the chrome's singletons boot once and never re-ask.
+   *
+   * BEHIND THE MODULE'S OWN READINESS when it is LIVE being replaced (FE-3113
+   * W). Dropping a cache entry CANCELS the read still filling it, and a
+   * cancellation is not a failure — but a module resolving a dependency through
+   * `fetchQuery` is handed that cancellation as a rejection it keeps as a failed
+   * read for the rest of that scope's life, so the page draws "something went
+   * wrong" over rows that loaded fine. Letting the module answer first leaves
+   * the arm nothing to cancel, at the cost of one round trip inside the
+   * settling window the page is already locked behind.
+   *
+   * Only Live is waited for, because only Live's reads are real. A forced
+   * transport answers from a recording with nothing in flight to protect —
+   * except `loading`, which answers NOTHING by design, so waiting on a page
+   * already showing it would hold the disarm that ends it forever.
+   *
+   * @param replaced The transport this clear is replacing; absent means Live.
    */
-  function clear(): void {
-    if (!clearCache) return;
+  function clear(replaced: ForcePreset | undefined): void {
+    const drop = clearCache;
+    if (!drop) return;
+
+    const settled = replaced ? undefined : whenSettled;
 
     unsettled.value += 1;
-    void Promise.resolve(clearCache())
+    void Promise.resolve()
+      .then(() => settled?.())
+      .catch(noop)
+      .then(() => drop())
       .catch(noop)
       .finally(() => {
         unsettled.value -= 1;
@@ -256,8 +284,10 @@ function create(): ForcedStateHandle {
     worker.resetHandlers(...createForceHandlers(served));
 
     // After the swap, for the same reason `reconcile` clears after it: the
-    // answers this tab holds are the collection the last pass moved to.
-    clear();
+    // answers this tab holds are the collection the last pass moved to. A
+    // re-arm replaces a forced transport with itself, so there is no live read
+    // to let finish.
+    clear(served);
   }
 
   async function arm(next: ForcePreset): Promise<void> {
@@ -306,11 +336,12 @@ function create(): ForcedStateHandle {
   }
 
   /**
-   * Registers the module the caller has just booted, and both of the things
-   * forcing needs of it — the cache clear the arm ends on, and the corpus arm
-   * every later reconcile waits behind. The latter is registered synchronously
-   * by the page, so it is in place before the immediate watcher's first
-   * reconcile leaves the microtask queue.
+   * Registers the module the caller has just booted, and each of the things
+   * forcing needs of it — the cache clear the arm ends on, that module's own
+   * readiness the clear waits behind, and the corpus arm every later reconcile
+   * waits behind. The last is registered synchronously by the page, so it is in
+   * place before the immediate watcher's first reconcile leaves the microtask
+   * queue.
    *
    * LEAVING A MODULE DISARMS (FE-3113 R). A preset is a fact about one module's
    * recorded corpus: carried onto another it means nothing, and onto one that
@@ -339,6 +370,7 @@ function create(): ForcedStateHandle {
     if (source.module) servedModule = source.module;
     if (isMoved || source.reset) clearCache = source.reset;
     if (isMoved || source.whenArmed) armed = source.whenArmed;
+    if (isMoved || source.whenSettled) whenSettled = source.whenSettled;
   }
 
   return {

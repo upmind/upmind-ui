@@ -273,10 +273,18 @@ const isReplaying = computed(() => !!player.track.value);
 //
 // The module's NAME rides with them so leaving it disarms (FE-3113 R): the two
 // are one module's, and so is the preset.
+//
+// Its own `isReady` rides with them too (FE-3113 W): a clear replacing Live
+// waits behind it, so the arm never cancels a read the module is still filling.
+// It is the module's own published contract for "my reads have answered" —
+// bounded and error-settling — so nothing here has to guess at a delay.
 const { disarm, preset, isSettling } = useForcedState({
   module: trackedModule,
   reset: get(port.actions, "reset") as ForceReset | undefined,
-  whenArmed
+  whenArmed,
+  whenSettled: get(port.actions, "isReady") as
+    | (() => Promise<unknown>)
+    | undefined
 });
 
 // A preset is a fact about THIS module's own corpus (FE-3113 R). One reached by
