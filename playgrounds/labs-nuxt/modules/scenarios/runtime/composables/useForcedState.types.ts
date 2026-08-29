@@ -122,26 +122,6 @@ export type ForcedStateSource = {
    * are installed, and there are none to install until this resolves.
    */
   whenArmed?: Promise<unknown>;
-  /**
-   * @graphify-citation `graphify query "existing readiness or settled promise
-   * contract a composable publishes for a consumer to await"` (2026-08-29,
-   * FE-3113 W) — no readiness contract exists to consume. The nearest
-   * neighbours are `awaitResolved()`
-   * (`packages/headless/src/modules/routing/routing.utils.ts` L32), a router
-   * helper, and `settled()` (`components/__tests__/forced-surface.harness.ts`
-   * L293), a test-lane local. A module's own `isReady()` is a member of a
-   * `ReturnType<>` object and carries no exported name, so this NAMES the
-   * applied shape exactly as {@link ForceReset} does. See
-   * `graphify-out/GRAPH_REPORT.md`.
-   *
-   * That module's own published readiness. A clear replacing LIVE waits behind
-   * it, so an arm never drops the cache out from under a real read still in
-   * flight (FE-3113 W): TanStack answers a cancelled read with a
-   * `CancelledError`, and a module resolving a dependency through `fetchQuery`
-   * keeps that as a failed read for the rest of the scope's life. Absent, the
-   * clear runs immediately.
-   */
-  whenSettled?: () => Promise<unknown>;
 };
 
 export type UseForcedState = {
