@@ -123,9 +123,19 @@ function isServedRead(fixture: RecordedFixture): boolean {
  * captured for. It is only unreachable as an ANSWER a preset gives — which
  * leaves the state a capture gap, named loudly, rather than a button that logs
  * you out.
+ *
+ * An ABSENCE is measured out of this pool for the same reason it is drawn apart
+ * on screen: a record that is not there is not a record that failed to load
+ * (operator ruling, 2026-08-29 · `Y2`). Left in, it becomes the failure
+ * `error-collection` serves, and `empty` and `error-collection` draw one picture
+ * between them — the conflation this story exists to end.
  */
 export function isServableRefusal(fixture: RecordedFixture): boolean {
-  return isRefusal(fixture) && fixture.response.status !== UNAUTHENTICATED;
+  return (
+    isRefusal(fixture) &&
+    fixture.response.status !== UNAUTHENTICATED &&
+    !isAbsentRecordRead(fixture)
+  );
 }
 
 /**
