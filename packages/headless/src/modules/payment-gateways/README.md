@@ -1,52 +1,86 @@
-# PAYMENT GATEWAYS
+# payment-gateways Module
 
-## Context
+Drives any payment provider — a card SDK, an offsite redirect, a raw card form, an offline instruction, a wallet — through one contract, so nothing else in the codebase ever has to ask "which gateway is this?" before deciding what to do next.
 
-Payment gateways can have one of 2 contexts:
+## What Is This? (ELI5)
 
-1. Pay - Generally used in the course of paying for an invoice and will generally require an amount, currency and other payment details.
-2. Add - Generally used for adding a new payment method. This is then in turn stored against the client via our API posting to our `payment_details` endpoint.
+Think of it as a universal remote for payment providers. Every provider has its own buttons, its own quirks, its own way of saying "yes" or "no" — this module hides all of that behind one set of buttons: load, draw a form if there is one, capture what the client types, submit. Whether the provider behind the remote is Stripe, a bank-transfer instruction, or a raw card form makes no difference to whoever is holding the remote.
 
-## Processing
+- **Load** = fetch whatever a provider needs before it can be driven (its SDK, its settings, its own setup token).
+- **Draw** = mount a provider's own hosted form, only for the providers that have one.
+- **Capture** = record what the client types without asking the provider to do anything yet.
+- **Submit** = ask the provider to act on what was captured — pay, or store a method for later.
 
-Payment Gateways can also be processed in a number of ways:
+> **🧪 For Testers:** every scenario this module promises lives in `__tests__/payment-gateways.feature` — 39 scenarios across five groups (the shared lifecycle every gateway honours, paying, storing a method, the different ways a gateway is driven, and a gateway that can't serve the request). See [gotchas.md](./docs/gotchas.md) for what one of those scenarios is still owed, and why.
+>
+> **👩‍💻 For Developers:** you almost never spawn a gateway yourself. The sibling capture module spawns the chosen one as a child and hands you a lens onto it — that lens is `usePaymentGateway`, and it is the only thing this module exports.
 
-- via their _own SDK_, which would generally require a custom Machine to handle the unique requirements by each gateway. eg :Stripe
-- via an _offsite redirect_ where the user is redirected to the payment gateway's website to complete the payment and once complete/failed then redirects back to our app
-- via a legacy _checkout_ where the user enters their payment details directly via a form into our app and we handle the payment processing in the background. This is DEPRECATED as PCI compliance is a concern.
-- via a _stored payment_ method, where the user's payment details have been previously added/stored as a token and can be used for future transactions without requiring the user to re-enter their information.
-- via a _manual/offline payment_ method, where the user makes their payment offline and informs our system/support team of the payment. eg: Bank Transfer
-- via a _free_ payment gateway where no payment is required either because of the item being free OR discounts being applied.
+## Quick Start
 
-## Machines & Operations
+```typescript
+import { usePaymentGateway } from "@upmind-automation/headless";
 
-Gateways are spawned from the Payment details machine. Users would generally select the payment gateway they want to use and the payment details machine would then spawn the appropriate gateway.
+// `actor` is a gateway already spawned by the capture module — see Usage.
+const gateway = usePaymentGateway(actor);
 
-Most gateways would use the generic machine, as they are designed to handle a wide variety of payment scenarios and can be easily configured to work with different payment providers. Usually offsite.
+await gateway.isReady();
 
-However if a gateway has a specialised implementation, or SDK or an obscurity, then we tend to create a custom gateway machine. This machine would have mostly similar flow and services, but can accommodate the unique requirements of the gateway.
+if (gateway.meta.value.isRenderless === false) {
+  await gateway.render(containerElement);
+}
 
-Occasionally a gateway may be offsite and asynchronous, such as adding a stripe payment context. This is rare but does happen, where the sdk bypasses our API, and handles the redirect to the payment gateway and then back to our app. This means our back end does not necessarily have the context it needs to be able to process the payment detail.
-We leverage url query params heavily for this process as we need to 'store' our context that started the process with the response that the gateway gives us via query params as well.
+gateway.input({ card_num: "4111111111111111" /* … */ });
+await gateway.update();
+```
 
-GOTCHA #2: This can clutter the url and there is a limit to the length of the url.To overcome this we leverage local storage and store our context there as a stringified JSON object.
-GOTCHA #1:Some browsers/users disable session storage.vWe need to check that and ensure we use a2b hashed `operation` query params when session storage is not available.
+See [Usage](./docs/usage.md) for the complete API reference.
 
-To make this process cleaner, the idea is that at the point of handing off to the external process, we persist the current gateway machine into session storage using the gateway id as the key. Upon returning, we can retrieve the machine from storage and rehydrate it with the context from the query params and send the action to the machine to complete the process.
+## Features
 
-if we dont have storage, we then leverage the `operation` query param . The `operation` params will contain all the necessary context to spawn the correct gateway machine with context and put it into the correct state to complete the process.
+| Feature | Status | Notes |
+| --- | --- | --- |
+| One lifecycle contract for every provider | ✅ | Load, draw (if needed), validate, submit — the same shape whatever the provider. |
+| Eight named provider variants | ✅ | `braintree`, `card`, `dlocal`, `mercadoPago`, `nicky`, `openPay`, `razorpay`, `stripe` — each plugs its own load/render/validate/submit into the shared machine. |
+| Pay context and Add context from one spawn | ✅ | The same lifecycle either charges an amount or stores a method with nothing owed, decided by how the gateway was spawned. |
+| Currency-aware amount conversion | ✅ | Converts a display amount into a provider's minor-unit format, correctly for zero-decimal and unusually-scaled currencies alike. |
+| Payer contact collection on demand | ✅ | Collects the payer's email/phone into the form only when the client has none on file, evaluated fresh on every load. |
+| Off-site redirect resume | ✅ | The one provider variant whose confirmation step can leave the page registers a pending operation before it does, and resumes from it on return. |
+| Nicky provider variant | ⏳ | Wired into the shared machine and unit-proven, but has never appeared unlocked on the currency/country pairs this brand's fixtures sweep — see gotchas. |
 
-### Custom Gateways
+## Key Concepts
 
-- [ ] Stripe
-  - [x] Pay
-  - [ ] Add
-- [ ] External store gateway
-  - [ ] Add
-- [ ] Open pay
-- [ ] Braintree
-- [ ] Mercado pargo
-- [ ] Mobile
-- [ ]
+### The lifecycle every gateway honours
 
----
+`loading → (rendering, only if the provider needs a form) → available (checking → valid | invalid | error) → processing → processed → complete`, with an `unavailable` arm reachable from a failed load or a failed draw. Every named provider variant reaches the same states; only what happens *inside* `load`, `render`, `validate`, `pay` and `add` differs per provider.
+
+### Pay context vs Add context
+
+A gateway spawned to **pay** an outstanding amount only wires its `PAY` submit event and produces a payment detail. A gateway spawned to **add** a payment method with nothing owed only wires `ADD` and produces a new stored-method id instead. The same machine and the same per-provider extension points serve both — only the active context differs.
+
+### Provider families, not just providers
+
+Providers group into a handful of shapes rather than eight unrelated ones: SDK-embedded card forms (Stripe, Braintree, MercadoPago, OpenPay), a raw server-side card form (`card`), and redirect/checkout providers that still collect a small form of their own (RazorPay, dLocal, Nicky). Knowing the family tells you what the captured-input shape and the completed-output shape look like — see [foundation.md](./docs/foundation.md) for the exact shapes.
+
+### Actor Types
+
+This module carries no actor split. It has no `.as('client')` / `.as('staff')` accessor and no scope matrix — whoever spawns a gateway (the capture module, always) decides which client and which order it acts against, as a plain argument on the spawn context.
+
+## Documentation
+
+| Doc | Audience | Content |
+| --- | --- | --- |
+| **This README** | Everyone | Overview, concepts, quick start |
+| [Foundation](./docs/foundation.md) | Architects rebuilding on another stack | Portable capability + data-shape spec |
+| [Usage](./docs/usage.md) | All devs (incl. external) | API reference, examples |
+| [Architecture](./docs/architecture.md) | Internal / contributors | State machine, provider wiring, dependencies |
+| [Gotchas](./docs/gotchas.md) | All | Edge cases, known issues, what's owed |
+| [Changelog](./docs/changelog.md) | All | What changed, and why |
+| [GATEWAYS.md](./GATEWAYS.md) | Internal | The full provider registry — every gateway code the platform knows about, by wire type |
+
+## Playground
+
+There is no standalone playground page for this module — a gateway only exists once something has spawned it, and today only the sibling capture module does that. The closest driveable proof is the capture module's own ADD-flow playground page (`playgrounds/labs/src/pages/paymentDetailAdd/`), which spawns a real gateway underneath it, and the e2e checkout suite under `tests/Playwright/e2e/e2e-tests/checkout/payment-gateways/`.
+
+The module's own behaviour is proven by its co-located suite — 349 tests across `__tests__/`, at 86.2% statement and 89.8% function coverage, replaying fixtures recorded from real staging by `pnpm fixtures:generate payment-gateways`. One of the module's 39 documented scenarios is recorded as owed rather than proven — see [gotchas.md](./docs/gotchas.md) for what's blocked and why.
+
+> **🔧 For Contributors:** adding a ninth provider means adding a ninth sub-folder with its own `types.ts` and whichever of `services.ts` / `actions.ts` / `schemas.ts` it needs to override — the shared machine and the default services already cover everything a provider doesn't customise.
