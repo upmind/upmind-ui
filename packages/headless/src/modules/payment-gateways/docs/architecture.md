@@ -102,7 +102,7 @@ Every provider variant is a plain object merged over the shared machine via `.wi
 | Provider | `services` overridden | `actions` overridden | `schemas` overridden |
 | --- | --- | --- | --- |
 | `braintree` | `load`, `render`, `validate`, `pay`, `add` | `updateSdk`, `setErrorSDK`, `cleanupSdk` | — |
-| `card` | `pay` only (raw-card storage direct to the capture module's own record endpoint) | `setSchemas`, `setModel` | card-number/expiry/CVV fields |
+| `card` | **deprecated** — `pay` only (raw-card storage direct to the capture module's own record endpoint). The platform no longer stores card details server-side, so nothing routes a live gateway here. | `setSchemas`, `setModel` | card-number/expiry/CVV fields |
 | `dlocal` | — (renderless, generic services) | `setSchemas` | payer document (+ email/phone when missing) |
 | `mercadoPago` | `load`, `render`, `pay`, `add` | `cleanupSdk` | — |
 | `nicky` | — (renderless, generic services) | `setSchemas`, `setModel` | payer email (when missing) |

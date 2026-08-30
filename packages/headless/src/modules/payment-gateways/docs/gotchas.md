@@ -133,4 +133,4 @@ Everything needing a live provider SDK in a real browser — the hosted-form dra
 
 ## A wiring note worth flagging
 
-The `card` provider variant (raw server-side card capture, storing directly via the capture module's own record endpoint) is unit-proven and reaches a driveable state like every other named provider — but no production call site wiring a real `GatewayProviderCodes` value to it was found while documenting this module. Every other provider family is reachable from a real gateway-provider code. Worth confirming before relying on it outside the module's own test suite.
+The `card` provider variant captures raw card fields and stores them server-side. It is **deprecated**: the platform no longer stores card details server-side, so no production call site wires a real `GatewayProviderCodes` value to it. Its code and tests remain, and it still reaches a driveable state, but nothing routes a live gateway through it. Do not build on it. Storing a payment method now goes through a provider's own tokenise handshake — `tokenize-begin` then `tokenize-end` — which is what every other provider family uses.
