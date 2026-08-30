@@ -8,9 +8,9 @@ Payment gateways is the one contract every payment provider is driven through on
 
 ### Keys by lifecycle phase
 
-| Phase | Keys | Relevance |
-| --- | --- | --- |
-| Payment | `billing.gateway.force_card_storage` | When set, a store-capable gateway stores the card on every successful payment and the client is given no choice about it. |
+| Phase   | Keys                                                    | Relevance                                                                                                                               |
+| ------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Payment | `billing.gateway.force_card_storage`                    | When set, a store-capable gateway stores the card on every successful payment and the client is given no choice about it.               |
 | Payment | `billing.gateway.force_auto_payment_for_stored_details` | When set, any method stored while paying is marked to be charged automatically on future renewals, regardless of what the client chose. |
 
 ## Core concepts
@@ -22,20 +22,20 @@ Payment gateways is the one contract every payment provider is driven through on
 
 ## Operations
 
-| # | Capability | Inputs | Outputs |
-| --- | --- | --- | --- |
-| 1 | **Read the gateway's current lifecycle position** | — | one label: loading, needing a form drawn, ready to be driven (valid / invalid / errored), busy with the provider, settled, or unable to load |
-| 2 | **Read the combined readiness and capability picture** | — | flags for whether payment is needed, the gateway is available, processing, complete, dirty, valid, errored, renderless, carries a renderer, or is unsupported |
-| 3 | **Read what has been captured so far** | — | the current form value held for this gateway |
-| 4 | **Read the form the gateway still needs completed** | — | a schema and layout describing the remaining fields, empty for a gateway that needs no form |
-| 5 | **Read the gateway's own payment instructions** | — | free-text guidance an offline or manual gateway carries for the client |
-| 6 | **Read the brand's consent disclaimer** | — | the copy a client must accept before paying, sourced from brand configuration rather than the gateway |
-| 7 | **Read the refusal detail** | — | the last error message, plus field-level validation detail when specific fields were rejected |
-| 8 | **Capture what a client enters** | a value | records it against the gateway without asking it to proceed |
-| 9 | **Clear captured input** | — | discards captured input and any error, without leaving the driveable state |
-| 10 | **Submit the gateway** | an optional value | re-captures first if the value changed since it was last recorded, then asks the gateway to proceed; settles with a completed payment detail or the provider's refusal |
-| 11 | **Draw the gateway's hosted form** | a page element | offers the gateway a place to draw its own form; does nothing for a gateway that needs none |
-| 12 | **Wait for the gateway to leave its startup phase** | — | resolves once the gateway is driveable, or resolves false once it settles as unable to load |
+| #   | Capability                                             | Inputs            | Outputs                                                                                                                                                                |
+| --- | ------------------------------------------------------ | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Read the gateway's current lifecycle position**      | —                 | one label: loading, needing a form drawn, ready to be driven (valid / invalid / errored), busy with the provider, settled, or unable to load                           |
+| 2   | **Read the combined readiness and capability picture** | —                 | flags for whether payment is needed, the gateway is available, processing, complete, dirty, valid, errored, renderless, carries a renderer, or is unsupported          |
+| 3   | **Read what has been captured so far**                 | —                 | the current form value held for this gateway                                                                                                                           |
+| 4   | **Read the form the gateway still needs completed**    | —                 | a schema and layout describing the remaining fields, empty for a gateway that needs no form                                                                            |
+| 5   | **Read the gateway's own payment instructions**        | —                 | free-text guidance an offline or manual gateway carries for the client                                                                                                 |
+| 6   | **Read the brand's consent disclaimer**                | —                 | the copy a client must accept before paying, sourced from brand configuration rather than the gateway                                                                  |
+| 7   | **Read the refusal detail**                            | —                 | the last error message, plus field-level validation detail when specific fields were rejected                                                                          |
+| 8   | **Capture what a client enters**                       | a value           | records it against the gateway without asking it to proceed                                                                                                            |
+| 9   | **Clear captured input**                               | —                 | discards captured input and any error, without leaving the driveable state                                                                                             |
+| 10  | **Submit the gateway**                                 | an optional value | re-captures first if the value changed since it was last recorded, then asks the gateway to proceed; settles with a completed payment detail or the provider's refusal |
+| 11  | **Draw the gateway's hosted form**                     | a page element    | offers the gateway a place to draw its own form; does nothing for a gateway that needs none                                                                            |
+| 12  | **Wait for the gateway to leave its startup phase**    | —                 | resolves once the gateway is driveable, or resolves false once it settles as unable to load                                                                            |
 
 ## Data shape
 
@@ -145,9 +145,9 @@ A fresh-gateway PAY output names a gateway but carries no charge instrument on i
 
 ### Dependants — modules that read from this one
 
-| Module | Weight | Reads | Why |
-| --- | --- | --- | --- |
-| capture module (sibling) | 6 | the lifecycle/capability surface, the shared context and parameter types, the store-capability check, the zero-decimal-currency list, per-provider extension points | Spawns the chosen gateway as a child once a client selects it, drives it through PAY or ADD, and reads its lifecycle back to decide when the wider capture is complete. |
+| Module                   | Weight | Reads                                                                                                                                                               | Why                                                                                                                                                                     |
+| ------------------------ | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| capture module (sibling) | 6      | the lifecycle/capability surface, the shared context and parameter types, the store-capability check, the zero-decimal-currency list, per-provider extension points | Spawns the chosen gateway as a child once a client selects it, drives it through PAY or ADD, and reads its lifecycle back to decide when the wider capture is complete. |
 
 No other domain module reads this one directly — every other consumer reaches a driven gateway through the capture module's own composables, never by spawning one itself.
 
@@ -218,7 +218,11 @@ curl -s -X POST "$API/gateway/frontend/tokenize-begin/{gatewayId}" \
 {
   "status": "ok",
   "data": {
-    "client_payment_details": { "id": "...", "gateway_id": "...", "client_id": "..." },
+    "client_payment_details": {
+      "id": "...",
+      "gateway_id": "...",
+      "client_id": "..."
+    },
     "gateway_specific": {
       "client_secret": "...",
       "setup_intent_id": "..."

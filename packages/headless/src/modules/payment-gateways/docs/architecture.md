@@ -77,12 +77,12 @@ stateDiagram-v2
 
 ### The four services every provider variant supplies
 
-| Service | Default (module-level) behaviour | What a provider variant typically overrides |
-| --- | --- | --- |
-| `load` | Waits for an authenticated session and a ready brand, rejects an ADD-context spawn if the gateway can't be stored, then reads the two force-storage/auto-pay brand keys into `canStore`/`mustStore`/`mustAutoPay`. | Everything after that: fetching an authorization token, loading a third-party script, constructing the provider's own SDK instance. Always chains through the default first. |
-| `render` | N/A at module level — only invoked for a provider whose context isn't `renderless`. | Mounting the provider's own hosted form into the offered container, and wiring a validation callback the machine can call back into. |
-| `validate` | Runs the captured model against the current schema. | Folding a provider's own SDK-reported validity into the same error shape, and any provider-specific post-parse checks (e.g. an expiry-date-in-the-past check). |
-| `pay` / `add` | `pay` resolves the model as-is; `add` runs the shared `beginSetup → endSetup` handshake, rejecting up front if the gateway can't be stored. | Talking to the provider's own SDK to produce a token/nonce/response, then folding it into the field bag the caller submits. |
+| Service       | Default (module-level) behaviour                                                                                                                                                                                   | What a provider variant typically overrides                                                                                                                                  |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `load`        | Waits for an authenticated session and a ready brand, rejects an ADD-context spawn if the gateway can't be stored, then reads the two force-storage/auto-pay brand keys into `canStore`/`mustStore`/`mustAutoPay`. | Everything after that: fetching an authorization token, loading a third-party script, constructing the provider's own SDK instance. Always chains through the default first. |
+| `render`      | N/A at module level — only invoked for a provider whose context isn't `renderless`.                                                                                                                                | Mounting the provider's own hosted form into the offered container, and wiring a validation callback the machine can call back into.                                         |
+| `validate`    | Runs the captured model against the current schema.                                                                                                                                                                | Folding a provider's own SDK-reported validity into the same error shape, and any provider-specific post-parse checks (e.g. an expiry-date-in-the-past check).               |
+| `pay` / `add` | `pay` resolves the model as-is; `add` runs the shared `beginSetup → endSetup` handshake, rejecting up front if the gateway can't be stored.                                                                        | Talking to the provider's own SDK to produce a token/nonce/response, then folding it into the field bag the caller submits.                                                  |
 
 ### Guards worth knowing
 
@@ -97,18 +97,18 @@ stateDiagram-v2
 
 ## Provider Wiring
 
-Every provider variant is a plain object merged over the shared machine via `.withConfig({ actions, services, guards })` — nothing about the state graph itself changes per provider, only what its actions/services/guards *do*. The table below is what each sub-package actually overrides (a blank cell means it takes the shared default as-is):
+Every provider variant is a plain object merged over the shared machine via `.withConfig({ actions, services, guards })` — nothing about the state graph itself changes per provider, only what its actions/services/guards _do_. The table below is what each sub-package actually overrides (a blank cell means it takes the shared default as-is):
 
-| Provider | `services` overridden | `actions` overridden | `schemas` overridden |
-| --- | --- | --- | --- |
-| `braintree` | `load`, `render`, `validate`, `pay`, `add` | `updateSdk`, `setErrorSDK`, `cleanupSdk` | — |
-| `card` | **deprecated** — `pay` only (raw-card storage direct to the capture module's own record endpoint). The platform no longer stores card details server-side, so nothing routes a live gateway here. | `setSchemas`, `setModel` | card-number/expiry/CVV fields |
-| `dlocal` | — (renderless, generic services) | `setSchemas` | payer document (+ email/phone when missing) |
-| `mercadoPago` | `load`, `render`, `pay`, `add` | `cleanupSdk` | — |
-| `nicky` | — (renderless, generic services) | `setSchemas`, `setModel` | payer email (when missing) |
-| `openPay` | `load`, `render`, `validate`, `pay`, `add` | `setSchemas`, `setModel` | raw card fields under an `openpay` sub-object |
-| `razorpay` | `load`, `render`, `pay`, `add` | `setSchemas` | payer email (when missing); storage fields forced read-only |
-| `stripe` | `load`, `render`, `validate`, `pay`, `add` | `updateSdk`, `setError`, `setErrorSDK`, `cleanupSdk` | — |
+| Provider      | `services` overridden                                                                                                                                                                             | `actions` overridden                                 | `schemas` overridden                                        |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------- |
+| `braintree`   | `load`, `render`, `validate`, `pay`, `add`                                                                                                                                                        | `updateSdk`, `setErrorSDK`, `cleanupSdk`             | —                                                           |
+| `card`        | **deprecated** — `pay` only (raw-card storage direct to the capture module's own record endpoint). The platform no longer stores card details server-side, so nothing routes a live gateway here. | `setSchemas`, `setModel`                             | card-number/expiry/CVV fields                               |
+| `dlocal`      | — (renderless, generic services)                                                                                                                                                                  | `setSchemas`                                         | payer document (+ email/phone when missing)                 |
+| `mercadoPago` | `load`, `render`, `pay`, `add`                                                                                                                                                                    | `cleanupSdk`                                         | —                                                           |
+| `nicky`       | — (renderless, generic services)                                                                                                                                                                  | `setSchemas`, `setModel`                             | payer email (when missing)                                  |
+| `openPay`     | `load`, `render`, `validate`, `pay`, `add`                                                                                                                                                        | `setSchemas`, `setModel`                             | raw card fields under an `openpay` sub-object               |
+| `razorpay`    | `load`, `render`, `pay`, `add`                                                                                                                                                                    | `setSchemas`                                         | payer email (when missing); storage fields forced read-only |
+| `stripe`      | `load`, `render`, `validate`, `pay`, `add`                                                                                                                                                        | `updateSdk`, `setError`, `setErrorSDK`, `cleanupSdk` | —                                                           |
 
 A ninth provider that fits an existing family (SDK-embedded, redirect-with-a-small-form, or fully generic) needs only the rows it genuinely differs on — most of the table above is one or two overrides, not a from-scratch rebuild.
 
@@ -172,21 +172,21 @@ sequenceDiagram
 
 ### payment-gateways Depends On
 
-| Module | Why |
-| --- | --- |
-| `session-store` | Gates every network call behind a live, authenticated session; an unauthenticated session returns every gateway to `loading` and clears its model. |
-| `brand` | The two force-storage/auto-pay config keys read during `load`, and the brand's own consent-disclaimer copy the composable surfaces. |
-| `query` | The HTTP layer (`useQuery().get/post`, `useUrl`) behind every provider-detail and tokenise call. |
-| `system-localisation` | Fallback error copy when a provider gives no message of its own; locale for a provider's own hosted-form language. |
-| `feedback` | Surfaces a payment failure as a user-visible notification for the one failure shape the shared machine treats as unexpected rather than as validation. |
-| capture module (sibling) | Read/write access to the pending-operation registry an off-site redirect needs to survive a full-page navigation; type-only reference to the shape a completed capture's output must match. |
-| `@upmind-automation/types` | `GatewayTypes`, `GatewayContext` (the PAY/ADD enum), `GatewayStoreType`, `BrandConfigKeys`, and the model types this module reads or produces. |
-| headless `utils` | The state-read helpers, error mapping/parsing, model parsing against a schema, and the timing constants the machine's delays are keyed to. |
+| Module                     | Why                                                                                                                                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `session-store`            | Gates every network call behind a live, authenticated session; an unauthenticated session returns every gateway to `loading` and clears its model.                                          |
+| `brand`                    | The two force-storage/auto-pay config keys read during `load`, and the brand's own consent-disclaimer copy the composable surfaces.                                                         |
+| `query`                    | The HTTP layer (`useQuery().get/post`, `useUrl`) behind every provider-detail and tokenise call.                                                                                            |
+| `system-localisation`      | Fallback error copy when a provider gives no message of its own; locale for a provider's own hosted-form language.                                                                          |
+| `feedback`                 | Surfaces a payment failure as a user-visible notification for the one failure shape the shared machine treats as unexpected rather than as validation.                                      |
+| capture module (sibling)   | Read/write access to the pending-operation registry an off-site redirect needs to survive a full-page navigation; type-only reference to the shape a completed capture's output must match. |
+| `@upmind-automation/types` | `GatewayTypes`, `GatewayContext` (the PAY/ADD enum), `GatewayStoreType`, `BrandConfigKeys`, and the model types this module reads or produces.                                              |
+| headless `utils`           | The state-read helpers, error mapping/parsing, model parsing against a schema, and the timing constants the machine's delays are keyed to.                                                  |
 
 ### Modules That Depend On payment-gateways
 
-| Module | How |
-| --- | --- |
+| Module                   | How                                                                                                                                                                                                                                                    |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | capture module (sibling) | Spawns the chosen provider's configured machine as a child of its own capture flow, reads `usePaymentGateway`'s lifecycle back to know when a capture is complete, and imports the store-capability check and the zero-decimal-currency list directly. |
 
 No other domain module reaches this one directly — every other consumer of a driven gateway goes through the capture module's own composables.

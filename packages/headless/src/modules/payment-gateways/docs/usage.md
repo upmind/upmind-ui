@@ -34,22 +34,22 @@ const {
 
 `meta` is one `computed`, so read through `.value`.
 
-| Flag | True when |
-| --- | --- |
-| `needsPayment` | An actor exists, the amount is non-negative, the gateway isn't `OFFLINE`, and the gateway is supported. |
-| `isNotSupported` | No actor exists, or `supported` isn't `true`. |
-| `isLoading` | The actor is in its `loading` phase. |
-| `isRendering` | No actor exists, or it is in its `rendering` phase. |
-| `isAvailable` | The actor is `available` or `processing`. |
-| `isUnavailable` | The actor is `unavailable`. |
-| `hasErrors` | The actor is in `available.error`. |
-| `isProcessing` | The actor is `processing`. |
-| `isValid` | The actor is in `available.valid`. |
-| `isDirty` | The captured model is non-empty. |
-| `isComplete` | The actor is done, `processed`, or `complete`. |
-| `isRenderless` | The context is flagged renderless, or every property on the current schema is read-only. |
-| `hasRenderer` | The context carries a renderer function. |
-| `hasInstructions` | The gateway carries `payment_instructions`. |
+| Flag              | True when                                                                                               |
+| ----------------- | ------------------------------------------------------------------------------------------------------- |
+| `needsPayment`    | An actor exists, the amount is non-negative, the gateway isn't `OFFLINE`, and the gateway is supported. |
+| `isNotSupported`  | No actor exists, or `supported` isn't `true`.                                                           |
+| `isLoading`       | The actor is in its `loading` phase.                                                                    |
+| `isRendering`     | No actor exists, or it is in its `rendering` phase.                                                     |
+| `isAvailable`     | The actor is `available` or `processing`.                                                               |
+| `isUnavailable`   | The actor is `unavailable`.                                                                             |
+| `hasErrors`       | The actor is in `available.error`.                                                                      |
+| `isProcessing`    | The actor is `processing`.                                                                              |
+| `isValid`         | The actor is in `available.valid`.                                                                      |
+| `isDirty`         | The captured model is non-empty.                                                                        |
+| `isComplete`      | The actor is done, `processed`, or `complete`.                                                          |
+| `isRenderless`    | The context is flagged renderless, or every property on the current schema is read-only.                |
+| `hasRenderer`     | The context carries a renderer function.                                                                |
+| `hasInstructions` | The gateway carries `payment_instructions`.                                                             |
 
 ## Context (Computed Values)
 

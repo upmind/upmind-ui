@@ -62,14 +62,14 @@ Nicky is wired into the shared machine and proven at the unit layer (schema/mode
 
 None of the five custom SDK/redirect providers with recorded fixtures are unlocked generally — each appears in the brand's gateway list only for one specific currency/country combination, discovered by sweeping 37 pairs live against the recording brand:
 
-| Provider | Currency | Country |
-| --- | --- | --- |
-| Stripe | GBP | GB |
-| RazorPay | GBP | GB |
-| Braintree | EUR | DE |
-| OpenPay | MXN | MX |
-| MercadoPago | COP | CO |
-| dLocal | ARS | AR |
+| Provider    | Currency | Country |
+| ----------- | -------- | ------- |
+| Stripe      | GBP      | GB      |
+| RazorPay    | GBP      | GB      |
+| Braintree   | EUR      | DE      |
+| OpenPay     | MXN      | MX      |
+| MercadoPago | COP      | CO      |
+| dLocal      | ARS      | AR      |
 
 ```typescript
 // ❌ Wrong — assuming a provider's fixtures are representative of every
@@ -117,11 +117,11 @@ The field bag a completed capture produces varies by provider family — a token
 
 ## Edge Cases
 
-| Scenario | Expected Behavior | Notes |
-| --- | --- | --- |
-| A gateway's own load fails after the amount is raised | `unavailable` recovers to `loading` on `REFRESH` when the amount/currency/order/address changed | The SDK is cleared on the way out so a stale mount is never reused. |
-| A refusal carries no error payload at all | The machine returns to `checking` rather than `error` | Treated as recoverable — the provider gave nothing to show the client. |
-| A gateway needs a form but is offered no container | The fault is logged and the promise resolves; the payment is not failed | See [usage.md](./usage.md) for the exact contract. |
+| Scenario                                              | Expected Behavior                                                                               | Notes                                                                  |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| A gateway's own load fails after the amount is raised | `unavailable` recovers to `loading` on `REFRESH` when the amount/currency/order/address changed | The SDK is cleared on the way out so a stale mount is never reused.    |
+| A refusal carries no error payload at all             | The machine returns to `checking` rather than `error`                                           | Treated as recoverable — the provider gave nothing to show the client. |
+| A gateway needs a form but is offered no container    | The fault is logged and the promise resolves; the payment is not failed                         | See [usage.md](./usage.md) for the exact contract.                     |
 
 ## What's owed, not yet proven
 

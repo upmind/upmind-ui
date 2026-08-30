@@ -37,21 +37,21 @@ See [Usage](./docs/usage.md) for the complete API reference.
 
 ## Features
 
-| Feature | Status | Notes |
-| --- | --- | --- |
-| One lifecycle contract for every provider | ✅ | Load, draw (if needed), validate, submit — the same shape whatever the provider. |
-| Eight named provider variants | ✅ | `braintree`, `card`, `dlocal`, `mercadoPago`, `nicky`, `openPay`, `razorpay`, `stripe` — each plugs its own load/render/validate/submit into the shared machine. |
-| Pay context and Add context from one spawn | ✅ | The same lifecycle either charges an amount or stores a method with nothing owed, decided by how the gateway was spawned. |
-| Currency-aware amount conversion | ✅ | Converts a display amount into a provider's minor-unit format, correctly for zero-decimal and unusually-scaled currencies alike. |
-| Payer contact collection on demand | ✅ | Collects the payer's email/phone into the form only when the client has none on file, evaluated fresh on every load. |
-| Off-site redirect resume | ✅ | The one provider variant whose confirmation step can leave the page registers a pending operation before it does, and resumes from it on return. |
-| Nicky provider variant | ⏳ | Wired into the shared machine and unit-proven, but has never appeared unlocked on the currency/country pairs this brand's fixtures sweep — see gotchas. |
+| Feature                                    | Status | Notes                                                                                                                                                            |
+| ------------------------------------------ | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| One lifecycle contract for every provider  | ✅     | Load, draw (if needed), validate, submit — the same shape whatever the provider.                                                                                 |
+| Eight named provider variants              | ✅     | `braintree`, `card`, `dlocal`, `mercadoPago`, `nicky`, `openPay`, `razorpay`, `stripe` — each plugs its own load/render/validate/submit into the shared machine. |
+| Pay context and Add context from one spawn | ✅     | The same lifecycle either charges an amount or stores a method with nothing owed, decided by how the gateway was spawned.                                        |
+| Currency-aware amount conversion           | ✅     | Converts a display amount into a provider's minor-unit format, correctly for zero-decimal and unusually-scaled currencies alike.                                 |
+| Payer contact collection on demand         | ✅     | Collects the payer's email/phone into the form only when the client has none on file, evaluated fresh on every load.                                             |
+| Off-site redirect resume                   | ✅     | The one provider variant whose confirmation step can leave the page registers a pending operation before it does, and resumes from it on return.                 |
+| Nicky provider variant                     | ⏳     | Wired into the shared machine and unit-proven, but has never appeared unlocked on the currency/country pairs this brand's fixtures sweep — see gotchas.          |
 
 ## Key Concepts
 
 ### The lifecycle every gateway honours
 
-`loading → (rendering, only if the provider needs a form) → available (checking → valid | invalid | error) → processing → processed → complete`, with an `unavailable` arm reachable from a failed load or a failed draw. Every named provider variant reaches the same states; only what happens *inside* `load`, `render`, `validate`, `pay` and `add` differs per provider.
+`loading → (rendering, only if the provider needs a form) → available (checking → valid | invalid | error) → processing → processed → complete`, with an `unavailable` arm reachable from a failed load or a failed draw. Every named provider variant reaches the same states; only what happens _inside_ `load`, `render`, `validate`, `pay` and `add` differs per provider.
 
 ### Pay context vs Add context
 
@@ -67,15 +67,15 @@ This module carries no actor split. It has no `.as('client')` / `.as('staff')` a
 
 ## Documentation
 
-| Doc | Audience | Content |
-| --- | --- | --- |
-| **This README** | Everyone | Overview, concepts, quick start |
-| [Foundation](./docs/foundation.md) | Architects rebuilding on another stack | Portable capability + data-shape spec |
-| [Usage](./docs/usage.md) | All devs (incl. external) | API reference, examples |
-| [Architecture](./docs/architecture.md) | Internal / contributors | State machine, provider wiring, dependencies |
-| [Gotchas](./docs/gotchas.md) | All | Edge cases, known issues, what's owed |
-| [Changelog](./docs/changelog.md) | All | What changed, and why |
-| [GATEWAYS.md](./GATEWAYS.md) | Internal | The full provider registry — every gateway code the platform knows about, by wire type |
+| Doc                                    | Audience                               | Content                                                                                |
+| -------------------------------------- | -------------------------------------- | -------------------------------------------------------------------------------------- |
+| **This README**                        | Everyone                               | Overview, concepts, quick start                                                        |
+| [Foundation](./docs/foundation.md)     | Architects rebuilding on another stack | Portable capability + data-shape spec                                                  |
+| [Usage](./docs/usage.md)               | All devs (incl. external)              | API reference, examples                                                                |
+| [Architecture](./docs/architecture.md) | Internal / contributors                | State machine, provider wiring, dependencies                                           |
+| [Gotchas](./docs/gotchas.md)           | All                                    | Edge cases, known issues, what's owed                                                  |
+| [Changelog](./docs/changelog.md)       | All                                    | What changed, and why                                                                  |
+| [GATEWAYS.md](./GATEWAYS.md)           | Internal                               | The full provider registry — every gateway code the platform knows about, by wire type |
 
 ## Playground
 
