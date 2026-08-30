@@ -1,0 +1,55 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/gateway/frontend/tokenize-begin/5952098d-3de4-0917-983a-31578626e347?case=begin-dlocal",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "return_url": "http://qa-automation.local:5173/payment/return"
+    }
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a334751af8524813-LIS",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Sun, 30 Aug 2026 14:24:09 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=XAXEZF%2Fhch2Betce0Ipx6n4D7DsGBzwbfBSsf71j2MNsFUvX406tIMeckp328luNF0KgvuOnaWGSRhsDkuxorDhYr0Axisb7EyJ0Hx6PuthfN7zzgLpqEwH61qyeuiXDPXT5DEm1dg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "36de8f37395c05f6a4f878e12990d89ee0575358",
+        "type": 0,
+        "code": 409,
+        "message": "Frontend implementation is not supported for this gateway!",
+        "data": []
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-30T14:24:09.587Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "payment-gateways"
+  }
+}

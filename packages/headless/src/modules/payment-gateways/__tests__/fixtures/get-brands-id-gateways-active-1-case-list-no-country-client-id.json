@@ -1,0 +1,4696 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/brands/2785d26e-9678-3d16-999f-314502e70439/gateways?case=list-no-country&limit=0&order=order&active=1&client_id=25d96e76-3ed0-913d-d52c-417482528340&currency_code=GBP&with=gateway.gateway_provider%2Cgateway.card_types",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a3347522efddcef8-LIS",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Sun, 30 Aug 2026 14:24:11 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=SZgNfO2CzXQ%2F%2FCHpd2Gicj0WR6Npe5Dq%2FhQPCtEgeGblvx%2BPlhnuESr6yRVxvlhbCECNGwOlpbHYuNWDpUFEjhGpD4FylR0xhFwyuQouT8XZjLqNx4WxjtcCy2k3aLDF7oFF8M3V7g%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "12"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "3de78642-de53-9714-60dc-21208469530d",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "active": true,
+          "created_at": "2025-10-10 13:23:57",
+          "updated_at": "2026-04-09 17:09:48",
+          "deleted_at": null,
+          "order": 0,
+          "visible": true,
+          "gateway": {
+            "id": "5d085e69-d562-3719-e98a-218e940d4237",
+            "import_id": null,
+            "staged_import": false,
+            "external_id": null,
+            "name": "Stripe",
+            "short_description": null,
+            "provider": "Stripe_PaymentIntents",
+            "created_at": "2025-10-10 13:23:55",
+            "updated_at": "2025-11-11 12:05:12",
+            "deleted_at": null,
+            "type": 1,
+            "auth_type": "settings",
+            "gateway_provider_id": "20403869-6e54-721d-59a5-18d9305e7d23",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "payment_instructions": "",
+            "hash": "5d2d3a6efd89e151fe2063fc6a60b5a2",
+            "oauth_application_access_token_id": null,
+            "name_translated": "Stripe",
+            "short_description_translated": null,
+            "gateway_settings": [
+              {
+                "id": "47d73824-8507-9315-980b-81e642d59e06",
+                "private": true
+              },
+              {
+                "id": "5952098d-3de4-0917-240f-31578626e347",
+                "private": true
+              },
+              {
+                "id": "20403869-6e54-721d-845b-518d9305e7d2",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "publicKey",
+                "value": "pk_test_51RmB6eQEz8uaHZG6uA8JwbEUYJtkLcfXKsDYKy05YM00GI0O4wkR9c3WNhgn1qZVM5VYe1gwgMUsPTjsatuuV2af00CwryXnwB",
+                "private": false,
+                "created_at": "2025-10-10 13:23:55",
+                "updated_at": "2026-04-16 10:09:42",
+                "deleted_at": null
+              },
+              {
+                "id": "3de78642-de53-9714-936a-21208469530d",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "stored",
+                "value": "1",
+                "private": false,
+                "created_at": "2025-10-10 13:23:55",
+                "updated_at": "2026-04-09 17:09:16",
+                "deleted_at": null
+              },
+              {
+                "id": "78985742-6489-7012-748b-21e325d0ed36",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "frontendImplementation",
+                "value": "1",
+                "private": false,
+                "created_at": "2025-10-10 13:23:55",
+                "updated_at": "2025-10-10 13:23:55",
+                "deleted_at": null
+              },
+              {
+                "id": "320e4357-95e7-8d18-d8da-31643202d986",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "customer_for_guests",
+                "value": "1",
+                "private": false,
+                "created_at": "2025-10-10 13:23:55",
+                "updated_at": "2025-10-10 13:23:55",
+                "deleted_at": null
+              },
+              {
+                "id": "2785d26e-9678-3d16-453b-314502e70439",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "reuse_customer_id_from_payment_methods",
+                "value": "1",
+                "private": false,
+                "created_at": "2025-10-10 13:23:55",
+                "updated_at": "2025-10-10 13:23:55",
+                "deleted_at": null
+              },
+              {
+                "id": "2785d26e-9678-3d16-458f-314502e70439",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "recognize_stripe_customer_by_email",
+                "value": "1",
+                "private": false,
+                "created_at": "2025-10-10 13:23:55",
+                "updated_at": "2025-10-10 13:23:55",
+                "deleted_at": null
+              },
+              {
+                "id": "825d96e7-63ed-0913-589a-417482528340",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "paymentMethodCard",
+                "value": "1",
+                "private": false,
+                "created_at": "2025-10-10 13:23:55",
+                "updated_at": "2025-10-10 13:23:55",
+                "deleted_at": null
+              },
+              {
+                "id": "5d085e69-d562-3719-63df-218e940d4237",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "paymentMethodPayPal",
+                "value": "0",
+                "private": false,
+                "created_at": "2025-10-10 13:23:55",
+                "updated_at": "2026-02-12 10:57:31",
+                "deleted_at": null
+              },
+              {
+                "id": "4d036794-24d0-e710-70dc-3153698d582e",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "paymentMethodSepaDebit",
+                "value": "1",
+                "private": false,
+                "created_at": "2025-10-10 13:23:55",
+                "updated_at": "2025-10-17 10:25:57",
+                "deleted_at": null
+              },
+              {
+                "id": "8d632507-9806-5d1e-688a-8174e234e98d",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "paymentMethodIdeal",
+                "value": "1",
+                "private": false,
+                "created_at": "2025-10-10 13:23:55",
+                "updated_at": "2025-10-17 10:25:57",
+                "deleted_at": null
+              },
+              {
+                "id": "4d036794-24d0-e710-e70c-3153698d582e",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "showStoredDetails",
+                "value": "1",
+                "private": false,
+                "created_at": "2026-04-09 17:03:06",
+                "updated_at": "2026-04-09 17:10:27",
+                "deleted_at": null
+              }
+            ],
+            "payment_instructions_translated": "",
+            "is_stored": true,
+            "use_frontend_implementation": true,
+            "allow_manual_store": true,
+            "require_stored": false,
+            "provider_logo": null,
+            "webhook_url": "https://api.staging.upmind.io/omnibridge/callback/5d085e69-d562-3719-e98a-218e940d4237",
+            "store_on_payment": true,
+            "store_on_payment_force": false,
+            "store_outside_payment": true,
+            "currencies": [
+              {
+                "currency_id": "8d632507-9806-5d1e-56a8-174e234e98d2",
+                "currency_code": "AED"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-5dc4-174825283406",
+                "currency_code": "DZD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-40f3-14502e70439d",
+                "currency_code": "AOA"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-28b3-1643202d9860",
+                "currency_code": "ARS"
+              },
+              {
+                "currency_id": "45952098-d3de-4091-76a3-1578626e347e",
+                "currency_code": "AUD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-d5f2-1e325d0ed369",
+                "currency_code": "AZN"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-e6b8-1e642d59e063",
+                "currency_code": "BDT"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-d0c3-14502e70439d",
+                "currency_code": "BBD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-80a3-14502e70439d",
+                "currency_code": "BOB"
+              },
+              {
+                "currency_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+                "currency_code": "BRL"
+              },
+              {
+                "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "currency_code": "GBP"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-89b5-18d9305e7d23",
+                "currency_code": "BGN"
+              },
+              {
+                "currency_id": "73de7864-2de5-3971-4ef2-1208469530d0",
+                "currency_code": "CAD"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-66a8-1e642d59e063",
+                "currency_code": "CVE"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-54c3-153698d582e8",
+                "currency_code": "KYD"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-eef2-18e940d42370",
+                "currency_code": "XAF"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-08b3-1643202d9860",
+                "currency_code": "CLP"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-edb4-174825283406",
+                "currency_code": "CNY"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-44f3-153698d582e8",
+                "currency_code": "COP"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-9eb2-18e940d42370",
+                "currency_code": "CRC"
+              },
+              {
+                "currency_id": "57898574-2648-9701-25c2-1e325d0ed369",
+                "currency_code": "CZK"
+              },
+              {
+                "currency_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+                "currency_code": "DKK"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-e4c3-153698d582e8",
+                "currency_code": "DOP"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-96c8-1e642d59e063",
+                "currency_code": "EGP"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-74b3-153698d582e8",
+                "currency_code": "ETB"
+              },
+              {
+                "currency_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+                "currency_code": "EUR"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-78f3-1643202d9860",
+                "currency_code": "FJD"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-9dc4-174825283406",
+                "currency_code": "GEL"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
+                "currency_code": "GHS"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-26f8-174e234e98d2",
+                "currency_code": "GTQ"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-26c8-1e642d59e063",
+                "currency_code": "HNL"
+              },
+              {
+                "currency_id": "9320e435-795e-78d1-88a3-1643202d9860",
+                "currency_code": "HKD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-70b3-14502e70439d",
+                "currency_code": "HUF"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-26f3-1578626e347e",
+                "currency_code": "ISK"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-ddf4-174825283406",
+                "currency_code": "INR"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-96f3-1578626e347e",
+                "currency_code": "IDR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-5ea2-18e940d42370",
+                "currency_code": "IQD"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-7ec2-18e940d42370",
+                "currency_code": "ILS"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-94a3-153698d582e8",
+                "currency_code": "JPY"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-76a8-1e642d59e063",
+                "currency_code": "KES"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-36b8-174e234e98d2",
+                "currency_code": "MYR"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-6ea2-1208469530d0",
+                "currency_code": "MVR"
+              },
+              {
+                "currency_id": "78985742-6489-7012-e5b2-1e325d0ed369",
+                "currency_code": "MUR"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-36f8-1e642d59e063",
+                "currency_code": "MXN"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-24c3-153698d582e8",
+                "currency_code": "MAD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-30f3-14502e70439d",
+                "currency_code": "MZN"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-69c5-18d9305e7d23",
+                "currency_code": "NPR"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-7da4-174825283406",
+                "currency_code": "TWD"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-e6c3-1578626e347e",
+                "currency_code": "NZD"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-66a3-1578626e347e",
+                "currency_code": "NIO"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-90c3-14502e70439d",
+                "currency_code": "NGN"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-59a5-18d9305e7d23",
+                "currency_code": "NOK"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-e6b8-174e234e98d2",
+                "currency_code": "PEN"
+              },
+              {
+                "currency_id": "78985742-6489-7012-85a2-1e325d0ed369",
+                "currency_code": "PKR"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-8eb2-1208469530d0",
+                "currency_code": "PGK"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-4eb2-18e940d42370",
+                "currency_code": "PYG"
+              },
+              {
+                "currency_id": "78985742-6489-7012-75c2-1e325d0ed369",
+                "currency_code": "PHP"
+              },
+              {
+                "currency_id": "24d03679-424d-0e71-04b3-153698d582e8",
+                "currency_code": "PLN"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-6ea2-18e940d42370",
+                "currency_code": "RON"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-5eb2-1208469530d0",
+                "currency_code": "RUB"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-76b3-1578626e347e",
+                "currency_code": "RWF"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-38c3-1643202d9860",
+                "currency_code": "SAR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-8ec2-18e940d42370",
+                "currency_code": "RSD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-05f2-1e325d0ed369",
+                "currency_code": "SGD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-25b2-1e325d0ed369",
+                "currency_code": "ZAR"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-d6c3-1578626e347e",
+                "currency_code": "LKR"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-48c3-1643202d9860",
+                "currency_code": "SEK"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+                "currency_code": "CHF"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-29f5-18d9305e7d23",
+                "currency_code": "TZS"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-6db4-174825283406",
+                "currency_code": "THB"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-9ef2-1208469530d0",
+                "currency_code": "TTD"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-2da4-174825283406",
+                "currency_code": "TND"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-d8a3-1643202d9860",
+                "currency_code": "TRY"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-7ec2-1208469530d0",
+                "currency_code": "UGX"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-d9c5-18d9305e7d23",
+                "currency_code": "UYU"
+              },
+              {
+                "currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
+                "currency_code": "USD"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-4ea2-1208469530d0",
+                "currency_code": "VND"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-66f8-174e234e98d2",
+                "currency_code": "XOF"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-09a5-18d9305e7d23",
+                "currency_code": "ZMW"
+              }
+            ],
+            "card_types": [
+              {
+                "id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+                "name": "American Express",
+                "code": "american-express",
+                "created_at": null,
+                "updated_at": null,
+                "deleted_at": null
+              },
+              {
+                "id": "45952098-d3de-4091-76a3-1578626e347e",
+                "name": "Diners Club",
+                "code": "diners-club",
+                "created_at": null,
+                "updated_at": null,
+                "deleted_at": null
+              },
+              {
+                "id": "e47d7382-4850-7931-56c8-1e642d59e063",
+                "name": "Discover",
+                "code": "discover",
+                "created_at": null,
+                "updated_at": null,
+                "deleted_at": null
+              },
+              {
+                "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+                "name": "Maestro",
+                "code": "maestro",
+                "created_at": null,
+                "updated_at": null,
+                "deleted_at": null
+              },
+              {
+                "id": "3825d96e-763e-d091-3dc4-174825283406",
+                "name": "MasterCard",
+                "code": "mastercard",
+                "created_at": null,
+                "updated_at": null,
+                "deleted_at": null
+              },
+              {
+                "id": "24d03679-424d-0e71-04b3-153698d582e8",
+                "name": "Visa",
+                "code": "visa",
+                "created_at": null,
+                "updated_at": null,
+                "deleted_at": null
+              }
+            ],
+            "translations": [],
+            "gateway_provider": {
+              "id": "20403869-6e54-721d-59a5-18d9305e7d23",
+              "name": "Stripe",
+              "short_description": "Payments with Stripe. Support various integrations like card and PayPal",
+              "code": "Stripe_PaymentIntents",
+              "created_at": "2020-01-09 12:24:06",
+              "updated_at": "2024-06-07 12:21:32",
+              "display_fields": "card_type,card_num,card_expire_date,card_cvv",
+              "type": 1,
+              "store_type": "either",
+              "auth_type": "settings",
+              "oauth_application_code": null,
+              "external_payment": false,
+              "external_store": false,
+              "instructions": "",
+              "needs_address": false,
+              "requires_name": false,
+              "store_on_payment": true,
+              "supports_refund": true,
+              "supported_currencies": null,
+              "store_on_payment_force": false,
+              "external_billing_charge": false,
+              "supports_frontend_implementation": true,
+              "store_outside_payment": true,
+              "name_translated": "Stripe",
+              "short_description_translated": "Payments with Stripe. Support various integrations like card and PayPal",
+              "external": false,
+              "translations": []
+            }
+          }
+        },
+        {
+          "id": "78985742-6489-7012-2d6b-21e325d0ed36",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "gateway_id": "5952098d-3de4-0917-928c-31578626e347",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "active": true,
+          "created_at": "2025-06-05 08:57:27",
+          "updated_at": "2026-02-10 17:46:22",
+          "deleted_at": null,
+          "order": 1,
+          "visible": true,
+          "gateway": {
+            "id": "5952098d-3de4-0917-928c-31578626e347",
+            "import_id": null,
+            "staged_import": false,
+            "external_id": null,
+            "name": "Direct Bank Transfer",
+            "short_description": null,
+            "provider": "BankTransfer",
+            "created_at": "2025-06-05 08:57:26",
+            "updated_at": "2025-10-21 15:25:29",
+            "deleted_at": null,
+            "type": 2,
+            "auth_type": "none",
+            "gateway_provider_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "payment_instructions": "",
+            "hash": "3f5bc6f6a975b48cab52d85e2f7200fb",
+            "oauth_application_access_token_id": null,
+            "name_translated": "Direct Bank Transfer",
+            "short_description_translated": null,
+            "gateway_settings": [],
+            "payment_instructions_translated": "",
+            "is_stored": false,
+            "use_frontend_implementation": false,
+            "allow_manual_store": false,
+            "require_stored": false,
+            "provider_logo": null,
+            "webhook_url": null,
+            "store_on_payment": false,
+            "store_on_payment_force": false,
+            "store_outside_payment": false,
+            "currencies": [
+              {
+                "currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
+                "currency_code": "USD"
+              },
+              {
+                "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "currency_code": "GBP"
+              }
+            ],
+            "card_types": [],
+            "translations": [],
+            "gateway_provider": {
+              "id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+              "name": "Bank Transfer",
+              "short_description": null,
+              "code": "BankTransfer",
+              "created_at": "2018-05-11 13:15:11",
+              "updated_at": "2023-04-06 17:07:53",
+              "display_fields": null,
+              "type": 2,
+              "store_type": "none",
+              "auth_type": "none",
+              "oauth_application_code": null,
+              "external_payment": false,
+              "external_store": false,
+              "instructions": "",
+              "needs_address": false,
+              "requires_name": false,
+              "store_on_payment": false,
+              "supports_refund": false,
+              "supported_currencies": null,
+              "store_on_payment_force": false,
+              "external_billing_charge": false,
+              "supports_frontend_implementation": false,
+              "store_outside_payment": false,
+              "name_translated": "Bank Transfer",
+              "short_description_translated": null,
+              "external": false,
+              "translations": []
+            }
+          }
+        },
+        {
+          "id": "5952098d-3de4-0917-928c-31578626e347",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "gateway_id": "4d036794-24d0-e710-275c-3153698d582e",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "active": true,
+          "created_at": "2025-05-07 08:38:43",
+          "updated_at": "2026-02-10 17:46:26",
+          "deleted_at": null,
+          "order": 2,
+          "visible": true,
+          "gateway": {
+            "id": "4d036794-24d0-e710-275c-3153698d582e",
+            "import_id": null,
+            "staged_import": false,
+            "external_id": null,
+            "name": "Offline Payment",
+            "short_description": null,
+            "provider": "Offline",
+            "created_at": "2025-05-07 08:38:43",
+            "updated_at": "2025-10-21 15:24:58",
+            "deleted_at": null,
+            "type": 5,
+            "auth_type": "",
+            "gateway_provider_id": "73de7864-2de5-3971-4ef2-1208469530d0",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "payment_instructions": "Please send the payment as a bank transfer to the following account\n\n00000000\n00-00-00",
+            "hash": "",
+            "oauth_application_access_token_id": null,
+            "name_translated": "Offline Payment",
+            "short_description_translated": null,
+            "gateway_settings": [],
+            "payment_instructions_translated": "Please send the payment as a bank transfer to the following account\n\n00000000\n00-00-00",
+            "is_stored": false,
+            "use_frontend_implementation": false,
+            "allow_manual_store": false,
+            "require_stored": false,
+            "provider_logo": null,
+            "webhook_url": null,
+            "store_on_payment": false,
+            "store_on_payment_force": false,
+            "store_outside_payment": false,
+            "currencies": [
+              {
+                "currency_id": "825d96e7-63ed-0913-5dc4-174825283406",
+                "currency_code": "DZD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-40f3-14502e70439d",
+                "currency_code": "AOA"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-28b3-1643202d9860",
+                "currency_code": "ARS"
+              },
+              {
+                "currency_id": "45952098-d3de-4091-76a3-1578626e347e",
+                "currency_code": "AUD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-d5f2-1e325d0ed369",
+                "currency_code": "AZN"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-e6b8-1e642d59e063",
+                "currency_code": "BDT"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-d0c3-14502e70439d",
+                "currency_code": "BBD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-80a3-14502e70439d",
+                "currency_code": "BOB"
+              },
+              {
+                "currency_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+                "currency_code": "BRL"
+              },
+              {
+                "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "currency_code": "GBP"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-89b5-18d9305e7d23",
+                "currency_code": "BGN"
+              },
+              {
+                "currency_id": "73de7864-2de5-3971-4ef2-1208469530d0",
+                "currency_code": "CAD"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-66a8-1e642d59e063",
+                "currency_code": "CVE"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-54c3-153698d582e8",
+                "currency_code": "KYD"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-eef2-18e940d42370",
+                "currency_code": "XAF"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-08b3-1643202d9860",
+                "currency_code": "CLP"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-edb4-174825283406",
+                "currency_code": "CNY"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-44f3-153698d582e8",
+                "currency_code": "COP"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-9eb2-18e940d42370",
+                "currency_code": "CRC"
+              },
+              {
+                "currency_id": "57898574-2648-9701-25c2-1e325d0ed369",
+                "currency_code": "CZK"
+              },
+              {
+                "currency_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+                "currency_code": "DKK"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-e4c3-153698d582e8",
+                "currency_code": "DOP"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-96c8-1e642d59e063",
+                "currency_code": "EGP"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-74b3-153698d582e8",
+                "currency_code": "ETB"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-78f3-1643202d9860",
+                "currency_code": "FJD"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-9dc4-174825283406",
+                "currency_code": "GEL"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
+                "currency_code": "GHS"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-26f8-174e234e98d2",
+                "currency_code": "GTQ"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-26c8-1e642d59e063",
+                "currency_code": "HNL"
+              },
+              {
+                "currency_id": "9320e435-795e-78d1-88a3-1643202d9860",
+                "currency_code": "HKD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-70b3-14502e70439d",
+                "currency_code": "HUF"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-26f3-1578626e347e",
+                "currency_code": "ISK"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-ddf4-174825283406",
+                "currency_code": "INR"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-96f3-1578626e347e",
+                "currency_code": "IDR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-5ea2-18e940d42370",
+                "currency_code": "IQD"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-7ec2-18e940d42370",
+                "currency_code": "ILS"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-94a3-153698d582e8",
+                "currency_code": "JPY"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-76a8-1e642d59e063",
+                "currency_code": "KES"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-36b8-174e234e98d2",
+                "currency_code": "MYR"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-6ea2-1208469530d0",
+                "currency_code": "MVR"
+              },
+              {
+                "currency_id": "78985742-6489-7012-e5b2-1e325d0ed369",
+                "currency_code": "MUR"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-36f8-1e642d59e063",
+                "currency_code": "MXN"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-24c3-153698d582e8",
+                "currency_code": "MAD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-30f3-14502e70439d",
+                "currency_code": "MZN"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-69c5-18d9305e7d23",
+                "currency_code": "NPR"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-7da4-174825283406",
+                "currency_code": "TWD"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-e6c3-1578626e347e",
+                "currency_code": "NZD"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-66a3-1578626e347e",
+                "currency_code": "NIO"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-90c3-14502e70439d",
+                "currency_code": "NGN"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-59a5-18d9305e7d23",
+                "currency_code": "NOK"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-e6b8-174e234e98d2",
+                "currency_code": "PEN"
+              },
+              {
+                "currency_id": "78985742-6489-7012-85a2-1e325d0ed369",
+                "currency_code": "PKR"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-8eb2-1208469530d0",
+                "currency_code": "PGK"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-4eb2-18e940d42370",
+                "currency_code": "PYG"
+              },
+              {
+                "currency_id": "78985742-6489-7012-75c2-1e325d0ed369",
+                "currency_code": "PHP"
+              },
+              {
+                "currency_id": "24d03679-424d-0e71-04b3-153698d582e8",
+                "currency_code": "PLN"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-6ea2-18e940d42370",
+                "currency_code": "RON"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-5eb2-1208469530d0",
+                "currency_code": "RUB"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-76b3-1578626e347e",
+                "currency_code": "RWF"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-38c3-1643202d9860",
+                "currency_code": "SAR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-8ec2-18e940d42370",
+                "currency_code": "RSD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-05f2-1e325d0ed369",
+                "currency_code": "SGD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-25b2-1e325d0ed369",
+                "currency_code": "ZAR"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-d6c3-1578626e347e",
+                "currency_code": "LKR"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-48c3-1643202d9860",
+                "currency_code": "SEK"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+                "currency_code": "CHF"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-29f5-18d9305e7d23",
+                "currency_code": "TZS"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-6db4-174825283406",
+                "currency_code": "THB"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-9ef2-1208469530d0",
+                "currency_code": "TTD"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-2da4-174825283406",
+                "currency_code": "TND"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-d8a3-1643202d9860",
+                "currency_code": "TRY"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-7ec2-1208469530d0",
+                "currency_code": "UGX"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-56a8-174e234e98d2",
+                "currency_code": "AED"
+              },
+              {
+                "currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
+                "currency_code": "USD"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-66f8-174e234e98d2",
+                "currency_code": "XOF"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-09a5-18d9305e7d23",
+                "currency_code": "ZMW"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-d9c5-18d9305e7d23",
+                "currency_code": "UYU"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-4ea2-1208469530d0",
+                "currency_code": "VND"
+              }
+            ],
+            "card_types": [],
+            "translations": [],
+            "gateway_provider": {
+              "id": "73de7864-2de5-3971-4ef2-1208469530d0",
+              "name": "Offline",
+              "short_description": null,
+              "code": "Offline",
+              "created_at": "2018-05-11 13:15:11",
+              "updated_at": "2023-04-06 17:07:53",
+              "display_fields": null,
+              "type": 5,
+              "store_type": "none",
+              "auth_type": "none",
+              "oauth_application_code": null,
+              "external_payment": false,
+              "external_store": false,
+              "instructions": "",
+              "needs_address": false,
+              "requires_name": false,
+              "store_on_payment": false,
+              "supports_refund": false,
+              "supported_currencies": null,
+              "store_on_payment_force": false,
+              "external_billing_charge": false,
+              "supports_frontend_implementation": false,
+              "store_outside_payment": false,
+              "name_translated": "Offline",
+              "short_description_translated": null,
+              "external": false,
+              "translations": []
+            }
+          }
+        },
+        {
+          "id": "3de78642-de53-9714-693a-21208469530d",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "gateway_id": "47d73824-8507-9315-e95b-81e642d59e06",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "active": true,
+          "created_at": "2025-06-05 08:35:21",
+          "updated_at": "2026-02-10 17:46:29",
+          "deleted_at": null,
+          "order": 3,
+          "visible": true,
+          "gateway": {
+            "id": "47d73824-8507-9315-e95b-81e642d59e06",
+            "import_id": null,
+            "staged_import": false,
+            "external_id": null,
+            "name": "PayPal Express",
+            "short_description": null,
+            "provider": "PayPal_Express",
+            "created_at": "2025-06-05 08:35:20",
+            "updated_at": "2025-10-21 15:24:50",
+            "deleted_at": null,
+            "type": 1,
+            "auth_type": "settings",
+            "gateway_provider_id": "5952098d-3de4-0917-e6c3-1578626e347e",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "payment_instructions": "",
+            "hash": "4986cfa25743479decf20acecd685822",
+            "oauth_application_access_token_id": null,
+            "name_translated": "PayPal Express",
+            "short_description_translated": null,
+            "gateway_settings": [
+              {
+                "id": "3de78642-de53-9714-976a-21208469530d",
+                "private": true
+              },
+              {
+                "id": "78985742-6489-7012-788c-21e325d0ed36",
+                "private": true
+              },
+              {
+                "id": "320e4357-95e7-8d18-d0dc-31643202d986",
+                "private": true
+              },
+              {
+                "id": "2785d26e-9678-3d16-493a-314502e70439",
+                "private": true
+              }
+            ],
+            "payment_instructions_translated": "",
+            "is_stored": false,
+            "use_frontend_implementation": false,
+            "allow_manual_store": false,
+            "require_stored": false,
+            "provider_logo": null,
+            "webhook_url": null,
+            "store_on_payment": false,
+            "store_on_payment_force": false,
+            "store_outside_payment": false,
+            "currencies": [
+              {
+                "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "currency_code": "GBP"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-5dc4-174825283406",
+                "currency_code": "DZD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-40f3-14502e70439d",
+                "currency_code": "AOA"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-28b3-1643202d9860",
+                "currency_code": "ARS"
+              },
+              {
+                "currency_id": "45952098-d3de-4091-76a3-1578626e347e",
+                "currency_code": "AUD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-d5f2-1e325d0ed369",
+                "currency_code": "AZN"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-e6b8-1e642d59e063",
+                "currency_code": "BDT"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-d0c3-14502e70439d",
+                "currency_code": "BBD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-80a3-14502e70439d",
+                "currency_code": "BOB"
+              },
+              {
+                "currency_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+                "currency_code": "BRL"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-89b5-18d9305e7d23",
+                "currency_code": "BGN"
+              },
+              {
+                "currency_id": "73de7864-2de5-3971-4ef2-1208469530d0",
+                "currency_code": "CAD"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-66a8-1e642d59e063",
+                "currency_code": "CVE"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-54c3-153698d582e8",
+                "currency_code": "KYD"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-eef2-18e940d42370",
+                "currency_code": "XAF"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-08b3-1643202d9860",
+                "currency_code": "CLP"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-edb4-174825283406",
+                "currency_code": "CNY"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-44f3-153698d582e8",
+                "currency_code": "COP"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-9eb2-18e940d42370",
+                "currency_code": "CRC"
+              },
+              {
+                "currency_id": "57898574-2648-9701-25c2-1e325d0ed369",
+                "currency_code": "CZK"
+              },
+              {
+                "currency_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+                "currency_code": "DKK"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-e4c3-153698d582e8",
+                "currency_code": "DOP"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-96c8-1e642d59e063",
+                "currency_code": "EGP"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-74b3-153698d582e8",
+                "currency_code": "ETB"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-78f3-1643202d9860",
+                "currency_code": "FJD"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-9dc4-174825283406",
+                "currency_code": "GEL"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
+                "currency_code": "GHS"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-26f8-174e234e98d2",
+                "currency_code": "GTQ"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-26c8-1e642d59e063",
+                "currency_code": "HNL"
+              },
+              {
+                "currency_id": "9320e435-795e-78d1-88a3-1643202d9860",
+                "currency_code": "HKD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-70b3-14502e70439d",
+                "currency_code": "HUF"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-26f3-1578626e347e",
+                "currency_code": "ISK"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-96f3-1578626e347e",
+                "currency_code": "IDR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-5ea2-18e940d42370",
+                "currency_code": "IQD"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-7ec2-18e940d42370",
+                "currency_code": "ILS"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-94a3-153698d582e8",
+                "currency_code": "JPY"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-76a8-1e642d59e063",
+                "currency_code": "KES"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-36b8-174e234e98d2",
+                "currency_code": "MYR"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-6ea2-1208469530d0",
+                "currency_code": "MVR"
+              },
+              {
+                "currency_id": "78985742-6489-7012-e5b2-1e325d0ed369",
+                "currency_code": "MUR"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-36f8-1e642d59e063",
+                "currency_code": "MXN"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-24c3-153698d582e8",
+                "currency_code": "MAD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-30f3-14502e70439d",
+                "currency_code": "MZN"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-69c5-18d9305e7d23",
+                "currency_code": "NPR"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-7da4-174825283406",
+                "currency_code": "TWD"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-e6c3-1578626e347e",
+                "currency_code": "NZD"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-66a3-1578626e347e",
+                "currency_code": "NIO"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-90c3-14502e70439d",
+                "currency_code": "NGN"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-59a5-18d9305e7d23",
+                "currency_code": "NOK"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-e6b8-174e234e98d2",
+                "currency_code": "PEN"
+              },
+              {
+                "currency_id": "78985742-6489-7012-85a2-1e325d0ed369",
+                "currency_code": "PKR"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-8eb2-1208469530d0",
+                "currency_code": "PGK"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-4eb2-18e940d42370",
+                "currency_code": "PYG"
+              },
+              {
+                "currency_id": "78985742-6489-7012-75c2-1e325d0ed369",
+                "currency_code": "PHP"
+              },
+              {
+                "currency_id": "24d03679-424d-0e71-04b3-153698d582e8",
+                "currency_code": "PLN"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-6ea2-18e940d42370",
+                "currency_code": "RON"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-5eb2-1208469530d0",
+                "currency_code": "RUB"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-76b3-1578626e347e",
+                "currency_code": "RWF"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-38c3-1643202d9860",
+                "currency_code": "SAR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-8ec2-18e940d42370",
+                "currency_code": "RSD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-05f2-1e325d0ed369",
+                "currency_code": "SGD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-25b2-1e325d0ed369",
+                "currency_code": "ZAR"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-d6c3-1578626e347e",
+                "currency_code": "LKR"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-48c3-1643202d9860",
+                "currency_code": "SEK"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+                "currency_code": "CHF"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-29f5-18d9305e7d23",
+                "currency_code": "TZS"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-6db4-174825283406",
+                "currency_code": "THB"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-9ef2-1208469530d0",
+                "currency_code": "TTD"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-2da4-174825283406",
+                "currency_code": "TND"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-d8a3-1643202d9860",
+                "currency_code": "TRY"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-7ec2-1208469530d0",
+                "currency_code": "UGX"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-56a8-174e234e98d2",
+                "currency_code": "AED"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-66f8-174e234e98d2",
+                "currency_code": "XOF"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-09a5-18d9305e7d23",
+                "currency_code": "ZMW"
+              },
+              {
+                "currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
+                "currency_code": "USD"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-d9c5-18d9305e7d23",
+                "currency_code": "UYU"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-4ea2-1208469530d0",
+                "currency_code": "VND"
+              },
+              {
+                "currency_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+                "currency_code": "EUR"
+              }
+            ],
+            "card_types": [],
+            "translations": [],
+            "gateway_provider": {
+              "id": "5952098d-3de4-0917-e6c3-1578626e347e",
+              "name": "PayPal Express",
+              "short_description": null,
+              "code": "PayPal_Express",
+              "created_at": "2020-01-09 12:24:06",
+              "updated_at": "2023-04-06 17:07:53",
+              "display_fields": null,
+              "type": 1,
+              "store_type": "none",
+              "auth_type": "settings",
+              "oauth_application_code": null,
+              "external_payment": true,
+              "external_store": false,
+              "instructions": "",
+              "needs_address": false,
+              "requires_name": false,
+              "store_on_payment": false,
+              "supports_refund": true,
+              "supported_currencies": null,
+              "store_on_payment_force": false,
+              "external_billing_charge": false,
+              "supports_frontend_implementation": false,
+              "store_outside_payment": false,
+              "name_translated": "PayPal Express",
+              "short_description_translated": null,
+              "external": true,
+              "translations": []
+            }
+          }
+        },
+        {
+          "id": "320e4357-95e7-8d18-724b-31643202d986",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "gateway_id": "20403869-6e54-721d-683c-518d9305e7d2",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "active": true,
+          "created_at": "2025-06-05 09:14:11",
+          "updated_at": "2026-04-07 08:18:00",
+          "deleted_at": null,
+          "order": 4,
+          "visible": true,
+          "gateway": {
+            "id": "20403869-6e54-721d-683c-518d9305e7d2",
+            "import_id": null,
+            "staged_import": false,
+            "external_id": null,
+            "name": "Micropayments",
+            "short_description": null,
+            "provider": "Micropayment",
+            "created_at": "2025-06-05 09:14:09",
+            "updated_at": "2025-11-11 12:04:46",
+            "deleted_at": null,
+            "type": 1,
+            "auth_type": "settings",
+            "gateway_provider_id": "320e4357-95e7-8d18-08b3-1643202d9860",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "payment_instructions": "",
+            "hash": "d848d90544f9ac92bef606c35d4b0559",
+            "oauth_application_access_token_id": null,
+            "name_translated": "Micropayments",
+            "short_description_translated": null,
+            "gateway_settings": [
+              {
+                "id": "825d96e7-63ed-0913-57ea-417482528340",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "20403869-6e54-721d-683c-518d9305e7d2",
+                "field": "testMode",
+                "value": "1",
+                "private": false,
+                "created_at": "2025-06-05 09:14:09",
+                "updated_at": "2025-06-05 09:14:09",
+                "deleted_at": null
+              },
+              {
+                "id": "5d085e69-d562-3719-645a-218e940d4237",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "20403869-6e54-721d-683c-518d9305e7d2",
+                "field": "account",
+                "value": "39105",
+                "private": false,
+                "created_at": "2025-06-05 09:14:09",
+                "updated_at": "2025-11-26 13:57:45",
+                "deleted_at": null
+              },
+              {
+                "id": "4d036794-24d0-e710-746a-3153698d582e",
+                "private": true
+              },
+              {
+                "id": "8d632507-9806-5d1e-6d9f-8174e234e98d",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "20403869-6e54-721d-683c-518d9305e7d2",
+                "field": "project",
+                "value": "1661-rmntc-b2c5edf1",
+                "private": false,
+                "created_at": "2025-06-05 09:14:09",
+                "updated_at": "2025-11-26 13:57:45",
+                "deleted_at": null
+              },
+              {
+                "id": "47d73824-8507-9315-970a-81e642d59e06",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "20403869-6e54-721d-683c-518d9305e7d2",
+                "field": "stored",
+                "value": "1",
+                "private": false,
+                "created_at": "2025-06-05 09:14:09",
+                "updated_at": "2025-11-26 13:57:45",
+                "deleted_at": null
+              }
+            ],
+            "payment_instructions_translated": "",
+            "is_stored": true,
+            "use_frontend_implementation": false,
+            "allow_manual_store": true,
+            "require_stored": false,
+            "provider_logo": null,
+            "webhook_url": "https://api.staging.upmind.io/omnibridge/callback/20403869-6e54-721d-683c-518d9305e7d2",
+            "store_on_payment": true,
+            "store_on_payment_force": false,
+            "store_outside_payment": false,
+            "currencies": [
+              {
+                "currency_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+                "currency_code": "EUR"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-28b3-1643202d9860",
+                "currency_code": "ARS"
+              },
+              {
+                "currency_id": "45952098-d3de-4091-76a3-1578626e347e",
+                "currency_code": "AUD"
+              },
+              {
+                "currency_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+                "currency_code": "BRL"
+              },
+              {
+                "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "currency_code": "GBP"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-89b5-18d9305e7d23",
+                "currency_code": "BGN"
+              },
+              {
+                "currency_id": "73de7864-2de5-3971-4ef2-1208469530d0",
+                "currency_code": "CAD"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-08b3-1643202d9860",
+                "currency_code": "CLP"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-44f3-153698d582e8",
+                "currency_code": "COP"
+              },
+              {
+                "currency_id": "57898574-2648-9701-25c2-1e325d0ed369",
+                "currency_code": "CZK"
+              },
+              {
+                "currency_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+                "currency_code": "DKK"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-96c8-1e642d59e063",
+                "currency_code": "EGP"
+              },
+              {
+                "currency_id": "9320e435-795e-78d1-88a3-1643202d9860",
+                "currency_code": "HKD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-70b3-14502e70439d",
+                "currency_code": "HUF"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-ddf4-174825283406",
+                "currency_code": "INR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-7ec2-18e940d42370",
+                "currency_code": "ILS"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-94a3-153698d582e8",
+                "currency_code": "JPY"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-36f8-1e642d59e063",
+                "currency_code": "MXN"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-24c3-153698d582e8",
+                "currency_code": "MAD"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-e6c3-1578626e347e",
+                "currency_code": "NZD"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-59a5-18d9305e7d23",
+                "currency_code": "NOK"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-e6b8-174e234e98d2",
+                "currency_code": "PEN"
+              },
+              {
+                "currency_id": "24d03679-424d-0e71-04b3-153698d582e8",
+                "currency_code": "PLN"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-6ea2-18e940d42370",
+                "currency_code": "RON"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-5eb2-1208469530d0",
+                "currency_code": "RUB"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-38c3-1643202d9860",
+                "currency_code": "SAR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-8ec2-18e940d42370",
+                "currency_code": "RSD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-05f2-1e325d0ed369",
+                "currency_code": "SGD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-25b2-1e325d0ed369",
+                "currency_code": "ZAR"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-48c3-1643202d9860",
+                "currency_code": "SEK"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+                "currency_code": "CHF"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-d8a3-1643202d9860",
+                "currency_code": "TRY"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-84f3-153698d582e8",
+                "currency_code": "UAH"
+              },
+              {
+                "currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
+                "currency_code": "USD"
+              }
+            ],
+            "card_types": [],
+            "translations": [],
+            "gateway_provider": {
+              "id": "320e4357-95e7-8d18-08b3-1643202d9860",
+              "name": "Micropayment Card",
+              "short_description": null,
+              "code": "Micropayment",
+              "created_at": "2024-08-22 00:51:42",
+              "updated_at": "2024-09-11 10:55:34",
+              "display_fields": null,
+              "type": 1,
+              "store_type": "either",
+              "auth_type": "settings",
+              "oauth_application_code": null,
+              "external_payment": true,
+              "external_store": false,
+              "instructions": "",
+              "needs_address": false,
+              "requires_name": true,
+              "store_on_payment": true,
+              "supports_refund": true,
+              "supported_currencies": [
+                "EUR",
+                "ARS",
+                "AUD",
+                "BGN",
+                "BRL",
+                "CAD",
+                "CHF",
+                "CLP",
+                "COP",
+                "CZK",
+                "DKK",
+                "EGP",
+                "GBP",
+                "HKD",
+                "HUF",
+                "ILS",
+                "INR",
+                "JPY",
+                "KRW",
+                "KZT",
+                "MAD",
+                "MXN",
+                "NOK",
+                "NZD",
+                "PEN",
+                "PLN",
+                "RSD",
+                "RON",
+                "RUB",
+                "SAR",
+                "SEK",
+                "SGD",
+                "TRY",
+                "USD",
+                "UAH",
+                "WEB",
+                "ZAR"
+              ],
+              "store_on_payment_force": false,
+              "external_billing_charge": false,
+              "supports_frontend_implementation": true,
+              "store_outside_payment": false,
+              "name_translated": "Micropayment Card",
+              "short_description_translated": null,
+              "external": true,
+              "translations": []
+            }
+          }
+        },
+        {
+          "id": "47d73824-8507-9315-e54f-81e642d59e06",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "gateway_id": "320e4357-95e7-8d18-757a-31643202d986",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "active": true,
+          "created_at": "2025-10-21 15:48:34",
+          "updated_at": "2026-04-07 08:19:08",
+          "deleted_at": null,
+          "order": 10,
+          "visible": true,
+          "gateway": {
+            "id": "320e4357-95e7-8d18-757a-31643202d986",
+            "import_id": null,
+            "staged_import": false,
+            "external_id": null,
+            "name": "RazorPay",
+            "short_description": null,
+            "provider": "RazorPay_Checkout",
+            "created_at": "2025-10-21 15:48:33",
+            "updated_at": "2025-10-21 15:48:33",
+            "deleted_at": null,
+            "type": 10,
+            "auth_type": "settings",
+            "gateway_provider_id": "4d036794-24d0-e710-74b3-153698d582e8",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "payment_instructions": "",
+            "hash": "b86e4f949685182450036a14ff1d2db4",
+            "oauth_application_access_token_id": null,
+            "name_translated": "RazorPay",
+            "short_description_translated": null,
+            "gateway_settings": [
+              {
+                "id": "5d085e69-d562-3719-84da-218e940d4237",
+                "private": true
+              },
+              {
+                "id": "4d036794-24d0-e710-54db-3153698d582e",
+                "private": true
+              },
+              {
+                "id": "8d632507-9806-5d1e-ed8a-8174e234e98d",
+                "private": true
+              },
+              {
+                "id": "47d73824-8507-9315-69dc-81e642d59e06",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "320e4357-95e7-8d18-757a-31643202d986",
+                "field": "stored",
+                "value": "1",
+                "private": false,
+                "created_at": "2025-10-21 15:48:33",
+                "updated_at": "2025-11-25 16:09:48",
+                "deleted_at": null
+              }
+            ],
+            "payment_instructions_translated": "",
+            "is_stored": true,
+            "use_frontend_implementation": false,
+            "allow_manual_store": true,
+            "require_stored": false,
+            "provider_logo": null,
+            "webhook_url": "https://api.staging.upmind.io/omnibridge/callback/320e4357-95e7-8d18-757a-31643202d986",
+            "store_on_payment": true,
+            "store_on_payment_force": false,
+            "store_outside_payment": true,
+            "currencies": [
+              {
+                "currency_id": "8d632507-9806-5d1e-36b8-174e234e98d2",
+                "currency_code": "MYR"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-ddf4-174825283406",
+                "currency_code": "INR"
+              },
+              {
+                "currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
+                "currency_code": "USD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-05f2-1e325d0ed369",
+                "currency_code": "SGD"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-5dc4-174825283406",
+                "currency_code": "DZD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-40f3-14502e70439d",
+                "currency_code": "AOA"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-28b3-1643202d9860",
+                "currency_code": "ARS"
+              },
+              {
+                "currency_id": "45952098-d3de-4091-76a3-1578626e347e",
+                "currency_code": "AUD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-d5f2-1e325d0ed369",
+                "currency_code": "AZN"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-e6b8-1e642d59e063",
+                "currency_code": "BDT"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-d0c3-14502e70439d",
+                "currency_code": "BBD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-80a3-14502e70439d",
+                "currency_code": "BOB"
+              },
+              {
+                "currency_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+                "currency_code": "BRL"
+              },
+              {
+                "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "currency_code": "GBP"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-89b5-18d9305e7d23",
+                "currency_code": "BGN"
+              },
+              {
+                "currency_id": "73de7864-2de5-3971-4ef2-1208469530d0",
+                "currency_code": "CAD"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-66a8-1e642d59e063",
+                "currency_code": "CVE"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-54c3-153698d582e8",
+                "currency_code": "KYD"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-eef2-18e940d42370",
+                "currency_code": "XAF"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-08b3-1643202d9860",
+                "currency_code": "CLP"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-edb4-174825283406",
+                "currency_code": "CNY"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-44f3-153698d582e8",
+                "currency_code": "COP"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-9eb2-18e940d42370",
+                "currency_code": "CRC"
+              },
+              {
+                "currency_id": "57898574-2648-9701-25c2-1e325d0ed369",
+                "currency_code": "CZK"
+              },
+              {
+                "currency_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+                "currency_code": "DKK"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-e4c3-153698d582e8",
+                "currency_code": "DOP"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-96c8-1e642d59e063",
+                "currency_code": "EGP"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-74b3-153698d582e8",
+                "currency_code": "ETB"
+              },
+              {
+                "currency_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+                "currency_code": "EUR"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-78f3-1643202d9860",
+                "currency_code": "FJD"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-9dc4-174825283406",
+                "currency_code": "GEL"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
+                "currency_code": "GHS"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-26f8-174e234e98d2",
+                "currency_code": "GTQ"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-26c8-1e642d59e063",
+                "currency_code": "HNL"
+              },
+              {
+                "currency_id": "9320e435-795e-78d1-88a3-1643202d9860",
+                "currency_code": "HKD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-70b3-14502e70439d",
+                "currency_code": "HUF"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-26f3-1578626e347e",
+                "currency_code": "ISK"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-96f3-1578626e347e",
+                "currency_code": "IDR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-5ea2-18e940d42370",
+                "currency_code": "IQD"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-7ec2-18e940d42370",
+                "currency_code": "ILS"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-94a3-153698d582e8",
+                "currency_code": "JPY"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-76a8-1e642d59e063",
+                "currency_code": "KES"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-6ea2-1208469530d0",
+                "currency_code": "MVR"
+              },
+              {
+                "currency_id": "78985742-6489-7012-e5b2-1e325d0ed369",
+                "currency_code": "MUR"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-36f8-1e642d59e063",
+                "currency_code": "MXN"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-24c3-153698d582e8",
+                "currency_code": "MAD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-30f3-14502e70439d",
+                "currency_code": "MZN"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-69c5-18d9305e7d23",
+                "currency_code": "NPR"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-7da4-174825283406",
+                "currency_code": "TWD"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-e6c3-1578626e347e",
+                "currency_code": "NZD"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-66a3-1578626e347e",
+                "currency_code": "NIO"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-90c3-14502e70439d",
+                "currency_code": "NGN"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-59a5-18d9305e7d23",
+                "currency_code": "NOK"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-e6b8-174e234e98d2",
+                "currency_code": "PEN"
+              },
+              {
+                "currency_id": "78985742-6489-7012-85a2-1e325d0ed369",
+                "currency_code": "PKR"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-8eb2-1208469530d0",
+                "currency_code": "PGK"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-4eb2-18e940d42370",
+                "currency_code": "PYG"
+              },
+              {
+                "currency_id": "78985742-6489-7012-75c2-1e325d0ed369",
+                "currency_code": "PHP"
+              },
+              {
+                "currency_id": "24d03679-424d-0e71-04b3-153698d582e8",
+                "currency_code": "PLN"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-6ea2-18e940d42370",
+                "currency_code": "RON"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-5eb2-1208469530d0",
+                "currency_code": "RUB"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-76b3-1578626e347e",
+                "currency_code": "RWF"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-38c3-1643202d9860",
+                "currency_code": "SAR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-8ec2-18e940d42370",
+                "currency_code": "RSD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-25b2-1e325d0ed369",
+                "currency_code": "ZAR"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-d6c3-1578626e347e",
+                "currency_code": "LKR"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-48c3-1643202d9860",
+                "currency_code": "SEK"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+                "currency_code": "CHF"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-29f5-18d9305e7d23",
+                "currency_code": "TZS"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-6db4-174825283406",
+                "currency_code": "THB"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-9ef2-1208469530d0",
+                "currency_code": "TTD"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-2da4-174825283406",
+                "currency_code": "TND"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-d8a3-1643202d9860",
+                "currency_code": "TRY"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-7ec2-1208469530d0",
+                "currency_code": "UGX"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-56a8-174e234e98d2",
+                "currency_code": "AED"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-d9c5-18d9305e7d23",
+                "currency_code": "UYU"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-4ea2-1208469530d0",
+                "currency_code": "VND"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-66f8-174e234e98d2",
+                "currency_code": "XOF"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-09a5-18d9305e7d23",
+                "currency_code": "ZMW"
+              }
+            ],
+            "card_types": [],
+            "translations": [],
+            "gateway_provider": {
+              "id": "4d036794-24d0-e710-74b3-153698d582e8",
+              "name": "RazorPay Checkout",
+              "short_description": null,
+              "code": "RazorPay_Checkout",
+              "created_at": "2025-09-05 15:49:29",
+              "updated_at": "2025-09-05 15:49:29",
+              "display_fields": null,
+              "type": 10,
+              "store_type": "either",
+              "auth_type": "settings",
+              "oauth_application_code": null,
+              "external_payment": false,
+              "external_store": false,
+              "instructions": "",
+              "needs_address": false,
+              "requires_name": false,
+              "store_on_payment": true,
+              "supports_refund": true,
+              "supported_currencies": null,
+              "store_on_payment_force": true,
+              "external_billing_charge": false,
+              "supports_frontend_implementation": true,
+              "store_outside_payment": true,
+              "name_translated": "RazorPay Checkout",
+              "short_description_translated": null,
+              "external": false,
+              "translations": []
+            }
+          }
+        },
+        {
+          "id": "20403869-6e54-721d-6e4f-518d9305e7d2",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "gateway_id": "2785d26e-9678-3d16-e29a-314502e70439",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "active": true,
+          "created_at": "2025-11-24 09:14:39",
+          "updated_at": "2026-04-07 08:19:16",
+          "deleted_at": null,
+          "order": 12,
+          "visible": true,
+          "gateway": {
+            "id": "2785d26e-9678-3d16-e29a-314502e70439",
+            "import_id": null,
+            "staged_import": false,
+            "external_id": null,
+            "name": "BitPay",
+            "short_description": null,
+            "provider": "BitPay",
+            "created_at": "2025-11-24 09:14:38",
+            "updated_at": "2025-11-24 09:14:38",
+            "deleted_at": null,
+            "type": 10,
+            "auth_type": "settings",
+            "gateway_provider_id": "78985742-6489-7012-25b2-1e325d0ed369",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "payment_instructions": "",
+            "hash": "b9e57a20dba499950782445925fd46ff",
+            "oauth_application_access_token_id": null,
+            "name_translated": "BitPay",
+            "short_description_translated": null,
+            "gateway_settings": [
+              {
+                "id": "4d036794-24d0-e710-58da-3153698d582e",
+                "private": true
+              },
+              {
+                "id": "8d632507-9806-5d1e-e08a-8174e234e98d",
+                "private": true
+              },
+              {
+                "id": "47d73824-8507-9315-64dc-81e642d59e06",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "2785d26e-9678-3d16-e29a-314502e70439",
+                "field": "stored",
+                "value": "0",
+                "private": false,
+                "created_at": "2025-11-24 09:14:38",
+                "updated_at": "2025-11-24 09:14:38",
+                "deleted_at": null
+              }
+            ],
+            "payment_instructions_translated": "",
+            "is_stored": false,
+            "use_frontend_implementation": false,
+            "allow_manual_store": false,
+            "require_stored": false,
+            "provider_logo": null,
+            "webhook_url": "https://api.staging.upmind.io/omnibridge/callback/2785d26e-9678-3d16-e29a-314502e70439",
+            "store_on_payment": false,
+            "store_on_payment_force": false,
+            "store_outside_payment": false,
+            "currencies": [
+              {
+                "currency_id": "825d96e7-63ed-0913-5dc4-174825283406",
+                "currency_code": "DZD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-40f3-14502e70439d",
+                "currency_code": "AOA"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-28b3-1643202d9860",
+                "currency_code": "ARS"
+              },
+              {
+                "currency_id": "45952098-d3de-4091-76a3-1578626e347e",
+                "currency_code": "AUD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-d5f2-1e325d0ed369",
+                "currency_code": "AZN"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-e6b8-1e642d59e063",
+                "currency_code": "BDT"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-d0c3-14502e70439d",
+                "currency_code": "BBD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-80a3-14502e70439d",
+                "currency_code": "BOB"
+              },
+              {
+                "currency_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+                "currency_code": "BRL"
+              },
+              {
+                "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "currency_code": "GBP"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-89b5-18d9305e7d23",
+                "currency_code": "BGN"
+              },
+              {
+                "currency_id": "73de7864-2de5-3971-4ef2-1208469530d0",
+                "currency_code": "CAD"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-66a8-1e642d59e063",
+                "currency_code": "CVE"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-54c3-153698d582e8",
+                "currency_code": "KYD"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-eef2-18e940d42370",
+                "currency_code": "XAF"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-08b3-1643202d9860",
+                "currency_code": "CLP"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-edb4-174825283406",
+                "currency_code": "CNY"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-44f3-153698d582e8",
+                "currency_code": "COP"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-9eb2-18e940d42370",
+                "currency_code": "CRC"
+              },
+              {
+                "currency_id": "57898574-2648-9701-25c2-1e325d0ed369",
+                "currency_code": "CZK"
+              },
+              {
+                "currency_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+                "currency_code": "DKK"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-e4c3-153698d582e8",
+                "currency_code": "DOP"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-96c8-1e642d59e063",
+                "currency_code": "EGP"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-74b3-153698d582e8",
+                "currency_code": "ETB"
+              },
+              {
+                "currency_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+                "currency_code": "EUR"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-78f3-1643202d9860",
+                "currency_code": "FJD"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-9dc4-174825283406",
+                "currency_code": "GEL"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
+                "currency_code": "GHS"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-26f8-174e234e98d2",
+                "currency_code": "GTQ"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-26c8-1e642d59e063",
+                "currency_code": "HNL"
+              },
+              {
+                "currency_id": "9320e435-795e-78d1-88a3-1643202d9860",
+                "currency_code": "HKD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-70b3-14502e70439d",
+                "currency_code": "HUF"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-26f3-1578626e347e",
+                "currency_code": "ISK"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-ddf4-174825283406",
+                "currency_code": "INR"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-96f3-1578626e347e",
+                "currency_code": "IDR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-5ea2-18e940d42370",
+                "currency_code": "IQD"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-7ec2-18e940d42370",
+                "currency_code": "ILS"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-94a3-153698d582e8",
+                "currency_code": "JPY"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-76a8-1e642d59e063",
+                "currency_code": "KES"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-36b8-174e234e98d2",
+                "currency_code": "MYR"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-6ea2-1208469530d0",
+                "currency_code": "MVR"
+              },
+              {
+                "currency_id": "78985742-6489-7012-e5b2-1e325d0ed369",
+                "currency_code": "MUR"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-36f8-1e642d59e063",
+                "currency_code": "MXN"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-24c3-153698d582e8",
+                "currency_code": "MAD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-30f3-14502e70439d",
+                "currency_code": "MZN"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-69c5-18d9305e7d23",
+                "currency_code": "NPR"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-7da4-174825283406",
+                "currency_code": "TWD"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-e6c3-1578626e347e",
+                "currency_code": "NZD"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-66a3-1578626e347e",
+                "currency_code": "NIO"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-90c3-14502e70439d",
+                "currency_code": "NGN"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-59a5-18d9305e7d23",
+                "currency_code": "NOK"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-e6b8-174e234e98d2",
+                "currency_code": "PEN"
+              },
+              {
+                "currency_id": "78985742-6489-7012-85a2-1e325d0ed369",
+                "currency_code": "PKR"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-8eb2-1208469530d0",
+                "currency_code": "PGK"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-4eb2-18e940d42370",
+                "currency_code": "PYG"
+              },
+              {
+                "currency_id": "78985742-6489-7012-75c2-1e325d0ed369",
+                "currency_code": "PHP"
+              },
+              {
+                "currency_id": "24d03679-424d-0e71-04b3-153698d582e8",
+                "currency_code": "PLN"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-6ea2-18e940d42370",
+                "currency_code": "RON"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-5eb2-1208469530d0",
+                "currency_code": "RUB"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-76b3-1578626e347e",
+                "currency_code": "RWF"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-38c3-1643202d9860",
+                "currency_code": "SAR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-8ec2-18e940d42370",
+                "currency_code": "RSD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-05f2-1e325d0ed369",
+                "currency_code": "SGD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-25b2-1e325d0ed369",
+                "currency_code": "ZAR"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-d6c3-1578626e347e",
+                "currency_code": "LKR"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-48c3-1643202d9860",
+                "currency_code": "SEK"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+                "currency_code": "CHF"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-29f5-18d9305e7d23",
+                "currency_code": "TZS"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-6db4-174825283406",
+                "currency_code": "THB"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-9ef2-1208469530d0",
+                "currency_code": "TTD"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-2da4-174825283406",
+                "currency_code": "TND"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-d8a3-1643202d9860",
+                "currency_code": "TRY"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-7ec2-1208469530d0",
+                "currency_code": "UGX"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-84f3-153698d582e8",
+                "currency_code": "UAH"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-56a8-174e234e98d2",
+                "currency_code": "AED"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-d9c5-18d9305e7d23",
+                "currency_code": "UYU"
+              },
+              {
+                "currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
+                "currency_code": "USD"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-4ea2-1208469530d0",
+                "currency_code": "VND"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-66f8-174e234e98d2",
+                "currency_code": "XOF"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-09a5-18d9305e7d23",
+                "currency_code": "ZMW"
+              }
+            ],
+            "card_types": [],
+            "translations": [],
+            "gateway_provider": {
+              "id": "78985742-6489-7012-25b2-1e325d0ed369",
+              "name": "BitPay",
+              "short_description": null,
+              "code": "BitPay",
+              "created_at": "2023-01-09 14:58:06",
+              "updated_at": "2024-10-03 14:59:48",
+              "display_fields": null,
+              "type": 10,
+              "store_type": "none",
+              "auth_type": "settings",
+              "oauth_application_code": null,
+              "external_payment": true,
+              "external_store": false,
+              "instructions": "",
+              "needs_address": false,
+              "requires_name": false,
+              "store_on_payment": false,
+              "supports_refund": false,
+              "supported_currencies": null,
+              "store_on_payment_force": false,
+              "external_billing_charge": false,
+              "supports_frontend_implementation": false,
+              "store_outside_payment": false,
+              "name_translated": "BitPay",
+              "short_description_translated": null,
+              "external": true,
+              "translations": []
+            }
+          }
+        },
+        {
+          "id": "3de78642-de53-9714-62dc-21208469530d",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "gateway_id": "825d96e7-63ed-0913-605a-417482528340",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "active": true,
+          "created_at": "2025-11-24 09:16:25",
+          "updated_at": "2026-04-07 08:19:21",
+          "deleted_at": null,
+          "order": 13,
+          "visible": true,
+          "gateway": {
+            "id": "825d96e7-63ed-0913-605a-417482528340",
+            "import_id": null,
+            "staged_import": false,
+            "external_id": null,
+            "name": "Blockonomics (BTC)",
+            "short_description": null,
+            "provider": "Blockonomics",
+            "created_at": "2025-11-24 09:16:24",
+            "updated_at": "2025-11-24 09:16:24",
+            "deleted_at": null,
+            "type": 10,
+            "auth_type": "settings",
+            "gateway_provider_id": "5952098d-3de4-0917-76b3-1578626e347e",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "payment_instructions": "",
+            "hash": "339cee46530d823a23720a7213f3051d",
+            "oauth_application_access_token_id": null,
+            "name_translated": "Blockonomics (BTC)",
+            "short_description_translated": null,
+            "gateway_settings": [
+              {
+                "id": "5952098d-3de4-0917-d8ea-31578626e347",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "825d96e7-63ed-0913-605a-417482528340",
+                "field": "testMode",
+                "value": "0",
+                "private": false,
+                "created_at": "2025-11-24 09:16:24",
+                "updated_at": "2025-11-24 09:16:24",
+                "deleted_at": null
+              },
+              {
+                "id": "20403869-6e54-721d-0e6b-518d9305e7d2",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "825d96e7-63ed-0913-605a-417482528340",
+                "field": "cryptoCurrency",
+                "value": "btc",
+                "private": false,
+                "created_at": "2025-11-24 09:16:24",
+                "updated_at": "2025-11-24 09:16:24",
+                "deleted_at": null
+              },
+              {
+                "id": "3de78642-de53-9714-8e7f-21208469530d",
+                "private": true
+              },
+              {
+                "id": "78985742-6489-7012-d97c-21e325d0ed36",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "825d96e7-63ed-0913-605a-417482528340",
+                "field": "xpub",
+                "value": "zpub6rAkF1UuBrpaSHNbFSSsuZeZwhJjp66Rfi9ZgtUe9JhXnhHWkVre6rFMwGJH8txPvQhVPqgoyA8H9SE49m7m8k1ihcmhmhoWMNhs7s3JXjZ",
+                "private": false,
+                "created_at": "2025-11-24 09:16:24",
+                "updated_at": "2025-11-24 09:16:24",
+                "deleted_at": null
+              }
+            ],
+            "payment_instructions_translated": "",
+            "is_stored": false,
+            "use_frontend_implementation": false,
+            "allow_manual_store": false,
+            "require_stored": false,
+            "provider_logo": null,
+            "webhook_url": "https://api.staging.upmind.io/omnibridge/callback/825d96e7-63ed-0913-605a-417482528340",
+            "store_on_payment": false,
+            "store_on_payment_force": false,
+            "store_outside_payment": false,
+            "currencies": [
+              {
+                "currency_id": "825d96e7-63ed-0913-5dc4-174825283406",
+                "currency_code": "DZD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-40f3-14502e70439d",
+                "currency_code": "AOA"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-28b3-1643202d9860",
+                "currency_code": "ARS"
+              },
+              {
+                "currency_id": "45952098-d3de-4091-76a3-1578626e347e",
+                "currency_code": "AUD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-d5f2-1e325d0ed369",
+                "currency_code": "AZN"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-e6b8-1e642d59e063",
+                "currency_code": "BDT"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-d0c3-14502e70439d",
+                "currency_code": "BBD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-80a3-14502e70439d",
+                "currency_code": "BOB"
+              },
+              {
+                "currency_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+                "currency_code": "BRL"
+              },
+              {
+                "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "currency_code": "GBP"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-89b5-18d9305e7d23",
+                "currency_code": "BGN"
+              },
+              {
+                "currency_id": "73de7864-2de5-3971-4ef2-1208469530d0",
+                "currency_code": "CAD"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-66a8-1e642d59e063",
+                "currency_code": "CVE"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-54c3-153698d582e8",
+                "currency_code": "KYD"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-eef2-18e940d42370",
+                "currency_code": "XAF"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-08b3-1643202d9860",
+                "currency_code": "CLP"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-edb4-174825283406",
+                "currency_code": "CNY"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-44f3-153698d582e8",
+                "currency_code": "COP"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-9eb2-18e940d42370",
+                "currency_code": "CRC"
+              },
+              {
+                "currency_id": "57898574-2648-9701-25c2-1e325d0ed369",
+                "currency_code": "CZK"
+              },
+              {
+                "currency_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+                "currency_code": "DKK"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-e4c3-153698d582e8",
+                "currency_code": "DOP"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-96c8-1e642d59e063",
+                "currency_code": "EGP"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-74b3-153698d582e8",
+                "currency_code": "ETB"
+              },
+              {
+                "currency_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+                "currency_code": "EUR"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-78f3-1643202d9860",
+                "currency_code": "FJD"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-9dc4-174825283406",
+                "currency_code": "GEL"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
+                "currency_code": "GHS"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-26f8-174e234e98d2",
+                "currency_code": "GTQ"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-26c8-1e642d59e063",
+                "currency_code": "HNL"
+              },
+              {
+                "currency_id": "9320e435-795e-78d1-88a3-1643202d9860",
+                "currency_code": "HKD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-70b3-14502e70439d",
+                "currency_code": "HUF"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-26f3-1578626e347e",
+                "currency_code": "ISK"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-ddf4-174825283406",
+                "currency_code": "INR"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-96f3-1578626e347e",
+                "currency_code": "IDR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-5ea2-18e940d42370",
+                "currency_code": "IQD"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-7ec2-18e940d42370",
+                "currency_code": "ILS"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-94a3-153698d582e8",
+                "currency_code": "JPY"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-76a8-1e642d59e063",
+                "currency_code": "KES"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-36b8-174e234e98d2",
+                "currency_code": "MYR"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-6ea2-1208469530d0",
+                "currency_code": "MVR"
+              },
+              {
+                "currency_id": "78985742-6489-7012-e5b2-1e325d0ed369",
+                "currency_code": "MUR"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-36f8-1e642d59e063",
+                "currency_code": "MXN"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-24c3-153698d582e8",
+                "currency_code": "MAD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-30f3-14502e70439d",
+                "currency_code": "MZN"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-69c5-18d9305e7d23",
+                "currency_code": "NPR"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-7da4-174825283406",
+                "currency_code": "TWD"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-e6c3-1578626e347e",
+                "currency_code": "NZD"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-66a3-1578626e347e",
+                "currency_code": "NIO"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-90c3-14502e70439d",
+                "currency_code": "NGN"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-59a5-18d9305e7d23",
+                "currency_code": "NOK"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-e6b8-174e234e98d2",
+                "currency_code": "PEN"
+              },
+              {
+                "currency_id": "78985742-6489-7012-85a2-1e325d0ed369",
+                "currency_code": "PKR"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-8eb2-1208469530d0",
+                "currency_code": "PGK"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-4eb2-18e940d42370",
+                "currency_code": "PYG"
+              },
+              {
+                "currency_id": "78985742-6489-7012-75c2-1e325d0ed369",
+                "currency_code": "PHP"
+              },
+              {
+                "currency_id": "24d03679-424d-0e71-04b3-153698d582e8",
+                "currency_code": "PLN"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-6ea2-18e940d42370",
+                "currency_code": "RON"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-5eb2-1208469530d0",
+                "currency_code": "RUB"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-76b3-1578626e347e",
+                "currency_code": "RWF"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-38c3-1643202d9860",
+                "currency_code": "SAR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-8ec2-18e940d42370",
+                "currency_code": "RSD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-05f2-1e325d0ed369",
+                "currency_code": "SGD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-25b2-1e325d0ed369",
+                "currency_code": "ZAR"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-d6c3-1578626e347e",
+                "currency_code": "LKR"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-48c3-1643202d9860",
+                "currency_code": "SEK"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+                "currency_code": "CHF"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-29f5-18d9305e7d23",
+                "currency_code": "TZS"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-6db4-174825283406",
+                "currency_code": "THB"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-9ef2-1208469530d0",
+                "currency_code": "TTD"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-2da4-174825283406",
+                "currency_code": "TND"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-d8a3-1643202d9860",
+                "currency_code": "TRY"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-7ec2-1208469530d0",
+                "currency_code": "UGX"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-84f3-153698d582e8",
+                "currency_code": "UAH"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-56a8-174e234e98d2",
+                "currency_code": "AED"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-d9c5-18d9305e7d23",
+                "currency_code": "UYU"
+              },
+              {
+                "currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
+                "currency_code": "USD"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-4ea2-1208469530d0",
+                "currency_code": "VND"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-66f8-174e234e98d2",
+                "currency_code": "XOF"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-09a5-18d9305e7d23",
+                "currency_code": "ZMW"
+              }
+            ],
+            "card_types": [],
+            "translations": [],
+            "gateway_provider": {
+              "id": "5952098d-3de4-0917-76b3-1578626e347e",
+              "name": "Blockonomics",
+              "short_description": null,
+              "code": "Blockonomics",
+              "created_at": "2024-06-06 11:31:48",
+              "updated_at": "2024-06-06 11:31:48",
+              "display_fields": null,
+              "type": 10,
+              "store_type": "none",
+              "auth_type": "settings",
+              "oauth_application_code": null,
+              "external_payment": false,
+              "external_store": false,
+              "instructions": "",
+              "needs_address": false,
+              "requires_name": false,
+              "store_on_payment": false,
+              "supports_refund": false,
+              "supported_currencies": [
+                "AED",
+                "AFN",
+                "ALL",
+                "AMD",
+                "ANG",
+                "AOA",
+                "APE",
+                "ARS",
+                "AUD",
+                "AWG",
+                "AZN",
+                "BAM",
+                "BBD",
+                "BCH",
+                "BDT",
+                "BGN",
+                "BHD",
+                "BIF",
+                "BMD",
+                "BND",
+                "BOB",
+                "BRL",
+                "BSD",
+                "BTN",
+                "BUSD",
+                "BUSD_m",
+                "BWP",
+                "BYN",
+                "BZD",
+                "CAD",
+                "CDF",
+                "CHF",
+                "CLF",
+                "CLP",
+                "CNY",
+                "COP",
+                "CRC",
+                "CUP",
+                "CVE",
+                "CZK",
+                "DAI",
+                "DAI_m",
+                "DJF",
+                "DKK",
+                "DOGE",
+                "DOP",
+                "DZD",
+                "EGP",
+                "ETB",
+                "ETH",
+                "ETH_m",
+                "EUR",
+                "EUROC",
+                "FJD",
+                "FKP",
+                "GBP",
+                "GEL",
+                "GHS",
+                "GIP",
+                "GMD",
+                "GNF",
+                "GTQ",
+                "GUSD",
+                "GYD",
+                "HKD",
+                "HNL",
+                "HRK",
+                "HTG",
+                "HUF",
+                "IDR",
+                "ILS",
+                "INR",
+                "IQD",
+                "IRR",
+                "ISK",
+                "JEP",
+                "JMD",
+                "JOD",
+                "JPY",
+                "KES",
+                "KGS",
+                "KHR",
+                "KMF",
+                "KPW",
+                "KRW",
+                "KWD",
+                "KYD",
+                "KZT",
+                "LAK",
+                "LBP",
+                "LKR",
+                "LRD",
+                "LSL",
+                "LTC",
+                "LYD",
+                "MAD",
+                "MATIC",
+                "MATIC_e",
+                "MDL",
+                "MGA",
+                "MKD",
+                "MMK",
+                "MNT",
+                "MOP",
+                "MRU",
+                "MUR",
+                "MVR",
+                "MWK",
+                "MXN",
+                "MYR",
+                "MZN",
+                "NAD",
+                "NGN",
+                "NIO",
+                "NOK",
+                "NPR",
+                "NZD",
+                "OMR",
+                "PAB",
+                "PAX",
+                "PEN",
+                "PGK",
+                "PHP",
+                "PKR",
+                "PLN",
+                "PYG",
+                "PYUSD",
+                "QAR",
+                "RON",
+                "RSD",
+                "RUB",
+                "RWF",
+                "SAR",
+                "SBD",
+                "SCR",
+                "SDG",
+                "SEK",
+                "SGD",
+                "SHIB",
+                "SHIB_m",
+                "SHP",
+                "SLL",
+                "SOS",
+                "SRD",
+                "STN",
+                "SVC",
+                "SYP",
+                "SZL",
+                "THB",
+                "TJS",
+                "TMT",
+                "TND",
+                "TOP",
+                "TRY",
+                "TTD",
+                "TWD",
+                "TZS",
+                "UAH",
+                "UGX",
+                "USD",
+                "USDC",
+                "USDC_m",
+                "USDCn_m",
+                "USDT",
+                "USDT_m",
+                "UYU",
+                "UZS",
+                "VES",
+                "VND",
+                "VUV",
+                "WBTC",
+                "WBTC_m",
+                "WST",
+                "XAF",
+                "XAG",
+                "XAU",
+                "XCD",
+                "XOF",
+                "XPF",
+                "XRP",
+                "YER",
+                "ZAR",
+                "ZMW",
+                "ZWL"
+              ],
+              "store_on_payment_force": false,
+              "external_billing_charge": false,
+              "supports_frontend_implementation": false,
+              "store_outside_payment": false,
+              "name_translated": "Blockonomics",
+              "short_description_translated": null,
+              "external": false,
+              "translations": []
+            }
+          }
+        },
+        {
+          "id": "78985742-6489-7012-250a-21e325d0ed36",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "gateway_id": "5d085e69-d562-3719-ed8f-218e940d4237",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "active": true,
+          "created_at": "2025-11-24 09:37:47",
+          "updated_at": "2026-04-07 08:19:27",
+          "deleted_at": null,
+          "order": 14,
+          "visible": true,
+          "gateway": {
+            "id": "5d085e69-d562-3719-ed8f-218e940d4237",
+            "import_id": null,
+            "staged_import": false,
+            "external_id": null,
+            "name": "PayFast",
+            "short_description": null,
+            "provider": "PayFast",
+            "created_at": "2025-11-24 09:37:46",
+            "updated_at": "2025-11-24 09:37:46",
+            "deleted_at": null,
+            "type": 1,
+            "auth_type": "settings",
+            "gateway_provider_id": "8d632507-9806-5d1e-56a8-174e234e98d2",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "payment_instructions": "",
+            "hash": "39222ed6c3d97061cfd0f8ee3bcb6913",
+            "oauth_application_access_token_id": null,
+            "name_translated": "PayFast",
+            "short_description_translated": null,
+            "gateway_settings": [
+              {
+                "id": "320e4357-95e7-8d18-262f-31643202d986",
+                "private": true
+              },
+              {
+                "id": "2785d26e-9678-3d16-328f-314502e70439",
+                "private": true
+              },
+              {
+                "id": "2785d26e-9678-3d16-32dc-314502e70439",
+                "private": true
+              },
+              {
+                "id": "825d96e7-63ed-0913-200c-417482528340",
+                "private": true
+              },
+              {
+                "id": "5d085e69-d562-3719-8d0a-218e940d4237",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-ed8f-218e940d4237",
+                "field": "stored",
+                "value": "0",
+                "private": false,
+                "created_at": "2025-11-24 09:37:46",
+                "updated_at": "2025-11-24 09:37:46",
+                "deleted_at": null
+              }
+            ],
+            "payment_instructions_translated": "",
+            "is_stored": false,
+            "use_frontend_implementation": false,
+            "allow_manual_store": false,
+            "require_stored": false,
+            "provider_logo": null,
+            "webhook_url": "https://api.staging.upmind.io/omnibridge/callback/5d085e69-d562-3719-ed8f-218e940d4237",
+            "store_on_payment": false,
+            "store_on_payment_force": false,
+            "store_outside_payment": false,
+            "currencies": [
+              {
+                "currency_id": "825d96e7-63ed-0913-5dc4-174825283406",
+                "currency_code": "DZD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-40f3-14502e70439d",
+                "currency_code": "AOA"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-28b3-1643202d9860",
+                "currency_code": "ARS"
+              },
+              {
+                "currency_id": "45952098-d3de-4091-76a3-1578626e347e",
+                "currency_code": "AUD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-d5f2-1e325d0ed369",
+                "currency_code": "AZN"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-e6b8-1e642d59e063",
+                "currency_code": "BDT"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-d0c3-14502e70439d",
+                "currency_code": "BBD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-80a3-14502e70439d",
+                "currency_code": "BOB"
+              },
+              {
+                "currency_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+                "currency_code": "BRL"
+              },
+              {
+                "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "currency_code": "GBP"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-89b5-18d9305e7d23",
+                "currency_code": "BGN"
+              },
+              {
+                "currency_id": "73de7864-2de5-3971-4ef2-1208469530d0",
+                "currency_code": "CAD"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-66a8-1e642d59e063",
+                "currency_code": "CVE"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-54c3-153698d582e8",
+                "currency_code": "KYD"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-eef2-18e940d42370",
+                "currency_code": "XAF"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-08b3-1643202d9860",
+                "currency_code": "CLP"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-edb4-174825283406",
+                "currency_code": "CNY"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-44f3-153698d582e8",
+                "currency_code": "COP"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-9eb2-18e940d42370",
+                "currency_code": "CRC"
+              },
+              {
+                "currency_id": "57898574-2648-9701-25c2-1e325d0ed369",
+                "currency_code": "CZK"
+              },
+              {
+                "currency_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+                "currency_code": "DKK"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-e4c3-153698d582e8",
+                "currency_code": "DOP"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-96c8-1e642d59e063",
+                "currency_code": "EGP"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-74b3-153698d582e8",
+                "currency_code": "ETB"
+              },
+              {
+                "currency_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+                "currency_code": "EUR"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-78f3-1643202d9860",
+                "currency_code": "FJD"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-9dc4-174825283406",
+                "currency_code": "GEL"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
+                "currency_code": "GHS"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-26f8-174e234e98d2",
+                "currency_code": "GTQ"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-26c8-1e642d59e063",
+                "currency_code": "HNL"
+              },
+              {
+                "currency_id": "9320e435-795e-78d1-88a3-1643202d9860",
+                "currency_code": "HKD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-70b3-14502e70439d",
+                "currency_code": "HUF"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-26f3-1578626e347e",
+                "currency_code": "ISK"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-ddf4-174825283406",
+                "currency_code": "INR"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-96f3-1578626e347e",
+                "currency_code": "IDR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-5ea2-18e940d42370",
+                "currency_code": "IQD"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-7ec2-18e940d42370",
+                "currency_code": "ILS"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-94a3-153698d582e8",
+                "currency_code": "JPY"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-76a8-1e642d59e063",
+                "currency_code": "KES"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-36b8-174e234e98d2",
+                "currency_code": "MYR"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-6ea2-1208469530d0",
+                "currency_code": "MVR"
+              },
+              {
+                "currency_id": "78985742-6489-7012-e5b2-1e325d0ed369",
+                "currency_code": "MUR"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-36f8-1e642d59e063",
+                "currency_code": "MXN"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-24c3-153698d582e8",
+                "currency_code": "MAD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-30f3-14502e70439d",
+                "currency_code": "MZN"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-69c5-18d9305e7d23",
+                "currency_code": "NPR"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-7da4-174825283406",
+                "currency_code": "TWD"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-e6c3-1578626e347e",
+                "currency_code": "NZD"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-66a3-1578626e347e",
+                "currency_code": "NIO"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-90c3-14502e70439d",
+                "currency_code": "NGN"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-59a5-18d9305e7d23",
+                "currency_code": "NOK"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-e6b8-174e234e98d2",
+                "currency_code": "PEN"
+              },
+              {
+                "currency_id": "78985742-6489-7012-85a2-1e325d0ed369",
+                "currency_code": "PKR"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-8eb2-1208469530d0",
+                "currency_code": "PGK"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-4eb2-18e940d42370",
+                "currency_code": "PYG"
+              },
+              {
+                "currency_id": "78985742-6489-7012-75c2-1e325d0ed369",
+                "currency_code": "PHP"
+              },
+              {
+                "currency_id": "24d03679-424d-0e71-04b3-153698d582e8",
+                "currency_code": "PLN"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-6ea2-18e940d42370",
+                "currency_code": "RON"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-5eb2-1208469530d0",
+                "currency_code": "RUB"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-76b3-1578626e347e",
+                "currency_code": "RWF"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-38c3-1643202d9860",
+                "currency_code": "SAR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-8ec2-18e940d42370",
+                "currency_code": "RSD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-05f2-1e325d0ed369",
+                "currency_code": "SGD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-25b2-1e325d0ed369",
+                "currency_code": "ZAR"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-d6c3-1578626e347e",
+                "currency_code": "LKR"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-48c3-1643202d9860",
+                "currency_code": "SEK"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+                "currency_code": "CHF"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-29f5-18d9305e7d23",
+                "currency_code": "TZS"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-6db4-174825283406",
+                "currency_code": "THB"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-9ef2-1208469530d0",
+                "currency_code": "TTD"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-2da4-174825283406",
+                "currency_code": "TND"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-d8a3-1643202d9860",
+                "currency_code": "TRY"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-7ec2-1208469530d0",
+                "currency_code": "UGX"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-84f3-153698d582e8",
+                "currency_code": "UAH"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-56a8-174e234e98d2",
+                "currency_code": "AED"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-d9c5-18d9305e7d23",
+                "currency_code": "UYU"
+              },
+              {
+                "currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
+                "currency_code": "USD"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-4ea2-1208469530d0",
+                "currency_code": "VND"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-66f8-174e234e98d2",
+                "currency_code": "XOF"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-09a5-18d9305e7d23",
+                "currency_code": "ZMW"
+              }
+            ],
+            "card_types": [],
+            "translations": [],
+            "gateway_provider": {
+              "id": "8d632507-9806-5d1e-56a8-174e234e98d2",
+              "name": "PayFast",
+              "short_description": null,
+              "code": "PayFast",
+              "created_at": "2022-06-09 13:38:12",
+              "updated_at": "2026-02-26 17:06:56",
+              "display_fields": null,
+              "type": 1,
+              "store_type": "none",
+              "auth_type": "settings",
+              "oauth_application_code": null,
+              "external_payment": true,
+              "external_store": false,
+              "instructions": "",
+              "needs_address": false,
+              "requires_name": false,
+              "store_on_payment": false,
+              "supports_refund": true,
+              "supported_currencies": ["ZAR"],
+              "store_on_payment_force": false,
+              "external_billing_charge": false,
+              "supports_frontend_implementation": false,
+              "store_outside_payment": false,
+              "name_translated": "PayFast",
+              "short_description_translated": null,
+              "external": true,
+              "translations": []
+            }
+          }
+        },
+        {
+          "id": "2785d26e-9678-3d16-e69c-314502e70439",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "gateway_id": "8d632507-9806-5d1e-540b-8174e234e98d",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "active": true,
+          "created_at": "2025-11-24 14:31:45",
+          "updated_at": "2026-04-07 08:21:29",
+          "deleted_at": null,
+          "order": 16,
+          "visible": true,
+          "gateway": {
+            "id": "8d632507-9806-5d1e-540b-8174e234e98d",
+            "import_id": null,
+            "staged_import": false,
+            "external_id": null,
+            "name": "CoinGate",
+            "short_description": null,
+            "provider": "CoinGate",
+            "created_at": "2025-11-24 14:31:44",
+            "updated_at": "2025-11-24 14:31:45",
+            "deleted_at": null,
+            "type": 1,
+            "auth_type": "settings",
+            "gateway_provider_id": "4d036794-24d0-e710-44f3-153698d582e8",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "payment_instructions": "",
+            "hash": "77622bc213d0dc6a39e1a0ff3f8785c8",
+            "oauth_application_access_token_id": null,
+            "name_translated": "CoinGate",
+            "short_description_translated": null,
+            "gateway_settings": [
+              {
+                "id": "5952098d-3de4-0917-d39a-31578626e347",
+                "private": true
+              },
+              {
+                "id": "20403869-6e54-721d-032b-518d9305e7d2",
+                "private": true
+              }
+            ],
+            "payment_instructions_translated": "",
+            "is_stored": false,
+            "use_frontend_implementation": false,
+            "allow_manual_store": false,
+            "require_stored": false,
+            "provider_logo": null,
+            "webhook_url": "https://api.staging.upmind.io/omnibridge/callback/8d632507-9806-5d1e-540b-8174e234e98d",
+            "store_on_payment": false,
+            "store_on_payment_force": false,
+            "store_outside_payment": false,
+            "currencies": [
+              {
+                "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "currency_code": "GBP"
+              },
+              {
+                "currency_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+                "currency_code": "EUR"
+              },
+              {
+                "currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
+                "currency_code": "USD"
+              }
+            ],
+            "card_types": [],
+            "translations": [],
+            "gateway_provider": {
+              "id": "4d036794-24d0-e710-44f3-153698d582e8",
+              "name": "CoinGate",
+              "short_description": null,
+              "code": "CoinGate",
+              "created_at": "2024-02-23 10:57:02",
+              "updated_at": "2024-02-23 10:57:02",
+              "display_fields": null,
+              "type": 1,
+              "store_type": "none",
+              "auth_type": "settings",
+              "oauth_application_code": null,
+              "external_payment": true,
+              "external_store": false,
+              "instructions": "",
+              "needs_address": false,
+              "requires_name": false,
+              "store_on_payment": false,
+              "supports_refund": true,
+              "supported_currencies": ["USD", "EUR", "GBP"],
+              "store_on_payment_force": false,
+              "external_billing_charge": false,
+              "supports_frontend_implementation": false,
+              "store_outside_payment": false,
+              "name_translated": "CoinGate",
+              "short_description_translated": null,
+              "external": true,
+              "translations": []
+            }
+          }
+        },
+        {
+          "id": "825d96e7-63ed-0913-645c-417482528340",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "gateway_id": "47d73824-8507-9315-e44b-81e642d59e06",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "active": true,
+          "created_at": "2025-11-24 15:39:00",
+          "updated_at": "2026-04-07 08:21:49",
+          "deleted_at": null,
+          "order": 17,
+          "visible": true,
+          "gateway": {
+            "id": "47d73824-8507-9315-e44b-81e642d59e06",
+            "import_id": null,
+            "staged_import": false,
+            "external_id": null,
+            "name": "PayU",
+            "short_description": null,
+            "provider": "PayU",
+            "created_at": "2025-11-24 15:38:59",
+            "updated_at": "2025-11-24 15:38:59",
+            "deleted_at": null,
+            "type": 1,
+            "auth_type": "settings",
+            "gateway_provider_id": "4d036794-24d0-e710-24c3-153698d582e8",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "payment_instructions": "",
+            "hash": "e5d6549d1138b34e1d117cab900d9603",
+            "oauth_application_access_token_id": null,
+            "name_translated": "PayU",
+            "short_description_translated": null,
+            "gateway_settings": [
+              {
+                "id": "3de78642-de53-9714-829f-21208469530d",
+                "private": true
+              },
+              {
+                "id": "78985742-6489-7012-d5dc-21e325d0ed36",
+                "private": true
+              },
+              {
+                "id": "320e4357-95e7-8d18-293a-31643202d986",
+                "private": true
+              },
+              {
+                "id": "2785d26e-9678-3d16-36df-314502e70439",
+                "private": true
+              },
+              {
+                "id": "825d96e7-63ed-0913-240f-417482528340",
+                "private": true
+              },
+              {
+                "id": "5d085e69-d562-3719-800c-218e940d4237",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "47d73824-8507-9315-e44b-81e642d59e06",
+                "field": "stored",
+                "value": "0",
+                "private": false,
+                "created_at": "2025-11-24 15:38:59",
+                "updated_at": "2025-11-24 15:38:59",
+                "deleted_at": null
+              }
+            ],
+            "payment_instructions_translated": "",
+            "is_stored": false,
+            "use_frontend_implementation": false,
+            "allow_manual_store": false,
+            "require_stored": false,
+            "provider_logo": null,
+            "webhook_url": null,
+            "store_on_payment": false,
+            "store_on_payment_force": false,
+            "store_outside_payment": false,
+            "currencies": [
+              {
+                "currency_id": "825d96e7-63ed-0913-5dc4-174825283406",
+                "currency_code": "DZD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-40f3-14502e70439d",
+                "currency_code": "AOA"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-28b3-1643202d9860",
+                "currency_code": "ARS"
+              },
+              {
+                "currency_id": "45952098-d3de-4091-76a3-1578626e347e",
+                "currency_code": "AUD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-d5f2-1e325d0ed369",
+                "currency_code": "AZN"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-e6b8-1e642d59e063",
+                "currency_code": "BDT"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-d0c3-14502e70439d",
+                "currency_code": "BBD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-80a3-14502e70439d",
+                "currency_code": "BOB"
+              },
+              {
+                "currency_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+                "currency_code": "BRL"
+              },
+              {
+                "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "currency_code": "GBP"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-89b5-18d9305e7d23",
+                "currency_code": "BGN"
+              },
+              {
+                "currency_id": "73de7864-2de5-3971-4ef2-1208469530d0",
+                "currency_code": "CAD"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-66a8-1e642d59e063",
+                "currency_code": "CVE"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-54c3-153698d582e8",
+                "currency_code": "KYD"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-eef2-18e940d42370",
+                "currency_code": "XAF"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-08b3-1643202d9860",
+                "currency_code": "CLP"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-edb4-174825283406",
+                "currency_code": "CNY"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-44f3-153698d582e8",
+                "currency_code": "COP"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-9eb2-18e940d42370",
+                "currency_code": "CRC"
+              },
+              {
+                "currency_id": "57898574-2648-9701-25c2-1e325d0ed369",
+                "currency_code": "CZK"
+              },
+              {
+                "currency_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+                "currency_code": "DKK"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-e4c3-153698d582e8",
+                "currency_code": "DOP"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-96c8-1e642d59e063",
+                "currency_code": "EGP"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-74b3-153698d582e8",
+                "currency_code": "ETB"
+              },
+              {
+                "currency_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+                "currency_code": "EUR"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-78f3-1643202d9860",
+                "currency_code": "FJD"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-9dc4-174825283406",
+                "currency_code": "GEL"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
+                "currency_code": "GHS"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-26f8-174e234e98d2",
+                "currency_code": "GTQ"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-26c8-1e642d59e063",
+                "currency_code": "HNL"
+              },
+              {
+                "currency_id": "9320e435-795e-78d1-88a3-1643202d9860",
+                "currency_code": "HKD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-70b3-14502e70439d",
+                "currency_code": "HUF"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-26f3-1578626e347e",
+                "currency_code": "ISK"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-ddf4-174825283406",
+                "currency_code": "INR"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-96f3-1578626e347e",
+                "currency_code": "IDR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-5ea2-18e940d42370",
+                "currency_code": "IQD"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-7ec2-18e940d42370",
+                "currency_code": "ILS"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-94a3-153698d582e8",
+                "currency_code": "JPY"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-76a8-1e642d59e063",
+                "currency_code": "KES"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-36b8-174e234e98d2",
+                "currency_code": "MYR"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-6ea2-1208469530d0",
+                "currency_code": "MVR"
+              },
+              {
+                "currency_id": "78985742-6489-7012-e5b2-1e325d0ed369",
+                "currency_code": "MUR"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-36f8-1e642d59e063",
+                "currency_code": "MXN"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-24c3-153698d582e8",
+                "currency_code": "MAD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-30f3-14502e70439d",
+                "currency_code": "MZN"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-69c5-18d9305e7d23",
+                "currency_code": "NPR"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-7da4-174825283406",
+                "currency_code": "TWD"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-e6c3-1578626e347e",
+                "currency_code": "NZD"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-66a3-1578626e347e",
+                "currency_code": "NIO"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-90c3-14502e70439d",
+                "currency_code": "NGN"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-59a5-18d9305e7d23",
+                "currency_code": "NOK"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-e6b8-174e234e98d2",
+                "currency_code": "PEN"
+              },
+              {
+                "currency_id": "78985742-6489-7012-85a2-1e325d0ed369",
+                "currency_code": "PKR"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-8eb2-1208469530d0",
+                "currency_code": "PGK"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-4eb2-18e940d42370",
+                "currency_code": "PYG"
+              },
+              {
+                "currency_id": "78985742-6489-7012-75c2-1e325d0ed369",
+                "currency_code": "PHP"
+              },
+              {
+                "currency_id": "24d03679-424d-0e71-04b3-153698d582e8",
+                "currency_code": "PLN"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-6ea2-18e940d42370",
+                "currency_code": "RON"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-5eb2-1208469530d0",
+                "currency_code": "RUB"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-76b3-1578626e347e",
+                "currency_code": "RWF"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-38c3-1643202d9860",
+                "currency_code": "SAR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-8ec2-18e940d42370",
+                "currency_code": "RSD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-05f2-1e325d0ed369",
+                "currency_code": "SGD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-25b2-1e325d0ed369",
+                "currency_code": "ZAR"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-d6c3-1578626e347e",
+                "currency_code": "LKR"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-48c3-1643202d9860",
+                "currency_code": "SEK"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+                "currency_code": "CHF"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-29f5-18d9305e7d23",
+                "currency_code": "TZS"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-6db4-174825283406",
+                "currency_code": "THB"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-9ef2-1208469530d0",
+                "currency_code": "TTD"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-2da4-174825283406",
+                "currency_code": "TND"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-d8a3-1643202d9860",
+                "currency_code": "TRY"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-7ec2-1208469530d0",
+                "currency_code": "UGX"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-84f3-153698d582e8",
+                "currency_code": "UAH"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-56a8-174e234e98d2",
+                "currency_code": "AED"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-d9c5-18d9305e7d23",
+                "currency_code": "UYU"
+              },
+              {
+                "currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
+                "currency_code": "USD"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-4ea2-1208469530d0",
+                "currency_code": "VND"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-66f8-174e234e98d2",
+                "currency_code": "XOF"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-09a5-18d9305e7d23",
+                "currency_code": "ZMW"
+              }
+            ],
+            "card_types": [],
+            "translations": [],
+            "gateway_provider": {
+              "id": "4d036794-24d0-e710-24c3-153698d582e8",
+              "name": "PayU",
+              "short_description": null,
+              "code": "PayU",
+              "created_at": "2022-04-18 14:15:54",
+              "updated_at": "2023-04-06 17:07:53",
+              "display_fields": null,
+              "type": 1,
+              "store_type": "none",
+              "auth_type": "settings",
+              "oauth_application_code": null,
+              "external_payment": true,
+              "external_store": false,
+              "instructions": "",
+              "needs_address": false,
+              "requires_name": false,
+              "store_on_payment": false,
+              "supports_refund": true,
+              "supported_currencies": null,
+              "store_on_payment_force": false,
+              "external_billing_charge": false,
+              "supports_frontend_implementation": false,
+              "store_outside_payment": false,
+              "name_translated": "PayU",
+              "short_description_translated": null,
+              "external": true,
+              "translations": []
+            }
+          }
+        },
+        {
+          "id": "47d73824-8507-9315-e84a-81e642d59e06",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "gateway_id": "78985742-6489-7012-250a-21e325d0ed36",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "active": true,
+          "created_at": "2025-11-27 10:21:21",
+          "updated_at": "2026-04-07 08:23:06",
+          "deleted_at": null,
+          "order": 21,
+          "visible": true,
+          "gateway": {
+            "id": "78985742-6489-7012-250a-21e325d0ed36",
+            "import_id": null,
+            "staged_import": false,
+            "external_id": null,
+            "name": "Paysafe",
+            "short_description": null,
+            "provider": "Paysafecard",
+            "created_at": "2025-11-27 10:21:20",
+            "updated_at": "2025-11-27 10:21:21",
+            "deleted_at": null,
+            "type": 1,
+            "auth_type": "settings",
+            "gateway_provider_id": "5d085e69-d562-3719-eef2-18e940d42370",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "payment_instructions": "",
+            "hash": "c75e08677a5297403647ac8ce89a4f16",
+            "oauth_application_access_token_id": null,
+            "name_translated": "Paysafe",
+            "short_description_translated": null,
+            "gateway_settings": [
+              {
+                "id": "4d036794-24d0-e710-500f-3153698d582e",
+                "private": true
+              },
+              {
+                "id": "8d632507-9806-5d1e-277a-8174e234e98d",
+                "private": true
+              },
+              {
+                "id": "47d73824-8507-9315-2d3b-81e642d59e06",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "78985742-6489-7012-250a-21e325d0ed36",
+                "field": "stored",
+                "value": "0",
+                "private": false,
+                "created_at": "2025-11-27 10:21:20",
+                "updated_at": "2025-11-27 10:21:20",
+                "deleted_at": null
+              }
+            ],
+            "payment_instructions_translated": "",
+            "is_stored": false,
+            "use_frontend_implementation": false,
+            "allow_manual_store": false,
+            "require_stored": false,
+            "provider_logo": null,
+            "webhook_url": "https://api.staging.upmind.io/omnibridge/callback/78985742-6489-7012-250a-21e325d0ed36",
+            "store_on_payment": false,
+            "store_on_payment_force": false,
+            "store_outside_payment": false,
+            "currencies": [
+              {
+                "currency_id": "825d96e7-63ed-0913-5dc4-174825283406",
+                "currency_code": "DZD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-40f3-14502e70439d",
+                "currency_code": "AOA"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-28b3-1643202d9860",
+                "currency_code": "ARS"
+              },
+              {
+                "currency_id": "45952098-d3de-4091-76a3-1578626e347e",
+                "currency_code": "AUD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-d5f2-1e325d0ed369",
+                "currency_code": "AZN"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-e6b8-1e642d59e063",
+                "currency_code": "BDT"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-d0c3-14502e70439d",
+                "currency_code": "BBD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-80a3-14502e70439d",
+                "currency_code": "BOB"
+              },
+              {
+                "currency_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+                "currency_code": "BRL"
+              },
+              {
+                "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "currency_code": "GBP"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-89b5-18d9305e7d23",
+                "currency_code": "BGN"
+              },
+              {
+                "currency_id": "73de7864-2de5-3971-4ef2-1208469530d0",
+                "currency_code": "CAD"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-66a8-1e642d59e063",
+                "currency_code": "CVE"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-54c3-153698d582e8",
+                "currency_code": "KYD"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-eef2-18e940d42370",
+                "currency_code": "XAF"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-08b3-1643202d9860",
+                "currency_code": "CLP"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-edb4-174825283406",
+                "currency_code": "CNY"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-44f3-153698d582e8",
+                "currency_code": "COP"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-9eb2-18e940d42370",
+                "currency_code": "CRC"
+              },
+              {
+                "currency_id": "57898574-2648-9701-25c2-1e325d0ed369",
+                "currency_code": "CZK"
+              },
+              {
+                "currency_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+                "currency_code": "DKK"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-e4c3-153698d582e8",
+                "currency_code": "DOP"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-96c8-1e642d59e063",
+                "currency_code": "EGP"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-74b3-153698d582e8",
+                "currency_code": "ETB"
+              },
+              {
+                "currency_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+                "currency_code": "EUR"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-78f3-1643202d9860",
+                "currency_code": "FJD"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-9dc4-174825283406",
+                "currency_code": "GEL"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
+                "currency_code": "GHS"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-26f8-174e234e98d2",
+                "currency_code": "GTQ"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-26c8-1e642d59e063",
+                "currency_code": "HNL"
+              },
+              {
+                "currency_id": "9320e435-795e-78d1-88a3-1643202d9860",
+                "currency_code": "HKD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-70b3-14502e70439d",
+                "currency_code": "HUF"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-26f3-1578626e347e",
+                "currency_code": "ISK"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-ddf4-174825283406",
+                "currency_code": "INR"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-96f3-1578626e347e",
+                "currency_code": "IDR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-5ea2-18e940d42370",
+                "currency_code": "IQD"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-7ec2-18e940d42370",
+                "currency_code": "ILS"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-94a3-153698d582e8",
+                "currency_code": "JPY"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-76a8-1e642d59e063",
+                "currency_code": "KES"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-36b8-174e234e98d2",
+                "currency_code": "MYR"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-6ea2-1208469530d0",
+                "currency_code": "MVR"
+              },
+              {
+                "currency_id": "78985742-6489-7012-e5b2-1e325d0ed369",
+                "currency_code": "MUR"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-36f8-1e642d59e063",
+                "currency_code": "MXN"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-24c3-153698d582e8",
+                "currency_code": "MAD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-30f3-14502e70439d",
+                "currency_code": "MZN"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-69c5-18d9305e7d23",
+                "currency_code": "NPR"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-7da4-174825283406",
+                "currency_code": "TWD"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-e6c3-1578626e347e",
+                "currency_code": "NZD"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-66a3-1578626e347e",
+                "currency_code": "NIO"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-90c3-14502e70439d",
+                "currency_code": "NGN"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-59a5-18d9305e7d23",
+                "currency_code": "NOK"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-e6b8-174e234e98d2",
+                "currency_code": "PEN"
+              },
+              {
+                "currency_id": "78985742-6489-7012-85a2-1e325d0ed369",
+                "currency_code": "PKR"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-8eb2-1208469530d0",
+                "currency_code": "PGK"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-4eb2-18e940d42370",
+                "currency_code": "PYG"
+              },
+              {
+                "currency_id": "78985742-6489-7012-75c2-1e325d0ed369",
+                "currency_code": "PHP"
+              },
+              {
+                "currency_id": "24d03679-424d-0e71-04b3-153698d582e8",
+                "currency_code": "PLN"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-6ea2-18e940d42370",
+                "currency_code": "RON"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-5eb2-1208469530d0",
+                "currency_code": "RUB"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-76b3-1578626e347e",
+                "currency_code": "RWF"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-38c3-1643202d9860",
+                "currency_code": "SAR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-8ec2-18e940d42370",
+                "currency_code": "RSD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-05f2-1e325d0ed369",
+                "currency_code": "SGD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-25b2-1e325d0ed369",
+                "currency_code": "ZAR"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-d6c3-1578626e347e",
+                "currency_code": "LKR"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-48c3-1643202d9860",
+                "currency_code": "SEK"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+                "currency_code": "CHF"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-29f5-18d9305e7d23",
+                "currency_code": "TZS"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-6db4-174825283406",
+                "currency_code": "THB"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-9ef2-1208469530d0",
+                "currency_code": "TTD"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-2da4-174825283406",
+                "currency_code": "TND"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-d8a3-1643202d9860",
+                "currency_code": "TRY"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-7ec2-1208469530d0",
+                "currency_code": "UGX"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-84f3-153698d582e8",
+                "currency_code": "UAH"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-56a8-174e234e98d2",
+                "currency_code": "AED"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-d9c5-18d9305e7d23",
+                "currency_code": "UYU"
+              },
+              {
+                "currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
+                "currency_code": "USD"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-4ea2-1208469530d0",
+                "currency_code": "VND"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-66f8-174e234e98d2",
+                "currency_code": "XOF"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-09a5-18d9305e7d23",
+                "currency_code": "ZMW"
+              }
+            ],
+            "card_types": [],
+            "translations": [],
+            "gateway_provider": {
+              "id": "5d085e69-d562-3719-eef2-18e940d42370",
+              "name": "PaySafeCard",
+              "short_description": null,
+              "code": "Paysafecard",
+              "created_at": "2022-04-01 12:09:53",
+              "updated_at": "2023-04-06 17:07:53",
+              "display_fields": null,
+              "type": 1,
+              "store_type": "none",
+              "auth_type": "settings",
+              "oauth_application_code": null,
+              "external_payment": true,
+              "external_store": false,
+              "instructions": "",
+              "needs_address": false,
+              "requires_name": false,
+              "store_on_payment": false,
+              "supports_refund": true,
+              "supported_currencies": null,
+              "store_on_payment_force": false,
+              "external_billing_charge": false,
+              "supports_frontend_implementation": false,
+              "store_outside_payment": false,
+              "name_translated": "PaySafeCard",
+              "short_description_translated": null,
+              "external": true,
+              "translations": []
+            }
+          }
+        }
+      ],
+      "related": null,
+      "total": 12,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-30T14:24:11.014Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "payment-gateways"
+  }
+}
