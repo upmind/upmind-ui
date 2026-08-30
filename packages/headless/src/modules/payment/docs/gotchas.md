@@ -100,7 +100,10 @@ A manual gateway may not reach this module at all. `payment-details`' `mapPaymen
 ### A cancelled or settled order refuses with a 409
 
 ```json
-{ "code": 409, "message": "Operation not allowed due to invoice status: Cancelled" }
+{
+  "code": 409,
+  "message": "Operation not allowed due to invoice status: Cancelled"
+}
 ```
 
 Payability is a function of **status**, not just of an outstanding amount. An order can owe £60 and still be unchargeable.
@@ -123,7 +126,7 @@ Payability is a function of **status**, not just of an outstanding amount. An or
 
 Two authoring traps, both of which produced a false finding before they were understood:
 
-- **The replay server matches loosely.** `/api/invoices/:id` matches on the path pattern, so a recorded 200 is served for a request to a *different* id. To exercise a 404, install it explicitly with `server.use(...)` from the recorded fixture — do not rely on the id in the URL selecting it.
+- **The replay server matches loosely.** `/api/invoices/:id` matches on the path pattern, so a recorded 200 is served for a request to a _different_ id. To exercise a 404, install it explicitly with `server.use(...)` from the recorded fixture — do not rely on the id in the URL selecting it.
 - **The recording client has no payable order.** Every invoice on it is Cancelled or Paid, so `payment.fixtures.ts` **seeds its own** (`POST /api/orders` with `category_slug: "new_contract"`, then `PATCH /orders/{id}/convert`) before capturing. That is what makes `pnpm fixtures:generate payment` re-runnable.
 
-The generator also never captures a *settled* charge — a successful `POST /payments` against a real gateway moves real money. It asks each of the brand's automatic gateways in turn and keeps the first success, which today is PayPal's `REDIRECT`. A cleared payment (`transaction_status: OK`) still has no fixture and is the one scenario the suite defers.
+The generator also never captures a _settled_ charge — a successful `POST /payments` against a real gateway moves real money. It asks each of the brand's automatic gateways in turn and keeps the first success, which today is PayPal's `REDIRECT`. A cleared payment (`transaction_status: OK`) still has no fixture and is the one scenario the suite defers.

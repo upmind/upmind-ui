@@ -31,19 +31,14 @@
  * `.fails` and keep the assertion. Filed on FE-3130. No production code is
  * changed here.
  *
- * ## What has NO fixture, and is therefore not proven here
- * The write half of the add flow. This brand's only store-capable card gateway
- * is Stripe with its own browser flow, so the server-side card create is refused
- * 409 by design and a tokenise-end success is minted by an SDK that cannot run
- * from Node. AC-B5, AC-B6, AC-B8, AC-B12 and the AC-B14 / AC-B15 successes are
- * owed on FE-3130 with the recorder run that can capture them; none is stood in
- * for here. The staff actor (AC-S1, AC-S2, AC-S4) is owed on the same issue —
- * `API_CREDENTIALS.staff` is refused 401 by this brand. AC-A13 is owed too: the
- * money strings need one recorded `POST /api/cart/calculate` per distinct price
- * list, and the generator captures a single generic one. AC-G1 is owed as well —
- * the recorded 401 IS on disk, but replaying it sends the query layer into its
- * token-refresh retry, which never settles without the refresh leg recorded
- * alongside it.
+ * ## What is NOT proven here
+ * The write half of the add flow. Anything needing a browser — the tokenise
+ * handshake, the 3DS challenge, storing a card end to end, every off-site
+ * redirect — carries NO scenario in this module's contract at all; it is e2e
+ * work. What IS owed on FE-3130 is a recording gap only: a throwaway stored
+ * method to delete, a PUT capture (the route refuses PATCH with 405), a brand
+ * with the forced-storage keys on, and the oauth refresh leg beside the
+ * recorded 401.
  *
  * ## What Breaks If These Fail
  * A client is offered a method or a gateway the platform will reject at submit;

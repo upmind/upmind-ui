@@ -143,7 +143,10 @@ The machine spawns an auth subscription on entry and **will not touch the networ
 <script setup lang="ts">
 import { usePayment } from "@upmind-automation/headless";
 
-const props = defineProps<{ orderId: string; paymentDetail: PaymentDetailData }>();
+const props = defineProps<{
+  orderId: string;
+  paymentDetail: PaymentDetailData;
+}>();
 
 const { meta, errors, context, renderChallenge, cancelChallenge } = usePayment({
   orderId: props.orderId,

@@ -3,14 +3,12 @@
  * @fileoverview paymentDetails composables — what a storefront actually holds
  * (AC-A1, AC-B3)
  *
- * ## Where the add flow's own lookup is NOT proven, and why
- * Opening `usePaymentDetailAdd` here reaches its currency resolution and no
- * further: the machine it interprets issues no request in this harness, because
- * the composable expects a Vue app context (`inject()`) that a bare vitest run
- * does not provide. So the store-only gateway narrowing (AC-B1) is proven at the
- * unit layer — against the brand's 15 real recorded gateways — and driving it out
- * of the running machine is owed on FE-3130 behind a harness that mounts the
- * composable in a real app.
+ * ## The store-only narrowing is proven at the unit layer, not here
+ * `payment-details.utils.test.ts` proves which of the brand's 15 real recorded
+ * gateways survive the store-only filter. This file proves the wiring above it —
+ * the composables a page actually holds. No Vue app is needed for either: the
+ * machine runs under `interpret()` and `usePaymentDetail` takes the interpreted
+ * service as its actor.
  *
  * ## Job To Be Done
  * The services file is the boundary; the composables are what a storefront

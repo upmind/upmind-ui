@@ -6,7 +6,7 @@ This module **takes the money**. Give it an order and a chosen payment method, a
 
 It does not choose the method (that is `payment-details`), it does not own the invoice (that is `invoices`), and it has no UI of its own.
 
-**It is a machine, not a screen.** There is no button behind it. The basket or the order machine invokes it *once it has already decided to pay*, so starting the machine **is** the instruction to charge.
+**It is a machine, not a screen.** There is no button behind it. The basket or the order machine invokes it _once it has already decided to pay_, so starting the machine **is** the instruction to charge.
 
 ## Quick Start
 
@@ -57,17 +57,17 @@ invoke: {
 
 ### Charging is not choosing
 
-`payment-details` decides *how* to pay and produces a `paymentDetail`. This module decides *nothing* about the method — it submits what it is handed. If the method cannot be used, the API refuses and this module reports that.
+`payment-details` decides _how_ to pay and produces a `paymentDetail`. This module decides _nothing_ about the method — it submits what it is handed. If the method cannot be used, the API refuses and this module reports that.
 
 ### The provider's answer drives the next step
 
 One `POST /payments` has three possible meanings, resolved from `transaction_status` plus the gateway's `type`:
 
-| Provider says | Next step |
-| ------------- | --------- |
-| no `approval_url`, gateway not awaiting-client | settled |
-| `WAITING` + `AWAITING_CLIENT` gateway | show the gateway's payment instructions |
-| any `approval_url` | a challenge — inline if the provider has a renderer, otherwise offsite |
+| Provider says                                  | Next step                                                              |
+| ---------------------------------------------- | ---------------------------------------------------------------------- |
+| no `approval_url`, gateway not awaiting-client | settled                                                                |
+| `WAITING` + `AWAITING_CLIENT` gateway          | show the gateway's payment instructions                                |
+| any `approval_url`                             | a challenge — inline if the provider has a renderer, otherwise offsite |
 
 ### Parent or root
 
@@ -83,13 +83,13 @@ Whether the legacy portal allows a staff-taken payment is **unverified and owed*
 
 ## Documentation
 
-| Doc | What it covers |
-| --- | -------------- |
-| [foundation.md](./foundation.md) | The portable, product-level description — capabilities, data shapes, flows. Start here. |
-| [usage.md](./usage.md) | The exposed surface, member by member, with real code. |
-| [architecture.md](./architecture.md) | The state machine, the services, and who depends on whom. |
-| [gotchas.md](./gotchas.md) | The traps — `parentId`, the double-dereference, the query-string move. |
-| [CHANGELOG.md](./CHANGELOG.md) | What changed and how to migrate. |
+| Doc                                  | What it covers                                                                          |
+| ------------------------------------ | --------------------------------------------------------------------------------------- |
+| [foundation.md](./foundation.md)     | The portable, product-level description — capabilities, data shapes, flows. Start here. |
+| [usage.md](./usage.md)               | The exposed surface, member by member, with real code.                                  |
+| [architecture.md](./architecture.md) | The state machine, the services, and who depends on whom.                               |
+| [gotchas.md](./gotchas.md)           | The traps — `parentId`, the double-dereference, the query-string move.                  |
+| [CHANGELOG.md](./CHANGELOG.md)       | What changed and how to migrate.                                                        |
 
 ## Playground
 

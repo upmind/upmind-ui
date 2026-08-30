@@ -60,11 +60,11 @@ stateDiagram-v2
 
 `processed` is a **delayed** transition (`after: { wait }`, where `wait` is `useTime().WAIT`), and its three guarded branches are evaluated in order:
 
-| Guard | Condition | Target |
-| ----- | --------- | ------ |
-| `needsChallenge` | the attempt carries an `approval_url` | `challenging` |
+| Guard               | Condition                                                                   | Target         |
+| ------------------- | --------------------------------------------------------------------------- | -------------- |
+| `needsChallenge`    | the attempt carries an `approval_url`                                       | `challenging`  |
 | `needsInstructions` | `transaction_status === WAITING` **and** `gateway.type === AWAITING_CLIENT` | `instructions` |
-| — | neither | `complete` |
+| —                   | neither                                                                     | `complete`     |
 
 Order matters. A response that is both `WAITING` and carries an `approval_url` goes to `challenging`, never to `instructions`. Reordering these branches or dropping the delay mis-routes every payment silently, which is why the module's suite drives the challenge arm on a real recorded provider response.
 
@@ -78,10 +78,10 @@ Order matters. A response that is both `WAITING` and carries an `approval_url` g
 
 Two actions send to a parent, and **both are guarded by `parentId`**:
 
-| Action | Fires on | Sends |
-| ------ | -------- | ----- |
+| Action           | Fires on                                    | Sends                                |
+| ---------------- | ------------------------------------------- | ------------------------------------ |
 | `providePayment` | the charge succeeding (`processing.onDone`) | `{ type: "PAYMENT", data: payment }` |
-| `escalateError` | entering `error` | the `ResponseError`, via `escalate` |
+| `escalateError`  | entering `error`                            | the `ResponseError`, via `escalate`  |
 
 Unguarded, `sendParent` throws at a root and **aborts the transition it is part of** — which silently freezes the machine in the state it was leaving. The success limb froze in `processing` for exactly that reason until it was guarded. See [gotchas.md](./gotchas.md).
 
@@ -117,13 +117,13 @@ State is read through the shared platform utilities (`stateMatches`, `useContext
 
 ## Services
 
-| Service | Endpoint | Notes |
-| ------- | -------- | ----- |
-| `load` | `GET /invoices/{orderId}` then `GET /brands/{brandId}/gateways` | Two chained reads. The second is filtered server-side by `client_id`, `invoice_id`, `country_id`, `currency_code` taken off the loaded order, so the list only ever contains gateways eligible for **this** attempt. Returns `{ rawOrder, gateway }`. |
-| `validate` | none | Local. Rejects before anything is charged. |
-| `update` | `POST /payments` | The charge. Body is `{ invoice_id, gateway_id }` plus the method's own fields. |
-| `redirect` | none | Calls `submitViaForm` with the mapped `approval`. Leaves the page. |
-| `render` | none | Resolves the provider's renderer from `renderers/` and mounts it into the caller's container. |
+| Service    | Endpoint                                                        | Notes                                                                                                                                                                                                                                                 |
+| ---------- | --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `load`     | `GET /invoices/{orderId}` then `GET /brands/{brandId}/gateways` | Two chained reads. The second is filtered server-side by `client_id`, `invoice_id`, `country_id`, `currency_code` taken off the loaded order, so the list only ever contains gateways eligible for **this** attempt. Returns `{ rawOrder, gateway }`. |
+| `validate` | none                                                            | Local. Rejects before anything is charged.                                                                                                                                                                                                            |
+| `update`   | `POST /payments`                                                | The charge. Body is `{ invoice_id, gateway_id }` plus the method's own fields.                                                                                                                                                                        |
+| `redirect` | none                                                            | Calls `submitViaForm` with the mapped `approval`. Leaves the page.                                                                                                                                                                                    |
+| `render`   | none                                                            | Resolves the provider's renderer from `renderers/` and mounts it into the caller's container.                                                                                                                                                         |
 
 `load`'s gateway lookup is in-memory: the chosen gateway is `find(brandGateways, ["gateway_id", paymentDetail.gateway_id])`. There is no per-gateway endpoint.
 
@@ -131,22 +131,22 @@ State is read through the shared platform utilities (`stateMatches`, `useContext
 
 ### payment Depends On
 
-| Module | Why |
-| ------ | --- |
-| `session-store` | `authSubscription` — the callback actor that gates every network call behind a live session. |
-| `payment-details` | `PaymentDetailData`, the method payload this module submits. Type-only. |
-| `query` | The HTTP layer (`useQuery().get/post`, `useUrl`) and its cache keys. |
-| `brand` | `brandId`, for the brand-scoped gateway list. |
-| `system-analytics` | `useDataLayer` — the `begin_offsite_payment` event. |
+| Module                     | Why                                                                                                                           |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `session-store`            | `authSubscription` — the callback actor that gates every network call behind a live session.                                  |
+| `payment-details`          | `PaymentDetailData`, the method payload this module submits. Type-only.                                                       |
+| `query`                    | The HTTP layer (`useQuery().get/post`, `useUrl`) and its cache keys.                                                          |
+| `brand`                    | `brandId`, for the brand-scoped gateway list.                                                                                 |
+| `system-analytics`         | `useDataLayer` — the `begin_offsite_payment` event.                                                                           |
 | `@upmind-automation/types` | `IInvoice`, `IGateway`, `IPaymentAttempt`, `TransactionStatus`, `GatewayTypes`, `GatewayProviderCodes`, `Methods`, `Targets`. |
-| `utils` | `stateMatches`, `useContext`, `mapToHeadlessError`, `useValidationParser`, `useTime`, `responseCodes`. |
+| `utils`                    | `stateMatches`, `useContext`, `mapToHeadlessError`, `useValidationParser`, `useTime`, `responseCodes`.                        |
 
 ### Modules That Depend On payment
 
-| Module | How |
-| ------ | --- |
+| Module   | How                                                                                                                       |
+| -------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `basket` | `basket.machine.ts` invokes `paymentMachine` as the `payment` child during checkout, passing `parentId: "basketManager"`. |
-| `orders` | `order.machine.ts` invokes it in the `paying` state, passing `parentId: "orderManager"`; `useOrder` surfaces the result. |
+| `orders` | `order.machine.ts` invokes it in the `paying` state, passing `parentId: "orderManager"`; `useOrder` surfaces the result.  |
 
 Both are the module's real consumers. Nothing in the tree imports `usePayment` — the composable is the **root** entry point, kept working and proven, but currently unused by production code.
 
