@@ -39,8 +39,14 @@ bound how many start.
 Already running:
 $holders
 
-Wait for it to finish, then retry. Do not work around this by changing
-the command — serialise instead.
+Simply RE-RUN your command in a moment. This guard allows it the instant the
+other run finishes.
+
+Do NOT write a wait loop that polls for vitest. A shell command containing the
+word "vitest" MATCHES ITSELF under `pgrep -f vitest`, so the loop waits on its
+own process and never exits. This guard is the only thing that needs to check.
+
+Do not work around this by changing the command — serialise instead.
 MSG
   exit 2
 fi
