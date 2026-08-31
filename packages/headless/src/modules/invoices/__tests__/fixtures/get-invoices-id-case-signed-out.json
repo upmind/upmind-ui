@@ -1,0 +1,52 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/invoices/25d96e76-3ed0-913e-d62a-417482528340?case=signed-out&with=brand,taxes,client,status,contract,payments,payments.payment_details,products,promotions,client.tags,products.tags,taxes.tax_tag_data,custom_fields.field,affiliate_commissions,products.product.image,account.affiliate_referral.affiliate_account.account.client",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "access-control-expose-headers": "Retry-After, X-RateLimit-Limit",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a33c61715ce16914-LIS",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Mon, 31 Aug 2026 13:28:50 GMT",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=fSVvmaXPtzauLyrKFC9BZuQi6CJOPpMpQFfcMcQS3ENLs5pfKagLI1B%2BESqha6DTytmsb7FbhluoyBxio4q%2FeO2sTJJ2nlm%2B1syvviR70iy45KmX2LxNGR4XiuyvJNH%2FzFTK6gMFAA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "4ab263c05356ce6ee95781f67242c17fe421842a",
+        "type": 0,
+        "code": 401,
+        "message": "Please log in to continue",
+        "data": null
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-31T13:28:50.158Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "invoices"
+  }
+}
