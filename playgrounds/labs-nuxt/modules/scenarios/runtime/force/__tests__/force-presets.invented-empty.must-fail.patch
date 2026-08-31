@@ -22,18 +22,17 @@ Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
 Reds: the T3.11 preset spec — the empty case (the answer is the recording
 emptied, every other recorded field intact).
 
-Re-armed 2026-08-13: the hunk's leading context is the docblock the two named
-error presets rewrote (`R6-19`).
+Re-armed 2026-08-31: line moved after the ABSENT-state work.
 
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts
-@@ -67,7 +67,7 @@
-   const body = response.body as { data?: unknown };
+@@ -88,7 +88,7 @@ function withoutRows(response: CorpusResponse): CorpusResponse {
  
-   return isArray(body?.data)
--    ? { ...response, body: { ...body, data: [], total: 0 } }
-+    ? { ...response, body: { status: "ok", data: [], total: 0 } }
-     : response;
+   if (!isArray(body?.data)) return response;
+ 
+-  return { ...response, body: { ...body, data: [], total: 0 } };
++  return { ...response, body: { status: "ok", data: [], total: 0 } };
  }
  
+ /**

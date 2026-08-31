@@ -19,19 +19,23 @@ Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
 Reds: the answerable-presets spec — bills only a feature that DECLARES the
 refusal, and owes no capture anywhere in the tree today.
 
+Re-armed 2026-08-31: the tag-read moved into hostablePresets; the mutant
+re-adds the deleted prose gate beside it.
+
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/capabilities.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/capabilities.ts
+index ef5f96720..c2b52166c 100644
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/capabilities.ts
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/capabilities.ts
-@@ -198,7 +198,11 @@ export function captureGaps(
-   feature: string,
-   bodies: Record<string, RecordedFixture>
- ): readonly ForceUrlPreset[] {
--  if (isEmpty(intersection(declaredTags(feature), REFUSAL_TAGS))) return [];
-+  if (
-+    isEmpty(intersection(declaredTags(feature), REFUSAL_TAGS)) &&
-+    !/refus|reject|error|fail|not-authenticated/i.test(feature)
-+  )
-+    return [];
+@@ -257,9 +257,9 @@ function hostablePresets(
  
-   const answerable = answerablePresets(bodies);
+   const fixtures = values(bodies);
  
+-  const declaresRefusal = !isEmpty(
+-    intersection(declaredTags(feature), REFUSAL_TAGS)
+-  );
++  const declaresRefusal =
++    !isEmpty(intersection(declaredTags(feature), REFUSAL_TAGS)) ||
++    /refus|reject|error|fail|not-authenticated/i.test(feature);
+ 
+   const hostable: Record<ForceUrlPreset, boolean> = {
+     empty: some(fixtures, isServedRead),

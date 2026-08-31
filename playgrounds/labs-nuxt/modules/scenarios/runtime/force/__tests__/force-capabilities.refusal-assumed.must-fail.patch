@@ -18,15 +18,17 @@ Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
 
 Reds: the capability spec — a capability is TRUE only when a recording backs it.
 
+Re-armed 2026-08-31: line moved after the ABSENT-state work.
+
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/capabilities.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/capabilities.ts
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/capabilities.ts
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/capabilities.ts
-@@ -125,7 +125,7 @@ export function corpusCapabilities(
-   return {
-     canEmpty: !!find(fixtures, isCollectionRead),
+@@ -196,7 +196,7 @@ export function corpusCapabilities(
+     // record that is not there.
+     canEmpty: some(fixtures, isRowsRead) || some(fixtures, isAbsentRecordRead),
      canLoading: !isEmpty(fixtures),
 -    canErrorCollection: !!failure,
 +    canErrorCollection: !isEmpty(fixtures),
      canErrorAction: !!failedWrite,
-     failure
-   };
+     failure,
+     refusedWrite: failedWrite

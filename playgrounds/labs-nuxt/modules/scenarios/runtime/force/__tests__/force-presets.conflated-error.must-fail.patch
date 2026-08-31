@@ -14,16 +14,22 @@ Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
 Reds: the T3.11 preset spec — the action-error case (a GET is served as
 recorded, so the collection still answers with its rows).
 
+Re-armed 2026-08-31: the single `error-action` return split into a read/write
+pair after the offered-set work; the mutant now fails the read branch.
+
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts
+index fd768da57..00c7e3bc8 100644
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/presets.ts
-@@ -128,8 +128,7 @@
-   // body (`R6-19`), so it needs a status and nothing else; the module's own
-   // refusal supplies one where the corpus holds it, and `REFUSED` where it does
-   // not. No body is authored on either path (`S13`).
--  if (preset === "error-action")
--    return isRead(method) ? served : (failure ?? served);
-+  if (preset === "error-action") return withoutBody(failure ?? REFUSED);
+@@ -160,7 +160,10 @@ export function presetAnswer(
+   if (!served) return undefined;
+   if (preset === "loading") return PENDING;
  
-   if (preset === "error-collection")
-     return isRead(method) ? withoutBody(failure ?? REFUSED) : served;
+-  if (preset === "error-action") return served;
++  if (preset === "error-action")
++    return recordedFailure?.response
++      ? withoutBody(recordedFailure.response)
++      : served;
+ 
+   const failure = recordedFailure?.response;
+ 
