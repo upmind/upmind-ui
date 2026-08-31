@@ -14,60 +14,70 @@ This document specifies how to drive the order machine to every state from a tes
 
 ### 1.1 Top-Level States
 
-| State | ID | Type | Reached by |
-|-------|-----|------|------------|
-| `subscribing` | — | initial | Machine start, or `UNAUTHENTICATED` from any state |
-| `loading` | `#loading` | invoke | `AUTHENTICATED` from `subscribing`, or `REFRESH` from any state |
-| `available` | `#available` | compound | `loadLookups` service succeeds with unpaid invoice |
-| `unavailable` | `#unavailable` | terminal | `loadLookups` service rejects |
-| `complete` | `#complete` | terminal | Invoice fully paid or free |
+| State         | ID             | Type     | Reached by                                                      |
+| ------------- | -------------- | -------- | --------------------------------------------------------------- |
+| `subscribing` | —              | initial  | Machine start, or `UNAUTHENTICATED` from any state              |
+| `loading`     | `#loading`     | invoke   | `AUTHENTICATED` from `subscribing`, or `REFRESH` from any state |
+| `available`   | `#available`   | compound | `loadLookups` service succeeds with unpaid invoice              |
+| `unavailable` | `#unavailable` | terminal | `loadLookups` service rejects                                   |
+| `complete`    | `#complete`    | terminal | Invoice fully paid or free                                      |
 
 ### 1.2 Nested States Under `available`
 
-| State | ID | Reached by |
-|-------|-----|------------|
+| State                  | ID            | Reached by                                                             |
+| ---------------------- | ------------- | ---------------------------------------------------------------------- |
 | `available.collecting` | `#collecting` | Entry to `available`; or after payment error; or after partial payment |
-| `available.paying` | `#paying` | `PAYMENT_DETAILS` event received while in `collecting` |
-| `available.refreshing` | `#refreshing` | `paymentMachine` invoke completes successfully |
+| `available.paying`     | `#paying`     | `PAYMENT_DETAILS` event received while in `collecting`                 |
+| `available.refreshing` | `#refreshing` | `paymentMachine` invoke completes successfully                         |
 
 ### 1.3 Complete Event Sequences (Cold Start)
 
 **To reach `subscribing`:**
+
 ```
 (machine start)
 ```
 
 **To reach `loading`:**
+
 ```
 AUTHENTICATED
 ```
 
 **To reach `available.collecting`:**
+
 ```
 AUTHENTICATED -> (loadLookups succeeds with unpaid invoice)
 ```
+
 Fixture requirement: `invoice.status.code` NOT in `["invoice_paid"]`
 
 **To reach `available.paying`:**
+
 ```
 AUTHENTICATED -> (loadLookups succeeds) -> PAYMENT_DETAILS { data: paymentDetailData }
 ```
+
 The `PAYMENT_DETAILS` event must carry `data` — the resolved payment detail from the child actor.
 
 **To reach `available.refreshing`:**
+
 ```
 AUTHENTICATED -> (loadLookups succeeds) -> PAYMENT_DETAILS -> (paymentMachine invoke completes via onDone)
 ```
 
 **To reach `complete`:**
 Two paths:
+
 1. **Free/paid on load:** `AUTHENTICATED -> (loadLookups succeeds with invoice.status.code === "invoice_paid")`
 2. **After payment:** `... -> PAYMENT_DETAILS -> (paymentMachine onDone) -> (refresh service returns invoice.status.code === "invoice_paid")`
 
 **To reach `unavailable`:**
+
 ```
 AUTHENTICATED -> (loadLookups rejects)
 ```
+
 Fixture requirement: Service throws an error.
 
 ---
@@ -93,7 +103,7 @@ PAY: {
    ```typescript
    forwardPay: ({ paymentDetailActor }: OrderContext) => {
      paymentDetailActor?.send({ type: "PAY" });
-   }
+   };
    ```
 5. The paymentDetail child machine processes `PAY` internally.
 6. When paymentDetail reaches its `complete` state (payment-detail.machine.ts line 301-309), it runs `providePaymentDetails` action (line 610-619):
@@ -108,7 +118,7 @@ PAY: {
          }))
        ];
      }
-   )
+   );
    ```
 7. Order machine receives `PAYMENT_DETAILS` event.
 8. Order machine transitions `collecting -> paying` (line 79-84).
@@ -117,17 +127,18 @@ PAY: {
 
 For `pay()` to result in `paying` state:
 
-| Precondition | Why | Line Reference |
-|--------------|-----|----------------|
-| State is `available.collecting` | `PAY` event handler exists only here | order.machine.ts:86-89 |
-| `paymentDetailActor` exists | `forwardPay` sends to this actor | order.machine.ts:228-230 |
-| `paymentDetailActor.context.isInvoked === true` | Required for `sendParent` to fire | payment-detail.machine.ts:611 |
-| paymentDetail machine reaches `valid` state | `PAY` event handler exists there | payment-detail.machine.ts:183-199 |
+| Precondition                                                       | Why                                                | Line Reference                    |
+| ------------------------------------------------------------------ | -------------------------------------------------- | --------------------------------- |
+| State is `available.collecting`                                    | `PAY` event handler exists only here               | order.machine.ts:86-89            |
+| `paymentDetailActor` exists                                        | `forwardPay` sends to this actor                   | order.machine.ts:228-230          |
+| `paymentDetailActor.context.isInvoked === true`                    | Required for `sendParent` to fire                  | payment-detail.machine.ts:611     |
+| paymentDetail machine reaches `valid` state                        | `PAY` event handler exists there                   | payment-detail.machine.ts:183-199 |
 | paymentDetail machine transitions through `processing -> complete` | Only `complete` state runs `providePaymentDetails` | payment-detail.machine.ts:301-309 |
 
 ### 2.4 PaymentDetail Child Actor Context
 
 The child is spawned via `spawnOrderPaymentDetail` (order.utils.ts line 21-45) with:
+
 ```typescript
 {
   isInvoked: true,           // CRITICAL: enables sendParent
@@ -149,20 +160,21 @@ The child is spawned via `spawnOrderPaymentDetail` (order.utils.ts line 21-45) w
 
 ### 3.1 Named String Services (Interceptable via withConfig)
 
-| Service Name | Function | File Reference |
-|--------------|----------|----------------|
+| Service Name  | Function              | File Reference               |
+| ------------- | --------------------- | ---------------------------- |
 | `loadLookups` | Fetches invoice by ID | order.services.ts line 15-55 |
-| `refresh` | Alias for loadLookups | order.services.ts line 59 |
+| `refresh`     | Alias for loadLookups | order.services.ts line 59    |
 
 These can be stubbed via `machine.withConfig({ services: { loadLookups: mockFn } })`.
 
 ### 3.2 Inline Machine References (NOT Interceptable by Name)
 
-| Invoke ID | Machine | Why Not Interceptable | Line Reference |
-|-----------|---------|----------------------|----------------|
+| Invoke ID | Machine          | Why Not Interceptable               | Line Reference      |
+| --------- | ---------------- | ----------------------------------- | ------------------- |
 | `payment` | `paymentMachine` | Inline import, not string reference | order.machine.ts:98 |
 
 The `paying` state invokes `paymentMachine` directly:
+
 ```typescript
 invoke: {
   id: "payment",
@@ -175,9 +187,9 @@ invoke: {
 
 ### 3.3 Spawned Actors (NOT Invoke Services)
 
-| Actor | Spawned In | Name | Line Reference |
-|-------|-----------|------|----------------|
-| `authHelper` | `setAuthHelper` action | anonymous | order.machine.ts:168-171 |
+| Actor                | Spawned In                  | Name                   | Line Reference                              |
+| -------------------- | --------------------------- | ---------------------- | ------------------------------------------- |
+| `authHelper`         | `setAuthHelper` action      | anonymous              | order.machine.ts:168-171                    |
 | `paymentDetailActor` | `spawnPaymentDetail` action | `"orderPaymentDetail"` | order.machine.ts:209-215, order.utils.ts:43 |
 
 These are spawned via `spawn()`, not `invoke`. They persist across state transitions.
@@ -214,6 +226,7 @@ These are spawned via `spawn()`, not `invoke`. They persist across state transit
 **Fixture requirement:** Invoice with `status.code !== "invoice_paid"` and `unpaid_amount_converted > 0`.
 
 **Sequence:**
+
 ```
 1. AUTHENTICATED
 2. (loadLookups succeeds -> collecting)
@@ -227,6 +240,7 @@ These are spawned via `spawn()`, not `invoke`. They persist across state transit
 ```
 
 **Invoice status.code needed:**
+
 - Initial load: `"invoice_unpaid"` or `"invoice_overdue"`
 - After refresh: `"invoice_paid"`
 
@@ -235,6 +249,7 @@ These are spawned via `spawn()`, not `invoke`. They persist across state transit
 **Fixture requirement:** Invoice with partial payment possible.
 
 **Sequence:**
+
 ```
 1. AUTHENTICATED
 2. (loadLookups succeeds -> collecting)
@@ -251,6 +266,7 @@ These are spawned via `spawn()`, not `invoke`. They persist across state transit
 ```
 
 **Invoice status.code needed:**
+
 - After first payment refresh: `"invoice_unpaid"` (balance remaining)
 - After second payment refresh: `"invoice_paid"`
 
@@ -263,6 +279,7 @@ Same as @order-pay. Wallet usage is internal to paymentDetailActor. The order ma
 **Fixture requirement:** First payment attempt fails (paymentMachine rejects).
 
 **Sequence:**
+
 ```
 1. AUTHENTICATED
 2. (loadLookups succeeds -> collecting)
@@ -285,6 +302,7 @@ Same as @order-pay. Wallet usage is internal to paymentDetailActor. The order ma
 **Fixture requirement:** Payment requires inline 3DS challenge.
 
 **Sequence:**
+
 ```
 1-6. Same as @order-pay up through paymentMachine invoked
 7. paymentMachine -> processed -> challenging.determining -> challenging.render.waiting
@@ -299,20 +317,24 @@ Same as @order-pay. Wallet usage is internal to paymentDetailActor. The order ma
 **How to detect render state:** `machineMatches(payment, ["challenging.render"])` where `payment` is the child actor ref from `useChildActor(state, "payment")` (useOrder.ts line 52).
 
 **PaymentMachine guards involved:**
+
 - `needsChallenge`: `!isEmpty(payment?.approval_url)` (payment.machine.ts line 296-297)
 - `hasRenderer`: checks if gateway provider has a renderer (payment.machine.ts line 300-303)
 
 ### 5.6 @order-challenge-complete
 
 Same as @order-challenge-render. The `CHALLENGE_RESPONSE` event completes the challenge:
+
 ```
 CHALLENGE_RESPONSE { data: responseData }  // to payment actor
 ```
+
 Transitions paymentMachine from `challenging.render.*` or `challenging.offsite` to `complete` (payment.machine.ts line 185-187, 150-152).
 
 ### 5.7 @order-challenge-cancel
 
 **Sequence:**
+
 ```
 1-8. Same as @order-challenge-render up through render.waiting or render.idle
 9. CHALLENGE_CANCELLED                          // sent to payment child actor
@@ -329,6 +351,7 @@ Transitions paymentMachine from `challenging.render.*` or `challenging.offsite` 
 There is no event the test harness can send to order machine that transitions directly to `paying`. The only path is through `PAYMENT_DETAILS`, which must originate from the spawned `paymentDetailActor` via `sendParent`.
 
 **Workaround for tests:**
+
 1. Stub `loadLookups` to return a valid invoice fixture.
 2. Let machine spawn the real paymentDetailActor.
 3. Either:
@@ -338,17 +361,20 @@ There is no event the test harness can send to order machine that transitions di
 ### 6.2 The `paymentMachine` Is Inline (Not Stubbed by Name)
 
 The paymentMachine invoke at line 98 is an inline reference:
+
 ```typescript
 src: paymentMachine,
 ```
 
 To stub its behavior, either:
+
 1. Replace `paymentMachine` at the module level before the test, or
 2. Stub its internal services (`load`, `validate`, `update`, `redirect`, `render`).
 
 ### 6.3 Auth Subscription Actor
 
 The `authHelper` spawned in `subscribing` listens for auth changes and sends `AUTHENTICATED`/`UNAUTHENTICATED`. In tests, either:
+
 1. Mock `authSubscription` to emit `AUTHENTICATED` immediately, or
 2. Manually send `AUTHENTICATED` to the machine after start.
 
@@ -360,22 +386,22 @@ All states in the machine are reachable in a test harness, given proper fixture 
 
 ## 7. Quick Reference: Event -> State Mapping
 
-| Event | From State | To State | Condition |
-|-------|------------|----------|-----------|
-| `AUTHENTICATED` | `subscribing` | `loading` | — |
-| `UNAUTHENTICATED` | any | `subscribing` | — |
-| `REFRESH` | any | `loading` | — |
-| (loadLookups success) | `loading` | `complete` | `isFreeOrPaid` guard passes |
-| (loadLookups success) | `loading` | `collecting` | `isFreeOrPaid` guard fails |
-| (loadLookups error) | `loading` | `unavailable` | — |
-| `PAY` | `collecting` | (no transition) | runs `forwardPay` only |
-| `CANCEL` | `collecting` | (no transition) | runs `clearError` only |
-| `PAYMENT_DETAILS` | `collecting` | `paying` | — |
-| (paymentMachine done) | `paying` | `refreshing` | — |
-| (paymentMachine error) | `paying` | `collecting` | — |
-| (refresh success) | `refreshing` | `complete` | `isFullyPaid` guard passes |
-| (refresh success) | `refreshing` | `collecting` | `isFullyPaid` guard fails |
-| (refresh error) | `refreshing` | `complete` | — |
+| Event                  | From State    | To State        | Condition                   |
+| ---------------------- | ------------- | --------------- | --------------------------- |
+| `AUTHENTICATED`        | `subscribing` | `loading`       | —                           |
+| `UNAUTHENTICATED`      | any           | `subscribing`   | —                           |
+| `REFRESH`              | any           | `loading`       | —                           |
+| (loadLookups success)  | `loading`     | `complete`      | `isFreeOrPaid` guard passes |
+| (loadLookups success)  | `loading`     | `collecting`    | `isFreeOrPaid` guard fails  |
+| (loadLookups error)    | `loading`     | `unavailable`   | —                           |
+| `PAY`                  | `collecting`  | (no transition) | runs `forwardPay` only      |
+| `CANCEL`               | `collecting`  | (no transition) | runs `clearError` only      |
+| `PAYMENT_DETAILS`      | `collecting`  | `paying`        | —                           |
+| (paymentMachine done)  | `paying`      | `refreshing`    | —                           |
+| (paymentMachine error) | `paying`      | `collecting`    | —                           |
+| (refresh success)      | `refreshing`  | `complete`      | `isFullyPaid` guard passes  |
+| (refresh success)      | `refreshing`  | `collecting`    | `isFullyPaid` guard fails   |
+| (refresh error)        | `refreshing`  | `complete`      | —                           |
 
 ---
 
@@ -386,6 +412,7 @@ The prover's blocker: "Calling order.pay() does not result in paymentMachine inv
 **Root cause:** `PAY` is forwarded to the child actor, not consumed by the order machine. The order machine waits for `PAYMENT_DETAILS` from that child. If the child is not properly configured (missing `isInvoked: true`, not reaching `valid` state, services failing), it never sends `PAYMENT_DETAILS`, and the order machine stays in `collecting`.
 
 **To make `pay()` functional in tests:**
+
 1. Ensure `loadLookups` returns a valid invoice fixture.
 2. Ensure the paymentDetailActor child reaches a state where it can process `PAY`.
 3. The paymentDetailActor must have `isInvoked: true` in context (set by `spawnOrderPaymentDetail`).
@@ -402,6 +429,7 @@ The `PAYMENT_DETAILS` event is the trigger. Without it, `paying` is never entere
 ### 9.1 order.services.ts:24-25 — NotAuthenticatedError throw
 
 **Location:** Lines 23-25:
+
 ```typescript
 if (!isAuthenticated.value || !activeUser.value?.id) {
   throw new NotAuthenticatedError();
@@ -417,6 +445,7 @@ The machine reaches `loading` (which invokes `loadLookups`) only after receiving
 ### 9.2 useOrder.ts:129 — renderChallenge closing brace
 
 **Location:** Line 124-129:
+
 ```typescript
 function renderChallenge(container: HTMLElement): void {
   payment.value?.send({
@@ -429,6 +458,7 @@ function renderChallenge(container: HTMLElement): void {
 **Consumer call:** `renderChallenge(containerElement)`
 
 **Preconditions:**
+
 - Machine state: `available.paying` with paymentMachine in `challenging.render.waiting`
 - `meta.isRenderingChallenge === true` (computed from `machineMatches(payment, ["challenging.render"])`)
 - Container element must be mounted
@@ -436,6 +466,7 @@ function renderChallenge(container: HTMLElement): void {
 ### 9.3 useOrder.ts:137-138 — completeChallenge body
 
 **Location:** Lines 136-138:
+
 ```typescript
 function completeChallenge(data?: Record<string, unknown>): void {
   payment.value?.send({ type: "CHALLENGE_RESPONSE", data });
@@ -445,12 +476,14 @@ function completeChallenge(data?: Record<string, unknown>): void {
 **Consumer call:** `completeChallenge(responseData)` or `completeChallenge()` (data optional)
 
 **Preconditions:**
+
 - Machine state: `available.paying` with paymentMachine in `challenging.render.*` or `challenging.offsite`
 - Typically called as the `onComplete` callback passed to `renderChallenge`
 
 ### 9.4 useOrder.ts:148 — onUnmounted stopService
 
 **Location:** Lines 147-149:
+
 ```typescript
 onUnmounted(() => {
   stopService(service);
@@ -460,6 +493,7 @@ onUnmounted(() => {
 **Trigger:** Vue component lifecycle — the composable's host component unmounts.
 
 **Preconditions:**
+
 - The composable must be mounted in a Vue component context
 - The component must then unmount (e.g., navigation away, conditional rendering)
 - Integration tests using `@vue/test-utils` mount/unmount can reach this
@@ -467,6 +501,7 @@ onUnmounted(() => {
 ### 9.5 order.machine.ts:201-205 — persistSelections non-empty data
 
 **Location:** Lines 200-206:
+
 ```typescript
 if (isEmpty(data)) return undefined;
 return {
@@ -479,26 +514,29 @@ return {
 **Trigger:** `PAYMENT_DETAILS` event in `collecting` state (line 82: `actions: ["persistSelections", "setPaymentDetail"]`)
 
 **Preconditions:**
+
 - `PAYMENT_DETAILS` event must carry non-empty `data` (i.e., `data` has at least one key)
 - The paymentDetailActor must have resolved a payment detail with gateway_id, wallet_amount, or amount
 
 ### 9.6 order.machine.ts:222-223 — clearPaymentDetailActor stopService branch
 
 **Location:** Lines 220-225:
+
 ```typescript
 clearPaymentDetailActor: assign({
   paymentDetailActor: ({ paymentDetailActor }: OrderContext) => {
     if (paymentDetailActor && !isStoppedService(paymentDetailActor)) {
-      stopService(paymentDetailActor);  // line 222
+      stopService(paymentDetailActor); // line 222
     }
     return undefined;
   }
-})
+});
 ```
 
 **Trigger:** Entry to `collecting` state (line 78: `entry: ["clearPaymentDetailActor", "spawnPaymentDetail"]`)
 
 **Preconditions for line 222 (stopService call):**
+
 - `paymentDetailActor` must exist in context (truthy)
 - `isStoppedService(paymentDetailActor)` must return false (actor not yet stopped)
 - This happens on RETRY or PARTIAL payment loop — transitioning `paying -> collecting` via onError or refresh-with-balance-remaining, the previous actor is still alive
@@ -506,18 +544,20 @@ clearPaymentDetailActor: assign({
 ### 9.7 order.utils.ts:37-40 — lastPaymentModel truthy branch
 
 **Location:** Lines 36-41:
+
 ```typescript
 model: lastPaymentModel
   ? {
       gateway_id: lastPaymentModel.gateway_id,
       wallet_amount: lastPaymentModel.wallet_amount
     }
-  : {}
+  : {};
 ```
 
 **Trigger:** `spawnOrderPaymentDetail(rawInvoice, lastPaymentModel)` called with truthy `lastPaymentModel`
 
 **Preconditions:**
+
 - Retry or partial payment loop — `paying -> collecting` transition via onError or refresh returning unpaid invoice
 - `persistSelections` must have run on a previous `PAYMENT_DETAILS` event with non-empty data
 - Machine context `lastPaymentModel` is populated from that prior payment attempt
@@ -525,10 +565,12 @@ model: lastPaymentModel
 ### 9.8 index.ts and order.types.ts — Non-Executable Files
 
 **index.ts (2 lines):**
+
 ```typescript
 export * from "./useOrder";
 export * from "./order.types";
 ```
+
 This is a re-export barrel. It contains zero executable statements. Function coverage is not measurable — these are module-level re-exports evaluated at import time, not callable functions.
 
 **order.types.ts (52 lines):**
