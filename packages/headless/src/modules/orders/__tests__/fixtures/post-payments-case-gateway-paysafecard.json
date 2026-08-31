@@ -1,0 +1,62 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/payments?case=gateway-paysafecard",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "invoice_id": "85d26e96-783d-1652-de8a-314502e70439",
+      "gateway_id": "78985742-6489-7012-250a-21e325d0ed36"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a33bd9043ef7e3cd-LIS",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 31 Aug 2026 11:55:43 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=lONMCylE2aBm9NgHFrtsL%2BADW7FeVz0Mp%2B4BjNVPItdo8hP6z3en3Sv2tID%2BE59DyfTpJQtbZfRTd2H6gyfOWkfXtpaEoYAAoTRrXqCODHHwG4dRk5xmvEu2zKtRJ7z9MyBaIAoEqA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-upmind-snail": "true"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "transaction_status": "REDIRECT",
+        "transaction_type": 3,
+        "approval_url": {
+          "url": "https://customer.test.at.paysafecard.com/psccustomer/GetCustomerPanelServlet?mid=1020014864&mtid=pay_1020014864_JbG1vLZCOEx4MX0Sk9U390Mou5pyRFU7_GBP&amount=72.00&currency=GBP",
+          "method": "GET",
+          "fields": []
+        },
+        "transaction_id": "pay_1020014864_JbG1vLZCOEx4MX0Sk9U390Mou5pyRFU7_GBP"
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-31T11:55:43.502Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "order"
+  }
+}
