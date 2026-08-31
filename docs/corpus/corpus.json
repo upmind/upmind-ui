@@ -5097,6 +5097,12 @@
       "path": "packages/headless/src/modules/config/config.utils.ts",
       "title": "replaceDataVariables"
     },
+    "@upmind-automation/headless!resetQueryByKey": {
+      "kind": "symbol",
+      "module": "query",
+      "path": "packages/headless/src/modules/query/query.utils.ts",
+      "title": "resetQueryByKey"
+    },
     "@upmind-automation/headless!resolveClientId": {
       "kind": "symbol",
       "module": "session-store",
@@ -12125,21 +12131,21 @@
     }
   },
   "meta": {
-    "built_at": "2026-08-27T11:50:39.297Z",
-    "corpus_version": "1+cc5b22808559",
+    "built_at": "2026-08-31T16:39:21.235Z",
+    "corpus_version": "1+1bd5a8db9785",
     "counts": {
       "adrs": 34,
       "changelogSymbols": 0,
       "examples": 0,
       "glossaryTerms": 26,
       "guides": 3,
-      "indexEntries": 1777,
+      "indexEntries": 1778,
       "relationEdges": 5893,
       "relationsPruned": 1644,
-      "symbols": 701
+      "symbols": 702
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "481a816818db6c476bf1c2d486590760fc42d9ef"
+    "source_commit": "49312d39a9493678bed2e5586ef8332a0cfff1b5"
   },
   "relations": {
     "edges": [
@@ -59289,7 +59295,7 @@
       }
     ],
     "prunedCount": 1644,
-    "sourcedAt": "2026-08-27"
+    "sourcedAt": "2026-08-31"
   },
   "symbols": {
     "@upmind-automation/headless!ACCOUNT_SCOPE_MATRIX": {
@@ -61665,7 +61671,7 @@
       "name": "PAGINATION",
       "signature": "PAGINATION: object",
       "sourceFile": "packages/headless/src/modules/query/query.utils.ts",
-      "sourceLine": 62,
+      "sourceLine": 63,
       "tsdoc": "Default pagination values for API requests.\nThese values can be used to standardise pagination across different requests."
     },
     "@upmind-automation/headless!PAYMENT_STATE": {
@@ -63865,7 +63871,7 @@
       "name": "UseBrand",
       "signature": "Symbol UseBrand",
       "sourceFile": "packages/headless/src/modules/brand/useBrand.ts",
-      "sourceLine": 574,
+      "sourceLine": 570,
       "tsdoc": "Type definition for the return value of the `useBrand` composable,\nensuring type safety for consumers by providing an explicit signature."
     },
     "@upmind-automation/headless!UseClientAddressManager": {
@@ -63942,7 +63948,7 @@
       "name": "UseClientAddressesActions",
       "signature": "Symbol UseClientAddressesActions",
       "sourceFile": "packages/headless/src/modules/client-address/useClientAddresses.actions.ts",
-      "sourceLine": 280,
+      "sourceLine": 283,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseClientAddressesContext": {
@@ -63997,7 +64003,7 @@
       "name": "UseClientCompaniesActions",
       "signature": "Symbol UseClientCompaniesActions",
       "sourceFile": "packages/headless/src/modules/client-company/useClientCompanies.actions.ts",
-      "sourceLine": 225,
+      "sourceLine": 228,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseClientCompaniesContext": {
@@ -64173,7 +64179,7 @@
       "name": "UseClientCustomFieldsActions",
       "signature": "Symbol UseClientCustomFieldsActions",
       "sourceFile": "packages/headless/src/modules/client-custom-fields/useClientCustomFields.actions.ts",
-      "sourceLine": 259,
+      "sourceLine": 262,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseClientCustomFieldsContext": {
@@ -64283,7 +64289,7 @@
       "name": "UseClientEmailsActions",
       "signature": "Symbol UseClientEmailsActions",
       "sourceFile": "packages/headless/src/modules/client-email/useClientEmails.actions.ts",
-      "sourceLine": 202,
+      "sourceLine": 207,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseClientEmailsContext": {
@@ -64393,7 +64399,7 @@
       "name": "UseClientPhonesActions",
       "signature": "Symbol UseClientPhonesActions",
       "sourceFile": "packages/headless/src/modules/client-phone/useClientPhones.actions.ts",
-      "sourceLine": 239,
+      "sourceLine": 244,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseClientPhonesContext": {
@@ -64448,7 +64454,7 @@
       "name": "UseClientReceivedEmailActions",
       "signature": "Symbol UseClientReceivedEmailActions",
       "sourceFile": "packages/headless/src/modules/client-email-history/useClientReceivedEmail.actions.ts",
-      "sourceLine": 142,
+      "sourceLine": 145,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseClientReceivedEmailContext": {
@@ -64503,7 +64509,7 @@
       "name": "UseClientReceivedEmailsActions",
       "signature": "Symbol UseClientReceivedEmailsActions",
       "sourceFile": "packages/headless/src/modules/client-email-history/useClientReceivedEmails.actions.ts",
-      "sourceLine": 205,
+      "sourceLine": 208,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseClientReceivedEmailsContext": {
@@ -64712,7 +64718,7 @@
       "name": "UsePersonalDetailsActions",
       "signature": "Symbol UsePersonalDetailsActions",
       "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.actions.ts",
-      "sourceLine": 176,
+      "sourceLine": 184,
       "tsdoc": null
     },
     "@upmind-automation/headless!UsePersonalDetailsContext": {
@@ -64932,7 +64938,7 @@
       "name": "UseTransfer",
       "signature": "Symbol UseTransfer",
       "sourceFile": "packages/headless/src/modules/session-transfer/useTransfer.ts",
-      "sourceLine": 111,
+      "sourceLine": 103,
       "tsdoc": "The return type of useTransfer composable."
     },
     "@upmind-automation/headless!UseVerifyEmail": {
@@ -65119,8 +65125,8 @@
       "name": "applyConfigDefaults",
       "signature": "applyConfigDefaults(baseModel: ProductProps, raw: IProduct): ProductProps",
       "sourceFile": "packages/headless/src/modules/product/product.services.ts",
-      "sourceLine": 69,
-      "tsdoc": "Synchronous wrapper around the canonical `useProductConfigSchema +\nuseModelParser` pipeline. Hydrates `baseModel` with any defaults the\nschema declares for `term` / `options` / `attributes` based on the raw\n`IProduct` — same machinery the configurator's `parse` service uses\n(`product/services.ts:289-290`), but without the async\n`loadProvisioningFields` step. For typical TLD-style products with no\nrequired option/attribute categories this is effectively a clone of\n`baseModel`; the value is in keeping all basket-add paths consistent\nso a brand configuring a required category doesn't 422 the add.\n\nThrows if `parseProductDetails` / `parseTermDetails` /\n`parseSubproductDetails` fail on a malformed `raw` — callers in\nsynchronous (`pure`) XState actions should wrap accordingly."
+      "sourceLine": 70,
+      "tsdoc": "Synchronous wrapper around the canonical `useProductConfigSchema +\nuseModelParser` pipeline. Hydrates `baseModel` with any defaults the\nschema declares for `term` / `options` / `attributes` based on the raw\n`IProduct` — same machinery the configurator's `parse` service uses\n(`product/services.ts:289-290`), but without the async\n`loadProvisioningFields` step. For typical TLD-style products with no\nrequired option/attribute categories this is effectively a clone of\n`baseModel`; the value is in keeping all basket-add paths consistent\nso a brand configuring a required category doesn't 422 the add.\n\nReturns `baseModel` unchanged (cloned) when `raw` is undefined or has\nan unparseable shape (e.g. a malformed product from domain suggestion\nresults). This is the documented safe behavior — the function never\nthrows on malformed input."
     },
     "@upmind-automation/headless!authSubscription": {
       "id": "@upmind-automation/headless!authSubscription",
@@ -65196,7 +65202,7 @@
       "name": "canRetryAuthorization",
       "signature": "canRetryAuthorization(url: URL, error: DetailedError, options: object): boolean",
       "sourceFile": "packages/headless/src/modules/query/query.utils.ts",
-      "sourceLine": 133,
+      "sourceLine": 156,
       "tsdoc": "Determines if an authorisation retry is permissible based on the URL, error details, and attempt count.\nThis function is primarily used for handling authentication-related errors, such as expired tokens or unauthorised access."
     },
     "@upmind-automation/headless!cleanQueryKey": {
@@ -65207,7 +65213,7 @@
       "name": "cleanQueryKey",
       "signature": "cleanQueryKey(queryKey: any[] | unknown[]): any[]",
       "sourceFile": "packages/headless/src/modules/query/query.utils.ts",
-      "sourceLine": 170,
+      "sourceLine": 193,
       "tsdoc": "Cleans a query key by removing empty values, objects, and arrays.\nThis is useful for preventing unnecessary data from being included in query keys,\nwhich can help in cache management and improve the accuracy of query matching."
     },
     "@upmind-automation/headless!clearAll": {
@@ -65284,7 +65290,7 @@
       "name": "declaredSortFields",
       "signature": "declaredSortFields(schema: JsonSchema): string[]",
       "sourceFile": "packages/headless/src/modules/query/query.utils.ts",
-      "sourceLine": 471,
+      "sourceLine": 502,
       "tsdoc": "Every field a query schema declares ORDERABLE. Draft-07 spells a restricted\nvalue either as a bare `enum` or as `oneOf` `const` entries — the second is\nthe only form that can also TITLE each member, which is how a sort control\nlabels its options — so both are the same declaration and are read as one."
     },
     "@upmind-automation/headless!decorateRoutes": {
@@ -65416,7 +65422,7 @@
       "name": "getDomainBasketProducts",
       "signature": "getDomainBasketProducts(products: BasketProduct[]): BasketProduct[]",
       "sourceFile": "packages/headless/src/modules/domain/domain.utils.ts",
-      "sourceLine": 731,
+      "sourceLine": 723,
       "tsdoc": null
     },
     "@upmind-automation/headless!getOverlayRoute": {
@@ -65493,7 +65499,7 @@
       "name": "handleError",
       "signature": "handleError(status: number, error: QueryResponseError | null): Promise<never>",
       "sourceFile": "packages/headless/src/modules/query/query.utils.ts",
-      "sourceLine": 368,
+      "sourceLine": 391,
       "tsdoc": "Handles errors from a query response by displaying a user-friendly feedback message\nand then throwing a `DetailedError` for programmatic handling."
     },
     "@upmind-automation/headless!hasRouteChanged": {
@@ -65537,7 +65543,7 @@
       "name": "invalidateQueryByKey",
       "signature": "invalidateQueryByKey(queryKey: typeOperator, filters: InvalidateQueryFilters<typeOperator>): object",
       "sourceFile": "packages/headless/src/modules/query/query.utils.ts",
-      "sourceLine": 97,
+      "sourceLine": 98,
       "tsdoc": "Invalidate a query by its key.\nPerfect for invalidating a query after a mutation on a thenable"
     },
     "@upmind-automation/headless!isAbortError": {
@@ -65548,8 +65554,8 @@
       "name": "isAbortError",
       "signature": "isAbortError(error: unknown): boolean",
       "sourceFile": "packages/headless/src/modules/query/query.utils.ts",
-      "sourceLine": 415,
-      "tsdoc": "Detects whether a caught query-layer rejection represents an aborted\nrequest rather than a real error.\n\n`doFetch` rejects aborts with bare `undefined` (see\n`query/services.ts:75`), so a `.code === responseCodes.Aborted` check\nnever fires for the common abort path — `undefined?.code` is undefined.\nThis helper covers four shapes that can reach a downstream\n`.catch(error)` handler (or `doFetch`'s own pre-classification):\n  1. `undefined` — `doFetch`'s `Promise.reject()` with no value. Note:\n     `null` is intentionally NOT treated as an abort; callers that\n     reject with `null` for a non-abort reason should surface that\n     error rather than have it silently swallowed.\n  2. `{ name: \"AbortError\" }` — native fetch `AbortError` if it ever\n     slips past the `doFetch` catch (defensive).\n  3. `{ code: responseCodes.Aborted }` — structured shape for any\n     caller that explicitly rejects with the canonical aborted code.\n  4. `{ status: responseCodes.Aborted }` — fetch-response-shape used\n     inside `doFetch`'s own catch to classify before re-rejecting."
+      "sourceLine": 445,
+      "tsdoc": "Detects whether a caught query-layer rejection represents an aborted\nrequest rather than a real error.\n\n`doFetch` rejects aborts with bare `undefined` (see\n`query/services.ts:75`), so a `.code === responseCodes.Aborted` check\nnever fires for the common abort path — `undefined?.code` is undefined.\nThis helper covers five shapes that can reach a downstream\n`.catch(error)` handler (or `doFetch`'s own pre-classification):\n  1. `undefined` — `doFetch`'s `Promise.reject()` with no value. Note:\n     `null` is intentionally NOT treated as an abort; callers that\n     reject with `null` for a non-abort reason should surface that\n     error rather than have it silently swallowed.\n  2. `{ name: \"AbortError\" }` — native fetch `AbortError` if it ever\n     slips past the `doFetch` catch (defensive).\n  3. `{ code: responseCodes.Aborted }` — structured shape for any\n     caller that explicitly rejects with the canonical aborted code.\n  4. `{ status: responseCodes.Aborted }` — fetch-response-shape used\n     inside `doFetch`'s own catch to classify before re-rejecting.\n  5. TanStack's own `CancelledError` — what resetQueryByKey\n     raises in every imperative `fetchQuery` still in flight under the\n     key it clears. It matches none of the four shapes above: it carries\n     no `code` and no `status`, and its `name` is `\"Error\"` because the\n     class sets only `message`. Missing it is how a cache clear a\n     consumer asked for reached a module's error channel as a rendered\n     failure the server never sent."
     },
     "@upmind-automation/headless!isApplicable": {
       "id": "@upmind-automation/headless!isApplicable",
@@ -65581,7 +65587,7 @@
       "name": "isDomainProduct",
       "signature": "isDomainProduct(__namedParameters: object): boolean",
       "sourceFile": "packages/headless/src/modules/domain/domain.utils.ts",
-      "sourceLine": 710,
+      "sourceLine": 702,
       "tsdoc": "Determines if a product is a domain product based on provided indicators.\nWe check against blueprint code and provision fields to make a determination.\nHowever, if no indicators are provided, we fall back to parsing the service identifier."
     },
     "@upmind-automation/headless!isNetworkError": {
@@ -65592,7 +65598,7 @@
       "name": "isNetworkError",
       "signature": "isNetworkError(error: unknown): boolean",
       "sourceFile": "packages/headless/src/modules/query/query.utils.ts",
-      "sourceLine": 435,
+      "sourceLine": 466,
       "tsdoc": "Detects whether a caught query-layer rejection represents a browser-level\nnetwork failure (API unreachable / CORS) rather than a structured API error.\n\n`fetch` throws a `TypeError` on network failures, and some environments\nsurface the message `\"Network Error\"` (net::ERR_FAILED). Structured API\nerrors carry a `status` and never reach this helper — the caller\nshort-circuits on `response.status`."
     },
     "@upmind-automation/headless!localStoragePersister": {
@@ -65603,7 +65609,7 @@
       "name": "localStoragePersister",
       "signature": "localStoragePersister: ReturnType<typeof experimental_createQueryPersister>",
       "sourceFile": "packages/headless/src/modules/query/query.utils.ts",
-      "sourceLine": 187,
+      "sourceLine": 210,
       "tsdoc": "A persister object used to synchronize query cache data with the browser's localStorage.\n\nThis variable is initialized using the `experimental_createQueryPersister` function\nand applies localStorage as the underlying storage mechanism. It helps in persisting\nquery state across browser sessions.\n\nNote: This implementation uses the `experimental_createQueryPersister` method\nand should be treated as an experimental feature which might be subject to changes.\n\nUse this persister to store application query cache data in a persistent medium,\nensuring data retrieval even on browser reloads or closures."
     },
     "@upmind-automation/headless!mapAccount": {
@@ -65779,7 +65785,7 @@
       "name": "parseBillingCycle",
       "signature": "parseBillingCycle(months: number): object",
       "sourceFile": "packages/headless/src/modules/product/product.utils.ts",
-      "sourceLine": 1633,
+      "sourceLine": 1635,
       "tsdoc": "Maps a billing cycle duration in months to various descriptive formats."
     },
     "@upmind-automation/headless!parseData": {
@@ -65790,7 +65796,7 @@
       "name": "parseData",
       "signature": "parseData(data: any): any",
       "sourceFile": "packages/headless/src/modules/query/query.utils.ts",
-      "sourceLine": 79,
+      "sourceLine": 80,
       "tsdoc": "Parse the data to be sent in the request body (e.g. JSON.stringify)"
     },
     "@upmind-automation/headless!parseDomain": {
@@ -65834,7 +65840,7 @@
       "name": "parsePrice",
       "signature": "parsePrice(raw: IProductPrice): PriceDetail",
       "sourceFile": "packages/headless/src/modules/product/product.utils.ts",
-      "sourceLine": 968,
+      "sourceLine": 970,
       "tsdoc": null
     },
     "@upmind-automation/headless!pascalCase": {
@@ -65958,6 +65964,17 @@
       "sourceLine": 379,
       "tsdoc": "Interpolates template variables with values from data object.\ne.g., \"{{ name }} - {{ service_identifier }}\" → \"Product - abc123\"\nMissing variables and orphaned braces are removed."
     },
+    "@upmind-automation/headless!resetQueryByKey": {
+      "id": "@upmind-automation/headless!resetQueryByKey",
+      "kind": "Function",
+      "lessons": [],
+      "module": "query",
+      "name": "resetQueryByKey",
+      "signature": "resetQueryByKey(queryKey: typeOperator): object",
+      "sourceFile": "packages/headless/src/modules/query/query.utils.ts",
+      "sourceLine": 135,
+      "tsdoc": "Reset every query UNDER a key — the cached data is REMOVED, so an active\nobserver goes back to pending while it refetches.\n\nPick this over invalidateQueryByKey, which keeps the data and only\nflips `isFetching`, when the surface must return to its LOADING state; and\nover a query handle's own `resetQuery`, which clears only the one key its\nobserver is attached to rather than the module's whole domain."
+    },
     "@upmind-automation/headless!resolveClientId": {
       "id": "@upmind-automation/headless!resolveClientId",
       "kind": "Function",
@@ -65988,7 +66005,7 @@
       "name": "resolvePageTotal",
       "signature": "resolvePageTotal(total: number, limit: number): number",
       "sourceFile": "packages/headless/src/modules/query/query.utils.ts",
-      "sourceLine": 600,
+      "sourceLine": 631,
       "tsdoc": "How many pages a result set of `total` items spans at `limit` per page.\nAn unpaged list (`limit: 0`) is always exactly one page."
     },
     "@upmind-automation/headless!resolveSelfActor": {
@@ -66054,7 +66071,7 @@
       "name": "storePersister",
       "signature": "storePersister(store: Store<TState, TUpdater>, options: object): object",
       "sourceFile": "packages/headless/src/modules/query/query.utils.ts",
-      "sourceLine": 207,
+      "sourceLine": 230,
       "tsdoc": "Creates a persister for the given store that synchronises its state with localStorage\nThis persister will handle the serialisation and deserialization of the store state\nand will also update the store state with the data from localStorage when it is retrieved.\nThis is useful for persisting the store state across browser sessions."
     },
     "@upmind-automation/headless!toPaginationInfo": {
@@ -66065,7 +66082,7 @@
       "name": "toPaginationInfo",
       "signature": "toPaginationInfo(total: number, limit: number, page: number): PaginationInfo",
       "sourceFile": "packages/headless/src/modules/query/query.utils.ts",
-      "sourceLine": 612,
+      "sourceLine": 643,
       "tsdoc": "The published page state for a result set — the one shape both the `list()`\nhandle and its out-of-range page errors report."
     },
     "@upmind-automation/headless!translateQuery": {
@@ -66076,7 +66093,7 @@
       "name": "translateQuery",
       "signature": "translateQuery(schema: JsonSchema, model: Record<string, unknown>): QueryProps",
       "sourceFile": "packages/headless/src/modules/query/query.utils.ts",
-      "sourceLine": 503,
+      "sourceLine": 534,
       "tsdoc": "A whole query model as the QueryProps the request layer accepts.\n\nWalks the schema's DECLARED filter branches rather than the model's keys, so\nit emits one key per declared filter; drops any sort field\ndeclaredSortFields does not name, because an undeclared `order=`\ncolumn is an HTTP 500.\n\nA branch with operators emits `filter[column|op]`; one without emits\n`filter[column]` (the API defaults it to eq).\n\nA filter branch's WIRE column is its own property name unless the branch\ndeclares a `column` — the binding for an API whose filterable column is spelt\ndifferently from the model's property (client-phone's `number` → `phone`)."
     },
     "@upmind-automation/headless!useAccount": {
@@ -67000,7 +67017,7 @@
       "name": "withPageWindow",
       "signature": "withPageWindow(declaration: QueryCriteriaOptions<TModel>): QueryCriteriaOptions<TModel>",
       "sourceFile": "packages/headless/src/modules/query/query.utils.ts",
-      "sourceLine": 568,
+      "sourceLine": 599,
       "tsdoc": "Merges the pager's own `pagination` window UNDER a declared query schema, so\nthe cursor `list()` writes always has a branch to land in — a schema that\nunder-declares it would have the write stripped by the model parser and an\noffered Next control would silently move nothing. The declaration's own\nbounds and defaults win."
     }
   }
