@@ -23,20 +23,45 @@
  * the pathname it last answered on, and a consumer calling in on a different
  * one drops the transient preset before it can force a module nobody armed.
  *
+ * Page scoping is not enough on its own, because a scope navigation carries the
+ * whole query across on purpose (`preserveQuery`) and a preset then rode onto
+ * whatever the sidebar opened next — including modules that never offered it. So
+ * the deeper scope is the MODULE: {@link ForcedStateHandle.serves} takes the one
+ * the page has booted, and a page booting a different one returns the tab to
+ * Live first (FE-3113 R). Same module, different scope segments, keeps the
+ * preset; a pasted link on a cold load keeps it too.
+ *
  * Arming changes what the tab's NEXT request is answered with, which leaves
  * every answer it already holds a lie about a page that now says it is forced.
- * So a reconcile that lands ends by invalidating the cache: the preset is only
+ * So a reconcile that lands ends by CLEARING the cache: the preset is only
  * visible because the page asks again through it (`AC8.4`, `R6-10`).
+ *
+ * WHICH cache is the booted module's own answer, never this file's (FE-3113).
+ * A module keys its queries by domain and publishes a `reset` action already
+ * bound to that key, so the page hands its own in and forcing learns no key at
+ * all — the last concrete module reference in `runtime/` goes with the constant
+ * it fed.
+ *
+ * `reset` and not the module's `invalidate`: invalidating refetches while
+ * KEEPING the rows, so `loading` never left `isLoading` false and a failed read
+ * drew its error above the stale rows it never returned. Only removing the
+ * entry puts the surface back in the state the preset names.
+ *
+ * That swap is not instant, and `isSettling` is the whole window the page holds
+ * its own controls behind (FE-3113 M): the corpus load, the worker registration,
+ * and the clear that ends it. Until it closes the rows on screen are the
+ * transport the arm is replacing, so a row action fired at one is refused
+ * against a record the clear is in the middle of taking away.
  */
 
 import { computed, effectScope, nextTick, ref, watch } from "vue";
-import { queryClient } from "@upmind-automation/headless";
 import { usePlaygroundUrlState } from "../../../../app/composables/usePlaygroundUrlState";
 import { availableModules } from "../force/corpus.source";
-import { MODULE_QUERY_KEY } from "../force/routes";
 import { FORCE_URL_PRESETS } from "./useForcedState.types";
 import { noop, some } from "lodash-es";
 import type {
+  ForceReset,
+  ForcedStateSource,
   ForcePreset,
   ForceUrlPreset,
   ForceWorker,
@@ -48,6 +73,8 @@ import type {
 type ForcedStateHandle = {
   state: UseForcedState;
   reset: () => void;
+  /** Registers the module a page has just booted, and what forcing needs of it. */
+  serves: (source: ForcedStateSource) => void;
 };
 
 let handle: ForcedStateHandle | undefined;
@@ -83,6 +110,25 @@ function create(): ForcedStateHandle {
   let registration: ServiceWorkerRegistration | undefined;
   let pending: Promise<void> = Promise.resolve();
 
+  // A COUNT, not a flag: a preset picked while an earlier arm is still settling
+  // queues behind it, and the first of the two to finish must not report the
+  // page settled while the second is still swapping its transport.
+  const unsettled = ref(0);
+
+  // The booted module's own cache clear. Absent until a page registers one —
+  // the bar and the player share this handle but boot no module, so only the
+  // playground has one to give.
+  let clearCache: ForceReset | undefined;
+
+  // The page's corpus arm, for the same reason and from the same one caller.
+  // The seam's loaders are lazy, so until this lands there are no recordings to
+  // build handlers from.
+  let armed: Promise<unknown> | undefined;
+
+  // The module the handle is currently answering FOR — what a preset is a fact
+  // about, and so what it may not outlive.
+  let servedModule: string | undefined;
+
   // What the tab is actually being answered with. The immediate watch below
   // fires with Live, which is what a booting tab already is, so nothing is
   // re-read on load — only a genuine change of transport invalidates.
@@ -106,6 +152,13 @@ function create(): ForcedStateHandle {
 
     if (!next) await release();
     else {
+      // BEFORE the handlers are built, never beside them: a pasted `force=`
+      // link arms on boot (`AC8.2`) in the same tick the page starts loading
+      // its corpus, and the handler list is read from recordings that are not
+      // there yet. Winning that race registers a worker with an EMPTY list —
+      // the page then reports armed while every request reaches staging.
+      await armed;
+
       const { createForceHandlers } = await import("../force/handlers");
       const handlers = createForceHandlers(next);
 
@@ -123,22 +176,61 @@ function create(): ForcedStateHandle {
 
     served = next;
 
-    // DROPPED, not merely re-asked: an invalidated query keeps serving its last
-    // answer until the next one lands, and `loading` never lands — the page
-    // would sit on live rows wearing a Loading chip, the lie `S14` forbids. Not
-    // awaited for the same reason: a chain waiting on that refetch could never
-    // reconcile the preset picked after it. Scoped to what the handlers answer:
-    // the whole cache is the app's too, and the chrome does not re-ask.
-    void queryClient.resetQueries({ queryKey: MODULE_QUERY_KEY });
+    // LAST, and only once the transport above is in place: a clear that ran
+    // first would refetch through the handlers it is racing and refill the
+    // cache from the live API, leaving the arm looking right over stale rows.
+    clear();
+  }
+
+  /**
+   * Drops the answers the swap just contradicted, and holds the page unsettled
+   * until the re-read that clear starts has landed.
+   *
+   * Off the `pending` chain deliberately: a queued reconcile waiting on that
+   * refetch could never answer the preset picked after it. `unsettled` is not
+   * that chain, so the page's own controls wait where the next reconcile must
+   * not — the window a row action must not be fired into runs from the arm to
+   * the moment the rows on screen are the armed transport's own.
+   *
+   * Scoped to the booted module by construction: the whole cache is the app
+   * chrome's too, and the chrome's singletons boot once and never re-ask.
+   */
+  function clear(): void {
+    if (!clearCache) return;
+
+    unsettled.value += 1;
+    void Promise.resolve(clearCache())
+      .catch(noop)
+      .finally(() => {
+        unsettled.value -= 1;
+      });
+  }
+
+  /**
+   * Runs one transport step, and reports the page unsettled for its whole run.
+   * @param step The swap to run.
+   * @param holds Whether this step changes the transport at all — a reconcile
+   * that finds the worker already serving `next` swaps nothing, so a bare Live
+   * load must not read as a page mid-arm.
+   */
+  function queue(step: () => Promise<void>, holds = true): void {
+    if (holds) unsettled.value += 1;
+
+    // Chained, never raced: two arms in one tick would each find no worker and
+    // register a second, and only one of the two would ever be unregistered. A
+    // failed arm is swallowed so it cannot poison the next.
+    pending = pending
+      .catch(noop)
+      .then(step)
+      .finally(() => {
+        if (holds) unsettled.value -= 1;
+      });
   }
 
   watch(
     preset,
     next => {
-      // Chained, never raced: two arms in one tick would each find no worker
-      // and register a second, and only one of the two would ever be
-      // unregistered. A failed arm is swallowed so it cannot poison the next.
-      pending = pending.catch(noop).then(() => reconcile(next));
+      queue(() => reconcile(next), next !== served);
     },
     { immediate: true }
   );
@@ -158,12 +250,14 @@ function create(): ForcedStateHandle {
   async function restart(): Promise<void> {
     if (!worker || !served) return;
 
+    await armed;
+
     const { createForceHandlers } = await import("../force/handlers");
     worker.resetHandlers(...createForceHandlers(served));
 
-    // Dropped for the same reason `reconcile` drops: the answers this tab
-    // already holds are the collection the last pass moved to.
-    void queryClient.resetQueries({ queryKey: MODULE_QUERY_KEY });
+    // After the swap, for the same reason `reconcile` clears after it: the
+    // answers this tab holds are the collection the last pass moved to.
+    clear();
   }
 
   async function arm(next: ForcePreset): Promise<void> {
@@ -175,7 +269,7 @@ function create(): ForcedStateHandle {
     url.force.value = isUrlPreset(next) ? next : undefined;
     transient.value = isUrlPreset(next) ? undefined : next;
 
-    if (rearmed) pending = pending.catch(noop).then(restart);
+    if (rearmed) queue(restart);
 
     await whenReady();
   }
@@ -211,11 +305,49 @@ function create(): ForcedStateHandle {
     transient.value = undefined;
   }
 
+  /**
+   * Registers the module the caller has just booted, and both of the things
+   * forcing needs of it — the cache clear the arm ends on, and the corpus arm
+   * every later reconcile waits behind. The latter is registered synchronously
+   * by the page, so it is in place before the immediate watcher's first
+   * reconcile leaves the microtask queue.
+   *
+   * LEAVING A MODULE DISARMS (FE-3113 R). A preset is a fact about one module's
+   * recorded corpus: carried onto another it means nothing, and onto one that
+   * never offered it there is nothing that can honestly answer it. So a
+   * registration naming a module this handle was not already serving returns the
+   * tab to Live — the url half included, which no pathname pass can reach once a
+   * navigation carries the query across.
+   *
+   * The FIRST registration is never a departure: a cold load on a pasted
+   * `force=` link boots its module here, and reading that as leaving one would
+   * disarm the very link the url was sent to carry (`AC8.2`).
+   *
+   * A new module's registration REPLACES the last one's whole, absences
+   * included. A cache clear is bound to the key its own module publishes it
+   * under, so keeping the page just left's would clear a cache this page does
+   * not own.
+   */
+  function serves(source: ForcedStateSource): void {
+    const isMoved = !!source.module && source.module !== servedModule;
+
+    if (isMoved && servedModule) {
+      transient.value = undefined;
+      url.force.value = undefined;
+    }
+
+    if (source.module) servedModule = source.module;
+    if (isMoved || source.reset) clearCache = source.reset;
+    if (isMoved || source.whenArmed) armed = source.whenArmed;
+  }
+
   return {
     reset,
+    serves,
     state: {
       preset,
       isAvailable: availableModules.length > 0,
+      isSettling: computed(() => unsettled.value > 0),
       arm,
       disarm,
       whenReady
@@ -223,13 +355,22 @@ function create(): ForcedStateHandle {
   };
 }
 
-/** The one forced-state handle. Every consumer shares its worker; nobody starts a second. */
-export function useForcedState(): UseForcedState {
+/**
+ * The one forced-state handle. Every consumer shares its worker; nobody starts
+ * a second.
+ *
+ * @param source The caller's OWN booted module, for the one consumer that boots
+ * one — the page. The bar and the player read the same handle without a source,
+ * which leaves whatever the page registered standing rather than clearing it.
+ */
+export function useForcedState(source?: ForcedStateSource): UseForcedState {
   // Detached, like the url writer it reads: a watcher first created inside a
   // component would stop reconciling the moment that component unmounted, and
   // the tab would keep serving the preset it was last armed with.
   if (!handle) handle = effectScope(true).run(create)!;
   else handle.reset();
+
+  if (source) handle.serves(source);
 
   return handle.state;
 }

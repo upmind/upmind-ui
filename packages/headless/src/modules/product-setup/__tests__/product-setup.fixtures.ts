@@ -134,7 +134,7 @@ describe("product-setup fixtures generator (headless Playwright)", () => {
       args: ["--no-sandbox"]
     });
 
-    try {
+    await (async () => {
       const context = await browser.newContext();
       const recorder = await attachRecorder(context, {
         recordingsDir,
@@ -301,9 +301,9 @@ describe("product-setup fixtures generator (headless Playwright)", () => {
         recorder.count(),
         "captured at least the boot + invalid basket"
       ).toBeGreaterThan(8);
-    } finally {
+    })().finally(async () => {
       await browser.close();
-    }
+    });
   }, 120000);
 
   it("captures a configured cross-referenced basket (sld + hosting domain reference) against staging", async () => {
@@ -422,7 +422,7 @@ describe("product-setup fixtures generator (headless Playwright)", () => {
       args: ["--no-sandbox"]
     });
 
-    try {
+    await (async () => {
       const context = await browser.newContext();
       const recorder = await attachRecorder(context, {
         recordingsDir,
@@ -561,8 +561,8 @@ describe("product-setup fixtures generator (headless Playwright)", () => {
         recorder.count(),
         "captured the rich basket + check + per-product reads"
       ).toBeGreaterThanOrEqual(7);
-    } finally {
+    })().finally(async () => {
       await browser.close();
-    }
+    });
   }, 120000);
 });

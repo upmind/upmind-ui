@@ -21,7 +21,11 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { isModuleResolved } from "../../force/corpus.source";
-import type { ForcePreset, UseForcedState } from "../useForcedState.types";
+import type {
+  ForcePreset,
+  ForcedStateSource,
+  UseForcedState
+} from "../useForcedState.types";
 
 // Every test re-imports the module graph (boot() → vi.resetModules), so under
 // a loaded worker pool the transform alone can exceed the 5s default.
@@ -64,13 +68,16 @@ const EMPTY: ForcePreset = "empty";
  * A fresh page load at a given url. The composable's state is module-scoped —
  * one worker per app — so a boot is a module reset, exactly as a reload is.
  */
-async function boot(query = ""): Promise<UseForcedState> {
+async function boot(
+  query = "",
+  source?: ForcedStateSource
+): Promise<UseForcedState> {
   window.history.replaceState({}, "", `${BOOT_PATH}${query}`);
   vi.resetModules();
   worker.evaluated = 0;
   const { useForcedState } = await import("../useForcedState");
 
-  return useForcedState();
+  return useForcedState(source);
 }
 
 beforeEach(() => {
@@ -148,5 +155,52 @@ describe("T3.12 arming and disarming, over the corpus the seam reaches", () => {
     expect(worker.stop).toHaveBeenCalledTimes(1);
     expect(worker.registration.unregister).toHaveBeenCalledTimes(1);
     expect(forced.preset.value).toBeUndefined();
+  });
+});
+
+describe("FE-3113 K1 the swap ends on the page's own cache being CLEARED", () => {
+  const registering = () => {
+    const reset = vi.fn();
+    return { reset, source: { module: "client-email", reset } };
+  };
+
+  it("clears the booted module's cache on arming, so the rows the preset contradicts are gone", async () => {
+    const { reset, source } = registering();
+    const forced = await boot("", source);
+
+    await forced.arm(EMPTY);
+
+    expect(reset).toHaveBeenCalledTimes(1);
+  });
+
+  it("installs the intercept BEFORE clearing, so the refetch cannot reach staging", async () => {
+    const { reset, source } = registering();
+    const forced = await boot("", source);
+
+    await forced.arm(EMPTY);
+
+    expect(worker.start.mock.invocationCallOrder[0]).toBeLessThan(
+      reset.mock.invocationCallOrder[0]
+    );
+  });
+
+  it("clears again on disarm, so Live does not redraw the forced answers", async () => {
+    const { reset, source } = registering();
+    const forced = await boot("", source);
+    await forced.arm(EMPTY);
+
+    await forced.disarm();
+
+    expect(reset).toHaveBeenCalledTimes(2);
+    expect(worker.stop.mock.invocationCallOrder[0]).toBeLessThan(
+      reset.mock.invocationCallOrder[1]
+    );
+  });
+
+  it("arms without a registered page, keeping the answers that page already holds", async () => {
+    const forced = await boot();
+
+    await expect(forced.arm(EMPTY)).resolves.toBeUndefined();
+    expect(forced.preset.value).toBe(EMPTY);
   });
 });

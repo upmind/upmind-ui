@@ -611,7 +611,9 @@ const scenarioHarnessBoundaryPlugin = {
 //
 //   arm 1 — `no-restricted-imports` on the deep subpaths of the two packages
 //           whose public surface is bounded: headless publishes exactly ".",
-//           "./scenarios" and "./testing" (its `exports` map), scenario-harness
+//           "./scenarios", "./fixtures" and "./testing" (its `exports` map),
+//           of which "./fixtures" — recordings only, no harness — is open to
+//           every position (FE-3113), scenario-harness
 //           exactly ".". The map alone does NOT gate the playgrounds — a
 //           vite/vitest alias to the package DIRECTORY resolves ahead of
 //           `exports`, so a subpath keeps resolving there no matter what the map
@@ -638,14 +640,19 @@ const PACKAGE_BOUNDARY_MESSAGE =
  * @param testLane Whether headless's `./testing` export — its published
  *   test-kit entry, kept off the main barrel so it never enters the
  *   production graph — is reachable from these files. Test lanes only.
+ *
+ *   `./fixtures` is NOT gated by it: that entry publishes the recorded bodies
+ *   and nothing else (FE-3113), so a recording carries no module boot and no
+ *   runner registration into whatever graph names it. The harness half stays
+ *   behind `./testing`'s single named seam, unchanged.
  */
 const noWorkspaceSubpathImportsRule = testLane => [
   "error",
   {
     patterns: [
       {
-        regex: `^@upmind-automation/headless/(?!scenarios$|package\\.json$${testLane ? "|testing$" : ""})`,
-        message: `${PACKAGE_BOUNDARY_MESSAGE} headless publishes ".", "./scenarios" and "./testing" — one bare test entry, no subpaths below it (test lanes, plus the one app-runtime seam block 8h names).`
+        regex: `^@upmind-automation/headless/(?!scenarios$|fixtures$|package\\.json$${testLane ? "|testing$" : ""})`,
+        message: `${PACKAGE_BOUNDARY_MESSAGE} headless publishes ".", "./scenarios", "./fixtures" and "./testing" — no subpaths below them ("./testing" is the test lanes' plus the one app-runtime seam block 8h names).`
       },
       {
         regex: "^@upmind-automation/scenario-harness/",

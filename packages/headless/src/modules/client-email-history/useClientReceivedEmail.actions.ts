@@ -1,5 +1,5 @@
 import { nextTick, watch } from "vue";
-import { invalidateQueryByKey } from "../query";
+import { invalidateQueryByKey, resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { useActiveSession } from "../session-store";
 import { NotAuthenticatedError } from "../../utils";
@@ -131,7 +131,10 @@ export function createClientReceivedEmailActions(
     isReady,
 
     /** Refetches the email from the server; rejects if it cannot address one. */
-    refresh
+    refresh,
+
+    /** Drops the shared cache key's data so the next read starts from loading. */
+    reset: resetQueryByKey(service.queryKey)
 
     // The arm merges in HERE, last.
     // ...actorActions

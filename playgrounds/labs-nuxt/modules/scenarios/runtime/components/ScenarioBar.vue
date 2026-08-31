@@ -13,6 +13,7 @@
 
       <ScenarioMenu
         :tracks="tracks"
+        :presets="presets"
         :armed="armed"
         :preset="preset"
         :disabled="!player.isAvailable"

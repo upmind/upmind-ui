@@ -23,10 +23,7 @@
  *
  * Falsifiability rides in the suite: the discrimination case below asks the
  * component for one mapped name and one Untitled-UI name and requires opposite
- * answers, so a gate that had gone blind reds on itself. The colocated
- * `must-fail.patch` — planting one unmapped name in a source file — is OWED,
- * and is authored once the sweep below is green; it cannot prove a red test
- * redder.
+ * answers, so a gate that had gone blind reds on itself.
  *
  * @anchor render-integrity.feature
  * @anchor AC-10

@@ -51,6 +51,11 @@
  * state it did not reach by itself — so the one menu is where a page's non-live
  * state is chosen, and the sheet toggle beside it stays about the sheets.
  *
+ * WHICH forced states is not this component's to know (FE-3113). The presets are
+ * handed in, derived from the page's own recordings, and a group with nothing in
+ * it is not rendered at all: a read-only module's corpus cannot refuse a write,
+ * so `error-action` is absent rather than present-and-dead (`S14`).
+ *
  * Both groups are ONE `Select` because at most one non-live
  * state can ever be on: the armed track and the armed preset are alternatives,
  * and a radio group is what says so with the theme's own indicator rather than a
@@ -70,7 +75,7 @@ import { FORCE_URL_PRESETS } from "../composables/useForcedState.types";
 import { FORCE_PRESET_LABELS } from "./ForcedCanvas.types";
 import { scenarioMenu } from "./ScenarioMenu.styles";
 import { SCENARIO_CHOICE, TRACK_LIVE } from "./ScenarioMenu.types";
-import { find, map, size } from "lodash-es";
+import { compact, filter, find, map, size, union } from "lodash-es";
 import type {
   ScenarioMenuEmits,
   ScenarioMenuProps
@@ -92,42 +97,61 @@ const forceValue = (preset: ForceUrlPreset): string => `force:${preset}`;
 
 const isLive = computed(() => !props.armed && !props.preset);
 
+// What is ARMED is a fact about the page, never a menu option to be validated
+// against the offered list: that list is derived from the corpus and resolves
+// asynchronously, so a page armed from a pasted url reports its placeholder
+// until the corpus lands unless the armed preset is read straight off the prop.
+const armedPreset = computed(() =>
+  find(FORCE_URL_PRESETS, entry => entry === props.preset)
+);
+
+// The armed preset rides in the group so the trigger can NAME it — the select
+// takes its label from the mounted option, so a value with no option shows the
+// placeholder. The offered list still governs what may be CHOSEN: an armed
+// preset the corpus has not offered is already active, so picking it is a no-op.
+const offered = computed(() =>
+  union(props.presets, compact([armedPreset.value]))
+);
+
 // Live is the ABSENT value, so the trigger falls back to its placeholder (the count).
 const active = computed(() => {
   if (props.armed) return trackValue(props.armed.slug);
 
-  const preset = find(FORCE_URL_PRESETS, entry => entry === props.preset);
-
-  return preset ? forceValue(preset) : undefined;
+  return armedPreset.value ? forceValue(armedPreset.value) : undefined;
 });
 
-const items = computed<SelectOptionGroup[]>(() => [
-  {
-    label: t("labs.force_preset"),
-    options: map([...FORCE_URL_PRESETS], preset => ({
-      value: forceValue(preset),
-      label: t(FORCE_PRESET_LABELS[preset]),
-      disabled: !!props.disabled,
-      dataAttrs: {
-        "data-test-key": "force-preset-option",
-        "data-test-value": preset
+const items = computed<SelectOptionGroup[]>(() =>
+  filter(
+    [
+      {
+        label: t("labs.force_preset"),
+        options: map(offered.value, preset => ({
+          value: forceValue(preset),
+          label: t(FORCE_PRESET_LABELS[preset]),
+          disabled: !!props.disabled,
+          dataAttrs: {
+            "data-test-key": "force-preset-option",
+            "data-test-value": preset
+          }
+        }))
+      },
+      {
+        label: t("labs.scenarios"),
+        options: map(props.tracks, track => ({
+          value: trackValue(track.slug),
+          label: track.name,
+          // A track the catalog cannot run whole is offered but refused, never hidden.
+          disabled: !!props.disabled || !track.isPlayable,
+          dataAttrs: {
+            "data-test-key": "track-option",
+            "data-test-value": track.slug
+          }
+        }))
       }
-    }))
-  },
-  {
-    label: t("labs.scenarios"),
-    options: map(props.tracks, track => ({
-      value: trackValue(track.slug),
-      label: track.name,
-      // A track the catalog cannot run whole is offered but refused, never hidden.
-      disabled: !!props.disabled || !track.isPlayable,
-      dataAttrs: {
-        "data-test-key": "track-option",
-        "data-test-value": track.slug
-      }
-    }))
-  }
-]);
+    ],
+    group => size(group.options) > 0
+  )
+);
 
 function pick(value: unknown): void {
   if (value === active.value) return;
@@ -135,7 +159,7 @@ function pick(value: unknown): void {
   const track = find(props.tracks, entry => trackValue(entry.slug) === value);
   if (track) return emit("select", { kind: SCENARIO_CHOICE.TRACK, track });
 
-  const preset = find(FORCE_URL_PRESETS, entry => forceValue(entry) === value);
+  const preset = find(props.presets, entry => forceValue(entry) === value);
   if (preset) emit("select", { kind: SCENARIO_CHOICE.FORCE, preset });
 }
 </script>

@@ -1,5 +1,5 @@
 import { watch } from "vue";
-import { invalidateQueryByKey } from "../query";
+import { invalidateQueryByKey, resetQueryByKey } from "../query";
 // Deep path, never the `../scope` barrel — see useClientPhones.ts for the
 // aggregator-barrel `export *` hazard this sidesteps.
 import { remove as removeFromRegistry } from "../scope/scope.registry";
@@ -209,6 +209,11 @@ export function createClientPhonesActions(
      * @scenario-include
      */
     remove: service.remove,
+
+    /**
+     * @scenario-exclude internal cache-key reset, not a user-facing capability
+     */
+    reset: resetQueryByKey(service.queryKey),
 
     /**
      * Applies a criteria INTENT — merges the given `filters` / `sort` /

@@ -146,6 +146,7 @@ function loadList(scopeContext?: ScopeContext): ReceivedEmailsListQuery {
       }),
     enabled: () => isAddressable(clientId.value),
     select: mapEmailHistory,
+    retry: false,
     staleTime: useTime().DAY,
     placeholderData: keepPreviousData
   });

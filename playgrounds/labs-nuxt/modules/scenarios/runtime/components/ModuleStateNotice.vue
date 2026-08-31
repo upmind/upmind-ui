@@ -2,11 +2,9 @@
   <Alert
     :variant="content.variant"
     :title="content.title"
-    :description="content.description"
+    :description="message"
     :class="moduleStateNotice.root"
-  >
-    <p v-if="reason" :class="moduleStateNotice.detail">{{ reason }}</p>
-  </Alert>
+  />
 </template>
 
 <script lang="ts" setup>
@@ -48,6 +46,13 @@ const content = computed<ModuleStateContent>(() => {
       title: t("text.loading"),
       description: t("text.moment_short_desc")
     },
+    // Not `danger`: the read landed and the record is not there, which is the
+    // single-record twin of a collection's zero rows and never a failure.
+    [ModuleState.ABSENT]: {
+      variant: "info",
+      title: t("text.collection_empty"),
+      description: t("labs.record_absent_text")
+    },
     [ModuleState.ERROR]: {
       variant: "danger",
       title: t("error.something_went_wrong"),
@@ -68,7 +73,13 @@ const content = computed<ModuleStateContent>(() => {
  */
 const reason = computed(() => {
   if (isNil(props.detail)) return "";
-  const message = get(props.detail, "message", props.detail);
-  return isString(message) ? t(message) : "";
+  const sentence = get(props.detail, "message", props.detail);
+  return isString(sentence) ? t(sentence) : "";
 });
+
+/**
+ * ONE message under the title, never a stack of them: the module's own reason
+ * where it gave one, the catalogue's line where it did not.
+ */
+const message = computed(() => reason.value || content.value.description);
 </script>

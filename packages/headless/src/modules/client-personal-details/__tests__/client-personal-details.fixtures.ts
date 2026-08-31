@@ -19,7 +19,9 @@
  *
  * ## Captures
  * `get-clients-id` (`with=custom_fields,custom_fields.field` — the read half,
- * AC-30/AC-31/AC-41) · `put-clients-id-case-change-firstname` (AC-45 diff-only)
+ * AC-30/AC-31/AC-41) · `get-clients-id-case-absent` (the REAL no-such-record
+ * answer — a single-record surface's EMPTY state, captured rather than authored,
+ * FE-3113 §S1) · `put-clients-id-case-change-firstname` (AC-45 diff-only)
  * · `put-clients-id-case-clear-custom-field` (AC-46 — clears the real NUMBER
  * definition `age`) · `put-clients-id-case-native-falsy` (AC-47 — `public_name:
  * ""`).
@@ -76,6 +78,11 @@ const ORIGIN = process.env.RECORDING_BRAND_ORIGIN
 
 const recordingsDir = join(import.meta.dirname, "fixtures");
 
+/** The nil uuid — a well-formed client id no brand can hold, so the API's own
+ * answer for "this record is not there" is a real server decision, not a shaped
+ * one. Only the REQUEST names it; the response is recorded exactly as it came. */
+const ABSENT_CLIENT_ID = "00000000-0000-0000-0000-000000000000";
+
 type WireClient = {
   id: string;
   firstname?: string;
@@ -125,6 +132,19 @@ async function call(
     status: response.status,
     body: await response.json().catch(() => null)
   };
+}
+
+/**
+ * Drop every buffered capture whose recorded path carries the given fragment.
+ * `save()` in `afterAll` writes the whole buffer whatever each case did, so a
+ * case that did not record its subject must remove its own capture before it
+ * throws — otherwise a run that failed still ships the file it failed over.
+ */
+function dropCapture(generator: Generator, fragment: string): void {
+  const captures = generator.getCapturedFixtures();
+  for (const [key, { fixture }] of captures) {
+    if (fixture.request.path.includes(fragment)) captures.delete(key);
+  }
 }
 
 async function fetchClientId(accessToken: string): Promise<string | undefined> {
@@ -221,6 +241,25 @@ describe("Client-Personal-Details API Fixtures Generator", () => {
       throw new Error(
         `Read capture returned ${status} — refusing to ship a fixture that ` +
           "does not represent a readable profile."
+      );
+    }
+  });
+
+  it("captures GET /api/clients/{absent}?case=absent — the REAL no-such-record read (FE-3113 §S1)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.get(
+      `/api/clients/${ABSENT_CLIENT_ID}?with=custom_fields,custom_fields.field&case=absent`
+    );
+    generator.clearBearerToken();
+    if (status < 400 || status === 401 || status === 403) {
+      dropCapture(generator, "case=absent");
+      throw new Error(
+        `A signed-in read of a client id that does not exist returned ` +
+          `${status} — that is neither an absent record nor a non-auth ` +
+          "refusal, so this module's single-record EMPTY state has nothing " +
+          "of its own to serve and the capture was DROPPED rather than " +
+          "shipped under one's name. Re-check what staging answers for an " +
+          "unknown client; never author the absent body."
       );
     }
   });

@@ -1,26 +1,43 @@
 // -----------------------------------------------------------------------------
 /**
  * @module scenarios/runtime/force/presets
- * @description The answers a forced page can give, over the ONE corpus:
- * `empty` is the recorded collection with its rows removed, `error-action` and
- * `error-collection` are the recording that FAILED aimed at the write and at the
- * read respectively, `loading` is no answer at all, and `replay` is the answer
- * the resolver already picks. Same corpus, a different answer: the only thing a
- * preset may change about a recording is which of them is served, so nothing
- * here authors a body and no response literal appears in this file (`S13` ·
- * `AC8.5`).
+ * @description The answers a forced page can give, over ONE module's corpus:
+ * `empty` is the recorded collection with its rows taken away, or — where the
+ * read is of one RECORD — the module's own recorded read for a record that is
+ * not there, `error-action` and `error-collection` are the
+ * recording that FAILED aimed at the write and at the read respectively,
+ * `loading` is no answer at all, and `replay` is the answer the resolver already
+ * picks. Same corpus, a different answer: the only thing a preset may change
+ * about a recording is which of them is served, so nothing here authors a body
+ * and no response literal appears in this file (`S13` · `AC8.5`).
  *
  * The two failures are named apart because they are different states (`R6-19`).
- * One recording failed and it is a WRITE, so `error-action` is the faithful half
- * — the read is served as recorded, the row's write gets the recorded refusal
- * and the list stays intact. `error-collection` fails the read at that same
- * recorded status and serves NO body, because the sentence on record answers a
- * set-default and a read that borrowed it would say the very thing the ruling
- * called a conflation. A recorded failing collection read would replace this;
- * the corpus holds none.
+ * Where the module's refusal is a WRITE, `error-action` is the faithful half —
+ * the read is served as recorded, the row's write gets the recorded refusal and
+ * the list stays intact. `error-collection` fails the read at that same recorded
+ * status and serves NO body, because a sentence recorded against a write would,
+ * lent to a read, say the very thing the ruling called a conflation.
+ *
+ * A forced state is also the state on ARMING, requiring no interaction at all
+ * (operator ruling, 2026-08-28): {@link presetRefusal} hands the surface that
+ * same recording's SENTENCE, so a row draws refused with nothing fired, while
+ * {@link presetAnswer} still refuses a write the operator does fire.
+ *
+ * UN-PINNED (FE-3113): which recording failed is the MODULE's own business, so
+ * it arrives as an argument beside the bodies rather than as a fixture name
+ * spelt here. That constant was the single line pinning the whole force system
+ * to `client-email`. A module with no refusal on record answers NEITHER failure
+ * — `capabilities.ts` offers neither preset, and this file serves the request as
+ * recorded rather than inventing one to refuse it with. The 500 a read used to
+ * fall back to was a status nobody recorded, served while the UI warned the
+ * corpus could not answer it; fabricated evidence is still fabricated when it
+ * carries no body.
  *
  * A request the corpus does not own is answered by nobody — the caller passes it
  * through, which is what keeps forcing to this module's own endpoints (`AC8.3`).
+ * The refused WRITE is the one exception: `error-action` is a STATE, not a
+ * replay of one recorded exchange, and the armed routes have already scoped the
+ * request to this module's own subject (FE-3113 K2).
  *
  * Bodies arrive as an ARGUMENT, exactly as the resolver's do: app runtime's are
  * the `ESC6` seam's (`runtimeCorpus()`), a spec's are its own lawful read of the
@@ -33,19 +50,18 @@
  * one into an msw response.
  */
 
-import { resolveCorpusRequest } from "./corpus";
-import { isArray, toUpper } from "lodash-es";
-import type { CorpusBodies, CorpusFixtureName, CorpusResponse } from "./corpus";
+import { corpusCapabilities } from "./capabilities";
+import {
+  resolveCorpusAbsence,
+  resolveCorpusRefusal,
+  resolveCorpusRequest
+} from "./corpus";
+import { get, isArray, isString, toUpper } from "lodash-es";
+import type { CorpusBodies, CorpusResponse } from "./corpus";
+import type { RecordedFixture } from "./corpus.source.types";
 import type { ForcePreset } from "../composables/useForcedState.types";
 
 // -----------------------------------------------------------------------------
-
-/**
- * The one recording that failed: staging's own 409 refusing to make an
- * unverified address the default, carrying the API's own sentence (`S14`).
- */
-const RECORDED_FAILURE: CorpusFixtureName =
-  "put-clients-id-emails-id-case-set-default-unverified";
 
 /** The answer `loading` gives: none, and none is coming. */
 export const PENDING = "pending" as const;
@@ -57,17 +73,22 @@ export const PENDING = "pending" as const;
 export type PresetAnswer = CorpusResponse | typeof PENDING | undefined;
 
 /**
- * The same recorded envelope with its rows removed — the empty state as the
- * recording itself would have carried it, rather than a body written to look
- * like one. A member or acknowledgement recording has no rows to remove and is
- * served exactly as recorded.
+ * The same recorded envelope with its ROWS taken away — the empty collection as
+ * the recording itself would have carried it, rather than a body written to look
+ * like one.
+ *
+ * Only a collection empties this way. A member has no rows to subtract, and an
+ * envelope with its record removed is a shape no capture returned: the authored
+ * one drew a mapper CRASH on every single-record surface, so the answer there is
+ * the module's own recorded absent-record read instead (operator ruling,
+ * 2026-08-28 · S1).
  */
 function withoutRows(response: CorpusResponse): CorpusResponse {
   const body = response.body as { data?: unknown };
 
-  return isArray(body?.data)
-    ? { ...response, body: { ...body, data: [], total: 0 } }
-    : response;
+  if (!isArray(body?.data)) return response;
+
+  return { ...response, body: { ...body, data: [], total: 0 } };
 }
 
 /**
@@ -85,6 +106,32 @@ function isRead(method: string): boolean {
   return toUpper(method) === "GET";
 }
 
+/**
+ * The sentence an armed `error-action` marks a row with, or none where the
+ * module recorded no refused write.
+ *
+ * COPY, where every other preset needs only an answer to a request: this one
+ * renders with nothing fired, so the row needs the words.
+ *
+ * Both halves come off the SAME recording — this reads its sentence,
+ * {@link presetAnswer} serves its status to a real write — so neither is
+ * authored (`S13`) and the two cannot disagree. Which recording is
+ * `capabilities.ts`'s measurement: the failing WRITE `canErrorAction` is
+ * offered on, never a read's refusal lent to a change.
+ *
+ * @param bodies One module's recordings.
+ * @returns The recorded sentence, or none where no write refusal is on record.
+ */
+export function presetRefusal(bodies: CorpusBodies): string | undefined {
+  const { response } = corpusCapabilities(bodies).refusedWrite ?? {};
+
+  const message =
+    get(response, ["body", "error", "message"]) ??
+    get(response, ["body", "message"]);
+
+  return isString(message) ? message : undefined;
+}
+
 // -----------------------------------------------------------------------------
 
 /**
@@ -99,21 +146,41 @@ export function presetAnswer(
   preset: ForcePreset,
   bodies: CorpusBodies,
   method: string,
-  url: URL
+  url: URL,
+  recordedFailure?: RecordedFixture
 ): PresetAnswer {
   const served = resolveCorpusRequest(bodies, method, url);
+
+  // ABOVE the `!served` guard deliberately: the acted-on row carries an id no
+  // capture run addressed, so a write that had to resolve first was answered by
+  // nobody and reached the real API under a forced chip.
+  if (preset === "error-action" && !isRead(method))
+    return resolveCorpusRefusal(bodies, method, url)?.response ?? served;
 
   if (!served) return undefined;
   if (preset === "loading") return PENDING;
 
-  const failure = bodies[RECORDED_FAILURE].response;
+  if (preset === "error-action") return served;
 
-  // Aimed at the half of the exchange the preset is named for: the other half is
-  // served exactly as recorded, which is what keeps a refused row inside a list
-  // that still has its rows.
-  if (preset === "error-action") return isRead(method) ? served : failure;
+  const failure = recordedFailure?.response;
+
   if (preset === "error-collection")
-    return isRead(method) ? withoutBody(failure) : served;
+    return isRead(method) && failure ? withoutBody(failure) : served;
 
-  return preset === "empty" ? withoutRows(served) : served;
+  // A write is left exactly as recorded: `empty` is a state of the READ, and a
+  // one-record surface's member read is still a read. Emptying an
+  // acknowledgement would take the saved record away from the very save that
+  // just returned it.
+  //
+  // A collection empties by SUBTRACTION from its own envelope; a member cannot,
+  // so it is answered by the module's own recorded read for a record that is not
+  // there. Holding no such capture, the read is served exactly as recorded and
+  // the absence is reported as a capture gap — never papered over with a body
+  // nothing sent (`S13`).
+  if (preset === "empty" && isRead(method))
+    return isArray(get(served, ["body", "data"]))
+      ? withoutRows(served)
+      : (resolveCorpusAbsence(bodies, url) ?? served);
+
+  return served;
 }

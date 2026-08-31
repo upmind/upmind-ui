@@ -1,11 +1,11 @@
 // -----------------------------------------------------------------------------
 /**
  * @module scenarios/runtime/force/handlers
- * @description The msw handler list a forced page is armed with — this module's
- * OWN endpoints and nothing else (`AC8.3`): the collection, one address, and the
- * verification send. Everything else the app does — brand, settings, config, the
- * session boot — matches no handler here, which is what leaves it free to reach
- * staging untouched under `start({ onUnhandledRequest: "bypass" })`.
+ * @description The msw handler list a forced page is armed with — the endpoints
+ * of the subject this module's own `.feature` declares, and nothing else
+ * (`AC8.3`). A request outside that subject matches no handler here, and one
+ * that matches a handler but no recording is passed through, so either way it
+ * reaches staging untouched under `start({ onUnhandledRequest: "bypass" })`.
  *
  * `msw` is named HERE rather than in the composable that arms it, because this
  * module is reached only through that composable's dynamic import: a bare load
@@ -20,11 +20,13 @@
  */
 
 import { HttpResponse, delay, http, passthrough } from "msw";
-import { createCorpusSession, runtimeCorpus } from "./corpus";
+import { corpusCapabilities } from "./capabilities";
+import { createCorpusSession, runtimeCorpus, runtimeFeature } from "./corpus";
 import { PENDING, presetAnswer } from "./presets";
-import { MODULE_ROUTES } from "./routes";
+import { moduleRoutes } from "./routes";
 import { isUndefined, map } from "lodash-es";
 import type { CorpusBodies, CorpusSession } from "./corpus";
+import type { RecordedFixture } from "./corpus.source.types";
 import type { ForcePreset } from "../composables/useForcedState.types";
 import type { HttpHandler, HttpResponseResolver, JsonBodyType } from "msw";
 
@@ -35,11 +37,18 @@ const REFUSED_FROM = 400;
 
 function presetResolver(
   preset: ForcePreset,
-  session: CorpusSession
+  session: CorpusSession,
+  failure: RecordedFixture | undefined
 ): HttpResponseResolver {
   return async ({ request }) => {
     const url = new URL(request.url);
-    const answer = presetAnswer(preset, session.bodies(), request.method, url);
+    const answer = presetAnswer(
+      preset,
+      session.bodies(),
+      request.method,
+      url,
+      failure
+    );
 
     // Never settles, so the request stays in flight and the surface holds the
     // loading state it renders while one is — msw's own recipe for a request
@@ -76,9 +85,12 @@ function presetResolver(
 // -----------------------------------------------------------------------------
 
 /**
- * The handlers a preset is armed with. `bodies` defaults to the runtime corpus —
- * the `ESC6` seam's, once it has one — and is injectable so the same list is
- * provable against the committed recordings before that ruling lands.
+ * The handlers a preset is armed with. `bodies` and `feature` default to the
+ * armed module's — the `ESC6` seam's, once it has one — and are injectable so
+ * the same list is provable against the committed artefacts before that ruling
+ * lands. They are one module's PAIR: the recordings supply the paths, the
+ * feature decides which of them that module owns, so passing one without the
+ * other arms a corpus against another module's declaration.
  *
  * With no corpus there is nothing recorded to answer with, so the list is empty
  * and every request reaches the real service: forcing degrades to Live rather
@@ -86,13 +98,18 @@ function presetResolver(
  */
 export function createForceHandlers(
   preset: ForcePreset,
-  bodies: CorpusBodies | undefined = runtimeCorpus()
+  bodies: CorpusBodies | undefined = runtimeCorpus(),
+  feature: string = runtimeFeature()
 ): HttpHandler[] {
   if (!bodies) return [];
 
+  // The module's OWN refusal, measured off the recordings it was handed rather
+  // than named here (FE-3113).
+  const { failure } = corpusCapabilities(bodies);
+
   // One session per LIST: re-arming is how a replay goes back to the recording,
   // so the mutations a track played never outlive the arm that played them.
-  const resolve = presetResolver(preset, createCorpusSession(bodies));
+  const resolve = presetResolver(preset, createCorpusSession(bodies), failure);
 
-  return map(MODULE_ROUTES, route => http.all(route, resolve));
+  return map(moduleRoutes(feature, bodies), route => http.all(route, resolve));
 }

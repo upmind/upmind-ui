@@ -58,11 +58,11 @@ const SETTLE_INTERVAL_MS = 250;
 
 async function settles(assertion: () => Promise<void>): Promise<void> {
   for (let attempt = 1; attempt < SETTLE_ATTEMPTS; attempt++) {
-    try {
-      return await assertion();
-    } catch {
-      await new Promise(resolve => setTimeout(resolve, SETTLE_INTERVAL_MS));
-    }
+    const err = await assertion()
+      .then(() => undefined)
+      .catch((e: unknown) => e);
+    if (!err) return;
+    await new Promise(resolve => setTimeout(resolve, SETTLE_INTERVAL_MS));
   }
   return assertion();
 }

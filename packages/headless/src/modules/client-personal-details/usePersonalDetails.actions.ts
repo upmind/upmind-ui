@@ -8,6 +8,7 @@ import {
   ClientCustomFieldsContextTypes,
   useClientCustomFields
 } from "../client-custom-fields";
+import { resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { ScopeActorTypes } from "../scope/scope.types";
 import { useActiveSession } from "../session-store";
@@ -165,7 +166,14 @@ export function createPersonalDetailsActions(
     isReady,
 
     /** Refetches the profile from the server; rejects if it cannot address one. */
-    refresh
+    refresh,
+
+    /**
+     * Drops this module's cached record so the next read starts from loading.
+     * Keyed on the module's own base prefix, which is what also clears the
+     * joined definitions this profile renders beside its natives.
+     */
+    reset: resetQueryByKey(service.queryKey)
 
     // The arm merges in HERE, last.
     // ...actorActions

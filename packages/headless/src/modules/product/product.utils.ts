@@ -779,9 +779,9 @@ export const parseTermDetails = (
       ? currencyIdOrOverride
       : undefined;
 
-  const prices = currencyId
-    ? filter(raw?.prices, { currency_id: currencyId })
-    : raw?.prices;
+  const prices = compact(
+    currencyId ? filter(raw?.prices, { currency_id: currencyId }) : raw?.prices
+  );
 
   return map(orderBy(prices, "billing_cycle_months"), rawTerm => {
     const details: TermDetails = parseSummaryDetailWithPrice(rawTerm, raw);
@@ -818,7 +818,9 @@ export const parseSubproductDetails = (
   // 0. sort the data by `pivot.order` (the canonical sort field on
   // IProductOption / IProductAttribute) so downstream `first(values)`
   // picks the same default the configurator and add-to-basket flows would.
-  const sorted = orderBy(data, "pivot.order");
+  // `compact` first: a domain suggestion product can carry a nullish row in
+  // this array, and the reduce below derefs `rawSubproduct.category_id`.
+  const sorted = orderBy(compact(data), "pivot.order");
 
   // then reduce the sorted data, creating a new object keyed by the category id
   // with the parsed data as the values

@@ -62,14 +62,20 @@ import type { AnyEventObject } from "xstate";
  * `baseModel`; the value is in keeping all basket-add paths consistent
  * so a brand configuring a required category doesn't 422 the add.
  *
- * Throws if `parseProductDetails` / `parseTermDetails` /
- * `parseSubproductDetails` fail on a malformed `raw` — callers in
- * synchronous (`pure`) XState actions should wrap accordingly.
+ * Returns `baseModel` unchanged (cloned) when `raw` is undefined or has
+ * an unparseable shape (e.g. a malformed product from domain suggestion
+ * results). This is the documented safe behavior — the function never
+ * throws on malformed input.
  */
 export function applyConfigDefaults(
   baseModel: ProductProps,
   raw?: IProduct
 ): ProductProps {
+  // No raw product or unparseable shape: return baseModel unchanged.
+  if (!raw || !raw.id) {
+    return cloneDeep(baseModel);
+  }
+
   // `parseProductProps`-style subproduct fallback — the API sometimes
   // echoes `products_options` / `products_attributes` back as plain
   // `options` / `attributes` (the `/availability` endpoint returns under

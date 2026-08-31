@@ -1,0 +1,44 @@
+Negative control for the zero-concrete-references spec (operator ruling,
+2026-08-27).
+
+The ruling's whole subject is a convenience that keeps coming back: the runtime
+learning ONE module's name because the generic derivation was hard that day.
+`MODULE_QUERY_KEY = ["client", "emails"]` was the live instance — kept because
+an armed preset must drop the cache it contradicts, and the key does not follow
+the url.
+
+The mutant restores that convenience in its natural shape: a small runtime
+helper beside the force machinery that pins one module by name, reaches for its
+directory, writes its endpoint out longhand and hands back its cache key. It
+changes no existing behaviour and breaks no other test — which is exactly the
+regression this law exists to catch, because a hardcoded module is invisible to
+every test that only grades what force RETURNS.
+
+What must go red is the LAW, not an answer: the scan is over the tree, so a new
+runtime file naming a module is the same violation as an old one keeping it.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the zero-concrete-references spec — all four claims (a quoted module name,
+a module reached by path, an endpoint literal, and a pinned cache key).
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/module-cache.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/module-cache.ts
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/module-cache.ts
+@@ -0,0 +1,14 @@
++import type { CorpusBodies } from "./corpus.source.types";
++
++export const PINNED_MODULE = "client-email";
++
++export const PINNED_MODULE_DIR = "modules/client-email";
++
++export const PINNED_COLLECTION = "*/api/clients/:id/emails";
++
++export const MODULE_QUERY_KEY = ["client", "emails"];
++
++export function pinnedCacheKey(bodies: CorpusBodies): string[] {
++  void bodies;
++  return MODULE_QUERY_KEY;
++}

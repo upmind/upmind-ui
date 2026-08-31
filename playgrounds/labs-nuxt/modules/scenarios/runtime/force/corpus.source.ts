@@ -113,3 +113,14 @@ export function getFixtureNames(module: string): string[] {
   const moduleBodies = recordedBodies[module];
   return moduleBodies ? keys(moduleBodies) : [];
 }
+
+/**
+ * One module's committed `.feature` — the source of truth for which forced
+ * states it declares (operator ruling, 2026-08-27). Already published by the
+ * seam; named here so the capability derivation reads the SPEC rather than
+ * inspecting recordings. A module this seam does not reach yields `""`, which
+ * declares nothing.
+ */
+export function featureTextFor(module: string): string {
+  return publishedFeatures[module] ?? "";
+}

@@ -31,7 +31,6 @@ import {
 } from "./domain.utils";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import {
-  cloneDeep,
   compact,
   filter,
   first,
@@ -1058,21 +1057,7 @@ async function addExistingTransfer(
   // Apply the canonical schema/parse defaulting so required option/
   // attribute categories get pre-filled — same pipeline dac.machine's
   // addToBasket uses. No-op for typical TLDs (no required categories).
-  // Wrap in try/catch because a malformed `availability.product` would
-  // bubble a raw TypeError from `parseProductDetails`/`parseTermDetails`
-  // out as an untyped rejection — fall back to a CLONE of baseModel so
-  // the basket POST still happens AND the subsequent `model.coupons` /
-  // `model.silent` mutations don't corrupt baseModel by reference.
-  let model: typeof baseModel;
-  try {
-    model = applyConfigDefaults(baseModel, availability.product);
-  } catch (err) {
-    console.warn(
-      "[domain] addExistingTransfer: applyConfigDefaults threw — falling back to baseModel",
-      err
-    );
-    model = cloneDeep(baseModel);
-  }
+  const model = applyConfigDefaults(baseModel, availability.product);
   // Context coupons override the model's coupons — same precedence as
   // dac.machine's `addToBasket` action. Using `??=` would skip the
   // assignment when `model.coupons` is a non-nullish empty array carried
@@ -1263,21 +1248,7 @@ async function addExistingRegistration(
   // Apply the canonical schema/parse defaulting so required option/
   // attribute categories get pre-filled — same pipeline dac.machine's
   // addToBasket uses. No-op for typical TLDs (no required categories).
-  // Wrap in try/catch because a malformed `availability.product` would
-  // bubble a raw TypeError from `parseProductDetails`/`parseTermDetails`
-  // out as an untyped rejection — fall back to a CLONE of baseModel so
-  // the basket POST still happens AND the subsequent `model.coupons` /
-  // `model.silent` mutations don't corrupt baseModel by reference.
-  let model: typeof baseModel;
-  try {
-    model = applyConfigDefaults(baseModel, availability.product);
-  } catch (err) {
-    console.warn(
-      "[domain] addExistingRegistration: applyConfigDefaults threw — falling back to baseModel",
-      err
-    );
-    model = cloneDeep(baseModel);
-  }
+  const model = applyConfigDefaults(baseModel, availability.product);
   // Context coupons override the model's coupons — same precedence as
   // dac.machine's `addToBasket` action. Using `??=` would skip the
   // assignment when `model.coupons` is a non-nullish empty array carried

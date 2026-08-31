@@ -11,10 +11,10 @@
         <PageHeader
           :name="scenario.route"
           :actions="collectionActions"
-          :locked="isReplaying"
+          :locked="isLocked"
         />
 
-        <ScenarioBar :player="player" :tracks="tracks" />
+        <ScenarioBar :player="player" :tracks="tracks" :presets="presets" />
 
         <!-- The collection's own actions reach the header through the surface
              that owns the editor they open (G4). `ModuleRenderer` declares no
@@ -28,7 +28,8 @@
             :presentation="scenario.presentation"
             :handoffs="handoffs"
             :detail="detail"
-            :locked="isReplaying"
+            :locked="isLocked"
+            :forced-refusal="forcedRefusal"
             @update:collection-actions="onCollectionActions"
           />
         </Card>
@@ -83,14 +84,22 @@ import ScenarioBar from "./components/ScenarioBar.vue";
 import { useCriteriaUrlSync } from "./composables/useCriteriaUrlSync";
 import { useFeatureTracks } from "./composables/useFeatureTracks";
 import { useForcedState } from "./composables/useForcedState";
+import { FORCE_URL_PRESETS } from "./composables/useForcedState.types";
 import { useModulePort } from "./composables/useModulePort";
 import { useScenarioPlayer } from "./composables/useScenarioPlayer";
-import { featureTracksFor } from "./force/corpus.source";
+import { answerablePresets, captureGaps } from "./force/capabilities";
+import { armCorpusModule, runtimeCorpus } from "./force/corpus";
+import { featureTextFor, featureTracksFor } from "./force/corpus.source";
+import { presetRefusal } from "./force/presets";
 import { scenarioRegistry, scenarioRoutes, scenarioSources } from "./registry";
 import { SCENARIO_ROUTE_META_KEY } from "./scenario.constants";
 import { DEFAULT_ROW_IDENTIFIER } from "./scenario.types";
-import { get, mapValues } from "lodash-es";
+import { get, includes, isEmpty, mapValues } from "lodash-es";
 import type { ActionSlotItem } from "./components";
+import type {
+  ForceReset,
+  ForceUrlPreset
+} from "./composables/useForcedState.types";
 import type {
   FourLayerComposable,
   RegisteredScenario,
@@ -198,11 +207,49 @@ if (port.scopeMatrix) registerContexts(port.scopeMatrix);
 // `tracks` names the MODULE (`R6-37`); the seam hands back that module's own
 // committed playlist and the catalog that plays it, and a module it does not
 // reach leaves the page Live-only (`S12`).
-const trackSource = scenario.tracks
-  ? featureTracksFor(scenario.tracks)
-  : undefined;
+const trackedModule = scenario.tracks;
+
+const trackSource = trackedModule ? featureTracksFor(trackedModule) : undefined;
 
 const tracks = trackSource ? useFeatureTracks(trackSource).tracks : [];
+
+// The forced states THIS module's own recordings can answer (FE-3113), so a
+// state with no evidence behind it is never offered and never served from
+// something authored (`S13`). Empty until the corpus lands, which leaves the
+// page Live in the meantime — the state it boots into anyway (`S12`).
+const presets = ref<ForceUrlPreset[]>([]);
+
+// Whether that offer has been MADE yet. Empty means "not measured" until this
+// turns, and disarming on a list nobody has filled in would drop a pasted link
+// before its own corpus had a chance to answer it.
+const isOffered = ref(false);
+
+// Read off the same recording the intercept answers a real write with, so the
+// row drawn refused and the request that would be refused say one thing.
+const refusal = ref<string | undefined>();
+
+// Arming is what loads the recordings — the seam's loaders are lazy — so both
+// the offer and the evidence check run after the corpus lands. It is also the
+// barrier the forced-state handle holds its first reconcile behind: a pasted
+// `force=` link arms in this same tick, and one that won the race would
+// register a worker with no handlers at all.
+const whenArmed = trackedModule
+  ? armCorpusModule(trackedModule).then(armed => {
+      const bodies = armed ? runtimeCorpus(trackedModule) : undefined;
+      if (!bodies) return;
+
+      presets.value = [...answerablePresets(bodies)];
+      refusal.value = presetRefusal(bodies);
+      isOffered.value = true;
+
+      const gaps = captureGaps(featureTextFor(trackedModule), bodies);
+
+      if (!isEmpty(gaps))
+        console.warn(
+          `[force] ${trackedModule} has no recorded refusal to serve ${gaps.join(", ")} from — a capture gap, not a missing capability.`
+        );
+    })
+  : undefined;
 
 const player = useScenarioPlayer({ tracks, criteria: port.criteria });
 
@@ -215,7 +262,44 @@ const isReplaying = computed(() => !!player.track.value);
 // The frame reads the worker's own preset rather than the player's status: a
 // pasted `force=` link arms with no track at all, and only the handle knows
 // what is actually being served (`AC8.4`).
-const { preset } = useForcedState();
+//
+// The cache clear the arm ends on is the booted module's OWN, handed in because
+// forcing may learn no query key (FE-3113): `reset` is already bound to the
+// domain this module caches under, which neither the url nor a recorded path
+// spells. `reset` and not `invalidate` — the latter keeps the rows, so a forced
+// `loading` redrew the data it already had and a forced failure drew its error
+// above rows the read never returned. A module publishing none leaves the arm
+// swapping the transport alone.
+//
+// The module's NAME rides with them so leaving it disarms (FE-3113 R): the two
+// are one module's, and so is the preset.
+const { disarm, preset, isSettling } = useForcedState({
+  module: trackedModule,
+  reset: get(port.actions, "reset") as ForceReset | undefined,
+  whenArmed
+});
+
+// A preset is a fact about THIS module's own corpus (FE-3113 R). One reached by
+// a pasted url — or by a sidebar navigation that carried the query across —
+// names a state this module never offered and nothing here can honestly answer,
+// so the page lands Live rather than armed on nothing. `replay` is exempt: the
+// player arms it and the url cannot carry it, so the offered list never holds
+// it.
+watch([preset, presets, isOffered], ([armed, offered, measured]) => {
+  if (!measured || !armed) return;
+  if (!includes(FORCE_URL_PRESETS, armed)) return;
+  if (!includes(offered, armed)) void disarm();
+});
+
+// Gated on the preset: a row marked under any other is a failure nobody armed.
+const forcedRefusal = computed(() =>
+  preset.value === "error-action" ? refusal.value : undefined
+);
+
+// A page mid-arm is no more the operator's to drive than one mid-replay, and
+// for the same reason (`R6-23`): the transport a write would answer through is
+// not yet the one the rows on screen came from.
+const isLocked = computed(() => isReplaying.value || isSettling.value);
 
 // --- The page's three sheet providers, all page-scoped
 const { register, registerPane } = usePlaygroundSheet();

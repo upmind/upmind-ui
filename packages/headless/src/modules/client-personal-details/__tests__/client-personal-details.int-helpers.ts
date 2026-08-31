@@ -332,11 +332,10 @@ export async function resolveClientIdOnActiveSession(): Promise<{
 }
 
 export async function logoutClientSession(): Promise<void> {
-  try {
-    useSessionStore().useActions().logout();
-  } catch {
-    // No active session to log out of.
-  }
+  // Intentionally discarded: logout may fail if no session exists.
+  await Promise.resolve(useSessionStore().useActions().logout()).catch(
+    () => undefined
+  );
   resetClientPersonalDetailsScopes();
   await vi.waitFor(() => {
     expect(useActiveSession().useMeta().isAuthenticated.value).toBe(false);
