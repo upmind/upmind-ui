@@ -53,13 +53,11 @@ export function useCookies() {
   const apexDomain = getApexDomain(window.location.hostname);
 
   function isBase64Encoded(str: string): boolean {
+    // atob has no non-throwing alternative; invalid base64 returns false.
     try {
-      // Attempt to decode the string
       atob(str);
-      // If decoding succeeds, it's likely Base64 encoded
       return true;
-    } catch (_e) {
-      // If an error occurs (e.g., InvalidCharacterError), it's not valid Base64
+    } catch {
       return false;
     }
   }
@@ -86,14 +84,13 @@ export function useCookies() {
       key: string,
       decoder: Decoder<unknown> = defaultDecoder
     ): string | Record<string, unknown> | null => {
+      // Decoder (JSON.parse/atob) has no non-throwing alternative; bad cookie data returns null.
       try {
         return getCookie(key, decoder) as
           | string
           | Record<string, unknown>
           | null;
-      } catch (_e) {
-        // TEMPORARY: we need to log this error, as it may be useful for debugging in sentry
-        // console.error(" Error converting basket", error);
+      } catch {
         return null;
       }
     },

@@ -28,21 +28,13 @@ import type { IAuthTransfer } from "./session-transfer.types";
 export const useTransfer = () => {
   // --- private
   function isExternalURL(url: string): boolean {
-    try {
-      const parsed = new URL(url);
-      return parsed.host !== window.location.host;
-    } catch (_e) {
-      return false;
-    }
+    const parsed = URL.parse(url);
+    return parsed ? parsed.host !== window.location.host : false;
   }
 
   function parseInternalUrl(path: string): string {
-    try {
-      const url = new URL(path, window.location.origin);
-      return url.href;
-    } catch (_e) {
-      return path;
-    }
+    const url = URL.parse(path, window.location.origin);
+    return url?.href ?? path;
   }
 
   // --- methods

@@ -64,6 +64,7 @@ export function parseSettings(gateway: IGateway) {
   return mapValues(
     keyBy(filter(gateway?.gateway_settings || [], ["private", false]), "field"),
     ({ value }) => {
+      // JSON.parse has no non-throwing alternative; invalid JSON returns raw.
       try {
         return JSON.parse(value);
       } catch {

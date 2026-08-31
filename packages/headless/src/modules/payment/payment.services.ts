@@ -177,7 +177,7 @@ async function redirect(
    */
   if (cancel) window.history.replaceState("", "", cancel?.url);
 
-  if (approval) return submitViaForm(approval);
+  if (approval) submitViaForm(approval);
 }
 
 async function validate(
