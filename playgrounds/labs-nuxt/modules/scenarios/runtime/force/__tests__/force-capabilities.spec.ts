@@ -23,6 +23,12 @@
  * loses a state it can actually serve.
  *
  * Negative controls: `force-capabilities.refusal-assumed.must-fail.patch`.
+ *
+ * @anchor force-state.feature
+ * @anchor AC5
+ * @anchor AC-NA
+ * @anchor R6-19
+ * @anchor S12
  */
 
 import { readFileSync, readdirSync } from "node:fs";

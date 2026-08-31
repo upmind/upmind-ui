@@ -23,6 +23,9 @@
  * this file grades the handler list one module builds.
  *
  * Negative controls: `force-handlers.module-scope.must-fail.patch`.
+ *
+ * @anchor force-state.feature
+ * @anchor AC8.3
  */
 
 import { describe, expect, it } from "vitest";

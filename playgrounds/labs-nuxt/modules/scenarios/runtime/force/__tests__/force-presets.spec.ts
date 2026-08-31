@@ -27,6 +27,11 @@
  * no recording behind it is no longer offered, so no path through this file can
  * invent a status. The defect is structurally unrepresentable; the control could
  * no longer be applied, and one that cannot be applied guards nothing.
+ *
+ * @anchor force-state.feature
+ * @anchor AC8.5
+ * @anchor S13
+ * @anchor R6-19
  */
 
 import { readFileSync, readdirSync } from "node:fs";

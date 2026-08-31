@@ -40,6 +40,11 @@
  * state's evidence must red `never answers a forced error with the refusal that
  * ends at the signed-out screen`. Filed as
  * `force-answerable-presets.auth-refusal-counted.must-fail.patch`.
+ *
+ * @anchor force-state.feature
+ * @anchor AC2
+ * @anchor AC5
+ * @anchor S12
  */
 
 import { existsSync, readFileSync, readdirSync } from "node:fs";

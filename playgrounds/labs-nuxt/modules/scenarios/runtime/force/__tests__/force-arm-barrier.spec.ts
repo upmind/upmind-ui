@@ -28,6 +28,9 @@
  *
  * Negative controls:
  * `force-arm-barrier.reports-before-installed.must-fail.patch`.
+ *
+ * @anchor force-state.feature
+ * @anchor AC3
  */
 
 import { describe, expect, it } from "vitest";

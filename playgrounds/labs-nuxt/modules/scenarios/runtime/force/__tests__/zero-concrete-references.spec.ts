@@ -29,6 +29,9 @@
  * as "the picker did nothing" rather than as the hardcoded line it is.
  *
  * Negative control: `zero-concrete-references.pinned-module.must-fail.patch`.
+ *
+ * @anchor force-state.feature
+ * @anchor AC-ZCR
  */
 
 import { readdirSync, readFileSync } from "node:fs";

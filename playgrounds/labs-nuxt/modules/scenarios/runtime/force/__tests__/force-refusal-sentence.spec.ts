@@ -27,6 +27,10 @@
  * a `presetRefusal` that falls back to the corpus's failing READ when no failing
  * write is recorded must red `never lends a failed read's sentence to a refused
  * write`. Filed as `force-refusal-sentence.read-sentence-lent.must-fail.patch`.
+ *
+ * @anchor force-state.feature
+ * @anchor AC-REF
+ * @anchor AC-NA
  */
 
 import { readFileSync, readdirSync } from "node:fs";

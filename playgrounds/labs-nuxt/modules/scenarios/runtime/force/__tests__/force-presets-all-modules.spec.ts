@@ -33,6 +33,10 @@
  *
  * Negative controls:
  * `force-presets-all-modules.arms-the-capture-run.must-fail.patch`.
+ *
+ * @anchor force-state.feature
+ * @anchor AC1
+ * @anchor AC8.3
  */
 
 import { describe, expect, it } from "vitest";
