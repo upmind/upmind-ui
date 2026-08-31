@@ -480,10 +480,13 @@ export default createMachine(
             ? parseBasketProductModel(basketProduct)
             : cloneDeep(model);
 
+          // An emptied selection (`{}`) is a removal, so we keep the empty
+          // containers and tell the parser not to fill them back in.
           const newModel = useModelParser<ProductModel>(
             context.schema,
-            compactDeep(model),
-            newBaseModel
+            compactDeep(model, { preserveContainers: true }),
+            newBaseModel,
+            { allowExtraProps: true, allowEmpty: ["options", "attributes"] }
           );
 
           const newContext = {
