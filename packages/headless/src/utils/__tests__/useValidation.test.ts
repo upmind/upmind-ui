@@ -44,6 +44,11 @@ vi.mock("../../modules/query", () => ({
   }))
 }));
 
+// the package entry builds an Upmind instance on import
+vi.mock("../../modules", () => ({
+  useQuery: vi.fn(() => ({ queryClient: {} }))
+}));
+
 // vi.mock('libphonenumber-js', () => ({
 //   isValidPhoneNumber: vi.fn(),
 // }));
@@ -77,18 +82,21 @@ describe("useValidation.ts", () => {
       });
       expect(ajv.addFormat).toHaveBeenCalledWith(
         "domain_name",
-        expect.any(Function)
+        expect.objectContaining({ name: "domain_name" })
       );
-      expect(ajv.addFormat).toHaveBeenCalledWith("alpha", expect.any(Function));
+      expect(ajv.addFormat).toHaveBeenCalledWith(
+        "alpha",
+        expect.objectContaining({ name: "alpha" })
+      );
       expect(ajv.addFormat).toHaveBeenCalledWith(
         "alpha-dash",
-        expect.any(Function)
+        expect.objectContaining({ name: "alpha-dash" })
       );
       expect(ajv.addFormat).toHaveBeenCalledWith(
-        "alpha_num",
-        expect.any(Function)
+        "alpha-num",
+        expect.objectContaining({ name: "alpha-num" })
       );
-      expect(ajv.addKeyword).toHaveBeenCalledTimes(9);
+      expect(ajv.addKeyword).toHaveBeenCalledTimes(10);
       expect(ajv.addKeyword).toHaveBeenCalledWith(
         expect.objectContaining({
           keyword: "manage"
@@ -181,12 +189,13 @@ describe("useValidation.ts", () => {
     it("should handle default values correctly", () => {
       const mockValues = { field1: "Field 1 Override" };
 
+      // a field with no value and no default is stripped from the model
       let model = useModelParser(mockSchema, mockValues);
-      expect(model).toEqual({ field1: "Field 1 Override", field2: null });
+      expect(model).toEqual({ field1: "Field 1 Override" });
 
       // @ts-ignore
       model = useModelParser(mockSchema);
-      expect(model).toEqual({ field1: "Field 1", field2: null });
+      expect(model).toEqual({ field1: "Field 1" });
     });
   });
 });

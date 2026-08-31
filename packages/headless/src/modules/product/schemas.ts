@@ -82,13 +82,17 @@ export function useProductConfigSchema(
 
   // --- options
   if (!isEmpty(context.lookups?.options)) {
-    properties.options = buildSubproductGroupSchema(context.lookups!.options!);
+    properties.options = buildSubproductGroupSchema(
+      context.lookups!.options!,
+      isEmpty(context.rawBasketProduct)
+    );
   }
 
   // --- attributes
   if (!isEmpty(context.lookups?.attributes)) {
     properties.attributes = buildSubproductGroupSchema(
-      context.lookups!.attributes!
+      context.lookups!.attributes!,
+      isEmpty(context.rawBasketProduct)
     );
   }
 
@@ -200,9 +204,14 @@ function buildTrialSchema(product: ProductDetails): Record<string, any> {
  * - `propertyNames.enum` restricts valid product IDs
  * - `oneOf` with `const` discriminator validates per-value constraints
  * - `options` array carries display data for the renderer
+ *
+ * `withDefaults` is off once the product is in the basket: the saved basket
+ * product is the record of what the user chose, and a `default` would put back
+ * an option they removed.
  */
 function buildSubproductGroupSchema(
-  subproducts: SubproductDetails[]
+  subproducts: SubproductDetails[],
+  withDefaults: boolean
 ): Record<string, any> {
   const properties: Record<string, any> = {};
   const required: string[] = [];
@@ -275,7 +284,7 @@ function buildSubproductGroupSchema(
           cycle: value.cycle
         }
       };
-    } else if (defaultValue) {
+    } else if (defaultValue && (withDefaults || isRequired)) {
       schema.default = {
         [defaultValue.id]: {
           productId: defaultValue.id,
@@ -616,7 +625,10 @@ export function useInvalidProductConfigSchema(
         hasError(`#/properties/options/properties/${opt.id}`)
     );
     if (!isEmpty(invalidOptions)) {
-      properties.options = buildSubproductGroupSchema(invalidOptions);
+      properties.options = buildSubproductGroupSchema(
+        invalidOptions,
+        isEmpty(context.rawBasketProduct)
+      );
     }
   }
 
@@ -628,7 +640,10 @@ export function useInvalidProductConfigSchema(
         hasError(`#/properties/attributes/properties/${attr.id}`)
     );
     if (!isEmpty(invalidAttributes)) {
-      properties.attributes = buildSubproductGroupSchema(invalidAttributes);
+      properties.attributes = buildSubproductGroupSchema(
+        invalidAttributes,
+        isEmpty(context.rawBasketProduct)
+      );
     }
   }
 

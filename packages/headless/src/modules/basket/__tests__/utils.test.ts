@@ -21,7 +21,52 @@
  *   refresh (currency change, promo code) when data should be preserved.
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+
+// -----------------------------------------------------------------------------
+// Mocks — the machines pulled in by `../utils` read cookies at module load
+
+vi.mock("../../../utils/useCookies", () => ({
+  useCookies: vi.fn(() => ({
+    removeTopLevel: vi.fn(),
+    setTopLevel: vi.fn(),
+    get: vi.fn(),
+    set: vi.fn(),
+    remove: vi.fn()
+  }))
+}));
+
+vi.mock("../../brand", () => ({
+  useBrand: () => ({
+    includesTax: { value: false },
+    getConfigValue: vi.fn()
+  })
+}));
+
+vi.mock("../../brand/useBrand", () => ({
+  useBrand: () => ({
+    includesTax: { value: false },
+    getConfigValue: vi.fn()
+  })
+}));
+
+// the package entry builds an Upmind instance on import
+vi.mock("../../", () => ({
+  useQuery: vi.fn(() => ({
+    queryClient: {},
+    get: vi.fn(),
+    post: vi.fn(),
+    patch: vi.fn(),
+    put: vi.fn(),
+    del: vi.fn(),
+    useUrl: vi.fn((path: string) => path)
+  })),
+  useUrl: vi.fn((path: string) => path),
+  invalidateQueryByKey: vi.fn()
+}));
+
+// -----------------------------------------------------------------------------
+
 import { hasProductChanges, preserveProvisionFields } from "../utils";
 
 // --- utils
