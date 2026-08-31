@@ -75,6 +75,11 @@
     "label": "Company Number",
     "placeholder": "Registered tax or GST"
   },
+  "contract_product_filter": {
+    "description": null,
+    "label": "Product",
+    "placeholder": "All products"
+  },
   "country": {
     "label": "Country",
     "placeholder": "Select a country"
@@ -109,6 +114,14 @@
     "label": "Phone",
     "title": "Add New Phone Number | Update Phone Number"
   },
+  "pinned_filter": {
+    "description": null,
+    "label": "Pinned",
+    "placeholder": null,
+    "true": "Pinned",
+    "false": "Not pinned",
+    "null": "All"
+  },
   "postcode": {
     "label": "Postcode",
     "placeholder": "eg. 10011"
@@ -142,5 +155,23 @@
   "taxNumber": {
     "label": "Tax Number",
     "placeholder": "Tax Id"
+  },
+  "vault_asset_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search vault items..."
+  },
+  "vault_asset_sort": {
+    "label": "Label",
+    "pinned": "Pinned",
+    "created_at": "Date added"
+  },
+  "vault_asset_type": {
+    "description": null,
+    "label": "Type",
+    "placeholder": null,
+    "true": "Secrets",
+    "false": "Notes",
+    "null": "All"
   }
 }

@@ -1,0 +1,67 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/org/modules",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a31d886448d16338-WAW",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Thu, 27 Aug 2026 19:37:47 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=QTMqdSdm6xGUytTJJhAZNQnXxPLRyDnUz1c20ifv4eqq8XfOIyV5WiEbrqSGgxW7NHSnzzRe3ZJW%2B0Fxl7K2OY7yYQrjWGKBtBQ8uL0e1TBO8%2B%2BtnCqnltCttX10651kz2yISQMjcg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "1"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "3825d96e-763e-d091-3dc4-174825283406",
+          "org_id": null,
+          "code": "web_hosting",
+          "name": "Web Hosting",
+          "description": "This module makes it simple to manage and sell products to automatically provision services such as shared web hosting accounts, domain names and more",
+          "created_at": "2022-02-26 01:49:10",
+          "updated_at": "2022-02-26 01:49:10",
+          "deleted_at": null,
+          "pivot": {
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "module_id": "3825d96e-763e-d091-3dc4-174825283406",
+            "created_at": "2025-05-07 08:38:43",
+            "updated_at": "2025-05-07 08:38:43"
+          }
+        }
+      ],
+      "related": null,
+      "total": 1,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-27T19:37:46.962Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-notes"
+  }
+}

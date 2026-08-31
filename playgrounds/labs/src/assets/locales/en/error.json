@@ -47,6 +47,10 @@
   "client_email_set_default_failed": "We experienced an error setting this email as default",
   "client_email_update_failed": "We experienced an error updating this email",
   "client_email_validation_failed": "Email validation failed",
+  "client_notes_delete_failed": "We experienced an error removing this vault item",
+  "client_notes_not_available": "Vault not available",
+  "client_notes_update_failed": "We experienced an error updating this vault item",
+  "client_notes_validation_failed": "Vault validation failed",
   "client_phone_delete_failed": "We experienced an error removing this phone",
   "client_phone_not_available": "Phone not available",
   "client_phone_set_default_failed": "We experienced an error setting this phone as default",
@@ -123,5 +127,6 @@
   "upmind_initialised": "Upmind has already been initialised, please use the isReady() method to check if Upmind is ready",
   "url_not_available": "URL not available",
   "user_load_failed": "Get user failed",
-  "user_not_available": "User not available"
+  "user_not_available": "User not available",
+  "vault_asset_label_required": "A label is required to convert this note to a secret"
 }

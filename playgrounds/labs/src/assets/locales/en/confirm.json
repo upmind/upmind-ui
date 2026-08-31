@@ -12,5 +12,6 @@
   "in_use": "In use",
   "phone_removed": "Phone removed successfully",
   "phone_set_default": "Phone successfully set as default",
-  "reset_instructions_sent_msg": "Thanks – reset instructions have been sent to your email"
+  "reset_instructions_sent_msg": "Thanks – reset instructions have been sent to your email",
+  "vault_asset_removed": "Vault item removed successfully"
 }
