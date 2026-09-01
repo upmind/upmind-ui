@@ -125,7 +125,7 @@ type CommitBillingBody = {
 **Curl**
 
 ```bash
-curl -X PUT "$API/orders/0e435795-e78d-1886-502b-31643202d986?case=billing" \
+curl -X PUT "$API/orders/85d26e96-783d-1652-d98f-314502e70439?case=billing" \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{ "address_id": null, "company_id": null, "phone_id": null }'
@@ -137,15 +137,15 @@ curl -X PUT "$API/orders/0e435795-e78d-1886-502b-31643202d986?case=billing" \
 {
   "status": "ok",
   "data": {
-    "id": "0e435795-e78d-1886-502b-31643202d986",
+    "id": "85d26e96-783d-1652-d98f-314502e70439",
     "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
     "address_id": "d6325079-8065-d1e3-dd8b-8174e234e98d", // default applied though request sent null
     "company_id": null,
     "phone_id": null,
     "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-    "net_amount": 60,
-    "tax_amount": 12,
-    "total_amount": 72,
+    "net_amount": 20,
+    "tax_amount": 4,
+    "total_amount": 24,
     "display_status": "Draft"
   },
   "error": null,
@@ -153,7 +153,7 @@ curl -X PUT "$API/orders/0e435795-e78d-1886-502b-31643202d986?case=billing" \
 }
 ```
 
-**Fixture** — `__tests__/fixtures/put-orders-id-case-billing.json` (captures request and response).
+**Fixture** — `__tests__/fixtures/put-orders-id-case-billing.json` (captures request and response, against a persistent claimed basket).
 
 ### Billing-detail creation — forwarded
 
@@ -222,4 +222,6 @@ Constraints the caller has to plan around: all lookups (countries, regions, conf
 - Creating a business detail with a phone as two separate creates double-writes the phone: the company create already carries the phone inline. The personal path is the only one where the phone is created on its own.
 - Country and region form a dependent pair: a region is validated against its country's region list, and a country change strands any previously chosen region until the new list loads.
 - The billing surface is populated by the basket it hangs off; a consumer that reads the selection at boot can race the basket's own load and see an empty selection before it settles.
+- The billing surface does not come into existence at all for a basket with no owning client. An unclaimed basket still loads and settles into a normal, browsable state — only billing itself is never made available on it. A caller that waits on a readiness signal without first checking basket ownership can wait indefinitely, because nothing will ever resolve that wait.
+- A basket load that is denied because it belongs to a different client behaves the same way, from billing's perspective, as an unclaimed basket: billing is never made available, and this module surfaces no error of its own — the denial happened one layer up, at the basket load itself.
 - A billing detail is created against the acting client's records. When staff act on behalf of a client, the address / company / phone must resolve to that client, not to the staff account.
