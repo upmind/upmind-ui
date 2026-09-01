@@ -31,13 +31,13 @@ See [Usage](./docs/usage.md) for the complete API reference.
 
 ## Features
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Set a billing selection without committing it | ✅ | Held on the form; no request is made until `update()`. |
-| Commit a billing selection | ✅ | `PUT /orders/{basketId}?case=billing`; the order's tax is recomputed. |
-| Read billing readiness / requirements | ✅ | Which of address / company / phone / region the brand requires. |
-| Pause / resume validation | ✅ | Used while the customer is mid-way through adding a new record. |
-| Create a new billing detail (personal or business) | ✅ | Delegates the actual create to `client-address` / `client-company` / `client-phone`. |
+| Feature                                            | Status | Notes                                                                                |
+| -------------------------------------------------- | ------ | ------------------------------------------------------------------------------------ |
+| Set a billing selection without committing it      | ✅     | Held on the form; no request is made until `update()`.                               |
+| Commit a billing selection                         | ✅     | `PUT /orders/{basketId}?case=billing`; the order's tax is recomputed.                |
+| Read billing readiness / requirements              | ✅     | Which of address / company / phone / region the brand requires.                      |
+| Pause / resume validation                          | ✅     | Used while the customer is mid-way through adding a new record.                      |
+| Create a new billing detail (personal or business) | ✅     | Delegates the actual create to `client-address` / `client-company` / `client-phone`. |
 
 ## Key Concepts
 
@@ -51,14 +51,14 @@ A **billing selection** is the trio of ids (address, company, phone) held on the
 
 ## Documentation
 
-| Doc | Audience | Content |
-|-----|----------|---------|
-| **This README** | Everyone | Overview, concepts, quick start |
-| [Foundation](./docs/foundation.md) | Architects rebuilding the platform | Framework-agnostic capability + endpoint spec |
-| [Usage](./docs/usage.md) | All devs | API reference, examples |
-| [Architecture](./docs/architecture.md) | Internal / Contributors | State machine, data flow, dependencies |
-| [Gotchas](./docs/gotchas.md) | All | Edge cases, known issues |
-| [Changelog](./docs/changelog.md) | All | Version history |
+| Doc                                    | Audience                           | Content                                       |
+| -------------------------------------- | ---------------------------------- | --------------------------------------------- |
+| **This README**                        | Everyone                           | Overview, concepts, quick start               |
+| [Foundation](./docs/foundation.md)     | Architects rebuilding the platform | Framework-agnostic capability + endpoint spec |
+| [Usage](./docs/usage.md)               | All devs                           | API reference, examples                       |
+| [Architecture](./docs/architecture.md) | Internal / Contributors            | State machine, data flow, dependencies        |
+| [Gotchas](./docs/gotchas.md)           | All                                | Edge cases, known issues                      |
+| [Changelog](./docs/changelog.md)       | All                                | Version history                               |
 
 ## Playground
 

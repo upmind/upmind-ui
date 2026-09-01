@@ -57,7 +57,11 @@ if (basketErrors.value) showBasketLoadError();
 
 ```typescript
 // This does NOT clear the address — it applies the client's default instead.
-await useBasketBilling().update({ addressId: null, companyId: null, phoneId: null });
+await useBasketBilling().update({
+  addressId: null,
+  companyId: null,
+  phoneId: null
+});
 ```
 
 ---
@@ -93,14 +97,14 @@ Only an address is ever required by this module's own model. Company, phone, and
 
 ## Edge Cases
 
-| Scenario | Expected Behavior | Notes |
-|----------|-------------------|-------|
-| Guest (unclaimed) basket loads | Basket reaches shopping-ready; billing never becomes available | No `client_id` on the basket — the spawn condition never fires. |
-| Basket belongs to a different client | Load is denied (real `403`); billing never becomes available | The denial is on the basket load, not on billing. |
-| Commit with no address set | No request is sent; the caller sees an "address not available" failure | The commit is blocked client-side before the wire. |
-| Commit succeeds | Full order object returned, tax recomputed | Diff pre/post state if you need "what changed" — the platform gives no change pointer. |
-| Commit fails with `5xx` | Error surfaced on the billing context; the basket keeps its prior selection | Proven against a forced `5xx` on the same commit endpoint. |
-| Brand-config bootstrap fails with `5xx` | The billing surface fails closed — never reaches available, never offers a schema | Rather than hanging, it settles into a handled failure state. |
+| Scenario                                | Expected Behavior                                                                 | Notes                                                                                  |
+| --------------------------------------- | --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Guest (unclaimed) basket loads          | Basket reaches shopping-ready; billing never becomes available                    | No `client_id` on the basket — the spawn condition never fires.                        |
+| Basket belongs to a different client    | Load is denied (real `403`); billing never becomes available                      | The denial is on the basket load, not on billing.                                      |
+| Commit with no address set              | No request is sent; the caller sees an "address not available" failure            | The commit is blocked client-side before the wire.                                     |
+| Commit succeeds                         | Full order object returned, tax recomputed                                        | Diff pre/post state if you need "what changed" — the platform gives no change pointer. |
+| Commit fails with `5xx`                 | Error surfaced on the billing context; the basket keeps its prior selection       | Proven against a forced `5xx` on the same commit endpoint.                             |
+| Brand-config bootstrap fails with `5xx` | The billing surface fails closed — never reaches available, never offers a schema | Rather than hanging, it settles into a handled failure state.                          |
 
 ---
 

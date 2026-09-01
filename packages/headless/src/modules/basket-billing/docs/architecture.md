@@ -69,11 +69,11 @@ stateDiagram-v2
 
 ## Services
 
-| File | Purpose |
-|------|---------|
-| `basket-billing.services.ts` | `loadLookups` (brand requirement flags + base model), `parse`, `validate`, `update` (`PUT /orders/{basketId}?case=billing`). |
-| `unified/services.ts` | `loadLookups` (countries/regions/phones/emails/addresses/companies + brand flags), `add` (delegates the create to `client-address` / `client-company` / `client-phone`), `parse`, `validate`, `invalidate`. |
-| `basket-billing.schema.ts` / `unified/schemas.ts` | Derive the JSON Schema / UI Schema from the resolved requirement flags. |
+| File                                              | Purpose                                                                                                                                                                                                     |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `basket-billing.services.ts`                      | `loadLookups` (brand requirement flags + base model), `parse`, `validate`, `update` (`PUT /orders/{basketId}?case=billing`).                                                                                |
+| `unified/services.ts`                             | `loadLookups` (countries/regions/phones/emails/addresses/companies + brand flags), `add` (delegates the create to `client-address` / `client-company` / `client-phone`), `parse`, `validate`, `invalidate`. |
+| `basket-billing.schema.ts` / `unified/schemas.ts` | Derive the JSON Schema / UI Schema from the resolved requirement flags.                                                                                                                                     |
 
 Neither service file splits by actor (`client` / `staff`) — `basket-billing` has no staff-facing variant; a staff user acting on behalf of a client resolves through the client's own session, not a separate service arm.
 
@@ -81,26 +81,26 @@ Neither service file splits by actor (`client` / `staff`) — `basket-billing` h
 
 ### basket-billing Depends On
 
-| Module | Usage |
-|--------|-------|
-| `brand` | Reads the requirement flags (`CHECKOUT_REQUIRE_PHONE`, `REQUIRE_COMPANY_FOR_ORDERS`, `REQUIRE_ADDRESS_FOR_ORDERS`, `REQUIRE_REGION_IN_ADDRESS`). |
-| `system` | Country / region lookups for the new-billing-detail form. |
-| `client-address` / `client-company` / `client-phone` / `client-email` | Own the actual create for a new billing detail; `unified/services.ts` delegates to them rather than issuing its own POST. |
-| `session-store` | Confirms an authenticated session before loading lookups. |
-| `query` | HTTP dispatch for the billing `PUT`. |
+| Module                                                                | Usage                                                                                                                                            |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `brand`                                                               | Reads the requirement flags (`CHECKOUT_REQUIRE_PHONE`, `REQUIRE_COMPANY_FOR_ORDERS`, `REQUIRE_ADDRESS_FOR_ORDERS`, `REQUIRE_REGION_IN_ADDRESS`). |
+| `system`                                                              | Country / region lookups for the new-billing-detail form.                                                                                        |
+| `client-address` / `client-company` / `client-phone` / `client-email` | Own the actual create for a new billing detail; `unified/services.ts` delegates to them rather than issuing its own POST.                        |
+| `session-store`                                                       | Confirms an authenticated session before loading lookups.                                                                                        |
+| `query`                                                               | HTTP dispatch for the billing `PUT`.                                                                                                             |
 
 ### Modules That Depend On basket-billing
 
-| Module | Usage |
-|--------|-------|
+| Module   | Usage                                                                                                                                  |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `basket` | Hosts and spawns the billing child once a basket is claimed (populator direction — see [foundation.md](./foundation.md) Dependencies). |
 
 Presentation-layer and storefront-funnel consumption is documented in [foundation.md](./foundation.md) Dependants (billing components under `client-vue/src/modules/billing` and `checkout`, and the funnel engines in `apps/cart`, `apps/cart-nuxt`, `apps/hosting`, `apps/velia`).
 
 ## Integration Points
 
-| System | Integration |
-|--------|-------------|
-| **basket machine** | Parent/child actor relationship — billing is spawned only once `basket.client_id` is set, and stopped/restarted alongside the other basket child actors. |
-| **HTTP transport (`query`)** | `PUT /orders/{basketId}?case=billing` for the commit; brand/system reads for lookups. |
-| **JSONForms** | `schema` / `uischema` drive a schema-based form renderer for both the selection form and the new-detail form. |
+| System                       | Integration                                                                                                                                              |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **basket machine**           | Parent/child actor relationship — billing is spawned only once `basket.client_id` is set, and stopped/restarted alongside the other basket child actors. |
+| **HTTP transport (`query`)** | `PUT /orders/{basketId}?case=billing` for the commit; brand/system reads for lookups.                                                                    |
+| **JSONForms**                | `schema` / `uischema` drive a schema-based form renderer for both the selection form and the new-detail form.                                            |

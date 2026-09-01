@@ -78,28 +78,28 @@ const initial = captureInitialBilling();
 ```typescript
 const { meta } = useBasketBilling();
 
-meta.value.isLoading;    // still loading
-meta.value.isAvailable;  // loaded and usable
-meta.value.hasErrors;    // last operation failed
+meta.value.isLoading; // still loading
+meta.value.isAvailable; // loaded and usable
+meta.value.hasErrors; // last operation failed
 meta.value.isProcessing; // a commit is in flight
-meta.value.isValid;      // current model passes validation
-meta.value.isComplete;   // the last commit finished
-meta.value.isDirty;      // model differs from the last saved selection
+meta.value.isValid; // current model passes validation
+meta.value.isComplete; // the last commit finished
+meta.value.isDirty; // model differs from the last saved selection
 meta.value.needsAddress; // brand requires an address
 meta.value.needsCompany; // brand requires a company
-meta.value.needsPhone;   // brand requires a phone
+meta.value.needsPhone; // brand requires a phone
 ```
 
-| Flag | Description |
-|------|-------------|
-| `isLoading` | Requirement flags and schema are still loading. |
-| `isAvailable` | The billing surface has loaded and is usable. |
-| `hasErrors` | The last operation (load or commit) failed. |
-| `isProcessing` | A commit is in flight. |
-| `isValid` | The current model passes the brand's requirement rules. |
-| `isComplete` | The last commit has finished settling. |
-| `isDirty` | The current model differs from the last committed selection. |
-| `needsAddress` / `needsCompany` / `needsPhone` | Which fields the brand requires. |
+| Flag                                           | Description                                                  |
+| ---------------------------------------------- | ------------------------------------------------------------ |
+| `isLoading`                                    | Requirement flags and schema are still loading.              |
+| `isAvailable`                                  | The billing surface has loaded and is usable.                |
+| `hasErrors`                                    | The last operation (load or commit) failed.                  |
+| `isProcessing`                                 | A commit is in flight.                                       |
+| `isValid`                                      | The current model passes the brand's requirement rules.      |
+| `isComplete`                                   | The last commit has finished settling.                       |
+| `isDirty`                                      | The current model differs from the last committed selection. |
+| `needsAddress` / `needsCompany` / `needsPhone` | Which fields the brand requires.                             |
 
 ## Context (Computed Values)
 
@@ -107,20 +107,20 @@ meta.value.needsPhone;   // brand requires a phone
 const { context, model, schema, uischema, errors, config } = useBasketBilling();
 
 context.value; // the full billing context
-model.value;   // { addressId?, companyId?, phoneId? }
-schema.value;  // JSON Schema for the billing form
-uischema.value;// UI layout schema for the billing form
-config.value;  // { requiresPhone, requiresCompany, requiresAddress }
-errors.value;  // the last billing error, if any
+model.value; // { addressId?, companyId?, phoneId? }
+schema.value; // JSON Schema for the billing form
+uischema.value; // UI layout schema for the billing form
+config.value; // { requiresPhone, requiresCompany, requiresAddress }
+errors.value; // the last billing error, if any
 ```
 
-| Value | Type | Description |
-|-------|------|-------------|
-| `model` | `BillingModel` | `{ addressId?, companyId?, phoneId? }` |
-| `schema` | `JsonSchema` | JSON Schema for the billing form, shaped by the brand's requirement flags. |
-| `uischema` | `UISchemaElement` | UI layout schema, in step with the same requirement flags. |
-| `config` | `{ requiresPhone, requiresCompany, requiresAddress }` | The resolved requirement flags. |
-| `errors` | `ResponseError \| undefined` | The last error from a load or a commit. |
+| Value      | Type                                                  | Description                                                                |
+| ---------- | ----------------------------------------------------- | -------------------------------------------------------------------------- |
+| `model`    | `BillingModel`                                        | `{ addressId?, companyId?, phoneId? }`                                     |
+| `schema`   | `JsonSchema`                                          | JSON Schema for the billing form, shaped by the brand's requirement flags. |
+| `uischema` | `UISchemaElement`                                     | UI layout schema, in step with the same requirement flags.                 |
+| `config`   | `{ requiresPhone, requiresCompany, requiresAddress }` | The resolved requirement flags.                                            |
+| `errors`   | `ResponseError \| undefined`                          | The last error from a load or a commit.                                    |
 
 ## Vue Component Integration
 
@@ -129,7 +129,12 @@ errors.value;  // the last billing error, if any
   <div v-if="meta.isLoading">Loading…</div>
   <div v-else-if="meta.hasErrors">{{ errors?.message }}</div>
   <div v-else>
-    <SchemaForm :schema="schema" :layout="uischema" :data="model" @change="onChange" />
+    <SchemaForm
+      :schema="schema"
+      :layout="uischema"
+      :data="model"
+      @change="onChange"
+    />
     <button :disabled="!meta.isValid || meta.isProcessing" @click="submit">
       Save billing details
     </button>
@@ -139,7 +144,8 @@ errors.value;  // the last billing error, if any
 <script setup>
 import { useBasketBilling } from "@upmind-automation/headless";
 
-const { model, schema, uischema, meta, errors, set, update } = useBasketBilling();
+const { model, schema, uischema, meta, errors, set, update } =
+  useBasketBilling();
 
 function onChange({ data }) {
   set(data);
