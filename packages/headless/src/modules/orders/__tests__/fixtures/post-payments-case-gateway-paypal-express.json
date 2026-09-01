@@ -1,0 +1,62 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/payments?case=gateway-paypal_express",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "invoice_id": "85d26e96-783d-1652-de8a-314502e70439",
+      "gateway_id": "47d73824-8507-9315-e95b-81e642d59e06"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a33bd892890cc156-LIS",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 31 Aug 2026 11:55:26 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=dT1F7BhyhJWwLS0LG3AimhsC0n5IorAgQzjEBHVGwzS970Q55tC%2F8HBcF6DY%2BlS0WmCl5E79eMoOxfZNyl%2B78YMezBlRVM9N%2FS0oJ5nVWzXlKN%2B58o5LvPwpEvq4vL0oLf9VAHCTqA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-upmind-snail": "true"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "transaction_status": "REDIRECT",
+        "transaction_type": 3,
+        "approval_url": {
+          "url": "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&useraction=commit&token=EC-13H824062F7088508",
+          "method": "GET",
+          "fields": null
+        },
+        "transaction_id": "EC-13H824062F7088508"
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-31T11:55:26.319Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "order"
+  }
+}

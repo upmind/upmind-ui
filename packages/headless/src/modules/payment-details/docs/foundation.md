@@ -9,7 +9,7 @@ Payment details **captures** the payment intent — it owns the customer-facing 
 Two operating modes share the same data and lifecycle:
 
 - **Pay mode** — the basket or invoice has an outstanding amount, the client picks a stored method or a fresh gateway, and the output is a `SelectPaymentMethodData` payload the basket-conversion call or invoice-payment call consumes.
-- **Add mode** — no outstanding amount; the client is storing a card on file outside of a payment, typically from a "My Payment Methods" page or from a free-trial signup where the brand requires card capture up front. The same gateway list is used, filtered to store-capable gateways; output is the new `payment_details_id` registered against the client.
+- **Add mode** — no outstanding amount; the client is storing a card on file outside of a payment, typically from a "My Payment Methods" page or from a free-trial signup where the brand requires card capture up front. The same gateway list comes back, and the caller narrows it to the store-capable rows; output is the new `payment_details_id` registered against the client.
 
 ### Keys by lifecycle phase
 
@@ -28,28 +28,28 @@ The brand surfaces these keys through `/config/brand/values`; payment details co
 
 - **Stored payment method** — a `client_payment_details` record on the back end. Belongs to a client, references the gateway it was tokenised against, carries the resolved card metadata (`card_last4`, `card_expire_date`, `card_type`), an `auto_payment` flag, and a `default` flag at most one record can hold per client.
 - **Brand gateway** — a `brand_gateway` row: the gateway entry the brand has enabled, ordered, and possibly localised. Carries the gateway's currencies, card types, and provider metadata. The brand gateway list is filtered server-side by the call's `client_id`, `invoice_id`, `country_id`, and `currency_code` — gateways that don't support the combination drop out before they reach the caller.
-- **Gateway type** — one of seven wire-level categories (`CARD`, `BANK_TRANSFER`, `DIRECT_DEBIT`, `OFFLINE`, `MOBILE`, `AWAITING_CLIENT`, plus the absent `WALLET` slot). Determines which payment-method form the storefront needs to show and whether the platform expects an SDK-confirmed token or a server-side reference.
-- **Payment type** — one of three transaction shapes: `PAY_IN_FULL`, `PARTIAL_PAYMENT`, `PAY_LATER`. The available set is computed per-call from the brand config keys above, the gateway list, and whether the order has an outstanding balance.
-- **Pay context vs add context** — the two operating modes named above. The active context filters the gateway list (add-mode shows only store-capable gateways), strips `PAY_LATER` from the payment-type options (you cannot defer a zero-amount card capture), and decides what the capture produces: pay-mode produces a `SelectPaymentMethodData` payload (submitted by sibling `payment`); add-mode produces a new `payment_details_id` via the tokenise-end endpoint (`POST /gateway/frontend/tokenize-end/{gatewayId}`).
+- **Gateway type** — one of eight wire-level categories (`CARD`, `BANK_TRANSFER`, `DIRECT_DEBIT`, `SEPA`, `OFFLINE`, `MOBILE`, `WALLET`, `AWAITING_CLIENT`). Determines which payment-method form the storefront needs to show and whether the platform expects an SDK-confirmed token or a server-side reference.
+- **Payment type** — one of four transaction shapes: `PAY_IN_FULL`, `PARTIAL_PAYMENT`, `PAY_LATER`, `MANUAL_PAYMENT`. The available set is computed per-call from the brand config keys above, the gateway list, and whether the order has an outstanding balance.
+- **Pay context vs add context** — the two operating modes named above. The active context narrows the gateway list caller-side (add-mode keeps only store-capable gateways), strips `PAY_LATER` from the payment-type options (you cannot defer a zero-amount card capture), and decides what the capture produces: pay-mode produces a `SelectPaymentMethodData` payload (submitted by sibling `payment`); add-mode produces a new `payment_details_id` via the tokenise-end endpoint (`POST /gateway/frontend/tokenize-end/{gatewayId}`).
 - **Tokenise begin / tokenise end** — the two-step handshake for capturing a new card on a gateway that runs an off-site or off-frame flow (3DS challenge, redirect, hosted fields). `tokenize-begin` returns the gateway-specific payload the SDK needs to start its flow; `tokenize-end` finalises the resulting token into a permanent `client_payment_details` row.
 - **Account credit (wallet)** — a client's pre-paid balance, returned by `/wallet/balance`. Available as a partial or full payment source; it is netted off the amount before the gateway is asked for the remainder.
-- **Selected method payload** — the `SelectPaymentMethodData` envelope (`{ type, amount, wallet_amount, gateway_id?, payment_details_id? }`) basket-conversion and invoice-payment accept. Exactly one of `gateway_id` or `payment_details_id` is populated, the other is stripped before submit.
+- **Selected method payload** — the `SelectPaymentMethodData` union basket-conversion and invoice-payment accept. Every member names a `gateway_id`; only the stored-method member also names a `payment_details_id`. See the Data shape section for the members.
 
 ## Operations
 
-| #   | Capability                                                  | Inputs                                                                                                                                                                                                                                                                     | Outputs                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| --- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | **List a client's stored payment methods**                  | `clientId`; optional filters `currency_code`, `country_id`, `active`, `brand_id`                                                                                                                                                                                           | Array of `client_payment_details` records the client owns on the brand, sorted with the `default` method first. Filtering is server-side: passing `currency_code` and `country_id` narrows the list to methods whose gateway supports the combination. `GET /clients/{clientId}/payment_details`.                                                                                                                                                                                                                                                                 |
-| 2   | **List brand-eligible gateways for a payment context**      | `brandId`; optional `basket_id` (shortcut — derives `currency_code` from basket currency and `country_id` from the basket's bound address); optional `client_id`, `invoice_id`, `currency_code`, `country_id` (can also be passed explicitly, with or without `basket_id`) | Array of `brand_gateway` rows the brand has enabled and that pass the supplied filters. Gateways match on a 2-way filter: currency, country, or both — some gateways are anchored to one currency irrespective of country (most card gateways), others to one country irrespective of currency (most local bank transfer / direct-debit providers), and some require both to match. Each row carries the gateway's currencies, card types, provider, payment-type list, and `store_on_payment` / `store_outside_payment` flags. `GET /brands/{brandId}/gateways`. |
-| 3   | **Read the client's wallet balance**                        | (current actor) + `currency_code`                                                                                                                                                                                                                                          | The client's pre-paid credit split into `online`, `offline`, `total` and `negative_allowance` buckets, each keyed by currency. The selected currency's `total.amount_converted` is the figure available as a partial payment source. `GET /wallet/balance`.                                                                                                                                                                                                                                                                                                       |
-| 4   | **Format an arbitrary amount in a given currency**          | `currency_id`, `prices: number[]`                                                                                                                                                                                                                                          | A locale-aware formatted total string for the supplied numeric values. Used to display the running "you pay" / "wallet covers" / "outstanding" trio without the storefront having to know currency decimal rules. `POST /cart/calculate`.                                                                                                                                                                                                                                                                                                                         |
-| 5   | **Begin storing a card on a gateway (SDK / redirect flow)** | `gatewayId`, gateway-specific payload (return URL, currency, address, optional `invoice_id` for shared-store-on-payment)                                                                                                                                                   | A gateway-specific response the SDK or redirect step consumes (e.g. a Stripe setup intent client secret, a hosted-fields URL). The output shape varies per provider — it is the per-gateway payload the SDK consumes verbatim, and the wrapper layer does not interpret it. `POST /gateway/frontend/tokenize-begin/{gatewayId}`.                                                                                                                                                                                                                                  |
-| 6   | **Finalise a stored card after the SDK confirms**           | `gatewayId`, `client_id`, gateway-returned token bag (provider-specific keys)                                                                                                                                                                                              | The newly-created `client_payment_details` row, including its `id` (the value the storefront wires into subsequent `payment_details_id` selections), `sca_verified`, `auto_payment`, and `next_action` (populated when a further SCA step is required). `POST /gateway/frontend/tokenize-end/{gatewayId}`.                                                                                                                                                                                                                                                        |
-| 7   | **Create a stored card directly (no SDK handshake)**        | `clientId`, raw card fields (`card_num`, `card_expire_date`, `card_cvv`, `card_type`, `cardholder_name`, `address_id`, `gateway_id`), `return_url`, optional `auto_payment`                                                                                                | The created `client_payment_details` row. Carries `sca_verified` and `next_action` — `sca_verified: false` plus a populated `next_action.url` means the caller must redirect the client through the URL before the method is usable. `POST /clients/{clientId}/payment_details`. Used by gateways that accept raw card data via the server (Sage Pay Direct, Worldpay JSON, PayPal Pro).                                                                                                                                                                          |
-| 8   | **Delete a stored payment method**                          | `paymentDetailId`                                                                                                                                                                                                                                                          | Removes the record from the client. Rejected by the back end with `409`-shaped errors when `allow_card_removal_replacement` is off and the method is the last one backing an active auto-payment contract. `DELETE /clients/{clientId}/payment_details/{paymentDetailId}`.                                                                                                                                                                                                                                                                                        |
-| 9   | **Set a stored method as default**                          | `paymentDetailId`                                                                                                                                                                                                                                                          | Promotes the named method to `default: true` and demotes whichever other record previously held the flag. The default is what `payment_details` listing returns first; the platform uses it as the implicit choice when auto-payments fire on renewals. `PATCH /clients/{clientId}/payment_details/{paymentDetailId}` with `{ default: true }`.                                                                                                                                                                                                                   |
-| 10  | **Toggle auto-payment on a stored method**                  | `paymentDetailId`, `auto_payment: boolean`                                                                                                                                                                                                                                 | Updates the method's `auto_payment` flag. Forcibly held at `true` when the brand's `force_auto_payment_for_stored_details` key is set — the back end rejects attempts to flip it off. `PATCH /clients/{clientId}/payment_details/{paymentDetailId}` with `{ auto_payment }`.                                                                                                                                                                                                                                                                                      |
-| 11  | **Resume a pending tokenise after an off-site redirect**    | redirect query params (`operation_id`, gateway-specific tokens like `setup_intent`, `setup_intent_client_secret`)                                                                                                                                                          | The same response as capability 6 — the newly-created `client_payment_details` row. The resume path reads the pending operation envelope from session-scoped storage (keyed by `operation_id`) and calls tokenise-end with the gateway-returned tokens; it exists because 3DS / SCA / PayPal-style flows force a full-page redirect mid-handshake. `POST /gateway/frontend/tokenize-end/{gatewayId}`.                                                                                                                                                             |
+| #   | Capability                                                  | Inputs                                                                                                                                                                                                                                                                     | Outputs                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| --- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **List a client's stored payment methods**                  | `clientId`; optional filters `currency_code`, `country_id`, `active`, `brand_id`                                                                                                                                                                                           | Array of `client_payment_details` records the client owns on the brand, sorted with the `default` method first. Filtering is server-side: passing `currency_code` and `country_id` narrows the list to methods whose gateway supports the combination. `GET /clients/{clientId}/payment_details`.                                                                                                                                                                                                                                                                      |
+| 2   | **List brand-eligible gateways for a payment context**      | `brandId`; optional `basket_id` (shortcut — derives `currency_code` from basket currency and `country_id` from the basket's bound address); optional `client_id`, `invoice_id`, `currency_code`, `country_id` (can also be passed explicitly, with or without `basket_id`) | Array of `brand_gateway` rows the brand has enabled and that pass the supplied filters. Gateways match on a 2-way filter: currency, country, or both — some gateways are anchored to one currency irrespective of country (most card gateways), others to one country irrespective of currency (most local bank transfer / direct-debit providers), and some require both to match. Each row carries the gateway's currencies, card types, provider, and its `store_on_payment` / `store_outside_payment` flags. `GET /brands/{brandId}/gateways`.                     |
+| 3   | **Read the client's wallet balance**                        | (current actor) + `currency_code`                                                                                                                                                                                                                                          | The client's pre-paid credit split into `online`, `offline` and `total` buckets, each keyed by currency. A `negative_allowance` bucket is documented by the platform but has not appeared in any captured response. The selected currency's `total.amount_converted` is the figure available as a partial payment source. `GET /wallet/balance`.                                                                                                                                                                                                                       |
+| 4   | **Format an arbitrary amount in a given currency**          | `currency_id`, `prices: number[]`                                                                                                                                                                                                                                          | A locale-aware formatted total string for the supplied numeric values. Used to display the running "you pay" / "wallet covers" / "outstanding" trio without the storefront having to know currency decimal rules. `POST /cart/calculate`.                                                                                                                                                                                                                                                                                                                              |
+| 5   | **Begin storing a card on a gateway (SDK / redirect flow)** | `gatewayId`, gateway-specific payload (return URL, currency, address, optional `invoice_id` for shared-store-on-payment)                                                                                                                                                   | A gateway-specific response the SDK or redirect step consumes (e.g. a Stripe setup intent client secret, a hosted-fields URL). The output shape varies per provider — it is the per-gateway payload the SDK consumes verbatim, and the wrapper layer does not interpret it. `POST /gateway/frontend/tokenize-begin/{gatewayId}`.                                                                                                                                                                                                                                       |
+| 6   | **Finalise a stored card after the SDK confirms**           | `gatewayId`, `client_id`, gateway-returned token bag (provider-specific keys)                                                                                                                                                                                              | The newly-created `client_payment_details` row, including its `id` (the value the storefront wires into subsequent `payment_details_id` selections), `sca_verified`, `auto_payment`, and `next_action` (populated when a further SCA step is required). `POST /gateway/frontend/tokenize-end/{gatewayId}`.                                                                                                                                                                                                                                                             |
+| 7   | **Create a stored card directly (no SDK handshake)**        | `clientId`, raw card fields (`card_num`, `card_expire_date`, `card_cvv`, `card_type`, `cardholder_name`, `address_id`, `gateway_id`), `return_url`, optional `auto_payment`                                                                                                | The created `client_payment_details` row. Carries `sca_verified` and `next_action` — `sca_verified: false` plus a populated `next_action.url` means the caller must redirect the client through the URL before the method is usable. `POST /clients/{clientId}/payment_details`. Used by gateways that accept raw card data via the server (Sage Pay Direct, Worldpay JSON, PayPal Pro).                                                                                                                                                                               |
+| 8   | **Delete a stored payment method**                          | `paymentDetailId`                                                                                                                                                                                                                                                          | Removes the record from the client. Per the route contract the back end refuses the deletion when `allow_card_removal_replacement` is off and the method is the last one backing an active auto-payment contract — that refusal is not exercised by any recorded capture, so its shape is unconfirmed. The one recorded failure is a `404` `"Client Payment Method not found!"` for a method that is already gone. `DELETE /clients/{clientId}/payment_details/{paymentDetailId}`.                                                                                     |
+| 9   | **Set a stored method as default**                          | `paymentDetailId`                                                                                                                                                                                                                                                          | Per the route contract, promotes the named method to `default: true` and demotes whichever other record previously held the flag. No successful call is recorded — only the `405` that proves the method is `PUT`, not `PATCH`. The default is what `payment_details` listing returns first; the platform uses it as the implicit choice when auto-payments fire on renewals. `PUT /clients/{clientId}/payment_details/{paymentDetailId}` with `{ default: true }`. The route rejects `PATCH` with `405` and names `GET, HEAD, PUT, DELETE` as the methods it accepts. |
+| 10  | **Toggle auto-payment on a stored method**                  | `paymentDetailId`, `auto_payment: boolean`                                                                                                                                                                                                                                 | Updates the method's `auto_payment` flag. When the brand's `force_auto_payment_for_stored_details` key is set the platform holds the flag at `true` and ignores a contrary value on the way in. Neither the update nor the override is exercised by a recorded capture. `PUT /clients/{clientId}/payment_details/{paymentDetailId}` with `{ auto_payment }`. As above, `PATCH` is rejected with `405`.                                                                                                                                                                 |
+| 11  | **Resume a pending tokenise after an off-site redirect**    | redirect query params (`operation_id`, gateway-specific tokens like `setup_intent`, `setup_intent_client_secret`)                                                                                                                                                          | The same response as capability 6 — the newly-created `client_payment_details` row. The resume path reads the pending operation envelope from session-scoped storage (keyed by `operation_id`) and calls tokenise-end with the gateway-returned tokens; it exists because 3DS / SCA / PayPal-style flows force a full-page redirect mid-handshake. `POST /gateway/frontend/tokenize-end/{gatewayId}`.                                                                                                                                                                  |
 
 > **Submission to `POST /payments` is sibling `payment`'s capability, not surfaced here.** Capture stops at producing the `SelectPaymentMethodData` payload; submission, response parsing, and approval-url handling are documented in the `payment` foundation doc.
 
@@ -61,7 +61,7 @@ The brand surfaces these keys through `/config/brand/values`; payment details co
 // Returned by GET /clients/{clientId}/payment_details (one per array entry),
 // POST /clients/{clientId}/payment_details (single record),
 // POST /gateway/frontend/tokenize-end/{gatewayId} (single record, wrapped),
-// PATCH /clients/{clientId}/payment_details/{id} (updated single record).
+// PUT /clients/{clientId}/payment_details/{id} (updated single record).
 type StoredPaymentMethod = {
   id: string;
   client_id: string;
@@ -107,7 +107,7 @@ type StoredPaymentMethod = {
   manual: boolean; // staff-entered rather than gateway-tokenised
   sca_verified: boolean; // true once the method has cleared a successful SCA
   next_action: { url: string } | null; // populated mid-redirect; redirect the client there
-  payment_method_type: string | null; // provider-specific sub-type (e.g. "ideal", "sepa_debit")
+  payment_method_type: string | null; // provider sub-type; "credit" on a plain card
   pre_expiry_notification: string | null; // date the BE schedules the "your card expires" email
   errors: unknown[]; // gateway-side validation errors carried on the record
 
@@ -146,7 +146,7 @@ type BrandGateway = {
     payment_instructions: string; // free-text shown for offline gateways
     payment_instructions_translated: string;
     type: GatewayTypes; // see enum below
-    auth_type: "settings" | "oauth";
+    auth_type: GatewayAuthType; // none | settings | oauth2
     gateway_provider_id: string;
     org_id: string;
 
@@ -162,7 +162,6 @@ type BrandGateway = {
     // Eligibility
     currencies: { currency_id: string; currency_code: string }[];
     card_types: { id: string; name: string; code: string }[];
-    countries: { country_id: string }[]; // empty array means "no country restriction"
 
     // Provider-side capabilities (mirrored from the gateway_provider record)
     gateway_provider: {
@@ -170,7 +169,7 @@ type BrandGateway = {
       name: string;
       code: string; // GatewayProviderCodes
       type: GatewayTypes;
-      store_type: "either" | "payment" | "outside";
+      store_type: GatewayStoreType; // none | either | always
       auth_type: "settings" | "oauth";
       external_payment: boolean;
       external_store: boolean;
@@ -217,12 +216,13 @@ type BrandGateway = {
 };
 
 enum GatewayTypes {
-  // packages/types/src/data/enums/gateway.ts
   CARD = 1,
   BANK_TRANSFER = 2,
   DIRECT_DEBIT = 3,
+  SEPA = 4,
   OFFLINE = 5,
   MOBILE = 6,
+  WALLET = 7,
   AWAITING_CLIENT = 10
 }
 ```
@@ -235,7 +235,9 @@ type WalletBalance = {
   online: Record<CurrencyCode, WalletCurrencyBalance>;
   offline: Record<CurrencyCode, WalletCurrencyBalance>;
   total: Record<CurrencyCode, WalletCurrencyBalance>;
-  negative_allowance: Record<CurrencyCode, WalletCurrencyBalance>;
+  // A `negative_allowance` bucket is described by the platform but is absent
+  // from every captured response. Read it defensively.
+  negative_allowance?: Record<CurrencyCode, WalletCurrencyBalance>;
 };
 
 type WalletCurrencyBalance = {
@@ -249,43 +251,78 @@ type WalletCurrencyBalance = {
 
 ### Selected method payload — `SelectPaymentMethodData`
 
+The payload is a **union of per-instrument shapes**, not one flat envelope. Every
+member carries `gateway_id`; which other fields ride along depends on how the
+method was captured. Every member names a `gateway_id`. Only
+`StoredCardData` also names a `payment_details_id`, so the two are not
+alternatives: the stored-method shape carries both.
+
 ```ts
-// Input to POST /payments and to the basket-conversion call. Exactly one of
-// gateway_id or payment_details_id is populated; the other is stripped before submit.
-type SelectPaymentMethodData = {
-  type: PaymentType; // PAY_IN_FULL | PARTIAL_PAYMENT | PAY_LATER
-  amount: number;
-  wallet_amount?: number; // 0 if not using account credit
-  gateway_id?: string; // fresh-gateway flow
-  payment_details_id?: string; // stored-method flow
-  return_url?: string; // redirect-shaped gateways
-  cancel_url?: string;
+// Input to POST /payments and to the basket-conversion call.
+type SelectPaymentMethodData =
+  | StoredCardData // a method already on file
+  | GatewayCardData // raw card fields, server-side capture
+  | GatewayExternalCardData // the gateway captured the card itself
+  | GatewayData // bank transfer, offline, awaiting-client
+  | GatewayMobileData // mobile-money, carries the payer
+  | GatewayDirectDebitData // direct debit, carries the account name
+  | GatewayExternalStoreData; // store-outside-payment, carries the return URL
+
+type StoredCardData = {
+  payment_details_id: string;
+  client_id: string;
+  address_id: string;
+  gateway_id: string;
 };
 
+type GatewayData = {
+  gateway_id: string;
+  store_on_payment?: boolean;
+  store_on_payment_auto_payment?: boolean;
+  payment_method_addition?: Record<string, unknown>;
+};
+```
+
+The envelope the caller assembles around it carries `amount`, an optional
+`wallet_amount` (absent, not `0`, when no credit is being spent), `client_id`,
+and the `return_url` / `cancel_url` pair for redirect-shaped gateways.
+
+> **A fresh-gateway selection needs both halves.** Naming a gateway without the
+> field bag that gateway's own capture produced yields a payload with no gateway
+> on it at all — the amount and the client, and nothing to charge.
+
+```ts
 enum PaymentType {
-  PAY_IN_FULL = "pay_in_full",
-  PARTIAL_PAYMENT = "partial_payment",
-  PAY_LATER = "pay_later"
+  PAY_IN_FULL = "stored-card",
+  PARTIAL_PAYMENT = "partial-payment",
+  PAY_LATER = "pay-later",
+  MANUAL_PAYMENT = "manual-payment"
 }
 ```
+
+> **The wire values are not the member names.** `PAY_IN_FULL` is `"stored-card"`
+> on the wire, which collides with the stored-card member of the separate
+> payment-method-type enum. Compare against the enum member, never against a
+> string literal.
 
 ## Dependencies
 
 ### Dependants — modules that read from this one
 
-| Module    | Weight | Reads                                                                        | Why                                                                                                                                                                                                                            |
-| --------- | ------ | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `payment` | 5      | `SelectPaymentMethodData` payload, `GatewayTypes` and `GatewayContext` enums | Submits the captured payload to `POST /payments` and handles the gateway's response.                                                                                                                                           |
-| `basket`  | 4      | stored method list, selected payment payload, payment-type enum              | The basket carries a `payment_details_id` / `gateway_id` it submits at conversion; it reads the filtered stored-method list so it can preselect the default, and the payment-type list to know whether `PAY_LATER` is allowed. |
-| `orders`  | 4      | stored method shape, payment-type enum                                       | The invoice / order view shows the method that paid each transaction and offers the same payment-type choices when retrying a failed charge.                                                                                   |
+| Module             | Weight | Reads                                                                        | Why                                                                                                                                                                                                                            |
+| ------------------ | ------ | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `payment`          | 5      | `SelectPaymentMethodData` payload, `GatewayTypes` and `GatewayContext` enums | Submits the captured payload to `POST /payments` and handles the gateway's response.                                                                                                                                           |
+| `basket`           | 4      | stored method list, selected payment payload, payment-type enum              | The basket carries a `payment_details_id` / `gateway_id` it submits at conversion; it reads the filtered stored-method list so it can preselect the default, and the payment-type list to know whether `PAY_LATER` is allowed. |
+| `payment-gateways` | 4      | gateway types and the capture context enum                                   | Runs the per-gateway SDK lifecycle this module drives, and reads the same type vocabulary back.                                                                                                                                |
+| `orders`           | 4      | stored method shape, payment-type enum                                       | The invoice / order view shows the method that paid each transaction and offers the same payment-type choices when retrying a failed charge.                                                                                   |
 
-Presentation layer — payment-method management pages (list, add, edit default, delete), checkout payment step, and the invoice "pay now" surface all read the stored-method list, the gateway list, the wallet balance, and the payment-type set. The presentation layer renders the gateway-specific form (card fields, hosted SDK container, bank transfer instructions) but defers the SDK lifecycle to the `payment` module.
+Presentation layer — payment-method management pages (list, add, edit default, delete), checkout payment step, and the invoice "pay now" surface all read the stored-method list, the gateway list, the wallet balance, and the payment-type set. The presentation layer renders the gateway-specific form (card fields, hosted SDK container, bank transfer instructions) and owns the per-gateway SDK lifecycle itself; the `payment` module takes over once the payload is submitted.
 
 The `query` HTTP transport layer and the `routing` module are excluded — they cover most modules and are not domain dependants.
 
 ### This module's own dependencies
 
-- **HTTP transport layer** — bearer-token-authenticated requests, currency injection on listing calls, error normalisation, mutation invalidation keyed by `["paymentDetail", "stored"]`.
+- **HTTP transport layer** — bearer-token-authenticated requests, currency injection on listing calls, error normalisation, and invalidation of the stored-method read after a successful capture.
 - **Session** — for the calling client's id, authentication signal, and the auth-subscription that re-loads the gateway list on token change.
 - **Brand** — for `brandId`, default currency, and the brand-config keys enumerated in "Keys by lifecycle phase".
 - **Routing** — for reading the off-site-redirect query params (`operation_id`, gateway-specific setup-intent params) when resuming a tokenise-end after the client returns.
@@ -298,10 +335,17 @@ The `query` HTTP transport layer and the `routing` module are excluded — they 
 
 #### List a client's stored payment methods
 
+> Recorded: `__tests__/fixtures/` — get-clients-id-payment-details-active-true-brand-id-country-id.json (200) · get-clients-id-payment-details-case-not-mine.json (404) · get-clients-id-payment-details-case-signed-out.json (401)
+
 ```bash
 curl -s "$API/api/clients/{clientId}/payment_details?limit=0&brand_id={brandId}&country_id={countryId}&currency_code=USD&active=true&with=gateway,client&order=-default,id&lang=en-US" \
   -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
+
+The sample below shows `data` as an array — the unfiltered shape. When the
+platform filters rows it emits a keyed object instead; see "A filtered listing
+can arrive keyed, not indexed" under Lessons, and read the recorded capture for
+that shape.
 
 ```json
 {
@@ -349,9 +393,11 @@ curl -s "$API/api/clients/{clientId}/payment_details?limit=0&brand_id={brandId}&
 }
 ```
 
-When the calling token is not authorised to read the requested client, the platform returns `403` with `error.message = "Unauthorized access to client!"` and `data: null` — observed on `GET /api/clients/{otherClientId}/payment_details` with a token belonging to a different client.
+When the calling token cannot see the requested client, the platform returns `404` with `error.message = "Client not found!"` and `data: null` — observed on `GET /api/clients/{otherClientId}/payment_details` with a token belonging to a different client. The client is reported as absent rather than forbidden, so a caller cannot tell "not yours" from "does not exist" — and neither is the `200` + `data: []` an empty list returns.
 
 #### Create a stored card directly (raw-card gateways)
+
+> Recorded: `__tests__/fixtures/` — post-clients-id-payment-details-case-raw-card-refused.json (409)
 
 ```bash
 curl -s -X POST "$API/api/clients/{clientId}/payment_details?lang=en-US" \
@@ -375,14 +421,20 @@ Response is a single `IPaymentDetail` record matching the shape in the listing c
 
 #### Set a stored method as default / toggle auto-payment
 
+> Recorded: `__tests__/fixtures/` — patch-clients-id-payment-details-id-case-set-default.json (405) · patch-clients-id-payment-details-id-case-auto-payment.json (405)
+
+The route accepts `GET`, `HEAD`, `PUT` and `DELETE`. A `PATCH` returns `405`.
+
 ```bash
-curl -s -X PATCH "$API/api/clients/{clientId}/payment_details/{paymentDetailId}?lang=en-US" \
+curl -s -X PUT "$API/api/clients/{clientId}/payment_details/{paymentDetailId}?lang=en-US" \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{ "default": true, "auto_payment": true }'
 ```
 
 #### Delete a stored method
+
+> Recorded: `__tests__/fixtures/` — delete-clients-id-payment-details-id-case-already-gone.json (404)
 
 ```bash
 curl -s -X DELETE "$API/api/clients/{clientId}/payment_details/{paymentDetailId}?lang=en-US" \
@@ -391,7 +443,9 @@ curl -s -X DELETE "$API/api/clients/{clientId}/payment_details/{paymentDetailId}
 
 ### Brand gateway list
 
-Server-side filter is **2-way** — each gateway matches against currency, country, or both. Most card gateways are currency-anchored (one currency, any country); most local bank-transfer / direct-debit providers are country-anchored (one country, any currency); some require both to match.
+> Recorded: `__tests__/fixtures/` — get-brands-id-gateways-active-1-case-pay-client-id-country-id.json (200, 15 rows) · …-case-currency-unsupported-… (200, 11 rows) · …-case-tiny-amount-… (200, 15 rows)
+
+Server-side filter is **2-way** — each gateway matches against currency, country, or both. It does **not** filter on amount: the same request at `amount=0.20` and at `amount=50.00` returns an identical list, so a gateway's own per-currency minimum is enforced later, at payment, not here. Most card gateways are currency-anchored (one currency, any country); most local bank-transfer / direct-debit providers are country-anchored (one country, any currency); some require both to match.
 
 Filter inputs can be passed explicitly (`currency_code`, `country_id`) **or** derived implicitly via `basket_id` — supplying `basket_id` uses the basket's currency and the country from its bound address. The two forms can be combined when a caller wants to override one axis (e.g. pass `basket_id` plus an explicit `currency_code` to evaluate gateway eligibility against a hypothetical currency switch).
 
@@ -477,6 +531,8 @@ The `currencies` and `card_types` arrays scope what the gateway is _capable_ of,
 
 ### Wallet balance
 
+> Recorded: `__tests__/fixtures/` — get-wallet-balance.json (200)
+
 ```bash
 curl -s "$API/api/wallet/balance?lang=en-US&currency_code=USD" \
   -H "Authorization: Bearer $ACCESS_TOKEN"
@@ -527,6 +583,8 @@ curl -s "$API/api/wallet/balance?lang=en-US&currency_code=USD" \
 
 ### Format an arbitrary amount
 
+> Recorded: `__tests__/fixtures/` — post-cart-calculate.json (200) plus one capture per distinct price list
+
 ```bash
 curl -s -X POST "$API/api/cart/calculate?lang=en-US" \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
@@ -537,6 +595,8 @@ curl -s -X POST "$API/api/cart/calculate?lang=en-US" \
 Returns `{ total: number, total_formatted: string }` keyed off the supplied currency.
 
 ### Tokenise begin / tokenise end (SDK gateways)
+
+> Recorded: `__tests__/fixtures/` — post-gateway-frontend-tokenize-begin-id.json (200) · post-gateway-frontend-tokenize-end-id-case-token-unusable.json (422)
 
 ```bash
 curl -s -X POST "$API/api/gateway/frontend/tokenize-begin/{gatewayId}?lang=en-US" \
@@ -603,8 +663,8 @@ Guarantees the platform holds:
 
 Constraints the caller has to plan around:
 
-- The amount on the payment payload must match the current outstanding balance (modulo `wallet_amount`) — if the basket has been edited since the gateway list was fetched, the amount used to fetch the list may be stale, and the gateway list itself may need re-fetching (some gateways drop out at lower or higher thresholds, e.g. Stripe has a per-currency minimum).
-- `PARTIAL_PAYMENT` is only available when `client_allow_partial_payments` is on at brand level AND the gateway supports it AND the order is in a payable state (`DRAFT`, `ADJUSTED`, `UNPAID`, `OVERDUE`).
+- The amount on the payment payload must match the current outstanding balance (modulo `wallet_amount`) — if the basket has been edited since the list was fetched, a currency or country change stales it and it needs re-fetching. An amount change alone does not — the endpoint never filtered on amount — but the per-currency minimum still bites at payment time.
+- `PARTIAL_PAYMENT` is offered when `client_allow_partial_payments` is on at brand level. The payable-state check (`DRAFT`, `ADJUSTED`, `UNPAID`, `OVERDUE`) gates whether the capture surface opens at all, not which transaction shapes it lists.
 - `PAY_LATER` is silently dropped once the invoice leaves `DRAFT` — a half-paid invoice cannot regress to "pay later" even if the brand has the key enabled.
 - When `force_card_storage` is on, the customer cannot opt out of storing on payment — the card is stored regardless of any UI-level preference.
 - Wallet credit is applied before the gateway charge; if `wallet_amount === amount`, the payload settles entirely from credit and no gateway round-trip happens via `payment`.
@@ -635,9 +695,9 @@ flowchart TD
 
 Guarantees the platform holds:
 
-- The gateway list returned with no `invoice_id` and an `amount` of zero is filtered to gateways that have `store_outside_payment === true` at provider level (and the brand has not disabled it).
+- The gateway endpoint does **not** narrow by capture context: the same request returns the same rows whether a payment or a card capture is being set up. Filtering to the gateways that can hold a method is the caller's job, off each row's `store_outside_payment` flag — on a brand offering fifteen gateways, two carry it.
 - `tokenize-end` is the only call that creates a `client_payment_details` row for SDK gateways; the SDK confirm step alone does not produce a server-side record.
-- The newly-created record carries `default: true` if and only if the client has no other active stored method at the moment of creation — the platform sets the flag server-side, the caller doesn't have to.
+- Per the route contract the newly-created record carries `default: true` if and only if the client has no other active stored method at the moment of creation; the platform sets the flag, the caller doesn't. No successful create is recorded — the two capture attempts return `409` and `422` — so the rule is unconfirmed here.
 
 Constraints the caller has to plan around:
 
@@ -650,7 +710,7 @@ Constraints the caller has to plan around:
 
 ### The gateway list needs re-fetching when the amount, currency, or country changes
 
-The brand-gateway list is computed server-side against the amount, currency, client country, and (when present) invoice id. A storefront that fetches the list once at "checkout opens" and then lets the customer change their billing address, swap the basket currency, or apply a coupon that drops the total under a gateway's per-currency minimum will be holding a stale list. The customer can pick a gateway the back end has since dropped, and the payment-submit call rejects with a gateway-mismatch error after the capture handshake has already run. The signal that the list is stale is non-obvious: the gateways themselves don't carry an "expiry"; only the four input filters do.
+The brand-gateway list is computed server-side against the currency, the client country, and (when present) the invoice id. It is **not** computed against the amount — the same request at 0.20 and at 50.00 returns an identical list. A storefront that fetches the list once at "checkout opens" and then lets the customer change their billing address, swap the basket currency, or apply a coupon that drops the total under a gateway's per-currency minimum will be holding a stale list. The customer can pick a gateway the back end has since dropped, and the payment-submit call rejects with a gateway-mismatch error after the capture handshake has already run. The signal that the list is stale is non-obvious: the gateways themselves don't carry an "expiry"; only the input filters do. Changing the amount alone does not stale the list, because the endpoint never read it.
 
 ### SDK gateways need an explicit update when the amount or currency changes
 
@@ -670,23 +730,43 @@ The tokenise-begin → SDK → tokenise-end handshake fans out into a full-page 
 
 ### Gateway type ≠ stored-method type ≠ payment-method-type
 
-There are three distinct "type" axes in play and they do not all align on the same enum. `gateway.type` (the `GatewayTypes` enum: `CARD`, `BANK_TRANSFER`, `DIRECT_DEBIT`, `OFFLINE`, `MOBILE`, `AWAITING_CLIENT`) describes the wire shape of the gateway. The stored-method record's `type` mirrors the same enum at create-time but is frozen on the record — switching the gateway's type later doesn't re-classify existing methods. The stored-method record's `payment_method_type` is a separate sub-type populated only for multi-method gateways (Stripe's "card" vs "sepa_debit" vs "ideal" sub-flows). A caller that branches on `type` alone will misroute the Stripe-iDEAL case.
+There are three distinct "type" axes in play and they do not all align on the same enum. `gateway.type` (the `GatewayTypes` enum: `CARD`, `BANK_TRANSFER`, `DIRECT_DEBIT`, `OFFLINE`, `MOBILE`, `AWAITING_CLIENT`) describes the wire shape of the gateway. The stored-method record's `type` mirrors the same enum at create-time but is frozen on the record — switching the gateway's type later doesn't re-classify existing methods. The stored-method record's `payment_method_type` is a separate sub-type — a plain card records `"credit"`, and multi-method gateways record their own sub-flow. A caller that branches on `type` alone will misroute the Stripe-iDEAL case.
 
 ### Storing the card on payment isn't always optional
 
 Three flags interact to decide whether the "save this card" choice is real: `gateway.store_on_payment` (does the gateway support the combined flow at all), `gateway.store_on_payment_force` (does the gateway require it for this combo), and the brand's `billing.gateway.force_card_storage` (does the brand mandate it across all gateways). When any of the three resolves to "must store", the customer's preference is moot — the card will be stored. A storefront that always renders the checkbox lets the customer believe they're declining a save that's about to happen anyway.
 
-### `wallet_amount` shifts the gateway-eligibility ground
+### `wallet_amount` shifts the ground a gateway will actually accept
 
-Netting the wallet balance off the amount can drop the gateway-charge portion below a gateway's per-currency minimum (Stripe's $0.50, OpenPay's MXN 5, etc.). The list returned by `/brands/{brandId}/gateways` was filtered against the full `amount`, not the `amount - wallet_amount` residue. A caller that watches the wallet checkbox without re-checking the gateway list builds a payload against a gateway the platform will reject downstream — the capture surface offers an instrument the residue won't support.
+Netting the wallet balance off the amount can drop the gateway-charge portion below a gateway's per-currency minimum (Stripe's $0.50, OpenPay's MXN 5, etc.). The gateway listing will not warn you: it never filtered on amount in the first place, so the same instruments come back whatever the residue is. The minimum is enforced at payment, after the capture handshake has run. A caller that watches the wallet checkbox and trusts the list to self-correct builds a payload against an instrument the residue won't support.
 
-### Payment-type availability resolves across four independent flags
+### Payment-type availability resolves from two brand keys and the credit
 
-The brand exposes `client_allow_partial_payments`, the gateway exposes `payment_types`, the stored method exposes `auto_payment`, and the storefront exposes a "split payment" toggle. These are four separate truths the customer's selection has to satisfy simultaneously, and they fail closed: partial payment is offered only when all of brand-allows-it AND gateway-supports-it AND order-is-still-draft are true. A single mismatched read of any of them quietly removes the option without an error message — the option simply isn't in the dropdown.
+The set of transaction shapes on offer is computed from exactly three inputs:
+`billing.gateway.client_allow_partial_payments` decides whether a part payment
+appears, `invoices.common.is_available_pay_later` decides whether deferring
+appears, and a non-zero wallet contribution removes deferring again — you cannot
+defer an amount you have already part-settled from credit. Nothing about the
+gateway or the stored method narrows the set. A single mis-read brand key quietly
+removes an option with no error — it simply isn't in the list.
 
 ### Listing payment methods is an authorisation surface
 
-`GET /clients/{clientId}/payment_details` is one of the few endpoints that takes a client id in the URL rather than implying it from the token. A staff token can read any client's methods; a client token can only read their own. Trying to fetch another client's methods returns `403` with `error.message = "Unauthorized access to client!"` and `data: null` — a shape distinct from the "list is empty" `200` response (`data: []`). The two responses share `data` semantics but not status, and conflating them silently presents an empty list when the platform is signalling forbidden access.
+`GET /clients/{clientId}/payment_details` is one of the few endpoints that takes a client id in the URL rather than implying it from the token. A client token can only read its own client. Whether a staff token can read any client is not exercised by a recorded capture. Trying to fetch a client the token cannot see returns `404` with `error.message = "Client not found!"` and `data: null` — a shape distinct from the "list is empty" `200` response (`data: []`). The two responses share `data` semantics but not status, and conflating them silently presents an empty list when the platform is signalling that the caller has no business here.
+
+### A filtered listing can arrive keyed, not indexed
+
+`GET /clients/{clientId}/payment_details` normally returns `data` as an array. When
+the platform filters rows out server-side — an inactive method, one whose gateway
+the brand has since dropped — it does **not** reindex what is left. The response
+then carries `data` as an **object whose keys are the surviving original
+positions**: a real 13-record response has come back keyed `0…5` and `13…19`,
+with `total: 13` beside it.
+
+Any caller that branches on "is this an array" silently treats that object as a
+single record and shows one blank method where the client holds thirteen. Read
+the values of `data` rather than testing it for array-ness, on this and on every
+other listing the platform filters.
 
 ### Deleting the last card silently changes platform behaviour
 

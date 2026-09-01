@@ -35,6 +35,7 @@ import {
   isModuleResolved,
   loadCorpusBodies
 } from "./corpus.source";
+import { armsForceableSurface } from "./routes";
 import {
   filter,
   find,
@@ -200,14 +201,19 @@ function offsetOf(fixture: RecordedFixture): number {
  * module would find nothing and force would silently degrade to Live.
  *
  * A module the seam does not reach arms nothing and leaves the page Live, which
- * is the state it boots into anyway (`S12`).
+ * is the state it boots into anyway (`S12`). So does a module the seam reaches
+ * but whose declared subject owns no read to picture — an action-only flow
+ * ({@link armsForceableSurface}); it has no state to force, so it never arms.
  *
  * @param module The module whose recordings this page forces over.
  */
 export async function armCorpusModule(module: string): Promise<boolean> {
   if (!isModuleResolved(module)) return false;
 
-  await loadCorpusBodies(module);
+  const bodies = await loadCorpusBodies(module);
+  if (!bodies || !armsForceableSurface(featureTextFor(module), bodies))
+    return false;
+
   armedModule = module;
 
   return true;

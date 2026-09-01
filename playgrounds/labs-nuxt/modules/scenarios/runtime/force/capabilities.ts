@@ -108,7 +108,7 @@ function isRefusal(fixture: RecordedFixture): boolean {
 }
 
 /** A read the server answered — the recordings a state can be drawn from. */
-function isServedRead(fixture: RecordedFixture): boolean {
+export function isServedRead(fixture: RecordedFixture): boolean {
   return isRead(fixture) && !isRefusal(fixture);
 }
 

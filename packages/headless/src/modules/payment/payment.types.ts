@@ -23,6 +23,19 @@ export interface PaymentArgs {
    */
   orderId: IOrder["id"];
   paymentDetail: PaymentDetailData;
+  /**
+   * The id of the machine that invoked this one, when it was invoked as a child.
+   *
+   * A terminal error is handed up with `escalate` only when this is set.
+   * `order.machine` (`orderManager`) and `basket.machine` (`basketManager`) pass
+   * it from their `invoke.data`; a ROOT interpretation has no parent, leaves it
+   * unset, and reads the error off the exposed `errors` instead. Without the
+   * guard `sendParent` throws at a root and freezes the machine mid-transition.
+   *
+   * xstate v4 gives an action no supported way to ask whether it is running as
+   * an invoked child, so the parent declares itself.
+   */
+  parentId?: string;
 }
 
 /**

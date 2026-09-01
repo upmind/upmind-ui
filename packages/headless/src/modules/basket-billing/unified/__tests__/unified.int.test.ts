@@ -106,13 +106,13 @@ function callAdd(type: UnifiedType, model: UnifiedModel): Promise<unknown> {
 
 // -----------------------------------------------------------------------------
 
-describe("useUnifiedServices().add — once-only phone POST (FE-2711)", () => {
+describe("AC-14/AC-15/AC-16 useUnifiedServices().add — once-only phone POST (FE-2711)", () => {
   beforeEach(() => {
     // Reset call history; mockResolvedValue implementations survive a clear.
     vi.clearAllMocks();
   });
 
-  it("BUSINESS: folds the phone into the single company POST, fires no standalone phone POST", async () => {
+  it("AC-14 BUSINESS: folds the phone into the single company POST, fires no standalone phone POST", async () => {
     const model: UnifiedModel = {
       company: { name: "Acme Ltd", addressId: "addr-1", emailId: "email-1" },
       phone
@@ -137,7 +137,7 @@ describe("useUnifiedServices().add — once-only phone POST (FE-2711)", () => {
     );
   });
 
-  it("PERSONAL: fires the standalone phone POST exactly once and no company POST", async () => {
+  it("AC-15 PERSONAL: fires the standalone phone POST exactly once and no company POST", async () => {
     const model: UnifiedModel = { phone };
 
     await callAdd(UnifiedType.PERSONAL, model);
@@ -150,7 +150,7 @@ describe("useUnifiedServices().add — once-only phone POST (FE-2711)", () => {
     expect(spies.ensureCompany).not.toHaveBeenCalled();
   });
 
-  it("PERSONAL: hands the address ensure the model DIRECTLY, not wrapped in { model }", async () => {
+  it("AC-16 PERSONAL: hands the address ensure the model DIRECTLY, not wrapped in { model }", async () => {
     const address: AddressModel["address"] = {
       address1: "1 Prover Street",
       city: "Leeds",

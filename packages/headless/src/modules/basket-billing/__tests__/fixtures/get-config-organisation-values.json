@@ -1,0 +1,61 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/config/organisation/values",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a344898c1dcfeeea-LIS",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Tue, 01 Sep 2026 13:14:19 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=7WDATbmoeA4wnl7UO6Yr1JrHygaVsZjp69A%2B7TbkxWVmJk7R%2Berp9bAWVtCAw9GS0RXPfTQi8hJA%2BuVGPpMe1Kt6vAYFhvJu1A2qqCsY6obkN6CPZBF1p3AorxoUiY%2BuC1ShwzkLug%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "package.enabled_features.multi_brand": true,
+        "package.enabled_features.product_provisioning": true,
+        "package.enabled_features.remove_upmind_branding": false,
+        "package.enabled_features.bulk_notifications": true,
+        "package.enabled_features.unlimited_payment_gateways": true,
+        "package.enabled_features.webhooks": true,
+        "package.enabled_features.unlimited_provisioning_configurations": true,
+        "package.enabled_features.create_user_api_tokens": true,
+        "package.enabled_features.multi_language": true,
+        "package.enabled_features.multi_currency": true,
+        "package.enabled_features.affiliate_platform": true
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-01T13:14:19.028Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "basket-billing"
+  }
+}

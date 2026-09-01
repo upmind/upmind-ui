@@ -17,6 +17,57 @@ export type HttpMethod =
 
 export type FixtureSource = "journey" | "case";
 
+/**
+ * HTTP error statuses a forced fixture may carry (see `Generator` forceStatus).
+ * Copied from headless `responseCodes` (packages/headless/src/utils/useError.ts,
+ * node `responseCodes` in graphify-out/graph.json community 2) — the error
+ * members only. Copied, not imported: this low-level test-fixtures package must
+ * not depend on headless.
+ */
+export enum ForcedErrorCode {
+  Bad_Request = 400,
+  Unauthorized = 401,
+  Forbidden = 403,
+  Not_Found = 404,
+  Timeout = 408,
+  Conflict = 409,
+  Unprocessable_Entity = 422,
+  Too_Many_Requests = 429,
+  Internal_Server_Error = 500,
+  Bad_Gateway = 502,
+  Service_Unavailable = 503,
+  Gateway_Timeout = 504
+}
+
+/**
+ * The API's structured error object. Copied from headless `QueryResponseError`
+ * (packages/headless/src/modules/query/query.types.ts, node `QueryResponseError`
+ * in graphify-out/graph.json) — copied, not imported: test-fixtures must not
+ * depend on headless.
+ */
+export type QueryResponseError = {
+  id: null;
+  code: ForcedErrorCode | string | number;
+  type: ForcedErrorCode | string | number;
+  message: string;
+  data: unknown | null;
+};
+
+/**
+ * The API wire error envelope a forced fixture stores — the `QueryResponse`
+ * shape (headless query.types.ts, graphify-out/graph.json) narrowed to the
+ * error case. Copied, not imported, for the same reason as `QueryResponseError`.
+ */
+export type ForcedErrorResponse = {
+  status: "error";
+  data: null;
+  related: null;
+  total: null;
+  error: QueryResponseError;
+  messages: null;
+  meta: null;
+};
+
 export type FixtureProvenance = {
   journey?: string;
   case?: string;

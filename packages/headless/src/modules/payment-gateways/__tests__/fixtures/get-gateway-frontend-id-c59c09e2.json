@@ -1,0 +1,53 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/gateway/frontend/5d085e69-d562-3719-e98a-218e940d4237?case=details-stripe&client_id=25d96e76-3ed0-913d-d52c-417482528340&amount=50.00&currency=GBP&return_url=http%3A%2F%2Fqa-automation.local%3A5173%2Fpayment%2Freturn",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a33474c71ec5cef8-LIS",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Sun, 30 Aug 2026 14:23:56 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=qAOt39%2Bt3Qd%2FgY%2B5lWfCDuvHXMeXcxHg5Yu8hjzFhLIKf9VjhQuWS9tUuWEc7OIHd10%2B5U5wAb7uVqdhhdPfaTvhMoXR7eswFKDonUIkJdd3z3nIM9w48QXI0jQUecHh6cBzuCPlwA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "5aa45b97b1fab8a28e9cb8b93ec9c8912fe7b489",
+        "type": 0,
+        "code": 500,
+        "message": "A critical error occurred",
+        "data": null
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-30T14:23:56.587Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "payment-gateways"
+  }
+}

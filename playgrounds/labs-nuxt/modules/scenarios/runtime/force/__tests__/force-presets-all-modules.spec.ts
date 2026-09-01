@@ -49,7 +49,7 @@ import { answerablePresets } from "../capabilities";
 import { armCorpusModule, runtimeCorpus, runtimeFeature } from "../corpus";
 import { createForceHandlers } from "../handlers";
 import { PENDING, presetAnswer } from "../presets";
-import { moduleRoutes } from "../routes";
+import { armsForceableSurface, moduleRoutes } from "../routes";
 import {
   filter,
   flatMap,
@@ -166,18 +166,22 @@ type Loaded = {
 const LOADED: Loaded[] = [];
 
 /** A module the fixtures export publishes that force loaded nothing for. */
-const UNLOADED: { module: string; feature: string }[] = [];
+const UNLOADED: {
+  module: string;
+  feature: string;
+  bodies: CorpusBodies | undefined;
+}[] = [];
 
 // Serial: the loader caches per module and arming moves one shared pointer, so a
 // parallel sweep would race the corpus it is about to read back.
 for (const module of keys(recordedBodies)) {
-  await armCorpusModule(module);
+  const armed = await armCorpusModule(module);
 
   const bodies = runtimeCorpus(module);
   const feature = runtimeFeature(module);
 
-  if (!bodies || isEmpty(bodies)) {
-    UNLOADED.push({ module, feature });
+  if (!armed || !bodies || isEmpty(bodies)) {
+    UNLOADED.push({ module, feature, bodies });
     continue;
   }
 
@@ -533,12 +537,17 @@ describe("AC1 force reaches every module that publishes recordings", () => {
     ).toEqual(keys(recordedBodies).sort());
   });
 
-  it("drops a module only for the reason S12 names — it declares no subject", () => {
-    for (const { module, feature } of UNLOADED) {
+  it("drops a module only for the reason S12 names — no read surface to force", () => {
+    // S12 is the SAME reading that leaves a module arming no route: a module
+    // hosts a forced state only where its declared subject owns a read to
+    // picture. A feature declaring no subject owns none; so does an action-only
+    // flow whose subject owns only writes (payment, orders — pay/3DS, no read).
+    // Both are left Live, deterministically, off the recordings — never a tag.
+    for (const { module, feature, bodies } of UNLOADED) {
       expect(
-        feature,
-        `${module} publishes recordings and declares a subject, and force loaded nothing for it`
-      ).toBe("");
+        !!bodies && armsForceableSurface(feature, bodies),
+        `${module} declares a forceable read surface, yet force loaded nothing for it`
+      ).toBe(false);
     }
   });
 

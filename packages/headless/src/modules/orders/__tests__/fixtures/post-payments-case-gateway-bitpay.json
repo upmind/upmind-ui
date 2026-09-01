@@ -1,0 +1,64 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/payments?case=gateway-bitpay",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "invoice_id": "85d26e96-783d-1652-de8a-314502e70439",
+      "gateway_id": "2785d26e-9678-3d16-e29a-314502e70439"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a33bd8b99b77ff4e-LIS",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 31 Aug 2026 11:55:32 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=TPaqcPuMjH8TJ8JTeeADp6Ud5HVJq5HGLZp%2B%2FhWghLwVkrjicq2vpFaRV2eGYBlsZSgjyopLLKC9KEIQKj6dswbROxKnyN8x65dlUqVXnwxavYbO9qlBbl98kVroA%2B2H0WIIVL1mng%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-upmind-snail": "true"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "transaction_status": "WAITING",
+        "transaction_type": 13,
+        "approval_url": {
+          "url": "https://test.bitpay.com/invoice?id=AUK33tHs554eagEKoBdubi",
+          "method": "GET",
+          "fields": {
+            "id": "AUK33tHs554eagEKoBdubi"
+          }
+        },
+        "transaction_id": "AUK33tHs554eagEKoBdubi"
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-31T11:55:32.398Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "order"
+  }
+}

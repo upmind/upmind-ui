@@ -1,0 +1,56 @@
+{
+  "version": 3,
+  "request": {
+    "method": "PATCH",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/payment_details/785d26e9-6783-d16e-738f-314502e70439?case=auto-payment",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "auto_payment": true
+    }
+  },
+  "response": {
+    "status": 405,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "access-control-expose-headers": "Retry-After, X-RateLimit-Limit",
+      "allow": "GET, HEAD, PUT, DELETE",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a32c457c581c9b7d-LIS",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Sat, 29 Aug 2026 14:33:32 GMT",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=tCBcYRWSP2bedztKngz5G0nw%2F0yLW%2FfyBwy3dEFKy5e2CVgZpzPST8byRxMIaEAFqsmbQsMhEnQxYJezYMQCsHi4E7MCyn6IGQRHXYmdoxVPYXhVkDD73FHB4XfL%2B%2BLeTCXFzfEziw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": null,
+        "type": 0,
+        "code": 405,
+        "message": "The PATCH method is not supported for this route. Supported methods: GET, HEAD, PUT, DELETE.",
+        "data": null
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-29T14:33:32.993Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "payment-details"
+  }
+}

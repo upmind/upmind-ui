@@ -1,0 +1,59 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/gateway/frontend/tokenize-end/4d036794-24d0-e710-2eea-3153698d582e?case=end-refused-openpay",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "token": "mock-token"
+    }
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a3347507fa3dcef8-LIS",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Sun, 30 Aug 2026 14:24:06 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=2JTViWl0gM7R4p%2F3hkP4ofMXyaz6sQp%2Fiut1iQeS9I3TFf8sR4j4Zyvf5zrddpkN7I%2BuX%2FTTiw8ZxHKwegrxrDVz0kYLrGQAG8YfJa4GNdkYp06w%2BfEOQxz5yhmznm1S1yBxpV402A%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "1b3744b60258cac165b6faa3f27b9434e935e33c",
+        "type": 0,
+        "code": 422,
+        "message": "API request invalid!",
+        "data": {
+          "client_payment_details_id": [
+            "The client payment details id field is required."
+          ]
+        }
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-30T14:24:06.505Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "payment-gateways"
+  }
+}

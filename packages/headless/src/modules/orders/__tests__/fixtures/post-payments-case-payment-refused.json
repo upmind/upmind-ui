@@ -1,0 +1,61 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/payments?case=payment-refused",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "invoice_id": "85d26e96-783d-1652-de8a-314502e70439",
+      "payment_details_id": "00000000-0000-0000-0000-000000000000"
+    }
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a33bd878e851c156-LIS",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Mon, 31 Aug 2026 11:55:19 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Cv6aX7l0quC03LVLljqiyUR1CqqxcL2dZ9%2Bv3SlNSzni2LViVwuxu8kgoVlxqz7ZNeN7spfuRvfBNyHVI8W3PDCVkDyxo2%2B1eqbIFLjS5giRkPrhTZFgzJkwUmMbxHmM%2FBpi64cD1w%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN",
+      "x-upmind-snail": "true"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "f7c003b08631b06f341bc7639e14f9e90cdc5c56",
+        "type": 0,
+        "code": 422,
+        "message": "API request invalid!",
+        "data": {
+          "payment_details_id": [
+            "The identifier (payment details id) is invalid!"
+          ]
+        }
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-31T11:55:19.957Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "order"
+  }
+}

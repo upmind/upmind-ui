@@ -67,7 +67,7 @@ vi.mock("../../", () => ({
 
 // -----------------------------------------------------------------------------
 
-import { hasProductChanges, preserveProvisionFields } from "../utils";
+import { hasProductChanges, preserveProvisionFields } from "../basket.utils";
 
 // --- utils
 import { cloneDeep } from "lodash-es";

@@ -106,7 +106,7 @@ export const useInvoice = (invoiceId: Invoice["id"]) => {
 
     // --- methods
 
-    invalidate: invalidateQueryByKey([service.queryKey, { invoiceId }], {
+    invalidate: invalidateQueryByKey([...service.queryKey, { invoiceId }], {
       exact: false
     })
   };
