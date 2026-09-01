@@ -229,7 +229,7 @@ describe("refreshContext — deselected option survives a basket refresh", () =>
 
   beforeEach(async () => {
     const { default: machine } = await import("../product.machine");
-    const { useProductConfigSchema } = await import("../schemas");
+    const { useProductConfigSchema } = await import("../product.schemas");
 
     refreshContext = (machine.options.actions!.refreshContext as any)
       .assignment;

@@ -138,7 +138,7 @@ const requiredLookup = {
 const lookups = { options: [optionalLookup, requiredLookup] };
 
 async function buildSchema(isSaved: boolean) {
-  const { useProductConfigSchema } = await import("../schemas");
+  const { useProductConfigSchema } = await import("../product.schemas");
 
   return useProductConfigSchema({
     lookups,
