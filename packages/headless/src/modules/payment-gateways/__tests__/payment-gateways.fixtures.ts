@@ -300,9 +300,20 @@ describe("paymentGateways API Fixtures Generator", () => {
         );
       }
 
-      // A tokenise-END success needs a single-use token minted by the gateway
-      // SDK in a browser. The refusal shape is the reality captured here; the
-      // success shape is owed on FE-3130.
+      // @decision tokenize-end SUCCESS is not proven at the integration layer
+      //   what: No integration fixture or test asserts a 200 from
+      //     gateway/frontend/tokenize-end. Only the refusal (4xx) shape is
+      //     captured here.
+      //   why: The success needs a single-use token minted by a gateway SDK in
+      //     a browser. Node cannot mint it, and the server-side raw-card gateway
+      //     that once bypassed the SDK is deprecated. So no headless capture can
+      //     produce a real tokenize-end 200 — a hand-authored one is fabricated
+      //     provenance (verify-cosplay).
+      //   rejected: hand-author a 200 body (cosplay); drive a browser recorder
+      //     (that is e2e, out of the headless integration scope).
+      //   proven-at: the e2e Playwright checkout suite exercises the real SDK
+      //     flow. This is an e2e concern by nature, not an integration gap.
+      //   ref: FE-3130 G-3.
       const { status } = await generator.post(
         `/api/gateway/frontend/tokenize-end/${gatewayId}?case=end-refused-${unlock.tag}`,
         { token: "not-a-real-token" }
