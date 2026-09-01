@@ -31,6 +31,8 @@ import type {
   ApiFixtureV3,
   FixtureProvenance,
   FixtureSource,
+  ForcedErrorCode,
+  ForcedErrorResponse,
   HttpMethod
 } from "./types";
 
@@ -75,18 +77,15 @@ export type GeneratorOptions = {
 
 type CapturedFixture = { fixture: ApiFixtureV3; filename: string };
 
-/** A forced synthetic error response for {@link Generator.captureForcedError}. */
-type ForcedError = { status: number; message?: string };
-
 /**
  * The API wire error envelope, templated from a real recorded 5xx
  * (packages/headless/src/modules/payment-gateways/__tests__/fixtures/
  * get-gateway-frontend-id-c59c09e2.json) and the e2e `returnError` mock
  * (tests/Playwright/e2e/support/mocks/errors.ts). One shape covers every 4xx
- * and 5xx — only `status` and `error.code` vary. It is a control response, so
- * the recorded-only law does not apply (code-tests.companion.md).
+ * and 5xx — only `error.code` varies. It is a control response, so the
+ * recorded-only law does not apply (code-tests.companion.md).
  */
-function buildForcedErrorBody(status: number, message?: string) {
+function buildForcedErrorBody(status: ForcedErrorCode): ForcedErrorResponse {
   return {
     status: "error",
     data: null,
@@ -96,7 +95,7 @@ function buildForcedErrorBody(status: number, message?: string) {
       id: null,
       type: 0,
       code: status,
-      message: message ?? "Forced error response for negative-path coverage",
+      message: "Forced error response for negative-path coverage",
       data: null
     },
     messages: null,
@@ -152,15 +151,8 @@ export class Generator {
     path: string,
     body?: unknown,
     headers?: Record<string, string>,
-    forced?: ForcedError
+    forceStatus?: ForcedErrorCode
   ): Promise<ApiResponse> {
-    if (forced && forced.status < 400) {
-      throw new Error(
-        `capture: a forced response must be >= 400 (got ${forced.status}) — ` +
-          "only error/control responses may be synthetic."
-      );
-    }
-
     const requestHeaders = { ...this.defaultHeaders, ...headers };
 
     const response = await fetch(this.buildUrl(path), {
@@ -172,17 +164,20 @@ export class Generator {
     // Raw body drives naming (needs the unsanitised `actor_type`); the
     // SANITISED body is what we store. This order is load-bearing.
     const responseBody = await response.json().catch(() => null);
-    // A forced fixture keeps the REAL request and overrides only the response —
-    // status + a wire error envelope. The real body still drives naming below.
-    const storedStatus = forced ? forced.status : response.status;
-    const storedBody = forced
-      ? buildForcedErrorBody(forced.status, forced.message)
-      : this.shouldSanitize
-        ? sanitize(responseBody)
-        : responseBody;
+    const sanitizedBody = this.shouldSanitize
+      ? sanitize(responseBody)
+      : responseBody;
     const sanitizedRequestBody = this.shouldSanitize
       ? sanitize(body ?? null)
       : (body ?? null);
+
+    // A forced fixture keeps the REAL request and overrides only the response —
+    // status + a wire error envelope. The real body still drives naming below.
+    const storedStatus = forceStatus ?? response.status;
+    const storedBody =
+      forceStatus !== undefined
+        ? buildForcedErrorBody(forceStatus)
+        : sanitizedBody;
 
     // Scrub PII from the path so no real ids land in the stored path/filename.
     const safePath = redactValue(path);
@@ -222,67 +217,55 @@ export class Generator {
     return { status: storedStatus, body: storedBody };
   }
 
-  /** GET + capture. */
+  /**
+   * GET + capture. Pass `forced` to issue the real request but record a
+   * synthetic error response — see {@link Generator.capture}'s `forced` param.
+   */
   async get(
     path: string,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
+    forceStatus?: ForcedErrorCode
   ): Promise<ApiResponse> {
-    return this.capture("GET", path, undefined, headers);
+    return this.capture("GET", path, undefined, headers, forceStatus);
   }
 
-  /** POST + capture. */
+  /** POST + capture. See `get` for `forced`. */
   async post(
     path: string,
     body?: unknown,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
+    forceStatus?: ForcedErrorCode
   ): Promise<ApiResponse> {
-    return this.capture("POST", path, body, headers);
+    return this.capture("POST", path, body, headers, forceStatus);
   }
 
-  /** PUT + capture. */
+  /** PUT + capture. See `get` for `forced`. */
   async put(
     path: string,
     body?: unknown,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
+    forceStatus?: ForcedErrorCode
   ): Promise<ApiResponse> {
-    return this.capture("PUT", path, body, headers);
+    return this.capture("PUT", path, body, headers, forceStatus);
   }
 
-  /** PATCH + capture. */
+  /** PATCH + capture. See `get` for `forced`. */
   async patch(
     path: string,
     body?: unknown,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
+    forceStatus?: ForcedErrorCode
   ): Promise<ApiResponse> {
-    return this.capture("PATCH", path, body, headers);
+    return this.capture("PATCH", path, body, headers, forceStatus);
   }
 
-  /** DELETE + capture. */
+  /** DELETE + capture. See `get` for `forced`. */
   async delete(
     path: string,
-    headers?: Record<string, string>
-  ): Promise<ApiResponse> {
-    return this.capture("DELETE", path, undefined, headers);
-  }
-
-  /**
-   * Issue a REAL request but record its response as a synthetic error (>= 400).
-   * The request is genuine; only the response status + wire error envelope are
-   * synthetic — sanctioned because error/control responses are exempt from the
-   * recorded-only law (code-tests.companion.md). Pass a distinguishing `?case=`
-   * in `path` or the forced fixture overwrites the sibling success capture.
-   *
-   * @throws if `status` < 400.
-   */
-  async captureForcedError(
-    method: HttpMethod,
-    path: string,
-    status: number,
-    body?: unknown,
     headers?: Record<string, string>,
-    message?: string
+    forceStatus?: ForcedErrorCode
   ): Promise<ApiResponse> {
-    return this.capture(method, path, body, headers, { status, message });
+    return this.capture("DELETE", path, undefined, headers, forceStatus);
   }
 
   /** Set the bearer token sent on every subsequent request. */

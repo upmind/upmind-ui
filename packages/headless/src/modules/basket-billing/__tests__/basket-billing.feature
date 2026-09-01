@@ -112,3 +112,27 @@ Feature: Basket billing module
     Given a personal billing-detail model with an address
     When the billing detail is added
     Then the address is created from the model directly
+
+  # --- Basket-billing seam load (the real basket machine spawns billing) ---
+
+  @AC-17 @layer-integration @client
+  Scenario: A logged-in client loads their existing basket
+    Given a logged-in client with an existing basket of their own
+    When the client loads that basket
+    Then the billing seam for that basket becomes available
+
+  @AC-18 @layer-integration @client
+  Scenario: Another client cannot load a basket that is not theirs
+    Given a logged-in client
+    And a basket that belongs to a different client
+    When the client tries to load that basket
+    Then the load is denied
+    And the billing seam never becomes available
+
+  @AC-19 @layer-integration @client
+  Scenario: An unclaimed basket loads but never brings billing up
+    Given a logged-in client
+    And an unclaimed basket that belongs to no client
+    When the client loads that basket
+    Then the basket becomes ready for shopping
+    And the billing seam never becomes available

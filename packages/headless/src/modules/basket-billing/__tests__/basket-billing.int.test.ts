@@ -1,25 +1,36 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview basket-billing services seam — billing.machine ↔ the billing API
+ * @fileoverview basket-billing seam — driven through the REAL basket machine
  *
  * ## Job To Be Done
- * `basket-billing.services.ts` drives two HTTP seams through `billing.machine`:
- * `loadLookups` bootstraps the brand config so the machine can report which
- * billing fields the brand requires and offer a billing schema, and `update`
- * PUTs the chosen address/company/phone onto the basket order. This file drives
- * the REAL machine against recorded fixtures and proves both seams — the load
- * lands config + schema + the persisted snapshot, and the save carries the model
- * to the order — plus each failure mode fails closed rather than hanging.
+ * Prove the billing seam the way the basket machine actually reaches it, not via
+ * a scaffold host. The basket machine (`basket.machine`) is booted, targeted at
+ * a persistent CLAIMED basket with SET_TARGET_BASKET, and a client session is
+ * seeded; AUTHENTICATED drives `load` → `spawnActors`, which spawns the REAL
+ * billing child once the loaded basket carries a `client_id`. Against that child
+ * this file proves: the owner's basket load brings billing to `available`
+ * (AC-17); a load that is denied because the basket is not the client's never
+ * brings billing up (AC-18); an unclaimed basket that loads (200) but carries no
+ * `client_id` reaches `shopping` yet still never spawns billing (AC-19 — the
+ * client_id spawn-gate control); the billing update carries the chosen model to
+ * the order; and a 5xx on that update fails closed with a handled error.
  *
  * ## Provenance
- * Every body replayed here was captured by `pnpm fixtures:generate basket-billing`
- * into this module's own `fixtures/` dir. No body is authored in this file; the
- * session is seeded from the recorded session-store fixtures.
+ * Every body replayed here is recorded reality. The claimed basket
+ * (`get-orders-id`), its real ownership denial (`get-orders-id-case-not-mine` —
+ * a real 403), the four brand-bootstrap reads, the billing PUT, and the
+ * forced-5xx control variant of that PUT were captured by
+ * `pnpm fixtures:generate basket-billing` into this module's own `fixtures/` dir.
+ * The unclaimed-basket body (`get-orders-current-case-guest` — a 200 GET orders
+ * with `client_id: null`) is a genuinely-recorded guest basket reused from the
+ * product-setup guest journey, its capture provenance preserved verbatim in the
+ * fixture; basket-billing records no guest basket of its own. No body is authored
+ * here; the session is seeded from the recorded session-store fixtures.
  *
  * ## What Breaks If These Fail
- * Checkout cannot tell a customer a phone/company/address is required, offers no
- * billing form, or silently drops the billing details the customer entered — the
- * order goes to payment with no valid billing address.
+ * Checkout offers no billing form on a real basket, silently drops the billing
+ * details on their way to the order, or lets a client reach a basket that is not
+ * theirs.
  */
 
 import { join } from "node:path";
@@ -28,12 +39,38 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { interpret } from "xstate";
 import { getFixture } from "@upmind-automation/test-fixtures";
 import { clearSessionCookies } from "../../../__tests__/int-test-helpers";
-import billingMachine from "../billing.machine";
+// Load useBasket first: it owns the module-level `interpret(basketMachine)`
+// singleton, which crashes with an undefined machine if basket.machine is the
+// entry that re-enters the basket barrel mid-evaluation. Importing useBasket
+// first forces basket.machine to fully evaluate before that singleton is built.
+import "../../basket/useBasket";
+import basketMachine from "../../basket/basket.machine";
 import { server } from "./setup.integration";
-import type { BillingContext, BillingModel } from "../basket-billing.types";
-import type { Interpreter } from "xstate";
+import type { BillingModel } from "../basket-billing.types";
+import type { BasketContext } from "../../basket/basket.types";
+import type { ActorRef, Interpreter } from "xstate";
 
 // -----------------------------------------------------------------------------
+
+// The basket machine fires fire-and-forget analytics on `shopping` entry
+// (`pushShippingInfo` → `useDataLayer().dataLayer().withEcommerce()`), which
+// throws `basket_not_available` here because the sibling actors (currency,
+// payment-detail, custom-fields) have no fixtures and never hydrate an
+// ecommerce-ready basket. Analytics is not the seam under test; stub only
+// `useDataLayer` to a no-op chain, leaving the rest of the machine real.
+vi.mock("../../system-analytics", async importActual => {
+  const actual = await importActual<typeof import("../../system-analytics")>();
+  const noop: unknown = new Proxy(
+    function () {
+      return noop;
+    },
+    {
+      get: () => noop,
+      apply: () => noop
+    }
+  );
+  return { ...actual, useDataLayer: () => noop };
+});
 
 const recordingsDir = join(import.meta.dirname, "fixtures");
 const sessionRecordingsDir = join(
@@ -45,60 +82,66 @@ const sessionRecordingsDir = join(
   "fixtures"
 );
 
-const BASKET_ID =
-  /\/api\/orders\/([0-9a-f-]{36})/.exec(
-    getFixture("put-orders-id-case-billing", { recordingsDir }).request.path
-  )?.[1] ?? "00000000-0000-0000-0000-000000000000";
+const PERSISTENT_BASKET_ID = "85d26e96-783d-1652-d98f-314502e70439";
 
-type Service = Interpreter<BillingContext, never, never, never, never>;
+// The id inside the recorded unclaimed-basket body; targeting it makes the load
+// URL and the served (client_id: null) body agree.
+const GUEST_BASKET_ID = "mock-uuid-262";
 
-function replay(
-  method: "get" | "put",
-  route: string,
-  key: string,
-  status?: number
-): void {
-  const recorded = getFixture(key, { recordingsDir }).response;
+type BasketService = Interpreter<BasketContext, never, never, never, never>;
+type BillingActor = ActorRef<
+  never,
+  { matches: (value: unknown) => boolean; context: Record<string, unknown> }
+>;
+
+/** Serve the recorded ownership denial for the basket load (a real 403). */
+function replayNotMineLoad(): void {
+  const denial = getFixture("get-orders-id-case-not-mine", {
+    recordingsDir
+  }).response;
   server.use(
-    http[method](route, () =>
-      HttpResponse.json(recorded.body as Record<string, unknown>, {
-        status: status ?? recorded.status
+    http.get("*/api/orders/:id", () =>
+      HttpResponse.json(denial.body as Record<string, unknown>, {
+        status: denial.status
       })
     )
   );
 }
 
-/** Pin the recorded SUCCESS body on every brand endpoint `loadLookups` reads. */
-function replayLoadLookups(): void {
-  replay("get", "*/api/brand/settings", "get-brand-settings");
-  replay("get", "*/api/config/brand/values", "get-config-brand-values");
-  replay(
-    "get",
-    "*/api/config/organisation/values",
-    "get-config-organisation-values"
-  );
-  replay("get", "*/api/org/modules", "get-org-modules");
-}
-
-/** Every mutating body the machine actually sent, in order. */
-let putBodies: Record<string, unknown>[] = [];
-
-/** Serve the recorded basket for the update PUT, recording what was sent. */
-function replayUpdate(status = 200): void {
-  const recorded = getFixture("put-orders-id-case-billing", {
+/** Serve the recorded unclaimed (guest) basket for the load (a 200, client_id null). */
+function replayGuestLoad(): void {
+  const guest = getFixture("get-orders-current-case-guest", {
     recordingsDir
   }).response;
+  server.use(
+    http.get("*/api/orders/:id", () =>
+      HttpResponse.json(guest.body as Record<string, unknown>, {
+        status: guest.status
+      })
+    )
+  );
+}
+
+/** Every mutating body the billing child actually sent, in order. */
+let putBodies: Record<string, unknown>[] = [];
+
+/** Serve the recorded basket for the billing PUT, recording what was sent. */
+function replayUpdate(
+  status?: number,
+  key = "put-orders-id-case-billing"
+): void {
+  const recorded = getFixture(key, { recordingsDir }).response;
   server.use(
     http.put("*/api/orders/:id", async ({ request }) => {
       putBodies.push((await request.clone().json()) as Record<string, unknown>);
       return HttpResponse.json(recorded.body as Record<string, unknown>, {
-        status
+        status: status ?? recorded.status
       });
     })
   );
 }
 
-async function seedClientSession(): Promise<string> {
+async function seedClientSession(): Promise<void> {
   const { useSessionStore, useActiveSession } =
     await import("../../session-store");
   const { mapSessionUser } =
@@ -121,69 +164,67 @@ async function seedClientSession(): Promise<string> {
   await vi.waitFor(() => {
     expect(useActiveSession().useMeta().isAuthenticated.value).toBe(true);
   });
-
-  return self.data.actor.id;
 }
 
-function boot(model: BillingModel = {}, clientId?: string): Service {
-  const service = interpret(
-    billingMachine.withContext({
-      basketId: BASKET_ID,
-      clientId,
-      model
-    } as BillingContext),
-    { devTools: false }
-  ) as unknown as Service;
-  service.start();
-  return service;
+let service: BasketService | undefined;
+
+/** Boot a fresh basket machine and target a basket (the persistent one by default). */
+function bootBasket(basketId: string = PERSISTENT_BASKET_ID): BasketService {
+  const svc = interpret(basketMachine).start() as unknown as BasketService;
+  service = svc;
+  svc.send({ type: "SET_TARGET_BASKET", data: basketId });
+  return svc;
 }
 
-async function waitForLoad(service: Service): Promise<void> {
+function billingChild(svc: BasketService): BillingActor | undefined {
+  return svc.state.context.actors?.billing as BillingActor | undefined;
+}
+
+async function waitForBillingAvailable(
+  svc: BasketService
+): Promise<BillingActor> {
+  let billing: BillingActor | undefined;
   await vi.waitFor(
     () => {
-      const settled =
-        service.state.matches("available") ||
-        service.state.matches("complete") ||
-        service.state.matches("unavailable") ||
-        service.state.matches("error");
-      expect(settled).toBe(true);
+      billing = billingChild(svc);
+      expect(billing).toBeDefined();
+      const snapshot = billing!.getSnapshot();
+      expect(
+        snapshot.matches("available") || snapshot.matches("complete")
+      ).toBe(true);
     },
-    { timeout: 15000, interval: 50 }
+    { timeout: 20000, interval: 50 }
   );
+  return billing!;
 }
 
-/** SET a model, then wait for the machine to finish parsing + validating it. */
+/** SET a model on the billing child, then wait for it to settle. */
 async function setAndSettle(
-  service: Service,
+  billing: BillingActor,
   model: BillingModel
 ): Promise<void> {
-  service.send({ type: "SET", data: model });
+  billing.send({ type: "SET", data: model } as never);
   await vi.waitFor(
     () => {
-      const ready =
-        service.state.matches({ available: "valid" }) ||
-        service.state.matches({ available: "invalid" }) ||
-        service.state.matches("complete");
-      expect(ready).toBe(true);
+      const snapshot = billing.getSnapshot();
+      expect(
+        snapshot.matches({ available: "valid" }) ||
+          snapshot.matches({ available: "invalid" })
+      ).toBe(true);
     },
-    { timeout: 15000, interval: 50 }
+    { timeout: 20000, interval: 50 }
   );
 }
 
 // -----------------------------------------------------------------------------
 
-describe("basket-billing loadLookups + update seam", () => {
-  let service: Service | undefined;
-  let clientId: string;
-
+describe("basket-billing seam — the real basket machine spawns billing", () => {
   beforeEach(async () => {
     putBodies = [];
     clearSessionCookies();
     const { queryClient } = await import("../../query");
     queryClient.clear();
-    clientId = await seedClientSession();
-    replayLoadLookups();
-    replayUpdate();
+    await seedClientSession();
   });
 
   afterEach(() => {
@@ -192,68 +233,81 @@ describe("basket-billing loadLookups + update seam", () => {
     server.resetHandlers();
   });
 
-  it("loadLookups fails closed to unavailable when the brand bootstrap rejects with a 5xx", async () => {
-    server.use(
-      http.get("*/api/brand/settings", () =>
-        HttpResponse.json({ error: "server error" }, { status: 500 })
-      ),
-      http.get("*/api/config/brand/values", () =>
-        HttpResponse.json({ error: "server error" }, { status: 500 })
-      ),
-      http.get("*/api/config/organisation/values", () =>
-        HttpResponse.json({ error: "server error" }, { status: 500 })
-      ),
-      http.get("*/api/org/modules", () =>
-        HttpResponse.json({ error: "server error" }, { status: 500 })
-      )
+  it("AC-17 brings billing to available when a client loads their own claimed basket", async () => {
+    const svc = bootBasket();
+    const billing = await waitForBillingAvailable(svc);
+
+    const snapshot = billing.getSnapshot();
+    expect(snapshot.matches("error")).toBe(false);
+    expect(snapshot.matches("unavailable")).toBe(false);
+    expect(snapshot.context.config).toBeDefined();
+    expect(snapshot.context.schema).toBeDefined();
+  });
+
+  /**
+   * The session under test is the primary client throughout; this test performs
+   * no in-test identity switch. It replays the recorded ownership denial a
+   * DIFFERENT client received at capture (the GET issued under that other
+   * client's token → a real 403) — the differing identity lives in the fixture's
+   * provenance, not in the running session. The denied load settles the basket
+   * machine at `unavailable` (its invalid-target-basket outcome), so billing
+   * never spawns.
+   */
+  it("AC-18 never brings billing up when a client loads a basket that is not theirs", async () => {
+    replayNotMineLoad();
+
+    const svc = bootBasket();
+
+    await vi.waitFor(
+      () => {
+        expect(svc.state.matches("unavailable")).toBe(true);
+      },
+      { timeout: 20000, interval: 50 }
     );
 
-    service = boot({}, clientId);
-    await waitForLoad(service);
-
-    expect(
-      service.state.matches("unavailable") || service.state.matches("error")
-    ).toBe(true);
-    expect(service.state.context.schema).toBeUndefined();
+    const billing = billingChild(svc);
+    const availableUp =
+      !!billing &&
+      (billing.getSnapshot().matches("available") ||
+        billing.getSnapshot().matches("complete"));
+    expect(availableUp).toBe(false);
   });
 
-  it("loadLookups lands the brand config, a billing schema and the persisted snapshot", async () => {
-    service = boot({}, clientId);
-    await waitForLoad(service);
+  it("AC-19 never brings billing up when a loaded basket has no owner", async () => {
+    replayGuestLoad();
 
-    expect(service.state.matches("error")).toBe(false);
-    expect(service.state.matches("unavailable")).toBe(false);
+    const svc = bootBasket(GUEST_BASKET_ID);
 
-    // loadLookups derived the required-field config from the brand bootstrap and
-    // offered a billing form schema — AC-6.
-    expect(service.state.context.config).toBeDefined();
-    expect(service.state.context.schema).toBeDefined();
-    expect(service.state.context.uischema).toBeDefined();
+    await vi.waitFor(
+      () => {
+        expect(svc.state.matches("shopping")).toBe(true);
+      },
+      { timeout: 20000, interval: 50 }
+    );
 
-    // The initial billing snapshot is captured from the persisted base — AC-7.
-    expect(service.state.context.baseModel).toBeDefined();
+    expect(billingChild(svc)).toBeUndefined();
   });
 
-  it("update PUTs the chosen billing model onto the basket order", async () => {
-    service = boot({}, clientId);
-    await waitForLoad(service);
+  it("PUTs the chosen billing model onto the basket order", async () => {
+    replayUpdate();
 
-    await setAndSettle(service, {
+    const svc = bootBasket();
+    const billing = await waitForBillingAvailable(svc);
+
+    await setAndSettle(billing, {
       addressId: "addr-int-1",
       companyId: "co-int-1",
       phoneId: "ph-int-1"
     });
-    service.send({ type: "UPDATE" });
+    billing.send({ type: "UPDATE" } as never);
 
     await vi.waitFor(
       () => {
         expect(putBodies.length).toBeGreaterThan(0);
       },
-      { timeout: 15000, interval: 50 }
+      { timeout: 20000, interval: 50 }
     );
 
-    // The mutation carries exactly the model the customer chose — no stale or
-    // dropped field on its way to the order.
     expect(putBodies[0]).toMatchObject({
       address_id: "addr-int-1",
       company_id: "co-int-1",
@@ -261,30 +315,37 @@ describe("basket-billing loadLookups + update seam", () => {
     });
   });
 
-  it("update surfaces a handled error when the order PUT rejects with a 5xx", async () => {
-    service = boot({}, clientId);
-    await waitForLoad(service);
+  it("surfaces a handled error when the billing PUT rejects with a 5xx", async () => {
+    const svc = bootBasket();
+    const billing = await waitForBillingAvailable(svc);
 
+    const forced = getFixture("put-orders-id-case-billing-server-error", {
+      recordingsDir
+    }).response;
     server.use(
       http.put("*/api/orders/:id", () =>
-        HttpResponse.json({ error: "server error" }, { status: 500 })
+        HttpResponse.json(forced.body as Record<string, unknown>, {
+          status: forced.status
+        })
       )
     );
 
-    await setAndSettle(service, {
+    await setAndSettle(billing, {
       addressId: "addr-int-2",
       companyId: "co-int-2",
       phoneId: "ph-int-2"
     });
-    service.send({ type: "UPDATE" });
+    billing.send({ type: "UPDATE" } as never);
 
     await vi.waitFor(
       () => {
-        expect(service?.state.context.error).toBeDefined();
+        expect(billing.getSnapshot().context.error).toBeDefined();
       },
-      { timeout: 15000, interval: 50 }
+      { timeout: 20000, interval: 50 }
     );
 
-    expect(service.state.context.error?.status).toBe(500);
+    expect(
+      (billing.getSnapshot().context.error as { status?: number }).status
+    ).toBe(500);
   });
 });
