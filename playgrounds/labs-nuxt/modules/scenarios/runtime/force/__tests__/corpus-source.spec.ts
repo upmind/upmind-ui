@@ -17,6 +17,13 @@
  * the first place. The seam's resolution is therefore an ASSERTION here.
  *
  * UPDATED (FE-3094): uses the new parameterized API that takes module name.
+ *
+ * RETIRED (FE-3113, operator ruling 2026-08-28) —
+ * `corpus-source.any-module.must-fail.patch` mutated `REACHED_MODULE`, which
+ * FE-3094 deleted when it made the seam take the module as a parameter. Its
+ * concern, a corpus that serves one pinned module, is now guarded more strongly
+ * by `force-presets-all-modules.arms-the-capture-run.must-fail.patch`, which
+ * proves every registered module resolves its own subject routes.
  */
 
 import { readFileSync, readdirSync } from "node:fs";

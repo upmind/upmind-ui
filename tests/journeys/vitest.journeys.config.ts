@@ -3,6 +3,7 @@ import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vue from "@vitejs/plugin-vue";
 import { defineConfig, configDefaults } from "vitest/config";
+import { workerPool } from "../../vitest.workers";
 
 // The journey int tests import the headless SOURCE barrel (aliased to a file),
 // but headless's own runtime deps (vue, xstate, @tanstack/*, lodash-es, …) are
@@ -78,6 +79,7 @@ export default defineConfig({
     alias
   },
   test: {
+    ...workerPool("dom"),
     root: fileURLToPath(new URL("./", import.meta.url)),
     // happy-dom, not jsdom: node's undici fetch rejects jsdom's AbortSignal
     // (vitest #8374) — the journey int tests drive real composables that fetch

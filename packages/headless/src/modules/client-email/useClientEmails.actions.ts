@@ -1,5 +1,5 @@
 import { watch } from "vue";
-import { invalidateQueryByKey } from "../query";
+import { invalidateQueryByKey, resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { useActiveSession } from "../session-store";
 import { NotAuthenticatedError } from "../../utils";
@@ -181,6 +181,11 @@ export function createClientEmailsActions(
      * @scenario-include
      */
     remove: service.remove,
+
+    /**
+     * @scenario-exclude internal cache-key reset, not a user-facing capability
+     */
+    reset: resetQueryByKey(service.queryKey),
 
     /**
      * @scenario-include

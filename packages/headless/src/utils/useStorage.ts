@@ -4,10 +4,10 @@ import { isEmpty } from "lodash-es";
 
 export function useSafeParse(value: any) {
   if (isEmpty(value)) return value;
-
+  // JSON.parse has no non-throwing alternative; invalid JSON returns raw.
   try {
     return JSON.parse(value);
-  } catch (_e) {
+  } catch {
     return value;
   }
 }

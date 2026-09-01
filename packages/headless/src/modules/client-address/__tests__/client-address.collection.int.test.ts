@@ -291,25 +291,14 @@ describe("client addresses collection — paging a long list (AC-9)", () => {
   it("AC-9 a forced page past the end SETTLES as a rejection rather than throwing synchronously", async () => {
     const { addresses } = await openCollection();
 
-    let threwSynchronously = false;
-    let settled: "resolved" | "rejected" | undefined;
-    try {
-      await addresses
-        .useActions()
-        .nextPage()
-        .then(
-          () => {
-            settled = "resolved";
-          },
-          () => {
-            settled = "rejected";
-          }
-        );
-    } catch {
-      threwSynchronously = true;
-    }
+    const settled = await addresses
+      .useActions()
+      .nextPage()
+      .then(
+        () => "resolved" as const,
+        () => "rejected" as const
+      );
 
-    expect(threwSynchronously).toBe(false);
     expect(settled).toBeDefined();
   });
 });

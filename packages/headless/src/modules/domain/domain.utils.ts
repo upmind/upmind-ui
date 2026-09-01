@@ -558,93 +558,85 @@ export function parseSuggestions(
     const transferLabel = getDacTransferLabel(product);
 
     if (product) {
-      try {
-        // Full IProduct available — use proper product parsing
-        const productDetails = parseProductDetails(product);
-        const terms = parseTermDetails(product);
-        const termDetails = calculateBillingTerm(
-          preferredCycle ?? product.default_payment_period,
-          terms
-        );
+      // Full IProduct available — use proper product parsing
+      const productDetails = parseProductDetails(product);
+      const terms = parseTermDetails(product);
+      const termDetails = calculateBillingTerm(
+        preferredCycle ?? product.default_payment_period,
+        terms
+      );
 
-        // Pick the per-row mode: a row that can register uses register
-        // sub_pids; a row that's transfer-only uses transfer sub_pids.
-        const rowMode: "register" | "transfer" =
-          can_register || !canTransferEffective ? "register" : "transfer";
-        const setupSubIds = (product as IDomainSuggestionResultProduct)
-          .setup_function_sub_ids;
-        const subproducts: string[] = compact(
-          setupSubIds?.[rowMode] ?? [product.sub_product_id]
-        );
+      // Pick the per-row mode: a row that can register uses register
+      // sub_pids; a row that's transfer-only uses transfer sub_pids.
+      const rowMode: "register" | "transfer" =
+        can_register || !canTransferEffective ? "register" : "transfer";
+      const setupSubIds = (product as IDomainSuggestionResultProduct)
+        .setup_function_sub_ids;
+      const subproducts: string[] = compact(
+        setupSubIds?.[rowMode] ?? [product.sub_product_id]
+      );
 
-        // Brand-supplied transfer-price override resolved from the transfer
-        // sub-product's `category.price_override`. Surfaces "FREE" or a
-        // concrete amount when configured; UI falls back to the parent
-        // product's price when this is undefined. Currency comes from any
-        // price row on the parent product (the API returns prices in the
-        // active currency, so they're all in sync).
-        const parentCurrencyCode = product.prices?.[0]?.currency_code;
-        const transferOption = getTransferOptionPrice(
-          product as IDomainSuggestionResultProduct,
-          parentCurrencyCode
-        );
+      // Brand-supplied transfer-price override resolved from the transfer
+      // sub-product's `category.price_override`. Surfaces "FREE" or a
+      // concrete amount when configured; UI falls back to the parent
+      // product's price when this is undefined. Currency comes from any
+      // price row on the parent product (the API returns prices in the
+      // active currency, so they're all in sync).
+      const parentCurrencyCode = product.prices?.[0]?.currency_code;
+      const transferOption = getTransferOptionPrice(
+        product as IDomainSuggestionResultProduct,
+        parentCurrencyCode
+      );
 
-        // Mirror `buildDomainProductFromAvailability`: a row whose API
-        // flags collapse to register=false AND transfer=false (e.g.
-        // `can_transfer: true` from /suggestions but the mapped product
-        // has no `setup_function_sub_ids.transfer`) must be flagged
-        // `unavailable`/`disabled` explicitly — otherwise the card
-        // ignores the missing canTransfer and renders as a normal
-        // available row (DomainCards.vue binds these flags directly).
-        const isFullyUnavailable = !can_register && !canTransferEffective;
+      // Mirror `buildDomainProductFromAvailability`: a row whose API
+      // flags collapse to register=false AND transfer=false (e.g.
+      // `can_transfer: true` from /suggestions but the mapped product
+      // has no `setup_function_sub_ids.transfer`) must be flagged
+      // `unavailable`/`disabled` explicitly — otherwise the card
+      // ignores the missing canTransfer and renders as a normal
+      // available row (DomainCards.vue binds these flags directly).
+      const isFullyUnavailable = !can_register && !canTransferEffective;
 
-        return {
-          configuration: parseProductProps(
-            {
-              productId: product.id,
-              quantity: product.unit_quantity,
-              subproducts,
-              provisionFields: { sld },
-              term: termDetails.cycle
-            },
-            product,
-            preferredCycle
-          ),
-          domain: parsedDomain?.domain ?? fullDomain,
-          sld: parsedDomain?.sld ?? sld,
-          tld: parsedDomain?.tld ?? `.${tld}`,
-          meta: {
-            ...(termDetails.meta ?? {}),
-            available: can_register,
-            canTransfer: canTransferEffective,
-            unavailable: isFullyUnavailable,
-            disabled: isFullyUnavailable,
-            transferLabel,
-            transferOptionPrice: transferOption?.price,
-            transferOptionIsFree: transferOption?.isFree
+      return {
+        configuration: parseProductProps(
+          {
+            productId: product.id,
+            quantity: product.unit_quantity,
+            subproducts,
+            provisionFields: { sld },
+            term: termDetails.cycle
           },
-          productDetails: {
-            ...productDetails,
-            title: fullDomain
-          },
-          price: termDetails.price,
-          pricing: [],
-          details: [],
-          rawProduct: product
-        } as DomainProduct;
-      } catch (err) {
-        console.warn(
-          `[parseSuggestions] Product parsing failed for ${fullDomain}, using fallback`,
-          err
-        );
-      }
+          product,
+          preferredCycle
+        ),
+        domain: parsedDomain?.domain ?? fullDomain,
+        sld: parsedDomain?.sld ?? sld,
+        tld: parsedDomain?.tld ?? `.${tld}`,
+        meta: {
+          ...(termDetails.meta ?? {}),
+          available: can_register,
+          canTransfer: canTransferEffective,
+          unavailable: isFullyUnavailable,
+          disabled: isFullyUnavailable,
+          transferLabel,
+          transferOptionPrice: transferOption?.price,
+          transferOptionIsFree: transferOption?.isFree
+        },
+        productDetails: {
+          ...productDetails,
+          title: fullDomain
+        },
+        price: termDetails.price,
+        pricing: [],
+        details: [],
+        rawProduct: product
+      } as DomainProduct;
     }
 
-    // Fallback when product is missing or parsing failed.
-    // The product may simply not have arrived yet (split suggestions/tlds flow):
-    // mark the row as priceLoading so the card renders a price skeleton.
+    // Fallback when product is missing (not yet arrived in split suggestions/tlds flow).
+    // Mark the row as priceLoading so the card renders a price skeleton.
     const { price, billingCycleMonths } = buildFallbackPricing(
-      product?.prices ?? [],
+      [],
       preferredCycle
     );
 
@@ -663,12 +655,12 @@ export function parseSuggestions(
         available: can_register,
         canTransfer: canTransferEffective,
         transferLabel,
-        priceLoading: !product
+        priceLoading: true
       },
       productDetails: makePlaceholderProductDetails({
         id: product_id,
         domain: fullDomain,
-        name: product?.name ?? `.${tld}`
+        name: `.${tld}`
       }),
       pricing: [],
       details: []
@@ -786,12 +778,7 @@ export function buildCommonMeta(
 ): Record<string, unknown> {
   const query = sanitiseDomainInput(context.search?.query ?? "");
   const { sld, tld } = parseDomainParts(query);
-  let locale: string | undefined;
-  try {
-    locale = useLocale().locale.value;
-  } catch {
-    locale = undefined;
-  }
+  const locale: string | undefined = useLocale().locale.value;
   return {
     widget: "dac",
     route:

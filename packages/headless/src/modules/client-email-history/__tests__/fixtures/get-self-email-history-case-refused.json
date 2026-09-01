@@ -1,0 +1,55 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/self/email_history?with=recipient,recipient_type,recipient.image&order=-created_at&limit=10&case=refused",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "access-control-expose-headers": "Retry-After, X-RateLimit-Limit",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a328a19a0ea3ae35-DUR",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Sat, 29 Aug 2026 03:57:23 GMT",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=UAFog7roN1avfNdtgnrkLExcOgNJB3ctrup%2B%2Feg%2BtSA2Me7Itfr7RNuErJ%2BHMoQX%2BS5vJlM6YjT%2BYj9dYEcdpkx7TZ9dmxN6Y33%2FKNeSI3hFE5xrFsku7XRwyNYd5s2h%2FLEpvf8WyA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "4adeb88ac7d036daa703d275a33e1f2ba8556076",
+        "type": 9,
+        "code": 401,
+        "message": "The resource owner or authorization server denied the request.",
+        "data": null
+      },
+      "messages": {
+        "hint": "The JWT string must have two dots"
+      },
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-29T03:57:23.133Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-email-history"
+  }
+}

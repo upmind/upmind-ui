@@ -1,5 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { mergeConfig, defineConfig, configDefaults } from "vitest/config";
+import { workerPool } from "../../vitest.workers";
 import viteConfig from "./vite.config";
 
 const root = fileURLToPath(new URL("./", import.meta.url));
@@ -16,10 +17,19 @@ export default mergeConfig(
     test: {
       root,
       // Cap concurrency — uncapped, vitest spawns one fork per CPU across both
-      // projects and pegs the machine >100%. Half the cores keeps it sustainable.
-      pool: "forks",
-      maxWorkers: "50%",
-      minWorkers: 1,
+      // projects (cores-1 = 11 here) and pegs the machine >100%.
+      //
+      // This cap MUST stay on the root `test` object. Both projects below share
+      // ONE memoised fork pool sized from the root config
+      // (`coverage.DL5VHqXY.js:3410-3419` and `:2610-2613`), so a `maxWorkers`
+      // moved into `projects[]` is silently ignored.
+      //
+      // Was `maxWorkers: "50%"`, which is 6 workers on this 12-core box —
+      // ~3.2 GB, over the ~2.5 GB per-run budget. A percentage tracks cores;
+      // the constraint here is memory, so the ceiling is an absolute integer.
+      // The heavier of the two lanes (jsdom unit / happy-dom integration)
+      // sets the profile.
+      ...workerPool("dom"),
       coverage: {
         provider: "v8",
         reporter: ["text", "json", "html"],

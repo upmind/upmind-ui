@@ -331,7 +331,7 @@ describe("Client-Email API Fixtures Generator", () => {
       );
     }
 
-    try {
+    await (async () => {
       generator.setBearerToken(clientToken.access_token);
       const pageOne = await generator.get(
         `/api/clients/${clientId}/emails?limit=2&offset=0&case=page-1`
@@ -355,13 +355,13 @@ describe("Client-Email API Fixtures Generator", () => {
             "limit=2 needs more than one page of addresses to walk."
         );
       }
-    } finally {
+    })().finally(async () => {
       await call(
         "DELETE",
         `/api/clients/${clientId}/emails/${pagingEmailId}`,
         clientToken.access_token
       );
-    }
+    });
   });
 
   it("captures DELETE /api/clients/{id}/emails/{id} (AC-4)", async () => {

@@ -35,7 +35,7 @@ const ACTIONS_SOURCE = join(
 const INPUT_TAKING = ["ensure", "remove", "setDefault", "verify"] as const;
 
 const ACTION_IDS =
-  "destroy|ensure|filterBy|invalidate|isReady|nextPage|prevPage|refresh|remove|setDefault|sortBy|verify";
+  "destroy|ensure|filterBy|invalidate|isReady|nextPage|prevPage|refresh|remove|reset|setDefault|sortBy|verify";
 
 // First token of its own doc-comment line — the harness's TAG_LINE shape.
 const TAG_LINE = /^\s*\*\s*(@scenario-(?:include|exclude))\b[ \t]*(.*)$/;

@@ -46,7 +46,10 @@ import {
   split,
   trim
 } from "lodash-es";
-import type { ForcePreset } from "../../composables/useForcedState.types";
+import type {
+  ForcePreset,
+  ForceUrlPreset
+} from "../../composables/useForcedState.types";
 
 // -----------------------------------------------------------------------------
 
@@ -195,10 +198,12 @@ describe("T3.13 the picker offers only what can actually be served (ESC6)", () =
    * any claim is read off it — a menu that never opened offers the same `[]` as
    * one with nothing to offer, and claim 3 below is a `not.toContain`.
    */
-  const open = async () => {
+  const open = async (
+    presets: readonly ForceUrlPreset[] = FORCE_URL_PRESETS
+  ) => {
     const wrapper = mount(ScenarioMenu, {
       attachTo: document.body,
-      props: { tracks: [] },
+      props: { tracks: [], presets },
       global: {
         plugins: [createI18n({ legacy: false, locale: "en", messages })]
       }
@@ -224,7 +229,7 @@ describe("T3.13 the picker offers only what can actually be served (ESC6)", () =
 
   const labels = () => map(offered(), option => trim(option.textContent ?? ""));
 
-  it("offers exactly the presets a url can carry, in their own order", async () => {
+  it("offers exactly the presets it is handed, in their own order", async () => {
     await open();
 
     expect(handles()).toEqual([...FORCE_URL_PRESETS]);

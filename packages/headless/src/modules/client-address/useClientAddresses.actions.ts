@@ -1,5 +1,5 @@
 import { watch } from "vue";
-import { invalidateQueryByKey } from "../query";
+import { invalidateQueryByKey, resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope/scope.registry";
 import { useActiveSession } from "../session-store";
 import { NotAuthenticatedError } from "../../utils";
@@ -252,6 +252,9 @@ export function createClientAddressesActions(
      * obligation (AC-14, AC-40).
      */
     remove: service.remove,
+
+    /** Drops the shared cache key's rows so the next read starts from loading. */
+    reset: resetQueryByKey(service.queryKey),
 
     /**
      * Applies a criteria INTENT — merges the given `filters` / `sort` /

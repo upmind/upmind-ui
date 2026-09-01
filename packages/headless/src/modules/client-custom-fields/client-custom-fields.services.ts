@@ -4,7 +4,7 @@ import {
   CustomFieldsMajorTypes,
   ImageObjectTypes
 } from "@upmind-automation/types";
-import { useQuery, invalidateQueryByKey } from "../query";
+import { useQuery, invalidateQueryByKey, isAbortError } from "../query";
 import { useActiveSession } from "../session-store";
 import { useI18n } from "../system-localisation";
 import { useUpload } from "../system-upload";
@@ -191,21 +191,36 @@ function loadClientBrandId(scopeContext?: ScopeContext) {
   async function resolve(id?: string): Promise<void> {
     const { get: getOne, useUrl } = useQuery();
 
-    try {
-      brandId.value = await getOne<IClient, IClient["brand_id"] | undefined>({
-        queryKey: ["client", id, CLIENT_RECORD_QUERY_KEY_SEGMENT],
-        url: useUrl(`clients/${id}`, {
-          with: "custom_fields,custom_fields.field"
-        }),
-        select: data => data?.brand_id,
-        withAccessToken: true,
-        staleTime: useTime().DAY
+    // A cancelled read is not a refused one, so it settles NOTHING: this key is
+    // shared (see the segment's own comment) and a consumer's `reset()` cancels
+    // whatever is in flight under it. Storing that would pin a permanent failure
+    // the server never sent — the `guard` below then rejects every later read
+    // with it — and settling without a value rejects just as hard on
+    // `!brand.brandId.value`. So ask again, and settle nothing on the way out.
+    //
+    // Terminates because a cancellation only ever comes from a cache clear, and
+    // `fetchQuery` dedupes onto the refetch that clear starts: the retry
+    // resolves with it unless ANOTHER clear lands first, which is one more
+    // discrete consumer action, not a loop this can spin in.
+    return getOne<IClient, IClient["brand_id"] | undefined>({
+      queryKey: ["client", id, CLIENT_RECORD_QUERY_KEY_SEGMENT],
+      url: useUrl(`clients/${id}`, {
+        with: "custom_fields,custom_fields.field"
+      }),
+      select: data => data?.brand_id,
+      withAccessToken: true,
+      staleTime: useTime().DAY
+    })
+      .then(resolved => {
+        brandId.value = resolved;
+        isSettled.value = true;
+      })
+      .catch((err: unknown) => {
+        if (isAbortError(err)) return resolve(id);
+
+        error.value = err;
+        isSettled.value = true;
       });
-    } catch (err) {
-      error.value = err;
-    } finally {
-      isSettled.value = true;
-    }
   }
 
   // Self-stopping: only WAITS while the session has not yet resolved a

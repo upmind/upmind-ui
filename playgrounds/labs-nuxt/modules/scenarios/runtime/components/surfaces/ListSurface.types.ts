@@ -84,6 +84,40 @@ export type ListSurfaceProps = SurfaceProps & {
    * to be watched.
    */
   locked?: boolean;
+  /**
+   * The module's own recorded refusal sentence, while the page is FORCED into
+   * `error-action`. A forced state is the state, forced: it renders on arming
+   * and asks for no interaction (operator ruling, 2026-08-28), so the surface
+   * draws its FIRST row already refused with this sentence rather than waiting
+   * for a control to be pressed. The collection stays intact — a refused write
+   * is row-scoped, and the whole-surface error state belongs to a failed READ
+   * alone (`R6-19`).
+   *
+   * Which row does not depend on which controls that row happens to expose: a
+   * refusal is a state of the RECORD, and a collection whose rows offer only a
+   * read-only detail overlay drew nothing at all while its corpus answered the
+   * preset perfectly well (operator ruling, 2026-08-28 · Q). The offer is
+   * measured off the recordings, never off what a page exposes.
+   *
+   * @graphify-citation `graphify query "is there an existing contract naming
+   * which row a forced refusal is drawn on"` (2026-08-29, FE-3113 Q) — the only
+   * nodes are this prop itself (`ScenarioPlayground.vue` L272) and the test
+   * lane's `forced-surface.harness.ts`, which app runtime may not consume.
+   * Nothing is minted: the ruling narrows which row the EXISTING string is drawn
+   * on. See `graphify-out/GRAPH_REPORT.md`.
+   *
+   * Absent on Live and under every other preset.
+   *
+   * @graphify-citation `graphify query "is there an existing contract or field
+   * carrying a recorded write refusal fixture or a refusal sentence for a forced
+   * row"` (2026-08-28, FE-3113 O) — the only matches are the test lane's
+   * `refusalSentences()` / `refusalsOf()` helpers, which app runtime may not
+   * consume. Nothing is minted: the sentence rides as a string on the props
+   * already here, derived by `force/presets.ts`'s `presetRefusal` off the
+   * `RecordedFixture` the corpus already carries. See
+   * `graphify-out/GRAPH_REPORT.md`.
+   */
+  forcedRefusal?: string;
 };
 
 /** Which of the two empty sentences a list tells. */
@@ -111,4 +145,19 @@ export type RowFailureProps = {
    * minted either, the refusal being a boolean on the props already here.
    */
   canRetry?: boolean;
+  /**
+   * Whether the strip stays until it is dismissed. A refusal the surface FIRED
+   * arrived with a toast and leaves on the toast's own clock, so the two
+   * verdicts of one action go together; a FORCED one never had a toast, and
+   * fading it out would take away the very state the preset holds the page in.
+   *
+   * @graphify-citation `graphify query "is there an existing persist or auto
+   * dismiss or sticky flag on a notification or alert strip contract"`
+   * (2026-08-28, FE-3113 O) — the neighbours are `AnnouncementBar.vue`'s own
+   * `dismiss()` (L65), `Shell.vue`'s `stickyOffset` (L87, a layout offset) and
+   * `session-store.utils.ts`'s `persistTokenToStorage()` (L240, storage), none
+   * of them a display-lifetime contract to consume. Nothing is minted either —
+   * it is a boolean on the props already here. See `graphify-out/GRAPH_REPORT.md`.
+   */
+  persist?: boolean;
 };

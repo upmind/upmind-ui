@@ -56,7 +56,8 @@ describe("client-email-history — identity resolved from the scope, never a glo
 
     const originalAdmin = upmind.admin;
     upmind.admin = true;
-    try {
+
+    await (async () => {
       const single = useClientReceivedEmail()
         .as(ScopeActorTypes.CLIENT)
         .withId(fixture.data.id);
@@ -75,8 +76,8 @@ describe("client-email-history — identity resolved from the scope, never a glo
       for (const match of matches) {
         expect(JSON.stringify(match.queryKey)).toContain(clientId);
       }
-    } finally {
+    })().finally(() => {
       upmind.admin = originalAdmin;
-    }
+    });
   });
 });

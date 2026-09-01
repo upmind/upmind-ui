@@ -334,6 +334,9 @@ export const useFunnelMachine = ({
 
             // Start all watchers — each returns its own cleanup function
             const cleanups = map(watchers, watcher => {
+              // try/catch justified: `handler` is a caller-supplied callback with
+              // no non-throwing form. One watcher throwing must not abort the
+              // others' startup.
               try {
                 return watcher.handler();
               } catch (error) {
@@ -348,6 +351,9 @@ export const useFunnelMachine = ({
             // Return cleanup function — called when funnel exits available
             return () => {
               forEach(cleanups, (cleanup: () => void) => {
+                // try/catch justified: `cleanup` is a caller-supplied callback
+                // with no non-throwing form. One failing teardown must not skip
+                // the rest.
                 try {
                   cleanup();
                 } catch (error) {

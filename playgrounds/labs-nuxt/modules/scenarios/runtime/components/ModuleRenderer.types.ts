@@ -53,4 +53,19 @@ export type ModuleRendererProps<K extends string = string> = {
    * it: it is the one the ruling enumerates controls for.
    */
   locked?: boolean;
+  /**
+   * The module's own recorded refusal sentence while the page is forced into
+   * `error-action` — relayed to the List surface, which draws its first
+   * actionable row already refused with it. A forced state is the state and
+   * renders on arming, with no interaction at all (operator ruling,
+   * 2026-08-28).
+   *
+   * @graphify-citation `graphify query "is there an existing contract or field
+   * carrying a recorded write refusal fixture or a refusal sentence for a forced
+   * row"` (2026-08-28, FE-3113 O) — the only matches are the test lane's own
+   * refusal-sentence helpers, which app runtime may not consume. Nothing is
+   * minted: this relays a string, exactly as `locked` relays a boolean. See
+   * `graphify-out/GRAPH_REPORT.md`.
+   */
+  forcedRefusal?: string;
 };

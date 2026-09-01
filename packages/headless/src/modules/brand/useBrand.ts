@@ -246,13 +246,9 @@ export const useBrand = () => {
       return null;
     }
 
-    try {
-      const parsed = new URL(storefrontUrl.value);
-      if (parsed.protocol && parsed.host) {
-        return { href: storefrontUrl.value };
-      }
-    } catch {
-      // Not a valid URL, treat as route name
+    const parsed = URL.parse(storefrontUrl.value);
+    if (parsed?.protocol && parsed?.host) {
+      return { href: storefrontUrl.value };
     }
 
     return { name: storefrontUrl.value };

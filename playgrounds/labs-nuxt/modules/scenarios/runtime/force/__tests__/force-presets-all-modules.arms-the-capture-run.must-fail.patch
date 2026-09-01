@@ -1,0 +1,34 @@
+Negative control for the FE-3113 executed matrix (`AC1` · `AC3`).
+
+A module arms the recorded paths belonging to the SUBJECT its own `.feature`
+declares — the recordings supply the paths, the feature decides which are the
+module's own. The mutant sends the whole question back to the recordings: every
+path the capture run touched arms, chrome included. Nothing under-reaches, so
+every module still arms all of its own endpoints and every preset still answers;
+what is added is the country lookup and the brand-config read a capture run
+needed to populate a form, where forcing `loading` hangs the app chrome for the
+tab's life.
+
+What must go red is OVER-reach and the source it is read from. An assertion that
+each subject path arms passes the mutant untouched, and so does one that only
+counts routes. Require a recorded path the module does NOT arm, and hand one
+module's recordings another module's feature — a recordings-only derivation
+cannot give a different answer to that, and the mutant gives the same answer to
+an empty feature as to the module's own.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the all-modules matrix — the subject is narrower than the capture run, and
+takes its subject from the FEATURE.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/routes.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/routes.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/routes.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/routes.ts
+@@ -133,6 +133,7 @@ function names(resource: string, terms: string[]): boolean {
+ function isSubjectPath(path: string, subject: Subject): boolean {
+   const resources = resourcesOf(path);
+ 
++  if (!isEmpty(resources)) return true;
+   if (some(resources, resource => names(resource, subject.terms))) return true;
+ 
+   return !!subject.actor && names(last(resources) ?? "", [subject.actor]);

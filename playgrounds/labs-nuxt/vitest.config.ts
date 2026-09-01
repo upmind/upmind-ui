@@ -2,6 +2,7 @@ import { fileURLToPath } from "node:url";
 import { resolve } from "path";
 import vue from "@vitejs/plugin-vue";
 import { defaultExclude, defineConfig, mergeConfig } from "vitest/config";
+import { workerPool } from "../../vitest.workers";
 import type { Alias } from "vite";
 
 const root = fileURLToPath(new URL("./", import.meta.url));
@@ -98,6 +99,19 @@ const base = defineConfig({
 
 export default defineConfig({
   test: {
+    // The worker ceiling belongs HERE, on the root `test` object — never in
+    // `base` above, and never inside a `projects[]` entry.
+    //
+    // All four projects below share ONE memoised fork pool: vitest buckets
+    // specs by pool TYPE, not by project (`coverage.DL5VHqXY.js:3410-3419`),
+    // and sizes that single pool from the ROOT context
+    // (`:2610-2613` — `vitest.config.maxWorkers ?? cores-1`). A cap merged
+    // into `base` would land on each project's config, never on the root, and
+    // would silently do nothing while looking correct.
+    //
+    // Profile "dom": the component and module projects mount Nuxt components
+    // under jsdom, the heaviest workers measured here (peak 832 MB each).
+    ...workerPool("dom"),
     projects: [
       mergeConfig(
         base,

@@ -310,7 +310,7 @@
             </template>
             <template v-if="isSearching" #trailing>
               <Icon
-                icon="loader-circle"
+                icon="loading-01"
                 size="xs"
                 class="text-muted animate-spin"
               />
@@ -398,7 +398,15 @@ import {
 import { AccessRoleTypes } from "@upmind-automation/types";
 import { nestChevron, sessionItem } from "./SessionSwitcher.styles";
 import { useActorScopeSelector } from "./useActorScopeSelector";
-import { debounce, find, isEmpty, map, reject, some } from "lodash-es";
+import {
+  debounce,
+  find,
+  isEmpty,
+  map,
+  reject,
+  some,
+  toString
+} from "lodash-es";
 import type { SessionItem, StaffSessionNode } from "./useActorScopeSelector";
 import type { IClient, IUser } from "@upmind-automation/types";
 import {
@@ -498,7 +506,8 @@ const debouncedSearch = debounce(
   300
 );
 
-function onImpersonateSearch(query: string) {
+function onImpersonateSearch(value: string | number | undefined) {
+  const query = toString(value);
   impersonateQuery.value = query;
   debouncedSearch(query, impersonateType.value);
 }
@@ -518,8 +527,6 @@ async function impersonateClient(clientId: string): Promise<void> {
   try {
     const token = await impersonateClientService(clientId);
     await addSessionToStore(token);
-    clientSearchQuery.value = "";
-    clientSearchResults.value = [];
   } catch (e) {
     console.error("[SessionSwitcher] Failed to impersonate client:", e);
   }
@@ -529,8 +536,6 @@ async function impersonateStaff(userId: string): Promise<void> {
   try {
     const token = await impersonateUserService(userId);
     await addSessionToStore(token);
-    staffSearchQuery.value = "";
-    staffSearchResults.value = [];
   } catch (e) {
     console.error("[SessionSwitcher] Failed to impersonate staff:", e);
   }

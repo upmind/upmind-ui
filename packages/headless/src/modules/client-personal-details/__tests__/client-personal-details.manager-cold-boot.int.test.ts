@@ -58,13 +58,8 @@ describe("usePersonalDetailsManager — a failed sign-in check never leaves an u
     };
     process.on("unhandledRejection", onUnhandled);
 
-    try {
+    await (async () => {
       const manager = usePersonalDetailsManager().as(ScopeActorTypes.SELF);
-      // The manager's own isReady() is bounded at 30s
-      // (usePersonalDetailsManager.actions.ts — the readiness-infinity
-      // mutant restores `timeout: Infinity` in this exact spot), so an
-      // id that never arrives resolves false only once that bound elapses,
-      // not immediately. The race timeout is set past it.
       const settled = await Promise.race([
         manager.useActions().isReady(),
         new Promise(resolve =>
@@ -75,9 +70,9 @@ describe("usePersonalDetailsManager — a failed sign-in check never leaves an u
       expect(settled).toBe(false);
       await new Promise(resolve => setTimeout(resolve, 50));
       expect(unhandled).toEqual([]);
-    } finally {
+    })().finally(() => {
       process.removeListener("unhandledRejection", onUnhandled);
-    }
+    });
   }, 40000);
 
   it("AC-42 sends nothing after stop() even when a session resolves late", async () => {

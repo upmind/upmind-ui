@@ -39,9 +39,22 @@ export const MODULE_STATE_META_FLAG = {
  */
 export const MODULE_STATE_CONTEXT_ERROR = ["error", "errors"] as const;
 
+/**
+ * `ABSENT` is the single-record twin of a collection's zero rows: the read
+ * landed and the RECORD is not there. It is named apart from `ERROR` because a
+ * record that is absent is not a record that failed to load (operator ruling,
+ * 2026-08-29 · FE-3113 `Y2`) — one conflated arm would draw the same picture for
+ * both, which is the very distinction this vocabulary exists to keep.
+ *
+ * @graphify-citation `graphify query "module state absent record not found empty
+ * state enum"` (2026-08-29) — `graphify-out/graph.json` carries no absent/
+ * not-found state member outside this enum, so the state joins it rather than
+ * minting a parallel one.
+ */
 export enum ModuleState {
   UNSERVED = "unserved",
   LOADING = "loading",
   ERROR = "error",
+  ABSENT = "absent",
   READY = "ready"
 }

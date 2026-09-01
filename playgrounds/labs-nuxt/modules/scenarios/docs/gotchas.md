@@ -63,3 +63,11 @@ Reserving a fixed share of the row for one column moves no data: it has no effec
 ## 16. A runtime surface re-labels on a locale change without remounting — do not "fix" this into a remount
 
 A table, card, or detail view reads its translator reactively, so a locale switch re-labels every declaration-sourced string in place — the rows, scroll position, selection, and focus all survive. This is a deliberate divergence from the form-editor's own `:key="locale"` remount (which exists there only because that engine bakes translated strings into `options` at mount time). Adding a similar remount key to a runtime surface would only reintroduce the state loss this design avoids.
+
+## 17. A forced refusal must never reach the app's own session machinery
+
+A response the force intercept serves can look, to the rest of the app, exactly like a real one — including a refusal that would otherwise mean "your session has expired." If a forced refusal reaches the session layer unmarked, arming a state can sign the reader out of a page they only asked for a picture of, and disarming does not necessarily undo it. Whatever reads a response for session purposes has to be able to tell a forced one apart from a real one; the surface rendering the state correctly is not enough on its own.
+
+## 18. Arming's own cleanup must never be reported as the module's failure
+
+Arming swaps the active transport and clears whatever the page had already fetched, which cancels any request that was still in flight at that moment. That cancellation is forcing tidying up after itself, not the module failing — but a cancelled request and a failed one can look identical to whatever is watching for errors. If the cancellation reaches the same channel a real failure would, the page draws a failure state for a module that is actually fine. This is easy to miss because it only shows up for whichever module's read happens to still be in flight when arming clears the cache — the rest look unaffected purely by timing, not because the underlying handling is correct.

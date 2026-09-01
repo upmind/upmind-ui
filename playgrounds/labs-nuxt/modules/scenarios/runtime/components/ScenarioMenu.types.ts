@@ -7,6 +7,12 @@
  * re-shaped into a menu-item type; the entries themselves are
  * `@upmind/ui`'s `MenuItem`.
  * See `graphify-out/GRAPH_REPORT.md`.
+ *
+ * @graphify-citation `graphify-out/graph.json` (2026-08-27, 22914 nodes) —
+ * re-checked for FE-3113's `presets` prop: no preset-list / capability node
+ * exists in the tree, and the prop MINTS nothing — it carries
+ * `useForcedState`'s own `ForceUrlPreset[]`, derived by
+ * `force/capabilities.ts`. See `graphify-out/GRAPH_REPORT.md`.
  */
 // -----------------------------------------------------------------------------
 /**
@@ -48,9 +54,27 @@ export type ScenarioChoice =
 export type ScenarioMenuProps = {
   /** The page's whole playlist. Empty is Live alone — the correct degraded state (`S12`). */
   tracks: readonly FeatureTrack[];
+  /**
+   * The forced states this page's OWN corpus can answer, derived from its
+   * recordings (FE-3113). What may be CHOSEN, and nothing more: a read-only
+   * module's recordings cannot refuse a write, so `error-action` is simply not
+   * among them — never offered-and-disabled, which is the dead-alive control
+   * `S14` forbids.
+   *
+   * Empty is a module whose corpus can answer nothing, which leaves the group
+   * absent and the page Live (`S12`). Mints nothing — this is
+   * `useForcedState`'s own `ForceUrlPreset`, per this file's head citation and
+   * `graphify-out/GRAPH_REPORT.md`.
+   */
+  presets: readonly ForceUrlPreset[];
   /** The armed track, if one is playing. */
   armed?: FeatureTrack;
-  /** The forced state actually being served, if one is armed. */
+  /**
+   * The forced state actually being served, if one is armed. What is REPORTED,
+   * and `presets` never gates it: that list resolves from the corpus
+   * asynchronously, so a page armed from a pasted url would otherwise show its
+   * placeholder until the corpus landed.
+   */
   preset?: ForcePreset;
   /**
    * Nothing non-live can be armed at all — the corpus cannot answer, so replay
