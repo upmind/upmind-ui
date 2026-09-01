@@ -46,6 +46,7 @@ import {
   values,
   words
 } from "lodash-es";
+import { isAbsentRecordRead, isServedRead } from "./capabilities";
 import type { RecordedFixture } from "./corpus.source.types";
 
 // -----------------------------------------------------------------------------
@@ -183,5 +184,34 @@ export function moduleRoutes(
   return sortBy(
     uniq(map(own, fixture => routePattern(fixture.request.path))),
     route => -size(split(route, "/"))
+  );
+}
+
+/**
+ * Whether a module has a FORCEABLE surface: its declared subject owns a READ the
+ * app renders a state from. Every force preset pictures a read surface — `empty`
+ * and `loading` a collection or record, and both error states the failure shown
+ * OVER one — so the measure is the same read the offer draws every state from:
+ * {@link isServedRead} (a served collection or record) or
+ * {@link isAbsentRecordRead} (a record that is not there). It is not a bare
+ * method-and-status test — it is the offer's OWN read predicates, asked of the
+ * subject's paths.
+ *
+ * A module whose subject owns only writes (an action flow: pay, 3DS, refresh) has
+ * no read to picture, so it hosts no state, arms nothing, and is left Live
+ * (`S12`) — exactly as one whose feature declares no subject at all. Derived,
+ * never declared: no opt-out tag, no prose.
+ */
+export function armsForceableSurface(
+  feature: string,
+  bodies: Record<string, RecordedFixture>
+): boolean {
+  const subject = subjectOf(feature);
+
+  return some(
+    values(bodies),
+    fixture =>
+      isSubjectPath(fixture.request.path, subject) &&
+      (isServedRead(fixture) || isAbsentRecordRead(fixture))
   );
 }
