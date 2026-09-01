@@ -16,9 +16,11 @@
  * services leak and keep mutating a torn-down checkout.
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { flushPromises } from "@vue/test-utils";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { UnifiedType } from "../unified/types";
+import { useUnified } from "../unified/useUnified";
+import { stopService } from "../../../utils";
 import type { UnifiedContext, UnifiedModel } from "../unified/types";
 
 const services = vi.hoisted(() => ({
@@ -46,9 +48,6 @@ vi.mock("../../../utils", async () => {
     await vi.importActual<Record<string, unknown>>("../../../utils");
   return { ...actual, stopService: vi.fn() };
 });
-
-import { useUnified } from "../unified/useUnified";
-import { stopService } from "../../../utils";
 
 // -----------------------------------------------------------------------------
 

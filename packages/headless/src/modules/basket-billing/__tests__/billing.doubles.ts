@@ -6,9 +6,9 @@
  * Mirrors `payment-gateways/__tests__/gateway.doubles` (pattern reference, ADR-021).
  */
 
+import { vi } from "vitest";
 import { computed, ref, type ComputedRef } from "vue";
 import { createMachine, interpret, type AnyState } from "xstate";
-import { vi } from "vitest";
 import type { UseActor } from "../../../utils";
 
 // -----------------------------------------------------------------------------

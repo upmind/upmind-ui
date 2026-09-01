@@ -44,10 +44,16 @@ import { clearSessionCookies } from "../../../__tests__/int-test-helpers";
 // entry that re-enters the basket barrel mid-evaluation. Importing useBasket
 // first forces basket.machine to fully evaluate before that singleton is built.
 import "../../basket/useBasket";
+// This integration test drives the REAL basket parent so it spawns the billing
+// child exactly as production does. The public surface (useBasket) is a global
+// singleton, unfit for the fresh, isolated machine each test boots here — so the
+// test reaches basket.machine directly. Justified test-only exception to the
+// production cross-module rule.
+// eslint-disable-next-line @internal/no-cross-module-imports
 import basketMachine from "../../basket/basket.machine";
 import { server } from "./setup.integration";
-import type { BillingModel } from "../basket-billing.types";
 import type { BasketContext } from "../../basket/basket.types";
+import type { BillingModel } from "../basket-billing.types";
 import type { ActorRef, Interpreter } from "xstate";
 
 // -----------------------------------------------------------------------------

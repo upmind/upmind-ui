@@ -16,8 +16,9 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DetailedError } from "../../../utils";
+import { useBasketBilling } from "../useBasketBilling";
 import { spawnBilling } from "./billing.doubles";
+import { DetailedError } from "../../../utils";
 import type { UseActor } from "../../../utils";
 
 const holder = vi.hoisted(() => ({ billing: undefined as unknown }));
@@ -29,8 +30,6 @@ vi.mock("../../system-localisation", () => ({
   useI18n: () => ({ t: (key: string) => key })
 }));
 vi.mock("../unified/useUnified", () => ({ useUnified: vi.fn() }));
-
-import { useBasketBilling } from "../useBasketBilling";
 
 // -----------------------------------------------------------------------------
 
