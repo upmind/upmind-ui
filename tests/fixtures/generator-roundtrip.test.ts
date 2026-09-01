@@ -208,3 +208,82 @@ describe("generator round-trip (FE-2937)", () => {
     expect(lint.status).toBe(0);
   });
 });
+
+// -----------------------------------------------------------------------------
+
+type ForcedBody = {
+  status: string;
+  data: null;
+  error: { code: number; message: string };
+};
+
+async function captureForced(
+  recordingsDir: string,
+  status: number,
+  message?: string
+): Promise<void> {
+  const gen = new Generator("https://api.example.com/api", {
+    recordingsDir,
+    brandDomain: "example.com",
+    source: "case",
+    name: "query"
+  });
+  await gen.captureForcedError(
+    "GET",
+    "/countries?case=server-error",
+    status,
+    undefined,
+    undefined,
+    message
+  );
+  gen.save();
+}
+
+describe("generator forced error (FE-3130 G-1)", () => {
+  it("records the forced status and a wire error envelope", async () => {
+    await captureForced(dir, 500, "boom");
+
+    const fx = Object.values(readFixtures(dir))[0];
+    expect(fx.response.status).toBe(500);
+
+    const body = fx.response.body as ForcedBody;
+    expect(body.status).toBe("error");
+    expect(body.data).toBeNull();
+    expect(body.error.code).toBe(500);
+    expect(body.error.message).toBe("boom");
+  });
+
+  it("keeps the request real — the live 200 fetch does not become the fixture", async () => {
+    await captureForced(dir, 500);
+
+    const fx = Object.values(readFixtures(dir))[0];
+    expect(fx.request.method).toBe("GET");
+    expect(fx.request.path).toMatch(/countries/);
+    expect(fx.response.status).not.toBe(200);
+  });
+
+  it("throws when the forced status is not an error (< 400)", async () => {
+    const gen = new Generator("https://api.example.com/api", {
+      recordingsDir: dir,
+      brandDomain: "example.com"
+    });
+
+    await expect(
+      gen.captureForcedError("GET", "/countries?case=nope", 200)
+    ).rejects.toThrow(/>= 400/);
+  });
+
+  it("one template covers 4xx and 5xx — error.code tracks the status", async () => {
+    await captureForced(dir, 404);
+    const b404 = Object.values(readFixtures(dir))[0].response
+      .body as ForcedBody;
+    expect(b404.error.code).toBe(404);
+
+    const dir5 = mkdtempSync(join(tmpdir(), "fe3130-"));
+    await captureForced(dir5, 500);
+    const b500 = Object.values(readFixtures(dir5))[0].response
+      .body as ForcedBody;
+    expect(b500.error.code).toBe(500);
+    rmSync(dir5, { recursive: true, force: true });
+  });
+});
