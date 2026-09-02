@@ -10,6 +10,7 @@ export * from "./brand";
 export * from "./brand-terms";
 export * from "./client";
 export * from "./client-address";
+export * from "./client-billing-settings";
 export * from "./client-company";
 export * from "./client-custom-fields";
 export * from "./client-email";
