@@ -59,6 +59,7 @@ import { iterateSchema } from "./renderers/utils";
 import { useStyles, isDeepEmpty, useValidation } from "../../utils";
 import { cn } from "../../utils";
 import {
+  cloneDeep,
   isEmpty,
   isEqual,
   isFunction,
@@ -124,12 +125,17 @@ const form = useTemplateRef("form");
 const jsonform = useTemplateRef("jsonform");
 
 const baseModel = props.modelValue;
-const model = useVModel(props, "modelValue", emits, {
-  passive: true,
-  defaultValue: {}
-});
+const model = ref<Record<string, any>>(props.modelValue);
+watch(
+  () => props.modelValue,
+  modelValue => {
+    if (isEqual(modelValue, model.value)) return;
+    model.value = modelValue;
+  }
+);
 const uischema = useVModel(props, "uischema", emits, {
-  passive: true
+  passive: true,
+  clone: cloneDeep
 });
 const errors = ref<ErrorObject[]>([]);
 const touched = useVModel(props, "touched", emits, {
@@ -324,9 +330,9 @@ onMounted(() => {
 // --- effects
 watch(
   () => props,
-  ({ uischema, additionalErrors: _additionalErrors, touched: _touched }) => {
+  () => {
     syncUischema();
-    updateUischema(uischema);
+    updateUischema(uischema.value);
   },
   { deep: true }
 );
