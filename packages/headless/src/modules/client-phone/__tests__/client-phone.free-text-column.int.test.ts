@@ -54,7 +54,7 @@ describe("client-phone — a free-text search narrows the list", () => {
     const needle = recordedNeedle();
     const observed = observeRequests(server, "/phones");
 
-    phones.useActions().filterBy({ number: { like: needle } });
+    phones.useActions().filterBy({ phone: { like: needle } });
 
     await vi.waitFor(() =>
       expect(observed.filterKeys().length).toBeGreaterThan(0)

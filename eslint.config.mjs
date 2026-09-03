@@ -415,7 +415,13 @@ const sharedTsRules = {
 
   // --- TypeScript intent overrides (relax recommended where the codebase needs it)
   "@typescript-eslint/no-require-imports": "off", // a Vite plugin resolves require() in build; require is intentional in a few configs
-  "@typescript-eslint/ban-ts-comment": "off", // @ts-expect-error is used deliberately at typed boundaries
+  // We never suppress a type error — a real fix or a proper type, never
+  // `@ts-expect-error`. The only exemption (type-negative-control specs, where
+  // it IS the assertion) is scoped by file glob below.
+  "@typescript-eslint/ban-ts-comment": [
+    "error",
+    { "ts-expect-error": true, "ts-ignore": false, "ts-nocheck": false }
+  ],
   "@typescript-eslint/no-this-alias": [
     "error",
     { allowDestructuring: true, allowedNames: ["vm"] }
@@ -1085,6 +1091,16 @@ export default [
   {
     files: ["design-system/packages/ui/**"],
     rules: { "vue/no-reserved-component-names": "off" }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 11b. `@ts-expect-error` stays legal ONLY where it IS the assertion:
+  //      type-negative-control specs run under `tsc` to prove that bad code
+  //      fails to compile. The design system is a separate library.
+  // ---------------------------------------------------------------------------
+  {
+    files: ["**/*.no-test.ts", "**/*.types.test.ts", "design-system/**"],
+    rules: { "@typescript-eslint/ban-ts-comment": "off" }
   },
 
   // ---------------------------------------------------------------------------

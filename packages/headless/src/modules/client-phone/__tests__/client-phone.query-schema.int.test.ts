@@ -11,7 +11,7 @@
  * kind of failure, never a second, parallel channel; the live criteria stays
  * exactly as it was (commit-whole-or-not-at-all).
  *
- * The free-text `filters.number` branch predates this story and stays
+ * The free-text `filters.phone` branch predates this story and stays
  * UNCHANGED (design.md §2.2); it declares no `additionalProperties: false`,
  * so an unknown `filters` key is compacted away rather than raised as a
  * schema error. Proven here as its own, narrower claim: the wire and the
@@ -120,7 +120,7 @@ describe("client-phone — the filter-bar uischema over the query schema (F5)", 
       elements: [
         {
           type: "Control",
-          scope: "#/properties/filters/properties/number/properties/like",
+          scope: "#/properties/filters/properties/phone/properties/like",
           i18n: "form.phone_search",
           options: {
             format: "search",

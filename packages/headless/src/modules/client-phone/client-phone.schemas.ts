@@ -3,6 +3,7 @@
 import { SortDirection } from "../query/query.types";
 import { DEFAULT_SORT } from "./client-phone.types";
 import type { QuerySchema } from "./client-phone.types";
+import type { WithPhoneCountryCode } from "../../utils/useValidationKeywords";
 import type {
   ControlElement,
   JsonSchema7,
@@ -28,6 +29,34 @@ import type { ICountry } from "@upmind-automation/types";
  */
 
 export const useSchema = ({ country }: { country?: ICountry }): JsonSchema7 => {
+  const phone: WithPhoneCountryCode<JsonSchema7> = {
+    type: "object",
+    phone_country_code: country?.code,
+    required: ["number", "nationalNumber", "countryCallingCode", "country"],
+    properties: {
+      number: {
+        type: "string",
+        title: "Phone number ( with dialing code )"
+      },
+
+      nationalNumber: {
+        type: "string",
+        title: "Phone number"
+      },
+
+      countryCallingCode: {
+        type: "string",
+        title: "Country calling code"
+      },
+
+      country: {
+        type: "string",
+        title: "Country",
+        default: country?.code || null
+      }
+    }
+  };
+
   const schema: JsonSchema7 = {
     type: "object",
     title: "Phone Number",
@@ -40,34 +69,7 @@ export const useSchema = ({ country }: { country?: ICountry }): JsonSchema7 => {
         readOnly: true
       },
 
-      phone: {
-        type: "object",
-        // @ts-expect-error: 'phone_country_code' is a custom AJV keyword
-        phone_country_code: country?.code,
-        required: ["number", "nationalNumber", "countryCallingCode", "country"],
-        properties: {
-          number: {
-            type: "string",
-            title: "Phone number ( with dialing code )"
-          },
-
-          nationalNumber: {
-            type: "string",
-            title: "Phone number"
-          },
-
-          countryCallingCode: {
-            type: "string",
-            title: "Country calling code"
-          },
-
-          country: {
-            type: "string",
-            title: "Country",
-            default: country?.code || null
-          }
-        }
-      }
+      phone
 
       //  --- deprecated
 
@@ -129,9 +131,10 @@ export const useUischema = () => {
  *
  * Phones are read whole for the billing surfaces that pick one, so `limit: 0`
  * stays the pagination default (preserve-invariant, `client-address.schemas.ts:393`
- * sibling precedent). The one declared filter is the free-text search, bound
- * to the `phone` wire column: staging answers `filter[number|like]` with an
- * HTTP 500 and `filter[phone|like]` with a narrowed 200, both recorded in
+ * sibling precedent). The one declared filter is the free-text search: the
+ * `phone` branch, whose property name IS the wire column, so it emits
+ * `filter[phone|like]`. Staging answers `filter[number|like]` with an HTTP 500
+ * and `filter[phone|like]` with a narrowed 200, both recorded in
  * `__tests__/fixtures`. The `sort` branch declares exactly `created_at` — the
  * only column either legacy consumer orders on (`clientPhonesList.vue:68-71`
  * ASC boot; `clientPhoneSelect.vue:171` `-created_at`); an unknown `order=`
@@ -147,11 +150,9 @@ export function useQuerySchema(): QuerySchema {
         type: "object",
         additionalProperties: false,
         properties: {
-          number: {
+          phone: {
             type: "object",
             title: "text.phone",
-            // @ts-expect-error: 'column' is the branch's wire-column binding
-            column: "phone",
             additionalProperties: false,
             properties: {
               // The bare term — the translator adds the % wildcards.
@@ -214,7 +215,7 @@ export function useQueryUischema(): UISchemaElement {
     elements: [
       {
         type: "Control",
-        scope: "#/properties/filters/properties/number/properties/like",
+        scope: "#/properties/filters/properties/phone/properties/like",
         i18n: "form.phone_search",
         options: {
           format: "search",

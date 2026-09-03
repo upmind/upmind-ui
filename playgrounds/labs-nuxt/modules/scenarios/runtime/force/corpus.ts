@@ -37,6 +37,7 @@ import {
 } from "./corpus.source";
 import { armsForceableSurface } from "./routes";
 import {
+  every,
   filter,
   find,
   first,
@@ -44,6 +45,7 @@ import {
   isArray,
   isEqual,
   isNumber,
+  isUndefined,
   keys,
   last,
   map,
@@ -442,18 +444,27 @@ function applyFilter(
   operator: string,
   value: string
 ): WireRecord[] {
+  // A filter on a field NO recorded row carries was resolved by the SERVER — a
+  // relation the wire joined (`clients.id` against a row that carries the
+  // foreign key `client_id`, never a nested `clients` object). The recorded
+  // rows already reflect that narrowing, so re-applying it here would drop every
+  // one; leave the set as staging returned it. A column the rows DO carry —
+  // flat (`pinned`) or nested (`product.name`) — still narrows and stays
+  // falsifiable, read through the dotted path the request spelt.
+  if (every(rows, row => isUndefined(get(row, column)))) return rows;
+
   if (operator === "like") {
     const needle = toLower(value.replace(/%/g, ""));
 
     return filter(rows, row =>
-      toLower(String(row[column] ?? "")).includes(needle)
+      toLower(String(get(row, column) ?? "")).includes(needle)
     );
   }
 
   if (operator === "neq")
-    return reject(rows, row => matchesValue(row[column], value));
+    return reject(rows, row => matchesValue(get(row, column), value));
 
-  return filter(rows, row => matchesValue(row[column], value));
+  return filter(rows, row => matchesValue(get(row, column), value));
 }
 
 /**

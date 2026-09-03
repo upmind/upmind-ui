@@ -481,6 +481,9 @@ export const useModelParser = <
 
   values = defaultsDeep(values, defaults) as Partial<TModel>;
 
+  // Empty === unset on the way in too, so a cleared branch takes its default.
+  values = compactDeep(values, { preserveContainers }) as Partial<TModel>;
+
   if (!schema?.properties) return values as TModel;
 
   /**

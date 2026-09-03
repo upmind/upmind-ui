@@ -374,7 +374,7 @@ describe("client-phone collection — list controls (AC-10, AC-11, AC-12)", () =
     await phones.useActions().isReady();
 
     const observed = observePhoneRequests();
-    phones.useActions().filterBy({ number: { like: "7911" } });
+    phones.useActions().filterBy({ phone: { like: "7911" } });
 
     await vi.waitFor(() => {
       expect(observed.all().some(request => request.url.includes("7911"))).toBe(
