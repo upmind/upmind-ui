@@ -42,6 +42,7 @@ import type {
   SubproductDetails,
   ProductConfigContext
 } from ".";
+import type { ErrorObject } from "ajv";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type { ActorRef } from "xstate";
 
@@ -123,8 +124,8 @@ export const useProductConfig = (service: ActorRef<any>) => {
   // Reactively derived "still outstanding" errors — basketErrors filtered
   // against the live model. As the user fills/changes fields, those errors
   // drop off without us mutating the snapshot.
-  const additionalErrors = computed(() => {
-    return getOutstandingBasketErrors(
+  const additionalErrors = computed<ErrorObject[]>((previous = []) => {
+    const outstanding = getOutstandingBasketErrors(
       contextValue<ProductConfigContext["basketErrors"]>(state, "basketErrors"),
       // compare against the rejected snapshot when we have one (handles a
       // freshly-entered value); fall back to baseModel for seeded errors
@@ -134,6 +135,11 @@ export const useProductConfig = (service: ActorRef<any>) => {
       ) ?? contextValue<ProductConfigContext["baseModel"]>(state, "baseModel"),
       model.value
     );
+    // building the list is cheap, re-rendering the form is not, and the form
+    // detects change by reference, not content: keep the previous list when
+    // nothing changed
+    if (isEqual(outstanding, previous)) return previous;
+    return outstanding;
   });
 
   const shareUrl = computed(() => {

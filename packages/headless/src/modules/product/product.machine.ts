@@ -547,10 +547,21 @@ export default createMachine(
       }),
 
       setSchemas: assign({
-        schema: (context: ProductConfigContext) =>
-          useProductConfigSchema(context),
-        uischema: (context: ProductConfigContext) =>
-          useProductConfigUischema(context)
+        schema: (context: ProductConfigContext) => {
+          const schema = useProductConfigSchema(context);
+          // building the schema is cheap, compiling it in AJV is not, and AJV caches
+          // by reference, not content: keep the previous object when nothing changed
+          if (isEqual(schema, context.schema)) return context.schema;
+          return schema;
+        },
+        uischema: (context: ProductConfigContext) => {
+          const uischema = useProductConfigUischema(context);
+          // building the layout is cheap, re-rendering the form is not, and the form
+          // detects change by reference, not content: keep the previous object when
+          // nothing changed
+          if (isEqual(uischema, context.uischema)) return context.uischema;
+          return uischema;
+        }
       }),
 
       persistModel: assign({
