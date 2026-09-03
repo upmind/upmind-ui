@@ -1,0 +1,19 @@
+Negative control for LookupRenderer.test.ts (B5 load-more gate).
+
+Ungates the renderer-owned "Load more" button from `meta.hasMore`, so it stays drawn
+even once the service reports no more pages. The B5 assertion that the button is withdrawn
+when `hasMore` goes false goes red.
+
+diff --git a/packages/client-vue/src/components/form/engine/renderers/controls/LookupRenderer.vue b/packages/client-vue/src/components/form/engine/renderers/controls/LookupRenderer.vue
+index 44f2e458d..9d4cc7d98 100644
+--- a/packages/client-vue/src/components/form/engine/renderers/controls/LookupRenderer.vue
++++ b/packages/client-vue/src/components/form/engine/renderers/controls/LookupRenderer.vue
+@@ -17,7 +17,7 @@
+         @input="onSearchInput"
+       />
+       <Button
+-        v-if="isAsync && asyncMeta?.hasMore"
++        v-if="isAsync"
+         type="button"
+         variant="link"
+         size="sm"

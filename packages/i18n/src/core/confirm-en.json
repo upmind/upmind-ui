@@ -22,5 +22,11 @@
   "phone_set_default": "Phone successfully set as default",
   "phones_refreshed": "Phones refreshed successfully",
   "profile_saved": "Profile saved successfully",
-  "reset_instructions_sent_msg": "Thanks – reset instructions have been sent to your email"
+  "reset_instructions_sent_msg": "Thanks – reset instructions have been sent to your email",
+  "vault_asset_converted": "Vault item converted successfully",
+  "vault_asset_pin_updated": "Vault item pin updated successfully",
+  "vault_asset_removed": "Vault item removed successfully",
+  "vault_asset_revealed": "Vault item revealed successfully",
+  "vault_asset_saved": "Vault item saved successfully",
+  "vault_assets_refreshed": "Vault items refreshed successfully"
 }

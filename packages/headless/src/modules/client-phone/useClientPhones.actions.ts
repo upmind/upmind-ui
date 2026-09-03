@@ -114,7 +114,7 @@ export function createClientPhonesActions(
   /**
    * Applies a filter INTENT — the `filters` branch of the one query model, so
    * `sort` and `pagination` are untouched by construction. The free-text
-   * search binds `filters.number.like`.
+   * search binds `filters.phone.like`.
    */
   function filterBy(intent: FilterModel): void {
     query.setCriteria({ filters: intent });

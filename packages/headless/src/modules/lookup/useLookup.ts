@@ -1,133 +1,89 @@
-import { useActor } from "@xstate/vue";
 import { computed } from "vue";
-import { waitFor } from "xstate/lib/waitFor";
-import { useI18n } from "../system-localisation";
-import {
-  DEBOUNCE_DELAY,
-  DetailedError,
-  ErrorOrigin,
-  responseCodes
-} from "../../utils";
-import { map, get, pick, debounce } from "lodash-es";
+import { set } from "lodash-es";
+import type { ListQuery } from "../query/query.types";
+
+// ----------------------------------------------------------------------------
+/**
+ * @module lookup/useLookup
+ * @description A THIN, endpoint-agnostic adapter over a criteria-driven
+ * `listInfinite()` query — it reinvents nothing. Search, pagination ("load
+ * more"), caching, dedup and loading-state all belong to the platform query
+ * layer (`useQuery().listInfinite({ criteria })`, see `modules/query`); this
+ * only maps that handle to the small surface a lookup CONTROL drives.
+ *
+ * The caller passes the SERVICE — a `listInfinite` query minted over its own
+ * endpoint with a `criteria` schema declaring the searchable `like` filter and
+ * `pagination`. The same composable looks up ANY module's data; it rides in a
+ * control's schema `options.lookup` so `LookupRenderer` can drive it, exactly
+ * as the manage renderer receives its list/mutate composables.
+ */
+
+/** One selectable option — the shape the control renders (the query's `select` output). */
+export type LookupItem = {
+  value: string;
+  label: string;
+  description?: string;
+};
+
+export type UseLookupOptions = {
+  /**
+   * The criteria model path of the search filter's `like` operator — the branch
+   * the control's term writes. Defaults to `filters.search.like`.
+   */
+  searchScope?: string;
+};
 
 // ----------------------------------------------------------------------------
 
-const maybeActor = (item: any) =>
-  item?.state ? { id: item.id, ...item.state.context } : item;
-// ---
-export function useLookup(lookup: Function) {
-  const { t } = useI18n();
-  const { service } = lookup();
-  const { state, send }: any = useActor(service);
+/**
+ * @param query a criteria-driven `listInfinite()` handle whose `select` already
+ *   maps rows to {@link LookupItem}. Its `data` accumulates across pages.
+ * @param options the search filter's model path.
+ */
+export function useLookup(
+  query: ListQuery<unknown, LookupItem[]>,
+  options: UseLookupOptions = {}
+) {
+  const searchScope = options.searchScope ?? "filters.search.like";
 
-  // ---------------------------------------------------------------------------
   return {
-    state: computed(() => state.value.value),
-    context: computed(() => state.value.context),
-    errors: computed(() => state.value.context?.error),
-    // ---
+    /** The accumulated options across every loaded page — the query's own data. */
+    items: query.data,
+
+    /**
+     * The total number of matches the server reports for the current term.
+     * Read off the pagination descriptor (`total` across all pages), not the
+     * bare `query.total` — a `select` that reshapes the rows can strip the
+     * envelope's own `total`, but the pagination descriptor keeps it.
+     */
+    total: computed(() => query.pagination.value.total),
+
+    /** Load-state meta the control reads — all derived from the query handle. */
     meta: computed(() => ({
-      isLoading: ["loading"].some(state.value.matches),
-      isProcessing: ["filtering", "processing"].some(state.value.matches),
-      isFiltered: ["filtered"].some(state.value.matches),
-      hasErrors: ["error"].some(state.value.matches),
-      isEditing: ["editing"].some(state.value.matches)
+      isLoading: query.isFetching.value,
+      hasMore: query.meta.value.hasNextPage,
+      hasErrors: query.isError.value || query.criteriaError.value !== undefined,
+      isEmpty: !query.isFetching.value && (query.data.value?.length ?? 0) === 0
     })),
-    // ---
-    items: computed(() =>
-      map(state.value.context.items, item =>
-        pick(maybeActor(item), ["id", "title", "description"])
-      )
-    ),
-    selected: computed(() => state.value.context?.selected?.id),
-    selectedActor: computed(() => {
-      if (state.value.context?.selected) {
-        return {
-          id: state.value.context?.selected.id,
-          ...useActor(state.value.context?.selected)
-        };
-      }
-      return null;
-    }),
-    filters: computed(() => state.value.context?.filters),
-    value: computed(() => {
-      const selected = maybeActor(state.value.context?.selected);
-      return get(selected, "id", null);
-    }),
-    title: computed(() => {
-      const selected = maybeActor(state.value.context?.selected);
-      return get(selected, "title", null);
-    }),
-    description: computed(() => {
-      const selected = maybeActor(state.value.context?.selected);
-      return get(selected, "description", null);
-    }),
 
-    // ---
-    select: async (id: any) => {
-      if (state.value.matches("loading")) {
-        await waitFor(service, newstate => !newstate.matches("loading"), {
-          timeout: 60_000
-        }).catch(error => {
-          throw new DetailedError(
-            t("error.lookup_load_failed"),
-            responseCodes.Timeout,
-            ErrorOrigin.Headless,
-            error
-          );
-        });
-      }
-      send({ type: "SELECT", data: id });
-    },
+    /** ajv's verdict on a rejected criteria write, read never raised. */
+    error: query.criteriaError,
 
-    edit: (id: any) => send({ type: "EDIT", data: id }),
-    add: () => send({ type: "ADD" }),
-    refresh: () => send({ type: "REFRESH" }),
+    /**
+     * Set the search term — one MERGED criteria write of the `like` branch. A
+     * result-set change returns the cursor to page 1 (the criteria seam's own
+     * law); `null` clears the filter.
+     */
+    search: (term: string) =>
+      query.setCriteria(set({}, searchScope, term || null)),
 
-    filter: debounce(data => send({ type: "FILTER", data }), DEBOUNCE_DELAY)
-    // filter: data => send({ type: "FILTER", data })
+    /** Append the next page — the "Load more" control (the infinite query's own). */
+    loadMore: () => query.fetchNextPage(),
+
+    /** Discard and re-fetch the current combination. */
+    refresh: () => query.resetQuery()
   };
 }
 
-export function useLookupItem({ item }: any, { emit }: any) {
-  // this will change to be a manager of ALL emails, for now its a single instance (add/update)
-
-  const { state, send } = item;
-
-  // ---------------------------------------------------------------------------
-  return {
-    state: computed(() => state.value.value),
-    context: computed(() => state.value.context),
-    errors: computed(() => state.value.context?.error),
-    //messages: computed(() => state.value.context?.messages),
-    // ---
-    meta: computed(() => ({
-      isLoading: ["loading"].some(state.value.matches),
-      hasErrors: ["error"].some(state.value.matches),
-      isProcessing: ["checking", "processing"].some(state.value.matches),
-      isValid: ["valid"].some(state.value.matches),
-      isNew: !state.value.context?.model?.id,
-      canRemove: state.value?.context?.model?.canDelete,
-      canAdd: !!state.value?.context,
-      isDefault: !!state.value?.context?.model?.default,
-      isVerified: !!state.value?.context?.model?.verified,
-      isComplete:
-        state.value.done || ["processed", "complete"].some(state.value.matches)
-    })),
-
-    // ---
-    model: computed(() => state.value?.context?.model),
-    schema: computed(() => state.value?.context?.schema),
-    uischema: computed(() => state.value?.context?.uischema),
-    // ---
-    clear: () => send({ type: "CLEAR" }),
-    input: (model: any) => send({ type: "SET", data: model }),
-    update: () => send({ type: "UPDATE" }),
-    remove: () => send({ type: "REMOVE" }),
-    setDefault: () => send({ type: "DEFAULT" }),
-    // ---
-    select: () => emit("select", item.id),
-    edit: () => emit("edit", item.id),
-    cancel: () => emit("refresh")
-  };
-}
+/** The composable's public return, for a consumer's own typing. */
+export type UseLookup = ReturnType<typeof useLookup>;

@@ -223,7 +223,7 @@ export interface PhoneContext extends DataManagerContext<PhoneModel> {
  */
 export type QueryModel = {
   filters?: {
-    number?: { like?: string };
+    phone?: { like?: string };
   };
   sort?: SortEntry[];
   pagination?: { limit?: number; offset?: number };

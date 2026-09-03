@@ -1,0 +1,21 @@
+Negative control for client-notes.lookups.int.test.ts (AC-42 filter-bar wire).
+
+Renames the query schema's `contract_product_id` operator branch off `eq`, so the
+translator no longer emits `filter[contract_product_id|eq]` — a filterBy on `.eq` is
+stripped by the branch's `additionalProperties: false` and never reaches the vault URL.
+The AC-42 assertion that the narrowed request carries `filter[contract_product_id|eq]`
+goes red.
+
+diff --git a/packages/headless/src/modules/client-notes/client-notes.schemas.ts b/packages/headless/src/modules/client-notes/client-notes.schemas.ts
+index 29bf2e2e8..bdb7577a7 100644
+--- a/packages/headless/src/modules/client-notes/client-notes.schemas.ts
++++ b/packages/headless/src/modules/client-notes/client-notes.schemas.ts
+@@ -325,7 +325,7 @@ export function useQuerySchema(): QuerySchema {
+               // string: the product list is NO LONGER embedded (no `enum`/
+               // `options`); the async lookup rides the filter control's
+               // `options.lookup.service` instead. `null` is the clear position.
+-              eq: { type: ["string", "null"] }
++              neq: { type: ["string", "null"] }
+             }
+           }
+         }

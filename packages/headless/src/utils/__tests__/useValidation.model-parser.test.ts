@@ -118,8 +118,10 @@ describe("useModelParser — preserveContainers false strips empty containers", 
     ).toEqual({ sort: SORT_DEFAULT });
   });
 
-  it("strips a cleared array so the next parse takes the schema default (FB5e)", () => {
-    expect(parse({ sort: [] }, { preserveContainers: false })).toBeUndefined();
+  it("treats a cleared array as unset, so the schema default applies (FB5e)", () => {
+    expect(parse({ sort: [] }, { preserveContainers: false })).toEqual({
+      sort: SORT_DEFAULT
+    });
     expect(parse({}, { preserveContainers: false })).toEqual({
       sort: SORT_DEFAULT
     });

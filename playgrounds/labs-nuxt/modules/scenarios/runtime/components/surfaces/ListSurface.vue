@@ -133,7 +133,10 @@
 
     <!-- The table is the FRAME: its headers stay through every state, and each
          state is drawn inside its body rather than in place of it (C8/C9). -->
-    <Table v-else-if="meta.hasTable" :class="listSurface.table()">
+    <Table
+      v-else-if="meta.hasTable"
+      :class="listSurface.table({ layout: tableLayout })"
+    >
       <TableHeader>
         <TableRow
           v-for="headerGroup in vueTable.getHeaderGroups()"
@@ -165,7 +168,7 @@
           </TableHead>
           <TableHead
             v-if="meta.hasRowActions"
-            :class="listSurface.actionsCell()"
+            :class="listSurface.actionsCell({ layout: tableLayout })"
           />
         </TableRow>
       </TableHeader>
@@ -177,7 +180,7 @@
             </TableCell>
             <TableCell
               v-if="meta.hasRowActions"
-              :class="listSurface.actionsCell()"
+              :class="listSurface.actionsCell({ layout: tableLayout })"
             >
               <Skeleton :class="listSurface.skeletonActions()" />
             </TableCell>
@@ -220,7 +223,7 @@
               </TableCell>
               <TableCell
                 v-if="meta.hasRowActions"
-                :class="listSurface.actionsCell()"
+                :class="listSurface.actionsCell({ layout: tableLayout })"
               >
                 <ActionSlots
                   icon-only
@@ -331,9 +334,9 @@
     />
 
     <DetailDialog
-      v-if="detailState"
+      v-if="detailRecord"
       :key="detailKey"
-      :record="detailState"
+      :record="detailRecord"
       :detail="props.detail"
       :id="detailId"
       :presentation="presentation?.detail"
@@ -688,6 +691,17 @@ const columnElements = computed<DeclaredCell[]>(() =>
 );
 
 /**
+ * The table's layout algorithm. A scenario that declared ANY per-column width
+ * gets a FIXED table, so each declared column sizes to its exact fraction; with
+ * no declared width the table stays AUTO and renders exactly as before.
+ */
+const tableLayout = computed<"auto" | "fixed">(() =>
+  some(columnElements.value, element => !isNil(element.options?.width))
+    ? "fixed"
+    : "auto"
+);
+
+/**
  * The picker's options — every declared column, saying whether it is drawn.
  * Empty in card view: cards are the scenario's OTHER declaration and have no
  * columns to hide.
@@ -779,10 +793,15 @@ const contentColumns = computed<string[]>(() =>
  * renderer measures to a glyph (`R7-2`), else the scenario's declared share, or
  * `fluid` where it declared none.
  */
-function headerSize(id: string): "content" | "fluid" | TableColumnWidthTypes {
+function headerSize(
+  id: string
+): "content" | "fluid" | "remainder" | TableColumnWidthTypes {
   if (includes(contentColumns.value, id)) return "content";
   const element = find(columnElements.value, el => columnId(el) === id);
-  return element?.options?.width ?? "fluid";
+  if (element?.options?.width) return element.options.width;
+  // Under a fixed table an undeclared column takes the REMAINDER (`w-auto`),
+  // never `w-full` — see `headerCell` in the styles file.
+  return tableLayout.value === "fixed" ? "remainder" : "fluid";
 }
 
 /** The empty state spans every column the frame draws, the actions one included. */
@@ -910,6 +929,20 @@ function openHandoff(action: ScenarioAction, row?: ListRow): void {
 // --- the read-only detail overlay a declared `detail` control opens
 const detailState = ref<ListRow | undefined>(undefined);
 
+/**
+ * The LIVE record the overlay draws — re-resolved from `rows` by id on every
+ * read, never the frozen row captured at open time. A row mutation that lands
+ * while the overlay is open (a `reveal` filling a secret's `note`, say) must
+ * reach the overlay, which a static `detailState` snapshot would swallow. Falls
+ * back to the captured row when it carries no id or has left the collection.
+ */
+const detailRecord = computed<ListRow | undefined>(() => {
+  if (!detailState.value) return undefined;
+  const id = get(detailState.value, "id");
+  if (isNil(id)) return detailState.value;
+  return find(rows.value, row => get(row, "id") === id) ?? detailState.value;
+});
+
 /** One read instance per RECORD — never one carried across rows. */
 const detailKey = computed(() => rowKey(detailState.value ?? {}, 0));
 
@@ -1006,7 +1039,10 @@ function rowActionItems(row: ListRow): ActionSlotItem[] {
  * again; Edit and the rest ride here and hand off exactly as they do from a row.
  */
 const detailActionItems = computed<ActionSlotItem[]>(() => {
-  const row = detailState.value;
+  // The LIVE row, so the overlay's controls gate on the same state the table's
+  // do — a `reveal` in the overlay flips it to `hide` there just as it does in
+  // the row beneath (`detailRecord`, never the frozen `detailState`).
+  const row = detailRecord.value;
   if (!row) return [];
   const opened = map(filter(rowActions.value, "detail"), "name");
   return reject(rowActionItems(row), item => includes(opened, item.name));

@@ -1,0 +1,19 @@
+Negative control for client-notes.lookups.int.test.ts (AC-41 search column).
+
+Re-points the product-lookup free-text search column off `product.name`, so a typed
+term writes `filter[service_identifier|like]` on the wire instead. The assertion that
+some observed request carries `filter[product.name|like]=%hosting%` goes red.
+
+diff --git a/packages/headless/src/modules/client-notes/client-notes.schemas.ts b/packages/headless/src/modules/client-notes/client-notes.schemas.ts
+index 29bf2e2e8..e8733f31a 100644
+--- a/packages/headless/src/modules/client-notes/client-notes.schemas.ts
++++ b/packages/headless/src/modules/client-notes/client-notes.schemas.ts
+@@ -36,7 +36,7 @@ export const PRODUCT_SEARCH_SCOPE = "filters.search.like";
+  * here as the design's one build-time open item; a single constant to re-point
+  * if a staging capture answers otherwise.
+  */
+-const PRODUCT_SEARCH_COLUMN = "product.name";
++const PRODUCT_SEARCH_COLUMN = "service_identifier";
+ 
+ /**
+  * The criteria schema for the async contract-product lookup — the whole

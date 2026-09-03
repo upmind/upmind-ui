@@ -97,6 +97,7 @@ export const useQuery = () => {
     sort,
     filters,
     pagination,
+    query,
     withCurrency,
     withBasket,
     withoutLocale,
@@ -159,6 +160,10 @@ export const useQuery = () => {
           }
         });
       }
+
+      // Set 'query' (platform quick-search) parameter
+      if (!isEmpty(query)) url.searchParams.set("query", query as string);
+      else url.searchParams.delete("query");
 
       // set "lang" parameter
       if (!withoutLocale && !isEmpty(locale.value)) {
@@ -277,9 +282,14 @@ export const useQuery = () => {
 
     const sort = computed(() => criteria.props.value.sort);
     const filters = computed(() => criteria.props.value.filters);
+    const quickSearch = computed(() => criteria.props.value.query);
 
     // --- query
-    const reactiveKeys: ReactiveQueryKeys = { sort, filters };
+    const reactiveKeys: ReactiveQueryKeys = {
+      sort,
+      filters,
+      query: quickSearch
+    };
 
     if (!withoutLocale && locale.value) reactiveKeys.locale = locale;
 
@@ -308,6 +318,7 @@ export const useQuery = () => {
                 url,
                 sort: sort.value,
                 filters: filters.value,
+                query: quickSearch.value,
                 withCurrency,
                 withBasket,
                 withoutLocale,
@@ -402,6 +413,7 @@ export const useQuery = () => {
 
     const sort = computed(() => criteria.props.value.sort);
     const filters = computed(() => criteria.props.value.filters);
+    const quickSearch = computed(() => criteria.props.value.query);
     const limit = computed(
       () => criteria.props.value.pagination?.limit ?? PAGINATION.limit
     );
@@ -431,7 +443,13 @@ export const useQuery = () => {
     // NB the limit/offset keys attach UNCONDITIONALLY: a `if (limit)` guard
     // is evaluated once on the initial value, so a `limit: 0` list would never
     // carry them and a later 0 → 10 would not re-key the query.
-    const reactiveKeys: ReactiveQueryKeys = { sort, filters, limit, offset };
+    const reactiveKeys: ReactiveQueryKeys = {
+      sort,
+      filters,
+      query: quickSearch,
+      limit,
+      offset
+    };
     if (!withoutLocale && locale.value) reactiveKeys.locale = locale;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
     if (withBasket) reactiveKeys.basketId = basketId;
@@ -453,6 +471,7 @@ export const useQuery = () => {
                 url,
                 sort: sort.value,
                 filters: filters.value,
+                query: quickSearch.value,
                 pagination: {
                   limit: limit.value,
                   offset: offset.value
@@ -513,7 +532,7 @@ export const useQuery = () => {
     // count describing the previous result set.
     if (withSplitCount)
       watch(
-        [sort, filters],
+        [sort, filters, quickSearch],
         (next, previous) => {
           if (isEqual(next, previous)) return;
           countRequest({
@@ -521,6 +540,7 @@ export const useQuery = () => {
             url,
             sort: sort.value,
             filters: filters.value,
+            query: quickSearch.value,
             withCurrency,
             withoutLocale,
             init: {
@@ -690,6 +710,7 @@ export const useQuery = () => {
 
     const sort = computed(() => criteria.props.value.sort);
     const filters = computed(() => criteria.props.value.filters);
+    const quickSearch = computed(() => criteria.props.value.query);
     const limit = computed(
       () => criteria.props.value.pagination?.limit ?? PAGINATION.limit
     );
@@ -710,7 +731,12 @@ export const useQuery = () => {
     // evaluated once on the initial value, so a `limit: 0` list would never
     // carry it and a later 0 → 10 would not re-key the query.
     // A branch change invalidates nothing here either — see `applyBranch`.
-    const reactiveKeys: ReactiveQueryKeys = { sort, filters, limit };
+    const reactiveKeys: ReactiveQueryKeys = {
+      sort,
+      filters,
+      query: quickSearch,
+      limit
+    };
     if (!withoutLocale && locale.value) reactiveKeys.locale = locale;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
     if (withBasket) reactiveKeys.basketId = basketId;
@@ -733,6 +759,7 @@ export const useQuery = () => {
                 url,
                 sort: sort.value,
                 filters: filters.value,
+                query: quickSearch.value,
                 pagination: { limit: limit.value, offset },
                 withCurrency,
                 withBasket,
@@ -771,7 +798,7 @@ export const useQuery = () => {
 
     if (withSplitCount)
       watch(
-        [sort, filters],
+        [sort, filters, quickSearch],
         (next, previous) => {
           if (isEqual(next, previous)) return;
           countRequest({
@@ -779,6 +806,7 @@ export const useQuery = () => {
             url,
             sort: sort.value,
             filters: filters.value,
+            query: quickSearch.value,
             withCurrency,
             withoutLocale,
             init: {
@@ -950,7 +978,8 @@ export const useQuery = () => {
     // --- state
     const sort = options?.sort;
     const filters = options?.filters;
-    const reactiveKeys: ReactiveQueryKeys = { sort, filters };
+    const query = options?.query;
+    const reactiveKeys: ReactiveQueryKeys = { sort, filters, query };
     if (!withoutLocale && locale.value) reactiveKeys.locale = locale.value;
 
     // ensure we request the count
@@ -965,6 +994,7 @@ export const useQuery = () => {
           url: safeUrl,
           sort,
           filters,
+          query,
           withoutLocale,
           withCurrency,
           init: {
@@ -1010,7 +1040,8 @@ export const useQuery = () => {
     // --- state
     const sort = options?.sort;
     const filters = options?.filters;
-    const reactiveKeys: ReactiveQueryKeys = { sort, filters };
+    const query = options?.query;
+    const reactiveKeys: ReactiveQueryKeys = { sort, filters, query };
     if (!withoutLocale && locale.value) reactiveKeys.locale = locale.value;
 
     // --- query
@@ -1021,6 +1052,7 @@ export const useQuery = () => {
           url,
           sort,
           filters,
+          query,
           withoutLocale,
           withCurrency,
           withBasket,
@@ -1070,9 +1102,16 @@ export const useQuery = () => {
     const offset = options?.pagination?.offset ?? PAGINATION.offset;
     const sort = options?.sort;
     const filters = options?.filters;
+    const query = options?.query;
     const pageIndex = ref(Math.ceil(offset / limit) + 1);
 
-    const reactiveKeys: ReactiveQueryKeys = { sort, filters, limit, pageIndex };
+    const reactiveKeys: ReactiveQueryKeys = {
+      sort,
+      filters,
+      query,
+      limit,
+      pageIndex
+    };
     if (!withoutLocale && locale.value) reactiveKeys.locale = locale.value;
 
     return queryClient.fetchQuery<
@@ -1088,6 +1127,7 @@ export const useQuery = () => {
           url,
           sort,
           filters,
+          query,
           pagination: { limit, offset },
           withoutLocale,
           withCurrency: options.withCurrency,

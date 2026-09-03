@@ -1,0 +1,19 @@
+Negative control for client-notes.lookups.int.test.ts (AC-41 client-scope).
+
+Drops the fixed `filter[clients.id]` URL scope from the contract-product lookup's
+`targetUrl`. The guard re-stamps the whole search from `targetUrl`, so the outbound
+`/contracts_products` request leaves the client's own resource unscoped. The
+`filter[clients.id] === clientId` assertion in the bounded-search test goes red.
+
+diff --git a/packages/headless/src/modules/client-notes/client-notes.services.ts b/packages/headless/src/modules/client-notes/client-notes.services.ts
+index 74ca8b034..7b050acd4 100644
+--- a/packages/headless/src/modules/client-notes/client-notes.services.ts
++++ b/packages/headless/src/modules/client-notes/client-notes.services.ts
+@@ -530,7 +530,6 @@ function loadContractProductLookup(
+ 
+   const targetUrl = () =>
+     useUrl("contracts_products", {
+-      "filter[clients.id]": clientId.value,
+       with: "product,product.image"
+     });
+   const url = targetUrl();

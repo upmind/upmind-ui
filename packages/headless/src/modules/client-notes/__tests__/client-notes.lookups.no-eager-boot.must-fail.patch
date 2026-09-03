@@ -1,0 +1,21 @@
+Negative control for client-notes.lookups.int.test.ts (AC-41 / story AC-2).
+
+Forces the contract-product lookup's boot gate always-on: drops the `&& isActive.value`
+deferral from `loadContractProductLookup`'s `enabled`, so the once-minted query fires a
+`/contracts_products` request at manager boot instead of staying idle until the control reads
+the service. The "fires no contract-products request at boot" assertion
+(`observedProducts.count()` === 0) goes red; nothing else references the boot count.
+
+diff --git a/packages/headless/src/modules/client-notes/client-notes.services.ts b/packages/headless/src/modules/client-notes/client-notes.services.ts
+index 74ca8b034..5463eb5af 100644
+--- a/packages/headless/src/modules/client-notes/client-notes.services.ts
++++ b/packages/headless/src/modules/client-notes/client-notes.services.ts
+@@ -573,7 +573,7 @@ function loadContractProductLookup(
+     // `isActive` defers the FIRST fetch to the control's own read (AC2): the
+     // query is minted at composable construction but stays idle through manager
+     // `loading` boot until the renderer reads the service on control render.
+-    enabled: () => isAddressable(clientId.value) && isActive.value
++    enabled: () => isAddressable(clientId.value)
+   }) as unknown as ContractProductLookupQuery;
+ }
+ 

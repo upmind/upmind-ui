@@ -112,6 +112,8 @@ export type SessionUser = {
    * Single isGuest mapper (F5): populated by mapSessionUser from actor.is_guest.
    */
   isGuest?: boolean;
+  /** Staged-import (read-only) client; mapped from actor.staged_import (graphify-out/). */
+  staged_import?: boolean;
   /**
    * Primary email with verification status (M1/M6/M7).
    * Populated by mapSessionUser from actor.default_email.
