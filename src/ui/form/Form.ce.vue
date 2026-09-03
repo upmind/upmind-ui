@@ -135,7 +135,7 @@ watch(
 );
 const uischema = useVModel(props, "uischema", emits, {
   passive: true,
-  clone: cloneDeep
+  clone: source => updateUischema(cloneDeep(source))
 });
 const errors = ref<ErrorObject[]>([]);
 const touched = useVModel(props, "touched", emits, {
@@ -283,7 +283,7 @@ function doReject() {
 }
 
 function updateUischema(uischema: FormProps["uischema"]) {
-  if (!uischema) return;
+  if (!uischema) return uischema;
   iterateSchema(uischema, (child: FormProps["uischema"]) => {
     if (!child) return; //safety check
     child.options ??= {}; //safety check
@@ -308,6 +308,7 @@ function updateUischema(uischema: FormProps["uischema"]) {
     if (props.optionalText) child.options.optionalText ??= props.optionalText;
     if (props.requiredText) child.options.requiredText ??= props.requiredText;
   });
+  return uischema;
 }
 
 function syncUischema() {

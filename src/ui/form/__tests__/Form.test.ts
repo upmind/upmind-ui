@@ -53,3 +53,49 @@ describe("Form model", () => {
     expect(toRaw(jsonforms.props("data"))).toBe(changed);
   });
 });
+
+describe("Form uischema", () => {
+  const i18n = {
+    locale: "en",
+    translate: (key: string, fallback: string) => {
+      if (key === "form.name") return { label: "", placeholder: null };
+      return fallback;
+    },
+    translateError: (error: { message: string }) => error.message
+  };
+  const decorated = () => ({
+    type: "VerticalLayout",
+    elements: [
+      { type: "Control", scope: "#/properties/name", i18n: "form.name" }
+    ]
+  });
+  const options = (jsonforms: ReturnType<typeof mountForm>["jsonforms"]) =>
+    toRaw(jsonforms.props("uischema")).elements[0].options;
+
+  it("hands JSON Forms a decorated clone and leaves the parent's object alone", () => {
+    const parent = decorated();
+    const before = JSON.stringify(parent);
+    const wrapper = mount(Form, {
+      props: { schema, uischema: parent, modelValue: { name: "a" }, i18n },
+      global: { stubs: { JsonForms: true } }
+    });
+    const jsonforms = wrapper.findComponent({ name: "JsonForms" });
+
+    expect(JSON.stringify(parent)).toBe(before);
+    expect(toRaw(jsonforms.props("uischema"))).not.toBe(parent);
+    expect(options(jsonforms).label).toBe("");
+  });
+
+  it("keeps the decoration when schema and uischema change in one update", async () => {
+    const wrapper = mount(Form, {
+      props: { schema, uischema: decorated(), modelValue: { name: "a" }, i18n },
+      global: { stubs: { JsonForms: true } }
+    });
+    const jsonforms = wrapper.findComponent({ name: "JsonForms" });
+
+    await wrapper.setProps({ schema: { ...schema }, uischema: decorated() });
+    await nextTick();
+
+    expect(options(jsonforms).label).toBe("");
+  });
+});
