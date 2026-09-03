@@ -138,17 +138,14 @@ export default createMachine(
       },
 
       complete: {
-        id: "complete"
+        id: "complete",
+        on: { ADD: { target: "processing" } }
         // type: "final"
       },
 
       error: {
         id: "error",
-        on: {
-          RETRY: {
-            target: "processing"
-          }
-        }
+        on: { ADD: { target: "processing" } }
       }
     },
     on: {
