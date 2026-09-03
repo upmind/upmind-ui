@@ -76,11 +76,7 @@ import type {
   FormAdditionalProps,
   FormFooterProps
 } from "./types";
-import type {
-  ValidationMode,
-  UISchemaElement,
-  JsonSchema
-} from "@jsonforms/core";
+import type { ValidationMode } from "@jsonforms/core";
 import type { JsonFormsChangeEvent } from "@jsonforms/vue";
 import type { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
@@ -99,7 +95,7 @@ const emits = defineEmits<{
   reject: [];
   resolve: [Record<string, any>];
   "update:modelValue": [Record<string, any>];
-  "update:uischema": [JsonSchema];
+  "update:uischema": [FormProps["uischema"]];
   "update:touched": [boolean];
   valid: [boolean];
   click: [{ model: Record<string, any>; meta: Record<string, any> }];
@@ -133,9 +129,10 @@ watch(
     model.value = modelValue;
   }
 );
-const uischema = useVModel(props, "uischema", emits, {
-  passive: true,
-  clone: source => updateUischema(cloneDeep(source))
+const uischema = computed<FormProps["uischema"]>(previous => {
+  const source = props.uischema ?? get(jsonform.value, "uischemaToUse");
+  const resolved = updateUischema(cloneDeep(source));
+  return isEqual(resolved, previous) ? previous : resolved;
 });
 const errors = ref<ErrorObject[]>([]);
 const touched = useVModel(props, "touched", emits, {
@@ -314,27 +311,10 @@ function updateUischema(uischema: FormProps["uischema"]) {
 function syncUischema() {
   // sync the uischema to the forms current uischema so that we ALWAYS have a uischema,
   // this is important for us to be able to manipulate the form
-  const currentUischema: UISchemaElement = get(
-    jsonform.value,
-    "uischemaToUse"
-  ) as UISchemaElement;
+  if (!uischema.value || props.uischema) return;
 
-  if (!currentUischema) return;
-
-  uischema.value ??= currentUischema;
+  emits("update:uischema", uischema.value);
 }
 
-onMounted(() => {
-  syncUischema();
-  updateUischema(uischema.value);
-});
-// --- effects
-watch(
-  () => props,
-  () => {
-    syncUischema();
-    updateUischema(uischema.value);
-  },
-  { deep: true }
-);
+onMounted(syncUischema);
 </script>
