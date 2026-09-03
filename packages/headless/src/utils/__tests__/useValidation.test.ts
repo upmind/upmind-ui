@@ -5,6 +5,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 
 // --- internal
 import {
+  useLaravalSchemaParser,
   useModelParser,
   useValidation,
   useValidationParser
@@ -196,6 +197,51 @@ describe("useValidation.ts", () => {
       // @ts-ignore
       model = useModelParser(mockSchema);
       expect(model).toEqual({ field1: "Field 1" });
+    });
+  });
+
+  describe("useLaravalSchemaParser", () => {
+    it("casts in: option values to the declared string type", () => {
+      const schema = useLaravalSchemaParser([
+        {
+          name: "eligibility_type",
+          field_label: "Eligibility Type",
+          validation_rules: ["required", "string", "in:5,14"],
+          options: [
+            { label: "Company", value: 5 as unknown as string },
+            { label: "Registered Business", value: 14 as unknown as string }
+          ]
+        }
+      ]);
+      const property = schema.properties!.eligibility_type as Record<
+        string,
+        any
+      >;
+      expect(property.enum).toEqual(["5", "14"]);
+      expect(property.options).toEqual([
+        { label: "Company", value: "5" },
+        { label: "Registered Business", value: "14" }
+      ]);
+    });
+
+    it("casts only the numeric option values and keeps the optional null", () => {
+      const schema = useLaravalSchemaParser([
+        {
+          name: "reason",
+          field_label: "Reason",
+          validation_rules: ["string", "in:a,5"],
+          options: [
+            { label: "A", value: "a" },
+            { label: "Five", value: 5 as unknown as string }
+          ]
+        }
+      ]);
+      const property = schema.properties!.reason as Record<string, any>;
+      expect(property.enum).toEqual(["a", "5", null]);
+      expect(property.options).toEqual([
+        { label: "A", value: "a" },
+        { label: "Five", value: "5" }
+      ]);
     });
   });
 });
