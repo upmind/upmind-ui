@@ -13,7 +13,7 @@
       >
         {{ item.description }}
       </DescriptionItem>
-      <PricingTotal v-if="props.total" class="col-span-2" :pricing="pricing" />
+      <PricingTotal v-if="props.total" :pricing="pricing" />
     </DescriptionListRoot>
   </template>
 
