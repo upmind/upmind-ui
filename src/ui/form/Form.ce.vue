@@ -60,6 +60,7 @@ import {
 } from "../../utils";
 import { cn } from "../../utils";
 import {
+  cloneDeep,
   isEmpty,
   isEqual,
   isFunction,
@@ -75,11 +76,7 @@ import type {
   FormAdditionalProps,
   FormFooterProps
 } from "./types";
-import type {
-  ValidationMode,
-  UISchemaElement,
-  JsonSchema
-} from "@jsonforms/core";
+import type { ValidationMode } from "@jsonforms/core";
 import type { JsonFormsChangeEvent } from "@jsonforms/vue";
 import type { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
@@ -98,7 +95,7 @@ const emits = defineEmits<{
   reject: [];
   resolve: [Record<string, any>];
   "update:modelValue": [Record<string, any>];
-  "update:uischema": [JsonSchema];
+  "update:uischema": [FormProps["uischema"]];
   "update:touched": [boolean];
   valid: [boolean];
   click: [{ model: Record<string, any>; meta: Record<string, any> }];
@@ -124,12 +121,18 @@ const form = useTemplateRef("form");
 const jsonform = useTemplateRef("jsonform");
 
 const baseModel = props.modelValue;
-const model = useVModel(props, "modelValue", emits, {
-  passive: true,
-  defaultValue: {}
-});
-const uischema = useVModel(props, "uischema", emits, {
-  passive: true
+const model = ref<Record<string, any>>(props.modelValue);
+watch(
+  () => props.modelValue,
+  modelValue => {
+    if (isEqual(modelValue, model.value)) return;
+    model.value = modelValue;
+  }
+);
+const uischema = computed<FormProps["uischema"]>(previous => {
+  const source = props.uischema ?? get(jsonform.value, "uischemaToUse");
+  const resolved = updateUischema(cloneDeep(source));
+  return isEqual(resolved, previous) ? previous : resolved;
 });
 const errors = ref<ErrorObject[]>([]);
 const touched = useVModel(props, "touched", emits, {
@@ -277,7 +280,7 @@ function doReject() {
 }
 
 function updateUischema(uischema: FormProps["uischema"]) {
-  if (!uischema) return;
+  if (!uischema) return uischema;
   iterateSchema(uischema, (child: FormProps["uischema"]) => {
     if (!child) return; //safety check
     child.options ??= {}; //safety check
@@ -302,32 +305,16 @@ function updateUischema(uischema: FormProps["uischema"]) {
     if (props.optionalText) child.options.optionalText ??= props.optionalText;
     if (props.requiredText) child.options.requiredText ??= props.requiredText;
   });
+  return uischema;
 }
 
 function syncUischema() {
   // sync the uischema to the forms current uischema so that we ALWAYS have a uischema,
   // this is important for us to be able to manipulate the form
-  const currentUischema: UISchemaElement = get(
-    jsonform.value,
-    "uischemaToUse"
-  ) as UISchemaElement;
+  if (!uischema.value || props.uischema) return;
 
-  if (!currentUischema) return;
-
-  uischema.value ??= currentUischema;
+  emits("update:uischema", uischema.value);
 }
 
-onMounted(() => {
-  syncUischema();
-  updateUischema(uischema.value);
-});
-// --- effects
-watch(
-  () => props,
-  ({ uischema, additionalErrors: _additionalErrors, touched: _touched }) => {
-    syncUischema();
-    updateUischema(uischema);
-  },
-  { deep: true }
-);
+onMounted(syncUischema);
 </script>
