@@ -2,7 +2,12 @@
 import { useI18n } from "../system/localisation";
 
 // -- utils
-import { getUIProperty, getDataProperty, normalizeValue } from "./mappers";
+import {
+  getUIProperty,
+  getDataProperty,
+  getDefaultValue,
+  normalizeValue
+} from "./mappers";
 import {
   isConditionalValue,
   evaluateRules,
@@ -177,7 +182,10 @@ export function createUIMetaProxy(
             rawValue.value,
             conditionState?.value ?? {}
           );
-          return normalizeValue(evaluated, defType) ?? definition.default;
+          return (
+            normalizeValue(evaluated, defType) ??
+            getDefaultValue(definition, metaItems.value.context)
+          );
         })
       : rawValue;
 
