@@ -82,6 +82,7 @@ export default {
         link: cva("no-underline"),
         text: cva("text-xl-tight font-medium break-all no-underline")
       },
+      excerpt: cva("text-muted m-0 line-clamp-3 text-sm"),
       icon: cva("[&>svg]:p-[2px]"),
       image: cva("image-radius m-0 size-13"),
       renew: {

@@ -159,8 +159,13 @@ export const UI_META_DEFINITIONS = {
   productExcerpt: {
     type: VISIBILITY,
     default: VISIBILITY.VISIBLE,
-    contexts: [UIContext.CATALOGUE, UIContext.RECOMMENDATIONS],
-    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+    contexts: [
+      UIContext.CATALOGUE,
+      UIContext.RECOMMENDATIONS,
+      UIContext.BASKET
+    ],
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT],
+    defaults: { [UIContext.BASKET]: VISIBILITY.HIDDEN }
   },
   productImageFallback: {
     type: VISIBILITY,
