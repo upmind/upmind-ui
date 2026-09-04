@@ -42,6 +42,16 @@ export function getScopeValue(
   return get(data, property);
 }
 
+export function getDefaultValue(
+  definition: PropertyDefinition,
+  context: UIContext | undefined
+) {
+  if (context && definition.defaults && context in definition.defaults) {
+    return definition.defaults[context];
+  }
+  return definition.default;
+}
+
 /** Gets a property value by cascading through scopes. */
 function getPropertyValue(
   property: string,
@@ -69,11 +79,14 @@ function getPropertyValue(
       if (isConditionalValue(value)) {
         return value;
       }
-      return normalizeValue(value, definition.type) ?? definition.default;
+      return (
+        normalizeValue(value, definition.type) ??
+        getDefaultValue(definition, input.context)
+      );
     }
   }
 
-  return definition.default;
+  return getDefaultValue(definition, input.context);
 }
 
 /**

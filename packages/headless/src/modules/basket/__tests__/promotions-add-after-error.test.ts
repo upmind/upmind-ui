@@ -46,7 +46,7 @@ vi.mock("../../../utils", () => ({
   DEBOUNCE_DELAY: 350
 }));
 
-import machine from "../promotions/promotions.machine";
+import machine from "../../basket-promotions/promotions.machine";
 
 // -----------------------------------------------------------------------------
 

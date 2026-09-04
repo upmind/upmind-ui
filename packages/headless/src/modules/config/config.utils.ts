@@ -11,6 +11,7 @@ import { evaluateRules, validateMeta } from "./config.conditions";
 import {
   getUIProperty,
   getDataProperty,
+  getDefaultValue,
   normalizeValue
 } from "./config.mappers";
 import { CONFIG_KEY, VIEWPORT_ORDER, META_PREFIX } from "./config.types";
@@ -172,7 +173,10 @@ export function createUIMetaProxy(
             rawValue.value,
             conditionState?.value ?? {}
           );
-          return normalizeValue(evaluated, defType) ?? definition.default;
+          return (
+            normalizeValue(evaluated, defType) ??
+            getDefaultValue(definition, metaItems.value.context)
+          );
         })
       : rawValue;
 

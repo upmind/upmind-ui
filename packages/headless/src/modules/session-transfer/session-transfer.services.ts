@@ -1,4 +1,9 @@
-import { GrantTypes, type IToken } from "@upmind-automation/types";
+import {
+  GrantTypes,
+  type IBrandSettings,
+  type IToken
+} from "@upmind-automation/types";
+import { compact, map, reject } from "lodash-es";
 import { useQuery } from "../query";
 import { persistTokenToStorage } from "../session-store/session-store.utils";
 import { useSessionStoreActions } from "../session-store/useSessionStore.actions";
@@ -64,8 +69,44 @@ async function transferFrom({ transfer }: TransferContext): Promise<IToken> {
     return token;
   });
 }
+/**
+ * Fetch the brand's live registered client origins — the redirect allowlist for
+ * the session transfer flow.
+ *
+ * Deliberately NOT `useBrand()`. That composable fires several queries the moment
+ * it is called, and the transfer entrypoint boots before the brand is loaded at
+ * all. One request for one field, owned by the module that needs it. Shares the
+ * `["brand", "settings"]` query key, so it is served from cache when the brand
+ * does load rather than duplicating the request.
+ *
+ * FAILS CLOSED: any error resolves to an empty list, which leaves same-host as
+ * the only permitted redirect target. It never rejects, so a brand-settings
+ * outage degrades the redirect rather than breaking the session transfer itself.
+ *
+ * NB the values are BARE HOSTS in real payloads ("kn6x1dzbtcgb.upmind.dev")
+ * despite the field name. Normalising them is the consumer's job — see
+ * `originToHost` in `useTransfer` — because getting that wrong is a bypass.
+ */
+async function fetchAllowedOrigins(): Promise<string[]> {
+  const { get, useUrl } = useQuery();
+
+  return get<IBrandSettings, string[]>({
+    url: useUrl("brand/settings"),
+    queryKey: ["brand", "settings"],
+    // --- options
+    retry: false,
+    select: (data: IBrandSettings) =>
+      compact(
+        map(reject(data?.oauth_clients ?? [], { revoked: true }), "origin")
+      )
+  }).catch((error: unknown) => {
+    console.warn("Redirect allowlist unavailable:", error);
+    return [];
+  });
+}
 // -----------------------------------------------------------------------------
 export const sessionTransferServices = {
+  fetchAllowedOrigins,
   transferTo,
   transferFrom
 };
