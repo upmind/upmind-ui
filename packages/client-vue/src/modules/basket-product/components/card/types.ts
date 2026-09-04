@@ -30,6 +30,7 @@ export interface BasketProductContentProps {
   // ---
   open: boolean;
   image: boolean;
+  excerpt?: boolean;
   error: boolean;
   // a product error nothing on the card explains — warning presentation
   warning?: boolean;

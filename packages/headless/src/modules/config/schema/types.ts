@@ -265,6 +265,7 @@ export interface UIPropertyDefinition {
   contexts: UIContext[];
   scopes: UIScope[];
   locked?: Partial<Record<UIContext, string>>;
+  defaults?: Partial<Record<UIContext, string>>;
   conditional?: boolean;
 }
 

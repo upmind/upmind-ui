@@ -32,6 +32,7 @@
               :pricing="pricingProductIds"
               :edit-route="editRoute"
               :image="ui.productImages.isVisible"
+              :excerpt="ui.productExcerpt.isVisible"
               :inline-meta="inlineMeta"
               :upsell-options="upsellOptions"
               :terms="config?.terms?.value"

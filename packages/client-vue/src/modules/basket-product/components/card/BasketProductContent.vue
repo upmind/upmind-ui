@@ -123,6 +123,13 @@
       </div>
     </header>
 
+    <p
+      v-if="props.excerpt && productDetails.excerpt"
+      :class="styles.product.summary.excerpt"
+    >
+      {{ productDetails.excerpt }}
+    </p>
+
     <BasketProductConfigurationDetails
       v-if="open && !isEmpty(filteredDetails)"
       :id="id"
