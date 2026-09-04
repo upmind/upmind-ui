@@ -71,6 +71,7 @@ export interface UISchema {
   productDescription?: ClampableVisibility;
   /** Number of lines to clamp description. @requires productDescription = 'clamped' */
   productDescriptionClamp?: ClampLines;
+  /** Display product description */
   productExcerpt?: Visibility;
   /** Display product fallback image */
   productImageFallback?: Visibility;
