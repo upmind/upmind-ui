@@ -130,7 +130,6 @@
       :disabled="props.disabled"
       :valid="domainMeta.isValid"
       :empty="domainMeta.isEmpty"
-      @search="search"
       @search-more="searchMore"
       @add="add"
       @remove="remove"

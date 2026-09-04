@@ -521,7 +521,6 @@ function search(context: DacContext) {
               `modules/web_hosting/domains/suggestions`,
               omitBy(
                 {
-                  query: sld,
                   // `useUrl` bracket-serialises arrays (tlds[]=com&tlds[]=net),
                   // so pass the array directly rather than joining ourselves.
                   tlds,
@@ -535,6 +534,7 @@ function search(context: DacContext) {
                 isEmptyParam
               )
             ),
+            query: sld,
             init: { signal },
             withAccessToken: true,
             withCurrency: true
@@ -594,7 +594,6 @@ function search(context: DacContext) {
               `modules/web_hosting/domains/suggestions/tlds`,
               omitBy(
                 {
-                  query: sld,
                   with: DOMAIN_WITH_RELATIONS,
                   tlds,
                   tlds_page: page,
@@ -607,6 +606,7 @@ function search(context: DacContext) {
                 isEmptyParam
               )
             ),
+            query: sld,
             init: { signal },
             withAccessToken: true,
             withCurrency: true

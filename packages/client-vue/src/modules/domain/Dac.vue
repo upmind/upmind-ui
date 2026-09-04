@@ -10,7 +10,6 @@
         :searching="meta.isSearching"
         :type="DomainTypes.register"
         :processing="meta.isProcessing || processingBasket"
-        @search="search"
         @reset="doReset"
       />
     </template>
@@ -21,7 +20,6 @@
         :searching="meta.isSearching"
         :processing="meta.isProcessing || processingBasket"
         :type="DomainTypes.register"
-        @search="search"
         @reset="doReset"
       />
     </template>

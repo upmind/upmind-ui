@@ -11,7 +11,6 @@
         :searching="meta.isSearching"
         :type="type"
         :processing="meta.isProcessing || processingBasket"
-        @search="search"
         @reset="doReset"
       />
     </template>
@@ -45,7 +44,6 @@
         :searching="meta.isSearching"
         :processing="meta.isProcessing || processingBasket"
         :type="type"
-        @search="search"
         @reset="doReset"
       />
     </template>
