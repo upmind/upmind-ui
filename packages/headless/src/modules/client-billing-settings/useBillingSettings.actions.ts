@@ -21,7 +21,8 @@ export function createBillingSettingsActions(
   _actorScope: ScopeActorTypes,
   service: ClientBillingSettingsServices,
   query: ClientBillingSettingsRecordQuery,
-  scopeKey: string
+  scopeKey: string,
+  visibilitySettled: Promise<void>
 ) {
   const { isAvailable: isSessionInitialised, isLoading: isSessionSettling } =
     useActiveSession().useMeta();
@@ -73,11 +74,16 @@ export function createBillingSettingsActions(
    * Resolves once the consolidation preference is ready to read — a REAL,
    * bounded wait rather than an unbounded poll on this shared query
    * singleton (AC16). Never hangs: settles `false` if the session settles
-   * unaddressable or the fetch errors.
+   * unaddressable or the fetch errors. Also awaits row O8's brand-gate
+   * settlement (`visibilitySettled`, minted once in `useBillingSettings.ts`)
+   * so a consumer that awaits `isReady()` never reads `useMeta().isVisible`
+   * while that fetch is still in flight.
    */
   async function isReady(): Promise<boolean> {
     if (!(await whenSessionSettles())) return false;
-    return whenFetched();
+    const fetched = await whenFetched();
+    await visibilitySettled;
+    return fetched;
   }
 
   /** Forces a re-read of the preference. @throws {NotAuthenticatedError} */

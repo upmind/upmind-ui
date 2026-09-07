@@ -203,6 +203,17 @@ export type ClientBillingSettingsServices = {
   loadLookups: (
     context: BillingSettingsContext
   ) => Promise<Partial<BillingSettingsContext>>;
+  /**
+   * Row O8's brand gate, resolved via `useBrand().ensureConfig()`'s own
+   * settled return value — never re-read afterward through
+   * `useBrand().getConfigValue()`'s reactive computed, which is fed by a
+   * module-singleton query `useBrand()` never re-fetches once mounted
+   * elsewhere in the app (`useBrand.ts:69`, `brandConfigQuery ??= ...`).
+   * (`graphify query "loadVisibility restrictToStaff" graphify-out/graph.json`
+   * — no matching node; net-new member of this module's own service
+   * contract, no cross-module surface.)
+   */
+  loadVisibility: () => Promise<boolean | undefined>;
   /** Schema-parses a SET event's incoming data, restoring compacted falsy/null leaves (hazard H5). */
   parse: (
     context: BillingSettingsContext,

@@ -1,3 +1,4 @@
+import { ref } from "vue";
 import { createScopedComposable } from "../scope";
 import { createClientBillingSettingsServices } from "./client-billing-settings.services";
 import { createBillingSettingsActions } from "./useBillingSettings.actions";
@@ -45,11 +46,33 @@ function createBillingSettingsForScope(
    */
   const query = service.loadSettings();
 
+  /**
+   * Row O8's brand gate, resolved ONCE per scope and shared between
+   * `useActions().isReady()` (which awaits `visibilitySettled`) and
+   * `useMeta().isVisible` (which reads `restrictToStaff` synchronously) —
+   * the SAME settled ref, never a second independent fetch that could still
+   * be in flight when a consumer reads `isVisible` right after `isReady()`
+   * resolves.
+   */
+  const restrictToStaff = ref<boolean | undefined>(undefined);
+  const visibilitySettled = service
+    .loadVisibility()
+    .then(value => {
+      restrictToStaff.value = value;
+    })
+    .catch(() => undefined);
+
   return {
     // --- Sub-composables (no direct props — clause 1 four-layer return)
     /** Sub-composable for read actions (readiness, refresh). */
     useActions: () =>
-      createBillingSettingsActions(actorScope, service, query, scopeKey),
+      createBillingSettingsActions(
+        actorScope,
+        service,
+        query,
+        scopeKey,
+        visibilitySettled
+      ),
 
     /** Sub-composable for read context (the consolidation preference). */
     useContext: () => createBillingSettingsContext(actorScope, query),
@@ -58,7 +81,8 @@ function createBillingSettingsForScope(
     useInternals: () => createBillingSettingsInternals(actorScope, query),
 
     /** Sub-composable for read meta (state flags). */
-    useMeta: () => createBillingSettingsMeta(actorScope, service, query)
+    useMeta: () =>
+      createBillingSettingsMeta(actorScope, service, query, restrictToStaff)
   };
 }
 // -----------------------------------------------------------------------------

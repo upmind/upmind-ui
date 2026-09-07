@@ -215,6 +215,44 @@ async function fetchSettingsOnce(
 }
 
 /**
+ * Row O8's brand gate. Consumes `useBrand().ensureConfig()`'s OWN settled
+ * return value directly, rather than re-reading it afterward through
+ * `useBrand().getConfigValue()`'s reactive computed.
+ *
+ * @decision never re-read the value via `useBrand().getConfigValue()`.
+ * what:    `ensureConfig()` resolves once ITS OWN fresh fetch settles;
+ *          `getConfigValue()` instead reads `brandConfig.value`, which is
+ *          fed by `useBrand()`'s module-singleton query
+ *          (`brandConfigQuery ??= services.fetchBrandConfig()`, `useBrand.ts:69`).
+ *          That singleton fetches once, on whichever call FIRST constructs
+ *          `useBrand()` anywhere in the running app, and never re-fetches
+ *          afterward — so a caller reading `getConfigValue()` after
+ *          `ensureConfig()` resolves can still observe whatever value an
+ *          EARLIER, unrelated `useBrand()` construction happened to see.
+ * why:     row O8's default is HIDDEN (design.md §8.2); a stale read that
+ *          resolves to the wrong polarity exposes a surface the brand never
+ *          opted clients into — exactly the failure AC17 exists to catch.
+ *          Consuming `ensureConfig()`'s own settled value sidesteps the
+ *          singleton's staleness entirely, for both halves of this module.
+ * rejected: keep reading `useBrand().getConfigValue()` and instead call
+ *          `useBrand().ensureConfig()` earlier / more eagerly — rejected:
+ *          the singleton this reads (`brandConfigQuery`) is shared with the
+ *          WHOLE app and is out of this module's write lane
+ *          (`packages/headless/src/modules/brand/`); no earlier call site
+ *          this module owns can guarantee it wins the race against another
+ *          consumer's own `useBrand()` construction.
+ */
+async function loadVisibility(): Promise<boolean | undefined> {
+  const result = await useBrand().ensureConfig(
+    BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF
+  );
+  return get(
+    result,
+    BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF
+  ) as boolean | undefined;
+}
+
+/**
  * MANAGER — `loading`'s context patch. Reads the settings record once (the
  * base model) and the brand's `restrict_to_staff` gate (row O8), stored in
  * the machine's own `context.config` — the field `DataManagerContext`
@@ -230,11 +268,9 @@ async function loadLookups(
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  const [record] = await Promise.all([
+  const [record, restrictToStaff] = await Promise.all([
     fetchSettingsOnce(clientId.value),
-    useBrand().ensureConfig(
-      BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF
-    )
+    loadVisibility()
   ]);
 
   const baseModel: BillingSettingsModel = {
@@ -260,9 +296,7 @@ async function loadLookups(
     config: {
       ...context.config,
       [BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF]:
-        !!useBrand().getConfigValue<boolean>(
-          BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF
-        )
+        !!restrictToStaff
     } as Record<BrandConfigKeys, boolean>
   };
 }
@@ -462,6 +496,7 @@ export const createClientBillingSettingsServices = (
     error: computed(() => mutationError.value),
     loadSettings: () => loadSettings(scopeContext),
     loadLookups: context => loadLookups(context, scopeContext),
+    loadVisibility,
     parse: (context, data) => parse(context, data),
     validate,
     update: (model, baseModel) => update(model, baseModel, scopeContext),

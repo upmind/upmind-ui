@@ -1,11 +1,10 @@
 import { computed } from "vue";
-import { BrandConfigKeys } from "@upmind-automation/types";
-import { useBrand } from "../brand";
 import type {
   ClientBillingSettingsRecordQuery,
   ClientBillingSettingsServices
 } from "./client-billing-settings.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
+import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module client-billing-settings/useBillingSettings.meta
@@ -17,12 +16,9 @@ import type { ScopeActorTypes } from "../scope/scope.types";
 export function createBillingSettingsMeta(
   _actorScope: ScopeActorTypes,
   service: ClientBillingSettingsServices,
-  query: ClientBillingSettingsRecordQuery
+  query: ClientBillingSettingsRecordQuery,
+  restrictToStaff: Ref<boolean | undefined>
 ) {
-  useBrand().ensureConfig(
-    BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF
-  );
-
   const hasErrors = computed(() => !!query.error.value);
 
   const isLoading = computed(
@@ -33,13 +29,12 @@ export function createBillingSettingsMeta(
    * Row O8 — hidden unless the brand explicitly opts clients in. The `?? true`
    * polarity is the oracle's own (`comp:72-79`): an absent or `true` value
    * hides the surface; only an explicit literal `false` reveals it.
+   * `restrictToStaff` is settled ONCE per scope by `useBillingSettings.ts`
+   * (`service.loadVisibility()`), shared with `useActions().isReady()` so a
+   * consumer that awaits readiness always reads a SETTLED value here, never
+   * one still in flight.
    */
-  const isVisible = computed(
-    () =>
-      useBrand().getConfigValue<boolean>(
-        BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF
-      ) === false
-  );
+  const isVisible = computed(() => restrictToStaff.value === false);
 
   // --- actor-specific meta: none earned (arms: none — parity.yaml).
 
