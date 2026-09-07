@@ -24,6 +24,7 @@ import {
   keys,
   map,
   some,
+  sortBy,
   startsWith,
   toSafeInteger
 } from "lodash-es";
@@ -73,17 +74,20 @@ function parseProductsToRecommend(
     }
   });
 
-  // Config-based recommendations (always included if active)
+  // Config-based recommendations keep their backend array order.
   const dataRecommendations = filter(
     data.productsToRecommend ?? [],
     recommendation => recommendation.active
   );
 
-  // Native recommendations (only if flag is visible)
+  // Native recommendations use their display order; ties keep backend order.
   const nativeRecommendations = ui.productNativeRecommendations.isVisible
-    ? filter(
-        basketProduct?.product?.related ?? [],
-        related => related.active && related.object_type === "product"
+    ? sortBy(
+        filter(
+          basketProduct?.product?.related ?? [],
+          related => related.active && related.object_type === "product"
+        ),
+        "order"
       )
     : [];
 
