@@ -1,7 +1,11 @@
 import { test, expect } from "@playwright/test";
-import { URLs } from "../../support/constants/urls";
+import { URLs, ProductIds } from "../../support/constants/urls";
 import { ProductConfig } from "../../support/page-objects/templates/product-config";
 import { waitForCalculateResponse } from "../../support/helpers/checkout";
+import {
+  pressQuantityStepperViaHeadless,
+  waitForProductConfigQuietViaHeadless
+} from "../../support/flows";
 
 // FE-2791 — product-config quantity → price recalculation.
 //
@@ -23,6 +27,14 @@ test.describe("Product configuration quantity → price recalculation @FE-2791",
     await expect(productConfig.productConfigSection).toBeVisible();
     await expect(productConfig.totalValue).toBeVisible();
     await expect(productConfig.totalQty).toBeVisible();
+
+    // control-flow guard — gate on the pending product's config actor settling
+    // before reading the baseline. The actor's initial loading -> available
+    // settling re-renders the actions, so an early read returns an unsettled
+    // total. The actor publishes reliably only once settled, so gate on that.
+    await waitForProductConfigQuietViaHeadless(page, {
+      productId: ProductIds.consultingBlock
+    });
 
     // Baseline: the starting quantity and the total priced for it.
     const startQty = Number(await productConfig.totalQty.inputValue());
@@ -48,10 +60,17 @@ test.describe("Product configuration quantity → price recalculation @FE-2791",
     // price is formatted through this cart/calculate response.
     const calcResponse = waitForCalculateResponse(page, carriesIncreasedQty);
 
-    // Bump the quantity via the stepper — a click reliably commits the change,
-    // unlike a raw fill that some number fields defer to blur — then read the
-    // committed quantity back once it has actually incremented.
-    await productConfig.quantityIncrement.click();
+    // Bump the quantity via the stepper — a press reliably commits the change,
+    // unlike a raw fill that some number fields defer to blur. The bridge
+    // returns only once the CONFIG ACTOR carries the new quantity, so a press
+    // the actor never took (see pressQuantityStepperViaHeadless) cannot pass
+    // for one it did: the stepper's own displayed value proves nothing.
+    const bumpedQty = await pressQuantityStepperViaHeadless(
+      page,
+      productConfig.quantityIncrement,
+      { productId: ProductIds.consultingBlock }
+    );
+    expect(bumpedQty).toBeGreaterThan(startQty);
     await expect
       .poll(async () => Number(await productConfig.totalQty.inputValue()))
       .toBeGreaterThan(startQty);

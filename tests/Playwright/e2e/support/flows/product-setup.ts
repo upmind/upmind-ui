@@ -30,7 +30,10 @@ export async function seedInvalidProduct(
   page: Page,
   product: ProductFixture,
   provisionFields: Record<string, unknown> = {
-    sld: `${fakerEN_GB.string.alphanumeric({ length: 8 }).toLowerCase()}`
+    // A label shaped like a real domain: staging's registrar check still runs
+    // on an unvalidated add and refuses short alphanumeric labels intermittently
+    // ("cannot be registered") — the same verdict class the edit-domain seeds hit.
+    sld: `${fakerEN_GB.string.alpha({ length: 10, casing: "lower" })}`
   }
 ): Promise<{ basketId: string; basketProductId: string | null }> {
   // The basket is a singleton shared with the live app, so there is exactly one

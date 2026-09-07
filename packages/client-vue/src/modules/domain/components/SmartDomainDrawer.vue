@@ -14,7 +14,6 @@
         :processing="props.processing"
         :type="props.type"
         @update:model-value="emit('update:query', $event ?? '')"
-        @search="emit('search', $event)"
         @reset="emit('reset')"
       />
     </template>
@@ -82,7 +81,6 @@ const props = defineProps<SmartDomainDrawerProps>();
 const emit = defineEmits<{
   (e: "update:open", value: boolean): void;
   (e: "update:query", value: string): void;
-  (e: "search", value: string): void;
   (e: "searchMore"): void;
   (e: "add", value: string): void;
   (e: "remove", value: string): void;

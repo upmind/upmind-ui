@@ -821,19 +821,6 @@ describe("mercadoPago/services — render", () => {
     server.resetHandlers();
   });
 
-  it.skip("AC-D1 mercadoPago render with SDK — SKIP: TypeError: Cannot read properties of undefined (reading 'id') at services.ts:92 — bricks.create needs browser DOM", async () => {
-    replay("get", "*/api/brands/:brandId/gateways", GATEWAYS_MERCADOPAGO);
-    const { instance } = createMercadoPagoSdkDouble();
-    const ctx = mercadoPagoContext();
-    ctx.container = document.createElement("div");
-    ctx.sdk = { mercadoPago: instance as never };
-    const event = { data: {} };
-
-    const result = await mercadoPagoServices.render(ctx, event);
-
-    expect(result).toHaveProperty("sdk");
-  });
-
   it("AC-D3 mercadoPago render without SDK throws payment_gateway_not_available", async () => {
     replay("get", "*/api/brands/:brandId/gateways", GATEWAYS_MERCADOPAGO);
     createMercadoPagoSdkDouble();
@@ -1181,34 +1168,6 @@ describe("mercadoPago/services — validate", () => {
     const result = await mercadoPagoServices.validate(ctx);
 
     expect(result).toBeDefined();
-  });
-});
-
-describe("mercadoPago/services — render guards", () => {
-  beforeEach(async () => {
-    outbound = [];
-    clearSessionCookies();
-    const { queryClient } = await import("../../query");
-    queryClient.clear();
-    await seedClientSession();
-  });
-
-  afterEach(() => {
-    cleanupSdkGlobals();
-    server.resetHandlers();
-  });
-
-  it.skip("AC-D2 mercadoPago render without container — SKIP: bricks.create needs browser DOM", async () => {
-    replay("get", "*/api/brands/:brandId/gateways", GATEWAYS_MERCADOPAGO);
-    const { instance } = createMercadoPagoSdkDouble();
-    const ctx = mercadoPagoContext();
-    ctx.container = undefined;
-    ctx.sdk = { mercadoPago: instance as never };
-    const event = { data: {} };
-
-    await expect(mercadoPagoServices.render(ctx, event)).rejects.toThrow(
-      "error.payment_gateway_not_available"
-    );
   });
 });
 

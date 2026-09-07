@@ -37,6 +37,16 @@ export const useTrimKeyword: KeywordDefinition = {
   errors: false
 };
 
+/**
+ * A schema node carrying the registered `phone_country_code` custom keyword —
+ * the country code the phone validation resolves against (see
+ * {@link phoneCountryCodeKeyword}). Types the keyword onto a schema literal so
+ * it needs no cast.
+ */
+export type WithPhoneCountryCode<T> = T & {
+  phone_country_code?: string | null;
+};
+
 export const phoneCountryCodeKeyword: KeywordDefinition = {
   keyword: "phone_country_code",
   type: ["string", "object", "null"],

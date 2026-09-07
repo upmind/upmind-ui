@@ -65,14 +65,14 @@ watch(toasts, toasts => {
   forEach(toasts, msg => {
     let { message, meta } = useMessage(msg);
     if (meta.value.isActive) {
-      const id = toast(message.value.title, {
+      const toastType = getToastType(message.value.type);
+      const emit = toastType ? toast[toastType] : toast;
+      const id = emit(message.value.title, {
         id: message.value.hash,
         duration: get(message.value, "data.persist", false) ? Infinity : 10000,
         description: message.value.copy,
         onDismiss: t => dismissToast(t.id.toString()),
         onAutoClose: t => dismissToast(t.id.toString()),
-        // @ts-expect-error -- `type` is omitted from ExternalToast but the toast component does accept it
-        type: getToastType(message.value.type),
         position: "top-right"
       });
       activeToasts.value.push(id);

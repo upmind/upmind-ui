@@ -1,4 +1,5 @@
 import { test } from "@playwright/test";
+import { fakerEN_GB } from "@faker-js/faker";
 import {
   newUser,
   registeredUser,
@@ -11,6 +12,7 @@ import {
   ProductConfig,
   ProductSetup
 } from "../../support/page-objects/templates/index";
+import { Dac } from "../../support/page-objects/templates/dac";
 import { URLs } from "../../support/constants/urls";
 import {
   DeferredFieldName,
@@ -22,7 +24,11 @@ import {
   addBillingAddressViaHeadless,
   seedInvalidProduct
 } from "../../support/flows";
-import { interceptUISchema, returnError } from "../../support/mocks/index";
+import {
+  interceptConfigValues,
+  interceptUISchema,
+  returnError
+} from "../../support/mocks/index";
 import type { AddressModel } from "@upmind-automation/headless";
 
 const SETUP_URL = `${URLs.baseUrl}order/basket/products-setup/`;
@@ -113,7 +119,7 @@ newUser.describe("Product Setup flow", () => {
       "Renders only the fields that have errors, not the full product configuration",
       async ({ page }) => {
         await expect(
-          page.getByTestId("input").and(page.locator(`[data-test-value="tel"]`))
+          productSetup.fieldFor("registrant-phone").getByTestId("input")
         ).toBeVisible();
         await expect(productSetup.termFormItem).toHaveCount(0);
         await expect(productSetup.optionsFormItem).toHaveCount(0);
@@ -152,7 +158,9 @@ newUser.describe("Product Setup flow", () => {
   newUser.describe("Multiple invalid products & apply-to-others", () => {
     newUser.beforeEach(async ({ page, clientId }) => {
       await seedInvalidProduct(page, products.DOMAIN_2);
-      await seedInvalidProduct(page, products.DOMAIN_3);
+      // .com, not .org: staging's .org registrar verdicts are intermittent
+      // (domain_not_for_sale), and a refused seed leaves one product to set up.
+      await seedInvalidProduct(page, products.DOMAIN_COM);
       await page.goto(URLs.basket);
       await addBillingAddressViaHeadless(page, clientId, SEED_ADDRESS);
       await basket.proceedToCheckout.click();
@@ -179,7 +187,8 @@ newUser.describe("Product Setup flow", () => {
       "Apply-to-others lists overlapping products with checkboxes pre-selected",
       async () => {
         await expect(productSetup.applyToOthersGroup).toBeVisible();
-        const checkboxes = productSetup.applyToOthersGroup.getByRole("option");
+        const checkboxes =
+          productSetup.applyToOthersGroup.getByRole("checkbox");
         await expect(checkboxes).toHaveCount(1);
         await expect(checkboxes.first()).toHaveAttribute(
           "data-state",
@@ -199,7 +208,7 @@ newUser.describe("Product Setup flow", () => {
       "Unchecking apply-to-others requires fixing the second product separately",
       async ({ page }) => {
         await productSetup.applyToOthersGroup
-          .getByRole("option")
+          .getByRole("checkbox")
           .first()
           .click();
         await productConfig.registrantPhoneInput.fill("07111111111");
@@ -301,13 +310,24 @@ newUser.describe("Product Setup flow", () => {
     newUser(
       "When PRODUCTS_SETUP inputs are rejected, an error alert is shown and the user stays on the same product",
       async ({ page, clientId }) => {
-        await seedInvalidProduct(page, products.DOMAIN_2);
+        // State comes from the real funnel: add a domain via the DAC, then let
+        // the saved billing address associate the registrant so only the
+        // Registrant Phone is missing — the funnel routes to setup for it.
+        const dac = new Dac(page);
+        const sld = fakerEN_GB.string.alphanumeric({ length: 8 }).toLowerCase();
+        await page.goto(URLs.baseUrl);
+        await interceptConfigValues(page, {
+          domainSearchMethod: "smart-suggest"
+        });
+        await dac.gotoSearch(sld);
+        await dac.addFirstAvailableDomain(sld);
         await page.goto(URLs.basket);
         await addBillingAddressViaHeadless(page, clientId, SEED_ADDRESS);
-        await page.goto(SETUP_URL);
+        await basket.proceedToCheckout.click();
         await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
         await returnError(page, ORDER_PUT, 422, forcedError);
 
+        await expect(productSetup.fieldFor("registrant-phone")).toBeVisible();
         await productConfig.registrantPhoneInput.fill("07111111111");
         await productSetup.submit();
 
@@ -318,13 +338,24 @@ newUser.describe("Product Setup flow", () => {
     newUser(
       "Recoverable: clearing the route and resubmitting succeeds",
       async ({ page, clientId }) => {
-        await seedInvalidProduct(page, products.DOMAIN_2);
+        // State comes from the real funnel: add a domain via the DAC, then let
+        // the saved billing address associate the registrant so only the
+        // Registrant Phone is missing — the funnel routes to setup for it.
+        const dac = new Dac(page);
+        const sld = fakerEN_GB.string.alphanumeric({ length: 8 }).toLowerCase();
+        await page.goto(URLs.baseUrl);
+        await interceptConfigValues(page, {
+          domainSearchMethod: "smart-suggest"
+        });
+        await dac.gotoSearch(sld);
+        await dac.addFirstAvailableDomain(sld);
         await page.goto(URLs.basket);
         await addBillingAddressViaHeadless(page, clientId, SEED_ADDRESS);
-        await page.goto(SETUP_URL);
+        await basket.proceedToCheckout.click();
         await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
         await returnError(page, ORDER_PUT, 422, forcedError);
 
+        await expect(productSetup.fieldFor("registrant-phone")).toBeVisible();
         await productConfig.registrantPhoneInput.fill("07111111111");
         await productSetup.submit();
         await expect(productSetup.errorAlert).toBeVisible({ timeout: 10000 });

@@ -13,8 +13,7 @@ newUser.describe("Confirmation Page Display - New Users", () => {
       await goToCheckout(page, products.STARTER_HOSTING, null, null);
       await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
-      await checkout.completeCheckout.click();
-      await checkout.completeCheckout.click();
+      await checkout.clickCompleteCheckout();
       await expect(confirmation.invoiceNumberHeading).toBeVisible();
       await expect(confirmation.invoiceNumber).toBeVisible();
       await confirmation.expectInvoiceNumberValue();
@@ -22,9 +21,7 @@ newUser.describe("Confirmation Page Display - New Users", () => {
       await expect(confirmation.orderDate).toBeVisible();
       await confirmation.expectOrderDateValue();
       await expect(confirmation.orderDetails).toBeVisible();
-      await expect(confirmation.detailsRowPrice).toBeVisible();
-      await expect(confirmation.detailsRowQty).toBeVisible();
-      await expect(confirmation.detailsRowTotal).toBeVisible();
+      await confirmation.expectDetailsColumns();
       await confirmation.expectFirstRowQty("1");
       await confirmation.expectFirstRowPriceValue(
         products.STARTER_HOSTING.gbpPrice
@@ -33,7 +30,7 @@ newUser.describe("Confirmation Page Display - New Users", () => {
   );
   newUser("Successful Free Order", async ({ page, checkout, confirmation }) => {
     await goToCheckout(page, products.FREE_HOSTING, null, null);
-    await checkout.completeCheckout.click();
+    await checkout.clickCompleteCheckout();
     await expect(confirmation.invoiceNumberHeading).toBeVisible();
     await expect(confirmation.invoiceNumber).toBeVisible();
     await confirmation.expectInvoiceNumberValue();
@@ -41,9 +38,7 @@ newUser.describe("Confirmation Page Display - New Users", () => {
     await expect(confirmation.orderDate).toBeVisible();
     await confirmation.expectOrderDateValue();
     await expect(confirmation.orderDetails).toBeVisible();
-    await expect(confirmation.detailsRowPrice).toBeVisible();
-    await expect(confirmation.detailsRowQty).toBeVisible();
-    await expect(confirmation.detailsRowTotal).toBeVisible();
+    await confirmation.expectDetailsColumns();
     await confirmation.expectFirstRowQty("1");
     await confirmation.expectFirstRowPriceValue(products.FREE_HOSTING.gbpPrice);
   });
@@ -61,9 +56,7 @@ newUser.describe("Confirmation Page Display - New Users", () => {
       await expect(confirmation.orderDate).toBeVisible();
       await confirmation.expectOrderDateValue();
       await expect(confirmation.orderDetails).toBeVisible();
-      await expect(confirmation.detailsRowPrice).toBeVisible();
-      await expect(confirmation.detailsRowQty).toBeVisible();
-      await expect(confirmation.detailsRowTotal).toBeVisible();
+      await confirmation.expectDetailsColumns();
       await confirmation.expectFirstRowQty("1");
       // Unit price is altered by the promo (discount not known at authoring
       // time), so assert the row value carries what the user is shown.
@@ -92,9 +85,7 @@ newUser.describe("Confirmation Page Display - New Users", () => {
       await expect(failedAlert).toBeVisible();
       await expect(failedAlert).toHaveAttribute("data-test-value", "failed");
       await expect(confirmation.orderDetails).toBeVisible();
-      await expect(confirmation.detailsRowPrice).toBeVisible();
-      await expect(confirmation.detailsRowQty).toBeVisible();
-      await expect(confirmation.detailsRowTotal).toBeVisible();
+      await confirmation.expectDetailsColumns();
       await confirmation.expectFirstRowQty("1");
       await confirmation.expectFirstRowPriceValue(
         products.STARTER_HOSTING.gbpPrice
@@ -104,7 +95,7 @@ newUser.describe("Confirmation Page Display - New Users", () => {
   newUser("Pay Later on Order", async ({ page, checkout, confirmation }) => {
     await goToCheckout(page, products.STARTER_HOSTING, null, null);
     await checkout.selectPayLater();
-    await checkout.completeCheckout.click();
+    await checkout.clickCompleteCheckout();
     await expect(confirmation.invoiceNumberHeading).toBeVisible();
     await expect(confirmation.invoiceNumber).toBeVisible();
     await confirmation.expectInvoiceNumberValue();
@@ -112,9 +103,7 @@ newUser.describe("Confirmation Page Display - New Users", () => {
     await expect(confirmation.orderDate).toBeVisible();
     await confirmation.expectOrderDateValue();
     await expect(confirmation.orderDetails).toBeVisible();
-    await expect(confirmation.detailsRowPrice).toBeVisible();
-    await expect(confirmation.detailsRowQty).toBeVisible();
-    await expect(confirmation.detailsRowTotal).toBeVisible();
+    await confirmation.expectDetailsColumns();
     await confirmation.expectFirstRowQty("1");
     await confirmation.expectFirstRowPriceValue(
       products.STARTER_HOSTING.gbpPrice
@@ -155,9 +144,7 @@ newUser.describe("Confirmation Page Display - New Users", () => {
         "outstanding"
       );
       await expect(confirmation.orderDetails).toBeVisible();
-      await expect(confirmation.detailsRowPrice).toBeVisible();
-      await expect(confirmation.detailsRowQty).toBeVisible();
-      await expect(confirmation.detailsRowTotal).toBeVisible();
+      await confirmation.expectDetailsColumns();
       await confirmation.expectFirstRowQty("1");
       await confirmation.expectFirstRowPriceValue(
         products.STARTER_HOSTING.gbpPrice
@@ -186,9 +173,7 @@ registeredUser.describe("Confirmation Page Display - Existing Users", () => {
       await expect(confirmation.orderPaymentMethod).toBeVisible();
       await confirmation.expectPaymentMethodLast4("4242");
       await expect(confirmation.orderDetails).toBeVisible();
-      await expect(confirmation.detailsRowPrice).toBeVisible();
-      await expect(confirmation.detailsRowQty).toBeVisible();
-      await expect(confirmation.detailsRowTotal).toBeVisible();
+      await confirmation.expectDetailsColumns();
       await confirmation.expectFirstRowQty("1");
       await confirmation.expectFirstRowPriceValue(
         products.STARTER_HOSTING.gbpPrice

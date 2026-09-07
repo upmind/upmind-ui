@@ -38,7 +38,6 @@
               :placeholder="t('domain.search')"
               :disabled="props.disabled"
               @update:model-value="onRegisterInput"
-              @focus="openDrawer"
             >
               <template #trailing><Icon icon="arrow-right" /></template>
             </Input>
@@ -131,7 +130,6 @@
       :disabled="props.disabled"
       :valid="domainMeta.isValid"
       :empty="domainMeta.isEmpty"
-      @search="search"
       @search-more="searchMore"
       @add="add"
       @remove="remove"
@@ -308,10 +306,6 @@ function onBasketSelect(value: unknown) {
   if (value) {
     select(String(value));
   }
-}
-
-function openDrawer() {
-  open.value = true;
 }
 
 function doResolve() {

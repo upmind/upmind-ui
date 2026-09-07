@@ -124,5 +124,8 @@
   "transport_play": "Play",
   "transport_step_back": "Step back",
   "transport_step_forward": "Step forward",
-  "transport_stop": "Stop"
+  "transport_stop": "Stop",
+  "order_pay_close": "Close",
+  "order_pay_resuming": "Resuming your payment…",
+  "order_pay_resuming_text": "Please wait while we confirm your payment with the provider."
 }

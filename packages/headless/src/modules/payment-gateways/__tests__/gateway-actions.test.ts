@@ -1,5 +1,5 @@
 /**
- * @fileoverview Gateway action maps — stripe, braintree, card, and others
+ * @fileoverview Gateway action maps — stripe, braintree, and others
  *
  * ## Job To Be Done
  * @AC-B4/@AC-B5 of `payment-gateways.feature` promise correct minor-unit
@@ -30,7 +30,6 @@ import { GatewayContext as GatewayCtx } from "@upmind-automation/types";
 
 import stripeActions from "../stripe/actions";
 import braintreeActions from "../braintree/actions";
-import cardActions from "../card/actions";
 import mercadoPagoActions from "../mercadoPago/actions";
 import nickyActions from "../nicky/actions";
 import openPayActions from "../openPay/actions";
@@ -453,61 +452,6 @@ describe("braintreeActions.updateSdk — guard branches", () => {
     const event = { type: "SET", data: { amount: 50, currency: CURRENCY_USD } };
 
     expect(() => braintreeActions.updateSdk(ctx, event)).not.toThrow();
-  });
-});
-
-describe("cardActions — setSchemas and setModel (AC-C1, AC-D4, AC-A11)", () => {
-  const schemaFn = (cardActions.setSchemas as any).assignment.schema;
-  const uischemaFn = (cardActions.setSchemas as any).assignment.uischema;
-  const modelFn = (cardActions.setModel as any).assignment.model;
-
-  it("AC-C1 schema callback returns object with type and properties for ADD context", () => {
-    const ctx = baseContext({ ctx: GatewayCtx.ADD, canStore: true });
-    const event = { type: "LOADED", data: {} };
-
-    const result = schemaFn(ctx, event);
-
-    expect(result.type).toBe("object");
-    expect(typeof result.properties).toBe("object");
-  });
-
-  it("AC-D4 schema callback returns object with type and properties for PAY context", () => {
-    const ctx = baseContext({ ctx: GatewayCtx.PAY, canStore: true });
-    const event = { type: "LOADED", data: {} };
-
-    const result = schemaFn(ctx, event);
-
-    expect(result.type).toBe("object");
-    expect(typeof result.properties).toBe("object");
-  });
-
-  it("AC-D4 uischema callback returns layout with type and elements", () => {
-    const ctx = baseContext({ ctx: GatewayCtx.PAY, canStore: true });
-    const event = { type: "LOADED", data: {} };
-
-    const result = uischemaFn(ctx, event);
-
-    expect(typeof result.type).toBe("string");
-    expect(Array.isArray(result.elements)).toBe(true);
-  });
-
-  it("AC-A11 model callback extracts model from event data", () => {
-    const ctx = baseContext({ model: {} });
-    const newModel = { card_number: "4242424242424242" };
-    const event = { type: "SET", data: newModel };
-
-    const result = modelFn(ctx, event);
-
-    expect(result).toEqual(newModel);
-  });
-
-  it("AC-A11 model callback handles empty event data", () => {
-    const ctx = baseContext({ model: { existing: "value" } });
-    const event = { type: "SET", data: {} };
-
-    const result = modelFn(ctx, event);
-
-    expect(result).toEqual({});
   });
 });
 

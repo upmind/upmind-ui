@@ -87,6 +87,12 @@ export default defineConfig(({ mode, command }) => {
       allowedHosts: true,
       fs: {
         strict: false
+      },
+      // Every page is a lazy `import()` (router/routes.ts), so the first request
+      // for a route pays its transform — which lands as a transform storm when
+      // the e2e workers all boot cold and a `page.goto` then misses its budget.
+      warmup: {
+        clientFiles: ["./src/main.ts", "./src/pages/**/*.vue"]
       }
     },
     esbuild: {

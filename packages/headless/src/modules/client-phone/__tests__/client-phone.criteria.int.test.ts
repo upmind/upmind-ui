@@ -16,13 +16,13 @@
  * `criteriaError` surface `useActions()` deliberately does not re-expose.
  *
  * ## The recorded disagreement, and how it was settled
- * The model key stays `number` — the consumer's contract — while the schema's
- * free-text branch BINDS the wire column to `phone`, because the two captures
- * disagree: staging answers `filter[number|like]` with HTTP 500 "A critical
- * database error occurred" (`fixtures/…-case-number-like-…json`) while
- * `filter[phone|like]` narrows 4 of 10 (`…-case-phone-like-…json`). Both are
- * verbatim captures, and the handler still 500s any `filter[number|` key — so
- * a collection that stays readable after a search is proof the wire moved.
+ * The free-text branch is named `phone` — its property name IS the wire column,
+ * so it emits `filter[phone|like]` — because the two captures disagree: staging
+ * answers `filter[number|like]` with HTTP 500 "A critical database error
+ * occurred" (`fixtures/…-case-number-like-…json`) while `filter[phone|like]`
+ * narrows 4 of 10 (`…-case-phone-like-…json`). Both are verbatim captures, and
+ * the handler still 500s any `filter[number|` key — so a collection that stays
+ * readable after a search is proof the wire moved.
  *
  * ## What Breaks If These Fail
  * A free-text search on the client's phone list 500s the whole collection —
@@ -52,7 +52,7 @@ const DECLARED_LIMIT = "0";
 /** Every legacy free-text spelling the migration replaced. */
 const LEGACY_KEYS = ["query", "q", "search"];
 
-/** The ONE free-text key staging answers 200 — model `number`, column `phone`. */
+/** The ONE free-text key staging answers 200 — the `phone` branch. */
 const ACCEPTED_FILTER_KEY = "filter[phone|like]";
 
 type Query = ReturnType<
@@ -96,7 +96,7 @@ describe("client-phone — the free-text filter on the wire (AC-12)", () => {
     const needle = recordedNeedle();
     const observed = observeRequests(server, "/phones");
 
-    phones.useActions().filterBy({ number: { like: needle } });
+    phones.useActions().filterBy({ phone: { like: needle } });
 
     await vi.waitFor(() =>
       expect(observed.lastParam(ACCEPTED_FILTER_KEY)).toBe(`%${needle}%`)
@@ -105,7 +105,7 @@ describe("client-phone — the free-text filter on the wire (AC-12)", () => {
 
     expect(observed.filterKeys()).toEqual([ACCEPTED_FILTER_KEY]);
     expect(phones.useContext().query.value.filters).toEqual({
-      number: { like: needle }
+      phone: { like: needle }
     });
     for (const request of observed.all()) {
       const params = new URL(request.url).searchParams;
@@ -124,7 +124,7 @@ describe("client-phone — a new filter or order returns me to the first page (A
       expect(query.criteria.value.pagination?.offset).toBe(2)
     );
 
-    query.setCriteria({ filters: { number: { like: recordedNeedle() } } });
+    query.setCriteria({ filters: { phone: { like: recordedNeedle() } } });
 
     await vi.waitFor(() =>
       expect(query.criteria.value.pagination?.offset).toBe(0)

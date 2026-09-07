@@ -78,7 +78,7 @@ const { focused } = useFocus(inputRef);
 
 function onOpen() {
   inputRef.value = document.querySelector<HTMLInputElement>(
-    "[vaul-drawer] input"
+    "[data-vaul-drawer] input"
   );
   focused.value = true;
 }

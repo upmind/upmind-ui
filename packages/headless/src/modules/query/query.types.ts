@@ -144,6 +144,11 @@ export type QueryProps = {
    * Optional pagination parameters, defining `limit` and `offset`.
    */
   pagination?: RequestPagination;
+  /**
+   * Optional platform quick-search term, sent as a bare `query=<term>` param
+   * (the backend expands it across columns) — NOT a `filter[...]`.
+   */
+  query?: string;
 };
 
 /**
@@ -231,6 +236,10 @@ export type ReactiveQueryKeys = {
    * A reactive reference to filter parameters.
    */
   filters?: MaybeRef<undefined | RequestFilters>;
+  /**
+   * A reactive reference to the platform quick-search term.
+   */
+  query?: MaybeRef<undefined | string>;
   /**
    * A reactive reference to the currency code.
    */

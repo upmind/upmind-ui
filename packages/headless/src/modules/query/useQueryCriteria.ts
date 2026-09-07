@@ -2,7 +2,6 @@ import { computed, ref } from "vue";
 import { useI18n } from "../system-localisation";
 import { translateQuery } from "./query.utils";
 import {
-  compactDeep,
   DetailedError,
   ErrorOrigin,
   mapToHeadlessError,
@@ -46,17 +45,6 @@ export function useQueryCriteria<
   schema,
   model: seed
 }: QueryCriteriaOptions<TModel>): QueryCriteria<TModel> {
-  // Compact BEFORE parsing: the parser reads a branch's schema `default` only
-  // when the key is absent, and a cleared branch leaves an empty container.
-  function parse(values?: Partial<TModel>): TModel {
-    return useModelParser<TModel>(
-      schema,
-      compactDeep(values, { preserveContainers: false }),
-      {},
-      { allowExtraProps: false, preserveContainers: false }
-    );
-  }
-
   /** ajv's verdict on the last REJECTED write, held until a valid one replaces it. */
   const rejected = ref<ValidationErrorObject[]>([]);
 
@@ -68,13 +56,28 @@ export function useQueryCriteria<
    * candidate is committed WHOLE or not at all.
    */
   function commit(candidate: Partial<TModel>): void {
-    rejected.value = useValidation().validate(schema, parse(candidate));
+    rejected.value = useValidation().validate(
+      schema,
+      useModelParser<TModel>(
+        schema,
+        candidate,
+        {},
+        { allowExtraProps: false, preserveContainers: false }
+      )
+    );
     if (isEmpty(rejected.value)) intent.value = candidate;
   }
 
   if (!isEmpty(seed)) commit(seed as Partial<TModel>);
 
-  const model = computed<TModel>(() => parse(intent.value));
+  const model = computed<TModel>(() =>
+    useModelParser<TModel>(
+      schema,
+      intent.value,
+      {},
+      { allowExtraProps: false, preserveContainers: false }
+    )
+  );
 
   const error = computed<ResponseError | undefined>(() => {
     if (isEmpty(rejected.value)) return undefined;

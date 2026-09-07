@@ -1,0 +1,120 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/vault?order=-pinned&case=order-desc-pinned",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a34bf971488f6d4f-WAW",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Wed, 02 Sep 2026 10:54:02 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=xAEcZFNjsdY7xt48U9SBw4GVoH4siShKTPRbIszo%2BfE2kXsNZSVj374sZzZQFaH1BhIPqgxkl7Hb9jCIGLRPCH0wkjX%2FhTDhBA3jGtXiVqM2pNB1P0rpAY%2BA%2BkaplxqToiTCxPusgQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "3"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "825d96e7-63ed-0913-d36b-417482528340",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "lead_id": null,
+          "user_id": "none",
+          "label": null,
+          "code": null,
+          "note": "New note",
+          "pinned": false,
+          "visible_for_client": true,
+          "encrypted": false,
+          "contract_product_id": null,
+          "created_at": "2025-11-21 11:32:08",
+          "updated_at": "2025-11-21 11:32:08",
+          "author_client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "author_user_id": null,
+          "editor_client_id": null,
+          "editor_user_id": null,
+          "locked": false
+        },
+        {
+          "id": "5952098d-3de4-0917-ed5a-31578626e347",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "lead_id": null,
+          "user_id": "none",
+          "label": null,
+          "code": null,
+          "note": "prover fixture capture note 6433716",
+          "pinned": false,
+          "visible_for_client": true,
+          "encrypted": false,
+          "contract_product_id": null,
+          "created_at": "2026-09-02 10:53:56",
+          "updated_at": "2026-09-02 10:53:56",
+          "author_client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "author_user_id": null,
+          "editor_client_id": null,
+          "editor_user_id": null,
+          "locked": false
+        },
+        {
+          "id": "20403869-6e54-721d-50ec-518d9305e7d2",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "lead_id": null,
+          "user_id": "none",
+          "label": "prover fixture secret 6433716",
+          "code": null,
+          "note": "eyJpdiI6IktkU1A3cFRQbmVvd1ZmRGEzYWc0NVE9PSIsInZhbHVlIjoiQzZ0SzJwY0dlTW5oenJDS1VGUUpCSzNjMUJsRkY1dlwvNlFZOEhlbXZlKzl5ZFpLN0lLN1FNcjhPMytObjdIZHoiLCJtYWMiOiJjNjg0MThhNTA4NDFjM2ZjZjRmZjE0MmQxYTkyMTk5Y2FiYWRhNDRlNmIwN2ZmMzFhODdhNTY3NTRkOWRkY2NlIn0=",
+          "pinned": false,
+          "visible_for_client": true,
+          "encrypted": true,
+          "contract_product_id": null,
+          "created_at": "2026-09-02 10:53:56",
+          "updated_at": "2026-09-02 10:53:56",
+          "author_client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "author_user_id": null,
+          "editor_client_id": null,
+          "editor_user_id": null,
+          "locked": false
+        }
+      ],
+      "related": null,
+      "total": 3,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-02T10:54:02.651Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-notes"
+  }
+}

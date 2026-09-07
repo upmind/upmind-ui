@@ -1,5 +1,10 @@
 import { Page, expect, Locator } from "@playwright/test";
 import { TextInput } from "../components/text-input";
+import { PLACE_ORDER_TIMEOUT } from "../../constants/timeouts";
+import {
+  readCheckoutReadinessViaHeadless,
+  waitForCheckoutReadyViaHeadless
+} from "../../flows/headless-bridge";
 
 export class Checkout {
   readonly page: Page;
@@ -57,6 +62,11 @@ export class Checkout {
   readonly phoneCountryTrigger: Locator;
   readonly phoneCountryPopover: Locator;
   readonly phoneDialCodeOptions: Locator;
+  /* One-page checkout sections (FE-3002) — stable DOM ids, locale-independent */
+  readonly billingSection: Locator;
+  readonly billingForm: Locator;
+  readonly fieldsSection: Locator;
+  readonly fieldsForm: Locator;
   private readonly textInputComponent: TextInput;
 
   constructor(page: Page) {
@@ -74,9 +84,21 @@ export class Checkout {
     this.addNewAddress = this.page.getByTestId("link-add-address");
     this.addNewCompany = this.page.getByTestId("link-add-company");
     this.addNewPhone = this.page.getByTestId("link-add-number");
+    // AddressRenderer.vue renders the lookup as a design-system <Search> whose
+    // field is the bare Input primitive (`input`, no value) with role=combobox;
+    // the manual-entry fields that later join the same form-item carry their
+    // own values, so the role keeps this on the lookup. The personal form keys
+    // its form-item `address`, the company form `company-address` — only one
+    // tab is mounted at a time.
     this.addressSearch = this.page
+      .getByTestId("form-item")
+      .and(
+        page.locator(
+          `[data-test-value="address"], [data-test-value="company-address"]`
+        )
+      )
       .getByTestId("input")
-      .and(page.locator(`[data-test-value="search"]`));
+      .and(page.locator('[role="combobox"]'));
     this.addressFormMessage = this.page
       .getByTestId("form-item-message")
       .and(page.locator(`[data-test-value="address"]`));
@@ -178,12 +200,39 @@ export class Checkout {
     this.selectedSelectOption = this.page
       .getByRole("option")
       .and(page.locator(`[data-state="checked"]`));
-    // The phone dialling-code control is a Combobox whose trigger Button is
-    // tagged `button-phone-country` by PhoneRenderer; its list is a popover of
-    // `role=option` command items.
+    // The phone dialling-code control is a Combobox whose anchor is tagged
+    // `button-phone-country` by PhoneRenderer; its list is a reka listbox
+    // teleported to the body, holding `role=option` items.
     this.phoneCountryTrigger = this.phone.getByTestId("button-phone-country");
-    this.phoneCountryPopover = this.page.getByTestId("popover-content");
+    this.phoneCountryPopover = this.page.getByRole("listbox");
     this.phoneDialCodeOptions = this.phoneCountryPopover.getByRole("option");
+    // #checkout-billing (CheckoutBilling.vue) wraps both billing variants — the
+    // saved-details summary and the entry form (BillingForm.vue keys its
+    // Sections root `billing`); #basket-fields (BasketFieldsSection.vue) is the
+    // "Additional details" custom-fields section, whose Form.vue keys `form`.
+    this.billingSection = this.page.locator("#checkout-billing");
+    this.billingForm = this.billingSection.getByTestId("billing");
+    this.fieldsSection = this.page.locator("#basket-fields");
+    this.fieldsForm = this.fieldsSection.getByTestId("form");
+  }
+
+  /**
+   * A single Place Order attempt for refusal paths — unlike
+   * `clickCompleteCheckout` it neither re-sends nor awaits navigation, so the
+   * basket's refusal reaction can be asserted.
+   */
+  async attemptPlaceOrder() {
+    await this.completeCheckout.click();
+  }
+
+  /**
+   * A form validation message inside a section — the incomplete-state signal a
+   * Place Order refusal surfaces. Field names differ per brand, so this matches
+   * FormField.vue's `form-item-message` key prefix (PhoneRenderer suffixes it)
+   * and takes any one member of that collection.
+   */
+  sectionValidationMessage(section: Locator): Locator {
+    return section.locator('[data-test-key^="form-item-message"]').first();
   }
 
   // --- FE-2789: lazily-loaded system fields (country / region / dial code) ---
@@ -379,13 +428,11 @@ export class Checkout {
       await this.expandPaymentDetails.click();
     }
     await this.page.waitForLoadState("domcontentloaded");
+    // Click the radio itself, as selectGatewayByType does — its label is not a
+    // visible target, so a label click waits out the whole test budget.
     await this.paymentDetails
       .locator('[role="radio"][value="pay-later"]')
-      .waitFor({ state: "attached", timeout: 30000 });
-    const payLaterId = await this.paymentDetails
-      .locator('[role="radio"][value="pay-later"]')
-      .getAttribute("id");
-    await this.paymentDetails.locator(`label[for="${payLaterId}"]`).click();
+      .click({ timeout: 30000 });
   }
 
   /**
@@ -429,64 +476,127 @@ export class Checkout {
 
   /**
    * Selects the first stored payment method (saved card) in a LOCALE-SAFE way.
-   * The stored-method radios are rendered by `PaymentDetailsRenderer.vue` inside
-   * the `form-item-payment-details-id` FormField; each card is keyed off a
-   * dynamic `payment_details_id` (`option-tile-{uuid}`), so there is no stable,
+   * The stored methods render inside the `payment-details-id` FormField as an
+   * `option-tile-group` of option tiles; each tile is keyed off a dynamic
+   * `payment_details_id` (`option-tile-{uuid}`), so there is no stable,
    * hard-codeable per-card testid and no locale-stable label to target. The
-   * fixture user has exactly one saved card, so target the first `RadioCardItem`
-   * — whose root is a `<Label>` that drives the Radix radio — under the
-   * stored-methods form item. Scoped inside `paymentDetails`.
+   * fixture user has exactly one saved card, so target the first tile's radio
+   * in the group — `first()` here picks a collection MEMBER (this method's own
+   * contract, per its name), it does not paper over a duplicate test key.
+   *
+   * Targeted by ARIA role, not by tag: the option-tile rewrite dropped the old
+   * `RadioCardItem`'s `<Label>` root, so the previous `.locator("label")`
+   * matched nothing and the spec timed out with the saved card on screen.
    */
   async selectFirstStoredPaymentMethod() {
     await expect(this.paymentDetails).toBeVisible({ timeout: 30000 });
-    await this.page.waitForLoadState("domcontentloaded");
-    await this.paymentDetails
+    const storedMethods = this.paymentDetails
       .getByTestId("form-item")
       .and(this.page.locator(`[data-test-value="payment-details-id"]`))
-      .locator("label")
-      .first()
-      .click();
+      .getByTestId("option-tile-group");
+    await expect(storedMethods).toBeVisible({ timeout: 30000 });
+    await storedMethods.getByRole("radio").first().click();
   }
 
-  async clickCompleteCheckout() {
-    const checkoutUrlPattern = /\/order\/checkout/;
+  /**
+   * Places the order and returns once the app has reached a TERMINAL state:
+   * a blocking dialog, or it has left the checkout route — the confirmation
+   * route (success AND declined-card flows both land there) or an offsite
+   * gateway page (PayPal Express, or Stripe's hosted 3DS challenge).
+   *
+   * Every read in the wait is NON-BLOCKING by construction: `page.url()` is
+   * synchronous and `locator.isVisible()` never auto-waits. An auto-retrying
+   * `expect.poll` owns the deadline, so nothing here can outlive its budget.
+   *
+   * That is the whole point of the shape. The hand-rolled loop this replaces
+   * decided whether to re-click by reading `completeCheckout.isEnabled()` —
+   * and `isEnabled()` DOES auto-wait for its element, with no `actionTimeout`
+   * configured for this project, so it waits forever. The moment the payment
+   * section unmounted on conversion that call blocked, the loop never re-read
+   * the URL, and 19 payment specs reported a test timeout for payments that
+   * had demonstrably gone through (the failure screenshots show the
+   * confirmation page). One click has always been enough — every trace shows
+   * a single `button-complete-checkout` click driving the placement POST — so
+   * the re-click went with it.
+   */
+  /**
+   * @param until - What counts as done. Defaults to leaving the checkout route
+   *   or a blocking dialog; a mocked decline that stays on the page with an
+   *   inline message passes its own predicate.
+   */
+  async clickCompleteCheckout(until?: () => Promise<boolean>) {
+    // The checkout route, tolerating the optional `basket/{bid}` segment the
+    // cart router allows (BID_PREFIX in apps/cart/src/router/funnels/types.ts).
+    const checkoutUrlPattern = /\/order\/(basket\/[^/]+\/)?checkout\//;
     const confirmationUrlPattern = /\/order\/.+\/\?payment_/;
     const modal = this.page.getByTestId("dialog-window");
+
+    const atTerminalState =
+      until ??
+      (async () =>
+        (await modal.isVisible().catch(() => false)) ||
+        !checkoutUrlPattern.test(this.page.url()));
 
     // Already at a terminal state (idempotent re-entry).
     if (confirmationUrlPattern.test(this.page.url())) return;
     if (await modal.isVisible().catch(() => false)) return;
 
-    // First click. Playwright auto-waits for the button to be visible, enabled
-    // and stable; give that a realistic budget instead of the old 2s.
+    // Gated here: the one chokepoint every payment path crosses, and after the
+    // terminal early-returns so re-entry stays idempotent.
+    await waitForCheckoutReadyViaHeadless(this.page);
+
+    // Playwright auto-waits for the button to be visible, enabled and stable.
     await this.completeCheckout.click({ timeout: 15000 });
 
-    // Wait for a genuine terminal signal: the confirmation URL (success AND
-    // declined-card flows both navigate there) or a blocking dialog. Payment
-    // conversion involves gateway roundtrips, so the old 5s budget was far too
-    // tight. A click can also occasionally land before the handler is bound
-    // (a dud) — re-click ONLY when that is provable: still on the checkout
-    // URL, no dialog, and the button is idle (enabled) again. A conversion in
-    // flight disables the button, so this cannot double-submit.
-    const deadline = Date.now() + 45000;
-    let nextReclickAt = Date.now() + 8000;
-    while (Date.now() < deadline) {
-      if (confirmationUrlPattern.test(this.page.url())) return;
-      if (await modal.isVisible().catch(() => false)) return;
+    // Re-send only on the app's own proof of non-delivery. The payment section
+    // re-renders as Stripe's VALIDATE settles, so the click can dispatch on a
+    // node Vue has already swapped: reported done, handler never ran, no event.
+    // Unlike the old blind double-click, this never fires once the basket has it.
+    let sends = 1;
+    const maxSends = 3;
+    let lastState = await readCheckoutReadinessViaHeadless(this.page);
+    let attempts = lastState?.attempts ?? 0;
 
-      if (
-        Date.now() >= nextReclickAt &&
-        checkoutUrlPattern.test(this.page.url()) &&
-        (await this.completeCheckout.isEnabled().catch(() => false))
-      ) {
-        await this.completeCheckout.click({ timeout: 2000 }).catch(() => {});
-        nextReclickAt = Date.now() + 8000;
-      }
-      await this.page.waitForTimeout(250);
+    try {
+      await expect
+        .poll(
+          async () => {
+            if (await atTerminalState()) return true;
+
+            const state = await readCheckoutReadinessViaHeadless(this.page);
+            lastState = state ?? lastState;
+            // No bridge to read (mid-navigation): keep waiting, never re-click.
+            if (!state) return false;
+            // The basket HAS the event — a placement is under way. Wait it out.
+            if (state.hasAcceptedCheckout) return false;
+
+            // Idle basket. Either it refused the event (attempts moved) or the
+            // click never reached the handler (attempts unmoved). Both mean no
+            // placement is running, so sending it again is safe and correct.
+            attempts = Math.max(attempts, state.attempts);
+            if (sends >= maxSends || !state.isReady) return false;
+
+            sends += 1;
+            await this.completeCheckout
+              .click({ timeout: 5000 })
+              .catch(() => {});
+            return false;
+          },
+          {
+            timeout: PLACE_ORDER_TIMEOUT,
+            message:
+              "Place Order: the app never left the checkout route — no confirmation route, no offsite gateway redirect and no dialog within PLACE_ORDER_TIMEOUT of the click"
+          }
+        )
+        .toBe(true);
+    } catch (error) {
+      throw new Error(
+        `Place Order: the app never left the checkout route — no confirmation route, no offsite gateway redirect and no dialog within PLACE_ORDER_TIMEOUT. Sent ${sends} click(s); basket refusals ${attempts}; state at failure ${JSON.stringify(
+          lastState
+        )}; url ${this.page.url()}`,
+        { cause: error }
+      );
     }
-    throw new Error(
-      "Place Order: no confirmation URL or dialog within 45s of the click"
-    );
   }
 
   async clickConfirmAmount() {
@@ -536,13 +646,18 @@ export class Checkout {
       'iframe[title="Secure payment input frame"]'
     );
     // 3rd-party Stripe Elements: target Stripe's own attributes, not our testids
-    // and not the translated label/role-name (which shift across locales).
-    await stripeFrame
-      .locator('[data-payment-method-type="sepa_debit"]')
-      .click();
+    // and not the translated label/role-name (which shift across locales). The
+    // tab anchor is data-value (as for iDEAL); data-payment-method-type is gone
+    // from this Payment Element version.
+    await stripeFrame.locator('[data-value="sepa_debit"]').click();
     await stripeFrame.locator('input[name="iban"]').fill(iban);
     await stripeFrame.locator('input[name="email"]').fill(email);
-    await stripeFrame.locator('input[name="full_name"]').fill(fullName);
+    await stripeFrame.locator('input[name="name"]').fill(fullName);
+    // Stripe pre-selects the billing country from the browser's location and
+    // validates the postal code against it, so pin the country the address
+    // belongs to — otherwise the element never reports itself complete and
+    // Place Order stays disabled.
+    await stripeFrame.locator('select[name="country"]').selectOption("GB");
     await stripeFrame.locator("[id='payment-addressLine1Input']").fill(address);
     await stripeFrame.locator("[id='payment-localityInput']").fill(city);
     await stripeFrame.locator("[id='payment-postalCodeInput']").fill(postCode);
@@ -565,6 +680,15 @@ export class Checkout {
    * locales and rebrands — the tab is now titled "iDEAL | Wero"). The tab
    * anchor is data-value="ideal" (probe-verified; data-payment-method-type
    * does not exist in this Payment Element version).
+   *
+   * Every read in the wait is NON-BLOCKING by construction: `page.url()` is
+   * synchronous, `locator.isVisible()` never auto-waits, and the app's own
+   * in-flight flag is read through `count()`. That is what replaced
+   * `completeCheckout.isEnabled()` — which DOES auto-wait, with no
+   * `actionTimeout` configured for this project, so it blocked forever the
+   * moment its element unmounted, exactly the defect `clickCompleteCheckout`
+   * was rewritten to remove. An auto-retrying `expect.poll` owns the deadline
+   * and its own backoff, so the fixed 1s sleep went with it.
    */
   async completeIdealCheckout(email: string, fullName: string) {
     const checkoutUrlPattern = /\/order\/checkout/;
@@ -574,37 +698,59 @@ export class Checkout {
     const tab = stripeFrame.locator('[data-value="ideal"]');
     const emailInput = stripeFrame.locator('input[name="email"]');
 
-    const deadline = Date.now() + 90000;
-    while (Date.now() < deadline) {
-      // Redirect underway — done.
-      if (!checkoutUrlPattern.test(this.page.url())) return;
+    // `page.url()` is synchronous, so the terminal read cannot block.
+    const redirected = () => !checkoutUrlPattern.test(this.page.url());
+    // `count()` does not auto-wait, so reading the button's own loading state
+    // cannot block — unlike `isEnabled()`, which auto-waits and hangs forever
+    // once the button unmounts on conversion.
+    const isIdle = async () =>
+      (await this.completeCheckout
+        .and(this.page.locator("[data-loading]"))
+        .count()) === 0;
 
-      // (Re)establish the iDEAL selection if the element (re)mounted on Card.
+    let armed = false;
+
+    const driveIdeal = async () => {
+      if (redirected()) return true;
+
+      // `isVisible()` does not auto-wait: a non-blocking read of whether the
+      // iDEAL panel is open. Closed means the Payment Element re-mounted on an
+      // empty Card tab, so (re)establish the selection and let the next poll
+      // iteration observe the result.
       if (!(await emailInput.isVisible().catch(() => false))) {
+        armed = false;
         await tab.click({ timeout: 10000 }).catch(() => {});
-        const opened = await emailInput
-          .waitFor({ state: "visible", timeout: 5000 })
-          .then(() => true)
-          .catch(() => false);
-        if (!opened) continue;
-        await emailInput.fill(email);
-        await stripeFrame.locator('input[name="name"]').fill(fullName);
-        await this.page.keyboard.press("Tab"); // clicking complete while focus is in the iframe causes a failure for unknown reasons
+        return redirected();
       }
 
-      // Submit only while idle (a confirm in flight disables the button) and
-      // only with the iDEAL panel still open.
-      if (
-        (await emailInput.isVisible().catch(() => false)) &&
-        (await this.completeCheckout.isEnabled().catch(() => false))
-      ) {
+      if (!armed) {
+        await emailInput.fill(email, { timeout: 10000 });
+        await stripeFrame
+          .locator('input[name="name"]')
+          .fill(fullName, { timeout: 10000 });
+        // clicking complete while focus is in the iframe causes a failure for
+        // unknown reasons
+        await this.page.keyboard.press("Tab");
+        armed = true;
+      }
+
+      // Submit only while the panel is open and the app is idle: a confirm in
+      // flight publishes payment-processing="processing" AND disables the
+      // button, so the bounded click cannot double-submit.
+      if (await isIdle()) {
         await this.completeCheckout.click({ timeout: 2000 }).catch(() => {});
       }
-      await this.page.waitForTimeout(1000);
-    }
-    throw new Error(
-      "iDEAL: no offsite redirect within 90s — selection kept resetting or the confirm never fired"
-    );
+
+      return redirected();
+    };
+
+    await expect
+      .poll(driveIdeal, {
+        timeout: 90000,
+        message:
+          "iDEAL: no offsite redirect within 90s — the selection kept resetting or the confirm never fired"
+      })
+      .toBe(true);
   }
 
   /**

@@ -10,9 +10,20 @@ import { ErrorCards } from "../../../support/constants/checkout/payment-cards/In
 import { products } from "../../../support/constants/products";
 import { gateways } from "../../../support/constants/gateways";
 import { TEST_EMAILS } from "../../../support/constants/test-data";
-import { OFFSITE_PAYMENT_TIMEOUT } from "../../../support/constants/timeouts";
+import {
+  CARD_PAYMENT_TIMEOUT,
+  OFFSITE_PAYMENT_TIMEOUT
+} from "../../../support/constants/timeouts";
 
 newUser.describe.configure({ mode: "parallel" });
+
+// Every test in this file is a real staging card journey: 83 API calls and
+// 42-53s of round-trips, against a 60s global ceiling that leaves under 7s of
+// headroom. Six-way parallel load tipped the slowest past it, and Playwright
+// grades a timeout as a failure. Serial mode is not the answer — it aborts the
+// whole describe on the first slow test, so one timeout skipped 17 others.
+// The budget is what is wrong, so the budget is what this fixes.
+newUser.setTimeout(CARD_PAYMENT_TIMEOUT);
 newUser.describe("Checkout with Stripe", () => {
   newUser.describe("Stripe Cards", () => {
     newUser.describe("Valid Cards", async () => {
@@ -84,35 +95,30 @@ newUser.describe("Checkout with Stripe", () => {
         cvcCode,
         errorText
       } of ErrorCards) {
-        // Quarantined: Stripe Element iframe internals — getByRole('alert') is fragile
-        // across Stripe.js updates. Reassert the BEHAVIOUR instead (Place Order disabled
-        // OR no createPaymentMethod call) when revisiting. See ADR 021 §Flakiness policy.
-        // @quarantine(FE-XXXX-CVC, 2026-06-25)
-        const testFn = name === "Invalid CVC" ? newUser.skip : newUser;
-        testFn(`Stripe Cards - ${name}`, async ({ page, checkout }) => {
+        newUser(`Stripe Cards - ${name}`, async ({ page, checkout }) => {
           await goToCheckout(page, products.STARTER_HOSTING, null, null);
           await checkout.selectGatewayByType(gateways.STRIPE);
           await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
-          const stripeFrame = page.frameLocator(
-            'iframe[title="Secure payment input frame"]'
-          );
-          await expect(stripeFrame.getByRole("alert")).toContainText(
-            `${errorText}`
-          );
+          // The behaviour under test: an invalid or incomplete element never
+          // takes the gateway to `available.valid`, so Place Order stays
+          // disabled (PaymentDetails.vue `:disabled="hasSelectedGateway &&
+          // !isValid"`) and no payment is ever attempted.
+          await expect(checkout.completeCheckout).toBeDisabled();
+          // Stripe's own inline message, where the element shows one on input.
+          if (errorText) {
+            const stripeFrame = page.frameLocator(
+              'iframe[title="Secure payment input frame"]'
+            );
+            await expect(stripeFrame.getByRole("alert")).toContainText(
+              errorText
+            );
+          }
         });
       }
     });
   });
   newUser.describe("SEPA Debit", () => {
-    // Quarantined: 'Place Order' click didn't fire. Possibly cascades from the
-    // Pay-Amount tax-inclusive display regression (parked for Dom's review;
-    // see overnight summary). If the Pay-Amount fix doesn't auto-resolve this
-    // when applied, this needs its own investigation. See ADR 021 §Flakiness.
-    // Re-quarantined not deleted: sole SEPA Debit coverage in the suite
-    // (inputSepaDetails is used nowhere else), so load-bearing pending the
-    // Pay-Amount fix.
-    // @quarantine(FE-2787, 2026-08-10)
-    newUser.skip("Valid SEPA Debit", async ({ page, checkout }) => {
+    newUser("Valid SEPA Debit", async ({ page, checkout }) => {
       await goToCheckout(page, products.STARTER_HOSTING, null, "EUR");
       await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputSepaDetails(
@@ -164,11 +170,11 @@ newUser.describe("Checkout with Stripe", () => {
       await checkout.selectGatewayByType(gateways.STRIPE);
       await mockStripeCardDecline(page);
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
-      await checkout.completeCheckout.click();
-      await checkout.completeCheckout.click(); //repeated to trigger the button even that doesn't trigger on first click
-      await expect(
-        page.getByTestId("order-payment-failed-message")
-      ).toBeVisible();
+      // A mocked decline stays on the checkout route with an inline message, so
+      // that message is the terminal state — not a route change.
+      const failed = page.getByTestId("order-payment-failed-message");
+      await checkout.clickCompleteCheckout(() => failed.isVisible());
+      await expect(failed).toBeVisible();
     });
     newUser("Insufficient Payment Amount", async ({ page, checkout }) => {
       await goToCheckout(page, products.STARTER_HOSTING, null, null);

@@ -17,6 +17,7 @@ import {
   isArray,
   isEmpty,
   isNil,
+  isNumber,
   isObject,
   isPlainObject,
   isString,
@@ -30,6 +31,7 @@ import {
   replace,
   set,
   toNumber,
+  toString,
   trimEnd,
   trimStart
 } from "lodash-es";
@@ -165,15 +167,26 @@ function mapLaravelRuleToJSONSchema(
         option => has(option, "label") && has(option, "value")
       )
     ) {
-      const enums: (string | null)[] = map(
+      // the API sends numeric option values for some string fields; the enum
+      // and the select need them as strings or nothing matches
+      const castValue = (value: string | number) => {
+        if (isNumber(value) && includes(field?.validation_rules, "string"))
+          return toString(value);
+        return value;
+      };
+
+      const enums: (string | number | null)[] = map(
         field?.options,
-        ({ value }) => value
+        ({ value }) => castValue(value)
       );
       if (!includes(field?.validation_rules, "required")) enums.push(null);
 
       return {
         enum: enums,
-        options: map(field?.options, ({ label, value }) => ({ label, value }))
+        options: map(field?.options, ({ label, value }) => ({
+          label,
+          value: castValue(value)
+        }))
       };
     } else {
       const enums: (string | null)[] = rule.substring(3).split(",");
@@ -467,6 +480,9 @@ export const useModelParser = <
     defaults = omitEmptied(baseModel, values, allowEmpty!);
 
   values = defaultsDeep(values, defaults) as Partial<TModel>;
+
+  // Empty === unset on the way in too, so a cleared branch takes its default.
+  values = compactDeep(values, { preserveContainers }) as Partial<TModel>;
 
   if (!schema?.properties) return values as TModel;
 

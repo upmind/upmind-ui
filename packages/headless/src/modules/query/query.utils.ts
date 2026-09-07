@@ -521,11 +521,12 @@ export function declaredSortFields(schema: JsonSchema): string[] {
  * column is an HTTP 500.
  *
  * A branch with operators emits `filter[column|op]`; one without emits
- * `filter[column]` (the API defaults it to eq).
+ * `filter[column]` (the API defaults it to eq). A branch's WIRE column IS its
+ * own property name — a differing API column is matched by renaming the
+ * property, never by a non-standard schema key.
  *
- * A filter branch's WIRE column is its own property name unless the branch
- * declares a `column` — the binding for an API whose filterable column is spelt
- * differently from the model's property (client-phone's `number` → `phone`).
+ * A top-level `query` string property (sibling of `filters`) is the platform
+ * quick-search: emitted as a bare `query=<term>` param, not a `filter[...]`.
  *
  * @param schema - The collection's declared query schema.
  * @param model - The parsed, validated query model.
@@ -538,11 +539,10 @@ export function translateQuery(
   const filters = reduce(
     get(schema, ["properties", "filters", "properties"], {}),
     (result: RequestFilters, branchSchema, property) => {
-      const column = get(branchSchema, "column", property) as string;
       const operators = get(branchSchema, "properties", {});
 
       if (isEmpty(operators)) {
-        result[`filter[${column}]`] = toWireFilterValue(
+        result[`filter[${property}]`] = toWireFilterValue(
           RequestFilterOperator.EQUAL,
           get(model, ["filters", property])
         );
@@ -552,7 +552,7 @@ export function translateQuery(
       return reduce(
         operators,
         (acc: RequestFilters, _operatorSchema, operator) => {
-          acc[`filter[${column}|${operator}]`] = toWireFilterValue(
+          acc[`filter[${property}|${operator}]`] = toWireFilterValue(
             operator,
             get(model, ["filters", property, operator])
           );
@@ -563,6 +563,8 @@ export function translateQuery(
     },
     {}
   );
+
+  const quickSearch = get(model, "query");
 
   const sortFields = declaredSortFields(schema);
 
@@ -582,7 +584,9 @@ export function translateQuery(
   return {
     filters,
     sort: size(tuples) === 1 ? tuples[0] : tuples,
-    pagination: get(model, "pagination") as RequestPagination | undefined
+    pagination: get(model, "pagination") as RequestPagination | undefined,
+    query:
+      isString(quickSearch) && !isEmpty(quickSearch) ? quickSearch : undefined
   };
 }
 

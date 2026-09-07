@@ -8,34 +8,35 @@ import type { IGateway, PaymentMethodType } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Build the gateway return URLs, referencing the payment via a single
+ * `operation_id` (the FE-3030 operations registry) rather than legacy base64
+ * params.
+ *
+ * @param url - The base landing URL; copied per leg, never mutated in place.
+ * @param options.operationId - The minted operation reference, appended to
+ *   every concrete leg (success, fail, cancel). Absent = no reference emitted.
+ * @param options.type - Optional payment method type, carried as `pmt`.
+ * @returns The `successUrl`, `failUrl`, `cancelUrl`, and the composite
+ *   `returnUrl` wrapper.
+ */
 export function generateResponseUrls(
   url: URL,
   options?: {
-    orderId?: string;
-    autoPay?: boolean;
-    externalPayment?: boolean;
+    operationId?: string;
     type?: PaymentMethodType;
-    // operationId?: string;
   }
 ) {
-  const { orderId, autoPay, externalPayment, type } = options || {};
+  const { operationId, type } = options || {};
+
   const successUrl = new URL(url);
   successUrl.searchParams.append(QUERY_PARAMS.PAYMENT_SUCCESS, "true");
 
   const failUrl = new URL(url);
   failUrl.searchParams.append(QUERY_PARAMS.PAYMENT_SUCCESS, "false");
 
-  const cancelUrl = url;
-  cancelUrl.searchParams.append(
-    QUERY_PARAMS.AUTO_PAY,
-    encodeURIComponent(btoa(JSON.stringify(autoPay)))
-  );
-  cancelUrl.searchParams.append(
-    QUERY_PARAMS.INIT_PAY,
-    encodeURIComponent(
-      btoa(JSON.stringify(externalPayment ? { orderId } : undefined))
-    )
-  );
+  const cancelUrl = new URL(url);
+
   if (type) {
     cancelUrl.searchParams.append(
       QUERY_PARAMS.PAYMENT_METHOD_TYPE,
@@ -43,6 +44,14 @@ export function generateResponseUrls(
     );
   }
 
+  if (operationId) {
+    successUrl.searchParams.append(QUERY_PARAMS.OPERATION_ID, operationId);
+    failUrl.searchParams.append(QUERY_PARAMS.OPERATION_ID, operationId);
+    cancelUrl.searchParams.append(QUERY_PARAMS.OPERATION_ID, operationId);
+  }
+
+  // The wrapper is not a landing URL — it transports operation_id inside its
+  // already-encoded success/fail legs, so it is never appended to directly.
   return {
     cancelUrl: cancelUrl.toString(),
     successUrl: successUrl.toString(),

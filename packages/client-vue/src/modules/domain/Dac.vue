@@ -10,7 +10,6 @@
         :searching="meta.isSearching"
         :type="DomainTypes.register"
         :processing="meta.isProcessing || processingBasket"
-        @search="search"
         @reset="doReset"
       />
     </template>
@@ -21,7 +20,6 @@
         :searching="meta.isSearching"
         :processing="meta.isProcessing || processingBasket"
         :type="DomainTypes.register"
-        @search="search"
         @reset="doReset"
       />
     </template>
@@ -71,6 +69,7 @@
         size="lg"
         :disabled="meta.isProcessing || processingBasket"
         :block="isMobile || (isMobile && template === DOMAIN_TEMPLATE.WIDGET)"
+        :data-attrs="{ 'data-test-key': 'button-continue' }"
         @click="doResolve"
       >
         {{

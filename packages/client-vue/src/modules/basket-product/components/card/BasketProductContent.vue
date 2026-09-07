@@ -131,6 +131,13 @@
       </div>
     </header>
 
+    <p
+      v-if="props.excerpt && productDetails.excerpt"
+      :class="productSummaryExcerptVariants()"
+    >
+      {{ productDetails.excerpt }}
+    </p>
+
     <BasketProductConfigurationDetails
       v-if="open && !isEmpty(filteredDetails)"
       :id="id"
@@ -237,6 +244,7 @@ import {
   productSummaryCategoryTextVariants,
   productSummaryIconVariants,
   productSummaryImageVariants,
+  productSummaryExcerptVariants,
   productSummaryTitleRootVariants,
   productSummaryTitleGroupVariants,
   productSummaryTitleLinkVariants,

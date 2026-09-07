@@ -1,5 +1,5 @@
 /**
- * @fileoverview payment-gateways schemas — shared, card, openPay, razorpay schema pairs
+ * @fileoverview payment-gateways schemas — shared, openPay, razorpay schema pairs
  *
  * ## Job To Be Done
  * Each gateway needs a JSONForms schema pair (useSchema/useUischema) that decides
@@ -14,10 +14,6 @@
 
 import { describe, expect, it } from "vitest";
 import { useSchema, useUischema } from "../payment-gateways.schemas";
-import {
-  useSchema as cardSchema,
-  useUischema as cardUischema
-} from "../card/schemas";
 import {
   useSchema as openPaySchema,
   useUischema as openPayUischema
@@ -98,25 +94,6 @@ describe("shared schema pair (AC-C1, AC-D4)", () => {
     } as GatewayContext;
     const schema = useSchema(addCtx);
     expect(schema).toBeDefined();
-  });
-});
-
-describe("card schema pair", () => {
-  it("PAY context schema has type object and a properties block", () => {
-    const schema = cardSchema(ctx(guest, "pay"));
-    expect(schema.type).toBe("object");
-    expect(schema.properties).toBeDefined();
-  });
-
-  it("uischema has a type and elements array", () => {
-    const uischema = cardUischema(ctx(guest, "pay")) as Layout;
-    expect(uischema.type).toBeDefined();
-    expect(Array.isArray(uischema.elements)).toBe(true);
-  });
-
-  it("ADD context does not ask for an amount", () => {
-    const schema = cardSchema(ctx(clientFull, "add"));
-    expect(schema?.properties?.amount).toBeUndefined();
   });
 });
 

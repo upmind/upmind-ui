@@ -51,8 +51,12 @@ export async function addProductViaHeadless(
   seed: HeadlessProductSeed
 ): Promise<{ basketId: string; basketProductId: string | null }> {
   await waitForUpmindBridge(page);
-  return page.evaluate(
-    async ({ seed, pollTimeout }) => {
+  // Committing a product lets the funnel navigate, and a navigation discards
+  // every promise still pending in the old context ("Resulting promise was
+  // garbage collected"). So the in-page call stops at the commit, and the
+  // basket is read back below, where a context swap is only a retry.
+  await page.evaluate(
+    async ({ seed }) => {
       if (
         !window.Upmind?.useBasket ||
         !window.Upmind?.useBasketProductsPending ||
@@ -94,22 +98,36 @@ export async function addProductViaHeadless(
         await item.update();
         pending.resolve(item.service);
       }
-
-      await basket.isRefreshed();
-
-      const basketId = basket.basketId.value;
-      if (!basketId) {
-        throw new Error(
-          "addProductViaHeadless: basket has no id after committing the product"
-        );
-      }
-      const committed = (basket.products.value ?? []).find(
-        product => product.configuration?.productId === seed.productId
-      );
-      return { basketId, basketProductId: committed?.id ?? null };
     },
-    { seed, pollTimeout: POLL_TIMEOUT }
+    { seed }
   );
+
+  // An invalid seed never commits a basket line (the pending machine refuses
+  // it), so that path settles on the refreshed basket alone.
+  const needsLine = seed.validateProvisionFields !== false;
+  const deadline = Date.now() + POLL_TIMEOUT;
+  for (;;) {
+    const read = await page
+      .evaluate(async productId => {
+        const basket = window.Upmind?.useBasket?.();
+        if (!basket) return null;
+        await basket.isRefreshed();
+        const basketId = basket.basketId.value;
+        if (!basketId) return null;
+        const committed = (basket.products.value ?? []).find(
+          product => product.configuration?.productId === productId
+        );
+        return { basketId, basketProductId: committed?.id ?? null };
+      }, seed.productId)
+      .catch(() => null);
+    if (read && (!needsLine || read.basketProductId)) return read;
+    if (Date.now() > deadline) {
+      throw new Error(
+        `addProductViaHeadless: the basket never carried product ${seed.productId} — ${JSON.stringify(read)}`
+      );
+    }
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
 }
 
 /**

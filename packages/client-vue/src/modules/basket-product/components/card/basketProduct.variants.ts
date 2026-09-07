@@ -59,6 +59,9 @@ export const productSummaryTitleTextVariants = cva(
 
 export const productSummaryIconVariants = cva("[&>svg]:p-[2px]");
 export const productSummaryImageVariants = cva("rounded-image m-0 size-13");
+export const productSummaryExcerptVariants = cva(
+  "text-muted m-0 line-clamp-3 text-sm"
+);
 
 export const productSummaryRenewRenewsVariants = cva("text-faint text-sm");
 export const productSummaryRenewUsuallyVariants = cva("text-faint text-sm");

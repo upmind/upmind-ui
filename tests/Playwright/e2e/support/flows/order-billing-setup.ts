@@ -1,6 +1,7 @@
 import type { Page } from "@playwright/test";
 import type { AddressModel, BillingModel } from "@upmind-automation/headless";
 import { addAddressViaHeadless } from "./address-setup";
+import { waitForUpmindBridge } from "./headless-bridge";
 
 declare global {
   interface Window {
@@ -39,17 +40,9 @@ export async function setOrderBillingViaHeadless(
     phoneId?: string | null;
   }
 ): Promise<void> {
-  // The bridge attaches window.Upmind via a dynamic import during app init, so
-  // wait for it rather than racing the first call.
-  await page
-    .waitForFunction(() => !!window.Upmind?.useBasketBilling, null, {
-      timeout: 15000
-    })
-    .catch(() => {
-      throw new Error(
-        "window.Upmind not exposed — is the cart running in test mode (pnpm start:test)?"
-      );
-    });
+  // The bridge gate also waits for the routing engine to settle, so this
+  // evaluate never straddles the funnel's own navigation.
+  await waitForUpmindBridge(page);
   await page
     .evaluate(async (model: BillingModel) => {
       if (
@@ -99,7 +92,14 @@ export async function setOrderBillingViaHeadless(
       // of failure, so don't assume either way: re-check from the Node side
       // that the order billing actually landed. Any other error is real.
       const message = String((error as { message?: string })?.message ?? error);
-      if (!/Execution context was destroyed/i.test(message)) throw error;
+      // A torn-down context surfaces as either message depending on whether
+      // the evaluate's promise was still referenced when the page went away.
+      if (
+        !/Execution context was destroyed|Resulting promise was garbage collected/i.test(
+          message
+        )
+      )
+        throw error;
 
       await page
         .waitForFunction(

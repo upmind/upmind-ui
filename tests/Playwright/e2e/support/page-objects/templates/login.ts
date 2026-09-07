@@ -14,7 +14,12 @@ export class Login {
   constructor(page: Page, context?: BrowserContext) {
     this.page = page;
     this.context = context;
-    this.loginForm = page.getByTestId("login-form");
+    // Auth.vue publishes ONE form hook for every session form —
+    // `session-form` with the current form in `data-test-value` — so the login
+    // form is that pair, not the retired `login-form` key.
+    this.loginForm = page
+      .getByTestId("session-form")
+      .and(page.locator('[data-test-value="login"]'));
     this.usernameField = page
       .getByTestId("form-item")
       .and(page.locator(`[data-test-value="username"]`))

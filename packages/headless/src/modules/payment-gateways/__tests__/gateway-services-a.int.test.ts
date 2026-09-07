@@ -1,9 +1,9 @@
 /**
- * @fileoverview Gateway services integration — stripe, braintree, card
+ * @fileoverview Gateway services integration — stripe, braintree
  *
  * ## Job To Be Done
- * Prove every exported function in stripe/services, braintree/services, and
- * card/services against OUR API (recorded fixtures). SDK loaders are mocked;
+ * Prove every exported function in stripe/services and braintree/services
+ * against OUR API (recorded fixtures). SDK loaders are mocked;
  * only our API is real (replayed).
  *
  * ## What Breaks If These Fail
@@ -30,7 +30,6 @@ import type { IClient, IGateway, ICurrency } from "@upmind-automation/types";
 
 import stripeServices from "../stripe/services";
 import braintreeServices from "../braintree/services";
-import cardServices from "../card/services";
 
 const recordingsDir = join(import.meta.dirname, "fixtures");
 const sessionRecordingsDir = join(
@@ -55,8 +54,6 @@ const GATEWAYS_STRIPE =
 const GATEWAYS_BRAINTREE =
   "get-brands-id-gateways-active-1-case-list-braintree-client-id-country-id";
 const GET_FRONTEND_BRAINTREE = "get-gateway-frontend-id-case-details-braintree";
-const STORE_PAYMENT_REFUSED =
-  "post-clients-id-payment-details-case-store-on-payment";
 
 const mockStripeElement = {
   mount: vi.fn(),
@@ -661,147 +658,6 @@ describe("braintreeServices.add", () => {
   });
 });
 
-describe("cardServices.load", () => {
-  beforeEach(async () => {
-    outbound = [];
-    clearSessionCookies();
-    const { queryClient } = await import("../../query");
-    queryClient.clear();
-    await seedClientSession();
-  });
-
-  afterEach(() => {
-    server.resetHandlers();
-    vi.clearAllMocks();
-  });
-
-  it("AC-A1 returns canStore/mustStore/mustAutoPay flags", async () => {
-    const ctx = addContext(stripeGatewayId);
-
-    const result = await cardServices.load(ctx);
-
-    expect(result).toHaveProperty("canStore");
-    expect(result).toHaveProperty("mustStore");
-    expect(result).toHaveProperty("mustAutoPay");
-    expect(typeof result.canStore).toBe("boolean");
-  });
-});
-
-describe("cardServices.validate", () => {
-  beforeEach(async () => {
-    outbound = [];
-    clearSessionCookies();
-  });
-
-  afterEach(() => {
-    server.resetHandlers();
-    vi.clearAllMocks();
-  });
-
-  it("AC-A8 returns model when no schema", async () => {
-    const model = { card_number: "4111111111111111" };
-    const ctx = {
-      ...addContext(stripeGatewayId),
-      model,
-      schema: undefined
-    } as unknown as GatewayContext;
-
-    const result = await cardServices.validate(ctx);
-
-    expect(result).toEqual(model);
-  });
-});
-
-describe("cardServices.pay", () => {
-  beforeEach(async () => {
-    outbound = [];
-    clearSessionCookies();
-    const { queryClient } = await import("../../query");
-    queryClient.clear();
-    await seedClientSession();
-  });
-
-  afterEach(() => {
-    server.resetHandlers();
-    vi.clearAllMocks();
-  });
-
-  it("AC-A12 returns the model for a free amount without API call (store=false)", async () => {
-    const ctx = {
-      ...payContext(stripeGatewayId),
-      amount: 0,
-      model: { amount: 0, store: false }
-    } as unknown as GatewayContext;
-
-    const result = await cardServices.pay(ctx);
-
-    expect(result).toEqual(ctx.model);
-    expect(outbound.filter(entry => entry.includes("/payments"))).toEqual([]);
-  });
-
-  it("ERR-C1 returns model when store=false on non-zero amount", async () => {
-    const ctx = {
-      ...payContext(stripeGatewayId),
-      model: { amount: 50, store: false }
-    } as unknown as GatewayContext;
-
-    const result = await cardServices.pay(ctx);
-
-    expect(result).toEqual(ctx.model);
-    expect(outbound.filter(entry => entry.includes("payment_details"))).toEqual(
-      []
-    );
-  });
-
-  it("ERR-C2 calls storePaymentMethod when store=true and surfaces 409 refusal", async () => {
-    replay("post", "*/api/clients/*/payment_details", STORE_PAYMENT_REFUSED);
-
-    const ctx = {
-      ...payContext(stripeGatewayId),
-      model: {
-        store: true,
-        card_type: "visa",
-        card_num: "4111111111111111",
-        card_expire_date: "12/28",
-        card_cvv: "123"
-      }
-    } as unknown as GatewayContext;
-
-    await expect(cardServices.pay(ctx)).rejects.toThrow();
-    expect(outbound).toContainEqual(
-      expect.stringMatching(/POST.*payment_details/)
-    );
-  });
-});
-
-describe("cardServices.add", () => {
-  beforeEach(async () => {
-    outbound = [];
-    clearSessionCookies();
-    const { queryClient } = await import("../../query");
-    queryClient.clear();
-    await seedClientSession();
-  });
-
-  afterEach(() => {
-    server.resetHandlers();
-    vi.clearAllMocks();
-  });
-
-  it("AC-C3 returns model without SDK interaction (card spreads shared)", async () => {
-    const model = { card_number: "4111111111111111" };
-    const ctx = {
-      ...addContext(stripeGatewayId),
-      model,
-      clientPaymentDetailsId: "test-id"
-    } as unknown as GatewayContext;
-
-    const result = await cardServices.add(ctx);
-
-    expect(result).toBeDefined();
-  });
-});
-
 describe("stripeServices error paths", () => {
   beforeEach(async () => {
     outbound = [];
@@ -1068,32 +924,6 @@ describe("AC-B3 payment records against the named order", () => {
 
     expect(ctx.orderId).toBe(orderId);
     expect(result).toBeDefined();
-  });
-});
-
-describe("AC-C6 stored method marked for automatic renewal", () => {
-  beforeEach(async () => {
-    outbound = [];
-    clearSessionCookies();
-  });
-
-  afterEach(() => {
-    server.resetHandlers();
-    vi.clearAllMocks();
-  });
-
-  it("AC-C6 model.auto_payment flag is preserved when storing a method", async () => {
-    const model = { card_number: "4111111111111111", auto_payment: true };
-    const ctx = {
-      ...addContext(stripeGatewayId),
-      model,
-      clientPaymentDetailsId: "test-id"
-    } as unknown as GatewayContext;
-
-    const result = await cardServices.add(ctx);
-
-    expect(result).toBeDefined();
-    expect(ctx.model.auto_payment).toBe(true);
   });
 });
 

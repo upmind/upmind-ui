@@ -1,9 +1,5 @@
 <template>
-  <div
-    v-if="hasTerms && terms"
-    class="w-full"
-    data-test-key="basket-product-term-selector"
-  >
+  <div v-if="hasTerms && terms" data-test-key="basket-product-term-selector">
     <Select
       :model-value="selectedTerm"
       :items="termOptions"

@@ -1,16 +1,20 @@
 // -----------------------------------------------------------------------------
 /**
  * @module scenarios/__tests__/testing-entry-boundary.spec
- * @description The lint boundary governing headless's TWO published entries,
+ * @description The lint boundary governing headless's THREE published entries,
  * measured by RUNNING the repo's own ESLint over each position rather than by
  * reading its config.
  *
- * `./testing` also carries step catalogs, internal kits and integration kits,
- * so it is admitted in the test lane and in the ONE app-runtime seam block 8h
- * names, and refused everywhere else in the playground. `./fixtures` carries
- * recordings ONLY, so FE-3113 admits it from ANY app-runtime file without
- * reopening that narrow seam. Neither entry opens the package: the allowlist is
- * anchored, so a subpath below either one is refused from every position.
+ * `./testing` also carries internal kits and integration kits, so it is admitted
+ * in the test lane and in the ONE app-runtime seam block 8h names, and refused
+ * everywhere else in the playground. `./fixtures` carries recordings ONLY, so
+ * FE-3113 admits it from ANY app-runtime file without reopening that narrow
+ * seam. `./features` carries the playlist text and the engine-free step catalogs
+ * ONLY, so FE-3133 admits it the same way — that is what lets the app seam carry
+ * the artefacts WITHOUT `./testing`'s harness globs, whose lazily-named
+ * `setup.integration.ts` drags msw's node-only interceptors into a production
+ * build. No entry opens the package: the allowlist is anchored, so a subpath
+ * below any one of them is refused from every position.
  *
  * The matrix is (position × specifier) so a widened lookahead shows up as a
  * cell that changed, not as a rule that disappeared.
@@ -40,10 +44,12 @@ const REPO_ROOT = join(import.meta.dirname, "..", "..", "..", "..", "..");
 
 const ENTRY = "@upmind-automation/headless/testing";
 const RECORDINGS = "@upmind-automation/headless/fixtures";
+const FEATURES = "@upmind-automation/headless/features";
 const INTO_THE_PACKAGE =
   "@upmind-automation/headless/src/modules/client-email/__tests__/client-email.steps";
 const INTO_THE_ENTRY = `${ENTRY}/recorded`;
 const INTO_THE_RECORDINGS = `${RECORDINGS}/recorded`;
+const INTO_THE_SCENARIOS = `${FEATURES}/recorded`;
 
 const TEST_LANE = "playgrounds/labs-nuxt/tests/e2e/catalogs.ts";
 const NAMED_APP_SEAM =
@@ -60,9 +66,11 @@ const POSITIONS = [TEST_LANE, NAMED_APP_SEAM, ...APP_RUNTIME];
 const SPECIFIERS = [
   ENTRY,
   RECORDINGS,
+  FEATURES,
   INTO_THE_PACKAGE,
   INTO_THE_ENTRY,
-  INTO_THE_RECORDINGS
+  INTO_THE_RECORDINGS,
+  INTO_THE_SCENARIOS
 ];
 
 /** The same import, spelled the way the position's own parser reads a file. */
@@ -194,6 +202,32 @@ describe("the lint boundary — who may reach the published recordings", () => {
   });
 
   it("keeps the narrow test-entry seam exactly as it was, so recordings widened nothing else", () => {
+    expect(
+      reject(APP_RUNTIME, position => complaintsAt(position, ENTRY).length > 0)
+    ).toStrictEqual([]);
+  });
+});
+
+describe("the lint boundary — who may reach the published features", () => {
+  it("admits the features entry from every app-runtime position, not just the named seam", () => {
+    expect(
+      reject(
+        POSITIONS,
+        position => complaintsAt(position, FEATURES).length === 0
+      )
+    ).toStrictEqual([]);
+  });
+
+  it("refuses a path BELOW the features entry from every position", () => {
+    expect(
+      reject(
+        POSITIONS,
+        position => complaintsAt(position, INTO_THE_SCENARIOS).length > 0
+      )
+    ).toStrictEqual([]);
+  });
+
+  it("keeps the narrow test-entry seam exactly as it was, so features widened nothing else", () => {
     expect(
       reject(APP_RUNTIME, position => complaintsAt(position, ENTRY).length > 0)
     ).toStrictEqual([]);

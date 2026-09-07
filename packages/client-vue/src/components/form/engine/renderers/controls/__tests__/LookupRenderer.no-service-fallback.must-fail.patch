@@ -1,0 +1,19 @@
+Negative control for LookupRenderer.test.ts (B6/AC8 no-service fallback).
+
+Removes the `hasOption("lookup")` clause from the renderer's tester, so LookupRenderer
+greedily claims a plain Control that carries no lookup bag instead of letting it fall
+back to the plain input renderer. The AC8 assertion that a service-less control renders
+a `data-test-key="input"` (not a combobox) goes red.
+
+diff --git a/packages/client-vue/src/components/form/engine/renderers/controls/LookupRenderer.vue b/packages/client-vue/src/components/form/engine/renderers/controls/LookupRenderer.vue
+index 44f2e458d..66a1b3faa 100644
+--- a/packages/client-vue/src/components/form/engine/renderers/controls/LookupRenderer.vue
++++ b/packages/client-vue/src/components/form/engine/renderers/controls/LookupRenderer.vue
+@@ -126,6 +126,6 @@ onBeforeUnmount(() => debouncedSearch.cancel());
+ <script lang="ts">
+ export const tester = {
+   rank: 3,
+-  controlType: and(uiTypeIs("Control"), hasOption("lookup"))
++  controlType: uiTypeIs("Control")
+ };
+ </script>

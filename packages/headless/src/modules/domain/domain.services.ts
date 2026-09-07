@@ -517,11 +517,13 @@ function search(context: DacContext) {
         // can clobber the newer search's results.
         queryFn: ({ signal }) =>
           request<IDomainSuggestionResult[]>({
+            // `query` is a criteria key: request() owns it on the wire and
+            // deletes a raw ?query= param, so it goes in as the option.
+            query: sld,
             url: useUrl(
               `modules/web_hosting/domains/suggestions`,
               omitBy(
                 {
-                  query: sld,
                   // `useUrl` bracket-serialises arrays (tlds[]=com&tlds[]=net),
                   // so pass the array directly rather than joining ourselves.
                   tlds,
@@ -590,11 +592,11 @@ function search(context: DacContext) {
         // round's request can actually abort when search restarts.
         queryFn: ({ signal }) =>
           request<IProduct[]>({
+            query: sld,
             url: useUrl(
               `modules/web_hosting/domains/suggestions/tlds`,
               omitBy(
                 {
-                  query: sld,
                   with: DOMAIN_WITH_RELATIONS,
                   tlds,
                   tlds_page: page,

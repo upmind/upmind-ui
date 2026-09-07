@@ -1,8 +1,12 @@
+import { test } from "@playwright/test";
 import { newUser, expect } from "../../../support/fixtures/auth-context";
 import { products } from "../../../support/constants/products";
 import { Countries } from "../../../support/constants/countries";
+import { URLs } from "../../../support/constants/urls";
 import { goToCheckout } from "../../../support/flows/checkout";
+import { registerClientViaHeadless } from "../../../support/flows/auth-setup";
 import { interceptConfigValues } from "../../../support/mocks/brand";
+import { Checkout } from "../../../support/page-objects/templates/checkout";
 
 /**
  * Job To Be Done (FE-2789 / FE-1698)
@@ -34,11 +38,11 @@ newUser.describe("FE-2789: lazily-loaded billing fields populate", () => {
   newUser(
     "A chosen address suggestion populates the country and region",
     async ({ page, checkout }) => {
-      // Given — a fresh customer at checkout, adding a new billing address
+      // Given — a fresh customer at checkout, adding a new billing address. A
+      // client with no saved details is shown the entry form directly
+      // (CheckoutBilling.vue) — there is no summary to change from.
       await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
-      await checkout.addNewAddress.click();
-      await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
-      await checkout.billingSummaryChangeLink.click();
+      await expect(checkout.billingCards).toBeVisible({ timeout: 15000 });
 
       // When — they choose a suggested address from the autocomplete results.
       // `selectAddressFromSearch` drives the real Google Places lookup and picks
@@ -72,11 +76,10 @@ newUser.describe("FE-2789: lazily-loaded billing fields populate", () => {
   newUser(
     "Changing the country re-derives the available regions",
     async ({ page, checkout }) => {
-      // Given — a fresh customer adding a new billing address
+      // Given — a fresh customer adding a new billing address (the entry form
+      // is what a client without saved details sees)
       await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
-      await checkout.addNewAddress.click();
-      await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
-      await checkout.billingSummaryChangeLink.click();
+      await expect(checkout.billingCards).toBeVisible({ timeout: 15000 });
 
       // When — the country dropdown has finished loading its options.
       await checkout.openAddressCountry();
@@ -129,36 +132,45 @@ newUser.describe("FE-2789: lazily-loaded billing fields populate", () => {
       await checkout.dismissSelect();
     }
   );
+});
 
-  newUser(
-    "The phone dialling-code selector is populated and choosable",
-    async ({ page, checkout }) => {
-      // Given — a fresh customer whose brand requires a phone number, so the
-      // billing form renders the phone field with its dialling-code selector.
-      await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
-      await interceptConfigValues(page, {
-        requireAddressForOrders: true,
-        requireCompanyForOrders: false,
-        requireRegionInAddress: false,
-        requirePhoneForOrders: true
-      });
-      await page.reload();
-      await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
-      await checkout.addNewAddress.click();
-      await checkout.billingSummaryChangeLink.click();
-      // Control-flow guard: the phone field is part of the same add-details form.
-      await expect(checkout.phone).toBeVisible({ timeout: 15000 });
+// Brand config is static and persisted from the first boot
+// (brand.services.ts:119-121 since 16a5d5d9e9), so the phone requirement must
+// be armed BEFORE the app loads — plain `test` plus an explicit boot + register
+// rather than the `newUser` fixture, which boots first.
+test.describe("FE-2789: lazily-loaded billing fields populate — phone", () => {
+  test.afterEach(async ({ page }) => {
+    await page.unrouteAll({ behavior: "wait" });
+  });
 
-      // When — they open the phone country selector.
-      await checkout.openPhoneCountry();
+  test("The phone dialling-code selector is populated and choosable", async ({
+    page
+  }) => {
+    const checkout = new Checkout(page);
+    // Given — a fresh customer whose brand requires a phone number, so the
+    // billing form renders the phone field with its dialling-code selector.
+    await interceptConfigValues(page, {
+      requireAddressForOrders: true,
+      requireCompanyForOrders: false,
+      requireRegionInAddress: false,
+      requirePhoneForOrders: true
+    });
+    await page.goto(URLs.baseUrl);
+    await registerClientViaHeadless(page);
+    await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
+    await expect(checkout.billingCards).toBeVisible({ timeout: 15000 });
+    // Control-flow guard: the phone field is part of the same add-details form.
+    await expect(checkout.phone).toBeVisible({ timeout: 15000 });
 
-      // Then — a list of dialling codes is shown.
-      expect(await checkout.phoneDialCodeOptions.count()).toBeGreaterThan(10);
+    // When — they open the phone country selector.
+    await checkout.openPhoneCountry();
 
-      // And — a dialling code can be chosen from the list: choosing one commits
-      // the selection and closes the popover.
-      await checkout.phoneDialCodeOptions.first().click();
-      await expect(checkout.phoneCountryPopover).toBeHidden();
-    }
-  );
+    // Then — a list of dialling codes is shown.
+    expect(await checkout.phoneDialCodeOptions.count()).toBeGreaterThan(10);
+
+    // And — a dialling code can be chosen from the list: choosing one commits
+    // the selection and closes the popover.
+    await checkout.phoneDialCodeOptions.first().click();
+    await expect(checkout.phoneCountryPopover).toBeHidden();
+  });
 });

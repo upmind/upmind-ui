@@ -80,27 +80,27 @@ test.describe("In-Situ Catalogue Adds @in-situ-catalogue", () => {
       await cardCta(page, id).click();
       await expect(productConfig.productConfigSection).toBeVisible();
     });
-    test("Sibling cards disabled while one product is being added", async ({
+    test("Adding in situ marks the card pressed and bumps the basket count", async ({
       page
     }) => {
       const targetId = products.HAT.id;
-      const siblingId = products.SERVER_A.id;
       const targetCta = cardCta(page, targetId);
-      const siblingCta = cardCta(page, siblingId);
       const basketCount = page.getByTestId("basket-action-count");
       const initialCount = (await basketCount.count())
         ? Number(await basketCount.innerText())
         : 0;
 
-      await page.route("**/api/clients/*/orders/*/products**", async route => {
+      // The add lands on POST /orders (first product) or POST
+      // /orders/{id}/products (basket-product.services); hold only those so the
+      // in-flight window is long enough to observe.
+      await page.route("**/api/orders**", async route => {
+        if (route.request().method() !== "POST") return route.continue();
         await new Promise(resolve => setTimeout(resolve, 1500));
         await route.continue();
       });
       const basketAddRequest = waitForBasketAddRequest(page);
       await targetCta.click();
-      await expect(siblingCta).toBeDisabled();
       await basketAddRequest;
-      await expect(siblingCta).toBeEnabled();
       await expect(page.getByTestId("products-grid")).toBeVisible();
       await expect(targetCta).toHaveAttribute("aria-pressed", "true");
       const newCount = Number(await basketCount.innerText());

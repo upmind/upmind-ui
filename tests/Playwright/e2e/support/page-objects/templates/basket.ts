@@ -33,7 +33,7 @@ export class Basket {
   readonly quantityIncrement: Locator;
   readonly termSelector: Locator;
   readonly summarySection: Locator;
-  readonly summaryTotalValue: Locator;
+  readonly basketTotalValue: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -80,10 +80,10 @@ export class Basket {
     this.basketProductUpsell = page.getByTestId("basket-product-upsell");
 
     /* One-page order page ("Your Order") */
-    // Section testids are derived from the translated label (en run), matching
-    // the suite's existing section locators. The card only renders under the
-    // one-page flow, so its presence doubles as the flow marker.
-    this.yourOrderCard = page.getByTestId("section-your-order");
+    // Sections.vue keys its heading `tab-${kebabCase(label)}` (the e2e contract
+    // it declares; en run). BasketProducts titles the card `cart.your_order`
+    // only under the one-page flow, so the key doubles as the flow marker.
+    this.yourOrderCard = page.getByTestId("tab-your-order");
     this.quantityInput = this.basketProduct.getByTestId("number-field-input");
     this.quantityIncrement = this.basketProduct.getByTestId(
       "number-field-increment"
@@ -94,15 +94,28 @@ export class Basket {
     // #basket-summary is a stable DOM id on the summary section of both the
     // basket/order page and the checkout page.
     this.summarySection = page.locator("#basket-summary");
-    this.summaryTotalValue = this.summarySection
-      .locator("dt", { hasText: /^Total$/ })
+    // The order page's server-priced total renders exactly once, but where and
+    // under which label is a template decision (Basket.vue `:show-total` /
+    // `#total` slot): two-column-rtl puts BasketTotal ("Basket total") in the
+    // page footer and hides the summary's own; every other template shows it in
+    // the summary — as "Total" in the itemised breakdown, as BasketTotal in the
+    // plain totals. One label-pair regex over the page covers all three (en run).
+    this.basketTotalValue = page
+      .locator("dt", { hasText: /^(Basket total|Total)$/ })
       .locator("xpath=following-sibling::dd[1]");
   }
 
-  /** Opens the inline term selector and picks the term matching the label. */
-  async selectTerm(termLabel: string | RegExp) {
-    await this.termSelector.click();
-    await this.page.getByRole("option", { name: termLabel }).click();
+  /**
+   * Opens the inline term selector (a design-system Select) and picks the
+   * term by its stable cycle — Select.vue keys each item `select-item` with the
+   * option value in data-test-value, never the translated label.
+   */
+  async selectTerm(cycle: number) {
+    await this.termSelector.getByTestId("select-trigger").click();
+    await this.page
+      .getByTestId("select-item")
+      .and(this.page.locator(`[data-test-value="${cycle}"]`))
+      .click();
   }
 
   upsellTitle(upsell: Locator): Locator {
