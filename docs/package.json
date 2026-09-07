@@ -4,23 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "predocs": "typedoc",
     "corpus:build": "node corpus/build.mjs",
     "corpus:emit": "node corpus/emit-mdx.mjs",
-    "corpus:refresh": "pnpm run corpus:build && pnpm run corpus:emit",
-    "docs:dev": "vitepress dev",
-    "docs:build": "vitepress build",
-    "docs:preview": "vitepress preview"
+    "corpus:refresh": "pnpm run corpus:build && pnpm run corpus:emit"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "typedoc": "^0.28.14",
-    "typedoc-plugin-markdown": "^4.9.0",
-    "typedoc-vitepress-theme": "^1.1.2",
-    "vitepress": "^1.6.4",
-    "vitepress-jsdoc": "^1.0.4"
+    "typedoc-plugin-markdown": "^4.9.0"
   },
   "private": true
 }

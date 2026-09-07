@@ -90,6 +90,24 @@ There is exactly one selection point: **`defaultFunnel`, at registration.**
 `initRouter()` runs after `useBrand()`, `useSystem()` and `useSession()` have all resolved, so brand config is fully available when the app's `registerFunnels()` executes. A brand-conditional starting funnel is therefore a plain read at that moment:
 
 ```typescript
+import { useBrand } from "@upmind-automation/client-vue";
+import { BrandConfigKeys, CheckoutFlows } from "@upmind-automation/types";
+import type { FunnelProps, FunnelWatcher } from "@upmind-automation/headless";
+
+declare const cart: FunnelProps;
+declare const onePage: FunnelProps;
+declare const domains: FunnelProps;
+declare const watchers: FunnelWatcher[];
+declare const CART_OVERLAYS: Record<string, string>;
+
+function getDefaultFunnel(): string {
+  const { getConfigValue } = useBrand();
+  return getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) ===
+    CheckoutFlows.ONE_PAGE
+    ? "one-page"
+    : "cart";
+}
+
 export const registerFunnels = () => ({
   defaultFunnel: getDefaultFunnel(), // reads brand config — already loaded
   funnels: { cart, "one-page": onePage, domains },
@@ -177,6 +195,11 @@ The routing engine exposes lifecycle hooks for coordinating UI effects with navi
 | `onAfterEnter`  | Page component mounts (`mount()` call) | Scroll restoration, analytics     |
 
 ```typescript
+import { useRoutingEngine } from "@upmind-automation/headless";
+import { useShell } from "@upmind-automation/client-vue";
+
+declare function scrollToTop(): void;
+
 const { onBeforeLeave, onAfterEnter } = useRoutingEngine();
 
 onBeforeLeave(() => useShell().reset());

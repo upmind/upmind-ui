@@ -8,7 +8,20 @@ Edge cases and behaviours that surprise people. Written for developers wiring au
 
 **Problem:** When an account has 2FA enabled, the credentials call returns `200` with a _token_ — but it's an interim challenge token (`actor_type: "twofa"`, `twofa_provider` set), not a session. Code that treats any resolved login as authenticated stores a challenge token as a session.
 
-```typescript
+```ts
+import { ScopeActorTypes, useAuth } from "@upmind-automation/headless";
+
+declare const username: string;
+declare const password: string;
+declare function redirectToDashboard(): void;
+declare function showCodeInput(): void;
+declare function showError(message?: unknown): void;
+
+const auth = useAuth().as(ScopeActorTypes.CLIENT);
+const actions = auth.useActions();
+const { is2faRequired } = auth.useMeta();
+const { errors } = auth.useContext();
+
 // ❌ wrong — assumes resolve() success/failure is the whole story
 await actions.resolve({ username, password });
 redirectToDashboard();
@@ -50,9 +63,16 @@ else showError(errors.value);
 
 **Problem:** The two-step guest registration mints a token that acts as a client; the token itself carries nothing that says "guest". The discriminator is `is_guest: true` on the session user (mapped by session-store from `/self`). Branching on token fields misroutes guest-customers after a reload.
 
-```typescript
-// ❌ wrong
-if (token.actor_type === "guest") showGuestBanner();
+```ts
+import { AccessRoleTypes, type IToken } from "@upmind-automation/types";
+import { useActiveSession } from "@upmind-automation/headless";
+
+declare const token: IToken;
+declare function showGuestBanner(): void;
+
+// ❌ wrong — a guest-customer token's `actor_type` is `client`, never `guest`,
+// so this branch never fires for the case it is meant to catch
+if (token.actor_type === AccessRoleTypes.GUEST) showGuestBanner();
 
 // ✅ right — read the mapped session user
 const { activeUser } = useActiveSession().useContext();

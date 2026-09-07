@@ -19,16 +19,21 @@ Think of `account` as the paperwork desk you visit _after_ you're through the do
 ## Quick Start
 
 ```ts
-import { useAccount } from "@upmind-automation/headless";
+import { ScopeActorTypes, useAccount } from "@upmind-automation/headless";
 
 // Resolve the active session's account (SELF → the logged-in actor)
-const account = useAccount().as("self");
+const account = useAccount().as(ScopeActorTypes.SELF);
 
 const { isGuest, showVerifyEmailForm, canResend } = account.useMeta();
 const { register, verify, resend } = account.useActions();
 
 // Upgrade a guest to a full client
-await register({ email, firstname, lastname, password });
+await register({
+  email: "jane@example.com",
+  firstname: "Jane",
+  lastname: "Doe",
+  password: "s3cret-pass"
+});
 
 // Verify an unverified client's email
 const ok = await verify({ code: "123456" });

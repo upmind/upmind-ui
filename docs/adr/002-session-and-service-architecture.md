@@ -34,31 +34,27 @@ With the introduction of scope-based composables (ADR 001), we need a session an
 
 Replace the XState session machine with a **reactive store** for session management:
 
-```typescript
+```ts
 import { Store } from '@tanstack/vue-store'
+import type { ScopeActor, SessionUser } from '@upmind-automation/headless'
 
 interface SessionData {
   token: string
   refreshToken: string
   expiresAt: number
   actorId: string
-  profile?: ClientProfile | StaffProfile
-  capabilities?: string[]  // staff only
+  profile?: SessionUser
+  capabilities?: string[] // staff only
 }
 
 interface SessionState {
-  sessions: Record<Actor, SessionData | null>
-  activeActor: Actor
+  sessions: Record<ScopeActor, SessionData | null>
+  activeActor: ScopeActor
 }
 
-const sessionStore = new Store<SessionState>({
-  sessions: {
-    guest: null,
-    client: null,
-    staff: null,
-    lead: null,
-  },
-  activeActor: 'guest'
+export const sessionStore = new Store<SessionState>({
+  activeActor: 'guest',
+  sessions: { client: null, guest: null, self: null, user: null }
 })
 ```
 
@@ -66,42 +62,54 @@ const sessionStore = new Store<SessionState>({
 
 Following our composable conventions from ADR 001:
 
-```typescript
-function useSessionStore() {
+```ts
+import type { Store } from '@tanstack/vue-store'
+import type { ScopeActor } from '@upmind-automation/headless'
+import { computed } from 'vue'
+
+type SessionData = { token: string }
+type SessionState = {
+  activeActor: ScopeActor
+  sessions: Record<ScopeActor, SessionData | null>
+}
+
+declare const store: Store<SessionState>
+declare const refreshingActors: Set<ScopeActor>
+declare const channel: BroadcastChannel
+
+export function useSessionStore() {
   return {
-    // ═══════════════════════════════════════════════════════════════
-    // DIRECT PROPERTIES
-    // ═══════════════════════════════════════════════════════════════
+    // --- direct properties
     sessions: computed(() => store.state.sessions),
     activeActor: computed(() => store.state.activeActor),
     activeSession: computed(() => store.state.sessions[store.state.activeActor]),
-    getSession: (actor: Actor) => store.state.sessions[actor],
+    getSession: (actor: ScopeActor) => store.state.sessions[actor],
 
-    // ═══════════════════════════════════════════════════════════════
-    // SUB-COMPOSABLES
-    // ═══════════════════════════════════════════════════════════════
+    // --- sub-composables
     useMeta() {
       return {
-        hasSession: (actor: Actor) => computed(() => !!store.state.sessions[actor]),
-        isExpired: (actor: Actor) => computed(() => { /* ... */ }),
-        isRefreshing: (actor: Actor) => computed(() => refreshingActors.has(actor)),
+        hasSession: (actor: ScopeActor) => computed(() => !!store.state.sessions[actor]),
+        isExpired: (_actor: ScopeActor) => computed(() => false),
+        isRefreshing: (actor: ScopeActor) => computed(() => refreshingActors.has(actor))
       }
     },
 
     useActions() {
       return {
-        setSession: (actor: Actor, data: SessionData) => { /* ... */ },
-        clearSession: (actor: Actor) => { /* ... */ },
-        switchTo: (actor: Actor) => { /* ... */ },
-        refreshSession: async (actor: Actor) => { /* ... */ },
+        setSession: (actor: ScopeActor, data: SessionData) =>
+          store.setState(state => ({ ...state, sessions: { ...state.sessions, [actor]: data } })),
+        clearSession: (actor: ScopeActor) =>
+          store.setState(state => ({ ...state, sessions: { ...state.sessions, [actor]: null } })),
+        switchTo: (actor: ScopeActor) => store.setState(state => ({ ...state, activeActor: actor })),
+        refreshSession: async (_actor: ScopeActor) => undefined
       }
     },
 
     useInternals() {
       return {
         store,
-        subscribe: (callback) => store.subscribe(callback),
-        broadcastChannel: channel,
+        subscribe: (callback: () => void) => store.subscribe(callback),
+        broadcastChannel: channel
       }
     }
   }
@@ -112,27 +120,28 @@ function useSessionStore() {
 
 Use `BroadcastChannel` for cross-tab session sync:
 
-```typescript
+```ts
+import { Store } from '@tanstack/vue-store'
+import type { ScopeActor } from '@upmind-automation/headless'
+
+type SessionData = { token: string }
+type SessionState = { sessions: Record<ScopeActor, SessionData | null> }
+
+declare const sessionStore: Store<SessionState>
+
 const channel = new BroadcastChannel('upm_session')
 
 // Broadcast changes to other tabs
-function broadcastChange(actor: Actor, session: SessionData | null) {
-  channel.postMessage({
-    type: 'SESSION_CHANGE',
-    actor,
-    session
-  })
+export function broadcastChange(actor: ScopeActor, session: SessionData | null) {
+  channel.postMessage({ actor, session, type: 'SESSION_CHANGE' })
 }
 
 // Listen for changes from other tabs
-channel.onmessage = (event) => {
+channel.onmessage = event => {
   if (event.data.type === 'SESSION_CHANGE') {
     sessionStore.setState(state => ({
       ...state,
-      sessions: {
-        ...state.sessions,
-        [event.data.actor]: event.data.session
-      }
+      sessions: { ...state.sessions, [event.data.actor]: event.data.session }
     }))
   }
 }
@@ -148,12 +157,15 @@ channel.onmessage = (event) => {
 
 Sessions persist to cookies (important for SSR, security):
 
-```typescript
-// Cookie naming convention
-`upm_guest_session`   // Guest token
-`upm_client_session`  // Client token
-`upm_staff_session`   // Staff token
-`upm_lead_session`    // Lead token
+```ts
+// The names `session-store.sync.ts` actually syncs. `staff` is spelled `user`
+// on the wire, and there is no lead cookie — a lead is a context, not an actor.
+export const SESSION_COOKIE_NAMES = [
+  'upm_guest_session',
+  'upm_client_session',
+  'upm_user_session',
+  'upm_admin_session'
+]
 ```
 
 Store syncs to cookies on every change.
@@ -162,29 +174,39 @@ Store syncs to cookies on every change.
 
 Extract login/register/recover/2FA into a **single auth machine**:
 
-```typescript
-const authMachine = createMachine({
+```ts
+import { createMachine } from '@upmind-automation/headless'
+import type { ScopeActor } from '@upmind-automation/headless'
+import type { ResponseError } from '@upmind-automation/headless'
+
+type AuthContext = {
+  actor: ScopeActor
+  error: ResponseError | null
+  challenge: unknown | null
+}
+
+export const authMachine = createMachine({
   id: 'auth',
   context: {
-    actor: 'client' as Actor,  // Which actor we're authenticating
+    actor: 'client',
     error: null,
-    challenge: null,  // 2FA state
-  },
+    challenge: null
+  } as AuthContext,
   initial: 'idle',
   states: {
     idle: {
       on: {
         LOGIN: 'login',
         REGISTER: 'register',
-        RECOVER: 'recover',
+        RECOVER: 'recover'
       }
     },
-    login: { /* login flow states */ },
-    register: { /* register flow states */ },
-    recover: { /* recover flow states */ },
+    login: {},
+    register: {},
+    recover: {},
     success: {
       type: 'final',
-      entry: 'persistToSessionStore'  // Writes to session store
+      entry: 'persistToSessionStore'
     }
   }
 })
@@ -225,17 +247,27 @@ modules/
 
 #### Service Resolver
 
-```typescript
-// clientEmails/services/index.ts
-export function getEmailService(actor: Actor, context?: Context) {
-  const resolvedActor = actor === 'self'
-    ? useSessionStore().activeActor.value
-    : actor
+```ts
+import { ScopeActorTypes } from '@upmind-automation/headless'
+import type { ScopeContext } from '@upmind-automation/headless'
+
+type EmailService = { loadList: () => unknown }
+
+declare function createClientEmailService(): EmailService
+declare function createStaffEmailService(clientId: string): EmailService
+declare function activeActor(): ScopeActorTypes
+
+export function getEmailService(
+  actor: ScopeActorTypes,
+  context?: ScopeContext
+): EmailService {
+  const resolvedActor =
+    actor === ScopeActorTypes.SELF ? activeActor() : actor
 
   switch (resolvedActor) {
-    case 'client':
+    case ScopeActorTypes.CLIENT:
       return createClientEmailService()
-    case 'staff':
+    case ScopeActorTypes.STAFF:
       if (!context?.id) throw new Error('Staff requires client context')
       return createStaffEmailService(context.id)
     default:
@@ -246,27 +278,35 @@ export function getEmailService(actor: Actor, context?: Context) {
 
 #### Actor-Specific Service
 
-```typescript
-// clientEmails/services/staff.ts
-export function createStaffEmailService(clientId: string) {
-  const { list, useUrl } = useQuery()
-  const session = useSessionStore()
+```ts
+import { ScopeActorTypes, useQuery } from '@upmind-automation/headless'
 
-  const getToken = () => session.getSession('staff')?.token
+declare function useSessionStore(): {
+  getSession: (actor: ScopeActorTypes) => { token: string } | null
+}
+
+export function createStaffEmailService(clientId: string) {
+  const { list, post, useUrl } = useQuery()
+  const session = useSessionStore()
+  const queryKey = ['staff', 'client-emails', clientId]
+
+  const getToken = () => session.getSession(ScopeActorTypes.STAFF)?.token
 
   return {
-    loadList: (params = {}) => list({
-      ...params,
-      url: useUrl(`/admin/clients/${clientId}/emails`),
-      withAccessToken: getToken(),
-    }),
+    loadList: () =>
+      list({
+        queryKey,
+        url: useUrl(`/admin/clients/${clientId}/emails`),
+        withAccessToken: getToken()
+      }),
 
-    add: (data) => post({
-      url: useUrl(`/admin/clients/${clientId}/emails`),
-      data,
-      withAccessToken: getToken(),
-    }),
-    // ...
+    add: (data: Record<string, unknown>) =>
+      post({
+        data,
+        mutationKey: [...queryKey, 'add'],
+        url: useUrl(`/admin/clients/${clientId}/emails`),
+        withAccessToken: getToken()
+      })
   }
 }
 ```
@@ -275,13 +315,30 @@ export function createStaffEmailService(clientId: string) {
 
 Composables resolve the appropriate service via `.as()`:
 
-```typescript
-function useClientEmails() {
+```ts
+import { ScopeActorTypes } from '@upmind-automation/headless'
+import type { ScopeContext } from '@upmind-automation/headless'
+import type { ComputedRef } from 'vue'
+
+type Email = { id: string; email: string | null }
+type EmailService = {
+  add: (data: Email) => Promise<Email>
+  remove: (id: string) => Promise<void>
+  update: (data: Email) => Promise<Email>
+  loadList: () => { data: ComputedRef<Email[]>; pagination: unknown }
+}
+
+declare function getEmailService(
+  actor: ScopeActorTypes,
+  context: ScopeContext | null
+): EmailService
+
+export function useClientEmails() {
   return {
-    as(actor: Actor) {
+    as(actor: ScopeActorTypes) {
       return {
-        for(contextType?: ContextType, id?: string) {
-          const context = contextType && id ? { type: contextType, id } : null
+        for(contextType?: ScopeContext['type'], id?: string) {
+          const context = contextType && id ? { id, type: contextType } : null
           const service = getEmailService(actor, context)
 
           const { data, ...query } = service.loadList()
@@ -290,13 +347,13 @@ function useClientEmails() {
             data,
             pagination: query.pagination,
 
-            useMeta: () => ({ /* ... */ }),
+            useMeta: () => ({}),
             useActions: () => ({
               add: service.add,
               update: service.update,
-              remove: service.remove,
+              remove: service.remove
             }),
-            useInternals: () => ({ service, query }),
+            useInternals: () => ({ service, query })
           }
         }
       }
@@ -309,15 +366,27 @@ function useClientEmails() {
 
 The existing `withAccessToken` pattern is preserved but evolved:
 
-```typescript
-// Current (still works)
-withAccessToken: true  // Uses activeActor's token
+```ts
+import { ScopeActorTypes } from '@upmind-automation/headless'
+import type { RequestParams } from '@upmind-automation/headless'
 
-// New (explicit token from session store)
-withAccessToken: useSessionStore().getSession('staff')?.token
+declare function useSessionStore(): {
+  getSession: (actor: ScopeActorTypes) => { token: string } | null
+}
+declare const explicitToken: string
 
-// Special cases (explicit token for claims, etc.)
-withAccessToken: explicitToken
+type Token = RequestParams['withAccessToken']
+
+// Current (still works) — uses the activeActor's token
+const implicit: Token = true
+
+// New — an explicit token from the session store
+const fromStore: Token = useSessionStore().getSession(ScopeActorTypes.STAFF)?.token
+
+// Special cases (a claim link, a transfer code, …)
+const explicit: Token = explicitToken
+
+export const tokens = { explicit, fromStore, implicit }
 ```
 
 ---

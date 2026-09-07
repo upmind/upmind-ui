@@ -11,12 +11,15 @@ Both act on the calling client's own history only. Every capability below carrie
 
 ```ts
 import {
+  ScopeActorTypes,
   useClientReceivedEmails,
   useClientReceivedEmail
 } from "@upmind-automation/headless";
 
+const emailId = "825d96e7-63ed-0913-46c4-174825283406";
+
 // The collection — the calling client's own history
-const history = useClientReceivedEmails().as("client");
+const history = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
 
 // The single read — one email, opened by id; the actor defaults to self
 const email = useClientReceivedEmail().withId(emailId);
@@ -172,6 +175,9 @@ Opens one email by id and reads it in full, including its body. The actor defaul
 self, so `.as()` is optional.
 
 ```ts
+import { useClientReceivedEmail } from "@upmind-automation/headless";
+
+const emailId = "825d96e7-63ed-0913-46c4-174825283406";
 const email = useClientReceivedEmail().withId(emailId);
 
 await email.useActions().isReady();
@@ -250,6 +256,17 @@ For debugging and tests. Not for production consumers.
 Nothing in this module raises a toast, a notification, or any other message on your behalf. Every failure is captured where you can read and render it:
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientReceivedEmail,
+  useClientReceivedEmails
+} from "@upmind-automation/headless";
+
+const history = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
+const email = useClientReceivedEmail().withId(
+  "825d96e7-63ed-0913-46c4-174825283406"
+);
+
 // Collection
 const { error } = history.useContext();
 const { hasError } = history.useMeta();

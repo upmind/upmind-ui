@@ -91,6 +91,11 @@ There is no `{field_id, value}` array anywhere in this contract — a value set 
 A single value, as embedded on a client record (the shape `resolveFieldByValue`, capability 4, reads):
 
 ```ts
+// The definition the value carries inline — the platform's own shipped shape, so
+// this doc's EmbeddedCustomFieldValue cannot drift from it. It is the same record
+// spelled out under "A definition, at full catalogue fidelity" above.
+import type { ICustomField as CustomField } from "@upmind-automation/types";
+
 type EmbeddedCustomFieldValue = {
   id: string;
   field_id: string;

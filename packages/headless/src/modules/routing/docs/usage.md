@@ -15,11 +15,14 @@ const routing = useRoutingEngine();
 `Ref<boolean>` — True while a programmatic navigation is in progress. Used as a mutex to prevent double-navigation.
 
 ```typescript
-const { isNavigating } = useRoutingEngine();
+import { useRoutingEngine } from "@upmind-automation/headless";
 
-if (isNavigating.value) {
-  // Navigation already in progress, skip
-  return;
+const { isNavigating, navigateNext } = useRoutingEngine();
+
+export function onContinue() {
+  // Navigation already in progress — skip rather than queue a duplicate.
+  if (isNavigating.value) return;
+  return navigateNext();
 }
 ```
 
@@ -28,6 +31,10 @@ if (isNavigating.value) {
 `() => Promise<boolean>` — Resolves when the routing engine is initialized and the router is ready.
 
 ```typescript
+import { useRoutingEngine } from "@upmind-automation/headless";
+
+const { isReady } = useRoutingEngine();
+
 await isReady();
 // Router and routing engine are now available
 ```
@@ -37,6 +44,10 @@ await isReady();
 `() => Promise<boolean>` — Resolves when the current funnel has finished resolving the route.
 
 ```typescript
+import { useRoutingEngine } from "@upmind-automation/headless";
+
+const { isResolved } = useRoutingEngine();
+
 await isResolved();
 // Funnel has determined the correct route
 ```
@@ -46,6 +57,10 @@ await isResolved();
 `(target: RouteLocation | string) => Promise<boolean>` — Resolves when both the funnel is resolved AND the target page component has mounted. Equivalent to Nuxt's `page:finish` hook.
 
 ```typescript
+import { useRoutingEngine } from "@upmind-automation/headless";
+
+const { isMounted } = useRoutingEngine();
+
 await isMounted("basket");
 // Page has rendered and is ready for interaction
 ```
@@ -67,6 +82,9 @@ await isMounted("basket");
 | `hasTarget`      | `boolean` | Target route is set                    |
 
 ```typescript
+import { useRoutingEngine } from "@upmind-automation/headless";
+import { watch } from "vue";
+
 const { meta } = useRoutingEngine();
 
 watch(
@@ -96,15 +114,41 @@ watch(
 `(router: Router) => Router` — Initialize the routing engine with a Vue Router instance. Call once during app setup.
 
 ```typescript
-const router = createRouter({ ... });
+import { useRoutingEngine } from "@upmind-automation/headless";
+import { createRouter, createWebHistory } from "vue-router";
+
+const router = createRouter({ history: createWebHistory(), routes: [] });
 useRoutingEngine().init(router);
 ```
 
-### `register({ funnels, defaultFunnel, watchers })`
+### `register({ funnels, defaultFunnel, overlays, watchers })`
 
-Register funnel configurations and watchers with the engine.
+Register funnel configurations, the overlay registry and watchers with the engine.
 
 ```typescript
+import { useRoutingEngine } from "@upmind-automation/headless";
+import type { FunnelProps, FunnelWatcher } from "@upmind-automation/headless";
+
+// Funnel configs and watchers are app-owned — see `apps/cart/src/router/funnels/`.
+const cartFunnel = <FunnelProps>{
+  id: "cart",
+  states: { basket: { meta: { next: "checkout" }, entry: ["setBasket"] } }
+};
+const domainsFunnel = <FunnelProps>{
+  id: "domains",
+  states: { domains: { meta: { prev: "basket" } } }
+};
+const sessionLogoutWatcher: FunnelWatcher = {
+  id: "session-logout",
+  handler: () => () => {}
+};
+const basketEmptyWatcher: FunnelWatcher = {
+  id: "basket-empty",
+  handler: () => () => {}
+};
+
+const { register } = useRoutingEngine();
+
 register({
   defaultFunnel: "cart",
   funnels: { cart: cartFunnel, domains: domainsFunnel },
@@ -112,13 +156,18 @@ register({
 });
 ```
 
-`register()` runs after brand, system and session have resolved, so `defaultFunnel` may be derived from brand config rather than hardcoded. This is the single place a brand's starting funnel is chosen — do not re-derive it from inside a funnel state.
+`register()` runs after brand, system and session have resolved, so `defaultFunnel` may be derived from brand config rather than hardcoded. This is the single place a brand's starting funnel is chosen — do not re-derive it from inside a funnel state. Watchers are registered **once, engine-wide** here, not per funnel; the engine passes them into whichever funnel is active.
 
 ### `guard(route)`
 
 `(route: RouteLocation) => Promise<RouteLocation>` — Run the funnel guard pipeline for a route. Used in router guards.
 
 ```typescript
+import { useRoutingEngine } from "@upmind-automation/headless";
+import { createRouter, createWebHistory } from "vue-router";
+
+const router = createRouter({ history: createWebHistory(), routes: [] });
+
 router.beforeEach(async to => {
   return useRoutingEngine().guard(to);
 });
@@ -129,7 +178,11 @@ router.beforeEach(async to => {
 `(funnel: string, route: RouteLocation, event?: any) => Promise<void>` — Switch to a different funnel.
 
 ```typescript
-await switchFunnel("domains", currentRoute);
+import { useRoutingEngine } from "@upmind-automation/headless";
+
+const { switchFunnel, router } = useRoutingEngine();
+
+await switchFunnel("domains", router.currentRoute.value);
 ```
 
 `useRouting` calls this automatically when a route carries `?funnel=`, before guarding the route. It is ignored when the id is unregistered or already active.
@@ -151,6 +204,10 @@ The engine holds `currentFunnel` across navigations, so the switch persists with
 `(target: string | FunnelTarget, data?: any) => Promise<void>` — Navigate to a target route through the funnel pipeline.
 
 ```typescript
+import { useRoutingEngine } from "@upmind-automation/headless";
+
+const { navigate } = useRoutingEngine();
+
 // By route name
 navigate({ name: "basket", params: { bid: "abc-123" } });
 
@@ -163,7 +220,10 @@ navigate({ name: "checkout" }, { skipValidation: true });
 `(event?: any) => Promise<void>` — Navigate to the next route as defined by the funnel's `meta.next`.
 
 ```typescript
+import { useRoutingEngine } from "@upmind-automation/headless";
+
 // In a page component
+const { navigateNext } = useRoutingEngine();
 const onContinue = () => navigateNext();
 ```
 
@@ -172,7 +232,10 @@ const onContinue = () => navigateNext();
 `(event?: any) => Promise<void>` — Navigate to the previous route as defined by the funnel's `meta.prev`.
 
 ```typescript
+import { useRoutingEngine } from "@upmind-automation/headless";
+
 // In a page component
+const { navigateBack } = useRoutingEngine();
 const onBack = () => navigateBack();
 ```
 
@@ -183,8 +246,13 @@ const onBack = () => navigateBack();
 `(name?: string) => void` — Signal that a page component has mounted. Called by `RouteView` on `@vue:mounted`.
 
 ```typescript
+import { useRoutingEngine } from "@upmind-automation/headless";
+import type { RouteLocation } from "vue-router";
+
+const { mount } = useRoutingEngine();
+
 // In RouteView
-function doPageFinish(el: Element, route: RouteLocation) {
+export function doPageFinish(el: Element, route: RouteLocation) {
   mount(route.name?.toString());
 }
 ```
@@ -194,6 +262,12 @@ function doPageFinish(el: Element, route: RouteLocation) {
 `(callback: () => void) => () => void` — Register a callback for navigation start. Returns unsubscribe function.
 
 ```typescript
+import { useRoutingEngine } from "@upmind-automation/headless";
+import { useShell } from "@upmind-automation/client-vue";
+import { onUnmounted } from "vue";
+
+const { onBeforeLeave } = useRoutingEngine();
+
 const unsubscribe = onBeforeLeave(() => {
   useShell().reset();
 });
@@ -206,6 +280,10 @@ onUnmounted(unsubscribe);
 `(callback: () => void) => () => void` — Register a callback for when a page mounts. Returns unsubscribe function.
 
 ```typescript
+import { useRoutingEngine } from "@upmind-automation/headless";
+
+const { onAfterEnter } = useRoutingEngine();
+
 onAfterEnter(() => {
   window.scrollTo(0, 0);
 });
@@ -216,6 +294,12 @@ onAfterEnter(() => {
 `(callback: () => void) => () => void` — Register a callback for when route starts resolving. Returns unsubscribe function.
 
 ```typescript
+import { useRoutingEngine } from "@upmind-automation/headless";
+
+declare function showLoadingIndicator(): void;
+
+const { onResolving } = useRoutingEngine();
+
 onResolving(() => {
   showLoadingIndicator();
 });
@@ -226,6 +310,13 @@ onResolving(() => {
 `(callback: () => void) => () => void` — Register a callback for when route finishes resolving. Returns unsubscribe function.
 
 ```typescript
+import { useRoutingEngine } from "@upmind-automation/headless";
+
+declare function hideLoadingIndicator(): void;
+declare function trackPageView(): void;
+
+const { onResolved } = useRoutingEngine();
+
 onResolved(() => {
   hideLoadingIndicator();
   trackPageView();
@@ -239,9 +330,20 @@ onResolved(() => {
 ```typescript
 // router/index.ts
 import { useRoutingEngine } from "@upmind-automation/headless";
-import { createRouter } from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
+import type { FunnelProps, FunnelWatcher } from "@upmind-automation/headless";
 
-const router = createRouter({ ... });
+// App-owned — see `apps/cart/src/router/funnels/`.
+const cartFunnel = <FunnelProps>{
+  id: "cart",
+  states: { basket: { meta: { next: "checkout" } } }
+};
+const sessionLogoutWatcher: FunnelWatcher = {
+  id: "session-logout",
+  handler: () => () => {}
+};
+
+const router = createRouter({ history: createWebHistory(), routes: [] });
 const { init, register, guard } = useRoutingEngine();
 
 init(router);
@@ -251,7 +353,7 @@ register({
   watchers: [sessionLogoutWatcher]
 });
 
-router.beforeEach(async (to) => guard(to));
+router.beforeEach(async to => guard(to));
 
 export default router;
 ```

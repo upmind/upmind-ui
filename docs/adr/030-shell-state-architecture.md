@@ -82,57 +82,84 @@ Replace the four singleton composables with a single **XState `shell.machine.ts`
 
 ### Shape
 
-```typescript
+```ts
+import { assign, createMachine, interpret } from '@upmind-automation/headless'
+import { useActor } from '@xstate/vue'
+import { merge } from 'lodash-es'
+import { computed } from 'vue'
+import type { Router } from 'vue-router'
+
+// The shell enums and defaults live in `client-vue`, and this machine was
+// deferred (see Implementation Notes) — both are declared, not imported.
+declare const LAYOUT_VARIANTS: { DEFAULT: string; TWO_COLUMN_LTR: string }
+declare const HEADER_BACKGROUND: { LTR: string }
+declare const FOOTER_LAYOUT: { FLAT: string }
+declare const FOOTER_BACKGROUND: { LTR: string }
+
+type ShellContext = {
+  layout: { variant: string }
+  header: Record<string, unknown>
+  footer: Record<string, unknown>
+  section: Record<string, unknown>
+}
+type ShellEvent =
+  | { type: 'APPLY'; data: Partial<ShellContext> }
+  | { type: 'RESET' }
+
+declare const defaultShellContext: ShellContext
+
 // shell.machine.ts
-const shellMachine = createMachine({
-  id: "shell",
-  context: {
-    layout: { variant: LAYOUT_VARIANTS.DEFAULT },
-    header: defaultHeaderContext,
-    footer: defaultFooterContext,
-    section: defaultSectionContext
-  },
+const shellMachine = createMachine<ShellContext, ShellEvent>({
+  id: 'shell',
+  context: defaultShellContext,
   on: {
     APPLY: {
-      actions: assign((ctx, e) => merge({}, defaultShellContext, e.data))
+      actions: assign((_context, event) =>
+        event.type === 'APPLY'
+          ? merge({}, defaultShellContext, event.data)
+          : defaultShellContext
+      )
     },
     RESET: {
-      actions: assign(defaultShellContext)
+      actions: assign(() => defaultShellContext)
     }
   }
-});
+})
+
+const shellService = interpret(shellMachine)
 
 // useShell.ts
 export function useShell() {
-  const { state, send } = useActor(shellService);
+  const { send, state } = useActor(shellService)
   return {
     layout: computed(() => state.value.context.layout),
     header: computed(() => state.value.context.header),
     footer: computed(() => state.value.context.footer),
     section: computed(() => state.value.context.section),
-    apply: (data: Partial<ShellContext>) => send({ type: "APPLY", data }),
-    reset: () => send({ type: "RESET" })
-  };
+    apply: (data: Partial<ShellContext>) => send({ type: 'APPLY', data }),
+    reset: () => send({ type: 'RESET' })
+  }
 }
 
 // Route-level wiring (packages/headless/src/modules/routing/useRouting.ts)
+declare const router: Router
 router.afterEach(to => {
-  const shellService = getShellService();
   shellService.send({
-    type: "APPLY",
-    data: to.meta.shell ?? to.meta.template ?? defaultShellContext
-  });
-});
+    type: 'APPLY',
+    data: (to.meta.shell ?? to.meta.template ?? defaultShellContext) as Partial<ShellContext>
+  })
+})
 
 // Page declares shell (replaces 42 imperative callers)
+declare function definePageMeta(meta: Record<string, unknown>): void
 definePageMeta({
-  name: ROUTE.BASKET,
+  name: 'basket',
   shell: {
     layout: { variant: LAYOUT_VARIANTS.TWO_COLUMN_LTR },
-    header: { background: HEADER_BACKGROUND.LTR, border: "none", items: "end" },
+    header: { background: HEADER_BACKGROUND.LTR, border: 'none', items: 'end' },
     footer: { layout: FOOTER_LAYOUT.FLAT, background: FOOTER_BACKGROUND.LTR }
   }
-});
+})
 ```
 
 Layout consumers (`Layout.vue`, `Root.vue`, `Main.vue`, `UpmHeader`, `UpmFooter`, `UpmSection`) read from `useShell()` instead of the deprecated composables.
@@ -194,15 +221,23 @@ The full XState machine approach described above was **deferred** in favor of a 
 
 Instead of the full `shell.machine.ts`, we implemented a **shell component tracking mechanism** (`useShell`) that works with the existing singleton stores:
 
-```typescript
+```ts
+// packages/client-vue/src/components/shell/types.ts
+export enum SHELL {
+  HEADER = 'header',
+  FOOTER = 'footer',
+  LAYOUT = 'layout'
+}
+export type Shell = `${SHELL}`
+
 // packages/client-vue/src/components/shell/useShell.ts
-const configured = new Set<Shell>();
+const configured = new Set<Shell>()
 
 export const useShell = () => ({
   reset: () => configured.clear(),
   mark: (component: Shell) => configured.add(component),
   has: (component: Shell) => configured.has(component)
-});
+})
 ```
 
 **How it works:**

@@ -6,7 +6,7 @@ All notable changes to the `client-email` module are documented here. Format fol
 
 ### Added
 
-- **`useClientEmailManager`** — a second composable in this module: the per-email form editor, backed by the shared data-manager machine. Open an existing address with `.withId(id)`, or start a new one with `.as('self').fresh()`. Each `.fresh()` call mints an isolated instance, so two concurrent drafts never share a model.
+- **`useClientEmailManager`** — a second composable in this module: the per-email form editor, backed by the shared data-manager machine. Open an existing address with `.withId(id)`, or start a new one with `.fresh()`. Each `.fresh()` call mints an isolated instance, so two concurrent drafts never share a model.
   - 7 actions — `clear`, `destroy`, `input`, `isReady`, `onDone`, `stop`, `update`.
   - 9 context members — `context`, `description`, `errors`, `id`, `model`, `schema`, `title`, `uischema`, `validationErrors`.
   - 8 flat meta flags — `hasErrors`, `isAvailable`, `isComplete`, `isDirty`, `isLoading`, `isNew`, `isProcessing`, `isValid`.
@@ -65,7 +65,7 @@ Ten request/response pairs captured against a live environment back the document
 
 ### Notes
 
-- Both composables act on the calling client's own collection only. `staff` and `guest` are compile-time errors in both scope matrices — there is no capability here for one party to reach another party's addresses.
+- Both composables act on the calling client's own collection only. Both scope matrices pin `staff` and `guest` to `null as never`, so `.as(ScopeActorTypes.STAFF).for(...)` is a compile-time error while the bare `.as(ScopeActorTypes.STAFF)` type-checks and is refused at runtime — either way there is no capability here for one party to reach another party's addresses.
 - Saving an existing address always resets its verified flag, and `canDelete` / `isDefault` are informational client-side — see [gotchas.md](./gotchas.md).
 
 ### Not captured
@@ -81,9 +81,16 @@ Ten request/response pairs captured against a live environment back the document
 **Breaking change:** the editor's `useMeta()` returns one computed per flag instead of a single `meta` object.
 
 ```ts
-// Before
-const { meta } = manager.useMeta();
-if (meta.value.isValid) await save();
+import { useClientEmailManager } from "@upmind-automation/headless";
+
+declare function save(): Promise<void>;
+
+const manager = useClientEmailManager().withId(
+  "825d96e7-63ed-0913-46c4-174825283406"
+);
+
+// Before: `const { meta } = manager.useMeta(); if (meta.value.isValid) …`
+// `useMeta()` returns no `meta` object now, so that shape no longer compiles.
 
 // After
 const { isValid } = manager.useMeta();
@@ -95,11 +102,13 @@ Flags available: `hasErrors`, `isAvailable`, `isComplete`, `isDirty`, `isLoading
 ### Renaming the editor's type
 
 ```ts
-// Before
-import type { UseClientEmail } from "@upmind-automation/headless";
+// Before: `import type { UseClientEmail } from "@upmind-automation/headless";`
+// That name is gone, so the import no longer resolves.
 
 // After
 import type { UseClientEmailManager } from "@upmind-automation/headless";
+
+declare const manager: UseClientEmailManager;
 ```
 
 ### Raising your own feedback
@@ -107,6 +116,16 @@ import type { UseClientEmailManager } from "@upmind-automation/headless";
 **Breaking change:** the module no longer raises toasts or notifications. Render feedback from the captured state.
 
 ```ts
+import { ScopeActorTypes, useClientEmails } from "@upmind-automation/headless";
+
+// Your own feedback seams — the module raises none.
+declare function notifyFailure(message?: string): void;
+declare function notifySuccess(): void;
+
+const emails = useClientEmails().as(ScopeActorTypes.SELF);
+const { remove } = emails.useActions();
+const id = "825d96e7-63ed-0913-46c4-174825283406";
+
 // Before — the module announced success and failure itself
 await remove(id);
 
@@ -126,14 +145,23 @@ For the editor, `useActions().onDone()` resolves once a save has completed, and 
 **Breaking change:** there is no `add()` on the collection.
 
 ```ts
-// Before
-await emails.useActions().add({ email });
+import {
+  ScopeActorTypes,
+  useClientEmailManager,
+  useClientEmails
+} from "@upmind-automation/headless";
+
+const emails = useClientEmails().as(ScopeActorTypes.SELF);
+const email = "me@example.com";
+
+// Before: `await emails.useActions().add({ email });`
+// The collection carries no `add` any more.
 
 // After — find-or-create, no form
 await emails.useActions().ensure({ email });
 
 // After — through the validated form
-const draft = useClientEmailManager().as("self").fresh();
+const draft = useClientEmailManager().fresh();
 await draft.useActions().isReady();
 await draft.useActions().update({ email });
 ```
@@ -141,8 +169,14 @@ await draft.useActions().update({ email });
 ### Obtaining the form definition
 
 ```ts
-// Before
-import { useSchema, useUischema } from "@upmind-automation/headless";
+import { useClientEmailManager } from "@upmind-automation/headless";
+
+const manager = useClientEmailManager().withId(
+  "825d96e7-63ed-0913-46c4-174825283406"
+);
+
+// Before: `import { useSchema, useUischema } from "@upmind-automation/headless";`
+// Neither is on the barrel now.
 
 // After
 const { schema, uischema } = manager.useContext();
@@ -153,17 +187,21 @@ const { schema, uischema } = manager.useContext();
 **Breaking change:** `filters.query(value)` is gone — it sent a search term the platform silently ignored.
 
 ```ts
-// Before — a no-op search
-await emails.useActions().filters.query("nathan");
+import { ScopeActorTypes, useClientEmails } from "@upmind-automation/headless";
+
+const emails = useClientEmails().as(ScopeActorTypes.SELF);
+
+// Before: `await emails.useActions().filters.query("nathan");`
+// `filters` is gone — that call is now a compile error, not a silent no-op.
 
 // After — a real substring filter that re-queries the server
-await emails.useActions().filterBy({ email: { like: "nathan" } });
+emails.useActions().filterBy({ email: { like: "nathan" } });
 
 // Verified / bounced / default are the other three declared filters
-await emails.useActions().filterBy({ verified: { eq: false } });
+emails.useActions().filterBy({ verified: { eq: false } });
 
 // Clear every active filter
-await emails.useActions().filterBy({});
+emails.useActions().filterBy({});
 ```
 
 The declared columns and operators are on `useContext().schemas.query.schema` — see [usage.md](./usage.md#the-collections-query-schema--paste-ready).
@@ -173,9 +211,17 @@ The declared columns and operators are on `useContext().schemas.query.schema` �
 **New:** there was no sort action before this change.
 
 ```ts
-await emails.useActions().sortBy([{ field: "email", dir: "asc" }]);
+import {
+  ScopeActorTypes,
+  SortDirection,
+  useClientEmails
+} from "@upmind-automation/headless";
+
+const emails = useClientEmails().as(ScopeActorTypes.SELF);
+
+emails.useActions().sortBy([{ field: "email", dir: SortDirection.ASC }]);
 
 // Clearing the sort re-applies the collection's own default order,
 // rather than leaving the list unordered
-await emails.useActions().sortBy([]);
+emails.useActions().sortBy([]);
 ```

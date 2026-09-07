@@ -10,7 +10,20 @@ Edge cases, known issues, and things to watch out for.
 
 `usePaymentGateway`'s `render(container)` sends the `RENDER` event and then chains a further wait for the gateway to leave `rendering` — but that inner wait is never returned. The outer promise settles as soon as the gateway is confirmed ready to accept a draw request, not once the draw has actually completed.
 
-```typescript
+```ts
+import { inject } from "vue";
+import { usePaymentGateway } from "@upmind-automation/headless";
+import type { ComputedRef } from "vue";
+import type { UseActor } from "@upmind-automation/headless";
+
+// Your own DOM helpers — neither ships with the module.
+declare function attachFocusListener(el: Element | null): void;
+declare function waitUntil(predicate: () => boolean): Promise<void>;
+
+const actor = inject<ComputedRef<UseActor | undefined>>("gatewayActor");
+const gateway = usePaymentGateway(actor!);
+const container = document.querySelector<HTMLElement>("#gateway-form")!;
+
 // ❌ Wrong — assumes the form is mounted once render() resolves
 await gateway.render(container);
 attachFocusListener(container.querySelector("input")); // may run before anything exists in the DOM
@@ -29,7 +42,7 @@ attachFocusListener(container.querySelector("input"));
 
 Nicky is wired into the shared machine and proven at the unit layer (schema/model generation), but the fixture generator's live sweep of 37 currency/country combinations against the recording brand found **zero** where Nicky appears in the gateway list. It has no recorded integration fixtures and no captured `tokenize-begin`/`tokenize-end` shape — unlike the other five custom providers, which each have both.
 
-```typescript
+```ts
 // ❌ Wrong — assumes every named provider has integration-level fixture proof
 // Nicky's schema/model unit tests exist; its tokenize-begin/-end shapes do not.
 
@@ -45,7 +58,7 @@ Nicky is wired into the shared machine and proven at the unit layer (schema/mode
 
 `payment-gateways.fixtures.ts` calls `tokenize-begin` for real against the recording brand to capture each of the six unlockable providers' setup payloads. `tokenize-begin` is a `POST` that reserves a genuine `client_payment_details` record on the back end — there is no dry-run mode. Every run of the generator leaves six orphaned records behind on the recording client; nothing in the generator tears them down.
 
-```typescript
+```ts
 // ❌ Wrong — re-running the generator repeatedly "just to be safe"
 // pnpm fixtures:generate payment-gateways   (run 1: 6 orphans)
 // pnpm fixtures:generate payment-gateways   (run 2: 6 more orphans)
@@ -71,7 +84,11 @@ None of the five custom SDK/redirect providers with recorded fixtures are unlock
 | MercadoPago | COP      | CO      |
 | dLocal      | ARS      | AR      |
 
-```typescript
+```ts
+// The currency under test, and the assertion a fixture-backed spec would make.
+declare const currency: string;
+declare function expectStripeInGatewayList(): void;
+
 // ❌ Wrong — assuming a provider's fixtures are representative of every
 // currency/country combination it might ever be offered under
 if (currency === "USD") expectStripeInGatewayList(); // never recorded at this pair
@@ -88,15 +105,30 @@ if (currency === "USD") expectStripeInGatewayList(); // never recorded at this p
 
 Entering `available.valid` unconditionally sends a notification to a parent interpreter — it is not guarded by whether a parent exists. A gateway interpreted standalone (not spawned as a child of some other machine) reaches that internal state correctly, but the send has nowhere to land, and from the outside the gateway appears to hang rather than settle.
 
-```typescript
+```ts
+import { createMachine, interpret } from "xstate";
+import type { AnyEventObject, StateMachine } from "xstate";
+import type { GatewayContext } from "@upmind-automation/headless";
+
+// `gateway.machine.ts` is module-internal: inside the module you import its
+// default factory directly — it is not on the public barrel.
+declare function createGatewayMachine(
+  name: string
+): StateMachine<GatewayContext, any, AnyEventObject>;
+declare const ctx: GatewayContext;
+
 // ❌ Wrong — driving a gateway with no parent context
 const service = interpret(createGatewayMachine("stripe").withContext(ctx));
 service.start(); // reaches available.valid internally, but looks stalled
 
 // ✅ Correct — spawn it as a child, the way the capture module does
+const child = createGatewayMachine("stripe").withContext(ctx);
 const parent = interpret(
   createMachine({
-    /* … */ states: { hosting: { invoke: { id: "gateway", src: () => child } } }
+    predictableActionArguments: true,
+    id: "host",
+    initial: "hosting",
+    states: { hosting: { invoke: { id: "gateway", src: () => child } } }
   })
 ).start();
 ```

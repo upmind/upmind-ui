@@ -18,6 +18,9 @@ import {
   ClientCustomFieldContextTypes
 } from "@upmind-automation/headless";
 
+const clientId = "825d96e7-63ed-0913-46c4-174825283406";
+const fieldId = "0c9ff2c1-6d29-4f6d-9a54-1a9d5f0b3b21";
+
 // The collection — the calling client's own brand's definitions
 const fields = useClientCustomFields()
   .as(ScopeActorTypes.CLIENT)
@@ -29,7 +32,7 @@ const image = useClientCustomFieldImage()
   .for(ClientCustomFieldContextTypes.FIELD, fieldId);
 ```
 
-> **🧪 For Testers:** The only actor that resolves on either composable is `client`. `staff` and `guest` are compile-time errors, not runtime failures — there is nothing in this module for a staff member or a guest to act at all. `.as(ScopeActorTypes.SELF)` alone works and resolves to the calling client, but chaining `.for()` off it does not typecheck on either composable — name `.as(ScopeActorTypes.CLIENT)` to reach `.for()`. Both `.as()` and `.for()` take enum members only — a bare string is a type error, not a shortcut. See [gotchas.md](./gotchas.md#2-as-and-for-take-enum-members-never-string-literals) and [gotchas.md](./gotchas.md#3-asscopeactortypesself-compiles-and-works-but-the-result-carries-no-forfresh).
+> **🧪 For Testers:** The only actor that resolves on either composable is `client`. There is nothing in this module for a staff member or a guest to act at all, but the refusal is not all compile-time: `.as(ScopeActorTypes.STAFF).for(...)` fails to compile, while a bare `.as(ScopeActorTypes.STAFF)` type-checks and is refused at runtime. `.as(ScopeActorTypes.SELF)` alone works and resolves to the calling client, but chaining `.for()` off it does not typecheck on either composable — name `.as(ScopeActorTypes.CLIENT)` to reach `.for()`. Both `.as()` and `.for()` take enum members only — a bare string is a type error, not a shortcut. See [gotchas.md](./gotchas.md#2-as-and-for-take-enum-members-never-string-literals) and [gotchas.md](./gotchas.md#3-asscopeactortypesself-compiles-and-works-but-the-result-carries-no-forfresh).
 
 Both composables return the same four sub-composables:
 
@@ -46,17 +49,23 @@ Both composables return the same four sub-composables:
 
 ### Collection actions — `useActions()`
 
-#### `filters.by(mapping)`
+#### `narrowBy(mapping)`
 
 Applies (or clears, with no argument) a client-side partial-match filter over the already-loaded definitions.
 
-| Param     | Type                   | Required |
-| --------- | ---------------------- | -------- |
-| `mapping` | `Partial<CustomField>` | No       |
+| Param     | Type                                             | Required |
+| --------- | ------------------------------------------------ | -------- |
+| `mapping` | `Partial<CustomField> \| Partial<CustomField>[]` | No       |
 
 **Returns:** `void`.
 
-> **🧪 For Testers:** `filters.by({ typeId: 7 })` narrows `useContext().data` to matching definitions with **no** new network request — it never touches the query's own key.
+> **🧪 For Testers:** `narrowBy({ typeId: CustomFieldsTypes.NUMBER })` narrows `useContext().data` to matching definitions with **no** new network request — it never touches the query's own key. Do not reach for a `filters.by(...)` accessor; the actions layer has no `filters` object.
+
+#### `filterBy(intent)` / `sortBy(intent)` / `setCriteria(intent)`
+
+The server-side counterparts — each merges its own branch into the one query model and does re-issue the request. `filterBy({ name: { like } })` narrows on the wire, `sortBy` re-orders, and `setCriteria({ pagination: { limit } })` sets the page size.
+
+**Returns:** `void`.
 
 #### `flushImages(model)`
 
@@ -143,6 +152,15 @@ Removes this scoped instance from the registry.
 ## The per-field image editor — `useClientCustomFieldImage`
 
 ```ts
+import {
+  useClientCustomFieldImage,
+  ScopeActorTypes,
+  ClientCustomFieldContextTypes
+} from "@upmind-automation/headless";
+
+const fieldId = "0c9ff2c1-6d29-4f6d-9a54-1a9d5f0b3b21";
+const file = new File([], "avatar.png", { type: "image/png" });
+
 const image = useClientCustomFieldImage()
   .as(ScopeActorTypes.CLIENT)
   .for(ClientCustomFieldContextTypes.FIELD, fieldId);
@@ -251,13 +269,34 @@ import {
 Nothing in this module raises a toast, a notification, or any other message on your behalf. Every failure is captured where the consumer can read and render it:
 
 ```ts
+import {
+  useClientCustomFields,
+  useClientCustomFieldImage,
+  ScopeActorTypes,
+  ClientCustomFieldsContextTypes,
+  ClientCustomFieldContextTypes
+} from "@upmind-automation/headless";
+
+const fields = useClientCustomFields()
+  .as(ScopeActorTypes.CLIENT)
+  .for(
+    ClientCustomFieldsContextTypes.VALUES,
+    "825d96e7-63ed-0913-46c4-174825283406"
+  );
+const image = useClientCustomFieldImage()
+  .as(ScopeActorTypes.CLIENT)
+  .for(
+    ClientCustomFieldContextTypes.FIELD,
+    "0c9ff2c1-6d29-4f6d-9a54-1a9d5f0b3b21"
+  );
+
 // Collection
 const { error } = fields.useContext();
-const { hasError } = fields.useMeta();
+const { hasError: collectionHasError } = fields.useMeta();
 
 // Image editor
 const { errors } = image.useContext();
-const { hasError } = image.useMeta();
+const { hasError: imageHasError } = image.useMeta();
 ```
 
 ## Types

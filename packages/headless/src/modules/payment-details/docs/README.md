@@ -21,15 +21,18 @@ await paymentDetail.isReady();
 
 if (paymentDetail.meta.value.showStoredPaymentMethods) {
   paymentDetail.setStoredPaymentMethod(
-    paymentDetail.storedPaymentMethods.value[0].id
+    paymentDetail.storedPaymentMethods.value![0].id
   );
 }
 ```
 
 Storing a card with nothing outstanding — the standalone "add a card" flow — spawns its own machine instead:
 
-```typescript
+```ts
 import { usePaymentDetailAdd } from "@upmind-automation/headless";
+import type { ICurrency } from "@upmind-automation/types";
+
+declare const currency: ICurrency;
 
 const addCard = usePaymentDetailAdd({ currency });
 

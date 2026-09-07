@@ -38,19 +38,43 @@ This release makes `payment` usable as a **root** machine as well as an invoked 
 Pass `parentId` from your `invoke.data`, or nothing is handed back up:
 
 ```ts
-invoke: {
-  id: "payment",
-  src: paymentMachine,
-  data: ({ invoice, paymentDetail }: MyContext) => {
-    return {
-      orderId: invoice?.id,
-      paymentDetail,
-      parentId: "myMachineId" // required for PAYMENT and escalated errors
-    } as PaymentArgs;
-  },
-  onDone: { /* receives the payment attempt */ },
-  onError: { /* receives the escalated ResponseError */ }
-}
+import { createMachine } from "xstate";
+import { paymentMachine } from "@upmind-automation/headless";
+import type {
+  PaymentArgs,
+  PaymentDetailData
+} from "@upmind-automation/headless";
+import type { IInvoice } from "@upmind-automation/types";
+
+type MyContext = {
+  invoice?: IInvoice;
+  paymentDetail?: PaymentDetailData;
+};
+
+createMachine({
+  id: "myMachineId",
+  initial: "paying",
+  context: {} as MyContext,
+  states: {
+    paying: {
+      invoke: {
+        id: "payment",
+        src: paymentMachine,
+        data: ({ invoice, paymentDetail }: MyContext) => {
+          return {
+            orderId: invoice?.id,
+            paymentDetail,
+            parentId: "myMachineId" // required for PAYMENT and escalated errors
+          } as PaymentArgs;
+        },
+        onDone: { target: "paid" }, // receives the payment attempt
+        onError: { target: "failed" } // receives the escalated ResponseError
+      }
+    },
+    paid: {},
+    failed: {}
+  }
+});
 ```
 
 Existing parents (`basket`, `orders`) are already updated. Without `parentId` the machine runs correctly but stays silent: its `onDone` data still arrives, while the `PAYMENT` event and the escalated error do not.
@@ -60,11 +84,15 @@ Existing parents (`basket`, `orders`) are already updated. Without `parentId` th
 If you worked around either member being undefined — reading the order off your own state, or from `rawOrder` via a second path — both now work as documented and the workaround can go:
 
 ```ts
-// before: undefined, whatever you did
-context.value?.orderId;
+import type { UsePayment } from "@upmind-automation/headless";
 
-// now
-context.value.orderId;
+// from `const handle = usePayment({ orderId, paymentDetail })`
+declare const handle: UsePayment;
+const { context, payment } = handle;
+
+// Both reads were permanently undefined before; they carry data now. Neither
+// signature changed — `context` is still optional until the machine has one.
+context.value?.orderId;
 payment.value?.transaction_status;
 ```
 

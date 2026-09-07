@@ -23,7 +23,7 @@ We are **deprecating `client-vue`** and re-homing its organisms into smaller dom
 6. **Nuxt is the de-facto app platform going forward.** **`cart-nuxt` is the de-facto app; the existing Vite apps (`cart`, `velia`, `hosting`) are *deprecated, not migrated*** — velia/hosting variation is re-homed as cart-nuxt config/layers (Q3). Every surviving app targets Nuxt, moving to **SSR/SSG** for speed and SEO. (cart-nuxt is SPA today; SSR is the direction — greenfield, not a migration. **Enabling SSR is a separate workstream from this package cut** — see §10.)
 7. **Brand is always resolved from the path/domain**; the BE returns the brand's settings bundle **with its id** on every request.
 
-This ADR is grounded in the module-foundation docs (`workshop-bundle/02-module-foundations/*`) and the headless reference (`docs/@upmind-automation/headless/*`) — the canonical domain taxonomy — not invented nomenclature.
+This ADR is grounded in the module-foundation docs (`<agent-runner>/workshop-bundle/02-module-foundations/*`) and the headless reference (`docs/published-docs/developers/reference/headless/*`) — the canonical domain taxonomy — not invented nomenclature.
 
 ---
 
@@ -114,6 +114,25 @@ Each package self-describes its contribution through one uniform contract:
 
 ```ts
 // packages/<pkg>/src/feature.ts — default export, identical signature everywhere
+import type { Router } from 'vue-router'
+
+// The contract this ADR proposes. `foundation` owns `defineFeature` and the
+// empty typed registries; the entries below live in the contributing package.
+type FeatureContext = {
+  addRenderers: (renderers: Record<string, unknown>) => void
+  addRoutes: (routes: unknown[]) => void
+  registerFlows: (register: (engine: Router) => void) => void
+}
+
+declare function defineFeature(feature: {
+  name: string
+  setup: (ctx: FeatureContext) => void
+}): unknown
+
+declare const domainRenderers: Record<string, unknown>
+declare const domainRoutes: unknown[]
+declare function useDomainFlows(): { register: (engine: Router) => void }
+
 export default defineFeature({
   name: "domain",
   setup(ctx) {
@@ -229,8 +248,8 @@ Detailed batches, agent ownership, and codemod specifics come from the **full im
 
 ## References
 
-- Module-foundation docs: `workshop-bundle/02-module-foundations/*`
-- Headless reference: `docs/@upmind-automation/headless/*` (`useOrder` = `useInvoice`, `useCheckoutFlows`, `useBasketFlows`, `useRoutingFlows`, …)
+- Module-foundation docs: `<agent-runner>/workshop-bundle/02-module-foundations/*`
+- Headless reference: `docs/published-docs/developers/reference/headless/*` (`useOrder` = `useInvoice`, `useCheckoutFlows`, `useBasketFlows`, `useRoutingFlows`, …)
 - ADR 001 (scope-based composables) — a separate `headless`-layer initiative; **implemented in `@next-legacy` (`modules/scope/`)**. Does not gate the *package cut*, but its registry's per-request lifetime **IS the SSR fix** (§10 Axis 2), so it **gates enabling SSR**.
 - ADR 004 (monorepo structure), ADR 007 (headless architecture), ADR 012 (multi-theme architecture), ADR 017/018 (funnel navigation)
 - **ADR 022 (UI library split — `ui-cart`/`ui-checkout`) — *superseded by this ADR.*** 022 split along a UI-component-library axis; 023 supersedes it with the domain-axis package cut. ADR 021 (testing pyramid) governs the test strategy the Migration leans on.

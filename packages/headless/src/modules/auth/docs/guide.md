@@ -54,13 +54,6 @@ import { useSession } from "@upmind-automation/headless";
     // current form state (login, register, 2FA).
     resolve(formData.value);
   }
-
-  return {
-    formData,
-    handleSubmit,
-    meta,
-  }
-}
 </script>
 ```
 

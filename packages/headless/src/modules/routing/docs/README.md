@@ -7,7 +7,6 @@ The routing module manages complex, context-sensitive customer journeys (funnels
 ```typescript
 import { useRoutingEngine } from "@upmind-automation/client-vue";
 
-const { useMeta, useActions } = useRoutingEngine();
 const { meta, navigate } = useRoutingEngine();
 
 // Navigate to a named route

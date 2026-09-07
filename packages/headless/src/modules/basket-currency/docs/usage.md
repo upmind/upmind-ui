@@ -12,7 +12,9 @@ import { useBasketCurrency } from "@upmind-automation/headless";
 
 ## Full API
 
-```typescript
+```ts
+import { useBasketCurrency } from "@upmind-automation/headless";
+
 const {
   // --- state
   isReady, // () => Promise<boolean>
@@ -55,7 +57,11 @@ const {
 
 Waits for the machine to exit `subscribing`, `loading`, and `checking`. Resolves `true` when ready, `false` if the machine landed in `error`.
 
-```typescript
+```ts
+import { useBasketCurrency } from "@upmind-automation/headless";
+
+const { isReady } = useBasketCurrency();
+
 const ready = await isReady();
 if (!ready) console.warn("Currency actor failed to initialise");
 ```
@@ -64,9 +70,14 @@ if (!ready) console.warn("Currency actor failed to initialise");
 
 Sends a `SET` event to update the model and runs parse + validate. Does **not** call the API. Use this for live picker changes.
 
-```typescript
+```ts
+import { useBasketCurrency } from "@upmind-automation/headless";
+import { ISO_4217_CURRENCY_CODE } from "@upmind-automation/types";
+
+const { input } = useBasketCurrency();
+
 // User selects GBP in a dropdown — update the model without hitting the API
-const validated = await input({ code: "GBP" });
+const validated = await input({ code: ISO_4217_CURRENCY_CODE.GBP });
 console.log(validated.code); // "GBP"
 ```
 
@@ -74,9 +85,14 @@ console.log(validated.code); // "GBP"
 
 Sends `SET` with `update: true`, which PUTs `{ currency_code }` to `/orders/{basketId}/currency` and persists the code as the explicit pick in sessionStorage. Waits up to 60 s for the machine to reach `processed`, `complete`, or `error`.
 
-```typescript
+```ts
+import { useBasketCurrency } from "@upmind-automation/headless";
+import { ISO_4217_CURRENCY_CODE } from "@upmind-automation/types";
+
+const { update } = useBasketCurrency();
+
 // User clicks "Confirm currency" — persist to basket and sessionStorage
-await update({ code: "EUR" });
+await update({ code: ISO_4217_CURRENCY_CODE.EUR });
 // The basket now refreshes automatically (machine sends PREFRESH + REFRESH to parent)
 ```
 
@@ -84,7 +100,11 @@ await update({ code: "EUR" });
 
 Sends a `CLEAR` event, which clears the in-memory model and re-enters `checking`. The machine resolves again from the resolver chain (step 1 — server basket currency wins).
 
-```typescript
+```ts
+import { useBasketCurrency } from "@upmind-automation/headless";
+
+const { clear } = useBasketCurrency();
+
 clear(); // revert to auto-resolved currency
 ```
 
@@ -129,12 +149,14 @@ const { currencyCode, meta } = useBasketCurrency();
 
 <script setup lang="ts">
 import { useBasketCurrency } from "@upmind-automation/headless";
+import type { ISO_4217_CURRENCY_CODE } from "@upmind-automation/types";
 
 const { currencies, currencyCode, errors, meta, input, update } =
   useBasketCurrency();
 
 async function onSelect(e: Event) {
-  const code = (e.target as HTMLSelectElement).value;
+  // the DOM hands back a bare string — narrow it to the currency code type
+  const code = (e.target as HTMLSelectElement).value as ISO_4217_CURRENCY_CODE;
   await input({ code }); // validate without API call
 }
 
@@ -148,6 +170,7 @@ async function onConfirm() {
 
 ```typescript
 import { useBasketCurrency } from "@upmind-automation/headless";
+import { onMounted } from "vue";
 
 const { isReady, currencyCode } = useBasketCurrency();
 
@@ -161,25 +184,36 @@ onMounted(async () => {
 
 The cart funnel reads `?currency=` on route entry and calls `useBasket().setCurrency()`, which forwards a `SET { update: true }` event to the currency machine. See [`apps/cart/src/router/funnels/engine/actions.ts`](../../../../apps/cart/src/router/funnels/engine/actions.ts) (`setCurrency` action).
 
-```typescript
-// Funnel action — fires automatically on route entry
-setCurrency: ({ currentRoute }) => {
-  const { setCurrency } = useBasket();
-  const { currency } = useQueryParams(currentRoute);
-  if (currency) setCurrency(currency);
+```ts
+import { useBasket, useQueryParams } from "@upmind-automation/headless";
+import type { RouteLocation } from "vue-router";
+
+// Funnel action — fires automatically on route entry. In apps/cart the
+// parameter is the funnel's own `FunnelContext`, which carries `currentRoute`.
+const actions = {
+  setCurrency: ({ currentRoute }: { currentRoute: RouteLocation }) => {
+    const { setCurrency } = useBasket();
+    const { currency } = useQueryParams(currentRoute);
+    if (currency) setCurrency(currency);
+  }
 };
 ```
 
 ## Types
 
-```typescript
-import type { CurrencyModel, CurrencyContext } from "./basket-currency.types";
-import type { UseBasketCurrency } from "./useBasketCurrency";
+```ts
+import type { UseBasketCurrency } from "@upmind-automation/headless";
+import type { ICurrency } from "@upmind-automation/types";
 
+// `CurrencyModel` and `CurrencyContext` stay internal to the module — the
+// package does not re-export them. Restate the model shape, and derive the
+// context off the public return type.
 type CurrencyModel = {
   id?: ICurrency["id"];
   code?: ICurrency["code"];
 };
+
+type CurrencyContext = NonNullable<UseBasketCurrency["context"]["value"]>;
 ```
 
 `UseBasketCurrency` is exported as `ReturnType<typeof useBasketCurrency>` — use it to type props that accept the composable return.

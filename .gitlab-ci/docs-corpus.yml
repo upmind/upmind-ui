@@ -57,11 +57,9 @@
 .docs-corpus:
   stage: test
   interruptible: true
+  variables:
+    DOCS_CORPUS_CI_ENABLED: "true"
   rules:
-    # DISABLED until devops provisions the mintlify-docs bot PAT + CI submodule auth
-    # (FE-2752). These gates read the emitted tree, which now lives in the
-    # docs/published-docs submodule that CI cannot yet fetch. Re-enable by setting
-    # DOCS_CORPUS_CI_ENABLED=true once the PAT/deploy-key + submodule checkout land.
     - if: '$DOCS_CORPUS_CI_ENABLED != "true"'
       when: never
     - if: $SKIP_DOCS_CORPUS == "true"
@@ -312,8 +310,8 @@ corpus:post-merge-refresh:
     # so emit can write into it AND the staleness check can see file-level drift.
     GIT_SUBMODULE_STRATEGY: recursive
     GIT_SUBMODULE_DEPTH: 1
+    DOCS_CORPUS_CI_ENABLED: "true"
   rules:
-    # DISABLED until the mintlify-docs bot PAT lands (FE-2752) — see .docs-corpus.
     - if: '$DOCS_CORPUS_CI_ENABLED != "true"'
       when: never
     - if: $SKIP_DOCS_CORPUS == "true"

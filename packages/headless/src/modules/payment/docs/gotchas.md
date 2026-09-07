@@ -15,12 +15,32 @@ Unguarded, the success path froze in `processing` — the payment was never stor
 Both are now guarded by `PaymentArgs.parentId`:
 
 ```ts
-providePayment: choose([
+import { actions, createMachine, sendParent } from "xstate";
+import type { PaymentContext } from "@upmind-automation/headless";
+
+const { choose } = actions;
+
+createMachine(
   {
-    cond: ({ parentId }) => Boolean(parentId),
-    actions: sendParent(({ payment }) => ({ type: "PAYMENT", data: payment }))
+    id: "PaymentManager",
+    initial: "processing",
+    context: {} as PaymentContext,
+    states: { processing: { exit: "providePayment" } }
+  },
+  {
+    actions: {
+      providePayment: choose([
+        {
+          cond: ({ parentId }: PaymentContext) => Boolean(parentId),
+          actions: sendParent(({ payment }: PaymentContext) => ({
+            type: "PAYMENT",
+            data: payment
+          }))
+        }
+      ])
+    }
   }
-]);
+);
 ```
 
 **If you add a third hand-up, guard it the same way.** xstate v4 gives an action no supported way to ask whether it is running as an invoked child, so the parent declares itself — `order.machine` passes `parentId: "orderManager"`, `basket.machine` passes `basketManager`.
@@ -32,8 +52,16 @@ Proven both ways by [`payment.escalation.test.ts`](../__tests__/payment.escalati
 `useContext(stateLike, prop)` already reaches into `context` before applying `prop`. Passing `"context"` therefore asks for `state.context.context`, which does not exist — the ref reads `undefined` forever, and every consumer binding to it gets nothing.
 
 ```ts
+import { useContext } from "@upmind-automation/headless";
+import type { PaymentContext } from "@upmind-automation/headless";
+import type { Ref } from "vue";
+import type { AnyState } from "xstate";
+
+// the machine's own state ref, exactly as `usePayment` holds it
+declare const state: Ref<AnyState>;
+
 // WRONG — permanently undefined
-const context = useContext<PaymentContext>(state, "context");
+const contextDoubled = useContext<PaymentContext>(state, "context");
 
 // RIGHT
 const context = useContext<PaymentContext>(state);
@@ -42,8 +70,21 @@ const context = useContext<PaymentContext>(state);
 The same call also needs a **state**, not a ref. `contextValue(someComputedRef, "payment")` returns a plain `undefined` rather than a ref, so `payment.value` throws:
 
 ```ts
+import { contextValue, useContext } from "@upmind-automation/headless";
+import type { PaymentContext } from "@upmind-automation/headless";
+import type { Ref } from "vue";
+import type { AnyState } from "xstate";
+
+// the machine's own state ref, exactly as `usePayment` holds it
+declare const state: Ref<AnyState>;
+
+const context = useContext<PaymentContext>(state);
+
 // WRONG — not a ref at all
-const payment = contextValue<PaymentContext["payment"]>(context, "payment");
+const paymentPlainValue = contextValue<PaymentContext["payment"]>(
+  context,
+  "payment"
+);
 
 // RIGHT
 const payment = useContext<PaymentContext["payment"]>(state, "payment");

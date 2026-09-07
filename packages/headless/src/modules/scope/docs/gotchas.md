@@ -14,14 +14,18 @@ scoped modules, a few bite consumers.
 `guest` / `client` / `staff`. Branching on `SELF` inside a module means the module is
 re-deciding who the actor is — the exact thing the architecture centralises.
 
-```typescript
+```ts
+import { ScopeActorTypes, type ScopeConfig } from "@upmind-automation/headless";
+
+declare const config: ScopeConfig;
+
 // ❌ Wrong — a SELF branch inside a module factory or services file
 if (config.actor === ScopeActorTypes.SELF) {
   /* ... */
 }
 
 // ✅ Correct — you already have a concrete actor
-const actor = config.actor; // "guest" | "client" | "staff"
+const actor = config.actor; // "guest" | "client" | "user" (staff)
 ```
 
 The `scope-based/no-self-branch` ESLint rule reports SELF branch positions. A consumer's
@@ -40,9 +44,12 @@ computeds you create there are _not_ disposed when the component that first call
 composable unmounts. That is deliberate (it lets one instance be shared and survive
 remounts), but it means teardown is your job.
 
-```typescript
+```ts
+import { onUnmounted } from "vue";
+import { useClientEmailManager } from "@upmind-automation/headless";
+
 // ❌ Wrong — non-singleton instance, no teardown → orphaned watchers, memory leak
-const draft = useClientEmailManager().as("self").fresh();
+const draft = useClientEmailManager().fresh();
 // ...component unmounts, watchers keep running forever...
 
 // ✅ Correct — evict on unmount for non-singletons
@@ -64,10 +71,12 @@ assert `size()` drops back and no watcher fires afterward.
 `fresh:N` suffix, so **every** fresh call produces a different key and a different
 instance.
 
-```typescript
+```ts
+import { useClientEmailManager } from "@upmind-automation/headless";
+
 // Two fresh calls are TWO instances, never the same one
-const a = useClientEmailManager().as("self").fresh(); // key ...:fresh:1
-const b = useClientEmailManager().as("self").fresh(); // key ...:fresh:2  (a !== b)
+const a = useClientEmailManager().fresh(); // key ...:fresh:1
+const b = useClientEmailManager().fresh(); // key ...:fresh:2  (a !== b)
 ```
 
 This exists so a **remounting** consumer cannot adopt a previous mount's fresh instance
@@ -86,20 +95,22 @@ in the registry under distinct keys.
 into the key as `id:<value>`, so — unlike `.fresh()` — the SAME id always resolves to the
 SAME cached instance.
 
-```typescript
+```ts
+import { useClientEmailManager } from "@upmind-automation/headless";
+
 // Same id, same instance — one cached read of record '42'
-const a = useSingleRecord().withId("42");
-const b = useSingleRecord().withId("42");
+const a = useClientEmailManager().withId("42");
+const b = useClientEmailManager().withId("42");
 // a === b
 
 // Different id, different instance
-const c = useSingleRecord().withId("43");
+const c = useClientEmailManager().withId("43");
 // c !== a
 
 // .fresh() still means "never cacheable" — that guarantee is unrelated to .withId()
-const d = useSingleRecord().as("self").fresh();
-const e = useSingleRecord().as("self").fresh();
-// d !== e, even for the same actor
+const d = useClientEmailManager().fresh();
+const e = useClientEmailManager().fresh();
+// d !== e, even though neither names an id
 ```
 
 `.withId()` is offered at every builder position — before `.as()`, or after it — and a
@@ -121,18 +132,31 @@ mutate a pending config and reset the memoised instance to `null`. **Any other**
 access triggers `finalize()` — which resolves the actor, computes the key, and
 builds/looks-up the instance.
 
-```typescript
+```ts
+import {
+  AuthContextTypes,
+  ScopeActorTypes,
+  useAuth,
+  useClientEmailManager
+} from "@upmind-automation/headless";
+
+declare const id: string;
+declare const recordId: string;
+
 // ❌ Wrong — reads before the chain is complete; finalises on the partial config
-const b = useAuth().as("staff");
-b.for("client", id); // too late: reading b.something above would already have finalised
+const b = useAuth().as(ScopeActorTypes.STAFF);
+b.for(AuthContextTypes.CLIENT, id); // too late: reading b.something above would
+// already have finalised
 
 // ✅ Correct — complete the chain in one expression, THEN read
-const auth = useAuth().as("staff").for("client", id);
+const auth = useAuth()
+  .as(ScopeActorTypes.STAFF)
+  .for(AuthContextTypes.CLIENT, id);
 const { model } = auth.useContext(); // first read finalises here
 
 // ✅ .withId() defers finalisation the same way, at any builder position
-const single = useSingleRecord().withId(recordId); // no .as() — resolves to self later
-const { data } = single.useContext(); // first read finalises here
+const single = useClientEmailManager().withId(recordId); // no .as() — self later
+const { model: record } = single.useContext(); // first read finalises here
 ```
 
 **Test scenario:** Spy on the factory; assert it is not called until the first instance
@@ -148,7 +172,9 @@ declaration**, so importing it directly is safe even inside an import cycle. Pul
 through an aggregator barrel can place the binding in its temporal dead zone and crash at
 load with `X is not a function`.
 
-```typescript
+<!-- corpus-example: skip — the contrast IS two in-package relative specifiers for the same binding; both are unresolvable outside packages/headless/src/modules, and no pair of importable specifiers reproduces "module file vs aggregator barrel" -->
+
+```ts
 // ✅ Safe — direct import of the hoisted declaration
 import { createScopedComposable } from "../scope/scope.builder";
 
@@ -171,11 +197,30 @@ the type parameter (`TMatrix`) and the third argument (the value carried onto
 `.scopeMatrix`). Drop `as const` and the context types widen to `string`, collapsing the
 per-actor `.for()` gating.
 
-```typescript
+```ts
+import {
+  createScopedComposable,
+  ScopeActorTypes
+} from "@upmind-automation/headless";
+
+enum MyContextTypes {
+  CLIENT = "client"
+}
+
+type UseMyModule = { useMeta: () => { isReady: boolean } };
+
 const MY_MATRIX = {
-  /* ... */
+  [ScopeActorTypes.SELF]: null as never,
+  [ScopeActorTypes.STAFF]: MyContextTypes.CLIENT,
+  [ScopeActorTypes.CLIENT]: null as never,
+  [ScopeActorTypes.GUEST]: null as never
 } as const; // ✅ literal types preserved
-createScopedComposable<T, typeof MY_MATRIX>(name, f, MY_MATRIX); // type AND value
+
+createScopedComposable<UseMyModule, typeof MY_MATRIX>(
+  "my-module",
+  () => ({ useMeta: () => ({ isReady: true }) }),
+  MY_MATRIX // type AND value
+);
 ```
 
 ---
@@ -214,8 +259,13 @@ start armless.
 
 ### Destroy non-singleton instances when done
 
-```typescript
-onUnmounted(() => instance.useActions().destroy()); // → remove(scopeKey), stops the scope
+```ts
+import { onUnmounted } from "vue";
+import { useClientEmailManager } from "@upmind-automation/headless";
+
+const instance = useClientEmailManager().fresh();
+
+onUnmounted(() => instance.useActions().destroy()); // → remove(scopeKey), stops it
 ```
 
 ### DevTools is bootstrap-only

@@ -29,8 +29,15 @@ We needed a standardized utility library for consistency.
 
 ### ✅ DO: Use Lodash for Array/Object Operations
 
-```typescript
-import { map, filter, find, reduce, isEmpty, get } from 'lodash-es'
+```ts
+import { filter, find, get, isNil, map, omitBy } from 'lodash-es'
+
+type Item = { id: string; status: string }
+
+declare const items: Item[]
+declare const data: Record<string, unknown>
+declare const id: string
+declare const defaultValue: string
 
 // Array operations
 const ids = map(items, 'id')
@@ -44,17 +51,26 @@ const cleaned = omitBy(data, isNil)
 
 ### ❌ DON'T: Use Native Array Methods
 
-```typescript
-// WRONG - native methods not allowed
-const ids = items.map(item => item.id)
-const active = items.filter(item => item.status === 'active')
-const match = items.find(item => item.id === id)
+```ts
+type Item = { id: string; status: string }
+
+declare const items: Item[]
+declare const id: string
+
+// WRONG — native methods are not allowed
+export const ids = items.map(item => item.id)
+export const active = items.filter(item => item.status === 'active')
+export const match = items.find(item => item.id === id)
 ```
 
 ### ✅ DO: Use Lodash Utilities
 
-```typescript
-import { debounce, throttle, cloneDeep } from 'lodash-es'
+```ts
+import { cloneDeep, debounce, throttle } from 'lodash-es'
+
+declare function search(term: string): void
+declare function onScroll(event: Event): void
+declare const original: Record<string, unknown>
 
 const debouncedSearch = debounce(search, 300)
 const throttledScroll = throttle(onScroll, 100)
@@ -65,13 +81,19 @@ const copy = cloneDeep(original)
 
 Do NOT use `lodash.get` for XState state/context access:
 
-```typescript
-// WRONG
-const value = get(state, 'context.basket')
+```ts
+import { useContext } from '@upmind-automation/headless'
+import type { UseActor } from '@upmind-automation/headless'
+import type { IBasket } from '@upmind-automation/types'
+import { get } from 'lodash-es'
 
-// CORRECT - use Upmind utilities
-import { useContext, contextValue } from '@/utils'
-const basket = useContext(state, 'basket')
+declare const state: UseActor['state']
+
+// WRONG
+export const wrong = get(state, 'context.basket')
+
+// CORRECT — use the Upmind utilities
+export const basket = useContext<IBasket>(state, 'basket')
 ```
 
 ---
@@ -80,12 +102,15 @@ const basket = useContext(state, 'basket')
 
 ### Tree-Shaking
 
-```typescript
+```ts
 // lodash-es supports ES modules and tree-shaking
-import { map, filter } from 'lodash-es'  // Only imports what's used
+import { filter, map } from 'lodash-es' // only what is used lands in the bundle
 
-// NOT lodash (CommonJS, no tree-shaking)
-import _ from 'lodash'  // Imports entire library
+// NOT lodash (CommonJS, no tree-shaking) — `import _ from 'lodash'` pulls the
+// whole library in. Shown as prose because the package is not a dependency here.
+const shaken = [filter, map]
+
+export const count = shaken.length
 ```
 
 ### Bundle Impact

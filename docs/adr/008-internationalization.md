@@ -199,38 +199,45 @@ JSON Forms uses AJV for validation, which returns error codes like `required`, `
 
 ### AJV Error Mapping
 
-```typescript
-// packages/headless/src/modules/form/validation.ts
-function translateAjvError(error: AjvError): string {
+```ts
+import { useI18n } from '@upmind-automation/headless'
+import type { ErrorObject } from 'ajv'
+
+// packages/headless/src/modules/system-form — AJV keyword → i18n key
+export function translateAjvError(error: ErrorObject): string {
   const { t } = useI18n()
+  const params = error.params as Record<string, string | number>
 
   switch (error.keyword) {
     case 'required':
       return t('validation.required')
     case 'format':
-      return t(`validation.format.${error.params.format}`)
+      return t(`validation.format.${params.format}`)
     case 'minLength':
-      return t('validation.minLength', { limit: error.params.limit })
+      return t('validation.minLength', { limit: params.limit })
     case 'type':
-      return t(`validation.type.${error.params.type}`)
-    // ... etc
+      return t(`validation.type.${params.type}`)
+    default:
+      return t(`validation.${error.keyword}`)
   }
 }
 ```
 
 ### JSON Forms Integration
 
-```typescript
+```ts
+import Ajv from 'ajv'
+import addFormats from 'ajv-formats'
+import type { ErrorObject } from 'ajv'
+
+declare function translateAjvError(error: ErrorObject): string
+
 // Custom error translator for JSON Forms
 const ajv = new Ajv({ allErrors: true })
 addFormats(ajv)
 
-const translateErrors = (errors: ErrorObject[]) => {
-  return errors.map(error => ({
-    ...error,
-    message: translateAjvError(error),
-  }))
-}
+export const translateErrors = (errors: ErrorObject[]) =>
+  errors.map(error => ({ ...error, message: translateAjvError(error) }))
 ```
 
 > [!IMPORTANT]
@@ -257,7 +264,7 @@ Translations can be overridden at multiple levels, with a clear precedence order
                           ▼ overrides
 ┌─────────────────────────────────────────────────────────┐
 │     3. @upmind-automation/i18n                          │
-│        packages/i18n/public/en.json                     │
+│        packages/i18n/public/locales/en/*.json           │
 │        Base translations (lowest priority)              │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -302,13 +309,15 @@ apps/cart/
 
 Merging at app initialization:
 
-```typescript
-// apps/cart/src/i18n/index.ts
-import baseMessages from '@upmind-automation/i18n/public/en.json'
-import overrides from './overrides/en.json'
+```ts
 import { merge } from 'lodash-es'
 
-const messages = merge({}, baseMessages, overrides)
+// Message packs are globbed from `packages/i18n/public/locales/<locale>/*.json`
+// (there is no single-file `en.json` to import), then merged with the app's own.
+declare const baseMessages: Record<string, unknown>
+declare const overrides: Record<string, unknown>
+
+export const messages = merge({}, baseMessages, overrides)
 ```
 
 ### 3. Brand Meta Overrides (Backend API)
@@ -329,9 +338,15 @@ interface BrandMeta {
 
 Applied at runtime:
 
-```typescript
-// packages/headless/src/modules/brand/useI18nOverrides.ts
-function applyBrandOverrides(brandMeta: BrandMeta) {
+```ts
+import { useI18n } from '@upmind-automation/headless'
+
+type BrandMeta = { i18n: Record<string, Record<string, string>> }
+
+declare function expandDotNotation(flat: Record<string, string>): Record<string, unknown>
+
+// packages/headless/src/modules/brand — brand meta wins over every pack
+export function applyBrandOverrides(brandMeta: BrandMeta) {
   const { i18n } = brandMeta
   const { mergeLocaleMessage } = useI18n()
 
@@ -373,6 +388,13 @@ const { t } = useI18n()
 ### With Interpolation
 
 ```vue
+<script setup lang="ts">
+import { useI18n } from '@upmind-automation/headless'
+
+const { t } = useI18n()
+const user = { name: 'Ada' }
+</script>
+
 <template>
   <p>{{ t('text.welcome_user', { name: user.name }) }}</p>
 </template>
@@ -389,6 +411,13 @@ const { t } = useI18n()
 ### Pluralization
 
 ```vue
+<script setup lang="ts">
+import { useI18n } from '@upmind-automation/headless'
+
+const { t } = useI18n()
+const items = [{ id: '1' }, { id: '2' }]
+</script>
+
 <template>
   <p>{{ t('basket.item_count', { count: items.length }) }}</p>
 </template>
@@ -405,6 +434,12 @@ const { t } = useI18n()
 ### Markdown Support
 
 ```vue
+<script setup lang="ts">
+import { useI18n } from '@upmind-automation/headless'
+
+const { t } = useI18n()
+</script>
+
 <template>
   <div v-html="t('text.terms_notice')" />
 </template>
@@ -454,18 +489,24 @@ const { t } = useI18n()
 | **Development** | Source `en.json` loaded directly into headless — keys immediately available |
 | **Staging/Production** | Apps load from built i18n package — requires CI sync |
 
-In **development mode**, the English source translations are imported directly from `packages/i18n/public/en.json` into the headless package. This means:
+In **development mode**, the English source translations are globbed straight from `packages/i18n/public/locales/en/*.json` into the headless package. This means:
 
 - New translation keys are **immediately available** after saving
 - No build step required during development
 - Fast iteration on UI copy
 
-```typescript
-// packages/headless/src/i18n/index.ts (dev mode)
-import messages from '@upmind-automation/i18n/public/en.json'
+```ts
+// packages/headless/src/modules/system-localisation — dev-mode message source
+const modules = import.meta.glob<{ default: Record<string, unknown> }>(
+  '../../../i18n/public/locales/en/*.json',
+  { eager: true }
+)
 
-// Direct import for instant availability
-export const devMessages = messages
+// Eager glob, so a new key is available the moment the JSON is saved
+export const devMessages = Object.values(modules).reduce<Record<string, unknown>>(
+  (acc, mod) => ({ ...acc, ...mod.default }),
+  {}
+)
 ```
 
 For **staging/production**, the standard workflow applies:

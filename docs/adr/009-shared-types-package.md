@@ -29,18 +29,16 @@ Create a dedicated **@upmind-automation/types** package containing all shared Ty
 packages/types/
 ├── src/
 │   ├── index.ts           # Main export
-│   ├── api/               # API response types
-│   │   ├── basket.ts      # IBasket, IBasketProduct
-│   │   ├── client.ts      # IClient, IEmail, IAddress
-│   │   ├── product.ts     # IProduct, ICategory
+│   ├── models/            # API response types + wire enums
+│   │   ├── baskets.ts     # IBasket, IBasketProduct
+│   │   ├── clients.ts     # IClient, IEmail, IAddress
+│   │   ├── products.ts    # IProduct, ICategory
+│   │   ├── contexts.ts    # Contexts (ADMIN, CLIENT, GUEST, STAFF)
+│   │   ├── methods.ts     # HTTP Methods (get, post, …)
 │   │   └── ...
-│   ├── enums/             # Shared enumerations
-│   │   ├── contexts.ts    # Contexts (GUEST, CLIENT, STAFF)
-│   │   ├── methods.ts     # HTTP Methods (GET, POST, etc.)
-│   │   └── ...
-│   └── common/            # Utility types
-├── package.json
-└── vite.config.ts
+│   ├── data/              # Shared enumerations (AccessRoleTypes, …)
+│   └── store/             # Store-facing types
+└── package.json
 ```
 
 ---
@@ -49,58 +47,51 @@ packages/types/
 
 ### API Response Types
 
-```typescript
-// Prefixed with 'I' for interface
-export interface IBasket {
-  id: string
-  status: BasketStatus
-  products: IBasketProduct[]
-  currency: ICurrency
-  totals: IBasketTotals
-  // ...
-}
+```ts
+// Prefixed with 'I' for interface. Narrowed here with `Pick` — the shipped
+// interfaces carry the whole API payload, so a rename breaks this block.
+import type { IBasket, IClient, IProduct } from '@upmind-automation/types'
 
-export interface IClient {
-  id: string
-  name: string
-  emails: IEmail[]
-  addresses: IAddress[]
-  // ...
-}
+export type BasketEssentials = Pick<
+  IBasket,
+  'id' | 'status' | 'products' | 'currency'
+>
 
-export interface IProduct {
-  id: string
-  name: string
-  prices: IPrice[]
-  category: ICategory
-  // ...
-}
+export type ClientEssentials = Pick<
+  IClient,
+  'id' | 'fullname' | 'email' | 'addresses'
+>
+
+export type ProductEssentials = Pick<
+  IProduct,
+  'id' | 'name' | 'prices' | 'category'
+>
 ```
 
 ### Enumerations
 
-```typescript
+```ts
+// packages/types/src/models/contexts.ts · models/methods.ts · data/enums.ts
 export enum Contexts {
-  GUEST = 'guest',
-  CLIENT = 'client',
-  STAFF = 'staff',
   ADMIN = 'admin',
-  LEAD = 'lead',
+  CLIENT = 'client',
+  GUEST = 'guest',
+  STAFF = 'staff',
+  NO_CONTEXT = ''
 }
 
 export enum Methods {
-  GET = 'GET',
-  POST = 'POST',
-  PUT = 'PUT',
-  PATCH = 'PATCH',
-  DELETE = 'DELETE',
-  HEAD = 'HEAD',
+  GET = 'get',
+  POST = 'post',
+  PATCH = 'patch',
+  PUT = 'put',
+  DELETE = 'delete'
 }
 
 export enum AccessRoleTypes {
-  OWNER = 'owner',
-  ADMIN = 'admin',
-  MEMBER = 'member',
+  GUEST = 'guest',
+  CLIENT = 'client',
+  STAFF = 'user'
 }
 ```
 
@@ -110,24 +101,32 @@ export enum AccessRoleTypes {
 
 ### In Other Packages
 
-```typescript
-// packages/headless/src/modules/basket/types.ts
-import type { IBasket, IBasketProduct } from '@upmind-automation/types'
+```ts
+// packages/headless/src/modules/basket/basket.types.ts
+import type { IBasket } from '@upmind-automation/types'
+import type { ResponseError } from '@upmind-automation/headless'
 
 export interface BasketContext {
   basket: IBasket | null
-  errors: Record<string, any>
+  errors: ResponseError | null
 }
 ```
 
 ### In Services
 
-```typescript
-// packages/headless/src/modules/basket/services.ts
+```ts
+// packages/headless/src/modules/basket/basket.services.ts
+import { useQuery } from '@upmind-automation/headless'
 import type { IBasket } from '@upmind-automation/types'
 
-async function load(): Promise<IBasket> {
-  return get<IBasket>({ url: useUrl('orders/current'), ... })
+export async function load(): Promise<IBasket> {
+  const { get, useUrl } = useQuery()
+
+  return get<IBasket>({
+    queryKey: ['basket', 'current'],
+    url: useUrl('orders/current'),
+    withAccessToken: true
+  })
 }
 ```
 

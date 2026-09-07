@@ -91,10 +91,17 @@ stateDiagram-v2
 Two actions send to a parent, both guarded — but by a boolean flag, not a name:
 
 ```ts
-providePaymentDetails: pure(({ isInvoked, paymentDetail }) => {
-  if (!isInvoked) return [];
-  return [sendParent(() => ({ type: "PAYMENT_DETAILS", data: paymentDetail }))];
-});
+import { pure, sendParent } from "xstate";
+import type { PaymentDetailsContext } from "@upmind-automation/headless";
+
+const providePaymentDetails = pure(
+  ({ isInvoked, paymentDetail }: PaymentDetailsContext) => {
+    if (!isInvoked) return [];
+    return [
+      sendParent(() => ({ type: "PAYMENT_DETAILS", data: paymentDetail }))
+    ];
+  }
+);
 ```
 
 `isInvoked: true` is set by whoever spawns the machine (`basket.utils.ts`'s `spawnPaymentDetail`; `orders` does the same). This is the same "guard `sendParent` or it throws at a root" shape the sibling `payment` module documents under `parentId` — this module's version is a plain boolean rather than a named id, because nothing here needs to route a message to a _specific_ parent, only to know whether one exists.

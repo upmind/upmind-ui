@@ -25,26 +25,42 @@ Adopt **TanStack Query (Vue Query)** as the primary data fetching and caching la
 
 ### Core Composable
 
-```typescript
-// packages/headless/src/modules/query/useQuery.ts
-export const useQuery = () => {
-  return {
-    // Underlying fetch function (used by all methods)
-    request<T>({ url, withAccessToken, ... }): Promise<QueryResponse<T>>,
+```ts
+import { useQuery } from '@upmind-automation/headless'
 
-    // Reactive TanStack Query methods
-    query<T>({ url, queryKey, select, ... }),      // Single resource
-    list<T>({ url, queryKey, pagination, ... }),   // Paginated list
-    listInfinite<T>({ url, queryKey, ... }),       // Infinite scroll
-    mutate<T>(method, { url, data, ... }),         // Mutations
+// packages/headless/src/modules/query/useQuery.ts — the shipped surface
+const {
+  // the single point of contact with the network
+  request,
+  // reactive TanStack Query methods
+  query,
+  list,
+  listInfinite,
+  mutate,
+  // async convenience methods (non-reactive) — note `del`, not `delete`
+  get,
+  post,
+  put,
+  patch,
+  del,
+  head,
+  // URL builder
+  useUrl
+} = useQuery()
 
-    // Async convenience methods (non-reactive)
-    get<T>(...),
-    post<T>(...),
-    put<T>(...),
-    patch<T>(...),
-    delete<T>(...),
-  }
+export const surface = {
+  del,
+  get,
+  head,
+  list,
+  listInfinite,
+  mutate,
+  patch,
+  post,
+  put,
+  query,
+  request,
+  useUrl
 }
 ```
 
@@ -57,7 +73,7 @@ The `request` function is the **underlying fetch implementation** used by all qu
 3. Handles automatic token refresh on 401 errors
 4. Adds locale, currency, and basket context when requested
 
-```typescript
+```text
 // All methods ultimately call request()
 query()       → internally calls → request()
 list()        → internally calls → request()
@@ -74,68 +90,107 @@ post()        → internally calls → request()
 
 #### 1. Authentication Integration
 
-```typescript
-// Auto-inject session token
+```ts
+import { useQuery } from '@upmind-automation/headless'
+
+const { query, useUrl } = useQuery()
+
+// Auto-inject the session token
 query({
-  url: useUrl('/clients/123/emails'),
-  withAccessToken: true,  // Uses session token
+  queryKey: ['client', 'emails'],
+  url: useUrl('clients/123/emails'),
+  withAccessToken: true
 })
 
-// Or explicit token
+// Or an explicit token
 query({
-  url: useUrl('/orders/claim'),
-  withAccessToken: 'explicit-token-here',
+  queryKey: ['orders', 'claim'],
+  url: useUrl('orders/claim'),
+  withAccessToken: 'explicit-token-here'
 })
 ```
 
 #### 2. Automatic Token Refresh
 
-```typescript
-// On 401, automatically:
-// 1. Refresh the token
-// 2. Retry the request
-// 3. If refresh fails, trigger reauth
-return doFetch({ url, init }).catch(async error => {
-  if (canRetryAuthorization(url, error, { attempts, max: 1 })) {
-    return refreshToken().then(() => doFetch({ url, init }))
-  }
-  if (error.code === 401) {
-    useSession().reauth()
-  }
-  throw error
-})
+```ts
+import { canRetryAuthorization, getTokenFromStorage } from '@upmind-automation/headless'
+import type { DetailedError } from '@upmind-automation/headless'
+import { set } from 'lodash-es'
+
+declare function doFetch<T>(args: { url: URL; init: RequestInit }): Promise<T>
+declare function refreshToken(): Promise<unknown>
+
+// On 401: refresh the token, re-stamp the header, retry ONCE, else propagate.
+export async function request<T>(url: URL, init: RequestInit): Promise<T> {
+  let attempts = 0
+
+  return doFetch<T>({ url, init }).catch(async (error: DetailedError) => {
+    attempts++
+
+    if (canRetryAuthorization(url, error, { attempts, max: 1 })) {
+      return refreshToken().then(() => {
+        set(init, 'headers.Authorization', `Bearer ${getTokenFromStorage()?.access_token}`)
+        return doFetch<T>({ url, init })
+      })
+    }
+
+    throw error
+  })
+}
 ```
 
 #### 3. Currency and Basket Awareness
 
-```typescript
+```ts
+import { useQuery } from '@upmind-automation/headless'
+
+const { query, useUrl } = useQuery()
+
 query({
-  url: useUrl('/products'),
-  withCurrency: true,  // Auto-adds currency_code param
-  withBasket: true,    // Auto-adds basket_id param
+  queryKey: ['products'],
+  url: useUrl('products'),
+  withCurrency: true, // auto-adds the currency filter
+  withBasket: true // auto-adds the basket id
 })
 ```
 
 #### 4. Pagination Helpers
 
-```typescript
-const { data, pagination, meta, fetchNextPage, fetchPreviousPage } = list({
-  url: useUrl('/invoices'),
-  pagination: { limit: 20, offset: 0 },
+```ts
+import { useQuery } from '@upmind-automation/headless'
+
+const { list, useUrl } = useQuery()
+
+// The page window is criteria-driven, not an argument to `list()`.
+const { data, fetchNextPage, fetchPreviousPage, meta, pagination } = list({
+  queryKey: ['invoices'],
+  url: useUrl('invoices')
 })
 
-// Returns:
-// pagination: { limit, total, page, pages, from, to }
-// meta: { hasNextPage, hasPrevPage, hasPages }
+export const page = {
+  data, // ComputedRef<TData>
+  fetchNextPage,
+  fetchPreviousPage,
+  meta, // { hasNextPage, hasPrevPage, hasPages }
+  pagination // { limit, total, page, pages, from, to }
+}
 ```
 
 #### 5. Query Key Conventions
 
-```typescript
+```ts
+import type { QueryKey } from '@tanstack/vue-query'
+
+declare const basketId: string
+declare const filters: Record<string, unknown>
+declare const sort: string[]
+
 // Entity-based keys
-queryKey: ['client', 'emails']
-queryKey: ['basket', basketId, 'products']
-queryKey: ['invoices', { filters, sort }]
+export const keys: QueryKey[] = [
+  ['client', 'emails'],
+  ['basket', basketId, 'products'],
+  ['invoices', { filters, sort }]
+]
 ```
 
 ---
@@ -146,29 +201,41 @@ Queries support **guards** (async pre-conditions) and **enabled** (reactive cond
 
 ### Guard Pattern
 
-```typescript
-// Guard: async function that must resolve before query executes
+```ts
+import { NotAuthenticatedError, useQuery } from '@upmind-automation/headless'
+import type { ComputedRef } from 'vue'
+
+declare const meta: ComputedRef<{ isAuthenticated: boolean }>
+
+const { list, useUrl } = useQuery()
+
+// Guard: async function that must resolve before the query executes
 list({
-  url: useUrl('/client/emails'),
+  queryKey: ['client', 'emails'],
+  url: useUrl('client/emails'),
   guard: async () => {
-    // Wait for authentication
-    if (!meta.value.isAuthenticated) {
-      throw new NotAuthenticatedError()
-    }
+    if (!meta.value.isAuthenticated) throw new NotAuthenticatedError()
     return true
-  },
-  // ...
+  }
 })
 ```
 
 ### Enabled Pattern
 
-```typescript
-// Enabled: reactive condition that controls when query runs
+```ts
+import { useQuery } from '@upmind-automation/headless'
+import type { ComputedRef } from 'vue'
+
+declare const meta: ComputedRef<{ isAuthenticated: boolean }>
+declare const client: ComputedRef<{ id: string } | undefined>
+
+const { list, useUrl } = useQuery()
+
+// Enabled: reactive condition that controls when the query runs
 list({
-  url: useUrl(`/clients/${client.value?.id}/emails`),
-  enabled: () => meta.value.isAuthenticated && !!client.value?.id,
-  // Query won't run until enabled returns true
+  queryKey: ['client', 'emails', { client }],
+  url: useUrl(`clients/${client.value?.id}/emails`),
+  enabled: () => meta.value.isAuthenticated && !!client.value?.id
 })
 ```
 
@@ -187,14 +254,19 @@ The composable exposes **two types of methods** for different use cases:
 
 Used in **Vue composables** for reactive data binding:
 
-```typescript
+```ts
+import { useQuery } from '@upmind-automation/headless'
+
+const { query, useUrl } = useQuery()
+
 // Returns reactive refs, auto-refetches, cached
-const { data, isLoading, error, refetch } = query({
-  url: useUrl('/products'),
+const { data, error, isLoading, refetch } = query({
   queryKey: ['products'],
+  url: useUrl('products')
 })
 
 // data.value updates automatically
+export const reactive = { data, error, isLoading, refetch }
 ```
 
 **Characteristics:**
@@ -208,12 +280,17 @@ const { data, isLoading, error, refetch } = query({
 
 Used in **XState machine services** for one-shot async operations:
 
-```typescript
+```ts
+import { useQuery } from '@upmind-automation/headless'
+import type { IProduct } from '@upmind-automation/types'
+
+const { get, useUrl } = useQuery()
+
 // Returns a Promise, no reactivity
-const products = await get<IProduct[]>({
-  url: useUrl('/products'),
+export const products = await get<IProduct[]>({
   queryKey: ['products'],
-  withAccessToken: true,
+  url: useUrl('products'),
+  withAccessToken: true
 })
 ```
 
@@ -233,14 +310,20 @@ const products = await get<IProduct[]>({
 | Form submission | `post()`, `patch()` (async) |
 | Background sync in machine | `get()` (async) |
 
-```typescript
+```ts
+import { useQuery } from '@upmind-automation/headless'
+import type { IBasket } from '@upmind-automation/types'
+import type { AnyEventObject } from '@upmind-automation/headless'
+
 // Machine service example
-async function load(context: Context) {
-  // Use async method, not reactive
+export async function load(_context: unknown, _event: AnyEventObject) {
+  const { get, useUrl } = useQuery()
+
+  // Use the async method, not the reactive one
   return get<IBasket>({
-    url: useUrl('orders/current'),
     queryKey: ['basket', 'current'],
-    withAccessToken: true,
+    url: useUrl('orders/current'),
+    withAccessToken: true
   })
 }
 ```
@@ -251,21 +334,25 @@ async function load(context: Context) {
 
 TanStack Vue Query requires a **Vue reactivity scope**. Since `useQuery()` is often called **outside of component setup functions** (e.g., in XState services), we manually handle scope:
 
-```typescript
-function list<T>({ ... }) {
-  // Check if we're in an active Vue scope
+```ts
+import type { QueryKey } from '@tanstack/vue-query'
+import { useQuery as vueUseQuery } from '@tanstack/vue-query'
+import { effectScope, getCurrentScope } from 'vue'
+
+declare function fetchPage<T>(): Promise<T>
+
+export function list<T>({ queryKey }: { queryKey: QueryKey }) {
+  // Reuse the caller's scope when there is a live one; otherwise own a detached
+  // one, so a machine service outside setup() still gets working reactivity.
   const currentScope = getCurrentScope()
   const scope = currentScope?.active ? currentScope : effectScope(true)
 
-  // Run TanStack Query within the scope
-  const response = scope.run(() =>
+  return scope.run(() =>
     vueUseQuery({
       queryKey,
-      queryFn: async () => { ... },
+      queryFn: async () => fetchPage<T>()
     })
   )
-
-  return response
 }
 ```
 
@@ -301,13 +388,21 @@ function list<T>({ ... }) {
 
 ## Cache Invalidation Patterns
 
-```typescript
-import { invalidateQueryByKey } from '../query'
+```ts
+import { invalidateQueryByKey, useQuery } from '@upmind-automation/headless'
 
-// After mutation, invalidate related queries
-async function add(data: EmailModel) {
-  return post({ ... })
-    .then(invalidateQueryByKey(['client', 'emails'], { exact: false }))
+type EmailModel = { email: string | null }
+
+// After a mutation, invalidate the related queries
+export async function add(data: EmailModel) {
+  const { post, useUrl } = useQuery()
+
+  return post({
+    data,
+    mutationKey: ['client', 'emails', 'add'],
+    url: useUrl('client/emails'),
+    withAccessToken: true
+  }).then(invalidateQueryByKey(['client', 'emails'], { exact: false }))
 }
 ```
 
@@ -315,14 +410,16 @@ async function add(data: EmailModel) {
 
 ## URL Builder
 
-```typescript
+```ts
+import { useQuery } from '@upmind-automation/headless'
+
 const { useUrl } = useQuery()
 
 // Simple path
-useUrl('/clients/123/emails')
+useUrl('clients/123/emails')
 
 // With query params
-useUrl('/products', {
+useUrl('products', {
   with: ['category', 'images'],
   limit: 20
 })

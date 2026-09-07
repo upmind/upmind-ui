@@ -6,17 +6,25 @@ Edge cases and traps in the session-store module. **For:** developers integratin
 
 ## 1. `activeSession` is guaranteed — but only after init
 
-**Problem:** The store guarantees an active session (guest minted if nothing else), so `activeSession.value.access_token` is safe to read _without a null check_ — but only once `isAvailable` is true. Before init completes the store holds the sync default (guest actor, **no token yet**).
+**Problem:** The store guarantees an active session (guest minted if nothing else), so `activeSession.value` is safe to read _without a runtime null check_ — but only once `isAvailable` is true. Before init completes the store holds the sync default (guest actor, **no token yet**). The ref type stays `IToken | undefined`, so a post-init read asserts (`!`) rather than branches — the same idiom `account.services.ts` uses for `activeSessionId`.
 
 ```typescript
-// ⚠️ Runs before init → activeSession.value may be the tokenless default
+import { useSessionStore } from "@upmind-automation/headless";
+
+// Thin stand-in for whatever consumes the token.
+function makeApiCall(accessToken: string | undefined): void {
+  console.log(accessToken);
+}
+
 const { activeSession } = useSessionStore().useContext();
-makeApiCall(activeSession.value.access_token); // undefined if read too early
+
+// ⚠️ Runs before init → activeSession.value is the tokenless default
+makeApiCall(activeSession.value?.access_token); // undefined if read too early
 
 // ✅ Gate on readiness
 const { isReady } = useSessionStore().useActions();
 await isReady();
-makeApiCall(activeSession.value.access_token);
+makeApiCall(activeSession.value!.access_token);
 ```
 
 > **🧪 For Testers:** Read `activeSession` immediately on import → it is the default guest state with no token. After `initStore()` resolves → `activeSession.value.access_token` exists (a guest token was minted). (Spec: README "Guaranteed Active Session" / "Verify Initialization Completes".)
@@ -60,6 +68,9 @@ makeApiCall(activeSession.value.access_token);
 **Problem:** `remove(actor, id)` drops a session from in-memory state but **leaves the token cookie**. On the next boot or cookie re-read the session reappears — the cookie is what re-seeds that scope's session on boot, but the store (not the cookie) is what decides which sessions exist going forward. To end a session for good, use `logout(actor)`, which removes the cookie _and_ the state.
 
 ```typescript
+import { useSessionStore } from "@upmind-automation/headless";
+import { AccessRoleTypes } from "@upmind-automation/types";
+
 // ⚠️ Session comes back on reload — cookie still set
 useSessionStore().useActions().remove(AccessRoleTypes.CLIENT, "client-123");
 

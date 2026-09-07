@@ -11,18 +11,22 @@ Both act on the calling client's own addresses. Every capability below carries a
 
 ```ts
 import {
+  ScopeActorTypes,
   useClientEmails,
   useClientEmailManager
 } from "@upmind-automation/headless";
 
+const emailId = "825d96e7-63ed-0913-46c4-174825283406";
+
 // The collection — the calling client's own addresses
-const emails = useClientEmails().as("self");
+const emails = useClientEmails().as(ScopeActorTypes.SELF);
 
 // The editor, opened on one existing address
 const manager = useClientEmailManager().withId(emailId);
 
-// The editor, started on a brand-new address
-const draft = useClientEmailManager().as("self").fresh();
+// The editor, started on a brand-new address. An unnamed actor resolves to the
+// session's own, so `.fresh()` needs no `.as()`.
+const draft = useClientEmailManager().fresh();
 ```
 
 Both composables return the same four sub-composables:
@@ -34,7 +38,7 @@ Both composables return the same four sub-composables:
 | Meta      | `.useMeta()`      | four state flags               | eight state flags                |
 | Internals | `.useInternals()` | the raw list query             | the raw machine state and sender |
 
-> **🧪 For Testers:** Both composables support the client's own (`self`) scope only. `staff` and `guest` are compile-time errors, not runtime failures — there is no scope in this module for one party to read or edit another party's addresses.
+> **🧪 For Testers:** Both composables support the client's own (`self`) scope only. There is no scope in this module for one party to read or edit another party's addresses, but the refusal is not all compile-time: `.as(ScopeActorTypes.STAFF).for(...)` fails to compile, while a bare `.as(ScopeActorTypes.STAFF)` type-checks and is refused at runtime.
 
 ---
 
@@ -193,6 +197,9 @@ For debugging and tests. Not for production consumers.
 A form editor over one address. Open an existing address with `.withId(id)`; start a new one with `.fresh()`. Each call to `.fresh()` mints its own isolated instance, so two concurrent drafts never share a model.
 
 ```ts
+import { useClientEmailManager } from "@upmind-automation/headless";
+
+const emailId = "825d96e7-63ed-0913-46c4-174825283406";
 const manager = useClientEmailManager().withId(emailId);
 
 await manager.useActions().isReady();
@@ -556,6 +563,17 @@ A single `Control` over the query schema's own `sort` branch, published separate
 Nothing in this module raises a toast, a notification, or any other message on your behalf. Every failure is captured where you can read and render it:
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientEmailManager,
+  useClientEmails
+} from "@upmind-automation/headless";
+
+const emails = useClientEmails().as(ScopeActorTypes.SELF);
+const manager = useClientEmailManager().withId(
+  "825d96e7-63ed-0913-46c4-174825283406"
+);
+
 // Collection
 const { error } = emails.useContext();
 const { hasError } = emails.useMeta();

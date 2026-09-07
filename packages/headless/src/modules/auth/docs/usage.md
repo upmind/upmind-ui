@@ -4,12 +4,21 @@ API reference for `useAuth`, `useVerifyEmail`, and the exported register schemas
 
 ## Getting an instance
 
-```typescript
-import { useAuth } from "@upmind-automation/headless";
+```ts
+import {
+  AuthContextTypes,
+  ScopeActorTypes,
+  useAuth
+} from "@upmind-automation/headless";
 
-const clientAuth = useAuth().as("client"); // customer flows
-const staffAuth = useAuth().as("staff"); // admin login
-const impersonation = useAuth().as("staff").for("client", clientId); // staff acting as a client
+const clientId = "825d96e7-63ed-0913-46c4-174825283406";
+
+const clientAuth = useAuth().as(ScopeActorTypes.CLIENT); // customer flows
+const staffAuth = useAuth().as(ScopeActorTypes.STAFF); // admin login
+// staff acting as a client
+const impersonation = useAuth()
+  .as(ScopeActorTypes.STAFF)
+  .for(AuthContextTypes.CLIENT, clientId);
 ```
 
 Each instance returns four sub-composables: `useActions()`, `useContext()`, `useMeta()`, `useInternals()`.
@@ -18,11 +27,19 @@ Each instance returns four sub-composables: `useActions()`, `useContext()`, `use
 
 ### `start(flow?)` _(client)_ / `start()` _(staff)_
 
-Enter an auth flow. Clients can start `"login"` (default), `"register"`, or `"recover"`; staff only login.
+Enter an auth flow. Clients can start `AuthFlowTypes.LOGIN` (the default), `AuthFlowTypes.REGISTER`, or `AuthFlowTypes.RECOVER`; staff only login. The parameter is the **enum**, not a bare string — `start("register")` does not typecheck.
 
-```typescript
+```ts
+import {
+  AuthFlowTypes,
+  ScopeActorTypes,
+  useAuth
+} from "@upmind-automation/headless";
+
+const auth = useAuth().as(ScopeActorTypes.CLIENT);
+
 const { start } = auth.useActions();
-await start("register"); // resolves true once the flow's form is ready
+await start(AuthFlowTypes.REGISTER); // resolves true once the form is ready
 ```
 
 **Returns:** `Promise<boolean>` — `false` if the flow could not start (e.g. guarded off) within 60s.
@@ -38,7 +55,11 @@ Smart submit — routes to the right operation for the current state:
 | register flow | registers (`{ username, firstname, lastname, password, ... }`) |
 | recover flow  | requests a reset email (`{ username }`)                        |
 
-```typescript
+```ts
+import { ScopeActorTypes, useAuth } from "@upmind-automation/headless";
+
+const auth = useAuth().as(ScopeActorTypes.CLIENT);
+
 const ok = await auth.useActions().resolve({
   username: "jane@example.com",
   password: "s3cret-pass"
@@ -53,7 +74,11 @@ const ok = await auth.useActions().resolve({
 
 Update the form model. Triggers parse + schema validation; watch `isValid` / `validationErrors`.
 
-```typescript
+```ts
+import { ScopeActorTypes, useAuth } from "@upmind-automation/headless";
+
+const auth = useAuth().as(ScopeActorTypes.CLIENT);
+
 auth.useActions().set({ username: "jane@example.com" });
 ```
 
@@ -65,17 +90,32 @@ Cancel the current operation (sends `CANCEL`). From a 2FA challenge this restore
 
 Drive the two-step guest-customer registration (`POST clients/register/guest` → `guest_customer` grant). Gated by the machine's `canRegisterAsGuest` guard (brand config `GUEST_CHECKOUT_ENABLED`).
 
-```typescript
-const ok = await auth.useActions().registerAsGuest();
-// true  → guest-customer minted and authenticated
-// false → guard blocked it (machine stayed idle) or the grant failed
+```ts
+import { ScopeActorTypes, useAuth } from "@upmind-automation/headless";
+
+const auth = useAuth().as(ScopeActorTypes.CLIENT);
+
+// `useActions()` is typed as the UNION of the staff and client action sets, so
+// the client-only members need narrowing before they are reachable. This `in`
+// check is what the live Register.vue consumer does.
+const actions = auth.useActions();
+if ("registerAsGuest" in actions) {
+  const ok = await actions.registerAsGuest();
+  // true  → guest-customer minted and authenticated
+  // false → guard blocked it (machine stayed idle) or the grant failed
+  console.log(ok);
+}
 ```
 
 ### `isReady()`
 
 Wait until the machine finished its initial session check. Client instances settle in `idle`/`login`/`register`/`recover`/`authenticated`; staff in `idle`/`login`/`authenticated`.
 
-```typescript
+```ts
+import { ScopeActorTypes, useAuth } from "@upmind-automation/headless";
+
+const auth = useAuth().as(ScopeActorTypes.CLIENT);
+
 await auth.useActions().isReady();
 ```
 
@@ -83,7 +123,11 @@ await auth.useActions().isReady();
 
 `onDone` fires **only on success** (machine reaches the final `authenticated` state) with `{ token }`. `onError` fires at most once when the attempt settles in a failure state, with the context error. Register **both** for unattended flows — an `onDone`-only wait hangs forever on failure.
 
-```typescript
+```ts
+import { ScopeActorTypes, useAuth } from "@upmind-automation/headless";
+
+const auth = useAuth().as(ScopeActorTypes.CLIENT);
+
 const { onDone, onError } = auth.useActions();
 onDone(({ token }) => console.log("authenticated", token.actor_type));
 onError(error => console.warn("auth failed", error));
@@ -126,13 +170,23 @@ All flags are reactive computeds.
 
 ## Full login example (with 2FA branch)
 
-```typescript
-const auth = useAuth().as("client");
+```ts
+import {
+  AuthFlowTypes,
+  ScopeActorTypes,
+  useAuth
+} from "@upmind-automation/headless";
+
+declare const username: string;
+declare const password: string;
+declare const codeFromUser: string;
+
+const auth = useAuth().as(ScopeActorTypes.CLIENT);
 const actions = auth.useActions();
-const { is2faRequired, isAuthenticated } = auth.useMeta();
+const { is2faRequired } = auth.useMeta();
 const { errors } = auth.useContext();
 
-await actions.start("login");
+await actions.start(AuthFlowTypes.LOGIN);
 const first = await actions.resolve({ username, password });
 
 if (!first && is2faRequired.value) {
@@ -146,9 +200,16 @@ if (!first && is2faRequired.value) {
 
 ## Registration example
 
-```typescript
-const auth = useAuth().as("client");
-await auth.useActions().start("register"); // loads brand custom fields into the schema
+```ts
+import {
+  AuthFlowTypes,
+  ScopeActorTypes,
+  useAuth
+} from "@upmind-automation/headless";
+
+const auth = useAuth().as(ScopeActorTypes.CLIENT);
+// loads brand custom fields into the schema
+await auth.useActions().start(AuthFlowTypes.REGISTER);
 
 const ok = await auth.useActions().resolve({
   username: "jane@example.com", // used as both email and username
@@ -164,7 +225,7 @@ const ok = await auth.useActions().resolve({
 
 For the landing page of an emailed verification link (`?client_id=…&email_id=…&hash=…`):
 
-```typescript
+```ts
 import { useVerifyEmail } from "@upmind-automation/headless";
 
 useVerifyEmail().verifyFromLink();
@@ -179,11 +240,14 @@ Fire-and-forget: it never throws, and the redirect happens synchronously — suc
 
 The registration JSON schema + UI schema, optionally extended with custom fields. Exported for reuse (the `account` module's guest-upgrade form consumes them).
 
-```typescript
+```ts
 import {
   useRegisterSchema,
-  useRegisterUischema
+  useRegisterUischema,
+  type CustomField
 } from "@upmind-automation/headless";
+
+declare const customFields: CustomField[];
 
 const schema = useRegisterSchema(customFields);
 const uischema = useRegisterUischema(customFields);
