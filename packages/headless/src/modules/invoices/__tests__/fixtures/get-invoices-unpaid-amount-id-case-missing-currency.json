@@ -1,0 +1,60 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/invoices/unpaid_amount/85d26e96-783d-1652-de8a-314502e70439?case=missing-currency",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a374ef8439089415-LHR",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Mon, 07 Sep 2026 10:12:32 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=wBawX09LKXaOkMf%2BjjnNHF%2FPtw4XrLuaGWygeJZmc1n8V9wacPoNThfo0Q%2BIB8swhOpQZskwQyaxPBvqmIQmhXc0AWCl1QZwh2o0GaancgAD5HUcweZHXyQRh6x6boUouua%2FD56lcg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "61ff872c7f62d0d8b679922db07f1406fd24d760",
+        "type": 0,
+        "code": 422,
+        "message": "API request invalid!",
+        "data": {
+          "currency_id": [
+            "The currency id field is required when currency code is not present."
+          ],
+          "currency_code": [
+            "The currency code field is required when currency id is not present."
+          ]
+        }
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-07T10:12:32.156Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "invoices"
+  }
+}

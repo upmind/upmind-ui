@@ -1,0 +1,52 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/invoices/unpaid_amount/85d26e96-783d-1652-de8a-314502e70439?currency_id=3825d96e-763e-d091-3dc4-174825283406",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a374ef858c90b2e5-LHR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 07 Sep 2026 10:12:32 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=%2BYv0reLGwVStVrwsVaeQfuqiruylyg6S0fkotdHxdeUheqk4VTUM0sMyl7emNdAurHqrfFJs6ccP11ykawZQlnm5RVa6grZDe0AD4K4Wjqd8aoxE8ZHiH3hoR7rWFqgr3ubIJIewPg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "unpaid_amount": 72,
+        "unpaid_amount_formatted": "£72.00"
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-07T10:12:32.482Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "invoices"
+  }
+}

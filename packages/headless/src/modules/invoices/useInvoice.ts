@@ -1,118 +1,98 @@
-import { computed } from "vue";
-import { invalidateQueryByKey } from "../query";
-import { useActiveSession } from "../session-store";
-import service from "./invoices.service";
-import { isEmpty, gt, eq } from "lodash-es";
-import type { Invoice } from "./invoices.types";
-
+import { ref } from "vue";
+import { createScopedComposable } from "../scope";
+import createInvoicesServices from "./invoices.services";
+import { createInvoiceActions } from "./useInvoice.actions";
+import { createInvoiceContext } from "./useInvoice.context";
+import { createInvoiceInternals } from "./useInvoice.internals";
+import { createInvoiceMeta } from "./useInvoice.meta";
+import type { InvoiceScopeMatrix } from "./invoices.types";
+import type { Currency } from "../currency/currency.types";
+import type { ScopeConfig, ScopeKey } from "../scope";
+import type { ScopeActorTypes } from "../scope/scope.types";
+// -----------------------------------------------------------------------------
 /**
- * Composable function to manage the state and data for a single invoice.
- * Provides methods to load, access, and invalidate invoice data.
+ * @module invoices/useInvoice
+ * @description Scoped, query-backed read of ONE invoice: one TanStack item
+ * query per concrete `(actor, id)` scope, minted once at construction. Its
+ * sibling is `useInvoices`, registered under the SAME module name; the
+ * composable name and the scope key carry the differentiation.
  *
- * @param {Invoice["id"]} invoiceId - The ID of the invoice to manage.
- * @returns The {@link UseInvoice} object containing reactive state, computed properties, and methods
- *  for interacting with the invoice data.
+ * The invoice being read is a RECORD ID (`.withId(id)`), never a scope
+ * context: there is no actor-context cell to declare, so the matrix this
+ * passes as its `TMatrix` refuses every actor. That is not paperwork — the
+ * default `ActorContextMatrix` widens every context to `string`, so omitting
+ * the type argument would leave `.for("anything", id)` type-checking
+ * (`templates/SINGLE-READ.md`).
+ *
+ * @doctrine clause 1 (uniform four-layer default).
+ * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
+ * actor; the scope builder resolves SELF before this factory runs.
  */
-export const useInvoice = (invoiceId: Invoice["id"]) => {
-  // --- state
+function createInvoiceForScope(config: ScopeConfig, scopeKey: ScopeKey) {
+  const actorScope = config.actor as ScopeActorTypes;
 
-  const { isReady: ensureAuth } = useActiveSession().useActions();
-  const { isAuthenticated } = useActiveSession().useMeta();
+  /**
+   * ONE services instance for this scope. `config.context` goes in here and
+   * nowhere else, so every request this read issues resolves the same
+   * target client.
+   */
+  const service = createInvoicesServices(actorScope, config.context);
 
-  const query = service.loadInvoice({ invoiceId });
+  // Mint the item query ONCE per scope. `config.id` is the builder's own
+  // `.withId(id)`, already folded into the scope key.
+  const query = service.loadOne(config.id);
 
-  const meta = computed(() => ({
-    isAuthenticated: isAuthenticated.value,
-    isPaid:
-      !isEmpty(query.data?.value?.payments) &&
-      eq(query.data?.value?.summary.unpaidAmount, 0),
-    isFree:
-      isEmpty(query.data?.value?.payments) &&
-      eq(query.data?.value?.summary.unpaidAmount, 0),
-    isPartiallyPaid:
-      gt(query.data?.value?.summary.paidAmount, 0) &&
-      gt(query.data?.value?.summary.unpaidAmount, 0),
-    isPending:
-      isEmpty(query.data?.value?.payments) &&
-      gt(query.data?.value?.summary.unpaidAmount, 0),
-    isEmpty: isEmpty(query.data?.value),
-    hasError: !isEmpty(query?.error.value),
-    isFetching: query?.isFetching.value,
-    isLoading: query?.isLoading.value || !query?.isFetched.value,
-    isComplete: query?.isFetched.value,
-    isAvailable: isAuthenticated.value
-  }));
+  /**
+   * AC1's currency for the live unpaid-amount re-read — owned here as ONE
+   * reactive ref threaded into the mint below, so a currency change re-keys
+   * the SAME query rather than re-minting it.
+   */
+  const currencyId = ref<Currency["id"] | undefined>(undefined);
+  const unpaidAmountQuery = service.loadUnpaidAmount(config.id, currencyId);
 
-  async function isReady(): Promise<boolean> {
-    if (isAuthenticated.value)
-      return new Promise(resolve => {
-        const interval = setInterval(() => {
-          if (query?.isFetched.value) {
-            clearInterval(interval);
-            resolve(true);
-          }
-        }, 100);
-      });
-    return ensureAuth()
-      .then(ok => (ok ? (query?.refetch().then(() => true) ?? false) : false))
-      .catch(() => false);
-  }
-
-  // --- context
-
-  // --- methods
-
-  // ---------------------------------------------------------------------------
+  const actions = createInvoiceActions(
+    actorScope,
+    service,
+    query,
+    unpaidAmountQuery,
+    currencyId,
+    scopeKey
+  );
 
   return {
-    // --- state
+    // --- Sub-composables (no direct props — clause 1 four-layer return)
+    /** Sub-composable for single-read actions (lifecycle, AC1). */
+    useActions: () => actions,
 
-    /**
-     * Resolves when the client items are ready to be used.
-     * Returns true if ready, false if an error occurred.
-     * @returns {Promise<boolean>} A promise resolving to true if ready, false if error.
-     */
-    isReady,
+    /** Sub-composable for single-read context (the mapped invoice + unpaid amount). */
+    useContext: () =>
+      createInvoiceContext(actorScope, service, query, unpaidAmountQuery),
 
-    /**
-     * Meta-information about the invoice state.
-     * Contains loading status, error state, and data availability.
-     * @type {Object} Invoice meta information
-     * @property {boolean} isLoading - Indicates if the invoice is currently loading.
-     * @property {boolean} hasError - Indicates if there was an error during the query
-     * @property {boolean} isEmpty - Indicates if the invoice data is empty.
-     * @property {boolean} isAvailable - Indicates if the invoice is available.
-     */
-    meta,
+    /** Sub-composable for advanced debugging and internal access. */
+    useInternals: () => createInvoiceInternals(actorScope, query),
 
-    // --- context
-    /**
-     * The reactive data property containing the invoice details.
-     * This is populated by the query and updates automatically when the query state changes.
-     */
-    data: query.data,
-
-    /**
-     * The current error state of the query.
-     * This will be populated if the query fails to fetch data.
-     */
-    error: query?.error,
-
-    /**
-     * Refetch the invoice data from the server.
-     * Returns a promise that resolves when the refetch is complete.
-     */
-    refetch: query.refetch,
-
-    // --- methods
-
-    invalidate: invalidateQueryByKey([service.queryKey, { invoiceId }], {
-      exact: false
-    })
+    /** Sub-composable for single-read meta (state flags, `paymentState`). */
+    useMeta: () => createInvoiceMeta(actorScope, service, query)
   };
-};
-
+}
+// -----------------------------------------------------------------------------
 /**
- * The return type of the {@link useInvoice} composable.
+ * Scoped composable for one invoice, read in full.
+ *
+ * @example
+ * ```ts
+ * const invoice = useInvoice().withId(invoiceId)
+ * const { data } = invoice.useContext()
+ * await invoice.useActions().isReady()
+ *
+ * // client x client — retarget at an entitled client's invoice
+ * const subAccountInvoice = useInvoice().as('client').for('client', clientId).withId(invoiceId)
+ * ```
  */
+export const useInvoice = createScopedComposable<
+  ReturnType<typeof createInvoiceForScope>,
+  InvoiceScopeMatrix
+>("invoices", createInvoiceForScope);
+
+// Type export for consumers
 export type UseInvoice = ReturnType<typeof useInvoice>;

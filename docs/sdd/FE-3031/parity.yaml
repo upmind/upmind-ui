@@ -1,0 +1,183 @@
+# parity.yaml — FE-3031 · invoices module conversion (M1 → M3, variant: query)
+#
+# Machine-readable twin of design.md's Capability Parity Table.
+# Schema: .claude/plugins/.../templates/sdd/parity.yaml
+# Oracle: /Users/dom/Documents/Upmind/vue-app/src/store/modules/data/invoices/index.ts
+#         (cited below as `oracle:<line>`)
+#
+# Parity Scope declared in requirements.md:
+#   Actors:   [client, staff]
+#   Contexts: [self, client]
+# Cross-product = 4 cells. All 4 carry a disposition; undispositioned count = 0.
+
+cells:
+  - actor: client
+    context: self
+    disposition: Direct
+    legacy: "oracle:25-34 contextual->api/invoices; :227-238 list; :239-278 get/getWithParams; :288-302 updatePaymentDetails; :553-572 hasUnpaid; :574-593 getConsolidatableTotal; :621-633 getUnpaidConvertedAmount"
+    notes: "The reading client's own id resolves from activeUser through the shared resolveClientId seam. Serves AC1-AC11."
+
+  - actor: client
+    context: client
+    disposition: Direct
+    legacy: "oracle:558-563 and :581-587 (filter[client_id] on apiPath().contextual); :126-133 belongsToChildOfClient; :134-137 belongsToDelegate"
+    notes: "IN SCOPE per operator ruling 2026-09-01 'In - run both client cells'. Retarget is a DECLARED client_id filter column on the one useQuerySchema(), never a path change and never a hand-appended param - the client lane has no api/clients/{id}/invoices route. Row attribution (own/sub-account/delegated) is the second half of this cell, see row R02. Serves AC12-AC13."
+
+  - actor: staff
+    context: self
+    disposition: Dropped-with-issue-reference
+    legacy: "oracle:25-34 admin->api/admin/invoices; :279-542 admin-only writes (update, create, cancel, creditProducts, creditAmount, regenerateInvoice, recalculateInvoice)"
+    reason: "DEPRECATED BY OPERATOR RULING 2026-09-01, verbatim: 'this is client only, staff is being deprecated.' The platform is retiring the staff actor for this resource, so no capability is being dropped from a surface that will continue to exist - and per the ruling NO tracker issue is owed for a capability the platform is retiring. Recorded as an explicit dispositioned row rather than a silent omission so the deprecation is visible where a reviewer looks. Stated in code as INVOICES_SCOPE_MATRIX[STAFF] = null as never with the ruling in its docblock (design.md D6)."
+    signoff: "op:dom@upmind.com:2026-09-01"
+    notes: "No Linear issue - deprecation, not a parity gap. Corpus drift this creates is a Docs-stage item: docs/adr/001-scope-based-composables.md:249-255 and docs/reference/service-splitting-examples.md:36-64,:187 both still declare the staff arm."
+
+  - actor: staff
+    context: client
+    disposition: Dropped-with-issue-reference
+    legacy: "oracle:25-34 admin path; docs/adr/001-scope-based-composables.md:255 useInvoices().as('staff').for('client', clientId)"
+    reason: "Same operator ruling 2026-09-01 - staff is being deprecated for this resource. ADR-001:255 declares this cell by name and docs/reference/service-splitting-examples.md:43 declares its endpoint, so the drop is deliberate and receipted rather than overlooked. No tracker issue owed for a retiring platform capability."
+    signoff: "op:dom@upmind.com:2026-09-01"
+    notes: "No Linear issue - deprecation, not a parity gap. This was the FE-2824-shaped risk the Stage-0 audit raised; the operator resolved it as a deprecation."
+
+# ---------------------------------------------------------------------------
+# ARMS DETERMINATION (per-layer)
+#
+# Derived mechanically from the cells above, per clause 3 of the variance law
+# (.claude/rules/code-composables.companion.md:60-62): an .{actor}.ts arm exists
+# ONLY where an actor has members exclusive to it, or overriding the shared
+# implementation, measured against the shared factory.
+#
+# DERIVATION: after the staff deprecation the table has exactly ONE non-dropped
+# actor - `client`. With one resolving actor there is no second implementation to
+# diverge from and no member any actor holds exclusively, so no layer can earn an
+# arm. The client x self / client x client difference is a CONTEXT axis, not an
+# actor axis, and contexts are resolved inside the shared services factory by the
+# resolveClientId seam - variance-law clause 4 (.as('self') resolution owned by
+# the scope builder). Live receipt for exactly this shape:
+# client-email-history.services.ts:205-207 - "_scopeActor is unused today - with a
+# single resolving actor (client) in both matrices (D6), there is no per-actor
+# member to select."
+#
+# Per clause 2 (fresh modules start armless) NO .{actor}.ts file is scaffolded.
+# Every layer keeps its scopeActor parameter so a future arm needs no call-site
+# change, and every scopedX() switch ships with only its `default:` case.
+# ---------------------------------------------------------------------------
+arms:
+  services:
+    earned: none
+    earning_actors: []
+    reason: "One non-dropped actor (client). The per-context divergence is resolveClientId(scopeContext) inside the shared factory, not a per-actor member. Parity rows: client x self + client x client (both Direct, one actor)."
+  actions:
+    earned: none
+    earning_actors: []
+    reason: "No action is exclusive to, or overrides for, any actor - one actor remains. Parity rows: client x self + client x client."
+  context:
+    earned: none
+    earning_actors: []
+    reason: "No context-layer member is per-actor. Row attribution (R02) is per-ROW data mapped in the mappers layer, not a per-actor context member. Parity rows: client x client (R02)."
+  meta:
+    earned: none
+    earning_actors: []
+    reason: "No meta flag is exclusive to an actor. isSettleable (R02) is per-row, not per-actor. Parity rows: client x self + client x client."
+  schemas:
+    earned: none
+    earning_actors: []
+    reason: "ONE useQuerySchema() serves both cells - the client_id column is the same declared column whichever client fills it. No actor sees a different filter, sort or pagination vocabulary. Parity rows: client x self + client x client."
+
+# ---------------------------------------------------------------------------
+# CAPABILITY ROWS — the ten rows carried forward from the Research stage.
+# Each carries a disposition. Undispositioned row count = 0.
+# ---------------------------------------------------------------------------
+rows:
+  - id: R01
+    capability: "hasUnpaid - unpaid-existence count read"
+    legacy: "oracle:553-572 (limit:'count', filter[status.code]=unpaidStatuses, optional filter[client_id], storeData:false, returnData:false, returns response.total > 0)"
+    disposition: Direct
+    delivered_by: "AC10 - service loadUnpaidExistence() + meta.hasUnpaid, via the declared Unpaid-existence criteria preset"
+    notes: "Was named by NO original AC and excluded by no Out-of-Scope clause. Added as a requirement rather than dispositioned away - the JTBD's first noun is 'unpaid amount'."
+
+  - id: R02
+    capability: "Co-mingled list attribution - belongsToChildOfClient + belongsToDelegate"
+    legacy: "oracle:126-133 (client.parent_client_config.parent_client_id vs the reading client); :134-137 (delegate_related, gated child-first); consumed at invoiceRowItem.vue:322-341 and invoiceStatusMsg.vue:118-124 (canPay false for a delegated invoice)"
+    disposition: Direct
+    delivered_by: "AC13 - Invoice['attribution'] { isOwn, isChildOfClient, isDelegated, isSettleable } mapped from the invoice payload"
+    notes: "Was named by NO original AC and is correctness-bearing: without it a client is offered 'pay' on an invoice it may not settle. Shipping the client x client cell without this is the FE-2824 shape - right matrix entry, no capability. Needs NO dependency on FE-3036: both inputs are on the invoice payload (invoices.ts:63; clients.ts:74 -> :179)."
+
+  - id: R03
+    capability: "hasPendingPaymentInstructions - AWAITING_CLIENT gateway discrimination"
+    legacy: "oracle:93-101 (payment.pending && payment.gateway?.type === GatewayTypes.AWAITING_CLIENT), distinct from hasPendingPayments oracle:90-92"
+    disposition: Direct
+    delivered_by: "AC8 - Payment['isAwaitingClient'], requiring payments.gateway in the loadOne include set"
+    notes: "The oracle has TWO pending predicates; the original AC8 named one. Dropping the second collapses 'awaiting the client's bank transfer' into plain 'pending'. Also cross-checked against the BE-computed pending_payment_method (invoices.ts:80-86, requires with=last_payment_log) which is now requested."
+
+  - id: R04
+    capability: "unifiableCount(clientId) - per-client cached consolidatable count"
+    legacy: "oracle:37-43 (scope key $unifiable_count::${clientId}, reads state[scope].total)"
+    disposition: Absorbed-by
+    delivered_by: "AC2 - the Consolidatable criteria preset over loadList, whose total serves the notice and the on-demand CTA count"
+    notes: "Absorbed rather than dropped: the oracle's two count surfaces (unifiableCount :37-43 and getConsolidatableTotal :574-593) answer the same question with different caches. One declared criteria preset over the one list query serves both, and the query key partitions per resolved client - which is what unifiableCount's bespoke scope key was doing by hand. No capability lost."
+
+  - id: R05
+    capability: "getWithParams - the richer detail-read include set"
+    legacy: "oracle:250-278 (data, account.user, status, client, promotions, gateway, payment_details, payments.gateway, payments.payment_type, original_invoice, duplicate_invoice)"
+    disposition: Direct
+    delivered_by: "The loadOne include set named in design.md - the existing 17 relations are the FLOOR and may not shrink; category, payments.gateway, payments.payment_type, payment_details, gateway, client.parent_client_config, last_payment_log, address, address.country are added"
+    notes: "Four ACs depended on relations invoices.service.ts:22-38 did not request. Also fixes a live bug in passing: invoices.mappers.ts:21 maps raw.address but `address` was absent from the with= set, so the mapped address was always undefined (orders/order.services.ts:34-35 requests it; invoices never did)."
+
+  - id: R06
+    capability: "isCreditNote + getInvoiceCategoryName's is_consolidation-first label precedence"
+    legacy: "oracle:111-115 (category.slug in [CREDIT_NOTE, CREDIT_NOTE_FOR_REFUND]); :172-179 (if (invoice.is_consolidation) return CONSOLIDATION label, THEN category.slug)"
+    disposition: Direct
+    delivered_by: "AC7 - category.slug + credit_invoice_id declared filter columns; category.label mapped with the consolidation-first precedence"
+    notes: "The precedence rule IS the answer to 'so consolidation credit notes don't read as refunds'. Without it a consolidation credit note labels as a plain credit note."
+
+  - id: R07
+    capability: "The staff actor surface for this resource"
+    legacy: "oracle:25-34 (admin path); :279-542 (every admin-only write)"
+    disposition: Dropped-with-issue-reference
+    reason: "DEPRECATED BY OPERATOR RULING 2026-09-01, verbatim: 'this is client only, staff is being deprecated.' No tracker issue owed for a retiring platform capability. Mirrors the staff x self and staff x client cells above."
+    signoff: "op:dom@upmind.com:2026-09-01"
+    notes: "No Linear issue. Stated in code as INVOICES_SCOPE_MATRIX[STAFF] = null as never with the ruling in its docblock."
+
+  - id: R08
+    capability: "partial_amount_to_credit - the BARE numeric field (amount queued for credit)"
+    legacy: "invoices/docs/foundation.md:30 and :192 document it; oracle exposes it on the invoice payload"
+    disposition: Dropped-with-issue-reference
+    reason: "The bare field is ABSENT from packages/types - only partial_amount_to_credit_converted (packages/types/src/models/invoices.ts:75) and _formatted (:76) are declared; a grep for the bare name across packages/types/src returns zero. packages/types is a git SUBMODULE and outside this run's write lane, so adding it is not available to this run. AC5 IS STILL MET: its capability is 'a client can see how much is queued for credit', and the _converted (display-currency numeric) plus _formatted (locale string) variants deliver exactly that quantity - the bare field is the same amount in the invoice's own currency. This is a field-variant deferral, NOT a capability narrowing, which is why it is not a HALT: a HALT would be warranted only if no served variant carried the quantity."
+    signoff: "op:dom@upmind.com:2026-09-01"
+    tracker: "FE-3031-TYPES-PARTIAL-AMOUNT-TO-CREDIT (Linear issue to be filed against packages/types by the operator; the submodule change is outside this story's write lane)"
+    delivered_by: "AC5 - Invoice['consolidation'].amountToCreditConverted + .amountToCreditFormatted + .amountCredited"
+    notes: "Also flagged: foundation.md:192 documents a field the typed model lacks, so the module doc and packages/types disagree. Docs-stage item."
+
+  - id: R09
+    capability: "balance and its post-consolidation divergence from unpaid_amount"
+    legacy: "invoices/docs/foundation.md:27 - 'balance is the same as unpaid_amount for an in-flight invoice but reflects credit-note offsets after consolidation'"
+    disposition: Direct
+    delivered_by: "AC11 - summary.balance + summary.balanceFormatted, exposed DISTINCTLY from summary.unpaidAmount"
+    notes: "Was named by no original AC. AC1 (unpaid amount) meets AC5 (consolidation) here and the current VM (invoices.types.ts:32-43) maps neither balance nor the divergence - so a consolidated invoice's displayed remainder is wrong today. The module never silently picks one of the two numbers; both are exposed and the consumer chooses."
+
+  - id: R10
+    capability: "The category relation and category.slug semantics"
+    legacy: "packages/types/src/models/baskets.ts:31-32 (category: IBasketCategory); enum packages/types/src/models/invoices.ts:129-138"
+    disposition: Direct
+    delivered_by: "AC7 - the category relation added to BOTH include sets; category.slug as a declared `in` filter column; category.label with the consolidation-first precedence"
+    notes: "CONTRADICTED BY THE MODULE'S OWN DOC: foundation.md:28 lists slugs (renewal, upgrade, downgrade, addon) that do not exist in the enum, OMITS the four this story depends on (recurrent, credit_note, credit_note_for_refund, consolidation), and calls the field 'informational' when it is the entire credit-note mechanic. THE CODE STAGE TRUSTS packages/types/src/models/invoices.ts:129-138, NEVER the module doc. Doc correction is a Docs-stage item."
+
+# ---------------------------------------------------------------------------
+# JTBD CHECK — every Dropped-* disposition above, tested against the JTBD:
+# "serve every invoice-resource read/write the billing briefs need - unpaid
+#  amount, list, assigned method, consolidation fields, credit notes"
+#
+#   staff x self   Dropped -> the JTBD names the BILLING BRIEFS' needs; the
+#                  briefs (Pay-Now, Auto-Pay, Consolidation) are client-area
+#                  surfaces, and the operator is retiring the staff actor. No
+#                  JTBD noun requires a staff read. NOT contradicted.
+#   staff x client Dropped -> same. NOT contradicted.
+#   R07 staff      Dropped -> same. NOT contradicted.
+#   R08 bare field Dropped -> the JTBD names "consolidation fields"; the
+#                  quantity IS served, via its _converted and _formatted
+#                  variants. Only the bare-currency variant is deferred, and
+#                  packages/types is outside the write lane. NOT contradicted.
+#
+# JTBD-CONTRADICTED DROP COUNT: 0
+# ---------------------------------------------------------------------------
