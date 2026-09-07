@@ -1,7 +1,7 @@
 {
   "name": "@upmind-automation/labs",
   "private": true,
-  "version": "0.20.16",
+  "version": "0.20.17",
   "description": "Vue.js playground for the Upmind platform",
   "keywords": [
     "Upmind"
