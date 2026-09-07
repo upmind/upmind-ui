@@ -3,7 +3,6 @@ import { fakerEN_GB } from "@faker-js/faker";
 import { products } from "../../../support/constants/products";
 import { goToCheckout } from "../../../support/flows/checkout";
 import {
-  addAddressViaHeadless,
   addBillingAddressViaHeadless,
   addCompanyViaHeadless,
   getBasketAddressIdViaHeadless
@@ -30,9 +29,9 @@ newUser.describe("New User - Billing Details at checkout", () => {
     "New User add new address at checkout via address search",
     async ({ page, checkout }) => {
       await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
-      await checkout.addNewAddress.click();
-      await expect(checkout.billingDetails).toBeVisible();
-      await page.getByTestId("link-change").click();
+      // A client with no saved details is shown the entry form directly
+      // (CheckoutBilling.vue); the summary only arrives once a detail is saved.
+      await expect(checkout.billingCards).toBeVisible();
       await checkout.selectAddressFromSearch(
         "10 Downing St, Westminster, London SW1A 2AA, UK",
         "10 Downing Street, Downing Street, London SW1A 2AA, UK"
@@ -51,7 +50,6 @@ newUser.describe("New User - Billing Details at checkout", () => {
     "New User add new company details at checkout",
     async ({ page, checkout }) => {
       await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
-      await checkout.addNewAddress.click();
       await expect(checkout.billingCards).toBeVisible();
       await page.getByTestId("tab-business-details").click();
       await expect(page.getByTestId("form-manage")).toBeVisible({
@@ -120,7 +118,9 @@ newUser.describe("Existing Address - Billing Details at checkout", () => {
     "Existing Address - add new address at checkout",
     async ({ page, checkout, clientId }) => {
       await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
-      await addAddressViaHeadless(page, clientId, SEEDED_ADDRESS);
+      // The summary keys off the ORDER's billing model, not the client's
+      // address list, so commit the seeded address to the order as well.
+      await addBillingAddressViaHeadless(page, clientId, SEEDED_ADDRESS);
       await expect(checkout.billingDetails).toBeVisible();
       await page.getByTestId("link-change").click();
       await expect(checkout.billingCards).toBeVisible();
@@ -159,7 +159,7 @@ newUser.describe("Existing Address - Billing Details at checkout", () => {
     "Existing User add new company details at checkout",
     async ({ page, checkout, clientId }) => {
       await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
-      await addAddressViaHeadless(page, clientId, SEEDED_ADDRESS);
+      await addBillingAddressViaHeadless(page, clientId, SEEDED_ADDRESS);
       await expect(checkout.billingDetails).toBeVisible();
       await page.getByTestId("link-change").click();
       await expect(checkout.billingCards).toBeVisible();
@@ -246,18 +246,9 @@ newUser.describe("Existing Address - Billing Details at checkout", () => {
       // the dialog itself passes for an absent dialog and misses a regression
       // where saving dumps the user out of the flow.
       await expect(page.getByTestId("form-manage")).toBeHidden();
-      // The address option tile carries no data-test-value (presence-only); the
-      // edited street is carried in billing-summary-address's data-test-value.
-      await expect(
-        checkout.addressCard.getByRole("radio").first()
-      ).toBeVisible();
-      // Three CTAs carry this key — the mobile/inline one per tab and the
-      // desktop teleport — and the inactive ones stay in the DOM. Only one is
-      // ever on screen, so address that one.
-      await page
-        .getByTestId("button-continue")
-        .filter({ visible: true })
-        .click();
+      // Saving on the billing page commits billing and auto-advances to checkout
+      // (BillingForm.onFormResolve → Billing.vue navigateNext); the edited
+      // street is carried in billing-summary-address's data-test-value.
       await expect(checkout.billingSummaryAddress).toBeVisible();
       await expect(checkout.billingSummaryAddress).toHaveAttribute(
         "data-test-value",
@@ -330,19 +321,10 @@ newUser.describe("Existing Address - Billing Details at checkout", () => {
       expect(JSON.stringify(editedCompanyReq.postDataJSON())).toContain(
         newCompany
       );
-      // As with the address above: saving returns to the selection list inside
-      // the same dialog, so assert the edit FORM closed, not the dialog.
+      // As with the address above: saving on the billing page commits billing
+      // and auto-advances to checkout, so assert the edit FORM closed and read
+      // the edited name off billing-summary-company's data-test-value.
       await expect(page.getByTestId("form-manage")).toBeHidden();
-      // The company option tile carries no data-test-value (presence-only); the
-      // edited name is carried in billing-summary-company's data-test-value.
-      await expect(
-        page.getByTestId("option-tile-group").getByRole("radio").first()
-      ).toBeVisible();
-      // As above: only the on-screen CTA of the three carrying this key.
-      await page
-        .getByTestId("button-continue")
-        .filter({ visible: true })
-        .click();
       await expect(checkout.billingSummaryCompany).toBeVisible({
         timeout: 15000
       });

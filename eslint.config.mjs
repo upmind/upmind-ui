@@ -657,8 +657,8 @@ const noWorkspaceSubpathImportsRule = testLane => [
   {
     patterns: [
       {
-        regex: `^@upmind-automation/headless/(?!scenarios$|fixtures$|package\\.json$${testLane ? "|testing$" : ""})`,
-        message: `${PACKAGE_BOUNDARY_MESSAGE} headless publishes ".", "./scenarios", "./fixtures" and "./testing" — no subpaths below them ("./testing" is the test lanes' plus the one app-runtime seam block 8h names).`
+        regex: `^@upmind-automation/headless/(?!scenarios$|fixtures$|features$|package\\.json$${testLane ? "|testing$" : ""})`,
+        message: `${PACKAGE_BOUNDARY_MESSAGE} headless publishes ".", "./fixtures", "./features" and "./testing" — no subpaths below them ("./testing" is the test lanes' plus the one app-runtime seam block 8h names).`
       },
       {
         regex: "^@upmind-automation/scenario-harness/",

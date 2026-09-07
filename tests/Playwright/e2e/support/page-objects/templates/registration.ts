@@ -21,7 +21,12 @@ export class Registration {
 
   constructor(page: Page, context?: BrowserContext) {
     this.page = page;
-    this.registrationForm = page.getByTestId("register-form");
+    // Auth.vue publishes ONE form hook for every session form —
+    // `session-form` with the current form in `data-test-value` — so the
+    // register form is that pair, not the retired `register-form` key.
+    this.registrationForm = page
+      .getByTestId("session-form")
+      .and(page.locator('[data-test-value="register"]'));
     this.context = context;
     this.firstName = page
       .getByTestId("input")

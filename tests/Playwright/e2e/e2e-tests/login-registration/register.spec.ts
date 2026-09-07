@@ -120,7 +120,7 @@ test.describe("User Registration", () => {
   test("Strength meter progresses through weak → medium → strong", async () => {
     await registration.password.fill("a"); // 1/4 → weak
     await expect(registration.passwordStrengthBars.nth(0)).toHaveClass(
-      /bg-accent-danger/
+      /bg-danger/
     );
     await expect(registration.passwordStrengthBars.nth(1)).toHaveClass(
       /bg-skeleton/
@@ -128,10 +128,10 @@ test.describe("User Registration", () => {
 
     await registration.password.fill("abc12345"); // 3/4 → medium
     await expect(registration.passwordStrengthBars.nth(0)).toHaveClass(
-      /bg-accent-warning/
+      /bg-warning/
     );
     await expect(registration.passwordStrengthBars.nth(2)).toHaveClass(
-      /bg-accent-warning/
+      /bg-warning/
     );
     await expect(registration.passwordStrengthBars.nth(3)).toHaveClass(
       /bg-skeleton/
@@ -140,7 +140,7 @@ test.describe("User Registration", () => {
     await registration.password.fill("abc123!@"); // 4/4 → strong
     for (let i = 0; i < 4; i++) {
       await expect(registration.passwordStrengthBars.nth(i)).toHaveClass(
-        /bg-accent-success/
+        /bg-success/
       );
     }
   });

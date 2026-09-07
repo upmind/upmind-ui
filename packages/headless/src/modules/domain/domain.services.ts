@@ -517,6 +517,9 @@ function search(context: DacContext) {
         // can clobber the newer search's results.
         queryFn: ({ signal }) =>
           request<IDomainSuggestionResult[]>({
+            // `query` is a criteria key: request() owns it on the wire and
+            // deletes a raw ?query= param, so it goes in as the option.
+            query: sld,
             url: useUrl(
               `modules/web_hosting/domains/suggestions`,
               omitBy(
@@ -534,7 +537,6 @@ function search(context: DacContext) {
                 isEmptyParam
               )
             ),
-            query: sld,
             init: { signal },
             withAccessToken: true,
             withCurrency: true
@@ -590,6 +592,7 @@ function search(context: DacContext) {
         // round's request can actually abort when search restarts.
         queryFn: ({ signal }) =>
           request<IProduct[]>({
+            query: sld,
             url: useUrl(
               `modules/web_hosting/domains/suggestions/tlds`,
               omitBy(
@@ -606,7 +609,6 @@ function search(context: DacContext) {
                 isEmptyParam
               )
             ),
-            query: sld,
             init: { signal },
             withAccessToken: true,
             withCurrency: true

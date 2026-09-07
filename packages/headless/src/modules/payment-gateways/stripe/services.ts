@@ -3,7 +3,7 @@ import {
   registerOperation,
   clearOperation,
   getOperationReturnUrl
-} from "../../payment-details/payment-details.utils";
+} from "../../payment-details/payment-details.operations";
 import { useI18n, useLocale } from "../../system-localisation";
 import sharedServices from "../payment-gateways.services";
 import { beginSetup } from "../payment-gateways.services";
@@ -306,7 +306,7 @@ async function add(context: StripeContext) {
   };
 
   // --- Persist operation for off-site redirect recovery
-  registerOperation(operationData);
+  const oid = registerOperation(operationData);
 
   // Confirm setup — may redirect off-site for 3DS/SCA
   return sdk.stripe
@@ -314,12 +314,12 @@ async function add(context: StripeContext) {
       elements: sdk.elements,
       redirect: "if_required",
       confirmParams: {
-        return_url: getOperationReturnUrl()
+        return_url: getOperationReturnUrl(oid)
       }
     })
     .then(({ error: confirmError, setupIntent }) => {
       // Clean up on inline completion (no redirect)
-      clearOperation();
+      clearOperation(oid);
 
       if (confirmError)
         throw new DetailedError(

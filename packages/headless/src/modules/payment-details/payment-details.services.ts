@@ -18,6 +18,7 @@ import { invalidateQueryByKey } from "../query/query.utils";
 import { useQueryParams } from "../routing";
 import { useActiveSession } from "../session-store";
 import { useI18n } from "../system-localisation";
+import { useOperations } from "../system-operations/useOperations";
 import {
   mapAccountCredit,
   mapPaymentData,
@@ -38,7 +39,6 @@ import {
   useModelParser,
   stateMatches,
   useTime,
-  useSessionStorage,
   useCalculate,
   DEBOUNCE_DELAY
 } from "../../utils";
@@ -61,7 +61,8 @@ import type {
   AccountCredit,
   PaymentDetail,
   PaymentDetailModel,
-  PaymentDetailsContext
+  PaymentDetailsContext,
+  PendingOperation
 } from "./payment-details.types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
@@ -582,7 +583,9 @@ async function restoreOperation({ client }: PaymentDetailsContext) {
     );
   }
 
-  const operation = useSessionStorage().get("operation");
+  const operation = useOperations().getOperation(operationId)?.payload as
+    | PendingOperation
+    | undefined;
 
   if (!operation?.gatewayId) {
     throw new DetailedError(

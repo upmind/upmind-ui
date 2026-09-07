@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
 import { URLs } from "../../support/constants/urls";
 import { products } from "../../support/constants/products";
@@ -7,11 +7,37 @@ import { ProductConfig } from "../../support/page-objects/templates/product-conf
 import { ProductSetup } from "../../support/page-objects/templates/product-setup";
 
 import {
+  addBillingAddressViaHeadless,
   fillRegistrantDetails,
-  loginAsIncompleteCustomer,
+  registerClientViaHeadless,
   seedInvalidProduct
 } from "../../support/flows";
 import { getDataLayer, waitForEvent } from "../../support/helpers/gtm";
+import type { AddressModel } from "@upmind-automation/headless";
+
+// NB: no `name` — a `name` on the model triggers the Google address-search
+// path, which asynchronously re-derives the address and clobbers these fields.
+const SEEDED_ADDRESS: AddressModel = {
+  address: {
+    address1: "10 Downing Street",
+    address2: "",
+    city: "London",
+    countryId: "320e4357-95e7-8d18-484f-31643202d986",
+    postcode: "SW1A 2AB",
+    regionId: "de78642d-e539-7146-295f-21208469530d"
+  }
+};
+
+// A fresh client with a billing address but no phone IS the incomplete customer
+// these steps need; the shared Logins.domain1 account raced the domain-customers
+// journeys on the same basket.
+async function bootIncompleteCustomer(page: Page) {
+  await page.goto(URLs.baseUrl);
+  const { id } = await registerClientViaHeadless(page);
+  await seedInvalidProduct(page, products.DOMAIN_2);
+  await page.goto(URLs.basket);
+  await addBillingAddressViaHeadless(page, id, SEEDED_ADDRESS);
+}
 
 // The exact dataLayer event names need to be confirmed against the running app.
 // `useDataLayer().withEcommerce().push()` in Checkout.vue:174 fires
@@ -23,11 +49,6 @@ let productConfig: ProductConfig;
 let productSetup: ProductSetup;
 
 test.describe("Tracking — Product Setup step", () => {
-  // serial because every test logs into the shared Logins.domain1 account
-  // (loginAsIncompleteCustomer); a logged-in account must not be exercised by
-  // concurrent tests or they pollute each other's basket.
-  test.describe.configure({ mode: "serial" });
-
   test.beforeEach(({ page }) => {
     basket = new Basket(page);
     productConfig = new ProductConfig(page);
@@ -37,8 +58,7 @@ test.describe("Tracking — Product Setup step", () => {
   test("dataLayer captures a route-change event for the new PRODUCTS_SETUP path", async ({
     page
   }) => {
-    await loginAsIncompleteCustomer(page);
-    await seedInvalidProduct(page, products.DOMAIN_2);
+    await bootIncompleteCustomer(page);
 
     await page.goto(`${URLs.baseUrl}order/basket/products-setup/`);
     await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
@@ -53,9 +73,11 @@ test.describe("Tracking — Product Setup step", () => {
   test("dataLayer fires a checkout-progression event on submission", async ({
     page
   }) => {
-    await loginAsIncompleteCustomer(page);
-    await seedInvalidProduct(page, products.DOMAIN_2);
-    await page.goto(`${URLs.baseUrl}order/basket/products-setup/`);
+    await bootIncompleteCustomer(page);
+    // Reach the setup step the way a shopper does — through Proceed — so the
+    // funnel runs its provision-field check against the committed address
+    // (a direct deep link shows stale required errors and a disabled Continue).
+    await basket.proceedToCheckout.click();
     await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
 
     await fillRegistrantDetails(productConfig);
@@ -77,10 +99,7 @@ test.describe("Tracking — Product Setup step", () => {
   test("no dataLayer events reference the removed BASKET_PRODUCT_REQUIRES_ACTION route", async ({
     page
   }) => {
-    await loginAsIncompleteCustomer(page);
-    await seedInvalidProduct(page, products.DOMAIN_2);
-
-    await page.goto(URLs.basket);
+    await bootIncompleteCustomer(page);
     await basket.proceedToCheckout.click();
     await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
     await fillRegistrantDetails(productConfig);
@@ -108,11 +127,8 @@ test.describe("Tracking — Product Setup step", () => {
   test("apply-to-others does not double-fire submission events", async ({
     page
   }) => {
-    await loginAsIncompleteCustomer(page);
-    await seedInvalidProduct(page, products.DOMAIN_2);
+    await bootIncompleteCustomer(page);
     await seedInvalidProduct(page, products.DOMAIN_3);
-
-    await page.goto(URLs.basket);
     await basket.proceedToCheckout.click();
     await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
     await fillRegistrantDetails(productConfig);

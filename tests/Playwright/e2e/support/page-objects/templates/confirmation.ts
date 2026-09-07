@@ -84,6 +84,16 @@ export class Confirmation {
   }
 
   /**
+   * The details table renders its price / qty / total columns. An order with
+   * more than one product row repeats every cell, so assert the first of each.
+   */
+  async expectDetailsColumns() {
+    await expect(this.detailsRowPrice.first()).toBeVisible();
+    await expect(this.detailsRowQty.first()).toBeVisible();
+    await expect(this.detailsRowTotal.first()).toBeVisible();
+  }
+
+  /**
    * @param qty - Expected quantity on the first (main) product row.
    */
   async expectFirstRowQty(qty: string) {

@@ -2,7 +2,10 @@ export { addAddressViaHeadless } from "./address-setup";
 export { addCompanyViaHeadless } from "./company-setup";
 export {
   waitForUpmindBridge,
-  waitForActiveSessionViaHeadless
+  waitForActiveSessionViaHeadless,
+  waitForGuestClientSessionViaHeadless,
+  waitForProductConfigQuietViaHeadless,
+  pressQuantityStepperViaHeadless
 } from "./headless-bridge";
 export {
   addProductViaHeadless,

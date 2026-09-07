@@ -97,6 +97,7 @@
           processingBasket
         "
         :block="isMobile || (isMobile && template === DOMAIN_TEMPLATE.WIDGET)"
+        :data-attrs="{ 'data-test-key': 'button-continue' }"
         @click="doResolve"
       >
         {{ t("action.continue_label") }}

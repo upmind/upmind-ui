@@ -43,13 +43,11 @@ for (const { language, locale } of languages) {
       await waitForSessionCookie(page.context());
       // Drive the shared ProductConfig page object rather than hand-rolling the
       // journey: `enterDomainRadio` clicks the register radio by its stable
-      // DomainTypes value (`[role="radio"][value="register"]`) and fills the
-      // register search input by its stable HTML id (`#domain-register-search`)
-      // — both locale-independent, so this holds across all 28 locales without
-      // the old `#register` + `page.keyboard` sequence. Submitting via the same
-      // page-object input locator opens the DAC results drawer.
+      // DomainTypes value (`[role="radio"][value="register"]`), opens the DAC
+      // drawer and searches in the drawer's own input — all locale-independent,
+      // so this holds across all 28 locales without the old `#register` +
+      // `page.keyboard` sequence. The search debounces; no Enter to press.
       await productConfig.enterDomainRadio("register", "visualregression");
-      await productConfig.domainRadioInput.press("Enter");
       await expect(productConfig.domainResults).toBeVisible({ timeout: 15000 });
       await expect(page).toHaveScreenshot(`${language}/domain-drawer`, {
         fullPage: true

@@ -614,8 +614,11 @@ importers:
       '@upmind-automation/types':
         specifier: workspace:*
         version: link:../../packages/types
-      '@upmind-automation/upmind-ui':
-        specifier: workspace:@upmind/ui@*
+      '@upmind/tokens':
+        specifier: workspace:*
+        version: link:../../design-system/packages/tokens
+      '@upmind/ui':
+        specifier: workspace:*
         version: link:../../design-system/packages/ui
       '@vueuse/components':
         specifier: ^13.6.0
@@ -1331,6 +1334,9 @@ importers:
       lodash-es:
         specifier: ^4.17.21
         version: 4.18.1
+      nanoid:
+        specifier: ^5.1.5
+        version: 5.1.6
       psl:
         specifier: ^1.15.0
         version: 1.15.0
@@ -1935,6 +1941,9 @@ importers:
       '@upmind-automation/types':
         specifier: workspace:*
         version: link:../../packages/types
+      '@upmind/tokens':
+        specifier: workspace:*
+        version: link:../../design-system/packages/tokens
       '@upmind/ui':
         specifier: workspace:*
         version: link:../../design-system/packages/ui

@@ -22,7 +22,7 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
     test("Invalid Product ID - Navigate Only", async ({ page }) => {
       const invalidPid = `${ProductIds.consultingBlock}123`;
       await page.goto(`${URLs.baseUrl}?pid=${invalidPid}&navigateOnly=true`);
-      await expect(page.getByTestId("dialog-window")).toBeVisible();
+      await expect(page.getByTestId("interstitial")).toBeVisible();
     });
   });
   test.describe("Setting default quantity via URL param", () => {
@@ -59,7 +59,7 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
       ).toHaveAttribute("data-state", "checked");
       await expect(
         productConfig.radioButtons.getRadioButton(24)
-      ).toHaveAttribute("data-state", "");
+      ).toHaveAttribute("data-state", "unchecked");
     });
   });
   test.describe('Setting currency via "currency"', () => {
@@ -135,15 +135,15 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
       );
       await expect(
         productConfig.radioButtons.getRadioButton(ProductIds.subproductTokyo)
-      ).toHaveAttribute("data-state", "");
+      ).toHaveAttribute("data-state", "unchecked");
       await expect(
         productConfig.radioButtons.getRadioButton(ProductIds.subproductMailbox)
-      ).toHaveAttribute("data-state", "");
+      ).toHaveAttribute("data-state", "unchecked");
       await expect(
         productConfig.radioButtons.getRadioButton(
           ProductIds.subproductOperatingSystem
         )
-      ).toHaveAttribute("data-state", "");
+      ).toHaveAttribute("data-state", "unchecked");
     });
   });
   test.describe("Set language via URL param", () => {

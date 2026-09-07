@@ -1,6 +1,7 @@
 import { test, expect, BrowserContext } from "@playwright/test";
 import { URLs } from "../support/constants/urls";
 import { ProductConfig } from "../support/page-objects/templates/product-config";
+import { Dac } from "../support/page-objects/templates/dac";
 import { Basket } from "../support/page-objects/templates/basket";
 import { Registration } from "../support/page-objects/templates/registration";
 import { Checkout } from "../support/page-objects/templates/checkout";
@@ -75,11 +76,7 @@ test.describe("Promotions", () => {
     });
   });
   test.describe("Promotion displayed on DAC", () => {
-    // Skip: The starterHosting product doesn't have domain selection in its
-    // configuration. The DAC Drawer test requires a product with domain
-    // provisioning fields, which this product lacks. The DAC Widget and DAC
-    // Page tests below cover promo badge display on DAC cards via direct URLs.
-    test.skip("Promotions DAC Drawer", async ({ page }) => {
+    test("Promotions DAC Drawer", async ({ page }) => {
       mockPromos(
         page.context(),
         "/api/modules/web_hosting/domains/",
@@ -87,13 +84,18 @@ test.describe("Promotions", () => {
         "all",
         "prices"
       );
+      const dac = new Dac(page);
       await page.goto(URLs.starterHosting);
-      // Click "Register a new domain" radio and fill the inline domain input
+      // Register puts the DAC in a drawer: focusing the inline field opens it,
+      // and that unmounts the field itself (SmartDomainField.vue `v-if="!open"`).
+      // So open the drawer, then search in the drawer's own input — a `fill` on
+      // the inline field types into a node that detaches under it.
       await productConfig.domainRadioRegister.click();
-      await productConfig.domainRadioInput.fill("promospromospromos");
-      const dacCards = page.getByTestId("dac-card");
-      await expect(dacCards.first()).toBeVisible();
-      for (const card of await dacCards.all()) {
+      await productConfig.domainRadioInput.click();
+      await expect(dac.searchInput).toBeVisible();
+      await dac.searchInput.fill("promospromospromos");
+      await expect(dac.firstCard).toBeVisible();
+      for (const card of await dac.cards.all()) {
         await expect(card.getByTestId("badge")).toBeVisible();
       }
     });

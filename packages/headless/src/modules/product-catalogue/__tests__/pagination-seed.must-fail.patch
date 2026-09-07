@@ -1,0 +1,13 @@
+--- a/packages/headless/src/modules/product-catalogue/useProductCatalogue.ts
++++ b/packages/headless/src/modules/product-catalogue/useProductCatalogue.ts
+@@ -145,7 +145,9 @@
+
+   // Separate watchers so a filter change doesn't churn the sort branch, and
+   // vice versa. The page reset on a genuine change is the criteria's own law.
+-  watch(filters, value => query.setCriteria({ filters: value }));
++  watch(filters, value => query.setCriteria({ filters: value }), {
++    immediate: true
++  });
+   watch(sort, value => query.setCriteria({ sort: value }));
+
+   // ---------------------------------------------------------------------------

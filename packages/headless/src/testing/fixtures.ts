@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 /**
- * @module fixtures
+ * @module testing/fixtures
  * @description The package's RECORDINGS-ONLY entry — every module's committed
  * `__tests__/fixtures/*.json`, keyed by the module that owns them, and nothing
  * else. No `.feature`, no step catalog, no `@internal` kit, no integration

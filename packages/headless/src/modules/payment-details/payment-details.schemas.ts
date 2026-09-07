@@ -93,10 +93,20 @@ export function useSchemaDefinitions({
 
 // --- pay schema
 
+/**
+ * The BASE return legs — no operation reference.
+ *
+ * This schema is rebuilt on EVERY validation and pins `return_url` /
+ * `cancel_url` with `const`, so whatever it emits must be deterministic. The
+ * operation reference is not: it is minted once, at the point the payment
+ * actually leaves for the gateway, and stamped onto the OUTBOUND payload there
+ * (`stampPayOperation`). Minting here instead produced a fresh const on every
+ * build — the model still carried the previous URL, so `validate()` failed every
+ * off-site gateway and each keystroke leaked another operation.
+ */
 const usePaySchema = (context: PaymentDetailsContext): JsonSchema => {
   const { cancelUrl, returnUrl } = generateResponseUrls(
-    new URL(`order/${context.orderId}`, window.location.origin),
-    { orderId: context.orderId }
+    new URL(`order/${context.orderId}`, window.location.origin)
   );
 
   return {

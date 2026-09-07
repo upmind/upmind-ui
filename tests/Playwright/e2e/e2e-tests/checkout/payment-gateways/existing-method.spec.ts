@@ -34,7 +34,10 @@ test.describe("Checkout with Existing Payment Method", () => {
     // RadioCardItem root is a <Label>; clicking it drives the Radix radio.
     await checkout.selectFirstStoredPaymentMethod();
     await checkout.clickCompleteCheckout();
-    await checkout.dialogWindow.waitFor();
+    // No intermediate wait: the placement progress modal is an Interstitial
+    // (test key `interstitial`, never `dialog-window`) and is transient. The
+    // order-confirmation-heading assertion below auto-retries, so it is the real
+    // terminal gate and needs no predecessor wait.
     await expect(page.getByTestId("order-confirmation-heading")).toBeVisible();
     const placement = payments.find(p => p.method === "POST" && p.request);
     expect(
