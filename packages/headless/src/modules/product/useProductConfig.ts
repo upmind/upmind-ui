@@ -184,7 +184,13 @@ export const useProductConfig = (service: ActorRef<any>) => {
         "lookups.provisionFields"
       ]),
     isInvalid: stateMatches(state, ["available.invalid"]),
-    isCalculating: contextMatches(state, ["lookups.prices.calculating"]),
+    // Pass the value: with none, contextMatches only asks whether the prop is
+    // set, so `calculating: false` reads as true and the flag never clears.
+    isCalculating: contextMatches(
+      state,
+      ["lookups.prices.calculating"],
+      true
+    ),
     isChecking: stateMatches(state, ["available.checking"]),
     isProcessing: stateMatches(state, ["refreshing", "processing"]),
     isAvailable: stateMatches(state, ["available", "refreshing", "processing"]),

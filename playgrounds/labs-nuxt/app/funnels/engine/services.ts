@@ -2,13 +2,16 @@ import {
   type FunnelContext,
   useRoutingEngine,
   useActiveSession,
+  useQueryParams,
   type FunnelResponse,
-  FunnelActions
+  FunnelActions,
+  QUERY_PARAMS
 } from "@upmind-automation/client-vue";
-import { ScopeActorTypes } from "@upmind-automation/headless";
+import { ScopeActorTypes, useOperations } from "@upmind-automation/headless";
 import { ROUTE } from "..";
 import { scenarioRoutes } from "../../../modules/scenarios/runtime/registry";
 import { endsWith, get, isArray, join, startsWith, toString } from "lodash-es";
+import type { RouteLocation } from "vue-router";
 import {
   parseScopeSuffix,
   stripScopeSuffix
@@ -100,6 +103,28 @@ export default {
     return Promise.reject({
       target: { name: ROUTE.SESSION }
     } as FunnelResponse);
+  },
+
+  /**
+   * The order page's gate. An off-site return lands here carrying
+   * `?operation_id`; the operation names the work, so the guard runs it and
+   * proceeds (FE-3133). An unknown reference names nothing and is ignored.
+   */
+  guardOrderReturn: async ({
+    currentRoute,
+    targetRoute
+  }: FunnelContext): Promise<FunnelResponse> => {
+    const route = targetRoute ?? currentRoute;
+    const { executeOperation, getOperation } = useOperations();
+
+    const operationId = useQueryParams(route as RouteLocation).consumeParam(
+      QUERY_PARAMS.OPERATION_ID
+    );
+
+    if (operationId && getOperation(operationId))
+      await executeOperation(operationId);
+
+    return { type: FunnelActions.NEXT };
   },
 
   guardSession: async ({

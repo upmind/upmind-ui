@@ -40,8 +40,9 @@ export const ErrorCodes = {
   incorrectCredentials: {
     // Scope to the basket (orders/current) fetch, not all of /api: a 401 on
     // brand settings is treated as "no such brand" and redirects to the upmind
-    // homepage. A 401 on this service call surfaces the in-app "not authorized"
-    // modal.
+    // homepage. A 401 on this service call makes the app re-authenticate —
+    // refresh the token and retry the call once (useQuery
+    // canRetryAuthorization → refreshToken) — rather than show a dialog.
     route: "**/api/orders/current**",
     url: `${URLs.starterHosting}`,
     errorCode: 401,
@@ -52,8 +53,8 @@ export const ErrorCodes = {
       code: 401,
       message: "Sorry, you are not authorized to view this page"
     },
-    button: "back-to-shopping",
-    errorType: "dialog"
+    button: "",
+    errorType: "reauth"
   },
 
   unauthorizedAccess: {
@@ -101,6 +102,12 @@ export const ErrorCodes = {
     errorType: "toast"
   },
   timeout504: {
+    // A 504 raises NO global feedback, by design: query.utils.ts `mapFeedback`
+    // maps Gateway_Timeout to `undefined` alongside 400/401/403/408/409/422/502
+    // (only 429, 500, 503 and the network error map to a message), and the i18n
+    // corpus carries no `error.504_*` copy to show. That has held since before
+    // the headless migration (`5b9dc47df7^:query/utils.ts:294`), so the toast
+    // this row used to expect never rendered — it was never a regression.
     route: "**/api/orders/current**",
     url: `${URLs.starterHosting}`,
     errorCode: 504,
@@ -111,7 +118,7 @@ export const ErrorCodes = {
       code: 504,
       message: "Sorry, we have experienced an error"
     },
-    button: "back-to-shopping",
-    errorType: "toast"
+    button: "",
+    errorType: "silent"
   }
 };

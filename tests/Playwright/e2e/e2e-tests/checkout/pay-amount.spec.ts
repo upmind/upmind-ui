@@ -90,7 +90,9 @@ test.describe("Checkout - Pay Amount", () => {
     });
     test("Changing currency of Pay Amount", async ({ page }) => {
       await goToCheckout(page, products.STARTER_HOSTING, null, null);
-      await expect(checkout.billingDetails).toBeVisible();
+      // Gate on the checkout's billing block, whichever variant a fresh client
+      // gets (the entry form here — the summary needs saved details).
+      await expect(checkout.billingSection).toBeVisible();
       await page.getByTestId("currency-selector-trigger").click();
       // Wait for dropdown to be stable then click the option
       const audOption = page.getByRole("option", { name: /AUD/i });

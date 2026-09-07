@@ -48,6 +48,12 @@ export const products = {
     gbpPrice: "£12.00",
     type: "domain"
   },
+  DOMAIN_COM: {
+    id: "825d96e7-63ed-0913-792c-417482528340",
+    name: ".com Domain Registration",
+    billingCycle: 12,
+    type: "domain"
+  },
   HAT: {
     /** Single price, no terms, no options/attributes, no provision fields.
      * One-off product → billingCycle 0 (one-offs are not sold on a monthly
@@ -95,5 +101,17 @@ export const products = {
     billingCycle: 1,
     gbpPrice: "£150.00",
     type: "server"
+  }
+};
+
+/**
+ * Subproducts (option values) of STARTER_HOSTING. Option tiles are keyed
+ * `option-tile-${id}` off the subproduct id, never the translated label.
+ */
+export const subproducts = {
+  LONDON: {
+    id: "78985742-6489-7012-820a-21e325d0ed36",
+    name: "London",
+    category: "Location"
   }
 };

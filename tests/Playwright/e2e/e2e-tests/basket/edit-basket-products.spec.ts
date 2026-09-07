@@ -5,7 +5,7 @@ import { ProductConfig } from "../../support/page-objects/templates/product-conf
 import { Basket } from "../../support/page-objects/templates/basket";
 import { addProductViaHeadless } from "../../support/flows/basket-setup";
 import { interceptUISchema } from "../../support/mocks/brand";
-import { products } from "../../support/constants/products";
+import { products, subproducts } from "../../support/constants/products";
 import { TEST_EMAILS } from "../../support/constants/test-data";
 
 let productConfig: ProductConfig;
@@ -33,24 +33,31 @@ test.describe("Edit hosting product in basket", () => {
     expect(seeded.basketProductId).toBeTruthy();
     productId = seeded.basketProductId as string;
   });
-  // QUARANTINE(FE-2874): London subproduct id unavailable in fixtures — needs
-  // the real option-tile-${opt.id} + Location detail name. Re-enable when
-  // constants/products.ts carries them.
-  test.skip("Edit product options", async ({ page }) => {
+  test("Edit product options", async ({ page }) => {
     await page.goto(`order/basket/edit/${productId}`);
-    await productConfig.selectRadioOption("London");
-    await expect(productConfig.getSummaryItem("Location")).toBeVisible();
-    await productConfig.clickConfirm();
-    await basket.clickShowDetails();
-    // Selecting a location persists it as a basket-product option. The option
-    // VALUE ("London") is a subproduct with no stable id available in any
-    // constant/fixture, so it stays presence-only (see FIXME above); the parent
-    // line is asserted by its basket-product id (basket-product-name carries the
-    // in-basket id in data-test-value — the same id used in the edit route).
-    await expect(basket.basketProductSummary.first()).toBeVisible();
+    await expect(productConfig.productConfigSection).toBeVisible();
+    await productConfig.selectRadioOption(subproducts.LONDON.id);
+    // The configuration summary lists each selected option under its detail
+    // name (`option`, PricingList.vue) with the subproduct's served title.
     await expect(
-      basket.basketProductSummary.first().getByTestId("basket-product-name")
+      productConfig
+        .getSummaryItem("option")
+        .filter({ hasText: subproducts.LONDON.name })
+    ).toBeVisible();
+    await productConfig.clickConfirm();
+    // Selecting a location persists it as a basket-product option on the same
+    // line (basket-product-name carries the in-basket id in data-test-value —
+    // the id used in the edit route).
+    await basket.clickShowDetails();
+    await expect(basket.basketProductSummary).toBeVisible();
+    await expect(
+      basket.basketProductSummary.getByTestId("basket-product-name")
     ).toHaveAttribute("data-test-value", productId);
+    await expect(
+      basket.basketProduct
+        .getByTestId("basket-product-option")
+        .and(page.locator('[data-test-value="option"]'))
+    ).toContainText(subproducts.LONDON.name);
   });
 
   /**
@@ -97,11 +104,12 @@ test.describe("Edit domain product in basket", () => {
     basket = new Basket(page);
     await page.goto(URLs.basket);
     const seeded = await addProductViaHeadless(page, {
-      productId: products.DOMAIN.id,
+      productId: products.DOMAIN_COM.id,
       quantity: 1,
       billingCycleMonths: 12,
       provisionFields: {
-        sld: `${fakerEN_GB.string.alphanumeric({ length: { min: 3, max: 15 } })}`,
+        // .com product used: staging's .org registrar verdicts are intermittent (domain_not_for_sale)
+        sld: `${fakerEN_GB.string.alpha({ length: 10, casing: "lower" })}`,
         update_registrant_address_1: `${fakerEN_GB.location.streetAddress()}`,
         update_registrant_address_city: `${fakerEN_GB.location.city()}`,
         update_registrant_address_country_code: "GB",
@@ -116,7 +124,7 @@ test.describe("Edit domain product in basket", () => {
     productId = seeded.basketProductId as string;
   });
   test("Edit domain name", async ({ page }) => {
-    let newDomain = `${fakerEN_GB.string.alphanumeric({ length: { min: 3, max: 15 } })}`;
+    let newDomain = `${fakerEN_GB.string.alpha({ length: 10, casing: "lower" })}`;
     await page.goto(`order/basket/edit/${productId}`);
     await expect(productConfig.productConfigSection).toBeVisible();
     await productConfig.clearFormInput("provision-fields-sld");

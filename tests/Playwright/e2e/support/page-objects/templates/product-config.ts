@@ -10,6 +10,7 @@ import { Drawer } from "../components/drawer";
 import { Form } from "../components/form";
 import { Markdown } from "../components/markdown";
 import { Lineclamp } from "../components/lineclamp";
+import { Dac } from "./dac";
 
 export class ProductConfig {
   readonly page: Page;
@@ -38,6 +39,8 @@ export class ProductConfig {
   readonly domainRadioExisting: Locator;
   readonly domainRadioBasket: Locator;
   readonly domainRadioInput: Locator;
+  /** The DAC surface the register choice opens in a drawer. */
+  readonly dac: Dac;
   readonly domainExistingInput: Locator;
 
   /* Domain Accordion Options (legacy - deprecated) */
@@ -51,8 +54,6 @@ export class ProductConfig {
   readonly registrantEmailInput: Locator;
   readonly registrantPhoneForm: Locator;
   readonly registrantPhoneCountrySelectButton: Locator;
-  readonly registrantPhoneCountrySelectInput: Locator;
-  readonly registrantPhoneCountrySelectItem: Locator;
   readonly registrantPhoneInput: Locator;
   readonly registrantAddr1Input: Locator;
   readonly registrantCityInput: Locator;
@@ -115,6 +116,7 @@ export class ProductConfig {
     this.accordion = new Accordion(page);
     this.select = new Select(page);
     this.drawer = new Drawer(page);
+    this.dac = new Dac(page);
     this.form = new Form(page);
     this.markdown = new Markdown(page);
     this.lineclamp = new Lineclamp(page);
@@ -143,7 +145,12 @@ export class ProductConfig {
     // `domain-register-search`; the existing-domain search has no stable anchor
     // (its FormControl id is a runtime uniqueId), so scope to the sole search
     // input rendered while the "existing" choice is expanded.
-    this.domainRadioInput = page.locator("#domain-register-search input");
+    // FormControl forwards its form-item id onto the Input's own <input>
+    // (SmartDomainField.vue `form-item-id="domain-register-search"`), so the
+    // id sits on the field itself, not on a wrapper around it.
+    this.domainRadioInput = page
+      .getByTestId("input")
+      .and(page.locator("#domain-register-search"));
     this.domainExistingInput = page
       .getByTestId("section")
       .and(page.locator(`[data-test-value="product-configuration"]`))
@@ -199,13 +206,13 @@ export class ProductConfig {
         )
       );
 
+    // PhoneRenderer mounts a dialling-code Combobox inside the phone Input's
+    // prefix, so the form-item holds TWO <input>s: the number field (`input`)
+    // and the Combobox search (`combobox-input`). Its option list is a reka
+    // listbox teleported to the body, so the options are read page-wide.
     this.registrantPhoneCountrySelectButton =
       this.registrantPhoneForm.getByTestId("button-phone-country");
-    this.registrantPhoneCountrySelectInput =
-      this.popover.popoverContent.locator("input");
-    this.registrantPhoneCountrySelectItem =
-      this.popover.popoverContent.getByRole("option");
-    this.registrantPhoneInput = this.registrantPhoneForm.locator("input");
+    this.registrantPhoneInput = this.registrantPhoneForm.getByTestId("input");
     this.registrantAddr1Input = page
       .getByTestId("form-item")
       .and(
@@ -386,8 +393,12 @@ export class ProductConfig {
     await radio.click();
 
     if (option === "register" && domainName) {
-      // For register: fill the inline input that appears after selecting the radio
-      await this.domainRadioInput.fill(domainName);
+      // Register puts the DAC in a drawer: focusing the inline field opens it
+      // and unmounts the field itself (SmartDomainField.vue `v-if="!open"`), so
+      // the term goes into the drawer's own search input — a `fill` on the
+      // inline field types into a node that detaches under it.
+      await this.domainRadioInput.click();
+      await this.dac.searchInput.fill(domainName);
     } else if (option === "existing" && domainName) {
       // For existing: fill the SmartDomainExisting input
       await this.domainExistingInput.fill(domainName);
@@ -497,13 +508,17 @@ export class ProductConfig {
       (await present(this.registrantPhoneInput))
     ) {
       await this.registrantPhoneCountrySelectButton.click();
-      // Filtering by the ISO code the test supplied narrows the option list to
-      // the matching country; click the first result rather than matching the
-      // translated country name.
-      await this.registrantPhoneCountrySelectInput.fill(
-        details.registrantCountryCode
-      );
-      await this.registrantPhoneCountrySelectItem.first().click();
+      // The Combobox filters on the translated country name, so pick the item
+      // by the ISO code it carries in data-test-value (Combobox.vue keys each
+      // item `combobox-item` with its value).
+      await this.page
+        .getByTestId("combobox-item")
+        .and(
+          this.page.locator(
+            `[data-test-value="${details.registrantCountryCode}"]`
+          )
+        )
+        .click();
     }
     if (details.registrantPhone && (await present(this.registrantPhoneInput))) {
       await this.registrantPhoneInput.fill(details.registrantPhone);

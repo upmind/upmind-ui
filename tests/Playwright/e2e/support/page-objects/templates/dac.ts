@@ -41,7 +41,11 @@ export class Dac {
 
     this.loadMoreButton = page.getByTestId("button-load-more");
     this.cardAddToBasketButtons = this.cards.getByTestId("domain-card-cta");
-    this.searchInput = page.locator("#domain-search");
+    // `#domain-search` is the FormControl wrapper; DomainSearch.vue tags the
+    // field itself `input` / `domain-search-input`.
+    this.searchInput = page
+      .getByTestId("input")
+      .and(page.locator(`[data-test-value="domain-search-input"]`));
     this.continueButton = page.getByTestId("button-continue");
   }
 

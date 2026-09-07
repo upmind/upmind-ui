@@ -122,7 +122,12 @@ test.describe("Basket provision checks", () => {
       downloadThroughput: (50 * 1024) / 8,
       uploadThroughput: (50 * 1024) / 8
     });
-    const skeleton = basket.subtotalSummary.locator(".animate-pulse").first();
+    // Skeleton.vue carries no test key; `data-motion-preserve` is the attribute
+    // it renders so the shimmer survives reduced-motion, and it marks nothing
+    // else in the summary.
+    const skeleton = basket.subtotalSummary
+      .locator("[data-motion-preserve]")
+      .first();
     await footer.currencySelector.click();
     await page
       .getByTestId("currency-option")

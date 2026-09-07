@@ -8,10 +8,10 @@ import { Basket } from "../../../support/page-objects/templates/basket";
 import { URLs } from "../../../support/constants/urls";
 import {
   addAddressViaHeadless,
+  addBillingAddressViaHeadless,
   fillRegistrantDetails,
   getBasketViaHeadless,
   goToCheckout,
-  loginAsIncompleteCustomer,
   registerClientViaHeadless,
   seedGuestBasket,
   seedInvalidProduct,
@@ -31,6 +31,7 @@ import type { AddressModel } from "@upmind-automation/headless";
 let checkout: Checkout;
 let billingPage: BillingPage;
 let registration: Registration;
+let clientId: string;
 
 // NB: no `name` — a `name` on the model triggers the Google address-search
 // path, which asynchronously re-derives the address and clobbers these fields.
@@ -51,24 +52,24 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
       await page.goto("/");
-      await registerClientViaHeadless(page);
+      ({ id: clientId } = await registerClientViaHeadless(page));
       interceptUISchema(context, {
         "@data.billing_details.billingDetailsDisabled": false
       });
     });
 
-    test("BillingSummary card is visible at checkout", async ({
-      page,
-      context
-    }) => {
+    test("BillingSummary card is visible at checkout", async ({ page }) => {
       await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
+      // Saved details earn the summary (CheckoutBilling.vue); a client without
+      // any is shown the entry form instead, so commit one address first.
+      await addBillingAddressViaHeadless(page, clientId, SEEDED_ADDRESS);
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
-      await expect(checkout.addNewAddress).toBeVisible();
+      await expect(checkout.billingSummaryChangeLink).toBeVisible();
     });
 
-    test("Summary displays selected address", async ({ page, context }) => {
+    test("Summary displays selected address", async ({ page }) => {
       await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
-      await checkout.billingDetails.waitFor();
+      await expect(checkout.billingSection).toBeVisible({ timeout: 15000 });
       billingPage = new BillingPage(page);
       await page.goto(URLs.billing);
       await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
@@ -93,18 +94,10 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       );
     });
 
-    test("'Change' link navigates to billing page", async ({
-      page,
-      context
-    }) => {
+    test("'Change' link navigates to billing page", async ({ page }) => {
       await goToCheckout(page, products.STARTER_HOSTING, null, null, false);
-      await checkout.billingDetails.waitFor();
-      const order = await getBasketViaHeadless(page);
-      await addAddressViaHeadless(
-        page,
-        order?.client_id as string,
-        SEEDED_ADDRESS
-      );
+      await expect(checkout.billingSection).toBeVisible({ timeout: 15000 });
+      await addBillingAddressViaHeadless(page, clientId, SEEDED_ADDRESS);
       await expect(checkout.billingSummaryChangeLink).toBeVisible({
         timeout: 15000
       });
@@ -259,7 +252,9 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
         "15 White Hart Lane"
       );
       await expect(checkout.dialogWindow).toBeHidden();
-      await billingPage.continue.click();
+      // Saving on the billing page commits billing and auto-advances to checkout
+      // (BillingForm.onFormResolve → Billing.vue navigateNext), as the company
+      // round-trip below does — there is no Continue left to click.
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
       // The updated address line 1 is carried in billing-summary-address's
       // data-test-value (the address title).
@@ -317,25 +312,30 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
   });
 
   test.describe("Missing Billing Data", () => {
-    test("'Add address' link when address required but missing", async ({
+    test("Address entry form when address required but missing", async ({
       page,
       context
     }) => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
-      await page.goto("/");
-      await registerClientViaHeadless(page);
-      await goToCheckout(page, products.STARTER_HOSTING);
-      await expect(checkout.basketSummary).toBeVisible({ timeout: 15000 });
-      interceptConfigValues(page, {
+      // Brand config is static + persisted from the first boot
+      // (brand.services.ts:119-121), so the requirement is armed before it.
+      await interceptConfigValues(page, {
         requireAddressForOrders: true,
         requireCompanyForOrders: false,
         requireRegionInAddress: false,
         requirePhoneForOrders: false
       });
-      await page.reload();
-      await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
-      await expect(checkout.billingAddAddress).toBeVisible();
+      await page.goto("/");
+      await registerClientViaHeadless(page);
+      await goToCheckout(page, products.STARTER_HOSTING);
+      await expect(checkout.basketSummary).toBeVisible({ timeout: 15000 });
+      // With no saved details at all there is no summary to hang an "Add
+      // address" link on: CheckoutBilling.vue shows the entry form itself,
+      // opened on the address search.
+      await expect(checkout.billingCards).toBeVisible({ timeout: 15000 });
+      await expect(checkout.addressSearch).toBeVisible();
+      await expect(checkout.billingDetails).toBeHidden();
     });
 
     test("'Add company' link when company required but missing", async ({
@@ -344,20 +344,22 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
     }) => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
-      await page.goto("/");
-      await registerClientViaHeadless(page);
-      interceptUISchema(context, {
-        "@data.billing_details.billingDetailsDisabled": false
-      });
-      await goToCheckout(page, products.STARTER_HOSTING);
-      await expect(checkout.basketSummary).toBeVisible({ timeout: 15000 });
-      interceptConfigValues(page, {
+      await interceptConfigValues(page, {
         requireAddressForOrders: false,
         requireCompanyForOrders: true,
         requireRegionInAddress: false,
         requirePhoneForOrders: false
       });
-      await page.reload();
+      interceptUISchema(context, {
+        "@data.billing_details.billingDetailsDisabled": false
+      });
+      await page.goto("/");
+      const { id } = await registerClientViaHeadless(page);
+      await goToCheckout(page, products.STARTER_HOSTING);
+      await expect(checkout.basketSummary).toBeVisible({ timeout: 15000 });
+      // The summary (and its missing-detail links) needs a saved detail; seed
+      // the address so the company is the one thing still missing.
+      await addBillingAddressViaHeadless(page, id, SEEDED_ADDRESS);
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
       await expect(checkout.billingAddCompany).toBeVisible();
     });
@@ -368,20 +370,20 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
     }) => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
-      await page.goto("/");
-      await registerClientViaHeadless(page);
-      interceptUISchema(context, {
-        "@data.billing_details.billingDetailsDisabled": false
-      });
-      await goToCheckout(page, products.STARTER_HOSTING);
-      await expect(checkout.basketSummary).toBeVisible({ timeout: 15000 });
-      interceptConfigValues(page, {
+      await interceptConfigValues(page, {
         requireAddressForOrders: false,
         requireCompanyForOrders: false,
         requireRegionInAddress: false,
         requirePhoneForOrders: true
       });
-      await page.reload();
+      interceptUISchema(context, {
+        "@data.billing_details.billingDetailsDisabled": false
+      });
+      await page.goto("/");
+      const { id } = await registerClientViaHeadless(page);
+      await goToCheckout(page, products.STARTER_HOSTING);
+      await expect(checkout.basketSummary).toBeVisible({ timeout: 15000 });
+      await addBillingAddressViaHeadless(page, id, SEEDED_ADDRESS);
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
       await expect(checkout.billingAddNumber).toBeVisible();
     });
@@ -391,6 +393,10 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
     test.beforeEach(async ({ page, context }) => {
       billingPage = new BillingPage(page);
       registration = new Registration(page, context);
+      // Continue renders whenever the model is committable (BillingForm.vue),
+      // so "nothing to commit" needs the brand to require an address — armed
+      // before boot, as brand config is static + persisted from first load.
+      await interceptConfigValues(page, { requireAddressForOrders: true });
       await page.goto("/");
       await registerClientViaHeadless(page);
       interceptUISchema(context, {
@@ -435,10 +441,14 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       const productSetup = new ProductSetup(page);
       checkout = new Checkout(page);
 
-      await loginAsIncompleteCustomer(page);
+      // A fresh client with a billing address but no phone IS the incomplete
+      // customer this chain needs — the shared Logins.domain1 account raced the
+      // domain-customers journeys on the same basket.
+      await page.goto("/");
+      const { id } = await registerClientViaHeadless(page);
       await seedInvalidProduct(page, products.DOMAIN_2);
-
       await page.goto(URLs.basket);
+      await addBillingAddressViaHeadless(page, id, SEEDED_ADDRESS);
       await basket.proceedToCheckout.click();
       await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
       await fillRegistrantDetails(productConfig);

@@ -69,6 +69,7 @@
         size="lg"
         :disabled="meta.isProcessing || processingBasket"
         :block="isMobile || (isMobile && template === DOMAIN_TEMPLATE.WIDGET)"
+        :data-attrs="{ 'data-test-key': 'button-continue' }"
         @click="doResolve"
       >
         {{

@@ -58,9 +58,37 @@ export const useProductCatalogue = (
     ...params
   } = initial || {};
 
+  // The category id expanded to its subtree (re-derived when the async tree
+  // loads), plus the free-text term. ONE source, so what the wire carries is
+  // what the published model says.
+  const filters = computed<ProductQueryModel["filters"]>(() => ({
+    products_category_id: {
+      eq: getCategoryIds(toValue(categoryId), includeDescendants)
+    },
+    name: { like: toValue(search) || undefined }
+  }));
+
+  const sort = computed<ProductQueryModel["sort"]>(() => {
+    const field = toValue(sortBy);
+    if (!field) return [];
+    return [
+      {
+        field,
+        dir:
+          toValue(direction) === RequestSortDirection.DESC
+            ? SortDirection.DESC
+            : SortDirection.ASC
+      }
+    ];
+  });
+
+  // The derived branches ride the SEED beside the caller's pagination, so the
+  // model commits once: a `setCriteria` write without `pagination` returns to
+  // page 1 by design, and one at mount would wipe a deep-linked offset.
+  const model = { ...params, filters: filters.value, sort: sort.value };
   const query = !infinite
-    ? service.loadList(params)
-    : service.loadInfinite(params);
+    ? service.loadList(model)
+    : service.loadInfinite(model);
 
   const meta = computed(() => ({
     isLoading: query.isFetching.value || !query.isFetched.value,
@@ -115,38 +143,10 @@ export const useProductCatalogue = (
 
   // --- criteria
 
-  // The category id expanded to its subtree (re-derived when the async tree
-  // loads), plus the free-text term. ONE source, so what the wire carries is
-  // what the published model says.
-  const filters = computed<ProductQueryModel["filters"]>(() => ({
-    products_category_id: {
-      eq: getCategoryIds(toValue(categoryId), includeDescendants)
-    },
-    name: { like: toValue(search) || undefined }
-  }));
-
-  const sort = computed<ProductQueryModel["sort"]>(() => {
-    const field = toValue(sortBy);
-    if (!field) return [];
-    return [
-      {
-        field,
-        dir:
-          toValue(direction) === RequestSortDirection.DESC
-            ? SortDirection.DESC
-            : SortDirection.ASC
-      }
-    ];
-  });
-
   // Separate watchers so a filter change doesn't churn the sort branch, and
   // vice versa. The page reset on a genuine change is the criteria's own law.
-  watch(filters, value => query.setCriteria({ filters: value }), {
-    immediate: true
-  });
-  watch(sort, value => query.setCriteria({ sort: value }), {
-    immediate: true
-  });
+  watch(filters, value => query.setCriteria({ filters: value }));
+  watch(sort, value => query.setCriteria({ sort: value }));
 
   // ---------------------------------------------------------------------------
 

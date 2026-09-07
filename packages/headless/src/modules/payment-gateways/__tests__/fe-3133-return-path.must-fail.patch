@@ -1,0 +1,10 @@
+--- a/packages/headless/src/modules/payment-gateways/payment-gateways.utils.ts
++++ b/packages/headless/src/modules/payment-gateways/payment-gateways.utils.ts
+@@ -31,6 +31,7 @@
+ 
+   const successUrl = new URL(url);
+   successUrl.searchParams.append(QUERY_PARAMS.PAYMENT_SUCCESS, "true");
++  successUrl.searchParams.append("auto_pay", "true"); // MUST-FAIL mutant: legacy base64-era param
+ 
+   const failUrl = new URL(url);
+   failUrl.searchParams.append(QUERY_PARAMS.PAYMENT_SUCCESS, "false");

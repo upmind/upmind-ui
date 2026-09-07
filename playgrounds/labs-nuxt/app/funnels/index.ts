@@ -18,7 +18,8 @@ export * from "./types";
  * pages never collided, which is why the pool worked everywhere but home.
  */
 export const LABS_OVERLAYS: Record<string, string> = {
-  session: ROUTE.OVERLAY_AUTH
+  session: ROUTE.OVERLAY_AUTH,
+  pay: ROUTE.OVERLAY_PAY
 };
 
 export const registerFunnels = () => {

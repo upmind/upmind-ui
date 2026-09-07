@@ -14,12 +14,12 @@
  */
 
 import { describe, expect, it } from "vitest";
+import { GatewayStoreType, QUERY_PARAMS } from "@upmind-automation/types";
 import {
   generateResponseUrls,
   canBeStored,
   parseSettings
 } from "../payment-gateways.utils";
-import { GatewayStoreType } from "@upmind-automation/types";
 import type { IGateway } from "@upmind-automation/types";
 
 function gateway(overrides: Partial<IGateway> = {}): IGateway {
@@ -36,41 +36,57 @@ function gateway(overrides: Partial<IGateway> = {}): IGateway {
   } as IGateway;
 }
 
-describe("generateResponseUrls — the context carried across the provider round trip (AC-D5, AC-D6)", () => {
+describe("generateResponseUrls — references the payment via operation_id, not legacy base64 (FE-3133)", () => {
   const freshUrl = () => new URL("https://shop.test/checkout");
+  const OP = "op-abc123";
 
-  it("AC-D5 success URL appends payment_success=true", () => {
+  it("success URL appends payment_success=true", () => {
     const { successUrl } = generateResponseUrls(freshUrl());
     expect(successUrl).toContain("payment_success=true");
   });
 
-  it("AC-D5 fail URL appends payment_success=false", () => {
+  it("fail URL appends payment_success=false", () => {
     const { failUrl } = generateResponseUrls(freshUrl());
     expect(failUrl).toContain("payment_success=false");
   });
 
-  it("AC-D6 cancel URL carries AUTO_PAY encoded", () => {
-    const { cancelUrl } = generateResponseUrls(freshUrl(), { autoPay: true });
-    expect(cancelUrl).toContain("auto_pay=");
+  it("AC-D5 appends operation_id to the success, fail, and cancel legs so a returning client resumes where they left", () => {
+    const { successUrl, failUrl, cancelUrl } = generateResponseUrls(
+      freshUrl(),
+      { operationId: OP }
+    );
+    expect(successUrl).toContain(`operation_id=${OP}`);
+    expect(failUrl).toContain(`operation_id=${OP}`);
+    expect(cancelUrl).toContain(`operation_id=${OP}`);
   });
 
-  it("AC-D6 cancel URL carries INIT_PAY with orderId when externalPayment is true", () => {
-    const { cancelUrl } = generateResponseUrls(freshUrl(), {
-      orderId: "order-123",
-      externalPayment: true
-    });
-    expect(cancelUrl).toContain("init_pay=");
+  it("AC-D6 carries the return context via operation_id in the URL, not stored state — no legacy base64 auto_pay or init_pay", () => {
+    const { successUrl, failUrl, cancelUrl, returnUrl } = generateResponseUrls(
+      freshUrl(),
+      { operationId: OP }
+    );
+    for (const url of [successUrl, failUrl, cancelUrl, returnUrl]) {
+      expect(url).not.toContain("auto_pay");
+      expect(url).not.toContain("init_pay");
+    }
   });
 
-  it("AC-D6 INIT_PAY does not carry orderId when externalPayment is false", () => {
-    const { cancelUrl } = generateResponseUrls(freshUrl(), {
-      orderId: "order-123",
-      externalPayment: false
-    });
-    expect(cancelUrl).toContain("init_pay=");
+  it("emits no operation_id when operationId is absent", () => {
+    const { successUrl, failUrl, cancelUrl } = generateResponseUrls(freshUrl());
+    expect(successUrl).not.toContain("operation_id");
+    expect(failUrl).not.toContain("operation_id");
+    expect(cancelUrl).not.toContain("operation_id");
   });
 
-  it("appends pmt (payment_method_type) when type is supplied", () => {
+  it("copies the input URL per leg and never mutates it in place", () => {
+    const url = freshUrl();
+    const before = url.toString();
+    generateResponseUrls(url, { operationId: OP });
+    expect(url.toString()).toBe(before);
+    expect(url.searchParams.has(QUERY_PARAMS.OPERATION_ID)).toBe(false);
+  });
+
+  it("appends pmt (payment_method_type) to the cancel leg when type is supplied", () => {
     const { cancelUrl } = generateResponseUrls(freshUrl(), { type: "card" });
     expect(cancelUrl).toContain("pmt=card");
   });
@@ -87,11 +103,6 @@ describe("generateResponseUrls — the context carried across the provider round
     expect(result.failUrl).toBeTruthy();
     expect(result.cancelUrl).toBeTruthy();
     expect(result.returnUrl).toBeTruthy();
-  });
-
-  it("handles autoPay undefined", () => {
-    const { cancelUrl } = generateResponseUrls(freshUrl(), { orderId: "o1" });
-    expect(cancelUrl).toContain("auto_pay=");
   });
 });
 

@@ -13,7 +13,6 @@ import {
 import {
   addProductViaHeadless,
   addPromotionViaHeadless,
-  registerClientViaHeadless,
   waitForUpmindBridge
 } from "../../support/flows";
 import { clickAndAwaitBasketAdd } from "../../support/helpers";
@@ -87,7 +86,12 @@ newUser.describe("Free Trials @free-trials", () => {
     });
     newUser("Trial checkbox visible but disabled", async () => {
       await expect(productConfig.trialCheckbox).toBeVisible();
-      await expect(productConfig.trialCheckbox).toBeDisabled();
+      // reka renders the control as a div, so native `disabled` is not what
+      // Playwright reads; OptionTile stamps `data-disabled` on the tile instead.
+      await expect(productConfig.trialCheckbox).toHaveAttribute(
+        "data-disabled",
+        "true"
+      );
       await productConfig.expectTrialSelected();
     });
     newUser("Trial description shows badge, duration and term", async () => {
@@ -236,10 +240,11 @@ newUser.describe("Free Trials @free-trials", () => {
     });
   });
   newUser.describe("Checkout with Trial Product", () => {
+    // `newUser` already registered and signed the client in; a second register
+    // call is refused by the auth machine ("could not enter the register flow").
     newUser.beforeEach(async ({ page }) => {
       checkout = new Checkout(page);
       await page.goto("/");
-      await registerClientViaHeadless(page);
       await goToCheckout(
         page,
         products.OPTIONAL_TRIAL_PRODUCT,

@@ -15,7 +15,8 @@
       "import": "./dist/index.js"
     },
     "./package.json": "./package.json",
-    "./fixtures": "./src/fixtures/index.ts",
+    "./features": "./src/testing/features.ts",
+    "./fixtures": "./src/testing/fixtures.ts",
     "./testing": "./src/testing/index.ts"
   },
   "files": [
@@ -64,6 +65,7 @@
     "dayjs": "^1.11.13",
     "libphonenumber-js": "^1.12.10",
     "lodash-es": "^4.17.21",
+    "nanoid": "^5.1.5",
     "psl": "^1.15.0",
     "tiny-cookie": "^2.5.1",
     "xstate": "^4.38.3"
