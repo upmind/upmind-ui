@@ -12,7 +12,12 @@ Before the fetch settles, the query default for `data` is `[]`, and `meta` deriv
 from a loaded invoice. Reading `meta` on a non-loaded invoice observes the pre-load
 default, not the invoice.
 
-```typescript
+```ts
+import { useInvoice } from "@upmind-automation/headless";
+
+declare const id: string;
+declare function settle(): void;
+
 // ❌ Wrong — reads before the invoice has loaded
 const { meta } = useInvoice(id);
 if (meta.value.isPaid) settle();
@@ -85,6 +90,10 @@ non-converted total.
 There is no `destroy()` — the module holds no long-lived service. Await readiness before
 reading:
 
-```typescript
+```ts
+import { useInvoice } from "@upmind-automation/headless";
+
+declare const id: string;
+
 await useInvoice(id).isReady();
 ```

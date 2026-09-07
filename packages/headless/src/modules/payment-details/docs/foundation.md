@@ -58,6 +58,13 @@ The brand surfaces these keys through `/config/brand/values`; payment details co
 ### Stored payment method — `IPaymentDetail`
 
 ```ts
+import type {
+  IAddress,
+  IClient,
+  ICurrency,
+  IGateway
+} from "@upmind-automation/types";
+
 // Returned by GET /clients/{clientId}/payment_details (one per array entry),
 // POST /clients/{clientId}/payment_details (single record),
 // POST /gateway/frontend/tokenize-end/{gatewayId} (single record, wrapped),
@@ -70,7 +77,7 @@ type StoredPaymentMethod = {
 
   // Gateway link
   gateway_id: string;
-  gateway: BrandGateway; // with-relation: full gateway record
+  gateway: IGateway; // with-relation: the full gateway record, not the brand_gateway row
 
   // Card metadata (populated for CARD type; null-ish for bank transfer / direct debit)
   card_type: string; // "mastercard", "visa", "amex", …
@@ -90,11 +97,11 @@ type StoredPaymentMethod = {
 
   // Address link (billing address for the method)
   address_id: string;
-  address: Address; // with-relation
+  address: IAddress; // with-relation
 
   // Currency link (null when the method is currency-agnostic)
   currency_id: string | null;
-  currency: Currency | null; // with-relation
+  currency: ICurrency | null; // with-relation
 
   // Flags
   type: number; // GatewayTypes — see enum below
@@ -117,15 +124,20 @@ type StoredPaymentMethod = {
   deleted_at: string | null;
 
   // Embedded client record (with-relation), available when the listing was fetched with `with=client`
-  client: Client;
+  client: IClient;
 };
 ```
 
-Cross-reference: `IPaymentDetail` is defined in `packages/types/src/models/paymentDetails.ts`; the typed contract is narrower than the fixture (it omits `default`, `can_delete`, `payment_method_type`, `autopayment_blocked*`, `pre_expiry_notification`, `manual`, `errors`) — follow the fixture, those fields are real on the wire.
+Cross-reference: `IPaymentDetail` is defined in `packages/types/src/models/paymentDetails.ts`; the typed contract is narrower than the fixture (it omits `payment_method_type`, `autopayment_blocked*`, `pre_expiry_notification`, `manual`, `errors`, `external_id`) — follow the fixture, those fields are real on the wire.
 
 ### Brand gateway — `IBrandGateway`
 
 ```ts
+import type {
+  GatewayAuthType,
+  GatewayStoreType
+} from "@upmind-automation/types";
+
 // Returned by GET /brands/{brandId}/gateways (one per array entry).
 type BrandGateway = {
   id: string;
@@ -230,6 +242,13 @@ enum GatewayTypes {
 ### Wallet balance — `IWalletBalance`
 
 ```ts
+import type { ICurrency } from "@upmind-automation/types";
+
+// Bucket keys are ISO-4217 currency codes; only the currencies the wallet
+// actually holds appear, so the record is sparse (the wire type is keyed by
+// plain string, not by the closed ISO-4217 union).
+type CurrencyCode = string;
+
 // Returned by GET /wallet/balance.
 type WalletBalance = {
   online: Record<CurrencyCode, WalletCurrencyBalance>;
@@ -245,7 +264,7 @@ type WalletCurrencyBalance = {
   amount_formatted: string;
   amount_converted: number; // in the requested display currency
   amount_converted_formatted: string;
-  currency: Currency;
+  currency: ICurrency;
 };
 ```
 
@@ -258,6 +277,14 @@ method was captured. Every member names a `gateway_id`. Only
 alternatives: the stored-method shape carries both.
 
 ```ts
+import type {
+  GatewayCardData,
+  GatewayDirectDebitData,
+  GatewayExternalCardData,
+  GatewayExternalStoreData,
+  GatewayMobileData
+} from "@upmind-automation/types";
+
 // Input to POST /payments and to the basket-conversion call.
 type SelectPaymentMethodData =
   | StoredCardData // a method already on file

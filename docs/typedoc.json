@@ -5,10 +5,12 @@
   "entryPointStrategy": "packages",
   "outputFileStrategy": "members",
   "alwaysCreateEntryPointModule": true,
-  "plugin": ["typedoc-plugin-markdown", "typedoc-vitepress-theme"],
-  "readme": "./index.md",
+  "plugin": ["typedoc-plugin-markdown"],
+  "readme": "./README.md",
   "indexFormat": "table",
-  "packageOptions": { "gitRevision": "main" },
+  "packageOptions": {
+    "gitRevision": "main"
+  },
   "githubPages": false,
   "useCodeBlocks": true,
   "disableSources": true,
@@ -18,5 +20,5 @@
     "title.memberPage": "{name}"
   },
   "cleanOutputDir": false,
-  "out": "./@upmind-automation"
+  "out": "./.typedoc-out"
 }

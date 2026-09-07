@@ -9,15 +9,23 @@ The sharp edges of a client's own email history and its single-email read. For a
 The collection's scope accepts a client id through `.for(ScopeActorTypes.CLIENT, someOtherClientId)`, and the call compiles and runs. **It does not read that other client's history.** The underlying endpoint (`self/email_history`) always resolves to the AUTHENTICATED caller — it has no client-id parameter of any kind — so the call returns the caller's OWN history, filed under a cache key that names the other client's id.
 
 ```ts
+import {
+  ReceivedEmailsContextTypes,
+  ScopeActorTypes,
+  useClientReceivedEmails
+} from "@upmind-automation/headless";
+
+const someOtherClientId = "3f1c8a04-9d2b-4c77-8f31-6b0e5a2d9c14";
+
 // ⚠️ Wrong: this does NOT retarget the read
-const history = useClientReceivedEmails()
+const retargeted = useClientReceivedEmails()
   .as(ScopeActorTypes.CLIENT)
   .for(ReceivedEmailsContextTypes.CLIENT, someOtherClientId);
-// .useContext().data is still the CALLER's own history — just cached
+// retargeted.useContext().data is still the CALLER's own history — just cached
 // under a key that names `someOtherClientId`.
 
 // ✅ Right: there is no capability to read another client's history here.
-// Every live consumer opens the collection with a bare .as('client') call.
+// Every live consumer opens the collection with a bare .as(CLIENT) call.
 const history = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
 ```
 
@@ -32,11 +40,20 @@ const history = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
 Neither `useClientReceivedEmails` nor `useClientReceivedEmail` can compose, send, resend, or delete an email. Both exist purely to read.
 
 ```ts
-// ⚠️ Wrong: there is no send()/resend()/remove() anywhere in this module
-await useClientReceivedEmails().as("client").useActions().resend(id); // undefined
+import {
+  ScopeActorTypes,
+  useClientReceivedEmails
+} from "@upmind-automation/headless";
+
+// ⚠️ Wrong: there is no send()/resend()/remove() anywhere in this module, so
+// neither of these even type-checks:
+//   useClientReceivedEmails().as(ScopeActorTypes.CLIENT).useActions().resend(id);
+//   useClientReceivedEmail().withId(id).useActions().remove();
 
 // ✅ Right: this module reads what has already been sent
-const { data } = useClientReceivedEmails().as("client").useContext();
+const { data } = useClientReceivedEmails()
+  .as(ScopeActorTypes.CLIENT)
+  .useContext();
 ```
 
 > **🧪 For Testers:** Asserting a mutation-shaped member on either composable's actions asserts `undefined`. The collection's one schema (`useContext().schemas.query`) is a READ query schema — what `setCriteria` accepts — never a form/mutation schema, and there is no state machine anywhere in this module.
@@ -58,6 +75,13 @@ Narrowing to "sent" sends only `filter[sent|eq]=1` — never paired with `filter
 The `filters` branch itself is a full replace, not an accumulating merge: a later `setCriteria({ filters: {...} })` call replaces whatever `filters` object the previous call set — a column left out of the new call is gone, not carried over from the old one.
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientReceivedEmails
+} from "@upmind-automation/headless";
+
+const history = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
+
 const { setCriteria } = history.useActions();
 
 setCriteria({ filters: { sent: { eq: true } } }); // filter[sent|eq]=1
@@ -84,10 +108,18 @@ An earlier build of this module's `sort()` re-applied the default order on a no-
 The collection's declared default (`created_at`, descending) governs the BOOT order only. To explicitly return to it later, read it off the published schema rather than hand-typing it, and write it back:
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientReceivedEmails
+} from "@upmind-automation/headless";
+
+const history = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
+
 const { schemas } = history.useContext();
 
 history.useActions().setCriteria({
-  sort: schemas.query.schema.properties.sort.default
+  // `properties` is optional on a JsonSchema7, so the walk is optional-chained.
+  sort: schemas.query.schema.properties?.sort?.default
 });
 ```
 
@@ -102,6 +134,13 @@ Writing a sort field the schema does not declare (only `created_at` and `subject
 There is no second request behind `pagination.total` — the one list request carries both the rows and the total in its response body, so `placeholderData: keepPreviousData` is what keeps the previously-known rows AND total on screen while a filter/sort/page change is in flight, not a separate probe settling independently.
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientReceivedEmails
+} from "@upmind-automation/headless";
+
+const history = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
+
 const { pagination } = history.useContext();
 // pagination.total / .pages update in the SAME tick the new rows land —
 // there is no separate count request to wait on.
@@ -114,8 +153,16 @@ const { pagination } = history.useContext();
 The collection walks one page at a time. There is no member that jumps directly to an arbitrary page number in one call.
 
 ```ts
-// ⚠️ Wrong: there is no goToPage() on this composable
-history.useActions().goToPage(5); // not a function
+import {
+  ScopeActorTypes,
+  useClientReceivedEmails
+} from "@upmind-automation/headless";
+
+const history = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
+
+// ⚠️ Wrong: there is no goToPage() on this composable, so this does not
+// type-check:
+//   history.useActions().goToPage(5);
 
 // ✅ Right: walk to it
 for (let i = 0; i < 4; i++) history.useActions().nextPage();
@@ -128,6 +175,15 @@ for (let i = 0; i < 4; i++) history.useActions().nextPage();
 `useMeta().isAvailable` is `true` when the session is authenticated **and** the scope resolved a client id. A session that authenticates but resolves no client correctly reports `false` — that is the case that tells this flag apart from a plain "am I logged in" check.
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientReceivedEmails
+} from "@upmind-automation/headless";
+
+const history = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
+
+declare function showSignInPrompt(): void;
+
 const { isAvailable, isLoading } = history.useMeta();
 
 // ⚠️ Wrong: treating a false isAvailable as "signed out"
@@ -144,6 +200,13 @@ if (!isAvailable.value && !isLoading.value) showSignInPrompt();
 `refresh()` is the one action on each composable that throws. With no addressable client it rejects with `NotAuthenticatedError` before issuing anything.
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientReceivedEmails
+} from "@upmind-automation/headless";
+
+const history = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
+
 try {
   await history.useActions().refresh();
 } catch (error) {
@@ -169,6 +232,18 @@ No action in this module produces a toast, a notification, or any other user-vis
 Neither surface is machine-backed, so `destroy()` on either just removes the registry entry — there is no service to stop. This is simpler than a module with a mutation-backed editor half, and it is the same on both surfaces here.
 
 ```ts
+import { onUnmounted } from "vue";
+import {
+  ScopeActorTypes,
+  useClientReceivedEmail,
+  useClientReceivedEmails
+} from "@upmind-automation/headless";
+
+const history = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
+const email = useClientReceivedEmail().withId(
+  "825d96e7-63ed-0913-46c4-174825283406"
+);
+
 onUnmounted(() => {
   history.useActions().destroy();
   email.useActions().destroy();
@@ -191,7 +266,12 @@ Both are gaps in what could be **captured**, not in what the code does — the d
 The list boots already on a bounded first page — the schema's own `pagination.limit` default (`10`) — not the caller's whole history in one response. The very FIRST request the collection ever issues already carries `limit=10`.
 
 ```ts
-const history = useClientReceivedEmails().as("client");
+import {
+  ScopeActorTypes,
+  useClientReceivedEmails
+} from "@upmind-automation/headless";
+
+const history = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
 await history.useActions().isReady();
 
 history.useContext().pagination.value.limit; // 10, even on a fresh boot

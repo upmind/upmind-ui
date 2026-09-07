@@ -1,51 +1,57 @@
-# Upmind Docs
+# Upmind docs
 
-Welcome to Upmind documentation for our open-source projects.
+One index, two consumers. `docs/corpus/corpus.json` is the source of truth for
+every generated doc, and both the published site and the agent tooling read it.
+Nothing downstream reads the source tree directly.
 
-## intro
+## How it works
 
-The tech powering this documentation is [Vitepress](https://vitepress.dev/) and [Typedoc](https://typedoc.org/) (with the help of [typedoc-plugin-markdown](https://www.typedoc-plugin-markdown.org/) - using [typedoc-vitepress-theme](https://www.typedoc-plugin-markdown.org/plugins/vitepress)).
+`corpus:build` gathers four inputs into that index:
 
-The outcome is a static website - [docs.upmind.io](https://docs.upmind.io/) - deployed on Firebase (more on this on the [Deployment](#deployment) section).
+| Input | Where it comes from |
+| ----- | ------------------- |
+| Code reflection | TypeDoc over `packages/headless`, JSON only — its markdown goes to a throwaway dir |
+| ADRs | `docs/adr/` |
+| Module docs | `packages/headless/src/modules/*/docs/` |
+| Glossary | `docs/corpus/glossary.yaml` |
 
-## How does it work ?
+`corpus:emit` then renders the index into Mintlify MDX under
+`docs/published-docs/developers/reference/headless/`. That directory is a git
+submodule of `github.com/upmind/mintlify-docs` — Mintlify publishes from it, so
+its `main` goes live without review. Commit to its `develop`, never `main`; a
+branch guard enforces it, and you never bypass a guard with `--no-verify`.
 
-There are 2 things happening at the same time in this repo:
+```bash
+pnpm --filter docs corpus:build    # rebuild the index
+pnpm --filter docs corpus:emit     # render the published pages
+pnpm --filter docs corpus:refresh  # both
+```
 
-- Typdoc generates automatic documentation from code comments blocks
+## The four gates
 
-- Vitepress generates the static website
+`.gitlab-ci/docs-corpus.yml` runs these on any change under `docs/corpus/`.
+Each is a plain node script you can run locally from the repo root:
 
-This means there's a few advantages and disadvantages.
+| Gate | What it proves |
+| ---- | -------------- |
+| `gate-api-drift` | Every source symbol matches the committed corpus and the emitted tree |
+| `gate-symbols` | Every documented symbol and glossary referent resolves against a fresh reflection |
+| `gate-examples` | Every fenced code block compiles against the real workspace packages |
+| `gate-authorship` | No generated page was hand-edited — emit replay is byte-exact |
 
-- A lot of heavy lifting of our documentation is carried by Typedoc as it generates a lot of it effortlessly. Also, nice blocks of comments in the code means that our documentation source of truth is living right there and then - in the code.
+`gate-examples` is why a doc snippet must be a whole compilable unit: tag it
+`ts`, `tsx` or `vue`, import what it uses, and read the real call site rather
+than inventing one. A fragment that genuinely cannot stand alone carries
+`<!-- corpus-example: skip — <specific reason> -->`; "excerpt" is not a reason.
 
-- However, configuring a monorepo (multiple packages) docs setup was far from trivial. Obviously documentation needs to look nice on the generated static site, routes need to make sense and markdown files organisation is a priority - otherwise no one will understand what's going on in the docs package in the future.
+## What lives here, and what does not
 
-## Local development
+Durable record only — ADRs, the corpus and its gates, the published tree. A
+module's own docs live beside its source, under
+`packages/headless/src/modules/<name>/docs/`, guides included.
 
-There are a few relevant scripts for working on the docs:
+Working notes stay out of git: audits, research, reviews, backups, session
+worklogs and spent plans are all gitignored. The workshop handover bundle moved
+to the agent-runner root for the same reason. Release notes live in Linear.
 
-- `npm run predocs` - Runs Typedoc automatic generation of markdown files (leveraging `typedoc-plugin-markdown`).
-
-- `npm run docs:dev` - Starts a local server (using Vite), where Vitepress is generating the static website on-the-fly.
-
-- `npm run docs:build` - This is the script run by the Gitlab pipeline to actually create a `dist` folder with the generated static site (obviously can be run locally for testing purposes).
-
-> ⚠️ Don't forget to run `npm run predocs` as much as possible. Changes in code and comment blocks will not reflect automatically just by running `npm run docs:dev`.
-
-After running `npm run predocs`, git will always show changes for the `typedoc-sidebar.json` file (even if nothing actually changes) - this is because the file is generated in a "minified javascript style" and then our monorepo setup applies our linter automatically on commit (so when the file is re-generated, it won't be linted anymore).
-
-## Deployment
-
-Whenever a pull request is created in the `upmind-monorepo`, a preview of the documentation is generated - look for `(docs) deploy preview` pipeline job/step.
-
-Both previews and production environments are using Firebase for hosting.
-
-> ℹ️ Always refer back to `upmind-monorepo/.gitlab-ci/vitepress.yml` for more details
-
-### Deploy to Production
-
-Deploying to production is as easy as creating and pushing a new git tag using the format `/^docs-v\d+(\.\d+)*$/` - example `docs-v1.0.0`.
-
-The pipeline is flexible, so we can tag from any branch at any time and it will deploy a new version of the documentation.
+VitePress and its Firebase hosting are retired — see ADR-026.

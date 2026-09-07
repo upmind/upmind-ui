@@ -201,14 +201,23 @@ on:
 row.
 
 ```ts
-// Before
-const defaultCompany = companies.useContext().default();
-const name = defaultCompany?.name;
+import {
+  ScopeActorTypes,
+  useClientCompanies
+} from "@upmind-automation/headless";
 
-// After
+const companies = useClientCompanies().as(ScopeActorTypes.CLIENT);
+
+// Before — `default()` resolved the row itself
+const previous = companies.useContext().default();
+// @ts-expect-error — `default()` now resolves the id (a string), not the row
+const previousName = previous?.name;
+
+// After — resolve the id, then look the row up
 const { default: defaultId, getOne } = companies.useContext();
 const defaultCompany = getOne(defaultId());
 const name = defaultCompany?.name;
+console.log(previousName, name);
 ```
 
 ### Filtering the collection
@@ -217,7 +226,15 @@ const name = defaultCompany?.name;
 worked stops working — no call site in this codebase used it.
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientCompanies
+} from "@upmind-automation/headless";
+
+const companies = useClientCompanies().as(ScopeActorTypes.CLIENT);
+
 // Before — the deleted member
+// @ts-expect-error — `filters` is gone; there is no `filters.query()` any more
 await companies.useActions().filters.query("acme");
 
 // After — a real substring filter that re-queries the server
@@ -235,7 +252,17 @@ see [usage.md](./usage.md#the-collections-query-schema).
 **New:** there was no sort action before this change.
 
 ```ts
-await companies.useActions().sortBy([{ field: "created_at", dir: "desc" }]);
+import {
+  ScopeActorTypes,
+  SortDirection,
+  useClientCompanies
+} from "@upmind-automation/headless";
+
+const companies = useClientCompanies().as(ScopeActorTypes.CLIENT);
+
+await companies
+  .useActions()
+  .sortBy([{ field: "created_at", dir: SortDirection.DESC }]);
 
 // Clearing the sort re-applies the collection's own default order
 // (created_at ascending), rather than leaving the list unordered
@@ -250,6 +277,13 @@ Only `name` and `created_at` are declared sortable — see
 **New:** there was no public door to a non-zero page size before this change.
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientCompanies
+} from "@upmind-automation/headless";
+
+const companies = useClientCompanies().as(ScopeActorTypes.CLIENT);
+
 // Before — the collection always read the whole list unpaged; no
 // consumer-facing way to change it
 
@@ -269,11 +303,23 @@ legacy consumers ask for) — `setCriteria` is what changes that. See
 anymore, under any name.
 
 ```ts
+import {
+  ClientCompanyContextTypes,
+  ScopeActorTypes,
+  useClientCompanyManager
+} from "@upmind-automation/headless";
+
+const companyId = "825d96e7-63ed-0913-46c4-174825283406";
+const clientId = "4d036794-24d0-e710-639b-3153698d582e";
+
 // Before
+// @ts-expect-error — the composable now takes no arguments at all
 useClientCompanyManager(companyId, { clientId });
 
 // After
-useClientCompanyManager().as("client").for("company", companyId);
+useClientCompanyManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCompanyContextTypes.COMPANY, companyId);
 ```
 
 ### Reaching the collection's services directly
@@ -281,11 +327,19 @@ useClientCompanyManager().as("client").for("company", companyId);
 **Breaking change:** the services layer is no longer exported.
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientCompanies
+} from "@upmind-automation/headless";
+// @ts-expect-error — the services layer is no longer on the module barrel
+import { useClientCompanyServices } from "@upmind-automation/headless";
+
 // Before
-const { ensure } = useClientCompanyServices();
+const { ensure: previousEnsure } = useClientCompanyServices();
 
 // After
-const { ensure } = useClientCompanies().as("client").useActions();
+const { ensure } = useClientCompanies().as(ScopeActorTypes.CLIENT).useActions();
+console.log(previousEnsure, ensure);
 ```
 
 ### Raising your own feedback
@@ -294,6 +348,19 @@ const { ensure } = useClientCompanies().as("client").useActions();
 delete or set-default.
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientCompanies
+} from "@upmind-automation/headless";
+
+const companies = useClientCompanies().as(ScopeActorTypes.CLIENT);
+const { remove } = companies.useActions();
+const id = "825d96e7-63ed-0913-46c4-174825283406";
+
+// Whatever your app already uses to tell the user what happened
+const notifySuccess = () => console.log("company deleted");
+const notifyFailure = (message?: string) => console.error(message);
+
 // Before — the module announced success and failure itself
 await remove(id);
 
@@ -315,8 +382,20 @@ The editor's `useMeta()` returns one computed per flag, not a single `meta`
 object — this was already the shape before this rebuild and is unchanged:
 
 ```ts
+import {
+  ClientCompanyContextTypes,
+  ScopeActorTypes,
+  useClientCompanyManager
+} from "@upmind-automation/headless";
+
+const companyId = "825d96e7-63ed-0913-46c4-174825283406";
+const manager = useClientCompanyManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCompanyContextTypes.COMPANY, companyId);
+
 const { isValid } = manager.useMeta();
-if (isValid.value) await save();
+const { update } = manager.useActions();
+if (isValid.value) await update();
 ```
 
 Flags available: `hasErrors`, `isAvailable`, `isComplete`, `isDirty`,

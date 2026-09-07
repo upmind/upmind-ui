@@ -6,12 +6,29 @@
 
 `mapPaymentDetails` (`payment-details.mappers.ts`) does `isArray(raw) ? raw : [raw]`. A keyed object fails `isArray`, so the whole response is wrapped as a single element and mapped as **one blank record** — the client is offered one empty card where they hold thirteen.
 
-```typescript
-// WRONG — collapses a gap-keyed object to one blank record
-const rawListings = isArray(raw) ? raw : [raw];
+```ts
+import { isArray, map } from "lodash-es";
+import type { PaymentDetail } from "@upmind-automation/headless";
+import type { IPaymentDetail } from "@upmind-automation/types";
+
+declare function mapPaymentDetail(raw: IPaymentDetail): PaymentDetail;
+
+// WRONG — what the module ships today: a gap-keyed object fails `isArray`, so
+// the whole response is wrapped and mapped as one blank record.
+export function mapPaymentDetails(
+  raw: IPaymentDetail | IPaymentDetail[]
+): PaymentDetail[] {
+  const rawListings = isArray(raw) ? raw : [raw];
+  return map(rawListings, mapPaymentDetail);
+}
 
 // the fix reads the values regardless of array-ness:
-const rawListings = isArray(raw) ? raw : Object.values(raw ?? {});
+export function mapPaymentDetailsFixed(
+  raw: IPaymentDetail[] | Record<string, IPaymentDetail>
+): PaymentDetail[] {
+  const rawListings = isArray(raw) ? raw : Object.values(raw ?? {});
+  return map(rawListings, mapPaymentDetail);
+}
 ```
 
 Two tests pin this as current, not hypothetical, behaviour, and they pull in opposite directions on purpose. [`payment-details.int.test.ts`](../__tests__/payment-details.int.test.ts) carries the single `it.fails` receipt: it states the capability the module should deliver, and passes today only because it fails. [`payment-details.composables.int.test.ts`](../__tests__/payment-details.composables.int.test.ts) is an ordinary green test asserting what the page actually gets — one record, with no id. Tracked on **FE-3130**. Neither changes production code. When the fix lands, the `it.fails` starts failing (delete the `.fails`, keep the assertion) and the page-side test goes red (invert it).
@@ -35,8 +52,16 @@ enum PaymentType {
 
 ## `gateway_id` doubles as a pay-later sentinel
 
-```typescript
-// payment-details.services.ts, parse()
+```ts
+import { unset } from "lodash-es";
+import { PaymentType } from "@upmind-automation/types";
+import type { PaymentDetailModel } from "@upmind-automation/headless";
+
+// payment-details.services.ts, parse() — `safeModel` is the schema-parsed form
+// model, `amount` the outstanding balance the machine was seeded with.
+declare const safeModel: PaymentDetailModel;
+declare const amount: number | undefined;
+
 // FORCE payment type if we have the gateway wet to pay later (syntactic sugar)
 if (safeModel?.gateway_id == PaymentType.PAY_LATER) {
   safeModel.type = PaymentType.PAY_LATER;
@@ -53,9 +78,35 @@ A `gateway_id` field carrying the literal string `"pay-later"` (`PaymentType.PAY
 
 `mapPaymentData` needs **both** `model.gateway_id` (which gateway) **and** the gateway's own capture bag — the `data` argument, produced by that gateway's own tokenise/SDK step — to build a real gateway payload. Supplying one without the other produces a payload naming the amount and the client, and **no gateway at all**:
 
-```typescript
+```ts
+import type {
+  PaymentDetailData,
+  PaymentDetailModel,
+  PaymentDetailsContext
+} from "@upmind-automation/headless";
+import type { SelectPaymentMethodData } from "@upmind-automation/types";
+
+// `mapPaymentData` is module-internal (payment-details.mappers.ts); this is its
+// real signature, so the call below is the call the machine makes.
+declare function mapPaymentData(args: {
+  clientId: PaymentDetailsContext["client"]["id"];
+  data?: SelectPaymentMethodData;
+  lookups: PaymentDetailsContext["lookups"];
+  model: PaymentDetailModel;
+  requirePaymentForFreeOrders?: boolean;
+}): PaymentDetailData | undefined;
+
+declare const clientId: string;
+declare const gateway_id: string;
+declare const lookups: PaymentDetailsContext["lookups"];
+
 // model names a gateway, but no capture data was passed
-mapPaymentData({ clientId, model: { gateway_id }, lookups, data: undefined });
+mapPaymentData({
+  clientId,
+  model: { amount: 25, type: null, gateway_id },
+  lookups,
+  data: undefined
+});
 // → { amount, client_id, ... } — no gateway_id, nothing to charge
 ```
 

@@ -43,48 +43,59 @@ The following are in-memory reads off the tree already retrieved via capability 
 The endpoint returns an array of top-level categories. Subcategories are nested inline on the `subcategories` field; the platform expands them to whatever depth the `with` parameter requested (the typical request asks for four levels of `subcategories.image` inlining, which materialises the tree up to five levels including the root).
 
 ```ts
+// The inline relations are the platform's own shipped shapes, so this doc's
+// record cannot drift from them.
+import type {
+  IImage as Image,
+  ITranslation as Translation
+} from "@upmind-automation/types";
+
 type ProductCategoryRecord = {
-  id: string;                                   // category UUID
-  parent_id: string | null;                     // null at the root
-  level: number;                                // 1-indexed depth; root = 1
+  id: string; // category UUID
+  parent_id: string | null; // null at the root
+  level: number; // 1-indexed depth; root = 1
   brand_id: string;
   org_id: string;
   user_id: string | null;
   reseller_account_id: number | null;
 
-  name: string;                                 // untranslated reporting name
-  name_translated: string;                      // localised name for display
-  description: string;                          // long-form, HTML allowed
+  name: string; // untranslated reporting name
+  name_translated: string; // localised name for display
+  description: string; // long-form, HTML allowed
   description_translated: string;
-  short_description: string;                    // excerpt for cards
+  short_description: string; // excerpt for cards
   short_description_translated: string;
 
-  external_id: string | null;                   // import_id passthrough (e.g. "hosting", "design_services")
+  external_id: string | null; // import_id passthrough (e.g. "hosting", "design_services")
   import_id: string | null;
   staged_import: boolean;
 
-  module_code: string | null;                   // e.g. "web_hosting" — marks categories that target a specific provisioning module
-  module_sub_id: string | null;                 // e.g. "domains"
+  module_code: string | null; // e.g. "web_hosting" — marks categories that target a specific provisioning module
+  module_sub_id: string | null; // e.g. "domains"
 
-  category_type: 1 | 2 | 3;                     // 1 = PRODUCT, 2 = PRODUCT_OPTION, 3 = PRODUCT_ATTRIBUTE — only category_type=1 appears in catalogue navigation
-  multiple: boolean;                            // option/attribute semantics: can the customer pick more than one value (only meaningful for option/attribute categories)
-  required: boolean;                            // option/attribute semantics: must the customer pick a value (only meaningful for option/attribute categories)
-  price_override: boolean;                      // option-category flag: a selection inside replaces (not adds to) the parent price
-  provision_setup_field_defer_mode: "none" | "after_order" | "before_completion" | "hidden";
+  category_type: 1 | 2 | 3; // 1 = PRODUCT, 2 = PRODUCT_OPTION, 3 = PRODUCT_ATTRIBUTE — only category_type=1 appears in catalogue navigation
+  multiple: boolean; // option/attribute semantics: can the customer pick more than one value (only meaningful for option/attribute categories)
+  required: boolean; // option/attribute semantics: must the customer pick a value (only meaningful for option/attribute categories)
+  price_override: boolean; // option-category flag: a selection inside replaces (not adds to) the parent price
+  provision_setup_field_defer_mode:
+    | "none"
+    | "after_order"
+    | "before_completion"
+    | "hidden";
 
-  order: number;                                // display order within the parent
-  hidden: boolean;                              // hide from catalogue rendering
+  order: number; // display order within the parent
+  hidden: boolean; // hide from catalogue rendering
   ui_settings: Record<string, unknown> | null;
 
   // --- aggregate counts populated by the with_count query parameter
-  products_count: number;                       // products directly in this category (not descendants)
-  sub_products_count: number;                   // products under subcategories of this category
-  subcategories_count: number;                  // direct children count
-  sub_subcategories_count: number;              // grandchild count
+  products_count: number; // products directly in this category (not descendants)
+  sub_products_count: number; // products under subcategories of this category
+  subcategories_count: number; // direct children count
+  sub_subcategories_count: number; // grandchild count
 
   // --- relations populated by the with= query
-  subcategories: ProductCategoryRecord[];       // nested children, populated up to the requested depth
-  image: { image_url: string; … } | null;       // primary category image (populated when subcategories.image is requested at this level)
+  subcategories: ProductCategoryRecord[]; // nested children, populated up to the requested depth
+  image: Image | null; // primary category image (populated when subcategories.image is requested at this level)
   translations: Translation[];
 
   // --- timestamps

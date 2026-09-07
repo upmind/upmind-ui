@@ -4,7 +4,9 @@ API reference and recipes for the `system` module.
 
 ## `useSystem()`
 
-```typescript
+```ts
+import { useSystem } from "@upmind-automation/headless";
+
 const {
   // --- state
   isReady,
@@ -78,8 +80,12 @@ const {
 
 ### From a machine `load` service
 
-```typescript
-async function load(_context, _event) {
+```ts
+import { useBrand, useSystem } from "@upmind-automation/headless";
+import { BrandConfigKeys } from "@upmind-automation/types";
+import type { AnyEventObject } from "xstate";
+
+export async function load(_context: unknown, _event: AnyEventObject) {
   const { ensureConfig } = useBrand();
   const { ensureCountries, ensureBillingCycles } = useSystem();
 
@@ -95,8 +101,10 @@ async function load(_context, _event) {
 
 ### From a sync schema parser
 
-```typescript
-export const useRegisterSchemaParser = (data: any) => {
+```ts
+import { useSystem } from "@upmind-automation/headless";
+
+export const useRegisterSchemaParser = (_data: unknown) => {
   const { getCountry } = useSystem();
   return {
     properties: {
@@ -114,8 +122,10 @@ export const useRegisterSchemaParser = (data: any) => {
 
 ### Region lookup chain
 
-```typescript
-const { getCountry, fetchRegions, getRegion } = useSystem();
+```ts
+import { useSystem } from "@upmind-automation/headless";
+
+const { ensureCountries, getCountry, fetchRegions, getRegion } = useSystem();
 
 await ensureCountries();
 const country = getCountry("US");

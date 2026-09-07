@@ -4,8 +4,12 @@
 
 `payment` is a **flat** composable, not a scoped one. There is no `.as(actor)`, no `.for(client, id)`, and no `useMeta()` / `useContext()` / `useActions()` split — every member sits on the returned object.
 
-```typescript
+```ts
 import { usePayment } from "@upmind-automation/headless";
+import type { PaymentDetailData } from "@upmind-automation/headless";
+
+declare const orderId: string;
+declare const paymentDetail: PaymentDetailData; // from payment-details
 
 const {
   // state
@@ -29,7 +33,11 @@ The module also exports `paymentMachine` for a parent machine to `invoke`. See [
 
 ## Arguments
 
-```typescript
+```ts
+import type { PaymentDetailData } from "@upmind-automation/headless";
+import type { IOrder } from "@upmind-automation/types";
+
+// payment.types.ts exports this declaration — import it rather than restating it.
 type PaymentArgs = {
   orderId: IOrder["id"]; // which order to pay
   paymentDetail: PaymentDetailData; // from payment-details
@@ -43,7 +51,15 @@ type PaymentArgs = {
 
 ### Take the payment
 
-```typescript
+```ts
+import { usePayment } from "@upmind-automation/headless";
+import type { PaymentDetailData } from "@upmind-automation/headless";
+
+declare const orderId: string;
+declare const paymentDetail: PaymentDetailData; // from payment-details
+
+const { pay, refresh } = usePayment({ orderId, paymentDetail });
+
 // Retry, or resume after the customer came back from the provider.
 pay();
 
@@ -56,7 +72,20 @@ refresh({ orderId, paymentDetail });
 
 ### Complete a challenge
 
-```typescript
+```ts
+import { usePayment } from "@upmind-automation/headless";
+import type { PaymentDetailData } from "@upmind-automation/headless";
+
+declare const orderId: string;
+declare const paymentDetail: PaymentDetailData; // from payment-details
+
+declare const containerElement: HTMLElement;
+
+const { renderChallenge, completeChallenge, cancelChallenge } = usePayment({
+  orderId,
+  paymentDetail
+});
+
 // Mount the provider's own confirmation step into an element you own.
 renderChallenge(containerElement);
 
@@ -73,7 +102,15 @@ Use these only while a challenge is in flight — check `meta.value.isChallengin
 
 ### Utility
 
-```typescript
+```ts
+import { usePayment } from "@upmind-automation/headless";
+import type { PaymentDetailData } from "@upmind-automation/headless";
+
+declare const orderId: string;
+declare const paymentDetail: PaymentDetailData; // from payment-details
+
+const { isReady } = usePayment({ orderId, paymentDetail });
+
 // Resolves once the machine is out of `subscribing` and `loading`.
 // true when it got somewhere usable, false when it landed in error.
 const ok: boolean = await isReady();
@@ -81,7 +118,15 @@ const ok: boolean = await isReady();
 
 ## Meta (State Flags)
 
-```typescript
+```ts
+import { usePayment } from "@upmind-automation/headless";
+import type { PaymentDetailData } from "@upmind-automation/headless";
+
+declare const orderId: string;
+declare const paymentDetail: PaymentDetailData; // from payment-details
+
+const { meta } = usePayment({ orderId, paymentDetail });
+
 const {
   isLoading, // reading the order and the brand's gateways
   isAvailable, // anything other than loading
@@ -100,21 +145,35 @@ const {
 
 ## Context (Computed Values)
 
-```typescript
-const {
-  orderId, // the order this attempt is against
-  paymentDetail, // the method it was handed
-  rawOrder, // the loaded IInvoice — amounts, currency, client, payment history
-  gateway, // the IGateway behind the chosen method
-  approval, // where to send the customer, and what to send
-  cancel, // where to send them if they back out
-  error // the ResponseError, when one landed
-} = context.value ?? {};
+```ts
+import type { UsePayment } from "@upmind-automation/headless";
+
+// from `const { context } = usePayment({ orderId, paymentDetail })`
+declare const context: UsePayment["context"];
+
+// `context` is undefined until the machine has one — guard, do not default it.
+if (context.value) {
+  const {
+    orderId, // the order this attempt is against
+    paymentDetail, // the method it was handed
+    rawOrder, // the loaded IInvoice — amounts, currency, client, payment history
+    gateway, // the IGateway behind the chosen method
+    approval, // where to send the customer, and what to send
+    cancel, // where to send them if they back out
+    error // the ResponseError, when one landed
+  } = context.value;
+}
 ```
 
 Two members are also exposed directly, because they are the two a consumer reads most:
 
-```typescript
+```ts
+import type { UsePayment } from "@upmind-automation/headless";
+
+// from `const handle = usePayment({ orderId, paymentDetail })`
+declare const handle: UsePayment;
+const { payment, errors } = handle;
+
 payment.value?.transaction_status; // "OK" | "WAITING" | "REDIRECT" | "REJECTED" | …
 errors.value?.message; // the reason the API gave
 errors.value?.status; // its HTTP status
@@ -142,6 +201,8 @@ The machine spawns an auth subscription on entry and **will not touch the networ
 ```vue
 <script setup lang="ts">
 import { usePayment } from "@upmind-automation/headless";
+import { ref, watch } from "vue";
+import type { PaymentDetailData } from "@upmind-automation/headless";
 
 const props = defineProps<{
   orderId: string;

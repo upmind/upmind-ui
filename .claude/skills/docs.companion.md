@@ -5,6 +5,10 @@ Shared documentation bindings — the foundation-doc path, canonical types/enums
 ## Modules root & output
 
 - `<modules-root>` = `packages/headless/src/modules`.
+- `<guides-root>` = `docs/guides`. Hand-authored guides live here and nowhere
+  else; `docs/corpus/build.mjs` ingests `docs/guides/*-guide.md` into the
+  corpus. They used to sit inside typedoc's own output directory, where a
+  regeneration could wipe them.
 - Foundation doc output: `packages/headless/src/modules/<name>/docs/foundation.md` (the module `README.md` is internal-facing and stays untouched).
 
 ## Module source files (base Required-read 4 → concrete filenames)

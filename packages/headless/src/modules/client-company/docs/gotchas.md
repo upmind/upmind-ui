@@ -19,13 +19,34 @@ but `client` fails to compile**, because there is no context type for it to
 accept.
 
 ```ts
-// ⚠️ Wrong: there is no context to chain onto a staff (or self, or guest) scope
-useClientCompanies().as("staff").for("client", someClientId); // compile-time error — no `.for()` exists here
-useClientCompanyManager().as("staff").for("company", someCompanyId); // same
+import {
+  ClientCompaniesContextTypes,
+  ClientCompanyContextTypes,
+  ScopeActorTypes,
+  useClientCompanies,
+  useClientCompanyManager
+} from "@upmind-automation/headless";
+
+const someClientId = "4d036794-24d0-e710-639b-3153698d582e";
+const companyId = "825d96e7-63ed-0913-46c4-174825283406";
+
+// ⚠️ Wrong: there is no context to chain onto a staff (or self, or guest)
+// scope. Each `@ts-expect-error` below IS the compile error this section
+// documents — it fails, and the gate proves it still fails.
+useClientCompanies()
+  .as(ScopeActorTypes.STAFF)
+  // @ts-expect-error — no `.for()` here: the matrix maps `staff` to `never`
+  .for(ClientCompaniesContextTypes.CLIENT, someClientId);
+useClientCompanyManager()
+  .as(ScopeActorTypes.STAFF)
+  // @ts-expect-error — same: the editor's matrix maps `staff` to `never`
+  .for(ClientCompanyContextTypes.COMPANY, companyId);
 
 // ✅ Right: the only actor with a context on either matrix
-useClientCompanies().as("client");
-useClientCompanyManager().as("client").for("company", companyId);
+useClientCompanies().as(ScopeActorTypes.CLIENT);
+useClientCompanyManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCompanyContextTypes.COMPANY, companyId);
 ```
 
 **Be precise about what this does and does not block.** The bare call
@@ -42,8 +63,15 @@ anyone should use, and no fixture or test exercises it, because there is
 nothing meaningful on the other end of it.
 
 ```ts
-// ⚠️ Wrong: assuming this either works as staff-acting-for-a-client, or fails to compile
-useClientCompanies().as("staff"); // compiles; resolves to the STAFF session's own id, not any client's
+import {
+  ScopeActorTypes,
+  useClientCompanies
+} from "@upmind-automation/headless";
+
+// ⚠️ Wrong: assuming this either works as staff-acting-for-a-client, or
+// fails to compile. It does neither — it compiles, and resolves to the STAFF
+// session's own id, not any client's.
+useClientCompanies().as(ScopeActorTypes.STAFF);
 ```
 
 A staff-impersonating-a-client path, and staff-only capability gating on
@@ -76,7 +104,12 @@ one page, so `nextPage()` and `prevPage()` find there is no other page to move
 to.
 
 ```ts
-const companies = useClientCompanies().as("client");
+import {
+  ScopeActorTypes,
+  useClientCompanies
+} from "@upmind-automation/headless";
+
+const companies = useClientCompanies().as(ScopeActorTypes.CLIENT);
 const { hasNextPage } = companies.useMeta();
 
 await companies.useActions().isReady();
@@ -93,6 +126,14 @@ for the identical gap. Once a non-zero `limit` is set, `nextPage()` /
 track a real paged window:
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientCompanies
+} from "@upmind-automation/headless";
+
+const companies = useClientCompanies().as(ScopeActorTypes.CLIENT);
+const { hasNextPage } = companies.useMeta();
+
 await companies.useActions().setCriteria({ pagination: { limit: 2 } });
 console.log(hasNextPage.value); // reflects the real second page, once loaded
 
@@ -123,14 +164,22 @@ Fixtures: `__tests__/fixtures/get-clients-id-companies-case-page-1.json`,
 not resolve the row itself.
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientCompanies
+} from "@upmind-automation/headless";
+
+const companies = useClientCompanies().as(ScopeActorTypes.CLIENT);
 const { default: defaultId, getOne } = companies.useContext();
 
 // ⚠️ Wrong: treating default() as the row
-const name = defaultId()?.name; // undefined — default() has no `.name`
+// @ts-expect-error — `default()` resolves the id (a string); it has no `.name`
+const wrongName = defaultId()?.name;
 
 // ✅ Right: look the row up
 const row = getOne(defaultId());
 const name = row?.name;
+console.log(wrongName, name);
 ```
 
 This is a genuine contract change from an earlier version of this module,
@@ -154,11 +203,23 @@ collection uses, which always resolves to the calling client's own session
 under this module's current scope.
 
 ```ts
+import {
+  ClientCompanyContextTypes,
+  ScopeActorTypes,
+  useClientCompanyManager
+} from "@upmind-automation/headless";
+
+const companyId = "825d96e7-63ed-0913-46c4-174825283406";
+const clientId = "4d036794-24d0-e710-639b-3153698d582e";
+
 // ⚠️ Wrong: there is no client-id parameter to pass, under any name
-useClientCompanyManager(companyId, { clientId }); // not a real call signature
+// @ts-expect-error — this composable takes no arguments; not a real signature
+useClientCompanyManager(companyId, { clientId });
 
 // ✅ Right
-useClientCompanyManager().as("client").for("company", companyId);
+useClientCompanyManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCompanyContextTypes.COMPANY, companyId);
 ```
 
 If you are migrating code that used to pass a client id into the editor, there
@@ -183,11 +244,16 @@ rest of the module relies on. A caller that used to reach it directly should
 go through the collection's `ensure` action instead:
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientCompanies
+} from "@upmind-automation/headless";
 // ⚠️ Wrong: not exported
-import { useClientCompanyServices } from "@upmind-automation/headless"; // undefined
+// @ts-expect-error — the barrel has no `useClientCompanyServices` export
+import { useClientCompanyServices } from "@upmind-automation/headless";
 
 // ✅ Right — the same find-or-create capability, through the resolved scope
-const { ensure } = useClientCompanies().as("client").useActions();
+const { ensure } = useClientCompanies().as(ScopeActorTypes.CLIENT).useActions();
 await ensure({ name: "Acme Ltd", addressId: "some-address-id" });
 ```
 
@@ -198,18 +264,38 @@ a different module to compose the company's form fields into a _parent_
 schema. They are not a second way to render the company form for its own sake.
 
 ```ts
-// ✅ Right — a consumer rendering the company form itself
-const { schema, uischema } = useClientCompanyManager()
-  .as("client")
-  .for("company", id)
-  .useContext();
-
-// ✅ Also right — a DIFFERENT module composing the company's fields into its own schema
 import {
+  ClientCompanyContextTypes,
+  ScopeActorTypes,
+  useClientCompanyManager,
   useCompanySchema,
   useCompanyUischema
 } from "@upmind-automation/headless";
-const fragment = useCompanySchema({ countries, regions, baseModel, config });
+
+const id = "825d96e7-63ed-0913-46c4-174825283406";
+const manager = useClientCompanyManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCompanyContextTypes.COMPANY, id);
+
+// ✅ Right — a consumer rendering the company form itself
+const { schema, uischema } = manager.useContext();
+console.log(schema.value, uischema.value);
+
+// ✅ Also right — a DIFFERENT module composing the company's fields into its
+// own schema, from the same resolved look-ups the editor builds its own from
+const { countries, regions, baseModel, config } = manager.useContext();
+const fragment = useCompanySchema({
+  countries: countries.value,
+  regions: regions.value,
+  baseModel: baseModel.value,
+  config: config.value
+});
+const fragmentUi = useCompanyUischema({
+  countries: countries.value,
+  regions: regions.value,
+  baseModel: baseModel.value
+});
+console.log(fragment, fragmentUi);
 ```
 
 > **🧪 For Testers:** `useClientCompanyServices` is absent from the module's
@@ -232,12 +318,23 @@ the **raw key string** to the user on a failed company save instead of a
 readable sentence.
 
 ```ts
+import {
+  ClientCompanyContextTypes,
+  ScopeActorTypes,
+  useClientCompanyManager
+} from "@upmind-automation/headless";
+
+const companyId = "825d96e7-63ed-0913-46c4-174825283406";
+const manager = useClientCompanyManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCompanyContextTypes.COMPANY, companyId);
+
 try {
   await manager.useActions().update({ name: "" });
 } catch (error) {
   // In DEV: "We experienced an error updating this company"
   // In PROD, before the sync: the literal key string itself
-  console.log(error.message);
+  console.log((error as Error).message);
 }
 ```
 
@@ -294,14 +391,24 @@ a client at all. Any _other_ failure — a `500` from the server, for example �
 is not re-thrown; the call still resolves.
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientCompanies,
+  type Company
+} from "@upmind-automation/headless";
+
+const render = (rows: Company[]) => console.log(rows);
+const companies = useClientCompanies().as(ScopeActorTypes.CLIENT);
+
 // ⚠️ Wrong: assuming a resolved refresh() means the re-fetch succeeded
 await companies.useActions().refresh();
-render(companies.useContext().data.value); // may still be showing stale/empty data
+render(companies.useContext().data.value); // may still be stale/empty data
 
 // ✅ Right: check the error state after refreshing
 await companies.useActions().refresh();
 if (companies.useMeta().hasError.value) {
   // the re-fetch failed; render from useContext().error
+  console.log(companies.useContext().error.value?.message);
 }
 ```
 
@@ -342,9 +449,20 @@ skipped entirely (resolved to nothing, not an error) when the model carries
 neither its id form nor its inline form.
 
 ```ts
+import {
+  ClientCompanyContextTypes,
+  ScopeActorTypes,
+  useClientCompanyManager
+} from "@upmind-automation/headless";
+
+const companyId = "825d96e7-63ed-0913-46c4-174825283406";
+const manager = useClientCompanyManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCompanyContextTypes.COMPANY, companyId);
+
 // Address dependency is ALWAYS attempted, even with nothing supplied
 // Email and phone dependencies are skipped when nothing is supplied for them
-await manager.useActions().update({ name: "Acme Ltd" }); // no addressId, no email, no phone
+await manager.useActions().update({ name: "Acme Ltd" }); // no addressId/email/phone
 ```
 
 > **🧪 For Testers:** A save with no address information still issues an
@@ -364,6 +482,17 @@ key **dropped entirely**. The clear intent never reaches the server as a
 request the platform can act on.
 
 ```ts
+import {
+  ClientCompanyContextTypes,
+  ScopeActorTypes,
+  useClientCompanyManager
+} from "@upmind-automation/headless";
+
+const companyId = "825d96e7-63ed-0913-46c4-174825283406";
+const manager = useClientCompanyManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCompanyContextTypes.COMPANY, companyId);
+
 // ⚠️ Wrong: expecting this to clear the company's address server-side
 await manager.useActions().update({ addressId: undefined });
 // the outbound JSON body has no address_id key at all — nothing changes
@@ -409,6 +538,20 @@ The editor additionally offers `stop()`, which stops the service but leaves
 the registry entry in place.
 
 ```ts
+import {
+  ClientCompanyContextTypes,
+  ScopeActorTypes,
+  useClientCompanies,
+  useClientCompanyManager
+} from "@upmind-automation/headless";
+import { onUnmounted } from "vue";
+
+const companyId = "825d96e7-63ed-0913-46c4-174825283406";
+const companies = useClientCompanies().as(ScopeActorTypes.CLIENT);
+const manager = useClientCompanyManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCompanyContextTypes.COMPANY, companyId);
+
 onUnmounted(() => {
   companies.useActions().destroy();
   manager.useActions().destroy();

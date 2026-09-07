@@ -7,21 +7,25 @@
 //
 //   1. `corpus.examples[*].code` — the FE-2754 seam (design §5, ExampleEntry).
 //      Near-empty today (`{}`); population is FE-2754's own later work.
-//   2. Marked fenced snippets inside the markdown sources `corpus.guides`/
-//      `corpus.adrs` already ingest (design §5.2) — a snippet opts in with a
-//      `<!-- corpus-example -->` marker on the line immediately before a fenced
-//      ```ts/```tsx/```js/```jsx/```vue block (convention introduced here;
-//      distinct from `agent:ci/docs-corpus-gate.mjs`'s unrelated
-//      `capability-proof` EXECUTE marker — that gate proves a snippet RUNS
-//      against a recorded fixture stack; this one only proves a snippet
-//      TYPE-CHECKS against real exports, no execution, no fixtures). No guide
-//      or ADR uses the marker yet, so today this source also contributes zero
-//      — an honest no-op seam, same status as `corpus.examples`.
+//   2. Fenced snippets inside the markdown sources `corpus.guides`/`corpus.adrs`
+//      already ingest (design §5.2). CHECKED BY DEFAULT (operator ruling, FE-2749:
+//      "ANY md doc with example code should be checked"): every
+//      ```ts/```tsx/```js/```jsx/```vue/```typescript/```javascript block is
+//      type-checked unless the line immediately before it opts out with
+//      `<!-- corpus-example: skip — <reason> -->`. Fences in any other language
+//      are not type-checkable and are ignored. The original opt-in marker
+//      `<!-- corpus-example -->` is still honoured (it now only asserts the
+//      default), so a doc that already carried it keeps working — but a marked
+//      block in a non-checkable language stays a finding, as before. Distinct
+//      from `agent:ci/docs-corpus-gate.mjs`'s unrelated `capability-proof`
+//      EXECUTE marker — that gate proves a snippet RUNS against a recorded
+//      fixture stack; this one only proves a snippet TYPE-CHECKS against real
+//      exports, no execution, no fixtures.
 //
-// Empty-set is GREEN, always printing the compiled-snippet count (currently 0
-// + 0) — the gate is ready before FE-2754's content lands (design §9 "Snippet
-// needs a running app to compile" row; the executable-capability-proof job is
-// explicitly docs-corpus-gate's, not duplicated here).
+// Empty-set is GREEN, always printing the compiled-snippet count — the gate is
+// ready before FE-2754's content lands (design §9 "Snippet needs a running app
+// to compile" row; the executable-capability-proof job is explicitly
+// docs-corpus-gate's, not duplicated here).
 //
 // REAL WORKSPACE PACKAGES, ALWAYS — even against a fixture. `<root>`/`--root`
 // (below) only relocates where `corpus.json` (the SNIPPETS) is read from; the
@@ -119,6 +123,10 @@ const WORKSPACE_PACKAGES = [
   { name: '@upmind-automation/headless', dir: 'packages/headless' },
   { name: '@upmind-automation/icons', dir: 'packages/icons' },
   { name: '@upmind/ui', dir: 'design-system/packages/ui' },
+  // The 7th package. Its package.json exposes src/index.ts through `exports`
+  // only, which moduleResolution:"node" ignores, so a path mapping is the only
+  // way it resolves — mirroring packages/client-vue/tsconfig.json.
+  { name: '@upmind/tokens', dir: 'design-system/packages/tokens' },
   { name: '@upmind-automation/client-vue', dir: 'packages/client-vue' },
 ];
 
@@ -183,7 +191,7 @@ function materializeExamples(findings) {
     const origin = entry?.sourceFile ? `${entry.sourceFile}` : toRel(CORPUS_PATH, corpusRoot);
     const ext = LANG_EXT[String(entry?.lang ?? '').toLowerCase()];
     if (!ext) {
-      findings.push(`${origin} — example '${id}' has non-type-checkable lang "${entry?.lang}" (expected ts|tsx|js|jsx|vue)`);
+      findings.push(`${origin} — example '${id}' has non-type-checkable lang "${entry?.lang}" (expected ${LANGS})`);
       continue;
     }
     if (typeof entry?.code !== 'string' || !entry.code.trim()) {
@@ -196,17 +204,20 @@ function materializeExamples(findings) {
 }
 
 // ---------------------------------------------------------------------------
-// Snippet materialization, source 2 — marked fenced snippets inside the
-// markdown `corpus.guides`/`corpus.adrs` already ingest (design §5.2). Marker:
-// a `<!-- corpus-example -->` comment line immediately preceding a fenced code
-// block. Best-effort: a doc whose source file is no longer on disk is skipped
+// Snippet materialization, source 2 — fenced snippets inside the markdown
+// `corpus.guides`/`corpus.adrs` already ingest (design §5.2). Checked by
+// default; `<!-- corpus-example: skip — reason -->` on the preceding line opts
+// one out, `<!-- corpus-example -->` opts one in explicitly (see header).
+// Best-effort: a doc whose source file is no longer on disk is skipped
 // (staleness is that section's own referential concern, not this gate's —
 // `corpus.guides`/`corpus.adrs` store a path into the real file, never a copy).
 // ---------------------------------------------------------------------------
 const MARKER_RE = /^<!--\s*corpus-example\s*-->\s*$/;
-const FENCE_OPEN_RE = /^`{3,}([A-Za-z0-9]*)\s*$/;
+const SKIP_RE = /^<!--\s*corpus-example:\s*skip\b/;
+const FENCE_OPEN_RE = /^(`{3,})([A-Za-z0-9]*)\s*$/;
+const LANGS = Object.keys(LANG_EXT).join('|');
 
-function scanMarkedSnippets(docId, absPath, findings) {
+function scanDocSnippets(docId, absPath, findings) {
   const out = [];
   let text;
   try {
@@ -217,30 +228,43 @@ function scanMarkedSnippets(docId, absPath, findings) {
   const lines = text.split('\n');
   let n = 0;
   for (let i = 0; i < lines.length; i++) {
-    if (!MARKER_RE.test(lines[i].trim())) continue;
-    let j = i + 1;
-    while (j < lines.length && lines[j].trim() === '') j++; // tolerate one blank line
-    const open = j < lines.length ? FENCE_OPEN_RE.exec(lines[j].trim()) : null;
+    const open = FENCE_OPEN_RE.exec(lines[i].trim());
+    if (!open) continue;
+    const [, ticks, rawLang] = open;
+    const lang = rawLang.toLowerCase();
+    const ext = LANG_EXT[lang];
+    // The opt-in/opt-out marker is the nearest non-blank line above the fence.
+    let p = i - 1;
+    while (p >= 0 && lines[p].trim() === '') p--;
+    const prev = p >= 0 ? lines[p].trim() : '';
+    const optedIn = MARKER_RE.test(prev);
     const origin = `${toRel(absPath, corpusRoot)}:${i + 1}`;
-    if (!open) {
-      findings.push(`${origin} — corpus-example marker not immediately followed by a fenced code block`);
+    // A fence closes on a run of at least as many backticks and nothing else —
+    // so a ```md block quoting a shorter fence does not close its parent early.
+    const closeRe = new RegExp(`^\`{${ticks.length},}\\s*$`);
+    let close = -1;
+    for (let k = i + 1; k < lines.length; k++)
+      if (closeRe.test(lines[k].trim())) {
+        close = k;
+        break;
+      }
+    if (close === -1) {
+      if (ext || optedIn) findings.push(`${origin} — fenced code block never closes`);
+      break; // everything past an unterminated fence is inside it
+    }
+    if (!ext) {
+      if (optedIn)
+        findings.push(`${origin} — marked snippet has non-type-checkable fence language "${lang || '(none)'}" (expected ${LANGS})`);
+      i = close;
       continue;
     }
-    const lang = open[1].toLowerCase();
-    const ext = LANG_EXT[lang];
-    const close = lines.findIndex((l, k) => k > j && /^`{3,}\s*$/.test(l.trim()));
-    if (close === -1) {
-      findings.push(`${origin} — fenced code block after corpus-example marker never closes`);
+    if (SKIP_RE.test(prev)) {
+      i = close;
       continue;
     }
     n++;
     const id = `${docId}#${n}`;
-    if (!ext) {
-      findings.push(`${origin} — marked snippet '${id}' has non-type-checkable fence language "${lang || '(none)'}" (expected ts|tsx|js|jsx|vue)`);
-      i = close;
-      continue;
-    }
-    out.push({ id, origin, ext, code: lines.slice(j + 1, close).join('\n'), file: `marked/${slugify(id)}.${ext}` });
+    out.push({ id, origin, ext, code: lines.slice(i + 1, close).join('\n'), file: `marked/${slugify(id)}.${ext}` });
     i = close;
   }
   return out;
@@ -255,7 +279,7 @@ function materializeMarked(findings) {
       if (!entry?.path) continue;
       const abs = join(corpusRoot, entry.path);
       if (!existsSync(abs)) continue; // best-effort — see header note
-      out.push(...scanMarkedSnippets(docId, abs, findings));
+      out.push(...scanDocSnippets(docId, abs, findings));
     }
   }
   return out;
@@ -263,6 +287,24 @@ function materializeMarked(findings) {
 
 const findings = [];
 const materialized = [...materializeExamples(findings), ...materializeMarked(findings)];
+
+// slugify() truncates at 80 chars, so two long doc ids can produce the same temp
+// filename and silently overwrite each other's snippet — disambiguate instead.
+const usedFiles = new Set();
+for (const s of materialized) {
+  if (!usedFiles.has(s.file)) {
+    usedFiles.add(s.file);
+    continue;
+  }
+  const dot = s.file.lastIndexOf('.');
+  let k = 2;
+  let cand;
+  do {
+    cand = `${s.file.slice(0, dot)}__${k++}${s.file.slice(dot)}`;
+  } while (usedFiles.has(cand));
+  s.file = cand;
+  usedFiles.add(cand);
+}
 
 // Empty-set is green (design §9 seam) — but a malformed entry above is still a
 // real finding, so check findings first even when nothing compiled.
@@ -303,6 +345,15 @@ function runTypeCheck() {
     const paths = {};
     for (const { name, dir } of WORKSPACE_PACKAGES)
       paths[name] = [join(WORKSPACE_ROOT, dir, 'src', 'index.ts')];
+    // A doc snippet may import a framework package the real code imports (`vue`,
+    // `vue-router`, `lodash-es`, …). pnpm's isolated linking installs those under
+    // the depending package, never at the repo root, so Node's ancestor walk from
+    // the temp dir never finds them — this fallback points at the real copies.
+    paths['*'] = [
+      join(WORKSPACE_ROOT, 'packages/headless/node_modules', '*'),
+      join(WORKSPACE_ROOT, 'packages/client-vue/node_modules', '*'),
+      join(WORKSPACE_ROOT, 'node_modules', '*'),
+    ];
 
     // typeRoots: every workspace package's own node_modules/@types (pnpm's
     // isolated linking scopes each package's ambient devDependency types to its
@@ -321,6 +372,11 @@ function runTypeCheck() {
         typeRoots,
         baseUrl: tmp,
         paths,
+        // Each snippet is its own file, never a shared global script: without
+        // this an import-less snippet is a script — illegal under the inherited
+        // `isolatedModules`, and its top-level names collide with every other
+        // import-less snippet in the same program.
+        moduleDetection: 'force',
       },
       include: ['examples/**/*', 'marked/**/*'],
     };

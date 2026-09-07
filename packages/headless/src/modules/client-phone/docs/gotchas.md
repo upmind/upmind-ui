@@ -9,6 +9,22 @@ The sharp edges of the client's own phone-number collection and its per-phone ed
 The editor's `input()` is debounced. Calling it does not synchronously parse — rapid keystrokes collapse into one parse — so an `await input(model)` written to immediately read back the parsed result can resolve before the real parse has run.
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientPhoneManager,
+  type PhoneModel
+} from "@upmind-automation/headless";
+
+const manager = useClientPhoneManager().as(ScopeActorTypes.SELF);
+const typedValue: PhoneModel = {
+  phone: {
+    number: null,
+    nationalNumber: "7911123456",
+    countryCallingCode: null,
+    country: "GB"
+  }
+};
+
 // ⚠️ Wrong: assuming the resolved value is always the freshly-parsed model
 const parsed = await manager.useActions().input(typedValue);
 // may not reflect the debounced parse that is still pending
@@ -32,6 +48,10 @@ if (manager.useMeta().isValid.value) {
 The reason: the collection opens its list read with no page size (`limit: 0`), so it already returns the client's entire phone collection in one request. There is never a second page for `nextPage()` to move to.
 
 ```ts
+import { ScopeActorTypes, useClientPhones } from "@upmind-automation/headless";
+
+const phones = useClientPhones().as(ScopeActorTypes.SELF);
+
 // ⚠️ Wrong: assuming a large collection needs paging through the collection
 await phones.useActions().nextPage(); // throws — always, on this surface
 
@@ -52,17 +72,26 @@ If you find yourself adding a readiness check like `await useSystem().isReady()`
 The editor's `loadLookups` step calls `useSystem().ensureCountries()`, which already internally awaits both brand readiness and the countries query's own settled promise. Gating that call on a _separate_ `isReady()` check is redundant — and dangerous — because `isReady()` polls **every** active system-module query in the session on an uncapped interval, including ones this lookup has nothing to do with (for example, billing-cycle data another part of the app fetched earlier in the same session). In a real single-session lifecycle — one boot, several forms opened one after another — this manifested as a deterministic **~7 second stall** on the second editor opened in a session, reproduced twice within 30 milliseconds of each other in one measured run (cycle timings `[119, 208, 205, 7072, 204, 204]` — milliseconds per open).
 
 ```ts
+// Module-internal services code, not a consumer surface — this mirrors
+// `client-phone.services.ts`'s own `loadLookups`. The two are suffixed only so
+// the contrast fits in one file; in the module there is one `loadLookups`.
+import { useSystem, type PhoneContext } from "@upmind-automation/headless";
+
 // ⚠️ Wrong — reintroduces the stall
-async function loadLookups(context) {
+async function loadLookupsWithReadyCheck(
+  context: PhoneContext
+): Promise<Partial<PhoneContext>> {
   await useSystem().isReady(); // uncapped poll across ALL system queries
-  const countries = await ensureCountries();
-  // ...
+  await useSystem().ensureCountries();
+  return context; // ... then seed the form's model from the resolved country
 }
 
 // ✅ Right — ensureCountries() already awaits what matters
-async function loadLookups(context) {
-  const countries = await ensureCountries();
-  // ...
+async function loadLookupsDirect(
+  context: PhoneContext
+): Promise<Partial<PhoneContext>> {
+  await useSystem().ensureCountries();
+  return context; // ... then seed the form's model from the resolved country
 }
 ```
 
@@ -75,6 +104,13 @@ async function loadLookups(context) {
 Both the editor's `isReady()` and `onDone()` reject or resolve `false` after 60 seconds rather than waiting forever.
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientPhoneManager
+} from "@upmind-automation/headless";
+
+const manager = useClientPhoneManager().as(ScopeActorTypes.SELF);
+
 // isReady() rejects with a timeout error past 60s
 await manager.useActions().isReady(); // throws after 60s if never available
 
@@ -96,6 +132,14 @@ The editor exposes both `stop()` and `destroy()`, and they are not interchangeab
 | `destroy()` | yes               | yes                        |
 
 ```ts
+import { onUnmounted } from "vue";
+import {
+  ScopeActorTypes,
+  useClientPhoneManager
+} from "@upmind-automation/headless";
+
+const manager = useClientPhoneManager().as(ScopeActorTypes.SELF);
+
 // ⚠️ Wrong: leaves a registry entry behind for every form open, for the SPA session's life
 onUnmounted(() => manager.useActions().stop());
 
@@ -109,11 +153,23 @@ Calling `stop()` where `destroy()` was needed was a real bug in this codebase's 
 
 ## 6. `findOne` matches nested partials; the shared `useCollection` helper does not
 
-`useClientPhones().useContext().findOne(mapping)` accepts a **nested partial mapping** — `findOne({ phone: { number } })` matches a row on its parsed number alone, without supplying the rest of the `phone` object.
+`useClientPhones().useContext().findOne(mapping)` accepts a **nested partial mapping** at runtime — `findOne({ phone: { number } })` matches a row on its parsed number alone, without supplying the rest of the `phone` object. The published parameter type does **not** say so: it is `Partial<Phone>`, partial in its top-level keys only, so a nested partial has to be widened past the signature to compile.
 
 ```ts
-// This matches, even though the row's `phone` object has more keys than this
-phones.useContext().findOne({ phone: { number: "+447911123456" } });
+import {
+  ScopeActorTypes,
+  useClientPhones,
+  type Phone
+} from "@upmind-automation/headless";
+
+const phones = useClientPhones().as(ScopeActorTypes.SELF);
+
+// This matches at RUNTIME, even though the row's `phone` object has more keys
+// than this. The published parameter type is `Partial<Phone>` — partial in its
+// TOP-LEVEL keys only — so a nested partial has to be widened past it.
+phones
+  .useContext()
+  .findOne({ phone: { number: "+447911123456" } } as unknown as Partial<Phone>);
 ```
 
 This module's `findOne` is deliberately **not** the shared `useCollection().findOne` helper used elsewhere in this codebase — that shared helper compares each mapped key with strict equality, so a nested partial like the one above never matches the full mapped `phone` object. This module's own `findOne` deep-partial-matches nested plain objects instead. This is a real, filed-not-fixed gap in the shared helper, and it affects six modules beyond this one.
@@ -121,6 +177,10 @@ This module's `findOne` is deliberately **not** the shared `useCollection().find
 **The important asymmetry:** `ensure()` — the find-or-create seam — still goes through the **shared** helper internally, not this module's own `findOne`. That is safe today because `ensure()` always matches on the model's full non-empty shape, which is the degenerate case a strict-equality match handles correctly. But it means **passing `ensure()` a nested partial mapping would silently miss an existing match and create a duplicate**, rather than finding the record `findOne()` would have found.
 
 ```ts
+import { ScopeActorTypes, useClientPhones } from "@upmind-automation/headless";
+
+const phones = useClientPhones().as(ScopeActorTypes.SELF);
+
 // ✅ Safe: ensure() with a full model
 await phones.useActions().ensure({
   phone: {
@@ -156,6 +216,26 @@ This module is asymmetric on user-visible feedback, and it is easy to assume the
 | Everything else (`ensure`, `refresh`, the whole editor's `update()`) | No — read the state              |
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientPhoneManager,
+  useClientPhones,
+  type PhoneModel
+} from "@upmind-automation/headless";
+
+const phones = useClientPhones().as(ScopeActorTypes.SELF);
+const manager = useClientPhoneManager().as(ScopeActorTypes.SELF);
+const id = "825d96e7-63ed-0913-46c4-174825283406";
+const model: PhoneModel = {
+  phone: {
+    number: "+447911123456",
+    nationalNumber: "7911123456",
+    countryCallingCode: "44",
+    country: "GB"
+  }
+};
+declare function renderYourOwnError(): void;
+
 // remove() and setDefault(): a message appears without you doing anything
 await phones.useActions().remove(id); // raises success/failure feedback itself
 
@@ -176,6 +256,15 @@ This is a deliberate, kept divergence: the platform capability this module was c
 Every phone record carries a numeric `type` (1 mobile, 2 home, 3 office, 4 personal), and it is exposed for display on every row. **Nothing in this module lets a consumer set or change it** — the create/update request body never carries it, and the editor's form has no control for it.
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientPhoneManager,
+  useClientPhones
+} from "@upmind-automation/headless";
+
+const phones = useClientPhones().as(ScopeActorTypes.SELF);
+const manager = useClientPhoneManager().as(ScopeActorTypes.SELF);
+
 phones.useContext().data.value[0].type; // readable — e.g. 1
 
 // ⚠️ There is no way to change this through the module
@@ -188,24 +277,69 @@ This is a deliberate choice, not an oversight: every live consumer of this modul
 
 ## 10. Acting for a client other than yourself is not available — and is tracked, not silently gone
 
-`useClientPhones().as('staff')` and `useClientPhoneManager().as('staff')` are **compile-time errors**. Only the calling client's own `self` scope resolves.
+Only the calling client's own `self` scope resolves a target here. `staff` and `guest` are `null as never` in both scope matrices, so the builder never offers `.for()` on a staff or a guest instance — naming another client as staff is a **compile-time error**, not a runtime rejection. (Two caveats worth knowing: `.as(ScopeActorTypes.STAFF)` on its own still typechecks — the matrix removes the context step, not the actor — and a bare string `.as('staff')` fails for an unrelated reason, because the builder takes the `ScopeActorTypes` enum.)
 
 ```ts
-// ⚠️ Does not compile — 'staff' is `null as never` in this module's scope matrix
+import {
+  ClientPhonesContextTypes,
+  ScopeActorTypes,
+  useClientPhones
+} from "@upmind-automation/headless";
+
+const clientId = "0f7f3f4e-1f1a-4f9e-9c1c-6f2d5b3a7e10";
+
+// ⚠️ Does not compile — `staff` is `null as never` in this module's scope
+// matrix, so the builder never offers `.for()` on a staff instance. The
+// `@ts-expect-error` is the assertion: the gate goes red if this ever starts
+// compiling.
+useClientPhones()
+  .as(ScopeActorTypes.STAFF)
+  // @ts-expect-error — staff resolves no context in this module's matrix
+  .for(ClientPhonesContextTypes.CLIENT, clientId);
+
+// ⚠️ Also does not compile — the builder takes the enum, not a bare string
+// @ts-expect-error — "staff" is not assignable to ScopeActorTypes
 useClientPhones().as("staff");
 ```
 
 This module's identity resolution function is written to accept a context branch for "a client other than the session's own", and that branch is currently unreachable from either scope matrix — kept deliberately so a future restoration is a matrix edit, not a rewrite. The wider platform genuinely has a staff-facing surface for managing a client's phone numbers on their behalf — a distinct set of endpoints, several capability gates, and an "acting as this client" mode — none of which is delivered here. It is recorded as an intentional, signed gap awaiting a tracked follow-up, not something silently dropped along the way.
 
-> **🧪 For Testers:** A `.as('staff')` call is a TypeScript compile failure, not a runtime rejection — write a type-level check for it, not a runtime assertion.
+> **🧪 For Testers:** Reaching another client as staff fails at COMPILE time — `.for(...)` is absent from a staff instance's type — so write a type-level check for it, not a runtime assertion.
 
 ## 11. `.as(SELF).for(...)` does not typecheck without a cast
 
 Chaining `.for(...)` or `.fresh()` directly off a scope builder call that was itself built with `.as(SELF)` does not typecheck as written — the scope builder keys its available contexts off the literal actor type, not the one TypeScript has resolved by that point in the chain.
 
 ```ts
+import {
+  ClientPhoneContextTypes,
+  ScopeActorTypes,
+  useClientPhoneManager,
+  type ScopeBuilderActorWithContexts,
+  type UseClientPhoneManager
+} from "@upmind-automation/headless";
+
+const id = "825d96e7-63ed-0913-46c4-174825283406";
+
 // ⚠️ Does not typecheck as written
-useClientPhoneManager().as(ScopeActorTypes.SELF).for("phone", id);
+useClientPhoneManager()
+  .as(ScopeActorTypes.SELF)
+  // @ts-expect-error — SELF is `never` in the matrix; `.for()` is not offered
+  .for(ClientPhoneContextTypes.PHONE, id);
+
+// ✅ The bridge every live consumer uses — the exported builder type, applied
+// as a cast to the `.as(SELF)` result
+type ScopedPhoneManager = ScopeBuilderActorWithContexts<
+  ReturnType<UseClientPhoneManager["fresh"]>,
+  ClientPhoneContextTypes
+>;
+
+const scoped = useClientPhoneManager().as(
+  ScopeActorTypes.SELF
+) as ScopedPhoneManager;
+
+const manager = scoped.for(ClientPhoneContextTypes.PHONE, id);
+const draft = scoped.fresh();
 ```
 
 Consumers that need `.for()` / `.fresh()` after an explicit `.as(...)` use an exported cast type to bridge the gap. This is a known, filed-not-fixed typing gap in the shared scope builder, not specific to this module — it affects every scoped-composable conversion that needs the same chain.

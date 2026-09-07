@@ -27,19 +27,31 @@ A fourth option was considered and rejected: **persisting the `?funnel=` query p
 
 **A funnel may declare `extends: '<funnelId>'`. Its config is flattened base-first before the machine factory runs.**
 
-```typescript
+```ts
+import type { FunnelProps } from '@upmind-automation/headless'
+
+// FUNNEL / ROUTE are the app's own route enums (apps/cart/src/router).
+enum FUNNEL {
+  CART = 'cart'
+}
+enum ROUTE {
+  BASKET_PRODUCTS_SETUP = 'basket-products-setup',
+  BILLING = 'billing',
+  CHECKOUT = 'checkout'
+}
+
 export default <FunnelProps>{
-  id: "one-page",
+  id: 'one-page',
   extends: FUNNEL.CART,
   states: {
     // the all-in-one page absorbs what the stepped flow diverts away to
     [ROUTE.BILLING]: { always: [{ target: ROUTE.CHECKOUT }] },
     [ROUTE.BASKET_PRODUCTS_SETUP]: { always: [{ target: ROUTE.CHECKOUT }] },
     [ROUTE.CHECKOUT]: {
-      /* the one node that genuinely diverges */
+      // the one node that genuinely diverges
     }
   }
-};
+}
 ```
 
 ### Where composition happens
@@ -75,13 +87,26 @@ Inheritance settles a second question that had no clean answer while variants we
 
 There is exactly one selection point — `defaultFunnel`, at registration. `initRouter()` runs after `useBrand()`, `useSystem()` and `useSession()` have resolved, so brand config is fully available when the app's `registerFunnels()` executes; a brand-conditional starting funnel is a plain read at that moment.
 
-```typescript
+```ts
+import type {
+  FunnelProps,
+  FunnelWatcher,
+  OverlayDefinition
+} from '@upmind-automation/headless'
+
+declare function getDefaultFunnel(): string
+declare const cart: FunnelProps
+declare const onePage: FunnelProps
+declare const domains: FunnelProps
+declare const CART_OVERLAYS: OverlayDefinition[]
+declare const watchers: FunnelWatcher[]
+
 export const registerFunnels = () => ({
   defaultFunnel: getDefaultFunnel(), // reads brand config — already loaded
-  funnels: { cart, "one-page": onePage, domains },
+  funnels: { cart, 'one-page': onePage, domains },
   overlays: CART_OVERLAYS,
   watchers
-});
+})
 ```
 
 This only became viable with `extends`. As a peer, a one-page default was self-defeating: it would be selected correctly and then evict itself on the first route it did not declare. Inheriting the base's routes is what makes config-driven selection hold for the whole session.

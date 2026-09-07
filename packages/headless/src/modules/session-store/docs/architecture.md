@@ -7,6 +7,9 @@ The session-store module is built on TanStack Store and provides multi-session m
 ## State Model
 
 ```typescript
+import type { SessionUser } from "@upmind-automation/headless";
+import type { AccessRoleTypes, IToken } from "@upmind-automation/types";
+
 type SessionState = {
   // Sessions
   guestSession?: IToken; // Single guest token
@@ -19,10 +22,15 @@ type SessionState = {
 
   // Impersonation tracking
   impersonatedSessions: Record<string, string>; // impersonatedId → parentId
+
+  // Boot lifecycle (transient — never persisted)
+  initialised: boolean;
+  loading: boolean;
 };
 
 // Session entry pairs token with optional user profile
 type SessionEntry = {
+  scope: AccessRoleTypes; // Actor type this entry belongs to
   token: IToken; // OAuth token (access_token, refresh_token, etc.)
   user?: SessionUser; // Optional user profile for UI (email, fullName, avatar)
 };
@@ -169,7 +177,7 @@ The module uses the factory pattern with specialized sub-composables:
 
 Uses **BroadcastChannel** for real-time sync across browser tabs:
 
-```typescript
+```text
 // On Tab A
 add(token)
   └─▶ Broadcasts: { type: "SET_SESSION", session: token }
@@ -180,6 +188,8 @@ add(token)
 ### Sync Message Types
 
 ```typescript
+import type { AccessRoleTypes, IToken } from "@upmind-automation/types";
+
 type SessionSyncMessage =
   | { type: "SET_SESSION"; session: IToken }
   | { type: "REMOVE_GUEST" }
@@ -205,7 +215,7 @@ type SessionSyncMessage =
 
 In addition to BroadcastChannel, the store monitors cookie changes:
 
-```typescript
+```text
 initCookieSync()  // Start monitoring
   └─▶ CookieStore API listener (or 2s poll fallback)
        └─▶ On change → hydrateFromStorage()
@@ -404,6 +414,8 @@ useQuery().get(url)
 `useActiveSession()` is **pure identity — not a scoped composable** (no `.as(actor)`; FE-2945 removed the fold-in-scoping plan). It always reads the currently active identity, whatever the actor:
 
 ```typescript
+import { useActiveSession } from "@upmind-automation/headless";
+
 // Always the currently active session (guest, client, or staff)
 const session = useActiveSession();
 const { isAuthenticated, isStaff, isClient } = session.useMeta();
@@ -446,11 +458,19 @@ const { session: token, actor } = session.useContext();
 All `useContext()` and `useMeta()` returns are Vue `computed()` refs:
 
 ```typescript
-const activeSession = computed(() => {
-  // Only recomputes when activeActor or activeSessionId changes
-  const actor = activeActor.value;
+import { useSessionStore } from "@upmind-automation/headless";
+import { AccessRoleTypes } from "@upmind-automation/types";
+import { computed } from "vue";
+
+const { activeActor, activeSessionId, clientSessions } =
+  useSessionStore().useContext();
+
+// Same derivation the store's own activeSession uses for the CLIENT branch.
+const activeClientToken = computed(() => {
+  // Only recomputes when activeActor, activeSessionId or clientSessions change
+  if (activeActor.value !== AccessRoleTypes.CLIENT) return undefined;
   const id = activeSessionId.value;
-  return getSessionForActor(actor, id);
+  return id ? clientSessions.value[id]?.token : undefined;
 });
 ```
 

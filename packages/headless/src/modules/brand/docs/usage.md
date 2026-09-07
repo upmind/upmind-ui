@@ -19,7 +19,9 @@ brand state is never torn down for the life of the app.
 
 ## Readiness
 
-```typescript
+```ts
+import { useBrand } from "@upmind-automation/headless";
+
 const { isReady } = useBrand();
 
 const ok = await isReady(); // resolves true once all 4 queries are fetched, false if any errored
@@ -40,7 +42,9 @@ report `isFetched`), then resolves `true`, or `false` if `meta.value.hasError` i
 
 ## State
 
-```typescript
+```ts
+import { useBrand } from "@upmind-automation/headless";
+
 const {
   brandId,
   name,
@@ -78,7 +82,9 @@ error.
 
 ## Methods
 
-```typescript
+```ts
+import { useBrand } from "@upmind-automation/headless";
+
 const {
   hasModuleEnabled,
   getConfig,
@@ -120,7 +126,8 @@ you ask for accumulate in a module-level store (`brandConfigKeysStore`) across e
 to `ensureConfig` / `getAnalytics` / the initial default-key fetch, for the life of the
 app.
 
-```typescript
+```ts
+import { useBrand } from "@upmind-automation/headless";
 import { BrandConfigKeys } from "@upmind-automation/types";
 
 const { ensureConfig } = useBrand();
@@ -144,7 +151,7 @@ Practical implications:
 ## Vue usage example
 
 ```vue
-<script setup>
+<script setup lang="ts">
 import { useBrand } from "@upmind-automation/headless";
 
 const { isReady, currency, name } = useBrand();

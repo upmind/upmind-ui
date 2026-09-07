@@ -1,21 +1,36 @@
 # Gotchas — Routing Module
 
-## 1. Vue `watch()` Misses XState Transitions in Non-Component Context
+## 1. Vue `watch()` Misses Session Transitions in Non-Component Context
 
-**Problem:** Vue `watch()` on a computed ref (like `sessionMeta`) may not fire for all XState state transitions when the watcher runs inside a funnel machine's invoked callback (non-component context).
+**Problem:** Vue `watch()` on a computed ref (like the session's `isAuthenticated`) may not fire for every session transition when the watcher runs inside a funnel machine's invoked callback (non-component context).
 
-**Symptoms:** Logout on `/basket/:bid` doesn't redirect. Watcher INIT shows `wasAuthenticated: false` even when the user is logged in.
+**Symptoms:** Logout on `/basket/:bid` doesn't redirect. The watcher never sees the authenticated → unauthenticated edge.
 
-**Fix:** Use `subscribe()` (direct XState service subscription) instead of Vue `watch()`:
+**Fix:** Subscribe to the session store's own logout event instead of diffing a ref:
 
 ```typescript
-// ❌ Unreliable in non-component context
-const stop = watch(sessionMeta, ({ isAuthenticated }) => { ... });
+import {
+  useActiveSession,
+  useRoutingEngine
+} from "@upmind-automation/headless";
+import { watch } from "vue";
 
-// ✅ Reliable — direct XState subscription
-const { unsubscribe } = subscribe(state => {
-  const isAuthenticated = stateMatches(state, "client");
-  ...
+enum ROUTE {
+  SESSION_END = "session-end"
+}
+
+const { navigate } = useRoutingEngine();
+const { isAuthenticated } = useActiveSession().useMeta();
+const { onLogout } = useActiveSession().useActions();
+
+// ❌ Unreliable in non-component context
+const stop = watch(isAuthenticated, authenticated => {
+  if (!authenticated) navigate({ name: ROUTE.SESSION_END });
+});
+
+// ✅ Reliable — subscribe to the session store's own logout event
+const unsubscribe = onLogout(() => {
+  navigate({ name: ROUTE.SESSION_END });
 });
 ```
 
@@ -25,21 +40,44 @@ const { unsubscribe } = subscribe(state => {
 
 ## 2. State Tracking Must Precede the `isResolved` Gate
 
-**Problem:** If `wasAuthenticated` / `wasUnavailable` / `hadProducts` is updated _after_ the `isResolved` check, transitions that occur while the funnel is unresolved are silently lost.
+**Problem:** If a transition flag such as `wasUnavailable` or `hadProducts` is updated _after_ the `isResolved` check, transitions that occur while the funnel is unresolved are silently lost.
 
-**Symptoms:** Logout during initial page load doesn't trigger redirect. Basket becoming empty during auth flow is missed.
+**Symptoms:** A basket going unavailable during initial page load doesn't trigger the redirect. A basket becoming empty during the auth flow is missed.
 
 **Fix:** Always update tracking flags before the gate:
 
 ```typescript
+import {
+  useActiveSession,
+  useBasket,
+  useRoutingEngine
+} from "@upmind-automation/headless";
+import { watch } from "vue";
+
+enum ROUTE {
+  BASKET_UNAVAILABLE = "basket-unavailable"
+}
+
+const { meta: routingMeta, navigate } = useRoutingEngine();
+const { meta: basketMeta } = useBasket();
+const { isAuthenticated } = useActiveSession().useMeta();
+
+let wasUnavailable = basketMeta.value.isUnavailable;
+
 // ✅ Track first, gate second
-const didLogout = !isAuthenticated && wasAuthenticated;
-wasAuthenticated = isAuthenticated; // ← before gate
-if (!routingMeta.value.isResolved) return;
+watch(basketMeta, ({ isUnavailable }) => {
+  const becameUnavailable =
+    isUnavailable && !wasUnavailable && isAuthenticated.value;
+  wasUnavailable = isUnavailable; // ← before gate
+  if (!routingMeta.value.isResolved) return;
+  if (becameUnavailable) navigate({ name: ROUTE.BASKET_UNAVAILABLE });
+});
 
 // ❌ Gate blocks tracking
-if (!routingMeta.value.isResolved) return;
-wasAuthenticated = isAuthenticated; // ← never reached when unresolved
+watch(basketMeta, ({ isUnavailable }) => {
+  if (!routingMeta.value.isResolved) return;
+  wasUnavailable = isUnavailable; // ← never reached when unresolved
+});
 ```
 
 ---
@@ -53,16 +91,53 @@ wasAuthenticated = isAuthenticated; // ← never reached when unresolved
 **Fix:** Restate every part of the node you still want, or omit the key entirely to inherit it untouched:
 
 ```typescript
-// ❌ Loses the base node's `on.NEXT` and `entry`
-[ROUTE.CHECKOUT]: { invoke: { src: "guardCheckout", onError: [...] } }
+import type { FunnelProps } from "@upmind-automation/headless";
+
+enum ROUTE {
+  BASKET = "basket",
+  CHECKOUT = "checkout",
+  ORDER = "order",
+  SESSION = "session"
+}
+
+// ❌ Loses the base node's `meta`, `entry` and `on.NEXT`
+const lossy = <FunnelProps>{
+  id: "one-page",
+  extends: "cart",
+  states: {
+    [ROUTE.CHECKOUT]: {
+      invoke: {
+        src: "guardCheckout",
+        onError: [{ target: ROUTE.SESSION, cond: "isSession" }]
+      }
+    }
+  }
+};
 
 // ✅ Restates the whole node
-[ROUTE.CHECKOUT]: {
-  meta: { prev: ROUTE.BASKET },
-  entry: ["setCurrency", "setBasket"],
-  invoke: { src: "guardCheckout", onError: [...] },
-  on: { NEXT: { ... } }
-}
+const complete = <FunnelProps>{
+  id: "one-page",
+  extends: "cart",
+  states: {
+    [ROUTE.CHECKOUT]: {
+      meta: { prev: ROUTE.BASKET },
+      entry: ["setCurrency", "setBasket", "setBillingDefaults"],
+      invoke: {
+        src: "guardCheckout",
+        onDone: { actions: ["setResolved"] },
+        onError: [
+          {
+            target: ROUTE.SESSION,
+            actions: ["setUnresolved", "setTargetRoute"],
+            cond: "isSession"
+          },
+          { target: ROUTE.BASKET, actions: ["setUnresolved", "clearTarget"] }
+        ]
+      },
+      on: { NEXT: { target: ROUTE.ORDER, actions: ["setResolved"] } }
+    }
+  }
+};
 ```
 
 Arrays are swapped, never concatenated — `invoke.onError` is an ordered "first matching `cond` wins" list, so appending the base's entries would re-add the very transitions the variant exists to remove.

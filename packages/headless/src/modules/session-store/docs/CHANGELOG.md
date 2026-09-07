@@ -48,18 +48,31 @@ The action methods have been renamed for clarity and consistency:
 
 **Migration:**
 
+Before — `useSessionStoreActions` and all four of these action names have since been removed from the package:
+
+<!-- corpus-example: skip — removed pre-v2 API: neither useSessionStoreActions nor setSession/setGuestSession/removeSession/setActiveActor is exported any more, so this half cannot resolve against the real package by construction -->
+
 ```typescript
-// Before
 const { setSession, removeSession, setActiveActor } = useSessionStoreActions();
 setSession(token);
 setGuestSession(guestToken);
 removeSession(AccessRoleTypes.CLIENT, "client-123");
 setActiveActor(AccessRoleTypes.CLIENT, "client-123");
+```
 
-// After
-const { add, activate, remove } = useSessionStoreActions();
-add(token); // Works for all actor types
-add(guestToken); // Same method for guest
+After:
+
+```typescript
+import { useSessionStore } from "@upmind-automation/headless";
+import { AccessRoleTypes } from "@upmind-automation/types";
+import type { IToken } from "@upmind-automation/types";
+
+const token = {} as IToken;
+const guestToken = {} as IToken;
+const { add, activate, remove } = useSessionStore().useActions();
+
+await add(token); // Works for all actor types
+await add(guestToken); // Same method for guest
 remove(AccessRoleTypes.CLIENT, "client-123");
 activate(AccessRoleTypes.CLIENT, "client-123");
 ```
@@ -68,15 +81,25 @@ activate(AccessRoleTypes.CLIENT, "client-123");
 
 Sessions are now stored as `SessionEntry` objects instead of raw `IToken`:
 
+Before:
+
 ```typescript
-// Before
+import type { IToken } from "@upmind-automation/types";
+
 type SessionState = {
   clientSessions: Record<string, IToken>;
   staffSessions: Record<string, IToken>;
 };
+```
 
-// After
+After:
+
+```typescript
+import type { SessionUser } from "@upmind-automation/headless";
+import type { AccessRoleTypes, IToken } from "@upmind-automation/types";
+
 type SessionEntry = {
+  scope: AccessRoleTypes; // The actor type this entry belongs to
   token: IToken;
   user?: SessionUser; // NEW: optional user profile
 };
@@ -90,12 +113,17 @@ type SessionState = {
 **Impact:** If you directly accessed `clientSessions` or `staffSessions`, you now need to extract `.token`:
 
 ```typescript
-// Before
-const token = clientSessions.value["client-123"];
+import { useSessionStore } from "@upmind-automation/headless";
 
-// After
+const { clientSessions } = useSessionStore().useContext();
+
+// Before: this WAS the token. Today it is the SessionEntry wrapper.
+const entry = clientSessions.value["client-123"];
+
+// After: reach through the entry
 const token = clientSessions.value["client-123"].token;
 const user = clientSessions.value["client-123"].user; // NEW: access user profile
+console.log(entry, token, user);
 ```
 
 **Why?** This allows storing user profile data alongside tokens for session switcher UI components.
@@ -113,6 +141,8 @@ The session store now **ALWAYS** has an active session:
 **New behavior:**
 
 ```typescript
+import { useSessionStore } from "@upmind-automation/headless";
+
 // Store starts with default guest state (sync, instant)
 const { activeSession } = useSessionStore().useContext();
 console.log(activeSession.value); // Works immediately (may be default state)
@@ -126,15 +156,22 @@ console.log(activeSession.value); // Guaranteed active session with user data �
 **Migration:**
 
 ```typescript
-// Before: Had to check for null
+import { useSessionStore } from "@upmind-automation/headless";
+
+// Thin stand-in for whatever consumes the token.
+function makeApiCall(accessToken: string | undefined): void {
+  console.log(accessToken);
+}
+
 const { activeSession } = useSessionStore().useContext();
+
+// Before: Had to check for null
 if (activeSession.value) {
   makeApiCall(activeSession.value.access_token);
 }
 
 // After: Always defined
-const { activeSession } = useSessionStore().useContext();
-makeApiCall(activeSession.value.access_token); // ✅ Always works
+makeApiCall(activeSession.value!.access_token); // ✅ Always works
 ```
 
 **Why?** Eliminates defensive null checks and simplifies app initialization. The store is usable immediately with sync default state, then async hydration completes in background.
@@ -146,11 +183,16 @@ makeApiCall(activeSession.value.access_token); // ✅ Always works
 Staff can now impersonate clients with automatic parent session restoration:
 
 ```typescript
-const { add, registerImpersonation, remove } = useSessionStoreActions();
+import { useSessionStore } from "@upmind-automation/headless";
+import { AccessRoleTypes } from "@upmind-automation/types";
+import type { IToken } from "@upmind-automation/types";
+
+const clientToken = {} as IToken;
+const { add, registerImpersonation, remove } = useSessionStore().useActions();
 
 // Register impersonation BEFORE adding session
 registerImpersonation("client-456");
-add(clientToken); // Staff becomes client
+await add(clientToken); // Staff becomes client
 
 // Later: end impersonation
 remove(AccessRoleTypes.CLIENT, "client-456");
@@ -171,6 +213,8 @@ remove(AccessRoleTypes.CLIENT, "client-456");
 Guest tokens are now minted automatically when no sessions exist:
 
 ```typescript
+import { useSessionStore } from "@upmind-automation/headless";
+
 // 1. Clear all cookies
 // 2. Reload app
 // 3. Guest token is automatically minted on initialization
@@ -203,16 +247,25 @@ console.log(activeSession.value?.access_token); // Auto-minted token ✅
 Sessions can now include user profile data for display:
 
 ```typescript
-const { add } = useSessionStoreActions();
-const { activeUser } = useSessionStoreContext();
+import { useSessionStore } from "@upmind-automation/headless";
+import type { IToken } from "@upmind-automation/types";
+
+const token = {} as IToken;
+const store = useSessionStore();
+const { add } = store.useActions();
+const { activeUser } = store.useContext();
 
 // Add session with user profile
-add(token, true, {
+await add(token, true, {
   id: "user-123",
   email: "user@example.com",
+  username: "user@example.com",
+  language: "en",
+  locale: "en-GB",
   fullName: "John Doe",
   avatar: {
     caption: "JD",
+    forceCaption: false,
     src: "https://example.com/avatar.jpg"
   }
 });
@@ -233,7 +286,10 @@ console.log(activeUser.value?.fullName); // "John Doe"
 Subscribe to logout events for cleanup and side effects:
 
 ```typescript
-const { onLogout } = useSessionStoreActions();
+import { useSessionStore } from "@upmind-automation/headless";
+import { onBeforeUnmount } from "vue";
+
+const { onLogout } = useSessionStore().useActions();
 
 const unsubscribe = onLogout(actor => {
   console.log(`${actor} logged out`);
@@ -255,7 +311,10 @@ onBeforeUnmount(unsubscribe);
 New `logout()` action with automatic impersonation restoration:
 
 ```typescript
-const { logout } = useSessionStoreActions();
+import { useSessionStore } from "@upmind-automation/headless";
+import { AccessRoleTypes } from "@upmind-automation/types";
+
+const { logout } = useSessionStore().useActions();
 
 // Log out of active session
 logout();
@@ -281,7 +340,9 @@ logout(AccessRoleTypes.CLIENT);
 
 Previously, the auth module would load user data immediately after authentication and return it alongside the token. This caused duplicate user loading logic between auth and session-store modules.
 
-**Before:**
+**Before** — auth exposed a `login()` action whose result carried the user:
+
+<!-- corpus-example: skip — removed pre-v2 API: auth exposes no login() action and AuthResult carries no user field, so this half cannot resolve against the real package by construction -->
 
 ```typescript
 const auth = useAuth().as("client");
@@ -290,12 +351,23 @@ const { token, user } = await login(credentials);
 console.log(user.email); // ✅ User data available
 ```
 
-**After:**
+**After** — the token arrives via `onDone`; the user comes from the session store:
 
 ```typescript
-const auth = useAuth().as("client");
-const { login } = auth.useActions();
-const { token } = await login(credentials);
+import {
+  ScopeActorTypes,
+  useAuth,
+  useSessionStore
+} from "@upmind-automation/headless";
+
+const credentials = { username: "user@example.com", password: "secret" };
+
+const auth = useAuth().as(ScopeActorTypes.CLIENT);
+const { resolve, onDone } = auth.useActions();
+
+// AuthResult carries the token only
+onDone(({ token }) => console.log(token.access_token));
+await resolve(credentials);
 
 // Get user data from session store (loads async in background)
 const { activeUser } = useSessionStore().useContext();
@@ -373,14 +445,17 @@ Find and replace across your codebase:
 If you access `clientSessions` or `staffSessions` directly:
 
 ```typescript
-// Before
-const sessions = useSessionStoreContext();
-const token = sessions.clientSessions.value["client-123"];
+import { useSessionStore } from "@upmind-automation/headless";
 
-// After
-const sessions = useSessionStoreContext();
+const sessions = useSessionStore().useContext();
+
+// Before: the record value WAS the token
+const entry = sessions.clientSessions.value["client-123"];
+
+// After: reach through the entry
 const token = sessions.clientSessions.value["client-123"].token;
 const user = sessions.clientSessions.value["client-123"].user; // Optional
+console.log(entry, token, user);
 ```
 
 **Step 3: Remove Defensive Null Checks on Active Session**
@@ -388,17 +463,26 @@ const user = sessions.clientSessions.value["client-123"].user; // Optional
 The session store now guarantees an active session exists:
 
 ```typescript
-// Before: Had to check for null
-const { activeSession } = useSessionStore().useContext();
-if (!activeSession.value) {
-  console.error("No session!");
-  return;
+import { useSessionStore } from "@upmind-automation/headless";
+
+// Thin stand-in for whatever consumes the token.
+function makeApiCall(accessToken: string | undefined): void {
+  console.log(accessToken);
 }
-makeApiCall(activeSession.value.access_token);
+
+const { activeSession } = useSessionStore().useContext();
+
+// Before: Had to check for null
+function beforeV2(): void {
+  if (!activeSession.value) {
+    console.error("No session!");
+    return;
+  }
+  makeApiCall(activeSession.value.access_token);
+}
 
 // After: Always defined
-const { activeSession } = useSessionStore().useContext();
-makeApiCall(activeSession.value.access_token); // ✅ No null check needed
+makeApiCall(activeSession.value!.access_token); // ✅ No null check needed
 ```
 
 #### Step 4: Optional - Wait for Initialization
@@ -406,6 +490,8 @@ makeApiCall(activeSession.value.access_token); // ✅ No null check needed
 If you need user profile data immediately:
 
 ```typescript
+import { useSessionStore } from "@upmind-automation/headless";
+
 // NEW: Wait for full initialization (cookies + user data)
 const { isReady } = useSessionStore().useActions();
 
@@ -420,15 +506,25 @@ console.log(activeUser.value?.fullName); // User profile loaded ✅
 If you implemented custom impersonation, migrate to built-in support:
 
 ```typescript
+import { useSessionStore } from "@upmind-automation/headless";
+import type { IToken } from "@upmind-automation/types";
+
+const newToken = {} as IToken;
+const newSessionId = "client-456";
+const store = useSessionStore();
+const { activeActor } = store.useContext();
+const { add, registerImpersonation } = store.useActions();
+
 // Before (custom implementation)
 const previousActor = activeActor.value;
-add(newToken);
+await add(newToken);
 // ... manually track parent
 
 // After (built-in)
 registerImpersonation(newSessionId);
-add(newToken);
+await add(newToken);
 // Parent automatically restored on remove()
+console.log(previousActor);
 ```
 
 **Step 4: Test Session Switching**

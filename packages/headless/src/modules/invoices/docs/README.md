@@ -18,8 +18,10 @@ owed. It does not take the payment — the `payment` and `payment-details` modul
 
 ## Quick Start
 
-```typescript
-const invoice = useInvoice(invoiceId);
+```ts
+import { useInvoice } from "@upmind-automation/headless";
+
+const invoice = useInvoice("0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0");
 
 await invoice.isReady(); // wait for session + fetch to settle
 

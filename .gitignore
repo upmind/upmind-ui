@@ -92,5 +92,14 @@ docs/plans
 docs/audit
 docs/reviews
 docs/decisions
-docs/stories
 docs/sdd
+# Working notes, not the durable record — these are agent/session output that
+# belongs on disk, never in history (docs/audit was already here).
+docs/audits/
+docs/backups/
+docs/doctor/
+docs/research/
+docs/reviews/
+docs/testing/
+docs/stories/
+docs/.typedoc-out/

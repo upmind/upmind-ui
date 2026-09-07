@@ -86,15 +86,19 @@ function fetchBrandSettings() {
 }
 
 /**
- * Fetches brand configuration values for the given keys.
+ * Registers the brand-config query for the ACCUMULATED key set — never for
+ * `keys` alone.
  *
  * Keys are append-only — they accumulate in `brandConfigKeysStore` across calls
  * and are never removed, so every call requests a superset of all previously
- * requested keys.
+ * requested keys, `keys` included.
  *
  * The key list rides the CRITERIA, reaching the wire as `filter[keys|eq]=a,b,c`
- * (`translateQuery` joins the array). Each distinct key-set is its own queryKey,
- * so a widened set is a fresh cache entry rather than one entry silently reused
+ * (`translateQuery` joins the array). The `queryKey` below is the CONSTANT
+ * `["brand", "config"]`; distinct key-sets stay distinct cache entries anyway,
+ * because `query()` appends its own `{ sort, filters, query }` object as the
+ * key's last element and the translated `filter[keys|eq]` string sits in it. A
+ * widened set is therefore a fresh entry rather than one entry silently reused
  * for a different question.
  *
  * @param keys - Brand config keys to add to the requested set. Defaults to the core set.

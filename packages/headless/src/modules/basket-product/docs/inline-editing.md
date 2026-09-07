@@ -20,16 +20,16 @@ The inline composable (`useBasketProductInline`) is created for every basket pro
 
 ## Meta Flags
 
-`useBasketProductInline(bpid).meta` returns:
+`useBasketProductInline(bpid).meta` is a `ComputedRef` of this shape:
 
-```typescript
-{
+```ts
+type InlineMeta = {
   hasInlineControls: boolean; // master switch — if false, machine is never spawned
   hasUpsellOptions: boolean; // product has inline-configurable options
   showOptionUpsells: boolean; // upsell section should render
   showTermSelector: boolean; // term dropdown should render
   showQuantity: boolean; // quantity field should render
-}
+};
 ```
 
 | Flag                | True when                                                     | Config property                                       |
@@ -75,31 +75,48 @@ flowchart TD
 
 ### Layer 1: `configurableInline` (Product-Level Gate)
 
-**Where:** [parseProductDetails()](file:///Users/rhodri/upmind-monorepo/packages/headless/src/modules/product/utils.ts#L547-L565) in `product/utils.ts`
+**Where:** [parseProductDetails()](../../product/product.utils.ts) in `product/product.utils.ts`
 
 At product-parsing time, iterates over _all_ options and attributes. If _any_ have `data.optionUpsellEnabled === true` (resolved via the config engine at `OPTION` scope), the product is marked `configurableInline: true`.
 
 If `false`, `meta.hasUpsellOptions` is `false` and upsell controls never render. The machine may still spawn if the term selector or quantity controls are needed.
 
-```typescript
-configurableInline: (() => {
-  const config = useConfig();
+```ts
+import { useConfig } from "@upmind-automation/headless";
+import { some } from "lodash-es";
+import type { IProduct } from "@upmind-automation/types";
+
+// The `configurableInline` branch of `parseProductDetails()`, whole. A
+// readonly product is never inline-configurable, so the scan is skipped.
+function configurableInline(rawProduct: IProduct, readonly: boolean): boolean {
   return (
-    some(rawProduct.products_options, option => {
-      const { data } = config.with({
-        product: () => ({ productDetails: { uiMeta: rawProduct.meta } }),
-        option: () => ({ uiMeta: option.meta })
-      });
-      return !!data.optionUpsellEnabled;
-    }) ||
-    some(rawProduct.products_attributes, attr => { /* same check */ })
+    !readonly &&
+    (() => {
+      const config = useConfig();
+      return (
+        some(rawProduct.products_options, option => {
+          const { data } = config.with({
+            product: () => ({ productDetails: { uiMeta: rawProduct.meta } }),
+            option: () => ({ uiMeta: option.meta })
+          });
+          return !!data.optionUpsellEnabled;
+        }) ||
+        some(rawProduct.products_attributes, attr => {
+          const { data } = config.with({
+            product: () => ({ productDetails: { uiMeta: rawProduct.meta } }),
+            option: () => ({ uiMeta: attr.meta })
+          });
+          return !!data.optionUpsellEnabled;
+        })
+      );
+    })()
   );
-})(),
+}
 ```
 
 ### Layer 2: `ui.optionUpsells.isVisible` (Container-Level Gate)
 
-**Where:** [BasketProduct.vue](file:///Users/rhodri/upmind-monorepo/packages/client-vue/src/modules/basket-product/components/card/BasketProduct.vue#L144) — `filteredUpsells` computed
+**Where:** [BasketProduct.vue](../../../../../client-vue/src/modules/basket-product/components/card/BasketProduct.vue) — `filteredUpsells` computed
 
 | Property        | Default   | Contexts         | Scopes                                      |
 | --------------- | --------- | ---------------- | ------------------------------------------- |
@@ -112,7 +129,7 @@ If `hidden`, `filteredUpsells` returns `[]` — no upsell toggles render regardl
 
 ### Layer 3: `data.optionUpsellEnabled` (Per-Option Gate)
 
-**Where:** [BasketProduct.vue](file:///Users/rhodri/upmind-monorepo/packages/client-vue/src/modules/basket-product/components/card/BasketProduct.vue#L157) — inside `filteredUpsells` map
+**Where:** `useBasketProductInline.ts` — `isOptionUpsellEnabled()`, applied per option inside `resolveUpsells()`
 
 | Property              | Default | Contexts         | Scopes      |
 | --------------------- | ------- | ---------------- | ----------- |
@@ -120,21 +137,39 @@ If `hidden`, `filteredUpsells` returns `[]` — no upsell toggles render regardl
 
 Each option value is checked individually via the config engine. **Defaults to `false`** — upsells are opt-in, not opt-out.
 
-```typescript
-// BasketProduct.vue — per-option check
-map(resolvedUpsells, upsell => {
-  const { data } = productConfig.with({
-    optionGroup: () => resolveOptionGroup(upsell),
-    option: () => upsell
+```ts
+import { useBasketProducts, useConfig } from "@upmind-automation/headless";
+import { find } from "lodash-es";
+import type {
+  BasketOptionSummary,
+  SubproductDetails,
+  SubproductValue
+} from "@upmind-automation/headless";
+
+const bpid = "e6f4a9d2-1f1c-4a51-9c2e-7cf05a2c4b10";
+const { products } = useBasketProducts();
+const parentConfig = useConfig();
+
+// useBasketProductInline.ts — the per-option gate. Both the option-scoped
+// `data.optionUpsellEnabled` and the container-scoped
+// `ui.optionUpsells.isVisible` must pass, or the option is excluded.
+function isOptionUpsellEnabled(
+  optionGroup: SubproductDetails,
+  option: SubproductValue | BasketOptionSummary
+): boolean {
+  const { data, ui } = parentConfig.with({
+    basketProduct: () => find(products.value, { id: bpid }),
+    optionGroup: () => optionGroup,
+    option: () => option
   });
-  if (!data.optionUpsellEnabled) return undefined; // ← excluded
-  return { upsell, benefits: data.optionBenefits };
-});
+
+  return !!data.optionUpsellEnabled && ui.optionUpsells.isVisible;
+}
 ```
 
 ### Layer 4: Data Filtering (`parseOptionUpsells`)
 
-**Where:** [utils.ts](file:///Users/rhodri/upmind-monorepo/packages/headless/src/modules/basketProduct/utils.ts#L389-L429)
+**Where:** [basket-product.utils.ts](../basket-product.utils.ts) — `parseOptionUpsells()`
 
 After config gates pass, the actual data is filtered:
 
@@ -144,21 +179,36 @@ After config gates pass, the actual data is filtered:
 
 ### Layer 5: Pre-Configured Option Exclusion
 
-**Where:** [useBasketProductInline.ts](file:///Users/rhodri/upmind-monorepo/packages/headless/src/modules/basketProduct/useBasketProductInline.ts#L122-L140) — `resolveUpsells()`
+**Where:** [useBasketProductInline.ts](../useBasketProductInline.ts) — `resolveUpsells()`
 
 Options that were already selected before the inline editor opened (i.e., configured on the full product page) are tracked via `preConfiguredIds` and excluded. This prevents duplicate toggle controls — the full config page owns those options.
 
-```typescript
+```ts
+import { useBasketProducts } from "@upmind-automation/headless";
+import { compact, filter, find, includes, map } from "lodash-es";
+import type { BasketUpsellSummary } from "@upmind-automation/headless";
+
+const bpid = "e6f4a9d2-1f1c-4a51-9c2e-7cf05a2c4b10";
+const { products } = useBasketProducts();
+const basketProduct = find(products.value, { id: bpid });
+
 // Capture IDs of options already selected at editor open time
 const preConfiguredIds = compact(
   map(
-    filter(basketProduct.upsells as BasketOptionSummary[], "toggle.selected"),
+    filter(
+      (basketProduct?.upsells ?? []) as BasketUpsellSummary[],
+      "toggle.selected"
+    ),
     "toggle.valueId"
   )
 );
 
-// Later, in resolveUpsells():
-return filter(summaries, s => !includes(preConfiguredIds, s.toggle?.valueId));
+// Later, inside buildUpsellSummaries(), feeding resolveUpsells():
+function dropPreConfigured(
+  summaries: BasketUpsellSummary[]
+): BasketUpsellSummary[] {
+  return filter(summaries, s => !includes(preConfiguredIds, s.toggle.valueId));
+}
 ```
 
 > **🧪 For Testers:** Configure a product with options on the product page. In the basket, verify those options appear in the summary but NOT as toggleable upsell switches. Only options that weren't pre-selected should show as inline toggles.

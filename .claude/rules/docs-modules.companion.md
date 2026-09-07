@@ -19,7 +19,7 @@ paths:
 - Shared types / enums: `packages/types/src/models/` and `packages/types/src/data/enums/`.
 - Import graph for dependant weighting: `graphify-out/graph.json` (cross-module import edges).
 - Direction check: `grep -rl 'from "../<module>"' packages/headless/src/modules/<other>/`.
-- Fixtures: `tests/fixtures/recordings/` (monorepo) / `07-references/recordings/` (bundle); new-format request-capturing index at `docs/workshop/references/fixture-index.md`.
+- Fixtures: `tests/fixtures/recordings/` (monorepo) / `07-references/recordings/` (bundle); new-format request-capturing index at `<agent-runner>/docs/workshop/references/fixture-index.md` (the workshop bundle moved out of this repo — it is handover material, not the product).
 
 ## Validated sibling scope-boundary examples
 
