@@ -1,0 +1,21 @@
+diff --git a/packages/auth/src/Login.vue b/packages/auth/src/Login.vue
+index 298ac551f1..54c5c3f07d 100644
+--- a/packages/auth/src/Login.vue
++++ b/packages/auth/src/Login.vue
+@@ -128,6 +128,7 @@ import Auth from "./components/Auth.vue";
+ import { useSessionTemplates } from "./session.utils";
+ import { AUTH_SHELL, AUTH_TEMPLATE_SLOT } from "./shell";
+ import AuthBareTemplate from "./templates/AuthBare.template.vue";
++import { SESSION_SHELL_COMPONENTS } from "@upmind-automation/client-vue";
+ import {
+   type SessionProps,
+   type SessionRoutes,
+@@ -183,7 +184,7 @@ const meta = computed(() => ({
+ const shell = useShellComponents();
+ 
+ const templateVariant = computed(
+-  () => shell.resolve(AUTH_TEMPLATE_SLOT[template.value]) ?? AuthBareTemplate
++  () => SESSION_SHELL_COMPONENTS[AUTH_TEMPLATE_SLOT[template.value]] ?? AuthBareTemplate
+ );
+ 
+ const loadingComponent = computed(() => shell.resolve(AUTH_SHELL.LOADING));

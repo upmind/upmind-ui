@@ -8,8 +8,8 @@
  */
 import { useFeatures } from "@upmind-automation/foundation";
 import { defineAuthFeature } from "../feature";
-import { defineNuxtPlugin, useRuntimeConfig } from "#app";
 import type { AuthFeatureOptions } from "../feature";
+import { defineNuxtPlugin, useRuntimeConfig } from "#app";
 
 export default defineNuxtPlugin(() => {
   const options: AuthFeatureOptions =
