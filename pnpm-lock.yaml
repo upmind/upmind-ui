@@ -256,6 +256,70 @@ importers:
         specifier: ^4.56.0
         version: 4.56.0
 
+  apps/auth:
+    dependencies:
+      '@upmind-automation/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../../packages/foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../../packages/headless
+      '@upmind-automation/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@upmind-automation/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@upmind/tokens':
+        specifier: workspace:*
+        version: link:../../design-system/packages/tokens
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
+      tailwindcss:
+        specifier: ^4.3.0
+        version: 4.3.1
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
+      vue-i18n:
+        specifier: ^11.1.11
+        version: 11.2.2(vue@3.5.39(typescript@5.9.3))
+      vue-router:
+        specifier: ^4.5.1
+        version: 4.6.4(vue@3.5.39(typescript@5.9.3))
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.54.2
+        version: 1.62.1
+      '@tailwindcss/vite':
+        specifier: ^4.1.11
+        version: 4.3.1(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))
+      '@types/node':
+        specifier: ^22.17.1
+        version: 22.19.3
+      '@vitejs/plugin-vue':
+        specifier: ^6.0.1
+        version: 6.0.7(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3))
+      '@vue/tsconfig':
+        specifier: ^0.7.0
+        version: 0.7.0(typescript@5.9.3)(vue@3.5.39(typescript@5.9.3))
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.3
+      vite:
+        specifier: ^7.1.2
+        version: 7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0)
+      vue-tsc:
+        specifier: ^3.0.5
+        version: 3.3.5(typescript@5.9.3)
+
   apps/cart:
     dependencies:
       '@formkit/auto-animate':

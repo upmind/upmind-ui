@@ -1,0 +1,7 @@
+/* The design system's single entry. No client-vue layer: this app depends on
+   `auth` plus the shared bases only, which is the decoupling this app proves. */
+@import "@upmind/ui/styles";
+
+@source './**/*.{html,vue,js,tsx,ts}';
+@source '../../../packages/auth/src/**/*.{html,vue,js,tsx,ts}';
+@source '../../../packages/foundation/src/**/*.{html,vue,js,tsx,ts}';

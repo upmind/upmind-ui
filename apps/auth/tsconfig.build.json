@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig/vue-app.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": "src",
+    "outDir": "dist",
+    "declaration": false,
+    "declarationMap": false,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"],
+  "references": [
+    { "path": "../../packages/types/tsconfig.build.json" },
+    { "path": "../../packages/headless/tsconfig.build.json" },
+    { "path": "../../design-system/packages/ui/tsconfig.build.json" },
+    { "path": "../../packages/foundation/tsconfig.build.json" },
+    { "path": "../../packages/auth/tsconfig.build.json" }
+  ]
+}

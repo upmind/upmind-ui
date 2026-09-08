@@ -42,6 +42,7 @@
     { "path": "./packages/client/tsconfig.build.json" },
     { "path": "./packages/payment/tsconfig.build.json" },
     { "path": "./packages/invoice/tsconfig.build.json" },
-    { "path": "./packages/basket/tsconfig.build.json" }
+    { "path": "./packages/basket/tsconfig.build.json" },
+    { "path": "./apps/auth/tsconfig.build.json" }
   ]
 }
