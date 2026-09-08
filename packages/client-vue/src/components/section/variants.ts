@@ -39,7 +39,7 @@ export const headerVariants = cva("items-start", {
 });
 
 export const sectionHeadingVariants = cva(
-  "text-display flex items-center gap-2 pb-4 text-sm font-medium [&_svg]:size-4",
+  "text-display flex items-center gap-2 pb-4 text-sm font-medium",
   {
     variants: {
       isInset: { false: "", true: "" },

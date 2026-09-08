@@ -40,7 +40,7 @@
         :key="`tab-${section.value}`"
         #[`tab.${section.value}`]
       >
-        <Icon v-if="section.icon" :icon="section.icon" />
+        <Icon v-if="section.icon" :icon="section.icon" size="sm" />
         {{ section.label }}
       </template>
 
