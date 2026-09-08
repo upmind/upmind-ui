@@ -1,0 +1,39 @@
+# Project-reference type gate (ADR 023 §11, "the acyclic guarantee").
+#
+# Every domain package's tsconfig.build.json restricts its `paths` map to that
+# package's ADR §3 "May import" set, so an upward or circular import between
+# packages stops resolving and the compiler reports TS2307. That is the guard
+# ADR §11 names, and until this job existed it ran only on a developer machine.
+#
+# WHY LINT IS NOT ENOUGH: `import/no-cycle` sees one package at a time. A mutual
+# product<->basket cycle written through the workspace aliases lints exit 0 in
+# BOTH packages; only the project-reference build catches it. The complementary
+# intra-package control is graded by `unit:test` (pyramid.yml).
+#
+# WHY `vue-tsc -b` AND NOT `tsc -b`: plain tsc cannot resolve `.vue` single-file
+# components and reports hundreds of TS2307 errors on the default branch itself,
+# so it can never be a gate here.
+#
+# BLOCKING: `allow_failure: false` is stated EXPLICITLY, not left implied. The
+# root graph exits 0 today; this job is what keeps it that way.
+#
+# NEEDS `dependencies` for node_modules AND for `packages/types`: that submodule
+# is excluded from every job's own submodule fetch (GIT_SUBMODULE_PATHS in
+# .gitlab-ci.yml) and reaches a job only through the dependencies artifact. It is
+# a reference of the root tsconfig, so the graph does not build without it.
+typecheck:packages:
+  extends: .pnpm
+  stage: test
+  interruptible: true
+  needs:
+    - dependencies
+  rules:
+    - if: $SKIP_TYPECHECK == "true"
+      when: never
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_PIPELINE_SOURCE == 'web'
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG
+  allow_failure: false
+  script:
+    - pnpm exec vue-tsc -b

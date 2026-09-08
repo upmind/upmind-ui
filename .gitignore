@@ -14,6 +14,9 @@ storybook-static/
 bin/pnpm
 bin/pnpx
 tsconfig.tsbuildinfo
+# Not every package pins tsBuildInfoFile into its (ignored) dist, so the
+# project-reference build drops these at a package root.
+*.tsbuildinfo
 # .claude is tracked (agent config, rules + companions, commands); runtime/personal bits are not
 .claude/.DS_Store
 .claude/settings.local.json
