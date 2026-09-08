@@ -1,24 +1,27 @@
 #!/usr/bin/env node
 // @ts-check
 /**
- * FE-2976 deep-review cluster 7 — makes the two `known-bad/*.must-fail.patch`
- * fixtures a machine-enforced negative control instead of README prose.
+ * FE-2976 deep-review cluster 7 — makes every `known-bad/*.must-fail.patch`
+ * fixture a machine-enforced negative control instead of README prose.
  *
  * For each `*.must-fail.patch` under `src/__tests__/known-bad/`:
  *   1. `git apply --check` — if the patch no longer applies cleanly against
  *      HEAD, that IS the staleness alarm this script exists to raise; fail
  *      loudly rather than silently skipping it.
- *   2. Apply it, run this package's lint scoped to `packages/scenario-harness`,
- *      and assert the run goes RED naming the specifier the patch itself adds
- *      (extracted from the patch's own `+import ... from "<specifier>"` line —
- *      never hardcoded, so a future patch is covered with no code change here).
+ *   2. Apply it, run lint scoped to the workspace package(s) the patch itself
+ *      touches, and assert the run goes RED naming the specifier the patch
+ *      itself adds (extracted from the patch's own `+import ... from
+ *      "<specifier>"` line — never hardcoded, so a future patch is covered
+ *      with no code change here).
  *   3. Revert it (always, even on assertion failure — `finally`) and assert the
  *      run returns to GREEN.
  *
  * Mirrors `.claude/scripts/lint/eslint-workspace.mjs`'s own invocation (cwd =
- * repo root, target = this package, same suppressions-ledger flags) so the
- * verdict this script reads is the exact one `pnpm --filter
- * @upmind-automation/scenario-harness lint` would report.
+ * repo root, same suppressions-ledger flags) so the verdict this script reads
+ * is the exact one `pnpm --filter <pkg> lint` would report. The lint scope is
+ * derived per patch rather than pinned to this package, so a control for
+ * another package's boundary (ADR 023 §11's acyclic guarantee) is graded by
+ * this one runner instead of a second one.
  */
 
 import { execFileSync, spawnSync } from "node:child_process";
@@ -35,6 +38,7 @@ const LEDGER = resolve(REPO_ROOT, "eslint-suppressions.json");
 
 const ADDED_IMPORT_LINE = /^\+.*\bfrom\s+["']([^"']+)["']/m;
 const PATCH_TARGET_LINE = /^\+\+\+ b\/(.+)$/gm;
+const WORKSPACE_PACKAGE = /^(?:apps|packages|playgrounds)\/[^/]+/;
 
 function git(args) {
   return execFileSync("git", args, { cwd: REPO_ROOT, encoding: "utf8" });
@@ -52,12 +56,12 @@ function gitApply(patchPath, reverse) {
   git(["apply", ...(reverse ? ["-R"] : []), patchPath]);
 }
 
-function runLint() {
+function runLint(lintTargets) {
   const result = spawnSync(
     process.execPath,
     [
       ESLINT_BIN,
-      PACKAGE_DIR,
+      ...lintTargets,
       "--suppressions-location",
       LEDGER,
       "--pass-on-unpruned-suppressions"
@@ -79,6 +83,23 @@ function extractPatchTargets(patchText) {
   return [...patchText.matchAll(PATCH_TARGET_LINE)].map(match =>
     resolve(REPO_ROOT, match[1])
   );
+}
+
+/**
+ * The workspace package root(s) a patch touches — the lint scope its control
+ * needs. Package roots (not the touched files) so the scope survives the
+ * revert, where a file the patch CREATED no longer exists.
+ */
+function extractLintTargets(patchText) {
+  const roots = new Set();
+
+  for (const match of patchText.matchAll(PATCH_TARGET_LINE)) {
+    const root = WORKSPACE_PACKAGE.exec(match[1])?.[0];
+
+    if (root) roots.add(resolve(REPO_ROOT, root));
+  }
+
+  return [...roots];
 }
 
 function assertClean(label, targets) {
@@ -103,6 +124,15 @@ function verifyPatch(patchFile) {
     );
   }
 
+  const lintTargets = extractLintTargets(patchText);
+
+  if (lintTargets.length === 0) {
+    throw new Error(
+      `${patchFile}: none of its '+++ b/...' targets sit inside a workspace ` +
+        `package — there is no lint scope to grade this control in.`
+    );
+  }
+
   if (!gitApplyCheck(patchPath)) {
     throw new Error(
       `${patchFile}: STALE PATCH — it no longer applies cleanly against HEAD. ` +
@@ -116,13 +146,13 @@ function verifyPatch(patchFile) {
   gitApply(patchPath, false);
 
   try {
-    const injected = runLint();
+    const injected = runLint(lintTargets);
 
     if (injected.exitCode === 0) {
       throw new Error(
         `${patchFile}: expected the lint run to go RED after applying this ` +
-          `patch, but it exited 0 (green). The no-vue boundary no longer catches ` +
-          `this shape.`
+          `patch, but it exited 0 (green). The boundary it targets no longer ` +
+          `catches this shape.`
       );
     }
     if (!injected.output.includes(specifier)) {
@@ -138,7 +168,7 @@ function verifyPatch(patchFile) {
     gitApply(patchPath, true);
   }
 
-  const reverted = runLint();
+  const reverted = runLint(lintTargets);
   if (reverted.exitCode !== 0) {
     throw new Error(
       `${patchFile}: expected the lint run to return to GREEN after reverting ` +
