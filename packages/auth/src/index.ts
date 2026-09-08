@@ -30,7 +30,8 @@ export type { AuthFeatureOptions } from "./feature";
 
 // --- Export the routes/flows contract
 export { AUTH_ROUTE, authRoutes } from "./routes";
-export type { AuthRouteName } from "./routes";
+export type { AuthRouteName, AuthRoutesOptions } from "./routes";
+export { readReturnTarget, registerAuthFlows } from "./flows";
 
 // --- Export utils
 export { offersGuestCheckout, useSessionTemplates } from "./session.utils";
