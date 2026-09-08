@@ -37,12 +37,16 @@
 <script lang="ts" setup>
 import { and, isStringControl, optionIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import { Button, Input, Tooltip } from "@upmind/ui";
+import {
+  Button,
+  Input,
+  Tooltip,
+  FormField,
+  useUpmindUIRenderer
+} from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { Icon } from "../../icon";
-import FormField from "../engine/FormField.vue";
-import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import { isEmpty } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";

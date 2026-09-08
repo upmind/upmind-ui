@@ -1,0 +1,24 @@
+Negative control for the wrapper's `:ajv` seam.
+
+Drops the binding that hands the engine headless's configured Ajv. The
+wrapper is the SOLE supplier -- FormProps declares `ajv?: Ajv` and the
+wrapper takes Omit<FormProps,"ajv"> -- so without it JSONForms builds its
+own default instance and silently loses headless's custom keywords,
+phone and domain_name validation among them.
+
+MUST red: validator > "rejects a value only headless's own Ajv knows how
+to reject". The paired bare-engine twin MUST stay green; if both red, the
+test is reading ambient state rather than the seam.
+diff --git a/packages/client-vue/src/components/form/Form.vue b/packages/client-vue/src/components/form/Form.vue
+index f8269612c8..cf4ba48eb3 100644
+--- a/packages/client-vue/src/components/form/Form.vue
++++ b/packages/client-vue/src/components/form/Form.vue
+@@ -3,7 +3,7 @@
+     :key="locale"
+     v-bind="forwarded"
+     :i18n="i18n"
+-    :ajv="ajv"
++
+     :additional-renderers="formRenderers"
+     :optional-text="t('text.optional')"
+     :dataAttrs="{ 'data-test-key': 'form', ...props.dataAttrs }"

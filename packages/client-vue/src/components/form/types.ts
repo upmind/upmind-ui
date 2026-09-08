@@ -1,4 +1,4 @@
-import type { FormProps } from "./engine/types";
+import type { FormProps } from "@upmind/ui";
 
 export interface FormModalProps extends Omit<FormProps, "ajv"> {
   open?: boolean;

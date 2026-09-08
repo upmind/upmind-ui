@@ -1231,9 +1231,6 @@ importers:
       filepond-plugin-image-preview:
         specifier: ^4.6.12
         version: 4.6.12(filepond@4.32.10)
-      libphonenumber-js:
-        specifier: ^1.12.10
-        version: 1.12.31
       lodash-es:
         specifier: ^4.17.21
         version: 4.18.1

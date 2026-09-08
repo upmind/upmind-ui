@@ -21,13 +21,12 @@
 <script lang="ts" setup>
 import { uiTypeIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
+import { FormField, useUpmindUIRenderer } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useConfig } from "@upmind-automation/headless";
 import TermsRadio from "../../../modules/product/components/terms/TermsRadio.vue";
 import TermsSelect from "../../../modules/product/components/terms/TermsSelect.vue";
-import FormField from "../engine/FormField.vue";
-import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { TermDetails } from "@upmind-automation/headless";
