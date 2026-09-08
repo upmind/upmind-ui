@@ -114,7 +114,7 @@ Feature: A client reads and manages their invoices
     Given I have more invoices than fit on one page
     When I open my invoice list
     Then I am given the first page, and the total number of invoices I have
-    And asking for the next page gives me the next page
+    And asking for the next page of my invoices gives me the next page
 
   @AC-2 @AC-5 @client @cell:client-self
   Scenario: Read one of my invoices in full
@@ -299,3 +299,33 @@ Feature: A client reads and manages their invoices
     When I try to filter by something the module has not declared
     Then that filtering is refused rather than silently ignored or silently applied
     And no filter ever reaches the platform outside what my declared criteria produced
+
+# === SCENARIO LANE (this dispatch, appended per factory-scenario/SKILL.md's
+#     augmentation law — append only, no Background:, no second Feature:) =====
+#
+# The playground page (`playgrounds/labs-nuxt/modules/scenarios/useInvoices/`)
+# now exists and drives this feature. NO SCENARIO IS APPENDED: every capability
+# the page's controls exercise (filter/sort/page, assign/clear payment method,
+# refresh, invalidate, refresh-after-payment, filter-consolidatable,
+# filter-credit-notes, retarget, attribution, view-detail) is already scenario'd
+# above by lane 1 — the page demonstrates this module's own capability list, it
+# mints no capability of its own (factory-scenario/SKILL.md "Non-goals": "This
+# lane mints no acceptance criterion... It writes no product code"). ONE
+# REPHRASE was needed: the "Page through my invoice list" scenario's pagination
+# step read identically to `client-email-history.steps.ts`'s own pagination
+# pattern ("asking for the next page gives me the next page"), which the
+# cross-catalog duplicate-pattern gate refuses to let two catalogs both claim.
+# Reworded to "asking for the next page of my invoices gives me the next
+# page" — same capability, no scenario narrowed, no Background/Feature added.
+# Every other step above matches `invoices.steps.ts` verbatim.
+#
+# `invoices.steps.ts` is the catalog: every scenario's steps are pattern-
+# matched there. Where opening/reading ONE invoice is concerned ("When I open
+# that invoice" and its siblings), the catalog fires no action — `useInvoice`
+# (`useDetail`) is the first `useDetail` binding in this tree and the
+# playground's `useCompositionPort` reads exactly one composable cell per boot,
+# so there is no established convention yet for driving a second, detail-scoped
+# cell through `World.fire`. Those steps are documented no-ops deferring to the
+# real proving `*.int.test.ts` (named per-step in the catalog) rather than a
+# fabricated action id — a legitimate "not yet driven" state per this file's own
+# head docstring, not a coverage hole.

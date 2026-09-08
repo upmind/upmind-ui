@@ -1,0 +1,265 @@
+// -----------------------------------------------------------------------------
+/**
+ * @fileoverview invoices declaration — the binding claim the scenario makes
+ *
+ * ## Job To Be Done
+ * A scenario declares WHAT it boots, HOW it draws, and WHICH module it tracks.
+ * This spec asserts that claim against the declared surface: every column
+ * draws through a registered cell renderer, every non-detail action names a
+ * LIVE `useInvoices` capability, the bound composables exist (this is the
+ * first scenario in the tree to declare `useDetail`), and the tracked module
+ * owns a committed feature naming the same scenario key its step catalog does
+ * (`invoices.scenario.ts`'s `key` vs `invoices.steps.ts`'s `INVOICES_SCENARIO`
+ * — the read join the client-email-history drive-by taught this factory to
+ * check explicitly: that module's page and catalog disagreed on
+ * `"client_email_history"` vs `"client-email-history"`).
+ *
+ * ## What Breaks If These Fail
+ * The scenario boots with a column no renderer owns, an action nobody
+ * handles, a module identity that matches nothing, or a control claiming a
+ * capability this module never shipped — a page that looks intact and
+ * silently does nothing.
+ *
+ * Negative controls:
+ * `packages/headless/src/modules/invoices/__tests__/invoices.page-control-name-drift.must-fail.patch`
+ * is the developer's — it renames `refreshAfterPayment`'s drawn `name` to a
+ * non-member, primarily targeting the "every non-detail action names a live
+ * invoices capability" assertion below. Applied blind in this dispatch's own
+ * run: it flips that assertion RED, plus two collateral assertions IN THIS
+ * SAME FILE that also key on the literal name `refreshAfterPayment`
+ * ("declares the expected presentation actions",
+ * "draws refreshAfterPayment and invalidate in the OVERFLOW") — all three
+ * are the same single-line mutation read three ways, not an unrelated blast
+ * radius; nothing outside this file reacts. Reverted, confirmed green again.
+ */
+
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
+import { RuleEffect } from "@jsonforms/core";
+import declaration from "../useInvoices/invoices.scenario";
+import { INVOICES_SCENARIO } from "../../../../../packages/headless/src/modules/invoices/__tests__/invoices.steps";
+import { every, filter, flatMap, map, reject, some } from "lodash-es";
+import type { ScenarioAction, TableCell } from "../runtime/scenario.types";
+
+// -----------------------------------------------------------------------------
+
+const MODULE_ROOT = join(
+  import.meta.dirname,
+  "../../../../../packages/headless/src/modules",
+  declaration.tracks ?? ""
+);
+
+const allCells = (): TableCell[] =>
+  flatMap(
+    filter(
+      [
+        declaration.presentation.table?.elements,
+        declaration.presentation.card?.elements,
+        declaration.presentation.detail?.elements
+      ],
+      Boolean
+    ) as TableCell[][]
+  );
+
+const allActions = (): ScenarioAction[] =>
+  declaration.presentation.actions?.elements ?? [];
+
+const CELL_RENDERERS = new Set([
+  "TableCellText",
+  "TableCellHtml",
+  "TableCellDate",
+  "TableCellIcon",
+  "TableCellBadges"
+]);
+
+/**
+ * The collection's live capability map, as the contract hands it to this
+ * seat — `useInvoices().useActions()`'s member names
+ * (`docs/sdd/FE-3031/design.md` "The four layers — exact members" +
+ * `parity.yaml` R04/H1 citations for `filterConsolidatable`/
+ * `filterCreditNotes`). `view` is the documented exception — the detail
+ * overlay, never a live member of either composable.
+ */
+const LIVE_CAPABILITIES = new Set([
+  "destroy",
+  "isReady",
+  "refresh",
+  "invalidate",
+  "setCriteria",
+  "sortBy",
+  "assignPaymentMethod",
+  "refreshAfterPayment",
+  "filterConsolidatable",
+  "filterCreditNotes"
+]);
+
+const NON_CAPABILITY_ACTIONS = new Set(["view"]);
+
+// -----------------------------------------------------------------------------
+
+describe("invoices declaration — the declaration draws only what it declares", () => {
+  it("declares useList AND useDetail — no useMutate, the module ships no manager", () => {
+    expect(declaration.useList).toBeDefined();
+    expect(declaration.useDetail).toBeDefined();
+    expect((declaration as Record<string, unknown>).useMutate).toBeUndefined();
+  });
+
+  it("declares no route — the directory IS the route", () => {
+    expect((declaration as Record<string, unknown>).route).toBeUndefined();
+  });
+
+  it("draws every column through a registered cell renderer", () => {
+    const cells = allCells();
+    expect(cells.length).toBeGreaterThan(0);
+    expect(every(cells, cell => CELL_RENDERERS.has(cell.type))).toBe(true);
+  });
+
+  it("enables criteria persistence", () => {
+    expect(declaration.persistCriteria).toBe(true);
+  });
+});
+
+describe("invoices declaration — the scenario key and the catalog agree", () => {
+  it("declares key 'invoices', matching the catalog's INVOICES_SCENARIO exactly", () => {
+    expect(declaration.key).toBe("invoices");
+    expect(declaration.key).toBe(INVOICES_SCENARIO);
+  });
+
+  it("tracks 'invoices' under packages/headless/src/modules", () => {
+    expect(declaration.tracks).toBe("invoices");
+    expect(existsSync(MODULE_ROOT)).toBe(true);
+  });
+});
+
+describe("invoices declaration — every non-detail action names a live capability", () => {
+  it("declares at least one action", () => {
+    expect(allActions().length).toBeGreaterThan(0);
+  });
+
+  // The central lesson this run's mutant exists to guard against: a control
+  // whose `name` matches nothing the module actually exposes draws and then
+  // fails. `view` is the sanctioned exception (the detail overlay); every
+  // OTHER action must name a member `LIVE_CAPABILITIES` actually carries.
+  it("every non-detail action names a live invoices capability", () => {
+    const pressable = reject(
+      allActions(),
+      action => !!action.detail || NON_CAPABILITY_ACTIONS.has(action.name)
+    );
+    expect(pressable.length).toBeGreaterThan(0);
+    expect(
+      map(
+        reject(pressable, action => LIVE_CAPABILITIES.has(action.name)),
+        "name"
+      ),
+      "Action(s) naming no live capability — a control that draws and then fails"
+    ).toEqual([]);
+  });
+
+  it("declares the expected presentation actions", () => {
+    const actionNames = map(allActions(), "name");
+    for (const expected of [
+      "refresh",
+      "filterConsolidatable",
+      "filterCreditNotes",
+      "refreshAfterPayment",
+      "assignPaymentMethod",
+      "invalidate",
+      "view"
+    ]) {
+      expect(actionNames).toContain(expected);
+    }
+  });
+
+  it("draws filterCreditNotes twice — header and row-scoped (AC-7)", () => {
+    const filterCreditNotesActions = filter(
+      allActions(),
+      action => action.name === "filterCreditNotes"
+    );
+    expect(filterCreditNotesActions).toHaveLength(2);
+  });
+
+  it("draws refresh and filterConsolidatable in the HEADER", () => {
+    for (const name of ["refresh", "filterConsolidatable"]) {
+      const action = allActions().find(candidate => candidate.name === name);
+      expect(action?.placement).toBe("header");
+    }
+  });
+
+  it("draws refreshAfterPayment and invalidate in the OVERFLOW", () => {
+    for (const name of ["refreshAfterPayment", "invalidate"]) {
+      const action = allActions().find(candidate => candidate.name === name);
+      expect(action?.placement).toBe("overflow");
+    }
+  });
+
+  it("gates assignPaymentMethod with RuleEffect.DISABLE on `locked`", () => {
+    const action = allActions().find(
+      candidate => candidate.name === "assignPaymentMethod"
+    );
+    expect(action?.rule?.effect).toBe(RuleEffect.DISABLE);
+  });
+
+  it("view opens the read-only detail overlay, not a live action", () => {
+    const view = allActions().find(action => action.name === "view");
+    expect(view?.detail).toBe(true);
+  });
+});
+
+describe("invoices declaration — presentation covers the expected elements", () => {
+  it("table declares 10 columns, ending with a locked icon", () => {
+    const elements = declaration.presentation.table?.elements ?? [];
+    expect(elements).toHaveLength(10);
+    expect(elements.at(-1)?.type).toBe("TableCellIcon");
+  });
+
+  it("table declares exactly one attribution badges column, with all four flags", () => {
+    const badgeCells = filter(
+      declaration.presentation.table?.elements,
+      cell => cell.type === "TableCellBadges"
+    );
+    expect(badgeCells).toHaveLength(1);
+    const flags = map(
+      (badgeCells[0] as { options: { badges: { flag: string }[] } }).options
+        .badges,
+      "flag"
+    );
+    expect(flags).toEqual(
+      expect.arrayContaining([
+        "isOwn",
+        "isChildOfClient",
+        "isDelegated",
+        "isSettleable"
+      ])
+    );
+  });
+
+  it("card declares a TITLE slot", () => {
+    const slots = map(declaration.presentation.card?.elements, "options.slot");
+    expect(some(slots, slot => slot === "title")).toBe(true);
+  });
+
+  it("detail exceeds the table's own element count (a full record, not a list row)", () => {
+    const detailCount = declaration.presentation.detail?.elements.length ?? 0;
+    const tableCount = declaration.presentation.table?.elements.length ?? 0;
+    expect(detailCount).toBeGreaterThan(tableCount);
+  });
+});
+
+describe("invoices declaration — the known caveats, encoded honestly", () => {
+  // AC-1 (design.md): `refreshUnpaidAmount` is live on
+  // `useInvoice().useActions()`, but the runtime's actions channel binds the
+  // LIST cell only (`useTableChannel.ts:118-120`) and `DetailUischema` carries
+  // no actions member — there is no control this page could draw for it.
+  it("draws no control named refreshUnpaidAmount — readable in the detail, not pressable", () => {
+    const actionNames = map(allActions(), "name");
+    expect(actionNames).not.toContain("refreshUnpaidAmount");
+  });
+
+  // AC-4 (design.md D1 / requirements.md): assigning a SPECIFIC method needs a
+  // payment-method picker from `payment-details`, out of scope (PN-1) — so no
+  // handoff exists for it; only the explicit-null clear is a declared control.
+  it("declares no handoff — AC-4's assign-a-specific-method half has no picker channel", () => {
+    expect((declaration as Record<string, unknown>).handoff).toBeUndefined();
+  });
+});
