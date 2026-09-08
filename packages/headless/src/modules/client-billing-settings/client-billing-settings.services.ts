@@ -295,8 +295,15 @@ async function loadLookups(
     },
     config: {
       ...context.config,
-      [BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF]:
-        !!restrictToStaff
+      // Tri-state preserved: an absent brand key must stay absent, not
+      // collapse to a literal `false` — the oracle's `!(config[KEY] ?? true)`
+      // (comp:72-79) only shows the surface for an EXPLICIT `false`; a
+      // collapsed-to-`false` absent key would otherwise read downstream as
+      // that same explicit opt-in.
+      ...(restrictToStaff !== undefined && {
+        [BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF]:
+          restrictToStaff
+      })
     } as Record<BrandConfigKeys, boolean>
   };
 }
