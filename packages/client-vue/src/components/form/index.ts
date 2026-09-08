@@ -1,3 +1,18 @@
+// -----------------------------------------------------------------------------
+/**
+ * @module components/form
+ * @description The form host moved down to `@upmind-automation/foundation` in
+ * the ADR 023 cut, where it reads its Upmind-domain renderers from the §7
+ * socket instead of importing them.
+ *
+ * The side-effect import below is what keeps `UpmForm` whole. This module is
+ * the host's address in this package, so registering the renderer set here
+ * means every consumer that reaches for `UpmForm` gets them — including the
+ * apps that will never be rewired, and any consumer that imports this barrel
+ * without importing the package's own.
+ */
+import "../../feature";
+
 export { Form as UpmForm } from "@upmind-automation/foundation";
 export { useFormI18n } from "@upmind-automation/foundation";
 export type { FormI18n } from "@upmind-automation/foundation";

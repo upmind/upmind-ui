@@ -1,9 +1,5 @@
 import useUpmindClient from "./useUpmindClient";
 
-// Side-effect import: contributes this package's form renderers into
-// `foundation`'s §7 socket. Listed in `sideEffects` so a bundler keeps it.
-import "./feature";
-
 export * from "@upmind-automation/headless";
 
 // --- expose shared types
