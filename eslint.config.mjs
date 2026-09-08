@@ -161,11 +161,17 @@ const nuxtAutoImportGlobals = {
 // ruling §3). Governance switch is the `@internal` head marker, NOT a filename
 // suffix and NOT a frozen exception list: a file is internal iff its first ~15
 // lines carry `@internal`. Importing such a file from a DIFFERENT module
-// directory under packages/headless/src/modules is an error; same-module wiring
-// (a service importing its own mapper, basket.utils → sibling machine) is fine.
+// directory under the importer's OWN `<package>/src/modules` is an error;
+// same-module wiring (a service importing its own mapper, basket.utils →
+// sibling machine) is fine.
 //
-// Scoped (via the config block below) to files under packages/headless/src/modules.
+// The modules root is resolved PER PACKAGE (ADR 023 §11), not hardcoded to
+// headless: every `packages/*/src/modules` tree gets the same barrier, so the
+// ten domain packages inherit it as they are populated. A cross-PACKAGE reach
+// is deliberately out of scope here — block 8g owns that lane.
 // -----------------------------------------------------------------------------
+
+const PACKAGES_ROOT = resolve(import.meta.dirname, "packages");
 
 const MODULES_ROOT = resolve(
   import.meta.dirname,
@@ -229,11 +235,40 @@ function isInternalFile(absPath) {
   return internal;
 }
 
-/** The module directory (immediate child of modules/) that a file lives in. */
-function moduleDirOf(absPath) {
-  if (!absPath.startsWith(`${MODULES_ROOT}/`)) return null;
+// Cache: package directory name → its `src/modules` root, or null when the
+// package has no modules tree. One disk check per package, not per file.
+const moduleRootCache = new Map();
 
-  const rest = absPath.slice(MODULES_ROOT.length + 1);
+/** The `<package>/src/modules` root governing a file, resolved from its own package. */
+function moduleRootOf(absPath) {
+  if (!absPath.startsWith(`${PACKAGES_ROOT}/`)) return null;
+
+  const rest = absPath.slice(PACKAGES_ROOT.length + 1);
+  const slash = rest.indexOf("/");
+
+  if (slash === -1) return null;
+
+  const pkg = rest.slice(0, slash);
+  const cached = moduleRootCache.get(pkg);
+
+  if (cached !== undefined) return cached;
+
+  const root = resolve(PACKAGES_ROOT, pkg, "src/modules");
+  const found =
+    existsSync(root) && statSync(root).isDirectory() ? root : null;
+
+  moduleRootCache.set(pkg, found);
+
+  return found;
+}
+
+/** The module directory (immediate child of the governing modules/) a file lives in. */
+function moduleDirOf(absPath) {
+  const root = moduleRootOf(absPath);
+
+  if (!root || !absPath.startsWith(`${root}/`)) return null;
+
+  const rest = absPath.slice(root.length + 1);
   const slash = rest.indexOf("/");
 
   return slash === -1 ? rest : rest.slice(0, slash);
@@ -246,14 +281,16 @@ const internalBarrierPlugin = {
         type: "problem",
         docs: {
           description:
-            "Disallow importing an @internal-marked headless module file from a different module."
+            "Disallow importing an @internal-marked module file from a different module in the same package."
         },
         schema: []
       },
       create(context) {
         const importerFile = context.filename ?? context.getFilename();
+        const importerRoot = moduleRootOf(importerFile);
 
-        if (!importerFile.startsWith(`${MODULES_ROOT}/`)) return {};
+        if (!importerRoot || !importerFile.startsWith(`${importerRoot}/`))
+          return {};
 
         const importerModule = moduleDirOf(importerFile);
 
@@ -267,6 +304,8 @@ const internalBarrierPlugin = {
             const target = resolveRelativeTarget(importerFile, specifier);
 
             if (!target) return;
+            // A reach into ANOTHER package is block 8g's lane, not this one.
+            if (moduleRootOf(target) !== importerRoot) return;
             if (!isInternalFile(target)) return;
 
             const targetModule = moduleDirOf(target);
@@ -757,6 +796,62 @@ const workspaceBoundaryPlugin = {
   }
 };
 
+// -----------------------------------------------------------------------------
+// ADR 023 package-graph enforcement — `import/no-cycle` + `import/no-internal-modules`.
+//
+// Both ship with the installed eslint-plugin-import, but neither resolves
+// anything under this repo's defaults: eslint-plugin-import's built-in node
+// resolver knows .js/.json only, so every .ts/.vue specifier goes unresolved
+// and BOTH rules pass vacuously. Naming the extensions is what gives them
+// teeth — without it, setting them to "error" measures nothing.
+//
+// No tsconfig-paths resolver is installed, so aliased specifiers
+// (`@upmind-automation/*`) stay unresolved for no-cycle. That is why the DAG
+// between packages is carried by project references + block 8g, and no-cycle
+// is armed on the WITHIN-package relative graph, which is the surface it can
+// actually see.
+// -----------------------------------------------------------------------------
+const IMPORT_RESOLVE_EXTENSIONS = [
+  ".js",
+  ".mjs",
+  ".cjs",
+  ".jsx",
+  ".ts",
+  ".mts",
+  ".cts",
+  ".tsx",
+  ".vue"
+];
+
+const importGraphSettings = {
+  "import/resolver": { node: { extensions: IMPORT_RESOLVE_EXTENSIONS } },
+  "import/extensions": IMPORT_RESOLVE_EXTENSIONS,
+  "import/parsers": { "@typescript-eslint/parser": [".ts", ".tsx", ".mts"] }
+};
+
+// The ADR 023 §3 roster. Kept as one list so the glob and the forbid pattern
+// below cannot drift from each other.
+const DOMAIN_PACKAGES = [
+  "foundation",
+  "product",
+  "recommendations",
+  "catalogue",
+  "domain",
+  "auth",
+  "client",
+  "payment",
+  "invoice",
+  "basket"
+];
+
+const DOMAIN_PACKAGE_FILES = DOMAIN_PACKAGES.map(
+  p => `packages/${p}/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}`
+);
+
+// Deep reach INTO a domain package, from anywhere. ADR 023 §6: a package barrel
+// exports only its own UI, so a consumer takes the barrel, never a file inside.
+const DOMAIN_PACKAGE_INTERNALS = `@upmind-automation/{${DOMAIN_PACKAGES.join(",")}}/**`;
+
 export default [
   // ---------------------------------------------------------------------------
   // 1. Global ignores
@@ -931,13 +1026,16 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
-  // 8. @internal barrier — custom marker-based rule, scoped to headless modules.
+  // 8. @internal barrier — custom marker-based rule, per-package resolver.
   //    A file is internal iff its head carries `@internal`; importing it from a
-  //    different module directory is an error. Same-module wiring is allowed.
+  //    different module directory in the SAME package is an error. Same-module
+  //    wiring is allowed; a cross-package reach belongs to block 8g.
   //    Replaces the coarse suffix-glob no-restricted-imports (FE-2820 ruling §3).
+  //    Widened from headless-only to every `packages/*/src/modules` tree per
+  //    ADR 023 §11, so the ten domain packages inherit it as they populate.
   // ---------------------------------------------------------------------------
   {
-    files: ["packages/headless/src/modules/**/*.{ts,tsx,mts,cts}"],
+    files: ["packages/*/src/modules/**/*.{ts,tsx,mts,cts,vue}"],
     plugins: {
       "@internal": internalBarrierPlugin
     },
@@ -1084,6 +1182,58 @@ export default [
     ignores: ["packages/scenario-harness/**"],
     rules: {
       "no-restricted-imports": noWorkspaceSubpathImportsRule(true)
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 8i. ADR 023 §11 — no deep reach INTO a domain package, from anywhere.
+  //     Repo-wide and at error on day one: a consumer takes the package barrel,
+  //     never a file inside it (§6). Measured at 0 violations across packages,
+  //     apps, playgrounds and tests, so it is armed with no suppressions and
+  //     grows teeth as each phase populates a shell.
+  //
+  //     `forbid` (not the rule's default) is deliberate: the default bans ALL
+  //     deep reach, including the 178 legitimate published subpaths this repo
+  //     has (@upmind-automation/i18n/core/*.json, test-fixtures/*), and 2,113
+  //     ordinary relative deep imports. Naming the ten targets is the boundary
+  //     the ADR asks for; banning everything would only buy a suppressions file.
+  // ---------------------------------------------------------------------------
+  {
+    files: [
+      "apps/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      "packages/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      "playgrounds/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      "tests/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}"
+    ],
+    plugins: { import: eslintPluginImport },
+    settings: importGraphSettings,
+    rules: {
+      "import/no-internal-modules": [
+        "error",
+        { forbid: [DOMAIN_PACKAGE_INTERNALS] }
+      ]
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 8j. ADR 023 §11 — the acyclic guarantee for the new package graph.
+  //     Scoped to the ten domain packages, where it is green from day one.
+  //
+  //     NOT repo-wide, and that is a measurement, not a preference: at error
+  //     over the whole tree this reports 381 pre-existing cycles, 345 of them
+  //     inside packages/headless — protected core this seat may not edit, and
+  //     routed through the headless aggregator barrel that block 8c already
+  //     governs. The remaining 14 in client-vue run through the renderer barrel
+  //     (SmartDomainField -> components/form) and the billing <-> checkout pair;
+  //     ADR 023 §5 names neither, so neither is Phase 0's to break. Arming it
+  //     repo-wide would buy 381 bulk suppressions and enforce nothing.
+  // ---------------------------------------------------------------------------
+  {
+    files: DOMAIN_PACKAGE_FILES,
+    plugins: { import: eslintPluginImport },
+    settings: importGraphSettings,
+    rules: {
+      "import/no-cycle": ["error", { maxDepth: Infinity }]
     }
   },
 
