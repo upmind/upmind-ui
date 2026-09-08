@@ -33,6 +33,7 @@ import { useI18n } from "vue-i18n";
 import { useBasketProducts } from "@upmind-automation/headless";
 import Section from "../../../components/section/Section.vue";
 import ProductCards from "../../basket-product/components/card/BasketProductCards.vue";
+import ConfigSkeleton from "../../product/components/ConfigSkeleton.vue";
 import BasketFieldsSection from "./BasketFieldsSection.vue";
 // --- types
 import type { BasketProductsProps } from "./types";
