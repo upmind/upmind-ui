@@ -11,6 +11,7 @@ import {
 } from "./invoices.schemas";
 import { InvoicesContextTypes } from "./invoices.types";
 import { useTime, NotAuthenticatedError } from "../../utils";
+import { has } from "lodash-es";
 import type { ScopeContext } from "../scope";
 import type {
   Invoice,
@@ -151,6 +152,69 @@ function trackClientIdFilter(
 }
 
 /**
+ * Wraps a list handle's published `setCriteria` so the RESOLVED target's
+ * `client_id` column survives every write that OMITS it, whatever `filters`
+ * branch a caller replaces (AC12, the A7 clause, blocker H1). `criteria.set`
+ * merges at BRANCH level (`useQueryCriteria.ts:100-101`: "`set({ filters })`
+ * replaces the whole `filters` branch") — a bare `filters` write that omits
+ * `client_id` would otherwise drop the column and re-widen the list to the
+ * READER's own rows while `select: raw => mapInvoices(raw, clientId.value)`
+ * still attributes them against the target. A caller that DECLARES its own
+ * `client_id` (the published `setCriteria`'s own manual-retarget door,
+ * `invoices.scope-identity.int.test.ts`) is left untouched — this seam only
+ * fills an ABSENT column, it never overrides a present one.
+ *
+ * @decision
+ * what: intercept every `filters`-branch write reaching the handle this
+ * module hands to `useInvoices.actions.ts` (the ONE handle backing the
+ * published `setCriteria`, `sortBy`, `filterConsolidatable` and
+ * `filterCreditNotes`), and re-assert `client_id` inside the caller's own
+ * `filters` object ONLY when that object does not already declare the key —
+ * never a second, competing `setCriteria` call, never a raw wire param.
+ * why: the merge semantics live in `useQueryCriteria.set`
+ * (`packages/headless/src/modules/query/useQueryCriteria.ts:111-123`) and
+ * are shared platform behaviour every module on `list()` relies on;
+ * changing them would change every consumer's semantics, not just this
+ * module's. `creditNotesCriteria` is one of two reachable doors (the
+ * published `setCriteria` is the other, per `useInvoices.ts`'s own doc
+ * example) — patching only the preset leaves the second door open. Wrapping
+ * the ONE handle every published verb shares closes both: no caller-spelled
+ * request can silently drop the column. The presence check (never
+ * unconditional override) preserves `setCriteria`'s own manual-retarget
+ * door, where a caller declaring `client_id` explicitly must win.
+ * rejected:
+ * - fix `useQueryCriteria.set` to merge `filters` at key level: blocked by
+ * operator ruling 2026-09-08 (verbatim, "do not chnage any query stuff") —
+ * `packages/headless/src/modules/query/**` stays untouched.
+ * - patch only `creditNotesCriteria` to carry `client_id`: leaves the
+ * published `setCriteria` — AC12's other reachable door — open.
+ * - unconditionally re-assert `client_id` regardless of presence: breaks the
+ * published `setCriteria`'s own manual-retarget door, which must let an
+ * explicit caller-declared `client_id` win.
+ */
+function withDurableClientId(
+  handle: InvoicesListQuery,
+  clientId: ComputedRef<string | undefined>
+): InvoicesListQuery {
+  const setCriteria: InvoicesListQuery["setCriteria"] = next => {
+    if (
+      !has(next, "filters") ||
+      !clientId.value ||
+      has(next.filters, "client_id")
+    ) {
+      handle.setCriteria(next);
+      return;
+    }
+    handle.setCriteria({
+      ...next,
+      filters: { ...next.filters, client_id: { eq: clientId.value } }
+    });
+  };
+
+  return { ...handle, setCriteria };
+}
+
+/**
  * COLLECTION — the reactive list query, minted once per scope. The whole
  * request state is the DECLARED query schema: `list()` builds the criteria
  * from it and publishes filters/sort/pagination back on the handle, so there
@@ -161,6 +225,9 @@ function trackClientIdFilter(
  * a `.for('client', X)` scope fetched the READER's own rows while `select`
  * still attributed them against `X` (`mapInvoices` below), corrupting
  * `Invoice.attribution`/`isSettleable` for a genuine sub-account row.
+ *
+ * {@link withDurableClientId} then makes that column DURABLE across every
+ * published criteria write, not just the mint-time seed — blocker H1.
  */
 function loadList(scopeContext?: ScopeContext): InvoicesListQuery {
   const { list, useUrl } = useQuery();
@@ -190,7 +257,7 @@ function loadList(scopeContext?: ScopeContext): InvoicesListQuery {
 
   trackClientIdFilter(handle, clientId);
 
-  return handle;
+  return withDurableClientId(handle, clientId);
 }
 
 /**

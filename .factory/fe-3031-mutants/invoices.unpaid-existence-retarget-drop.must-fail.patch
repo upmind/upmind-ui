@@ -1,0 +1,34 @@
+# must-fail: (prover to add, per RESUME.md's "a `.for('client', X)` wire
+# read-back per read in the shape invoices.scope-identity.int.test.ts:44-65
+# already models") — the named assertion this must flip is
+# `.for('client', X).useMeta().hasUnpaid` resolving `true` for a target
+# client with outstanding invoices, e.g. "invoices — retarget my reading at
+# an entitled client (AC-12) > hasUnpaid answers for the .for() TARGET, not
+# the reader" (oracle counterpart: `oracle:561-563`,
+# `...(payload.clientId ? { ["filter[client_id]"]: payload.clientId } :
+# {})`).
+#
+# Authored by the developer seat (FE-3031 Review-blocker repair, B1) — the
+# prover applies this blind and confirms its own new assertion goes RED,
+# then reverts (`agent-seat-separation.companion.md`, developer-authors-
+# mutant / prover-verifies-blind).
+#
+# Mutation: drops the `trackClientIdFilter(handle, clientId)` call this
+# repair added to `loadUnpaidExistence` — reverting to B1's original
+# defect: the unpaid-existence count reads NO `client_id` filter at all, so
+# it answers for the READER regardless of `.for()`, and a sub-account
+# target with outstanding invoices reports `hasUnpaid: false`.
+--- a/packages/headless/src/modules/invoices/invoices.services.ts
++++ b/packages/headless/src/modules/invoices/invoices.services.ts
+@@ -322,11 +322,9 @@
+     enabled: () => requested.value && isAddressable(clientId.value),
+     select: raw => mapInvoices(raw, clientId.value),
+     staleTime: useTime().DAY
+   });
+
+-  trackClientIdFilter(handle, clientId);
+-
+   return handle;
+ }
+
+ /**

@@ -1,0 +1,28 @@
+# must-fail: invoices.payment-method.int.test.ts > "invoices — clear the
+# assigned payment method back to none selected (AC-4) > AC-4 sends
+# payment_details_id: null as a PRESENT key, never an omitted one"
+# Mutation: strips nil values from the PATCH body before sending, so
+# clearing the payment method (payment_details_id: null) is sent as an
+# omitted key instead of an explicit null.
+#
+# Re-rolled 2026-09-08 (developer, FE-3031 H1 durability repair): the import
+# block grew a `has` import (the `withDurableClientId` H1 fix) directly below
+# the anchor line this patch inserts above — same mutation, new line anchors.
+--- a/packages/headless/src/modules/invoices/invoices.services.ts
++++ b/packages/headless/src/modules/invoices/invoices.services.ts
+@@ -11,5 +11,6 @@
+ } from "./invoices.schemas";
+ import { InvoicesContextTypes } from "./invoices.types";
+ import { useTime, NotAuthenticatedError } from "../../utils";
++import { isNil, omitBy } from "lodash-es";
+ import { has } from "lodash-es";
+ import type { ScopeContext } from "../scope";
+@@ -447,7 +448,7 @@
+   return patch({
+     mutationKey: [...queryKey, invoiceId, "payment_details"],
+     url: useUrl(`invoices/${invoiceId}/payment_details`),
+-    data: model,
++    data: omitBy(model, isNil),
+     withAccessToken: true
+   });
+ }
