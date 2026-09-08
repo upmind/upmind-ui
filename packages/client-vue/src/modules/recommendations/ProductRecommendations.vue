@@ -70,14 +70,14 @@ import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import Hero from "../../components/hero/Hero.vue";
 import { Icon } from "../../components/icon";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
-import CardsCarousel from "../recommendations/components/CardsCarousel.vue";
-import Configure from "../recommendations/components/Configure.vue";
-import Footer from "../recommendations/components/Footer.vue";
-import RecommendationsFullTemplate from "../recommendations/templates/RecommendationsFull.template.vue";
-import { RECOMMENDATIONS_TEMPLATE } from "../recommendations/types";
 import { useThemes } from "../theming";
+import CardsCarousel from "./components/CardsCarousel.vue";
+import Configure from "./components/Configure.vue";
+import Footer from "./components/Footer.vue";
+import RecommendationsFullTemplate from "./templates/RecommendationsFull.template.vue";
+import { RECOMMENDATIONS_TEMPLATE } from "./types";
 import { get } from "lodash-es";
-import type { RecommendationsPageProps } from "../recommendations/types";
+import type { RecommendationsPageProps } from "./types";
 
 const supportedTemplates = {
   [RECOMMENDATIONS_TEMPLATE.FULL]: RecommendationsFullTemplate
