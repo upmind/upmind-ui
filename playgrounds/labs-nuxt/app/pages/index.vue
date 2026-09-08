@@ -45,7 +45,6 @@
             class="space-y-3"
           >
             <div class="flex items-center gap-2">
-              <component :is="family.icon" class="text-muted size-4" />
               <Heading :level="3" size="xs">{{ family.label }}</Heading>
               <Badge size="sm" appearance="muted">
                 {{ family.entries.length }}
@@ -110,7 +109,7 @@
  * the header wayfinding, `StatGroup` the three derived metrics, `IconTile` the
  * entry glyph box, `EmptyState` the zero-results branch, and `Heading` the
  * display type. `entry.icon` / `family.icon` hold a lucide COMPONENT (see
- * `useNavigation.icons`), so they render through `<component :is>`.
+ * `useNavigation.icons`), so `entry.icon` renders through `<component :is>`.
  */
 
 import {
@@ -143,7 +142,6 @@ definePageMeta({
   nav: {
     label: "Home",
     icon: "home-01",
-    section: "Composables",
     order: 0,
     hidden: true
   }

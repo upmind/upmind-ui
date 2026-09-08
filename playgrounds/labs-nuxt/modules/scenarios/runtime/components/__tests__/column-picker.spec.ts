@@ -145,3 +145,19 @@ describe("R6-23 a replay drives the table, so the picker is locked", () => {
     expect(items()).toEqual([]);
   });
 });
+
+// `R7-3`: the picker COMPOSES the ui menu panel rather than dressing it. A
+// class of its own reaches the panel through `cn`, so one utility here silently
+// withdraws the surface every other menu in the product opens on.
+// Negative control: `column-picker.transparent-panel.must-fail.patch`.
+describe("R7-3 the picker opens on the ui menu's own surface", () => {
+  it("adds no fill of its own, so the panel keeps the one it ships with", async () => {
+    await open();
+
+    const panel = document.querySelector<HTMLElement>('[role="menu"]');
+
+    expect(panel).not.toBeNull();
+    expect(panel?.className).not.toMatch(/bg-transparent|bg-white|bg-black/);
+    expect(panel?.className).toContain("bg-");
+  });
+});

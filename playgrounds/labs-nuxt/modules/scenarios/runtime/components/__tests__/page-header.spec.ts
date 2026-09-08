@@ -16,17 +16,19 @@
  * and "how the same rows are drawn" sharing a row again.
  */
 
+import { Button, Tooltip } from "@upmind/ui";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { createI18n } from "vue-i18n";
 import action from "@upmind-automation/i18n/core/action-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
+import labs from "@upmind-automation/i18n/modules/labs-en.json";
 import { renderedStrings } from "../../../testing/rendered";
 import clientEmails from "../../../useClientEmails/client-email.scenario";
 import { ActionPlacementTypes } from "../../scenario.types";
 import PageHeader from "../PageHeader.vue";
 import { CONTROL_TEST_VALUE } from "./control-test-values";
-import { filter, first, get, includes, map, startCase } from "lodash-es";
+import { filter, first, get, includes, map, startCase, uniq } from "lodash-es";
 import type { ActionSlotItem } from "../ActionSlots.types";
 
 // -----------------------------------------------------------------------------
@@ -41,7 +43,7 @@ const NAME = "useClientEmails";
 
 const PRETTIFIED = startCase(NAME);
 
-const messages = { en: { action, text } };
+const messages = { en: { action, labs, text } };
 
 /**
  * The collection's own declared action, pre-bound as the surface hands it over
@@ -66,10 +68,10 @@ function collectionActions(onSelect = vi.fn()): ActionSlotItem[] {
   })) as ActionSlotItem[];
 }
 
-const mountHeader = (actions?: ActionSlotItem[]) =>
+const mountHeader = (actions?: ActionSlotItem[], locked = false) =>
   mount(PageHeader, {
     attachTo: document.body,
-    props: { name: NAME, actions },
+    props: { name: NAME, actions, locked },
     global: {
       plugins: [createI18n({ legacy: false, locale: "en", messages })]
     }
@@ -144,5 +146,35 @@ describe("T3.8 the header holds no display setting (G3 · H1)", () => {
     const wrapper = mountHeader(collectionActions());
 
     expect(/\d/.test(wrapper.text())).toBe(false);
+  });
+});
+
+// `R6-23`: a replay is a PLAYBACK, so the page's own action is held to what the
+// script fires until Live hands it back — and the refusal says why, rather than
+// reading as a dead button.
+// Negative control: `page-header.replay-live.must-fail.patch`.
+describe("R6-23 the page action is held while a track drives the page", () => {
+  it("disables the collection action and names the lock as the reason", () => {
+    const wrapper = mountHeader(collectionActions(), true);
+    const button = wrapper.findComponent(Button);
+
+    expect(button.props("disabled")).toBe(true);
+    expect(
+      map(wrapper.findAllComponents(Tooltip), tip => tip.props("active"))
+    ).not.toContain(false);
+    // The sentence rides the tooltip's LABEL: its panel is portalled and only
+    // renders on hover, so the rendered header never carries the words.
+    expect(
+      uniq(map(wrapper.findAllComponents(Tooltip), tip => tip.props("label")))
+    ).toEqual([labs.replay_locked]);
+  });
+
+  it("leaves the action pressable while Live owns the page", () => {
+    const wrapper = mountHeader(collectionActions());
+
+    expect(wrapper.findComponent(Button).props("disabled")).toBeFalsy();
+    expect(
+      map(wrapper.findAllComponents(Tooltip), tip => tip.props("active"))
+    ).not.toContain(true);
   });
 });

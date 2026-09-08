@@ -277,6 +277,34 @@ export default <FunnelProps>{
     },
 
     /**
+     * 🎯 ROUTE.PAYMENT_DETAIL_ADD
+     * Storing a payment method needs a client to store it against, so this page
+     * is session-gated the way a scenario route is: on rejection the funnel
+     * re-targets `authOverlayTarget`'s `--session` child, which collects the
+     * session in the auth modal over this page rather than navigating away.
+     */
+    [ROUTE.PAYMENT_DETAIL_ADD]: {
+      invoke: {
+        src: "guardAuthenticated",
+        onDone: { actions: ["setResolved"] },
+        onError: [
+          {
+            target: ROUTE.SESSION_LOGIN,
+            actions: [
+              "setUnresolved",
+              assign({
+                targetRoute: ({ currentRoute }: FunnelContext) =>
+                  authOverlayTarget(currentRoute)
+              })
+            ],
+            cond: "isSession"
+          },
+          { actions: ["setResolved"] }
+        ]
+      }
+    },
+
+    /**
      * 🎯 ROUTE.SESSION
      * This state serves as a routing hub for session-related actions.
      * It always transitions to the SESSION_REGISTER route to handle user registration as the default action.

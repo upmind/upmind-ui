@@ -29,6 +29,7 @@ import {
   resolveFiles
 } from "nuxt/kit";
 import {
+  MODULE_PAGE_GLOB,
   SCENARIO_DECLARATION_GLOB,
   SCENARIO_ROUTE_META_KEY,
   SCOPE_SUFFIX_SEGMENT
@@ -38,7 +39,9 @@ import {
   endsWith,
   filter,
   forEach,
+  get,
   join,
+  keyBy,
   keys,
   map,
   pickBy
@@ -67,6 +70,13 @@ export default defineNuxtModule({
       SCENARIO_DECLARATION_GLOB
     );
 
+    // A module that draws itself, addressed by the directory it sits in. One
+    // page per directory, so a second is a declaration the build cannot honour.
+    const ownPages = keyBy(
+      await resolveFiles(resolve("."), MODULE_PAGE_GLOB),
+      file => basename(dirname(file))
+    );
+
     const scenarios: DiscoveredScenario[] = map(declarations, file => ({
       route: basename(dirname(file)),
       file
@@ -77,7 +87,10 @@ export default defineNuxtModule({
         pages.push({
           name: scenario.route,
           path: `/${scenario.route}${SCOPE_SUFFIX_SEGMENT}`,
-          file: playground,
+          // The module's own page wins; absent one, the shared playground draws
+          // the declaration. Registration, url and nav entry are identical
+          // either way — only the component differs.
+          file: get(ownPages, scenario.route, playground),
           meta: { [SCENARIO_ROUTE_META_KEY]: scenario.route }
         } satisfies NuxtPage)
       );
@@ -106,7 +119,8 @@ export default defineNuxtModule({
     nuxt.options.watch.push(resolve("."));
     nuxt.hook("builder:watch", (event, path) => {
       if (event === "add" || event === "unlink")
-        if (endsWith(path, ".scenario.ts")) nuxt.callHook("restart");
+        if (endsWith(path, ".scenario.ts") || endsWith(path, ".page.vue"))
+          nuxt.callHook("restart");
     });
   }
 });

@@ -56,45 +56,18 @@
           </SidebarNavLink>
         </SidebarNav>
 
-        <template v-else>
-          <!-- Top-level destinations (no section header) -->
-          <SidebarNav v-if="looseLinks.length">
-            <SidebarNavLink
-              v-for="link in looseLinks"
-              :key="link.label"
-              :as="NuxtLink"
-              :to="link.to"
-              :active="link.active"
-              :icon="link.icon"
-            >
-              {{ link.label }}
-            </SidebarNavLink>
-          </SidebarNav>
-
-          <!-- Static labelled sections per R2 -->
-          <template v-for="section in navSections" :key="section.value">
-            <Text
-              as="div"
-              variant="muted"
-              size="xs"
-              class="mt-4 px-2 pb-1 tracking-wider uppercase"
-            >
-              {{ section.title }}
-            </Text>
-            <SidebarNav>
-              <SidebarNavLink
-                v-for="link in section.links"
-                :key="link.label"
-                :as="NuxtLink"
-                :to="link.to"
-                :active="link.active"
-                :icon="link.icon"
-              >
-                {{ link.label }}
-              </SidebarNavLink>
-            </SidebarNav>
-          </template>
-        </template>
+        <SidebarNav v-else>
+          <SidebarNavLink
+            v-for="link in flatLinks"
+            :key="link.label"
+            :as="NuxtLink"
+            :to="link.to"
+            :active="link.active"
+            :icon="link.icon"
+          >
+            {{ link.label }}
+          </SidebarNavLink>
+        </SidebarNav>
       </template>
 
       <!-- Operator ruling: scope rides the header, beside the collapse control. -->
@@ -163,14 +136,6 @@ type RailLink = {
   active: boolean;
 };
 
-/** One labelled nav section and the destinations under it. */
-type RailSection = {
-  value: string;
-  title: string;
-  icon?: Component;
-  links: RailLink[];
-};
-
 const { navigation } = useNavigation();
 const { t } = useI18n();
 const route = useRoute();
@@ -205,29 +170,16 @@ function toLink(item: NavItem): RailLink {
 
 const isDestination = (item: NavItem): boolean => !!(item.to || item.route);
 
-/** Labelled sections — a top-level item that carries children. */
-const navSections = computed<RailSection[]>(() =>
+/** Every destination in one rail, a nested child included. */
+const flatLinks = computed<RailLink[]>(() =>
   map(
-    filter(navigation.value, item => !!item.children?.length),
-    item => ({
-      value: item.label,
-      title: item.label,
-      icon: item.icon,
-      links: map(filter(item.children, isDestination), toLink)
-    })
+    filter(
+      flatMap(navigation.value, item => [item, ...(item.children ?? [])]),
+      isDestination
+    ),
+    toLink
   )
 );
-
-/** Top-level items that are destinations in their own right. */
-const looseLinks = computed<RailLink[]>(() =>
-  map(filter(navigation.value, isDestination), toLink)
-);
-
-/** Collapsed, there is nothing to disclose — every destination in one rail. */
-const flatLinks = computed<RailLink[]>(() => [
-  ...looseLinks.value,
-  ...flatMap(navSections.value, section => section.links)
-]);
 
 // --- debug items
 const { register } = usePlaygroundSheet();

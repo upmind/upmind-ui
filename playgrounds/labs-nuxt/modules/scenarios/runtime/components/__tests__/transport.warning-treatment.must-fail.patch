@@ -18,17 +18,16 @@ family in either of its played states.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRail.styles.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRail.styles.ts
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRail.styles.ts
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRail.styles.ts
-@@ -26,11 +26,11 @@
-     // The played part of the track reads primary, the rest neutral — the
-     // playing treatment is the primary family throughout (H2).
-     indicator: cva(
--      "group-data-[state=active]:bg-accent-primary group-data-[state=active]:text-accent-primary-contrast group-data-[state=completed]:bg-accent-primary group-data-[state=completed]:text-accent-primary-contrast"
-+      "group-data-[state=active]:bg-accent-warning group-data-[state=active]:text-accent-warning-contrast group-data-[state=completed]:bg-accent-warning group-data-[state=completed]:text-accent-warning-contrast"
-     ),
-
-     separator: cva(
--      "group-data-[state=completed]:bg-accent-primary group-data-[state=active]:first:bg-accent-primary"
-+      "group-data-[state=completed]:bg-accent-warning group-data-[state=active]:first:bg-accent-warning"
-     )
-   }
+@@ -33,10 +33,10 @@ export const sceneRail = {
+   // The played part of the track reads primary, the rest neutral — the
+   // playing treatment is the primary family throughout (H2).
+   indicator: cva(
+-    "group-data-[state=active]:bg-primary group-data-[state=active]:text-primary-contrast group-data-[state=completed]:bg-primary group-data-[state=completed]:text-primary-contrast"
++    "group-data-[state=active]:bg-warning group-data-[state=active]:text-warning-contrast group-data-[state=completed]:bg-warning group-data-[state=completed]:text-warning-contrast"
+   ),
+ 
+   separator: cva(
+-    "group-data-[state=completed]:bg-primary group-data-[state=active]:first:bg-primary"
++    "group-data-[state=completed]:bg-warning group-data-[state=active]:first:bg-warning"
+   )
  };

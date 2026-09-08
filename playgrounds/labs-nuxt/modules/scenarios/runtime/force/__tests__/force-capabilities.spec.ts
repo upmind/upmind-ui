@@ -100,8 +100,11 @@ const hasRows = (fixture: RecordedFixture) =>
  * an id it does not hold. A single-record surface has an empty state too, and
  * this recording is the only honest answer for it.
  */
+// The absence reading is the STATUS's, not the method's: a 404 to a delete says
+// the record was already gone, which is no more a load failure than a 404 to a
+// read is.
 const isAbsentRecord = (fixture: RecordedFixture) =>
-  isRead(fixture) && get(fixture, ["response", "status"], 0) === 404;
+  get(fixture, ["response", "status"], 0) === 404;
 
 /**
  * A not-authenticated refusal. The app cannot tell a forced `401` from a real
@@ -124,7 +127,9 @@ const isServableRefusal = (fixture: RecordedFixture) =>
 const canEmptyOf = (fixtures: RecordedFixture[]) =>
   some(
     fixtures,
-    f => (isRead(f) && !isRefused(f) && hasRows(f)) || isAbsentRecord(f)
+    f =>
+      (isRead(f) && !isRefused(f) && hasRows(f)) ||
+      (isRead(f) && isAbsentRecord(f))
   );
 
 /**

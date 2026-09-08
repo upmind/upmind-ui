@@ -11,7 +11,7 @@ Reds: the form-flow save specs — a rejected save keeps the form on screen.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/FormFlowSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/FormFlowSurface.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/FormFlowSurface.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/FormFlowSurface.vue
-@@ -182,13 +182,13 @@
+@@ -266,12 +266,12 @@ async function onResolve(): Promise<void> {
    const submit = props.actions[submitAction.value];
    if (!isFunction(submit)) return;
  
@@ -25,5 +25,4 @@ diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces
 -  if (settled) emit("resolved");
 +  emit("resolved");
  }
- 
- const meta = computed(() => ({
+ </script>

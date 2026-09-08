@@ -127,9 +127,13 @@ const hasRows = (fixture: RecordedFixture) =>
 const isAuthRefusal = (fixture: RecordedFixture) =>
   get(fixture, ["response", "status"], 0) === 401;
 
-/** A read whose record is not there — a single-record surface's own empty. */
+/**
+ * A record that is not there — a single-record surface's own empty. The reading
+ * is the STATUS's, not the method's: a 404 to a delete says the record was
+ * already gone, which is no more a load failure than a 404 to a read is.
+ */
 const isAbsentRecord = (fixture: RecordedFixture) =>
-  isRead(fixture) && get(fixture, ["response", "status"], 0) === 404;
+  get(fixture, ["response", "status"], 0) === 404;
 
 /**
  * A refusal a forced error state may replay. An absent record is excluded: a
@@ -413,12 +417,22 @@ describe("AC5 a declared state the corpus cannot answer is NAMED, never dropped"
     expect(gapsOf(named("client-email"))).toEqual([]);
   });
 
-  it("owes no capture anywhere in the tree today", () => {
+  /**
+   * `client-notes` is the one open capture: its feature declares a refusal and
+   * its only recorded 4xx is a 404 on a delete — an ABSENCE, which is no more a
+   * load failure than a 404 to a read is. Both error states are owed a capture,
+   * and this gate names them rather than letting the buttons quietly vanish.
+   */
+  const OWED: Record<string, ForceUrlPreset[]> = {
+    "client-notes": ["error-collection", "error-action"]
+  };
+
+  it("owes a capture only where one is on record as owed", () => {
     for (const entry of RECORDED) {
       expect(
-        gapsOf(entry),
+        [...gapsOf(entry)].sort(),
         `${entry.module} declares a state no recording of its own answers — run its capture`
-      ).toEqual([]);
+      ).toEqual([...(OWED[entry.module] ?? [])].sort());
     }
   });
 

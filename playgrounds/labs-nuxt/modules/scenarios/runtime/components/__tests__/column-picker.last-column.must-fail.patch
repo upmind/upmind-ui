@@ -16,12 +16,12 @@ every multi-column case stays green.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.vue
-@@ -25,7 +25,7 @@
+@@ -29,7 +29,7 @@
          data-test-key="column"
          :data-test-value="column.value"
-         :checked="column.isVisible"
+         :model-value="column.isVisible"
 -        :disabled="column.isVisible && isLastVisible"
 +        :disabled="false"
-         @select="onSelect"
-         @update:checked="toggle(column)"
+         @select="handleSelect(column, $event)"
        >
+         {{ column.label }}

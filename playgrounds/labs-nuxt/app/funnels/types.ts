@@ -33,6 +33,12 @@ export enum ROUTE {
    */
   OVERLAY_PAY = "overlay-pay",
 
+  /**
+   * The stored-payment-method ADD page. Needs a session: a method is stored
+   * against a client, so a visitor without one has nothing to add it to.
+   */
+  PAYMENT_DETAIL_ADD = "usePaymentDetailAdd",
+
   // --- SESSION/AUTH ROUTES ---------------------------------------------------
   /**
    * The base route for session and authentication related pages.

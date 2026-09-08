@@ -14,13 +14,13 @@ as one translated sentence, never a serialised body.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleStateNotice.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleStateNotice.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleStateNotice.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ModuleStateNotice.vue
-@@ -64,8 +64,7 @@
+@@ -73,8 +73,7 @@ const content = computed<ModuleStateContent>(() => {
   */
  const reason = computed(() => {
    if (isNil(props.detail)) return "";
--  const message = get(props.detail, "message", props.detail);
--  return isString(message) ? t(message) : "";
+-  const sentence = get(props.detail, "message", props.detail);
+-  return isString(sentence) ? t(sentence) : "";
 +  return JSON.stringify(props.detail, null, 2);
  });
  
- const meta = computed(() => ({ state: props.state }));
+ /**

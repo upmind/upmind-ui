@@ -37,4 +37,4 @@ diff --git a/playgrounds/labs-nuxt/app/components/scope/__tests__/switch-session
 + * @anchor session-switcher.feature
   */
  
- import { config } from "@vue/test-utils";
+ import { describe, it, expect, afterEach, vi } from "vitest";

@@ -21,12 +21,12 @@
 
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
-import { map } from "lodash-es";
 import clientNotes from "../../../../useClientNotes/client-notes.scenario";
 import { RESOLVED_HANDOFFS } from "../../__tests__/resolved-handoffs";
 import DetailDialog from "../../DetailDialog.vue";
 import { ListSurface } from "../index";
 import { getRow } from "./table-geometry";
+import { map } from "lodash-es";
 import { keys } from "lodash-es";
 import type { ActionSlotItem } from "../../ActionSlots.types";
 import type { ListRow } from "../ListSurface.types";
