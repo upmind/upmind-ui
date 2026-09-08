@@ -30,7 +30,7 @@
 
 <script lang="ts" setup>
 import { CardRoot } from "@upmind/ui";
-import { useSection } from "../../section/useSection";
+import { useSection } from "@upmind-automation/foundation";
 import Root from "../components/root/Root.vue";
 import {
   surfaceBoxRootVariants,

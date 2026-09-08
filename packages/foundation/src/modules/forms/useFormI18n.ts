@@ -5,7 +5,6 @@ import { useValidationTranslator } from "@upmind-automation/headless";
 import { isEmpty, isFunction, trimStart } from "lodash-es";
 import type { FormI18n } from "./useFormI18n.types";
 
-export * from "./renderers";
 export type { FormI18n } from "./useFormI18n.types";
 
 // -----------------------------------------------------------------------------

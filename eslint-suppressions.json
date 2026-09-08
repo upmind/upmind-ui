@@ -80,19 +80,20 @@
       "count": 24
     }
   },
-  "packages/client-vue/src/components/emailHistory/EmailHistoryListing.vue": {
+  "packages/auth/src/components/Auth.vue": {
     "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    },
+    "no-fallthrough": {
+      "count": 3
+    },
+    "vue/return-in-computed-property": {
       "count": 1
     }
   },
-  "packages/client-vue/src/components/form/Form.vue": {
+  "packages/client-vue/src/components/emailHistory/EmailHistoryListing.vue": {
     "@typescript-eslint/no-explicit-any": {
-      "count": 7
-    }
-  },
-  "packages/client-vue/src/components/form/FormModal.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 8
+      "count": 1
     }
   },
   "packages/client-vue/src/components/form/renderers/DomainRenderer.vue": {
@@ -143,11 +144,6 @@
   "packages/client-vue/src/components/form/renderers/utils.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1
-    }
-  },
-  "packages/client-vue/src/components/form/useFormI18n.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 2
     }
   },
   "packages/client-vue/src/components/manage/Form.vue": {
@@ -301,20 +297,24 @@
       "count": 1
     }
   },
-  "packages/client-vue/src/modules/session/components/Auth.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 4
-    },
-    "no-fallthrough": {
-      "count": 3
-    },
-    "vue/return-in-computed-property": {
-      "count": 1
-    }
-  },
   "packages/client-vue/src/modules/system/Error.vue": {
     "no-fallthrough": {
       "count": 1
+    }
+  },
+  "packages/foundation/src/modules/forms/Form.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    }
+  },
+  "packages/foundation/src/modules/forms/FormModal.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    }
+  },
+  "packages/foundation/src/modules/forms/useFormI18n.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
     }
   },
   "packages/headless/src/modules/basket-billing/billing.machine.ts": {

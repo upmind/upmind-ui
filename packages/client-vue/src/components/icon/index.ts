@@ -1,32 +1,28 @@
 // -----------------------------------------------------------------------------
 /**
  * @module components/icon
- * @description client-vue Icon — re-homes the old `@upmind/ui`
- * Icon API surface. UI glyphs resolve to lucide; flags/providers/unmapped names
- * fall back to the registered SVG asset loader. The new lib stays lucide-only.
+ * @description The glyph resolver moved down to `@upmind-automation/foundation`
+ * in the ADR 023 cut. Re-exported here so this package's own modules keep the
+ * import they had; new code reaches for `foundation` directly.
  */
 
-// --- Component
-export { default as Icon } from "./Icon.vue";
-
-// --- Name-map / resolver
-export { ICON_MAP, FALLBACK_ICON, resolveLucideIcon } from "./icon-map";
-
-// --- Asset loader (registration is wired by the consuming app)
 export {
+  Icon,
+  ICON_MAP,
+  FALLBACK_ICON,
+  resolveLucideIcon,
   registerIcons,
   loadIcon,
   setIconVariant,
   iconVariant,
   hasRegisteredIcons,
   getIconCount
-} from "./iconLoader";
+} from "@upmind-automation/foundation";
 
-// --- Types
 export type {
-  Icon as IconRef,
+  IconRef,
   IconProps,
   IconSize,
   IconImportMap,
   LoadIconOptions
-} from "./types";
+} from "@upmind-automation/foundation";

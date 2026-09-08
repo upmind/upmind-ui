@@ -18,13 +18,13 @@ import { onMounted } from "vue";
 
 // --- internal
 import { useFooter } from "../../../components/footer/useFooter";
-import { useSection } from "../../../components/section/useSection";
+import { useSection } from "@upmind-automation/foundation";
 
 // --- components
 import InsetLayout from "../../../components/layout/layouts/Inset.layout.vue";
 
 // --- types
-import type { SessionRoutes } from "../types";
+import type { SessionRoutes } from "@upmind-automation/auth";
 
 // -----------------------------------------------------------------------------
 

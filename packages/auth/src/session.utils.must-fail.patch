@@ -26,11 +26,11 @@
 #
 # Apply / verify / revert:
 #   git apply <this file>                          # mutate
-#   pnpm --filter @upmind-automation/client-vue test:unit
+#   pnpm --filter @upmind-automation/auth test:unit
 #   git apply -R <this file>                       # revert — must return to green
 #
---- a/packages/client-vue/src/modules/session/session.utils.ts
-+++ b/packages/client-vue/src/modules/session/session.utils.ts
+--- a/packages/auth/src/session.utils.ts
++++ b/packages/auth/src/session.utils.ts
 @@ -23,7 +23,7 @@ export function offersGuestCheckout(terms: {
    const basketSettled = !terms.isBasketLoading;
    const isOneOffBasket = !terms.hasRecurringProducts;

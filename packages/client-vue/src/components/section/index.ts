@@ -1,4 +1,13 @@
-export { default as UpmSection } from "./Section.vue";
-export { default as UpmSections } from "./Sections.vue";
+// -----------------------------------------------------------------------------
+/**
+ * @module components/section
+ * @description The section wrapper and its config store moved down to
+ * `@upmind-automation/foundation` in the ADR 023 cut.
+ */
 
-export type { SectionItem } from "./types";
+export {
+  Section as UpmSection,
+  Sections as UpmSections
+} from "@upmind-automation/foundation";
+
+export type { SectionItem } from "@upmind-automation/foundation";

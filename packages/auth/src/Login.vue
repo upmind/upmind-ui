@@ -1,12 +1,13 @@
 <template>
-  <component :is="templateVariant" v-bind="props" v-if="!isResolving">
+  <component :is="loadingComponent" v-if="isResolving && loadingComponent" />
+  <component :is="templateVariant" v-bind="props" v-else>
     <template #back>
       <slot name="back">
         <!-- One-page uses the compact "← Back" per the designs; other templates
-             keep the default "Back to login". -->
+             keep the default "Back to basket". -->
         <Back
-          :label="meta.isInset ? t('action.back') : t('action.back_to_login')"
-          :icon="meta.isInset ? 'arrow-narrow-left' : 'arrow-left'"
+          :label="meta.isInset ? t('action.back') : t('action.back_to_basket')"
+          :icon="meta.isInset ? 'arrow-narrow-left' : undefined"
           size="md"
           :color="meta.isInset ? 'muted' : 'default'"
           @click.prevent="doReject"
@@ -16,20 +17,16 @@
 
     <template #hero>
       <slot name="hero">
-        <Hero :title="t('text.forgot_your_password_qn')">
+        <Hero :title="t('auth.login_title')">
           <template #subtitle>
-            <i18n-t
-              keypath="auth.forgot_password_help"
-              scope="global"
-              tag="span"
-            >
-              <template #[`log_in_here`]>
+            <i18n-t keypath="auth.login_description" scope="global" tag="span">
+              <template #[`login_description_action`]>
                 <Link
-                  :to="props.loginRoute"
+                  :to="props.registerRoute"
                   size="inherit"
                   color="inherit"
                   class="font-normal"
-                  >{{ t("action.log_in_here") }}</Link
+                  >{{ t("auth.login_description_action") }}</Link
                 >
               </template>
             </i18n-t>
@@ -40,21 +37,37 @@
 
     <template #form>
       <slot name="form">
-        <!-- One-page renders the form as a titled card; other templates keep the
-             plain section. The Back button already returns to login, so no header
-             cross-link is needed either way. -->
+        <!-- One-page titles the form "Log in" as a card with a "Create Account"
+             header cross-link (one-page drops the hero); other templates keep the
+             plain section. -->
         <Section
           :card="meta.isInset"
-          :label="t('action.recover_password')"
+          :label="t('action.login')"
+          value="log-in"
           icon="user-03"
           v-show="!isAuthenticated"
           :class="sessionFormWidthVariants({ inset: meta.isInset })"
+          :active="templateMeta.hasActiveSection"
         >
+          <template v-if="meta.isInset" #actions>
+            <Link
+              color="muted"
+              size="sm"
+              @click.prevent="doUpdate('register')"
+              >{{ t("action.create_account") }}</Link
+            >
+          </template>
+
+          <Markdown
+            v-if="templateMeta.hasActiveSection && loginTemplate?.body"
+            tag="section"
+            :model-value="loginTemplate.body"
+          />
           <Auth
             class="rounded-card w-full max-w-5xl items-start"
             no-tabs
             no-header
-            model-value="recover"
+            model-value="login"
             @update:model-value="doUpdate"
             @resolve="doResolve"
           />
@@ -62,61 +75,65 @@
       </slot>
     </template>
 
-    <template #summary>
+    <template v-if="ui.basketSummary.isVisible" #summary>
       <slot name="summary">
         <Section
-          v-if="basketMeta.hasProducts"
+          v-if="basketMeta.hasProducts && summaryComponent"
           :label="t('cart.basket_section')"
           icon="shopping-bag-02"
         >
-          <Summary :showPromotions="false" show-products />
+          <component :is="summaryComponent" />
         </Section>
       </slot>
+    </template>
+
+    <template
+      v-if="loginTemplate?.body && templateMeta.hasMarkdownSlot"
+      #markdown
+    >
+      <Markdown
+        tag="section"
+        :class="templateMeta.isSplit ? '' : markdownVariants()"
+        :model-value="loginTemplate.body"
+      />
     </template>
   </component>
 </template>
 
 <script lang="ts" setup>
-import { Link } from "@upmind/ui";
+import { Link, Markdown } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { useConfig, validateTemplate } from "@upmind-automation/headless";
+import { Hero } from "@upmind-automation/foundation";
+import { Back } from "@upmind-automation/foundation";
+import {
+  Section,
+  useShellComponents,
+  useThemeEngine
+} from "@upmind-automation/foundation";
 import {
   useBasket,
   useRoutingEngine,
   useActiveSession,
-  UIContext
+  UIContext,
+  ClientTemplateSlotCodes
 } from "@upmind-automation/headless";
-import Hero from "../../components/hero/Hero.vue";
-import Back from "../../components/navigation/Back.vue";
-import Section from "../../components/section/Section.vue";
-import Summary from "../basket/components/Summary.vue";
-import { useThemes } from "../theming";
+import {
+  useConfig,
+  validateTemplate,
+  useClientTemplate,
+  useBrand
+} from "@upmind-automation/headless";
 import Auth from "./components/Auth.vue";
-import SessionCanvasCardTemplate from "./templates/SessionCanvasCard.template.vue";
-import SessionEnclosedTemplate from "./templates/SessionEnclosed.template.vue";
-import SessionInsetTemplate from "./templates/SessionInset.template.vue";
-import SessionLTRTemplate from "./templates/SessionLTR.template.vue";
-import SessionRTLTemplate from "./templates/SessionRTL.template.vue";
-import SessionSplitTemplate from "./templates/SessionSplit.template.vue";
-import SessionSurfaceBoxTemplate from "./templates/SessionSurfaceBox.template.vue";
+import { useSessionTemplates } from "./session.utils";
+import { AUTH_SHELL, AUTH_TEMPLATE_SLOT } from "./shell";
+import AuthBareTemplate from "./templates/AuthBare.template.vue";
 import {
   type SessionProps,
   type SessionRoutes,
   SESSION_TEMPLATE
 } from "./types";
-import { sessionFormWidthVariants } from "./variants";
-import { get } from "lodash-es";
-
-const supportedTemplates = {
-  [SESSION_TEMPLATE.SPLIT]: SessionSplitTemplate,
-  [SESSION_TEMPLATE.CANVAS_CARD]: SessionCanvasCardTemplate,
-  [SESSION_TEMPLATE.SURFACE_BOX]: SessionSurfaceBoxTemplate,
-  [SESSION_TEMPLATE.TWO_COLUMN_LTR]: SessionLTRTemplate,
-  [SESSION_TEMPLATE.TWO_COLUMN_RTL]: SessionRTLTemplate,
-  [SESSION_TEMPLATE.ENCLOSED]: SessionEnclosedTemplate,
-  [SESSION_TEMPLATE.INSET]: SessionInsetTemplate
-};
+import { markdownVariants, sessionFormWidthVariants } from "./variants";
 
 // -----------------------------------------------------------------------------
 
@@ -128,7 +145,7 @@ const props = defineProps<
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { set } = useThemes();
+const themeEngine = useThemeEngine();
 
 const { isAuthenticated } = useActiveSession().useMeta();
 const { isReady } = useActiveSession().useActions();
@@ -139,10 +156,15 @@ const { ui } = useConfig({
   context: UIContext.AUTH,
   provide: true
 });
+const { brandId } = useBrand();
+const { data: loginTemplate } = useClientTemplate({
+  code: ClientTemplateSlotCodes.LOGIN_PAGE,
+  objectId: brandId.value
+});
 
 await isReady();
 
-set(ui.theme.value);
+themeEngine.set(ui.theme.value);
 
 const isResolving = ref(false);
 
@@ -158,7 +180,15 @@ const meta = computed(() => ({
   isInset: template.value === SESSION_TEMPLATE.INSET
 }));
 
-const templateVariant = computed(() => get(supportedTemplates, template.value));
+const shell = useShellComponents();
+
+const templateVariant = computed(
+  () => shell.resolve(AUTH_TEMPLATE_SLOT[template.value]) ?? AuthBareTemplate
+);
+
+const loadingComponent = computed(() => shell.resolve(AUTH_SHELL.LOADING));
+const summaryComponent = computed(() => shell.resolve(AUTH_SHELL.SUMMARY));
+const { meta: templateMeta } = useSessionTemplates(template);
 
 function doUpdate(value: SessionProps["modelValue"]) {
   if (value === "login") {

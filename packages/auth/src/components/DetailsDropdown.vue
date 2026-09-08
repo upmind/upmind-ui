@@ -33,8 +33,8 @@
 import { DropdownMenu } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { Icon } from "@upmind-automation/foundation";
 import { useActiveSession } from "@upmind-automation/headless";
-import { Icon } from "../../../components/icon";
 import type { MenuItem } from "@upmind/ui";
 
 interface SessionMenuItem extends MenuItem {

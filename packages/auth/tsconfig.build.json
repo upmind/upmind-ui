@@ -21,7 +21,8 @@
     "dist",
     "**/__tests__/**",
     "**/*.spec.*",
-    "**/*.test.*"
+    "**/*.test.*",
+    "src/nuxt/**"
   ],
   "references": [
     {

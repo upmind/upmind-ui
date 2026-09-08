@@ -105,6 +105,7 @@ import { Markdown } from "@upmind/ui";
 import { Alert } from "@upmind/ui";
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { Back } from "@upmind-automation/foundation";
 import {
   useBasket,
   useQueryParams,
@@ -121,7 +122,6 @@ import {
 } from "@upmind-automation/headless";
 import { Icon } from "../../components/icon";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
-import Back from "../../components/navigation/Back.vue";
 import { useThemes } from "../theming";
 import BasketAlerts from "./components/BasketAlerts.vue";
 import BasketCheckout from "./components/BasketCheckout.vue";

@@ -1,5 +1,5 @@
 <template>
-  <Loading v-if="isResolving" />
+  <component :is="loadingComponent" v-if="isResolving && loadingComponent" />
   <component :is="templateVariant" v-bind="props" v-else>
     <template #back>
       <slot name="back">
@@ -179,11 +179,13 @@
     <template v-if="ui.basketSummary.isVisible" #summary>
       <slot name="summary">
         <Section
-          v-if="basketMeta.hasProducts || basketMeta.isLoading"
+          v-if="
+            (basketMeta.hasProducts || basketMeta.isLoading) && summaryComponent
+          "
           :label="t('cart.basket_section')"
           icon="shopping-bag-02"
         >
-          <Summary :showPromotions="false" show-products />
+          <component :is="summaryComponent" />
         </Section>
       </slot>
     </template>
@@ -208,12 +210,14 @@ import { Skeleton } from "@upmind/ui";
 import { Alert } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { Hero } from "@upmind-automation/foundation";
+import { Icon } from "@upmind-automation/foundation";
+import { Back } from "@upmind-automation/foundation";
 import {
-  useConfig,
-  validateTemplate,
-  useClientTemplate,
-  useBrand
-} from "@upmind-automation/headless";
+  Section,
+  useShellComponents,
+  useThemeEngine
+} from "@upmind-automation/foundation";
 import {
   useBasket,
   useRoutingEngine,
@@ -223,23 +227,17 @@ import {
   UIContext,
   ClientTemplateSlotCodes
 } from "@upmind-automation/headless";
-import Hero from "../../components/hero/Hero.vue";
-import { Icon } from "../../components/icon";
-import Back from "../../components/navigation/Back.vue";
-import Section from "../../components/section/Section.vue";
-import Summary from "../basket/components/Summary.vue";
-import Loading from "../system/Loading.vue";
-import { useThemes } from "../theming";
+import {
+  useConfig,
+  validateTemplate,
+  useClientTemplate,
+  useBrand
+} from "@upmind-automation/headless";
 import Account from "./components/Account.vue";
 import Auth from "./components/Auth.vue";
 import { offersGuestCheckout, useSessionTemplates } from "./session.utils";
-import SessionCanvasCardTemplate from "./templates/SessionCanvasCard.template.vue";
-import SessionEnclosedTemplate from "./templates/SessionEnclosed.template.vue";
-import SessionInsetTemplate from "./templates/SessionInset.template.vue";
-import SessionLTRTemplate from "./templates/SessionLTR.template.vue";
-import SessionRTLTemplate from "./templates/SessionRTL.template.vue";
-import SessionSplitTemplate from "./templates/SessionSplit.template.vue";
-import SessionSurfaceBoxTemplate from "./templates/SessionSurfaceBox.template.vue";
+import { AUTH_SHELL, AUTH_TEMPLATE_SLOT } from "./shell";
+import AuthBareTemplate from "./templates/AuthBare.template.vue";
 import {
   type SessionProps,
   type SessionRoutes,
@@ -251,17 +249,6 @@ import {
   sessionFormWidthVariants,
   sessionSubtitleVariants
 } from "./variants";
-import { get } from "lodash-es";
-
-const supportedTemplates = {
-  [SESSION_TEMPLATE.SPLIT]: SessionSplitTemplate,
-  [SESSION_TEMPLATE.CANVAS_CARD]: SessionCanvasCardTemplate,
-  [SESSION_TEMPLATE.SURFACE_BOX]: SessionSurfaceBoxTemplate,
-  [SESSION_TEMPLATE.TWO_COLUMN_LTR]: SessionLTRTemplate,
-  [SESSION_TEMPLATE.TWO_COLUMN_RTL]: SessionRTLTemplate,
-  [SESSION_TEMPLATE.ENCLOSED]: SessionEnclosedTemplate,
-  [SESSION_TEMPLATE.INSET]: SessionInsetTemplate
-};
 
 // -----------------------------------------------------------------------------
 
@@ -273,7 +260,7 @@ const props = defineProps<
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { set } = useThemes();
+const themeEngine = useThemeEngine();
 
 const { isAuthenticated, isLoading, isGuestClient } =
   useActiveSession().useMeta();
@@ -301,7 +288,7 @@ const { data: registerTemplate } = useClientTemplate({
 
 await isReady();
 
-set(ui.theme.value);
+themeEngine.set(ui.theme.value);
 
 const isResolving = ref(false);
 
@@ -323,7 +310,14 @@ const meta = computed(() => ({
   })
 }));
 
-const templateVariant = computed(() => get(supportedTemplates, template.value));
+const shell = useShellComponents();
+
+const templateVariant = computed(
+  () => shell.resolve(AUTH_TEMPLATE_SLOT[template.value]) ?? AuthBareTemplate
+);
+
+const loadingComponent = computed(() => shell.resolve(AUTH_SHELL.LOADING));
+const summaryComponent = computed(() => shell.resolve(AUTH_SHELL.SUMMARY));
 const { meta: templateMeta } = useSessionTemplates(template);
 
 function doUpdate(value: SessionProps["modelValue"]) {

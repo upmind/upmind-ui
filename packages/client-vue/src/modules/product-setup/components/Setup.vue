@@ -111,6 +111,8 @@ import { useTestAttrs } from "@upmind/ui";
 import { Button, Loading } from "@upmind/ui";
 import { computed, provide } from "vue";
 import { useI18n } from "vue-i18n";
+import { Hero } from "@upmind-automation/foundation";
+import { Section } from "@upmind-automation/foundation";
 import {
   useProductConfig,
   useProductSetup,
@@ -126,9 +128,7 @@ import {
   type Product,
   type UseProductConfigMeta
 } from "@upmind-automation/headless";
-import Hero from "../../../components/hero/Hero.vue";
 import Transitions from "../../../components/layout/components/transition/Transition.vue";
-import Section from "../../../components/section/Section.vue";
 import ProductSetupEnclosedTemplate from "../templates/ProductSetupEnclosed.template.vue";
 import ProductSetupFullTemplate from "../templates/ProductSetupFull.template.vue";
 import ProductSetupLTRTemplate from "../templates/ProductSetupLTR.template.vue";

@@ -83,13 +83,13 @@ import {
   watch
 } from "vue";
 import { useI18n } from "vue-i18n";
+import { Form } from "@upmind-automation/foundation";
 import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
   usePaymentGateway
 } from "@upmind-automation/headless";
-import Form from "../../../components/form/Form.vue";
 import { Icon } from "../../../components/icon";
 import { gatewayFormVariants } from "../variants";
 import type { PaymentGatewayProps } from "../types";

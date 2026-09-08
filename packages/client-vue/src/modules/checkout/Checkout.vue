@@ -69,6 +69,7 @@ import { useTestAttrs } from "@upmind/ui";
 import { Markdown } from "@upmind/ui";
 import { watch, computed, provide, onUnmounted, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
+import { Back } from "@upmind-automation/foundation";
 import {
   useBasket,
   useRoutingEngine,
@@ -76,7 +77,6 @@ import {
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { UIContext } from "@upmind-automation/headless";
-import Back from "../../components/navigation/Back.vue";
 import { useThemes } from "../theming";
 import CheckoutContent from "./components/CheckoutContent.vue";
 import CheckoutErrors from "./components/CheckoutErrors.vue";

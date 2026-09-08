@@ -113,7 +113,9 @@ import { cn, Interstitial, Link, useTestAttrs } from "@upmind/ui";
 import { Alert } from "@upmind/ui";
 import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { useActiveSession } from "@upmind-automation/headless";
+import { Form } from "@upmind-automation/foundation";
+import { Icon } from "@upmind-automation/foundation";
+import { TermsAndConditions } from "@upmind-automation/foundation";
 import {
   ScopeActorTypes,
   useAccount,
@@ -121,9 +123,7 @@ import {
   type VerifyEmailModel,
   type CompleteRegistrationModel
 } from "@upmind-automation/headless";
-import Form from "../../../components/form/Form.vue";
-import { Icon } from "../../../components/icon";
-import TermsAndConditions from "../../brand/TermsAndConditions.vue";
+import { useActiveSession } from "@upmind-automation/headless";
 import { SESSION_FORMS } from "../types";
 import {
   authRootVariants,
@@ -139,8 +139,8 @@ import {
   transitionsFadeLeaveFromVariants,
   transitionsFadeLeaveToVariants
 } from "../variants";
-import type { FormActionProps } from "../../../components/form";
 import type { SessionProps } from "../types";
+import type { FormActionProps } from "@upmind/ui";
 // -----------------------------------------------------------------------------
 
 const emit = defineEmits(["resolve", "reject"]);

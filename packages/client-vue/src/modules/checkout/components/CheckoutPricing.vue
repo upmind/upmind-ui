@@ -20,8 +20,8 @@
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
+import { Section } from "@upmind-automation/foundation";
 import { useBasket, useConfig } from "@upmind-automation/headless";
-import Section from "../../../components/section/Section.vue";
 import Summary from "../../basket/components/Summary.vue";
 import type { CheckoutPricingProps } from "../types";
 

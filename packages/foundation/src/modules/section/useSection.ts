@@ -1,5 +1,4 @@
 import { computed, ref } from "vue";
-import { Store } from "@upmind-automation/headless";
 import { isEmpty, isObject, merge } from "lodash-es";
 import type { UseSectionProps } from "./types";
 
@@ -12,11 +11,10 @@ const defaultSectionProps: UseSectionProps = {
   inset: false
 };
 
-const sectionConfig = new Store<UseSectionProps>(defaultSectionProps);
-
-// NB: Create a reactive ref initialized with the store's current state.
-const config = ref<UseSectionProps>(sectionConfig.state);
-sectionConfig.subscribe(state => (config.value = state.currentVal));
+// A plain ref, not headless's `Store`. This layer's deciding rule (ADR 023 §2)
+// is that presentational glue knows no data layer, and the raw store was dead
+// public surface — no caller ever read `useSection().config`.
+const config = ref<UseSectionProps>({ ...defaultSectionProps });
 
 // -----------------------------------------------------------------------------
 /**
@@ -26,9 +24,7 @@ sectionConfig.subscribe(state => (config.value = state.currentVal));
 export const useSection = (initial?: Partial<UseSectionProps>) => {
   // Reset to defaults and apply initial overrides if provided
   if (initial) {
-    sectionConfig.setState(
-      merge({}, defaultSectionProps, initial) as UseSectionProps
-    );
+    config.value = merge({}, defaultSectionProps, initial) as UseSectionProps;
   }
 
   // --- state
@@ -39,25 +35,20 @@ export const useSection = (initial?: Partial<UseSectionProps>) => {
   // --- methods
   function update(values: Partial<UseSectionProps>) {
     if (!isObject(values) || isEmpty(values)) return;
-    sectionConfig.setState(
-      (prev: UseSectionProps) => merge({}, prev, values) as UseSectionProps
-    );
+    config.value = merge({}, config.value, values) as UseSectionProps;
   }
 
   // ---------------------------------------------------------------------------
   return {
-    // --- state
-    config: sectionConfig,
-
     /**
-     * The current layout variant.
-     * @type {ComputedRef<LAYOUT_VARIANTS>}
+     * Whether sections render as cards.
+     * @type {ComputedRef<boolean>}
      */
     card,
 
     /**
-     * The current layout mode.
-     * @type {ComputedRef<LayoutMode>}
+     * Whether sections draw a border.
+     * @type {ComputedRef<boolean>}
      */
     border,
 
@@ -70,7 +61,7 @@ export const useSection = (initial?: Partial<UseSectionProps>) => {
     // --- methods
     /**
      * Updates the layout configuration.
-     * @param {Partial<LayoutProps>} config - Partial configuration to update the layout state.
+     * @param {Partial<UseSectionProps>} config - Partial configuration to update the layout state.
      * @returns {void}
      */
     update

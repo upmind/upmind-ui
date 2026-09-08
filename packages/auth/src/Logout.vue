@@ -36,7 +36,7 @@ import { onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { RouterLink } from "vue-router";
 import { useActiveSession } from "@upmind-automation/headless";
-import type { StorefrontRoute } from "../../types";
+import type { StorefrontRoute } from "@upmind-automation/foundation";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(

@@ -4,19 +4,9 @@
  * @description Shared types for the client-vue package.
  */
 
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
-
-// -----------------------------------------------------------------------------
-
 /**
- * Discriminated union for storefront navigation targets.
- *
- * Components receive this as a prop and spread it onto `<Link>`:
- * - Internal route: `{ to: { name: 'catalogue' } }`
- * - External URL:   `{ href: 'https://shop.example.com' }`
- *
- * The `never` fields ensure mutual exclusivity at the type level.
+ * `StorefrontRoute` sank to `@upmind-automation/foundation` in the ADR 023 cut
+ * (≥2 domain packages read it, it knows none of them). Re-exported so every
+ * existing consumer keeps its import.
  */
-export type StorefrontRoute =
-  | { to: RouteLocationAsRelativeGeneric; href?: never }
-  | { href: string; to?: never };
+export type { StorefrontRoute } from "@upmind-automation/foundation";

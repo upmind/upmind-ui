@@ -23,7 +23,7 @@ import { onMounted } from "vue";
 import { useConfig } from "@upmind-automation/headless";
 import { useHeader } from "../../../components/header/useHeader";
 import { useFooter } from "../../../components/footer/useFooter";
-import { useSection } from "../../../components/section/useSection";
+import { useSection } from "@upmind-automation/foundation";
 import Layout from "../../../components/layout/Layout.vue";
 import { isMobile } from "../../../composables/isMobile";
 import { HEADER_BACKGROUND } from "../../../components/header/types";

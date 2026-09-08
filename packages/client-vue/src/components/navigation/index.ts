@@ -1,2 +1,2 @@
-export { default as UpmBack } from "./Back.vue";
+export { Back as UpmBack } from "@upmind-automation/foundation";
 export { default as UpmShare } from "./Share.vue";

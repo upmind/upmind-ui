@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 /**
- * @module components/icon/iconLoader
+ * @module foundation/icon/iconLoader
  * @description On-demand SVG loader with in-memory cache & fallback logic.
  * Re-homed from `@upmind/ui` so the legacy string-name shim
  * lives in client-vue (the new lib stays lucide-only). Serves the content

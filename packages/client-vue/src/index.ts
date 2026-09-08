@@ -1,5 +1,9 @@
 import useUpmindClient from "./useUpmindClient";
 
+// Side-effect import: contributes this package's form renderers into
+// `foundation`'s §7 socket. Listed in `sideEffects` so a bundler keeps it.
+import "./feature";
+
 export * from "@upmind-automation/headless";
 
 // --- expose shared types
@@ -25,4 +29,5 @@ export { default as UpmMain } from "./components/main/Main.vue";
 export * from "./components";
 // -----------------------------------------------------------------------------
 export * from "./modules";
+export { clientVueFeature } from "./feature";
 export default useUpmindClient;

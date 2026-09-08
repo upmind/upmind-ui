@@ -1,6 +1,1 @@
-export interface TermsAndConditionsProps {
-  class?: string;
-  label?: string;
-  action?: string;
-  close?: string;
-}
+export type { TermsAndConditionsProps } from "@upmind-automation/foundation";

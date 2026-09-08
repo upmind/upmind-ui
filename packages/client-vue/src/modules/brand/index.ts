@@ -1,1 +1,1 @@
-export { default as UpmTermsAndConditions } from "./TermsAndConditions.vue";
+export { TermsAndConditions as UpmTermsAndConditions } from "@upmind-automation/foundation";

@@ -131,6 +131,7 @@ import { Loading } from "@upmind/ui";
 import { Alert } from "@upmind/ui";
 import { computed, inject } from "vue";
 import { useI18n } from "vue-i18n";
+import { Section } from "@upmind-automation/foundation";
 import {
   DetailedError,
   ErrorOrigin,
@@ -138,7 +139,6 @@ import {
   type UsePaymentDetail
 } from "@upmind-automation/headless";
 import { Icon } from "../../../components/icon";
-import Section from "../../../components/section/Section.vue";
 import { rootVariants } from "../variants";
 import AccountCredit from "./AccountCredit.vue";
 import PayLater from "./PayLater.vue";

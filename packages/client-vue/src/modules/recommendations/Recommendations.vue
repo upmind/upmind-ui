@@ -60,13 +60,13 @@
 import { Interstitial, Button } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { Hero } from "@upmind-automation/foundation";
 import {
   useRecommendations,
   useRoutingEngine,
   UIContext
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
-import Hero from "../../components/hero/Hero.vue";
 import { Icon } from "../../components/icon";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
 import { useThemes } from "../theming";

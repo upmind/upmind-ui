@@ -11,7 +11,9 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./feature": "./src/feature.ts",
+    "./nuxt": "./nuxt.ts"
   },
   "engines": {
     "node": ">=22.18"
@@ -19,6 +21,8 @@
   "scripts": {
     "reset": "rm -rf {node_modules,dist,*.tsbuildinfo}",
     "type-check": "vue-tsc -p tsconfig.build.json --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run",
     "lint": "node ../../.claude/scripts/lint/eslint-workspace.mjs",
     "lint:fix": "node ../../.claude/scripts/lint/eslint-workspace.mjs --fix",
     "format": "prettier --write src/"
@@ -26,9 +30,21 @@
   "dependencies": {
     "@upmind/ui": "workspace:*",
     "@upmind-automation/headless": "workspace:*",
-    "@upmind-automation/foundation": "workspace:*"
+    "@upmind-automation/foundation": "workspace:*",
+    "class-variance-authority": "^0.7.1",
+    "lodash-es": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/lodash-es": "^4.17.12",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vue/test-utils": "^2.4.6",
+    "jsdom": "^26.1.0",
+    "nuxt": "^4.2.2",
+    "vitest": "^3.2.4"
   },
   "peerDependencies": {
-    "vue": "^3.0.0"
+    "vue": "^3.0.0",
+    "vue-i18n": "^11.1.1",
+    "vue-router": "^4.5.0"
   }
 }

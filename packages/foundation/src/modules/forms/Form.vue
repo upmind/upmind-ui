@@ -4,7 +4,7 @@
     v-bind="forwarded"
     :i18n="i18n"
     :ajv="ajv"
-    :additional-renderers="formRenderers"
+    :additional-renderers="additionalRenderers"
     :optional-text="t('text.optional')"
     :dataAttrs="{ 'data-test-key': 'form', ...props.dataAttrs }"
   >
@@ -27,11 +27,12 @@ import {
   provideFormIcon,
   useForwardPropsEmits
 } from "@upmind/ui";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useSystem, useValidation } from "@upmind-automation/headless";
 import { Icon } from "../icon";
-import { formRenderers } from "./renderers";
-import { useFormI18n } from ".";
+import { useFormRenderers } from "../renderers";
+import { useFormI18n } from "./useFormI18n";
 import type {
   FormProps,
   FormAdditionalProps,
@@ -72,7 +73,13 @@ const _slots = defineSlots<{
 const forwarded = useForwardPropsEmits(props, emits);
 
 const i18n = useFormI18n();
-// --- state
 
-// --- computed
+// ADR 023 §7: the Upmind-domain renderers arrive through the socket, not an
+// import — an explicit prop still wins, so a host can pin its own set.
+const { renderers } = useFormRenderers();
+
+const additionalRenderers = computed(() => [
+  ...(props.additionalRenderers ?? []),
+  ...renderers.value
+]);
 </script>

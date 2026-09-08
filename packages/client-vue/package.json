@@ -4,6 +4,7 @@
   "description": "",
   "type": "module",
   "sideEffects": [
+    "**/feature.ts",
     "*.css"
   ],
   "keywords": [],
@@ -43,6 +44,8 @@
     "@formkit/auto-animate": "^0.8.2",
     "@jsonforms/core": "^3.6.0",
     "@jsonforms/vue": "^3.6.0",
+    "@upmind-automation/auth": "workspace:*",
+    "@upmind-automation/foundation": "workspace:*",
     "@upmind-automation/headless": "workspace:*",
     "@upmind-automation/types": "workspace:*",
     "@upmind/tokens": "workspace:*",

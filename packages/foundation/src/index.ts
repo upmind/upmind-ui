@@ -3,8 +3,12 @@
 // through `defineFeature`'s context: the package barrel deliberately publishes no
 // direct mutator, and `foundation` imports no domain package.
 
-export type { BrandConfig, BrandConfigMeta } from "./modules/brand";
-export { useBrandConfig } from "./modules/brand";
+export type {
+  BrandConfig,
+  BrandConfigMeta,
+  TermsAndConditionsProps
+} from "./modules/brand";
+export { TermsAndConditions, useBrandConfig } from "./modules/brand";
 export type { UseBrandConfig } from "./modules/brand";
 
 export type {
@@ -28,7 +32,11 @@ export {
   useFormRenderers
 } from "./modules/renderers";
 
-export type { FlowRegistrar, UseRouting } from "./modules/routing";
+export type {
+  FlowRegistrar,
+  StorefrontRoute,
+  UseRouting
+} from "./modules/routing";
 export { useRouting } from "./modules/routing";
 
 export type {
@@ -37,3 +45,50 @@ export type {
   UseFeatures
 } from "./modules/features";
 export { defineFeature, useFeatures } from "./modules/features";
+
+export type { ShellComponents, UseShellComponents } from "./modules/shell";
+export {
+  SHELL_COMPONENTS,
+  provideShellComponents,
+  useShellComponents
+} from "./modules/shell";
+
+// --- The shared presentation glue (ADR 023 §2 admission rule: ≥2 domain
+// packages depend on it and it knows no single domain).
+
+export { Icon } from "./modules/icon";
+export {
+  ICON_MAP,
+  FALLBACK_ICON,
+  resolveLucideIcon,
+  registerIcons,
+  loadIcon,
+  setIconVariant,
+  iconVariant,
+  hasRegisteredIcons,
+  getIconCount
+} from "./modules/icon";
+export type {
+  IconRef,
+  IconProps,
+  IconSize,
+  IconImportMap,
+  LoadIconOptions
+} from "./modules/icon";
+
+export { Hero } from "./modules/hero";
+export type { HeroProps, HeroActionProps } from "./modules/hero";
+
+export { Back } from "./modules/navigation";
+export type { BackProps } from "./modules/navigation";
+
+export { Section, Sections, useSection } from "./modules/section";
+export type {
+  SectionItem,
+  SectionActionProps,
+  SectionsProps,
+  UseSectionProps
+} from "./modules/section";
+
+export { Form, FormModal, useFormI18n } from "./modules/forms";
+export type { FormI18n, FormModalProps } from "./modules/forms";

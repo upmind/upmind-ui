@@ -2,5 +2,11 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "../../tsconfig/vue-package.json",
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.spec.*",
+    "**/*.test.*",
+    "src/nuxt/**"
+  ]
 }

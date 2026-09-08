@@ -82,8 +82,8 @@ import {
 import { Avatar, Button } from "@upmind/ui";
 import { ref, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { Icon } from "@upmind-automation/foundation";
 import { useActiveSession } from "@upmind-automation/headless";
-import { Icon } from "../../../components/icon";
 import { isEmpty, isFunction } from "lodash-es";
 import type { SessionExpiredProps } from "../types";
 // -----------------------------------------------------------------------------

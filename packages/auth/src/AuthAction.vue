@@ -38,10 +38,10 @@ import { Avatar } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
+import { Icon } from "@upmind-automation/foundation";
 import { useActiveSession, QUERY_PARAMS } from "@upmind-automation/headless";
-import { Icon } from "../../components/icon";
-import SessionDetailsDropdown from "../../modules/session/components/DetailsDropdown.vue";
-import SessionLoginPopover from "../../modules/session/components/LoginPopover.vue";
+import SessionDetailsDropdown from "./components/DetailsDropdown.vue";
+import SessionLoginPopover from "./components/LoginPopover.vue";
 import type { AuthActionProps } from "./types";
 // -----------------------------------------------------------------------------
 

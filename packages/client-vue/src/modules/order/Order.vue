@@ -200,6 +200,9 @@ import { Alert, type AlertProps } from "@upmind/ui";
 import { computed, onUnmounted, provide, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
+import { UpmAuth as Auth } from "@upmind-automation/auth";
+import { Hero } from "@upmind-automation/foundation";
+import { Section } from "@upmind-automation/foundation";
 import {
   useAccount,
   useTransfer,
@@ -213,12 +216,9 @@ import {
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
 import { useAnnouncement } from "../../components/announcement/useAnnouncement";
-import Hero from "../../components/hero/Hero.vue";
 import { Icon } from "../../components/icon";
-import Section from "../../components/section/Section.vue";
 import PaymentDetails from "../payment/components/PaymentDetails.vue";
 import PaymentProcessing from "../payment/components/PaymentProcessing.vue";
-import Auth from "../session/components/Auth.vue";
 import { useThemes } from "../theming";
 import OrderProducts from "./components/OrderProducts.vue";
 import OrderEnclosedTemplate from "./templates/OrderEnclosed.template.vue";

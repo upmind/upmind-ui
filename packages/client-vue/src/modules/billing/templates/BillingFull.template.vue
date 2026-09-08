@@ -19,7 +19,7 @@ import { onMounted } from "vue";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useConfig } from "@upmind-automation/headless";
 import { useHeader } from "../../../components/header/useHeader";
-import { useSection } from "../../../components/section/useSection";
+import { useSection } from "@upmind-automation/foundation";
 import Layout from "../../../components/layout/Layout.vue";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 

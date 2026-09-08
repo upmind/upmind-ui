@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 /**
- * @module components/icon/icon-map
+ * @module foundation/icon/icon-map
  * @description Untitled-UI icon name → lucide-vue-next component map.
  *
  * The old lib rendered string-named SVGs from a custom "Untitled UI" pack. The

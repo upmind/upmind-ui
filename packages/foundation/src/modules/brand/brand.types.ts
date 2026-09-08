@@ -22,3 +22,11 @@ export type BrandConfigMeta = {
   isAvailable: boolean;
   isResolved: boolean;
 };
+
+/** The brand's terms-and-conditions consent line. */
+export type TermsAndConditionsProps = {
+  class?: string;
+  label?: string;
+  action?: string;
+  close?: string;
+};

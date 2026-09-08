@@ -26,15 +26,24 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@jsonforms/core": "^3.6.0",
     "@upmind/ui": "workspace:*",
-    "@upmind-automation/headless": "workspace:*"
+    "@upmind-automation/headless": "workspace:*",
+    "class-variance-authority": "^0.7.1",
+    "lodash-es": "^4.17.21",
+    "lucide-vue-next": "catalog:",
+    "randexp": "^0.5.3"
   },
   "devDependencies": {
+    "@types/lodash-es": "^4.17.12",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vue/test-utils": "^2.4.6",
     "jsdom": "^26.1.0",
     "vitest": "^3.2.4"
   },
   "peerDependencies": {
     "vue": "^3.0.0",
+    "vue-i18n": "^11.1.1",
     "vue-router": "^4.5.0"
   }
 }

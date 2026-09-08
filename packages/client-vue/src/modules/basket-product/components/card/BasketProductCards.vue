@@ -60,8 +60,8 @@
 import { useTestAttrs } from "@upmind/ui";
 import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { useSection } from "@upmind-automation/foundation";
 import { useBasketProducts, useBrand } from "@upmind-automation/headless";
-import { useSection } from "../../../../components/section/useSection";
 import {
   productRootTaxVariants,
   productRootListVariants,

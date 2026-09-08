@@ -138,6 +138,7 @@ import { CardRoot, Avatar } from "@upmind/ui";
 import { Alert } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { Section } from "@upmind-automation/foundation";
 import {
   ScopeActorTypes,
   useBasketBilling,
@@ -146,7 +147,6 @@ import {
   useClientPhones
 } from "@upmind-automation/headless";
 import { Icon } from "../../../components/icon";
-import Section from "../../../components/section/Section.vue";
 import {
   cardRootVariants,
   summaryRootVariants,

@@ -1,10 +1,9 @@
 // -----------------------------------------------------------------------------
 /**
- * @module components/icon/types
- * @description Types for the client-vue Icon resolver — re-homes the old
- * `@upmind/ui` Icon API surface so consumers need only swap
- * the import. UI glyphs resolve to lucide components; flags/providers/unmapped
- * names fall back to the registered SVG asset loader.
+ * @module foundation/icon/types
+ * @description Types for the shared glyph resolver. UI glyphs resolve to
+ * lucide components; flags/providers/unmapped names fall back to the
+ * registered SVG asset loader.
  */
 
 import type { HTMLAttributes } from "vue";

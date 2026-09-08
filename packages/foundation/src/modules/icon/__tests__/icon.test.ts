@@ -11,9 +11,9 @@ import {
   X
 } from "lucide-vue-next";
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { FALLBACK_ICON, ICON_MAP, resolveLucideIcon } from "./icon-map";
-import Icon from "./Icon.vue";
-import { registerIcons, setIconVariant } from "./iconLoader";
+import { FALLBACK_ICON, ICON_MAP, resolveLucideIcon } from "../icon-map";
+import Icon from "../Icon.vue";
+import { registerIcons, setIconVariant } from "../iconLoader";
 
 // The static `icon="…"` names in use across client-vue (grep-enumerated).
 // Guards that every shipped name stays mapped — a deleted entry fails here.

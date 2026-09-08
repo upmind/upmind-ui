@@ -94,6 +94,8 @@
 import { useTestAttrs } from "@upmind/ui";
 import { computed, provide, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { Form } from "@upmind-automation/foundation";
+import { Section } from "@upmind-automation/foundation";
 import {
   useBasket,
   useBasketFields,
@@ -101,8 +103,6 @@ import {
   useProductSetup
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-import Form from "../../../components/form/Form.vue";
-import Section from "../../../components/section/Section.vue";
 import BasketAlerts from "../../basket/components/BasketAlerts.vue";
 import ProductCards from "../../basket-product/components/card/BasketProductCards.vue";
 import BasketProductSkeleton from "../../basket-product/components/card/BasketProductSkeleton.vue";

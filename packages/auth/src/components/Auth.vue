@@ -80,6 +80,9 @@ import { cn, Interstitial, Link } from "@upmind/ui";
 import { Alert } from "@upmind/ui";
 import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { Form } from "@upmind-automation/foundation";
+import { Icon } from "@upmind-automation/foundation";
+import { TermsAndConditions } from "@upmind-automation/foundation";
 import {
   AuthFlowTypes,
   ScopeActorTypes,
@@ -88,9 +91,6 @@ import {
   useRoutingEngine,
   type AuthModel
 } from "@upmind-automation/headless";
-import Form from "../../../components/form/Form.vue";
-import { Icon } from "../../../components/icon";
-import TermsAndConditions from "../../brand/TermsAndConditions.vue";
 import { SESSION_FORMS } from "../types";
 import {
   authRootVariants,
@@ -98,8 +98,8 @@ import {
   authActionsVariants
 } from "../variants";
 import { find, get, map } from "lodash-es";
-import type { FormActionProps } from "../../../components/form";
 import type { SessionProps } from "../types";
+import type { FormActionProps } from "@upmind/ui";
 // -----------------------------------------------------------------------------
 
 const emit = defineEmits(["resolve", "reject"]);

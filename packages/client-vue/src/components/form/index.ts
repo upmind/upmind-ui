@@ -1,6 +1,7 @@
-export { default as UpmForm } from "./Form.vue";
+export { Form as UpmForm } from "@upmind-automation/foundation";
+export { useFormI18n } from "@upmind-automation/foundation";
+export type { FormI18n } from "@upmind-automation/foundation";
 export * from "./renderers";
-export * from "./useFormI18n";
 
 // Form engine — a pass-through for @upmind/ui, which now hosts the JSONForms
 // engine. Chrome + composables + types for consumers, under their old names.

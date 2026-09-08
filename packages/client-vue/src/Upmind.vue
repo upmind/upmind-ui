@@ -76,6 +76,10 @@ import { AnnouncementBar } from "@upmind/ui";
 import { Loading } from "@upmind/ui";
 import { computed, nextTick, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import {
+  provideShellComponents,
+  provideThemeEngine
+} from "@upmind-automation/foundation";
 import useUpmind, {
   UpmindStatus,
   useRoutingEngine
@@ -88,6 +92,7 @@ import Main from "./components/main/Main.vue";
 import UpmOverlayController from "./components/overlays/OverlayController.vue";
 import Page from "./components/page/Page.vue";
 import Feedback from "./modules/feedback/Feedback.vue";
+import { SESSION_SHELL_COMPONENTS } from "./modules/session/shell";
 import AsyncLoading from "./modules/system/Loading.vue";
 import UpmRouteView from "./modules/system/RouteView.vue";
 import { useTheme, useThemes } from "./modules/theming";
@@ -106,6 +111,12 @@ const props = defineProps<{
 // -----------------------------------------------------------------------------
 const { set } = useThemes();
 const { meta: routingMeta } = useRoutingEngine();
+
+// The two ports `foundation` declares but never implements: this package still
+// owns the live theme engine (a Phase 10 residual) and the shell the auth
+// organisms render inside (Amendment 1 change 3).
+provideThemeEngine({ set });
+provideShellComponents(computed(() => SESSION_SHELL_COMPONENTS));
 const {
   announcement,
   isVisible: announcementVisible,
