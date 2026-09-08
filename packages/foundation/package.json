@@ -19,6 +19,8 @@
   "scripts": {
     "reset": "rm -rf {node_modules,dist,*.tsbuildinfo}",
     "type-check": "vue-tsc -p tsconfig.build.json --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run",
     "lint": "node ../../.claude/scripts/lint/eslint-workspace.mjs",
     "lint:fix": "node ../../.claude/scripts/lint/eslint-workspace.mjs --fix",
     "format": "prettier --write src/"
@@ -26,6 +28,10 @@
   "dependencies": {
     "@upmind/ui": "workspace:*",
     "@upmind-automation/headless": "workspace:*"
+  },
+  "devDependencies": {
+    "jsdom": "^26.1.0",
+    "vitest": "^3.2.4"
   },
   "peerDependencies": {
     "vue": "^3.0.0",
