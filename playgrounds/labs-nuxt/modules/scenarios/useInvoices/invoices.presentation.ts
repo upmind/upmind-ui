@@ -339,7 +339,7 @@ export const actionsUischema: ActionsUischema = {
       // AC-2 — narrows the list to invoices this client could consolidate.
       name: "filterConsolidatable",
       i18n: "action.filter_consolidatable",
-      icon: "layers-two-01",
+      icon: "box",
       variant: "outline",
       placement: ActionPlacementTypes.HEADER
     },
@@ -348,7 +348,7 @@ export const actionsUischema: ActionsUischema = {
       // AC-7 — every credit note, collection-scoped.
       name: "filterCreditNotes",
       i18n: "action.filter_credit_notes",
-      icon: "file-minus-02",
+      icon: "file-attachment-01",
       variant: "outline",
       placement: ActionPlacementTypes.HEADER
     },
@@ -357,7 +357,7 @@ export const actionsUischema: ActionsUischema = {
       // AC-7 — this invoice's own credit notes, row-scoped.
       name: "filterCreditNotes",
       i18n: "action.view_credit_notes",
-      icon: "file-minus-02",
+      icon: "file-attachment-01",
       variant: "outline",
       placement: ActionPlacementTypes.VISIBLE
     },
@@ -366,7 +366,7 @@ export const actionsUischema: ActionsUischema = {
       // AC-3 — the list-side refetch a payment outcome triggers.
       name: "refreshAfterPayment",
       i18n: "action.refresh_after_payment",
-      icon: "credit-card-refresh",
+      icon: "refresh-cw-01",
       variant: "outline",
       placement: ActionPlacementTypes.OVERFLOW,
       feedback: {

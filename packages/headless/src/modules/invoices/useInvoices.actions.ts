@@ -9,6 +9,7 @@ import {
 import { NotAuthenticatedError } from "../../utils";
 import type {
   Invoice,
+  InvoiceFilterModel,
   InvoiceSortableField,
   InvoicesListQuery,
   InvoicesServices
@@ -138,6 +139,14 @@ export function createInvoicesActions(
   }
 
   /**
+   * Applies a filter INTENT — the `filters` branch of the one query model, so
+   * `sort` and `pagination` are untouched by construction.
+   */
+  function filterBy(intent: InvoiceFilterModel): void {
+    query.setCriteria({ filters: intent });
+  }
+
+  /**
    * Applies a sort intent — the `sort` branch of the one query model, so
    * `filters` and `pagination` are untouched.
    */
@@ -203,6 +212,9 @@ export function createInvoicesActions(
     /** Destroys this scoped instance — removes it from the registry. */
     destroy,
 
+    /** Applies a filter intent to the list — merges the `filters` branch. */
+    filterBy,
+
     /** AC2 — applies the consolidatable-count criteria preset. */
     filterConsolidatable,
 
@@ -214,6 +226,12 @@ export function createInvoicesActions(
 
     /** Resolves true when the collection is ready to read. Always settles. */
     isReady,
+
+    /** Advances the list one page forward. */
+    nextPage: query.fetchNextPage,
+
+    /** Steps the list one page back. */
+    prevPage: query.fetchPreviousPage,
 
     /** Refetches the list from the server; rejects if it cannot address one. */
     refresh,

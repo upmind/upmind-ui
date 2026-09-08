@@ -46,7 +46,7 @@ export default {
   // The MODULE whose committed `.feature` and step catalog this page plays.
   tracks: "invoices",
   presentation: {
-    icon: "receipt-01",
+    icon: "tag-02",
     table: tableUischema,
     card: cardUischema,
     detail: detailUischema,

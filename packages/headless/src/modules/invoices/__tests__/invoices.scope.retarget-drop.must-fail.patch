@@ -5,10 +5,14 @@
 # Mutation: drops the declared `client_id` filter column from the query
 # schema — the client x client retarget filter is silently stripped by the
 # criteria channel's allowExtraProps guard and never reaches the wire.
+# Re-rolled <2026-09-09>: the FE-3031 verifier ABSENT-verdict re-do added
+# `uniqueItems: true` to the neighbouring `status.code`/`category.slug` leaves
+# (the multi-select-render fix), shifting this hunk's line numbers — same
+# mutation, updated context only.
 --- a/packages/headless/src/modules/invoices/invoices.schemas.ts
 +++ b/packages/headless/src/modules/invoices/invoices.schemas.ts
-@@ -96,12 +96,6 @@
-                 items: { type: "string", oneOf: STATUS_VOCABULARY }
+@@ -97,12 +97,6 @@
+                 uniqueItems: true
                }
              }
 -          },

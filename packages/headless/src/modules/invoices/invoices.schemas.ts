@@ -93,7 +93,8 @@ export function useQuerySchema(): InvoiceQuerySchema {
             properties: {
               in: {
                 type: ["array", "null"],
-                items: { type: "string", oneOf: STATUS_VOCABULARY }
+                items: { type: "string", oneOf: STATUS_VOCABULARY },
+                uniqueItems: true
               }
             }
           },
@@ -118,7 +119,8 @@ export function useQuerySchema(): InvoiceQuerySchema {
             properties: {
               in: {
                 type: ["array", "null"],
-                items: { type: "string", oneOf: CATEGORY_VOCABULARY }
+                items: { type: "string", oneOf: CATEGORY_VOCABULARY },
+                uniqueItems: true
               }
             }
           },
@@ -275,13 +277,16 @@ export function useQueryUischema(): UISchemaElement {
         type: "Control",
         scope: "#/properties/filters/properties/status.code/properties/in",
         i18n: "invoices.filter_bar.status",
-        options: { format: "multi-select", optionalText: "" }
+        // No `format` — the multi-select tile group dispatches on the leaf's
+        // OWN shape (`array` + `uniqueItems` + `items.oneOf`), never a format
+        // string (`StringsRenderer.vue`'s tester).
+        options: { optionalText: "" }
       },
       {
         type: "Control",
         scope: "#/properties/filters/properties/category.slug/properties/in",
         i18n: "invoices.filter_bar.category",
-        options: { format: "multi-select", optionalText: "" }
+        options: { optionalText: "" }
       },
       {
         type: "Control",
