@@ -77,7 +77,7 @@ graph LR
 
 ## Task 1: Types, the two scope matrices, and the staff-deprecation docblock — seat: developer (code-step)
 
-- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "invoices collection reads the list"` → the collection resolves and issues its outbound `GET /api/invoices`; a scope matrix that refuses the CLIENT context, or a single-read matrix that still admits `.for()`, cannot reach that request. Paired with T11's own read-back; a typecheck may accompany but never constitute this.
+- Reality Check: `pnpm --filter @upmind-automation/headless test:integration src/modules/invoices/__tests__/invoices.collection.int.test.ts src/modules/invoices/__tests__/invoices.criteria-presets.int.test.ts src/modules/invoices/__tests__/invoices.consolidatable-count.int.test.ts` → the collection resolves and issues its outbound `GET /api/invoices`; a scope matrix that refuses the CLIENT context, or a single-read matrix that still admits `.for()`, cannot reach that request. Paired with T11's own read-back; a typecheck may accompany but never constitute this.
 
 ### Input State
 - [ ] `packages/headless/src/modules/invoices/invoices.types.ts` exists at its M1 shape (`:8-59`).
@@ -101,7 +101,7 @@ graph LR
 
 ## Task 2: `invoices.schemas.ts` — the ONE criteria schema — seat: developer (code-step)
 
-- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "invoices criteria reach the wire"` → asserts the outbound `GET /api/invoices` query string carries exactly the filters, sort and pagination the criteria model declares, and that an undeclared column is unspellable.
+- Reality Check: `pnpm --filter @upmind-automation/headless test:integration src/modules/invoices/__tests__/invoices.collection.int.test.ts src/modules/invoices/__tests__/invoices.criteria-presets.int.test.ts src/modules/invoices/__tests__/invoices.consolidatable-count.int.test.ts` → asserts the outbound `GET /api/invoices` query string carries exactly the filters, sort and pagination the criteria model declares, and that an undeclared column is unspellable.
 
 ### Input State
 - [ ] Task 1 output state holds.
@@ -124,7 +124,7 @@ graph LR
 
 ## Task 3: `invoices.mappers.ts` — list mapper, new fields, marker restructure — seat: developer (code-step)
 
-- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "consolidation surface on the invoice"` → asserts the mapped invoice exposes the consolidation, balance, bundle, attribution and next-charge fields from recorded fixtures.
+- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "consolidation identity and credit fields"` → asserts the mapped invoice exposes the consolidation, balance, bundle, attribution and next-charge fields from recorded fixtures.
 
 ### Input State
 - [ ] Task 1 output state holds.
@@ -145,7 +145,7 @@ graph LR
 
 ## Task 4: `invoices.services.ts` — rename, factory, the ONE identity seam — seat: developer (code-step)
 
-- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "client retargets the list at another client"` → asserts the outbound request is addressed to the target client and carries the reading client's own bearer token — the seam is what makes that true.
+- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "retarget my reading at an entitled client"` → asserts the outbound request is addressed to the target client and carries the reading client's own bearer token — the seam is what makes that true.
 
 ### Input State
 - [ ] Tasks 1-3 output state holds.
@@ -165,7 +165,7 @@ graph LR
 
 ## Task 5: The five reads — seat: developer (code-step)
 
-- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "unpaid amount live re-read"`, `-t "unpaid existence count"` and `-t "consolidatable count coexists with the list"` → assert each outbound request, its URL and its query string, and that the two count reads are separately keyed from the list.
+- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "the live unpaid-amount re-read"`, `-t "find out whether I owe anything at all"` and `-t "consolidatableCount coexists"` → assert each outbound request, its URL and its query string, and that the two count reads are separately keyed from the list.
 
 ### Input State
 - [ ] Task 4 output state holds.
@@ -186,7 +186,7 @@ graph LR
 
 ## Task 6: The assigned-method mutation — seat: developer (code-step)
 
-- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "assigned payment method writer"` → asserts the `PATCH` body carries the chosen id, and that clearing sends `payment_details_id: null` as a **present** key.
+- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "assign a payment method to an invoice"` → asserts the `PATCH` body carries the chosen id, and that clearing sends `payment_details_id: null` as a **present** key.
 
 ### Input State
 - [ ] Task 5 output state holds.
@@ -200,7 +200,7 @@ graph LR
 
 ## Task 7: `useInvoices` + its four layers — seat: developer (code-step)
 
-- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "invoices collection reads the list"` → the collection resolves per scope, mints exactly ONE query, and its actions/context/meta members drive the observable request behaviour.
+- Reality Check: `pnpm --filter @upmind-automation/headless test:integration src/modules/invoices/__tests__/invoices.collection.int.test.ts src/modules/invoices/__tests__/invoices.criteria-presets.int.test.ts src/modules/invoices/__tests__/invoices.consolidatable-count.int.test.ts` → the collection resolves per scope, mints exactly ONE query, and its actions/context/meta members drive the observable request behaviour.
 
 ### Input State
 - [ ] Tasks 1-6 output state holds.
@@ -219,7 +219,7 @@ graph LR
 
 ## Task 8: `useInvoice` rewritten scoped + its four layers — seat: developer (code-step)
 
-- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "single invoice read is addressed by withId"` → asserts `.withId(id)` issues exactly one `GET /api/invoices/{id}`, and that an absent id issues **none**.
+- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "invoices single read"` → asserts `.withId(id)` issues exactly one `GET /api/invoices/{id}`, and that an absent id issues **none**.
 
 ### Input State
 - [ ] Task 7 output state holds.
@@ -237,7 +237,7 @@ graph LR
 
 ## Task 9: Barrel + module README — seat: developer (code-step)
 
-- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "invoices public surface"` → asserts the barrel's exported surface resolves and that `orders`' mapping path still produces a mapped invoice through it.
+- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "the include set may not shrink below its floor"` → asserts the barrel's exported surface resolves and that `orders`' mapping path still produces a mapped invoice through it.
 
 ### Input State
 - [ ] Task 8 output state holds.
@@ -268,7 +268,7 @@ graph LR
 
 ## Task 11: Prove the reads (AC1, AC2, AC9, AC10) — seat: prover (test-step)
 
-- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "unpaid amount live re-read"`, `-t "invoices collection reads the list"`, `-t "consolidatable count coexists with the list"`, `-t "next charge date on the invoice"`, `-t "unpaid existence count"` → each asserts its named outbound request contract and mapped outcome against recorded fixtures.
+- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "the live unpaid-amount re-read"`, `src/modules/invoices/__tests__/invoices.collection.int.test.ts`, `-t "consolidatableCount coexists"`, `-t "the next charge date"`, `-t "find out whether I owe anything at all"` → each asserts its named outbound request contract and mapped outcome against recorded fixtures.
 
 ### Input State
 - [ ] Task 10 output state holds.
@@ -287,7 +287,7 @@ graph LR
 
 ## Task 12: Prove the criteria law (AC6, AC7, criteria-subversion) — seat: prover (test-step)
 
-- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "invoices criteria reach the wire"`, `-t "credit notes criteria preset"`, `-t "large bundle flag"` → assert the wire query string, the preset's outbound values, and that the bundle flag derives from `products_count`.
+- Reality Check: `pnpm --filter @upmind-automation/headless test:integration src/modules/invoices/__tests__/invoices.collection.int.test.ts src/modules/invoices/__tests__/invoices.criteria-presets.int.test.ts src/modules/invoices/__tests__/invoices.consolidatable-count.int.test.ts`, `-t "read my credit notes as a filtered view"`, `-t "the large-bundle flag"` → assert the wire query string, the preset's outbound values, and that the bundle flag derives from `products_count`.
 
 ### Input State
 - [ ] Task 11 output state holds.
@@ -304,7 +304,7 @@ graph LR
 
 ## Task 13: Prove `client×client` (AC12, AC13) — seat: prover (test-step)
 
-- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "client retargets the list at another client"` and `-t "co-mingled row attribution"` → assert the outbound request contract **and** the auth identity transport, plus per-row attribution.
+- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "retarget my reading at an entitled client"` and `-t "attribute each invoice in a co-mingled list"` → assert the outbound request contract **and** the auth identity transport, plus per-row attribution.
 
 ### Input State
 - [ ] Task 12 output state holds.
@@ -319,7 +319,7 @@ graph LR
 
 ## Task 14: Prove the mutation (AC4) — seat: prover (test-step)
 
-- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "assigned payment method writer"` → asserts both PATCH bodies.
+- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "assign a payment method to an invoice"` → asserts both PATCH bodies.
 
 ### Input State
 - [ ] Task 13 output state holds.
@@ -335,7 +335,7 @@ graph LR
 
 ## Task 15: Prove the mapping (AC3, AC5, AC8, AC11) — seat: prover (test-step)
 
-- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "consolidation surface on the invoice"`, `-t "pending payment detection"`, `-t "balance diverges from unpaid amount after consolidation"`, `-t "list refetches after a payment outcome"` → each asserts its named mapped outcome or outbound request contract against recorded fixtures.
+- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "consolidation identity and credit fields"`, `-t "awaiting-client"`, `-t "balance diverges from the raw unpaid amount"`, `-t "refetches after a payment outcome"` → each asserts its named mapped outcome or outbound request contract against recorded fixtures.
 
 ### Input State
 - [ ] Task 14 output state holds.
@@ -375,7 +375,7 @@ graph LR
 
 ## Task 17: Build green + `orders` unbroken — seat: developer (code-step)
 
-- Reality Check: `pnpm build` → `REAL_EXIT=0` across all six packages with zero error lines, matching the recorded baseline; plus `pnpm --filter @upmind-automation/headless test:integration -t "invoices public surface"` → `orders`' mapping path still produces a mapped invoice.
+- Reality Check: `pnpm build` → `REAL_EXIT=0` across all six packages with zero error lines, matching the recorded baseline; plus `pnpm --filter @upmind-automation/headless test:integration -t "the include set may not shrink below its floor"` → `orders`' mapping path still produces a mapped invoice.
 
 ### Input State
 - [ ] Tasks 1-16 output state holds.

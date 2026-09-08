@@ -9,13 +9,17 @@
 #   Actors:   [client, staff]
 #   Contexts: [self, client]
 # Cross-product = 4 cells. All 4 carry a disposition; undispositioned CELL
-# count = 0. One CELL (client x client) carries a `blocked_by:` naming an open
-# code blocker (H1) — it is dispositioned Direct and NOT satisfied.
+# count = 0. NO cell carries a `blocked_by:` — the one that did (client x
+# client, blocker H1) was cleared 2026-09-08 against the landed fix at
+# a46d8a6d7 and its green read-back.
 #
-# CAPABILITY ROWS: 12 (R01-R12). Eleven carry a disposition; R12 stands
-# PENDING-OPERATOR-SIGNOFF, so undispositioned ROW count = 1. Both open items
-# are recorded in review-notes.md as H1 and H2. Hand-graded 2026-09-08 —
-# ci/lint-plan-compliance.mjs does not exist in this repo (plugin cache only).
+# CAPABILITY ROWS: 12 (R01-R12). All 12 carry a disposition, so undispositioned
+# ROW count = 0: R12 was signed by the operator on 2026-09-08. Both formerly
+# open items are recorded CLOSED in review-notes.md as H1 and H2. Hand-graded
+# 2026-09-08 — ci/lint-plan-compliance.mjs does not exist in this repo (plugin
+# cache only), and its parity parser grades CELLS only (its loop breaks at the
+# first top-level key, so this `rows:` block is never parsed). The hand grade
+# is the load-bearing one.
 
 cells:
   - actor: client
@@ -27,13 +31,8 @@ cells:
   - actor: client
     context: client
     disposition: Direct
-    # The capability IS reproduced on all three declared reads (receipts in the
-    # note). This field exists so the row cannot be READ AS SATISFIED while a
-    # published verb still produces B2's wrong answer: a disposition is
-    # paperwork, not permission. Clear it only when H1 is closed in code.
-    blocked_by: "H1 (review-notes.md) - the list read's client_id column is dropped by any filters-branch criteria write that does not carry it"
     legacy: "oracle:561-563 (conditional filter[client_id] on hasUnpaid) and :585 (unconditional filter[client_id] on getConsolidatableTotal), both on apiPath().contextual (:25-33); :137-142 belongsToChildOfClient; :143-146 belongsToDelegate"
-    notes: "IN SCOPE per operator ruling 2026-09-01 'In - run both client cells'. Retarget is a DECLARED client_id filter column on the one useQuerySchema() (invoices.schemas.ts:68-73), never a path change and never a hand-appended param - the client lane has no api/clients/{id}/invoices route. Row attribution (own/sub-account/delegated) is the second half of this cell, see row R02. Serves AC12-AC13. RE-STATED 2026-09-08 (2nd correction) AGAINST THE LANDED CODE, after Review blockers B1 and B2. THE PRIOR NOTE WAS WRONG TO GRADE THIS CELL Direct: it disclosed only that loadList did not auto-seed the filter and was SILENT on the half that made the answer wrong - loadList still passed the retargeted id into select: raw => mapInvoices(raw, clientId.value), so a .for('client', X) list fetched the READER's rows and attributed them against X. loadUnpaidExistence applied no client_id at all and had no caller-side remedy, the handle never leaving the factory. Neither was 'reachable as documented'; both were wrong answers. THE CELL IS DECLARED BY THREE READS. The disposition below is graded against all three, each with its landed receipt: (1) LIST - loadList (invoices.services.ts:165-194) now calls trackClientIdFilter(handle, clientId) (:191), which watches the resolved target with { immediate: true } and applies setCriteria({ filters: { ...handle.criteria.value.filters, client_id: { eq: value } } }) (:136-151) on the declared column. The retarget and the select attribution input (:186) now agree. (2) UNPAID-EXISTENCE - loadUnpaidExistence (:302-330) calls the same helper (:327). This is the oracle's own conditional seeding at oracle:561-563, reproduced. (3) CONSOLIDATABLE-COUNT - loadConsolidatableCount (:348-379) seeds client_id at mint through consolidatableCountCriteria(clientId.value) (:358) AND calls the helper (:376), so a self-scope whose id resolves after construction is also covered. This is the oracle's unconditional filter[client_id] at oracle:585, reproduced. RESIDUAL DEFECT ON READ (1), NOT DISPOSITIONED AWAY - it is an OPEN BLOCKER for the developer lane, recorded in review-notes.md as H1, NOT a qualification that makes the row true. The list read's retarget is seeded at mint and survives a sort-only or pagination-only write, but criteria.set MERGES AT BRANCH LEVEL - 'set({ filters }) replaces the whole filters branch' (packages/headless/src/modules/query/useQueryCriteria.ts:100-101, implementation :111-123). trackClientIdFilter watches clientId, which does not change, so it never re-applies. Two published verbs therefore drop the column and re-widen the list to the reader's rows while select still attributes against X - B2's exact defect, reached through the public surface instead of at mint: useActions().filterCreditNotes() (useInvoices.actions.ts:168-170; its preset creditNotesCriteria, invoices.schemas.ts:378-390, carries no client_id) and the published useActions().setCriteria (useInvoices.actions.ts:231), which useInvoices.ts:92's own doc example calls with a bare filters branch. filterConsolidatable (useInvoices.actions.ts:157-161) is NOT affected - its preset consolidatableCriteria (invoices.schemas.ts:343-353) carries client_id: { eq: clientId } itself. AC7 (credit notes) is in scope and AC12 declares the retarget, so this is in-scope work, not a follow-up."
+    notes: "IN SCOPE per operator ruling 2026-09-01 'In - run both client cells'. Retarget is a DECLARED client_id filter column on the one useQuerySchema() (invoices.schemas.ts:68-73), never a path change and never a hand-appended param - the client lane has no api/clients/{id}/invoices route. Row attribution (own/sub-account/delegated) is the second half of this cell, see row R02. Serves AC12-AC13. RE-STATED 2026-09-08 (3rd correction) AGAINST THE LANDED CODE at a46d8a6d7, after Review blockers B1/B2 and planner finding H1 - all three now CLOSED. THE CELL IS DECLARED BY THREE READS; the Direct disposition is graded against all three, each with its landed receipt. (1) LIST - loadList (invoices.services.ts:232-261) calls trackClientIdFilter(handle, clientId) (:258, helper :137-152), which watches the resolved target with { immediate: true } and applies setCriteria({ filters: { ...handle.criteria.value.filters, client_id: { eq: value } } }) on the declared column; loadList then returns withDurableClientId(handle, clientId) (:260, helper :195-215), so what every published verb shares is a handle whose client_id column is DURABLE rather than a mint-time seed - each filters-branch write that OMITS client_id has it re-asserted inside the CALLER'S OWN filters object (:208-211), while a caller that DECLARES client_id explicitly still wins (:203), which keeps setCriteria's own manual-retarget door open. The retarget and the select attribution input (:253) therefore agree on every write, not just the first. (2) UNPAID-EXISTENCE - loadUnpaidExistence (:369-397) calls the same tracking helper (:394); its criteria object is private to the factory, so no published verb can replace its filters branch. This is the oracle's own conditional seeding at oracle:561-563, reproduced. (3) CONSOLIDATABLE-COUNT - loadConsolidatableCount (:415-446) seeds client_id at mint through consolidatableCountCriteria(clientId.value) (:425) AND calls the tracking helper (:443), so a self-scope whose id resolves after construction is covered too; its criteria object is likewise private. This is the oracle's unconditional filter[client_id] at oracle:585, reproduced. EXECUTABLE RECEIPT: invoices.scope-identity.int.test.ts:261-382 - five request-contract assertions on a .for(client, X) scope covering filterCreditNotes(), a bare setCriteria({ filters }) write, an explicit caller-declared client_id (the manual door), sortBy() and filterConsolidatable(); the file ran 11/11 green on 2026-09-08. WHY THE HISTORY IS KEPT BELOW: this row was mis-graded Direct TWICE, and the record of how is worth more than a clean row. Neither paragraph describes a live defect. (i) 1st pass disclosed only that loadList did not auto-seed the filter and was SILENT on the half that made the answer wrong - loadList passed the retargeted id into select: raw => mapInvoices(raw, clientId.value), so a .for(client, X) list fetched the READER'S rows and attributed them against X (Review blocker B2), while loadUnpaidExistence applied no client_id at all and had no caller-side remedy, the handle never leaving the factory (B1). Neither was 'reachable as documented'; both were wrong answers. (ii) 2nd pass seeded the column at mint but did not make it DURABLE: criteria.set MERGES AT BRANCH LEVEL - 'set({ filters }) replaces the whole filters branch' (packages/headless/src/modules/query/useQueryCriteria.ts:100-101, implementation :111-123) - and trackClientIdFilter watches clientId, which does not change after a mint, so it never re-applied. Two published verbs therefore re-widened the list to the reader's rows while select still attributed against X: useActions().filterCreditNotes() (useInvoices.actions.ts:168-170; its preset creditNotesCriteria, invoices.schemas.ts:378-390, carries no client_id) and the published useActions().setCriteria (useInvoices.actions.ts:231), which useInvoices.ts:92's own doc example calls with a bare filters branch. That was planner finding H1, filed as an open blocker rather than dispositioned away. withDurableClientId is its structural fix: it closes BOTH doors at the one shared handle instead of patching one preset, so a future preset cannot re-open the defect. blocked_by REMOVED 2026-09-08 on the landed code plus the green read-back above."
 
   - actor: staff
     context: self
@@ -100,15 +99,16 @@ arms:
 # CAPABILITY ROWS — the ten rows carried forward from the Research stage, plus
 # R11 and R12, split out of R05 on 2026-09-08 because Review found four
 # unrequested relations listed inside R05's Direct capability.
-# R01-R11 carry a disposition. R12 is PENDING-OPERATOR-SIGNOFF.
-# Undispositioned row count = 1 (R12).
+# R01-R12 ALL carry a disposition: R12's drop was signed by the operator on
+# 2026-09-08 (H2 in review-notes.md, closed).
+# Undispositioned row count = 0.
 # ---------------------------------------------------------------------------
 rows:
   - id: R01
     capability: "hasUnpaid - unpaid-existence read: does this client owe anything at all, answered without loading the list"
     legacy: "oracle:553-573 (limit:'count' at :559, filter[status.code]=unpaidStatuses at :560, optional filter[client_id] at :561-563, storeData:false, returnData:false, returns response.total > 0 at :572)"
     disposition: Direct
-    delivered_by: "AC10 - loadUnpaidExistence() (invoices.services.ts:302-330) over its OWN query key ['invoices','unpaid_existence',{client}] (:311), seeded by UNPAID_EXISTENCE_CRITERIA (invoices.schemas.ts:329-332) and by trackClientIdFilter(handle, clientId) (:327, helper at :136-151) for the target client_id, read by meta.hasUnpaid (useInvoices.meta.ts:63-66) as pagination.value.total > 0"
+    delivered_by: "AC10 - loadUnpaidExistence() (invoices.services.ts:369-397) over its OWN query key ['invoices','unpaid_existence',{client}] (:378), seeded by UNPAID_EXISTENCE_CRITERIA (invoices.schemas.ts:329-332) and by trackClientIdFilter(handle, clientId) (:394, helper at :137-152) for the target client_id, read by meta.hasUnpaid (useInvoices.meta.ts:63-66) as pagination.value.total > 0"
     notes: >-
       Was named by NO original AC and excluded by no Out-of-Scope clause. Added
       as a requirement rather than dispositioned away - the JTBD's first noun is
@@ -122,7 +122,7 @@ rows:
       caller could remedy it. Nothing in this row, in the client x client cell,
       in design.md:244 or in requirements.md AC10 disclosed that. It is now
       seeded reactively on the DECLARED column by trackClientIdFilter
-      (invoices.services.ts:327), which is the oracle's own conditional
+      (invoices.services.ts:394), which is the oracle's own conditional
       "...(payload.clientId ? { ['filter[client_id]']: payload.clientId } : {})"
       (oracle:561-563) reproduced. This read is NOT exposed to the H1 defect
       recorded on the client x client cell: its criteria object is private to
@@ -199,7 +199,7 @@ rows:
     capability: "unifiableCount(clientId) - per-client cached consolidatable count, served WITHOUT disturbing the list the client is reading"
     legacy: "oracle:37-43 (getter unifiableCount over the dedicated scope key $unifiable_count::${clientId}, reading state[scope].total) + oracle:574-592 (action getConsolidatableTotal, which fetches it; its limit:'count' is at oracle:581)"
     disposition: Renamed
-    delivered_by: "AC2 - useInvoices().useMeta().consolidatableCount (useInvoices.meta.ts:80-83) over its OWN dedicated query loadConsolidatableCount (invoices.services.ts:348-379), seeded by consolidatableCountCriteria (invoices.schemas.ts:364-371) and kept on the target client by trackClientIdFilter (invoices.services.ts:376)"
+    delivered_by: "AC2 - useInvoices().useMeta().consolidatableCount (useInvoices.meta.ts:80-83) over its OWN dedicated query loadConsolidatableCount (invoices.services.ts:415-446), seeded by consolidatableCountCriteria (invoices.schemas.ts:364-371) and kept on the target client by trackClientIdFilter (invoices.services.ts:443)"
     notes: >-
       RE-DISPOSITIONED 2026-09-08 after the Verify-stage ABSENT #2 finding
       (verify.md:157-172).
@@ -220,12 +220,12 @@ rows:
 
       WHAT LANDS NOW - two independent readers, each with its own receipt.
       (1) COUNT - loadConsolidatableCount() mints its OWN list()
-      (invoices.services.ts:348-379) with its own query key
-      ["invoices","consolidatable_count",{client}] (:360) and its own criteria
-      object (:355-359). It is minted once per scope beside the list query
+      (invoices.services.ts:415-446) with its own query key
+      ["invoices","consolidatable_count",{client}] (:427) and its own criteria
+      object (:423-426). It is minted once per scope beside the list query
       (useInvoices.ts:56) and read by meta.consolidatableCount
       (useInvoices.meta.ts:80-83). A request gate
-      (requestConsolidatableCount, invoices.services.ts:454-456) keeps it
+      (requestConsolidatableCount, invoices.services.ts:521-523) keeps it
       un-issued until something reads the count.
       (2) LIST - filterConsolidatable() still calls query.setCriteria() on the
       list query (useInvoices.actions.ts:157-161), retained for the genuine
@@ -274,12 +274,12 @@ rows:
       exists. It read: "consolidatableCountCriteria(clientId.value) is
       evaluated once at mint, so in the client x self case the criteria's
       client_id may still be nil at mint and that filter drops out." The
-      mint-time seed is still there (invoices.services.ts:358) but
-      trackClientIdFilter (:376, helper :136-151) now re-applies client_id on
+      mint-time seed is still there (invoices.services.ts:425) but
+      trackClientIdFilter (:443, helper :137-152) now re-applies client_id on
       every change of the resolved target with { immediate: true }, so a
       self-scope whose activeUser id arrives after construction - or changes on
       a session switch - gets the column too. The cache partition still comes
-      from the reactive { client: clientId } segment of the query key (:360).
+      from the reactive { client: clientId } segment of the query key (:427).
 
   - id: R05
     capability: "getWithParams - the richer detail-read include set (the EIGHT relations of it this story serves; the other four are R11/R12)"
@@ -296,7 +296,7 @@ rows:
       original_invoice, duplicate_invoice - are NOT requested and reach no
       Invoice VM field; they are dispositioned separately at R11 and R12.
     disposition: Direct
-    delivered_by: "LOAD_ONE_INCLUDES (invoices.services.ts:56-82). The pre-conversion SIXTEEN relations (develop's invoices.service.ts:22-37, array :21-38) are the FLOOR and may not shrink - all 16 are present, in the same order, at invoices.services.ts:57-72; category, payments.gateway, payments.payment_type, payment_details, gateway, client.parent_client_config, last_payment_log, address, address.country are added (:73-81). payments.payment_details was already in the floor (:63) and matches oracle:264."
+    delivered_by: "LOAD_ONE_INCLUDES (invoices.services.ts:57-83). The pre-conversion SIXTEEN relations (develop's invoices.service.ts:22-37, array :21-38) are the FLOOR and may not shrink - all 16 are present, in the same order, at invoices.services.ts:58-73; category, payments.gateway, payments.payment_type, payment_details, gateway, client.parent_client_config, last_payment_log, address, address.country are added (:74-82). payments.payment_details was already in the floor (:64) and matches oracle:264."
     notes: >-
       Four ACs depended on relations develop's invoices.service.ts:22-37 did
       not request. Also fixes a live bug in passing: mapInvoice maps
@@ -311,7 +311,7 @@ rows:
       lists SIXTEEN (:22-37). The floor claim itself holds - all 16 are present
       in LOAD_ONE_INCLUDES in order - only the count was wrong. (ii) OMISSION:
       the legacy enumeration left out payments.payment_details (oracle:264),
-      which the module does request (invoices.services.ts:63). It is now named.
+      which the module does request (invoices.services.ts:64). It is now named.
       (iii) OVERCLAIM: the row listed data, account.user, original_invoice and
       duplicate_invoice inside a Direct capability. None is requested by either
       include set and none reaches the Invoice VM - mapInvoice
@@ -392,34 +392,43 @@ rows:
   - id: R12
     capability: "data + account.user - two detail-read relations of getWithParams that serve no mapped field"
     legacy: "oracle:256 (data) and oracle:257 (account.user), inside getWithParams' with= array (:255-268)"
-    disposition: PENDING-OPERATOR-SIGNOFF
+    disposition: Dropped-with-issue-reference
     reason: >-
-      SPLIT OUT OF R05 2026-09-08 (2nd correction). Neither relation is
-      requested by LOAD_ONE_INCLUDES (invoices.services.ts:56-82) or
-      LOAD_LIST_INCLUDES (:88-97), and neither reaches the Invoice VM -
-      mapInvoice (invoices.mappers.ts:55-105) reads no raw.data and no
-      raw.account. No AC names either, and no JTBD noun requires them.
+      SPLIT OUT OF R05 2026-09-08 (2nd correction), raised as H2, and SIGNED
+      2026-09-08 (3rd correction). Neither relation is requested by
+      LOAD_ONE_INCLUDES (invoices.services.ts:57-83) or LOAD_LIST_INCLUDES
+      (:89-98), and neither reaches the Invoice VM - mapInvoice
+      (invoices.mappers.ts:55-105) reads no raw.data and no raw.account. No AC
+      names either, and no JTBD noun requires them.
 
-      THE CASE FOR A DROP - stated, NOT taken: getWithParams' ONLY consumers in
-      the oracle app are the payment modals -
+      OPERATOR RULING 2026-09-08, verbatim: "Sign the drop - covered by PN-1."
+      The operator was offered both variants - the tracked drop
+      (Dropped-with-Linear-issue, per
+      .claude/rules/verify-parity-oracle.companion.md) and the plain sign-off -
+      and chose the plain sign-off, so NO tracker issue is owed for this row.
+      This closes H2, the one escalation the 2nd correction pass raised. The
+      planner did NOT self-sign it: the row stood PENDING-OPERATOR-SIGNOFF for a
+      full pass rather than be papered over.
+
+      THE PLANNER REASONING THE OPERATOR RULED ON - STATED IN FULL SO A REVIEWER
+      CAN STILL REJECT THE INFERENCE: getWithParams' ONLY consumers in the
+      oracle app are the payment modals -
       src/components/app/global/payments/openAutoPayModal.vue:56-62 and
       src/components/app/global/payments/openInitPayModal.vue:91-97 and
       :118-124 (grepped: no other call site exists outside the store module's
-      own definition at oracle:250). The payment flow is declared Out of Scope
-      for FE-3031 by name ("The payment flow itself (PN-1)"), so these two
-      relations arguably fall inside an already-declared boundary.
-
-      WHY THIS ROW IS NOT DISPOSITIONED ANYWAY: a Dropped-* row requires an
-      operator signoff token, and NO ruling covers these two. The 2026-09-01
-      staff/admin ruling does not reach them - getWithParams is
-      apiPath().contextual, so it serves the client lane too. The PN-1
-      Out-of-Scope clause carries no dated operator token. The planner seat may
-      not self-sign a drop, and effort is never a disposition, so this row
-      stands OPEN rather than papered over. Raised as H2 in review-notes.md.
-      One operator token closes it; the alternative is to request the two
-      relations and map them, which no AC currently asks for.
-    tracker: "none yet - see H2 in review-notes.md; the operator either signs the drop or rules the two relations in scope"
-    notes: "UNDISPOSITIONED COUNT IS 1 WHILE THIS ROW STANDS. That is the honest state of the bundle and is deliberate: a false zero here is exactly the paperwork-as-permission failure R04 and R01/R02 already demonstrated on this story."
+      own definition at oracle:250). "The payment flow itself (PN-1)" is
+      declared Out of Scope for FE-3031 BY NAME, so the two relations fall
+      inside an already-declared boundary. The inference a reviewer may reject
+      is the step from "their only consumer is out of scope" to "the relations
+      are out of scope" - getWithParams is apiPath().contextual, so the read
+      itself serves the client lane too, and a future client-area consumer of
+      either relation would need it requested and mapped. The 2026-09-01
+      staff/admin ruling does NOT reach these two; only the 2026-09-08 token
+      below does. Effort is not part of this reasoning and is never a
+      disposition.
+    signoff: "op:dom@upmind.com:2026-09-08"
+    tracker: "none owed - the operator chose the plain sign-off over the tracked variant (ruling 2026-09-08). Recorded at H2 in review-notes.md."
+    notes: "UNDISPOSITIONED ROW COUNT IS NOW 0. The honest 1 this row carried through the 2nd correction pass was deliberate and is worth keeping in the record: a false zero there would have been exactly the paperwork-as-permission failure R04 and R01/R02 already demonstrated on this story. The alternative the operator declined was to rule the two relations in scope, which would have owed an include-set entry, mapped VM fields and an AC."
 
 # ---------------------------------------------------------------------------
 # JTBD CHECK — every Dropped-* disposition above, tested against the JTBD:
@@ -440,12 +449,12 @@ rows:
 #                  duplicate/original linkage renders an ADMIN duplicate write
 #                  (oracle:516-540), which no JTBD noun requires. NOT
 #                  contradicted.
-#   R12 data/      NOT YET DROPPED (PENDING-OPERATOR-SIGNOFF). Tested anyway:
-#   account.user   no JTBD noun - unpaid amount, list, assigned method,
-#                  consolidation fields, credit notes - requires either
-#                  relation, and their only oracle consumer is the PN-1
-#                  payment flow. So a drop would NOT contradict the JTBD; the
-#                  block is the missing operator token, not the JTBD.
+#   R12 data/      Dropped -> no JTBD noun - unpaid amount, list, assigned
+#   account.user   method, consolidation fields, credit notes - requires either
+#                  relation, and their only oracle consumer is the PN-1 payment
+#                  flow, which the scope excludes by name. NOT contradicted.
+#                  (Signed 2026-09-08; the block was the missing operator
+#                  token, never the JTBD.)
 #
 # JTBD-CONTRADICTED DROP COUNT: 0
 # ---------------------------------------------------------------------------
