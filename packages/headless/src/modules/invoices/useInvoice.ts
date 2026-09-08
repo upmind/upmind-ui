@@ -89,9 +89,6 @@ function createInvoiceForScope(config: ScopeConfig, scopeKey: ScopeKey) {
  * const invoice = useInvoice().withId(invoiceId)
  * const { data } = invoice.useContext()
  * await invoice.useActions().isReady()
- *
- * // client x client — retarget at an entitled client's invoice
- * const subAccountInvoice = useInvoice().as('client').for('client', clientId).withId(invoiceId)
  * ```
  */
 export const useInvoice = createScopedComposable<

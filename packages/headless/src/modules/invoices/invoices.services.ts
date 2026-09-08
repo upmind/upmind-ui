@@ -191,6 +191,12 @@ function trackClientIdFilter(
  * - unconditionally re-assert `client_id` regardless of presence: breaks the
  * published `setCriteria`'s own manual-retarget door, which must let an
  * explicit caller-declared `client_id` win.
+ * - a bare key-presence check (`has(next.filters, ["client_id"])`): passes
+ * for `consolidatableCriteria`'s `client_id: { eq: undefined }`
+ * (`invoices.schemas.ts:349`) too — a key with no value is not a caller
+ * "declaring" `client_id`. A value-level truthiness check on `.eq` closes
+ * that structurally rather than relying on `isAddressable(clientId.value)`
+ * happening to keep it unreachable today.
  */
 function withDurableClientId(
   handle: InvoicesListQuery,
@@ -200,7 +206,12 @@ function withDurableClientId(
     if (
       !has(next, "filters") ||
       !clientId.value ||
-      has(next.filters, "client_id")
+      // Array path, not a dotted string: this module's filter keys ("status.code",
+      // "contracts.id") are literal, dot-bearing property names, and lodash's
+      // string form reads a dot as a nested-path separator. Truthiness, not
+      // presence, on `.eq` — a declared-but-undefined `client_id` (e.g.
+      // `consolidatableCriteria(undefined)`) is not a caller retarget.
+      !!next.filters?.client_id?.eq
     ) {
       handle.setCriteria(next);
       return;

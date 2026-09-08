@@ -1,3 +1,4 @@
+/** @internal */
 import { GatewayTypes, InvoiceCategoryCode } from "@upmind-automation/types";
 import { parseTaxes } from "../basket/basket.utils";
 import { parseBasketProduct } from "../basket-product/basket-product.utils";
@@ -24,12 +25,23 @@ import type { IInvoice, InvoiceStatus } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module invoices/invoices.mappers
- * @description Wire -> VM mapping for the invoices module. `mapInvoice` /
- * `mapInvoices` are curated public exports, consumed by
- * `orders/order.machine.ts` via the module barrel (design D2) — no cross-
- * module import of this file itself. `mapPayments` and `mapBundleGroups` are
- * genuinely private and marked `@internal` individually, rather than the
- * pre-conversion blanket file-level marker.
+ * @description Wire -> VM mapping for the invoices module.
+ * @decision
+ * what: File carries a standalone `@internal` marker as line 1
+ * (`code-quality.md`'s Module Visibility Law), same as every other
+ * `.mappers.ts` in the tree.
+ * why: `mapInvoice` / `mapInvoices` are consumed cross-module by
+ * `orders/order.machine.ts` only via the curated re-export at
+ * `index.ts:46` — `orders/order.machine.ts:4` imports the module barrel
+ * (`../invoices`), never this file directly. `@internal/no-cross-module-
+ * imports` (`eslint.config.mjs`) fires only on a direct relative import
+ * resolving to a marked file; `resolveRelativeTarget` resolves `../invoices`
+ * to `index.ts`, which carries no marker. The file-level marker therefore
+ * cannot block that consumer.
+ * rejected: leaving line 1 as an import (no marker) — this silently
+ * disables `@internal/no-cross-module-imports` for the file with no gate
+ * left to catch the omission, for a belief (blocks `orders/`) that does not
+ * hold.
  */
 // -----------------------------------------------------------------------------
 
@@ -46,10 +58,16 @@ export function mapInvoices(
 }
 
 /**
- * Maps one raw invoice to the VM. `readingClientId` is OPTIONAL and
- * defaults every attribution flag to the conservative "not mine to attribute"
- * shape when absent — `orders/order.machine.ts:175` calls this with one
- * argument and stays fully green (design D2).
+ * Maps one raw invoice to the VM. `readingClientId` is OPTIONAL, but it is
+ * NOT reader-independent for every attribution flag: `isDelegated` is
+ * computed from `raw` alone (`!parentClientId && !!raw.delegate_related`,
+ * see {@link mapAttribution}) and does not depend on `readingClientId` at
+ * all. Only `isChildOfClient` (and, through it, `isOwn`/`isSettleable`) is
+ * conservative-by-default when `readingClientId` is absent.
+ * `orders/order.machine.ts:176` calls this with one argument, so a
+ * `delegate_related` invoice with no parent client maps `isDelegated: true`
+ * from that call site too (design D2 — `orders/` is protected core and is
+ * not changed by this module).
  */
 export function mapInvoice(raw: IInvoice, readingClientId?: string): Invoice {
   const slug = raw.category?.slug as InvoiceCategoryCode;
