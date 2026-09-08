@@ -6,85 +6,119 @@ Edge cases and things to watch out for.
 
 ---
 
+## A list's `total` reads through `.pagination`, never the bare `total` field 🧪
+
+`useContext().total`, `useMeta().hasUnpaid`, and `useMeta().consolidatableCount` all derive from the server's reported row count. That count only refreshes as a side effect of reading `.pagination`/`.meta` on the underlying query handle — reading the query's own top-level `total` field directly returns a value pinned at `0`, forever, regardless of what the server answered. This module always reads through `.pagination.value.total`; a new derivation added to this module (or copied from it into another) must do the same.
+
+```typescript
+// ❌ Wrong — reads a value that never updates
+const total = someOtherModulesQuery.total.value;
+
+// ✅ Correct — this module's own members already do this
+const { total } = invoices.useContext(); // reads .pagination.value.total internally
+```
+
+**Test scenario:** load a list whose recorded total exceeds the page size; assert the published total is the server's non-zero figure, not `0`.
+
+---
+
+## The retarget survives every published criteria write — by design, not by accident 🧪
+
+Reading an entitled client's invoices (`.for('client', id)`) applies that client's id as a declared filter column. A published criteria write (`setCriteria`, `sortBy`, the consolidatable/credit-notes presets) merges its own branch wholesale — a filters-branch write that doesn't itself carry the target id would otherwise silently drop the retarget and re-widen the list back to the reader's own invoices, while row attribution still labelled the returned rows against the original target. This module closes that door: every published write re-asserts the resolved target's id unless the caller explicitly declares their own — an explicit caller-declared id always wins.
+
+**Test scenario:** retarget the collection, then call `filterCreditNotes()` (whose preset carries no client id) and a bare `setCriteria({ filters: {...} })`; assert the next request still carries the target id.
+
+---
+
+## `isDelegated` does not need the reader's id; `isChildOfClient` does 🧪
+
+A row's delegated classification is a fact about the invoice's own client (does it have *any* parent account at all), independent of who is reading. A row's sub-account classification needs to compare that parent against the reader's own id. Calling the mapper with only one argument — as `orders/order.machine.ts` does — still yields a correct delegated signal, but a conservative "not mine" sub-account signal. This is intentional, not a bug to fix in `orders`.
+
+```typescript
+// A single-argument call still resolves isDelegated correctly:
+mapInvoice(raw); // isDelegated: correct; isChildOfClient: conservative false
+```
+
+**Test scenario:** map the same third-party-parent row with and without a reader id; assert `isDelegated` agrees both times and `isChildOfClient`/`isOwn` differ.
+
+---
+
+## A dotted filter column needed a validation fix to reach the wire
+
+Filter columns like `status.code` and `category.slug` carry a literal dot in their name — they are not nested paths. The shared request-validation layer originally treated any dotted key as a path separator, which silently mishandled these columns. A small, targeted fix (outside this module, in the shared validation utility) makes a dotted column name reach the wire intact. Any future module declaring a dotted filter column depends on this fix already being in place.
+
+---
+
+## The declared `"count"` page-size sentinel does not reach the wire
+
+The query schema declares a non-numeric `"count"` value as a legal `pagination.limit`, mirroring a shape the platform itself accepts for a rows-free total-only read. The shared request-validation layer only recognises the numeric branch of that declaration and silently substitutes the default page size before the request is sent — so `"count"` is spellable in the schema but never actually reaches the platform through this module's declared criteria channel. The existence and consolidatable counts instead use the smallest real page window (one row) and read the server's reported total, discarding the row — which produces the same answer.
+
+**Practical effect:** do not expect setting `pagination: { limit: "count" }` through `setCriteria` to do anything different from a normal one-row page; it is validated away before the request goes out.
+
+---
+
 ## Read meta only after isReady() 🧪
 
-Before the fetch settles, the query default for `data` is `[]`, and `meta` derives
-from a loaded invoice. Reading `meta` on a non-loaded invoice observes the pre-load
-default, not the invoice.
+Before the fetch settles, `data` is `[]` (collection) or empty (single read), and `meta` derives from loaded data. Reading `meta` on a non-loaded scope observes the pre-load default, not the invoice.
 
 ```typescript
 // ❌ Wrong — reads before the invoice has loaded
-const { meta } = useInvoice(id);
-if (meta.value.isPaid) settle();
+const { isPaid } = useInvoice().withId(id).useMeta();
+if (isPaid.value) settle();
 
 // ✅ Correct — wait for readiness first
-const invoice = useInvoice(id);
-await invoice.isReady();
-if (invoice.meta.value.isPaid) settle();
+const invoice = useInvoice().withId(id);
+await invoice.useActions().isReady();
+if (invoice.useMeta().isPaid.value) settle();
 ```
 
 **Test scenario:** mount a component, assert it awaits `isReady()` before branching on `meta`.
 
 ---
 
-## invalidate() must match the query key 🧪
-
-`invalidate()` drops the cached read only when its key matches the query's key. A
-mismatched key silently drops nothing and no re-read fires, so a settled invoice keeps
-showing a stale balance. (This was the FE-3130 bug — see the [changelog](./CHANGELOG.md).)
-
-**Test scenario:** load an invoice, change the served body, call `invalidate()`, assert the next read returns the new balance.
-
----
-
 ## Payments include failures and pending rows
 
-`data.payments` is append-only from the read side and includes declined, abandoned, and
-pending attempts. Treat only captured, non-refunded rows as authoritative.
+`data.payments` is append-only from the read side and includes declined, abandoned, and pending attempts. Treat only captured, non-refunded rows as authoritative.
 
 ---
 
 ## A payment can carry no saved card
 
-Wallet and one-off / guest-card captures return `cardType` and `cardLast4` as `null`.
-Check presence before rendering "card ending 1234".
+Wallet and one-off / guest-card captures return `cardType` and `cardLast4` as `null`. Check presence before rendering "card ending 1234".
 
 ---
 
 ## The embedded client / address is frozen at conversion
 
-The snapshot does not follow the live client record. Renames and address edits after
-conversion do not appear on an existing invoice — correct for a legal document, but
-wrong for a consumer that assumes it tracks the live record.
+The snapshot does not follow the live client record. Renames and address edits after conversion do not appear on an existing invoice — correct for a legal document, but wrong for a consumer that assumes it tracks the live record.
 
 ---
 
 ## Money fields come in three flavours
 
-`unpaidAmount` (number), `unpaidAmountFormatted` (locale string), and
-`unpaidAmountConverted` (display currency) are not interchangeable. Do arithmetic on the
-number, render the formatted string, and never place a converted value beside a
-non-converted total.
+`unpaidAmount` (number), `unpaidAmountFormatted` (locale string), and `unpaidAmountConverted` (display currency) are not interchangeable. Do arithmetic on the number, render the formatted string, and never place a converted value beside a non-converted total.
 
 ---
 
 ## Edge Cases
 
-| Scenario                     | Expected behaviour                    | Notes                            |
-| ---------------------------- | ------------------------------------- | -------------------------------- |
-| Unauthenticated caller       | no request fired; invoice unavailable | guard rejects before the wire    |
-| Unknown id                   | `404`; `error` populated              | `meta.hasError` after load       |
-| No payments, balance owed    | `isPending` true                      | fresh unpaid invoice             |
-| Payments, nothing owed       | `isPaid` true                         | settled                          |
-| Pending (uncaptured) attempt | contributes nothing to `paidAmount`   | do not re-prompt while in flight |
+| Scenario                        | Expected behaviour                              | Notes                             |
+| --------------------------------- | -------------------------------------------------- | ------------------------------------ |
+| No addressable client (self or `.for()` target) | zero requests fired; the scope reports unavailable | guard rejects before the wire      |
+| Unknown invoice id               | `404`; `error` populated                        | `meta.hasError` after load         |
+| An undeclared filter column      | refused — a validation error                    | never a silent pass-through        |
+| No payments, balance owed        | `paymentState === "pending"`                   | fresh unpaid invoice               |
+| Payments, nothing owed           | `paymentState === "complete"`                  | settled                            |
+| Pending (uncaptured) attempt      | contributes nothing to `paidAmount`             | do not re-prompt while in flight   |
+| A third-party sub-account's row on a co-mingled list | neither own, sub-account, nor delegated — stays settleable | the delegate gate is "any parent", not "reader's parent" |
 
 ---
 
 ## Lifecycle
 
-There is no `destroy()` — the module holds no long-lived service. Await readiness before
-reading:
+Both composables' `destroy()` removes the scoped instance from the registry so the next `.as()` / `.withId()` mints a fresh one. `isReady()` always settles — even a fetch that never completes resolves `false` on a bound timeout, rather than leaving a caller's `await` hanging forever.
 
 ```typescript
-await useInvoice(id).isReady();
+await useInvoices().as('self').useActions().isReady();
+await useInvoice().withId(id).useActions().isReady();
 ```
