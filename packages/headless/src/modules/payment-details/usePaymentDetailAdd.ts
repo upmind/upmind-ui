@@ -1,12 +1,13 @@
 import { interpret } from "xstate";
 import { GatewayContext as GatewayCtx } from "@upmind-automation/types";
 import { useBrand } from "../brand";
+import { useActiveSession } from "../session-store";
 import { useI18n } from "../system-localisation";
 import paymentDetailMachine from "./payment-detail.machine";
 import { usePaymentDetail } from "./usePaymentDetail";
 import { DetailedError, responseCodes, ErrorOrigin } from "../../utils";
 import type { PaymentDetailsAddArgs } from "./payment-details.types";
-import type { ICurrency } from "@upmind-automation/types";
+import type { IClient, ICurrency } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 /**
@@ -35,12 +36,21 @@ export const usePaymentDetailAdd = ({
     );
   }
 
+  // PAY takes its client off the invoice. ADD has no invoice, so without this
+  // `loadLookups` throws NotAuthenticatedError and no gateway is ever fetched.
+  const { sessionId } = useActiveSession().useContext();
+  const { isGuestClient } = useActiveSession().useMeta();
+
   const service = interpret(
     paymentDetailMachine.withContext({
       ...paymentDetailMachine.context,
       currency: safeCurrency,
       amount: 0.0,
-      ctx: GatewayCtx.ADD
+      ctx: GatewayCtx.ADD,
+      client: {
+        id: sessionId.value,
+        is_guest: isGuestClient.value
+      } as IClient
     }),
     {
       devTools: true

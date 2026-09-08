@@ -65,6 +65,7 @@ const FAMILY_CONFIG: Record<string, Component> = {
   client: navIcon("users-01"),
   invoices: navIcon("receipt"),
   orders: navIcon("shopping-bag-02"),
+  payment: navIcon("credit-card-01"),
   products: navIcon("package")
 };
 
@@ -163,10 +164,12 @@ function buildNavigationTree(
   const sectionMap = new Map<string, NavItem[]>();
   const childMap = new Map<string, NavItem[]>(); // parent route name -> children
 
-  for (const { nav, route, to } of sortBy(
-    sources,
-    source => source.nav.order ?? 99
-  )) {
+  // Declared order first, then alphabetical — an entry that does not claim a
+  // position sorts by its own label rather than by registration accident.
+  for (const { nav, route, to } of sortBy(sources, [
+    source => source.nav.order ?? 99,
+    source => toLower(source.nav.label ?? "")
+  ])) {
     const bucket = nav.parent ? childMap : sectionMap;
     const bucketKey = nav.parent ?? nav.section ?? "Other";
     const items = bucket.get(bucketKey) ?? [];

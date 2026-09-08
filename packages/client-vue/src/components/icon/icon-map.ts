@@ -32,6 +32,7 @@ import {
   CircleUser,
   Clock,
   Columns3,
+  CreditCard,
   Delete,
   Dot,
   EllipsisVertical,
@@ -99,6 +100,10 @@ import type { Component } from "vue";
  * - `box` → Boxes, matching the labs navigation table so one declared name
  *   draws one glyph wherever it is rendered.
  * - `shield-tick` → ShieldCheck — same shield, lucide's spelling of the tick.
+ * - `card` → CreditCard and `credit-card-01` → CreditCard — `card` is a lottie
+ *   ANIMATION name (not an SVG glyph), mapped so the playground's icon gate
+ *   resolves it, following the `internet` precedent; `credit-card-01` is the
+ *   Untitled-UI numbered variant of lucide's single CreditCard.
  */
 export const ICON_MAP: Record<string, Component> = {
   "alert-octagon": OctagonAlert,
@@ -113,6 +118,7 @@ export const ICON_MAP: Record<string, Component> = {
   "building-01": Building2,
   "building-02": Building2,
   "building-07": Building2,
+  card: CreditCard,
   check: Check,
   "check-circle": CircleCheck,
   "check-circle-broken": CircleCheckBig,
@@ -122,6 +128,7 @@ export const ICON_MAP: Record<string, Component> = {
   "clock-fast-forward": Clock,
   "clock-stopwatch": Timer,
   "columns-03": Columns3,
+  "credit-card-01": CreditCard,
   delete: Delete,
   dot: Dot,
   "dots-vertical": EllipsisVertical,
