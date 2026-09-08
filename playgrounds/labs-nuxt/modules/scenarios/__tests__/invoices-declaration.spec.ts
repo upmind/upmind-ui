@@ -36,7 +36,6 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { RuleEffect } from "@jsonforms/core";
 import declaration from "../useInvoices/invoices.scenario";
 import { INVOICES_SCENARIO } from "../../../../../packages/headless/src/modules/invoices/__tests__/invoices.steps";
 import { every, filter, flatMap, map, reject, some } from "lodash-es";
@@ -163,12 +162,17 @@ describe("invoices declaration — every non-detail action names a live capabili
       "filterConsolidatable",
       "filterCreditNotes",
       "refreshAfterPayment",
-      "assignPaymentMethod",
       "invalidate",
       "view"
     ]) {
       expect(actionNames).toContain(expected);
     }
+  });
+
+  it("declares exactly 6 distinct drawn controls — assignPaymentMethod withdrawn", () => {
+    const actionNames = map(allActions(), "name");
+    expect(new Set(actionNames).size).toBe(6);
+    expect(actionNames).not.toContain("assignPaymentMethod");
   });
 
   it("draws filterCreditNotes twice — header and row-scoped (AC-7)", () => {
@@ -191,13 +195,6 @@ describe("invoices declaration — every non-detail action names a live capabili
       const action = allActions().find(candidate => candidate.name === name);
       expect(action?.placement).toBe("overflow");
     }
-  });
-
-  it("gates assignPaymentMethod with RuleEffect.DISABLE on `locked`", () => {
-    const action = allActions().find(
-      candidate => candidate.name === "assignPaymentMethod"
-    );
-    expect(action?.rule?.effect).toBe(RuleEffect.DISABLE);
   });
 
   it("view opens the read-only detail overlay, not a live action", () => {
@@ -258,8 +255,18 @@ describe("invoices declaration — the known caveats, encoded honestly", () => {
 
   // AC-4 (design.md D1 / requirements.md): assigning a SPECIFIC method needs a
   // payment-method picker from `payment-details`, out of scope (PN-1) — so no
-  // handoff exists for it; only the explicit-null clear is a declared control.
+  // handoff exists for it.
   it("declares no handoff — AC-4's assign-a-specific-method half has no picker channel", () => {
     expect((declaration as Record<string, unknown>).handoff).toBeUndefined();
+  });
+
+  // AC-4 clear half (withdrawn): the runtime's generic row press
+  // (`props.actions[action.name](row.id)`) supplies only `invoiceId` — a
+  // clear needs the explicit `null` second argument the single-arg channel
+  // cannot carry. `assignPaymentMethod` stays a live `useInvoices` capability
+  // (proven at the integration layer); it is simply not a page control here.
+  it("draws no control named assignPaymentMethod — the actions channel cannot carry the explicit-null clear argument", () => {
+    const actionNames = map(allActions(), "name");
+    expect(actionNames).not.toContain("assignPaymentMethod");
   });
 });
