@@ -19,14 +19,20 @@
 import { uiTypeIs, and, optionIs, or, schemaMatches } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { FormField, useUpmindUIRenderer } from "@upmind/ui";
+import { defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
-import SmartDomainField from "../../../modules/domain/SmartDomainField.vue";
 import { castArray, includes, trim } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // --- external
 
 // -----------------------------------------------------------------------------
+// Lazy: a static import puts the domain module tree in every consumer of the
+// package barrel, which is what stops `domain` being an optional package.
+const SmartDomainField = defineAsyncComponent(
+  () => import("../../../modules/domain/SmartDomainField.vue")
+);
+
 const props = defineProps<RendererProps<ControlElement>>();
 
 const { t } = useI18n();

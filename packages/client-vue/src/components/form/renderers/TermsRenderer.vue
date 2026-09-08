@@ -22,17 +22,24 @@
 import { uiTypeIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { FormField, useUpmindUIRenderer } from "@upmind/ui";
-import { computed } from "vue";
+import { computed, defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import { useConfig } from "@upmind-automation/headless";
-import TermsRadio from "../../../modules/product/components/terms/TermsRadio.vue";
-import TermsSelect from "../../../modules/product/components/terms/TermsSelect.vue";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { TermDetails } from "@upmind-automation/headless";
 // --- external
 
 // -----------------------------------------------------------------------------
+// Lazy: a static import puts the product module tree in every consumer of the
+// package barrel, regardless of whether a form ever renders a terms control.
+const TermsRadio = defineAsyncComponent(
+  () => import("../../../modules/product/components/terms/TermsRadio.vue")
+);
+const TermsSelect = defineAsyncComponent(
+  () => import("../../../modules/product/components/terms/TermsSelect.vue")
+);
+
 const props = defineProps<RendererProps<ControlElement>>();
 const { t } = useI18n();
 

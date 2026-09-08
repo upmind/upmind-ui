@@ -17,10 +17,9 @@
 import { uiTypeIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { FormField, useUpmindUIRenderer } from "@upmind/ui";
-import { computed, inject } from "vue";
+import { computed, defineAsyncComponent, inject } from "vue";
 import { useI18n } from "vue-i18n";
 import { useConfig } from "@upmind-automation/headless";
-import SubproductSelector from "../../../modules/product/components/subproduct/SubproductSelector.vue";
 import {
   cloneDeep,
   compact,
@@ -41,6 +40,13 @@ import type { SubproductDetails } from "@upmind-automation/headless";
 // --- external
 
 // -----------------------------------------------------------------------------
+// Lazy: a static import puts the product module tree in every consumer of the
+// package barrel, regardless of whether a form ever renders a subproduct control.
+const SubproductSelector = defineAsyncComponent(
+  () =>
+    import("../../../modules/product/components/subproduct/SubproductSelector.vue")
+);
+
 const props = defineProps<RendererProps<ControlElement>>();
 const { t } = useI18n();
 
