@@ -20,20 +20,17 @@
  * the two requests are unambiguously distinguishable in the assertion —
  * the same technique `invoices.criteria-presets.int.test.ts` uses for AC-10.
  *
- * ## A confirmed contract-vs-implementation defect (NOT worked around here)
- * `consolidatableCount` never resolves to the dedicated request's positive
- * total. Empirically (black-box, request-observed): the dedicated request
- * fires with the right shape (`is_consolidation` + `limit=1`) — proven by
- * the request-identity assertions in both tests below — but the exposed
- * `consolidatableCount.value` stays `0` regardless of the response served,
- * even after the same 2.5s settle window that resolves `useContext().total`
- * correctly elsewhere in this module. This is the SAME class of defect as
+ * ## A defect found, then closed (NOT worked around here)
+ * `consolidatableCount` previously never resolved to the dedicated request's
+ * positive total: the dedicated request fired with the right shape
+ * (`is_consolidation` + `limit=1`) but the exposed `consolidatableCount.value`
+ * stayed `0` regardless of the response served — the same class of defect as
  * AC-10's `hasUnpaid` (see `invoices.criteria-presets.int.test.ts`'s
- * fileoverview) — both dedicated on-demand counts fire their request but
- * never expose a positive result. Filed as a failure in this dispatch's
- * hand-off — never weakened, skipped, or routed around. The coexistence
- * half of this file's job (no criteria/row mutation) is unaffected and
- * still asserted.
+ * fileoverview). That defect is CLOSED: after the same 2.5s settle window
+ * that resolves `useContext().total` elsewhere in this module,
+ * `consolidatableCount.value` now tracks the dedicated request's real total,
+ * proven below. The coexistence half of this file's job (no criteria/row
+ * mutation) is unaffected and still asserted.
  */
 
 import { http, HttpResponse } from "msw";
@@ -121,10 +118,7 @@ describe("invoices — consolidatableCount coexists with the client's own list (
     }
 
     // Settle window: the same eventual-consistency quirk documented for
-    // useContext().total in invoices.collection.int.test.ts. See this
-    // file's fileoverview — this assertion is CURRENTLY RED against real
-    // behaviour (a confirmed contract-vs-implementation defect), kept as
-    // written per the contract.
+    // useContext().total in invoices.collection.int.test.ts.
     await new Promise(resolve => setTimeout(resolve, 2500));
     expect(invoices.useMeta().consolidatableCount.value).toBe(7);
   });

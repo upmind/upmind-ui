@@ -7,21 +7,16 @@
  * Prove each declared preset action reaches the wire with its documented
  * filter columns, and that `hasUnpaid` derives from the server's own count.
  *
- * ## Confirmed contract-vs-implementation defects (NOT worked around here)
- * The first two tests below are written to the CONTRACT
- * (`design.md`/`invoices.types.ts`) and are EXPECTED to fail. Confirmed
- * black-box (request-observed, never by reading schema/service source):
- *
- * 1. `filterConsolidatable()` issues NO request — the same underlying
- *    `additionalProperties` schema rejection every dotted filter column hits
- *    (see `invoices.collection.int.test.ts`'s fileoverview): the preset's
- *    model uses `"status.code"` and `"category.slug"`, both dotted.
- * 2. `filterCreditNotes()` issues NO request for the same reason
- *    (`"category.slug"` is dotted) — AC-7's entire credit-notes mechanic is
- *    unreachable through the public composable surface as shipped.
- *
- * These are filed as failures in this dispatch's hand-off — never weakened,
- * skipped, or routed around.
+ * ## History — two defects found, then closed (NOT worked around here)
+ * The first two tests below (AC-2, AC-7) were originally written to the
+ * CONTRACT (`design.md`/`invoices.types.ts`) while `filterConsolidatable()`
+ * and `filterCreditNotes()` issued NO request — the same underlying
+ * `additionalProperties` schema rejection every dotted filter column hits
+ * (see `invoices.collection.int.test.ts`'s fileoverview): the presets' models
+ * used `"status.code"` and `"category.slug"`, both dotted. Both defects are
+ * CLOSED: both presets now issue their request and both tests below PASS,
+ * confirmed black-box (request-observed, never by reading schema/service
+ * source).
  *
  * ## Correction (verifier ABSENT repair, this dispatch)
  * A third defect was previously recorded here for AC-10 (`useMeta().hasUnpaid`

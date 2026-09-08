@@ -7,13 +7,15 @@
  *
  * NO STEP-CATALOG CHECK YET (unlike every other *.traceability.test.ts in
  * this tree, which additionally pairs this check with a *.steps.ts
- * playground catalog via createTraceabilityCheck): this module has neither
- * module code nor a *.steps.ts catalog yet — the Code stage runs after this
- * dispatch, and the labs-nuxt e2e lane is broken on develop
- * (docs/sdd/FE-3031/bdd.md "Finding"). Checking driveability against a
- * catalog that cannot exist yet would be a check against nothing, not a
- * proof. A later dispatch may extend this file with a createTraceabilityCheck
- * pass once both the module and the playground lane exist.
+ * playground catalog via createTraceabilityCheck): the module code now
+ * exists (this story's diff), but the scenario lane has not yet run — no
+ * `playgrounds/labs-nuxt/modules/scenarios/useInvoices/*.steps.ts` catalog
+ * exists — and the labs-nuxt e2e lane is broken on develop independently of
+ * this story (docs/sdd/FE-3031/bdd.md "Finding"). Checking driveability
+ * against a catalog that does not exist would be a check against nothing,
+ * not a proof. A later dispatch extends this file with a
+ * createTraceabilityCheck pass once both the scenario lane and the
+ * playground lane exist.
  *
  * ## What Breaks If These Fail
  * A capability gets a Gherkin scenario but no proving test ever lands for

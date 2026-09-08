@@ -7,24 +7,19 @@
 # `setCriteria({ filters: {...} })`, the NEXT outbound list request still
 # carries the target client's id.
 #
-# Re-rolled 2026-09-08 (developer, same dispatch): `withDurableClientId`'s
-# presence check grew a third condition (`has(next.filters, "client_id")`,
-# added to stop the wrap overriding a caller's OWN explicit `client_id` —
-# a regression this dispatch found and fixed against
-# `invoices.scope-identity.int.test.ts`'s manual-retarget-via-setCriteria
-# test) — same mutation intent, new line anchors.
+# Re-rolled 2026-09-08 (developer, review-fix dispatch): `withDurableClientId`'s
+# presence guard changed from `has(next.filters, "client_id")` (W-D: lodash
+# path-semantics fix, array form) to a value-level truthiness check on `.eq`
+# (S-I: `consolidatableCriteria`'s `client_id: { eq: undefined }` no longer
+# reads as "already declared") — same mutation intent (drop the whole guard,
+# forward every write unchanged), new line anchors after both fixes.
 #
 # NOTE TO THE PROVER (developer-authored, applied blind per
-# agent-seat-separation.companion.md): as of this dispatch (H1 repair,
-# 2026-09-08) no test in `packages/headless/src/modules/invoices/__tests__/`
-# yet asserts this durability half — confirmed by exhaustive grep across
-# every `*.int.test.ts`/`*.test.ts` in the module for "durab", "retargets
-# every read", and the `.for()` + preset-write combination the assertion
-# requires. This patch reverts the code-side fix so that ONCE the durability
-# test lands, applying this patch will flip it (and only it) RED. Applying
-# it blind today against the CURRENT suite should show NO new failures,
-# because the assertion it targets does not exist yet — that gap is reported
-# in this dispatch's hand-off, not papered over here.
+# agent-seat-separation.companion.md): as of this dispatch no test in
+# `packages/headless/src/modules/invoices/__tests__/` yet asserts this
+# durability half — same gap the original patch recorded, unchanged by this
+# re-roll. Applying it blind today against the CURRENT suite should show NO
+# new failures, because the assertion it targets does not exist yet.
 #
 # Mutation: `withDurableClientId`'s wrapped `setCriteria` stops re-asserting
 # `client_id` into the caller's `filters` object and simply forwards every
@@ -34,13 +29,18 @@
 # READER's own rows.
 --- a/packages/headless/src/modules/invoices/invoices.services.ts
 +++ b/packages/headless/src/modules/invoices/invoices.services.ts
-@@ -198,18 +198,7 @@
+@@ -204,23 +204,7 @@
  ): InvoicesListQuery {
    const setCriteria: InvoicesListQuery["setCriteria"] = next => {
 -    if (
 -      !has(next, "filters") ||
 -      !clientId.value ||
--      has(next.filters, "client_id")
+-      // Array path, not a dotted string: this module's filter keys ("status.code",
+-      // "contracts.id") are literal, dot-bearing property names, and lodash's
+-      // string form reads a dot as a nested-path separator. Truthiness, not
+-      // presence, on `.eq` — a declared-but-undefined `client_id` (e.g.
+-      // `consolidatableCriteria(undefined)`) is not a caller retarget.
+-      !!next.filters?.client_id?.eq
 -    ) {
 -      handle.setCriteria(next);
 -      return;
@@ -51,6 +51,6 @@
 -    });
 +    handle.setCriteria(next);
    };
-
+ 
    return { ...handle, setCriteria };
  }

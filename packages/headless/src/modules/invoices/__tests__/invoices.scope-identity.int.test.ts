@@ -37,7 +37,9 @@
  * bare `setCriteria({ filters })`, `sortBy()`, and `filterConsolidatable()`
  * each issue their NEXT request still carrying the target's `client_id`, and
  * an explicit caller-declared `client_id` still wins (the manual-retarget
- * door stays open).
+ * door stays open). A caller-declared `client_id` that is FALSY
+ * (`{ eq: undefined }`) is the opposite case: it does not count as a manual
+ * override, so the durable retarget is RE-ASSERTED, not dropped.
  *
  * ## What Breaks If These Fail
  * A client reads another account's invoices, the request goes out as the
@@ -333,6 +335,36 @@ describe("invoices — the retarget survives every published criteria write (AC-
       `filter[client_id|eq]=${MANUAL_RETARGET_CLIENT_ID}`
     );
     expect(decoded).not.toContain(`filter[client_id|eq]=${OTHER_CLIENT_ID}`);
+  });
+
+  it("AC-12 a caller-declared client_id that is FALSY (eq: undefined) is not a manual override — the durable retarget is re-asserted", async () => {
+    const { accessToken } = await seedClientSession();
+    installInvoiceHandlers();
+
+    const invoices = useInvoices()
+      .as(ScopeActorTypes.CLIENT)
+      .for(InvoicesContextTypes.CLIENT, OTHER_CLIENT_ID);
+    await vi.waitFor(() =>
+      expect(invoices.useMeta().isLoading.value).toBe(false)
+    );
+
+    const observed = observeInvoiceRequests();
+    invoices.useActions().setCriteria({
+      filters: {
+        number: { eq: "durability-falsy-client-id-001" },
+        client_id: { eq: undefined }
+      }
+    });
+    await vi.waitFor(() => expect(observed.all().length).toBeGreaterThan(0));
+    observed.stop();
+
+    const request = observed.last();
+    const decoded = decodeURIComponent(request.url);
+    expect(decoded).toContain(
+      "filter[number|eq]=durability-falsy-client-id-001"
+    );
+    expect(decoded).toContain(`filter[client_id|eq]=${OTHER_CLIENT_ID}`);
+    assertClientIdentityTransport(request, accessToken);
   });
 
   it("AC-12 sortBy() carries the TARGET client's id alongside the requested sort — a sort-only write never drops the retarget", async () => {

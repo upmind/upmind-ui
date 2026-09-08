@@ -1,10 +1,8 @@
-# must-fail: (prover to add, per RESUME.md's "a `.for('client', X)` wire
-# read-back per read in the shape invoices.scope-identity.int.test.ts:44-65
-# already models") — the named assertion this must flip is
-# `.for('client', X).useMeta().hasUnpaid` resolving `true` for a target
-# client with outstanding invoices, e.g. "invoices — retarget my reading at
-# an entitled client (AC-12) > hasUnpaid answers for the .for() TARGET, not
-# the reader" (oracle counterpart: `oracle:561-563`,
+# must-fail: invoices.scope-identity.int.test.ts > "invoices — hasUnpaid
+# answers for the .for() TARGET, not the reader (AC-12/AC-10 wire retarget)
+# > hasUnpaid answers for the .for() TARGET, not the reader" — asserts
+# `.for('client', X).useMeta().hasUnpaid` resolves `true` for a target
+# client with outstanding invoices (oracle counterpart: `oracle:561-563`,
 # `...(payload.clientId ? { ["filter[client_id]"]: payload.clientId } :
 # {})`).
 #
