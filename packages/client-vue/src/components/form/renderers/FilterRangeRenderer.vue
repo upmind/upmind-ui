@@ -48,11 +48,9 @@
 <script lang="ts" setup>
 import { and, isObjectControl, optionIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import { Input } from "@upmind/ui";
+import { Input, FormField, useUpmindUIRenderer } from "@upmind/ui";
 import { computed } from "vue";
 import { RequestFilterOperator } from "@upmind-automation/headless";
-import FormField from "../engine/FormField.vue";
-import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import {
   assign,
   castArray,

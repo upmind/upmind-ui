@@ -722,6 +722,7 @@
         "Costs / required work",
         "Migration (big-bang wave)",
         "Open Questions (to resolve before / during implementation)",
+        "Amendment (2026-08-25) — `ui` hosts the vendored form engine; constraint 5 narrows to `src/components/`",
         "References"
       ],
       "id": "adr:023-ui-domain-package-architecture",
@@ -739,6 +740,7 @@
         "Costs / required work",
         "Neutral",
         "Amendment (August 19, 2026) — the library's home moves back to the design-system repo; the monorepo consumes it as a submodule",
+        "Amendment (2026-08-25) — the form engine's home is `@upmind/ui`, at `src/form/**`",
         "References"
       ],
       "id": "adr:024-adopt-new-upmind-ui-in-tree",
@@ -797,6 +799,8 @@
         "Consequences",
         "FE-2748 issue re-map",
         "Open items",
+        "Amendments",
+        "Amendment 1 — VitePress removed, and the gates actually run (FE-2749, September 2026)",
         "Where the live version lives"
       ],
       "id": "adr:026-mintlify-docs-platform",
@@ -1388,77 +1392,6 @@
     }
   },
   "guides": {
-    "guide:docs/guides/auth-guide": {
-      "crossRefs": [],
-      "headings": [
-        "Auth",
-        "API Reference",
-        "Usage",
-        "Setup in a Vue component",
-        "Examples",
-        "Logging in a User",
-        "Handling 2FA Verification",
-        "Perform login and 2FA Verification",
-        "Handling Errors",
-        "Advanced Usage",
-        "`meta` Object Options",
-        "JSON Forms"
-      ],
-      "id": "guide:docs/guides/auth-guide",
-      "path": "docs/guides/auth-guide.md",
-      "title": "Auth"
-    },
-    "guide:docs/guides/brand-guide": {
-      "crossRefs": [],
-      "headings": [
-        "Brand",
-        "API Reference",
-        "Usage",
-        "Setup in a Vue component",
-        "Brand Config and Organisation Keys",
-        "Configuration Keys",
-        "Examples",
-        "Analytics Config",
-        "Currency and Language Validation",
-        "Storefront Integration",
-        "Advanced Usage",
-        "Meta State Management",
-        "State Management Methods",
-        "Module Checking",
-        "Key Properties",
-        "Error Handling",
-        "`meta` Object Options"
-      ],
-      "id": "guide:docs/guides/brand-guide",
-      "path": "docs/guides/brand-guide.md",
-      "title": "Brand"
-    },
-    "guide:docs/guides/system-guide": {
-      "crossRefs": [],
-      "headings": [
-        "System",
-        "API Reference",
-        "Usage",
-        "Setup in a Vue component",
-        "Fetching Optional Data",
-        "Available Data Types",
-        "Essential Data (Auto-loaded)",
-        "Optional Data (On-demand)",
-        "Examples",
-        "Working with Countries and Regions",
-        "Currency and Language Handling",
-        "Working with Billing and Support Data",
-        "Advanced Usage",
-        "Meta State Management",
-        "Cache Management",
-        "Error Handling",
-        "Key Properties",
-        "Meta Object Properties"
-      ],
-      "id": "guide:docs/guides/system-guide",
-      "path": "docs/guides/system-guide.md",
-      "title": "System"
-    },
     "guide:packages/headless/src/modules/account/docs/CHANGELOG": {
       "crossRefs": [],
       "headings": [
@@ -1686,6 +1619,26 @@
       "id": "guide:packages/headless/src/modules/auth/docs/gotchas",
       "path": "packages/headless/src/modules/auth/docs/gotchas.md",
       "title": "Auth Module Gotchas"
+    },
+    "guide:packages/headless/src/modules/auth/docs/guide": {
+      "crossRefs": [],
+      "headings": [
+        "Auth",
+        "API Reference",
+        "Usage",
+        "Setup in a Vue component",
+        "Examples",
+        "Logging in a User",
+        "Handling 2FA Verification",
+        "Perform login and 2FA Verification",
+        "Handling Errors",
+        "Advanced Usage",
+        "`meta` Object Options",
+        "JSON Forms"
+      ],
+      "id": "guide:packages/headless/src/modules/auth/docs/guide",
+      "path": "packages/headless/src/modules/auth/docs/guide.md",
+      "title": "Auth"
     },
     "guide:packages/headless/src/modules/auth/docs/usage": {
       "crossRefs": [],
@@ -2155,6 +2108,31 @@
       "id": "guide:packages/headless/src/modules/brand/docs/gotchas",
       "path": "packages/headless/src/modules/brand/docs/gotchas.md",
       "title": "Brand Gotchas"
+    },
+    "guide:packages/headless/src/modules/brand/docs/guide": {
+      "crossRefs": [],
+      "headings": [
+        "Brand",
+        "API Reference",
+        "Usage",
+        "Setup in a Vue component",
+        "Brand Config and Organisation Keys",
+        "Configuration Keys",
+        "Examples",
+        "Analytics Config",
+        "Currency and Language Validation",
+        "Storefront Integration",
+        "Advanced Usage",
+        "Meta State Management",
+        "State Management Methods",
+        "Module Checking",
+        "Key Properties",
+        "Error Handling",
+        "`meta` Object Options"
+      ],
+      "id": "guide:packages/headless/src/modules/brand/docs/guide",
+      "path": "packages/headless/src/modules/brand/docs/guide.md",
+      "title": "Brand"
     },
     "guide:packages/headless/src/modules/brand/docs/usage": {
       "crossRefs": [],
@@ -4605,6 +4583,32 @@
       "id": "guide:packages/headless/src/modules/system/docs/gotchas",
       "path": "packages/headless/src/modules/system/docs/gotchas.md",
       "title": "Gotchas"
+    },
+    "guide:packages/headless/src/modules/system/docs/guide": {
+      "crossRefs": [],
+      "headings": [
+        "System",
+        "API Reference",
+        "Usage",
+        "Setup in a Vue component",
+        "Fetching Optional Data",
+        "Available Data Types",
+        "Essential Data (Auto-loaded)",
+        "Optional Data (On-demand)",
+        "Examples",
+        "Working with Countries and Regions",
+        "Currency and Language Handling",
+        "Working with Billing and Support Data",
+        "Advanced Usage",
+        "Meta State Management",
+        "Cache Management",
+        "Error Handling",
+        "Key Properties",
+        "Meta Object Properties"
+      ],
+      "id": "guide:packages/headless/src/modules/system/docs/guide",
+      "path": "packages/headless/src/modules/system/docs/guide.md",
+      "title": "System"
     },
     "guide:packages/headless/src/modules/system/docs/usage": {
       "crossRefs": [],
@@ -15363,24 +15367,6 @@
       "path": "packages/types/src/store/types.ts",
       "title": "types.ts"
     },
-    "guide:docs/guides/auth-guide": {
-      "kind": "guide",
-      "module": "",
-      "path": "docs/guides/auth-guide.md",
-      "title": "Auth"
-    },
-    "guide:docs/guides/brand-guide": {
-      "kind": "guide",
-      "module": "",
-      "path": "docs/guides/brand-guide.md",
-      "title": "Brand"
-    },
-    "guide:docs/guides/system-guide": {
-      "kind": "guide",
-      "module": "",
-      "path": "docs/guides/system-guide.md",
-      "title": "System"
-    },
     "guide:packages/headless/src/modules/account/docs/CHANGELOG": {
       "kind": "guide",
       "module": "",
@@ -15446,6 +15432,12 @@
       "module": "",
       "path": "packages/headless/src/modules/auth/docs/gotchas.md",
       "title": "Auth Module Gotchas"
+    },
+    "guide:packages/headless/src/modules/auth/docs/guide": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/auth/docs/guide.md",
+      "title": "Auth"
     },
     "guide:packages/headless/src/modules/auth/docs/usage": {
       "kind": "guide",
@@ -15584,6 +15576,12 @@
       "module": "",
       "path": "packages/headless/src/modules/brand/docs/gotchas.md",
       "title": "Brand Gotchas"
+    },
+    "guide:packages/headless/src/modules/brand/docs/guide": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/brand/docs/guide.md",
+      "title": "Brand"
     },
     "guide:packages/headless/src/modules/brand/docs/usage": {
       "kind": "guide",
@@ -16173,6 +16171,12 @@
       "path": "packages/headless/src/modules/system/docs/gotchas.md",
       "title": "Gotchas"
     },
+    "guide:packages/headless/src/modules/system/docs/guide": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/system/docs/guide.md",
+      "title": "System"
+    },
     "guide:packages/headless/src/modules/system/docs/usage": {
       "kind": "guide",
       "module": "",
@@ -16271,8 +16275,8 @@
     }
   },
   "meta": {
-    "built_at": "2026-09-07T13:43:25.831Z",
-    "corpus_version": "1+067ad302ab92",
+    "built_at": "2026-09-08T10:07:47.134Z",
+    "corpus_version": "1+9c4ac77130c4",
     "counts": {
       "adrs": 34,
       "changelogSymbols": 0,
@@ -16285,7 +16289,7 @@
       "symbols": 737
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "d358d2173d7a5ca2edd05a071dfdd2d8e3f54973"
+    "source_commit": "c2f8f3fa902823b4c61df620490b0229f68c540c"
   },
   "relations": {
     "edges": [

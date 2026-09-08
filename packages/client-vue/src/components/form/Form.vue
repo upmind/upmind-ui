@@ -1,5 +1,5 @@
 <template>
-  <FormHost
+  <Form
     :key="locale"
     v-bind="forwarded"
     :i18n="i18n"
@@ -17,14 +17,19 @@
     <template #actions="{ meta, doResolve, doReject }">
       <slot name="actions" v-bind="{ meta, doResolve, doReject }"></slot>
     </template>
-  </FormHost>
+  </Form>
 </template>
 
 <script lang="ts" setup>
-import { useForwardPropsEmits } from "@upmind/ui";
+import {
+  Form,
+  provideFormEngineData,
+  provideFormIcon,
+  useForwardPropsEmits
+} from "@upmind/ui";
 import { useI18n } from "vue-i18n";
-import { useValidation } from "@upmind-automation/headless";
-import FormHost from "./engine/FormHost.vue";
+import { useSystem, useValidation } from "@upmind-automation/headless";
+import { Icon } from "../icon";
 import { formRenderers } from "./renderers";
 import { useFormI18n } from ".";
 import type {
@@ -32,13 +37,19 @@ import type {
   FormAdditionalProps,
   FormFooterProps,
   FormActionsProps
-} from "./engine/types";
+} from "@upmind/ui";
 // -----------------------------------------------------------------------------
 const props = defineProps<Omit<FormProps, "ajv">>();
 
 const { t, locale } = useI18n();
 // B: Always ensure we use our internal ajv instance
 const { ajv } = useValidation();
+const { countries, ensureCountries } = useSystem();
+
+// The engine takes its glyph and its reference data from the host: it resolves
+// neither an app icon name-map nor a BE country list itself.
+provideFormIcon(Icon);
+provideFormEngineData({ countries, ensureCountries });
 
 const emits = defineEmits<{
   reject: [];

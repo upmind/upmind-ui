@@ -20,6 +20,7 @@
  * declaration directly.
  */
 
+import { Form, provideFormIcon } from "@upmind/ui";
 import { mount } from "@vue/test-utils";
 import { defineComponent, h, ref } from "vue";
 import { createI18n } from "vue-i18n";
@@ -29,7 +30,7 @@ import error from "@upmind-automation/i18n/core/error-en.json";
 import form from "@upmind-automation/i18n/core/form-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import validation from "@upmind-automation/i18n/core/validation-en.json";
-import FormHost from "../../engine/FormHost.vue";
+import { Icon } from "../../../icon";
 import { UpmForm } from "../../index";
 import { useFormI18n } from "../../useFormI18n";
 import { formRenderers } from "../index";
@@ -304,9 +305,11 @@ export type FilterMount = {
 /**
  * Mounts a declaration through the renderer registry `UpmForm` binds.
  *
- * @param options.translate - `false` swaps `UpmForm` for the bare engine
- *   `FormHost` carrying the same renderer set and NO `i18n` prop, so the
- *   translated assertions stay falsifiable.
+ * @param options.translate - `false` swaps `UpmForm` for `@upmind/ui`'s bare
+ *   engine `Form` carrying the same renderer set and NO `i18n` prop, so the
+ *   translated assertions stay falsifiable. The icon provider `UpmForm` installs
+ *   is installed here too — the engine draws no glyph without one, and losing
+ *   the glyphs is not what this branch exists to vary.
  */
 export async function mountFilters(options: {
   schema: JsonSchema7;
@@ -320,6 +323,7 @@ export async function mountFilters(options: {
   const harness = defineComponent({
     setup() {
       const translator = useFormI18n();
+      provideFormIcon(Icon);
       const shared = {
         noActions: true,
         touched: true,
@@ -330,7 +334,7 @@ export async function mountFilters(options: {
       };
       return () =>
         options.translate === false
-          ? h(FormHost, { ...shared, additionalRenderers: formRenderers })
+          ? h(Form, { ...shared, additionalRenderers: formRenderers })
           : h(UpmForm, { ...shared, i18n: translator.value });
     }
   });
