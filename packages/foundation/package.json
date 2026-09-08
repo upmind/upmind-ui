@@ -28,6 +28,7 @@
     "@upmind-automation/headless": "workspace:*"
   },
   "peerDependencies": {
-    "vue": "^3.0.0"
+    "vue": "^3.0.0",
+    "vue-router": "^4.5.0"
   }
 }
