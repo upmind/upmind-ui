@@ -287,7 +287,7 @@ graph LR
 
 ## Task 12: Prove the criteria law (AC6, AC7, criteria-subversion) — seat: prover (test-step)
 
-- Reality Check: `pnpm --filter @upmind-automation/headless test:integration src/modules/invoices/__tests__/invoices.collection.int.test.ts src/modules/invoices/__tests__/invoices.criteria-presets.int.test.ts src/modules/invoices/__tests__/invoices.consolidatable-count.int.test.ts`, `-t "read my credit notes as a filtered view"`, `-t "the large-bundle flag"` → assert the wire query string, the preset's outbound values, and that the bundle flag derives from `products_count`.
+- Reality Check: `pnpm --filter @upmind-automation/headless test:integration src/modules/invoices/__tests__/invoices.collection.int.test.ts src/modules/invoices/__tests__/invoices.criteria-presets.int.test.ts src/modules/invoices/__tests__/invoices.consolidatable-count.int.test.ts`, `-t "read my credit notes as a filtered view"`, `-t "the large-bundle flag"` → assert the wire query string, the preset's outbound values, and that the bundle flag derives from `products_count`; plus `pnpm --filter @upmind-automation/headless test:integration src/modules/invoices/__tests__/invoices.scope-identity.int.test.ts -t "AC-15"` → asserts the undeclared column never enters the published criteria and never reaches the wire on any request the scope issues (**AC15**, promoted 2026-09-08; verified by this seat — selects 1 test in 1 file, green).
 
 ### Input State
 - [ ] Task 11 output state holds.
@@ -335,7 +335,7 @@ graph LR
 
 ## Task 15: Prove the mapping (AC3, AC5, AC8, AC11) — seat: prover (test-step)
 
-- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "consolidation identity and credit fields"`, `-t "awaiting-client"`, `-t "balance diverges from the raw unpaid amount"`, `-t "refetches after a payment outcome"` → each asserts its named mapped outcome or outbound request contract against recorded fixtures.
+- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "consolidation identity and credit fields"`, `-t "awaiting-client"`, `-t "balance diverges from the raw unpaid amount"`, `-t "refetches after a payment outcome"` → each asserts its named mapped outcome or outbound request contract against recorded fixtures; plus `pnpm --filter @upmind-automation/headless test:integration src/modules/invoices/__tests__/invoices.payment-state.int.test.ts` → asserts the paid / free / partial / pending state derivation, and that a failed load (a 500 and the recorded 404) reports the failure rather than a guessed state (**AC16**, promoted 2026-09-08; verified by this seat — 6 tests in 1 file, 6/6 green).
 
 ### Input State
 - [ ] Task 14 output state holds.
@@ -396,6 +396,8 @@ graph LR
 Every AC in `requirements.md` maps to at least one task bearing a
 non-excluded Reality Check. No gaps, nothing parked.
 
+**Re-swept 2026-09-08 (4th pass), after AC14–AC16 were promoted into `requirements.md`** by conductor ruling (`review-notes.md` H3). The sweep now covers **16** ACs, not 13. Two Reality Checks were extended so the named pattern actually executes the landed proof — T12 for AC15 and T15 for AC16; AC14's proof was already inside T11's named file. **Task titles are NOT authoritative for AC coverage** — they still list the AC subsets they were authored with (T11 "AC1, AC2, AC9, AC10", T12 "AC6, AC7", T15 "AC3, AC5, AC8, AC11"); this table is the AC → task map. No task was added: all three behaviours were already landed and green, so nothing new is owed to the build.
+
 | AC | Capability | Proving task(s) |
 |----|-----------|-----------------|
 | AC1 | Unpaid-amount live re-read | T5 (code) → **T11** (proof) |
@@ -411,7 +413,12 @@ non-excluded Reality Check. No gaps, nothing parked.
 | AC11 | `balance` ≠ `unpaidAmount` after consolidation | T1/T3 (code) → **T15** (proof) |
 | AC12 | `client×client` retarget | T1/T4/T5/T7 (code) → **T13** (proof) |
 | AC13 | Co-mingled row attribution | T1/T3 (code) → **T13** (proof) |
+| AC14 | Refuses to read when no client is addressable | T1/T7 (code) → **T11** (proof — its Reality Check names the whole `invoices.collection.int.test.ts`, which carries the AC-14 case at `:234`) |
+| AC15 | Refuses an undeclared filter, and never lets one bypass the declared criteria | T2 (code — its own Reality Check already reads "an undeclared column is unspellable") → **T12** (proof; its Reality Check was extended 2026-09-08 to name `invoices.scope-identity.int.test.ts -t "AC-15"`, which is where the case landed) |
+| AC16 | Whole-invoice payment state, incl. a failed load reporting no guessed state | T3/T8 (code) → **T15** (proof; its Reality Check was extended 2026-09-08 to name `invoices.payment-state.int.test.ts`) |
 
 Every AC also carries a negative control in T16 except AC1, AC2, AC3, AC9 and
 AC10, whose controls are the retarget and criteria-bypass mutants they share a
 request path with. Gap count: **0**.
+
+**Negative-control coverage of the three promoted ACs, stated honestly rather than back-filled.** AC15's control is T16 mutant **#3** (`invoices.criteria-bypass.must-fail.patch` — appends a raw `filter[status.code]` beside `criteria`), which is the mutant that AC15's own read-back is paired with. **AC14 and AC16 carry no dedicated mutant in T16.** Their feature scenarios are tagged `@guard`, not `@negative-control`, and this seat did not mint new mutants: authoring a `.must-fail.patch` is the developer's lane (`.claude/rules/agent-seat-separation.companion.md`) and would be new work, which the promotion explicitly is not. Recorded for the reviewer as a coverage observation, not as a gap in the AC → task map, which stands at **0**.

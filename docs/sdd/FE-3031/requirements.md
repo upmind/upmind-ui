@@ -103,6 +103,51 @@ document that is not mine to settle.
   - Read-back: `pnpm --filter @upmind-automation/headless test:integration -t "attribute each invoice in a co-mingled list"` → asserts that on a recorded mixed-list fixture each mapped row resolves to exactly one of own / sub-account / delegated, that a sub-account row wins over the delegated marking when both inputs are present, that a delegated row reports itself as not settleable by the reading client, **and that a row whose client has a parent who is NOT the reading client resolves as neither sub-account nor delegated and stays settleable** — matching the oracle, which gates the delegate test on the presence of *any* parent (`oracle:143-146`), not on that parent matching the reader.
   - Read-back strengthened 2026-09-08 (Review blocker B4): the earlier read-back did not exercise the third-party-parent row, so a module predicate that required `parent === reader` passed it while withholding "pay" on a row the oracle offers it on. The capability sentence above is unchanged.
 
+### Whole-module guarantees and whole-invoice payment state
+
+<!-- AC14-AC16 PROMOTED 2026-09-08 by conductor ruling - see review-notes.md
+     H3. All three behaviours were already built, green and
+     traceability-gated, and
+     packages/headless/src/modules/invoices/__tests__/invoices.feature
+     declares them deliberately (@AC-14, @AC-15, @AC-16) with a stated
+     precedent (client-email-history.feature's AC-18..21). Recording them here
+     is bookkeeping, NOT scope expansion: this section authorises no new
+     capability and no new work. AC14 and AC15 hold across every declared cell
+     - the guard and the criteria law both precede scope resolution. AC16 is
+     `client×self`. -->
+
+**As a** client using the invoices surface,
+**I want** the module to refuse a read it cannot address and a filter it has
+not declared, and to tell me what state an invoice's payment is in,
+**so that** I am never left with a hung read, a filter that silently vanished
+or silently applied, or a guessed payment state.
+
+#### Acceptance Criteria
+
+- [ ] **AC14** When neither the reading client nor a target client can be resolved to an id, no invoice read is attempted at all, and the module reports the read as unavailable rather than hanging or silently returning nothing. *(Feature tag `@AC-14`; holds on every declared cell.)*
+  - Read-back: `pnpm --filter @upmind-automation/headless test:integration src/modules/invoices/__tests__/invoices.collection.int.test.ts -t "AC-14"` → asserts that with no addressable client **zero** outbound requests are observed (an assertion on request *count*, not on a payload), and that the collection reports itself unavailable rather than staying in a loading state. Verified 2026-09-08 by the planner seat: the pattern selects **1 test in 1 file**, and passes.
+  - Source: feature scenario "Refuse to read when no client is addressable"; landed test `invoices.collection.int.test.ts:234-247` — "AC-14 issues NO request at all and reports the collection unavailable when signed out".
+
+- [ ] **AC15** A filter the module has not declared is refused rather than silently ignored or silently applied, and no filter reaches the platform outside what the declared criteria produced. *(Feature tag `@AC-15`; holds on every declared cell.)*
+  - Read-back: `pnpm --filter @upmind-automation/headless test:integration src/modules/invoices/__tests__/invoices.scope-identity.int.test.ts -t "AC-15"` → asserts an undeclared filter column never survives into the published criteria (`useContext().query.filters`), and that **no** outbound request the scope issues carries that column or its value — the request-contract half that catches a silent pass-through. Verified 2026-09-08 by the planner seat: the pattern selects **1 test in 1 file**, and passes.
+  - Source: feature scenario "Refuse an undeclared filter, and never let one bypass the declared criteria"; landed test `invoices.scope-identity.int.test.ts:384-414` — "AC-15 an undeclared filter column is refused — a validation error, never a silent pass-through".
+
+- [ ] **AC16** A client reading one invoice is told its overall payment state — paid, free, partially paid, or pending — and a load that failed reports the failure rather than a guessed state. *(Feature tag `@AC-16`; cell `client×self`.)*
+  - Read-back: `pnpm --filter @upmind-automation/headless test:integration src/modules/invoices/__tests__/invoices.payment-state.int.test.ts` → asserts, on recorded invoice rows with one explicitly labelled field toggled per case, that the mapped state resolves to paid / free / partial / pending; and that on a failed load (a 500, and the **recorded** 404 capture) all four state flags are false while the state resolves to the defined FAILED value with the error signal set — the assertion that detects a guessed state standing in for a failure. Verified 2026-09-08 by the planner seat: the pattern selects **6 tests in 1 file**, 6/6 pass.
+  - Source: feature scenarios "Read an invoice's overall payment state" (outline: paid / free / partial / pending) and "A failed invoice load reports no guessed payment state"; landed tests `invoices.payment-state.int.test.ts:65-158` — the `describe` "invoices single read — overall payment state (AC-16)" and its six `AC-16 …` cases, including "AC-16 a failed load reports no guessed payment state" and "AC-16 a real 404 (unknown invoice) reports the same failed-load guarantee as any other failed load".
+
+**Read-back scoping note (the H4 discipline, applied 2026-09-08).** All three
+patterns above are **file-scoped on purpose**. A bare `-t "AC-14"` /
+`-t "AC-15"` / `-t "AC-16"` does execute, but it does not *scope* the proof:
+measured with `vitest list --project integration` on 2026-09-08 they select
+**17 tests across 9 files**, **25 across 11 files** and **19 across 9 files**
+respectively, because other modules mint the same AC ids. Scoping by a longer
+title substring was tried and is not sufficient either — `"reports the
+collection unavailable"` appears in **7** other modules' integration files. The
+file path is what makes each pattern name exactly one target. Same failure
+class as H4 in `review-notes.md`, at the opposite end: an unresolvable pattern
+selects zero tests and exits 0; an over-broad one runs someone else's.
+
 ## Scope
 
 ### In Scope
@@ -132,7 +177,7 @@ document that is not mine to settle.
 
 ## Success Criteria
 
-- [ ] Every AC above executes its named read-back green against recorded fixtures or the live playground.
+- [ ] Every AC above — **AC1–AC16** — executes its named read-back green against recorded fixtures or the live playground. *(AC count corrected 2026-09-08: this read "Every AC above" against an AC1–AC13 set while `invoices.feature` declared sixteen. AC14–AC16 were promoted into this document by conductor ruling — see `review-notes.md` H3 — so both documents now declare **sixteen** ACs. No AC was added to the build: all three behaviours were already landed and green.)*
 - [ ] `parity.yaml` carries a disposition for all four declared actor×context cells and for all **twelve** carried parity rows (R01–R12), with no undispositioned entry and no `blocked_by:` left standing. *(Row count corrected 2026-09-08: this said ten, from before R11 and R12 were split out of R05.)*
 - [ ] The baseline build stays green: `pnpm build` `REAL_EXIT=0` across `packages/{types,headless,client-vue}`, `design-system/packages/{tokens,ui}`, `apps/cart`.
 - [ ] `orders/order.machine.ts` still compiles and its invoice mapping still works, without importing an `@internal` symbol.

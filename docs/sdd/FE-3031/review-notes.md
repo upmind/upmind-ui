@@ -232,3 +232,107 @@ this seat may not take alone.
 - Not blocking the two items this dispatch recorded, because nothing is dropped
   and nothing is mis-graded: the three behaviours are proven and green.
 
+
+---
+
+## 2026-09-08 — planner seat, 4th pass (H3 closure + Docs-stage drift)
+
+| Artefact | What changed |
+| --- | --- |
+| `requirements.md` | AC14, AC15, AC16 promoted in as first-class ACs under a new "Whole-module guarantees and whole-invoice payment state" story; each carries a file-scoped `Read-back:` verified by running it; Success Criteria amended to **AC1–AC16** |
+| `review-notes.md` | H3 closed with the conductor's ruling; the staff-deprecation corpus drift recorded as a **Docs-stage** item with receipts |
+
+No AC capability sentence was weakened. D1–D6 and the 23-capability list are
+untouched. `parity.yaml` is untouched — nothing about the cell or row set
+changed, because nothing was added to the build.
+
+### H3 — CLOSED 2026-09-08 by conductor ruling: promote AC-14, AC-15, AC-16
+
+**Status: CLOSED.** Raised on this run's 3rd pass by the planner seat, which
+declined to mint the three AC sentences because minting a capability is not
+this seat's call. Answered by the conductor, not self-decided.
+
+**Conductor ruling 2026-09-08, verbatim: "promote them."** The reasoning given,
+recorded so a reviewer can disagree with it rather than with a fait accompli:
+
+- All three behaviours are **already built and proven** — landed, green and
+  gated by `invoices.traceability.test.ts` in both directions.
+- `invoices.feature` declares them **deliberately**, with a stated precedent
+  (`client-email-history.feature`'s AC-18..21).
+- Documenting reality is **bookkeeping, not scope expansion**. This is not a
+  new-capability decision; it records three that already shipped.
+- Leaving the two documents disagreeing is the **drift that lets a later reader
+  believe a capability is unowned**.
+
+**The step a reviewer may reject:** that a capability minted by the prover seat
+in a feature file may be adopted into `requirements.md` after the fact. The
+alternative the conductor declined was to rule the three module-level
+guarantees that live only in the feature file, and amend the Success Criteria to
+exclude them. That alternative keeps the plan's AC set frozen at authoring time,
+but leaves three proven behaviours with no requirement owning them.
+
+**What landed, per AC — each sentence is derived from the feature scenario and
+the landed test title, not from this seat's own reading of the source:**
+
+| AC | Feature scenario | Landed proof |
+| --- | --- | --- |
+| AC14 | "Refuse to read when no client is addressable" | `invoices.collection.int.test.ts:234-247` |
+| AC15 | "Refuse an undeclared filter, and never let one bypass the declared criteria" | `invoices.scope-identity.int.test.ts:384-414` |
+| AC16 | "Read an invoice's overall payment state" + "A failed invoice load reports no guessed payment state" | `invoices.payment-state.int.test.ts:65-158` (6 cases) |
+
+**Every read-back was RUN, not assumed** — the H4 discipline applied to the new
+patterns:
+
+| AC | Pattern | Selected | Result |
+| --- | --- | --- | --- |
+| AC14 | `… invoices.collection.int.test.ts -t "AC-14"` | 1 test, 1 file | 1 passed, 8 skipped, exit 0 |
+| AC15 | `… invoices.scope-identity.int.test.ts -t "AC-15"` | 1 test, 1 file | 1 passed, 10 skipped, exit 0 |
+| AC16 | `… invoices.payment-state.int.test.ts` | 6 tests, 1 file | 6/6 passed, exit 0 |
+
+**Why all three are file-scoped.** The bare id patterns resolve but do not
+*scope*, measured with the runner's own `list` command on 2026-09-08:
+`-t "AC-14"` → **17 tests / 9 files**; `-t "AC-15"` → **25 / 11**;
+`-t "AC-16"` → **19 / 9**. Other modules mint the same ids. A longer title
+substring does not save AC14 either — `"reports the collection unavailable"`
+appears in **7** other modules' integration files. This is H4's failure class
+from the other side: an unresolvable pattern selects zero tests and exits 0; an
+over-broad one runs another module's suite and calls it this AC's proof.
+
+### Docs-stage item (NOT this seat's lane) — the staff arm is still declared in the corpus
+
+The operator ruling of **2026-09-01** deprecated the `staff` actor on this
+resource ("this is client only, staff is being deprecated"), and `parity.yaml`
+disposes both staff cells as `Dropped-with-issue-reference`. Two corpus
+documents outside this bundle still **declare** the retired staff arm as
+current. They are the **Docs stage's** to fix — recorded here with receipts so
+the item cannot be lost between stages. **This seat did not edit them.**
+
+| File | Lines | What it still declares |
+| --- | --- | --- |
+| `docs/adr/001-scope-based-composables.md` | `:248-255` | Three staff invoice examples as live API: `useInvoices().as('staff')`, `.as('staff').inBrand('brand-abc')`, `.as('staff').for('client', clientId)` — the last is the exact FE-2824 shape, on the one resource where staff is now retired |
+| `docs/reference/service-splitting-examples.md` | `:36-64` | "Example 2: Invoices (SPLIT) — ✅ Yes", an actor table granting Staff "View any client's invoices, void, adjust" on `/admin/clients/{id}/invoices`, and a whole `invoices.services.staff.ts` snippet with `getInvoices(clientId)` / `voidInvoice(...)` |
+| `docs/reference/service-splitting-examples.md` | `:187` | The summary-table row **Invoices** → Staff Endpoint `/admin/clients/{id}/invoices`, Split? ✅ Yes |
+
+**Why it matters, not just tidiness.** ADR-001 is Tier-2 law
+(`agent-behavior.companion.md` §1), and `service-splitting-examples.md` is the
+worked reference a later planner reads before splitting a service. Both
+currently instruct a reader to build the staff arm this story deliberately
+dropped. A future dispatch that follows them re-mints a capability the operator
+retired, and no gate in this bundle would catch it — `parity.yaml`'s
+disposition binds this story, not the corpus.
+
+**Scope note for the Docs stage:** the ruling was scoped to **invoices**. Do
+not read this item as retiring the staff actor corpus-wide; `staff` remains
+live on other resources. The minimum honest fix is to mark the invoices
+examples as superseded by the 2026-09-01 ruling, not to delete the staff
+pattern from ADR-001.
+
+### Cosmetic / recorded, not halting (carried, still open)
+
+- `verify.md:88-93` remains stale (`loadList` **does** auto-seed now, and its
+  column is durable). Outside this seat's write lane; a verifier dispatch is
+  refreshing it concurrently. Left untouched again on 2026-09-08 (4th pass).
+- `invoices.mappers.ts:70` label-precedence anchor is still `oracle:172-179`
+  (real: `oracle:175-180`). Developer's lane.
+- `parity.yaml` R08's `tracker:` is still a placeholder, not a Linear id.
+  Operator-owned. Unchanged.
