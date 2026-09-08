@@ -55,7 +55,7 @@ export const useBrandTheme = () => {
     /** The brand's preferred colour scheme, when it declares one. */
     colorScheme,
 
-    /** Hands the selected theme to `ui`'s engine. */
+    /** Hands the selected theme to `ui`'s engine; warns when none is provided. */
     apply: () => engine.set(selected.value)
   };
 };
