@@ -1,6 +1,8 @@
 /** @internal */
 import {
+  CreditNoteStatus,
   InvoiceCategoryCode,
+  InvoiceStatus,
   InvoiceStatusGroups
 } from "@upmind-automation/types";
 import { SortDirection } from "../query/query.types";
@@ -26,6 +28,33 @@ import type { ControlElement, UISchemaElement } from "@jsonforms/core";
  * schema.
  */
 // -----------------------------------------------------------------------------
+
+/**
+ * The `status.code` column's WHOLE offerable vocabulary — every
+ * {@link InvoiceStatus} member plus the {@link CreditNoteStatus} pair the
+ * column is widened to admit for AC7 (`design.md` "Filter columns"). Derived
+ * from the enums' own values, never hand-typed, so no member is
+ * re-declared; `title` reuses each value as its own i18n-key suffix
+ * (`invoices.filter_option.status.<value>`), consistent with this file's
+ * `title`-is-an-i18n-key convention throughout.
+ */
+const STATUS_VOCABULARY = [
+  ...Object.values(InvoiceStatus),
+  ...Object.values(CreditNoteStatus)
+].map(code => ({
+  const: code,
+  title: `invoices.filter_option.status.${code}`
+}));
+
+/**
+ * The `category.slug` column's WHOLE offerable vocabulary — every
+ * {@link InvoiceCategoryCode} member (`design.md` "Filter columns"), derived
+ * the same way as {@link STATUS_VOCABULARY}.
+ */
+const CATEGORY_VOCABULARY = Object.values(InvoiceCategoryCode).map(code => ({
+  const: code,
+  title: `invoices.filter_option.category.${code}`
+}));
 
 /**
  * The criteria-subversion law: this schema owns ALL request state, and
@@ -62,7 +91,10 @@ export function useQuerySchema(): InvoiceQuerySchema {
             title: "invoices.filter.status",
             additionalProperties: false,
             properties: {
-              in: { type: ["array", "null"], items: { type: "string" } }
+              in: {
+                type: ["array", "null"],
+                items: { type: "string", oneOf: STATUS_VOCABULARY }
+              }
             }
           },
           client_id: {
@@ -84,7 +116,10 @@ export function useQuerySchema(): InvoiceQuerySchema {
             title: "invoices.filter.category",
             additionalProperties: false,
             properties: {
-              in: { type: ["array", "null"], items: { type: "string" } }
+              in: {
+                type: ["array", "null"],
+                items: { type: "string", oneOf: CATEGORY_VOCABULARY }
+              }
             }
           },
           credit_invoice_id: {
@@ -405,7 +440,11 @@ function scopedSchemas(_scopeActor: ScopeActorTypes): Partial<InvoicesSchemas> {
 /**
  * Schemas factory — same shape as `invoices.services.ts`'s
  * `createInvoicesServices`: the concrete actor arrives first, at
- * construction.
+ * construction. Both consumers (`useInvoices.context.ts`,
+ * `invoices.services.ts`) resolve their schema family through this factory,
+ * never the bare `useQuerySchema`/`useQueryUischema`/`useSortUischema`
+ * exports directly, so a future arm on `scopedSchemas` above reaches both
+ * without either consumer changing shape.
  */
 export const createInvoicesSchemas = (
   scopeActor: ScopeActorTypes

@@ -6,8 +6,8 @@ import { useActiveSession } from "../session-store";
 import { mapInvoice, mapInvoices, mapUnpaidAmount } from "./invoices.mappers";
 import {
   consolidatableCountCriteria,
-  UNPAID_EXISTENCE_CRITERIA,
-  useQuerySchema
+  createInvoicesSchemas,
+  UNPAID_EXISTENCE_CRITERIA
 } from "./invoices.schemas";
 import { InvoicesContextTypes } from "./invoices.types";
 import { useTime, NotAuthenticatedError } from "../../utils";
@@ -18,6 +18,7 @@ import type {
   InvoicePaymentDetailsModel,
   InvoiceItemQuery,
   InvoiceQueryModel,
+  InvoiceQuerySchema,
   InvoiceUnpaidAmount,
   InvoiceUnpaidAmountQuery,
   InvoicesListQuery,
@@ -240,7 +241,10 @@ function withDurableClientId(
  * {@link withDurableClientId} then makes that column DURABLE across every
  * published criteria write, not just the mint-time seed — blocker H1.
  */
-function loadList(scopeContext?: ScopeContext): InvoicesListQuery {
+function loadList(
+  useQuerySchema: () => InvoiceQuerySchema,
+  scopeContext?: ScopeContext
+): InvoicesListQuery {
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
@@ -378,6 +382,7 @@ function loadUnpaidAmount(
  * outstanding invoices as `false`.
  */
 function loadUnpaidExistence(
+  useQuerySchema: () => InvoiceQuerySchema,
   requested: Ref<boolean>,
   scopeContext?: ScopeContext
 ): InvoicesListQuery {
@@ -424,6 +429,7 @@ function loadUnpaidExistence(
  * change, so a self-scope's client_id tracks a session switch instead.
  */
 function loadConsolidatableCount(
+  useQuerySchema: () => InvoiceQuerySchema,
   requested: Ref<boolean>,
   scopeContext?: ScopeContext
 ): InvoicesListQuery {
@@ -501,14 +507,16 @@ function scopedServices(
  * `useInvoice.ts`, each with ITS OWN resolved scope, so the two instances
  * share no mutable state.
  *
- * `scopeActor` is unused today — with a single resolving actor (`client`) in
- * both matrices (design D6), there is no per-actor member to select. Kept in
- * the signature so a future arm can switch on it without a call-site change.
+ * Resolves `useQuerySchema` once, through `createInvoicesSchemas`, so this
+ * services file and the query-issuing reads below never re-derive their own
+ * copy of the arm-resolution switch (`invoices.schemas.ts`'s own factory) —
+ * the same seam `scopedServices` below already routes `scopeActor` through.
  */
 export const createInvoicesServices = (
   scopeActor: ScopeActorTypes,
   scopeContext?: ScopeContext
 ): InvoicesServices => {
+  const { useQuerySchema } = createInvoicesSchemas(scopeActor);
   const clientId = resolveClientId(scopeContext);
   const unpaidExistenceRequested = ref(false);
   const consolidatableCountRequested = ref(false);
@@ -518,17 +526,25 @@ export const createInvoicesServices = (
     clientId,
     isAvailable: computed(() => isAddressable(clientId.value)),
     error: computed<ResponseError | undefined>(() => undefined),
-    loadList: () => loadList(scopeContext),
+    loadList: () => loadList(useQuerySchema, scopeContext),
     loadOne: invoiceId => loadOne(invoiceId, scopeContext),
     loadUnpaidAmount: (invoiceId, currencyId) =>
       loadUnpaidAmount(invoiceId, currencyId, scopeContext),
     loadUnpaidExistence: () =>
-      loadUnpaidExistence(unpaidExistenceRequested, scopeContext),
+      loadUnpaidExistence(
+        useQuerySchema,
+        unpaidExistenceRequested,
+        scopeContext
+      ),
     requestUnpaidExistence: () => {
       unpaidExistenceRequested.value = true;
     },
     loadConsolidatableCount: () =>
-      loadConsolidatableCount(consolidatableCountRequested, scopeContext),
+      loadConsolidatableCount(
+        useQuerySchema,
+        consolidatableCountRequested,
+        scopeContext
+      ),
     requestConsolidatableCount: () => {
       consolidatableCountRequested.value = true;
     },

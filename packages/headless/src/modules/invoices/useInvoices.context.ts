@@ -1,9 +1,5 @@
 import { computed } from "vue";
-import {
-  useQuerySchema,
-  useQueryUischema,
-  useSortUischema
-} from "./invoices.schemas";
+import { createInvoicesSchemas } from "./invoices.schemas";
 import { mapToHeadlessError, useCollection } from "../../utils";
 import { isArray } from "lodash-es";
 import type {
@@ -26,10 +22,12 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * @doctrine clause 2 — shared-only (armless).
  */
 export function createInvoicesContext(
-  _actorScope: ScopeActorTypes,
+  actorScope: ScopeActorTypes,
   service: InvoicesServices,
   query: InvoicesListQuery
 ) {
+  const { useQuerySchema, useQueryUischema, useSortUischema } =
+    createInvoicesSchemas(actorScope);
   const { findOne, getOne } = useCollection<Invoice>(query.data);
 
   // `castArray(undefined)` yields a phantom element, so the empty case is
