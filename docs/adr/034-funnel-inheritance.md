@@ -1,4 +1,4 @@
-# ADR 023: Funnel Inheritance via `extends`
+# ADR 034: Funnel Inheritance via `extends`
 
 **Date:** July 2026
 **Status:** Accepted

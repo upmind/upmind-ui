@@ -187,7 +187,7 @@ await switchFunnel("domains", router.currentRoute.value);
 
 `useRouting` calls this automatically when a route carries `?funnel=`, before guarding the route. It is ignored when the id is unregistered or already active.
 
-The engine holds `currentFunnel` across navigations, so the switch persists without the query param being repeated — provided the target funnel can serve the routes the user then visits. A funnel that hits a route it does not declare completes and the engine reloads the default, undoing the switch; a variant should `extends` the base so it inherits those routes instead of evicting itself. See [ADR 023](../../../../../../docs/adr/023-funnel-inheritance.md).
+The engine holds `currentFunnel` across navigations, so the switch persists without the query param being repeated — provided the target funnel can serve the routes the user then visits. A funnel that hits a route it does not declare completes and the engine reloads the default, undoing the switch; a variant should `extends` the base so it inherits those routes instead of evicting itself. See [ADR 034](../../../../../../docs/adr/034-funnel-inheritance.md).
 
 ### `refresh()`
 

@@ -178,7 +178,7 @@ Architectural decisions for the routing module are documented in the centralized
 
 | ADR                                                                                                       | Decision                                                                    | Status   |
 | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | -------- |
-| [023 — Funnel Inheritance via `extends`](../../../../../docs/adr/023-funnel-inheritance.md)               | Variant funnels flatten a base config instead of restating or replacing it  | Accepted |
+| [034 — Funnel Inheritance via `extends`](../../../../../docs/adr/034-funnel-inheritance.md)               | Variant funnels flatten a base config instead of restating or replacing it  | Accepted |
 | [019 — Shell State Architecture](../../../../../docs/adr/019-shell-state-architecture.md)                 | Shell component tracking to prevent cross-page layout bleed                 | Accepted |
 | [018 — Funnel Reactive Watchers](../../../../../docs/adr/018-funnel-reactive-watchers.md)                 | Watcher subscription mechanism, subscribe vs watch, state tracking patterns | Accepted |
 | [017 — Funnel Navigation via State Meta](../../../../../docs/adr/017-funnel-navigation-via-state-meta.md) | Declarative meta-driven navigation                                          | Accepted |

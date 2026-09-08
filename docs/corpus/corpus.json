@@ -674,30 +674,6 @@
       "path": "docs/adr/022-ui-testing-strategy.md",
       "title": "ADR 022: UI Testing Strategy (Storybook, Component Tests & Accessibility)"
     },
-    "adr:023-funnel-inheritance": {
-      "crossRefs": [],
-      "headings": [
-        "ADR 023: Funnel Inheritance via `extends`",
-        "Context",
-        "Decision",
-        "Where composition happens",
-        "Merge semantics",
-        "Where the starting funnel is chosen",
-        "Chains and failure modes",
-        "Consequences",
-        "Positive",
-        "Negative",
-        "Neutral",
-        "Files Modified",
-        "Implementation Notes",
-        "Why the merge is not a plain `lodash.merge`",
-        "Negative controls",
-        "Related Documents"
-      ],
-      "id": "adr:023-funnel-inheritance",
-      "path": "docs/adr/023-funnel-inheritance.md",
-      "title": "ADR 023: Funnel Inheritance via `extends`"
-    },
     "adr:023-ui-domain-package-architecture": {
       "crossRefs": [],
       "headings": [
@@ -723,6 +699,8 @@
         "Migration (big-bang wave)",
         "Open Questions (to resolve before / during implementation)",
         "Amendment (2026-08-25) — `ui` hosts the vendored form engine; constraint 5 narrows to `src/components/`",
+        "Amendment 1 (2026-09-07) — a phased strangler replaces the big-bang wave",
+        "Amendment 2 (2026-09-08) — four scope rulings before the run",
         "References"
       ],
       "id": "adr:023-ui-domain-package-architecture",
@@ -989,6 +967,30 @@
       "id": "adr:033-scenario-declaration-contract",
       "path": "docs/adr/033-scenario-declaration-contract.md",
       "title": "ADR 033: The Scenario Declaration Contract — Single Source of Truth, Table Renderers, Convention-Driven Discovery"
+    },
+    "adr:034-funnel-inheritance": {
+      "crossRefs": [],
+      "headings": [
+        "ADR 034: Funnel Inheritance via `extends`",
+        "Context",
+        "Decision",
+        "Where composition happens",
+        "Merge semantics",
+        "Where the starting funnel is chosen",
+        "Chains and failure modes",
+        "Consequences",
+        "Positive",
+        "Negative",
+        "Neutral",
+        "Files Modified",
+        "Implementation Notes",
+        "Why the merge is not a plain `lodash.merge`",
+        "Negative controls",
+        "Related Documents"
+      ],
+      "id": "adr:034-funnel-inheritance",
+      "path": "docs/adr/034-funnel-inheritance.md",
+      "title": "ADR 034: Funnel Inheritance via `extends`"
     }
   },
   "changelog": {
@@ -9193,12 +9195,6 @@
       "path": "docs/adr/022-ui-testing-strategy.md",
       "title": "ADR 022: UI Testing Strategy (Storybook, Component Tests & Accessibility)"
     },
-    "adr:023-funnel-inheritance": {
-      "kind": "adr",
-      "module": "",
-      "path": "docs/adr/023-funnel-inheritance.md",
-      "title": "ADR 023: Funnel Inheritance via `extends`"
-    },
     "adr:023-ui-domain-package-architecture": {
       "kind": "adr",
       "module": "",
@@ -9264,6 +9260,12 @@
       "module": "",
       "path": "docs/adr/033-scenario-declaration-contract.md",
       "title": "ADR 033: The Scenario Declaration Contract — Single Source of Truth, Table Renderers, Convention-Driven Discovery"
+    },
+    "adr:034-funnel-inheritance": {
+      "kind": "adr",
+      "module": "",
+      "path": "docs/adr/034-funnel-inheritance.md",
+      "title": "ADR 034: Funnel Inheritance via `extends`"
     },
     "auth": {
       "kind": "term",
@@ -16275,8 +16277,8 @@
     }
   },
   "meta": {
-    "built_at": "2026-09-08T10:07:47.134Z",
-    "corpus_version": "1+9c4ac77130c4",
+    "built_at": "2026-09-08T14:40:04.618Z",
+    "corpus_version": "1+4ae08eb9134d",
     "counts": {
       "adrs": 34,
       "changelogSymbols": 0,
@@ -16289,7 +16291,7 @@
       "symbols": 737
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "c2f8f3fa902823b4c61df620490b0229f68c540c"
+    "source_commit": "03016cd83c658b2a32da4755e27ff30a5b870d02"
   },
   "relations": {
     "edges": [
@@ -68634,7 +68636,7 @@
       "name": "UseClientReceivedEmailsContext",
       "signature": "Symbol UseClientReceivedEmailsContext",
       "sourceFile": "packages/headless/src/modules/client-email-history/useClientReceivedEmails.context.ts",
-      "sourceLine": 94,
+      "sourceLine": 98,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseClientReceivedEmailsInternals": {
