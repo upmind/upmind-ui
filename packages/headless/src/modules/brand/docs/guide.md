@@ -24,27 +24,20 @@ The composable automatically initialises when first called and manages multiple 
 
 ```vue
 <script setup>
-  import { useBrand } from "@upmind-automation/headless";
+import { useBrand } from "@upmind-automation/headless";
 
-  const {
-    currency,
-    getAnalytics,
-    getConfig,
-    isReady,
-    meta,
-    name,
-  } = useBrand();
+const { currency, getAnalytics, getConfig, isReady, meta, name } = useBrand();
 
-  // Wait for brand data to be ready
-  const init = async () => {
-    const ready = await isReady();
-    if (ready) {
-      console.log("Brand name:", name.value);
-      console.log("Default currency:", currency.value);
-    }
-  };
+// Wait for brand data to be ready
+const init = async () => {
+  const ready = await isReady();
+  if (ready) {
+    console.log("Brand name:", name.value);
+    console.log("Default currency:", currency.value);
+  }
+};
 
-  init();
+init();
 </script>
 ```
 
@@ -54,22 +47,22 @@ Retrieve specific configuration keys using `getConfig()` or `ensureConfig()`. Th
 
 ```vue
 <script setup>
-  import { useBrand } from "@upmind-automation/headless";
+import { useBrand } from "@upmind-automation/headless";
 
-  const { getConfig, ensureConfig } = useBrand();
+const { getConfig, ensureConfig } = useBrand();
 
-  // Get already loaded config keys (synchronous)
-  const basicConfig = getConfig([
-    "ANALYTICS_GA_MEASUREMENT_ID",
-    "CHECKOUT_FLOW",
-    "DEFAULT_CLIENT_HOMEPAGE"
-  ]);
+// Get already loaded config keys (synchronous)
+const basicConfig = getConfig([
+  "ANALYTICS_GA_MEASUREMENT_ID",
+  "CHECKOUT_FLOW",
+  "DEFAULT_CLIENT_HOMEPAGE"
+]);
 
-  // Ensure keys are loaded (asynchronous)
-  const advancedConfig = await ensureConfig([
+// Ensure keys are loaded (asynchronous)
+const advancedConfig = await ensureConfig([
   "BILLING_GATEWAY_FORCE_AUTO_PAYMENT",
   "SHOP_TRUNCATE_DESCRIPTIONS"
-  ]);
+]);
 </script>
 ```
 
@@ -78,7 +71,7 @@ Retrieve specific configuration keys using `getConfig()` or `ensureConfig()`. Th
 The composable supports both Organization keys (related to account capabilities) and Config keys (brand-specific settings):
 
 | **Key Type** | **Key**                                   | **Description**                                            |
-|--------------|-------------------------------------------|------------------------------------------------------------|
+| ------------ | ----------------------------------------- | ---------------------------------------------------------- |
 | Organisation | `CREATE_USER_API_TOKENS`                  | Whether creating API tokens for users is allowed.          |
 | Organisation | `BULK_NOTIFICATIONS_ENABLED`              | Whether bulk notifications are enabled.                    |
 | Organisation | `MULTI_BRAND_ENABLED`                     | Support for multiple brand configurations.                 |
@@ -119,27 +112,27 @@ Use the shortcut `getAnalytics()` method to retrieve analytics-related configura
 
 ```vue
 <script setup>
-  import { useBrand } from "@upmind-automation/headless";
+import { useBrand } from "@upmind-automation/headless";
 
-  const { getAnalytics } = useBrand();
+const { getAnalytics } = useBrand();
 
-  const setupAnalytics = async () => {
-    try {
-      const analytics = await getAnalytics();
+const setupAnalytics = async () => {
+  try {
+    const analytics = await getAnalytics();
 
-      if (analytics.ANALYTICS_GA_MEASUREMENT_ID) {
-        console.log("GA ID:", analytics.ANALYTICS_GA_MEASUREMENT_ID);
-      }
-
-      if (analytics.ANALYTICS_GTM_CONTAINER_ID) {
-        console.log("GTM ID:", analytics.ANALYTICS_GTM_CONTAINER_ID);
-      }
-    } catch (error) {
-      console.error("Failed to load analytics config:", error);
+    if (analytics.ANALYTICS_GA_MEASUREMENT_ID) {
+      console.log("GA ID:", analytics.ANALYTICS_GA_MEASUREMENT_ID);
     }
-  };
 
-  setupAnalytics();
+    if (analytics.ANALYTICS_GTM_CONTAINER_ID) {
+      console.log("GTM ID:", analytics.ANALYTICS_GTM_CONTAINER_ID);
+    }
+  } catch (error) {
+    console.error("Failed to load analytics config:", error);
+  }
+};
+
+setupAnalytics();
 </script>
 ```
 
@@ -149,16 +142,17 @@ Validate and normalize currency and language data:
 
 ```vue
 <script setup>
-  import { useBrand } from "@upmind-automation/headless";
+import { useBrand } from "@upmind-automation/headless";
 
-  const { currencies, languages, validateCurrency, validateLanguage } = useBrand();
+const { currencies, languages, validateCurrency, validateLanguage } =
+  useBrand();
 
-  const handleUserPreferences = async () => {
+const handleUserPreferences = async () => {
   // Validate a user's selected currency
   const userCurrency = { code: "USD" };
   const validCurrency = await validateCurrency(userCurrency);
 
-    // Validate a user's selected language
+  // Validate a user's selected language
   const userLanguage = { code: "en" };
   const validLanguage = validateLanguage(userLanguage);
 
@@ -166,7 +160,7 @@ Validate and normalize currency and language data:
   console.log("Valid language:", validLanguage);
   console.log("All available currencies:", currencies.value);
   console.log("All available languages:", languages.value);
-  };
+};
 </script>
 ```
 
@@ -176,19 +170,19 @@ Handle storefront routing and URL generation:
 
 ```vue
 <script setup>
-  import { useBrand } from "@upmind-automation/headless";
+import { useBrand } from "@upmind-automation/headless";
 
-  const { storefrontUrl, storefrontRoute, hasStorefront } = useBrand();
+const { storefrontUrl, storefrontRoute, hasStorefront } = useBrand();
 
-  const navigateToStore = () => {
-    if (hasStorefront.value) {
-      // External storefront URL
-      window.open(storefrontUrl.value, '_blank');
-      } else if (storefrontRoute.value?.to) {
-      // Internal Vue route
-      router.push(storefrontRoute.value.to);
-    }
-  };
+const navigateToStore = () => {
+  if (hasStorefront.value) {
+    // External storefront URL
+    window.open(storefrontUrl.value, "_blank");
+  } else if (storefrontRoute.value?.to) {
+    // Internal Vue route
+    router.push(storefrontRoute.value.to);
+  }
+};
 </script>
 ```
 
@@ -200,12 +194,14 @@ The `meta` object provides reactive information about the composable's state:
 
 ```vue
 <script setup>
-  import { watch } from 'vue';
-  import { useBrand } from "@upmind-automation/headless";
+import { watch } from "vue";
+import { useBrand } from "@upmind-automation/headless";
 
-  const { meta, errors } = useBrand();
+const { meta, errors } = useBrand();
 
-  watch(meta, (newMeta) => {
+watch(
+  meta,
+  newMeta => {
     if (newMeta.hasError) {
       console.error("Brand loading errors:", errors.value);
     }
@@ -213,7 +209,9 @@ The `meta` object provides reactive information about the composable's state:
     if (newMeta.isComplete && !newMeta.hasError) {
       console.log("Brand data successfully loaded");
     }
-  }, { immediate: true });
+  },
+  { immediate: true }
+);
 </script>
 ```
 
@@ -223,23 +221,23 @@ Control the composable's lifecycle:
 
 ```vue
 <script setup>
-  import { useBrand } from "@upmind-automation/headless";
+import { useBrand } from "@upmind-automation/headless";
 
-  const { refresh, invalidate, isReady } = useBrand();
+const { refresh, invalidate, isReady } = useBrand();
 
-  const handleBrandUpdate = async () => {
-    // Force refresh all brand data
-    await refresh();
+const handleBrandUpdate = async () => {
+  // Force refresh all brand data
+  await refresh();
 
-    // Or invalidate cache for complete reload
-    invalidate();
+  // Or invalidate cache for complete reload
+  invalidate();
 
-    // Wait for new data to be ready
-    const ready = await isReady();
-    if (ready) {
-      console.log("Brand data refreshed");
-    }
-  };
+  // Wait for new data to be ready
+  const ready = await isReady();
+  if (ready) {
+    console.log("Brand data refreshed");
+  }
+};
 </script>
 ```
 
@@ -249,17 +247,17 @@ Check if specific modules are enabled:
 
 ```vue
 <script setup>
-  import { useBrand } from "@upmind-automation/headless";
+import { useBrand } from "@upmind-automation/headless";
 
-  const { hasModuleEnabled } = useBrand();
+const { hasModuleEnabled } = useBrand();
 
-  const checkFeatures = async () => {
-    await isReady();
+const checkFeatures = async () => {
+  await isReady();
 
-    if (hasModuleEnabled('web_hosting')) {
-      // Show module-specific features
-    }
-  };
+  if (hasModuleEnabled("web_hosting")) {
+    // Show module-specific features
+  }
+};
 </script>
 ```
 
@@ -268,7 +266,7 @@ Check if specific modules are enabled:
 The composable exposes many reactive properties for brand information:
 
 | Property      | Type                       | Description                                         |
-|---------------|----------------------------|-----------------------------------------------------|
+| ------------- | -------------------------- | --------------------------------------------------- |
 | `brandId`     | `ComputedRef<string>`      | Thee current brand ID.                              |
 | `name`        | `ComputedRef<string>`      | The current brand name.                             |
 | `currency`    | `ComputedRef<ICurrency[]>` | The current currency object for the brand.          |
@@ -288,23 +286,23 @@ The composable includes comprehensive error handling:
 
 ```vue
 <script setup>
-  import { useBrand } from "@upmind-automation/headless";
+import { useBrand } from "@upmind-automation/headless";
 
-  const { meta, errors, isReady } = useBrand();
+const { meta, errors, isReady } = useBrand();
 
-  const handleErrors = async () => {
-    const ready = await isReady();
+const handleErrors = async () => {
+  const ready = await isReady();
 
-    if (!ready) {
-      console.error("Brand loading failed:", errors.value);
+  if (!ready) {
+    console.error("Brand loading failed:", errors.value);
 
-      // Handle specific error scenarios
-      if (meta.value.hasError) {
-        // Show error message to user
-        // Attempt retry logic
-      }
+    // Handle specific error scenarios
+    if (meta.value.hasError) {
+      // Show error message to user
+      // Attempt retry logic
     }
-  };
+  }
+};
 </script>
 ```
 
@@ -313,7 +311,7 @@ The composable includes comprehensive error handling:
 The `meta` object contains various reactive properties that provide useful information about the state of the brand requests.
 
 | Property      | Type                   | Description                                                            |
-|---------------|------------------------|------------------------------------------------------------------------|
+| ------------- | ---------------------- | ---------------------------------------------------------------------- |
 | `hasError`    | `ComputedRef<boolean>` | True if any of the state machine's key states have encountered errors. |
 | `isAvailable` | `ComputedRef<boolean>` | True if the state machine has a brand settings with a name.            |
 | `isComplete`  | `ComputedRef<boolean>` | True if the state machine has reached the final "complete" state.      |
