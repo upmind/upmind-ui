@@ -6,7 +6,6 @@
  * @anchor session-switcher.feature
  */
 
-import { config } from "@vue/test-utils";
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { AccessRoleTypes } from "@upmind-automation/types";
 import {
@@ -21,8 +20,6 @@ import {
   MINUTE_MS,
   type Bench
 } from "./harness";
-
-config.global.stubs = { Teleport: true };
 
 vi.mock("@upmind-automation/headless", async () =>
   headlessDouble(await vi.importActual("@upmind-automation/headless"))

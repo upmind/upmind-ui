@@ -16,14 +16,9 @@ Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
 
 Reds: forced-state.spec.ts — the case proving a bare load re-reads nothing.
 
-diff --git aa/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useForcedState.ts bb/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useForcedState.ts
-index e31a78fcb..6a9b8caeb 100644
---- aa/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useForcedState.ts
-+++ bb/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useForcedState.ts
-@@ -81,13 +81,13 @@ function create(): UseForcedState {
- 
-     await registration?.unregister();
-     registration = undefined;
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useForcedState.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useForcedState.ts
+@@ -148,7 +148,7 @@ function create(): ForcedStateHandle {
    }
  
    async function reconcile(next: ForcePreset | undefined): Promise<void> {
@@ -32,6 +27,3 @@ index e31a78fcb..6a9b8caeb 100644
  
      if (!next) await release();
      else {
-       const { createForceHandlers } = await import("../force/handlers");
-       const handlers = createForceHandlers(next);
- 

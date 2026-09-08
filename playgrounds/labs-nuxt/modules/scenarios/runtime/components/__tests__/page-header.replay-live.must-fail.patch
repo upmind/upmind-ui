@@ -16,7 +16,7 @@ action is disabled and carries the lock reason).
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/PageHeader.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/PageHeader.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/PageHeader.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/PageHeader.vue
-@@ -8,14 +8,14 @@
+@@ -10,12 +10,12 @@
        v-for="action in actions"
        :key="action.name"
        :label="t('labs.replay_locked')"
@@ -24,12 +24,10 @@ diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/PageHead
 +      :active="false"
      >
        <Button
-         :color="action.color ?? 'primary'"
-         :variant="action.variant ?? 'solid'"
-         :icon="action.icon"
-         :label="action.label"
+         :variant="action.variant ?? 'primary'"
+         size="sm"
 -        :disabled="action.disabled || locked"
 +        :disabled="action.disabled"
          :loading="action.loading"
+         :data-attrs="{ 'data-test-value': kebabCase(action.label) }"
          @click="action.onSelect"
-       />

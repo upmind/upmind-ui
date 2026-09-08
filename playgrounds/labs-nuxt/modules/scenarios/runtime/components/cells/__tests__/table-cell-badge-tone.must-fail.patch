@@ -13,12 +13,15 @@ tonal treatment draws, and none of them the outlined one.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellBadges.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellBadges.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellBadges.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/cells/TableCellBadges.vue
-@@ -3,7 +3,7 @@
-     v-for="badge in badges"
-     :key="badge.flag"
-     size="sm"
--    variant="muted"
-+    variant="minimal"
-     :color="badge.color"
-     :icon="badge.icon"
-     :label="i18n.translate(badge.i18n, badge.i18n)"
+@@ -1,5 +1,10 @@
+ <template>
+-  <StatusBadge v-for="badge in badges" :key="badge.flag" :tone="badge.color">
++  <StatusBadge
++    v-for="badge in badges"
++    :key="badge.flag"
++    :tone="badge.color"
++    appearance="minimal"
++  >
+     <Icon v-if="badge.icon" :icon="badge.icon" size="nano" aria-hidden="true" />
+     {{ i18n.translate(badge.i18n, badge.i18n) }}
+   </StatusBadge>

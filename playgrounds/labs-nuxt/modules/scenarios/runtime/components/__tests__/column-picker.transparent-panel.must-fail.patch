@@ -21,11 +21,10 @@ theme's own surface, so it is not the same object as every other menu.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.styles.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.styles.ts
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.styles.ts
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.styles.ts
-@@ -13,6 +13,6 @@ export default {
-     // else is stated here: the surface, the elevation and the radius are the ui
-     // menu panel's own, which is what makes this menu and every other one in
-     // the product the same object (`R7-3`).
--    content: cva("max-h-96 w-56 overflow-y-auto")
-+    content: cva("max-h-96 w-56 overflow-y-auto bg-transparent")
-   }
+@@ -12,5 +12,5 @@ export const columnPicker = {
+   // else is stated here: the surface, the elevation and the radius are the ui
+   // menu panel's own, which is what makes this menu and every other one in
+   // the product the same object (`R7-3`).
+-  content: cva("max-h-96 w-56 overflow-y-auto")
++  content: cva("max-h-96 w-56 overflow-y-auto bg-transparent")
  };

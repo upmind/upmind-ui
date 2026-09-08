@@ -1,6 +1,6 @@
 /**
  * @graphify-citation `graphify-out/graph.json` (2026-08-10, 6795 nodes) — no
- * `LabEntry` / `LabFamily` / `NavSource` / `NavMeta` / `NavItem` / `NavSection`
+ * `LabEntry` / `LabFamily` / `NavSource` / `NavMeta` / `NavItem`
  * node exists in the tree; every shape here is RELOCATED from `useNavigation.ts`,
  * none minted. See `graphify-out/GRAPH_REPORT.md`.
  */
@@ -19,8 +19,7 @@ import type { Component } from "vue";
 export type NavMeta = {
   label: string;
   icon?: string;
-  section?: string; // e.g., "Labs", "Portal", "Admin"
-  order?: number; // Sort order within section
+  order?: number; // Sort order among the top-level entries
   hidden?: boolean; // Hide from nav (for dynamic routes like :id)
   parent?: string; // Parent route name for nesting
 };
@@ -42,13 +41,6 @@ export type NavItem = {
   count?: number;
 };
 
-export type NavSection = {
-  label: string;
-  icon?: Component;
-  order: number;
-  children: NavItem[];
-};
-
 /** One composable a developer can open, whichever source declared it. */
 export type LabEntry = {
   key: string;
@@ -60,11 +52,13 @@ export type LabEntry = {
   tags: string[];
 };
 
-/** Entries sharing a natural family — `client` owns email, phone, address… */
+/**
+ * Entries sharing a natural family — `client` owns email, phone, address… A
+ * family is a GROUP and nothing else: the icons belong to the entries.
+ */
 export type LabFamily = {
   name: string;
   label: string;
-  icon: Component;
   entries: LabEntry[];
 };
 

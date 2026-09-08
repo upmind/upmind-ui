@@ -22,12 +22,20 @@ import { useSession } from "@upmind-automation/headless";
     <form @submit.prevent="handleSubmit">
       <div v-if="meta.showLoginForm">
         <input v-model="formData.username" placeholder="Username" />
-        <input v-model="formData.password" type="password" placeholder="Password" />
+        <input
+          v-model="formData.password"
+          type="password"
+          placeholder="Password"
+        />
       </div>
       <div v-if="meta.showRegisterForm">
         <input v-model="formData.username" placeholder="Username" />
         <input v-model="formData.email" type="email" placeholder="Email" />
-        <input v-model="formData.password" type="password" placeholder="Password" />
+        <input
+          v-model="formData.password"
+          type="password"
+          placeholder="Password"
+        />
       </div>
       <button type="submit">Submit</button>
     </form>
@@ -38,22 +46,22 @@ import { useSession } from "@upmind-automation/headless";
 </template>
 
 <script setup>
-  import { ref } from 'vue'
-  import { useSession } from '@upmind-automation/headless';
+import { ref } from "vue";
+import { useSession } from "@upmind-automation/headless";
 
-  const { meta, resolve, reject } = useSession();
+const { meta, resolve, reject } = useSession();
 
-  const formData = ref({
-    email: '',
-    password: '',
-    username: '',
-  })
+const formData = ref({
+  email: "",
+  password: "",
+  username: ""
+});
 
-  function handleSubmit() {
-    // Handles form submission based on the
-    // current form state (login, register, 2FA).
-    resolve(formData.value);
-  }
+function handleSubmit() {
+  // Handles form submission based on the
+  // current form state (login, register, 2FA).
+  resolve(formData.value);
+}
 </script>
 ```
 
@@ -64,39 +72,39 @@ Please find a list of some common use cases that can be handled by the `useSessi
 ### Logging in a User
 
 ```js
-import { ref } from 'vue';
-import { useSession } from '@upmind-automation/headless';
+import { ref } from "vue";
+import { useSession } from "@upmind-automation/headless";
 
 export default {
   setup() {
     const { login } = useSession();
 
     const formData = ref({
-      username: 'testuser',
-      password: 'password123',
+      username: "testuser",
+      password: "password123"
     });
 
     // Initiates the login process for a user, typically used in conjunction with form and model data.
     login(formData.value);
-  },
+  }
 };
 ```
 
 ### Handling 2FA Verification
 
 ```js
-import { ref } from 'vue';
-import { useSession } from '@upmind-automation/headless';
+import { ref } from "vue";
+import { useSession } from "@upmind-automation/headless";
 
 export default {
   setup() {
     const { verify2fa } = useSession();
 
-    const token = ref('');
+    const token = ref("");
 
     // Verify 2FA token
     verify2fa({ token: token.value });
-  },
+  }
 };
 ```
 
@@ -110,7 +118,12 @@ export default {
       <h2>Login</h2>
       <form @submit.prevent="submitLogin">
         <input v-model="loginData.username" placeholder="Username" required />
-        <input v-model="loginData.password" type="password" placeholder="Password" required />
+        <input
+          v-model="loginData.password"
+          type="password"
+          placeholder="Password"
+          required
+        />
         <button type="submit">Login</button>
       </form>
     </div>
@@ -127,16 +140,16 @@ export default {
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useSession } from '@upmind-automation/headless';
+import { ref } from "vue";
+import { useSession } from "@upmind-automation/headless";
 
 const { login, verify2fa, meta } = useSession();
 
 const loginData = ref({
-  username: '',
-  password: ''
+  username: "",
+  password: ""
 });
-const twoFaToken = ref('');
+const twoFaToken = ref("");
 
 // Handle submit of the login form
 const submitLogin = () => {
@@ -170,20 +183,20 @@ You can check for validation errors by observing the `errors` property:
 
 The `meta` object contains various reactive properties that provide useful information about the current session state. Below is a list of available options:
 
-| Property                  | Type      | Description                                                                             |
-|---------------------------|-----------|-----------------------------------------------------------------------------------------|
-| `isLoading`               | `Boolean` | Indicates if the session or any child machines (guest/client) are in a loading state.   |
-| `isAvailable`             | `Boolean` | Indicates if the session has not errored or it is checking.                             |
+| Property                  | Type      | Description                                                                            |
+| ------------------------- | --------- | -------------------------------------------------------------------------------------- |
+| `isLoading`               | `Boolean` | Indicates if the session or any child machines (guest/client) are in a loading state.  |
+| `isAvailable`             | `Boolean` | Indicates if the session has not errored or it is checking.                            |
 | `isProcessing`            | `Boolean` | Indicates if the session is in a processing state (e.g. during login or registration). |
-| `isAuthenticated`         | `Boolean` | Indicates if the user is authenticated (client state).                                  |
-| `isTransferring`          | `Boolean` | Indicates if the client session is in the process of transferring data.                 |
-| `hasExpired`              | `Boolean` | Indicates if the session has expired.                                                   |
+| `isAuthenticated`         | `Boolean` | Indicates if the user is authenticated (client state).                                 |
+| `isTransferring`          | `Boolean` | Indicates if the client session is in the process of transferring data.                |
+| `hasExpired`              | `Boolean` | Indicates if the session has expired.                                                  |
 | `showReCaptcha`           | `Boolean` | Indicates if a ReCaptcha challenge is required (e.g. during registration).             |
-| `show2fa`                 | `Boolean` | Indicates if the 2FA (Two-Factor Authentication) challenge is required during login.    |
-| `showLoginForm`           | `Boolean` | Indicates if the login form should be displayed.                                        |
-| `showRegisterForm`        | `Boolean` | Indicates if the registration form should be displayed.                                 |
-| `showRecoverPasswordForm` | `Boolean` | Indicates if the recover form should be displayed.                                      |
-| `canShowForms`            | `Boolean` | Indicates if any forms (login or register) can be shown.                                |
+| `show2fa`                 | `Boolean` | Indicates if the 2FA (Two-Factor Authentication) challenge is required during login.   |
+| `showLoginForm`           | `Boolean` | Indicates if the login form should be displayed.                                       |
+| `showRegisterForm`        | `Boolean` | Indicates if the registration form should be displayed.                                |
+| `showRecoverPasswordForm` | `Boolean` | Indicates if the recover form should be displayed.                                     |
+| `canShowForms`            | `Boolean` | Indicates if any forms (login or register) can be shown.                               |
 
 These properties can be used to conditionally render forms and/or loading indicators based on the session state.
 
@@ -209,9 +222,9 @@ Here's a simple example on how to use them:
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { JsonForms } from '@jsonforms/vue';
-import { useSession } from '@upmind-automation/headless';
+import { ref } from "vue";
+import { JsonForms } from "@jsonforms/vue";
+import { useSession } from "@upmind-automation/headless";
 
 const { meta, schema, uischema, resolve, errors } = useSession();
 
@@ -221,7 +234,7 @@ const formData = ref({});
 const submitForm = () => {
   resolve(formData.value);
   if (errors.value) {
-    console.error('Form errors:', errors.value);
+    console.error("Form errors:", errors.value);
   }
 };
 

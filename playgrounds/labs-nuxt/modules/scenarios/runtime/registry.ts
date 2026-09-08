@@ -13,7 +13,7 @@
  * the build if two ever collide.
  */
 
-import { fromPairs, get, keyBy, keys, map, values } from "lodash-es";
+import { filter, fromPairs, get, keyBy, keys, map, values } from "lodash-es";
 import type {
   RegisteredScenario,
   ScenarioDeclaration,
@@ -49,6 +49,16 @@ export const registry: Record<ScenarioKey, RegisteredScenario> = fromPairs(
 export const scenarioKeys = keys(registry);
 
 /**
+ * The keys the harness can BOOT — a self-drawn module binds no collection and
+ * no editor, so there is no thunk to build for it and asking for one throws.
+ */
+const boundKeys = filter(
+  scenarioKeys,
+  key =>
+    !!(get(registry, [key, "useList"]) ?? get(registry, [key, "useMutate"]))
+);
+
+/**
  * The same scenarios addressed by their url segment. The registrar cannot read
  * a declaration (it runs before the app exists), so a route carries only the
  * directory it came from and resolves the rest through here.
@@ -82,7 +92,7 @@ export const scenarioSources: Record<string, string> = fromPairs(
  */
 export const scenarioRegistry: ScenarioRegistry<ScenarioKey, unknown> =
   fromPairs(
-    map(scenarioKeys, key => [
+    map(boundKeys, key => [
       key,
       // The collection where the module publishes one, else its editor — the
       // two the binding's own union guarantees at least one of.

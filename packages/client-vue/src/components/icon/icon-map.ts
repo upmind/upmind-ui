@@ -42,9 +42,11 @@ import {
   Inbox,
   Info,
   Languages,
+  Layers,
   List,
   LoaderCircle,
   Lock,
+  LockOpen,
   LogOut,
   Mail,
   MapPin,
@@ -77,6 +79,7 @@ import {
   Undo2,
   User,
   UserPlus,
+  Wallet,
   X
 } from "lucide-vue-next";
 import type { Component } from "vue";
@@ -104,6 +107,10 @@ import type { Component } from "vue";
  *   ANIMATION name (not an SVG glyph), mapped so the playground's icon gate
  *   resolves it, following the `internet` precedent; `credit-card-01` is the
  *   Untitled-UI numbered variant of lucide's single CreditCard.
+ * - `layers-three-01` → Layers, `lock-unlocked-01` → LockOpen and
+ *   `wallet-01` → Wallet — Untitled numbered or hyphenated what lucide names
+ *   once. All three are declared by the labs playground, whose icon gate reds
+ *   on any name this map cannot serve.
  */
 export const ICON_MAP: Record<string, Component> = {
   "alert-octagon": OctagonAlert,
@@ -143,8 +150,10 @@ export const ICON_MAP: Record<string, Component> = {
   internet: Globe,
   list: List,
   "loading-01": LoaderCircle,
+  "layers-three-01": Layers,
   "lock-01": Lock,
   "lock-04": Lock,
+  "lock-unlocked-01": LockOpen,
   "log-out-01": LogOut,
   "mail-01": Mail,
   "marker-pin-01": MapPin,
@@ -180,6 +189,7 @@ export const ICON_MAP: Record<string, Component> = {
   "user-03": User,
   "user-circle": CircleUser,
   "user-plus-01": UserPlus,
+  "wallet-01": Wallet,
   "x-close": X
 };
 

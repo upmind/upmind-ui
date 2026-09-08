@@ -134,7 +134,7 @@ export function isServableRefusal(fixture: RecordedFixture): boolean {
   return (
     isRefusal(fixture) &&
     fixture.response.status !== UNAUTHENTICATED &&
-    !isAbsentRecordRead(fixture)
+    fixture.response.status !== NOT_FOUND
   );
 }
 
@@ -148,6 +148,10 @@ export function isServableRefusal(fixture: RecordedFixture): boolean {
  *
  * A refusal is not an absence — only the one status that NAMES a missing record
  * qualifies, so a 401 carrying a null payload stays an auth refusal.
+ *
+ * The absence reading is the STATUS's, not the method's: a 404 to a delete says
+ * the record was already gone, which is no more a load failure than a 404 to a
+ * read is. {@link isServableRefusal} excludes both.
  */
 export function isAbsentRecordRead(fixture: RecordedFixture): boolean {
   const { status } = fixture.response;
@@ -264,6 +268,9 @@ function hostablePresets(
   const hostable: Record<ForceUrlPreset, boolean> = {
     empty: some(fixtures, isServedRead),
     loading: !isEmpty(fixtures),
+    // Read off the DECLARATION, never off what happens to be recorded: a
+    // declared state with no recording behind it is a capture `captureGaps`
+    // names out loud, not an offer that quietly disappears.
     "error-collection": declaresRefusal && some(fixtures, isRead),
     "error-action":
       declaresRefusal && some(fixtures, fixture => !isRead(fixture))

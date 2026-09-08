@@ -511,6 +511,14 @@ export type ScenarioTracks = string;
 export type ScenarioBinding = (
   | { useList: FourLayerComposable; useMutate?: FourLayerComposable }
   | { useList?: FourLayerComposable; useMutate: FourLayerComposable }
+  /**
+   * A module that DRAWS ITSELF binds nothing: its own `*.page.vue` is the
+   * route's component, so no collection or editor is booted for it and the
+   * shared renderer never sees it. It still declares, still registers, still
+   * carries its nav entry — a module whose composable is not four-layer yet
+   * reaches the playground this way rather than as a page outside it.
+   */
+  | { useList?: never; useMutate?: never }
 ) & {
   /**
    * The single-read composable a row opens READ-ONLY — the read twin of

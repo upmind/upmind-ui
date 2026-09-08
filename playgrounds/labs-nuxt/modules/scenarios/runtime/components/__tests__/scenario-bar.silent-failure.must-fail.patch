@@ -18,22 +18,22 @@ with the thrower's own sentence.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioBar.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioBar.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioBar.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioBar.vue
-@@ -31,18 +31,6 @@
-         />
+@@ -52,18 +52,6 @@
+         </Badge>
        </template>
-
+ 
 -      <Tooltip v-if="failure" :label="failure">
 -        <Badge
 -          size="sm"
--          color="danger"
--          variant="muted"
--          icon="alert-triangle"
--          :label="t('labs.scene_failed', { reason: failure })"
--          :class="styles.scenarioBar.failure"
--          :data-attrs="{ 'data-test-key': 'scene-failure' }"
--        />
+-          variant="danger"
+-          appearance="muted"
+-          :class="scenarioBar.failure()"
+-          :data-test-key="'scene-failure'"
+-        >
+-          {{ t("labs.scene_failed", { reason: failure }) }}
+-        </Badge>
 -      </Tooltip>
 -
-       <div :class="styles.scenarioBar.tail">
+       <div :class="scenarioBar.tail()">
          <SheetToggle />
        </div>
