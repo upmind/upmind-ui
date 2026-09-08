@@ -1193,6 +1193,90 @@ importers:
         specifier: ^4.9.0
         version: 4.9.0(typedoc@0.28.15(typescript@5.9.3))
 
+  packages/auth:
+    dependencies:
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../headless
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
+
+  packages/basket:
+    dependencies:
+      '@upmind-automation/auth':
+        specifier: workspace:*
+        version: link:../auth
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../headless
+      '@upmind-automation/invoice':
+        specifier: workspace:*
+        version: link:../invoice
+      '@upmind-automation/payment':
+        specifier: workspace:*
+        version: link:../payment
+      '@upmind-automation/product':
+        specifier: workspace:*
+        version: link:../product
+      '@upmind-automation/recommendations':
+        specifier: workspace:*
+        version: link:../recommendations
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
+
+  packages/catalogue:
+    dependencies:
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../headless
+      '@upmind-automation/product':
+        specifier: workspace:*
+        version: link:../product
+      '@upmind-automation/recommendations':
+        specifier: workspace:*
+        version: link:../recommendations
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
+
+  packages/client:
+    dependencies:
+      '@upmind-automation/auth':
+        specifier: workspace:*
+        version: link:../auth
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../headless
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
+
   packages/client-vue:
     dependencies:
       '@formkit/auto-animate':
@@ -1359,6 +1443,24 @@ importers:
         specifier: ^3.0.5
         version: 3.3.5(typescript@5.9.3)
 
+  packages/domain:
+    dependencies:
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../headless
+      '@upmind-automation/product':
+        specifier: workspace:*
+        version: link:../product
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
+
   packages/eslint-plugin-scope-based:
     dependencies:
       '@typescript-eslint/parser':
@@ -1368,6 +1470,18 @@ importers:
       eslint:
         specifier: 9.39.2
         version: 9.39.2(jiti@2.7.0)(supports-color@10.2.2)
+
+  packages/foundation:
+    dependencies:
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../headless
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
 
   packages/headless:
     dependencies:
@@ -1597,6 +1711,78 @@ importers:
         version: 3.7.4
 
   packages/icons: {}
+
+  packages/invoice:
+    dependencies:
+      '@upmind-automation/auth':
+        specifier: workspace:*
+        version: link:../auth
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../headless
+      '@upmind-automation/payment':
+        specifier: workspace:*
+        version: link:../payment
+      '@upmind-automation/recommendations':
+        specifier: workspace:*
+        version: link:../recommendations
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
+
+  packages/payment:
+    dependencies:
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../headless
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
+
+  packages/product:
+    dependencies:
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../headless
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
+
+  packages/recommendations:
+    dependencies:
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../headless
+      '@upmind-automation/product':
+        specifier: workspace:*
+        version: link:../product
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
 
   packages/scenario-harness:
     dependencies:

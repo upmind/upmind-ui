@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig/vue-library.json",
+  "compilerOptions": {
+    "composite": true,
+    "emitDeclarationOnly": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "declarationDir": "dist",
+    "tsBuildInfoFile": "dist/tsconfig.build.tsbuildinfo",
+    "baseUrl": ".",
+    "paths": {
+      "@upmind/ui": ["../../design-system/packages/ui/src/index.ts"],
+      "@upmind-automation/headless": ["../headless/src/index.ts"],
+      "@upmind-automation/foundation": ["../foundation/src/index.ts"],
+      "@upmind-automation/auth": ["../auth/src/index.ts"]
+    }
+  },
+  "include": ["src"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/__tests__/**",
+    "**/*.spec.*",
+    "**/*.test.*"
+  ],
+  "references": [
+    {
+      "path": "../../design-system/packages/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../headless/tsconfig.build.json"
+    },
+    {
+      "path": "../foundation/tsconfig.build.json"
+    },
+    {
+      "path": "../auth/tsconfig.build.json"
+    }
+  ]
+}

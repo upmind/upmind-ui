@@ -11,7 +11,19 @@
       "@upmind-automation/client-vue": ["./packages/client-vue/src/index.ts"],
       "@upmind-automation/scenario-harness": [
         "./packages/scenario-harness/src/index.ts"
-      ]
+      ],
+      "@upmind-automation/foundation": ["./packages/foundation/src/index.ts"],
+      "@upmind-automation/product": ["./packages/product/src/index.ts"],
+      "@upmind-automation/recommendations": [
+        "./packages/recommendations/src/index.ts"
+      ],
+      "@upmind-automation/catalogue": ["./packages/catalogue/src/index.ts"],
+      "@upmind-automation/domain": ["./packages/domain/src/index.ts"],
+      "@upmind-automation/auth": ["./packages/auth/src/index.ts"],
+      "@upmind-automation/client": ["./packages/client/src/index.ts"],
+      "@upmind-automation/payment": ["./packages/payment/src/index.ts"],
+      "@upmind-automation/invoice": ["./packages/invoice/src/index.ts"],
+      "@upmind-automation/basket": ["./packages/basket/src/index.ts"]
     }
   },
   "include": [],
@@ -20,6 +32,16 @@
     { "path": "./packages/i18n/tsconfig.build.json" },
     { "path": "./packages/headless/tsconfig.build.json" },
     { "path": "./design-system/packages/ui/tsconfig.build.json" },
-    { "path": "./packages/client-vue/tsconfig.build.json" }
+    { "path": "./packages/client-vue/tsconfig.build.json" },
+    { "path": "./packages/foundation/tsconfig.build.json" },
+    { "path": "./packages/product/tsconfig.build.json" },
+    { "path": "./packages/recommendations/tsconfig.build.json" },
+    { "path": "./packages/catalogue/tsconfig.build.json" },
+    { "path": "./packages/domain/tsconfig.build.json" },
+    { "path": "./packages/auth/tsconfig.build.json" },
+    { "path": "./packages/client/tsconfig.build.json" },
+    { "path": "./packages/payment/tsconfig.build.json" },
+    { "path": "./packages/invoice/tsconfig.build.json" },
+    { "path": "./packages/basket/tsconfig.build.json" }
   ]
 }

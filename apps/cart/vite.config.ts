@@ -81,6 +81,47 @@ export default defineConfig(({ mode, command }) => {
         "@upmind-automation/client-vue": resolve(
           __dirname,
           "../../packages/client-vue/src/index.ts"
+        ),
+        // ADR 023 domain packages. Source-consumed, like every alias above.
+        "@upmind-automation/foundation": resolve(
+          __dirname,
+          "../../packages/foundation/src/index.ts"
+        ),
+        "@upmind-automation/product": resolve(
+          __dirname,
+          "../../packages/product/src/index.ts"
+        ),
+        "@upmind-automation/recommendations": resolve(
+          __dirname,
+          "../../packages/recommendations/src/index.ts"
+        ),
+        "@upmind-automation/catalogue": resolve(
+          __dirname,
+          "../../packages/catalogue/src/index.ts"
+        ),
+        "@upmind-automation/domain": resolve(
+          __dirname,
+          "../../packages/domain/src/index.ts"
+        ),
+        "@upmind-automation/auth": resolve(
+          __dirname,
+          "../../packages/auth/src/index.ts"
+        ),
+        "@upmind-automation/client": resolve(
+          __dirname,
+          "../../packages/client/src/index.ts"
+        ),
+        "@upmind-automation/payment": resolve(
+          __dirname,
+          "../../packages/payment/src/index.ts"
+        ),
+        "@upmind-automation/invoice": resolve(
+          __dirname,
+          "../../packages/invoice/src/index.ts"
+        ),
+        "@upmind-automation/basket": resolve(
+          __dirname,
+          "../../packages/basket/src/index.ts"
         )
       },
       dedupe: ["vue-router"]
