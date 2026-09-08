@@ -1,0 +1,55 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/orders/85d26e96-783d-1652-d98f-314502e70439?with=address%2Caddress.country%2Ccurrency%2Ccustom_fields.field%2Cpromotions%2Ctaxes%2Ctaxes.tax_tag_data%2Cclient%2Cclient.default_phone%2Cproducts.product.image%2Cproducts.product.prices%2Cproducts.product.category&case=not-mine",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 403,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a344899b3d4eeeea-LIS",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Tue, 01 Sep 2026 13:14:21 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=9kYo3FkTRzpLel5iF8CK4UBzS%2FtZ67Yw0jEGkLkb1qC6P3KNECXbDGyEe%2B2r16ueg2mcpQ3ZrT2oBA%2FqoAzoOkONAAZipyu716XzU2hmoJYi3sxyR8AGsAYKTVj2hAyiokPrTZ%2B19w%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "c523d1e20ddda443d2a578abac19efd6b7c8e273",
+        "type": 0,
+        "code": 403,
+        "message": "Unauthorized access to basket",
+        "data": null
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-01T13:14:21.415Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "basket-billing"
+  }
+}

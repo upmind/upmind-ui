@@ -19,14 +19,10 @@ export const AcceptedCards = [
   },
   {
     name: "Discover",
-    cardNumber: "378282246310005",
-    expiryDate: "12/50",
-    cvcCode: "123"
-  },
-  {
-    name: "DinersClub",
-    cardNumber: "378282246310005",
+    cardNumber: "6011111111111117",
     expiryDate: "12/50",
     cvcCode: "123"
   }
+  // No DinersClub: this Stripe account declines it, and the case only ever
+  // passed by carrying the Amex number.
 ];

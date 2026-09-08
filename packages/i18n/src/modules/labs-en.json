@@ -68,6 +68,7 @@
   "home_nothing_matches_description": "No composable matches that filter. Clear it to see them all.",
   "navigation": "Primary",
   "open_navigation": "Open navigation",
+  "record_absent_text": "There is no record here for the identity the url names.",
   "refinement": "{label}: {value}",
   "refinements": "Refinements",
   "replay_chip": "Replay",
@@ -123,5 +124,8 @@
   "transport_play": "Play",
   "transport_step_back": "Step back",
   "transport_step_forward": "Step forward",
-  "transport_stop": "Stop"
+  "transport_stop": "Stop",
+  "order_pay_close": "Close",
+  "order_pay_resuming": "Resuming your payment…",
+  "order_pay_resuming_text": "Please wait while we confirm your payment with the provider."
 }

@@ -28,6 +28,12 @@ import { parseScopeSuffix } from "~/composables/scope/scope-mapper";
 const AUTH_OVERLAY_ID = "session";
 
 /**
+ * The overlay suffix `registerOverlayRoutes` injects the pay modal under — the
+ * key of `LABS_OVERLAYS`, matching the `--pay` child of the order page.
+ */
+const PAY_OVERLAY_ID = "pay";
+
+/**
  * The actor a session is collected for when the entry names none — the one the
  * url carries, which is the only thing that moves a page off SELF (`R6-30b`).
  * That is what `guardScenario` rejects on, so the overlay opens on the journey
@@ -143,6 +149,25 @@ export function authOverlayTarget(
 }
 
 /**
+ * The pay overlay's location over the order page — the `<order>--pay` child the
+ * overlay registry injects, carrying the page's params and the return query
+ * (`operation_id`) so the resume hook reads the reference off the route
+ * (FE-3133). It mirrors `authOverlayTarget`: the funnel re-targets here on an
+ * off-site return, and the overlay opens by navigation, not imperative mount.
+ */
+export function payOverlayTarget(
+  route?: Pick<RouteLocation, "name" | "params" | "query">
+) {
+  const parent = overlayParent(route);
+
+  return {
+    name: `${parent}--${PAY_OVERLAY_ID}`,
+    params: route?.params,
+    query: route?.query
+  };
+}
+
+/**
  * The page BENEATH the overlay, re-scoped to the actor chosen at the gate — the
  * `/as/<actor>` segment the whole playground scopes by, which is why choosing at
  * the gate is a scope change and not a second journey (`R7-1`).
@@ -226,6 +251,29 @@ export default <FunnelProps>{
      */
     idle: {
       entry: ["setResolved"]
+    },
+
+    /**
+     * 🎯 ROUTE.ORDER
+     * The order/invoice pay page. An off-site gateway return lands here carrying
+     * `?operation_id`; `guardOrderReturn` rejects on that reference so the funnel
+     * re-targets the `<order>--pay` overlay child (the auth overlay-target
+     * pattern). A plain visit resolves with no redirect (FE-3133).
+     */
+    [ROUTE.ORDER]: {
+      invoke: {
+        src: "guardOrderReturn",
+        onDone: { actions: ["setResolved"] },
+        onError: {
+          actions: [
+            assign({
+              targetRoute: ({ currentRoute }: FunnelContext) =>
+                payOverlayTarget(currentRoute)
+            }),
+            "setResolved"
+          ]
+        }
+      }
     },
 
     /**

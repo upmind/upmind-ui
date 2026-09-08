@@ -14,10 +14,12 @@ export const ErrorCards = [
     errorText: "Your card’s expiration year is invalid."
   },
   {
+    // No errorText: Stripe shows the incomplete-CVC message only after the
+    // field blurs, so the spec asserts the refusal (Place Order disabled) alone.
     name: "Invalid CVC",
     cardNumber: "4242424242424242",
     expiryDate: "12/50",
     cvcCode: "99",
-    errorText: "Your card’s security code is incomplete."
+    errorText: ""
   }
 ];

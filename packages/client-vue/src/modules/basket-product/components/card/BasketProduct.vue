@@ -38,6 +38,7 @@
               :pricing="pricingProductIds"
               :edit-route="editRoute"
               :image="ui.productImages.isVisible"
+              :excerpt="ui.productExcerpt.isVisible"
               :inline-meta="inlineMeta"
               :upsell-options="upsellOptions"
               :terms="config?.terms?.value"
@@ -309,8 +310,12 @@ const quantityModel = computed({
   get: () => config?.model?.value?.quantity ?? props.configuration.quantity,
   set: (value: number) => {
     if (!config) return;
-    config.updateQuantity(value);
-    debouncedUpdate({ forced: meta.value.isConfigInvalid });
+    // save once the check settles, as the term path does — an UPDATE landing
+    // mid-check cancels the parse and the undirtied model never PUTs
+    const applied = config.updateQuantity(value);
+    applied?.then(() =>
+      debouncedUpdate({ forced: meta.value.isConfigInvalid })
+    );
   }
 });
 

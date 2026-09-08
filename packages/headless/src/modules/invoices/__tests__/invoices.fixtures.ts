@@ -28,6 +28,16 @@
  * (`code-tests.companion.md`) — the assertion is on the REQUEST body, not the
  * response.
  *
+ * Merged from gitlab/develop (this dispatch): develop's generator additionally
+ * captured a fully-paid single-invoice read plus the two control responses
+ * (unknown id / unauthenticated) for the PRE-CONVERSION flat module. Those
+ * three capabilities are still real for this module (the mapper unit tests
+ * carried forward in `invoices.mappers.test.ts` need a real paid row; the
+ * "unaddressable" guard scenario needs a real 401 receipt) so they are folded
+ * into this ONE identity flow below, captured with THIS module's actual
+ * `LOAD_ONE_WITH` include set rather than develop's narrower one — the
+ * capture must match what `loadOne` really requests.
+ *
  * ## Capture-limitation disclosure (required by NFR-2 / the 2026-08-05 receipt)
  * This staging client's real invoice history may not contain every VM
  * condition this story maps (a genuine consolidation invoice, a genuine
@@ -42,7 +52,11 @@
  *
  * ## Captures
  * `get-invoices?case=default` (broad real list, full include set, AC-2/5/6/7/8/9/11) ·
- * `get-invoices-id` (one real single-invoice read, full include set, AC-2/5/8/9/11) ·
+ * `get-invoices-id-case-first` (one real single-invoice read, full include set, AC-2/5/8/9/11) ·
+ * `get-invoices-id-case-unpaid` (one real UNPAID/OVERDUE single-invoice read, if one exists) ·
+ * `get-invoices-id-case-paid` (one real fully-paid single-invoice read, if one exists — AC-16) ·
+ * `get-invoices-id-case-not-found` (control: unknown id, 404) ·
+ * `get-invoices-id-case-signed-out` (control: unauthenticated, 401 — AC-14) ·
  * `get-invoices-unpaid_amount-id` (one real unpaid-amount read, AC-1)
  */
 
@@ -119,6 +133,7 @@ describe("Invoices API Fixtures Generator", () => {
   let firstInvoiceId: string | undefined;
   let unpaidInvoiceId: string | undefined;
   let unpaidInvoiceCurrencyId: string | undefined;
+  let paidInvoiceId: string | undefined;
 
   beforeAll(async () => {
     generator = new Generator(API_URL, {
@@ -174,6 +189,9 @@ describe("Invoices API Fixtures Generator", () => {
         asRow(row).status?.code ?? ""
       )
     )?.id;
+    paidInvoiceId = rows.find(
+      row => asRow(row).status?.code === "invoice_paid"
+    )?.id;
 
     // Disclosure only — never a hard failure; the int tests fall back to a
     // real-row-plus-one-toggle construction for whichever gap is logged here.
@@ -205,7 +223,8 @@ describe("Invoices API Fixtures Generator", () => {
     console.log(
       "[fixtures:generate invoices] real-corpus coverage — " +
         `consolidation:${hasConsolidation} creditNote:${hasCreditNote} ` +
-        `largeBundle:${hasLargeBundle} delegatedOrChild:${hasDelegatedOrChild}`
+        `largeBundle:${hasLargeBundle} delegatedOrChild:${hasDelegatedOrChild} ` +
+        `paidRow:${!!paidInvoiceId}`
     );
   });
 
@@ -247,6 +266,48 @@ describe("Invoices API Fixtures Generator", () => {
     unpaidInvoiceCurrencyId = (
       body as { data?: { currency_id?: string } } | null
     )?.data?.currency_id;
+  });
+
+  it("captures GET /invoices/{id} for a real fully-paid invoice, if one exists (AC-16)", async () => {
+    if (!paidInvoiceId) {
+      // eslint-disable-next-line no-console
+      console.log(
+        "[fixtures:generate invoices] no invoice_paid row in this capture " +
+          "window — get-invoices-id-case-paid not (re)captured; the mapper " +
+          "unit tests fall back to the last checked-in real capture."
+      );
+      return;
+    }
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.get(
+      `/api/invoices/${paidInvoiceId}?${LOAD_ONE_WITH}&with_count=products&case=paid`
+    );
+    generator.clearBearerToken();
+    if (status !== 200) {
+      throw new Error(`Paid single-read capture returned ${status}.`);
+    }
+  });
+
+  it("captures GET /invoices/{id} for an unknown id (404, control response)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    await generator.get(
+      `/api/invoices/00000000-0000-0000-0000-000000000000?${LOAD_ONE_WITH}&case=not-found`
+    );
+    generator.clearBearerToken();
+  });
+
+  it("captures GET /invoices/{id} unauthenticated (401, control response — AC-14)", async () => {
+    const anchorId = firstInvoiceId ?? unpaidInvoiceId;
+    if (!anchorId) {
+      throw new Error(
+        "No invoice id resolved from the list capture — cannot capture the " +
+          "signed-out control response."
+      );
+    }
+    generator.clearBearerToken();
+    await generator.get(
+      `/api/invoices/${anchorId}?${LOAD_ONE_WITH}&case=signed-out`
+    );
   });
 
   it("captures GET /invoices/unpaid_amount/{id} (one real unpaid-amount read, AC-1)", async () => {

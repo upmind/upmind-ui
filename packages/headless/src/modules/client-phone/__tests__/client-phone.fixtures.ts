@@ -381,7 +381,7 @@ describe("Client-Phone API Fixtures Generator", () => {
       );
     }
 
-    try {
+    await (async () => {
       generator.setBearerToken(clientToken.access_token);
       const pageOne = await generator.get(
         `/api/clients/${clientId}/phones?limit=2&offset=0&case=page-1`
@@ -397,13 +397,13 @@ describe("Client-Phone API Fixtures Generator", () => {
             "refusing to ship a fixture that does not represent a real page."
         );
       }
-    } finally {
+    })().finally(async () => {
       await call(
         "DELETE",
         `/api/clients/${clientId}/phones/${pagingPhoneId}`,
         clientToken.access_token
       );
-    }
+    });
   });
 
   // Re-recorded with `limit=0` (prover fix, 2026-08-23): the ORIGINAL

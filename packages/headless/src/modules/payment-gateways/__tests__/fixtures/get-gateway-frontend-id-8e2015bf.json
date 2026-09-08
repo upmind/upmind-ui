@@ -1,0 +1,63 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/gateway/frontend/320e4357-95e7-8d18-757a-31643202d986?case=details-razorpay&client_id=25d96e76-3ed0-913d-d52c-417482528340&amount=50.00&currency=GBP&return_url=http%3A%2F%2Fqa-automation.local%3A5173%2Fpayment%2Freturn",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a33474d81f8acef8-LIS",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Sun, 30 Aug 2026 14:24:00 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=fIEoAdvpRzD7OV2HhAGob%2Flkhuf3ZVh3Dhy33zWEbHQ6wvkLF%2FliUE5026XCjwqivkpQHWthkC1Cg4XDPq1ZwqcaE9zys5YV6AAM7Wi5ZnGctmp8Hlf0RG39out4%2Fu8M%2BxXTYtu1%2Bw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "return_url": "",
+        "cancel_url": "",
+        "notify_url": "",
+        "gateway_specific": {
+          "key_id": "mock-key_id",
+          "customer_id": "cust_RWZ6dQLiNTtvP1",
+          "order_id": "order_TW0rdxQo2VP878",
+          "prefill": {
+            "name": "Checkout Test",
+            "email": "mock-email-1@example.com",
+            "contact": "mock-phone-1"
+          }
+        }
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-30T14:24:00.307Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "payment-gateways"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/gateway/frontend/tokenize-end/5d085e69-d562-3719-e98a-218e940d4237?case=token-unusable",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+      "client_payment_details_id": "00000000-0000-0000-0000-000000000000",
+      "token": "mock-token",
+      "auto_payment": true
+    }
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a32c4582af619b7d-LIS",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Sat, 29 Aug 2026 14:33:34 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=o7Nre%2BbwTCTZbM9Wz%2BnsKrgCC50f9ggowbesCruHB6ZMbIAuFOY0a4uVuceOev2eIWOspoWk7AybJSNjZC3nkoiV8fZZlyRtwTB8%2B5A3mG0VhoEW11ulY0zwBsFbEfcipVeqqinMlA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "dde1608b7a4f2483a1fb87d44f6e72ba5532a4a8",
+        "type": 0,
+        "code": 422,
+        "message": "API request invalid!",
+        "data": {
+          "client_payment_details_id": [
+            "The identifier (client payment details id) is invalid!"
+          ]
+        }
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-29T14:33:34.167Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "payment-details"
+  }
+}

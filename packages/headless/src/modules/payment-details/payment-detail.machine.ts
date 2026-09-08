@@ -10,6 +10,7 @@ import {
 import { STRIPE_QUERY_PARAMS } from "../payment-gateways/stripe/types";
 import { useQueryParams } from "../routing";
 import { authSubscription } from "../session-store";
+import { useOperations } from "../system-operations/useOperations";
 import { mapPaymentData } from "./payment-details.mappers";
 import { useSchema, useUischema } from "./payment-details.schemas";
 import services from "./payment-details.services";
@@ -25,8 +26,7 @@ import {
   mapToHeadlessError,
   stateMatches,
   stopService,
-  useModelParser,
-  useSessionStorage
+  useModelParser
 } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { responseCodes } from "../../utils";
@@ -697,7 +697,7 @@ export default createMachine(
         const { getParam, unsetParam } = useQueryParams();
         const operationId = getParam(QUERY_PARAMS.OPERATION_ID);
         if (operationId) {
-          useSessionStorage().remove("operation");
+          useOperations().clearOperation(operationId);
           unsetParam(QUERY_PARAMS.OPERATION_ID);
           unsetParam(STRIPE_QUERY_PARAMS.STRIPE_SETUP_INTENT);
           unsetParam(STRIPE_QUERY_PARAMS.STRIPE_SETUP_INTENT_CLIENT_SECRET);
@@ -736,8 +736,7 @@ export default createMachine(
         const { getParam } = useQueryParams();
         const operationId = getParam(QUERY_PARAMS.OPERATION_ID);
         if (!operationId) return false;
-        const operation = useSessionStorage().get("operation");
-        return !!operation;
+        return !!useOperations().getOperation(operationId);
       },
 
       hasBasket: ({ orderId }: PaymentDetailsContext, _event: AnyEventObject) =>

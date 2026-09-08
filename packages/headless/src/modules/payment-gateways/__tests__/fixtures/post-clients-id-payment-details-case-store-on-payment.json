@@ -1,0 +1,57 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/payment_details?case=store-on-payment",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+      "return_url": "http://qa-automation.local:5173/payment/return",
+      "auto_payment": true
+    }
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a334751f39484813-LIS",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Sun, 30 Aug 2026 14:24:10 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=a1%2BO5D56lWWP2Syhx9VJzxgnQkXH7ycyuVkU4J7K3i1m5DSFjONRrxKXClWf5SAdfzL%2BTNthFhz5izYWxPDjE13680MxT5n9%2BAubAlZJBAL8PRrBZAGSOOoJhVid1f1L%2FAULVlxCIw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "f54387629270164b5a5b5e16b1321a0f56add9a3",
+        "type": 0,
+        "code": 409,
+        "message": "Please, use the Frontend implementation of Stripe in order to save cards!",
+        "data": []
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-30T14:24:10.493Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "payment-gateways"
+  }
+}

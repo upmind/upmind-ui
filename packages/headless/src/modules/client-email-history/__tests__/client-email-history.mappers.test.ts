@@ -4,16 +4,23 @@
  * reach (AC-3, AC-13)
  *
  * ## Job To Be Done
- * Two branches of this module's mappers are unreachable from any recorded
- * staging capture, and BOTH are pure-function branches:
+ * Three branches of this module's mappers are unreachable from any recorded
+ * staging capture, and ALL THREE are pure-function branches:
  *
  * - **AC-3 precedence** — `mapEmailStatus` must resolve `ERROR` over `BOUNCED`
  *   for a row that is both. The staging client this module's fixtures were
- *   captured against has ZERO bounced rows across its entire ~2860-row history;
- *   that is itself a REAL recorded capture, not an assumption —
+ *   captured against has ZERO bounced rows across its entire history; that is
+ *   itself a REAL recorded capture, not an assumption —
  *   `fixtures/get-self-email-history-filter-bounced-true.json` carries
  *   `total: 0` with an empty `data` array. No bounced row exists to capture, so
  *   no bounced+error row can.
+ * - **AC-3 SENDING** — `mapEmailStatus` must resolve `SENDING` for a row that
+ *   is neither sent, bounced nor errored. This account held a handful when the
+ *   corpus was first captured and holds none now: the whole-history
+ *   `fixtures/get-self-email-history-filter-error-id-null.json` carries
+ *   `total: 1` and that one row is already `sent`. The generator asserts this
+ *   rather than assuming it, so the day staging holds an in-flight row again
+ *   the capture case fails loudly instead of quietly re-recording.
  * - **AC-13 body defaulting** — `mapReceivedEmail` must yield `""`, never
  *   `undefined`, when a row carries no nested `data.body`. Every real row
  *   sampled while capturing carried a populated one.
@@ -31,8 +38,8 @@
  * ## Provenance of the inputs
  * Every input below is a REAL recorded row, read from this module's captured
  * fixtures via `getFixtureBody`, with EXACTLY ONE field toggled to construct
- * the hypothetical under test (`bounced: true`; a removed `data.body`). The
- * toggle is stated at each call site. The capture disclosure in
+ * the hypothetical under test (`bounced: true`; a cleared `error_id`; a removed
+ * `data.body`). The toggle is stated at each call site. The capture disclosure in
  * `client-email-history.fixtures.ts` stands unchanged — this file does not
  * close that gap in the recorded corpus, it proves the branch the corpus cannot
  * reach.
@@ -101,6 +108,30 @@ describe("client-email-history status resolution — precedence (AC-3)", () => {
     expect(mapped.status).toBe(SentEmailStatus.ERROR);
     expect(mapped.meta.isError).toBe(true);
     expect(mapped.meta.isBounced).toBe(true);
+  });
+
+  it("AC-3 resolves SENDING for a row still in flight — a real recorded error row with its error_id cleared", () => {
+    const row = recordedErrorRow();
+    expect(row.error_id).toBeTruthy();
+    expect(row.sent).toBe(false);
+    expect(row.bounced).toBe(false);
+
+    // The ONE toggle: this account's in-flight emails have all since sent, so
+    // the in-flight row is constructed from a real errored one.
+    const inFlight = { ...row, error_id: null };
+
+    expect(mapEmailStatus(asSentEmail(inFlight))).toBe(SentEmailStatus.SENDING);
+  });
+
+  it("AC-3 reports an in-flight row as neither sent, bounced nor errored on meta", () => {
+    const inFlight = { ...recordedErrorRow(), error_id: null };
+
+    const mapped = mapReceivedEmail(asSentEmail(inFlight));
+
+    expect(mapped.status).toBe(SentEmailStatus.SENDING);
+    expect(mapped.meta.isSent).toBe(false);
+    expect(mapped.meta.isBounced).toBe(false);
+    expect(mapped.meta.isError).toBe(false);
   });
 
   it("AC-3 resolves BOUNCED over SENT for a row that is both — a real recorded sent row with bounced toggled true", () => {

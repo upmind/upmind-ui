@@ -2,6 +2,12 @@ import { BrowserContext, Page, Route } from "@playwright/test";
 import { URLs } from "../constants/urls";
 import { getTimestamp } from "../helpers/dates";
 
+// The proxy fetch runs in Node, not in the browser: a keep-alive socket that
+// staging has already closed surfaces here as ECONNRESET, where the browser
+// would retry the request on a fresh connection transparently. Playwright's
+// maxRetries retries exactly that error, and only that error, once.
+const PROXY_FETCH = { maxRetries: 1 } as const;
+
 /**
  * Intercepts product API responses and injects free trial fields.
  * Handles both single-product responses (product config page) and
@@ -35,7 +41,7 @@ export function mockTrialProduct(
       return;
     }
 
-    const response = await route.fetch();
+    const response = await route.fetch(PROXY_FETCH);
     const json = await response.json();
 
     const injectTrialFields = (product: Record<string, unknown>) => {
@@ -115,7 +121,7 @@ export const captureProducts = (page: Page) =>
  */
 export async function interceptProductMeta(page: Page, newMeta: {}) {
   await page.route("**/api/basket/products/**", async (route: Route) => {
-    const response = await route.fetch();
+    const response = await route.fetch(PROXY_FETCH);
     let body = await response.json();
 
     body.data.meta = newMeta;
@@ -222,7 +228,7 @@ export function interceptBasketUpsells(
       return;
     }
 
-    const response = await route.fetch();
+    const response = await route.fetch(PROXY_FETCH);
     let body: any;
     try {
       body = await response.json();
@@ -485,7 +491,7 @@ function ensureRouteRegistered(page: Page): RecommendationsMockState {
         return;
       }
 
-      const response = await route.fetch();
+      const response = await route.fetch(PROXY_FETCH);
       let body: any;
       try {
         body = await response.json();

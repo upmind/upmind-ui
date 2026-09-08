@@ -124,7 +124,10 @@ const preservePromotions = computed(() =>
   some(props.items, (p: Product) => p.meta?.discounted === true)
 );
 
-watch(props, ({ refreshing }) => {
-  if (refreshing) fetchVisibleRecommendations();
-});
+watch(
+  () => props.refreshing,
+  refreshing => {
+    if (refreshing) fetchVisibleRecommendations();
+  }
+);
 </script>

@@ -1,11 +1,17 @@
 // -----------------------------------------------------------------------------
 /**
  * @module testing
- * @description The package's ONE test-artefact entry — every module's own
- * `.feature`, step catalog, `@internal` kit and recorded bodies, collected from
+ * @description The package's ONE test-HARNESS entry — every module's own
+ * `.feature`, step catalog, `@internal` kit and replay lifecycle, collected from
  * INSIDE the package and keyed by the module that owns them. Kept off the main
  * barrel, so nothing it collects can reach a production graph through `.`, and
  * the only specifier: the package publishes no per-module subpath beside it.
+ *
+ * The recorded bodies moved to `./fixtures` (FE-3113) and are re-exported here
+ * unchanged. That entry carries recordings and nothing else, which is what lets
+ * app runtime reach a recording from any file while the harness — the half that
+ * boots modules and registers runner lifecycles — stays behind this one's named
+ * seam.
  *
  * Workspace-only by construction — `package.json`'s `files` ships `dist` alone,
  * so these `src` paths serve this repo's own lanes and never an installed
@@ -17,84 +23,39 @@
  * `setup.integration.ts` or `__tests__/fixtures/*.json`. Nothing registers, and
  * no consumer names a file inside this package.
  *
- * Eager only where an artefact is inert: the app runtime seam that reaches the
- * recorded corpus imports this entry too, so the eager tier holds the playlist
- * text and the engine-free catalogs, and everything that boots a module or
- * parses a recording sits behind a loader.
+ * Eager only where an artefact is inert: the playlist text and the engine-free
+ * catalogs are eager, and everything that boots a module or parses a recording
+ * sits behind a loader. Those inert two now LIVE on `./features` (FE-3133) and
+ * are re-exported below — the app-runtime seam reaches them there, because a
+ * lazy glob is still a module a bundler must resolve, and this entry's
+ * `setup.integration.ts` reaches msw's node-only interceptors.
  *
  * `import.meta.glob` is a Vite transform, so this entry serves the app graph and
  * the vitest lanes and is inert in a process that is neither.
  */
 
-import { has, mapValues, reduce, set } from "lodash-es";
+import { keyByModule } from "./testing.utils";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
-import type { StepCatalog } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
 
-const MODULE = /\/modules\/([^/]+)\/__tests__\//;
-const FIXTURE = /\/modules\/([^/]+)\/__tests__\/fixtures\/(.+)\.json$/;
-
 /**
- * Keys one artefact per module. THROWS when a module's `__tests__/` holds two of
- * the same kind: the module directory is the whole key, so last-wins would
- * publish one file, drop the other, and leave nothing to read the loss off.
+ * The browser-safe artefacts — each module's playlist text and its engine-free
+ * step catalog — re-exported unchanged, so a spec lane still reaches both halves
+ * through this one specifier.
+ *
+ * They are DEFINED on `./features` (FE-3133) rather than here so an app-runtime
+ * consumer can carry them without the harness globs below. Those globs are lazy
+ * and never run in an app graph, but a bundler still resolves every module they
+ * name, and `setup.integration.ts` reaches msw's node-only interceptors — which
+ * failed the production build of any app that imported this entry.
  */
-const byModule = <T>(globbed: Record<string, T>): Record<string, T> =>
-  reduce(
-    globbed,
-    (collected, artefact, path) => {
-      const moduleName = MODULE.exec(path)?.[1] as string;
-
-      if (has(collected, [moduleName]))
-        throw new Error(
-          `@upmind-automation/headless/testing: "${moduleName}" holds more than one artefact of the same kind — "${path}" collides with one already collected. One .feature, one .steps.ts, one .internal-kit.ts and one .int-helpers.ts per module.`
-        );
-
-      return set(collected, [moduleName], artefact);
-    },
-    {} as Record<string, T>
-  );
-
-/**
- * Each module's capability spec: the text its step catalog implements and the
- * playlist a scenario page plays.
- */
-export const featureText: Record<string, string> = byModule(
-  import.meta.glob<string>("../modules/*/__tests__/*.feature", {
-    query: "?raw",
-    import: "default",
-    eager: true
-  })
-);
-
-/**
- * What a module's step catalog file publishes: the catalog itself as the file's
- * default export, beside the action ids those steps drive — the covered set a
- * cross-package coverage gate grades a live cell against, taken from the catalog
- * rather than restated beside it.
- */
-export type StepModule = {
-  default: StepCatalog;
-  coveredActionIds: readonly string[];
-  [member: string]: unknown;
-};
-
-/**
- * Each module's ONE step catalog file, whole — engine-free by construction, so
- * the eager tier can hold it.
- */
-export const stepModules: Record<string, StepModule> = byModule(
-  import.meta.glob<StepModule>("../modules/*/__tests__/*.steps.ts", {
-    eager: true
-  })
-);
-
-/** Each module's step catalog, as that file's own default export. */
-export const stepCatalogs: Record<string, StepCatalog> = mapValues(
+export {
+  featureText,
   stepModules,
-  "default"
-);
+  stepCatalogs,
+  type StepModule
+} from "./features";
 
 /**
  * What a module's internal kit publishes: the `@internal` query-schema pair a
@@ -119,7 +80,7 @@ export type InternalKit = {
  * only ever wanted a playlist included.
  */
 export const internalKits: Record<string, () => Promise<InternalKit>> =
-  byModule(
+  keyByModule(
     import.meta.glob<InternalKit>("../modules/*/__tests__/*.internal-kit.ts")
   );
 
@@ -166,7 +127,7 @@ export type IntegrationKit = {
  * is no runner to register with at all.
  */
 export const integrationKits: Record<string, () => Promise<IntegrationKit>> =
-  byModule(
+  keyByModule(
     import.meta.glob<IntegrationKit>("../modules/*/__tests__/*.int-helpers.ts")
   );
 
@@ -190,29 +151,18 @@ export type IntegrationSetup = {
 export const integrationSetups: Record<
   string,
   () => Promise<IntegrationSetup>
-> = byModule(
+> = keyByModule(
   import.meta.glob<IntegrationSetup>(
     "../modules/*/__tests__/setup.integration.ts"
   )
 );
 
 /**
- * Each module's recorded bodies, keyed module -> fixture name -> loader. Two
- * levels because a module holds MANY fixtures, and LAZY because eager would
- * parse the whole ~1.6MB corpus into every consumer's graph on every page,
- * whether or not a replay ever installs one.
+ * Each module's recorded bodies, keyed module -> fixture name -> loader.
+ *
+ * Re-exported from `./fixtures` rather than globbed here (FE-3113): the
+ * recordings are the one artefact app runtime may reach from any file, so they
+ * are published on their own entry and this one carries them along so its
+ * existing consumers are unchanged.
  */
-export const recordedBodies: Record<
-  string,
-  Record<string, () => Promise<unknown>>
-> = reduce(
-  import.meta.glob<unknown>("../modules/*/__tests__/fixtures/*.json", {
-    import: "default"
-  }),
-  (bodies, load, path) => {
-    const [, moduleName, name] = FIXTURE.exec(path) ?? [];
-
-    return moduleName ? set(bodies, [moduleName, name], load) : bodies;
-  },
-  {} as Record<string, Record<string, () => Promise<unknown>>>
-);
+export { recordedBodies } from "./fixtures";

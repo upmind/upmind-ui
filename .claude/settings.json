@@ -71,6 +71,15 @@
             "command": "/opt/homebrew/bin/graphify hook-guard read --strict"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/scripts/vitest-serial-guard.sh"
+          }
+        ]
       }
     ]
   },

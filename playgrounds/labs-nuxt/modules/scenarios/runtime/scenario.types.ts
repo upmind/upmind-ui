@@ -223,12 +223,30 @@ export type TableBadge = {
  * renderer-level `CellSizingTypes`, minted here once beside the cell it sizes.
  */
 export enum TableColumnWidthTypes {
-  /** A quarter of the row — a short value a fluid share would otherwise starve. */
+  // graphify-out/ query (2026-09-02) confirmed this enum is the ONLY column-width
+  // vocabulary in the tree; the members below extend it, they do not fork it.
+  /** A twelfth of the row — the narrowest reservable share. */
+  TWELFTH = "twelfth",
+  /** A sixth of the row (2/12) — a short value a fluid share would otherwise starve. */
+  SIXTH = "sixth",
+  /** A quarter of the row (3/12). */
   QUARTER = "quarter",
-  /** A third of the row — the widest share a single column reserves. */
+  /** A third of the row (4/12). */
   THIRD = "third",
-  /** Half the row. */
-  HALF = "half"
+  /** Five-twelfths of the row. */
+  FIVE_TWELFTHS = "five-twelfths",
+  /** Half the row (6/12). */
+  HALF = "half",
+  /** Seven-twelfths of the row. */
+  SEVEN_TWELFTHS = "seven-twelfths",
+  /** Two-thirds of the row (8/12). */
+  TWO_THIRDS = "two-thirds",
+  /** Three-quarters of the row (9/12). */
+  THREE_QUARTERS = "three-quarters",
+  /** Five-sixths of the row (10/12). */
+  FIVE_SIXTHS = "five-sixths",
+  /** Eleven-twelfths of the row. */
+  ELEVEN_TWELFTHS = "eleven-twelfths"
 }
 
 type TableCellElement = Omit<ControlElement, "type"> & {

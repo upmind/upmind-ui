@@ -1,0 +1,26 @@
+# must-fail: NO CURRENTLY COLOCATED ASSERTION — confirmed empirically by
+# running the full invoices int suite with this patch applied: failure count
+# stayed at the pre-existing defect-1 baseline (4), gaining ZERO new red
+# tests. Root cause: MSW replay serves a FIXED recorded fixture body
+# regardless of the request's own `with=` query value (invoices.collection.
+# int.test.ts:71 only asserts the substring "with=" is present, not its
+# content), and installInvoiceHandlers() does no `with=`-content matching.
+# Mutation, as specified in the repair brief: drops `last_payment_log` from
+# `LOAD_ONE_INCLUDES` (`invoices.services.ts`), one relation below the
+# pre-conversion 17-relation floor design.md requires. git apply --check is
+# clean and the mutation is a genuine floor violation, but no test in this
+# module currently asserts the include set's exact wire content, so this
+# patch is expected to redden ZERO tests today — report this as a coverage
+# gap, not a dead mutant authored in error.
+--- a/packages/headless/src/modules/invoices/invoices.services.ts
++++ b/packages/headless/src/modules/invoices/invoices.services.ts
+@@ -73,8 +73,7 @@
+   "payments.payment_type",
+   "payment_details",
+   "gateway",
+-  "client.parent_client_config",
+-  "last_payment_log"
++  "client.parent_client_config"
+ ].join(",");
+ 
+ /**

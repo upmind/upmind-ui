@@ -5,8 +5,7 @@ import {
   GatewayTypes,
   InvoiceStatus,
   type IBrandGateway,
-  PaymentType,
-  QUERY_PARAMS
+  PaymentType
 } from "@upmind-automation/types";
 import { GatewayProviderCodes } from "@upmind-automation/types";
 import { gatewayMachine } from "../payment-gateways";
@@ -17,7 +16,6 @@ import nickyConfig from "../payment-gateways/nicky";
 import openPayConfig from "../payment-gateways/openPay";
 import razorpayConfig from "../payment-gateways/razorpay";
 import stripeConfig from "../payment-gateways/stripe";
-import { useSessionStorage } from "../../utils";
 import {
   filter,
   get,
@@ -31,8 +29,7 @@ import {
 import type {
   PaymentDetail,
   PaymentDetailModel,
-  PaymentDetailsContext,
-  PendingOperation
+  PaymentDetailsContext
 } from "./payment-details.types";
 import type { BraintreeContext } from "../payment-gateways/braintree/types";
 import type { MercadoPagoContext } from "../payment-gateways/mercadoPago/types";
@@ -502,32 +499,3 @@ export function usePaymentState(
 }
 
 // -----------------------------------------------------------------------------
-// --- operation registry
-// Formalised session-based persistence for off-site redirect recovery.
-// Individual gateway services use these instead of touching sessionStorage directly.
-
-/**
- * Persist an ADD operation to sessionStorage so it survives an off-site
- * redirect (e.g. 3DS / SCA). Must be called BEFORE the redirect happens.
- */
-export function registerOperation(operation: PendingOperation): void {
-  useSessionStorage().set("operation", operation);
-}
-
-/**
- * Remove a previously stored operation from sessionStorage.
- * Call after successful inline completion (no redirect occurred).
- */
-export function clearOperation(): void {
-  useSessionStorage().remove("operation");
-}
-
-/**
- * Build a return URL that carries the OPERATION_ID query param
- * so the paymentDetail machine can detect the redirect and restore.
- */
-export function getOperationReturnUrl(): string {
-  const returnUrl = new URL(window.location.href);
-  returnUrl.searchParams.set(QUERY_PARAMS.OPERATION_ID, "1");
-  return returnUrl.toString();
-}

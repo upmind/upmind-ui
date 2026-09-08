@@ -1,0 +1,25 @@
+# must-fail: invoices.payment-method.int.test.ts > "invoices — clear the
+# assigned payment method back to none selected (AC-4) > AC-4 sends
+# payment_details_id: null as a PRESENT key, never an omitted one"
+# Mutation: strips nil values from the PATCH body before sending, so
+# clearing the payment method (payment_details_id: null) is sent as an
+# omitted key instead of an explicit null.
+--- a/packages/headless/src/modules/invoices/invoices.services.ts
++++ b/packages/headless/src/modules/invoices/invoices.services.ts
+@@ -7,6 +7,7 @@
+ import { UNPAID_EXISTENCE_CRITERIA, useQuerySchema } from "./invoices.schemas";
+ import { InvoicesContextTypes } from "./invoices.types";
+ import { useTime, NotAuthenticatedError } from "../../utils";
++import { isNil, omitBy } from "lodash-es";
+ import type { ScopeContext } from "../scope";
+ import type {
+   Invoice,
+@@ -286,7 +287,7 @@
+   return patch({
+     mutationKey: [...queryKey, invoiceId, "payment_details"],
+     url: useUrl(`invoices/${invoiceId}/payment_details`),
+-    data: model,
++    data: omitBy(model, isNil),
+     withAccessToken: true
+   });
+ }

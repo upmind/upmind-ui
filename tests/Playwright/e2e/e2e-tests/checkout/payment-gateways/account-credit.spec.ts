@@ -105,9 +105,11 @@ newUser.describe("Account Credit at Checkout", () => {
       async ({ page, context, checkout }) => {
         mockWalletBalance(context, { ownedAmount: 5 });
         await goToCheckout(page, products.STARTER_HOSTING);
+        // `checked`/`unchecked` is the option-tile (reka checkbox) state
+        // vocabulary, replacing the retired `on`/`off`.
         await expect(checkout.accountCredit).toHaveAttribute(
           "data-state",
-          "on"
+          "checked"
         );
         await expect(
           page
@@ -117,7 +119,7 @@ newUser.describe("Account Credit at Checkout", () => {
         await checkout.accountCredit.click();
         await expect(checkout.accountCredit).toHaveAttribute(
           "data-state",
-          "off"
+          "unchecked"
         );
         await expect(
           page
@@ -127,7 +129,7 @@ newUser.describe("Account Credit at Checkout", () => {
         await checkout.accountCredit.click();
         await expect(checkout.accountCredit).toHaveAttribute(
           "data-state",
-          "on"
+          "checked"
         );
         await expect(
           page

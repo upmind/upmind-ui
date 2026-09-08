@@ -42,6 +42,11 @@
  * sooner. One component because the table, the card grid and the read-only
  * list all owe the same sentence, and a second copy is how they drift.
  *
+ * That clock is the FIRED refusal's. A strip drawn because the page is forced
+ * into `error-action` never had a toast to leave alongside, and a forced state
+ * that faded after four seconds would be the state going missing while it is
+ * still armed — so it `persist`s until the user dismisses it.
+ *
  * `role="alert"` because the strip's only other signal is colour — a refusal
  * nobody is told about is a refusal only sighted users receive.
  */
@@ -59,7 +64,7 @@ const TOAST_DISPLAY_MS = 4000;
 /** Long enough to read as a fade, short enough to not outstay the toast. */
 const FADE_MS = 500;
 
-defineProps<RowFailureProps>();
+const props = defineProps<RowFailureProps>();
 
 const emit = defineEmits<{
   /** The user wants to try the action again. */
@@ -76,6 +81,8 @@ let fade: ReturnType<typeof setTimeout> | undefined;
 let leave: ReturnType<typeof setTimeout> | undefined;
 
 onMounted(() => {
+  if (props.persist) return;
+
   fade = setTimeout(() => {
     isLeaving.value = true;
     leave = setTimeout(() => emit("dismiss"), FADE_MS);

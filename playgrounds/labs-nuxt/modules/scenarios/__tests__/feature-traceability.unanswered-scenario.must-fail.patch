@@ -29,10 +29,10 @@ see this mutant.
 diff --git a/playgrounds/labs-nuxt/app/components/scope/__tests__/session-switcher.feature b/playgrounds/labs-nuxt/app/components/scope/__tests__/session-switcher.feature
 --- a/playgrounds/labs-nuxt/app/components/scope/__tests__/session-switcher.feature
 +++ b/playgrounds/labs-nuxt/app/components/scope/__tests__/session-switcher.feature
-@@ -30,6 +30,12 @@
+@@ -29,6 +29,12 @@
      Then the nest count badge displays the session depth
      And the badge content is rendered as slot children
-
+ 
 +  @T-4 @developer
 +  Scenario: Session rows report their own scope
 +    Given a staff session is impersonating a client

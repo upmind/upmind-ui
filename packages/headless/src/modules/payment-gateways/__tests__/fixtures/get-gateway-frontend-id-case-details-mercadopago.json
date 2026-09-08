@@ -1,0 +1,62 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/gateway/frontend/78985742-6489-7012-230f-21e325d0ed36?case=details-mercadopago",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a3346a491b554afd-LIS",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Sun, 30 Aug 2026 14:16:46 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Nhq%2FJXfGCL1VhmKvTezA0AbPqmrCLgFqqzLR2QbgwBfPzWlnsDZ4HPx211jJw%2Fxnd9xIqz4ebwUak7qjtqUnwsNX4iP3YwY6Qgv8xRytdgrGfR6mdcXTGgzq14sIC3aunf6VHsw%2Fdg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "e5b1edda2bac1fca94f5f52bde07fbad02662a1a",
+        "type": 0,
+        "code": 422,
+        "message": "API request invalid!",
+        "data": {
+          "payment_local_amount": [
+            "The payment local amount field is required."
+          ],
+          "payment_method_id": ["The payment method id field is required."],
+          "payment_method_type_id": [
+            "The payment method type id field is required."
+          ],
+          "email": ["The email field is required."]
+        }
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-30T14:16:46.429Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "payment-gateways"
+  }
+}

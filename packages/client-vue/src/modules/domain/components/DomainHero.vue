@@ -10,7 +10,6 @@
         :searching="searching"
         :processing="processing"
         :type="type"
-        @search="$emit('search', $event)"
         @reset="$emit('reset')"
       />
     </template>
@@ -30,7 +29,6 @@ const { t } = useI18n();
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: string): void;
-  (e: "search", query: string): void;
   (e: "reset"): void;
 }>();
 

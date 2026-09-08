@@ -14,13 +14,9 @@
       v-if="meta.hasErrors"
       variant="warning"
       :title="t('text.payment_failed')"
+      :description="props.errors?.message"
     >
       <template #icon><Icon icon="alert-triangle" /></template>
-      <div class="mt-2 text-sm">
-        <li class="my-0 py-0">
-          {{ props.errors }}
-        </li>
-      </div>
     </Alert>
   </div>
 </template>

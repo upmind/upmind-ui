@@ -6,9 +6,14 @@
  * unmatched request. Imported by every `*.int.test.ts` in this module so its
  * replay lifecycle registers for that file. Real network only in
  * record/live mode. Mirrors `client-email-history/__tests__/setup.integration.ts`.
+ *
+ * Background stubs for the endpoints session-store touches on init are
+ * installed per-seed by the test (see `installBackgroundStubs`), because
+ * `resetHandlers()` between tests drops any handler added at import time.
  */
 
 import { join } from "node:path";
+import { http, HttpResponse } from "msw";
 import { startReplayServer } from "@upmind-automation/test-fixtures/replay-server";
 
 // -----------------------------------------------------------------------------
@@ -16,3 +21,25 @@ import { startReplayServer } from "@upmind-automation/test-fixtures/replay-serve
 export const recordingsDir = join(import.meta.dirname, "fixtures");
 
 export const server = startReplayServer({ recordingsDir });
+
+/**
+ * Stubs the bootstrap endpoints session-store hits on `initStore()` — none of
+ * them an invoices behaviour — so a suite scoped to invoices never blocks on
+ * them. Re-applied on every seed; the replay server resets handlers per test.
+ */
+export function installBackgroundStubs(): void {
+  server.use(
+    http.get("*/org/modules", () =>
+      HttpResponse.json({ status: "ok", data: [] })
+    ),
+    http.get("*/config/organisation/values", () =>
+      HttpResponse.json({ status: "ok", data: {} })
+    ),
+    http.get("*/brand/settings", () =>
+      HttpResponse.json({ status: "ok", data: {} })
+    ),
+    http.get("*/billing_cycles", () =>
+      HttpResponse.json({ status: "ok", data: [] })
+    )
+  );
+}

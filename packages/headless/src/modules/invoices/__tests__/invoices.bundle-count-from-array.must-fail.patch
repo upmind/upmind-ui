@@ -1,0 +1,17 @@
+# must-fail: invoices.mapping.int.test.ts > "invoices single read — the
+# large-bundle flag (AC-6, constructed) > AC-6 (constructed — products_count
+# toggled above the floor) derives isLarge from products_count, never from
+# the array length"
+# Mutation: prefers the (truncatable) products array length over the
+# server's own products_count for the bundle's productCount derivation.
+--- a/packages/headless/src/modules/invoices/invoices.mappers.ts
++++ b/packages/headless/src/modules/invoices/invoices.mappers.ts
+@@ -146,7 +146,7 @@
+ 
+ /** @internal */
+ function mapBundle(raw: IInvoice): Invoice["bundle"] {
+-  const productCount = raw.products_count ?? raw.products?.length ?? 0;
++  const productCount = raw.products?.length ?? raw.products_count ?? 0;
+ 
+   return {
+     productCount,

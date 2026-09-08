@@ -17,6 +17,21 @@ export type ActionFeedbackCopy = {
   failure: string;
 };
 
+/**
+ * Reads the module's OWN captured failure — the four-layer `context` error the
+ * surface already renders. A service that reports a refusal through its own
+ * feedback channel HANDLES the rejection and resolves, so the promise says
+ * nothing; the capture is the only place that refusal survives.
+ *
+ * Read back on the flush after the action settles: the module holds the capture
+ * as state, which reaches the surface's snapshot when it next renders.
+ *
+ * @graphify-citation `graphify query "captured module failure channel observer
+ * error reader type"` (2026-08-28) — no captured-failure or observer node exists
+ * in `graphify-out/graph.json`, so nothing is re-declared here.
+ */
+export type ActionFailureChannel = () => unknown;
+
 export type UseActionFeedback = {
   /**
    * Fires one action and reports its outcome, holding it pending until it
@@ -28,6 +43,7 @@ export type UseActionFeedback = {
    * the outcome is still returned but nothing is said — a caller whose
    * declaration names no copy stays silent rather than toasting an empty title.
    * @returns Whether the action settled successfully — what an editor closes on.
+   * A rejection and a captured refusal both settle as `false`.
    */
   fire(
     key: string,
@@ -56,6 +72,10 @@ export type UseActionFeedback = {
   /** Drops the keyed control's failure — the user's own "I've seen it". */
   dismiss(key: string): void;
 
-  /** True when the module's captured error is one this seam already reported. */
+  /**
+   * True when the module's captured error is one this seam already reported —
+   * the very value read back off the failure channel, or a rejection carrying
+   * the same sentence.
+   */
   isReported(error: unknown): boolean;
 };

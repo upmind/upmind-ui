@@ -1,0 +1,41 @@
+Negative control for the FE-3113 offer/gap spec (`AC5`).
+
+`captureGaps` bills a module for a missing capture only where its `.feature`
+DECLARES the refusal, read off the scenario tags. The mutant re-adds the prose
+gate the story deleted, as a fallback beside the tag read — so a feature is
+billed for wording a failure anywhere in its English, and every module whose
+prose says "error" once owes a capture it never declared. The tag path is left
+intact, so nothing an honest declaration reports is withdrawn: only false debt is
+added.
+
+What must go red is the DIRECTION of a false gap. An assertion that only checks a
+declaring module reports its gap passes the mutant unchanged, because the mutant
+never under-reports — it over-reports. Sweep the modules that declare NO refusal
+and require an empty report from each; a single one of them named is the whole
+finding.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: the answerable-presets spec — bills only a feature that DECLARES the
+refusal, and owes no capture anywhere in the tree today.
+
+Re-armed 2026-08-31: the tag-read moved into hostablePresets; the mutant
+re-adds the deleted prose gate beside it.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/capabilities.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/capabilities.ts
+index ef5f96720..c2b52166c 100644
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/capabilities.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/capabilities.ts
+@@ -257,9 +257,9 @@ function hostablePresets(
+ 
+   const fixtures = values(bodies);
+ 
+-  const declaresRefusal = !isEmpty(
+-    intersection(declaredTags(feature), REFUSAL_TAGS)
+-  );
++  const declaresRefusal =
++    !isEmpty(intersection(declaredTags(feature), REFUSAL_TAGS)) ||
++    /refus|reject|error|fail|not-authenticated/i.test(feature);
+ 
+   const hostable: Record<ForceUrlPreset, boolean> = {
+     empty: some(fixtures, isServedRead),

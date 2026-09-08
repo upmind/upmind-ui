@@ -31,7 +31,6 @@ import {
 } from "./domain.utils";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import {
-  cloneDeep,
   compact,
   filter,
   first,
@@ -518,11 +517,13 @@ function search(context: DacContext) {
         // can clobber the newer search's results.
         queryFn: ({ signal }) =>
           request<IDomainSuggestionResult[]>({
+            // `query` is a criteria key: request() owns it on the wire and
+            // deletes a raw ?query= param, so it goes in as the option.
+            query: sld,
             url: useUrl(
               `modules/web_hosting/domains/suggestions`,
               omitBy(
                 {
-                  query: sld,
                   // `useUrl` bracket-serialises arrays (tlds[]=com&tlds[]=net),
                   // so pass the array directly rather than joining ourselves.
                   tlds,
@@ -591,11 +592,11 @@ function search(context: DacContext) {
         // round's request can actually abort when search restarts.
         queryFn: ({ signal }) =>
           request<IProduct[]>({
+            query: sld,
             url: useUrl(
               `modules/web_hosting/domains/suggestions/tlds`,
               omitBy(
                 {
-                  query: sld,
                   with: DOMAIN_WITH_RELATIONS,
                   tlds,
                   tlds_page: page,
@@ -1058,21 +1059,7 @@ async function addExistingTransfer(
   // Apply the canonical schema/parse defaulting so required option/
   // attribute categories get pre-filled — same pipeline dac.machine's
   // addToBasket uses. No-op for typical TLDs (no required categories).
-  // Wrap in try/catch because a malformed `availability.product` would
-  // bubble a raw TypeError from `parseProductDetails`/`parseTermDetails`
-  // out as an untyped rejection — fall back to a CLONE of baseModel so
-  // the basket POST still happens AND the subsequent `model.coupons` /
-  // `model.silent` mutations don't corrupt baseModel by reference.
-  let model: typeof baseModel;
-  try {
-    model = applyConfigDefaults(baseModel, availability.product);
-  } catch (err) {
-    console.warn(
-      "[domain] addExistingTransfer: applyConfigDefaults threw — falling back to baseModel",
-      err
-    );
-    model = cloneDeep(baseModel);
-  }
+  const model = applyConfigDefaults(baseModel, availability.product);
   // Context coupons override the model's coupons — same precedence as
   // dac.machine's `addToBasket` action. Using `??=` would skip the
   // assignment when `model.coupons` is a non-nullish empty array carried
@@ -1263,21 +1250,7 @@ async function addExistingRegistration(
   // Apply the canonical schema/parse defaulting so required option/
   // attribute categories get pre-filled — same pipeline dac.machine's
   // addToBasket uses. No-op for typical TLDs (no required categories).
-  // Wrap in try/catch because a malformed `availability.product` would
-  // bubble a raw TypeError from `parseProductDetails`/`parseTermDetails`
-  // out as an untyped rejection — fall back to a CLONE of baseModel so
-  // the basket POST still happens AND the subsequent `model.coupons` /
-  // `model.silent` mutations don't corrupt baseModel by reference.
-  let model: typeof baseModel;
-  try {
-    model = applyConfigDefaults(baseModel, availability.product);
-  } catch (err) {
-    console.warn(
-      "[domain] addExistingRegistration: applyConfigDefaults threw — falling back to baseModel",
-      err
-    );
-    model = cloneDeep(baseModel);
-  }
+  const model = applyConfigDefaults(baseModel, availability.product);
   // Context coupons override the model's coupons — same precedence as
   // dac.machine's `addToBasket` action. Using `??=` would skip the
   // assignment when `model.coupons` is a non-nullish empty array carried

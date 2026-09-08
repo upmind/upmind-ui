@@ -12,6 +12,7 @@ import {
   payerNeedsPhone
 } from "../payment-gateways.utils";
 import { CURRENCY_TO_COUNTRY } from "./types";
+import type { WithPhoneCountryCode } from "../../../utils/useValidationKeywords";
 import type { GatewayContext } from "../payment-gateways.types";
 import type { JsonSchema, Layout } from "@jsonforms/core";
 
@@ -61,12 +62,12 @@ export const useSchema = (context: GatewayContext) => {
   }
 
   if (needsPhone) {
-    properties.phone = {
+    const phone: WithPhoneCountryCode<JsonSchema> = {
       type: ["string", "null"],
       title: "Phone",
-      // @ts-expect-error: 'phone_country_code' is a custom AJV keyword
       phone_country_code: country
     };
+    properties.phone = phone;
     required.push("phone");
   }
 

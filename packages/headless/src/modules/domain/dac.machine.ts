@@ -29,7 +29,6 @@ import {
 } from "./domain.utils";
 import { mapToHeadlessError, useTime } from "../../utils";
 import {
-  cloneDeep,
   compact,
   concat,
   defaultsDeep,
@@ -665,26 +664,10 @@ export default createMachine(
 
         // Run baseModel through the shared schema/parse pipeline so
         // required option/attribute categories get default values filled
-        // in — same helper the existing-domain add paths use. Wrapped in
-        // try/catch because this action body is `pure` (synchronous) — an
-        // unhandled throw from a malformed `rawProduct` would propagate
-        // through XState as an interpreter-level error and leave the row
-        // stuck in `processing`. Fall back to a CLONE of baseModel (not
-        // the reference) so the basket POST still happens AND the
-        // subsequent `model.coupons` / `model.silent` mutations don't
-        // corrupt the live `product.configuration` in `lookups.searched`
-        // (parseProductModel at line 593 returns `item.configuration`
-        // by reference).
-        let model: ProductProps;
-        try {
-          model = applyConfigDefaults(baseModel, product?.rawProduct);
-        } catch (err) {
-          console.warn(
-            "[dac] addToBasket: applyConfigDefaults threw — falling back to baseModel",
-            err
-          );
-          model = cloneDeep(baseModel);
-        }
+        // in — same helper the existing-domain add paths use.
+        // `applyConfigDefaults` returns baseModel unchanged (cloned) for
+        // malformed input; it never throws.
+        const model = applyConfigDefaults(baseModel, product?.rawProduct);
         model.coupons = context.coupons ?? model.coupons ?? [];
         model.silent = true;
 

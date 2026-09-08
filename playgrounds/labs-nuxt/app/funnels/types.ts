@@ -21,6 +21,18 @@ export enum ROUTE {
   // --- HOME ROUTE ------------------------------------------------------------
   HOME = "home",
 
+  // --- ORDER ROUTES ----------------------------------------------------------
+  /**
+   * The order/invoice pay page — the parent the pay overlay opens over.
+   */
+  ORDER = "order",
+
+  /**
+   * The pay OVERLAY — the payment surface an off-site gateway return re-opens
+   * over the order page, injected as `<order>--pay` (FE-3133).
+   */
+  OVERLAY_PAY = "overlay-pay",
+
   // --- SESSION/AUTH ROUTES ---------------------------------------------------
   /**
    * The base route for session and authentication related pages.

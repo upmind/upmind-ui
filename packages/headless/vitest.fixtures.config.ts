@@ -1,5 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { mergeConfig, defineConfig } from "vitest/config";
+import { workerPool } from "../../vitest.workers";
 import viteConfig from "./vite.config";
 
 const root = fileURLToPath(new URL("./", import.meta.url));
@@ -18,6 +19,12 @@ export default mergeConfig(
     resolve: { alias },
     test: {
       root,
+      // Reached only via `pnpm fixtures:generate`
+      // (`tests/fixtures/generate.mjs:85`, which spawns `pnpm exec vitest`),
+      // so it never appears in a package.json script or a CI job — and was
+      // therefore the easiest ceiling to forget. Node env, real network, no
+      // DOM: the cheapest profile.
+      ...workerPool("node"),
       environment: "node",
       include: ["src/**/__tests__/**/*.fixtures.ts"],
       testTimeout: 30000

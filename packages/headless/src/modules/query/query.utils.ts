@@ -1,4 +1,5 @@
 import { experimental_createQueryPersister } from "@tanstack/query-persist-client-core";
+import { CancelledError } from "@tanstack/vue-query";
 import { isString } from "xstate/lib/utils";
 import {
   type Message,
@@ -117,6 +118,28 @@ export const invalidateQueryByKey =
       .catch(() => {
         return undefined;
       });
+  };
+
+/**
+ * Reset every query UNDER a key — the cached data is REMOVED, so an active
+ * observer goes back to pending while it refetches.
+ *
+ * Pick this over {@link invalidateQueryByKey}, which keeps the data and only
+ * flips `isFetching`, when the surface must return to its LOADING state; and
+ * over a query handle's own `resetQuery`, which clears only the one key its
+ * observer is attached to rather than the module's whole domain.
+ *
+ * @param queryKey The key prefix whose queries to reset
+ * @returns A function that takes the data and returns it after the reset
+ */
+export const resetQueryByKey =
+  (queryKey: QueryKey) =>
+  <T = unknown>(data?: T): Promise<T | undefined> => {
+    const { queryClient } = useQuery();
+    return queryClient
+      .resetQueries({ queryKey })
+      .then(() => data)
+      .catch(() => undefined);
   };
 
 /**
@@ -399,7 +422,7 @@ export function handleError(
  * `doFetch` rejects aborts with bare `undefined` (see
  * `query/services.ts:75`), so a `.code === responseCodes.Aborted` check
  * never fires for the common abort path — `undefined?.code` is undefined.
- * This helper covers four shapes that can reach a downstream
+ * This helper covers five shapes that can reach a downstream
  * `.catch(error)` handler (or `doFetch`'s own pre-classification):
  *   1. `undefined` — `doFetch`'s `Promise.reject()` with no value. Note:
  *      `null` is intentionally NOT treated as an abort; callers that
@@ -411,10 +434,18 @@ export function handleError(
  *      caller that explicitly rejects with the canonical aborted code.
  *   4. `{ status: responseCodes.Aborted }` — fetch-response-shape used
  *      inside `doFetch`'s own catch to classify before re-rejecting.
+ *   5. TanStack's own `CancelledError` — what {@link resetQueryByKey}
+ *      raises in every imperative `fetchQuery` still in flight under the
+ *      key it clears. It matches none of the four shapes above: it carries
+ *      no `code` and no `status`, and its `name` is `"Error"` because the
+ *      class sets only `message`. Missing it is how a cache clear a
+ *      consumer asked for reached a module's error channel as a rendered
+ *      failure the server never sent.
  */
 export function isAbortError(error: unknown): boolean {
   if (error === undefined) return true;
   if (error === null) return false;
+  if (error instanceof CancelledError) return true;
   const e = error as { name?: unknown; code?: unknown; status?: unknown };
   return (
     e.name === "AbortError" ||
@@ -490,11 +521,12 @@ export function declaredSortFields(schema: JsonSchema): string[] {
  * column is an HTTP 500.
  *
  * A branch with operators emits `filter[column|op]`; one without emits
- * `filter[column]` (the API defaults it to eq).
+ * `filter[column]` (the API defaults it to eq). A branch's WIRE column IS its
+ * own property name — a differing API column is matched by renaming the
+ * property, never by a non-standard schema key.
  *
- * A filter branch's WIRE column is its own property name unless the branch
- * declares a `column` — the binding for an API whose filterable column is spelt
- * differently from the model's property (client-phone's `number` → `phone`).
+ * A top-level `query` string property (sibling of `filters`) is the platform
+ * quick-search: emitted as a bare `query=<term>` param, not a `filter[...]`.
  *
  * @param schema - The collection's declared query schema.
  * @param model - The parsed, validated query model.
@@ -507,11 +539,10 @@ export function translateQuery(
   const filters = reduce(
     get(schema, ["properties", "filters", "properties"], {}),
     (result: RequestFilters, branchSchema, property) => {
-      const column = get(branchSchema, "column", property) as string;
       const operators = get(branchSchema, "properties", {});
 
       if (isEmpty(operators)) {
-        result[`filter[${column}]`] = toWireFilterValue(
+        result[`filter[${property}]`] = toWireFilterValue(
           RequestFilterOperator.EQUAL,
           get(model, ["filters", property])
         );
@@ -521,7 +552,7 @@ export function translateQuery(
       return reduce(
         operators,
         (acc: RequestFilters, _operatorSchema, operator) => {
-          acc[`filter[${column}|${operator}]`] = toWireFilterValue(
+          acc[`filter[${property}|${operator}]`] = toWireFilterValue(
             operator,
             get(model, ["filters", property, operator])
           );
@@ -532,6 +563,8 @@ export function translateQuery(
     },
     {}
   );
+
+  const quickSearch = get(model, "query");
 
   const sortFields = declaredSortFields(schema);
 
@@ -551,7 +584,9 @@ export function translateQuery(
   return {
     filters,
     sort: size(tuples) === 1 ? tuples[0] : tuples,
-    pagination: get(model, "pagination") as RequestPagination | undefined
+    pagination: get(model, "pagination") as RequestPagination | undefined,
+    query:
+      isString(quickSearch) && !isEmpty(quickSearch) ? quickSearch : undefined
   };
 }
 

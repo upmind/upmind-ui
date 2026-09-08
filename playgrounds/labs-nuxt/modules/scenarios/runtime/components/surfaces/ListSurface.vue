@@ -9,6 +9,7 @@
       v-if="verdict"
       :state="ModuleState.ERROR"
       :detail="verdict"
+      :class="listSurface.notice()"
     />
 
     <!-- The filter block (R5): facets on one row, chips + Clear all on the
@@ -117,6 +118,7 @@
               v-if="rowFailure(row)"
               :message="rowFailure(row) || ''"
               :can-retry="canRetryRow(row)"
+              :persist="isForcedRefusal(row)"
               @retry="retryRow(row)"
               @dismiss="dismissRow(row)"
             />
@@ -131,7 +133,10 @@
 
     <!-- The table is the FRAME: its headers stay through every state, and each
          state is drawn inside its body rather than in place of it (C8/C9). -->
-    <Table v-else-if="meta.hasTable" :class="listSurface.table()">
+    <Table
+      v-else-if="meta.hasTable"
+      :class="listSurface.table({ layout: tableLayout })"
+    >
       <TableHeader>
         <TableRow
           v-for="headerGroup in vueTable.getHeaderGroups()"
@@ -163,7 +168,7 @@
           </TableHead>
           <TableHead
             v-if="meta.hasRowActions"
-            :class="listSurface.actionsCell()"
+            :class="listSurface.actionsCell({ layout: tableLayout })"
           />
         </TableRow>
       </TableHeader>
@@ -175,7 +180,7 @@
             </TableCell>
             <TableCell
               v-if="meta.hasRowActions"
-              :class="listSurface.actionsCell()"
+              :class="listSurface.actionsCell({ layout: tableLayout })"
             >
               <Skeleton :class="listSurface.skeletonActions()" />
             </TableCell>
@@ -218,7 +223,7 @@
               </TableCell>
               <TableCell
                 v-if="meta.hasRowActions"
-                :class="listSurface.actionsCell()"
+                :class="listSurface.actionsCell({ layout: tableLayout })"
               >
                 <ActionSlots
                   icon-only
@@ -241,6 +246,7 @@
                 <RowFailure
                   :message="rowFailure(row.original) || ''"
                   :can-retry="canRetryRow(row.original)"
+                  :persist="isForcedRefusal(row.original)"
                   @retry="retryRow(row.original)"
                   @dismiss="dismissRow(row.original)"
                 />
@@ -284,6 +290,7 @@
           v-if="rowFailure(row)"
           :message="rowFailure(row) || ''"
           :can-retry="canRetryRow(row)"
+          :persist="isForcedRefusal(row)"
           :class="listSurface.rowListFailure()"
           @retry="retryRow(row)"
           @dismiss="dismissRow(row)"
@@ -327,9 +334,9 @@
     />
 
     <DetailDialog
-      v-if="detailState"
+      v-if="detailRecord"
       :key="detailKey"
-      :record="detailState"
+      :record="detailRecord"
       :detail="props.detail"
       :id="detailId"
       :presentation="presentation?.detail"
@@ -379,6 +386,13 @@
  * and the pagination arrows have no such channel, so their REGION is made
  * `inert` and muted instead. Reading is never locked — the rows, the count and
  * the chips are what a replay is watched through.
+ *
+ * A page FORCED into `error-action` draws a refusal with nothing fired: the
+ * preset hands in the module's own recorded sentence and the collection's first
+ * actionable row carries it, because a forced state IS the state and requires
+ * no interaction (operator ruling, 2026-08-28). The table, its controls and
+ * every other record stay exactly as the read returned them — the whole-surface
+ * error state belongs to a failed READ alone (`R6-19`).
  */
 
 import { vAutoAnimate } from "@formkit/auto-animate";
@@ -397,7 +411,7 @@ import {
   TableHeader,
   TableRow
 } from "@upmind/ui";
-import { computed, onUnmounted, ref, watchEffect } from "vue";
+import { computed, onUnmounted, ref, watch, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 import { useFormI18n } from "@upmind-automation/client-vue";
 import { SortDirection } from "@upmind-automation/headless";
@@ -494,10 +508,28 @@ const i18n = useFormI18n();
 /** How many placeholders stand in for the rows that have not landed yet. */
 const SKELETON_ROWS = 5;
 
-const state = computed(() => resolveModuleState(props.snapshot.meta));
+/**
+ * The states this surface DRAWS rather than stands a notice in place of. An
+ * absence is one of them: the record is not there, which is this list's own
+ * empty state, told in the frame's own words beside its headers and controls —
+ * never a failure notice over the top of them.
+ */
+const DRAWN_STATES = [ModuleState.READY, ModuleState.ABSENT] as const;
+
+function isDrawn(state: ModuleState): state is (typeof DRAWN_STATES)[number] {
+  return includes(DRAWN_STATES, state);
+}
+
+const state = computed(() =>
+  resolveModuleState(props.snapshot.meta, props.snapshot.context)
+);
 const detail = computed(() => resolveModuleDetail(props.snapshot.context));
 
-const feedback = useActionFeedback();
+// The module's own captured verdict is handed IN, because a row action the API
+// refuses reaches this surface no other way: the shared service reports the
+// refusal through its own feedback channel and RESOLVES, so the promise the row
+// fired comes back fulfilled and says nothing went wrong.
+const feedback = useActionFeedback(() => detail.value);
 
 // The notice stands in for the list only BEFORE the module first presents it. A
 // row action that the API refuses lands in the very same `hasError` channel a
@@ -506,7 +538,7 @@ const feedback = useActionFeedback();
 // the list away over one refused row, with nothing left to recover with.
 const hasPresented = ref(false);
 watchEffect(() => {
-  if (state.value === ModuleState.READY) hasPresented.value = true;
+  if (isDrawn(state.value)) hasPresented.value = true;
 });
 
 const notice = computed(() => {
@@ -514,7 +546,7 @@ const notice = computed(() => {
   // through: the rows in hand belong to an identity this surface may no longer
   // address, so the notice takes their place however far the list had got.
   if (state.value === ModuleState.UNSERVED) return state.value;
-  if (state.value === ModuleState.READY || hasPresented.value) return undefined;
+  if (isDrawn(state.value) || hasPresented.value) return undefined;
   // A declared frame draws its OWN loading: the headers stay and skeleton rows
   // stand in for the data, so the layout never jumps when it arrives (C8).
   if (state.value === ModuleState.LOADING && hasTable.value) return undefined;
@@ -536,8 +568,14 @@ const isLoadFailed = computed(
   () => state.value === ModuleState.ERROR && !isNil(verdict.value)
 );
 
-const rows = computed<ListRow[]>(
-  () => (props.snapshot.context.data as ListRow[] | undefined) ?? []
+// A module that degrades rather than blanks still publishes its field rows when
+// the record behind them is gone (`usePersonalDetails.context.ts`). Those rows
+// describe a record that is not there, so an absence carries none of them — and
+// every count, page and group downstream follows from this one read.
+const rows = computed<ListRow[]>(() =>
+  state.value === ModuleState.ABSENT
+    ? []
+    : ((props.snapshot.context.data as ListRow[] | undefined) ?? [])
 );
 
 /** A row's own identity, with its position as the fallback for a row without one. */
@@ -653,6 +691,17 @@ const columnElements = computed<DeclaredCell[]>(() =>
 );
 
 /**
+ * The table's layout algorithm. A scenario that declared ANY per-column width
+ * gets a FIXED table, so each declared column sizes to its exact fraction; with
+ * no declared width the table stays AUTO and renders exactly as before.
+ */
+const tableLayout = computed<"auto" | "fixed">(() =>
+  some(columnElements.value, element => !isNil(element.options?.width))
+    ? "fixed"
+    : "auto"
+);
+
+/**
  * The picker's options — every declared column, saying whether it is drawn.
  * Empty in card view: cards are the scenario's OTHER declaration and have no
  * columns to hide.
@@ -744,10 +793,15 @@ const contentColumns = computed<string[]>(() =>
  * renderer measures to a glyph (`R7-2`), else the scenario's declared share, or
  * `fluid` where it declared none.
  */
-function headerSize(id: string): "content" | "fluid" | TableColumnWidthTypes {
+function headerSize(
+  id: string
+): "content" | "fluid" | "remainder" | TableColumnWidthTypes {
   if (includes(contentColumns.value, id)) return "content";
   const element = find(columnElements.value, el => columnId(el) === id);
-  return element?.options?.width ?? "fluid";
+  if (element?.options?.width) return element.options.width;
+  // Under a fixed table an undeclared column takes the REMAINDER (`w-auto`),
+  // never `w-full` — see `headerCell` in the styles file.
+  return tableLayout.value === "fixed" ? "remainder" : "fluid";
 }
 
 /** The empty state spans every column the frame draws, the actions one included. */
@@ -875,6 +929,20 @@ function openHandoff(action: ScenarioAction, row?: ListRow): void {
 // --- the read-only detail overlay a declared `detail` control opens
 const detailState = ref<ListRow | undefined>(undefined);
 
+/**
+ * The LIVE record the overlay draws — re-resolved from `rows` by id on every
+ * read, never the frozen row captured at open time. A row mutation that lands
+ * while the overlay is open (a `reveal` filling a secret's `note`, say) must
+ * reach the overlay, which a static `detailState` snapshot would swallow. Falls
+ * back to the captured row when it carries no id or has left the collection.
+ */
+const detailRecord = computed<ListRow | undefined>(() => {
+  if (!detailState.value) return undefined;
+  const id = get(detailState.value, "id");
+  if (isNil(id)) return detailState.value;
+  return find(rows.value, row => get(row, "id") === id) ?? detailState.value;
+});
+
 /** One read instance per RECORD — never one carried across rows. */
 const detailKey = computed(() => rowKey(detailState.value ?? {}, 0));
 
@@ -971,7 +1039,10 @@ function rowActionItems(row: ListRow): ActionSlotItem[] {
  * again; Edit and the rest ride here and hand off exactly as they do from a row.
  */
 const detailActionItems = computed<ActionSlotItem[]>(() => {
-  const row = detailState.value;
+  // The LIVE row, so the overlay's controls gate on the same state the table's
+  // do — a `reveal` in the overlay flips it to `hide` there just as it does in
+  // the row beneath (`detailRecord`, never the frozen `detailState`).
+  const row = detailRecord.value;
   if (!row) return [];
   const opened = map(filter(rowActions.value, "detail"), "name");
   return reject(rowActionItems(row), item => includes(opened, item.name));
@@ -1006,15 +1077,72 @@ function rowControls(row: ListRow): string[] {
 }
 
 /**
- * What this row's last refused action said — the API's own sentence where it
- * gave one. Held until the user dismisses it or fires the action again, so a
- * refusal is answered on the record it happened to rather than only in a toast
- * that has already gone.
+ * What this row's last FIRED action said — the API's own sentence where it gave
+ * one. Held until the user dismisses it or fires the action again, so a refusal
+ * is answered on the record it happened to rather than only in a toast that has
+ * already gone.
  */
-function rowFailure(row: ListRow): string | undefined {
+function firedFailure(row: ListRow): string | undefined {
   const failure = find(map(rowControls(row), feedback.failure), isString);
   if (isNil(failure)) return undefined;
   return failure || t("error.something_went_wrong");
+}
+
+/**
+ * The row's first control that CALLS one of the module's actions — never one
+ * that opens an overlay or an editor, since those refuse nothing. It is what
+ * makes a record actionable, and so what a refusal can be drawn on.
+ */
+function writeAction(row: ListRow): ScenarioAction | undefined {
+  return find(
+    availableActions(row),
+    action => !action.detail && !action.handoff && isRuleEnabled(action, row)
+  );
+}
+
+// The forced refusal is a state of the PAGE, so it is dismissed like one —
+// cleared until the preset is armed again, rather than per fired control.
+const isRefusalDismissed = ref(false);
+
+watch(
+  () => props.forcedRefusal,
+  () => {
+    isRefusalDismissed.value = false;
+  }
+);
+
+/**
+ * The record an armed `error-action` is refusing — the collection's own FIRST
+ * row, marked with no request fired while the armed intercept still refuses one
+ * the user does fire.
+ *
+ * The row's control set does not decide it (operator ruling, 2026-08-28): a
+ * refusal is a state of the RECORD, not of a button. Gating on an actionable
+ * control drew nothing at all on a collection whose rows expose only a read-only
+ * detail overlay, while the module's own corpus answered the preset perfectly
+ * well — the offer is measured off the recordings, so the surface may not
+ * silently withhold what they can answer.
+ */
+const refusedRow = computed<ListRow | undefined>(() =>
+  props.forcedRefusal && !isRefusalDismissed.value
+    ? first(rows.value)
+    : undefined
+);
+
+/** Whether this row's verdict is the FORCED state rather than a fired action's. */
+function isForcedRefusal(row: ListRow): boolean {
+  return row === refusedRow.value && isNil(firedFailure(row));
+}
+
+/**
+ * The verdict drawn under this row — what its last fired action said, else the
+ * refusal the armed preset is holding the page in.
+ */
+function rowFailure(row: ListRow): string | undefined {
+  return (
+    firedFailure(row) ??
+    (isForcedRefusal(row) ? props.forcedRefusal : undefined)
+  );
 }
 
 /** True while one of this row's actions is still worth pointing at (E13). */
@@ -1023,6 +1151,7 @@ function isSucceeded(row: ListRow): boolean {
 }
 
 function dismissRow(row: ListRow): void {
+  if (isForcedRefusal(row)) isRefusalDismissed.value = true;
   forEach(rowControls(row), feedback.dismiss);
 }
 
@@ -1036,7 +1165,11 @@ function retryAction(row: ListRow): ScenarioAction | undefined {
   const failedControl = find(rowControls(row), control =>
     isString(feedback.failure(control))
   );
-  if (!failedControl) return undefined;
+  // A FORCED refusal was fired by nobody, so no control carries it back: what
+  // Retry re-fires is the row's own actionable control, which the armed
+  // intercept then refuses from the very recording the strip is quoting.
+  if (!failedControl)
+    return isForcedRefusal(row) ? writeAction(row) : undefined;
   const [actionName] = split(failedControl, ":");
   const action = find(declaredActions.value, { name: actionName });
   if (!action || !isRuleEnabled(action, row)) return undefined;

@@ -1,0 +1,64 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/payment_details?case=raw-card-refused",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "card_type": "visa",
+      "card_num": "4111111111111111",
+      "card_expire_date": "12/2030",
+      "card_cvv": "123",
+      "cardholder_name": "Fixture Recorder",
+      "name": "Visa ending 1111",
+      "address_id": "20e43579-5e78-d184-78db-31643202d986",
+      "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+      "return_url": "http://qa-automation.local:5173/payment/return",
+      "auto_payment": true
+    }
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a32c45750cb99b7d-LIS",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Sat, 29 Aug 2026 14:33:32 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=KqDu%2BLyBRE3eBqm23XGWk8rEd3tgJTNJyjqQwMMun%2F6rGa0NW3ao2s4wHsgdXpGaRJ9eEkiMvjOGTMbW1XOLoH5nKkMHCCOw0bqjsjf50x7H2RlizJNAbTbEIeeYIS380Zr%2F8gQFwA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "f54387629270164b5a5b5e16b1321a0f56add9a3",
+        "type": 0,
+        "code": 409,
+        "message": "Please, use the Frontend implementation of Stripe in order to save cards!",
+        "data": []
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-29T14:33:32.161Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "payment-details"
+  }
+}

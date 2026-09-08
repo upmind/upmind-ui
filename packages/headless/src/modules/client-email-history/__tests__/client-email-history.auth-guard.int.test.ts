@@ -154,7 +154,7 @@ describe("client-email-history single read — addressability while unauthentica
     await new Promise(resolve => setTimeout(resolve, 200));
     expect(observed.all()).toEqual([]);
 
-    try {
+    await (async () => {
       await signInClientSessionMidLife();
 
       await vi.waitFor(() => {
@@ -169,12 +169,9 @@ describe("client-email-history single read — addressability while unauthentica
       observed.stop();
 
       expect(observed.all()).toHaveLength(1);
-    } finally {
-      // This is the only test in the file that signs a session IN — undo it so
-      // later tests in this describe block still boot from the guest floor
-      // rather than inheriting a live client session.
+    })().finally(async () => {
       await logoutClientSession();
-    }
+    });
   });
 
   it("AC-15 isReady() settles false rather than hanging, with no addressable client", async () => {

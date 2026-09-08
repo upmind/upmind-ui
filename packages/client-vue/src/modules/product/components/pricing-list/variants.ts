@@ -6,7 +6,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 export const summaryPricingTotalVariants = cva("text-left text-xl");
 export const summaryPricingPriceVariants = cva(
-  "items-center justify-between font-medium",
+  "col-span-2 items-center justify-between font-medium",
   {
     variants: {
       footer: {

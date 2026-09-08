@@ -61,7 +61,6 @@ import type { DomainSlotProps } from "../types";
 const props = defineProps<DomainSlotProps>();
 
 const emit = defineEmits<{
-  (e: "search", query: string): void;
   (e: "reset"): void;
 }>();
 

@@ -162,9 +162,22 @@ export const headerCell = cva("whitespace-nowrap", {
     size: {
       content: "w-px",
       fluid: "w-full",
+      // The fluid share under a FIXED table: an undeclared column takes an equal
+      // cut of what the declared fractions leave (`w-auto`), never `w-full`
+      // (several `w-full` columns overflow a fixed table). One width class per
+      // column either way, so tailwind never arbitrates between two.
+      remainder: "w-auto",
+      [TableColumnWidthTypes.TWELFTH]: "w-1/12",
+      [TableColumnWidthTypes.SIXTH]: "w-1/6",
       [TableColumnWidthTypes.QUARTER]: "w-1/4",
       [TableColumnWidthTypes.THIRD]: "w-1/3",
-      [TableColumnWidthTypes.HALF]: "w-1/2"
+      [TableColumnWidthTypes.FIVE_TWELFTHS]: "w-5/12",
+      [TableColumnWidthTypes.HALF]: "w-1/2",
+      [TableColumnWidthTypes.SEVEN_TWELFTHS]: "w-7/12",
+      [TableColumnWidthTypes.TWO_THIRDS]: "w-2/3",
+      [TableColumnWidthTypes.THREE_QUARTERS]: "w-3/4",
+      [TableColumnWidthTypes.FIVE_SIXTHS]: "w-5/6",
+      [TableColumnWidthTypes.ELEVEN_TWELFTHS]: "w-11/12"
     }
   },
   defaultVariants: { size: "fluid" }
@@ -188,6 +201,12 @@ export const paginationRegion = cva("", {
 
 export const listSurface = {
   root: cva(""),
+
+  // The verdict that stands BESIDE the list needs the standoff a verdict drawn
+  // in PLACE of it never did — the same measure the filter block clears what
+  // follows it by, so the alert reads as its own region rather than as the
+  // table header's first line.
+  notice: cva("mb-3"),
 
   // TWO regions: the filter block (facets + refinements) and the display row.
   // The filter block carries the spec's own border/padding/margin (R5); the
@@ -217,8 +236,18 @@ export const listSurface = {
   //   lose its closing edge. Table padding is honoured only in the SEPARATED
   //   border model, and the rules are all `tr`-level, so separating them
   //   changes where the ring can draw and nothing else.
+  // `layout` is `fixed` ONLY when a scenario declared per-column widths: a fixed
+  // table sizes each column to its declared fraction independently of the data,
+  // so a reserved width is honoured exactly. With no declared width the table
+  // stays `auto` — byte-identical to before — and columns size to content.
   table: cva(
-    "border-separate border-spacing-0 p-1 [&_tbody:not(:last-child)_tr:last-child]:border-b [&_td]:py-2"
+    "border-separate border-spacing-0 p-1 [&_tbody:not(:last-child)_tr:last-child]:border-b [&_td]:py-2",
+    {
+      variants: {
+        layout: { auto: "table-auto", fixed: "table-fixed" }
+      },
+      defaultVariants: { layout: "auto" }
+    }
   ),
 
   // A sortable header draws its label inside a `sm` Button; the button's own
@@ -230,7 +259,16 @@ export const listSurface = {
 
   // Shrink-to-fit, so the last column ends at the row's right edge instead of
   // taking an equal share of it and leaving the controls stranded mid-table.
-  actionsCell: cva("w-px whitespace-nowrap"),
+  // AUTO: shrink-to-fit (`w-px` resolves to the widest control). FIXED: a fixed
+  // table cannot grow a column to its content and a `w-px` column would clip its
+  // controls; instead the actions column shares the remainder the declared
+  // fractions leave (`w-auto`), so it never over-sums the row — no overlap.
+  actionsCell: cva("whitespace-nowrap", {
+    variants: {
+      layout: { auto: "w-px", fixed: "w-auto" }
+    },
+    defaultVariants: { layout: "auto" }
+  }),
 
   skeletonCell: cva("h-4 w-full"),
 

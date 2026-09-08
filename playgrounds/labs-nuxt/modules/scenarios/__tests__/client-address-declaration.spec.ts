@@ -26,7 +26,6 @@ import type { ScenarioAction, TableCell } from "../runtime/scenario.types";
 
 // -----------------------------------------------------------------------------
 
-const SCENARIO_DIR = join(import.meta.dirname, "..");
 const MODULE_ROOT = join(
   import.meta.dirname,
   "../../../../../packages/headless/src/modules",

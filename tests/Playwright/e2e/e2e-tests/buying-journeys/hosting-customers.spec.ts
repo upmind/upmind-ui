@@ -86,10 +86,11 @@ test.describe("Hosting customers", async () => {
       // Search for the product so it's in the grid regardless of how the
       // catalogue is categorised or paginated — don't assume it's on page 1.
       // (The catalogue product is named "Hat"; the constant name is annotated.)
-      await page
-        .getByTestId("input")
-        .and(page.locator(`[data-test-value="product-search"]`))
-        .fill("Hat");
+      // WidgetGrid.vue gives the search Input the stable DOM id
+      // `product-search`; the `data-test-key` it passes as a plain attribute
+      // is overridden by the Input primitive's own `input` key, so the id is
+      // the hook the app actually publishes.
+      await page.locator("#product-search").fill("Hat");
       const cta = page
         .getByTestId("product-card")
         .and(page.locator(`[data-test-value="${id}"]`))

@@ -1,0 +1,58 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/gateway/frontend/320e4357-95e7-8d18-757a-31643202d986?case=details-razorpay",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a3346a1c8fe24afd-LIS",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Sun, 30 Aug 2026 14:16:39 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=QB7bH4kcMiaPYZwXwTSMo7ZYCkukNBTCOexINIukYr56RxvqwHFeuA%2BWhiWjrOKf1V3aemGqnfwmlaSe1yLbPOcP1PcX%2BYXMZHyktjRt2qqMxM24FU783SvMFkxAr%2B4Bf5KpXyDNcw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "d6eb655c97985cdc0d6c77a292c2b7bcdac5bf26",
+        "type": 0,
+        "code": 422,
+        "message": "API request invalid!",
+        "data": {
+          "client_id": ["The client id field is required."],
+          "amount": ["The amount field is required."],
+          "currency": ["The currency field is required."],
+          "return_url": ["The return url field is required."]
+        }
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-30T14:16:39.291Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "payment-gateways"
+  }
+}

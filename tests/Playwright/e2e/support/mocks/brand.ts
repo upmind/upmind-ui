@@ -43,7 +43,7 @@ interface ConfigOverrides {
    * `guardCheckout` regardless of layout, so this lets one spec assert the gate
    * holds across BOTH flows.
    */
-  checkoutFlow?: "one_page" | "stepped";
+  checkoutFlow?: "one_page" | "stepped" | null;
   /**
    * Withholds the promotion-code field from the checkout step. Maps to brand
    * config key `ui.checkout.hide_promotions_field` — INVERTED, so `false` is the
@@ -176,7 +176,7 @@ export async function interceptConfigValues(
       const updatedResponseBody = {
         ...json
       };
-      route.fulfill({
+      await route.fulfill({
         status: response.status(),
         contentType: "application/json",
         headers: response.headers(),
@@ -211,7 +211,7 @@ export async function interceptTermsAndConditions(
       const updatedResponseBody = {
         ...json
       };
-      route.fulfill({
+      await route.fulfill({
         status: response.status(),
         contentType: "application/json",
         headers: response.headers(),
@@ -293,6 +293,53 @@ export async function interceptBrandUnavailable(page: Page) {
     delete json.data.name;
     delete json.data.name_translated;
     await route.fulfill({ response, json });
+  });
+}
+
+/** The checkout-flow union the resolver validates `flow` values against. */
+export type CheckoutFlowSetting =
+  | "stepped"
+  | "stepped-skip-basket"
+  | "one-page";
+
+/**
+ * Points the brand at a checkout flow — a settings mock, not journey data.
+ *
+ * Two brand settings make the one-page journey, and both are mocked here:
+ *   - `ui.checkout.checkout_flow` picks the default funnel
+ *     (`getDefaultFunnel.ts`: `one_page` → one-page, `stepped` → stepped,
+ *     anything else → the cart funnel);
+ *   - the `basketItemConfig` UI meta at the basket context makes the order step
+ *     the inline-configurable "Your order" card (Basket.vue). It is pinned
+ *     `readonly` for every other flow so a brand default can never leak in.
+ * `null` clears the config — a brand with no configured checkout flow.
+ *
+ * Brand settings and config are static and persisted from the app's first
+ * boot (brand.services.ts:79-83, 119-121), so attach this BEFORE the first
+ * navigation of the context. Only ONE brand-settings route handler is active
+ * at a time — the same holds for the brand-config route — so pass any
+ * additional cart meta / brand-config overrides here rather than registering
+ * `interceptUISchema` / `interceptConfigValues` a second time (the later
+ * handler would shadow the flow).
+ */
+export async function interceptCheckoutFlow(
+  page: Page,
+  context: BrowserContext,
+  flow: CheckoutFlowSetting | null,
+  cartOverrides: CartOverrides = {},
+  configOverrides: ConfigOverrides = {}
+) {
+  interceptUISchema(context, {
+    "@context.basket.basketItemConfig":
+      flow === "one-page" ? "editable" : "readonly",
+    ...cartOverrides
+  });
+  // `CheckoutFlows` from @upmind-automation/types: ONE_PAGE = "one_page",
+  // STEPPED = "stepped"; stepped-skip-basket has no config value of its own.
+  await interceptConfigValues(page, {
+    ...configOverrides,
+    checkoutFlow:
+      flow === "one-page" ? "one_page" : flow === "stepped" ? "stepped" : null
   });
 }
 

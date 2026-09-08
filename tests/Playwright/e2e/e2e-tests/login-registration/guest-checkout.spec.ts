@@ -4,11 +4,13 @@ import { products } from "../../support/constants/products";
 import { seedGuestBasket } from "../../support/flows/guest-checkout";
 import { addProductViaHeadless } from "../../support/flows/basket-setup";
 import { registerClientViaHeadless } from "../../support/flows/auth-setup";
+import { waitForGuestClientSessionViaHeadless } from "../../support/flows/headless-bridge";
 import {
   captureBrandSettings,
   interceptConfigValues
 } from "../../support/mocks/brand";
 import { GuestCheckout } from "../../support/page-objects/templates/guest-checkout";
+import { Basket } from "../../support/page-objects/templates/basket";
 import { Registration } from "../../support/page-objects/templates/registration";
 
 // -----------------------------------------------------------------------------
@@ -78,7 +80,7 @@ test.describe("Guest checkout", () => {
     // control-flow guard — register form rendered
     await expect(
       page
-        .getByTestId("section")
+        .getByTestId("session-form")
         .and(page.locator(`[data-test-value="register"]`))
     ).toBeVisible();
 
@@ -105,7 +107,7 @@ test.describe("Guest checkout", () => {
     // control-flow guard — register form rendered before asserting CTA absence
     await expect(
       page
-        .getByTestId("section")
+        .getByTestId("session-form")
         .and(page.locator(`[data-test-value="register"]`))
     ).toBeVisible();
 
@@ -132,7 +134,7 @@ test.describe("Guest checkout", () => {
     // control-flow guard — register form rendered before asserting CTA absence
     await expect(
       page
-        .getByTestId("section")
+        .getByTestId("session-form")
         .and(page.locator(`[data-test-value="register"]`))
     ).toBeVisible();
 
@@ -143,10 +145,10 @@ test.describe("Guest checkout", () => {
 
   // Scenario: Entering guest checkout signs the visitor in as a guest client
   test("Entering guest checkout signs the visitor in as a guest client", async ({
-    page,
-    context
+    page
   }) => {
     const guest = new GuestCheckout(page);
+    const basket = new Basket(page);
 
     // Given a guest visitor with a product in their basket
     await seedGuestBasket(page);
@@ -168,22 +170,19 @@ test.describe("Guest checkout", () => {
     // and moves into the checkout funnel).
     await guest.enterGuestCheckout();
 
-    // A guest client holds a client session — wait for it as the deterministic
-    // "signed in as a guest client" signal before asserting the UI.
-    await expect
-      .poll(
-        async () =>
-          (await context.cookies()).some(c => c.name === "upm_client_session"),
-        { timeout: 20000 }
-      )
-      .toBeTruthy();
+    // The deterministic "signed in as a guest client" signal is the app's own:
+    // the store commits the guest-client session only once `/self` has
+    // returned; the cookie and the access token both land before that commit.
+    await waitForGuestClientSessionViaHeadless(page);
 
-    // control-flow guard — the account menu lives in the storefront header.
-    // Assert it from the catalogue, a basket-independent storefront page.
-    // (Entering guest checkout otherwise lands on the basket, and an empty
-    // basket renders as a backdrop dialog that overlays the header avatar; the
-    // auth pages like /register don't render the storefront header at all.)
-    await page.goto(`${URLs.baseUrl}order/shop/`);
+    // control-flow guard — stay on the funnel's own route. Entering guest
+    // checkout lands on the basket, whose storefront header carries the
+    // account menu (the auth pages render no header). Never hard-navigate
+    // here: converting the guest retires the anonymous token, so the queries
+    // still in flight on it 401 and refresh; a full navigation aborts that
+    // refresh, and the abort path dumps the client cookie and logs the guest
+    // out — the reload race this scenario used to lose.
+    await expect(basket.basketProduct).toBeVisible({ timeout: 15000 });
 
     // Then their account menu identifies them as a guest — the avatar (only
     // shown once a client session exists) appears, and the dropdown's guest

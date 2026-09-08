@@ -1,0 +1,62 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/gateway/frontend/78985742-6489-7012-230f-21e325d0ed36?case=details-mercadopago&client_id=25d96e76-3ed0-913d-d52c-417482528340&amount=50.00&currency=COP&return_url=http%3A%2F%2Fqa-automation.local%3A5173%2Fpayment%2Freturn",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a334750e1cd0cef8-LIS",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Sun, 30 Aug 2026 14:24:07 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=21L%2Fk2btL%2BBSU73rXGBc4GL5OJa1KSky2CLRxvlEwFcKSA5PUyikECT%2FPjTLNFZPVfpHksxXd49fv7sLtP6Ltxwwx0sebSnI2pT4uhsMc0DMRXDpTrxgREu4z67byEfN2zFkNXOUBg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "e5b1edda2bac1fca94f5f52bde07fbad02662a1a",
+        "type": 0,
+        "code": 422,
+        "message": "API request invalid!",
+        "data": {
+          "payment_local_amount": [
+            "The payment local amount field is required."
+          ],
+          "payment_method_id": ["The payment method id field is required."],
+          "payment_method_type_id": [
+            "The payment method type id field is required."
+          ],
+          "email": ["The email field is required."]
+        }
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-30T14:24:07.544Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "payment-gateways"
+  }
+}

@@ -16,5 +16,14 @@ export const API_CREDENTIALS = {
   staff: {
     username: "nathan.robinson+staffuser@upmind.com",
     password: "password123"
+  },
+  // A SECOND, distinct client on the same staging brand — used only to capture a
+  // real ownership denial (GET another client's basket → 403/404). Sourced from
+  // the existing staging test accounts in
+  // tests/Playwright/e2e/support/constants/logins.ts (the `english` locale
+  // client). Never owns the checkout basket, so it can never convert it.
+  otherClient: {
+    username: "nathan.robinson+english@upmind.com",
+    password: "Password1"
   }
 };

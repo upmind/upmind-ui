@@ -1,7 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
 import { URLs, ProductIds } from "../../support/constants/urls";
-import { getSessionToken } from "../../support/api/auth";
-import { createOrder } from "../../support/api/basket";
 import { waitForSessionCookie } from "../../support/helpers/session";
 import { interceptConfigValues } from "../../support/mocks/brand";
 import { Dac } from "../../support/page-objects/templates/dac";
@@ -32,10 +30,10 @@ const suggestionsTldParams = (page: Page): Promise<string[]> =>
     )
     .then(req => new URL(req.url()).searchParams.getAll("tlds[]"));
 
-const waitForBasketAddPost = (page: Page, orderId: string) =>
+const waitForBasketAddPost = (page: Page) =>
   page.waitForRequest(
     req =>
-      req.url().includes(`/api/orders/${orderId}/products`) &&
+      /\/api\/orders\/[^/]+\/products/.test(req.url()) &&
       req.method() === "POST"
   );
 
@@ -53,14 +51,12 @@ const suggestionTlds = async (dac: Dac): Promise<string[]> => {
 test.describe.configure({ mode: "parallel" });
 test.describe("DAC tlds filter through the domains funnel", () => {
   let dac: Dac;
-  let token: string;
 
   test.beforeEach(async ({ page, context }) => {
     dac = new Dac(page);
     await page.goto(URLs.baseUrl);
     await waitForSessionCookie(context, { guestOnly: true });
-    token = await getSessionToken(context);
-    await interceptConfigValues(page, token, {
+    await interceptConfigValues(page, {
       domainSearchMethod: "smart-suggest"
     });
   });
@@ -68,7 +64,6 @@ test.describe("DAC tlds filter through the domains funnel", () => {
   test("With tlds, suggestions are limited to it and it survives the whole funnel", async ({
     page
   }) => {
-    const order = await createOrder(token);
     const requestedTlds = suggestionsTldParams(page);
 
     await page.goto(funnelUrl(`.${ALLOWED}`));
@@ -82,7 +77,7 @@ test.describe("DAC tlds filter through the domains funnel", () => {
     expect(offered.length).toBeGreaterThan(0);
     expect(offered.every(tld => tld === ALLOWED)).toBe(true);
 
-    const basketAdd = waitForBasketAddPost(page, order.id);
+    const basketAdd = waitForBasketAddPost(page);
     await dac.clickAddOnCard();
     expect((await basketAdd).postDataJSON()).toMatchObject({
       provision_field_values: {

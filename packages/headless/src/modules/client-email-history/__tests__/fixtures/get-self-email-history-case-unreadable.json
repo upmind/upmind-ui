@@ -1,0 +1,53 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/self/email_history?with=recipient,recipient_type,recipient.image&order=-fixturegen_no_such_column&limit=10&case=unreadable",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a328a19bfde8b27e-DUR",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Sat, 29 Aug 2026 03:57:23 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=b5yk9I7N2TP1kpk1vd1U%2B6xy2wkxdaAxYfLGZmm22DZSialfcB0X46bPRPXNll5h2ly6rGYAlD%2FdGVWl8C%2F0fn4FMgI5i8gfbCC0u3UMMRWSuG8tRyw0VrJu6DyUCqFyWdezsHvniQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "dbd8d89968f66d939d68bc3084f18cc923513606",
+        "type": 42,
+        "code": 500,
+        "message": "A critical database error occurred",
+        "data": null
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-29T03:57:23.862Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-email-history"
+  }
+}

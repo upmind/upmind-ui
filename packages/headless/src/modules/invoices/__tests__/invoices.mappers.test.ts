@@ -1,34 +1,42 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview invoices — pure mapper branches: the bundle grouping fallback
- * chain (AC-5) and the child-first attribution gate (AC-13)
+ * @fileoverview invoices — pure mapper unit tests: identity/summary/payment
+ * shape, the bundle grouping fallback chain (AC-5), and the child-first
+ * attribution gate (AC-13)
  *
  * ## Job To Be Done
- * Two branches of this module's mapping logic are pure-function branches,
- * additionally proven at this layer per `docs/sdd/FE-3031/bdd.md` ("Two
- * behaviours are unit-shaped and are covered ADDITIONALLY, never INSTEAD"):
+ * Pin `mapInvoice`/`mapInvoices`' pure transform from the raw platform
+ * invoice record to the customer-facing shape:
  *
+ * - Identity + money summary carry across, the embedded (frozen) client
+ *   survives, an absent address maps to none, and each payment row resolves
+ *   its pending/successful meaning, its card details, and its order.
  * - The bundle grouping's fallback chain — `contracts_product_id`, falling
  *   back to `contract_id`, with un-linked lines in one trailing `null`-keyed
  *   group (AC-5).
  * - The child-first attribution gate — `isDelegated` is false whenever
  *   `isChildOfClient` is true, regardless of input order (AC-13).
  *
- * Both also carry integration read-backs (`invoices.mapping.int.test.ts`,
- * `invoices.attribution.int.test.ts`) and negative controls — this unit spec
- * accompanies that proof and never constitutes it alone.
+ * The bundle-grouping and attribution branches also carry integration
+ * read-backs (`invoices.mapping.int.test.ts`, `invoices.attribution.int.test.ts`)
+ * and negative controls — this unit spec accompanies that proof and never
+ * constitutes it alone, per `docs/sdd/FE-3031/bdd.md` ("Two behaviours are
+ * unit-shaped and are covered ADDITIONALLY, never INSTEAD").
  *
  * ## Provenance
- * Every input is `recorded.unpaid()` — a REAL row captured from staging by
- * `invoices.fixtures.ts` — with an explicitly labelled minimal set of fields
- * toggled per call, the same precedent as
+ * Every input is a REAL row captured from staging by `invoices.fixtures.ts`
+ * (`get-invoices-id-case-{paid,unpaid}`), with an explicitly labelled minimal
+ * set of fields toggled per call where a condition the real corpus doesn't
+ * carry is needed — the same precedent as
  * `client-email-history/__tests__/client-email-history.mappers.test.ts`.
  *
  * ## What Breaks If These Fail
  * A bundle's line items land in the wrong subscription group, an unlinked
- * line item is silently dropped instead of grouped, or a sub-account
- * invoice's delegated flag survives alongside its child flag and a client
- * is denied settling an invoice that IS theirs to settle.
+ * line item is silently dropped instead of grouped, a sub-account invoice's
+ * delegated flag survives alongside its child flag and a client is denied
+ * settling an invoice that IS theirs to settle, the customer panel shows a
+ * wrong balance or a stale client, or it crashes on a wallet/guest payment
+ * with no saved card.
  */
 
 import { join } from "node:path";
@@ -36,6 +44,7 @@ import { describe, expect, it } from "vitest";
 import { getFixtureBody } from "@upmind-automation/test-fixtures";
 import { mapInvoice, mapInvoices } from "..";
 import type { Envelope, WireInvoice } from "./invoices.int-helpers";
+import type { IInvoice, IPayment } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -45,6 +54,24 @@ const recordedUnpaid = (): WireInvoice =>
   getFixtureBody<Envelope<WireInvoice>>("get-invoices-id-case-unpaid", {
     recordingsDir
   }).data;
+
+function rawInvoice(kase: "paid" | "unpaid"): IInvoice {
+  const body = getFixtureBody<{ data: IInvoice }>(
+    `get-invoices-id-case-${kase}`,
+    {
+      recordingsDir
+    }
+  );
+  if (!body?.data) {
+    throw new Error(
+      `Missing fixture get-invoices-id-case-${kase}. Run \`pnpm fixtures:generate invoices\`.`
+    );
+  }
+  return body.data;
+}
+
+const paidRaw = rawInvoice("paid");
+const unpaidRaw = rawInvoice("unpaid");
 
 // -----------------------------------------------------------------------------
 
@@ -232,5 +259,160 @@ describe("invoices — the child-first attribution gate (AC-13)", () => {
       false,
       true
     ]);
+  });
+});
+
+describe("invoices — category label precedence (AC-7)", () => {
+  it("labels a consolidation credit note as a consolidation, never a plain credit note", () => {
+    const row = recordedUnpaid();
+    const toggled: WireInvoice = {
+      ...row,
+      is_consolidation: true,
+      category: { ...row.category, slug: "credit_note" }
+    };
+
+    const mapped = mapInvoice(toggled as never);
+
+    expect(mapped.category.label).toBe("consolidation");
+  });
+
+  it("labels a non-consolidation invoice by its own category slug", () => {
+    const row = recordedUnpaid();
+    const toggled: WireInvoice = {
+      ...row,
+      is_consolidation: false,
+      category: { ...row.category, slug: "credit_note" }
+    };
+
+    const mapped = mapInvoice(toggled as never);
+
+    expect(mapped.category.label).toBe("credit_note");
+  });
+});
+
+// -----------------------------------------------------------------------------
+
+describe("mapInvoice — identity, status, and money summary", () => {
+  it("carries identity and the money summary from the raw record", () => {
+    const mapped = mapInvoice(paidRaw);
+
+    expect(mapped.id).toBe(paidRaw.id);
+    expect(mapped.number).toBe(paidRaw.number);
+    expect(mapped.status).toBe(
+      (paidRaw.status as unknown as { code: string }).code
+    );
+    expect(typeof mapped.summary.paidAmount).toBe("number");
+    expect(typeof mapped.summary.unpaidAmount).toBe("number");
+    expect(mapped.currency).toBeTruthy();
+  });
+
+  it("maps the line items and the tax summary of an unpaid invoice", () => {
+    const mapped = mapInvoice(unpaidRaw);
+
+    expect(mapped.products.length).toBeGreaterThan(0);
+    expect(mapped.summary.unpaidAmount).toBeGreaterThan(0);
+  });
+});
+
+describe("mapInvoice — the frozen client snapshot", () => {
+  it("keeps the client embedded on the record, not a live join", () => {
+    const mapped = mapInvoice(paidRaw);
+
+    expect(mapped.client).toBeTruthy();
+    expect(mapped.client.id).toBe(paidRaw.client.id);
+  });
+});
+
+describe("mapInvoice — optional address", () => {
+  it("maps to no address when the record carries none", () => {
+    const withoutAddress = { ...paidRaw, address: null } as IInvoice;
+    expect(mapInvoice(withoutAddress).address).toBeUndefined();
+  });
+
+  it("maps an address when the record carries one", () => {
+    const address = {
+      id: "addr-1",
+      client_id: "client-1",
+      address_1: "10 Downing Street",
+      city: "London",
+      postcode: "SW1A 2AA"
+    } as unknown as IInvoice["address"];
+    const mapped = mapInvoice({ ...paidRaw, address } as IInvoice);
+
+    expect(mapped.address).toBeDefined();
+  });
+});
+
+describe("mapPayments (via mapInvoice) — payment meaning and order", () => {
+  const realPayment = paidRaw.payments[0];
+
+  it("marks a captured, non-pending payment successful", () => {
+    const mapped = mapInvoice(paidRaw);
+
+    expect(mapped.payments.length).toBeGreaterThan(0);
+    expect(mapped.payments[0].meta.isSuccessful).toBe(true);
+    expect(mapped.payments[0].meta.isPending).toBe(false);
+  });
+
+  it("marks a pending payment pending and not successful", () => {
+    const pending: IPayment = {
+      ...realPayment,
+      pending: true,
+      captured: 0
+    };
+    const raw = { ...paidRaw, payments: [pending] } as IInvoice;
+
+    expect(mapInvoice(raw).payments[0].meta).toStrictEqual({
+      isPending: true,
+      isSuccessful: false
+    });
+  });
+
+  it("resolves card details when a saved card funded the payment", () => {
+    const withCard: IPayment = {
+      ...realPayment,
+      payment_details: {
+        ...(realPayment.payment_details as object),
+        card_type: "visa",
+        card_last4: "4242"
+      } as IPayment["payment_details"]
+    };
+    const raw = { ...paidRaw, payments: [withCard] } as IInvoice;
+    const mapped = mapInvoice(raw).payments[0];
+
+    expect(mapped.cardType).toBe("visa");
+    expect(mapped.cardLast4).toBe("4242");
+  });
+
+  it("carries no card details for a payment with no saved card", () => {
+    const mapped = mapInvoice(paidRaw).payments[0];
+
+    expect(mapped.cardType == null || mapped.cardType === undefined).toBe(
+      true
+    );
+  });
+
+  it("orders payments newest first", () => {
+    const older: IPayment = {
+      ...realPayment,
+      id: "older",
+      created_at: "2020-01-01 00:00:00"
+    };
+    const newer: IPayment = {
+      ...realPayment,
+      id: "newer",
+      created_at: "2024-12-31 23:59:59"
+    };
+    const raw = { ...paidRaw, payments: [older, newer] } as IInvoice;
+
+    expect(mapInvoice(raw).payments.map(p => p.id)).toStrictEqual([
+      "newer",
+      "older"
+    ]);
+  });
+
+  it("maps to an empty list when the invoice has no payments", () => {
+    const raw = { ...paidRaw, payments: [] } as IInvoice;
+    expect(mapInvoice(raw).payments).toStrictEqual([]);
   });
 });

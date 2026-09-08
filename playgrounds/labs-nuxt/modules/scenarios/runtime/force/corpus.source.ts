@@ -29,13 +29,22 @@
  *
  * DECOUPLED (FE-3094): the seam no longer hardcodes any module name. The module
  * is a parameter, and fixture names are derived from the published keys.
+ *
+ * NARROWED (FE-3133): this seam now names the two entries that publish INERT
+ * artefacts — `./features` for the playlist text and the engine-free step catalogs,
+ * `./fixtures` for the recordings — instead of `./testing`. That entry also
+ * globs the harness half; the globs are lazy, but a bundler still resolves every
+ * module they name, and `setup.integration.ts` reaches msw's node-only
+ * interceptors, which failed this playground's production build outright. The
+ * boundary is unchanged in spirit: app runtime reaches recorded artefacts, never
+ * the harness that boots modules and registers runner lifecycles.
  */
 
 import {
   featureText as publishedFeatures,
-  recordedBodies,
   stepCatalogs
-} from "@upmind-automation/headless/testing";
+} from "@upmind-automation/headless/features";
+import { recordedBodies } from "@upmind-automation/headless/fixtures";
 import { keys, zipObject } from "lodash-es";
 import type { RecordedFixture } from "./corpus.source.types";
 import type { FeatureTracksSource } from "../composables/useFeatureTracks.types";
@@ -112,4 +121,15 @@ export function getCorpusBodies(
 export function getFixtureNames(module: string): string[] {
   const moduleBodies = recordedBodies[module];
   return moduleBodies ? keys(moduleBodies) : [];
+}
+
+/**
+ * One module's committed `.feature` — the source of truth for which forced
+ * states it declares (operator ruling, 2026-08-27). Already published by the
+ * seam; named here so the capability derivation reads the SPEC rather than
+ * inspecting recordings. A module this seam does not reach yields `""`, which
+ * declares nothing.
+ */
+export function featureTextFor(module: string): string {
+  return publishedFeatures[module] ?? "";
 }

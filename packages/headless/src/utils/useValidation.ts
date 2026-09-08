@@ -17,14 +17,21 @@ import {
   isArray,
   isEmpty,
   isNil,
+  isNumber,
   isObject,
+  isPlainObject,
   isString,
+  keys,
   map,
+  mapValues,
+  omit,
   omitBy,
+  pickBy,
   reduce,
   replace,
   set,
   toNumber,
+  toString,
   trimEnd,
   trimStart
 } from "lodash-es";
@@ -160,15 +167,26 @@ function mapLaravelRuleToJSONSchema(
         option => has(option, "label") && has(option, "value")
       )
     ) {
-      const enums: (string | null)[] = map(
+      // the API sends numeric option values for some string fields; the enum
+      // and the select need them as strings or nothing matches
+      const castValue = (value: string | number) => {
+        if (isNumber(value) && includes(field?.validation_rules, "string"))
+          return toString(value);
+        return value;
+      };
+
+      const enums: (string | number | null)[] = map(
         field?.options,
-        ({ value }) => value
+        ({ value }) => castValue(value)
       );
       if (!includes(field?.validation_rules, "required")) enums.push(null);
 
       return {
         enum: enums,
-        options: map(field?.options, ({ label, value }) => ({ label, value }))
+        options: map(field?.options, ({ label, value }) => ({
+          label,
+          value: castValue(value)
+        }))
       };
     } else {
       const enums: (string | null)[] = rule.substring(3).split(",");
@@ -409,6 +427,34 @@ export const useValidationParser = (error: ResponseError): ErrorObject[] => {
   );
 };
 
+/**
+ * Removes from `baseModel` every entry that `values` holds as an empty object
+ * or array: the user emptied it, so the base model must not put it back. Only
+ * an entry inside a group counts, eg `options.{categoryId}`. An empty group
+ * itself means nothing is set yet.
+ *
+ * `groups` names the groups this applies to. Only the caller knows which parts
+ * of its model treat an empty entry as a removal — elsewhere an empty value can
+ * be a gap the base model is there to fill.
+ */
+function omitEmptied<T extends object>(
+  baseModel: T | undefined,
+  values: any,
+  groups: string[]
+): Partial<T> {
+  const isEmptyEntry = (entry: any) =>
+    (isPlainObject(entry) || isArray(entry)) && isEmpty(entry);
+
+  return mapValues(baseModel, (group: any, name: string) => {
+    if (!includes(groups, name)) return group;
+
+    const emptied = keys(pickBy(get(values, name), isEmptyEntry));
+    if (isEmpty(emptied)) return group;
+
+    return omit(group, emptied);
+  });
+}
+
 export const useModelParser = <
   TModel extends Record<string, any> = Record<string, any>,
   TBaseModel = TModel
@@ -418,16 +464,25 @@ export const useModelParser = <
   baseModel?: Partial<TBaseModel>,
   {
     allowExtraProps,
+    allowEmpty,
     preserveContainers = true
   }: {
     allowExtraProps?: boolean;
+    allowEmpty?: string[];
     preserveContainers?: boolean;
   } = { allowExtraProps: true }
 ): TModel => {
   // values = omitBy(values, isEmpty) as Partial<TModel>;
   // baseModel = omitBy(baseModel, isEmpty) as Partial<TBaseModel>;
 
-  values = defaultsDeep(values, baseModel) as Partial<TModel>;
+  let defaults = baseModel;
+  if (!isEmpty(allowEmpty))
+    defaults = omitEmptied(baseModel, values, allowEmpty!);
+
+  values = defaultsDeep(values, defaults) as Partial<TModel>;
+
+  // Empty === unset on the way in too, so a cleared branch takes its default.
+  values = compactDeep(values, { preserveContainers }) as Partial<TModel>;
 
   if (!schema?.properties) return values as TModel;
 

@@ -12,16 +12,19 @@
  * wait that settles (AC-4); real two-page pagination (AC-9); refresh and
  * invalidate (AC-11).
  *
- * AC-3's bounced+error precedence example is NOT proven here, and not because
- * it is unproven: the real staging client this module's fixtures were captured
- * against has ZERO bounced rows in its entire ~2860-row history
- * (`client-email-history.fixtures.ts` fileoverview, and the recorded
- * `filter[bounced]=true` capture's own `total: 0`), so no replayable row can
- * exercise that branch without hand-authoring the very body
- * `no-hand-rolled-int-fixture` exists to catch. Precedence is a branch of the
- * pure `mapEmailStatus`, so it is proven at the unit layer instead —
- * `client-email-history.mappers.test.ts` (AC-3). The three status cases the
- * recorded rows DO reach are proven below.
+ * Two of AC-3's states are NOT proven here, and neither is unproven. The real
+ * staging client this module's fixtures were captured against holds neither a
+ * BOUNCED row nor a SENDING one, and two whole-history captures say so rather
+ * than a page sample: `filter[bounced]=true` records `total: 0`, and
+ * `filter[error_id]=null` records `total: 1` with that single row already
+ * `sent` (`client-email-history.fixtures.ts` fileoverview). No replayable row
+ * reaches either branch without hand-authoring the very body
+ * `no-hand-rolled-int-fixture` exists to catch. Both are branches of the pure
+ * `mapEmailStatus`, so both are proven at the unit layer instead, from a real
+ * recorded row with ONE field toggled —
+ * `client-email-history.mappers.test.ts` (AC-3). The states the recorded rows
+ * DO reach — ERROR and SENT — are proven below, alongside the replayed proof
+ * that the error-free page holds no in-flight row.
  */
 
 import { describe, expect, it, vi } from "vitest";
@@ -164,7 +167,7 @@ describe("client-email-history collection — each email's delivery status (AC-3
     expect(rows[0].meta.isSent).toBe(true);
   });
 
-  it("AC-3 resolves SENDING for a recorded row with sent/bounced false and no error_id", async () => {
+  it("AC-3 has no SENDING row to replay — the recorded error-free page is entirely SENT", async () => {
     await seedClientSession();
     const handlers = installEmailHistoryHandlers();
     const fixture = recorded.noErrorRows();
@@ -176,18 +179,24 @@ describe("client-email-history collection — each email's delivery status (AC-3
     );
 
     const rows = emails.useContext().data.value;
-    const sendingRow = rows.find(
-      row => !row.meta.isSent && !row.meta.isBounced && !row.meta.isError
+    expect(rows.length).toBeGreaterThan(0);
+    for (const row of rows) {
+      expect(row.status).toBe(SentEmailStatus.SENT);
+      expect(row.meta.isSent).toBe(true);
+    }
+    expect(rows.filter(row => row.status === SentEmailStatus.SENDING)).toEqual(
+      []
     );
-    expect(sendingRow).toBeDefined();
-    expect(sendingRow?.status).toBe(SentEmailStatus.SENDING);
   });
 
-  // AC-3's ERROR-over-BOUNCED precedence is proven in
-  // `client-email-history.mappers.test.ts`, not here: staging's recorded
-  // `filter[bounced]=true` capture is `total: 0`, so no replayable row reaches
-  // that branch. It is a pure-function branch, so the unit layer proves it
-  // without inventing a wire body. See this file's fileoverview.
+  // AC-3's SENDING and ERROR-over-BOUNCED branches are proven in
+  // `client-email-history.mappers.test.ts`, not here. Staging's whole-history
+  // captures say why: `filter[bounced]=true` is `total: 0`, and the
+  // `filter[error_id]=null` read replayed just above is `total: 1` with that
+  // one row already sent. No replayable row reaches either branch, and both
+  // are branches of the pure `mapEmailStatus`, so the unit layer proves them
+  // from a real recorded row with one field toggled rather than inventing a
+  // wire body. See this file's fileoverview.
 });
 
 describe("client-email-history collection — loading / empty / error, and isReady() (AC-4)", () => {

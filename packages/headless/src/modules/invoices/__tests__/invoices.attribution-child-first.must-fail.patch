@@ -1,0 +1,22 @@
+# must-fail: invoices.mappers.test.ts > "invoices — the child-first
+# attribution gate (AC-13) > resolves isDelegated FALSE whenever
+# isChildOfClient is true, even though delegate_related is also true"
+# Mutation: checks isDelegated BEFORE isChildOfClient (oracle order is
+# child-of-client first, mutually exclusive) — flips the precedence so a
+# delegated sub-account row resolves isChildOfClient: false.
+--- a/packages/headless/src/modules/invoices/invoices.mappers.ts
++++ b/packages/headless/src/modules/invoices/invoices.mappers.ts
+@@ -130,11 +130,12 @@
+   raw: IInvoice,
+   readingClientId?: string
+ ): Invoice["attribution"] {
++  const isDelegated = !!raw.delegate_related;
+   const isChildOfClient =
++    !isDelegated &&
+     !!readingClientId &&
+     get(raw, "client.parent_client_config.parent_client_id") ===
+       readingClientId;
+-  const isDelegated = !isChildOfClient && !!raw.delegate_related;
+ 
+   return {
+     isOwn: !isChildOfClient && !isDelegated,

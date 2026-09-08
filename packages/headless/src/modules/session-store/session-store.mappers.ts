@@ -75,6 +75,7 @@ export function mapSessionUser(
     fullName: actor.fullname,
     id: actor.id,
     isGuest: !!client.is_guest,
+    staged_import: !!client.staged_import,
     language: actor.interface_language_id,
     lastName: actor.lastname,
     locale: actor.interface_language_code,

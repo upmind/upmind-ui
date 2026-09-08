@@ -1,5 +1,5 @@
 import { watch } from "vue";
-import { invalidateQueryByKey } from "../query";
+import { invalidateQueryByKey, resetQueryByKey } from "../query";
 // Deep path, never the `../scope` barrel — see useClientPhones.ts for the
 // aggregator-barrel `export *` hazard this sidesteps.
 import { remove as removeFromRegistry } from "../scope/scope.registry";
@@ -114,7 +114,7 @@ export function createClientPhonesActions(
   /**
    * Applies a filter INTENT — the `filters` branch of the one query model, so
    * `sort` and `pagination` are untouched by construction. The free-text
-   * search binds `filters.number.like`.
+   * search binds `filters.phone.like`.
    */
   function filterBy(intent: FilterModel): void {
     query.setCriteria({ filters: intent });
@@ -209,6 +209,11 @@ export function createClientPhonesActions(
      * @scenario-include
      */
     remove: service.remove,
+
+    /**
+     * @scenario-exclude internal cache-key reset, not a user-facing capability
+     */
+    reset: resetQueryByKey(service.queryKey),
 
     /**
      * Applies a criteria INTENT — merges the given `filters` / `sort` /

@@ -41,6 +41,47 @@
 # payment flow itself (PN-1) — this module only observes and refetches; every
 # admin-only write; a standalone credit-notes resource (design.md D4 — credit
 # notes are a criteria preset on this same collection, not a new module).
+#
+# MERGE NOTE (gitlab/develop -> this branch, this dispatch): develop shipped a
+# 130-line feature written against the PRE-CONVERSION flat useInvoice(id) —
+# its own AC-*/INV-* ids never existed on this story and are superseded here.
+# Per capability (not per scenario), disposition against the 23 scenarios
+# above plus AC-16 below:
+#   @INV-read              -> subsumed by "Read one of my invoices in full"
+#                             (AC-2/AC-5) — same capability, richer surface.
+#   @INV-guest-denied       -> subsumed by "Refuse to read when no client is
+#                             addressable" (AC-14) — GUEST is no longer a
+#                             spellable actor (INVOICES_SCOPE_MATRIX[GUEST] =
+#                             never), so the capability now reads generically
+#                             as "unaddressable", which guest is one instance
+#                             of, not a narrowing.
+#   @INV-refresh/@INV-invalidate/@INV-ready
+#                          -> composable lifecycle/cache mechanics (the
+#                             `useActions().refresh/invalidate/isReady` API
+#                             contract), never named as a capability in
+#                             design.md's C01-C23 list. Per the BDD-altitude
+#                             rule (code-test-bdd.md "capability altitude
+#                             throughout... never a vague 'it works'") these
+#                             stay OUT of this feature and are carried forward
+#                             as unit-level API-contract tests instead
+#                             (useInvoices.actions.test.ts /
+#                             useInvoice.actions.test.ts) — not dropped, moved
+#                             to their correct layer.
+#   @INV-map-shape / @INV-map-frozen / @INV-map-optional-address /
+#   @INV-map-payments-order / @INV-map-payment-{success,pending,cardless}
+#                          -> pure-mapper detail already implied by "Read one
+#                             of my invoices in full" at capability altitude;
+#                             carried forward as invoices.mappers.test.ts unit
+#                             assertions (Task 2), not as separate scenarios —
+#                             a mapping field's exact shape is not itself a
+#                             distinct capability.
+#   @INV-state-paid/free/partial/pending/error
+#                          -> GENUINELY STILL REAL (design D3: PAYMENT_STATE
+#                             is "wired, not deleted") and NOT named by
+#                             design.md's C01-C23 list — an omission, not a
+#                             deliberate drop. Restated below as AC-16 rather
+#                             than silently dropped.
+#   @INV-state-availability -> subsumed by AC-14 (same "unaddressable" guard).
 
 @module:invoices @variant:query
 Feature: A client reads and manages their invoices
@@ -186,6 +227,32 @@ Feature: A client reads and manages their invoices
     When I open that invoice
     Then my outstanding balance and my raw unpaid amount are shown as two distinct numbers
     And I am never left to guess which one is current
+
+  # === WHOLE-INVOICE PAYMENT STATE ============================================
+  # Carried forward from the pre-conversion module's flat `meta` computed
+  # (four booleans that could disagree with each other) — design D3 wires
+  # these into ONE discriminated PAYMENT_STATE instead of dropping them.
+  # AC-16 is minted here (beyond the story's own AC1-AC13), same precedent as
+  # AC-14/AC-15 above and client-email-history.feature's AC-18..21.
+
+  @AC-16 @client @cell:client-self
+  Scenario Outline: Read an invoice's overall payment state
+    Given one of my invoices "<condition>"
+    When I open that invoice
+    Then its payment state is reported as "<state>"
+
+    Examples:
+      | condition                                        | state   |
+      | has recorded payments and nothing left owing     | paid    |
+      | has no payments and nothing owing                | free    |
+      | has a paid part and a positive remaining balance | partial |
+      | has no payments yet and a positive amount owing  | pending |
+
+  @AC-16 @client @module @guard
+  Scenario: A failed invoice load reports no guessed payment state
+    Given an invoice load that failed
+    When I ask for its payment state
+    Then I am told the load failed rather than given a guessed payment state
 
   # === RETARGETING AND ATTRIBUTION — READING A SUB-ACCOUNT'S OR DELEGATOR'S
   #     INVOICES (client×client) =============================================

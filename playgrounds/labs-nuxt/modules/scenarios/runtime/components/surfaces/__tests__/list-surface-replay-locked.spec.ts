@@ -78,16 +78,6 @@ type Wrapper = ReturnType<typeof mountLockedList>;
 const control = (wrapper: Wrapper, row: number, name: string) =>
   getRow(wrapper, row).find(`[data-test-value="${CONTROL_TEST_VALUE[name]}"]`);
 
-async function openOverflow(wrapper: Wrapper, row: number, name: string) {
-  await getRow(wrapper, row)
-    .find(`[data-test-value="${OVERFLOW_TRIGGER_TEST_VALUE}"]`)
-    .trigger("click");
-  await new Promise(resolve => setTimeout(resolve, 0));
-  return document.querySelector<HTMLElement>(
-    `[role="menuitem"] [data-test-value="${CONTROL_TEST_VALUE[name]}"]`
-  );
-}
-
 const orderingHeader = (wrapper: Wrapper) =>
   find(wrapper.findAll("th"), header =>
     header.find('[data-test-key="button"]').exists()

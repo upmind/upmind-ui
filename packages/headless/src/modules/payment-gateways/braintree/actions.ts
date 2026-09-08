@@ -55,14 +55,13 @@ export default {
 
   cleanupSdk: assign({
     sdk: ({ sdk }: BraintreeContext) => {
-      if (sdk?.braintree) {
-        try {
-          sdk.braintree.teardown?.();
-        } catch {
-          // SDK may have already cleaned up internally; cleanup must not throw,
-          // as that would abort the surrounding xstate transition mid-flight.
-        }
-      }
+      // `teardown()` with no callback returns a Promise, so a `try/catch` never
+      // saw its rejection — an already-torn-down SDK rejected into nothing and
+      // the warning was silently lost. The rejection is swallowed on the
+      // promise's own channel instead: cleanup must not throw, as that would
+      // abort the surrounding xstate transition mid-flight.
+      void sdk?.braintree?.teardown?.()?.catch?.(() => undefined);
+
       return undefined;
     }
   })

@@ -1,0 +1,61 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/payments?case=method-unusable",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "invoice_id": "52098d3d-e409-1748-650c-31578626e347",
+      "payment_details_id": "00000000-0000-0000-0000-000000000000"
+    }
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a323d09beba911e6-LIS",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Fri, 28 Aug 2026 13:55:39 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=AtDgyisqzV%2FskpS584%2FUnJorb%2BcKuJBuVevHVvD1cR7VAijAAIobEOWOq58nuz%2FplvFJ59W4%2FmGWd7FQzNHPdJEs09xWPcMJm0hU120yq9WuueMadrmKkC5u%2FjO7vGaXBJwqC7zctQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN",
+      "x-upmind-snail": "true"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "f7c003b08631b06f341bc7639e14f9e90cdc5c56",
+        "type": 0,
+        "code": 422,
+        "message": "API request invalid!",
+        "data": {
+          "payment_details_id": [
+            "The identifier (payment details id) is invalid!"
+          ]
+        }
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-28T13:55:39.698Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "payment"
+  }
+}

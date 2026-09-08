@@ -1,0 +1,62 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/payments?case=gateway-micropayment",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "invoice_id": "85d26e96-783d-1652-de8a-314502e70439",
+      "gateway_id": "20403869-6e54-721d-683c-518d9305e7d2"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a33bd8a29eaac156-LIS",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 31 Aug 2026 11:55:27 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=C5synvZQ052%2FMGhAIH5uReDYhzZgnDF5UZTrRTM01j53VRxZy15yi%2FD5u2%2BE4XyRNRFZcVvI6p%2F4kcJ%2Fj5wR45WqkRQZPcQgCexJBLNbqFycShii0c%2Ft1gqipVVXFXm%2FfY4bFYmQvQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-upmind-snail": "true"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "transaction_status": "REDIRECT",
+        "transaction_type": 3,
+        "approval_url": {
+          "url": "https://creditcard.micropayment.de/creditcard/event/?project=1661-rmntc-b2c5edf1&amount=7200&currency=GBP&description=%7BACC-1480%7D+Payment+%28Invoice%3A+QA-INV-22142%29&email=nathan.robinson%2Bcheckouttest%40upmind.com&testmode=1&title=QA-INV-22142&mp_user_firstname=Checkout&mp_user_surname=Test&mp_user_email=nathan.robinson%2Bcheckouttest%40upmind.com&mp_user_address=40+Reichert+Grange&mp_user_city=Guildford&mp_user_zip=GU4+8PH&mp_user_id=704bf73b40d416d1176de4537b4a9c88bc4211be&redirectDataHash=hkm1ii5n&seal=283d46c4c62954571ad17f7b3bdb1888",
+          "method": "GET",
+          "fields": []
+        },
+        "transaction_id": "c8448c0b-07a0-4c10-b7af-37ad22555a8a"
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-08-31T11:55:27.449Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "order"
+  }
+}
