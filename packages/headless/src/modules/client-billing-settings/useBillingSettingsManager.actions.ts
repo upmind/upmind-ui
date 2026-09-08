@@ -152,6 +152,7 @@ export function createBillingSettingsManagerActions(
    * `usePersonalDetailsManager.actions.ts:139-142`.
    */
   async function revert(): Promise<BillingSettingsModel> {
+    debouncedInput.cancel();
     const baseModel =
       contextValue<BillingSettingsModel>(state, "baseModel") ?? {};
     return input(baseModel);

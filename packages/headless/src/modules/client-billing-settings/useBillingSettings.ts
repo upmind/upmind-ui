@@ -47,20 +47,35 @@ function createBillingSettingsForScope(
   const query = service.loadSettings();
 
   /**
-   * Row O8's brand gate, resolved ONCE per scope and shared between
-   * `useActions().isReady()` (which awaits `visibilitySettled`) and
-   * `useMeta().isVisible` (which reads `restrictToStaff` synchronously) —
-   * the SAME settled ref, never a second independent fetch that could still
-   * be in flight when a consumer reads `isVisible` right after `isReady()`
+   * Row O8's brand gate, resolved per scope and shared between
+   * `useActions().isReady()`/`refresh()` (which (re-)await
+   * `loadVisibility()`) and `useMeta().isVisible`/`hasVisibilityError`
+   * (which read `restrictToStaff`/`visibilityError` synchronously) — the
+   * SAME refs, never a second independent fetch that could still be in
+   * flight when a consumer reads `isVisible` right after `isReady()`
    * resolves.
+   *
+   * Re-invocable, not a one-shot promise: a transient failure used to leave
+   * `restrictToStaff` `undefined` forever, since nothing ever re-ran the
+   * fetch. `refresh()` now calls this again, and a failure is recorded in
+   * `visibilityError` rather than silently swallowed.
    */
   const restrictToStaff = ref<boolean | undefined>(undefined);
-  const visibilitySettled = service
-    .loadVisibility()
-    .then(value => {
-      restrictToStaff.value = value;
-    })
-    .catch(() => undefined);
+  const visibilityError = ref(false);
+
+  function loadVisibility(): Promise<void> {
+    return service
+      .loadVisibility()
+      .then(value => {
+        restrictToStaff.value = value;
+        visibilityError.value = false;
+      })
+      .catch(() => {
+        visibilityError.value = true;
+      });
+  }
+
+  const visibilitySettled = loadVisibility();
 
   return {
     // --- Sub-composables (no direct props — clause 1 four-layer return)
@@ -71,7 +86,8 @@ function createBillingSettingsForScope(
         service,
         query,
         scopeKey,
-        visibilitySettled
+        visibilitySettled,
+        loadVisibility
       ),
 
     /** Sub-composable for read context (the consolidation preference). */
@@ -82,7 +98,13 @@ function createBillingSettingsForScope(
 
     /** Sub-composable for read meta (state flags). */
     useMeta: () =>
-      createBillingSettingsMeta(actorScope, service, query, restrictToStaff)
+      createBillingSettingsMeta(
+        actorScope,
+        service,
+        query,
+        restrictToStaff,
+        visibilityError
+      )
   };
 }
 // -----------------------------------------------------------------------------

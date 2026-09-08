@@ -22,7 +22,8 @@ export function createBillingSettingsActions(
   service: ClientBillingSettingsServices,
   query: ClientBillingSettingsRecordQuery,
   scopeKey: string,
-  visibilitySettled: Promise<void>
+  visibilitySettled: Promise<void>,
+  reloadVisibility: () => Promise<void>
 ) {
   const { isAvailable: isSessionInitialised, isLoading: isSessionSettling } =
     useActiveSession().useMeta();
@@ -86,11 +87,19 @@ export function createBillingSettingsActions(
     return fetched;
   }
 
-  /** Forces a re-read of the preference. @throws {NotAuthenticatedError} */
+  /**
+   * Forces a re-read of the preference AND re-attempts row O8's brand-gate
+   * fetch (`reloadVisibility`) — a transient failure there must not strand
+   * `useMeta().isVisible` permanently, since nothing else ever re-runs it.
+   * @throws {NotAuthenticatedError}
+   */
   async function refresh(): Promise<void> {
     if (!service.isAvailable.value) throw new NotAuthenticatedError();
 
-    const { error } = await query.refetch();
+    const [{ error }] = await Promise.all([
+      query.refetch(),
+      reloadVisibility()
+    ]);
     if (error instanceof NotAuthenticatedError) throw error;
   }
 

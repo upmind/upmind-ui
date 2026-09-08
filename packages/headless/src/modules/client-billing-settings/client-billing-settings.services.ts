@@ -125,12 +125,32 @@ function isAddressable(clientId?: string): boolean {
  *          segment is mirrored as a local literal, NOT imported — the
  *          sibling modules refuse that same import across their own module
  *          boundaries, and this module refuses it for the same reason.
- * why:     TanStack stores the RAW `IClient` and applies `select` PER
- *          OBSERVER. A third observer on this key therefore gets its own
- *          projection at ZERO extra requests, and cannot change what the
- *          other two see. The URL must be shared too: a bare `clients/{id}`
- *          under the same key would race the `with=` variant and strip
- *          custom fields from the sibling's projection.
+ * why:     `vueUseQuery` (a REACTIVE observer, unlike `useQuery().get()`)
+ *          stores the RAW `IClient` and applies `select` PER OBSERVER —
+ *          true in ISOLATION. A third reactive observer on this key
+ *          therefore gets its own projection at ZERO extra requests, and
+ *          cannot change what the other two see. The URL must be shared
+ *          too: a bare `clients/{id}` under the same key would race the
+ *          `with=` variant and strip custom fields from the sibling's
+ *          projection.
+ * residual-risk: this module's own reads never poison the entry, but a
+ *          CO-OWNER can poison it BEFORE this observer ever mounts.
+ *          `client-custom-fields.services.ts:205-213`'s `loadClientBrandId`
+ *          reads this SAME key via `getOne()` (`useQuery().get()`) with
+ *          `select: data => data?.brand_id` — the exact `get()` hazard
+ *          `rejected: (2)` below diagnoses, self-inflicted by a sibling
+ *          this module does not control. If that call's `queryFn` wins the
+ *          race for the entry (observed in practice at
+ *          `client-personal-details.services.ts:199-218`), the cache holds
+ *          a bare `brand_id` string for the full `staleTime: DAY` window;
+ *          this module's `vueUseQuery` observer then mounts against that
+ *          already-poisoned entry, does not refetch within `staleTime`, and
+ *          runs `mapBillingSettings` over a string — every field
+ *          `undefined`, so the read half silently reports no preference.
+ *          Not fixed here: the fix belongs to whichever of the two
+ *          `get()`-based readers stops registering under this key
+ *          (`client-custom-fields`/`client-personal-details`'s own
+ *          write lanes), not to this module's reactive read.
  * rejected: (1) Mint a private key `["client", clientId, "billing-settings"]`
  *          — doubles the request count for data already cached, for no
  *          isolation benefit that `select` does not already give.

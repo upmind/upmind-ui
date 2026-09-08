@@ -17,7 +17,8 @@ export function createBillingSettingsMeta(
   _actorScope: ScopeActorTypes,
   service: ClientBillingSettingsServices,
   query: ClientBillingSettingsRecordQuery,
-  restrictToStaff: Ref<boolean | undefined>
+  restrictToStaff: Ref<boolean | undefined>,
+  visibilityError: Ref<boolean>
 ) {
   const hasErrors = computed(() => !!query.error.value);
 
@@ -29,10 +30,13 @@ export function createBillingSettingsMeta(
    * Row O8 — hidden unless the brand explicitly opts clients in. The `?? true`
    * polarity is the oracle's own (`comp:72-79`): an absent or `true` value
    * hides the surface; only an explicit literal `false` reveals it.
-   * `restrictToStaff` is settled ONCE per scope by `useBillingSettings.ts`
-   * (`service.loadVisibility()`), shared with `useActions().isReady()` so a
-   * consumer that awaits readiness always reads a SETTLED value here, never
-   * one still in flight.
+   * `restrictToStaff` is settled by `useBillingSettings.ts`
+   * (`service.loadVisibility()`, re-invocable via `useActions().refresh()`),
+   * shared with `useActions().isReady()` so a consumer that awaits readiness
+   * always reads a SETTLED value here, never one still in flight. A failed
+   * fetch fails this closed (`undefined` reads as not-`false`) — surfaced
+   * separately via `hasVisibilityError`, not conflated with an explicit
+   * brand opt-out.
    */
   const isVisible = computed(() => restrictToStaff.value === false);
 
@@ -48,6 +52,15 @@ export function createBillingSettingsMeta(
      * instance: this IS the predicate the request gate calls.
      */
     isAvailable: service.isAvailable,
+
+    /**
+     * True when row O8's brand-gate fetch has failed and not yet recovered.
+     * `isVisible` fails closed (`false`) on the same condition, which reads
+     * identically to an explicit brand opt-out — this flag is how a
+     * consumer tells the two apart. Recovers on the next successful
+     * `useActions().refresh()`.
+     */
+    hasVisibilityError: computed(() => visibilityError.value),
 
     /** True while the read is loading or has not completed its first fetch. */
     isLoading,
