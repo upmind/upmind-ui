@@ -12,9 +12,12 @@
  * an invalid value blocks the save before any request (AC-10); a no-op save
  * issues zero requests and still resolves (AC-11); every control reports
  * itself unavailable while a save is in flight, and recovers once it settles
- * — even as an error (AC-13); and an externally-supplied disabled state
- * locks every control independently of the module's own gates, and a `set()`
- * while locked leaves the model unchanged (AC-15).
+ * — even as an error (AC-13); an externally-supplied disabled state locks
+ * every control independently of the module's own gates, and a `set()`
+ * while locked leaves the model unchanged (AC-15); and `revert()` cancels a
+ * STILL-PENDING debounced `input()` before it can apply, so a revert made
+ * inside the debounce window is never silently undone once the timer fires
+ * (AC-9).
  *
  * ## What Breaks If These Fail
  * Data loss from a discard that silently sends a request, a save that
@@ -82,6 +85,29 @@ describe("useBillingSettingsManager — revert restores the loaded values with n
     expect(observed.all()).toHaveLength(0);
     manager.useActions().destroy();
   });
+});
+
+describe("useBillingSettingsManager — revert cancels a still-pending debounced input (AC-9)", () => {
+  it("AC9 revert cancels a pending debounced input before it can apply", async () => {
+    const { clientId } = await seedClientSession();
+    installSettingsGetHandler(server, clientId, recorded.settings());
+
+    const manager = useBillingSettingsManager().as(ScopeActorTypes.CLIENT);
+    await manager.useActions().isReady();
+    const baseModel = { ...manager.useContext().baseModel.value };
+
+    const observed = observeClientRequests();
+    void manager.useActions().input({ enabled: 0 });
+    await manager.useActions().revert();
+
+    await new Promise(resolve => setTimeout(resolve, 500));
+    observed.stop();
+
+    expect(manager.useContext().model.value).toEqual(baseModel);
+    expect(manager.useMeta().isDirty.value).toBe(false);
+    expect(observed.all()).toHaveLength(0);
+    manager.useActions().destroy();
+  }, 10000);
 });
 
 describe("useBillingSettingsManager — an invalid value refuses to save (AC-10)", () => {

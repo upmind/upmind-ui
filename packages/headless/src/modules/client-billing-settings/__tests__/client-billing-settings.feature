@@ -140,7 +140,7 @@ Feature: A client reads and manages their own invoice-consolidation preference
     Then every control in my editor reports itself unavailable to edit
     And once the save settles, whether it succeeded or failed, every control becomes available again
 
-  @AC-15 @manager
+  @AC-15 @manager @negative-control
   Scenario: A consumer can lock my editor from outside, independent of the editor's own state
     Given the app I am using has locked my consolidation preference editor
     When I look at any control in the editor

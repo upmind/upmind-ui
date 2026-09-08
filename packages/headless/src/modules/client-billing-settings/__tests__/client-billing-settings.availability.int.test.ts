@@ -21,13 +21,22 @@
  * key under test overridden — never a fabricated body — mirroring the
  * exemplar's own `required: true` single-flag-override technique.
  *
+ * Also proves the visibility gate's error recovery (AC-17): a failed
+ * one-shot brand-config read leaves the surface hidden (failing CLOSED
+ * stays correct) AND is exposed to the consumer via
+ * `useMeta().hasVisibilityError`, rather than staying silent forever; a
+ * subsequent `useActions().refresh()` re-attempts the read and a
+ * now-succeeding fetch resolves the surface correctly.
+ *
  * ## What Breaks If These Fail
  * A staged-import client whose editor silently commits before the import
- * finishes processing, or a brand that never opted its clients in seeing a
- * control that cannot work.
+ * finishes processing, a brand that never opted its clients in seeing a
+ * control that cannot work, or a client stuck with a hidden surface and no
+ * way to tell it was a transient failure rather than a brand decision.
  */
 
-import { afterEach, describe, expect, it } from "vitest";
+import { http, HttpResponse } from "msw";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { useBillingSettings, useBillingSettingsManager } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
@@ -45,6 +54,48 @@ import { server } from "./setup.integration";
 
 afterEach(() => {
   resetClientBillingSettingsScopes();
+});
+
+// Runs FIRST, deliberately, ahead of every other describe block below: this
+// is the only test in the file whose visibility read is made to FAIL, and
+// the brand-config gate it drives (`useBrand().ensureConfig()`) is a
+// module-wide singleton (design.md §5.2/§8.2, useBrand.ts:69) that never
+// re-issues a request once any earlier test in this FILE has already
+// resolved it successfully. Every other describe block below resolves it
+// successfully, so this one must run before any of them do.
+describe("useBillingSettings — the visibility gate recovers and reports on refresh (AC-17)", () => {
+  it("AC17 a failed visibility read stays hidden and visible, then recovers on refresh", async () => {
+    const { clientId } = await seedClientSession();
+    installSettingsGetHandler(server, clientId, recorded.settings());
+    server?.use(
+      http.get("*/config/brand/values*", () =>
+        HttpResponse.json({ status: "error", data: null }, { status: 500 })
+      )
+    );
+
+    const settings = useBillingSettings().as(ScopeActorTypes.CLIENT);
+    await settings.useActions().isReady();
+
+    await vi.waitFor(
+      () => {
+        expect(settings.useMeta().isVisible.value).toBe(false);
+        expect(settings.useMeta().hasVisibilityError.value).toBe(true);
+      },
+      { timeout: 15000 }
+    );
+
+    installRestrictToStaffHandler(server);
+    await settings.useActions().refresh();
+
+    await vi.waitFor(
+      () => {
+        expect(settings.useMeta().isVisible.value).toBe(true);
+        expect(settings.useMeta().hasVisibilityError.value).toBe(false);
+      },
+      { timeout: 15000 }
+    );
+    settings.useActions().destroy();
+  }, 20000);
 });
 
 const stagedSettingsFixture = {
