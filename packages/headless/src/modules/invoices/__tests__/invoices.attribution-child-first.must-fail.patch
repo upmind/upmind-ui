@@ -1,22 +1,37 @@
 # must-fail: invoices.mappers.test.ts > "invoices — the child-first
 # attribution gate (AC-13) > resolves isDelegated FALSE whenever
 # isChildOfClient is true, even though delegate_related is also true"
-# Mutation: checks isDelegated BEFORE isChildOfClient (oracle order is
-# child-of-client first, mutually exclusive) — flips the precedence so a
-# delegated sub-account row resolves isChildOfClient: false.
+#
+# Re-rolled 2026-09-08 (developer, FE-3031 Review-blocker repair, B4): line
+# anchors AND the surrounding logic moved when `mapAttribution` was rewritten
+# in this same repair to align `isDelegated` with the oracle's
+# `belongsToDelegate` (gated on the ABSENCE of any parent, not on the parent
+# matching `readingClientId`) — same mutation intent (delegate_related wins
+# before child-of-client is even evaluated), new context lines.
+#
+# Mutation: computes `isDelegated` straight off `delegate_related`, with no
+# gate at all, and only THEN excludes it from `isChildOfClient` — reversing
+# the child-first precedence so a row that is both this reader's child AND
+# `delegate_related` resolves `isDelegated: true` / `isChildOfClient: false`,
+# flipping the named assertion RED.
+# git apply --check is clean against invoices.mappers.ts as landed by this
+# dispatch.
 --- a/packages/headless/src/modules/invoices/invoices.mappers.ts
 +++ b/packages/headless/src/modules/invoices/invoices.mappers.ts
-@@ -130,11 +130,12 @@
+@@ -133,13 +133,13 @@
    raw: IInvoice,
    readingClientId?: string
  ): Invoice["attribution"] {
+   const parentClientId = get(
+     raw,
+     "client.parent_client_config.parent_client_id"
+   );
+-  const isChildOfClient =
+-    !!readingClientId && parentClientId === readingClientId;
+-  const isDelegated = !parentClientId && !!raw.delegate_related;
 +  const isDelegated = !!raw.delegate_related;
-   const isChildOfClient =
-+    !isDelegated &&
-     !!readingClientId &&
-     get(raw, "client.parent_client_config.parent_client_id") ===
-       readingClientId;
--  const isDelegated = !isChildOfClient && !!raw.delegate_related;
- 
++  const isChildOfClient =
++    !isDelegated && !!readingClientId && parentClientId === readingClientId;
+
    return {
      isOwn: !isChildOfClient && !isDelegated,

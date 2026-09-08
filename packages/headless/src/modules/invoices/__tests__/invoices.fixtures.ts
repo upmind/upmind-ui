@@ -219,7 +219,7 @@ describe("Invoices API Fixtures Generator", () => {
         !!client?.parent_client_config
       );
     });
-    // eslint-disable-next-line no-console
+
     console.log(
       "[fixtures:generate invoices] real-corpus coverage — " +
         `consolidation:${hasConsolidation} creditNote:${hasCreditNote} ` +
@@ -247,7 +247,6 @@ describe("Invoices API Fixtures Generator", () => {
 
   it("captures GET /invoices/{id} for a real UNPAID/OVERDUE invoice, if one exists", async () => {
     if (!unpaidInvoiceId) {
-      // eslint-disable-next-line no-console
       console.log(
         "[fixtures:generate invoices] no invoice_unpaid/invoice_overdue row " +
           "in this capture window — the unpaid-amount and hasUnpaid int " +
@@ -270,7 +269,6 @@ describe("Invoices API Fixtures Generator", () => {
 
   it("captures GET /invoices/{id} for a real fully-paid invoice, if one exists (AC-16)", async () => {
     if (!paidInvoiceId) {
-      // eslint-disable-next-line no-console
       console.log(
         "[fixtures:generate invoices] no invoice_paid row in this capture " +
           "window — get-invoices-id-case-paid not (re)captured; the mapper " +
@@ -329,7 +327,7 @@ describe("Invoices API Fixtures Generator", () => {
     const currencyId = unpaidInvoiceCurrencyId;
     if (!currencyId) {
       generator.clearBearerToken();
-      // eslint-disable-next-line no-console
+
       console.log(
         "[fixtures:generate invoices] could not resolve a currency_id for " +
           `${targetId} — unpaid-amount 200 capture skipped, disclosed.`
@@ -342,7 +340,6 @@ describe("Invoices API Fixtures Generator", () => {
     );
     generator.clearBearerToken();
     if (status !== 200) {
-      // eslint-disable-next-line no-console
       console.log(
         `[fixtures:generate invoices] unpaid_amount capture returned ` +
           `${status} for ${targetId} with currency_id=${currencyId} — ` +

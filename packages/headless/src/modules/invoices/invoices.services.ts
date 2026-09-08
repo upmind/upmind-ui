@@ -27,7 +27,7 @@ import type { Currency } from "../currency/currency.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IInvoice } from "@upmind-automation/types";
-import type { MaybeRef, Ref } from "vue";
+import type { ComputedRef, MaybeRef, Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module invoices/invoices.services
@@ -125,16 +125,48 @@ function isAddressable(clientId?: string): boolean {
 }
 
 /**
+ * Keeps a list handle's `client_id` filter column tracking the RESOLVED
+ * scope target reactively, through the declared criteria column
+ * (`setCriteria`) — never a mint-time snapshot (W2): a self-scope's
+ * `clientId` follows the active session and can change after construction
+ * (e.g. a session switch), and a criteria `model` seed is committed once,
+ * at mint, only. Every other declared filter on the handle is preserved —
+ * only the `client_id` key is overridden.
+ */
+function trackClientIdFilter(
+  handle: InvoicesListQuery,
+  clientId: ComputedRef<string | undefined>
+): void {
+  watch(
+    clientId,
+    value =>
+      handle.setCriteria({
+        filters: {
+          ...handle.criteria.value.filters,
+          ...(value ? { client_id: { eq: value } } : {})
+        }
+      }),
+    { immediate: true }
+  );
+}
+
+/**
  * COLLECTION — the reactive list query, minted once per scope. The whole
  * request state is the DECLARED query schema: `list()` builds the criteria
  * from it and publishes filters/sort/pagination back on the handle, so there
  * is no raw `sort`/`filters`/`pagination` param beside it (AC2).
+ *
+ * {@link trackClientIdFilter} seeds and keeps the `client_id` filter column
+ * in step with the resolved scope target (AC12, the A7 clause): without it,
+ * a `.for('client', X)` scope fetched the READER's own rows while `select`
+ * still attributed them against `X` (`mapInvoices` below), corrupting
+ * `Invoice.attribution`/`isSettleable` for a genuine sub-account row.
  */
 function loadList(scopeContext?: ScopeContext): InvoicesListQuery {
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  return list<IInvoice[], Invoice[], InvoiceQueryModel>({
+  const handle = list<IInvoice[], Invoice[], InvoiceQueryModel>({
     criteria: { schema: useQuerySchema() },
     queryKey: [...queryKey, { client: clientId }],
     url: useUrl("invoices", {
@@ -155,6 +187,10 @@ function loadList(scopeContext?: ScopeContext): InvoicesListQuery {
     staleTime: useTime().DAY,
     placeholderData: keepPreviousData
   });
+
+  trackClientIdFilter(handle, clientId);
+
+  return handle;
 }
 
 /**
@@ -255,6 +291,13 @@ function loadUnpaidAmount(
  * query, but stays disabled until `requestUnpaidExistence()` flips it —
  * `meta.hasUnpaid` calls that on read, so an `useInvoices()` scope that never
  * asks about `hasUnpaid` never issues this request.
+ *
+ * {@link trackClientIdFilter} seeds `client_id` onto this read the same way
+ * the oracle conditionally does (`oracle:561-563` —
+ * `...(payload.clientId ? { ["filter[client_id]"]: payload.clientId } : {})`):
+ * without it this read answered for the READER, so
+ * `.for('client', X).useMeta().hasUnpaid` reported a sub-account's own
+ * outstanding invoices as `false`.
  */
 function loadUnpaidExistence(
   requested: Ref<boolean>,
@@ -263,7 +306,7 @@ function loadUnpaidExistence(
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  return list<IInvoice[], Invoice[], InvoiceQueryModel>({
+  const handle = list<IInvoice[], Invoice[], InvoiceQueryModel>({
     criteria: { schema: useQuerySchema(), model: UNPAID_EXISTENCE_CRITERIA },
     queryKey: [...queryKey, "unpaid_existence", { client: clientId }],
     url: useUrl("invoices"),
@@ -280,6 +323,10 @@ function loadUnpaidExistence(
     select: raw => mapInvoices(raw, clientId.value),
     staleTime: useTime().DAY
   });
+
+  trackClientIdFilter(handle, clientId);
+
+  return handle;
 }
 
 /**
@@ -292,6 +339,11 @@ function loadUnpaidExistence(
  * `requested` gates `enabled` exactly like `loadUnpaidExistence`:
  * `meta.consolidatableCount` flips it on read, so a scope nobody asks about
  * never issues this request.
+ *
+ * The `client_id` this seeds at mint (via `consolidatableCountCriteria`)
+ * would otherwise freeze whatever `clientId.value` resolved to at
+ * construction (W2); {@link trackClientIdFilter} re-applies it on every
+ * change, so a self-scope's client_id tracks a session switch instead.
  */
 function loadConsolidatableCount(
   requested: Ref<boolean>,
@@ -300,7 +352,7 @@ function loadConsolidatableCount(
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  return list<IInvoice[], Invoice[], InvoiceQueryModel>({
+  const handle = list<IInvoice[], Invoice[], InvoiceQueryModel>({
     criteria: {
       schema: useQuerySchema(),
       model: consolidatableCountCriteria(clientId.value)
@@ -320,6 +372,10 @@ function loadConsolidatableCount(
     select: raw => mapInvoices(raw, clientId.value),
     staleTime: useTime().DAY
   });
+
+  trackClientIdFilter(handle, clientId);
+
+  return handle;
 }
 
 /**

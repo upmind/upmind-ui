@@ -40,8 +40,8 @@
 
 import { describe, expect, it, vi } from "vitest";
 import { useInvoice, useInvoices } from "..";
-import { ScopeActorTypes } from "../../scope/scope.types";
 import { SortDirection } from "../../query/query.types";
+import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   assertClientIdentityTransport,
   bootUnauthenticated,

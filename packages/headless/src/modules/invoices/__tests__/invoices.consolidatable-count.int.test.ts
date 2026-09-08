@@ -36,8 +36,8 @@
  * still asserted.
  */
 
-import { describe, expect, it, vi } from "vitest";
 import { http, HttpResponse } from "msw";
+import { describe, expect, it, vi } from "vitest";
 import { InvoicesContextTypes, useInvoices } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
@@ -95,9 +95,9 @@ describe("invoices — consolidatableCount coexists with the client's own list (
     const observed = observeInvoiceRequests();
     void invoices.useMeta().consolidatableCount.value;
     await vi.waitFor(() =>
-      expect(observed.all().some(request => isDedicatedCount(request.url))).toBe(
-        true
-      )
+      expect(
+        observed.all().some(request => isDedicatedCount(request.url))
+      ).toBe(true)
     );
     observed.stop();
 
@@ -162,9 +162,9 @@ describe("invoices — consolidatableCount coexists with the client's own list (
     const observed = observeInvoiceRequests();
     void invoices.useMeta().consolidatableCount.value;
     await vi.waitFor(() =>
-      expect(observed.all().some(request => isDedicatedCount(request.url))).toBe(
-        true
-      )
+      expect(
+        observed.all().some(request => isDedicatedCount(request.url))
+      ).toBe(true)
     );
     observed.stop();
 
@@ -179,5 +179,48 @@ describe("invoices — consolidatableCount coexists with the client's own list (
 
     await new Promise(resolve => setTimeout(resolve, 2500));
     expect(invoices.useMeta().consolidatableCount.value).toBe(2);
+  });
+
+  it("consolidatableCount's dedicated request without a target resolves to the reading client's own id, never the other one", async () => {
+    const { clientId } = await seedClientSession();
+    installInvoiceHandlers();
+    const listFixture = recorded.list();
+    server.use(
+      http.get("*/invoices", ({ request }) => {
+        if (isDedicatedCount(request.url)) {
+          return HttpResponse.json(
+            {
+              status: "ok",
+              data: listFixture.data.slice(0, 1),
+              total: 1,
+              error: null,
+              messages: null,
+              meta: null
+            },
+            { headers: { "x-total-count": "1" } }
+          );
+        }
+        return HttpResponse.json(listFixture);
+      })
+    );
+
+    const invoices = useInvoices().as(ScopeActorTypes.CLIENT);
+    await vi.waitFor(() =>
+      expect(invoices.useMeta().isLoading.value).toBe(false)
+    );
+
+    const observed = observeInvoiceRequests();
+    void invoices.useMeta().consolidatableCount.value;
+    await vi.waitFor(() =>
+      expect(
+        observed.all().some(request => isDedicatedCount(request.url))
+      ).toBe(true)
+    );
+    observed.stop();
+
+    for (const request of observed.all()) {
+      expect(request.url).not.toContain(OTHER_CLIENT_ID);
+    }
+    expect(invoices.useInternals().clientId.value).toBe(clientId);
   });
 });

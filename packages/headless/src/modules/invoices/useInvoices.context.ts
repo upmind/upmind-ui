@@ -71,8 +71,25 @@ export function createInvoicesContext(
      */
     query: query.criteria,
 
-    /** The server's total for this criteria — the consolidation notice's count. */
-    total: query.total,
+    /**
+     * The server's row total for this scope's published list criteria —
+     * NOT the consolidation-notice count (that's `useMeta().
+     * consolidatableCount`, over its own dedicated query).
+     *
+     * @decision
+     * what: reads `query.pagination.value.total`, not the handle's
+     * top-level `total.value`.
+     * why: identical defect and fix to `useInvoices.meta.ts`'s `hasUnpaid`
+     * `@decision` — `ListQuery.total` is a computed over a `ref(0)` that
+     * only self-updates as a side effect of reading `.pagination`/`.meta`;
+     * a consumer reading only this member would see `0` forever regardless
+     * of the server's answer. Not a query-module change (operator ruling
+     * 2026-09-08): both fields already exist on every `ListQuery`; this
+     * only picks the one that resolves.
+     * rejected: fixing `ListQuery.total` in `query.types.ts`/`useQuery.ts`
+     * — the query-core fix the 2026-09-08 ruling withdraws.
+     */
+    total: computed(() => query.pagination.value.total),
 
     /**
      * The module's schema family, plain JSON so it survives the renderer

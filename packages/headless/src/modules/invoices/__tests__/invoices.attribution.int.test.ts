@@ -6,8 +6,11 @@
  * ## Job To Be Done
  * Prove each mapped row resolves to exactly one of own / sub-account /
  * delegated, that a sub-account row wins over the delegated marking when both
- * inputs are present (child-first, `oracle:135`), and that a delegated row
- * reports itself as not settleable.
+ * inputs are present (child-first, `belongsToChildOfClient` `oracle:137-142`
+ * / `belongsToDelegate` `oracle:143-146`), that `isDelegated` is gated on the
+ * ABSENCE of any recorded parent — not on that parent matching the reader —
+ * matching the oracle, and that a delegated row reports itself as not
+ * settleable.
  *
  * ## Provenance
  * This staging account's real invoice history carries no sub-account or
@@ -103,6 +106,19 @@ describe("invoices — attribute each invoice in a co-mingled list (AC-13)", () 
     }));
     expect(mapped.attribution.isChildOfClient).toBe(true);
     expect(mapped.attribution.isDelegated).toBe(false);
+  });
+
+  it("AC-13 (constructed — parent is SOME OTHER client, not the reader, AND delegate_related toggled) follows the oracle: ANY recorded parent excludes isDelegated, even one that is not the reader", async () => {
+    const mapped = await mapWith({
+      delegate_related: true,
+      client: {
+        id: "grandchild-client",
+        parent_client_config: { parent_client_id: "some-other-client-entirely" }
+      }
+    });
+    expect(mapped.attribution.isChildOfClient).toBe(false);
+    expect(mapped.attribution.isDelegated).toBe(false);
+    expect(mapped.attribution.isOwn).toBe(true);
   });
 });
 

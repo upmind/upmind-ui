@@ -34,18 +34,15 @@
  * `limit=1`, never `with_count`) — that half IS now confirmed: the dedicated
  * request genuinely fires, on-demand, only once `hasUnpaid` is read.
  *
- * ## A NEW confirmed contract-vs-implementation defect (NOT worked around here)
- * 4. `hasUnpaid` never resolves `true`. Empirically (black-box,
- *    request-observed, never by reading service/meta source): the dedicated
- *    request fires correctly and — confirmed against the REAL recorded list
- *    fixture (`total: 1086`) served verbatim for that exact request, with a
- *    3-second settle window matching the documented eventual-consistency
- *    quirk in `invoices.collection.int.test.ts` — `hasUnpaid.value` stays
- *    `false` regardless of the dedicated response's total. The
- *    total-tracks-when-total-is-zero direction is separately confirmed
- *    correct (the third test below), so the boolean is not simply frozen;
- *    it specifically fails to ever flip `true`. Filed as a failure in this
- *    dispatch's hand-off — never weakened, skipped, or routed around.
+ * ## Correction (Review-blocker repair, this dispatch) — defect 4 CLOSED
+ * A fourth defect was previously recorded here: `hasUnpaid` never resolved
+ * `true` because the read tracked the query handle's top-level `.total`,
+ * which never updates for a dedicated count-only query. That is fixed —
+ * `hasUnpaid` now reads its own dedicated request's `.pagination.value.total`
+ * — and the three AC-10 tests below PASS: the dedicated request fires
+ * on-demand with the right shape, and `hasUnpaid` correctly tracks that
+ * request's server-reported total in both directions (true when positive,
+ * false when zero), independent of the visible row array.
  *
  * ## What Breaks If These Fail
  * A client cannot see how many invoices are consolidatable, cannot read
@@ -54,8 +51,8 @@
  * acceptance criteria.
  */
 
-import { describe, expect, it, vi } from "vitest";
 import { http, HttpResponse } from "msw";
+import { describe, expect, it, vi } from "vitest";
 import { useInvoices } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
@@ -152,12 +149,16 @@ describe("invoices — find out whether I owe anything at all (AC-10)", () => {
     // never mistaken for the dedicated read.
     const secondObserved = observeInvoiceRequests();
     await invoices.useActions().refresh();
-    await vi.waitFor(() => expect(secondObserved.all().length).toBeGreaterThan(0));
+    await vi.waitFor(() =>
+      expect(secondObserved.all().length).toBeGreaterThan(0)
+    );
     secondObserved.stop();
     const listRequest = secondObserved.first();
     expect(listRequest).toBeDefined();
     expect(isDedicated(listRequest.url)).toBe(false);
-    expect(decodeURIComponent(listRequest.url)).toContain("with_count=products");
+    expect(decodeURIComponent(listRequest.url)).toContain(
+      "with_count=products"
+    );
   });
 
   it("AC-10 hasUnpaid tracks the dedicated request's server total, with the visible row array held constant", async () => {
@@ -196,7 +197,9 @@ describe("invoices — find out whether I owe anything at all (AC-10)", () => {
       expect(
         observed
           .all()
-          .some(request => new URL(request.url).searchParams.get("limit") === "1")
+          .some(
+            request => new URL(request.url).searchParams.get("limit") === "1"
+          )
       ).toBe(true)
     );
     observed.stop();
@@ -246,7 +249,9 @@ describe("invoices — find out whether I owe anything at all (AC-10)", () => {
       expect(
         observed
           .all()
-          .some(request => new URL(request.url).searchParams.get("limit") === "1")
+          .some(
+            request => new URL(request.url).searchParams.get("limit") === "1"
+          )
       ).toBe(true)
     );
     observed.stop();

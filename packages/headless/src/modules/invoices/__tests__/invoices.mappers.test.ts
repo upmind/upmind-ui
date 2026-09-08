@@ -399,9 +399,7 @@ describe("mapPayments (via mapInvoice) — payment meaning and order", () => {
     const raw = { ...paidRaw, payments: [withoutCard] } as IInvoice;
     const mapped = mapInvoice(raw).payments[0];
 
-    expect(mapped.cardType == null || mapped.cardType === undefined).toBe(
-      true
-    );
+    expect(mapped.cardType == null || mapped.cardType === undefined).toBe(true);
   });
 
   it("orders payments newest first", () => {

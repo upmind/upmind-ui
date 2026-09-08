@@ -55,7 +55,9 @@ describe("invoices single read — refresh re-reads the live record", () => {
     const observed = observeInvoiceRequests();
 
     const single = useInvoice().withId(row.id);
-    await vi.waitFor(() => expect(single.useMeta().isLoading.value).toBe(false));
+    await vi.waitFor(() =>
+      expect(single.useMeta().isLoading.value).toBe(false)
+    );
     const afterFirst = observed.matching(`/invoices/${row.id}`).length;
 
     await single.useActions().refresh();

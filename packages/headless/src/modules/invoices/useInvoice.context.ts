@@ -25,10 +25,15 @@ export function createInvoiceContext(
   query: InvoiceItemQuery,
   unpaidAmountQuery: InvoiceUnpaidAmountQuery
 ) {
+  // Folds in the unpaid-amount read's own error (W1) — otherwise a failed
+  // AC1 re-read is unobservable on this layer too.
   const error = computed<ResponseError | undefined>(
     () =>
       service.error.value ??
-      (query.error.value ? mapToHeadlessError(query.error.value) : undefined)
+      (query.error.value ? mapToHeadlessError(query.error.value) : undefined) ??
+      (unpaidAmountQuery.error.value
+        ? mapToHeadlessError(unpaidAmountQuery.error.value)
+        : undefined)
   );
 
   // --- actor-specific context: none earned yet (clause 2). When a scope

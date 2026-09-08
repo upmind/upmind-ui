@@ -4,6 +4,7 @@ import { isEmpty, some } from "lodash-es";
 import type {
   Invoice,
   InvoiceItemQuery,
+  InvoiceUnpaidAmountQuery,
   InvoicesServices,
   PaymentState
 } from "./invoices.types";
@@ -21,9 +22,17 @@ import type { ScopeActorTypes } from "../scope/scope.types";
 export function createInvoiceMeta(
   _actorScope: ScopeActorTypes,
   service: InvoicesServices,
-  query: InvoiceItemQuery
+  query: InvoiceItemQuery,
+  unpaidAmountQuery: InvoiceUnpaidAmountQuery
 ) {
-  const hasError = computed(() => !!service.error.value || !!query.error.value);
+  // Folds in the unpaid-amount read's own error (W1) — otherwise a failed
+  // AC1 re-read is unobservable: `unpaidAmount` just stays stale.
+  const hasError = computed(
+    () =>
+      !!service.error.value ||
+      !!query.error.value ||
+      !!unpaidAmountQuery.error.value
+  );
 
   const isEmptyResult = computed(() => isEmpty(query.data.value?.id));
 

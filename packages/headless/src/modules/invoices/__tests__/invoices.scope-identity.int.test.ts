@@ -17,6 +17,18 @@
  * filter-column defect (see `invoices.collection.int.test.ts`) is an
  * over-firing instance OF.
  *
+ * ## `.for('client', X)` wire read-backs (Review blockers B1/B2 repair)
+ * Beyond the `setCriteria`-driven retarget above, this file also proves the
+ * SAME A7 identity transport for a `.for()`-built scope's OWN construction-
+ * time reads, for the three `client x client` reads this module serves: the
+ * list's initial fetch (this file) and `hasUnpaid` (this file); the third,
+ * `consolidatableCount`, is proven in `invoices.consolidatable-count.int.test.ts`
+ * alongside its own coexistence assertions. For the list specifically, the
+ * request and the returned rows' `Invoice.attribution` are asserted TOGETHER
+ * — the B2 defect was precisely that these two could disagree (fetch the
+ * reader's rows, attribute them against the target) while each individually
+ * looked fine.
+ *
  * ## What Breaks If These Fail
  * A client reads another account's invoices, the request goes out as the
  * wrong identity, or an unspellable filter silently reaches the platform —
@@ -24,16 +36,20 @@
  * criteria-law bypass (AC-15).
  */
 
+import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
-import { useInvoices } from "..";
+import { InvoicesContextTypes, useInvoices } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   assertClientIdentityTransport,
   installInvoiceHandlers,
   observeInvoiceRequests,
+  recorded,
   seedClientSession
 } from "./invoices.int-helpers";
+import { server } from "./setup.integration";
 import "./setup.integration";
+import type { WireInvoice } from "./invoices.int-helpers";
 
 // -----------------------------------------------------------------------------
 
@@ -76,6 +92,152 @@ describe("invoices — retarget my reading at an entitled client (AC-12, the A7 
     observed.stop();
 
     expect(observed.all()).not.toEqual([]);
+    for (const request of observed.all()) {
+      expect(request.url).not.toContain(OTHER_CLIENT_ID);
+    }
+    expect(invoices.useInternals().clientId.value).toBe(clientId);
+  });
+
+  it("the collection's own list request carries the TARGET client's id on the wire without a manual setCriteria() call", async () => {
+    const { accessToken } = await seedClientSession();
+    installInvoiceHandlers();
+    const listFixture = recorded.list();
+    /**
+     * A REAL recorded row (`listFixture.data[0]`) with `id`, `client`, and
+     * `delegate_related` toggled to construct the TARGET's own invoice —
+     * everything else on the row stays the real capture (precedent:
+     * `invoices.attribution.int.test.ts`).
+     */
+    const targetOwnRow: WireInvoice = {
+      ...listFixture.data[0],
+      id: "target-own-row",
+      client: { id: OTHER_CLIENT_ID, parent_client_config: null },
+      delegate_related: false
+    };
+    server.use(
+      http.get("*/invoices", ({ request }) => {
+        if (
+          decodeURIComponent(request.url).includes(
+            `filter[client_id|eq]=${OTHER_CLIENT_ID}`
+          )
+        ) {
+          return HttpResponse.json({
+            status: "ok",
+            data: [targetOwnRow],
+            total: 1,
+            error: null,
+            messages: null,
+            meta: null
+          });
+        }
+        return HttpResponse.json(listFixture);
+      })
+    );
+
+    const observed = observeInvoiceRequests();
+    const invoices = useInvoices()
+      .as(ScopeActorTypes.CLIENT)
+      .for(InvoicesContextTypes.CLIENT, OTHER_CLIENT_ID);
+    await vi.waitFor(() =>
+      expect(invoices.useMeta().isLoading.value).toBe(false)
+    );
+    observed.stop();
+
+    const request = observed.first();
+    expect(decodeURIComponent(request.url)).toContain(
+      `filter[client_id|eq]=${OTHER_CLIENT_ID}`
+    );
+    assertClientIdentityTransport(request, accessToken);
+
+    // Request and attribution agree: the row the fetch returned IS the
+    // target's own row, and mapInvoices attributed it against that SAME
+    // target — never a reader's row re-attributed against the target id.
+    const rows = invoices.useContext().data.value;
+    expect(rows).toHaveLength(1);
+    expect(rows[0].id).toBe("target-own-row");
+    expect(rows[0].attribution.isOwn).toBe(true);
+    expect(rows[0].attribution.isChildOfClient).toBe(false);
+    expect(rows[0].attribution.isDelegated).toBe(false);
+  });
+});
+
+describe("invoices — hasUnpaid answers for the .for() TARGET, not the reader (AC-12/AC-10 wire retarget)", () => {
+  const isDedicatedUnpaidRead = (url: string): boolean =>
+    new URL(url).searchParams.get("limit") === "1";
+
+  it("hasUnpaid answers for the .for() TARGET, not the reader", async () => {
+    const { accessToken } = await seedClientSession();
+    installInvoiceHandlers();
+    const listFixture = recorded.list();
+    server.use(
+      http.get("*/invoices", ({ request }) => {
+        if (!isDedicatedUnpaidRead(request.url)) {
+          return HttpResponse.json(listFixture);
+        }
+        const forTarget = decodeURIComponent(request.url).includes(
+          `filter[client_id|eq]=${OTHER_CLIENT_ID}`
+        );
+        return HttpResponse.json(
+          {
+            status: "ok",
+            data: listFixture.data.slice(0, 1),
+            total: forTarget ? 3 : 0,
+            error: null,
+            messages: null,
+            meta: null
+          },
+          { headers: { "x-total-count": forTarget ? "3" : "0" } }
+        );
+      })
+    );
+
+    const invoices = useInvoices()
+      .as(ScopeActorTypes.CLIENT)
+      .for(InvoicesContextTypes.CLIENT, OTHER_CLIENT_ID);
+    await vi.waitFor(() =>
+      expect(invoices.useMeta().isLoading.value).toBe(false)
+    );
+
+    const observed = observeInvoiceRequests();
+    void invoices.useMeta().hasUnpaid.value;
+    await vi.waitFor(() =>
+      expect(
+        observed.all().some(request => isDedicatedUnpaidRead(request.url))
+      ).toBe(true)
+    );
+    observed.stop();
+
+    const dedicated = observed
+      .all()
+      .find(request => isDedicatedUnpaidRead(request.url));
+    expect(dedicated).toBeDefined();
+    expect(decodeURIComponent(dedicated!.url)).toContain(
+      `filter[client_id|eq]=${OTHER_CLIENT_ID}`
+    );
+    assertClientIdentityTransport(dedicated!, accessToken);
+
+    await new Promise(resolve => setTimeout(resolve, 2500));
+    expect(invoices.useMeta().hasUnpaid.value).toBe(true);
+  });
+
+  it("hasUnpaid's dedicated request without a target resolves to the reading client's own id, never the other one", async () => {
+    const { clientId } = await seedClientSession();
+    installInvoiceHandlers();
+
+    const invoices = useInvoices().as(ScopeActorTypes.CLIENT);
+    await vi.waitFor(() =>
+      expect(invoices.useMeta().isLoading.value).toBe(false)
+    );
+
+    const observed = observeInvoiceRequests();
+    void invoices.useMeta().hasUnpaid.value;
+    await vi.waitFor(() =>
+      expect(
+        observed.all().some(request => isDedicatedUnpaidRead(request.url))
+      ).toBe(true)
+    );
+    observed.stop();
+
     for (const request of observed.all()) {
       expect(request.url).not.toContain(OTHER_CLIENT_ID);
     }

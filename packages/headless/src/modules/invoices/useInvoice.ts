@@ -14,8 +14,12 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * @module invoices/useInvoice
  * @description Scoped, query-backed read of ONE invoice: one TanStack item
  * query per concrete `(actor, id)` scope, minted once at construction. Its
- * sibling is `useInvoices`, registered under the SAME module name; the
- * composable name and the scope key carry the differentiation.
+ * sibling is `useInvoices`, registered under the SAME module name.
+ * `generateScopeKey` builds `[name, actor, context?, id?]`
+ * (`scope/scope.utils.ts:29-58`) — the composable's own name plays NO part
+ * in the key (W3); the two stay apart in the registry only because this
+ * read always adds a `.withId(id)` segment `useInvoices` never does —
+ * pre-existing platform behaviour, not fixed here.
  *
  * The invoice being read is a RECORD ID (`.withId(id)`), never a scope
  * context: there is no actor-context cell to declare, so the matrix this
@@ -72,7 +76,8 @@ function createInvoiceForScope(config: ScopeConfig, scopeKey: ScopeKey) {
     useInternals: () => createInvoiceInternals(actorScope, query),
 
     /** Sub-composable for single-read meta (state flags, `paymentState`). */
-    useMeta: () => createInvoiceMeta(actorScope, service, query)
+    useMeta: () =>
+      createInvoiceMeta(actorScope, service, query, unpaidAmountQuery)
   };
 }
 // -----------------------------------------------------------------------------

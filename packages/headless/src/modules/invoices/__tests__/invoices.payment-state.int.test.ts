@@ -106,7 +106,11 @@ describe("invoices single read — overall payment state (AC-16)", () => {
     server.use(
       http.get("*/invoices/:id", () =>
         HttpResponse.json(
-          { status: "error", data: null, error: { code: 500, message: "boom" } },
+          {
+            status: "error",
+            data: null,
+            error: { code: 500, message: "boom" }
+          },
           { status: 500 }
         )
       )

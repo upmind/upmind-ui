@@ -127,11 +127,13 @@ function mapAttribution(
   raw: IInvoice,
   readingClientId?: string
 ): Invoice["attribution"] {
+  const parentClientId = get(
+    raw,
+    "client.parent_client_config.parent_client_id"
+  );
+  const isDelegated = !parentClientId && !!raw.delegate_related;
   const isChildOfClient =
-    !!readingClientId &&
-    get(raw, "client.parent_client_config.parent_client_id") ===
-      readingClientId;
-  const isDelegated = !isChildOfClient && !!raw.delegate_related;
+    !isDelegated && !!readingClientId && parentClientId === readingClientId;
 
   return {
     isOwn: !isChildOfClient && !isDelegated,
@@ -191,7 +193,9 @@ function mapPayments(payments: IInvoice["payments"]): Payment[] {
       cardLast4: details?.card_last4,
       amountFormatted: payment.amount_formatted,
       createdAt: payment.created_at,
-      attemptAgeMs: Date.now() - new Date(payment.created_at).getTime(),
+      // Frozen at MAP time, not live — a page left open does not age this
+      // value; re-derive from `createdAt` for a live "how old now" read.
+      attemptAgeAtFetchMs: Date.now() - new Date(payment.created_at).getTime(),
       // `oracle:94-97` — pending AND awaiting-client gateway, not the gateway
       // alone: a settled payment on that gateway type is not awaiting anyone.
       isAwaitingClient:

@@ -31,7 +31,7 @@ the contract.
 
 | Doc line | What it says | Why it is wrong |
 | --- | --- | --- |
-| `docs/foundation.md:465` | "a client can only see their own invoices; the bearer is the authorisation" | Contradicts operator ruling 2026-09-01 (`client×client` IN) and the oracle's own co-mingled list + `belongsToChildOfClient` / `belongsToDelegate` (`oracle:126-137`). |
+| `docs/foundation.md:465` | "a client can only see their own invoices; the bearer is the authorisation" | Contradicts operator ruling 2026-09-01 (`client×client` IN) and the oracle's own co-mingled list + `belongsToChildOfClient` / `belongsToDelegate` (`oracle:137-142`, `:143-146`). |
 | `docs/foundation.md:28` | `category.slug` is one of `new_contract, renewal, upgrade, downgrade, addon, cancellation_request`, and "The slug is informational" | The enum is `packages/types/src/models/invoices.ts:129-138`: `new_contract, additional_service, one_time_service, migration_pro_rata, recurrent, credit_note, credit_note_for_refund, consolidation`. The doc invents four slugs, omits the four this story depends on, and the slug is the entire credit-note mechanic (AC7), not informational. |
 
 Both are recorded for the Docs stage. Two further doc-vs-code drifts, same
@@ -44,7 +44,7 @@ assigns refresh-after-payment to invoices while the code puts it in `orders`.
 | File | What it is | Lines |
 | --- | --- | --- |
 | `invoices/index.ts` | 3-line barrel: `useInvoice`, types, `mapInvoice` | `:1-3` |
-| `invoices/invoices.service.ts` | ONE `query<IInvoice, Invoice>` over `useUrl(\`/invoices/${invoiceId}\`)`; 17-relation `with=` set; client from `activeUser` only | `:19-20`, `:22-38`, `:16`/`:44`/`:55` |
+| `invoices/invoices.service.ts` | ONE `query<IInvoice, Invoice>` over `useUrl(\`/invoices/${invoiceId}\`)`; 16-relation `with=` set; client from `activeUser` only | `:19-20`, `:22-38`, `:16`/`:44`/`:55` |
 | `invoices/invoices.mappers.ts` | `mapInvoice(raw)` + private `mapPayments`; file-level `/** @internal */` | `:1`, `:14-41`, `:43-62` |
 | `invoices/invoices.types.ts` | `Invoice`, `Payment`, and a dead `PAYMENT_STATE` enum | `:22-47`, `:49-59`, `:8-16` |
 | `invoices/useInvoice.ts` | Flat composable: positional `invoiceId`, one fused `meta` computed, uncapped 100 ms readiness poll | `:16`, `:24-44`, `:46-59`, `:67-112` |
@@ -85,31 +85,35 @@ Nothing here duplicates an existing abstraction.
 
 | Actor | Context | Legacy source | Disposition | Notes |
 |-------|---------|---------------|-------------|-------|
-| client | self | `oracle:25-34` (`contextual` → `api/invoices`), `:227-238` (`list`), `:239-278` (`get`/`getWithParams`), `:288-302`, `:553-572`, `:574-593`, `:621-633` | Direct | The reading client's own id resolves from `activeUser` through the shared context seam. |
-| client | client | `oracle:558-563` + `:581-587` (`filter[client_id]` on `contextual`), `:126-133`, `:134-137` | Direct | Retarget is a **declared `client_id` filter column**, never a path change and never a hand-appended param. Row attribution (own / sub-account / delegated) is the second half of this cell — see `R02`. |
-| staff | self | `oracle:25-34` (`admin` → `api/admin/invoices`), `:279-542` (admin-only writes) | Dropped-with-issue-reference | **Deprecated by operator ruling 2026-09-01** — "this is client only, staff is being deprecated". A retiring platform capability owes no tracker issue; the `reason:` carries the ruling and the `signoff:` carries the operator token. No Linear issue. |
-| staff | client | `oracle:25-34`, `docs/adr/001-scope-based-composables.md:255` (`useInvoices().as('staff').for('client', clientId)`) | Dropped-with-issue-reference | Same ruling. Note the corpus drift this creates: ADR-001 `:249-255` and `docs/reference/service-splitting-examples.md:36-64`,`:187` both still declare the staff arm — a Docs-stage correction, not a code obligation. |
+| client | self | `oracle:25-33` (`contextual` → `api/invoices`), `:227-238` (`list`), `:239-249` (`get`), `:250-276` (`getWithParams`), `:288-301`, `:553-573`, `:574-592`, `:621-632` | Direct | The reading client's own id resolves from `activeUser` through the shared context seam. |
+| client | client | `oracle:561-563` (conditional `filter[client_id]`, `hasUnpaid`) + `:585` (unconditional, `getConsolidatableTotal`), both on `contextual` (`:25-33`), `:137-142` (`belongsToChildOfClient`), `:143-146` (`belongsToDelegate`) | Direct — **BLOCKED by H1**, see `review-notes.md` | Retarget is a **declared `client_id` filter column**, never a path change and never a hand-appended param. **Three reads declare this cell** and `trackClientIdFilter` (`invoices.services.ts:136-151`) now seeds all three: list (`:191`), unpaid-existence (`:327`), consolidatable-count (`:376`). Residual open blocker H1: `criteria.set` merges at **branch** level, so a `filters`-branch write without `client_id` re-widens the **list** read to the reader's rows. Row attribution is the second half of this cell — see `R02`. |
+| staff | self | `oracle:25-33` (`admin` → `api/admin/invoices`), `:277-540` (admin-only writes) | Dropped-with-issue-reference | **Deprecated by operator ruling 2026-09-01** — "this is client only, staff is being deprecated". A retiring platform capability owes no tracker issue; the `reason:` carries the ruling and the `signoff:` carries the operator token. No Linear issue. |
+| staff | client | `oracle:25-33`, `docs/adr/001-scope-based-composables.md:255` (`useInvoices().as('staff').for('client', clientId)`) | Dropped-with-issue-reference | Same ruling. Note the corpus drift this creates: ADR-001 `:249-255` and `docs/reference/service-splitting-examples.md:36-64`,`:187` both still declare the staff arm — a Docs-stage correction, not a code obligation. |
 
 Dispositions: **Direct / Renamed / Absorbed-by / Dropped-with-issue-reference /
 NOT-SUPPORTED-IN-LEGACY-with-reason**. The last two require a `reason:` and an
 operator `signoff:` token in `parity.yaml`.
 
-### The ten carried capability rows
+### The twelve carried capability rows
 
-Full dispositions with receipts live in `parity.yaml` under `rows:`. Summary:
+Full dispositions with receipts live in `parity.yaml` under `rows:`. R11 and R12
+were split out of R05 on 2026-09-08 (Review found four unrequested relations
+listed inside R05's `Direct` capability). Summary:
 
 | Row | Capability | Disposition |
 | --- | --- | --- |
-| R01 | `hasUnpaid` unpaid-existence count (`oracle:553-572`) | Direct → **AC10** |
-| R02 | Co-mingled attribution `belongsToChildOfClient` + `belongsToDelegate` (`oracle:126-137`) | Direct → **AC13** |
-| R03 | `hasPendingPaymentInstructions` AWAITING_CLIENT (`oracle:93-101`) | Direct → **AC8** |
+| R01 | `hasUnpaid` unpaid-existence count (`oracle:553-573`, target client at `:561-563`) | Direct → **AC10** |
+| R02 | Co-mingled attribution `belongsToChildOfClient` (`oracle:137-142`) + `belongsToDelegate` (`oracle:143-146`) | Direct → **AC13** |
+| R03 | `hasPendingPaymentInstructions` AWAITING_CLIENT (`oracle:93-100`) | Direct → **AC8** |
 | R04 | `unifiableCount(clientId)` (`oracle:37-43`) + `getConsolidatableTotal` (`oracle:574-592`) | **Renamed** → **AC2** `useMeta().consolidatableCount`, over its own dedicated count query (was `Absorbed-by`; re-dispositioned 2026-09-08 — `parity.yaml` `R04`) |
-| R05 | `getWithParams` richer include set (`oracle:250-278`) | Direct → the `loadOne` include set below |
-| R06 | `isCreditNote` + `is_consolidation`-first label precedence (`oracle:111-115`, `:172-179`) | Direct → **AC7** |
-| R07 | Staff actor | Dropped — operator deprecation ruling |
+| R05 | `getWithParams` richer include set — the **eight** of its twelve relations this story serves (`oracle:250-276`, array `:255-268`) | Direct → the `loadOne` include set below |
+| R06 | `isCreditNote` (`oracle:111-115`) + `is_consolidation`-first label precedence (`oracle:175-180`) | Direct → **AC7** |
+| R07 | Staff actor (`oracle:25-33`, `:277-540`) | Dropped — operator deprecation ruling |
 | R08 | `partial_amount_to_credit` (bare) | Dropped-with-issue-reference — `packages/types` is a submodule outside the write lane |
 | R09 | `balance` post-consolidation divergence (`foundation.md:27`) | Direct → **AC11** |
 | R10 | `category` relation + `category.slug` semantics | Direct → **AC7**, trusting the enum not the doc |
+| R11 | `original_invoice` + `duplicate_invoice` (`oracle:266-267`) — render the admin duplicate flow (`oracle:516-540`) | Dropped-with-issue-reference — the 2026-09-01 staff/admin ruling; inference stated so it can be rejected |
+| R12 | `data` + `account.user` (`oracle:256-257`) — reach no VM field; `getWithParams`' only consumers are the PN-1 payment modals | **PENDING-OPERATOR-SIGNOFF** — no ruling covers them; the planner may not self-sign a drop. See H2 in `review-notes.md` |
 
 ### Arms determination
 
@@ -166,7 +170,7 @@ file is scaffolded. Machine-readable in `parity.yaml` under `arms:`.
 | `INVOICE_SCOPE_MATRIX` / `InvoiceScopeMatrix` | all four `null as never` | The single read's all-`never` matrix. Its TYPE is passed as `createScopedComposable`'s `TMatrix`; the VALUE is not passed as a runtime argument; not re-exported from the barrel. Model: `client-email-history.types.ts:117-122`; law: `templates/SINGLE-READ.md`. |
 | `Invoice` (extended) | adds `category`, `consolidation`, `attribution`, `bundle`, `nextChargeDate`; `summary` adds `balance`, `balanceFormatted` | See the field map below. |
 | `Invoice["consolidation"]` | `isConsolidation`, `consolidationInvoiceId`, `consolidationStatus`, `creditInvoiceId`, `amountToCreditConverted`, `amountToCreditFormatted`, `amountCredited`, `toBeCredited` | AC5. The bare `partial_amount_to_credit` is absent from `packages/types` — R08. |
-| `Invoice["attribution"]` | `isOwn`, `isChildOfClient`, `isDelegated`, `isSettleable` | AC13. Child-first: `isDelegated` is false whenever `isChildOfClient` is true (`oracle:135`). `isSettleable` is false for a delegated row (`invoiceStatusMsg.vue:118-124`). |
+| `Invoice["attribution"]` | `isOwn`, `isChildOfClient`, `isDelegated`, `isSettleable` | AC13. `isDelegated` is false whenever the invoice's client has **any** parent (`oracle:144`) — the oracle's `belongsToDelegate` gate, not a reader comparison. Child-first mutual exclusion follows from it: a child row has a parent. *(Corrected 2026-09-08, Review blocker B4 — the module had required `parent === reader`, so a third party's sub-account row read as delegated and lost `isSettleable`.)* `isSettleable` is false for a delegated row (`invoiceStatusMsg.vue:118-124`). |
 | `Invoice["bundle"]` | `productCount`, `isLarge`, `groups: InvoiceBundleGroup[]` | AC5 + AC6. |
 | `InvoiceBundleGroup` | `contractId`, `contractsProductId`, `label`, `products: BasketProduct[]` | AC5's "grouped by originating subscription" — grouped on `contracts_product_id` (`packages/types/src/models/baskets.ts:157`), falling back to `contract_id` (`:155`), with un-linked lines in one trailing `null`-keyed group. |
 | `Payment` (extended) | adds `attemptAgeMs`, `isAwaitingClient` | AC8. |
@@ -195,7 +199,7 @@ file is scaffolded. Machine-readable in `parity.yaml` under `arms:`.
 | `nextChargeDate` | `packages/types/src/models/invoices.ts:70` (typed non-nullable; `foundation.md:175` says nullable — **tolerate absent/null**) | AC9 |
 | `attribution.isChildOfClient` | `clients.ts:74` → `:179` (`client.parent_client_config.parent_client_id`) vs the reading client's id | AC13 |
 | `attribution.isDelegated` | `invoices.ts:63` (`delegate_related`), gated child-first | AC13 |
-| `category.slug`, `category.label` | `baskets.ts:31-32`; enum `invoices.ts:129-138`; label precedence `oracle:172-179` | AC7 |
+| `category.slug`, `category.label` | `baskets.ts:31-32`; enum `invoices.ts:129-138`; label precedence `oracle:175-180` | AC7 |
 | `payments[].attemptAgeMs` | derived from `payment.created_at` (`invoices.mappers.ts:57`) | AC8 |
 | `payments[].isAwaitingClient` | `payment.gateway.type === GatewayTypes.AWAITING_CLIENT` (`oracle:93-101`) | AC8 |
 | `meta.paymentState` | `PAYMENT_STATE` (`invoices.types.ts:8-16`) — the dead enum, now wired | — |
@@ -238,20 +242,23 @@ clause 4. Model: `client-email-history.services.ts:59-67` and its note `:55-57`.
 
 | Function | Verb + URL | Notes |
 |----------|-----------|-------|
-| `loadList(params?)` | `GET api/invoices` via `list({ criteria: { schema: useQuerySchema() } })` | AC2. The **only** request-state channel. `queryKey: [...queryKey, { client: clientId }]`. `placeholderData: keepPreviousData`. |
+| `loadList(params?)` | `GET api/invoices` via `list({ criteria: { schema: useQuerySchema() } })` | AC2 / AC12. The **only** request-state channel. `queryKey: [...queryKey, { client: clientId }]`. `placeholderData: keepPreviousData`. **Applies the resolved target as the declared `client_id` filter column** via `trackClientIdFilter` (`invoices.services.ts:136-151`, called at `:191`), reactively and with `{ immediate: true }`, so the retarget and the `select: raw => mapInvoices(raw, clientId.value)` attribution input (`:186`) cannot disagree. Open blocker **H1**: `criteria.set` merges at branch level (`query/useQueryCriteria.ts:100-101`), so a published `filters`-branch write that omits `client_id` drops it — see `review-notes.md`. |
 | `loadOne(invoiceId?)` | `GET api/invoices/{invoiceId}` via `query()` | Replaces `loadInvoice`. `queryKey: [...queryKey, "invoice", invoiceId, { client: clientId }]`. An **absent id issues NO request** (`templates/query/{module}.services.ts:108-111`). |
 | `loadUnpaidAmount(invoiceId?, currencyId?)` | `GET api/invoices/unpaid_amount/{invoiceId}` | AC1. `oracle:621-633`. Currency rides as a declared service argument → query param, not criteria (a single read has no criteria channel). `staleTime: 0` so a currency change re-reads. |
-| `loadUnpaidExistence()` | `GET api/invoices` with `criteria` carrying the unpaid status filter + `pagination.limit: 1` | AC10. `oracle:553-573`. Its **own** query key `[...queryKey, "unpaid_existence", { client }]`, its own criteria object, no relations. Returns the server total; the composable derives the boolean. `limit: 1`, not the oracle's `limit: "count"` (`oracle:559`) — see the sentinel note below and `requirements.md` AC10's "Oracle divergence". |
-| `loadConsolidatableCount()` | `GET api/invoices` with `criteria` carrying the consolidatable filters + `pagination.limit: 1` | AC2 / `R04`. `oracle:37-43` + `:574-592`. Its **own** query key `[...queryKey, "consolidatable_count", { client }]` and its own criteria object, so reading the notice count can never mutate the list `filterConsolidatable()` narrows — the two coexist. Same `limit: 1` divergence as above. |
-| `updatePaymentDetails(invoiceId, model)` | `PATCH api/invoices/{invoiceId}/payment_details` | AC4. `oracle:288-302`. Body is `InvoicePaymentDetailsModel` — see the AC4 decision. |
+| `loadUnpaidExistence()` | `GET api/invoices` with `criteria` carrying the unpaid status filter, **the target `client_id` filter** + `pagination.limit: 1` | AC10 / AC12. `oracle:553-573`. Its **own** query key `[...queryKey, "unpaid_existence", { client }]`, its own criteria object, no relations. **`client_id` is applied through `trackClientIdFilter` (`invoices.services.ts:327`)** — the oracle's own conditional seeding at `oracle:561-563` reproduced. Corrected 2026-09-08: this row previously described the read with no `client_id` at all while the cell claimed `Direct` against that exact range, which is how Review blocker B1 (the read answered for the *reading* client, with no caller remedy) went undisclosed. Not exposed to H1 — its criteria object is private to the factory, so no published verb can replace its `filters` branch. Returns the server total (via `.pagination.value.total`); the composable derives the boolean. `limit: 1`, not the oracle's `limit: "count"` (`oracle:559`) — see the sentinel note below and `requirements.md` AC10's "Oracle divergence". |
+| `loadConsolidatableCount()` | `GET api/invoices` with `criteria` carrying the consolidatable filters (including the target `client_id`) + `pagination.limit: 1` | AC2 / AC12 / `R04`. `oracle:37-43` + `:574-592`, whose `filter[client_id]` is unconditional at `oracle:585`. Its **own** query key `[...queryKey, "consolidatable_count", { client }]` and its own criteria object, so reading the notice count can never mutate the list `filterConsolidatable()` narrows — the two coexist. `client_id` is seeded at mint by `consolidatableCountCriteria(clientId.value)` (`invoices.services.ts:358`) **and** kept in step by `trackClientIdFilter` (`:376`), so a self-scope whose id resolves after construction is covered too. Not exposed to H1, same reason as above. Same `limit: 1` divergence. |
+| `updatePaymentDetails(invoiceId, model)` | `PATCH api/invoices/{invoiceId}/payment_details` | AC4. `oracle:288-301`. Body is `InvoicePaymentDetailsModel` — see the AC4 decision. |
 
 `scopedServices(scopeActor, scopeContext)` ships with only its `default: return {}`
 case (arms: none).
 
 ### The include sets — named exactly, and they may not shrink
 
-**`loadOne` `with=` — the existing 17 relations (`invoices.service.ts:22-38`) are
-the floor. Nothing on that list may be dropped.** Added:
+**`loadOne` `with=` — the existing 16 relations (`invoices.service.ts:22-37` on
+`develop`; the array spans `:21-38`) are the floor. Nothing on that list may be
+dropped.** All 16 are present, in the same order, at
+`invoices.services.ts:57-72`. *(Count corrected 2026-09-08: this said 17. The
+floor claim itself held — only the count was wrong.)* Added:
 
 ```
 brand, taxes, client, status, contract, payments, payments.payment_details,
@@ -261,16 +268,17 @@ account.affiliate_referral.affiliate_account.account.client,
 + address, address.country          <- FIXES A LIVE BUG (see below)
 + category                          <- AC7 (category.slug + label precedence)
 + payments.gateway                  <- AC8 (AWAITING_CLIENT discrimination)
-+ payments.payment_type             <- oracle:250-278 parity (R05)
++ payments.payment_type             <- oracle:265 parity (R05)
 + payment_details                   <- AC4 (read back the assigned method)
-+ gateway                           <- oracle:250-278 parity (R05)
++ gateway                           <- oracle:261 parity (R05)
 + client.parent_client_config        <- AC13 (sub-account attribution)
 + last_payment_log                  <- AC8 (pending_payment_method is gated on it,
                                         invoices.ts:80-86)
 ```
 `loadOne` `with_count=`: `products` — AC6.
 
-**Live bug fixed in passing:** `invoices.mappers.ts:21` maps `raw.address`, but
+**Live bug fixed in passing:** `mapInvoice` maps `raw.address`
+(`invoices.mappers.ts:64`; `develop`'s `invoices.mappers.ts:21`), but
 `address` is absent from today's `with=` set — so the mapped address is always
 `undefined`. `orders/order.services.ts:34-35` requests it; invoices never did.
 Adding `address,address.country` makes an already-declared VM field real. Not a
@@ -367,17 +375,24 @@ list and the item key) · `refreshAfterPayment()` (AC3 — the list-side refetch
 (`query.criteriaError.value ?? query.error.value`) · `findOne` · `getOne` ·
 `pagination` (`query.pagination`) · `query` (`query.criteria`, **read-only
 republished, never copied** — `client-email-history/useClientReceivedEmails.context.ts:73`) ·
-`total` (server total, for the consolidation notice) ·
+`total` (**this scope's own list row total** for the published list criteria — `computed(() => query.pagination.value.total)`, `useInvoices.context.ts:92`, `@decision` `:79-91`. It is **NOT** the consolidation-notice count; that is `useMeta().consolidatableCount` over its own dedicated query. *Corrected 2026-09-08: this line conflated the two, and the member published the handle's bare `query.total`, which is a `ref(0)` refreshed only as a side effect of reading `.pagination`/`.meta` — Review blocker B3, permanently `0`.*) ·
 `schemas: { query: { schema, uischema, sortUischema } }` (plain JSON, the
 renderer's only door — `client-email-history/useClientReceivedEmails.context.ts:76-86`).
 
 **`useInvoices.meta.ts`** — `hasError` · `isEmpty` · `isLoading` ·
-`isFiltered` · `hasUnpaid` (AC10, from `loadUnpaidExistence`'s own query) ·
+`isFiltered` · `hasUnpaid` (AC10, from `loadUnpaidExistence`'s own query,
+`useInvoices.meta.ts:63-66`) ·
 `consolidatableCount` (AC2 / `R04`, from `loadConsolidatableCount`'s own
 query — **never** the list query, so the notice count and the visible list
-coexist) · `isAvailable` (`service.isAvailable`). Reading either count flips
+coexist; `useInvoices.meta.ts:80-83`) · `isAvailable` (`service.isAvailable`). Reading either count flips
 that count query's request gate, so a scope nobody asks issues no count
-request.
+request. **Both counts, and the context `total` above, read
+`.pagination.value.total` and never the handle's bare `total.value`** — the
+`@decision` at `useInvoices.meta.ts:46-61` carries the argument. A bare
+`.total` read is pinned at `0` forever (`ListQuery.total` is a `ref(0)`
+refreshed only as a side effect of reading `.pagination`/`.meta`). Not a query-
+module change (operator ruling 2026-09-08, "do not chnage any query stuff"):
+both fields already exist on every `ListQuery`.
 
 **`useInvoices.internals.ts`** — `actorScope` · `query` · `clientId`
 (diagnostics: which client this scope resolved to — the `client×client` receipt) ·
@@ -556,7 +571,7 @@ query handle. The one non-trivial round trip:
 | Consolidated invoice where `balance ≠ unpaid_amount` | Both mapped and exposed distinctly (AC11). The consumer chooses; the module never silently picks one. |
 | `next_charge_date` absent on a non-recurring invoice | Mapped to absent. The type says non-nullable (`invoices.ts:70`), the doc says nullable (`foundation.md:175`) — the mapper tolerates missing/null and never produces an epoch date. |
 | `products` truncated while `products_count` present | `bundle.isLarge` derives from `products_count` only (AC6). `bundle.groups` groups whatever rows arrived and is not used for the count. |
-| Both attribution inputs present on one row | Child wins; `isDelegated` false (`oracle:135`). |
+| Both attribution inputs present on one row | Child wins; `isDelegated` false — the ANY-parent gate at `oracle:144` already excludes it (`invoices.mappers.ts:142`). |
 | A delegated row | `attribution.isSettleable` false (`invoiceStatusMsg.vue:118-124`). |
 | Currency changed on the unpaid-amount re-read | `staleTime: 0` + the currency in the query key → a second request, never a cache hit (AC1). |
 | Clearing the assigned method | `payment_details_id: null` is a **present** key in the PATCH body (AC4). |
@@ -576,7 +591,7 @@ stays `query`.
 **Why:** the oracle's `updatePaymentDetails` (`oracle:288-302`) is a bare
 `data/callApi` with `Methods.PATCH` and `requestConfig: { data }` — no schema, no
 model parser, no validation flow, no optimistic state, no multi-field form. Every
-schema-driven editor in the oracle is `apiPath().admin`-bound (`oracle:279-542`)
+schema-driven editor in the oracle is `apiPath().admin`-bound (`oracle:277-540`)
 and falls away with the staff deprecation. `'None selected'` as a first-class
 state is a **request-model** concern: an explicit `null` makes clearing the method
 distinguishable from "don't touch it", and that distinction is provable as an

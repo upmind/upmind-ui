@@ -17,8 +17,17 @@ export function createInvoicesMeta(
   consolidatableCountQuery: InvoicesListQuery
 ) {
   // Truthiness, not `isEmpty`: a TanStack error is an `Error` instance with
-  // no own enumerable keys, which `isEmpty` reports as empty.
-  const hasError = computed(() => !!service.error.value || !!query.error.value);
+  // no own enumerable keys, which `isEmpty` reports as empty. Folds in the
+  // auxiliary count queries' own errors (W1) — otherwise a 500 on
+  // `unpaidExistenceQuery`/`consolidatableCountQuery` reports `hasUnpaid`/
+  // `consolidatableCount` as a silent `false`/`0` with `hasError: false`.
+  const hasError = computed(
+    () =>
+      !!service.error.value ||
+      !!query.error.value ||
+      !!unpaidExistenceQuery.error.value ||
+      !!consolidatableCountQuery.error.value
+  );
 
   const isEmptyList = computed(
     () => isEmpty(query.data?.value) || query.pagination.value.total === 0
@@ -80,7 +89,10 @@ export function createInvoicesMeta(
     /** AC2 — the consolidatable-notice count, from its own dedicated read. */
     consolidatableCount,
 
-    /** True if the list query, or the unpaid-existence read, failed. */
+    /**
+     * True if the list query, the unpaid-existence read, or the
+     * consolidatable-count read failed.
+     */
     hasError,
 
     /** AC10 — true if this scope has anything unpaid, by server count. */

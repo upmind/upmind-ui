@@ -69,7 +69,9 @@ describe("invoices single read — the include set may not shrink below its floo
 
     const observed = observeInvoiceRequests();
     const single = useInvoice().withId(target.id);
-    await vi.waitFor(() => expect(single.useMeta().isLoading.value).toBe(false));
+    await vi.waitFor(() =>
+      expect(single.useMeta().isLoading.value).toBe(false)
+    );
     observed.stop();
 
     const request = observed.matching(`/invoices/${target.id}`)[0];

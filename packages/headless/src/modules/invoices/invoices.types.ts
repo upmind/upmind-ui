@@ -50,10 +50,14 @@ import type {
   UISchemaElement
 } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
+// IInvoice added for InvoicesListQuery/InvoiceItemQuery's wire-type argument
+// (S1) — already imported and used elsewhere in this module's own services
+// file; not a new type (see this file's head `graphify-out/` citation).
 import type {
   InvoiceCategoryCode,
   InvoiceStatus,
-  CreditNoteStatus
+  CreditNoteStatus,
+  IInvoice
 } from "@upmind-automation/types";
 // MaybeRef added for loadUnpaidAmount's reactive currency param — widening an
 // existing member, not a new type (see this file's head `graphify-out/` citation).
@@ -115,12 +119,16 @@ export type InvoicesScopeMatrix = typeof INVOICES_SCOPE_MATRIX;
  * ADR-001 context names an entity the actor acts UPON, and a single invoice
  * being read is not one (`templates/SINGLE-READ.md`).
  *
- * Its TYPE is passed as `createScopedComposable`'s `TMatrix`; the VALUE is
- * NOT passed as the third (runtime) argument, so no matrix reaches the
- * registry for this read. Dropping the type argument re-opens
- * `.for("anything", id)` because the default `ActorContextMatrix` widens
- * every cell to `string` — not optional paperwork. Not re-exported from the
- * module barrel: it names no context a consumer can spell.
+ * Its TYPE is passed as `createScopedComposable`'s `TMatrix`, exactly like
+ * `InvoicesScopeMatrix` above — NEITHER composable's matrix VALUE is passed
+ * as a third (runtime) argument (`useInvoice.ts` / `useInvoices.ts`), so no
+ * runtime matrix reaches the registry for either read (W3: this file
+ * previously implied an asymmetry here that does not exist; not a new type,
+ * see this file's head `graphify-out/` citation). Dropping the TYPE
+ * argument here specifically would still re-open `.for("anything", id)`
+ * because the default `ActorContextMatrix` widens every cell to `string` —
+ * not optional paperwork. Not re-exported from the module barrel: it names
+ * no context a consumer can spell.
  */
 export const INVOICE_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
@@ -309,7 +317,13 @@ export type Invoice = {
   };
   /** AC5 + AC6. */
   bundle: {
-    /** From `products_count` (requires `with_count=products`) — never the array length. */
+    /**
+     * Prefers `products_count` (requires `with_count=products`); falls back
+     * to the raw array length only when the count is absent — a deliberate
+     * fallback (its negative control pins the precedence, not the fallback
+     * itself), not a new type (see this file's head `graphify-out/`
+     * citation).
+     */
     productCount: number;
     isLarge: boolean;
     groups: InvoiceBundleGroup[];
@@ -360,8 +374,13 @@ export type Payment = {
   cardLast4: string | null;
   amountFormatted: string;
   createdAt: string;
-  /** AC8 — derived from `createdAt`. */
-  attemptAgeMs: number;
+  /**
+   * AC8 — derived from `createdAt`, frozen at MAP time — NOT a live "age
+   * now" value; re-derive from `createdAt` for that. Renamed from
+   * `attemptAgeMs` (W9); not a new type (see this file's head `graphify-out/`
+   * citation).
+   */
+  attemptAgeAtFetchMs: number;
   /** AC8 — `true` only when the gateway type says so (`oracle:93-101`). */
   isAwaitingClient: boolean;
 };
@@ -410,10 +429,14 @@ export type InvoicePaymentDetailsModel = {
  * The reactive list query, minted ONCE per scope in `useInvoices.ts`.
  * Aliased from the query platform's own `ListQuery`, parameterised by this
  * module's {@link InvoiceQueryModel} — never derived with
- * `ReturnType<typeof localServiceFn>`.
+ * `ReturnType<typeof localServiceFn>`. `TQueryFnData` is the WIRE type
+ * (`IInvoice[]`, what `list()`'s `queryFn` resolves), `TData` is the type
+ * after `select` (`Invoice[]`) — matching the `list<IInvoice[], Invoice[],
+ * InvoiceQueryModel>` call site in `invoices.services.ts` (S1; not a new
+ * type, see this file's head `graphify-out/` citation).
  */
 export type InvoicesListQuery = ListQuery<
-  Invoice[],
+  IInvoice[],
   Invoice[],
   InvoiceQueryModel
 >;
@@ -421,15 +444,21 @@ export type InvoicesListQuery = ListQuery<
 /**
  * The reactive single-item query, minted ONCE per scope in `useInvoice.ts`.
  * Aliases the platform's own `SimpleQuery`, the same way
- * {@link InvoicesListQuery} aliases `ListQuery`.
+ * {@link InvoicesListQuery} aliases `ListQuery` — `TQueryFnData` is the WIRE
+ * type (`IInvoice`), `TData` the mapped type (`Invoice`), matching the
+ * `query<IInvoice, Invoice>` call site (S1).
  */
-export type InvoiceItemQuery = SimpleQuery<Invoice, Invoice>;
+export type InvoiceItemQuery = SimpleQuery<IInvoice, Invoice>;
 
 /**
  * The reactive unpaid-amount query (AC1). A plain `SimpleQuery` with no
- * criteria model — currency rides as a declared `withCurrency: true` service
- * argument (`invoices.services.ts`), never through the criteria channel a
- * single read does not have.
+ * criteria model — currency rides as a plain `currency_id` query param the
+ * services layer writes onto the url directly in a `watch`
+ * (`invoices.services.ts`), NOT through `query()`'s `withCurrency` flag:
+ * that flag derives `currency_code` from the basket (`useQuery.ts:174-178`)
+ * and cannot carry an arbitrary target currency. Not through the criteria
+ * channel either — a single read does not have one. Not a new type (see
+ * this file's head `graphify-out/` citation).
  */
 export type InvoiceUnpaidAmountQuery = SimpleQuery<
   InvoiceUnpaidAmount,

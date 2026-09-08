@@ -13,9 +13,13 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * @description Scoped, query-backed collection of a client's invoices: one
  * TanStack list query per concrete `(actor, context)` scope, minted once at
  * construction so it survives component lifecycles. Its sibling is
- * `useInvoice` — a second scoped composable in the same module, registered
- * under the SAME module name; the composable name and the scope key carry
- * the differentiation.
+ * `useInvoice` — a second scoped composable registered under the SAME
+ * module name. `generateScopeKey` builds `[name, actor, context?, id?]`
+ * (`scope/scope.utils.ts:29-58`) — the composable's own name plays NO part
+ * in the key (W3); the two stay apart in the registry only because
+ * `useInvoice` always adds a `.withId(id)` segment a collection scope never
+ * does — pre-existing platform behaviour (`client-email-history`,
+ * `client-phone` share it too), not fixed here.
  *
  * @doctrine clause 1 (uniform four-layer default).
  * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
