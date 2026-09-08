@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/client-billing-settings/useBillingSettings.meta.ts b/packages/headless/src/modules/client-billing-settings/useBillingSettings.meta.ts
+index c0d3afacc..2fc3f8b0f 100644
+--- a/packages/headless/src/modules/client-billing-settings/useBillingSettings.meta.ts
++++ b/packages/headless/src/modules/client-billing-settings/useBillingSettings.meta.ts
+@@ -34,7 +34,7 @@ export function createBillingSettingsMeta(
+    * consumer that awaits readiness always reads a SETTLED value here, never
+    * one still in flight.
+    */
+-  const isVisible = computed(() => restrictToStaff.value === false);
++  const isVisible = computed(() => restrictToStaff.value !== true);
+ 
+   // --- actor-specific meta: none earned (arms: none — parity.yaml).
+ 
