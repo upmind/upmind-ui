@@ -12,10 +12,12 @@
  * A brand whose configured theme is missing from the bundle paints an unthemed
  * cart instead of the next best theme; a selection that never reaches the engine
  * leaves every primitive on base tokens, so the brand's colour and font never
- * apply.
+ * apply. Worse, an `apply` that drops the theme without a word gives an operator
+ * nothing to search for: the shell boots, the brand looks wrong, and no signal
+ * anywhere points at the missing engine.
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { readInChildOfProvider } from "../../../__tests__/component-context";
 import {
   resetHeadlessStub,
@@ -38,7 +40,14 @@ vi.mock("@upmind-automation/headless", async () => {
 const AURORA = { id: "aurora", name: "Aurora" };
 const MIDNIGHT = { id: "midnight", name: "Midnight" };
 
+const lastWarning = (spy: { mock: { lastCall?: unknown[] } }) =>
+  (spy.mock.lastCall ?? []).map(String).join(" ");
+
 describe("useBrandTheme", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   beforeEach(() => {
     resetHeadlessStub();
     // The brand cache is keyed by brand id (§10 Axis 1), so re-configuring the
@@ -117,6 +126,7 @@ describe("useBrandTheme", () => {
     setThemes([AURORA, MIDNIGHT]);
 
     const engine: ThemeEngine = { set: vi.fn() };
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
     readInChildOfProvider(
       () => provideThemeEngine(engine),
@@ -124,11 +134,32 @@ describe("useBrandTheme", () => {
     );
 
     expect(engine.set).toHaveBeenCalledWith("midnight");
+    expect(warn).not.toHaveBeenCalled();
   });
 
-  it("applies silently when no engine is provided", () => {
+  it("warns the theme away instead of throwing when no engine is provided", () => {
     setThemes([AURORA]);
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
     expect(() => useBrandTheme().apply()).not.toThrow();
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(lastWarning(warn)).toContain('theme "aurora"');
+    expect(lastWarning(warn)).toContain("provideThemeEngine");
+  });
+
+  it("names the brand's own theme in the warning it drops", () => {
+    setBrand({
+      id: "brand-eu",
+      name: "brand-eu",
+      isAvailable: true,
+      themeId: "midnight"
+    });
+    setThemes([AURORA, MIDNIGHT]);
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    useBrandTheme().apply();
+
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(lastWarning(warn)).toContain('theme "midnight"');
   });
 });

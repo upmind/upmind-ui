@@ -62,6 +62,34 @@ describe("useFeatures registration", () => {
     expect(features.value).toEqual([first]);
   });
 
+  it("collapses the same definition passed twice in one call", () => {
+    const product = feature("product");
+    const { features, names, register } = useFeatures();
+
+    register(product, product);
+
+    expect(features.value).toHaveLength(1);
+    expect(features.value[0]).toBe(product);
+    expect(names.value).toEqual(["product"]);
+  });
+
+  it("keeps the first of two same-named definitions in one call", () => {
+    const installed: string[] = [];
+    const first = feature("product", () => installed.push("first"));
+    const basket = feature("basket", () => installed.push("basket"));
+    const second = feature("product", () => installed.push("second"));
+    const { features, names, register, install } = useFeatures();
+
+    register(first, basket, second);
+    install();
+
+    expect(features.value).toHaveLength(2);
+    expect(features.value[0]).toBe(first);
+    expect(features.value[1]).toBe(basket);
+    expect(names.value).toEqual(["product", "basket"]);
+    expect(installed).toEqual(["first", "basket"]);
+  });
+
   it("reads one shared ledger across handles", () => {
     const writer = useFeatures();
     const reader = useFeatures();
