@@ -1,0 +1,25 @@
+# must-fail: invoices.scope-identity.int.test.ts > "invoices — retarget my
+# reading at an entitled client (AC-12, the A7 clause) > AC-12
+# setCriteria({ filters: { client_id } }) carries the TARGET client's id on
+# the wire, as the READING client's own session"
+# Mutation: drops the declared `client_id` filter column from the query
+# schema — the client x client retarget filter is silently stripped by the
+# criteria channel's allowExtraProps guard and never reaches the wire.
+# Re-rolled 2026-09-08 (FE-3031 N1/N2 dispatch): the status.code column
+# gained a declared oneOf vocabulary, shifting context lines; the mutation
+# itself (drop the client_id column) is unchanged.
+--- a/packages/headless/src/modules/invoices/invoices.schemas.ts
++++ b/packages/headless/src/modules/invoices/invoices.schemas.ts
+@@ -97,12 +97,6 @@ export function useQuerySchema(): InvoiceQuerySchema {
+               }
+             }
+           },
+-          client_id: {
+-            type: "object",
+-            title: "invoices.filter.client_id",
+-            additionalProperties: false,
+-            properties: { eq: { type: ["string", "null"], minLength: 1 } }
+-          },
+           is_consolidation: {
+             type: "object",
+             title: "invoices.filter.is_consolidation",

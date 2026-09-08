@@ -1,0 +1,56 @@
+# must-fail: the AC12 durability read-back named in
+# `docs/sdd/FE-3031/requirements.md:99` ("Read-back (the durability half)")
+# — the executable form of blocker H1 (`review-notes.md`). Named test id per
+# requirements.md: `client retargets every read at another client`, the
+# "durability half" assertion that after `sortBy(...)`,
+# `filterConsolidatable()`, `filterCreditNotes()`, and a bare
+# `setCriteria({ filters: {...} })`, the NEXT outbound list request still
+# carries the target client's id.
+#
+# Re-rolled 2026-09-08 (developer, review-fix dispatch): `withDurableClientId`'s
+# presence guard changed from `has(next.filters, "client_id")` (W-D: lodash
+# path-semantics fix, array form) to a value-level truthiness check on `.eq`
+# (S-I: `consolidatableCriteria`'s `client_id: { eq: undefined }` no longer
+# reads as "already declared") — same mutation intent (drop the whole guard,
+# forward every write unchanged), new line anchors after both fixes.
+#
+# NOTE TO THE PROVER (developer-authored, applied blind per
+# agent-seat-separation.companion.md): as of this dispatch no test in
+# `packages/headless/src/modules/invoices/__tests__/` yet asserts this
+# durability half — same gap the original patch recorded, unchanged by this
+# re-roll. Applying it blind today against the CURRENT suite should show NO
+# new failures, because the assertion it targets does not exist yet.
+#
+# Mutation: `withDurableClientId`'s wrapped `setCriteria` stops re-asserting
+# `client_id` into the caller's `filters` object and simply forwards every
+# write unchanged — reverting to the pre-H1-fix behaviour where a bare
+# `filters`-branch write (`filterCreditNotes()`, the published `setCriteria`
+# with no `client_id`) drops the column and re-widens the list to the
+# READER's own rows.
+--- a/packages/headless/src/modules/invoices/invoices.services.ts
++++ b/packages/headless/src/modules/invoices/invoices.services.ts
+@@ -204,23 +204,7 @@
+ ): InvoicesListQuery {
+   const setCriteria: InvoicesListQuery["setCriteria"] = next => {
+-    if (
+-      !has(next, "filters") ||
+-      !clientId.value ||
+-      // Array path, not a dotted string: this module's filter keys ("status.code",
+-      // "contracts.id") are literal, dot-bearing property names, and lodash's
+-      // string form reads a dot as a nested-path separator. Truthiness, not
+-      // presence, on `.eq` — a declared-but-undefined `client_id` (e.g.
+-      // `consolidatableCriteria(undefined)`) is not a caller retarget.
+-      !!next.filters?.client_id?.eq
+-    ) {
+-      handle.setCriteria(next);
+-      return;
+-    }
+-    handle.setCriteria({
+-      ...next,
+-      filters: { ...next.filters, client_id: { eq: clientId.value } }
+-    });
++    handle.setCriteria(next);
+   };
+ 
+   return { ...handle, setCriteria };
+ }
