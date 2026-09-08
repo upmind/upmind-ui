@@ -14,7 +14,17 @@ export const useFeatures = () => {
   const names = computed(() => features.value.map(feature => feature.name));
 
   const register = (...added: FeatureDefinition[]) => {
-    const fresh = added.filter(feature => !names.value.includes(feature.name));
+    // `claimed` grows as the call proceeds, so the first definition of a name
+    // wins over its siblings too — the ledger only updates once, at the end.
+    const claimed = new Set(names.value);
+    const fresh: FeatureDefinition[] = [];
+
+    for (const feature of added) {
+      if (claimed.has(feature.name)) continue;
+
+      claimed.add(feature.name);
+      fresh.push(feature);
+    }
 
     features.value = features.value.concat(fresh);
   };
