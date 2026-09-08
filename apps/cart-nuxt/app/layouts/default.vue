@@ -36,7 +36,9 @@
  * Reconstructs the Upmind shell using modular components.
  * Session/basket redirect watchers are handled by the funnel engine (watchers.ts).
  */
+import { UpmAuthAction } from "@upmind-automation/auth";
 import {
+  SESSION_SHELL_COMPONENTS,
   UpmPage,
   UpmHeader,
   UpmFooter,
@@ -45,11 +47,15 @@ import {
   UpmLoading,
   UpmRoot,
   UpmBasketAction,
-  UpmAuthAction,
   UpmOverlayController,
   useOverlayRoute,
-  useRoutingEngine
+  useRoutingEngine,
+  useThemes
 } from "@upmind-automation/client-vue";
+import {
+  provideShellComponents,
+  provideThemeEngine
+} from "@upmind-automation/foundation";
 import { includes } from "lodash-es";
 import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
 import { ROUTE } from "~/funnels/types";
@@ -57,6 +63,12 @@ import { ROUTE } from "~/funnels/types";
 // -----------------------------------------------------------------------------
 const route = useRoute();
 const { storefrontRoute } = useStorefrontRoute();
+
+// This app builds its shell from the standalone parts rather than <Upm>, so it
+// fills `foundation`'s two ports itself: the live theme engine and the session
+// shell the auth organisms render inside (Amendment 1 change 3).
+provideThemeEngine({ set: useThemes().set });
+provideShellComponents(computed(() => SESSION_SHELL_COMPONENTS));
 
 const { meta: routingMeta } = useRoutingEngine();
 

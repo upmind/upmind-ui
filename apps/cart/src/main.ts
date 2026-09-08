@@ -1,7 +1,9 @@
 import "./main.css";
 import * as Sentry from "@sentry/vue";
 import { createApp } from "vue";
+import { defineAuthFeature } from "@upmind-automation/auth";
 import UpmindClient from "@upmind-automation/client-vue";
+import { useFeatures } from "@upmind-automation/foundation";
 import { AccessRoleTypes } from "@upmind-automation/types";
 import App from "./App.vue";
 import i18n from "./i18n";
@@ -11,6 +13,11 @@ import { forEach } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 const app = createApp(App);
+
+// ADR 023 §8. `routes: false` — this app owns its own paths (`/order/{bid}/auth/*`),
+// so the package contributes its renderers and flows but not its route records.
+useFeatures().register(defineAuthFeature({ routes: false }));
+useFeatures().install();
 
 // ---
 UpmindClient.init({

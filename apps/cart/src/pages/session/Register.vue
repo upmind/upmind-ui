@@ -6,6 +6,6 @@
   />
 </template>
 <script lang="ts" setup>
-import { UpmSessionRegister } from "@upmind-automation/client-vue";
+import { UpmSessionRegister } from "@upmind-automation/auth";
 import { ROUTE } from "../../router";
 </script>

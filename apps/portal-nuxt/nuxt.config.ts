@@ -29,6 +29,12 @@ export default defineNuxtConfig({
    */
 
   ssr: false, // SPA mode (set to true for server-side rendering)
+
+  // ADR 023 §9 — the per-package feature list. `routes: false` because this app
+  // owns its own auth paths (`/login`, `/register`, `/forgotten-password`).
+  modules: ["@upmind-automation/auth/nuxt"],
+
+  auth: { routes: false },
   compatibilityDate: "2025-07-15",
   future: { compatibilityVersion: 4 },
   devtools: { enabled: true },
@@ -66,10 +72,10 @@ export default defineNuxtConfig({
     "@": resolve(__dirname, "./app"),
 
     // Monorepo packages
-    // headless resolves to SOURCE, mirroring cart-nuxt — but here it is a
-    // TYPES-ONLY dependency: a value import executes the barrel, which
-    // module-load-interprets the routing machine. ESLint fences it
-    // (no-restricted-imports, allowTypeImports) in the root config.
+    // headless resolves to SOURCE, mirroring cart-nuxt. This app's OWN files
+    // still reach it type-only — ESLint fences them (no-restricted-imports,
+    // allowTypeImports) in the root config — but the ADR 023 `auth` package
+    // brings it in as a value dependency, so the barrel does execute here.
     "@upmind-automation/headless": resolve(
       __dirname,
       "../../packages/headless/src/index.ts"
@@ -78,6 +84,10 @@ export default defineNuxtConfig({
       __dirname,
       "../../packages/types/src/index.ts"
     ),
+    // A directory, not a barrel: headless glob-imports the locale files, and a
+    // glob needs a path it can walk. Reachable from here since the ADR 023
+    // `auth` package brought headless in as a VALUE dependency.
+    "@upmind-automation/i18n": resolve(__dirname, "../../packages/i18n/src"),
     "@upmind/ui/styles": resolve(
       __dirname,
       "../../design-system/packages/ui/src/styles/index.css"
@@ -107,6 +117,13 @@ export default defineNuxtConfig({
     "@upmind-automation/domain": resolve(
       __dirname,
       "../../packages/domain/src/index.ts"
+    ),
+    // The subpath alias must precede the bare one: an app-level alias is what
+    // Nuxt resolves `modules: [...]` through, and a bare-only map turns
+    // `@upmind-automation/auth/nuxt` into `.../src/index.ts/nuxt`.
+    "@upmind-automation/auth/nuxt": resolve(
+      __dirname,
+      "../../packages/auth/nuxt.ts"
     ),
     "@upmind-automation/auth": resolve(
       __dirname,

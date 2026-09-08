@@ -24,6 +24,10 @@ export { AUTH_SHELL, AUTH_TEMPLATE_SLOT } from "./shell";
 export type { AuthShellSlot } from "./shell";
 export { default as UpmAuthBareTemplate } from "./templates/AuthBare.template.vue";
 
+// --- Export the ADR 023 §8 contribution
+export { clientAuthFeature, defineAuthFeature } from "./feature";
+export type { AuthFeatureOptions } from "./feature";
+
 // --- Export the routes/flows contract
 export { AUTH_ROUTE, authRoutes } from "./routes";
 export type { AuthRouteName } from "./routes";

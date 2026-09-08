@@ -1,13 +1,16 @@
 <script setup lang="ts">
+// The real `@upmind-automation/auth` organism, replacing the stub this route
+// carried while the surface still lived in `client-vue`.
+//
 // Legacy served no registration screen at all for a brand that hides its
 // registration forms (`brand/hasRegistrationEnabled`), so a client arriving by
 // URL lands on the sign-in screen instead — the same in-setup redirect the
 // support pillar's own guard uses, told out loud because the client asked for
 // a page that exists elsewhere.
 import { toast } from "@upmind/ui";
-import PortalPageHost from "~/portal/content/PortalPageHost.vue";
+import { UpmSessionRegister } from "@upmind-automation/auth";
+import { AUTH_ROUTES } from "~/portal/auth-routes";
 import { useMockBrandGates } from "~/portal/mock/gates";
-import { PAGE_KEY } from "~/portal/types";
 
 definePageMeta({ layout: "logged-out" });
 
@@ -22,8 +25,5 @@ if (!isRegistrationEnabled.value) {
 </script>
 
 <template>
-  <PortalPageHost
-    :page-keys="[PAGE_KEY.AUTH_REGISTER]"
-    aside-label="Create an account"
-  />
+  <UpmSessionRegister v-bind="AUTH_ROUTES" />
 </template>

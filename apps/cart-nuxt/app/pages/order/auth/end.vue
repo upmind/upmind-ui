@@ -4,7 +4,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { UpmSessionLogout } from "@upmind-automation/client-vue";
+import { UpmSessionLogout } from "@upmind-automation/auth";
 import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
 import { ROUTE } from "~/funnels/types";
 

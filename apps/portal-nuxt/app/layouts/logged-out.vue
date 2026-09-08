@@ -25,6 +25,7 @@ import {
 } from "@upmind/ui";
 import { ShoppingBasket } from "lucide-vue-next";
 import { computed, watch } from "vue";
+import { provideThemeEngine } from "@upmind-automation/foundation";
 import { compact } from "lodash-es";
 import { NuxtLink } from "#components";
 import { usePortalConfig } from "~/composables/usePortalConfig";
@@ -56,6 +57,11 @@ provideActiveMockData();
 // much as a signed-in one does.
 provideFormIcon(PortalFormIcon);
 provideFormEngineData(portalFormEngineData());
+
+// `foundation`'s theme port, filled with this app's own applier. No shell
+// components are provided: this app owns no session shell, so the auth
+// organisms fall back to their bare template — the decoupling proof.
+provideThemeEngine({ set: setTheme });
 
 const {
   brandName,

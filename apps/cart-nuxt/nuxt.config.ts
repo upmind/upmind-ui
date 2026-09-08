@@ -36,8 +36,13 @@ export default defineNuxtConfig({
 
   modules: [
     "@sentry/nuxt/module", // Error tracking
-    "@nuxtjs/seo" // SEO toolkit (robots, sitemap, schema.org)
+    "@nuxtjs/seo", // SEO toolkit (robots, sitemap, schema.org)
+    // ADR 023 §9 — the per-package feature list. `routes: false` because this
+    // app owns its own auth paths under `/order/{bid}/auth/`.
+    "@upmind-automation/auth/nuxt"
   ],
+
+  auth: { routes: false },
 
   /**
    * ---------------------------------------------------------------------------
@@ -156,6 +161,13 @@ export default defineNuxtConfig({
     "@upmind-automation/domain": resolve(
       __dirname,
       "../../packages/domain/src/index.ts"
+    ),
+    // The subpath alias must precede the bare one: an app-level alias is what
+    // Nuxt resolves `modules: [...]` through, and a bare-only map turns
+    // `@upmind-automation/auth/nuxt` into `.../src/index.ts/nuxt`.
+    "@upmind-automation/auth/nuxt": resolve(
+      __dirname,
+      "../../packages/auth/nuxt.ts"
     ),
     "@upmind-automation/auth": resolve(
       __dirname,

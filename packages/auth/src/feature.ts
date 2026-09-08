@@ -34,4 +34,7 @@ export const defineAuthFeature = (options: AuthFeatureOptions = {}) =>
     }
   });
 
-export default defineAuthFeature();
+/** The default contribution, named for consumers that cannot reach a default. */
+export const clientAuthFeature = defineAuthFeature();
+
+export default clientAuthFeature;

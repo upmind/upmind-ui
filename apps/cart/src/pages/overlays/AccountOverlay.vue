@@ -15,10 +15,10 @@
 
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-import { UpmAccount } from "@upmind-automation/client-vue";
+import { UpmAccount } from "@upmind-automation/auth";
 import { ROUTE } from "../../router";
 import { get } from "lodash-es";
-import type { SessionProps } from "@upmind-automation/client-vue";
+import type { SessionProps } from "@upmind-automation/auth";
 
 // -----------------------------------------------------------------------------
 
