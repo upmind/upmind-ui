@@ -38,15 +38,19 @@ export const headerVariants = cva("items-start", {
   }
 });
 
+// hasIcon's top padding is the headroom the icon's lift needs; the header clips at
+// this box's top edge. Taken from the bottom padding, so the row height holds.
 export const sectionHeadingVariants = cva(
-  "text-display flex items-center gap-2 pb-4 text-sm font-medium",
+  "text-display flex items-center gap-2 text-sm font-medium",
   {
     variants: {
+      hasIcon: { false: "pb-4", true: "pt-0.5 pb-3.5" },
       isInset: { false: "", true: "" },
       isDisabled: { false: "", true: "opacity-50" }
     },
     compoundVariants: [{ isInset: true, isDisabled: true, class: "pb-0" }],
     defaultVariants: {
+      hasIcon: false,
       isInset: false,
       isDisabled: false
     }
