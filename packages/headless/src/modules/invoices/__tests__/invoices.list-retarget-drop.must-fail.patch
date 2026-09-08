@@ -1,16 +1,17 @@
-# must-fail: (prover to add, per RESUME.md's "a `.for('client', X)` wire
-# read-back per read in the shape invoices.scope-identity.int.test.ts:44-65
-# already models") — the named assertion this must flip is the outbound
-# `GET /invoices` list request carrying `filter[client_id|eq]=<TARGET>` on a
-# `.for('client', X)` scope with NO manual `setCriteria()` call, e.g.
-# "invoices — retarget my reading at an entitled client (AC-12) > the
-# collection's own list request carries the TARGET client's id on the wire
-# without a manual setCriteria() call".
+# must-fail: invoices.scope-identity.int.test.ts > "invoices — retarget my
+# reading at an entitled client (AC-12) > the collection's own list request
+# carries the TARGET client's id on the wire without a manual setCriteria()
+# call"
 #
 # Authored by the developer seat (FE-3031 Review-blocker repair, B2) — the
 # prover applies this blind and confirms its own new assertion goes RED,
 # then reverts (`agent-seat-separation.companion.md`, developer-authors-
 # mutant / prover-verifies-blind).
+#
+# Re-rolled 2026-09-08 (developer, FE-3031 H1 durability repair): `loadList`
+# grew a `withDurableClientId(handle, clientId)` wrap around its `return`
+# directly below the anchor this patch mutates — same mutation, new line
+# anchors.
 #
 # Mutation: drops the `trackClientIdFilter(handle, clientId)` call this
 # repair added to `loadList` — reverting to B2's original defect: the list
@@ -21,7 +22,7 @@
 # fetch "worked".
 --- a/packages/headless/src/modules/invoices/invoices.services.ts
 +++ b/packages/headless/src/modules/invoices/invoices.services.ts
-@@ -186,11 +186,9 @@
+@@ -240,11 +240,9 @@
      select: raw => mapInvoices(raw, clientId.value),
      staleTime: useTime().DAY,
      placeholderData: keepPreviousData
@@ -29,7 +30,7 @@
 
 -  trackClientIdFilter(handle, clientId);
 -
-   return handle;
+   return withDurableClientId(handle, clientId);
  }
 
  /**

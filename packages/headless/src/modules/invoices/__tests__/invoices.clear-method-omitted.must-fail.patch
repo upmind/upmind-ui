@@ -5,21 +5,19 @@
 # clearing the payment method (payment_details_id: null) is sent as an
 # omitted key instead of an explicit null.
 #
-# Re-rolled 2026-09-08 (verifier ABSENT repair, FE-3031): the import block
-# grew a multi-line `consolidatableCountCriteria` import and
-# `updatePaymentDetails` shifted down ~30 lines behind the new
-# `loadConsolidatableCount` function — same mutation, new line anchors.
+# Re-rolled 2026-09-08 (developer, FE-3031 H1 durability repair): the import
+# block grew a `has` import (the `withDurableClientId` H1 fix) directly below
+# the anchor line this patch inserts above — same mutation, new line anchors.
 --- a/packages/headless/src/modules/invoices/invoices.services.ts
 +++ b/packages/headless/src/modules/invoices/invoices.services.ts
-@@ -10,6 +10,7 @@
+@@ -11,5 +11,6 @@
  } from "./invoices.schemas";
  import { InvoicesContextTypes } from "./invoices.types";
  import { useTime, NotAuthenticatedError } from "../../utils";
 +import { isNil, omitBy } from "lodash-es";
+ import { has } from "lodash-es";
  import type { ScopeContext } from "../scope";
- import type {
-   Invoice,
-@@ -336,7 +337,7 @@
+@@ -447,7 +448,7 @@
    return patch({
      mutationKey: [...queryKey, invoiceId, "payment_details"],
      url: useUrl(`invoices/${invoiceId}/payment_details`),

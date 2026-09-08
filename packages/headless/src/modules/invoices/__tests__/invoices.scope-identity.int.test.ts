@@ -29,16 +29,29 @@
  * reader's rows, attribute them against the target) while each individually
  * looked fine.
  *
+ * ## AC-12 durability half (H1 repair)
+ * `criteria.set` merges the published intent at BRANCH level, so a `filters`
+ * write with no `client_id` of its own can drop the column entirely. These
+ * tests assert, on the outbound request AFTER a `filters`-branch write, that
+ * the `.for('client', X)` retarget still holds — `filterCreditNotes()`, a
+ * bare `setCriteria({ filters })`, `sortBy()`, and `filterConsolidatable()`
+ * each issue their NEXT request still carrying the target's `client_id`, and
+ * an explicit caller-declared `client_id` still wins (the manual-retarget
+ * door stays open).
+ *
  * ## What Breaks If These Fail
  * A client reads another account's invoices, the request goes out as the
  * wrong identity, or an unspellable filter silently reaches the platform —
  * the FE-2824 failure class this whole story exists to close (AC-12), and a
- * criteria-law bypass (AC-15).
+ * criteria-law bypass (AC-15). If only the durability half fails: a retarget
+ * that holds at mint but drops on the first filter/sort change silently
+ * re-widens the list to the READER's own rows.
  */
 
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
 import { InvoicesContextTypes, useInvoices } from "..";
+import { SortDirection } from "../../query/query.types";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   assertClientIdentityTransport,
@@ -242,6 +255,129 @@ describe("invoices — hasUnpaid answers for the .for() TARGET, not the reader (
       expect(request.url).not.toContain(OTHER_CLIENT_ID);
     }
     expect(invoices.useInternals().clientId.value).toBe(clientId);
+  });
+});
+
+describe("invoices — the retarget survives every published criteria write (AC-12, durability, H1)", () => {
+  /** A second target, distinct from OTHER_CLIENT_ID — the manual-door check. */
+  const MANUAL_RETARGET_CLIENT_ID = "99998888-7777-6666-5555-444433332222";
+
+  it("AC-12 filterCreditNotes() carries the credit-note category values AND the TARGET client's id on the wire", async () => {
+    const { accessToken } = await seedClientSession();
+    installInvoiceHandlers();
+
+    const invoices = useInvoices()
+      .as(ScopeActorTypes.CLIENT)
+      .for(InvoicesContextTypes.CLIENT, OTHER_CLIENT_ID);
+    await vi.waitFor(() =>
+      expect(invoices.useMeta().isLoading.value).toBe(false)
+    );
+
+    const observed = observeInvoiceRequests();
+    invoices.useActions().filterCreditNotes();
+    await vi.waitFor(() => expect(observed.all().length).toBeGreaterThan(0));
+    observed.stop();
+
+    const request = observed.last();
+    const decoded = decodeURIComponent(request.url);
+    expect(decoded).toMatch(/credit_note/);
+    expect(decoded).toContain(`filter[client_id|eq]=${OTHER_CLIENT_ID}`);
+    assertClientIdentityTransport(request, accessToken);
+  });
+
+  it("AC-12 a bare setCriteria({ filters }) write with no client_id still carries the TARGET client's id alongside the caller's own filter", async () => {
+    const { accessToken } = await seedClientSession();
+    installInvoiceHandlers();
+
+    const invoices = useInvoices()
+      .as(ScopeActorTypes.CLIENT)
+      .for(InvoicesContextTypes.CLIENT, OTHER_CLIENT_ID);
+    await vi.waitFor(() =>
+      expect(invoices.useMeta().isLoading.value).toBe(false)
+    );
+
+    const observed = observeInvoiceRequests();
+    invoices
+      .useActions()
+      .setCriteria({ filters: { number: { eq: "durability-check-001" } } });
+    await vi.waitFor(() => expect(observed.all().length).toBeGreaterThan(0));
+    observed.stop();
+
+    const request = observed.last();
+    const decoded = decodeURIComponent(request.url);
+    expect(decoded).toContain("filter[number|eq]=durability-check-001");
+    expect(decoded).toContain(`filter[client_id|eq]=${OTHER_CLIENT_ID}`);
+    assertClientIdentityTransport(request, accessToken);
+  });
+
+  it("AC-12 an explicit caller-declared client_id in setCriteria({ filters }) wins over the durable retarget — the manual door stays open", async () => {
+    await seedClientSession();
+    installInvoiceHandlers();
+
+    const invoices = useInvoices()
+      .as(ScopeActorTypes.CLIENT)
+      .for(InvoicesContextTypes.CLIENT, OTHER_CLIENT_ID);
+    await vi.waitFor(() =>
+      expect(invoices.useMeta().isLoading.value).toBe(false)
+    );
+
+    const observed = observeInvoiceRequests();
+    invoices.useActions().setCriteria({
+      filters: { client_id: { eq: MANUAL_RETARGET_CLIENT_ID } }
+    });
+    await vi.waitFor(() => expect(observed.all().length).toBeGreaterThan(0));
+    observed.stop();
+
+    const decoded = decodeURIComponent(observed.last().url);
+    expect(decoded).toContain(
+      `filter[client_id|eq]=${MANUAL_RETARGET_CLIENT_ID}`
+    );
+    expect(decoded).not.toContain(`filter[client_id|eq]=${OTHER_CLIENT_ID}`);
+  });
+
+  it("AC-12 sortBy() carries the TARGET client's id alongside the requested sort — a sort-only write never drops the retarget", async () => {
+    const { accessToken } = await seedClientSession();
+    installInvoiceHandlers();
+
+    const invoices = useInvoices()
+      .as(ScopeActorTypes.CLIENT)
+      .for(InvoicesContextTypes.CLIENT, OTHER_CLIENT_ID);
+    await vi.waitFor(() =>
+      expect(invoices.useMeta().isLoading.value).toBe(false)
+    );
+
+    const observed = observeInvoiceRequests();
+    invoices.useActions().sortBy("due_date", SortDirection.DESC);
+    await vi.waitFor(() => expect(observed.all().length).toBeGreaterThan(0));
+    observed.stop();
+
+    const request = observed.last();
+    const decoded = decodeURIComponent(request.url);
+    expect(decoded).toContain("order=-due_date");
+    expect(decoded).toContain(`filter[client_id|eq]=${OTHER_CLIENT_ID}`);
+    assertClientIdentityTransport(request, accessToken);
+  });
+
+  it("AC-12 filterConsolidatable() carries the TARGET client's id — its own preset resolves client_id itself", async () => {
+    const { accessToken } = await seedClientSession();
+    installInvoiceHandlers();
+
+    const invoices = useInvoices()
+      .as(ScopeActorTypes.CLIENT)
+      .for(InvoicesContextTypes.CLIENT, OTHER_CLIENT_ID);
+    await vi.waitFor(() =>
+      expect(invoices.useMeta().isLoading.value).toBe(false)
+    );
+
+    const observed = observeInvoiceRequests();
+    invoices.useActions().filterConsolidatable();
+    await vi.waitFor(() => expect(observed.all().length).toBeGreaterThan(0));
+    observed.stop();
+
+    const request = observed.last();
+    const decoded = decodeURIComponent(request.url);
+    expect(decoded).toContain(`filter[client_id|eq]=${OTHER_CLIENT_ID}`);
+    assertClientIdentityTransport(request, accessToken);
   });
 });
 
