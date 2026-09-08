@@ -5,21 +5,18 @@
 # Mutation: drops the declared `client_id` filter column from the query
 # schema — the client x client retarget filter is silently stripped by the
 # criteria channel's allowExtraProps guard and never reaches the wire.
-# Re-rolled 2026-09-08 (FE-3031 N1/N2 dispatch): the status.code column
-# gained a declared oneOf vocabulary, shifting context lines; the mutation
-# itself (drop the client_id column) is unchanged.
 --- a/packages/headless/src/modules/invoices/invoices.schemas.ts
 +++ b/packages/headless/src/modules/invoices/invoices.schemas.ts
-@@ -97,12 +97,6 @@ export function useQuerySchema(): InvoiceQuerySchema {
+@@ -96,12 +96,6 @@
+                 items: { type: "string", oneOf: STATUS_VOCABULARY }
                }
              }
-           },
+-          },
 -          client_id: {
 -            type: "object",
 -            title: "invoices.filter.client_id",
 -            additionalProperties: false,
 -            properties: { eq: { type: ["string", "null"], minLength: 1 } }
--          },
+           },
            is_consolidation: {
              type: "object",
-             title: "invoices.filter.is_consolidation",

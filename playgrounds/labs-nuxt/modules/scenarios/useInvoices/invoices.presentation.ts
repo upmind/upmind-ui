@@ -38,27 +38,26 @@
  * `summary.paidAmountFormatted`, `summary.balanceFormatted`), never drawn as
  * its own cell.
  *
- * @decision
- * what: `assignPaymentMethod` is declared as a `VISIBLE` row control even
- * though the generic single-arg row press (`ListSurface.vue`'s
- * `pressRowAction`, `props.actions[action.name](row.id)`) supplies only
- * `invoiceId`; `paymentDetailsId` therefore arrives `undefined`, not the
- * explicit `null` AC-4's clear needs (`invoices.types.ts`'s
+ * AC-4 (design.md D1): `assignPaymentMethod`'s clear half is NOT drawn as a
+ * row control — the generic single-arg row press (`ListSurface.vue`'s
+ * `pressRowAction`, `props.actions[action.name](row.id)`) invokes the named
+ * member BARE, supplying only `invoiceId`; there is no declaration-level
+ * channel that binds a second, static argument (confirmed: no such field
+ * exists anywhere in `scenario.types.ts`). `paymentDetailsId` would arrive
+ * `undefined`, which `JSON.stringify` drops from the wire — an OMITTED key,
+ * not the explicit PRESENT `null` D1 requires (`invoices.types.ts`'s
  * `InvoicePaymentDetailsModel` docblock: "clearing the assignment sends
- * `null` as a PRESENT key, never an omitted one").
- * why: the derivation table names this control by its live capability
- * (`useInvoices().useActions().assignPaymentMethod`), which is what D8
- * requires — a name that is not a live member is what the gate refuses, and
- * this name IS live. Withholding the control entirely would drop a
- * capability the module ships (AC-4's clear half) rather than surface the
- * runtime's own single-arg press convention as the actual limit.
- * rejected: inventing a second scenario-declaration channel to carry a
- * literal second argument — no such channel exists in `scenario.types.ts`
- * today, and minting one is playground-runtime work, not this seat's write
- * lane (`packages/headless/src/modules/invoices/**` and
- * `playgrounds/labs-nuxt/modules/scenarios/runtime/**` are both out of
- * scope for this file). Reported to the Verify gate instead of silently
- * papered over.
+ * `null` as a PRESENT key, never an omitted one"). A bare press is not a
+ * degraded clear, it is the wrong request — exactly the failure the
+ * module's own `invoices.clear-method-omitted.must-fail.patch` negative
+ * control exists to catch — so drawing the control and firing a success
+ * toast over it would claim a capability the page cannot perform. Withdrawn
+ * per the same honesty this page already applies to `refreshUnpaidAmount`
+ * (AC-1, below): a live action with no channel that can drive it correctly
+ * draws no control, rather than one that draws and does nothing (or worse,
+ * does the wrong thing quietly). Minting a second-argument channel is
+ * playground-runtime work (`scenario.types.ts`), out of this seat's write
+ * lane (`useInvoices/**` only).
  *
  * PENDING i18n — these keys are referenced below but may not yet exist in
  * `packages/i18n/src/core/*-en.json` (out of this seat's write lane for that
@@ -70,7 +69,6 @@
  * (`invoices.types.ts`'s `InvoiceSortableField`).
  */
 
-import { RuleEffect } from "@jsonforms/core";
 import { ActionPlacementTypes, CardSlotTypes } from "../runtime/scenario.types";
 import type {
   ActionsUischema,
@@ -318,8 +316,8 @@ export const detailUischema: DetailUischema = {
  * `id` as `invoiceId`, narrowing to that invoice's own credit notes) — one
  * capability, two placements, matching the derivation table.
  *
- * `assignPaymentMethod`'s rule reads the row's own `locked` flag: a locked
- * invoice cannot accept a new payment-method assignment (AC-4).
+ * `assignPaymentMethod` (AC-4's clear half) is not drawn here — see this
+ * file's module docblock — so no row control reads the `locked` flag for it.
  */
 export const actionsUischema: ActionsUischema = {
   type: "ActionsLayout",
@@ -374,28 +372,6 @@ export const actionsUischema: ActionsUischema = {
       feedback: {
         success: "confirm.invoices_payment_refreshed",
         failure: "error.invoices_payment_refresh_failed"
-      }
-    },
-    {
-      type: "Action",
-      // AC-4 — clears the assigned payment method (see the module docblock
-      // `@decision` on the single-arg press limitation).
-      name: "assignPaymentMethod",
-      i18n: "action.clear_payment_method",
-      icon: "credit-card-x",
-      variant: "outline",
-      placement: ActionPlacementTypes.VISIBLE,
-      feedback: {
-        success: "confirm.invoice_payment_method_cleared",
-        failure: "error.invoice_payment_method_clear_failed"
-      },
-      rule: {
-        effect: RuleEffect.DISABLE,
-        condition: {
-          type: "LEAF",
-          scope: "#/properties/locked",
-          expectedValue: true
-        }
       }
     },
     {
