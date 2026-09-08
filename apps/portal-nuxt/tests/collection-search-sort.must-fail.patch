@@ -1,0 +1,21 @@
+# Negative control — the core's query narrowing stops folding CASE: the entry
+# side of the match keeps its own capitals, so a lower-case needle only ever
+# finds rows that already spell it that way. A client typing "archive" gets an
+# empty panel while "Archive Storage" sits in it.
+#
+# Intended RED: "matches case-insensitively across every declared prop, and
+# clearing restores" (tests/collection-search-sort.test.ts) — "ALPHAbet" and
+# "Alpha one" stop matching "alpha", so the narrowed page reads [r1] instead
+# of [r1, r2, r4].
+
+--- a/apps/portal-nuxt/app/portal/mock/collections.ts
++++ b/apps/portal-nuxt/app/portal/mock/collections.ts
+@@ -168,7 +168,7 @@
+ ): boolean {
+   const wanted = toLower(needle);
+   return some(props, prop =>
+-    includes(toLower(String(get(entry, prop) ?? "")), wanted)
++    includes(String(get(entry, prop) ?? ""), wanted)
+   );
+ }
+ 

@@ -1,0 +1,18 @@
+# Negative control — one of the platform's five formats is never registered,
+# so a schema naming `alpha-num` validates clean against an instance that has
+# no such format and the portal's ajv drifts from `useValidation`'s.
+#
+# Intended RED: the format-parity assertion over
+# `packages/headless/src/utils/useValidationFormats.ts`
+# (tests/ajv-parity.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/forms/ajv.ts
++++ b/apps/portal-nuxt/app/portal/mock/forms/ajv.ts
+@@ -64,7 +64,6 @@
+   patternFormat("domain_name", DOMAIN_LIKE_VALIDATION),
+   patternFormat("alpha", /^[a-zA-Z]+$/),
+   patternFormat("alpha-dash", /^[a-zA-Z0-9_-]+$/),
+-  patternFormat("alpha-num", /^[a-zA-Z0-9]+$/),
+   patternFormat("alpha-dash-dot", /^[a-zA-Z.-]+$/)
+ ];
+ 

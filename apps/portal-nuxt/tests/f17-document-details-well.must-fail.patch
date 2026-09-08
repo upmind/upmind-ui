@@ -1,0 +1,25 @@
+# Negative control — the invoice prints no footer well, so the client's own
+# custom fields, the document's, and the brand's meta-data never reach the
+# page legacy printed them on (`invoiceDetails.vue:161-184`).
+#
+# Intended RED (to be added by the prover): the invoice document lists its
+# client fields, custom fields and meta-data.
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -3441,14 +3441,7 @@
+ ): DocumentModuleTotal[] {
+   const invoice = contextInvoice(data, context);
+   if (invoice === undefined) return [];
+-  return map(
+-    [
+-      ...(invoice.clientFields ?? []),
+-      ...(invoice.customFields ?? []),
+-      ...(invoice.metaData ?? [])
+-    ],
+-    field => ({ label: field.label, value: field.value })
+-  );
++  return [];
+ }
+ 
+ /** Whether this order reached the client through a delegation (`orderView.vue:22-27`). */

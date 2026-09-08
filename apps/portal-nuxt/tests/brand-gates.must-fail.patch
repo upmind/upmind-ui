@@ -1,0 +1,17 @@
+# Negative control — the Support entry ignores the brand's own gate, so a brand
+# that has turned the support system off still advertises it in the primary nav.
+#
+# Intended RED: "drops Support and Place New Order on the gates-off dataset,
+# keeping the ungated four" (tests/brand-gates.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -4188,7 +4188,7 @@
+     ...customPageNavItems(data),
+     { to: "/billing", label: "Billing", icon: Receipt },
+     { to: "/account", label: "My Account", icon: CircleUserRound },
+-    !DISABLE_SUPPORT_SYSTEM && {
++    {
+       to: "/support",
+       label: "Support",
+       icon: MessagesSquare

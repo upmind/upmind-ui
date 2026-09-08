@@ -1,0 +1,21 @@
+# Negative control — promoting a contact row never demotes the one it replaced,
+# so every list ends up with more than one entry claiming to be the account's
+# default.
+#
+# Intended RED: "promoting one address demotes the one that was default",
+# "promotes a number, and leaves exactly one default behind" and "promotes the
+# address invoices are raised to, and leaves one default behind"
+# (tests/contact-data.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockContacts.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockContacts.ts
+@@ -204,9 +204,6 @@
+       }
+       // Exactly one row is the account's fallback, so the outgoing default
+       // steps down in the same write the incoming one steps up.
+-      for (const other of filter(rows, candidate => candidate.id !== id)) {
+-        applyDefault(other, false);
+-      }
+       applyDefault(row, true);
+       return { ok: true, entity: row };
+     },

@@ -1,0 +1,17 @@
+# Negative control — the statement CSV writes an empty balance column, so the
+# saved file never lands on the figure the period closed at.
+#
+# Intended RED: "hands over the period as a CSV that closes on the closing
+# figure" (tests/fifth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockWallet.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockWallet.ts
+@@ -329,7 +329,7 @@
+     movement.date,
+     movement.description,
+     String(movement.amount.amount),
+-    String(movement.balanceAfter.amount)
++    ""
+   ]);
+   const document = map([STATEMENT_CSV_COLUMNS, ...rows], csvRow).join("\n");
+   return `data:text/csv;charset=utf-8,${encodeURIComponent(document)}`;

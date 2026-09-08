@@ -1,0 +1,17 @@
+
+#
+# REBASED 2026-08-24: the stage-3 fix round moved this file's context lines.
+# Regenerated from a real apply/diff/revert — the mutation is unchanged.
+diff --git a/apps/portal-nuxt/app/portal/content/variants.ts b/apps/portal-nuxt/app/portal/content/variants.ts
+index c8f6b1492e..03890ee1f6 100644
+--- a/apps/portal-nuxt/app/portal/content/variants.ts
++++ b/apps/portal-nuxt/app/portal/content/variants.ts
+@@ -25,7 +25,7 @@ export function rowFullMeasureClass(measure: RowMeasure): string {
+ }
+ 
+ /** `row-1-1` — `PageBody`'s aside track is fixed-width, never equal (design.md §D7), so `PortalRow` supplies its own equal grid. */
+-export const ROW_SPLIT_EQUAL_CLASS = "grid items-start gap-6 lg:grid-cols-2";
++export const ROW_SPLIT_EQUAL_CLASS = "grid items-start gap-6";
+ 
+ /** `row-2-1` / `row-1-2` — a proportion (two parts to one), not a fixed track beside a fluid one; `PageBody`'s aside is the latter, so `PortalRow` supplies its own 3-column grid with the wide slot spanning two (design.md §D7, corrected 2026-08-24). */
+ export const ROW_SPLIT_ASIDE_CLASS = "grid items-start gap-6 lg:grid-cols-3";

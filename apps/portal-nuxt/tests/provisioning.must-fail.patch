@@ -1,0 +1,21 @@
+# Negative control — the sidebar's quick actions stop honouring the provider's
+# own featured flag, so every provisioning function is promoted and the
+# shortlist is the whole list.
+#
+# Intended RED: "promotes exactly the highlighted functions to the quick
+# actions" (tests/provisioning.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -1090,9 +1090,8 @@
+ ): ButtonModuleAction[] {
+   const productId = context.productId;
+   if (productId === undefined) return [];
+-  return map(
+-    filter(provisioning(data, context).functions, { highlighted: true }),
+-    entry => provisionAction(productId, entry)
++  return map(provisioning(data, context).functions, entry =>
++    provisionAction(productId, entry)
+   );
+ }
+ 

@@ -1,0 +1,19 @@
+# Negative control — the redirect field drops the brand-domain notice legacy
+# stated over it unconditionally (`addEditAffiliateLinkModal.vue:16-27`), so a
+# client is never told the address has to sit on the brand's own site.
+#
+# Intended RED: "states the brand-domain instruction over the field, on either
+# brand" (tests/eighth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/contracts/client-affiliate.schemas.ts
++++ b/apps/portal-nuxt/app/portal/mock/contracts/client-affiliate.schemas.ts
+@@ -100,8 +100,7 @@
+  * The field's one rule is `required`; nothing here checks a host.
+  */
+ function redirectInstruction(context: AffiliateLinkContext): string {
+-  const landing = "The page anyone following it is taken to.";
+-  return `${landing} For security it has to be on one of ${context.brandName}'s own domains.`;
++  return "The page anyone following it is taken to.";
+ }
+ 
+ /** UI schema for the create/edit link form. */

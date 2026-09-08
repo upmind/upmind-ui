@@ -1,0 +1,22 @@
+# Negative control — the delegate's granted-products picker goes back to
+# listing every product at once, so the quick search and the pager legacy's
+# own grant listing carried (`delegateCProdListing.vue:5-30`) reach nothing:
+# a client granting access to one product must read the whole shelf.
+#
+# Intended RED (to be added by the prover): "searches and pages the products a
+# delegate may be granted".
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -4977,10 +4977,7 @@
+ ): ListModuleItem[] {
+   const delegate = contextDelegate(data, context);
+   if (delegate === undefined) return [];
+-  const { data: rows } = delegateProductsCollection
+-    .resolve(data, context)
+-    .useContext();
+-  return map(rows.value, product => ({
++  return map(data.products, product => ({
+     id: product.id,
+     title: product.name,
+     description: product.serviceIdentifier ?? product.category,

@@ -1,0 +1,19 @@
+# Negative control — withdrawing a message clears what it SAID instead of
+# marking it withdrawn: the thread prints no notice, and the link legacy's
+# notice carried to the deleted body has nothing left to open.
+#
+# Intended RED: "prints a notice where the body was, and keeps what it said
+# readable", "refuses a second withdrawal, before the question is asked again"
+# (tests/fifth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockTicket.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockTicket.ts
+@@ -370,7 +370,7 @@
+         }
+         const refusal = whyNotManageable(messageId);
+         if (refusal !== undefined) return refusal;
+-        assign(written, { isDeleted: true });
++        assign(written, { body: "" });
+         stamp(thread);
+         return { ok: true, entity: written };
+       },

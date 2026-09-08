@@ -1,0 +1,31 @@
+# Negative control — the reply write drops its own guard, so a dispatched
+# `reply-ticket` appends a message to a CLOSED or LOCKED thread and answers
+# success. Only the composer's `visible` would still hide the box, which is a
+# fact about the page rather than about the write.
+#
+# Intended RED (tests/fourth-closure.test.ts, section B1a):
+#   "refuses a finished thread, and leaves its messages exactly as they were"
+#   "refuses a desk-locked thread, and leaves its messages exactly as they were"
+#   "answers the door with one warning naming the refusal, and writes nothing"
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockTicket.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockTicket.ts
+@@ -182,18 +182,6 @@
+       ): MockActionReceipt<MockTicketMessage> | undefined => {
+         const subject = ticket();
+         if (subject === undefined) return undefined;
+-        // Asked BEFORE anything is appended (plan R4): the composer's own
+-        // `visible` hides the box on a finished thread, but a dispatched verb
+-        // reaches this write whatever the page drew, and a locked thread
+-        // keeps the conversation it has.
+-        const refusal = whyNotReplyable();
+-        if (refusal !== undefined) {
+-          return {
+-            ok: false,
+-            reason: refusal.reason,
+-            entity: undefined
+-          };
+-        }
+ 
+         const message: MockTicketMessage = {
+           id: nextId("msg"),

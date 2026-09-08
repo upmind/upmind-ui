@@ -1,0 +1,21 @@
+# Negative control — the hostgrid config drops its configured product groups,
+# so every group route resolves unmatched (plan §1.2, Phase A).
+#
+# Intended RED: any assertion that hostgrid's group slug resolves through the
+# product hierarchy (tests/hostgrid-route-tree.test.ts).
+#
+# REBASED 2026-08-28 (the surviving shape took the hostgrid name). Same mutation.
+#
+# REBASED 2026-09-03 (the account pillar's own utility pane joined `areas`).
+# Same mutation.
+
+--- a/apps/portal-nuxt/app/portal/config/hostgrid.ts
++++ b/apps/portal-nuxt/app/portal/config/hostgrid.ts
+@@ -498,6 +498,6 @@
+     // `AreaOverride`), so the pane is restated here rather than merged.
+     [PORTAL_PILLAR.ACCOUNT]: { [PRIMITIVE_ID.UTILITY]: ACCOUNT_UTILITY_PANE }
+   },
+-  groups: HOSTGRID_GROUPS,
++  groups: [],
+   customAreas: []
+ };

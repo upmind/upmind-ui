@@ -1,0 +1,20 @@
+# Negative control — the allowlist stops searching, so neither the address
+# nor the name the client knows it by narrows the list: legacy searched both
+# columns (`ipWhitelistTags.vue:10-17`).
+#
+#
+# Intended RED (verified by apply/run/revert): "searches the allowlist by
+# address and by name" and "the allowlist page offers a search over addresses
+# and names" (tests/eleventh-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -380,7 +380,7 @@
+   (data): readonly MockIpAddress[] => data.ipWhitelist,
+   () => ({}),
+   undefined,
+-  () => ({ searchProps: ["ip_address", "name"] })
++  () => ({})
+ );
+ 
+ /** The preference matrix, as the page's read-only table (plan §3). */

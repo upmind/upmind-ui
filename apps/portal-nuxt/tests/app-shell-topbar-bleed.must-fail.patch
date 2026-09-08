@@ -1,0 +1,19 @@
+# Negative control — the topbar goes full-bleed again, spanning both shell
+# columns and painting over the sidebar's own header. The brand stays in the
+# DOM, in near-black, at the right coordinates — simply underneath an opaque
+# bar, which is exactly why nothing but the rendered class catches it.
+#
+# Intended RED: hostgrid — the app shell's chrome
+#   > keeps the topbar out of the sidebar's column, so the brand heading it stays visible
+
+--- a/apps/portal-nuxt/app/portal/config/hostgrid.ts
++++ b/apps/portal-nuxt/app/portal/config/hostgrid.ts
+@@ -120,7 +120,7 @@
+       // `inset`, never `full`: a full-bleed bar spans BOTH shell columns
+       // (PortalFrame's `FULL_BLEED_CLASS`) and paints over the sidebar's own
+       // header, hiding the brand that heads it.
+-      variant: "inset",
++      variant: "full",
+       slots: {
+         left: moduleRef(COMMAND_MODULE_ID, {
+           props: {

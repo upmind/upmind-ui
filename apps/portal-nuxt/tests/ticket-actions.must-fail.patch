@@ -1,0 +1,29 @@
+# Negative control — the Manage-ticket control drops the locked guard, so a
+# thread the desk has locked against client-side changes still offers Close and
+# Remove related product.
+#
+# Intended RED: "offers exactly the verbs the thread's own state admits" and
+# "renders no control at all on a thread that admits none"
+# (tests/ticket-actions.test.ts).
+
+diff --git a/apps/portal-nuxt/app/portal/mock/selectors.ts b/apps/portal-nuxt/app/portal/mock/selectors.ts
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -5160,7 +5160,7 @@
+       value: openFormValue(FORM_ID.TICKET_SUBJECT_SAVE, ticket.id),
+       label: "Edit subject"
+     },
+-    canCloseTicket(ticket) && {
++    !isTicketClosed(ticket) && {
+       value: mockActionValue(MOCK_ACTION.TICKET_CLOSE, ticket.id),
+       label: "Close ticket"
+     },
+@@ -5173,7 +5173,7 @@
+         value: openFormValue(FORM_ID.TICKET_SET_PRODUCT, ticket.id),
+         label: ticketProductLabel(ticket)
+       },
+-    canDetachTicketProduct(ticket) && {
++    ticket.productId !== undefined && {
+       value: mockActionValue(MOCK_ACTION.TICKET_REMOVE_PRODUCT, ticket.id),
+       label: "Remove related product"
+     }

@@ -1,0 +1,18 @@
+# Negative control — the delegates panel's "Recently invited" order runs
+# backwards, so the panel opens on the oldest invitation and answers a named
+# order with its reverse.
+#
+# Intended RED: "opens on the recently invited, and orders by standing and by
+# access" (tests/eighth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -463,7 +463,7 @@
+   {
+     value: "invited",
+     label: "Recently invited",
+-    compare: (a, b) => b.invitedAt.localeCompare(a.invitedAt)
++    compare: (a, b) => a.invitedAt.localeCompare(b.invitedAt)
+   },
+   {
+     value: "full-access",

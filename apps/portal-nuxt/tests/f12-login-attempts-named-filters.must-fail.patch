@@ -1,0 +1,24 @@
+# Negative control — the sign-in log's predicate reads keys nobody writes, so
+# BOTH callers go inert: the module's own named filters (`filters.successful`,
+# `filters.dateCreated`) narrow nothing, and the band's controls — which write
+# the same two keys — stop moving a row with them. A published seam that
+# answers no caller is the same class of defect the tickets panel carried
+# before F12.
+#
+# Intended RED: "the sign-in log's own successful and dateCreated setters
+# narrow the rows", "still narrows by how the attempt ended, and to a window
+# of days" (tests/eighth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -868,8 +868,8 @@
+     filter(
+       data.loginAttempts,
+       attempt =>
+-        matchesFlag(attempt.succeeded, criteria.successful) &&
+-        matchesDateRange(attempt.at, criteria.dateCreated)
++        matchesFlag(attempt.succeeded, criteria.succeeded) &&
++        matchesDateRange(attempt.at, criteria.date)
+     ),
+   apply => ({
+     query: value => apply({ query: value }),

@@ -1,0 +1,19 @@
+#
+# REGENERATED 2026-08-25: the stage-6 fix round moved this file's context.
+# Same mutation, new context. Anchor asserted UNIQUE before mutating.
+#
+# REBASED 2026-09-03 (Phase 0b moved this file's context). Same mutation.
+#
+# REBASED 2026-09-05 (F0 moved this file's context). Same mutation.
+
+--- a/apps/portal-nuxt/app/portal/modules/list/List.vue
++++ b/apps/portal-nuxt/app/portal/modules/list/List.vue
+@@ -586,7 +586,7 @@
+ }
+ 
+ const meta = computed(() => {
+-  const isEmpty = props.items.length === 0;
++  const isEmpty = false;
+   const isMasonry = props.variant === LIST_MODULE_VARIANT.MASONRY;
+   return {
+     isEmpty,

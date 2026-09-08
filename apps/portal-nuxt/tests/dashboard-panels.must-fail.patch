@@ -1,0 +1,28 @@
+# Negative control — the needs-attention notice always points at the invoices,
+# so a product sitting unusable and waiting on setup is never the thing the
+# dashboard offers to do.
+#
+# Intended RED: "leads with setup while a product is waiting on it"
+# (tests/dashboard-panels.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -406,18 +406,6 @@
+ export function needsAttentionAction(
+   data: MockDataset
+ ): BannerModuleProps["action"] {
+-  const pending = find(data.products, {
+-    status: ContractStatusCodes.AWAITING_ACTIVATION
+-  });
+-  if (pending !== undefined) {
+-    return {
+-      value: mockActionValue(
+-        MOCK_ACTION.NAVIGATE,
+-        `/${pending.groupSlug}/${pending.id}/setup`
+-      ),
+-      label: "Complete setup"
+-    };
+-  }
+   if (size(unpaidInvoices(data)) === 0) return undefined;
+   return {
+     value: mockActionValue(

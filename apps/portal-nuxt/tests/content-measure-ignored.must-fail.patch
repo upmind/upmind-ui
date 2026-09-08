@@ -1,0 +1,23 @@
+# Negative control — the page host ignores the configured content measure and
+# pins every page wide (tasks.md 4.4).
+#
+# Intended RED: any assertion that Page's width follows the active config's
+# content.measure (tests/content-measure-ignored.test.ts).
+#
+# REBASED 2026-08-26: the host now derives its width (the outside-gutter cap
+# collision fix). Same mutation.
+
+--- a/apps/portal-nuxt/app/portal/content/PortalPageHost.vue
++++ b/apps/portal-nuxt/app/portal/content/PortalPageHost.vue
+@@ -45,10 +45,7 @@
+   // whose winner is decided by tailwind-merge order rather than anything
+   // visible here. So an `outside` gutter hands `Page` the uncapped width and
+   // keeps the cap in one place: the track class.
+-  pageWidth:
+-    resolvedContent.value.gutter === CONTENT_GUTTER.OUTSIDE
+-      ? CONTENT_MEASURE.FULL
+-      : resolvedContent.value.measure,
++  pageWidth: CONTENT_MEASURE.WIDE,
+   pageTrackClass: pageTrackClass(
+     resolvedContent.value.measure,
+     resolvedContent.value.gutter

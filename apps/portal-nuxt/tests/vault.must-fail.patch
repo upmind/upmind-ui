@@ -1,0 +1,30 @@
+# Negative control — the product vault panels stop scoping by the product they
+# stand on, so one product's page shows every other product's notes and secrets
+# and the account's besides.
+#
+# Intended RED: "lists only the notes scoped to the product in the route",
+# "lists only the secrets scoped to that product, each masked", "shows another
+# product's rows nowhere, and the account's rows nowhere either" and "a product
+# with no vault rows of its own shows empty panels" (tests/vault.test.ts).
+#
+# REBASED 2026-09-06 (F11 O-1 wrapped the product scope in the pinned order).
+# Same mutation: the product test goes, the panel keeps its own axis.
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -1542,14 +1542,8 @@
+   encrypted: boolean
+ ): MockVaultAsset[] {
+   if (context.productId === undefined) return [];
+-  // Pinned first, exactly as the account's own panels order them.
+   return pinnedFirst(
+-    filter(
+-      data.vault,
+-      asset =>
+-        asset.contract_product_id === context.productId &&
+-        asset.encrypted === encrypted
+-    )
++    filter(data.vault, asset => asset.encrypted === encrypted)
+   );
+ }
+ 

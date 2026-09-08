@@ -1,0 +1,20 @@
+# Negative control — the search emit drops its PAYLOAD: the module sends the
+# bare action prefix, so the dispatcher splits off a collection id and finds no
+# tail at all. Every keystroke reaches the seam as a no-op and the panel never
+# narrows.
+#
+# Intended RED: "sends ONE search 300ms after the last keystroke"
+# (tests/list-controls-module.test.ts) — the emit reads "collection-search:invoices"
+# instead of "collection-search:invoices:acme".
+
+--- a/apps/portal-nuxt/app/portal/modules/list-controls/ListControls.vue
++++ b/apps/portal-nuxt/app/portal/modules/list-controls/ListControls.vue
+@@ -86,7 +86,7 @@
+ function emitSearch(): void {
+   const action = props.state?.searchAction;
+   if (action === undefined) return;
+-  emit("select", `${action}:${draft.value}`);
++  emit("select", action);
+ }
+ 
+ const scheduleSearch = debounce(emitSearch, SEARCH_DEBOUNCE_MS);

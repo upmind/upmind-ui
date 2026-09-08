@@ -1,0 +1,19 @@
+# Negative control — the new-ticket schema offers the department control
+# wherever a desk exists at all, so a brand publishing ONE desk still asks the
+# client to choose the only answer there is.
+#
+# Intended RED: "asks nobody to choose the one desk a brand publishes"
+# (tests/ticket-forms.test.ts).
+
+diff --git a/apps/portal-nuxt/app/portal/mock/contracts/client-tickets.schemas.ts b/apps/portal-nuxt/app/portal/mock/contracts/client-tickets.schemas.ts
+--- a/apps/portal-nuxt/app/portal/mock/contracts/client-tickets.schemas.ts
++++ b/apps/portal-nuxt/app/portal/mock/contracts/client-tickets.schemas.ts
+@@ -58,7 +58,7 @@ function subjectProperty(): SchemaProperty {
+ 
+ /** Whether the brand publishes more than one desk to raise a thread with. */
+ export function offersDepartmentChoice(context: TicketFormContext): boolean {
+-  return size(context.departments) > 1;
++  return size(context.departments) > 0;
+ }
+ 
+ /** The file names a client typed, as the list the facade records. */

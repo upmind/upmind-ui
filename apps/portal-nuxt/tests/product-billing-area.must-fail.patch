@@ -1,0 +1,24 @@
+# Negative control — the automation timeline stands on the rows alone, so a
+# one-time purchase and a trial counting down to its own expiry both grow a
+# feed legacy suppressed.
+#
+# REBASED 2026-09-06 (the gate reads the rows the items ref renders; the two
+# suppressions above it are what this drops). Same mutation.
+#
+# Intended RED: "stays off a one-time purchase even when events stand against
+# it" and "stays off a trial that simply expires, even when events stand
+# against it" (tests/product-billing-area.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -1955,10 +1955,6 @@
+ ): boolean {
+   const product = contextProduct(data, context);
+   if (product === undefined) return false;
+-  const isSubscription = product.billingType === MOCK_BILLING_TYPE.SUBSCRIPTION;
+-  const isExpiringTrial =
+-    product.trialEndsAt !== undefined && product.autoExpireAt !== undefined;
+-  if (!isSubscription || isExpiringTrial) return false;
+   return !isEmpty(productTimelineItems(data, context));
+ }
+ 

@@ -1,0 +1,33 @@
+# Negative control — drops the `columns` pass-through from the Metric module to
+# StatGroup, so a value declared in a config never reaches the library component.
+#
+# This is the mechanism whose absence produced a real defect: booking @1440 spilled
+# "Unlimited" 24.8px into its neighbouring cell, because StatGroup's own column
+# breakpoints key off the VIEWPORT rather than the container. The config-supplied
+# `columns` is what corrects it, so a silently dropped pass-through reintroduces
+# the spill with every gate still green.
+#
+# Authored by the developer seat, not the prover: building it needs the exact line
+# the prop is forwarded on, and a prover that reads implementation source to write
+# a mutant has breached its diff-blindness. The prover verifies it blind instead.
+# Anchor asserted UNIQUE before mutating.
+#
+# REBASED 2026-09-03 (Phase 0b moved this file's context). Same mutation.
+#
+# REBASED 2026-09-03 (Phase 0b moved this file's context). Same mutation.
+
+--- a/apps/portal-nuxt/app/portal/modules/metric/Metric.vue
++++ b/apps/portal-nuxt/app/portal/modules/metric/Metric.vue
+@@ -34,11 +34,7 @@
+     </component>
+   </div>
+ 
+-  <StatGroup
+-    v-else
+-    :stats="[...props.items]"
+-    :columns="meta.statGroupColumns"
+-  />
++  <StatGroup v-else :stats="[...props.items]" />
+ </template>
+ 
+ <script setup lang="ts">

@@ -1,0 +1,20 @@
+# Negative control — the credit-notes panel ignores the standing it was asked
+# for, so narrowing to Allocated hands back the unallocated ones beside them.
+#
+# Intended RED: "narrows to one standing, and to the window the client picked"
+# (tests/seventh-closure.test.ts).
+#
+# The product tab's own title is NOT named: it shares this predicate, but the
+# rows scoped to one product do not discriminate on standing, so the mutation
+# leaves that test green.
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -1007,7 +1007,6 @@
+ ): boolean {
+   return (
+     matchesAmountBand(note.total.amount, criteria.total) &&
+-    matchesExact(creditNoteState(note), criteria.status) &&
+     matchesDateRange(note.issuedDate, criteria.dateCreated)
+   );
+ }

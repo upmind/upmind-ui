@@ -1,0 +1,18 @@
+# Negative control — moving a delegate to whole-account access leaves their
+# named grants in place, so the per-object list they had before comes back the
+# moment they are moved off it.
+#
+# Intended RED: "whole-account access supersedes the named grants; per-object
+# access keeps them" (tests/delegates.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockDelegate.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockDelegate.ts
+@@ -78,7 +78,7 @@
+         if (subject === undefined) return undefined;
+         const isFull = value === DelegateAccessTypes.FULL;
+         if (isFull) {
+-          assign(subject, { isFullDelegate: true, objects: [] });
++          assign(subject, { isFullDelegate: true });
+           return { ok: true, entity: subject };
+         }
+         assign(subject, { isFullDelegate: false });

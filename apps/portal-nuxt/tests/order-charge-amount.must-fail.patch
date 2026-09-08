@@ -1,0 +1,28 @@
+# Negative control — a placed order carries the recurring RATE over the term as
+# its total rather than what the order charges now, so both documents stop
+# agreeing with the one line they were raised from.
+#
+# REBASED: every seeded catalogue item carries `price` EQUAL to `chargeTotal`,
+# so swapping one field for the other cannot change a figure and the old
+# mutation was unrefutable. The intent is kept by charging the rate over a
+# twelve-month term, which is the one thing a rate does that a charge does not.
+#
+# Intended RED: "placeOrder charges the plain amount, never the recurring rate"
+# (tests/mock-store.test.ts) — the order and its invoice read £1,188.00 while
+# the line they sum still reads £99.00.
+
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockCatalogue.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockCatalogue.ts
+@@ -41,10 +41,7 @@
+       const lines: MockInvoiceLine[] = [
+         { id: "l1", description: item.name, amount: item.chargeTotal }
+       ];
+-      const total = mockMoney(
+-        sumBy(lines, line => line.amount.amount),
+-        item.chargeTotal.currency
+-      );
++      const total = mockMoney(item.price.amount * 12, item.price.currency);
+ 
+       const orderSequence = nextSequence();
+       const order: MockOrder = {

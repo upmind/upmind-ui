@@ -1,0 +1,17 @@
+# Negative control — lifting an IP restriction answers ok and leaves the row
+# on the account: the confirmation completes, the toast reads Deleted, the
+# address still lets people in.
+#
+# Intended RED: "asks before lifting one, then lifts it and says so"
+# (tests/security-ip-whitelist.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockIpWhitelist.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockIpWhitelist.ts
+@@ -22,7 +22,6 @@
+     ): MockActionReceipt<MockIpAddress> | undefined => {
+       const entry = find(data.ipWhitelist, { id: addressId });
+       if (entry === undefined) return undefined;
+-      remove(data.ipWhitelist, { id: addressId });
+       return { ok: true, entity: entry };
+     }
+   })

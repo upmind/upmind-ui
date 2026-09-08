@@ -1,0 +1,26 @@
+# Negative control — pins every row BARE, so a configured surface, heading and
+# footer resolve but never reach the page. This is the row vocabulary being
+# declared and then silently dropped at the last step.
+#
+# REBASED: context only — same mutation.
+#
+# Intended RED: row surface — a heading and its actions reach the page
+#   > renders every configured row heading as text
+#   > renders each heading's own trailing controls beside it
+#   > renders the brand panel's footer pager, with its configured info
+#   > marks each row with the surface it was configured with
+#   > puts a configured surface on a row even when it carries no heading
+# Intended GREEN (the discriminator): the bare-row test, which asserts the
+# absence this mutant makes universal.
+
+--- a/apps/portal-nuxt/app/portal/content/PortalSection.vue
++++ b/apps/portal-nuxt/app/portal/content/PortalSection.vue
+@@ -80,7 +80,7 @@
+   const hasHeader = props.header !== undefined;
+   const controls = props.header?.controls;
+   return {
+-    isBare: !props.surface && !props.header && !props.footer,
++    isBare: true,
+     // Both positions absent means no band — never an empty flex row.
+     hasControls: controls?.start !== undefined || controls?.end !== undefined,
+     surface,

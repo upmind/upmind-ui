@@ -1,0 +1,19 @@
+# Negative control — the programme panel loses its enrolled gate, so a client
+# who has not joined, one the brand has suspended and one whose brand runs no
+# programme are all shown the figures.
+#
+# Intended RED: "offers only the way in to a client who has not joined", "says
+# only that the account is suspended where the brand has suspended it" and
+# "says only that the brand runs no programme where the gate is off"
+# (tests/affiliate.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/config/account-pages.ts
++++ b/apps/portal-nuxt/app/portal/config/account-pages.ts
+@@ -581,7 +581,6 @@
+         {
+           layout: ROW_LAYOUT.FULL,
+           surface: ROW_SURFACE.PANEL,
+-          visible: dataRef(DATA_REF_ID.AFFILIATE_IS_ENROLLED),
+           header: {
+             title: "Your programme",
+             description:

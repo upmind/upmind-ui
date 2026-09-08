@@ -1,0 +1,21 @@
+# Negative control — the read-more dialog opens the CUT body instead of the
+# whole of it, so the control that promises the rest hands back what the row
+# already showed.
+#
+# Intended RED: "opens the whole body when the client asks for the rest"
+# (tests/sixth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/actions.ts
++++ b/apps/portal-nuxt/app/portal/mock/actions.ts
+@@ -2319,7 +2319,10 @@
+       const notification = find(data.notifications, { id });
+       if (notification === undefined) return notFound();
+       return {
+-        prose: { title: notification.title, markdown: notification.body }
++        prose: {
++          title: notification.title,
++          markdown: notification.body.slice(0, 150)
++        }
+       };
+     }
+     case MOCK_ACTION.MARK_NOTIFICATIONS_READ: {

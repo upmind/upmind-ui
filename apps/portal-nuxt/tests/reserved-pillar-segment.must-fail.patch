@@ -1,0 +1,29 @@
+# Negative control — the reserved-segment reject goes away, so a brand page
+# published at `billing`, `support` or `account` becomes a custom area and
+# takes the pillar's own path off it.
+#
+# REBASED: the guard this used to disable is type-level
+# (`NotReservedSegment`), and a dataset slug is a plain `string`, so the
+# conditional never fired on it — collapsing the type reddened nothing. The
+# runtime reject that actually holds the line is now the mutated line.
+#
+# Intended RED: "never hands a reserved pillar segment to a brand's page"
+# (tests/custom-pages.test.ts).
+
+
+--- a/apps/portal-nuxt/app/portal/mock/custom-pages.ts
++++ b/apps/portal-nuxt/app/portal/mock/custom-pages.ts
+@@ -27,12 +27,7 @@
+ export function datasetCustomAreas(
+   data: MockDataset | undefined
+ ): readonly CustomArea[] {
+-  // `defineCustomArea`'s guard only fires on a literal, and a seeded slug is a
+-  // plain string, so the reserved segments are rejected here or nowhere.
+-  const publishable = filter(
+-    data?.customPages ?? [],
+-    page => !includes(values(RESERVED_PILLAR_SEGMENT), page.slug)
+-  );
++  const publishable = data?.customPages ?? [];
+   return map(publishable, page =>
+     defineCustomArea({ slug: page.slug, label: page.title })
+   );

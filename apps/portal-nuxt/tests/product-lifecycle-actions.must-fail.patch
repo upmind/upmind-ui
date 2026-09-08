@@ -1,0 +1,18 @@
+# Negative control — ending a free trial clears the trial and leaves the next
+# due date where it was, so the product stops being on trial without ever
+# starting to bill.
+#
+# Intended RED: "the accepted half clears the trial, charges from today, and
+# says so" (tests/product-lifecycle-actions.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
+@@ -176,7 +176,7 @@
+             entity: subject
+           };
+         }
+-        assign(subject, { trialEndsAt: undefined, nextDueDate: today() });
++        assign(subject, { trialEndsAt: undefined });
+         return { ok: true, entity: subject };
+       },
+ 

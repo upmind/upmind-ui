@@ -1,0 +1,17 @@
+# Negative control — the payments panel prints money the system has recorded
+# but has NOT received, so a client reads an invoice as settled while the
+# transfer is still in the post (`invoiceItems.vue:357-361`).
+#
+# Intended RED: "takes the payments panel and the document's Pay controls off
+# while it holds" (tests/seventh-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -3324,7 +3324,6 @@
+   // the page: legacy hid the paid figures from a client while an offline
+   // payment cleared, so nobody read the document as settled
+   // (`invoiceItems.vue:357-361`).
+-  if (isInvoiceClearing(invoice)) return [];
+   return documentPayments(invoice.payments);
+ }
+ 

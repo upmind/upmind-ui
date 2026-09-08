@@ -1,0 +1,22 @@
+# Negative control — the seeds are mutable again, so a caller handing a raw seed to a mutating
+# action silently corrupts the one copy `resetMockData` reseeds from.
+#
+# Intended RED: tests/mock-store.test.ts (a seed refuses mutation).
+#
+# REBASED 2026-08-28 (one seed in the table now). Same mutation.
+#
+# REBASED 2026-09-03 (Phase 0b moved this file's context). Same mutation.
+#
+# REBASED 2026-09-03 (Phase 0b moved this file's context). Same mutation.
+
+--- a/apps/portal-nuxt/app/portal/mock/store.ts
++++ b/apps/portal-nuxt/app/portal/mock/store.ts
+@@ -40,7 +40,7 @@
+   [MOCK_DATASET_ID.HOSTGRID]: HOSTGRID_MOCK_DATASET,
+   [MOCK_DATASET_ID.HOSTGRID_MINIMAL]: HOSTGRID_MINIMAL_MOCK_DATASET
+ };
+-deepFreeze(SEEDS);
++// deepFreeze(SEEDS);
+ 
+ const stores = new Map<MockDatasetId, MockDataset>();
+ 

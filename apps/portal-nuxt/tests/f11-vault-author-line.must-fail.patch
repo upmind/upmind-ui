@@ -1,0 +1,18 @@
+# Negative control — the author line drops its editor half, so a row somebody
+# has changed since reads exactly like one nobody has touched.
+#
+# Intended RED: "names the writer and the day, and the editor and the day,
+# where the seed has both" (tests/seventh-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -1503,8 +1503,7 @@
+ function vaultAuthorLine(asset: MockVaultAsset): string | undefined {
+   if (asset.authorName === undefined) return undefined;
+   const written = `${asset.authorName} · ${asset.created_at.slice(0, ISO_DATE_LENGTH)}`;
+-  if (asset.editorName === undefined) return written;
+-  return `${written} · edited by ${asset.editorName} · ${asset.updated_at.slice(0, ISO_DATE_LENGTH)}`;
++  return written;
+ }
+ 
+ /**

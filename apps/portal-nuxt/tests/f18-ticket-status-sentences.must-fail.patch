@@ -1,0 +1,21 @@
+# Negative control — every thread reads as OPEN whatever its own standing is,
+# so a closed, scheduled or awaiting-response thread all say the same thing:
+# legacy published one sentence per status code
+# (`clientTicketStatus.vue:5`, `_sentence.ticket.<code>`).
+#
+# Intended RED (to be added by the prover): the thread reads the sentence its
+# own status names.
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -6241,7 +6241,9 @@
+ ): string {
+   const ticket = contextTicket(data, context);
+   if (ticket === undefined) return "";
+-  return TICKET_STATUS_SENTENCE[ticket.status](ticketStatusDate(ticket));
++  return TICKET_STATUS_SENTENCE[TicketStatusCodes.OPEN](
++    ticketStatusDate(ticket)
++  );
+ }
+ 
+ /**

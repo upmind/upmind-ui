@@ -1,0 +1,20 @@
+# Negative control — the shared ticket predicate stops reading the window it
+# was asked for, so BOTH mounts go inert together: the support pillar's own
+# listing and the product tab's tickets panel hand back every thread whatever
+# dates the band carries.
+#
+# Intended RED: "narrows the threads to the days they were opened in"
+# (tests/filter-seams.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -1371,8 +1371,7 @@
+     matchesContains(ticket.reference, criteria.reference) &&
+     matchesContains(ticket.subject, criteria.subject) &&
+     matchesExact(ticket.department, criteria.department) &&
+-    matchesExact(ticket.status, criteria.status) &&
+-    matchesDateRange(ticket.createdAt, criteria.dateCreated)
++    matchesExact(ticket.status, criteria.status)
+   );
+ }
+ 

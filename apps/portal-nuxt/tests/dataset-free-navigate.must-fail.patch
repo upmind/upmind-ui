@@ -1,0 +1,21 @@
+# Negative control — pure navigation is gated behind the dataset again, so a seedless shape's
+# links go dead.
+#
+# Intended RED: tests/module-render-guards.test.ts (the action seam — navigation needs no dataset).
+#
+# REBASED 2026-09-03 (Phase 0b moved this file's context). Same mutation.
+#
+# REBASED 2026-09-03 (Phase 0b moved this file's context). Same mutation.
+#
+# REBASED 2026-09-03 (Phase 1 moved this file's context). Same mutation.
+
+--- a/apps/portal-nuxt/app/portal/mock/actions.ts
++++ b/apps/portal-nuxt/app/portal/mock/actions.ts
+@@ -195,6 +195,7 @@
+ 
+   // Pure navigation reads no data, so it runs before the dataset gate: a shape
+   // with no seed (Strata) still follows the links its config authored.
++  if (data === undefined) return undefined;
+   if (verb === MOCK_ACTION.NAVIGATE) {
+     if (id === undefined) return undefined;
+     return { to: id };

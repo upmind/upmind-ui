@@ -1,0 +1,17 @@
+# Negative control — the print view takes the screen's line cap, so a printed
+# document past the cap loses every line beyond it behind a control that paper
+# cannot offer.
+#
+# Intended RED (tests/sixth-closure.test.ts):
+#   "prints every line, and offers no collapse at all, on the print view"
+
+--- a/apps/portal-nuxt/app/portal/config/billing-pages.ts
++++ b/apps/portal-nuxt/app/portal/config/billing-pages.ts
+@@ -269,7 +269,6 @@
+ 
+ /** The cap the SCREEN applies; the print view carries every line it was given. */
+ function screenLineCap(variant: DocumentModuleVariant): number | undefined {
+-  if (variant === DOCUMENT_MODULE_VARIANT.PRINT) return undefined;
+   return DOCUMENT_LINE_CAP;
+ }
+ 

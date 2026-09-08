@@ -1,0 +1,29 @@
+# Negative control — turning the second step OFF stops asking for the code, so
+# anybody holding the session takes it off without the app that put it on —
+# legacy posted `auth_code` on its DELETE as well as its POST
+# (`configure2faModal.vue:112-124`).
+#
+# Intended RED: "refuses a wrong code and leaves the second step standing"
+# (tests/eighth-closure.test.ts); "turning it off asks for the code, refuses a
+# wrong one, and turns off with the right one"
+# (tests/security-forms.test.ts). "asks for six digits before it will take the
+# answer" grades the disable FORM's schema, which this facade mutation cannot
+# reach.
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockSecurity.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockSecurity.ts
+@@ -76,14 +76,6 @@
+     disableTwoFactor: (
+       model: FormModel
+     ): MockActionReceipt<MockSecurity> | undefined => {
+-      const code = submittedText(model, "token");
+-      if (!isCodeShaped(code)) {
+-        return {
+-          ok: false,
+-          reason: MOCK_RECEIPT_REASON.INVALID_TWO_FACTOR_CODE,
+-          entity: data.security
+-        };
+-      }
+       assign(data.security, { twoFactorEnabled: false });
+       return { ok: true, entity: data.security };
+     }

@@ -1,0 +1,30 @@
+# Negative control — the vertical rail loses its own navigation landmark, so
+# its `navLabel` goes dead again: a rail in the shell sidebar answers to
+# ShellSidebar's name and one in an `inline` utility pane (a page aside) has
+# no landmark at all.
+#
+# REBASED: context only — same mutation.
+#
+# Intended RED: tests/module-render-guards.test.ts
+# (menu — every rail names its own navigation landmark).
+
+--- a/apps/portal-nuxt/app/portal/modules/menu/Menu.vue
++++ b/apps/portal-nuxt/app/portal/modules/menu/Menu.vue
+@@ -21,7 +21,7 @@
+        instead, so that rail had no landmark at all and answered to the
+        aside's name. Naming each list also separates the two a sidebar
+        stacks (a brand's main nav and its billing nav). -->
+-  <nav v-else :aria-label="props.navLabel" class="flex min-h-0 flex-col">
++  <SidebarNavRoot v-else :collapsed="props.collapsed">
+     <SidebarNavRoot :collapsed="props.collapsed">
+       <template v-for="item in props.items" :key="item.to ?? item.label">
+         <SidebarNavLink
+@@ -70,7 +70,7 @@
+         </SidebarNavLink>
+       </template>
+     </SidebarNavRoot>
+-  </nav>
++  </SidebarNavRoot>
+ </template>
+ 
+ <script setup lang="ts">

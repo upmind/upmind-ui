@@ -1,0 +1,6 @@
+/* The design system's single entry: Tailwind, the token→utility bridge, and the
+   global base. */
+@import "@upmind/ui/styles";
+
+/* Scan the portal app for utility classes. */
+@source './**/*.{html,vue,js,tsx,ts}';

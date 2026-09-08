@@ -1,0 +1,51 @@
+# Negative control — undoes 61177e956e (`ProductGroup<NoInfer<Slug>>` ->
+# `ProductGroup<Slug>`, same for `CustomArea`), reopening the
+# array/variable-context authoring position: a `defineProductGroup`/
+# `defineCustomArea` call sitting inside its own contextual type (a
+# `PortalConfig`-typed `groups` array, a `ProductGroup`-typed variable) lets
+# TypeScript infer `Slug = string` from that context instead of the passed
+# literal, so a reserved slug like "billing" compiles clean there even
+# though the bare, unannotated call still errors (design.md §D9 consequence
+# 2, AC1.6, tasks.md 1.10c/1.11).
+#
+# Intended RED: an assertion that `defineProductGroup({ slug: "billing", ... })`
+# fails `pnpm --filter @upmind-automation/portal-nuxt type-check` when
+# written inline in a `PortalConfig`-typed `groups` array (or any other
+# contextually-typed position), not just as a bare call. No such assertion
+# exists yet: the committed fixture
+# `app/portal/type-tests/reserved-pillar-segment.typecheck.ts` only exercises
+# the bare-call shape — the one authoring position 61177e956e's fix did NOT
+# need to touch, because it already errored before that fix too — so it
+# stays green through this mutation. 61177e956e's own commit message states
+# this ("it has no assertion at the array/variable-context authoring site
+# this fix actually closes. That assertion is a prover addition"); filed for
+# the prover to write it.
+#
+# Confirmed by isolating both shapes in one file, one run, before filing: the
+# bare call still errors (TS2322 — `NotReservedSegment` itself is untouched);
+# the same slug, same reserved segment, written inline in a `PortalConfig`'s
+# `groups` array compiles clean. Exactly one error comes out of a file
+# carrying both.
+
+diff --git a/apps/portal-nuxt/app/portal/routes.ts b/apps/portal-nuxt/app/portal/routes.ts
+index 14cfe14d00..fa6325ccaf 100644
+--- a/apps/portal-nuxt/app/portal/routes.ts
++++ b/apps/portal-nuxt/app/portal/routes.ts
+@@ -30,7 +30,7 @@ import type {
+ export function defineProductGroup<Slug extends string>(group: {
+   readonly slug: NotReservedSegment<Slug>;
+   readonly label: string;
+-}): ProductGroup<NoInfer<Slug>> {
++}): ProductGroup<Slug> {
+   return { ...group, [PRODUCT_GROUP_TAG]: true };
+ }
+ 
+@@ -38,7 +38,7 @@ export function defineProductGroup<Slug extends string>(group: {
+ export function defineCustomArea<Slug extends string>(area: {
+   readonly slug: NotReservedSegment<Slug>;
+   readonly label: string;
+-}): CustomArea<NoInfer<Slug>> {
++}): CustomArea<Slug> {
+   return { ...area, [CUSTOM_AREA_TAG]: true };
+ }
+ 

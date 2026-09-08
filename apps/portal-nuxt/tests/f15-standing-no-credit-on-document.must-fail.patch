@@ -1,0 +1,26 @@
+# Negative control — the DOCUMENT banner reports the coming credit again, so
+# an unpaid invoice standing behind a pro-rata change stops naming its due
+# date and its outstanding balance. Legacy's map takes the reading as a
+# parameter (`InvoiceStatusMap(invoice, showToBeCredited = false)`,
+# `data/enums/invoice.ts:42`) and the banner passes the default
+# (`invoiceStatusMsg.vue:109`) — only the compact rows pass true.
+#
+# Intended RED (to be added by the prover): "the document banner words a
+# to-be-credited invoice as unpaid, with its due date and balance".
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockInvoice.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockInvoice.ts
+@@ -715,6 +715,13 @@
+ function invoiceStanding(invoice: MockInvoice): InvoiceStanding {
+   const noun = documentNoun(invoice);
+   const owed = invoice.unpaidAmount.formatted;
++  if (invoice.toBeCredited === true) {
++    return {
++      tone: "info",
++      title: "Invoice to be credited",
++      message: "This invoice will be credited once the pro-rata invoices are paid."
++    };
++  }
+   if (invoice.status === InvoiceStatus.CANCELLED) {
+     // The reason rides the CANCELLED arm alone — legacy appended
+     // `object_cancelled_reason_msg` inside that branch and nowhere else

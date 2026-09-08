@@ -1,0 +1,21 @@
+# Negative control — the bottom bar drops its breakpoint guard and reserves
+# its track at every width, sitting under the desktop page with the sidebar's
+# primary nav already on screen.
+#
+# REBASED 2026-09-05 (F0 rebuilt the bar as the portal's own after `BottomNav`
+# left the design system). Same mutation, now on the bar's own class.
+#
+# Intended RED: "renders the bottom nav hidden at lg+ rather than at every
+# width" (tests/bottom-nav-track-every-width.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/modules/bottom-nav/variants.ts
++++ b/apps/portal-nuxt/app/portal/modules/bottom-nav/variants.ts
+@@ -12,7 +12,7 @@
+  */
+ 
+ export const BOTTOM_NAV_CLASS =
+-  "h-(--shell-bottom-h) border-t border-stroke bg-surface lg:hidden";
++  "h-(--shell-bottom-h) border-t border-stroke bg-surface";
+ 
+ export const BOTTOM_NAV_LIST_CLASS = "flex h-full items-stretch";
+ 

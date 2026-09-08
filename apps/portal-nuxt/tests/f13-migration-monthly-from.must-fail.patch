@@ -1,0 +1,24 @@
+# Negative control — only ONE of the platform's two "quote it monthly"
+# settings is honoured, so a brand set to `abs_min`
+# (`PriceDisplayTypes.MONTHLY_FROM`) falls back to per-cycle quotes and seed
+# order: legacy read that member itself (`migrationsListModal.vue:105-110`)
+# and took both down one path.
+#
+#
+# Intended RED (verified by apply/run/revert): "carries one row per option, in
+# the order the brand quotes them, each naming its target"
+# (tests/product-migration.test.ts); "reads the brand's other monthly setting
+# the same way" (tests/ninth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
+@@ -99,8 +99,7 @@
+  * either way quotes and orders the same.
+  */
+ const MONTHLY_PRICE_DISPLAY: readonly PriceDisplayTypes[] = [
+-  PriceDisplayTypes.LOWEST_MONTHLY_PRICE,
+-  PriceDisplayTypes.MONTHLY_FROM
++  PriceDisplayTypes.LOWEST_MONTHLY_PRICE
+ ];
+ 
+ function quotesMonthly(data: MockDataset): boolean {

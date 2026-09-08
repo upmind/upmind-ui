@@ -1,0 +1,36 @@
+# Negative control for tests/second-closure.test.ts (F6, P3 consolidation).
+#
+# Mutation: `consolidatableInvoices` drops its PENDING-payment exclusion, so an
+# invoice whose payment is already with the gateway is gathered and cancelled
+# out from under the money in flight.
+#
+# Intended RED: "leaves a document whose payment is already with the gateway out of it"
+# Blind-verified 2026-09-05 by the prover seat: 1 failed / 32 passed on exactly that
+# assertion; useMockInvoice.ts hash byte-identical after `git apply -R`.
+# (An earlier measurement before that assertion existed read GREEN; the assertion
+# was added so this control bites.)
+#
+# To make this control discriminate, the suite needs an assertion that crosses
+# the two: consolidate, then assert the invoice carrying a pending payment was
+# NOT gathered (`replacedBy` undefined, status still unpaid) and still offers
+# "View payment instructions". Authored by the developer seat; the assertion is
+# the prover's to write.
+
+diff --git a/apps/portal-nuxt/app/portal/mock/facades/useMockInvoice.ts b/apps/portal-nuxt/app/portal/mock/facades/useMockInvoice.ts
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockInvoice.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockInvoice.ts
+@@ -156,13 +156,9 @@
+     // Legacy narrowed to `category.slug = RECURRENT`: a proforma is a quote,
+     // and nothing is gathered on the strength of one.
+     const isDemand = invoice.category === MOCK_INVOICE_CATEGORY.INVOICE;
+-    // A payment already with the gateway settles this document on its own.
+-    // Cancelling it out from under one would strand the money in flight and
+-    // leave a closed invoice still asking the client to complete a transfer.
+-    const isUncommitted = !hasPendingPayment(invoice);
+     const isGatherable =
+       invoice.isConsolidation !== true && invoice.replacedBy === undefined;
+-    return isOwed && isUntouched && isDemand && isUncommitted && isGatherable;
++    return isOwed && isUntouched && isDemand && isGatherable;
+   });
+   const currency = first(candidates)?.total.currency;
+   if (currency === undefined) return [];

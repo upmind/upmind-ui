@@ -1,0 +1,26 @@
+# Negative control — the notifications dropdown discards the timestamp the selector computes for
+# every item, so today's alert is indistinguishable from last month's.
+#
+# Intended RED: tests/module-render-guards.test.ts (notifications — every item keeps its date).
+#
+# REBASED 2026-09-03 (the dropdown grew a filter rail, a per-row dismiss and
+# a load-more). Same mutation.
+#
+# REBASED 2026-09-06 (F10 O-4 put a read-more control between the body and the
+# timestamp). Same mutation: the time element goes.
+
+--- a/apps/portal-nuxt/app/portal/modules/notifications/Notifications.vue
++++ b/apps/portal-nuxt/app/portal/modules/notifications/Notifications.vue
+@@ -58,12 +58,6 @@
+           >
+           <!-- Without this the dropdown cannot distinguish today's alert from
+                last month's: the selector dates every notification. -->
+-          <time
+-            v-if="item.time"
+-            :datetime="item.datetime"
+-            class="text-muted text-xs"
+-            >{{ item.time }}</time
+-          >
+           <template v-if="item.trailingText || item.secondaryAction" #trailing>
+             <StatusBadge v-if="item.trailingText" :dot="false">{{
+               item.trailingText

@@ -1,0 +1,23 @@
+# Negative control — the thread shows the messages alone, so the status
+# changes seeded against it never reach the feed they are supposed to be
+# interleaved with (`ticketMessages.vue:102,221-231`).
+#
+# REBASED 2026-09-06 (feed entries carry their kind). Same mutation.
+#
+#
+# Intended RED (verified by apply/run/revert): "interleaves the status changes
+# with the messages, oldest first", "a status entry breaks the run of one
+# voice, and none of them is a run itself" and "closing a thread appends a
+# status entry to its feed" (tests/twelfth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -6158,7 +6158,7 @@
+     time: change.at.slice(0, ISO_DATE_LENGTH),
+     datetime: change.at
+   }));
+-  const feed: TicketFeedEntry[] = [...messages, ...changes];
++  const feed: TicketFeedEntry[] = [...messages];
+   return sortBy(feed, entry => entry.datetime ?? "");
+ }
+ 

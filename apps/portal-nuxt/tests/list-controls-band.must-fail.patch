@@ -1,0 +1,18 @@
+# Negative control — the band's two sides are SWAPPED: the filters and the
+# order take the left, the search field the right. Every piece is present and
+# the band still sits under the description, so a screenshot glance and a
+# presence-only assertion both pass — the layout law is the only thing broken.
+#
+# Intended RED: "seats the search field left, and the order then the rail
+# right" (tests/list-controls-band.test.ts) — the start position comes back
+# carrying the tabs and the select, the end position carrying the field.
+
+--- a/apps/portal-nuxt/app/portal/config/pager.ts
++++ b/apps/portal-nuxt/app/portal/config/pager.ts
+@@ -112,5 +112,5 @@
+     rail
+   );
+   if (start === undefined && end === undefined) return undefined;
+-  return { start, end };
++  return { start: end, end: start };
+ }

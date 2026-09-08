@@ -1,0 +1,25 @@
+# Negative control — the allowlist panel mounts no control band, so the search
+# legacy drew over its two columns (`ipWhitelistTags.vue:10-17`) never reaches
+# the client: the collection still narrows, and nothing on the page can ask it
+# to.
+#
+# Intended RED (to be added by the prover): "the allowlist page offers a
+# search over addresses and names".
+
+--- a/apps/portal-nuxt/app/portal/config/account-pages.ts
++++ b/apps/portal-nuxt/app/portal/config/account-pages.ts
+@@ -484,14 +484,6 @@
+             actions: addFormButton(
+               "Add IP address",
+               FORM_ID.IP_WHITELIST_CREATE
+-            ),
+-            // Legacy's own search over the two columns it drew
+-            // (`ipWhitelistTags.vue:10-17`). The collection declares no sorts
+-            // and no filters, so the band renders the search alone.
+-            controls: panelControls(
+-              DATA_REF_ID.IP_WHITELIST_ITEMS,
+-              "addresses",
+-              "Search by address or name"
+             )
+           }
+         )

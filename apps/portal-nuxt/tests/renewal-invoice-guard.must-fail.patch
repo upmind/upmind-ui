@@ -1,0 +1,17 @@
+# Negative control — the raise-renewal-invoice control drops its
+# renews-itself refusal, so a product on automatic renewal can be billed a
+# second time for the same term by hand.
+#
+# Intended RED: "refuses a product that raises its own, and says why"
+# (tests/renewal-invoice-guard.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
+@@ -89,7 +89,6 @@
+   const isOneTime = product.billingType === MOCK_BILLING_TYPE.ONE_TIME;
+   const hasNoRate = product.price === undefined;
+   if (isOneTime || hasNoRate) return MOCK_RECEIPT_REASON.NOT_RENEWABLE;
+-  if (product.autoRenew) return MOCK_RECEIPT_REASON.RENEWS_ITSELF;
+   return undefined;
+ }
+ 

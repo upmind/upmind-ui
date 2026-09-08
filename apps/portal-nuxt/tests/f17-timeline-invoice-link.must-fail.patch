@@ -1,0 +1,19 @@
+# Negative control — an OVERDUE payment names the invoice it is owed on and
+# leads nowhere, so the client reads a document reference they cannot follow:
+# the row names it, so the row reaches it.
+#
+# Intended RED (to be added by the prover): the payment event links the
+# invoice it names.
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
+@@ -165,8 +165,7 @@
+       description: `${owed} was due on ${invoice.number} ${when}.`,
+       datetime: invoice.dueDate,
+       isPast: true,
+-      invoiceId: invoice.id,
+-      to: invoicePath(invoice)
++      invoiceId: invoice.id
+     };
+   }
+   return {

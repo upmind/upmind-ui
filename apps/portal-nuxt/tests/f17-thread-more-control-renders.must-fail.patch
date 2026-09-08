@@ -1,0 +1,19 @@
+# Negative control — the thread's Show-earlier control goes back to the SINGLE
+# variant, which renders its own `label`/`value` props and reads no action at
+# all: the data resolves, the footer mounts, and the control the client needs
+# never appears (the F16 ABSENT).
+#
+# Intended RED (to be added by the prover): the mounted thread page carries a
+# Show-earlier control on a long thread.
+
+--- a/apps/portal-nuxt/app/portal/config/support-pages.ts
++++ b/apps/portal-nuxt/app/portal/config/support-pages.ts
+@@ -244,7 +244,7 @@
+           // a set. With no empty copy an empty set renders nothing at all,
+           // which is what a thread with nothing behind the fold shows.
+           footer: moduleRef(BUTTON_MODULE_ID, {
+-            variant: BUTTON_MODULE_VARIANT.GROUP,
++            variant: BUTTON_MODULE_VARIANT.SINGLE,
+             props: {
+               label: "Earlier messages",
+               actions: dataRef(DATA_REF_ID.TICKET_THREAD_MORE_ACTIONS)

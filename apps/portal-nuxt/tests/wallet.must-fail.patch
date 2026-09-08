@@ -1,0 +1,17 @@
+# Negative control — the credit limit reports its whole allowance as still
+# available, so a client who has spent most of it is told nothing is used up.
+#
+# Intended RED: "leaves the allowance less what is spent — the meter and the
+# panel agreeing with the seed" (tests/wallet.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockWallet.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockWallet.ts
+@@ -35,7 +35,7 @@
+   return {
+     allowance: limit.allowance,
+     used: limit.used,
+-    remaining: mockMoney(left, limit.allowance.currency)
++    remaining: limit.allowance
+   };
+ }
+ 

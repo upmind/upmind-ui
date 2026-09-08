@@ -1,0 +1,19 @@
+# Negative control — the message menu drops the AUTHORSHIP half of its gate,
+# so a client is offered Edit and Delete on the desk's own replies.
+#
+# Intended RED: "offers nothing on a message the desk wrote, on an open thread",
+# "follows the same rule on every seeded message of every thread",
+# "offers nothing on a thread the desk has locked"
+# (tests/fifth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -5849,7 +5849,7 @@
+       }
+     ];
+   }
+-  if (!canManageTicketMessage(ticket, message)) return [];
++  if (isTicketClosed(ticket)) return [];
+   return [
+     {
+       value: mockActionValue(

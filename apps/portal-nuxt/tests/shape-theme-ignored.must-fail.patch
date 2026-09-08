@@ -1,0 +1,13 @@
+diff --git a/apps/portal-nuxt/app/layouts/default.vue b/apps/portal-nuxt/app/layouts/default.vue
+index ced8ede4b5..088b43cef2 100644
+--- a/apps/portal-nuxt/app/layouts/default.vue
++++ b/apps/portal-nuxt/app/layouts/default.vue
+@@ -34,7 +34,7 @@ const { setTheme } = useTheme();
+ // existing theme mechanism. Applied on every config switch (including the
+ // initial load), the same way a brand's own `preferredMode` already drives
+ // `useTheme`'s mode.
+-watch(activeConfig, config => setTheme(config.theme ?? "upmind"), {
++watch(activeConfig, config => setTheme("upmind"), {
+   immediate: true
+ });
+ 

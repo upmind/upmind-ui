@@ -1,0 +1,18 @@
+# Negative control — the order-complete band trusts the query alone: any
+# `?orderComplete=` raises it, whether or not the client has an order by that
+# id.
+#
+# Intended RED: "renders nothing at all for a query naming an order that does
+# not exist" (tests/order-complete.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -1678,7 +1678,7 @@
+   data: MockDataset,
+   context: DataRouteContext
+ ): boolean {
+-  return completedOrder(data, context) !== undefined;
++  return context.orderComplete !== undefined;
+ }
+ 
+ export function orderCompleteMessage(

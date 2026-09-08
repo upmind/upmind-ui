@@ -1,0 +1,30 @@
+# Negative control — the data-ref seam goes inert: props pass through with
+# the refs unresolved, so a module is handed the ref object instead of the
+# selector output and the page renders no live data (plan Phase C).
+#
+# Intended RED: any assertion that a ref-carrying slot renders dataset
+# content, or that a store mutation re-renders it (tests/data-refs.test.ts).
+#
+# REBASED 2026-08-26: the route-context arg (Phase D) moved this hunk. Same
+# mutation — asserted on the exact current body before mutating.
+
+--- a/apps/portal-nuxt/app/portal/mock/data-refs.ts
++++ b/apps/portal-nuxt/app/portal/mock/data-refs.ts
+@@ -97,16 +97,5 @@
+ ): Readonly<Record<string, unknown>> | undefined {
+   if (props === undefined) return undefined;
+ 
+-  return mapValues(props, value => {
+-    if (!isDataRef(value)) return value;
+-    if (data === undefined) {
+-      if (import.meta.dev) {
+-        console.error(
+-          `[portal] data ref "${value.id}" used by a shape with no mock dataset — resolving to undefined.`
+-        );
+-      }
+-      return undefined;
+-    }
+-    return SELECTOR_BY_REF[value.id](data, context);
+-  });
++  return props;
+ }

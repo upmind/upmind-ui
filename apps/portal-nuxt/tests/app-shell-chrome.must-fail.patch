@@ -1,0 +1,44 @@
+# Negative control — the primary nav goes back to the topbar's centre row,
+# the arrangement the app-shell change left behind. The sidebar still renders
+# (brand and settings keep their slots), so nothing LOOKS obviously broken.
+#
+# Intended RED: hostgrid — the app shell's chrome
+#   > runs the primary nav down the sidebar, and nowhere in the topbar
+#
+# REBASED 2026-09-03 (Phase 0b moved this file's context). Same mutation.
+#
+# REBASED 2026-09-06 (F11 O-6 gave the sidebar brand its external logo href).
+# Same mutation: the nav moves back to the topbar.
+
+--- a/apps/portal-nuxt/app/portal/config/hostgrid.ts
++++ b/apps/portal-nuxt/app/portal/config/hostgrid.ts
+@@ -216,6 +216,12 @@
+             // reaches most — every one the `navigate:` verb, like the
+             // account menu's (mock/actions.ts).
+             items: HOSTGRID_COMMAND_ITEMS
++          }
++        }),
++        centre: moduleRef(MENU_MODULE_ID, {
++          props: {
++            items: dataRef(DATA_REF_ID.PILLAR_NAV_ITEMS),
++            navLabel: "Client portal navigation"
+           }
+         }),
+         right: moduleGroup(GROUP_AXIS.HORIZONTAL, [
+@@ -271,16 +277,6 @@
+             mark: BRAND_MARK.NONE,
+             to: "/",
+             href: dataRef(DATA_REF_ID.BRAND_LOGO_HREF)
+-          }
+-        }),
+-        middle: moduleRef(MENU_MODULE_ID, {
+-          props: {
+-            // Legacy's six primary tabs, gated by the dataset's own brand
+-            // config (mock/selectors.ts `pillarNavItems`) — the entries a
+-            // brand switches off render nowhere, which a static list could
+-            // never show.
+-            items: dataRef(DATA_REF_ID.PILLAR_NAV_ITEMS),
+-            navLabel: "Client portal navigation"
+           }
+         }),
+         // `rail`, not the default `bar`: the rail presentation wears the

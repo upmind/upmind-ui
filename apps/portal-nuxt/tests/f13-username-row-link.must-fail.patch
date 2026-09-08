@@ -1,0 +1,16 @@
+# Negative control — the account card's username row stops pointing at the
+# page that CHANGES it, so the row states a name with nothing to do about it.
+#
+# Intended RED (to be added by the prover): "the username row links to the
+# security page and offers a copy".
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -4011,7 +4011,6 @@
+     // The row states the name; the page that CHANGES it is security's own
+     // (`changeUsernameForm`), so the row goes there rather than carrying a
+     // second form of its own.
+-    to: SECURITY_PATH,
+     copyable: true
+   };
+ }

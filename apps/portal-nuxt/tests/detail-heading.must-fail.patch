@@ -1,0 +1,18 @@
+# Negative control — a detail page heads itself with the raw internal id, contradicting the
+# display number the spec row renders below it.
+#
+# Intended RED: tests/module-render-guards.test.ts (detail pages — the heading names the record).
+
+--- a/apps/portal-nuxt/app/portal/mock/detail.ts
++++ b/apps/portal-nuxt/app/portal/mock/detail.ts
+@@ -50,8 +50,8 @@
+       select(data),
+       candidate => candidate.id === entityId.value
+     );
+-    if (entity === undefined) return pageName;
+-    return label(entity);
++    if (entity === undefined) return entityId.value;
++    return entityId.value;
+   });
+ 
+   return { routeContext, heading };

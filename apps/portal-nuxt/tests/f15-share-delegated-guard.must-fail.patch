@@ -1,0 +1,17 @@
+# Negative control — a DELEGATED invoice opens the share dialog after all, so
+# a client is asked to set permissions on a link the write behind it refuses
+# to change: the guard is supposed to run before any dialog (plan R4).
+#
+# Intended RED (to be added by the prover): "opens no share dialog on a
+# delegated invoice".
+
+--- a/apps/portal-nuxt/app/portal/mock/forms/registry.ts
++++ b/apps/portal-nuxt/app/portal/mock/forms/registry.ts
+@@ -913,7 +913,6 @@
+     if (invoice === undefined) return undefined;
+     // The same guard the control is offered on: a delegated document opens no
+     // dialog to share, because the write behind it refuses (plan R4).
+-    if (whyNotShareable(invoice) !== undefined) return undefined;
+     const context = invoiceShareContext(invoice);
+     return {
+       title: `Share ${invoice.number}`,
