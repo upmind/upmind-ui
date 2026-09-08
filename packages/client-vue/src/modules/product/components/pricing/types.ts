@@ -1,5 +1,9 @@
 import type { currentVariants, exVariants } from "./variants";
-import type { ProductSummaryDetailWithPrice } from "@upmind-automation/headless";
+import type { BadgeVariants } from "@upmind/ui";
+import type {
+  ProductSummaryDetailWithPrice,
+  PromotionDetails
+} from "@upmind-automation/headless";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 
 export type ExVariantProps = VariantProps<typeof exVariants>;
@@ -36,3 +40,8 @@ export interface CurrentPriceProps extends BasePrice {
 }
 
 export interface PricingProps extends ExPriceProps, CurrentPriceProps {}
+
+export interface PromotionProps extends PromotionDetails {
+  disabled?: boolean;
+  size?: BadgeVariants["size"];
+}

@@ -227,6 +227,7 @@ import { Icon } from "../../../../components/icon";
 import { isMobile } from "../../../../composables/isMobile";
 import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";
 import ExPrice from "../../../product/components/pricing/ExPrice.vue";
+import Promotion from "../../../product/components/pricing/Promotion.vue";
 import {
   productSummaryArticleVariants,
   productSummaryHeaderRootVariants,
@@ -250,7 +251,6 @@ import {
 import BasketProductConfigurationDetails from "./BasketProductConfigurationDetails.vue";
 import BasketProductTermSelector from "./components/BasketProductTermSelector.vue";
 import BasketQuantityField from "./components/BasketQuantityField.vue";
-import Promotion from "./components/Promotion.vue";
 import RenewDescription from "./components/RenewDescription.vue";
 import RequiredAlert from "./components/RequiredAlert.vue";
 import { filter, isEmpty, includes } from "lodash-es";
