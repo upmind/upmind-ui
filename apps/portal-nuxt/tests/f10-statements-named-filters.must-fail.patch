@@ -1,0 +1,21 @@
+# Negative control — the statements collection stops reading the two keys its
+# own named filters write, so `filters.fromDate(...)` and `filters.toDate(...)`
+# narrow nothing: the seam the contract publishes is inert and the band's range
+# control is the only thing that moves a row.
+#
+# Intended RED (tests/sixth-closure.test.ts):
+#   "narrows the filed periods through the module's own from and to setters"
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -937,9 +937,7 @@
+   const overlapsWindow =
+     matchesDateRange(statement.fromDate, criteria.period) ||
+     matchesDateRange(statement.toDate, criteria.period);
+-  const opensLateEnough = matchesFrom(statement.fromDate, criteria.fromDate);
+-  const closesEarlyEnough = matchesUntil(statement.toDate, criteria.toDate);
+-  return overlapsWindow && opensLateEnough && closesEarlyEnough;
++  return overlapsWindow;
+ }
+ 
+ export const creditStatementsCollection = filteredCollection<

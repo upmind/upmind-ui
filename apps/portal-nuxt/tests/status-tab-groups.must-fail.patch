@@ -1,0 +1,18 @@
+# Negative control — the Credited tab stops asking the platform group and tests
+# one status for equality, so a cancelled invoice files under Unpaid and reads
+# as still owed.
+#
+# Intended RED: "every wire status files under the tab its platform group
+# names" (tests/status-tab-groups.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -580,7 +580,7 @@
+   if (includes(InvoiceStatusGroups.PAID, status)) {
+     return INVOICE_STATUS_TAB.PAID;
+   }
+-  if (includes(InvoiceStatusGroups.CREDITED, status)) {
++  if (status === InvoiceStatusGroups.CREDITED[0]) {
+     return INVOICE_STATUS_TAB.CREDITED;
+   }
+   return INVOICE_STATUS_TAB.UNPAID;

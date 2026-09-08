@@ -1,0 +1,19 @@
+# Negative control — a cancellation scheduled for a future date lodges as
+# ACCEPTED, so it is past calling off the moment it is asked for: the banner
+# offers no "Don't cancel", the abort write refuses it, and the three
+# options stop mapping onto three statuses.
+#
+# Intended RED: "the three answers do not land on the same status"
+# (tests/cancellation-request-form.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
+@@ -174,7 +174,7 @@ const CANCELLATION_STATUS: Readonly<
+   [CANCEL_OPTION.END_OF_BILLING_CYCLE]:
+     CancellationRequestStatusCodes.REQUEST_END_OF_BILLING_CYCLE,
+   [CANCEL_OPTION.SCHEDULED]:
+-    CancellationRequestStatusCodes.REQUEST_SCHEDULED_FUTURE_CANCELLATION,
++    CancellationRequestStatusCodes.REQUEST_ACCEPTED,
+   // A cancellation that takes effect now is accepted the moment it is asked
+   // for — there is no window in which it could be called off.
+   [CANCEL_OPTION.IMMEDIATELY]: CancellationRequestStatusCodes.REQUEST_ACCEPTED

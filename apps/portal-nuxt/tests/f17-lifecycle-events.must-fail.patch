@@ -1,0 +1,31 @@
+# Negative control — the product's billing rail carries only the actions the
+# desk scheduled, so every date the product's OWN status implies — when it
+# renews, when its next invoice is raised, what is owed on it, the day it
+# stopped — is missing (`cProdTimeline.vue:201,282-283,327-328,370,410,479`).
+#
+#
+# Intended RED (verified by apply/run/revert, all tests/thirteenth-closure.test.ts):
+# "the billing timeline carries the product's own lifecycle events beside the
+# scheduled actions", "the mounted billing page draws the lifecycle events it
+# derives", "the payment event links the invoice it names", "a datetime reads
+# as its day, never as the raw stamp", "an undated fact carries no date and
+# falls to the end of the rail", "a past lifecycle event reads apart from a
+# future one" and "the suspension row states the suspension day, not the
+# purchase day".
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
+@@ -106,12 +106,7 @@
+       invoice.productId === product.id &&
+       includes(InvoiceStatusGroups.UNPAID, invoice.status)
+   );
+-  return compact([
+-    renewalEvent(product),
+-    nextInvoiceEvent(product),
+-    owed !== undefined && paymentEvent(owed),
+-    lifecycleStopEvent(product)
+-  ]);
++  return [];
+ }
+ 
+ /** When it renews, or the note that it will not — legacy's auto-renew-disabled row. */

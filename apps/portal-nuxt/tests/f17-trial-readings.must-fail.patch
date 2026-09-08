@@ -1,0 +1,22 @@
+# Negative control — every running trial reads as one that CONTINUES into the
+# paid product, so a trial that will migrate and one that will simply stop are
+# told the same thing (`cProdTrialMsg.vue:45-56` chose between four).
+#
+# Intended RED (to be added by the prover): the trial banner reads the
+# sentence its own trial-end action names.
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
+@@ -235,12 +235,6 @@
+     return `${opening} which will begin when your product has been activated.`;
+   }
+   const runs = `${opening} which ends ${ends}.`;
+-  if (trialEndAction(product) === MOCK_TRIAL_END_ACTION.MIGRATE) {
+-    return `${runs} You can migrate to the paid product early by ending the trial.`;
+-  }
+-  if (trialEndAction(product) === MOCK_TRIAL_END_ACTION.CANCEL) {
+-    return `${runs} You can terminate the trial early by ending it.`;
+-  }
+   return `${runs} You can commit to the paid version early by ending the trial.`;
+ }
+ 

@@ -1,0 +1,19 @@
+
+#
+# REGENERATED 2026-08-25: the stage-6 fix round moved PortalRow.vue's context,
+# and the proportion now lives in variants.ts. Same defect this control names —
+# the 2:1 split stops being 2:1 — mutated at the class that carries it. Anchor
+# asserted UNIQUE before mutating.
+diff --git a/apps/portal-nuxt/app/portal/content/variants.ts b/apps/portal-nuxt/app/portal/content/variants.ts
+index c8f6b1492e..ea5cf8d160 100644
+--- a/apps/portal-nuxt/app/portal/content/variants.ts
++++ b/apps/portal-nuxt/app/portal/content/variants.ts
+@@ -31,7 +31,7 @@ export const ROW_SPLIT_EQUAL_CLASS = "grid items-start gap-6 lg:grid-cols-2";
+ export const ROW_SPLIT_ASIDE_CLASS = "grid items-start gap-6 lg:grid-cols-3";
+ 
+ /** The wide slot of `row-2-1` / `row-1-2`, alongside the narrow slot's implicit single column. */
+-export const ROW_SPLIT_ASIDE_WIDE_CLASS = "lg:col-span-2";
++export const ROW_SPLIT_ASIDE_WIDE_CLASS = "";
+ 
+ /** `row-1-1-1` (Three Column Left) — same reasoning as the equal split, extended to three columns. */
+ export const ROW_TRIPLE_EQUAL_CLASS = "grid items-start gap-6 lg:grid-cols-3";

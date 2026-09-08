@@ -1,0 +1,34 @@
+# Negative control — the payment-currency property is written UNCONDITIONALLY,
+# so the schema offers the control to a brand that does not let a client pay in
+# another currency at all: the BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED gate
+# stops deciding anything and the minimal brand grows a field it has no answer
+# for.
+#
+# Intended RED: "the payment currency follows the brand's own gate, both ways"
+# (tests/billing-settings-form.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/contracts/client-billing-settings.schemas.ts
++++ b/apps/portal-nuxt/app/portal/mock/contracts/client-billing-settings.schemas.ts
+@@ -161,15 +161,13 @@ export const useSchema = (context: BillingSettingsContext): JsonSchema7 => {
+     }
+   };
+ 
+-  if (offersPaymentCurrency(context)) {
+-    properties["paymentCurrencyCode"] = {
+-      type: ["string", "null"],
+-      title: "Preferred payment currency",
+-      description: "The currency we take payment in.",
+-      enum: [null, ...(context.paymentCurrencies ?? [])],
+-      options: currencyChoices(context.paymentCurrencies ?? [])
+-    };
+-  }
++  properties["paymentCurrencyCode"] = {
++    type: ["string", "null"],
++    title: "Preferred payment currency",
++    description: "The currency we take payment in.",
++    enum: [null, ...(context.paymentCurrencies ?? [])],
++    options: currencyChoices(context.paymentCurrencies ?? [])
++  };
+   if (offersPriceList(context)) {
+     properties["priceListId"] = {
+       type: "string",

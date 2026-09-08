@@ -1,0 +1,22 @@
+# Negative control — the reference tag stops being a control, so the form
+# legacy opened FROM the tag (`cProdTags.vue:41-61`) is unreachable from the
+# row: a client who wants to change what they call a product has nowhere to
+# press.
+#
+#
+# Intended RED (verified by apply/run/revert): "the reference tag opens the
+# label form" and "offers Add label on a product with no reference"
+# (tests/eleventh-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -422,8 +422,7 @@
+     product.isDelegated === true && { label: "Delegated", tone: "neutral" },
+     product.customLabel !== undefined && {
+       label: `Ref: ${product.customLabel}`,
+-      tone: "neutral",
+-      action: { value: labelForm, label: "Change your reference" }
++      tone: "neutral"
+     },
+     ...map(product.promotionCodes ?? [], code => ({
+       label: `Promo: ${code}`,

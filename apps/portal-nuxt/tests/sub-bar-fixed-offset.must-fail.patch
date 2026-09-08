@@ -1,0 +1,24 @@
+# Negative control — every sub-bar pins at the same fixed offset, so the
+# tertiary bar sits under the secondary one instead of below it.
+#
+# REBASED 2026-09-05 (F0 moved the running total onto the portal after
+# `ShellHeader` lost its `level` prop). The mutation now drops the running
+# sum itself rather than the class that reads it.
+#
+# Intended RED: "each sub-bar's top is the running offset of the chrome above
+# it, not a fixed value" (tests/sub-bar-fixed-offset.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/shell/variants.ts
++++ b/apps/portal-nuxt/app/portal/shell/variants.ts
+@@ -207,10 +207,7 @@
+ ): Readonly<Record<string, string>> {
+   let base = "0px";
+   if (hasTopbar) base = "var(--shell-header-h)";
+-  if (subBarsAbove === 0) return { "--shell-sticky-offset": base };
+-  return {
+-    "--shell-sticky-offset": `calc(${base} + ${subBarsAbove} * var(--shell-subbar-h))`
+-  };
++  return { "--shell-sticky-offset": base };
+ }
+ 
+ /** The content and footer tracks, moved down past the two sub-bar rows. */

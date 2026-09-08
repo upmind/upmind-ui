@@ -1,0 +1,26 @@
+# Negative control — the commissions panel reads a criteria key nobody
+# writes, so the window it was asked for never reaches the predicate: the ONE
+# narrowing legacy's client table published (`data/filters/affiliate.ts`,
+# `AffiliateCommissionsFilters` = `created_at`) goes inert, and both the
+# band's control and the module's own `dateCreated` setter hand back every
+# commission.
+#
+# This stands in for the `paid` control the pass was asked to guard. Legacy's
+# client commissions table has no such filter and no such column — the setter
+# was withdrawn rather than a fact invented for it — so the seam left to
+# grade is the date one.
+#
+# Intended RED: "narrows the commissions to a window, and orders them both
+# ways round" (tests/seventh-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -663,7 +663,7 @@
+ >(
+   (data, context, criteria) =>
+     filter(data.affiliate?.commissions ?? [], commission =>
+-      matchesDateRange(commission.earnedAt, criteria.dateCreated)
++      matchesDateRange(commission.earnedAt, criteria.dateEarned)
+     ),
+   apply => ({ dateCreated: value => apply({ dateCreated: value }) }),
+   undefined,

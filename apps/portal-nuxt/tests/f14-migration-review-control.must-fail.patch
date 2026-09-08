@@ -1,0 +1,27 @@
+# Negative control — the change picker offers no way to read what a change
+# actually buys before choosing it, so legacy's `_action.review_changes`
+# (`migrationsListModal.vue:145`, opening the option's own detail modal) is
+# gone: the only control left commits.
+#
+# Intended RED (to be added by the prover): "offers Review changes beside
+# Change to this, and answers with the option's own prose".
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -1740,15 +1740,7 @@
+     },
+     // Legacy's `_action.review_changes` — what the change buys, read BEFORE
+     // it is chosen. It asks nothing back, so it answers with prose.
+-    moreActions: [
+-      {
+-        value: mockActionValue(
+-          MOCK_ACTION.MIGRATION_REVIEW,
+-          `${product.id}:${option.id}`
+-        ),
+-        label: "Review changes"
+-      }
+-    ]
++    moreActions: []
+   }));
+ }
+ 

@@ -1,0 +1,20 @@
+# Negative control — the resolver ignores the route's area override and
+# always returns the base config's primitives (design.md §D8, tasks.md 1.10a).
+#
+# Intended RED: any assertion that resolve(config, { area }) differs from
+# resolve(config, {}) for a primitive the area overrides.
+#
+# REBASED 2026-08-26: the pages-map addition shifted this hunk's context.
+# Same mutation — asserted unique before mutating.
+
+--- a/apps/portal-nuxt/app/portal/resolve.ts
++++ b/apps/portal-nuxt/app/portal/resolve.ts
+@@ -146,7 +146,7 @@
+   config: PortalConfig,
+   route: PortalRoute = {}
+ ): ResolvedShell {
+-  const primitivesConfig = applyAreaOverride(config.primitives, route.area);
++  const primitivesConfig = applyAreaOverride(config.primitives, undefined);
+   const content = selectPageContent(config, route.pageKeys);
+ 
+   const primitives = reduce(

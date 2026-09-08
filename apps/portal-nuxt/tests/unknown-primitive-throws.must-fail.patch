@@ -1,0 +1,28 @@
+# Negative control — an unknown primitive id throws instead of being
+# rejected (design.md §D5, tasks.md 2.0 F4 — reverts the F4 fix).
+#
+# Reproduced by direct execution before filing: applying this patch and
+# calling resolve() with a primitive id absent from PRIMITIVES (with an
+# assigned slot, so resolution actually reaches slotAccepts) throws
+# `TypeError: Cannot read properties of undefined (reading 'slots')` instead
+# of returning a `rejected` slot.
+#
+# Intended RED: any assertion that resolve() rejects rather than throws for a
+# primitive id the descriptor table does not carry.
+
+diff --git a/apps/portal-nuxt/app/portal/resolve.ts b/apps/portal-nuxt/app/portal/resolve.ts
+index ea7d44e1c7..69b6f9ad7b 100644
+--- a/apps/portal-nuxt/app/portal/resolve.ts
++++ b/apps/portal-nuxt/app/portal/resolve.ts
+@@ -151,10 +151,7 @@ function slotAccepts(
+   slotId: string,
+   tag: AcceptTag
+ ): boolean {
+-  const primitive = PRIMITIVES[primitiveId] as
+-    | (typeof PRIMITIVES)[PrimitiveId]
+-    | undefined;
+-  if (primitive === undefined) return false;
++  const primitive = PRIMITIVES[primitiveId];
+
+   const slot = find(primitive.slots, descriptor => descriptor.id === slotId);
+   return slot !== undefined && includes(slot.accepts, tag);

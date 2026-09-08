@@ -1,0 +1,39 @@
+# Negative control — a Module Group is gated on the host slot's OWN accept
+# list again, reversing F2 (design.md §D4/§D6, tasks.md 2.0 F2 — board rule 2
+# makes the group universal; only its MEMBERS are checked against the host
+# slot, never the group itself). Pairs with F2: after the real fix, a group
+# must NOT be rejected by this gate anywhere, because no accept list carries
+# the `group` tag any more (F2 also removed it from all 16 rows).
+#
+# Reproduced by direct execution before filing: a group placed in
+# `utility.top` — a slot the fixed resolver admits unconditionally — resolves
+# to `{ status: "rejected", reason: 'utility.top does not accept a module
+# group.' }` once this patch is applied, instead of `{ status: "group", ... }`
+# with its member resolved on its own merits.
+#
+# Intended RED: any assertion that a group renders (status "group") in a slot
+# whose accept list does not name `group` — which, after F2, is every slot.
+#
+# REGENERATED 2026-08-24. The previous hunk targeted resolveSlotAssignment but Task 5
+# added resolveContentSlotAssignment with an IDENTICAL isModuleGroupRef branch shape,
+# so git apply fuzzy-matched it into the wrong function: it still applied, still went
+# red, and reddened two unrelated tests while resolve.test.ts's group tests — its
+# actual target — stayed green. A control that grades the wrong thing while looking
+# healthy is worse than one that fails to apply, because failure is loud.
+diff --git a/apps/portal-nuxt/app/portal/resolve.ts b/apps/portal-nuxt/app/portal/resolve.ts
+index 48c6ed75ed..5cd0476ecd 100644
+--- a/apps/portal-nuxt/app/portal/resolve.ts
++++ b/apps/portal-nuxt/app/portal/resolve.ts
+@@ -243,6 +243,12 @@ function resolveSlotAssignment(
+   }
+ 
+   if (isModuleGroupRef(assignment)) {
++    if (!slotAccepts(primitiveId, slotId, descriptor.acceptTag)) {
++      return {
++        status: "rejected",
++        reason: `${primitiveId}.${slotId} does not accept a module group.`
++      };
++    }
+     return {
+       status: "group",
+       axis: assignment.axis,

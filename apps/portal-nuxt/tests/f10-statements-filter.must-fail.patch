@@ -1,0 +1,22 @@
+# Negative control — the statements panel ignores every narrowing it was
+# given, so filtering to one month gives back all nine filed periods.
+#
+# Intended RED: "narrows to the periods a window covers, and gives them all
+# back" (tests/sixth-closure.test.ts).
+#
+# REBASED 2026-09-06 (the named from/to setters joined the band's range in one
+# predicate). Same mutation: the narrowing goes.
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -947,9 +947,7 @@
+   ClientWalletStatementsFilters
+ >(
+   (data, context, criteria) =>
+-    filter(data.wallet.statements ?? [], statement =>
+-      matchesStatementCriteria(statement, criteria)
+-    ),
++    data.wallet.statements ?? [],
+   apply => ({
+     fromDate: value => apply({ fromDate: value }),
+     toDate: value => apply({ toDate: value })

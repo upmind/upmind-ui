@@ -1,0 +1,20 @@
+# Negative control — the page host hardcodes its title instead of rendering
+# the resolved content's (tasks.md 6.0, ui-gaps.md F1b).
+#
+# Intended RED: any assertion that the page title follows the active shape's
+# resolved content (tests/page-title-hardcoded.test.ts).
+#
+# REBASED 2026-08-26: pages became thin hosts of PortalPageHost (plan
+# Phase A). Same mutation, host anchors — asserted unique before mutating.
+
+--- a/apps/portal-nuxt/app/portal/content/PortalPageHost.vue
++++ b/apps/portal-nuxt/app/portal/content/PortalPageHost.vue
+@@ -46,7 +46,7 @@
+     <!-- Suppressed while the shape declares a hero — the band carries the h1 (PortalHero). -->
+     <PageHeader v-if="!resolvedContent.hero">
+       <PortalSlotContent :resolved-slot="resolvedContent.breadcrumb" />
+-      <PageTitle>{{ meta.title }}</PageTitle>
++      <PageTitle>Dashboard</PageTitle>
+       <PageDescription v-if="resolvedContent.description">{{
+         resolvedContent.description
+       }}</PageDescription>

@@ -1,0 +1,17 @@
+# Negative control — the copy verb says "Copied" and puts nothing anywhere:
+# the toast is raised, the clipboard is never written to.
+#
+# Intended RED: "writes the value to the clipboard and confirms it, with no
+# dataset in play", "copies the value it was GIVEN, not a fixed one" and
+# "survives a clipboard that rejects the write" (tests/copy-verb.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/actions.ts
++++ b/apps/portal-nuxt/app/portal/mock/actions.ts
+@@ -536,7 +536,6 @@
+   // the clipboard is the browser's, not the mock's.
+   if (verb === MOCK_ACTION.COPY) {
+     if (id === undefined) return undefined;
+-    void writeToClipboard(id);
+     return {
+       toast: { intent: MOCK_TOAST_INTENT.SUCCESS, title: "Copied" }
+     };

@@ -1,0 +1,20 @@
+# Negative control — a document whose OFFLINE payment is still clearing is
+# stamped PAID, so the client reads a settled invoice for money that has not
+# landed: the system's "paid" is not the world's.
+#
+# REBASED 2026-09-06 (the stamp now asks for the PAID status itself). Same
+# mutation.
+#
+# Intended RED (to be added by the prover): "stamps PAID only on a settled
+# document, never on a clearing one".
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -3370,7 +3370,6 @@
+   // (`invoiceItems.vue:279`), and a refunded or cancelled document is neither
+   // owed nor paid — it was unwound, which is not the same fact.
+   if (invoice.status !== InvoiceStatus.PAID) return undefined;
+-  if (isInvoiceClearing(invoice)) return undefined;
+   return "Paid";
+ }
+ 

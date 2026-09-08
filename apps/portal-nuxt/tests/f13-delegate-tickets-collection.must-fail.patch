@@ -1,0 +1,22 @@
+# Negative control — the delegate's granted-tickets picker goes back to
+# listing every thread at once, so the quick search and the pager legacy's own
+# grant listing carried (`clientDelegateTicketsListing.vue:5-30`) reach
+# nothing.
+#
+# Intended RED (to be added by the prover): "searches and pages the tickets a
+# delegate may be granted".
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -5001,10 +5001,7 @@
+ ): ListModuleItem[] {
+   const delegate = contextDelegate(data, context);
+   if (delegate === undefined) return [];
+-  const { data: rows } = delegateTicketsCollection
+-    .resolve(data, context)
+-    .useContext();
+-  return map(rows.value, ticket => ({
++  return map(data.tickets, ticket => ({
+     id: ticket.id,
+     title: ticket.subject,
+     description: ticket.department,

@@ -1,0 +1,21 @@
+# Negative control — the panel no longer OPENS on its first declared option: it
+# starts in the seed order with nothing applied, which is the unnamed state the
+# "Default" entry used to stand for. Every option still sorts once picked, and
+# the select still lists them, so the control looks right until you read what it
+# says on arrival.
+#
+# Intended RED: "opens on the first option, and an empty or unknown value falls
+# back to it" and "the products listing opens A–Z, and ranks undated one-time
+# rows last by renewal" (tests/collection-search-sort.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collections.ts
++++ b/apps/portal-nuxt/app/portal/mock/collections.ts
+@@ -185,7 +185,7 @@
+   // always in an order the control can name. A collection declaring no options
+   // keeps its seed order, and its panel renders no select at all.
+   const openingSort = options.sortOptions?.at(0);
+-  const activeSortValue = ref<string | undefined>(openingSort?.value);
++  const activeSortValue = ref<string | undefined>(undefined);
+ 
+   /** The def's own narrowing, then the query — a def declaring no `searchProps` offers no search and passes through. */
+   function narrowedRows(): TRow[] {

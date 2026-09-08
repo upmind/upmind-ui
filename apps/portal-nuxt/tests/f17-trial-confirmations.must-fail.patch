@@ -1,0 +1,22 @@
+# Negative control — the end-trial confirmation asks the same question of
+# every trial, so a client whose trial CANCELS the product is told they are
+# committing to the paid version (`cProdProvider.vue:689-701` asked three).
+#
+# Intended RED (to be added by the prover): the end-trial confirmation reads
+# the message its own trial-end action names.
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
+@@ -246,12 +246,6 @@
+ 
+ /** What the early-end confirmation asks — legacy's own three (`cProdProvider.vue:689-701`). */
+ export function trialEndConfirmation(product: MockProduct): string {
+-  if (trialEndAction(product) === MOCK_TRIAL_END_ACTION.MIGRATE) {
+-    return "You are about to migrate to the paid version of this product. This ends your free trial and raises a migration invoice to pay.";
+-  }
+-  if (trialEndAction(product) === MOCK_TRIAL_END_ACTION.CANCEL) {
+-    return "Are you sure you want to end your free trial early? Your product will be cancelled with immediate effect.";
+-  }
+   return "You are about to commit to the paid version of this product. This ends your free trial and raises a new invoice to pay.";
+ }
+ 

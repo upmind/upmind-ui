@@ -1,0 +1,17 @@
+# Negative control — the unpaid-invoice notice reads the same on a SUSPENDED
+# product and on one whose invoice fell due months ago as on one merely
+# waiting to be paid: a debt in hand is not a debt in prospect.
+#
+# Intended RED (to be added by the prover): the unpaid notice reads louder
+# where the product is suspended or the invoice is overdue.
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -2346,7 +2346,6 @@
+       includes(InvoiceStatusGroups.UNPAID, invoice.status) &&
+       invoice.dueDate < today()
+   );
+-  if (isSuspended || hasOverdue) return "danger";
+   return "warning";
+ }
+ 

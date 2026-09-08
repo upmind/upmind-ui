@@ -1,0 +1,19 @@
+# Negative control — a withdrawal request moves the WITHDRAWN balance and
+# leaves the available one standing, so the same commission can be asked for
+# again and again.
+#
+# Intended RED: "lodges a pending payout for what was cleared, and empties it"
+# (tests/affiliate-forms.test.ts).
+
+diff --git a/apps/portal-nuxt/app/portal/mock/facades/useMockAffiliate.ts b/apps/portal-nuxt/app/portal/mock/facades/useMockAffiliate.ts
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockAffiliate.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockAffiliate.ts
+@@ -171,7 +171,7 @@ export const useMockAffiliate = defineMockFacade(
+         };
+         subject.payouts.unshift(requested);
+         assign(subject.stats, {
+-          availableBalance: mockMoney(0, available.currency)
++          withdrawnBalance: mockMoney(0, available.currency)
+         });
+         return { ok: true, entity: requested };
+       },

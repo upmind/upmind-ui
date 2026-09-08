@@ -1,0 +1,18 @@
+# Negative control — an approved commission stops naming the day it was
+# approved, so one of legacy's three dated readings loses its date
+# (`_sentence.affiliate.commission_approved` takes `{date}`).
+#
+# Intended RED (to be added by the prover): "an approved commission names the
+# day it was approved".
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -5480,7 +5480,7 @@
+   }
+   if (status === MOCK_COMMISSION_STATUS.ON_HOLD) return "On hold";
+   if (status === MOCK_COMMISSION_STATUS.CANCELLED) return "Cancelled";
+-  return `Approved ${commission.approvedAt ?? commission.earnedAt}`;
++  return "Approved";
+ }
+ 
+ /** Legacy affiliate commissions — each row states where it stands, and its amount is toned to match. */

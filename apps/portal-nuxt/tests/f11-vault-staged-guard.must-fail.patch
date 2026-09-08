@@ -1,0 +1,23 @@
+# Negative control — the vault stops asking whether the account is still
+# being imported, so a client pins rows on an account the platform has not
+# finished setting up and the write lands where legacy disabled the panel.
+#
+# Intended RED: "refuses the pin while the account is still being imported,
+# and says so first" (tests/seventh-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockVault.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockVault.ts
+@@ -59,13 +59,6 @@
+     ): MockActionReceipt<MockVaultAsset> | undefined => {
+       const asset = find(data.vault, { id: assetId });
+       if (asset === undefined) return undefined;
+-      if (isStagedImport(data)) {
+-        return {
+-          ok: false,
+-          reason: MOCK_RECEIPT_REASON.STAGED_IMPORT,
+-          entity: asset
+-        };
+-      }
+       assign(asset, {
+         pinned: asset.pinned !== true,
+         updated_at: new Date().toISOString()

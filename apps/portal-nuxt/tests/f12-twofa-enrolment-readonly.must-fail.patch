@@ -1,0 +1,19 @@
+# Negative control — the enrolment rows stop declaring themselves readonly, so
+# the setup key and the link a client is meant to COPY read as fields to type
+# into, and a typed-over key enrols nothing.
+#
+# Intended RED: "seats both facts above the code box, and lets neither be
+# typed into" (tests/eighth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/forms/twofa-enrolment.ts
++++ b/apps/portal-nuxt/app/portal/mock/forms/twofa-enrolment.ts
+@@ -115,8 +115,7 @@
+ function readonlyRow(scope: string): ControlElement {
+   return {
+     type: "Control",
+-    scope: `#/properties/${scope}`,
+-    options: { readonly: true }
++    scope: `#/properties/${scope}`
+   };
+ }
+ 

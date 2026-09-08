@@ -1,0 +1,28 @@
+# Negative control — the condition banner wears one fixed control whatever it
+# is about, so a product waiting on setup, one asked to be cancelled and one
+# ending at its term all send the client to the invoice list.
+#
+# Intended RED: "a status that speaks for itself names the destination it
+# needs", "an unactivated product is asked to finish setting itself up",
+# "offers every CTA the legacy banner had — go to order, don't cancel, complete
+# setup, view invoices" and "a product that has stopped renewing is offered its
+# renewal back" (tests/product-detail-chrome.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -973,7 +973,14 @@
+   data: MockDataset,
+   context: DataRouteContext
+ ): BannerModuleProps["action"] {
+-  return productCondition(data, context)?.action;
++  if (productCondition(data, context) === undefined) return undefined;
++  return {
++    value: mockActionValue(
++      MOCK_ACTION.NAVIGATE,
++      `/billing/invoices?status=${INVOICE_STATUS_TAB.UNPAID}`
++    ),
++    label: "View invoices"
++  };
+ }
+ 
+ /** The brand's own words about this product, as authored markdown. */

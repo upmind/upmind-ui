@@ -1,0 +1,26 @@
+# Negative control — the relations listing offers an order by ADDRESS again,
+# which legacy never published: its sorters are the child's first name, last
+# name and the day the relation was made
+# (`data/sorters/childAccounts.ts:5-9`). A control the table never offered is
+# a control nobody asked for.
+#
+#
+# Intended RED (verified by apply/run/revert): "orders the child accounts by
+# name and by the day they were added, and offers nothing else"
+# (tests/tenth-closure.test.ts); "orders the child accounts by name and by the
+# day they were added" (tests/ninth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -609,6 +609,11 @@
+       compare: (a, b) => a.name.localeCompare(b.name)
+     },
+     {
++      value: "email",
++      label: "By address",
++      compare: (a, b) => a.email.localeCompare(b.email)
++    },
++    {
+       value: "added",
+       label: "Recently added",
+       compare: (a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? "")

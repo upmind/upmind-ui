@@ -1,0 +1,25 @@
+# Negative control — the profile write narrows to one field, so a save keeps
+# the first name and silently discards the last name, the public name and the
+# interface language the client just chose.
+#
+# REBASED 2026-09-05 (the save writes each native field explicitly now, so a
+# cleared one clears; the constant the earlier anchor named is gone). Same
+# mutation: three of the four writes go.
+#
+# Intended RED: "profile-save writes every native field back to the persona"
+# (tests/form-exemplars.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockPersonalDetails.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockPersonalDetails.ts
+@@ -53,10 +53,7 @@
+      */
+     saveProfile: (model: FormModel): MockActionReceipt<MockPersona> => {
+       assign(data.persona, {
+-        firstName: savedField(model, "firstName"),
+-        lastName: savedField(model, "lastName"),
+-        publicName: savedField(model, "publicName"),
+-        language: savedField(model, "language")
++        firstName: savedField(model, "firstName")
+       });
+       return { ok: true, entity: data.persona };
+     },

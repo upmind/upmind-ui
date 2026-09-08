@@ -1,0 +1,23 @@
+# Negative control — the sole-product redirect stops standing down for a
+# narrowed URL, so a client who asked for a filtered LIST is thrown onto the
+# one product that happens to be in the group.
+#
+# Intended RED: "leaves a listing the client narrowed by status / type /
+# category alone — that is a choice, not a way through"
+# (tests/sole-product-redirect.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -765,12 +765,6 @@
+ ): string | undefined {
+   if (data === undefined) return undefined;
+   if (resolution.kind !== "group-listing") return undefined;
+-
+-  const isNarrowed =
+-    query.productType !== undefined ||
+-    query.category !== undefined ||
+-    query.status !== undefined;
+-  if (isNarrowed) return undefined;
+ 
+   const inGroup = filter(data.products, { groupSlug: resolution.group.slug });
+   const only = inGroup.at(0);

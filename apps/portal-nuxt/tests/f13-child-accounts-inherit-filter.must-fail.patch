@@ -1,0 +1,21 @@
+# Negative control — the child-accounts panel stops reading whose payment
+# details a relation uses, so the toggle legacy published
+# (`data/filters/childAccounts.ts`: `inherit_payment_details`) hands back
+# every child whichever side is asked for.
+#
+# Intended RED (to be added by the prover): "narrows the child accounts to the
+# ones inheriting payment details, and to the ones with their own".
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -604,10 +604,6 @@
+       data.childAccounts,
+       child =>
+         matchesFlag(child.allow_impersonation, criteria.allowImpersonation) &&
+-        matchesFlag(
+-          child.inherit_payment_details,
+-          criteria.inheritPaymentDetails
+-        ) &&
+         matchesDateRange(child.created_at, criteria.dateCreated)
+     ),
+   apply => ({

@@ -1,0 +1,27 @@
+# Negative control — a product in good standing draws no banner at all, so
+# every reading legacy gave a running product (active and renewing, a
+# fulfilled one-time purchase, a cancelled or lapsed contract) is gone and the
+# page says nothing about what it is looking at (`cProdCondition.ts:36-511`).
+#
+#
+# Intended RED (verified by apply/run/revert). tests/fourteenth-closure.test.ts:
+# "every seeded product draws the banner its own standing calls for", "a
+# product renewing on schedule says so, dated, and offers its billing", "a
+# fulfilled one-time purchase names the day it went live", "a product on trial
+# says when the trial runs out", "a cancelled contract and a lapsed one each
+# read quietly, on their own dates" and "a product with nothing else standing
+# says only that it is running". tests/product-detail-chrome.test.ts: "a
+# product that is simply running says so, and offers its billing" and "every
+# banner says something, and the ones with somewhere to go carry a control".
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -1306,7 +1306,7 @@
+       }
+     };
+   }
+-  return productStandingCondition(data, product, base);
++  return undefined;
+ }
+ 
+ /**

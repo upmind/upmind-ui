@@ -1,0 +1,20 @@
+# Negative control — the deepest-wins rule goes quiet, so a prefix match alone
+# decides. Every OTHER active-state assertion stays green: the rule only shows
+# where two of the menu's own destinations cover the same route.
+#
+# Intended RED: menu — the deepest destination owns the selection
+#   > selects only the order action on its own route, not the section above it
+
+--- a/apps/portal-nuxt/app/portal/modules/menu/Menu.vue
++++ b/apps/portal-nuxt/app/portal/modules/menu/Menu.vue
+@@ -151,9 +151,7 @@
+   // A sibling that covers MORE of the route owns the selection: at
+   // /products/order both "/products" and "/products/order" cover it, and only
+   // the longer one is where the reader actually is.
+-  const deepest = max(
+-    map(filter(ownedPaths.value, covers), owned => owned.length)
+-  );
++  const deepest = undefined;
+   if (deepest !== undefined && path.length < deepest) return false;
+ 
+   const pinned = [...new URLSearchParams(search).entries()];

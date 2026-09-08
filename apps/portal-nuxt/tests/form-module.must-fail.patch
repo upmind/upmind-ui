@@ -1,0 +1,26 @@
+# Negative control — the submit emits the model the form OPENED with instead
+# of the one on screen, so every edit is dropped on the way out and the tail
+# reads back whatever the dataset already held.
+#
+# REBASED 2026-09-06 (the action map above it now folds in the config's own
+# controls). Same mutation.
+#
+#
+#
+# Intended RED (verified by apply/run/revert): "submitting an edit emits
+# `select` once, carrying the EDITED model as JSON" and "appends the JSON tail
+# to a submit that ALREADY carries its entity id" (tests/form-module.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/modules/form/Form.vue
++++ b/apps/portal-nuxt/app/portal/modules/form/Form.vue
+@@ -120,8 +120,8 @@
+   );
+ }
+ 
+-function onResolve(model: Record<string, unknown>): void {
+-  emits("select", `${props.submit}:${JSON.stringify(model)}`);
++function onResolve(_model: Record<string, unknown>): void {
++  emits("select", `${props.submit}:${JSON.stringify(props.model)}`);
+ }
+ 
+ /** The engine's reject empties its own copy; the module puts the opening one back. */

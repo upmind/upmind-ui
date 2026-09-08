@@ -1,0 +1,19 @@
+# Negative control — the parent's account-type row states the children it has
+# and links nowhere, so the count is a dead end rather than the way into the
+# list it counts.
+#
+# Intended RED: "names the account type — a parent, its children counted, its
+# list linked" (tests/account-card.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -2712,8 +2712,7 @@
+   return {
+     id: "account-type",
+     label: "Account type",
+-    value: `Parent account · ${children} ${noun}`,
+-    to: CHILD_ACCOUNTS_PATH
++    value: `Parent account · ${children} ${noun}`
+   };
+ }
+ 

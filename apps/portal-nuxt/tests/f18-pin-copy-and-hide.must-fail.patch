@@ -1,0 +1,17 @@
+# Negative control — "Copy and hide" hides the PIN without copying it, so a
+# client who pressed it is left with neither the number on screen nor the
+# number on the clipboard (legacy's `copy_and_hide` did both, in that order).
+#
+# Intended RED (to be added by the prover): the PIN reaches the clipboard
+# before it is hidden.
+
+--- a/apps/portal-nuxt/app/portal/mock/actions.ts
++++ b/apps/portal-nuxt/app/portal/mock/actions.ts
+@@ -3214,7 +3214,6 @@
+       const persona = managed.useContext().data.value;
+       if (persona.id !== id) return notFound();
+       if (persona.supportPin === undefined) return notFound();
+-      void writeToClipboard(persona.supportPin);
+       managed.useActions().hide();
+       return {
+         toast: { intent: MOCK_TOAST_INTENT.SUCCESS, title: "PIN copied" }

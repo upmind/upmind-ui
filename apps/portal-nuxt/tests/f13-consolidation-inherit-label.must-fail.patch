@@ -1,0 +1,21 @@
+# Negative control — the consolidation form's inherit choice stops naming the
+# brand's own schedule, so a client choosing to follow the brand
+# (`INVOICE_CONSOLIDATION_BASE_RULE`, `_WEEK_DAY`, `_DATE`) agrees to a
+# setting nobody states.
+#
+# Intended RED (to be added by the prover): "names the brand's own
+# consolidation schedule in the inherit choice".
+
+--- a/apps/portal-nuxt/app/portal/mock/contracts/client-billing-settings.schemas.ts
++++ b/apps/portal-nuxt/app/portal/mock/contracts/client-billing-settings.schemas.ts
+@@ -87,9 +87,7 @@
+  * rather than agree to a setting nobody states.
+  */
+ function inheritLabel(context: BillingSettingsContext): string {
+-  const brandLabel = CONSOLIDATION_LABEL[InvoiceConsolidationTypes.INHERIT];
+-  if (context.brandSchedule === undefined) return brandLabel;
+-  return `${brandLabel} (${context.brandSchedule})`;
++  return CONSOLIDATION_LABEL[InvoiceConsolidationTypes.INHERIT];
+ }
+ 
+ /** What each rule says — when the one consolidated invoice is raised. */

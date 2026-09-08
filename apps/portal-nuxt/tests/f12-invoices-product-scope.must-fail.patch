@@ -1,0 +1,20 @@
+# Negative control — the invoices listing reads a criteria key nobody writes
+# for the product scope, so `filters.contractProductId(...)` narrows nothing:
+# legacy scoped a product's own invoices by that query param, and the module
+# publishes the same narrowing.
+#
+# Intended RED (to be added by the prover): "the invoices listing's own
+# contractProductId setter narrows to that product's documents"
+# (tests/filter-seams.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -1018,7 +1018,7 @@
+   // control; the module publishes the same narrowing as a named setter.
+   const inProduct = matchesExact(
+     invoice.productId ?? "",
+-    criteria.contractProductId
++    criteria.productId
+   );
+   const inCreatedWindow = matchesDateRange(
+     invoice.issuedDate,

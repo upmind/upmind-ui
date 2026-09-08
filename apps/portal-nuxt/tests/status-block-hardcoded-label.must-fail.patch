@@ -1,0 +1,12 @@
+diff --git a/apps/portal-nuxt/app/portal/modules/status-block/StatusBlock.vue b/apps/portal-nuxt/app/portal/modules/status-block/StatusBlock.vue
+index d14a5f7952..ce974b51c4 100644
+--- a/apps/portal-nuxt/app/portal/modules/status-block/StatusBlock.vue
++++ b/apps/portal-nuxt/app/portal/modules/status-block/StatusBlock.vue
+@@ -1,6 +1,6 @@
+ <template>
+   <StatusBadge :tone="props.tone" :appearance="props.appearance">
+-    {{ props.label }}
++    Active
+   </StatusBadge>
+ </template>
+ 

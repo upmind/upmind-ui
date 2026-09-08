@@ -1,0 +1,21 @@
+# Negative control — the empty listing's Place-new-order CTA drops the store
+# gate, so a brand that sells nothing through the portal still invites a client
+# into a catalogue it does not have.
+#
+# Intended RED: "offers 'Place new order' where the brand sells, and nothing
+# where it does not" and "leaves both panels without it when the brand hides
+# its store" (tests/orders-and-tickets-controls.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -4317,8 +4317,8 @@
+   data: MockDataset,
+   context: DataRouteContext
+ ): ListModuleProps["emptyAction"] {
+-  const { showStore, customStorefrontUrl } = data.features;
+-  if (!showStore || customStorefrontUrl !== undefined) return undefined;
++  const { customStorefrontUrl } = data.features;
++  if (customStorefrontUrl !== undefined) return undefined;
+   const slug = context.groupSlug ?? "products";
+   return {
+     value: mockActionValue(MOCK_ACTION.NAVIGATE, `/${slug}/order`),

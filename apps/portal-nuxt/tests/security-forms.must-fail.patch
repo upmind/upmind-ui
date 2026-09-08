@@ -1,0 +1,24 @@
+# Negative control — the security panel offers "Turn on two-factor" whatever
+# the account's posture, so a client who already has it on is handed the enable
+# form and never the one that turns it off.
+#
+# Intended RED: the two-factor control follows the account's own state
+# (tests/security-forms.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -2888,14 +2888,6 @@
+ export function securityTwoFactorActions(
+   data: MockDataset
+ ): ButtonModuleAction[] {
+-  if (data.security.twoFactorEnabled) {
+-    return [
+-      {
+-        value: mockActionValue(MOCK_ACTION.OPEN_FORM, FORM_ID.TWOFA_DISABLE),
+-        label: "Turn off two-factor"
+-      }
+-    ];
+-  }
+   return [
+     {
+       value: mockActionValue(MOCK_ACTION.OPEN_FORM, FORM_ID.TWOFA_ENABLE),

@@ -1,0 +1,17 @@
+# Negative control — the appearance save answers as though it landed and
+# writes nothing, so the panel keeps reading the appearance that was there
+# before and the accounts being managed never see the change.
+#
+# Intended RED: "saves it through its own verb, and the appearance panel reads
+# what was saved" (tests/seventh-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockAccount.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockAccount.ts
+@@ -111,7 +111,6 @@
+           entity: branding
+         };
+       }
+-      assign(data, { parentBranding: saved });
+       return { ok: true, entity: saved };
+     }
+   })

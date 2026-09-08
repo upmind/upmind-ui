@@ -1,0 +1,16 @@
+# Negative control — a link button dispatches an action on the same click that navigates.
+#
+# Intended RED: tests/module-render-guards.test.ts (button — a destination navigates and nothing else).
+
+--- a/apps/portal-nuxt/app/portal/modules/button/Button.vue
++++ b/apps/portal-nuxt/app/portal/modules/button/Button.vue
+@@ -124,9 +124,6 @@
+ );
+ 
+ function onSelect(value: string) {
+-  // A control with a destination navigates and nothing else: dispatching on the
+-  // same click would run a store mutation off a link press.
+-  if (props.to !== undefined) return;
+   emits("select", value);
+ }
+ </script>

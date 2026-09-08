@@ -1,0 +1,18 @@
+# Negative control — the statement print view prints the OPENING balance under
+# its closing label, so the page a download opens disagrees with the row that
+# offered it and the period appears never to have moved.
+#
+# Intended RED: "prints one period on its own page, carrying the same figures"
+# (tests/fifth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -3023,7 +3023,7 @@
+     {
+       id: "closing",
+       label: "Closing balance",
+-      value: statement.closing.formatted
++      value: statement.opening.formatted
+     }
+   ];
+ }

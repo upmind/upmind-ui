@@ -1,0 +1,26 @@
+# Negative control — the action dispatcher goes inert behind its dataset gate:
+# every module emit that reads data is a no-op, so nothing mutates and no flow
+# advances.
+#
+# REBASED: no `product-pages-actions.test.ts` exists — this pairs with
+# tests/product-pages.test.ts, whose action-seam block is what it reds.
+#
+# REBASED 2026-09-05 (F0 moved this file's context). Same mutation.
+#
+# Intended RED: "complete-setup activates the context's product and lands on
+# its detail", "place-order creates the order, its unpaid invoice and the
+# pending product, then lands back on the listing saying so" and "a clicked
+# list action reaches the store through PortalSlotContent"
+# (tests/product-pages.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/actions.ts
++++ b/apps/portal-nuxt/app/portal/mock/actions.ts
+@@ -604,7 +604,7 @@
+     useListViewPreference().setView(id);
+     return undefined;
+   }
+-  if (data === undefined) return undefined;
++  return undefined;
+ 
+   switch (verb) {
+     case MOCK_ACTION.OPEN_FORM: {

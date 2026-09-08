@@ -1,0 +1,17 @@
+# Negative control — the thread's notes and secrets links drop the brand gate,
+# so a brand that keeps no notes at all still offers two ways into panels it
+# does not publish (`CLIENT_NOTES_AND_SECRETS_ENABLED`).
+#
+# Intended RED: "offers nothing where the brand keeps no notes, and nothing on a
+# bare thread" (tests/fourth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -5325,7 +5325,6 @@
+   data: MockDataset,
+   context: DataRouteContext
+ ): ButtonModuleAction[] {
+-  if (!data.features.CLIENT_NOTES_AND_SECRETS_ENABLED) return [];
+   const ticket = contextTicket(data, context);
+   const product = find(data.products, { id: ticket?.productId ?? "" });
+   if (product === undefined) return [];

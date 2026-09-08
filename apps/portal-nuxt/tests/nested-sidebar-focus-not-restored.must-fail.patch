@@ -1,0 +1,23 @@
+# Negative control — leaving a nested level takes focus nowhere: the row that
+# opened it is back on screen, and the keyboard is stranded at the top of the
+# document.
+#
+# REBASED 2026-09-05 (F0 moved the nested rail off the design system's flat
+# `SidebarNav` onto the portal's own `PortalSidebarNav`, which owns the level
+# and the focus handover). The mutation now removes the handover itself
+# rather than the path binding that used to carry it.
+#
+# Intended RED: "moves focus into the child level on activation and gives it
+# back to the group row on the way out"
+# (tests/nested-sidebar-focus-not-restored.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/shell/PortalSidebarNav.vue
++++ b/apps/portal-nuxt/app/portal/shell/PortalSidebarNav.vue
+@@ -122,7 +122,6 @@
+   const parent = last(props.path);
+   emits("update:path", initial(props.path));
+   if (parent === undefined) return;
+-  pendingFocus.value = { kind: "row", label: parent };
+ }
+ 
+ function focusTarget(target: PortalSidebarNavFocus): HTMLElement | null {

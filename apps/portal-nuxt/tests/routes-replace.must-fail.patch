@@ -1,0 +1,26 @@
+# Negative control — restores the old replace-navigation on the catch-all's
+# unmatched branch, so a path matching no route, no product group and no
+# custom area is bounced to the dashboard instead of saying what happened
+# (design.md §D9 consequence 1, narrowed onto the not-found contract).
+#
+# Intended RED:
+#   catch-all page — an unknown path says so, and offers the way back >
+#   leaves the unknown path where it is instead of navigating away
+#
+# REBASED 2026-09-03 (Phase 6 replaced the fallback navigation with the
+# not-found page). Same mutation site: the unmatched branch's navigation.
+
+--- a/apps/portal-nuxt/app/pages/[...slug].vue
++++ b/apps/portal-nuxt/app/pages/[...slug].vue
+@@ -45,7 +45,10 @@
+ watch(
+   resolution,
+   async current => {
+-    if (current.kind === "unmatched") return;
++    if (current.kind === "unmatched") {
++      await navigateTo("/", { replace: true });
++      return;
++    }
+     // A client who owns exactly one product in the group has no listing to
+     // read; `replace` so Back still leaves the pillar rather than bouncing
+     // off the redirect (mock/selectors.ts holds the decision).

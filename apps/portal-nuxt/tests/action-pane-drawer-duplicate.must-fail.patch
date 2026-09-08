@@ -1,0 +1,37 @@
+# Negative control — the utility pane's content is mounted twice: once for the
+# desktop column and once again for the drawer, so a query for its marker
+# returns two nodes at either width.
+#
+# REBASED 2026-09-05 (F0 moved the pane onto the portal's own PortalActionPane
+# after `ActionPane` left the design system). Same mutation, new host.
+#
+# Intended RED: "mounts the utility primitive's module once, not once inline
+# and once again for the drawer" (tests/action-pane-drawer-duplicate.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/shell/PortalFrame.vue
++++ b/apps/portal-nuxt/app/portal/shell/PortalFrame.vue
+@@ -172,6 +172,24 @@
+       </div>
+     </ShellHeader>
+ 
++    <PortalActionPane
++      v-if="utilityMeta.renders"
++      :variant="utilityMeta.variant"
++      :pane-id="actionPaneId"
++      :label="props.actionPaneLabel"
++      :close-label="props.actionPaneCloseLabel"
++      :open="actionPaneOpen"
++      @update:open="actionPaneOpen = $event"
++    >
++      <div :class="ACTION_PANE_BODY_CLASS">
++        <PortalSlotContent :resolved-slot="utilityMeta.top" />
++        <PortalSlotContent :resolved-slot="utilityMeta.topmid" />
++        <PortalSlotContent :resolved-slot="utilityMeta.botmid" />
++      </div>
++      <div :class="ACTION_PANE_FOOT_CLASS">
++        <PortalSlotContent :resolved-slot="utilityMeta.bottom" />
++      </div>
++    </PortalActionPane>
+     <PortalActionPane
+       v-if="utilityMeta.renders"
+       :variant="utilityMeta.variant"

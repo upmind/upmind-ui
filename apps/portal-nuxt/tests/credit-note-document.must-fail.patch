@@ -1,0 +1,23 @@
+# Negative control — download resolves the invoice print path whatever kind it
+# was asked for, so a credit note opens an invoice route that does not hold it.
+#
+# Intended RED: "sends a credit note to its own print route, offering no Pay
+# along the way" and "names a print destination the route tree really has, for
+# both kinds" (tests/credit-note-document.test.ts).
+#
+# REBASED 2026-09-06 (F9 O-B gave the download verb a third kind and its own
+# unfiled-period guard). Same mutation: the kind the path is keyed by goes.
+
+--- a/apps/portal-nuxt/app/portal/mock/actions.ts
++++ b/apps/portal-nuxt/app/portal/mock/actions.ts
+@@ -1937,7 +1937,9 @@
+         asked.head === MOCK_DOCUMENT_KIND.CREDIT_STATEMENT &&
+         creditStatement(data, asked.tail) === undefined;
+       if (isUnfiled) return notFound();
+-      return { to: `${PRINT_PATH[asked.head]}/${asked.tail}/print` };
++      return {
++        to: `${PRINT_PATH[MOCK_DOCUMENT_KIND.INVOICE]}/${asked.tail}/print`
++      };
+     }
+     case MOCK_ACTION.CREDIT_STATEMENT_CSV: {
+       if (id === undefined) return undefined;

@@ -1,0 +1,26 @@
+# Negative control — a product AWAITING ACTIVATION is told its setup is
+# waiting on the client, so a product waiting on US offers a form with nothing
+# in it: legacy read the two apart (`cProdCondition.ts:212` awaiting setup vs
+# `:238` awaiting activation), and only one of them is the client's to answer.
+#
+# Intended RED (to be added by the prover): a product awaiting activation
+# reads as awaiting activation, and offers no setup form.
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -1242,15 +1242,6 @@
+     // Legacy told the two apart (`cProdCondition.ts:212` vs `:238`): SETUP
+     // waits on the CLIENT, and there is a form to press; ACTIVATION waits on
+     // us, and there is nothing for them to do but read it.
+-    if (isEmpty(product.provisioning.fields)) {
+-      return {
+-        title: "Awaiting activation",
+-        message:
+-          "This product is awaiting activation and should be ready soon.",
+-        tone: "info",
+-        action: undefined
+-      };
+-    }
+     return {
+       title: "Setup is waiting on you",
+       message: "We need a few details before this product can go live.",

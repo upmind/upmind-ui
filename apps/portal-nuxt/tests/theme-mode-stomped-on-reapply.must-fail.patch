@@ -1,0 +1,19 @@
+# Negative control — drops the brand-switch guard, so a brand's `preferredMode`
+# re-applies even when the brand already in force is re-applied (a reload, the
+# layout's immediate config watch), stomping a deliberate light/dark toggle.
+#
+# Intended RED: useTheme — setTheme (brand switching)
+#   > leaves a deliberate toggle alone when the SAME brand is re-applied
+
+diff --git a/apps/portal-nuxt/app/composables/useTheme.ts b/apps/portal-nuxt/app/composables/useTheme.ts
+--- a/apps/portal-nuxt/app/composables/useTheme.ts
++++ b/apps/portal-nuxt/app/composables/useTheme.ts
+@@ -66,7 +66,7 @@
+         themeName.value = name;
+         // Set synchronously so the view-transition snapshot sees the change.
+         document.documentElement.dataset["theme"] = name;
+-        if (isBrandSwitch && preferred) mode.value = preferred;
++        if (preferred) mode.value = preferred;
+       });
+     },
+     toggleMode: () => {

@@ -1,0 +1,22 @@
+# Negative control — the COLLECTION_SEARCH case reaches the WRONG action: the
+# search text is handed to applySort, where an unrecognised value means "seed
+# order". The verb arrives, the collection accepts it, and nothing narrows —
+# the panel answers a search by resetting its sort.
+#
+# Intended RED: "a search narrows the instance the panel's own handle resolves"
+# (tests/list-controls-dispatch.test.ts) — appliedQuery stays "" and the total never
+# drops to 1.
+#
+# REBASED 2026-09-03 (Phase 1 moved this file's context). Same mutation.
+
+--- a/apps/portal-nuxt/app/portal/mock/actions.ts
++++ b/apps/portal-nuxt/app/portal/mock/actions.ts
+@@ -329,7 +329,7 @@
+       if (payload === undefined) return undefined;
+       resolvePagedCollection(payload.head, data, context)
+         ?.useActions()
+-        .search(payload.tail);
++        .applySort(payload.tail);
+       return undefined;
+     }
+     case MOCK_ACTION.COLLECTION_SORT: {

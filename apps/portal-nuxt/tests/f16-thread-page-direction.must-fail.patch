@@ -1,0 +1,26 @@
+# Negative control — the thread opens on its OLDEST entries while the control
+# under them offers to show earlier ones, so a long conversation opens on the
+# messages nobody is looking for and the button promises what is already on
+# screen: legacy opened a thread at its newest end and fetched the earlier
+# ones behind it (`ticketMessages.vue:42-46,105-112`).
+#
+# REBASED 2026-09-06 (feed entries carry their kind). Same mutation.
+#
+#
+#
+# Intended RED (verified by apply/run/revert, both
+# tests/twelfth-closure.test.ts): "the thread opens on its most recent
+# entries, and Show earlier reveals the older ones" and "a long thread offers
+# to show the earlier messages".
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -6206,7 +6206,7 @@
+   feed: readonly TicketFeedEntry[],
+   shown: number
+ ): TicketFeedEntry[] {
+-  return takeRight(feed, shown);
++  return take(feed, shown);
+ }
+ 
+ /** Only the messages that carry files, in the thread's own order. */

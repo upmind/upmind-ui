@@ -1,0 +1,18 @@
+# Negative control — the sign-in log's "By address" order compares the DAY
+# instead of the address, so asking to read the log by where the attempts came
+# from returns them in date order under an address label.
+#
+# Intended RED: "orders by the day, by the address and by how the attempt
+# ended" (tests/eighth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -732,7 +732,7 @@
+     {
+       value: "ip",
+       label: "By address",
+-      compare: (a, b) => a.ip.localeCompare(b.ip)
++      compare: (a, b) => a.at.localeCompare(b.at)
+     },
+     {
+       value: "status",

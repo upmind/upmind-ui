@@ -1,0 +1,19 @@
+# Negative control — the preference write stops holding the brand's MANDATORY
+# topics, so a submitted model turns off a row the client was never offered a
+# control for: the locked rows become writable through the verb, and the link
+# screen writes what the account page refuses to.
+#
+# Intended RED: "the topics the brand insists on are not the client's to turn
+# off" (tests/token-preference-pages.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockNotifications.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockNotifications.ts
+@@ -45,7 +45,7 @@
+     data.notificationPreferences,
+     { topic: cell.topicId }
+   );
+-  if (row === undefined || row.mandatory) return;
++  if (row === undefined) return;
+   if (!(cell.channel in row.channels)) return;
+   assign(row.channels, { [cell.channel]: value });
+ }

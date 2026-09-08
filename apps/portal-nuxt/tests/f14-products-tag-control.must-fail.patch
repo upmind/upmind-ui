@@ -1,0 +1,29 @@
+# Negative control — the products listing offers no tag control, so the
+# brand's own service tags cannot be asked for: legacy published
+# `ProductTagsFilter` to every actor (`data/filters/contractProducts.ts:278-293`,
+# `if: () => true`).
+#
+#
+# Intended RED (verified by apply/run/revert): "offers the brand's service
+# tags as a choice on the products listing" and "narrows the products to the
+# ones wearing one service tag" (tests/tenth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -1885,15 +1885,7 @@
+     // which it offered every actor (`if: () => true`). The choices are the
+     // tags the SHOWING products actually wear, so a tab whose products share
+     // one tag offers no choice at all.
+-    selectFilter(
+-      "tag",
+-      "Tag",
+-      "Any tag",
+-      optionsPresent(
+-        flatMap(showing, product => product.tags ?? []),
+-        tag => tag
+-      )
+-    )
++    false
+   ]);
+ }
+ 

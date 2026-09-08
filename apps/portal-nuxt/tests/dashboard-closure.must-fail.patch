@@ -1,0 +1,24 @@
+# Negative control — every thread row is marked as STARTING a voice, so the run
+# the selector computes carries no information: the timeline prints the author's
+# name on every message again, and a reply chain stops reading as one voice.
+#
+# REBASED 2026-09-06 (F16 moved the grouping onto the rendered, interleaved
+# feed). Same mutation, by dropping the pass that computes it.
+#
+#
+# Intended RED (verified by apply/run/revert): "marks a message continuing the
+# voice above it, and only that one" (tests/dashboard-closure.test.ts); "a
+# status entry breaks the run of one voice, and none of them is a run itself"
+# (tests/twelfth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -6101,7 +6101,7 @@
+   if (showingThreadTab(context.status) === TICKET_THREAD_TAB.ATTACHMENTS) {
+     return ticketAttachmentItems(ticket);
+   }
+-  return groupedFeed(threadPage(ticketFeed(ticket), threadShown(context)));
++  return threadPage(ticketFeed(ticket), threadShown(context));
+ }
+ 
+ /**

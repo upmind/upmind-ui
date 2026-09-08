@@ -1,0 +1,42 @@
+# Negative control — the staff-only tax-number check comes back to the client's
+# own area on both sides at once: the company card offers "Validate tax number"
+# again, and the verb answers success instead of refusing. Legacy gated this
+# control on `isAdmin` (`billableCompanyEntity.vue:38-44`), so a client who can
+# reach it is a client doing a job the client area never carried.
+#
+# Intended RED: "offers no such control on any company the card shows",
+# "refuses the verb outright, in one warning and nothing else, on both seeds"
+# (tests/fourth-closure.test.ts); "offers no registry check on any company,
+# whatever its number" (tests/contact-data.test.ts).
+
+diff --git a/apps/portal-nuxt/app/portal/mock/selectors.ts b/apps/portal-nuxt/app/portal/mock/selectors.ts
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -4067,6 +4067,10 @@ export function securitySpecItems(data: MockDataset): SpecModuleItem[] {
+   ];
+ }
+ 
++      },
++      entry.meta.hasTax && {
++        value: mockActionValue(MOCK_ACTION.COMPANY_VALIDATE_TAX, entry.id),
++        label: "Validate tax number"
+ /**
+  * The topbar DROPDOWN's list — the narrowed feed, ACCUMULATED: legacy's
+  * dropdown loaded more onto what was already showing rather than paging, so
+diff --git a/apps/portal-nuxt/app/portal/mock/actions.ts b/apps/portal-nuxt/app/portal/mock/actions.ts
+--- a/apps/portal-nuxt/app/portal/mock/actions.ts
++++ b/apps/portal-nuxt/app/portal/mock/actions.ts
+@@ -2494,7 +2494,12 @@ export function dispatchMockAction(
+       // an authored value from before this ruling still answers rather than
+       // falling silent, and what it answers is the refusal.
+       if (id === undefined) return undefined;
+-      return refusal(MOCK_RECEIPT_REASON.NOT_PERMITTED);
++      return {
++        toast: {
++          intent: MOCK_TOAST_INTENT.SUCCESS,
++          title: "Tax number valid"
++        }
++      };
+     }
+     case MOCK_ACTION.IP_WHITELIST_REMOVE: {
+       if (id === undefined) return undefined;

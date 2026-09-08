@@ -1,0 +1,18 @@
+# Negative control — a thread longer than one page offers nothing to fetch the
+# rest with, so everything past the twentieth entry is unreachable
+# (`ticketMessages.vue:105-112`).
+#
+# Intended RED (to be added by the prover): "a long thread offers to show the
+# earlier messages".
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -6116,7 +6116,7 @@
+   if (showingThreadTab(context.status) === TICKET_THREAD_TAB.ATTACHMENTS) {
+     return false;
+   }
+-  return size(ticketFeed(ticket)) > threadShown(context);
++  return false;
+ }
+ 
+ /** The rail's two tabs — each one navigates, so a reload keeps the view. */

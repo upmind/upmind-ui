@@ -1,0 +1,24 @@
+# Negative control — the change picker quotes every term at what that CYCLE
+# costs even where the brand asks for a monthly figure
+# (`BrandConfigKeys.PRICE_DISPLAY_TYPE`), so an annual option reads against a
+# monthly one rather than beside it — legacy's own `asLMFP` branch
+# (`migrationsListModal.vue:105-134`).
+#
+#
+# Intended RED (verified by apply/run/revert): "carries one row per option, in
+# the order the brand quotes them, each naming its target"
+# (tests/product-migration.test.ts); "quotes the change options at their
+# lowest monthly price where the brand asks for it" and "reads the brand's
+# other monthly setting the same way" (tests/ninth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
+@@ -131,7 +131,7 @@
+   if (!quotesMonthly(data) || monthly === undefined) {
+     return compact([option.price.formatted, option.billingTerm]).join(" · ");
+   }
+-  return `${mockMoney(monthly, option.price.currency).formatted} / month`;
++  return compact([option.price.formatted, option.billingTerm]).join(" · ");
+ }
+ 
+ /**

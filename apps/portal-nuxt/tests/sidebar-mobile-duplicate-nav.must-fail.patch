@@ -1,0 +1,29 @@
+# Negative control — the sidebar's mobile branch mounts a SECOND copy of its
+# nav instead of ShellSidebar moving the one it already has (design.md §D2,
+# tasks.md 2.3/2.6 — ShellSidebar already single-mounts its slot into the
+# drawer below `lg`; PortalFrame must not add a second copy).
+#
+# Reproduced by direct execution before filing: with a marker in
+# sidebar.middle, at 390px the FIXED code shows 0 markers with the drawer
+# closed and 1 with it open (single-mount). Applying this patch shows 1
+# marker BEFORE the drawer opens (this duplicate, always in the DOM below
+# `lg`) and 2 once it opens — the duplicate plus ShellSidebar's own copy.
+#
+# Intended RED: any assertion that a query for the menu's marker returns
+# exactly one node at every width, including the open drawer.
+# REBASED 2026-08-25: the hosting removal / per-brand config reorg moved this
+# context. Same mutation, new anchors — asserted unique before mutating.
+
+--- a/apps/portal-nuxt/app/portal/shell/PortalFrame.vue
++++ b/apps/portal-nuxt/app/portal/shell/PortalFrame.vue
+@@ -46,6 +46,10 @@
+         </ShellSidebarFooter>
+       </template>
+     </ShellSidebar>
++
++    <div v-if="sidebarMeta.renders" class="lg:hidden">
++      <PortalSlotContent :resolved-slot="sidebarMeta.middle" />
++    </div>
+ 
+     <ShellHeader
+       v-if="topbarMeta.renders"

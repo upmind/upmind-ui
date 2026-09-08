@@ -1,0 +1,18 @@
+# Negative control — an invitation is minted without the day it went out, so
+# a delegation invited just now carries no date for the listing to order by
+# and the row it lands on states nothing about when it was sent.
+#
+# Intended RED: "dates every delegation the seed carries, and every one
+# invited since" (tests/eighth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockDelegate.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockDelegate.ts
+@@ -213,8 +213,6 @@
+         email,
+         permissions: invitedPermissions(isFullDelegate, objects),
+         isFullDelegate,
+-        // Invited just now — the day legacy's own listing ordered by.
+-        invitedAt: today(),
+         status: MOCK_DELEGATE_STATUS.PENDING,
+         objects
+       };

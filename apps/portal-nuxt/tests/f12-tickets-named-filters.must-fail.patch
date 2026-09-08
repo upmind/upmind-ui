@@ -1,0 +1,19 @@
+# Negative control — the shared ticket predicate stops reading the two keys
+# the module's own named filters write (`filters.reference`,
+# `filters.subject`), so a published seam answers no caller: both the support
+# pillar's listing and the product tab's tickets panel hand back every thread.
+#
+# Intended RED: "the tickets module's own reference and subject setters narrow
+# the rows" (tests/filter-seams.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -1368,8 +1368,6 @@
+   criteria: MockFilterCriteria
+ ): boolean {
+   return (
+-    matchesContains(ticket.reference, criteria.reference) &&
+-    matchesContains(ticket.subject, criteria.subject) &&
+     matchesExact(ticket.department, criteria.department) &&
+     matchesExact(ticket.status, criteria.status) &&
+     matchesDateRange(ticket.createdAt, criteria.dateCreated)

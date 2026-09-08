@@ -1,0 +1,18 @@
+# Negative control — the top-up is always recorded against the DEFAULT card,
+# whatever the client chose, so the invoice it raises names the wrong card
+# whenever they picked another.
+#
+# Intended RED (to be added by the prover): "records the chosen card on the
+# invoice the top-up raises".
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockWallet.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockWallet.ts
+@@ -260,8 +260,6 @@
+   data: MockDataset,
+   paymentDetailId?: string
+ ): MockPaymentMethod | undefined {
+-  const chosen = find(data.paymentMethods, { id: paymentDetailId });
+-  if (chosen !== undefined) return chosen;
+   return find(data.paymentMethods, { isDefault: true });
+ }
+ 

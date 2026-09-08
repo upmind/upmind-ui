@@ -1,0 +1,19 @@
+# Negative control — the credit meter reads the same at every level, so an
+# account with 5% of its allowance left looks exactly like one with all of it
+# (`useAccountWallet.ts:102-104` banded it four ways).
+#
+# Intended RED (to be added by the prover): the credit meter tones by how much
+# of the allowance is left.
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockWallet.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockWallet.ts
+@@ -323,9 +323,6 @@
+  */
+ export function creditLimitTone(data: MockDataset): MeterModuleTone {
+   const remaining = creditLimitRemainingPercent(data);
+-  if (remaining < CREDIT_DANGER_BELOW) return METER_MODULE_TONE.DANGER;
+-  if (remaining < CREDIT_WARNING_BELOW) return METER_MODULE_TONE.WARNING;
+-  if (remaining < CREDIT_CAUTION_BELOW) return METER_MODULE_TONE.CAUTION;
+   return METER_MODULE_TONE.SUCCESS;
+ }
+ 

@@ -1,0 +1,18 @@
+# Negative control — the statements panel's "Oldest first" order compares the
+# same way "Newest first" does, so asking for the other direction changes
+# nothing and the first page is the newest either way.
+#
+# Intended RED: "orders the periods by date, both ways round"
+# (tests/sixth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -907,7 +907,7 @@
+     {
+       value: "oldest",
+       label: "Oldest first",
+-      compare: (a, b) => a.fromDate.localeCompare(b.fromDate)
++      compare: (a, b) => b.fromDate.localeCompare(a.fromDate)
+     },
+     {
+       value: "closed",

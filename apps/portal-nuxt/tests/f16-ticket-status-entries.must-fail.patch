@@ -1,0 +1,20 @@
+# Negative control — a write that MOVES the thread's standing leaves no entry
+# behind, so closing or reopening a ticket vanishes from the feed legacy built
+# out of exactly those changes (`ticketFeedProvider.vue:228-249`).
+#
+# REBASED 2026-09-06 (the creation ruling was recorded above it). Same mutation.
+#
+# Intended RED (to be added by the prover): "closing a thread appends a status
+# entry to its feed".
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockTicket.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockTicket.ts
+@@ -175,7 +175,7 @@
+       // happened to it beside what was said (`ticketFeedProvider.vue:228-249`).
+       // CREATION writes none: a thread is BORN in its status (a scheduled one
+       // included), and it never changed into it.
+-      if (!moved || changes.status === undefined) return;
++      if (moved || changes.status === undefined) return;
+       const log = subject.statusLog ?? [];
+       subject.statusLog = [
+         ...log,

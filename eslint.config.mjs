@@ -847,16 +847,46 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
-  // 5. Runtime globals — Nuxt apps (cart-nuxt + labs-nuxt): browser + node +
-  //    Nuxt auto-imports.
+  // 5. Runtime globals — Nuxt apps (cart-nuxt + portal-nuxt + labs-nuxt):
+  //    browser + node + Nuxt auto-imports.
   // ---------------------------------------------------------------------------
   {
     files: [
       "apps/cart-nuxt/**/*.{ts,tsx,mts,cts,js,cjs,mjs,vue}",
+      "apps/portal-nuxt/**/*.{ts,tsx,mts,cts,js,cjs,mjs,vue}",
       "playgrounds/labs-nuxt/**/*.{ts,tsx,mts,cts,js,cjs,mjs,vue}"
     ],
     languageOptions: {
       globals: { ...globals.browser, ...globals.node, ...nuxtAutoImportGlobals }
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 5b. portal-nuxt: headless is a TYPES-ONLY dependency WHILE THE APP IS
+  //     MOCK-ONLY. The app aliases @upmind-automation/headless to source so
+  //     mock facades can be typed against the real composable contracts; a
+  //     VALUE import executes the barrel, which module-load-interprets the
+  //     routing machine in an app with no headless runtime wired. The go-real
+  //     MR that lands the first real composable deliberately takes the runtime
+  //     dependency and DELETES this block (or narrows it to app/portal/mock/**).
+  //     (docs/plans/portal-mock-composable-facades.md R3)
+  // ---------------------------------------------------------------------------
+  {
+    files: ["apps/portal-nuxt/**/*.{ts,tsx,mts,cts,vue}"],
+    rules: {
+      "@typescript-eslint/no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@upmind-automation/headless",
+              allowTypeImports: true,
+              message:
+                "portal-nuxt consumes headless as types only — a value import executes the headless barrel (routing machine interprets at module load)."
+            }
+          ]
+        }
+      ]
     }
   },
 
@@ -1099,7 +1129,12 @@ export default [
   //      fails to compile. The design system is a separate library.
   // ---------------------------------------------------------------------------
   {
-    files: ["**/*.no-test.ts", "**/*.types.test.ts", "design-system/**"],
+    files: [
+      "**/*.no-test.ts",
+      "**/*.types.test.ts",
+      "**/*.typecheck.ts",
+      "design-system/**"
+    ],
     rules: { "@typescript-eslint/ban-ts-comment": "off" }
   },
 

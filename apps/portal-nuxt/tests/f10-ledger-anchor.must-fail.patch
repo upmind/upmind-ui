@@ -1,0 +1,21 @@
+# Negative control — the ledger chain opens at nothing instead of at the
+# balance the account held before its oldest movement, so the running total
+# never lands on the balance the wallet actually holds and every statement
+# period closes on the wrong figure.
+#
+# Intended RED (tests/sixth-closure.test.ts):
+#   "anchors the ledger on the balance the wallet holds"
+#   "never lets the credit chain go below zero, and opens above it"
+
+--- a/apps/portal-nuxt/app/portal/mock/ledger.ts
++++ b/apps/portal-nuxt/app/portal/mock/ledger.ts
+@@ -68,8 +68,7 @@
+     ),
+     "date"
+   );
+-  const held = heldIn(data, currency);
+-  const opening = held - sumBy(ordered, row => row.amount.amount);
++  const opening = 0;
+   return map(ordered, (movement, index) =>
+     assign({}, movement, {
+       balanceAfter: mockMoney(

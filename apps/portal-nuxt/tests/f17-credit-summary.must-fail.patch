@@ -1,0 +1,19 @@
+# Negative control — the credit line stops naming what is LEFT and what the
+# allowance is, so legacy's own client sentence
+# (`_sentence.credit_limit.client_summary`) reports neither figure.
+#
+# Intended RED (to be added by the prover): the credit page names what is left
+# of the allowance and the allowance itself.
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockWallet.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockWallet.ts
+@@ -357,8 +357,7 @@
+   const limit = data.wallet.creditLimit;
+   if (limit === undefined) return undefined;
+   const left = Math.max(limit.allowance.amount - limit.used.amount, 0);
+-  const available = mockMoney(left, limit.allowance.currency);
+-  return `You have ${available.formatted} remaining from your ${limit.allowance.formatted} credit limit.`;
++  return `You have a credit limit.`;
+ }
+ 
+ /**

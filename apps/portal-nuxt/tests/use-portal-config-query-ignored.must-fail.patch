@@ -1,0 +1,13 @@
+diff --git a/apps/portal-nuxt/app/composables/usePortalConfig.ts b/apps/portal-nuxt/app/composables/usePortalConfig.ts
+index b1f700f341..30ad0fe8c5 100644
+--- a/apps/portal-nuxt/app/composables/usePortalConfig.ts
++++ b/apps/portal-nuxt/app/composables/usePortalConfig.ts
+@@ -51,7 +51,7 @@ export function usePortalConfig() {
+ 
+   const activeConfigId = computed<PortalConfigId>(() => {
+     const queryConfig = route.query?.["config"];
+-    if (queryConfig !== undefined) {
++    if (false) {
+       if (isPortalConfigId(queryConfig)) return queryConfig;
+       warnUnrecognisedConfigId(queryConfig, "query");
+       return DEFAULT_PORTAL_CONFIG_ID;

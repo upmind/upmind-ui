@@ -1,0 +1,23 @@
+# Negative control — misdirects the catch-all's unmatched branch, so a path
+# matching no route, no product group and no custom area renders the DASHBOARD
+# composition instead of the not-found page (design.md §D9 consequence 1,
+# narrowed onto the not-found contract that replaced the redirect).
+#
+# Intended RED:
+#   catch-all page — an unknown path says so, and offers the way back >
+#   renders the not-found page on setup
+#
+# REBASED 2026-09-03 (Phase 6 replaced the fallback navigation with the
+# not-found page). Same mutation: the unknown path lands somewhere else.
+
+--- a/apps/portal-nuxt/app/pages/[...slug].vue
++++ b/apps/portal-nuxt/app/pages/[...slug].vue
+@@ -144,7 +144,7 @@ function catchAllPageKeys(resolution: CatchAllResolution): readonly PageKey[] {
+     case "custom-area":
+       return [`custom/${resolution.area.slug}`, PAGE_KEY.CUSTOM_PAGE];
+     case "unmatched":
+-      return [PAGE_KEY.NOT_FOUND];
++      return [PAGE_KEY.DASHBOARD];
+   }
+ }
+ </script>

@@ -1,0 +1,31 @@
+# Negative control — the products listing offers no order by STANDING, so the
+# sorter legacy's own listing led with is gone
+# (`data/sorters/contractProducts.ts:4-7,29-33`): a shelf read by status puts
+# everything still running together.
+#
+#
+# Intended RED (verified by apply/run/revert): "orders the products by where
+# each one stands" (tests/tenth-closure.test.ts); "the products listing opens
+# newest-first, and ranks undated one-time rows last by renewal"
+# (tests/collection-search-sort.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -1781,17 +1781,6 @@
+     value: "renewal-soonest",
+     label: "Renewal date",
+     compare: (a, b) => renewalRank(a).localeCompare(renewalRank(b))
+-  },
+-  {
+-    // Legacy's `StatusSorter` (`data/sorters/contractProducts.ts:4-7`), which
+-    // its own listing offered first — a shelf of products read by standing
+-    // puts everything still running together.
+-    value: "status",
+-    label: "By status",
+-    compare: (a, b) =>
+-      PRODUCT_STATUS_LABEL[a.status].localeCompare(
+-        PRODUCT_STATUS_LABEL[b.status]
+-      )
+   }
+ ];
+ 

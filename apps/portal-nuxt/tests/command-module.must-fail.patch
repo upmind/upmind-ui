@@ -1,0 +1,17 @@
+# Negative control — the ⌘K handler stops opening the palette (it only ever
+# closes it). The trigger button still works, so a suite that only clicks the
+# affordance stays green while the shortcut the trigger ADVERTISES is dead.
+#
+# Intended RED: command module — the ⌘K launcher
+#   > stays shut until asked, then opens on the shortcut alone
+
+--- a/apps/portal-nuxt/app/portal/modules/command/Command.vue
++++ b/apps/portal-nuxt/app/portal/modules/command/Command.vue
+@@ -79,6 +79,6 @@
+ useEventListener(document, "keydown", (event: KeyboardEvent) => {
+   if (event.key !== "k" || !(event.metaKey || event.ctrlKey)) return;
+   event.preventDefault();
+-  open.value = !open.value;
++  open.value = false;
+ });
+ </script>

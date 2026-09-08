@@ -1,0 +1,20 @@
+# Negative control — a secret row prints its value in the clear: the mask is
+# gone, so the thing the reveal control exists for is on screen before anybody
+# asks for it.
+#
+# Intended RED: "masks the value until it is revealed"
+# (tests/row-affordances.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/modules/list/List.vue
++++ b/apps/portal-nuxt/app/portal/modules/list/List.vue
+@@ -528,9 +528,7 @@
+ 
+ /** A secret reads as bullets until it is revealed; everything else reads as itself. */
+ function descriptionFor(item: ListModuleItem): string | undefined {
+-  if (!item.secret) return item.description;
+-  if (isRevealed(item)) return item.description;
+-  return SECRET_MASK;
++  return item.description;
+ }
+ 
+ /** A revealed secret is a value to read exactly; ordinary prose is not. */
