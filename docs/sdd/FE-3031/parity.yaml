@@ -14,14 +14,14 @@ cells:
   - actor: client
     context: self
     disposition: Direct
-    legacy: "oracle:25-34 contextual->api/invoices; :227-238 list; :239-278 get/getWithParams; :288-302 updatePaymentDetails; :553-572 hasUnpaid; :574-593 getConsolidatableTotal; :621-633 getUnpaidConvertedAmount"
+    legacy: "oracle:25-34 contextual->api/invoices; :227-238 list; :239-278 get/getWithParams; :288-302 updatePaymentDetails; :553-573 hasUnpaid; :574-592 getConsolidatableTotal; :621-633 getUnpaidConvertedAmount"
     notes: "The reading client's own id resolves from activeUser through the shared resolveClientId seam. Serves AC1-AC11."
 
   - actor: client
     context: client
     disposition: Direct
     legacy: "oracle:558-563 and :581-587 (filter[client_id] on apiPath().contextual); :126-133 belongsToChildOfClient; :134-137 belongsToDelegate"
-    notes: "IN SCOPE per operator ruling 2026-09-01 'In - run both client cells'. Retarget is a DECLARED client_id filter column on the one useQuerySchema(), never a path change and never a hand-appended param - the client lane has no api/clients/{id}/invoices route. Row attribution (own/sub-account/delegated) is the second half of this cell, see row R02. Serves AC12-AC13."
+    notes: "IN SCOPE per operator ruling 2026-09-01 'In - run both client cells'. Retarget is a DECLARED client_id filter column on the one useQuerySchema() (invoices.schemas.ts:68-73), never a path change and never a hand-appended param - the client lane has no api/clients/{id}/invoices route. Row attribution (own/sub-account/delegated) is the second half of this cell, see row R02. Serves AC12-AC13. MECHANISM STATED PRECISELY 2026-09-08 so the row cannot be read as claiming more than the code does: the wire retarget is applied by setCriteria({ filters: { client_id: { eq } } }) on the declared column - that is the door AC12's read-back and its retarget-drop must-fail control both exercise (verify.md:85-102, A7 sub-gate PASS). The scope builder's .for('client', id) resolves the target through resolveClientId (invoices.services.ts:106-114) and that resolved id drives the query-key partition and the row-attribution input (mapInvoices' readingClientId, invoices.services.ts:154); loadList does NOT auto-seed the client_id filter from it (:137-157). The capability is present and reachable from the public surface either way; the row claims the declared column, and the declared column is what carries the target id to the wire."
 
   - actor: staff
     context: self
@@ -90,11 +90,35 @@ arms:
 # ---------------------------------------------------------------------------
 rows:
   - id: R01
-    capability: "hasUnpaid - unpaid-existence count read"
-    legacy: "oracle:553-572 (limit:'count', filter[status.code]=unpaidStatuses, optional filter[client_id], storeData:false, returnData:false, returns response.total > 0)"
+    capability: "hasUnpaid - unpaid-existence read: does this client owe anything at all, answered without loading the list"
+    legacy: "oracle:553-573 (limit:'count' at :559, filter[status.code]=unpaidStatuses at :560, optional filter[client_id] at :561-563, storeData:false, returnData:false, returns response.total > 0 at :572)"
     disposition: Direct
-    delivered_by: "AC10 - service loadUnpaidExistence() + meta.hasUnpaid, via the declared Unpaid-existence criteria preset"
-    notes: "Was named by NO original AC and excluded by no Out-of-Scope clause. Added as a requirement rather than dispositioned away - the JTBD's first noun is 'unpaid amount'."
+    delivered_by: "AC10 - loadUnpaidExistence() (invoices.services.ts:259-283) over its OWN query key ['invoices','unpaid_existence',{client}] (:268), seeded by UNPAID_EXISTENCE_CRITERIA (invoices.schemas.ts:329-332), read by meta.hasUnpaid (useInvoices.meta.ts:37-40) as total > 0"
+    notes: >-
+      Was named by NO original AC and excluded by no Out-of-Scope clause. Added
+      as a requirement rather than dispositioned away - the JTBD's first noun is
+      'unpaid amount'.
+
+      MECHANISM DIVERGENCE RECORDED 2026-09-08 (capability unchanged, so the
+      disposition stays Direct - Direct grades the capability, and the
+      divergence is stated rather than hidden): the oracle asks for the total
+      with limit:"count" and no rows (oracle:559); this module sends
+      pagination.limit: 1 and applies the oracle's OWN total>0 semantics
+      (oracle:572) to the response. The sentinel cannot be spelled through
+      list()'s validated criteria channel for any module - withPageWindow
+      (packages/headless/src/modules/query/query.utils.ts:603-627) merges a
+      hard-coded integer limit (:614-618) beneath every module's declared
+      pagination schema, and useValidation's safeValue dispatches on that merged
+      type alone without consulting oneOf
+      (packages/headless/src/utils/useValidation.ts:539-542), so "count" is
+      non-finite, is discarded, and PAGINATION.limit = 10 (query.utils.ts:72) is
+      substituted before the model reaches the wire. Fixing that is a
+      query-core change the operator withdrew on 2026-09-08, verbatim: "do not
+      chnage any query stuff". Full statement of the divergence, its reason and
+      its capability argument: requirements.md AC10's "Oracle divergence" note.
+      The capability - a dedicated read answering "do I owe anything at all"
+      from the server's reported total, never from the visible row array - is
+      unchanged; only the page window differs.
 
   - id: R02
     capability: "Co-mingled list attribution - belongsToChildOfClient + belongsToDelegate"
@@ -111,11 +135,71 @@ rows:
     notes: "The oracle has TWO pending predicates; the original AC8 named one. Dropping the second collapses 'awaiting the client's bank transfer' into plain 'pending'. Also cross-checked against the BE-computed pending_payment_method (invoices.ts:80-86, requires with=last_payment_log) which is now requested."
 
   - id: R04
-    capability: "unifiableCount(clientId) - per-client cached consolidatable count"
-    legacy: "oracle:37-43 (scope key $unifiable_count::${clientId}, reads state[scope].total)"
-    disposition: Absorbed-by
-    delivered_by: "AC2 - the Consolidatable criteria preset over loadList, whose total serves the notice and the on-demand CTA count"
-    notes: "Absorbed rather than dropped: the oracle's two count surfaces (unifiableCount :37-43 and getConsolidatableTotal :574-593) answer the same question with different caches. One declared criteria preset over the one list query serves both, and the query key partitions per resolved client - which is what unifiableCount's bespoke scope key was doing by hand. No capability lost."
+    capability: "unifiableCount(clientId) - per-client cached consolidatable count, served WITHOUT disturbing the list the client is reading"
+    legacy: "oracle:37-43 (getter unifiableCount over the dedicated scope key $unifiable_count::${clientId}, reading state[scope].total) + oracle:574-592 (action getConsolidatableTotal, which fetches it; its limit:'count' is at oracle:581)"
+    disposition: Renamed
+    delivered_by: "AC2 - useInvoices().useMeta().consolidatableCount (useInvoices.meta.ts:51-54) over its OWN dedicated query loadConsolidatableCount (invoices.services.ts:296-323), seeded by consolidatableCountCriteria (invoices.schemas.ts:364-371)"
+    notes: >-
+      RE-DISPOSITIONED 2026-09-08 after the Verify-stage ABSENT #2 finding
+      (verify.md:157-172).
+
+      WAS: "Absorbed-by / AC2 - the Consolidatable criteria preset over
+      loadList, whose total serves the notice and the on-demand CTA count /
+      No capability lost." That graded the row on a criteria preset existing
+      rather than on the oracle's actual capability. The oracle answers the
+      count from a DEDICATED per-client scope (oracle:37-43) and never touches
+      the list; the then-landed filterConsolidatable() reached the count ONLY
+      by query.setCriteria() on the ONE list query the scope owns, and
+      generateScopeKey keys the collection on (module, actor, context) alone,
+      so two .as(CLIENT) calls return the same registry instance. The notice
+      count and the client's own list therefore could not coexist - which is
+      precisely what AC2's "with the total count available for the
+      consolidation notice" asks for. The capability was narrowed and the row
+      hid the narrowing behind "No capability lost".
+
+      WHAT LANDS NOW - two independent readers, each with its own receipt.
+      (1) COUNT - loadConsolidatableCount() mints its OWN list()
+      (invoices.services.ts:296-323) with its own query key
+      ["invoices","consolidatable_count",{client}] (:308) and its own criteria
+      object (:303-307). It is minted once per scope beside the list query
+      (useInvoices.ts:52) and read by meta.consolidatableCount
+      (useInvoices.meta.ts:51-54), which returns
+      consolidatableCountQuery.total.value - the server's reported total, never
+      a row-array length. A request gate (requestConsolidatableCount,
+      invoices.services.ts:398-400) keeps it un-issued until something reads
+      the count.
+      (2) LIST - filterConsolidatable() still calls query.setCriteria() on the
+      list query (useInvoices.actions.ts:157-161), retained for the genuine
+      "narrow MY visible list" case the oracle also offers
+      (consolidatableCriteria, invoices.schemas.ts:343-353 - filters only, no
+      pagination override).
+      The two share no criteria object and no query key, so reading the count
+      cannot mutate the visible list. They coexist.
+
+      WHY Renamed AND NOT Absorbed-by: the capability is no longer folded into
+      another capability - it stands as its own read. What changed is its NAME
+      and SURFACE: the oracle's getter+action pair (unifiableCount +
+      getConsolidatableTotal) becomes the single member
+      useMeta().consolidatableCount, and the per-client cache partition the
+      oracle's bespoke $unifiable_count::${clientId} scope key did by hand is
+      the { client: clientId } segment of the count query's key. Same
+      capability, new surface = Renamed.
+
+      TWO MECHANISM DIVERGENCES RECORDED, neither capability-bearing.
+      (a) The count read sends pagination.limit: 1, not the oracle's
+      limit:"count" (oracle:581) - the same divergence, for the same reason, as
+      R01 records; the withPageWindow / useValidation mechanism and the
+      operator ruling behind it are written out at requirements.md AC10's
+      "Oracle divergence" note. The count is still the server's own total.
+      (b) consolidatableCountCriteria(clientId.value) is evaluated once at mint
+      (invoices.services.ts:306), so in the client x self case - where the id
+      arrives from the session's activeUser rather than from a .for() context -
+      the criteria's client_id may still be nil at mint and that filter drops
+      out. The request stays client-scoped by the reading client's own bearer
+      token, and the CACHE partition stays per-client because the query key
+      carries the reactive { client: clientId } computed (:308). The
+      client x client case is unaffected: scopeContext.id resolves
+      synchronously before the mint.
 
   - id: R05
     capability: "getWithParams - the richer detail-read include set"

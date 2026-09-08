@@ -366,12 +366,31 @@ export type Payment = {
   isAwaitingClient: boolean;
 };
 
-/** AC1's response shape for the standalone unpaid-amount re-read. */
+/**
+ * AC1's response shape for the standalone unpaid-amount re-read.
+ *
+ * @decision
+ * what: no `amountConverted` / `currencyId` members, though the oracle's
+ * counterpart is named `getUnpaidConvertedAmount` (`oracle:621-633`).
+ * why: the real endpoint's response carries exactly
+ * `["unpaid_amount","unpaid_amount_formatted"]` — confirmed against the
+ * shipped fixture
+ * (`__tests__/fixtures/get-invoices-unpaid-amount-id-currency-id.json`) and a
+ * fresh staging capture. A "converted" figure is unavailable from this
+ * endpoint; `currencyId` is already the caller's own input
+ * (`useInvoice.actions.ts`'s `refreshUnpaidAmount`), so echoing it back would
+ * teach a consumer nothing the request didn't already carry.
+ * rejected: keeping both fields with a `@decision` explaining neither can
+ * ever populate — a VM field the wire never sends, left in place, implies a
+ * capability ("converted") that does not exist here; removing it is the
+ * honest shape. `graphify query "InvoiceUnpaidAmount amountConverted
+ * currencyId consumers"` against `graphify-out/graph.json` (2026-09-08)
+ * confirms no consumer outside this module's own services/mappers reads
+ * either member — reshaping, not a widely-depended-on removal.
+ */
 export type InvoiceUnpaidAmount = {
   amount: number;
-  amountConverted: number;
   amountFormatted: string;
-  currencyId: string;
 };
 
 /**
@@ -459,6 +478,30 @@ export type InvoicesServices = {
   ) => InvoiceUnpaidAmountQuery;
   /** The unpaid-existence count read (AC10) — the same `list()`, a fixed preset. */
   loadUnpaidExistence: () => InvoicesListQuery;
+  /**
+   * Flips the unpaid-existence query's request gate — the read stays
+   * disabled until `useMeta().hasUnpaid` is actually consumed, so a scope
+   * nobody asks about never issues AC10's count request. No existing member
+   * covers this (`graphify query "InvoicesServices requestUnpaidExistence"`
+   * — no match; see `graphify-out/`).
+   */
+  requestUnpaidExistence: () => void;
+  /**
+   * AC2's dedicated consolidatable-count read — the same `list()` shape as
+   * {@link loadUnpaidExistence}, seeded with its OWN criteria
+   * (`invoices.schemas.ts`'s `consolidatableCountCriteria`) so reading the
+   * count can never mutate the list `filterConsolidatable()` narrows.
+   * `graphify query "InvoicesServices loadConsolidatableCount"` against
+   * `graphify-out/graph.json` (2026-09-08) — no match; net-new member, not a
+   * duplicate.
+   */
+  loadConsolidatableCount: () => InvoicesListQuery;
+  /**
+   * Flips the consolidatable-count query's request gate — mirrors
+   * `requestUnpaidExistence`: the read stays disabled until
+   * `useMeta().consolidatableCount` is actually consumed.
+   */
+  requestConsolidatableCount: () => void;
   updatePaymentDetails: (
     invoiceId: Invoice["id"],
     model: InvoicePaymentDetailsModel

@@ -104,20 +104,17 @@ export function mapInvoice(raw: IInvoice, readingClientId?: string): Invoice {
 }
 
 /**
- * Maps the raw unpaid-amount envelope (AC1). The endpoint returns the same
- * field triple `IBasket`/`IInvoice` already carry for the in-basket amount.
+ * Maps the raw unpaid-amount envelope (AC1). The endpoint's real response
+ * carries exactly `unpaid_amount` / `unpaid_amount_formatted` — see
+ * {@link InvoiceUnpaidAmount}'s `@decision`.
  */
 export function mapUnpaidAmount(raw: {
   unpaid_amount: number;
-  unpaid_amount_converted: number;
   unpaid_amount_formatted: string;
-  currency_id: string;
 }): InvoiceUnpaidAmount {
   return {
     amount: raw.unpaid_amount,
-    amountConverted: raw.unpaid_amount_converted,
-    amountFormatted: raw.unpaid_amount_formatted,
-    currencyId: raw.currency_id
+    amountFormatted: raw.unpaid_amount_formatted
   };
 }
 
@@ -195,7 +192,11 @@ function mapPayments(payments: IInvoice["payments"]): Payment[] {
       amountFormatted: payment.amount_formatted,
       createdAt: payment.created_at,
       attemptAgeMs: Date.now() - new Date(payment.created_at).getTime(),
-      isAwaitingClient: payment.gateway?.type === GatewayTypes.AWAITING_CLIENT
+      // `oracle:94-97` — pending AND awaiting-client gateway, not the gateway
+      // alone: a settled payment on that gateway type is not awaiting anyone.
+      isAwaitingClient:
+        !!payment.pending &&
+        payment.gateway?.type === GatewayTypes.AWAITING_CLIENT
     };
   });
 

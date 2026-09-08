@@ -43,6 +43,14 @@ function createInvoicesForScope(config: ScopeConfig, scopeKey: ScopeKey) {
    */
   const unpaidExistenceQuery = service.loadUnpaidExistence();
 
+  /**
+   * AC2's consolidatable-count — a separate, lightweight (count-only) query,
+   * minted ONCE alongside the list query, over its OWN criteria, so
+   * `meta.consolidatableCount` never re-mints it and never shares the list
+   * query's criteria object.
+   */
+  const consolidatableCountQuery = service.loadConsolidatableCount();
+
   /** ONE actions instance per scope; the layers below stay lazy. */
   const actions = createInvoicesActions(actorScope, service, query, scopeKey);
 
@@ -59,7 +67,13 @@ function createInvoicesForScope(config: ScopeConfig, scopeKey: ScopeKey) {
 
     /** Sub-composable for collection meta (state flags). */
     useMeta: () =>
-      createInvoicesMeta(actorScope, service, query, unpaidExistenceQuery)
+      createInvoicesMeta(
+        actorScope,
+        service,
+        query,
+        unpaidExistenceQuery,
+        consolidatableCountQuery
+      )
   };
 }
 // -----------------------------------------------------------------------------

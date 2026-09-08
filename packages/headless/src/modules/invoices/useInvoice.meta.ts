@@ -37,12 +37,18 @@ export function createInvoiceMeta(
    * ONE discriminated derivation over `summary.unpaidAmount` /
    * `summary.paidAmount` / `payments[]` — the source the four pre-conversion
    * booleans each read independently and could disagree over.
+   *
+   * A failed/absent load reports `FAILED`, never a guessed state (AC-16's
+   * guard scenario): `FAILED` is the one member the four booleans below
+   * never wrap, so a load failure cannot masquerade as a genuine payment
+   * outcome. `hasError` is what tells the two apart from a real failed
+   * payment attempt.
    */
   const paymentState = computed<PaymentState>(() => {
-    const invoice: Invoice | undefined = query.data.value;
-    if (!invoice) return PAYMENT_STATE.PENDING;
+    const invoice = query.data.value;
+    if (isEmpty(invoice?.summary)) return PAYMENT_STATE.FAILED;
 
-    const { payments, summary } = invoice;
+    const { payments, summary } = invoice as Invoice;
 
     if (summary.unpaidAmount === 0) {
       return isEmpty(payments) ? PAYMENT_STATE.FREE : PAYMENT_STATE.COMPLETE;
@@ -97,7 +103,7 @@ export function createInvoiceMeta(
 
     /** AC13 — false for a delegated invoice (`invoiceStatusMsg.vue:118-124`). */
     isSettleable: computed(
-      () => query.data.value?.attribution.isSettleable ?? false
+      () => query.data.value?.attribution?.isSettleable ?? false
     ),
 
     /** The wired discriminated payment state (design D3). */

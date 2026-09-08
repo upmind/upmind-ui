@@ -103,7 +103,7 @@ Full dispositions with receipts live in `parity.yaml` under `rows:`. Summary:
 | R01 | `hasUnpaid` unpaid-existence count (`oracle:553-572`) | Direct → **AC10** |
 | R02 | Co-mingled attribution `belongsToChildOfClient` + `belongsToDelegate` (`oracle:126-137`) | Direct → **AC13** |
 | R03 | `hasPendingPaymentInstructions` AWAITING_CLIENT (`oracle:93-101`) | Direct → **AC8** |
-| R04 | `unifiableCount(clientId)` (`oracle:37-43`) | Absorbed-by the consolidatable count (AC2) |
+| R04 | `unifiableCount(clientId)` (`oracle:37-43`) + `getConsolidatableTotal` (`oracle:574-592`) | **Renamed** → **AC2** `useMeta().consolidatableCount`, over its own dedicated count query (was `Absorbed-by`; re-dispositioned 2026-09-08 — `parity.yaml` `R04`) |
 | R05 | `getWithParams` richer include set (`oracle:250-278`) | Direct → the `loadOne` include set below |
 | R06 | `isCreditNote` + `is_consolidation`-first label precedence (`oracle:111-115`, `:172-179`) | Direct → **AC7** |
 | R07 | Staff actor | Dropped — operator deprecation ruling |
@@ -241,7 +241,8 @@ clause 4. Model: `client-email-history.services.ts:59-67` and its note `:55-57`.
 | `loadList(params?)` | `GET api/invoices` via `list({ criteria: { schema: useQuerySchema() } })` | AC2. The **only** request-state channel. `queryKey: [...queryKey, { client: clientId }]`. `placeholderData: keepPreviousData`. |
 | `loadOne(invoiceId?)` | `GET api/invoices/{invoiceId}` via `query()` | Replaces `loadInvoice`. `queryKey: [...queryKey, "invoice", invoiceId, { client: clientId }]`. An **absent id issues NO request** (`templates/query/{module}.services.ts:108-111`). |
 | `loadUnpaidAmount(invoiceId?, currencyId?)` | `GET api/invoices/unpaid_amount/{invoiceId}` | AC1. `oracle:621-633`. Currency rides as a declared service argument → query param, not criteria (a single read has no criteria channel). `staleTime: 0` so a currency change re-reads. |
-| `loadUnpaidExistence()` | `GET api/invoices` with `criteria` carrying `pagination.limit: "count"` + the unpaid status filter | AC10. `oracle:553-572`. Returns the server total; the composable derives the boolean. |
+| `loadUnpaidExistence()` | `GET api/invoices` with `criteria` carrying the unpaid status filter + `pagination.limit: 1` | AC10. `oracle:553-573`. Its **own** query key `[...queryKey, "unpaid_existence", { client }]`, its own criteria object, no relations. Returns the server total; the composable derives the boolean. `limit: 1`, not the oracle's `limit: "count"` (`oracle:559`) — see the sentinel note below and `requirements.md` AC10's "Oracle divergence". |
+| `loadConsolidatableCount()` | `GET api/invoices` with `criteria` carrying the consolidatable filters + `pagination.limit: 1` | AC2 / `R04`. `oracle:37-43` + `:574-592`. Its **own** query key `[...queryKey, "consolidatable_count", { client }]` and its own criteria object, so reading the notice count can never mutate the list `filterConsolidatable()` narrows — the two coexist. Same `limit: 1` divergence as above. |
 | `updatePaymentDetails(invoiceId, model)` | `PATCH api/invoices/{invoiceId}/payment_details` | AC4. `oracle:288-302`. Body is `InvoicePaymentDetailsModel` — see the AC4 decision. |
 
 `scopedServices(scopeActor, scopeContext)` ships with only its `default: return {}`
@@ -371,7 +372,12 @@ republished, never copied** — `client-email-history/useClientReceivedEmails.co
 renderer's only door — `client-email-history/useClientReceivedEmails.context.ts:76-86`).
 
 **`useInvoices.meta.ts`** — `hasError` · `isEmpty` · `isLoading` ·
-`isFiltered` · `hasUnpaid` (AC10) · `isAvailable` (`service.isAvailable`).
+`isFiltered` · `hasUnpaid` (AC10, from `loadUnpaidExistence`'s own query) ·
+`consolidatableCount` (AC2 / `R04`, from `loadConsolidatableCount`'s own
+query — **never** the list query, so the notice count and the visible list
+coexist) · `isAvailable` (`service.isAvailable`). Reading either count flips
+that count query's request gate, so a scope nobody asks issues no count
+request.
 
 **`useInvoices.internals.ts`** — `actorScope` · `query` · `clientId`
 (diagnostics: which client this scope resolved to — the `client×client` receipt) ·
@@ -400,17 +406,36 @@ or operator unspellable.
 |---|---|---|
 | `"filter[status.code]": getters["unpaidStatuses"].join()` | `oracle:558-563`, `:581-587` | `filters["status.code"].in` — values from `InvoiceStatusGroups.UNPAID` |
 | `"filter[client_id]": payload.clientId` | `oracle:558-563`, `:581-587` | `filters.client_id.eq` — **the `client×client` retarget column** |
-| `limit: "count"` | `oracle:557`, `:580` | `pagination.limit` declaring the `"count"` sentinel — see the note below |
+| `limit: "count"` | `oracle:559`, `:581` | `pagination.limit` **declares** the `"count"` sentinel, but no preset spells it and it cannot reach the wire — the delivered count reads send `limit: 1`. See the note below. |
 | Consumer-side `"filter[category.slug]": [...]` | `creditNotesTable.vue:207-212`, `:225-230` | `filters["category.slug"].in` + `filters.credit_invoice_id.eq` |
 | Split filter/sorter files in `src/data/` | `filters/invoice.ts:21-118`, `sorters/invoices.ts:5-33`, `filters/creditNotes.ts:6-41`, `sorters/creditNotes.ts:4-21` | ONE schema: the filter columns and the sort enum below. No parallel list. |
 
-**The `"count"` sentinel.** `limit: "count"` is how the oracle asks for the total
-with no rows (`oracle:557`, `:580`), and the BE understands it. Deleting it would
-change the wire contract; hand-appending it would subvert the criteria law. It is
-therefore **declared** in the schema:
-`limit: { oneOf: [{ type: "integer", minimum: 0 }, { const: "count" }] }`.
-`minimum: 0` — not 1 — keeps `limit: 0` legal for one unpaged page
-(`templates/query/{module}.schemas.ts:250-252`).
+**The `"count"` sentinel — declared, dormant, and NOT what ships.**
+`limit: "count"` is how the oracle asks for the total with no rows
+(`oracle:559`, `:581`), and the BE understands it. Hand-appending it would
+subvert the criteria law, so it is **declared** in the schema:
+`limit: { oneOf: [{ type: "integer", minimum: 0 }, { const: "count" }] }`
+(`invoices.schemas.ts:207-212`). `minimum: 0` — not 1 — keeps `limit: 0` legal
+for one unpaged page (`templates/query/{module}.schemas.ts:250-252`).
+
+**It cannot reach the wire, so the delivered count reads send `limit: 1`
+instead.** `withPageWindow` (`packages/headless/src/modules/query/query.utils.ts:603-627`)
+merges a hard-coded `limit: { type: "integer", minimum: 0, default: PAGINATION.limit }`
+(`:614-618`) beneath every module's declared pagination schema, and
+`useValidation`'s `safeValue` dispatches on that merged `type` alone, never
+consulting `oneOf` (`packages/headless/src/utils/useValidation.ts:539-542`) — so
+`"count"` is non-finite, is discarded, and `PAGINATION.limit` = `10`
+(`query.utils.ts:72`) is substituted before the model reaches the wire. The
+sentinel is therefore unspellable through `list()`'s validated criteria channel
+for **any** module. Fixing that is a query-core change the operator withdrew on
+2026-09-08, verbatim: **"do not chnage any query stuff"** —
+`packages/headless/src/modules/query/**` and `useValidation.ts` are off limits
+for this story. Both count presets below send `pagination.limit: 1`, the
+smallest normal page that leaves the oracle's own `response.total > 0` contract
+(`oracle:572`) intact. The declaration stays (deleting it would lose the oracle
+shape from the schema, and it costs nothing dormant), carrying the `@decision`
+at `invoices.schemas.ts:304-328`. Capability argument and full receipt:
+`requirements.md` AC10's "Oracle divergence" note; `parity.yaml` `R01`, `R04`.
 
 ### Filter columns — one entry per column, only the operators the API serves
 
@@ -452,16 +477,32 @@ Receipts: `sorters/invoices.ts:5-33` (`total_amount`, `status`,
 
 `limit` (see the sentinel note) · `offset` (`integer`, `minimum: 0`).
 
-### The three criteria presets the ACs need
+### The four criteria presets the ACs need
 
-Presets are **criteria models**, not new endpoints — each is a `setCriteria`
-payload spelled entirely in declared columns:
+Presets are **criteria models**, not new endpoints — each is spelled entirely in
+declared columns. Two of them seed a **dedicated count query's own** criteria
+object (never `setCriteria` on the list); the other two are `setCriteria`
+payloads that narrow the visible list:
 
-| Preset | Model | AC |
-|---|---|---|
-| Unpaid existence | `{ filters: { "status.code": { in: InvoiceStatusGroups.UNPAID } }, pagination: { limit: "count" } }` | AC10 |
-| Consolidatable | `{ filters: { "status.code": { in: UNPAID }, is_consolidation: { eq: false }, "category.slug": { in: [RECURRENT] }, client_id: { eq: <resolved> }, paid_amount: { eq: 0 } }, pagination: { limit: "count" } }` | AC2 |
-| Credit notes | `{ filters: { "category.slug": { in: [CREDIT_NOTE, CREDIT_NOTE_FOR_REFUND] } } }`, plus `credit_invoice_id: { eq: <id> }` when scoped to one invoice | AC7 |
+| Preset | Model | Applied to | AC |
+|---|---|---|---|
+| Unpaid existence | `{ filters: { "status.code": { in: InvoiceStatusGroups.UNPAID } }, pagination: { limit: 1 } }` | `loadUnpaidExistence()`'s own query | AC10 |
+| Consolidatable **count** | the row below's filters, `+ pagination: { limit: 1 }` | `loadConsolidatableCount()`'s own query | AC2 / `R04` |
+| Consolidatable **list filter** | `{ filters: { "status.code": { in: UNPAID }, is_consolidation: { eq: false }, "category.slug": { in: [RECURRENT] }, client_id: { eq: <resolved> }, paid_amount: { eq: 0 } } }` — filters only, no pagination override | `setCriteria` on the list, via `filterConsolidatable()` | AC2 |
+| Credit notes | `{ filters: { "category.slug": { in: [CREDIT_NOTE, CREDIT_NOTE_FOR_REFUND] } } }`, plus `credit_invoice_id: { eq: <id> }` when scoped to one invoice | `setCriteria` on the list, via `filterCreditNotes()` | AC7 |
+
+**Why the consolidatable capability is two presets, not one.** The oracle serves
+the count from a dedicated per-client scope (`oracle:37-43`, `:574-592`) *without
+disturbing the list the client is reading*. One preset over the one list query
+cannot do both at once — `generateScopeKey` keys the collection on
+`(module, actor, context)` alone, so two `.as(CLIENT)` calls return the same
+registry instance and the same list query. Splitting the count onto its own query
+(its own key, its own criteria object) is what makes the notice count and the
+client's own list coexist. Receipt for the failure this closes:
+`verify.md:157-172`; disposition: `parity.yaml` `R04` (`Renamed`).
+
+Both `limit: 1` values are the sentinel divergence recorded above — not
+`limit: "count"`.
 
 ### No FORM schema pair
 

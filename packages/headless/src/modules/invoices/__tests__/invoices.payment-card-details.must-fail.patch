@@ -1,0 +1,25 @@
+# must-fail: invoices.mappers.test.ts > "mapPayments (via mapInvoice) —
+# payment meaning and order > resolves card details when a saved card
+# funded the payment". Authored by the developer seat (FE-3031 regression
+# triage) — no existing control in this tree guards the payment's
+# card-detail resolution (`details?.card_type` / `details?.card_last4`).
+# Mutation: the mapped payment's `cardType`/`cardLast4` no longer read the
+# payment's `payment_details` at all — both hardcode to `undefined`. This
+# flips "resolves card details when a saved card funded the payment" RED
+# (asserts `cardType === "visa"` / `cardLast4 === "4242"`); the colocated
+# "carries no card details for a payment with no saved card" test stays
+# green either way, since `undefined` also satisfies its assertion.
+# git apply --check is clean against invoices.mappers.ts as landed.
+--- a/packages/headless/src/modules/invoices/invoices.mappers.ts
++++ b/packages/headless/src/modules/invoices/invoices.mappers.ts
+@@ -187,8 +187,8 @@
+         isPending: !!payment.pending,
+         isSuccessful: !payment.pending && payment.captured > 0
+       },
+-      cardType: details?.card_type,
+-      cardLast4: details?.card_last4,
++      cardType: undefined,
++      cardLast4: undefined,
+       amountFormatted: payment.amount_formatted,
+       createdAt: payment.created_at,
+       attemptAgeMs: Date.now() - new Date(payment.created_at).getTime(),

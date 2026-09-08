@@ -136,7 +136,14 @@ export const recorded = {
     getFixtureBody<{ status: string; error: { code: number } }>(
       "get-invoices-unpaid-amount-id-case-missing-currency",
       { recordingsDir }
-    )
+    ),
+  /** `GET /invoices/{id}` — real 404, control response (unknown id). */
+  notFound: () =>
+    getFixtureBody<{
+      status: string;
+      data: null;
+      error: { code: number; message: string } | null;
+    }>("get-invoices-id-case-not-found", { recordingsDir })
 };
 
 /**

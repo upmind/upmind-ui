@@ -16,7 +16,10 @@
  * Every input is `recorded.unpaid()` — a REAL captured row — with an
  * explicitly labelled minimal set of fields toggled per state, the accepted
  * precedent in `invoices.mapping.int.test.ts` /
- * `client-email-history.mappers.test.ts`.
+ * `client-email-history.mappers.test.ts`. The failed-load tests use a
+ * hand-built 500 (a control/error response, exempt from the recorded-body
+ * rule) and the REAL `recorded.notFound()` 404 capture — closing a gap the
+ * verifier flagged: that fixture existed, unread, since 2026-08-31.
  *
  * ## What Breaks If These Fail
  * The panel re-prompts for payment on a settled invoice, or shows a receipt
@@ -25,7 +28,7 @@
 
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
-import { useInvoice } from "..";
+import { PAYMENT_STATE, useInvoice } from "..";
 import {
   installInvoiceHandlers,
   recorded,
@@ -119,5 +122,33 @@ describe("invoices single read — overall payment state (AC-16)", () => {
     expect(single.useMeta().isFree.value).toBe(false);
     expect(single.useMeta().isPartiallyPaid.value).toBe(false);
     expect(single.useMeta().isPending.value).toBe(false);
+    // The failed-load path is DEFINED, not a guess: paymentState resolves to
+    // FAILED, and hasError is the signal that distinguishes "the load itself
+    // failed" from a genuine failed-payment invoice also reporting FAILED.
+    expect(single.useMeta().paymentState.value).toBe(PAYMENT_STATE.FAILED);
+    expect(single.useMeta().hasError.value).toBe(true);
+  });
+
+  it("AC-16 a real 404 (unknown invoice) reports the same failed-load guarantee as any other failed load", async () => {
+    await seedClientSession();
+    const notFound = recorded.notFound();
+    server.use(
+      http.get("*/invoices/:id", () =>
+        HttpResponse.json(notFound, { status: 404 })
+      )
+    );
+
+    const single = useInvoice().withId("00000000-0000-0000-0000-000000000000");
+
+    await vi.waitFor(
+      () => expect(single.useMeta().isLoading.value).toBe(false),
+      { timeout: 10000 }
+    );
+    expect(single.useMeta().isPaid.value).toBe(false);
+    expect(single.useMeta().isFree.value).toBe(false);
+    expect(single.useMeta().isPartiallyPaid.value).toBe(false);
+    expect(single.useMeta().isPending.value).toBe(false);
+    expect(single.useMeta().paymentState.value).toBe(PAYMENT_STATE.FAILED);
+    expect(single.useMeta().hasError.value).toBe(true);
   });
 });

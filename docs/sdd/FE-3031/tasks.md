@@ -111,7 +111,7 @@ graph LR
 2. `useQuerySchema(): JsonSchema7` — `$schema` draft-07, `additionalProperties: false` at **every** level. Model `client-email-history/client-email-history.schemas.ts:30-118`.
 3. Declare **every filter column** in `design.md` §"Filter columns" with **only** the operators listed there. Each column's `title` is an i18n key.
 4. Declare the sort branch: the 8-value `field` enum + `dir`, `default: [{ field: "create_datetime", dir: SortDirection.DESC }]`, `minItems: 1`, `uniqueItems: true`.
-5. Declare pagination: `offset` (`integer`, `minimum: 0`) and `limit` as `oneOf: [{ type: "integer", minimum: 0 }, { const: "count" }]` — the **declared** `"count"` sentinel that replaces the oracle's raw `limit: "count"` literal (`oracle:557`, `:580`). `minimum: 0`, not 1.
+5. Declare pagination: `offset` (`integer`, `minimum: 0`) and `limit` as `oneOf: [{ type: "integer", minimum: 0 }, { const: "count" }]` — the **declared** form of the oracle's raw `limit: "count"` literal (`oracle:559`, `:581`). `minimum: 0`, not 1. The declaration is **dormant**: it cannot reach the wire (`design.md` §"The `"count"` sentinel"), so no preset spells it — every count preset sends `limit: 1`.
 6. `useQueryUischema(): UISchemaElement` — `type: "FilterBar"`, one `Control` per column marked "drawn in the bar" in `design.md`. Every element carries `i18n` (mandatory, `code-ui.companion.md`), `optionalText: ""`, and `noLabel` where the catalogue names the control by its placeholder.
 7. `useSortUischema()` for the sort control.
 8. `createInvoicesSchemas(scopeActor)` with only its `default:` case (arms: none). **No** `useSchema`/`useUischema`/model parser — design.md §"No FORM schema pair".
@@ -163,9 +163,9 @@ graph LR
 - [ ] One factory; one `resolveClientId` seam; both composables will call it.
 - [ ] No `ScopeActorTypes.SELF` branch anywhere in the file (clause 4).
 
-## Task 5: The four reads — seat: developer (code-step)
+## Task 5: The five reads — seat: developer (code-step)
 
-- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "unpaid amount live re-read"` and `-t "unpaid existence count"` → assert both outbound requests, their URLs and their query strings.
+- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "unpaid amount live re-read"`, `-t "unpaid existence count"` and `-t "consolidatable count coexists with the list"` → assert each outbound request, its URL and its query string, and that the two count reads are separately keyed from the list.
 
 ### Input State
 - [ ] Task 4 output state holds.
@@ -174,12 +174,15 @@ graph LR
 1. `loadList(params?)` — `list<IInvoice[], Invoice[], InvoiceQueryModel>({ criteria: { schema: useQuerySchema() }, queryKey: [...queryKey, { client: clientId }], url: useUrl("invoices", { with: <the loadList set>, with_count: "products" }), withAccessToken: true, guard, enabled, select: mapInvoices, staleTime: useTime().DAY, placeholderData: keepPreviousData })`. The `with=` list is `design.md` §"The include sets", `loadList` block — verbatim.
 2. `loadOne(invoiceId?)` — `query<IInvoice, Invoice>` at `useUrl(\`invoices/${invoiceId}\`, { with: <the loadOne set>, with_count: "products" })`, `queryKey: [...queryKey, "invoice", invoiceId, { client: clientId }]`. **The existing 17 relations are the floor** — copy them from `invoices.service.ts:22-38` (pre-rename) and add the nine named in the design, including `address,address.country` (which fixes the always-undefined mapped address). An **absent id issues NO request**.
 3. `loadUnpaidAmount(invoiceId?, currencyId?)` — `query<InvoiceUnpaidAmount, InvoiceUnpaidAmount>` at `useUrl(\`invoices/unpaid_amount/${invoiceId}\`, { <currency param> })`, `staleTime: 0`, currency in the query key so a change re-reads (`oracle:621-633`).
-4. `loadUnpaidExistence()` — `list()` with the **Unpaid-existence preset** as its criteria model (`pagination.limit: "count"` + `status.code in InvoiceStatusGroups.UNPAID`). **Reuse `InvoiceStatusGroups.UNPAID`** from `packages/types/src/data/enums/invoice.ts:13-18` — do not re-declare the triple.
-5. Every read: `withAccessToken: true`, `guard` rejecting `NotAuthenticatedError` when not addressable, `enabled` gated on the same predicate.
+4. `loadUnpaidExistence()` — its **own** `list()`, own query key `[...queryKey, "unpaid_existence", { client: clientId }]`, own criteria object seeded with the **Unpaid-existence preset** (`status.code in InvoiceStatusGroups.UNPAID` + `pagination.limit: 1`, **not** `"count"` — the sentinel cannot survive `withPageWindow`/`useValidation`; see `design.md` §"The `"count"` sentinel" and `requirements.md` AC10's "Oracle divergence"). **Reuse `InvoiceStatusGroups.UNPAID`** from `packages/types/src/data/enums/invoice.ts:13-18` — do not re-declare the triple. No relations: count only.
+5. `loadConsolidatableCount()` — AC2/`R04`'s count read. Same shape as (4): its **own** `list()`, own query key `[...queryKey, "consolidatable_count", { client: clientId }]`, own criteria object seeded with the **Consolidatable count preset** (the consolidatable filters `+ pagination.limit: 1`). It must **never** be served by `setCriteria` on the list query — that is the ABSENT #2 finding (`verify.md:157-172`); the notice count and the client's own list have to coexist.
+6. Both count reads: a `requested` ref gates `enabled`, flipped by a `request…()` service member the meta layer calls on read — so a scope nobody asks issues no count request.
+7. Every read: `withAccessToken: true`, `guard` rejecting `NotAuthenticatedError` when not addressable, `enabled` gated on the same predicate.
 
 ### Output State
-- [ ] Four reads exist; all request state on the list paths travels through `criteria`.
-- [ ] `grep -n 'limit.*count\|"limit"' invoices.services.ts` shows no raw literal — the sentinel lives in the schema.
+- [ ] Five reads exist; all request state on the list paths travels through `criteria`.
+- [ ] The two count reads each own a distinct query key and a distinct criteria object — neither shares the list query's.
+- [ ] `grep -n 'limit.*count\|"limit"' invoices.services.ts` shows no raw literal — the page window lives in the schema's presets.
 
 ## Task 6: The assigned-method mutation — seat: developer (code-step)
 
@@ -265,7 +268,7 @@ graph LR
 
 ## Task 11: Prove the reads (AC1, AC2, AC9, AC10) — seat: prover (test-step)
 
-- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "unpaid amount live re-read"`, `-t "invoices collection reads the list"`, `-t "next charge date on the invoice"`, `-t "unpaid existence count"` → each asserts its named outbound request contract and mapped outcome against recorded fixtures.
+- Reality Check: `pnpm --filter @upmind-automation/headless test:integration -t "unpaid amount live re-read"`, `-t "invoices collection reads the list"`, `-t "consolidatable count coexists with the list"`, `-t "next charge date on the invoice"`, `-t "unpaid existence count"` → each asserts its named outbound request contract and mapped outcome against recorded fixtures.
 
 ### Input State
 - [ ] Task 10 output state holds.
@@ -273,12 +276,14 @@ graph LR
 ### Actions
 1. Author `packages/headless/src/modules/invoices/__tests__/invoices.reads.int.test.ts`.
 2. AC1: one `GET /api/invoices/unpaid_amount/{id}` with the client bearer; the currency param in the query string; a currency change issues a **second** request (assert request count, not just the payload).
-3. AC2: one `GET /api/invoices`; the query string carries the criteria-declared filters/sort/pagination; the mapped collection exposes the server total.
-4. AC9: `nextChargeDate` present on the carrying fixture, absent (not epoch, not thrown) on the omitting one.
-5. AC10: the count request carries the count limit and the unpaid status filter; the boolean derives from the total, not from the row array.
+3. AC2 (list): one `GET /api/invoices`; the query string carries the criteria-declared filters/sort/pagination; the mapped collection exposes the server total.
+4. AC2 (coexistence, `R04`): reading `useMeta().consolidatableCount` issues a **second, separately-keyed** `GET /api/invoices` carrying `filter[status.code|in]`, `filter[is_consolidation|eq]=false`, `filter[category.slug|in]=recurrent`, `filter[paid_amount|eq]=0` and `limit=1`; the count reads the server total; and the list request's own criteria and returned rows are **unchanged** afterwards.
+5. AC9: `nextChargeDate` present on the carrying fixture, absent (not epoch, not thrown) on the omitting one.
+6. AC10: a **dedicated** count request, separate from the list request, whose query string carries `filter[status.code|in]` (the unpaid group) and `limit=1` — **not** the string `count`, which cannot reach the wire (`design.md` §"The `"count"` sentinel"); the boolean derives from the server total, not from the row array.
 
 ### Output State
-- [ ] Four named read-backs execute green.
+- [ ] Five named read-backs execute green.
+- [ ] No assertion in this file matches on the literal token `count` in a request URL.
 
 ## Task 12: Prove the criteria law (AC6, AC7, criteria-subversion) — seat: prover (test-step)
 
@@ -394,7 +399,7 @@ non-excluded Reality Check. No gaps, nothing parked.
 | AC | Capability | Proving task(s) |
 |----|-----------|-----------------|
 | AC1 | Unpaid-amount live re-read | T5 (code) → **T11** (proof) |
-| AC2 | Collection read with criteria | T2/T5/T7 (code) → **T11**, **T12** (proof) |
+| AC2 | Collection read with criteria, **and** the consolidatable count coexisting with it (`R04`) | T2/T5/T7 (code) → **T11** (both read-backs, incl. the coexistence half), **T12** (proof) |
 | AC3 | Refetch after payment | T7 (code) → **T15** (integration proof — the e2e lane is baseline-broken, see `bdd.md`) |
 | AC4 | Assigned method + none selected | T6 (code) → **T14** (proof) |
 | AC5 | Consolidation surface + bundle groups | T1/T3/T5 (code) → **T15** (proof) |
@@ -402,7 +407,7 @@ non-excluded Reality Check. No gaps, nothing parked.
 | AC7 | Credit notes as criteria preset + label precedence | T2/T3/T5 (code) → **T12** (proof) |
 | AC8 | Pending + attempt age + awaiting-client | T3/T5 (code) → **T15** (proof) |
 | AC9 | `next_charge_date` mapped | T3 (code) → **T11** (proof) |
-| AC10 | Unpaid existence count | T5 (code) → **T11** (proof) |
+| AC10 | Unpaid existence, from a dedicated read (`filter[status.code|in]` + `limit=1`, server total) | T5 (code) → **T11** (proof) |
 | AC11 | `balance` ≠ `unpaidAmount` after consolidation | T1/T3 (code) → **T15** (proof) |
 | AC12 | `client×client` retarget | T1/T4/T5/T7 (code) → **T13** (proof) |
 | AC13 | Co-mingled row attribution | T1/T3 (code) → **T13** (proof) |

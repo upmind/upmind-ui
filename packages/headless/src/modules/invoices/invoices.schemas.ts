@@ -202,7 +202,7 @@ export function useQuerySchema(): InvoiceQuerySchema {
         additionalProperties: false,
         properties: {
           // The declared `"count"` sentinel — replaces the oracle's raw
-          // `limit: "count"` literal (`oracle:557`, `:580`). `minimum: 0`,
+          // `limit: "count"` literal (`oracle:559`, `:581`). `minimum: 0`,
           // not 1, keeps `limit: 0` legal for one unpaged page.
           limit: {
             oneOf: [
@@ -296,17 +296,49 @@ export function useSortUischema(): ControlElement {
 }
 
 /**
- * AC10's preset — a count-only read, no rows. Reuses `InvoiceStatusGroups`
+ * AC10's preset — the smallest normal page (one row) of this client's
+ * outstanding invoices; `hasUnpaid` reads its server-reported `total`, never
+ * its row array. Reuses `InvoiceStatusGroups`
  * (`packages/types/src/data/enums/invoice.ts:13-18`) — never re-declared.
+ *
+ * @decision
+ * what: a real one-row page (`pagination.limit: 1`), not the oracle's raw
+ * `limit: "count"` literal (`oracle:559` —
+ * `/Users/dom/Documents/Upmind/vue-app/src/store/modules/data/invoices/index.ts`)
+ * that {@link useQuerySchema}'s `pagination.limit` still declares (dormant,
+ * spellable but silently discarded before the wire) — no preset in this file
+ * spells it any more; {@link consolidatableCountCriteria} below follows this
+ * same `limit: 1` precedent rather than repeating the dead sentinel.
+ * why: `withPageWindow` (`query.utils.ts:603-627`) merges a hard-coded
+ * `limit: { type: "integer", minimum: 0, default: PAGINATION.limit }`
+ * beneath every module's declared pagination schema, and
+ * `useModelParser`'s `safeValue` (`useValidation.ts`) dispatches on that
+ * merged `type` alone — it never consults `oneOf` — so it treats the
+ * `"count"` sentinel as a non-finite integer and silently substitutes the
+ * numeric default before the model ever reaches the wire. `limit: "count"`
+ * therefore cannot be spelled through `list()`'s validated criteria
+ * channel for ANY module, and this dispatch may not fix that: operator
+ * ruling 2026-09-08 (verbatim), "do not chnage any query stuff" —
+ * `packages/headless/src/modules/query/**` and `useValidation.ts` are off
+ * limits for this story. One row over the wire keeps the oracle's own
+ * contract, `response.total > 0` (`oracle:572`), intact.
+ * rejected: fixing `withPageWindow`'s schema merge / `useModelParser`'s
+ * integer coercion so a declared `"count"` sentinel survives — the
+ * query-core fix the 2026-09-08 ruling withdraws.
  */
 export const UNPAID_EXISTENCE_CRITERIA: InvoiceQueryModel = {
   filters: { "status.code": { in: InvoiceStatusGroups.UNPAID } },
-  pagination: { limit: "count" }
+  pagination: { limit: 1 }
 };
 
 /**
- * AC2's preset — the notice/CTA count of invoices this client could
- * consolidate. `clientId` is the resolved scope target (`oracle:574-593`).
+ * AC2's list-filter preset — narrows the VISIBLE list to invoices this client
+ * could consolidate (`filterConsolidatable()`, `useInvoices.actions.ts`).
+ * `clientId` is the resolved scope target (`oracle:574-593`). No pagination
+ * override: a consumer filtering the list still wants it paged normally, so
+ * this declares filters only — the notice/CTA COUNT is a separate reader,
+ * {@link consolidatableCountCriteria}, over its OWN dedicated query
+ * (`invoices.services.ts`'s `loadConsolidatableCount`), never this one.
  */
 export function consolidatableCriteria(clientId?: string): InvoiceQueryModel {
   return {
@@ -316,8 +348,25 @@ export function consolidatableCriteria(clientId?: string): InvoiceQueryModel {
       "category.slug": { in: [InvoiceCategoryCode.RECURRENT] },
       client_id: { eq: clientId },
       paid_amount: { eq: 0 }
-    },
-    pagination: { limit: "count" }
+    }
+  };
+}
+
+/**
+ * AC2's dedicated COUNT preset — the same filter columns as
+ * {@link consolidatableCriteria} (reused, never re-declared), plus the
+ * one-row page window {@link UNPAID_EXISTENCE_CRITERIA}'s `@decision`
+ * establishes for a count-only read. Seeds `loadConsolidatableCount`'s OWN
+ * query (`invoices.services.ts`), which owns its own criteria object — so
+ * reading the count can never mutate the list `filterConsolidatable()`
+ * narrows, and the two coexist.
+ */
+export function consolidatableCountCriteria(
+  clientId?: string
+): InvoiceQueryModel {
+  return {
+    ...consolidatableCriteria(clientId),
+    pagination: { limit: 1 }
   };
 }
 

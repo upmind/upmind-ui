@@ -1,10 +1,14 @@
 /** @internal */
 import { keepPreviousData } from "@tanstack/vue-query";
-import { computed, unref, watch } from "vue";
+import { computed, ref, unref, watch } from "vue";
 import { useQuery } from "../query";
 import { useActiveSession } from "../session-store";
 import { mapInvoice, mapInvoices, mapUnpaidAmount } from "./invoices.mappers";
-import { UNPAID_EXISTENCE_CRITERIA, useQuerySchema } from "./invoices.schemas";
+import {
+  consolidatableCountCriteria,
+  UNPAID_EXISTENCE_CRITERIA,
+  useQuerySchema
+} from "./invoices.schemas";
 import { InvoicesContextTypes } from "./invoices.types";
 import { useTime, NotAuthenticatedError } from "../../utils";
 import type { ScopeContext } from "../scope";
@@ -23,7 +27,7 @@ import type { Currency } from "../currency/currency.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IInvoice } from "@upmind-automation/types";
-import type { MaybeRef } from "vue";
+import type { MaybeRef, Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module invoices/invoices.services
@@ -216,9 +220,7 @@ function loadUnpaidAmount(
   return query<
     {
       unpaid_amount: number;
-      unpaid_amount_converted: number;
       unpaid_amount_formatted: string;
-      currency_id: string;
     },
     InvoiceUnpaidAmount
   >({
@@ -248,8 +250,16 @@ function loadUnpaidAmount(
  * AC10's unpaid-existence count read — the same `loadList` shape, seeded with
  * the fixed {@link UNPAID_EXISTENCE_CRITERIA} preset (`oracle:553-572`). No
  * relations: count only.
+ *
+ * `requested` gates `enabled`: the query is minted once, alongside the list
+ * query, but stays disabled until `requestUnpaidExistence()` flips it —
+ * `meta.hasUnpaid` calls that on read, so an `useInvoices()` scope that never
+ * asks about `hasUnpaid` never issues this request.
  */
-function loadUnpaidExistence(scopeContext?: ScopeContext): InvoicesListQuery {
+function loadUnpaidExistence(
+  requested: Ref<boolean>,
+  scopeContext?: ScopeContext
+): InvoicesListQuery {
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
@@ -260,13 +270,53 @@ function loadUnpaidExistence(scopeContext?: ScopeContext): InvoicesListQuery {
     withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (!isAddressable(clientId.value)) {
+        if (!requested.value || !isAddressable(clientId.value)) {
           reject(new NotAuthenticatedError());
           return;
         }
         resolve(true);
       }),
-    enabled: () => isAddressable(clientId.value),
+    enabled: () => requested.value && isAddressable(clientId.value),
+    select: raw => mapInvoices(raw, clientId.value),
+    staleTime: useTime().DAY
+  });
+}
+
+/**
+ * AC2's dedicated consolidatable-count read — the same `list()` shape as
+ * {@link loadUnpaidExistence}, seeded with `consolidatableCountCriteria`
+ * (`invoices.schemas.ts`) so the notice/CTA count is served from ITS OWN
+ * criteria object and query key, never the one `filterConsolidatable()`
+ * mutates on the list query (`useInvoices.actions.ts`) — the two coexist.
+ *
+ * `requested` gates `enabled` exactly like `loadUnpaidExistence`:
+ * `meta.consolidatableCount` flips it on read, so a scope nobody asks about
+ * never issues this request.
+ */
+function loadConsolidatableCount(
+  requested: Ref<boolean>,
+  scopeContext?: ScopeContext
+): InvoicesListQuery {
+  const { list, useUrl } = useQuery();
+  const clientId = resolveClientId(scopeContext);
+
+  return list<IInvoice[], Invoice[], InvoiceQueryModel>({
+    criteria: {
+      schema: useQuerySchema(),
+      model: consolidatableCountCriteria(clientId.value)
+    },
+    queryKey: [...queryKey, "consolidatable_count", { client: clientId }],
+    url: useUrl("invoices"),
+    withAccessToken: true,
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (!requested.value || !isAddressable(clientId.value)) {
+          reject(new NotAuthenticatedError());
+          return;
+        }
+        resolve(true);
+      }),
+    enabled: () => requested.value && isAddressable(clientId.value),
     select: raw => mapInvoices(raw, clientId.value),
     staleTime: useTime().DAY
   });
@@ -326,6 +376,8 @@ export const createInvoicesServices = (
   scopeContext?: ScopeContext
 ): InvoicesServices => {
   const clientId = resolveClientId(scopeContext);
+  const unpaidExistenceRequested = ref(false);
+  const consolidatableCountRequested = ref(false);
 
   return {
     queryKey,
@@ -336,7 +388,16 @@ export const createInvoicesServices = (
     loadOne: invoiceId => loadOne(invoiceId, scopeContext),
     loadUnpaidAmount: (invoiceId, currencyId) =>
       loadUnpaidAmount(invoiceId, currencyId, scopeContext),
-    loadUnpaidExistence: () => loadUnpaidExistence(scopeContext),
+    loadUnpaidExistence: () =>
+      loadUnpaidExistence(unpaidExistenceRequested, scopeContext),
+    requestUnpaidExistence: () => {
+      unpaidExistenceRequested.value = true;
+    },
+    loadConsolidatableCount: () =>
+      loadConsolidatableCount(consolidatableCountRequested, scopeContext),
+    requestConsolidatableCount: () => {
+      consolidatableCountRequested.value = true;
+    },
     updatePaymentDetails,
     ...scopedServices(scopeActor, scopeContext)
   };

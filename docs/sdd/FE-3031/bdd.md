@@ -37,7 +37,7 @@ Every AC's proof layer, and why it sits there. All 13 map to a task in
 | AC | Capability | Layer | Why this layer |
 |----|-----------|-------|----------------|
 | AC1 | Unpaid-amount live re-read | integration | Asserts an outbound request contract (URL + currency param + a second request on currency change). Response-shape and request-count assertions are integration's job. |
-| AC2 | Collection read with criteria | integration | The wire query string is the assertion. |
+| AC2 | Collection read with criteria, **and** the consolidatable count coexisting with it (`R04`) | integration | The wire query string is the assertion. The coexistence half needs two *distinct* observed requests plus the list's criteria surviving the count read — only an integration read-back can see both. |
 | AC3 | Refetch after a payment outcome | integration | The journey's trigger is PN-1 (out of scope); the module owns the refetch, provable as a second outbound request. **See the broken-lane note below.** |
 | AC4 | Assigned method + "none selected" | integration | The PATCH body's *key presence* is the assertion. |
 | AC5 | Consolidation surface + bundle groups | integration | Wire → VM mapping against a recorded consolidation fixture. |
@@ -45,7 +45,7 @@ Every AC's proof layer, and why it sits there. All 13 map to a task in
 | AC7 | Credit notes as criteria preset + label precedence | integration | The category values in the query string, plus the label derivation. |
 | AC8 | Pending + attempt age + awaiting-client | integration | Needs the gateway relation on the wire and the mapped discrimination. |
 | AC9 | `next_charge_date` mapped | integration | Mapping against two recorded fixtures (present / absent). |
-| AC10 | Unpaid existence count | integration | The count limit and status filter in the query string. |
+| AC10 | Unpaid existence, from a dedicated read | integration | The assertion is the dedicated request's own query string — `filter[status.code|in]` + `limit=1` — plus the derivation from the server total, not the row array. **Not** the literal token `count`: the oracle's `limit: "count"` sentinel cannot reach the wire (`requirements.md` AC10, "Oracle divergence"). |
 | AC11 | `balance` ≠ `unpaidAmount` after consolidation | integration | Mapping against a recorded consolidated fixture. |
 | AC12 | `client×client` retarget | integration | **The A7 clause** (`.claude/rules/verify-reality-check.companion.md`): identity-retargeting work must assert the request URL/filter retarget **and** the auth identity transport — which token was selected, which acting-as headers were sent. Only an integration read-back can see the outbound credential. |
 | AC13 | Co-mingled row attribution | integration | Mapping against a recorded mixed-list page. |

@@ -29,6 +29,9 @@
  * set of fields toggled per call where a condition the real corpus doesn't
  * carry is needed — the same precedent as
  * `client-email-history/__tests__/client-email-history.mappers.test.ts`.
+ * One such CONSTRUCTED case: the recorded paid row's own payment now happens
+ * to carry a saved card, so the "no saved card" scenario overrides
+ * `payment_details: null` on that same real row rather than being dropped.
  *
  * ## What Breaks If These Fail
  * A bundle's line items land in the wrong subscription group, an unlinked
@@ -384,8 +387,17 @@ describe("mapPayments (via mapInvoice) — payment meaning and order", () => {
     expect(mapped.cardLast4).toBe("4242");
   });
 
-  it("carries no card details for a payment with no saved card", () => {
-    const mapped = mapInvoice(paidRaw).payments[0];
+  it("carries no card details for a constructed payment with no saved card", () => {
+    // Constructed: the currently recorded paid row's own payment now carries
+    // a saved card (payment_details.card_type/card_last4), so this override
+    // reconstructs the "no saved card" premise on the real recorded row —
+    // same precedent as the "pending payment" override above.
+    const withoutCard = {
+      ...realPayment,
+      payment_details: null
+    } as unknown as IPayment;
+    const raw = { ...paidRaw, payments: [withoutCard] } as IInvoice;
+    const mapped = mapInvoice(raw).payments[0];
 
     expect(mapped.cardType == null || mapped.cardType === undefined).toBe(
       true

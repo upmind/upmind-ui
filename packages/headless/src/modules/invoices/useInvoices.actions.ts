@@ -146,10 +146,13 @@ export function createInvoicesActions(
   }
 
   /**
-   * AC2's preset — applies the consolidatable-count criteria. `clientId`
-   * defaults to this scope's resolved target (`service.clientId`), since the
-   * notice/CTA count is always "this client's" consolidatable invoices
-   * (`invoices.schemas.ts`'s `consolidatableCriteria`).
+   * AC2's preset — narrows the VISIBLE list to invoices this client could
+   * consolidate. `clientId` defaults to this scope's resolved target
+   * (`service.clientId`) (`invoices.schemas.ts`'s `consolidatableCriteria`).
+   * The notice/CTA COUNT is a separate reader — `useMeta().consolidatableCount`
+   * — over its own dedicated query, never this list's criteria; the two
+   * coexist because reading the count no longer mutates what this preset
+   * filters.
    */
   function filterConsolidatable(clientId?: string): void {
     query.setCriteria(
