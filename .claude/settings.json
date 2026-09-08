@@ -37,7 +37,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "[ -f docs/corpus/glossary.json ] && node docs/corpus/glossary-inject.mjs || true"
+            "command": "[ -f \"$CLAUDE_PROJECT_DIR/docs/corpus/glossary.json\" ] && node \"$CLAUDE_PROJECT_DIR/docs/corpus/glossary-inject.mjs\" || true"
           }
         ]
       },
@@ -46,7 +46,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/scripts/published-docs-branch-guard.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/scripts/published-docs-branch-guard.sh\""
           }
         ]
       },
@@ -59,7 +59,7 @@
           },
           {
             "type": "command",
-            "command": "node .claude/scripts/graphify/search-guard.mjs"
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/scripts/graphify/search-guard.mjs\""
           }
         ]
       },
@@ -77,7 +77,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/scripts/vitest-serial-guard.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/scripts/vitest-serial-guard.sh\""
           }
         ]
       }
