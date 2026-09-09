@@ -320,6 +320,35 @@ rows:
       this Direct row and dispositioned at R11 (original_invoice,
       duplicate_invoice) and R12 (data, account.user).
 
+      payment_details BECAME TRUE BY A FIX, NOT WHEN IT WAS WRITTEN - noted
+      2026-09-09 (6th pass), after the terminal JTBD readback's PASS 1 finding.
+      THE DISPOSITION IS UNCHANGED (Direct) AND THE CAPABILITY SENTENCE IS
+      UNCHANGED; this note records WHEN the grade became true. When this row
+      was written, payment_details was graded Direct on INCLUDE-SET MEMBERSHIP
+      alone - it was requested (invoices.services.ts:80, oracle:262) and
+      reached no Invoice VM field, because mapInvoice read no
+      raw.payment_details. That is exactly the criterion this row's OWN
+      2026-09-08 correction (iii) had already rejected when it split R11/R12
+      out of this Direct row for reaching no VM field. PASS 1 of the readback
+      named it precisely (verify.md:1114, verify.md:1150) and its finding
+      STANDS AS HISTORY: at the moment the grade was written it was wrong, by
+      this row's own test. It is now true on that same test - requested AND
+      reaching a VM field - because e3188fca8 added mapPaymentMethod
+      (invoices.mappers.ts:242) wired at invoices.mappers.ts:91 to
+      Invoice.paymentMethod, and the detail draws paymentMethod.label as a
+      scalar leaf. The readback verified the mapping against reality rather
+      than against the declaration: two recorded captures
+      (get-invoices-id-case-first.json, get-invoices-id-case-paid.json) carry
+      card_type: "visa" / card_last4: "4242", so label resolves to
+      "visa ****4242" rather than the empty string. A row that quietly reads
+      correct today would hide that it was wrong when it was signed, so the
+      history is kept here rather than tidied away. RESIDUAL, named not waived:
+      no seat has WATCHED paymentMethod render a method - the readback's own
+      fixture carries payment_details: null, so the field draws the em-dash in
+      the only observed render; and paymentMethod is the one new mapper member
+      with zero unit coverage (invoices.mappers.test.ts is still 19 tests
+      across a 70-line mapper addition, and no test names paymentMethod).
+
   - id: R06
     capability: "isCreditNote + getInvoiceCategoryName's is_consolidation-first label precedence"
     legacy: "oracle:111-115 isCreditNote (category.slug in [CREDIT_NOTE, CREDIT_NOTE_FOR_REFUND]); :175-180 getInvoiceCategoryName (if (invoice.is_consolidation) return map[CONSOLIDATION].label at :178, THEN map[category.slug]?.label at :179)"

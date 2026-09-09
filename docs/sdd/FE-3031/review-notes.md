@@ -652,3 +652,309 @@ both doors: a reader now meets the dated supersession before the example.
   `skill:Factory` → `skill:Plan` edge; stamping one would re-route a live
   dispatch to `pick-plan` and hijack the conductor's lifecycle. No label and no
   status were written. Flagged to the conductor, which owns the handoff.
+
+---
+
+## 2026-09-09 — planner seat, 6th pass (post-readback: two documentation items + one named defect)
+
+This pass **records**. The `/factory` door's terminal JTBD readback returned
+**MET** at `72ee251d0` (verdict filed at `verify.md:1281`), after one FAILED
+verdict and two authorised fix cycles. **That verdict is not re-graded here.**
+Four of the five JTBD nouns are SERVED; "assigned method" is PART-SERVED with
+its write half out of scope by signed disposition.
+
+The readback left this seat **two items, both graded documentation rather than
+capability** (`verify.md:1457-1466`). Both are closed below. Two further things
+the readback named — a real defect in nobody's current lane, and three residual
+observation gaps — are recorded so they are not lost at handover.
+
+**No AC capability sentence is weakened, no parity disposition is softened, and
+no cell or row is added or removed by this pass.** Files written: this file,
+`parity.yaml` (`R05` `notes:` only — disposition and capability sentence
+untouched), `design.md` (`R05`'s summary-table row, in lock-step). Nothing
+outside `docs/sdd/**` was written.
+
+---
+
+### Item 1 — CLOSED 2026-09-09: limitation #1's wording, restated as the press half alone
+
+All run, limitation #1 read as:
+
+> **WAS:** "AC-1's `refreshUnpaidAmount` is readable in the detail, not
+> pressable."
+
+**The readback found the READABLE half was false.** The value sat on
+`useInvoice().useContext().unpaidAmount` — a **sibling of `data`** — and
+`DetailSurface` drew only `context.model`, so nothing on the page addressed it.
+The declaration spec's own comment repeated "readable in the detail" while
+asserting only `not.toContain("refreshUnpaidAmount")`
+(`invoices-declaration.spec.ts:277-280`): the readable half was asserted nowhere
+and was **not true** (`verify.md:1153`, `verify.md:1247`).
+
+**It is now true.** `c148e45ea` added `DetailUischema.siblings` under the
+2026-09-09 sign-off; `invoices.presentation.ts:295` declares
+`siblings: ["unpaidAmount"]`; and the readback **render-proved** `£72.00` on
+screen from the real captured `unpaid_amount`, with a differential control that
+dies when `siblings` is stripped (`detail-dialog-siblings.invoices.spec.ts`,
+3/3 green).
+
+The limitation therefore restates as **the press half alone**:
+
+> **NOW:** "AC-1's `refreshUnpaidAmount` is **not pressable**. The re-read
+> itself is readable and render-proven in the detail
+> (`invoices.presentation.ts:295`, `siblings: ["unpaidAmount"]`); no control
+> re-triggers it on demand, because the runtime's **actions channel binds the
+> list cell only** and re-binding it to the detail cell is a materially larger
+> change that the 2026-09-09 sign-off does not cover. **The press is an
+> ergonomic shortcut legacy never had, not a capability out of reach:** the
+> oracle capability is `getUnpaidConvertedAmount` (`oracle:621-632`), a **GET**;
+> the oracle exposes **no refresh verb** for it, so a legacy consumer re-reads
+> by **reopening the record** — and the page does exactly that, because
+> `loadUnpaidAmount` carries `staleTime: 0` (`invoices.services.ts:363`) and
+> `DetailDialog` destroys its read instance on unmount, so reopening the invoice
+> **re-fires the live read**, by the same route the oracle's own consumer uses."
+
+**The reopening route is recorded** (the sentence above), and it is what makes
+the press cost the JTBD nothing rather than merely being an accepted gap.
+
+**The history is kept deliberately.** This limitation was recorded as
+**half-false for most of the run** — through six green gates — and the record of
+that is worth more than a clean sentence. The confirmation that the press half
+is *still* unfixed is what finally made "readable, not pressable" a true
+sentence (`verify.md:1307-1308`, `verify.md:1363`); a reader who meets only the
+tidy version learns nothing about how a half-false disclosure survived six
+gates.
+
+**One precision, verified at source by this seat, so nobody later "finds" a
+capability the readback missed.** The oracle *does* contain an action literally
+named `refresh` — `regenerateInvoice` (`oracle:492-514`), a **POST** to
+`${apiPath().admin}/${invoiceId}/refresh` carrying `company_id`/`address_id`. It
+is a **staff-arm write that regenerates the invoice**, not a re-read of the
+unpaid amount, and it is already inside a dispositioned range
+(`parity.yaml:40`, R07's admin-only writes, signed
+`op:dom@upmind.com:2026-09-01`). The readback's "the oracle exposes no refresh
+verb" is therefore accurate **for this read**, and no undispositioned oracle
+capability is implied. **Not a halt.**
+
+**Where the stale wording still lives — NOT this seat's lane.** The
+source-side comment was already corrected by the developer
+(`invoices.presentation.ts:100-107` now states "…is accurate for the first time
+as of this fix"). What remains stale is the **spec title**
+`invoices-declaration.spec.ts:277` — "draws no control named
+`refreshUnpaidAmount` — readable in the detail, not pressable" — which is now a
+**true** sentence but asserts only the press half. That is the **prover's**
+lane; recorded here, not edited.
+
+---
+
+### Item 2 — CLOSED 2026-09-09: R05's `payment_details` grade became true after the fact
+
+**Written to `parity.yaml` `R05` `notes:` and mirrored in `design.md:109`.
+Disposition unchanged (`Direct`); capability sentence unchanged.**
+
+R05 graded `payment_details` `Direct` on **include-set membership**. The
+readback's PASS 1 called that out precisely (`verify.md:1114`,
+`verify.md:1150`): membership is **the criterion R05's own 2026-09-08 correction
+(iii) had already rejected**, when it split R11/R12 out of this same `Direct`
+row for reaching no `Invoice` VM field. `payment_details` was requested
+(`invoices.services.ts:80`, `oracle:262`) and reached none — `mapInvoice` read
+no `raw.payment_details`. **At the moment the grade was written, it was wrong,
+by this row's own test.**
+
+**It is now true on that same test** — requested **and** reaching a VM field —
+because `e3188fca8` added `mapPaymentMethod` (`invoices.mappers.ts:242`) wired
+at `invoices.mappers.ts:91` to `Invoice.paymentMethod`, and the detail draws
+`paymentMethod.label` as a scalar leaf. The readback verified this **against
+reality rather than against the declaration**: two recorded captures
+(`get-invoices-id-case-first.json`, `get-invoices-id-case-paid.json`) carry
+`card_type: "visa"` / `card_last4: "4242"`, so `label` resolves to
+`"visa ****4242"` rather than the empty string.
+
+**What the note records, and why:**
+
+- It **became true by this fix, not when it was written.**
+- **PASS 1's finding stands as history.** A row that quietly reads correct today
+  would hide that it was wrong when it was signed — so the row says so.
+
+---
+
+### Recorded — 🟠 Hardcoded English in a headless mapper (a real defect, in nobody's current lane)
+
+**Confirmed at source by this seat.** `paymentStateLabel`
+(`packages/headless/src/modules/invoices/invoices.mappers.ts:269-273`) emits
+`"successful"` (`:270`), `"pending — awaiting you"` / `"pending"` (`:272`) and
+`"failed"` (`:273`) as **literals**; `mapBundleGroupsSummary` (`:294-298`) emits
+`"Unlinked"` as a literal (`:298`).
+
+**Those strings reach the screen.** `paymentStateLabel` is composed into
+`paymentsSummary` at `:284`, mapped onto the record at `:90`;
+`mapBundleGroupsSummary` is mapped onto `bundle.groupsSummary` at `:180`. Both
+are drawn as detail leaves. That is **untranslatable user-visible copy generated
+inside `packages/headless`**, against this repo's i18n mandate.
+
+**The escape route — recorded, because it is the transferable half.** It did not
+trip the labs `untranslated()` sweep because
+`playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/__tests__/detail-surface.spec.ts`
+runs that sweep (`:78`) against the **client-emails** declaration (`:10`
+imports `useClientEmails/client-email.scenario`; `:33` passes
+`clientEmails.presentation.detail`) — **not the invoices one**. A per-module
+sweep that is hard-wired to one module's declaration cannot see a second
+module's copy, however many modules adopt the pattern. This is the same
+gate-design class already recorded on this story at Ruling 3: **a gate that
+grades one shape passes over every capability it does not address.**
+
+**Why it is a defect and not a capability gap.** The readback graded it **not a
+capability gap** — the values are **readable**, and the run is graded **EN per
+ADR-021** — but a **real defect** (`verify.md:1441-1450`). This seat concurs and
+does not re-grade it: no AC and no parity row asserts a translated string, so
+the MET verdict is not in question.
+
+**Whose lane, for the handover — this seat's read.** Two lanes, and neither is
+open on this story:
+
+1. **The fix is the developer's** — the literals are in `packages/headless`
+   production source, and replacing them with keys is a code change, not an
+   assertion. It is also a **cross-module** change (a `paymentsSummary`-shaped
+   mapper string is a pattern, not a one-off), so it wants its own story rather
+   than a widening of FE-3031's blast radius — the same reasoning the operator
+   applied to the corpus/replay routing under Ruling 1.
+2. **The escape is the prover's** — the `untranslated()` sweep must be
+   parameterised over **every** declared scenario rather than hard-wired to
+   client-emails, or the next module repeats this exactly. Filing the fix
+   without the sweep leaves the class open.
+
+**Not raised as a blocking ambiguity**, because it names no capability, no
+actor×context cell and no AC: it is a recorded defect for the handover, not a
+scope question. **Not a halt.**
+
+---
+
+### Recorded — eight new i18n keys pending in the external catalogue
+
+Joining the already-pending set (C8 above), the readback names
+(`verify.md:1451-1456`):
+
+| # | Key |
+| --- | --- |
+| 1 | `invoices.notice.has_unpaid` |
+| 2 | `invoices.notice.consolidatable_count` |
+| 3 | `invoices.detail.unpaid_amount` |
+| 4 | `invoices.detail.payment_method` |
+| 5 | `invoices.detail.consolidation_invoice` |
+| 6 | `invoices.detail.credit_invoice` |
+| 7 | `invoices.detail.amount_to_credit` |
+| 8 | `invoices.detail.bundle_is_large` |
+
+Owner: **external catalogue** — same owner and same disposition as C8. Until
+they land, these render as raw keys. Recorded as known; no AC asserts a
+translated string.
+
+---
+
+### Recorded — the residual observation gaps: the run's honest confidence floor
+
+Verbatim from the readback (`verify.md:1404-1420`, and the third carried
+unchanged from Ruling 1). **Each is a place where the capability is present and
+the mechanism verified, but the render has not been watched.** None is a halt;
+none re-opens the verdict.
+
+| # | Gap | Detail |
+| --- | --- | --- |
+| G1 | **`paymentMethod` has never been watched rendering a method** | The readback's fixture carries `payment_details: null`, so that field draws "—" in the only observed render — while **two other fixtures in the same corpus** (`get-invoices-id-case-first.json`, `get-invoices-id-case-paid.json`) carry a real one. The mechanism was closed **by reading those payloads**, so this is an **unwatched render, not an unproven one**. It is also the **one new mapper member with zero unit coverage**: `invoices.mappers.test.ts` is still **19 tests** across a **70-line** mapper addition, and **no test names `paymentMethod`** (confirmed at source by this seat: 19 `it(` blocks, 0 occurrences of `paymentMethod`). |
+| G2 | **The `ModuleRenderer` relay is untested** | `port.rawMeta()` → **both requests fire** (proven, with control) and `ListSurface` + a `notices` prop → **the digits render** (proven, with controls), but **no spec exercises the line joining them** — `ModuleRenderer.vue:28`, `:notices="port.rawMeta?.()"` (confirmed at source by this seat). Both spellings were verified to match `ListSurfaceProps.notices`, and the binding sits on the **LIST branch this page takes**. |
+| G3 | **No seat has observed the invoices page render rows in the labs replay environment** | Carried **unchanged** from Ruling 1. `forced-surface.invoices.spec.ts` is still red with the same three cells and the same verbatim first failure; the `notices`/`siblings` work does not touch `runtime/force/**` and did not clear it. The data half and the render half are each proven; their **composition in that one environment** is not. |
+
+G1 and G2 are gaps in **watching**, not in mechanism: the closing evidence for
+each is a payload or a spelling this seat re-confirmed at source. G3 is the
+residual the operator's Ruling 1 explicitly accepted.
+
+---
+
+### Gate + hand grade, this pass
+
+- **Compliance gate** (there is no `ci/` directory in this repo; the gate exists
+  only in the plugin cache, so the absolute path below is the one that runs):
+
+  ```bash
+  node "/Users/dom/.claude/plugins/cache/upmind-agent/upmind-agent/0.19.4/ci/lint-plan-compliance.mjs" "docs/sdd/FE-3031"
+  ```
+
+  → **exit 0**, no output.
+
+- **`parity.yaml` by hand, re-graded at source this pass:** **4 cells**, **0
+  undispositioned cells**; **12 rows (R01–R12)**, **0 undispositioned rows**;
+  **`blocked_by` on 0 cells and 0 rows**; **6
+  `Dropped-with-issue-reference` dispositions, each carrying a `signoff:`
+  token** (2 cells + 4 rows, 6 signoffs — a 1:1 match). Disposition census: **9
+  `Direct`, 6 `Dropped-with-issue-reference`, 1 `Renamed` = 16 = 4 cells + 12
+  rows** — **identical to the 5th pass**. The hand grade remains the
+  load-bearing one: the lint's parity parser grades **cells** only.
+
+- **ACs or parity rows weakened by this pass: NONE.** `requirements.md`,
+  `tasks.md` and `bdd.md` are untouched. `parity.yaml` gained **only** a `notes:`
+  paragraph on `R05`; its `disposition:` and `capability:` are byte-identical.
+  `design.md` gained **only** a dated note inside `R05`'s summary-table
+  disposition cell.
+
+- **Write-lane breaches: none.** `docs/sdd/**` only. `verify.md` was **read, not
+  written** — it is the verifier's artefact and it filed PASS 2 itself. No
+  source file, no `__tests__/**` file, and no file outside `docs/sdd/FE-3031/`
+  was modified by this pass.
+
+- **Carried, unchanged by this pass:** C2 (`parity.yaml` R08's `tracker:`
+  placeholder, operator-owned), and the `oracle:172-179` anchor cosmetic in
+  `invoices.mappers.ts:70` (developer's lane; `parity.yaml` R06 does not depend
+  on it).
+
+### Door record — `/plan` (6th pass)
+
+- **Dispatch-record stamp (door Step 4): `depth=sdd`, `start_route=increment`.**
+  Per the machine-readable mirror
+  (`teams/intensity-ladder.yaml:96-98`), `depth=sdd` pairs with
+  `plan: docs/sdd/<slug>/` and `start_route: increment` — **staged** only for an
+  epic with child stories, which this is not. **DEPTH ≠ SIZE firewall honoured
+  (`§3.3`, `intensity-ladder.yaml:99`):** `depth` reached the spec artefacts and
+  this record only. It reached **no seat, no model pin, no test scope and no
+  fake-detector setting** — this pass dispatched no seat, pinned no model and
+  changed no test scope, so the firewall is satisfied vacuously as well as by
+  intent.
+
+- **Depth band, computed per `rules/agent-orchestration.md` §3.3:** the ask names
+  **0** new capabilities/ACs, **0** code surfaces, has no importer blast radius,
+  and trips **no** risk-floor question (no trust boundary, no money/auth/protected
+  core, no public-contract change). Taken alone that reads `depth=note`. **Route
+  taken: `depth=sdd`**, for the same reason as the 5th pass — FE-3031 is an
+  **already-routed sdd bundle**, and this pass is the SDD chain's own **Step 1b
+  (Capture Review Notes)** under **Step 1c**'s read-notes-first discipline, which
+  is why this file was read in full before a line was written.
+  `docs/plans/<slug>.md` was deliberately NOT written: a light plan is the wrong
+  artefact for a post-verdict record, and `docs/plans/` is outside this seat's
+  write lane. Slug resolved from the ID: `FE-3031`.
+- **Blocking-ambiguity classifier (`/sdd` Step 1d): no halt.** Neither item
+  names a capability, an actor×context cell or a scope-matrix disposition — both
+  are wording/provenance records the readback itself graded documentation. The
+  hardcoded-English defect and the three observation gaps are recorded, not
+  adjudicated.
+- **Tracker label stamp: DECLINED, same reason as the 5th pass.** FE-3031 is **In
+  Progress** carrying `actor:AI` + **`skill:Factory`** — a mid-flight factory
+  run, not a `/plan`-initiated planning claim. `agent-orchestration.companion.md`
+  §2's transition table has no `skill:Factory` → `skill:Plan` edge; stamping one
+  would re-route a live dispatch to `pick-plan` and hijack the conductor's
+  lifecycle. No label and no status were written.
+- **Step 1b mirror to Linear: DONE.** Comment
+  `b09ca520-907c-471c-8d79-f4b72da15ed3` on FE-3031, 2026-09-09, carrying both
+  closed items, the hardcoded-English defect with its escape route and lane
+  read, the eight pending i18n keys, the three residual observation gaps, the
+  `regenerateInvoice` precision, and this pass's gate + hand grade. The 5th pass
+  mirrored the rulings and closing state at
+  `22759568-c130-4b61-9707-0f163c265a2e`.
+
+  **Corrected in this same pass, and the correction is the point.** This bullet
+  first read "NOT performed by this pass — mirroring it is the conductor's
+  call". That was this seat declining a step its own door mandates, on a reason
+  weaker than the mandate: `/sdd` Step 1b requires the notes be saved **and**
+  posted to the tracker, and the 5th pass had already established the channel on
+  this very story. Leaving it unpaid would have repeated the exact failure this
+  file already records — Step 1b "owed four times and paid once" — while a
+  post-verdict pass was busy correcting two other known-false sentences. **No
+  label and no status was written**; the comment is the whole tracker write.
