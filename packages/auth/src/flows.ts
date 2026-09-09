@@ -2,7 +2,8 @@
  * @module auth/flows
  * @description This package's own navigation rule: once a visitor is
  * authenticated, an auth route it owns hands control back to the return target
- * it was launched with (`?returnUrl=`). Both arms fire ONLY on a record
+ * it was launched with (`?returnUrl=`), or to the host's own `fallback` when
+ * that names nowhere this package will go. Both arms fire ONLY on a record
  * carrying `meta.authReturnTarget`, which `authRoutes({ returnTarget: true })`
  * sets — a host driving navigation from its own funnel is untouched.
  */
