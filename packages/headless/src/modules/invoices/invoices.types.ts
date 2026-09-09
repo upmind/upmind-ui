@@ -283,7 +283,44 @@ export type Invoice = {
   address?: Address;
   currency: Currency;
   products: BasketProduct[];
+  /**
+   * A list-shaped read of {@link Invoice.products} for a text cell —
+   * "`<title> x<quantity>`" per line item. Not a source of truth: re-derive
+   * from `products` for anything beyond display.
+   *
+   * @graphify-citation `graphify query "Invoice paymentMethod
+   * productsSummary paymentsSummary groupsSummary bundle groupsSummary
+   * summary field"` against `graphify-out/graph.json` (2026-09-09) returns
+   * only this module's own `Invoice` node — no `productsSummary` /
+   * `paymentsSummary` / `groupsSummary` / `paymentMethod` node anywhere in
+   * the tree, so these four members are new ground, not duplicates.
+   */
+  productsSummary: string;
   payments: Payment[];
+  /**
+   * AC6/AC16's list-shaped read of {@link Invoice.payments} — each entry's
+   * amount and settlement state, discriminating pending from failed (AC16)
+   * and flagging a gateway awaiting the client (AC8). Not a source of truth:
+   * re-derive from `payments` for anything beyond display.
+   */
+  paymentsSummary: string;
+  /**
+   * AC4's READ half — the invoice's OWN assigned payment method
+   * (`raw.payment_details`), distinct from a PAYMENT's own card
+   * ({@link Payment.cardType}/{@link Payment.cardLast4}, mapped from
+   * `payment.payment_details` — a different record entirely). Always an
+   * object, `consolidation`-style — `id`/`cardType`/`cardLast4` are `null`
+   * and `label` is `""` when no method is assigned. The WRITE half is
+   * {@link InvoicePaymentDetailsModel}. Not a new type — see this file's
+   * head `graphify-out/` citation, re-queried for `paymentMethod.label`.
+   */
+  paymentMethod: {
+    id: string | null;
+    cardType: string | null;
+    cardLast4: string | null;
+    /** A single-leaf text read — `"<cardType> ****<cardLast4>"`, or `""`. */
+    label: string;
+  };
   /** AC7 — trusts `packages/types`' enum, never `docs/foundation.md:28`. */
   category: {
     slug: InvoiceCategoryCode;
@@ -327,6 +364,14 @@ export type Invoice = {
     productCount: number;
     isLarge: boolean;
     groups: InvoiceBundleGroup[];
+    /**
+     * AC5's list-shaped read of {@link Invoice.bundle}'s `groups` — each
+     * group's label (or "Unlinked") and its item count. Not a source of
+     * truth: re-derive from `groups` for anything beyond display. Not a new
+     * type — see this file's head `graphify-out/` citation, re-queried for
+     * `groupsSummary` (this file's `productsSummary` docblock above).
+     */
+    groupsSummary: string;
   };
   /** AC9. Tolerates absent/null; never an epoch date. */
   nextChargeDate: FormattedDate;

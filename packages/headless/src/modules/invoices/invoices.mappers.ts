@@ -11,10 +11,12 @@ import {
   first,
   get,
   groupBy,
+  join,
   map,
   orderBy,
   sortBy
 } from "lodash-es";
+import type { BasketProduct } from "../basket-product";
 import type {
   InvoiceBundleGroup,
   Invoice,
@@ -71,6 +73,8 @@ export function mapInvoices(
  */
 export function mapInvoice(raw: IInvoice, readingClientId?: string): Invoice {
   const slug = raw.category?.slug as InvoiceCategoryCode;
+  const products = map(raw.products, product => parseBasketProduct(product));
+  const payments = mapPayments(raw.payments);
 
   return {
     id: raw.id,
@@ -80,8 +84,11 @@ export function mapInvoice(raw: IInvoice, readingClientId?: string): Invoice {
     client: mapClient(raw.client)!,
     address: raw.address ? mapAddress(raw.address) : undefined,
     currency: mapCurrency(raw.currency),
-    products: map(raw.products, product => parseBasketProduct(product)),
-    payments: mapPayments(raw.payments),
+    products,
+    productsSummary: mapProductsSummary(products),
+    payments,
+    paymentsSummary: mapPaymentsSummary(payments),
+    paymentMethod: mapPaymentMethod(raw),
     category: {
       slug,
       // is_consolidation wins first (`oracle:172-179`) — a consolidation
@@ -164,11 +171,13 @@ function mapAttribution(
 /** @internal */
 function mapBundle(raw: IInvoice): Invoice["bundle"] {
   const productCount = raw.products_count ?? raw.products?.length ?? 0;
+  const groups = mapBundleGroups(raw.products);
 
   return {
     productCount,
     isLarge: productCount > 5,
-    groups: mapBundleGroups(raw.products)
+    groups,
+    groupsSummary: mapBundleGroupsSummary(groups)
   };
 }
 
@@ -223,4 +232,71 @@ function mapPayments(payments: IInvoice["payments"]): Payment[] {
   });
 
   return orderBy(mapped, ["createdAt"], ["desc"]);
+}
+
+/**
+ * @internal AC4's read half — the invoice's OWN assigned payment method
+ * (`raw.payment_details`), distinct from a payment's own card (mapped by
+ * {@link mapPayments} from `payment.payment_details` — a different record).
+ */
+function mapPaymentMethod(raw: IInvoice): Invoice["paymentMethod"] {
+  const details = raw.payment_details;
+  if (!details) return { id: null, cardType: null, cardLast4: null, label: "" };
+
+  return {
+    id: details.id,
+    cardType: details.card_type ?? null,
+    cardLast4: details.card_last4 ?? null,
+    label: details.card_type
+      ? `${details.card_type} ****${details.card_last4}`
+      : ""
+  };
+}
+
+/** @internal A list-shaped read of `products` — "`<title> x<quantity>`" per line item. */
+function mapProductsSummary(products: BasketProduct[]): string {
+  return join(
+    map(
+      products,
+      product =>
+        `${product.productDetails.title} x${product.productDetails.quantity}`
+    ),
+    ", "
+  );
+}
+
+/** @internal One payment's settlement state — successful, pending, or failed. */
+function paymentStateLabel(payment: Payment): string {
+  if (payment.meta.isSuccessful) return "successful";
+  if (payment.meta.isPending)
+    return payment.isAwaitingClient ? "pending — awaiting you" : "pending";
+  return "failed";
+}
+
+/**
+ * @internal AC6/AC16's list-shaped read of `payments` — each entry's amount
+ * and settlement state, discriminating pending from failed (AC16).
+ */
+function mapPaymentsSummary(payments: Payment[]): string {
+  return join(
+    map(
+      payments,
+      payment => `${payment.amountFormatted} (${paymentStateLabel(payment)})`
+    ),
+    ", "
+  );
+}
+
+/**
+ * @internal AC5's list-shaped read of `bundle.groups` — each group's label
+ * (or "Unlinked") and its item count.
+ */
+function mapBundleGroupsSummary(groups: InvoiceBundleGroup[]): string {
+  return join(
+    map(
+      groups,
+      group => `${group.label ?? "Unlinked"} (${group.products.length})`
+    ),
+    ", "
+  );
 }
