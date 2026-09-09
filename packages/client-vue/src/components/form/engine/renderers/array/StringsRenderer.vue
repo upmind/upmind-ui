@@ -21,7 +21,8 @@ import {
   and,
   schemaMatches,
   hasType,
-  schemaSubPathMatches
+  schemaSubPathMatches,
+  toDataPathSegments
 } from "@jsonforms/core";
 import { useJsonFormsMultiEnumControl } from "@jsonforms/vue";
 import { OptionTileGroup, OptionTile } from "@upmind/ui";
@@ -41,18 +42,42 @@ const multiEnumControl = useJsonFormsMultiEnumControl(props);
  * value at a time) and never returns a `handleChange` — `useUpmindUIRenderer`
  * requires one, so this replays the tile group's whole-next-selection write
  * as the add/remove calls JSONForms' multi-enum control actually understands.
+ *
+ * @decision
+ * what: `addItem`/`removeItem` are dispatched with the control's SCOPE
+ * re-split into literal-key segments (`toDataPathSegments`), not with the
+ * flattened `_path` string `useUpmindUIRenderer.onInput` hands in.
+ * why: JSONForms' own `composeWithUi` builds that string by computing exactly
+ * these segments and then `.join(".")`-ing them, which is where a schema
+ * property with a literal dot in its name (`"status.code"`, `"category.slug"`
+ * — this module's own filter-column names, per `invoices.schemas.ts`) becomes
+ * indistinguishable from a real two-level nested path. `dispatch(update(path,
+ * …))` resolves through `lodash/get` + `lodash/fp/set`, both of which treat an
+ * ARRAY path's elements as literal keys (no split) — the same mechanism
+ * `useModelParser`'s `set(result, [key], value)` fix already relies on
+ * (2026-09-02 sign-off). JSONForms types `addItem`/`removeItem`'s `path` as
+ * `string`, so the array is cast; the underlying dispatch never inspects the
+ * type, only the runtime shape. Authorised: "Authorise the one-line client-vue
+ * fix" (2026-09-09).
+ * rejected: renaming the schema columns to drop the dot — `"status.code"` and
+ * `"category.slug"` are the API's own filter-column names (oracle receipt),
+ * not a naming choice this renderer controls.
  */
-const handleChange = (path: string, value: unknown) => {
+const handleChange = (_path: string, value: unknown) => {
   const next = Array.isArray(value) ? value : [];
   const current = Array.isArray(multiEnumControl.control.value.data)
     ? multiEnumControl.control.value.data
     : [];
 
+  const literalPath = toDataPathSegments(
+    multiEnumControl.control.value.uischema.scope
+  ) as unknown as string;
+
   forEach(difference(next, current), item =>
-    multiEnumControl.addItem(path, item)
+    multiEnumControl.addItem(literalPath, item)
   );
   forEach(difference(current, next), item =>
-    multiEnumControl.removeItem?.(path, item)
+    multiEnumControl.removeItem?.(literalPath, item)
   );
 };
 
