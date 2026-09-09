@@ -56,7 +56,17 @@ export default defineNuxtConfig({
       // plain `pnpm dev` boots DEFAULT_PORTAL_CONFIG_ID. `pnpm dev:hostgrid`
       // sets it, which is what lets a pinned server run beside a bare one
       // without a `?config=` on every URL.
-      portalConfig: ""
+      portalConfig: "",
+
+      // The headless runtime the ADR 023 `auth` organisms need, named exactly
+      // as cart-nuxt names it so one `.env` serves either app.
+      API_NAME: process.env.VITE_API_NAME || "",
+      API_URL: process.env.VITE_API_URL || "",
+      API_REGION: process.env.VITE_API_REGION || "",
+      GOOGLE_RECAPTCHA_V3_SITE_KEY:
+        process.env.VITE_APP_GOOGLE_RECAPTCHA_V3_SITE_KEY || "",
+      GOOGLE_RECAPTCHA_V3_ENABLED:
+        process.env.VITE_APP_GOOGLE_RECAPTCHA_V3_ENABLED || ""
     }
   },
 

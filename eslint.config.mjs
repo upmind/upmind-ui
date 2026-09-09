@@ -957,17 +957,18 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
-  // 5b. portal-nuxt: headless is a TYPES-ONLY dependency WHILE THE APP IS
-  //     MOCK-ONLY. The app aliases @upmind-automation/headless to source so
-  //     mock facades can be typed against the real composable contracts; a
-  //     VALUE import executes the barrel, which module-load-interprets the
-  //     routing machine in an app with no headless runtime wired. The go-real
-  //     MR that lands the first real composable deliberately takes the runtime
-  //     dependency and DELETES this block (or narrows it to app/portal/mock/**).
+  // 5b. portal-nuxt's MOCK FACADES keep headless as a TYPES-ONLY dependency.
+  //     They alias @upmind-automation/headless to source so a facade can be
+  //     typed against the real composable contract; a VALUE import there would
+  //     execute the barrel to serve a mock, which is the coupling the facades
+  //     exist to avoid. Narrowed from the whole app to app/portal/mock/** by
+  //     the go-real step this block itself named: ADR 023 Phase 2 lands the
+  //     first real organism (@upmind-automation/auth), so the app runtime now
+  //     takes the runtime dependency deliberately, in app/plugins/.
   //     (docs/plans/portal-mock-composable-facades.md R3)
   // ---------------------------------------------------------------------------
   {
-    files: ["apps/portal-nuxt/**/*.{ts,tsx,mts,cts,vue}"],
+    files: ["apps/portal-nuxt/app/portal/mock/**/*.{ts,tsx,mts,cts,vue}"],
     rules: {
       "@typescript-eslint/no-restricted-imports": [
         "error",
@@ -977,7 +978,7 @@ export default [
               name: "@upmind-automation/headless",
               allowTypeImports: true,
               message:
-                "portal-nuxt consumes headless as types only — a value import executes the headless barrel (routing machine interprets at module load)."
+                "portal-nuxt's mock facades consume headless as types only — a value import there serves a mock from the real barrel, which is the coupling they exist to avoid."
             }
           ]
         }

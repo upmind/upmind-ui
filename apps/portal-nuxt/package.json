@@ -19,8 +19,8 @@
     "start": "pnpm dev",
     "tokens": "pnpm --filter @upmind/tokens build",
     "predev": "pnpm tokens",
-    "dev": "nuxt dev",
-    "dev:hostgrid": "pnpm tokens && NUXT_PUBLIC_PORTAL_CONFIG=hostgrid nuxt dev --port 3013",
+    "dev": "nuxt dev --dotenv .env.development",
+    "dev:hostgrid": "pnpm tokens && NUXT_PUBLIC_PORTAL_CONFIG=hostgrid nuxt dev --port 3013 --dotenv .env.development",
     "build-only": "nuxt build",
     "build:prod": "pnpm type-check && pnpm build-only",
     "postinstall": "nuxt prepare",
@@ -60,6 +60,7 @@
     "nuxt": "^4.2.2",
     "tailwindcss": "^4.3.0",
     "vue": "^3.5.18",
+    "vue-i18n": "^11.1.11",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
