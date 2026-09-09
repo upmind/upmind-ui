@@ -66,11 +66,7 @@
           appearance="muted"
           variant="neutral"
         >
-          <Icon
-            v-if="unavailableReason.icon"
-            :icon="unavailableReason.icon"
-            size="xs"
-          />
+          <Icon v-if="unavailableReason.icon" :icon="unavailableReason.icon" />
           {{ unavailableReason.label }}
         </Badge>
         <Badge
@@ -79,7 +75,7 @@
           appearance="outline"
           variant="neutral"
         >
-          <Icon v-if="productBadge.icon" :icon="productBadge.icon" size="xs" />
+          <Icon v-if="productBadge.icon" :icon="productBadge.icon" />
           {{ productBadge.label }}
         </Badge>
       </div>

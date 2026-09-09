@@ -41,11 +41,7 @@
             variant="neutral"
             :class="categoriesItemBadgeVariants()"
           >
-            <Icon
-              v-if="categoryBadge.icon"
-              :icon="categoryBadge.icon"
-              size="xs"
-            />
+            <Icon v-if="categoryBadge.icon" :icon="categoryBadge.icon" />
             {{ categoryBadge.label }}
           </Badge>
           <Icon

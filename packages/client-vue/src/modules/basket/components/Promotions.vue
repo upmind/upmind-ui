@@ -59,7 +59,7 @@
             @click.prevent="doRemove(promotion.id)"
             color="inherit"
           >
-            <Icon icon="x-close" size="xs" />
+            <Icon icon="x-close" />
           </Link>
           {{ promotion.code }}
         </Badge>

@@ -5,7 +5,7 @@
       :appearance="heroBadge.appearance ?? BADGE_APPEARANCE.OUTLINE"
       :variant="heroBadge.variant ?? BADGE_VARIANT.NEUTRAL"
     >
-      <Icon v-if="heroBadge.icon" :icon="heroBadge.icon" size="xs" />
+      <Icon v-if="heroBadge.icon" :icon="heroBadge.icon" />
       {{ heroBadge.label }}
     </Badge>
     <hgroup>
