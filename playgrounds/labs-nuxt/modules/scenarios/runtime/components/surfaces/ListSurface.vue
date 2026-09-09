@@ -12,6 +12,25 @@
       :class="listSurface.notice()"
     />
 
+    <!-- The collection's OWN meta, scenario-declared (`presentation.notices`)
+         — absent a declaration, this draws nothing, on every module. -->
+    <div v-if="noticeItems.length" :class="listSurface.notices()">
+      <Badge
+        v-for="item in noticeItems"
+        :key="item.i18n"
+        size="sm"
+        :variant="item.value ? 'primary' : 'neutral'"
+        :appearance="item.value ? 'muted' : 'outline'"
+        data-test-key="list-notice"
+        :data-test-value="item.i18n"
+      >
+        {{ i18n.translate(item.i18n, item.i18n)
+        }}<template v-if="typeof item.value === 'number'"
+          >: {{ item.value }}</template
+        >
+      </Badge>
+    </div>
+
     <!-- The filter block (R5): facets on one row, chips + Clear all on the
          next. The display row (R6) sits outside it — sort, view toggle, and
          the result count in its sublabel (H1). The collection's own action
@@ -399,6 +418,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { enumToEnumOptionMapper, toDataPath } from "@jsonforms/core";
 import { getCoreRowModel, useVueTable } from "@tanstack/vue-table";
 import {
+  Badge,
   Button,
   Card,
   Pagination,
@@ -524,6 +544,23 @@ const state = computed(() =>
   resolveModuleState(props.snapshot.meta, props.snapshot.context)
 );
 const detail = computed(() => resolveModuleDetail(props.snapshot.context));
+
+/**
+ * The scenario's declared `presentation.notices`, resolved against the
+ * cell's own raw meta — a flag draws on/off, a number draws itself. A scope
+ * the cell does not publish (an absent module member, or a scenario that
+ * declares no `notices` at all) contributes nothing: `get` returns
+ * `undefined`, filtered out here rather than drawn as an empty badge.
+ */
+const noticeItems = computed(() =>
+  filter(
+    map(props.presentation?.notices ?? [], element => ({
+      i18n: element.i18n,
+      value: get(props.notices, element.scope) as boolean | number | undefined
+    })),
+    item => !isNil(item.value)
+  )
+);
 
 // The module's own captured verdict is handed IN, because a row action the API
 // refuses reaches this surface no other way: the shared service reports the

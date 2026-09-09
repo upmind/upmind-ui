@@ -14,11 +14,12 @@
  * fires nothing, so it is populated before the first fetch.
  */
 
+import { computed, unref } from "vue";
 import { ScopeActorTypes, translateQuery } from "@upmind-automation/headless";
 import { servesActor } from "../../../../app/composables/scope";
 import { useCompositionPort } from "./useCompositionPort";
 import { useTableChannel } from "./useTableChannel";
-import { get, isFunction } from "lodash-es";
+import { get, isFunction, mapValues } from "lodash-es";
 import type {
   FourLayerComposable,
   ScenarioScopedCell
@@ -149,12 +150,22 @@ export function useModulePort(
       : undefined
   });
 
+  // A SEPARATE pull from `port.snapshot()`/`port.getMeta()`: those two stay
+  // exactly as `CompositionPort` declares them (ADR-027 d.4, "flags cross the
+  // port as already-evaluated booleans"), so a number-valued member (e.g.
+  // `useInvoices().useMeta().consolidatableCount`) is deref'd here without
+  // that coercion.
+  const rawMeta = computed<Record<string, boolean | number>>(() =>
+    mapValues(cell.useMeta(), unref)
+  );
+
   return {
     get actions() {
       return port.actions;
     },
     criteria: readCriteria(cell),
     getMeta: port.getMeta,
+    rawMeta: () => rawMeta.value,
     // The matrix is the COMPOSABLE's own, read off the reference the
     // declaration named — never re-declared beside it, and never a member a
     // module has to remember to publish on its context (`R6-31`).

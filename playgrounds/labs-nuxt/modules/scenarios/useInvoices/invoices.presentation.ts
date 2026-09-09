@@ -91,26 +91,35 @@
  * — see that file's `STATUS_VOCABULARY` docblock). `invoices.filter_bar.*`
  * in `invoices.schemas.ts` is the same, already-correct shape.
  *
- * AC-1's `unpaidAmount` (`useInvoice().useContext().unpaidAmount`) is
- * DECLARED NOWHERE below — investigated, not overlooked. It is a SIBLING of
- * `data` on the context object, and `DetailDialog.vue`'s snapshot assembly
- * (`{ ...snap.context, model: snap.context.data }`) sets `model` to
- * `context.data` alone; every other context key, `unpaidAmount` included,
- * survives on `context` but never reaches `model`, which is the only object
- * `DetailSurface.vue`'s `CellDispatcher` ever scopes into. No declaration
- * here can redirect that assembly — it is `runtime/**` wiring, out of this
- * seat's write lane. So `unpaidAmount` is neither readable nor pressable on
- * this page today, contrary to this run's earlier "readable in the detail,
- * not pressable" characterisation — flagged for the design doc's
- * limitation #1 to correct.
+ * AC-1's `unpaidAmount` (`useInvoice().useContext().unpaidAmount`) is now
+ * DRAWN, via `detailUischema.siblings` (2026-09-09 operator sign-off,
+ * `DetailUischema.siblings` in `scenario.types.ts`) — a declared list of
+ * context keys `DetailDialog.vue` folds additively into `model` alongside
+ * `data`, so a sibling scopes exactly like a `data` field. Previously it was
+ * a SIBLING of `data` on the context object with no way in: `DetailDialog
+ * .vue`'s old snapshot assembly (`{ ...snap.context, model: snap.context
+ * .data }`) set `model` to `context.data` alone, and no declaration could
+ * redirect that assembly (`runtime/**` wiring, out of this seat's write
+ * lane at the time). `unpaidAmount` is READABLE now — see the new detail
+ * element below — and STILL NOT PRESSABLE: `refreshUnpaidAmount` needs the
+ * actions channel to bind the detail cell, a materially larger change the
+ * sign-off does not cover. "readable in the detail, not pressable" is
+ * accurate for the first time as of this fix.
  *
- * `useInvoices().useMeta().hasUnpaid` / `.consolidatableCount` are likewise
- * declared nowhere: `ScenarioPresentation` (`scenario.types.ts`) offers only
- * `icon`/`table`/`card`/`detail`/`actions` — no meta/summary channel a
- * declaration can populate. `MetaPanel.vue` (`runtime/components/`) could
- * draw them, but it is mounted by no surface anywhere in the tree; wiring it
- * in is a `runtime/**` template change beyond a declaration, out of this
- * seat's write lane.
+ * `useInvoices().useMeta().hasUnpaid` / `.consolidatableCount` are now
+ * DRAWN too, via `presentation.notices` (2026-09-09 operator sign-off,
+ * `ScenarioPresentation.notices` in `scenario.types.ts`) — reading them off
+ * `ModulePort.rawMeta()` is what flips their dedicated request gates
+ * (`invoices.services.ts`'s `requestUnpaidExistence`/
+ * `requestConsolidatableCount`), so this collection's two auxiliary reads now
+ * fire on every mount of this page. `MetaPanel.vue` (`runtime/components/`)
+ * was investigated as the vehicle and rejected: it is the Inspector's own
+ * ALL-FLAGS debug dump (`app/components/sheets/DebugPane.vue`), mounted on
+ * every module already, and it never renders a member's VALUE as text — only
+ * its key, coloured by truthiness. Mounting it here would have put every
+ * internal flag (`isLoading`, `hasError`, …) on the live page, and it could
+ * not have shown AC-2's actual count regardless. `notices` is the
+ * scenario-declared, filtered, value-showing alternative built instead.
  *
  * ORDERING is not here at all: the collection is ordered by the query
  * schema's own `sort` enum, which the sort control reads directly
@@ -122,6 +131,7 @@ import type {
   ActionsUischema,
   CardUischema,
   DetailUischema,
+  MetaNoticeElement,
   TableBadge,
   TableUischema
 } from "../runtime/scenario.types";
@@ -278,7 +288,19 @@ export const cardUischema: CardUischema = {
  */
 export const detailUischema: DetailUischema = {
   type: "DetailLayout",
+  // AC-1 — `unpaidAmount` is a context SIBLING of `data`
+  // (`useInvoice().useContext().unpaidAmount`), folded additively into
+  // `model` by `DetailDialog.vue` so `#/properties/unpaidAmount` below
+  // scopes into it exactly like a `data` field (2026-09-09 sign-off).
+  siblings: ["unpaidAmount"],
   elements: [
+    {
+      // AC-1's live unpaid amount — a standalone re-read, distinct from
+      // `summary.unpaidAmountFormatted` (the mapped record's own snapshot).
+      type: "TableCellText",
+      scope: "#/properties/unpaidAmount/properties/amountFormatted",
+      i18n: "invoices.detail.unpaid_amount"
+    },
     {
       // The address OBJECT stringifies to "[object Object]" through
       // TableCellText's `resolveScope` + lodash `toString` — scoped to its
@@ -486,3 +508,25 @@ export const actionsUischema: ActionsUischema = {
     }
   ]
 };
+
+/**
+ * The collection's own meta, beside the list — AC10's "do I owe anything at
+ * all" and AC2's notice/CTA count, read off `useInvoices().useMeta()` (never
+ * a table column: neither is a per-row fact). Reading either off
+ * `ModulePort.rawMeta()` is what flips its dedicated request gate
+ * (`invoices.services.ts`'s `requestUnpaidExistence`/
+ * `requestConsolidatableCount`) — declaring them here is what makes both
+ * fire on this page (2026-09-09 sign-off).
+ */
+export const noticesUischema: MetaNoticeElement[] = [
+  {
+    scope: "hasUnpaid",
+    i18n: "invoices.notice.has_unpaid"
+  },
+  {
+    // AC2 — the count, not a flag: `ListSurface`'s notice draws the number
+    // itself for a numeric member rather than an on/off chip.
+    scope: "consolidatableCount",
+    i18n: "invoices.notice.consolidatable_count"
+  }
+];

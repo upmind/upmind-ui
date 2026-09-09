@@ -29,6 +29,7 @@ import {
   actionsUischema,
   cardUischema,
   detailUischema,
+  noticesUischema,
   tableUischema
 } from "./invoices.presentation";
 import type { ScenarioDeclaration } from "../runtime/scenario.types";
@@ -50,6 +51,7 @@ export default {
     table: tableUischema,
     card: cardUischema,
     detail: detailUischema,
-    actions: actionsUischema
+    actions: actionsUischema,
+    notices: noticesUischema
   }
 } satisfies ScenarioDeclaration;

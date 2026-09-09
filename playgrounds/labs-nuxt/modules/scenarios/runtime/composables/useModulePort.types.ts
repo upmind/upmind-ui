@@ -113,4 +113,22 @@ export type ModulePort = Omit<CompositionPort, "snapshot"> & {
    * reactive context methods (e.g. `uischemaFor`). Absent for an unserved scope.
    */
   useContext?: () => Record<string, unknown>;
+  /**
+   * The cell's OWN `useMeta()` members, deref'd but never coerced — the ONE
+   * escape from `CompositionPort.getMeta()`'s ADR-027 d.4 "flags cross the
+   * port as already-evaluated booleans" invariant, which this module may not
+   * relax (`snapshot()`/`getMeta()` stay exactly as `CompositionPort`
+   * declares them). A scenario-declared notice reading a count (e.g.
+   * `useInvoices().useMeta().consolidatableCount`) needs the real number, not
+   * `!!count` — 2026-09-09 operator sign-off,
+   * `playgrounds/labs-nuxt/modules/scenarios/runtime/**`. Absent for an
+   * unserved scope, exactly like {@link ModulePort.useContext}.
+   *
+   * @graphify-citation `graphify-out/graph.json` (2026-09-09) — queried "raw
+   * uncoerced meta number count channel bypass CompositionPort": no such
+   * member exists anywhere in the tree; `CompositionPort.getMeta()` is the
+   * nearest neighbour and is the boolean-only contract this one is additive
+   * beside, never a replacement for.
+   */
+  rawMeta?: () => Record<string, boolean | number>;
 };

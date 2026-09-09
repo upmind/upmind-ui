@@ -380,6 +380,18 @@ export type DetailUischema = Layout & {
    * modal host.
    */
   position?: DetailSurfacePositionTypes;
+  /**
+   * Context keys that live BESIDE `data` rather than inside it (e.g. a
+   * single-read composable's own `unpaidAmount`), folded additively into the
+   * fetched-detail's `model` so an element above can scope into one by name.
+   * Absent, `model` is `data` alone, exactly as before this field existed.
+   *
+   * @graphify-citation `graphify-out/graph.json` (2026-09-09) — queried
+   * "detail uischema sibling context field model data": no sibling-scope
+   * node exists in the tree; `DetailDialog.vue`'s `model: snap.context.data`
+   * assembly is the seam this field extends, additively.
+   */
+  siblings?: string[];
 };
 
 /** Where an action sits among the surface's placements. */
@@ -463,6 +475,26 @@ export type ActionsUischema = Layout & {
 };
 
 /**
+ * ONE collection-level `useMeta()` member surfaced beside the list — a flag
+ * reads as an on/off notice, a number as itself. Never a table column: this
+ * is the collection's own answer, not a per-row fact.
+ *
+ * @graphify-citation `graphify-out/graph.json` (2026-09-09) — queried
+ * "collection meta notice badge count hasUnpaid consolidatableCount": no
+ * meta-notice declaration node exists in the tree; `MetaPanel.vue`
+ * (`runtime/components/`) is the nearest neighbour, but it is the Inspector's
+ * own ALL-FLAGS debug dump (`app/components/sheets/DebugPane.vue`), not a
+ * scenario-declared, filtered product surface — the wrong vehicle for a
+ * DECLARED subset with a number rendered as itself, so this is minted rather
+ * than reused.
+ */
+export type MetaNoticeElement = {
+  /** Which `useMeta()` member this notice reads. Absent on the cell, the notice draws nothing. */
+  scope: string;
+  i18n: string;
+};
+
+/**
  * Everything a scenario declares about how it is DRAWN, and nothing a
  * composable already owns: no sort (the criteria schema's own enum, `R6-28`)
  * and no form (the mutate composable's own schemas, `R6-29`).
@@ -482,6 +514,11 @@ export type ScenarioPresentation = {
   detail?: DetailUischema;
   /** Every offered action, row-level and collection-level alike. */
   actions?: ActionsUischema;
+  /**
+   * The collection's own meta, surfaced beside the list — absent, the list
+   * draws none, exactly as before this field existed.
+   */
+  notices?: MetaNoticeElement[];
 };
 
 /**

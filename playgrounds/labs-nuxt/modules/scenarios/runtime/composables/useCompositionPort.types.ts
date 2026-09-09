@@ -28,8 +28,24 @@ export type LiveActions = Record<string, LiveAction>;
 /** The live `useContext()` return — top-level refs/computeds over plain values, unwrapped by the adapter. */
 export type LiveContext = Record<string, unknown>;
 
-/** A single `useMeta()` flag — MUST deref to a sync boolean (ADR-027 Am.11). */
-export type LiveMetaFlag = boolean | Ref<boolean> | ComputedRef<boolean>;
+/**
+ * A single `useMeta()` member — MUST deref SYNCHRONOUSLY (ADR-027 Am.11); the
+ * invariant is sync-ness, not the type. A count (e.g. `useInvoices().useMeta()
+ * .consolidatableCount`) is a first-class member alongside a flag — 2026-09-09
+ * operator sign-off, `playgrounds/labs-nuxt/modules/scenarios/runtime/**` —
+ * widened from boolean-only so a declared notice can read a real count rather
+ * than lose it to a `!!` coercion.
+ *
+ * @graphify-citation `graphify-out/graph.json` (2026-09-09) — queried
+ * "LiveMetaFlag boolean number meta value type": this IS the existing
+ * `LiveMetaFlag` node (`useCompositionPort.types.ts:32`), widened in place —
+ * not a new type.
+ */
+export type LiveMetaFlag =
+  | boolean
+  | number
+  | Ref<boolean | number>
+  | ComputedRef<boolean | number>;
 
 /** The live `useMeta()` return. */
 export type LiveMeta = Record<string, LiveMetaFlag>;
