@@ -45,6 +45,20 @@
  * wrong document, receives a corrupted (JSON-parsed) file, or a per-record
  * download route bypasses this module's identity seam — the FE-2824 failure
  * class in a new place.
+ *
+ * ## T19 addition (three clauses the AC-17 read-back names but this file
+ * did not yet prove)
+ * (a) THE BEARER-TOKEN IDENTITY TRANSPORT was already asserted by both
+ * landed tests above via `assertClientIdentityTransport` — re-verified at
+ * source by this dispatch, not re-authored. (b) The `lang` PARAM'S VALUE —
+ * the module's `system-localisation` seam is mocked to a DISTINCT,
+ * non-default locale (never the environment default "en"), the same
+ * mocking shape already established for this seam in this tree
+ * (`payment-gateways/__tests__/gateway-services-a.int.test.ts`), so the
+ * assertion catches a regression that hardcodes a literal instead of
+ * reading the active locale. (c) THE FAILED DOWNLOAD — a non-ok response
+ * must raise the platform's own status and must never call the save
+ * utility, never save an empty file.
  */
 
 import { http, HttpResponse } from "msw";
@@ -61,6 +75,7 @@ import {
 import { server } from "./setup.integration";
 import "./setup.integration";
 import type { WireInvoice } from "./invoices.int-helpers";
+import type { DetailedError } from "../../../utils";
 
 // -----------------------------------------------------------------------------
 
@@ -69,6 +84,15 @@ const { downloadBlobMock } = vi.hoisted(() => ({ downloadBlobMock: vi.fn() }));
 vi.mock("../invoices.utils", async importOriginal => {
   const actual = await importOriginal<typeof import("../invoices.utils")>();
   return { ...actual, downloadBlob: downloadBlobMock };
+});
+
+/** A distinct, non-default locale — proves the VALUE reaches `lang`, not just the key. */
+const TEST_LOCALE = "fr-CA";
+
+vi.mock("../../system-localisation", async importOriginal => {
+  const actual =
+    await importOriginal<typeof import("../../system-localisation")>();
+  return { ...actual, useLocale: () => ({ locale: { value: TEST_LOCALE } }) };
 });
 
 type WireInvoiceWithNumber = WireInvoice & { number: string };
@@ -212,6 +236,74 @@ describe("invoices single read — download refuses when no client is addressabl
     expect(
       observed.all().filter(entry => entry.url.includes("/download"))
     ).toHaveLength(0);
+    expect(downloadBlobMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("invoices single read — the download request carries the active locale (AC-17, lang param)", () => {
+  it("AC-17 the download request's lang param carries the active locale's value, not a hardcoded literal", async () => {
+    await seedClientSession();
+    const handlers = installInvoiceHandlers();
+    installDownloadHandler();
+    const row = recorded.unpaid() as WireInvoiceWithNumber;
+    handlers.setOneBody(envelope(row));
+    downloadBlobMock.mockClear();
+
+    const single = useInvoice().withId(row.id);
+    await vi.waitFor(() =>
+      expect(single.useMeta().isLoading.value).toBe(false)
+    );
+
+    const observed = observeInvoiceRequests();
+    await single.useActions().downloadPdf();
+    await vi.waitFor(() => expect(downloadBlobMock).toHaveBeenCalled());
+    observed.stop();
+
+    const request = observed
+      .all()
+      .find(entry => entry.url.includes("/download"));
+    expect(request).toBeDefined();
+    expect(new URL(request!.url).searchParams.get("lang")).toBe(TEST_LOCALE);
+  });
+});
+
+describe("invoices single read — a failed download raises the platform's own status (AC-17)", () => {
+  it("AC-17 a failed download raises the platform's own status rather than saving an empty file", async () => {
+    await seedClientSession();
+    const handlers = installInvoiceHandlers();
+    const row = recorded.unpaid() as WireInvoiceWithNumber;
+    handlers.setOneBody(envelope(row));
+    downloadBlobMock.mockClear();
+
+    const FAILURE_STATUS = 500;
+    server.use(
+      http.get("*/invoices/:id/download", () =>
+        HttpResponse.json(
+          {
+            status: "error",
+            data: null,
+            error: { code: FAILURE_STATUS, message: "download failed" }
+          },
+          { status: FAILURE_STATUS }
+        )
+      )
+    );
+
+    const single = useInvoice().withId(row.id);
+    await vi.waitFor(() =>
+      expect(single.useMeta().isLoading.value).toBe(false)
+    );
+
+    let caught: DetailedError | undefined;
+    await single
+      .useActions()
+      .downloadPdf()
+      .catch(error => {
+        caught = error as DetailedError;
+      });
+
+    expect(caught).toBeDefined();
+    expect(caught!.code).toBe(FAILURE_STATUS);
     expect(downloadBlobMock).not.toHaveBeenCalled();
   });
 });

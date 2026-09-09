@@ -361,3 +361,32 @@ Feature: A client reads and manages their invoices
     Given I have no addressable client identity
     When I try to download an invoice's PDF document
     Then nothing is downloaded and no document request is made
+
+# === NARROWING THE LIST TO ONE CONTRACT PRODUCT (client×self, client×client)
+#     — appended by T19's dispatch, correcting the prior pass's "no scenario
+#     owed" call =============================================================
+# The prior pass minted no AC-18 scenario, reasoning the module's filtering
+# capability was already scenario'd generically (AC-2's "filter my invoice
+# list by status, category, amount or date"). Reopened here: AC-18 is not a
+# rephrasing of that generic filter capability, it is two hand-driveable
+# outcomes AC-2 never names — narrowing to ONE contract product through the
+# module's own DECLARED column (never a hand-appended param), and that
+# narrowing surviving a `.for()` retarget without re-widening it back to my
+# own invoices. Both are capabilities a hand can drive, so both are owed a
+# scenario, per the traceability gate's own AC-link requirement. Append-only:
+# no Background:, no second Feature:, nothing above narrowed or deleted. Each
+# scenario below carries its own boot Given, per the augmentation law.
+
+  @AC-18 @client @cell:client-self
+  Scenario: Narrow my invoice list to one contract product's invoices
+    Given I have opened my invoice list
+    When I narrow it to one contract product's invoices
+    Then only that product's invoices are returned
+    And the narrowing reached the platform as the module's own declared filter column
+
+  @AC-18 @client @cell:client-client
+  Scenario: Narrowing to a product does not re-widen a retargeted reading
+    Given I have been entrusted with another client's invoices
+    When I narrow that client's invoices to one contract product's invoices
+    Then I am given only that client's invoices for that product
+    And my reading is still attributed to that client, not to me

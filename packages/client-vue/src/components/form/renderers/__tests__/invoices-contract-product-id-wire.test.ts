@@ -4,12 +4,13 @@
  * `products.contracts_product_id` filter column reaches the wire under the
  * EXACT key the API accepts — `filter[products.contracts_product_id|eq]` —
  * confirmed against the oracle's own filter usage
- * (`creditNotesTable.vue:223-226`, already cited in
- * `docs/sdd/FE-3031/design.md:475`), post-`translateQuery`, never on the
- * model alone — the standard this module's own `invoices-filter-wire.test.ts`
- * already holds every other filter column to, and the exact lesson this
- * story's `setCriteria` silent-strip defect (`review-notes.md`) established:
- * a nested/dotted key can look correct on the model and still be stripped by
+ * (`creditNotesTable.vue:222-225`, corrected 2026-09-09 by the planner seat;
+ * cited at `docs/sdd/FE-3031/design.md:490`, corrected from the same pass),
+ * post-`translateQuery`, never on the model alone — the standard this
+ * module's own `invoices-filter-wire.test.ts` already holds every other
+ * filter column to, and the exact lesson this story's `setCriteria`
+ * silent-strip defect (`review-notes.md`) established: a nested/dotted key
+ * can look correct on the model and still be stripped by
  * `additionalProperties: false` with no ajv error, so the assertion must be
  * post-`translateQuery`, never pre-.
  *
@@ -20,7 +21,22 @@
  * every other undrawn-but-declared column in this module is exercised —
  * rather than through a rendered control that does not exist.
  *
- * Negative control: `invoices-contract-product-id-wire.must-fail.patch`.
+ * This file proves the MODEL, one step before the request is built — see
+ * `packages/headless/src/modules/invoices/__tests__/invoices.contract-product-filter.int.test.ts`
+ * (T19) for the same capability proven on the WIRE (an observed outbound
+ * `GET /api/invoices` request), which this file's own assertions cannot see.
+ *
+ * D0 CORRECTION (2026-09-09, T19 pass): this docblock previously named a
+ * negative control, `invoices-contract-product-id-wire.must-fail.patch`,
+ * that did not exist — the H4 failure in another register (a filed
+ * reference to a test artefact that was not there). The control that now
+ * exists and protects this file (moved from `.factory/fe-3031-mutants/` to
+ * its colocated home, developer-authored, prover-verified blind):
+ *
+ * Negative control: `packages/headless/src/modules/invoices/__tests__/invoices.contract-product-id-column-dropped.must-fail.patch`
+ * (removes the declared column from `useQuerySchema()`; reddens every
+ * assertion in this file AND every assertion in the sibling wire test above,
+ * since both read the same single declared schema property).
  */
 
 import { describe, expect, it } from "vitest";

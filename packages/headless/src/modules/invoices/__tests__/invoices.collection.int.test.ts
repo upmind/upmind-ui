@@ -13,20 +13,20 @@
  * fresh request a payment-outcome handler can drive (AC-3); and no request is
  * issued at all when no client can be resolved (AC-14).
  *
- * ## A confirmed contract-vs-implementation defect (NOT worked around here)
- * `AC-2`'s own read-back requires a `status.code` filter to reach the wire.
- * `InvoiceQueryModel["status.code"]` (`invoices.types.ts`) declares this
- * column as a flat, literally-dotted key — the same shape every other
- * declared dotted column uses (`category.slug`, `contracts.id`,
- * `products.contracts_product_id`). Empirically (black-box, request-observed,
- * never by reading the schema source) EVERY dotted filter column is rejected
- * by the live schema validator with a `422` naming only the substring before
- * the first dot as an unknown `additionalProperty`, and NO request is issued.
- * A non-dotted column (`client_id`) on the exact same `setCriteria` call
- * reaches the wire correctly (proven in `invoices.scope-identity.int.test.ts`).
- * The status-filter test below is written to the CONTRACT and is EXPECTED to
- * fail until this is fixed — filed as a failure in this dispatch's hand-off,
- * never weakened, skipped, or routed around.
+ * ## STALE — corrected 2026-09-09 (T19 pass)
+ * This docblock previously claimed EVERY dotted filter column is rejected by
+ * the live schema validator with a `422` and that the status-filter test
+ * below "is EXPECTED to fail". Re-measured at this pass: the status-filter
+ * test below PASSES (green, not marked `.fails`), and `AC-18`'s own wire test
+ * (`invoices.contract-product-filter.int.test.ts`) proves a SECOND dotted
+ * column, `products.contracts_product_id`, reaching the wire the same way.
+ * Both dotted columns reach the wire correctly through `setCriteria`; the
+ * stale claim is the same failure class review-notes.md already names twice
+ * elsewhere in this module (`invoices.criteria-presets.int.test.ts`,
+ * `invoices.consolidatable-count.int.test.ts`) — a filed narrative
+ * contradicting a green run, in the opposite direction from cosplay. Left
+ * uncorrected before this pass would have misled a reader into concluding
+ * AC18 could not work, per `review-notes.md`'s own warning.
  *
  * Note: `useContext().total` looked broken (stuck at 0) under a tight wait
  * window during authoring, but 2s of eventual consistency resolves it to the
