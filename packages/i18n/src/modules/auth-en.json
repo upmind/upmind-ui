@@ -18,7 +18,6 @@
   "verify_email_send": "Sending another code to your registered email address...",
   "verify_email_sent": "Please check your registered email for the new code.",
   "didnt_receive_code": "Didn't receive a code?",
-  "guest_checkout_description": "In a hurry? {action}.",
   "guest_register_title": "Create your account",
   "guest_register_description": "Save your details for faster checkout next time",
   "guest": "Guest"

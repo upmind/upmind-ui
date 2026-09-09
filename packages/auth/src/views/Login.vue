@@ -145,6 +145,10 @@ const { isReady } = useActiveSession().useActions();
 const { navigateNext, navigateBack, navigate } = useRoutingEngine();
 
 const { ui } = useConfig({
+  // The key must be PRESENT to opt out: useConfig calls useBasket() unless it
+  // is, which fetched an order and the basket-fields catalogue on every auth
+  // page. No ui.* definition resolves from the basket, so nothing is lost.
+  basket: undefined,
   context: UIContext.AUTH,
   provide: true
 });
