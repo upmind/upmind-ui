@@ -51,11 +51,29 @@ export function createBillingSettingsManagerMachineConfig(
         uischema: (context: BillingSettingsContext) => useUischema(context)
       }),
 
+      /**
+       * `updating.onDone`'s (also `adding.onDone`'s — never reached, see this
+       * module's own docstring) ONLY assign action. `data` here is the
+       * PERSISTED model the `update` service resolved
+       * (`client-billing-settings.services.ts`'s `{...baseModel, ...model}`),
+       * so `baseModel` is reconciled to it in the SAME action, never left at
+       * its pre-write value. An un-reconciled `baseModel` diffs the NEXT
+       * edit against a stale floor: a field just written, then set back to
+       * its ORIGINAL value, would diff to empty against the stale baseline
+       * and short-circuit to zero requests — a second, genuine write
+       * silently dropped (row X6 / AC26). A no-op save resolves `data` equal
+       * to the already-current `baseModel`, so this assign is a no-op there
+       * too — AC11's and AC21's own empty-diff short-circuit stays intact.
+       */
       setModel: assign({
         model: (
           { schema, baseModel }: BillingSettingsContext,
           { data }: AnyEventObject
-        ) => useModelParser<BillingSettingsModel>(schema, data, baseModel)
+        ) => useModelParser<BillingSettingsModel>(schema, data, baseModel),
+        baseModel: (
+          { baseModel }: BillingSettingsContext,
+          { data }: AnyEventObject
+        ) => ({ ...baseModel, ...(data ?? {}) })
       }),
 
       /**

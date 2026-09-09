@@ -336,74 +336,84 @@ async function fetchSettingsOnce(
 
 /**
  * Row O8's AND row B6's brand gates, read in ONE call and returned as TWO
- * separately-named values. Consumes `useBrand().ensureConfig()`'s OWN
- * settled return value directly, rather than re-reading it afterward through
- * `useBrand().getConfigValue()`'s reactive computed.
+ * separately-named values. A RAW, uncached `request()` — never
+ * `useBrand().ensureConfig()` — for the same reason `fetchSettingsOnce`
+ * above bypasses `useQuery().get()`.
  *
- * @decision one `ensureConfig` call carrying both keys; two separately-named
- * readers; never a shared helper, default or `??` fallback between them.
- * what:    `ensureConfig()` resolves once ITS OWN fresh fetch settles for
- *          BOTH `INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF` (row O8) and
- *          `BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED` (row B6);
- *          `getConfigValue()` instead reads `brandConfig.value`, which is
- *          fed by `useBrand()`'s module-singleton query
- *          (`brandConfigQuery ??= services.fetchBrandConfig()`, `useBrand.ts:69`).
- *          That singleton fetches once, on whichever call FIRST constructs
- *          `useBrand()` anywhere in the running app, and never re-fetches
- *          afterward — so a caller reading `getConfigValue()` after
- *          `ensureConfig()` resolves can still observe whatever value an
- *          EARLIER, unrelated `useBrand()` construction happened to see.
- * why:     row O8's default is HIDDEN (design.md §8.2); a stale read that
- *          resolves to the wrong polarity exposes a surface the brand never
- *          opted clients into — exactly the failure AC17 exists to catch.
- *          Consuming `ensureConfig()`'s own settled value sidesteps the
- *          singleton's staleness entirely, for both halves of this module.
- *          ONE call, not two: `fetchBrandConfig` mutates a MODULE-LEVEL
- *          accumulating key store before building its criteria
- *          (`brand.services.ts:109`), so two concurrent `ensureConfig` calls
- *          inside one `Promise.all` would race it. The two gates share a
- *          DEFAULT (hidden) but have OPPOSITE semantics — O8 is opt-OUT of a
- *          restriction, B6 is opt-IN to a feature — so they are returned as
- *          two distinctly-named, distinctly-polarised values, never merged.
- * rejected: (1) keep reading `useBrand().getConfigValue()` and instead call
- *          `useBrand().ensureConfig()` earlier / more eagerly — rejected:
- *          the singleton this reads (`brandConfigQuery`) is shared with the
- *          WHOLE app and is out of this module's write lane
- *          (`packages/headless/src/modules/brand/`); no earlier call site
- *          this module owns can guarantee it wins the race against another
- *          consumer's own `useBrand()` construction. (2) two separate
- *          `ensureConfig` calls — the `brandConfigKeysStore` race above,
- *          plus a second request. (3) a shared `isGateOpen(key)` helper — the
- *          conflation vector; it necessarily picks one polarity as its
- *          default. (4) collapsing an absent B6 key to a literal `false` at
- *          the LOAD site rather than the CONSUME site — it would work for
- *          B6 alone, but is the exact mistake O8's tri-state comment below
- *          exists to prevent, and applying two different absence rules at
- *          one load site is how the next reader gets it wrong.
+ * @decision one raw `request()` call carrying both keys; two
+ * separately-named readers, each indexing the FLAT response object
+ * directly; never a shared helper, default or `??` fallback between them.
+ * what:    `GET config/brand/values?keys=<O8>,<B6>` issued directly through
+ *          `useQuery().request()`, bypassing `useBrand()` entirely.
+ * why:     `useBrand().ensureConfig()` resolves through
+ *          `fetchBrandConfig()` (`brand.services.ts`), whose query is
+ *          registered with `staleTime: "static"` AND a `localStorage`
+ *          persister. Proven live (2026-09-09 repair): once ANY caller
+ *          resolves that query for this file's two-key set, every LATER
+ *          call — even a brand-new `effectScope`, even after
+ *          `queryClient.clear()` — is served the SAME persisted value
+ *          instead of a fresh fetch, because `.clear()` empties the
+ *          in-memory cache but not the persister's own store, and
+ *          `"static"` never re-triggers a background refetch. Confirmed by
+ *          instrumenting `loadBrandGates` directly: `differentCurrencyPayment`
+ *          logged `true` for a dozen consecutive calls across DIFFERENT
+ *          MSW overrides before this fix, including the two `it.each` cases
+ *          this AC23 failure names. `restrict_to_staff` (O8) "resolved
+ *          correctly" only because this file's OWN test cases never vary
+ *          IT across calls, so the identical staleness bug never showed —
+ *          it is not a difference in mechanism between the two keys, only
+ *          in which key this file's fixtures happen to move. A raw
+ *          `request()` has no query cache and no persister: every call is
+ *          a genuine network round-trip, so a fresh test always sees its
+ *          own installed handler. `useBrand()`'s shared singleton
+ *          (`brandConfigQuery`) is out of this module's write lane
+ *          (`packages/headless/src/modules/brand/`) regardless, so the fix
+ *          stays entirely inside this module.
+ * rejected: (1) keep `ensureConfig()` and call it earlier/more eagerly —
+ *          does not touch the persister; the staleness survives regardless
+ *          of when the call happens. (2) clear `queryClient` more
+ *          aggressively from this module — the persisted entry lives
+ *          outside `queryClient`'s own cache and this module has no
+ *          access to (and no business owning) `brand`'s persister
+ *          instance. (3) a shared `isGateOpen(key)` helper over the raw
+ *          response — the conflation vector this module has refused since
+ *          its first draft; each key is still read by its own `get()` call
+ *          below, unchanged. (4) collapsing an absent B6 key to a literal
+ *          `false` at the LOAD site — the exact mistake O8's tri-state
+ *          comment below exists to prevent; the raw response's absence is
+ *          preserved exactly as `ensureConfig()`'s was.
  */
 async function loadBrandGates(): Promise<{
   restrictToStaff: boolean | undefined;
   differentCurrencyPayment: boolean | undefined;
 }> {
-  const result = await useBrand().ensureConfig([
+  const { request, useUrl } = useQuery();
+  const keys = [
     BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF,
     BrandConfigKeys.BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED
-  ]);
+  ];
 
+  const response = await request<Record<BrandConfigKeys, boolean>>({
+    url: useUrl("config/brand/values", { keys: keys.join(",") }),
+    withAccessToken: true
+  });
+
+  const result = response.data as Record<BrandConfigKeys, boolean> | undefined;
+
+  // Bracket access, never `get()`/`set()` — the wire's own keys ARE the
+  // dotted `BrandConfigKeys` strings, flat, not a nested path (verified
+  // against the recorded envelope's own `data` shape). A path-reading helper
+  // would split the dots into nested segments and find nothing at either key.
   return {
     // Row O8 / AC17 — TRI-STATE PRESERVED. Consumed downstream as
     // `!(value ?? true)`: visible ONLY on an explicit `false`.
-    restrictToStaff: get(
-      result,
-      BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF
-    ) as boolean | undefined,
+    restrictToStaff:
+      result?.[BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF],
     // Row B6 / AC23 — OPPOSITE POLARITY. Consumed downstream as `!!value`:
     // offered ONLY on an explicit truthy. Absent means NOT offered. NEVER
     // share a default or a `??` fallback with `restrictToStaff` above.
-    differentCurrencyPayment: get(
-      result,
-      BrandConfigKeys.BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED
-    ) as boolean | undefined
+    differentCurrencyPayment:
+      result?.[BrandConfigKeys.BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED]
   };
 }
 
