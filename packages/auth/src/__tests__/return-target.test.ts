@@ -7,12 +7,16 @@
  * the visitor is authenticated. `readReturnTarget` is the only thing between
  * that hand-back and an attacker-chosen destination: it yields a bare
  * same-origin path and nothing else — no absolute URL, no protocol-relative
- * host, no non-string.
+ * host, no non-string. What it yields is the target a browser would resolve,
+ * normalised, not the raw query value, so a host smuggled past a `startsWith`
+ * check has nowhere left to hide.
  *
  * ## What Breaks If These Fail
  * A login link carrying `?returnUrl=https://evil.example` walks a customer
  * off-origin the instant their session is minted — an open redirect on the one
- * screen that mints credentials.
+ * screen that mints credentials. A prefix check alone lets
+ * `?returnUrl=/\evil.example` through, and every browser reads that back as the
+ * host `evil.example`.
  */
 
 import { describe, expect, it } from "vitest";
@@ -81,5 +85,55 @@ describe("readReturnTarget", () => {
   it("returns nothing when the query names no target", () => {
     expect(readReturnTarget({})).toBeUndefined();
     expect(readReturnTarget({ redirect: "/basket" })).toBeUndefined();
+  });
+
+  it("refuses a host smuggled behind a backslash", () => {
+    expect(readReturnTarget({ returnUrl: "/\\evil.example" })).toBeUndefined();
+    expect(readReturnTarget({ returnUrl: "/\\/evil.example" })).toBeUndefined();
+    expect(
+      readReturnTarget({ returnUrl: "/\\\\evil.example" })
+    ).toBeUndefined();
+  });
+
+  it("refuses a host smuggled behind a control character", () => {
+    expect(readReturnTarget({ returnUrl: "/\t/evil.example" })).toBeUndefined();
+    expect(readReturnTarget({ returnUrl: "/\n/evil.example" })).toBeUndefined();
+    expect(readReturnTarget({ returnUrl: "/\r/evil.example" })).toBeUndefined();
+  });
+
+  it("refuses a scheme with a single slash", () => {
+    expect(
+      readReturnTarget({ returnUrl: "https:/evil.example" })
+    ).toBeUndefined();
+  });
+
+  it("refuses a protocol-relative host wearing a trailing backslash", () => {
+    expect(
+      readReturnTarget({ returnUrl: "//evil.example/\\" })
+    ).toBeUndefined();
+  });
+
+  it("hands back the normalised path, not the raw query value", () => {
+    expect(readReturnTarget({ returnUrl: "/basket/../admin" })).toBe("/admin");
+    expect(readReturnTarget({ returnUrl: "/basket/./step" })).toBe(
+      "/basket/step"
+    );
+  });
+
+  it("hands back a path free of the characters a raw value would carry", () => {
+    expect(readReturnTarget({ returnUrl: "/bas\nket" })).toBe("/basket");
+    expect(readReturnTarget({ returnUrl: "/basket " })).toBe("/basket");
+  });
+
+  it("keeps a target whose own query names another host", () => {
+    expect(readReturnTarget({ returnUrl: "/basket?next=//evil.example" })).toBe(
+      "/basket?next=//evil.example"
+    );
+  });
+
+  it("keeps an encoded backslash as the path segment it is", () => {
+    expect(readReturnTarget({ returnUrl: "/%5Cevil.example" })).toBe(
+      "/%5Cevil.example"
+    );
   });
 });
