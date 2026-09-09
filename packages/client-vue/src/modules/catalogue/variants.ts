@@ -75,7 +75,7 @@ export const productsMainEmptyStateRootVariants = cva(
   "flex w-full flex-col items-center justify-center space-y-4 p-4 py-10 text-center"
 );
 export const productsMainEmptyStateIconVariants = cva("text-muted");
-export const productsMainEmptyStateTitleVariants = cva("font-medium");
+export const productsMainEmptyStateTitleVariants = cva("");
 export const productsMainEmptyStateDescriptionVariants = cva("text-muted");
 
 // --- categories

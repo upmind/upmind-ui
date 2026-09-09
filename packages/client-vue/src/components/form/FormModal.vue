@@ -8,7 +8,7 @@
         v-if="title || description"
         class="flex flex-col gap-2 text-center"
       >
-        <DialogTitle v-if="title" class="text-3xl font-normal md:text-4xl">
+        <DialogTitle v-if="title" class="text-3xl md:text-4xl">
           {{ title }}
         </DialogTitle>
         <DialogDescription v-if="description" class="text-base">

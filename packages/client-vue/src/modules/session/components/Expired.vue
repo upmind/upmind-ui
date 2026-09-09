@@ -15,7 +15,7 @@
         </template>
       </Avatar>
 
-      <DialogTitle class="m-0 text-center text-3xl font-light text-inherit">
+      <DialogTitle class="m-0 text-center text-3xl text-inherit">
         {{ title }}
       </DialogTitle>
 
@@ -49,7 +49,7 @@
       </template>
     </Avatar>
 
-    <h3 class="m-0 text-center text-3xl font-light text-inherit">
+    <h3 class="m-0 text-center text-3xl text-inherit">
       {{ title }}
     </h3>
 
