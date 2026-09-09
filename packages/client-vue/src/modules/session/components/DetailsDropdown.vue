@@ -1,21 +1,25 @@
 <template>
-  <DropdownMenu v-if="isAuthenticated" :items="items" class="mt-4 max-w-60">
+  <DropdownMenu
+    v-if="isAuthenticated"
+    :items="items"
+    class="max-w-72 min-w-56"
+    :ui="{ label: 'border-stroke mb-1 border-b pt-2 pb-2.5' }"
+  >
     <template #trigger>
       <slot />
     </template>
 
+    <!-- the label part is a faint caption, so each line states its own weight
+         and colour rather than inheriting one meant for section headings -->
     <template v-if="client" #label>
-      <label
-        class="flex flex-col items-start text-base break-all not-italic"
-        data-test-key="dropdown-account-label"
-      >
-        <strong class="font-medium">
+      <div data-test-key="dropdown-account-label">
+        <p class="text-display truncate text-sm font-medium">
           {{ isGuestClient ? t("auth.guest") : client.fullName }}
-        </strong>
-        <span v-if="!isGuestClient" class="text-muted text-base font-normal">
+        </p>
+        <p v-if="!isGuestClient" class="text-muted truncate text-xs">
           {{ client.username }}
-        </span>
-      </label>
+        </p>
+      </div>
     </template>
 
     <template #item="{ item }">
