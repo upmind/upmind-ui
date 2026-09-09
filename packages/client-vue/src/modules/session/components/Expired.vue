@@ -9,11 +9,7 @@
       @pointer-down-outside.prevent
       @interact-outside.prevent
     >
-      <Avatar
-        size="lg"
-        class="size-20 p-2"
-        :ui="{ fallback: 'bg-primary text-primary-contrast' }"
-      >
+      <Avatar size="xl" :ui="{ fallback: 'bg-primary text-primary-contrast' }">
         <template #fallback>
           <Icon :icon="avatar.icon ?? 'basket'" />
         </template>
@@ -47,11 +43,7 @@
     v-else
     class="relative flex w-full flex-col flex-wrap items-center justify-center gap-6 py-16"
   >
-    <Avatar
-      size="lg"
-      class="size-20 p-2"
-      :ui="{ fallback: 'bg-primary text-primary-contrast' }"
-    >
+    <Avatar size="xl" :ui="{ fallback: 'bg-primary text-primary-contrast' }">
       <template #fallback>
         <Icon :icon="avatar.icon ?? 'basket'" />
       </template>
