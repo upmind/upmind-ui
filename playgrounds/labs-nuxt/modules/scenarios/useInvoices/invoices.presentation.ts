@@ -433,6 +433,34 @@ export const detailUischema: DetailUischema = {
  *
  * `assignPaymentMethod` (AC-4's clear half) is not drawn here — see this
  * file's module docblock — so no row control reads the `locked` flag for it.
+ *
+ * AC-17's `downloadPdf` is ALSO not drawn here, for a channel reason distinct
+ * from AC-4's: it is a live member of `useInvoice().useActions()` (the
+ * `useDetail` single read, `invoices.scenario.ts`'s `useDetail: useInvoice`),
+ * never of `useInvoices().useActions()` (the LIST cell this element list
+ * binds). `ListSurface.vue`'s row press (`pressRowAction`,
+ * `props.actions[action.name](row.id)`) and `isActionAvailable`'s gate
+ * (`includes(props.snapshot.actions, action.name)`) both resolve against
+ * `useCompositionPort.ts`'s `port.actions`/`snapshot.actions`, which for a
+ * LIST port is `keys(cell.useActions())` off the ONE bound cell —
+ * `useInvoices()`, never `useInvoice()`. Declaring `downloadPdf` here would
+ * name a control `isActionAvailable` can never resolve to a function: it
+ * would either never render, or — worse — render against `undefined`. The
+ * one place `useInvoice()`'s own actions (`downloadPdf` among them) DO reach
+ * a live prop is `DetailDialog.vue`'s `surfaceActions` (its own
+ * `useModulePort(props.detail.useDetail, ...)`, `port.actions`), but that
+ * feed goes to `DetailSurface.vue` as `:actions`, and `DetailSurface.vue`
+ * never reads `props.actions` in its template or script — it draws only
+ * `presentation?.elements` (`DetailUischema`, which carries no `actions`
+ * member: `scenario.types.ts`'s `DetailUischema` type). `DetailDialog.vue`'s
+ * OWN rendered control row (`footerActions`) is `close` plus the LIST row's
+ * `detailActionItems` — the same list-cell action map, not the read cell's.
+ * So no surface in the runtime renders a control against a `useDetail`
+ * composable's own action map today; wiring one is `runtime/**` work (a
+ * third change beyond the 2026-09-09 sign-off's two: `DetailUischema` would
+ * need an actions member, and `DetailSurface.vue` or `DetailDialog.vue`
+ * would need to draw it against `surfaceActions` instead of/beside the list
+ * feed), out of this seat's write lane (`useInvoices/**` only).
  */
 export const actionsUischema: ActionsUischema = {
   type: "ActionsLayout",
