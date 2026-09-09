@@ -1080,3 +1080,437 @@ the same unmodified `ListSurface`/table in the identical harness.
 So the composition is evidenced from both ends, and the `live.rows === 0`
 failure is isolated to the labs replay corpus/routing between them — not to
 the module, and not to the page.
+
+---
+
+# TERMINAL JTBD READBACK — the `/factory` door's last gate
+
+**Filed by:** verifier seat · `UPMIND_SEAT=verifier UPMIND_LIFECYCLE=factory`
+**Date:** 2026-09-09
+**verifiedSha:** `fe2c7e0a8d983162204567b7a793133f3567f361`
+**Working directory (every command below was run here):** `/Users/dom/Documents/upmind-monorepo/.claude/worktrees/fe-3031-invoices`
+
+**This is NOT the delivery verdict re-run.** The delivery verdict (PRESENT, fifth pass) stands
+and is unchanged: the MODULE serves all five nouns and is proven green at the module layer.
+This gate asks the door's one terminal question — **row for row, can a hand driving the
+landed page do what the oracle lets a consumer do?**
+
+## VERDICT: FAILED
+
+Three of the JTBD's five nouns are not fully driveable on the landed page, and one
+("assigned method") is not driveable at all — neither read nor write. Separately, six of
+the detail overlay's twelve declared fields cannot render a readable value, because
+`TableCellText` is pointed at composite (object / array) values and stringifies them.
+
+The verdict is not a re-grading of the three declared limitations. Two of the three
+survive the JTBD; the failure is carried by findings no lane gate was asked to look for.
+
+## The five nouns
+
+| Noun | Served? | What a hand can drive | What it cannot | Receipt |
+| --- | --- | --- | --- | --- |
+| unpaid amount | PART-SERVED | Read each invoice's own unpaid amount in the list column `summary.unpaidAmountFormatted` (`invoices.presentation.ts:146-149`), and the outstanding remainder in the detail (`summary.balanceFormatted`, `:289-293`) | (a) the collection-level "do I owe anything at all" — `useMeta().hasUnpaid` (`useInvoices.meta.ts:63-66`, oracle `:553-573`, parity R01 `Direct`) is drawn by NO surface, and reading it is what flips the request gate (`invoices.services.ts:539-541`), so on this page the request never goes out at all; (b) AC-1's live per-invoice re-read — the value lands on `useInvoice().useContext().unpaidAmount` (`useInvoice.context.ts:49-50`), a SIBLING of `data`, and `DetailSurface` draws only `context.model` (= `context.data`) through the declared elements (`DetailSurface.vue:71-77`), so it is not readable; and no control fires `refreshUnpaidAmount` | `MetaPanel.vue` is exported (`components/index.ts:13`) and used by NO surface; the runtime consumes only `isAvailable`/`isLoading`/`hasError` (`module-state.ts:60-74`) plus `isFiltered` |
+| list | SERVED | Filter (8 drawn facets, proven to the wire), sort (SortControl over the full 8-field enum + sortable headers), page (`Pagination`), open (`view` → detail overlay), column picker, card view, 10 table columns — every one of the 10 resolves to a scalar/descriptor/badges cell, so the table itself is sound | — (subject to the confidence caveat below: no seat has observed a row) | `ListSurface.vue:19-40, 136-258, 306-325`; `invoices-filter-wire.test.ts` 8/8 green (re-run below) |
+| assigned method | **UNSERVED** | nothing | **READ:** the invoice's own assigned method is not a field of the mapped record at all. `payment_details` is requested over the wire (`invoices.services.ts:80`, oracle `:262`, covered by parity R05 `Direct`) and the recorded fixture carries `payment_details_id` on the row — but `mapInvoice` reads no `raw.payment_details` (`invoices.mappers.ts:72-121`), so no column, card slot or detail element can address it. **WRITE:** `assignPaymentMethod` is live and integration-proven on both halves, but no control is drawn — the assign half needs the PN-1 picker (out of scope), the clear half was withdrawn correctly per design D1 | `grep payment_details invoices.mappers.ts` → only `payment.payment_details` inside `mapPayments` (`:203`). R05's own 2026-09-08 correction split R11/R12 out on exactly this test ("requested AND reaches a VM field"); `payment_details` is requested and reaches none, yet stayed inside the `Direct` row |
+| consolidation fields | PART-SERVED | Identify which rows are consolidations (`category.label`, consolidation-first, `invoices.mappers.ts:85-90`); filter by `is_consolidation` (drawn facet, `invoices.schemas.ts:300-305`); narrow the list to consolidatable invoices (`filterConsolidatable`, HEADER control) | The field VALUES. AC5 verbatim asks that a client "can see which document it merged into, which credit note partners it, how much is queued for credit, and its line items grouped by the subscription each came from" — all four live in `consolidation` (object) and `bundle.groups` (array), each declared with `TableCellText` (`invoices.presentation.ts:254-263`), which renders `toString(value)` (`TableCellText.vue:21-24`) = `"[object Object]"`. AC6's `bundle.isLarge` is not drawn at all. `useMeta().consolidatableCount` (oracle `:37-43`/`:574-592`, parity R04 `Renamed`) is drawn by no surface, so that request never fires either | executed: `lodash-es@4.18.1 toString({isConsolidation:true,...})` → `"[object Object]"` (command below) |
+| credit notes | SERVED | Every credit note, collection-scoped (`filterCreditNotes` HEADER control); one invoice's own credit notes, row-scoped (the same verb drawn a second time in VISIBLE, supplying `row.id` as `invoiceId` — `ListSurface.vue:1067`); identify them in the `category` column; select them in the drawn `category.slug` facet, whose vocabulary is widened to the two credit-note codes | — (`credit_invoice_id` is a declared-but-undrawn column, but the row-scoped control already sets exactly that key, so nothing is lost) | `invoices.presentation.ts:346-363`; `creditNotesCriteria` (`invoices.schemas.ts:427-439`) |
+
+## Oracle × landed page, row for row
+
+| Oracle capability | Receipt | Page affordance | Driveable by hand? | Verdict |
+| --- | --- | --- | --- | --- |
+| `apiPath().client` | oracle `:25-33` | every read goes to `api/invoices` via `useUrl` | yes | OK |
+| `list` | oracle `:227-238` | the table, 10 columns, `ListSurface` | yes | OK |
+| `get` | oracle `:239-249` | `view` → `DetailDialog` → `useInvoice.withId(row.id)` | yes | OK |
+| `getWithParams` (relation set) | oracle `:250-276` (array `:255-268`) | `LOAD_ONE_INCLUDES` (24 relations) | yes for the 8 that reach a VM field; **`payment_details` reaches none** | GAP (assigned method) |
+| `updatePaymentDetails` | oracle `:288-301` | none — assign needs PN-1, clear withdrawn (D1) | **no** | GAP |
+| `hasUnpaid` | oracle `:553-573` (`limit:"count"` `:559`, conditional `filter[client_id]` `:561-563`, `total>0` `:572`) | `useMeta().hasUnpaid` — no surface reads it | **no** (and so the request never fires) | GAP |
+| `getConsolidatableTotal` | oracle `:574-592` (unconditional `filter[client_id]` `:585`) | `useMeta().consolidatableCount` — no surface reads it | **no** (request never fires) | GAP |
+| `getUnpaidConvertedAmount` | oracle `:621-632` | `useInvoice().useContext().unpaidAmount` — not drawn; `refreshUnpaidAmount` — no control | **no** | GAP |
+| `unifiableCount` | oracle `:37-43` | same as `getConsolidatableTotal` | **no** | GAP |
+| `unpaidStatuses` | oracle `:67-73` | `InvoiceStatusGroups.UNPAID` in the unpaid/consolidatable presets; the whole `InvoiceStatus` vocabulary is a drawn facet | yes | OK |
+| `hasPendingPayments` | oracle `:90-92` | `payments[].meta.isPending`, inside the `payments` detail element → `"[object Object]"` | **no** | GAP |
+| `hasPendingPaymentInstructions` | oracle `:93-101` | `payments[].isAwaitingClient` (AC8), same element, same stringification | **no** | GAP |
+| `isCreditNote` | oracle `:111-115` | `category` column + credit-note facet + `filterCreditNotes` ×2 | yes | OK |
+| `belongsToChildOfClient` | oracle `:137-142` | `attribution.isChildOfClient` badge — `TableCellBadges`, which handles the object correctly | yes | OK |
+| `belongsToDelegate` | oracle `:143-146` | `attribution.isDelegated` badge | yes | OK |
+| `getInvoiceCategoryName` | oracle `:175-180` | `category.label`, consolidation-first | yes | OK |
+
+Out of scope, not graded (per the intake): every `apiPath().admin` write `:277-540`; the
+consolidate POST `:609-620` and CO-1/CO-2; the payment flow (PN-1); `data` + `account.user`
+(R12); `original_invoice` + `duplicate_invoice` (R11). All six `Dropped-*` parity rows carry
+an operator `signoff:` token — **no unsigned drop**; the verdict is not blocked on an
+A9 irregularity.
+
+## Capabilities a hand cannot drive
+
+| Capability | Why | Is it dispositioned, and honestly? | Does the JTBD survive it? |
+| --- | --- | --- | --- |
+| The detail overlay's six composite fields — `address`, `currency`, `products`, `payments`, `consolidation`, `bundle.groups` | Each is declared `TableCellText`; `CellDispatcher` dispatches on the declared `type` (`CellDispatcher.vue:29`), and `TableCellText` does `toString(value)`. `isPopulated` (`DetailSurface.vue:85-94`) only decides between the value and an em-dash, so a populated composite renders `"[object Object]"` and an all-falsy one renders `"—"` | **NO.** Not dispositioned anywhere — not in `parity.yaml`, not in `design.md`'s D6 exclusion list, not in the presentation docblock, not in `verify.md`, not in Review. The presentation docblock asserts the opposite: "this is where AC-5, AC-6, AC-8, AC-9 and AC-11 become visible". It is the ONLY declaration in the tree that points a text cell at a composite — all eight siblings declare scalar leaves and route object-valued `meta` through `TableCellBadges` | **NO.** It takes AC-5 (all four of its named values), AC-6, AC-8 and AC-16's pending/failed discrimination off the page, and it is the sole page surface for "consolidation fields" |
+| The invoice's assigned payment method (read) | `payment_details` is on the wire and in the include set, but `mapInvoice` never maps it, so it reaches no VM field and no surface can address it | **NO.** R05 grades it `Direct` on include-set membership alone, using a criterion R05's own 2026-09-08 correction had already rejected for R11/R12 | **NO.** "assigned method" is the JTBD's third noun and neither half is reachable |
+| `hasUnpaid` (collection-level) | Drawn by no surface; `MetaPanel` is dead code | Partly — the intake's limitation #1 discloses the per-invoice re-read, not this | **NO** — the JTBD's first noun is served only per-row |
+| `consolidatableCount` | Drawn by no surface | **NO.** R04 was re-dispositioned `Renamed` at the module layer with no page-side statement | Weakens noun 4; the drawn `filterConsolidatable` control carries the capability's other half |
+| AC-1's live unpaid re-read | Not readable (sibling context key) and not pressable | Half-honest. Limitation #1 says "readable, not pressable"; the declaration spec's own comment repeats "readable in the detail" while asserting only `not.toContain("refreshUnpaidAmount")` (`invoices-declaration.spec.ts:277-280`) — the readable half is asserted nowhere and is false | **NO** for the live-read half; the per-invoice list column serves the plain read |
+| AC-4 both halves (write) | No control | **YES, honestly** — D1's explicit-`null` argument genuinely cannot ride the single-arg row channel, and drawing it would have been the worse failure | It is the third noun's write half, so no — but this disposition is the right call, and the fix is a runtime channel, not a redraw |
+| The nine declared-but-undrawn filter columns | Absent from the bar by design | **YES, honestly** — and they are genuinely driveable: `useCriteriaUrlSync` serialises every `declaredPairs(criteria.schema)` pair, not just the drawn ones (`useCriteriaUrlSync.ts:66-71`), with `persistCriteria: true` | **YES.** No noun depends on an undrawn column; `credit_invoice_id` is already driven by the row-scoped credit-note control |
+
+## The four verbs the door names
+
+- **FILTER: driveable, and proven to the wire.** 8 facets drawn; `invoices-filter-wire.test.ts` 8/8 green, including "driving a facet reaches the wire under its declared dotted column". Caveat: the run emits `[intlify] Not found 'invoices.filter_bar.*'` for six of the eight, so a hand sees raw keys/fallback text as labels — legibility, not capability (the presentation docblock discloses the i18n keys as PENDING).
+- **SORT: driveable.** `SortControl` over the query schema's own 8-field `sort` enum, plus sortable table headers (`ListSurface.vue:149-168`).
+- **PAGE: driveable.** `Pagination` bound to the port's pagination, `@update:page="onPaginate"` (`:306-325`).
+- **SEARCH: driveable in the only form the oracle supports.** The `number` facet is drawn with `options: { format: "search" }` (`invoices.schemas.ts:279-284`). The oracle module declares no keyword/free-text search of its own, so there is no oracle row this fails to match.
+- **OPEN: driveable.** `view` (`detail: true`) opens `DetailDialog`, which boots `useInvoice` off the clicked row's `id` and destroys it on unmount — but six of the twelve fields it opens onto are unreadable (above).
+- **ACT: partly driveable.** 6 drawn controls — `refresh`, `filterConsolidatable`, `filterCreditNotes` ×2, `refreshAfterPayment`, `invalidate`, `view`. Every ACT that WRITES to an invoice (`assignPaymentMethod`) and every ACT that re-reads a derived amount (`refreshUnpaidAmount`) is undrawn. What a hand can act on is the list's own request state and cache, never the invoice.
+
+## Confidence, stated honestly
+
+**WHAT NO SEAT OBSERVED (verbatim):** No seat has observed the invoices page render rows in
+the labs replay environment.
+
+**What I re-ran, and what it says.** `forced-surface.invoices.spec.ts` is RED at this SHA
+with 3 failed / 2 passed, and its first failure is the harness's own guard sentence,
+verbatim:
+
+> `invoices draws none of its recorded values on Live — every armed claim below would pass against a page that was already blank: expected [] to not deeply equal []`
+
+The other two failures are both `expected 0 to be less than 0` — armed rows 0, Live rows 0.
+
+**The control does NOT hold the disclosure's attribution.** The accepted-red disclosure
+(operator ruling 2026-09-09) attributes the cause to corpus/replay routing in
+`runtime/force/**`, "shared infrastructure serving eight modules". At this same SHA, with
+the same harness and the same `runtime/force/**` code, I ran the sibling
+`forced-surface.client-phone.spec.ts`: **6/6 green, including "Live draws this module's own
+recorded records"**. The shared infrastructure demonstrably serves a sibling. The zero-row
+outcome is specific to the invoices page/module wiring, not to shared infrastructure.
+I did not root-cause it — that is outside this gate — but the attribution in the disclosure
+is unsupported by the control and should be corrected before it is relied on.
+
+For completeness: the invoices corpus is genuinely published and genuinely recorded.
+`packages/headless/src/modules/invoices/__tests__/fixtures/` holds 8 fixtures; the list
+fixture `get-invoices-case-default.json` is a real capture — `source: "case"`,
+`request.path: /api/invoices?with=client,client.image,...&case=default`, `response.body.data`
+an array of 25 rows with `total: 1086`, each row carrying a real `status` object. It is not
+fabricated. `invoices.feature`'s subject line ("A client reads and manages their invoices")
+stems to `invoice`, so route arming has the term it needs. So the corpus is not the missing
+piece — which is a further reason the "no corpus routing" framing does not fit.
+
+**WHAT THAT MEANS FOR THIS READBACK.** Every "driveable: yes" row above is derived from
+the declaration plus the runtime source, quote-confirmed line by line — **not** from an
+observed render. That is exactly the evidence class this gate exists to distrust, and it is
+the reason the two findings that carry the FAILED verdict went unseen through six green
+gates: both are invisible to a declaration-shape assertion and both would have been obvious
+in one second of looking at the page. Had any seat rendered this page with a real record,
+`"[object Object]"` would have been on screen six times. Read the OK rows as
+*"nothing in the code stops a hand"*, never as *"a hand has done it"*. Confidence in the
+GAP rows is high (each is a positive, executed or quote-confirmed finding); confidence in
+the OK rows is code-derived only.
+
+## Evidence I re-ran for THIS gate
+
+Every command was run from the worktree; `pwd` is stamped in each block.
+
+| Check | Command (with pwd) | Result (verbatim) |
+| --- | --- | --- |
+| HEAD binding | `cd .../fe-3031-invoices && pwd && git rev-parse HEAD` | `fe2c7e0a8d983162204567b7a793133f3567f361` |
+| declaration shape | `cd .../fe-3031-invoices/playgrounds/labs-nuxt && pwd && npx vitest run modules/scenarios/__tests__/invoices-declaration.spec.ts` | `Test Files 1 passed (1) · Tests 22 passed (22)` |
+| detail surface contract | `... npx vitest run modules/scenarios/runtime/components/surfaces/__tests__/detail-surface.spec.ts` | `Test Files 1 passed (1) · Tests 6 passed (6)` |
+| **the accepted red** | `... npx vitest run modules/scenarios/runtime/components/__tests__/forced-surface.invoices.spec.ts` | `Test Files 1 failed (1) · Tests 3 failed \| 2 passed (5)`; `AssertionError: invoices draws none of its recorded values on Live — every armed claim below would pass against a page that was already blank: expected [] to not deeply equal []`; `AssertionError: invoices draws as many rows armed empty as it does on Live: expected 0 to be less than 0`; `AssertionError: invoices keeps a full table under a read that failed: expected 0 to be less than 0` |
+| **sibling control** | `... npx vitest run modules/scenarios/runtime/components/__tests__/forced-surface.client-phone.spec.ts` | `Test Files 1 passed (1) · Tests 6 passed (6)` — including `✓ client-phone ... > Live draws this module's own recorded records` |
+| filter → wire | `cd .../fe-3031-invoices/packages/client-vue && pwd && npx vitest run src/components/form/renderers/__tests__/invoices-filter-wire.test.ts` | `Test Files 1 passed (1) · Tests 8 passed (8)`; also emitted `[intlify] Not found 'invoices.filter_bar.*'` for six facets |
+| module unit layer | `cd .../fe-3031-invoices/packages/headless && pwd && npx vitest run src/modules/invoices` | `Test Files 14 passed (14) · Tests 86 passed (86)` |
+| module integration layer (incl. A7 retarget) | `... npx vitest run --project integration src/modules/invoices` | `Test Files 12 passed (12) · Tests 65 passed (65)`; includes `✓ hasUnpaid answers for the .for() TARGET, not the reader`, `✓ AC-4 issues PATCH /invoices/{id}/payment_details with the chosen id as a present key`, `✓ AC-4 sends payment_details_id: null as a PRESENT key, never an omitted one` |
+| **the stringification, executed** | `cd .../fe-3031-invoices && pwd && node --input-type=module -e "import { toString } from './node_modules/.pnpm/lodash-es@4.18.1/node_modules/lodash-es/lodash.js'; ..."` | `consolidation -> "[object Object]"` · `payments -> "[object Object]"` · `address -> "[object Object]"` · `currency -> "[object Object]"` |
+| fixture provenance (data dimension, §4b) | `node -e` over `get-invoices-case-default.json` | `source: "case"`, real captured `request.path`, `response.body.data` = 25 rows, `total: 1086`, row `status` a real object. Recorded, not fabricated. **Re-capture GAP:** I did not re-run the capture pipeline — it needs live staging credentials this environment does not carry, so fixture provenance is structurally consistent with a real capture but not re-captured by me. |
+| parity drop signoffs (A9) | `grep -n "disposition: Dropped\|signoff:" docs/sdd/FE-3031/parity.yaml` | 6 `Dropped-with-issue-reference` rows, 6 `signoff:` tokens. No unsigned drop. |
+
+## The verdict, in one paragraph
+
+The run built a module that does the job and a page that mostly does not show it. At the
+module layer FE-3031 is real work, honestly proven: 151 targeted tests green at this SHA,
+the `.for('client', id)` retarget asserted on the outbound request contract, the
+explicit-`null` clear asserted as a present key, the parity table corrected three times
+under its own findings and every drop operator-signed. But the operator hired this run for
+a driveable page, and on the page three of the JTBD's five nouns come up short. "Assigned
+method" is not reachable at all — the relation is fetched and then thrown away in the
+mapper, so no surface can draw it, and no control writes it. "Consolidation fields" and
+"unpaid amount" are each half-reachable: a hand can filter and identify, but the values AC-5
+promises it "can see" — what it merged into, what credit note partners it, how much is
+queued for credit, the line items grouped by subscription — all render as the literal string
+`[object Object]`, because the detail overlay points a text cell at six composite fields, and
+the same defect silently takes AC-6, AC-8 and AC-16's pending/failed discrimination off the
+page with them. That is the FE-2824 shape in its exact original form: right declaration,
+right filenames, right labels, green gates, and a capability a hand cannot perform — and it
+survived six green gates because every one of them graded the declaration's shape rather
+than the page's pixels. Two of the three declared limitations survive the JTBD honestly
+(the AC-4 withdrawal is the right call; the undrawn filter columns are genuinely
+URL-driveable). The third is half-disclosed: "readable, not pressable" is not true, because
+AC-1's live amount is not readable either. And the run's confidence floor is thinner than
+the gate count suggests — the one harness that measures whether this page draws anything at
+all says zero rows and zero recorded values on Live, while the sibling control at the same
+SHA passes 6/6, so the accepted red's attribution to shared infrastructure does not hold.
+The JTBD is FAILED, not because a lane failed, but because nobody was required to look at
+the page until now.
+
+### What is owed to make this MET
+
+1. Draw the six composite detail fields through renderers that can show them — leaf-scoped
+   text elements for `consolidation`'s and `address`'s named values, a repeat/list treatment
+   (or leaf columns) for `products`, `payments` and `bundle.groups` — or route them to
+   `ContextPanel`'s raw dump rather than a text cell. Add `bundle.isLarge` for AC-6.
+2. Map the invoice's own `payment_details` into the VM and draw it, so the third noun's read
+   half exists; re-disposition R05's `payment_details` claim honestly either way.
+3. Draw `hasUnpaid` and `consolidatableCount` (the `MetaPanel` already exists and is unused),
+   so the two count reads fire and the first and fourth nouns are whole.
+4. Draw AC-1's `unpaidAmount`, or correct the declaration spec's comment and limitation #1
+   to say it is neither readable nor pressable.
+5. Correct the accepted red's disclosure: the sibling control passes, so the cause is not
+   shared `runtime/force/**` infrastructure.
+6. Land the `invoices.filter_bar.*` / `invoices.table.*` / `invoices.detail.*` i18n keys.
+
+
+---
+
+# TERMINAL JTBD READBACK — PASS 2 (post-fix), the `/factory` door's last gate
+
+**Filed by:** verifier seat · `UPMIND_SEAT=verifier UPMIND_LIFECYCLE=factory`
+**Date:** 2026-09-09
+**verifiedSha:** `72ee251d01614a76cc9e73593b1e459e54701a89` (was `fe2c7e0a8` at PASS 1)
+**Working directory (every command below ran here):** `/Users/dom/Documents/upmind-monorepo/.claude/worktrees/fe-3031-invoices`
+
+## VERDICT: MET
+
+PASS 1 returned FAILED on four findings. All four are closed, and closed with
+**rendered-output** evidence — the standard whose absence let them through six green
+gates. One noun stays PART-SERVED, and its missing half is an operator-signed
+out-of-scope write, not a silent drop.
+
+**The bar did not move.** PASS 1's FAILED rested on exactly four things: six unreadable
+composite detail fields; the assigned method having no VM field at all; two collection
+count reads that never fired; and AC-1 fetched-and-discarded. Every one is now closed.
+AC-4's write half was already graded "YES, honestly — the right call" in PASS 1's own
+disposition table, so it is not a bar being lowered now.
+
+## The five nouns
+
+| Noun | Served? | What a hand can drive | What it cannot | Receipt |
+| --- | --- | --- | --- | --- |
+| unpaid amount | **SERVED** | (1) each invoice's own unpaid amount in the list column; (2) **AC-1's live standalone re-read, now drawn in the detail** — `detail.siblings: ["unpaidAmount"]` folds the context sibling into `model` and `#/properties/unpaidAmount/properties/amountFormatted` draws it; (3) **the collection-level "do I owe anything at all"** as a notice badge, and reading it **fires its own dedicated request** | `refreshUnpaidAmount`'s **press** half — no control re-triggers the re-read on demand; the actions channel still binds the list cell only. **This costs the JTBD nothing** (reasoning below) | render-proven: recorded `£72.00` on screen from the real `get-invoices-unpaid-amount-id-currency-id` capture, with a differential control (occurrence-count delta when `siblings` is stripped); request-proven: `isUnpaidExistence(url)` matched after `rawMeta()`, and **not** matched in the control that never calls it |
+| list | **SERVED** | Filter (8 facets, proven to the wire), sort, page, open, column picker, card view, 10 columns — now with two collection notices beside the rows rather than instead of them | — (subject to the confidence caveat) | `list-surface-notices.invoices.spec.ts` asserts the notices draw **alongside** rows (`findAll("tbody tr, li").length > 0`) |
+| assigned method | **PART-SERVED** | **The READ, for the first time.** `payment_details` is no longer fetched-and-dropped: `mapPaymentMethod` maps it to `Invoice.paymentMethod` and the detail draws `paymentMethod.label` as a scalar leaf. I verified the mapping against reality myself — two recorded captures carry `card_type: "visa"`, `card_last4: "4242"`, so `label` resolves to `"visa ****4242"`, not `""` | **The WRITE.** Assign-a-specific-method still needs the `payment-details` picker (**PN-1, named in this run's own out-of-scope list**); the clear half stays withdrawn per design D1 because a bare row press sends an omitted key, not the explicit `null` | mapper + type + declared element all present; **residual observation gap named below** |
+| consolidation fields | **SERVED** | AC-5's four named values, each on its own scalar leaf: merged-into (`consolidationInvoiceId`), partnering credit note (`creditInvoiceId`), queued for credit (`amountToCreditFormatted`), line items grouped by subscription (`bundle.groupsSummary`). AC-6's `isLarge` is drawn for the first time. `consolidatableCount` draws **its own digits** and fires **its own dedicated request** | — | render-proven on a real record that populates `amountToCreditFormatted` (`£72.00`), `productsSummary` (1 item), `paymentsSummary` (4 payments), `groupsSummary` (1 group), `address.description`, `currency.code` — I checked the fixture's payload myself before trusting the guard |
+| credit notes | **SERVED** | All credit notes (header control); one invoice's own (row-scoped, `row.id` → `invoiceId`); identify via the `category` column; select in the widened `category.slug` facet | — | unchanged from PASS 1 |
+
+### `refreshUnpaidAmount`'s press half — confirmed unfixed, and it costs the JTBD nothing
+
+Confirmed: no control names it (`invoices-declaration.spec.ts`, 22/22 green, asserts the
+absence), and `DetailSurface` offers no write control of any kind. So limitation #1's
+**"readable, not pressable" is now literally true** — in PASS 1 it was half-false, because
+the readable half did not exist either.
+
+It costs the JTBD nothing, and not merely as an accepted limitation:
+
+- The oracle capability is `getUnpaidConvertedAmount` (`oracle:621-632`) — a **GET**. The
+  page performs that read and draws its result. The oracle exposes **no refresh verb**; a
+  legacy consumer re-reads by re-opening the record.
+- The page can do exactly that. `loadUnpaidAmount` carries `staleTime: 0`, and
+  `DetailDialog` destroys its read instance on unmount, so **closing and reopening the
+  invoice re-fires the live read** — the same re-read, by the same route the oracle's own
+  consumer uses.
+
+So the on-demand press is an ergonomic shortcut the oracle never had, not a capability a
+hand cannot reach.
+
+## Oracle × landed page, row for row
+
+| Oracle capability | Receipt | Page affordance | Driveable by hand? | Verdict | Δ vs PASS 1 |
+| --- | --- | --- | --- | --- | --- |
+| `apiPath().client` | `:25-33` | every read via `useUrl` | yes | OK | — |
+| `list` | `:227-238` | the table | yes | OK | — |
+| `get` | `:239-249` | `view` → `DetailDialog` → `.withId(row.id)` | yes | OK | — |
+| `getWithParams` relation set | `:250-276` | `LOAD_ONE_INCLUDES`; **`payment_details` now reaches a VM field** | yes | **OK** | **GAP → OK** |
+| `updatePaymentDetails` | `:288-301` | none — assign is PN-1 (out of scope), clear withdrawn per D1 | no | **OUT OF SCOPE** (signed) | GAP → scoped |
+| `hasUnpaid` | `:553-573` | notice badge; `rawMeta()` deref flips the gate | yes | **OK** | **GAP → OK** |
+| `getConsolidatableTotal` | `:574-592` | notice badge drawing the count itself | yes | **OK** | **GAP → OK** |
+| `getUnpaidConvertedAmount` | `:621-632` | drawn in the detail via `siblings` | yes (re-read by reopening) | **OK** | **GAP → OK** |
+| `unifiableCount` | `:37-43` | as `getConsolidatableTotal` | yes | **OK** | **GAP → OK** |
+| `unpaidStatuses` | `:67-73` | presets + drawn status facet | yes | OK | — |
+| `hasPendingPayments` | `:90-92` | `paymentsSummary` — per-payment state, pending vs failed | yes | **OK** | **GAP → OK** |
+| `hasPendingPaymentInstructions` | `:93-101` | `paymentsSummary` flags "pending — awaiting you" | yes | **OK** | **GAP → OK** |
+| `isCreditNote` | `:111-115` | category column + facet + two controls | yes | OK | — |
+| `belongsToChildOfClient` | `:137-142` | `attribution` badge | yes | OK | — |
+| `belongsToDelegate` | `:143-146` | `attribution` badge | yes | OK | — |
+| `getInvoiceCategoryName` | `:175-180` | `category.label` | yes | OK | — |
+
+Out-of-scope rows not graded, per the intake. **All six `Dropped-*` parity rows still carry
+an operator `signoff:` token — no unsigned drop.**
+
+**Composite audit, re-run independently of the guard.** I walked every element the detail
+now declares against the `Invoice` type: `unpaidAmount.amountFormatted`,
+`address.description`, `currency.code`, `productsSummary`, `paymentsSummary`,
+`paymentMethod.label`, `consolidation.consolidationInvoiceId`,
+`consolidation.creditInvoiceId`, `consolidation.amountToCreditFormatted`,
+`bundle.groupsSummary`, `summary.{subtotal,discount,paidAmountFormatted,balanceFormatted}`
+are all `string`; `bundle.isLarge` is `boolean` (drawn `TableCellIcon`);
+`nextChargeDate`/`datePaid` are `FormattedDate` descriptors (drawn `TableCellDate`).
+**Zero composites remain**, by type as well as by render.
+
+## Capabilities a hand cannot drive
+
+| Capability | Why | Is it dispositioned, and honestly? | Does the JTBD survive it? |
+| --- | --- | --- | --- |
+| `assignPaymentMethod` — the WRITE | assign needs the PN-1 `payment-details` picker; clear cannot ride the single-arg row channel with an explicit `null` | **YES, honestly** — PN-1 is in this run's declared out-of-scope set, and D1's explicit-`null` requirement is real (its own negative control, `invoices.clear-method-omitted.must-fail.patch`, applies clean). Drawing it would claim a capability the page cannot perform | **YES** — the read half is delivered, and the write half left scope by the operator's hand, not by effort |
+| `refreshUnpaidAmount` — the PRESS | the runtime's actions channel binds the list cell only; outside the 2026-09-09 sign-off | **YES, and now accurately** — "readable, not pressable" is true for the first time | **YES** — see the reasoning above; the oracle has no refresh verb and reopening re-fires the read |
+
+No other oracle capability in scope is undriveable.
+
+## The four verbs the door names
+
+**FILTER:** driveable, proven to the wire (8/8), unchanged · **SORT:** driveable ·
+**PAGE:** driveable · **SEARCH:** driveable in the only form the oracle supports (the
+`number` facet, `format: "search"`) · **OPEN:** driveable, and **the twelve→sixteen fields
+it opens onto are now all readable** · **ACT:** 6 controls drawn plus two collection
+notices; every ACT that writes to an invoice remains out of scope by signed disposition.
+
+## Confidence, stated honestly
+
+**What changed in the evidence class.** PASS 1's "driveable: yes" rows were code-derived.
+This pass they are **render-derived** for every closed finding: `document.body.textContent`
+and `wrapper.text()` assertions against the module's own recorded corpus, each with a
+differential control that dies under the pre-fix shape. That is the standard I asked for,
+and it was met rather than paraphrased.
+
+**I did not take the guard on trust.** The `"[object Object]"` guard could have passed
+vacuously against a sparse record, so before believing it I read the fixture it renders
+(`get-invoices-id-case-unpaid.json`, the by-id capture whose id matches the `unpaid_amount`
+capture) and confirmed it genuinely populates `products` (1), `payments` (4), `address`
+(object), `currency` (GBP), `partial_amount_to_credit_formatted` (`£72.00`) and one bundle
+group. Six of the seven previously-broken fields are therefore **positively** exercised,
+not merely absent.
+
+**WHAT NO SEAT HAS OBSERVED (carried forward, unchanged):** No seat has observed the
+invoices page render rows in the labs replay environment. `forced-surface.invoices.spec.ts`
+is still red with the same three cells and the same verbatim first failure. The
+`notices`/`siblings` work does not touch `runtime/force/**` and did not clear it.
+
+**The 39/39 correction is arithmetically exact — I verified it.** Running the whole
+forced-surface family: the seven siblings are 6+6+6+6+6+5+4 = **39 tests, 39 green**, and
+invoices is **3 failed / 2 passed**, total 44. The earlier "42/42" did fold this file's own
+three reds into the sibling count. The attribution correction to **invoices-specific** is
+right, cites my `client-phone` control, and — to the developer's credit — says out loud
+that the operator's ruling to leave it red was made on the premise the correction removes.
+That is the disclosure doing its job.
+
+**Residual observation gaps (named, not waived).** Each is a place where the capability is
+present and the mechanism verified, but the render has not been watched:
+
+1. **`paymentMethod` has never been observed rendering a method.** The readback keys on the
+   one by-id fixture whose `payment_details` is `null`, so that field draws "—" in the only
+   observed render — while **two fixtures in the same corpus**
+   (`get-invoices-id-case-first.json`, `get-invoices-id-case-paid.json`) carry a real
+   `payment_details` with `card_type`/`card_last4`. I closed the mechanism myself by reading
+   those payloads, so this is an unwatched render, not an unproven one. It is also the ONE
+   new mapper member with **zero unit coverage**: `invoices.mappers.test.ts` is still 19
+   tests, unchanged across a 70-line mapper addition, and no test names `paymentMethod`.
+2. **The `ModuleRenderer` relay is untested.** `port.rawMeta()` → both requests fire
+   (proven, with control) and `ListSurface` + a `notices` prop → the digits render (proven,
+   with controls), but **no spec exercises the one line that joins them**
+   (`ModuleRenderer.vue:28`, `:notices="port.rawMeta?.()"`). I verified both spellings match
+   `ListSurfaceProps.notices`, that the binding sits on the LIST branch the invoices page
+   takes, and that a computed deref inside a template render pass is reactive by
+   construction — so the failure mode is nil rather than merely unlikely. Still: the notices
+   path end-to-end is not observed anywhere.
+
+## Findings that are not JTBD blockers
+
+1. **Hardcoded English in a headless mapper (🟠).** `paymentStateLabel` and
+   `mapBundleGroupsSummary` emit `"successful"` / `"pending"` / `"pending — awaiting you"` /
+   `"failed"` / `"Unlinked"` as literals, and those strings **reach the screen** through
+   `paymentsSummary` and `bundle.groupsSummary`. That is untranslatable user-visible copy
+   generated in `packages/headless`, against this repo's i18n mandate. It did not trip the
+   labs `untranslated()` sweep because `detail-surface.spec.ts` runs that sweep against the
+   **client-emails** declaration, not the invoices one. Not a capability gap (the values are
+   readable; the run is graded EN per ADR-021), but it is a real defect and it is now named.
+2. **A pre-existing labs red I surfaced, NOT caused by this dispatch (informational).**
+   `list-surface-toolbar-row.spec.ts` → "leaves the refinements row carrying chips and Clear
+   all alone" fails, `expected [] to deeply equal [ 'email.like', 'verified.eq' ]`, in
+   isolation as well as in the directory. It is not on any path this dispatch touched: the
+   mount passes **no** `notices` prop (so the new block renders nothing),
+   `RefinementsRow.vue` is untouched by this branch, and both the spec and that component
+   were last touched by **other** stories (FE-3095, FE-3125). I could not run the
+   counterfactual at `fe2c7e0a8` without creating a worktree (read-only), so this is a
+   strong four-fact inference rather than an executed A/B — flagged so it is not lost.
+3. **Twelve pre-existing stale negative controls (informational).** Seven `list-surface-*`
+   and five other `.must-fail.patch` files fail `git apply --check`. These are **not** this
+   dispatch's drift: the representative one searches for `:class="styles.listSurface.table"`,
+   a spelling that exists at **neither** `72ee251d0`, `fe2c7e0a8`, **nor the branch point** —
+   an older styles refactor orphaned them. By contrast **all 17** invoices-module controls
+   apply clean, including `invoices.bundle-count-from-array.must-fail.patch`, which this
+   dispatch correctly **re-rolled** for its own context shift. The developer caught the one
+   it broke.
+4. **New i18n keys pending in the external catalogue.** `invoices.notice.has_unpaid`,
+   `invoices.notice.consolidatable_count`, `invoices.detail.unpaid_amount`,
+   `invoices.detail.payment_method`, `invoices.detail.consolidation_invoice`,
+   `invoices.detail.credit_invoice`, `invoices.detail.amount_to_credit`,
+   `invoices.detail.bundle_is_large` join the already-pending set. Carried forward as known.
+
+## The two planner-owed items — both documentation, neither capability
+
+1. **Limitation #1's wording.** The readable half is now true and render-proven, so the
+   limitation should read as *the press half alone*, and should carry the reopening route
+   that makes the re-read reachable. **Documentation.**
+2. **R05's grade for `payment_details`.** The row's `Direct` grade is now **true on R05's
+   own criterion** ("requested AND reaches a VM field"), because `Invoice.paymentMethod`
+   exists. The row needs only a note recording that it became true by this fix rather than
+   when it was written. **Documentation.** (PASS 1's finding stands as history: the grade was
+   wrong at the time it was made.)
+
+## Evidence I re-ran for THIS gate
+
+| Check | Command (with pwd) | Result (verbatim) |
+| --- | --- | --- |
+| HEAD binding | `cd .../fe-3031-invoices && pwd && git rev-parse HEAD` | `72ee251d01614a76cc9e73593b1e459e54701a89` |
+| **AC-1 sibling renders (render-proven)** | `cd .../playgrounds/labs-nuxt && pwd && npx vitest run .../detail-dialog-siblings.invoices.spec.ts` | `Test Files 1 passed (1) · Tests 3 passed (3)` — `✓ renders the live recorded unpaid amount when the detail declares the sibling`, `✓ never renders the literal string "[object Object]" anywhere in the detail`, `✓ CONTROL (inline pre-fix shape) — with siblings stripped, the sibling's OWN element draws nothing extra` |
+| **both count requests fire (request-proven)** | `... npx vitest run .../module-port-raw-meta-requests.invoices.spec.ts` | `Test Files 1 passed (1) · Tests 2 passed (2)` — `✓ calling port.rawMeta() fires BOTH hasUnpaid's and consolidatableCount's own dedicated requests`, `✓ CONTROL (inline pre-fix shape) — the same mounted, settled composable issues NEITHER dedicated request when rawMeta() is never called` |
+| notices render as digits + opt-in inert + declaration | `... npx vitest run .../list-surface-notices.invoices.spec.ts .../sibling-declarations-inert.spec.ts .../invoices-declaration.spec.ts` | `Test Files 3 passed (3) · Tests 43 passed (43)` |
+| **the 39/39 claim, verified** | `... npx vitest run modules/scenarios/runtime/components/__tests__/forced-surface.` | `Test Files 1 failed \| 7 passed (8) · Tests 3 failed \| 41 passed (44)`; the seven siblings are 6+6+6+6+6+5+4 = 39, all green; invoices 3 failed / 2 passed |
+| the accepted red, unchanged | (same run) | `invoices draws none of its recorded values on Live — every armed claim below would pass against a page that was already blank: expected [] to not deeply equal []`; `expected 0 to be less than 0` ×2 |
+| surfaces regression sweep | `... npx vitest run modules/scenarios/runtime/components/surfaces/__tests__/` | `Test Files 1 failed \| 23 passed (24) · Tests 1 failed \| 198 passed (199)` — the one failure is the pre-existing `list-surface-toolbar-row` red (finding 2) |
+| that red in isolation | `... npx vitest run .../list-surface-toolbar-row.spec.ts` | `Test Files 1 failed (1) · Tests 1 failed \| 12 passed (13)` — fails in isolation too, so not cross-spec pollution |
+| module layer (unit + integration) | `cd .../packages/headless && pwd && npx vitest run src/modules/invoices` | `Test Files 14 passed (14) · Tests 86 passed (86)` — unchanged count across a 70-line mapper addition, which is finding 1's coverage half |
+| filter → wire | `cd .../packages/client-vue && pwd && npx vitest run .../invoices-filter-wire.test.ts` | `Test Files 1 passed (1) · Tests 8 passed (8)` |
+| **fixture is not sparse (guard non-vacuity)** | `node -e` over `get-invoices-id-case-unpaid.json` | `products len: 1` · `payments len: 4` · `address: [id, …]` · `currency: GBP` · `partial_amount_to_credit_formatted: £72.00` · `products_count: 1` · `payment_details: null` |
+| **assigned-method mapping vs reality** | `node -e` over `get-invoices-id-case-paid.json` | `card_type: "visa"` · `card_last4: "4242"` · `name: "Visa ending 4242"` → `mapPaymentMethod` yields `label: "visa ****4242"` |
+| corpus-wide `payment_details` survey | `node -e` over all 8 fixtures | 2 of 8 carry a non-null `payment_details`; the one the readback keys on is not among them (finding, residual gap 1) |
+| negative controls | `git apply --check` over 78 patches | all **17** invoices-module controls OK, incl. the re-rolled bundle-count one; 12 pre-existing stale failures outside this branch's paths (finding 3) |
+| stale-control provenance | `git show fe2c7e0a8:…ListSurface.vue \| grep -c "styles.listSurface.table"` etc. | `0` at HEAD, `0` at `fe2c7e0a8`, `0` at the branch point — pre-existing, not this dispatch |
+| parity drops (A9) | `grep -n "disposition: Dropped\|signoff:" docs/sdd/FE-3031/parity.yaml` | 6 `Dropped-*`, 6 `signoff:`. No unsigned drop |
+
+## The verdict, in one paragraph
+
+The run now delivers the job the operator hired it for. PASS 1 failed this gate because the
+page could not show what the module could serve: six composite detail fields rendered the
+literal string `[object Object]`, the assigned payment method was fetched over the wire and
+thrown away in the mapper, two collection count reads never fired because nothing on the
+page ever read them, and AC-1's live unpaid amount was fetched and discarded by every
+surface. All four are closed, and closed the right way — by rendered-output assertions
+against the module's own recorded captures, each with a differential control that dies under
+the pre-fix shape, which is a categorically better class of evidence than the
+declaration-shape assertions that let the original failure through. I did not take the new
+guards on trust: I read the fixture the `[object Object]` guard renders against and
+confirmed it genuinely populates six of the seven repaired fields, and I read two other
+recorded captures to confirm the new `paymentMethod` mapping resolves to a real
+`"visa ****4242"` rather than an empty string. Four of the five nouns are SERVED; "assigned
+method" is PART-SERVED, with its read half delivered for the first time and its write half
+out of scope by a signed disposition — PN-1's picker and design D1's explicit-`null`
+requirement, both of which PASS 1 already graded honest. `refreshUnpaidAmount`'s press half
+is confirmed still unfixed, which finally makes "readable, not pressable" a true sentence
+instead of a half-false one, and it costs the JTBD nothing: the oracle exposes a GET, not a
+refresh verb, and the page re-fires that read whenever the record is reopened. What remains
+is real but small and named: the assigned method has never been watched rendering an actual
+method although the corpus holds two fixtures that would show it, the one line joining the
+two proven halves of the notices path has no test, the new summary strings ship hardcoded
+English out of a headless mapper, and the invoices page still draws zero rows in the labs
+replay environment — a red the operator ruled non-blocking on a premise this dispatch has
+now honestly corrected. None of those is a capability a hand cannot drive. The gate is MET.
+
