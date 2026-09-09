@@ -12,7 +12,8 @@
  * list is a deliberate SENTINEL: `Zzz Testland` / `Qqq Otherland` are not
  * countries and cannot arrive from anywhere but this file's stub of
  * `useSystem()`, so the picker listing them proves transport rather than
- * coincidence. The i18n catalogue is the shipped `packages/i18n` source, read
+ * coincidence. Their CODES are real because the control offers only countries
+ * libphonenumber supports; the names carry the sentinel. The i18n catalogue is the shipped `packages/i18n` source, read
  * through `catalogue()` rather than transcribed; `OPTIONAL_SENTINEL` is the one
  * key overridden, for the same reason the countries are — the engine's own
  * fallback for that string is the English word the catalogue already carries.
@@ -34,8 +35,8 @@ import type { VueWrapper } from "@vue/test-utils";
 
 const sentinel = vi.hoisted(() => ({
   countries: [
-    { id: "sentinel-zz", code: "ZZ", name: "Zzz Testland", phone_code: "999" },
-    { id: "sentinel-qq", code: "QQ", name: "Qqq Otherland", phone_code: "998" }
+    { id: "sentinel-zz", code: "GB", name: "Zzz Testland" },
+    { id: "sentinel-qq", code: "IE", name: "Qqq Otherland" }
   ],
   ensureCountries: vi.fn()
 }));
@@ -349,6 +350,28 @@ describe("the wrapper's country list reaches the phone control", () => {
 
     expect(html).not.toContain("Zzz Testland");
     expect(html).not.toContain("Qqq Otherland");
+  });
+
+  // The control derives the dial code from libphonenumber rather than the row it
+  // is handed, so a host cannot supply one that disagrees with the validator —
+  // which is what rendered "++44" while the row carried its own plus.
+  it("shows the dial code its own validator uses, not one the host supplies", async () => {
+    const supplied = map(sentinel.countries, country =>
+      set(cloneDeep(country), "phone_code", "+999")
+    );
+    const bare = sentinel.countries;
+    sentinel.countries = supplied;
+
+    try {
+      const html = await openCountryPicker(
+        await mountWrapper({ schema: phoneSchema, uischema: phoneUischema })
+      );
+
+      expect(html).toContain("+44");
+      expect(html).not.toContain("999");
+    } finally {
+      sentinel.countries = bare;
+    }
   });
 });
 
