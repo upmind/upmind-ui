@@ -10,11 +10,10 @@ import { NotAuthenticatedError } from "../../utils";
 import type {
   Invoice,
   InvoiceFilterModel,
-  InvoiceSortableField,
+  InvoiceSortModel,
   InvoicesListQuery,
   InvoicesServices
 } from "./invoices.types";
-import type { SortDirection } from "../query/query.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
@@ -147,11 +146,11 @@ export function createInvoicesActions(
   }
 
   /**
-   * Applies a sort intent — the `sort` branch of the one query model, so
+   * Applies a sort INTENT — the `sort` branch of the one query model, so
    * `filters` and `pagination` are untouched.
    */
-  function sortBy(field: InvoiceSortableField, dir: SortDirection): void {
-    query.setCriteria({ sort: [{ field, dir }] });
+  function sortBy(intent: InvoiceSortModel): void {
+    query.setCriteria({ sort: intent });
   }
 
   /**
