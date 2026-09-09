@@ -329,3 +329,35 @@ Feature: A client reads and manages their invoices
 # real proving `*.int.test.ts` (named per-step in the catalog) rather than a
 # fabricated action id — a legitimate "not yet driven" state per this file's own
 # head docstring, not a coverage hole.
+
+# === DOWNLOADING THE PDF DOCUMENT (client×self) — appended 2026-09-09 =========
+# The tracked issue gained two acceptance criteria mid-run, after this
+# feature's own authoring pass, and no gate re-read it (this dispatch's own
+# read-back). AC-17 is minted here for the first (beyond the story's own
+# AC1-16, same precedent as AC-14/AC-15/AC-16): downloading an invoice's PDF
+# document, one action a hand can drive. The second (pinning the already-
+# declared `products.contracts_product_id` filter column) mints no scenario —
+# it confirms an already-declared filter column, not a new capability; the
+# module's filtering capability is already scenario'd generically above.
+# Append-only: no Background:, no second Feature:, nothing above narrowed or
+# deleted. Each scenario below carries its own boot Given, per the
+# augmentation law.
+
+  @AC-17 @client @cell:client-self
+  Scenario: Download an invoice's PDF document
+    Given I have opened one of my invoices
+    When I download its PDF document
+    Then I receive that invoice's PDF file
+    And it is saved using that invoice's own number as the filename
+
+  @AC-17 @client @cell:client-self
+  Scenario: Download a credit note's PDF document the same way
+    Given I have opened one of my credit notes
+    When I download its PDF document
+    Then I receive that credit note's PDF file, the same way any invoice's is
+
+  @AC-17 @client @module @guard
+  Scenario: Refuse to download when no client is addressable
+    Given I have no addressable client identity
+    When I try to download an invoice's PDF document
+    Then nothing is downloaded and no document request is made
