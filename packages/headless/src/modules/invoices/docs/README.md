@@ -22,7 +22,7 @@ An invoice is a frozen bill. This module reads a client's invoices — the whole
 
 ```typescript
 // Your own invoices
-const invoices = useInvoices().as('self');
+const invoices = useInvoices().as("self");
 await invoices.useActions().isReady();
 const { data, total } = invoices.useContext();
 
@@ -32,29 +32,29 @@ await invoice.useActions().isReady();
 const { data: one } = invoice.useContext();
 
 // An entitled client's invoices (parent account / accepted delegate)
-const subAccount = useInvoices().as('client').for('client', clientId);
+const subAccount = useInvoices().as("client").for("client", clientId);
 ```
 
 See [Usage](./usage.md) for the full API.
 
 ## Features
 
-| Feature                                 | Status | Notes                                                                 |
-| ---------------------------------------- | ------ | ---------------------------------------------------------------------- |
-| Read a filtered/sorted/paginated list    | ✅     | `GET /invoices`, declared filters/sort/pagination only                |
-| Read one invoice                         | ✅     | `GET /invoices/{id}`, mapped to the customer shape                    |
-| Re-read the live unpaid amount           | ✅     | `GET /invoices/unpaid_amount/{id}`, re-reads on currency change       |
-| "Does this client owe anything?" count   | ✅     | dedicated existence read, own query, never the visible list           |
-| Consolidatable-invoices count            | ✅     | dedicated count read; coexists with the visible list                  |
-| Assign / clear the payment method        | ✅     | `PATCH /invoices/{id}/payment_details`; clearing sends `null` present |
-| Credit notes as a filtered view          | ✅     | a criteria preset over the same collection — no separate resource     |
-| Co-mingled row attribution               | ✅     | own / sub-account / delegated, plus settleability                     |
-| Reading an entitled client's invoices    | ✅     | `.for('client', id)` — a declared filter column, not a new endpoint   |
-| Settlement / payment-state derivation    | ✅     | fully paid / free / partially paid / pending / failed-to-resolve      |
-| Readiness / refresh / invalidate         | ✅     | lifecycle helpers on both composables                                 |
-| Payment submission                       | ❌     | owned by `payment` / `payment-details`                                |
-| Consolidation trigger + preferences      | ❌     | out of scope for this module — see [foundation](./foundation.md)      |
-| Staff acting for a client                | ❌     | deprecated for this resource — client-only, both `self` and `client` contexts |
+| Feature                                | Status | Notes                                                                         |
+| -------------------------------------- | ------ | ----------------------------------------------------------------------------- |
+| Read a filtered/sorted/paginated list  | ✅     | `GET /invoices`, declared filters/sort/pagination only                        |
+| Read one invoice                       | ✅     | `GET /invoices/{id}`, mapped to the customer shape                            |
+| Re-read the live unpaid amount         | ✅     | `GET /invoices/unpaid_amount/{id}`, re-reads on currency change               |
+| "Does this client owe anything?" count | ✅     | dedicated existence read, own query, never the visible list                   |
+| Consolidatable-invoices count          | ✅     | dedicated count read; coexists with the visible list                          |
+| Assign / clear the payment method      | ✅     | `PATCH /invoices/{id}/payment_details`; clearing sends `null` present         |
+| Credit notes as a filtered view        | ✅     | a criteria preset over the same collection — no separate resource             |
+| Co-mingled row attribution             | ✅     | own / sub-account / delegated, plus settleability                             |
+| Reading an entitled client's invoices  | ✅     | `.for('client', id)` — a declared filter column, not a new endpoint           |
+| Settlement / payment-state derivation  | ✅     | fully paid / free / partially paid / pending / failed-to-resolve              |
+| Readiness / refresh / invalidate       | ✅     | lifecycle helpers on both composables                                         |
+| Payment submission                     | ❌     | owned by `payment` / `payment-details`                                        |
+| Consolidation trigger + preferences    | ❌     | out of scope for this module — see [foundation](./foundation.md)              |
+| Staff acting for a client              | ❌     | deprecated for this resource — client-only, both `self` and `client` contexts |
 
 ## Key Concepts
 
@@ -81,7 +81,7 @@ Filters, sort, and pagination all travel through one declared query model. There
 ## Documentation
 
 | Doc                               | Audience           | Content                            |
-| ---------------------------------- | ------------------- | ------------------------------------ |
+| --------------------------------- | ------------------ | ---------------------------------- |
 | **This README**                   | Everyone           | Overview, concepts, quick start    |
 | [Usage](./usage.md)               | All devs           | API reference, examples            |
 | [Architecture](./architecture.md) | Contributors       | Data flow, sub-units, dependencies |

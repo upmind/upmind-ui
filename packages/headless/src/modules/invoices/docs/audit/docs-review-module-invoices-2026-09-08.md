@@ -24,31 +24,31 @@ the file.
 
 ## Section audit (foundation.md)
 
-| Section | Status |
-| --- | --- |
-| What it is | ✅ present, updated for the `client×client` capability and the corrected sibling-scope note |
-| Core concepts | ✅ present, category/attribution/entitled-reading concepts added |
-| State model | ✅ present, unaffected by this conversion, kept |
-| Operations | ✅ present, expanded 5 → 6 BE-call rows + a 6-row derived-capability sub-table (was folded into 5 rows conflating BE calls with client derivations) |
-| Data shape | ✅ present, corrected + extended (`products_count`, `delegate_related` cross-reference, unpaid-amount response shape added) |
-| Dependencies | ✅ present, dependants table corrected (see Falsehood 3) |
-| API endpoints | ✅ present, 1 → 4 endpoints |
-| Flows | ✅ present, kept (still accurate — payment lifecycle unaffected by this story) |
-| Lessons | ✅ present, 2 falsehoods removed, 4 new lessons added |
+| Section       | Status                                                                                                                                              |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| What it is    | ✅ present, updated for the `client×client` capability and the corrected sibling-scope note                                                         |
+| Core concepts | ✅ present, category/attribution/entitled-reading concepts added                                                                                    |
+| State model   | ✅ present, unaffected by this conversion, kept                                                                                                     |
+| Operations    | ✅ present, expanded 5 → 6 BE-call rows + a 6-row derived-capability sub-table (was folded into 5 rows conflating BE calls with client derivations) |
+| Data shape    | ✅ present, corrected + extended (`products_count`, `delegate_related` cross-reference, unpaid-amount response shape added)                         |
+| Dependencies  | ✅ present, dependants table corrected (see Falsehood 3)                                                                                            |
+| API endpoints | ✅ present, 1 → 4 endpoints                                                                                                                         |
+| Flows         | ✅ present, kept (still accurate — payment lifecycle unaffected by this story)                                                                      |
+| Lessons       | ✅ present, 2 falsehoods removed, 4 new lessons added                                                                                               |
 
 No optional section included without justification; no section omitted that the
 content requires.
 
 ## Content audit — the six falsehoods (design.md) + one found in this pass
 
-| # | Claim | Corrected |
-| --- | --- | --- |
-| 1 | `category.slug` restricted list + "informational" | Exact 8-value enum from `packages/types/src/models/invoices.ts:129-138`; reframed as load-bearing (credit-note mechanic, consolidation label precedence) |
-| 2 | "a client can only see their own invoices" | Replaced with the entitled-other-client capability, in "What it is", Core concepts, and Operations |
-| 3 | "No other headless module reads from invoices" | Replaced with a receipted `orders` dependant row (`order.machine.ts:4`,`:176`) |
-| 4 | §Operations declared 5 capabilities | Now 6 BE-call rows + 6 derived-capability rows, covering all 15 source files' exposed surface incl. lifecycle |
-| 5 | Refresh-after-payment assigned solely to invoices | Reframed as "the list's refresh is also what a payment-outcome signal triggers" — this module's own refetch capability, without claiming the trigger itself |
-| 6 | §API-endpoints documented only `GET /invoices/{id}` | Now 4 endpoints: list, single read, unpaid-amount, payment-method write |
+| #                   | Claim                                                                                            | Corrected                                                                                                                                                                                                                              |
+| ------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1                   | `category.slug` restricted list + "informational"                                                | Exact 8-value enum from `packages/types/src/models/invoices.ts:129-138`; reframed as load-bearing (credit-note mechanic, consolidation label precedence)                                                                               |
+| 2                   | "a client can only see their own invoices"                                                       | Replaced with the entitled-other-client capability, in "What it is", Core concepts, and Operations                                                                                                                                     |
+| 3                   | "No other headless module reads from invoices"                                                   | Replaced with a receipted `orders` dependant row (`order.machine.ts:4`,`:176`)                                                                                                                                                         |
+| 4                   | §Operations declared 5 capabilities                                                              | Now 6 BE-call rows + 6 derived-capability rows, covering all 15 source files' exposed surface incl. lifecycle                                                                                                                          |
+| 5                   | Refresh-after-payment assigned solely to invoices                                                | Reframed as "the list's refresh is also what a payment-outcome signal triggers" — this module's own refetch capability, without claiming the trigger itself                                                                            |
+| 6                   | §API-endpoints documented only `GET /invoices/{id}`                                              | Now 4 endpoints: list, single read, unpaid-amount, payment-method write                                                                                                                                                                |
 | 7 (found this pass) | Operations row "read the post-redirect outcome from the URL" and the "routing" dependency bullet | Removed — `grep -rl "payment_success\|routing"` over the module's 15 `.ts` files returns **no match**; this capability was never implemented by this module's source and was a pre-existing doc overreach, not part of design.md's six |
 
 ## Content audit — mechanical checks
@@ -77,13 +77,13 @@ content requires.
 
 ## Scoring
 
-| Category | Score | Notes |
-| --- | --- | --- |
-| Technical accuracy | 94 | All six briefed falsehoods + one additional found-and-fixed; every endpoint/field verified against source or fixture |
-| Completeness | 90 | Operations, Data shape, API endpoints all expanded to the landed surface; PATCH endpoint sample is stubbed (no fixture exists) — disclosed, not hidden |
-| Structure | 95 | Canonical section order; no missing required section; no unjustified optional section |
-| Tone | 96 | Strip audit clean; descriptive throughout; no prescriptive verbs |
-| Actionability | 92 | An architect could rebuild list + single-read + count + write from this doc; the two flows sections are unaffected by this story and still hold |
+| Category           | Score | Notes                                                                                                                                                  |
+| ------------------ | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Technical accuracy | 94    | All six briefed falsehoods + one additional found-and-fixed; every endpoint/field verified against source or fixture                                   |
+| Completeness       | 90    | Operations, Data shape, API endpoints all expanded to the landed surface; PATCH endpoint sample is stubbed (no fixture exists) — disclosed, not hidden |
+| Structure          | 95    | Canonical section order; no missing required section; no unjustified optional section                                                                  |
+| Tone               | 96    | Strip audit clean; descriptive throughout; no prescriptive verbs                                                                                       |
+| Actionability      | 92    | An architect could rebuild list + single-read + count + write from this doc; the two flows sections are unaffected by this story and still hold        |
 
 **Overall: 93/100.**
 

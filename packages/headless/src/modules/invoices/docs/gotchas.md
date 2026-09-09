@@ -32,7 +32,7 @@ Reading an entitled client's invoices (`.for('client', id)`) applies that client
 
 ## `isDelegated` does not need the reader's id; `isChildOfClient` does 🧪
 
-A row's delegated classification is a fact about the invoice's own client (does it have *any* parent account at all), independent of who is reading. A row's sub-account classification needs to compare that parent against the reader's own id. Calling the mapper with only one argument — as `orders/order.machine.ts` does — still yields a correct delegated signal, but a conservative "not mine" sub-account signal. This is intentional, not a bug to fix in `orders`.
+A row's delegated classification is a fact about the invoice's own client (does it have _any_ parent account at all), independent of who is reading. A row's sub-account classification needs to compare that parent against the reader's own id. Calling the mapper with only one argument — as `orders/order.machine.ts` does — still yields a correct delegated signal, but a conservative "not mine" sub-account signal. This is intentional, not a bug to fix in `orders`.
 
 ```typescript
 // A single-argument call still resolves isDelegated correctly:
@@ -102,14 +102,14 @@ The snapshot does not follow the live client record. Renames and address edits a
 
 ## Edge Cases
 
-| Scenario                        | Expected behaviour                              | Notes                             |
-| --------------------------------- | -------------------------------------------------- | ------------------------------------ |
-| No addressable client (self or `.for()` target) | zero requests fired; the scope reports unavailable | guard rejects before the wire      |
-| Unknown invoice id               | `404`; `error` populated                        | `meta.hasError` after load         |
-| An undeclared filter column      | refused — a validation error                    | never a silent pass-through        |
-| No payments, balance owed        | `paymentState === "pending"`                   | fresh unpaid invoice               |
-| Payments, nothing owed           | `paymentState === "complete"`                  | settled                            |
-| Pending (uncaptured) attempt      | contributes nothing to `paidAmount`             | do not re-prompt while in flight   |
+| Scenario                                             | Expected behaviour                                         | Notes                                                    |
+| ---------------------------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------- |
+| No addressable client (self or `.for()` target)      | zero requests fired; the scope reports unavailable         | guard rejects before the wire                            |
+| Unknown invoice id                                   | `404`; `error` populated                                   | `meta.hasError` after load                               |
+| An undeclared filter column                          | refused — a validation error                               | never a silent pass-through                              |
+| No payments, balance owed                            | `paymentState === "pending"`                               | fresh unpaid invoice                                     |
+| Payments, nothing owed                               | `paymentState === "complete"`                              | settled                                                  |
+| Pending (uncaptured) attempt                         | contributes nothing to `paidAmount`                        | do not re-prompt while in flight                         |
 | A third-party sub-account's row on a co-mingled list | neither own, sub-account, nor delegated — stays settleable | the delegate gate is "any parent", not "reader's parent" |
 
 ---
@@ -119,6 +119,6 @@ The snapshot does not follow the live client record. Renames and address edits a
 Both composables' `destroy()` removes the scoped instance from the registry so the next `.as()` / `.withId()` mints a fresh one. `isReady()` always settles — even a fetch that never completes resolves `false` on a bound timeout, rather than leaving a caller's `await` hanging forever.
 
 ```typescript
-await useInvoices().as('self').useActions().isReady();
+await useInvoices().as("self").useActions().isReady();
 await useInvoice().withId(id).useActions().isReady();
 ```

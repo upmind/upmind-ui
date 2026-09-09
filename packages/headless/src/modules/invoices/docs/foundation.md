@@ -8,7 +8,7 @@ A caller entitled to act for another client — a parent account reading a sub-a
 
 A single invoice may take several payment attempts to settle. The same surface handles a freshly-converted invoice, a renewal invoice the platform issued automatically, a retry after a declined attempt, and a partial payment against an open balance. The invoice id is stable across every attempt — it is the join key for the entire payment lifecycle.
 
-*Any `meta`, `object_meta`, or `object_meta_data` field returned by these endpoints is UI-specific to our own client — ignore for spec purposes.*
+_Any `meta`, `object_meta`, or `object_meta_data` field returned by these endpoints is UI-specific to our own client — ignore for spec purposes._
 
 **Scope boundaries with sibling modules:**
 
@@ -36,20 +36,20 @@ Invoices coordinates: it loads the invoice or list, surfaces the payment-collect
 - **Balance / paid / unpaid** — three server-computed money fields. `paid_amount` is what's captured; `unpaid_amount` is what remains; `balance` is the same as `unpaid_amount` for an in-flight invoice but reflects credit-note offsets after consolidation. All three carry `_formatted` (locale + currency-symbol) and `_converted` (display-currency) twins.
 - **Co-mingled attribution** — reading a list that spans more than one client's invoices (see below), each row resolves to exactly one of: the reader's own invoice, a sub-account's invoice, or a delegator's invoice. A sub-account classification wins over a delegator classification when both inputs are present on the same row. A delegated invoice is marked as not settleable by the reader — the reader may view it but is not the party expected to pay it.
 - **Entitled-client reading** — a caller who is a parent account or an accepted delegate may read another client's invoices, addressed by that client's id. The platform has no separate URL for this — the same list and count reads simply carry the target client's id as a filter, in place of the reader's own.
-- **Contract linkage** — an invoice that converted a recurring product carries `contract_id` and an embedded `contract` record (when expanded). The contract carries subscription state (`next_due_date`, `activation_date`, `cancellation_date`, `cancel_anytime`, `total_recurrent_amount`). Cancellation, suspension, and the "cancel anytime" flag are all fields on the contract — *not* on the invoice; the act of cancelling itself is a separate write against the contract.
+- **Contract linkage** — an invoice that converted a recurring product carries `contract_id` and an embedded `contract` record (when expanded). The contract carries subscription state (`next_due_date`, `activation_date`, `cancellation_date`, `cancel_anytime`, `total_recurrent_amount`). Cancellation, suspension, and the "cancel anytime" flag are all fields on the contract — _not_ on the invoice; the act of cancelling itself is a separate write against the contract.
 
 ## State model
 
 The invoice's `status` is a platform-defined enum driven by back-end transitions. The customer-facing surfaces observe these values to switch between dunning, receipt, payment-collection, and credit-note presentations.
 
 | Status code                    | Meaning                                                              | What triggers entry                                                                        |
-| ------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| ------------------------------ | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | `invoice_draft`                | Pre-conversion — the document exists but has not yet been finalised. | `PATCH /orders/{id}/convert` enters this transiently before settling to `invoice_unpaid`.  |
 | `invoice_unpaid`               | Finalised, awaiting payment.                                         | Conversion completes with non-zero `unpaid_amount`.                                        |
 | `invoice_overdue`              | Past `due_date` without full payment.                                | Back-end dunning timer fires at `pre_due_notification_date` / `overdue_notification_date`. |
 | `invoice_paid`                 | Fully settled.                                                       | A payment lands with `captured > 0` such that `paid_amount === total_amount`.              |
 | `invoice_adjusted`             | Manually adjusted by staff (write-down / write-off).                 | Admin action — surface is read-only from the customer side.                                |
-| `invoice_cancelled`            | Cancelled before payment.                                            | Admin or auto-cancel timer at `auto_cancel_date`.                                           |
+| `invoice_cancelled`            | Cancelled before payment.                                            | Admin or auto-cancel timer at `auto_cancel_date`.                                          |
 | `invoice_refunded`             | Payment(s) refunded in full.                                         | Refund processing through `payment`.                                                       |
 | `invoice_replaced`             | Imported-only — superseded by a new invoice.                         | Data migration; not produced by the live storefront.                                       |
 | `invoice_cancellation_request` | Customer has requested cancellation; staff approval pending.         | Submitted via the cancellation flow against the contract.                                  |
@@ -64,14 +64,14 @@ The platform performs the transitions; the caller never PATCHes a status. Paymen
 
 ## Operations
 
-| #   | Capability                                     | Inputs                                                              | Outputs                                                                                                                                                                                                                                                       |
-| --- | ----------------------------------------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | **Read a filtered, sorted, paginated list of invoices** | filters (id, number, status, category, consolidation flag, credit-note partner, amount fields, date ranges, fraud status, contract, product), a sort order, a page window; optionally another entitled client's id | A page of invoices with the server's reported total, mapped to the customer-facing shape, each row carrying its co-mingled attribution. `GET /invoices`. |
-| 2   | **Read one invoice in full**                    | an invoice id; optionally another entitled client's id               | The invoice document with its embedded client snapshot, frozen billing address, currency, line items (products + sub-products, grouped by originating subscription), payments, taxes, promotions, contract, category, status, consolidation/credit fields, and full financial summary. `GET /invoices/{id}`. Requires an authenticated caller entitled to the addressed client; guest tokens are rejected. |
-| 3   | **Re-read the live unpaid amount for one invoice** | an invoice id; an optional target currency                          | The current unpaid amount in the requested currency, independent of the full invoice load — re-issued on demand or on a currency change rather than served from a cached figure. `GET /invoices/unpaid_amount/{id}`. |
-| 4   | **Determine whether anything is unpaid at all** | (the addressed client)                                                | A yes/no answer derived from the server's reported total on a dedicated one-row read, not from counting whatever rows a visible list happens to hold. `GET /invoices` with an unpaid-status filter and a one-row page window. |
-| 5   | **Count the invoices eligible for consolidation** | (the addressed client)                                                | A count, from its own dedicated read, that never disturbs what a concurrently-visible list is showing — reading the count and reading the list coexist. `GET /invoices` with the consolidatable filters and a one-row page window. |
-| 6   | **Assign or clear the payment method on an invoice** | an invoice id, a payment-method id or `null` (to clear)              | The assignment is written; clearing sends the "no method selected" state as an explicit value rather than omitting the field. `PATCH /invoices/{id}/payment_details`. |
+| #   | Capability                                              | Inputs                                                                                                                                                                                                             | Outputs                                                                                                                                                                                                                                                                                                                                                                                                    |
+| --- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Read a filtered, sorted, paginated list of invoices** | filters (id, number, status, category, consolidation flag, credit-note partner, amount fields, date ranges, fraud status, contract, product), a sort order, a page window; optionally another entitled client's id | A page of invoices with the server's reported total, mapped to the customer-facing shape, each row carrying its co-mingled attribution. `GET /invoices`.                                                                                                                                                                                                                                                   |
+| 2   | **Read one invoice in full**                            | an invoice id; optionally another entitled client's id                                                                                                                                                             | The invoice document with its embedded client snapshot, frozen billing address, currency, line items (products + sub-products, grouped by originating subscription), payments, taxes, promotions, contract, category, status, consolidation/credit fields, and full financial summary. `GET /invoices/{id}`. Requires an authenticated caller entitled to the addressed client; guest tokens are rejected. |
+| 3   | **Re-read the live unpaid amount for one invoice**      | an invoice id; an optional target currency                                                                                                                                                                         | The current unpaid amount in the requested currency, independent of the full invoice load — re-issued on demand or on a currency change rather than served from a cached figure. `GET /invoices/unpaid_amount/{id}`.                                                                                                                                                                                       |
+| 4   | **Determine whether anything is unpaid at all**         | (the addressed client)                                                                                                                                                                                             | A yes/no answer derived from the server's reported total on a dedicated one-row read, not from counting whatever rows a visible list happens to hold. `GET /invoices` with an unpaid-status filter and a one-row page window.                                                                                                                                                                              |
+| 5   | **Count the invoices eligible for consolidation**       | (the addressed client)                                                                                                                                                                                             | A count, from its own dedicated read, that never disturbs what a concurrently-visible list is showing — reading the count and reading the list coexist. `GET /invoices` with the consolidatable filters and a one-row page window.                                                                                                                                                                         |
+| 6   | **Assign or clear the payment method on an invoice**    | an invoice id, a payment-method id or `null` (to clear)                                                                                                                                                            | The assignment is written; clearing sends the "no method selected" state as an explicit value rather than omitting the field. `PATCH /invoices/{id}/payment_details`.                                                                                                                                                                                                                                      |
 
 Additional always-on behaviours (not endpoints):
 
@@ -83,14 +83,14 @@ Additional always-on behaviours (not endpoints):
 
 ### Derived from a loaded invoice or list row (not a BE call)
 
-| Derivation | From | Result |
-| --- | --- | --- |
-| Determine the payment surface | a loaded invoice | One of: *paid* (status group PAID), *collectable* (status group UNPAID AND `balance > 0` AND not locked), *pending* (an in-flight payment with `pending: true` exists), *credited* (status group CREDITED), *locked* (`locked === true`), *unavailable* (load error, or not addressable by the caller). |
-| Derive overall payment state | a loaded invoice's summary and payment list | One of: fully paid, free (never charged, nothing owed), partially paid, pending (no settled payment yet but an attempt exists, or none at all with something owed), or failed-to-resolve (a load that failed reports this state rather than a guess). |
-| Attribute a co-mingled row | a list row's embedded client and delegation flag | Own / sub-account / delegated, and whether the reader may settle it. A delegated classification is driven by whether the row's client has **any** parent account at all, not by whether that parent is the reader — so a row belonging to a client with some other party's sub-account is neither the reader's own, a sub-account's, nor delegated, and stays settleable. |
-| Determine whether a bundle is large | the server's reported line-item count for a consolidated invoice | True above a fixed threshold, using the server-reported count in preference to counting the (possibly page-truncated) returned line-item array. |
-| Group bundled line items | an invoice's line items | Grouped one entry per originating subscription; items with no subscription link land in one trailing group. |
-| Distinguish "awaiting the client" from "awaiting the gateway" | a pending payment's gateway type | True only when the specific gateway type used marks the wait as client-side (e.g. a bank transfer awaiting confirmation), not for every pending payment. |
+| Derivation                                                    | From                                                             | Result                                                                                                                                                                                                                                                                                                                                                                    |
+| ------------------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Determine the payment surface                                 | a loaded invoice                                                 | One of: _paid_ (status group PAID), _collectable_ (status group UNPAID AND `balance > 0` AND not locked), _pending_ (an in-flight payment with `pending: true` exists), _credited_ (status group CREDITED), _locked_ (`locked === true`), _unavailable_ (load error, or not addressable by the caller).                                                                   |
+| Derive overall payment state                                  | a loaded invoice's summary and payment list                      | One of: fully paid, free (never charged, nothing owed), partially paid, pending (no settled payment yet but an attempt exists, or none at all with something owed), or failed-to-resolve (a load that failed reports this state rather than a guess).                                                                                                                     |
+| Attribute a co-mingled row                                    | a list row's embedded client and delegation flag                 | Own / sub-account / delegated, and whether the reader may settle it. A delegated classification is driven by whether the row's client has **any** parent account at all, not by whether that parent is the reader — so a row belonging to a client with some other party's sub-account is neither the reader's own, a sub-account's, nor delegated, and stays settleable. |
+| Determine whether a bundle is large                           | the server's reported line-item count for a consolidated invoice | True above a fixed threshold, using the server-reported count in preference to counting the (possibly page-truncated) returned line-item array.                                                                                                                                                                                                                           |
+| Group bundled line items                                      | an invoice's line items                                          | Grouped one entry per originating subscription; items with no subscription link land in one trailing group.                                                                                                                                                                                                                                                               |
+| Distinguish "awaiting the client" from "awaiting the gateway" | a pending payment's gateway type                                 | True only when the specific gateway type used marks the wait as client-side (e.g. a bank transfer awaiting confirmation), not for every pending payment.                                                                                                                                                                                                                  |
 
 ## Data shape
 
@@ -121,7 +121,7 @@ type Invoice = {
   // Frozen snapshots — captured at conversion time, do not follow live edits
   // to the customer's client / address records.
   client: Client; // embedded client at time of conversion — carries the parent-account
-                   // link (when the client is a sub-account) that attribution reads
+  // link (when the client is a sub-account) that attribution reads
   address: Address | null;
   address_id: string | null;
   company: Company | null; // null when no company was selected
@@ -132,7 +132,7 @@ type Invoice = {
   // Line items — frozen at conversion
   products: InvoiceProduct[];
   products_count: number | null; // present only when the read asked for a product count;
-                                  // large-bundle detection prefers this over products.length
+  // large-bundle detection prefers this over products.length
   promotions: BasketPromotion[]; // any promotions applied at conversion
   custom_fields: CustomFieldValue[];
   taxes: AppliedTax[]; // one entry per tax tag, per-line breakdown inside
@@ -196,7 +196,7 @@ type Invoice = {
   overdue_notification_date: string | null;
   overdue_left_attempts: number | null;
   next_charge_date: string | null; // next renewal invoice date (lives on the contract, mirrored here);
-                                    // absent on a non-recurring invoice — never an epoch date
+  // absent on a non-recurring invoice — never an epoch date
   abandoned: boolean;
   abandon_date: string | null;
   auto_cancel_date: string | null; // when the BE will auto-cancel an unpaid invoice
@@ -208,7 +208,7 @@ type Invoice = {
   consolidation_status: number;
   consolidation_invoice_id: string | null; // merged-into-this-id when consolidated
   is_consolidation: boolean; // true on the merged document itself — also drives the
-                              // category LABEL precedence (see Core concepts)
+  // category LABEL precedence (see Core concepts)
   credit_invoice_id: string | null; // credit-note partner
   credited: number;
   partial_amount_credited: number;
@@ -226,8 +226,8 @@ type Invoice = {
   // Co-mingled reading — present when the reader is entitled to another
   // client's invoices
   delegate_related: boolean; // this invoice's client accepted a delegation; combined
-                              // with the client's own parent-account link (below) to
-                              // attribute a row as own / sub-account / delegated
+  // with the client's own parent-account link (below) to
+  // attribute a row as own / sub-account / delegated
 
   // Fraud assessment (read-only; admin surfaces drive the workflow)
   fraud_score: number | null;
@@ -377,8 +377,8 @@ type Payment = {
   payment_method_type: string | null; // e.g. "card", "wallet"
   payment_details: PaymentDetails | null; // embedded saved-card details when expanded
   gateway?: { type: GatewayTypes }; // the gateway type behind this payment — read to tell
-                                    // "awaiting the client" apart from "awaiting the gateway"
-                                    // on a pending payment
+  // "awaiting the client" apart from "awaiting the gateway"
+  // on a pending payment
   payment_log_id: string;
   created_at: string;
   updated_at: string;
@@ -492,9 +492,9 @@ type UnpaidAmountResponse = {
 
 ### Dependants — modules that read from this one
 
-| Module             | Weight | Reads                                                                                                                                                                                                                   | Why                                                                                                                                                                                                                                                                                                                                       |
-| ------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `orders`           | 1      | the mapped invoice shape and its mapping function                                                                                                                                                                      | Reads a curated re-export of this module's mapping function and its output type to attach the resulting invoice onto a completed order's own result, without re-implementing invoice mapping. Does not read this module's list, count, or write capabilities, and does not read the co-mingled attribution signal. |
+| Module             | Weight | Reads                                                                                                                                                                                                                                                                                     | Why                                                                                                                                                                                                                                                                                                                                                          |
+| ------------------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `orders`           | 1      | the mapped invoice shape and its mapping function                                                                                                                                                                                                                                         | Reads a curated re-export of this module's mapping function and its output type to attach the resulting invoice onto a completed order's own result, without re-implementing invoice mapping. Does not read this module's list, count, or write capabilities, and does not read the co-mingled attribution signal.                                           |
 | Presentation layer | —      | invoice id, invoice number, status, line items, payments list, paid / unpaid / balance, due date, paid date, billing address snapshot, currency, contract linkage, category and consolidation/credit fields, co-mingled attribution, payment-surface signal, retry / cancel / pay actions | The customer panel's invoice list view, invoice detail page, receipt confirmation, dunning banners, post-payment confirmation, payment-collection surface, partial-pay / retry surface, credit-notes view, and "your subscription is active" surfaces all consume the invoice shape directly. This is the terminal read for the customer-panel surface area. |
 
 > `query` (HTTP transport, request validation, filter/sort/pagination translation) and `routing` (app navigation) are foundational dependencies of every customer-facing module and are excluded from the table per the standard exclusion rule.
@@ -528,7 +528,11 @@ curl -s "$API/invoices?with=client,client.image,client.parent_client_config,bran
       "id": "085e69d5-6237-1972-7634-a218e940d423",
       "number": "QA-INV-23286",
       "status": { "code": "invoice_unpaid", "name": "Unpaid", "order": 1 },
-      "category": { "id": "3825d96e-...", "name": "New Contract", "slug": "new_contract" },
+      "category": {
+        "id": "3825d96e-...",
+        "name": "New Contract",
+        "slug": "new_contract"
+      },
       "client_id": "25d96e76-...",
       "is_consolidation": false,
       "delegate_related": false,
@@ -667,9 +671,9 @@ Assign, or clear, the payment method recorded against one invoice.
 ```ts
 type UpdatePaymentDetailsBody = {
   payment_details_id: string | null; // the chosen method's id, or null to clear —
-                                      // clearing sends null as a PRESENT key, never
-                                      // an omitted field, so "no method selected" is
-                                      // distinguishable from "leave it as it was"
+  // clearing sends null as a PRESENT key, never
+  // an omitted field, so "no method selected" is
+  // distinguishable from "leave it as it was"
 };
 ```
 
@@ -685,7 +689,10 @@ curl -s -X PATCH "$API/invoices/{invoiceId}/payment_details" \
 // shape inferred from the platform's standard envelope
 {
   "status": "ok",
-  "data": { "id": "85d26e96-783d-1652-de8a-314502e70439", "payment_details_id": null },
+  "data": {
+    "id": "85d26e96-783d-1652-de8a-314502e70439",
+    "payment_details_id": null
+  },
   "error": null,
   "messages": []
 }
@@ -693,7 +700,7 @@ curl -s -X PATCH "$API/invoices/{invoiceId}/payment_details" \
 
 ## Flows
 
-The invoice surface exposes three multi-step interactions a caller plans around. Each is a sequence of calls between the caller and the platform — the *what* and the *order*, not how to drive it.
+The invoice surface exposes three multi-step interactions a caller plans around. Each is a sequence of calls between the caller and the platform — the _what_ and the _order_, not how to drive it.
 
 ### Pay an invoice end-to-end
 
@@ -732,7 +739,7 @@ Constraints the caller has to plan around:
 
 - The gateway response to be inline. Some gateways redirect off-site for 3DS; the caller has to handle the return-from-redirect path.
 - The payment to settle synchronously. Some payment types (bank transfers, manually-approved wallets) leave the payment in a `pending: true` state for minutes or hours; the surface has to distinguish "pending approval" from "approved" without polling aggressively, and — when the gateway type marks it — surface "awaiting the client" rather than a plain "pending" label.
-- The platform to surface a failure reason on the invoice. Decline reasons live on the payment log accessed via the gateway, not on the invoice record. The caller's error envelope from `POST /payments` is the only signal of *why* an attempt failed.
+- The platform to surface a failure reason on the invoice. Decline reasons live on the payment log accessed via the gateway, not on the invoice record. The caller's error envelope from `POST /payments` is the only signal of _why_ an attempt failed.
 
 ### Retry after a declined attempt
 
@@ -804,10 +811,10 @@ Constraints the caller has to plan around:
 - **The payment list grows across attempts and includes failures.** Each `POST /payments` adds a row to `invoice.payments` — including declined and abandoned attempts and pending ones. A surface that renders the list naively shows declined attempts to the customer alongside the successful one; the surface needs to filter on `captured: 1 && refunded: 0` (or the equivalent) to render only authoritative payments.
 - **Wallet draws are separate ledger entries.** A payment funded partly from wallet and partly from a gateway is recorded as two payment rows on the invoice, not one row with a wallet portion. The customer-facing "you paid 100, 50 from wallet, 50 on card" view is composed client-side from two payment rows that share a logical attempt but differ in `payment_type_id`.
 - **Payment-row `payment_details: null` is the common case, not the edge.** `payment_details_id` may be null when the customer paid with a wallet, a one-off card not stored on the account, or a non-card method. Surfaces that render "card ending 4242" off `payment_details.card_last4` without first checking that `payment_details` exists crash on the most common production payment shape (wallet captures and guest-card captures both return `payment_details: null`).
-- **The embedded client / address / company / phone on an invoice is frozen at conversion time, not a live join.** A customer who renames themselves, edits an address, or swaps their default company after an invoice is created continues to see the *old* values on that invoice forever. This is correct (the invoice is a legal document), but consumers who assume the embedded client follows the live client record show inconsistent data.
+- **The embedded client / address / company / phone on an invoice is frozen at conversion time, not a live join.** A customer who renames themselves, edits an address, or swaps their default company after an invoice is created continues to see the _old_ values on that invoice forever. This is correct (the invoice is a legal document), but consumers who assume the embedded client follows the live client record show inconsistent data.
 - **One invoice exposes multiple identifiers — id, number, contract id, consolidation id, credit-note id — and consumers mix them up.** `id` is the UUID for back-end reads; `number` (e.g. `QA-INV-23286`) is the customer-visible string used in URLs, emails, and PDFs; `contract_id` points at the subscription this invoice billed for; `consolidation_invoice_id` points at the merged document this invoice was rolled into; `credit_invoice_id` points at the credit-note partner. A link built off the wrong identifier 404s or opens a sibling invoice.
 - **The `with` query parameter shapes the payload — a thin request hides fields callers reach for.** Without `with=payments`, the `payments[]` array is absent (not empty). Without `with=taxes.tax_tag_data`, each tax row is a header with no per-line breakdown. Without `with=contract`, the embedded contract is absent. Without `with=client.parent_client_config`, a sub-account attribution cannot be told apart from an unrelated third party's invoice on a co-mingled list. Consumers who copy a curl from one surface to another and trim the `with` chain produce undefined-field bugs that only fire on accounts with the relevant data.
-- **Money fields come in three flavours — base, formatted, converted — and they are not interchangeable.** `paid_amount` is a number in the invoice's currency; `paid_amount_formatted` is the same number with the locale's currency symbol; `paid_amount_converted` is the same value in the customer's *display* currency. Doing arithmetic on `_formatted` strings produces nonsense; rendering the raw number without symbol drops currency context; rendering `_converted` next to a non-converted total mixes currencies in one cell. Each field has exactly one correct use.
+- **Money fields come in three flavours — base, formatted, converted — and they are not interchangeable.** `paid_amount` is a number in the invoice's currency; `paid_amount_formatted` is the same number with the locale's currency symbol; `paid_amount_converted` is the same value in the customer's _display_ currency. Doing arithmetic on `_formatted` strings produces nonsense; rendering the raw number without symbol drops currency context; rendering `_converted` next to a non-converted total mixes currencies in one cell. Each field has exactly one correct use.
 - **`balance` and `unpaid_amount` agree for a straightforward unpaid invoice, then diverge.** Once consolidation runs (the invoice is rolled into a parent document) or a partial credit lands (`partial_amount_credited > 0`), `balance` reflects the net the customer is now expected to pay while `unpaid_amount` still tracks the original gross. Surfaces that key dunning off `unpaid_amount` chase a customer for money the back end has already credited.
 - **Invoices read while still `invoice_draft` flicker.** During the conversion transition the BE briefly returns the record with `status: "invoice_draft"` before settling to `invoice_unpaid`. A customer who lands on the success page within milliseconds of conversion can see "Draft" once, then "Unpaid" on refresh. Surfaces that branch presentation on the status enum need to either tolerate the transient draft or hold rendering until the readiness signal settles.
 - **The auth state can drop mid-flow.** A long inline challenge or a slow 3DS redirect can outlive the access token. The surface needs to observe session state continuously — losing the token mid-flow has to return the surface to a pre-load state and re-enter loading after the user re-authenticates. A surface that holds onto the loaded invoice across an unauthenticated transition will issue payment calls with a stale bearer that the platform rejects.
@@ -816,6 +823,6 @@ Constraints the caller has to plan around:
 - **A cancellation request creates an invoice in `invoice_cancellation_request` status.** For contracts where `cancel_anytime: false`, a customer's request to cancel doesn't terminate the subscription immediately — it creates a request that the platform represents as an invoice with the special `invoice_cancellation_request` status. The invoice surface treats this like any other invoice: it just renders a read-only state explaining that the request is in review. There is no payment to collect against it.
 - **Upgrade / downgrade / addon do not start here — they end here.** A customer who wants to upgrade their subscription drives a new basket via the basket module — that basket converts to an invoice, which this surface then pays. The mid-life-of-a-subscription transition is owned by `basket`; this module sees only the resulting invoice.
 - **The contract `moved_from_contract_id` / `moved_to_contract_id` fields carry migration history.** When an upgrade or downgrade results in a contract being closed and a new one opened, the new contract carries `moved_from_contract_id` pointing at the old, and the old carries `moved_to_contract_id` pointing at the new. A surface that lists "your subscriptions" without resolving these links shows the customer two subscriptions where they should see one (with a transition).
-- **The conversion-time snapshot lives on the invoice forever.** `invoice.current_data.content` captures the invoice as it was at the moment of conversion — products, prices, addresses, brand. Subsequent edits to the catalogue, the client's address, or the brand do not propagate into the snapshot. The customer-area surfaces should read the *live* top-level fields (`number`, `status`, `total_amount`, `payments[]`) and reach into `current_data.content` only for historical PDF / email re-rendering.
+- **The conversion-time snapshot lives on the invoice forever.** `invoice.current_data.content` captures the invoice as it was at the moment of conversion — products, prices, addresses, brand. Subsequent edits to the catalogue, the client's address, or the brand do not propagate into the snapshot. The customer-area surfaces should read the _live_ top-level fields (`number`, `status`, `total_amount`, `payments[]`) and reach into `current_data.content` only for historical PDF / email re-rendering.
 - **The same load shape serves every customer-panel surface for one invoice.** Order summary, payment surface, receipt, post-pay confirmation, and the "your subscription is active" rendering all read from the same `GET /invoices/{id}` response. There is no smaller "just give me the balance" endpoint for one invoice — that is what the dedicated unpaid-amount read is for; everything else about one invoice is served from the one wide load.
 - **A total is read from a list response's own reported count, not its row count.** The server reports the full matching-row count independently of how many rows the page actually returned. A consumer that infers "how many total" from the returned row array's length is reading the page size, not the total, and will under-report whenever the total exceeds the page window — this is exactly the failure a dedicated existence or count read exists to avoid.

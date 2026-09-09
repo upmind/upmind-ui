@@ -336,3 +336,319 @@ pattern from ADR-001.
   (real: `oracle:175-180`). Developer's lane.
 - `parity.yaml` R08's `tracker:` is still a placeholder, not a Linear id.
   Operator-owned. Unchanged.
+
+---
+
+## 2026-09-09 — planner seat, 5th pass (run-close: three operator rulings + closing state)
+
+This pass **records settled rulings**. It re-opens nothing, weakens no AC
+capability sentence, and softens no parity disposition. Where a ruling
+constrains something this seat previously graded differently, that is stated
+plainly and the ruling wins.
+
+Verify returned **PRESENT** at `ccc735601` after four ABSENT verdicts; the
+scenario lane is complete. Nothing below changes the cell set, the row set, or
+the AC set: `parity.yaml` is untouched by this pass, and so are
+`requirements.md`, `design.md`, `tasks.md` and `bdd.md`.
+
+| # | Ruling | Date | Verbatim | Scope |
+| --- | --- | --- | --- | --- |
+| 1 | The red committed spec stays red, with its disclosure | 2026-09-09 | "Leave it red with the disclosure" | `forced-surface.invoices.spec.ts` |
+| 2 | Narrow core authorisation, client-vue | 2026-09-09 | "Authorise the one-line client-vue fix" | `StringsRenderer.vue` only |
+| 3 | One repair cycle beyond the three-cycle cap | 2026-09-09 | authorised, conditional on a paired gate extension | facet-filter capability |
+
+---
+
+### Ruling 1 — CLOSED 2026-09-09 by operator ruling: the red committed spec stays red
+
+**Operator ruling 2026-09-09, verbatim: "Leave it red with the disclosure."**
+
+`playgrounds/labs-nuxt/modules/scenarios/runtime/components/__tests__/forced-surface.invoices.spec.ts`
+is committed **red** at `ccc735601`, by decision, not by oversight.
+
+**State of the spec, for the record.** The prover fixed **two genuine harness
+defects** in `forced-surface.harness.ts`:
+
+1. `witness()` matched the **always-rendered** filter-bar chrome — an
+   untranslated multi-select option renders its raw i18n key (e.g.
+   `invoices.filter_option.status.invoice_paid`), which contains the corpus's
+   own `"invoice_paid"` value as a plain substring. Fixed by excluding
+   `[data-test-key="filters"]` from the witness measurement.
+2. `rows()` counted the design-system Table's own
+   `<tr data-slot="table-empty">` "no results" sentinel as a real record row.
+   Fixed by scoping the count to `tr[data-slot="table-row"]`.
+
+Both were verified to regress **none** of the seven sibling
+`forced-surface.*.spec.ts` files. (Two figures are on record for that sibling
+run — the spec's own disclosure block states **42/42 green**, the dispatch
+brief states **39 green**. Recorded as-found rather than reconciled by this
+seat, which ran neither.)
+
+The **verifier independently graded those two fixes genuine rather than
+loosened**, on the ground that each sibling spec asserts `rows > 0`
+positively, so a blinded row counter would have failed all of them. The fixes
+turned a **false green into an honest red**.
+
+**The remaining failure.** With both fixed, the **unforced replay mount renders
+zero real invoice rows** for this scenario's default criteria (only the
+table-empty sentinel), so the differential claims have no baseline. Both the
+prover and the verifier isolated it to corpus/replay **routing** in
+`playgrounds/labs-nuxt/modules/scenarios/runtime/force/handlers.ts` and
+`playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.ts` — shared
+playground infrastructure, **outside this story's write lane**, named in no AC
+(AC1–AC16) and in no parity row. Seven sibling modules draw records through the
+same unmodified harness.
+
+**Alternatives the operator declined**, recorded so a reviewer can disagree
+with the choice rather than with a fait accompli:
+
+- **Quarantine it with a tracked issue** (`@quarantine` + a Linear id, per
+  `test-quarantine`). Declined. The dispatch had no issue-tracker write access,
+  so the tag would have carried a fabricated or uncited issue id — worse than an
+  honest red.
+- **Route a corpus/replay fix to the developer.** Declined. The files are shared
+  playground infrastructure serving eight modules, in no AC and no parity row;
+  fixing them inside this story would widen its blast radius past its declared
+  scope.
+
+**The reasoning the ruling rests on:**
+
+- The spec already carries a **dated, seat-attributed, mechanism-level
+  disclosure block** (`forced-surface.invoices.spec.ts:12-38`) naming the exact
+  files, the exact two fixed defects, the exact remaining failure and the exact
+  suspected routing files. A reader hitting the red hits the explanation first.
+- The defect is **neither the module's nor the page's**. It sits in shared
+  replay routing.
+- An honest, disclosed red is a truer artefact than either a silent quarantine
+  or a green bought by re-loosening the two harness defects.
+
+**What a reader must NOT conclude from this red: that the invoices page cannot
+draw rows.** The verifier evidenced the composition **from both ends**:
+
+- **The data half, directly** — `invoices.collection.int.test.ts:75-76` asserts
+  the mapped collection length against fixtures **re-captured live from
+  staging**.
+- **The render half, by control** — seven sibling scenarios draw records through
+  the same unmodified `ListSurface`.
+
+The failure therefore sits in the routing **between two proven halves**.
+
+**WHAT NO SEAT OBSERVED, stated honestly: no seat observed the invoices page
+render rows in the labs replay environment.** The two halves are each proven;
+their composition in that one environment is not. That is the exact residual
+this ruling accepts.
+
+**Where this constrains this seat's own prior grading.** This seat's standing
+discipline (`verify-negative-controls`, `verify-evidence-filing`, and U7's
+review-ready gate) would treat a committed-red spec at a review handoff as
+either a green-read-back gap or a quarantine-with-tracked-issue obligation. The
+operator ruled otherwise on the ground that the red is disclosed, attributed and
+out-of-lane. **This seat defers to the ruling** and records it rather than
+re-grading it.
+
+---
+
+### Ruling 2 — CLOSED 2026-09-09 by operator ruling: the narrow client-vue authorisation
+
+**Operator ruling 2026-09-09, verbatim: "Authorise the one-line client-vue
+fix."** Scoped to **one file only**:
+`packages/client-vue/src/components/form/engine/renderers/array/StringsRenderer.vue`.
+
+#### Both narrow core authorisations on this story, together
+
+Recorded in one place so a reviewer finds both without hunting:
+
+| Date | Verbatim ruling | File authorised | Scope of the authorisation |
+| --- | --- | --- | --- |
+| 2026-09-02 | "Authorise the core fix" | `packages/headless/src/utils/useValidation.ts` | 2 changed lines (`set(result, subKey, …)` → `set(result, [subKey], …)` at `:526` and its top-level twin at `:551`) + a 16-line `@decision` block carrying the sign-off. Confirmed by the verifier (`verify.md:148`). |
+| 2026-09-09 | "Authorise the one-line client-vue fix" | `packages/client-vue/src/components/form/engine/renderers/array/StringsRenderer.vue` | That file only. |
+
+Neither authorisation widens the standing off-limits ruling of **2026-09-08,
+verbatim "do not chnage any query stuff"** — `packages/headless/src/modules/query/**`
+remains off limits (`design.md:446-448`), and `useValidation.ts` is authorised
+**only** for the two dotted-key-path lines already landed and signed, not
+reopened by this pass.
+
+#### What it actually took — the "one-line" framing is not what shipped
+
+Recorded because a reader deserves the real shape. **Four cycles, each fix at
+the mechanism rather than the symptom:**
+
+| # | Symptom | Mechanism found | How it was closed | Commit |
+| --- | --- | --- | --- | --- |
+| 1 | The facet rendered as the wrong control | `format: "multi-select"` matched **no tester** | Declared `uniqueItems: true` on the leaves, so the renderer's **genuine** `rank: 5` tester dispatches on **shape** rather than on an invented format string | schema change |
+| 2 | The click produced no write | The write was swallowed by `handleChange: () => {}` spread **last**; the developer established that `useJsonFormsMultiEnumControl` **never returns one**, so deleting the no-op would have **crashed** | Replaced the swallow at the mechanism, keeping a real handler | `3752377b9f` |
+| 3 | The write landed **nested** | `"status.code"` is a **literal dot-bearing column**, and `composeWithUi` builds a dotted string that the model writer splits into segments | Closed via `toDataPathSegments` — the dotted key is written as **one literal path segment** | `cdb13b280a` |
+| 4 | Repeat clicks **duplicated** values | The handler diffed against a **stale `current`** | Dispatched the whole next selection as **one literal-path `update`**, sidestepping the read entirely | `2c78a84f01` |
+
+#### Two facts preserved so nobody repeats this hunt
+
+1. **`setCriteria` silently strips a nested or malformed key.** No ajv error;
+   `model.filters` simply returns `undefined`. This is precisely why **three
+   cycles of green gates saw nothing**: the model looked plausible and the
+   suite stayed green while the wire carried nothing. It is the same
+   silent-discard class already recorded on this story for the `"count"`
+   sentinel (`design.md:436-452`) — a validated channel that drops what it
+   cannot spell, without complaint.
+2. **The blast radius is exactly two live consumers** — the two invoices
+   facets. Every other `uniqueItems` in the repo is either a **sort branch**
+   with `items: { type: "object" }` or a **bare string array with no
+   vocabulary**, so neither reaches the multi-enum tester. A reader weighing a
+   change to `StringsRenderer.vue` should weigh it against two consumers, not
+   against every `uniqueItems` in the tree.
+
+---
+
+### Ruling 3 — CLOSED 2026-09-09 by operator ruling: one repair cycle beyond the cap
+
+`agent-behavior` §5's **three-cycle cap** was reached on the facet-filter
+capability and **escalated** rather than quietly exceeded.
+
+**Operator ruling 2026-09-09: one further cycle authorised, on the stated
+condition that the fix be paired with a gate extension so the same class could
+not recur.**
+
+**The condition was MET.** The permanent gate is
+`packages/client-vue/src/components/form/renderers/__tests__/invoices-filter-wire.test.ts`,
+and **its assertions are post-`translateQuery` by design** (stated in the file's
+own docblock, `:6-11`). Confirmed at source by this seat:
+
+| Condition clause | Where it is met |
+| --- | --- |
+| Drives click A → click B → de-select A → clear-to-empty, **on both facets** | `:257-278` — `status.code|in` (`:258`) and `category.slug|in` (`:269`), each running the same four-step sequence |
+| Pins **no-duplicate** emission | `uniq(afterA) === afterA` (`:223`), `uniq(afterB) === afterB` (`:232`), `uniq(afterDeselectA) === afterDeselectA` (`:238`) |
+| Pins `uniqueItems` | `:280-294` — both dotted multi-select leaves assert `uniqueItems === true` |
+| A cleared facet reads as an **empty value with the key present** | `:243` (`afterClear` is `[]`), then `:252` `wireOwnsKey(...) === true` and `:253` wire value `=== ""` — **EMPTY, not ABSENT**, measured against the live wire, not assumed |
+| Dies precisely under its re-pointed mutant | `invoices-filter-wire.must-fail.patch`, colocated (`__tests__/`), cited in the file's docblock at `:17` |
+
+The gate also carries a **fairness control** (`:131`) — a non-dotted column
+reaching the wire the same way — so the dotted-key assertion cannot pass by
+accident of the harness.
+
+#### The gate-design lesson — recorded verbatim, because it is the transferable one
+
+> **Every gate in the first three cycles graded the model rather than the wire,
+> and each one passed over a broken capability.**
+
+The verifier's **own first probe nearly did the same, and it corrected itself in
+writing** (`verify.md`, RE-GRADE 2 → RE-GRADE 4). That is the whole lesson: a
+model-level assertion on a validated channel is a *shape* assertion, and a
+channel that silently strips what it cannot spell will hand a shape-grading gate
+a green every time. The load-bearing assertion is the one taken **after**
+`translateQuery`, on the wire.
+
+This is the FE-2824 cosplay class (`verify-cosplay.companion.md`) reached
+through the *gate* rather than through the code: right filenames, right shape,
+green suite, zero capability.
+
+---
+
+## Closing state — the run's honest residue (recorded, NOT re-adjudicated)
+
+Each item below is already known and owned. This section exists so nothing is
+lost between this run and the human review. **No item here is re-opened, and
+none is a halt.**
+
+| # | Item | Owner | Confirmed against the files? |
+| --- | --- | --- | --- |
+| C1 | The branch is **unpushed** at the time of writing | operator | **Yes** — `feature/fe-3031-pn-3-invoices-module-augment-unpaid-amount-list-assigned` tracks `gitlab/develop` (no own remote branch), `ahead 24, behind 24` |
+| C2 | `parity.yaml` **R08's `tracker:` is still a placeholder**, not a Linear issue id | operator | **Yes** — `parity.yaml:355`, `"FE-3031-TYPES-PARTIAL-AMOUNT-TO-CREDIT (Linear issue to be filed against packages/types by the operator …)"`. Carried unchanged since the 1st pass. |
+| C3 | `pnpm lint` exits **1** on a pre-existing tree-wide baseline of **128 problems across 32 files**, **none this story's** | pre-existing | Recorded as reported; not re-run by this seat |
+| C4 | `pnpm-lock.yaml` **loses 659 lines** on any `pnpm` invocation in this worktree — a stale `packages/ui` importer, where the real path is `design-system/packages/ui`. **Held out of every commit deliberately.** | pre-existing | Recorded as reported |
+| C5 | `vite-plugin-dts` prints **~35 non-fatal `error TS…` lines** from the **uninstalled** `design-system` workspace; `vue-tsc --noEmit` itself emits **none** | pre-existing | Recorded as reported (matches the standing `labs-nuxt`/design-system install trap) |
+| C6 | **No committed runner walks `packages/client-vue` must-fail patches** — only `design-system/packages/ui` has one — so those mutants are **seat-verified, not CI-verified**. Pre-existing; shared with **8 sibling patches**. | pre-existing | **Yes** — 8 sibling `filter-*.must-fail.patch` files plus `invoices-filter-wire.must-fail.patch` sit in `packages/client-vue/src/components/form/renderers/__tests__/` |
+| C7 | The labs `--project module` suite fails **3, none this story's**: `icon-resolution` (two `client-notes` icons), `forced-surface-coverage` (**`client-notes` only now** — the `invoices` half was closed this run), `negative-controls` (27 pre-existing runtime patches) | pre-existing | Recorded as reported |
+| C8 | **Raw i18n keys render** until the external catalogue carries `invoices.filter_option.*` and `invoices.filter_bar.*`. These were **malformed by construction** and are now merely **missing** — a real improvement, and the standing raw-keys disposition now **genuinely covers** them. | external catalogue | Consistent with the red spec's own disclosure, which names the raw-key render as the witness-match cause (`forced-surface.invoices.spec.ts:16-22`) |
+| C9 | The **staff-deprecation corpus drift** filed for the Docs stage was **ACTIONED by the documenter**; no ADR-001 amendment judged necessary | Docs stage — **CLOSED** | **Yes** — see the confirmation below |
+| C10 | `develop` has moved **twice** since our merge and now carries a **`labs-payment-detail-add`** feature touching `scenarios/runtime/**`. A two-dot **or** three-dot diff against develop therefore shows deltas **no commit of ours produced** — it caused **two false findings** in this run. **Attribution must be per-commit.** | method note | **Yes** — the branch is `behind 24`; only **2** of our own commits touch `playgrounds/labs-nuxt/modules/scenarios/runtime` |
+
+**C10 — the attribution command, so nobody repeats the two false findings:**
+
+```bash
+git log --format='%h' gitlab/develop..HEAD -- <path>
+```
+
+A path with **no** commit in that list is **not ours**, whatever the diff shows.
+
+### C9 — CORPUS DRIFT OUTCOME, confirmed at source by this seat
+
+The 4th pass filed three receipts as a **Docs-stage** item. All three are
+actioned with **dated pointers marking the invoices examples superseded**, and
+**no example was deleted** — which is exactly the minimum honest fix that pass
+asked for:
+
+| Filed receipt | Now | Confirmed at |
+| --- | --- | --- |
+| `docs/adr/001-scope-based-composables.md:248-255` — three staff invoice examples as live API | The three examples **stand**, followed by a dated block: **"Superseded for this resource (2026-09-01)"**, naming the retirement, giving the live replacement `useInvoices().as('client').for('client', clientId)`, and stating explicitly that this is **"a per-resource narrowing, not a change to the `staff` actor or to this ADR's decision"** | `docs/adr/001-scope-based-composables.md:256-265` |
+| `docs/reference/service-splitting-examples.md:36-64` — "Example 2: Invoices (SPLIT) ✅ Yes", staff actor table, `invoices.services.staff.ts` snippet | A dated **"Superseded for this resource (2026-09-01)"** block precedes the example, stating the module carries **no `invoices.services.staff.ts` arm** and **no `/admin/clients/{id}/invoices` endpoint**, and that the narrowing is resource-specific | `docs/reference/service-splitting-examples.md:40-48` |
+| `docs/reference/service-splitting-examples.md:187` — the **Invoices** summary-table row | The row now carries **"superseded 2026-09-01: `staff` is retired for this resource; see Example 2 above"**. The line **moved to `:196`** because the inserted block shifted it — the receipt anchor is stale, the fix is not | `docs/reference/service-splitting-examples.md:196` |
+
+**The documenter judged no ADR-001 amendment necessary**, on the ground that
+**the ADR's own decision is unchanged** — this is a per-resource narrowing, not
+a change to the scope-based-composable decision or to the `staff` actor
+generally. **This seat confirms that judgment against the files and concurs**:
+the 4th pass's own scope note asked for exactly this ("the minimum honest fix is
+to mark the invoices examples as superseded by the 2026-09-01 ruling, not to
+delete the staff pattern from ADR-001"), and the inserted block says so in as
+many words. **The Docs-stage item is CLOSED.**
+
+The corpus-drift hazard the 4th pass named — a future dispatch reading either
+document and **re-minting the staff arm the operator retired** — is closed at
+both doors: a reader now meets the dated supersession before the example.
+
+### Carried cosmetics — status at run close
+
+| Item | Status |
+| --- | --- |
+| `verify.md` "`loadList` does **not** auto-seed" staleness, flagged on the 2nd, 3rd and 4th passes | **CLOSED by the verifier.** It refreshed its own artefact and now records the stale claim as **history** (`verify.md:285`, "…of the previous run said…"). Outside this seat's write lane throughout; never edited here. |
+| `invoices.mappers.ts` label-precedence anchor still `oracle:172-179` (real: `oracle:175-180`) | **STILL OPEN**, developer's lane. The line **moved from `:70` to `:87`**. `parity.yaml` R06 does not depend on it, and `verify.md` already grades the capability PRESENT against the **correct** range. Cosmetic; not a halt. |
+| `parity.yaml` R08 `tracker:` placeholder | **STILL OPEN**, operator-owned — see C2. |
+
+---
+
+### Gate + hand grade, this pass
+
+- **Compliance gate:**
+  `node "/Users/dom/.claude/plugins/cache/upmind-agent/upmind-agent/0.19.4/ci/lint-plan-compliance.mjs" "docs/sdd/FE-3031"`
+  → **exit 0**, no output. (There is no `ci/` directory in this repo; the gate
+  exists only in the plugin cache, so that absolute path is the one that runs.)
+- **`parity.yaml` by hand, re-graded at source this pass:** **4 cells**, **0
+  undispositioned cells**; **12 rows (R01–R12)**, **0 undispositioned rows**;
+  **`blocked_by` on 0 cells and 0 rows**; **6 `Dropped-with-issue-reference`
+  dispositions, each carrying a `signoff:` token** (2 cells + 4 rows, 6 signoffs
+  — a 1:1 match). Disposition census: 9 `Direct`, 6
+  `Dropped-with-issue-reference`, 1 `Renamed` = 16 = 4 cells + 12 rows. The hand
+  grade remains the load-bearing one: the lint's parity parser grades **cells**
+  only.
+- **ACs or parity rows weakened by this pass: NONE.** `parity.yaml`,
+  `requirements.md`, `design.md`, `tasks.md` and `bdd.md` are untouched; this
+  pass wrote `review-notes.md` only.
+
+### Door record — `/plan` (5th pass)
+
+- **Depth band, computed per `rules/agent-orchestration.md` §3.3:** the ask names
+  **0** new capabilities / ACs, **0** code surfaces, has no importer blast radius,
+  and trips **no** risk-floor question (no trust boundary, no money/auth/protected
+  core, no public-contract change) — it is a single-file write to this bundle's
+  ruling home. Taken alone that reads `depth=note`. **Route taken: `depth=sdd`**,
+  because FE-3031 is an **already-routed sdd bundle** (`docs/sdd/FE-3031/`) and
+  this pass is not a fresh ask owing a depth decision — it is the SDD chain's own
+  **Step 1b (Capture Review Notes)** under **Step 1c**'s read-notes-first
+  discipline, which is why `review-notes.md` was read in full before a line was
+  written. `docs/plans/<slug>.md` was deliberately NOT written: a light plan is
+  the wrong artefact for a settled-ruling record, and `docs/plans/` is outside
+  this seat's write lane. Slug resolved from the ID: `FE-3031`.
+- **Step 1b mirror: DONE.** The three rulings, the constraints and the closing
+  state are mirrored to Linear as a structured comment on FE-3031
+  (`22759568-c130-4b61-9707-0f163c265a2e`, 2026-09-09). Recorded honestly:
+  **no prior pass on this story mirrored its review notes** — the issue carried
+  **zero** comments before this one, across five passes. Step 1b was owed four
+  times and paid once.
+- **Tracker label stamp: DECLINED, with reason.** The `/plan` door stamps
+  `skill:Plan` when it runs against a tracked issue. FE-3031 is **In Progress**
+  carrying `actor:AI` + **`skill:Factory`** — a mid-flight factory run, not a
+  `/plan`-initiated planning claim. `agent-orchestration.companion.md` §2 routes
+  the runner **by the work label**, and its transition table has no
+  `skill:Factory` → `skill:Plan` edge; stamping one would re-route a live
+  dispatch to `pick-plan` and hijack the conductor's lifecycle. No label and no
+  status were written. Flagged to the conductor, which owns the handoff.
