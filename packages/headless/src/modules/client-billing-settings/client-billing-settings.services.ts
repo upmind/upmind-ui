@@ -1,12 +1,13 @@
 /** @internal */
 import { useQuery as vueUseQuery } from "@tanstack/vue-query";
 import { computed, effectScope, getCurrentScope, ref } from "vue";
-import { BrandConfigKeys } from "@upmind-automation/types";
+import { AccessRoleTypes, BrandConfigKeys } from "@upmind-automation/types";
 import { useBrand } from "../brand";
 import { invalidateQueryByKey, useQuery } from "../query";
-import { useActiveSession } from "../session-store";
+import { useActiveSession, useSessionStore } from "../session-store";
 import { useI18n } from "../system-localisation";
 import {
+  mapIAccountCurrencyFields,
   mapBillingSettings,
   mapIBillingSettingsFields
 } from "./client-billing-settings.mappers";
@@ -21,7 +22,15 @@ import {
   useModelParser,
   NotAuthenticatedError
 } from "../../utils";
-import { get, isEmpty } from "lodash-es";
+import {
+  cloneDeep,
+  concat,
+  first,
+  get,
+  isEmpty,
+  orderBy,
+  some
+} from "lodash-es";
 import type { ScopeContext } from "../scope";
 import type {
   BillingSettingsContext,
@@ -34,7 +43,7 @@ import type {
 import type { ResponseError } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { DefaultError, QueryKey } from "@tanstack/vue-query";
-import type { IClient } from "@upmind-automation/types";
+import type { IAccount, ICurrency, IClient } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-billing-settings/client-billing-settings.services
@@ -73,13 +82,18 @@ function recordQueryKey(clientId?: string): QueryKey {
   return ["client", clientId, RECORD_QUERY_KEY_SEGMENT];
 }
 
-/** The five model keys, in wire-diff order. */
+/**
+ * The seven model keys, in wire-diff order — the five consolidation keys plus
+ * the two account-currency keys folded in 2026-09-09 (hazard H5b, row X5).
+ */
 const MODEL_KEYS = [
   "enabled",
   "baseRule",
   "dayOfWeek",
   "dateOfMonthDay",
-  "dueDateDay"
+  "dueDateDay",
+  "currencyId",
+  "preferredPaymentCurrencyId"
 ] as const;
 
 /**
@@ -111,6 +125,92 @@ function isAddressable(clientId?: string): boolean {
   const { isAuthenticated } = useActiveSession().useMeta();
 
   return isAuthenticated.value && !!clientId;
+}
+
+/**
+ * Derives the account this slice addresses — the SECOND identity seam in
+ * this file, and the one every account-currency read and write shares.
+ *
+ * Resolves to the account ONLY when the scope-resolved client is the
+ * session's OWN client. When they differ it resolves to `undefined`, which
+ * withholds the whole slice (row X7 / AC25) rather than serving the session
+ * client's account under another client's id.
+ *
+ * @decision read the account off the session's already-loaded account list,
+ * never off a read of this module's own.
+ * what:    `useActiveSession().useContext().activeUser.value?.accounts?.[0]`,
+ *          guarded on `clientId === activeUser.id`. Zero requests. No cache
+ *          key of this module's own. The shared client-record key's key,
+ *          URL and `with=` set are untouched (row X4).
+ * why:     the value is ALREADY in the app, on a read the app already
+ *          issues, mapped by code already shipped, backed by a capture this
+ *          module's own harness already replays, and consumed in production
+ *          by `basket-currency.utils.ts:171` (`first(activeUser.value?.accounts)`,
+ *          verbatim — the SAME landed pattern, not a new one).
+ * rejected: (1) widen the shared `with=` to carry `accounts` — changes the
+ *          SHARED key's URL, which `client-personal-details` and
+ *          `client-custom-fields` both resolve under (row X2), and operator
+ *          ruling r1 forbids modifying either. Not proposed, because it is
+ *          not needed: the value arrives without it. (2) mint a private key
+ *          and read `GET accounts/{accountId}` — the `accountId` would
+ *          STILL have to come from the session, so it buys no independence;
+ *          it costs a request for data already in memory; the oracle never
+ *          issues such a read (`basicForm:143-145` takes `accounts` off the
+ *          client prop); and it would leave row X6 unsolved, because the
+ *          app-wide consumer reads `activeUser.accounts`, not a query key.
+ *          (3) drop the `clientId === activeUser.id` guard and just take
+ *          `accounts[0]` — the FE-2824 defect verbatim: the right surface
+ *          addressing the wrong entity, silently.
+ */
+function resolveAccount(scopeContext?: ScopeContext) {
+  const { activeUser } = useActiveSession().useContext();
+  const clientId = resolveClientId(scopeContext);
+
+  return computed(() =>
+    clientId.value && clientId.value === activeUser.value?.id
+      ? first(activeUser.value?.accounts)
+      : undefined
+  );
+}
+
+/**
+ * The currencies both account-currency controls offer. The brand's
+ * supported set, ordered by NAME (the oracle's order), plus the account's
+ * own currency when the brand list omits it (row B3) so a client on a
+ * non-brand currency can still see and keep it.
+ *
+ * @decision expose the currency options as a reactive computed, NEVER as an
+ * awaited entry in `loadLookups`.
+ * what:    a module-local computed over `useBrand().currencies`, re-ordered
+ *          by `name` and appended with the account's own `currency` relation
+ *          when absent. `loadLookups` is NOT extended for it.
+ * why:     there is no awaitable settle channel for brand SETTINGS this
+ *          module may call — `useBrand().isReady()` is an uncapped 100ms
+ *          `setInterval` poll over a module-singleton query, the known
+ *          shared-readiness stall shape this module's own `@decision` above
+ *          already refuses. A computed needs no settle: it re-derives when
+ *          the singleton's query lands.
+ * rejected: (1) `await useBrand().isReady()` inside `loadLookups` — the
+ *          stall shape above. (2) `useQuery().get()` on `["brand","settings"]`
+ *          — poisons the key (row X2 `rejected:(2)` reason), and worse here:
+ *          `staleTime` is `"static"` with a localStorage persister, so a
+ *          poisoned entry never recovers. (3) ship `useBrand().currencies`
+ *          unchanged — it sorts by CODE, not name, and does not append the
+ *          account's own currency; both are oracle behaviours (row B3).
+ */
+function currencyOptions(scopeContext?: ScopeContext) {
+  const account = resolveAccount(scopeContext);
+
+  return computed(() => {
+    const brandCurrencies = useBrand().currencies.value;
+    const own = account.value?.currency;
+    const list =
+      own && !some(brandCurrencies, { id: own.id })
+        ? concat(brandCurrencies, own)
+        : brandCurrencies;
+
+    return orderBy(list, ["name"], ["asc"]) as ICurrency[];
+  });
 }
 
 /**
@@ -235,12 +335,16 @@ async function fetchSettingsOnce(
 }
 
 /**
- * Row O8's brand gate. Consumes `useBrand().ensureConfig()`'s OWN settled
- * return value directly, rather than re-reading it afterward through
+ * Row O8's AND row B6's brand gates, read in ONE call and returned as TWO
+ * separately-named values. Consumes `useBrand().ensureConfig()`'s OWN
+ * settled return value directly, rather than re-reading it afterward through
  * `useBrand().getConfigValue()`'s reactive computed.
  *
- * @decision never re-read the value via `useBrand().getConfigValue()`.
- * what:    `ensureConfig()` resolves once ITS OWN fresh fetch settles;
+ * @decision one `ensureConfig` call carrying both keys; two separately-named
+ * readers; never a shared helper, default or `??` fallback between them.
+ * what:    `ensureConfig()` resolves once ITS OWN fresh fetch settles for
+ *          BOTH `INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF` (row O8) and
+ *          `BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED` (row B6);
  *          `getConfigValue()` instead reads `brandConfig.value`, which is
  *          fed by `useBrand()`'s module-singleton query
  *          (`brandConfigQuery ??= services.fetchBrandConfig()`, `useBrand.ts:69`).
@@ -254,22 +358,53 @@ async function fetchSettingsOnce(
  *          opted clients into — exactly the failure AC17 exists to catch.
  *          Consuming `ensureConfig()`'s own settled value sidesteps the
  *          singleton's staleness entirely, for both halves of this module.
- * rejected: keep reading `useBrand().getConfigValue()` and instead call
+ *          ONE call, not two: `fetchBrandConfig` mutates a MODULE-LEVEL
+ *          accumulating key store before building its criteria
+ *          (`brand.services.ts:109`), so two concurrent `ensureConfig` calls
+ *          inside one `Promise.all` would race it. The two gates share a
+ *          DEFAULT (hidden) but have OPPOSITE semantics — O8 is opt-OUT of a
+ *          restriction, B6 is opt-IN to a feature — so they are returned as
+ *          two distinctly-named, distinctly-polarised values, never merged.
+ * rejected: (1) keep reading `useBrand().getConfigValue()` and instead call
  *          `useBrand().ensureConfig()` earlier / more eagerly — rejected:
  *          the singleton this reads (`brandConfigQuery`) is shared with the
  *          WHOLE app and is out of this module's write lane
  *          (`packages/headless/src/modules/brand/`); no earlier call site
  *          this module owns can guarantee it wins the race against another
- *          consumer's own `useBrand()` construction.
+ *          consumer's own `useBrand()` construction. (2) two separate
+ *          `ensureConfig` calls — the `brandConfigKeysStore` race above,
+ *          plus a second request. (3) a shared `isGateOpen(key)` helper — the
+ *          conflation vector; it necessarily picks one polarity as its
+ *          default. (4) collapsing an absent B6 key to a literal `false` at
+ *          the LOAD site rather than the CONSUME site — it would work for
+ *          B6 alone, but is the exact mistake O8's tri-state comment below
+ *          exists to prevent, and applying two different absence rules at
+ *          one load site is how the next reader gets it wrong.
  */
-async function loadVisibility(): Promise<boolean | undefined> {
-  const result = await useBrand().ensureConfig(
-    BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF
-  );
-  return get(
-    result,
-    BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF
-  ) as boolean | undefined;
+async function loadBrandGates(): Promise<{
+  restrictToStaff: boolean | undefined;
+  differentCurrencyPayment: boolean | undefined;
+}> {
+  const result = await useBrand().ensureConfig([
+    BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF,
+    BrandConfigKeys.BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED
+  ]);
+
+  return {
+    // Row O8 / AC17 — TRI-STATE PRESERVED. Consumed downstream as
+    // `!(value ?? true)`: visible ONLY on an explicit `false`.
+    restrictToStaff: get(
+      result,
+      BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF
+    ) as boolean | undefined,
+    // Row B6 / AC23 — OPPOSITE POLARITY. Consumed downstream as `!!value`:
+    // offered ONLY on an explicit truthy. Absent means NOT offered. NEVER
+    // share a default or a `??` fallback with `restrictToStaff` above.
+    differentCurrencyPayment: get(
+      result,
+      BrandConfigKeys.BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED
+    ) as boolean | undefined
+  };
 }
 
 /**
@@ -288,9 +423,11 @@ async function loadLookups(
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  const [record, restrictToStaff] = await Promise.all([
+  const account = resolveAccount(scopeContext);
+
+  const [record, brandGates] = await Promise.all([
     fetchSettingsOnce(clientId.value),
-    loadVisibility()
+    loadBrandGates()
   ]);
 
   const baseModel: BillingSettingsModel = {
@@ -298,7 +435,17 @@ async function loadLookups(
     baseRule: record?.baseRule,
     dayOfWeek: record?.dayOfWeek,
     dateOfMonthDay: record?.dateOfMonthDay,
-    dueDateDay: record?.dueDateDay
+    dueDateDay: record?.dueDateDay,
+    // Row X7 — absent, never substituted, for a non-self addressed client.
+    // Row B5 — always seeded (unconditional; the oracle never `v-if`-gates it).
+    ...(account.value?.currencyId !== undefined && {
+      currencyId: account.value.currencyId
+    }),
+    // Row B6 / AC23 — seeded ONLY on an explicit truthy brand opt-in.
+    // Absence, not disablement, withholds it entirely from the model.
+    ...(brandGates.differentCurrencyPayment && account.value
+      ? { preferredPaymentCurrencyId: account.value.preferredPaymentCurrencyId }
+      : {})
   };
 
   return {
@@ -320,9 +467,16 @@ async function loadLookups(
       // (comp:72-79) only shows the surface for an EXPLICIT `false`; a
       // collapsed-to-`false` absent key would otherwise read downstream as
       // that same explicit opt-in.
-      ...(restrictToStaff !== undefined && {
+      ...(brandGates.restrictToStaff !== undefined && {
         [BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF]:
-          restrictToStaff
+          brandGates.restrictToStaff
+      }),
+      // Row B6 — the SAME tri-state-preserving treatment at the LOAD site,
+      // even though its CONSUME site (schemas.ts/context.ts) reads it as
+      // `!!value` — one absence rule at this site for BOTH keys, never two.
+      ...(brandGates.differentCurrencyPayment !== undefined && {
+        [BrandConfigKeys.BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED]:
+          brandGates.differentCurrencyPayment
       })
     } as Record<BrandConfigKeys, boolean>
   };
@@ -472,6 +626,127 @@ async function update(
   ) as Promise<IClient>;
 }
 
+/**
+ * After the account-currency PUT resolves — patches the written leaf(s) onto
+ * the session's OWN `activeUser.accounts[0]` via the session-store's public
+ * action, then invalidates the session query key so the next genuine
+ * `/self` refetch is fresh. NEVER a direct mutation, and NEVER a
+ * `session-store/` source edit (row X6, AC26).
+ *
+ * @decision reconcile the session's user AND invalidate the session key;
+ * neither alone is sufficient.
+ * what:    the shape `account.services.ts:100-111` already uses for this
+ *          exact problem — patch the written value onto `activeUser`
+ *          through `useSessionStore().useActions().updateUser(...)`, then
+ *          `queryClient.invalidateQueries(["session", CLIENT, sessionId])`.
+ * why:     the `/self` read is issued with `get()` (a `fetchQuery`, NOT a
+ *          reactive observer) and `activeUser` lives in the session STORE,
+ *          not the query cache — invalidating the key alone refreshes
+ *          NOTHING observable, and `updateUser` alone leaves the cache
+ *          stale for the next genuine refetch. Both, and this is why. The
+ *          consumer this matters for is `basket-currency.utils.ts:166-180`,
+ *          which resolves currency precedence off this very account list.
+ * rejected: (1) invalidate only — refreshes nothing, per the above. (2)
+ *          re-fetch `/self` eagerly — a full nine-relation session read
+ *          after a one-field save. (3) give the account slice its own query
+ *          key so it can self-invalidate — leaves the APP-WIDE consumer
+ *          stale, which is the half that actually matters, and adds the
+ *          request `resolveAccount`'s own `@decision` already refuses.
+ */
+function reconcileSessionAccount(
+  written: IAccount,
+  queryClient: ReturnType<typeof useQuery>["queryClient"]
+): void {
+  const store = useSessionStore();
+  const { activeSessionId, activeUser } = store.useContext();
+  const sessionId = activeSessionId.value;
+  const user = activeUser.value;
+
+  if (!sessionId || !user?.accounts?.length) return;
+
+  const updated = cloneDeep(user);
+  updated.accounts![0] = {
+    ...updated.accounts![0],
+    currencyId: written.currency_id,
+    preferredPaymentCurrencyId: written.preferred_payment_currency_id,
+    ...(written.currency && { currency: written.currency })
+  };
+
+  store.useActions().updateUser(AccessRoleTypes.CLIENT, sessionId, updated);
+  void queryClient.invalidateQueries({
+    queryKey: ["session", AccessRoleTypes.CLIENT, sessionId]
+  });
+}
+
+/**
+ * Diff-only `PUT accounts/{accountId}` (rows B4/B5/B9). Mirrors `update()`'s
+ * shape and reuses its staged-import refusal (row C14 covers this form too —
+ * `basicForm:191-193` is the same `!!client.staged_import` predicate) and its
+ * `NotAuthenticatedError` gate.
+ *
+ * Refuses BEFORE any request when: the addressed client is not the
+ * session's own (row X7 — `resolveAccount` resolves `undefined`); or when
+ * the diff carries `preferred_payment_currency_id` while row B6's gate is
+ * closed (AC23 — "can never be written", not merely disabled).
+ */
+async function updateAccountCurrencies(
+  model: BillingSettingsModel,
+  baseModel: BillingSettingsModel = {},
+  scopeContext?: ScopeContext
+): Promise<IAccount> {
+  const { put, useUrl, queryClient } = useQuery();
+  const clientId = resolveClientId(scopeContext);
+
+  if (!isAddressable(clientId.value)) {
+    return Promise.reject(new NotAuthenticatedError());
+  }
+
+  const account = resolveAccount(scopeContext).value;
+  if (!account) {
+    return Promise.reject(new NotAuthenticatedError());
+  }
+
+  const diff = mapIAccountCurrencyFields(model, baseModel);
+  if (diff === undefined) return {} as IAccount;
+
+  if (
+    "preferred_payment_currency_id" in diff &&
+    !(await loadBrandGates()).differentCurrencyPayment
+  ) {
+    return Promise.reject(
+      new DetailedError(
+        useI18n().t(
+          "error.client_billing_settings_payment_currency_not_available"
+        ),
+        responseCodes.Forbidden,
+        ErrorOrigin.Headless
+      )
+    );
+  }
+
+  const current = await fetchSettingsOnce(clientId.value);
+  if (current?.isStaged) {
+    return Promise.reject(
+      new DetailedError(
+        useI18n().t("error.client_billing_settings_staged_import"),
+        responseCodes.Forbidden,
+        ErrorOrigin.Headless
+      )
+    );
+  }
+
+  return put<IAccount>({
+    mutationKey: ["client", clientId.value, "account", account.id],
+    url: useUrl(`accounts/${account.id}`),
+    data: diff,
+    withAccessToken: true,
+    withoutLocale: true
+  }).then(response => {
+    reconcileSessionAccount(response, queryClient);
+    return response;
+  });
+}
+
 /** Invalidates this scope's own cache key so the read refetches. */
 async function refresh(scopeContext?: ScopeContext): Promise<void> {
   const clientId = resolveClientId(scopeContext);
@@ -515,18 +790,27 @@ export const createClientBillingSettingsServices = (
 ): ClientBillingSettingsServices => {
   const mutationError = ref<ResponseError | undefined>(undefined);
   const clientId = resolveClientId(scopeContext);
+  const account = resolveAccount(scopeContext);
 
   return {
     queryKey,
     clientId,
     isAvailable: computed(() => isAddressable(clientId.value)),
     error: computed(() => mutationError.value),
+    accountId: computed(() => account.value?.id),
+    currencyId: computed(() => account.value?.currencyId),
+    preferredPaymentCurrencyId: computed(
+      () => account.value?.preferredPaymentCurrencyId
+    ),
+    currencyOptions: currencyOptions(scopeContext),
     loadSettings: () => loadSettings(scopeContext),
     loadLookups: context => loadLookups(context, scopeContext),
-    loadVisibility,
+    loadBrandGates,
     parse: (context, data) => parse(context, data),
     validate,
     update: (model, baseModel) => update(model, baseModel, scopeContext),
+    updateAccountCurrencies: (model, baseModel) =>
+      updateAccountCurrencies(model, baseModel, scopeContext),
     refresh: () => refresh(scopeContext),
     ...scopedServices(scopeActor, scopeContext)
   };
@@ -565,11 +849,23 @@ export const useClientBillingSettingsManagerServices = (
       )
     ),
 
+  /**
+   * `processing.updating` — issues BOTH writes this module owns: the
+   * consolidation diff (`PUT clients/{id}`) and the account-currency diff
+   * (`PUT accounts/{accountId}`, folded in 2026-09-09). Each mapper reads
+   * only its OWN keys and short-circuits to a zero-request resolve when its
+   * own diff is empty (rows B9/C-11), so a save touching only one entity
+   * issues exactly one request — never two, never the wrong one.
+   */
   update: ({ model, baseModel }: BillingSettingsContext) =>
     !isEmpty(model)
-      ? service
-          .update(model as BillingSettingsModel, baseModel)
-          .then(() => ({ ...baseModel, ...model }) as BillingSettingsModel)
+      ? Promise.all([
+          service.update(model as BillingSettingsModel, baseModel),
+          service.updateAccountCurrencies(
+            model as BillingSettingsModel,
+            baseModel
+          )
+        ]).then(() => ({ ...baseModel, ...model }) as BillingSettingsModel)
       : Promise.reject(
           new DetailedError(
             useI18n().t("error.client_billing_settings_not_available"),

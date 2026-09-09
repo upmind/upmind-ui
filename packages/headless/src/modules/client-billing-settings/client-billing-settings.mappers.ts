@@ -1,5 +1,6 @@
 /** @internal */
 import type {
+  AccountCurrencyUpdateBody,
   BillingSettingsModel,
   BillingSettingsRecord,
   BillingSettingsUpdateBody
@@ -77,6 +78,50 @@ export function mapIBillingSettingsFields(
   }
   if (model.dueDateDay !== baseModel.dueDateDay) {
     diff.invoice_consolidation_due_date_day = model.dueDateDay;
+  }
+
+  return Object.keys(diff).length ? diff : undefined;
+}
+
+/**
+ * The dirty, per-field `PUT accounts/{accountId}` body: keyed to the two
+ * account-currency fields ONLY, computed key by key against `baseModel`,
+ * never by a value predicate. `undefined` for an empty diff (row B9).
+ *
+ * Parity row B9: unlike `mapIBillingSettingsFields` (row X1, a RECORDED
+ * divergence from the consolidation form's whole-form diff gate), this
+ * per-field diff is straight PARITY — the oracle's own account write is
+ * already a per-changed-key diff (`basicForm:197-202` `omitBy` +
+ * `basicForm:361-364` `pick`). Do not carry row X1's divergence reasoning
+ * across to this write (design.md §15.4).
+ *
+ * @decision compare every field with `!==` and never filter the resulting
+ * diff object by truthiness.
+ * what:    each key is set directly from the `!==` comparison; there is no
+ *          `omitBy`/`filter` pass over `diff` afterwards.
+ * why:     a currency id is never falsy, but the cleared `preferredPaymentCurrencyId`
+ *          IS `null` — hazard H5b / row X5. A truthiness filter over the
+ *          built diff would silently drop the `null` clear from the outbound
+ *          body, making the client's clear a no-op while every gate stays
+ *          green. `client-billing-settings.account-clear-null.must-fail.patch`
+ *          is this write's negative control for exactly that shape.
+ * rejected: `Object.fromEntries(Object.entries(diff).filter(([, v]) => !!v))`
+ *          — rejected outright; it is the exact defect AC21's clear case
+ *          exists to close.
+ */
+export function mapIAccountCurrencyFields(
+  model: BillingSettingsModel,
+  baseModel: BillingSettingsModel = {}
+): AccountCurrencyUpdateBody | undefined {
+  const diff: AccountCurrencyUpdateBody = {};
+
+  if (model.currencyId !== baseModel.currencyId) {
+    diff.currency_id = model.currencyId;
+  }
+  if (
+    model.preferredPaymentCurrencyId !== baseModel.preferredPaymentCurrencyId
+  ) {
+    diff.preferred_payment_currency_id = model.preferredPaymentCurrencyId;
   }
 
   return Object.keys(diff).length ? diff : undefined;

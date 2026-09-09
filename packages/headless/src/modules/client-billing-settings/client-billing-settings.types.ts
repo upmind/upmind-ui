@@ -5,10 +5,15 @@
  * ClientBillingSettingsServices"` against `graphify-out/graph.json`
  * (2026-09-02, 14,886 nodes) — "No matching nodes found." Every type minted
  * below is net-new; none re-declares an existing node. `graphify-out/GRAPH_REPORT.md`
- * has no coverage of this module. `IClient`, `IClientBillingConsolidationForm`,
- * `InvoiceConsolidationTypes`, `InvoiceConsolidationRuleTypes`,
- * `DaysOfWeekTypes` and `BrandConfigKeys` are consumed unchanged from
- * `@upmind-automation/types`.
+ * has no coverage of this module. `IClient`, `IAccount`, `ICurrency`,
+ * `IClientBillingConsolidationForm`, `InvoiceConsolidationTypes`,
+ * `InvoiceConsolidationRuleTypes`, `DaysOfWeekTypes` and `BrandConfigKeys` are
+ * consumed unchanged from `@upmind-automation/types`.
+ *
+ * @graphify-citation `graphify query "AccountCurrencyUpdateBody"` against
+ * `graphify-out/graph.json` (2026-09-09) — "No matching nodes found."
+ * `AccountCurrencyUpdateBody` (design.md §15.3) is net-new, added for the
+ * account-currency slice folded in 2026-09-09.
  */
 // -----------------------------------------------------------------------------
 /**
@@ -27,10 +32,14 @@ import type {
   QueryKey,
   useQuery as vueUseQuery
 } from "@tanstack/vue-query";
+// See the @graphify-citation block above (graphify-out/graph.json) — IAccount
+// and ICurrency are consumed unchanged, net-new to this file only.
 import type {
   DaysOfWeekTypes,
+  IAccount,
   IClient,
   IClientBillingConsolidationForm,
+  ICurrency,
   InvoiceConsolidationRuleTypes,
   InvoiceConsolidationTypes
 } from "@upmind-automation/types";
@@ -151,7 +160,34 @@ export type BillingSettingsModel = {
   dayOfWeek?: DaysOfWeekTypes | null;
   dateOfMonthDay?: number | null;
   dueDateDay?: number | null;
+  /**
+   * The account's own billing currency (row B5) — never modelled nullable:
+   * the oracle marks it `rules="required"` (`basicForm:15`), so it only ever
+   * carries a real currency id.
+   */
+  currencyId?: IAccount["currency_id"];
+  /**
+   * The account's preferred payment currency, or `null` to clear it (row B4).
+   * Absent from the model entirely when row B6's brand gate is closed — see
+   * `client-billing-settings.services.ts:loadLookups`. Hazard H5b (row X5):
+   * the `null` clear must survive `useModelParser`'s compaction — see
+   * `restoreCompactedFields`.
+   */
+  preferredPaymentCurrencyId?: IAccount["preferred_payment_currency_id"];
 };
+
+/**
+ * The `PUT accounts/{accountId}` body `mapIAccountCurrencyFields` produces —
+ * the account's own two writable keys, never the client's (design.md §15.3).
+ * A SEPARATE type from `BillingSettingsUpdateBody`: `preferred_payment_currency_id`
+ * is an `IAccount` key, and `BillingSettingsUpdateBody` is a `Pick` over five
+ * `IClient` keys — widening it to carry an `IAccount` key is a compile error
+ * by that type's own design. Net-new (see the @graphify-citation, top of
+ * file, graphify-out/graph.json — "No matching nodes found").
+ */
+export type AccountCurrencyUpdateBody = Partial<
+  Pick<IAccount, "currency_id" | "preferred_payment_currency_id">
+>;
 
 /**
  * The `PUT clients/{id}` body `mapIBillingSettingsFields` produces —
@@ -197,24 +233,44 @@ export type ClientBillingSettingsServices = {
   isAvailable: ComputedRef<boolean>;
   /** The last failed mutation, captured as state — never raised. */
   error: ComputedRef<ResponseError | undefined>;
+  /**
+   * The session-resolved account's id (row X4) — a literal absence, never
+   * substituted, when the addressed client is not the session's own (row X7).
+   */
+  accountId: ComputedRef<string | undefined>;
+  /** The account's own billing currency id, off the session's own account list (rows B1/B5). */
+  currencyId: ComputedRef<string | undefined>;
+  /** The account's preferred payment currency id, or a literal absence when unset (rows B1/B4). */
+  preferredPaymentCurrencyId: ComputedRef<string | null | undefined>;
+  /**
+   * The currency options both account-currency controls offer — the brand's
+   * supported currencies ordered by name, plus the account's own currency
+   * when the brand list omits it (rows B2/B3).
+   */
+  currencyOptions: ComputedRef<ICurrency[]>;
   /** The reactive settings read, minted once per scope. */
   loadSettings: () => ClientBillingSettingsRecordQuery;
-  /** One-shot settings read + the brand visibility gate, floored to the schema-parsed base model. */
+  /** One-shot settings read + both brand gates, floored to the schema-parsed base model. */
   loadLookups: (
     context: BillingSettingsContext
   ) => Promise<Partial<BillingSettingsContext>>;
   /**
-   * Row O8's brand gate, resolved via `useBrand().ensureConfig()`'s own
-   * settled return value — never re-read afterward through
-   * `useBrand().getConfigValue()`'s reactive computed, which is fed by a
-   * module-singleton query `useBrand()` never re-fetches once mounted
+   * Row O8's AND row B6's brand gates, resolved via ONE
+   * `useBrand().ensureConfig()` call and returned as two separately-named,
+   * separately-polarised values (design.md §15.6) — never conflated. Consumes
+   * `ensureConfig()`'s own settled return value — never re-read afterward
+   * through `useBrand().getConfigValue()`'s reactive computed, which is fed
+   * by a module-singleton query `useBrand()` never re-fetches once mounted
    * elsewhere in the app (`useBrand.ts:69`, `brandConfigQuery ??= ...`).
    * (`graphify query "loadVisibility restrictToStaff" graphify-out/graph.json`
    * — no matching node; net-new member of this module's own service
    * contract, no cross-module surface.)
    */
-  loadVisibility: () => Promise<boolean | undefined>;
-  /** Schema-parses a SET event's incoming data, restoring compacted falsy/null leaves (hazard H5). */
+  loadBrandGates: () => Promise<{
+    restrictToStaff: boolean | undefined;
+    differentCurrencyPayment: boolean | undefined;
+  }>;
+  /** Schema-parses a SET event's incoming data, restoring compacted falsy/null leaves (hazard H5/H5b). */
   parse: (
     context: BillingSettingsContext,
     data?: unknown
@@ -228,6 +284,16 @@ export type ClientBillingSettingsServices = {
     model: BillingSettingsModel,
     baseModel?: BillingSettingsModel
   ) => Promise<IClient>;
+  /**
+   * Diff-only PUT of the account currencies against their base (rows
+   * B4/B5/B9). Refuses when the addressed client is not the session's own
+   * (row X7) or the payment-currency choice is not offered (row B6) — before
+   * issuing any request.
+   */
+  updateAccountCurrencies: (
+    model: BillingSettingsModel,
+    baseModel?: BillingSettingsModel
+  ) => Promise<IAccount>;
   /** Invalidates the shared client-record cache prefix so every reader refetches. */
   refresh: () => Promise<void>;
 };

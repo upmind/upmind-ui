@@ -87,6 +87,18 @@ export function createBillingSettingsManagerMeta(
   );
 
   /**
+   * `true` only when the brand has explicitly opted clients into paying in a
+   * different currency (row B6). OPPOSITE polarity to `isVisible` above —
+   * consumed as `!!value`, never sharing a helper or default with it.
+   */
+  const hasPaymentCurrencyChoice = computed(
+    () =>
+      !!contextValue<Record<BrandConfigKeys, boolean>>(state, "config")?.[
+        BrandConfigKeys.BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED
+      ]
+  );
+
+  /**
    * `true` only when every one of this module's own gates allows editing —
    * not staged (row C14), not mid-save, and not externally locked by the
    * consumer (row C16, `setDisabled()`). Folded here rather than left for
@@ -131,6 +143,9 @@ export function createBillingSettingsManagerMeta(
 
     /** `true` only when the brand has explicitly opted clients into this surface (row O8). */
     isVisible,
+
+    /** `true` only when the brand has explicitly opted clients into paying in a different currency (row B6). */
+    hasPaymentCurrencyChoice,
 
     /** True if an error exists and the form has been touched. */
     showErrors

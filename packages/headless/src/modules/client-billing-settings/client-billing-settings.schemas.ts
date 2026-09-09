@@ -1,5 +1,6 @@
 /** @internal */
 import {
+  BrandConfigKeys,
   DaysOfWeekTypes,
   InvoiceConsolidationRuleTypes,
   InvoiceConsolidationTypes
@@ -73,11 +74,28 @@ export function useSchemaDefinitions(): JsonSchema7["definitions"] {
       type: ["integer", "null"],
       minimum: 1,
       maximum: 28
+    },
+    /** The account's own billing currency (row B5) — always required, never nullable. */
+    currencyId: {
+      type: "string"
+    },
+    /** The account's preferred payment currency, or `null` to clear it (row B4; hazard H5b). */
+    preferredPaymentCurrencyId: {
+      type: ["string", "null"]
     }
   };
 }
 
-/** Schema for the invoice-consolidation editor — the five native controls. */
+/**
+ * Schema for the editor — the five consolidation controls plus the two
+ * account-currency controls. `currencyId` is declared unconditionally
+ * (`basicForm:15` is never `v-if`-gated); `preferredPaymentCurrencyId` is
+ * ALSO declared unconditionally here so `useModelParser`'s `allowExtraProps:
+ * false` never strips a genuine clear — row B6's gate is enforced at the
+ * UISCHEMA (below, so the control never renders) and at the WRITE layer
+ * (`updateAccountCurrencies` — the field "can never be written", AC23), never
+ * by omitting it from validation.
+ */
 export const useSchema = (_context: BillingSettingsContext): JsonSchema7 => ({
   type: "object",
   required: [],
@@ -87,7 +105,11 @@ export const useSchema = (_context: BillingSettingsContext): JsonSchema7 => ({
     baseRule: { $ref: "#/definitions/baseRule" },
     dayOfWeek: { $ref: "#/definitions/dayOfWeek" },
     dateOfMonthDay: { $ref: "#/definitions/dateOfMonthDay" },
-    dueDateDay: { $ref: "#/definitions/dueDateDay" }
+    dueDateDay: { $ref: "#/definitions/dueDateDay" },
+    currencyId: { $ref: "#/definitions/currencyId" },
+    preferredPaymentCurrencyId: {
+      $ref: "#/definitions/preferredPaymentCurrencyId"
+    }
   }
 });
 
@@ -123,15 +145,42 @@ export function useUischemaDefinitions(): Record<string, ControlElement> {
       type: "Control",
       scope: "#/properties/dueDateDay",
       i18n: "form.invoice_consolidation_due_date_day"
+    },
+    currencyId: {
+      type: "Control",
+      scope: "#/properties/currencyId",
+      i18n: "form.currency_id"
+    },
+    preferredPaymentCurrencyId: {
+      type: "Control",
+      scope: "#/properties/preferredPaymentCurrencyId",
+      i18n: "form.preferred_payment_currency_id"
     }
   };
 }
 
-/** UI schema for the invoice-consolidation editor. */
+/**
+ * UI schema for the editor. `currencyId` renders unconditionally
+ * (`basicForm:11-23` carries no `v-if`); `preferredPaymentCurrencyId` renders
+ * ONLY when row B6's brand gate is explicitly truthy — absence, not
+ * disablement, is the oracle's own gate (`basicForm:24` `v-if="showPreferredCurrency"`,
+ * `:313-320` never seeded when false). Reads `context.config` directly by the
+ * enum member rather than a dotted `contextValue` path — `BrandConfigKeys`
+ * values are themselves dotted strings, so a path-string reader would
+ * misparse the key into nested segments.
+ */
 export const useUischema = (
-  _context: BillingSettingsContext
+  context: BillingSettingsContext
 ): UISchemaElement => {
   const controls = useUischemaDefinitions();
+
+  // Row B6 / AC23 — OPPOSITE POLARITY to O8. Consumed as `!!value`: the
+  // control renders ONLY on an explicit truthy. NEVER share a helper, a
+  // default or a `??` fallback with O8's `restrict_to_staff` polarity below.
+  const hasPaymentCurrencyChoice =
+    !!context.config?.[
+      BrandConfigKeys.BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED
+    ];
 
   return {
     type: "VerticalLayout",
@@ -140,7 +189,9 @@ export const useUischema = (
       controls.baseRule,
       controls.dayOfWeek,
       controls.dateOfMonthDay,
-      controls.dueDateDay
+      controls.dueDateDay,
+      controls.currencyId,
+      ...(hasPaymentCurrencyChoice ? [controls.preferredPaymentCurrencyId] : [])
     ]
   } as UISchemaElement;
 };

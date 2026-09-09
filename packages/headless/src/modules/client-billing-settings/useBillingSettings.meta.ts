@@ -18,6 +18,7 @@ export function createBillingSettingsMeta(
   service: ClientBillingSettingsServices,
   query: ClientBillingSettingsRecordQuery,
   restrictToStaff: Ref<boolean | undefined>,
+  differentCurrencyPayment: Ref<boolean | undefined>,
   visibilityError: Ref<boolean>
 ) {
   const hasErrors = computed(() => !!query.error.value);
@@ -39,6 +40,17 @@ export function createBillingSettingsMeta(
    * brand opt-out.
    */
   const isVisible = computed(() => restrictToStaff.value === false);
+
+  /**
+   * Row B6 — offered ONLY when the brand has explicitly opted clients into
+   * paying in a different currency. OPPOSITE polarity to `isVisible` above:
+   * consumed as `!!value`, never `!(value ?? true)`. Absent or falsy
+   * withholds the choice entirely — never merged with `isVisible`'s own
+   * default or code path.
+   */
+  const hasPaymentCurrencyChoice = computed(
+    () => !!differentCurrencyPayment.value
+  );
 
   // --- actor-specific meta: none earned (arms: none — parity.yaml).
 
@@ -66,7 +78,10 @@ export function createBillingSettingsMeta(
     isLoading,
 
     /** True only when the brand has explicitly opted clients into this surface (row O8). */
-    isVisible
+    isVisible,
+
+    /** True only when the brand has explicitly opted clients into paying in a different currency (row B6). */
+    hasPaymentCurrencyChoice
 
     // The arm merges in HERE, last.
     // ...actorMeta

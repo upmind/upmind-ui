@@ -145,8 +145,9 @@ function createBillingSettingsManagerForScope(
     /** Sub-composable for manager actions (form input, save, revert, lifecycle). */
     useActions: () => actions,
 
-    /** Sub-composable for manager context (model, schema, errors). */
-    useContext: () => createBillingSettingsManagerContext(actorScope, actorRef),
+    /** Sub-composable for manager context (model, schema, errors, account values). */
+    useContext: () =>
+      createBillingSettingsManagerContext(actorScope, service, actorRef),
 
     /** Sub-composable for advanced debugging and internal access. */
     useInternals: () =>

@@ -3,7 +3,8 @@ import { BrandConfigKeys } from "@upmind-automation/types";
 import { useContext } from "../../utils";
 import type {
   BillingSettingsContext,
-  BillingSettingsModel
+  BillingSettingsModel,
+  ClientBillingSettingsServices
 } from "./client-billing-settings.types";
 import type { ResponseError, UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
@@ -26,6 +27,7 @@ import type { ErrorObject } from "ajv";
  */
 export function createBillingSettingsManagerContext(
   _actorScope: ScopeActorTypes,
+  service: ClientBillingSettingsServices,
   actor: UseActor
 ) {
   const { state } = actor;
@@ -52,6 +54,18 @@ export function createBillingSettingsManagerContext(
       ] === false
   );
 
+  /**
+   * `true` only when the brand has explicitly opted clients into paying in a
+   * different currency (row B6). OPPOSITE polarity to `isVisible` above —
+   * consumed as `!!value`, never sharing a helper or default with it.
+   */
+  const hasPaymentCurrencyChoice = computed(
+    () =>
+      !!config.value?.[
+        BrandConfigKeys.BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED
+      ]
+  );
+
   // --- actor-specific context: none earned (arms: none — parity.yaml).
 
   return {
@@ -75,6 +89,16 @@ export function createBillingSettingsManagerContext(
 
     /** `true` only when the brand has explicitly opted clients into this surface (row O8). */
     isVisible,
+
+    /** `true` only when the brand has explicitly opted clients into paying in a different currency (row B6). */
+    hasPaymentCurrencyChoice,
+
+    /**
+     * The currency options both account-currency controls offer — the
+     * brand's supported currencies ordered by name, plus the account's own
+     * currency when the brand list omits it (rows B2/B3).
+     */
+    currencyOptions: service.currencyOptions,
 
     /** The JSON schema for the form (from machine context — see JSDoc). */
     schema: useContext<BillingSettingsContext["schema"]>(state, "schema"),

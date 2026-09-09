@@ -47,27 +47,28 @@ function createBillingSettingsForScope(
   const query = service.loadSettings();
 
   /**
-   * Row O8's brand gate, resolved per scope and shared between
-   * `useActions().isReady()`/`refresh()` (which (re-)await
-   * `loadVisibility()`) and `useMeta().isVisible`/`hasVisibilityError`
-   * (which read `restrictToStaff`/`visibilityError` synchronously) — the
+   * Row O8's AND row B6's brand gates, resolved per scope in ONE call and
+   * shared between `useActions().isReady()`/`refresh()` (which (re-)await
+   * `loadVisibility()`) and `useMeta().isVisible`/`hasPaymentCurrencyChoice`/
+   * `hasVisibilityError` (which read the settled refs synchronously) — the
    * SAME refs, never a second independent fetch that could still be in
-   * flight when a consumer reads `isVisible` right after `isReady()`
-   * resolves.
+   * flight when a consumer reads them right after `isReady()` resolves.
    *
    * Re-invocable, not a one-shot promise: a transient failure used to leave
-   * `restrictToStaff` `undefined` forever, since nothing ever re-ran the
-   * fetch. `refresh()` now calls this again, and a failure is recorded in
+   * both gates `undefined` forever, since nothing ever re-ran the fetch.
+   * `refresh()` now calls this again, and a failure is recorded in
    * `visibilityError` rather than silently swallowed.
    */
   const restrictToStaff = ref<boolean | undefined>(undefined);
+  const differentCurrencyPayment = ref<boolean | undefined>(undefined);
   const visibilityError = ref(false);
 
   function loadVisibility(): Promise<void> {
     return service
-      .loadVisibility()
-      .then(value => {
-        restrictToStaff.value = value;
+      .loadBrandGates()
+      .then(gates => {
+        restrictToStaff.value = gates.restrictToStaff;
+        differentCurrencyPayment.value = gates.differentCurrencyPayment;
         visibilityError.value = false;
       })
       .catch(() => {
@@ -90,8 +91,8 @@ function createBillingSettingsForScope(
         loadVisibility
       ),
 
-    /** Sub-composable for read context (the consolidation preference). */
-    useContext: () => createBillingSettingsContext(actorScope, query),
+    /** Sub-composable for read context (the consolidation preference and the account values). */
+    useContext: () => createBillingSettingsContext(actorScope, service, query),
 
     /** Sub-composable for advanced debugging and internal access. */
     useInternals: () => createBillingSettingsInternals(actorScope, query),
@@ -103,6 +104,7 @@ function createBillingSettingsForScope(
         service,
         query,
         restrictToStaff,
+        differentCurrencyPayment,
         visibilityError
       )
   };

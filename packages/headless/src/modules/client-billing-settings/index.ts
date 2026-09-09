@@ -32,6 +32,7 @@ export type { ClientBillingSettingsScopeMatrix } from "./client-billing-settings
 
 // --- Public model types
 export type {
+  AccountCurrencyUpdateBody,
   BillingSettingsContext,
   BillingSettingsModel,
   BillingSettingsRecord,
