@@ -1,0 +1,21 @@
+# Negative control — the menu goes back to unselecting on ANY query, so a
+# listing's own status tab (a key the menu never mentions) blanks the whole
+# side menu the moment a tab is picked.
+#
+# Intended RED: "keeps the bare item selected under an unowned query (the
+# status tab)" (tests/menu-active-unowned-query.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/modules/menu/Menu.vue
++++ b/apps/portal-nuxt/app/portal/modules/menu/Menu.vue
+@@ -134,10 +134,7 @@
+ 
+   const pinned = [...new URLSearchParams(search).entries()];
+   if (pinned.length === 0) {
+-    return every(
+-      [...ownedQueryKeys.value],
+-      key => route.query[key] === undefined
+-    );
++    return Object.keys(route.query).length === 0;
+   }
+   return every(pinned, ([key, value]) => route.query[key] === value);
+ }

@@ -1,0 +1,25 @@
+# Negative control — the scheduled-cancellation reading is claimed before its
+# DAY has loaded, so a booking with no date yet prints the sentence with a
+# hole in it ("scheduled to be cancelled on undefined") instead of falling
+# through to the lodged-request reading, which needs no day to be true.
+# Legacy claimed the arm only once the date was there
+# (`cProdCondition.ts:150-160`).
+#
+# Intended RED (to be added by the prover): a booked cancellation with no day
+# yet reads as merely lodged.
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -1285,11 +1285,7 @@
+   if (
+     request?.status ===
+       CancellationRequestStatusCodes.REQUEST_SCHEDULED_FUTURE_CANCELLATION &&
+-    request.acceptedAt === undefined &&
+-    // Legacy claimed this reading only once the DAY was loaded
+-    // (`cProdCondition.ts:150-160`): a booking with no date yet has nothing to
+-    // name, so it falls through and reads as merely lodged.
+-    request.cancelAt !== undefined
++    request.acceptedAt === undefined
+   ) {
+     return {
+       title: "Scheduled for cancellation",

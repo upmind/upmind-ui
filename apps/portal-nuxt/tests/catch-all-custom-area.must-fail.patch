@@ -1,0 +1,21 @@
+# Negative control — the catch-all's custom-area lookup searches an empty
+# list instead of the configured ones, so a configured Custom Area is never
+# matched and swallows into the replace-navigation fallback (design.md §D9
+# consequence 1, AC1.5, tasks.md 1.10d).
+#
+# Intended RED: any assertion that resolveCatchAll(config, [customAreaSlug])
+# resolves to { kind: "custom-area", ... } for a configured area.
+
+diff --git a/apps/portal-nuxt/app/portal/routes.ts b/apps/portal-nuxt/app/portal/routes.ts
+index 3e4adecfe8..bb60afe22c 100644
+--- a/apps/portal-nuxt/app/portal/routes.ts
++++ b/apps/portal-nuxt/app/portal/routes.ts
+@@ -60,7 +60,7 @@ export function resolveCatchAll(
+   const group = find(config.groups, entry => entry.slug === head);
+   if (group !== undefined) return resolveProductHierarchy(group, rest);
+ 
+-  const area = find(config.customAreas, entry => entry.slug === head);
++  const area = find([], entry => entry.slug === head);
+   if (area !== undefined) return { kind: "custom-area", area };
+ 
+   return { kind: "unmatched" };

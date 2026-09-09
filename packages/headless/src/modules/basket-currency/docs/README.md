@@ -15,6 +15,7 @@ Think of `basket-currency` like the cart's currency dial. When a customer opens 
 
 ```typescript
 import { useBasketCurrency } from "@upmind-automation/headless";
+import { ISO_4217_CURRENCY_CODE } from "@upmind-automation/types";
 
 const { isReady, currencyCode, currencies, input, update } =
   useBasketCurrency();
@@ -25,7 +26,7 @@ await isReady(); // wait for machine to exit loading
 console.log(currencyCode.value); // e.g. "EUR"
 
 // Update currency (sends SET + PUTs to basket API)
-await update({ code: "GBP" });
+await update({ code: ISO_4217_CURRENCY_CODE.GBP });
 ```
 
 ## Features

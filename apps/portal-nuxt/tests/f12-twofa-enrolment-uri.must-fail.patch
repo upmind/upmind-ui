@@ -1,0 +1,22 @@
+# Negative control — the enrolment states the setup key with no link to carry
+# it, so a client on the device their authenticator app is on has nothing to
+# follow: legacy's QR image and the `otpauth://` address behind it both go
+# (`configure2faModal.vue:14-20`).
+#
+# Intended RED: "opens on the account's own key, and on a link that carries
+# it" (tests/eighth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/forms/twofa-enrolment.ts
++++ b/apps/portal-nuxt/app/portal/mock/forms/twofa-enrolment.ts
+@@ -38,10 +38,7 @@
+ /** The account's own enrolment, off the seeded secret. */
+ export function twoFactorEnrolment(data: MockDataset): TwoFactorEnrolment {
+   const secret = data.security.twoFactorSecret;
+-  return {
+-    secret,
+-    uri: twoFactorUri(secret, data.persona.email, data.brand.name)
+-  };
++  return { secret, uri: "" };
+ }
+ 
+ /**

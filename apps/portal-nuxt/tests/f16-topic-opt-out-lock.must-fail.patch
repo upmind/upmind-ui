@@ -1,0 +1,23 @@
+# Negative control — a topic the ACCOUNT has opted out of on the email channel
+# is offered to every address as though it were free to choose, so the
+# per-address form promises a subscription the account's own preference
+# forbids (`emailTopicOptIns.ts:176-190`).
+#
+#
+# Intended RED (verified by apply/run/revert): "an account-level opt-out locks
+# the topic on the per-address form" (tests/twelfth-closure.test.ts); "offers
+# one control per published topic, opened on that address's own answers"
+# (tests/token-preference-pages.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/forms/account-contexts.ts
++++ b/apps/portal-nuxt/app/portal/mock/forms/account-contexts.ts
+@@ -121,8 +121,7 @@
+ ): string | undefined {
+   const preference = find(data.notificationPreferences, { topic: topicId });
+   if (preference === undefined) return undefined;
+-  if (preference.channels[NotificationChannelCodes.EMAIL]) return undefined;
+-  return "This account is opted out of this topic on the email channel, so it cannot be enabled for this address.";
++  return undefined;
+ }
+ 
+ export function emailTopicOptInsContext(

@@ -1,0 +1,18 @@
+# Negative control — the invitation page stops saying it is CHECKING while it
+# has no hash to check, so a client arriving without one is told their link is
+# invalid instead of that it is being verified.
+#
+# Intended RED (to be added by the prover): the invitation page reads as
+# verifying before it has a hash to check.
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -4832,7 +4832,7 @@
+   context: DataRouteContext
+ ): DelegateInviteReading {
+   const hash = context.token;
+-  if (hash === undefined || hash === "") {
++  if (hash === "") {
+     return {
+       title: "Checking your invite",
+       message:

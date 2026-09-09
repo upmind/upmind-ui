@@ -34,7 +34,7 @@ All notable changes to the `client-custom-fields` module are documented here. Fo
 
 - **Upload progress is binary (`0`/`100`), not incremental.** Legacy reports real byte-level progress; this module cannot, because the transport it uploads through has no upload-progress hook, the shared upload capability's progress event is never dispatched anywhere in the tree, and the upload composable's own return value does not expose a progress field. See [gotchas.md](./gotchas.md#1-image-upload-progress-is-binary-0100-not-incremental). Recorded as out-of-scope for this module; a follow-up issue is pending filing once those barriers are addressed elsewhere.
 - **Two of the eight field-type string labels are confirmed against real recorded data; the rest are inferred from naming convention.** This module's own coercion is unaffected (it keys on the numeric discriminator); a shared, re-exported form-generation helper keys on the string label instead. See [gotchas.md](./gotchas.md#5-the-numeric-type-is-the-only-safe-discriminator--the-string-label-can-silently-fall-through).
-- **Staff and guest surfaces are not built.** `.as('staff')` and `.as('guest')` are compile-time errors on both composables — a designed, type-enforced boundary rather than an advertised-but-absent capability. A staff-acting-for-a-client surface for reading/writing another client's definitions and images, and brand-level authoring of the definitions catalogue itself, are both out of scope for this module — recorded as out-of-scope, with follow-up issues pending filing.
+- **Staff and guest surfaces are not built.** Both composables' matrices pin `staff` and `guest` to `null as never`, so `.as(ScopeActorTypes.STAFF).for(...)` is a compile-time error while the bare `.as(ScopeActorTypes.STAFF)` still type-checks and is refused at runtime — a designed boundary rather than an advertised-but-absent capability. A staff-acting-for-a-client surface for reading/writing another client's definitions and images, and brand-level authoring of the definitions catalogue itself, are both out of scope for this module — recorded as out-of-scope, with follow-up issues pending filing.
 
 ### Recorded fixtures
 
@@ -64,6 +64,11 @@ A large share of this module's value-semantics proofs (schema generation, displa
 **Breaking change:** branch on `typeId`, the numeric discriminator, not `type` (the display label).
 
 ```ts
+import type { CustomField } from "@upmind-automation/headless";
+import { CustomFieldsTypes } from "@upmind-automation/types";
+
+declare const field: CustomField;
+
 // Before — unsafe: keys on a string only confirmed for 2 of 8 types
 if (field.type === "number") {
   /* … */
@@ -78,8 +83,10 @@ if (field.typeId === CustomFieldsTypes.NUMBER) {
 ### Filling in a value model
 
 ```ts
+import type { CustomFieldModel } from "@upmind-automation/headless";
+
 // Before — CustomFieldModel was an empty placeholder type
-const model: CustomFieldModel = {}; // no shape to rely on
+const beforeModel: CustomFieldModel = {}; // no shape to rely on
 
 // After — a real code-keyed record
 const model: CustomFieldModel = { age: 42, profile_picture: "z5PJhA..." };
@@ -88,6 +95,15 @@ const model: CustomFieldModel = { age: 42, profile_picture: "z5PJhA..." };
 ### Uploading an image value
 
 ```ts
+import {
+  useClientCustomFieldImage,
+  ScopeActorTypes,
+  ClientCustomFieldContextTypes
+} from "@upmind-automation/headless";
+
+const fieldId = "0c9ff2c1-6d29-4f6d-9a54-1a9d5f0b3b21";
+const file = new File([], "avatar.png", { type: "image/png" });
+
 // After — new in this module
 const image = useClientCustomFieldImage()
   .as(ScopeActorTypes.CLIENT)

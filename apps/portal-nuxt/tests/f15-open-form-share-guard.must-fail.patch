@@ -1,0 +1,25 @@
+# Negative control — `open-form:invoice-share:<id>` stops asking the guard, so
+# a DELEGATED invoice hands back a form envelope and the dialog opens on a
+# document whose own write refuses: the refusal is supposed to reach the
+# client before any dialog (plan R4).
+#
+# REBASED 2026-09-06 (the pay-amount arm below it gained its short-tail
+# branch). Same mutation.
+#
+# Intended RED (to be added by the prover): "refuses the share dialog on a
+# delegated invoice, with a warning and no form".
+
+diff --git a/apps/portal-nuxt/app/portal/mock/actions.ts b/apps/portal-nuxt/app/portal/mock/actions.ts
+--- a/apps/portal-nuxt/app/portal/mock/actions.ts
++++ b/apps/portal-nuxt/app/portal/mock/actions.ts
+@@ -413,9 +413,7 @@ const FORM_REFUSAL: Partial<
+     if (find(data.ipWhitelist, { id: entityId }) !== undefined)
+       return undefined;
+     return { ok: false, reason: MOCK_RECEIPT_REASON.NOT_FOUND };
+-  },
+-  [FORM_ID.INVOICE_SHARE]: (data, entityId) =>
+-    addressedInvoice(data, entityId, invoice => whyNotShareable(invoice))
++  }
+ };
+ 
+ /** One thread's guard, or the standing not-found where the id names none. */

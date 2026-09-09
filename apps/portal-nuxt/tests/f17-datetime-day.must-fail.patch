@@ -1,0 +1,18 @@
+# Negative control — a date the reading cannot parse is printed RAW, so a
+# datetime lands in the sentence whole ("suspended on 2026-08-21T23:30:00Z")
+# instead of stating the day it falls on.
+#
+# Intended RED (to be added by the prover): a datetime reads as its day, never
+# as the raw stamp.
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
+@@ -269,7 +269,7 @@
+ function relativeReading(day: string): string {
+   // A datetime carries a clock the reading cannot honour, so the fallback
+   // states the DAY it falls on rather than printing the stamp raw.
+-  return relativeDay(day) ?? `on ${day.slice(0, ISO_DATE_LENGTH)}`;
++  return relativeDay(day) ?? `on ${day}`;
+ }
+ 
+ /**

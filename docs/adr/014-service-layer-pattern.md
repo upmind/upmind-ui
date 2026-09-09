@@ -28,54 +28,50 @@ Adopt a **service layer pattern** where each module has a dedicated `services.ts
 ```
 modules/
   basket/
-    basket.machine.ts   # XState machine definition
-    services.ts         # Async service functions
-    types.ts            # TypeScript types
-    useBasket.ts        # Composable interface
+    basket.machine.ts    # XState machine definition
+    basket.services.ts   # Async service functions
+    basket.types.ts      # TypeScript types
+    useBasket.ts         # Composable interface
 ```
 
 ---
 
 ## Service File Pattern
 
-```typescript
-// modules/basket/services.ts
-
-// --- external
+```ts
+// modules/basket/basket.services.ts
 
 // --- internal
-import { useQuery } from '../..'
-import { useSession } from '../session'
+import { useActiveSession, useQuery } from '@upmind-automation/headless'
 
 // --- utils
-import { omitBy, isNil } from 'lodash-es'
+import { isNil, omitBy } from 'lodash-es'
 
 // --- types
 import type { IBasket } from '@upmind-automation/types'
-import type { BasketContext } from './types'
-import type { AnyEventObject } from 'xstate'
+import type { AnyEventObject, BasketContext } from '@upmind-automation/headless'
 
 // -----------------------------------------------------------------------------
 
-async function load(context: BasketContext, event: AnyEventObject) {
+async function load(_context: BasketContext, _event: AnyEventObject) {
   const { get, useUrl } = useQuery()
 
   return get<IBasket>({
-    url: useUrl('orders/current', { with: ['products', 'currency'] }),
     queryKey: ['basket', 'current'],
-    withAccessToken: true,
+    url: useUrl('orders/current', { with: ['products', 'currency'] }),
+    withAccessToken: true
   })
 }
 
-async function convert(context: BasketContext, event: AnyEventObject) {
+async function convert(context: BasketContext, _event: AnyEventObject) {
   const { patch, useUrl } = useQuery()
   const { basket, paymentDetail } = context
 
   return patch({
-    mutationKey: ['basket', basket?.id, 'convert'],
-    url: useUrl(`/orders/${basket?.id}/convert`),
     data: omitBy(paymentDetail, isNil),
-    withAccessToken: true,
+    mutationKey: ['basket', basket?.id, 'convert'],
+    url: useUrl(`orders/${basket?.id}/convert`),
+    withAccessToken: true
   })
 }
 
@@ -84,8 +80,8 @@ async function convert(context: BasketContext, event: AnyEventObject) {
 export default {
   load,
   convert,
-  refresh: (ctx, event) => load(ctx, event),
-  isAuthenticated: () => useSession().isAuthenticated(),
+  refresh: (context: BasketContext, event: AnyEventObject) => load(context, event),
+  isAuthenticated: () => useActiveSession().useActions().isReady()
 }
 ```
 
@@ -93,44 +89,57 @@ export default {
 
 ## Machine Integration
 
-```typescript
+```ts
 // modules/basket/basket.machine.ts
-import services from './services'
+import { assign, createMachine } from '@upmind-automation/headless'
+import type { AnyEventObject, ResponseError } from '@upmind-automation/headless'
+import type { IBasket } from '@upmind-automation/types'
 
-export default createMachine({
-  id: 'basket',
-  initial: 'loading',
-  context: { basket: null, errors: null },
-  states: {
-    loading: {
-      invoke: {
-        src: 'load',  // References services.load
-        onDone: { target: 'available', actions: 'setBasket' },
-        onError: { target: 'error', actions: 'setErrors' },
+type MachineContext = { basket: IBasket | null; errors: ResponseError | null }
+
+declare const services: Record<
+  string,
+  (context: MachineContext, event: AnyEventObject) => Promise<unknown>
+>
+
+export default createMachine<MachineContext, AnyEventObject>(
+  {
+    id: 'basket',
+    initial: 'loading',
+    context: { basket: null, errors: null },
+    states: {
+      loading: {
+        invoke: {
+          src: 'load', // references services.load
+          onDone: { target: 'available', actions: 'setBasket' },
+          onError: { target: 'error', actions: 'setErrors' }
+        }
       },
-    },
-    available: {
-      on: {
-        CHECKOUT: 'converting',
-        REFRESH: { target: 'loading' },
+      available: {
+        on: {
+          CHECKOUT: 'converting',
+          REFRESH: { target: 'loading' }
+        }
       },
-    },
-    converting: {
-      invoke: {
-        src: 'convert',  // References services.convert
-        onDone: { target: 'complete' },
-        onError: { target: 'available', actions: 'setErrors' },
+      converting: {
+        invoke: {
+          src: 'convert', // references services.convert
+          onDone: { target: 'complete' },
+          onError: { target: 'available', actions: 'setErrors' }
+        }
       },
-    },
-    // ...
+      complete: { type: 'final' },
+      error: { on: { RETRY: 'loading' } }
+    }
   },
-}, {
-  services,  // Inject services
-  actions: {
-    setBasket: assign({ basket: (_, { data }) => data }),
-    setErrors: assign({ errors: (_, { data }) => data }),
-  },
-})
+  {
+    services, // inject services
+    actions: {
+      setBasket: assign({ basket: (_context, event) => event.data }),
+      setErrors: assign({ errors: (_context, event) => event.data })
+    }
+  }
+)
 ```
 
 ---
@@ -139,50 +148,95 @@ export default createMachine({
 
 ### 1. Services Receive Context and Event
 
-```typescript
-async function load(
-  context: BasketContext,    // Current machine context
-  event: AnyEventObject      // Event that triggered invocation
+```ts
+import { useQuery } from '@upmind-automation/headless'
+import type { AnyEventObject, BasketContext } from '@upmind-automation/headless'
+import type { IBasket } from '@upmind-automation/types'
+
+export async function load(
+  context: BasketContext, // current machine context
+  event: AnyEventObject // event that triggered the invocation
 ) {
   // Access context values
-  const { basket, filters } = context
+  const { basket } = context
 
-  // Access event payload
-  const { id } = event.data
+  // Access the event payload
+  const { id } = event.data as { id: string }
 
-  return api.get(...)
+  const { get, useUrl } = useQuery()
+
+  return get<IBasket>({
+    queryKey: ['basket', id ?? basket?.id],
+    url: useUrl(`orders/${id ?? basket?.id}`),
+    withAccessToken: true
+  })
 }
 ```
 
 ### 2. Services Use Composables
 
-```typescript
-async function load(context, event) {
+```ts
+import { useBrand, useQuery } from '@upmind-automation/headless'
+import type { AnyEventObject, BasketContext } from '@upmind-automation/headless'
+import type { IBasket } from '@upmind-automation/types'
+
+export async function load(_context: BasketContext, _event: AnyEventObject) {
   // Access other composables
   const { isReady } = useBrand()
   await isReady()
 
-  // Use query layer
+  // Use the query layer
   const { get, useUrl } = useQuery()
-  return get({ ... })
+
+  return get<IBasket>({
+    queryKey: ['basket', 'current'],
+    url: useUrl('orders/current'),
+    withAccessToken: true
+  })
 }
 ```
 
 ### 3. Services Return Promises
 
-```typescript
-// Machine onDone receives resolved value
-async function load() {
-  return get<IBasket>({ ... })  // Resolves to IBasket
-}
+```ts
+import { assign, createMachine, useQuery } from '@upmind-automation/headless'
+import type { AnyEventObject } from '@upmind-automation/headless'
+import type { IBasket } from '@upmind-automation/types'
 
-// In machine:
-onDone: {
-  target: 'available',
-  actions: assign({
-    basket: (_, { data }) => data  // data is IBasket
+type MachineContext = { basket: IBasket | null }
+
+// The machine's onDone receives whatever the service resolved to
+async function load() {
+  const { get, useUrl } = useQuery()
+
+  return get<IBasket>({
+    queryKey: ['basket', 'current'],
+    url: useUrl('orders/current'),
+    withAccessToken: true
   })
 }
+
+export const machine = createMachine<MachineContext, AnyEventObject>(
+  {
+    id: 'basket',
+    initial: 'loading',
+    context: { basket: null },
+    states: {
+      loading: {
+        invoke: {
+          src: 'load',
+          onDone: {
+            target: 'available',
+            // `event.data` IS the IBasket the service resolved to
+            actions: assign({ basket: (_context, event) => event.data as IBasket })
+          }
+        }
+      },
+      available: {}
+    }
+  },
+  { services: { load } }
+)
 ```
 
 ### 4. Services Are Grouped by Module
@@ -192,8 +246,8 @@ Each module owns its services:
 | Module | Service Functions |
 | ------ | ----------------- |
 | basket | load, convert, refresh, dismissWarnings |
-| client/email | loadList, add, update, remove, verify |
-| session/guest | authenticate, register, recover |
+| client-email | loadList, add, update, remove, verify |
+| auth | authenticate, register, recover |
 | domain | search, load, transfer |
 
 ---
@@ -202,15 +256,37 @@ Each module owns its services:
 
 Some modules expose services as a composable for use outside machines:
 
-```typescript
-// modules/client/email/services.ts
+```ts
+// modules/client-email/client-email.services.ts
+import { useQuery } from '@upmind-automation/headless'
+import type { IEmail } from '@upmind-automation/types'
+
+type EmailModel = { id?: string; email: string | null }
 
 export const useClientEmailServices = () => {
+  const { patch, post, useUrl } = useQuery()
+
+  const add = async ({ model }: { model: EmailModel }) =>
+    post<IEmail>({
+      data: model,
+      mutationKey: ['client', 'emails', 'add'],
+      url: useUrl('client/emails'),
+      withAccessToken: true
+    })
+
+  const update = async ({ id, model }: { id: string; model: EmailModel }) =>
+    patch<IEmail>({
+      data: model,
+      mutationKey: ['client', 'emails', 'update'],
+      url: useUrl(`client/emails/${id}`),
+      withAccessToken: true
+    })
+
   return {
-    add: async ({ model }) => { ... },
-    update: async ({ id, model }) => { ... },
-    ensure: async ({ model }) => { ... },
-    validate: async ({ schema, model }) => { ... },
+    add,
+    update,
+    ensure: async ({ model }: { model: EmailModel }) =>
+      model.id ? update({ id: model.id, model }) : add({ model })
   }
 }
 ```

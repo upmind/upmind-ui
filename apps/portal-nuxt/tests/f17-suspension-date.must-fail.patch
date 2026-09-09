@@ -1,0 +1,41 @@
+# Negative control — the suspension row reports the day the product was
+# BOUGHT as the day it was suspended, so a product suspended last week reads
+# as suspended the day the client ordered it. The two are different facts, and
+# a product suspended with no date recorded says so rather than borrowing one.
+#
+# REBASED 2026-09-06 (an undated stop is no longer positioned at all). Same
+# mutation.
+#
+#
+# Intended RED (verified by apply/run/revert, all tests/thirteenth-closure.test.ts):
+# "the suspension row states the suspension day, not the purchase day", "an
+# undated fact carries no date and falls to the end of the rail", "a datetime
+# reads as its day, never as the raw stamp" and "the billing timeline carries
+# the product's own lifecycle events beside the scheduled actions".
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
+@@ -191,21 +191,11 @@
+  * the day it was bought is a different fact entirely.
+  */
+ function suspensionEvent(product: MockProduct): MockProductEvent {
+-  if (product.suspendedAt === undefined) {
+-    // No day recorded, so the rail has nowhere to put it: the fact stands
+-    // without a date rather than sitting on the day it was bought.
+-    return {
+-      id: "suspended",
+-      title: "Suspended",
+-      description: "This product is suspended.",
+-      isPast: true
+-    };
+-  }
+   return {
+     id: "suspended",
+     title: "Suspended",
+-    description: `This product was suspended ${relativeReading(product.suspendedAt)}.`,
+-    datetime: product.suspendedAt,
++    description: `This product was suspended ${relativeReading(product.createdAt)}.`,
++    datetime: product.createdAt,
+     isPast: true
+   };
+ }

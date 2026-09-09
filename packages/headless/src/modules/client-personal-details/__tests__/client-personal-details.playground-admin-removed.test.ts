@@ -36,15 +36,15 @@ import { describe, expect, it } from "vitest";
 
 const PLAYGROUND_ROOT = join(
   import.meta.dirname,
-  "../../../../../../playgrounds/labs/src/pages/account"
+  "../../../../../../playgrounds/labs"
 );
 
-const REMOVED_PAGES = [
-  join(PLAYGROUND_ROOT, "profile/admin/Profile.vue"),
-  join(PLAYGROUND_ROOT, "profile/admin/Edit.vue")
-];
+const ACCOUNT_ROOT = join(PLAYGROUND_ROOT, "src/pages/account");
 
-const ROUTES_FILE = join(PLAYGROUND_ROOT, "admin/routes.ts");
+const REMOVED_PAGES = [
+  join(ACCOUNT_ROOT, "profile/admin/Profile.vue"),
+  join(ACCOUNT_ROOT, "profile/admin/Edit.vue")
+];
 
 // -----------------------------------------------------------------------------
 
@@ -55,13 +55,11 @@ describe("admin playground surface — AC-61", () => {
     }
   });
 
-  it("AC-61 no longer routes to an admin profile page, by name or by component import", () => {
-    expect(existsSync(ROUTES_FILE), `${ROUTES_FILE} should exist`).toBe(true);
-    const source = readFileSync(ROUTES_FILE, "utf-8");
-
-    expect(source).not.toMatch(/name:\s*["']admin\.account\.profile["']/);
-    expect(source).not.toMatch(/name:\s*["']admin\.account\.profile\.edit["']/);
-    expect(source).not.toMatch(/profile\/admin\/(Profile|Edit)\.vue/);
+  it("AC-61 no longer routes to an admin profile page — the whole Vue playground is retired", () => {
+    expect(
+      existsSync(PLAYGROUND_ROOT),
+      `${PLAYGROUND_ROOT} should not exist`
+    ).toBe(false);
   });
 
   it("AC-61 the new Nuxt scenario introduces no staff cell", () => {

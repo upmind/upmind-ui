@@ -1,0 +1,17 @@
+# Negative control — an order that reached this client through a delegation
+# says nothing about it (`orderView.vue:22-27`), so the notice never shows.
+#
+# Intended RED (to be added by the prover): "renders the delegated notice on a
+# delegated order".
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -3373,7 +3373,7 @@
+   data: MockDataset,
+   context: DataRouteContext
+ ): boolean {
+-  return contextOrder(data, context)?.isDelegated === true;
++  return false;
+ }
+ 
+ /** What that notice says — the same sentence the two documents carry. */

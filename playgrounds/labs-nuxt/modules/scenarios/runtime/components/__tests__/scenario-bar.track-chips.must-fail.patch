@@ -15,32 +15,30 @@ it is Live.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioMenu.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioMenu.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioMenu.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioMenu.vue
-@@ -99,7 +99,7 @@
+@@ -17,6 +17,17 @@
+       >
+         {{ t("labs.track_live") }}
+       </ToggleGroupItem>
++      <ToggleGroupItem
++        v-for="track in take(tracks, 2)"
++        :key="track.slug"
++        :value="track.slug"
++        :data-attrs="{
++          'data-test-key': 'track',
++          'data-test-value': track.slug
++        }"
++      >
++        {{ track.name }}
++      </ToggleGroupItem>
+     </ToggleGroup>
+ 
+     <Select
+@@ -75,7 +86,7 @@ import { FORCE_URL_PRESETS } from "../composables/useForcedState.types";
  import { FORCE_PRESET_LABELS } from "./ForcedCanvas.types";
- import config from "./ScenarioMenu.styles";
+ import { scenarioMenu } from "./ScenarioMenu.styles";
  import { SCENARIO_CHOICE, TRACK_LIVE } from "./ScenarioMenu.types";
--import { find, map, size } from "lodash-es";
-+import { find, map, size, take } from "lodash-es";
+-import { compact, filter, find, map, size, union } from "lodash-es";
++import { compact, filter, find, map, size, take, union } from "lodash-es";
  import type {
    ScenarioMenuEmits,
    ScenarioMenuProps
-@@ -142,7 +142,18 @@
-       dataAttrs: { "data-test-key": "track", "data-test-value": TRACK_LIVE }
-     },
-     handler: () => emit("select", { kind: SCENARIO_CHOICE.LIVE })
--  }
-+  },
-+  ...map(take(props.tracks, 2), track => ({
-+    type: ButtonGroupTypes.Button,
-+    active: track.slug === props.armed?.slug,
-+    props: {
-+      truncate: true,
-+      class: "max-w-40",
-+      label: track.name,
-+      dataAttrs: { "data-test-key": "track", "data-test-value": track.slug }
-+    },
-+    handler: () => emit("select", { kind: SCENARIO_CHOICE.TRACK, track })
-+  }))
- ]);
-
- const scenarios = computed(() =>

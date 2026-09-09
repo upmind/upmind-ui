@@ -87,12 +87,20 @@ Both are disclosed limitations of what the recorded fixtures could capture, not 
 **Breaking change:** both composables are now scope-based; a bare call with no `.as()` no longer resolves anything.
 
 ```ts
-// Before
-const history = useClientReceivedEmails();
-const email = useClientReceivedEmail({ emailId });
+import {
+  ScopeActorTypes,
+  useClientReceivedEmail,
+  useClientReceivedEmails
+} from "@upmind-automation/headless";
+
+const emailId = "825d96e7-63ed-0913-46c4-174825283406";
+
+// Before — both signatures are gone; neither line type-checks any more:
+//   const history = useClientReceivedEmails();
+//   const email = useClientReceivedEmail({ emailId });
 
 // After
-const history = useClientReceivedEmails().as("client");
+const history = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
 const email = useClientReceivedEmail().withId(emailId); // self actor by default
 ```
 
@@ -101,13 +109,22 @@ const email = useClientReceivedEmail().withId(emailId); // self actor by default
 **Breaking change:** both composables' state now lives behind `useMeta()` / `useContext()` rather than a single object returned alongside the data.
 
 ```ts
-// Before
-const { data, meta } = useClientReceivedEmails();
-if (meta.isLoading) …
+import {
+  ScopeActorTypes,
+  useClientReceivedEmails
+} from "@upmind-automation/headless";
+
+// Before — one object carried both the data and the state:
+//   const { data, meta } = useClientReceivedEmails();
+//   if (meta.isLoading) …
 
 // After
-const { data } = useClientReceivedEmails().as("client").useContext();
-const { isLoading } = useClientReceivedEmails().as("client").useMeta();
+const { data } = useClientReceivedEmails()
+  .as(ScopeActorTypes.CLIENT)
+  .useContext();
+const { isLoading } = useClientReceivedEmails()
+  .as(ScopeActorTypes.CLIENT)
+  .useMeta();
 ```
 
 ### Sorting
@@ -115,8 +132,16 @@ const { isLoading } = useClientReceivedEmails().as("client").useMeta();
 **Breaking change:** the caller no longer builds the wire sort parameter directly, and there is no `sort(property, direction)` method — an intermediate draft of this rebuild carried one, but it was withdrawn (see "Withdrawn" above) before this became the shipped surface.
 
 ```ts
-// Before
-useClientReceivedEmails({ sort: "-subject" });
+import {
+  ScopeActorTypes,
+  SortDirection,
+  useClientReceivedEmails
+} from "@upmind-automation/headless";
+
+const history = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
+
+// Before — the caller built the wire parameter itself:
+//   useClientReceivedEmails({ sort: "-subject" });
 
 // After
 history.useActions().setCriteria({
@@ -132,8 +157,15 @@ history.useActions().sortBy([{ field: "subject", dir: SortDirection.DESC }]);
 **Breaking change:** the caller no longer builds the wire filter object directly, and the free-text term is no longer a bare `query=` / `subject=` parameter — it is the `subject` column's own `like` operator, reached the same way every other column is.
 
 ```ts
-// Before
-const filters = { "filter[bounced]": "true", query: "invoice" };
+import {
+  ScopeActorTypes,
+  useClientReceivedEmails
+} from "@upmind-automation/headless";
+
+const history = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
+
+// Before — the caller hand-built the wire filter object:
+//   const filters = { "filter[bounced]": "true", query: "invoice" };
 
 // After
 history.useActions().setCriteria({
@@ -151,27 +183,39 @@ history
 **Breaking change:** pagination is no longer a constructor-time argument, and there is no direct jump to an arbitrary page — an earlier draft of this rebuild carried a `goToPage(page)` member, but it was withdrawn (see "Withdrawn" above) before this became the shipped surface. Walk forward or backward instead, or resize the page through the same criteria channel.
 
 ```ts
-// Before
-useClientReceivedEmails({ pagination: { offset: (urlPage - 1) * 10 } });
+import {
+  ScopeActorTypes,
+  useClientReceivedEmails
+} from "@upmind-automation/headless";
+
+// Before — pagination was a constructor-time argument:
+//   useClientReceivedEmails({ pagination: { offset: (urlPage - 1) * 10 } });
 
 // After
-const history = useClientReceivedEmails().as("client");
+const history = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
 history.useActions().nextPage(); // or .prevPage() — one page at a time
-history.useActions().setCriteria({ pagination: { limit: 25 } }); // resize the window
+history.useActions().setCriteria({ pagination: { limit: 25 } }); // resize window
 ```
 
 ### Waiting for readiness
 
 ```ts
-// Before — could hang forever once the read was gated
-await new Promise(resolve => {
-  const interval = setInterval(() => {
-    if (!meta.isLoading) {
-      clearInterval(interval);
-      resolve();
-    }
-  }, 100);
-});
+import {
+  ScopeActorTypes,
+  useClientReceivedEmails
+} from "@upmind-automation/headless";
+
+const history = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
+
+// Before — an interval poll that could hang forever once the read was gated:
+//   await new Promise(resolve => {
+//     const interval = setInterval(() => {
+//       if (!meta.isLoading) {
+//         clearInterval(interval);
+//         resolve();
+//       }
+//     }, 100);
+//   });
 
 // After — always settles
 await history.useActions().isReady();

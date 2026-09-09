@@ -1,0 +1,34 @@
+# Negative control — the topbar loses the control that opens the pane, so the
+# pane's content is absent below lg and unreachable rather than off-canvas.
+#
+# REBASED 2026-09-05 (F0 replaced `ActionPaneTrigger` with the portal's own
+# topbar button after the part left the design system). Same mutation.
+#
+# Intended RED: "composes a trigger that opens a drawer carrying the pane's
+# content, with exactly one copy in the tree"
+# (tests/action-pane-trigger-absent.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/shell/PortalFrame.vue
++++ b/apps/portal-nuxt/app/portal/shell/PortalFrame.vue
+@@ -106,21 +106,6 @@
+           <PortalSlotContent :resolved-slot="topbarMeta.right" />
+         </div>
+         <slot name="header-actions" />
+-        <!-- Only while the pane is actually off-canvas: a persistent pane at
+-             lg+ already shows its column, and a toggle whose aria-expanded
+-             flips with nothing expanded lies to assistive tech. -->
+-        <PortalButton
+-          v-if="utilityMeta.hasTrigger"
+-          variant="ghost"
+-          icon-only
+-          data-slot="action-pane-trigger"
+-          :aria-expanded="actionPaneOpen"
+-          :aria-controls="actionPaneId"
+-          :aria-label="props.actionPaneTriggerLabel"
+-          @click="actionPaneOpen = !actionPaneOpen"
+-        >
+-          <PanelRight aria-hidden="true" />
+-        </PortalButton>
+       </div>
+     </ShellHeader>
+ 

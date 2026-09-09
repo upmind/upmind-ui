@@ -1,0 +1,29 @@
+# Negative control — the resolver ignores the page's candidate keys and
+# always returns the singular fallback content (types.ts `PortalConfig.pages`,
+# OPEN-DECISION.md settled 2026-08-26).
+#
+# Intended RED: any assertion that resolve(config, { pageKeys }) resolves a
+# `pages` entry rather than `config.content`
+# (tests/resolve-page-content.test.ts).
+#
+# REBASED 2026-08-26 (page entries now merge over the shape). Same mutation.
+
+--- a/apps/portal-nuxt/app/portal/resolve.ts
++++ b/apps/portal-nuxt/app/portal/resolve.ts
+@@ -220,15 +220,7 @@
+     pageKeys ?? [],
+     pageKey => config.pages?.[pageKey] !== undefined
+   );
+-  if (matched === undefined) return config.content;
+-
+-  const page = config.pages?.[matched];
+-  if (page === undefined) return config.content;
+-
+-  // `omitBy(isUndefined)` first: an entry built by a factory carries explicit
+-  // `undefined` for the fields it never set, and those must not overwrite the
+-  // shape's own value.
+-  return assign({}, config.content, omitBy(page, isUndefined));
++  return config.content;
+ }
+ 
+ /**

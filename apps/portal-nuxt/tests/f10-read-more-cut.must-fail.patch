@@ -1,0 +1,22 @@
+# Negative control — a long notification is cut at the character limit rather
+# than at the last word before it, so the row breaks a word in half.
+#
+# Intended RED: "cuts a long body on the last space inside the limit, and says
+# there is more" (tests/sixth-closure.test.ts).
+#
+# REBASED 2026-09-06 (the no-space edge moved the cut into `lastWordEnd`).
+# Same mutation: the word boundary goes, the limit stands.
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -4481,9 +4481,7 @@
+  * (ruled: legacy's empty render is a defect, not a behaviour to clone).
+  */
+ function lastWordEnd(body: string): number {
+-  const space = body.lastIndexOf(" ", NOTIFICATION_BODY_LIMIT);
+-  if (space <= 0) return NOTIFICATION_BODY_LIMIT;
+-  return space;
++  return NOTIFICATION_BODY_LIMIT;
+ }
+ 
+ function notificationListItem(

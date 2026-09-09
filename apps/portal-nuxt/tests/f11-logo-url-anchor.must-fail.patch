@@ -1,0 +1,18 @@
+# Negative control — the header mark ignores the address the brand publishes
+# and stays the link home, so a brand with its own site loses the anchor
+# legacy gave it (`clientHeader.vue:36-42`).
+#
+# Intended RED: "sends the mark to that address where a brand publishes one,
+# and home where it does not" (tests/seventh-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/modules/brand/Brand.vue
++++ b/apps/portal-nuxt/app/portal/modules/brand/Brand.vue
+@@ -54,7 +54,7 @@
+  * outside itself, so that branch is a plain anchor rather than a link.
+  */
+ function markDestination() {
+-  const isExternal = props.href !== undefined && props.href !== "";
++  const isExternal = false;
+   if (isExternal) {
+     // `rel` and nothing else: an anchor that carried a `to` would hand the
+     // router a destination it cannot route to.

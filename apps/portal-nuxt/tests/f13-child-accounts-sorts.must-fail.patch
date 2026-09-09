@@ -1,0 +1,19 @@
+# Negative control — the child-accounts panel offers no order at all, so
+# legacy's own three sorters (`data/sorters/childAccounts.ts`: firstname,
+# lastname, created_at) reach the band as nothing: a client with a page of
+# relations can no longer put a name first.
+#
+#
+# Intended RED (verified by apply/run/revert): "orders the child accounts by
+# name and by the day they were added" (tests/ninth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -622,7 +622,6 @@
+     // (`data/filters/childAccounts.ts`: firstname, lastname, default email),
+     // which the band spells as one search box.
+     searchProps: ["name", "email"],
+-    sortOptions: CHILD_ACCOUNT_SORT_OPTIONS,
+     filterControls: CHILD_ACCOUNT_FILTER_CONTROLS
+   })
+ );

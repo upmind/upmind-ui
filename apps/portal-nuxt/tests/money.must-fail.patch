@@ -1,0 +1,20 @@
+# Negative control — the one formatter drops its pence, so every amount in the
+# portal rounds to whole pounds and no figure ever shows its decimals.
+#
+# Intended RED: "renders sterling with its sign and two decimals, zero
+# included", "renders another currency as itself, never as sterling" and
+# "mockMoney carries the figure, its currency and its display string together"
+# (tests/money.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/money.ts
++++ b/apps/portal-nuxt/app/portal/mock/money.ts
+@@ -19,7 +19,8 @@
+ export function formatMoney(amount: number, currency: string): string {
+   return new Intl.NumberFormat(MONEY_LOCALE, {
+     style: "currency",
+-    currency
++    currency,
++    maximumFractionDigits: 0
+   }).format(amount);
+ }
+ 

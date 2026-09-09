@@ -1,0 +1,16 @@
+# Negative control — the account menu swallows every pick: nothing reaches
+# the action seam, so no destination is ever named (plan Phase H).
+#
+# Intended RED: the menu's emit contract (tests/chrome-modules.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/modules/account-menu/AccountMenu.vue
++++ b/apps/portal-nuxt/app/portal/modules/account-menu/AccountMenu.vue
+@@ -43,7 +43,7 @@
+   map(props.items, item => ({
+     label: item.label,
+     value: item.value,
+-    onSelect: () => emits("select", item.value)
++    onSelect: () => undefined
+   }))
+ );
+ </script>

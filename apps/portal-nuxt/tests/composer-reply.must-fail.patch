@@ -1,0 +1,22 @@
+# Negative control — the composer drops the action verb from its emit, so
+# the dispatcher reads the MODEL as an unknown verb and every reply is a
+# silent no-op (plan Phase G).
+#
+# Intended RED: the composer emit contract
+# (tests/account-support-pages.test.ts).
+#
+# REBASED 2026-09-05 (F8 O-1 moved the reply onto the JSON tail, so the emit
+# now carries `${action}:${json}`). Same mutation: the verb goes, the payload
+# stays.
+
+--- a/apps/portal-nuxt/app/portal/modules/composer/Composer.vue
++++ b/apps/portal-nuxt/app/portal/modules/composer/Composer.vue
+@@ -76,7 +76,7 @@
+   if (body === "") return;
+   emits(
+     "select",
+-    `${props.action}:${JSON.stringify({ body, attachments: attachments.value.trim() })}`
++    `${JSON.stringify({ body, attachments: attachments.value.trim() })}`
+   );
+   draft.value = "";
+   attachments.value = "";

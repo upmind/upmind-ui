@@ -1,0 +1,39 @@
+# Negative control — the top-up raises the FIRST balance rather than the one it
+# was asked for, so the currency the client named stops selecting anything: a
+# top-up in the second currency lands in the first, and the balance the
+# movement reports is not the balance that currency was left at.
+#
+# ONE mutation, two lines, and both are needed. `held = 0` alone does not
+# discriminate: the settled money would still be minted under the currency the
+# client NAMED, so the mutant relabels the first bucket and every later
+# `find(balances, { currency })` — the assertions' own lookup included — finds
+# that bucket and agrees with itself. Keeping the slot's own currency is what
+# makes the mis-targeting observable rather than self-consistent.
+#
+# REBASED 2026-09-06 (`topUp` now takes the card that funds it). Same mutation.
+#
+#
+#
+# Intended RED (verified by apply/run/revert): "records the movement as an ADD,
+# newest first, with the total it left behind" (tests/wallet-topup-form.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockWallet.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockWallet.ts
+@@ -343,7 +343,7 @@
+       amount: number,
+       paymentDetailId?: string
+     ): MockActionReceipt<MockLedgerMovement> | undefined => {
+-      const held = findIndex(data.wallet.balances, { currency });
++      const held = 0;
+       const balance = data.wallet.balances[held];
+       if (balance === undefined) return undefined;
+       const isTooSmall = !isFinite(amount) || amount < TOP_UP_MINIMUM;
+@@ -352,7 +352,7 @@
+       }
+ 
+       const added = mockMoney(amount, currency);
+-      const settled = mockMoney(balance.amount + amount, currency);
++      const settled = mockMoney(balance.amount + amount, balance.currency);
+       data.wallet.balances.splice(held, 1, settled);
+ 
+       const movement: MockLedgerMovement = {

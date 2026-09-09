@@ -56,9 +56,19 @@ export enum ClientCustomFieldsContextTypes {
 
 /**
  * Scope matrix for `useClientCustomFields`. `client` is the only actor that
- * resolves; `staff` and `guest` are `null as never`, which makes
- * `.as('staff')` a compile-time error rather than an advertised-but-absent
- * capability.
+ * resolves; `staff` and `guest` are `null as never`.
+ *
+ * WHAT THE TYPE SYSTEM ACTUALLY ENFORCES. `ScopeBuilderResult` accepts EVERY
+ * `ScopeActorTypes` and reads the matrix row only to decide whether `.for()`
+ * exists, so a `null as never` row removes `.for(...)` and nothing else:
+ * `.as('staff')` and `.as('guest')` COMPILE, resolving to an instance with no
+ * `.for()`, and are refused at RUNTIME — with no context to name a target,
+ * `resolveClientId` falls back to the active session's own id and
+ * `isAddressable` gates the request. The compile-time errors are
+ * `.as('staff' | 'guest' | 'self').for(...)`, while `.as('client').for(...)`
+ * type-checks. A designed boundary rather than an advertised-but-absent
+ * capability. Same correction as `client-address.types.ts`, whose note carries
+ * the `ts.createProgram` probe this rests on.
  */
 export const CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,

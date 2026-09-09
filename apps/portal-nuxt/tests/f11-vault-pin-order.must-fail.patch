@@ -1,0 +1,20 @@
+# Negative control — the panels hand back the order they were given, so a
+# pinned row sits wherever it happened to be seeded and the pin buys nothing:
+# neither a row the client just pinned nor one the seed pinned reaches the
+# head of its panel.
+#
+# Intended RED: "lifts a row to the head of its panel, and lets it back down
+# where it was", "keeps every held row above every loose one, on both account
+# panels", "seats the rows the seed pinned at the head of their panels, before
+# any write", "keeps the held row above the loose one on a product's panels
+# too" (tests/seventh-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/vault-order.ts
++++ b/apps/portal-nuxt/app/portal/mock/vault-order.ts
+@@ -20,5 +20,5 @@
+ export function pinnedFirst(
+   assets: readonly MockVaultAsset[]
+ ): MockVaultAsset[] {
+-  return orderBy(assets, asset => asset.pinned === true, ["desc"]);
++  return [...assets];
+ }

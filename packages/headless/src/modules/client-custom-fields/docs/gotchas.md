@@ -8,13 +8,32 @@ The sharp edges of the definitions collection and the per-field image editor. Fo
 
 `useClientCustomFieldImage().useMeta().progress` reports `100` once the upload has completed and `0` at every other time — it never advances through an intermediate value. This is an honest signal, not a rough approximation of a real one: **no intermediate value is ever produced**, by design.
 
-```ts
-// ⚠️ Wrong: rendering a progress bar that expects intermediate values
-<ProgressBar :value="progress" /> // will only ever show 0% or 100%, never "in between"
+```vue
+<script setup lang="ts">
+import {
+  useClientCustomFieldImage,
+  ScopeActorTypes,
+  ClientCustomFieldContextTypes
+} from "@upmind-automation/headless";
 
-// ✅ Right: treat it as a boolean-shaped signal
-const { isUploading, progress } = image.useMeta();
+const fieldId = "0c9ff2c1-6d29-4f6d-9a54-1a9d5f0b3b21";
+const image = useClientCustomFieldImage()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCustomFieldContextTypes.FIELD, fieldId);
+
 // isUploading tells you "in flight or not"; progress tells you "done or not"
+const { isUploading, progress } = image.useMeta();
+</script>
+
+<template>
+  <!-- ⚠️ Wrong: a progress bar expecting intermediate values. It type-checks and
+       it renders — it just never shows anything between 0% and 100%. -->
+  <progress :value="progress" max="100" />
+
+  <!-- ✅ Right: treat the pair as boolean-shaped signals -->
+  <span v-if="isUploading">Uploading…</span>
+  <span v-else>{{ progress === 100 ? "Uploaded" : "No image yet" }}</span>
+</template>
 ```
 
 This is not a temporary rough edge to be tightened later by this module alone — three separate things would all have to change outside this module's own code before byte-level progress could ever be reported: the transport the upload goes through has no upload-progress hook at all, the upload machine's own progress event is never dispatched by anything in the tree, and the upload composable's own return value does not expose a progress field even if it were. **Do not describe incremental progress as delivered anywhere this module is documented, tested, or reviewed** — the binary signal is the honest maximum until all three of those change.
@@ -26,16 +45,31 @@ This is not a temporary rough edge to be tightened later by this module alone �
 Both scoping methods on both composables are typed against the actual enum, not against the string a member happens to resolve to. Passing a plain string that happens to equal a member's value is a type error, not a working shortcut — TypeScript enums are not structurally interchangeable with their own literal values.
 
 ```ts
-// ❌ Wrong — TS2345, not a working shortcut
-const fields = useClientCustomFields()
-  .as("client")
+import {
+  useClientCustomFields,
+  ScopeActorTypes,
+  ClientCustomFieldsContextTypes
+} from "@upmind-automation/headless";
+
+const clientId = "825d96e7-63ed-0913-46c4-174825283406";
+
+// ❌ Wrong — TS2345 on the actor: a bare string is not the enum member
+// @ts-expect-error
+useClientCustomFields().as("client");
+
+// ❌ Wrong — TS2345 on the context type, for the same reason
+useClientCustomFields()
+  .as(ScopeActorTypes.CLIENT)
+  // @ts-expect-error
   .for("custom_field_values", clientId);
 
-// ✅ Right
+// ✅ Right — both arguments are enum members
 const fields = useClientCustomFields()
   .as(ScopeActorTypes.CLIENT)
   .for(ClientCustomFieldsContextTypes.VALUES, clientId);
 ```
+
+Each `@ts-expect-error` above is the proof, not a workaround: delete a directive and the block stops compiling, because the error underneath it is real.
 
 **This bites hardest in specs and playground files**, because `__tests__/**` and the labs playground both sit outside this package's own build type-check (`tsconfig.build.json`). A string-literal call can sit in a spec or a playground page for a long time, looking like it works, because nothing in the normal build path ever type-checks it — it only surfaces under a standalone `tsc` run against those directories, or if the file is ever pulled into the checked build set. Seeing the string-literal form anywhere — including in another module's own example code — is not evidence that it typechecks; it may simply never have been checked.
 
@@ -46,13 +80,22 @@ const fields = useClientCustomFields()
 `.as(ScopeActorTypes.SELF)` resolves to the calling client — the actor-scoping builder resolves `self` to a concrete actor before either composable's matrix is even consulted. But **`.for()` and `.fresh()` are not available on the result**, on either composable in this module, because both matrices declare `self` as `null as never`. The type this produces has no way to carry a `.for()` method — this is a distinct issue from gotcha 2 above: the code here typechecks fine, it just doesn't have the method you might reach for next.
 
 ```ts
+import {
+  useClientCustomFields,
+  ScopeActorTypes,
+  ClientCustomFieldsContextTypes
+} from "@upmind-automation/headless";
+
+const clientId = "825d96e7-63ed-0913-46c4-174825283406";
+
 // ✅ Right: .as(ScopeActorTypes.SELF) alone
-const fields = useClientCustomFields().as(ScopeActorTypes.SELF);
+const selfScoped = useClientCustomFields().as(ScopeActorTypes.SELF);
 
 // ❌ Wrong: chaining .for() off SELF does not typecheck on this module
-const fields = useClientCustomFields()
+useClientCustomFields()
   .as(ScopeActorTypes.SELF)
-  .for(ClientCustomFieldsContextTypes.VALUES, clientId); // type error — no .for() on this result
+  // @ts-expect-error — no .for() on the SELF branch's type
+  .for(ClientCustomFieldsContextTypes.VALUES, clientId);
 
 // ✅ Right: name the concrete actor when you need .for()
 const fields = useClientCustomFields()
@@ -69,13 +112,53 @@ This is unrelated to whether the _runtime_ actor resolution behaves correctly �
 Most scoped composables in this codebase register with the scope system **eagerly**, at module top level, the moment the file is imported. Both composables in this module register **lazily** instead — on first call, not at import time.
 
 ```ts
-// ⚠️ The eager pattern used elsewhere in this codebase — NOT used here
-export const useSomeOtherModule = createScopedComposable("some-other-module", factory);
+import {
+  createScopedComposable,
+  ScopeActorTypes,
+  ClientCustomFieldsContextTypes,
+  type ScopeBuilder,
+  type ScopeConfig,
+  type ScopeKey
+} from "@upmind-automation/headless";
 
-// ✅ What this module does instead
-let registered: (() => ScopeBuilder<...>) | undefined;
-export function useClientCustomFields() {
-  if (!registered) registered = createScopedComposable("client-custom-fields", factory);
+const SCOPE_MATRIX = {
+  [ScopeActorTypes.SELF]: null as never,
+  [ScopeActorTypes.STAFF]: null as never,
+  [ScopeActorTypes.CLIENT]: ClientCustomFieldsContextTypes.VALUES,
+  [ScopeActorTypes.GUEST]: null as never
+} as const;
+
+/** Stand-in for this module's real per-scope factory. */
+function factory(config: ScopeConfig, scopeKey: ScopeKey) {
+  return {
+    useActions: () => ({ scopeKey }),
+    useContext: () => ({ actor: config.actor }),
+    useInternals: () => ({}),
+    useMeta: () => ({})
+  };
+}
+
+type Instance = ReturnType<typeof factory>;
+type Matrix = typeof SCOPE_MATRIX;
+
+// ⚠️ The eager pattern used elsewhere in this codebase — NOT used here
+export const useSomeOtherModule = createScopedComposable<Instance, Matrix>(
+  "some-other-module",
+  factory,
+  SCOPE_MATRIX
+);
+
+// ✅ What this module does instead — register on FIRST CALL, not at import time
+let registered: (() => ScopeBuilder<Instance, Matrix>) | undefined;
+
+export function useClientCustomFields(): ScopeBuilder<Instance, Matrix> {
+  if (!registered) {
+    registered = createScopedComposable<Instance, Matrix>(
+      "client-custom-fields",
+      factory,
+      SCOPE_MATRIX
+    );
+  }
   return registered();
 }
 ```
@@ -93,6 +176,11 @@ This is not a preference — the eager pattern is provably fatal for this module
 Every definition carries both a numeric type and a string label describing the same type. Value coercion, schema generation, and form-definition generation all branch on the **numeric** one. The numeric enum specifies all eight _types_; it says nothing about their string labels. Two of the eight possible string labels have been directly observed against real captured data; the rest are inferred from naming convention and have not been confirmed against a real definition of that type.
 
 ```ts
+import type { CustomField } from "@upmind-automation/headless";
+import { CustomFieldsTypes } from "@upmind-automation/types";
+
+declare const field: CustomField;
+
 // ⚠️ Wrong: branching on the display label
 if (field.type === "date") {
   /* … */
@@ -103,6 +191,8 @@ if (field.typeId === CustomFieldsTypes.DATE) {
   /* … */
 }
 ```
+
+`CustomFieldsTypes` is a `@upmind-automation/types` export, not one of this module's own — the headless barrel does not re-export it.
 
 The risk is not in this module's own code — it branches correctly — but in the **shared** schema/form-generation helpers this module re-exports, which key their own switches on the string label rather than the numeric one. A field whose real string label doesn't match what was assumed for it falls silently to that helper's generic default, losing whatever special handling that type was supposed to get, with no error raised anywhere.
 
@@ -130,7 +220,7 @@ Both this module and the client's own profile module read the identical underlyi
 
 ### Assuming a client id resolved into `.for(...)` is validated against the caller
 
-The context id this module's `.for(...)` takes is a plain caller-supplied value. Nothing in this contract checks locally that it matches the calling session's own client — `.as(ScopeActorTypes.CLIENT).for(ClientCustomFieldsContextTypes.VALUES, someOtherId)` compiles and addresses that other id's resource, on the caller's own session bearer. Whether the platform actually honours the request is a server-side authorization decision, not something this contract enforces or advertises. This is narrower than a staff or on-behalf-of capability: there is no way to act _as_ a different party here, and `.as('staff')` / `.as('guest')` are compile-time errors on both composables — only the entity id being named is caller-controlled, not the identity making the call.
+The context id this module's `.for(...)` takes is a plain caller-supplied value. Nothing in this contract checks locally that it matches the calling session's own client — `.as(ScopeActorTypes.CLIENT).for(ClientCustomFieldsContextTypes.VALUES, someOtherId)` compiles and addresses that other id's resource, on the caller's own session bearer. Whether the platform actually honours the request is a server-side authorization decision, not something this contract enforces or advertises. This is narrower than a staff or on-behalf-of capability: there is no way to act _as_ a different party here. Be precise about where that boundary is enforced, because it splits in two. A **bare** `.as(ScopeActorTypes.STAFF)` or `.as(ScopeActorTypes.GUEST)` **type-checks** on both composables — each matrix's `null as never` row removes `.for(...)` and nothing else — and is refused at **runtime** instead: with no context naming a target, every request resolves its client id from the active session itself and is gated by this module's own addressability check. It is `.as(ScopeActorTypes.STAFF).for(...)` that is the compile-time error. Only the entity id being named is caller-controlled, not the identity making the call.
 
 ### Serialising a value set before the aggregate image flush has run
 
@@ -141,6 +231,25 @@ A value set that still carries a raw, pending file for an IMAGE field will seria
 ### Destroy the instance when done
 
 ```ts
+import { onUnmounted } from "vue";
+import {
+  useClientCustomFields,
+  useClientCustomFieldImage,
+  ScopeActorTypes,
+  ClientCustomFieldsContextTypes,
+  ClientCustomFieldContextTypes
+} from "@upmind-automation/headless";
+
+const clientId = "825d96e7-63ed-0913-46c4-174825283406";
+const fieldId = "0c9ff2c1-6d29-4f6d-9a54-1a9d5f0b3b21";
+
+const fields = useClientCustomFields()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCustomFieldsContextTypes.VALUES, clientId);
+const image = useClientCustomFieldImage()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCustomFieldContextTypes.FIELD, fieldId);
+
 onUnmounted(() => {
   fields.useActions().destroy();
   image.useActions().destroy(); // also stops the underlying upload interpreter
@@ -150,6 +259,27 @@ onUnmounted(() => {
 ### Wait for readiness before reading
 
 ```ts
+import {
+  useClientCustomFields,
+  useClientCustomFieldImage,
+  ScopeActorTypes,
+  ClientCustomFieldsContextTypes,
+  ClientCustomFieldContextTypes
+} from "@upmind-automation/headless";
+
+const fields = useClientCustomFields()
+  .as(ScopeActorTypes.CLIENT)
+  .for(
+    ClientCustomFieldsContextTypes.VALUES,
+    "825d96e7-63ed-0913-46c4-174825283406"
+  );
+const image = useClientCustomFieldImage()
+  .as(ScopeActorTypes.CLIENT)
+  .for(
+    ClientCustomFieldContextTypes.FIELD,
+    "0c9ff2c1-6d29-4f6d-9a54-1a9d5f0b3b21"
+  );
+
 await fields.useActions().isReady();
 await image.useActions().isReady();
 ```

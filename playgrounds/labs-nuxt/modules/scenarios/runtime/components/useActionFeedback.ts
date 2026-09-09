@@ -60,12 +60,15 @@ export function useActionFeedback(
   const reported = ref<string | undefined>(undefined);
   const reportedDetail = ref<unknown>(undefined);
 
-  function report(title: string, variant: string, description?: string): void {
-    toast(title, {
-      description,
-      // @ts-expect-error -- `type` is omitted from ExternalToast but the toast component does accept it
-      type: variant
-    });
+  // The named variants ARE the typed surface: `type` is absent from
+  // `ExternalToast` on purpose, so the tone rides the method rather than a
+  // property the signature does not carry.
+  function report(
+    title: string,
+    variant: "error" | "success",
+    description?: string
+  ): void {
+    toast[variant](title, { description });
   }
 
   /**

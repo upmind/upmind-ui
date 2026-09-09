@@ -46,13 +46,14 @@ upmind-monorepo/
 │                   └── useBasket.ts
 │
 └── tests/
-    ├── e2e-tests/
-    │   ├── checkout.spec.ts
-    │   ├── login.spec.ts
-    │   └── product-selection.spec.ts
+    ├── Playwright/
+    │   ├── specs/        # checkout, login, product-selection
+    │   ├── e2e/
+    │   └── features/
     │
-    └── visual-regression/
-        └── cart-pages.spec.ts
+    ├── journeys/
+    ├── fixtures/
+    └── quarantine/
 ```
 
 ---
@@ -61,34 +62,35 @@ upmind-monorepo/
 
 ### Configuration
 
-```typescript
+```ts
 // vitest.config.ts
+import { defineConfig } from 'vitest/config'
+
 export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-    },
-  },
+      reporter: ['text', 'json', 'html']
+    }
+  }
 })
 ```
 
 ### Example Test
 
-```typescript
-// packages/headless/src/modules/basket/__tests__/utils.test.ts
-import { describe, it, expect } from 'vitest'
-import { calculateTotal } from '../utils'
+```ts
+// packages/headless/src/modules/basket/__tests__/basket.utils.test.ts
+import { describe, expect, it } from 'vitest'
+
+// The unit under test — imported from the module's own utils in a real spec.
+declare function calculateTotal(products: { price: number }[]): number
 
 describe('calculateTotal', () => {
   it('sums product prices correctly', () => {
-    const products = [
-      { price: 10.00 },
-      { price: 25.50 },
-    ]
-    expect(calculateTotal(products)).toBe(35.50)
+    const products = [{ price: 10.0 }, { price: 25.5 }]
+    expect(calculateTotal(products)).toBe(35.5)
   })
 
   it('returns 0 for empty array', () => {
@@ -116,27 +118,29 @@ pnpm vitest
 
 ### Configuration
 
-```typescript
+```ts
 // playwright.config.ts
+import { defineConfig, devices } from '@playwright/test'
+
 export default defineConfig({
-  testDir: './tests',
+  testDir: './tests/Playwright',
   fullyParallel: true,
   projects: [
     { name: 'chrome', use: { ...devices['Desktop Chrome'] } },
     { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-    { name: 'safari', use: { ...devices['Desktop Safari'] } },
+    { name: 'safari', use: { ...devices['Desktop Safari'] } }
   ],
   webServer: {
     command: 'pnpm --filter cart dev',
-    port: 5173,
-  },
+    port: 5173
+  }
 })
 ```
 
 ### Example Test
 
 ```typescript
-// tests/e2e-tests/checkout.spec.ts
+// tests/Playwright/specs/checkout.spec.ts
 import { test, expect } from '@playwright/test'
 
 test('complete checkout flow', async ({ page }) => {
@@ -181,7 +185,7 @@ pnpm test:ui
 ### Example
 
 ```typescript
-// tests/visual-regression/cart-pages.spec.ts
+// tests/Playwright/specs/cart-pages.spec.ts
 import { test, expect } from '@playwright/test'
 
 test('product listing page', async ({ page }) => {

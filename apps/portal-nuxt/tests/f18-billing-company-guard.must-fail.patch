@@ -1,0 +1,19 @@
+# Negative control — the billing company is written without checking the
+# account holds it, so a product can be invoiced as a company that does not
+# exist: the address write asks the same question, and so must this one.
+#
+# Intended RED (to be added by the prover): a company the account does not
+# hold is refused, and the product is left as it was.
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
+@@ -852,9 +852,6 @@
+       ): MockActionReceipt<MockProduct> | undefined => {
+         const subject = product();
+         if (subject === undefined) return undefined;
+-        if (find(data.companies, { id: billingCompanyId }) === undefined) {
+-          return undefined;
+-        }
+         assign(subject, { billingCompanyId });
+         return { ok: true, entity: subject };
+       },

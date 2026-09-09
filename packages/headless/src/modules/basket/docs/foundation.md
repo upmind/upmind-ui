@@ -44,6 +44,22 @@ Additional always-on behaviours (not endpoints):
 ### Basket — `IBasket`
 
 ```ts
+// The related records the basket record carries inline. Each is the platform's
+// own shipped shape, so this doc's Basket cannot drift from them; the ones with
+// their own section below are spelled out there in full.
+import type {
+  IAddress as Address,
+  IAppliedTax as AppliedTax,
+  IBasketProduct as BasketProduct,
+  IBasketPromotion as BasketPromotion,
+  ICompany as Company,
+  ICurrency as Currency,
+  ICustomFieldValue as CustomFieldValue,
+  IPhone as Phone,
+  IStatus as Status,
+  IWarningNote as WarningNote
+} from "@upmind-automation/types";
+
 // Returned by GET /orders/current and GET /orders/{id}, also by POST /orders and
 // PATCH /orders/{id}. The same shape is the response from many basket mutations.
 type Basket = {
@@ -193,6 +209,14 @@ type BasketCategory = {
 ### Basket product — `IBasketProduct`
 
 ```ts
+// The catalogue snapshot and tags a line item carries inline — the platform's
+// own shipped shapes. `Product` is spelled out in the product module's own
+// foundation doc.
+import type {
+  IProduct as Product,
+  ITag as Tag
+} from "@upmind-automation/types";
+
 type BasketProduct = {
   id: string; // line-item id (stable across refreshes)
   invoice_id: string; // basket id (same value)
@@ -378,6 +402,10 @@ The two cannot be distinguished by the note shape alone — the caller must corr
 ### Applied tax — `IAppliedTax`
 
 ```ts
+// The currency record both shapes below carry inline — the platform's own
+// shipped shape.
+import type { ICurrency as Currency } from "@upmind-automation/types";
+
 type AppliedTax = {
   id: string;
   invoice_id: string; // basket id
@@ -424,6 +452,10 @@ type TaxTagDetail = {
 ### Bodies for mutations
 
 ```ts
+// The per-basket field value the fields body carries — the platform's own
+// shipped shape.
+import type { ICustomFieldValue as CustomFieldValue } from "@upmind-automation/types";
+
 // PATCH /orders/{id}/currency
 type SetCurrencyBody = { currency_code: string };
 

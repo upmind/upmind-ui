@@ -1,0 +1,30 @@
+# Negative control — the resend and retry verbs run the write again instead of
+# refusing it, so a client's own log sends messages the desk is meant to send
+# and the history grows a copy nobody asked for.
+#
+# Intended RED: "refuses both verbs as ours to run, and writes nothing, on
+# either brand" (tests/seventh-closure.test.ts); "appends nothing, and leaves
+# the message it names where it stands", "refuses it as ours to run, and names
+# nothing it sent", "refuses either message, whatever its standing, and leaves
+# it where it stands" (tests/email-history-actions.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/actions.ts
++++ b/apps/portal-nuxt/app/portal/mock/actions.ts
+@@ -2938,7 +2938,16 @@
+     // that this is not the client's to do.
+     case MOCK_ACTION.EMAIL_RESEND:
+     case MOCK_ACTION.EMAIL_RETRY: {
+-      return refusal(MOCK_RECEIPT_REASON.NOT_PERMITTED);
++      const emailId = id ?? context.entityId;
++      if (emailId === undefined) return undefined;
++      const receipt = useMockReceivedEmail(data, emailId).useActions().resend();
++      return fromReceipt(receipt, copy => ({
++        toast: {
++          intent: MOCK_TOAST_INTENT.SUCCESS,
++          title: "Email sent again",
++          description: copy.subject
++        }
++      }));
+     }
+     case MOCK_ACTION.AFFILIATE_ENROL: {
+       const receipt = useMockAffiliate(data).useActions().enrol();

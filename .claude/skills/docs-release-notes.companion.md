@@ -45,13 +45,17 @@ tests/|\.lock|submodule|locales/
 
 ## House format (overrides the base Step 5 template)
 
-The corpus in `docs/release-notes/` is the authority — read a recent entry before writing. It differs from the base template:
+The house format is the authority. Past entries are in the Linear releases surface; `docs/release-notes/` was removed from the monorepo (MR !566) — release notes are not repo artefacts. It differs from the base template:
 
 - H1 is `# Release Notes — Cart vX.Y.Z`, followed by a one-line `>` blockquote summary.
 - Section headings are `## ✨ New Features`, `## 🐛 Bug Fixes`, `## 🔧 Under the hood` — **`Under the hood`, not the base's `Improvements`**. Features and fixes carry `###` sub-headings with a prose paragraph; under-the-hood is a plain bullet list.
 - Footer is `*Hotfix on top of vX.Y.Z. References: FE-NNNN.*` — not the base's `*[N] changes across [areas].*`. Drop the "Hotfix on top of" clause for a non-hotfix release.
 - Prose, not bullets, for customer-facing entries; no internal symbol or file names.
 
-## Output directory (base Step 7)
+## Output (base Step 7) — Linear, not the repo
 
-Save release notes to `docs/release-notes/` in the monorepo. Example untracked-change module paths in this repo look like `packages/client-vue/src/modules/billing/` and `packages/headless/src/modules/basket/`.
+Release notes live in **Linear**, never in the monorepo. Attach the generated notes to the matching Linear release via the Linear MCP (`save_release_note`), so they sit beside the release they describe.
+
+`docs/release-notes/` was deleted in MR !566: a release note is a published statement about a version, not source that ships with it, so it has no business in git history.
+
+Example untracked-change module paths in this repo look like `packages/client-vue/src/modules/billing/` and `packages/headless/src/modules/basket/`.

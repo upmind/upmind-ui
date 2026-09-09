@@ -21,22 +21,29 @@ nothing else.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRail.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRail.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRail.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRail.vue
-@@ -1,15 +1,25 @@
+@@ -1,24 +1,25 @@
  <template>
 -  <Stepper
 +  <ol
      ref="rail"
--    :steps="steps"
+-    :items="steps"
 -    :model-value="step"
 -    :linear="false"
 -    :ui="uiConfig"
      :aria-label="t('labs.scene_rail')"
      data-test-key="scene-rail"
--    :class="sceneRail.root()"
+     :class="sceneRail.root()"
 -    @update:model-value="scrub"
--  />
-+    :class="sceneRail.root()"
-+  >
+   >
+-    <!-- The stop's `title` is a HOVER affordance: it reaches no keyboard and no
+-         screen reader, so a rail of numbered dots announced nothing but its
+-         numbers. The sentence rides an sr-only label instead — the dots-only
+-         drawing (operator ruling) is untouched, since `sr-only` takes the
+-         label out of flow. -->
+-    <template #step="{ step: stop }">
+-      <span class="sr-only">{{ sceneText(stop.step) }}</span>
+-    </template>
+-  </Stepper>
 +    <li
 +      v-for="(scene, index) in scenes"
 +      :key="scene.line"
@@ -49,18 +56,9 @@ diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/SceneRai
 +      >
 +        {{ index + 1 }}
 +      </button>
-+      <span :class="sceneRail.title()">{{ scene.text }}</span>
++      <span class="sr-only">{{ scene.text }}</span>
 +    </li>
 +  </ol>
  </template>
-
+ 
  <script lang="ts" setup>
-@@ -38,7 +48,7 @@
-
- import { computed, nextTick, useTemplateRef, watch } from "vue";
- import { useI18n } from "vue-i18n";
--import { Stepper } from "@upmind/ui";
-+// Stepper removed by mutant
- import { sceneRail } from "./SceneRail.styles";
- import { map } from "lodash-es";
- import type { SceneRailProps } from "./SceneRail.types";

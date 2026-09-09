@@ -293,6 +293,16 @@ describe("T4.6 the scene rail IS the ui Stepper (AC2.5)", () => {
     expect(size(wrapper.findAllComponents(Stepper))).toBe(1);
   });
 
+  // H2: the playing treatment is the primary family the whole way along. A
+  // warning coat on the played track reads as a fault rather than as progress.
+  // Negative control: `transport.warning-treatment.must-fail.patch`.
+  it("coats the played track in the primary family, never a warning one", () => {
+    const { wrapper } = railHost();
+
+    expect(wrapper.html()).toContain("bg-primary");
+    expect(wrapper.html()).not.toMatch(/bg-warning|text-warning/);
+  });
+
   it("gives it one step per scene", () => {
     const { wrapper } = railHost();
 

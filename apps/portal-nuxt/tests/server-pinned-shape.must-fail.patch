@@ -1,0 +1,31 @@
+# Negative control — reads the `useRuntimeConfig` AUTO-IMPORT off globalThis,
+# where it does not live in the browser. This is the defect exactly as it
+# shipped: the pin resolves to nothing, every server serves the default shape,
+# and nothing throws.
+#
+# NOTE ON WHAT THIS GRADES. The precedence tests in this file CANNOT catch it —
+# they supply the stub as a global, so the broken read finds it and all seven
+# pass. Confirmed by running them under this patch. Only the source-shape
+# assertion discriminates, which is why that assertion exists and why it is
+# written against comment-stripped code.
+#
+# Intended RED: usePortalConfig — reads the runtime config the way Nuxt provides it
+#   > calls the useRuntimeConfig auto-import, never a global lookup
+
+diff --git a/apps/portal-nuxt/app/composables/usePortalConfig.ts b/apps/portal-nuxt/app/composables/usePortalConfig.ts
+--- a/apps/portal-nuxt/app/composables/usePortalConfig.ts
++++ b/apps/portal-nuxt/app/composables/usePortalConfig.ts
+@@ -67,9 +67,11 @@
+  * for this app's own unit tests, which stub Nuxt globals rather than run Nuxt.
+  */
+ function runtimeDefaultConfigId(): PortalConfigId | undefined {
+-  if (typeof useRuntimeConfig !== "function") return undefined;
++  const g = globalThis as { useRuntimeConfig?: () => unknown };
++  if (typeof g.useRuntimeConfig !== "function") return undefined;
+ 
+-  const pinned = useRuntimeConfig().public?.["portalConfig"];
++  const pinned = (g.useRuntimeConfig() as { public?: Record<string, unknown> })
++    .public?.["portalConfig"];
+   if (pinned === undefined || pinned === "") return undefined;
+   if (isPortalConfigId(pinned)) return pinned;
+ 

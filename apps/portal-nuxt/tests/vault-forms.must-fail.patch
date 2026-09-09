@@ -1,0 +1,19 @@
+# Negative control — a created note or secret is attached to no product
+# whatever scope the form was opened in, so a product's own panel writes an
+# account-wide row.
+#
+# Intended RED: "attaches a product secret to that product, and stands on its
+# panel alone" (tests/vault-forms.test.ts).
+
+diff --git a/apps/portal-nuxt/app/portal/mock/facades/useMockVault.ts b/apps/portal-nuxt/app/portal/mock/facades/useMockVault.ts
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockVault.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockVault.ts
+@@ -39,7 +39,7 @@ export const useMockVault = defineMockFacade(
+         note: submittedText(model, "value"),
+         encrypted: scope.encrypted,
+         client_id: data.persona.id,
+-        contract_product_id: scope.contractProductId ?? null,
++        contract_product_id: null,
+         created_at: stamped,
+         updated_at: stamped
+       };

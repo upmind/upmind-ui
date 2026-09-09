@@ -1,0 +1,21 @@
+# Negative control — the affiliate links panel reads ONE count under the
+# other's key, so both bands legacy published (`filters/affiliate.ts`:
+# `visit_count`, `referral_count`) answer wrongly: asking for the links that
+# brought referrals in narrows by visits instead, and the visits band goes
+# inert.
+#
+# Intended RED (to be added by the prover): "bands the links by how many
+# visits and how many referrals each one brought".
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -780,8 +780,7 @@
+   criteria: MockFilterCriteria
+ ): boolean {
+   return (
+-    matchesCountBand(link.clicks, criteria.visits) &&
+-    matchesCountBand(link.signups, criteria.referrals) &&
++    matchesCountBand(link.clicks, criteria.referrals) &&
+     matchesDateRange(link.createdAt, criteria.dateCreated)
+   );
+ }

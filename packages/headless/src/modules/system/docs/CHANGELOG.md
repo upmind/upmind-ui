@@ -38,14 +38,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 **Before (sync getter usable anywhere):**
 
-```typescript
+```ts
+import { useSystem } from "@upmind-automation/headless";
+
 const { getCountry } = useSystem();
 const code = getCountry()?.code; // worked because of eager fetch
 ```
 
 **After (must ensure upstream):**
 
-```typescript
+```ts
+import { useSystem } from "@upmind-automation/headless";
+
 // In the machine load service:
 const { ensureCountries } = useSystem();
 await ensureCountries();

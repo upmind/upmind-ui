@@ -1,0 +1,20 @@
+# Negative control — the pre-paint head script reads a brand key that useTheme
+# never writes, so a stored brand is never restored before first paint.
+#
+# Intended RED:
+#   served head — pre-paint theme restore > restores a stored brand onto <html> before paint
+#   served head — pre-paint theme restore > restores brand and mode together
+
+diff --git a/apps/portal-nuxt/nuxt.config.ts b/apps/portal-nuxt/nuxt.config.ts
+index 6b26333f2d..78def04f41 100644
+--- a/apps/portal-nuxt/nuxt.config.ts
++++ b/apps/portal-nuxt/nuxt.config.ts
+@@ -104,7 +104,7 @@ export default defineNuxtConfig({
+       ;(function () {
+         try {
+           var root = document.documentElement
+-          var theme = localStorage.getItem('upmind-portal-theme')
++          var theme = localStorage.getItem('upmind-theme')
+           if (theme) root.setAttribute('data-theme', theme)
+           var mode = localStorage.getItem('upmind-portal-mode')
+           var dark =

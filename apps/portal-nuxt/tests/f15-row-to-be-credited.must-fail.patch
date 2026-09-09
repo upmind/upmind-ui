@@ -1,0 +1,25 @@
+# Negative control — the compact ROW stops reporting the coming credit, so
+# the one surface legacy asked for it on (`invoiceRowItem.vue:317`,
+# `relativeInvoiceStatus.vue:44`, `orderRowItem.vue:277` all pass
+# `showToBeCredited` true) reads a to-be-credited invoice as plainly unpaid.
+#
+#
+# Intended RED (verified by apply/run/revert): "an invoice row reads To be
+# credited while it is owed and standing behind a pro-rata change", "an
+# order's invoice rows read it too, and drop it once the document settles" and
+# "the document banner words a to-be-credited invoice as unpaid, with its due
+# date and balance" (tests/eleventh-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockInvoice.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockInvoice.ts
+@@ -683,9 +683,7 @@
+   readonly label: string;
+   readonly tone: StatusTone;
+ } {
+-  if (invoice.toBeCredited === true && isInvoiceOwed(invoice)) {
+-    return { label: "To be credited", tone: "info" };
+-  }
++
+   return {
+     label: INVOICE_STATUS_LABEL[invoice.status],
+     tone: INVOICE_STATUS_TONE[invoice.status]

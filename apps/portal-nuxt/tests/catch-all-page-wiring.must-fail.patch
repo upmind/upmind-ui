@@ -1,0 +1,30 @@
+# Negative control — the catch-all page stops checking the resolution before
+# navigating, so it replace-navigates to `/` on EVERY resolution, including a
+# matched product group, product page or configured custom area (design.md §D9
+# consequence 1, AC1.5, tasks.md 1.8/1.10d).
+#
+# Retargets the page's own wiring, not the pure resolver:
+# catch-all-custom-area.must-fail.patch already guards resolveCatchAll()
+# itself (routes.ts) against the custom-area lookup emptying out; this one
+# guards [...slug].vue's use of that result — that a resolved (non-
+# "unmatched") route is left alone rather than navigated away from.
+#
+# Intended RED:
+#   catch-all page — a matched product group renders and does not fall back >
+#   renders the group's listing heading and never calls navigateTo
+#   catch-all page — a matched custom area renders and does not fall back >
+#   (tests/catch-all-page-custom-area.test.ts)
+#
+# REBASED 2026-09-03 (Phase 6 replaced the unmatched branch's navigation with
+# the not-found page). Same mutation: navigating whatever the resolution is.
+
+--- a/apps/portal-nuxt/app/pages/[...slug].vue
++++ b/apps/portal-nuxt/app/pages/[...slug].vue
+@@ -45,6 +45,7 @@
+ watch(
+   resolution,
+   async current => {
++    await navigateTo("/", { replace: true });
+     if (current.kind === "unmatched") return;
+     // A client who owns exactly one product in the group has no listing to
+     // read; `replace` so Back still leaves the pillar rather than bouncing

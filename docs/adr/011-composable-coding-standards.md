@@ -35,21 +35,36 @@ Establish strict composable coding standards (originally documented in the `DEVX
 
 Group returns in this order:
 
-```typescript
-return {
-  // --- state
-  isReady,
-  meta,
-  value,
+```ts
+import type { ComputedRef } from 'vue'
+import type { IBasket } from '@upmind-automation/types'
+import type { ResponseError } from '@upmind-automation/headless'
 
-  // --- context
-  basket,
-  errors,
+declare const isReady: () => Promise<boolean>
+declare const meta: ComputedRef<{ isLoading: boolean }>
+declare const value: ComputedRef<string[] | undefined>
+declare const basket: ComputedRef<IBasket | undefined>
+declare const errors: ComputedRef<ResponseError | undefined>
+declare const add: (id: string) => Promise<void>
+declare const remove: (id: string) => Promise<void>
+declare const refresh: () => Promise<void>
 
-  // --- methods
-  add,
-  remove,
-  refresh,
+export const useBasket = () => {
+  return {
+    // --- state
+    isReady,
+    meta,
+    value,
+
+    // --- context
+    basket,
+    errors,
+
+    // --- methods
+    add,
+    remove,
+    refresh
+  }
 }
 ```
 
@@ -57,59 +72,80 @@ return {
 
 JSDoc **only** above properties in the return object:
 
-```typescript
-return {
-  /**
-   * Waits for the machine to be ready.
-   * @returns {Promise<boolean>}
-   */
-  isReady,
+```ts
+import type { IProduct } from '@upmind-automation/types'
 
-  /**
-   * Adds an item to the basket.
-   * @param {Product} product - The product to add.
-   */
-  add,
+declare const isReady: () => Promise<boolean>
+declare const add: (product: IProduct) => Promise<void>
+
+export const useBasket = () => {
+  return {
+    /**
+     * Waits for the machine to be ready.
+     * @returns {Promise<boolean>}
+     */
+    isReady,
+
+    /**
+     * Adds an item to the basket.
+     * @param {IProduct} product - The product to add.
+     */
+    add
+  }
 }
 ```
 
 ### 3. Meta Object Pattern
 
-```typescript
+```ts
+import { stateMatches } from '@upmind-automation/headless'
+import type { UseActor } from '@upmind-automation/headless'
+import type { IBasket } from '@upmind-automation/types'
+import { isEmpty } from 'lodash-es'
+import { computed } from 'vue'
+import type { ComputedRef } from 'vue'
+
+declare const state: UseActor['state']
+declare const basket: ComputedRef<IBasket | undefined>
+
 /**
  * @typedef {Object} BasketMeta
  * @property {boolean} isLoading - True while loading
  * @property {boolean} hasItems - True if basket has items
  * @property {boolean} canCheckout - True if checkout allowed
  */
-const meta = computed(() => ({
+export const meta = computed(() => ({
   isLoading: stateMatches(state, ['loading']),
   hasItems: !isEmpty(basket.value?.products),
-  canCheckout: basket.value?.products?.length > 0,
+  canCheckout: (basket.value?.products?.length ?? 0) > 0
 }))
 ```
 
 ### 4. isReady Pattern
 
-```typescript
-async function isReady(): Promise<boolean> {
-  return waitFor(
-    service,
-    state => !stateMatches(state, ['loading']),
-    { timeout: Infinity }
-  ).then(state => {
-    if (stateMatches(state, ['error'])) return false
-    return true
-  })
+```ts
+import { interpret, paymentMachine, stateMatches } from '@upmind-automation/headless'
+import { waitFor } from 'xstate/lib/waitFor'
+
+const service = interpret(paymentMachine, { devTools: true })
+
+export async function isReady(): Promise<boolean> {
+  return waitFor(service, state => !stateMatches(state, ['loading']), {
+    timeout: Infinity
+  }).then(state => !stateMatches(state, ['error']))
 }
 ```
 
 ### 5. Export Return Type
 
-```typescript
+```ts
+import type { ComputedRef } from 'vue'
+import type { IBasket } from '@upmind-automation/types'
+
+declare const basket: ComputedRef<IBasket | undefined>
+
 export const useBasket = () => {
-  // ...
-  return { /* ... */ }
+  return { basket }
 }
 
 export type UseBasket = ReturnType<typeof useBasket>
@@ -135,16 +171,22 @@ export type UseBasket = ReturnType<typeof useBasket>
 
 Always use Upmind utilities:
 
-```typescript
-// ✅ CORRECT
-import { useContext, stateMatches, contextValue } from '@/utils'
+```ts
+import { stateMatches, useContext } from '@upmind-automation/headless'
+import type { UseActor } from '@upmind-automation/headless'
+import type { IBasket } from '@upmind-automation/types'
 
-const basket = useContext(state, 'basket')
+declare const state: UseActor['state']
+
+// ✅ CORRECT
+const basket = useContext<IBasket>(state, 'basket')
 const isLoading = stateMatches(state, ['loading'])
 
 // ❌ WRONG
-const basket = state.value.context.basket
-const isLoading = state.value.matches('loading')
+const rawBasket = state.value.context.basket
+const rawIsLoading = state.value.matches('loading')
+
+export const reads = { basket, isLoading, rawBasket, rawIsLoading }
 ```
 
 ---

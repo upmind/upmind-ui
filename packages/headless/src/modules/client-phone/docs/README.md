@@ -19,24 +19,38 @@ The module ships **two composables**, because reading a list and filling in a fo
 
 Both always manage the **calling client's own** book. There is no capability here to open or edit someone else's.
 
-> **🧪 For Testers:** Both composables support the client's own (`self`) scope only. `staff` and `guest` are compile-time errors — there is nothing in this module for a staff member to reach another client's phone numbers. Staff phone management is a real capability the platform has elsewhere; it is tracked, not delivered here — see [gotchas.md](./gotchas.md#13-staff-phone-management-is-not-delivered-here--its-tracked-not-forgotten).
+> **🧪 For Testers:** Both composables support the client's own (`self`) scope only. `staff` and `guest` resolve no context in either scope matrix, so naming another client as staff is a compile-time error — there is nothing in this module for a staff member to reach another client's phone numbers. Staff phone management is a real capability the platform has elsewhere; it is tracked, not delivered here — see [gotchas.md](./gotchas.md#13-staff-phone-management-is-not-delivered-here--its-tracked-not-forgotten).
 
 ## Quick Start
 
 ```ts
 import {
+  ScopeActorTypes,
   useClientPhones,
-  useClientPhoneManager
+  useClientPhoneManager,
+  type ClientPhoneContextTypes,
+  type ScopeBuilderActorWithContexts,
+  type UseClientPhoneManager
 } from "@upmind-automation/headless";
 
-// --- The collection: read the list, promote a verified-looking number
-const phones = useClientPhones().as("self");
+// `.as(SELF)` erases `.for()` / `.fresh()` from the builder's TYPE — SELF is
+// `never` in the scope matrix. Every live consumer bridges it with this cast;
+// see gotchas.md #11.
+type ScopedPhoneManager = ScopeBuilderActorWithContexts<
+  ReturnType<UseClientPhoneManager["fresh"]>,
+  ClientPhoneContextTypes
+>;
+
+// --- The collection: read the list, promote a number to the default
+const phones = useClientPhones().as(ScopeActorTypes.SELF);
 const { data } = phones.useContext(); // the reactive list you render
 await phones.useActions().isReady();
 await phones.useActions().setDefault("some-phone-id");
 
 // --- The editor: add a new number through the validated form
-const draft = useClientPhoneManager().as("self").fresh();
+const draft = (
+  useClientPhoneManager().as(ScopeActorTypes.SELF) as ScopedPhoneManager
+).fresh();
 await draft.useActions().isReady();
 await draft.useActions().update({
   phone: {
@@ -60,7 +74,7 @@ The editor's save invalidates the shared cache, so an open collection picks the 
 | Delete                                 | `useClientPhones().useActions().remove()`                    | Removes a deletable number; confirms success or failure by message |
 | Set default                            | `…useActions().setDefault()`                                 | Promotes a number to the default; confirms success or failure      |
 | Find or create                         | `…useActions().ensure()`                                     | Resolves an existing match, or creates the number if absent        |
-| Filter                                 | `…useActions().filters.query()`                              | Narrows the list to a search term                                  |
+| Filter                                 | `…useActions().filterBy()`                                   | Narrows the list to a search term                                  |
 | Add a new number                       | `useClientPhoneManager().as('self').fresh()` then `update()` | Creates through the validated form                                 |
 | Change a number                        | `…for('phone', id)` then `update()`                          | Edits through the validated form                                   |
 | Validate as the client types           | `…useActions().input()` + `useMeta().isValid`                | Reports acceptance and which part is wrong                         |

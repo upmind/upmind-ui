@@ -1,0 +1,20 @@
+# Negative control — the referrals table offers no order at all, so legacy's
+# own referral-date sorter (`affiliateReferralsTable.vue:9-21,269-275`), which
+# read the list from either end, is gone.
+#
+#
+# Intended RED (verified by apply/run/revert): "orders the referrals by the
+# day they landed, both ways round" (tests/twelfth-closure.test.ts); "shows
+# each referral as the anonymised row legacy showed" (tests/affiliate.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -856,7 +856,7 @@
+   undefined,
+   data => ({
+     searchProps: ["client"],
+-    sortOptions: AFFILIATE_REFERRAL_SORTS,
++
+     filterControls: affiliateReferralControls(data)
+   })
+ );

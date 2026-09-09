@@ -29,6 +29,7 @@
  * does not match passes through (`AC8.3`).
  */
 
+import { isAbsentRecordRead, isServedRead } from "./capabilities";
 import {
   compact,
   filter,
@@ -46,7 +47,6 @@ import {
   values,
   words
 } from "lodash-es";
-import { isAbsentRecordRead, isServedRead } from "./capabilities";
 import type { RecordedFixture } from "./corpus.source.types";
 
 // -----------------------------------------------------------------------------

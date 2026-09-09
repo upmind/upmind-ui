@@ -6,17 +6,17 @@
 
 Access all products in the basket.
 
-```typescript
+```ts
 import { useBasketProducts } from "@upmind-automation/headless";
 
 const { products, configure, remove } = useBasketProducts();
 ```
 
-| Return      | Type                                  | Description                                |
-| ----------- | ------------------------------------- | ------------------------------------------ |
-| `products`  | `Ref<BasketProduct[]>`                | All parsed basket products                 |
-| `configure` | `(id: string, opts?) => ConfigureAPI` | Spawn product machine for a basket product |
-| `remove`    | `(id: string) => Promise<void>`       | Remove a product from the basket           |
+| Return      | Type                                        | Description                                |
+| ----------- | ------------------------------------------- | ------------------------------------------ |
+| `products`  | `ComputedRef<BasketProduct[] \| undefined>` | All parsed basket products                 |
+| `configure` | `(id, opts?) => Promise<UseBasketProduct>`  | Spawn product machine for a basket product |
+| `remove`    | `(id: string) => Promise<void>`             | Remove a product from the basket           |
 
 ---
 
@@ -24,19 +24,25 @@ const { products, configure, remove } = useBasketProducts();
 
 Per-product inline editing composable. See [Inline Editing](./inline-editing.md) for full details on meta flags, upsell visibility, and auto-save flow.
 
-```typescript
-import { useBasketProductInline } from "@upmind-automation/headless";
+```ts
+import {
+  useBasketProductInline,
+  useBasketProducts
+} from "@upmind-automation/headless";
+
+const { products } = useBasketProducts();
+const [basketProduct] = products.value ?? [];
 
 const { meta, configure, filterUpsellOptions, resolveUpsells } =
   useBasketProductInline(basketProduct.id);
 ```
 
-| Return                | Type                                 | Description                                                             |
-| --------------------- | ------------------------------------ | ----------------------------------------------------------------------- |
-| `meta`                | `ComputedRef<InlineMeta>`            | Inline control visibility flags                                         |
-| `configure`           | `() => ConfigureAPI`                 | Spawns the product machine with `allowMultipleEdits`                    |
-| `filterUpsellOptions` | `(options) => SubproductDetails[]`   | Filters to upsell-eligible option groups                                |
-| `resolveUpsells`      | `(config?) => BasketOptionSummary[]` | Resolves upsell summaries from the config's persisted (baseModel) state |
+| Return                | Type                                           | Description                                                                                                                |
+| --------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `meta`                | `ComputedRef<InlineMeta>`                      | Inline control visibility flags                                                                                            |
+| `configure`           | `() => ConfigureAPI`                           | Spawns the product machine with `allowMultipleEdits`                                                                       |
+| `filterUpsellOptions` | `(options) => SubproductDetails[]`             | Filters to upsell-eligible option groups                                                                                   |
+| `resolveUpsells`      | `(config?) => { upsell, option, benefits? }[]` | Resolves upsell summaries — each paired with its option group and benefits — from the config's persisted (baseModel) state |
 
 ---
 
@@ -44,15 +50,16 @@ const { meta, configure, filterUpsellOptions, resolveUpsells } =
 
 ### `BasketProduct`
 
-Extends `Product`. Guaranteed to have an `id` and optional `serviceIdentifier`.
+Extends `Product`, so it carries `availableTerms`, `availableOptions` and `upsells` from there. It adds only the three members below.
 
-```typescript
+```ts
+import type { Product } from "@upmind-automation/headless";
+import type { IProduct } from "@upmind-automation/types";
+
 interface BasketProduct extends Product {
   id: string;
   serviceIdentifier?: string;
-  availableTerms?: TermDetails[];
-  availableOptions?: SubproductDetails[];
-  upsells?: ProductSummaryDetailWithPrice[];
+  product?: IProduct; // the raw API product, for conditional-rule lookups
 }
 ```
 
@@ -60,7 +67,12 @@ interface BasketProduct extends Product {
 
 A product summary detail enriched with basket-specific toggle metadata.
 
-```typescript
+```ts
+import type {
+  OptionToggleMeta,
+  ProductSummaryDetailWithPrice
+} from "@upmind-automation/headless";
+
 type BasketOptionSummary = ProductSummaryDetailWithPrice & {
   toggle?: OptionToggleMeta;
   min?: number;
@@ -73,7 +85,7 @@ type BasketOptionSummary = ProductSummaryDetailWithPrice & {
 
 Toggle state for an option switch in the basket.
 
-```typescript
+```ts
 type OptionToggleMeta = {
   categoryId: string; // Option category ID
   valueId: string; // Selected value ID
@@ -87,7 +99,9 @@ type OptionToggleMeta = {
 
 Payload shape for adding/updating a product in the basket API.
 
-```typescript
+```ts
+import type { IBasketSubproductModel } from "@upmind-automation/headless";
+
 interface IBasketProductModel {
   product_id: string;
   quantity: number;

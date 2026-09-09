@@ -35,7 +35,7 @@ Adopt a **headless architecture** with three distinct package layers:
                     │                       │
                     ▼                       ▼
 ┌─────────────────────────┐   ┌─────────────────────────────┐
-│ @upmind-automation/ui   │   │ @upmind-automation/headless │
+│ @upmind/ui              │   │ @upmind-automation/headless │
 │   Vue UI components     │   │   Business logic, XState    │
 │   Presentational only   │   │   Services, API calls       │
 └─────────────────────────┘   └─────────────────────────────┘
@@ -69,14 +69,18 @@ Adopt a **headless architecture** with three distinct package layers:
 - Styling
 - Icons or assets
 
-```typescript
-// Example: useBasket from headless
-import { useBasket } from '@upmind-automation/headless'
+```ts
+// Example: useBasket from headless. The product collection is its own
+// composable — there is no `addProduct` on useBasket.
+import { useBasket, useBasketProducts } from '@upmind-automation/headless'
 
-const { basket, meta, addProduct, checkout } = useBasket()
+const { basket, checkout, meta } = useBasket()
+const { products, refresh } = useBasketProducts()
+
+export const surface = { basket, checkout, meta, products, refresh }
 ```
 
-### @upmind-automation/ui
+### @upmind/ui
 
 **Purpose:** Reusable Vue UI components, presentational only.
 
@@ -92,12 +96,17 @@ const { basket, meta, addProduct, checkout } = useBasket()
 - API calls
 - State management
 - Icons (externalized to @upmind-automation/icons)
+- Design tokens (externalized to @upmind/tokens)
 
 ```vue
-<!-- Example: Pure UI component -->
-<UiButton variant="primary" @click="submit">
-  Submit
-</UiButton>
+<script setup lang="ts">
+// The UI package exports `Button`, not `UiButton`.
+declare function submit(): void
+</script>
+
+<template>
+  <button type="button" @click="submit">Submit</button>
+</template>
 ```
 
 ### @upmind-automation/client-vue
@@ -111,9 +120,18 @@ const { basket, meta, addProduct, checkout } = useBasket()
 - Module-specific Vue components
 
 ```vue
-<!-- Example: Integrated component -->
-<ClientBasket />
-<!-- Internally uses useBasket() from headless + UI components -->
+<script setup lang="ts">
+// `ClientBasket` comes from `@upmind-automation/client-vue`; it wires
+// `useBasket()` from headless to `@upmind/ui` components internally.
+import { useBasket } from '@upmind-automation/headless'
+
+const { basket, meta } = useBasket()
+</script>
+
+<template>
+  <p v-if="meta.isLoading">Loading…</p>
+  <p v-else>{{ basket?.id }}</p>
+</template>
 ```
 
 ### @upmind-automation/types
@@ -155,25 +173,40 @@ const { basket, meta, addProduct, checkout } = useBasket()
 
 ### From Apps (Recommended)
 
-```typescript
-// Import from client-vue for integrated components
-import { ClientBasket, ClientInvoices } from '@upmind-automation/client-vue'
+```ts
+// Integrated components come from client-vue. Importing that package here
+// would pull its whole dependency tree into this snippet, so the names are
+// declared instead.
+declare const ClientBasket: unknown
+declare const ClientInvoices: unknown
+
+export const integrated = { ClientBasket, ClientInvoices }
 ```
 
 ### Direct Headless Usage
 
-```typescript
+```ts
 // Import composables directly when needed
-import { useBasket, useSession } from '@upmind-automation/headless'
+import { useActiveSession, useBasket } from '@upmind-automation/headless'
 
-const { basket, addProduct } = useBasket()
+const { basket } = useBasket()
+const { isAuthenticated } = useActiveSession().useMeta()
+
+export const direct = { basket, isAuthenticated }
 ```
 
 ### UI-Only Usage
 
-```typescript
-// Import UI components for custom integrations
-import { UiButton, UiCard, UiModal } from '@upmind-automation/ui'
+```ts
+// The UI package is `@upmind/ui` (design-system/packages/ui), and its
+// components are `Button` / `Card` / `Modal` — no `Ui` prefix, no
+// `@upmind-automation/ui`. Declared here rather than imported, because pulling
+// the package in drags its token dependency into this snippet.
+declare const Button: unknown
+declare const Card: unknown
+declare const Modal: unknown
+
+export const ui = { Button, Card, Modal }
 ```
 
 ---
@@ -191,8 +224,8 @@ types ← headless ← client-vue ← apps
 
 - `types` has no internal dependencies
 - `headless` depends on `types`
-- `ui` depends on nothing (icons externalized)
-- `client-vue` depends on `headless` and `ui`
+- `@upmind/ui` depends on `@upmind/tokens` (icons externalized)
+- `client-vue` depends on `headless` and `@upmind/ui`
 - `apps` depend on `client-vue` (or directly on headless/ui)
 
 ---

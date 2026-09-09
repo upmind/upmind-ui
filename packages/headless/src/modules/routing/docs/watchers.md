@@ -30,33 +30,43 @@ type FunnelWatcherHandler = () => () => void;
 
 Detects when a user logs out and redirects to `SESSION_END`.
 
-**Key implementation detail:** Uses `subscribe()` (direct XState service subscription) instead of Vue `watch()` because the watcher runs in a non-component context where Vue's reactivity may not detect all state transitions.
+**Key implementation detail:** Subscribes to the session store's own logout event via `useActiveSession().useActions().onLogout()` rather than a Vue `watch()` on session meta. The watcher runs in a non-component context, where a `watch()` on a computed ref may not fire for every session transition; `onLogout` is a direct store subscription and always does.
 
 ```typescript
-const { subscribe, meta: sessionMeta } = useSession();
+import {
+  useActiveSession,
+  useRoutingEngine
+} from "@upmind-automation/headless";
+import { watch } from "vue";
+import type { FunnelWatcher } from "@upmind-automation/headless";
 
-let wasAuthenticated = sessionMeta.value.isAuthenticated;
+// The app owns its route-name enum — see `apps/cart/src/router/funnels/types.ts`.
+enum ROUTE {
+  SESSION_END = "session-end"
+}
 
-const { unsubscribe } = subscribe(state => {
-  const isAuthenticated = stateMatches(state, "client");
-  const didLogout = !isAuthenticated && wasAuthenticated;
-  wasAuthenticated = isAuthenticated;
+export const sessionLogout: FunnelWatcher = {
+  id: "session-logout",
+  handler: () => {
+    const { meta: routingMeta, navigate } = useRoutingEngine();
+    const { onLogout } = useActiveSession().useActions();
 
-  if (!didLogout) return;
-
-  if (routingMeta.value.isResolved) {
-    navigate({ name: ROUTE.SESSION_END });
-  } else {
-    // Await resolution then navigate
-    const stop = watch(routingMeta, ({ isResolved }) => {
-      if (!isResolved) return;
-      stop();
-      navigate({ name: ROUTE.SESSION_END });
+    const unsubscribe = onLogout(() => {
+      if (routingMeta.value.isResolved) {
+        navigate({ name: ROUTE.SESSION_END });
+      } else {
+        // Await resolution then navigate
+        const stop = watch(routingMeta, ({ isResolved }) => {
+          if (!isResolved) return;
+          stop();
+          navigate({ name: ROUTE.SESSION_END });
+        });
+      }
     });
-  }
-});
 
-return unsubscribe;
+    return unsubscribe;
+  }
+};
 ```
 
 > **🧪 For Testers:** Log in on `/basket/:bid`, then log out. Verify you are redirected to the session end page — not stuck on the basket or shown a login overlay.
@@ -68,52 +78,106 @@ Detects when a basket becomes unavailable (e.g., expired, deleted) and redirects
 **State tracking before gate:** The `wasUnavailable` flag is updated _before_ the `isResolved` check. This ensures the transition is captured even when the funnel is still resolving.
 
 ```typescript
-const stop = watch(basketMeta, ({ isUnavailable }) => {
-  const becameUnavailable =
-    isUnavailable && !wasUnavailable && sessionMeta.value.isAuthenticated;
-  wasUnavailable = isUnavailable;
+import {
+  useActiveSession,
+  useBasket,
+  useRoutingEngine
+} from "@upmind-automation/headless";
+import { watch } from "vue";
+import type { FunnelWatcher } from "@upmind-automation/headless";
 
-  if (!routingMeta.value.isResolved) return;
-  if (becameUnavailable) navigate({ name: ROUTE.BASKET_UNAVAILABLE });
-});
+enum ROUTE {
+  BASKET_UNAVAILABLE = "basket-unavailable"
+}
+
+export const basketUnavailable: FunnelWatcher = {
+  id: "basket-unavailable",
+  handler: () => {
+    const { meta: routingMeta, navigate } = useRoutingEngine();
+    const { meta: basketMeta } = useBasket();
+    const { isAuthenticated } = useActiveSession().useMeta();
+
+    let wasUnavailable = basketMeta.value.isUnavailable;
+
+    const stop = watch(basketMeta, ({ isUnavailable }) => {
+      const becameUnavailable =
+        isUnavailable && !wasUnavailable && isAuthenticated.value;
+      wasUnavailable = isUnavailable;
+
+      if (!routingMeta.value.isResolved) return;
+      if (becameUnavailable) navigate({ name: ROUTE.BASKET_UNAVAILABLE });
+    });
+
+    return stop;
+  }
+};
 ```
 
 > **🧪 For Testers:** While on the basket page, delete or expire the basket from the admin. Verify the user is redirected to the unavailable page.
 
 ### `basket-empty`
 
-Detects when a basket loses all its products and redirects to `BASKET_EMPTY`.
+Detects when a basket loses all its products and redirects to `BASKET_EMPTY`. `isLoading` is part of the condition: a basket mid-load reports no products, and firing on that would redirect away from a basket that is about to arrive.
 
 ```typescript
-const stop = watch(
-  basketMeta,
-  ({ hasProducts, isUnavailable, isCheckout, isComplete }) => {
-    const becameEmpty =
-      !isUnavailable &&
-      !hasProducts &&
-      hadProducts &&
-      !isCheckout &&
-      !isComplete;
-    hadProducts = hasProducts;
+import { useBasket, useRoutingEngine } from "@upmind-automation/headless";
+import { watch } from "vue";
+import type { FunnelWatcher } from "@upmind-automation/headless";
 
-    if (!routingMeta.value.isResolved) return;
-    if (becameEmpty) navigate({ name: ROUTE.BASKET_EMPTY });
+enum ROUTE {
+  BASKET_EMPTY = "basket-empty"
+}
+
+export const basketEmpty: FunnelWatcher = {
+  id: "basket-empty",
+  handler: () => {
+    const { meta: routingMeta, navigate } = useRoutingEngine();
+    const { meta: basketMeta } = useBasket();
+
+    let hadProducts = basketMeta.value.hasProducts;
+
+    const stop = watch(
+      basketMeta,
+      ({ hasProducts, isLoading, isUnavailable, isCheckout, isComplete }) => {
+        const becameEmpty =
+          !isLoading &&
+          !isUnavailable &&
+          !hasProducts &&
+          hadProducts &&
+          !isCheckout &&
+          !isComplete;
+        hadProducts = hasProducts;
+
+        if (!routingMeta.value.isResolved) return;
+        if (becameEmpty) navigate({ name: ROUTE.BASKET_EMPTY });
+      }
+    );
+
+    return stop;
   }
-);
+};
 ```
 
 > **🧪 For Testers:** Add a product to the basket, then remove it. Verify you're redirected to the empty basket page.
 
 ## Registering Watchers
 
-Watchers are registered per-funnel in the app's funnel configuration:
+Watchers are registered **once, engine-wide** on the `register()` call — not per funnel. `FunnelProps` has no `watchers` key; the engine holds the list in its own context and passes it into whichever funnel is active, so every funnel gets the same set.
 
 ```typescript
-// apps/cart/src/router/funnels/cart.ts
-export default createFunnelConfig({
-  id: "cart",
-  watchers: [sessionLogout, basketUnavailable, basketEmpty],
-  states: { ... }
+// apps/cart/src/router/funnels/index.ts
+import { useRoutingEngine } from "@upmind-automation/headless";
+import type { FunnelProps, FunnelWatcher } from "@upmind-automation/headless";
+
+declare const cart: FunnelProps;
+declare const sessionLogout: FunnelWatcher;
+declare const basketUnavailable: FunnelWatcher;
+declare const basketEmpty: FunnelWatcher;
+
+useRoutingEngine().register({
+  defaultFunnel: "cart",
+  funnels: { cart },
+  watchers: [sessionLogout, basketUnavailable, basketEmpty]
 });
 ```
 
@@ -124,23 +188,40 @@ export default createFunnelConfig({
 All watchers must track their state transition flags **before** checking `isResolved`. Otherwise, transitions that occur while the funnel is resolving are silently lost.
 
 ```typescript
+import { useBasket, useRoutingEngine } from "@upmind-automation/headless";
+import { watch } from "vue";
+
+enum ROUTE {
+  BASKET_EMPTY = "basket-empty"
+}
+
+const { meta: routingMeta, navigate } = useRoutingEngine();
+const { meta: basketMeta } = useBasket();
+
+let hadProducts = basketMeta.value.hasProducts;
+
 // ✅ CORRECT — track state first, then gate
-const becameEmpty = !hasProducts && hadProducts;
-hadProducts = hasProducts;          // ← tracked before gate
-if (!routingMeta.value.isResolved) return;
-if (becameEmpty) navigate(...);
+watch(basketMeta, ({ hasProducts }) => {
+  const becameEmpty = !hasProducts && hadProducts;
+  hadProducts = hasProducts; // ← tracked before gate
+  if (!routingMeta.value.isResolved) return;
+  if (becameEmpty) navigate({ name: ROUTE.BASKET_EMPTY });
+});
 
 // ❌ WRONG — state update after gate skips unresolved transitions
-if (!routingMeta.value.isResolved) return;  // ← gate blocks tracking
-const becameEmpty = !hasProducts && hadProducts;
-hadProducts = hasProducts;          // ← never reached when unresolved
+watch(basketMeta, ({ hasProducts }) => {
+  if (!routingMeta.value.isResolved) return; // ← gate blocks tracking
+  const becameEmpty = !hasProducts && hadProducts;
+  hadProducts = hasProducts; // ← never reached when unresolved
+  if (becameEmpty) navigate({ name: ROUTE.BASKET_EMPTY });
+});
 ```
 
-### Subscribe vs Watch
+### Store Subscription vs Watch
 
-Use `subscribe()` when Vue's `watch()` doesn't reliably fire in the watcher context:
+Use a direct store subscription when Vue's `watch()` doesn't reliably fire in the watcher context:
 
-| Method        | Use When                                                      |
-| ------------- | ------------------------------------------------------------- |
-| `subscribe()` | Monitoring XState service transitions (e.g., session machine) |
-| `watch()`     | Monitoring Vue computed refs (e.g., basket meta)              |
+| Method       | Use When                                                                      |
+| ------------ | ----------------------------------------------------------------------------- |
+| `onLogout()` | Monitoring a discrete session event (logout) from a non-component context     |
+| `watch()`    | Monitoring Vue computed refs (e.g. basket meta), where a transition is a diff |

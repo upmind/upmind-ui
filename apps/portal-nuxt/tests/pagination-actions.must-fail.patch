@@ -1,0 +1,18 @@
+# Negative control — the PAGE_NEXT verb dispatches the WRONG direction: the
+# next arrow's action turns the page backwards, so a user can never reach
+# page 2 from the pager.
+#
+# Intended RED: "PAGE_NEXT advances the collection the selector renders"
+# (tests/pagination-actions.test.ts) — the page stays 1 and the selector
+# keeps rendering 10 rows.
+
+--- a/apps/portal-nuxt/app/portal/mock/actions.ts
++++ b/apps/portal-nuxt/app/portal/mock/actions.ts
+@@ -118,6 +118,6 @@
+     case MOCK_ACTION.PAGE_NEXT: {
+       if (id === undefined) return undefined;
+-      resolvePagedCollection(id, data, context)?.useActions().nextPage();
++      resolvePagedCollection(id, data, context)?.useActions().prevPage();
+       return undefined;
+     }
+     case MOCK_ACTION.PAGE_PREV: {

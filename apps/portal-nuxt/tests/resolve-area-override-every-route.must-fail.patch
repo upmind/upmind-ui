@@ -1,0 +1,13 @@
+diff --git a/apps/portal-nuxt/app/portal/routes.ts b/apps/portal-nuxt/app/portal/routes.ts
+index e9346ef97c..66317fd86b 100644
+--- a/apps/portal-nuxt/app/portal/routes.ts
++++ b/apps/portal-nuxt/app/portal/routes.ts
+@@ -96,7 +96,7 @@ export function isNestedProductArea(
+   const segments = compact(path.split("/"));
+   const [head, ...rest] = segments;
+   if (head === undefined || rest.length === 0) return false;
+-  return some(config.groups, group => group.slug === head);
++  return true;
+ }
+ 
+ function resolveProductHierarchy(

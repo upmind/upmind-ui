@@ -1,0 +1,19 @@
+# Negative control — the top-up asks which card funds it only where the
+# account holds NO card, so the question is put to exactly the clients who
+# cannot answer it: legacy offered the picker over the stored cards
+# (`topUpWalletModal.vue:91-101`).
+#
+# Intended RED (to be added by the prover): "the top-up offers the stored
+# cards, with the default preselected".
+
+--- a/apps/portal-nuxt/app/portal/mock/contracts/client-wallet.schemas.ts
++++ b/apps/portal-nuxt/app/portal/mock/contracts/client-wallet.schemas.ts
+@@ -52,7 +52,7 @@
+       minimum: AMOUNT_MINIMUM
+     }
+   };
+-  if (offersMethodChoice(context)) {
++  if (!offersMethodChoice(context)) {
+     properties["paymentDetailId"] = {
+       type: "string",
+       title: "Pay with",

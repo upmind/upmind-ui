@@ -1,0 +1,23 @@
+# Negative control — editing a listed address may duplicate one the account
+# already restricts sign-in to, so the allowlist can hold the same address
+# twice: the add refuses it, and the edit is the same question.
+#
+# Intended RED (to be added by the prover): "refuses an edit onto an address
+# already listed".
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockIpWhitelist.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockIpWhitelist.ts
+@@ -59,12 +59,7 @@
+         return { ok: false, reason: MOCK_RECEIPT_REASON.NOT_FOUND };
+       }
+       const address = submittedText(model, "ipAddress");
+-      const heldElsewhere = some(
+-        data.ipWhitelist,
+-        other =>
+-          other.id !== addressId &&
+-          toLower(other.ip_address) === toLower(address)
+-      );
++      const heldElsewhere = false;
+       if (heldElsewhere) {
+         return {
+           ok: false,

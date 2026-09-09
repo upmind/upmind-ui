@@ -1,0 +1,18 @@
+# Negative control — the delegates panel stops searching the NAME, so a client
+# who types somebody's name finds nobody: only the invite address narrows,
+# and the row states both.
+#
+# Intended RED: "finds a delegate by the name typed, and by the address"
+# (tests/eighth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -510,7 +510,7 @@
+     // Legacy's `invite_email` CONTAINS filter is the band's own search here,
+     // as every other listing spells free text; the name goes with it, since
+     // the row states both.
+-    searchProps: ["email", "name"],
++    searchProps: ["email"],
+     sortOptions: DELEGATE_SORT_OPTIONS,
+     filterControls: DELEGATE_FILTER_CONTROLS
+   })

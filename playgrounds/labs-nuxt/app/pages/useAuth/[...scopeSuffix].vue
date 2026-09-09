@@ -60,9 +60,7 @@ definePageMeta({
   key: route => route.fullPath,
   nav: {
     label: "useAuth",
-    icon: "lock-01",
-    section: "Composables",
-    order: 1
+    icon: "lock-01"
   }
 });
 

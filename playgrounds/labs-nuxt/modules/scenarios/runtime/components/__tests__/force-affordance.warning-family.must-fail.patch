@@ -18,24 +18,13 @@ resolves to primary or secondary, and none to warning, danger or success.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.styles.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.styles.ts
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.styles.ts
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.styles.ts
-@@ -41,7 +41,7 @@
-     root: cva("flex flex-col gap-3 transition-all duration-200", {
-       variants: {
-         isForced: {
--          true: `card-radius ${highlightRing}`,
-+          true: "card-radius outline-2 outline-offset-8 outline-[var(--color-warning-default)]",
-           false: ""
-         }
-       },
-diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.vue
---- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.vue
-+++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ForcedCanvas.vue
-@@ -6,7 +6,7 @@
-   >
-     <div v-if="preset" :class="styles.forcedCanvas.header">
-       <Badge
--        color="primary"
-+        color="warning"
-         variant="solid"
-         size="sm"
-         :label="label"
+@@ -24,7 +24,8 @@ export const forcedCanvas = {
+   root: cva("flex flex-col gap-3 transition-all duration-200", {
+     variants: {
+       isForced: {
+-        true: `rounded-card ${highlightRingClasses}`,
++        true:
++          "rounded-card outline-2 outline-offset-8 outline-[var(--color-warning-default)]",
+         false: ""
+       }
+     },

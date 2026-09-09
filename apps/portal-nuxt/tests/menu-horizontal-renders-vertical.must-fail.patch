@@ -1,0 +1,14 @@
+# REBASED 2026-08-25: the hosting removal / per-brand config reorg moved this
+# context. Same mutation, new anchors — asserted unique before mutating.
+
+--- a/apps/portal-nuxt/app/portal/modules/menu/Menu.vue
++++ b/apps/portal-nuxt/app/portal/modules/menu/Menu.vue
+@@ -63,7 +63,7 @@
+ }
+ 
+ const meta = computed(() => ({
+-  isHorizontal: props.variant === MENU_VARIANT.HORIZONTAL,
++  isHorizontal: false,
+   emphasisClass: navEmphasisClass(props.emphasis)
+ }));
+ 

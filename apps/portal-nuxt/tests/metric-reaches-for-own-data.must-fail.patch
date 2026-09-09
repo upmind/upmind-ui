@@ -1,0 +1,24 @@
+#
+# REBASED 2026-09-03 (Phase 0b moved this file's context). Same mutation.
+#
+# REBASED 2026-09-03 (Phase 0b moved this file's context). Same mutation.
+
+--- a/apps/portal-nuxt/app/portal/modules/metric/Metric.vue
++++ b/apps/portal-nuxt/app/portal/modules/metric/Metric.vue
+@@ -36,7 +36,7 @@
+ 
+   <StatGroup
+     v-else
+-    :stats="[...props.items]"
++    :stats="[...METRIC_FIXTURE]"
+     :columns="meta.statGroupColumns"
+   />
+ </template>
+@@ -53,6 +53,7 @@
+  */
+ import { EmptyState, Link, StatGroup, useTestAttrs } from "@upmind/ui";
+ import { computed } from "vue";
++import { METRIC_FIXTURE } from "../../fixtures/metric.fixture";
+ import { METRIC_MODULE_VARIANT } from "./types";
+ import { TILE_CLASS, tileGridClass } from "./variants";
+ import type { MetricModuleItem, MetricModuleProps } from "./types";

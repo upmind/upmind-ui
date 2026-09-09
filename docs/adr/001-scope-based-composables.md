@@ -44,37 +44,60 @@ We will implement a **Fluent Chaining Composable Architecture** with the followi
 
 ### 2. Fluent Chaining Pattern
 
-```typescript
-useFeature()
-  .as(actor)              // Required — specifies the actor
-  .for(contextType, id)   // Optional — specifies the context
-  .inBrand(brandId)       // Optional — filters by brand
+```ts
+import {
+  AuthContextTypes,
+  ScopeActorTypes,
+  useAuth
+} from '@upmind-automation/headless'
+
+// `useAuth` is the one shipped module whose matrix gives STAFF a context, so it
+// is the one that offers all three links.
+useAuth()
+  .as(ScopeActorTypes.STAFF) // Required — specifies the actor
+  .for(AuthContextTypes.CLIENT, 'client-123') // Optional — the context
+  .inBrand('brand-abc') // Optional — filters by brand
 ```
 
 #### Convention: `.as()` before `.for()`
 
-While the builder accepts either order, the **recommended convention** is:
+The shipped builder offers `.for()` only after `.as()`, which is also the convention that reads best:
 
-```typescript
-// ✅ Recommended: reads like natural language
-useClientEmails().as('staff').for('client', clientId)
-// "Use client emails AS staff FOR client 123"
+```ts
+import {
+  ClientEmailsContextTypes,
+  ScopeActorTypes,
+  useClientEmails
+} from '@upmind-automation/headless'
 
-// ⚠️ Works, but less readable
-useClientEmails().for('client', clientId).as('staff')
+const clientId = 'client-123'
+
+// Recommended: reads like natural language
+useClientEmails()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientEmailsContextTypes.CLIENT, clientId)
+
+// @ts-expect-error — `.for()` is offered only after `.as()`
+useClientEmails().for(ClientEmailsContextTypes.CLIENT, clientId)
 ```
 
 #### Always Require `.as()`
 
-Even for the "current user" case, `.as('self')` is required:
+Even for the "current user" case, `.as(ScopeActorTypes.SELF)` is required:
 
-```typescript
-// ✅ Explicit
-useBasket().as('self')
-useInvoices().as('self')
+```ts
+import {
+  ScopeActorTypes,
+  useClientEmails,
+  usePersonalDetails
+} from '@upmind-automation/headless'
 
-// ❌ Not allowed — must specify actor
-useBasket()  // Error: .as() is required
+// Explicit
+export const emails = useClientEmails().as(ScopeActorTypes.SELF)
+export const profile = usePersonalDetails().as(ScopeActorTypes.SELF)
+
+// @ts-expect-error — without `.as()` the call yields the builder, not the composable
+useClientEmails().useMeta()
 ```
 
 This solidifies the pattern and makes every call self-documenting.
@@ -120,72 +143,106 @@ When `.as(actor)` is called:
 2. If found → use that session
 3. If not found → trigger auth flow or return error state
 
-```typescript
-// Session store maintains multiple active sessions
-{
-  guest: { token: '...', expiresAt: ... },
-  client: { token: '...', clientId: '123', ... },
-  staff: { token: '...', capabilities: [...], ... }
-}
+```ts
+import type { SessionState } from '@upmind-automation/headless'
+
+// One guest token alongside client and staff sessions, each keyed by session id.
+declare const sessions: SessionState
+
+export const guest = sessions.guestSession
+export const clients = sessions.clientSessions
+export const staff = sessions.staffSessions
 ```
 
 ### 6. Capabilities (Staff Only)
 
 Staff users receive capability codes that determine permissions:
 
-```typescript
-// Capabilities come from the /self endpoint
-const capabilities = ['emails.send', 'emails.delete', 'invoices.refund', ...]
+```ts
+import { ScopeActorTypes, useClientEmails } from '@upmind-automation/headless'
 
-// Composable actions filtered by capabilities
-const { actions } = useClientEmails().as('staff').for('client', id)
-// actions.delete is undefined if staff lacks 'emails.delete' capability
+// Capability-gated actions are not shipped yet, so the codes are declared here
+// rather than read off a session.
+declare const capabilities: string[]
+
+const actions = useClientEmails().as(ScopeActorTypes.SELF).useActions()
+
+export const remove = capabilities.includes('emails.delete')
+  ? actions.destroy
+  : undefined
 ```
 
 ### 7. Brand as a Parameter
 
 Brand is **not a context** — it's an optional filter:
 
-```typescript
+```ts
+import {
+  AuthContextTypes,
+  ScopeActorTypes,
+  useAuth
+} from '@upmind-automation/headless'
+
+const clientId = 'client-123'
+
 // Org-wide view (all brands)
-useInvoices().as('staff')
+useAuth().as(ScopeActorTypes.STAFF)
 
-// Filtered to specific brand
-useInvoices().as('staff').inBrand('brand-abc')
+// Filtered to a specific brand
+useAuth().as(ScopeActorTypes.STAFF).inBrand('brand-abc')
 
-// Brand is inherited for singletons (client belongs to one brand)
-useClientEmails().as('staff').for('client', clientId)
-// Brand is implicit from the client's brand
+// Brand is implicit from the context entity's own brand
+useAuth().as(ScopeActorTypes.STAFF).for(AuthContextTypes.CLIENT, clientId)
 ```
 
 ### 8. Singleton Behavior
 
 By default, composables are **singletons per scope key**:
 
-```typescript
+```ts
+import {
+  ClientEmailsContextTypes,
+  ScopeActorTypes,
+  useClientEmails
+} from '@upmind-automation/headless'
+
+const scoped = () => useClientEmails().as(ScopeActorTypes.CLIENT)
+
 // These return the SAME instance (same scope key)
-const a = useBasket().as('staff').for('client', '123')
-const b = useBasket().as('staff').for('client', '123')
-// a === b (same underlying machine/state)
+const a = scoped().for(ClientEmailsContextTypes.CLIENT, '123')
+const b = scoped().for(ClientEmailsContextTypes.CLIENT, '123')
 
 // These return DIFFERENT instances (different scope keys)
-const x = useBasket().as('staff').for('client', '123')
-const y = useBasket().as('staff').for('client', '456')
-// x !== y (different clients = different instances)
+const x = scoped().for(ClientEmailsContextTypes.CLIENT, '123')
+const y = scoped().for(ClientEmailsContextTypes.CLIENT, '456')
+
+export const same = a === b
+export const different = x !== y
 ```
 
 #### Future: Non-Singleton Instances
 
 For cases requiring isolated state (e.g., multiple forms, parallel operations), a `.withKey()` pattern is under consideration:
 
-```typescript
-// Force a unique instance with explicit key
-const modal1 = useBasket().as('staff').for('client', id).withKey('modal-1')
-const modal2 = useBasket().as('staff').for('client', id).withKey('modal-2')
-// modal1 !== modal2 (isolated state)
+```ts
+import {
+  ClientEmailsContextTypes,
+  ScopeActorTypes,
+  useClientEmails
+} from '@upmind-automation/headless'
+
+const id = 'client-123'
+const scoped = useClientEmails()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientEmailsContextTypes.CLIENT, id)
+
+// @ts-expect-error — `.withKey()` never shipped; see the amendment below
+export const modal1 = scoped.withKey('modal-1')
+// @ts-expect-error — `.withKey()` never shipped; see the amendment below
+export const modal2 = scoped.withKey('modal-2')
 ```
 
-> **Note:** This is a future consideration. Non-singletons will always require an explicit key.
+> **Note:** `.withKey()` was never built — see the amendment below for what shipped instead.
 
 #### Amendment (2026-08-19): shipped as `.withId(id)`, self is the default actor
 
@@ -213,121 +270,186 @@ First shipped consumer: `useClientReceivedEmail().withId(id)` in the
 
 ### Basket Flow
 
-```typescript
+```ts
+import { ScopeActorTypes } from '@upmind-automation/headless'
+
+// Basket is not scope-adopted yet (see Implementation Status), so its target
+// builder is declared here rather than imported.
+type BasketScope = { for(type: 'client' | 'lead', id: string): unknown }
+declare function useBasket(): { as(actor: ScopeActorTypes): BasketScope }
+declare function useBasketProducts(): { as(actor: ScopeActorTypes): BasketScope }
+declare function useBasketBilling(): { as(actor: ScopeActorTypes): BasketScope }
+
+const leadId = 'lead-123'
+const clientId = 'client-123'
+
 // Guest browsing
-useBasket().as('self')
-useBasketProducts().as('self')
-useBasketBilling().as('self')
+useBasket().as(ScopeActorTypes.GUEST)
+useBasketProducts().as(ScopeActorTypes.GUEST)
+useBasketBilling().as(ScopeActorTypes.GUEST)
 
 // Staff viewing a lead's basket
-useBasket().as('staff').for('lead', leadId)
+useBasket().as(ScopeActorTypes.STAFF).for('lead', leadId)
 
 // Staff viewing a client's basket
-useBasket().as('staff').for('client', clientId)
+useBasket().as(ScopeActorTypes.STAFF).for('client', clientId)
 ```
 
 ### Client Data
 
-```typescript
-// Client viewing their own data
-useClientEmails().as('self')
-useClientAddresses().as('self')
-usePersonalDetails().as('self')
+```ts
+import {
+  ClientAddressesContextTypes,
+  ClientEmailsContextTypes,
+  ScopeActorTypes,
+  useClientAddresses,
+  useClientEmails,
+  usePersonalDetails
+} from '@upmind-automation/headless'
 
-// Staff viewing a specific client
-useClientEmails().as('staff').for('client', clientId)
-useClientAddresses().as('staff').for('client', clientId)
+const clientId = 'client-123'
+
+// Client viewing their own data
+useClientEmails().as(ScopeActorTypes.SELF)
+useClientAddresses().as(ScopeActorTypes.SELF)
+usePersonalDetails().as(ScopeActorTypes.SELF)
+
+// Addressing one specific client record. STAFF is `null as never` in both
+// matrices today, so CLIENT is the actor that resolves.
+useClientEmails()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientEmailsContextTypes.CLIENT, clientId)
+useClientAddresses()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientAddressesContextTypes.CLIENT, clientId)
 ```
 
 ### Invoices & Orders
 
-```typescript
+```ts
+import { ScopeActorTypes } from '@upmind-automation/headless'
+
+// Invoices are not scope-adopted yet (see Implementation Status) — the target
+// builder is declared, not imported.
+declare function useInvoices(): {
+  as(actor: ScopeActorTypes): {
+    for(type: 'client', id: string): unknown
+    inBrand(brandId: string): unknown
+  }
+}
+
+const clientId = 'client-123'
+
 // Client viewing their invoices
-useInvoices().as('self')
+useInvoices().as(ScopeActorTypes.CLIENT)
 
 // Staff viewing org-wide (all clients, all brands)
-useInvoices().as('staff')
+useInvoices().as(ScopeActorTypes.STAFF)
 
 // Staff viewing org-wide, filtered by brand
-useInvoices().as('staff').inBrand('brand-abc')
+useInvoices().as(ScopeActorTypes.STAFF).inBrand('brand-abc')
 
 // Staff viewing a specific client's invoices
-useInvoices().as('staff').for('client', clientId)
+useInvoices().as(ScopeActorTypes.STAFF).for('client', clientId)
 ```
 
 ### Product Catalogue
 
-```typescript
+```ts
+import { ScopeActorTypes } from '@upmind-automation/headless'
+
+// Not scope-adopted yet (see Implementation Status) — declared, not imported.
+declare function useProductCatalogue(): {
+  as(actor: ScopeActorTypes): unknown
+}
+
 // Public view (guest/client)
-useProductCatalogue().as('self')
+useProductCatalogue().as(ScopeActorTypes.CLIENT)
 
 // Staff view (sees costs, margins, etc.)
-useProductCatalogue().as('staff')
+useProductCatalogue().as(ScopeActorTypes.STAFF)
 ```
 
 ### Payment Details
 
-```typescript
+```ts
+import { ScopeActorTypes } from '@upmind-automation/headless'
+
+// Not scope-adopted yet (see Implementation Status) — declared, not imported.
+declare function usePaymentDetails(): {
+  as(actor: ScopeActorTypes): { for(type: 'client', id: string): unknown }
+}
+
+const clientId = 'client-123'
+
 // Client managing their payment methods
-usePaymentDetails().as('self')
+usePaymentDetails().as(ScopeActorTypes.CLIENT)
 
 // Staff managing a client's payment methods
-usePaymentDetails().as('staff').for('client', clientId)
+usePaymentDetails().as(ScopeActorTypes.STAFF).for('client', clientId)
 ```
 
 ---
 
 ## Composable Return Shape
 
-Each composable returns a **layered structure** with direct properties and sub-composables:
+Each composable returns a **layered structure** of four sub-composables:
 
-```typescript
-const basket = useBasket().as('staff').for('client', id)
+```ts
+import { ScopeActorTypes, useClientEmails } from '@upmind-automation/headless'
 
-// ═══════════════════════════════════════════════════════════════
-// DIRECT PROPERTIES — Data and context (most common access)
-// ═══════════════════════════════════════════════════════════════
-basket.data           // Core data (items, totals, etc.)
-basket.pagination     // { page, perPage, total, hasMore }
-basket.error          // Error object if any
-basket.items          // Feature-specific shorthand (optional)
+const emails = useClientEmails().as(ScopeActorTypes.SELF)
 
-// ═══════════════════════════════════════════════════════════════
-// SUB-COMPOSABLES — Grouped access for specific concerns
-// ═══════════════════════════════════════════════════════════════
-basket.useMeta()      // { isLoading, isError, isEmpty, isStale, ... }
-basket.useActions()   // { refresh, addProduct, removeProduct, checkout, ... }
-basket.useInternals() // { machine, service, subscriptions, ... }
+// CONTEXT — data, pagination, captured error, finders
+const { data, error, pagination } = emails.useContext()
+
+// META — state flags
+const { isLoading, isEmpty } = emails.useMeta()
+
+// ACTIONS — everything that mutates or refetches
+const { refresh, destroy } = emails.useActions()
+
+// INTERNALS — advanced use, debugging
+const { actorScope, query } = emails.useInternals()
+
+export const layers = {
+  actions: { destroy, refresh },
+  context: { data, error, pagination },
+  internals: { actorScope, query },
+  meta: { isEmpty, isLoading }
+}
 ```
 
 ### The Three Layers
 
 | Layer | Access | Contains | Who Uses |
 |-------|--------|----------|----------|
-| **Direct props** | `basket.data`, `basket.pagination` | Data, results, context | Most devs, templates |
-| **Meta** | `basket.useMeta()` | Loading states, flags | UI for spinners, empty states |
-| **Actions** | `basket.useActions()` | Methods to mutate | Event handlers |
-| **Internals** | `basket.useInternals()` | Machine, services, subscriptions | Advanced use, debugging |
+| **Context** | `emails.useContext()` | Data, pagination, captured error, finders | Most devs, templates |
+| **Meta** | `emails.useMeta()` | Loading states, flags | UI for spinners, empty states |
+| **Actions** | `emails.useActions()` | Methods to mutate | Event handlers |
+| **Internals** | `emails.useInternals()` | Actor scope, raw query, diagnostics | Advanced use, debugging |
 
 ### Example Usage
 
-```typescript
-// Template usage — direct props
-<div v-if="basket.pagination.hasMore">Load more...</div>
-<ProductList :items="basket.data.items" />
+```vue
+<script setup lang="ts">
+import { ScopeActorTypes, useClientEmails } from '@upmind-automation/headless'
 
-// Loading states — meta
-const { isLoading, isEmpty } = basket.useMeta()
-<Spinner v-if="isLoading" />
-<EmptyState v-if="isEmpty" />
+const emails = useClientEmails().as(ScopeActorTypes.SELF)
+const { data, pagination } = emails.useContext()
+const { isEmpty, isLoading } = emails.useMeta()
+const { refresh } = emails.useActions()
+</script>
 
-// User interactions — actions
-const { addProduct, checkout } = basket.useActions()
-<button @click="addProduct(item)">Add</button>
-
-// Debugging / advanced — internals
-const { machine } = basket.useInternals()
-console.log(machine.state.value)
+<template>
+  <p v-if="isLoading">Loading…</p>
+  <p v-else-if="isEmpty">No emails yet</p>
+  <ul v-else>
+    <li v-for="email in data" :key="email.id">{{ email.email }}</li>
+  </ul>
+  <p>Page {{ pagination.page }} of {{ pagination.pages }}</p>
+  <button @click="refresh()">Refresh</button>
+</template>
 ```
 
 ### Sub-Composables Access
@@ -343,7 +465,7 @@ Sub-composables are accessed **from the parent composable only** — no separate
 1. **Readable API** — Fluent chaining reads like natural language
 2. **Predictable pattern** — Every composable works the same way
 3. **Explicit actors** — No guessing about session context
-4. **Layered access** — Direct props for data, sub-composables for meta/actions/internals
+4. **Layered access** — four sub-composables: context, meta, actions, internals
 5. **Small API surface** — Sub-composables accessed from parent only
 6. **Type-safe contexts** — TypeScript enforces valid actor/context combinations
 7. **Multi-session ready** — Architecture supports simultaneous actor sessions
@@ -366,7 +488,17 @@ Sub-composables are accessed **from the parent composable only** — no separate
 
 ### 1. Separate Composable Variants
 
-```typescript
+```ts
+import type { ScopeActor, ScopeContext } from '@upmind-automation/headless'
+
+// The rejected sketch — none of these variants ever shipped.
+declare function useBasketAs(actor: ScopeActor): unknown
+declare function useBasketFor(context: ScopeContext): unknown
+declare function useBasketForAs(context: ScopeContext, actor: ScopeActor): unknown
+
+declare const actor: ScopeActor
+declare const context: ScopeContext
+
 useBasketAs(actor)
 useBasketFor(context)
 useBasketForAs(context, actor)
@@ -376,16 +508,30 @@ useBasketForAs(context, actor)
 
 ### 2. Options Object
 
-```typescript
-useBasket({ actor: 'staff', context: { client: id } })
+```ts
+import { ScopeActorTypes } from '@upmind-automation/headless'
+import type { ScopeActor, ScopeContext } from '@upmind-automation/headless'
+
+// The rejected sketch — an options object instead of the fluent chain.
+declare function useBasket(options: {
+  actor: ScopeActor
+  context: ScopeContext
+}): unknown
+
+const id = 'client-123'
+
+useBasket({ actor: ScopeActorTypes.STAFF, context: { id, type: 'client' } })
 ```
 
 **Rejected:** Less readable than fluent chaining.
 
 ### 3. Implicit Actor from Session
 
-```typescript
-useBasket()  // Infers actor from current session
+```ts
+// The rejected sketch — no actor named, inferred from the current session.
+declare function useBasket(): unknown
+
+useBasket()
 ```
 
 **Rejected:** Less explicit, harder to reason about. Always requiring `.as()` is clearer.

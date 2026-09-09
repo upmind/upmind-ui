@@ -17,6 +17,8 @@ import {
   ClientPersonalDetailsContextTypes
 } from "@upmind-automation/headless";
 
+const someClientId = "825d96e7-63ed-0913-46c4-174825283406";
+
 // The read view — the calling client's own profile
 const profile = usePersonalDetails().as(ScopeActorTypes.SELF);
 
@@ -29,7 +31,7 @@ const otherProfile = usePersonalDetails()
   .for(ClientPersonalDetailsContextTypes.PROFILE, someClientId);
 ```
 
-> **🧪 For Testers:** The only actor that resolves on either composable is `client` — `.as(ScopeActorTypes.SELF)` resolves to it too, via the scope builder, before either matrix is even consulted. `staff` and `guest` are compile-time errors, not runtime failures — there is nothing in this module for a staff member or a guest to act at all. That is narrower than "no other profile is ever reachable": naming a different client's id in `.for(...)` compiles and addresses that client's own resource, on the caller's own session bearer, with no local check that the id matches the caller. See [gotchas.md](./gotchas.md).
+> **🧪 For Testers:** The only actor that resolves on either composable is `client` — `.as(ScopeActorTypes.SELF)` resolves to it too, via the scope builder, before either matrix is even consulted. There is nothing in this module for a staff member or a guest to act at all, but the refusal is not all compile-time: `.as(ScopeActorTypes.STAFF).for(...)` fails to compile, while a bare `.as(ScopeActorTypes.STAFF)` type-checks and is refused at runtime. That is narrower than "no other profile is ever reachable": naming a different client's id in `.for(...)` compiles and addresses that client's own resource, on the caller's own session bearer, with no local check that the id matches the caller. See [gotchas.md](./gotchas.md).
 
 Both composables return the same four sub-composables:
 
@@ -99,6 +101,11 @@ Removes this scoped instance from the registry.
 ## The editor — `usePersonalDetailsManager`
 
 ```ts
+import {
+  usePersonalDetailsManager,
+  ScopeActorTypes
+} from "@upmind-automation/headless";
+
 const manager = usePersonalDetailsManager().as(ScopeActorTypes.SELF);
 
 await manager.useActions().isReady();
@@ -344,6 +351,15 @@ Notes for the paste:
 ## Errors are state, never announcements
 
 ```ts
+import {
+  usePersonalDetails,
+  usePersonalDetailsManager,
+  ScopeActorTypes
+} from "@upmind-automation/headless";
+
+const profile = usePersonalDetails().as(ScopeActorTypes.SELF);
+const manager = usePersonalDetailsManager().as(ScopeActorTypes.SELF);
+
 // Read view
 const { error } = profile.useContext();
 const { hasError } = profile.useMeta();

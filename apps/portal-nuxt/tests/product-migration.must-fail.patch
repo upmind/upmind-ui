@@ -1,0 +1,21 @@
+# Negative control — the change picker stops asking whether the product is
+# already on its way out, so a product with a cancellation lodged, or set to
+# expire, is still offered a move onto something else.
+#
+# Intended RED: "drops it while a cancellation is lodged" and "drops it on a
+# product already set to expire" (tests/product-migration.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
+@@ -55,10 +55,7 @@
+  */
+ export function canOfferMigration(product: MockProduct): boolean {
+   const hasSomewhereToGo = !isEmpty(product.migrationOptions);
+-  const isEnding =
+-    product.cancellationRequest !== undefined ||
+-    product.autoExpireAt !== undefined;
+-  return product.canModify && hasSomewhereToGo && !isEnding;
++  return product.canModify && hasSomewhereToGo;
+ }
+ 
+ /**

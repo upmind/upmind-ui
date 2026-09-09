@@ -1,0 +1,21 @@
+# Negative control — the runner stops checking WHICH verb answered: any
+# form-done dispatch while a form is open closes it, so an unrelated row
+# action shuts the dialog out from under the client.
+#
+# REBASED 2026-09-05 (the close moved off the toast intent onto the receipt's
+# own `formDone`). Same mutation: the verb guard is what goes.
+#
+# Intended RED: "an unrelated success leaves the open form alone"
+# (tests/form-dialog-seam.test.ts).
+
+--- a/apps/portal-nuxt/app/composables/useMockActionRunner.ts
++++ b/apps/portal-nuxt/app/composables/useMockActionRunner.ts
+@@ -47,7 +47,7 @@
+     if (result.formDone !== true) return false;
+     const entry = resolveMockForm(dataset, form.id, form.entityId);
+     if (entry === undefined) return false;
+-    return startsWith(value, `${entry.submit}:`);
++    return true;
+   }
+ 
+   async function run(value: string): Promise<void> {

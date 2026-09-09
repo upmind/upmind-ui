@@ -13,26 +13,53 @@ The funnel machine is purely **route-driven** — it only acts when a route chan
 
 Currently, these reactions live as ad-hoc `watch()` blocks in app-level components:
 
-```typescript
+```ts
+import type { ComputedRef } from 'vue'
+import { watch } from 'vue'
+import type { RouteLocationNormalizedLoaded, Router } from 'vue-router'
+
+enum ROUTE {
+  BASKET_EMPTY = 'basket-empty',
+  BASKET_UNAVAILABLE = 'basket-unavailable',
+  SESSION_END = 'session-end'
+}
+
+declare const basketMeta: ComputedRef<{
+  hasProducts: boolean
+  isCheckout: boolean
+  isComplete: boolean
+  isUnavailable: boolean
+}>
+declare const sessionMeta: ComputedRef<{ isAuthenticated: boolean }>
+declare const routingMeta: ComputedRef<{ isResolved: boolean }>
+declare const router: Router
+declare const route: RouteLocationNormalizedLoaded
+
 // App.vue — imperative watchers OUTSIDE the funnel
 watch([basketMeta, sessionMeta], ([basket, session], [prevBasket, prevSession]) => {
-  if (!routingMeta.value.isResolved) return;
+  if (!routingMeta.value.isResolved) return
 
   // Logout → redirect to session-end
   if (!session.isAuthenticated && prevSession.isAuthenticated) {
-    return router.push({ name: ROUTE.SESSION_END });
+    return router.push({ name: ROUTE.SESSION_END })
   }
 
   // Basket unavailable → redirect
   if (basket.isUnavailable && !prevBasket.isUnavailable && session.isAuthenticated) {
-    return router.replace({ name: ROUTE.BASKET_UNAVAILABLE });
+    return router.replace({ name: ROUTE.BASKET_UNAVAILABLE })
   }
 
-  // Basket emptied → redirect to empty page
-  if (!basket.hasProducts && prevBasket.hasProducts && !basket.isCheckout && !basket.isComplete) {
-    if (route.meta.actionEmptyBasket) return router.push({ name: ROUTE.BASKET_EMPTY });
+  // Basket emptied → redirect to the empty page
+  if (
+    !basket.hasProducts &&
+    prevBasket.hasProducts &&
+    !basket.isCheckout &&
+    !basket.isComplete &&
+    route.meta.actionEmptyBasket
+  ) {
+    return router.push({ name: ROUTE.BASKET_EMPTY })
   }
-});
+})
 ```
 
 ### Problems
@@ -51,7 +78,7 @@ watch([basketMeta, sessionMeta], ([basket, session], [prevBasket, prevSession]) 
 | **Angular** | Services subscribe to NgRx stores and call `Router.navigate()`. |
 | **Remix** | `revalidate` mechanism re-runs loaders when external state changes. |
 | **AWS Step Functions** | EventBridge triggers external events that start/modify workflows. |
-| **XState Invoked Callbacks** | The `session/helper.ts` `authSubscription` pattern already exists. |
+| **XState Invoked Callbacks** | The `session-store.sync.ts` `authSubscription` pattern already exists. |
 
 ---
 
@@ -61,48 +88,58 @@ Extend the funnel architecture with a **watcher subscription mechanism**. Watche
 
 ### Pattern: XState Invoked Callback
 
-Reuses the existing pattern from `session/helper.ts`:
+Reuses the existing pattern from `session-store/session-store.sync.ts`:
 
-```typescript
-export const authSubscription = async (callback, onReceive) => {
-  const { subscribe } = useSession();
-  const subscription = subscribe(state => {
-    if (stateMatches(state, ['expired'])) {
-      callback({ type: 'UNAUTHENTICATED' });
-    }
-  });
-  return () => subscription.unsubscribe();
-};
+```ts
+import { useActiveSession, useSessionStore } from '@upmind-automation/headless'
+
+export const authSubscription = (
+  callback: (event: { type: string }) => void,
+  onReceive: (handler: (event: unknown) => void) => void
+): (() => void) => {
+  const { store } = useSessionStore().useInternals()
+
+  onReceive(() => {
+    // no-op — the parent machine sends this actor no events
+  })
+
+  return store.subscribe(() => {
+    const { isAuthenticated } = useActiveSession().useMeta()
+    if (!isAuthenticated.value) callback({ type: 'UNAUTHENTICATED' })
+  })
+}
 ```
 
 ### Type Definitions
 
-```typescript
+```ts
+// routing.types.ts — as shipped
 export type FunnelWatcher = {
-  id: string;
-  description?: string;
-  subscribe: FunnelWatcherSubscribe;
-};
+  /** Unique identifier for this watcher (e.g. 'session-logout') */
+  id: string
+  /** The invoked callback. Sets up the subscription, returns its cleanup. */
+  handler: FunnelWatcherHandler
+}
 
-export type FunnelWatcherSubscribe = (
-  navigate: (target: FunnelTarget) => Promise<void>,
-  context: () => FunnelContext
-) => () => void;
+export type FunnelWatcherHandler = () => () => void
 ```
 
 ### Watcher Registration
 
-```typescript
+```ts
+import type { FunnelWatcher } from '@upmind-automation/headless'
+
+declare const cartFunnel: { id: string }
+declare const sessionLogoutWatcher: FunnelWatcher
+declare const basketUnavailableWatcher: FunnelWatcher
+declare const basketEmptiedWatcher: FunnelWatcher
+
 export function registerFunnels() {
   return {
-    defaultFunnel: "cart",
+    defaultFunnel: 'cart',
     funnels: [cartFunnel],
-    watchers: [
-      sessionLogoutWatcher,
-      basketUnavailableWatcher,
-      basketEmptiedWatcher
-    ]
-  };
+    watchers: [sessionLogoutWatcher, basketUnavailableWatcher, basketEmptiedWatcher]
+  }
 }
 ```
 
@@ -135,7 +172,7 @@ AFTER:  watch fires → navigate() → RESOLVE → funnel guard → awaitResolve
 
 ### Negative
 
-1. **No direct `route` access** — watchers use `context.currentRoute?.meta`
+1. **No direct `route` access** — the shipped handler takes no arguments, so a watcher reads route state through `useRoutingEngine()`
 2. **Array order = priority** — no explicit priority system
 
 ---
@@ -144,7 +181,7 @@ AFTER:  watch fires → navigate() → RESOLVE → funnel guard → awaitResolve
 
 | Package | File | Change |
 |---------|------|--------|
-| `headless` | `routing/types.ts` | Add `FunnelWatcher`, `FunnelWatcherSubscribe` |
+| `headless` | `routing/types.ts` | Add `FunnelWatcher`, `FunnelWatcherHandler` |
 | `headless` | `routing/funnel.machine.ts` | Add `watcherSubscription` invoke |
 | `headless` | `routing/services.ts` | Add `watcherSubscription` service |
 | `headless` | `routingEngine.machine.ts` | Store `watchers` from REGISTER |
@@ -163,15 +200,45 @@ Discovered during FE-1365 implementation:
 
 Vue `watch()` on computed `sessionMeta` does **not** reliably detect XState state transitions in the non-component watcher context (invoked callback). The `sessionLogout` watcher uses `subscribe()` (direct XState service subscription) instead.
 
-```typescript
-// ❌ Unreliable in invoked callback context
-const stop = watch(sessionMeta, ({ isAuthenticated }) => { ... });
+```ts
+import {
+  useActiveSession,
+  useRoutingEngine,
+  useSessionStore
+} from '@upmind-automation/headless'
+import type { FunnelWatcher } from '@upmind-automation/headless'
+import { watch } from 'vue'
 
-// ✅ Direct XState subscription — fires synchronously on every transition
-const { unsubscribe } = subscribe(state => {
-  const isAuthenticated = stateMatches(state, "client");
-  ...
-});
+enum ROUTE {
+  SESSION_END = 'session-end'
+}
+
+export const sessionLogout: FunnelWatcher = {
+  id: 'session-logout',
+  handler: () => {
+    const { meta: routingMeta, navigate } = useRoutingEngine()
+    const { isAuthenticated } = useActiveSession().useMeta()
+    const { store } = useSessionStore().useInternals()
+
+    // ❌ Unreliable here — a computed watch misses transitions in the
+    //    invoked-callback context.
+    const stop = watch(isAuthenticated, authed => {
+      if (!authed && routingMeta.value.isResolved) navigate({ name: ROUTE.SESSION_END })
+    })
+
+    // ✅ Direct store subscription — fires on every transition
+    const unsubscribe = store.subscribe(() => {
+      if (!isAuthenticated.value && routingMeta.value.isResolved) {
+        navigate({ name: ROUTE.SESSION_END })
+      }
+    })
+
+    return () => {
+      stop()
+      unsubscribe()
+    }
+  }
+}
 ```
 
 Basket watchers still use Vue `watch()` since they observe Vue computed refs that fire reliably.
@@ -180,16 +247,29 @@ Basket watchers still use Vue `watch()` since they observe Vue computed refs tha
 
 All watchers must update tracking flags **before** the `isResolved` gate. Otherwise, transitions occurring while the funnel is unresolved are silently lost:
 
-```typescript
-// ✅ Track first, gate second
-const didLogout = !isAuthenticated && wasAuthenticated;
-wasAuthenticated = isAuthenticated; // ← tracked before gate
-if (!routingMeta.value.isResolved) return;
-if (didLogout) navigate(...);
+```ts
+import type { ComputedRef } from 'vue'
 
-// ❌ Gate blocks tracking — transitions lost
-if (!routingMeta.value.isResolved) return;
-wasAuthenticated = isAuthenticated; // ← never reached when unresolved
+declare const routingMeta: ComputedRef<{ isResolved: boolean }>
+declare const isAuthenticated: boolean
+declare function navigate(target: { name: string }): Promise<void>
+
+let wasAuthenticated = true
+
+// ✅ Track first, gate second
+export function correct() {
+  const didLogout = !isAuthenticated && wasAuthenticated
+  wasAuthenticated = isAuthenticated // tracked BEFORE the gate
+
+  if (!routingMeta.value.isResolved) return
+  if (didLogout) navigate({ name: 'session-end' })
+}
+
+// ❌ Gate blocks tracking — transitions that happen while unresolved are lost
+export function wrong() {
+  if (!routingMeta.value.isResolved) return
+  wasAuthenticated = isAuthenticated // never reached when unresolved
+}
 ```
 
 ---

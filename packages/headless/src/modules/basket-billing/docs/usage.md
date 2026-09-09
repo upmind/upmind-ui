@@ -13,16 +13,23 @@ const { model, schema, uischema, config, errors, meta } = billing;
 const { set, update, clear, wait, isReady, captureInitialBilling } = billing;
 ```
 
-A second, independent composable — `useUnified()`, aliased on the return value as `useUnifiedBillingDetail` — manages the separate "create a new billing detail" form:
+A second, independent composable — `useUnified()`, aliased on the return value as `useUnifiedBillingDetail` — manages the separate "create a new billing detail" form. Its first argument is the `UnifiedType` enum, not a bare string:
 
 ```typescript
+import { UnifiedType, useBasketBilling } from "@upmind-automation/headless";
+import type { IClient } from "@upmind-automation/types";
+
+declare const clientId: IClient["id"];
+
 const { useUnifiedBillingDetail } = useBasketBilling();
-const detail = useUnifiedBillingDetail("business", { clientId });
+const detail = useUnifiedBillingDetail(UnifiedType.BUSINESS, { clientId });
 ```
 
 ## Lifecycle
 
 ```typescript
+import { useBasketBilling } from "@upmind-automation/headless";
+
 const billing = useBasketBilling();
 
 // Wait until the actor has finished loading (resolves `false` on error).
@@ -36,6 +43,8 @@ const ready = await billing.isReady();
 ### Set vs. commit
 
 ```typescript
+import { useBasketBilling } from "@upmind-automation/headless";
+
 const { set, update } = useBasketBilling();
 
 // Stores the model on the form. No request is made.
@@ -49,6 +58,8 @@ await update({ addressId: "addr-1", companyId: null, phoneId: null });
 ### Clear and pause/resume
 
 ```typescript
+import { useBasketBilling } from "@upmind-automation/headless";
+
 const { clear, wait } = useBasketBilling();
 
 // Discards the stored model.
@@ -63,6 +74,8 @@ await wait(false);
 ### Snapshot the last-saved selection
 
 ```typescript
+import { useBasketBilling } from "@upmind-automation/headless";
+
 const { captureInitialBilling } = useBasketBilling();
 
 // Reads the last committed selection as a stable snapshot. Call once,
@@ -76,6 +89,8 @@ const initial = captureInitialBilling();
 `meta` is a Vue `ComputedRef`:
 
 ```typescript
+import { useBasketBilling } from "@upmind-automation/headless";
+
 const { meta } = useBasketBilling();
 
 meta.value.isLoading; // still loading
@@ -104,6 +119,8 @@ meta.value.needsPhone; // brand requires a phone
 ## Context (Computed Values)
 
 ```typescript
+import { useBasketBilling } from "@upmind-automation/headless";
+
 const { context, model, schema, uischema, errors, config } = useBasketBilling();
 
 context.value; // the full billing context
@@ -160,17 +177,24 @@ async function submit() {
 ## Creating a New Billing Detail
 
 ```typescript
+import { UnifiedType, useBasketBilling } from "@upmind-automation/headless";
+
 const { useUnifiedBillingDetail } = useBasketBilling();
 
-const detail = useUnifiedBillingDetail("personal");
+const detail = useUnifiedBillingDetail(UnifiedType.PERSONAL);
 
 await detail.isReady();
 
 const model = await detail.input({
-  address: { address1: "1 High Street", city: "London", countryId: "gb" }
+  address: {
+    address1: "1 High Street",
+    city: "London",
+    postcode: "SW1A 1AA",
+    countryId: "gb"
+  }
 });
 
 const saved = await detail.update(model);
 ```
 
-`useUnifiedBillingDetail("business", { clientId })` prepares a business detail instead — a company record that carries its own address and phone inline. See [foundation.md](./foundation.md) for the full request/response shapes.
+`useUnifiedBillingDetail(UnifiedType.BUSINESS, { clientId })` prepares a business detail instead — a company record that carries its own address and phone inline. See [foundation.md](./foundation.md) for the full request/response shapes.

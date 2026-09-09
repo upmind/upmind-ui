@@ -311,8 +311,7 @@ export async function readProductConfigQuietViaHeadless(
         isChecking,
         isCalculating,
         isProcessing,
-        isQuiet:
-          !isLoading && !isChecking && !isProcessing && !isCalculating,
+        isQuiet: !isLoading && !isChecking && !isProcessing && !isCalculating,
         quantity: typeof quantity === "number" ? quantity : null
       };
     }, target)

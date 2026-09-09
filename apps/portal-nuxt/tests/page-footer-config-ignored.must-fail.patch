@@ -1,0 +1,23 @@
+# Negative control — the page footer renders unconditionally, so the content
+# config's own `footer` flag decides nothing and every page grows a band.
+#
+# REBASED 2026-09-05 (F0 replaced the design system's `PageFooter`, gone from
+# the `page` family, with the portal's own band). Same mutation.
+#
+# Intended RED: "renders PageFooter only when the content config declares one,
+# with the page file unchanged" (tests/page-footer-config-ignored.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/content/PortalPageHost.vue
++++ b/apps/portal-nuxt/app/portal/content/PortalPageHost.vue
+@@ -120,10 +120,6 @@
+     />
+ 
+     <!-- Empty until the brand's own `footer` template slot lands (plan Phase 6). -->
+-    <div
+-      v-if="meta.showFooter"
+-      data-slot="page-footer"
+-      :class="PAGE_FOOTER_CLASS"
+-    ></div>
++    <div data-slot="page-footer" :class="PAGE_FOOTER_CLASS"></div>
+   </Page>
+ </template>

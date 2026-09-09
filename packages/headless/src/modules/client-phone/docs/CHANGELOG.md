@@ -58,7 +58,7 @@ Genuinely captured request/response pairs back every documented behaviour — th
 
 ### Notes
 
-- Both composables act on the calling client's own collection only, today. `staff` and `guest` are compile-time errors in both scope matrices.
+- Both composables act on the calling client's own collection only, today. `staff` and `guest` are `null as never` in both scope matrices, so naming another client as staff is a compile-time error.
 - `remove()` and `setDefault()` raise a user-visible success or failure message; every other capability in this module — including the whole editor half — does not. This asymmetry is deliberate; see [gotchas.md](./gotchas.md#8-remove-and-setdefault-raise-feedback--nothing-else-does).
 - A number's category (`type`) and its verification flag are both display-only. See "Not captured" below for why the latter is not a drop.
 
@@ -76,19 +76,36 @@ Genuinely captured request/response pairs back every documented behaviour — th
 **Breaking change:** both composables are now scoped and require `.as('self')`.
 
 ```ts
-// Before
 import {
+  ClientPhoneContextTypes,
+  ScopeActorTypes,
+  useClientPhoneManager,
   useClientPhones,
-  useClientPhoneManager
+  type ScopeBuilderActorWithContexts,
+  type UseClientPhoneManager
 } from "@upmind-automation/headless";
-const phones = useClientPhones();
-const manager = useClientPhoneManager(phoneId);
-const draft = useClientPhoneManager();
 
-// After
-const phones = useClientPhones().as("self");
-const manager = useClientPhoneManager().as("self").for("phone", phoneId);
-const draft = useClientPhoneManager().as("self").fresh();
+const phoneId = "825d96e7-63ed-0913-46c4-174825283406";
+
+// Before — the pre-scope calls, no longer on the barrel:
+//   const phones = useClientPhones();
+//   const manager = useClientPhoneManager(phoneId);
+//   const draft = useClientPhoneManager();
+
+// After. `.as()` takes the `ScopeActorTypes` enum, not a bare string, and
+// `.as(SELF)` erases `.for()` / `.fresh()` from the builder's TYPE — hence the
+// cast; see [gotchas.md](./gotchas.md#11-asselffor-does-not-typecheck-without-a-cast).
+type ScopedPhoneManager = ScopeBuilderActorWithContexts<
+  ReturnType<UseClientPhoneManager["fresh"]>,
+  ClientPhoneContextTypes
+>;
+
+const phones = useClientPhones().as(ScopeActorTypes.SELF);
+const scoped = useClientPhoneManager().as(
+  ScopeActorTypes.SELF
+) as ScopedPhoneManager;
+const manager = scoped.for(ClientPhoneContextTypes.PHONE, phoneId);
+const draft = scoped.fresh();
 ```
 
 ### Reading state — the four-layer destructure
@@ -96,11 +113,13 @@ const draft = useClientPhoneManager().as("self").fresh();
 **Breaking change:** every member now lives behind one of `useActions()` / `useContext()` / `useMeta()` / `useInternals()`, not on the composable's own return value.
 
 ```ts
-// Before
-const { data, default: defaultPhone, isReady } = useClientPhones();
+import { ScopeActorTypes, useClientPhones } from "@upmind-automation/headless";
+
+// Before — members sat on the composable's own return value:
+//   const { data, default: defaultPhone, isReady } = useClientPhones();
 
 // After
-const phones = useClientPhones().as("self");
+const phones = useClientPhones().as(ScopeActorTypes.SELF);
 const { data, default: defaultPhone } = phones.useContext();
 const { isReady } = phones.useActions();
 ```
@@ -110,9 +129,17 @@ const { isReady } = phones.useActions();
 **Breaking change:** the editor's `useMeta()` returns one computed per flag instead of a single `meta` object.
 
 ```ts
-// Before
-const { meta } = manager.useMeta();
-if (meta.value.isValid) await save();
+import {
+  ScopeActorTypes,
+  useClientPhoneManager
+} from "@upmind-automation/headless";
+
+const manager = useClientPhoneManager().as(ScopeActorTypes.SELF);
+declare function save(): Promise<void>;
+
+// Before — one `meta` object to unwrap:
+//   const { meta } = manager.useMeta();
+//   if (meta.value.isValid) await save();
 
 // After
 const { isValid } = manager.useMeta();
@@ -126,11 +153,30 @@ Flags available: `hasErrors`, `isAvailable`, `isComplete`, `isDirty`, `isLoading
 **Breaking change:** the editor no longer accepts a `clientId` construction option.
 
 ```ts
-// Before (never actually worked — see the changelog entry above)
-useClientPhoneManager(phoneId, { clientId: someOtherClientId });
+import {
+  ClientPhoneContextTypes,
+  ScopeActorTypes,
+  useClientPhoneManager,
+  type ScopeBuilderActorWithContexts,
+  type UseClientPhoneManager
+} from "@upmind-automation/headless";
 
-// After — there is no equivalent today; the editor always addresses the session's own client
-useClientPhoneManager().as("self").for("phone", phoneId);
+type ScopedPhoneManager = ScopeBuilderActorWithContexts<
+  ReturnType<UseClientPhoneManager["fresh"]>,
+  ClientPhoneContextTypes
+>;
+
+const phoneId = "825d96e7-63ed-0913-46c4-174825283406";
+
+// Before (never actually worked — see the changelog entry above):
+//   useClientPhoneManager(phoneId, { clientId: someOtherClientId });
+
+// After — there is no equivalent today; the editor always addresses the
+// session's own client
+(useClientPhoneManager().as(ScopeActorTypes.SELF) as ScopedPhoneManager).for(
+  ClientPhoneContextTypes.PHONE,
+  phoneId
+);
 ```
 
 If your integration relied on this option, it was not functioning before this release either — no request was ever retargeted by it. Track the follow-up issue for the underlying capability once it is filed.
@@ -140,21 +186,39 @@ If your integration relied on this option, it was not functioning before this re
 **Breaking change:** a bare services import for find-or-create is gone.
 
 ```ts
-// Before
-import { useClientPhoneServices } from "@upmind-automation/headless";
-await useClientPhoneServices().ensure({ phone });
+import {
+  ScopeActorTypes,
+  useClientPhones,
+  type PhoneModel
+} from "@upmind-automation/headless";
+
+const phone: PhoneModel["phone"] = {
+  number: "+447911123456",
+  nationalNumber: "7911123456",
+  countryCallingCode: "44",
+  country: "GB"
+};
+
+// Before — a bare services import, no longer on the barrel:
+//   import { useClientPhoneServices } from "@upmind-automation/headless";
+//   await useClientPhoneServices().ensure({ phone });
 
 // After
-import { useClientPhones } from "@upmind-automation/headless";
-import { ScopeActorTypes } from "@upmind-automation/headless";
 await useClientPhones().as(ScopeActorTypes.SELF).useActions().ensure({ phone });
 ```
 
 ### Obtaining the form definition
 
 ```ts
-// Before
-import { usePhoneSchema, usePhoneUischema } from "@upmind-automation/headless";
+import {
+  ScopeActorTypes,
+  useClientPhoneManager
+} from "@upmind-automation/headless";
+
+const manager = useClientPhoneManager().as(ScopeActorTypes.SELF);
+
+// Before — a bare schema-pair export, no longer on the barrel:
+//   import { usePhoneSchema, usePhoneUischema } from "@upmind-automation/headless";
 
 // After
 const { schema, uischema } = manager.useContext();

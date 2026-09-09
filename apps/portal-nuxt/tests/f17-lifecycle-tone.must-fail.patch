@@ -1,0 +1,18 @@
+# Negative control — a lifecycle date that has PASSED reads the same as one
+# still coming, so an overdue payment and a renewal next month are told apart
+# by nothing at all.
+#
+# Intended RED (to be added by the prover): a past lifecycle event reads apart
+# from a future one.
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -1895,7 +1895,7 @@
+ 
+ /** An event that has PASSED reads as a warning; one still coming reads as information. */
+ function lifecycleTone(event: MockProductEvent): TimelineTone {
+-  if (event.isPast) return "warning";
++  if (event.isPast) return "info";
+   return "info";
+ }
+ 

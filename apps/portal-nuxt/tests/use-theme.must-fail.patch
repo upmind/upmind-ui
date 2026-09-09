@@ -1,0 +1,27 @@
+# Negative control — pins the brand-switch boundary permanently shut, so a
+# brand's `preferredMode` never applies. This is the pre-fix behaviour a
+# latched `upmind-portal-mode-touched` produced: a dark-first brand renders in
+# whatever mode was last in force.
+#
+# Intended RED: useTheme — setTheme (brand switching)
+#   > applies a dark-first brand's preferredMode on switching to it
+#   > re-asserts a dark-first brand's preferredMode on a switch AFTER a deliberate toggle
+#   > returns to the dark-first brand dark after a light detour through another brand
+#   (layout level) app/layouts/default.vue — a shape's own theme reaches <html data-theme>
+#     > applies "verdant" — brand AND mode — for the booking-platform shape
+# Also RED (collateral — both assert the applied .dark class):
+#   useTheme — crossfade fallbacks > still applies the brand when startViewTransition is absent
+#   useTheme — crossfade fallbacks > skips the transition under prefers-reduced-motion but still applies
+
+diff --git a/apps/portal-nuxt/app/composables/useTheme.ts b/apps/portal-nuxt/app/composables/useTheme.ts
+--- a/apps/portal-nuxt/app/composables/useTheme.ts
++++ b/apps/portal-nuxt/app/composables/useTheme.ts
+@@ -60,7 +60,7 @@
+       // The brand owns the mode when you switch TO it; you own it after. The
+       // old "has ever toggled" latch never expired, so one toggle stuck every
+       // dark-first brand in light permanently.
+-      const isBrandSwitch = themeName.value !== name;
++      const isBrandSwitch = false;
+       const preferred = themeOptions.find(t => t.name === name)?.preferredMode;
+       withThemeTransition(() => {
+         themeName.value = name;

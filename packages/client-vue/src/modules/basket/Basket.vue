@@ -119,6 +119,7 @@ import {
   UIContext,
   ClientTemplateSlotCodes
 } from "@upmind-automation/headless";
+import { Icon } from "../../components/icon";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
 import Back from "../../components/navigation/Back.vue";
 import { useThemes } from "../theming";

@@ -1,0 +1,17 @@
+# Negative control — a page entry REPLACES the shape's content instead of merging over it, so a
+# page that states no measure falls to the container default and the chrome
+# reads a different one.
+#
+# Intended RED: tests/resolve-page-content.test.ts (a page entry inherits the shape's page shell).
+
+--- a/apps/portal-nuxt/app/portal/resolve.ts
++++ b/apps/portal-nuxt/app/portal/resolve.ts
+@@ -228,7 +228,7 @@
+   // `omitBy(isUndefined)` first: an entry built by a factory carries explicit
+   // `undefined` for the fields it never set, and those must not overwrite the
+   // shape's own value.
+-  return assign({}, config.content, omitBy(page, isUndefined));
++  return page;
+ }
+ 
+ /**

@@ -58,7 +58,8 @@ const GLOSSARY_IN = join(CORPUS_DIR, 'glossary.yaml');
 const CORPUS_OUT = join(CORPUS_DIR, 'corpus.json');
 const GLOSSARY_OUT = join(CORPUS_DIR, 'glossary.json'); // slim discovery-channel artifact (FE-3003)
 const ADR_DIR = join(DOCS_DIR, 'adr');
-const GUIDE_GLOB_ROOT = join(DOCS_DIR, '@upmind-automation');
+const GUIDE_GLOB_ROOT = join(DOCS_DIR, 'guides');
+const MODULE_DOCS_ROOT = join(ROOT, 'packages/headless/src/modules');
 
 const die = (msg) => {
   console.error(`FAIL (corpus:build): ${msg}`);
@@ -354,9 +355,22 @@ function buildAdrs() {
   return adrs;
 }
 
+// Two partitions, one `guide:` id space (design §5.2): the hand-authored
+// `docs/@upmind-automation/*-guide.md` set, plus every markdown file living in a
+// headless module's own `docs/` dir. The second partition exists because
+// gate:examples type-checks the snippets inside the files corpus.guides points
+// at, and the operator's ruling is that any doc carrying example code is gated.
+// Indexed only — emit-mdx.mjs has no guide branch, so the published tree is
+// untouched by either partition.
+function guideSourceFiles() {
+  const authored = walkMd(GUIDE_GLOB_ROOT, []).filter((f) => /-guide\.md$/.test(basename(f)));
+  const moduleDocs = walkMd(MODULE_DOCS_ROOT, []).filter((f) => toRepoRel(f).includes('/docs/'));
+  return [...authored, ...moduleDocs];
+}
+
 function buildGuides() {
   const guides = {};
-  const files = walkMd(GUIDE_GLOB_ROOT, []).filter((f) => /-guide\.md$/.test(basename(f)));
+  const files = guideSourceFiles();
   for (const full of files.sort()) {
     const rel = toRepoRel(full);
     const id = `guide:${rel.replace(/\.md$/, '')}`;

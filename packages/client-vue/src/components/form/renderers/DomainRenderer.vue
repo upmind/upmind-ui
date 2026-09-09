@@ -18,10 +18,9 @@
 <script lang="ts" setup>
 import { uiTypeIs, and, optionIs, or, schemaMatches } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
+import { FormField, useUpmindUIRenderer } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
 import SmartDomainField from "../../../modules/domain/SmartDomainField.vue";
-import FormField from "../engine/FormField.vue";
-import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import { castArray, includes, trim } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";

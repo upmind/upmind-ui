@@ -1,0 +1,18 @@
+# Negative control — the collapse fires as soon as the table passes the cap
+# rather than past cap + 1, so a document with exactly one row to spare hides
+# it behind a control that offers a single item.
+#
+# Intended RED: "keeps a table open when only one row would hide"
+# (tests/sixth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/modules/document/Document.vue
++++ b/apps/portal-nuxt/app/portal/modules/document/Document.vue
+@@ -283,7 +283,7 @@
+   const cap = props.lineCap;
+   if (cap === undefined) return 0;
+   const held = size(props.lines);
+-  if (held <= cap + 1) return 0;
++  if (held <= cap) return 0;
+   return held - cap;
+ }
+ 

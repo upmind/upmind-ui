@@ -10,9 +10,17 @@ In the one recorded case, an **already-verified** account submitting `code: "000
 - The wrong-code `4xx` shape on a genuinely **unverified** account is unverified inference, pending an unverified-account capture.
 
 ```ts
+import { ScopeActorTypes, useAccount } from "@upmind-automation/headless";
+
+declare const userEnteredCode: string;
+declare function assert(claim: string): void;
+declare function proceedAsVerified(): void;
+
+const { verify } = useAccount().as(ScopeActorTypes.SELF).useActions();
+
 // ⚠️ Wrong: treating a 204 as proof the entered code was correct
-const ok = await verify({ code: userEnteredCode });
-if (ok) assert("user typed the right code"); // NOT guaranteed on an already-verified account
+const wrongOk = await verify({ code: userEnteredCode });
+if (wrongOk) assert("user typed the right code"); // NOT guaranteed on an already-verified account
 
 // ✅ Right: a 204/true means "verified now", full stop
 const ok = await verify({ code: userEnteredCode });
@@ -28,11 +36,16 @@ Fixture: `__tests__/fixtures/post-clients-verification-code-verify.json` (`204`,
 `POST /clients/resend_verification` returns **`409 Conflict`** with `error.message: "Customer is already verified!"` for a verified client — this is expected platform behaviour, not a bug to retry.
 
 ```ts
+import { ScopeActorTypes, useAccount } from "@upmind-automation/headless";
+
+const { resend } = useAccount().as(ScopeActorTypes.SELF).useActions();
+
 // ⚠️ Wrong: retrying a 409 as if it were transient
 resend(); // 409 → back off and retry → still 409 forever
 
 // ✅ Right: a 409 means "nothing to resend" — stop and surface "already verified"
 // useMeta().resendFailed becomes true; treat it as terminal, not retryable.
+const { resendFailed } = useAccount().as(ScopeActorTypes.SELF).useMeta();
 ```
 
 > **🧪 For Testers:** `resend()` against a verified client returns `409` and sets `useMeta().resendFailed` / `hasErrors`. The happy-path `200` response is **not captured** (the recorded account is already verified) — do not assert a `200` body from these fixtures.
@@ -52,12 +65,16 @@ Fixture: `__tests__/fixtures/get-clients-id-case-unauthenticated.json` (`401`).
 The scope matrix maps `self` and `guest` to `null` and `staff`/`client` to `CLIENT`, but the machine's `isClient` guard additionally requires a **client to be present**. A guest session with no client, or a staff actor, routes to `unavailable`.
 
 ```ts
+import { ScopeActorTypes, useAccount } from "@upmind-automation/headless";
+
 // ⚠️ Wrong: assuming every session yields a working account instance
-const { showVerifyEmailForm } = useAccount().as("self").useMeta();
+const { showVerifyEmailForm } = useAccount().as(ScopeActorTypes.SELF).useMeta();
 // If the active actor isn't a client → this is always false; no forms ever show.
 
 // ✅ Right: gate on canShowForms / isGuest before rendering standing UI
-const { canShowForms } = useAccount().as("self").useMeta();
+const { canShowForms, isGuest } = useAccount()
+  .as(ScopeActorTypes.SELF)
+  .useMeta();
 ```
 
 > **🧪 For Testers:** With a non-client active actor (staff, or a guest with no client seeded), `canShowForms` is `false` and no standing form renders. `REFRESH` carrying client data re-routes `unavailable → subscribing`.
@@ -79,8 +96,12 @@ The `unverified` branch is gated on `useBrand().enforceEmailVerification`. A ful
 The back end keeps a guest's email in `username`; `email` is `null` until upgrade. The guest-email autosave PUT reads back `email: null`, and the module reflects the saved value on `client.username`.
 
 ```ts
+import type { IClient } from "@upmind-automation/types";
+
+declare const client: IClient;
+
 // ⚠️ Wrong: reading a guest's email off `email`
-const shown = client.email; // null for a guest
+const wrongShown = client.email; // null for a guest
 
 // ✅ Right: fall back to username
 const shown = client.email ?? client.username;
@@ -102,8 +123,10 @@ The link-based verification endpoint (`PATCH /clients/{id}/emails/{emailId}/chec
 
 > **🧪 For Testers:** Do not target the account module for link-based email verification — exercise it through the auth module / routing guard. Account owns only the **code**-based verify.
 
-## 10. `resolve()` is not part of the public surface
+## 10. `resolve()` is on the public surface, but both its branches are unreachable
 
-`useAccount.actions.ts` defines a private `resolve()` that branches on `stateMatches(state, "register")` — but no machine state is named `register` (the guest state is `unregistered`), and `resolve` is **not** returned from `useActions()`.
+`useAccount.actions.ts` defines `resolve()` and **does** return it from `useActions()` — it is part of the public surface, not a private helper. It is nonetheless inert. It routes on `stateMatches(state, "register")` and `stateMatches(state, "unverified")`, and neither name matches this module's machine: `account.machine.ts` has no `register` state at all (the guest state is `available.unregistered`), and its verification state is `available.unverified`, not the top-level `unverified` that `stateMatches` — which delegates to XState's root-anchored `state.matches()` — would need. Both guards miss, so `resolve()` always resolves `false`.
 
-> ⚠️ UNRATIFIED: `resolve()` appears to be dead/never-reachable code (wrong state name, not exported). Flagged for the reviewer; it has no bearing on the public API. Use the explicit `register()` / `verify()` actions instead.
+The pattern is borrowed from `auth`, where it works because that machine really does carry top-level `login`, `register` and `recover` states. Use this module's explicit `register()` / `verify()` actions instead.
+
+> ⚠️ UNRATIFIED: `resolve()` is unreachable code as written — both state names miss the machine. Flagged for the reviewer. It is exported, so it is not invisible to callers; it simply answers `false` in every state.

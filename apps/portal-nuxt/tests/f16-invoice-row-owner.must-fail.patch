@@ -1,0 +1,21 @@
+# Negative control — every invoice row reads as the signed-in account's own,
+# so a child account's document and a delegated one name nobody: legacy
+# switched to its second sentence and named the owner
+# (`invoiceRowItem.vue:163-167,333-341`).
+#
+# Intended RED (to be added by the prover): "the row names the owner of a
+# child-account or delegated invoice".
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -3850,9 +3850,7 @@
+  * stops.
+  */
+ function invoiceIssuedLine(invoice: MockInvoice): string {
+-  const belongsToOther =
+-    invoice.ownerName !== undefined || invoice.isDelegated === true;
+-  if (!belongsToOther) return `Issued ${invoice.issuedDate}`;
++  return `Issued ${invoice.issuedDate}`;
+   return `Issued ${invoice.issuedDate} to ${invoice.ownerName ?? "another account"}`;
+ }
+ 

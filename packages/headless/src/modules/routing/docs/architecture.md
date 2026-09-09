@@ -90,6 +90,24 @@ There is exactly one selection point: **`defaultFunnel`, at registration.**
 `initRouter()` runs after `useBrand()`, `useSystem()` and `useSession()` have all resolved, so brand config is fully available when the app's `registerFunnels()` executes. A brand-conditional starting funnel is therefore a plain read at that moment:
 
 ```typescript
+import { useBrand } from "@upmind-automation/client-vue";
+import { BrandConfigKeys, CheckoutFlows } from "@upmind-automation/types";
+import type { FunnelProps, FunnelWatcher } from "@upmind-automation/headless";
+
+declare const cart: FunnelProps;
+declare const onePage: FunnelProps;
+declare const domains: FunnelProps;
+declare const watchers: FunnelWatcher[];
+declare const CART_OVERLAYS: Record<string, string>;
+
+function getDefaultFunnel(): string {
+  const { getConfigValue } = useBrand();
+  return getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) ===
+    CheckoutFlows.ONE_PAGE
+    ? "one-page"
+    : "cart";
+}
+
 export const registerFunnels = () => ({
   defaultFunnel: getDefaultFunnel(), // reads brand config — already loaded
   funnels: { cart, "one-page": onePage, domains },
@@ -160,7 +178,7 @@ Architectural decisions for the routing module are documented in the centralized
 
 | ADR                                                                                                       | Decision                                                                    | Status   |
 | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | -------- |
-| [023 — Funnel Inheritance via `extends`](../../../../../docs/adr/023-funnel-inheritance.md)               | Variant funnels flatten a base config instead of restating or replacing it  | Accepted |
+| [034 — Funnel Inheritance via `extends`](../../../../../docs/adr/034-funnel-inheritance.md)               | Variant funnels flatten a base config instead of restating or replacing it  | Accepted |
 | [019 — Shell State Architecture](../../../../../docs/adr/019-shell-state-architecture.md)                 | Shell component tracking to prevent cross-page layout bleed                 | Accepted |
 | [018 — Funnel Reactive Watchers](../../../../../docs/adr/018-funnel-reactive-watchers.md)                 | Watcher subscription mechanism, subscribe vs watch, state tracking patterns | Accepted |
 | [017 — Funnel Navigation via State Meta](../../../../../docs/adr/017-funnel-navigation-via-state-meta.md) | Declarative meta-driven navigation                                          | Accepted |
@@ -177,6 +195,11 @@ The routing engine exposes lifecycle hooks for coordinating UI effects with navi
 | `onAfterEnter`  | Page component mounts (`mount()` call) | Scroll restoration, analytics     |
 
 ```typescript
+import { useRoutingEngine } from "@upmind-automation/headless";
+import { useShell } from "@upmind-automation/client-vue";
+
+declare function scrollToTop(): void;
+
 const { onBeforeLeave, onAfterEnter } = useRoutingEngine();
 
 onBeforeLeave(() => useShell().reset());

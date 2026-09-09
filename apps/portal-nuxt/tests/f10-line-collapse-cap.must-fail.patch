@@ -1,0 +1,19 @@
+# Negative control — the document prints every line whatever cap it was given,
+# so a long invoice never folds and the control that offers the rest has
+# nothing to reveal.
+#
+# Intended RED: "prints the cap and offers the rest behind one control"
+# (tests/sixth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/modules/document/Document.vue
++++ b/apps/portal-nuxt/app/portal/modules/document/Document.vue
+@@ -290,8 +290,7 @@
+ /** The rows that render — every line while there is nothing worth hiding. */
+ function visibleLines(): DocumentModuleLine[] {
+   const lines = [...(props.lines ?? [])];
+-  if (areLinesExpanded.value || hiddenLineCount() === 0) return lines;
+-  return take(lines, props.lineCap);
++  return lines;
+ }
+ 
+ /** What the collapse control says, or nothing where there is nothing to collapse. */

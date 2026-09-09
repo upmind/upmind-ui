@@ -1,0 +1,23 @@
+# Negative control — a period's opening balance subtracts what was drawn down
+# instead of adding it back, so no period closes where the next one opens.
+#
+# Intended RED: "closes each period where the next one opens"
+# (tests/fifth-closure.test.ts), "closes each period where the next one opens,
+# across all nine" (tests/sixth-closure.test.ts).
+#
+# REPAIRED 2026-09-06 (blind verification): the print-page title came off this
+# header. That test reads its expectations off the SAME view the page renders,
+# so a facade-figure mutation moves both sides together and can never red it —
+# `f9-statement-print.must-fail.patch` reaches the page's own figures instead.
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockWallet.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockWallet.ts
+@@ -217,7 +217,7 @@
+     movement => -movement.amount.amount
+   );
+   const closing = closingBalance(ledger, period, currency, movements);
+-  const opening = round(closing.amount - paidIn + drawnDown, MONEY_PRECISION);
++  const opening = round(closing.amount - paidIn - drawnDown, MONEY_PRECISION);
+   return {
+     id: period.id,
+     fromDate: period.fromDate,

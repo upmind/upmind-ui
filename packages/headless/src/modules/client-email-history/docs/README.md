@@ -25,12 +25,16 @@ Both always read the **calling client's own** history. There is nothing here to 
 
 ```ts
 import {
+  ScopeActorTypes,
+  SortDirection,
   useClientReceivedEmails,
   useClientReceivedEmail
 } from "@upmind-automation/headless";
 
+const emailId = "825d96e7-63ed-0913-46c4-174825283406";
+
 // The collection — browse, search, narrow by delivery outcome
-const history = useClientReceivedEmails().as("client");
+const history = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
 await history.useActions().isReady();
 const { data, schemas } = history.useContext();
 
@@ -39,7 +43,7 @@ history.useActions().setCriteria({ filters: { error_id: { neq: "null" } } });
 
 // `filterBy` / `sortBy` are the same write, named to one branch each
 history.useActions().filterBy({ sent: { eq: true } });
-history.useActions().sortBy([{ field: "subject", dir: "asc" }]);
+history.useActions().sortBy([{ field: "subject", dir: SortDirection.ASC }]);
 
 // `schemas.query` is the SAME schema a filter bar renders from
 schemas.query.schema;

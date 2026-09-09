@@ -184,6 +184,12 @@ type OrderFormCustomField = {
 Request models (inputs to the mutation capabilities):
 
 ```ts
+import type { IPhoneData } from "@upmind-automation/headless";
+
+// The phone bag the client-phone module mints: national number + calling code
+// + country.
+type PhoneData = IPhoneData;
+
 // Guest upgrade (capability 3) — the client-facing form model
 type CompleteRegistrationModel = {
   email: string;

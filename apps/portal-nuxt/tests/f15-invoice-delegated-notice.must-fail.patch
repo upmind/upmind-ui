@@ -1,0 +1,22 @@
+# Negative control — a document that reached this client through somebody
+# else's account says nothing about it, so legacy's `delegatedObjectMsg`
+# (`invoice/index.vue:19-24`) never renders and the withheld controls are
+# withheld without a reason.
+#
+# REBASED 2026-09-06 (F16 O-3 gave the three documents one wording). Same
+# mutation.
+#
+# Intended RED (to be added by the prover): "renders the delegated notice on a
+# delegated invoice, and on no other".
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -3411,7 +3411,7 @@
+     // through somebody else's account (`invoice/index.vue:19-24`) — it says
+     // whose it is, because the controls it withholds are withheld for that
+     // reason.
+-    invoice.isDelegated === true && delegatedDocumentMessage("invoice"),
++    invoice.isDelegated === false && delegatedDocumentMessage("invoice"),
+     isAwaitingPayment && {
+       id: "pending",
+       tone: "warning",

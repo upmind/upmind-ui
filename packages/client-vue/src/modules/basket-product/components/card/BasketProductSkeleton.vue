@@ -1,6 +1,12 @@
 <template>
-  <CardRoot as="li" :class="productRootCardVariants()">
-    <div :class="productRootSummariesVariants()">
+  <!-- own Card (default) vs flat inside a parent card (card=false), mirroring
+       the loaded BasketProduct — a card here too nests one card in another -->
+  <component
+    :is="props.card ? Card : 'div'"
+    :class="productRootContainerVariants({ card: props.card })"
+    :ui="meta.cardUi"
+  >
+    <div :class="productRootSummariesVariants({ card: props.card })">
       <article :class="productSummaryArticleVariants()">
         <!-- Header: Image, Category/ExPrice, Name/CurrentPrice -->
         <header :class="productSummaryHeaderRootVariants()">
@@ -37,16 +43,22 @@
       </article>
     </div>
 
-    <slot />
-  </CardRoot>
+    <!-- the inline-config placeholder leans on the card's inset, as the loaded
+         config form does -->
+    <div :class="productRootConfigVariants({ card: props.card })">
+      <slot />
+    </div>
+  </component>
 </template>
 
 <script lang="ts" setup>
-import { CardRoot } from "@upmind/ui";
-import { Skeleton } from "@upmind/ui";
+import { Card, Skeleton } from "@upmind/ui";
+import { computed } from "vue";
 import {
-  productRootCardVariants,
+  productRootCardContentVariants,
+  productRootContainerVariants,
   productRootSummariesVariants,
+  productRootConfigVariants,
   productSummaryArticleVariants,
   productSummaryHeaderRootVariants,
   productSummaryHeaderTopVariants,
@@ -64,4 +76,19 @@ import {
   productSkeletonQuantityVariants,
   productSkeletonRenewVariants
 } from "./basketProduct.variants";
+import type { BasketProductSkeletonProps } from "./types";
+
+// -----------------------------------------------------------------------------
+
+const props = withDefaults(defineProps<BasketProductSkeletonProps>(), {
+  card: true
+});
+
+const meta = computed(() => {
+  // Undefined so the non-card <div> branch gets no ui attribute.
+  let cardUi;
+  if (props.card) cardUi = { content: productRootCardContentVariants() };
+
+  return { cardUi };
+});
 </script>

@@ -11,20 +11,24 @@ Both act on the calling client's own addresses. Every capability below carries a
 
 ```ts
 import {
+  ClientAddressContextTypes,
+  ScopeActorTypes,
   useClientAddresses,
   useClientAddressManager
 } from "@upmind-automation/headless";
 
+const addressId = "825d96e7-63ed-0913-46c4-174825283406";
+
 // The collection — the calling client's own addresses
-const addresses = useClientAddresses().as("client");
+const addresses = useClientAddresses().as(ScopeActorTypes.CLIENT);
 
 // The editor, opened on one existing address
 const manager = useClientAddressManager()
-  .as("client")
-  .for("address", addressId);
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientAddressContextTypes.ADDRESS, addressId);
 
 // The editor, started on a brand-new address
-const draft = useClientAddressManager().as("client").fresh();
+const draft = useClientAddressManager().as(ScopeActorTypes.CLIENT).fresh();
 ```
 
 Both composables return the same four sub-composables:
@@ -33,7 +37,7 @@ Both composables return the same four sub-composables:
 | --------- | ----------------- | ------------------------------ | --------------------------------------- |
 | Actions   | `.useActions()`   | row mutations + list lifecycle | form input, save, lifecycle             |
 | Context   | `.useContext()`   | reactive list + lookups        | model, schema, resolved lookups, errors |
-| Meta      | `.useMeta()`      | seven state flags              | eight state flags                       |
+| Meta      | `.useMeta()`      | eight state flags              | eight state flags                       |
 | Internals | `.useInternals()` | the raw list query             | the raw machine state and sender        |
 
 > **🧪 For Testers:** Both composables support the `client` scope only. `self`, `staff` and `guest` are compile-time errors, not runtime failures — there is no scope in this module today for a staff member to read or edit another client's addresses.
@@ -136,7 +140,7 @@ Removes this scoped instance from the registry.
 
 ### Collection meta — `useMeta()`
 
-Seven flags.
+Eight flags.
 
 | Flag          | True when                                                                      |
 | ------------- | ------------------------------------------------------------------------------ |
@@ -146,6 +150,7 @@ Seven flags.
 | `hasPrevPage` | the underlying query reports a page before the current one                     |
 | `isAvailable` | the session is authenticated **and** the scope resolved a client id to address |
 | `isEmpty`     | the resolved collection has no addresses                                       |
+| `isFiltered`  | any declared filter column carries a value                                     |
 | `isLoading`   | the list read is in flight or has not completed its first fetch                |
 
 `isAvailable` is worth reading twice. It is **both limbs**: authenticated, _and_ a client id resolved. A session that authenticates but resolves no client correctly reports `false`. It is also the _same predicate_ every request gate in this module calls — not a second copy of it — so the flag you render and the guard the wire enforces cannot drift apart.
@@ -168,9 +173,17 @@ For debugging and tests. Not for production consumers.
 A form editor over one address. Open an existing address with `.for("address", id)`; start a new one with `.fresh()`. Each call to `.fresh()` mints its own isolated instance, so two concurrent drafts never share a model.
 
 ```ts
+import {
+  ClientAddressContextTypes,
+  ScopeActorTypes,
+  useClientAddressManager
+} from "@upmind-automation/headless";
+
+const addressId = "825d96e7-63ed-0913-46c4-174825283406";
+
 const manager = useClientAddressManager()
-  .as("client")
-  .for("address", addressId);
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientAddressContextTypes.ADDRESS, addressId);
 
 await manager.useActions().isReady();
 await manager.useActions().update({
@@ -501,6 +514,19 @@ Notes for the paste:
 This module is not uniform on feedback, and that is deliberate — see [gotchas.md](./gotchas.md#6-remove-and-setdefault-raise-feedback--nothing-else-does) for why:
 
 ```ts
+import {
+  ClientAddressContextTypes,
+  ScopeActorTypes,
+  useClientAddresses,
+  useClientAddressManager
+} from "@upmind-automation/headless";
+
+const addressId = "825d96e7-63ed-0913-46c4-174825283406";
+const addresses = useClientAddresses().as(ScopeActorTypes.CLIENT);
+const manager = useClientAddressManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientAddressContextTypes.ADDRESS, addressId);
+
 // Collection — remove() / setDefault() raise a message AND capture state
 const { error } = addresses.useContext();
 const { hasError } = addresses.useMeta();
@@ -509,6 +535,9 @@ const { hasError } = addresses.useMeta();
 const { errors, validationErrors } = manager.useContext();
 const { hasErrors } = manager.useMeta();
 await manager.useActions().onDone();
+
+console.log(error.value, hasError.value, errors.value, validationErrors.value);
+console.log(hasErrors.value);
 ```
 
 > **🧪 For Testers:** A consumer that shows nothing after a failed manager save has not lost the error — it has not rendered `useContext().errors`. A failed `remove()` / `setDefault()`, by contrast, DOES raise a message on your behalf, in addition to landing in state.

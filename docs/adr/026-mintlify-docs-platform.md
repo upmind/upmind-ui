@@ -66,6 +66,65 @@ Twelve binding decisions (condensed; full text in the council log):
 
 ---
 
+## Amendments
+
+Append-only. The Decision above is unchanged; this records the point at which
+the retired renderer stopped existing rather than merely stopping being the
+choice.
+
+### Amendment 1 — VitePress removed, and the gates actually run (FE-2749, September 2026)
+
+**Context.** This ADR chose Mintlify over VitePress in June, but the VitePress
+scaffolding stayed in the tree for three months and the drift gates it
+presupposes had never executed. `DOCS_CORPUS_CI_ENABLED` was set nowhere, so
+every job in `.gitlab-ci/docs-corpus.yml` was skipped from its first commit.
+Meanwhile the docs rotted underneath: 190 fenced snippets no longer compiled
+against the real packages, and the module docs told readers to import a symbol
+the package does not export.
+
+**What this amendment records.**
+
+1. **VitePress is gone, not merely superseded.** Deleted: the 287 generated
+   pages under `docs/@upmind-automation`, `docs/index.md`, `docs/public`,
+   `docs/firebase.json` and `.firebaserc`, `.gitlab-ci/vitepress.yml`, and the
+   `predocs` / `docs:dev` / `docs:build` / `docs:preview` scripts with their
+   `vitepress-*` dependencies. The apps keep their own `firebase.json` — only
+   the docs site's hosting went. TypeDoc still runs, but its markdown goes to a
+   gitignored throwaway dir: the corpus only ever consumed its JSON reflection.
+
+2. **The drift gates are live.** `DOCS_CORPUS_CI_ENABLED: "true"` in both
+   `.docs-corpus` and `corpus:post-merge-refresh`. FE-3128 claimed a devops
+   blocker; that was stale — CI already fetches `docs/published-docs` over SSH
+   with a read-only deploy key, and every gate only reads the emitted tree. The
+   write side is still absent, and FE-2949 owns it.
+
+3. **`gate-examples` now binds the fence contract.** The gate reads
+   `ts`/`tsx`/`js`/`jsx`/`vue` (and tolerates `typescript`/`javascript`), checks
+   every block by default, and takes an explicit
+   `<!-- corpus-example: skip — <specific structural reason> -->` opt-out. A
+   snippet is a whole compilable unit, imports included; "excerpt" is not a
+   reason. The rule's home is the plugin's `docs-writing.md`, section
+   "Code Blocks Must Compile" (0.19.4). **646 snippets compile.**
+
+4. **The corpus reads all module docs, not three files.** `buildGuides()` walked
+   only `docs/@upmind-automation/*-guide.md`; it now takes every module's
+   `docs/` set, so the corpus went from 3 guides to 136. The three
+   single-module guides that had been living inside typedoc's output directory
+   moved beside their own source as `<module>/docs/guide.md`, and the `/docs`
+   companion binds `<guides-root>` so that cannot recur.
+
+5. **The docs root holds the durable record only** — ADRs, the corpus and its
+   gates, the published tree. Working notes (audits, backups, research,
+   reviews, session worklogs) are gitignored; spent plans are deleted; release
+   notes move to Linear; the workshop handover bundle moved out of the product
+   repo entirely.
+
+**Open item closed.** "Mintlify plan tier for PR preview deploys" above is moot
+for the retired renderer's previews — the VitePress preview job it referred to
+no longer exists. The Mintlify-side question stays with FE-2949.
+
+---
+
 ## Where the live version lives
 
 The council log holds the full debate, verdicts, ranked risks, and the phased execution plan. This ADR holds the *why* and the binding decisions. FE-2748 and its sub-issues are updated to match.

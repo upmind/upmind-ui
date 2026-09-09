@@ -33,8 +33,12 @@ export function createClientReceivedEmailsContext(
   const { findOne, getOne } = useCollection<SentEmail>(query.data);
 
   // `castArray(undefined)` yields a phantom element, so the empty case is
-  // spelled out rather than cast.
-  const data = computed(() =>
+  // spelled out rather than cast. The explicit generic keeps the exported
+  // type at the documented "always an array" — without it the ListQuery
+  // intersection artifact (`QueryResponse<SentEmail[]> & SentEmail[]`) leaks
+  // into `UseClientReceivedEmailsContext["data"]`, which no other
+  // implementation of the contract could ever satisfy.
+  const data = computed<SentEmail[]>(() =>
     isArray(query.data.value) ? query.data.value : []
   );
 

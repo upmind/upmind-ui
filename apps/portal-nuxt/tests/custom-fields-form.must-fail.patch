@@ -1,0 +1,17 @@
+# Negative control — the custom-fields panel loses its visibility gate, so a
+# brand that asks the client nothing still renders the panel: a heading over a
+# form of no fields.
+#
+# Intended RED: the panel is absent where the brand defines no custom fields
+# (tests/custom-fields-form.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/config/account-pages.ts
++++ b/apps/portal-nuxt/app/portal/config/account-pages.ts
+@@ -91,7 +91,6 @@
+ const CUSTOM_FIELDS_FORM_ROW: ContentRowConfig = {
+   layout: ROW_LAYOUT.FULL,
+   surface: ROW_SURFACE.PANEL,
+-  visible: dataRef(DATA_REF_ID.HAS_CUSTOM_FIELDS),
+   header: {
+     title: "About your account",
+     description: "What we asked when you signed up."

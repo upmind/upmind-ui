@@ -106,6 +106,25 @@ export default {
   },
 
   /**
+   * A plain page's session gate. `guardScenario` early-returns for any route it
+   * cannot find in the scenario registry, so a hand-authored page it does not
+   * know about is never gated — this is that gate, the same session check
+   * without the scenario lookup or the scope-suffix actor read.
+   */
+  guardAuthenticated: async (): Promise<FunnelResponse> => {
+    const { isAuthenticated } = useActiveSession().useActions();
+    const authenticated = await isAuthenticated()
+      .then(() => true)
+      .catch(() => false);
+
+    if (authenticated) return { type: FunnelActions.NEXT };
+
+    return Promise.reject({
+      target: { name: ROUTE.SESSION }
+    } as FunnelResponse);
+  },
+
+  /**
    * The order page's gate. An off-site return lands here carrying
    * `?operation_id`; the operation names the work, so the guard runs it and
    * proceeds (FE-3133). An unknown reference names nothing and is ignored.

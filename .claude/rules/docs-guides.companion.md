@@ -2,6 +2,7 @@
 paths:
   - 'docs/learn/**/*.md'
   - '**/README.md'
+  - '**/docs/guide.md'
   - '**/docs/guides/**/*.md'
   - '**/guides/**/*.md'
 ---
@@ -22,4 +23,6 @@ The base rule's neutral personas map to Upmind's cart/portal audiences:
 
 ## Guide location (concrete path)
 
-The `<package>/docs/guides/` home is, in this monorepo, `packages/headless/docs/guides/` — package-level, not per-module. Module docs it links to live at `packages/headless/src/modules/<name>/docs/README.md`.
+A single-module guide lives with its module, at `packages/headless/src/modules/<name>/docs/guide.md` — `auth`, `brand` and `system` are the three that exist. A guide only earns a package-level home when it is genuinely cross-cutting; none is today, so `packages/headless/docs/guides/` does not exist.
+
+The corpus reads every module's `docs/` set, so a guide there is indexed wherever it sits. The three used to live inside typedoc's output directory, where a regeneration could wipe them (MR !566).

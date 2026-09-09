@@ -1,0 +1,25 @@
+# Negative control — the invitation writes only the products it named, so
+# every ticket a specific invitation granted is silently dropped.
+#
+# Intended RED: "appends a pending delegate holding exactly what was named"
+# (tests/delegate-invite-form.test.ts).
+
+diff --git a/apps/portal-nuxt/app/portal/mock/facades/useMockDelegate.ts b/apps/portal-nuxt/app/portal/mock/facades/useMockDelegate.ts
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockDelegate.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockDelegate.ts
+@@ -170,12 +170,9 @@ function invitedObjects(
+     submittedIds(model, "ticketIds"),
+     (id): MockDelegateObject => ({ type: DelegateObjectTypes.TICKET, id })
+   );
+-  return concat(
+-    reject(
+-      products,
+-      grant => find(data.products, { id: grant.id }) === undefined
+-    ),
+-    reject(tickets, grant => find(data.tickets, { id: grant.id }) === undefined)
++  return reject(
++    products,
++    grant => find(data.products, { id: grant.id }) === undefined
+   );
+ }
+ 

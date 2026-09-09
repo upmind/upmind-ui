@@ -1,0 +1,19 @@
+# Negative control — the products listing reads a criteria key nobody writes,
+# so `filters.name(...)` narrows nothing: legacy published
+# `products.product.name` as a CONTAINS filter and the module's published seam
+# answers no caller without it.
+#
+# Intended RED: "the products listing's own name setter narrows the rows"
+# (tests/filter-seams.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -1835,7 +1835,7 @@
+   // filter is over a SET, so one match is enough.
+   const inTag = matchesAny(product.tags, criteria.tag);
+   // Legacy's own `products.product.name` CONTAINS filter (`data/filters/order.ts`).
+-  const inName = matchesContains(product.name, criteria.name);
++  const inName = matchesContains(product.name, criteria.productName);
+   return (
+     inPurchaseWindow &&
+     inRenewalWindow &&

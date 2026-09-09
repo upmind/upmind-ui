@@ -1,0 +1,19 @@
+# Negative control — the per-topic control writes ONE channel instead of every
+# channel of the topic it names, so "Select all" leaves the in-app flag where it
+# was and the matrix it re-reads disagrees with the label that was pressed.
+#
+# Intended RED: "sets every channel of the topic it names, and no other topic's",
+# "follows the state it just wrote — the same control turns around"
+# (tests/fourth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockNotifications.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockNotifications.ts
+@@ -100,7 +100,7 @@
+           entity: row
+         };
+       }
+-      forEach(keys(row.channels), channel => {
++      forEach(keys(row.channels).slice(0, 1), channel => {
+         assign(row.channels, { [channel]: receives });
+       });
+       return { ok: true, entity: row };

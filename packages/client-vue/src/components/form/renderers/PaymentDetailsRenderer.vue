@@ -43,12 +43,16 @@
 <script setup lang="ts">
 import { isEnumControl, and, scopeEndIs } from "@jsonforms/core";
 import { useJsonFormsEnumControl } from "@jsonforms/vue";
-import { Badge, OptionTileGroup, OptionTile } from "@upmind/ui";
+import {
+  Badge,
+  OptionTileGroup,
+  OptionTile,
+  FormField,
+  useUpmindUIRenderer
+} from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { Icon } from "../../icon";
-import FormField from "../engine/FormField.vue";
-import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import { map, get } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";

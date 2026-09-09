@@ -1,0 +1,18 @@
+# Negative control — every commission's amount wears the APPROVED tone, so a
+# rejected or cancelled one reads as success: legacy toned the amount by where
+# the commission stands (`commissionAmountTag.vue:45-58`).
+#
+# Intended RED (to be added by the prover): "tones the commission amount by
+# where it stands".
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -5496,7 +5496,7 @@
+     trailingText: commission.amount.formatted,
+     status: {
+       label: commission.amount.formatted,
+-      tone: COMMISSION_STATUS_TONE[commission.status]
++      tone: COMMISSION_STATUS_TONE[MOCK_COMMISSION_STATUS.APPROVED]
+     }
+   }));
+ }

@@ -16,15 +16,20 @@ Tax handling is not a boolean. The `tax_type` field has three values:
 | 1     | Include tax, recalculate per client tax |
 | 2     | Include tax, ignore client tax          |
 
-```typescript
+```ts
+import { BrandTaxTypes } from "@upmind-automation/types";
+import type { IBrandSettings } from "@upmind-automation/types";
+
+declare const brand: IBrandSettings;
+
 // Wrong - treats as boolean
 const showGross = brand.tax_type === 1;
 
 // Correct - handles all three states
 const taxBehaviour = {
-  0: "net",
-  1: "gross-recalc",
-  2: "gross-fixed"
+  [BrandTaxTypes.EXCLUDE_TAX]: "net",
+  [BrandTaxTypes.INCLUDE_TAX_RESPECT_CLIENT_TAX]: "gross-recalc",
+  [BrandTaxTypes.INCLUDE_TAX_IGNORE_CLIENT_TAX]: "gross-fixed"
 }[brand.tax_type];
 ```
 
@@ -36,9 +41,16 @@ const taxBehaviour = {
 
 The `?with=currency` expand on `/brand/settings` can resolve to `null` even when the relation is configured.
 
-```typescript
-// Wrong - crashes on null expand
-const code = brand.currency.code;
+```ts
+import type { IBrandSettings, ICurrency } from "@upmind-automation/types";
+
+// The `currency` expand is not part of `IBrandSettings` — the typed contract
+// carries only `currency_id` plus the supported `currencies` list.
+declare const brand: IBrandSettings & { currency?: ICurrency | null };
+
+// Wrong - crashes on null expand (strict TS refuses it too)
+// @ts-expect-error `currency` is an optional expand, so it may be nullish
+const wrongCode = brand.currency.code;
 
 // Correct - fallback chain
 const code =
@@ -62,15 +74,31 @@ const code =
 | `{ url: "..." }`     | Redirect T&C      |
 | `data: null`         | No T&C configured |
 
-```typescript
-// Wrong - only handles two cases
-if (data.content) renderInline(data.content);
-else redirect(data.url);
+```ts
+import { useTermsAndConditions } from "@upmind-automation/headless";
 
-// Correct - handles null
-if (!data) return null;
-if (data.content) renderInline(data.content);
-else if (data.url) redirect(data.url);
+declare function renderInline(content: string): void;
+declare function redirect(url: string): void;
+
+const { data } = useTermsAndConditions();
+
+// Wrong - only handles two cases. `url` is optional on the mapped shape, and
+// the "nothing configured" wire case (`data: null`) is not reflected in the
+// composable's type at all — so nothing warns you it can be absent at runtime.
+function renderTermsWrong() {
+  const terms = data.value;
+  if (terms.content) renderInline(terms.content);
+  // @ts-expect-error `url` is optional, so it may be undefined
+  else redirect(terms.url);
+}
+
+// Correct - handles the "nothing configured" case first
+function renderTerms() {
+  const terms = data.value;
+  if (!terms) return null;
+  if (terms.content) renderInline(terms.content);
+  else if (terms.url) redirect(terms.url);
+}
 ```
 
 **Test scenario:** Load brand with no T&C configured, verify UI hides the T&C section instead of crashing.
@@ -81,8 +109,14 @@ else if (data.url) redirect(data.url);
 
 The `meta.i18n` object uses dot-notation keys (e.g., `"cart.title"`). These are string keys, not nested paths.
 
-```typescript
+```ts
+import { expect } from "vitest";
+
+// `meta.i18n` as it arrives: a locale map of flat, dot-notation string keys.
+declare const i18n: Record<string, Record<string, string>> | undefined;
+
 // Wrong - expects nested structure
+// @ts-expect-error `cart` is not a nested object; the key is the literal "cart.title"
 expect(i18n.en.cart.title).toBe("Cart");
 
 // Correct - use bracket notation

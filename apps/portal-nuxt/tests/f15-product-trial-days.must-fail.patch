@@ -1,0 +1,21 @@
+# Negative control — the trial tag stops counting the days left, so every
+# trial reads as ending in zero days whatever its end date says: legacy
+# reported `trial_duration` beside the date (`cProdTags.vue:14-28`).
+#
+# Intended RED (to be added by the prover): "counts the days a trial has left
+# from its own end date".
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockContractProduct.ts
+@@ -79,10 +79,7 @@
+  */
+ export function trialDaysRemaining(product: MockProduct): number {
+   if (product.trialEndsAt === undefined) return 0;
+-  const days = Math.ceil(
+-    (Date.parse(product.trialEndsAt) - Date.parse(today())) / MS_IN_DAY
+-  );
+-  return Math.max(days, 0);
++  return 0;
+ }
+ 
+ const MS_IN_DAY = 24 * 60 * 60 * 1000;

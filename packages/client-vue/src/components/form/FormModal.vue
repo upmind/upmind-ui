@@ -72,8 +72,8 @@ import { Link, Button } from "@upmind/ui";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import Form from "./Form.vue";
-import type { FormFooterProps, FormActionsProps } from "./engine/types";
 import type { FormModalProps } from "./types";
+import type { FormFooterProps, FormActionsProps } from "@upmind/ui";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<FormModalProps>();

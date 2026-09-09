@@ -137,6 +137,20 @@ type SelfIdentity = {
 Framework-neutral shape of the state the store holds across the token set:
 
 ```ts
+// Repeated from "The persisted token (cookie-of-record)" above so this shape stands alone.
+type Token = {
+  access_token: string | null;
+  refresh_token: string | null;
+  expires_in: number | null;
+  refresh_expires_in: number | null;
+  created_at?: number | null;
+  second_factor_required: boolean | null;
+  actor_type: "guest" | "client" | "user";
+  actor_id?: string | null;
+  guest_token?: string | null;
+  redirect?: string | null;
+};
+
 type IdentityModel = {
   guestSession?: Token; // at most one anonymous guest
   clientSessions: Record<string, Token>; // keyed by actor_id

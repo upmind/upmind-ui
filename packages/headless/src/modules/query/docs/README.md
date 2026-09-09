@@ -13,10 +13,11 @@ This is the **only** pipeline: `sort` / `filters` / `pagination` can never be sp
 ```ts
 import { useQuery } from "@upmind-automation/headless";
 
-const { list } = useQuery();
+const { list, useUrl } = useQuery();
+const mySchema = { type: "object", properties: {} };
 
 const query = list({
-  url: "/some/collection",
+  url: useUrl("/some/collection"),
   queryKey: ["some-collection"],
   criteria: { schema: mySchema } // ← the one new input
 });
@@ -26,7 +27,7 @@ query.criteria; // ComputedRef<Model> — the semantic request state
 query.schema; // the declared schema — what is filterable / sortable at all
 query.isFiltered; // derived from criteria, no string parsing
 query.criteriaError; // ajv's verdict on the last REJECTED write — never swallowed
-query.setCriteria(next); // the ONE write verb
+query.setCriteria({ filters: { title: { like: "widget" } } }); // the ONE write verb
 ```
 
 > **👩‍💻 For Developers:** `filters` / `sort` / `pagination` are typed `never` at the top level of `list()`, `query()` and `listInfinite()` — a compile error, not a runtime surprise, catches a raw spelling before it ships. The schema is what makes a branch legal to write at all: an undeclared filter column, an undeclared sort field, or a filter operator the branch's schema doesn't list is not a value that can reach `setCriteria`.
@@ -36,7 +37,7 @@ query.setCriteria(next); // the ONE write verb
 ```ts
 import { useQuery } from "@upmind-automation/headless";
 
-const { list } = useQuery();
+const { list, useUrl } = useQuery();
 
 const schema = {
   type: "object",
@@ -59,7 +60,7 @@ const schema = {
 };
 
 const query = list({
-  url: "/items",
+  url: useUrl("/items"),
   queryKey: ["items"],
   criteria: { schema }
 });

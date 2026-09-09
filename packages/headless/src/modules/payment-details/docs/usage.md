@@ -12,12 +12,18 @@ Three composables, none of which share a shape:
 
 `usePaymentDetail` is never called with a bare config object the way `usePayment` is. The `PaymentDetailsArgs` that seed a capture (`client`, `currency`, `amount`, `orderId`, `orderStatus`, …) are supplied by whoever spawns the machine — `basket.utils.ts`'s `spawnPaymentDetail`, `orders`' own spawn call, or `usePaymentDetailAdd` — never by the composable's own caller.
 
-```typescript
+```ts
 import {
   usePaymentDetail,
   usePaymentDetailAdd,
   usePaymentDetails
 } from "@upmind-automation/headless";
+import type { UseActor } from "@upmind-automation/headless";
+import type { ICurrency } from "@upmind-automation/types";
+import type { ComputedRef } from "vue";
+
+declare const actor: ComputedRef<UseActor | undefined>;
+declare const currency: ICurrency;
 
 // a lens onto an actor basket/orders already spawned
 const paymentDetail = usePaymentDetail(actor);
@@ -35,15 +41,26 @@ The module also exports `paymentDetailsMachine` for a parent machine to `invoke`
 
 ### Arguments
 
-```typescript
-function usePaymentDetail(
+```ts
+import type { UseActor, UsePaymentDetail } from "@upmind-automation/headless";
+import type { ComputedRef } from "vue";
+import type { ActorRef } from "xstate";
+
+declare function usePaymentDetail(
   service: ActorRef<any, any> | ComputedRef<UseActor | undefined>
 ): UsePaymentDetail;
 ```
 
 `service` is the spawned payment-detail actor (or a computed ref resolving to one) — never a config object. The context that actor was spawned with is `PaymentDetailsContext`, whose input shape is `PaymentDetailsArgs`:
 
-```typescript
+```ts
+import type {
+  IAddress,
+  IClient,
+  ICurrency,
+  IOrder
+} from "@upmind-automation/types";
+
 type PaymentDetailsArgs = {
   orderId?: IOrder["id"]; // required for PAY context
   orderStatus?: IOrder["status"]["code"]; // required for PAY context
@@ -61,7 +78,13 @@ type PaymentDetailsArgs = {
 
 ### State
 
-```typescript
+```ts
+import { usePaymentDetail } from "@upmind-automation/headless";
+import type { UseActor } from "@upmind-automation/headless";
+import type { ComputedRef } from "vue";
+
+declare const actor: ComputedRef<UseActor | undefined>;
+
 const {
   state, // computed(() => actor.value?.state.value.toStrings())
   isReady, // () => Promise<boolean>
@@ -126,7 +149,13 @@ const {
 
 ### Context (Computed Values)
 
-```typescript
+```ts
+import { usePaymentDetail } from "@upmind-automation/headless";
+import type { UseActor } from "@upmind-automation/headless";
+import type { ComputedRef } from "vue";
+
+declare const actor: ComputedRef<UseActor | undefined>;
+
 const {
   context, // the full PaymentDetailsContext
   gateways, // IBrandGateway[] — the filtered, brand-curated list
@@ -146,7 +175,13 @@ The final `PaymentDetailData` payload — the one `payment` submits — is **not
 
 ### Schema (Form Definitions)
 
-```typescript
+```ts
+import { usePaymentDetail } from "@upmind-automation/headless";
+import type { UseActor } from "@upmind-automation/headless";
+import type { ComputedRef } from "vue";
+
+declare const actor: ComputedRef<UseActor | undefined>;
+
 const {
   schema, // JsonSchema — the WHOLE form for the active context (PAY or ADD)
   uischema, // UISchemaElement — its layout
@@ -169,7 +204,13 @@ const {
 
 ### Actions
 
-```typescript
+```ts
+import { usePaymentDetail } from "@upmind-automation/headless";
+import type { UseActor } from "@upmind-automation/headless";
+import type { ComputedRef } from "vue";
+
+declare const actor: ComputedRef<UseActor | undefined>;
+
 const {
   input, // (value: PaymentDetailModel) => void — raw SET, no diffing
   setAmount, // (value: number) => void — sets a PARTIAL_PAYMENT amount
@@ -194,7 +235,12 @@ const {
 
 ## `usePaymentDetailAdd({ currency? })`
 
-```typescript
+```ts
+import { usePaymentDetailAdd } from "@upmind-automation/headless";
+import type { ICurrency } from "@upmind-automation/types";
+
+declare const myCurrency: ICurrency;
+
 const addCard = usePaymentDetailAdd({ currency: myCurrency });
 ```
 
@@ -204,8 +250,13 @@ It re-exports a subset of `usePaymentDetail`'s surface — `state`, `isReady`, `
 
 It adds one member of its own:
 
-```typescript
-refresh(newCurrency: ICurrency): void;
+```ts
+import type { ICurrency } from "@upmind-automation/types";
+
+/** The one member `usePaymentDetailAdd` adds on top of the re-exported subset. */
+interface UsePaymentDetailAddExtras {
+  refresh(newCurrency: ICurrency): void;
+}
 ```
 
 Sends a `REFRESH` only when the currency actually changed — a same-currency call is a no-op, so a caller does not need to guard the call itself.
@@ -216,7 +267,9 @@ There is no `stop()` / `destroy()`. The interpreter it starts keeps running unti
 
 The flat list — no machine, no `PaymentDetailsArgs`, no currency/country filter. It reads every active stored method the **current session's own client** holds.
 
-```typescript
+```ts
+import { usePaymentDetails } from "@upmind-automation/headless";
+
 const {
   isReady, // always resolves true immediately — check meta.isLoading instead
   meta, // { isLoading, hasError, isEmpty, isAvailable: true }

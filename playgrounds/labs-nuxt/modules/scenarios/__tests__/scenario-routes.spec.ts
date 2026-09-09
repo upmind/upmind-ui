@@ -37,6 +37,7 @@ import {
   isArray,
   join as joinAll,
   map,
+  find,
   some,
   uniq
 } from "lodash-es";
@@ -63,6 +64,18 @@ const declaredDirectories = filter(
       file.endsWith(".scenario.ts")
     )
 );
+
+/**
+ * The page a module draws itself with, when it ships one — the same file the
+ * registrar switches on. A module without one is drawn by the shared
+ * playground, and both routes are registered identically otherwise.
+ */
+const ownPageOf = (directory: string): string | undefined => {
+  const own = find(readdirSync(join(MODULE_DIR, directory)), file =>
+    file.endsWith(".page.vue")
+  );
+  return own && join(MODULE_DIR, directory, own);
+};
 
 /** The client-emails page, and the editor its rows hand off to. */
 const CLIENT_EMAILS = "useClientEmails";
@@ -106,8 +119,22 @@ describe("@G3d the directory IS the route — nothing else names one", () => {
     expect(declaredDirectories.length).toBeGreaterThan(0);
   });
 
-  it("points every scenario route at the ONE shared playground", () => {
-    expect(uniq(map(scenarioPages(), "file"))).toEqual([PLAYGROUND]);
+  it("draws every scenario with the shared playground, or with the module's own page", () => {
+    for (const page of scenarioPages()) {
+      expect(page.file).toBe(ownPageOf(page.name as string) ?? PLAYGROUND);
+    }
+  });
+
+  // The switch is the FILE existing, never a flag: the registrar runs in the
+  // Node/jiti context and may not import a declaration to read one off it.
+  it("keeps the shared playground for every module that ships no page", () => {
+    const shared = filter(
+      scenarioPages(),
+      page => !ownPageOf(page.name as string)
+    );
+
+    expect(uniq(map(shared, "file"))).toEqual([PLAYGROUND]);
+    expect(shared.length).toBeGreaterThan(0);
   });
 
   it("carries the scenario in route meta, spelled the same as the route name", () => {

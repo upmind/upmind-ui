@@ -1,6 +1,6 @@
 # Service Splitting — Worked Examples
 
-Reference appendix for the `code-services.md` rule (`.agent/rules/code-services.md`). The rule carries the decision criteria, the three implementation patterns, and the review checklist; this doc holds the worked real-world examples, the decision flowchart, and the summary table that illustrate them.
+Reference appendix for the `code-services` rule (`.claude/rules/code-services.companion.md`). The rule carries the decision criteria, the three implementation patterns, and the review checklist; this doc holds the worked real-world examples, the decision flowchart, and the summary table that illustrate them.
 
 > **Reference Implementation:** `packages/headless/src/modules/auth/` demonstrates the full split pattern.
 
@@ -193,6 +193,6 @@ Start
 
 ## Further Reading
 
-- [`.agent/rules/code-services.md`](/.agent/rules/code-services.md) — Service-actor authoring + split decision criteria
-- [`.agent/rules/code-composables-scoped.md`](/.agent/rules/code-composables-scoped.md) — How to structure scoped composables
-- [Auth Module](/packages/headless/src/modules/auth/) — Reference implementation
+- [`.claude/rules/code-services.companion.md`](../../.claude/rules/code-services.companion.md) — Service-actor authoring + split decision criteria
+- [ADR-001](../adr/001-scope-based-composables.md) — How to structure scoped composables
+- [Auth module](../../packages/headless/src/modules/auth/) — Reference implementation

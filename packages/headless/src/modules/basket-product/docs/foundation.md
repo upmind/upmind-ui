@@ -31,6 +31,19 @@ The configuration model submitted on update and the model returned on every read
 ## Data shape
 
 ```ts
+// Two records this file references but does not specify: the populated
+// catalogue product (specified in the product module's own foundation doc)
+// and the platform tag record, trimmed here to its customer-facing fields.
+type CatalogueProduct = Record<string, unknown>;
+type Tag = {
+  id: string;
+  name: string;
+  colour: string;
+  description: string;
+  show_on_invoice: boolean;
+  show_to_customer: boolean;
+};
+
 // What the front end submits when seating a NEW product into the basket
 // (POST /orders/{basketId}/products). Field names use snake_case — they
 // hit the wire unchanged.

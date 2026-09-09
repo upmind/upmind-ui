@@ -1,0 +1,20 @@
+# Negative control — renames a shape script to a generic product name, so
+# `dev:booking` still boots a hostgrid-themed portal and the script's name no
+# longer says what it serves.
+#
+# Intended RED: dev scripts — each is named for the brand it boots
+#   > dev:booking boots the brand its name claims
+# REBASED 2026-08-28 (the roster came down to one shape, renamed to hostgrid).
+# Same mutation.
+
+--- a/apps/portal-nuxt/package.json
++++ b/apps/portal-nuxt/package.json
+@@ -20,7 +20,7 @@
+     "tokens": "pnpm --filter @upmind/tokens build",
+     "predev": "pnpm tokens",
+     "dev": "nuxt dev",
+-    "dev:hostgrid": "pnpm tokens && NUXT_PUBLIC_PORTAL_CONFIG=hostgrid nuxt dev --port 3013",
++    "dev:booking": "pnpm tokens && NUXT_PUBLIC_PORTAL_CONFIG=hostgrid nuxt dev --port 3013",
+     "build-only": "nuxt build",
+     "build:prod": "pnpm type-check && pnpm build-only",
+     "postinstall": "nuxt prepare",

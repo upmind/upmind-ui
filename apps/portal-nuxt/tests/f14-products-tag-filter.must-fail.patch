@@ -1,0 +1,18 @@
+# Negative control — the products predicate reads a criteria key nobody
+# writes, so the tag control and `filters.tag(...)` both narrow nothing: a
+# published seam that answers no caller.
+#
+# Intended RED (to be added by the prover): "narrows the products to the ones
+# wearing one service tag".
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -1833,7 +1833,7 @@
+   const inStatus = matchesExact(product.status, criteria.status);
+   // A product answers a tag narrowing when it wears that tag; legacy's own
+   // filter is over a SET, so one match is enough.
+-  const inTag = matchesAny(product.tags, criteria.tag);
++  const inTag = matchesAny(product.tags, criteria.tags);
+   // Legacy's own `products.product.name` CONTAINS filter (`data/filters/order.ts`).
+   const inName = matchesContains(product.name, criteria.name);
+   return (

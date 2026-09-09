@@ -18,28 +18,21 @@ armed or live, and it is the same node before and after.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioBar.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioBar.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioBar.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ScenarioBar.vue
-@@ -15,7 +15,14 @@
+@@ -20,7 +20,7 @@
          @select="choose"
        />
-
+ 
 -      <template v-if="armed">
 +      <div
-+        v-if="armed"
-+        role="group"
-+        :aria-label="t('labs.scenario_bar')"
-+        data-test-key="scenario-bar"
-+        :data-test-value="status"
-+        :class="styles.scenarioBar.controls"
-+      >
-         <Spinner v-if="isBusy" size="sm" data-test-key="scene-busy" />
-
-         <Transport
-@@ -29,7 +36,7 @@
-           @next="player.next"
-           @stop="player.stop"
-         />
+         <Spinner
+           v-if="isBusy"
+           size="sm"
+@@ -50,7 +50,7 @@
+         >
+           {{ t("labs.replay_chip") }}
+         </Badge>
 -      </template>
-+      </div>
-
++        v-if="armed"
+ 
        <Tooltip v-if="failure" :label="failure">
          <Badge

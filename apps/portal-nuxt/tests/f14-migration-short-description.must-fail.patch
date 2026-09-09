@@ -1,0 +1,18 @@
+# Negative control — the change picker's rows state a name and a price and
+# nothing else, so a client choosing between them reads no description:
+# legacy carried `short_description` onto every row
+# (`migrationsListModal.vue:136-149`).
+#
+# Intended RED (to be added by the prover): "each change option states its
+# short description".
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -1728,7 +1728,6 @@
+   return map(orderedMigrationOptions(data, product), option => ({
+     id: option.id,
+     title: option.name,
+-    description: option.shortDescription,
+     category: option.category,
+     trailingText: migrationPriceLabel(data, option),
+     action: {

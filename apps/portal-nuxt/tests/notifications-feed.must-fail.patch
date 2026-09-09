@@ -1,0 +1,21 @@
+# Negative control — the page's list and the topbar dropdown share ONE
+# collection instance again, so paging one surface moves the other.
+#
+# REBASED 2026-09-06 (the allowlist collection below it gained its search).
+# Same mutation.
+#
+# Intended RED: "the page's own pager leaves the dropdown where it was" and
+# "the dropdown's load-more leaves the page where it was"
+# (tests/notifications-feed.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -365,7 +365,7 @@
+ );
+ 
+ /** The notifications PAGE's own list — paged, with no rail of its own. */
+-export const notificationsCollection = simpleCollection(newestNotifications);
++export const notificationsCollection = notificationFeedCollection;
+ 
+ /** Legacy's whitelist — read and removed here; adding one is a form (tier B). */
+ /**

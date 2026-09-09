@@ -6,26 +6,6 @@ import { cva, type VariantProps } from "class-variance-authority";
 // Nested config keys are flattened into one named export per cva.
 
 // --- root
-export const productRootCardVariants = cva(
-  "relative flex list-none flex-col p-0 text-base lg:p-0",
-  {
-    variants: {
-      isDisabled: {
-        true: "pointer-events-none cursor-not-allowed!",
-        false: ""
-      },
-      isLoading: {
-        true: "",
-        false: ""
-      }
-    },
-    compoundVariants: [
-      {
-        isLoading: false
-      }
-    ]
-  }
-);
 export const productRootSummariesVariants = cva(
   "divide-stroke flex flex-col divide-y divide-dashed *:py-4 *:first:pt-0 *:last:pb-0",
   {
@@ -140,9 +120,6 @@ export const productSkeletonControlsVariants = cva(
 export const productSkeletonQuantityVariants = cva("h-10 w-12");
 export const productSkeletonRenewVariants = cva("h-5 w-28");
 
-export type ProductRootCardVariants = VariantProps<
-  typeof productRootCardVariants
->;
 export type ProductOptionDescriptionVariants = VariantProps<
   typeof productOptionDescriptionVariants
 >;

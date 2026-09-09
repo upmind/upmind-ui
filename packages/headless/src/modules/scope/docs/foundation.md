@@ -77,7 +77,11 @@ lifecycle — every operation is synchronous and in-process.
 
 The mechanism is defined by a handful of value shapes, not by any wire payload.
 
-```typescript
+```ts
+// The platform's disposable reactive-effect scope. Vue supplies `EffectScope`;
+// any framework with the same stop-once contract can stand in.
+type DisposableEffectScope = { stop: () => void };
+
 // Who acts, and (optionally) on what.
 type ScopeConfig = {
   actor: "self" | "guest" | "client" | "staff"; // resolved to a concrete actor pre-key

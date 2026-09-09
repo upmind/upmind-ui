@@ -1,0 +1,18 @@
+# Negative control — the invoices listing reads a criteria key nobody writes,
+# so `filters.number(...)` narrows nothing: legacy published `NumberFilter` as
+# its own CONTAINS filter beside the search box.
+#
+# Intended RED (to be added by the prover): "the invoices listing's own number
+# setter narrows the rows" (tests/filter-seams.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -1013,7 +1013,7 @@
+ ): boolean {
+   const inStatus = matchesExact(invoice.status, criteria.status);
+   // Legacy's own `number` CONTAINS filter (`data/filters/invoice.ts`).
+-  const inNumber = matchesContains(invoice.number, criteria.number);
++  const inNumber = matchesContains(invoice.number, criteria.invoiceNumber);
+   // Legacy scoped a product's own invoices by query param rather than by a
+   // control; the module publishes the same narrowing as a named setter.
+   const inProduct = matchesExact(

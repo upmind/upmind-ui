@@ -1,0 +1,18 @@
+# Negative control — the seed shrinks back under three pages: every results
+# list falls to two pages, so a pager has only a first and a last and no
+# middle page to land on.
+#
+# Intended RED: every "<collection> pages three deep" case
+# (tests/seed-three-pages.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/hostgrid.filler.ts
++++ b/apps/portal-nuxt/app/portal/mock/hostgrid.filler.ts
+@@ -43,7 +43,7 @@
+  * (`PAGINATION.limit`), so every pager has a middle page to land on rather
+  * than a first and a last.
+  */
+-export const SEED_ROWS_PER_LIST = 24;
++export const SEED_ROWS_PER_LIST = 14;
+ 
+ /**
+  * Pads a hand-authored list up to `target` with generated rows. Self-

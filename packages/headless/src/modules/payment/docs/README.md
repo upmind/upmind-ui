@@ -10,8 +10,13 @@ It does not choose the method (that is `payment-details`), it does not own the i
 
 ## Quick Start
 
-```typescript
+```ts
 import { usePayment } from "@upmind-automation/headless";
+import type { PaymentDetailData } from "@upmind-automation/headless";
+import type { IInvoice } from "@upmind-automation/types";
+
+declare const invoice: IInvoice;
+declare const paymentDetail: PaymentDetailData;
 
 const payment = usePayment({
   orderId: invoice.id,
@@ -30,18 +35,47 @@ if (payment.meta.value.hasPaid) {
 }
 ```
 
-Inside another machine, invoke it as a child and **name yourself**:
+Inside another machine, invoke it as a child, **name yourself**, and take both
+hand-backs — this is `order.machine.ts`'s own `paying` state:
 
-```typescript
-invoke: {
-  id: "payment",
-  src: paymentMachine,
-  data: ({ invoice, paymentDetail }) => ({
-    orderId: invoice?.id,
-    paymentDetail,
-    parentId: "orderManager" // without this, nothing is handed back up
-  })
-}
+```ts
+import { createMachine } from "xstate";
+import { paymentMachine } from "@upmind-automation/headless";
+import type {
+  PaymentArgs,
+  PaymentDetailData
+} from "@upmind-automation/headless";
+import type { IInvoice } from "@upmind-automation/types";
+
+type OrderContext = {
+  invoice?: IInvoice;
+  paymentDetail?: PaymentDetailData;
+};
+
+createMachine({
+  id: "orderManager",
+  initial: "paying",
+  context: {} as OrderContext,
+  states: {
+    paying: {
+      invoke: {
+        id: "payment",
+        src: paymentMachine,
+        data: ({ invoice, paymentDetail }: OrderContext) => {
+          return {
+            orderId: invoice?.id,
+            paymentDetail,
+            parentId: "orderManager" // without this, nothing is handed back up
+          } as PaymentArgs;
+        },
+        onDone: { target: "refreshing" }, // carries the payment attempt
+        onError: { target: "collecting" } // carries the escalated ResponseError
+      }
+    },
+    refreshing: {},
+    collecting: {}
+  }
+});
 ```
 
 ## Features

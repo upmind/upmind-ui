@@ -1,0 +1,21 @@
+# Negative control — the invitation's gate forgets the brand's own identity, so
+# a WHITE-LABELLED sign-in screen offers the client a "create one here" link
+# its brand never authored.
+#
+# Intended RED: "that invitation's gate reads registration AND the brand's own
+# identity" (tests/auth-pages.test.ts).
+
+diff --git a/apps/portal-nuxt/app/portal/mock/selectors.ts b/apps/portal-nuxt/app/portal/mock/selectors.ts
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -3269,8 +3269,8 @@
+  * sign-in is a brand handing its own clients a link it never authored.
+  */
+ export function hasClientRegistration(data: MockDataset): boolean {
+-  const { CLIENT_REGISTRATION_ENABLED, UI_WHITELABEL_LOGIN } = data.features;
+-  return CLIENT_REGISTRATION_ENABLED && !UI_WHITELABEL_LOGIN;
++  const { CLIENT_REGISTRATION_ENABLED } = data.features;
++  return CLIENT_REGISTRATION_ENABLED;
+ }
+ 
+ /**

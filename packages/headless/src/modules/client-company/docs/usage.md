@@ -14,21 +14,30 @@ a 🧪 **For Testers** expected-behaviour statement.
 
 ```ts
 import {
+  ClientCompanyContextTypes,
+  ScopeActorTypes,
   useClientCompanies,
   useClientCompanyManager
 } from "@upmind-automation/headless";
 
+const companyId = "825d96e7-63ed-0913-46c4-174825283406";
+
 // The collection — the calling client's own companies
-const companies = useClientCompanies().as("client");
+const companies = useClientCompanies().as(ScopeActorTypes.CLIENT);
 
 // The editor, opened on one existing company
 const manager = useClientCompanyManager()
-  .as("client")
-  .for("company", companyId);
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCompanyContextTypes.COMPANY, companyId);
 
 // The editor, started on a brand-new company
-const draft = useClientCompanyManager().as("client").fresh();
+const draft = useClientCompanyManager().as(ScopeActorTypes.CLIENT).fresh();
 ```
+
+`.as()` and `.for()` take **enum members**, not free-form strings:
+`.as(ScopeActorTypes.CLIENT)` compiles, a bare `.as("client")` does not. Where
+the prose below writes `.as('client')` or `.for('company', id)`, read it as
+shorthand for the enum member of the same name.
 
 Both composables return the same four sub-composables:
 
@@ -188,14 +197,16 @@ loaded. Replaces the module's previous `filters.query(value)`, which is gone
 
 Applies a sort INTENT and re-issues the list request in the given order.
 
-| Param    | Type                                                     | Required |
-| -------- | -------------------------------------------------------- | -------- |
-| `intent` | `SortModel` — `{ field: "name" \| "created_at", dir }[]` | Yes      |
+| Param    | Type                                                                    | Required |
+| -------- | ----------------------------------------------------------------------- | -------- |
+| `intent` | `SortModel` — `{ field: "name" \| "created_at", dir: SortDirection }[]` | Yes      |
 
 **Returns:** `void`.
 
-> **🧪 For Testers:** `sortBy([{ field: "created_at", dir: "desc" }])` puts
-> `order=-created_at` on the wire; `dir: "asc"` drops the `-`. Only `name` and
+> **🧪 For Testers:** `sortBy([{ field: "created_at", dir: SortDirection.DESC }])`
+> puts `order=-created_at` on the wire; `SortDirection.ASC` drops the `-`. A
+> bare `"desc"` string does not compile — `dir` is the `SortDirection` enum.
+> Only `name` and
 > `created_at` are declared sortable — `default` is deliberately not one of
 > them, because no legacy consumer of this collection orders by it and an
 > unrecognised `order=` column is rejected by the server with a `500`, which
@@ -290,8 +301,13 @@ whole request state as one paste-ready trio — `{ schema, uischema, sortUischem
 the contract to read, not to hand-write against knowledge of the wire shape.
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientCompanies
+} from "@upmind-automation/headless";
+
 const { schema, uischema, sortUischema } = useClientCompanies()
-  .as("client")
+  .as(ScopeActorTypes.CLIENT)
   .useContext().schemas.query;
 ```
 
@@ -319,9 +335,16 @@ A form editor over one company. Open an existing company with
 mints its own isolated instance, so two concurrent drafts never share a model.
 
 ```ts
+import {
+  ClientCompanyContextTypes,
+  ScopeActorTypes,
+  useClientCompanyManager
+} from "@upmind-automation/headless";
+
+const companyId = "825d96e7-63ed-0913-46c4-174825283406";
 const manager = useClientCompanyManager()
-  .as("client")
-  .for("company", companyId);
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCompanyContextTypes.COMPANY, companyId);
 
 await manager.useActions().isReady();
 await manager.useActions().update({ name: "New Name" });
@@ -502,9 +525,16 @@ module barrel, because a form rendered from a definition the editor has not
 adopted validates against a different contract than the one that saves.
 
 ```ts
+import {
+  ClientCompanyContextTypes,
+  ScopeActorTypes,
+  useClientCompanyManager
+} from "@upmind-automation/headless";
+
+const id = "825d96e7-63ed-0913-46c4-174825283406";
 const { schema, uischema } = useClientCompanyManager()
-  .as("client")
-  .for("company", id)
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCompanyContextTypes.COMPANY, id)
   .useContext();
 ```
 
@@ -529,15 +559,31 @@ request behind them.
 
 ```ts
 import {
+  ClientCompanyContextTypes,
+  ScopeActorTypes,
+  useClientCompanyManager,
   useCompanySchema,
   useCompanyUischema
 } from "@upmind-automation/headless";
 
-const fragment = useCompanySchema({ countries, regions, baseModel, config });
+// The four look-ups are plain values, not refs — unwrap whatever source you
+// hold them in. An editor instance is the easiest source in-app.
+const id = "825d96e7-63ed-0913-46c4-174825283406";
+const { countries, regions, baseModel, config } = useClientCompanyManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCompanyContextTypes.COMPANY, id)
+  .useContext();
+
+const fragment = useCompanySchema({
+  countries: countries.value,
+  regions: regions.value,
+  baseModel: baseModel.value,
+  config: config.value
+});
 const fragmentUi = useCompanyUischema({
-  countries,
-  regions,
-  baseModel,
+  countries: countries.value,
+  regions: regions.value,
+  baseModel: baseModel.value,
   minimal: true
 });
 ```
@@ -555,6 +601,19 @@ Nothing in this module raises a toast, a notification, or any other message
 on your behalf. Every failure is captured where you can read and render it:
 
 ```ts
+import {
+  ClientCompanyContextTypes,
+  ScopeActorTypes,
+  useClientCompanies,
+  useClientCompanyManager
+} from "@upmind-automation/headless";
+
+const companyId = "825d96e7-63ed-0913-46c4-174825283406";
+const companies = useClientCompanies().as(ScopeActorTypes.CLIENT);
+const manager = useClientCompanyManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCompanyContextTypes.COMPANY, companyId);
+
 // Collection
 const { error } = companies.useContext();
 const { hasError } = companies.useMeta();

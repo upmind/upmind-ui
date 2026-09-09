@@ -25,3 +25,12 @@ export const SCOPE_SUFFIX_SEGMENT = "/:scopeSuffix(.*)*";
  * the url segment, so the two names answer different questions.
  */
 export const SCENARIO_DECLARATION_GLOB = "*/*.scenario.ts";
+
+/**
+ * A module that draws itself. Present beside the declaration, this file is the
+ * route's component instead of the shared playground — the module keeps its
+ * registration, its nav entry and its url, and only the RENDERING differs. The
+ * registrar switches on the file existing, because it may not import the
+ * declaration to read a flag off it.
+ */
+export const MODULE_PAGE_GLOB = "*/*.page.vue";

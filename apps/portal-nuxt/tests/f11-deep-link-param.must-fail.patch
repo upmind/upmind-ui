@@ -1,0 +1,18 @@
+# Negative control — the deep link opens its door and leaves the param in the
+# address, so a refresh or a step back opens the same door again.
+#
+# Intended RED: "opens the Pay door and drops the param, keeping the rest of
+# the query", "opens the migration door for an upgrade link"
+# (tests/seventh-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/composables/useInitAction.ts
++++ b/apps/portal-nuxt/app/composables/useInitAction.ts
+@@ -40,7 +40,5 @@
+   const verb = INIT_QUERY_VERB[asked];
+   // The param goes FIRST: the door may navigate, and a replace afterwards
+   // would fight the destination it chose.
+-  void router
+-    .replace({ query: omit(route.query, [INIT_QUERY_KEY]) })
+-    .then(() => run(verb));
++  void run(verb);
+ }

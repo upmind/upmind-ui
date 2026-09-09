@@ -1,0 +1,20 @@
+# Negative control — the page host ignores the resolved row list and renders
+# none of it (tasks.md Task 5 AC5.1).
+#
+# Intended RED: any assertion that a page renders one container per
+# configured content row (tests/account-rows-ignored.test.ts).
+#
+# REBASED 2026-08-26: pages became thin hosts of PortalPageHost (plan
+# Phase A). Same mutation, host anchors — asserted unique before mutating.
+
+--- a/apps/portal-nuxt/app/portal/content/PortalPageHost.vue
++++ b/apps/portal-nuxt/app/portal/content/PortalPageHost.vue
+@@ -55,7 +55,7 @@
+     <PortalRail :tertiary="resolvedShell.primitives.tertiary" />
+ 
+     <PortalContent
+-      :rows="resolvedContent.rows"
++      :rows="[]"
+       :aside="resolvedContent.aside"
+       :aside-size="resolvedContent.asideSize"
+       :aside-divider="resolvedContent.asideDivider"

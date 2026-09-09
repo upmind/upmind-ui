@@ -1,0 +1,17 @@
+# Negative control — the credit-notes "By credit note" order runs backwards,
+# so the panel answers a named order with its reverse.
+#
+# Intended RED: "orders them by number, by day and by size"
+# (tests/seventh-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -1342,7 +1342,7 @@
+   {
+     value: "number",
+     label: "By credit note",
+-    compare: (a, b) => a.number.localeCompare(b.number)
++    compare: (a, b) => b.number.localeCompare(a.number)
+   }
+ ];
+ 

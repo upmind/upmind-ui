@@ -1,0 +1,21 @@
+# Negative control — the share dialog offers "Allow payment" on every
+# document, including settled ones with nothing left to pay: legacy showed
+# the checkbox on an UNPAID, ADJUSTED or OVERDUE invoice alone
+# (`invoiceShareModal.vue:53-62`).
+#
+# Intended RED (to be added by the prover): "offers Allow payment only while
+# the invoice is still owed".
+
+--- a/apps/portal-nuxt/app/portal/mock/contracts/client-invoices.share.schemas.ts
++++ b/apps/portal-nuxt/app/portal/mock/contracts/client-invoices.share.schemas.ts
+@@ -46,9 +46,7 @@
+     link: { type: "string", title: "Link", readOnly: true },
+     allowDownload: { type: "boolean", title: "Allow PDF download" }
+   };
+-  if (context.offersPayment) {
+-    properties["allowPayment"] = { type: "boolean", title: "Allow payment" };
+-  }
++  properties["allowPayment"] = { type: "boolean", title: "Allow payment" };
+   return {
+     type: "object",
+     title: "Share this invoice",

@@ -180,3 +180,26 @@ describe("@AC3 error scope — the notice is the BOOT experience, not a blanket 
     expect(getRows(wrapper)).toHaveLength(0);
   });
 });
+
+// `R7-14`: a refused SCOPE is the one state a presented list does not keep its
+// table through. The rows in hand belong to an identity this surface may no
+// longer address, so the notice takes their place however far the list had got.
+// Negative control: `list-surface.keeps-refused-scope.must-fail.patch`.
+describe("@AC3 R7-14 a refused scope takes the rows with it", () => {
+  it("replaces a drawn table with the notice once the scope stops being served", async () => {
+    const actions: SurfaceActions = {};
+    const wrapper = mountList(actions);
+
+    expect(getRows(wrapper).length).toBeGreaterThan(0);
+
+    await wrapper.setProps({
+      snapshot: {
+        ...snapshot(actions, false),
+        meta: { ...snapshot(actions, false).meta, isServed: false }
+      }
+    });
+    await flushPromises();
+
+    expect(getRows(wrapper)).toHaveLength(0);
+  });
+});

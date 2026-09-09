@@ -1,0 +1,23 @@
+# Negative control — the tickets band draws no created-date control, so the
+# narrowing behind it is a key nothing can write: the code is there and no
+# client can reach it.
+#
+# Intended RED: "carries the created range beside the narrowings it already
+# had", "narrows to the window, and leaves the other narrowings alone"
+# (tests/eighth-closure.test.ts — removing the control removes the key the
+# range writes to); "offers no control at all over a column the showing tab
+# holds one value of" (tests/collection-filters.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -1304,10 +1304,6 @@
+         status => TICKET_STATUS_LABEL[status]
+       )
+     ),
+-    // Legacy's `CreatedAtFilter` (`data/filters/tickets.ts:72-76`). Without a
+-    // control the band draws, `criteria.dateCreated` is a key nothing can
+-    // write — the narrowing existed and no client could reach it.
+-    dateRangeFilter("dateCreated", "Raised")
+   ]);
+ }
+ 

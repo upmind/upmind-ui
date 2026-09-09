@@ -31,128 +31,127 @@ test.describe("Error Code Handling", () => {
     responseError,
     errorType
   } of Object.values(ErrorCodes)) {
-    test(
-      `Display ${errorCode} error message (${errorType})`,
-      async ({ page }) => {
-        // Setup error route interception FIRST, before any navigation
-        await returnError(page, route, errorCode, responseError);
+    test(`Display ${errorCode} error message (${errorType})`, async ({
+      page
+    }) => {
+      // Setup error route interception FIRST, before any navigation
+      await returnError(page, route, errorCode, responseError);
 
-        // The re-auth chain has to be observed from before the boot that
-        // triggers it: the call that 401s, the refresh grant, the retried call.
-        // Arm it only for that case — a waitForRequest still pending when any
-        // other case ends rejects with "Test ended" and fails that test.
-        const basketCalls: string[] = [];
-        let refreshGrant: Promise<unknown> | undefined;
-        if (errorType === "reauth") {
-          page.on("request", request => {
-            if (
-              request.method() === "GET" &&
-              /\/api\/orders\/current/.test(request.url())
-            ) {
-              basketCalls.push(request.url());
-            }
-          });
-          refreshGrant = page.waitForRequest(
-            request =>
-              request.method() === "POST" &&
-              /oauth\/access_token/.test(request.url()) &&
-              request.postDataJSON()?.grant_type === "refresh_token"
-          );
-        }
-        // A status the app maps to no feedback renders nothing to wait on, so
-        // the errored response IS the proof the path was exercised.
-        let erroredResponse: Promise<unknown> | undefined;
-        if (errorType === "silent") {
-          erroredResponse = page.waitForResponse(
-            response =>
-              /\/api\/orders\/current/.test(response.url()) &&
-              response.status() === errorCode
-          );
-        }
-
-        // Navigate directly to the URL that will trigger the error
-        await page.goto(url);
-
-        // A 503 on brand settings means the brand doesn't exist — the app
-        // redirects to the upmind platform homepage before the cart shell/session
-        // loads, so assert that here (before waiting for the cart session cookie).
-        if (errorType === "homepage") {
-          await expect(page).toHaveURL(/upmind\.com/);
-          return;
-        }
-
-        // Wait for page to be ready
-        await waitForSessionCookie(page.context());
-
-        if (errorType === "dialog") {
-          // The maintenance interstitial (system/Error.vue) passes
-          // dataAttrs={ 'data-test-key': 'error' }, which — because the
-          // Interstitial is modal — OVERRIDES the Dialog's default
-          // `dialog-window` testid (Interstitial.ce.vue rootDataAttrs). So the
-          // 503 dialog is data-test-key="error", NOT "dialog-window"; the
-          // stacked "product not found" interstitial (no override) keeps
-          // `dialog-window`. Target the maintenance dialog by its real testid,
-          // still filtered by the expected message so a message-less dialog
-          // matches nothing and toBeVisible fails.
-          const dialog = page
-            .getByTestId("error")
-            .filter({ hasText: responseError.message });
-          await expect(dialog).toBeVisible();
-          // Assert the retry/action affordance by its stable, label-independent
-          // testid. NB the interstitial's action Button sets `data-test-value`
-          // to its v-for index (0 for the sole 503 action), but useTestAttrs
-          // treats numeric 0 as falsy in its `overrideValue || …` cascade and
-          // drops it — so `[data-test-value="0"]` NEVER renders. The
-          // `data-test-key="interstitial-action"` pair does render; scoped to
-          // the error dialog it resolves the single action button uniquely.
-          await expect(dialog.getByTestId("interstitial-action")).toBeVisible();
-        } else if (errorType === "redirect") {
-          // FE-2782 Category 3 (documented, unavoidable): the errored product
-          // resolves to its not-found route; that redirect IS the behaviour and
-          // the NotFound page exposes no stable in-app testid to assert instead.
-          await expect(page).toHaveURL(
-            `${URLs.baseUrl}order/product/3de78642-de53-9714-76df-21208469530d/not-found/`
-          );
-        } else if (errorType === "reauth") {
-          // A 401 on the basket call is answered with a re-authentication, not
-          // a dialog: the app posts a refresh grant and retries the call once
-          // (useQuery canRetryAuthorization → refreshToken). Assert that chain.
-          await refreshGrant;
-          await expect
-            .poll(() => basketCalls.length, {
-              message: "orders/current was not retried after the refresh grant"
-            })
-            .toBeGreaterThanOrEqual(2);
-          // ...and the customer stays on the product page throughout.
-          expect(page.url()).toContain(`${URLs.baseUrl}order/product/`);
-        } else if (errorType === "silent") {
-          // This status raises NO global feedback at all — no toast, no
-          // interstitial (see the ErrorCodes row for the mapping). Prove the
-          // errored response landed, then that nothing surfaced: the 500 twin
-          // raises its toast off this very route ~110ms after the response, and
-          // networkidle is the app's own "done reacting", so an empty toaster
-          // here is the mapping at work, not a render this assertion outran.
-          await erroredResponse;
-          await page.waitForLoadState("networkidle");
-          await expect(
-            page.getByTestId("sonner-toast").locator("li")
-          ).toHaveCount(0);
-          await expect(page.getByTestId("error")).toHaveCount(0);
-          expect(page.url()).toContain(`${URLs.baseUrl}order/product/`);
-        } else if (errorType === "toast") {
-          const toast = page.getByTestId("sonner-toast").locator("li");
-          await expect(toast.first()).toBeVisible({ timeout: 10000 });
-          // The error surfaces as a toast while the user stays on the product
-          // page — assert the toast plus that we did NOT navigate away.
-          // NB: do NOT assert the product-configuration section here; it renders
-          // from the orders/current basket call that this test intercepts with a
-          // 500, so it can never appear (FE-2782 over-reach; reverted to the
-          // behaviour the URL stood for).
-          await expect(page.url()).toContain(`${URLs.baseUrl}order/product/`);
-        } else {
-          throw new Error(`Invalid errorType on ErrorCodes: ${errorType}`);
-        }
+      // The re-auth chain has to be observed from before the boot that
+      // triggers it: the call that 401s, the refresh grant, the retried call.
+      // Arm it only for that case — a waitForRequest still pending when any
+      // other case ends rejects with "Test ended" and fails that test.
+      const basketCalls: string[] = [];
+      let refreshGrant: Promise<unknown> | undefined;
+      if (errorType === "reauth") {
+        page.on("request", request => {
+          if (
+            request.method() === "GET" &&
+            /\/api\/orders\/current/.test(request.url())
+          ) {
+            basketCalls.push(request.url());
+          }
+        });
+        refreshGrant = page.waitForRequest(
+          request =>
+            request.method() === "POST" &&
+            /oauth\/access_token/.test(request.url()) &&
+            request.postDataJSON()?.grant_type === "refresh_token"
+        );
       }
-    );
+      // A status the app maps to no feedback renders nothing to wait on, so
+      // the errored response IS the proof the path was exercised.
+      let erroredResponse: Promise<unknown> | undefined;
+      if (errorType === "silent") {
+        erroredResponse = page.waitForResponse(
+          response =>
+            /\/api\/orders\/current/.test(response.url()) &&
+            response.status() === errorCode
+        );
+      }
+
+      // Navigate directly to the URL that will trigger the error
+      await page.goto(url);
+
+      // A 503 on brand settings means the brand doesn't exist — the app
+      // redirects to the upmind platform homepage before the cart shell/session
+      // loads, so assert that here (before waiting for the cart session cookie).
+      if (errorType === "homepage") {
+        await expect(page).toHaveURL(/upmind\.com/);
+        return;
+      }
+
+      // Wait for page to be ready
+      await waitForSessionCookie(page.context());
+
+      if (errorType === "dialog") {
+        // The maintenance interstitial (system/Error.vue) passes
+        // dataAttrs={ 'data-test-key': 'error' }, which — because the
+        // Interstitial is modal — OVERRIDES the Dialog's default
+        // `dialog-window` testid (Interstitial.ce.vue rootDataAttrs). So the
+        // 503 dialog is data-test-key="error", NOT "dialog-window"; the
+        // stacked "product not found" interstitial (no override) keeps
+        // `dialog-window`. Target the maintenance dialog by its real testid,
+        // still filtered by the expected message so a message-less dialog
+        // matches nothing and toBeVisible fails.
+        const dialog = page
+          .getByTestId("error")
+          .filter({ hasText: responseError.message });
+        await expect(dialog).toBeVisible();
+        // Assert the retry/action affordance by its stable, label-independent
+        // testid. NB the interstitial's action Button sets `data-test-value`
+        // to its v-for index (0 for the sole 503 action), but useTestAttrs
+        // treats numeric 0 as falsy in its `overrideValue || …` cascade and
+        // drops it — so `[data-test-value="0"]` NEVER renders. The
+        // `data-test-key="interstitial-action"` pair does render; scoped to
+        // the error dialog it resolves the single action button uniquely.
+        await expect(dialog.getByTestId("interstitial-action")).toBeVisible();
+      } else if (errorType === "redirect") {
+        // FE-2782 Category 3 (documented, unavoidable): the errored product
+        // resolves to its not-found route; that redirect IS the behaviour and
+        // the NotFound page exposes no stable in-app testid to assert instead.
+        await expect(page).toHaveURL(
+          `${URLs.baseUrl}order/product/3de78642-de53-9714-76df-21208469530d/not-found/`
+        );
+      } else if (errorType === "reauth") {
+        // A 401 on the basket call is answered with a re-authentication, not
+        // a dialog: the app posts a refresh grant and retries the call once
+        // (useQuery canRetryAuthorization → refreshToken). Assert that chain.
+        await refreshGrant;
+        await expect
+          .poll(() => basketCalls.length, {
+            message: "orders/current was not retried after the refresh grant"
+          })
+          .toBeGreaterThanOrEqual(2);
+        // ...and the customer stays on the product page throughout.
+        expect(page.url()).toContain(`${URLs.baseUrl}order/product/`);
+      } else if (errorType === "silent") {
+        // This status raises NO global feedback at all — no toast, no
+        // interstitial (see the ErrorCodes row for the mapping). Prove the
+        // errored response landed, then that nothing surfaced: the 500 twin
+        // raises its toast off this very route ~110ms after the response, and
+        // networkidle is the app's own "done reacting", so an empty toaster
+        // here is the mapping at work, not a render this assertion outran.
+        await erroredResponse;
+        await page.waitForLoadState("networkidle");
+        await expect(
+          page.getByTestId("sonner-toast").locator("li")
+        ).toHaveCount(0);
+        await expect(page.getByTestId("error")).toHaveCount(0);
+        expect(page.url()).toContain(`${URLs.baseUrl}order/product/`);
+      } else if (errorType === "toast") {
+        const toast = page.getByTestId("sonner-toast").locator("li");
+        await expect(toast.first()).toBeVisible({ timeout: 10000 });
+        // The error surfaces as a toast while the user stays on the product
+        // page — assert the toast plus that we did NOT navigate away.
+        // NB: do NOT assert the product-configuration section here; it renders
+        // from the orders/current basket call that this test intercepts with a
+        // 500, so it can never appear (FE-2782 over-reach; reverted to the
+        // behaviour the URL stood for).
+        await expect(page.url()).toContain(`${URLs.baseUrl}order/product/`);
+      } else {
+        throw new Error(`Invalid errorType on ErrorCodes: ${errorType}`);
+      }
+    });
   }
 });

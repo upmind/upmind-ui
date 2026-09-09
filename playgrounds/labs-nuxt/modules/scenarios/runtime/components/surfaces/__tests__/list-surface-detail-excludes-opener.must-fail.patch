@@ -14,10 +14,12 @@ OTHER row action (Edit, etc.) still rides there.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-@@ -983,5 +983,5 @@
-   const row = detailState.value;
+@@ -1045,7 +1045,7 @@ const detailActionItems = computed<ActionSlotItem[]>(() => {
+   const row = detailRecord.value;
    if (!row) return [];
    const opened = map(filter(rowActions.value, "detail"), "name");
 -  return reject(rowActionItems(row), item => includes(opened, item.name));
 +  return rowActionItems(row);
  });
+ 
+ /** What pressing ONE row's control does — the only path, hand or scenario. */

@@ -1,0 +1,15 @@
+# Negative control — the panel footer loses its collapse rule, so a pager
+# that renders nothing leaves the bordered, padded strip standing (measured
+# at 49px on a group listing before the fix).
+#
+# Intended RED: "panel carries the collapse rule" and "lands the collapse
+# rule on the rendered footer element" (tests/row-footer-empty-region.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/content/variants.ts
++++ b/apps/portal-nuxt/app/portal/content/variants.ts
+@@ -84,4 +84,4 @@
+     body: "p-6 pt-0 lg:p-6 lg:pt-0",
+     bodyBare: "p-6 lg:p-6",
+-    footer: "border-stroke border-t p-6 lg:p-6 empty:hidden"
++    footer: "border-stroke border-t p-6 lg:p-6"
+   },

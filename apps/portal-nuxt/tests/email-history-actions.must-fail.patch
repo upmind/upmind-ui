@@ -1,0 +1,34 @@
+# Negative control — the retry verb falls silent instead of refusing, so a
+# client who reaches it by a kept link is told nothing at all: no refusal, no
+# toast, no answer. A control the client pressed always answers (plan R4's
+# second tier) — silence is what an UNKNOWN verb earns, never a known one.
+#
+# RETARGETED 2026-09-06: this graded `retry()`'s own already-arrived guard,
+# and that write was deleted with the over-build (sending a client's message
+# again is the desk's job). The behaviour it protected now lives in the
+# dispatcher's refusal, so the mutation moves there — and mutates the ANSWER
+# rather than the write, which `f11-email-verb-succeeds` already grades. The
+# two titles it used to name went with the writes; the one below folded them.
+#
+# Intended RED: "refuses either message, whatever its standing, and leaves it
+# where it stands" (tests/email-history-actions.test.ts); "refuses both verbs
+# as ours to run, and writes nothing, on either brand"
+# (tests/seventh-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/actions.ts
++++ b/apps/portal-nuxt/app/portal/mock/actions.ts
+@@ -2943,10 +2943,12 @@
+     // entries sat behind `isAdmin` (`emailHistoryTable.vue:236,249`). The
+     // verbs stay so a link kept from before answers, and what they answer is
+     // that this is not the client's to do.
+-    case MOCK_ACTION.EMAIL_RESEND:
+-    case MOCK_ACTION.EMAIL_RETRY: {
++    case MOCK_ACTION.EMAIL_RESEND: {
+       return refusal(MOCK_RECEIPT_REASON.NOT_PERMITTED);
+     }
++    case MOCK_ACTION.EMAIL_RETRY: {
++      return undefined;
++    }
+     case MOCK_ACTION.AFFILIATE_ENROL: {
+       const receipt = useMockAffiliate(data).useActions().enrol();
+       return fromReceipt(receipt, () => ({

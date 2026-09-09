@@ -1,0 +1,22 @@
+# Negative control — `open-form:ip-whitelist-edit:<absent id>` hands back a
+# form envelope for an address the account does not hold, so the dialog opens
+# on nothing rather than saying the row is gone.
+#
+# Intended RED (to be added by the prover): "refuses the allowlist edit dialog
+# for an address nobody holds, with a warning and no form".
+
+diff --git a/apps/portal-nuxt/app/portal/mock/actions.ts b/apps/portal-nuxt/app/portal/mock/actions.ts
+--- a/apps/portal-nuxt/app/portal/mock/actions.ts
++++ b/apps/portal-nuxt/app/portal/mock/actions.ts
+@@ -409,11 +409,6 @@ const FORM_REFUSAL: Partial<
+     if (product !== undefined) return undefined;
+     return { ok: false, reason: MOCK_RECEIPT_REASON.NOT_FOUND };
+   },
+-  [FORM_ID.IP_WHITELIST_EDIT]: (data, entityId) => {
+-    if (find(data.ipWhitelist, { id: entityId }) !== undefined)
+-      return undefined;
+-    return { ok: false, reason: MOCK_RECEIPT_REASON.NOT_FOUND };
+-  },
+   [FORM_ID.INVOICE_SHARE]: (data, entityId) =>
+     addressedInvoice(data, entityId, invoice => whyNotShareable(invoice))
+ };

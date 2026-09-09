@@ -5,6 +5,7 @@
 
 import { resolve } from "path";
 import tailwindcss from "@tailwindcss/vite";
+import { upmindTokensCss } from "@upmind/tokens/vite";
 
 // Enable typeCheck only during build (not dev) to avoid spawn EBADF error on macOS
 const isBuild =
@@ -144,7 +145,7 @@ export default defineNuxtConfig({
    */
 
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [upmindTokensCss(), tailwindcss()],
     resolve: {
       dedupe: ["vue-router"]
     },

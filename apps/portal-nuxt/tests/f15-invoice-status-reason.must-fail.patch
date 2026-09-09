@@ -1,0 +1,22 @@
+# Negative control — the cancelled standing drops the reason the brand
+# recorded against it, so a document says it was cancelled and never why:
+# legacy appended `object_cancelled_reason_msg` inside that same branch
+# (`data/enums/invoice.ts:96-103`).
+#
+# Intended RED (to be added by the prover): "states the reason recorded
+# against a cancelled invoice".
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockInvoice.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockInvoice.ts
+@@ -722,10 +722,7 @@
+     return {
+       tone: "neutral",
+       title: "Cancelled",
+-      message: compact([
+-        `This ${noun} was cancelled ${invoice.dateCancelled ?? invoice.issuedDate}.`,
+-        statusReasonLine(invoice)
+-      ]).join(" ")
++      message: `This ${noun} was cancelled ${invoice.dateCancelled ?? invoice.issuedDate}.`
+     };
+   }
+   if (invoice.status === InvoiceStatus.REFUNDED) {

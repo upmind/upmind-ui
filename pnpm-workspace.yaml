@@ -86,11 +86,18 @@ catalog:
   '@types/node': ^24.10.1
   '@modelcontextprotocol/sdk': ^1.29.0
   tsdown: ^0.22.2
-  # The form engine vendored into design-system/packages/ui, pinned to the
-  # versions this workspace already resolves.
+
+  # Form engine (vendored JSONForms subtree at design-system/packages/ui/src/form). Pinned exact,
+  # and identical in design-system/pnpm-workspace.yaml, so the superproject and the standalone DS
+  # workspace resolve one version each — a floating range drifted them a minor apart. The values
+  # are what packages/client-vue's and packages/headless's ranges resolve to, so the boundary
+  # still resolves a single copy — headless's useValidation() Ajv instance crosses it as a prop.
   '@jsonforms/core': 3.7.0
   '@jsonforms/vue': 3.7.0
   ajv: 8.17.1
+  # Story fixtures only, and a devDependency of @upmind/ui for that reason: the
+  # engine's own ajv usage is type-only and the instance arrives as a prop.
+  # ajv-formats needs no entry — @jsonforms/core carries it and createAjv applies it.
   ajv-errors: 3.0.0
   libphonenumber-js: 1.12.31
   lodash-es: 4.18.1
