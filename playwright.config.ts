@@ -10,6 +10,14 @@ const TEST_PORT = 4000;
 const baseURL =
   process.env.PW_BASE_URL ?? `http://qa-automation.local:${TEST_PORT}/`;
 
+// The standalone auth app gets its own port on the SAME config, so its control
+// runs under the `chrome` project the CI lane names. A separate project would be
+// skipped: the lane invokes `--project=chrome`, so a spec outside that project
+// is filed, discovered by nothing, and proves nothing.
+const AUTH_APP_PORT = 4010;
+export const AUTH_APP_URL =
+  process.env.PW_AUTH_APP_URL ?? `http://qa-automation.local:${AUTH_APP_PORT}/`;
+
 function git(args: string): string | undefined {
   try {
     return execSync(`git ${args}`, { stdio: ["ignore", "pipe", "ignore"] })
@@ -97,17 +105,27 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: {
-    // Invoke vite directly — `pnpm start:test -- --port` leaks a stray `--`
-    // that vite ignores, booting on the 5173 default (see run-e2e.sh).
-    command: `pnpm exec vite --mode test --port ${TEST_PORT} --strictPort`,
-    cwd: "./apps/cart",
-    url: baseURL,
-    // run-e2e.sh owns server lifecycle (frees the port, starts THIS build,
-    // tears it down) in every env, so always reuse the instance it started;
-    // gating on !CI made Playwright throw "port already used" in CI.
-    reuseExistingServer: true
-  },
+  webServer: [
+    {
+      // Invoke vite directly — `pnpm start:test -- --port` leaks a stray `--`
+      // that vite ignores, booting on the 5173 default (see run-e2e.sh).
+      command: `pnpm exec vite --mode test --port ${TEST_PORT} --strictPort`,
+      cwd: "./apps/cart",
+      url: baseURL,
+      // run-e2e.sh owns server lifecycle (frees the port, starts THIS build,
+      // tears it down) in every env, so always reuse the instance it started;
+      // gating on !CI made Playwright throw "port already used" in CI.
+      reuseExistingServer: true
+    },
+    {
+      // Previews the app's own production build, not a dev server: the harm the
+      // auth-app control watches for is a request the built bundle makes.
+      command: `pnpm exec vite build --mode test && pnpm exec vite preview --port ${AUTH_APP_PORT} --host qa-automation.local --strictPort`,
+      cwd: "./apps/auth",
+      url: AUTH_APP_URL,
+      reuseExistingServer: true
+    }
+  ],
 
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */

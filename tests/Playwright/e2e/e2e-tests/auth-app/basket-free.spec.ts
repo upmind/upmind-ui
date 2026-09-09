@@ -37,6 +37,10 @@
 
 import { expect, test } from "@playwright/test";
 
+// The root baseURL is the CART's. This control drives the standalone auth
+// app, which the same config serves on its own port.
+import { AUTH_APP_URL } from "../../../../../playwright.config";
+
 // -----------------------------------------------------------------------------
 
 /** Request paths no auth surface may ask for, whatever code emits them. */
@@ -54,7 +58,9 @@ const OFF_LIMITS = {
  */
 const REACHED_API = /brand\/settings/;
 
-const SURFACES = ["/login", "/register", "/recover", "/signed-in"];
+const SURFACES = ["login", "register", "recover", "signed-in"].map(route =>
+  new URL(route, AUTH_APP_URL).toString()
+);
 
 // -----------------------------------------------------------------------------
 
