@@ -12,14 +12,16 @@
   >
     <template #append>
       <Link v-if="isDomainLike && !validating && !disabled" @click="onClear">
-        <Icon icon="x-close" class="size-5" />
+        <Icon icon="x-close" size="xs" />
       </Link>
+      <!-- all three states share one slot, so they share the size the Link caps at -->
       <Icon
         v-else-if="validating"
         icon="loading-01"
-        class="size-5 animate-spin"
+        size="xs"
+        class="animate-spin"
       />
-      <Icon v-else icon="arrow-right" class="size-5" />
+      <Icon v-else icon="arrow-right" size="xs" />
     </template>
   </Search>
 

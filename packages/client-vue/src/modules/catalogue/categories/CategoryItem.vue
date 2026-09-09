@@ -46,7 +46,7 @@
           </Badge>
           <Icon
             icon="arrow-right"
-            size="sm"
+            size="xs"
             :class="[
               categoriesItemArrowIconVariants(),
               'group-hover:text-(--text-button-link-hover)'
