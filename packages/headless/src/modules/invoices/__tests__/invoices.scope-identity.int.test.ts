@@ -379,7 +379,13 @@ describe("invoices — the retarget survives every published criteria write (AC-
     );
 
     const observed = observeInvoiceRequests();
-    invoices.useActions().sortBy("due_date", SortDirection.DESC);
+    // The table-channel intent shape (`InvoiceSortModel` — an ARRAY of
+    // `{ field, dir }` entries), never the pre-conformance positional
+    // `(field, dir)` arguments — see `invoices.collection.int.test.ts`'s own
+    // negative control for what firing the old shape does instead.
+    invoices
+      .useActions()
+      .sortBy([{ field: "due_date", dir: SortDirection.DESC }]);
     await vi.waitFor(() => expect(observed.all().length).toBeGreaterThan(0));
     observed.stop();
 

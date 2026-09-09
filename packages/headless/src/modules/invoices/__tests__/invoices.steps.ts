@@ -115,6 +115,16 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
     "only the invoices matching every filter I set are returned",
     async world => {
       await settles(() => world.expectMeta({ hasError: false }));
+      await settles(() =>
+        world.expectContext({
+          query: expect.objectContaining({
+            filters: expect.objectContaining({
+              "status.code": expect.objectContaining({ in: ["overdue"] }),
+              "category.slug": expect.objectContaining({ in: ["recurrent"] })
+            })
+          })
+        })
+      );
     }
   );
 
@@ -126,16 +136,27 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
   );
 
   When("I sort my invoice list by due date, newest first", async world => {
-    await world.fire(INVOICES_COVERED_ACTIONS.sortBy, {
-      field: "due_date",
-      dir: "desc"
-    });
+    // The table-channel intent shape (`InvoiceSortModel` — an ARRAY of
+    // `{ field, dir }` entries: `useTableChannel.ts` calls
+    // `actions.sortBy([...intent.sort])`), never a bare `{ field, dir }`
+    // object — firing the bare object was Review blocker B1's own arity gap,
+    // undetected because the Then below asserted only `hasError: false`.
+    await world.fire(INVOICES_COVERED_ACTIONS.sortBy, [
+      { field: "due_date", dir: "desc" }
+    ]);
   });
 
   Then(
     "my invoice list comes back ordered by due date, newest first",
     async world => {
       await settles(() => world.expectMeta({ hasError: false }));
+      await settles(() =>
+        world.expectContext({
+          query: expect.objectContaining({
+            sort: [{ field: "due_date", dir: "desc" }]
+          })
+        })
+      );
     }
   );
 

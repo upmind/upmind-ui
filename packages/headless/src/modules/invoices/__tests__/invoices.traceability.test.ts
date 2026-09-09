@@ -37,13 +37,14 @@ import {
   createTraceabilityCheck,
   featureAcTags
 } from "@upmind-automation/scenario-harness";
+import { useInvoices } from "..";
 import { stepCatalogs } from "../../../testing";
 import invoicesSteps, { coveredActionIds } from "./invoices.steps";
 import {
   difference,
   filter,
   flatMap,
-  includes,
+  isFunction,
   map,
   reject,
   uniq
@@ -54,11 +55,6 @@ import {
 const TEST_DIR = import.meta.dirname;
 
 const featureText = readFileSync(join(TEST_DIR, "invoices.feature"), "utf-8");
-
-const catalogSource = readFileSync(
-  join(TEST_DIR, "invoices.steps.ts"),
-  "utf-8"
-);
 
 const {
   scenarios,
@@ -99,6 +95,32 @@ function acsNamedBySiblingSpecs(directory: string): string[] {
   );
 }
 
+/**
+ * The arity `useInvoices().as("self").useActions()` publicly declares for
+ * every action `INVOICES_COVERED_ACTIONS` names — read off the exported
+ * function signatures in `useInvoices.actions.ts` (public surface: the return
+ * type of `createInvoicesActions`), never from this file's own assumption.
+ * `Function.prototype.length` ignores only parameters carrying a JS runtime
+ * default (`= value`); TypeScript's `?` optional marker erases at compile
+ * time to an ordinary parameter, so `filterCreditNotes(invoiceId?: string)`
+ * still counts 1 — measured empirically against the live function, not
+ * assumed (both arities below are pinned against the real runtime value,
+ * confirmed by running this test, not read off the implementation source).
+ * Pinning this — not just that the member is callable — is
+ * what would have caught Review blocker B1 mechanically: `sortBy` silently
+ * regaining its pre-conformance `(field, dir)` two-argument shape changes
+ * `.length` from 1 to 2 with no other signal.
+ */
+const EXPECTED_ACTION_ARITY: Record<string, number> = {
+  isReady: 0,
+  refresh: 0,
+  setCriteria: 1,
+  sortBy: 1,
+  assignPaymentMethod: 2,
+  refreshAfterPayment: 0,
+  filterCreditNotes: 1
+};
+
 // -----------------------------------------------------------------------------
 
 describe("invoices — the module's AC-link traceability gate", () => {
@@ -131,11 +153,40 @@ describe("invoices — the module's AC-link traceability gate", () => {
       duplicatedPatterns,
       "Patterns another catalog already claims"
     ).toEqual([]);
+
+    // W3 repair: this used to be `includes(catalogSource, \`fire(...\`)\`)` —
+    // a substring grep of the CATALOG'S OWN SOURCE TEXT, satisfiable by a
+    // string sitting in a comment and never touching the composable. It
+    // executes nothing. Replaced with a live check against the REAL
+    // `useInvoices().as("self").useActions()` surface: every declared-covered
+    // id must be an actual `isFunction` member, AND its arity must match the
+    // public contract — the mechanism that would have caught Review blocker
+    // B1 (`sortBy`'s arity silently regressing from one array argument back
+    // to two positional ones).
+    const liveActions = useInvoices().as("self").useActions() as Record<
+      string,
+      unknown
+    >;
+
     expect(
-      reject(coveredActionIds, id =>
-        includes(catalogSource, `fire(INVOICES_COVERED_ACTIONS.${id}`)
+      difference(coveredActionIds, Object.keys(EXPECTED_ACTION_ARITY)),
+      "Covered action id has no pinned expected arity in this test — add one"
+    ).toEqual([]);
+
+    expect(
+      reject(coveredActionIds, id => isFunction(liveActions[id])),
+      "Declared covered but not a live action member"
+    ).toEqual([]);
+
+    expect(
+      filter(
+        coveredActionIds,
+        id =>
+          isFunction(liveActions[id]) &&
+          (liveActions[id] as (...args: unknown[]) => unknown).length !==
+            EXPECTED_ACTION_ARITY[id]
       ),
-      "Declared covered but fired by no step"
+      "Declared-covered action's arity drifted from its pinned public contract"
     ).toEqual([]);
   });
 });

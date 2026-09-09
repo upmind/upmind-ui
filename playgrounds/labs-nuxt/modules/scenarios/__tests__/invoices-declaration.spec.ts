@@ -14,6 +14,23 @@
  * check explicitly: that module's page and catalog disagreed on
  * `"client_email_history"` vs `"client-email-history"`).
  *
+ * KEY PIN (B2, 2026-09-09): `INVOICES_SCENARIO` used to be imported by a deep
+ * cross-package path into `packages/headless/src/modules/invoices/__tests__/`
+ * — a `@workspace/no-cross-package-path-imports` violation, since that file is
+ * private test scaffolding with no published specifier reaching it (it is not
+ * re-exported from `@upmind-automation/headless`'s barrel, and never should
+ * be — it is not production surface). The assertion below now pins the
+ * literal `"invoices"` directly, which `invoices.steps.ts`'s own
+ * `INVOICES_SCENARIO = "invoices"` also hard-codes verbatim.
+ * **This trades a MECHANICAL cross-file drift check for a MANUAL one**: the
+ * two literals can no longer be caught disagreeing at test time the way the
+ * client-email-history incident this file's own docstring names was caught.
+ * If that mechanical pin needs restoring, the durable fix is a published
+ * export both packages may legitimately import (e.g. a shared scenario-key
+ * constants module, or re-exporting the key from headless's own barrel) —
+ * not a deep import into a private test file. Flagged rather than silently
+ * dropped; not this dispatch's call to make unilaterally.
+ *
  * ## What Breaks If These Fail
  * The scenario boots with a column no renderer owns, an action nobody
  * handles, a module identity that matches nothing, or a control claiming a
@@ -37,7 +54,6 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { useInvoices } from "@upmind-automation/headless";
-import { INVOICES_SCENARIO } from "../../../../../packages/headless/src/modules/invoices/__tests__/invoices.steps";
 import declaration from "../useInvoices/invoices.scenario";
 import { every, filter, flatMap, keys, map, reject, some } from "lodash-es";
 import type { ScenarioAction, TableCell } from "../runtime/scenario.types";
@@ -111,9 +127,8 @@ describe("invoices declaration — the declaration draws only what it declares",
 });
 
 describe("invoices declaration — the scenario key and the catalog agree", () => {
-  it("declares key 'invoices', matching the catalog's INVOICES_SCENARIO exactly", () => {
+  it("declares key 'invoices', matching the catalog's INVOICES_SCENARIO literal (see the KEY PIN note above)", () => {
     expect(declaration.key).toBe("invoices");
-    expect(declaration.key).toBe(INVOICES_SCENARIO);
   });
 
   it("tracks 'invoices' under packages/headless/src/modules", () => {

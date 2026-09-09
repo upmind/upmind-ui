@@ -40,7 +40,7 @@
 
 import { describe, expect, it, vi } from "vitest";
 import { useInvoice, useInvoices } from "..";
-import { SortDirection } from "../../query/query.types";
+import { RequestSortDirection, SortDirection } from "../../query/query.types";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   assertClientIdentityTransport,
@@ -111,7 +111,7 @@ describe("invoices collection — reads my own invoices (AC-2)", () => {
     );
   });
 
-  it("AC-2 sortBy() carries the requested field and direction on the outbound request, replacing the default", async () => {
+  it("AC-2 sortBy() reaches the wire as translateQuery emits it, driven through the table-channel's own array intent shape", async () => {
     await seedClientSession();
     installInvoiceHandlers();
 
@@ -121,13 +121,57 @@ describe("invoices collection — reads my own invoices (AC-2)", () => {
     );
 
     const observed = observeInvoiceRequests();
-    invoices.useActions().sortBy("due_date", SortDirection.DESC);
+    // The intent shape a real page sends: `useTableChannel.ts` calls
+    // `actions.sortBy([...intent.sort])` — an ARRAY of `{ field, dir }`
+    // entries (`InvoiceSortModel`), never positional `(field, dir)`
+    // arguments. Driving through this shape, not through whatever arity the
+    // module happens to declare, is what Review blocker B1 found no test did.
+    invoices
+      .useActions()
+      .sortBy([{ field: "due_date", dir: SortDirection.DESC }]);
     await vi.waitFor(() => expect(observed.all().length).toBeGreaterThan(0));
     observed.stop();
 
     expect(decodeURIComponent(observed.last().url)).toContain(
       "order=-due_date"
     );
+    expect(invoices.useInternals().translateQuery().sort).toEqual([
+      RequestSortDirection.DESC,
+      "due_date"
+    ]);
+  });
+
+  it("AC-2 NEGATIVE CONTROL — the pre-conformance two-positional-argument shape (sortBy(field, dir)) never reaches the wire as the requested sort", async () => {
+    // B1's own shape: `invoices.scope-identity.int.test.ts` and this file
+    // both called `sortBy("due_date", SortDirection.DESC)` against the
+    // then-declared `sortBy(field, dir)` two-argument signature, and the
+    // BDD catalog fired the single-object form `{ field, dir }` — neither is
+    // `InvoiceSortModel` (an ARRAY of entries), the shape the public contract
+    // now declares (`useInvoices.actions.ts` — `sortBy(intent: InvoiceSortModel)`).
+    // Firing the pre-conformance shape against the REAL, un-mutated code
+    // proves the read-back above is arity-sensitive: a wrong-shape call is
+    // silently accepted (no throw) but never produces the requested order —
+    // exactly how B1 stayed invisible behind a `hasError: false`-only step.
+    await seedClientSession();
+    installInvoiceHandlers();
+
+    const invoices = useInvoices().as(ScopeActorTypes.CLIENT);
+    await vi.waitFor(() =>
+      expect(invoices.useMeta().isLoading.value).toBe(false)
+    );
+
+    const observed = observeInvoiceRequests();
+    (invoices.useActions().sortBy as (...args: unknown[]) => void)(
+      "due_date",
+      SortDirection.DESC
+    );
+    await new Promise(resolve => setTimeout(resolve, 100));
+    observed.stop();
+
+    const lastUrl = observed.last()
+      ? decodeURIComponent(observed.last().url)
+      : "";
+    expect(lastUrl).not.toContain("order=-due_date");
   });
 
   it("AC-2 pagination exposes the server's page window, and paging forward issues a fresh request", async () => {
