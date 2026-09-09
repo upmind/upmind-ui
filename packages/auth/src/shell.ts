@@ -7,7 +7,11 @@
  * summary may be imported here. Both arrive through `foundation`'s shell socket
  * instead; a host that provides nothing gets the bare template below.
  */
+import { computed } from "vue";
+import { useShellComponents } from "@upmind-automation/foundation";
+import AuthLoadingTemplate from "./templates/AuthLoading.template.vue";
 import { SESSION_TEMPLATE } from "./types";
+import type { Component, ComputedRef } from "vue";
 
 export const AUTH_SHELL = {
   /** Full-page interstitial shown while a resolve/reject navigation is in flight. */
@@ -24,6 +28,21 @@ export const AUTH_SHELL = {
 } as const;
 
 export type AuthShellSlot = (typeof AUTH_SHELL)[keyof typeof AUTH_SHELL];
+
+/**
+ * The interstitial shown while an organism's setup or its resolve navigation is
+ * in flight. It always yields a component: an absent host slot falls through to
+ * this package's own spinner rather than to nothing.
+ */
+export function useAuthLoading(): { component: ComputedRef<Component> } {
+  const shell = useShellComponents();
+
+  return {
+    component: computed(
+      () => shell.resolve(AUTH_SHELL.LOADING) ?? AuthLoadingTemplate
+    )
+  };
+}
 
 export const AUTH_TEMPLATE_SLOT: Record<SESSION_TEMPLATE, AuthShellSlot> = {
   [SESSION_TEMPLATE.SPLIT]: AUTH_SHELL.TEMPLATE_SPLIT,
