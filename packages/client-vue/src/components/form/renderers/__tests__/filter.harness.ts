@@ -23,7 +23,11 @@
 import { mount } from "@vue/test-utils";
 import { defineComponent, h, ref } from "vue";
 import { createI18n } from "vue-i18n";
-import { PAGINATION, SortDirection } from "@upmind-automation/headless";
+import {
+  PAGINATION,
+  SortDirection,
+  useInvoices
+} from "@upmind-automation/headless";
 import action from "@upmind-automation/i18n/core/action-en.json";
 import error from "@upmind-automation/i18n/core/error-en.json";
 import form from "@upmind-automation/i18n/core/form-en.json";
@@ -250,6 +254,25 @@ export const clientEmailHistoryQuery = (): QueryDeclaration => ({
     ]
   } as UISchemaElement
 });
+
+/**
+ * The `invoices` collection's REAL, live-published query declaration — never
+ * transcribed. Unlike `clientEmailQuery`/`clientEmailHistoryQuery` above, this
+ * is pulled straight off `useInvoices().as("self").useContext().schemas.query`
+ * at call time: the module's own public composable surface, not a hand-copied
+ * shape. This is deliberate — a transcription can drift from its source
+ * invisibly (see the PROVENANCE note above); the invoices bar shipped broken
+ * three times behind gates that graded a model or a transcription, never the
+ * module's own live wire shape, so this declaration is sourced the one way
+ * that cannot go stale relative to what the module actually publishes.
+ */
+export const invoicesQuery = (): QueryDeclaration => {
+  const { schemas } = useInvoices().as("self").useContext();
+  return {
+    schema: schemas.query.schema as JsonSchema7,
+    uischema: schemas.query.uischema as UISchemaElement
+  };
+};
 
 /**
  * A two-ended date column and the element that scopes it — the `range` format's

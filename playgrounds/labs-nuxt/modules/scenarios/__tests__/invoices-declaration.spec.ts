@@ -33,12 +33,13 @@
  * radius; nothing outside this file reacts. Reverted, confirmed green again.
  */
 
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import declaration from "../useInvoices/invoices.scenario";
+import { useInvoices } from "@upmind-automation/headless";
 import { INVOICES_SCENARIO } from "../../../../../packages/headless/src/modules/invoices/__tests__/invoices.steps";
-import { every, filter, flatMap, map, reject, some } from "lodash-es";
+import declaration from "../useInvoices/invoices.scenario";
+import { every, filter, flatMap, keys, map, reject, some } from "lodash-es";
 import type { ScenarioAction, TableCell } from "../runtime/scenario.types";
 
 // -----------------------------------------------------------------------------
@@ -73,25 +74,15 @@ const CELL_RENDERERS = new Set([
 ]);
 
 /**
- * The collection's live capability map, as the contract hands it to this
- * seat — `useInvoices().useActions()`'s member names
- * (`docs/sdd/FE-3031/design.md` "The four layers — exact members" +
- * `parity.yaml` R04/H1 citations for `filterConsolidatable`/
- * `filterCreditNotes`). `view` is the documented exception — the detail
- * overlay, never a live member of either composable.
+ * The collection's live capability map — DERIVED off
+ * `useInvoices().as("self").useActions()`'s own member names, never
+ * transcribed. A hand-typed list cannot catch the module LOSING a member
+ * (the standing objection this replaces a hand-typed 10-of-13 list for: it
+ * drifted stale within one commit of `filterBy`/`nextPage`/`prevPage`
+ * landing, and nothing caught it). `view` is the documented exception — the
+ * detail overlay, never a live member of either composable.
  */
-const LIVE_CAPABILITIES = new Set([
-  "destroy",
-  "isReady",
-  "refresh",
-  "invalidate",
-  "setCriteria",
-  "sortBy",
-  "assignPaymentMethod",
-  "refreshAfterPayment",
-  "filterConsolidatable",
-  "filterCreditNotes"
-]);
+const LIVE_CAPABILITIES = new Set(keys(useInvoices().as("self").useActions()));
 
 const NON_CAPABILITY_ACTIONS = new Set(["view"]);
 
@@ -134,6 +125,26 @@ describe("invoices declaration — the scenario key and the catalog agree", () =
 describe("invoices declaration — every non-detail action names a live capability", () => {
   it("declares at least one action", () => {
     expect(allActions().length).toBeGreaterThan(0);
+  });
+
+  it("the derived capability map carries every useActions() member, none lost", () => {
+    expect(LIVE_CAPABILITIES).toEqual(
+      new Set([
+        "assignPaymentMethod",
+        "destroy",
+        "filterBy",
+        "filterConsolidatable",
+        "filterCreditNotes",
+        "invalidate",
+        "isReady",
+        "nextPage",
+        "prevPage",
+        "refresh",
+        "refreshAfterPayment",
+        "setCriteria",
+        "sortBy"
+      ])
+    );
   });
 
   // The central lesson this run's mutant exists to guard against: a control

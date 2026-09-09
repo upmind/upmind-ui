@@ -17,6 +17,7 @@ import { describe, expect, it } from "vitest";
 import {
   clientEmailHistoryQuery,
   clientEmailQuery,
+  invoicesQuery,
   messagesOf,
   mountFilters,
   rangeQuery
@@ -55,7 +56,18 @@ const bars = [
   ["client-email-history", clientEmailHistoryQuery()]
 ] as [string, QueryDeclaration][];
 
-describe.each(bars)("the %s bar's declaration", (_name, declaration) => {
+/**
+ * Every consumer bar, including `invoices` — for the checks that generalise
+ * across any declaration shape. `invoices` is sourced live (`invoicesQuery`),
+ * never transcribed, so this list can never drift from what the module
+ * actually publishes.
+ */
+const allBars = [...bars, ["invoices", invoicesQuery()]] as [
+  string,
+  QueryDeclaration
+][];
+
+describe.each(allBars)("the %s bar's declaration", (_name, declaration) => {
   const elements = () => elementsOf(declaration.uischema);
 
   it("declares every element as a standard Control", () => {
@@ -72,47 +84,89 @@ describe.each(bars)("the %s bar's declaration", (_name, declaration) => {
     ).toEqual([]);
   });
 
+  it("names the bar's own layout rather than a generic one", () => {
+    expect(get(declaration.uischema, "type")).toBe("FilterBar");
+  });
+});
+
+describe.each(bars)(
+  "the %s bar's declaration (single-operator-per-column bars)",
+  (_name, declaration) => {
+    const elements = () => elementsOf(declaration.uischema);
+
+    it("scopes an operator leaf, or the column itself for a two-ended range", () => {
+      const misscoped = filter(elements(), element => {
+        const node = nodeAt(declaration.schema, element.scope as string);
+        const isRange = get(element, "options.format") === "range";
+        return isRange
+          ? size(get(node, "properties")) !== 2
+          : !isEmpty(get(node, "properties"));
+      });
+
+      expect(map(misscoped, "scope")).toEqual([]);
+    });
+
+    it("carries an i18n key and a format on every element", () => {
+      expect(
+        map(
+          filter(
+            elements(),
+            element => !element.i18n || !get(element, "options.format")
+          ),
+          "scope"
+        )
+      ).toEqual([]);
+    });
+  }
+);
+
+describe("the invoices bar's declaration (a range column may also carry eq)", () => {
+  const declaration = invoicesQuery();
+  const elements = () => elementsOf(declaration.uischema);
+
   it("scopes an operator leaf, or the column itself for a two-ended range", () => {
     const misscoped = filter(elements(), element => {
       const node = nodeAt(declaration.schema, element.scope as string);
       const isRange = get(element, "options.format") === "range";
       return isRange
-        ? size(get(node, "properties")) !== 2
+        ? size(get(node, "properties")) < 2
         : !isEmpty(get(node, "properties"));
     });
 
     expect(map(misscoped, "scope")).toEqual([]);
   });
 
-  it("carries an i18n key and a format on every element", () => {
+  it("carries an i18n key on every element", () => {
     expect(
       map(
-        filter(
-          elements(),
-          element => !element.i18n || !get(element, "options.format")
-        ),
+        filter(elements(), element => !element.i18n),
         "scope"
       )
     ).toEqual([]);
   });
-
-  it("names the bar's own layout rather than a generic one", () => {
-    expect(get(declaration.uischema, "type")).toBe("FilterBar");
-  });
 });
 
-describe("every declared element draws a control", () => {
-  it("renders one field per element, none of them empty", async () => {
-    const { wrapper } = await shipped();
+describe.each(allBars)(
+  "every element the %s bar declares draws a control",
+  (_name, declaration) => {
+    it("renders one field per element, none of them empty", async () => {
+      const { wrapper } = await mountFilters(declaration);
 
-    const fields = wrapper.findAll('[data-test-key="form-item"]');
+      const fields = wrapper.findAll('[data-test-key="form-item"]');
 
-    expect(fields).toHaveLength(size(elementsOf(clientEmailQuery().uischema)));
-    expect(
-      every(fields, field => field.findAll("input,button,select").length > 0)
-    ).toBe(true);
-  });
-});
+      expect(fields).toHaveLength(size(elementsOf(declaration.uischema)));
+      expect(
+        every(
+          fields,
+          field =>
+            field.findAll(
+              'input,button,select,[role="checkbox"],[role="radio"]'
+            ).length > 0
+        )
+      ).toBe(true);
+    });
+  }
+);
 
 describe("what a single-ended control writes", () => {
   it("writes its own operator leaf, on its own column only", async () => {

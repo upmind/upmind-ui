@@ -14,20 +14,19 @@ story's verifier named: "The mutant, the proof, and every green gate all
 graded the model rather than the wire, which is precisely why this shipped
 believing it worked."
 
-PROVING ASSERTION EXISTS YET: NO. No committed test in
-`packages/client-vue/src/**/__tests__/` or
-`playgrounds/labs-nuxt/modules/scenarios/__tests__/` yet drives a facet tile
-and reads the WIRE (via `translateQuery`) back (that gate is the prover's,
-named in this story's "Not yours" list — "a gate mounting the invoices bar
-that asserts the wire"). The assertion named above lives today only in the
-developer's own ephemeral driving-proof script used to prove this fix works
-(`mountFilters` from `packages/client-vue/src/components/form/renderers/__tests__/filter.harness.ts`,
-driven against the real, shipped `invoices.schemas.ts` declaration — imported
-directly by absolute path from the scratch script, not transcribed, because
-the script is never committed and carries no lint exposure). When the prover
-lands the permanent gate, this patch attacks its facet-write-reaches-the-wire
-assertion the same way; until then it is proven red against the developer's
-own script, as recorded below.
+PROVING ASSERTION EXISTS YET: YES. The permanent gate is
+`packages/client-vue/src/components/form/renderers/__tests__/invoices-filter-wire.test.ts`
+("driving a facet reaches the wire under its declared dotted column > wires
+status.code|in and category.slug|in for what was actually clicked"). It mounts
+the invoices bar off the module's own LIVE `useInvoices().as("self")
+.useContext().schemas.query` (`invoicesQuery()` in `filter.harness.ts` — never
+transcribed), drives one status tile then one category tile, and asserts
+`translateQuery(schema, model())` carries `filter[status.code|in] =
+"invoice_unpaid"` and `filter[category.slug|in] = "recurrent"`. The sibling
+"FAIRNESS CONTROL" test in the same file drives the non-dotted `number`
+column through the identical mount+drive+translateQuery path and stays GREEN
+under this mutation, which is what pins the failure to the dotted-column
+write path specifically rather than to a broken probe.
 
 Mutation: restores the no-op `handleChange: () => {}` — the whole-selection
 write `onInput` hands off is swallowed entirely, so neither facet's click
@@ -36,14 +35,17 @@ either column.
 
 Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
 
-Proven RED 2026-09-09 (developer's ephemeral driving-proof script, run via
-`npx vitest run --config <scratch-config pointing test.include at the
-developer's proof file>` from `packages/client-vue`; command and full log
-filed in the developer HANDOFF, not committed):
-  x FE-3031 developer wire proof — sequential status then category > drives
-    status then category and reads the model + wire after each
-      -> AssertionError: expected '' to be 'invoice_unpaid,invoice_overdue'
-         (model() was `undefined` — the write never landed at all)
+Proven RED 2026-09-09 (prover seat, blind — applied the patch, ran the
+permanent gate below, confirmed RED, reverted, confirmed GREEN; the source
+line was never read to construct this control):
+`cd packages/client-vue && npx vitest run
+src/components/form/renderers/__tests__/invoices-filter-wire.test.ts`
+  x driving a facet reaches the wire under its declared dotted column > wires
+    status.code|in and category.slug|in for what was actually clicked
+      -> AssertionError: expected '' to be 'invoice_unpaid'
+  (4 of 5 tests in the file stayed green, including the fairness control —
+  only the dotted-column wire assertion flipped, confirming this mutation
+  attacks its own targeted assertion and not the whole file indiscriminately)
 
 --- a/packages/client-vue/src/components/form/engine/renderers/array/StringsRenderer.vue
 +++ b/packages/client-vue/src/components/form/engine/renderers/array/StringsRenderer.vue
