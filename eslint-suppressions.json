@@ -96,6 +96,11 @@
       "count": 1
     }
   },
+  "packages/client-vue/src/components/form/FormModal.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    }
+  },
   "packages/client-vue/src/components/form/renderers/DomainRenderer.vue": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1
@@ -305,11 +310,6 @@
   "packages/foundation/src/modules/forms/Form.vue": {
     "@typescript-eslint/no-explicit-any": {
       "count": 7
-    }
-  },
-  "packages/foundation/src/modules/forms/FormModal.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 8
     }
   },
   "packages/foundation/src/modules/forms/useFormI18n.ts": {

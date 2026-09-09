@@ -11,9 +11,30 @@ import { defineAuthFeature } from "../feature";
 import type { AuthFeatureOptions } from "../feature";
 import { defineNuxtPlugin, useRuntimeConfig } from "#app";
 
+/**
+ * Runtime config is `unknown` at this boundary — it crosses a serialisation
+ * step, so it is read field by field rather than asserted into shape.
+ */
+function readOptions(value: unknown): AuthFeatureOptions {
+  if (typeof value !== "object" || value === null) return {};
+
+  const options: AuthFeatureOptions = {};
+
+  if ("routes" in value && typeof value.routes === "boolean") {
+    options.routes = value.routes;
+  }
+  if ("base" in value && typeof value.base === "string") {
+    options.base = value.base;
+  }
+  if ("returnTarget" in value && typeof value.returnTarget === "boolean") {
+    options.returnTarget = value.returnTarget;
+  }
+
+  return options;
+}
+
 export default defineNuxtPlugin(() => {
-  const options: AuthFeatureOptions =
-    (useRuntimeConfig().public.auth as AuthFeatureOptions | undefined) ?? {};
+  const options = readOptions(useRuntimeConfig().public.auth);
   const { register, install } = useFeatures();
 
   register(defineAuthFeature(options));

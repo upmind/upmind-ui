@@ -6,7 +6,5 @@
  */
 
 export { default as Form } from "./Form.vue";
-export { default as FormModal } from "./FormModal.vue";
 export { useFormI18n } from "./useFormI18n";
 export type { FormI18n } from "./useFormI18n.types";
-export type { FormModalProps } from "./types";

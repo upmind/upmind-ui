@@ -53,8 +53,9 @@ export {
   useShellComponents
 } from "./modules/shell";
 
-// --- The shared presentation glue (ADR 023 §2 admission rule: ≥2 domain
-// packages depend on it and it knows no single domain).
+// --- The shared presentation glue. §2 admission is counted, not asserted: past
+// `auth`, Icon is imported by 12 client-vue modules, Hero by 9, Section by 8 and
+// Back by basket, billing and checkout — each of them a later box.
 
 export { Icon } from "./modules/icon";
 export {
@@ -82,6 +83,7 @@ export type { HeroProps, HeroActionProps } from "./modules/hero";
 export { Back } from "./modules/navigation";
 export type { BackProps } from "./modules/navigation";
 
+// `Sections` is `Section`'s own body, not a second part: Section renders it.
 export { Section, Sections, useSection } from "./modules/section";
 export type {
   SectionItem,
@@ -90,5 +92,5 @@ export type {
   UseSectionProps
 } from "./modules/section";
 
-export { Form, FormModal, useFormI18n } from "./modules/forms";
-export type { FormI18n, FormModalProps } from "./modules/forms";
+export { Form, useFormI18n } from "./modules/forms";
+export type { FormI18n } from "./modules/forms";

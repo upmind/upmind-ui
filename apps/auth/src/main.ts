@@ -29,8 +29,12 @@ void useUpmind.init({
   },
   i18n: {
     instance: i18n,
+    // This app keeps no Localazy-synced pack of its own, so the authored
+    // English source is the pack. A dev build has `headless` globbing the same
+    // files; a production build has only this, and the glob it replaced named
+    // a directory that does not exist.
     files: import.meta.glob<Record<string, string>>(
-      "@/assets/locales/**/*.json",
+      "@upmind-automation/i18n/**/*-en.json",
       { import: "default" }
     )
   },

@@ -1,7 +1,8 @@
-import { createI18n, type I18n } from "vue-i18n";
+import { createI18n } from "vue-i18n";
 import { htmlModifier, markdownModifier } from "@upmind-automation/i18n";
+import type { I18n } from "vue-i18n";
 
-const i18n = createI18n({
+const i18n: I18n = createI18n({
   legacy: false,
   locale: "en",
   fallbackLocale: "en",
@@ -16,4 +17,4 @@ const i18n = createI18n({
   }
 });
 
-export default i18n as I18n;
+export default i18n;

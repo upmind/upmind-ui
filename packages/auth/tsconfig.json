@@ -1,12 +1,11 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "../../tsconfig/vue-package.json",
-  "include": ["src/**/*"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/*.spec.*",
-    "**/*.test.*",
-    "src/nuxt/**"
-  ]
+  "compilerOptions": {
+    "paths": {
+      "#app": ["./node_modules/nuxt/dist/app"]
+    }
+  },
+  "include": ["src/**/*", "nuxt.ts"],
+  "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"]
 }
