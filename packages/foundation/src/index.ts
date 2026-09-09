@@ -83,7 +83,10 @@ export type { HeroProps, HeroActionProps } from "./modules/hero";
 export { Back } from "./modules/navigation";
 export type { BackProps } from "./modules/navigation";
 
-// `Sections` is `Section`'s own body, not a second part: Section renders it.
+// `Sections` earns its place on the barrel as a MULTI-section container, not as
+// `Section`'s body: `client-vue`'s BillingForm builds its tab set out of it, and
+// the same package re-publishes it as `UpmSections` for the labs playground.
+// `auth` takes `Section` alone.
 export { Section, Sections, useSection } from "./modules/section";
 export type {
   SectionItem,
