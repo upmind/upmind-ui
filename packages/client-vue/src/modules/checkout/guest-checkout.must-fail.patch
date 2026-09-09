@@ -1,7 +1,7 @@
-# session.utils.must-fail.patch
+# guest-checkout.must-fail.patch
 #
-# Targets: session.utils.spec.ts — the authentication term of the guest-checkout
-# gate, the clause a merge on this rung dropped.
+# Targets: guest-checkout.utils.spec.ts — the authentication term of the
+# guest-checkout gate, the clause a merge on this rung dropped.
 # Authored by: developer seat (agent-seat-separation.companion.md — the seat that
 # knows the exact line it changed authors the mutant; the prover applies it
 # blind, confirms RED, then reverts — never reading src to construct it).
@@ -25,18 +25,16 @@
 # the problem.
 #
 # Apply / verify / revert:
-#   git apply <this file>                          # mutate
-#   pnpm --filter @upmind-automation/auth test:unit
-#   git apply -R <this file>                       # revert — must return to green
+#   git apply <this file>                                 # mutate
+#   pnpm --filter @upmind-automation/client-vue test:unit
+#   git apply -R <this file>                              # revert — must return to green
 #
---- a/packages/auth/src/session.utils.ts
-+++ b/packages/auth/src/session.utils.ts
-@@ -23,7 +23,7 @@ export function offersGuestCheckout(terms: {
+--- a/packages/client-vue/src/modules/checkout/guest-checkout.utils.ts
++++ b/packages/client-vue/src/modules/checkout/guest-checkout.utils.ts
+@@ -24,5 +24,5 @@ export function offersGuestCheckout(terms: {
    const basketSettled = !terms.isBasketLoading;
    const isOneOffBasket = !terms.hasRecurringProducts;
-
+ 
 -  return isAnonymous && brandAllows && basketSettled && isOneOffBasket;
 +  return brandAllows && basketSettled && isOneOffBasket;
  }
-
- export function useSessionTemplates(template: Ref<SESSION_TEMPLATE>) {

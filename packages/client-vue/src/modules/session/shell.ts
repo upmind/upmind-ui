@@ -4,10 +4,14 @@
  * @description The shell entries this package hands `@upmind-automation/auth`
  * through `foundation`'s shell socket: the seven page templates (Amendment 1
  * change 3 keeps layouts app-owned, and these are still app-side while the
- * shell lives here), the loading interstitial, and the basket-summary aside.
+ * shell lives here), the loading interstitial, the basket-summary aside, and
+ * the guest-checkout offer. The last two are basket/checkout concerns, which
+ * ADR 023 §3 puts ABOVE `auth`: a host with no commerce fills neither slot and
+ * so shows neither, which is why the standalone auth app boots no basket.
  */
 
 import { AUTH_SHELL } from "@upmind-automation/auth";
+import GuestCheckoutOffer from "../checkout/components/GuestCheckoutOffer.vue";
 import Loading from "../system/Loading.vue";
 import SessionSummary from "./components/SessionSummary.vue";
 import SessionCanvasCardTemplate from "./templates/SessionCanvasCard.template.vue";
@@ -22,6 +26,7 @@ import type { ShellComponents } from "@upmind-automation/foundation";
 export const SESSION_SHELL_COMPONENTS: ShellComponents = {
   [AUTH_SHELL.LOADING]: Loading,
   [AUTH_SHELL.SUMMARY]: SessionSummary,
+  [AUTH_SHELL.GUEST_CHECKOUT]: GuestCheckoutOffer,
   [AUTH_SHELL.TEMPLATE_SPLIT]: SessionSplitTemplate,
   [AUTH_SHELL.TEMPLATE_ENCLOSED]: SessionEnclosedTemplate,
   [AUTH_SHELL.TEMPLATE_CANVAS_CARD]: SessionCanvasCardTemplate,

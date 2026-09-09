@@ -65,13 +65,7 @@
 
     <template #summary>
       <slot name="summary">
-        <Section
-          v-if="basketMeta.hasProducts && summaryComponent"
-          :label="t('cart.basket_section')"
-          icon="shopping-bag-02"
-        >
-          <component :is="summaryComponent" />
-        </Section>
+        <component :is="summaryComponent" v-if="summaryComponent" />
       </slot>
     </template>
   </component>
@@ -89,7 +83,6 @@ import {
   useThemeEngine
 } from "@upmind-automation/foundation";
 import {
-  useBasket,
   useRoutingEngine,
   useActiveSession,
   UIContext
@@ -119,7 +112,6 @@ const themeEngine = useThemeEngine();
 
 const { isAuthenticated } = useActiveSession().useMeta();
 const { isReady } = useActiveSession().useActions();
-const { meta: basketMeta } = useBasket();
 const { navigateNext, navigateBack, navigate } = useRoutingEngine();
 
 const { ui } = useConfig({

@@ -34,7 +34,7 @@ export type { AuthRouteName, AuthRoutesOptions } from "./routes";
 export { readReturnTarget, registerAuthFlows } from "./flows";
 
 // --- Export utils
-export { offersGuestCheckout, useSessionTemplates } from "./session.utils";
+export { useSessionTemplates } from "./session.utils";
 
 // --- Export Types
 export * from "./types";

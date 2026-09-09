@@ -80,42 +80,25 @@
             :model-value="registerTemplate.body"
           />
 
-          <Alert
-            v-if="meta.offersGuestCheckout"
-            variant="neutral"
-            :title="t('auth.guest_checkout_qn')"
+          <!-- The offer is commerce policy, so the host fills it: this package
+               contributes the position, the margin and the verb, nothing else. -->
+          <component
+            :is="guestCheckout"
+            v-if="guestCheckout"
             :class="guestCheckoutVariants({ template })"
-          >
-            <template #icon><Icon icon="clock-fast-forward" /></template>
-            <template #action>
-              <Link
-                size="sm"
-                @click="registerAsGuest"
-                color="inherit"
-                :disabled="isRegisteringAsGuest"
-                :data-attrs="{ 'data-test-key': 'guest-checkout-cta' }"
-              >
-                {{ t("auth.guest_checkout_action") }}
-                <Spinner
-                  :label="t('text.loading')"
-                  v-if="isRegisteringAsGuest"
-                  size="xs"
-                  class="m-1.5"
-                />
-                <Icon v-else icon="arrow-right" size="xs" />
-              </Link>
-            </template>
-          </Alert>
+            :register-as-guest="registerAsGuest"
+            :is-registering="isRegisteringAsGuest"
+          />
 
           <Account
             v-if="isGuestClient"
-            v-show="!isLoading && !basketMeta.isLoading"
+            v-show="!isLoading"
             class="rounded-card w-full max-w-5xl items-start"
             @resolve="doResolve"
           />
 
           <Auth
-            v-show="!isLoading && !basketMeta.isLoading"
+            v-show="!isLoading"
             class="rounded-card w-full max-w-5xl items-start"
             no-tabs
             no-header
@@ -124,10 +107,7 @@
             @resolve="doResolve"
           />
 
-          <div
-            v-if="isLoading || basketMeta.isLoading"
-            class="flex w-full max-w-5xl flex-col gap-6"
-          >
+          <div v-if="isLoading" class="flex w-full max-w-5xl flex-col gap-6">
             <div>
               <Skeleton class="h-5 w-24" />
               <Skeleton class="mt-2 h-10 w-full" />
@@ -155,6 +135,7 @@
           >
             <template #[`privacyPolicy`]>
               <Link
+                class="text-muted"
                 href="https://policies.google.com/privacy"
                 target="_blank"
                 size="inherit"
@@ -164,6 +145,7 @@
             </template>
             <template #[`termsOfService`]>
               <Link
+                class="text-muted"
                 href="https://policies.google.com/terms"
                 target="_blank"
                 size="inherit"
@@ -178,15 +160,7 @@
 
     <template v-if="ui.basketSummary.isVisible" #summary>
       <slot name="summary">
-        <Section
-          v-if="
-            (basketMeta.hasProducts || basketMeta.isLoading) && summaryComponent
-          "
-          :label="t('cart.basket_section')"
-          icon="shopping-bag-02"
-        >
-          <component :is="summaryComponent" />
-        </Section>
+        <component :is="summaryComponent" v-if="summaryComponent" />
       </slot>
     </template>
 
@@ -204,14 +178,11 @@
 </template>
 
 <script lang="ts" setup>
-import { Spinner } from "@upmind/ui";
 import { Link, Markdown } from "@upmind/ui";
 import { Skeleton } from "@upmind/ui";
-import { Alert } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { Hero } from "@upmind-automation/foundation";
-import { Icon } from "@upmind-automation/foundation";
 import { Back } from "@upmind-automation/foundation";
 import {
   Section,
@@ -219,7 +190,6 @@ import {
   useThemeEngine
 } from "@upmind-automation/foundation";
 import {
-  useBasket,
   useRoutingEngine,
   useActiveSession,
   useAuth,
@@ -235,7 +205,7 @@ import {
 } from "@upmind-automation/headless";
 import Account from "../components/Account.vue";
 import Auth from "../components/Auth.vue";
-import { offersGuestCheckout, useSessionTemplates } from "../session.utils";
+import { useSessionTemplates } from "../session.utils";
 import { AUTH_SHELL, AUTH_TEMPLATE_SLOT, useAuthLoading } from "../shell";
 import AuthBareTemplate from "../templates/AuthBare.template.vue";
 import {
@@ -267,13 +237,12 @@ const { isAuthenticated, isLoading, isGuestClient } =
 const { isReady } = useActiveSession().useActions();
 
 const auth = useAuth().as(ScopeActorTypes.CLIENT);
-const { canRegisterAsGuest, isRegisteringAsGuest } = auth.useMeta();
+const { isRegisteringAsGuest } = auth.useMeta();
 const authActions = auth.useActions();
 function registerAsGuest() {
   if ("registerAsGuest" in authActions)
     return authActions?.registerAsGuest().then(() => doResolve());
 }
-const { meta: basketMeta } = useBasket();
 const { navigateNext, navigateBack, navigate } = useRoutingEngine();
 const { brandId } = useBrand();
 
@@ -301,13 +270,7 @@ const template = computed(() =>
 );
 
 const meta = computed(() => ({
-  isInset: template.value === SESSION_TEMPLATE.INSET,
-  offersGuestCheckout: offersGuestCheckout({
-    isAuthenticated: isAuthenticated.value,
-    canRegisterAsGuest: canRegisterAsGuest.value,
-    isBasketLoading: basketMeta.value.isLoading,
-    hasRecurringProducts: basketMeta.value.hasRecurringProducts
-  })
+  isInset: template.value === SESSION_TEMPLATE.INSET
 }));
 
 const shell = useShellComponents();
@@ -317,6 +280,7 @@ const templateVariant = computed(
 );
 
 const summaryComponent = computed(() => shell.resolve(AUTH_SHELL.SUMMARY));
+const guestCheckout = computed(() => shell.resolve(AUTH_SHELL.GUEST_CHECKOUT));
 const { component: loading } = useAuthLoading();
 const { meta: templateMeta } = useSessionTemplates(template);
 

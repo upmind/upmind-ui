@@ -36,3 +36,11 @@ export interface CheckoutPricingProps {
 export interface GuestEmailProps {
   disabled?: boolean;
 }
+
+export interface GuestCheckoutOfferProps {
+  /** `auth`'s own verb, handed down the shell socket. */
+  registerAsGuest: () => void;
+  isRegistering?: boolean;
+  /** The host layout's spacing for the offer, computed by whoever renders it. */
+  class?: string;
+}

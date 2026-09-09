@@ -18,6 +18,12 @@ export const AUTH_SHELL = {
   LOADING: "auth:loading",
   /** The basket-summary aside. Lives in `basket`, which sits above this package. */
   SUMMARY: "auth:summary",
+  /**
+   * The guest-checkout offer on the register screen. The brand toggle behind it
+   * is `invoices.guest_checkout.enabled`, so the offer is commerce policy and
+   * lives in checkout; this package keeps only the verb it calls.
+   */
+  GUEST_CHECKOUT: "auth:guest-checkout",
   TEMPLATE_SPLIT: "auth:template:split",
   TEMPLATE_ENCLOSED: "auth:template:enclosed",
   TEMPLATE_CANVAS_CARD: "auth:template:canvas-card",

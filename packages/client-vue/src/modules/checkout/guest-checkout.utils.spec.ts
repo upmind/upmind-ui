@@ -20,7 +20,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { offersGuestCheckout } from "./session.utils";
+import { offersGuestCheckout } from "./guest-checkout.utils";
 
 // -----------------------------------------------------------------------------
 
