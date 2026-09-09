@@ -277,6 +277,19 @@ describe("invoices declaration — the known caveats, encoded honestly", () => {
   it("draws no control named refreshUnpaidAmount — readable in the detail, not pressable", () => {
     const actionNames = map(allActions(), "name");
     expect(actionNames).not.toContain("refreshUnpaidAmount");
+
+    // "Readable in the detail" is now a real, carried claim (2026-09-09
+    // sign-off), not just this test's own comment: the detail declares the
+    // context-sibling channel AND a scoped element reading through it.
+    const detail = declaration.presentation.detail as
+      | { siblings?: string[]; elements: TableCell[] }
+      | undefined;
+    expect(detail?.siblings).toContain("unpaidAmount");
+    expect(
+      some(detail?.elements, element =>
+        String(element.scope).startsWith("#/properties/unpaidAmount/")
+      )
+    ).toBe(true);
   });
 
   // AC-4 (design.md D1 / requirements.md): assigning a SPECIFIC method needs a

@@ -12,7 +12,11 @@
  * ## KNOWN RED — 2026-09-09, prover seat, FE-3031 dispatch
  * Two genuine harness defects in `forced-surface.harness.ts` are fixed as of
  * this dispatch and verified NOT to regress any of the other seven
- * `forced-surface.*.spec.ts` files (42/42 still green):
+ * `forced-surface.*.spec.ts` files (39/39 still green — the other seven
+ * files' own total; this file's own 5 tests, 3 of them the STILL RED cells
+ * below, are counted separately and are not part of that 39. Corrected
+ * 2026-09-09 read-back: this previously read "42/42", which folded this
+ * file's own 3 reds into the sibling count it was disclosing.):
  *   1. `witness()` matched the ALWAYS-rendered filter-bar chrome (an
  *      untranslated multi-select option renders its raw i18n key, e.g.
  *      `invoices.filter_option.status.invoice_paid`, which contains the
@@ -37,6 +41,17 @@
  * tracked issue exists (this dispatch had no issue-tracker write access to
  * open one, so quarantining here would have been an uncited/fabricated
  * issue id — worse than an honest red).
+ *
+ * ATTRIBUTION, re-checked 2026-09-09 (prover, FE-3031 read-back): re-run
+ * against the SAME SHA / harness / `runtime/force/**`,
+ * `forced-surface.client-phone.spec.ts` is 6/6 GREEN, including its own
+ * "Live draws this module's own recorded records" cell — so `runtime/
+ * force/**` genuinely replays a real corpus for at least one module. The
+ * `notices`/`siblings` wiring this dispatch landed does not touch
+ * `runtime/force/**` and does NOT clear these three cells (re-run above,
+ * still the same 3 red). CORRECTED: the zero-row outcome is
+ * INVOICES-SPECIFIC and remains UN-ROOT-CAUSED, not a shared-infrastructure
+ * defect — read the NEEDS OPERATOR DISPOSITION above against that premise.
  */
 
 import declaration from "../../../useInvoices/invoices.scenario";
