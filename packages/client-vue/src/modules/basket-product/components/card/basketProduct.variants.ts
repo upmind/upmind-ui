@@ -52,7 +52,6 @@ export const productSummaryFooterTermsRootVariants = cva(
 export const productSummaryFooterTermsControlsVariants = cva(
   "flex items-center gap-2"
 );
-export const productSummaryFooterTermsContentVariants = cva("max-h-74!");
 export const productSummaryFooterRemoveVariants = cva(
   "p-2 [&>span>i>svg]:size-4"
 );
