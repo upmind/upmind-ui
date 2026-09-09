@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts b/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts
+index 5fc109964..683458687 100644
+--- a/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts
++++ b/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts
+@@ -112,7 +112,7 @@ function resolveClientId(scopeContext?: ScopeContext) {
+   return computed(() =>
+     scopeContext?.type === ClientBillingSettingsContextTypes.SETTINGS
+       ? scopeContext.id
+-      : activeUser.value?.id
++      : undefined
+   );
+ }
+
