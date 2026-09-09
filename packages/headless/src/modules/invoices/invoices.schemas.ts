@@ -33,28 +33,37 @@ import type { ControlElement, UISchemaElement } from "@jsonforms/core";
  * The `status.code` column's WHOLE offerable vocabulary — every
  * {@link InvoiceStatus} member plus the {@link CreditNoteStatus} pair the
  * column is widened to admit for AC7 (`design.md` "Filter columns"). Derived
- * from the enums' own values, never hand-typed, so no member is
- * re-declared; `title` reuses each value as its own i18n-key suffix
- * (`invoices.filter_option.status.<value>`), consistent with this file's
- * `title`-is-an-i18n-key convention throughout.
+ * from the enums' own values, never hand-typed, so no member is re-declared.
+ *
+ * Each entry carries its full i18n key on `i18n`, not on `title`: JSONForms'
+ * `oneOfToEnumOptionMapper` (`@jsonforms/core` `src/mappers/renderer.ts`)
+ * "prefers schema keys as more specialized" and, when an entry carries `i18n`,
+ * translates it VERBATIM — no prefix concatenation. `title` alone (this
+ * file's earlier convention) falls into the mapper's OTHER branch, which
+ * treats `title` as a bare label and prefixes it with the *element's* own
+ * `i18n` (`invoices.filter_bar.status`), composing the unresolvable
+ * `invoices.filter_bar.status.invoices.filter_option.status.<value>`. `title`
+ * is kept, unchanged, as the untranslated fallback text `t(key, title)` shows
+ * before the catalogue carries the key — the house convention of a raw i18n
+ * key rendering pre-catalogue.
  */
 const STATUS_VOCABULARY = [
   ...Object.values(InvoiceStatus),
   ...Object.values(CreditNoteStatus)
-].map(code => ({
-  const: code,
-  title: `invoices.filter_option.status.${code}`
-}));
+].map(code => {
+  const i18n = `invoices.filter_option.status.${code}`;
+  return { const: code, title: i18n, i18n };
+});
 
 /**
  * The `category.slug` column's WHOLE offerable vocabulary — every
  * {@link InvoiceCategoryCode} member (`design.md` "Filter columns"), derived
- * the same way as {@link STATUS_VOCABULARY}.
+ * and keyed the same way as {@link STATUS_VOCABULARY}.
  */
-const CATEGORY_VOCABULARY = Object.values(InvoiceCategoryCode).map(code => ({
-  const: code,
-  title: `invoices.filter_option.category.${code}`
-}));
+const CATEGORY_VOCABULARY = Object.values(InvoiceCategoryCode).map(code => {
+  const i18n = `invoices.filter_option.category.${code}`;
+  return { const: code, title: i18n, i18n };
+});
 
 /**
  * The criteria-subversion law: this schema owns ALL request state, and
